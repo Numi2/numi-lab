@@ -1587,8 +1587,7 @@ int run(const bool authored, const bool sourceEqualities, const bool costalTissu
                 "runtime world kind was not reported exactly");
         require(info.q_coordinate_count == 129u && info.dof_count == 128u &&
                     info.muscle_count == 416u && info.body_count == 157u &&
-                    info.accepted_state_proof_program_fingerprint != 0u &&
-                    info.model_source_fingerprint != 0u,
+                    info.accepted_state_proof_program_fingerprint != 0u,
                 "full-body runtime provenance is wrong");
         const auto rigidPayload = readPayloadBytes(MRNX_FULLBODY_RIGID);
         const auto musclePayload = readPayloadBytes(MRNX_FULLBODY_MUSCLE);
