@@ -160,6 +160,12 @@ struct MetalNumanXHumanMatterConfig {
     // it emits an invalid record, the prepared token stays exactly zero and
     // the later ACK-gated apply must reject and restore the transaction.
     MetalNumanXHumanMatterStateProofProgram stateProofProgram{};
+    // Optional same-command-buffer observer. A successful root invokes it in
+    // strict beginStep, preDynamics, postDynamics order. The preDynamics call
+    // occurs after Matter has encoded the staged reaction and before the Human
+    // owner consumes that reaction into its generalized-force arena; the
+    // postDynamics call occurs after prepared-state reconciliation. Returning
+    // false cancels the borrowed transaction fail-closed.
     void* candidateObserverContext = nullptr;
     MetalNumanXHumanMatterObserveCandidate observeCandidate = nullptr;
 

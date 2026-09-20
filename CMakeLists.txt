@@ -1030,6 +1030,8 @@ add_library(
     src/core/NumiHumanInitialState.cpp
     src/core/NumiHumanRuntimeIdentity.cpp
     src/core/NumanXExactTransaction.cpp
+    src/core/NumiHumanProductionOwnerEvidenceWriter.cpp
+    src/core/NumiHumanProductionOwnerSnapshot.cpp
     src/core/HumanBehaviorProgram.cpp
     src/core/NumiHumanTensionNetwork.cpp
     src/core/NumiHumanTendon.cpp
@@ -3798,7 +3800,83 @@ set_target_properties(
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
 )
 
+add_executable(
+    metalrobo_numanx_production_owner_snapshot_test
+    tests/numi_human_production_owner_snapshot_test.cpp
+    src/core/NumiHumanProductionOwnerSnapshot.cpp
+)
+target_compile_features(
+    metalrobo_numanx_production_owner_snapshot_test
+    PRIVATE cxx_std_20
+)
+target_compile_options(
+    metalrobo_numanx_production_owner_snapshot_test
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_include_directories(
+    metalrobo_numanx_production_owner_snapshot_test
+    PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/include"
+        "${CMAKE_CURRENT_SOURCE_DIR}/matter/include"
+)
+set_target_properties(
+    metalrobo_numanx_production_owner_snapshot_test
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
+add_executable(
+    metalrobo_numanx_production_owner_evidence_writer_test
+    tests/numi_human_production_owner_evidence_writer_test.cpp
+    src/core/NumiHumanProductionOwnerEvidenceWriter.cpp
+)
+target_compile_features(
+    metalrobo_numanx_production_owner_evidence_writer_test
+    PRIVATE cxx_std_20
+)
+target_compile_options(
+    metalrobo_numanx_production_owner_evidence_writer_test
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_include_directories(
+    metalrobo_numanx_production_owner_evidence_writer_test
+    PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/include"
+)
+set_target_properties(
+    metalrobo_numanx_production_owner_evidence_writer_test
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
 if(BUILD_TESTING)
+    add_test(
+        NAME numanx.contract.production_owner_evidence_writer_cpu
+        COMMAND
+            $<TARGET_FILE:metalrobo_numanx_production_owner_evidence_writer_test>
+    )
+    set_tests_properties(
+        numanx.contract.production_owner_evidence_writer_cpu
+        PROPERTIES LABELS "numanx;human;contract;cpu"
+    )
+    add_test(
+        NAME numanx.contract.production_owner_snapshot_cpu
+        COMMAND $<TARGET_FILE:metalrobo_numanx_production_owner_snapshot_test>
+    )
+    set_tests_properties(
+        numanx.contract.production_owner_snapshot_cpu
+        PROPERTIES LABELS "numanx;human;contract;cpu"
+    )
     add_test(
         NAME numanx.contract.exact_request_v3_cpu
         COMMAND $<TARGET_FILE:metalrobo_numanx_exact_request_v3_contract_test>
