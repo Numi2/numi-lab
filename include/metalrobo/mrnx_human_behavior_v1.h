@@ -36,6 +36,11 @@ extern "C" {
 #define MRNX_BEHAVIOR_TRACE_EVIDENCE_BIOLOGICAL_V1 (1u << 6u)
 #define MRNX_BEHAVIOR_TRACE_EVIDENCE_PERFORMANCE_V1 (1u << 7u)
 #define MRNX_BEHAVIOR_TRACE_EVIDENCE_PRODUCTION_V1 (1u << 8u)
+#define MRNX_BEHAVIOR_TRACE_STATE_COMPONENT_SENSOR_V1 (1u << 0u)
+#define MRNX_BEHAVIOR_TRACE_STATE_COMPONENT_PUBLICATION_V1 (1u << 1u)
+#define MRNX_BEHAVIOR_TRACE_STATE_COMPONENT_COMPLETE_MASK_V1 \
+    (MRNX_BEHAVIOR_TRACE_STATE_COMPONENT_SENSOR_V1 | \
+     MRNX_BEHAVIOR_TRACE_STATE_COMPONENT_PUBLICATION_V1)
 
 typedef struct mrnx_behavior_trace_config_v1 {
     uint32_t abi_version;
@@ -91,6 +96,45 @@ typedef struct MRNX_BEHAVIOR_ALIGN16 mrnx_behavior_trace_record_v1 {
     uint64_t previous_record_fingerprint;
     uint64_t record_fingerprint;
 } mrnx_behavior_trace_record_v1;
+
+// Optional owner-produced cryptographic state components for one terminal
+// attempt. A covered component has every corresponding digest populated; an
+// uncovered component has all of its digest bytes zero. Rejected attempts must
+// preserve before/after sensor and publication digests. These component
+// digests remain partial evidence and do not make ACCEPTED_ROOT_PROOF available.
+typedef struct MRNX_BEHAVIOR_ALIGN16 mrnx_behavior_trace_state_component_bundle_v1 {
+    uint32_t abi_version;
+    uint32_t struct_size;
+    uint32_t covered_mask;
+    uint32_t reserved0;
+    uint64_t attempt_index;
+    uint64_t transaction_fingerprint;
+    uint8_t before_sensor_sha256[32];
+    uint8_t candidate_sensor_sha256[32];
+    uint8_t after_sensor_sha256[32];
+    uint8_t before_publication_sha256[32];
+    uint8_t after_publication_sha256[32];
+} mrnx_behavior_trace_state_component_bundle_v1;
+
+// One companion for exactly one mrnx_behavior_trace_record_v1 returned by the
+// same atomic drain. The first previous_record_sha256 is all zero; each later
+// value is the preceding companion's record_sha256. record_sha256 is SHA-256
+// over this record through (and including) previous_record_sha256.
+typedef struct MRNX_BEHAVIOR_ALIGN16 mrnx_behavior_trace_state_component_record_v1 {
+    uint32_t abi_version;
+    uint32_t struct_size;
+    uint32_t covered_mask;
+    uint32_t disposition;
+    uint64_t attempt_index;
+    uint64_t transaction_fingerprint;
+    uint8_t before_sensor_sha256[32];
+    uint8_t candidate_sensor_sha256[32];
+    uint8_t after_sensor_sha256[32];
+    uint8_t before_publication_sha256[32];
+    uint8_t after_publication_sha256[32];
+    uint8_t previous_record_sha256[32];
+    uint8_t record_sha256[32];
+} mrnx_behavior_trace_state_component_record_v1;
 
 typedef struct MRNX_BEHAVIOR_ALIGN16 mrnx_behavior_trace_chunk_v1 {
     uint32_t abi_version;
@@ -171,6 +215,16 @@ static_assert(sizeof(mrnx_behavior_trace_config_v1) == 32u);
 static_assert(sizeof(mrnx_behavior_trace_record_v1) == 272u);
 static_assert(alignof(mrnx_behavior_trace_record_v1) == 16u);
 static_assert(offsetof(mrnx_behavior_trace_record_v1, record_fingerprint) == 264u);
+static_assert(sizeof(mrnx_behavior_trace_state_component_bundle_v1) == 192u);
+static_assert(alignof(mrnx_behavior_trace_state_component_bundle_v1) == 16u);
+static_assert(offsetof(mrnx_behavior_trace_state_component_bundle_v1,
+                       before_sensor_sha256) == 32u);
+static_assert(sizeof(mrnx_behavior_trace_state_component_record_v1) == 256u);
+static_assert(alignof(mrnx_behavior_trace_state_component_record_v1) == 16u);
+static_assert(offsetof(mrnx_behavior_trace_state_component_record_v1,
+                       previous_record_sha256) == 192u);
+static_assert(offsetof(mrnx_behavior_trace_state_component_record_v1,
+                       record_sha256) == 224u);
 static_assert(sizeof(mrnx_behavior_trace_chunk_v1) == 208u);
 static_assert(alignof(mrnx_behavior_trace_chunk_v1) == 16u);
 static_assert(sizeof(mrnx_behavior_trace_terminal_request_v1) == 32u);
@@ -186,6 +240,23 @@ _Static_assert(_Alignof(mrnx_behavior_trace_record_v1) == 16u,
                "mrnx_behavior_trace_record_v1 alignment");
 _Static_assert(offsetof(mrnx_behavior_trace_record_v1, record_fingerprint) == 264u,
                "mrnx_behavior_trace_record_v1 fingerprint offset");
+_Static_assert(sizeof(mrnx_behavior_trace_state_component_bundle_v1) == 192u,
+               "mrnx_behavior_trace_state_component_bundle_v1 ABI");
+_Static_assert(_Alignof(mrnx_behavior_trace_state_component_bundle_v1) == 16u,
+               "mrnx_behavior_trace_state_component_bundle_v1 alignment");
+_Static_assert(offsetof(mrnx_behavior_trace_state_component_bundle_v1,
+                        before_sensor_sha256) == 32u,
+               "mrnx_behavior_trace_state_component_bundle_v1 digest offset");
+_Static_assert(sizeof(mrnx_behavior_trace_state_component_record_v1) == 256u,
+               "mrnx_behavior_trace_state_component_record_v1 ABI");
+_Static_assert(_Alignof(mrnx_behavior_trace_state_component_record_v1) == 16u,
+               "mrnx_behavior_trace_state_component_record_v1 alignment");
+_Static_assert(offsetof(mrnx_behavior_trace_state_component_record_v1,
+                        previous_record_sha256) == 192u,
+               "mrnx_behavior_trace_state_component_record_v1 chain offset");
+_Static_assert(offsetof(mrnx_behavior_trace_state_component_record_v1,
+                        record_sha256) == 224u,
+               "mrnx_behavior_trace_state_component_record_v1 digest offset");
 _Static_assert(sizeof(mrnx_behavior_trace_chunk_v1) == 208u,
                "mrnx_behavior_trace_chunk_v1 ABI");
 _Static_assert(_Alignof(mrnx_behavior_trace_chunk_v1) == 16u,
@@ -220,6 +291,14 @@ MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_runtime_behavior_trace_attach(
 MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_runtime_behavior_trace_drain(
     mrnx_runtime_v1* runtime,mrnx_behavior_trace_chunk_v1* chunk,
     mrnx_behavior_trace_record_v1* records,uint32_t record_capacity);
+// Atomic companion drain. Every returned core record has exactly one
+// state-component record at the same index; failure leaves both outputs and
+// the owner page unchanged.
+MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_runtime_behavior_trace_state_component_drain(
+    mrnx_runtime_v1* runtime,mrnx_behavior_trace_chunk_v1* chunk,
+    mrnx_behavior_trace_record_v1* records,
+    mrnx_behavior_trace_state_component_record_v1* state_components,
+    uint32_t record_capacity);
 
 // Finalization is idempotent for an identical request and closes this runtime
 // to further physical-root admission so the terminal record cannot go stale.

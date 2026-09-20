@@ -94,10 +94,24 @@ public:
         const MRNumanXHumanMatterJointPublicationFenceGPU* fence,
         const HumanBehaviorTraceAttemptContext* trace,
         std::string& error) noexcept;
+    // State-component bundles are copied from their authoritative owners and
+    // remain a partial companion stream. They never promote the trace's
+    // accepted-root-proof evidence flag.
+    [[nodiscard]] bool terminal(const MRHumanBehaviorReleaseGPU& release,
+        const MRNumanXHumanMatterJointPublicationFenceGPU* fence,
+        const HumanBehaviorTraceAttemptContext* trace,
+        const mrnx_behavior_trace_state_component_bundle_v1& stateComponents,
+        std::string& error) noexcept;
     [[nodiscard]] bool traceAttach(const mrnx_behavior_trace_config_v1& config,
         const HumanBehaviorTraceBinding& binding, std::string& error) noexcept;
     [[nodiscard]] bool traceDrain(mrnx_behavior_trace_chunk_v1& chunk,
         std::span<mrnx_behavior_trace_record_v1> records,
+        std::string& error) noexcept;
+    // Core and component records are validated and returned together. A
+    // failure mutates neither output nor the internal drain window.
+    [[nodiscard]] bool traceDrain(mrnx_behavior_trace_chunk_v1& chunk,
+        std::span<mrnx_behavior_trace_record_v1> records,
+        std::span<mrnx_behavior_trace_state_component_record_v1> stateComponents,
         std::string& error) noexcept;
     [[nodiscard]] bool traceFinalize(
         const mrnx_behavior_trace_terminal_request_v1& request,
@@ -117,6 +131,16 @@ public:
     [[nodiscard]] std::uint64_t completedAttempts() const noexcept;
     [[nodiscard]] bool initialObservationEncoded() const noexcept;
 private:
+    [[nodiscard]] bool terminalImpl(const MRHumanBehaviorReleaseGPU& release,
+        const MRNumanXHumanMatterJointPublicationFenceGPU* fence,
+        const HumanBehaviorTraceAttemptContext* trace,
+        const mrnx_behavior_trace_state_component_bundle_v1* stateComponents,
+        std::string& error) noexcept;
+    [[nodiscard]] bool traceDrainImpl(mrnx_behavior_trace_chunk_v1& chunk,
+        std::span<mrnx_behavior_trace_record_v1> records,
+        std::span<mrnx_behavior_trace_state_component_record_v1> stateComponents,
+        bool requireStateComponents,
+        std::string& error) noexcept;
     struct State; std::unique_ptr<State> state_;
 };
 } // namespace metalrobo

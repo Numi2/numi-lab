@@ -12,6 +12,7 @@
 #include "metalrobo/MetalNeuronCulture.hpp"
 #include "metalrobo/MetalHumanBehaviorTelemetry.hpp"
 #include "metalrobo/HumanBehaviorNativeAudit.hpp"
+#include "metalrobo/HumanBehaviorStateComponents.hpp"
 #include "metalrobo/mrnx_human_behavior_v1.h"
 #include "metalrobo/MetalNumanXHumanMatter.hpp"
 #include "metalrobo/NeuronCultureArtifacts.hpp"
@@ -1727,6 +1728,28 @@ struct OwnerSnapshotCapture {
     bool postDynamicsEncoded = false;
 };
 
+constexpr std::array<std::uint32_t, 7u> kBehaviorSensorModalities{
+    MRNX_CANDIDATE_MODALITY_VISION_V1,
+    MRNX_CANDIDATE_MODALITY_AUDITION_V1,
+    MRNX_CANDIDATE_MODALITY_TOUCH_V1,
+    MRNX_CANDIDATE_MODALITY_PROPRIOCEPTION_V1,
+    MRNX_CANDIDATE_MODALITY_VESTIBULAR_V1,
+    MRNX_CANDIDATE_MODALITY_INTEROCEPTION_V1,
+    MRNX_CANDIDATE_MODALITY_KINESTHESIA_V1,
+};
+
+struct BehaviorSensorCaptureRange {
+    std::uint64_t offset = 0u;
+    std::uint64_t byteCount = 0u;
+};
+
+struct BehaviorSensorCapture {
+    __strong id<MTLBuffer> buffer = nil;
+    std::array<BehaviorSensorCaptureRange, 7u> values{};
+    std::array<BehaviorSensorCaptureRange, 7u> validity{};
+    bool encoded = false;
+};
+
 struct ActiveRoot final : std::enable_shared_from_this<ActiveRoot> {
     RuntimeState* runtime = nullptr;
     std::mutex mutex;
@@ -1782,6 +1805,16 @@ struct ActiveRoot final : std::enable_shared_from_this<ActiveRoot> {
     // Optional bounded evidence copy. It owns no simulation state and is read
     // only after the enclosing prepared root reaches a terminal disposition.
     std::optional<OwnerSnapshotCapture> ownerSnapshotCapture;
+    // Exact candidate sensor bytes are device-private. When the bounded
+    // behavior trace is attached, this shared observer copy is populated on
+    // the original producing command buffer and read only after completion.
+    std::optional<BehaviorSensorCapture> behaviorSensorCapture;
+    metalrobo::HumanBehaviorStateDigest
+        behaviorBeforeSensorStateSHA256{};
+    metalrobo::HumanBehaviorStateDigest
+        behaviorBeforePublicationStateSHA256{};
+    metalrobo::HumanBehaviorStateDigest
+        behaviorCandidateSensorStateSHA256{};
     __strong id<MTLBuffer> kinesthesia = nil;
     __strong id<MTLBuffer> kinesthesiaValidity = nil;
     __strong id<MTLBuffer> vestibular = nil;
@@ -1894,6 +1927,11 @@ struct RuntimeState final : std::enable_shared_from_this<RuntimeState> {
     bool behaviorTraceTerminalCached = false;
     mrnx_behavior_trace_terminal_request_v1 behaviorTraceTerminalRequest{};
     mrnx_behavior_trace_terminal_v1 behaviorTraceTerminal{};
+    bool behaviorStateComponentsInitialized = false;
+    metalrobo::HumanBehaviorStateDigest
+        behaviorAcceptedSensorStateSHA256{};
+    metalrobo::HumanBehaviorStateDigest
+        behaviorAcceptedPublicationStateSHA256{};
     std::unique_ptr<numi::matter::Runtime> matter;
     std::unique_ptr<metalrobo::MetalNumanXHumanMatterContext> adapter;
     std::unique_ptr<metalrobo::MetalNumanXHumanIOContext> humanIO;
@@ -2517,6 +2555,151 @@ void cultureCompletion(
         active->audition != nil && active->auditionValidity != nil &&
         active->vision != nil && active->visionValidity != nil &&
         active->touch != nil && active->touchValidity != nil;
+}
+
+[[nodiscard]] bool allocateBehaviorSensorCapture(
+    const std::shared_ptr<RuntimeState>& runtime,
+    const std::shared_ptr<ActiveRoot>& active
+) noexcept {
+    if (runtime == nullptr || active == nullptr || !active->exactFamily ||
+        !active->exactHumanIO.valid()) {
+        return false;
+    }
+    bool captureRequired = false;
+    {
+        const std::lock_guard lock(runtime->mutex);
+        captureRequired = runtime->behavior != nullptr &&
+            runtime->behavior->traceAttached();
+        if (captureRequired &&
+            (!runtime->behaviorStateComponentsInitialized ||
+             !metalrobo::humanBehaviorStateDigestPresent(
+                 active->behaviorBeforeSensorStateSHA256) ||
+             !metalrobo::humanBehaviorStateDigestPresent(
+                 active->behaviorBeforePublicationStateSHA256))) {
+            return false;
+        }
+    }
+    if (!captureRequired) return true;
+
+    __unsafe_unretained id<MTLBuffer> proprioception =
+        (__bridge id<MTLBuffer>)active->exactHumanIO.sensor.
+            proprioceptionMetalBuffer;
+    __unsafe_unretained id<MTLBuffer> proprioceptionValidity =
+        (__bridge id<MTLBuffer>)active->exactHumanIO.sensor.
+            validityMetalBuffer;
+    __unsafe_unretained id<MTLBuffer> interoception =
+        (__bridge id<MTLBuffer>)active->exactHumanIO.sensor.
+            interoceptionMetalBuffer;
+    __unsafe_unretained id<MTLBuffer> interoceptionValidity =
+        (__bridge id<MTLBuffer>)active->exactHumanIO.sensor.
+            interoceptionValidityMetalBuffer;
+    struct Source {
+        __unsafe_unretained id<MTLBuffer> buffer = nil;
+        std::uint64_t byteCount = 0u;
+        std::uint64_t expectedGPUAddress = 0u;
+    };
+    const std::array<Source, 7u> valueSources{{
+        {active->vision, active->vision.length,
+            active->vision.gpuAddress},
+        {active->audition, active->audition.length,
+            active->audition.gpuAddress},
+        {active->touch, active->touch.length,
+            active->touch.gpuAddress},
+        {proprioception,
+            active->exactHumanIO.sensor.proprioceptionByteCount,
+            active->exactHumanIO.sensor.proprioceptionGPUAddress},
+        {active->vestibular, active->vestibular.length,
+            active->vestibular.gpuAddress},
+        {interoception,
+            active->exactHumanIO.sensor.interoceptionByteCount,
+            active->exactHumanIO.sensor.interoceptionGPUAddress},
+        {active->kinesthesia, active->kinesthesia.length,
+            active->kinesthesia.gpuAddress},
+    }};
+    const std::array<Source, 7u> validitySources{{
+        {active->visionValidity, active->visionValidity.length,
+            active->visionValidity.gpuAddress},
+        {active->auditionValidity, active->auditionValidity.length,
+            active->auditionValidity.gpuAddress},
+        {active->touchValidity, active->touchValidity.length,
+            active->touchValidity.gpuAddress},
+        {proprioceptionValidity,
+            active->exactHumanIO.sensor.validityByteCount,
+            active->exactHumanIO.sensor.validityGPUAddress},
+        {active->vestibularValidity, active->vestibularValidity.length,
+            active->vestibularValidity.gpuAddress},
+        {interoceptionValidity,
+            active->exactHumanIO.sensor.interoceptionValidityByteCount,
+            active->exactHumanIO.sensor.interoceptionValidityGPUAddress},
+        {active->kinesthesiaValidity, active->kinesthesiaValidity.length,
+            active->kinesthesiaValidity.gpuAddress},
+    }};
+    for (const auto& source : valueSources) {
+        if (source.buffer == nil || source.buffer.device != runtime->device ||
+            source.buffer.storageMode != MTLStorageModePrivate ||
+            source.byteCount == 0u ||
+            source.byteCount > source.buffer.length ||
+            source.expectedGPUAddress == 0u ||
+            source.buffer.gpuAddress != source.expectedGPUAddress) {
+            return false;
+        }
+    }
+    for (const auto& source : validitySources) {
+        if (source.buffer == nil || source.buffer.device != runtime->device ||
+            source.buffer.storageMode != MTLStorageModePrivate ||
+            source.byteCount == 0u ||
+            source.byteCount > source.buffer.length ||
+            source.expectedGPUAddress == 0u ||
+            source.buffer.gpuAddress != source.expectedGPUAddress) {
+            return false;
+        }
+    }
+
+    BehaviorSensorCapture capture;
+    std::uint64_t cursor = 0u;
+    const auto reserve = [&cursor](
+        const std::uint64_t bytes,
+        BehaviorSensorCaptureRange& range
+    ) noexcept {
+        if (bytes == 0u ||
+            cursor > std::numeric_limits<std::uint64_t>::max() - 15u) {
+            return false;
+        }
+        cursor = (cursor + 15u) & ~std::uint64_t{15u};
+        range.offset = cursor;
+        range.byteCount = bytes;
+        if (bytes > std::numeric_limits<std::uint64_t>::max() - cursor) {
+            return false;
+        }
+        cursor += bytes;
+        return true;
+    };
+    for (std::size_t index = 0u; index < valueSources.size(); ++index) {
+        if (!reserve(valueSources[index].byteCount, capture.values[index]) ||
+            !reserve(validitySources[index].byteCount,
+                capture.validity[index])) {
+            return false;
+        }
+    }
+    if (cursor == 0u || cursor > std::numeric_limits<NSUInteger>::max()) {
+        return false;
+    }
+    capture.buffer = [runtime->device
+        newBufferWithLength:static_cast<NSUInteger>(cursor)
+        options:MTLResourceStorageModeShared];
+    if (capture.buffer == nil || capture.buffer.device != runtime->device ||
+        capture.buffer.storageMode != MTLStorageModeShared ||
+        capture.buffer.gpuAddress == 0u ||
+        capture.buffer.contents == nullptr ||
+        capture.buffer.length != cursor) {
+        return false;
+    }
+    capture.buffer.label =
+        @"NumanX behavior sensor SHA-256 observer capture";
+    std::memset(
+        capture.buffer.contents, 0, static_cast<std::size_t>(cursor));
+    active->behaviorSensorCapture.emplace(std::move(capture));
+    return true;
 }
 
 [[nodiscard]] std::shared_ptr<RuntimeState> createRuntimeState(
@@ -3746,6 +3929,21 @@ void fillRuntimeInfoFailure(
             root.committedTimestampNanoseconds;
         result->basePublicationFingerprint =
             runtime->exactAggregate.publication.publication_fingerprint;
+        if (runtime->behavior != nullptr &&
+            runtime->behavior->traceAttached()) {
+            if (!runtime->behaviorStateComponentsInitialized ||
+                !metalrobo::humanBehaviorStateDigestPresent(
+                    runtime->behaviorAcceptedSensorStateSHA256) ||
+                !metalrobo::humanBehaviorStateDigestPresent(
+                    runtime->behaviorAcceptedPublicationStateSHA256)) {
+                failureStage = 62u;
+                return false;
+            }
+            result->behaviorBeforeSensorStateSHA256 =
+                runtime->behaviorAcceptedSensorStateSHA256;
+            result->behaviorBeforePublicationStateSHA256 =
+                runtime->behaviorAcceptedPublicationStateSHA256;
+        }
         if (runtime->publishedOnce) {
             result->previousTransactionFingerprint =
                 runtime->publishedTransactionFingerprint;
@@ -3960,6 +4158,14 @@ void fillRuntimeInfoFailure(
         return failBegin(MRNX_RUNTIME_INVALID_REQUEST_V1);
     }
     active->exactHumanIO = exactHumanIO;
+    if (!allocateBehaviorSensorCapture(runtime, active)) {
+        // The behavior component stream is an observer, not simulation
+        // authority. Preserve the physical root and fail the companion stream
+        // closed at terminal publication instead of changing the outcome.
+        const std::lock_guard lock(runtime->mutex);
+        runtime->behaviorTraceError =
+            "behavior sensor observer capture allocation failed";
+    }
 
     metalrobo::MetalNumanXHumanMatterTransactionV2 transaction{};
     transaction.environmentCount = 1u;
@@ -5501,6 +5707,79 @@ bool encodeSupplementalSensors(
             MTLSizeMake(MR_NUMANX_HUMAN_VISION_RECEPTOR_COUNT, 1u, 1u)
             threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
         [encoder endEncoding];
+        if (active->behaviorSensorCapture) {
+            auto& capture = *active->behaviorSensorCapture;
+            __unsafe_unretained id<MTLBuffer> proprioception =
+                (__bridge id<MTLBuffer>)active->exactHumanIO.sensor.
+                    proprioceptionMetalBuffer;
+            __unsafe_unretained id<MTLBuffer> proprioceptionValidity =
+                (__bridge id<MTLBuffer>)active->exactHumanIO.sensor.
+                    validityMetalBuffer;
+            __unsafe_unretained id<MTLBuffer> interoception =
+                (__bridge id<MTLBuffer>)active->exactHumanIO.sensor.
+                    interoceptionMetalBuffer;
+            __unsafe_unretained id<MTLBuffer> interoceptionValidity =
+                (__bridge id<MTLBuffer>)active->exactHumanIO.sensor.
+                    interoceptionValidityMetalBuffer;
+            __unsafe_unretained id<MTLBuffer> valueSources[7u]{
+                active->vision, active->audition, active->touch,
+                proprioception, active->vestibular, interoception,
+                active->kinesthesia,
+            };
+            __unsafe_unretained id<MTLBuffer> validitySources[7u]{
+                active->visionValidity, active->auditionValidity,
+                active->touchValidity, proprioceptionValidity,
+                active->vestibularValidity, interoceptionValidity,
+                active->kinesthesiaValidity,
+            };
+            bool captureValid = !capture.encoded &&
+                capture.buffer != nil &&
+                capture.buffer.device == runtime.device &&
+                capture.buffer.storageMode == MTLStorageModeShared &&
+                capture.buffer.contents != nullptr;
+            for (std::size_t index = 0u;
+                 captureValid && index < std::size(valueSources); ++index) {
+                const auto& value = capture.values[index];
+                const auto& validity = capture.validity[index];
+                captureValid = valueSources[index] != nil &&
+                    validitySources[index] != nil &&
+                    valueSources[index].device == runtime.device &&
+                    validitySources[index].device == runtime.device &&
+                    value.byteCount != 0u && validity.byteCount != 0u &&
+                    value.byteCount <= valueSources[index].length &&
+                    validity.byteCount <= validitySources[index].length &&
+                    value.offset <= capture.buffer.length &&
+                    value.byteCount <= capture.buffer.length - value.offset &&
+                    validity.offset <= capture.buffer.length &&
+                    validity.byteCount <=
+                        capture.buffer.length - validity.offset;
+            }
+            id<MTLBlitCommandEncoder> observer = captureValid
+                ? [commandBuffer blitCommandEncoder]
+                : nil;
+            if (observer != nil) {
+                observer.label = @"NumanX behavior sensor SHA-256 capture";
+                for (std::size_t index = 0u;
+                     index < std::size(valueSources); ++index) {
+                    [observer copyFromBuffer:valueSources[index]
+                        sourceOffset:0u
+                        toBuffer:capture.buffer
+                        destinationOffset:static_cast<NSUInteger>(
+                            capture.values[index].offset)
+                        size:static_cast<NSUInteger>(
+                            capture.values[index].byteCount)];
+                    [observer copyFromBuffer:validitySources[index]
+                        sourceOffset:0u
+                        toBuffer:capture.buffer
+                        destinationOffset:static_cast<NSUInteger>(
+                            capture.validity[index].offset)
+                        size:static_cast<NSUInteger>(
+                            capture.validity[index].byteCount)];
+                }
+                [observer endEncoding];
+                capture.encoded = true;
+            }
+        }
         return true;
     }
 }
@@ -5835,9 +6114,105 @@ void recordRuntimeBehaviorTerminal(RuntimeState& runtime, const ActiveRoot& acti
         trace.auditViolationMask |=
             MR_HUMAN_BEHAVIOR_AUDIT_UNACCEPTED_PUBLICATION;
     }
-    (void)runtime.behavior->terminal(
-        release, accepted ? fence : nullptr, &trace,
-        runtime.behaviorError);
+    mrnx_behavior_trace_state_component_bundle_v1 components{};
+    components.abi_version = MRNX_BEHAVIOR_TRACE_ABI_V1;
+    components.struct_size = sizeof(components);
+    components.covered_mask =
+        MRNX_BEHAVIOR_TRACE_STATE_COMPONENT_COMPLETE_MASK_V1;
+    components.attempt_index = release.publicationSerial;
+    components.transaction_fingerprint = root.transaction_fingerprint;
+    const bool beforeStateValid =
+        runtime.behaviorStateComponentsInitialized &&
+        metalrobo::humanBehaviorStateDigestPresent(
+            active.behaviorBeforeSensorStateSHA256) &&
+        metalrobo::humanBehaviorStateDigestPresent(
+            active.behaviorBeforePublicationStateSHA256) &&
+        runtime.behaviorAcceptedSensorStateSHA256 ==
+            active.behaviorBeforeSensorStateSHA256 &&
+        runtime.behaviorAcceptedPublicationStateSHA256 ==
+            active.behaviorBeforePublicationStateSHA256;
+    const bool candidateStateValid =
+        metalrobo::humanBehaviorStateDigestPresent(
+            active.behaviorCandidateSensorStateSHA256);
+    metalrobo::HumanBehaviorStateDigest afterPublication{};
+    bool publicationStateValid = !accepted;
+    if (accepted) {
+        publicationStateValid =
+            metalrobo::humanBehaviorExactPublicationStateSHA256(
+                runtime.exactAggregate.publication_epoch,
+                runtime.exactAggregate.publication,
+                afterPublication, runtime.behaviorTraceError);
+    } else {
+        afterPublication = active.behaviorBeforePublicationStateSHA256;
+    }
+    const bool stateComponentsReady = beforeStateValid &&
+        candidateStateValid && publicationStateValid &&
+        metalrobo::humanBehaviorStateDigestPresent(afterPublication);
+    if (stateComponentsReady) {
+        std::memcpy(components.before_sensor_sha256,
+            active.behaviorBeforeSensorStateSHA256.data(),
+            active.behaviorBeforeSensorStateSHA256.size());
+        std::memcpy(components.candidate_sensor_sha256,
+            active.behaviorCandidateSensorStateSHA256.data(),
+            active.behaviorCandidateSensorStateSHA256.size());
+        const auto& afterSensor = accepted
+            ? active.behaviorCandidateSensorStateSHA256
+            : active.behaviorBeforeSensorStateSHA256;
+        std::memcpy(components.after_sensor_sha256,
+            afterSensor.data(), afterSensor.size());
+        std::memcpy(components.before_publication_sha256,
+            active.behaviorBeforePublicationStateSHA256.data(),
+            active.behaviorBeforePublicationStateSHA256.size());
+        std::memcpy(components.after_publication_sha256,
+            afterPublication.data(), afterPublication.size());
+    }
+
+    // Publication has already become authoritative before this observer runs.
+    // Keep the cached component state aligned with that fact even if sidecar
+    // admission subsequently fails, then quarantine further roots so the
+    // evidence gap cannot be crossed silently.
+    if (accepted && candidateStateValid) {
+        runtime.behaviorAcceptedSensorStateSHA256 =
+            active.behaviorCandidateSensorStateSHA256;
+    }
+    if (accepted && publicationStateValid) {
+        runtime.behaviorAcceptedPublicationStateSHA256 = afterPublication;
+    }
+
+    bool terminalRecorded = false;
+    bool componentTerminalFailed = false;
+    if (stateComponentsReady) {
+        terminalRecorded = runtime.behavior->terminal(
+            release, accepted ? fence : nullptr, &trace, components,
+            runtime.behaviorError);
+        if (!terminalRecorded) {
+            componentTerminalFailed = true;
+            const std::string componentError = runtime.behaviorError.empty()
+                ? "behavior state-component terminal failed"
+                : runtime.behaviorError;
+            terminalRecorded = runtime.behavior->terminal(
+                release, accepted ? fence : nullptr, &trace,
+                runtime.behaviorError);
+            runtime.behaviorTraceError = componentError;
+        }
+    } else {
+        const std::string componentError = runtime.behaviorTraceError.empty()
+            ? "behavior state-component construction failed"
+            : runtime.behaviorTraceError;
+        terminalRecorded = runtime.behavior->terminal(
+            release, accepted ? fence : nullptr, &trace,
+            runtime.behaviorError);
+        runtime.behaviorTraceError = componentError;
+    }
+    if (!terminalRecorded || !stateComponentsReady ||
+        componentTerminalFailed) {
+        if (runtime.behaviorTraceError.empty()) {
+            runtime.behaviorTraceError = runtime.behaviorError.empty()
+                ? "behavior state-component terminal failed"
+                : runtime.behaviorError;
+        }
+        runtime.terminalQuarantine = true;
+    }
 }
 
 template <typename T>
@@ -6953,6 +7328,103 @@ void runtimeTerminalCompletion(
     runtime->active.reset();
 }
 
+[[nodiscard]] bool finalizeBehaviorSensorStateDigest(
+    const std::shared_ptr<ActiveRoot>& active
+) noexcept {
+    if (active == nullptr || active->runtime == nullptr ||
+        !active->exactFamily) {
+        return false;
+    }
+    const bool hasBeforeSensor =
+        metalrobo::humanBehaviorStateDigestPresent(
+            active->behaviorBeforeSensorStateSHA256);
+    const bool hasBeforePublication =
+        metalrobo::humanBehaviorStateDigestPresent(
+            active->behaviorBeforePublicationStateSHA256);
+    if (!hasBeforeSensor && !hasBeforePublication &&
+        !active->behaviorSensorCapture.has_value()) {
+        return true;
+    }
+    if (!hasBeforeSensor || !hasBeforePublication ||
+        !active->behaviorSensorCapture.has_value() ||
+        active->exactChannelCount != kBehaviorSensorModalities.size() ||
+        active->exactSensorPacket.abi_version !=
+            MRNX_EXACT_SENSOR_PACKET_ABI_V2 ||
+        active->exactSensorPacket.channel_count !=
+            kBehaviorSensorModalities.size()) {
+        return false;
+    }
+    auto& capture = *active->behaviorSensorCapture;
+    if (!capture.encoded || capture.buffer == nil ||
+        capture.buffer.device != active->runtime->device ||
+        capture.buffer.storageMode != MTLStorageModeShared ||
+        capture.buffer.contents == nullptr) {
+        return false;
+    }
+
+    const std::array<void*, 7u> expectedValueBuffers{{
+        (__bridge void*)active->vision,
+        (__bridge void*)active->audition,
+        (__bridge void*)active->touch,
+        active->exactHumanIO.sensor.proprioceptionMetalBuffer,
+        (__bridge void*)active->vestibular,
+        active->exactHumanIO.sensor.interoceptionMetalBuffer,
+        (__bridge void*)active->kinesthesia,
+    }};
+    const std::array<void*, 7u> expectedValidityBuffers{{
+        (__bridge void*)active->visionValidity,
+        (__bridge void*)active->auditionValidity,
+        (__bridge void*)active->touchValidity,
+        active->exactHumanIO.sensor.validityMetalBuffer,
+        (__bridge void*)active->vestibularValidity,
+        active->exactHumanIO.sensor.interoceptionValidityMetalBuffer,
+        (__bridge void*)active->kinesthesiaValidity,
+    }};
+    std::array<metalrobo::HumanBehaviorSensorStateChannelV1, 7u>
+        payloads{};
+    const auto* bytes = static_cast<const std::byte*>(
+        capture.buffer.contents);
+    for (std::size_t index = 0u; index < payloads.size(); ++index) {
+        const auto& channel = active->exactChannels[index];
+        const auto& values = capture.values[index];
+        const auto& validity = capture.validity[index];
+        if (channel.modality != kBehaviorSensorModalities[index] ||
+            channel.values.metal_buffer != expectedValueBuffers[index] ||
+            channel.validity.metal_buffer !=
+                expectedValidityBuffers[index] ||
+            channel.values.byte_offset != 0u ||
+            channel.validity.byte_offset != 0u ||
+            channel.values.byte_count != values.byteCount ||
+            channel.validity.byte_count != validity.byteCount ||
+            values.offset > capture.buffer.length ||
+            values.byteCount > capture.buffer.length - values.offset ||
+            validity.offset > capture.buffer.length ||
+            validity.byteCount >
+                capture.buffer.length - validity.offset) {
+            return false;
+        }
+        payloads[index].descriptor = &channel;
+        payloads[index].values = std::span<const std::byte>(
+            bytes + values.offset,
+            static_cast<std::size_t>(values.byteCount));
+        payloads[index].validity = std::span<const std::byte>(
+            bytes + validity.offset,
+            static_cast<std::size_t>(validity.byteCount));
+    }
+    std::string error;
+    if (!metalrobo::humanBehaviorExactSensorStateSHA256(
+            active->exactSensorPacket.abi_version,
+            active->exactTiming, payloads,
+            active->behaviorCandidateSensorStateSHA256, error)) {
+        try {
+            const std::lock_guard lock(active->runtime->mutex);
+            active->runtime->behaviorTraceError = error;
+        } catch (...) {}
+        return false;
+    }
+    return true;
+}
+
 void settleActiveRoot(const std::shared_ptr<ActiveRoot>& active) noexcept {
     if (active == nullptr || active->runtime == nullptr) return;
     mrnx_prepared_v1* prepared = nullptr;
@@ -6987,6 +7459,19 @@ void settleActiveRoot(const std::shared_ptr<ActiveRoot>& active) noexcept {
     if (ready && exactFamily) {
         candidate = finalizeExactCandidate(active);
         ready = candidate != nullptr;
+        if (ready && !finalizeBehaviorSensorStateDigest(active)) {
+            // Digest finalization is optional evidence. The candidate remains
+            // authoritative; terminal publication records the core trace and
+            // quarantines later roots so the evidence gap cannot be crossed.
+            try {
+                const std::lock_guard runtimeLock(
+                    active->runtime->mutex);
+                if (active->runtime->behaviorTraceError.empty()) {
+                    active->runtime->behaviorTraceError =
+                        "behavior sensor observer digest failed";
+                }
+            } catch (...) {}
+        }
         if (ready) {
             const std::lock_guard lock(active->mutex);
             active->candidate = candidate;

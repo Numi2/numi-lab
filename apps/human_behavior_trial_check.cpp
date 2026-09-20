@@ -1,10 +1,15 @@
 #include "metalrobo/HumanBehaviorTrial.hpp"
 #include "metalrobo/HumanBehaviorNativeAudit.hpp"
+#include "metalrobo/HumanBehaviorStateComponents.hpp"
+#include "metalrobo/NumanXExactTransaction.hpp"
 
+#include <array>
 #include <cmath>
 #include <cstdio>
+#include <cstdint>
 #include <limits>
 #include <optional>
+#include <span>
 #include <stdexcept>
 #include <string>
 
@@ -194,6 +199,243 @@ void exerciseDigestContract() {
     require(!decodeHumanBehaviorDigest(encoded.substr(1u), unchanged, error) &&
                 unchanged == sentinel,
             "short digest was admitted or mutated output");
+}
+
+void exerciseStateComponentDigests() {
+    const auto unpublishedSensor =
+        humanBehaviorUnpublishedSensorStateSHA256();
+    require(
+        encodeHumanBehaviorDigest(unpublishedSensor) ==
+            "694135f85a93bef8488ec1ac3032ba4010350c325f0388e2eb7dbb510d5c60db",
+        "unpublished sensor-state SHA-256 changed");
+    require(humanBehaviorStateDigestPresent(unpublishedSensor),
+            "unpublished sensor-state digest is absent");
+    const auto unpublishedPublication =
+        humanBehaviorUnpublishedPublicationStateSHA256();
+    require(
+        encodeHumanBehaviorDigest(unpublishedPublication) ==
+            "92b6fe98d56c8f211aeefa86be92ef4de7ae35d34aa9fc9cf3893f0309269806",
+        "unpublished publication-state SHA-256 changed");
+    require(humanBehaviorStateDigestPresent(unpublishedPublication),
+            "unpublished publication-state digest is absent");
+
+    mrnx_publication_v2 publication{};
+    publication.abi_version = MRNX_PUBLICATION_ABI_V2;
+    publication.struct_size = sizeof(publication);
+    publication.clock_domain =
+        MRNX_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS;
+    publication.clock_quantum_nanoseconds =
+        MRNX_EXACT_CLOCK_QUANTUM_NANOSECONDS;
+    publication.transaction_fingerprint = 0x101u;
+    publication.accepted_physics_token_fingerprint = 0x202u;
+    publication.candidate_publication_fingerprint = 0x303u;
+    publication.joint_commit_fingerprint = 0x404u;
+    publication.brain_generation = 0x505u;
+    publication.committed_timestamp_nanoseconds = 0x606u;
+    publication.publication_fingerprint =
+        metalNumanXExactPublicationV2Fingerprint(publication);
+
+    HumanBehaviorStateDigest publicationDigest{};
+    std::string error;
+    require(humanBehaviorExactPublicationStateSHA256(
+                1u, publication, publicationDigest, error) &&
+                error.empty() &&
+                humanBehaviorStateDigestPresent(publicationDigest),
+            "valid exact publication state was not hashed");
+    require(
+        encodeHumanBehaviorDigest(publicationDigest) ==
+            "0b1b2cf2d9f32b8ce7218dfec2e1dcdd053353f721402bf302049564412eb33a",
+        "published publication-state canonical SHA-256 changed");
+    HumanBehaviorStateDigest laterEpochDigest{};
+    require(humanBehaviorExactPublicationStateSHA256(
+                2u, publication, laterEpochDigest, error) &&
+                laterEpochDigest != publicationDigest,
+            "publication epoch did not influence publication-state SHA-256");
+    auto changedPublication = publication;
+    ++changedPublication.brain_generation;
+    changedPublication.publication_fingerprint =
+        metalNumanXExactPublicationV2Fingerprint(changedPublication);
+    HumanBehaviorStateDigest changedPublicationDigest{};
+    require(humanBehaviorExactPublicationStateSHA256(
+                1u, changedPublication, changedPublicationDigest, error) &&
+                changedPublicationDigest != publicationDigest,
+            "publication contents did not influence publication-state SHA-256");
+
+    auto invalidPublication = publication;
+    ++invalidPublication.brain_generation;
+    HumanBehaviorStateDigest deniedPublicationDigest{};
+    deniedPublicationDigest.fill(0xa5u);
+    require(!humanBehaviorExactPublicationStateSHA256(
+                1u, invalidPublication, deniedPublicationDigest, error) &&
+                !error.empty() &&
+                !humanBehaviorStateDigestPresent(deniedPublicationDigest),
+            "invalid publication was hashed or retained caller output");
+
+    constexpr std::array<std::uint32_t, 7u> modalities{
+        MRNX_CANDIDATE_MODALITY_VISION_V1,
+        MRNX_CANDIDATE_MODALITY_AUDITION_V1,
+        MRNX_CANDIDATE_MODALITY_TOUCH_V1,
+        MRNX_CANDIDATE_MODALITY_PROPRIOCEPTION_V1,
+        MRNX_CANDIDATE_MODALITY_VESTIBULAR_V1,
+        MRNX_CANDIDATE_MODALITY_INTEROCEPTION_V1,
+        MRNX_CANDIDATE_MODALITY_KINESTHESIA_V1,
+    };
+    mrnx_candidate_timing_v2 timing{};
+    timing.abi_version = MRNX_CANDIDATE_TIMING_ABI_V2;
+    timing.struct_size = sizeof(timing);
+    timing.capture_timestamp_nanoseconds = 1'000'000u;
+    timing.delivery_timestamp_nanoseconds = 1'012'500u;
+    timing.latency_nanoseconds = 12'500u;
+    timing.sample_interval_nanoseconds = 12'500u;
+    timing.clock_domain = MRNX_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS;
+    timing.clock_quantum_nanoseconds = MRNX_EXACT_CLOCK_QUANTUM_NANOSECONDS;
+    timing.timing_fingerprint =
+        metalNumanXExactCandidateTimingV2Fingerprint(timing);
+    std::array<mrnx_candidate_channel_v2, modalities.size()> descriptors{};
+    std::array<std::array<float, 4u>, modalities.size()> values{};
+    std::array<std::array<std::uint32_t, 2u>, modalities.size()> validity{};
+    std::array<HumanBehaviorSensorStateChannelV1, modalities.size()> channels{};
+    for (std::size_t index = 0u; index < modalities.size(); ++index) {
+        values[index] = {
+            static_cast<float>(index) + 0.25f,
+            static_cast<float>(index) + 0.5f,
+            static_cast<float>(index) + 0.75f,
+            static_cast<float>(index) + 1.0f,
+        };
+        validity[index] = {1u, static_cast<std::uint32_t>(index & 1u)};
+        auto& descriptor = descriptors[index];
+        descriptor.abi_version = MRNX_CANDIDATE_CHANNEL_ABI_V2;
+        descriptor.struct_size = sizeof(descriptor);
+        descriptor.modality = modalities[index];
+        descriptor.flags = MRNX_CANDIDATE_CHANNEL_HAS_VALIDITY_V1;
+        descriptor.receptor_timestamp_nanoseconds =
+            timing.capture_timestamp_nanoseconds;
+        descriptor.clock_domain =
+            MRNX_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS;
+        descriptor.clock_quantum_nanoseconds =
+            MRNX_EXACT_CLOCK_QUANTUM_NANOSECONDS;
+        descriptor.receptor_count = 2u;
+        descriptor.feature_dimension = 2u;
+        descriptor.values.abi_version = MRNX_BRIDGE_ABI_V1;
+        descriptor.values.struct_size = sizeof(descriptor.values);
+        descriptor.values.metal_buffer = reinterpret_cast<void*>(
+            static_cast<std::uintptr_t>(0x1000u + index));
+        descriptor.values.gpu_address = 0x2000u + index * 0x100u;
+        descriptor.values.byte_offset = 0x100u + index * 0x100u;
+        descriptor.values.byte_count = sizeof(values[index]);
+        descriptor.values.element_type = MRNX_ELEMENT_FLOAT32_V1;
+        descriptor.values.element_byte_count = sizeof(float);
+        descriptor.validity.abi_version = MRNX_BRIDGE_ABI_V1;
+        descriptor.validity.struct_size = sizeof(descriptor.validity);
+        descriptor.validity.metal_buffer = reinterpret_cast<void*>(
+            static_cast<std::uintptr_t>(0x4000u + index));
+        descriptor.validity.gpu_address = 0x5000u + index * 0x100u;
+        descriptor.validity.byte_offset = 0x200u + index * 0x100u;
+        descriptor.validity.byte_count = sizeof(validity[index]);
+        descriptor.validity.element_type = MRNX_ELEMENT_UINT32_V1;
+        descriptor.validity.element_byte_count = sizeof(std::uint32_t);
+        descriptor.channel_fingerprint =
+            metalNumanXExactCandidateChannelV2Fingerprint(descriptor);
+        channels[index] = HumanBehaviorSensorStateChannelV1{
+            &descriptor,
+            std::as_bytes(std::span<const float>(values[index])),
+            std::as_bytes(std::span<const std::uint32_t>(validity[index])),
+        };
+    }
+
+    HumanBehaviorStateDigest sensorDigest{};
+    require(humanBehaviorExactSensorStateSHA256(
+                MRNX_EXACT_SENSOR_PACKET_ABI_V2, timing, channels,
+                sensorDigest, error) && error.empty() &&
+                humanBehaviorStateDigestPresent(sensorDigest),
+            "valid exact sensor state was not hashed");
+    require(
+        encodeHumanBehaviorDigest(sensorDigest) ==
+            "1ca02ebd9230b70f3de809fc6db5912ae782506fd4490fbe406acca80ad613a5",
+        "published sensor-state canonical SHA-256 changed");
+    auto alternateDescriptors = descriptors;
+    auto alternateChannels = channels;
+    for (std::size_t index = 0u; index < modalities.size(); ++index) {
+        auto& descriptor = alternateDescriptors[index];
+        descriptor.values.metal_buffer = reinterpret_cast<void*>(
+            static_cast<std::uintptr_t>(0x8000u + index));
+        descriptor.values.gpu_address += 0x10000u;
+        descriptor.values.byte_offset += 0x2000u;
+        descriptor.validity.metal_buffer = reinterpret_cast<void*>(
+            static_cast<std::uintptr_t>(0x9000u + index));
+        descriptor.validity.gpu_address += 0x30000u;
+        descriptor.validity.byte_offset += 0x4000u;
+        descriptor.channel_fingerprint =
+            metalNumanXExactCandidateChannelV2Fingerprint(descriptor);
+        alternateChannels[index].descriptor = &descriptor;
+    }
+    HumanBehaviorStateDigest alternateSensorDigest{};
+    require(humanBehaviorExactSensorStateSHA256(
+                MRNX_EXACT_SENSOR_PACKET_ABI_V2, timing, alternateChannels,
+                alternateSensorDigest, error) &&
+                alternateSensorDigest == sensorDigest,
+            "pointer, range identity, or FNV metadata influenced sensor SHA-256");
+
+    auto shiftedTiming = timing;
+    shiftedTiming.capture_timestamp_nanoseconds += 12'500u;
+    shiftedTiming.delivery_timestamp_nanoseconds += 12'500u;
+    shiftedTiming.timing_fingerprint =
+        metalNumanXExactCandidateTimingV2Fingerprint(shiftedTiming);
+    auto shiftedDescriptors = descriptors;
+    auto shiftedChannels = channels;
+    for (std::size_t index = 0u; index < modalities.size(); ++index) {
+        auto& descriptor = shiftedDescriptors[index];
+        descriptor.receptor_timestamp_nanoseconds =
+            shiftedTiming.capture_timestamp_nanoseconds;
+        descriptor.channel_fingerprint =
+            metalNumanXExactCandidateChannelV2Fingerprint(descriptor);
+        shiftedChannels[index].descriptor = &descriptor;
+    }
+    HumanBehaviorStateDigest shiftedSensorDigest{};
+    require(humanBehaviorExactSensorStateSHA256(
+                MRNX_EXACT_SENSOR_PACKET_ABI_V2, shiftedTiming,
+                shiftedChannels, shiftedSensorDigest, error) &&
+                shiftedSensorDigest != sensorDigest,
+            "exact candidate timing did not influence sensor-state SHA-256");
+
+    values[0][0] += 1.0f;
+    HumanBehaviorStateDigest changedSensorDigest{};
+    require(humanBehaviorExactSensorStateSHA256(
+                MRNX_EXACT_SENSOR_PACKET_ABI_V2, timing, channels,
+                changedSensorDigest, error) &&
+                changedSensorDigest != sensorDigest,
+            "sensor values did not influence sensor-state SHA-256");
+    values[0][0] -= 1.0f;
+
+    auto malformedDescriptors = descriptors;
+    auto malformedChannels = channels;
+    malformedDescriptors[3].values.byte_count -= sizeof(float);
+    malformedChannels[3].descriptor = &malformedDescriptors[3];
+    HumanBehaviorStateDigest deniedSensorDigest{};
+    deniedSensorDigest.fill(0x5au);
+    require(!humanBehaviorExactSensorStateSHA256(
+                MRNX_EXACT_SENSOR_PACKET_ABI_V2, timing, malformedChannels,
+                deniedSensorDigest, error) &&
+                !error.empty() &&
+                !humanBehaviorStateDigestPresent(deniedSensorDigest),
+            "malformed sensor metadata was hashed or retained caller output");
+
+    auto staleTiming = timing;
+    ++staleTiming.sample_interval_nanoseconds;
+    deniedSensorDigest.fill(0x5au);
+    require(!humanBehaviorExactSensorStateSHA256(
+                MRNX_EXACT_SENSOR_PACKET_ABI_V2, staleTiming, channels,
+                deniedSensorDigest, error) &&
+                !error.empty() &&
+                !humanBehaviorStateDigestPresent(deniedSensorDigest),
+            "stale timing fingerprint was admitted or retained caller output");
+    deniedSensorDigest.fill(0x5au);
+    require(!humanBehaviorExactSensorStateSHA256(
+                MRNX_EXACT_SENSOR_PACKET_ABI_V2 + 1u, timing, channels,
+                deniedSensorDigest, error) &&
+                !error.empty() &&
+                !humanBehaviorStateDigestPresent(deniedSensorDigest),
+            "wrong sensor packet ABI was admitted or retained caller output");
 }
 
 std::uint32_t exerciseNativeNonfiniteAudit() {
@@ -691,6 +933,7 @@ void exerciseRecoveryTrial() {
 int main(const int argc, const char* const argv[]) {
     try {
         exerciseDigestContract();
+        exerciseStateComponentDigests();
         const auto nativeAuditNegativeCases =
             exerciseNativeNonfiniteAudit();
         const auto descriptorNegativeCases = exerciseDescriptorFailures();

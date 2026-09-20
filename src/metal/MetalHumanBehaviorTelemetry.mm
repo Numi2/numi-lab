@@ -1,11 +1,13 @@
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
+#include <CommonCrypto/CommonDigest.h>
 #include "metalrobo/MetalHumanBehaviorTelemetry.hpp"
 #include <cstring>
 #include <algorithm>
 #include <array>
 #include <limits>
 #include <stdexcept>
+#include <utility>
 
 namespace metalrobo {
 namespace {
@@ -27,6 +29,62 @@ std::uint64_t fnv(const void* raw,std::size_t bytes,std::uint64_t seed=146959810
 }
 template<class T> void mix(std::uint64_t& h,const T& value){h=fnv(&value,sizeof(value),h);}
 bool nonzero(const std::array<std::uint8_t,32>& value){return std::any_of(value.begin(),value.end(),[](auto x){return x!=0;});}
+bool digestNonzero(const std::uint8_t* value){return std::any_of(value,value+32,[](auto x){return x!=0;});}
+bool digestZero(const std::uint8_t* value){return !digestNonzero(value);}
+bool digestEqual(const std::uint8_t* lhs,const std::uint8_t* rhs){return std::memcmp(lhs,rhs,32)==0;}
+bool byteRangesOverlap(
+    const void* first,
+    const std::size_t firstBytes,
+    const void* second,
+    const std::size_t secondBytes
+) noexcept {
+    if(firstBytes==0u||secondBytes==0u)return false;
+    if(first==nullptr||second==nullptr)return true;
+    const auto firstBegin=reinterpret_cast<std::uintptr_t>(first);
+    const auto secondBegin=reinterpret_cast<std::uintptr_t>(second);
+    if(firstBegin>std::numeric_limits<std::uintptr_t>::max()-firstBytes||
+       secondBegin>std::numeric_limits<std::uintptr_t>::max()-secondBytes)
+        return true;
+    return firstBegin<secondBegin+secondBytes&&
+        secondBegin<firstBegin+firstBytes;
+}
+std::array<std::uint8_t,32> sha256(const void* bytes,std::size_t size){
+    require(size<=std::numeric_limits<CC_LONG>::max(),"state-component hash input overflow");
+    std::array<std::uint8_t,32> result{};
+    require(CC_SHA256(bytes,static_cast<CC_LONG>(size),result.data())!=nullptr,
+        "state-component SHA256 failure");
+    return result;
+}
+bool validStateComponentBundle(
+    const mrnx_behavior_trace_state_component_bundle_v1& bundle,
+    const MRHumanBehaviorReleaseGPU& release){
+    if(bundle.abi_version!=MRNX_BEHAVIOR_TRACE_ABI_V1||
+       bundle.struct_size!=sizeof(bundle)||bundle.covered_mask==0||
+       (bundle.covered_mask&~MRNX_BEHAVIOR_TRACE_STATE_COMPONENT_COMPLETE_MASK_V1)!=0||
+       bundle.reserved0!=0||bundle.attempt_index!=release.publicationSerial||
+       bundle.transaction_fingerprint!=release.transactionFingerprint||
+       bundle.transaction_fingerprint==0)return false;
+    const bool sensor=(bundle.covered_mask&MRNX_BEHAVIOR_TRACE_STATE_COMPONENT_SENSOR_V1)!=0;
+    const bool publication=(bundle.covered_mask&MRNX_BEHAVIOR_TRACE_STATE_COMPONENT_PUBLICATION_V1)!=0;
+    if(sensor!=(digestNonzero(bundle.before_sensor_sha256)&&
+                digestNonzero(bundle.candidate_sensor_sha256)&&
+                digestNonzero(bundle.after_sensor_sha256)))return false;
+    if(!sensor&&(!digestZero(bundle.before_sensor_sha256)||
+                !digestZero(bundle.candidate_sensor_sha256)||
+                !digestZero(bundle.after_sensor_sha256)))return false;
+    if(publication!=(digestNonzero(bundle.before_publication_sha256)&&
+                     digestNonzero(bundle.after_publication_sha256)))return false;
+    if(!publication&&(!digestZero(bundle.before_publication_sha256)||
+                     !digestZero(bundle.after_publication_sha256)))return false;
+    if(release.released==1u&&sensor&&
+       !digestEqual(bundle.candidate_sensor_sha256,
+                    bundle.after_sensor_sha256))return false;
+    if(release.released==2u&&
+       ((sensor&&!digestEqual(bundle.before_sensor_sha256,bundle.after_sensor_sha256))||
+        (publication&&!digestEqual(bundle.before_publication_sha256,
+                                  bundle.after_publication_sha256))))return false;
+    return true;
+}
 constexpr std::uint32_t kAllTraceEvidence=
     MRNX_BEHAVIOR_TRACE_EVIDENCE_SOURCE_BOUND_METRIC_V1|
     MRNX_BEHAVIOR_TRACE_EVIDENCE_NATIVE_AUDIT_V1|
@@ -54,6 +112,10 @@ struct MetalHumanBehaviorTelemetry::State {
     std::uint32_t environments=0;std::uint64_t fp=0,terminalSerial=0,initialPhysicsGeneration=0,initialTimestampNanoseconds=0;
     bool initialEncoded=false;
     bool traceEnabled=false,traceClosed=false,traceTerminalStored=false;
+    bool traceStateComponentDrainAbandoned=false;
+    std::size_t traceStateComponentCapacity=0;
+    std::array<std::uint8_t,32> traceStateComponentLastSHA256{};
+    std::vector<mrnx_behavior_trace_state_component_bundle_v1> traceStateComponents;
     HumanBehaviorTraceBinding traceBinding{};
     mrnx_behavior_trace_terminal_request_v1 traceTerminalRequest{};
     mrnx_behavior_trace_terminal_v1 traceTerminal{};
@@ -104,7 +166,7 @@ void MetalHumanBehaviorTelemetry::reset(){auto& s=*state_;s.terminalSerial=0;s.i
         out[i].initialPostureValid=2;out[i].initialSettled=2;} // unmeasured reset, explicit unknown
     if(s.traceEnabled){auto* page=static_cast<MRHumanBehaviorTracePageGPU*>(s.tracePage.contents);const auto capacity=page->recordCapacity;const auto instance=page->traceInstanceFingerprint;const auto expected=page->expectedAcceptedRoots;
         std::memset(page,0,sizeof(*page));page->abiVersion=MR_HUMAN_BEHAVIOR_TRACE_ABI_VERSION;page->structSize=sizeof(*page);page->status=MR_HUMAN_BEHAVIOR_TRACE_STATUS_READY;page->recordCapacity=capacity;page->traceInstanceFingerprint=instance;page->expectedAcceptedRoots=expected;page->pagePreviousRecordFingerprint=instance;page->lastRecordFingerprint=instance;page->lastAfterPhysicsGeneration=s.initialPhysicsGeneration;page->lastAfterAcceptedTimestampNanoseconds=s.initialTimestampNanoseconds;
-        std::memset(s.traceContext.contents,0,s.traceContext.length);std::memset(s.traceRecords.contents,0,s.traceRecords.length);s.traceClosed=false;s.traceTerminalStored=false;s.traceTerminalRequest={};s.traceTerminal={};}
+        std::memset(s.traceContext.contents,0,s.traceContext.length);std::memset(s.traceRecords.contents,0,s.traceRecords.length);s.traceClosed=false;s.traceTerminalStored=false;s.traceTerminalRequest={};s.traceTerminal={};s.traceStateComponentDrainAbandoned=false;s.traceStateComponentLastSHA256={};s.traceStateComponents.clear();}
 }
 bool MetalHumanBehaviorTelemetry::traceAttach(const mrnx_behavior_trace_config_v1& config,const HumanBehaviorTraceBinding& binding,std::string& error)noexcept{
     try{auto& s=*state_;require(!s.traceEnabled&&!s.traceClosed&&s.terminalSerial==0,"behavior trace must attach before the first terminal attempt");
@@ -112,9 +174,11 @@ bool MetalHumanBehaviorTelemetry::traceAttach(const mrnx_behavior_trace_config_v
         require(nonzero(binding.metricProgramSHA256)&&binding.modelSourceFingerprint!=0&&binding.acceptedStateProofProgramFingerprint!=0&&binding.clockDomain==MRNX_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS&&binding.clockQuantumNanoseconds==MRNX_EXACT_CLOCK_QUANTUM_NANOSECONDS,"invalid behavior trace source binding");
         const NSUInteger bytes=static_cast<NSUInteger>(config.record_capacity)*sizeof(MRHumanBehaviorTraceRecordGPU);
         id<MTLBuffer> records=[s.device newBufferWithLength:bytes options:MTLResourceStorageModeShared];require(records!=nil,"behavior trace allocation failed");std::memset(records.contents,0,records.length);
+        std::vector<mrnx_behavior_trace_state_component_bundle_v1> stateComponents;
+        stateComponents.reserve(config.record_capacity);
         std::uint64_t instance=14695981039346656037ull;constexpr std::uint32_t domain=0x4e484254u;mix(instance,domain);mix(instance,s.fp);mix(instance,s.cooked.timestepNanoseconds);mix(instance,s.initialPhysicsGeneration);mix(instance,s.initialTimestampNanoseconds);mix(instance,config.record_capacity);mix(instance,config.expected_accepted_roots);mix(instance,binding.metricProgramSHA256);mix(instance,binding.modelSourceFingerprint);mix(instance,binding.acceptedStateProofProgramFingerprint);mix(instance,binding.clockDomain);mix(instance,binding.clockQuantumNanoseconds);require(instance!=0,"zero behavior trace identity");
         MRHumanBehaviorTracePageGPU page{};page.abiVersion=MR_HUMAN_BEHAVIOR_TRACE_ABI_VERSION;page.structSize=sizeof(page);page.status=MR_HUMAN_BEHAVIOR_TRACE_STATUS_READY;page.recordCapacity=config.record_capacity;page.traceInstanceFingerprint=instance;page.expectedAcceptedRoots=config.expected_accepted_roots;page.pagePreviousRecordFingerprint=instance;page.lastRecordFingerprint=instance;page.lastAfterPhysicsGeneration=s.initialPhysicsGeneration;page.lastAfterAcceptedTimestampNanoseconds=s.initialTimestampNanoseconds;
-        std::memcpy(s.tracePage.contents,&page,sizeof(page));std::memset(s.traceContext.contents,0,s.traceContext.length);s.traceRecords=records;s.traceBinding=binding;s.traceEnabled=true;s.traceClosed=false;s.traceTerminalStored=false;s.traceTerminalRequest={};s.traceTerminal={};error.clear();return true;
+        std::memcpy(s.tracePage.contents,&page,sizeof(page));std::memset(s.traceContext.contents,0,s.traceContext.length);s.traceRecords=records;s.traceBinding=binding;s.traceClosed=false;s.traceTerminalStored=false;s.traceTerminalRequest={};s.traceTerminal={};s.traceStateComponentDrainAbandoned=false;s.traceStateComponentCapacity=config.record_capacity;s.traceStateComponentLastSHA256={};s.traceStateComponents=std::move(stateComponents);s.traceEnabled=true;error.clear();return true;
     }catch(const std::exception& e){error=e.what();return false;}}
 bool MetalHumanBehaviorTelemetry::encodeInitial(const MetalNumanXHumanMatterPass& pass,std::string& error)noexcept{
     try{auto& s=*state_;require(!s.initialEncoded&&pass.abiVersion==kMetalNumanXHumanMatterPassABIVersion&&pass.structSize==sizeof(pass)&&pass.phase==MetalNumanXHumanMatterPhase::preDynamics,"invalid initial behavior pass");require(pass.environmentCount==s.environments&&pass.physicsSubstepCount==1,"invalid initial behavior root shape");require(pass.bodyPoses!=nullptr&&pass.bodyPositionLow!=nullptr&&pass.pointJacobians!=nullptr&&pass.v!=nullptr,"missing initial behavior geometry");require(pass.bodyPoseStride>=s.cooked.bodyCount&&pass.vStride>=s.cooked.dofCount&&pass.dofCount==s.cooked.dofCount,"initial behavior shape drift");
@@ -153,8 +217,10 @@ bool MetalHumanBehaviorTelemetry::encodeCandidate(const MetalNumanXHumanMatterPa
         [e setBuffer:jac offset:0 atIndex:4];[e setBuffer:v offset:0 atIndex:5];[e setBuffer:s.audit offset:0 atIndex:6];[e setBuffer:s.candidate offset:0 atIndex:7];dispatch(e,s.measure,s.environments);
         error.clear();return true;
     }catch(const std::exception& e){error=e.what();return false;}}
-bool MetalHumanBehaviorTelemetry::terminal(const MRHumanBehaviorReleaseGPU& r,const MRNumanXHumanMatterJointPublicationFenceGPU* fence,std::string& error)noexcept{return terminal(r,fence,nullptr,error);}
-bool MetalHumanBehaviorTelemetry::terminal(const MRHumanBehaviorReleaseGPU& r,const MRNumanXHumanMatterJointPublicationFenceGPU* fence,const HumanBehaviorTraceAttemptContext* trace,std::string& error)noexcept{
+bool MetalHumanBehaviorTelemetry::terminal(const MRHumanBehaviorReleaseGPU& r,const MRNumanXHumanMatterJointPublicationFenceGPU* fence,std::string& error)noexcept{return terminalImpl(r,fence,nullptr,nullptr,error);}
+bool MetalHumanBehaviorTelemetry::terminal(const MRHumanBehaviorReleaseGPU& r,const MRNumanXHumanMatterJointPublicationFenceGPU* fence,const HumanBehaviorTraceAttemptContext* trace,std::string& error)noexcept{return terminalImpl(r,fence,trace,nullptr,error);}
+bool MetalHumanBehaviorTelemetry::terminal(const MRHumanBehaviorReleaseGPU& r,const MRNumanXHumanMatterJointPublicationFenceGPU* fence,const HumanBehaviorTraceAttemptContext* trace,const mrnx_behavior_trace_state_component_bundle_v1& stateComponents,std::string& error)noexcept{return terminalImpl(r,fence,trace,&stateComponents,error);}
+bool MetalHumanBehaviorTelemetry::terminalImpl(const MRHumanBehaviorReleaseGPU& r,const MRNumanXHumanMatterJointPublicationFenceGPU* fence,const HumanBehaviorTraceAttemptContext* trace,const mrnx_behavior_trace_state_component_bundle_v1* stateComponents,std::string& error)noexcept{
     try{auto& s=*state_;require(r.programFingerprint==s.fp&&r.publicationSerial==s.terminalSerial+1&&s.terminalSerial!=std::numeric_limits<std::uint64_t>::max()&&r.transactionFingerprint!=0&&r.slotGeneration!=0&&(r.released==1||r.released==2)&&r.reserved0==0&&r.reserved1==0&&r.reserved2==0,"invalid telemetry terminal identity");
         require(r.released!=1||(fence!=nullptr&&
             (fence->abiVersion==MR_NUMANX_HUMAN_MATTER_PUBLICATION_FENCE_ABI_VERSION||
@@ -163,23 +229,78 @@ bool MetalHumanBehaviorTelemetry::terminal(const MRHumanBehaviorReleaseGPU& r,co
             fence->status==MR_NUMANX_HUMAN_MATTER_PUBLICATION_COMMITTED&&
             fence->fenceFingerprint==r.jointFenceFingerprint&&
             r.jointFenceFingerprint!=0),"telemetry acceptance requires released COMMITTED root");
+        if(stateComponents!=nullptr){require(s.traceEnabled&&!s.traceClosed,
+            "state components require an open behavior trace");
+            require(validStateComponentBundle(*stateComponents,r),
+                "invalid behavior trace state-component bundle");}
         MRHumanBehaviorTraceAttemptContextGPU context{};
         if(s.traceEnabled&&!s.traceClosed){context.abiVersion=MR_HUMAN_BEHAVIOR_TRACE_ABI_VERSION;context.structSize=sizeof(context);
             context.present=trace!=nullptr&&trace->abiVersion==MR_HUMAN_BEHAVIOR_TRACE_ABI_VERSION&&trace->structSize==sizeof(*trace)?1u:2u;
             if(trace!=nullptr){context.controlStep=trace->controlStep;context.runtimeFailureStage=trace->runtimeFailureStage;context.auditCoveredMask=trace->auditCoveredMask;context.auditViolationMask=trace->auditViolationMask;context.forbiddenContactCoverage=trace->forbiddenContactCoverage;context.forbiddenContactCount=trace->forbiddenContactCount;context.reserved0=trace->reserved0;context.reserved1=trace->reserved1;context.reserved2=trace->reserved2;context.basePublicationEpoch=trace->basePublicationEpoch;context.basePhysicsGeneration=trace->basePhysicsGeneration;context.baseAcceptedTimestampNanoseconds=trace->baseAcceptedTimestampNanoseconds;context.baseAcceptedTokenFingerprint=trace->baseAcceptedTokenFingerprint;context.basePublicationFingerprint=trace->basePublicationFingerprint;context.candidateStateProofFingerprint=trace->candidateStateProofFingerprint;context.candidateAcceptedTokenFingerprint=trace->candidateAcceptedTokenFingerprint;context.candidatePublicationFingerprint=trace->candidatePublicationFingerprint;context.afterPublicationEpoch=trace->afterPublicationEpoch;context.afterPhysicsGeneration=trace->afterPhysicsGeneration;context.afterAcceptedTimestampNanoseconds=trace->afterAcceptedTimestampNanoseconds;context.afterAcceptedTokenFingerprint=trace->afterAcceptedTokenFingerprint;context.afterPublicationFingerprint=trace->afterPublicationFingerprint;}}
+        if(stateComponents!=nullptr){
+            // The queue is preallocated before trace attachment becomes
+            // visible. A capacity/invariant breach fails this optional
+            // companion stream closed without allocating in the terminal
+            // callback or poisoning the authoritative behavior release.
+            if(s.traceStateComponentDrainAbandoned||
+               s.traceStateComponents.capacity()<s.traceStateComponentCapacity||
+               s.traceStateComponents.size()>=s.traceStateComponentCapacity)
+                s.traceStateComponentDrainAbandoned=true;
+            else s.traceStateComponents.push_back(*stateComponents);
+        }else if(s.traceEnabled&&!s.traceClosed)s.traceStateComponentDrainAbandoned=true;
         if(fence)std::memcpy(s.fences.contents,fence,sizeof(*fence));else std::memset(s.fences.contents,0,s.fences.length);
         std::memcpy(s.release.contents,&r,sizeof(r));std::memcpy(s.traceContext.contents,&context,sizeof(context));s.terminalSerial=r.publicationSerial;error.clear();return true;
     }catch(const std::exception& e){error=e.what();return false;}}
-bool MetalHumanBehaviorTelemetry::traceDrain(mrnx_behavior_trace_chunk_v1& output,std::span<mrnx_behavior_trace_record_v1> records,std::string& error)noexcept{
+bool MetalHumanBehaviorTelemetry::traceDrain(mrnx_behavior_trace_chunk_v1& output,std::span<mrnx_behavior_trace_record_v1> records,std::string& error)noexcept{return traceDrainImpl(output,records,{},false,error);}
+bool MetalHumanBehaviorTelemetry::traceDrain(mrnx_behavior_trace_chunk_v1& output,std::span<mrnx_behavior_trace_record_v1> records,std::span<mrnx_behavior_trace_state_component_record_v1> stateComponents,std::string& error)noexcept{return traceDrainImpl(output,records,stateComponents,true,error);}
+bool MetalHumanBehaviorTelemetry::traceDrainImpl(mrnx_behavior_trace_chunk_v1& output,std::span<mrnx_behavior_trace_record_v1> records,std::span<mrnx_behavior_trace_state_component_record_v1> stateComponents,bool requireStateComponents,std::string& error)noexcept{
     try{auto& s=*state_;require(s.traceEnabled,"behavior trace is not attached");auto* page=static_cast<MRHumanBehaviorTracePageGPU*>(s.tracePage.contents);
-        require(page->abiVersion==MR_HUMAN_BEHAVIOR_TRACE_ABI_VERSION&&page->structSize==sizeof(*page)&&page->recordCapacity>0&&page->traceInstanceFingerprint!=0&&page->expectedAcceptedRoots>0&&page->recordCount<=page->recordCapacity&&page->recordCount<=records.size()&&page->drainedRecordCount<=page->totalRecordCount&&page->totalRecordCount-page->drainedRecordCount==page->recordCount&&page->droppedRecordCount<=page->observedAttemptCount&&page->totalRecordCount<=page->observedAttemptCount-page->droppedRecordCount&&page->totalRecordCount<=std::numeric_limits<std::uint64_t>::max()-page->droppedRecordCount&&page->totalRecordCount+page->droppedRecordCount==page->observedAttemptCount&&((page->lastAfterPublicationEpoch==0&&page->lastAfterAcceptedTokenFingerprint==0&&page->lastAfterPublicationFingerprint==0)||(page->lastAfterPublicationEpoch!=0&&page->lastAfterAcceptedTokenFingerprint!=0&&page->lastAfterPublicationFingerprint!=0)),"invalid or undersized behavior trace drain");
+        require(page->abiVersion==MR_HUMAN_BEHAVIOR_TRACE_ABI_VERSION&&page->structSize==sizeof(*page)&&page->recordCapacity>0&&page->traceInstanceFingerprint!=0&&page->expectedAcceptedRoots>0&&page->recordCount<=page->recordCapacity&&page->recordCount<=records.size()&&(!requireStateComponents||page->recordCount<=stateComponents.size())&&page->drainedRecordCount<=page->totalRecordCount&&page->totalRecordCount-page->drainedRecordCount==page->recordCount&&page->droppedRecordCount<=page->observedAttemptCount&&page->totalRecordCount<=page->observedAttemptCount-page->droppedRecordCount&&page->totalRecordCount<=std::numeric_limits<std::uint64_t>::max()-page->droppedRecordCount&&page->totalRecordCount+page->droppedRecordCount==page->observedAttemptCount&&((page->lastAfterPublicationEpoch==0&&page->lastAfterAcceptedTokenFingerprint==0&&page->lastAfterPublicationFingerprint==0)||(page->lastAfterPublicationEpoch!=0&&page->lastAfterAcceptedTokenFingerprint!=0&&page->lastAfterPublicationFingerprint!=0)),"invalid or undersized behavior trace drain");
+        const auto coreBytes=static_cast<std::size_t>(page->recordCount)*sizeof(mrnx_behavior_trace_record_v1);
+        const auto componentBytes=static_cast<std::size_t>(page->recordCount)*sizeof(mrnx_behavior_trace_state_component_record_v1);
+        require(!byteRangesOverlap(&output,sizeof(output),records.data(),coreBytes)&&
+            (!requireStateComponents||
+             (!byteRangesOverlap(&output,sizeof(output),stateComponents.data(),componentBytes)&&
+              !byteRangesOverlap(records.data(),coreBytes,stateComponents.data(),componentBytes))),
+            "behavior trace drain outputs overlap");
+        require(!requireStateComponents||!s.traceStateComponentDrainAbandoned,
+            "behavior trace state-component stream was abandoned by a core-only drain");
         require(page->status==MR_HUMAN_BEHAVIOR_TRACE_STATUS_READY||page->status==MR_HUMAN_BEHAVIOR_TRACE_STATUS_OVERFLOW||page->status==MR_HUMAN_BEHAVIOR_TRACE_STATUS_INVALID||page->status==MR_HUMAN_BEHAVIOR_TRACE_STATUS_FINALIZED,"invalid behavior trace state");
         const auto* source=static_cast<const MRHumanBehaviorTraceRecordGPU*>(s.traceRecords.contents);std::uint64_t prior=page->pagePreviousRecordFingerprint;
         for(std::uint64_t i=0;i<page->recordCount;++i){const auto& record=source[i];require(record.abiVersion==MR_HUMAN_BEHAVIOR_TRACE_ABI_VERSION&&record.structSize==sizeof(record)&&record.previousRecordFingerprint==prior&&record.recordFingerprint!=0&&record.recordFingerprint==fnv(&record,offsetof(MRHumanBehaviorTraceRecordGPU,recordFingerprint)),"invalid behavior trace record chain");prior=record.recordFingerprint;}
         require((page->recordCount==0&&page->firstAttemptIndex==0&&page->lastAttemptIndex==0&&page->pagePreviousRecordFingerprint==page->lastRecordFingerprint)||(page->recordCount>0&&page->firstAttemptIndex==source[0].attemptIndex&&page->lastAttemptIndex==source[page->recordCount-1].attemptIndex&&prior==page->lastRecordFingerprint),"invalid behavior trace page bounds");
+        std::vector<mrnx_behavior_trace_state_component_record_v1> componentOutput;
+        auto componentPrior=s.traceStateComponentLastSHA256;
+        if(requireStateComponents){componentOutput.reserve(page->recordCount);
+            for(std::uint64_t i=0;i<page->recordCount;++i){const auto& core=source[i];
+                const auto found=std::lower_bound(s.traceStateComponents.begin(),s.traceStateComponents.end(),core.attemptIndex,
+                    [](const auto& candidate,std::uint64_t attempt){return candidate.attempt_index<attempt;});
+                require(found!=s.traceStateComponents.end()&&found->attempt_index==core.attemptIndex&&
+                    found->transaction_fingerprint==core.transactionFingerprint,
+                    "missing or mismatched behavior trace state-component bundle");
+                mrnx_behavior_trace_state_component_record_v1 component{};
+                component.abi_version=MRNX_BEHAVIOR_TRACE_ABI_V1;component.struct_size=sizeof(component);
+                component.covered_mask=found->covered_mask;component.disposition=core.disposition;
+                component.attempt_index=core.attemptIndex;component.transaction_fingerprint=core.transactionFingerprint;
+                std::memcpy(component.before_sensor_sha256,found->before_sensor_sha256,32);
+                std::memcpy(component.candidate_sensor_sha256,found->candidate_sensor_sha256,32);
+                std::memcpy(component.after_sensor_sha256,found->after_sensor_sha256,32);
+                std::memcpy(component.before_publication_sha256,found->before_publication_sha256,32);
+                std::memcpy(component.after_publication_sha256,found->after_publication_sha256,32);
+                std::memcpy(component.previous_record_sha256,componentPrior.data(),componentPrior.size());
+                componentPrior=sha256(&component,offsetof(mrnx_behavior_trace_state_component_record_v1,record_sha256));
+                require(nonzero(componentPrior),"zero behavior trace state-component record digest");
+                std::memcpy(component.record_sha256,componentPrior.data(),componentPrior.size());
+                componentOutput.push_back(component);
+            }}
         mrnx_behavior_trace_chunk_v1 chunk{};chunk.abi_version=MRNX_BEHAVIOR_TRACE_ABI_V1;chunk.struct_size=sizeof(chunk);chunk.trace_status=page->status;chunk.record_capacity=page->recordCapacity;chunk.trace_instance_fingerprint=page->traceInstanceFingerprint;chunk.expected_accepted_roots=page->expectedAcceptedRoots;chunk.chunk_index=page->chunkIndex;chunk.record_count=page->recordCount;chunk.first_attempt_index=page->firstAttemptIndex;chunk.last_attempt_index=page->lastAttemptIndex;chunk.previous_record_fingerprint=page->pagePreviousRecordFingerprint;chunk.last_record_fingerprint=page->lastRecordFingerprint;chunk.observed_attempt_count=page->observedAttemptCount;chunk.total_record_count=page->totalRecordCount;chunk.dropped_record_count=page->droppedRecordCount;chunk.drained_record_count=page->drainedRecordCount+page->recordCount;std::memcpy(chunk.metric_program_sha256,s.traceBinding.metricProgramSHA256.data(),s.traceBinding.metricProgramSHA256.size());chunk.behavior_program_fingerprint=s.fp;chunk.model_source_fingerprint=s.traceBinding.modelSourceFingerprint;chunk.accepted_state_proof_program_fingerprint=s.traceBinding.acceptedStateProofProgramFingerprint;chunk.timestep_nanoseconds=s.cooked.timestepNanoseconds;chunk.initial_timestamp_nanoseconds=s.initialTimestampNanoseconds;chunk.initial_physics_generation=s.initialPhysicsGeneration;chunk.clock_domain=s.traceBinding.clockDomain;chunk.clock_quantum_nanoseconds=s.traceBinding.clockQuantumNanoseconds;
-        if(page->recordCount>0)std::memcpy(records.data(),source,page->recordCount*sizeof(MRHumanBehaviorTraceRecordGPU));output=chunk;
-        if(page->recordCount>0){page->drainedRecordCount+=page->recordCount;++page->chunkIndex;page->recordCount=0;page->firstAttemptIndex=0;page->lastAttemptIndex=0;page->pagePreviousRecordFingerprint=page->lastRecordFingerprint;std::memset(s.traceRecords.contents,0,s.traceRecords.length);}error.clear();return true;
+        const auto observedAttemptCount=page->observedAttemptCount;const auto drainedCount=page->recordCount;
+        if(drainedCount>0){std::memcpy(records.data(),source,drainedCount*sizeof(MRHumanBehaviorTraceRecordGPU));if(requireStateComponents)std::memcpy(stateComponents.data(),componentOutput.data(),drainedCount*sizeof(mrnx_behavior_trace_state_component_record_v1));}output=chunk;
+        if(requireStateComponents)s.traceStateComponentLastSHA256=componentPrior;
+        else if(drainedCount>0)s.traceStateComponentDrainAbandoned=true;
+        s.traceStateComponents.erase(s.traceStateComponents.begin(),std::upper_bound(s.traceStateComponents.begin(),s.traceStateComponents.end(),observedAttemptCount,
+            [](std::uint64_t attempt,const auto& candidate){return attempt<candidate.attempt_index;}));
+        if(drainedCount>0){page->drainedRecordCount+=drainedCount;++page->chunkIndex;page->recordCount=0;page->firstAttemptIndex=0;page->lastAttemptIndex=0;page->pagePreviousRecordFingerprint=page->lastRecordFingerprint;std::memset(s.traceRecords.contents,0,s.traceRecords.length);}error.clear();return true;
     }catch(const std::exception& e){error=e.what();return false;}}
 bool MetalHumanBehaviorTelemetry::traceFinalize(const mrnx_behavior_trace_terminal_request_v1& request,const HumanBehaviorTraceFinalContext& finalContext,mrnx_behavior_trace_terminal_v1& output,std::string& error)noexcept{
     try{auto& s=*state_;require(s.traceEnabled,"behavior trace is not attached");require(request.abi_version==MRNX_BEHAVIOR_TRACE_ABI_V1&&request.struct_size==sizeof(request)&&(request.reason==MRNX_BEHAVIOR_TRACE_TERMINAL_COMPLETED_V1||request.reason==MRNX_BEHAVIOR_TRACE_TERMINAL_CANCELLED_V1||request.reason==MRNX_BEHAVIOR_TRACE_TERMINAL_FAILED_V1)&&request.reserved0==0&&request.reserved1==0,"invalid behavior trace terminal request");

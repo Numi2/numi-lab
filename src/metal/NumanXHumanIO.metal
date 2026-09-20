@@ -1393,17 +1393,21 @@ kernel void numanx_human_write_supplemental_sensors(
                 MR_NUMANX_HUMAN_AUDITION_RECEPTOR_COUNT;
             audition[base + 0u] = relative.x;
             audition[base + 1u] = relative.y;
-            audition[base + 2u] = dispatch.sensorGeneration > 1ul
-                ? dot(float3(v[0], v[1], v[2]), normalize(relative + 1.0e-6f))
-                : 0.0f;
+            // Radial velocity is derived entirely from this candidate's
+            // accepted physical inputs. Attempt-local sensor generation must
+            // not alter the payload: a rejected root and its retry need
+            // byte-identical observations when the physical candidate is the
+            // same.
+            audition[base + 2u] = dot(
+                float3(v[0], v[1], v[2]),
+                normalize(relative + 1.0e-6f));
             audition[base + 3u] = relative.z;
             audition[base + 4u] = length(relative);
             audition[base + 5u] = band;
             audition[base + 6u] = sinpi(band) * length(float3(v[0], v[1], v[2]));
             audition[base + 7u] = cospi(band) * length(float3(v[3], v[4], v[5]));
-            auditionValidity[index] = dispatch.sensorGeneration > 1ul
-                ? MR_NUMANX_HUMAN_AUDITION_VALIDITY_ALL
-                : MR_NUMANX_HUMAN_AUDITION_FIRST_VALIDITY;
+            auditionValidity[index] =
+                MR_NUMANX_HUMAN_AUDITION_VALIDITY_ALL;
         }
     }
 

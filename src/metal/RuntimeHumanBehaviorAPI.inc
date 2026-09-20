@@ -133,9 +133,28 @@ extern "C" bool mrnx_bridge_v1_runtime_behavior_trace_attach(
             MRNX_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS;
         binding.clockQuantumNanoseconds =
             MRNX_EXACT_CLOCK_QUANTUM_NANOSECONDS;
+        const auto initialSensorState =
+            metalrobo::humanBehaviorUnpublishedSensorStateSHA256();
+        const auto initialPublicationState =
+            metalrobo::humanBehaviorUnpublishedPublicationStateSHA256();
+        if (!metalrobo::humanBehaviorStateDigestPresent(
+                initialSensorState) ||
+            !metalrobo::humanBehaviorStateDigestPresent(
+                initialPublicationState)) {
+            runtime->behaviorTraceError =
+                "initial behavior state-component digest failed";
+            return false;
+        }
         const bool attached = runtime->behavior->traceAttach(
             *config, binding, runtime->behaviorTraceError);
-        if (attached) runtime->behaviorTraceError.clear();
+        if (attached) {
+            runtime->behaviorAcceptedSensorStateSHA256 =
+                initialSensorState;
+            runtime->behaviorAcceptedPublicationStateSHA256 =
+                initialPublicationState;
+            runtime->behaviorStateComponentsInitialized = true;
+            runtime->behaviorTraceError.clear();
+        }
         return attached;
     } catch (const std::exception& exception) {
         try {
@@ -182,6 +201,63 @@ extern "C" bool mrnx_bridge_v1_runtime_behavior_trace_drain(
                 result,
                 std::span<mrnx_behavior_trace_record_v1>(
                     records, recordCapacity),
+                runtime->behaviorTraceError)) {
+            return false;
+        }
+        *chunk = result;
+        runtime->behaviorTraceError.clear();
+        return true;
+    } catch (const std::exception& exception) {
+        try {
+            const std::lock_guard lock(runtime->mutex);
+            runtime->behaviorTraceError = exception.what();
+        } catch (...) {}
+        return false;
+    } catch (...) {
+        return false;
+    }
+}
+
+extern "C" bool
+mrnx_bridge_v1_runtime_behavior_trace_state_component_drain(
+    mrnx_runtime_v1* handle,
+    mrnx_behavior_trace_chunk_v1* chunk,
+    mrnx_behavior_trace_record_v1* records,
+    mrnx_behavior_trace_state_component_record_v1* stateComponents,
+    const std::uint32_t recordCapacity) {
+    if (handle == nullptr || handle->state == nullptr || chunk == nullptr ||
+        (recordCapacity != 0u &&
+         (records == nullptr || stateComponents == nullptr))) {
+        return false;
+    }
+    auto runtime = handle->state;
+    try {
+        const std::lock_guard lock(runtime->mutex);
+        if (!runtime->exactClock || runtime->behavior == nullptr ||
+            !runtime->behavior->traceAttached() ||
+            runtime->behavior->traceFinalized() ||
+            runtime->behaviorTraceFinalized ||
+            runtime->behaviorTraceTerminalCached ||
+            runtime->active != nullptr || runtime->beginInProgress ||
+            !runtime->behaviorStateComponentsInitialized) {
+            return false;
+        }
+        const auto encode = [](void* raw, void* commandBuffer) noexcept {
+            auto* state = static_cast<RuntimeState*>(raw);
+            return state->behavior->encodeFlush(
+                commandBuffer, state->behaviorError);
+        };
+        if (!runtime->owner->flushReadOnlyObserver(
+                runtime.get(), encode, runtime->behaviorError)) {
+            return false;
+        }
+        mrnx_behavior_trace_chunk_v1 result{};
+        if (!runtime->behavior->traceDrain(
+                result,
+                std::span<mrnx_behavior_trace_record_v1>(
+                    records, recordCapacity),
+                std::span<mrnx_behavior_trace_state_component_record_v1>(
+                    stateComponents, recordCapacity),
                 runtime->behaviorTraceError)) {
             return false;
         }

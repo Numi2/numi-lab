@@ -1035,6 +1035,7 @@ add_library(
     src/core/HumanBehaviorProgram.cpp
     src/core/HumanBehaviorTrial.cpp
     src/core/HumanBehaviorNativeAudit.cpp
+    src/core/HumanBehaviorStateComponents.cpp
     src/core/NumiHumanTensionNetwork.cpp
     src/core/NumiHumanTendon.cpp
     src/core/NumiHumanCartilage.cpp
