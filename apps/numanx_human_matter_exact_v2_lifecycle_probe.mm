@@ -764,8 +764,9 @@ void runLifecycle(id<MTLDevice> device) {
 
     owner_fixture::CandidateAudit ownerFixture;
     owner_fixture::initializeAudit(ownerFixture, device);
+    const auto ownerPoints = owner_fixture::bodyProbes();
     auto input = owner_fixture::makeInput(
-        model, owner_fixture::bodyProbes(), ownerFixture);
+        model, ownerPoints, ownerFixture);
     input.stand.numanXTransactionProgram = humanIOProgram;
     input.stand.numanXHumanMatterProgram = humanMatterProgram;
     const float exactTimestepSeconds = static_cast<float>(
@@ -836,9 +837,11 @@ void runLifecycle(id<MTLDevice> device) {
     finish(tokenReadbackCommand);
     const auto token =
         value<MRNumanXAcceptedPhysicsStateTokenGPUV2>(tokenReadback);
-    const MRNumanXAcceptedPhysicsStateTokenGPUV2 zeroToken{};
-    require(std::memcmp(&token, &zeroToken, sizeof(token)) == 0,
-        "rejected exact physical prepare exposed an accepted token");
+    require(view.preparedPhysicsStateTokenByteCount == sizeof(token) &&
+                view.finalAcceptedPhysicsStateTokenByteCount == sizeof(token) &&
+                view.proposedPhysicsStateTokenByteCount == sizeof(token) &&
+                validExactTokenShape(token, transaction, kDeliveryNanoseconds),
+        "successful exact physical prepare did not expose a valid V2 token");
 
     metalrobo::MetalNumanXHumanMatterPhysicalOutcome outcome{};
     require(adapter->physicalOutcome(
@@ -846,30 +849,125 @@ void runLifecycle(id<MTLDevice> device) {
                 transaction.transactionFingerprint,
                 transaction.slotGeneration,
                 outcome),
-        "exact physical prepare did not expose its rejection outcome");
-    require(outcome.jointDecision ==
-                MR_NUMANX_COUPLED_HUMAN_REJECT_HUMAN &&
-                outcome.humanCode ==
-                    MR_NUMANX_COUPLED_HUMAN_SERVICE_CANDIDATE_Q_NONFINITE &&
+        "exact physical prepare did not expose its settled outcome");
+    require(outcome.jointDecision == MR_NUMANX_COUPLED_HUMAN_ACCEPT &&
+                outcome.humanCode == 0u &&
                 outcome.matterCode == 0u &&
-                outcome.worldCode == NM_STATUS_NONLINEAR_SOLVER_FAILURE,
-        "exact physical boundary rejection changed unexpectedly");
+                outcome.worldCode == 0u &&
+                outcome.matterCompletedMicrosteps == 1u,
+        "exact physical prepare did not settle as an accepted joint candidate");
+
+    requireApplyAdmissionNegatives(
+        *matter, device, queue,
+        (__bridge id<MTLBuffer>)view.preparedPhysicsStateTokens,
+        transaction, humanMatterProgram);
+
+    const auto witness = makeWitness(
+        transaction, humanMatterProgram, token.tokenFingerprint);
+    require(witness.witnessFingerprint == witnessFingerprint(witness),
+        "exact Brain witness fingerprint is not canonical");
+    id<MTLBuffer> witnessBuffer = makeBuffer(
+        device, witness, @"lifecycle exact Brain witness");
+    id<MTLSharedEvent> witnessReady = [device newSharedEvent];
+    require(witnessReady != nil,
+        "failed to allocate exact Brain witness event");
+    witnessReady.signaledValue = 1u;
+    id<MTLCommandBuffer> proposalCommand = [queue commandBuffer];
+    require(proposalCommand != nil,
+        "failed to allocate exact proposal command");
+    metalrobo::MetalNumanXHumanMatterProposalRequest proposalRequest{};
+    proposalRequest.commandBuffer = (__bridge void*)proposalCommand;
+    proposalRequest.brainCommitWitnesses = (__bridge void*)witnessBuffer;
+    proposalRequest.brainPrepareCompleteEvent = (__bridge void*)witnessReady;
+    proposalRequest.brainPrepareCompleteEventValue = 1u;
+    proposalRequest.brainCommitWitnessesGPUAddress = witnessBuffer.gpuAddress;
+    proposalRequest.brainCommitWitnessElementCount = 1u;
+    proposalRequest.brainCommitWitnessStride = 1u;
+    proposalRequest.environmentCount = view.environmentCount;
+    proposalRequest.transactionSlot = view.transactionSlot;
+    proposalRequest.stepIndex = view.stepIndex;
+    proposalRequest.substepIndex = view.substepIndex;
+    proposalRequest.physicsSubstepCount = view.physicsSubstepCount;
+    proposalRequest.controlStep = view.controlStep;
+    proposalRequest.programFingerprint = view.programFingerprint;
+    proposalRequest.transactionFingerprint = view.transactionFingerprint;
+    proposalRequest.linearizationEpoch = view.linearizationEpoch;
+    proposalRequest.slotGeneration = view.slotGeneration;
+
+    // Exact HumanIO has produced and retained the private authority receipt,
+    // but its public candidate-publication API is still ABI1-only. Do not
+    // manufacture an ABI1 capability: proposal must remain fail-closed until
+    // an authority-bearing exact publication lease can be bound here.
+    const auto proposalBlocked = prepared->proposePrepared(proposalRequest);
+    require(proposalBlocked.status == metalrobo::
+                MetalNumanXHumanMatterOperationStatus::invalidRequest &&
+                !proposalBlocked.encoded &&
+                proposalBlocked.message.find(
+                    "post-physical HumanIO candidate publication binding") !=
+                    std::string::npos,
+        "exact proposal did not stop at the missing HumanIO V2 publication binding");
+    require(prepared->valid() &&
+                matter->preparedStateDisposition(
+                    dispositionIdentity(transaction, humanMatterProgram)) ==
+                    numi::matter::PreparedStateDisposition::prepared,
+        "blocked exact proposal changed quarantined prepared authority");
+
+    id<MTLBuffer> finalTokenReadback = makeZeroBuffer(
+        device, sizeof(MRNumanXAcceptedPhysicsStateTokenGPUV2),
+        @"lifecycle exact final-token readback");
+    id<MTLCommandBuffer> finalReadbackCommand = [queue commandBuffer];
+    id<MTLBlitCommandEncoder> finalReadbackBlit =
+        [finalReadbackCommand blitCommandEncoder];
+    require(finalReadbackCommand != nil && finalReadbackBlit != nil,
+        "failed to allocate exact final-token readback command");
+    [finalReadbackBlit
+        copyFromBuffer:(__bridge id<MTLBuffer>)
+            view.finalAcceptedPhysicsStateTokens
+           sourceOffset:0u
+               toBuffer:finalTokenReadback
+      destinationOffset:0u
+                   size:sizeof(MRNumanXAcceptedPhysicsStateTokenGPUV2)];
+    [finalReadbackBlit endEncoding];
+    finish(finalReadbackCommand);
+    const auto finalToken =
+        value<MRNumanXAcceptedPhysicsStateTokenGPUV2>(finalTokenReadback);
+    const MRNumanXAcceptedPhysicsStateTokenGPUV2 zeroToken{};
+    require(std::memcmp(&finalToken, &zeroToken, sizeof(finalToken)) == 0,
+        "blocked exact proposal exposed an uncommitted final token");
 
     std::cout
-        << "PASS exact_v2_physical_boundary device="
+        << "PASS exact_v2_publication_boundary device="
         << device.name.UTF8String
-        << " disposition=blocked_candidate_q_nonfinite"
+        << " disposition=prepared"
         << " authority_storage=private"
-        << " token=zero"
+        << " token=accepted_v2"
+        << " final_token=zero"
         << " joint=" << outcome.jointDecision
         << " human=" << outcome.humanCode
         << " matter=" << outcome.matterCode
         << " world=" << outcome.worldCode
+        << " stand=" << outcome.worldABACode
+        << " stand_failing=" << outcome.humanFailingIndex
+        << " stand_contact_iterations=" << outcome.humanContactIterations
+        << " stand_factor=" << outcome.humanFactorAndAssistance[0u] << ','
+        << outcome.humanFactorAndAssistance[1u] << ','
+        << outcome.humanFactorAndAssistance[2u] << ','
+        << outcome.humanFactorAndAssistance[3u]
+        << " matter_object=" << outcome.matterObjectIndex
+        << " matter_failing=" << outcome.matterFailingIndex
+        << " matter_fgmres=" << outcome.matterFGMRESIterations
+        << " matter_diag=" << outcome.matterDiagnostics[0u] << ','
+        << outcome.matterDiagnostics[1u] << ','
+        << outcome.matterDiagnostics[2u] << ','
+        << outcome.matterDiagnostics[3u]
         << " negatives=family,clock"
+        << " proposal=blocked_missing_publication_binding"
         << " publication=blocked_exact_humanio_abi\n";
 
-    // This regression stops at the measured physical rejection. Proposal and
-    // apply must remain unreachable while the accepted token is zero.
+    // Preflight, ACK, V2 apply, and COMMITTED publication remain deliberately
+    // unreachable until HumanIO can issue an exact authority-bearing
+    // candidate-publication capability. The accepted prepare token remains
+    // quarantined and the root-visible final token remains zero.
     (void)prepared;
     (void)owner;
     (void)humanIO;
