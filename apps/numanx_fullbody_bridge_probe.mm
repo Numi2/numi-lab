@@ -1179,12 +1179,12 @@ int writePreparedStanceFixture(const char* certificate, const char* output,
         initial.humanSourceFingerprint=expectedSource;
         initial.worldFingerprint=compiled.world.fingerprint;
         initial.timestepMicroseconds=exactNanoseconds % 1000u == 0u ? exactNanoseconds / 1000u : 0u;
-        // Preserve imported NHINIT1/2 state unless an exact clock was
-        // requested. Newly authored stance state already selects NHINIT3 via
-        // its prepared support history and retains the same clock semantics.
+        // Preserve an imported state's root-extension representation. Exact
+        // clock migration does not require inventing a compensated root;
+        // newly authored stance state still receives one when its clock does.
         if (timestepNanoseconds != 0u || initial.timestepNanoseconds != 0u || initial.rootTranslation) {
             initial.timestepNanoseconds=exactNanoseconds;
-            if (!initial.rootTranslation) initial.rootTranslation=mrCompensatedTranslationFromProjection(
+            if (!importInitialState && !initial.rootTranslation) initial.rootTranslation=mrCompensatedTranslationFromProjection(
                 {initial.q[0],initial.q[1],initial.q[2],0.0f});
         }
         require(metalrobo::numiHumanInitialStateTimestepNanoseconds(initial) == exactNanoseconds,
