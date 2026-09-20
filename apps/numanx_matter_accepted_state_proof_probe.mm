@@ -1111,6 +1111,17 @@ ProofResult runProof(
             require(!matter.reservePublishedRoot(
                         dispositionIdentity, binding, rejected),
                 "duplicate publication reservation was admitted");
+            require(matter.cancelPublishedRootReservation(reservation),
+                "exact publication reservation could not be compensated");
+            require(matter.preparedStateDisposition(dispositionIdentity) ==
+                    numi::matter::PreparedStateDisposition::
+                        acceptedPendingPublication,
+                "reservation compensation resolved accepted Matter state");
+            require(!matter.cancelPublishedRootReservation(reservation),
+                "stale compensated reservation remained live");
+            require(matter.reservePublishedRoot(
+                        dispositionIdentity, binding, reservation),
+                "publication could not be re-reserved after compensation");
 
             numi::matter::PreparedStatePublicationFence fence;
             fence.abiVersion = NM_MATTER_PUBLICATION_FENCE_ABI_VERSION;
@@ -1147,6 +1158,8 @@ ProofResult runProof(
             staleReservation.slotGeneration ^= 1u;
             staleReservation.reservationFingerprint =
                 publicationReservationFingerprint(staleReservation);
+            require(!matter.cancelPublishedRootReservation(staleReservation),
+                "stale publication capability cancelled the live reservation");
             require(!matter.releasePublishedRoot(staleReservation, fence),
                 "stale publication capability was admitted");
             if (mode == FinalMode::applyPublicationMismatch) {
@@ -1157,9 +1170,10 @@ ProofResult runProof(
                         numi::matter::PreparedStateDisposition::terminalNoTouch,
                     "publication mismatch did not terminally quarantine");
             } else {
-                require(matter.releasePublishedRoot(
+                require(matter.armPublishedRootRelease(
                             reservation, fence),
-                    "exact COMMITTED publication fence was rejected");
+                    "exact COMMITTED publication fence was not armed");
+                matter.commitPublishedRootRelease(reservation);
                 require(matter.preparedStateDisposition(dispositionIdentity) ==
                         numi::matter::PreparedStateDisposition::resolved,
                     "published root did not resolve Matter quarantine");

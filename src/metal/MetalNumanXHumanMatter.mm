@@ -4102,24 +4102,13 @@ releasePrepareLeaseCallback(
                     MR_NUMANX_HUMAN_MATTER_PUBLICATION_PENDING)) {
                 return false;
             }
-            if (slot.humanIORootReserved) {
-                if (std::memcmp(
-                        &slot.humanIOBinding,
-                        &reservation.humanIOBinding,
-                        sizeof(slot.humanIOBinding)) != 0) {
-                    slot.stage = SlotStage::terminalNoTouch;
-                    return false;
-                }
-            } else {
-                if (!slot.humanIOCandidate.reservePublishedRoot(
-                        slot.humanIOCandidate.context,
-                        slot.humanIOCandidate.
-                            candidatePublicationFingerprint,
-                        reservation.humanIOBinding)) {
-                    return false;
-                }
-                slot.humanIOBinding = reservation.humanIOBinding;
-                slot.humanIORootReserved = true;
+            if (slot.humanIORootReserved &&
+                std::memcmp(
+                    &slot.humanIOBinding,
+                    &reservation.humanIOBinding,
+                    sizeof(slot.humanIOBinding)) != 0) {
+                slot.stage = SlotStage::terminalNoTouch;
+                return false;
             }
             numi::matter::PreparedStatePublicationReservation
                 matterReservation{};
@@ -4128,6 +4117,19 @@ releasePrepareLeaseCallback(
                     matterReservation)) {
                 return false;
             }
+            if (!slot.humanIORootReserved &&
+                !slot.humanIOCandidate.reservePublishedRoot(
+                    slot.humanIOCandidate.context,
+                    slot.humanIOCandidate.candidatePublicationFingerprint,
+                    reservation.humanIOBinding)) {
+                if (!state->config.matterRuntime->
+                        cancelPublishedRootReservation(matterReservation)) {
+                    slot.stage = SlotStage::terminalNoTouch;
+                }
+                return false;
+            }
+            slot.humanIOBinding = reservation.humanIOBinding;
+            slot.humanIORootReserved = true;
             slot.publicationBinding = binding;
             slot.publicationReservation = matterReservation;
             slot.appliedOutcome = *applied;
@@ -4201,10 +4203,8 @@ releasePublishedRootCallback(
                 slot.stage = SlotStage::terminalNoTouch;
                 return Disposition::terminalNoTouch;
             }
-            const bool matterReleased =
-                state->config.matterRuntime->releasePublishedRoot(
-                    slot.publicationReservation, matterFence);
-            if (!matterReleased) {
+            if (!state->config.matterRuntime->armPublishedRootRelease(
+                    slot.publicationReservation, matterFence)) {
                 slot.stage = SlotStage::terminalNoTouch;
                 return Disposition::terminalNoTouch;
             }
@@ -4226,6 +4226,18 @@ releasePublishedRootCallback(
                 // The cross-runtime bridge still holds its aggregate reader
                 // gate, so this internal split can never become a public root.
                 // Retain the owner generation as terminal-no-touch.
+                slot.stage = SlotStage::terminalNoTouch;
+                return Disposition::terminalNoTouch;
+            }
+            // HumanIO was the final fallible native participant. Matter's
+            // exact fence and capability were already armed above, so this
+            // commit performs no admission work and cannot expose a durable
+            // HumanIO/Matter split on the supported owner path.
+            state->config.matterRuntime->commitPublishedRootRelease(
+                slot.publicationReservation);
+            if (state->config.matterRuntime->preparedStateDisposition(
+                    makeDispositionIdentity(slot, lease)) !=
+                numi::matter::PreparedStateDisposition::resolved) {
                 slot.stage = SlotStage::terminalNoTouch;
                 return Disposition::terminalNoTouch;
             }

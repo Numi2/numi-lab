@@ -569,6 +569,8 @@ struct SensorPublicationService {
     std::uint32_t publishCalls = 0u;
     std::uint32_t rejectCalls = 0u;
     std::uint32_t terminalCalls = 0u;
+    std::uint32_t refusedReserveCalls = 0u;
+    bool refuseNextReserve = false;
 
     static bool reserve(
         void* opaque,
@@ -616,6 +618,11 @@ struct SensorPublicationService {
             candidateBinding.bindingFingerprint != metalrobo::
                 metalNumanXHumanIOPublicationBindingFingerprint(
                     candidateBinding)) {
+            return false;
+        }
+        if (service->refuseNextReserve) {
+            service->refuseNextReserve = false;
+            ++service->refusedReserveCalls;
             return false;
         }
         service->binding = candidateBinding;
@@ -2376,11 +2383,22 @@ ApplyResult applyTransaction(
                 prepared.humanIO->reserveCalls == 0u &&
                 prepared.humanIO->publishCalls == 0u,
             "HumanIO candidate became visible before root reservation");
+        prepared.humanIO->refuseNextReserve = true;
+        require(!prepared.program.reservePublishedRoot(
+                    prepared.program.context, prepared.lease, publication),
+            "injected HumanIO reservation refusal was ignored");
+        require(prepared.humanIO->stage ==
+                    SensorPublicationService::Stage::provisional &&
+                prepared.humanIO->refusedReserveCalls == 1u &&
+                prepared.humanIO->reserveCalls == 0u &&
+                prepared.humanIO->publishCalls == 0u,
+            "failed HumanIO arm mutated or published the candidate");
         require(prepared.program.reservePublishedRoot(
                     prepared.program.context, prepared.lease, publication),
-            "exact publication reservation was rejected");
+            "publication could not retry after compensated HumanIO refusal");
         require(prepared.humanIO->stage ==
                     SensorPublicationService::Stage::rootReserved &&
+                prepared.humanIO->refusedReserveCalls == 1u &&
                 prepared.humanIO->reserveCalls == 1u &&
                 prepared.humanIO->publishCalls == 0u,
             "HumanIO root reservation published or lost the candidate");

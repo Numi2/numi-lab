@@ -477,6 +477,16 @@ void requireExactApplyAcceptsExactFamily(
     numi::matter::PreparedStatePublicationReservation reservation{};
     require(matter.reservePublishedRoot(identity, binding, reservation),
         "exact publication reservation was rejected");
+    require(matter.cancelPublishedRootReservation(reservation),
+        "exact publication reservation could not be compensated");
+    require(matter.preparedStateDisposition(identity) ==
+            numi::matter::PreparedStateDisposition::
+                acceptedPendingPublication,
+        "exact reservation compensation resolved accepted Matter state");
+    require(!matter.cancelPublishedRootReservation(reservation),
+        "stale exact reservation remained live after compensation");
+    require(matter.reservePublishedRoot(identity, binding, reservation),
+        "exact publication could not be re-reserved after compensation");
     numi::matter::PreparedStatePublicationFence fence;
     fence.abiVersion = NM_MATTER_PUBLICATION_FENCE_ABI_VERSION_V2;
     fence.structBytes = sizeof(fence);
@@ -499,8 +509,9 @@ void requireExactApplyAcceptsExactFamily(
     fence.jointCommitFingerprint = binding.jointCommitFingerprint;
     fence.brainGeneration = binding.brainGeneration;
     fence.fenceFingerprint = recordFingerprint(fence);
-    require(matter.releasePublishedRoot(reservation, fence),
-        "exact ABI2 committed publication fence was rejected");
+    require(matter.armPublishedRootRelease(reservation, fence),
+        "exact ABI2 committed publication fence was not armed");
+    matter.commitPublishedRootRelease(reservation);
     require(matter.preparedStateDisposition(identity) ==
             numi::matter::PreparedStateDisposition::resolved,
         "exact ABI2 publication did not resolve the prepared generation");

@@ -2,6 +2,7 @@
 #import <Metal/Metal.h>
 
 #include "metalrobo/mujoco_muscle_gpu.h"
+#include "metalrobo/numanx_human_matter_adapter_gpu.h"
 #include "metalrobo/numanx_human_matter_gpu.h"
 #include "metalrobo/numi_human_joint_equality_gpu.h"
 #include "metalrobo/numi_human_tendon_gpu.h"
@@ -55,6 +56,36 @@ std::uint64_t rootHash(const MRCompensatedRootTranslationGPU& root) {
     std::uint64_t hash = 14695981039346656037ull;
     for (std::size_t i = 0u; i < sizeof(root); ++i)
         hash = (hash ^ bytes[i]) * 1099511628211ull;
+    return hash;
+}
+
+void mixTokenU32(std::uint64_t& hash, const std::uint32_t value) {
+    for (std::uint32_t byte = 0u; byte < 4u; ++byte) {
+        hash = (hash ^ static_cast<std::uint8_t>(value >> (8u * byte))) *
+            1099511628211ull;
+    }
+}
+
+void mixTokenU64(std::uint64_t& hash, const std::uint64_t value) {
+    for (std::uint32_t byte = 0u; byte < 8u; ++byte) {
+        hash = (hash ^ static_cast<std::uint8_t>(value >> (8u * byte))) *
+            1099511628211ull;
+    }
+}
+
+std::uint64_t tokenFingerprint(
+    const MRNumanXAcceptedPhysicsStateTokenGPU& token
+) {
+    std::uint64_t hash = 14695981039346656037ull;
+    mixTokenU32(hash, 1u);
+    mixTokenU64(hash, token.transactionFingerprint);
+    mixTokenU64(hash, token.substepFingerprint);
+    mixTokenU64(hash, token.physicsStateFingerprint);
+    mixTokenU64(hash, token.acceptedTimestampMicroseconds);
+    mixTokenU64(hash, token.physicsGeneration);
+    mixTokenU32(hash, token.environmentIdentifier);
+    mixTokenU32(hash, token.flags);
+    mixTokenU64(hash, token.reserved);
     return hash;
 }
 
@@ -156,6 +187,7 @@ struct Fixture {
     id<MTLBuffer> tendonBindings = nil;
     id<MTLBuffer> tendonTransfers = nil;
     id<MTLBuffer> equalities = nil;
+    id<MTLBuffer> passiveJointProgram = nil;
 
     MRNumiHumanStandDispatchGPU standDispatch{};
     MRNumanXHumanMatterDispatchGPU ownerDispatch{};
@@ -279,12 +311,15 @@ struct Fixture {
         contacts = zeroBuffer<MRNumiHumanStandContactGPU>(
             device, 1u, @"contacts");
         spatial = zeroBuffer<float>(
-            device, kBodyCount * 6u * kNv, @"spatial Jacobian");
+            device,
+            kBodyCount * MR_NUMI_HUMAN_STAND_SPATIAL_SCRATCH_ROWS * kNv,
+            @"spatial Jacobian");
         bodyMotion = zeroBuffer<mr_float4>(
             device, kBodyCount * 2u, @"body motion");
         vectorScratch = zeroBuffer<float>(
-            device, 3u * kNv, @"stand vectors");
-        response = zeroBuffer<float>(device, 1u, @"response");
+            device, 4u * kNv, @"stand vectors");
+        response = zeroBuffer<float>(
+            device, kNv * kNv, @"response");
         standStatuses = zeroBuffer<MRNumiHumanStandStatusGPU>(
             device, kEnvironmentCount, @"stand statuses");
         tendonBindings = zeroBuffer<MRNumiHumanTendonBindingGPU>(
@@ -293,6 +328,8 @@ struct Fixture {
             device, 1u, @"tendon transfers");
         equalities = zeroBuffer<MRNumiHumanJointEqualityGPU>(
             device, 1u, @"equalities");
+        passiveJointProgram = zeroBuffer<float>(
+            device, 1u, @"empty passive joint program");
 
         standDispatch.abiVersion = MR_NUMI_HUMAN_STAND_ABI_VERSION;
         standDispatch.environmentCount = kEnvironmentCount;
@@ -446,10 +483,18 @@ RunResult run(Fixture& fixture, const Outcome outcome) {
     resolved->humanCode = MR_NUMI_HUMAN_STAND_SUCCESS;
     resolved->humanCompletedSteps = 1u;
     resolved->matterCompletedMicrosteps = 1u;
-    auto* tokenBytes = static_cast<std::uint8_t*>(postToken.contents);
-    std::memset(tokenBytes, 0x5au, 64u);
-    const std::uint64_t tokenFingerprint = 0xa55aa55aa55aa55aull;
-    std::memcpy(tokenBytes + 56u, &tokenFingerprint, sizeof(tokenFingerprint));
+    MRNumanXAcceptedPhysicsStateTokenGPU preparedToken{};
+    preparedToken.transactionFingerprint = kTransactionFingerprint;
+    preparedToken.substepFingerprint = 0x5355425354455031ull;
+    preparedToken.physicsStateFingerprint = 0x5048595349435331ull;
+    preparedToken.acceptedTimestampMicroseconds = 10'000u;
+    preparedToken.physicsGeneration = 1u;
+    preparedToken.environmentIdentifier = 0u;
+    preparedToken.flags = 0u;
+    preparedToken.reserved = 0u;
+    preparedToken.tokenFingerprint = tokenFingerprint(preparedToken);
+    std::memcpy(
+        postToken.contents, &preparedToken, sizeof(preparedToken));
 
     id<MTLCommandQueue> queue = [fixture.device newCommandQueue];
     require(queue != nil, "failed to create command queue");
@@ -558,6 +603,7 @@ RunResult run(Fixture& fixture, const Outcome outcome) {
     [stand setBuffer:root offset:0u atIndex:21u];
     [stand setBuffer:fixture.bodyPositionLow offset:0u atIndex:22u];
     [stand setBuffer:fixture.pointPositionLow offset:0u atIndex:23u];
+    [stand setBuffer:fixture.passiveJointProgram offset:0u atIndex:24u];
     encodeEnvironmentGroups(stand);
     [stand endEncoding];
 
@@ -664,7 +710,22 @@ int main(int argc, const char* argv[]) {
                     accepted.owner.preparedTokenPreserved == 1u &&
                     accepted.owner.physicalCommandStatus ==
                         MR_NUMANX_HUMAN_MATTER_PHYSICAL_COMMAND_COMPLETE,
-                    "accepted owner witness is wrong");
+                    "accepted owner witness is wrong: stage=" +
+                        std::to_string(accepted.owner.stage) +
+                        " reaction=" +
+                        std::to_string(accepted.owner.reactionConsumed) +
+                        " restored=" +
+                        std::to_string(accepted.owner.restored) +
+                        " token=" +
+                        std::to_string(
+                            accepted.owner.preparedTokenPreserved) +
+                        " physical=" +
+                        std::to_string(
+                            accepted.owner.physicalCommandStatus) +
+                        " stand_code=" +
+                        std::to_string(accepted.stand.code) +
+                        " stand_steps=" +
+                        std::to_string(accepted.stand.completedSteps));
             require(accepted.stand.code == MR_NUMI_HUMAN_STAND_SUCCESS &&
                     accepted.stand.completedSteps == 1u,
                     "stand did not complete accepted step");

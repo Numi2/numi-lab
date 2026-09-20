@@ -1580,6 +1580,25 @@ public:
         const PreparedStatePublicationBinding& binding,
         PreparedStatePublicationReservation& reservation
     ) noexcept;
+    // Exact compensation for an owner whose joint reservation could not be
+    // completed after Matter accepted its half. This only removes the
+    // unpublished reservation; the accepted state and its publication facts
+    // remain quarantined and may be reserved again.
+    [[nodiscard]] bool cancelPublishedRootReservation(
+        const PreparedStatePublicationReservation& reservation
+    ) noexcept;
+    // Final validation is separated from visibility mutation so a joint owner
+    // can complete every fallible participant check before publishing either
+    // native subsystem. A successful arm quarantines the exact COMMITTED
+    // fence. commitPublishedRootRelease() is a nonallocating, no-return commit
+    // for that same reservation.
+    [[nodiscard]] bool armPublishedRootRelease(
+        const PreparedStatePublicationReservation& reservation,
+        const PreparedStatePublicationFence& publicationFence
+    ) noexcept;
+    void commitPublishedRootRelease(
+        const PreparedStatePublicationReservation& reservation
+    ) noexcept;
     // Allocation-free/nonthrow release after the joint Brain root has been
     // published. This is the only ABI4 ACCEPT path that clears checkpoints and
     // admits a subsequent Runtime transaction.

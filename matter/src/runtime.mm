@@ -655,6 +655,7 @@ struct Runtime::State {
         bool terminalNoTouch = false;
         bool applyCommandCompleted = false;
         bool publicationReserved = false;
+        bool publicationReleaseArmed = false;
         // Scalar, non-retaining identity of the provisional Human status
         // stream used by the prepared post-commit pass. The proof pass must
         // consume this exact object/range before the borrowed CB is queued.
@@ -662,6 +663,7 @@ struct Runtime::State {
         std::uint64_t preparedEnvironmentStatusesGPUAddress = 0u;
         PreparedStatePublicationBinding publicationBinding{};
         PreparedStatePublicationReservation publicationReservation{};
+        PreparedStatePublicationFence publicationReleaseFence{};
         NMPreparedStatePublicationFactsGPU publicationFacts{};
         std::uint64_t publicationReservationCounter = 0u;
         void* applyCommandBuffer = nullptr;
@@ -708,8 +710,10 @@ struct Runtime::State {
             applyEncoded = false;
             if (status != MTLCommandBufferStatusCompleted) {
                 publicationReserved = false;
+                publicationReleaseArmed = false;
                 publicationBinding = {};
                 publicationReservation = {};
+                publicationReleaseFence = {};
                 publicationFacts = {};
                 acceptedStateProofEligible = false;
                 // Owner completion publishes a terminal Applied record and
@@ -723,8 +727,10 @@ struct Runtime::State {
             }
             if (outcome == NM_PREPARED_STATE_APPLY_TERMINAL_NO_TOUCH) {
                 publicationReserved = false;
+                publicationReleaseArmed = false;
                 publicationBinding = {};
                 publicationReservation = {};
+                publicationReleaseFence = {};
                 publicationFacts = {};
                 terminalNoTouch = true;
                 restoreRequired = true;
@@ -737,8 +743,10 @@ struct Runtime::State {
                     NM_PREPARED_STATE_APPLY_ACCEPTED_PENDING_PUBLICATION) ||
                 preparedCommandFailed) {
                 publicationReserved = false;
+                publicationReleaseArmed = false;
                 publicationBinding = {};
                 publicationReservation = {};
+                publicationReleaseFence = {};
                 publicationFacts = {};
                 restoreRequired = true;
                 acceptedStateProofEligible = false;
@@ -770,8 +778,10 @@ struct Runtime::State {
                 disposition =
                     PreparedStateDisposition::acceptedPendingPublication;
                 publicationReserved = false;
+                publicationReleaseArmed = false;
                 publicationBinding = {};
                 publicationReservation = {};
+                publicationReleaseFence = {};
                 publicationFacts = *facts;
                 restoreRequired = false;
                 applyCommandCompleted = false;
@@ -795,8 +805,10 @@ struct Runtime::State {
             terminalNoTouch = false;
             applyCommandCompleted = false;
             publicationReserved = false;
+            publicationReleaseArmed = false;
             publicationBinding = {};
             publicationReservation = {};
+            publicationReleaseFence = {};
             publicationFacts = {};
         }
     };
@@ -10597,6 +10609,8 @@ bool Runtime::reservePublishedRoot(
             publicationReservationFingerprint(capability);
         ownership->publicationReservation = capability;
         ownership->publicationReserved = true;
+        ownership->publicationReleaseArmed = false;
+        ownership->publicationReleaseFence = {};
         reservation = capability;
         return true;
     } catch (...) {
@@ -10604,7 +10618,51 @@ bool Runtime::reservePublishedRoot(
     }
 }
 
-bool Runtime::releasePublishedRoot(
+bool Runtime::cancelPublishedRootReservation(
+    const PreparedStatePublicationReservation& reservation
+) noexcept {
+    if (state_ == nullptr || reservation.abiVersion != 1u ||
+        reservation.structSize !=
+            sizeof(PreparedStatePublicationReservation) ||
+        reservation.reserved0 != 0u || reservation.reserved1 != 0u ||
+        reservation.reserved2 != 0u ||
+        reservation.transactionFingerprint == 0u ||
+        reservation.slotGeneration == 0u ||
+        reservation.reservationNonce == 0u ||
+        reservation.reservationFingerprint == 0u ||
+        reservation.reservationFingerprint !=
+            publicationReservationFingerprint(reservation)) {
+        return false;
+    }
+    try {
+        const auto ownership = state_->commandOwnership;
+        const std::lock_guard lock(ownership->mutex);
+        if (std::memcmp(
+                &reservation, &ownership->publicationReservation,
+                sizeof(reservation)) != 0 ||
+            ownership->disposition !=
+                PreparedStateDisposition::acceptedPendingPublication ||
+            !ownership->preparedStateOpen || ownership->restoreRequired ||
+            ownership->terminalNoTouch || ownership->applyEncoded ||
+            ownership->applyCommandBuffer != nullptr ||
+            !ownership->preparedCommandCompleted ||
+            ownership->preparedCommandFailed ||
+            !ownership->publicationReserved ||
+            ownership->publicationReleaseArmed) {
+            return false;
+        }
+        ownership->publicationReserved = false;
+        ownership->publicationReleaseArmed = false;
+        ownership->publicationBinding = {};
+        ownership->publicationReservation = {};
+        ownership->publicationReleaseFence = {};
+        return true;
+    } catch (...) {
+        return false;
+    }
+}
+
+bool Runtime::armPublishedRootRelease(
     const PreparedStatePublicationReservation& reservation,
     const PreparedStatePublicationFence& fence
 ) noexcept {
@@ -10640,7 +10698,8 @@ bool Runtime::releasePublishedRoot(
             ownership->applyCommandBuffer != nullptr ||
             !ownership->preparedCommandCompleted ||
             ownership->preparedCommandFailed ||
-            !ownership->publicationReserved) {
+            !ownership->publicationReserved ||
+            ownership->publicationReleaseArmed) {
             return false;
         }
         const PreparedStatePublicationBinding expected =
@@ -10689,9 +10748,52 @@ bool Runtime::releasePublishedRoot(
                 PreparedStateDisposition::terminalNoTouch;
             return false;
         }
+        ownership->publicationReleaseFence = fence;
+        ownership->publicationReleaseArmed = true;
+        return true;
+    } catch (...) {
+        return false;
+    }
+}
+
+void Runtime::commitPublishedRootRelease(
+    const PreparedStatePublicationReservation& reservation
+) noexcept {
+    if (state_ == nullptr || reservation.abiVersion != 1u ||
+        reservation.structSize !=
+            sizeof(PreparedStatePublicationReservation) ||
+        reservation.reserved0 != 0u || reservation.reserved1 != 0u ||
+        reservation.reserved2 != 0u ||
+        reservation.transactionFingerprint == 0u ||
+        reservation.slotGeneration == 0u ||
+        reservation.reservationNonce == 0u ||
+        reservation.reservationFingerprint == 0u ||
+        reservation.reservationFingerprint !=
+            publicationReservationFingerprint(reservation)) {
+        return;
+    }
+    try {
+        const auto ownership = state_->commandOwnership;
+        const std::lock_guard lock(ownership->mutex);
+        if (std::memcmp(
+                &reservation, &ownership->publicationReservation,
+                sizeof(reservation)) != 0 ||
+            ownership->disposition !=
+                PreparedStateDisposition::acceptedPendingPublication ||
+            !ownership->preparedStateOpen || ownership->restoreRequired ||
+            ownership->terminalNoTouch || ownership->applyEncoded ||
+            ownership->applyCommandBuffer != nullptr ||
+            !ownership->preparedCommandCompleted ||
+            ownership->preparedCommandFailed ||
+            !ownership->publicationReserved ||
+            !ownership->publicationReleaseArmed) {
+            return;
+        }
         ownership->publicationReserved = false;
+        ownership->publicationReleaseArmed = false;
         ownership->publicationBinding = {};
         ownership->publicationReservation = {};
+        ownership->publicationReleaseFence = {};
         ownership->publicationFacts = {};
         ownership->disposition = PreparedStateDisposition::resolved;
         ownership->preparedStateOpen = false;
@@ -10709,7 +10811,25 @@ bool Runtime::releasePublishedRoot(
         ownership->preparedCommandFailed = false;
         ownership->terminalNoTouch = false;
         ownership->applyCommandCompleted = false;
-        return true;
+    } catch (...) {
+        return;
+    }
+}
+
+bool Runtime::releasePublishedRoot(
+    const PreparedStatePublicationReservation& reservation,
+    const PreparedStatePublicationFence& fence
+) noexcept {
+    if (!armPublishedRootRelease(reservation, fence)) {
+        return false;
+    }
+    commitPublishedRootRelease(reservation);
+    try {
+        const auto ownership = state_->commandOwnership;
+        const std::lock_guard lock(ownership->mutex);
+        return ownership->disposition == PreparedStateDisposition::resolved &&
+            !ownership->publicationReserved &&
+            !ownership->publicationReleaseArmed;
     } catch (...) {
         return false;
     }
