@@ -56,22 +56,52 @@ Jacobians are refreshed at each nonlinear assembly; the linear action holds
 that geometry fixed. Every Krylov norm, basis operation, restart and nonlinear
 certificate includes the dual block. Velocity and impulse use the same accepted
 line-search fraction. Failed publication restores checkpoint impulse histories
-and consequences with the other coupled state.
+and consequences inside Matter's private candidate arenas. In the exact
+NumanX path, a failed physical root remains pre-apply/no-write, is reported as
+terminal-no-touch, and quarantines the runtime; it is not a restored or
+reusable root.
 
-Normal exits use a primal-dual active set and constrain the complete support
-impulse to zero. An outward sliding direction is discarded and re-solved
-against a fixed-normal disk target. That transient target retains a
-normal-range, scale-relative FP32 interior margin to reduce boundary
-sensitivity. Another coupled limiter may still select an arbitrarily smaller
-shared alpha, so a no-write gate recomputes the exact stored interpolation
-after all limiters and rejects the environment before any state application if
-that point is not representably feasible. Nonzero subnormal friction is
-rejected at source and direct-runtime admission rather than being silently
-flushed to a different frictionless law. These are transient globalization
-rules: the next iteration restores the natural Coulomb equation, and
-accepted-state certification still requires a nonnegative normal impulse and a
-strict nonnegative Coulomb margin without a tolerance waiver or post-solve
-dual projection.
+The natural Alart-Curnier equation owns the current normal active/inactive
+classification. A solved normal exit may select the exact full-impulse inactive
+set only when the freshly assembled inactive inequality `c_n >= 0` holds. When
+`c_n < 0`, replacing that active natural equation with `lambda = 0` would
+contradict the current classification and can produce an exact active/inactive
+cycle. The resolver instead retains the coupled mechanical Newton direction
+and retracts only its support-dual endpoint to the canonical cone apex. At a
+smooth positive-normal Coulomb boundary, an outward affine chord receives the
+same one-step treatment with an exact feasible fixed-normal disk endpoint. The
+shared-alpha chord to either endpoint is feasible by convexity. This marker is
+cleared after every successful full or partial application; a simultaneous
+valid normal active-set pivot clears it while discarding the whole stale
+monolithic direction, and any marker that reaches a later residual assembly
+fails closed. The natural Coulomb equation is therefore reassembled immediately
+instead of being replaced by a fixed-target solve. A positive-normal endpoint
+retains a normal-range, scale-relative FP32 interior margin to reduce boundary
+sensitivity. The canonical apex is a globalization retraction, not a claimed
+second-order correction; terminal admission remains the unchanged natural
+residual certificate.
+
+A free direction searches the positive-normal FP32 alpha encoding for a
+terminally feasible stored step using the fused multiply-add that applies it;
+no fixed real-value halving budget or subnormal support alpha is part of the
+execution contract. After vascular globalization selects its shared alpha, the
+support rows reconcile that exact FP32 value and vascular globalization is
+rerun for the reconciled common value. A no-write gate repeats the exact
+stored-step predicate after the final limiter and rejects the environment
+before any state application if the point is not representably feasible.
+Nonzero subnormal friction is rejected at source and direct-runtime admission
+rather than being silently flushed to a different frictionless law. Accepted-
+state certification still requires a nonnegative normal impulse, the natural
+Coulomb residual, and a strict nonnegative Coulomb margin without a tolerance
+waiver or post-solve dual projection.
+
+The Matter device-program fingerprint includes a versioned host execution
+policy domain in addition to the world, ABI, configuration, and exact metallib.
+Every policy-changing release must bump that revision when dispatch ordering,
+inter-kernel barriers, or pre-apply gates change without an ABI or metallib
+format change. That bump prevents snapshots or run identity from an older host
+schedule from being reused even when the loaded metallib path and bytes are
+unchanged.
 
 The advertised candidate point capacity covers continuum contact, anatomical
 attachments and Human support. The borrowed query boundary also checks the

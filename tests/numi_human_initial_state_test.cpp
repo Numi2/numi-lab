@@ -47,9 +47,56 @@ int main() {
                 preparedHistoryMixed &&
                 observedHistoryHash==expectedHistoryHash,
             "nonempty prepared support history extends Matter fingerprint");
+        const auto policyMixer=[](const std::uint64_t base,
+                                  const std::uint64_t value) noexcept {
+            return std::rotl(base,7)^value;
+        };
+        const auto expectedPolicyFingerprint=policyMixer(
+            policyMixer(legacyMatterFingerprint,
+                numi::matter::detail::kRuntimeExecutionPolicyDomain),
+            numi::matter::detail::kRuntimeExecutionPolicyRevision);
+        require(numi::matter::detail::kRuntimeExecutionPolicyRevision!=0u &&
+                numi::matter::detail::mixRuntimeExecutionPolicyFingerprint(
+                    legacyMatterFingerprint,policyMixer)==
+                    expectedPolicyFingerprint &&
+                expectedPolicyFingerprint!=legacyMatterFingerprint,
+            "Matter host execution policy extends device-program identity");
         require(numi::matter::detail::humanSupportHistoryAdmissible(
                 {1.0f,0.0f,0.0f,2.0f},0.5f,{0.0f,1.0f,0.0f,0.0f}),
             "finite tangent history satisfies the exact Coulomb boundary");
+        const auto fromBits=[](const std::uint32_t bits){
+            return std::bit_cast<float>(bits);
+        };
+        require(numi::matter::detail::humanSupportHistoryAdmissible(
+                {fromBits(0xb9aaf411u),fromBits(0xbabf9f8au),0.0f,
+                 fromBits(0x3ac454d6u)},
+                1.0f,{0.0f,0.0f,1.0f,0.0f}),
+            "host admission preserves an exact FP32 Metal cone boundary");
+        require(!numi::matter::detail::humanSupportHistoryAdmissible(
+                {fromBits(0xb752e136u),fromBits(0xb86c6083u),0.0f,
+                 fromBits(0x38722f4eu)},
+                1.0f,{0.0f,0.0f,1.0f,0.0f}) &&
+                numi::matter::detail::humanSupportHistoryAdmissible(
+                {fromBits(0xb752e136u),fromBits(0xb86c6083u),0.0f,
+                 fromBits(0x38722f4fu)},
+                1.0f,{0.0f,0.0f,1.0f,0.0f}),
+            "host admission matches adjacent FP32 Metal cone words");
+        const float fusedFriction=fromBits(0x3c23d70au);
+        const float fusedNormal=fromBits(0x3c23d70au);
+        require(numi::matter::detail::humanSupportHistoryAdmissible(
+                {fromBits(0x38d1b716u),0.0f,0.0f,fusedNormal},
+                fusedFriction,{0.0f,1.0f,0.0f,0.0f}) &&
+                !numi::matter::detail::humanSupportHistoryAdmissible(
+                {fromBits(0x38d1b717u),0.0f,0.0f,fusedNormal},
+                fusedFriction,{0.0f,1.0f,0.0f,0.0f}),
+            "host admission uses the explicit fused Metal cone margin");
+        require(!numi::matter::detail::humanSupportHistoryAdmissible(
+                {std::numeric_limits<float>::min(),0.0f,0.0f,0.0f},
+                1.0f,{0.0f,0.0f,1.0f,0.0f}) &&
+                !numi::matter::detail::humanSupportHistoryAdmissible(
+                {std::numeric_limits<float>::min(),0.0f,0.0f,1.0f},
+                0.0f,{0.0f,0.0f,1.0f,0.0f}),
+            "apex and frictionless histories require canonical zero tangent");
         require(!numi::matter::detail::humanSupportHistoryAdmissible(
                 {0.0f,0.0f,0.0f,std::numeric_limits<float>::max()},
                 std::numeric_limits<float>::max(),

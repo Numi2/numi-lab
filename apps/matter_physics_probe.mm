@@ -3529,6 +3529,32 @@ void runHumanSupportLoaded() {
                         "Human support initial history violates its tangent/Coulomb cone",
                     "support initial-history cone failed open: " +
                         coneAdmission.message);
+                const auto fromBits=[](const std::uint32_t bits){
+                    float value=0.0f;
+                    std::memcpy(&value,&bits,sizeof(value));
+                    return value;
+                };
+                auto adjacentConfiguration = runtimeConfiguration;
+                auto adjacentContacts = contacts;
+                for (auto& contact : adjacentContacts) {
+                    contact.frictionSlopAndStabilization.x = 1.0f;
+                }
+                std::vector<nm_float4> adjacentOutside(
+                    environments*c.rows);
+                adjacentOutside.front() = {
+                    fromBits(0xb752e136u),0.0f,fromBits(0xb86c6083u),
+                    fromBits(0x38722f4eu)};
+                adjacentConfiguration.humanSupportContacts = adjacentContacts;
+                adjacentConfiguration.humanSupportInitialHistories =
+                    adjacentOutside;
+                numi::matter::Runtime adjacentRuntime;
+                const auto adjacentAdmission = adjacentRuntime.initialize(
+                    compiled.world, adjacentConfiguration);
+                require(!adjacentAdmission.encoded &&
+                    adjacentAdmission.message ==
+                        "Human support initial history violates its tangent/Coulomb cone",
+                    "support adjacent-word FP32 cone failed open: " +
+                        adjacentAdmission.message);
                 auto overflowConfiguration = runtimeConfiguration;
                 auto overflowContacts = contacts;
                 for (auto& contact : overflowContacts) {
@@ -3636,8 +3662,65 @@ void runHumanSupportLoaded() {
                 rejectSupportRestore(invalid,
                     "Matter snapshot Human-support-history is inadmissible",
                     "outside-cone support-history restore");
+                invalid = checkpoint;
+                invalid.humanSupportHistories.front() = {
+                    std::nextafter(c.friction,
+                        std::numeric_limits<float>::infinity()),0,0,1};
+                rejectSupportRestore(invalid,
+                    "Matter snapshot Human-support-history is inadmissible",
+                    "frictionless nonzero-tangent support-history restore");
+                invalid = checkpoint;
+                invalid.humanSupportHistories.front() = {
+                    std::numeric_limits<float>::min(),0,0,0};
+                rejectSupportRestore(invalid,
+                    "Matter snapshot Human-support-history is inadmissible",
+                    "noncanonical-apex support-history restore");
                 std::cout <<
                     "support_restore_extent_admissibility_and_atomicity_rejected=1\n";
+            }
+            if (std::string_view(c.name) == "sticking") {
+                auto boundary = checkpoint;
+                boundary.humanSupportHistories.front() =
+                    {c.friction, 0.0f, 0.0f, 1.0f};
+                const auto boundaryRestore = matter.restore(boundary);
+                require(boundaryRestore.encoded,
+                    "positive-friction boundary support-history restore failed: " +
+                        boundaryRestore.message);
+                const auto acceptedBoundary = matter.snapshot();
+                require(acceptedBoundary.available &&
+                    acceptedBoundary.humanSupportHistories.size() ==
+                        boundary.humanSupportHistories.size() &&
+                    std::memcmp(acceptedBoundary.humanSupportHistories.data(),
+                        boundary.humanSupportHistories.data(),
+                        boundary.humanSupportHistories.size() *
+                            sizeof(nm_float4)) == 0,
+                    "positive-friction boundary restore changed exact FP32 history");
+
+                auto adjacentOutside = acceptedBoundary;
+                adjacentOutside.controlStep =
+                    acceptedBoundary.controlStep + 17u;
+                adjacentOutside.humanSupportHistories.front().x =
+                    std::nextafter(c.friction,
+                        std::numeric_limits<float>::infinity());
+                const auto rejected = matter.restore(adjacentOutside);
+                require(!rejected.encoded && rejected.message ==
+                    "Matter snapshot Human-support-history is inadmissible",
+                    "positive-friction adjacent-word restore failed open: " +
+                        rejected.message);
+                const auto afterRejection = matter.snapshot();
+                require(afterRejection.available &&
+                    afterRejection.controlStep == acceptedBoundary.controlStep &&
+                    afterRejection.humanSupportHistories.size() ==
+                        acceptedBoundary.humanSupportHistories.size() &&
+                    std::memcmp(afterRejection.humanSupportHistories.data(),
+                        acceptedBoundary.humanSupportHistories.data(),
+                        acceptedBoundary.humanSupportHistories.size() *
+                            sizeof(nm_float4)) == 0,
+                    "positive-friction adjacent-word restore mutated accepted state");
+                require(matter.restore(checkpoint).encoded,
+                    "could not restore support checkpoint after boundary admission test");
+                std::cout <<
+                    "support_restore_positive_friction_boundary_exact_and_adjacent_rejected=1\n";
             }
             auto model = metalrobo::makeFreeSphereEngineModel();
             model.name = std::string("support_")+c.name;

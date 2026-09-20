@@ -311,6 +311,8 @@ const char kImageAnchor = 0;
     std::uint64_t hash = 14695981039346656037ull;
     hash = mixFingerprint(hash, worldFingerprint);
     hash = mixFingerprint(hash, NM_MATTER_ABI_VERSION);
+    hash = detail::mixRuntimeExecutionPolicyFingerprint(
+        hash, mixFingerprint);
     hash = mixFingerprint(hash, metallibFingerprint);
     hash = mixFingerprint(hash, metallibByteCount);
     hash = mixFingerprint(hash, configuration.captureEvents ? 1u : 0u);
@@ -6358,11 +6360,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 if (traceRoot != nullptr && humanSupportTotal != 0u &&
                     environments == 1u && request.controlStep == std::strtoul(traceRoot, nullptr, 10)) {
                     struct TraceArena { const char* name; id<MTLBuffer> source; NSUInteger bytes; };
-                    const std::array<TraceArena, 9u> arenas{{
+                    const std::array<TraceArena, 10u> arenas{{
                         {"q", state.coupledCandidateQ, state.coupledQStride * sizeof(float)},
                         {"delta_v", state.coupledGeneralizedCandidate, state.dispatch.rigidGeneralizedCapacity * sizeof(float)},
                         {"free_v", buffer(request.rigid.v), state.humanSupportDispatch.articulatedNv * sizeof(float)},
                         {"sample", state.humanSupportSamples, humanSupportTotal * sizeof(NMContactSampleGPU)},
+                        {"history", state.humanSupportHistoriesCandidate, humanSupportTotal * sizeof(nm_float4)},
                         {"kkt", state.humanSupportLinearizations, humanSupportTotal * sizeof(NMHumanSupportKKTGPU)},
                         {"jacobian", state.humanSupportPointJacobians, humanSupportTotal * 3u * state.dispatch.rigidGeneralizedCapacity * sizeof(float)},
                         {"working_set", state.humanSupportWorkingSet, humanSupportTotal * sizeof(std::uint32_t)},
@@ -7683,6 +7686,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                              offset:0u atIndex:8u];
                 [encoder setBuffer:state.humanSupportConeTargets
                              offset:0u atIndex:9u];
+                [encoder setBuffer:state.humanSupportSamples
+                             offset:0u atIndex:10u];
             });
             dispatchGroups32("nm_fgmres_measure_correction", environments, [&] {
                 setDispatch();
@@ -7822,68 +7827,87 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.femLineSearch
                                  offset:0u atIndex:1u];
                 });
-            dispatchGroups32(
-                "nm_human_support_limit_line_search",
-                environments,
-                [&] {
+            const auto encodeHumanSupportLineSearchLimit = [&] {
+                dispatchGroups32(
+                    "nm_human_support_limit_line_search",
+                    environments,
+                    [&] {
+                        setDispatch();
+                        [encoder setBytes:&state.humanSupportDispatch
+                                   length:sizeof(state.humanSupportDispatch)
+                                  atIndex:1u];
+                        [encoder setBuffer:state.femSolution
+                                     offset:0u atIndex:2u];
+                        [encoder setBuffer:state.humanSupportHistoriesCandidate
+                                     offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femLineSearch
+                                     offset:0u atIndex:4u];
+                        [encoder setBuffer:state.environmentLineSearch
+                                     offset:0u atIndex:5u];
+                        [encoder setBuffer:state.statuses
+                                     offset:0u atIndex:6u];
+                        [encoder setBuffer:state.humanSupportWorkingSet
+                                     offset:0u atIndex:7u];
+                        [encoder setBuffer:state.vascularWorkingSetChanged
+                                     offset:0u atIndex:8u];
+                        [encoder setBuffer:state.humanSupportContacts
+                                     offset:0u atIndex:9u];
+                        [encoder setBuffer:state.humanSupportConeWorkingSet
+                                     offset:0u atIndex:10u];
+                        [encoder setBuffer:state.humanSupportConeTargets
+                                     offset:0u atIndex:11u];
+                    });
+            };
+            const auto encodeVascularLineSearchLimit = [&] {
+                dispatchGroups32(
+                    "nm_vascular_limit_line_search", environments, [&] {
                     setDispatch();
-                    [encoder setBytes:&state.humanSupportDispatch
-                               length:sizeof(state.humanSupportDispatch)
-                              atIndex:1u];
-                    [encoder setBuffer:state.femSolution
-                                 offset:0u atIndex:2u];
-                    [encoder setBuffer:state.humanSupportHistoriesCandidate
-                                 offset:0u atIndex:3u];
-                    [encoder setBuffer:state.femLineSearch
-                                 offset:0u atIndex:4u];
-                    [encoder setBuffer:state.environmentLineSearch
-                                 offset:0u atIndex:5u];
-                    [encoder setBuffer:state.statuses
-                                 offset:0u atIndex:6u];
-                    [encoder setBuffer:state.humanSupportWorkingSet
-                                 offset:0u atIndex:7u];
-                    [encoder setBuffer:state.vascularWorkingSetChanged
-                                 offset:0u atIndex:8u];
-                    [encoder setBuffer:state.humanSupportContacts
-                                 offset:0u atIndex:9u];
-                    [encoder setBuffer:state.humanSupportConeWorkingSet
-                                 offset:0u atIndex:10u];
-                    [encoder setBuffer:state.humanSupportConeTargets
-                                 offset:0u atIndex:11u];
+                    [encoder setBytes:&state.vascularValue.layout
+                        length:sizeof(state.vascularValue.layout) atIndex:1u];
+                    [encoder setBuffer:state.vascularCandidate offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femSolution offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femLineSearch offset:0u atIndex:4u];
+                    [encoder setBuffer:state.environmentLineSearch offset:0u atIndex:5u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:6u];
+                    [encoder setBuffer:state.vascularCompartments offset:0u atIndex:7u];
+                    [encoder setBuffer:state.vascularConnections offset:0u atIndex:8u];
+                    [encoder setBuffer:state.vascularWorkingSet offset:0u atIndex:9u];
+                    [encoder setBuffer:state.vascularWorkingSetChanged offset:0u atIndex:10u];
+                    [encoder setBytes:&micro length:sizeof(micro) atIndex:11u];
+                    [encoder setBuffer:state.vascularUnknowns offset:0u atIndex:12u];
+                    [encoder setBuffer:state.vascularAccepted offset:0u atIndex:13u];
+                    [encoder setBuffer:state.vascularTissues offset:0u atIndex:14u];
+                    [encoder setBuffer:state.vascularExchanges offset:0u atIndex:15u];
+                    [encoder setBuffer:state.vascularConnectionIncidence offset:0u atIndex:16u];
+                    [encoder setBuffer:state.vascularConnectionRanges offset:0u atIndex:17u];
+                    [encoder setBuffer:state.vascularBloodExchangeIncidence offset:0u atIndex:18u];
+                    [encoder setBuffer:state.vascularBloodExchangeRanges offset:0u atIndex:19u];
+                    [encoder setBuffer:state.vascularTissueExchangeIncidence offset:0u atIndex:20u];
+                    [encoder setBuffer:state.vascularTissueExchangeRanges offset:0u atIndex:21u];
+                    [encoder setBuffer:state.vascularElastance offset:0u atIndex:22u];
+                    [encoder setBuffer:state.vascularLineSearchTrial offset:0u atIndex:23u];
+                    [encoder setBuffer:state.mixedSolver offset:0u atIndex:24u];
+                    [encoder setBuffer:state.vascularCavities offset:0u atIndex:25u];
+                    [encoder setBuffer:state.vascularCavityFaces offset:0u atIndex:26u];
+                    [encoder setBuffer:state.vascularCompartmentCavity offset:0u atIndex:27u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:28u];
+                    [encoder setBuffer:state.femAccepted offset:0u atIndex:29u];
                 });
-            dispatchGroups32("nm_vascular_limit_line_search", environments, [&] {
-                setDispatch();
-                [encoder setBytes:&state.vascularValue.layout
-                    length:sizeof(state.vascularValue.layout) atIndex:1u];
-                [encoder setBuffer:state.vascularCandidate offset:0u atIndex:2u];
-                [encoder setBuffer:state.femSolution offset:0u atIndex:3u];
-                [encoder setBuffer:state.femLineSearch offset:0u atIndex:4u];
-                [encoder setBuffer:state.environmentLineSearch offset:0u atIndex:5u];
-                [encoder setBuffer:state.statuses offset:0u atIndex:6u];
-                [encoder setBuffer:state.vascularCompartments offset:0u atIndex:7u];
-                [encoder setBuffer:state.vascularConnections offset:0u atIndex:8u];
-                [encoder setBuffer:state.vascularWorkingSet offset:0u atIndex:9u];
-                [encoder setBuffer:state.vascularWorkingSetChanged offset:0u atIndex:10u];
-                [encoder setBytes:&micro length:sizeof(micro) atIndex:11u];
-                [encoder setBuffer:state.vascularUnknowns offset:0u atIndex:12u];
-                [encoder setBuffer:state.vascularAccepted offset:0u atIndex:13u];
-                [encoder setBuffer:state.vascularTissues offset:0u atIndex:14u];
-                [encoder setBuffer:state.vascularExchanges offset:0u atIndex:15u];
-                [encoder setBuffer:state.vascularConnectionIncidence offset:0u atIndex:16u];
-                [encoder setBuffer:state.vascularConnectionRanges offset:0u atIndex:17u];
-                [encoder setBuffer:state.vascularBloodExchangeIncidence offset:0u atIndex:18u];
-                [encoder setBuffer:state.vascularBloodExchangeRanges offset:0u atIndex:19u];
-                [encoder setBuffer:state.vascularTissueExchangeIncidence offset:0u atIndex:20u];
-                [encoder setBuffer:state.vascularTissueExchangeRanges offset:0u atIndex:21u];
-                [encoder setBuffer:state.vascularElastance offset:0u atIndex:22u];
-                [encoder setBuffer:state.vascularLineSearchTrial offset:0u atIndex:23u];
-                [encoder setBuffer:state.mixedSolver offset:0u atIndex:24u];
-                [encoder setBuffer:state.vascularCavities offset:0u atIndex:25u];
-                [encoder setBuffer:state.vascularCavityFaces offset:0u atIndex:26u];
-                [encoder setBuffer:state.vascularCompartmentCavity offset:0u atIndex:27u];
-                [encoder setBuffer:state.femCandidate offset:0u atIndex:28u];
-                [encoder setBuffer:state.femAccepted offset:0u atIndex:29u];
-            });
+            };
+
+            encodeHumanSupportLineSearchLimit();
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            encodeVascularLineSearchLimit();
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            // Vascular Armijo can lower the shared alpha into an isolated
+            // FP32 support-cone rounding hole. Reconcile that exact reduced
+            // value, then rerun vascular globalization so its certificate is
+            // for the final common alpha. The following no-write support gate
+            // rejects any further vascular reduction that is not also support
+            // admissible before either subsystem applies state.
+            encodeHumanSupportLineSearchLimit();
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            encodeVascularLineSearchLimit();
             [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             dispatchGroups32(
                 "nm_human_support_validate_final_line_search",
@@ -7909,6 +7933,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:8u];
                     [encoder setBuffer:state.humanSupportConeTargets
                                  offset:0u atIndex:9u];
+                    [encoder setBuffer:state.femSolution
+                                 offset:0u atIndex:10u];
+                    [encoder setBuffer:state.humanSupportWorkingSet
+                                 offset:0u atIndex:11u];
                 });
             [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             if (!encodeVascularTrace("line_search")) {

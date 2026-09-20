@@ -3522,8 +3522,9 @@ kernel void nm_fgmres_apply_support_dual(
         pointDirection - impulseDirection), 0.0f);
 }
 
-// Boundary targets are transient globalization states, not accepted-law
-// projections. Give them normal-range FP32 slack, then validate the actual
+// Boundary retraction endpoints are transient globalization state, not an
+// accepted-law projection or substitute residual. Give them normal-range FP32
+// slack, then validate the actual
 // final shared-alpha interpolation after every coupled limiter has run. The
 // natural Coulomb equation is still reassembled on the next solve and the
 // terminal certificate remains strict.
@@ -3540,6 +3541,63 @@ inline float humanSupportConeInteriorMargin(
     return 32.0f * kEpsilon * scale;
 }
 
+inline float humanSupportTangentMagnitude(const float3 tangent) {
+    return sqrt(fma(tangent.x, tangent.x,
+        fma(tangent.y, tangent.y, tangent.z * tangent.z)));
+}
+
+inline float humanSupportTangentProjection(
+    const float3 tangent,
+    const float3 normal
+) {
+    return fma(tangent.x, normal.x,
+        fma(tangent.y, normal.y, tangent.z * normal.z));
+}
+
+inline float humanSupportConeMargin(
+    const float normalImpulse,
+    const float tangentMagnitude,
+    const float friction
+) {
+    return fma(friction, normalImpulse, -tangentMagnitude);
+}
+
+inline bool humanSupportStoredHistoryAdmissible(
+    const float4 history,
+    const float3 normal,
+    const float friction,
+    const bool requireInterior
+) {
+    const float tangentMagnitude =
+        humanSupportTangentMagnitude(history.xyz);
+    const float tangentProjection =
+        humanSupportTangentProjection(history.xyz, normal);
+    const float margin = humanSupportConeMargin(
+        history.w, tangentMagnitude, friction);
+    const float projectionTolerance = 8.0f * kEpsilon *
+        max(1.0f, max(tangentMagnitude, history.w));
+    const bool canonicalZero = history.w == 0.0f &&
+        all(history.xyz == float3(0.0f));
+    const float requiredMargin = requireInterior && !canonicalZero
+        ? humanSupportConeInteriorMargin(
+            history.w, tangentMagnitude, friction)
+        : 0.0f;
+    return all(isfinite(history)) && history.w >= 0.0f &&
+        finiteNonnegativeNormalOrZero(friction) &&
+        isfinite(tangentMagnitude) && isfinite(tangentProjection) &&
+        isfinite(margin) && margin >= requiredMargin &&
+        abs(tangentProjection) <= projectionTolerance &&
+        ((history.w != 0.0f && friction != 0.0f) ||
+         all(history.xyz == float3(0.0f)));
+}
+
+inline float3 humanSupportImpulse(
+    const float4 history,
+    const float3 normal
+) {
+    return fma(float3(history.w), normal, history.xyz);
+}
+
 inline float4 humanSupportConeSharedStep(
     const float4 history,
     const float4 target,
@@ -3549,12 +3607,215 @@ inline float4 humanSupportConeSharedStep(
         ? target : fma(float4(alpha), target - history, history);
 }
 
+inline float4 humanSupportInactiveSharedStep(
+    const float4 history,
+    const float alpha
+) {
+    if (alpha == 1.0f) return float4(0.0f);
+    return fma(float4(alpha), -history, history);
+}
+
+// Search only the positive normal FP32 domain. Subnormal shared fractions are
+// not a portable execution contract on Apple GPUs because they may be flushed
+// before either the feasibility test or the eventual application observes
+// them. The raw positive-float encoding is monotone on [FLT_MIN, 1].
+inline bool humanSupportPositiveNormalUnitAlpha(const float alpha) {
+    const uint bits = as_type<uint>(alpha);
+    return bits >= 0x00800000u && bits <= 0x3f800000u;
+}
+
+inline float3 humanSupportFreeSharedStep(
+    const float3 impulse,
+    const float3 correction,
+    const float alpha
+) {
+    return fma(float3(alpha), correction, impulse);
+}
+
+inline bool humanSupportFreeConeFeasible(
+    const float3 impulse,
+    const float3 correction,
+    const float alpha,
+    const float3 normal,
+    const float friction,
+    const bool requireInterior
+) {
+    if (!humanSupportPositiveNormalUnitAlpha(alpha)) return false;
+    const float3 trial = humanSupportFreeSharedStep(
+        impulse, correction, alpha);
+    const float normalImpulse =
+        humanSupportTangentProjection(trial, normal);
+    const float3 tangentImpulse =
+        fma(float3(-normalImpulse), normal, trial);
+    if (!finite3(trial) || !isfinite(normalImpulse) ||
+        normalImpulse < 0.0f ||
+        (normalImpulse == 0.0f &&
+         any(tangentImpulse != float3(0.0f)))) return false;
+    const float4 nextHistory = normalImpulse == 0.0f
+        ? float4(0.0f) : float4(tangentImpulse, normalImpulse);
+    return humanSupportStoredHistoryAdmissible(
+        nextHistory, normal, friction, requireInterior);
+}
+
+// Find a terminally feasible shared fraction over the positive-normal FP32
+// lattice, not over a fixed real-valued halving budget. The unguarded cone
+// intersection is a prefix containing alpha=0; `lowerBits` always names a point
+// evaluated with the exact application FMA, so a local roundoff hole can only
+// make the returned point more conservative. Thirty bit bisections cover every
+// encoding from FLT_MIN through 1.0f.
+inline float humanSupportReconciledFreeAlpha(
+    const float3 impulse,
+    const float3 correction,
+    const float maximumAlpha,
+    const float3 normal,
+    const float friction
+) {
+    if (!humanSupportPositiveNormalUnitAlpha(maximumAlpha)) return 0.0f;
+    if (humanSupportFreeConeFeasible(
+            impulse, correction, maximumAlpha, normal, friction, false)) {
+        return maximumAlpha;
+    }
+    constexpr uint minimumNormalBits = 0x00800000u;
+    uint upperBits = as_type<uint>(maximumAlpha);
+    if (upperBits <= minimumNormalBits) return 0.0f;
+    const float minimumNormal = as_type<float>(minimumNormalBits);
+    if (!humanSupportFreeConeFeasible(
+            impulse, correction, minimumNormal, normal, friction, false)) {
+        return 0.0f;
+    }
+    uint lowerBits = minimumNormalBits;
+    for (uint bit = 0u; bit < 30u && upperBits - lowerBits > 1u;
+         ++bit) {
+        const uint middleBits =
+            lowerBits + ((upperBits - lowerBits) >> 1u);
+        const float middle = as_type<float>(middleBits);
+        if (humanSupportFreeConeFeasible(
+                impulse, correction, middle, normal, friction, false)) {
+            lowerBits = middleBits;
+        } else {
+            upperBits = middleBits;
+        }
+    }
+    return as_type<float>(lowerBits);
+}
+
+inline bool humanSupportInactiveConeFeasible(
+    const float4 history,
+    const float alpha,
+    const float3 normal,
+    const float friction
+) {
+    return humanSupportPositiveNormalUnitAlpha(alpha) &&
+        humanSupportStoredHistoryAdmissible(
+            humanSupportInactiveSharedStep(history, alpha),
+            normal, friction, false);
+}
+
+inline bool humanSupportTargetConeFeasible(
+    const float4 history,
+    const float4 target,
+    const float alpha,
+    const float3 normal,
+    const float friction
+) {
+    return humanSupportPositiveNormalUnitAlpha(alpha) &&
+        humanSupportStoredHistoryAdmissible(
+            humanSupportConeSharedStep(history, target, alpha),
+            normal, friction, false);
+}
+
+// Inactive scaling and fixed-target interpolation are physically feasible for
+// the whole real segment; only component rounding can create isolated FP32
+// holes. Check nearby predecessor encodings first to preserve the coupled
+// step. The bit bisection fallback is conservative and always returns a point
+// that the exact stored-step predicate evaluated feasible.
+inline float humanSupportReconciledInactiveAlpha(
+    const float4 history,
+    const float maximumAlpha,
+    const float3 normal,
+    const float friction
+) {
+    if (!humanSupportPositiveNormalUnitAlpha(maximumAlpha)) return 0.0f;
+    if (humanSupportInactiveConeFeasible(
+            history, maximumAlpha, normal, friction)) return maximumAlpha;
+    constexpr uint minimumNormalBits = 0x00800000u;
+    const uint maximumBits = as_type<uint>(maximumAlpha);
+    for (uint offset = 1u; offset <= 64u &&
+         maximumBits >= minimumNormalBits + offset; ++offset) {
+        const float candidate = as_type<float>(maximumBits - offset);
+        if (humanSupportInactiveConeFeasible(
+                history, candidate, normal, friction)) return candidate;
+    }
+    const float minimumNormal = as_type<float>(minimumNormalBits);
+    if (!humanSupportInactiveConeFeasible(
+            history, minimumNormal, normal, friction)) return 0.0f;
+    uint lowerBits = minimumNormalBits;
+    uint upperBits = maximumBits;
+    for (uint bit = 0u; bit < 30u && upperBits - lowerBits > 1u; ++bit) {
+        const uint middleBits =
+            lowerBits + ((upperBits - lowerBits) >> 1u);
+        const float middle = as_type<float>(middleBits);
+        if (humanSupportInactiveConeFeasible(
+                history, middle, normal, friction)) lowerBits = middleBits;
+        else upperBits = middleBits;
+    }
+    return as_type<float>(lowerBits);
+}
+
+inline float humanSupportReconciledTargetAlpha(
+    const float4 history,
+    const float4 target,
+    const float maximumAlpha,
+    const float3 normal,
+    const float friction
+) {
+    if (!humanSupportPositiveNormalUnitAlpha(maximumAlpha)) return 0.0f;
+    if (humanSupportTargetConeFeasible(
+            history, target, maximumAlpha, normal, friction)) {
+        return maximumAlpha;
+    }
+    constexpr uint minimumNormalBits = 0x00800000u;
+    const uint maximumBits = as_type<uint>(maximumAlpha);
+    for (uint offset = 1u; offset <= 64u &&
+         maximumBits >= minimumNormalBits + offset; ++offset) {
+        const float candidate = as_type<float>(maximumBits - offset);
+        if (humanSupportTargetConeFeasible(
+                history, target, candidate, normal, friction)) {
+            return candidate;
+        }
+    }
+    const float minimumNormal = as_type<float>(minimumNormalBits);
+    if (!humanSupportTargetConeFeasible(
+            history, target, minimumNormal, normal, friction)) return 0.0f;
+    uint lowerBits = minimumNormalBits;
+    uint upperBits = maximumBits;
+    for (uint bit = 0u; bit < 30u && upperBits - lowerBits > 1u; ++bit) {
+        const uint middleBits =
+            lowerBits + ((upperBits - lowerBits) >> 1u);
+        const float middle = as_type<float>(middleBits);
+        if (humanSupportTargetConeFeasible(
+                history, target, middle, normal, friction)) {
+            lowerBits = middleBits;
+        } else {
+            upperBits = middleBits;
+        }
+    }
+    return as_type<float>(lowerBits);
+}
+
 // A free support direction that leaves the admissible impulse cone cannot be
-// repaired after the coupled solve. Normal exits select the exact full-impulse
-// lambda=0 constraint. An outward direction from the Coulomb boundary selects
-// an exact feasible fixed-normal disk target. Both pivots discard the complete
-// monolithic direction; the next bounded Newton iteration re-solves the changed
-// KKT system before any state is applied.
+// applied as an affine chord. The natural Alart-Curnier equation already owns
+// the current active/inactive classification. If its solved direction exits
+// the normal half-line while the freshly assembled inactive inequality is
+// violated, installing lambda=0 as a substitute equation would contradict
+// that classification and can create an exact two-cycle. Retract only the dual
+// endpoint to the canonical cone apex in that case and retain the already
+// coupled mechanical Newton direction. A normal exit with c_n >= 0 may still
+// select the exact full-impulse inactive set and require a fresh coupled solve.
+// An outward direction from a positive-normal Coulomb boundary similarly
+// retracts only the support-dual endpoint to an exact feasible fixed-normal
+// disk point. The natural Coulomb residual is reassembled immediately after
+// either one-step retraction; no second-order claim is made at the cone apex.
 kernel void nm_human_support_resolve_working_set(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
@@ -3567,6 +3828,7 @@ kernel void nm_human_support_resolve_working_set(
     device const NMHumanSupportContactGPU* contacts [[buffer(7)]],
     device uint* coneWorkingSet [[buffer(8)]],
     device float4* coneTargets [[buffer(9)]],
+    device const NMContactSampleGPU* samples [[buffer(10)]],
     uint lane [[thread_index_in_threadgroup]],
     uint environment [[threadgroup_position_in_grid]]
 ) {
@@ -3592,19 +3854,20 @@ kernel void nm_human_support_resolve_working_set(
                 const float3 direction = solution[solutionRow].xyz;
                 const uint state = workingSet[global];
                 const uint coneState = coneWorkingSet[global];
+                const float normalConstraint =
+                    samples[global].admissionVelocityAndNormal.w;
                 const float friction =
                     contacts[row].frictionSlopAndStabilization.x;
-                const float3 impulse = history.xyz + history.w * normal;
-                if (state > 2u || coneState > 2u ||
-                    (state != 0u && coneState != 0u) ||
+                const float3 impulse = humanSupportImpulse(history, normal);
+                if (state > 2u || coneState != 0u ||
                     !all(isfinite(history)) || !finite3(direction) ||
-                    history.w < 0.0f ||
+                    history.w < 0.0f || !isfinite(normalConstraint) ||
                     !finiteNonnegativeNormalOrZero(friction)) {
                     recordFailure(statuses[environment],
                         NM_STATUS_LINEAR_SOLVER_FAILURE,
                         NM_INVALID_INDEX, row,
                         float4(history.w, float(state), float(coneState),
-                            friction));
+                            normalConstraint));
                     continue;
                 }
                 if (state != 0u) {
@@ -3613,37 +3876,11 @@ kernel void nm_human_support_resolve_working_set(
                     solution[solutionRow] = float4(-impulse, 0.0f);
                     continue;
                 }
-                if (coneState == 1u) {
-                    const float4 target = coneTargets[global];
-                    const float targetMargin =
-                        friction * target.w - length(target.xyz);
-                    if (!all(isfinite(target)) || target.w <= 0.0f ||
-                        !isfinite(targetMargin) || targetMargin < 0.0f) {
-                        recordFailure(statuses[environment],
-                            NM_STATUS_LINEAR_SOLVER_FAILURE,
-                            NM_INVALID_INDEX, row,
-                            float4(target.w, length(target.xyz),
-                                targetMargin, friction));
-                        continue;
-                    }
-                    const float3 targetImpulse =
-                        target.xyz + target.w * normal;
-                    solution[solutionRow] =
-                        float4(targetImpulse - impulse, 0.0f);
-                    continue;
-                }
-                if (coneState != 0u) {
-                    recordFailure(statuses[environment],
-                        NM_STATUS_LINEAR_SOLVER_FAILURE,
-                        NM_INVALID_INDEX, row,
-                        float4(history.w, float(state), float(coneState),
-                            friction));
-                    continue;
-                }
                 const float3 predicted = impulse + direction;
-                const float predictedNormal = dot(predicted, normal);
+                const float predictedNormal =
+                    humanSupportTangentProjection(predicted, normal);
                 const float3 predictedTangent =
-                    predicted - predictedNormal * normal;
+                    fma(float3(-predictedNormal), normal, predicted);
                 if (!finite3(predicted) || !isfinite(predictedNormal)) {
                     recordFailure(statuses[environment],
                         NM_STATUS_LINEAR_SOLVER_FAILURE,
@@ -3652,29 +3889,48 @@ kernel void nm_human_support_resolve_working_set(
                 } else if (predictedNormal < 0.0f ||
                            (predictedNormal == 0.0f &&
                             any(predictedTangent != float3(0.0f)))) {
-                    workingSet[global] = 1u;
-                    coneTargets[global] = float4(0.0f);
-                    activated = true;
+                    if (normalConstraint < 0.0f) {
+                        // lambda=0 is not an admissible inactive equation
+                        // while c_n < 0. Project the solved dual endpoint to
+                        // the canonical apex, preserve every coupled primal
+                        // direction, and let the natural equation classify
+                        // the freshly assembled next state.
+                        coneTargets[global] = float4(0.0f);
+                        coneWorkingSet[global] = 1u;
+                        solution[solutionRow] = float4(-impulse, 0.0f);
+                    } else {
+                        workingSet[global] = 1u;
+                        coneTargets[global] = float4(0.0f);
+                        activated = true;
+                    }
                 } else {
+                    const float currentMagnitude =
+                        humanSupportTangentMagnitude(history.xyz);
+                    const float predictedMagnitude =
+                        humanSupportTangentMagnitude(predictedTangent);
                     const float currentMargin =
-                        friction * history.w - length(history.xyz);
+                        humanSupportConeMargin(
+                            history.w, currentMagnitude, friction);
                     const float predictedMargin =
-                        friction * predictedNormal - length(predictedTangent);
+                        humanSupportConeMargin(
+                            predictedNormal, predictedMagnitude, friction);
                     if (!isfinite(currentMargin) || currentMargin < 0.0f ||
                         !isfinite(predictedMargin)) {
                         recordFailure(statuses[environment],
                             NM_STATUS_CONTACT_FAILURE,
                             NM_INVALID_INDEX, row,
-                            float4(history.w, length(history.xyz),
+                            float4(history.w, currentMagnitude,
                                 currentMargin, predictedMargin));
                     } else if (currentMargin == 0.0f &&
                                predictedMargin < 0.0f) {
                         // At the cone boundary a scalar shared alpha may have
                         // no positive feasible value (the apex is the canonical
-                        // cold-start example). Select the largest representable
-                        // radial point inside the fixed-normal disk. This is a
-                        // target for the next full KKT solve, never a post-solve
-                        // projection of accepted state.
+                        // cold-start example). Retract the dual endpoint to the
+                        // largest representable radial point inside the solved
+                        // fixed-normal disk. This correction is chosen before
+                        // globalization and is applied with the same shared
+                        // alpha as every mechanical block; it is not an
+                        // independent projection of accepted state.
                         float lower = 0.0f;
                         float upper = 1.0f;
                         for (uint iteration = 0u; iteration < 32u;
@@ -3682,9 +3938,10 @@ kernel void nm_human_support_resolve_working_set(
                             const float middle = 0.5f * (lower + upper);
                             if (middle == lower || middle == upper) break;
                             const float3 tangent = middle * predictedTangent;
-                            const float tangentMagnitude = length(tangent);
-                            const float margin = friction * predictedNormal -
-                                tangentMagnitude;
+                            const float tangentMagnitude =
+                                humanSupportTangentMagnitude(tangent);
+                            const float margin = humanSupportConeMargin(
+                                predictedNormal, tangentMagnitude, friction);
                             const float interiorMargin =
                                 humanSupportConeInteriorMargin(
                                     predictedNormal, tangentMagnitude,
@@ -3698,28 +3955,35 @@ kernel void nm_human_support_resolve_working_set(
                         const float3 targetTangent =
                             lower * predictedTangent;
                         const float targetTangentMagnitude =
-                            length(targetTangent);
-                        const float targetMargin = friction * predictedNormal -
-                            targetTangentMagnitude;
+                            humanSupportTangentMagnitude(targetTangent);
+                        const float targetMargin = humanSupportConeMargin(
+                            predictedNormal, targetTangentMagnitude,
+                            friction);
                         const float targetInteriorMargin =
                             humanSupportConeInteriorMargin(
                                 predictedNormal, targetTangentMagnitude,
                                 friction);
+                        const float4 targetHistory =
+                            float4(targetTangent, predictedNormal);
                         if (!finite3(targetTangent) ||
                             !isfinite(targetMargin) ||
                             targetMargin < targetInteriorMargin ||
-                            predictedNormal <= 0.0f) {
+                            predictedNormal <= 0.0f ||
+                            !humanSupportStoredHistoryAdmissible(
+                                targetHistory, normal, friction, true)) {
                             recordFailure(statuses[environment],
                                 NM_STATUS_CONTACT_FAILURE,
                                 NM_INVALID_INDEX, row,
                                 float4(predictedNormal,
-                                    length(predictedTangent), lower,
+                                    predictedMagnitude, lower,
                                     targetMargin));
                         } else {
-                            coneTargets[global] =
-                                float4(targetTangent, predictedNormal);
+                            coneTargets[global] = targetHistory;
                             coneWorkingSet[global] = 1u;
-                            activated = true;
+                            solution[solutionRow] = float4(
+                                humanSupportImpulse(targetHistory, normal) -
+                                    impulse,
+                                0.0f);
                         }
                     }
                 }
@@ -3732,6 +3996,18 @@ kernel void nm_human_support_resolve_working_set(
             (previouslyChanged || anyActivated) ? 1u : 0u;
     threadgroup_barrier(mem_flags::mem_device);
     if (!anyActivated) return;
+
+    // A normal active-set pivot discards this coupled direction. Discard any
+    // cone retraction selected by another lane at the same time as well; an
+    // ephemeral marker must never survive into the next residual assembly.
+    for (uint row = lane; row < layout.supportContactCount; row += 32u) {
+        const uint global = supportBase + row;
+        if (coneWorkingSet[global] != 0u) {
+            coneWorkingSet[global] = 0u;
+            coneTargets[global] = float4(0.0f);
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_device);
 
     // No limiter or partially coupled block may observe the stale direction.
     bool finiteDirection = true;
@@ -3809,6 +4085,7 @@ kernel void nm_human_support_limit_line_search(
             alpha = min(alpha, objectAlpha);
         }
     }
+    alpha = simd_min(alpha);
     const float3 normal = support.groundNormal.xyz;
     const uint supportBase = environment * layout.supportContactCount;
     for (uint row = lane; !deferred && row < layout.supportContactCount;
@@ -3816,27 +4093,32 @@ kernel void nm_human_support_limit_line_search(
         const float4 history = histories[supportBase + row];
         const float3 correction = solution[
             layout.supportBase + supportBase + row].xyz;
-        const float3 impulse = history.xyz + history.w * normal;
+        const float3 impulse = humanSupportImpulse(history, normal);
         const float3 predicted = impulse + correction;
-        const float predictedNormal = dot(predicted, normal);
+        const float predictedNormal =
+            humanSupportTangentProjection(predicted, normal);
         const float3 predictedTangent =
-            predicted - predictedNormal * normal;
+            fma(float3(-predictedNormal), normal, predicted);
         const uint state = workingSet[supportBase + row];
         const uint coneState = coneWorkingSet[supportBase + row];
         const float4 target = coneTargets[supportBase + row];
-        const float3 targetImpulse = target.xyz + target.w * normal;
+        const float3 targetImpulse = humanSupportImpulse(target, normal);
         const float friction = contacts[row].frictionSlopAndStabilization.x;
         if (!all(isfinite(history)) || !finite3(correction) ||
             state > 2u || coneState > 1u ||
             (state != 0u && coneState != 0u) ||
             history.w < 0.0f ||
             !finiteNonnegativeNormalOrZero(friction) ||
+            !humanSupportStoredHistoryAdmissible(
+                history, normal, friction, false) ||
             !isfinite(predictedNormal) || predictedNormal < 0.0f ||
             (predictedNormal == 0.0f &&
              any(predictedTangent != float3(0.0f))) ||
             (state != 0u && any(correction != -impulse)) ||
             (coneState != 0u &&
-             (!all(isfinite(target)) || target.w <= 0.0f ||
+             (!all(isfinite(target)) ||
+              !humanSupportStoredHistoryAdmissible(
+                  target, normal, friction, true) ||
               any(correction != targetImpulse - impulse)))) {
             alpha = 0.0f;
             recordFailure(
@@ -3847,15 +4129,21 @@ kernel void nm_human_support_limit_line_search(
             continue;
         }
         if (state == 0u && coneState == 0u) {
+            const float currentMagnitude =
+                humanSupportTangentMagnitude(history.xyz);
+            const float predictedMagnitude =
+                humanSupportTangentMagnitude(predictedTangent);
             const float currentMargin =
-                friction * history.w - length(history.xyz);
+                humanSupportConeMargin(
+                    history.w, currentMagnitude, friction);
             const float predictedMargin =
-                friction * predictedNormal - length(predictedTangent);
+                humanSupportConeMargin(
+                    predictedNormal, predictedMagnitude, friction);
             if (!isfinite(currentMargin) || currentMargin < 0.0f) {
                 alpha = 0.0f;
                 recordFailure(statuses[environment],
                     NM_STATUS_CONTACT_FAILURE, NM_INVALID_INDEX, row,
-                    float4(history.w, length(history.xyz),
+                    float4(history.w, currentMagnitude,
                         currentMargin, friction));
                 continue;
             }
@@ -3867,46 +4155,65 @@ kernel void nm_human_support_limit_line_search(
                         predictedMargin, friction));
                 continue;
             }
-            if (predictedMargin < 0.0f) {
-                // Find the largest representable feasible shared fraction.
-                // The endpoint signs bracket the first cone crossing; fixed
-                // bisection avoids a cancellation-prone quadratic formula.
-                float lower = 0.0f;
-                float upper = 1.0f;
-                for (uint iteration = 0u; iteration < 32u; ++iteration) {
-                    const float middle = 0.5f * (lower + upper);
-                    if (middle == lower || middle == upper) break;
-                    const float3 trial = impulse + middle * correction;
-                    const float trialNormal = dot(trial, normal);
-                    const float3 trialTangent =
-                        trial - trialNormal * normal;
-                    const float margin =
-                        friction * trialNormal - length(trialTangent);
-                    if (isfinite(margin) && trialNormal >= 0.0f &&
-                        margin >= 0.0f) lower = middle;
-                    else upper = middle;
-                }
-                const float3 boundary = impulse + lower * correction;
-                const float boundaryNormal = dot(boundary, normal);
-                const float3 boundaryTangent =
-                    boundary - boundaryNormal * normal;
-                const float boundaryMargin =
-                    friction * boundaryNormal - length(boundaryTangent);
-                if (!(lower > 0.0f) || !isfinite(boundaryNormal) ||
-                    boundaryNormal < 0.0f || !isfinite(boundaryMargin) ||
-                    boundaryMargin < 0.0f) {
-                    alpha = 0.0f;
-                    recordFailure(statuses[environment],
-                        NM_STATUS_CONTACT_FAILURE, NM_INVALID_INDEX, row,
-                        float4(history.w, predictedNormal, lower,
-                            boundaryMargin));
-                } else {
-                    alpha = min(alpha, lower);
-                }
+            const float feasibleAlpha =
+                humanSupportReconciledFreeAlpha(
+                    impulse, correction, alpha, normal, friction);
+            if (!(feasibleAlpha > 0.0f)) {
+                alpha = 0.0f;
+                recordFailure(statuses[environment],
+                    NM_STATUS_CONTACT_FAILURE, NM_INVALID_INDEX, row,
+                    float4(history.w, predictedNormal, currentMargin,
+                        predictedMargin));
+            } else {
+                alpha = feasibleAlpha;
             }
         }
     }
     alpha = simd_min(alpha);
+    // A different lane may have reduced the shared alpha after this lane found
+    // its own feasible point. Re-evaluate the exact FMA at the new common value
+    // until every support row agrees on the same representable stored step. The
+    // final no-write gate remains the authority if the bounded reconciliation
+    // cannot reach a fixed point.
+    const uint reconciliationPasses = min(
+        max(support.contactCount, 1u), 32u);
+    for (uint pass = 0u; !deferred && alpha > 0.0f &&
+         pass < reconciliationPasses; ++pass) {
+        const float previousAlpha = alpha;
+        float reconciledAlpha = alpha;
+        for (uint row = lane; row < layout.supportContactCount; row += 32u) {
+            const uint global = supportBase + row;
+            const float4 history = histories[global];
+            const float3 impulse = humanSupportImpulse(history, normal);
+            const float3 correction =
+                solution[layout.supportBase + global].xyz;
+            const float friction =
+                contacts[row].frictionSlopAndStabilization.x;
+            const uint state = workingSet[global];
+            const uint coneState = coneWorkingSet[global];
+            const float feasibleAlpha = state != 0u
+                ? humanSupportReconciledInactiveAlpha(
+                    history, alpha, normal, friction)
+                : (coneState != 0u
+                    ? humanSupportReconciledTargetAlpha(
+                        history, coneTargets[global], alpha,
+                        normal, friction)
+                    : humanSupportReconciledFreeAlpha(
+                        impulse, correction, alpha, normal, friction));
+            if (!(feasibleAlpha > 0.0f)) {
+                reconciledAlpha = 0.0f;
+                recordFailure(statuses[environment],
+                    NM_STATUS_CONTACT_FAILURE, NM_INVALID_INDEX, row,
+                    float4(history.w,
+                        humanSupportTangentMagnitude(history.xyz),
+                        alpha, friction));
+            } else {
+                reconciledAlpha = min(reconciledAlpha, feasibleAlpha);
+            }
+        }
+        alpha = simd_min(reconciledAlpha);
+        if (alpha == previousAlpha) break;
+    }
     // The vascular limiter owns alpha=0 deferral when that block exists. For
     // a support-only system the discarded direction is already all zeros, so
     // retain a positive no-op alpha; the empty vascular limiter otherwise
@@ -3927,7 +4234,7 @@ kernel void nm_human_support_limit_line_search(
 }
 
 // Coupled blocks may reduce the shared alpha after the support limiter has
-// selected its cone target. Validate the exact final interpolation before any
+// selected its cone-retraction endpoint. Validate the exact final interpolation before any
 // candidate arena is mutated. Failure zeros every shared-alpha owner as well
 // as recording status, so apply kernels that do not consume status remain
 // no-ops and transaction rollback retains sole publication authority.
@@ -3943,6 +4250,8 @@ kernel void nm_human_support_validate_final_line_search(
     device const NMHumanSupportContactGPU* contacts [[buffer(7)]],
     device const uint* coneWorkingSet [[buffer(8)]],
     device const float4* coneTargets [[buffer(9)]],
+    device const float4* solution [[buffer(10)]],
+    device const uint* workingSet [[buffer(11)]],
     uint lane [[thread_index_in_threadgroup]],
     uint environment [[threadgroup_position_in_grid]]
 ) {
@@ -3950,10 +4259,18 @@ kernel void nm_human_support_validate_final_line_search(
     const bool deferred = changed[environment] != 0u;
     const float alpha = environmentLineSearch[environment];
     const bool healthy = environmentHealthy(statuses, environment);
-    const bool alphaValid = isfinite(alpha) && alpha >= 0.0f &&
-        alpha <= 1.0f && (deferred || alpha > 0.0f);
+    const bool hasSupport = support.contactCount != 0u;
+    const uint alphaBits = as_type<uint>(alpha);
+    const bool positiveAlphaValid = hasSupport
+        ? humanSupportPositiveNormalUnitAlpha(alpha)
+        : (alphaBits > 0u && alphaBits <= 0x3f800000u);
+    const bool alphaValid = positiveAlphaValid ||
+        (deferred && alphaBits == 0u);
+    const float3 normal = support.groundNormal.xyz;
     const bool countValid =
-        support.contactCount == layout.supportContactCount;
+        support.contactCount == layout.supportContactCount &&
+        (support.contactCount == 0u ||
+         (finite3(normal) && abs(length(normal) - 1.0f) <= 1.0e-4f));
     bool valid = healthy && alphaValid && countValid;
     if (lane == 0u && healthy && (!alphaValid || !countValid))
         recordFailure(statuses[environment],
@@ -3977,33 +4294,85 @@ kernel void nm_human_support_validate_final_line_search(
     for (uint row = lane; valid && !deferred && row < support.contactCount;
          row += 32u) {
         const uint global = supportBase + row;
-        if (coneWorkingSet[global] != 1u) continue;
         const float4 history = histories[global];
+        const float3 correction =
+            solution[layout.supportBase + global].xyz;
+        const uint state = workingSet[global];
+        const uint coneState = coneWorkingSet[global];
         const float4 target = coneTargets[global];
         const float friction = contacts[row].frictionSlopAndStabilization.x;
-        const float targetMargin =
-            friction * target.w - length(target.xyz);
-        const float targetInteriorMargin = humanSupportConeInteriorMargin(
-            target.w, length(target.xyz), friction);
-        const float4 nextHistory = humanSupportConeSharedStep(
-            history, target, alpha);
-        const float nextMargin =
-            friction * nextHistory.w - length(nextHistory.xyz);
-        const bool rowValid = all(isfinite(history)) &&
-            all(isfinite(target)) && target.w > 0.0f &&
-            finiteNonnegativeNormalOrZero(friction) &&
-            isfinite(targetMargin) &&
-            targetMargin >= targetInteriorMargin &&
-            all(isfinite(nextHistory)) && nextHistory.w >= 0.0f &&
-            isfinite(nextMargin) && nextMargin >= 0.0f &&
-            ((nextHistory.w != 0.0f && friction != 0.0f) ||
-             all(nextHistory.xyz == float3(0.0f)));
+        const float currentMagnitude =
+            humanSupportTangentMagnitude(history.xyz);
+        const float currentMargin =
+            humanSupportConeMargin(history.w, currentMagnitude, friction);
+        const float3 impulse = humanSupportImpulse(history, normal);
+        bool rowValid = all(isfinite(history)) && finite3(correction) &&
+            state <= 2u && coneState <= 1u &&
+            (state == 0u || coneState == 0u) &&
+            humanSupportStoredHistoryAdmissible(
+                history, normal, friction, false);
+        float4 diagnostics = float4(
+            history.w, currentMagnitude, currentMargin, friction);
+        if (rowValid && state != 0u) {
+            const float4 nextHistory =
+                humanSupportInactiveSharedStep(history, alpha);
+            const float nextMagnitude =
+                humanSupportTangentMagnitude(nextHistory.xyz);
+            const float nextMargin =
+                humanSupportConeMargin(
+                    nextHistory.w, nextMagnitude, friction);
+            rowValid = all(correction == -impulse) &&
+                humanSupportStoredHistoryAdmissible(
+                    nextHistory, normal, friction, false);
+            diagnostics = float4(nextHistory.w,
+                nextMagnitude, nextMargin, float(state));
+        } else if (rowValid && coneState == 1u) {
+            const float targetMagnitude =
+                humanSupportTangentMagnitude(target.xyz);
+            const float targetMargin = humanSupportConeMargin(
+                target.w, targetMagnitude, friction);
+            const float targetInteriorMargin = humanSupportConeInteriorMargin(
+                target.w, targetMagnitude, friction);
+            const bool canonicalTarget = target.w == 0.0f &&
+                all(target.xyz == float3(0.0f));
+            const float3 targetImpulse = humanSupportImpulse(target, normal);
+            const float4 nextHistory = humanSupportConeSharedStep(
+                history, target, alpha);
+            const float nextMagnitude =
+                humanSupportTangentMagnitude(nextHistory.xyz);
+            const float nextMargin =
+                humanSupportConeMargin(
+                    nextHistory.w, nextMagnitude, friction);
+            rowValid = all(isfinite(target)) &&
+                all(correction == targetImpulse - impulse) &&
+                isfinite(targetMargin) &&
+                (canonicalTarget || targetMargin >= targetInteriorMargin) &&
+                humanSupportStoredHistoryAdmissible(
+                    target, normal, friction, true) &&
+                humanSupportStoredHistoryAdmissible(
+                    nextHistory, normal, friction, false);
+            diagnostics = float4(nextHistory.w,
+                nextMagnitude, nextMargin, targetMargin);
+        } else if (rowValid) {
+            const float3 next = humanSupportFreeSharedStep(
+                impulse, correction, alpha);
+            const float nextNormal =
+                humanSupportTangentProjection(next, normal);
+            const float3 nextTangent =
+                fma(float3(-nextNormal), normal, next);
+            const float nextMagnitude =
+                humanSupportTangentMagnitude(nextTangent);
+            const float nextMargin =
+                humanSupportConeMargin(nextNormal, nextMagnitude, friction);
+            rowValid = humanSupportFreeConeFeasible(
+                impulse, correction, alpha, normal, friction, false);
+            diagnostics = float4(nextNormal,
+                nextMagnitude, nextMargin, friction);
+        }
         if (!rowValid) {
             valid = false;
             recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
-                NM_INVALID_INDEX, row,
-                float4(nextHistory.w, length(nextHistory.xyz),
-                    nextMargin, targetMargin));
+                NM_INVALID_INDEX, row, diagnostics);
         }
     }
     const bool environmentValid = simd_all(valid);
@@ -4053,57 +4422,83 @@ kernel void nm_human_support_apply_solution(
         // Scaling the stored tangent and normal together is the exact shared
         // alpha application of delta-lambda=-lambda. Alpha one writes a
         // canonical zero, without a component-wise projection.
-        if (alpha == 1.0f) histories[global] = float4(0.0f);
-        else histories[global] = float4(
-            (1.0f - alpha) * history.xyz,
-            (1.0f - alpha) * history.w);
+        const float4 nextHistory =
+            humanSupportInactiveSharedStep(history, alpha);
+        if (!humanSupportStoredHistoryAdmissible(
+                nextHistory, normal, friction, false)) {
+            const float tangentMagnitude =
+                humanSupportTangentMagnitude(nextHistory.xyz);
+            recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+                NM_INVALID_INDEX, row,
+                float4(nextHistory.w, tangentMagnitude,
+                    humanSupportConeMargin(
+                        nextHistory.w, tangentMagnitude, friction),
+                    float(state)));
+            return;
+        }
+        histories[global] = nextHistory;
         workingSet[global] = 2u;
         return;
     }
     if (coneState == 1u) {
         const float4 target = coneTargets[global];
+        const float targetMagnitude =
+            humanSupportTangentMagnitude(target.xyz);
         const float targetMargin =
-            friction * target.w - length(target.xyz);
+            humanSupportConeMargin(target.w, targetMagnitude, friction);
         const float4 nextHistory = humanSupportConeSharedStep(
             history, target, alpha);
+        const float nextMagnitude =
+            humanSupportTangentMagnitude(nextHistory.xyz);
         const float nextMargin =
-            friction * nextHistory.w - length(nextHistory.xyz);
-        if (!all(isfinite(target)) || target.w <= 0.0f ||
-            !isfinite(targetMargin) || targetMargin < 0.0f ||
-            !all(isfinite(nextHistory)) || nextHistory.w < 0.0f ||
-            !isfinite(nextMargin) || nextMargin < 0.0f ||
-            ((nextHistory.w == 0.0f || friction == 0.0f) &&
-             any(nextHistory.xyz != float3(0.0f)))) {
+            humanSupportConeMargin(
+                nextHistory.w, nextMagnitude, friction);
+        if (!all(isfinite(target)) ||
+            !isfinite(targetMargin) ||
+            !humanSupportStoredHistoryAdmissible(
+                target, normal, friction, true) ||
+            !humanSupportStoredHistoryAdmissible(
+                nextHistory, normal, friction, false)) {
             recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
                 NM_INVALID_INDEX, row,
-                float4(nextHistory.w, length(nextHistory.xyz),
+                float4(nextHistory.w, nextMagnitude,
                     nextMargin, targetMargin));
             return;
         }
         histories[global] = nextHistory;
-        if (alpha == 1.0f) coneWorkingSet[global] = 2u;
+        // A cone target is a one-step retraction of the natural semismooth
+        // Newton direction, not a persistent substitute equation. Even when a
+        // different block shortens the shared step, the accepted chord remains
+        // feasible by convexity and the next assembly must restore the natural
+        // Coulomb residual immediately.
+        coneWorkingSet[global] = 0u;
         return;
     }
-    const float3 next = history.xyz + history.w * normal +
-        alpha * solution[layout.supportBase + global].xyz;
-    const float normalImpulse = dot(next, normal);
-    const float3 tangentImpulse = next - normalImpulse * normal;
+    const float3 impulse = humanSupportImpulse(history, normal);
+    const float3 next = humanSupportFreeSharedStep(
+        impulse, solution[layout.supportBase + global].xyz, alpha);
+    const float normalImpulse =
+        humanSupportTangentProjection(next, normal);
+    const float3 tangentImpulse =
+        fma(float3(-normalImpulse), normal, next);
+    const float tangentMagnitude =
+        humanSupportTangentMagnitude(tangentImpulse);
     const float coneMargin =
-        friction * normalImpulse - length(tangentImpulse);
+        humanSupportConeMargin(normalImpulse, tangentMagnitude, friction);
+    const float4 nextHistory = normalImpulse == 0.0f
+        ? float4(0.0f) : float4(tangentImpulse, normalImpulse);
     if (!finite3(next) || !isfinite(normalImpulse) ||
-        normalImpulse < 0.0f || !isfinite(coneMargin) ||
-        coneMargin < 0.0f ||
         (normalImpulse == 0.0f &&
-         any(tangentImpulse != float3(0.0f)))) {
+         any(tangentImpulse != float3(0.0f))) ||
+        !humanSupportStoredHistoryAdmissible(
+            nextHistory, normal, friction, false)) {
         recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
             NM_INVALID_INDEX, row,
-            float4(normalImpulse, length(tangentImpulse),
+            float4(normalImpulse, tangentMagnitude,
                 coneMargin, friction));
         return;
     }
-    histories[global] = normalImpulse == 0.0f
-        ? float4(0.0f)
-        : float4(tangentImpulse, normalImpulse);
+    histories[global] = nextHistory;
 }
 
 kernel void nm_human_support_certify(
@@ -4152,21 +4547,15 @@ kernel void nm_human_support_certify(
             const float4 history = supportHistories[
                 environment * layout.supportContactCount + row];
             const float normalImpulse = history.w;
-            const float tangentProjection = dot(history.xyz, normal);
-            const float tangentMagnitude = length(history.xyz);
+            const float tangentMagnitude =
+                humanSupportTangentMagnitude(history.xyz);
             const float friction = contacts[row].frictionSlopAndStabilization.x;
-            const float coneMargin = friction * normalImpulse - tangentMagnitude;
+            const float coneMargin = humanSupportConeMargin(
+                normalImpulse, tangentMagnitude, friction);
             const float tolerance = 8.0f * kEpsilon *
                 max(1.0f, max(tangentMagnitude, normalImpulse));
-            if (!all(isfinite(history)) ||
-                !finiteNonnegativeNormalOrZero(friction) ||
-                normalImpulse < 0.0f ||
-                !isfinite(tangentProjection) ||
-                !isfinite(tangentMagnitude) || !isfinite(coneMargin) ||
-                ((normalImpulse == 0.0f || friction == 0.0f) &&
-                 tangentMagnitude != 0.0f) ||
-                abs(tangentProjection) > tolerance ||
-                coneMargin < 0.0f) {
+            if (!humanSupportStoredHistoryAdmissible(
+                    history, normal, friction, false)) {
                 invalidSupportImpulse = true;
                 invalidSupportDiagnostics = float4(
                     normalImpulse, tangentMagnitude, coneMargin, tolerance);

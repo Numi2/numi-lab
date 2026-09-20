@@ -7268,6 +7268,41 @@ void humanCandidateCompletion(
     settleActiveRoot(active);
 }
 
+// The offsets identify the owning status source after precedence is applied.
+// High-bit service codes retain that bit, so consumers must not classify these
+// values solely by a decimal 2xxx/3xxx/4xxx/5xxx range.
+constexpr std::uint32_t physicalFailureStage(
+    const bool hasOutcome,
+    const std::uint32_t humanCode,
+    const std::uint32_t matterCode,
+    const std::uint32_t worldCode,
+    const std::uint32_t jointDecision,
+    const bool physicalReady
+) noexcept {
+    if (hasOutcome && humanCode != MR_NUMI_HUMAN_STAND_SUCCESS)
+        return 2000u + humanCode;
+    if (hasOutcome && matterCode != 0u) return 3000u + matterCode;
+    if (hasOutcome && worldCode != MR_STEP_SUCCESS)
+        return 4000u + worldCode;
+    if (hasOutcome && jointDecision != MR_NUMANX_COUPLED_HUMAN_ACCEPT)
+        return 5000u + jointDecision;
+    return physicalReady ? 0u : 1100u;
+}
+
+static_assert(physicalFailureStage(
+    true, MR_NUMI_HUMAN_STAND_SUCCESS, NM_STATUS_CONTACT_FAILURE,
+    MR_STEP_SUCCESS, MR_NUMANX_COUPLED_HUMAN_ACCEPT, false) == 3006u);
+static_assert(physicalFailureStage(
+    true, MR_NUMI_HUMAN_STAND_SUCCESS,
+    NM_STATUS_NONLINEAR_SOLVER_FAILURE, MR_STEP_SUCCESS,
+    MR_NUMANX_COUPLED_HUMAN_ACCEPT, false) == 3010u);
+static_assert(physicalFailureStage(
+    true, MR_NUMI_HUMAN_STAND_SUCCESS, 0u, MR_STEP_SUCCESS,
+    MR_NUMANX_COUPLED_HUMAN_ACCEPT, false) == 1100u);
+static_assert(physicalFailureStage(
+    true, MR_NUMI_HUMAN_STAND_SUCCESS, 0u, MR_STEP_SUCCESS,
+    MR_NUMANX_COUPLED_HUMAN_ACCEPT, true) == 0u);
+
 void physicalCompletion(
     void* raw,
     const bool ready,
@@ -7315,22 +7350,12 @@ void physicalCompletion(
         if (active->physicalReady && active->exactFamily) {
             active->exactReceipt = exactReceipt;
         }
-        if (!active->physicalReady) {
-            active->runtime->info.request_failure_stage = 1100u;
-        } else if (outcome.humanCode != MR_NUMI_HUMAN_STAND_SUCCESS) {
-            active->runtime->info.request_failure_stage =
-                2000u + outcome.humanCode;
-        } else if (outcome.matterCode != 0u) {
-            active->runtime->info.request_failure_stage =
-                3000u + outcome.matterCode;
-        } else if (outcome.worldCode != MR_STEP_SUCCESS) {
-            active->runtime->info.request_failure_stage =
-                4000u + outcome.worldCode;
-        } else if (outcome.jointDecision !=
-                   MR_NUMANX_COUPLED_HUMAN_ACCEPT) {
-            active->runtime->info.request_failure_stage =
-                5000u + outcome.jointDecision;
-        }
+        const std::uint32_t typedFailureStage = physicalFailureStage(
+            hasOutcome, outcome.humanCode, outcome.matterCode,
+            outcome.worldCode, outcome.jointDecision,
+            active->physicalReady);
+        if (typedFailureStage != 0u)
+            active->runtime->info.request_failure_stage = typedFailureStage;
         if (hasOutcome &&
             std::getenv("MRNX_PHYSICAL_DIAGNOSTICS") != nullptr) {
             std::fprintf(

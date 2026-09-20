@@ -64,6 +64,23 @@ struct ConstitutiveCompileResult {
     std::uint64_t seed = 1469598103934665603ull
 ) noexcept;
 
+// Device-program identity includes host command-encoding policy as well as the
+// loaded metallib. Bump the revision whenever dispatch ordering, barriers, or
+// pre-apply validation changes without an ABI or metallib-format change.
+inline constexpr std::uint64_t kRuntimeExecutionPolicyDomain =
+    0x4e4d52554e504f4cull; // "NMRUNPOL"
+inline constexpr std::uint64_t kRuntimeExecutionPolicyRevision = 1u;
+
+template <typename Mixer>
+[[nodiscard]] std::uint64_t mixRuntimeExecutionPolicyFingerprint(
+    const std::uint64_t fingerprint,
+    const Mixer& mix
+) noexcept {
+    return mix(
+        mix(fingerprint, kRuntimeExecutionPolicyDomain),
+        kRuntimeExecutionPolicyRevision);
+}
+
 // Metal may flush FP32 denormals before arithmetic classification. Support
 // friction therefore admits only either signed zero or a finite,
 // nonnegative normal value; callers must reject rather than silently change
@@ -78,10 +95,9 @@ struct ConstitutiveCompileResult {
         magnitude >= 0x00800000u && magnitude < 0x7f800000u;
 }
 
-// NHCNT histories are consumed by FP32 Metal kernels. Evaluate their physical
-// predicates in FP64 so hostile finite operands cannot overflow the admission
-// arithmetic, then reject values whose squared tangent length or Coulomb
-// radius cannot be represented by the downstream FP32 owner.
+// NHCNT, direct-runtime, and restored histories are consumed by the FP32 Metal
+// owner. Mirror its terminal stored-history predicate here: admission must not
+// accept a tolerance-band value that deterministic GPU certification rejects.
 [[nodiscard]] inline bool humanSupportHistoryAdmissible(
     const nm_float4 history,
     const float friction,
@@ -92,28 +108,26 @@ struct ConstitutiveCompileResult {
         history.w < 0.0f || !humanSupportFrictionAdmissible(friction)) {
         return false;
     }
-    const double tangentProjection =
-        static_cast<double>(history.x) * groundNormal.x +
-        static_cast<double>(history.y) * groundNormal.y +
-        static_cast<double>(history.z) * groundNormal.z;
-    const double tangentSquared =
-        static_cast<double>(history.x) * history.x +
-        static_cast<double>(history.y) * history.y +
-        static_cast<double>(history.z) * history.z;
-    const double tangentMagnitude = std::sqrt(tangentSquared);
-    const double coneRadius =
-        static_cast<double>(friction) * history.w;
-    const double scale = std::max(
-        {1.0, tangentMagnitude, static_cast<double>(history.w)});
-    const double tolerance = 8.0 *
+    const float tangentProjection = std::fma(history.x, groundNormal.x,
+        std::fma(history.y, groundNormal.y,
+            history.z * groundNormal.z));
+    const float tangentSquared = std::fma(history.x, history.x,
+        std::fma(history.y, history.y, history.z * history.z));
+    const float tangentMagnitude = std::sqrt(tangentSquared);
+    const float coneRadius = friction * history.w;
+    const float coneMargin = std::fma(
+        friction, history.w, -tangentMagnitude);
+    const float scale = std::max({1.0f, tangentMagnitude, history.w});
+    const float projectionTolerance = 8.0f *
         std::numeric_limits<float>::epsilon() * scale;
+    const bool zeroTangent = history.x == 0.0f &&
+        history.y == 0.0f && history.z == 0.0f;
     return std::isfinite(tangentProjection) &&
         std::isfinite(tangentSquared) && std::isfinite(tangentMagnitude) &&
-        std::isfinite(coneRadius) &&
-        tangentSquared <= std::numeric_limits<float>::max() &&
-        coneRadius <= std::numeric_limits<float>::max() &&
-        std::abs(tangentProjection) <= tolerance &&
-        tangentMagnitude <= coneRadius + tolerance;
+        std::isfinite(coneRadius) && std::isfinite(coneMargin) &&
+        coneMargin >= 0.0f &&
+        std::abs(tangentProjection) <= projectionTolerance &&
+        ((history.w != 0.0f && friction != 0.0f) || zeroTangent);
 }
 
 // Prepared support histories extend a runtime identity only when a payload is
