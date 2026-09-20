@@ -486,9 +486,349 @@ int main(const int argc, const char* const argv[]) {
             require(allZero(readbackBuffer.contents, readbackBuffer.length),
                     "zero-environment dispatch retained poisoned authority");
 
+            // Exercise the public production Context, not only the direct
+            // validator seam. The private receipt and all sensor rows must be
+            // authored on the same command-buffer timeline.
+            gate.status = MR_NUMANX_BRAIN_READY_GATE_SUCCESS;
+            gate.gateFingerprint =
+                metalrobo::metalNumanXBrainMotorReadyGateV2Fingerprint(gate);
+            std::memcpy(headerBuffer.contents, &header, sizeof(header));
+            std::memcpy(gateBuffer.contents, &gate, sizeof(gate));
+            readyEvent.signaledValue = 1u;
+
+            metalrobo::MetalNumanXHumanIOConfig contextConfig{};
+            contextConfig.metallibPath = argv[1];
+            metalrobo::MetalNumanXHumanIOContext context(contextConfig);
+
+            metalrobo::MetalNumanXHumanIOInputV2 invalidInput = input;
+            ++invalidInput.expectedExcitationGPUAddress;
+            metalrobo::MetalNumanXTransactionProgram untouchedProgram{};
+            untouchedProgram.fingerprint = 0xfeedfaceu;
+            metalrobo::MetalNumanXHumanIOExactPreparedView untouchedView{};
+            untouchedView.sensor.sensorGeneration = 0xabcdefu;
+            const auto invalidDiagnostics = context.prepare(
+                invalidInput, untouchedProgram, untouchedView);
+            require(invalidDiagnostics.status ==
+                        metalrobo::MetalNumanXHumanIOStatus::invalidInput &&
+                        untouchedProgram.fingerprint == 0xfeedfaceu &&
+                        untouchedView.sensor.sensorGeneration == 0xabcdefu,
+                    "invalid exact prepare mutated public outputs");
+
+            metalrobo::MetalNumanXTransactionProgram contextProgram{};
+            metalrobo::MetalNumanXHumanIOExactPreparedView prepared{};
+            auto contextDiagnostics = context.prepare(
+                input, contextProgram, prepared);
+            require(contextDiagnostics.succeeded() &&
+                        contextProgram.valid() && prepared.valid(),
+                    "public exact HumanIO prepare failed");
+            require(prepared.authority.byteCount == sizeof(expected) &&
+                        prepared.authority.byteOffset == 0u &&
+                        prepared.authority.gpuAddress != 0u &&
+                        prepared.authority.metalBuffer != nullptr &&
+                        prepared.sensor.receptorTimestampMicroseconds == 0u &&
+                        prepared.sensor.deliveryTimestampMicroseconds == 0u &&
+                        prepared.sensor.latencyMicroseconds == 0u &&
+                        prepared.sensor.timestampQuantumNanoseconds == 1u &&
+                        prepared.sensor.receptorTimestampNanoseconds ==
+                            substep.startTimestampNanoseconds &&
+                        prepared.sensor.deliveryTimestampNanoseconds ==
+                            substep.candidateTimestampNanoseconds,
+                    "public exact prepared view lost nanosecond authority");
+            require(((__bridge id<MTLBuffer>)
+                        prepared.authority.metalBuffer).storageMode ==
+                        MTLStorageModePrivate,
+                    "public exact authority range is not device-private");
+
+            id<MTLBuffer> stateBuffer = [device
+                newBufferWithLength:sizeof(MRMujocoMuscleStateGPU)
+                           options:MTLResourceStorageModeShared];
+            id<MTLBuffer> resultBuffer = [device
+                newBufferWithLength:sizeof(MRMujocoMuscleResultGPU)
+                           options:MTLResourceStorageModeShared];
+            id<MTLBuffer> statusBuffer = [device
+                newBufferWithLength:sizeof(MRNumiHumanStandStatusGPU)
+                           options:MTLResourceStorageModeShared];
+            require(stateBuffer != nil && resultBuffer != nil &&
+                        statusBuffer != nil,
+                    "public exact transaction buffer allocation failed");
+            const auto initializePhysicalInputs = [&] {
+                auto& state = *static_cast<MRMujocoMuscleStateGPU*>(
+                    stateBuffer.contents);
+                auto& result = *static_cast<MRMujocoMuscleResultGPU*>(
+                    resultBuffer.contents);
+                auto& status = *static_cast<MRNumiHumanStandStatusGPU*>(
+                    statusBuffer.contents);
+                state = {};
+                result = {};
+                status = {};
+                state.excitationAndActivation = {0.0f, 0.5f, 0.1f, 0.0f};
+                result.status = MR_MUJOCO_MUSCLE_REFERENCE_SUCCESS;
+                result.environment = 0u;
+                result.muscleIndex = 0u;
+                result.pathForceAndActivationDerivative = {
+                    1.0f, 2.0f, -12.0f, 4.0f};
+                result.activeForceAndReserved = {5.0f, 0.0f, 0.0f, 0.0f};
+                result.fiberStateTendonForceResidual = {
+                    0.1f, 0.0f, 6.0f, 0.01f};
+                status.code = MR_NUMI_HUMAN_STAND_SUCCESS;
+                status.environment = 0u;
+                status.completedSteps = 1u;
+                status.failingIndex = MR_INVALID_INDEX;
+            };
+            initializePhysicalInputs();
+
+            const float physicalTimestepSeconds = static_cast<float>(
+                static_cast<double>(input.timestepNanoseconds) * 1.0e-9);
+            const auto makePass = [&](id<MTLCommandBuffer> command,
+                                      const metalrobo::MetalNumanXTransactionPhase phase) {
+                metalrobo::MetalNumanXTransactionPass pass{};
+                pass.abiVersion = metalrobo::kMetalNumanXTransactionABIVersion;
+                pass.structSize = sizeof(pass);
+                pass.accessFlags =
+                    metalrobo::MetalNumanXTransactionReadBorrowedState;
+                if (phase ==
+                    metalrobo::MetalNumanXTransactionPhase::beginStep) {
+                    pass.accessFlags |=
+                        metalrobo::MetalNumanXTransactionWriteMujocoExcitation;
+                } else if (phase ==
+                    metalrobo::MetalNumanXTransactionPhase::postDynamics) {
+                    pass.accessFlags |=
+                        metalrobo::MetalNumanXTransactionWriteStandFailure;
+                }
+                pass.commandBuffer = (__bridge void*)command;
+                pass.mujocoStates = (__bridge void*)stateBuffer;
+                pass.mujocoResults = (__bridge void*)resultBuffer;
+                pass.standStatuses = (__bridge void*)statusBuffer;
+                pass.phase = phase;
+                pass.programFingerprint = contextProgram.fingerprint;
+                pass.stepCount = 1u;
+                pass.timestepSeconds = physicalTimestepSeconds;
+                pass.environmentCount = 1u;
+                pass.mujocoMuscleCount = 1u;
+                pass.mujocoStateElementCount = 1u;
+                pass.mujocoStateStride = 1u;
+                pass.mujocoResultElementCount = 1u;
+                pass.mujocoResultStride = 1u;
+                pass.standStatusElementCount = 1u;
+                pass.standStatusStride = 1u;
+                return pass;
+            };
+
+            id<MTLBuffer> contextReceiptReadback = [device
+                newBufferWithLength:prepared.authority.byteCount
+                           options:MTLResourceStorageModeShared];
+            id<MTLBuffer> proprioceptionReadback = [device
+                newBufferWithLength:prepared.sensor.proprioceptionByteCount
+                           options:MTLResourceStorageModeShared];
+            id<MTLBuffer> validityReadback = [device
+                newBufferWithLength:prepared.sensor.validityByteCount
+                           options:MTLResourceStorageModeShared];
+            id<MTLBuffer> interoceptionReadback = [device
+                newBufferWithLength:prepared.sensor.interoceptionByteCount
+                           options:MTLResourceStorageModeShared];
+            id<MTLBuffer> interoceptionValidityReadback = [device
+                newBufferWithLength:
+                    prepared.sensor.interoceptionValidityByteCount
+                           options:MTLResourceStorageModeShared];
+            require(contextReceiptReadback != nil &&
+                        proprioceptionReadback != nil &&
+                        validityReadback != nil &&
+                        interoceptionReadback != nil &&
+                        interoceptionValidityReadback != nil,
+                    "public exact readback allocation failed");
+
+            id<MTLCommandBuffer> contextCommand = [queue commandBuffer];
+            require(contextCommand != nil,
+                    "public exact command buffer allocation failed");
+            for (const auto phase : {
+                     metalrobo::MetalNumanXTransactionPhase::beginStep,
+                     metalrobo::MetalNumanXTransactionPhase::preDynamics,
+                     metalrobo::MetalNumanXTransactionPhase::postDynamics,
+                 }) {
+                const auto pass = makePass(contextCommand, phase);
+                require(contextProgram.encode(contextProgram.context, pass),
+                        "public exact transaction phase was rejected");
+            }
+            metalrobo::MetalNumanXHumanIOTransactionKey contextKey{};
+            metalrobo::MetalNumanXHumanIOSensorView pendingSensor{};
+            contextDiagnostics = context.pendingCandidate(
+                contextKey, pendingSensor);
+            require(contextDiagnostics.succeeded() && contextKey.valid(),
+                    "public exact pending key was unavailable after encoding");
+
+            id<MTLBlitCommandEncoder> contextReadback =
+                [contextCommand blitCommandEncoder];
+            require(contextReadback != nil,
+                    "public exact readback blit unavailable");
+            [contextReadback
+                copyFromBuffer:(__bridge id<MTLBuffer>)
+                    prepared.authority.metalBuffer
+                   sourceOffset:prepared.authority.byteOffset
+                       toBuffer:contextReceiptReadback
+              destinationOffset:0u
+                           size:prepared.authority.byteCount];
+            [contextReadback
+                copyFromBuffer:(__bridge id<MTLBuffer>)
+                    prepared.sensor.proprioceptionMetalBuffer
+                   sourceOffset:0u
+                       toBuffer:proprioceptionReadback
+              destinationOffset:0u
+                           size:prepared.sensor.proprioceptionByteCount];
+            [contextReadback
+                copyFromBuffer:(__bridge id<MTLBuffer>)
+                    prepared.sensor.validityMetalBuffer
+                   sourceOffset:0u
+                       toBuffer:validityReadback
+              destinationOffset:0u
+                           size:prepared.sensor.validityByteCount];
+            [contextReadback
+                copyFromBuffer:(__bridge id<MTLBuffer>)
+                    prepared.sensor.interoceptionMetalBuffer
+                   sourceOffset:0u
+                       toBuffer:interoceptionReadback
+              destinationOffset:0u
+                           size:prepared.sensor.interoceptionByteCount];
+            [contextReadback
+                copyFromBuffer:(__bridge id<MTLBuffer>)
+                    prepared.sensor.interoceptionValidityMetalBuffer
+                   sourceOffset:0u
+                       toBuffer:interoceptionValidityReadback
+              destinationOffset:0u
+                           size:
+                               prepared.sensor.interoceptionValidityByteCount];
+            [contextReadback endEncoding];
+            [contextCommand commit];
+            [contextCommand waitUntilCompleted];
+            require(contextCommand.status == MTLCommandBufferStatusCompleted &&
+                        contextCommand.error == nil,
+                    "public exact transaction command failed");
+            require(std::memcmp(
+                        contextReceiptReadback.contents,
+                        &expected,
+                        sizeof(expected)) == 0,
+                    "public Context private receipt differs from CPU authority");
+            require(static_cast<const float*>(
+                        stateBuffer.contents)[0] == excitation[0],
+                    "public exact admission did not write excitation");
+            require(static_cast<const float*>(
+                        proprioceptionReadback.contents)[0] == excitation[0],
+                    "public exact sensor row did not preserve excitation");
+            require(*static_cast<const std::uint32_t*>(
+                        validityReadback.contents) ==
+                        MR_NUMANX_HUMAN_PROPRIOCEPTION_VALIDITY_ALL &&
+                        *static_cast<const std::uint32_t*>(
+                            interoceptionValidityReadback.contents) ==
+                        MR_NUMANX_HUMAN_INTEROCEPTION_VALIDITY_ALL,
+                    "public exact sensor validity was not admitted");
+            require(!allZero(
+                        interoceptionReadback.contents,
+                        interoceptionReadback.length),
+                    "public exact interoception remained empty");
+            contextDiagnostics = context.pendingCandidate(
+                contextKey, pendingSensor);
+            require(contextDiagnostics.succeeded() &&
+                        pendingSensor.commandBufferIdentity ==
+                            reinterpret_cast<std::uintptr_t>(
+                                (__bridge void*)contextCommand) &&
+                        pendingSensor.transactionInstanceFingerprint ==
+                            contextKey.transactionInstanceFingerprint,
+                    "public exact completion lost command identity");
+            metalrobo::MetalNumanXHumanIOCandidatePublicationLease
+                legacyPublicationLease{};
+            contextDiagnostics = context.reserveCandidatePublication(
+                contextKey, legacyPublicationLease);
+            require(contextDiagnostics.status ==
+                        metalrobo::MetalNumanXHumanIOStatus::
+                            candidateUnavailable &&
+                        !legacyPublicationLease.valid(),
+                    "exact candidate escaped through the legacy publication API");
+            require(context.reject(contextKey).succeeded(),
+                    "public exact candidate rejection failed");
+
+            // A terminal gate failure is transport-successful but must mark
+            // the owning physical status failed, clear the private receipt,
+            // and leave every reused sensor byte zero.
+            initializePhysicalInputs();
+            gate.status = MR_NUMANX_BRAIN_READY_GATE_FAILURE;
+            gate.gateFingerprint =
+                metalrobo::metalNumanXBrainMotorReadyGateV2Fingerprint(gate);
+            std::memcpy(gateBuffer.contents, &gate, sizeof(gate));
+            input.candidateSensorGeneration = 2u;
+            contextProgram = {};
+            prepared = {};
+            contextDiagnostics = context.prepare(
+                input, contextProgram, prepared);
+            require(contextDiagnostics.succeeded() && prepared.valid(),
+                    "terminal-gate negative prepare failed unexpectedly");
+            id<MTLCommandBuffer> rejectedCommand = [queue commandBuffer];
+            require(rejectedCommand != nil,
+                    "terminal-gate command buffer allocation failed");
+            for (const auto phase : {
+                     metalrobo::MetalNumanXTransactionPhase::beginStep,
+                     metalrobo::MetalNumanXTransactionPhase::preDynamics,
+                     metalrobo::MetalNumanXTransactionPhase::postDynamics,
+                 }) {
+                const auto pass = makePass(rejectedCommand, phase);
+                require(contextProgram.encode(contextProgram.context, pass),
+                        "terminal-gate transaction phase was rejected by host");
+            }
+            metalrobo::MetalNumanXHumanIOTransactionKey rejectedKey{};
+            contextDiagnostics = context.pendingCandidate(
+                rejectedKey, pendingSensor);
+            require(contextDiagnostics.succeeded() && rejectedKey.valid(),
+                    "terminal-gate pending key was unavailable");
+            id<MTLBlitCommandEncoder> rejectedReadback =
+                [rejectedCommand blitCommandEncoder];
+            require(rejectedReadback != nil,
+                    "terminal-gate readback blit unavailable");
+            [rejectedReadback
+                copyFromBuffer:(__bridge id<MTLBuffer>)
+                    prepared.authority.metalBuffer
+                   sourceOffset:0u
+                       toBuffer:contextReceiptReadback
+              destinationOffset:0u
+                           size:prepared.authority.byteCount];
+            [rejectedReadback
+                copyFromBuffer:(__bridge id<MTLBuffer>)
+                    prepared.sensor.proprioceptionMetalBuffer
+                   sourceOffset:0u
+                       toBuffer:proprioceptionReadback
+              destinationOffset:0u
+                           size:prepared.sensor.proprioceptionByteCount];
+            [rejectedReadback
+                copyFromBuffer:(__bridge id<MTLBuffer>)
+                    prepared.sensor.validityMetalBuffer
+                   sourceOffset:0u
+                       toBuffer:validityReadback
+              destinationOffset:0u
+                           size:prepared.sensor.validityByteCount];
+            [rejectedReadback endEncoding];
+            [rejectedCommand commit];
+            [rejectedCommand waitUntilCompleted];
+            require(rejectedCommand.status == MTLCommandBufferStatusCompleted &&
+                        rejectedCommand.error == nil,
+                    "terminal-gate command transport failed");
+            require(static_cast<const MRNumiHumanStandStatusGPU*>(
+                        statusBuffer.contents)->code ==
+                        MR_NUMI_HUMAN_STAND_INVALID_DISPATCH,
+                    "terminal-gate authority failure left stand status successful");
+            require(allZero(
+                        contextReceiptReadback.contents,
+                        contextReceiptReadback.length) &&
+                        allZero(
+                            proprioceptionReadback.contents,
+                            proprioceptionReadback.length) &&
+                        allZero(
+                            validityReadback.contents,
+                            validityReadback.length),
+                    "terminal-gate authority failure retained candidate bytes");
+            require(context.reject(rejectedKey).succeeded(),
+                    "terminal-gate candidate rejection failed");
+
             std::printf(
                 "PASS exact_human_io_receipt device=%s bytes=%zu "
-                "fingerprint=%llu storage=private negative_cases=4\n",
+                "fingerprint=%llu storage=private negative_cases=6 "
+                "context_v2=passed\n",
                 device.name.UTF8String,
                 sizeof(expected),
                 static_cast<unsigned long long>(

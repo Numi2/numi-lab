@@ -377,6 +377,29 @@ int main() {
                 authority, inboundRoot, inboundSubstep, inboundCandidate,
                 inboundOutput, inboundGate),
             "canonical inbound authority did not match its validated records");
+
+    auto zeroTimestampAuthority = authority;
+    zeroTimestampAuthority.accepted_brain_timestamp_nanoseconds = 0u;
+    zeroTimestampAuthority.inbound_authority_fingerprint =
+        metalrobo::metalNumanXExactInboundAuthorityV2Fingerprint(
+            zeroTimestampAuthority);
+    auto zeroTimestampSubstep = inboundSubstep;
+    zeroTimestampSubstep.start_timestamp_nanoseconds = 0u;
+    auto zeroTimestampCandidate = inboundCandidate;
+    zeroTimestampCandidate.accepted_brain_timestamp_nanoseconds = 0u;
+    auto zeroTimestampOutput = inboundOutput;
+    zeroTimestampOutput.timestamp_nanoseconds = 0u;
+    auto zeroTimestampGate = inboundGate;
+    zeroTimestampGate.accepted_brain_timestamp_nanoseconds = 0u;
+    require(metalrobo::metalNumanXExactInboundAuthorityV2Valid(
+                zeroTimestampAuthority),
+            "exact inbound authority rejected a valid zero start timestamp");
+    require(metalrobo::metalNumanXExactInboundAuthorityV2Matches(
+                zeroTimestampAuthority, inboundRoot, zeroTimestampSubstep,
+                zeroTimestampCandidate, zeroTimestampOutput,
+                zeroTimestampGate),
+            "zero-start inbound authority did not match its validated records");
+
     require(metalrobo::metalNumanXExactAcceptedStateProofV2Valid(proof),
             "coherent exact accepted-state proof was rejected");
     require(metalrobo::metalNumanXExactAcceptedPhysicsTokenV2Valid(

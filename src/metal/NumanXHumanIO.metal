@@ -541,6 +541,93 @@ kernel void numanx_human_validate_motor_output_v2(
     headerValidation[environment] = MR_NUMANX_HUMAN_MOTOR_HEADER_VALID;
 }
 
+// Exact excitation admission consumes the device-authored authority receipt,
+// never a host-reconstructed fingerprint. Command ordering guarantees the v2
+// validator above has either written a complete canonical receipt or left the
+// record zero before this kernel can touch MyoSim state.
+kernel void numanx_human_admit_excitations_v2(
+    const device float* excitations [[buffer(0)]],
+    device MRMujocoMuscleStateGPU* states [[buffer(1)]],
+    device uint* motorValidation [[buffer(2)]],
+    const device uint* headerValidation [[buffer(3)]],
+    const device MRNumanXExactInboundAuthorityGPUV2* inboundAuthority
+        [[buffer(4)]],
+    constant MRNumanXHumanMotorDispatchGPUV2& dispatch [[buffer(5)]],
+    uint index [[thread_position_in_grid]]
+) {
+    const uint count = dispatch.environmentCount * dispatch.muscleCount;
+    if (index >= count) {
+        return;
+    }
+
+    const uint environment = index / dispatch.muscleCount;
+    const uint muscle = index - environment * dispatch.muscleCount;
+    const ulong excitationIndex =
+        static_cast<ulong>(environment) *
+            dispatch.excitationEnvironmentStride +
+        muscle;
+    const ulong stateIndex =
+        static_cast<ulong>(environment) * dispatch.muscleCount + muscle;
+    const float value = excitations[excitationIndex];
+    const bool finite = isfinite(value);
+    const bool inUnitInterval = finite && value >= 0.0f && value <= 1.0f;
+
+    const MRNumanXExactInboundAuthorityGPUV2 receipt =
+        inboundAuthority[0];
+    const bool exactDispatch =
+        dispatch.abiVersion ==
+            MR_NUMANX_HUMAN_MOTOR_DISPATCH_ABI_VERSION_V2 &&
+        dispatch.environmentCount == 1u &&
+        dispatch.muscleCount != 0u &&
+        dispatch.clockDomain ==
+            MR_NUMANX_BRAIN_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS &&
+        dispatch.clockQuantumNanoseconds ==
+            MR_NUMANX_BRAIN_EXACT_CLOCK_QUANTUM_NANOSECONDS;
+    const bool receiptAuthentic = exactDispatch &&
+        receipt.abiVersion ==
+            MR_NUMANX_EXACT_INBOUND_AUTHORITY_ABI_VERSION_V2 &&
+        receipt.structSize == sizeof(MRNumanXExactInboundAuthorityGPUV2) &&
+        receipt.clockDomain == dispatch.clockDomain &&
+        receipt.clockQuantumNanoseconds ==
+            dispatch.clockQuantumNanoseconds &&
+        receipt.acceptedBrainTimestampNanoseconds ==
+            dispatch.acceptedBrainTimestampNanoseconds &&
+        receipt.brainGeneration == dispatch.acceptedBrainGeneration &&
+        receipt.transactionFingerprint == dispatch.transactionFingerprint &&
+        receipt.substepFingerprint == dispatch.substepFingerprint &&
+        receipt.motorCandidateFingerprint ==
+            dispatch.motorCandidateFingerprint &&
+        receipt.motorOutputFingerprint != 0ul &&
+        receipt.motorProfileFingerprint ==
+            dispatch.motorProfileFingerprint &&
+        receipt.motorReadyGateFingerprint != 0ul &&
+        receipt.brainProgramFingerprint != 0ul &&
+        receipt.fastProgramFingerprint != 0ul &&
+        receipt.decisionGateFingerprint != 0ul &&
+        receipt.inboundAuthorityFingerprint != 0ul &&
+        receipt.inboundAuthorityFingerprint ==
+            exactInboundAuthorityFingerprintV2(receipt);
+    const bool authenticated = receiptAuthentic &&
+        headerValidation[environment] ==
+            MR_NUMANX_HUMAN_MOTOR_HEADER_VALID;
+
+    uint validation = MR_NUMANX_HUMAN_MOTOR_COPIED;
+    if (finite) {
+        validation |= MR_NUMANX_HUMAN_MOTOR_FINITE;
+    }
+    if (inUnitInterval) {
+        validation |= MR_NUMANX_HUMAN_MOTOR_IN_UNIT_INTERVAL;
+    }
+    if (authenticated) {
+        validation |= MR_NUMANX_HUMAN_MOTOR_HEADER_AUTHENTICATED;
+    }
+    states[stateIndex].excitationAndActivation.x =
+        authenticated && inUnitInterval
+        ? clamp(value, 0.0f, 1.0f)
+        : 0.0f;
+    motorValidation[index] = validation;
+}
+
 // beginStep admission. Every source slot is written exactly once. Invalid
 // motor values are replaced by zero so they cannot poison kinematics or
 // MyoSim, but their validation word remains failed and the post-stand gate
@@ -668,6 +755,141 @@ kernel void numanx_human_gate_proprioception(
     environmentGate[environment] = 1u;
 }
 
+// Exact-family post-dynamics gate. Besides the physical stand/muscle checks,
+// it authenticates the private receipt against the exact sensor program so a
+// legacy post kernel cannot be relabeled as nanosecond evidence.
+kernel void numanx_human_gate_proprioception_v2(
+    const device MRMujocoMuscleStateGPU* states [[buffer(0)]],
+    const device MRMujocoMuscleResultGPU* results [[buffer(1)]],
+    const device uint* motorValidation [[buffer(2)]],
+    device MRNumiHumanStandStatusGPU* standStatuses [[buffer(3)]],
+    device uint* environmentGate [[buffer(4)]],
+    const device MRNumanXExactInboundAuthorityGPUV2* inboundAuthority
+        [[buffer(5)]],
+    constant MRNumanXHumanSensorDispatchGPUV2& dispatch [[buffer(6)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    // The exact family is permanently single-environment. Thread zero owns
+    // the fail-closed gate/status transition even when a malformed dispatch
+    // claims zero environments, so stale success cannot survive.
+    if (environment != 0u) {
+        return;
+    }
+    environmentGate[0] = 0u;
+    device MRNumiHumanStandStatusGPU& status =
+        standStatuses[0];
+    const bool timingValid =
+        dispatch.deliveryTimestampNanoseconds >
+            dispatch.receptorTimestampNanoseconds &&
+        dispatch.deliveryTimestampNanoseconds -
+                dispatch.receptorTimestampNanoseconds ==
+            dispatch.timestepNanoseconds;
+    if (dispatch.abiVersion !=
+            MR_NUMANX_HUMAN_SENSOR_DISPATCH_ABI_VERSION_V2 ||
+        dispatch.structSize != sizeof(MRNumanXHumanSensorDispatchGPUV2) ||
+        dispatch.environmentCount != 1u || dispatch.muscleCount == 0u ||
+        dispatch.featureCount !=
+            MR_NUMANX_HUMAN_PROPRIOCEPTION_FEATURE_COUNT ||
+        dispatch.stepIndex != 0u || dispatch.stepCount != 1u ||
+        dispatch.stateStride != dispatch.muscleCount ||
+        dispatch.resultStride != dispatch.muscleCount ||
+        dispatch.clockDomain !=
+            MR_NUMANX_BRAIN_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS ||
+        dispatch.clockQuantumNanoseconds !=
+            MR_NUMANX_BRAIN_EXACT_CLOCK_QUANTUM_NANOSECONDS ||
+        dispatch.reserved0 != 0u || dispatch.timestepNanoseconds == 0ul ||
+        !timingValid ||
+        !isfinite(dispatch.physicalTimestepSecondsAndReserved.x) ||
+        dispatch.physicalTimestepSecondsAndReserved.x <= 0.0f ||
+        any(dispatch.physicalTimestepSecondsAndReserved.yzw != 0.0f) ||
+        dispatch.transactionFingerprint == 0ul ||
+        dispatch.substepFingerprint == 0ul ||
+        dispatch.motorCandidateFingerprint == 0ul ||
+        dispatch.acceptedBrainGeneration == 0ul ||
+        dispatch.candidateSensorGeneration == 0ul ||
+        dispatch.inboundAuthorityGPUAddress == 0ul ||
+        dispatch.expectedExcitationGPUAddress == 0ul ||
+        dispatch.programFingerprint == 0ul ||
+        dispatch.sensorFingerprint == 0ul) {
+        status.code = MR_NUMI_HUMAN_STAND_INVALID_DISPATCH;
+        status.failingIndex = 0u;
+        return;
+    }
+
+    const MRNumanXExactInboundAuthorityGPUV2 receipt =
+        inboundAuthority[0];
+    if (receipt.abiVersion !=
+            MR_NUMANX_EXACT_INBOUND_AUTHORITY_ABI_VERSION_V2 ||
+        receipt.structSize != sizeof(MRNumanXExactInboundAuthorityGPUV2) ||
+        receipt.clockDomain != dispatch.clockDomain ||
+        receipt.clockQuantumNanoseconds !=
+            dispatch.clockQuantumNanoseconds ||
+        receipt.acceptedBrainTimestampNanoseconds !=
+            dispatch.receptorTimestampNanoseconds ||
+        receipt.brainGeneration != dispatch.acceptedBrainGeneration ||
+        receipt.transactionFingerprint != dispatch.transactionFingerprint ||
+        receipt.substepFingerprint != dispatch.substepFingerprint ||
+        receipt.motorCandidateFingerprint !=
+            dispatch.motorCandidateFingerprint ||
+        receipt.motorOutputFingerprint == 0ul ||
+        receipt.motorProfileFingerprint == 0ul ||
+        receipt.motorReadyGateFingerprint == 0ul ||
+        receipt.brainProgramFingerprint == 0ul ||
+        receipt.fastProgramFingerprint == 0ul ||
+        receipt.decisionGateFingerprint == 0ul ||
+        receipt.inboundAuthorityFingerprint == 0ul ||
+        receipt.inboundAuthorityFingerprint !=
+            exactInboundAuthorityFingerprintV2(receipt)) {
+        status.code = MR_NUMI_HUMAN_STAND_INVALID_DISPATCH;
+        status.failingIndex = 0u;
+        return;
+    }
+
+    if (status.environment != environment ||
+        status.code != MR_NUMI_HUMAN_STAND_SUCCESS) {
+        return;
+    }
+    if (status.completedSteps != dispatch.stepIndex + 1u) {
+        status.code = MR_NUMI_HUMAN_STAND_INVALID_DISPATCH;
+        status.failingIndex = dispatch.stepIndex;
+        return;
+    }
+
+    constexpr uint requiredMotorValidation =
+        MR_NUMANX_HUMAN_MOTOR_FINITE |
+        MR_NUMANX_HUMAN_MOTOR_IN_UNIT_INTERVAL |
+        MR_NUMANX_HUMAN_MOTOR_COPIED |
+        MR_NUMANX_HUMAN_MOTOR_HEADER_AUTHENTICATED;
+    for (uint muscle = 0u; muscle < dispatch.muscleCount; ++muscle) {
+        const ulong compactIndex =
+            static_cast<ulong>(environment) * dispatch.muscleCount + muscle;
+        if ((motorValidation[compactIndex] & requiredMotorValidation) !=
+            requiredMotorValidation) {
+            status.code =
+                (motorValidation[compactIndex] &
+                    MR_NUMANX_HUMAN_MOTOR_FINITE) == 0u
+                ? MR_NUMI_HUMAN_STAND_NONFINITE_INPUT
+                : MR_NUMI_HUMAN_STAND_INVALID_DISPATCH;
+            status.failingIndex = muscle;
+            return;
+        }
+        const ulong stateIndex =
+            static_cast<ulong>(environment) * dispatch.stateStride + muscle;
+        const ulong resultIndex =
+            static_cast<ulong>(environment) * dispatch.resultStride + muscle;
+        if (!validReceptorSource(
+                states[stateIndex],
+                results[resultIndex],
+                environment,
+                muscle)) {
+            status.code = MR_NUMI_HUMAN_STAND_NONFINITE_RESULT;
+            status.failingIndex = muscle;
+            return;
+        }
+    }
+    environmentGate[environment] = 1u;
+}
+
 // Environment-major, step-major receptor publication. A failed environment
 // is deterministically zero-filled for this step with a zero UInt32 validity
 // mask. A successful row publishes all ten features and sets the corresponding
@@ -769,6 +991,170 @@ kernel void numanx_human_write_proprioception(
         0.5f * (state.x + state.y), 0.0f, 1.0f);
     const float normalizedVelocity = clamp(
         abs(state.w) * max(dispatch.timestepSecondsAndReserved.x, 0.0f),
+        0.0f,
+        1.0f);
+    const float normalizedTension = clamp(
+        abs(result.fiberStateTendonForceResidual.z) /
+            (1.0f + abs(result.fiberStateTendonForceResidual.z)),
+        0.0f,
+        1.0f);
+    const float normalizedResidual = clamp(
+        abs(result.fiberStateTendonForceResidual.w), 0.0f, 1.0f);
+    interoception[
+        interoceptionBase +
+        MR_NUMANX_HUMAN_INTEROCEPTION_ENERGY_AVAILABILITY
+    ] = 1.0f - activationLoad;
+    interoception[
+        interoceptionBase +
+        MR_NUMANX_HUMAN_INTEROCEPTION_OXYGEN_AVAILABILITY
+    ] = clamp(1.0f - state.y, 0.0f, 1.0f);
+    interoception[
+        interoceptionBase +
+        MR_NUMANX_HUMAN_INTEROCEPTION_CARBON_DIOXIDE_LOAD
+    ] = clamp(state.y, 0.0f, 1.0f);
+    interoception[
+        interoceptionBase +
+        MR_NUMANX_HUMAN_INTEROCEPTION_THERMAL_LOAD
+    ] = clamp(0.5f * normalizedVelocity + 0.5f * activationLoad, 0.0f, 1.0f);
+    interoception[
+        interoceptionBase +
+        MR_NUMANX_HUMAN_INTEROCEPTION_FATIGUE_LOAD
+    ] = clamp(0.5f * activationLoad + 0.5f * normalizedTension, 0.0f, 1.0f);
+    interoception[
+        interoceptionBase +
+        MR_NUMANX_HUMAN_INTEROCEPTION_TISSUE_STRESS
+    ] = clamp(0.5f * normalizedTension + 0.5f * normalizedResidual, 0.0f, 1.0f);
+    interoceptionValidity[validityIndex] =
+        MR_NUMANX_HUMAN_INTEROCEPTION_VALIDITY_ALL;
+}
+
+kernel void numanx_human_write_proprioception_v2(
+    const device MRMujocoMuscleStateGPU* states [[buffer(0)]],
+    const device MRMujocoMuscleResultGPU* results [[buffer(1)]],
+    const device uint* environmentGate [[buffer(2)]],
+    device float* proprioception [[buffer(3)]],
+    device uint* validity [[buffer(4)]],
+    device float* interoception [[buffer(5)]],
+    device uint* interoceptionValidity [[buffer(6)]],
+    constant MRNumanXHumanSensorDispatchGPUV2& dispatch [[buffer(7)]],
+    uint index [[thread_position_in_grid]]
+) {
+    const uint count = dispatch.environmentCount * dispatch.muscleCount;
+    const bool timingValid =
+        dispatch.deliveryTimestampNanoseconds >
+            dispatch.receptorTimestampNanoseconds &&
+        dispatch.deliveryTimestampNanoseconds -
+                dispatch.receptorTimestampNanoseconds ==
+            dispatch.timestepNanoseconds;
+    if (index >= count ||
+        dispatch.abiVersion !=
+            MR_NUMANX_HUMAN_SENSOR_DISPATCH_ABI_VERSION_V2 ||
+        dispatch.structSize != sizeof(MRNumanXHumanSensorDispatchGPUV2) ||
+        dispatch.environmentCount != 1u || dispatch.muscleCount == 0u ||
+        dispatch.featureCount !=
+            MR_NUMANX_HUMAN_PROPRIOCEPTION_FEATURE_COUNT ||
+        dispatch.stepIndex != 0u || dispatch.stepCount != 1u ||
+        dispatch.stateStride != dispatch.muscleCount ||
+        dispatch.resultStride != dispatch.muscleCount ||
+        dispatch.clockDomain !=
+            MR_NUMANX_BRAIN_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS ||
+        dispatch.clockQuantumNanoseconds !=
+            MR_NUMANX_BRAIN_EXACT_CLOCK_QUANTUM_NANOSECONDS ||
+        dispatch.reserved0 != 0u || dispatch.timestepNanoseconds == 0ul ||
+        !timingValid ||
+        !isfinite(dispatch.physicalTimestepSecondsAndReserved.x) ||
+        dispatch.physicalTimestepSecondsAndReserved.x <= 0.0f ||
+        any(dispatch.physicalTimestepSecondsAndReserved.yzw != 0.0f) ||
+        dispatch.transactionFingerprint == 0ul ||
+        dispatch.substepFingerprint == 0ul ||
+        dispatch.motorCandidateFingerprint == 0ul ||
+        dispatch.acceptedBrainGeneration == 0ul ||
+        dispatch.candidateSensorGeneration == 0ul ||
+        dispatch.inboundAuthorityGPUAddress == 0ul ||
+        dispatch.expectedExcitationGPUAddress == 0ul ||
+        dispatch.programFingerprint == 0ul ||
+        dispatch.sensorFingerprint == 0ul) {
+        return;
+    }
+
+    const uint environment = index / dispatch.muscleCount;
+    const uint muscle = index - environment * dispatch.muscleCount;
+    const ulong outputBase =
+        static_cast<ulong>(environment) *
+            dispatch.proprioceptionEnvironmentStride +
+        static_cast<ulong>(dispatch.stepIndex) *
+            dispatch.proprioceptionStepStride +
+        static_cast<ulong>(muscle) * dispatch.featureCount;
+    const ulong validityIndex =
+        static_cast<ulong>(environment) * dispatch.validityEnvironmentStride +
+        static_cast<ulong>(dispatch.stepIndex) * dispatch.validityStepStride +
+        muscle;
+
+    if (environmentGate[environment] == 0u) {
+        for (uint feature = 0u; feature < dispatch.featureCount; ++feature) {
+            proprioception[outputBase + feature] = 0.0f;
+        }
+        validity[validityIndex] = 0u;
+        const ulong interoceptionBase =
+            validityIndex * MR_NUMANX_HUMAN_INTEROCEPTION_FEATURE_COUNT;
+        for (uint feature = 0u;
+             feature < MR_NUMANX_HUMAN_INTEROCEPTION_FEATURE_COUNT;
+             ++feature) {
+            interoception[interoceptionBase + feature] = 0.0f;
+        }
+        interoceptionValidity[validityIndex] = 0u;
+        return;
+    }
+
+    const ulong stateIndex =
+        static_cast<ulong>(environment) * dispatch.stateStride + muscle;
+    const ulong resultIndex =
+        static_cast<ulong>(environment) * dispatch.resultStride + muscle;
+    const float4 state = states[stateIndex].excitationAndActivation;
+    const device MRMujocoMuscleResultGPU& result = results[resultIndex];
+
+    proprioception[outputBase + MR_NUMANX_HUMAN_FEATURE_EXCITATION] = state.x;
+    proprioception[outputBase + MR_NUMANX_HUMAN_FEATURE_ACTIVATION] = state.y;
+    proprioception[
+        outputBase + MR_NUMANX_HUMAN_FEATURE_FIBRE_LENGTH_METRES
+    ] = state.z;
+    proprioception[
+        outputBase +
+        MR_NUMANX_HUMAN_FEATURE_FIBRE_VELOCITY_METRES_PER_SECOND
+    ] = state.w;
+    proprioception[
+        outputBase + MR_NUMANX_HUMAN_FEATURE_PATH_LENGTH_METRES
+    ] = result.pathForceAndActivationDerivative.x;
+    proprioception[
+        outputBase +
+        MR_NUMANX_HUMAN_FEATURE_PATH_VELOCITY_METRES_PER_SECOND
+    ] = result.pathForceAndActivationDerivative.y;
+    proprioception[
+        outputBase + MR_NUMANX_HUMAN_FEATURE_APPLIED_ACTIVE_FORCE_NEWTONS
+    ] = result.activeForceAndReserved.x;
+    proprioception[
+        outputBase + MR_NUMANX_HUMAN_FEATURE_TENDON_TENSION_NEWTONS
+    ] = result.fiberStateTendonForceResidual.x > 0.0f
+        ? max(-result.pathForceAndActivationDerivative.z, 0.0f) : 0.0f;
+    proprioception[
+        outputBase +
+        MR_NUMANX_HUMAN_FEATURE_ACTIVATION_DERIVATIVE_PER_SECOND
+    ] = result.pathForceAndActivationDerivative.w;
+    proprioception[
+        outputBase +
+        MR_NUMANX_HUMAN_FEATURE_NORMALIZED_EQUILIBRIUM_RESIDUAL
+    ] = result.fiberStateTendonForceResidual.w;
+    validity[validityIndex] =
+        MR_NUMANX_HUMAN_PROPRIOCEPTION_VALIDITY_ALL;
+
+    const ulong interoceptionBase =
+        validityIndex * MR_NUMANX_HUMAN_INTEROCEPTION_FEATURE_COUNT;
+    const float activationLoad = clamp(
+        0.5f * (state.x + state.y), 0.0f, 1.0f);
+    const float normalizedVelocity = clamp(
+        abs(state.w) * max(
+            dispatch.physicalTimestepSecondsAndReserved.x,
+            0.0f),
         0.0f,
         1.0f);
     const float normalizedTension = clamp(

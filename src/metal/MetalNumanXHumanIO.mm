@@ -17,6 +17,12 @@
 namespace metalrobo {
 namespace detail {
 
+enum class MetalNumanXHumanIOInputFamily : std::uint32_t {
+    none = 0u,
+    legacy = 1u,
+    exactV2 = 2u,
+};
+
 struct MetalNumanXHumanIOBufferSlot {
     id<MTLBuffer> proprioception = nil;
     id<MTLBuffer> validity = nil;
@@ -25,6 +31,7 @@ struct MetalNumanXHumanIOBufferSlot {
     id<MTLBuffer> motorValidation = nil;
     id<MTLBuffer> motorHeaderValidation = nil;
     id<MTLBuffer> environmentGate = nil;
+    id<MTLBuffer> exactInboundAuthority = nil;
 
     std::size_t proprioceptionByteCount = 0u;
     std::size_t validityByteCount = 0u;
@@ -33,6 +40,7 @@ struct MetalNumanXHumanIOBufferSlot {
     std::size_t motorValidationByteCount = 0u;
     std::size_t motorHeaderValidationByteCount = 0u;
     std::size_t environmentGateByteCount = 0u;
+    std::size_t exactInboundAuthorityByteCount = 0u;
     std::size_t proprioceptionEnvironmentStride = 0u;
     std::size_t proprioceptionStepStride = 0u;
     std::size_t validityEnvironmentStride = 0u;
@@ -42,10 +50,16 @@ struct MetalNumanXHumanIOBufferSlot {
     std::uint32_t stepCount = 0u;
     std::uint32_t receptorCount = 0u;
     float timestepSeconds = 0.0f;
+    std::uint64_t timestepNanoseconds = 0u;
     std::uint64_t timestampQuantumNanoseconds = 1000u;
     std::uint64_t receptorTimestampMicroseconds = 0u;
+    std::uint64_t receptorTimestampNanoseconds = 0u;
+    std::uint64_t deliveryTimestampNanoseconds = 0u;
 
+    MetalNumanXHumanIOInputFamily inputFamily =
+        MetalNumanXHumanIOInputFamily::none;
     std::uint64_t transactionFingerprint = 0u;
+    std::uint64_t substepFingerprint = 0u;
     std::uint64_t motorCandidateFingerprint = 0u;
     std::uint64_t acceptedBrainGeneration = 0u;
     std::uint64_t sensorGeneration = 0u;
@@ -60,7 +74,7 @@ struct MetalNumanXHumanIOBufferSlot {
         return proprioceptionByteCount + validityByteCount +
             interoceptionByteCount + interoceptionValidityByteCount +
             motorValidationByteCount + motorHeaderValidationByteCount +
-            environmentGateByteCount;
+            environmentGateByteCount + exactInboundAuthorityByteCount;
     }
 };
 
@@ -74,17 +88,24 @@ struct MetalNumanXHumanIOState final
     id<MTLDevice> device = nil;
     id<MTLLibrary> library = nil;
     id<MTLComputePipelineState> admitPipeline = nil;
+    id<MTLComputePipelineState> admitV2Pipeline = nil;
     id<MTLComputePipelineState> validateMotorHeaderPipeline = nil;
     id<MTLComputePipelineState> validateMotorHeaderV2Pipeline = nil;
     id<MTLComputePipelineState> gatePipeline = nil;
+    id<MTLComputePipelineState> gateV2Pipeline = nil;
     id<MTLComputePipelineState> writePipeline = nil;
+    id<MTLComputePipelineState> writeV2Pipeline = nil;
     NumanXExecutableImageIdentity metallibIdentity{};
     bool initialized = false;
+    bool exactPipelinesInitialized = false;
 
     MetalNumanXHumanIOBufferSlot slots[2];
     int publishedSlot = -1;
     int candidateSlot = -1;
     MetalNumanXHumanIOInput candidateInput{};
+    MetalNumanXHumanIOInputV2 candidateInputV2{};
+    MetalNumanXHumanIOInputFamily candidateInputFamily =
+        MetalNumanXHumanIOInputFamily::none;
 
     bool candidatePrepared = false;
     bool encodingStarted = false;
@@ -122,6 +143,7 @@ namespace {
 
 using State = detail::MetalNumanXHumanIOState;
 using Slot = detail::MetalNumanXHumanIOBufferSlot;
+using InputFamily = detail::MetalNumanXHumanIOInputFamily;
 
 constexpr std::uint64_t kFnvOffset = 14695981039346656037ull;
 constexpr std::uint64_t kFnvPrime = 1099511628211ull;
@@ -336,56 +358,111 @@ void rememberFailureLocked(
     view.motorOutputHeaderGPUAddress = slot.motorOutputHeaderGPUAddress;
     view.commandBufferIdentity = slot.commandBufferIdentity;
     view.timestampQuantumNanoseconds = slot.timestampQuantumNanoseconds;
-    view.receptorTimestampMicroseconds =
-        slot.receptorTimestampMicroseconds;
     const double quantumSeconds = static_cast<double>(
         slot.timestampQuantumNanoseconds) * 1.0e-9;
-    const double timestepTicksDouble = quantumSeconds > 0.0
-        ? slot.timestepSeconds / quantumSeconds : 0.0;
-    if (slot.timestampQuantumNanoseconds != 0u &&
-        std::isfinite(timestepTicksDouble) && timestepTicksDouble >= 1.0 &&
-        timestepTicksDouble <= static_cast<double>(
-            std::numeric_limits<std::uint64_t>::max())) {
-        const auto timestepTicks = static_cast<std::uint64_t>(
-            std::llround(timestepTicksDouble));
-        const float canonicalTimestepSeconds = static_cast<float>(
-            static_cast<double>(timestepTicks) * quantumSeconds);
-        if (slot.timestepSeconds == canonicalTimestepSeconds &&
-            timestepTicks <= std::numeric_limits<std::uint64_t>::max() -
-                slot.receptorTimestampMicroseconds) {
-            view.deliveryTimestampMicroseconds =
-                slot.receptorTimestampMicroseconds + timestepTicks;
-            view.latencyMicroseconds = timestepTicks <=
-                std::numeric_limits<std::uint32_t>::max()
-                ? static_cast<std::uint32_t>(timestepTicks) : 0u;
-            view.stepTimeStrideMicroseconds = view.latencyMicroseconds;
-            view.receptorTimestampNanoseconds =
-                slot.receptorTimestampMicroseconds <=
+    if (slot.inputFamily == InputFamily::exactV2) {
+        view.receptorTimestampNanoseconds =
+            slot.receptorTimestampNanoseconds;
+        view.deliveryTimestampNanoseconds =
+            slot.deliveryTimestampNanoseconds;
+        view.latencyNanoseconds = slot.timestepNanoseconds;
+        view.stepTimeStrideNanoseconds = slot.timestepNanoseconds;
+        view.receptorTimeSeconds = static_cast<double>(
+            slot.receptorTimestampNanoseconds) * 1.0e-9;
+        view.deliveryTimeSeconds = static_cast<double>(
+            slot.deliveryTimestampNanoseconds) * 1.0e-9;
+        view.latencySeconds = static_cast<double>(
+            slot.timestepNanoseconds) * 1.0e-9;
+        view.stepTimeStrideSeconds = view.latencySeconds;
+    } else {
+        view.receptorTimestampMicroseconds =
+            slot.receptorTimestampMicroseconds;
+        const double timestepTicksDouble = quantumSeconds > 0.0
+            ? slot.timestepSeconds / quantumSeconds : 0.0;
+        if (slot.timestampQuantumNanoseconds != 0u &&
+            std::isfinite(timestepTicksDouble) &&
+            timestepTicksDouble >= 1.0 &&
+            timestepTicksDouble <= static_cast<double>(
+                std::numeric_limits<std::uint64_t>::max())) {
+            const auto timestepTicks = static_cast<std::uint64_t>(
+                std::llround(timestepTicksDouble));
+            const float canonicalTimestepSeconds = static_cast<float>(
+                static_cast<double>(timestepTicks) * quantumSeconds);
+            if (slot.timestepSeconds == canonicalTimestepSeconds &&
+                timestepTicks <= std::numeric_limits<std::uint64_t>::max() -
+                    slot.receptorTimestampMicroseconds) {
+                view.deliveryTimestampMicroseconds =
+                    slot.receptorTimestampMicroseconds + timestepTicks;
+                view.latencyMicroseconds = timestepTicks <=
+                    std::numeric_limits<std::uint32_t>::max()
+                    ? static_cast<std::uint32_t>(timestepTicks) : 0u;
+                view.stepTimeStrideMicroseconds = view.latencyMicroseconds;
+                view.receptorTimestampNanoseconds =
+                    slot.receptorTimestampMicroseconds <=
+                        std::numeric_limits<std::uint64_t>::max() /
+                            slot.timestampQuantumNanoseconds
+                    ? slot.receptorTimestampMicroseconds *
+                        slot.timestampQuantumNanoseconds : 0u;
+                view.deliveryTimestampNanoseconds =
+                    view.deliveryTimestampMicroseconds <=
+                        std::numeric_limits<std::uint64_t>::max() /
+                            slot.timestampQuantumNanoseconds
+                    ? view.deliveryTimestampMicroseconds *
+                        slot.timestampQuantumNanoseconds : 0u;
+                view.latencyNanoseconds = timestepTicks <=
                     std::numeric_limits<std::uint64_t>::max() /
                         slot.timestampQuantumNanoseconds
-                ? slot.receptorTimestampMicroseconds *
-                    slot.timestampQuantumNanoseconds : 0u;
-            view.deliveryTimestampNanoseconds =
-                view.deliveryTimestampMicroseconds <=
-                    std::numeric_limits<std::uint64_t>::max() /
-                        slot.timestampQuantumNanoseconds
-                ? view.deliveryTimestampMicroseconds *
-                    slot.timestampQuantumNanoseconds : 0u;
-            view.latencyNanoseconds = timestepTicks <=
-                std::numeric_limits<std::uint64_t>::max() /
-                    slot.timestampQuantumNanoseconds
-                ? timestepTicks * slot.timestampQuantumNanoseconds : 0u;
-            view.stepTimeStrideNanoseconds = view.latencyNanoseconds;
+                    ? timestepTicks * slot.timestampQuantumNanoseconds : 0u;
+                view.stepTimeStrideNanoseconds = view.latencyNanoseconds;
+            }
         }
+        view.receptorTimeSeconds = static_cast<double>(
+            slot.receptorTimestampMicroseconds) * quantumSeconds;
+        view.deliveryTimeSeconds =
+            view.receptorTimeSeconds + slot.timestepSeconds;
+        view.latencySeconds = slot.timestepSeconds;
+        view.stepTimeStrideSeconds = slot.timestepSeconds;
     }
-    view.receptorTimeSeconds = static_cast<double>(
-        slot.receptorTimestampMicroseconds
-    ) * quantumSeconds;
-    view.deliveryTimeSeconds =
-        view.receptorTimeSeconds + slot.timestepSeconds;
-    view.latencySeconds = slot.timestepSeconds;
-    view.stepTimeStrideSeconds = slot.timestepSeconds;
     view.state = state;
+    return view;
+}
+
+[[nodiscard]] MetalNumanXHumanIOExactPreparedView makeExactPreparedView(
+    const State& state,
+    const Slot& slot
+) noexcept {
+    MetalNumanXHumanIOExactPreparedView view{};
+    view.sensor = makeView(
+        slot,
+        MetalNumanXHumanIOViewState::candidate
+    );
+    view.authority.metalBuffer =
+        (__bridge void*)slot.exactInboundAuthority;
+    view.authority.gpuAddress = slot.exactInboundAuthority != nil
+        ? static_cast<std::uint64_t>(
+            slot.exactInboundAuthority.gpuAddress)
+        : 0u;
+    view.authority.byteOffset = 0u;
+    view.authority.byteCount = slot.exactInboundAuthorityByteCount;
+    view.authority.deviceRegistryID = state.device != nil
+        ? static_cast<std::uint64_t>(state.device.registryID)
+        : 0u;
+    view.authority.humanIOProgramFingerprint = slot.programFingerprint;
+    view.authority.transactionFingerprint = slot.transactionFingerprint;
+    view.authority.substepFingerprint = slot.substepFingerprint;
+    view.authority.motorCandidateFingerprint =
+        slot.motorCandidateFingerprint;
+    view.authority.acceptedBrainTimestampNanoseconds =
+        slot.receptorTimestampNanoseconds;
+    view.authority.brainGeneration = slot.acceptedBrainGeneration;
+    view.authority.clockDomain =
+        MR_NUMANX_BRAIN_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS;
+    view.authority.clockQuantumNanoseconds = static_cast<std::uint32_t>(
+        slot.timestampQuantumNanoseconds
+    );
+    view.authority.rangeIdentityFingerprint =
+        metalNumanXHumanIOExactAuthorityRangeIdentityFingerprint(
+            view.authority);
     return view;
 }
 
@@ -871,6 +948,8 @@ makeCandidatePublicationProgram(
 void clearCandidateOwnershipLocked(State& state) noexcept {
     state.candidateSlot = -1;
     state.candidateInput = {};
+    state.candidateInputV2 = {};
+    state.candidateInputFamily = InputFamily::none;
     state.candidatePrepared = false;
     state.encodingStarted = false;
     state.phasesComplete = false;
@@ -1031,13 +1110,6 @@ void clearCandidateOwnershipLocked(State& state) noexcept {
             return result;
         }
         result = makePipeline(
-            @"numanx_human_validate_motor_output_v2",
-            state.validateMotorHeaderV2Pipeline
-        );
-        if (!result.succeeded()) {
-            return result;
-        }
-        result = makePipeline(
             @"numanx_human_admit_excitations",
             state.admitPipeline
         );
@@ -1064,6 +1136,76 @@ void clearCandidateOwnershipLocked(State& state) noexcept {
         state, MetalNumanXHumanIOStatus::success);
     state.initialized = true;
     return result;
+}
+
+[[nodiscard]] MetalNumanXHumanIODiagnostics
+initializeExactPipelinesLocked(State& state) {
+    if (state.exactPipelinesInitialized) {
+        return diagnosticsLocked(state, MetalNumanXHumanIOStatus::success);
+    }
+    if (!state.initialized || state.device == nil || state.library == nil) {
+        return diagnosticsLocked(
+            state,
+            MetalNumanXHumanIOStatus::internalFailure,
+            "legacy HumanIO resources must initialize before exact pipelines"
+        );
+    }
+    const auto makePipeline = [&] (
+        NSString* functionName,
+        __strong id<MTLComputePipelineState>& pipeline
+    ) -> MetalNumanXHumanIODiagnostics {
+        if (pipeline != nil) {
+            return diagnosticsLocked(
+                state, MetalNumanXHumanIOStatus::success);
+        }
+        id<MTLFunction> function =
+            [state.library newFunctionWithName:functionName];
+        if (function == nil) {
+            return diagnosticsLocked(
+                state,
+                MetalNumanXHumanIOStatus::metalPipelineFailure,
+                "explicit metallib is missing required exact kernel " +
+                    fromNSString(functionName)
+            );
+        }
+        NSError* pipelineError = nil;
+        pipeline = [state.device
+            newComputePipelineStateWithFunction:function
+                                           error:&pipelineError];
+        if (pipeline == nil) {
+            return diagnosticsLocked(
+                state,
+                MetalNumanXHumanIOStatus::metalPipelineFailure,
+                "failed to create exact pipeline for " +
+                    fromNSString(functionName) + ": " +
+                    fromNSString(pipelineError.localizedDescription)
+            );
+        }
+        return diagnosticsLocked(state, MetalNumanXHumanIOStatus::success);
+    };
+
+    MetalNumanXHumanIODiagnostics result = makePipeline(
+        @"numanx_human_validate_motor_output_v2",
+        state.validateMotorHeaderV2Pipeline
+    );
+    if (!result.succeeded()) return result;
+    result = makePipeline(
+        @"numanx_human_admit_excitations_v2",
+        state.admitV2Pipeline
+    );
+    if (!result.succeeded()) return result;
+    result = makePipeline(
+        @"numanx_human_gate_proprioception_v2",
+        state.gateV2Pipeline
+    );
+    if (!result.succeeded()) return result;
+    result = makePipeline(
+        @"numanx_human_write_proprioception_v2",
+        state.writeV2Pipeline
+    );
+    if (!result.succeeded()) return result;
+    state.exactPipelinesInitialized = true;
+    return diagnosticsLocked(state, MetalNumanXHumanIOStatus::success);
 }
 
 [[nodiscard]] bool bufferObject(
@@ -1488,6 +1630,91 @@ void clearCandidateOwnershipLocked(State& state) noexcept {
     return true;
 }
 
+[[nodiscard]] bool validCandidateLeasesV2(
+    const State& state,
+    const MetalNumanXHumanIOInputV2& input,
+    std::string& reason
+) {
+    if (!validBorrowedLease(
+            state, input.motorOutputHeaderMetalBuffer,
+            input.motorOutputHeaderByteOffset,
+            input.motorOutputHeaderByteCount,
+            input.expectedMotorOutputHeaderGPUAddress,
+            alignof(MRNumanXBrainMotorOutputHeaderGPUV2),
+            "motorOutputHeaderMetalBuffer", reason) ||
+        !validBorrowedLease(
+            state, input.excitationMetalBuffer,
+            input.excitationByteOffset, input.excitationByteCount,
+            input.expectedExcitationGPUAddress, alignof(float),
+            "excitationMetalBuffer", reason) ||
+        !validBorrowedLease(
+            state, input.autonomicCommandMetalBuffer,
+            input.autonomicCommandByteOffset,
+            input.autonomicCommandByteCount,
+            input.expectedAutonomicCommandGPUAddress,
+            alignof(std::uint32_t),
+            "autonomicCommandMetalBuffer", reason) ||
+        !validBorrowedLease(
+            state, input.activeSensingCommandMetalBuffer,
+            input.activeSensingCommandByteOffset,
+            input.activeSensingCommandByteCount,
+            input.expectedActiveSensingCommandGPUAddress,
+            alignof(std::uint32_t),
+            "activeSensingCommandMetalBuffer", reason) ||
+        !validBorrowedLease(
+            state, input.motorReadyGateMetalBuffer,
+            input.motorReadyGateByteOffset,
+            input.motorReadyGateByteCount,
+            input.expectedMotorReadyGateGPUAddress,
+            alignof(MRNumanXBrainMotorReadyGateGPUV2),
+            "motorReadyGateMetalBuffer", reason) ||
+        !validSharedEventLease(
+            state,
+            input.motorReadySharedEvent,
+            input.motorReadySharedEventValue,
+            reason)) {
+        return false;
+    }
+    return true;
+}
+
+[[nodiscard]] bool aliasesOwnedStorage(
+    const State& state,
+    void* raw
+) noexcept {
+    if (raw == nullptr) return false;
+    for (const Slot& slot : state.slots) {
+        const id<MTLBuffer> owned[] = {
+            slot.proprioception,
+            slot.validity,
+            slot.interoception,
+            slot.interoceptionValidity,
+            slot.motorValidation,
+            slot.motorHeaderValidation,
+            slot.environmentGate,
+            slot.exactInboundAuthority,
+        };
+        for (id<MTLBuffer> buffer : owned) {
+            if (buffer != nil && raw == (__bridge void*)buffer) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+template <typename Input>
+[[nodiscard]] bool inputAliasesOwnedStorage(
+    const State& state,
+    const Input& input
+) noexcept {
+    return aliasesOwnedStorage(state, input.motorOutputHeaderMetalBuffer) ||
+        aliasesOwnedStorage(state, input.excitationMetalBuffer) ||
+        aliasesOwnedStorage(state, input.autonomicCommandMetalBuffer) ||
+        aliasesOwnedStorage(state, input.activeSensingCommandMetalBuffer) ||
+        aliasesOwnedStorage(state, input.motorReadyGateMetalBuffer);
+}
+
 [[nodiscard]] MetalNumanXHumanIODiagnostics validateInputLocked(
     State& state,
     const MetalNumanXHumanIOInput& input,
@@ -1743,6 +1970,181 @@ void clearCandidateOwnershipLocked(State& state) noexcept {
     return diagnosticsLocked(state, MetalNumanXHumanIOStatus::success);
 }
 
+[[nodiscard]] MetalNumanXHumanIODiagnostics validateInputV2Locked(
+    State& state,
+    const MetalNumanXHumanIOInputV2& input,
+    std::size_t& proprioceptionByteCount,
+    std::size_t& validityByteCount,
+    std::size_t& interoceptionByteCount,
+    std::size_t& interoceptionValidityByteCount,
+    std::size_t& motorValidationByteCount,
+    std::size_t& motorHeaderValidationByteCount,
+    std::size_t& environmentGateByteCount,
+    std::size_t& proprioceptionEnvironmentStride,
+    std::size_t& proprioceptionStepStride,
+    std::size_t& validityEnvironmentStride,
+    std::size_t& validityStepStride
+) {
+    MRNumanXHumanMotorDispatchGPUV2 stagedDispatch{};
+    if (!metalNumanXHumanIOBuildMotorDispatchV2(
+            input, stagedDispatch)) {
+        return diagnosticsLocked(
+            state,
+            MetalNumanXHumanIOStatus::invalidInput,
+            "exact HumanIO input does not satisfy the v2 root, substep, candidate, clock, gate, or dense-layout contract"
+        );
+    }
+    if (state.publishedSlot >= 0 &&
+        input.candidateSensorGeneration <=
+            state.slots[state.publishedSlot].sensorGeneration) {
+        return diagnosticsLocked(
+            state,
+            MetalNumanXHumanIOStatus::invalidInput,
+            "candidateSensorGeneration must be strictly newer than the published generation"
+        );
+    }
+    const double timestepSecondsDouble =
+        static_cast<double>(input.timestepNanoseconds) * 1.0e-9;
+    const float timestepSeconds =
+        static_cast<float>(timestepSecondsDouble);
+    const double receptorSeconds =
+        static_cast<double>(input.receptorTimestampNanoseconds) * 1.0e-9;
+    const double deliverySeconds =
+        static_cast<double>(input.substep.candidateTimestampNanoseconds) *
+            1.0e-9;
+    if (!(timestepSeconds > 0.0f) ||
+        !std::isfinite(timestepSeconds) ||
+        !std::isfinite(timestepSecondsDouble) ||
+        !std::isfinite(receptorSeconds) ||
+        !std::isfinite(deliverySeconds)) {
+        return diagnosticsLocked(
+            state,
+            MetalNumanXHumanIOStatus::invalidInput,
+            "exact timestep and receptor/delivery timestamps must have finite positive physical projections"
+        );
+    }
+
+    std::string reason;
+    if (!validCandidateLeasesV2(state, input, reason)) {
+        return diagnosticsLocked(
+            state,
+            MetalNumanXHumanIOStatus::invalidInput,
+            std::move(reason)
+        );
+    }
+
+    std::size_t excitationElementCount = 0u;
+    std::size_t excitationByteCount = 0u;
+    if (!checkedMultiply(
+            input.environmentCount,
+            input.muscleCount,
+            excitationElementCount
+        ) || !checkedMultiply(
+            excitationElementCount,
+            sizeof(float),
+            excitationByteCount
+        )) {
+        return diagnosticsLocked(
+            state,
+            MetalNumanXHumanIOStatus::arithmeticOverflow,
+            "exact excitation slice element/byte count overflow"
+        );
+    }
+    if (excitationElementCount >
+            std::numeric_limits<std::uint32_t>::max() ||
+        input.excitationByteCount != excitationByteCount) {
+        return diagnosticsLocked(
+            state,
+            MetalNumanXHumanIOStatus::invalidInput,
+            "exact excitationByteCount must equal environmentCount * muscleCount * sizeof(float)"
+        );
+    }
+    if (!checkedMultiply(
+            input.muscleCount,
+            MR_NUMANX_HUMAN_PROPRIOCEPTION_FEATURE_COUNT,
+            proprioceptionStepStride
+        ) || !checkedMultiply(
+            input.stepCount,
+            proprioceptionStepStride,
+            proprioceptionEnvironmentStride
+        ) || !checkedMultiply(
+            input.stepCount,
+            input.muscleCount,
+            validityEnvironmentStride
+        )) {
+        return diagnosticsLocked(
+            state,
+            MetalNumanXHumanIOStatus::arithmeticOverflow,
+            "exact proprioception tensor stride overflow"
+        );
+    }
+    validityStepStride = input.muscleCount;
+    if (proprioceptionStepStride >
+            std::numeric_limits<std::uint32_t>::max() ||
+        proprioceptionEnvironmentStride >
+            std::numeric_limits<std::uint32_t>::max() ||
+        validityStepStride > std::numeric_limits<std::uint32_t>::max() ||
+        validityEnvironmentStride >
+            std::numeric_limits<std::uint32_t>::max()) {
+        return diagnosticsLocked(
+            state,
+            MetalNumanXHumanIOStatus::invalidInput,
+            "exact proprioception or validity stride exceeds the UInt32 GPU ABI"
+        );
+    }
+
+    std::size_t proprioceptionElementCount = 0u;
+    std::size_t validityElementCount = 0u;
+    if (!checkedMultiply(
+            input.environmentCount,
+            proprioceptionEnvironmentStride,
+            proprioceptionElementCount
+        ) || !checkedMultiply(
+            proprioceptionElementCount,
+            sizeof(float),
+            proprioceptionByteCount
+        ) || !checkedMultiply(
+            input.environmentCount,
+            validityEnvironmentStride,
+            validityElementCount
+        ) || !checkedMultiply(
+            validityElementCount,
+            sizeof(std::uint32_t),
+            validityByteCount
+        ) || !checkedMultiply(
+            validityElementCount,
+            MR_NUMANX_HUMAN_INTEROCEPTION_FEATURE_COUNT,
+            interoceptionByteCount
+        ) || !checkedMultiply(
+            interoceptionByteCount,
+            sizeof(float),
+            interoceptionByteCount
+        ) || !checkedMultiply(
+            validityElementCount,
+            sizeof(std::uint32_t),
+            interoceptionValidityByteCount
+        ) || !checkedMultiply(
+            excitationElementCount,
+            sizeof(std::uint32_t),
+            motorValidationByteCount
+        ) || !checkedMultiply(
+            input.environmentCount,
+            sizeof(std::uint32_t),
+            motorHeaderValidationByteCount
+        ) || !checkedMultiply(
+            input.environmentCount,
+            sizeof(std::uint32_t),
+            environmentGateByteCount
+        )) {
+        return diagnosticsLocked(
+            state,
+            MetalNumanXHumanIOStatus::arithmeticOverflow,
+            "exact output or scratch buffer byte-count overflow"
+        );
+    }
+    return diagnosticsLocked(state, MetalNumanXHumanIOStatus::success);
+}
+
 [[nodiscard]] MetalNumanXHumanIODiagnostics ensureSlotLocked(
     State& state,
     const int slotIndex,
@@ -1752,7 +2154,8 @@ void clearCandidateOwnershipLocked(State& state) noexcept {
     const std::size_t interoceptionValidityByteCount,
     const std::size_t motorValidationByteCount,
     const std::size_t motorHeaderValidationByteCount,
-    const std::size_t environmentGateByteCount
+    const std::size_t environmentGateByteCount,
+    const bool requiresExactAuthority
 ) {
     Slot& slot = state.slots[slotIndex];
     const bool exact = slot.proprioception != nil &&
@@ -1768,7 +2171,11 @@ void clearCandidateOwnershipLocked(State& state) noexcept {
         slot.motorValidation.length == motorValidationByteCount &&
         slot.motorHeaderValidation.length ==
             motorHeaderValidationByteCount &&
-        slot.environmentGate.length == environmentGateByteCount;
+        slot.environmentGate.length == environmentGateByteCount &&
+        (!requiresExactAuthority ||
+         (slot.exactInboundAuthority != nil &&
+          slot.exactInboundAuthority.length ==
+            sizeof(MRNumanXExactInboundAuthorityGPUV2)));
     if (exact) {
         return diagnosticsLocked(
             state,
@@ -1801,13 +2208,27 @@ void clearCandidateOwnershipLocked(State& state) noexcept {
         ) || !checkedAdd(
             temporary,
             environmentGateByteCount,
-            desiredBytes
+            temporary
         )) {
         return diagnosticsLocked(
             state,
             MetalNumanXHumanIOStatus::arithmeticOverflow,
             "candidate slot retained-byte count overflow"
         );
+    }
+    if (requiresExactAuthority) {
+        if (!checkedAdd(
+                temporary,
+                sizeof(MRNumanXExactInboundAuthorityGPUV2),
+                desiredBytes)) {
+            return diagnosticsLocked(
+                state,
+                MetalNumanXHumanIOStatus::arithmeticOverflow,
+                "candidate exact-authority retained-byte count overflow"
+            );
+        }
+    } else {
+        desiredBytes = temporary;
     }
     const std::size_t otherBytes = state.slots[1 - slotIndex].retainedBytes();
     std::size_t proposedRetainedBytes = 0u;
@@ -1846,10 +2267,17 @@ void clearCandidateOwnershipLocked(State& state) noexcept {
         id<MTLBuffer> environmentGate = [state.device
             newBufferWithLength:environmentGateByteCount
                        options:MTLResourceStorageModePrivate];
+        id<MTLBuffer> exactInboundAuthority = requiresExactAuthority
+            ? [state.device
+                newBufferWithLength:
+                    sizeof(MRNumanXExactInboundAuthorityGPUV2)
+                           options:MTLResourceStorageModePrivate]
+            : nil;
         if (proprioception == nil || validity == nil ||
             interoception == nil || interoceptionValidity == nil ||
             motorValidation == nil || motorHeaderValidation == nil ||
-            environmentGate == nil) {
+            environmentGate == nil ||
+            (requiresExactAuthority && exactInboundAuthority == nil)) {
             return diagnosticsLocked(
                 state,
                 MetalNumanXHumanIOStatus::metalBufferFailure,
@@ -1862,7 +2290,9 @@ void clearCandidateOwnershipLocked(State& state) noexcept {
             interoceptionValidity.gpuAddress == 0u ||
             motorValidation.gpuAddress == 0u ||
             motorHeaderValidation.gpuAddress == 0u ||
-            environmentGate.gpuAddress == 0u) {
+            environmentGate.gpuAddress == 0u ||
+            (requiresExactAuthority &&
+             exactInboundAuthority.gpuAddress == 0u)) {
             return diagnosticsLocked(
                 state,
                 MetalNumanXHumanIOStatus::metalBufferFailure,
@@ -1878,6 +2308,10 @@ void clearCandidateOwnershipLocked(State& state) noexcept {
         motorHeaderValidation.label =
             @"NumanX Human motor header validation";
         environmentGate.label = @"NumanX Human environment gate";
+        if (exactInboundAuthority != nil) {
+            exactInboundAuthority.label =
+                @"NumanX Human exact inbound authority";
+        }
 
         MetalNumanXHumanIODiagnostics result = diagnosticsLocked(
             state, MetalNumanXHumanIOStatus::success);
@@ -1889,6 +2323,7 @@ void clearCandidateOwnershipLocked(State& state) noexcept {
         slot.motorValidation = motorValidation;
         slot.motorHeaderValidation = motorHeaderValidation;
         slot.environmentGate = environmentGate;
+        slot.exactInboundAuthority = exactInboundAuthority;
         slot.proprioceptionByteCount = proprioceptionByteCount;
         slot.validityByteCount = validityByteCount;
         slot.interoceptionByteCount = interoceptionByteCount;
@@ -1898,6 +2333,9 @@ void clearCandidateOwnershipLocked(State& state) noexcept {
         slot.motorHeaderValidationByteCount =
             motorHeaderValidationByteCount;
         slot.environmentGateByteCount = environmentGateByteCount;
+        slot.exactInboundAuthorityByteCount = requiresExactAuthority
+            ? sizeof(MRNumanXExactInboundAuthorityGPUV2)
+            : 0u;
         return result;
     }
 }
@@ -1971,14 +2409,103 @@ void clearCandidateOwnershipLocked(State& state) noexcept {
     return nonzeroHash(hash);
 }
 
+[[nodiscard]] std::uint64_t exactProgramFingerprintV2(
+    const State& state,
+    const Slot& slot,
+    const MetalNumanXHumanIOInputV2& input
+) noexcept {
+    std::uint64_t hash = hashString(
+        kFnvOffset,
+        "metalrobo.numanx-human-io.program.exact-v2.v1"
+    );
+    hash = hashValue(hash, state.metallibIdentity.byteFingerprint);
+    hash = hashValue(hash, state.metallibIdentity.byteCount);
+    hash = hashValue(hash, MR_NUMANX_HUMAN_MOTOR_DISPATCH_ABI_VERSION_V2);
+    hash = hashValue(hash, MR_NUMANX_HUMAN_SENSOR_DISPATCH_ABI_VERSION_V2);
+    hash = hashValue(hash, MR_NUMANX_EXACT_INBOUND_AUTHORITY_ABI_VERSION_V2);
+    hash = hashValue(hash, input.root.transactionFingerprint);
+    hash = hashValue(hash, input.substep.substepFingerprint);
+    hash = hashValue(hash, input.candidate.candidateFingerprint);
+    hash = hashValue(hash, input.root.clockDomain);
+    hash = hashValue(hash, input.root.clockQuantumNanoseconds);
+    hash = hashValue(hash, input.candidateSensorGeneration);
+    hash = hashValue(hash, input.expectedExcitationGPUAddress);
+    hash = hashValue(hash, input.expectedMotorOutputHeaderGPUAddress);
+    hash = hashValue(hash, input.expectedAutonomicCommandGPUAddress);
+    hash = hashValue(hash, input.expectedActiveSensingCommandGPUAddress);
+    hash = hashValue(hash, input.expectedMotorReadyGateGPUAddress);
+    hash = hashValue(hash, input.motorOutputHeaderByteCount);
+    hash = hashValue(hash, input.excitationByteCount);
+    hash = hashValue(hash, input.autonomicCommandByteCount);
+    hash = hashValue(hash, input.activeSensingCommandByteCount);
+    hash = hashValue(hash, input.motorReadyGateByteCount);
+    hash = hashValue(
+        hash,
+        reinterpret_cast<std::uintptr_t>(input.motorReadySharedEvent));
+    hash = hashValue(hash, input.motorReadySharedEventValue);
+    hash = hashValue(hash, input.environmentCount);
+    hash = hashValue(hash, input.muscleCount);
+    hash = hashValue(hash, input.stepCount);
+    hash = hashValue(hash, input.timestepNanoseconds);
+    hash = hashValue(hash, input.receptorTimestampNanoseconds);
+    hash = hashValue(hash, input.supplementalProgram.fingerprint);
+    hash = hashValue(hash, slot.proprioception.gpuAddress);
+    hash = hashValue(hash, slot.validity.gpuAddress);
+    hash = hashValue(hash, slot.interoception.gpuAddress);
+    hash = hashValue(hash, slot.interoceptionValidity.gpuAddress);
+    hash = hashValue(hash, slot.exactInboundAuthority.gpuAddress);
+    hash = hashValue(hash, slot.exactInboundAuthorityByteCount);
+    return nonzeroHash(hash);
+}
+
+[[nodiscard]] std::uint64_t exactSensorFingerprintV2(
+    const Slot& slot
+) noexcept {
+    std::uint64_t hash = hashString(
+        kFnvOffset,
+        "metalrobo.numanx-human-io.sensor.exact-v2.v1"
+    );
+    hash = hashValue(hash, slot.programFingerprint);
+    hash = hashValue(hash, slot.transactionFingerprint);
+    hash = hashValue(hash, slot.substepFingerprint);
+    hash = hashValue(hash, slot.motorCandidateFingerprint);
+    hash = hashValue(hash, slot.acceptedBrainGeneration);
+    hash = hashValue(hash, slot.sensorGeneration);
+    hash = hashValue(hash, slot.timestampQuantumNanoseconds);
+    hash = hashValue(hash, slot.timestepNanoseconds);
+    hash = hashValue(hash, slot.receptorTimestampNanoseconds);
+    hash = hashValue(hash, slot.deliveryTimestampNanoseconds);
+    hash = hashValue(hash, slot.excitationGPUAddress);
+    hash = hashValue(hash, slot.motorOutputHeaderGPUAddress);
+    hash = hashValue(hash, slot.proprioception.gpuAddress);
+    hash = hashValue(hash, slot.validity.gpuAddress);
+    hash = hashValue(hash, slot.interoception.gpuAddress);
+    hash = hashValue(hash, slot.interoceptionValidity.gpuAddress);
+    hash = hashValue(hash, slot.exactInboundAuthority.gpuAddress);
+    hash = hashValue(hash, slot.exactInboundAuthorityByteCount);
+    hash = hashValue(hash, slot.proprioceptionByteCount);
+    hash = hashValue(hash, slot.validityByteCount);
+    hash = hashValue(hash, slot.interoceptionByteCount);
+    hash = hashValue(hash, slot.interoceptionValidityByteCount);
+    return nonzeroHash(hash);
+}
+
 [[nodiscard]] std::uint64_t transactionInstanceFingerprint(
     const Slot& slot,
     const std::uintptr_t commandBufferIdentity
 ) noexcept {
     std::uint64_t hash = hashString(
         kFnvOffset,
-        "metalrobo.numanx-human-io.instance.v4"
+        slot.inputFamily == InputFamily::exactV2
+            ? "metalrobo.numanx-human-io.instance.exact-v2.v1"
+            : "metalrobo.numanx-human-io.instance.v4"
     );
+    if (slot.inputFamily == InputFamily::exactV2) {
+        hash = hashValue(
+            hash,
+            static_cast<std::uint32_t>(slot.inputFamily)
+        );
+    }
     hash = hashValue(hash, slot.sensorFingerprint);
     hash = hashValue(hash, slot.programFingerprint);
     hash = hashValue(hash, commandBufferIdentity);
@@ -1990,7 +2517,12 @@ void clearCandidateOwnershipLocked(State& state) noexcept {
     const MetalNumanXTransactionPass& pass,
     std::string& reason
 ) {
-    const MetalNumanXHumanIOInput& input = state.candidateInput;
+    const Slot& preparedSlot = state.slots[state.candidateSlot];
+    if (state.candidateInputFamily == InputFamily::none ||
+        state.candidateInputFamily != preparedSlot.inputFamily) {
+        reason = "prepared HumanIO input family is absent or inconsistent";
+        return false;
+    }
     const std::uint32_t expectedAccessFlags =
         MetalNumanXTransactionReadBorrowedState |
         (pass.phase == MetalNumanXTransactionPhase::beginStep
@@ -2021,24 +2553,24 @@ void clearCandidateOwnershipLocked(State& state) noexcept {
         reason = stream.str();
         return false;
     }
-    if (pass.stepCount != input.stepCount ||
-        pass.environmentCount != input.environmentCount ||
-        pass.mujocoMuscleCount != input.muscleCount ||
-        pass.mujocoStateStride != input.muscleCount ||
-        pass.mujocoResultStride != input.muscleCount ||
+    if (pass.stepCount != preparedSlot.stepCount ||
+        pass.environmentCount != preparedSlot.environmentCount ||
+        pass.mujocoMuscleCount != preparedSlot.receptorCount ||
+        pass.mujocoStateStride != preparedSlot.receptorCount ||
+        pass.mujocoResultStride != preparedSlot.receptorCount ||
         pass.standStatusStride != 1u ||
-        pass.timestepSeconds != input.timestepSeconds) {
-        reason = "transaction pass environment/muscle/horizon/timestep or dense stride differs from the prepared exact layout";
+        pass.timestepSeconds != preparedSlot.timestepSeconds) {
+        reason = "transaction pass environment/muscle/horizon/timestep or dense stride differs from the prepared HumanIO layout";
         return false;
     }
     std::size_t expectedMuscleElements = 0u;
     if (!checkedMultiply(
-            input.environmentCount,
-            input.muscleCount,
+            preparedSlot.environmentCount,
+            preparedSlot.receptorCount,
             expectedMuscleElements
         ) || pass.mujocoStateElementCount != expectedMuscleElements ||
         pass.mujocoResultElementCount != expectedMuscleElements ||
-        pass.standStatusElementCount != input.environmentCount) {
+        pass.standStatusElementCount != preparedSlot.environmentCount) {
         reason = "transaction pass reports an inexact MyoSim state/result or stand-status logical length";
         return false;
     }
@@ -2119,7 +2651,7 @@ void clearCandidateOwnershipLocked(State& state) noexcept {
             sizeof(MRMujocoMuscleResultGPU),
             resultBytes
         ) || !checkedMultiply(
-            input.environmentCount,
+            preparedSlot.environmentCount,
             sizeof(MRNumiHumanStandStatusGPU),
             statusBytes
         ) || states.length < stateBytes || results.length < resultBytes ||
@@ -2145,9 +2677,27 @@ void clearCandidateOwnershipLocked(State& state) noexcept {
         return false;
     }
 
-    return validMotorCandidate(
-            input.root, input.substep, input.candidate, reason) &&
-        validCandidateLeases(state, input, reason);
+    if (preparedSlot.inputFamily == InputFamily::legacy) {
+        const MetalNumanXHumanIOInput& input = state.candidateInput;
+        return validMotorCandidate(
+                input.root, input.substep, input.candidate, reason) &&
+            validCandidateLeases(state, input, reason);
+    }
+    if (preparedSlot.inputFamily == InputFamily::exactV2) {
+        MRNumanXHumanMotorDispatchGPUV2 dispatch{};
+        if (!metalNumanXHumanIOBuildMotorDispatchV2(
+                state.candidateInputV2, dispatch)) {
+            reason = "exact v2 motor dispatch no longer matches the prepared candidate";
+            return false;
+        }
+        return validCandidateLeasesV2(
+            state,
+            state.candidateInputV2,
+            reason
+        );
+    }
+    reason = "prepared HumanIO input family is unsupported";
+    return false;
 }
 
 [[nodiscard]] NSUInteger threadgroupWidth(
@@ -2307,6 +2857,111 @@ void dispatchOneDimensional(
     return true;
 }
 
+[[nodiscard]] bool encodeBeginV2Locked(
+    State& state,
+    const MetalNumanXTransactionPass& pass,
+    std::string& reason
+) {
+    Slot& slot = state.slots[state.candidateSlot];
+    const MetalNumanXHumanIOInputV2& input = state.candidateInputV2;
+    __unsafe_unretained id<MTLCommandBuffer> commandBuffer =
+        (__bridge id<MTLCommandBuffer>)pass.commandBuffer;
+    __unsafe_unretained id<MTLBuffer> excitation =
+        (__bridge id<MTLBuffer>)input.excitationMetalBuffer;
+    __unsafe_unretained id<MTLBuffer> motorHeaders =
+        (__bridge id<MTLBuffer>)input.motorOutputHeaderMetalBuffer;
+    __unsafe_unretained id<MTLBuffer> readyGate =
+        (__bridge id<MTLBuffer>)input.motorReadyGateMetalBuffer;
+    __unsafe_unretained id<MTLBuffer> states =
+        (__bridge id<MTLBuffer>)pass.mujocoStates;
+    __unsafe_unretained id<MTLSharedEvent> motorReadyEvent =
+        (__bridge id<MTLSharedEvent>)input.motorReadySharedEvent;
+
+    MRNumanXHumanMotorDispatchGPUV2 dispatch{};
+    if (!metalNumanXHumanIOBuildMotorDispatchV2(input, dispatch)) {
+        reason = "failed to rebuild the immutable exact v2 motor dispatch";
+        return false;
+    }
+    id<MTLBlitCommandEncoder> clearEncoder =
+        [commandBuffer blitCommandEncoder];
+    if (clearEncoder == nil) {
+        reason = "failed to create exact candidate fail-closed clear encoder";
+        return false;
+    }
+    clearEncoder.label = @"NumanX Human exact candidate clear";
+    [clearEncoder fillBuffer:slot.proprioception
+                       range:NSMakeRange(0u, slot.proprioceptionByteCount)
+                       value:0u];
+    [clearEncoder fillBuffer:slot.validity
+                       range:NSMakeRange(0u, slot.validityByteCount)
+                       value:0u];
+    [clearEncoder fillBuffer:slot.interoception
+                       range:NSMakeRange(0u, slot.interoceptionByteCount)
+                       value:0u];
+    [clearEncoder fillBuffer:slot.interoceptionValidity
+                       range:NSMakeRange(
+                           0u,
+                           slot.interoceptionValidityByteCount)
+                       value:0u];
+    [clearEncoder endEncoding];
+    [commandBuffer encodeWaitForEvent:motorReadyEvent
+                                 value:input.motorReadySharedEventValue];
+
+    id<MTLComputeCommandEncoder> headerEncoder =
+        [commandBuffer computeCommandEncoder];
+    if (headerEncoder == nil) {
+        reason = "failed to create exact beginStep motor-header validation encoder";
+        return false;
+    }
+    headerEncoder.label = @"NumanX Human exact motor authority validation";
+    [headerEncoder setComputePipelineState:state.validateMotorHeaderV2Pipeline];
+    [headerEncoder setBuffer:motorHeaders
+                      offset:input.motorOutputHeaderByteOffset
+                     atIndex:0u];
+    [headerEncoder setBuffer:excitation
+                      offset:input.excitationByteOffset
+                     atIndex:1u];
+    [headerEncoder setBuffer:slot.motorHeaderValidation
+                      offset:0u
+                     atIndex:2u];
+    [headerEncoder setBytes:&dispatch length:sizeof(dispatch) atIndex:3u];
+    [headerEncoder setBuffer:readyGate
+                      offset:input.motorReadyGateByteOffset
+                     atIndex:4u];
+    [headerEncoder setBuffer:slot.exactInboundAuthority
+                      offset:0u
+                     atIndex:5u];
+    dispatchOneDimensional(
+        headerEncoder,
+        state.validateMotorHeaderV2Pipeline,
+        input.environmentCount
+    );
+    [headerEncoder endEncoding];
+
+    id<MTLComputeCommandEncoder> encoder =
+        [commandBuffer computeCommandEncoder];
+    if (encoder == nil) {
+        reason = "failed to create exact beginStep excitation admission encoder";
+        return false;
+    }
+    encoder.label = @"NumanX Human exact excitation admission";
+    [encoder setComputePipelineState:state.admitV2Pipeline];
+    [encoder setBuffer:excitation
+                 offset:input.excitationByteOffset
+                atIndex:0u];
+    [encoder setBuffer:states offset:0u atIndex:1u];
+    [encoder setBuffer:slot.motorValidation offset:0u atIndex:2u];
+    [encoder setBuffer:slot.motorHeaderValidation offset:0u atIndex:3u];
+    [encoder setBuffer:slot.exactInboundAuthority offset:0u atIndex:4u];
+    [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:5u];
+    const NSUInteger count = static_cast<NSUInteger>(
+        input.environmentCount
+    ) * input.muscleCount;
+    dispatchOneDimensional(encoder, state.admitV2Pipeline, count);
+    [encoder endEncoding];
+    return true;
+}
+
 [[nodiscard]] MRNumanXHumanProprioceptionDispatchGPU sensorDispatch(
     const State& state,
     const Slot& slot,
@@ -2342,6 +2997,55 @@ void dispatchOneDimensional(
     dispatch.candidateSensorGeneration = slot.sensorGeneration;
     dispatch.expectedExcitationGPUAddress = slot.excitationGPUAddress;
     dispatch.programFingerprint = slot.programFingerprint;
+    return dispatch;
+}
+
+[[nodiscard]] MRNumanXHumanSensorDispatchGPUV2 sensorDispatchV2(
+    const Slot& slot,
+    const MetalNumanXTransactionPass& pass
+) noexcept {
+    MRNumanXHumanSensorDispatchGPUV2 dispatch{};
+    dispatch.abiVersion = MR_NUMANX_HUMAN_SENSOR_DISPATCH_ABI_VERSION_V2;
+    dispatch.structSize = sizeof(dispatch);
+    dispatch.environmentCount = slot.environmentCount;
+    dispatch.muscleCount = slot.receptorCount;
+    dispatch.featureCount = MR_NUMANX_HUMAN_PROPRIOCEPTION_FEATURE_COUNT;
+    dispatch.stepIndex = pass.stepIndex;
+    dispatch.stepCount = slot.stepCount;
+    dispatch.stateStride = slot.receptorCount;
+    dispatch.resultStride = slot.receptorCount;
+    dispatch.proprioceptionEnvironmentStride = static_cast<mr_u32>(
+        slot.proprioceptionEnvironmentStride
+    );
+    dispatch.proprioceptionStepStride = static_cast<mr_u32>(
+        slot.proprioceptionStepStride
+    );
+    dispatch.validityEnvironmentStride = static_cast<mr_u32>(
+        slot.validityEnvironmentStride
+    );
+    dispatch.validityStepStride = static_cast<mr_u32>(
+        slot.validityStepStride
+    );
+    dispatch.clockDomain =
+        MR_NUMANX_BRAIN_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS;
+    dispatch.clockQuantumNanoseconds = static_cast<mr_u32>(
+        slot.timestampQuantumNanoseconds
+    );
+    dispatch.physicalTimestepSecondsAndReserved.x = slot.timestepSeconds;
+    dispatch.timestepNanoseconds = slot.timestepNanoseconds;
+    dispatch.receptorTimestampNanoseconds =
+        slot.receptorTimestampNanoseconds;
+    dispatch.deliveryTimestampNanoseconds = slot.deliveryTimestampNanoseconds;
+    dispatch.transactionFingerprint = slot.transactionFingerprint;
+    dispatch.substepFingerprint = slot.substepFingerprint;
+    dispatch.motorCandidateFingerprint = slot.motorCandidateFingerprint;
+    dispatch.acceptedBrainGeneration = slot.acceptedBrainGeneration;
+    dispatch.candidateSensorGeneration = slot.sensorGeneration;
+    dispatch.inboundAuthorityGPUAddress =
+        static_cast<mr_u64>(slot.exactInboundAuthority.gpuAddress);
+    dispatch.expectedExcitationGPUAddress = slot.excitationGPUAddress;
+    dispatch.programFingerprint = slot.programFingerprint;
+    dispatch.sensorFingerprint = slot.sensorFingerprint;
     return dispatch;
 }
 
@@ -2406,6 +3110,70 @@ void dispatchOneDimensional(
         state.candidateInput.environmentCount
     ) * state.candidateInput.muscleCount;
     dispatchOneDimensional(writeEncoder, state.writePipeline, count);
+    [writeEncoder endEncoding];
+    return true;
+}
+
+[[nodiscard]] bool encodePostV2Locked(
+    State& state,
+    const MetalNumanXTransactionPass& pass,
+    std::string& reason
+) {
+    Slot& slot = state.slots[state.candidateSlot];
+    __unsafe_unretained id<MTLCommandBuffer> commandBuffer =
+        (__bridge id<MTLCommandBuffer>)pass.commandBuffer;
+    __unsafe_unretained id<MTLBuffer> states =
+        (__bridge id<MTLBuffer>)pass.mujocoStates;
+    __unsafe_unretained id<MTLBuffer> results =
+        (__bridge id<MTLBuffer>)pass.mujocoResults;
+    __unsafe_unretained id<MTLBuffer> statuses =
+        (__bridge id<MTLBuffer>)pass.standStatuses;
+    const MRNumanXHumanSensorDispatchGPUV2 dispatch =
+        sensorDispatchV2(slot, pass);
+
+    id<MTLComputeCommandEncoder> gateEncoder =
+        [commandBuffer computeCommandEncoder];
+    if (gateEncoder == nil) {
+        reason = "failed to create exact postDynamics environment gate encoder";
+        return false;
+    }
+    gateEncoder.label = @"NumanX Human exact proprioception acceptance gate";
+    [gateEncoder setComputePipelineState:state.gateV2Pipeline];
+    [gateEncoder setBuffer:states offset:0u atIndex:0u];
+    [gateEncoder setBuffer:results offset:0u atIndex:1u];
+    [gateEncoder setBuffer:slot.motorValidation offset:0u atIndex:2u];
+    [gateEncoder setBuffer:statuses offset:0u atIndex:3u];
+    [gateEncoder setBuffer:slot.environmentGate offset:0u atIndex:4u];
+    [gateEncoder setBuffer:slot.exactInboundAuthority offset:0u atIndex:5u];
+    [gateEncoder setBytes:&dispatch length:sizeof(dispatch) atIndex:6u];
+    dispatchOneDimensional(
+        gateEncoder,
+        state.gateV2Pipeline,
+        slot.environmentCount
+    );
+    [gateEncoder endEncoding];
+
+    id<MTLComputeCommandEncoder> writeEncoder =
+        [commandBuffer computeCommandEncoder];
+    if (writeEncoder == nil) {
+        reason = "failed to create exact postDynamics proprioception writer encoder";
+        return false;
+    }
+    writeEncoder.label = @"NumanX Human exact proprioception candidate writer";
+    [writeEncoder setComputePipelineState:state.writeV2Pipeline];
+    [writeEncoder setBuffer:states offset:0u atIndex:0u];
+    [writeEncoder setBuffer:results offset:0u atIndex:1u];
+    [writeEncoder setBuffer:slot.environmentGate offset:0u atIndex:2u];
+    [writeEncoder setBuffer:slot.proprioception offset:0u atIndex:3u];
+    [writeEncoder setBuffer:slot.validity offset:0u atIndex:4u];
+    [writeEncoder setBuffer:slot.interoception offset:0u atIndex:5u];
+    [writeEncoder setBuffer:slot.interoceptionValidity
+                       offset:0u
+                      atIndex:6u];
+    [writeEncoder setBytes:&dispatch length:sizeof(dispatch) atIndex:7u];
+    const NSUInteger count = static_cast<NSUInteger>(slot.environmentCount) *
+        slot.receptorCount;
+    dispatchOneDimensional(writeEncoder, state.writeV2Pipeline, count);
     [writeEncoder endEncoding];
     return true;
 }
@@ -2600,7 +3368,9 @@ void installCompletionHandlerLocked(
         bool encoded = true;
         switch (pass.phase) {
             case MetalNumanXTransactionPhase::beginStep:
-                encoded = encodeBeginLocked(state, pass, reason);
+                encoded = slot.inputFamily == InputFamily::exactV2
+                    ? encodeBeginV2Locked(state, pass, reason)
+                    : encodeBeginLocked(state, pass, reason);
                 break;
             case MetalNumanXTransactionPhase::preDynamics:
                 // The adapter has no preDynamics write. Keeping the explicit
@@ -2608,7 +3378,9 @@ void installCompletionHandlerLocked(
                 // phase omission/reuse from being accepted.
                 break;
             case MetalNumanXTransactionPhase::postDynamics:
-                encoded = encodePostLocked(state, pass, reason);
+                encoded = slot.inputFamily == InputFamily::exactV2
+                    ? encodePostV2Locked(state, pass, reason)
+                    : encodePostLocked(state, pass, reason);
                 break;
             default:
                 encoded = false;
@@ -2623,9 +3395,12 @@ void installCompletionHandlerLocked(
             );
             return false;
         }
-        if (state.candidateInput.supplementalProgram.valid() &&
-            !state.candidateInput.supplementalProgram.encode(
-                state.candidateInput.supplementalProgram.context, pass)) {
+        const MetalNumanXHumanIOSupplementalProgram& supplemental =
+            slot.inputFamily == InputFamily::exactV2
+            ? state.candidateInputV2.supplementalProgram
+            : state.candidateInput.supplementalProgram;
+        if (supplemental.valid() &&
+            !supplemental.encode(supplemental.context, pass)) {
             rememberFailureLocked(
                 state,
                 MetalNumanXHumanIOStatus::commandBufferFailure,
@@ -2707,6 +3482,35 @@ void abortTransaction(void* context, void* commandBuffer) noexcept {
 }
 
 } // namespace
+
+std::uint64_t
+metalNumanXHumanIOExactAuthorityRangeIdentityFingerprint(
+    const MetalNumanXHumanIOExactInboundAuthorityRange& range
+) noexcept {
+    std::uint64_t hash = hashCString(
+        kFnvOffset,
+        "metalrobo.numanx-human-io.exact-authority-range.v2"
+    );
+    hash = hashU32(hash, range.abiVersion);
+    hash = hashU32(hash, range.structSize);
+    hash = hashU64(
+        hash,
+        reinterpret_cast<std::uintptr_t>(range.metalBuffer)
+    );
+    hash = hashU64(hash, range.gpuAddress);
+    hash = hashU64(hash, range.byteOffset);
+    hash = hashU64(hash, range.byteCount);
+    hash = hashU64(hash, range.deviceRegistryID);
+    hash = hashU64(hash, range.humanIOProgramFingerprint);
+    hash = hashU64(hash, range.transactionFingerprint);
+    hash = hashU64(hash, range.substepFingerprint);
+    hash = hashU64(hash, range.motorCandidateFingerprint);
+    hash = hashU64(hash, range.acceptedBrainTimestampNanoseconds);
+    hash = hashU64(hash, range.brainGeneration);
+    hash = hashU32(hash, range.clockDomain);
+    hash = hashU32(hash, range.clockQuantumNanoseconds);
+    return nonzeroHash(hash);
+}
 
 std::uint64_t metalNumanXBrainJointTransactionFingerprint(
     const MRNumanXBrainJointTransactionToken& token
@@ -3437,61 +4241,7 @@ MetalNumanXHumanIODiagnostics MetalNumanXHumanIOContext::prepare(
             ? 1 - state_->publishedSlot
             : 0;
         Slot& slot = state_->slots[slotIndex];
-        if (input.excitationMetalBuffer ==
-                (__bridge void*)slot.proprioception ||
-            input.excitationMetalBuffer == (__bridge void*)slot.validity ||
-            input.excitationMetalBuffer ==
-                (__bridge void*)slot.interoception ||
-            input.excitationMetalBuffer ==
-                (__bridge void*)slot.interoceptionValidity ||
-            input.excitationMetalBuffer ==
-                (__bridge void*)slot.motorValidation ||
-            input.excitationMetalBuffer ==
-                (__bridge void*)slot.motorHeaderValidation ||
-            input.excitationMetalBuffer ==
-                (__bridge void*)slot.environmentGate ||
-            input.motorOutputHeaderMetalBuffer ==
-                (__bridge void*)slot.proprioception ||
-            input.motorOutputHeaderMetalBuffer ==
-                (__bridge void*)slot.validity ||
-            input.motorOutputHeaderMetalBuffer ==
-                (__bridge void*)slot.interoception ||
-            input.motorOutputHeaderMetalBuffer ==
-                (__bridge void*)slot.interoceptionValidity ||
-            input.motorOutputHeaderMetalBuffer ==
-                (__bridge void*)slot.motorValidation ||
-            input.motorOutputHeaderMetalBuffer ==
-                (__bridge void*)slot.motorHeaderValidation ||
-            input.motorOutputHeaderMetalBuffer ==
-                (__bridge void*)slot.environmentGate ||
-            input.autonomicCommandMetalBuffer ==
-                (__bridge void*)slot.proprioception ||
-            input.autonomicCommandMetalBuffer ==
-                (__bridge void*)slot.validity ||
-            input.autonomicCommandMetalBuffer ==
-                (__bridge void*)slot.interoception ||
-            input.autonomicCommandMetalBuffer ==
-                (__bridge void*)slot.interoceptionValidity ||
-            input.autonomicCommandMetalBuffer ==
-                (__bridge void*)slot.motorValidation ||
-            input.autonomicCommandMetalBuffer ==
-                (__bridge void*)slot.motorHeaderValidation ||
-            input.autonomicCommandMetalBuffer ==
-                (__bridge void*)slot.environmentGate ||
-            input.activeSensingCommandMetalBuffer ==
-                (__bridge void*)slot.proprioception ||
-            input.activeSensingCommandMetalBuffer ==
-                (__bridge void*)slot.validity ||
-            input.activeSensingCommandMetalBuffer ==
-                (__bridge void*)slot.interoception ||
-            input.activeSensingCommandMetalBuffer ==
-                (__bridge void*)slot.interoceptionValidity ||
-            input.activeSensingCommandMetalBuffer ==
-                (__bridge void*)slot.motorValidation ||
-            input.activeSensingCommandMetalBuffer ==
-                (__bridge void*)slot.motorHeaderValidation ||
-            input.activeSensingCommandMetalBuffer ==
-                (__bridge void*)slot.environmentGate) {
+        if (inputAliasesOwnedStorage(*state_, input)) {
             return diagnosticsLocked(
                 *state_,
                 MetalNumanXHumanIOStatus::invalidInput,
@@ -3507,7 +4257,8 @@ MetalNumanXHumanIODiagnostics MetalNumanXHumanIOContext::prepare(
             interoceptionValidityByteCount,
             motorValidationByteCount,
             motorHeaderValidationByteCount,
-            environmentGateByteCount
+            environmentGateByteCount,
+            false
         );
         if (!result.succeeded()) {
             return result;
@@ -3522,10 +4273,32 @@ MetalNumanXHumanIODiagnostics MetalNumanXHumanIOContext::prepare(
         slot.stepCount = input.stepCount;
         slot.receptorCount = input.muscleCount;
         slot.timestepSeconds = input.timestepSeconds;
+        slot.timestepNanoseconds = input.substep.durationMicroseconds <=
+                std::numeric_limits<std::uint64_t>::max() /
+                    input.timestampQuantumNanoseconds
+            ? input.substep.durationMicroseconds *
+                input.timestampQuantumNanoseconds
+            : 0u;
         slot.timestampQuantumNanoseconds = input.timestampQuantumNanoseconds;
         slot.receptorTimestampMicroseconds =
             input.receptorTimestampMicroseconds;
+        slot.receptorTimestampNanoseconds =
+            input.receptorTimestampMicroseconds <=
+                    std::numeric_limits<std::uint64_t>::max() /
+                        input.timestampQuantumNanoseconds
+                ? input.receptorTimestampMicroseconds *
+                    input.timestampQuantumNanoseconds
+                : 0u;
+        slot.deliveryTimestampNanoseconds =
+            slot.receptorTimestampNanoseconds <=
+                    std::numeric_limits<std::uint64_t>::max() -
+                        slot.timestepNanoseconds
+                ? slot.receptorTimestampNanoseconds +
+                    slot.timestepNanoseconds
+                : 0u;
+        slot.inputFamily = InputFamily::legacy;
         slot.transactionFingerprint = input.root.transactionFingerprint;
+        slot.substepFingerprint = input.substep.substepFingerprint;
         slot.motorCandidateFingerprint = input.candidate.candidateFingerprint;
         slot.acceptedBrainGeneration = input.candidate.brainGeneration;
         slot.sensorGeneration = input.candidateSensorGeneration;
@@ -3554,6 +4327,8 @@ MetalNumanXHumanIODiagnostics MetalNumanXHumanIOContext::prepare(
 
         state_->candidateSlot = slotIndex;
         state_->candidateInput = input;
+        state_->candidateInputV2 = {};
+        state_->candidateInputFamily = InputFamily::legacy;
         state_->candidatePrepared = true;
         state_->encodingStarted = false;
         state_->phasesComplete = false;
@@ -3596,6 +4371,190 @@ MetalNumanXHumanIODiagnostics MetalNumanXHumanIOContext::prepare(
         MetalNumanXHumanIODiagnostics result{};
         result.status = MetalNumanXHumanIOStatus::metalBufferFailure;
         result.message = "host allocation failed while preparing the NumanX Human IO adapter";
+        return result;
+    } catch (const std::exception& exception) {
+        MetalNumanXHumanIODiagnostics result{};
+        result.status = MetalNumanXHumanIOStatus::internalFailure;
+        result.message = exception.what();
+        return result;
+    }
+}
+
+MetalNumanXHumanIODiagnostics MetalNumanXHumanIOContext::prepare(
+    const MetalNumanXHumanIOInputV2& input,
+    MetalNumanXTransactionProgram& program,
+    MetalNumanXHumanIOExactPreparedView& candidateView
+) {
+    if (state_ == nullptr) {
+        MetalNumanXHumanIODiagnostics result{};
+        result.status = MetalNumanXHumanIOStatus::internalFailure;
+        result.message = "MetalNumanXHumanIOContext is moved-from";
+        return result;
+    }
+    try {
+        const std::lock_guard lock(state_->mutex);
+        if (state_->candidatePrepared) {
+            return diagnosticsLocked(
+                *state_,
+                MetalNumanXHumanIOStatus::contextBusy,
+                "a candidate transaction is already prepared or awaiting explicit accept/reject"
+            );
+        }
+        MetalNumanXHumanIODiagnostics result = initializeLocked(*state_);
+        if (!result.succeeded()) return result;
+        result = initializeExactPipelinesLocked(*state_);
+        if (!result.succeeded()) return result;
+
+        std::size_t proprioceptionByteCount = 0u;
+        std::size_t validityByteCount = 0u;
+        std::size_t interoceptionByteCount = 0u;
+        std::size_t interoceptionValidityByteCount = 0u;
+        std::size_t motorValidationByteCount = 0u;
+        std::size_t motorHeaderValidationByteCount = 0u;
+        std::size_t environmentGateByteCount = 0u;
+        std::size_t proprioceptionEnvironmentStride = 0u;
+        std::size_t proprioceptionStepStride = 0u;
+        std::size_t validityEnvironmentStride = 0u;
+        std::size_t validityStepStride = 0u;
+        result = validateInputV2Locked(
+            *state_,
+            input,
+            proprioceptionByteCount,
+            validityByteCount,
+            interoceptionByteCount,
+            interoceptionValidityByteCount,
+            motorValidationByteCount,
+            motorHeaderValidationByteCount,
+            environmentGateByteCount,
+            proprioceptionEnvironmentStride,
+            proprioceptionStepStride,
+            validityEnvironmentStride,
+            validityStepStride
+        );
+        if (!result.succeeded()) return result;
+        if (inputAliasesOwnedStorage(*state_, input)) {
+            return diagnosticsLocked(
+                *state_,
+                MetalNumanXHumanIOStatus::invalidInput,
+                "borrowed exact motor input buffers may not alias any adapter-owned output, scratch, or authority storage"
+            );
+        }
+
+        const int slotIndex = state_->publishedSlot >= 0
+            ? 1 - state_->publishedSlot
+            : 0;
+        Slot& slot = state_->slots[slotIndex];
+        result = ensureSlotLocked(
+            *state_,
+            slotIndex,
+            proprioceptionByteCount,
+            validityByteCount,
+            interoceptionByteCount,
+            interoceptionValidityByteCount,
+            motorValidationByteCount,
+            motorHeaderValidationByteCount,
+            environmentGateByteCount,
+            true
+        );
+        if (!result.succeeded()) return result;
+
+        slot.proprioceptionEnvironmentStride =
+            proprioceptionEnvironmentStride;
+        slot.proprioceptionStepStride = proprioceptionStepStride;
+        slot.validityEnvironmentStride = validityEnvironmentStride;
+        slot.validityStepStride = validityStepStride;
+        slot.environmentCount = input.environmentCount;
+        slot.stepCount = input.stepCount;
+        slot.receptorCount = input.muscleCount;
+        slot.timestepSeconds = static_cast<float>(
+            static_cast<double>(input.timestepNanoseconds) * 1.0e-9
+        );
+        slot.timestepNanoseconds = input.timestepNanoseconds;
+        slot.timestampQuantumNanoseconds =
+            MR_NUMANX_BRAIN_EXACT_CLOCK_QUANTUM_NANOSECONDS;
+        slot.receptorTimestampMicroseconds = 0u;
+        slot.receptorTimestampNanoseconds =
+            input.receptorTimestampNanoseconds;
+        slot.deliveryTimestampNanoseconds =
+            input.substep.candidateTimestampNanoseconds;
+        slot.inputFamily = InputFamily::exactV2;
+        slot.transactionFingerprint = input.root.transactionFingerprint;
+        slot.substepFingerprint = input.substep.substepFingerprint;
+        slot.motorCandidateFingerprint = input.candidate.candidateFingerprint;
+        slot.acceptedBrainGeneration = input.candidate.brainGeneration;
+        slot.sensorGeneration = input.candidateSensorGeneration;
+        slot.excitationGPUAddress = input.expectedExcitationGPUAddress;
+        slot.motorOutputHeaderGPUAddress =
+            input.expectedMotorOutputHeaderGPUAddress;
+        slot.commandBufferIdentity = 0u;
+        slot.transactionInstanceFingerprint = 0u;
+        slot.programFingerprint = exactProgramFingerprintV2(
+            *state_, slot, input);
+        slot.sensorFingerprint = exactSensorFingerprintV2(slot);
+
+        MetalNumanXTransactionProgram stagedProgram{};
+        stagedProgram.context = state_.get();
+        stagedProgram.encode = &encodeTransaction;
+        stagedProgram.abort = &abortTransaction;
+        stagedProgram.fingerprint = slot.programFingerprint;
+        const MetalNumanXHumanIOExactPreparedView stagedView =
+            makeExactPreparedView(*state_, slot);
+        if (!stagedView.valid()) {
+            return diagnosticsLocked(
+                *state_,
+                MetalNumanXHumanIOStatus::internalFailure,
+                "exact prepared view failed its authority-range identity contract"
+            );
+        }
+
+        state_->candidateSlot = slotIndex;
+        state_->candidateInput = {};
+        state_->candidateInputV2 = input;
+        state_->candidateInputFamily = InputFamily::exactV2;
+        state_->candidatePrepared = true;
+        state_->encodingStarted = false;
+        state_->phasesComplete = false;
+        state_->completionHandlerInstalled = false;
+        state_->commandBufferCompleted = false;
+        state_->commandBufferSucceeded = false;
+        state_->candidateCompletionRegistered = false;
+        state_->candidateCompletionDelivered = false;
+        state_->candidateCompletionContext = nullptr;
+        state_->candidateCompletion = nullptr;
+        state_->candidateQuarantined = false;
+        state_->candidatePublicationLeased = false;
+        state_->rootPublicationReserved = false;
+        state_->candidatePublicationTerminal = false;
+        state_->abortHandled = false;
+        state_->candidatePublicationFingerprint = 0u;
+        state_->publicationBinding = {};
+        state_->expectedStep = 0u;
+        state_->expectedPhase = MetalNumanXTransactionPhase::beginStep;
+        state_->activeCommandBufferIdentity = 0u;
+        state_->stateBufferIdentity = 0u;
+        state_->resultBufferIdentity = 0u;
+        state_->standStatusBufferIdentity = 0u;
+        state_->lastStatus = MetalNumanXHumanIOStatus::success;
+        state_->lastMessage.clear();
+
+        MetalNumanXHumanIODiagnostics success = diagnosticsLocked(
+            *state_, MetalNumanXHumanIOStatus::success);
+        success.encoded = false;
+        success.commandBufferCompleted = false;
+        success.commandBufferSucceeded = false;
+        success.published = false;
+        success.transactionFingerprint = slot.transactionFingerprint;
+        success.programFingerprint = slot.programFingerprint;
+        success.sensorGeneration = slot.sensorGeneration;
+        success.commandBufferIdentity = 0u;
+        program = stagedProgram;
+        candidateView = stagedView;
+        return success;
+    } catch (const std::bad_alloc&) {
+        MetalNumanXHumanIODiagnostics result{};
+        result.status = MetalNumanXHumanIOStatus::metalBufferFailure;
+        result.message =
+            "host allocation failed while preparing exact NumanX Human IO";
         return result;
     } catch (const std::exception& exception) {
         MetalNumanXHumanIODiagnostics result{};
@@ -3838,6 +4797,13 @@ MetalNumanXHumanIOContext::reserveCandidatePublication(
             );
         }
         Slot& slot = state_->slots[state_->candidateSlot];
+        if (slot.inputFamily == InputFamily::exactV2) {
+            return diagnosticsLocked(
+                *state_,
+                MetalNumanXHumanIOStatus::candidateUnavailable,
+                "exact-v2 publication is unavailable until the authority-bearing HumanMatter v2 lease is connected"
+            );
+        }
         if (!keyMatches(key, slot)) {
             return diagnosticsLocked(
                 *state_,

@@ -158,7 +158,6 @@ bool metalNumanXExactInboundAuthorityV2Valid(
             MRNX_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS &&
         authority.clock_quantum_nanoseconds ==
             MRNX_EXACT_CLOCK_QUANTUM_NANOSECONDS &&
-        authority.accepted_brain_timestamp_nanoseconds != 0u &&
         authority.brain_generation != 0u &&
         authority.transaction_fingerprint != 0u &&
         authority.substep_fingerprint != 0u &&

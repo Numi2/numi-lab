@@ -63,6 +63,7 @@
 #define MR_NUMANX_BRAIN_READY_GATE_SUCCESS 1u
 #define MR_NUMANX_BRAIN_READY_GATE_FAILURE 2u
 #define MR_NUMANX_HUMAN_MOTOR_DISPATCH_ABI_VERSION_V2 2u
+#define MR_NUMANX_HUMAN_SENSOR_DISPATCH_ABI_VERSION_V2 2u
 #define MR_NUMANX_EXACT_INBOUND_AUTHORITY_ABI_VERSION_V2 2u
 #define MR_NUMANX_FINGERPRINT_DOMAIN_EXACT_INBOUND_AUTHORITY_V2 0x4e584941u
 
@@ -459,6 +460,47 @@ typedef struct MR_ALIGN16 MRNumanXExactInboundAuthorityGPUV2 {
     mr_u64 inboundAuthorityFingerprint;
 } MRNumanXExactInboundAuthorityGPUV2;
 
+// Exact-clock post-dynamics sensor dispatch. Integer nanoseconds and the
+// device-private authority address are part of this distinct family; the
+// float timestep is a one-way physical projection used only by bounded
+// interoception features.
+typedef struct MR_ALIGN16 MRNumanXHumanSensorDispatchGPUV2 {
+    mr_u32 abiVersion;
+    mr_u32 structSize;
+    mr_u32 environmentCount;
+    mr_u32 muscleCount;
+
+    mr_u32 featureCount;
+    mr_u32 stepIndex;
+    mr_u32 stepCount;
+    mr_u32 stateStride;
+
+    mr_u32 resultStride;
+    mr_u32 proprioceptionEnvironmentStride;
+    mr_u32 proprioceptionStepStride;
+    mr_u32 validityEnvironmentStride;
+
+    mr_u32 validityStepStride;
+    mr_u32 clockDomain;
+    mr_u32 clockQuantumNanoseconds;
+    mr_u32 reserved0;
+
+    mr_float4 physicalTimestepSecondsAndReserved;
+
+    mr_u64 timestepNanoseconds;
+    mr_u64 receptorTimestampNanoseconds;
+    mr_u64 deliveryTimestampNanoseconds;
+    mr_u64 transactionFingerprint;
+    mr_u64 substepFingerprint;
+    mr_u64 motorCandidateFingerprint;
+    mr_u64 acceptedBrainGeneration;
+    mr_u64 candidateSensorGeneration;
+    mr_u64 inboundAuthorityGPUAddress;
+    mr_u64 expectedExcitationGPUAddress;
+    mr_u64 programFingerprint;
+    mr_u64 sensorFingerprint;
+} MRNumanXHumanSensorDispatchGPUV2;
+
 // Constants used by both post-stand kernels. Proprioception is laid out as
 // [environment][step][muscle/receptor][feature]; validity is
 // [environment][step][muscle/receptor], one UInt32 bit mask per receptor.
@@ -687,6 +729,20 @@ static_assert(offsetof(
 static_assert(offsetof(
     MRNumanXExactInboundAuthorityGPUV2,
     inboundAuthorityFingerprint) == 104u);
+static_assert(sizeof(MRNumanXHumanSensorDispatchGPUV2) == 176u);
+static_assert(alignof(MRNumanXHumanSensorDispatchGPUV2) == 16u);
+static_assert(offsetof(
+    MRNumanXHumanSensorDispatchGPUV2,
+    physicalTimestepSecondsAndReserved) == 64u);
+static_assert(offsetof(
+    MRNumanXHumanSensorDispatchGPUV2,
+    timestepNanoseconds) == 80u);
+static_assert(offsetof(
+    MRNumanXHumanSensorDispatchGPUV2,
+    inboundAuthorityGPUAddress) == 144u);
+static_assert(offsetof(
+    MRNumanXHumanSensorDispatchGPUV2,
+    sensorFingerprint) == 168u);
 static_assert(sizeof(MRNumanXHumanProprioceptionDispatchGPU) == 128u);
 static_assert(alignof(MRNumanXHumanProprioceptionDispatchGPU) == 16u);
 static_assert(

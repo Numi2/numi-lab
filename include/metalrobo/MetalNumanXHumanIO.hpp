@@ -321,6 +321,126 @@ struct MetalNumanXHumanIOSensorView {
         MetalNumanXHumanIOViewState::candidate;
 };
 
+inline constexpr std::uint32_t
+    kMetalNumanXHumanIOExactPreparedViewABIVersion = 2u;
+
+struct MetalNumanXHumanIOExactInboundAuthorityRange;
+
+[[nodiscard]] std::uint64_t
+metalNumanXHumanIOExactAuthorityRangeIdentityFingerprint(
+    const MetalNumanXHumanIOExactInboundAuthorityRange& range
+) noexcept;
+
+// Borrowed, device-private authority range produced by the exact HumanIO
+// validator. The Context owns the MTLBuffer; callers may bind this range to
+// later encoders on the same command buffer, but may not read it on the host
+// or retain it beyond the prepared candidate lifetime. The terminal authority
+// fingerprint deliberately remains inside the private record.
+struct MetalNumanXHumanIOExactInboundAuthorityRange {
+    std::uint32_t abiVersion =
+        kMetalNumanXHumanIOExactPreparedViewABIVersion;
+    std::uint32_t structSize = sizeof(
+        MetalNumanXHumanIOExactInboundAuthorityRange);
+    void* metalBuffer = nullptr;
+    std::uint64_t gpuAddress = 0u;
+    std::size_t byteOffset = 0u;
+    std::size_t byteCount = 0u;
+    std::uint64_t deviceRegistryID = 0u;
+    std::uint64_t humanIOProgramFingerprint = 0u;
+    std::uint64_t transactionFingerprint = 0u;
+    std::uint64_t substepFingerprint = 0u;
+    std::uint64_t motorCandidateFingerprint = 0u;
+    std::uint64_t acceptedBrainTimestampNanoseconds = 0u;
+    std::uint64_t brainGeneration = 0u;
+    std::uint32_t clockDomain = 0u;
+    std::uint32_t clockQuantumNanoseconds = 0u;
+    std::uint64_t rangeIdentityFingerprint = 0u;
+
+    [[nodiscard]] bool valid() const noexcept {
+        return abiVersion ==
+                kMetalNumanXHumanIOExactPreparedViewABIVersion &&
+            structSize == sizeof(*this) && metalBuffer != nullptr &&
+            gpuAddress != 0u && byteOffset == 0u &&
+            byteCount == sizeof(MRNumanXExactInboundAuthorityGPUV2) &&
+            deviceRegistryID != 0u && humanIOProgramFingerprint != 0u &&
+            transactionFingerprint != 0u && substepFingerprint != 0u &&
+            motorCandidateFingerprint != 0u &&
+            brainGeneration != 0u &&
+            clockDomain ==
+                MR_NUMANX_BRAIN_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS &&
+            clockQuantumNanoseconds ==
+                MR_NUMANX_BRAIN_EXACT_CLOCK_QUANTUM_NANOSECONDS &&
+            rangeIdentityFingerprint != 0u &&
+            rangeIdentityFingerprint ==
+                metalNumanXHumanIOExactAuthorityRangeIdentityFingerprint(
+                    *this);
+    }
+};
+
+// Additive exact prepare result. The sensor view carries the candidate output
+// storage and exact nanosecond timing; authority is the private GPU receipt
+// consumed by HumanMatter on the same command-buffer timeline.
+struct MetalNumanXHumanIOExactPreparedView {
+    std::uint32_t abiVersion =
+        kMetalNumanXHumanIOExactPreparedViewABIVersion;
+    std::uint32_t structSize = sizeof(
+        MetalNumanXHumanIOExactPreparedView);
+    MetalNumanXHumanIOSensorView sensor{};
+    MetalNumanXHumanIOExactInboundAuthorityRange authority{};
+
+    [[nodiscard]] bool valid() const noexcept {
+        return abiVersion ==
+                kMetalNumanXHumanIOExactPreparedViewABIVersion &&
+            structSize == sizeof(*this) && authority.valid() &&
+            sensor.proprioceptionMetalBuffer != nullptr &&
+            sensor.validityMetalBuffer != nullptr &&
+            sensor.interoceptionMetalBuffer != nullptr &&
+            sensor.interoceptionValidityMetalBuffer != nullptr &&
+            sensor.proprioceptionGPUAddress != 0u &&
+            sensor.validityGPUAddress != 0u &&
+            sensor.interoceptionGPUAddress != 0u &&
+            sensor.interoceptionValidityGPUAddress != 0u &&
+            sensor.proprioceptionByteCount != 0u &&
+            sensor.validityByteCount != 0u &&
+            sensor.interoceptionByteCount != 0u &&
+            sensor.interoceptionValidityByteCount != 0u &&
+            sensor.environmentCount == 1u && sensor.stepCount == 1u &&
+            sensor.receptorCount != 0u &&
+            sensor.featureCount ==
+                MR_NUMANX_HUMAN_PROPRIOCEPTION_FEATURE_COUNT &&
+            sensor.state == MetalNumanXHumanIOViewState::candidate &&
+            sensor.sensorGeneration != 0u &&
+            sensor.sensorFingerprint != 0u &&
+            sensor.transactionInstanceFingerprint == 0u &&
+            sensor.commandBufferIdentity == 0u &&
+            sensor.excitationGPUAddress != 0u &&
+            sensor.motorOutputHeaderGPUAddress != 0u &&
+            sensor.programFingerprint ==
+                authority.humanIOProgramFingerprint &&
+            sensor.transactionFingerprint ==
+                authority.transactionFingerprint &&
+            sensor.motorCandidateFingerprint ==
+                authority.motorCandidateFingerprint &&
+            sensor.acceptedBrainGeneration == authority.brainGeneration &&
+            sensor.timestampQuantumNanoseconds ==
+                authority.clockQuantumNanoseconds &&
+            sensor.receptorTimestampMicroseconds == 0u &&
+            sensor.deliveryTimestampMicroseconds == 0u &&
+            sensor.latencyMicroseconds == 0u &&
+            sensor.stepTimeStrideMicroseconds == 0u &&
+            sensor.receptorTimestampNanoseconds ==
+                authority.acceptedBrainTimestampNanoseconds &&
+            sensor.latencyNanoseconds != 0u &&
+            sensor.stepTimeStrideNanoseconds ==
+                sensor.latencyNanoseconds &&
+            sensor.deliveryTimestampNanoseconds >
+                sensor.receptorTimestampNanoseconds &&
+            sensor.deliveryTimestampNanoseconds -
+                    sensor.receptorTimestampNanoseconds ==
+                sensor.latencyNanoseconds;
+    }
+};
+
 // Completion/acceptance key. Pointer identity alone is deliberately
 // insufficient: every provenance and generation fingerprint contributes to
 // transactionInstanceFingerprint.
@@ -512,6 +632,12 @@ public:
         const MetalNumanXHumanIOInput& input,
         MetalNumanXTransactionProgram& program,
         MetalNumanXHumanIOSensorView& candidateView
+    );
+
+    [[nodiscard]] MetalNumanXHumanIODiagnostics prepare(
+        const MetalNumanXHumanIOInputV2& input,
+        MetalNumanXTransactionProgram& program,
+        MetalNumanXHumanIOExactPreparedView& candidateView
     );
 
     [[nodiscard]] MetalNumanXHumanIODiagnostics pendingCandidate(
