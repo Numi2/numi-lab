@@ -716,6 +716,12 @@ separate pose error from route arithmetic without adding a dynamics owner.
 <limits> [dt_us] [newton_iterations]` decodes and validates the exact supplied
 physical state before rebinding the authored world/timestep identity. The
 support payload is mandatory for NHINIT3 because unbound decoding fails closed.
+`--prepared-stance-fixture-ns <certificate.log> <outdir> <contacts>
+<equalities> <limits> <dt_ns> [newton_iterations]` authors the equivalent
+exact-nanosecond fixture directly from a newly generated certificate. It does
+not pass through a rounded microsecond clock or rescale an older support
+history. `--prepared-state-fixture-ns` remains the stricter import path and
+rejects a prepared state when its composed source identity has drifted.
 The existing certificate-derived fixture mode emits exact NHCNT-bound NHINIT3
 from its per-row support forces. Neither fixture
 mode is anatomical tissue qualification: it creates three tiny pelvis samples.

@@ -85,6 +85,25 @@ metalrobo_numanx_fullbody_bridge_probe --prepared-stance-fixture \
   CERTIFICATE_LOG OUTPUT_DIRECTORY NHCNT_PAYLOAD NHEQ2_PAYLOAD NHLIM1_PAYLOAD
 ```
 
+Exact-nanosecond authoring keeps certificate and imported-state provenance
+separate:
+
+```
+metalrobo_numanx_fullbody_bridge_probe --prepared-stance-fixture-ns \
+  CERTIFICATE_LOG OUTPUT_DIRECTORY NHCNT_PAYLOAD NHEQ2_PAYLOAD NHLIM1_PAYLOAD \
+  TIMESTEP_NANOSECONDS [NEWTON_ITERATIONS]
+
+metalrobo_numanx_fullbody_bridge_probe --prepared-state-fixture-ns \
+  PREPARED_NHINIT OUTPUT_DIRECTORY NHCNT_PAYLOAD NHEQ2_PAYLOAD NHLIM1_PAYLOAD \
+  TIMESTEP_NANOSECONDS [NEWTON_ITERATIONS]
+```
+
+The stance form authors a new NHINIT from the certificate and rounds each
+support `force * exact timestep` directly at nanosecond precision. The state
+form only rebinds an already composed NHINIT whose source identity matches the
+current rigid, muscle, support, equality, and limit payloads; source drift
+fails closed instead of relabelling stale state.
+
 This helper reads the saved native compiler q/muscle records and per-row normal
 support forces, binds the exact supplied NHCNT1 or NHCNT2 bytes, rounds each
 `force * exactTimestep` once to FP32 impulse, serializes NHINIT3, and compiles
