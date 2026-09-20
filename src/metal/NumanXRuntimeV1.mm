@@ -1738,7 +1738,13 @@ struct ActiveRoot final : std::enable_shared_from_this<ActiveRoot> {
     std::uint64_t physicsGeneration = 0u;
     std::uint64_t transactionFingerprint = 0u;
     std::uint32_t transactionSlot = 0u;
+    std::uint64_t environmentIdentifier = 0u;
+    std::uint64_t episodeIdentifier = 0u;
+    std::uint64_t parameterVersionFingerprint = 0u;
+    std::uint64_t baseBrainGeneration = 0u;
     std::uint64_t brainGeneration = 0u;
+    std::uint64_t randomCounterGeneration = 0u;
+    std::uint32_t substepAttemptIndex = 0u;
     std::uint64_t controlStep = 0u;
     std::uint64_t acceptedTimestampMicroseconds = 0u;
     std::uint64_t receptorTimestampMicroseconds = 0u;
@@ -1754,6 +1760,9 @@ struct ActiveRoot final : std::enable_shared_from_this<ActiveRoot> {
     bool exactFamily = false;
     metalrobo::MetalNumanXHumanIOExactPreparedView exactHumanIO{};
     metalrobo::MetalNumanXHumanMatterExactPhysicalReceipt exactReceipt{};
+    std::optional<metalrobo::MetalNumanXHumanMatterPhysicalOutcome>
+        physicalOutcome;
+    bool rootAssistanceDisabledByOwner = false;
     mrnx_candidate_timing_v2 exactTiming{};
     mrnx_exact_inbound_authority_v2 exactInboundAuthority{};
     mrnx_exact_sensor_packet_v2 exactSensorPacket{};
@@ -3340,6 +3349,12 @@ void fillRuntimeInfoFailure(
                 active->previousPhysicsGeneration,
         },
     };
+    active->rootAssistanceDisabledByOwner =
+        !ownerInput.stand.enableRootAssistance &&
+        ownerInput.stand.assistanceGains.x == 0.0f &&
+        ownerInput.stand.assistanceGains.y == 0.0f &&
+        ownerInput.stand.assistanceGains.z == 0.0f &&
+        ownerInput.stand.assistanceGains.w == 0.0f;
     auto submission = std::make_unique<
         metalrobo::MetalArticulatedOperatorSubmission>();
     const auto submitted = [&] {
@@ -3710,7 +3725,14 @@ void fillRuntimeInfoFailure(
         !importableSharedEvent(runtime->device, event)) return false;
     result->motorReadyEvent = event;
     result->transactionFingerprint = root.transactionFingerprint;
+    result->environmentIdentifier = root.environmentIdentifier;
+    result->episodeIdentifier = root.episodeIdentifier;
+    result->parameterVersionFingerprint =
+        root.parameterVersionFingerprint;
+    result->baseBrainGeneration = root.baseBrainGeneration;
     result->brainGeneration = root.shadowGeneration;
+    result->randomCounterGeneration = root.randomCounterGeneration;
+    result->substepAttemptIndex = substep.attemptIndex;
     result->controlStep = root.controlStepIdentifier;
     result->acceptedTimestampNanoseconds =
         substep.candidateTimestampNanoseconds;
@@ -4022,6 +4044,12 @@ void fillRuntimeInfoFailure(
                 active->previousHumanIOProgramFingerprint,
         },
     };
+    active->rootAssistanceDisabledByOwner =
+        !ownerInput.stand.enableRootAssistance &&
+        ownerInput.stand.assistanceGains.x == 0.0f &&
+        ownerInput.stand.assistanceGains.y == 0.0f &&
+        ownerInput.stand.assistanceGains.z == 0.0f &&
+        ownerInput.stand.assistanceGains.w == 0.0f;
     auto submission = std::make_unique<
         metalrobo::MetalArticulatedOperatorSubmission>();
     const auto submitted = [&] {
@@ -5742,6 +5770,48 @@ void recordRuntimeBehaviorTerminal(RuntimeState& runtime, const ActiveRoot& acti
         trace.afterPublicationFingerprint =
             active.basePublicationFingerprint;
     }
+    if (active.rootAssistanceDisabledByOwner &&
+        active.physicalOutcome.has_value()) {
+        trace.auditCoveredMask |=
+            MR_HUMAN_BEHAVIOR_AUDIT_ROOT_ASSISTANCE;
+        const auto& assistance =
+            active.physicalOutcome->humanFactorAndAssistance;
+        if (!std::isfinite(assistance[2]) ||
+            !std::isfinite(assistance[3]) ||
+            assistance[2] != 0.0f || assistance[3] != 0.0f) {
+            trace.auditViolationMask |=
+                MR_HUMAN_BEHAVIOR_AUDIT_ROOT_ASSISTANCE;
+        }
+    }
+    trace.auditCoveredMask |=
+        MR_HUMAN_BEHAVIOR_AUDIT_UNACCEPTED_PUBLICATION;
+    const bool publicationAuditValid = accepted
+        ? fence != nullptr &&
+            fence->abiVersion ==
+                MR_NUMANX_HUMAN_MATTER_PUBLICATION_FENCE_ABI_VERSION_V2 &&
+            fence->structBytes == sizeof(*fence) &&
+            fence->status ==
+                MR_NUMANX_HUMAN_MATTER_PUBLICATION_COMMITTED &&
+            active.basePublicationEpoch !=
+                std::numeric_limits<std::uint64_t>::max() &&
+            trace.afterPublicationEpoch ==
+                active.basePublicationEpoch + 1u &&
+            trace.afterPhysicsGeneration == active.physicsGeneration &&
+            trace.afterAcceptedTimestampNanoseconds ==
+                active.acceptedTimestampNanoseconds
+        : fence == nullptr &&
+            trace.afterPublicationEpoch == trace.basePublicationEpoch &&
+            trace.afterPhysicsGeneration == trace.basePhysicsGeneration &&
+            trace.afterAcceptedTimestampNanoseconds ==
+                trace.baseAcceptedTimestampNanoseconds &&
+            trace.afterAcceptedTokenFingerprint ==
+                trace.baseAcceptedTokenFingerprint &&
+            trace.afterPublicationFingerprint ==
+                trace.basePublicationFingerprint;
+    if (!publicationAuditValid) {
+        trace.auditViolationMask |=
+            MR_HUMAN_BEHAVIOR_AUDIT_UNACCEPTED_PUBLICATION;
+    }
     (void)runtime.behavior->terminal(
         release, accepted ? fence : nullptr, &trace,
         runtime.behaviorError);
@@ -7347,6 +7417,8 @@ void physicalCompletion(
                  exactProofProgramFingerprint);
         active->physicalReady = active->physicalReady && hasOutcome &&
             hasExactReceipt && exactProvenanceValid;
+        if (active->physicalReady) active->physicalOutcome = outcome;
+        else active->physicalOutcome.reset();
         if (active->physicalReady && active->exactFamily) {
             active->exactReceipt = exactReceipt;
         }

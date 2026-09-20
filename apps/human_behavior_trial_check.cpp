@@ -405,6 +405,11 @@ std::string exerciseStandingTrial(std::uint32_t& negativeCases) {
                     "trace schema missing");
     requireContains(output, "\"step_ns\":12500",
                     "exact nanosecond step missing");
+    requireContains(output, "\"expected_accepted_steps\":3",
+                    "frozen accepted horizon missing");
+    requireContains(output,
+        "\"initial_accepted_state\":{\"accepted_root_sha256\":",
+        "initial accepted-state identity missing");
     requireContains(output,
         "\"first_step\":1,\"last_step\":1,\"start_ns\":0,\"end_ns\":12500,\"accepted_steps\":1",
         "first accepted span bounds are wrong");
@@ -420,8 +425,22 @@ std::string exerciseStandingTrial(std::uint32_t& negativeCases) {
                     "direct-torque violation was lost");
     requireContains(output, "\"audit_covered_attempt_count\":4",
                     "attempt audit coverage accounting is wrong");
-    requireContains(output, "\"accepted_steps\":3,\"final_root_sha256\":",
-                    "terminal completion record is incomplete");
+    require(countOccurrences(output, "\"attempt_index\":") == 6u,
+            "per-attempt evidence was not preserved exactly once");
+    requireContains(output,
+        "\"attempt_index\":1,\"transaction_fingerprint\":10001,\"disposition\":\"rejected\"",
+        "rejected attempt evidence is incomplete");
+    requireContains(output,
+        "\"attempt_index\":2,\"transaction_fingerprint\":20002,\"disposition\":\"accepted\"",
+        "accepted attempt evidence is incomplete");
+    requireContains(output,
+        "\"accepted_timestamp_ns\":1037500,\"physics_generation\":103,\"brain_generation\":203",
+        "final absolute timestamp or generation evidence is missing");
+    requireContains(output,
+        "\"accepted_steps\":3,\"completed_attempt_count\":6,\"final_root_sha256\":",
+        "terminal completion record is incomplete");
+    requireContains(output, "\"final_accepted_state\":{",
+                    "terminal accepted-state identity missing");
 
     std::string repeated = "different";
     require(recorder->finish(terminal, repeated, error) && repeated == output,

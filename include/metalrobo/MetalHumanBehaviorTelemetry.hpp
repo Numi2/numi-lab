@@ -28,6 +28,13 @@ struct HumanBehaviorTraceAttemptContext {
     std::uint32_t structSize=sizeof(HumanBehaviorTraceAttemptContext);
     std::uint32_t controlStep=0;
     std::uint32_t runtimeFailureStage=0;
+    std::uint32_t auditCoveredMask=0;
+    std::uint32_t auditViolationMask=0;
+    std::uint32_t forbiddenContactCoverage=0;
+    std::uint32_t forbiddenContactCount=0;
+    std::uint32_t reserved0=0;
+    std::uint32_t reserved1=0;
+    std::uint32_t reserved2=0;
     std::uint64_t basePublicationEpoch=0;
     std::uint64_t basePhysicsGeneration=0;
     std::uint64_t baseAcceptedTimestampNanoseconds=0;

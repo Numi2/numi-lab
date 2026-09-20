@@ -78,8 +78,9 @@ MetalHumanBehaviorTelemetry::MetalHumanBehaviorTelemetry(void* device,const Comp
     trace->abiVersion=MR_HUMAN_BEHAVIOR_TRACE_ABI_VERSION;
     trace->structSize=sizeof(*trace);
     trace->status=MR_HUMAN_BEHAVIOR_TRACE_STATUS_DISABLED;
-    // Coverage remains explicitly unknown until native audit/contact owners
-    // implement it. A zero violation count with coverage0 is never qualification.
+    // Candidate-stage coverage starts unknown. Authoritative terminal owners
+    // may add independently proven bits to the trace context; missing bits and
+    // contact coverage remain unavailable, never implicit zero violations.
     reset();
 }
 MetalHumanBehaviorTelemetry::~MetalHumanBehaviorTelemetry()=default;
@@ -158,7 +159,7 @@ bool MetalHumanBehaviorTelemetry::terminal(const MRHumanBehaviorReleaseGPU& r,co
         MRHumanBehaviorTraceAttemptContextGPU context{};
         if(s.traceEnabled&&!s.traceClosed){context.abiVersion=MR_HUMAN_BEHAVIOR_TRACE_ABI_VERSION;context.structSize=sizeof(context);
             context.present=trace!=nullptr&&trace->abiVersion==MR_HUMAN_BEHAVIOR_TRACE_ABI_VERSION&&trace->structSize==sizeof(*trace)?1u:2u;
-            if(trace!=nullptr){context.controlStep=trace->controlStep;context.runtimeFailureStage=trace->runtimeFailureStage;context.basePublicationEpoch=trace->basePublicationEpoch;context.basePhysicsGeneration=trace->basePhysicsGeneration;context.baseAcceptedTimestampNanoseconds=trace->baseAcceptedTimestampNanoseconds;context.baseAcceptedTokenFingerprint=trace->baseAcceptedTokenFingerprint;context.basePublicationFingerprint=trace->basePublicationFingerprint;context.candidateStateProofFingerprint=trace->candidateStateProofFingerprint;context.candidateAcceptedTokenFingerprint=trace->candidateAcceptedTokenFingerprint;context.candidatePublicationFingerprint=trace->candidatePublicationFingerprint;context.afterPublicationEpoch=trace->afterPublicationEpoch;context.afterPhysicsGeneration=trace->afterPhysicsGeneration;context.afterAcceptedTimestampNanoseconds=trace->afterAcceptedTimestampNanoseconds;context.afterAcceptedTokenFingerprint=trace->afterAcceptedTokenFingerprint;context.afterPublicationFingerprint=trace->afterPublicationFingerprint;}}
+            if(trace!=nullptr){context.controlStep=trace->controlStep;context.runtimeFailureStage=trace->runtimeFailureStage;context.auditCoveredMask=trace->auditCoveredMask;context.auditViolationMask=trace->auditViolationMask;context.forbiddenContactCoverage=trace->forbiddenContactCoverage;context.forbiddenContactCount=trace->forbiddenContactCount;context.reserved0=trace->reserved0;context.reserved1=trace->reserved1;context.reserved2=trace->reserved2;context.basePublicationEpoch=trace->basePublicationEpoch;context.basePhysicsGeneration=trace->basePhysicsGeneration;context.baseAcceptedTimestampNanoseconds=trace->baseAcceptedTimestampNanoseconds;context.baseAcceptedTokenFingerprint=trace->baseAcceptedTokenFingerprint;context.basePublicationFingerprint=trace->basePublicationFingerprint;context.candidateStateProofFingerprint=trace->candidateStateProofFingerprint;context.candidateAcceptedTokenFingerprint=trace->candidateAcceptedTokenFingerprint;context.candidatePublicationFingerprint=trace->candidatePublicationFingerprint;context.afterPublicationEpoch=trace->afterPublicationEpoch;context.afterPhysicsGeneration=trace->afterPhysicsGeneration;context.afterAcceptedTimestampNanoseconds=trace->afterAcceptedTimestampNanoseconds;context.afterAcceptedTokenFingerprint=trace->afterAcceptedTokenFingerprint;context.afterPublicationFingerprint=trace->afterPublicationFingerprint;}}
         if(fence)std::memcpy(s.fences.contents,fence,sizeof(*fence));else std::memset(s.fences.contents,0,s.fences.length);
         std::memcpy(s.release.contents,&r,sizeof(r));std::memcpy(s.traceContext.contents,&context,sizeof(context));s.terminalSerial=r.publicationSerial;error.clear();return true;
     }catch(const std::exception& e){error=e.what();return false;}}

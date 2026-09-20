@@ -33,6 +33,7 @@ constexpr std::size_t kExcitationByteOffset = 512u;
 constexpr std::size_t kAutonomicByteOffset = 768u;
 constexpr std::size_t kActiveSensingByteOffset = 1'024u;
 constexpr std::size_t kReadyGateByteOffset = 1'280u;
+constexpr std::uint32_t kExpectedBehaviorAuditCoveredMask = 0x21u;
 constexpr std::uint32_t kUnavailableBehaviorEvidenceFlags =
     MRNX_BEHAVIOR_TRACE_EVIDENCE_NATIVE_AUDIT_V1 |
     MRNX_BEHAVIOR_TRACE_EVIDENCE_FORBIDDEN_CONTACT_V1 |
@@ -831,6 +832,14 @@ struct RootOutcome {
     std::uint64_t jointFenceFingerprint = 0u;
 };
 
+struct RejectedOutcome {
+    mrnx_root_v1 root{};
+    mrnx_candidate_timing_v2 timing{};
+    mrnx_exact_inbound_authority_v2 inboundAuthority{};
+    mrnx_exact_sensor_packet_v2 sensorPacket{};
+    MRNumanXAcceptedPhysicsStateTokenGPUV2 candidateToken{};
+};
+
 RootOutcome executeAcceptedRoot(
     mrnx_runtime_v1* runtime,
     id<MTLDevice> device,
@@ -1361,6 +1370,289 @@ RootOutcome executeAcceptedRoot(
     return outcome;
 }
 
+RejectedOutcome executeTimeoutRejectedRoot(
+    mrnx_runtime_v1* runtime,
+    id<MTLDevice> device,
+    const std::uint64_t controlStep,
+    const RootOutcome& acceptedBase
+) {
+    mrnx_aggregate_snapshot_v5 aggregateBefore{};
+    aggregateBefore.abi_version = MRNX_AGGREGATE_SNAPSHOT_ABI_V5;
+    aggregateBefore.struct_size = sizeof(aggregateBefore);
+    mrnx_exact_clock_info_v1 clockBefore{};
+    clockBefore.abi_version = MRNX_EXACT_CLOCK_INFO_ABI_V1;
+    clockBefore.struct_size = sizeof(clockBefore);
+    require(
+        mrnx_bridge_v1_runtime_copy_aggregate_snapshot_v5(
+            runtime, &aggregateBefore) &&
+            std::memcmp(
+                &aggregateBefore, &acceptedBase.aggregate,
+                sizeof(aggregateBefore)) == 0 &&
+            mrnx_bridge_v1_runtime_copy_exact_clock(runtime, &clockBefore) &&
+            clockBefore.publication_epoch ==
+                acceptedBase.aggregate.publication_epoch &&
+            clockBefore.published_timestamp_nanoseconds ==
+                acceptedBase.publication.committed_timestamp_nanoseconds,
+        "timeout-reject baseline did not match the accepted public state");
+
+    auto resources = makeRequest(
+        device, controlStep, acceptedBase.aggregate.brain_generation,
+        acceptedBase.aggregate.physics_generation,
+        acceptedBase.publication.committed_timestamp_nanoseconds);
+    Completion physical{};
+    require(
+        mrnx_bridge_v1_runtime_begin_physical_root_v3(
+            runtime, &resources.request, &physical, &settled),
+        "timeout-reject exact root was not armed");
+    require(
+        physical.count.load(std::memory_order_acquire) == 0u,
+        "timeout-reject root ignored its unsignaled Brain ready event");
+    resources.readyEvent.signaledValue = 1u;
+    waitForCompletion(physical, 60u);
+    require(
+        physical.status.load(std::memory_order_acquire) ==
+                MRNX_COMPLETION_READY_V1 &&
+            physical.prepared != nullptr && physical.candidate != nullptr &&
+            physical.root.control_step == controlStep &&
+            physical.root.transaction_fingerprint ==
+                resources.request.root.transaction_fingerprint,
+        "timeout-reject physical/HumanIO root did not reach READY");
+
+    RejectedOutcome outcome{};
+    outcome.root = physical.root;
+    outcome.timing.abi_version = MRNX_CANDIDATE_TIMING_ABI_V2;
+    outcome.timing.struct_size = sizeof(outcome.timing);
+    outcome.inboundAuthority.abi_version =
+        MRNX_EXACT_INBOUND_AUTHORITY_ABI_V2;
+    outcome.inboundAuthority.struct_size = sizeof(outcome.inboundAuthority);
+    outcome.sensorPacket.abi_version = MRNX_EXACT_SENSOR_PACKET_ABI_V2;
+    outcome.sensorPacket.struct_size = sizeof(outcome.sensorPacket);
+    mrnx_candidate_view_v1 sensor{};
+    sensor.abi_version = MRNX_BRIDGE_ABI_V1;
+    sensor.struct_size = sizeof(sensor);
+    require(
+        mrnx_bridge_v1_candidate_copy_view(physical.candidate, &sensor) &&
+            mrnx_bridge_v1_candidate_copy_timing_v2(
+                physical.candidate, &outcome.timing) &&
+            mrnx_bridge_v1_candidate_copy_inbound_authority_v2(
+                physical.candidate, &outcome.inboundAuthority) &&
+            mrnx_bridge_v1_candidate_copy_sensor_packet_v2(
+                physical.candidate, &outcome.sensorPacket) &&
+            outcome.timing.capture_timestamp_nanoseconds ==
+                acceptedBase.publication.committed_timestamp_nanoseconds &&
+            outcome.timing.delivery_timestamp_nanoseconds ==
+                acceptedBase.publication.committed_timestamp_nanoseconds +
+                    kTimestepNanoseconds &&
+            outcome.inboundAuthority.transaction_fingerprint ==
+                resources.request.root.transaction_fingerprint &&
+            outcome.inboundAuthority.substep_fingerprint ==
+                resources.request.substep.substep_fingerprint &&
+            outcome.inboundAuthority.motor_candidate_fingerprint ==
+                resources.request.candidate.candidate_fingerprint &&
+            outcome.sensorPacket.transaction_fingerprint ==
+                resources.request.root.transaction_fingerprint &&
+            outcome.sensorPacket.substep_fingerprint ==
+                resources.request.substep.substep_fingerprint &&
+            outcome.sensorPacket.candidate_publication_fingerprint ==
+                sensor.candidate_publication_fingerprint,
+        "timeout-reject candidate identity is incomplete or stale");
+
+    mrnx_wire_lease_v1 physicalGate{};
+    physicalGate.abi_version = MRNX_BRIDGE_ABI_V1;
+    physicalGate.struct_size = sizeof(physicalGate);
+    require(
+        mrnx_bridge_v1_prepared_copy_physical_gate(
+            physical.prepared, &physicalGate) &&
+            physicalGate.record.byte_count == sizeof(outcome.candidateToken),
+        "timeout-reject candidate accepted-token gate is unavailable");
+    outcome.candidateToken =
+        readbackRecord<MRNumanXAcceptedPhysicsStateTokenGPUV2>(
+            device, physicalGate.record, physicalGate.ready);
+    require(
+        outcome.candidateToken.transactionFingerprint ==
+                physical.root.transaction_fingerprint &&
+            outcome.candidateToken.physicsGeneration ==
+                acceptedBase.aggregate.physics_generation + 1u &&
+            outcome.candidateToken.acceptedTimestampNanoseconds ==
+                acceptedBase.publication.committed_timestamp_nanoseconds +
+                    kTimestepNanoseconds &&
+            outcome.candidateToken.tokenFingerprint ==
+                outcome.sensorPacket.accepted_physics_token_fingerprint &&
+            outcome.candidateToken.tokenFingerprint ==
+                metalrobo::
+                    metalNumanXExactAcceptedPhysicsTokenV2Fingerprint(
+                        outcome.candidateToken),
+        "timeout-reject candidate physical token is invalid");
+
+    require(
+        mrnx_bridge_v1_quarantine_timeout(physical.prepared),
+        "exact candidate did not enter timeout quarantine");
+
+    id<MTLCommandQueue> queue = [device newCommandQueue];
+    id<MTLCommandBuffer> proposalCommand = [queue commandBuffer];
+    ProposalCapture proposalCapture{};
+    require(
+        queue != nil && proposalCommand != nil &&
+            mrnx_bridge_v1_submit_timeout_reject_proposal(
+                physical.prepared, (__bridge void*)proposalCommand,
+                &proposalCapture, &proposalSettled),
+        "timeout-reject proposal was not encoded");
+    [proposalCommand commit];
+    waitForCapture(
+        proposalCapture,
+        "timeout-reject proposal did not settle exactly once");
+    require(
+        proposalCapture.status.load(std::memory_order_acquire) ==
+                MRNX_COMPLETION_TIMEOUT_QUARANTINED_V1 &&
+            proposalCommand.status == MTLCommandBufferStatusCompleted,
+        "timeout-reject proposal did not complete under quarantine");
+    const auto proposal = copyRecord<MRNumanXHumanMatterProposalGPU>(
+        proposalCapture.view.proposal);
+    require(
+        proposal.status == MR_NUMANX_HUMAN_MATTER_PROPOSAL_READY &&
+            proposal.decision == MR_NUMANX_HUMAN_MATTER_ROOT_REJECT &&
+            proposal.code ==
+                MR_NUMANX_HUMAN_MATTER_PROPOSAL_FORCED_REJECT &&
+            proposal.transactionFingerprint ==
+                physical.root.transaction_fingerprint &&
+            proposal.physicsTokenFingerprint == 0u &&
+            proposal.brainProgramFingerprint == 0u &&
+            proposal.brainShadowStateFingerprint == 0u &&
+            proposal.brainWitnessFingerprint == 0u &&
+            proposal.candidatePublicationFingerprint ==
+                outcome.sensorPacket.candidate_publication_fingerprint &&
+            proposal.proposalFingerprint == recordFingerprint(&proposal),
+        "timeout-reject proposal did not produce canonical REJECT");
+
+    const auto preflight = makePreflight(
+        physical.root, resources.request, proposal, controlStep);
+    id<MTLBuffer> preflightStaging = [device
+        newBufferWithBytes:&preflight
+                   length:sizeof(preflight)
+                  options:MTLResourceStorageModeShared];
+    id<MTLBuffer> preflightBuffer = [device
+        newBufferWithLength:sizeof(preflight)
+                   options:MTLResourceStorageModeShared];
+    id<MTLSharedEvent> preflightReady = [device newSharedEvent];
+    id<MTLCommandBuffer> preflightCommand = [queue commandBuffer];
+    require(
+        preflightStaging != nil && preflightBuffer != nil &&
+            preflightReady != nil && preflightCommand != nil,
+        "timeout-reject Brain preflight resources are unavailable");
+    id<MTLBlitCommandEncoder> preflightBlit =
+        [preflightCommand blitCommandEncoder];
+    require(preflightBlit != nil,
+            "timeout-reject Brain preflight blit is unavailable");
+    [preflightBlit copyFromBuffer:preflightStaging
+                     sourceOffset:0u
+                         toBuffer:preflightBuffer
+                destinationOffset:0u
+                             size:sizeof(preflight)];
+    [preflightBlit endEncoding];
+    [preflightCommand encodeSignalEvent:preflightReady value:1u];
+    [preflightCommand commit];
+    [preflightCommand waitUntilCompleted];
+    require(
+        preflightCommand.status == MTLCommandBufferStatusCompleted &&
+            preflightCommand.error == nil &&
+            preflightReady.signaledValue >= 1u &&
+            preflightBuffer.contents != nullptr &&
+            std::memcmp(
+                preflightBuffer.contents, &preflight,
+                sizeof(preflight)) == 0 &&
+            preflight.preflightFingerprint != 0u &&
+            preflight.preflightFingerprint == recordFingerprint(&preflight),
+        "GPU-produced timeout-reject Brain preflight is invalid");
+    const auto preflightWire = makeWire(
+        physical.root, preflightBuffer, preflightReady, 1u);
+    require(
+        mrnx_bridge_v1_reserve_timeout_reject_application(
+            physical.prepared, &preflightWire),
+        "timeout-reject application reservation was rejected");
+
+    id<MTLCommandBuffer> applyCommand = [queue commandBuffer];
+    ApplyCapture applyCapture{};
+    require(
+        applyCommand != nil &&
+            mrnx_bridge_v1_submit_timeout_reject_apply(
+                physical.prepared, (__bridge void*)applyCommand,
+                &applyCapture, &applySettled),
+        "timeout-reject apply was not encoded");
+    [applyCommand commit];
+    waitForCapture(
+        applyCapture, "timeout-reject apply did not settle exactly once");
+    require(
+        applyCapture.status.load(std::memory_order_acquire) ==
+                MRNX_COMPLETION_TIMEOUT_QUARANTINED_V1 &&
+            applyCapture.view.command_disposition ==
+                MRNX_COMMAND_REJECTED_RELEASED_V1 &&
+            applyCommand.status == MTLCommandBufferStatusCompleted,
+        "timeout-reject apply did not restore and reject");
+    const auto applied = copyRecord<MRNumanXHumanMatterAppliedOutcomeGPU>(
+        applyCapture.view.applied);
+    const auto finalToken =
+        copyRecord<MRNumanXAcceptedPhysicsStateTokenGPUV2>(
+            applyCapture.view.final_token);
+    const MRNumanXAcceptedPhysicsStateTokenGPUV2 zeroToken{};
+    require(
+        applied.status ==
+                MR_NUMANX_HUMAN_MATTER_APPLIED_REJECT_RESTORED &&
+            applied.decision == MR_NUMANX_HUMAN_MATTER_ROOT_REJECT &&
+            applied.code ==
+                MR_NUMANX_HUMAN_MATTER_APPLIED_FORCED_REJECT &&
+            applied.physicsTokenFingerprint == 0u &&
+            applied.proposalFingerprint == proposal.proposalFingerprint &&
+            applied.ackFingerprint == 0u &&
+            applied.preflightFingerprint == 0u &&
+            applied.fastGateFingerprint == 0u &&
+            applied.appliedFingerprint == recordFingerprint(&applied) &&
+            std::memcmp(&finalToken, &zeroToken, sizeof(finalToken)) == 0,
+        "timeout-reject apply did not preserve canonical rollback identity");
+    require(
+        mrnx_bridge_v1_release_rejected(physical.prepared) ==
+            MRNX_PUBLICATION_REJECTED_V1,
+        "timeout-reject root did not reach terminal rejected release");
+
+    mrnx_candidate_view_v1 terminalSensor{};
+    terminalSensor.abi_version = MRNX_BRIDGE_ABI_V1;
+    terminalSensor.struct_size = sizeof(terminalSensor);
+    require(
+        !mrnx_bridge_v1_candidate_copy_view(
+            physical.candidate, &terminalSensor),
+        "timeout-rejected candidate remained readable after release");
+    mrnx_bridge_v1_candidate_drop(physical.candidate);
+    mrnx_bridge_v1_prepared_drop(physical.prepared);
+
+    mrnx_aggregate_snapshot_v5 aggregateAfter{};
+    aggregateAfter.abi_version = MRNX_AGGREGATE_SNAPSHOT_ABI_V5;
+    aggregateAfter.struct_size = sizeof(aggregateAfter);
+    mrnx_exact_clock_info_v1 clockAfter{};
+    clockAfter.abi_version = MRNX_EXACT_CLOCK_INFO_ABI_V1;
+    clockAfter.struct_size = sizeof(clockAfter);
+    require(
+        mrnx_bridge_v1_runtime_copy_aggregate_snapshot_v5(
+            runtime, &aggregateAfter) &&
+            mrnx_bridge_v1_runtime_copy_exact_clock(runtime, &clockAfter) &&
+            std::memcmp(
+                &aggregateAfter, &aggregateBefore,
+                sizeof(aggregateAfter)) == 0 &&
+            std::memcmp(&clockAfter, &clockBefore, sizeof(clockAfter)) == 0 &&
+            aggregateAfter.publication_epoch ==
+                acceptedBase.aggregate.publication_epoch &&
+            aggregateAfter.physics_generation ==
+                acceptedBase.aggregate.physics_generation &&
+            aggregateAfter.brain_generation ==
+                acceptedBase.aggregate.brain_generation &&
+            aggregateAfter.sensor_generation ==
+                acceptedBase.aggregate.sensor_generation &&
+            clockAfter.publication_epoch ==
+                acceptedBase.aggregate.publication_epoch &&
+            clockAfter.published_timestamp_nanoseconds ==
+                acceptedBase.publication.committed_timestamp_nanoseconds,
+        "timeout-rejected attempt changed accepted aggregate or exact clock");
+    return outcome;
+}
+
 void validateAcceptedBehaviorTraceRecord(
     const mrnx_behavior_trace_record_v1& record,
     const RootOutcome& outcome,
@@ -1382,7 +1674,8 @@ void validateAcceptedBehaviorTraceRecord(
             record.runtime_failure_stage == 0u &&
             record.candidate_status == 0u &&
             record.posture_valid <= 1u && record.settled <= 1u &&
-            record.audit_covered_mask == 0u &&
+            record.audit_covered_mask ==
+                kExpectedBehaviorAuditCoveredMask &&
             record.audit_violation_mask == 0u &&
             record.forbidden_contact_coverage == 0u &&
             record.forbidden_contact_count == 0u &&
@@ -1442,15 +1735,93 @@ void validateAcceptedBehaviorTraceRecord(
         "accepted behavior trace fingerprint chain is invalid");
 }
 
+void validateRejectedBehaviorTraceRecord(
+    const mrnx_behavior_trace_record_v1& record,
+    const RejectedOutcome& outcome,
+    const RootOutcome& acceptedBase,
+    const std::uint64_t attemptIndex,
+    const std::uint64_t previousRecordFingerprint
+) {
+    require(
+        record.abi_version == MRNX_BEHAVIOR_TRACE_ABI_V1 &&
+            record.struct_size == sizeof(record) &&
+            record.disposition ==
+                MRNX_BEHAVIOR_TRACE_REJECTED_RELEASED_V1 &&
+            record.metric_kind ==
+                MRNX_BEHAVIOR_TRACE_METRIC_REJECTED_CANDIDATE_V1 &&
+            record.control_step == outcome.root.control_step &&
+            record.runtime_failure_stage == 0u &&
+            record.candidate_status == 0u &&
+            record.posture_valid <= 1u && record.settled <= 1u &&
+            record.audit_covered_mask ==
+                kExpectedBehaviorAuditCoveredMask &&
+            record.audit_violation_mask == 0u &&
+            record.forbidden_contact_coverage == 0u &&
+            record.forbidden_contact_count == 0u &&
+            record.reserved0 == 0u && record.reserved1 == 0u &&
+            record.reserved2 == 0u && record.reserved_tail == 0u,
+        "rejected behavior trace record header is invalid");
+    require(
+        record.attempt_index == attemptIndex &&
+            record.transaction_fingerprint ==
+                outcome.root.transaction_fingerprint &&
+            record.linearization_epoch == outcome.root.linearization_epoch &&
+            record.slot_generation == outcome.root.slot_generation &&
+            record.base_publication_epoch ==
+                acceptedBase.aggregate.publication_epoch &&
+            record.base_physics_generation ==
+                acceptedBase.aggregate.physics_generation &&
+            record.base_accepted_timestamp_nanoseconds ==
+                acceptedBase.publication.committed_timestamp_nanoseconds &&
+            record.base_accepted_token_fingerprint ==
+                acceptedBase.acceptedTokenFingerprint,
+        "rejected behavior trace base identity is stale");
+    require(
+        record.candidate_physics_generation ==
+                outcome.candidateToken.physicsGeneration &&
+            record.candidate_timestamp_nanoseconds ==
+                outcome.candidateToken.acceptedTimestampNanoseconds &&
+            record.candidate_state_proof_fingerprint != 0u &&
+            record.candidate_accepted_token_fingerprint ==
+                outcome.candidateToken.tokenFingerprint &&
+            record.candidate_publication_fingerprint ==
+                outcome.sensorPacket.candidate_publication_fingerprint &&
+            record.after_publication_epoch ==
+                record.base_publication_epoch &&
+            record.after_physics_generation ==
+                record.base_physics_generation &&
+            record.after_accepted_timestamp_nanoseconds ==
+                record.base_accepted_timestamp_nanoseconds &&
+            record.after_accepted_token_fingerprint ==
+                record.base_accepted_token_fingerprint &&
+            record.after_publication_fingerprint ==
+                acceptedBase.publication.publication_fingerprint &&
+            record.joint_fence_fingerprint == 0u,
+        "rejected behavior trace advanced accepted/publication authority");
+    for (const float value : record.value_high)
+        require(std::isfinite(value),
+                "rejected behavior trace high component is nonfinite");
+    for (const float value : record.value_low)
+        require(std::isfinite(value),
+                "rejected behavior trace low component is nonfinite");
+    require(
+        record.previous_record_fingerprint == previousRecordFingerprint &&
+            record.record_fingerprint != 0u &&
+            record.record_fingerprint ==
+                behaviorTraceRecordFingerprint(record),
+        "rejected behavior trace fingerprint chain is invalid");
+}
+
 void validateAttachedBehaviorTrace(
     mrnx_runtime_v1* runtime,
     id<MTLDevice> device,
     const mrnx_runtime_info_v1& info,
     const RootOutcome& first,
+    const RejectedOutcome& rejected,
     const RootOutcome& second,
     const char* behaviorMetricSHA256
 ) {
-    std::array<mrnx_behavior_trace_record_v1, 2u> records{};
+    std::array<mrnx_behavior_trace_record_v1, 3u> records{};
     for (auto& record : records) {
         record.abi_version = MRNX_BEHAVIOR_TRACE_ABI_V1;
         record.struct_size = sizeof(record);
@@ -1467,11 +1838,14 @@ void validateAttachedBehaviorTrace(
         records[0], first, 1u, 0u, 0u,
         kInitialTimestampNanoseconds, 0u,
         chunk.trace_instance_fingerprint);
+    validateRejectedBehaviorTraceRecord(
+        records[1], rejected, first, 2u,
+        records[0].record_fingerprint);
     validateAcceptedBehaviorTraceRecord(
-        records[1], second, 2u, first.aggregate.publication_epoch,
+        records[2], second, 3u, first.aggregate.publication_epoch,
         first.aggregate.physics_generation,
         first.publication.committed_timestamp_nanoseconds,
-        first.acceptedTokenFingerprint, records[0].record_fingerprint);
+        first.acceptedTokenFingerprint, records[1].record_fingerprint);
 
     const auto metricSHA256 = parseSHA256(behaviorMetricSHA256);
     require(
@@ -1483,15 +1857,15 @@ void validateAttachedBehaviorTrace(
             chunk.expected_accepted_roots == 2u &&
             chunk.chunk_index == 0u && chunk.record_count == records.size() &&
             chunk.first_attempt_index == 1u &&
-            chunk.last_attempt_index == 2u &&
+            chunk.last_attempt_index == 3u &&
             chunk.previous_record_fingerprint ==
                 chunk.trace_instance_fingerprint &&
             chunk.last_record_fingerprint ==
-                records[1].record_fingerprint &&
-            chunk.observed_attempt_count == 2u &&
-            chunk.total_record_count == 2u &&
+                records[2].record_fingerprint &&
+            chunk.observed_attempt_count == 3u &&
+            chunk.total_record_count == 3u &&
             chunk.dropped_record_count == 0u &&
-            chunk.drained_record_count == 2u,
+            chunk.drained_record_count == 3u,
         "bounded behavior trace chunk counts or chain are invalid");
     require(
         std::memcmp(
@@ -1539,14 +1913,14 @@ void validateAttachedBehaviorTrace(
         "bounded behavior terminal promoted unavailable evidence");
     require(
         terminal.expected_accepted_roots == 2u &&
-            terminal.observed_attempt_count == 2u &&
-            terminal.total_record_count == 2u &&
-            terminal.drained_record_count == 2u &&
+            terminal.observed_attempt_count == 3u &&
+            terminal.total_record_count == 3u &&
+            terminal.drained_record_count == 3u &&
             terminal.dropped_record_count == 0u &&
             terminal.chunk_count == 1u &&
             terminal.accepted_root_count == 2u &&
-            terminal.rejected_attempt_count == 0u &&
-            terminal.completed_attempt_count == 2u &&
+            terminal.rejected_attempt_count == 1u &&
+            terminal.completed_attempt_count == 3u &&
             terminal.initial_timestamp_nanoseconds ==
                 kInitialTimestampNanoseconds &&
             terminal.end_timestamp_nanoseconds ==
@@ -1676,7 +2050,7 @@ int runLifecycle() {
             mrnx_behavior_trace_config_v1 traceConfig{};
             traceConfig.abi_version = MRNX_BEHAVIOR_TRACE_ABI_V1;
             traceConfig.struct_size = sizeof(traceConfig);
-            traceConfig.record_capacity = 2u;
+            traceConfig.record_capacity = 3u;
             traceConfig.expected_accepted_roots = 2u;
             require(
                 mrnx_bridge_v1_runtime_behavior_trace_attach(
@@ -1695,6 +2069,8 @@ int runLifecycle() {
         const auto first = executeAcceptedRoot(
             runtime, device, 1u, 0u, 0u,
             kInitialTimestampNanoseconds, true);
+        const auto rejected = executeTimeoutRejectedRoot(
+            runtime, device, 2u, first);
 
         std::atomic<bool> readerStop{false};
         std::atomic<std::uint64_t> readerCount{0u};
@@ -1729,18 +2105,80 @@ int runLifecycle() {
         }
         readerStop.store(true, std::memory_order_release);
         reader.join();
+        if (readerFailure.load(std::memory_order_acquire) ||
+            readerCount.load(std::memory_order_acquire) == 0u ||
+            second.aggregate.publication_epoch != 2u ||
+            second.aggregate.brain_generation != 2u ||
+            second.aggregate.physics_generation != 2u ||
+            second.aggregate.sensor_generation != 3u ||
+            second.aggregate.root.control_step != 2u ||
+            second.aggregate.root.transaction_fingerprint !=
+                rejected.root.transaction_fingerprint ||
+            second.aggregate.inbound_authority.substep_fingerprint !=
+                rejected.inboundAuthority.substep_fingerprint ||
+            second.publication.committed_timestamp_nanoseconds !=
+                kInitialTimestampNanoseconds +
+                    2u * kTimestepNanoseconds) {
+            std::fprintf(
+                stderr,
+                "accepted retry diagnostics reader_failure=%u readers=%llu "
+                "pub=%llu brain=%llu physics=%llu sensor=%llu step=%u "
+                "tx=%016llx/%016llx substep=%016llx/%016llx "
+                "candidate=%016llx/%016llx timestamp=%llu/%llu\n",
+                readerFailure.load(std::memory_order_acquire) ? 1u : 0u,
+                static_cast<unsigned long long>(
+                    readerCount.load(std::memory_order_acquire)),
+                static_cast<unsigned long long>(
+                    second.aggregate.publication_epoch),
+                static_cast<unsigned long long>(
+                    second.aggregate.brain_generation),
+                static_cast<unsigned long long>(
+                    second.aggregate.physics_generation),
+                static_cast<unsigned long long>(
+                    second.aggregate.sensor_generation),
+                second.aggregate.root.control_step,
+                static_cast<unsigned long long>(
+                    second.aggregate.root.transaction_fingerprint),
+                static_cast<unsigned long long>(
+                    rejected.root.transaction_fingerprint),
+                static_cast<unsigned long long>(
+                    second.aggregate.inbound_authority.substep_fingerprint),
+                static_cast<unsigned long long>(
+                    rejected.inboundAuthority.substep_fingerprint),
+                static_cast<unsigned long long>(
+                    second.aggregate.inbound_authority.
+                        motor_candidate_fingerprint),
+                static_cast<unsigned long long>(
+                    rejected.inboundAuthority.motor_candidate_fingerprint),
+                static_cast<unsigned long long>(
+                    second.publication.committed_timestamp_nanoseconds),
+                static_cast<unsigned long long>(
+                    kInitialTimestampNanoseconds +
+                        2u * kTimestepNanoseconds));
+        }
         require(
             !readerFailure.load(std::memory_order_acquire) &&
                 readerCount.load(std::memory_order_acquire) != 0u &&
                 second.aggregate.publication_epoch == 2u &&
                 second.aggregate.brain_generation == 2u &&
                 second.aggregate.physics_generation == 2u &&
-                second.aggregate.sensor_generation == 2u &&
+            second.aggregate.sensor_generation == 3u &&
+                rejected.sensorPacket.sensor_generation == 2u &&
                 second.aggregate.root.control_step == 2u &&
+                second.aggregate.root.transaction_fingerprint ==
+                    rejected.root.transaction_fingerprint &&
+                second.aggregate.inbound_authority.substep_fingerprint ==
+                    rejected.inboundAuthority.substep_fingerprint &&
+                second.aggregate.inbound_authority.
+                        motor_candidate_fingerprint != 0u &&
+                rejected.inboundAuthority.motor_candidate_fingerprint != 0u &&
+                second.aggregate.sensor_packet.
+                        candidate_publication_fingerprint != 0u &&
+                rejected.sensorPacket.candidate_publication_fingerprint != 0u &&
                 second.publication.committed_timestamp_nanoseconds ==
                     kInitialTimestampNanoseconds +
                         2u * kTimestepNanoseconds,
-            "second exact root did not continue atomically from the first");
+            "accepted retry did not continue atomically from the rejected root");
 
         mrnx_exact_clock_info_v1 clock{};
         clock.abi_version = MRNX_EXACT_CLOCK_INFO_ABI_V1;
@@ -1756,7 +2194,7 @@ int runLifecycle() {
 
         if (behaviorRequested) {
             validateAttachedBehaviorTrace(
-                runtime, device, info, first, second,
+                runtime, device, info, first, rejected, second,
                 behaviorMetricSHA256);
         } else {
             validateUnattachedBehaviorTrace(runtime);
@@ -1837,8 +2275,8 @@ int runLifecycle() {
                     document[@"accepted_root_proof_sha256"] == [NSNull null],
                 "exact behavior telemetry source or evidence boundary mismatch");
             unsignedField(@"accepted_root_count", 2u);
-            unsignedField(@"rejected_attempt_count", 0u);
-            unsignedField(@"completed_attempt_count", 2u);
+            unsignedField(@"rejected_attempt_count", 1u);
+            unsignedField(@"completed_attempt_count", 3u);
             unsignedField(@"metric_sample_count", 2u);
             unsignedField(@"step_ns", kTimestepNanoseconds);
             unsignedField(
@@ -1860,7 +2298,8 @@ int runLifecycle() {
         mrnx_bridge_v1_runtime_drop(runtime);
         std::printf(
             "numanx_exact_runtime_v3_lifecycle_probe=pass "
-            "roots=2 publications=2 aggregate=v5 clock=nanoseconds "
+            "roots=2 attempts=3 rejected=1 publications=2 "
+            "aggregate=v5 clock=nanoseconds "
             "proof_program=v2 legacy_downconversion=rejected "
             "timeout_race=serialized behavior_metric=%s "
             "behavior_trace=%s "

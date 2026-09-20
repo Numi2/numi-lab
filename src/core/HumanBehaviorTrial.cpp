@@ -177,6 +177,7 @@ struct SpanAccumulator {
     std::uint64_t speedErrorSampleCount = 0u;
     std::array<std::uint64_t, 8> auditViolationCounts{};
     double speedSquaredErrorSum = 0.0;
+    std::vector<HumanBehaviorAttempt> attempts;
 };
 
 struct AcceptedSpan {
@@ -198,6 +199,7 @@ struct AcceptedSpan {
     std::uint64_t speedErrorSampleCount = 0u;
     std::array<std::uint64_t, 8> auditViolationCounts{};
     double speedSquaredErrorSum = 0.0;
+    std::vector<HumanBehaviorAttempt> attempts;
 };
 
 [[nodiscard]] AcceptedSpan makeSpan(
@@ -224,6 +226,7 @@ struct AcceptedSpan {
     span.speedErrorSampleCount = source.speedErrorSampleCount;
     span.auditViolationCounts = source.auditViolationCounts;
     span.speedSquaredErrorSum = source.speedSquaredErrorSum;
+    span.attempts = source.attempts;
     return span;
 }
 
@@ -257,6 +260,8 @@ struct AcceptedSpan {
             return fail(error, "trailing audit counters overflow uint64");
         }
     }
+    merged.attempts.insert(
+        merged.attempts.end(), tail.attempts.begin(), tail.attempts.end());
     destination = merged;
     return true;
 }
@@ -276,6 +281,29 @@ void appendDigest(std::string& output, const HumanBehaviorDigest& digest) {
 
 void appendUnsigned(std::string& output, const std::uint64_t value) {
     output += std::to_string(value);
+}
+
+void appendAcceptedState(
+    std::string& output,
+    const HumanBehaviorAcceptedState& state
+) {
+    output += "{\"accepted_root_sha256\":";
+    appendDigest(output, state.acceptedRootSHA256);
+    output += ",\"accepted_timestamp_ns\":";
+    appendUnsigned(output, state.acceptedTimestampNanoseconds);
+    output += ",\"physics_generation\":";
+    appendUnsigned(output, state.physicsGeneration);
+    output += ",\"brain_generation\":";
+    appendUnsigned(output, state.brainGeneration);
+    output += ",\"sensor_generation\":";
+    appendUnsigned(output, state.sensorGeneration);
+    output += ",\"controller_generation\":";
+    appendUnsigned(output, state.controllerGeneration);
+    output += ",\"task_generation\":";
+    appendUnsigned(output, state.taskGeneration);
+    output += ",\"random_generation\":";
+    appendUnsigned(output, state.randomGeneration);
+    output.push_back('}');
 }
 
 void appendDouble(std::string& output, const double value) {
@@ -300,6 +328,52 @@ void appendVector(std::string& output, const std::array<double, 3>& value) {
         appendDouble(output, value[index]);
     }
     output.push_back(']');
+}
+
+void appendAttempt(
+    std::string& output,
+    const HumanBehaviorAttempt& attempt
+) {
+    output += "{\"attempt_index\":";
+    appendUnsigned(output, attempt.attemptIndex);
+    output += ",\"transaction_fingerprint\":";
+    appendUnsigned(output, attempt.transactionFingerprint);
+    output += ",\"disposition\":";
+    appendQuoted(
+        output,
+        attempt.disposition == HumanBehaviorAttemptDisposition::accepted
+            ? "accepted" : "rejected");
+    output += ",\"before\":";
+    appendAcceptedState(output, attempt.before);
+    output += ",\"after\":";
+    appendAcceptedState(output, attempt.after);
+    output += ",\"audit\":{\"covered_mask\":";
+    appendUnsigned(output, attempt.audit.coveredMask);
+    output += ",\"violation_mask\":";
+    appendUnsigned(output, attempt.audit.violationMask);
+    output += ",\"forbidden_contact_covered\":";
+    output += attempt.audit.forbiddenContactCovered ? "true" : "false";
+    output += ",\"forbidden_contact_count\":";
+    appendUnsigned(output, attempt.audit.forbiddenContactCount);
+    output += "},\"metrics\":";
+    if (attempt.acceptedMetrics.has_value()) {
+        output += "{\"posture_valid\":";
+        output += attempt.acceptedMetrics->postureValid ? "true" : "false";
+        output += ",\"settled\":";
+        output += attempt.acceptedMetrics->settled ? "true" : "false";
+        output += ",\"forward_speed_mps\":";
+        if (attempt.acceptedMetrics->forwardSpeedMetersPerSecond.has_value()) {
+            appendDouble(
+                output,
+                *attempt.acceptedMetrics->forwardSpeedMetersPerSecond);
+        } else {
+            output += "null";
+        }
+        output.push_back('}');
+    } else {
+        output += "null";
+    }
+    output.push_back('}');
 }
 
 [[nodiscard]] std::string serializeHeader(
@@ -342,6 +416,10 @@ void appendVector(std::string& output, const std::array<double, 3>& value) {
     appendQuoted(output, descriptor.executionID);
     output += ",\"initial_root_sha256\":";
     appendDigest(output, descriptor.initialAcceptedState.acceptedRootSHA256);
+    output += ",\"expected_accepted_steps\":";
+    appendUnsigned(output, descriptor.expectedAcceptedSteps);
+    output += ",\"initial_accepted_state\":";
+    appendAcceptedState(output, descriptor.initialAcceptedState);
     output += ",\"initial_posture_valid\":";
     output += descriptor.initialPostureValid ? "true" : "false";
     output += ",\"initial_settled\":";
@@ -404,18 +482,29 @@ void appendVector(std::string& output, const std::array<double, 3>& value) {
     appendUnsigned(output, span.auditCoveredAttemptCount);
     output += ",\"speed_error_sample_count\":";
     appendUnsigned(output, span.speedErrorSampleCount);
+    output += ",\"attempts\":[";
+    for (std::size_t index = 0u; index < span.attempts.size(); ++index) {
+        if (index != 0u) output.push_back(',');
+        appendAttempt(output, span.attempts[index]);
+    }
+    output.push_back(']');
     output += "}\n";
     return output;
 }
 
 [[nodiscard]] std::string serializeFooter(
     const std::uint64_t acceptedSteps,
-    const HumanBehaviorDigest& finalRoot
+    const std::uint64_t completedAttempts,
+    const HumanBehaviorAcceptedState& finalState
 ) {
     std::string output = "{\"kind\":\"completed\",\"accepted_steps\":";
     appendUnsigned(output, acceptedSteps);
+    output += ",\"completed_attempt_count\":";
+    appendUnsigned(output, completedAttempts);
     output += ",\"final_root_sha256\":";
-    appendDigest(output, finalRoot);
+    appendDigest(output, finalState.acceptedRootSHA256);
+    output += ",\"final_accepted_state\":";
+    appendAcceptedState(output, finalState);
     output += ",\"exit_code\":0}\n";
     return output;
 }
@@ -640,7 +729,9 @@ bool HumanBehaviorTrialRecorder::recordAttempt(
                 return fail(error, "unsupported attempt disposition");
         }
 
-        state.pending = next;
+        next.attempts.push_back(attempt);
+
+        state.pending = std::move(next);
         state.currentState = nextState;
         state.acceptedSteps = nextAcceptedSteps;
         ++state.completedAttempts;
@@ -747,7 +838,8 @@ bool HumanBehaviorTrialRecorder::finish(
                 span.postureViolationSteps > span.acceptedSteps ||
                 span.speedErrorSampleCount !=
                     (state.descriptor.task == HumanBehaviorTask::walking
-                         ? span.acceptedSteps : 0u))
+                         ? span.acceptedSteps : 0u) ||
+                span.attempts.size() != span.attemptCount)
                 return fail(error, "accepted span accounting is inconsistent");
             if (!checkedAdd(spanAccepted, span.acceptedSteps, spanAccepted) ||
                 !checkedAdd(spanAttempts, span.attemptCount, spanAttempts))
@@ -763,7 +855,8 @@ bool HumanBehaviorTrialRecorder::finish(
         for (const auto& span : spans) document += serializeSpan(span);
         document += serializeFooter(
             state.acceptedSteps,
-            state.currentState.acceptedRootSHA256);
+            state.completedAttempts,
+            state.currentState);
         // Complete every allocation that can fail before closing the recorder.
         // The following standard-allocator moves are noexcept, which preserves
         // the public failed-call/no-mutation guarantee even under allocation

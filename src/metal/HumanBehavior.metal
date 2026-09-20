@@ -52,9 +52,15 @@ inline void appendTrace(
         sample.transactionFingerprint==release.transactionFingerprint&&sample.linearizationEpoch==release.linearizationEpoch&&
         sample.slotGeneration==release.slotGeneration&&sample.physicsGeneration==release.physicsGeneration&&
         sample.acceptedTimestampNanoseconds==release.acceptedTimestampNanoseconds;
+    const bool contextAuditValid=
+        (context.auditCoveredMask&~MR_HUMAN_BEHAVIOR_COMPLETE_AUDIT_MASK)==0u&&
+        (context.auditViolationMask&~context.auditCoveredMask)==0u&&
+        context.forbiddenContactCoverage<=1u&&
+        (context.forbiddenContactCoverage==1u||context.forbiddenContactCount==0u)&&
+        context.reserved0==0u&&context.reserved1==0u&&context.reserved2==0u;
     bool contextValid=context.abiVersion==MR_HUMAN_BEHAVIOR_TRACE_ABI_VERSION&&
         context.structSize==sizeof(MRHumanBehaviorTraceAttemptContextGPU)&&context.present==1u&&context.controlStep!=0u&&
-        context.reserved0==0u&&context.reserved1==0u&&context.reserved2==0u&&
+        contextAuditValid&&
         context.basePublicationEpoch==page.lastAfterPublicationEpoch&&
         context.basePhysicsGeneration==page.lastAfterPhysicsGeneration&&
         context.baseAcceptedTimestampNanoseconds==page.lastAfterAcceptedTimestampNanoseconds&&
@@ -92,6 +98,24 @@ inline void appendTrace(
             release.jointFenceFingerprint==0u;
     }
     if(!contextValid){traceDrop(page,release.publicationSerial,MR_HUMAN_BEHAVIOR_TRACE_STATUS_INVALID);return;}
+    MRHumanBehaviorAuditGPU measuredAudit={};
+    if(sampleMatches)measuredAudit=sample.audit;
+    const uint auditOverlap=measuredAudit.coveredMask&context.auditCoveredMask;
+    const bool auditSourcesValid=
+        (measuredAudit.coveredMask&~MR_HUMAN_BEHAVIOR_COMPLETE_AUDIT_MASK)==0u&&
+        (measuredAudit.violationMask&~measuredAudit.coveredMask)==0u&&
+        measuredAudit.forbiddenContactCoverage<=1u&&
+        (measuredAudit.forbiddenContactCoverage==1u||measuredAudit.forbiddenContactCount==0u)&&
+        (auditOverlap&(measuredAudit.violationMask^context.auditViolationMask))==0u&&
+        !(measuredAudit.forbiddenContactCoverage==1u&&context.forbiddenContactCoverage==1u&&
+          measuredAudit.forbiddenContactCount!=context.forbiddenContactCount);
+    if(!auditSourcesValid){traceDrop(page,release.publicationSerial,MR_HUMAN_BEHAVIOR_TRACE_STATUS_INVALID);return;}
+    const uint auditCoveredMask=measuredAudit.coveredMask|context.auditCoveredMask;
+    const uint auditViolationMask=measuredAudit.violationMask|context.auditViolationMask;
+    const uint forbiddenContactCoverage=
+        measuredAudit.forbiddenContactCoverage|context.forbiddenContactCoverage;
+    const uint forbiddenContactCount=context.forbiddenContactCoverage==1u?
+        context.forbiddenContactCount:measuredAudit.forbiddenContactCount;
     page.lastAfterPublicationEpoch=context.afterPublicationEpoch;
     page.lastAfterPhysicsGeneration=context.afterPhysicsGeneration;
     page.lastAfterAcceptedTimestampNanoseconds=context.afterAcceptedTimestampNanoseconds;
@@ -104,7 +128,9 @@ inline void appendTrace(
         (sampleMatches&&sample.status==0u?MR_HUMAN_BEHAVIOR_TRACE_METRIC_REJECTED_CANDIDATE:MR_HUMAN_BEHAVIOR_TRACE_METRIC_UNAVAILABLE);
     record.controlStep=context.controlStep;record.runtimeFailureStage=context.runtimeFailureStage;
     record.candidateStatus=sampleMatches?sample.status:2u;
-    if(record.metricKind!=MR_HUMAN_BEHAVIOR_TRACE_METRIC_UNAVAILABLE){record.postureValid=sample.postureValid;record.settled=sample.settled;record.auditCoveredMask=sample.audit.coveredMask;record.auditViolationMask=sample.audit.violationMask;record.forbiddenContactCoverage=sample.audit.forbiddenContactCoverage;record.forbiddenContactCount=sample.audit.forbiddenContactCount;record.valueHigh[0]=sample.valueHigh.x;record.valueHigh[1]=sample.valueHigh.y;record.valueHigh[2]=sample.valueHigh.z;record.valueHigh[3]=sample.valueHigh.w;record.valueLow[0]=sample.valueLow.x;record.valueLow[1]=sample.valueLow.y;record.valueLow[2]=sample.valueLow.z;record.valueLow[3]=sample.valueLow.w;}
+    record.auditCoveredMask=auditCoveredMask;record.auditViolationMask=auditViolationMask;
+    record.forbiddenContactCoverage=forbiddenContactCoverage;record.forbiddenContactCount=forbiddenContactCount;
+    if(record.metricKind!=MR_HUMAN_BEHAVIOR_TRACE_METRIC_UNAVAILABLE){record.postureValid=sample.postureValid;record.settled=sample.settled;record.valueHigh[0]=sample.valueHigh.x;record.valueHigh[1]=sample.valueHigh.y;record.valueHigh[2]=sample.valueHigh.z;record.valueHigh[3]=sample.valueHigh.w;record.valueLow[0]=sample.valueLow.x;record.valueLow[1]=sample.valueLow.y;record.valueLow[2]=sample.valueLow.z;record.valueLow[3]=sample.valueLow.w;}
     record.attemptIndex=release.publicationSerial;record.transactionFingerprint=release.transactionFingerprint;record.linearizationEpoch=release.linearizationEpoch;record.slotGeneration=release.slotGeneration;
     record.basePublicationEpoch=context.basePublicationEpoch;record.basePhysicsGeneration=context.basePhysicsGeneration;record.baseAcceptedTimestampNanoseconds=context.baseAcceptedTimestampNanoseconds;record.baseAcceptedTokenFingerprint=context.baseAcceptedTokenFingerprint;
     record.candidatePhysicsGeneration=release.physicsGeneration;record.candidateTimestampNanoseconds=release.acceptedTimestampNanoseconds;record.candidateStateProofFingerprint=context.candidateStateProofFingerprint;record.candidateAcceptedTokenFingerprint=context.candidateAcceptedTokenFingerprint;record.candidatePublicationFingerprint=context.candidatePublicationFingerprint;
@@ -113,8 +139,8 @@ inline void appendTrace(
     if(record.recordFingerprint==0u){traceDrop(page,release.publicationSerial,MR_HUMAN_BEHAVIOR_TRACE_STATUS_INVALID);return;}
     records[page.recordCount]=record;if(page.recordCount==0u)page.firstAttemptIndex=release.publicationSerial;
     page.lastAttemptIndex=release.publicationSerial;++page.recordCount;++page.totalRecordCount;page.observedAttemptCount=release.publicationSerial;page.lastRecordFingerprint=record.recordFingerprint;
-    if(release.released==1u){++page.acceptedRecordCount;++page.acceptedProofRecordCount;if(sample.audit.forbiddenContactCoverage==1u)++page.forbiddenContactCoveredAcceptedCount;}else ++page.rejectedRecordCount;
-    if(sampleMatches&&sample.status==0u&&sample.audit.coveredMask==MR_HUMAN_BEHAVIOR_COMPLETE_AUDIT_MASK)++page.nativeAuditRecordCount;
+    if(release.released==1u){++page.acceptedRecordCount;++page.acceptedProofRecordCount;if(record.forbiddenContactCoverage==1u)++page.forbiddenContactCoveredAcceptedCount;}else ++page.rejectedRecordCount;
+    if(record.auditCoveredMask==MR_HUMAN_BEHAVIOR_COMPLETE_AUDIT_MASK)++page.nativeAuditRecordCount;
 }
 }
 

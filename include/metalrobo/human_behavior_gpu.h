@@ -2,6 +2,14 @@
 #include "metalrobo/engine_types.h"
 
 #define MR_HUMAN_BEHAVIOR_ABI_VERSION 1u
+#define MR_HUMAN_BEHAVIOR_AUDIT_ROOT_ASSISTANCE (1u << 0u)
+#define MR_HUMAN_BEHAVIOR_AUDIT_DIRECT_TORQUE (1u << 1u)
+#define MR_HUMAN_BEHAVIOR_AUDIT_KINEMATIC_OVERRIDE (1u << 2u)
+#define MR_HUMAN_BEHAVIOR_AUDIT_UNREGISTERED_FORCE (1u << 3u)
+#define MR_HUMAN_BEHAVIOR_AUDIT_SOURCE_CONSTRAINT_OMISSION (1u << 4u)
+#define MR_HUMAN_BEHAVIOR_AUDIT_UNACCEPTED_PUBLICATION (1u << 5u)
+#define MR_HUMAN_BEHAVIOR_AUDIT_NONFINITE (1u << 6u)
+#define MR_HUMAN_BEHAVIOR_AUDIT_UNEXPECTED_RESET (1u << 7u)
 #define MR_HUMAN_BEHAVIOR_COMPLETE_AUDIT_MASK 255u
 #define MR_HUMAN_BEHAVIOR_TRACE_ABI_VERSION 1u
 #define MR_HUMAN_BEHAVIOR_TRACE_STATUS_DISABLED 0u
@@ -72,7 +80,9 @@ struct MRHumanBehaviorReductionGPU {
 // malformed or absent context can only make the trace incomplete.
 struct MR_ALIGN16 MRHumanBehaviorTraceAttemptContextGPU {
     mr_u32 abiVersion, structSize, present, controlStep;
-    mr_u32 runtimeFailureStage, reserved0, reserved1, reserved2;
+    mr_u32 runtimeFailureStage, auditCoveredMask, auditViolationMask;
+    mr_u32 forbiddenContactCoverage;
+    mr_u32 forbiddenContactCount, reserved0, reserved1, reserved2;
     mr_u64 basePublicationEpoch, basePhysicsGeneration;
     mr_u64 baseAcceptedTimestampNanoseconds, baseAcceptedTokenFingerprint;
     mr_u64 basePublicationFingerprint;
@@ -134,7 +144,7 @@ static_assert(sizeof(MRHumanBehaviorProgramGPU) == 192);
 static_assert(sizeof(MRHumanBehaviorDispatchGPU) == 72);
 static_assert(sizeof(MRHumanBehaviorCandidateGPU) == 112);
 static_assert(sizeof(MRHumanBehaviorReleaseGPU) == 80);
-static_assert(sizeof(MRHumanBehaviorTraceAttemptContextGPU) == 144);
+static_assert(sizeof(MRHumanBehaviorTraceAttemptContextGPU) == 160);
 static_assert(sizeof(MRHumanBehaviorTracePageGPU) == 192);
 static_assert(sizeof(MRHumanBehaviorTraceRecordGPU) == 272);
 static_assert(offsetof(MRHumanBehaviorTraceRecordGPU, recordFingerprint) == 264);

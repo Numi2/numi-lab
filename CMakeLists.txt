@@ -1033,6 +1033,7 @@ add_library(
     src/core/NumiHumanProductionOwnerEvidenceWriter.cpp
     src/core/NumiHumanProductionOwnerSnapshot.cpp
     src/core/HumanBehaviorProgram.cpp
+    src/core/HumanBehaviorTrial.cpp
     src/core/NumiHumanTensionNetwork.cpp
     src/core/NumiHumanTendon.cpp
     src/core/NumiHumanCartilage.cpp
@@ -1626,6 +1627,19 @@ if(BUILD_TESTING)
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
     add_test(NAME numi_human_behavior_program COMMAND metalrobo_human_behavior_program_check)
+    add_executable(metalrobo_human_behavior_trial_check
+        apps/human_behavior_trial_check.cpp)
+    target_link_libraries(metalrobo_human_behavior_trial_check PRIVATE metalrobo)
+    target_compile_options(metalrobo_human_behavior_trial_check PRIVATE
+        -Wall -Wextra -Wpedantic -Werror)
+    set_target_properties(metalrobo_human_behavior_trial_check PROPERTIES
+        CXX_STANDARD 20 CXX_STANDARD_REQUIRED YES CXX_EXTENSIONS NO
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
+    add_test(NAME numi_human_behavior_trial_core
+        COMMAND metalrobo_human_behavior_trial_check)
+    set_tests_properties(numi_human_behavior_trial_core PROPERTIES
+        LABELS "numi-human;behavior;trial;cpu" TIMEOUT 30)
     set_tests_properties(numi_human_behavior_program PROPERTIES LABELS "numi-human;behavior;compiler")
     add_executable(metalrobo_numi_human_passive_joint_test tests/numi_human_passive_joint_test.cpp)
     target_include_directories(metalrobo_numi_human_passive_joint_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
