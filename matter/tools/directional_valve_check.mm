@@ -396,7 +396,7 @@ void sharedBreakpointChecks(){
   std::array<id<MTLBuffer>,30> b{};
   b[2]=buffer(run.device,x);b[3]=buffer(run.device,lifted);
   b[4]=buffer(run.device,std::vector<nm_float4>(4,nm_float4{1,17,18,19}));
-  b[5]=buffer(run.device,std::vector<float>(2,-1.f));b[6]=buffer(run.device,std::vector<NMMatterStatusGPU>(2));
+  b[5]=buffer(run.device,std::vector<float>(2,1.f));b[6]=buffer(run.device,std::vector<NMMatterStatusGPU>(2));
   b[7]=buffer(run.device,v.compartments);b[8]=buffer(run.device,v.connections);
   b[9]=buffer(run.device,std::vector<unsigned>(2*N));b[10]=buffer(run.device,std::vector<unsigned>(2));
   b[12]=buffer(run.device,v.unknowns);b[13]=buffer(run.device,accepted);b[14]=buffer(run.device,v.tissues);b[15]=buffer(run.device,v.exchanges);

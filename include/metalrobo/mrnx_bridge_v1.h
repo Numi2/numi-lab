@@ -52,6 +52,8 @@ extern "C" {
 #define MRNX_RUNTIME_CONFIG_ABI_V8 8u
 #define MRNX_PHYSICAL_ROOT_REQUEST_ABI_V2 2u
 #define MRNX_PHYSICAL_ROOT_REQUEST_ABI_V3 3u
+// Retained for source compatibility with the former admission-only v3 lane.
+// Executable request-v3 does not return this retired boundary stage.
 #define MRNX_REQUEST_FAILURE_STAGE_EXACT_OUTBOUND_UNAVAILABLE 900u
 #define MRNX_REQUEST_FAILURE_STAGE_LEGACY_EXACT_V2_UNROUTABLE 901u
 #define MRNX_EXACT_CLOCK_INFO_ABI_V1 1u
@@ -80,9 +82,10 @@ typedef enum mrnx_element_type_v1 {
     MRNX_ELEMENT_RAW_BYTES_V1 = 0u,
     MRNX_ELEMENT_FLOAT32_V1 = 1u,
     MRNX_ELEMENT_UINT32_V1 = 2u,
-    // Typed declarations used only by request-v3 admission. They prevent a
-    // legacy raw-byte motor header/gate lease from claiming the exact family
-    // before the asynchronous GPU producer has made the contents readable.
+    // Typed declarations used by request-v3 admission and execution. They
+    // prevent a legacy raw-byte motor header/gate lease from claiming the exact
+    // family before the asynchronous GPU producer has made the contents
+    // readable.
     MRNX_ELEMENT_BRAIN_MOTOR_OUTPUT_HEADER_V2 = 3u,
     MRNX_ELEMENT_BRAIN_MOTOR_READY_GATE_V2 = 4u,
 } mrnx_element_type_v1;
@@ -354,8 +357,8 @@ typedef struct mrnx_publication_v1 {
 
 // Exact joint-publication authority. The accepted physics token and HumanIO
 // candidate remain private until this complete record is reserved and released
-// under the existing writer gate. A future executable request-v3 lane must use
-// this record; it may not reinterpret mrnx_publication_v1.
+// under the sole public-reader writer gate. An executable request-v3 root must
+// use this record; it may not reinterpret mrnx_publication_v1.
 typedef struct mrnx_publication_v2 {
     uint32_t abi_version;
     uint32_t struct_size;
@@ -555,6 +558,8 @@ typedef struct mrnx_runtime_info_v1 {
     uint32_t request_failure_stage;
     uint32_t resident_continuation_count;
     uint64_t device_registry_id;
+    // Family-selected Matter proof producer: legacy runtimes report the v1
+    // program and exact-clock v8 runtimes report the distinct V2 program.
     uint64_t accepted_state_proof_program_fingerprint;
     // Domain-separated identity of the exact immutable NHRIGID2, NHMYO, and
     // NHCNT byte streams parsed by this runtime. It is also transitively bound
@@ -949,8 +954,8 @@ typedef struct MRNX_ALIGN16 mrnx_brain_motor_ready_gate_v2 {
     uint64_t gate_fingerprint;
 } mrnx_brain_motor_ready_gate_v2;
 
-// Exact asynchronous Brain authority offered to the future native full-body
-// begin call. Every range is an exact checked slice of a retained same-device
+// Exact asynchronous Brain authority offered to the native full-body begin
+// call. Every range is an exact checked slice of a retained same-device
 // MTLBuffer; object identity, base+offset GPU address, count, type, and pairwise
 // non-overlap are all authenticated before encoding. The event is liveness
 // only; HumanIO validates motor_ready_gate on the GPU before reading any
@@ -988,12 +993,12 @@ typedef struct mrnx_physical_root_request_v2 {
     mrnx_event_point_v1 motor_ready;
 } mrnx_physical_root_request_v2;
 
-// Additive exact-clock request. Every embedded time-bearing authority is a
+// Executable exact-clock request. Every embedded time-bearing authority is a
 // distinct v2 record with an explicit nanosecond clock domain. The resource
 // descriptors for motor_header and motor_ready_gate use their typed v2 element
-// kinds and full record element sizes. CPU admission only; execution remains
-// blocked until the exact outbound records declared above have executable
-// HumanIO/HumanMatter producers and a persistent joint-publication owner.
+// kinds and full record element sizes. Admission imports retained same-device
+// resources, then the native HumanMatter/HumanIO path produces an exact
+// candidate for the existing proposal/apply and joint-publication protocol.
 typedef struct mrnx_physical_root_request_v3 {
     uint32_t abi_version;
     uint32_t struct_size;
@@ -1122,11 +1127,11 @@ MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_runtime_begin_physical_root_v2(
     const mrnx_physical_root_request_v2* request,
     void* completion_context,
     mrnx_physical_root_settled_callback_v1 completion);
-// CPU schema/admission entry point for the all-exact request-v3 family. Even a
-// coherent request intentionally returns false with
-// MRNX_RUNTIME_CONTINUATION_UNAVAILABLE_V1 at the outbound-unavailable stage
-// before resource admission or GPU submission while HumanMatter, accepted
-// publication, and persistent state remain v1.
+// Executable entry point for the all-exact request-v3 family. It admits only a
+// coherent nanosecond authority/resource set, preserves borrowed Metal
+// resources through asynchronous settlement, and returns the same opaque
+// prepared/candidate handles used by the proposal/apply protocol. Acceptance
+// becomes public only through the exact publication-v2 reserve/release pair.
 MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_runtime_begin_physical_root_v3(
     mrnx_runtime_v1* runtime,
     const mrnx_physical_root_request_v3* request,
@@ -1144,6 +1149,9 @@ MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_runtime_copy_aggregate_snapshot_v3(
 MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_runtime_copy_aggregate_snapshot_v4(
     const mrnx_runtime_v1* runtime,
     mrnx_aggregate_snapshot_v4* snapshot);
+MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_runtime_copy_aggregate_snapshot_v5(
+    const mrnx_runtime_v1* runtime,
+    mrnx_aggregate_snapshot_v5* snapshot);
 
 MRNX_BRIDGE_EXPORT void mrnx_bridge_v1_prepared_retain(
     mrnx_prepared_v1* prepared);
@@ -1176,6 +1184,24 @@ MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_candidate_copy_channel(
 MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_candidate_copy_timing(
     const mrnx_candidate_v1* candidate,
     mrnx_candidate_timing_v1* output);
+// Exact candidates expose only the v2 clock/channel/receipt family below;
+// legacy candidates fail every v2 copy and exact candidates fail the legacy
+// timing/channel copies. The common candidate view remains available to both;
+// for an exact callback its candidate publication fingerprint names the full
+// canonical sensor packet, not HumanIO's private base-channel capability.
+MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_candidate_copy_timing_v2(
+    const mrnx_candidate_v1* candidate,
+    mrnx_candidate_timing_v2* output);
+MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_candidate_copy_channel_v2(
+    const mrnx_candidate_v1* candidate,
+    uint32_t channel_index,
+    mrnx_candidate_channel_v2* output);
+MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_candidate_copy_inbound_authority_v2(
+    const mrnx_candidate_v1* candidate,
+    mrnx_exact_inbound_authority_v2* output);
+MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_candidate_copy_sensor_packet_v2(
+    const mrnx_candidate_v1* candidate,
+    mrnx_exact_sensor_packet_v2* output);
 MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_bind_candidate(
     mrnx_prepared_v1* prepared,
     mrnx_candidate_v1* candidate);
@@ -1241,6 +1267,9 @@ MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_submit_timeout_reject_apply(
 MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_reserve_publication(
     mrnx_prepared_v1* prepared,
     const mrnx_publication_v1* publication);
+MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_reserve_publication_v2(
+    mrnx_prepared_v1* prepared,
+    const mrnx_publication_v2* publication);
 
 // Called synchronously while the Brain runtime lock is already held. The
 // bridge takes its sole public-reader writer gate, invokes generation_latch
@@ -1250,21 +1279,31 @@ MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_reserve_publication(
 // true latch the bridge performs no queue operation, GPU host wait, allocation,
 // payload readback, or blit. The release is not lock-free: it acquires the
 // predeclared owner -> adapter -> Matter -> HumanIO mutex chain while the
-// writer gate remains held.
+// writer gate remains held. Calling either release entry point with the other
+// capability family returns MRNX_PUBLICATION_REJECTED_V1 before the writer
+// gate, latch callback, or lifecycle state is touched.
 MRNX_BRIDGE_EXPORT uint32_t mrnx_bridge_v1_release_accepted(
     mrnx_prepared_v1* prepared,
     const mrnx_publication_v1* publication,
+    void* latch_context,
+    mrnx_brain_generation_latch_v1 generation_latch);
+MRNX_BRIDGE_EXPORT uint32_t mrnx_bridge_v1_release_accepted_v2(
+    mrnx_prepared_v1* prepared,
+    const mrnx_publication_v2* publication,
     void* latch_context,
     mrnx_brain_generation_latch_v1 generation_latch);
 MRNX_BRIDGE_EXPORT uint32_t mrnx_bridge_v1_release_rejected(
     mrnx_prepared_v1* prepared);
 
 // Host timeout is observation only: it never cancels, restores, reuses, or
-// destroys the unresolved native capability. It is sticky and immediately
-// disables all ordinary ACCEPT-capable forward operations. Only the explicit
-// timeout-reject operations above may continue a pre-apply root. The lifecycle
-// self-hold remains until an exact later REJECT release, otherwise for runtime
-// teardown.
+// destroys the unresolved native capability. It atomically races accepted
+// publication under the sole public-writer gate. Accepted release claims the
+// terminal outcome before invoking the borrowed Brain latch, so timeout can
+// deterministically lose without waiting on caller-controlled latch progress.
+// A winning timeout immediately disables every ordinary ACCEPT-capable forward
+// operation. Only the explicit timeout-reject operations above may continue a
+// pre-apply root. The lifecycle self-hold remains until an exact later REJECT
+// release, otherwise for runtime teardown.
 MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_quarantine_timeout(
     mrnx_prepared_v1* prepared);
 

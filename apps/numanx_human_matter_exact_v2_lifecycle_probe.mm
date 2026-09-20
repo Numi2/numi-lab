@@ -805,6 +805,85 @@ void runLifecycle(id<MTLDevice> device) {
         "failed to encode exact physical-prepare wait");
     finish(physicalWait);
 
+    metalrobo::MetalNumanXHumanMatterExactPhysicalReceipt staleReceipt{};
+    const metalrobo::MetalNumanXHumanMatterExactPhysicalReceipt emptyReceipt{};
+    require(!adapter->exactPhysicalReceipt(
+                transaction.transactionSlot,
+                transaction.transactionFingerprint ^ 1u,
+                transaction.slotGeneration,
+                staleReceipt) &&
+            !adapter->exactPhysicalReceipt(
+                transaction.transactionSlot,
+                transaction.transactionFingerprint,
+                transaction.slotGeneration + 1u,
+                staleReceipt) &&
+            std::memcmp(
+                &staleReceipt,
+                &emptyReceipt,
+                sizeof(staleReceipt)) == 0,
+        "exact physical receipt admitted a stale transaction generation");
+    metalrobo::MetalNumanXHumanMatterExactPhysicalReceipt physicalReceipt{};
+    require(adapter->exactPhysicalReceipt(
+                transaction.transactionSlot,
+                transaction.transactionFingerprint,
+                transaction.slotGeneration,
+                physicalReceipt),
+        "exact physical prepare did not expose its generation-bound receipt");
+    mrnx_exact_inbound_authority_v2 receiptAuthority{};
+    std::memcpy(
+        &receiptAuthority, &physicalReceipt.inboundAuthority,
+        sizeof(receiptAuthority));
+    require(metalrobo::metalNumanXExactInboundAuthorityV2Valid(
+                receiptAuthority) &&
+            metalrobo::metalNumanXExactAcceptedStateProofV2Valid(
+                physicalReceipt.acceptedStateProof) &&
+            metalrobo::metalNumanXExactAcceptedPhysicsTokenV2Valid(
+                physicalReceipt.acceptedStateProof,
+                physicalReceipt.acceptedPhysicsStateToken) &&
+            receiptAuthority.accepted_brain_timestamp_nanoseconds ==
+                kStartNanoseconds &&
+            receiptAuthority.brain_generation ==
+                ioFixture.candidate.brainGeneration &&
+            receiptAuthority.transaction_fingerprint ==
+                transaction.transactionFingerprint &&
+            receiptAuthority.substep_fingerprint ==
+                transaction.substepFingerprint &&
+            receiptAuthority.motor_candidate_fingerprint ==
+                ioFixture.candidate.candidateFingerprint &&
+            receiptAuthority.motor_output_fingerprint ==
+                ioFixture.output.outputFingerprint &&
+            receiptAuthority.motor_profile_fingerprint ==
+                ioFixture.candidate.motorProfileFingerprint &&
+            receiptAuthority.motor_ready_gate_fingerprint ==
+                ioFixture.gate.gateFingerprint &&
+            receiptAuthority.brain_program_fingerprint ==
+                ioFixture.gate.brainProgramFingerprint &&
+            receiptAuthority.fast_program_fingerprint ==
+                ioFixture.gate.fastProgramFingerprint &&
+            receiptAuthority.decision_gate_fingerprint ==
+                ioFixture.gate.decisionGateFingerprint &&
+            physicalReceipt.acceptedStateProof.acceptedTimestampNanoseconds ==
+                kDeliveryNanoseconds &&
+            physicalReceipt.acceptedStateProof.inboundAuthorityFingerprint ==
+                receiptAuthority.inbound_authority_fingerprint &&
+            physicalReceipt.acceptedStateProof.motorCandidateFingerprint ==
+                receiptAuthority.motor_candidate_fingerprint &&
+            physicalReceipt.acceptedStateProof.adapterProgramFingerprint ==
+                humanMatterProgram.fingerprint &&
+            physicalReceipt.acceptedStateProof.slotGeneration ==
+                transaction.slotGeneration,
+        "exact physical receipt lost its inbound, proof, or token identity");
+    auto wrongReceiptClock = physicalReceipt.acceptedStateProof;
+    ++wrongReceiptClock.clockQuantumNanoseconds;
+    require(!metalrobo::metalNumanXExactAcceptedStateProofV2Valid(
+                wrongReceiptClock),
+        "exact physical receipt validator admitted a different clock");
+    auto wrongReceiptFingerprint = receiptAuthority;
+    wrongReceiptFingerprint.inbound_authority_fingerprint ^= 1u;
+    require(!metalrobo::metalNumanXExactInboundAuthorityV2Valid(
+                wrongReceiptFingerprint),
+        "exact physical receipt validator admitted a changed fingerprint");
+
     metalrobo::MetalNumanXHumanIOTransactionKey key{};
     metalrobo::MetalNumanXHumanIOSensorView sensor{};
     const auto pending = humanIO->pendingCandidate(key, sensor);
@@ -893,25 +972,7 @@ void runLifecycle(id<MTLDevice> device) {
                 MetalNumanXHumanIOStatus::candidateUnavailable,
         "exact HumanIO sensor became visible before root publication");
 
-    id<MTLBuffer> tokenReadback = makeZeroBuffer(
-        device, sizeof(MRNumanXAcceptedPhysicsStateTokenGPUV2),
-        @"lifecycle exact token readback");
-    id<MTLCommandBuffer> tokenReadbackCommand = [queue commandBuffer];
-    id<MTLBlitCommandEncoder> tokenReadbackBlit =
-        [tokenReadbackCommand blitCommandEncoder];
-    require(tokenReadbackCommand != nil && tokenReadbackBlit != nil,
-        "failed to allocate exact token readback command");
-    [tokenReadbackBlit
-        copyFromBuffer:(__bridge id<MTLBuffer>)
-            view.preparedPhysicsStateTokens
-           sourceOffset:0u
-               toBuffer:tokenReadback
-      destinationOffset:0u
-                   size:sizeof(MRNumanXAcceptedPhysicsStateTokenGPUV2)];
-    [tokenReadbackBlit endEncoding];
-    finish(tokenReadbackCommand);
-    const auto token =
-        value<MRNumanXAcceptedPhysicsStateTokenGPUV2>(tokenReadback);
+    const auto token = physicalReceipt.acceptedPhysicsStateToken;
     require(view.preparedPhysicsStateTokenByteCount == sizeof(token) &&
                 view.finalAcceptedPhysicsStateTokenByteCount == sizeof(token) &&
                 view.proposedPhysicsStateTokenByteCount == sizeof(token) &&
@@ -1331,6 +1392,7 @@ void runLifecycle(id<MTLDevice> device) {
         << " disposition=resolved"
         << " authority_storage=private"
         << " publication_abi=2"
+        << " receipt=exact_v2"
         << " token=accepted_v2"
         << " final_token=published_v2"
         << " joint=" << outcome.jointDecision
@@ -1338,7 +1400,7 @@ void runLifecycle(id<MTLDevice> device) {
         << " matter=" << outcome.matterCode
         << " world=" << outcome.worldCode
         << " matter_fgmres=" << outcome.matterFGMRESIterations
-        << " negatives=family,clock,authority,duplicate"
+        << " negatives=family,clock,authority,receipt-generation,duplicate"
         << " proposal=accepted"
         << " apply=accepted_quarantined"
         << " publication=committed\n";

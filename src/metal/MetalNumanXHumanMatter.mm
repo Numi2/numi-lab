@@ -217,6 +217,7 @@ struct PhysicalDiagnosticsReadback {
     MRMetalWorldStatusGPU world{};
     MRNumiHumanStandStatusGPU human{};
     NMMatterStatusGPU matter{};
+    MetalNumanXHumanMatterExactPhysicalReceipt exactReceipt{};
 };
 
 // Four compensated arenas plus the original fourteen live/checkpoint arenas.
@@ -2920,6 +2921,9 @@ void cancelSlot(State& state, Slot& slot) noexcept {
     [clear fillBuffer:slot.acceptedStateProofs
                  range:NSMakeRange(0u, slot.acceptedStateProofs.length)
                  value:0u];
+    [clear fillBuffer:slot.physicalDiagnostics
+                 range:NSMakeRange(0u, slot.physicalDiagnostics.length)
+                 value:0u];
     [clear endEncoding];
     if (!encodePrepareWorldStatus(state, slot, pass)) {
         cancelSlot(state, slot);
@@ -3170,6 +3174,30 @@ void cancelSlot(State& state, Slot& slot) noexcept {
     [readback copyFromBuffer:(__bridge id<MTLBuffer>)state.config.matterRuntime->statusBuffer() sourceOffset:0u
                     toBuffer:slot.physicalDiagnostics destinationOffset:offsetof(PhysicalDiagnostics, matter)
                         size:sizeof(NMMatterStatusGPU)];
+    if (slot.proofFamily == ProofFamily::exactV2) {
+        [readback copyFromBuffer:(__bridge id<MTLBuffer>)
+                    slot.exactHumanIO.authority.metalBuffer
+                       sourceOffset:slot.exactHumanIO.authority.byteOffset
+                           toBuffer:slot.physicalDiagnostics
+                  destinationOffset:offsetof(PhysicalDiagnostics, exactReceipt) +
+                      offsetof(MetalNumanXHumanMatterExactPhysicalReceipt,
+                               inboundAuthority)
+                                size:sizeof(MRNumanXExactInboundAuthorityGPUV2)];
+        [readback copyFromBuffer:slot.acceptedStateProofs
+                       sourceOffset:0u
+                           toBuffer:slot.physicalDiagnostics
+                  destinationOffset:offsetof(PhysicalDiagnostics, exactReceipt) +
+                      offsetof(MetalNumanXHumanMatterExactPhysicalReceipt,
+                               acceptedStateProof)
+                                size:sizeof(MRNumanXAcceptedStateProofGPUV2)];
+        [readback copyFromBuffer:slot.acceptedTokens
+                       sourceOffset:0u
+                           toBuffer:slot.physicalDiagnostics
+                  destinationOffset:offsetof(PhysicalDiagnostics, exactReceipt) +
+                      offsetof(MetalNumanXHumanMatterExactPhysicalReceipt,
+                               acceptedPhysicsStateToken)
+                                size:sizeof(MRNumanXAcceptedPhysicsStateTokenGPUV2)];
+    }
     [readback endEncoding];
     slot.physicalDiagnosticsEncoded = true;
     slot.callbackFrame = nullptr;
@@ -4974,6 +5002,89 @@ bool MetalNumanXHumanMatterContext::physicalOutcome(
             outcome.matterDiagnostics.data(), &matter[0].diagnostics,
             sizeof(matter[0].diagnostics));
     }
+    return true;
+}
+
+bool MetalNumanXHumanMatterContext::exactPhysicalReceipt(
+    const std::uint32_t transactionSlot,
+    const std::uint64_t transactionFingerprint,
+    const std::uint64_t slotGeneration,
+    MetalNumanXHumanMatterExactPhysicalReceipt& receipt
+) const noexcept {
+    receipt = {};
+    if (state_ == nullptr || !state_->initialized ||
+        transactionFingerprint == 0u || slotGeneration == 0u) {
+        return false;
+    }
+    std::lock_guard lock(state_->mutex);
+    if (transactionSlot >= state_->slots.size()) return false;
+    const Slot& slot = state_->slots[transactionSlot];
+    if (slot.proofFamily != ProofFamily::exactV2 ||
+        !slot.physicalCommandCompleted || slot.physicalCommandFailed ||
+        slot.transactionV2.transactionSlot != transactionSlot ||
+        slot.transactionV2.transactionFingerprint != transactionFingerprint ||
+        slot.transactionV2.slotGeneration != slotGeneration ||
+        !slot.physicalDiagnosticsEncoded ||
+        slot.physicalDiagnostics == nil ||
+        slot.physicalDiagnostics.contents == nullptr ||
+        !exactHumanIOValidForSlot(*state_, slot)) {
+        return false;
+    }
+
+    const auto* diagnostics = static_cast<const PhysicalDiagnostics*>(
+        slot.physicalDiagnostics.contents);
+    MetalNumanXHumanMatterExactPhysicalReceipt candidate{};
+    std::memcpy(
+        &candidate, &diagnostics->exactReceipt, sizeof(candidate));
+
+    static_assert(sizeof(MRNumanXExactInboundAuthorityGPUV2) ==
+                  sizeof(mrnx_exact_inbound_authority_v2));
+    mrnx_exact_inbound_authority_v2 authority{};
+    std::memcpy(
+        &authority, &candidate.inboundAuthority, sizeof(authority));
+    const auto& proof = candidate.acceptedStateProof;
+    const auto& token = candidate.acceptedPhysicsStateToken;
+    const auto& expectedAuthority = slot.exactHumanIO.authority;
+    const auto& transaction = slot.transactionV2;
+    if (!metalNumanXExactInboundAuthorityV2Valid(authority) ||
+        !metalNumanXExactAcceptedStateProofV2Valid(proof) ||
+        !metalNumanXExactAcceptedPhysicsTokenV2Valid(proof, token) ||
+        authority.clock_domain != expectedAuthority.clockDomain ||
+        authority.clock_quantum_nanoseconds !=
+            expectedAuthority.clockQuantumNanoseconds ||
+        authority.accepted_brain_timestamp_nanoseconds !=
+            expectedAuthority.acceptedBrainTimestampNanoseconds ||
+        authority.brain_generation != expectedAuthority.brainGeneration ||
+        authority.transaction_fingerprint !=
+            transaction.transactionFingerprint ||
+        authority.substep_fingerprint != transaction.substepFingerprint ||
+        authority.motor_candidate_fingerprint !=
+            expectedAuthority.motorCandidateFingerprint ||
+        proof.transactionFingerprint != transaction.transactionFingerprint ||
+        proof.substepFingerprint != transaction.substepFingerprint ||
+        proof.acceptedTimestampNanoseconds !=
+            slot.exactHumanIO.sensor.deliveryTimestampNanoseconds ||
+        proof.physicsGeneration != transaction.physicsGeneration ||
+        proof.environment != transaction.environmentIdentifierBase ||
+        proof.clockDomain != expectedAuthority.clockDomain ||
+        proof.clockQuantumNanoseconds !=
+            expectedAuthority.clockQuantumNanoseconds ||
+        proof.matterSourcePhysicsFingerprint !=
+            state_->matterSourceFingerprint ||
+        proof.matterDeviceProgramFingerprint !=
+            state_->matterDeviceFingerprint ||
+        proof.stateProofProgramFingerprint !=
+            state_->config.stateProofProgramV2.fingerprint ||
+        proof.adapterProgramFingerprint != state_->exactFingerprint ||
+        proof.linearizationEpoch != transaction.linearizationEpoch ||
+        proof.slotGeneration != transaction.slotGeneration ||
+        proof.motorCandidateFingerprint !=
+            authority.motor_candidate_fingerprint ||
+        proof.inboundAuthorityFingerprint !=
+            authority.inbound_authority_fingerprint) {
+        return false;
+    }
+    receipt = candidate;
     return true;
 }
 

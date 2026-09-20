@@ -3,10 +3,12 @@
 
 #include "NumanXBridgeV1Internal.hpp"
 
+#include "metalrobo/NumanXExactTransaction.hpp"
 #include "metalrobo/numanx_human_matter_gpu.h"
 
 #include <atomic>
 #include <cstdint>
+#include <cstring>
 #include <iterator>
 #include <limits>
 #include <mutex>
@@ -242,6 +244,15 @@ template <typename T>
         output->struct_size == sizeof(T);
 }
 
+template <typename T>
+[[nodiscard]] bool writableOutput(
+    T* output,
+    const std::uint32_t abiVersion
+) noexcept {
+    return output != nullptr && output->abi_version == abiVersion &&
+        output->struct_size == sizeof(T);
+}
+
 } // namespace
 
 namespace metalrobo::numanx_bridge_v1 {
@@ -269,18 +280,39 @@ struct Domain {
 
 } // namespace metalrobo::numanx_bridge_v1
 
+enum class BridgeCapabilityFamily : std::uint32_t {
+    legacyMicrosecondsV1 = 1u,
+    exactNanosecondsV2 = 2u,
+};
+
 struct mrnx_candidate_v1 {
     std::atomic<std::uint32_t> references{2u}; // external + lifecycle
     mutable std::mutex mutex;
     metalrobo::numanx_bridge_v1::DomainPtr domain;
     metalrobo::MetalNumanXHumanIOCandidatePublicationLease lease;
+    // HumanIO owns the immutable two-channel candidate capability. Exact
+    // candidates install `program` as a bridge adapter after supplemental
+    // channels are attached, while `sourceProgram` remains the private native
+    // capability to which reserve/publish/reject is translated.
+    metalrobo::MetalNumanXHumanIOCandidatePublicationProgram sourceProgram{};
     metalrobo::MetalNumanXHumanIOCandidatePublicationProgram program{};
+    BridgeCapabilityFamily family =
+        BridgeCapabilityFamily::legacyMicrosecondsV1;
     mrnx_candidate_view_v1 view{};
     mrnx_candidate_timing_v1 timing{};
+    mrnx_candidate_timing_v2 timingV2{};
+    mrnx_exact_inbound_authority_v2 inboundAuthorityV2{};
+    mrnx_exact_sensor_packet_v2 sensorPacketV2{};
+    MRNumanXAcceptedPhysicsStateTokenGPUV2 acceptedTokenV2{};
     mrnx_candidate_channel_v1 channels[kCandidateChannelCapacity]{};
+    mrnx_candidate_channel_v2 channelsV2[kCandidateChannelCapacity]{};
     __strong id<MTLBuffer> values[kCandidateChannelCapacity]{};
     __strong id<MTLBuffer> validity[kCandidateChannelCapacity]{};
     std::uint32_t channelCount = kCandidateChannelCount;
+    std::uint64_t adaptedBindingFingerprint = 0u;
+    std::uint64_t sourceBindingFingerprint = 0u;
+    bool publicationAdapterReserved = false;
+    bool publicationAdapterTerminal = false;
     bool bound = false;
     bool terminal = false;
     bool lifecycleHeld = true;
@@ -304,6 +336,8 @@ struct mrnx_prepared_v1 {
     mutable std::mutex mutex;
     metalrobo::numanx_bridge_v1::DomainPtr domain;
     metalrobo::MetalNumanXHumanMatterPrepared prepared;
+    BridgeCapabilityFamily family =
+        BridgeCapabilityFamily::legacyMicrosecondsV1;
     mrnx_root_v1 root{};
     mrnx_wire_lease_v1 physicalGate{};
     mrnx_culture_prepared_view_v1 culturePrepared{};
@@ -330,6 +364,7 @@ struct mrnx_prepared_v1 {
     mrnx_apply_settled_callback_v1 applyCompletion = nullptr;
     void* applyCompletionContext = nullptr;
     mrnx_publication_v1 publication{};
+    mrnx_publication_v2 publicationV2{};
     std::shared_ptr<void> runtimeOwner;
     void* terminalCompletionContext = nullptr;
     metalrobo::numanx_bridge_v1::PreparedTerminalCompletion
@@ -341,6 +376,10 @@ struct mrnx_prepared_v1 {
     bool applyForcedReject = false;
     bool rejectedObserved = false;
     bool timeoutQuarantined = false;
+    // Set under mutex before an accepted release invokes the borrowed Brain
+    // latch. The claim is terminal: timeout can lose deterministically without
+    // waiting for a callback that may be controlled by the timeout caller.
+    bool acceptedReleaseClaimed = false;
     bool terminal = false;
     bool lifecycleHeld = true;
     bool terminalCompletionDelivered = false;
@@ -354,6 +393,183 @@ struct mrnx_prepared_v1 {
 };
 
 namespace {
+
+[[nodiscard]] bool exactPublicationAdapterReserve(
+    void* context,
+    std::uint64_t candidateFingerprint,
+    const metalrobo::MetalNumanXHumanIOCandidatePublicationBinding& binding
+) noexcept;
+
+[[nodiscard]] metalrobo::
+    MetalNumanXHumanIOCandidatePublicationDisposition
+exactPublicationAdapterPublish(
+    void* context,
+    std::uint64_t candidateFingerprint,
+    const metalrobo::MetalNumanXHumanIOCandidatePublicationCommit& commit
+) noexcept;
+
+[[nodiscard]] metalrobo::
+    MetalNumanXHumanIOCandidatePublicationDisposition
+exactPublicationAdapterReject(
+    void* context,
+    std::uint64_t candidateFingerprint
+) noexcept;
+
+[[nodiscard]] bool exactPublicationAdapterValidLocked(
+    const mrnx_candidate_v1& candidate,
+    const std::uint64_t candidateFingerprint
+) noexcept {
+    return candidate.family == BridgeCapabilityFamily::exactNanosecondsV2 &&
+        candidate.sourceProgram.valid() && candidate.program.valid() &&
+        candidate.sourceProgram.abiVersion ==
+            metalrobo::kMetalNumanXHumanIOExactPublicationABIVersion &&
+        candidate.program.abiVersion ==
+            metalrobo::kMetalNumanXHumanIOExactPublicationABIVersion &&
+        candidate.program.context == &candidate &&
+        candidate.program.reservePublishedRoot ==
+            &exactPublicationAdapterReserve &&
+        candidate.program.publishCandidate ==
+            &exactPublicationAdapterPublish &&
+        candidate.program.rejectCandidate ==
+            &exactPublicationAdapterReject &&
+        candidateFingerprint != 0u &&
+        candidateFingerprint ==
+            candidate.sensorPacketV2.candidate_publication_fingerprint &&
+        candidateFingerprint ==
+            candidate.program.candidatePublicationFingerprint &&
+        candidate.view.candidate_publication_fingerprint ==
+            candidateFingerprint &&
+        candidate.view.candidate_identity_fingerprint ==
+            candidate.program.identityFingerprint;
+}
+
+bool exactPublicationAdapterReserve(
+    void* context,
+    const std::uint64_t candidateFingerprint,
+    const metalrobo::MetalNumanXHumanIOCandidatePublicationBinding& binding
+) noexcept {
+    auto* candidate = static_cast<mrnx_candidate_v1*>(context);
+    if (candidate == nullptr) return false;
+
+    metalrobo::MetalNumanXHumanIOCandidatePublicationProgram source{};
+    auto translated = binding;
+    {
+        const std::lock_guard lock(candidate->mutex);
+        if (!exactPublicationAdapterValidLocked(
+                *candidate, candidateFingerprint) ||
+            candidate->publicationAdapterReserved ||
+            candidate->publicationAdapterTerminal ||
+            binding.abiVersion !=
+                metalrobo::kMetalNumanXHumanIOExactPublicationABIVersion ||
+            binding.structSize != sizeof(binding) ||
+            binding.candidatePublicationFingerprint !=
+                candidateFingerprint ||
+            binding.humanIOIdentityFingerprint !=
+                candidate->program.identityFingerprint ||
+            binding.bindingFingerprint == 0u ||
+            binding.bindingFingerprint != metalrobo::
+                metalNumanXHumanIOPublicationBindingFingerprint(binding)) {
+            return false;
+        }
+        source = candidate->sourceProgram;
+        translated.candidatePublicationFingerprint =
+            source.candidatePublicationFingerprint;
+        translated.humanIOIdentityFingerprint = source.identityFingerprint;
+        translated.bindingFingerprint = metalrobo::
+            metalNumanXHumanIOPublicationBindingFingerprint(translated);
+        if (translated.bindingFingerprint == 0u) return false;
+        candidate->adaptedBindingFingerprint = binding.bindingFingerprint;
+        candidate->sourceBindingFingerprint = translated.bindingFingerprint;
+        candidate->publicationAdapterReserved = true;
+    }
+
+    const bool reserved = source.reservePublishedRoot(
+        source.context,
+        source.candidatePublicationFingerprint,
+        translated);
+    if (!reserved) {
+        const std::lock_guard lock(candidate->mutex);
+        if (!candidate->publicationAdapterTerminal &&
+            candidate->adaptedBindingFingerprint ==
+                binding.bindingFingerprint &&
+            candidate->sourceBindingFingerprint ==
+                translated.bindingFingerprint) {
+            candidate->adaptedBindingFingerprint = 0u;
+            candidate->sourceBindingFingerprint = 0u;
+            candidate->publicationAdapterReserved = false;
+        }
+    }
+    return reserved;
+}
+
+metalrobo::MetalNumanXHumanIOCandidatePublicationDisposition
+exactPublicationAdapterPublish(
+    void* context,
+    const std::uint64_t candidateFingerprint,
+    const metalrobo::MetalNumanXHumanIOCandidatePublicationCommit& commit
+) noexcept {
+    using Disposition = metalrobo::
+        MetalNumanXHumanIOCandidatePublicationDisposition;
+    auto* candidate = static_cast<mrnx_candidate_v1*>(context);
+    if (candidate == nullptr) return Disposition::terminalNoTouch;
+
+    metalrobo::MetalNumanXHumanIOCandidatePublicationProgram source{};
+    auto translated = commit;
+    {
+        const std::lock_guard lock(candidate->mutex);
+        if (!exactPublicationAdapterValidLocked(
+                *candidate, candidateFingerprint) ||
+            !candidate->publicationAdapterReserved ||
+            candidate->publicationAdapterTerminal ||
+            commit.abiVersion !=
+                metalrobo::kMetalNumanXHumanIOExactPublicationABIVersion ||
+            commit.structSize != sizeof(commit) ||
+            commit.candidatePublicationFingerprint != candidateFingerprint ||
+            commit.bindingFingerprint == 0u ||
+            commit.bindingFingerprint !=
+                candidate->adaptedBindingFingerprint ||
+            candidate->sourceBindingFingerprint == 0u) {
+            candidate->publicationAdapterTerminal = true;
+            return Disposition::terminalNoTouch;
+        }
+        source = candidate->sourceProgram;
+        translated.candidatePublicationFingerprint =
+            source.candidatePublicationFingerprint;
+        translated.bindingFingerprint = candidate->sourceBindingFingerprint;
+        candidate->publicationAdapterTerminal = true;
+    }
+    return source.publishCandidate(
+        source.context,
+        source.candidatePublicationFingerprint,
+        translated);
+}
+
+metalrobo::MetalNumanXHumanIOCandidatePublicationDisposition
+exactPublicationAdapterReject(
+    void* context,
+    const std::uint64_t candidateFingerprint
+) noexcept {
+    using Disposition = metalrobo::
+        MetalNumanXHumanIOCandidatePublicationDisposition;
+    auto* candidate = static_cast<mrnx_candidate_v1*>(context);
+    if (candidate == nullptr) return Disposition::terminalNoTouch;
+
+    metalrobo::MetalNumanXHumanIOCandidatePublicationProgram source{};
+    {
+        const std::lock_guard lock(candidate->mutex);
+        if (!exactPublicationAdapterValidLocked(
+                *candidate, candidateFingerprint) ||
+            candidate->publicationAdapterReserved ||
+            candidate->publicationAdapterTerminal) {
+            candidate->publicationAdapterTerminal = true;
+            return Disposition::terminalNoTouch;
+        }
+        source = candidate->sourceProgram;
+        candidate->publicationAdapterTerminal = true;
+    }
+    return source.rejectCandidate(
+        source.context, source.candidatePublicationFingerprint);
+}
 
 void releaseCandidateLifecycle(mrnx_candidate_v1* candidate) noexcept {
     if (candidate == nullptr) return;
@@ -394,6 +610,7 @@ void notifyPreparedTerminal(
     mrnx_candidate_view_v1 candidate{};
     mrnx_candidate_channel_v1 channels[kCandidateChannelCapacity]{};
     bool hasCandidate = false;
+    bool hasLegacyChannels = false;
     MRNumanXHumanMatterJointPublicationFenceGPU committedFence{};
     bool hasCommittedFence = false;
     {
@@ -422,9 +639,13 @@ void notifyPreparedTerminal(
         if (prepared->candidate != nullptr) {
             const std::lock_guard candidateLock(prepared->candidate->mutex);
             candidate = prepared->candidate->view;
-            for (std::uint32_t index = 0u;
-                 index < prepared->candidate->channelCount; ++index) {
-                channels[index] = prepared->candidate->channels[index];
+            hasLegacyChannels = prepared->candidate->family ==
+                BridgeCapabilityFamily::legacyMicrosecondsV1;
+            if (hasLegacyChannels) {
+                for (std::uint32_t index = 0u;
+                     index < prepared->candidate->channelCount; ++index) {
+                    channels[index] = prepared->candidate->channels[index];
+                }
             }
             hasCandidate = true;
         }
@@ -434,8 +655,8 @@ void notifyPreparedTerminal(
         disposition,
         root,
         hasCandidate ? &candidate : nullptr,
-        hasCandidate ? channels : nullptr,
-        hasCandidate ? candidate.channel_count : 0u,
+        hasLegacyChannels ? channels : nullptr,
+        hasLegacyChannels ? candidate.channel_count : 0u,
         hasCommittedFence ? &committedFence : nullptr);
 }
 
@@ -550,19 +771,27 @@ struct ImportedWire {
     }
     if (prepared.candidate != nullptr) {
         for (std::uint32_t index = 0u;
-             index < kCandidateChannelCount; ++index) {
+             index < prepared.candidate->channelCount; ++index) {
+            const auto& valuesRange = prepared.candidate->family ==
+                    BridgeCapabilityFamily::exactNanosecondsV2
+                ? prepared.candidate->channelsV2[index].values
+                : prepared.candidate->channels[index].values;
+            const auto& validityRange = prepared.candidate->family ==
+                    BridgeCapabilityFamily::exactNanosecondsV2
+                ? prepared.candidate->channelsV2[index].validity
+                : prepared.candidate->channels[index].validity;
             if (prepared.candidate->values[index] == buffer ||
                 prepared.candidate->validity[index] == buffer ||
                 !disjoint(
                     address,
                     byteCount,
-                    prepared.candidate->channels[index].values.gpu_address,
-                    prepared.candidate->channels[index].values.byte_count) ||
+                    valuesRange.gpu_address,
+                    valuesRange.byte_count) ||
                 !disjoint(
                     address,
                     byteCount,
-                    prepared.candidate->channels[index].validity.gpu_address,
-                    prepared.candidate->channels[index].validity.byte_count)) {
+                    validityRange.gpu_address,
+                    validityRange.byte_count)) {
                 return false;
             }
         }
@@ -779,11 +1008,46 @@ DomainPtr makeDomain(void* metalDevice) noexcept {
     }
 }
 
-mrnx_candidate_v1* adoptCandidate(
+bool withDomainPublicReadGate(
     const DomainPtr& domain,
-    MetalNumanXHumanIOCandidatePublicationLease&& lease
+    void* context,
+    const DomainPublicRead read
+) noexcept {
+    if (domain == nullptr || read == nullptr) return false;
+    try {
+        const std::shared_lock reader(domain->publicGate);
+        if (domain->publicationPoisoned.load(std::memory_order_acquire)) {
+            return false;
+        }
+        return read(context);
+    } catch (...) {
+        return false;
+    }
+}
+
+std::uint64_t domainPublicationEpoch(const DomainPtr& domain) noexcept {
+    if (domain == nullptr ||
+        domain->publicationPoisoned.load(std::memory_order_acquire)) {
+        return 0u;
+    }
+    return domain->publicationEpoch.load(std::memory_order_acquire);
+}
+
+static mrnx_candidate_v1* adoptCandidateImpl(
+    const DomainPtr& domain,
+    MetalNumanXHumanIOCandidatePublicationLease&& lease,
+    const mrnx_exact_inbound_authority_v2* inboundAuthority,
+    const MRNumanXAcceptedStateProofGPUV2* acceptedStateProof,
+    const MRNumanXAcceptedPhysicsStateTokenGPUV2* acceptedToken
 ) noexcept {
     @autoreleasepool {
+        const bool exact = inboundAuthority != nullptr &&
+            acceptedStateProof != nullptr && acceptedToken != nullptr;
+        const bool anyExact = inboundAuthority != nullptr ||
+            acceptedStateProof != nullptr || acceptedToken != nullptr;
+        if (anyExact != exact) {
+            return nullptr;
+        }
         if (domain == nullptr || domain->device == nil || !lease.valid()) {
             return nullptr;
         }
@@ -806,9 +1070,57 @@ mrnx_candidate_v1* adoptCandidate(
         const std::uint64_t keyFingerprint = candidateKeyFingerprint(key);
         const std::uint64_t receptorMicros =
             sensor.receptorTimestampMicroseconds;
+        const std::uint32_t expectedPublicationABI = exact
+            ? kMetalNumanXHumanIOExactPublicationABIVersion
+            : kMetalNumanXHumanIOPublicationABIVersion;
+        const bool timingValid = exact
+            ? sensor.receptorTimestampMicroseconds == 0u &&
+                sensor.deliveryTimestampMicroseconds == 0u &&
+                sensor.latencyMicroseconds == 0u &&
+                sensor.stepTimeStrideMicroseconds == 0u &&
+                sensor.timestampQuantumNanoseconds ==
+                    MRNX_EXACT_CLOCK_QUANTUM_NANOSECONDS &&
+                sensor.deliveryTimestampNanoseconds >
+                    sensor.receptorTimestampNanoseconds &&
+                sensor.latencyNanoseconds != 0u &&
+                sensor.stepTimeStrideNanoseconds ==
+                    sensor.latencyNanoseconds &&
+                sensor.deliveryTimestampNanoseconds -
+                        sensor.receptorTimestampNanoseconds ==
+                    sensor.latencyNanoseconds
+            : sensor.timestampQuantumNanoseconds == 1000u &&
+                sensor.deliveryTimestampMicroseconds >= receptorMicros &&
+                sensor.latencyMicroseconds != 0u &&
+                sensor.stepTimeStrideMicroseconds != 0u &&
+                sensor.deliveryTimestampMicroseconds - receptorMicros ==
+                    sensor.latencyMicroseconds;
+        const bool exactReceiptValid = !exact ||
+            (metalNumanXExactInboundAuthorityV2Valid(*inboundAuthority) &&
+             metalNumanXExactAcceptedPhysicsTokenV2Valid(
+                 *acceptedStateProof, *acceptedToken) &&
+             acceptedStateProof->motorCandidateFingerprint ==
+                 inboundAuthority->motor_candidate_fingerprint &&
+             acceptedStateProof->inboundAuthorityFingerprint ==
+                 inboundAuthority->inbound_authority_fingerprint &&
+             acceptedToken->transactionFingerprint ==
+                 inboundAuthority->transaction_fingerprint &&
+             acceptedToken->substepFingerprint ==
+                 inboundAuthority->substep_fingerprint &&
+             acceptedToken->clockDomain == inboundAuthority->clock_domain &&
+             acceptedToken->clockQuantumNanoseconds ==
+                 inboundAuthority->clock_quantum_nanoseconds &&
+             acceptedToken->acceptedTimestampNanoseconds ==
+                 sensor.deliveryTimestampNanoseconds &&
+             inboundAuthority->accepted_brain_timestamp_nanoseconds ==
+                 sensor.receptorTimestampNanoseconds &&
+             inboundAuthority->brain_generation ==
+                 sensor.acceptedBrainGeneration &&
+             inboundAuthority->transaction_fingerprint ==
+                 sensor.transactionFingerprint &&
+             inboundAuthority->motor_candidate_fingerprint ==
+                 sensor.motorCandidateFingerprint);
         if (!program.valid() ||
-            program.abiVersion !=
-                kMetalNumanXHumanIOPublicationABIVersion ||
+            program.abiVersion != expectedPublicationABI ||
             !key.valid() || keyFingerprint == 0u ||
             program.candidateKeyFingerprint != keyFingerprint ||
             program.transactionFingerprint != key.transactionFingerprint ||
@@ -826,12 +1138,8 @@ mrnx_candidate_v1* adoptCandidate(
             program.identityFingerprint !=
                 metalNumanXHumanIOCandidatePublicationIdentityFingerprint(
                     program) ||
-            sensor.deliveryTimestampMicroseconds < receptorMicros ||
-            sensor.latencyMicroseconds == 0u ||
-            sensor.stepTimeStrideMicroseconds == 0u ||
-            sensor.deliveryTimestampMicroseconds - receptorMicros !=
-                sensor.latencyMicroseconds ||
-            native.abiVersion != kMetalNumanXHumanIOPublicationABIVersion ||
+            !timingValid || !exactReceiptValid ||
+            native.abiVersion != expectedPublicationABI ||
             native.structSize != sizeof(native) ||
             native.deviceRegistryID != domain->deviceRegistryID ||
             native.proprioception.metalBuffer !=
@@ -968,11 +1276,123 @@ mrnx_candidate_v1* adoptCandidate(
             }
         }
 
+        mrnx_candidate_timing_v2 stagedTimingV2{};
+        mrnx_candidate_channel_v2 stagedChannelsV2[
+            kCandidateChannelCapacity]{};
+        mrnx_exact_sensor_packet_v2 stagedPacketV2{};
+        if (exact) {
+            stagedTimingV2.abi_version = MRNX_CANDIDATE_TIMING_ABI_V2;
+            stagedTimingV2.struct_size = sizeof(stagedTimingV2);
+            stagedTimingV2.capture_timestamp_nanoseconds =
+                sensor.receptorTimestampNanoseconds;
+            stagedTimingV2.delivery_timestamp_nanoseconds =
+                sensor.deliveryTimestampNanoseconds;
+            stagedTimingV2.latency_nanoseconds = sensor.latencyNanoseconds;
+            stagedTimingV2.sample_interval_nanoseconds =
+                sensor.stepTimeStrideNanoseconds;
+            stagedTimingV2.clock_domain =
+                MRNX_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS;
+            stagedTimingV2.clock_quantum_nanoseconds =
+                MRNX_EXACT_CLOCK_QUANTUM_NANOSECONDS;
+            stagedTimingV2.timing_fingerprint =
+                metalNumanXExactCandidateTimingV2Fingerprint(stagedTimingV2);
+            const auto makeExactChannel = [&stagedTimingV2,
+                                           &stagedChannelsV2](
+                const std::uint32_t index,
+                const std::uint32_t modality,
+                const std::uint32_t receptorCount,
+                const std::uint32_t featureDimension,
+                id<MTLBuffer> values,
+                id<MTLBuffer> validity
+            ) noexcept {
+                auto& channel = stagedChannelsV2[index];
+                channel.abi_version = MRNX_CANDIDATE_CHANNEL_ABI_V2;
+                channel.struct_size = sizeof(channel);
+                channel.modality = modality;
+                channel.flags = MRNX_CANDIDATE_CHANNEL_HAS_VALIDITY_V1;
+                channel.receptor_timestamp_nanoseconds =
+                    stagedTimingV2.capture_timestamp_nanoseconds;
+                channel.clock_domain = stagedTimingV2.clock_domain;
+                channel.clock_quantum_nanoseconds =
+                    stagedTimingV2.clock_quantum_nanoseconds;
+                channel.receptor_count = receptorCount;
+                channel.feature_dimension = featureDimension;
+                channel.values = makeRange(
+                    values, values.gpuAddress, values.length,
+                    MRNX_ELEMENT_FLOAT32_V1, sizeof(float));
+                channel.validity = makeRange(
+                    validity, validity.gpuAddress, validity.length,
+                    MRNX_ELEMENT_UINT32_V1, sizeof(std::uint32_t));
+                channel.channel_fingerprint =
+                    metalNumanXExactCandidateChannelV2Fingerprint(channel);
+            };
+            makeExactChannel(
+                0u, MRNX_CANDIDATE_MODALITY_PROPRIOCEPTION_V1,
+                kFullBodyMuscleCount, kFeatureCount,
+                proprioceptionValues, proprioceptionValidity);
+            makeExactChannel(
+                1u, MRNX_CANDIDATE_MODALITY_INTEROCEPTION_V1,
+                kFullBodyMuscleCount, kInteroceptionFeatureCount,
+                interoceptionValues, interoceptionValidity);
+            if (!metalNumanXExactCandidateTimingV2Valid(stagedTimingV2) ||
+                !metalNumanXExactCandidateChannelV2Valid(
+                    stagedChannelsV2[0], stagedTimingV2) ||
+                !metalNumanXExactCandidateChannelV2Valid(
+                    stagedChannelsV2[1], stagedTimingV2)) {
+                return nullptr;
+            }
+            stagedPacketV2.abi_version = MRNX_EXACT_SENSOR_PACKET_ABI_V2;
+            stagedPacketV2.struct_size = sizeof(stagedPacketV2);
+            stagedPacketV2.clock_domain = stagedTimingV2.clock_domain;
+            stagedPacketV2.clock_quantum_nanoseconds =
+                stagedTimingV2.clock_quantum_nanoseconds;
+            stagedPacketV2.channel_count = kCandidateChannelCount;
+            stagedPacketV2.channel_capacity = kCandidateChannelCapacity;
+            stagedPacketV2.transaction_fingerprint =
+                sensor.transactionFingerprint;
+            stagedPacketV2.substep_fingerprint =
+                inboundAuthority->substep_fingerprint;
+            stagedPacketV2.accepted_physics_token_fingerprint =
+                acceptedToken->tokenFingerprint;
+            stagedPacketV2.inbound_authority_fingerprint =
+                inboundAuthority->inbound_authority_fingerprint;
+            stagedPacketV2.human_io_program_fingerprint =
+                sensor.programFingerprint;
+            stagedPacketV2.sensor_fingerprint = sensor.sensorFingerprint;
+            stagedPacketV2.transaction_instance_fingerprint =
+                sensor.transactionInstanceFingerprint;
+            stagedPacketV2.sensor_generation = sensor.sensorGeneration;
+            stagedPacketV2.accepted_brain_generation =
+                sensor.acceptedBrainGeneration;
+            stagedPacketV2.device_registry_id = domain->deviceRegistryID;
+            stagedPacketV2.timing_fingerprint =
+                stagedTimingV2.timing_fingerprint;
+            stagedPacketV2.channel_set_fingerprint =
+                metalNumanXExactCandidateChannelSetV2Fingerprint(
+                    stagedChannelsV2, kCandidateChannelCount);
+            stagedPacketV2.candidate_publication_fingerprint =
+                metalNumanXExactSensorPacketV2Fingerprint(stagedPacketV2);
+            if (!metalNumanXExactSensorPacketV2Valid(
+                    *inboundAuthority,
+                    *acceptedStateProof,
+                    *acceptedToken,
+                    stagedTimingV2,
+                    stagedChannelsV2,
+                    kCandidateChannelCount,
+                    stagedPacketV2)) {
+                return nullptr;
+            }
+        }
+
         auto* handle = new (std::nothrow) mrnx_candidate_v1;
         if (handle == nullptr) return nullptr;
         handle->domain = domain;
         handle->lease = std::move(lease);
+        handle->sourceProgram = program;
         handle->program = program;
+        handle->family = exact
+            ? BridgeCapabilityFamily::exactNanosecondsV2
+            : BridgeCapabilityFamily::legacyMicrosecondsV1;
         handle->values[0] = proprioceptionValues;
         handle->validity[0] = proprioceptionValidity;
         handle->values[1] = interoceptionValues;
@@ -1000,6 +1420,15 @@ mrnx_candidate_v1* adoptCandidate(
         handle->view.device_registry_id = domain->deviceRegistryID;
         handle->view.channel_count = kCandidateChannelCount;
         handle->channelCount = kCandidateChannelCount;
+        if (exact) {
+            handle->inboundAuthorityV2 = *inboundAuthority;
+            handle->acceptedTokenV2 = *acceptedToken;
+            handle->timingV2 = stagedTimingV2;
+            handle->sensorPacketV2 = stagedPacketV2;
+            handle->channelsV2[0] = stagedChannelsV2[0];
+            handle->channelsV2[1] = stagedChannelsV2[1];
+            return handle;
+        }
         handle->timing.abi_version = MRNX_BRIDGE_ABI_V1;
         handle->timing.struct_size = sizeof(handle->timing);
         handle->timing.capture_timestamp_microseconds = receptorMicros;
@@ -1057,6 +1486,29 @@ mrnx_candidate_v1* adoptCandidate(
     }
 }
 
+mrnx_candidate_v1* adoptCandidate(
+    const DomainPtr& domain,
+    MetalNumanXHumanIOCandidatePublicationLease&& lease
+) noexcept {
+    return adoptCandidateImpl(
+        domain, std::move(lease), nullptr, nullptr, nullptr);
+}
+
+mrnx_candidate_v1* adoptCandidateV2(
+    const DomainPtr& domain,
+    MetalNumanXHumanIOCandidatePublicationLease&& lease,
+    const mrnx_exact_inbound_authority_v2& inboundAuthority,
+    const MRNumanXAcceptedStateProofGPUV2& acceptedStateProof,
+    const MRNumanXAcceptedPhysicsStateTokenGPUV2& acceptedToken
+) noexcept {
+    return adoptCandidateImpl(
+        domain,
+        std::move(lease),
+        &inboundAuthority,
+        &acceptedStateProof,
+        &acceptedToken);
+}
+
 bool attachCandidateChannels(
     mrnx_candidate_v1* candidate,
     const mrnx_candidate_channel_v1* channels,
@@ -1069,7 +1521,9 @@ bool attachCandidateChannels(
             return false;
         }
         const std::lock_guard lock(candidate->mutex);
-        if (candidate->terminal || candidate->bound ||
+        if (candidate->family !=
+                BridgeCapabilityFamily::legacyMicrosecondsV1 ||
+            candidate->terminal || candidate->bound ||
             candidate->channelCount != kCandidateChannelCount ||
             candidate->domain == nullptr || candidate->domain->device == nil) {
             return false;
@@ -1187,9 +1641,178 @@ bool attachCandidateChannels(
     }
 }
 
-mrnx_prepared_v1* adoptPrepared(
+bool attachCandidateChannelsV2(
+    mrnx_candidate_v1* candidate,
+    const mrnx_candidate_channel_v2* channels,
+    const std::uint32_t channelCount
+) noexcept {
+    @autoreleasepool {
+        if (candidate == nullptr || channels == nullptr || channelCount == 0u ||
+            channelCount > kCandidateChannelCapacity -
+                kCandidateChannelCount) {
+            return false;
+        }
+        const std::lock_guard lock(candidate->mutex);
+        if (candidate->family !=
+                BridgeCapabilityFamily::exactNanosecondsV2 ||
+            candidate->terminal || candidate->bound ||
+            candidate->channelCount != kCandidateChannelCount ||
+            candidate->domain == nullptr || candidate->domain->device == nil ||
+            !metalNumanXExactCandidateTimingV2Valid(candidate->timingV2)) {
+            return false;
+        }
+
+        struct Range {
+            __unsafe_unretained id<MTLBuffer> buffer = nil;
+            std::uint64_t address = 0u;
+            std::uint64_t count = 0u;
+        };
+        mrnx_candidate_channel_v2 stagedChannels[kCandidateChannelCapacity]{};
+        __strong id<MTLBuffer> stagedValues[kCandidateChannelCapacity]{};
+        __strong id<MTLBuffer> stagedValidity[kCandidateChannelCapacity]{};
+        Range ranges[2u * kCandidateChannelCapacity]{};
+        std::size_t rangeCount = 0u;
+        for (std::uint32_t index = 0u;
+             index < candidate->channelCount; ++index) {
+            stagedChannels[index] = candidate->channelsV2[index];
+            stagedValues[index] = candidate->values[index];
+            stagedValidity[index] = candidate->validity[index];
+            ranges[rangeCount++] = {
+                stagedValues[index], stagedChannels[index].values.gpu_address,
+                stagedChannels[index].values.byte_count};
+            ranges[rangeCount++] = {
+                stagedValidity[index],
+                stagedChannels[index].validity.gpu_address,
+                stagedChannels[index].validity.byte_count};
+        }
+        for (std::uint32_t index = 0u; index < channelCount; ++index) {
+            const auto& channel = channels[index];
+            __unsafe_unretained id<MTLBuffer> values = nil;
+            __unsafe_unretained id<MTLBuffer> validity = nil;
+            bool unique = channel.modality != 0u;
+            for (std::uint32_t prior = 0u;
+                 prior < candidate->channelCount + index; ++prior) {
+                unique = unique &&
+                    stagedChannels[prior].modality != channel.modality;
+            }
+            const bool valid = unique &&
+                metalNumanXExactCandidateChannelV2Valid(
+                    channel, candidate->timingV2) &&
+                bufferObject(channel.values.metal_buffer, values) &&
+                bufferObject(channel.validity.metal_buffer, validity) &&
+                values != validity &&
+                values.device == candidate->domain->device &&
+                validity.device == candidate->domain->device &&
+                channel.values.byte_offset <= values.length &&
+                channel.values.byte_count <=
+                    values.length - channel.values.byte_offset &&
+                channel.values.gpu_address ==
+                    values.gpuAddress + channel.values.byte_offset &&
+                channel.validity.byte_offset <= validity.length &&
+                channel.validity.byte_count <=
+                    validity.length - channel.validity.byte_offset &&
+                channel.validity.gpu_address ==
+                    validity.gpuAddress + channel.validity.byte_offset;
+            if (!valid) return false;
+            const std::uint32_t destination =
+                candidate->channelCount + index;
+            stagedChannels[destination] = channel;
+            stagedValues[destination] = values;
+            stagedValidity[destination] = validity;
+            ranges[rangeCount++] = {
+                values, channel.values.gpu_address,
+                channel.values.byte_count};
+            ranges[rangeCount++] = {
+                validity, channel.validity.gpu_address,
+                channel.validity.byte_count};
+        }
+        for (std::size_t first = 0u; first < rangeCount; ++first) {
+            for (std::size_t second = first + 1u;
+                 second < rangeCount; ++second) {
+                if (ranges[first].buffer == ranges[second].buffer ||
+                    !disjoint(
+                        ranges[first].address, ranges[first].count,
+                        ranges[second].address, ranges[second].count)) {
+                    return false;
+                }
+            }
+        }
+
+        const std::uint32_t combinedCount =
+            candidate->channelCount + channelCount;
+        // Canonical exact sensor sets are stored in strictly increasing
+        // modality order regardless of caller order. Move the retained Metal
+        // objects with their descriptor so pointer/range identity is stable.
+        for (std::uint32_t first = 0u; first < combinedCount; ++first) {
+            for (std::uint32_t second = first + 1u;
+                 second < combinedCount; ++second) {
+                if (stagedChannels[second].modality <
+                    stagedChannels[first].modality) {
+                    std::swap(stagedChannels[first], stagedChannels[second]);
+                    std::swap(stagedValues[first], stagedValues[second]);
+                    std::swap(stagedValidity[first], stagedValidity[second]);
+                }
+            }
+        }
+        for (std::uint32_t index = 1u; index < combinedCount; ++index) {
+            if (stagedChannels[index - 1u].modality >=
+                stagedChannels[index].modality) {
+                return false;
+            }
+        }
+        const std::uint64_t channelSetFingerprint =
+            metalNumanXExactCandidateChannelSetV2Fingerprint(
+                stagedChannels, combinedCount);
+        if (channelSetFingerprint == 0u) return false;
+        auto stagedPacket = candidate->sensorPacketV2;
+        stagedPacket.channel_count = combinedCount;
+        stagedPacket.channel_set_fingerprint = channelSetFingerprint;
+        stagedPacket.candidate_publication_fingerprint =
+            metalNumanXExactSensorPacketV2Fingerprint(stagedPacket);
+        if (stagedPacket.candidate_publication_fingerprint == 0u ||
+            !candidate->sourceProgram.valid() ||
+            candidate->sourceProgram.abiVersion !=
+                kMetalNumanXHumanIOExactPublicationABIVersion ||
+            stagedPacket.candidate_publication_fingerprint ==
+                candidate->sourceProgram.candidatePublicationFingerprint) {
+            return false;
+        }
+        // HumanIO's private publication program continues to own its two base
+        // channels. Matter must instead bind/propose the complete exact packet
+        // identity. The adapter program translates reserve/release back to the
+        // retained native capability without collapsing those two identities.
+        auto stagedProgram = candidate->sourceProgram;
+        stagedProgram.context = candidate;
+        stagedProgram.reservePublishedRoot =
+            &exactPublicationAdapterReserve;
+        stagedProgram.publishCandidate = &exactPublicationAdapterPublish;
+        stagedProgram.rejectCandidate = &exactPublicationAdapterReject;
+        stagedProgram.candidatePublicationFingerprint =
+            stagedPacket.candidate_publication_fingerprint;
+        stagedProgram.identityFingerprint =
+            stagedProgram.computedIdentityFingerprint();
+        if (!stagedProgram.valid()) return false;
+        for (std::uint32_t index = 0u; index < combinedCount; ++index) {
+            candidate->channelsV2[index] = stagedChannels[index];
+            candidate->values[index] = stagedValues[index];
+            candidate->validity[index] = stagedValidity[index];
+        }
+        candidate->program = stagedProgram;
+        candidate->sensorPacketV2 = stagedPacket;
+        candidate->channelCount = combinedCount;
+        candidate->view.channel_count = combinedCount;
+        candidate->view.candidate_publication_fingerprint =
+            stagedProgram.candidatePublicationFingerprint;
+        candidate->view.candidate_identity_fingerprint =
+            stagedProgram.identityFingerprint;
+        return true;
+    }
+}
+
+static mrnx_prepared_v1* adoptPreparedImpl(
     const DomainPtr& domain,
     MetalNumanXHumanMatterPrepared&& prepared,
+    const BridgeCapabilityFamily family,
     std::shared_ptr<void> runtimeOwner,
     void* terminalContext,
     const PreparedTerminalCompletion terminalCompletion
@@ -1198,6 +1821,10 @@ mrnx_prepared_v1* adoptPrepared(
         if (domain == nullptr || domain->device == nil || !prepared.valid()) {
             return nullptr;
         }
+        const std::uint64_t expectedTokenBytes = family ==
+                BridgeCapabilityFamily::exactNanosecondsV2
+            ? MR_NUMANX_ACCEPTED_PHYSICS_TOKEN_V2_BYTES
+            : MR_NUMANX_HUMAN_MATTER_ACCEPTED_TOKEN_BYTES;
         MetalNumanXHumanMatterPreparedView view{};
         if (!prepared.view(view) ||
             view.abiVersion != kMetalNumanXHumanMatterABIVersion ||
@@ -1212,11 +1839,11 @@ mrnx_prepared_v1* adoptPrepared(
             view.transactionFingerprint == 0u ||
             view.linearizationEpoch == 0u || view.slotGeneration == 0u ||
             view.preparedPhysicsStateTokenByteCount !=
-                MR_NUMANX_HUMAN_MATTER_ACCEPTED_TOKEN_BYTES ||
+                expectedTokenBytes ||
             view.finalAcceptedPhysicsStateTokenByteCount !=
-                MR_NUMANX_HUMAN_MATTER_ACCEPTED_TOKEN_BYTES ||
+                expectedTokenBytes ||
             view.proposedPhysicsStateTokenByteCount !=
-                MR_NUMANX_HUMAN_MATTER_ACCEPTED_TOKEN_BYTES ||
+                expectedTokenBytes ||
             view.proposalElementCount != 1u ||
             view.appliedOutcomeElementCount != 1u ||
             view.publicationFenceElementCount != 1u ||
@@ -1224,9 +1851,9 @@ mrnx_prepared_v1* adoptPrepared(
             view.appliedOutcomeStride != 1u ||
             view.publicationFenceStride != 1u ||
             view.proposedTokenStrideBytes !=
-                MR_NUMANX_HUMAN_MATTER_ACCEPTED_TOKEN_BYTES ||
+                expectedTokenBytes ||
             view.finalTokenStrideBytes !=
-                MR_NUMANX_HUMAN_MATTER_ACCEPTED_TOKEN_BYTES) {
+                expectedTokenBytes) {
             return nullptr;
         }
         __unsafe_unretained id<MTLBuffer> preparedBuffer = nil;
@@ -1245,7 +1872,8 @@ mrnx_prepared_v1* adoptPrepared(
         auto* handle = new (std::nothrow) mrnx_prepared_v1;
         if (handle == nullptr) return nullptr;
         handle->domain = domain;
-        const bool exact = exactPreparedRange(
+        handle->family = family;
+        const bool rangesValid = exactPreparedRange(
                 domain->device,
                 view.preparedPhysicsStateTokens,
                 view.preparedPhysicsStateTokensGPUAddress,
@@ -1308,7 +1936,7 @@ mrnx_prepared_v1* adoptPrepared(
         };
         constexpr std::size_t rangeCount =
             sizeof(ranges) / sizeof(ranges[0]);
-        bool isolated = exact;
+        bool isolated = rangesValid;
         for (std::size_t first = 0u; isolated && first < rangeCount;
              ++first) {
             for (std::size_t second = first + 1u;
@@ -1386,6 +2014,32 @@ mrnx_prepared_v1* adoptPrepared(
             event, view.appliedEventValue, domain->deviceRegistryID);
         return handle;
     }
+}
+
+mrnx_prepared_v1* adoptPrepared(
+    const DomainPtr& domain,
+    MetalNumanXHumanMatterPrepared&& prepared,
+    std::shared_ptr<void> runtimeOwner,
+    void* terminalContext,
+    const PreparedTerminalCompletion terminalCompletion
+) noexcept {
+    return adoptPreparedImpl(
+        domain, std::move(prepared),
+        BridgeCapabilityFamily::legacyMicrosecondsV1,
+        std::move(runtimeOwner), terminalContext, terminalCompletion);
+}
+
+mrnx_prepared_v1* adoptPreparedV2(
+    const DomainPtr& domain,
+    MetalNumanXHumanMatterPrepared&& prepared,
+    std::shared_ptr<void> runtimeOwner,
+    void* terminalContext,
+    const PreparedTerminalCompletion terminalCompletion
+) noexcept {
+    return adoptPreparedImpl(
+        domain, std::move(prepared),
+        BridgeCapabilityFamily::exactNanosecondsV2,
+        std::move(runtimeOwner), terminalContext, terminalCompletion);
 }
 
 namespace {
@@ -1552,7 +2206,9 @@ bool mrnx_bridge_v1_candidate_copy_channel(
         return false;
     }
     const std::lock_guard lock(candidate->mutex);
-    if (candidate->terminal || channelIndex >= candidate->channelCount) {
+    if (candidate->family !=
+            BridgeCapabilityFamily::legacyMicrosecondsV1 ||
+        candidate->terminal || channelIndex >= candidate->channelCount) {
         return false;
     }
     *output = candidate->channels[channelIndex];
@@ -1565,8 +2221,69 @@ bool mrnx_bridge_v1_candidate_copy_timing(
 ) {
     if (candidate == nullptr || !writableOutput(output)) return false;
     const std::lock_guard lock(candidate->mutex);
-    if (candidate->terminal) return false;
+    if (candidate->family !=
+            BridgeCapabilityFamily::legacyMicrosecondsV1 ||
+        candidate->terminal) return false;
     *output = candidate->timing;
+    return true;
+}
+
+bool mrnx_bridge_v1_candidate_copy_timing_v2(
+    const mrnx_candidate_v1* candidate,
+    mrnx_candidate_timing_v2* output
+) {
+    if (candidate == nullptr ||
+        !writableOutput(output, MRNX_CANDIDATE_TIMING_ABI_V2)) return false;
+    const std::lock_guard lock(candidate->mutex);
+    if (candidate->family != BridgeCapabilityFamily::exactNanosecondsV2 ||
+        candidate->terminal) return false;
+    *output = candidate->timingV2;
+    return true;
+}
+
+bool mrnx_bridge_v1_candidate_copy_channel_v2(
+    const mrnx_candidate_v1* candidate,
+    const uint32_t channelIndex,
+    mrnx_candidate_channel_v2* output
+) {
+    if (candidate == nullptr ||
+        !writableOutput(output, MRNX_CANDIDATE_CHANNEL_ABI_V2)) return false;
+    const std::lock_guard lock(candidate->mutex);
+    if (candidate->family != BridgeCapabilityFamily::exactNanosecondsV2 ||
+        candidate->terminal || channelIndex >= candidate->channelCount) {
+        return false;
+    }
+    *output = candidate->channelsV2[channelIndex];
+    return true;
+}
+
+bool mrnx_bridge_v1_candidate_copy_inbound_authority_v2(
+    const mrnx_candidate_v1* candidate,
+    mrnx_exact_inbound_authority_v2* output
+) {
+    if (candidate == nullptr ||
+        !writableOutput(output, MRNX_EXACT_INBOUND_AUTHORITY_ABI_V2)) {
+        return false;
+    }
+    const std::lock_guard lock(candidate->mutex);
+    if (candidate->family != BridgeCapabilityFamily::exactNanosecondsV2 ||
+        candidate->terminal) return false;
+    *output = candidate->inboundAuthorityV2;
+    return true;
+}
+
+bool mrnx_bridge_v1_candidate_copy_sensor_packet_v2(
+    const mrnx_candidate_v1* candidate,
+    mrnx_exact_sensor_packet_v2* output
+) {
+    if (candidate == nullptr ||
+        !writableOutput(output, MRNX_EXACT_SENSOR_PACKET_ABI_V2)) {
+        return false;
+    }
+    const std::lock_guard lock(candidate->mutex);
+    if (candidate->family != BridgeCapabilityFamily::exactNanosecondsV2 ||
+        candidate->terminal) return false;
+    *output = candidate->sensorPacketV2;
     return true;
 }
 
@@ -1582,6 +2299,22 @@ bool mrnx_bridge_v1_bind_candidate(
         if (prepared->terminal || candidate->terminal ||
             prepared->candidate != nullptr || candidate->bound ||
             prepared->domain != candidate->domain ||
+            prepared->family != candidate->family ||
+            candidate->program.abiVersion !=
+                (candidate->family ==
+                         BridgeCapabilityFamily::exactNanosecondsV2
+                     ? metalrobo::
+                           kMetalNumanXHumanIOExactPublicationABIVersion
+                     : metalrobo::
+                           kMetalNumanXHumanIOPublicationABIVersion) ||
+            (candidate->family ==
+                 BridgeCapabilityFamily::exactNanosecondsV2 &&
+             (!exactPublicationAdapterValidLocked(
+                  *candidate,
+                  candidate->sensorPacketV2.
+                      candidate_publication_fingerprint) ||
+              candidate->publicationAdapterReserved ||
+              candidate->publicationAdapterTerminal)) ||
             prepared->root.device_registry_id !=
                 candidate->view.device_registry_id ||
             prepared->root.transaction_fingerprint !=
@@ -2036,14 +2769,18 @@ bool mrnx_bridge_v1_reserve_publication(
         return false;
     }
     const std::lock_guard lock(prepared->mutex);
-    if (prepared->terminal ||
+    if (prepared->family !=
+            BridgeCapabilityFamily::legacyMicrosecondsV1 ||
+        prepared->terminal ||
         prepared->phase !=
             BridgePreparedPhase::acceptedPendingPublication ||
         prepared->timeoutQuarantined ||
         prepared->domain->publicationPoisoned.load(
             std::memory_order_acquire) ||
         prepared->publication.joint_commit_fingerprint != 0u ||
-        prepared->candidate == nullptr) {
+        prepared->candidate == nullptr ||
+        prepared->candidate->family !=
+            BridgeCapabilityFamily::legacyMicrosecondsV1) {
         return false;
     }
     metalrobo::MetalNumanXHumanMatterPublicationReservationRequest request{};
@@ -2066,6 +2803,90 @@ bool mrnx_bridge_v1_reserve_publication(
     return true;
 }
 
+bool mrnx_bridge_v1_reserve_publication_v2(
+    mrnx_prepared_v1* prepared,
+    const mrnx_publication_v2* publication
+) {
+    if (prepared == nullptr || publication == nullptr ||
+        publication->abi_version != MRNX_PUBLICATION_ABI_V2 ||
+        publication->struct_size != sizeof(*publication) ||
+        publication->clock_domain !=
+            MRNX_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS ||
+        publication->clock_quantum_nanoseconds !=
+            MRNX_EXACT_CLOCK_QUANTUM_NANOSECONDS ||
+        publication->transaction_fingerprint == 0u ||
+        publication->accepted_physics_token_fingerprint == 0u ||
+        publication->candidate_publication_fingerprint == 0u ||
+        publication->joint_commit_fingerprint == 0u ||
+        publication->brain_generation == 0u ||
+        publication->committed_timestamp_nanoseconds == 0u ||
+        publication->publication_fingerprint == 0u ||
+        publication->publication_fingerprint !=
+            metalrobo::metalNumanXExactPublicationV2Fingerprint(
+                *publication)) {
+        return false;
+    }
+    const std::lock_guard lock(prepared->mutex);
+    if (prepared->family != BridgeCapabilityFamily::exactNanosecondsV2 ||
+        prepared->terminal ||
+        prepared->phase != BridgePreparedPhase::acceptedPendingPublication ||
+        prepared->timeoutQuarantined ||
+        prepared->domain->publicationPoisoned.load(
+            std::memory_order_acquire) ||
+        prepared->publicationV2.publication_fingerprint != 0u ||
+        prepared->candidate == nullptr ||
+        prepared->candidate->family !=
+            BridgeCapabilityFamily::exactNanosecondsV2) {
+        return false;
+    }
+    const auto& candidate = *prepared->candidate;
+    {
+        const std::lock_guard candidateLock(candidate.mutex);
+        if (candidate.terminal || !candidate.bound ||
+            !exactPublicationAdapterValidLocked(
+                candidate,
+                candidate.sensorPacketV2.
+                    candidate_publication_fingerprint)) {
+            return false;
+        }
+    }
+    if (publication->transaction_fingerprint !=
+            prepared->root.transaction_fingerprint ||
+        publication->transaction_fingerprint !=
+            candidate.sensorPacketV2.transaction_fingerprint ||
+        publication->accepted_physics_token_fingerprint !=
+            candidate.acceptedTokenV2.tokenFingerprint ||
+        publication->candidate_publication_fingerprint !=
+            candidate.sensorPacketV2.candidate_publication_fingerprint ||
+        publication->brain_generation !=
+            candidate.sensorPacketV2.accepted_brain_generation ||
+        publication->committed_timestamp_nanoseconds !=
+            candidate.acceptedTokenV2.acceptedTimestampNanoseconds ||
+        publication->committed_timestamp_nanoseconds !=
+            candidate.timingV2.delivery_timestamp_nanoseconds ||
+        !metalrobo::metalNumanXExactPublicationV2Valid(
+            candidate.acceptedTokenV2, *publication)) {
+        return false;
+    }
+    metalrobo::MetalNumanXHumanMatterPublicationReservationRequest request{};
+    request.environmentCount = prepared->root.environment_count;
+    request.transactionSlot = prepared->root.transaction_slot;
+    request.stepIndex = prepared->root.step_index;
+    request.substepIndex = prepared->root.substep_index;
+    request.physicsSubstepCount = prepared->root.physics_substep_count;
+    request.controlStep = prepared->root.control_step;
+    request.programFingerprint = prepared->root.program_fingerprint;
+    request.transactionFingerprint = prepared->root.transaction_fingerprint;
+    request.linearizationEpoch = prepared->root.linearization_epoch;
+    request.slotGeneration = prepared->root.slot_generation;
+    request.jointCommitFingerprint =
+        publication->joint_commit_fingerprint;
+    request.brainGeneration = publication->brain_generation;
+    if (!prepared->prepared.reservePublishedRoot(request)) return false;
+    prepared->publicationV2 = *publication;
+    return true;
+}
+
 uint32_t mrnx_bridge_v1_release_accepted(
     mrnx_prepared_v1* prepared,
     const mrnx_publication_v1* publication,
@@ -2076,6 +2897,13 @@ uint32_t mrnx_bridge_v1_release_accepted(
         return MRNX_PUBLICATION_TERMINAL_NO_TOUCH_V1;
     }
     HandleHold hold(prepared);
+    {
+        const std::lock_guard lock(prepared->mutex);
+        if (prepared->family !=
+            BridgeCapabilityFamily::legacyMicrosecondsV1) {
+            return MRNX_PUBLICATION_REJECTED_V1;
+        }
+    }
     std::unique_lock publicWriter(prepared->domain->publicGate);
     metalrobo::MetalNumanXHumanMatterPublicationReleaseRequest request{};
     mrnx_candidate_v1* candidate = nullptr;
@@ -2101,6 +2929,8 @@ uint32_t mrnx_bridge_v1_release_accepted(
             publication->joint_commit_fingerprint == 0u ||
             publication->brain_generation == 0u ||
             prepared->candidate == nullptr ||
+            prepared->candidate->family !=
+                BridgeCapabilityFamily::legacyMicrosecondsV1 ||
             prepared->domain->publicationPoisoned.load(
                 std::memory_order_acquire) ||
             epoch == std::numeric_limits<std::uint64_t>::max()) {
@@ -2113,6 +2943,7 @@ uint32_t mrnx_bridge_v1_release_accepted(
                 prepared->candidate->terminal = true;
             }
         } else {
+            prepared->acceptedReleaseClaimed = true;
             nextEpoch = epoch + 1u;
             candidate = prepared->candidate;
             request.publicationFences =
@@ -2226,6 +3057,211 @@ uint32_t mrnx_bridge_v1_release_accepted(
     return MRNX_PUBLICATION_RELEASED_V1;
 }
 
+uint32_t mrnx_bridge_v1_release_accepted_v2(
+    mrnx_prepared_v1* prepared,
+    const mrnx_publication_v2* publication,
+    void* latchContext,
+    mrnx_brain_generation_latch_v1 generationLatch
+) {
+    if (prepared == nullptr) {
+        return MRNX_PUBLICATION_TERMINAL_NO_TOUCH_V1;
+    }
+    HandleHold hold(prepared);
+    {
+        const std::lock_guard lock(prepared->mutex);
+        if (prepared->family !=
+            BridgeCapabilityFamily::exactNanosecondsV2) {
+            return MRNX_PUBLICATION_REJECTED_V1;
+        }
+    }
+    std::unique_lock publicWriter(prepared->domain->publicGate);
+    metalrobo::MetalNumanXHumanMatterPublicationReleaseRequest request{};
+    mrnx_candidate_v1* candidate = nullptr;
+    std::uint64_t nextEpoch = 0u;
+    bool invalidReservation = false;
+    {
+        const std::lock_guard lock(prepared->mutex);
+        const std::uint64_t epoch =
+            prepared->domain->publicationEpoch.load(std::memory_order_acquire);
+        bool exactCandidateValid = false;
+        if (prepared->candidate != nullptr &&
+            prepared->candidate->family ==
+                BridgeCapabilityFamily::exactNanosecondsV2) {
+            const std::lock_guard candidateLock(
+                prepared->candidate->mutex);
+            exactCandidateValid = !prepared->candidate->terminal &&
+                prepared->candidate->bound &&
+                exactPublicationAdapterValidLocked(
+                    *prepared->candidate,
+                    prepared->candidate->sensorPacketV2.
+                        candidate_publication_fingerprint);
+        }
+        if (publication == nullptr || generationLatch == nullptr ||
+            publication->abi_version != MRNX_PUBLICATION_ABI_V2 ||
+            publication->struct_size != sizeof(*publication) ||
+            publication->clock_domain !=
+                MRNX_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS ||
+            publication->clock_quantum_nanoseconds !=
+                MRNX_EXACT_CLOCK_QUANTUM_NANOSECONDS ||
+            publication->publication_fingerprint == 0u ||
+            publication->publication_fingerprint !=
+                metalrobo::metalNumanXExactPublicationV2Fingerprint(
+                    *publication) ||
+            prepared->terminal || prepared->timeoutQuarantined ||
+            prepared->phase !=
+                BridgePreparedPhase::acceptedPendingPublication ||
+            prepared->publicationV2.abi_version !=
+                MRNX_PUBLICATION_ABI_V2 ||
+            prepared->publicationV2.struct_size !=
+                sizeof(prepared->publicationV2) ||
+            prepared->publicationV2.publication_fingerprint !=
+                publication->publication_fingerprint ||
+            prepared->publicationV2.transaction_fingerprint !=
+                publication->transaction_fingerprint ||
+            prepared->publicationV2.accepted_physics_token_fingerprint !=
+                publication->accepted_physics_token_fingerprint ||
+            prepared->publicationV2.candidate_publication_fingerprint !=
+                publication->candidate_publication_fingerprint ||
+            prepared->publicationV2.joint_commit_fingerprint !=
+                publication->joint_commit_fingerprint ||
+            prepared->publicationV2.brain_generation !=
+                publication->brain_generation ||
+            prepared->publicationV2.committed_timestamp_nanoseconds !=
+                publication->committed_timestamp_nanoseconds ||
+            publication->joint_commit_fingerprint == 0u ||
+            publication->brain_generation == 0u ||
+            prepared->candidate == nullptr ||
+            prepared->candidate->family !=
+                BridgeCapabilityFamily::exactNanosecondsV2 ||
+            !exactCandidateValid ||
+            publication->accepted_physics_token_fingerprint !=
+                prepared->candidate->acceptedTokenV2.tokenFingerprint ||
+            publication->candidate_publication_fingerprint !=
+                prepared->candidate->sensorPacketV2.
+                    candidate_publication_fingerprint ||
+            publication->committed_timestamp_nanoseconds !=
+                prepared->candidate->acceptedTokenV2.
+                    acceptedTimestampNanoseconds ||
+            !metalrobo::metalNumanXExactPublicationV2Valid(
+                prepared->candidate->acceptedTokenV2, *publication) ||
+            prepared->domain->publicationPoisoned.load(
+                std::memory_order_acquire) ||
+            epoch == std::numeric_limits<std::uint64_t>::max()) {
+            prepared->terminal = true;
+            prepared->phase = BridgePreparedPhase::terminalNoTouch;
+            invalidReservation = true;
+            if (prepared->candidate != nullptr) {
+                const std::lock_guard candidateLock(
+                    prepared->candidate->mutex);
+                prepared->candidate->terminal = true;
+            }
+        } else {
+            prepared->acceptedReleaseClaimed = true;
+            nextEpoch = epoch + 1u;
+            candidate = prepared->candidate;
+            request.publicationFences =
+                prepared->proposal.publication_fence.metal_buffer;
+            request.publicationFencesGPUAddress =
+                prepared->proposal.publication_fence.gpu_address;
+            request.publicationFenceElementCount = 1u;
+            request.publicationFenceStride = 1u;
+            request.environmentCount = prepared->root.environment_count;
+            request.transactionSlot = prepared->root.transaction_slot;
+            request.stepIndex = prepared->root.step_index;
+            request.substepIndex = prepared->root.substep_index;
+            request.physicsSubstepCount =
+                prepared->root.physics_substep_count;
+            request.controlStep = prepared->root.control_step;
+            request.programFingerprint = prepared->root.program_fingerprint;
+            request.transactionFingerprint =
+                prepared->root.transaction_fingerprint;
+            request.linearizationEpoch = prepared->root.linearization_epoch;
+            request.slotGeneration = prepared->root.slot_generation;
+            request.jointCommitFingerprint =
+                publication->joint_commit_fingerprint;
+            request.brainGeneration = publication->brain_generation;
+        }
+    }
+    if (invalidReservation) {
+        notifyPreparedTerminal(
+            prepared,
+            metalrobo::numanx_bridge_v1::PreparedTerminalDisposition::
+                terminalNoTouch);
+        return MRNX_PUBLICATION_TERMINAL_NO_TOUCH_V1;
+    }
+
+    bool brainLatched = false;
+    try {
+        brainLatched = generationLatch(
+            latchContext, publication->brain_generation);
+    } catch (...) {
+        prepared->domain->publicationPoisoned.store(
+            true, std::memory_order_release);
+    }
+    if (!brainLatched) {
+        {
+            const std::lock_guard lock(prepared->mutex);
+            prepared->terminal = true;
+            prepared->phase = BridgePreparedPhase::terminalNoTouch;
+            if (candidate != nullptr) {
+                const std::lock_guard candidateLock(candidate->mutex);
+                candidate->terminal = true;
+            }
+        }
+        notifyPreparedTerminal(
+            prepared,
+            metalrobo::numanx_bridge_v1::PreparedTerminalDisposition::
+                terminalNoTouch);
+        return MRNX_PUBLICATION_TERMINAL_NO_TOUCH_V1;
+    }
+    prepared->domain->publicationPoisoned.store(
+        true, std::memory_order_release);
+    const auto disposition = prepared->prepared.releasePublishedRoot(request);
+    if (disposition !=
+        metalrobo::MetalNumanXHumanMatterPrepareLeaseDisposition::released) {
+        {
+            const std::lock_guard lock(prepared->mutex);
+            prepared->terminal = true;
+            prepared->phase = BridgePreparedPhase::terminalNoTouch;
+            if (candidate != nullptr) {
+                const std::lock_guard candidateLock(candidate->mutex);
+                candidate->terminal = true;
+            }
+        }
+        notifyPreparedTerminal(
+            prepared,
+            metalrobo::numanx_bridge_v1::PreparedTerminalDisposition::
+                terminalNoTouch);
+        return MRNX_PUBLICATION_TERMINAL_NO_TOUCH_V1;
+    }
+    {
+        const std::lock_guard lock(prepared->mutex);
+        prepared->phase = BridgePreparedPhase::published;
+        prepared->brainPreflight = nil;
+        prepared->brainPreflightEvent = nil;
+        prepared->brainAck = nil;
+        prepared->brainAckEvent = nil;
+        if (candidate != nullptr) {
+            const std::lock_guard candidateLock(candidate->mutex);
+            candidate->terminal = true;
+        }
+    }
+    prepared->domain->latchedBrainGeneration.store(
+        publication->brain_generation, std::memory_order_release);
+    prepared->domain->sensorGeneration.store(
+        candidate->view.key.sensor_generation, std::memory_order_release);
+    prepared->domain->publicationEpoch.store(
+        nextEpoch, std::memory_order_release);
+    prepared->domain->publicationPoisoned.store(
+        false, std::memory_order_release);
+    notifyPreparedTerminal(
+        prepared,
+        metalrobo::numanx_bridge_v1::PreparedTerminalDisposition::published);
+    releaseCandidateLifecycle(candidate);
+    releasePreparedLifecycle(prepared);
+    return MRNX_PUBLICATION_RELEASED_V1;
+}
+
 uint32_t mrnx_bridge_v1_release_rejected(mrnx_prepared_v1* prepared) {
     if (prepared == nullptr) {
         return MRNX_PUBLICATION_TERMINAL_NO_TOUCH_V1;
@@ -2261,10 +3297,21 @@ uint32_t mrnx_bridge_v1_release_rejected(mrnx_prepared_v1* prepared) {
 
 bool mrnx_bridge_v1_quarantine_timeout(mrnx_prepared_v1* prepared) {
     if (prepared == nullptr) return false;
+    HandleHold hold(prepared);
+    {
+        const std::lock_guard lock(prepared->mutex);
+        if (prepared->acceptedReleaseClaimed) return false;
+    }
+    // Timeout and accepted publication are mutually exclusive terminal
+    // writers. An already claimed release wins above; otherwise both paths
+    // arbitrate at the public gate and the loser observes the resulting phase
+    // under prepared->mutex.
+    std::unique_lock publicWriter(prepared->domain->publicGate);
     bool becameTerminal = false;
     {
         const std::lock_guard lock(prepared->mutex);
-        if (prepared->timeoutQuarantined ||
+        if (prepared->acceptedReleaseClaimed ||
+            prepared->timeoutQuarantined ||
             prepared->phase == BridgePreparedPhase::rejectedReleased ||
             prepared->phase == BridgePreparedPhase::published ||
             prepared->phase == BridgePreparedPhase::terminalNoTouch) {

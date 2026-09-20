@@ -3600,6 +3600,54 @@ if(APPLE AND EXISTS "${NUMANX_FULLBODY_RIGID_ASSET}" AND
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
             BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
     )
+
+    add_executable(
+        metalrobo_numanx_exact_runtime_v3_lifecycle_probe
+        apps/numanx_exact_runtime_v3_lifecycle_probe.mm
+    )
+    add_dependencies(
+        metalrobo_numanx_exact_runtime_v3_lifecycle_probe
+        metalrobo_shaders
+        numi_matter_shaders
+    )
+    target_compile_definitions(
+        metalrobo_numanx_exact_runtime_v3_lifecycle_probe
+        PRIVATE
+            MRNX_FULLBODY_RIGID="${NUMANX_FULLBODY_RIGID_ASSET}"
+            MRNX_FULLBODY_MUSCLE="${NUMANX_FULLBODY_MUSCLE_ASSET}"
+            MRNX_FULLBODY_SUPPORT_CONTACT="${_NUMANX_FULLBODY_SUPPORT_CONTACT_ASSET}"
+            MRNX_FULLBODY_VISUAL_PACK="${NUMANX_FULLBODY_VISUAL_PACK_ASSET}"
+            MRNX_FULLBODY_VISION_PROFILE="${NUMANX_FULLBODY_VISION_PROFILE_ASSET}"
+            MRNX_METALROBO_METALLIB="${METALROBO_METALLIB}"
+            MRNX_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
+            MRNX_MATTER_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/silicone.nmatter"
+    )
+    target_compile_features(
+        metalrobo_numanx_exact_runtime_v3_lifecycle_probe
+        PRIVATE cxx_std_20
+    )
+    target_compile_options(
+        metalrobo_numanx_exact_runtime_v3_lifecycle_probe
+        PRIVATE
+            -fobjc-arc
+            -Wall
+            -Wextra
+            -Wpedantic
+            -Werror
+    )
+    target_link_libraries(
+        metalrobo_numanx_exact_runtime_v3_lifecycle_probe
+        PRIVATE
+            metalrobo
+            "${FOUNDATION_FRAMEWORK}"
+            "${METAL_FRAMEWORK}"
+    )
+    set_target_properties(
+        metalrobo_numanx_exact_runtime_v3_lifecycle_probe
+        PROPERTIES
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+            BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+    )
 endif()
 add_dependencies(
     metalrobo_numanx_human_matter_adapter_probe
@@ -4190,6 +4238,20 @@ if(BUILD_TESTING)
                         "MRNX_EXACT_WORLD=$ENV{MRNX_EXACT_WORLD};MRNX_EXACT_INITIAL_STATE=$ENV{MRNX_EXACT_INITIAL_STATE};MRNX_EXACT_SUPPORT_CONTACT=$ENV{MRNX_EXACT_SUPPORT_CONTACT};MRNX_EXACT_JOINT_EQUALITIES=$ENV{MRNX_EXACT_JOINT_EQUALITIES};MRNX_EXACT_JOINT_LIMITS=$ENV{MRNX_EXACT_JOINT_LIMITS}"
                     LABELS "numanx;human;contract;exact-clock;metal"
                     TIMEOUT 180
+                    RUN_SERIAL TRUE
+            )
+            add_test(
+                NAME numanx.integration.fullbody_exact_runtime_v3_lifecycle
+                COMMAND
+                    $<TARGET_FILE:metalrobo_numanx_exact_runtime_v3_lifecycle_probe>
+            )
+            set_tests_properties(
+                numanx.integration.fullbody_exact_runtime_v3_lifecycle
+                PROPERTIES
+                    ENVIRONMENT
+                        "MTL_DEBUG_LAYER=1;MRNX_EXACT_WORLD=$ENV{MRNX_EXACT_WORLD};MRNX_EXACT_INITIAL_STATE=$ENV{MRNX_EXACT_INITIAL_STATE};MRNX_EXACT_SUPPORT_CONTACT=$ENV{MRNX_EXACT_SUPPORT_CONTACT};MRNX_EXACT_JOINT_EQUALITIES=$ENV{MRNX_EXACT_JOINT_EQUALITIES};MRNX_EXACT_JOINT_LIMITS=$ENV{MRNX_EXACT_JOINT_LIMITS}"
+                    LABELS "numanx;human;matter;integration;exact-clock;metal;fullbody"
+                    TIMEOUT 240
                     RUN_SERIAL TRUE
             )
         endif()

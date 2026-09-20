@@ -91,6 +91,32 @@ void clockCarry(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> li
     require(out[2].low==130&&out[2].high==clocks[2].high&&status[2].code==0,"clock overflow contaminated other environment");
     std::cout<<"cardiac_clock_kernel=pass carry=exact overflow=denied environment_isolation=pass\n";
 }
+void supportFractionToBoundary(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
+    NMMatterDispatchGPU dispatch{};dispatch.environmentCount=2;dispatch.objectCount=1;
+    NMFGMRESLayoutGPU layout{};layout.supportContactCount=1;layout.supportBase=0;
+    NMHumanSupportDispatchGPU support{};support.contactCount=1;support.groundNormal={0,0,1,0};
+    auto solution=buffer(device,std::vector<nm_float4>{{0,0,-2,0},{0,0,1,0}});
+    auto histories=buffer(device,std::vector<nm_float4>{{0,0,0,1},{0,0,0,.25f}});
+    auto lines=buffer(device,std::vector<nm_float4>{{.8f,17,18,19},{.6f,17,18,19}});
+    auto alpha=buffer(device,std::vector<float>{-1,-1});
+    auto statuses=buffer(device,std::vector<NMMatterStatusGPU>(2));
+    auto cb=[queue commandBuffer];auto e=[cb computeCommandEncoder];
+    [e setComputePipelineState:pipeline(device,library,@"numi_matter_metal::nm_human_support_limit_line_search")];
+    [e setBytes:&dispatch length:sizeof(dispatch) atIndex:0];[e setBytes:&layout length:sizeof(layout) atIndex:30];
+    [e setBytes:&support length:sizeof(support) atIndex:1];[e setBuffer:solution offset:0 atIndex:2];
+    [e setBuffer:histories offset:0 atIndex:3];[e setBuffer:lines offset:0 atIndex:4];
+    [e setBuffer:alpha offset:0 atIndex:5];[e setBuffer:statuses offset:0 atIndex:6];
+    [e dispatchThreadgroups:MTLSizeMake(2,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];[e endEncoding];complete(cb);
+    const auto* out=static_cast<const float*>(alpha.contents);
+    const auto* mirrored=static_cast<const nm_float4*>(lines.contents);
+    const auto* status=static_cast<const NMMatterStatusGPU*>(statuses.contents);
+    require(status[0].code==NM_STATUS_SUCCESS&&status[1].code==NM_STATUS_SUCCESS,"support fraction-to-boundary rejected valid directions");
+    require(std::abs(out[0]-.495f)<1e-6f,"support fraction-to-boundary missed the normal half-line");
+    require(std::abs(out[1]-.6f)<1e-6f,"support fraction-to-boundary missed the object minimum");
+    for(unsigned env=0;env<2;++env)
+        require(mirrored[env].x==out[env]&&mirrored[env].y==17&&mirrored[env].z==18&&mirrored[env].w==19,"support fraction-to-boundary did not publish one shared alpha");
+    std::cout<<"cardiac_support_fraction_to_boundary=pass normal_half_line=preserved object_minimum=shared no_projection=true\n";
+}
 void sharedAlpha(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
     for(unsigned mode=0;mode<3;++mode) {
         NMMatterDispatchGPU dispatch{};dispatch.environmentCount=2;dispatch.rigidGeneralizedCapacity=1;dispatch.objectCount=mode==2?1:0;
@@ -99,22 +125,27 @@ void sharedAlpha(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> l
         const std::vector<nm_float4> initial(2,nm_float4{1,2,3,4});
         auto candidate=buffer(device,std::vector<float>{2,2});auto histories=buffer(device,initial);
         auto solution=buffer(device,std::vector<nm_float4>{{8,0,0,0},{8,0,0,0},{8,12,16,0},{8,12,16,0}});
-        auto alpha=buffer(device,std::vector<float>{0,.25});auto lines=buffer(device,std::vector<nm_float4>{{.5,0,0,0},{.75,0,0,0}});
+        const std::vector<float> expectedAlpha = mode == 0
+            ? std::vector<float>{0.0f, 0.25f}
+            : mode == 1
+                ? std::vector<float>{1.0f, 1.0f}
+                : std::vector<float>{0.5f, 0.75f};
+        auto alpha=buffer(device,expectedAlpha);
         auto cb=[queue commandBuffer];auto e=[cb computeCommandEncoder];
         [e setComputePipelineState:pipeline(device,library,@"numi_matter_metal::nm_rigid_apply_candidate_solution")];
         [e setBytes:&dispatch length:sizeof(dispatch) atIndex:0];[e setBytes:&layout length:sizeof(layout) atIndex:30];
-        [e setBuffer:solution offset:0 atIndex:1];[e setBuffer:lines offset:0 atIndex:2];[e setBuffer:candidate offset:0 atIndex:3];[e setBuffer:alpha offset:0 atIndex:4];
+        [e setBuffer:solution offset:0 atIndex:1];[e setBuffer:alpha offset:0 atIndex:2];[e setBuffer:candidate offset:0 atIndex:3];
         [e dispatchThreads:MTLSizeMake(2,1,1) threadsPerThreadgroup:MTLSizeMake(2,1,1)];
         [e setComputePipelineState:pipeline(device,library,@"numi_matter_metal::nm_human_support_apply_solution")];
         [e setBytes:&dispatch length:sizeof(dispatch) atIndex:0];[e setBytes:&layout length:sizeof(layout) atIndex:30];[e setBytes:&support length:sizeof(support) atIndex:1];
-        [e setBuffer:solution offset:0 atIndex:2];[e setBuffer:lines offset:0 atIndex:3];[e setBuffer:histories offset:0 atIndex:4];[e setBuffer:alpha offset:0 atIndex:5];
+        [e setBuffer:solution offset:0 atIndex:2];[e setBuffer:alpha offset:0 atIndex:3];[e setBuffer:histories offset:0 atIndex:4];
         [e dispatchThreads:MTLSizeMake(2,1,1) threadsPerThreadgroup:MTLSizeMake(2,1,1)];[e endEncoding];complete(cb);
         const auto* out=static_cast<const float*>(candidate.contents);const auto* h=static_cast<const nm_float4*>(histories.contents);
         for(unsigned env=0;env<2;++env) {
-            const float a=mode==0?(env==0?0.f:.25f):(mode==1?1.f:(env==0?.5f:.75f));
-            require(out[env]==2+8*a,"rigid candidate bypassed shared vascular alpha");
+            const float a=expectedAlpha[env];
+            require(out[env]==2+8*a,"rigid candidate bypassed shared environment alpha");
             if(a==0)require(std::memcmp(h+env,initial.data()+env,sizeof(nm_float4))==0,"deferred support history changed");
-            else require(h[env].x==1+8*a&&h[env].y==2+12*a&&h[env].z==0&&h[env].w==7+16*a,"support impulse bypassed shared alpha");
+            else require(h[env].x==1+8*a&&h[env].y==2+12*a&&h[env].z==0&&h[env].w==7+16*a,"support impulse bypassed shared environment alpha");
         }
     }
     std::cout<<"cardiac_shared_alpha=pass objectless_rigid_support=pass deferral=exact fractional=pass nonvascular_baseline=pass object_baseline=pass\n";
@@ -255,5 +286,5 @@ int main(){@autoreleasepool{try{
     require([[device name] rangeOfString:@"Apple"].location!=NSNotFound&&[[device name] rangeOfString:@"Paravirtual"].location==NSNotFound,"physical Apple Metal required");
     auto queue=[device newCommandQueue];NSError* error=nil;
     auto library=[device newLibraryWithURL:[NSURL fileURLWithPath:@NUMI_MATTER_METALLIB] error:&error];require(library!=nil,"Matter library unavailable");
-    regionalLaws(device,queue,library);waveform(device,queue,library);clockCarry(device,queue,library);sharedAlpha(device,queue,library);deferredDirection(device,queue,library);pendingZeroRelease(device,queue,library);return 0;
+    regionalLaws(device,queue,library);waveform(device,queue,library);clockCarry(device,queue,library);supportFractionToBoundary(device,queue,library);sharedAlpha(device,queue,library);deferredDirection(device,queue,library);pendingZeroRelease(device,queue,library);return 0;
 }catch(const std::exception& error){std::cerr<<"cardiac_transaction_check=failed reason="<<error.what()<<'\n';return 1;}}}

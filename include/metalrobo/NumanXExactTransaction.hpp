@@ -101,9 +101,9 @@ metalNumanXExactAcceptedPhysicsTokenV2Fingerprint(
     const mrnx_publication_v2& publication
 ) noexcept;
 
-// Complete pointer-free family check used before any future exact records are
-// made public. It binds physical acceptance to sensor delivery and requires a
-// unique, structurally valid set of exact-clock sensor channels.
+// Complete pointer-free family check used before exact records are made public.
+// It binds physical acceptance to sensor delivery and requires a unique,
+// structurally valid set of exact-clock sensor channels.
 [[nodiscard]] bool metalNumanXExactOutboundFamilyV2Valid(
     const mrnx_exact_inbound_authority_v2& authority,
     const MRNumanXAcceptedStateProofGPUV2& proof,

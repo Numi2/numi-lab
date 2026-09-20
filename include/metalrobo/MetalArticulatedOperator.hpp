@@ -1638,15 +1638,34 @@ struct MetalNumiHumanStandInput {
 struct MetalArticulatedOperatorResidentStateContinuation {
     std::uint64_t previousTransactionFingerprint = 0u;
     std::uint64_t previousPhysicsGeneration = 0u;
+    // Exact-family continuations additionally name the accepted token and the
+    // transaction-scoped HumanIO program that produced the resident state.
+    // Legacy continuations keep both words zero.
+    std::uint64_t previousAcceptedTokenFingerprint = 0u;
+    std::uint64_t previousHumanIOProgramFingerprint = 0u;
 
     [[nodiscard]] bool configured() const noexcept {
         return previousTransactionFingerprint != 0u ||
-            previousPhysicsGeneration != 0u;
+            previousPhysicsGeneration != 0u ||
+            previousAcceptedTokenFingerprint != 0u ||
+            previousHumanIOProgramFingerprint != 0u;
     }
 
     [[nodiscard]] bool valid() const noexcept {
         return previousTransactionFingerprint != 0u &&
-            previousPhysicsGeneration != 0u;
+            previousPhysicsGeneration != 0u &&
+            ((previousAcceptedTokenFingerprint == 0u &&
+              previousHumanIOProgramFingerprint == 0u) ||
+             (previousAcceptedTokenFingerprint != 0u &&
+              previousHumanIOProgramFingerprint != 0u));
+    }
+
+    [[nodiscard]] bool validLegacy() const noexcept {
+        return valid() && previousAcceptedTokenFingerprint == 0u;
+    }
+
+    [[nodiscard]] bool validExact() const noexcept {
+        return valid() && previousAcceptedTokenFingerprint != 0u;
     }
 };
 

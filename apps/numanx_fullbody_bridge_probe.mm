@@ -377,8 +377,6 @@ void qualifyHumanSupportKKT(id<MTLDevice> device, unsigned shape = 0) {
         [encoder setBuffer:directionBuffer offset:0u atIndex:2u];
         [encoder setBuffer:alphaBuffer offset:0u atIndex:3u];
         [encoder setBuffer:candidateHistory offset:0u atIndex:4u];
-        // No vascular unknowns participate in this mechanical fixture.
-        [encoder setBuffer:alphaBuffer offset:0u atIndex:5u];
     });
     encodeOne(evaluatePipeline, [&](id<MTLComputeCommandEncoder> encoder) {
         [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
@@ -623,6 +621,20 @@ void settled(
     if (root != nullptr) capture->root = *root;
     capture->status.store(completion->status, std::memory_order_release);
     capture->count.fetch_add(1u, std::memory_order_acq_rel);
+}
+
+struct GenerationLatchCapture {
+    std::atomic<std::uint32_t> count{0u};
+};
+
+bool generationLatch(
+    void* raw,
+    const std::uint64_t
+) {
+    auto* capture = static_cast<GenerationLatchCapture*>(raw);
+    if (capture == nullptr) return false;
+    capture->count.fetch_add(1u, std::memory_order_acq_rel);
+    return true;
 }
 
 void waitForCompletion(Completion& completion, const unsigned timeoutSeconds=10u) {
@@ -2233,68 +2245,13 @@ int run(const bool authored, const bool sourceEqualities, const bool costalTissu
                 "request-v3 admitted a misaligned ready-gate offset",
                 "ready-gate offset alignment missed request-v3 stage 45");
 
-            const auto requireV3BlockedBeforeResources = [
-                runtime, readyEvent
-            ](
-                const mrnx_physical_root_request_v3& blockedRequest,
-                Completion& blockedCompletion,
-                const char* admittedMessage,
-                const char* stageMessage
-            ) {
-                require(!mrnx_bridge_v1_runtime_begin_physical_root_v3(
-                            runtime, &blockedRequest, &blockedCompletion,
-                            &settled),
-                        admittedMessage);
-                mrnx_runtime_info_v1 blockedInfo{};
-                blockedInfo.abi_version = MRNX_BRIDGE_ABI_V1;
-                blockedInfo.struct_size = sizeof(blockedInfo);
-                require(
-                    mrnx_bridge_v1_runtime_copy_info(
-                        runtime, &blockedInfo) &&
-                    blockedInfo.status ==
-                        MRNX_RUNTIME_CONTINUATION_UNAVAILABLE_V1 &&
-                    blockedInfo.request_failure_stage ==
-                        MRNX_REQUEST_FAILURE_STAGE_EXACT_OUTBOUND_UNAVAILABLE &&
-                    blockedCompletion.count.load(
-                        std::memory_order_acquire) == 0u &&
-                    readyEvent.signaledValue == 0u,
-                    stageMessage);
-            };
-
-            // These deliberately invalid opaque pointers prove stage 900 is
-            // reached from scalar descriptor metadata alone. Any Objective-C
-            // bridge/message, retain, buffer query, or event import here would
-            // dereference a sentinel instead of returning normally.
-            auto noTouchRequest = exactRequest;
-            noTouchRequest.motor_header.metal_buffer =
-                reinterpret_cast<void*>(static_cast<std::uintptr_t>(0x101u));
-            noTouchRequest.muscle_excitation.metal_buffer =
-                reinterpret_cast<void*>(static_cast<std::uintptr_t>(0x102u));
-            noTouchRequest.autonomic_command.metal_buffer =
-                reinterpret_cast<void*>(static_cast<std::uintptr_t>(0x103u));
-            noTouchRequest.active_sensing_command.metal_buffer =
-                reinterpret_cast<void*>(static_cast<std::uintptr_t>(0x104u));
-            noTouchRequest.motor_ready_gate.metal_buffer =
-                reinterpret_cast<void*>(static_cast<std::uintptr_t>(0x105u));
-            noTouchRequest.motor_ready.shared_event =
-                reinterpret_cast<void*>(static_cast<std::uintptr_t>(0x106u));
-            Completion noTouchBlocked{};
-            requireV3BlockedBeforeResources(
-                noTouchRequest, noTouchBlocked,
-                "metadata-only request-v3 unexpectedly submitted",
-                "request-v3 touched resources before stage 900");
-
-            Completion blocked{};
-            requireV3BlockedBeforeResources(
-                exactRequest, blocked,
-                "inbound-only exact request unexpectedly submitted",
-                "coherent request-v3 did not stop at the outbound ABI boundary");
             mrnx_bridge_v1_runtime_drop(runtime);
             std::filesystem::remove(culturePath);
             std::printf(
                 "numanx_fullbody_bridge_probe=pass clock=exact-nanoseconds "
-                "timestep=12500ns inbound_v3=validated mixed_v1=rejected "
-                "gpu_submission=blocked root_fp=%llu substep_fp=%llu "
+                "timestep=12500ns scalar_negatives=validated mixed_v1=rejected "
+                "execution_probe=numanx_exact_runtime_v3_lifecycle_probe "
+                "root_fp=%llu substep_fp=%llu "
                 "candidate_fp=%llu\n",
                 static_cast<unsigned long long>(
                     exactRequest.root.transaction_fingerprint),
@@ -2560,6 +2517,16 @@ int run(const bool authored, const bool sourceEqualities, const bool costalTissu
                     !mrnx_bridge_v1_runtime_copy_aggregate_snapshot_v4(
                         runtime, &aggregateV4),
                 "unpublished root escaped an extensible aggregate reader");
+        mrnx_publication_v2 exactPublication{};
+        exactPublication.abi_version = MRNX_PUBLICATION_ABI_V2;
+        exactPublication.struct_size = sizeof(exactPublication);
+        GenerationLatchCapture exactLatch{};
+        require(
+            mrnx_bridge_v1_release_accepted_v2(
+                completion.prepared, &exactPublication, &exactLatch,
+                &generationLatch) == MRNX_PUBLICATION_REJECTED_V1 &&
+                exactLatch.count.load(std::memory_order_acquire) == 0u,
+            "legacy root admitted an exact publication operation");
         require(mrnx_bridge_v1_quarantine_timeout(completion.prepared),
                 "prepared-only qualification did not quarantine on timeout");
         mrnx_bridge_v1_candidate_drop(completion.candidate);
@@ -2569,7 +2536,8 @@ int run(const bool authored, const bool sourceEqualities, const bool costalTissu
         std::printf(
             "numanx_fullbody_bridge_probe=pass bodies=%u nq=%u nv=%u "
             "muscles=%u motor_wait=ordered physical=prepared "
-            "sensor=unpublished timeout=quarantined clock=%s timestep=%s\n",
+            "sensor=unpublished cross_family_release=rejected "
+            "timeout=quarantined clock=%s timestep=%s\n",
             info.body_count, info.q_coordinate_count, info.dof_count,
             info.muscle_count, exactClock ? "exact-nanoseconds" : "legacy-microseconds",
             exactClock ? "12500ns" : (std::to_string(durationMicros) + "us").c_str());

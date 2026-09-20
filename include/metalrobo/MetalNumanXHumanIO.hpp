@@ -187,9 +187,9 @@ struct MetalNumanXHumanIOInput {
 // Exact-clock successor to MetalNumanXHumanIOInput. This is a distinct input
 // type rather than a mode bit: every Brain authority is the v2 nanosecond
 // family, the ready gate is mandatory, and timestep/receptor time never pass
-// through the legacy microsecond-named words. The first executable exact lane
-// will consume this type; request-v3 remains terminal at stage 900 until that
-// lane and its exact outbound owners are connected.
+// through the legacy microsecond-named words. The executable request-v3 lane
+// consumes this type and keeps its exact outbound family distinct from every
+// legacy microsecond publication record.
 struct MetalNumanXHumanIOInputV2 {
     MRNumanXBrainJointTransactionTokenV2 root{};
     MRNumanXBrainJointSubstepTokenV2 substep{};
@@ -236,9 +236,9 @@ struct MetalNumanXHumanIOInputV2 {
 };
 
 // Builds the immutable constants consumed by
-// numanx_human_validate_motor_output_v2. This is scalar admission only: native
-// MTLBuffer/MTLSharedEvent ownership is still checked by the future exact
-// prepare path, and output/gate payload bytes remain GPU-validated.
+// numanx_human_validate_motor_output_v2. This is scalar admission only: the
+// exact prepare path independently checks native MTLBuffer/MTLSharedEvent
+// ownership, and output/gate payload bytes remain GPU-validated.
 [[nodiscard]] bool metalNumanXHumanIOBuildMotorDispatchV2(
     const MetalNumanXHumanIOInputV2& input,
     MRNumanXHumanMotorDispatchGPUV2& dispatch

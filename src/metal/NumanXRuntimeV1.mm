@@ -15,6 +15,7 @@
 #include "metalrobo/MetalNumanXHumanMatter.hpp"
 #include "metalrobo/NeuronCultureArtifacts.hpp"
 #include "metalrobo/NumiHumanTissueBinding.hpp"
+#include "metalrobo/NumanXExactTransaction.hpp"
 #include <CommonCrypto/CommonDigest.h>
 #include "metalrobo/VisualPresentation.hpp"
 #include "numi/matter/detail.hpp"
@@ -1612,8 +1613,8 @@ bool encodeRuntimeProofV2(
 
 // Scalar request-v3 admission only. This validates the caller's descriptor
 // declaration without bridging, messaging, importing, or retaining the
-// borrowed Metal object. Object/device/base-address authentication belongs to
-// the future executable v3 resource lane, after its outbound ABI exists.
+// borrowed Metal object. The executable v3 lane follows with independent
+// object/device/base-address authentication before any GPU submission.
 [[nodiscard]] bool validateExactRangeDescriptorMetadata(
     const mrnx_metal_range_v1& range,
     const std::uint64_t expectedBytes,
@@ -1639,6 +1640,7 @@ bool encodeRuntimeProofV2(
 struct ImportedRange {
     __strong id<MTLBuffer> buffer = nil;
     std::uint64_t address = 0u;
+    std::uint64_t byteOffset = 0u;
     std::uint64_t byteCount = 0u;
 };
 
@@ -1670,6 +1672,7 @@ struct ImportedRange {
     if (!checkedEnd(range.gpu_address, expectedBytes, end)) return false;
     output.buffer = buffer;
     output.address = range.gpu_address;
+    output.byteOffset = range.byte_offset;
     output.byteCount = expectedBytes;
     return true;
 }
@@ -1739,8 +1742,21 @@ struct ActiveRoot final : std::enable_shared_from_this<ActiveRoot> {
     std::uint64_t controlStep = 0u;
     std::uint64_t acceptedTimestampMicroseconds = 0u;
     std::uint64_t receptorTimestampMicroseconds = 0u;
+    std::uint64_t acceptedTimestampNanoseconds = 0u;
+    std::uint64_t receptorTimestampNanoseconds = 0u;
     std::uint64_t previousTransactionFingerprint = 0u;
     std::uint64_t previousPhysicsGeneration = 0u;
+    std::uint64_t previousAcceptedTokenFingerprint = 0u;
+    std::uint64_t previousHumanIOProgramFingerprint = 0u;
+    bool exactFamily = false;
+    metalrobo::MetalNumanXHumanIOExactPreparedView exactHumanIO{};
+    metalrobo::MetalNumanXHumanMatterExactPhysicalReceipt exactReceipt{};
+    mrnx_candidate_timing_v2 exactTiming{};
+    mrnx_exact_inbound_authority_v2 exactInboundAuthority{};
+    mrnx_exact_sensor_packet_v2 exactSensorPacket{};
+    mrnx_candidate_channel_v2
+        exactChannels[MRNX_MAX_SENSOR_CHANNELS_V2]{};
+    std::uint32_t exactChannelCount = 0u;
     ImportedRange motorHeader{};
     ImportedRange excitation{};
     ImportedRange autonomic{};
@@ -1781,7 +1797,6 @@ struct ActiveRoot final : std::enable_shared_from_this<ActiveRoot> {
 
 struct RuntimeState final : std::enable_shared_from_this<RuntimeState> {
     mutable std::mutex mutex;
-    mutable std::shared_mutex aggregateGate;
     DomainPtr domain;
     __strong id<MTLDevice> device = nil;
     FullBodyAssets assets;
@@ -1805,12 +1820,13 @@ struct RuntimeState final : std::enable_shared_from_this<RuntimeState> {
     std::uint64_t nextSensorGeneration = 1u;
     std::uint64_t nextLinearizationEpoch = 1u;
     bool beginInProgress = false;
-    bool terminalQuarantine = false;
+    std::atomic<bool> terminalQuarantine{false};
     bool publishedOnce = false;
     std::uint64_t publishedTransactionFingerprint = 0u;
     std::uint64_t publishedBrainGeneration = 0u;
     std::uint64_t publishedPhysicsGeneration = 0u;
     std::uint64_t publishedTimestampMicroseconds = 0u;
+    std::uint64_t publishedTimestampNanoseconds = 0u;
     std::uint64_t publishedControlStep = 0u;
     // Opt-in, bounded production-owner evidence. At most the first published
     // root and one explicitly selected control root are persisted.
@@ -1838,6 +1854,7 @@ struct RuntimeState final : std::enable_shared_from_this<RuntimeState> {
     mrnx_runtime_world_info_v1 worldInfo{};
     mrnx_aggregate_snapshot_v1 aggregate{};
     mrnx_candidate_timing_v1 aggregateTiming{};
+    mrnx_aggregate_snapshot_v5 exactAggregate{};
     mrnx_candidate_channel_v1 aggregateChannels[MRNX_MAX_SENSOR_CHANNELS_V2]{};
     std::uint32_t aggregateChannelCount = 0u;
     mrnx_culture_accepted_view_v1 aggregateCulture{};
@@ -1881,6 +1898,299 @@ namespace {
     std::uint32_t metalStatus,
     std::uint64_t generation
 ) noexcept;
+void recordRuntimeBehaviorTerminal(
+    RuntimeState& runtime,
+    const ActiveRoot& active,
+    const mrnx_root_v1& root,
+    bool accepted,
+    const MRNumanXHumanMatterJointPublicationFenceGPU* fence
+) noexcept;
+[[nodiscard]] bool writeOwnerSnapshotEvidence(
+    RuntimeState& runtime,
+    const ActiveRoot& active,
+    const mrnx_root_v1& terminalRoot,
+    PreparedTerminalDisposition disposition,
+    std::uint64_t publicationEpoch,
+    const MRNumanXHumanMatterJointPublicationFenceGPU* committedFence,
+    std::string& error
+) noexcept;
+[[nodiscard]] bool publishExactRuntimeTerminal(
+    RuntimeState& runtime,
+    const std::shared_ptr<ActiveRoot>& active,
+    const mrnx_root_v1& root,
+    const mrnx_candidate_view_v1* candidate,
+    const mrnx_candidate_channel_v1* legacyChannels,
+    const std::uint32_t legacyChannelCount,
+    const MRNumanXHumanMatterJointPublicationFenceGPU* committedFence
+) noexcept {
+    if (active == nullptr || !active->exactFamily || candidate == nullptr ||
+        legacyChannels != nullptr || legacyChannelCount != 0u ||
+        committedFence == nullptr || active->exactChannelCount != 7u) {
+        return false;
+    }
+    const auto& authority = active->exactInboundAuthority;
+    const auto& proof = active->exactReceipt.acceptedStateProof;
+    const auto& token = active->exactReceipt.acceptedPhysicsStateToken;
+    const auto& timing = active->exactTiming;
+    const auto& packet = active->exactSensorPacket;
+    const auto* channels = active->exactChannels;
+    const bool identityValid =
+        root.abi_version == MRNX_BRIDGE_ABI_V1 &&
+        root.struct_size == sizeof(root) &&
+        root.owner_wire_abi_version == MRNX_OWNER_WIRE_ABI_V4 &&
+        root.environment_count == 1u && root.environment == 0u &&
+        root.transaction_slot == active->transactionSlot &&
+        root.control_step == active->controlStep &&
+        root.transaction_fingerprint == active->transactionFingerprint &&
+        root.slot_generation == active->slotGeneration &&
+        root.device_registry_id == runtime.device.registryID &&
+        candidate->abi_version == MRNX_BRIDGE_ABI_V1 &&
+        candidate->struct_size == sizeof(*candidate) &&
+        candidate->key.abi_version == MRNX_BRIDGE_ABI_V1 &&
+        candidate->key.struct_size == sizeof(candidate->key) &&
+        candidate->channel_count == active->exactChannelCount &&
+        candidate->reserved0 == 0u &&
+        candidate->device_registry_id == runtime.device.registryID &&
+        candidate->accepted_brain_generation == active->brainGeneration &&
+        candidate->key.transaction_fingerprint ==
+            active->candidateKey.transactionFingerprint &&
+        candidate->key.program_fingerprint ==
+            active->candidateKey.programFingerprint &&
+        candidate->key.sensor_fingerprint ==
+            active->candidateKey.sensorFingerprint &&
+        candidate->key.transaction_instance_fingerprint ==
+            active->candidateKey.transactionInstanceFingerprint &&
+        candidate->key.sensor_generation ==
+            active->candidateKey.sensorGeneration &&
+        candidate->key.command_buffer_identity ==
+            active->candidateKey.commandBufferIdentity &&
+        candidate->key.fingerprint != 0u &&
+        candidate->candidate_publication_fingerprint ==
+            packet.candidate_publication_fingerprint &&
+        candidate->candidate_identity_fingerprint != 0u &&
+        timing.capture_timestamp_nanoseconds ==
+            active->receptorTimestampNanoseconds &&
+        timing.delivery_timestamp_nanoseconds ==
+            active->acceptedTimestampNanoseconds &&
+        timing.latency_nanoseconds == runtime.timestepNanoseconds &&
+        timing.sample_interval_nanoseconds == runtime.timestepNanoseconds &&
+        packet.sensor_generation == active->candidateKey.sensorGeneration &&
+        packet.accepted_brain_generation == active->brainGeneration &&
+        packet.device_registry_id == runtime.device.registryID &&
+        committedFence->abiVersion ==
+            MR_NUMANX_HUMAN_MATTER_PUBLICATION_FENCE_ABI_VERSION_V2 &&
+        committedFence->structBytes == sizeof(*committedFence) &&
+        committedFence->status ==
+            MR_NUMANX_HUMAN_MATTER_PUBLICATION_COMMITTED &&
+        committedFence->environment == 0u &&
+        committedFence->controlStep == active->controlStep &&
+        committedFence->transactionFingerprint ==
+            active->transactionFingerprint &&
+        committedFence->linearizationEpoch == root.linearization_epoch &&
+        committedFence->slotGeneration == active->slotGeneration &&
+        committedFence->physicsTokenFingerprint == token.tokenFingerprint &&
+        committedFence->brainGeneration == active->brainGeneration &&
+        committedFence->jointCommitFingerprint != 0u &&
+        committedFence->fenceFingerprint != 0u;
+    if (!identityValid) return false;
+
+    mrnx_publication_v2 publication{};
+    publication.abi_version = MRNX_PUBLICATION_ABI_V2;
+    publication.struct_size = sizeof(publication);
+    publication.clock_domain = MRNX_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS;
+    publication.clock_quantum_nanoseconds =
+        MRNX_EXACT_CLOCK_QUANTUM_NANOSECONDS;
+    publication.transaction_fingerprint = active->transactionFingerprint;
+    publication.accepted_physics_token_fingerprint = token.tokenFingerprint;
+    publication.candidate_publication_fingerprint =
+        packet.candidate_publication_fingerprint;
+    publication.joint_commit_fingerprint =
+        committedFence->jointCommitFingerprint;
+    publication.brain_generation = committedFence->brainGeneration;
+    publication.committed_timestamp_nanoseconds =
+        token.acceptedTimestampNanoseconds;
+    publication.publication_fingerprint =
+        metalrobo::metalNumanXExactPublicationV2Fingerprint(publication);
+    if (!metalrobo::metalNumanXExactOutboundFamilyV2Valid(
+            authority, proof, token, timing, channels,
+            active->exactChannelCount, packet, publication)) {
+        return false;
+    }
+
+    __unsafe_unretained id<MTLBuffer> channelValues[
+        MRNX_MAX_SENSOR_CHANNELS_V2]{};
+    __unsafe_unretained id<MTLBuffer> channelValidity[
+        MRNX_MAX_SENSOR_CHANNELS_V2]{};
+    std::uint32_t proprioceptionIndex = MRNX_MAX_SENSOR_CHANNELS_V2;
+    std::uint32_t interoceptionIndex = MRNX_MAX_SENSOR_CHANNELS_V2;
+    for (std::uint32_t index = 0u;
+         index < active->exactChannelCount; ++index) {
+        const auto& channel = channels[index];
+        std::uint32_t expectedReceptors = 0u;
+        std::uint32_t expectedFeatures = 0u;
+        switch (channel.modality) {
+            case MRNX_CANDIDATE_MODALITY_VISION_V1:
+                expectedReceptors = MR_NUMANX_HUMAN_VISION_RECEPTOR_COUNT;
+                expectedFeatures = MR_NUMANX_HUMAN_VISION_FEATURE_COUNT;
+                break;
+            case MRNX_CANDIDATE_MODALITY_AUDITION_V1:
+                expectedReceptors = MR_NUMANX_HUMAN_AUDITION_RECEPTOR_COUNT;
+                expectedFeatures = MR_NUMANX_HUMAN_AUDITION_FEATURE_COUNT;
+                break;
+            case MRNX_CANDIDATE_MODALITY_TOUCH_V1:
+                expectedReceptors = MR_NUMANX_HUMAN_TOUCH_RECEPTOR_COUNT;
+                expectedFeatures = MR_NUMANX_HUMAN_TOUCH_FEATURE_COUNT;
+                break;
+            case MRNX_CANDIDATE_MODALITY_PROPRIOCEPTION_V1:
+                expectedReceptors = MRNX_FULL_BODY_MUSCLE_COUNT;
+                expectedFeatures =
+                    MR_NUMANX_HUMAN_PROPRIOCEPTION_FEATURE_COUNT;
+                proprioceptionIndex = index;
+                break;
+            case MRNX_CANDIDATE_MODALITY_VESTIBULAR_V1:
+                expectedReceptors =
+                    MR_NUMANX_HUMAN_VESTIBULAR_RECEPTOR_COUNT;
+                expectedFeatures =
+                    MR_NUMANX_HUMAN_VESTIBULAR_FEATURE_COUNT;
+                break;
+            case MRNX_CANDIDATE_MODALITY_INTEROCEPTION_V1:
+                expectedReceptors = MRNX_FULL_BODY_MUSCLE_COUNT;
+                expectedFeatures =
+                    MR_NUMANX_HUMAN_INTEROCEPTION_FEATURE_COUNT;
+                interoceptionIndex = index;
+                break;
+            case MRNX_CANDIDATE_MODALITY_KINESTHESIA_V1:
+                expectedReceptors =
+                    MR_NUMANX_HUMAN_KINESTHESIA_RECEPTOR_COUNT;
+                expectedFeatures =
+                    MR_NUMANX_HUMAN_KINESTHESIA_FEATURE_COUNT;
+                break;
+            default:
+                return false;
+        }
+        if (channel.receptor_count != expectedReceptors ||
+            channel.feature_dimension != expectedFeatures ||
+            !bufferObject(channel.values.metal_buffer, channelValues[index]) ||
+            !bufferObject(
+                channel.validity.metal_buffer, channelValidity[index]) ||
+            channelValues[index].device != runtime.device ||
+            channelValidity[index].device != runtime.device ||
+            channel.values.byte_offset > channelValues[index].length ||
+            channel.validity.byte_offset > channelValidity[index].length ||
+            channel.values.byte_count >
+                channelValues[index].length - channel.values.byte_offset ||
+            channel.validity.byte_count >
+                channelValidity[index].length -
+                    channel.validity.byte_offset ||
+            channelValues[index].gpuAddress >
+                std::numeric_limits<std::uint64_t>::max() -
+                    channel.values.byte_offset ||
+            channelValidity[index].gpuAddress >
+                std::numeric_limits<std::uint64_t>::max() -
+                    channel.validity.byte_offset ||
+            channel.values.gpu_address !=
+                channelValues[index].gpuAddress + channel.values.byte_offset ||
+            channel.validity.gpu_address !=
+                channelValidity[index].gpuAddress +
+                    channel.validity.byte_offset) {
+            return false;
+        }
+    }
+    if (proprioceptionIndex >= active->exactChannelCount ||
+        interoceptionIndex >= active->exactChannelCount) return false;
+
+    std::unique_lock runtimeLock(runtime.mutex);
+    if (runtime.active != active || runtime.terminalQuarantine ||
+        runtime.exactAggregate.publication_epoch ==
+            std::numeric_limits<std::uint64_t>::max()) {
+        return false;
+    }
+    if (runtime.culture != nullptr) {
+        if (!active->cultureAcceptedView.valid() ||
+            active->cultureAccepted.culture_fingerprint !=
+                runtime.culturePack.fingerprint() ||
+            active->cultureAccepted.generation == 0u ||
+            runtime.culture->publishPrepared() !=
+                metalrobo::MetalNeuronCultureStatus::success) {
+            return false;
+        }
+        runtime.publishedCultureView = active->cultureAcceptedView;
+        runtime.aggregateCulture = active->cultureAccepted;
+    }
+
+    mrnx_aggregate_snapshot_v5 snapshot{};
+    snapshot.abi_version = MRNX_AGGREGATE_SNAPSHOT_ABI_V5;
+    snapshot.struct_size = sizeof(snapshot);
+    snapshot.publication_epoch =
+        runtime.exactAggregate.publication_epoch + 1u;
+    if (snapshot.publication_epoch !=
+        metalrobo::numanx_bridge_v1::domainPublicationEpoch(
+            runtime.domain)) return false;
+    snapshot.brain_generation = active->brainGeneration;
+    snapshot.physics_generation = active->physicsGeneration;
+    snapshot.sensor_generation = active->candidateKey.sensorGeneration;
+    snapshot.root = root;
+    snapshot.sensor = *candidate;
+    snapshot.timing = timing;
+    snapshot.inbound_authority = authority;
+    snapshot.sensor_packet = packet;
+    snapshot.publication = publication;
+    for (std::uint32_t index = 0u;
+         index < active->exactChannelCount; ++index) {
+        snapshot.channels[index] = channels[index];
+        runtime.publishedChannelValues[index] = channelValues[index];
+        runtime.publishedChannelValidity[index] = channelValidity[index];
+    }
+    if (runtime.culture != nullptr) snapshot.culture = runtime.aggregateCulture;
+    runtime.publishedProprioception =
+        channelValues[proprioceptionIndex];
+    runtime.publishedProprioceptionValidity =
+        channelValidity[proprioceptionIndex];
+    runtime.publishedInteroception =
+        channelValues[interoceptionIndex];
+    runtime.publishedInteroceptionValidity =
+        channelValidity[interoceptionIndex];
+    runtime.aggregateChannelCount = active->exactChannelCount;
+    runtime.exactAggregate = snapshot;
+    runtime.publishedOnce = true;
+    runtime.publishedTransactionFingerprint = active->transactionFingerprint;
+    runtime.publishedBrainGeneration = active->brainGeneration;
+    runtime.publishedPhysicsGeneration = active->physicsGeneration;
+    runtime.publishedTimestampNanoseconds =
+        active->acceptedTimestampNanoseconds;
+    runtime.publishedTimestampMicroseconds = 0u;
+    runtime.publishedControlStep = active->controlStep;
+    recordRuntimeBehaviorTerminal(
+        runtime, *active, root, true, committedFence);
+
+    const bool selectedOwnerSnapshot =
+        runtime.ownerSnapshotSelectedControlStep.has_value() &&
+        !runtime.ownerSnapshotSelectedCaptured &&
+        active->controlStep == *runtime.ownerSnapshotSelectedControlStep;
+    const bool firstOwnerSnapshot =
+        !runtime.ownerSnapshotFirstPublishedCaptured;
+    if (active->ownerSnapshotCapture &&
+        (firstOwnerSnapshot || selectedOwnerSnapshot)) {
+        std::string evidenceError;
+        if (writeOwnerSnapshotEvidence(
+                runtime, *active, root,
+                PreparedTerminalDisposition::published,
+                snapshot.publication_epoch, committedFence, evidenceError)) {
+            if (firstOwnerSnapshot)
+                runtime.ownerSnapshotFirstPublishedCaptured = true;
+            if (selectedOwnerSnapshot)
+                runtime.ownerSnapshotSelectedCaptured = true;
+        } else {
+            std::fprintf(stderr,
+                "mrnx_production_owner_snapshot_failure=%s\n",
+                evidenceError.c_str());
+            runtime.terminalQuarantine = true;
+        }
+    }
+    runtime.active.reset();
+    return !runtime.terminalQuarantine;
+}
+
 void runtimeTerminalCompletion(
     void* raw,
     PreparedTerminalDisposition disposition,
@@ -1892,6 +2202,9 @@ void runtimeTerminalCompletion(
 ) noexcept;
 [[nodiscard]] bool encodeRuntimeBehaviorCandidate(void* raw,
     const metalrobo::MetalNumanXHumanMatterPass& pass) noexcept;
+[[nodiscard]] mrnx_candidate_v1* finalizeExactCandidate(
+    const std::shared_ptr<ActiveRoot>& active
+) noexcept;
 void settleActiveRoot(const std::shared_ptr<ActiveRoot>& active) noexcept;
 void humanCandidateCompletion(
     void* raw,
@@ -2619,7 +2932,9 @@ void cultureCompletion(
     runtime->info.transaction_slot_count = config.transaction_slot_count;
     runtime->info.device_registry_id = device.registryID;
     runtime->info.accepted_state_proof_program_fingerprint =
-        runtime->matter->acceptedStateProofProgramFingerprint();
+        exactClock
+        ? runtime->matter->acceptedStateProofProgramFingerprintV2()
+        : runtime->matter->acceptedStateProofProgramFingerprint();
     runtime->info.model_source_fingerprint =
         runtime->assets.sourceFingerprint;
     return runtime;
@@ -3260,20 +3575,500 @@ void fillRuntimeInfoFailure(
 
     failureStage = 7u;
     if (runtime->publishedOnce) {
-        // Published runtime continuity is still owned by the immutable
-        // v1 microsecond state. Never compare or bind that state to an
-        // exact-nanosecond root. Exact continuation remains closed until
-        // persistent publication has an explicit v2 clock-domain ABI.
-        failureStage = 71u;
-        return false;
-    }
-    if (root.baseBrainGeneration != 0u ||
-        root.basePhysicsGeneration != 0u ||
-        runtime->aggregate.publication_epoch != 0u ||
-        root.controlStepIdentifier != 1u) {
+        if (runtime->publishedTransactionFingerprint == 0u ||
+            runtime->publishedBrainGeneration == 0u ||
+            runtime->publishedPhysicsGeneration == 0u ||
+            runtime->publishedTimestampNanoseconds == 0u ||
+            runtime->exactAggregate.publication_epoch == 0u ||
+            runtime->exactAggregate.sensor_packet.
+                    accepted_physics_token_fingerprint == 0u ||
+            runtime->exactAggregate.sensor_packet.
+                    human_io_program_fingerprint == 0u ||
+            root.baseBrainGeneration != runtime->publishedBrainGeneration ||
+            root.basePhysicsGeneration !=
+                runtime->publishedPhysicsGeneration ||
+            root.committedTimestampNanoseconds !=
+                runtime->publishedTimestampNanoseconds ||
+            runtime->publishedControlStep ==
+                std::numeric_limits<std::uint64_t>::max() ||
+            root.controlStepIdentifier !=
+                runtime->publishedControlStep + 1u) {
+            return false;
+        }
+    } else if (root.baseBrainGeneration != 0u ||
+               root.basePhysicsGeneration != 0u ||
+               runtime->exactAggregate.publication_epoch != 0u ||
+               root.controlStepIdentifier != 1u) {
         return false;
     }
     failureStage = 0u;
+    return true;
+}
+
+[[nodiscard]] bool importRootRequestV3Resources(
+    const std::shared_ptr<RuntimeState>& runtime,
+    const mrnx_physical_root_request_v3& request,
+    const MRNumanXBrainJointTransactionTokenV2& root,
+    const MRNumanXBrainJointSubstepTokenV2& substep,
+    std::shared_ptr<ActiveRoot>& active,
+    std::uint32_t& failureStage
+) noexcept {
+    failureStage = 40u;
+    std::shared_ptr<ActiveRoot> result;
+    try {
+        result = std::make_shared<ActiveRoot>();
+    } catch (...) {
+        return false;
+    }
+    result->runtime = runtime.get();
+    result->exactFamily = true;
+    result->cultureSettled = runtime->culture == nullptr;
+    result->cultureReady = runtime->culture == nullptr;
+
+    failureStage = 41u;
+    if (!importExactRange(
+            runtime->device, request.motor_header,
+            sizeof(MRNumanXBrainMotorOutputHeaderGPUV2),
+            MRNX_ELEMENT_BRAIN_MOTOR_OUTPUT_HEADER_V2,
+            sizeof(MRNumanXBrainMotorOutputHeaderGPUV2),
+            result->motorHeader)) return false;
+    failureStage = 42u;
+    if (!importExactRange(
+            runtime->device, request.muscle_excitation,
+            MRNX_FULL_BODY_MUSCLE_COUNT * sizeof(float),
+            MRNX_ELEMENT_FLOAT32_V1, sizeof(float), result->excitation)) {
+        return false;
+    }
+    failureStage = 43u;
+    if (!importExactRange(
+            runtime->device, request.autonomic_command,
+            MR_NUMANX_BRAIN_AUTONOMIC_COMMAND_BYTE_COUNT,
+            MRNX_ELEMENT_RAW_BYTES_V1, 1u, result->autonomic)) return false;
+    failureStage = 44u;
+    if (!importExactRange(
+            runtime->device, request.active_sensing_command,
+            MR_NUMANX_BRAIN_ACTIVE_SENSING_COMMAND_BYTE_COUNT,
+            MRNX_ELEMENT_RAW_BYTES_V1, 1u, result->activeSensing)) return false;
+    failureStage = 45u;
+    if (!importExactRange(
+            runtime->device, request.motor_ready_gate,
+            sizeof(MRNumanXBrainMotorReadyGateGPUV2),
+            MRNX_ELEMENT_BRAIN_MOTOR_READY_GATE_V2,
+            sizeof(MRNumanXBrainMotorReadyGateGPUV2),
+            result->motorReadyGate)) return false;
+
+    failureStage = 5u;
+    const ImportedRange ranges[] = {
+        result->motorHeader, result->excitation, result->autonomic,
+        result->activeSensing, result->motorReadyGate};
+    for (std::size_t first = 0u; first < std::size(ranges); ++first) {
+        for (std::size_t second = first + 1u;
+             second < std::size(ranges); ++second) {
+            if (ranges[first].buffer == ranges[second].buffer ||
+                !disjoint(
+                    ranges[first].address, ranges[first].byteCount,
+                    ranges[second].address, ranges[second].byteCount)) {
+                return false;
+            }
+        }
+    }
+
+    failureStage = 6u;
+    __unsafe_unretained id<MTLSharedEvent> event = nil;
+    if (request.motor_ready.abi_version != MRNX_BRIDGE_ABI_V1 ||
+        request.motor_ready.struct_size != sizeof(request.motor_ready) ||
+        request.motor_ready.value == 0u) return false;
+    failureStage = 61u;
+    if (request.motor_ready.device_registry_id != runtime->device.registryID ||
+        !eventObject(request.motor_ready.shared_event, event) ||
+        !importableSharedEvent(runtime->device, event)) return false;
+    result->motorReadyEvent = event;
+    result->transactionFingerprint = root.transactionFingerprint;
+    result->brainGeneration = root.shadowGeneration;
+    result->controlStep = root.controlStepIdentifier;
+    result->acceptedTimestampNanoseconds =
+        substep.candidateTimestampNanoseconds;
+    result->receptorTimestampNanoseconds = substep.startTimestampNanoseconds;
+    {
+        const std::lock_guard lock(runtime->mutex);
+        if (runtime->publishedOnce) {
+            result->previousTransactionFingerprint =
+                runtime->publishedTransactionFingerprint;
+            result->previousPhysicsGeneration =
+                runtime->publishedPhysicsGeneration;
+            result->previousAcceptedTokenFingerprint = runtime->exactAggregate.
+                sensor_packet.accepted_physics_token_fingerprint;
+            result->previousHumanIOProgramFingerprint = runtime->exactAggregate.
+                sensor_packet.human_io_program_fingerprint;
+        }
+    }
+    active = std::move(result);
+    failureStage = 0u;
+    return true;
+}
+
+[[nodiscard]] bool beginPhysicalRootV3(
+    const std::shared_ptr<RuntimeState>& runtime,
+    const mrnx_physical_root_request_v3& request,
+    void* completionContext,
+    const mrnx_physical_root_settled_callback_v1 completion
+) {
+    if (runtime == nullptr || completion == nullptr) return false;
+    {
+        const std::lock_guard lock(runtime->mutex);
+        if (!runtime->exactClock || runtime->beginInProgress ||
+            runtime->active != nullptr || runtime->terminalQuarantine ||
+            runtime->nextSlotGeneration == 0u ||
+            runtime->nextSensorGeneration == 0u ||
+            runtime->nextLinearizationEpoch == 0u) {
+            return false;
+        }
+        runtime->beginInProgress = true;
+    }
+    const auto failBegin = [&](const mrnx_runtime_status_v1 status) noexcept {
+        const std::lock_guard lock(runtime->mutex);
+        runtime->beginInProgress = false;
+        runtime->info.status = status;
+        return false;
+    };
+
+    MRNumanXBrainJointTransactionTokenV2 root{};
+    MRNumanXBrainJointSubstepTokenV2 substep{};
+    MRNumanXBrainMotorCandidateV2 candidate{};
+    std::uint32_t failureStage = 0u;
+    {
+        const std::lock_guard lock(runtime->mutex);
+        if (!validateRootRequestV3CPUAdmissionLocked(
+                runtime, request, root, substep, candidate, failureStage)) {
+            runtime->info.request_failure_stage = failureStage;
+            runtime->beginInProgress = false;
+            runtime->info.status = MRNX_RUNTIME_INVALID_REQUEST_V1;
+            return false;
+        }
+        runtime->lastAttemptedControlStep = root.controlStepIdentifier;
+    }
+
+    std::shared_ptr<ActiveRoot> active;
+    if (!importRootRequestV3Resources(
+            runtime, request, root, substep, active, failureStage)) {
+        {
+            const std::lock_guard lock(runtime->mutex);
+            runtime->info.request_failure_stage = failureStage;
+        }
+        return failBegin(MRNX_RUNTIME_INVALID_REQUEST_V1);
+    }
+
+    std::uint64_t slotGeneration = 0u;
+    std::uint64_t sensorGeneration = 0u;
+    std::uint64_t linearizationEpoch = 0u;
+    {
+        const std::lock_guard lock(runtime->mutex);
+        if (runtime->nextSlotGeneration ==
+                std::numeric_limits<std::uint64_t>::max() ||
+            runtime->nextSensorGeneration ==
+                std::numeric_limits<std::uint64_t>::max() ||
+            runtime->nextLinearizationEpoch ==
+                std::numeric_limits<std::uint64_t>::max()) {
+            runtime->beginInProgress = false;
+            runtime->terminalQuarantine = true;
+            return false;
+        }
+        slotGeneration = runtime->nextSlotGeneration++;
+        sensorGeneration = runtime->nextSensorGeneration++;
+        linearizationEpoch = runtime->nextLinearizationEpoch++;
+    }
+    active->slotGeneration = slotGeneration;
+    active->physicsGeneration = root.basePhysicsGeneration + 1u;
+    active->completion = completion;
+    active->completionContext = completionContext;
+    if (!allocateSupplementalBuffers(runtime, active)) {
+        {
+            const std::lock_guard lock(runtime->mutex);
+            runtime->info.request_failure_stage = 650u;
+        }
+        return failBegin(MRNX_RUNTIME_METAL_FAILURE_V1);
+    }
+
+    auto& supplemental = active->supplementalDispatch;
+    supplemental.abiVersion = MR_NUMANX_HUMAN_IO_ABI_VERSION;
+    supplemental.qCoordinateCount = MRNX_FULL_BODY_NQ;
+    supplemental.dofCount = MRNX_FULL_BODY_NV;
+    supplemental.bodyCount = runtime->assets.rigid.engineBodyCount;
+    supplemental.pointCount = static_cast<std::uint32_t>(
+        runtime->assets.points.size());
+    supplemental.supportPointOffset = runtime->assets.rigid.engineBodyCount;
+    supplemental.supportPointCount = MR_NUMANX_HUMAN_TOUCH_RECEPTOR_COUNT;
+    supplemental.headBodyIndex = runtime->visionProfile.parentBodyIndex;
+    supplemental.visionWidth = runtime->visionProfile.width;
+    supplemental.visionHeight = runtime->visionProfile.height;
+    supplemental.bodyBoundsCount = static_cast<std::uint32_t>(
+        runtime->visionProfile.bodyBounds.size());
+    supplemental.sensorGeneration = sensorGeneration;
+    supplemental.transactionFingerprint = root.transactionFingerprint;
+    supplemental.substepFingerprint = substep.substepFingerprint;
+    supplemental.expectedActiveSensingGPUAddress =
+        active->activeSensing.address;
+    supplemental.visualSourceFingerprint =
+        runtime->visionProfile.sourceFingerprint;
+    supplemental.programFingerprint = runtime->supplementalProgramFingerprint;
+    supplemental.expectedSupportConsequencesGPUAddress =
+        active->supportConsequencesGPUAddress;
+    supplemental.matterProgramFingerprint =
+        runtime->matter->deviceProgramFingerprint();
+    supplemental.groundPoint = runtime->assets.groundPoint;
+    supplemental.groundNormal = runtime->assets.groundNormal;
+    supplemental.cameraLocalPosition = runtime->visionProfile.localPosition;
+    supplemental.cameraLocalOrientation =
+        runtime->visionProfile.localOrientation;
+    supplemental.visionIntrinsics = runtime->visionProfile.intrinsics;
+    supplemental.visionDepthAndTimestep =
+        runtime->visionProfile.depthAndTimestep;
+
+    metalrobo::MetalNumanXHumanIOInputV2 humanInput{};
+    humanInput.root = root;
+    humanInput.substep = substep;
+    humanInput.candidate = candidate;
+    humanInput.motorOutputHeaderMetalBuffer =
+        (__bridge void*)active->motorHeader.buffer;
+    humanInput.motorOutputHeaderByteOffset = active->motorHeader.byteOffset;
+    humanInput.motorOutputHeaderByteCount = active->motorHeader.byteCount;
+    humanInput.motorOutputHeaderEnvironmentStride =
+        active->motorHeader.byteCount;
+    humanInput.expectedMotorOutputHeaderGPUAddress =
+        active->motorHeader.address;
+    humanInput.excitationMetalBuffer =
+        (__bridge void*)active->excitation.buffer;
+    humanInput.excitationByteOffset = active->excitation.byteOffset;
+    humanInput.excitationByteCount = active->excitation.byteCount;
+    humanInput.excitationEnvironmentStride = MRNX_FULL_BODY_MUSCLE_COUNT;
+    humanInput.expectedExcitationGPUAddress = active->excitation.address;
+    humanInput.autonomicCommandMetalBuffer =
+        (__bridge void*)active->autonomic.buffer;
+    humanInput.autonomicCommandByteOffset = active->autonomic.byteOffset;
+    humanInput.autonomicCommandByteCount = active->autonomic.byteCount;
+    humanInput.expectedAutonomicCommandGPUAddress =
+        active->autonomic.address;
+    humanInput.activeSensingCommandMetalBuffer =
+        (__bridge void*)active->activeSensing.buffer;
+    humanInput.activeSensingCommandByteOffset =
+        active->activeSensing.byteOffset;
+    humanInput.activeSensingCommandByteCount =
+        active->activeSensing.byteCount;
+    humanInput.expectedActiveSensingCommandGPUAddress =
+        active->activeSensing.address;
+    humanInput.motorReadyGateMetalBuffer =
+        (__bridge void*)active->motorReadyGate.buffer;
+    humanInput.motorReadyGateByteOffset = active->motorReadyGate.byteOffset;
+    humanInput.motorReadyGateByteCount = active->motorReadyGate.byteCount;
+    humanInput.expectedMotorReadyGateGPUAddress =
+        active->motorReadyGate.address;
+    humanInput.motorReadySharedEvent =
+        (__bridge void*)active->motorReadyEvent;
+    humanInput.motorReadySharedEventValue = request.motor_ready.value;
+    humanInput.environmentCount = 1u;
+    humanInput.muscleCount = MRNX_FULL_BODY_MUSCLE_COUNT;
+    humanInput.stepCount = 1u;
+    humanInput.timestepNanoseconds = runtime->timestepNanoseconds;
+    humanInput.receptorTimestampNanoseconds =
+        substep.startTimestampNanoseconds;
+    humanInput.candidateSensorGeneration = sensorGeneration;
+    humanInput.supplementalProgram.context = active.get();
+    humanInput.supplementalProgram.encode = &encodeSupplementalSensors;
+    humanInput.supplementalProgram.fingerprint =
+        runtime->supplementalProgramFingerprint;
+    metalrobo::MetalNumanXTransactionProgram humanProgram{};
+    metalrobo::MetalNumanXHumanIOExactPreparedView exactHumanIO{};
+    const auto humanPrepared = runtime->humanIO->prepare(
+        humanInput, humanProgram, exactHumanIO);
+    if (!humanPrepared.succeeded() || !humanProgram.valid() ||
+        !exactHumanIO.valid()) {
+        {
+            const std::lock_guard lock(runtime->mutex);
+            runtime->info.request_failure_stage = 700u +
+                static_cast<std::uint32_t>(humanPrepared.status);
+        }
+        return failBegin(MRNX_RUNTIME_INVALID_REQUEST_V1);
+    }
+    active->exactHumanIO = exactHumanIO;
+
+    metalrobo::MetalNumanXHumanMatterTransactionV2 transaction{};
+    transaction.environmentCount = 1u;
+    transaction.transactionSlot = static_cast<std::uint32_t>(
+        (slotGeneration - 1u) % runtime->transactionSlotCount);
+    active->transactionSlot = transaction.transactionSlot;
+    transaction.controlStep = static_cast<std::uint32_t>(
+        root.controlStepIdentifier);
+    transaction.physicsSubstep = 0u;
+    transaction.physicsSubsteps = 1u;
+    transaction.expectedMatterCompletedMicrosteps = 1u;
+    transaction.qCoordinateCount = MRNX_FULL_BODY_NQ;
+    transaction.dofCount = MRNX_FULL_BODY_NV;
+    transaction.seed = root.transactionFingerprint;
+    if (transaction.seed == 0u) transaction.seed = kFnvOffset;
+    transaction.transactionFingerprint = root.transactionFingerprint;
+    transaction.substepFingerprint = substep.substepFingerprint;
+    transaction.physicsGeneration = active->physicsGeneration;
+    transaction.linearizationEpoch = linearizationEpoch;
+    transaction.slotGeneration = slotGeneration;
+    const auto humanMatterProgram = runtime->adapter->program(
+        transaction, exactHumanIO);
+    if (!humanMatterProgram.valid()) {
+        (void)runtime->humanIO->cancelPrepared(
+            root.transactionFingerprint, humanProgram.fingerprint);
+        {
+            const std::lock_guard lock(runtime->mutex);
+            runtime->info.request_failure_stage = 800u;
+        }
+        return failBegin(MRNX_RUNTIME_SUBMISSION_FAILURE_V1);
+    }
+
+    metalrobo::MetalArticulatedOperatorInput ownerInput{
+        .articulationIndex = 0u,
+        .environmentCount = 1u,
+        .pointCount = runtime->assets.points.size(),
+        .q = runtime->assets.initialQ,
+        .rootTranslations = runtime->assets.initialRootTranslations,
+        .v = runtime->assets.initialV,
+        .points = runtime->assets.points,
+        .mujoco = {
+            .muscles = runtime->assets.muscles,
+            .states = runtime->assets.states,
+            .sites = runtime->assets.sites,
+            .wraps = runtime->assets.wraps,
+            .routeNodes = runtime->assets.routes,
+            .bodyJacobianPointOffset =
+                runtime->assets.bodyJacobianPointOffset,
+        },
+        .stand = {
+            .v = runtime->assets.initialV,
+            .contacts = {},
+            .jointEqualities = {},
+            .tendonBindings = {},
+            .tendonEnvelopes = {},
+            .tendonLoadProgram = {},
+            .numanXTransactionProgram = humanProgram,
+            .numanXHumanMatterProgram = humanMatterProgram,
+            .stepCount = 1u,
+            .contactIterationCount = 12u,
+            .enableContact = false,
+            .enableRootAssistance = false,
+            .groundPoint = runtime->assets.groundPoint,
+            .groundNormal = runtime->assets.groundNormal,
+            .targetRootPosition = {
+                runtime->assets.model.defaultQ[0u],
+                runtime->assets.model.defaultQ[1u],
+                runtime->assets.model.defaultQ[2u], 0.0f},
+            .targetRootOrientation = {
+                runtime->assets.model.defaultQ[3u],
+                runtime->assets.model.defaultQ[4u],
+                runtime->assets.model.defaultQ[5u],
+                runtime->assets.model.defaultQ[6u]},
+            .assistanceGains = {0.0f, 0.0f, 0.0f, 0.0f},
+        },
+        .residentContinuation = {
+            .previousTransactionFingerprint =
+                active->previousTransactionFingerprint,
+            .previousPhysicsGeneration = active->previousPhysicsGeneration,
+            .previousAcceptedTokenFingerprint =
+                active->previousAcceptedTokenFingerprint,
+            .previousHumanIOProgramFingerprint =
+                active->previousHumanIOProgramFingerprint,
+        },
+    };
+    auto submission = std::make_unique<
+        metalrobo::MetalArticulatedOperatorSubmission>();
+    const auto submitted = [&] {
+        struct EncodingScope {
+            RuntimeState& runtime;
+            ~EncodingScope() { runtime.encodingActive = nullptr; }
+        } scope{*runtime};
+        runtime->encodingActive = active.get();
+        return runtime->owner->submit(
+            runtime->assets.model, ownerInput, *submission);
+    }();
+    if (!submitted.succeeded() || !submitted.dispatched ||
+        !submission->valid()) {
+        if (std::getenv("MRNX_PHYSICAL_DIAGNOSTICS") != nullptr) {
+            std::fprintf(
+                stderr, "mrnx_exact_owner_submit_failure status=%u message=%s\n",
+                static_cast<unsigned>(submitted.status),
+                submitted.message.c_str());
+        }
+        (void)runtime->humanIO->cancelPrepared(
+            root.transactionFingerprint, humanProgram.fingerprint);
+        {
+            const std::lock_guard lock(runtime->mutex);
+            runtime->info.request_failure_stage = 900u +
+                static_cast<std::uint32_t>(submitted.status);
+        }
+        return failBegin(MRNX_RUNTIME_SUBMISSION_FAILURE_V1);
+    }
+
+    metalrobo::MetalNumanXHumanIOTransactionKey key{};
+    metalrobo::MetalNumanXHumanIOSensorView candidateView{};
+    const auto pending = runtime->humanIO->pendingCandidate(key, candidateView);
+    metalrobo::MetalNumanXHumanMatterPrepared nativePrepared;
+    if (!pending.succeeded() || !key.valid() ||
+        !submission->extractPreparedHumanMatter(nativePrepared) ||
+        !nativePrepared.valid()) {
+        const std::lock_guard lock(runtime->mutex);
+        runtime->quarantinedSubmission = std::move(submission);
+        runtime->beginInProgress = false;
+        runtime->terminalQuarantine = true;
+        const mrnx_completion_v1 failed = rootCompletion(
+            MRNX_COMPLETION_TERMINAL_NO_TOUCH_V1,
+            static_cast<std::uint32_t>(MTLCommandBufferStatusNotEnqueued),
+            slotGeneration);
+        completion(completionContext, nullptr, nullptr, &failed, nullptr);
+        return true;
+    }
+    submission.reset();
+    auto* prepared = metalrobo::numanx_bridge_v1::adoptPreparedV2(
+        runtime->domain,
+        std::move(nativePrepared),
+        std::static_pointer_cast<void>(runtime),
+        runtime.get(),
+        &runtimeTerminalCompletion);
+    if (prepared == nullptr) {
+        const std::lock_guard lock(runtime->mutex);
+        runtime->beginInProgress = false;
+        runtime->terminalQuarantine = true;
+        const mrnx_completion_v1 failed = rootCompletion(
+            MRNX_COMPLETION_TERMINAL_NO_TOUCH_V1,
+            static_cast<std::uint32_t>(MTLCommandBufferStatusNotEnqueued),
+            slotGeneration);
+        completion(completionContext, nullptr, nullptr, &failed, nullptr);
+        return true;
+    }
+    active->prepared = prepared;
+    active->candidateKey = key;
+    {
+        const std::lock_guard lock(runtime->mutex);
+        runtime->active = active;
+        runtime->beginInProgress = false;
+        runtime->info.status = MRNX_RUNTIME_READY_V1;
+        runtime->info.request_failure_stage = 0u;
+    }
+
+    const bool physicalArmed =
+        metalrobo::numanx_bridge_v1::registerPreparedPhysicalCompletion(
+            prepared, active.get(), &physicalCompletion);
+    const auto humanArmed = runtime->humanIO->registerCandidateCompletion(
+        key, active.get(), &humanCandidateCompletion);
+    if (!physicalArmed || !humanArmed.succeeded()) {
+        {
+            const std::lock_guard lock(active->mutex);
+            if (!active->physicalSettled) {
+                active->physicalSettled = true;
+                active->physicalReady = false;
+            }
+            if (!active->humanSettled) {
+                active->humanSettled = true;
+                active->humanReady = false;
+            }
+        }
+        settleActiveRoot(active);
+    }
     return true;
 }
 
@@ -3629,26 +4424,32 @@ bool mrnx_bridge_v1_runtime_copy_exact_clock(
 ) {
     if (runtime == nullptr || runtime->state == nullptr || info == nullptr ||
         info->abi_version != MRNX_EXACT_CLOCK_INFO_ABI_V1 ||
-        info->struct_size != sizeof(*info)) return false;
-    const std::lock_guard lock(runtime->state->mutex);
-    if (!runtime->state->exactClock) {
-        *info = {};
+        info->struct_size != sizeof(*info) || !runtime->state->exactClock) {
         return false;
     }
-    info->timestep_nanoseconds = runtime->state->timestepNanoseconds;
-    info->clock_quantum_nanoseconds =
-        runtime->state->clockQuantumNanoseconds;
-    if (runtime->state->publishedTimestampMicroseconds >
-            std::numeric_limits<std::uint64_t>::max() /
-                runtime->state->clockQuantumNanoseconds) {
-        *info = {};
-        return false;
-    }
-    info->published_timestamp_nanoseconds =
-        runtime->state->publishedTimestampMicroseconds *
-        runtime->state->clockQuantumNanoseconds;
-    info->publication_epoch = runtime->state->aggregate.publication_epoch;
-    return true;
+    struct Read {
+        RuntimeState* state;
+        mrnx_exact_clock_info_v1* output;
+    } read{runtime->state.get(), info};
+    *info = {};
+    return metalrobo::numanx_bridge_v1::withDomainPublicReadGate(
+        runtime->state->domain, &read, +[](void* raw) noexcept {
+            auto& context = *static_cast<Read*>(raw);
+            if (context.state->terminalQuarantine) return false;
+            context.output->abi_version = MRNX_EXACT_CLOCK_INFO_ABI_V1;
+            context.output->struct_size = sizeof(*context.output);
+            context.output->timestep_nanoseconds =
+                context.state->timestepNanoseconds;
+            context.output->clock_quantum_nanoseconds =
+                context.state->clockQuantumNanoseconds;
+            context.output->published_timestamp_nanoseconds =
+                context.state->publishedTimestampNanoseconds;
+            context.output->publication_epoch =
+                context.state->exactAggregate.publication_epoch;
+            return context.output->publication_epoch ==
+                metalrobo::numanx_bridge_v1::domainPublicationEpoch(
+                    context.state->domain);
+        });
 }
 
 void mrnx_bridge_v1_runtime_retain(mrnx_runtime_v1* runtime) {
@@ -3957,34 +4758,11 @@ bool mrnx_bridge_v1_runtime_begin_physical_root_v3(
         }
         const auto state = runtime->state;
         try {
-            const std::lock_guard lock(state->mutex);
-            if (state->beginInProgress || state->active != nullptr ||
-                state->terminalQuarantine) return false;
-            MRNumanXBrainJointTransactionTokenV2 root{};
-            MRNumanXBrainJointSubstepTokenV2 substep{};
-            MRNumanXBrainMotorCandidateV2 candidate{};
-            std::uint32_t failureStage = 0u;
-            if (!validateRootRequestV3CPUAdmissionLocked(
-                    state, *request, root, substep, candidate,
-                    failureStage)) {
-                state->info.status = MRNX_RUNTIME_INVALID_REQUEST_V1;
-                state->info.request_failure_stage = failureStage;
-                return false;
-            }
-
-            // Pure CPU record/descriptor admission is complete. Additive
-            // exact outbound, accepted-token, and publication records now
-            // exist, but HumanIO/HumanMatter do not yet produce them and no
-            // persistent owner releases their complete family. No borrowed
-            // Metal object/event has been bridged, retained, or imported.
-            // Fail before resource admission, slot allocation, attempt
-            // advancement, or command-buffer construction.
-            (void)completionContext;
-            state->info.status = MRNX_RUNTIME_CONTINUATION_UNAVAILABLE_V1;
-            state->info.request_failure_stage =
-                MRNX_REQUEST_FAILURE_STAGE_EXACT_OUTBOUND_UNAVAILABLE;
-            return false;
+            return beginPhysicalRootV3(
+                state, *request, completionContext, completion);
         } catch (...) {
+            const std::lock_guard lock(state->mutex);
+            state->beginInProgress = false;
             return false;
         }
     }
@@ -3997,20 +4775,32 @@ bool mrnx_bridge_v1_runtime_copy_aggregate_snapshot(
     if (runtime == nullptr || runtime->state == nullptr ||
         snapshot == nullptr ||
         snapshot->abi_version != MRNX_BRIDGE_ABI_V1 ||
-        snapshot->struct_size != sizeof(*snapshot)) {
+        snapshot->struct_size != sizeof(*snapshot) ||
+        runtime->state->exactClock) {
         return false;
     }
-    const std::shared_lock reader(runtime->state->aggregateGate);
-    if (runtime->state->aggregate.publication_epoch == 0u ||
-        runtime->state->publishedProprioception == nil ||
-        runtime->state->publishedProprioceptionValidity == nil ||
-        runtime->state->publishedInteroception == nil ||
-        runtime->state->publishedInteroceptionValidity == nil) {
-        *snapshot = {};
-        return false;
-    }
-    *snapshot = runtime->state->aggregate;
-    return true;
+    struct Read {
+        RuntimeState* state;
+        mrnx_aggregate_snapshot_v1* output;
+    } read{runtime->state.get(), snapshot};
+    *snapshot = {};
+    return metalrobo::numanx_bridge_v1::withDomainPublicReadGate(
+        runtime->state->domain, &read, +[](void* raw) noexcept {
+            auto& context = *static_cast<Read*>(raw);
+            if (context.state->terminalQuarantine) return false;
+            if (context.state->aggregate.publication_epoch == 0u ||
+                context.state->aggregate.publication_epoch !=
+                    metalrobo::numanx_bridge_v1::domainPublicationEpoch(
+                        context.state->domain) ||
+                context.state->publishedProprioception == nil ||
+                context.state->publishedProprioceptionValidity == nil ||
+                context.state->publishedInteroception == nil ||
+                context.state->publishedInteroceptionValidity == nil) {
+                return false;
+            }
+            *context.output = context.state->aggregate;
+            return true;
+        });
 }
 
 bool mrnx_bridge_v1_runtime_copy_aggregate_snapshot_v2(
@@ -4020,42 +4810,54 @@ bool mrnx_bridge_v1_runtime_copy_aggregate_snapshot_v2(
     if (runtime == nullptr || runtime->state == nullptr ||
         snapshot == nullptr ||
         snapshot->abi_version != MRNX_AGGREGATE_SNAPSHOT_ABI_V2 ||
-        snapshot->struct_size != sizeof(*snapshot)) {
+        snapshot->struct_size != sizeof(*snapshot) ||
+        runtime->state->exactClock) {
         return false;
     }
-    const std::shared_lock reader(runtime->state->aggregateGate);
-    bool channelsReady = runtime->state->aggregateChannelCount == 7u;
-    for (std::uint32_t index = 0u;
-         index < runtime->state->aggregateChannelCount; ++index) {
-        channelsReady = channelsReady &&
-            runtime->state->publishedChannelValues[index] != nil &&
-            runtime->state->publishedChannelValidity[index] != nil;
-    }
-    if (runtime->state->aggregate.publication_epoch == 0u ||
-        !channelsReady) {
-        *snapshot = {};
-        return false;
-    }
+    struct Read {
+        RuntimeState* state;
+        mrnx_aggregate_snapshot_v2* output;
+    } read{runtime->state.get(), snapshot};
     *snapshot = {};
-    snapshot->abi_version = MRNX_AGGREGATE_SNAPSHOT_ABI_V2;
-    snapshot->struct_size = sizeof(*snapshot);
-    snapshot->publication_epoch =
-        runtime->state->aggregate.publication_epoch;
-    snapshot->brain_generation =
-        runtime->state->aggregate.brain_generation;
-    snapshot->physics_generation =
-        runtime->state->aggregate.physics_generation;
-    snapshot->sensor_generation =
-        runtime->state->aggregate.sensor_generation;
-    snapshot->root = runtime->state->aggregate.root;
-    snapshot->sensor = runtime->state->aggregate.sensor;
-    snapshot->channel_count = runtime->state->aggregateChannelCount;
-    snapshot->channel_capacity = MRNX_MAX_SENSOR_CHANNELS_V2;
-    for (std::uint32_t index = 0u;
-         index < runtime->state->aggregateChannelCount; ++index) {
-        snapshot->channels[index] = runtime->state->aggregateChannels[index];
-    }
-    return true;
+    return metalrobo::numanx_bridge_v1::withDomainPublicReadGate(
+        runtime->state->domain, &read, +[](void* raw) noexcept {
+            auto& context = *static_cast<Read*>(raw);
+            if (context.state->terminalQuarantine) return false;
+            bool channelsReady =
+                context.state->aggregateChannelCount == 7u;
+            for (std::uint32_t index = 0u;
+                 index < context.state->aggregateChannelCount; ++index) {
+                channelsReady = channelsReady &&
+                    context.state->publishedChannelValues[index] != nil &&
+                    context.state->publishedChannelValidity[index] != nil;
+            }
+            if (context.state->aggregate.publication_epoch == 0u ||
+                context.state->aggregate.publication_epoch !=
+                    metalrobo::numanx_bridge_v1::domainPublicationEpoch(
+                        context.state->domain) ||
+                !channelsReady) return false;
+            auto& output = *context.output;
+            output.abi_version = MRNX_AGGREGATE_SNAPSHOT_ABI_V2;
+            output.struct_size = sizeof(output);
+            output.publication_epoch =
+                context.state->aggregate.publication_epoch;
+            output.brain_generation =
+                context.state->aggregate.brain_generation;
+            output.physics_generation =
+                context.state->aggregate.physics_generation;
+            output.sensor_generation =
+                context.state->aggregate.sensor_generation;
+            output.root = context.state->aggregate.root;
+            output.sensor = context.state->aggregate.sensor;
+            output.channel_count = context.state->aggregateChannelCount;
+            output.channel_capacity = MRNX_MAX_SENSOR_CHANNELS_V2;
+            for (std::uint32_t index = 0u;
+                 index < context.state->aggregateChannelCount; ++index) {
+                output.channels[index] =
+                    context.state->aggregateChannels[index];
+            }
+            return true;
+        });
 }
 
 bool mrnx_bridge_v1_runtime_copy_aggregate_snapshot_v3(
@@ -4065,44 +4867,56 @@ bool mrnx_bridge_v1_runtime_copy_aggregate_snapshot_v3(
     if (runtime == nullptr || runtime->state == nullptr ||
         snapshot == nullptr ||
         snapshot->abi_version != MRNX_AGGREGATE_SNAPSHOT_ABI_V3 ||
-        snapshot->struct_size != sizeof(*snapshot)) {
+        snapshot->struct_size != sizeof(*snapshot) ||
+        runtime->state->exactClock) {
         return false;
     }
-    const std::shared_lock reader(runtime->state->aggregateGate);
-    bool channelsReady = runtime->state->aggregateChannelCount == 7u;
-    for (std::uint32_t index = 0u;
-         index < runtime->state->aggregateChannelCount; ++index) {
-        channelsReady = channelsReady &&
-            runtime->state->publishedChannelValues[index] != nil &&
-            runtime->state->publishedChannelValidity[index] != nil;
-    }
-    if (runtime->state->aggregate.publication_epoch == 0u ||
-        runtime->state->aggregateTiming.timing_fingerprint == 0u ||
-        !channelsReady) {
-        *snapshot = {};
-        return false;
-    }
+    struct Read {
+        RuntimeState* state;
+        mrnx_aggregate_snapshot_v3* output;
+    } read{runtime->state.get(), snapshot};
     *snapshot = {};
-    snapshot->abi_version = MRNX_AGGREGATE_SNAPSHOT_ABI_V3;
-    snapshot->struct_size = sizeof(*snapshot);
-    snapshot->publication_epoch =
-        runtime->state->aggregate.publication_epoch;
-    snapshot->brain_generation =
-        runtime->state->aggregate.brain_generation;
-    snapshot->physics_generation =
-        runtime->state->aggregate.physics_generation;
-    snapshot->sensor_generation =
-        runtime->state->aggregate.sensor_generation;
-    snapshot->root = runtime->state->aggregate.root;
-    snapshot->sensor = runtime->state->aggregate.sensor;
-    snapshot->timing = runtime->state->aggregateTiming;
-    snapshot->channel_count = runtime->state->aggregateChannelCount;
-    snapshot->channel_capacity = MRNX_MAX_SENSOR_CHANNELS_V2;
-    for (std::uint32_t index = 0u;
-         index < runtime->state->aggregateChannelCount; ++index) {
-        snapshot->channels[index] = runtime->state->aggregateChannels[index];
-    }
-    return true;
+    return metalrobo::numanx_bridge_v1::withDomainPublicReadGate(
+        runtime->state->domain, &read, +[](void* raw) noexcept {
+            auto& context = *static_cast<Read*>(raw);
+            if (context.state->terminalQuarantine) return false;
+            bool channelsReady =
+                context.state->aggregateChannelCount == 7u;
+            for (std::uint32_t index = 0u;
+                 index < context.state->aggregateChannelCount; ++index) {
+                channelsReady = channelsReady &&
+                    context.state->publishedChannelValues[index] != nil &&
+                    context.state->publishedChannelValidity[index] != nil;
+            }
+            if (context.state->aggregate.publication_epoch == 0u ||
+                context.state->aggregate.publication_epoch !=
+                    metalrobo::numanx_bridge_v1::domainPublicationEpoch(
+                        context.state->domain) ||
+                context.state->aggregateTiming.timing_fingerprint == 0u ||
+                !channelsReady) return false;
+            auto& output = *context.output;
+            output.abi_version = MRNX_AGGREGATE_SNAPSHOT_ABI_V3;
+            output.struct_size = sizeof(output);
+            output.publication_epoch =
+                context.state->aggregate.publication_epoch;
+            output.brain_generation =
+                context.state->aggregate.brain_generation;
+            output.physics_generation =
+                context.state->aggregate.physics_generation;
+            output.sensor_generation =
+                context.state->aggregate.sensor_generation;
+            output.root = context.state->aggregate.root;
+            output.sensor = context.state->aggregate.sensor;
+            output.timing = context.state->aggregateTiming;
+            output.channel_count = context.state->aggregateChannelCount;
+            output.channel_capacity = MRNX_MAX_SENSOR_CHANNELS_V2;
+            for (std::uint32_t index = 0u;
+                 index < context.state->aggregateChannelCount; ++index) {
+                output.channels[index] =
+                    context.state->aggregateChannels[index];
+            }
+            return true;
+        });
 }
 
 bool mrnx_bridge_v1_runtime_copy_aggregate_snapshot_v4(
@@ -4112,45 +4926,182 @@ bool mrnx_bridge_v1_runtime_copy_aggregate_snapshot_v4(
     if (runtime == nullptr || runtime->state == nullptr ||
         snapshot == nullptr ||
         snapshot->abi_version != MRNX_AGGREGATE_SNAPSHOT_ABI_V4 ||
-        snapshot->struct_size != sizeof(*snapshot)) return false;
-    const std::shared_lock reader(runtime->state->aggregateGate);
-    bool channelsReady = runtime->state->aggregateChannelCount == 7u;
-    for (std::uint32_t index = 0u;
-         index < runtime->state->aggregateChannelCount; ++index) {
-        channelsReady = channelsReady &&
-            runtime->state->publishedChannelValues[index] != nil &&
-            runtime->state->publishedChannelValidity[index] != nil;
-    }
-    if (runtime->state->culture == nullptr ||
-        runtime->state->aggregate.publication_epoch == 0u ||
-        runtime->state->aggregateTiming.timing_fingerprint == 0u ||
-        runtime->state->aggregateCulture.culture_fingerprint == 0u ||
-        runtime->state->aggregateCulture.generation == 0u ||
-        runtime->state->aggregateCulture.source_root_fingerprint !=
-            runtime->state->aggregate.root.transaction_fingerprint ||
-        runtime->state->aggregateCulture.receipt_fingerprint == 0u ||
-        !runtime->state->publishedCultureView.valid() || !channelsReady) {
-        *snapshot = {};
-        return false;
-    }
+        snapshot->struct_size != sizeof(*snapshot) ||
+        runtime->state->exactClock) return false;
+    struct Read {
+        RuntimeState* state;
+        mrnx_aggregate_snapshot_v4* output;
+    } read{runtime->state.get(), snapshot};
     *snapshot = {};
-    snapshot->abi_version = MRNX_AGGREGATE_SNAPSHOT_ABI_V4;
-    snapshot->struct_size = sizeof(*snapshot);
-    snapshot->publication_epoch = runtime->state->aggregate.publication_epoch;
-    snapshot->brain_generation = runtime->state->aggregate.brain_generation;
-    snapshot->physics_generation = runtime->state->aggregate.physics_generation;
-    snapshot->sensor_generation = runtime->state->aggregate.sensor_generation;
-    snapshot->root = runtime->state->aggregate.root;
-    snapshot->sensor = runtime->state->aggregate.sensor;
-    snapshot->timing = runtime->state->aggregateTiming;
-    snapshot->channel_count = runtime->state->aggregateChannelCount;
-    snapshot->channel_capacity = MRNX_MAX_SENSOR_CHANNELS_V2;
-    for (std::uint32_t index = 0u;
-         index < runtime->state->aggregateChannelCount; ++index) {
-        snapshot->channels[index] = runtime->state->aggregateChannels[index];
-    }
-    snapshot->culture = runtime->state->aggregateCulture;
-    return true;
+    return metalrobo::numanx_bridge_v1::withDomainPublicReadGate(
+        runtime->state->domain, &read, +[](void* raw) noexcept {
+            auto& context = *static_cast<Read*>(raw);
+            if (context.state->terminalQuarantine) return false;
+            bool channelsReady =
+                context.state->aggregateChannelCount == 7u;
+            for (std::uint32_t index = 0u;
+                 index < context.state->aggregateChannelCount; ++index) {
+                channelsReady = channelsReady &&
+                    context.state->publishedChannelValues[index] != nil &&
+                    context.state->publishedChannelValidity[index] != nil;
+            }
+            if (context.state->culture == nullptr ||
+                context.state->aggregate.publication_epoch == 0u ||
+                context.state->aggregate.publication_epoch !=
+                    metalrobo::numanx_bridge_v1::domainPublicationEpoch(
+                        context.state->domain) ||
+                context.state->aggregateTiming.timing_fingerprint == 0u ||
+                context.state->aggregateCulture.culture_fingerprint == 0u ||
+                context.state->aggregateCulture.generation == 0u ||
+                context.state->aggregateCulture.source_root_fingerprint !=
+                    context.state->aggregate.root.transaction_fingerprint ||
+                context.state->aggregateCulture.receipt_fingerprint == 0u ||
+                !context.state->publishedCultureView.valid() ||
+                !channelsReady) return false;
+            auto& output = *context.output;
+            output.abi_version = MRNX_AGGREGATE_SNAPSHOT_ABI_V4;
+            output.struct_size = sizeof(output);
+            output.publication_epoch =
+                context.state->aggregate.publication_epoch;
+            output.brain_generation =
+                context.state->aggregate.brain_generation;
+            output.physics_generation =
+                context.state->aggregate.physics_generation;
+            output.sensor_generation =
+                context.state->aggregate.sensor_generation;
+            output.root = context.state->aggregate.root;
+            output.sensor = context.state->aggregate.sensor;
+            output.timing = context.state->aggregateTiming;
+            output.channel_count = context.state->aggregateChannelCount;
+            output.channel_capacity = MRNX_MAX_SENSOR_CHANNELS_V2;
+            for (std::uint32_t index = 0u;
+                 index < context.state->aggregateChannelCount; ++index) {
+                output.channels[index] =
+                    context.state->aggregateChannels[index];
+            }
+            output.culture = context.state->aggregateCulture;
+            return true;
+        });
+}
+
+bool mrnx_bridge_v1_runtime_copy_aggregate_snapshot_v5(
+    const mrnx_runtime_v1* runtime,
+    mrnx_aggregate_snapshot_v5* snapshot
+) {
+    if (runtime == nullptr || runtime->state == nullptr ||
+        snapshot == nullptr ||
+        snapshot->abi_version != MRNX_AGGREGATE_SNAPSHOT_ABI_V5 ||
+        snapshot->struct_size != sizeof(*snapshot) ||
+        !runtime->state->exactClock) return false;
+    struct Read {
+        RuntimeState* state;
+        mrnx_aggregate_snapshot_v5* output;
+    } read{runtime->state.get(), snapshot};
+    *snapshot = {};
+    return metalrobo::numanx_bridge_v1::withDomainPublicReadGate(
+        runtime->state->domain, &read, +[](void* raw) noexcept {
+            auto& context = *static_cast<Read*>(raw);
+            if (context.state->terminalQuarantine) return false;
+            bool channelsReady =
+                context.state->aggregateChannelCount == 7u;
+            for (std::uint32_t index = 0u;
+                 index < context.state->aggregateChannelCount; ++index) {
+                channelsReady = channelsReady &&
+                    context.state->publishedChannelValues[index] != nil &&
+                    context.state->publishedChannelValidity[index] != nil;
+            }
+            const auto& aggregate = context.state->exactAggregate;
+            const auto& packet = aggregate.sensor_packet;
+            const auto& publication = aggregate.publication;
+            bool channelsValid = packet.channel_count == 7u &&
+                packet.channel_capacity == MRNX_MAX_SENSOR_CHANNELS_V2;
+            std::uint32_t previousModality = 0u;
+            for (std::uint32_t index = 0u;
+                 channelsValid && index < packet.channel_count; ++index) {
+                channelsValid =
+                    aggregate.channels[index].modality > previousModality &&
+                    metalrobo::metalNumanXExactCandidateChannelV2Valid(
+                        aggregate.channels[index], aggregate.timing);
+                previousModality = aggregate.channels[index].modality;
+            }
+            const bool publicFamilyValid =
+                aggregate.publication_epoch != 0u &&
+                aggregate.publication_epoch ==
+                    metalrobo::numanx_bridge_v1::domainPublicationEpoch(
+                        context.state->domain) &&
+                channelsReady &&
+                metalrobo::metalNumanXExactInboundAuthorityV2Valid(
+                    aggregate.inbound_authority) &&
+                metalrobo::metalNumanXExactCandidateTimingV2Valid(
+                    aggregate.timing) &&
+                channelsValid &&
+                packet.abi_version == MRNX_EXACT_SENSOR_PACKET_ABI_V2 &&
+                packet.struct_size == sizeof(packet) &&
+                packet.clock_domain ==
+                    MRNX_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS &&
+                packet.clock_quantum_nanoseconds ==
+                    MRNX_EXACT_CLOCK_QUANTUM_NANOSECONDS &&
+                packet.transaction_fingerprint ==
+                    aggregate.root.transaction_fingerprint &&
+                packet.transaction_fingerprint ==
+                    aggregate.inbound_authority.transaction_fingerprint &&
+                packet.substep_fingerprint ==
+                    aggregate.inbound_authority.substep_fingerprint &&
+                packet.inbound_authority_fingerprint ==
+                    aggregate.inbound_authority.
+                        inbound_authority_fingerprint &&
+                packet.sensor_generation == aggregate.sensor_generation &&
+                packet.accepted_brain_generation ==
+                    aggregate.brain_generation &&
+                packet.device_registry_id ==
+                    context.state->device.registryID &&
+                packet.timing_fingerprint ==
+                    aggregate.timing.timing_fingerprint &&
+                packet.channel_set_fingerprint ==
+                    metalrobo::
+                        metalNumanXExactCandidateChannelSetV2Fingerprint(
+                            aggregate.channels, packet.channel_count) &&
+                packet.candidate_publication_fingerprint != 0u &&
+                packet.candidate_publication_fingerprint ==
+                    metalrobo::metalNumanXExactSensorPacketV2Fingerprint(
+                        packet) &&
+                publication.abi_version == MRNX_PUBLICATION_ABI_V2 &&
+                publication.struct_size == sizeof(publication) &&
+                publication.clock_domain == packet.clock_domain &&
+                publication.clock_quantum_nanoseconds ==
+                    packet.clock_quantum_nanoseconds &&
+                publication.transaction_fingerprint ==
+                    packet.transaction_fingerprint &&
+                publication.accepted_physics_token_fingerprint ==
+                    packet.accepted_physics_token_fingerprint &&
+                publication.candidate_publication_fingerprint ==
+                    packet.candidate_publication_fingerprint &&
+                publication.joint_commit_fingerprint != 0u &&
+                publication.brain_generation == aggregate.brain_generation &&
+                publication.committed_timestamp_nanoseconds ==
+                    aggregate.timing.delivery_timestamp_nanoseconds &&
+                publication.publication_fingerprint != 0u &&
+                publication.publication_fingerprint ==
+                    metalrobo::metalNumanXExactPublicationV2Fingerprint(
+                        publication) &&
+                aggregate.sensor.candidate_publication_fingerprint ==
+                    packet.candidate_publication_fingerprint &&
+                aggregate.sensor.key.sensor_generation ==
+                    aggregate.sensor_generation;
+            if (!publicFamilyValid) return false;
+            if (context.state->culture != nullptr) {
+                if (aggregate.culture.culture_fingerprint == 0u ||
+                    aggregate.culture.generation == 0u ||
+                    aggregate.culture.source_root_fingerprint !=
+                        aggregate.root.transaction_fingerprint ||
+                    aggregate.culture.receipt_fingerprint == 0u ||
+                    !context.state->publishedCultureView.valid()) return false;
+            } else if (aggregate.culture.culture_fingerprint != 0u) {
+                return false;
+            }
+            *context.output = aggregate;
+            return true;
+        });
 }
 
 } // extern "C"
@@ -4653,22 +5604,27 @@ bool encodeRuntimeBehaviorCandidate(void* raw,
     const auto* active = runtime->encodingActive;
     if (active == nullptr || active->slotGeneration != pass.slotGeneration ||
         active->transactionFingerprint != pass.transactionFingerprint ||
-        active->acceptedTimestampMicroseconds >
-            std::numeric_limits<std::uint64_t>::max() /
-                runtime->clockQuantumNanoseconds)
+        (!active->exactFamily &&
+         active->acceptedTimestampMicroseconds >
+             std::numeric_limits<std::uint64_t>::max() /
+                 runtime->clockQuantumNanoseconds))
         return false;
+    const std::uint64_t acceptedTimestampNanoseconds = active->exactFamily
+        ? active->acceptedTimestampNanoseconds
+        : active->acceptedTimestampMicroseconds *
+            runtime->clockQuantumNanoseconds;
     return runtime->behavior->encodeCandidate(pass, active->physicsGeneration,
-        active->acceptedTimestampMicroseconds *
-            runtime->clockQuantumNanoseconds, runtime->behaviorError);
+        acceptedTimestampNanoseconds, runtime->behaviorError);
 }
 
 void recordRuntimeBehaviorTerminal(RuntimeState& runtime, const ActiveRoot& active,
     const mrnx_root_v1& root, bool accepted,
     const MRNumanXHumanMatterJointPublicationFenceGPU* fence) noexcept {
     if (runtime.behavior == nullptr) return;
-    if (active.acceptedTimestampMicroseconds >
-            std::numeric_limits<std::uint64_t>::max() /
-                runtime.clockQuantumNanoseconds ||
+    if ((!active.exactFamily &&
+         active.acceptedTimestampMicroseconds >
+             std::numeric_limits<std::uint64_t>::max() /
+                 runtime.clockQuantumNanoseconds) ||
         runtime.behavior->completedAttempts() == std::numeric_limits<std::uint64_t>::max()) {
         runtime.behaviorError = "behavior clock or attempt count overflow";
         return;
@@ -4679,12 +5635,10 @@ void recordRuntimeBehaviorTerminal(RuntimeState& runtime, const ActiveRoot& acti
     release.linearizationEpoch = root.linearization_epoch;
     release.slotGeneration = root.slot_generation;
     release.physicsGeneration = active.physicsGeneration;
-    release.acceptedTimestampNanoseconds =
-        active.acceptedTimestampMicroseconds <=
-            std::numeric_limits<std::uint64_t>::max() /
-                runtime.clockQuantumNanoseconds
-        ? active.acceptedTimestampMicroseconds *
-            runtime.clockQuantumNanoseconds : 0u;
+    release.acceptedTimestampNanoseconds = active.exactFamily
+        ? active.acceptedTimestampNanoseconds
+        : active.acceptedTimestampMicroseconds *
+            runtime.clockQuantumNanoseconds;
     release.publicationSerial = runtime.behavior->completedAttempts() + 1u;
     release.jointFenceFingerprint = fence != nullptr ? fence->fenceFingerprint : 0u;
     release.released = accepted ? 1u : 2u;
@@ -4710,7 +5664,7 @@ template <typename T>
     const std::uint64_t count,
     const std::uint32_t elementBytes,
     metalrobo::NumiHumanProductionOwnerArrayV1& output
-) noexcept {
+) {
     if (capture.buffer == nil || capture.buffer.contents == nullptr ||
         elementBytes == 0u || count >
             std::numeric_limits<std::uint64_t>::max() / elementBytes) {
@@ -4735,7 +5689,7 @@ template <typename T>
     const metalrobo::NumiHumanProductionOwnerArrayV1& source,
     const std::size_t expectedCount,
     std::vector<float>& output
-) noexcept {
+) {
     if (!source.available || source.elementBytes != sizeof(float) ||
         source.expectedElementCount != expectedCount ||
         expectedCount > std::numeric_limits<std::size_t>::max() /
@@ -4753,7 +5707,7 @@ template <typename T>
 [[nodiscard]] bool deriveOwnerSnapshotDynamics(
     metalrobo::NumiHumanProductionOwnerSnapshotV1& snapshot,
     std::string& error
-) noexcept {
+) {
     const std::size_t nv = snapshot.dofCount;
     std::vector<float> v0;
     std::vector<float> freeVelocity;
@@ -4914,7 +5868,7 @@ template <typename T>
     const RuntimeState& runtime,
     metalrobo::NumiHumanProductionOwnerSnapshotV1& snapshot,
     std::string& error
-) noexcept {
+) {
     using Witness = std::array<float, 8u>;
     const std::size_t nq = snapshot.qCoordinateCount;
     const std::size_t nv = snapshot.dofCount;
@@ -5159,15 +6113,17 @@ template <typename T>
         snapshot.sensorFingerprint = active.candidateKey.sensorFingerprint;
         snapshot.transactionInstanceFingerprint =
             active.candidateKey.transactionInstanceFingerprint;
-        if (active.acceptedTimestampMicroseconds >
-            std::numeric_limits<std::uint64_t>::max() /
-                runtime.clockQuantumNanoseconds) {
+        if (!active.exactFamily &&
+            active.acceptedTimestampMicroseconds >
+                std::numeric_limits<std::uint64_t>::max() /
+                    runtime.clockQuantumNanoseconds) {
             error = "production-owner accepted timestamp overflow";
             return false;
         }
-        snapshot.candidateTimestampNanoseconds =
-            active.acceptedTimestampMicroseconds *
-            runtime.clockQuantumNanoseconds;
+        snapshot.candidateTimestampNanoseconds = active.exactFamily
+            ? active.acceptedTimestampNanoseconds
+            : active.acceptedTimestampMicroseconds *
+                runtime.clockQuantumNanoseconds;
         snapshot.publicationEpoch = published ? publicationEpoch : 0u;
         snapshot.jointFenceFingerprint = published
             ? committedFence->fenceFingerprint : 0u;
@@ -5433,11 +6389,19 @@ template <typename T>
         error.clear();
         return true;
     } catch (const std::exception& exception) {
-        error = std::string("production-owner evidence exception: ") +
-            exception.what();
+        try {
+            error = std::string("production-owner evidence exception: ") +
+                exception.what();
+        } catch (...) {
+            error.clear();
+        }
         return false;
     } catch (...) {
-        error = "production-owner evidence unknown exception";
+        try {
+            error = "production-owner evidence unknown exception";
+        } catch (...) {
+            error.clear();
+        }
         return false;
     }
 }
@@ -5507,6 +6471,16 @@ void runtimeTerminalCompletion(
                     evidenceError.c_str());
                 runtime->terminalQuarantine = true;
             }
+        }
+        return;
+    }
+    if (active != nullptr && active->exactFamily) {
+        if (!publishExactRuntimeTerminal(
+                *runtime, active, root, candidate, channels, channelCount,
+                committedFence)) {
+            const std::lock_guard lock(runtime->mutex);
+            if (runtime->active == active) runtime->active.reset();
+            runtime->terminalQuarantine = true;
         }
         return;
     }
@@ -5651,7 +6625,6 @@ void runtimeTerminalCompletion(
         if (runtime->active == active) runtime->active.reset();
         return;
     }
-    std::unique_lock aggregateWriter(runtime->aggregateGate);
     const std::uint64_t priorEpoch = runtime->aggregate.publication_epoch;
     if (priorEpoch == std::numeric_limits<std::uint64_t>::max()) {
         runtime->active.reset();
@@ -5701,6 +6674,13 @@ void runtimeTerminalCompletion(
     snapshot.abi_version = MRNX_BRIDGE_ABI_V1;
     snapshot.struct_size = sizeof(snapshot);
     snapshot.publication_epoch = priorEpoch + 1u;
+    if (snapshot.publication_epoch !=
+        metalrobo::numanx_bridge_v1::domainPublicationEpoch(
+            runtime->domain)) {
+        runtime->active.reset();
+        runtime->terminalQuarantine = true;
+        return;
+    }
     snapshot.brain_generation = candidate->accepted_brain_generation;
     snapshot.physics_generation = active->physicsGeneration;
     snapshot.sensor_generation = candidate->key.sensor_generation;
@@ -5786,6 +6766,7 @@ void settleActiveRoot(const std::shared_ptr<ActiveRoot>& active) noexcept {
     void* callbackContext = nullptr;
     std::uint64_t generation = 0u;
     bool ready = false;
+    bool exactFamily = false;
     {
         const std::lock_guard lock(active->mutex);
         if (active->settlementStarted || !active->humanSettled ||
@@ -5795,12 +6776,26 @@ void settleActiveRoot(const std::shared_ptr<ActiveRoot>& active) noexcept {
         active->settlementStarted = true;
         prepared = active->prepared;
         candidate = active->candidate;
+        exactFamily = active->exactFamily;
         callback = active->completion;
         callbackContext = active->completionContext;
         generation = active->slotGeneration;
         ready = active->humanReady && active->physicalReady &&
             active->cultureReady &&
             prepared != nullptr && candidate != nullptr;
+        if (exactFamily) {
+            ready = active->humanReady && active->physicalReady &&
+                active->cultureReady && prepared != nullptr;
+        }
+    }
+
+    if (ready && exactFamily) {
+        candidate = finalizeExactCandidate(active);
+        ready = candidate != nullptr;
+        if (ready) {
+            const std::lock_guard lock(active->mutex);
+            active->candidate = candidate;
+        }
     }
 
     mrnx_root_v1 root{};
@@ -5887,6 +6882,153 @@ void settleActiveRoot(const std::shared_ptr<ActiveRoot>& active) noexcept {
     return result;
 }
 
+[[nodiscard]] mrnx_candidate_channel_v2 supplementalChannelV2(
+    const std::uint32_t modality,
+    const std::uint64_t receptorTimestampNanoseconds,
+    const std::uint32_t receptorCount,
+    const std::uint32_t featureCount,
+    id<MTLBuffer> values,
+    id<MTLBuffer> validity
+) noexcept {
+    mrnx_candidate_channel_v2 result{};
+    result.abi_version = MRNX_CANDIDATE_CHANNEL_ABI_V2;
+    result.struct_size = sizeof(result);
+    result.modality = modality;
+    result.flags = MRNX_CANDIDATE_CHANNEL_HAS_VALIDITY_V1;
+    result.receptor_timestamp_nanoseconds = receptorTimestampNanoseconds;
+    result.clock_domain = MRNX_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS;
+    result.clock_quantum_nanoseconds = MRNX_EXACT_CLOCK_QUANTUM_NANOSECONDS;
+    result.receptor_count = receptorCount;
+    result.feature_dimension = featureCount;
+    result.values = outputRange(
+        values, MRNX_ELEMENT_FLOAT32_V1, sizeof(float));
+    result.validity = outputRange(
+        validity, MRNX_ELEMENT_UINT32_V1, sizeof(std::uint32_t));
+    result.channel_fingerprint =
+        metalrobo::metalNumanXExactCandidateChannelV2Fingerprint(result);
+    return result;
+}
+
+[[nodiscard]] mrnx_candidate_v1* finalizeExactCandidate(
+    const std::shared_ptr<ActiveRoot>& active
+) noexcept {
+    if (active == nullptr || active->runtime == nullptr ||
+        !active->exactFamily || !active->candidateKey.valid() ||
+        !active->exactHumanIO.valid()) {
+        return nullptr;
+    }
+    mrnx_exact_inbound_authority_v2 authority{};
+    static_assert(sizeof(authority) ==
+                  sizeof(active->exactReceipt.inboundAuthority));
+    std::memcpy(
+        &authority, &active->exactReceipt.inboundAuthority,
+        sizeof(authority));
+    const auto& proof = active->exactReceipt.acceptedStateProof;
+    const auto& token = active->exactReceipt.acceptedPhysicsStateToken;
+    if (!metalrobo::metalNumanXExactInboundAuthorityV2Valid(authority) ||
+        !metalrobo::metalNumanXExactAcceptedStateProofV2Valid(proof) ||
+        !metalrobo::metalNumanXExactAcceptedPhysicsTokenV2Valid(
+            proof, token)) {
+        return nullptr;
+    }
+
+    metalrobo::MetalNumanXHumanIOCandidatePublicationLease lease;
+    const auto reserved = active->runtime->humanIO->
+        reserveCandidatePublication(
+            active->candidateKey, active->exactHumanIO.authority, lease);
+    if (!reserved.succeeded() || !lease.valid()) return nullptr;
+    auto* candidate = metalrobo::numanx_bridge_v1::adoptCandidateV2(
+        active->runtime->domain, std::move(lease), authority, proof, token);
+    if (candidate == nullptr) {
+        const std::lock_guard lock(active->runtime->mutex);
+        active->runtime->terminalQuarantine = true;
+        active->runtime->info.request_failure_stage = 1010u;
+        return nullptr;
+    }
+
+    const mrnx_candidate_channel_v2 supplemental[] = {
+        supplementalChannelV2(
+            MRNX_CANDIDATE_MODALITY_KINESTHESIA_V1,
+            active->receptorTimestampNanoseconds,
+            MR_NUMANX_HUMAN_KINESTHESIA_RECEPTOR_COUNT,
+            MR_NUMANX_HUMAN_KINESTHESIA_FEATURE_COUNT,
+            active->kinesthesia, active->kinesthesiaValidity),
+        supplementalChannelV2(
+            MRNX_CANDIDATE_MODALITY_VESTIBULAR_V1,
+            active->receptorTimestampNanoseconds,
+            MR_NUMANX_HUMAN_VESTIBULAR_RECEPTOR_COUNT,
+            MR_NUMANX_HUMAN_VESTIBULAR_FEATURE_COUNT,
+            active->vestibular, active->vestibularValidity),
+        supplementalChannelV2(
+            MRNX_CANDIDATE_MODALITY_AUDITION_V1,
+            active->receptorTimestampNanoseconds,
+            MR_NUMANX_HUMAN_AUDITION_RECEPTOR_COUNT,
+            MR_NUMANX_HUMAN_AUDITION_FEATURE_COUNT,
+            active->audition, active->auditionValidity),
+        supplementalChannelV2(
+            MRNX_CANDIDATE_MODALITY_VISION_V1,
+            active->receptorTimestampNanoseconds,
+            MR_NUMANX_HUMAN_VISION_RECEPTOR_COUNT,
+            MR_NUMANX_HUMAN_VISION_FEATURE_COUNT,
+            active->vision, active->visionValidity),
+        supplementalChannelV2(
+            MRNX_CANDIDATE_MODALITY_TOUCH_V1,
+            active->receptorTimestampNanoseconds,
+            MR_NUMANX_HUMAN_TOUCH_RECEPTOR_COUNT,
+            MR_NUMANX_HUMAN_TOUCH_FEATURE_COUNT,
+            active->touch, active->touchValidity),
+    };
+    if (!metalrobo::numanx_bridge_v1::attachCandidateChannelsV2(
+            candidate, supplemental,
+            static_cast<std::uint32_t>(std::size(supplemental)))) {
+        (void)mrnx_bridge_v1_reject_unbound_candidate(candidate);
+        mrnx_bridge_v1_candidate_drop(candidate);
+        return nullptr;
+    }
+    mrnx_candidate_timing_v2 timing{};
+    timing.abi_version = MRNX_CANDIDATE_TIMING_ABI_V2;
+    timing.struct_size = sizeof(timing);
+    mrnx_exact_inbound_authority_v2 copiedAuthority{};
+    copiedAuthority.abi_version = MRNX_EXACT_INBOUND_AUTHORITY_ABI_V2;
+    copiedAuthority.struct_size = sizeof(copiedAuthority);
+    mrnx_exact_sensor_packet_v2 packet{};
+    packet.abi_version = MRNX_EXACT_SENSOR_PACKET_ABI_V2;
+    packet.struct_size = sizeof(packet);
+    mrnx_candidate_channel_v2 channels[MRNX_MAX_SENSOR_CHANNELS_V2]{};
+    bool copied = mrnx_bridge_v1_candidate_copy_timing_v2(
+            candidate, &timing) &&
+        mrnx_bridge_v1_candidate_copy_inbound_authority_v2(
+            candidate, &copiedAuthority) &&
+        mrnx_bridge_v1_candidate_copy_sensor_packet_v2(candidate, &packet) &&
+        packet.channel_count == 7u &&
+        packet.channel_count <= MRNX_MAX_SENSOR_CHANNELS_V2;
+    for (std::uint32_t index = 0u;
+         copied && index < packet.channel_count; ++index) {
+        channels[index].abi_version = MRNX_CANDIDATE_CHANNEL_ABI_V2;
+        channels[index].struct_size = sizeof(channels[index]);
+        copied = mrnx_bridge_v1_candidate_copy_channel_v2(
+            candidate, index, &channels[index]);
+    }
+    copied = copied && copiedAuthority.inbound_authority_fingerprint ==
+            authority.inbound_authority_fingerprint &&
+        metalrobo::metalNumanXExactSensorPacketV2Valid(
+            copiedAuthority, proof, token, timing, channels,
+            packet.channel_count, packet);
+    if (!copied) {
+        (void)mrnx_bridge_v1_reject_unbound_candidate(candidate);
+        mrnx_bridge_v1_candidate_drop(candidate);
+        return nullptr;
+    }
+    active->exactTiming = timing;
+    active->exactInboundAuthority = copiedAuthority;
+    active->exactSensorPacket = packet;
+    active->exactChannelCount = packet.channel_count;
+    for (std::uint32_t index = 0u; index < packet.channel_count; ++index) {
+        active->exactChannels[index] = channels[index];
+    }
+    return candidate;
+}
+
 [[nodiscard]] bool bridgeCultureAcceptedView(
     const metalrobo::MetalNeuronCultureAcceptedView& source,
     const std::uint64_t deviceRegistryID,
@@ -5955,7 +7097,7 @@ void humanCandidateCompletion(
         active->runtime->info.request_failure_stage = 1000u +
             static_cast<std::uint32_t>(status);
     }
-    if (ready) {
+    if (ready && !active->exactFamily) {
         metalrobo::MetalNumanXHumanIOCandidatePublicationLease lease;
         const auto reserved = active->runtime->humanIO->
             reserveCandidatePublication(key, lease);
@@ -6045,8 +7187,33 @@ void physicalCompletion(
                 active->transactionFingerprint,
                 active->slotGeneration,
                 outcome);
+        metalrobo::MetalNumanXHumanMatterExactPhysicalReceipt exactReceipt{};
+        const bool hasExactReceipt = !active->exactFamily ||
+            (active->physicalReady &&
+             active->runtime->adapter->exactPhysicalReceipt(
+                 active->transactionSlot,
+                 active->transactionFingerprint,
+                 active->slotGeneration,
+                 exactReceipt));
+        const std::uint64_t exactProofProgramFingerprint =
+            active->exactFamily && active->runtime->matter != nullptr
+            ? active->runtime->matter
+                  ->acceptedStateProofProgramFingerprintV2()
+            : 0u;
         const std::lock_guard runtimeLock(active->runtime->mutex);
-        if (!active->physicalReady || !hasOutcome) {
+        const bool exactProvenanceValid = !active->exactFamily ||
+            (exactProofProgramFingerprint != 0u &&
+             exactReceipt.acceptedStateProof.stateProofProgramFingerprint ==
+                 exactProofProgramFingerprint &&
+             active->runtime->info.
+                     accepted_state_proof_program_fingerprint ==
+                 exactProofProgramFingerprint);
+        active->physicalReady = active->physicalReady && hasOutcome &&
+            hasExactReceipt && exactProvenanceValid;
+        if (active->physicalReady && active->exactFamily) {
+            active->exactReceipt = exactReceipt;
+        }
+        if (!active->physicalReady) {
             active->runtime->info.request_failure_stage = 1100u;
         } else if (outcome.humanCode != MR_NUMI_HUMAN_STAND_SUCCESS) {
             active->runtime->info.request_failure_stage =

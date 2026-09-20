@@ -1,8 +1,10 @@
 #pragma once
 
 #include "metalrobo/MetalArticulatedOperator.hpp"
+#include "metalrobo/numanx_human_io_gpu.h"
 #include "metalrobo/numanx_human_matter_adapter_gpu.h"
 
+#include <array>
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -354,6 +356,25 @@ struct MetalNumanXHumanMatterPhysicalOutcome {
     std::array<float, 4u> matterDiagnostics{};
 };
 
+// Fixed-size qualification receipt copied from the original physical command
+// buffer after exact HumanIO authority validation, Matter proof production,
+// and accepted-token materialization. The query below returns this receipt
+// only while its slot generation still names the transaction and only after
+// all three records pass their exact-family, nanosecond-clock, identity, and
+// terminal-fingerprint checks. It owns bytes only; no private Metal resource
+// or borrowed authority escapes through this host readback.
+struct alignas(16) MetalNumanXHumanMatterExactPhysicalReceipt {
+    MRNumanXExactInboundAuthorityGPUV2 inboundAuthority{};
+    MRNumanXAcceptedStateProofGPUV2 acceptedStateProof{};
+    MRNumanXAcceptedPhysicsStateTokenGPUV2 acceptedPhysicsStateToken{};
+};
+
+static_assert(sizeof(MetalNumanXHumanMatterExactPhysicalReceipt) ==
+              sizeof(MRNumanXExactInboundAuthorityGPUV2) +
+              sizeof(MRNumanXAcceptedStateProofGPUV2) +
+              sizeof(MRNumanXAcceptedPhysicsStateTokenGPUV2));
+static_assert(alignof(MetalNumanXHumanMatterExactPhysicalReceipt) == 16u);
+
 // Owns the adapter pipelines and fixed-capacity slot arenas. It never owns a
 // command queue and never retains resources borrowed through an owner pass or
 // prepare lease. A slot remains quarantined across the physical-prepare and
@@ -403,6 +424,13 @@ public:
         std::uint64_t transactionFingerprint,
         std::uint64_t slotGeneration,
         MetalNumanXHumanMatterPhysicalOutcome& outcome
+    ) const noexcept;
+
+    [[nodiscard]] bool exactPhysicalReceipt(
+        std::uint32_t transactionSlot,
+        std::uint64_t transactionFingerprint,
+        std::uint64_t slotGeneration,
+        MetalNumanXHumanMatterExactPhysicalReceipt& receipt
     ) const noexcept;
 
 private:

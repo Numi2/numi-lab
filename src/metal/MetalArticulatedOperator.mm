@@ -296,6 +296,10 @@ struct MetalArticulatedOperatorContextState {
         std::uint64_t transactionFingerprint = 0u;
         std::uint64_t physicsGeneration = 0u;
         std::uint64_t acceptedTokenFingerprint = 0u;
+        // Stable adapter/owner program identity. HumanIO's program fingerprint
+        // is transaction-scoped and is retained below only as provenance for
+        // the root that produced this resident state.
+        std::uint64_t humanMatterProgramFingerprint = 0u;
         MetalNumanXHumanMatterTokenFamily tokenFamily =
             MetalNumanXHumanMatterTokenFamily::legacyMicrosecondsV1;
         std::uint64_t humanIOProgramFingerprint = 0u;
@@ -7659,6 +7663,8 @@ MetalNumanXHumanMatterPrepared::releasePublishedRoot(
             .physicsGeneration = acceptedToken->physicsGeneration,
             .acceptedTokenFingerprint =
                 acceptedToken->tokenFingerprint,
+            .humanMatterProgramFingerprint =
+                current.dispatch.programFingerprint,
             .tokenFamily = current.tokenFamily,
             .humanIOProgramFingerprint =
                 current.humanIOProgramFingerprint,
@@ -8228,22 +8234,38 @@ MetalArticulatedOperatorContext::submit(
         if (reusePublishedResidentState) {
             const auto& resident = state_->publishedResident;
             const auto& program = input.stand.numanXHumanMatterProgram;
+            const bool exactResident =
+                resident.tokenFamily ==
+                MetalNumanXHumanMatterTokenFamily::exactNanosecondsV2;
+            const bool continuationNamesResidentRoot = exactResident
+                ? continuation.validExact() &&
+                    continuation.previousAcceptedTokenFingerprint ==
+                        resident.acceptedTokenFingerprint &&
+                    continuation.previousHumanIOProgramFingerprint ==
+                        resident.humanIOProgramFingerprint
+                : continuation.validLegacy();
             const bool stateArenaValid =
-                continuation.valid() &&
+                continuationNamesResidentRoot &&
                 program.valid() &&
                 resident.model == &model &&
                 resident.tokenFamily == program.tokenFamily &&
-                resident.humanIOProgramFingerprint ==
-                    program.humanIOProgramFingerprint &&
+                resident.humanMatterProgramFingerprint != 0u &&
+                resident.humanMatterProgramFingerprint == program.fingerprint &&
                 (resident.tokenFamily !=
                          MetalNumanXHumanMatterTokenFamily::
                              exactNanosecondsV2 ||
                  (input.stand.numanXTransactionProgram.valid() &&
                   input.stand.numanXTransactionProgram.fingerprint ==
-                      resident.humanIOProgramFingerprint)) &&
+                      program.humanIOProgramFingerprint)) &&
                 validHumanMatterFamilyIdentity(
                     resident.tokenFamily,
                     resident.humanIOProgramFingerprint,
+                    exactResident
+                        ? MR_NUMANX_HUMAN_MATTER_EXACT_TOKEN_FAMILY
+                        : 0u) &&
+                validHumanMatterFamilyIdentity(
+                    program.tokenFamily,
+                    program.humanIOProgramFingerprint,
                     program.tokenFamily ==
                             MetalNumanXHumanMatterTokenFamily::
                                 exactNanosecondsV2

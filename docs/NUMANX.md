@@ -106,8 +106,8 @@ addresses, or program identity alone is not a physical-state proof.
 
 ### Exact-clock outbound boundary
 
-Request-v3 has a complete fixed-layout record family for its eventual native
-close: `MRNumanXAcceptedStateProofGPUV2`,
+Request-v3 has a complete executable fixed-layout record family:
+`MRNumanXAcceptedStateProofGPUV2`,
 `MRNumanXAcceptedPhysicsStateTokenGPUV2`, `mrnx_candidate_timing_v2`,
 `mrnx_candidate_channel_v2`, `mrnx_exact_inbound_authority_v2`,
 `mrnx_exact_sensor_packet_v2`, `mrnx_publication_v2`, and aggregate snapshot
@@ -163,13 +163,26 @@ from the accepted physical timestamp, descriptor changes after packet
 identity, and publication metadata that differs from the accepted token or
 sensor packet.
 
-These definitions are an admission and ownership boundary, not an execution
-claim. HumanIO and HumanMatter do not yet produce this full family, and the
-persistent publication owner does not yet release aggregate snapshot v5.
-Therefore a structurally valid request-v3 still stops at failure stage 900
-before importing a Metal object, allocating a slot, advancing an attempt, or
-constructing a command buffer. The v1 and published request-v2 layouts remain
-unchanged.
+The native request-v3 owner now imports retained same-device Metal slices,
+submits the exact HumanIO/HumanMatter transaction, and waits for both the
+HumanIO candidate and the GPU-derived physical receipt. The bridge derives the
+canonical seven-channel packet, binds it through proposal/ACK/apply, and holds
+the sole aggregate writer gate while publication-v2 releases the physical,
+sensor, and Brain generations. Only then does the runtime install aggregate
+snapshot v5 and advance its exact clock and continuation authority. A second
+root must name those published generations and timestamp; it cannot continue
+from a merely prepared or accepted-private candidate.
+
+HumanIO's base two-channel candidate remains a private native capability. The
+bridge's exact publication wrapper binds the externally visible Matter proposal
+to the complete seven-channel packet while translating back to the retained
+base identity only inside HumanIO's private reserve/publish/reject callbacks.
+The two identities are never equated, and the full packet fingerprint remains
+the public publication identity.
+
+The v1 and published request-v2 layouts remain unchanged. Legacy aggregate
+readers fail closed for an exact runtime rather than down-converting the clock
+or returning a mixed-family snapshot.
 
 ## Physics ownership
 

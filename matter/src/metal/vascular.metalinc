@@ -1124,7 +1124,7 @@ kernel void nm_vascular_limit_line_search(
     device const float4* candidate [[buffer(2)]],
     device const float4* solution [[buffer(3)]],
     device float4* lineSearch [[buffer(4)]],
-    device float* vascularAlpha [[buffer(5)]],
+    device float* environmentLineSearch [[buffer(5)]],
     device NMMatterStatusGPU* statuses [[buffer(6)]],
     device const NMVascularCompartmentGPU* compartments [[buffer(7)]],
     device const NMVascularConnectionGPU* connections [[buffer(8)]],
@@ -1152,10 +1152,8 @@ kernel void nm_vascular_limit_line_search(
     constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
     uint lane [[thread_index_in_threadgroup]],
     uint environment [[threadgroup_position_in_grid]]) {
-    if (lane >= 32u || environment >= dispatch.environmentCount || graph.ranges.z == 0u) return;
-    float alpha = 1.0f;
-    for (uint object = lane; object < dispatch.objectCount; object += 32u)
-        alpha = min(alpha, lineSearch[environment * dispatch.objectCount + object].x);
+    if (lane >= 32u || environment >= dispatch.environmentCount) return;
+    float alpha = environmentLineSearch[environment];
     for (uint local = lane; local < graph.ranges.z; local += 32u) {
         const uint row = environment * graph.ranges.z + local;
         const float value = candidate[row].x;
@@ -1209,13 +1207,14 @@ kernel void nm_vascular_limit_line_search(
         }
     }
     alpha = simd_min(alpha);
-    if (changed[environment] != 0u) alpha = 0.0f;
+    if (graph.ranges.z != 0u && changed[environment] != 0u) alpha = 0.0f;
     // Positivity alone cannot globalize an opening valve: at Q=0 its
     // pressure-coupled Newton direction can overshoot the quadratic law.
     // Evaluate the original physical residual along the shared correction,
     // including the affine particular Q(alpha)=(1-alpha)*Q for constraints.
     // Trial storage is scratch and never an accepted state or second solve.
-    if (alpha > 0.0f && environmentHealthy(statuses, environment)) {
+    if (graph.ranges.z != 0u && alpha > 0.0f &&
+        environmentHealthy(statuses, environment)) {
         const uint base = environment * graph.ranges.z;
         const uint directionBase = layout.vascularBase + base;
         float initialMerit = 0.0f;
@@ -1274,8 +1273,10 @@ kernel void nm_vascular_limit_line_search(
         }
     }
     if (lane == 0u) {
-        vascularAlpha[environment] = alpha;
-        if (changed[environment] == 0u && (!(alpha > 0.0f) || !isfinite(alpha)))
+        environmentLineSearch[environment] = alpha;
+        if ((graph.ranges.z == 0u || changed[environment] == 0u) &&
+            environmentHealthy(statuses, environment) &&
+            (!(alpha > 0.0f) || !isfinite(alpha)))
             recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
                 NM_INVALID_INDEX, NM_INVALID_INDEX, float4(alpha, 0.0f, 0.0f, 0.0f));
     }

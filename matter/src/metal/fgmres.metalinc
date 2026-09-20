@@ -1509,18 +1509,15 @@ kernel void nm_rigid_apply_candidate_solution(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
     device const float4* solution [[buffer(1)]],
-    device const float4* lineSearch [[buffer(2)]],
+    device const float* environmentLineSearch [[buffer(2)]],
     device float* candidate [[buffer(3)]],
-    device const float* vascularAlpha [[buffer(4)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount *
         dispatch.rigidGeneralizedCapacity;
     if (global >= total || dispatch.rigidGeneralizedCapacity == 0u) return;
     const uint environment = global / dispatch.rigidGeneralizedCapacity;
-    const float alpha = dispatch.objectCount == 0u
-        ? (layout.vascularUnknownCount == 0u ? 1.0f : vascularAlpha[environment])
-        : lineSearch[environment * dispatch.objectCount].x;
+    const float alpha = environmentLineSearch[environment];
     if (alpha == 0.0f) return;
     candidate[global] += alpha *
         solution[fgmresRigidBase(dispatch) + global].x;
@@ -3525,21 +3522,94 @@ kernel void nm_fgmres_apply_support_dual(
         pointDirection - impulseDirection), 0.0f);
 }
 
+// The support impulse is a dual unknown in the same monolithic Newton step as
+// rigid, FEM, MPM, and vascular state. Preserve the normal half-line with one
+// environment-wide fraction-to-boundary step; never clamp or project the dual
+// independently of the mechanical correction.
+kernel void nm_human_support_limit_line_search(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    constant NMHumanSupportDispatchGPU& support [[buffer(1)]],
+    device const float4* solution [[buffer(2)]],
+    device const float4* histories [[buffer(3)]],
+    device float4* objectLineSearch [[buffer(4)]],
+    device float* environmentLineSearch [[buffer(5)]],
+    device NMMatterStatusGPU* statuses [[buffer(6)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]
+) {
+    if (lane >= 32u || environment >= dispatch.environmentCount) return;
+    float alpha = environmentHealthy(statuses, environment) ? 1.0f : 0.0f;
+    const uint objectBase = environment * dispatch.objectCount;
+    for (uint object = lane; object < dispatch.objectCount; object += 32u) {
+        const float objectAlpha = objectLineSearch[objectBase + object].x;
+        if (!isfinite(objectAlpha) || objectAlpha < 0.0f) {
+            alpha = 0.0f;
+            recordFailure(
+                statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+                object, NM_INVALID_INDEX,
+                float4(objectAlpha, 0.0f, 0.0f, 0.0f));
+        } else {
+            alpha = min(alpha, objectAlpha);
+        }
+    }
+    const float3 normal = support.groundNormal.xyz;
+    const uint supportBase = environment * layout.supportContactCount;
+    for (uint row = lane; row < layout.supportContactCount; row += 32u) {
+        const float4 history = histories[supportBase + row];
+        const float3 correction = solution[
+            layout.supportBase + supportBase + row].xyz;
+        const float normalImpulse = history.w;
+        const float normalCorrection = dot(correction, normal);
+        if (!all(isfinite(history)) || !finite3(correction) ||
+            !isfinite(normalCorrection) || normalImpulse < 0.0f) {
+            alpha = 0.0f;
+            recordFailure(
+                statuses[environment], NM_STATUS_CONTACT_FAILURE,
+                NM_INVALID_INDEX, row,
+                float4(normalImpulse, normalCorrection, 0.0f, 0.0f));
+        } else if (normalCorrection < 0.0f) {
+            const float supportBound =
+                0.99f * normalImpulse / -normalCorrection;
+            if (!(supportBound > 0.0f) || !isfinite(supportBound)) {
+                alpha = 0.0f;
+                recordFailure(
+                    statuses[environment], NM_STATUS_CONTACT_FAILURE,
+                    NM_INVALID_INDEX, row,
+                    float4(
+                        normalImpulse, normalCorrection, supportBound, 0.0f));
+            } else {
+                alpha = min(alpha, supportBound);
+            }
+        }
+    }
+    alpha = simd_min(alpha);
+    if (lane == 0u) {
+        environmentLineSearch[environment] = alpha;
+        if (environmentHealthy(statuses, environment) &&
+            (!(alpha > 0.0f) || !isfinite(alpha))) {
+            recordFailure(
+                statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+                NM_INVALID_INDEX, NM_INVALID_INDEX,
+                float4(alpha, 0.0f, 0.0f, 0.0f));
+        }
+    }
+    for (uint object = lane; object < dispatch.objectCount; object += 32u)
+        objectLineSearch[objectBase + object].x = alpha;
+}
+
 kernel void nm_human_support_apply_solution(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
     constant NMHumanSupportDispatchGPU& support [[buffer(1)]],
     device const float4* solution [[buffer(2)]],
-    device const float4* lineSearch [[buffer(3)]],
+    device const float* environmentLineSearch [[buffer(3)]],
     device float4* histories [[buffer(4)]],
-    device const float* vascularAlpha [[buffer(5)]],
     uint global [[thread_position_in_grid]]
 ) {
     if (global >= dispatch.environmentCount * support.contactCount) return;
     const uint environment = global / support.contactCount;
-    const float alpha = dispatch.objectCount == 0u
-        ? (layout.vascularUnknownCount == 0u ? 1.0f : vascularAlpha[environment])
-        : lineSearch[environment * dispatch.objectCount].x;
+    const float alpha = environmentLineSearch[environment];
     if (alpha == 0.0f) return;
     const float3 normal = support.groundNormal.xyz;
     const float4 history = histories[global];
@@ -3587,12 +3657,16 @@ kernel void nm_human_support_certify(
         solver.residualTolerances.x * max(min(states[environment].nonlinear.x,
             states[environment].nonlinear.y), 1.0f));
     bool invalidSupportImpulse = false;
+    float invalidNormalImpulse = 0.0f;
+    uint invalidSupportRow = NM_INVALID_INDEX;
     if (lane == 0u) {
         for (uint row = 0u; row < layout.supportContactCount; ++row) {
             const float normalImpulse = supportHistories[
                 environment * layout.supportContactCount + row].w;
             if (!isfinite(normalImpulse) || normalImpulse < -1.0e-7f) {
                 invalidSupportImpulse = true;
+                invalidNormalImpulse = normalImpulse;
+                invalidSupportRow = row;
                 break;
             }
         }
@@ -3602,7 +3676,8 @@ kernel void nm_human_support_certify(
             NM_INVALID_INDEX, NM_INVALID_INDEX, float4(norm, threshold, supportNorm, rigidNorm));
     if (lane == 0u && invalidSupportImpulse)
         recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
-            NM_INVALID_INDEX, NM_INVALID_INDEX, float4(-1.0f, 0.0f, supportNorm, rigidNorm));
+            NM_INVALID_INDEX, invalidSupportRow,
+            float4(-1.0f, invalidNormalImpulse, supportNorm, rigidNorm));
 }
 
 } // namespace numi_matter_metal
