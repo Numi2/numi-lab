@@ -3651,12 +3651,13 @@ bool mrnx_bridge_v1_runtime_begin_physical_root_v3(
                 return false;
             }
 
-            // Pure CPU record/descriptor admission is complete, but the
-            // native outbound sensor, HumanMatter close, accepted-token, and
-            // persistent-state ABIs are still v1/microsecond families. No
-            // borrowed Metal object/event has been bridged, retained, or
-            // imported. Fail before resource admission, slot allocation,
-            // attempt advancement, or command-buffer construction.
+            // Pure CPU record/descriptor admission is complete. Additive
+            // exact outbound, accepted-token, and publication records now
+            // exist, but HumanIO/HumanMatter do not yet produce them and no
+            // persistent owner releases their complete family. No borrowed
+            // Metal object/event has been bridged, retained, or imported.
+            // Fail before resource admission, slot allocation, attempt
+            // advancement, or command-buffer construction.
             (void)completionContext;
             state->info.status = MRNX_RUNTIME_CONTINUATION_UNAVAILABLE_V1;
             state->info.request_failure_stage =
