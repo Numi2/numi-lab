@@ -5,6 +5,7 @@
 #include "metalrobo/NumanXExactTransaction.hpp"
 #include "numi/matter/accepted_state_apply_gpu.h"
 #include "numi/matter/accepted_state_proof_gpu.h"
+#include "numi/matter/physical_state_digest_gpu.h"
 
 namespace exact_v2_lifecycle_fixture {
 
@@ -29,6 +30,22 @@ constexpr std::uint64_t kFastGateFingerprint =
 constexpr std::uint64_t kJointCommitFingerprint =
     0x4e584a4f494e5432ull;
 
+struct HumanIOStep {
+    std::uint64_t startNanoseconds = kStartNanoseconds;
+    std::uint64_t durationNanoseconds = kDurationNanoseconds;
+    std::uint32_t controlStep = kControlStep;
+    std::uint64_t baseBrainGeneration = 18u;
+    std::uint64_t basePhysicsGeneration = 16u;
+    std::uint64_t shadowGeneration = 19u;
+    std::uint64_t randomCounterGeneration = 29u;
+    std::uint64_t candidateSensorGeneration = 31u;
+    float excitation = 0.0f;
+
+    [[nodiscard]] std::uint64_t deliveryNanoseconds() const noexcept {
+        return startNanoseconds + durationNanoseconds;
+    }
+};
+
 static_assert(kStartNanoseconds % 1000u != 0u);
 static_assert(kDeliveryNanoseconds % 1000u != 0u);
 static_assert(sizeof(MRNumanXExactInboundAuthorityGPUV2) ==
@@ -36,12 +53,23 @@ static_assert(sizeof(MRNumanXExactInboundAuthorityGPUV2) ==
 static_assert(sizeof(MRNumanXAcceptedPhysicsStateTokenGPUV2) ==
               MR_NUMANX_HUMAN_MATTER_ACCEPTED_TOKEN_BYTES);
 
+struct RuntimeProofV2Audit {
+    numi::matter::Runtime* runtime = nullptr;
+    id<MTLBuffer> candidateDigest = nil;
+    bool candidateDigestEncoded = false;
+    bool preProofDigestRejected = true;
+    std::uint32_t preProofDigestAttempts = 0u;
+    bool proofSourceSubstitutionRejected = true;
+    std::uint32_t proofSourceSubstitutionAttempts = 0u;
+};
+
 bool encodeRuntimeProofV2(
     void* context,
     const metalrobo::MetalNumanXHumanMatterStateProofPassV2& source
 ) noexcept {
-    auto* runtime = static_cast<numi::matter::Runtime*>(context);
-    if (runtime == nullptr ||
+    auto* audit = static_cast<RuntimeProofV2Audit*>(context);
+    if (audit == nullptr || audit->runtime == nullptr ||
+        audit->candidateDigest == nil || audit->candidateDigestEncoded ||
         source.abiVersion !=
             MR_NUMANX_HUMAN_MATTER_EXACT_ADAPTER_ABI_VERSION ||
         source.structSize != sizeof(source)) {
@@ -111,7 +139,71 @@ bool encodeRuntimeProofV2(
     pass.matterDeviceProgramFingerprint =
         source.matterDeviceProgramFingerprint;
     pass.motorCandidateFingerprint = source.motorCandidateFingerprint;
-    return runtime->encodeAcceptedStateProofV2(pass);
+
+    numi::matter::PhysicalStateDigestPassV1 digest{};
+    digest.mode = numi::matter::PhysicalStateDigestMode::preparedCandidate;
+    digest.environmentCount = source.environmentCount;
+    digest.environmentIdentifierBase = source.environmentIdentifierBase;
+    digest.clockDomain = source.clockDomain;
+    digest.clockQuantumNanoseconds = source.clockQuantumNanoseconds;
+    digest.commandBuffer = source.commandBuffer;
+    digest.rootTranslation = source.rootTranslation;
+    digest.q = source.q;
+    digest.v = source.v;
+    digest.mujocoStates = source.mujocoStates;
+    digest.output = (__bridge void*)audit->candidateDigest;
+    digest.rootTranslationGPUAddress = source.rootTranslationGPUAddress;
+    digest.qGPUAddress = source.qGPUAddress;
+    digest.vGPUAddress = source.vGPUAddress;
+    digest.mujocoStatesGPUAddress = source.mujocoStatesGPUAddress;
+    digest.outputGPUAddress = audit->candidateDigest.gpuAddress;
+    digest.rootTranslationElementCount =
+        source.rootTranslationElementCount;
+    digest.qElementCount = source.qElementCount;
+    digest.vElementCount = source.vElementCount;
+    digest.mujocoStateCount = source.mujocoStateCount;
+    digest.outputElementCount = source.environmentCount;
+    digest.rootTranslationStride = source.rootTranslationStride;
+    digest.qStride = source.qStride;
+    digest.vStride = source.vStride;
+    digest.mujocoStateStride = source.mujocoStateStride;
+    digest.acceptedTimestampNanoseconds =
+        source.acceptedTimestampNanoseconds;
+    digest.physicsGeneration = source.physicsGeneration;
+    digest.matterSourcePhysicsFingerprint =
+        source.matterSourcePhysicsFingerprint;
+    digest.matterDeviceProgramFingerprint =
+        source.matterDeviceProgramFingerprint;
+
+    ++audit->preProofDigestAttempts;
+    const bool preProofRejected =
+        !audit->runtime->encodePhysicalStateDigestV1(digest);
+    audit->preProofDigestRejected =
+        audit->preProofDigestRejected && preProofRejected;
+    if (!preProofRejected ||
+        !audit->runtime->encodeAcceptedStateProofV2(pass)) {
+        return false;
+    }
+
+    // The proof and digest intentionally share the four physical inputs.
+    // A different digest input may not repurpose a proof-only borrowed arena:
+    // it could otherwise relabel the reaction bytes as Human velocity, while
+    // a digest output alias would synchronously clear proof authority.
+    auto proofSourceSubstitution = digest;
+    proofSourceSubstitution.v = source.matterGeneralizedReaction;
+    proofSourceSubstitution.vGPUAddress =
+        source.matterGeneralizedReactionGPUAddress;
+    ++audit->proofSourceSubstitutionAttempts;
+    const bool substitutionRejected =
+        !audit->runtime->encodePhysicalStateDigestV1(
+            proofSourceSubstitution);
+    audit->proofSourceSubstitutionRejected =
+        audit->proofSourceSubstitutionRejected && substitutionRejected;
+    if (!substitutionRejected) return false;
+
+    audit->candidateDigestEncoded =
+        audit->runtime->encodePhysicalStateDigestV1(digest);
+    return audit->candidateDigestEncoded;
 }
 
 numi::matter::CompiledWorld compileSettledLifecycleWorld() {
@@ -180,7 +272,10 @@ struct HumanIOFixture {
     metalrobo::MetalNumanXHumanIOInputV2 input{};
 };
 
-HumanIOFixture makeHumanIOFixture(id<MTLDevice> device) {
+HumanIOFixture makeHumanIOFixture(
+    id<MTLDevice> device,
+    const HumanIOStep& step = {}
+) {
     HumanIOFixture fixture;
     fixture.header = makeZeroBuffer(
         device, sizeof(fixture.output), @"lifecycle exact motor header");
@@ -199,19 +294,19 @@ HumanIOFixture makeHumanIOFixture(id<MTLDevice> device) {
         "failed to allocate exact HumanIO ready event");
     // Keep the owner fixture at its calibrated zero-activation root. The
     // lifecycle under test is authority transport, not a new motor policy.
-    *static_cast<float*>(fixture.excitation.contents) = 0.0f;
+    *static_cast<float*>(fixture.excitation.contents) = step.excitation;
 
     fixture.root.formatVersion =
         MR_NUMANX_BRAIN_JOINT_TRANSACTION_VERSION_V2;
     fixture.root.episodeIdentifier = 7u;
-    fixture.root.controlStepIdentifier = kControlStep;
+    fixture.root.controlStepIdentifier = step.controlStep;
     fixture.root.parameterVersionFingerprint = 0x4e58504152414d32ull;
-    fixture.root.baseBrainGeneration = 18u;
-    fixture.root.basePhysicsGeneration = 16u;
-    fixture.root.committedTimestampNanoseconds = kStartNanoseconds;
-    fixture.root.targetTimestampNanoseconds = kDeliveryNanoseconds;
-    fixture.root.shadowGeneration = 19u;
-    fixture.root.randomCounterGeneration = 29u;
+    fixture.root.baseBrainGeneration = step.baseBrainGeneration;
+    fixture.root.basePhysicsGeneration = step.basePhysicsGeneration;
+    fixture.root.committedTimestampNanoseconds = step.startNanoseconds;
+    fixture.root.targetTimestampNanoseconds = step.deliveryNanoseconds();
+    fixture.root.shadowGeneration = step.shadowGeneration;
+    fixture.root.randomCounterGeneration = step.randomCounterGeneration;
     fixture.root.clockDomain =
         MR_NUMANX_BRAIN_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS;
     fixture.root.clockQuantumNanoseconds =
@@ -222,9 +317,10 @@ HumanIOFixture makeHumanIOFixture(id<MTLDevice> device) {
 
     fixture.substep.transactionFingerprint =
         fixture.root.transactionFingerprint;
-    fixture.substep.startTimestampNanoseconds = kStartNanoseconds;
-    fixture.substep.durationNanoseconds = kDurationNanoseconds;
-    fixture.substep.candidateTimestampNanoseconds = kDeliveryNanoseconds;
+    fixture.substep.startTimestampNanoseconds = step.startNanoseconds;
+    fixture.substep.durationNanoseconds = step.durationNanoseconds;
+    fixture.substep.candidateTimestampNanoseconds =
+        step.deliveryNanoseconds();
     fixture.substep.shadowGeneration = fixture.root.shadowGeneration;
     fixture.substep.randomCounterGeneration =
         fixture.root.randomCounterGeneration;
@@ -244,7 +340,7 @@ HumanIOFixture makeHumanIOFixture(id<MTLDevice> device) {
     fixture.candidate.substepFingerprint =
         fixture.substep.substepFingerprint;
     fixture.candidate.acceptedBrainTimestampNanoseconds =
-        kStartNanoseconds;
+        step.startNanoseconds;
     fixture.candidate.brainGeneration = fixture.root.shadowGeneration;
     fixture.candidate.motorProfileFingerprint = 0x4e584d50524f4632ull;
     fixture.candidate.motorOutputHeaderGPUAddress =
@@ -280,7 +376,7 @@ HumanIOFixture makeHumanIOFixture(id<MTLDevice> device) {
     fixture.output.formatVersion =
         MR_NUMANX_BRAIN_MOTOR_OUTPUT_VERSION_V2;
     fixture.output.flags = MR_NUMANX_BRAIN_MOTOR_OUTPUT_VALID;
-    fixture.output.timestampNanoseconds = kStartNanoseconds;
+    fixture.output.timestampNanoseconds = step.startNanoseconds;
     fixture.output.brainGeneration = fixture.candidate.brainGeneration;
     fixture.output.profileFingerprint =
         fixture.candidate.motorProfileFingerprint;
@@ -307,7 +403,7 @@ HumanIOFixture makeHumanIOFixture(id<MTLDevice> device) {
     fixture.gate.muscleCount = 1u;
     fixture.gate.actuatorCommandKind =
         fixture.candidate.actuatorCommandKind;
-    fixture.gate.controlStep = kControlStep;
+    fixture.gate.controlStep = step.controlStep;
     fixture.gate.transactionFingerprint =
         fixture.root.transactionFingerprint;
     fixture.gate.substepFingerprint = fixture.substep.substepFingerprint;
@@ -316,7 +412,7 @@ HumanIOFixture makeHumanIOFixture(id<MTLDevice> device) {
     fixture.gate.motorProfileFingerprint =
         fixture.candidate.motorProfileFingerprint;
     fixture.gate.brainGeneration = fixture.candidate.brainGeneration;
-    fixture.gate.acceptedBrainTimestampNanoseconds = kStartNanoseconds;
+    fixture.gate.acceptedBrainTimestampNanoseconds = step.startNanoseconds;
     fixture.gate.randomCounterGeneration =
         fixture.candidate.randomCounterGeneration;
     fixture.gate.speciesTemplateFingerprint =
@@ -374,9 +470,10 @@ HumanIOFixture makeHumanIOFixture(id<MTLDevice> device) {
     fixture.input.environmentCount = 1u;
     fixture.input.muscleCount = 1u;
     fixture.input.stepCount = 1u;
-    fixture.input.timestepNanoseconds = kDurationNanoseconds;
-    fixture.input.receptorTimestampNanoseconds = kStartNanoseconds;
-    fixture.input.candidateSensorGeneration = 31u;
+    fixture.input.timestepNanoseconds = step.durationNanoseconds;
+    fixture.input.receptorTimestampNanoseconds = step.startNanoseconds;
+    fixture.input.candidateSensorGeneration =
+        step.candidateSensorGeneration;
     return fixture;
 }
 
@@ -725,15 +822,75 @@ void abortCandidatePhysicalStateCapture(
 }
 
 struct PhysicalStateObserverAudit {
+    numi::matter::Runtime* runtime = nullptr;
     id<MTLBuffer> rootTranslations = nil;
     id<MTLBuffer> q = nil;
     id<MTLBuffer> v = nil;
     id<MTLBuffer> mujocoStates = nil;
+    id<MTLBuffer> physicalDigest = nil;
     std::uint64_t transactionFingerprint = 0u;
+    std::uint64_t acceptedTimestampNanoseconds = 0u;
     std::uint64_t physicsGeneration = 0u;
     std::uint64_t acceptedTokenFingerprint = 0u;
+    std::uint64_t matterSourcePhysicsFingerprint = 0u;
+    std::uint64_t matterDeviceProgramFingerprint = 0u;
     bool encoded = false;
 };
+
+bool sha256DigestNonzero(const NMSHA256DigestGPU& digest) noexcept {
+    for (const std::uint8_t byte : digest.bytes) {
+        if (byte != 0u) return true;
+    }
+    return false;
+}
+
+bool validPhysicalStateDigest(
+    const NMPhysicalStateDigestGPU& digest,
+    const std::uint64_t acceptedTimestampNanoseconds,
+    const std::uint64_t physicsGeneration,
+    const std::uint64_t matterSourcePhysicsFingerprint,
+    const std::uint64_t matterDeviceProgramFingerprint
+) noexcept {
+    return digest.abiVersion ==
+            NM_MATTER_PHYSICAL_STATE_DIGEST_ABI_VERSION &&
+        digest.structSize == NM_MATTER_PHYSICAL_STATE_DIGEST_BYTES &&
+        digest.status == NM_PHYSICAL_STATE_DIGEST_VALID &&
+        digest.environment == 0u &&
+        digest.schemaVersion ==
+            NM_MATTER_PHYSICAL_STATE_DIGEST_SCHEMA_VERSION &&
+        digest.manifestVersion ==
+            NM_MATTER_PHYSICAL_STATE_DIGEST_MANIFEST_VERSION &&
+        digest.sourceCount == NM_MATTER_PHYSICAL_STATE_DIGEST_SOURCE_COUNT &&
+        digest.reserved0 == 0u &&
+        digest.acceptedTimestampNanoseconds ==
+            acceptedTimestampNanoseconds &&
+        digest.physicsGeneration == physicsGeneration &&
+        digest.matterSourcePhysicsFingerprint ==
+            matterSourcePhysicsFingerprint &&
+        digest.matterDeviceProgramFingerprint ==
+            matterDeviceProgramFingerprint &&
+        sha256DigestNonzero(digest.humanSHA256) &&
+        sha256DigestNonzero(digest.matterSHA256) &&
+        sha256DigestNonzero(digest.physicalSHA256);
+}
+
+bool equalPhysicalStateDigests(
+    const NMPhysicalStateDigestGPU& left,
+    const NMPhysicalStateDigestGPU& right
+) noexcept {
+    return std::memcmp(
+        &left.humanSHA256,
+        &right.humanSHA256,
+        sizeof(left.humanSHA256)) == 0 &&
+        std::memcmp(
+            &left.matterSHA256,
+            &right.matterSHA256,
+            sizeof(left.matterSHA256)) == 0 &&
+        std::memcmp(
+            &left.physicalSHA256,
+            &right.physicalSHA256,
+            sizeof(left.physicalSHA256)) == 0;
+}
 
 bool finiteFloat4(const mr_float4 value) noexcept {
     return std::isfinite(value.x) && std::isfinite(value.y) &&
@@ -754,7 +911,8 @@ bool encodePhysicalStateObserver(
     const metalrobo::MetalArticulatedOperatorPhysicalStateObserverPass& pass
 ) noexcept {
     auto* audit = static_cast<PhysicalStateObserverAudit*>(raw);
-    if (audit == nullptr || pass.abiVersion != metalrobo::
+    if (audit == nullptr || audit->runtime == nullptr ||
+        pass.abiVersion != metalrobo::
             kMetalArticulatedOperatorPhysicalStateObserverABIVersion ||
         pass.structSize != sizeof(pass) || pass.environmentCount != 1u ||
         pass.commandBuffer == nullptr || pass.rootTranslations == nullptr ||
@@ -774,7 +932,11 @@ bool encodePhysicalStateObserver(
         pass.physicsGeneration != audit->physicsGeneration ||
         pass.acceptedTokenFingerprint != audit->acceptedTokenFingerprint ||
         audit->rootTranslations == nil || audit->q == nil ||
-        audit->v == nil || audit->mujocoStates == nil) {
+        audit->v == nil || audit->mujocoStates == nil ||
+        audit->physicalDigest == nil ||
+        audit->acceptedTimestampNanoseconds == 0u ||
+        audit->matterSourcePhysicsFingerprint == 0u ||
+        audit->matterDeviceProgramFingerprint == 0u) {
         return false;
     }
 
@@ -803,9 +965,56 @@ bool encodePhysicalStateObserver(
        destinationOffset:0u
                     size:sizeof(MRMujocoMuscleStateGPU)];
     [blit endEncoding];
-    audit->encoded = true;
-    return true;
+
+    numi::matter::PhysicalStateDigestPassV1 digest{};
+    digest.mode = numi::matter::PhysicalStateDigestMode::acceptedQuiescent;
+    digest.environmentCount = pass.environmentCount;
+    digest.environmentIdentifierBase = 0u;
+    digest.commandBuffer = pass.commandBuffer;
+    digest.rootTranslation = pass.rootTranslations;
+    digest.q = pass.q;
+    digest.v = pass.v;
+    digest.mujocoStates = pass.mujocoStates;
+    digest.output = (__bridge void*)audit->physicalDigest;
+    digest.rootTranslationGPUAddress = pass.rootTranslationsGPUAddress;
+    digest.qGPUAddress = pass.qGPUAddress;
+    digest.vGPUAddress = pass.vGPUAddress;
+    digest.mujocoStatesGPUAddress = pass.mujocoStatesGPUAddress;
+    digest.outputGPUAddress = audit->physicalDigest.gpuAddress;
+    digest.rootTranslationElementCount =
+        pass.rootTranslationElementCount;
+    digest.qElementCount = pass.qElementCount;
+    digest.vElementCount = pass.vElementCount;
+    digest.mujocoStateCount = pass.mujocoStateElementCount;
+    digest.outputElementCount = pass.environmentCount;
+    digest.rootTranslationStride = pass.rootTranslationStride;
+    digest.qStride = pass.qStride;
+    digest.vStride = pass.vStride;
+    digest.mujocoStateStride = pass.mujocoStateStride;
+    digest.acceptedTimestampNanoseconds =
+        audit->acceptedTimestampNanoseconds;
+    digest.physicsGeneration = pass.physicsGeneration;
+    digest.matterSourcePhysicsFingerprint =
+        audit->matterSourcePhysicsFingerprint;
+    digest.matterDeviceProgramFingerprint =
+        audit->matterDeviceProgramFingerprint;
+    audit->encoded = audit->runtime->encodePhysicalStateDigestV1(digest);
+    return audit->encoded;
 }
+
+struct ContinuationAttempt {
+    metalrobo::MetalNumanXTransactionProgram humanIOProgram{};
+    metalrobo::MetalNumanXHumanMatterTransactionV2 transaction{};
+    metalrobo::MetalNumanXHumanMatterProgram humanMatterProgram{};
+    CandidatePhysicalStateCapture physicalState{};
+    std::unique_ptr<metalrobo::MetalNumanXHumanMatterPrepared> prepared;
+    metalrobo::MetalNumanXHumanMatterPreparedView view{};
+    metalrobo::MetalNumanXHumanIOCandidatePublicationLease publicationLease{};
+    metalrobo::MetalNumanXHumanIOCandidatePublicationProgram
+        publicationProgram{};
+    MRNumanXAcceptedPhysicsStateTokenGPUV2 token{};
+    NMPhysicalStateDigestGPU candidateDigest{};
+};
 
 void runLifecycle(id<MTLDevice> device) {
     auto world = compileSettledLifecycleWorld();
@@ -818,11 +1027,18 @@ void runLifecycle(id<MTLDevice> device) {
     runtimeConfig.coupledCandidateCompensatedTranslation = true;
     runtimeConfig.acceptedStateProofMujocoBytesPerEnvironmentCapacity =
         sizeof(MRMujocoMuscleStateGPU);
+    runtimeConfig.enablePhysicalStateDigest = true;
     auto* matter = new numi::matter::Runtime;
     const auto matterInit = matter->initialize(world, runtimeConfig);
     require(matterInit.encoded,
         "exact lifecycle Matter initialization failed: " +
             matterInit.message);
+    RuntimeProofV2Audit proofV2Audit{};
+    proofV2Audit.runtime = matter;
+    proofV2Audit.candidateDigest = makeZeroBuffer(
+        device,
+        sizeof(NMPhysicalStateDigestGPU),
+        @"lifecycle candidate physical-state SHA-256");
 
     metalrobo::MetalNumanXHumanMatterConfig adapterConfig;
     adapterConfig.matterRuntime = matter;
@@ -835,7 +1051,7 @@ void runLifecycle(id<MTLDevice> device) {
     adapterConfig.stateProofProgram.encode = &encodeRuntimeProof;
     adapterConfig.stateProofProgram.fingerprint =
         matter->acceptedStateProofProgramFingerprint();
-    adapterConfig.stateProofProgramV2.context = matter;
+    adapterConfig.stateProofProgramV2.context = &proofV2Audit;
     adapterConfig.stateProofProgramV2.encode = &encodeRuntimeProofV2;
     adapterConfig.stateProofProgramV2.fingerprint =
         matter->acceptedStateProofProgramFingerprintV2();
@@ -980,6 +1196,21 @@ void runLifecycle(id<MTLDevice> device) {
                 (__bridge void*)physicalWait),
         "failed to encode exact physical-prepare wait");
     finish(physicalWait);
+    const auto candidateDigest = value<NMPhysicalStateDigestGPU>(
+        proofV2Audit.candidateDigest);
+    require(proofV2Audit.candidateDigestEncoded &&
+            proofV2Audit.preProofDigestRejected &&
+            proofV2Audit.preProofDigestAttempts == 1u &&
+            proofV2Audit.proofSourceSubstitutionRejected &&
+            proofV2Audit.proofSourceSubstitutionAttempts == 1u &&
+            validPhysicalStateDigest(
+                candidateDigest,
+                kDeliveryNanoseconds,
+                transaction.physicsGeneration,
+                matter->sourcePhysicsFingerprint(),
+                matter->deviceProgramFingerprint()),
+        "prepared candidate did not produce a valid direct-byte GPU "
+        "SHA-256 physical-state record");
 
     metalrobo::MetalNumanXHumanMatterExactPhysicalReceipt staleReceipt{};
     const metalrobo::MetalNumanXHumanMatterExactPhysicalReceipt emptyReceipt{};
@@ -1467,6 +1698,10 @@ void runLifecycle(id<MTLDevice> device) {
         "exact PENDING publication fence exposed or misidentified the root");
 
     PhysicalStateObserverAudit quarantinedPhysicalObserver{};
+    quarantinedPhysicalObserver.physicalDigest = makeZeroBuffer(
+        device,
+        sizeof(NMPhysicalStateDigestGPU),
+        @"quarantined physical-state SHA-256 must remain pending");
     std::string quarantinedPhysicalObserverError;
     require(!owner->flushPhysicalStateObserver(
                 &quarantinedPhysicalObserver,
@@ -1476,6 +1711,10 @@ void runLifecycle(id<MTLDevice> device) {
             quarantinedPhysicalObserverError.find(
                 "quiescent released accepted root") != std::string::npos,
         "physical-state observer escaped before accepted-root release");
+    require(value<NMPhysicalStateDigestGPU>(
+                quarantinedPhysicalObserver.physicalDigest).status !=
+            NM_PHYSICAL_STATE_DIGEST_VALID,
+        "quarantined root exposed a valid physical-state digest");
 
     fence.status = MR_NUMANX_HUMAN_MATTER_PUBLICATION_COMMITTED;
     fence.fenceFingerprint = recordFingerprint(fence);
@@ -1504,6 +1743,7 @@ void runLifecycle(id<MTLDevice> device) {
         "exact COMMITTED publication fence did not release the root");
 
     PhysicalStateObserverAudit physicalObserver{};
+    physicalObserver.runtime = matter;
     physicalObserver.rootTranslations = makeZeroBuffer(
         device, sizeof(MRCompensatedRootTranslationGPU),
         @"accepted Human root observation");
@@ -1516,10 +1756,19 @@ void runLifecycle(id<MTLDevice> device) {
     physicalObserver.mujocoStates = makeZeroBuffer(
         device, sizeof(MRMujocoMuscleStateGPU),
         @"accepted Human MyoSim observation");
+    physicalObserver.physicalDigest = makeZeroBuffer(
+        device,
+        sizeof(NMPhysicalStateDigestGPU),
+        @"accepted physical-state SHA-256");
     physicalObserver.transactionFingerprint =
         transaction.transactionFingerprint;
+    physicalObserver.acceptedTimestampNanoseconds = kDeliveryNanoseconds;
     physicalObserver.physicsGeneration = transaction.physicsGeneration;
     physicalObserver.acceptedTokenFingerprint = finalToken.tokenFingerprint;
+    physicalObserver.matterSourcePhysicsFingerprint =
+        matter->sourcePhysicsFingerprint();
+    physicalObserver.matterDeviceProgramFingerprint =
+        matter->deviceProgramFingerprint();
     std::string physicalObserverError;
     require(owner->flushPhysicalStateObserver(
                 &physicalObserver, &encodePhysicalStateObserver,
@@ -1530,6 +1779,8 @@ void runLifecycle(id<MTLDevice> device) {
         physicalObserver.rootTranslations);
     const auto observedMuscle = value<MRMujocoMuscleStateGPU>(
         physicalObserver.mujocoStates);
+    const auto acceptedDigest = value<NMPhysicalStateDigestGPU>(
+        physicalObserver.physicalDigest);
     require(finiteFloats(
                 physicalObserver.q.contents, owner_fixture::kNq) &&
             finiteFloats(
@@ -1539,6 +1790,15 @@ void runLifecycle(id<MTLDevice> device) {
             finiteFloat4(observedRoot.correction) &&
             finiteFloat4(observedMuscle.excitationAndActivation),
         "released Human physical-state observer exposed non-finite state");
+    require(validPhysicalStateDigest(
+                acceptedDigest,
+                kDeliveryNanoseconds,
+                transaction.physicsGeneration,
+                matter->sourcePhysicsFingerprint(),
+                matter->deviceProgramFingerprint()) &&
+            equalPhysicalStateDigests(candidateDigest, acceptedDigest),
+        "released accepted root did not preserve its prepared-candidate "
+        "direct-byte GPU SHA-256 identity");
     const bool candidateChangedFromCheckpoint =
         std::memcmp(
             candidatePhysicalState.q.contents, model.defaultQ.data(),
@@ -1568,6 +1828,7 @@ void runLifecycle(id<MTLDevice> device) {
         "physical bytes");
 
     PhysicalStateObserverAudit repeatedPhysicalObserver{};
+    repeatedPhysicalObserver.runtime = matter;
     repeatedPhysicalObserver.rootTranslations = makeZeroBuffer(
         device, sizeof(MRCompensatedRootTranslationGPU),
         @"repeated accepted Human root observation");
@@ -1580,12 +1841,22 @@ void runLifecycle(id<MTLDevice> device) {
     repeatedPhysicalObserver.mujocoStates = makeZeroBuffer(
         device, sizeof(MRMujocoMuscleStateGPU),
         @"repeated accepted Human MyoSim observation");
+    repeatedPhysicalObserver.physicalDigest = makeZeroBuffer(
+        device,
+        sizeof(NMPhysicalStateDigestGPU),
+        @"repeated accepted physical-state SHA-256");
     repeatedPhysicalObserver.transactionFingerprint =
         transaction.transactionFingerprint;
+    repeatedPhysicalObserver.acceptedTimestampNanoseconds =
+        kDeliveryNanoseconds;
     repeatedPhysicalObserver.physicsGeneration =
         transaction.physicsGeneration;
     repeatedPhysicalObserver.acceptedTokenFingerprint =
         finalToken.tokenFingerprint;
+    repeatedPhysicalObserver.matterSourcePhysicsFingerprint =
+        matter->sourcePhysicsFingerprint();
+    repeatedPhysicalObserver.matterDeviceProgramFingerprint =
+        matter->deviceProgramFingerprint();
     require(owner->flushPhysicalStateObserver(
                 &repeatedPhysicalObserver, &encodePhysicalStateObserver,
                 physicalObserverError) && repeatedPhysicalObserver.encoded,
@@ -1608,13 +1879,24 @@ void runLifecycle(id<MTLDevice> device) {
                 repeatedPhysicalObserver.mujocoStates.contents,
                 sizeof(MRMujocoMuscleStateGPU)) == 0,
         "quiescent Human physical-state observations were not byte-stable");
+    const auto repeatedDigest = value<NMPhysicalStateDigestGPU>(
+        repeatedPhysicalObserver.physicalDigest);
+    require(validPhysicalStateDigest(
+                repeatedDigest,
+                kDeliveryNanoseconds,
+                transaction.physicsGeneration,
+                matter->sourcePhysicsFingerprint(),
+                matter->deviceProgramFingerprint()) &&
+            equalPhysicalStateDigests(acceptedDigest, repeatedDigest),
+        "repeated quiescent direct-byte GPU SHA-256 observation was not "
+        "byte-stable");
 
     metalrobo::MetalNumanXHumanIOSensorView publishedSensor{};
     const auto publishedDiagnostics = humanIO->publishedView(publishedSensor);
     const auto publishedFinalToken =
         value<MRNumanXAcceptedPhysicsStateTokenGPUV2>(
             (__bridge id<MTLBuffer>)view.finalAcceptedPhysicsStateTokens);
-    const auto ownerStats = owner->stats();
+    const auto initialOwnerStats = owner->stats();
     require(!prepared->valid() && !publicationLease.valid() &&
                 matter->preparedStateDisposition(
                     dispositionIdentity(transaction, humanMatterProgram)) ==
@@ -1673,11 +1955,783 @@ void runLifecycle(id<MTLDevice> device) {
                 std::memcmp(
                     &publishedFinalToken, &finalToken,
                     sizeof(publishedFinalToken)) == 0 &&
-                ownerStats.completedSubmissionCount == 1u &&
-                ownerStats.submissionDestructorWaitCount == 0u &&
-                ownerStats.terminalSubmissionNonwaitingReapCount == 1u &&
-                !ownerStats.hasInFlightSubmission,
+                initialOwnerStats.completedSubmissionCount == 1u &&
+                initialOwnerStats.submissionDestructorWaitCount == 0u &&
+                initialOwnerStats.terminalSubmissionNonwaitingReapCount ==
+                    1u &&
+                !initialOwnerStats.hasInFlightSubmission,
         "exact COMMITTED root did not expose coherent resolved owner views");
+
+    const HumanIOStep continuationStep{
+        .startNanoseconds = kDeliveryNanoseconds,
+        .durationNanoseconds = kDurationNanoseconds,
+        .controlStep = kControlStep + 1u,
+        .baseBrainGeneration = publicationBrainGeneration,
+        .basePhysicsGeneration = transaction.physicsGeneration,
+        .shadowGeneration = publicationBrainGeneration + 1u,
+        .randomCounterGeneration =
+            ioFixture.root.randomCounterGeneration + 1u,
+        .candidateSensorGeneration = publicationProgram.sensorGeneration + 1u,
+        .excitation = 0.75f,
+    };
+    HumanIOFixture continuationIO = makeHumanIOFixture(
+        device, continuationStep);
+    const std::uint64_t continuationPhysicsGeneration =
+        transaction.physicsGeneration + 1u;
+    const std::uint64_t continuationLinearizationEpoch =
+        kLinearizationEpoch + 1u;
+    const std::uint64_t initialHumanIOProgramFingerprint =
+        humanIOProgram.fingerprint;
+
+    const auto prepareContinuation =
+        [&](const std::uint64_t attemptSlotGeneration,
+            NSString* digestLabel) {
+            auto attempt = std::make_unique<ContinuationAttempt>();
+            metalrobo::MetalNumanXHumanIOExactPreparedView exact{};
+            const auto ioPreparedContinuation = humanIO->prepare(
+                continuationIO.input,
+                attempt->humanIOProgram,
+                exact);
+            require(ioPreparedContinuation.succeeded() &&
+                        attempt->humanIOProgram.valid() && exact.valid(),
+                "continuation HumanIO prepare failed: " +
+                    ioPreparedContinuation.message);
+
+            attempt->transaction.environmentCount = 1u;
+            attempt->transaction.environmentIdentifierBase = 0u;
+            attempt->transaction.transactionSlot = 0u;
+            attempt->transaction.controlStep =
+                continuationStep.controlStep;
+            attempt->transaction.physicsSubstep = 0u;
+            attempt->transaction.physicsSubsteps = 1u;
+            attempt->transaction.expectedMatterCompletedMicrosteps = 1u;
+            attempt->transaction.qCoordinateCount =
+                model.articulations[0u].nq;
+            attempt->transaction.dofCount = model.articulations[0u].nv;
+            attempt->transaction.seed =
+                continuationIO.root.transactionFingerprint;
+            attempt->transaction.transactionFingerprint =
+                continuationIO.root.transactionFingerprint;
+            attempt->transaction.substepFingerprint =
+                continuationIO.substep.substepFingerprint;
+            attempt->transaction.physicsGeneration =
+                continuationPhysicsGeneration;
+            attempt->transaction.linearizationEpoch =
+                continuationLinearizationEpoch;
+            attempt->transaction.slotGeneration = attemptSlotGeneration;
+            attempt->humanMatterProgram = adapter->program(
+                attempt->transaction, exact);
+            require(attempt->humanMatterProgram.valid() &&
+                        attempt->humanMatterProgram.humanIOProgramFingerprint ==
+                            attempt->humanIOProgram.fingerprint,
+                "continuation HumanMatter program lost exact HumanIO "
+                "identity");
+
+            attempt->physicalState.delegate = attempt->humanIOProgram;
+            attempt->physicalState.rootTranslations = makeZeroBuffer(
+                device,
+                sizeof(MRCompensatedRootTranslationGPU),
+                @"continuation candidate Human root capture");
+            attempt->physicalState.q = makeZeroBuffer(
+                device,
+                owner_fixture::kNq * sizeof(float),
+                @"continuation candidate Human q capture");
+            attempt->physicalState.v = makeZeroBuffer(
+                device,
+                owner_fixture::kNv * sizeof(float),
+                @"continuation candidate Human v capture");
+            attempt->physicalState.mujocoStates = makeZeroBuffer(
+                device,
+                sizeof(MRMujocoMuscleStateGPU),
+                @"continuation candidate Human MyoSim capture");
+            auto capturedProgram = attempt->humanIOProgram;
+            capturedProgram.context = &attempt->physicalState;
+            capturedProgram.encode = &encodeCandidatePhysicalStateCapture;
+            capturedProgram.abort = &abortCandidatePhysicalStateCapture;
+
+            auto continuationInput = owner_fixture::makeInput(
+                model, ownerPoints, ownerFixture);
+            continuationInput.stand.numanXTransactionProgram =
+                capturedProgram;
+            continuationInput.stand.numanXHumanMatterProgram =
+                attempt->humanMatterProgram;
+            continuationInput.residentContinuation = {
+                .previousTransactionFingerprint =
+                    transaction.transactionFingerprint,
+                .previousPhysicsGeneration = transaction.physicsGeneration,
+                .previousAcceptedTokenFingerprint =
+                    finalToken.tokenFingerprint,
+                .previousHumanIOProgramFingerprint =
+                    initialHumanIOProgramFingerprint,
+            };
+
+            proofV2Audit.candidateDigest = makeZeroBuffer(
+                device, sizeof(NMPhysicalStateDigestGPU), digestLabel);
+            proofV2Audit.candidateDigestEncoded = false;
+            metalrobo::MetalArticulatedOperatorSubmission
+                continuationSubmission;
+            const auto continuationSubmitted = owner->submit(
+                model, continuationInput, continuationSubmission);
+            require(continuationSubmitted.succeeded() &&
+                        continuationSubmitted.dispatched &&
+                        continuationSubmission.valid(),
+                "owner rejected exact resident continuation: " +
+                    continuationSubmitted.message);
+            attempt->prepared = std::make_unique<
+                metalrobo::MetalNumanXHumanMatterPrepared>();
+            require(continuationSubmission.extractPreparedHumanMatter(
+                        *attempt->prepared) &&
+                        attempt->prepared->valid() &&
+                        attempt->prepared->view(attempt->view),
+                "owner did not expose continuation prepared authority");
+
+            id<MTLCommandBuffer> continuationWait =
+                [queue commandBuffer];
+            require(continuationWait != nil &&
+                        attempt->prepared->encodeWaitForPhysicalPrepare(
+                            (__bridge void*)continuationWait),
+                "failed to encode continuation physical-prepare wait");
+            finish(continuationWait);
+            attempt->candidateDigest = value<NMPhysicalStateDigestGPU>(
+                proofV2Audit.candidateDigest);
+            require(proofV2Audit.candidateDigestEncoded &&
+                        validPhysicalStateDigest(
+                            attempt->candidateDigest,
+                            continuationStep.deliveryNanoseconds(),
+                            continuationPhysicsGeneration,
+                            matter->sourcePhysicsFingerprint(),
+                            matter->deviceProgramFingerprint()),
+                "continuation candidate did not produce a valid direct-byte "
+                "GPU SHA-256 record");
+
+            metalrobo::MetalNumanXHumanMatterExactPhysicalReceipt receipt{};
+            require(adapter->exactPhysicalReceipt(
+                        attempt->transaction.transactionSlot,
+                        attempt->transaction.transactionFingerprint,
+                        attempt->transaction.slotGeneration,
+                        receipt) &&
+                        metalrobo::
+                            metalNumanXExactAcceptedStateProofV2Valid(
+                                receipt.acceptedStateProof) &&
+                        metalrobo::
+                            metalNumanXExactAcceptedPhysicsTokenV2Valid(
+                                receipt.acceptedStateProof,
+                                receipt.acceptedPhysicsStateToken),
+                "continuation exact physical receipt is invalid");
+            attempt->token = receipt.acceptedPhysicsStateToken;
+
+            metalrobo::MetalNumanXHumanIOTransactionKey continuationKey{};
+            metalrobo::MetalNumanXHumanIOSensorView continuationSensor{};
+            const auto pendingContinuation = humanIO->pendingCandidate(
+                continuationKey, continuationSensor);
+            require(pendingContinuation.succeeded() &&
+                        continuationKey.valid() &&
+                        continuationKey.programFingerprint ==
+                            attempt->humanIOProgram.fingerprint &&
+                        continuationSensor.deliveryTimestampNanoseconds ==
+                            continuationStep.deliveryNanoseconds(),
+                "continuation HumanIO candidate did not settle");
+            const auto continuationReservation =
+                humanIO->reserveCandidatePublication(
+                    continuationKey,
+                    exact.authority,
+                    attempt->publicationLease);
+            require(continuationReservation.succeeded() &&
+                        attempt->publicationLease.valid(),
+                "continuation HumanIO publication lease was not reserved");
+            attempt->publicationProgram =
+                attempt->publicationLease.program();
+            require(attempt->prepared->bindHumanIOCandidatePublication(
+                        attempt->publicationProgram) &&
+                        attempt->prepared->view(attempt->view),
+                "continuation prepared root rejected HumanIO publication "
+                "identity");
+            return attempt;
+        };
+
+    const auto forceRejectContinuation =
+        [&](ContinuationAttempt& attempt) {
+            __unsafe_unretained id<MTLSharedEvent> continuationOwnerEvent =
+                (__bridge id<MTLSharedEvent>)
+                    attempt.view.physicalPreparedEvent;
+            id<MTLCommandBuffer> rejectProposalCommand =
+                [queue commandBuffer];
+            require(rejectProposalCommand != nil,
+                "failed to allocate continuation REJECT proposal command");
+            metalrobo::MetalNumanXHumanMatterProposalRequest request{};
+            request.mode = metalrobo::
+                MetalNumanXHumanMatterProposalMode::forceReject;
+            request.commandBuffer = (__bridge void*)rejectProposalCommand;
+            request.environmentCount = attempt.view.environmentCount;
+            request.transactionSlot = attempt.view.transactionSlot;
+            request.stepIndex = attempt.view.stepIndex;
+            request.substepIndex = attempt.view.substepIndex;
+            request.physicsSubstepCount =
+                attempt.view.physicsSubstepCount;
+            request.controlStep = attempt.view.controlStep;
+            request.programFingerprint = attempt.view.programFingerprint;
+            request.transactionFingerprint =
+                attempt.view.transactionFingerprint;
+            request.linearizationEpoch = attempt.view.linearizationEpoch;
+            request.slotGeneration = attempt.view.slotGeneration;
+            const auto proposedReject =
+                attempt.prepared->proposePrepared(request);
+            require(proposedReject.succeeded() && proposedReject.encoded,
+                "continuation force-REJECT proposal failed: " +
+                    proposedReject.message);
+            finish(rejectProposalCommand);
+            waitForSharedEventValue(
+                continuationOwnerEvent,
+                attempt.view.proposalEventValue,
+                "continuation force-REJECT proposal event did not advance");
+            const auto rejectProposal =
+                value<MRNumanXHumanMatterProposalGPU>(
+                    (__bridge id<MTLBuffer>)attempt.view.proposals);
+            require(rejectProposal.status ==
+                        MR_NUMANX_HUMAN_MATTER_PROPOSAL_READY &&
+                        rejectProposal.decision ==
+                            MR_NUMANX_HUMAN_MATTER_ROOT_REJECT &&
+                        rejectProposal.code ==
+                            MR_NUMANX_HUMAN_MATTER_PROPOSAL_FORCED_REJECT &&
+                        rejectProposal.physicsTokenFingerprint == 0u &&
+                        rejectProposal.proposalFingerprint ==
+                            recordFingerprint(rejectProposal),
+                "continuation force-REJECT proposal was not canonical");
+
+            const auto rejectPreflight = makePreflight(
+                attempt.transaction,
+                attempt.humanMatterProgram,
+                rejectProposal);
+            id<MTLBuffer> rejectPreflightBuffer = makeBuffer(
+                device,
+                rejectPreflight,
+                @"continuation REJECT Brain preflight");
+            id<MTLSharedEvent> rejectPreflightReady =
+                [device newSharedEvent];
+            require(rejectPreflightReady != nil,
+                "continuation REJECT preflight event allocation failed");
+            rejectPreflightReady.signaledValue = 1u;
+            metalrobo::MetalNumanXHumanMatterBrainPreflightView
+                rejectPreflightView{};
+            rejectPreflightView.brainCommitPreflights =
+                (__bridge void*)rejectPreflightBuffer;
+            rejectPreflightView.preflightReadyEvent =
+                (__bridge void*)rejectPreflightReady;
+            rejectPreflightView.brainCommitPreflightsGPUAddress =
+                rejectPreflightBuffer.gpuAddress;
+            rejectPreflightView.brainCommitPreflightElementCount = 1u;
+            rejectPreflightView.preflightReadyEventValue = 1u;
+            rejectPreflightView.brainCommitPreflightStride = 1u;
+            rejectPreflightView.environmentCount =
+                attempt.view.environmentCount;
+            rejectPreflightView.transactionSlot =
+                attempt.view.transactionSlot;
+            rejectPreflightView.stepIndex = attempt.view.stepIndex;
+            rejectPreflightView.substepIndex = attempt.view.substepIndex;
+            rejectPreflightView.physicsSubstepCount =
+                attempt.view.physicsSubstepCount;
+            rejectPreflightView.controlStep = attempt.view.controlStep;
+            rejectPreflightView.programFingerprint =
+                attempt.view.programFingerprint;
+            rejectPreflightView.transactionFingerprint =
+                attempt.view.transactionFingerprint;
+            rejectPreflightView.linearizationEpoch =
+                attempt.view.linearizationEpoch;
+            rejectPreflightView.slotGeneration =
+                attempt.view.slotGeneration;
+            require(attempt.prepared->reservePreparedApplication(
+                        rejectPreflightView),
+                "continuation force-REJECT application reservation failed");
+
+            OwnerApplyCompletionCapture rejectCompletion;
+            id<MTLCommandBuffer> rejectApplyCommand =
+                [queue commandBuffer];
+            require(rejectApplyCommand != nil,
+                "failed to allocate continuation REJECT apply command");
+            metalrobo::MetalNumanXHumanMatterApplyRequest apply{};
+            apply.mode = metalrobo::
+                MetalNumanXHumanMatterApplyMode::forceReject;
+            apply.commandBuffer = (__bridge void*)rejectApplyCommand;
+            apply.completionContext = &rejectCompletion;
+            apply.completion = &captureOwnerApplyCompletion;
+            apply.environmentCount = attempt.view.environmentCount;
+            apply.transactionSlot = attempt.view.transactionSlot;
+            apply.stepIndex = attempt.view.stepIndex;
+            apply.substepIndex = attempt.view.substepIndex;
+            apply.physicsSubstepCount =
+                attempt.view.physicsSubstepCount;
+            apply.controlStep = attempt.view.controlStep;
+            apply.programFingerprint = attempt.view.programFingerprint;
+            apply.transactionFingerprint =
+                attempt.view.transactionFingerprint;
+            apply.linearizationEpoch = attempt.view.linearizationEpoch;
+            apply.slotGeneration = attempt.view.slotGeneration;
+            const auto appliedReject =
+                attempt.prepared->applyPrepared(apply);
+            require(appliedReject.succeeded() && appliedReject.encoded,
+                "continuation force-REJECT apply failed: " +
+                    appliedReject.message);
+            finish(rejectApplyCommand);
+            waitForOwnerApplyCompletion(rejectCompletion);
+            require(rejectCompletion.status.load(
+                        std::memory_order_acquire) ==
+                        static_cast<std::uint32_t>(metalrobo::
+                            MetalNumanXHumanMatterApplyTerminalStatus::
+                                rejectedReleased) &&
+                        rejectCompletion.slotGeneration.load(
+                            std::memory_order_acquire) ==
+                            attempt.view.slotGeneration,
+                "continuation REJECT did not restore and release authority");
+
+            const auto rejected =
+                value<MRNumanXHumanMatterAppliedOutcomeGPU>(
+                    (__bridge id<MTLBuffer>)attempt.view.appliedOutcomes);
+            const auto rejectedFinalToken =
+                value<MRNumanXAcceptedPhysicsStateTokenGPUV2>(
+                    (__bridge id<MTLBuffer>)
+                        attempt.view.finalAcceptedPhysicsStateTokens);
+            const MRNumanXAcceptedPhysicsStateTokenGPUV2 zeroToken{};
+            require(rejected.status ==
+                        MR_NUMANX_HUMAN_MATTER_APPLIED_REJECT_RESTORED &&
+                        rejected.decision ==
+                            MR_NUMANX_HUMAN_MATTER_ROOT_REJECT &&
+                        rejected.code ==
+                            MR_NUMANX_HUMAN_MATTER_APPLIED_FORCED_REJECT &&
+                        rejected.physicsTokenFingerprint == 0u &&
+                        rejected.proposalFingerprint ==
+                            rejectProposal.proposalFingerprint &&
+                        rejected.appliedFingerprint ==
+                            recordFingerprint(rejected) &&
+                        std::memcmp(
+                            &rejectedFinalToken,
+                            &zeroToken,
+                            sizeof(zeroToken)) == 0 &&
+                        !attempt.prepared->valid() &&
+                        matter->preparedStateDisposition(
+                            dispositionIdentity(
+                                attempt.transaction,
+                                attempt.humanMatterProgram)) ==
+                            numi::matter::PreparedStateDisposition::resolved,
+                "continuation REJECT did not retain canonical restored "
+                "identity");
+        };
+
+    auto rejectedAttempt = prepareContinuation(
+        kSlotGeneration + 1u,
+        @"rejected continuation candidate physical-state SHA-256");
+    forceRejectContinuation(*rejectedAttempt);
+
+    PhysicalStateObserverAudit restoredObserver{};
+    restoredObserver.runtime = matter;
+    restoredObserver.rootTranslations = makeZeroBuffer(
+        device,
+        sizeof(MRCompensatedRootTranslationGPU),
+        @"post-REJECT restored Human root observation");
+    restoredObserver.q = makeZeroBuffer(
+        device,
+        owner_fixture::kNq * sizeof(float),
+        @"post-REJECT restored Human q observation");
+    restoredObserver.v = makeZeroBuffer(
+        device,
+        owner_fixture::kNv * sizeof(float),
+        @"post-REJECT restored Human v observation");
+    restoredObserver.mujocoStates = makeZeroBuffer(
+        device,
+        sizeof(MRMujocoMuscleStateGPU),
+        @"post-REJECT restored Human MyoSim observation");
+    restoredObserver.physicalDigest = makeZeroBuffer(
+        device,
+        sizeof(NMPhysicalStateDigestGPU),
+        @"post-REJECT restored physical-state SHA-256");
+    restoredObserver.transactionFingerprint =
+        transaction.transactionFingerprint;
+    restoredObserver.acceptedTimestampNanoseconds = kDeliveryNanoseconds;
+    restoredObserver.physicsGeneration = transaction.physicsGeneration;
+    restoredObserver.acceptedTokenFingerprint = finalToken.tokenFingerprint;
+    restoredObserver.matterSourcePhysicsFingerprint =
+        matter->sourcePhysicsFingerprint();
+    restoredObserver.matterDeviceProgramFingerprint =
+        matter->deviceProgramFingerprint();
+    std::string restoredObserverError;
+    require(owner->flushPhysicalStateObserver(
+                &restoredObserver,
+                &encodePhysicalStateObserver,
+                restoredObserverError) &&
+                restoredObserver.encoded,
+        "post-REJECT accepted-state observation failed: " +
+            restoredObserverError);
+    const auto restoredDigest = value<NMPhysicalStateDigestGPU>(
+        restoredObserver.physicalDigest);
+    require(validPhysicalStateDigest(
+                restoredDigest,
+                kDeliveryNanoseconds,
+                transaction.physicsGeneration,
+                matter->sourcePhysicsFingerprint(),
+                matter->deviceProgramFingerprint()) &&
+            equalPhysicalStateDigests(repeatedDigest, restoredDigest) &&
+            !equalPhysicalStateDigests(
+                rejectedAttempt->candidateDigest,
+                restoredDigest),
+        "real REJECT did not restore the pre-attempt accepted SHA-256 root "
+        "or candidate mutation was absent");
+
+    auto retriedAttempt = prepareContinuation(
+        kSlotGeneration + 2u,
+        @"retried continuation candidate physical-state SHA-256");
+    require(equalPhysicalStateDigests(
+                rejectedAttempt->candidateDigest,
+                retriedAttempt->candidateDigest),
+        "byte-identical continuation retry did not reproduce the rejected "
+        "candidate SHA-256 root");
+
+    const auto retryWitness = makeWitness(
+        retriedAttempt->transaction,
+        retriedAttempt->humanMatterProgram,
+        retriedAttempt->token.tokenFingerprint);
+    id<MTLBuffer> retryWitnessBuffer = makeBuffer(
+        device, retryWitness, @"retried continuation Brain witness");
+    id<MTLSharedEvent> retryWitnessReady = [device newSharedEvent];
+    require(retryWitnessReady != nil,
+        "retried continuation witness event allocation failed");
+    retryWitnessReady.signaledValue = 1u;
+    id<MTLCommandBuffer> retryProposalCommand = [queue commandBuffer];
+    require(retryProposalCommand != nil,
+        "retried continuation proposal command allocation failed");
+    metalrobo::MetalNumanXHumanMatterProposalRequest retryProposalRequest{};
+    retryProposalRequest.mode = metalrobo::
+        MetalNumanXHumanMatterProposalMode::validateBrainWitness;
+    retryProposalRequest.commandBuffer =
+        (__bridge void*)retryProposalCommand;
+    retryProposalRequest.brainCommitWitnesses =
+        (__bridge void*)retryWitnessBuffer;
+    retryProposalRequest.brainPrepareCompleteEvent =
+        (__bridge void*)retryWitnessReady;
+    retryProposalRequest.brainPrepareCompleteEventValue = 1u;
+    retryProposalRequest.brainCommitWitnessesGPUAddress =
+        retryWitnessBuffer.gpuAddress;
+    retryProposalRequest.brainCommitWitnessElementCount = 1u;
+    retryProposalRequest.brainCommitWitnessStride = 1u;
+    retryProposalRequest.environmentCount =
+        retriedAttempt->view.environmentCount;
+    retryProposalRequest.transactionSlot =
+        retriedAttempt->view.transactionSlot;
+    retryProposalRequest.stepIndex = retriedAttempt->view.stepIndex;
+    retryProposalRequest.substepIndex = retriedAttempt->view.substepIndex;
+    retryProposalRequest.physicsSubstepCount =
+        retriedAttempt->view.physicsSubstepCount;
+    retryProposalRequest.controlStep = retriedAttempt->view.controlStep;
+    retryProposalRequest.programFingerprint =
+        retriedAttempt->view.programFingerprint;
+    retryProposalRequest.transactionFingerprint =
+        retriedAttempt->view.transactionFingerprint;
+    retryProposalRequest.linearizationEpoch =
+        retriedAttempt->view.linearizationEpoch;
+    retryProposalRequest.slotGeneration =
+        retriedAttempt->view.slotGeneration;
+    const auto retryProposed =
+        retriedAttempt->prepared->proposePrepared(retryProposalRequest);
+    require(retryProposed.succeeded() && retryProposed.encoded,
+        "retried continuation proposal failed: " + retryProposed.message);
+    finish(retryProposalCommand);
+    __unsafe_unretained id<MTLSharedEvent> retryOwnerEvent =
+        (__bridge id<MTLSharedEvent>)
+            retriedAttempt->view.physicalPreparedEvent;
+    waitForSharedEventValue(
+        retryOwnerEvent,
+        retriedAttempt->view.proposalEventValue,
+        "retried continuation proposal event did not advance");
+    const auto retryProposal = value<MRNumanXHumanMatterProposalGPU>(
+        (__bridge id<MTLBuffer>)retriedAttempt->view.proposals);
+    const auto retryProposedToken =
+        value<MRNumanXAcceptedPhysicsStateTokenGPUV2>(
+            (__bridge id<MTLBuffer>)
+                retriedAttempt->view.proposedPhysicsStateTokens);
+    require(retryProposal.status ==
+                MR_NUMANX_HUMAN_MATTER_PROPOSAL_READY &&
+            retryProposal.decision ==
+                MR_NUMANX_HUMAN_MATTER_ROOT_ACCEPT &&
+            retryProposal.code ==
+                MR_NUMANX_HUMAN_MATTER_PROPOSAL_SUCCESS &&
+            retryProposal.physicsTokenFingerprint ==
+                retriedAttempt->token.tokenFingerprint &&
+            retryProposal.proposalFingerprint ==
+                recordFingerprint(retryProposal) &&
+            std::memcmp(
+                &retryProposedToken,
+                &retriedAttempt->token,
+                sizeof(retryProposedToken)) == 0,
+        "retried continuation ACCEPT proposal was not canonical");
+
+    const auto retryPreflight = makePreflight(
+        retriedAttempt->transaction,
+        retriedAttempt->humanMatterProgram,
+        retryProposal);
+    id<MTLBuffer> retryPreflightBuffer = makeBuffer(
+        device,
+        retryPreflight,
+        @"retried continuation Brain preflight");
+    id<MTLSharedEvent> retryPreflightReady = [device newSharedEvent];
+    require(retryPreflightReady != nil,
+        "retried continuation preflight event allocation failed");
+    retryPreflightReady.signaledValue = 1u;
+    metalrobo::MetalNumanXHumanMatterBrainPreflightView retryPreflightView{};
+    retryPreflightView.brainCommitPreflights =
+        (__bridge void*)retryPreflightBuffer;
+    retryPreflightView.preflightReadyEvent =
+        (__bridge void*)retryPreflightReady;
+    retryPreflightView.brainCommitPreflightsGPUAddress =
+        retryPreflightBuffer.gpuAddress;
+    retryPreflightView.brainCommitPreflightElementCount = 1u;
+    retryPreflightView.preflightReadyEventValue = 1u;
+    retryPreflightView.brainCommitPreflightStride = 1u;
+    retryPreflightView.environmentCount =
+        retriedAttempt->view.environmentCount;
+    retryPreflightView.transactionSlot = retriedAttempt->view.transactionSlot;
+    retryPreflightView.stepIndex = retriedAttempt->view.stepIndex;
+    retryPreflightView.substepIndex = retriedAttempt->view.substepIndex;
+    retryPreflightView.physicsSubstepCount =
+        retriedAttempt->view.physicsSubstepCount;
+    retryPreflightView.controlStep = retriedAttempt->view.controlStep;
+    retryPreflightView.programFingerprint =
+        retriedAttempt->view.programFingerprint;
+    retryPreflightView.transactionFingerprint =
+        retriedAttempt->view.transactionFingerprint;
+    retryPreflightView.linearizationEpoch =
+        retriedAttempt->view.linearizationEpoch;
+    retryPreflightView.slotGeneration =
+        retriedAttempt->view.slotGeneration;
+    require(retriedAttempt->prepared->reservePreparedApplication(
+                retryPreflightView),
+        "retried continuation application reservation failed");
+
+    const auto retryAck = makeAck(
+        retriedAttempt->transaction,
+        retriedAttempt->humanMatterProgram,
+        retryProposal,
+        retryPreflight);
+    id<MTLBuffer> retryAckBuffer = makeBuffer(
+        device, retryAck, @"retried continuation Brain ACK");
+    id<MTLSharedEvent> retryAckReady = [device newSharedEvent];
+    require(retryAckReady != nil,
+        "retried continuation ACK event allocation failed");
+    retryAckReady.signaledValue = 1u;
+    OwnerApplyCompletionCapture retryApplyCompletion;
+    id<MTLCommandBuffer> retryApplyCommand = [queue commandBuffer];
+    require(retryApplyCommand != nil,
+        "retried continuation apply command allocation failed");
+    metalrobo::MetalNumanXHumanMatterApplyRequest retryApply{};
+    retryApply.mode = metalrobo::
+        MetalNumanXHumanMatterApplyMode::validateBrainAck;
+    retryApply.commandBuffer = (__bridge void*)retryApplyCommand;
+    retryApply.brainAcks = (__bridge void*)retryAckBuffer;
+    retryApply.brainAckEvent = (__bridge void*)retryAckReady;
+    retryApply.completionContext = &retryApplyCompletion;
+    retryApply.completion = &captureOwnerApplyCompletion;
+    retryApply.brainAckEventValue = 1u;
+    retryApply.brainAcksGPUAddress = retryAckBuffer.gpuAddress;
+    retryApply.brainAckElementCount = 1u;
+    retryApply.brainAckStride = 1u;
+    retryApply.environmentCount = retriedAttempt->view.environmentCount;
+    retryApply.transactionSlot = retriedAttempt->view.transactionSlot;
+    retryApply.stepIndex = retriedAttempt->view.stepIndex;
+    retryApply.substepIndex = retriedAttempt->view.substepIndex;
+    retryApply.physicsSubstepCount =
+        retriedAttempt->view.physicsSubstepCount;
+    retryApply.controlStep = retriedAttempt->view.controlStep;
+    retryApply.programFingerprint = retriedAttempt->view.programFingerprint;
+    retryApply.transactionFingerprint =
+        retriedAttempt->view.transactionFingerprint;
+    retryApply.linearizationEpoch =
+        retriedAttempt->view.linearizationEpoch;
+    retryApply.slotGeneration = retriedAttempt->view.slotGeneration;
+    const auto retryAppliedDiagnostics =
+        retriedAttempt->prepared->applyPrepared(retryApply);
+    require(retryAppliedDiagnostics.succeeded() &&
+                retryAppliedDiagnostics.encoded,
+        "retried continuation ACCEPT apply failed: " +
+            retryAppliedDiagnostics.message);
+    finish(retryApplyCommand);
+    waitForOwnerApplyCompletion(retryApplyCompletion);
+    require(retryApplyCompletion.status.load(std::memory_order_acquire) ==
+                static_cast<std::uint32_t>(metalrobo::
+                    MetalNumanXHumanMatterApplyTerminalStatus::
+                        acceptedPendingPublication),
+        "retried continuation ACCEPT did not enter publication quarantine");
+    const auto retryFinalToken =
+        value<MRNumanXAcceptedPhysicsStateTokenGPUV2>(
+            (__bridge id<MTLBuffer>)
+                retriedAttempt->view.finalAcceptedPhysicsStateTokens);
+    require(std::memcmp(
+                &retryFinalToken,
+                &retriedAttempt->token,
+                sizeof(retryFinalToken)) == 0 &&
+            validExactTokenShape(
+                retryFinalToken,
+                retriedAttempt->transaction,
+                continuationStep.deliveryNanoseconds()),
+        "retried continuation apply changed its accepted token");
+
+    constexpr std::uint64_t kRetryJointCommitFingerprint =
+        kJointCommitFingerprint + 1u;
+    metalrobo::MetalNumanXHumanMatterPublicationReservationRequest
+        retryPublicationReservation{};
+    retryPublicationReservation.environmentCount =
+        retriedAttempt->view.environmentCount;
+    retryPublicationReservation.transactionSlot =
+        retriedAttempt->view.transactionSlot;
+    retryPublicationReservation.stepIndex = retriedAttempt->view.stepIndex;
+    retryPublicationReservation.substepIndex =
+        retriedAttempt->view.substepIndex;
+    retryPublicationReservation.physicsSubstepCount =
+        retriedAttempt->view.physicsSubstepCount;
+    retryPublicationReservation.controlStep =
+        retriedAttempt->view.controlStep;
+    retryPublicationReservation.programFingerprint =
+        retriedAttempt->view.programFingerprint;
+    retryPublicationReservation.transactionFingerprint =
+        retriedAttempt->view.transactionFingerprint;
+    retryPublicationReservation.linearizationEpoch =
+        retriedAttempt->view.linearizationEpoch;
+    retryPublicationReservation.slotGeneration =
+        retriedAttempt->view.slotGeneration;
+    retryPublicationReservation.jointCommitFingerprint =
+        kRetryJointCommitFingerprint;
+    retryPublicationReservation.brainGeneration =
+        retriedAttempt->publicationProgram.acceptedBrainGeneration;
+    require(retriedAttempt->prepared->reservePublishedRoot(
+                retryPublicationReservation),
+        "retried continuation publication reservation failed");
+
+    id<MTLBuffer> retryFenceBuffer =
+        (__bridge id<MTLBuffer>)retriedAttempt->view.publicationFences;
+    require(retryFenceBuffer != nil && retryFenceBuffer.contents != nullptr,
+        "retried continuation publication fence is unavailable");
+    auto& retryFence = *static_cast<
+        MRNumanXHumanMatterJointPublicationFenceGPU*>(
+            retryFenceBuffer.contents);
+    require(retryFence.status ==
+                MR_NUMANX_HUMAN_MATTER_PUBLICATION_PENDING &&
+            retryFence.physicsTokenFingerprint ==
+                retryFinalToken.tokenFingerprint &&
+            retryFence.fenceFingerprint == recordFingerprint(retryFence),
+        "retried continuation PENDING publication fence is malformed");
+    retryFence.status = MR_NUMANX_HUMAN_MATTER_PUBLICATION_COMMITTED;
+    retryFence.fenceFingerprint = recordFingerprint(retryFence);
+    metalrobo::MetalNumanXHumanMatterPublicationReleaseRequest retryRelease{};
+    retryRelease.publicationFences =
+        retriedAttempt->view.publicationFences;
+    retryRelease.publicationFencesGPUAddress =
+        retriedAttempt->view.publicationFencesGPUAddress;
+    retryRelease.publicationFenceElementCount =
+        retriedAttempt->view.publicationFenceElementCount;
+    retryRelease.publicationFenceStride =
+        retriedAttempt->view.publicationFenceStride;
+    retryRelease.environmentCount = retriedAttempt->view.environmentCount;
+    retryRelease.transactionSlot = retriedAttempt->view.transactionSlot;
+    retryRelease.stepIndex = retriedAttempt->view.stepIndex;
+    retryRelease.substepIndex = retriedAttempt->view.substepIndex;
+    retryRelease.physicsSubstepCount =
+        retriedAttempt->view.physicsSubstepCount;
+    retryRelease.controlStep = retriedAttempt->view.controlStep;
+    retryRelease.programFingerprint = retriedAttempt->view.programFingerprint;
+    retryRelease.transactionFingerprint =
+        retriedAttempt->view.transactionFingerprint;
+    retryRelease.linearizationEpoch =
+        retriedAttempt->view.linearizationEpoch;
+    retryRelease.slotGeneration = retriedAttempt->view.slotGeneration;
+    retryRelease.jointCommitFingerprint = kRetryJointCommitFingerprint;
+    retryRelease.brainGeneration =
+        retriedAttempt->publicationProgram.acceptedBrainGeneration;
+    require(retriedAttempt->prepared->releasePublishedRoot(retryRelease) ==
+                metalrobo::
+                    MetalNumanXHumanMatterPrepareLeaseDisposition::released,
+        "retried continuation COMMITTED publication did not release");
+
+    PhysicalStateObserverAudit retryAcceptedObserver{};
+    retryAcceptedObserver.runtime = matter;
+    retryAcceptedObserver.rootTranslations = makeZeroBuffer(
+        device,
+        sizeof(MRCompensatedRootTranslationGPU),
+        @"retried accepted Human root observation");
+    retryAcceptedObserver.q = makeZeroBuffer(
+        device,
+        owner_fixture::kNq * sizeof(float),
+        @"retried accepted Human q observation");
+    retryAcceptedObserver.v = makeZeroBuffer(
+        device,
+        owner_fixture::kNv * sizeof(float),
+        @"retried accepted Human v observation");
+    retryAcceptedObserver.mujocoStates = makeZeroBuffer(
+        device,
+        sizeof(MRMujocoMuscleStateGPU),
+        @"retried accepted Human MyoSim observation");
+    retryAcceptedObserver.physicalDigest = makeZeroBuffer(
+        device,
+        sizeof(NMPhysicalStateDigestGPU),
+        @"retried accepted physical-state SHA-256");
+    retryAcceptedObserver.transactionFingerprint =
+        retriedAttempt->transaction.transactionFingerprint;
+    retryAcceptedObserver.acceptedTimestampNanoseconds =
+        continuationStep.deliveryNanoseconds();
+    retryAcceptedObserver.physicsGeneration =
+        continuationPhysicsGeneration;
+    retryAcceptedObserver.acceptedTokenFingerprint =
+        retryFinalToken.tokenFingerprint;
+    retryAcceptedObserver.matterSourcePhysicsFingerprint =
+        matter->sourcePhysicsFingerprint();
+    retryAcceptedObserver.matterDeviceProgramFingerprint =
+        matter->deviceProgramFingerprint();
+    std::string retryAcceptedObserverError;
+    require(owner->flushPhysicalStateObserver(
+                &retryAcceptedObserver,
+                &encodePhysicalStateObserver,
+                retryAcceptedObserverError) &&
+                retryAcceptedObserver.encoded,
+        "retried accepted-root observation failed: " +
+            retryAcceptedObserverError);
+    const auto retryAcceptedDigest = value<NMPhysicalStateDigestGPU>(
+        retryAcceptedObserver.physicalDigest);
+    require(validPhysicalStateDigest(
+                retryAcceptedDigest,
+                continuationStep.deliveryNanoseconds(),
+                continuationPhysicsGeneration,
+                matter->sourcePhysicsFingerprint(),
+                matter->deviceProgramFingerprint()) &&
+            equalPhysicalStateDigests(
+                retriedAttempt->candidateDigest,
+                retryAcceptedDigest),
+        "retried accepted root did not preserve its deterministic candidate "
+        "SHA-256 identity");
+
+    metalrobo::MetalNumanXHumanIOSensorView retryPublishedSensor{};
+    const auto retryPublishedDiagnostics =
+        humanIO->publishedView(retryPublishedSensor);
+    const auto finalOwnerStats = owner->stats();
+    require(!retriedAttempt->prepared->valid() &&
+                !retriedAttempt->publicationLease.valid() &&
+                matter->preparedStateDisposition(
+                    dispositionIdentity(
+                        retriedAttempt->transaction,
+                        retriedAttempt->humanMatterProgram)) ==
+                    numi::matter::PreparedStateDisposition::resolved &&
+                retryPublishedDiagnostics.succeeded() &&
+                retryPublishedDiagnostics.published &&
+                retryPublishedSensor.state ==
+                    metalrobo::MetalNumanXHumanIOViewState::published &&
+                retryPublishedSensor.programFingerprint ==
+                    retriedAttempt->humanIOProgram.fingerprint &&
+                retryPublishedSensor.transactionFingerprint ==
+                    retriedAttempt->transaction.transactionFingerprint &&
+                retryPublishedSensor.sensorGeneration ==
+                    retriedAttempt->publicationProgram.sensorGeneration &&
+                retryPublishedSensor.deliveryTimestampNanoseconds ==
+                    continuationStep.deliveryNanoseconds() &&
+                finalOwnerStats.residentContinuationSubmissionCount == 2u &&
+                finalOwnerStats.completedSubmissionCount == 3u &&
+                finalOwnerStats.submissionDestructorWaitCount == 0u &&
+                finalOwnerStats.terminalSubmissionNonwaitingReapCount == 3u &&
+                !finalOwnerStats.hasInFlightSubmission,
+        "retry publication did not leave coherent continuation authority");
 
     std::cout
         << "PASS exact_v2_lifecycle device="
@@ -1696,7 +2750,14 @@ void runLifecycle(id<MTLDevice> device) {
         << " negatives=family,clock,authority,receipt-generation,duplicate"
         << " proposal=accepted"
         << " apply=accepted_quarantined"
-        << " publication=committed\n";
+        << " publication=committed"
+        << " physical_sha256=candidate,accepted,repeated_equal"
+        << " quarantined_digest=withheld"
+        << " reject_restoration=accepted_before_equals_restored_after"
+        << " rejected_candidate=distinct"
+        << " retry_candidate=deterministic_equal"
+        << " retry_publication=committed"
+        << " terminal_no_touch=not_exercised\n";
 }
 
 } // namespace exact_v2_lifecycle_fixture

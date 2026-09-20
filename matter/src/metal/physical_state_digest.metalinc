@@ -1,0 +1,415 @@
+#pragma once
+
+#include <metal_stdlib>
+
+#include "numi/matter/accepted_state_proof_gpu.h"
+#include "numi/matter/physical_state_digest_gpu.h"
+#include "sha256.metalinc"
+
+using namespace metal;
+
+namespace numi_matter_metal {
+namespace physical_state_digest_detail {
+
+// Canonical 16-byte little-endian domain tuple: family, algorithm, schema,
+// role. A numeric tuple keeps the production kernel compact while preserving
+// explicit separation between leaf, tree, owner, and complete-state roots.
+constant uint kDomainFamily = 0x5350584eu; // "NXPS"
+constant uint kDomainAlgorithm = 0x32414853u; // "SHA2"
+constant uint kLeafDomain = 1u;
+constant uint kNodeDomain = 2u;
+constant uint kOwnerDomain = 3u;
+constant uint kRootDomain = 4u;
+
+inline bool appendDomain(
+    thread NMSHA256ContextGPU& context,
+    const uint role
+) {
+    return sha256::updateU32LE(context, kDomainFamily) &&
+        sha256::updateU32LE(context, kDomainAlgorithm) &&
+        sha256::updateU32LE(
+            context, NM_MATTER_PHYSICAL_STATE_DIGEST_SCHEMA_VERSION) &&
+        sha256::updateU32LE(context, role);
+}
+
+inline bool appendDigest(
+    thread NMSHA256ContextGPU& context,
+    thread const NMSHA256DigestGPU& digest
+) {
+    for (uint index = 0u; index < NM_MATTER_SHA256_DIGEST_BYTES; ++index) {
+        if (!sha256::updateByte(context, digest.bytes[index])) return false;
+    }
+    return true;
+}
+
+inline bool appendSource(
+    thread NMSHA256ContextGPU& context,
+    constant const NMPhysicalStateDigestSourceGPU& source
+) {
+    return sha256::updateU32LE(context, source.source) &&
+        sha256::updateU32LE(context, source.target) &&
+        sha256::updateU32LE(context, source.flags) &&
+        sha256::updateU32LE(context, source.encoding) &&
+        sha256::updateU64LE(context, source.elementCount) &&
+        sha256::updateU32LE(context, source.elementBytes) &&
+        sha256::updateU32LE(context, source.reserved0) &&
+        sha256::updateU64LE(context, source.byteCount) &&
+        sha256::updateU64LE(context, source.reserved1);
+}
+
+inline bool validSource(
+    constant const NMPhysicalStateDigestSourceGPU& source
+) {
+    const bool shared =
+        (source.flags & NM_MATTER_PHYSICAL_STATE_SOURCE_SHARED) != 0u;
+    // Runtime constructs this private descriptor table only after checked
+    // host multiplication. Repeating the product here catches accidental
+    // shader-side corruption without introducing a 64-bit division into the
+    // Apple driver JIT.
+    return source.source != 0u &&
+        source.target <= NM_MATTER_PHYSICAL_STATE_TARGET_MATTER &&
+        (source.flags & ~NM_MATTER_PHYSICAL_STATE_SOURCE_SHARED) == 0u &&
+        source.encoding == NM_MATTER_PHYSICAL_STATE_ENCODING_RAW_BYTES_V1 &&
+        source.reserved0 == 0u && source.reserved1 == 0ul &&
+        source.elementBytes != 0u &&
+        source.byteCount == source.elementCount * ulong(source.elementBytes) &&
+        (!shared || source.target == NM_MATTER_PHYSICAL_STATE_TARGET_MATTER);
+}
+
+inline bool appendHeader(
+    thread NMSHA256ContextGPU& context,
+    constant const NMPhysicalStateDigestFinalizeGPU& pass,
+    const uint environment
+) {
+    return sha256::updateU32LE(context, pass.schemaVersion) &&
+        sha256::updateU32LE(context, pass.manifestVersion) &&
+        sha256::updateU32LE(context, pass.environmentCount) &&
+        sha256::updateU32LE(
+            context, pass.environmentIdentifierBase + environment) &&
+        sha256::updateU32LE(context, pass.sourceCount) &&
+        sha256::updateU32LE(context, pass.clockDomain) &&
+        sha256::updateU32LE(context, pass.clockQuantumNanoseconds);
+}
+
+} // namespace physical_state_digest_detail
+
+kernel void nm_physical_state_digest_leaf_initialize(
+    device NMSHA256ContextGPU* contexts [[buffer(0)]],
+    constant NMPhysicalStateDigestLeafFinalizeGPU& pass [[buffer(1)]],
+    uint index [[thread_position_in_grid]]
+) {
+    using namespace numi_matter_metal;
+    if (pass.chunkCount == 0u || pass.scratchStride < pass.chunkCount ||
+        pass.reserved0 != 0u ||
+        pass.environmentCount > 0xffffffffu / pass.chunkCount) return;
+    const uint total = pass.environmentCount * pass.chunkCount;
+    if (index >= total) return;
+    const uint environment = index / pass.chunkCount;
+    const uint chunk = index - environment * pass.chunkCount;
+    NMSHA256ContextGPU context = {};
+    sha256::initialize(context);
+    contexts[environment * pass.scratchStride + chunk] = context;
+}
+
+kernel void nm_physical_state_digest_leaf_metadata(
+    device NMPhysicalStateDigestLeafMetadataGPU* metadataRecords
+        [[buffer(0)]],
+    constant NMPhysicalStateDigestSourceGPU& source [[buffer(1)]],
+    constant NMPhysicalStateDigestChunkGPU& pass [[buffer(2)]],
+    uint index [[thread_position_in_grid]]
+) {
+    using namespace numi_matter_metal;
+    using namespace physical_state_digest_detail;
+    if (pass.chunkCount == 0u || pass.scratchStride < pass.chunkCount ||
+        pass.chunkBytes == 0u || pass.reserved0 != 0u ||
+        pass.reserved1 != 0u ||
+        pass.environmentCount > 0xffffffffu / pass.chunkCount) return;
+    const uint total = pass.environmentCount * pass.chunkCount;
+    if (index >= total) return;
+    const uint environment = index / pass.chunkCount;
+    const uint chunk = index - environment * pass.chunkCount;
+    const ulong chunkBase = ulong(chunk) * ulong(pass.chunkBytes);
+    const ulong remaining = chunkBase < source.byteCount
+        ? source.byteCount - chunkBase : 0ul;
+    const ulong actualBytes = min(remaining, ulong(pass.chunkBytes));
+    if (chunkBase > source.byteCount ||
+        actualBytes > source.byteCount - chunkBase) return;
+    const uint metadataIndex = environment * pass.scratchStride + chunk;
+    metadataRecords[metadataIndex].domainFamily = kDomainFamily;
+    metadataRecords[metadataIndex].domainAlgorithm = kDomainAlgorithm;
+    metadataRecords[metadataIndex].schemaVersion =
+        NM_MATTER_PHYSICAL_STATE_DIGEST_SCHEMA_VERSION;
+    metadataRecords[metadataIndex].domainRole = kLeafDomain;
+    metadataRecords[metadataIndex].source.source = source.source;
+    metadataRecords[metadataIndex].source.target = source.target;
+    metadataRecords[metadataIndex].source.flags = source.flags;
+    metadataRecords[metadataIndex].source.encoding = source.encoding;
+    metadataRecords[metadataIndex].source.elementCount = source.elementCount;
+    metadataRecords[metadataIndex].source.elementBytes = source.elementBytes;
+    metadataRecords[metadataIndex].source.reserved0 = 0u;
+    metadataRecords[metadataIndex].source.byteCount = source.byteCount;
+    metadataRecords[metadataIndex].source.reserved1 = 0ul;
+    metadataRecords[metadataIndex].sourceOrdinal = pass.sourceOrdinal;
+    metadataRecords[metadataIndex].chunk = chunk;
+    metadataRecords[metadataIndex].environment =
+        pass.environmentIdentifierBase + environment;
+    metadataRecords[metadataIndex].reserved0 = 0u;
+    metadataRecords[metadataIndex].actualBytes = actualBytes;
+    metadataRecords[metadataIndex].reserved1 = 0ul;
+}
+
+kernel void nm_physical_state_digest_leaf_begin(
+    device const NMPhysicalStateDigestLeafMetadataGPU* metadataRecords
+        [[buffer(0)]],
+    device NMSHA256ContextGPU* contexts [[buffer(1)]],
+    constant NMPhysicalStateDigestLeafFinalizeGPU& pass [[buffer(2)]],
+    uint index [[thread_position_in_grid]]
+) {
+    using namespace numi_matter_metal;
+    if (pass.chunkCount == 0u || pass.scratchStride < pass.chunkCount ||
+        pass.reserved0 != 0u ||
+        pass.environmentCount > 0xffffffffu / pass.chunkCount) return;
+    const uint total = pass.environmentCount * pass.chunkCount;
+    if (index >= total) return;
+    const uint environment = index / pass.chunkCount;
+    const uint chunk = index - environment * pass.chunkCount;
+    const uint contextIndex = environment * pass.scratchStride + chunk;
+    NMSHA256ContextGPU context = contexts[contextIndex];
+    const device uchar* metadata =
+        reinterpret_cast<device const uchar*>(
+            metadataRecords + contextIndex);
+    if (!sha256::updateDeviceBytes(
+            context, metadata,
+            sizeof(NMPhysicalStateDigestLeafMetadataGPU))) {
+        context.status = NM_SHA256_CONTEXT_INVALID;
+    }
+    contexts[contextIndex] = context;
+}
+
+kernel void nm_physical_state_digest_chunks(
+    device const uchar* sourceBytes [[buffer(0)]],
+    device NMSHA256ContextGPU* contexts [[buffer(1)]],
+    constant NMPhysicalStateDigestSourceGPU& source [[buffer(2)]],
+    constant NMPhysicalStateDigestChunkGPU& pass [[buffer(3)]],
+    uint index [[thread_position_in_grid]]
+) {
+    using namespace numi_matter_metal;
+    if (pass.chunkCount == 0u || pass.scratchStride < pass.chunkCount ||
+        pass.chunkBytes == 0u || pass.reserved0 != 0u ||
+        pass.reserved1 != 0u ||
+        pass.environmentCount > 0xffffffffu / pass.chunkCount) return;
+    const uint total = pass.environmentCount * pass.chunkCount;
+    if (index >= total) return;
+    const uint environment = index / pass.chunkCount;
+    const uint chunk = index - environment * pass.chunkCount;
+    const bool shared =
+        (source.flags & NM_MATTER_PHYSICAL_STATE_SOURCE_SHARED) != 0u;
+    const ulong sourceBase = shared
+        ? 0ul : ulong(environment) * source.byteCount;
+    const ulong chunkBase = ulong(chunk) * ulong(pass.chunkBytes);
+    const ulong remaining = chunkBase < source.byteCount
+        ? source.byteCount - chunkBase : 0ul;
+    const ulong actualBytes = min(remaining, ulong(pass.chunkBytes));
+    if (sourceBase > pass.sourceCapacityBytes ||
+        source.byteCount > pass.sourceCapacityBytes - sourceBase ||
+        chunkBase > source.byteCount ||
+        actualBytes > source.byteCount - chunkBase) return;
+
+    const uint contextIndex = environment * pass.scratchStride + chunk;
+    NMSHA256ContextGPU context = contexts[contextIndex];
+    if (!sha256::updateDeviceBytes(
+            context, sourceBytes + sourceBase + chunkBase, actualBytes)) {
+        context.status = NM_SHA256_CONTEXT_INVALID;
+    }
+    contexts[contextIndex] = context;
+}
+
+kernel void nm_physical_state_digest_leaf_finalize(
+    device NMSHA256ContextGPU* contexts [[buffer(0)]],
+    device NMSHA256DigestGPU* scratch [[buffer(1)]],
+    constant NMPhysicalStateDigestLeafFinalizeGPU& pass [[buffer(2)]],
+    uint index [[thread_position_in_grid]]
+) {
+    using namespace numi_matter_metal;
+    if (pass.chunkCount == 0u || pass.scratchStride < pass.chunkCount ||
+        pass.reserved0 != 0u ||
+        pass.environmentCount > 0xffffffffu / pass.chunkCount) return;
+    const uint total = pass.environmentCount * pass.chunkCount;
+    if (index >= total) return;
+    const uint environment = index / pass.chunkCount;
+    const uint chunk = index - environment * pass.chunkCount;
+    const uint contextIndex = environment * pass.scratchStride + chunk;
+    NMSHA256ContextGPU context = contexts[contextIndex];
+    NMSHA256DigestGPU digest = {};
+    (void)sha256::finalize(context, digest);
+    contexts[contextIndex] = context;
+    scratch[contextIndex] = digest;
+}
+
+kernel void nm_physical_state_digest_reduce(
+    device const NMSHA256DigestGPU* input [[buffer(0)]],
+    device NMSHA256DigestGPU* output [[buffer(1)]],
+    constant NMPhysicalStateDigestSourceGPU& source [[buffer(2)]],
+    constant NMPhysicalStateDigestReduceGPU& pass [[buffer(3)]],
+    uint index [[thread_position_in_grid]]
+) {
+    using namespace numi_matter_metal;
+    using namespace physical_state_digest_detail;
+    if (pass.inputCount == 0u || pass.outputCount == 0u ||
+        pass.outputCount != pass.inputCount / 2u + pass.inputCount % 2u ||
+        pass.scratchStride < pass.inputCount || pass.reserved0 != 0u ||
+        pass.reserved1 != 0u ||
+        pass.environmentCount > 0xffffffffu / pass.outputCount) return;
+    const uint total = pass.environmentCount * pass.outputCount;
+    if (index >= total) return;
+    const uint environment = index / pass.outputCount;
+    const uint node = index - environment * pass.outputCount;
+    const uint leftIndex = node * 2u;
+    const uint rightIndex = leftIndex + 1u;
+    const uint base = environment * pass.scratchStride;
+    const bool hasRight = rightIndex < pass.inputCount;
+    NMSHA256DigestGPU left = input[base + leftIndex];
+    NMSHA256DigestGPU right = {};
+    if (hasRight) right = input[base + rightIndex];
+
+    NMSHA256ContextGPU context = {};
+    sha256::initialize(context);
+    bool valid = appendDomain(context, kNodeDomain) &&
+        sha256::updateU32LE(
+            context, NM_MATTER_PHYSICAL_STATE_DIGEST_SCHEMA_VERSION) &&
+        appendSource(context, source) &&
+        sha256::updateU32LE(context, pass.sourceOrdinal) &&
+        sha256::updateU32LE(context, pass.level) &&
+        sha256::updateU32LE(context, hasRight ? 2u : 1u) &&
+        appendDigest(context, left) &&
+        (!hasRight || appendDigest(context, right));
+    NMSHA256DigestGPU digest = {};
+    valid = valid && sha256::finalize(context, digest);
+    if (valid) output[base + node] = digest;
+}
+
+kernel void nm_physical_state_digest_store(
+    device const NMSHA256DigestGPU* root [[buffer(0)]],
+    device NMSHA256DigestGPU* sourceRoots [[buffer(1)]],
+    constant NMPhysicalStateDigestStoreGPU& pass [[buffer(2)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= pass.environmentCount || pass.sourceCount == 0u ||
+        pass.sourceOrdinal >= pass.sourceCount || pass.scratchStride == 0u)
+        return;
+    sourceRoots[environment * pass.sourceCount + pass.sourceOrdinal] =
+        root[environment * pass.scratchStride];
+}
+
+kernel void nm_physical_state_digest_finalize(
+    device const NMSHA256DigestGPU* sourceRoots [[buffer(0)]],
+    constant NMPhysicalStateDigestSourceGPU* sources [[buffer(1)]],
+    device NMPhysicalStateDigestGPU* output [[buffer(2)]],
+    constant NMPhysicalStateDigestFinalizeGPU& pass [[buffer(3)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    using namespace numi_matter_metal;
+    using namespace physical_state_digest_detail;
+    if (environment >= pass.environmentCount ||
+        pass.abiVersion != NM_MATTER_PHYSICAL_STATE_DIGEST_ABI_VERSION ||
+        pass.structSize != NM_MATTER_PHYSICAL_STATE_DIGEST_BYTES ||
+        pass.schemaVersion !=
+            NM_MATTER_PHYSICAL_STATE_DIGEST_SCHEMA_VERSION ||
+        pass.manifestVersion !=
+            NM_MATTER_PHYSICAL_STATE_DIGEST_MANIFEST_VERSION ||
+        pass.sourceCount != NM_MATTER_PHYSICAL_STATE_DIGEST_SOURCE_COUNT ||
+        pass.clockDomain != NM_MATTER_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS ||
+        pass.clockQuantumNanoseconds !=
+            NM_MATTER_EXACT_CLOCK_QUANTUM_NANOSECONDS ||
+        pass.reserved0 != 0u || pass.reserved1 != 0u ||
+        pass.reserved2 != 0u ||
+        pass.matterSourcePhysicsFingerprint == 0ul ||
+        pass.matterDeviceProgramFingerprint == 0ul) return;
+
+    NMSHA256ContextGPU human = {};
+    NMSHA256ContextGPU matter = {};
+    sha256::initialize(human);
+    sha256::initialize(matter);
+    bool valid = appendDomain(human, kOwnerDomain) &&
+        appendHeader(human, pass, environment) &&
+        sha256::updateU32LE(
+            human, NM_MATTER_PHYSICAL_STATE_TARGET_HUMAN) &&
+        sha256::updateU32LE(
+            human, NM_MATTER_PHYSICAL_STATE_DIGEST_HUMAN_SOURCE_COUNT) &&
+        appendDomain(matter, kOwnerDomain) &&
+        appendHeader(matter, pass, environment) &&
+        sha256::updateU32LE(
+            matter, NM_MATTER_PHYSICAL_STATE_TARGET_MATTER) &&
+        sha256::updateU32LE(
+            matter, NM_MATTER_PHYSICAL_STATE_DIGEST_MATTER_SOURCE_COUNT);
+    uint humanCount = 0u;
+    uint matterCount = 0u;
+    for (uint sourceIndex = 0u;
+         valid && sourceIndex < pass.sourceCount; ++sourceIndex) {
+        constant const auto& source = sources[sourceIndex];
+        constant const auto& identity =
+            kNMPhysicalStateDigestManifestV1[sourceIndex];
+        if (!validSource(source) || source.source != identity.source ||
+            source.target != identity.target ||
+            source.flags != identity.flags || identity.reserved0 != 0u) {
+            valid = false;
+            break;
+        }
+        const auto digest = sourceRoots[
+            environment * pass.sourceCount + sourceIndex];
+        if (source.target == NM_MATTER_PHYSICAL_STATE_TARGET_HUMAN) {
+            valid = appendSource(human, source) &&
+                appendDigest(human, digest);
+            ++humanCount;
+        } else if (source.target ==
+                       NM_MATTER_PHYSICAL_STATE_TARGET_MATTER) {
+            valid = appendSource(matter, source) &&
+                appendDigest(matter, digest);
+            ++matterCount;
+        } else {
+            valid = false;
+        }
+    }
+    valid = valid &&
+        humanCount == NM_MATTER_PHYSICAL_STATE_DIGEST_HUMAN_SOURCE_COUNT &&
+        matterCount == NM_MATTER_PHYSICAL_STATE_DIGEST_MATTER_SOURCE_COUNT;
+
+    NMSHA256DigestGPU humanDigest = {};
+    NMSHA256DigestGPU matterDigest = {};
+    valid = valid && sha256::finalize(human, humanDigest) &&
+        sha256::finalize(matter, matterDigest);
+
+    NMSHA256ContextGPU physical = {};
+    sha256::initialize(physical);
+    valid = valid && appendDomain(physical, kRootDomain) &&
+        appendHeader(physical, pass, environment) &&
+        appendDigest(physical, humanDigest) &&
+        appendDigest(physical, matterDigest);
+    NMSHA256DigestGPU physicalDigest = {};
+    valid = valid && sha256::finalize(physical, physicalDigest);
+
+    NMPhysicalStateDigestGPU record = {};
+    record.abiVersion = NM_MATTER_PHYSICAL_STATE_DIGEST_ABI_VERSION;
+    record.structSize = NM_MATTER_PHYSICAL_STATE_DIGEST_BYTES;
+    record.status = valid
+        ? NM_PHYSICAL_STATE_DIGEST_VALID
+        : NM_PHYSICAL_STATE_DIGEST_INVALID;
+    record.environment = pass.environmentIdentifierBase + environment;
+    record.schemaVersion = pass.schemaVersion;
+    record.manifestVersion = pass.manifestVersion;
+    record.sourceCount = pass.sourceCount;
+    record.acceptedTimestampNanoseconds = pass.acceptedTimestampNanoseconds;
+    record.physicsGeneration = pass.physicsGeneration;
+    record.matterSourcePhysicsFingerprint =
+        pass.matterSourcePhysicsFingerprint;
+    record.matterDeviceProgramFingerprint =
+        pass.matterDeviceProgramFingerprint;
+    if (valid) {
+        record.humanSHA256 = humanDigest;
+        record.matterSHA256 = matterDigest;
+        record.physicalSHA256 = physicalDigest;
+    }
+    output[environment] = record;
+}
+
+} // namespace numi_matter_metal

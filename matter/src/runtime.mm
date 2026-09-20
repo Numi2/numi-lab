@@ -563,6 +563,7 @@ struct Runtime::State {
     id<MTLDevice> device = nil;
     id<MTLCommandQueue> queue = nil;
     id<MTLLibrary> library = nil;
+    id<MTLLibrary> physicalStateDigestLibrary = nil;
     std::unordered_map<std::string, id<MTLComputePipelineState>> pipelines;
     id<MTLComputePipelineState> acceptedStateProofBegin = nil;
     id<MTLComputePipelineState> acceptedStateProofChunks = nil;
@@ -570,6 +571,14 @@ struct Runtime::State {
     id<MTLComputePipelineState> acceptedStateProofFold = nil;
     id<MTLComputePipelineState> acceptedStateProofFinalize = nil;
     id<MTLComputePipelineState> acceptedStateProofFinalizeV2 = nil;
+    id<MTLComputePipelineState> physicalStateDigestLeafInitialize = nil;
+    id<MTLComputePipelineState> physicalStateDigestLeafMetadataPipeline = nil;
+    id<MTLComputePipelineState> physicalStateDigestLeafBegin = nil;
+    id<MTLComputePipelineState> physicalStateDigestChunks = nil;
+    id<MTLComputePipelineState> physicalStateDigestLeafFinalize = nil;
+    id<MTLComputePipelineState> physicalStateDigestReduce = nil;
+    id<MTLComputePipelineState> physicalStateDigestStore = nil;
+    id<MTLComputePipelineState> physicalStateDigestFinalize = nil;
     id<MTLComputePipelineState> preparedStateValidateApplication = nil;
     id<MTLComputePipelineState> preparedStateNormalizeApplication = nil;
     id<MTLComputePipelineState> preparedStateMaterializeRestoreStatuses = nil;
@@ -577,6 +586,11 @@ struct Runtime::State {
     id<MTLBuffer> acceptedStateProofHashes = nil;
     id<MTLBuffer> acceptedStateProofScratchA = nil;
     id<MTLBuffer> acceptedStateProofScratchB = nil;
+    id<MTLBuffer> physicalStateDigestScratchA = nil;
+    id<MTLBuffer> physicalStateDigestScratchB = nil;
+    id<MTLBuffer> physicalStateDigestContexts = nil;
+    id<MTLBuffer> physicalStateDigestLeafMetadata = nil;
+    id<MTLBuffer> physicalStateDigestSourceRoots = nil;
     id<MTLBuffer> preparedStateBindings = nil;
     id<MTLBuffer> preparedStateActions = nil;
     id<MTLBuffer> preparedStateRestoreStatuses = nil;
@@ -623,6 +637,7 @@ struct Runtime::State {
     std::uint64_t acceptedStateProofProgramFingerprint = 0u;
     std::uint64_t acceptedStateProofProgramFingerprintV2 = 0u;
     std::uint64_t acceptedStateProofMujocoBytesPerEnvironmentCapacity = 0u;
+    bool physicalStateDigestEnabled = false;
     std::size_t acceptedStateProofResidentByteCount = 0u;
     std::size_t residentBytes = 0u;
     std::uint32_t identificationDistributionCount = 0u;
@@ -635,8 +650,23 @@ struct Runtime::State {
     std::uint32_t requiredCandidateBodyCount = 0u;
     std::uint32_t reactionBodyCount = 0u;
     struct CommandOwnership {
+        struct AcceptedStateProofBorrowedRange {
+            // Scalar, non-retaining identity. The caller owns every borrowed
+            // Metal object through completion of the prepared command.
+            void* buffer = nullptr;
+            std::uint64_t gpuAddress = 0u;
+            std::uint64_t byteCount = 0u;
+            std::uint64_t capacity = 0u;
+        };
+        static constexpr std::size_t
+            kAcceptedStateProofBorrowedRangeCapacity = 9u;
+
         std::mutex mutex;
         void* activeCommandBuffer = nullptr;
+        // A quiescent physical-state observer temporarily owns the Runtime
+        // timeline without opening a simulation transaction. This prevents a
+        // later encode/restore from racing the direct-byte measurement.
+        bool physicalStateDigestOpen = false;
         bool preDynamicsOpen = false;
         std::uint32_t controlStep = 0u;
         std::uint32_t physicsSubstep = 0u;
@@ -646,6 +676,10 @@ struct Runtime::State {
         bool acceptedStateProofEncoded = false;
         std::uint32_t acceptedStateProofFamily = 0u;
         bool acceptedStateProofEligible = false;
+        std::array<AcceptedStateProofBorrowedRange,
+                   kAcceptedStateProofBorrowedRangeCapacity>
+            acceptedStateProofBorrowedRanges{};
+        std::uint32_t acceptedStateProofBorrowedRangeCount = 0u;
         std::uint64_t transactionPolicyFingerprint = 0u;
         std::uint32_t physicsSubsteps = 1u;
         bool preparedStateOpen = false;
@@ -673,6 +707,11 @@ struct Runtime::State {
         PreparedStateDispositionIdentity dispositionIdentity{};
         PreparedStateDisposition disposition =
             PreparedStateDisposition::unknown;
+
+        void clearAcceptedStateProofBorrowedRanges() noexcept {
+            acceptedStateProofBorrowedRanges = {};
+            acceptedStateProofBorrowedRangeCount = 0u;
+        }
 
         [[nodiscard]] bool matchesDispositionIdentity(
             const PreparedStateDispositionIdentity& identity
@@ -710,6 +749,7 @@ struct Runtime::State {
             if (applyCommandBuffer != identity) return;
             applyCommandBuffer = nullptr;
             applyEncoded = false;
+            clearAcceptedStateProofBorrowedRanges();
             if (status != MTLCommandBufferStatusCompleted) {
                 publicationReserved = false;
                 publicationReleaseArmed = false;
@@ -1093,6 +1133,30 @@ struct Runtime::State {
     id<MTLBuffer> identificationLosses = nil;
     id<MTLBuffer> dummy = nil;
 
+    struct AcceptedStateArena {
+        id<MTLBuffer> buffer = nil;
+        std::uint32_t source = 0u;
+        std::uint32_t target = 0u;
+        std::uint32_t flags = 0u;
+        std::uint64_t elementCount = 0u;
+        std::uint32_t elementBytes = 0u;
+        std::uint64_t bytesPerEnvironment = 0u;
+        std::uint64_t sharedBytes = 0u;
+    };
+
+    [[nodiscard]] std::array<
+        AcceptedStateArena,
+        NM_MATTER_PHYSICAL_STATE_DIGEST_SOURCE_COUNT>
+    acceptedStateArenas(
+        id<MTLBuffer> rootTranslation,
+        id<MTLBuffer> q,
+        id<MTLBuffer> v,
+        id<MTLBuffer> mujocoStates,
+        std::uint32_t qStride,
+        std::uint32_t vStride,
+        std::uint32_t mujocoStateStride
+    ) const noexcept;
+
     [[nodiscard]] id<MTLComputePipelineState> pipeline(
         const std::string_view name
     ) const {
@@ -1100,6 +1164,113 @@ struct Runtime::State {
         return iterator == pipelines.end() ? nil : iterator->second;
     }
 };
+
+std::array<
+    Runtime::State::AcceptedStateArena,
+    NM_MATTER_PHYSICAL_STATE_DIGEST_SOURCE_COUNT>
+Runtime::State::acceptedStateArenas(
+    id<MTLBuffer> rootTranslation,
+    id<MTLBuffer> q,
+    id<MTLBuffer> v,
+    id<MTLBuffer> mujocoStates,
+    const std::uint32_t qStride,
+    const std::uint32_t vStride,
+    const std::uint32_t mujocoStateStride
+) const noexcept {
+    const std::uint64_t particleMaterialScalars =
+        static_cast<std::uint64_t>(dispatch.particleCount) *
+        dispatch.materialStateStride;
+    const std::uint64_t femMaterialScalars =
+        static_cast<std::uint64_t>(dispatch.tetrahedronCount) *
+        dispatch.materialStateStride;
+    const auto canonical = [](id<MTLBuffer> buffer,
+                              const std::size_t ordinal,
+                              const std::uint64_t count,
+                              const std::uint32_t elementBytes) noexcept {
+        const NMPhysicalStateDigestManifestIdentityGPU& identity =
+            kNMPhysicalStateDigestManifestV1[ordinal];
+        const bool shared =
+            (identity.flags & NM_MATTER_PHYSICAL_STATE_SOURCE_SHARED) != 0u;
+        const std::uint64_t bytes = count *
+            static_cast<std::uint64_t>(elementBytes);
+        return AcceptedStateArena{
+            .buffer = buffer,
+            .source = identity.source,
+            .target = identity.target,
+            .flags = identity.flags,
+            .elementCount = count,
+            .elementBytes = elementBytes,
+            .bytesPerEnvironment = shared ? 0u : bytes,
+            .sharedBytes = shared ? bytes : 0u,
+        };
+    };
+    return {{
+        canonical(rootTranslation, 0u, 1u,
+            sizeof(MRCompensatedRootTranslationGPU)),
+        canonical(q, 1u, qStride, sizeof(float)),
+        canonical(v, 2u, vStride, sizeof(float)),
+        canonical(mujocoStates, 3u, mujocoStateStride,
+            sizeof(MRMujocoMuscleStateGPU)),
+        canonical(particleAccepted, 4u,
+            dispatch.particleCount, sizeof(NMParticleStateGPU)),
+        canonical(particleMaterialStateAccepted, 5u,
+            particleMaterialScalars, sizeof(float)),
+        canonical(femAccepted, 6u,
+            dispatch.femNodeCount, sizeof(NMFEMNodeStateGPU)),
+        canonical(femMaterialStateAccepted, 7u,
+            femMaterialScalars, sizeof(float)),
+        canonical(femFieldsAccepted, 8u,
+            dispatch.femNodeCount, sizeof(NMFEMFieldStateGPU)),
+        canonical(vascularAccepted, 9u,
+            vascularValue.layout.ranges.z, sizeof(nm_float4)),
+        canonical(vascularClockAccepted, 10u,
+            vascularValue.layout.ranges.z == 0u ? 0u : 1u,
+            sizeof(NMVascularClockGPU)),
+        canonical(femTetrahedraAccepted, 11u,
+            dispatch.tetrahedronCount, sizeof(NMTetrahedronGPU)),
+        canonical(femTopologyNodesAccepted, 12u,
+            dispatch.topologyNodeCapacity, sizeof(NMFEMTopologyNodeGPU)),
+        canonical(cohesiveFacesAccepted, 13u,
+            dispatch.cohesiveFaceCount, sizeof(NMCohesiveFaceGPU)),
+        canonical(punctureChannelsAccepted, 14u,
+            dispatch.punctureChannelCount, sizeof(NMPunctureChannelGPU)),
+        canonical(topologyStatesAccepted, 15u,
+            dispatch.objectCount, sizeof(NMFEMTopologyStateGPU)),
+        canonical(learnedWeightsAccepted, 16u,
+            dispatch.learnedWeightCount, sizeof(float)),
+        canonical(learnedRevisionAccepted, 17u, 1u,
+            sizeof(std::uint32_t)),
+        canonical(contactHistoriesAccepted, 18u,
+            dispatch.contactPairCount, sizeof(nm_float4)),
+        canonical(humanSupportHistoriesAccepted, 19u,
+            humanSupportDispatch.contactCount, sizeof(nm_float4)),
+        canonical(humanSupportConsequencesAccepted, 20u,
+            humanSupportDispatch.contactCount,
+            sizeof(NMHumanSupportConsequenceGPU)),
+        canonical(deformableContactHistoriesAccepted, 21u,
+            dispatch.deformableContactCapacity,
+            sizeof(NMDeformableContactHistoryGPU)),
+        canonical(coupledGeneralizedCandidate, 22u,
+            dispatch.rigidGeneralizedCapacity, sizeof(float)),
+        canonical(frameReactions, 23u,
+            dispatch.rigidProxyCount, sizeof(NMRigidReactionGPU)),
+        canonical(rigidStates, 24u,
+            dispatch.rigidProxyCount, sizeof(NMRigidStateGPU)),
+        canonical(adaptive, 25u,
+            dispatch.objectCount, sizeof(NMAdaptiveStateGPU)),
+        canonical(schedulers, 26u,
+            dispatch.objectCount, sizeof(NMSchedulerStateGPU)),
+        canonical(identificationDistributions, 27u,
+            identificationDistributionCount,
+            sizeof(NMIdentificationDistributionGPU)),
+        canonical(environmentParameters, 28u,
+            dispatch.parameterCount, sizeof(float)),
+        canonical(femNodeIncidence, 29u,
+            femNodeIncidenceStride, sizeof(std::uint32_t)),
+        canonical(femNodeRanges, 30u,
+            femNodeRangeStride, sizeof(NMIncidenceRangeGPU)),
+    }};
+}
 
 struct Runtime::AcceptedStateProofPassView {
     bool exact = false;
@@ -1782,6 +1953,28 @@ RuntimeDiagnostics Runtime::initialize(
                 errorString(imageError);
             return diagnostics;
         }
+        candidate->acceptedStateProofMujocoBytesPerEnvironmentCapacity =
+            configuration
+                .acceptedStateProofMujocoBytesPerEnvironmentCapacity;
+        if (candidate->acceptedStateProofMujocoBytesPerEnvironmentCapacity >
+                std::numeric_limits<NSUInteger>::max()) {
+            diagnostics.message =
+                "accepted-state MyoSim proof capacity exceeds Metal address space";
+            return diagnostics;
+        }
+        if (configuration.enablePhysicalStateDigest &&
+            candidate->acceptedStateProofMujocoBytesPerEnvironmentCapacity ==
+                0u) {
+            diagnostics.message =
+                "physical-state digest requires a nonzero accepted-state MyoSim proof capacity";
+            return diagnostics;
+        }
+        candidate->physicalStateDigestEnabled =
+            configuration.enablePhysicalStateDigest &&
+            candidate->acceptedStateProofMujocoBytesPerEnvironmentCapacity !=
+                0u;
+        const bool physicalStateDigestEnabled =
+            candidate->physicalStateDigestEnabled;
         const std::uint64_t metallibFingerprint = detail::hashBytes(
             metallibImage.bytes,
             static_cast<std::size_t>(metallibImage.length));
@@ -1792,21 +1985,72 @@ RuntimeDiagnostics Runtime::initialize(
                 "NumiMatter.metallib executable image identity is invalid";
             return diagnostics;
         }
+        NSData* physicalDigestMetallibImage = nil;
+        std::uint64_t executableImageFingerprint = metallibFingerprint;
+        std::uint64_t executableImageByteCount = metallibByteCount;
+        if (physicalStateDigestEnabled) {
+            const std::filesystem::path physicalDigestMetallib =
+                metallib.parent_path() /
+                "NumiMatterPhysicalStateDigest.metallib";
+            if (!regularFile(physicalDigestMetallib)) {
+                diagnostics.message =
+                    "NumiMatterPhysicalStateDigest.metallib is unavailable";
+                return diagnostics;
+            }
+            NSString* physicalDigestMetallibPath = [NSString
+                stringWithUTF8String:
+                    physicalDigestMetallib.string().c_str()];
+            NSError* physicalDigestImageError = nil;
+            physicalDigestMetallibImage =
+                physicalDigestMetallibPath == nil ? nil :
+                [NSData dataWithContentsOfFile:physicalDigestMetallibPath
+                                      options:NSDataReadingMappedIfSafe
+                                        error:&physicalDigestImageError];
+            if (physicalDigestMetallibImage == nil ||
+                physicalDigestMetallibImage.length == 0u ||
+                physicalDigestMetallibImage.bytes == nullptr) {
+                diagnostics.message =
+                    "failed to read one immutable physical-state digest metallib image: " +
+                    errorString(physicalDigestImageError);
+                return diagnostics;
+            }
+            const std::uint64_t physicalDigestMetallibFingerprint =
+                detail::hashBytes(
+                    physicalDigestMetallibImage.bytes,
+                    static_cast<std::size_t>(
+                        physicalDigestMetallibImage.length));
+            const std::uint64_t physicalDigestMetallibByteCount =
+                static_cast<std::uint64_t>(
+                    physicalDigestMetallibImage.length);
+            if (physicalDigestMetallibFingerprint == 0u ||
+                physicalDigestMetallibByteCount == 0u ||
+                physicalDigestMetallibByteCount >
+                    std::numeric_limits<std::uint64_t>::max() -
+                        metallibByteCount) {
+                diagnostics.message =
+                    "Numi Matter physical-state digest executable image identity is invalid";
+                return diagnostics;
+            }
+            executableImageFingerprint = 14695981039346656037ull;
+            executableImageFingerprint = mixFingerprint(
+                executableImageFingerprint, metallibFingerprint);
+            executableImageFingerprint = mixFingerprint(
+                executableImageFingerprint, metallibByteCount);
+            executableImageFingerprint = mixFingerprint(
+                executableImageFingerprint,
+                physicalDigestMetallibFingerprint);
+            executableImageFingerprint = mixFingerprint(
+                executableImageFingerprint,
+                physicalDigestMetallibByteCount);
+            executableImageByteCount =
+                metallibByteCount + physicalDigestMetallibByteCount;
+        }
         candidate->executionFingerprint = makeDeviceProgramFingerprint(
             world.fingerprint,
-            metallibFingerprint,
-            metallibByteCount,
+            executableImageFingerprint,
+            executableImageByteCount,
             configuration
         );
-        candidate->acceptedStateProofMujocoBytesPerEnvironmentCapacity =
-            configuration
-                .acceptedStateProofMujocoBytesPerEnvironmentCapacity;
-        if (candidate->acceptedStateProofMujocoBytesPerEnvironmentCapacity >
-                std::numeric_limits<NSUInteger>::max()) {
-            diagnostics.message =
-                "accepted-state MyoSim proof capacity exceeds Metal address space";
-            return diagnostics;
-        }
         candidate->acceptedStateProofProgramFingerprint =
             candidate->acceptedStateProofMujocoBytesPerEnvironmentCapacity ==
                     0u
@@ -1853,6 +2097,30 @@ RuntimeDiagnostics Runtime::initialize(
                 errorString(libraryError);
             return diagnostics;
         }
+        if (physicalStateDigestEnabled) {
+            dispatch_data_t physicalDigestLibraryImage =
+                dispatch_data_create(
+                    physicalDigestMetallibImage.bytes,
+                    physicalDigestMetallibImage.length,
+                    dispatch_get_global_queue(
+                        QOS_CLASS_USER_INITIATED, 0),
+                    DISPATCH_DATA_DESTRUCTOR_DEFAULT);
+            if (physicalDigestLibraryImage == nullptr) {
+                diagnostics.message =
+                    "failed to retain the exact physical-state digest metallib image";
+                return diagnostics;
+            }
+            NSError* physicalDigestLibraryError = nil;
+            candidate->physicalStateDigestLibrary = [candidate->device
+                newLibraryWithData:physicalDigestLibraryImage
+                             error:&physicalDigestLibraryError];
+            if (candidate->physicalStateDigestLibrary == nil) {
+                diagnostics.message =
+                    "failed to load Numi Matter physical-state digest Metal library: " +
+                    errorString(physicalDigestLibraryError);
+                return diagnostics;
+            }
+        }
 
         const auto proofPipeline = [&](NSString* name) {
             NSString* qualified = [@"numi_matter_metal::"
@@ -1872,6 +2140,24 @@ RuntimeDiagnostics Runtime::initialize(
             }
             return pipeline;
         };
+        const auto physicalDigestPipeline = [&](NSString* name) {
+            NSString* qualified = [@"numi_matter_metal::"
+                stringByAppendingString:name];
+            id<MTLFunction> function = [candidate->physicalStateDigestLibrary
+                newFunctionWithName:qualified];
+            NSError* pipelineError = nil;
+            id<MTLComputePipelineState> pipeline = function == nil
+                ? nil
+                : [candidate->device
+                    newComputePipelineStateWithFunction:function
+                                                   error:&pipelineError];
+            if (pipeline == nil && diagnostics.message.empty()) {
+                diagnostics.message =
+                    "failed to create Matter physical-state digest pipeline " +
+                    nsString(name) + ": " + errorString(pipelineError);
+            }
+            return pipeline;
+        };
         candidate->acceptedStateProofBegin = proofPipeline(
             @"nm_accepted_state_proof_begin");
         candidate->acceptedStateProofChunks = proofPipeline(
@@ -1884,6 +2170,27 @@ RuntimeDiagnostics Runtime::initialize(
             @"nm_accepted_state_proof_finalize");
         candidate->acceptedStateProofFinalizeV2 = proofPipeline(
             @"nm_accepted_state_proof_finalize_v2");
+        if (physicalStateDigestEnabled) {
+            candidate->physicalStateDigestLeafInitialize =
+                physicalDigestPipeline(
+                    @"nm_physical_state_digest_leaf_initialize");
+            candidate->physicalStateDigestLeafMetadataPipeline =
+                physicalDigestPipeline(
+                    @"nm_physical_state_digest_leaf_metadata");
+            candidate->physicalStateDigestLeafBegin = physicalDigestPipeline(
+                @"nm_physical_state_digest_leaf_begin");
+            candidate->physicalStateDigestChunks = physicalDigestPipeline(
+                @"nm_physical_state_digest_chunks");
+            candidate->physicalStateDigestLeafFinalize =
+                physicalDigestPipeline(
+                    @"nm_physical_state_digest_leaf_finalize");
+            candidate->physicalStateDigestReduce = physicalDigestPipeline(
+                @"nm_physical_state_digest_reduce");
+            candidate->physicalStateDigestStore = physicalDigestPipeline(
+                @"nm_physical_state_digest_store");
+            candidate->physicalStateDigestFinalize = physicalDigestPipeline(
+                @"nm_physical_state_digest_finalize");
+        }
         candidate->preparedStateValidateApplication = proofPipeline(
             @"nm_prepared_state_validate_application");
         candidate->preparedStateNormalizeApplication = proofPipeline(
@@ -1898,6 +2205,15 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->acceptedStateProofFold == nil ||
             candidate->acceptedStateProofFinalize == nil ||
             candidate->acceptedStateProofFinalizeV2 == nil ||
+            (physicalStateDigestEnabled &&
+             (candidate->physicalStateDigestLeafInitialize == nil ||
+              candidate->physicalStateDigestLeafMetadataPipeline == nil ||
+              candidate->physicalStateDigestLeafBegin == nil ||
+              candidate->physicalStateDigestChunks == nil ||
+              candidate->physicalStateDigestLeafFinalize == nil ||
+              candidate->physicalStateDigestReduce == nil ||
+              candidate->physicalStateDigestStore == nil ||
+              candidate->physicalStateDigestFinalize == nil)) ||
             candidate->preparedStateValidateApplication == nil ||
             candidate->preparedStateNormalizeApplication == nil ||
             candidate->preparedStateMaterializeRestoreStatuses == nil ||
@@ -3356,6 +3672,53 @@ RuntimeDiagnostics Runtime::initialize(
             valid,
             candidate->residentBytes
         );
+        if (physicalStateDigestEnabled) {
+            candidate->physicalStateDigestScratchA =
+                privateScratch<NMSHA256DigestGPU>(
+                    candidate->device,
+                    proofScratchCount,
+                    valid,
+                    candidate->residentBytes
+                );
+            candidate->physicalStateDigestScratchB =
+                privateScratch<NMSHA256DigestGPU>(
+                    candidate->device,
+                    proofScratchCount,
+                    valid,
+                    candidate->residentBytes
+                );
+            candidate->physicalStateDigestContexts =
+                privateScratch<NMSHA256ContextGPU>(
+                    candidate->device,
+                    proofScratchCount,
+                    valid,
+                    candidate->residentBytes
+                );
+            candidate->physicalStateDigestLeafMetadata =
+                privateScratch<NMPhysicalStateDigestLeafMetadataGPU>(
+                    candidate->device,
+                    proofScratchCount,
+                    valid,
+                    candidate->residentBytes
+                );
+            const std::uint64_t physicalSourceRootCount64 =
+                static_cast<std::uint64_t>(environments) *
+                NM_MATTER_PHYSICAL_STATE_DIGEST_SOURCE_COUNT;
+            if (physicalSourceRootCount64 >
+                    std::numeric_limits<std::uint32_t>::max() ||
+                physicalSourceRootCount64 >
+                    std::numeric_limits<std::size_t>::max()) {
+                valid = false;
+            }
+            candidate->physicalStateDigestSourceRoots =
+                privateScratch<NMSHA256DigestGPU>(
+                    candidate->device,
+                    valid ? static_cast<std::size_t>(
+                        physicalSourceRootCount64) : 0u,
+                    valid,
+                    candidate->residentBytes
+                );
+        }
         candidate->preparedStateBindings =
             privateScratch<NMPreparedStateBindingGPU>(
                 candidate->device, environments,
@@ -4004,10 +4367,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
 
         const auto ownership = state.commandOwnership;
         std::unique_lock ownershipLock(ownership->mutex);
-        if (ownership->preparedStateOpen || ownership->applyEncoded ||
+        if (ownership->physicalStateDigestOpen ||
+            ownership->preparedStateOpen || ownership->applyEncoded ||
             ownership->restoreRequired) {
             diagnostics.message =
-                "a prepared Matter transaction still requires apply, publication, or restore";
+                ownership->physicalStateDigestOpen
+                    ? "a quiescent physical-state digest is still in flight"
+                    : "a prepared Matter transaction still requires apply, publication, or restore";
             return diagnostics;
         }
         if (ownership->activeCommandBuffer != nullptr &&
@@ -4957,6 +5323,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     worldStatuses.gpuAddress;
                 ownership->applyEncoded = false;
                 ownership->restoreRequired = false;
+                ownership->clearAcceptedStateProofBorrowedRanges();
                 ownership->preparedCommandCompleted = false;
                 ownership->preparedCommandFailed = false;
                 ownership->terminalNoTouch = false;
@@ -4965,6 +5332,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 ownership->acceptedStateProofEncoded = false;
                 ownership->acceptedStateProofFamily = 0u;
                 ownership->acceptedStateProofEligible = false;
+                ownership->clearAcceptedStateProofBorrowedRanges();
                 ownership->transactionPolicyFingerprint = 0u;
                 ownership->preparedStateRequested = false;
             }
@@ -8810,6 +9178,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     if (locked->activeCommandBuffer == borrowedIdentity) {
                         locked->activeCommandBuffer = nullptr;
                         locked->preDynamicsOpen = false;
+                        locked->clearAcceptedStateProofBorrowedRanges();
                         if (locked->preparedStateOpen) {
                             if (completed.status !=
                                     MTLCommandBufferStatusCompleted) {
@@ -8948,6 +9317,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
         ownership->disposition = PreparedStateDisposition::unknown;
         ownership->acceptedStateProofEncoded = false;
         ownership->acceptedStateProofFamily = 0u;
+        ownership->clearAcceptedStateProofBorrowedRanges();
         ownership->acceptedStateProofEligible =
             !request.runIdentification &&
             request.resetMaskStepStride == 0u &&
@@ -9352,6 +9722,29 @@ bool Runtime::encodeAcceptedStateProofImpl(
                 }
             }
         }
+        if (state.physicalStateDigestEnabled) {
+            const id<MTLBuffer> protectedPhysicalDigestArenas[] = {
+                state.physicalStateDigestScratchA,
+                state.physicalStateDigestScratchB,
+                state.physicalStateDigestContexts,
+                state.physicalStateDigestLeafMetadata,
+                state.physicalStateDigestSourceRoots,
+            };
+            for (id<MTLBuffer> protectedArena :
+                 protectedPhysicalDigestArenas) {
+                if (protectedArena == nil) return false;
+                for (const BorrowedRange& borrowed : borrowedRanges) {
+                    if (rangesOverlap(
+                            borrowed.address,
+                            borrowed.bytes,
+                            protectedArena.gpuAddress,
+                            static_cast<std::uint64_t>(
+                                protectedArena.length))) {
+                        return false;
+                    }
+                }
+            }
+        }
         for (const BorrowedRange& borrowed : borrowedRanges) {
             if (borrowed.buffer == nil) {
                 return false;
@@ -9385,198 +9778,22 @@ bool Runtime::encodeAcceptedStateProofImpl(
             return false;
         }
 
-        struct ProofArena {
-            void* buffer = nullptr;
-            detail::AcceptedStateProofSource source{};
-            std::uint32_t target = 0u;
-            std::uint32_t flags = 0u;
-            std::uint64_t bytesPerEnvironment = 0u;
-            std::uint64_t sharedBytes = 0u;
-        };
-        const auto perEnvironmentBytes = [](
-            const std::uint64_t count,
-            const std::uint64_t elementBytes
-        ) {
-            return count * elementBytes;
-        };
-        const auto owned = [](id<MTLBuffer> buffer) {
-            return (__bridge void*)buffer;
-        };
-        const std::uint64_t particleMaterialScalars =
-            static_cast<std::uint64_t>(state.dispatch.particleCount) *
-            state.dispatch.materialStateStride;
-        const std::uint64_t femMaterialScalars =
-            static_cast<std::uint64_t>(state.dispatch.tetrahedronCount) *
-            state.dispatch.materialStateStride;
-        const std::array<ProofArena, 31u> arenas{{
-            {pass.rootTranslation, detail::AcceptedStateProofSource::humanRootTranslation,
-             detail::kAcceptedStateProofTargetHuman, 0u,
-             sizeof(MRCompensatedRootTranslationGPU), 0u},
-            {pass.q, detail::AcceptedStateProofSource::humanQ,
-             detail::kAcceptedStateProofTargetHuman, 0u,
-             perEnvironmentBytes(pass.qStride, sizeof(float)), 0u},
-            {pass.v, detail::AcceptedStateProofSource::humanV,
-             detail::kAcceptedStateProofTargetHuman, 0u,
-             perEnvironmentBytes(pass.vStride, sizeof(float)), 0u},
-            {pass.mujocoStates,
-             detail::AcceptedStateProofSource::humanMujoco,
-             detail::kAcceptedStateProofTargetHuman, 0u,
-             perEnvironmentBytes(
-                 pass.mujocoStateStride, sizeof(MRMujocoMuscleStateGPU)), 0u},
-            {owned(state.particleAccepted),
-             detail::AcceptedStateProofSource::matterParticles,
-             detail::kAcceptedStateProofTargetMatter, 0u,
-             perEnvironmentBytes(
-                 state.dispatch.particleCount, sizeof(NMParticleStateGPU)), 0u},
-            {owned(state.particleMaterialStateAccepted),
-             detail::AcceptedStateProofSource::matterParticleMaterialState,
-             detail::kAcceptedStateProofTargetMatter, 0u,
-             perEnvironmentBytes(particleMaterialScalars, sizeof(float)), 0u},
-            {owned(state.femAccepted),
-             detail::AcceptedStateProofSource::matterFEMNodes,
-             detail::kAcceptedStateProofTargetMatter, 0u,
-             perEnvironmentBytes(
-                 state.dispatch.femNodeCount, sizeof(NMFEMNodeStateGPU)), 0u},
-            {owned(state.femMaterialStateAccepted),
-             detail::AcceptedStateProofSource::matterFEMMaterialState,
-             detail::kAcceptedStateProofTargetMatter, 0u,
-             perEnvironmentBytes(femMaterialScalars, sizeof(float)), 0u},
-            {owned(state.femFieldsAccepted),
-             detail::AcceptedStateProofSource::matterFEMFields,
-             detail::kAcceptedStateProofTargetMatter, 0u,
-             perEnvironmentBytes(
-                 state.dispatch.femNodeCount, sizeof(NMFEMFieldStateGPU)), 0u},
-            {owned(state.vascularAccepted),
-             detail::AcceptedStateProofSource::matterVascularState,
-             detail::kAcceptedStateProofTargetMatter, 0u,
-             perEnvironmentBytes(state.vascularValue.layout.ranges.z,
-                 sizeof(nm_float4)), 0u},
-            {owned(state.vascularClockAccepted),
-             detail::AcceptedStateProofSource::matterVascularClock,
-             detail::kAcceptedStateProofTargetMatter, 0u,
-             perEnvironmentBytes(state.vascularValue.layout.ranges.z == 0u ? 0u : 1u,
-                 sizeof(NMVascularClockGPU)), 0u},
-            {owned(state.femTetrahedraAccepted),
-             detail::AcceptedStateProofSource::matterFEMTetrahedra,
-             detail::kAcceptedStateProofTargetMatter, 0u,
-             perEnvironmentBytes(
-                 state.dispatch.tetrahedronCount, sizeof(NMTetrahedronGPU)), 0u},
-            {owned(state.femTopologyNodesAccepted),
-             detail::AcceptedStateProofSource::matterFEMTopologyNodes,
-             detail::kAcceptedStateProofTargetMatter, 0u,
-             perEnvironmentBytes(
-                 state.dispatch.topologyNodeCapacity,
-                 sizeof(NMFEMTopologyNodeGPU)), 0u},
-            {owned(state.cohesiveFacesAccepted),
-             detail::AcceptedStateProofSource::matterCohesiveFaces,
-             detail::kAcceptedStateProofTargetMatter, 0u,
-             perEnvironmentBytes(
-                 state.dispatch.cohesiveFaceCount,
-                 sizeof(NMCohesiveFaceGPU)), 0u},
-            {owned(state.punctureChannelsAccepted),
-             detail::AcceptedStateProofSource::matterPunctureChannels,
-             detail::kAcceptedStateProofTargetMatter, 0u,
-             perEnvironmentBytes(
-                 state.dispatch.punctureChannelCount,
-                 sizeof(NMPunctureChannelGPU)), 0u},
-            {owned(state.topologyStatesAccepted),
-             detail::AcceptedStateProofSource::matterTopologyStates,
-             detail::kAcceptedStateProofTargetMatter, 0u,
-             perEnvironmentBytes(
-                 state.dispatch.objectCount, sizeof(NMFEMTopologyStateGPU)), 0u},
-            {owned(state.learnedWeightsAccepted),
-             detail::AcceptedStateProofSource::matterLearnedWeights,
-             detail::kAcceptedStateProofTargetMatter,
-             detail::kAcceptedStateProofSourceShared, 0u,
-             perEnvironmentBytes(
-                 state.dispatch.learnedWeightCount, sizeof(float))},
-            {owned(state.learnedRevisionAccepted),
-             detail::AcceptedStateProofSource::matterLearnedRevision,
-             detail::kAcceptedStateProofTargetMatter,
-             detail::kAcceptedStateProofSourceShared, 0u,
-             sizeof(std::uint32_t)},
-            {owned(state.contactHistoriesAccepted),
-             detail::AcceptedStateProofSource::matterContactHistories,
-             detail::kAcceptedStateProofTargetMatter, 0u,
-             perEnvironmentBytes(
-                 state.dispatch.contactPairCount, sizeof(nm_float4)), 0u},
-            {owned(state.humanSupportHistoriesAccepted),
-             detail::AcceptedStateProofSource::matterHumanSupportHistories,
-             detail::kAcceptedStateProofTargetMatter, 0u,
-             perEnvironmentBytes(
-                 state.humanSupportDispatch.contactCount,
-                 sizeof(nm_float4)), 0u},
-            {owned(state.humanSupportConsequencesAccepted),
-             detail::AcceptedStateProofSource::matterHumanSupportConsequences,
-             detail::kAcceptedStateProofTargetMatter, 0u,
-             perEnvironmentBytes(
-                 state.humanSupportDispatch.contactCount,
-                 sizeof(NMHumanSupportConsequenceGPU)), 0u},
-            {owned(state.deformableContactHistoriesAccepted),
-             detail::AcceptedStateProofSource::matterDeformableContactHistories,
-             detail::kAcceptedStateProofTargetMatter, 0u,
-             perEnvironmentBytes(
-                 state.dispatch.deformableContactCapacity,
-                 sizeof(NMDeformableContactHistoryGPU)), 0u},
-            {owned(state.coupledGeneralizedCandidate),
-             detail::AcceptedStateProofSource::matterGeneralizedCandidate,
-             detail::kAcceptedStateProofTargetMatter, 0u,
-             perEnvironmentBytes(
-                 state.dispatch.rigidGeneralizedCapacity, sizeof(float)), 0u},
-            {owned(state.frameReactions),
-             detail::AcceptedStateProofSource::matterFrameReactions,
-             detail::kAcceptedStateProofTargetMatter, 0u,
-             perEnvironmentBytes(
-                 state.dispatch.rigidProxyCount,
-                 sizeof(NMRigidReactionGPU)), 0u},
-            {owned(state.rigidStates),
-             detail::AcceptedStateProofSource::matterRigidStates,
-             detail::kAcceptedStateProofTargetMatter, 0u,
-             perEnvironmentBytes(
-                 state.dispatch.rigidProxyCount,
-                 sizeof(NMRigidStateGPU)), 0u},
-            {owned(state.adaptive),
-             detail::AcceptedStateProofSource::matterAdaptiveState,
-             detail::kAcceptedStateProofTargetMatter, 0u,
-             perEnvironmentBytes(
-                 state.dispatch.objectCount, sizeof(NMAdaptiveStateGPU)), 0u},
-            {owned(state.schedulers),
-             detail::AcceptedStateProofSource::matterSchedulers,
-             detail::kAcceptedStateProofTargetMatter, 0u,
-             perEnvironmentBytes(
-                 state.dispatch.objectCount, sizeof(NMSchedulerStateGPU)), 0u},
-            {owned(state.identificationDistributions),
-             detail::AcceptedStateProofSource::matterIdentification,
-             detail::kAcceptedStateProofTargetMatter,
-             detail::kAcceptedStateProofSourceShared, 0u,
-             perEnvironmentBytes(
-                 state.identificationDistributionCount,
-                 sizeof(NMIdentificationDistributionGPU))},
-            {owned(state.environmentParameters),
-             detail::AcceptedStateProofSource::matterEnvironmentParameters,
-             detail::kAcceptedStateProofTargetMatter, 0u,
-             perEnvironmentBytes(state.dispatch.parameterCount, sizeof(float)),
-             0u},
-            {owned(state.femNodeIncidence),
-             detail::AcceptedStateProofSource::matterFEMNodeIncidence,
-             detail::kAcceptedStateProofTargetMatter, 0u,
-             perEnvironmentBytes(
-                 state.femNodeIncidenceStride, sizeof(std::uint32_t)), 0u},
-            {owned(state.femNodeRanges),
-             detail::AcceptedStateProofSource::matterFEMNodeRanges,
-             detail::kAcceptedStateProofTargetMatter, 0u,
-             perEnvironmentBytes(
-                 state.femNodeRangeStride, sizeof(NMIncidenceRangeGPU)), 0u},
-        }};
-        for (const ProofArena& arena : arenas) {
-            __unsafe_unretained id<MTLBuffer> source =
-                (__bridge id<MTLBuffer>)arena.buffer;
+        const auto arenas = state.acceptedStateArenas(
+            rootTranslation,
+            q,
+            v,
+            mujocoStates,
+            pass.qStride,
+            pass.vStride,
+            pass.mujocoStateStride);
+        for (const State::AcceptedStateArena& arena : arenas) {
+            __unsafe_unretained id<MTLBuffer> source = arena.buffer;
             const std::uint64_t bytes =
-                (arena.flags & detail::kAcceptedStateProofSourceShared) != 0u
+                (arena.flags & NM_MATTER_PHYSICAL_STATE_SOURCE_SHARED) != 0u
                     ? arena.sharedBytes
                     : arena.bytesPerEnvironment * pass.environmentCount;
             const std::uint64_t logicalPerEnvironment =
-                (arena.flags & detail::kAcceptedStateProofSourceShared) != 0u
+                (arena.flags & NM_MATTER_PHYSICAL_STATE_SOURCE_SHARED) != 0u
                     ? arena.sharedBytes : arena.bytesPerEnvironment;
             const std::uint64_t chunkCount64 = std::max<std::uint64_t>(
                 1u,
@@ -9620,9 +9837,9 @@ bool Runtime::encodeAcceptedStateProofImpl(
         dispatch(state.acceptedStateProofBegin, pass.environmentCount);
         barrier();
 
-        for (const ProofArena& arena : arenas) {
+        for (const State::AcceptedStateArena& arena : arenas) {
             const std::uint64_t logicalPerEnvironment =
-                (arena.flags & detail::kAcceptedStateProofSourceShared) != 0u
+                (arena.flags & NM_MATTER_PHYSICAL_STATE_SOURCE_SHARED) != 0u
                     ? arena.sharedBytes : arena.bytesPerEnvironment;
             const std::uint32_t chunkCount = static_cast<std::uint32_t>(
                 std::max<std::uint64_t>(
@@ -9641,8 +9858,7 @@ bool Runtime::encodeAcceptedStateProofImpl(
                 .bytesPerEnvironment = arena.bytesPerEnvironment,
                 .sharedBytes = arena.sharedBytes,
             };
-            [encoder setBuffer:(__bridge id<MTLBuffer>)arena.buffer
-                         offset:0u atIndex:0u];
+            [encoder setBuffer:arena.buffer offset:0u atIndex:0u];
             [encoder setBuffer:state.acceptedStateProofScratchA
                          offset:0u atIndex:1u];
             [encoder setBytes:&chunks length:sizeof(chunks) atIndex:2u];
@@ -9787,6 +10003,24 @@ bool Runtime::encodeAcceptedStateProofImpl(
             dispatch(state.acceptedStateProofFinalize, pass.environmentCount);
         }
         [encoder endEncoding];
+        if (borrowedRanges.size() > State::CommandOwnership::
+                kAcceptedStateProofBorrowedRangeCapacity) {
+            return false;
+        }
+        ownership->clearAcceptedStateProofBorrowedRanges();
+        for (std::size_t rangeIndex = 0u;
+             rangeIndex < borrowedRanges.size(); ++rangeIndex) {
+            const BorrowedRange& borrowed = borrowedRanges[rangeIndex];
+            ownership->acceptedStateProofBorrowedRanges[rangeIndex] = {
+                .buffer = (__bridge void*)borrowed.buffer,
+                .gpuAddress = borrowed.address,
+                .byteCount = borrowed.bytes,
+                .capacity = static_cast<std::uint64_t>(
+                    borrowed.buffer.length),
+            };
+        }
+        ownership->acceptedStateProofBorrowedRangeCount =
+            static_cast<std::uint32_t>(borrowedRanges.size());
         ownership->acceptedStateProofEncoded = true;
         ownership->acceptedStateProofFamily = pass.exact ? 2u : 1u;
         ownership->dispositionIdentity = PreparedStateDispositionIdentity{
@@ -9804,6 +10038,645 @@ bool Runtime::encodeAcceptedStateProofImpl(
             .slotGeneration = pass.slotGeneration,
         };
         ownership->disposition = PreparedStateDisposition::prepared;
+        return true;
+    }
+}
+
+bool Runtime::encodePhysicalStateDigestV1(
+    const PhysicalStateDigestPassV1& pass
+) noexcept {
+    @autoreleasepool {
+        const bool preparedCandidate =
+            pass.mode == PhysicalStateDigestMode::preparedCandidate;
+        const bool acceptedQuiescent =
+            pass.mode == PhysicalStateDigestMode::acceptedQuiescent;
+        if (state_ == nullptr ||
+            pass.abiVersion !=
+                NM_MATTER_PHYSICAL_STATE_DIGEST_ABI_VERSION ||
+            pass.structSize != sizeof(PhysicalStateDigestPassV1) ||
+            (!preparedCandidate && !acceptedQuiescent) ||
+            pass.environmentCount == 0u || pass.commandBuffer == nullptr ||
+            pass.rootTranslation == nullptr || pass.q == nullptr ||
+            pass.v == nullptr || pass.mujocoStates == nullptr ||
+            pass.output == nullptr || pass.reserved0 != 0u ||
+            pass.clockDomain !=
+                NM_MATTER_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS ||
+            pass.clockQuantumNanoseconds !=
+                NM_MATTER_EXACT_CLOCK_QUANTUM_NANOSECONDS) {
+            return false;
+        }
+
+        State& state = *state_;
+        if (!state.physicalStateDigestEnabled) {
+            return false;
+        }
+        if (!state.coupledCandidateCompensatedTranslation ||
+            pass.environmentCount != state.dispatch.environmentCount ||
+            pass.rootTranslationStride != 1u || pass.qStride == 0u ||
+            pass.vStride == 0u || pass.mujocoStateStride == 0u ||
+            pass.qStride != state.coupledQStride ||
+            pass.vStride != state.coupledVStride ||
+            pass.matterSourcePhysicsFingerprint == 0u ||
+            pass.matterSourcePhysicsFingerprint !=
+                state.sourcePhysicsFingerprint ||
+            pass.matterDeviceProgramFingerprint == 0u ||
+            pass.matterDeviceProgramFingerprint !=
+                state.executionFingerprint ||
+            state.physicalStateDigestLeafInitialize == nil ||
+            state.physicalStateDigestLeafMetadataPipeline == nil ||
+            state.physicalStateDigestLeafBegin == nil ||
+            state.physicalStateDigestChunks == nil ||
+            state.physicalStateDigestLeafFinalize == nil ||
+            state.physicalStateDigestReduce == nil ||
+            state.physicalStateDigestStore == nil ||
+            state.physicalStateDigestFinalize == nil ||
+            state.physicalStateDigestScratchA == nil ||
+            state.physicalStateDigestScratchB == nil ||
+            state.physicalStateDigestContexts == nil ||
+            state.physicalStateDigestLeafMetadata == nil ||
+            state.physicalStateDigestSourceRoots == nil ||
+            state.acceptedStateProofScratchStride == 0u ||
+            state.acceptedStateProofMujocoBytesPerEnvironmentCapacity == 0u) {
+            return false;
+        }
+        const std::uint64_t lastEnvironment =
+            static_cast<std::uint64_t>(pass.environmentIdentifierBase) +
+            pass.environmentCount - 1u;
+        if (lastEnvironment > std::numeric_limits<std::uint32_t>::max()) {
+            return false;
+        }
+
+        const auto exactElements = [&](const std::uint32_t stride,
+                                       const std::uint64_t supplied) {
+            return supplied ==
+                static_cast<std::uint64_t>(pass.environmentCount) * stride;
+        };
+        if (!exactElements(
+                pass.rootTranslationStride,
+                pass.rootTranslationElementCount) ||
+            !exactElements(pass.qStride, pass.qElementCount) ||
+            !exactElements(pass.vStride, pass.vElementCount) ||
+            !exactElements(
+                pass.mujocoStateStride, pass.mujocoStateCount) ||
+            pass.outputElementCount != pass.environmentCount) {
+            return false;
+        }
+
+        const auto byteCount = [](
+            const std::uint64_t count,
+            const std::uint64_t elementBytes,
+            std::uint64_t& result
+        ) {
+            if (count != 0u && elementBytes >
+                    std::numeric_limits<std::uint64_t>::max() / count) {
+                return false;
+            }
+            result = count * elementBytes;
+            return result <= std::numeric_limits<NSUInteger>::max();
+        };
+        std::uint64_t rootTranslationBytes = 0u;
+        std::uint64_t qBytes = 0u;
+        std::uint64_t vBytes = 0u;
+        std::uint64_t mujocoBytes = 0u;
+        std::uint64_t outputBytes = 0u;
+        if (!byteCount(
+                pass.rootTranslationElementCount,
+                sizeof(MRCompensatedRootTranslationGPU),
+                rootTranslationBytes) ||
+            !byteCount(pass.qElementCount, sizeof(float), qBytes) ||
+            !byteCount(pass.vElementCount, sizeof(float), vBytes) ||
+            !byteCount(
+                pass.mujocoStateCount,
+                sizeof(MRMujocoMuscleStateGPU),
+                mujocoBytes) ||
+            !byteCount(
+                pass.outputElementCount,
+                sizeof(NMPhysicalStateDigestGPU),
+                outputBytes) ||
+            mujocoBytes / pass.environmentCount >
+                state.acceptedStateProofMujocoBytesPerEnvironmentCapacity) {
+            return false;
+        }
+
+        __unsafe_unretained id<MTLCommandBuffer> commandBuffer =
+            (__bridge id<MTLCommandBuffer>)pass.commandBuffer;
+        __unsafe_unretained id<MTLBuffer> rootTranslation =
+            (__bridge id<MTLBuffer>)pass.rootTranslation;
+        __unsafe_unretained id<MTLBuffer> q =
+            (__bridge id<MTLBuffer>)pass.q;
+        __unsafe_unretained id<MTLBuffer> v =
+            (__bridge id<MTLBuffer>)pass.v;
+        __unsafe_unretained id<MTLBuffer> mujocoStates =
+            (__bridge id<MTLBuffer>)pass.mujocoStates;
+        __unsafe_unretained id<MTLBuffer> output =
+            (__bridge id<MTLBuffer>)pass.output;
+        const auto validBorrowedBuffer = [&](id<MTLBuffer> buffer,
+                                             const std::uint64_t address,
+                                             const std::uint64_t bytes) {
+            return buffer != nil && buffer.device != nil && address != 0u &&
+                buffer.device.registryID == state.device.registryID &&
+                buffer.gpuAddress == address &&
+                buffer.length >= static_cast<NSUInteger>(bytes);
+        };
+        if (commandBuffer == nil || commandBuffer.commandQueue == nil ||
+            commandBuffer.commandQueue.device.registryID !=
+                state.device.registryID ||
+            commandBuffer.status != MTLCommandBufferStatusNotEnqueued ||
+            !validBorrowedBuffer(
+                rootTranslation,
+                pass.rootTranslationGPUAddress,
+                rootTranslationBytes) ||
+            !validBorrowedBuffer(q, pass.qGPUAddress, qBytes) ||
+            !validBorrowedBuffer(v, pass.vGPUAddress, vBytes) ||
+            !validBorrowedBuffer(
+                mujocoStates,
+                pass.mujocoStatesGPUAddress,
+                mujocoBytes) ||
+            !validBorrowedBuffer(
+                output, pass.outputGPUAddress, outputBytes) ||
+            output.storageMode != MTLStorageModeShared ||
+            output.contents == nullptr) {
+            return false;
+        }
+
+        const auto rangesOverlap = [](
+            const std::uint64_t leftAddress,
+            const std::uint64_t leftBytes,
+            const std::uint64_t rightAddress,
+            const std::uint64_t rightBytes
+        ) {
+            if (leftAddress == 0u || rightAddress == 0u ||
+                leftBytes == 0u || rightBytes == 0u ||
+                leftBytes > std::numeric_limits<std::uint64_t>::max() -
+                    leftAddress ||
+                rightBytes > std::numeric_limits<std::uint64_t>::max() -
+                    rightAddress) {
+                return true;
+            }
+            return leftAddress < rightAddress + rightBytes &&
+                rightAddress < leftAddress + leftBytes;
+        };
+        struct BorrowedRange {
+            id<MTLBuffer> buffer = nil;
+            std::uint64_t address = 0u;
+            std::uint64_t bytes = 0u;
+        };
+        const std::array<BorrowedRange, 5u> borrowedRanges{{
+            {rootTranslation, pass.rootTranslationGPUAddress,
+             rootTranslationBytes},
+            {q, pass.qGPUAddress, qBytes},
+            {v, pass.vGPUAddress, vBytes},
+            {mujocoStates, pass.mujocoStatesGPUAddress, mujocoBytes},
+            {output, pass.outputGPUAddress, outputBytes},
+        }};
+        for (std::size_t left = 0u; left < borrowedRanges.size(); ++left) {
+            for (std::size_t right = left + 1u;
+                 right < borrowedRanges.size(); ++right) {
+                if (rangesOverlap(
+                        borrowedRanges[left].address,
+                        borrowedRanges[left].bytes,
+                        borrowedRanges[right].address,
+                        borrowedRanges[right].bytes)) {
+                    return false;
+                }
+            }
+        }
+
+        const auto arenas = state.acceptedStateArenas(
+            rootTranslation,
+            q,
+            v,
+            mujocoStates,
+            pass.qStride,
+            pass.vStride,
+            pass.mujocoStateStride);
+        for (std::size_t arenaIndex = 4u;
+             arenaIndex < arenas.size(); ++arenaIndex) {
+            const id<MTLBuffer> protectedArena = arenas[arenaIndex].buffer;
+            if (protectedArena == nil || protectedArena.device == nil ||
+                protectedArena.device.registryID != state.device.registryID) {
+                return false;
+            }
+            for (const BorrowedRange& borrowed : borrowedRanges) {
+                if (rangesOverlap(
+                        borrowed.address,
+                        borrowed.bytes,
+                        protectedArena.gpuAddress,
+                        static_cast<std::uint64_t>(protectedArena.length))) {
+                    return false;
+                }
+            }
+        }
+        const id<MTLBuffer> protectedDigestArenas[] = {
+            state.statuses,
+            state.growthOwnership->readback,
+            state.identificationLosses,
+            state.events,
+            state.dummy,
+            state.primalContactArguments,
+            state.acceptedStateProofHashes,
+            state.acceptedStateProofScratchA,
+            state.acceptedStateProofScratchB,
+            state.physicalStateDigestScratchA,
+            state.physicalStateDigestScratchB,
+            state.physicalStateDigestContexts,
+            state.physicalStateDigestLeafMetadata,
+            state.physicalStateDigestSourceRoots,
+            state.preparedStateBindings,
+            state.preparedStateActions,
+            state.preparedStateRestoreStatuses,
+            state.preparedStateApplyOutcome,
+            state.preparedStatePublicationFacts,
+        };
+        for (id<MTLBuffer> protectedArena : protectedDigestArenas) {
+            if (protectedArena == nil) return false;
+            for (const BorrowedRange& borrowed : borrowedRanges) {
+                if (rangesOverlap(
+                        borrowed.address,
+                        borrowed.bytes,
+                        protectedArena.gpuAddress,
+                        static_cast<std::uint64_t>(protectedArena.length))) {
+                    return false;
+                }
+            }
+        }
+
+        std::array<NMPhysicalStateDigestSourceGPU,
+                   NM_MATTER_PHYSICAL_STATE_DIGEST_SOURCE_COUNT> sources{};
+        for (std::size_t sourceIndex = 0u;
+             sourceIndex < arenas.size(); ++sourceIndex) {
+            const State::AcceptedStateArena& arena = arenas[sourceIndex];
+            const bool shared =
+                (arena.flags & NM_MATTER_PHYSICAL_STATE_SOURCE_SHARED) != 0u;
+            const std::uint64_t logicalBytes =
+                shared ? arena.sharedBytes : arena.bytesPerEnvironment;
+            if (arena.buffer == nil || arena.buffer.device == nil ||
+                arena.buffer.device.registryID != state.device.registryID ||
+                arena.elementBytes == 0u ||
+                arena.elementCount >
+                    std::numeric_limits<std::uint64_t>::max() /
+                        arena.elementBytes ||
+                logicalBytes != arena.elementCount * arena.elementBytes ||
+                (!shared &&
+                 (logicalBytes != 0u && pass.environmentCount >
+                    std::numeric_limits<std::uint64_t>::max() /
+                        logicalBytes)) ||
+                arena.buffer.length < static_cast<NSUInteger>(
+                    shared ? logicalBytes
+                           : logicalBytes * pass.environmentCount)) {
+                return false;
+            }
+            const std::uint64_t chunkCount64 = std::max<std::uint64_t>(
+                1u,
+                logicalBytes / NM_MATTER_PHYSICAL_STATE_DIGEST_CHUNK_BYTES +
+                    (logicalBytes %
+                         NM_MATTER_PHYSICAL_STATE_DIGEST_CHUNK_BYTES != 0u));
+            if (chunkCount64 > state.acceptedStateProofScratchStride ||
+                chunkCount64 > std::numeric_limits<std::uint32_t>::max()) {
+                return false;
+            }
+            const bool human =
+                arena.target == NM_MATTER_PHYSICAL_STATE_TARGET_HUMAN;
+            if (!human &&
+                arena.target != NM_MATTER_PHYSICAL_STATE_TARGET_MATTER) {
+                return false;
+            }
+            sources[sourceIndex] = NMPhysicalStateDigestSourceGPU{
+                .source = static_cast<std::uint32_t>(arena.source),
+                .target = human
+                    ? NM_MATTER_PHYSICAL_STATE_TARGET_HUMAN
+                    : NM_MATTER_PHYSICAL_STATE_TARGET_MATTER,
+                .flags = shared
+                    ? NM_MATTER_PHYSICAL_STATE_SOURCE_SHARED : 0u,
+                .encoding =
+                    NM_MATTER_PHYSICAL_STATE_ENCODING_RAW_BYTES_V1,
+                .elementCount = arena.elementCount,
+                .elementBytes = arena.elementBytes,
+                .reserved0 = 0u,
+                .byteCount = logicalBytes,
+                .reserved1 = 0u,
+            };
+        }
+
+        const auto ownership = state.commandOwnership;
+        std::unique_lock ownershipLock(ownership->mutex);
+        if (preparedCandidate) {
+            if (ownership->activeCommandBuffer != pass.commandBuffer ||
+                ownership->physicalStateDigestOpen ||
+                !ownership->preparedStateOpen ||
+                ownership->preparedCommandBuffer != pass.commandBuffer ||
+                !ownership->acceptedStateProofEligible ||
+                !ownership->acceptedStateProofEncoded ||
+                (ownership->acceptedStateProofFamily != 1u &&
+                 ownership->acceptedStateProofFamily != 2u) ||
+                ownership->applyEncoded || ownership->restoreRequired ||
+                ownership->terminalNoTouch) {
+                return false;
+            }
+
+            // The first four proof borrows are the same read-only physical
+            // sources and must match exactly. None of the remaining proof
+            // authority/status/output ranges may be repurposed as a digest
+            // source, and the host-cleared digest output must not alias any
+            // proof borrow. Keep this check under the command-ownership lock
+            // so proof registration and command completion are atomic with it.
+            constexpr std::size_t kSharedPhysicalSourceCount = 4u;
+            const std::uint32_t expectedRangeCount =
+                ownership->acceptedStateProofFamily == 2u ? 9u : 8u;
+            if (ownership->acceptedStateProofBorrowedRangeCount !=
+                    expectedRangeCount ||
+                expectedRangeCount > State::CommandOwnership::
+                    kAcceptedStateProofBorrowedRangeCapacity) {
+                return false;
+            }
+            const auto sameRange = [](
+                const BorrowedRange& current,
+                const State::CommandOwnership::
+                    AcceptedStateProofBorrowedRange& recorded
+            ) {
+                return (__bridge void*)current.buffer == recorded.buffer &&
+                    current.address == recorded.gpuAddress &&
+                    current.bytes == recorded.byteCount &&
+                    static_cast<std::uint64_t>(current.buffer.length) ==
+                        recorded.capacity;
+            };
+            for (std::size_t rangeIndex = 0u;
+                 rangeIndex < expectedRangeCount; ++rangeIndex) {
+                const auto& recorded = ownership->
+                    acceptedStateProofBorrowedRanges[rangeIndex];
+                if (recorded.buffer == nullptr ||
+                    recorded.gpuAddress == 0u ||
+                    recorded.byteCount == 0u ||
+                    recorded.capacity < recorded.byteCount ||
+                    recorded.byteCount >
+                        std::numeric_limits<std::uint64_t>::max() -
+                            recorded.gpuAddress) {
+                    return false;
+                }
+            }
+            for (std::size_t sourceIndex = 0u;
+                 sourceIndex < kSharedPhysicalSourceCount; ++sourceIndex) {
+                if (!sameRange(
+                        borrowedRanges[sourceIndex],
+                        ownership->acceptedStateProofBorrowedRanges[
+                            sourceIndex])) {
+                    return false;
+                }
+                for (std::size_t proofIndex = kSharedPhysicalSourceCount;
+                     proofIndex < expectedRangeCount; ++proofIndex) {
+                    const auto& recorded = ownership->
+                        acceptedStateProofBorrowedRanges[proofIndex];
+                    if ((__bridge void*)borrowedRanges[sourceIndex].buffer ==
+                            recorded.buffer ||
+                        rangesOverlap(
+                            borrowedRanges[sourceIndex].address,
+                            borrowedRanges[sourceIndex].bytes,
+                            recorded.gpuAddress,
+                            recorded.byteCount)) {
+                        return false;
+                    }
+                }
+            }
+            const BorrowedRange& digestOutput =
+                borrowedRanges[kSharedPhysicalSourceCount];
+            for (std::size_t proofIndex = 0u;
+                 proofIndex < expectedRangeCount; ++proofIndex) {
+                const auto& recorded = ownership->
+                    acceptedStateProofBorrowedRanges[proofIndex];
+                if ((__bridge void*)digestOutput.buffer == recorded.buffer ||
+                    rangesOverlap(
+                        digestOutput.address,
+                        digestOutput.bytes,
+                        recorded.gpuAddress,
+                        recorded.byteCount)) {
+                    return false;
+                }
+            }
+        } else if (ownership->activeCommandBuffer != nullptr ||
+                   ownership->physicalStateDigestOpen ||
+                   ownership->preDynamicsOpen ||
+                   ownership->preparedStateOpen ||
+                   ownership->applyEncoded ||
+                   ownership->applyCommandBuffer != nullptr ||
+                   ownership->restoreRequired ||
+                   ownership->terminalNoTouch ||
+                   ownership->publicationReserved ||
+                   ownership->publicationReleaseArmed ||
+                   ownership->disposition ==
+                       PreparedStateDisposition::acceptedPendingPublication) {
+            return false;
+        }
+
+        std::memset(output.contents, 0, static_cast<std::size_t>(outputBytes));
+        id<MTLComputeCommandEncoder> encoder =
+            [commandBuffer computeCommandEncoder];
+        if (encoder == nil) return false;
+        [encoder setLabel:@"Numi Matter direct physical-state SHA-256"];
+        const auto dispatch = [&](id<MTLComputePipelineState> pipeline,
+                                  const NSUInteger count) {
+            [encoder setComputePipelineState:pipeline];
+            const NSUInteger width = std::min<NSUInteger>(
+                std::max<NSUInteger>(count, 1u),
+                std::min<NSUInteger>(
+                    pipeline.maxTotalThreadsPerThreadgroup, 256u));
+            [encoder dispatchThreads:MTLSizeMake(count, 1u, 1u)
+                  threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
+        };
+        const auto barrier = [&]() {
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+        };
+
+        for (std::size_t sourceIndex = 0u;
+             sourceIndex < arenas.size(); ++sourceIndex) {
+            const State::AcceptedStateArena& arena = arenas[sourceIndex];
+            const NMPhysicalStateDigestSourceGPU& source =
+                sources[sourceIndex];
+            const std::uint64_t logicalBytes = source.byteCount;
+            const std::uint32_t chunkCount = static_cast<std::uint32_t>(
+                std::max<std::uint64_t>(
+                    1u,
+                    logicalBytes /
+                            NM_MATTER_PHYSICAL_STATE_DIGEST_CHUNK_BYTES +
+                        (logicalBytes %
+                             NM_MATTER_PHYSICAL_STATE_DIGEST_CHUNK_BYTES !=
+                         0u)));
+            const NMPhysicalStateDigestChunkGPU chunkPass{
+                .environmentCount = pass.environmentCount,
+                .environmentIdentifierBase =
+                    pass.environmentIdentifierBase,
+                .sourceOrdinal = static_cast<std::uint32_t>(sourceIndex),
+                .chunkBytes =
+                    NM_MATTER_PHYSICAL_STATE_DIGEST_CHUNK_BYTES,
+                .chunkCount = chunkCount,
+                .scratchStride = state.acceptedStateProofScratchStride,
+                .reserved0 = 0u,
+                .reserved1 = 0u,
+                .sourceCapacityBytes =
+                    static_cast<std::uint64_t>(arena.buffer.length),
+            };
+            const NMPhysicalStateDigestLeafFinalizeGPU leafPass{
+                .environmentCount = pass.environmentCount,
+                .chunkCount = chunkCount,
+                .scratchStride = state.acceptedStateProofScratchStride,
+                .reserved0 = 0u,
+            };
+            [encoder setBuffer:state.physicalStateDigestContexts
+                         offset:0u atIndex:0u];
+            [encoder setBytes:&leafPass
+                       length:sizeof(leafPass) atIndex:1u];
+            dispatch(
+                state.physicalStateDigestLeafInitialize,
+                static_cast<NSUInteger>(pass.environmentCount) *
+                    chunkCount);
+            barrier();
+
+            [encoder setBuffer:state.physicalStateDigestLeafMetadata
+                         offset:0u atIndex:0u];
+            [encoder setBytes:&source length:sizeof(source) atIndex:1u];
+            [encoder setBytes:&chunkPass
+                       length:sizeof(chunkPass) atIndex:2u];
+            dispatch(
+                state.physicalStateDigestLeafMetadataPipeline,
+                static_cast<NSUInteger>(pass.environmentCount) *
+                    chunkCount);
+            barrier();
+
+            [encoder setBuffer:state.physicalStateDigestLeafMetadata
+                         offset:0u atIndex:0u];
+            [encoder setBuffer:state.physicalStateDigestContexts
+                         offset:0u atIndex:1u];
+            [encoder setBytes:&leafPass
+                       length:sizeof(leafPass) atIndex:2u];
+            dispatch(
+                state.physicalStateDigestLeafBegin,
+                static_cast<NSUInteger>(pass.environmentCount) *
+                    chunkCount);
+            barrier();
+
+            [encoder setBuffer:arena.buffer offset:0u atIndex:0u];
+            [encoder setBuffer:state.physicalStateDigestContexts
+                         offset:0u atIndex:1u];
+            [encoder setBytes:&source length:sizeof(source) atIndex:2u];
+            [encoder setBytes:&chunkPass
+                       length:sizeof(chunkPass) atIndex:3u];
+            dispatch(
+                state.physicalStateDigestChunks,
+                static_cast<NSUInteger>(pass.environmentCount) *
+                    chunkCount);
+            barrier();
+
+            [encoder setBuffer:state.physicalStateDigestContexts
+                         offset:0u atIndex:0u];
+            [encoder setBuffer:state.physicalStateDigestScratchA
+                         offset:0u atIndex:1u];
+            [encoder setBytes:&leafPass
+                       length:sizeof(leafPass) atIndex:2u];
+            dispatch(
+                state.physicalStateDigestLeafFinalize,
+                static_cast<NSUInteger>(pass.environmentCount) *
+                    chunkCount);
+            barrier();
+
+            id<MTLBuffer> reductionInput =
+                state.physicalStateDigestScratchA;
+            id<MTLBuffer> reductionOutput =
+                state.physicalStateDigestScratchB;
+            std::uint32_t inputCount = chunkCount;
+            std::uint32_t level = 0u;
+            while (inputCount > 1u) {
+                const std::uint32_t outputCount =
+                    inputCount / 2u + inputCount % 2u;
+                const NMPhysicalStateDigestReduceGPU reducePass{
+                    .environmentCount = pass.environmentCount,
+                    .sourceOrdinal =
+                        static_cast<std::uint32_t>(sourceIndex),
+                    .inputCount = inputCount,
+                    .outputCount = outputCount,
+                    .scratchStride = state.acceptedStateProofScratchStride,
+                    .level = level,
+                    .reserved0 = 0u,
+                    .reserved1 = 0u,
+                };
+                [encoder setBuffer:reductionInput offset:0u atIndex:0u];
+                [encoder setBuffer:reductionOutput offset:0u atIndex:1u];
+                [encoder setBytes:&source length:sizeof(source) atIndex:2u];
+                [encoder setBytes:&reducePass
+                           length:sizeof(reducePass) atIndex:3u];
+                dispatch(
+                    state.physicalStateDigestReduce,
+                    static_cast<NSUInteger>(pass.environmentCount) *
+                        outputCount);
+                barrier();
+                std::swap(reductionInput, reductionOutput);
+                inputCount = outputCount;
+                ++level;
+            }
+
+            const NMPhysicalStateDigestStoreGPU storePass{
+                .environmentCount = pass.environmentCount,
+                .sourceOrdinal = static_cast<std::uint32_t>(sourceIndex),
+                .sourceCount =
+                    NM_MATTER_PHYSICAL_STATE_DIGEST_SOURCE_COUNT,
+                .scratchStride = state.acceptedStateProofScratchStride,
+            };
+            [encoder setBuffer:reductionInput offset:0u atIndex:0u];
+            [encoder setBuffer:state.physicalStateDigestSourceRoots
+                         offset:0u atIndex:1u];
+            [encoder setBytes:&storePass
+                       length:sizeof(storePass) atIndex:2u];
+            dispatch(state.physicalStateDigestStore, pass.environmentCount);
+            barrier();
+        }
+
+        const NMPhysicalStateDigestFinalizeGPU finalize{
+            .abiVersion = NM_MATTER_PHYSICAL_STATE_DIGEST_ABI_VERSION,
+            .structSize = NM_MATTER_PHYSICAL_STATE_DIGEST_BYTES,
+            .schemaVersion =
+                NM_MATTER_PHYSICAL_STATE_DIGEST_SCHEMA_VERSION,
+            .manifestVersion =
+                NM_MATTER_PHYSICAL_STATE_DIGEST_MANIFEST_VERSION,
+            .environmentCount = pass.environmentCount,
+            .environmentIdentifierBase = pass.environmentIdentifierBase,
+            .sourceCount = NM_MATTER_PHYSICAL_STATE_DIGEST_SOURCE_COUNT,
+            .clockDomain = pass.clockDomain,
+            .clockQuantumNanoseconds = pass.clockQuantumNanoseconds,
+            .reserved0 = 0u,
+            .reserved1 = 0u,
+            .reserved2 = 0u,
+            .acceptedTimestampNanoseconds =
+                pass.acceptedTimestampNanoseconds,
+            .physicsGeneration = pass.physicsGeneration,
+            .matterSourcePhysicsFingerprint =
+                pass.matterSourcePhysicsFingerprint,
+            .matterDeviceProgramFingerprint =
+                pass.matterDeviceProgramFingerprint,
+        };
+        [encoder setBuffer:state.physicalStateDigestSourceRoots
+                     offset:0u atIndex:0u];
+        [encoder setBytes:sources.data()
+                   length:sizeof(sources) atIndex:1u];
+        [encoder setBuffer:output offset:0u atIndex:2u];
+        [encoder setBytes:&finalize length:sizeof(finalize) atIndex:3u];
+        dispatch(state.physicalStateDigestFinalize, pass.environmentCount);
+        [encoder endEncoding];
+
+        if (acceptedQuiescent) {
+            ownership->activeCommandBuffer = pass.commandBuffer;
+            ownership->physicalStateDigestOpen = true;
+            const std::weak_ptr<State::CommandOwnership> weakOwnership =
+                ownership;
+            void* const borrowedIdentity = pass.commandBuffer;
+            [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer>) {
+                if (const auto locked = weakOwnership.lock()) {
+                    const std::lock_guard lock(locked->mutex);
+                    if (locked->physicalStateDigestOpen &&
+                        locked->activeCommandBuffer == borrowedIdentity) {
+                        locked->activeCommandBuffer = nullptr;
+                        locked->physicalStateDigestOpen = false;
+                    }
+                }
+            }];
+        }
         return true;
     }
 }
@@ -10228,6 +11101,31 @@ bool Runtime::applyPreparedStateImpl(
                 if (overlaps(region.address, region.bytes,
                              arena.gpuAddress, arena.length)) {
                     return false;
+                }
+            }
+        }
+        if (state.physicalStateDigestEnabled) {
+            const id<MTLBuffer> protectedPhysicalDigestArenas[] = {
+                state.physicalStateDigestScratchA,
+                state.physicalStateDigestScratchB,
+                state.physicalStateDigestContexts,
+                state.physicalStateDigestLeafMetadata,
+                state.physicalStateDigestSourceRoots,
+            };
+            for (id<MTLBuffer> arena : protectedPhysicalDigestArenas) {
+                if (arena == nil || overlaps(
+                        finalTokens.gpuAddress,
+                        pass->finalPhysicsStateTokenBytes,
+                        arena.gpuAddress,
+                        arena.length)) {
+                    return false;
+                }
+                for (const BorrowedRegion& region : applicationRegions) {
+                    if (region.bytes == 0u) continue;
+                    if (overlaps(region.address, region.bytes,
+                                 arena.gpuAddress, arena.length)) {
+                        return false;
+                    }
                 }
             }
         }
@@ -10974,6 +11872,7 @@ void Runtime::commitPublishedRootRelease(
         ownership->acceptedStateProofEncoded = false;
         ownership->acceptedStateProofFamily = 0u;
         ownership->acceptedStateProofEligible = false;
+        ownership->clearAcceptedStateProofBorrowedRanges();
         ownership->transactionPolicyFingerprint = 0u;
         ownership->identificationAdvanced = false;
         ownership->preparedCommandCompleted = false;
@@ -11017,6 +11916,12 @@ void Runtime::cancel(void* commandBuffer) noexcept {
         }
         const auto ownership = state_->commandOwnership;
         const std::lock_guard lock(ownership->mutex);
+        if (ownership->physicalStateDigestOpen &&
+            ownership->activeCommandBuffer == commandBuffer) {
+            ownership->activeCommandBuffer = nullptr;
+            ownership->physicalStateDigestOpen = false;
+            return;
+        }
         if (ownership->applyCommandBuffer == commandBuffer) {
             ownership->applyCommandBuffer = nullptr;
             ownership->applyEncoded = false;
@@ -11041,6 +11946,7 @@ void Runtime::cancel(void* commandBuffer) noexcept {
             ownership->acceptedStateProofEncoded = false;
             ownership->acceptedStateProofFamily = 0u;
             ownership->acceptedStateProofEligible = false;
+            ownership->clearAcceptedStateProofBorrowedRanges();
             ownership->transactionPolicyFingerprint = 0u;
             ownership->preparedStateRequested = false;
             ownership->preparedStateOpen = false;

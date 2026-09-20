@@ -4,6 +4,7 @@
 #include "numi/matter/human_equality_gpu.h"
 #include "numi/matter/human_limits_gpu.h"
 #include "numi/matter/accepted_state_proof_gpu.h"
+#include "numi/matter/physical_state_digest_gpu.h"
 
 #include <array>
 #include <cstddef>
@@ -852,6 +853,10 @@ struct RuntimeConfiguration {
     // RuntimeConfiguration is an append-only, rebuild-required C++ surface;
     // tail placement preserves every pre-existing member offset.
     std::span<const nm_float4> humanSupportInitialHistories{};
+    // Load and provision the optional direct-byte physical SHA-256 observer.
+    // This additionally requires a nonzero accepted-state MyoSim capacity and
+    // its sibling NumiMatterPhysicalStateDigest.metallib image.
+    bool enablePhysicalStateDigest = false;
 };
 
 struct HumanSupportConsequencesView {
@@ -1169,6 +1174,72 @@ struct AcceptedStateProofPassV2 {
     std::uint64_t rootTranslationElementCount = 0u;
     std::uint32_t rootTranslationStride = 0u;
 };
+
+enum class PhysicalStateDigestMode : std::uint32_t {
+    // Read the quarantined success-surviving state after
+    // prepareAcceptedState on the same borrowed command buffer.
+    preparedCandidate = 1u,
+    // Read the currently accepted state on a separate owner-controlled,
+    // quiescent command buffer. This is used for initial state and for a
+    // direct post-rollback measurement after a rejected root.
+    acceptedQuiescent = 2u,
+};
+
+// Optional direct-byte cryptographic observer. It neither participates in the
+// existing FNV proof/token authority nor changes transaction disposition. The
+// output is a shared NMPhysicalStateDigestGPU record populated on the borrowed
+// command-buffer timeline. Callers may read it only after completion.
+struct PhysicalStateDigestPassV1 {
+    std::uint32_t abiVersion =
+        NM_MATTER_PHYSICAL_STATE_DIGEST_ABI_VERSION;
+    std::uint32_t structSize = sizeof(PhysicalStateDigestPassV1);
+    PhysicalStateDigestMode mode =
+        PhysicalStateDigestMode::preparedCandidate;
+    std::uint32_t environmentCount = 0u;
+    std::uint32_t environmentIdentifierBase = 0u;
+    std::uint32_t clockDomain =
+        NM_MATTER_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS;
+    std::uint32_t clockQuantumNanoseconds =
+        NM_MATTER_EXACT_CLOCK_QUANTUM_NANOSECONDS;
+    std::uint32_t reserved0 = 0u;
+
+    void* commandBuffer = nullptr;
+    void* rootTranslation = nullptr;
+    void* q = nullptr;
+    void* v = nullptr;
+    void* mujocoStates = nullptr;
+    void* output = nullptr;
+
+    std::uint64_t rootTranslationGPUAddress = 0u;
+    std::uint64_t qGPUAddress = 0u;
+    std::uint64_t vGPUAddress = 0u;
+    std::uint64_t mujocoStatesGPUAddress = 0u;
+    std::uint64_t outputGPUAddress = 0u;
+
+    std::uint64_t rootTranslationElementCount = 0u;
+    std::uint64_t qElementCount = 0u;
+    std::uint64_t vElementCount = 0u;
+    std::uint64_t mujocoStateCount = 0u;
+    std::uint64_t outputElementCount = 0u;
+
+    std::uint32_t rootTranslationStride = 0u;
+    std::uint32_t qStride = 0u;
+    std::uint32_t vStride = 0u;
+    std::uint32_t mujocoStateStride = 0u;
+
+    // Provenance copied beside (but not mixed into) the content digest.
+    std::uint64_t acceptedTimestampNanoseconds = 0u;
+    std::uint64_t physicsGeneration = 0u;
+    std::uint64_t matterSourcePhysicsFingerprint = 0u;
+    std::uint64_t matterDeviceProgramFingerprint = 0u;
+};
+static_assert(sizeof(PhysicalStateDigestPassV1) == 208u);
+static_assert(alignof(PhysicalStateDigestPassV1) == alignof(std::uint64_t));
+static_assert(offsetof(PhysicalStateDigestPassV1, commandBuffer) == 32u);
+static_assert(offsetof(PhysicalStateDigestPassV1,
+                       rootTranslationGPUAddress) == 80u);
+static_assert(offsetof(PhysicalStateDigestPassV1,
+                       acceptedTimestampNanoseconds) == 176u);
 
 enum class PreparedStateApplyMode : std::uint32_t {
     validateBrainAck = 0u,
@@ -1551,6 +1622,12 @@ public:
     ) noexcept;
     [[nodiscard]] bool encodeAcceptedStateProofV2(
         const AcceptedStateProofPassV2& pass
+    ) noexcept;
+    // Optional SHA-256 evidence over the direct Human/Matter state bytes.
+    // It writes only the caller's digest record and never changes the existing
+    // accepted-state proof, prepared token, apply action, or publication state.
+    [[nodiscard]] bool encodePhysicalStateDigestV1(
+        const PhysicalStateDigestPassV1& pass
     ) noexcept;
     // Stable identity of the proof shader, arena manifest, and exact initialized
     // Matter device program. Supply this as the adapter proof-program identity.

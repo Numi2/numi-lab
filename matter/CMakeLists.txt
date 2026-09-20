@@ -110,6 +110,10 @@ if(APPLE)
     set(NUMI_MATTER_SHADER_DIR "${CMAKE_CURRENT_BINARY_DIR}/shaders")
     set(NUMI_MATTER_AIR "${NUMI_MATTER_SHADER_DIR}/NumiMatter.air")
     set(NUMI_MATTER_METALLIB "${NUMI_MATTER_SHADER_DIR}/NumiMatter.metallib")
+    set(NUMI_MATTER_PHYSICAL_DIGEST_AIR
+        "${NUMI_MATTER_SHADER_DIR}/NumiMatterPhysicalStateDigest.air")
+    set(NUMI_MATTER_PHYSICAL_DIGEST_METALLIB
+        "${NUMI_MATTER_SHADER_DIR}/NumiMatterPhysicalStateDigest.metallib")
 
     add_custom_command(
         OUTPUT "${NUMI_MATTER_METALLIB}"
@@ -153,7 +157,34 @@ if(APPLE)
             "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/rod_gpu_shared.h"
         VERBATIM
     )
-    add_custom_target(numi_matter_shaders ALL DEPENDS "${NUMI_MATTER_METALLIB}")
+    add_custom_command(
+        OUTPUT "${NUMI_MATTER_PHYSICAL_DIGEST_METALLIB}"
+        COMMAND "${CMAKE_COMMAND}" -E make_directory "${NUMI_MATTER_SHADER_DIR}"
+        COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/../include"
+            -c "${CMAKE_CURRENT_SOURCE_DIR}/src/physical_state_digest_kernels.metal"
+            -o "${NUMI_MATTER_PHYSICAL_DIGEST_AIR}"
+        COMMAND xcrun -sdk macosx metallib
+            "${NUMI_MATTER_PHYSICAL_DIGEST_AIR}"
+            -o "${NUMI_MATTER_PHYSICAL_DIGEST_METALLIB}"
+        DEPENDS
+            src/physical_state_digest_kernels.metal
+            src/metal/physical_state_digest.metalinc
+            src/metal/sha256.metalinc
+            include/numi/matter/physical_state_digest_gpu.h
+            include/numi/matter/sha256_gpu.h
+            include/numi/matter/accepted_state_proof_gpu.h
+            include/numi/matter/shared.h
+        VERBATIM
+    )
+    add_custom_target(numi_matter_shaders ALL
+        DEPENDS
+            "${NUMI_MATTER_METALLIB}"
+            "${NUMI_MATTER_PHYSICAL_DIGEST_METALLIB}")
 
     add_library(
         numi_matter_runtime_objects
@@ -199,7 +230,10 @@ if(APPLE)
         PRIVATE "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}"
     )
 
-    install(FILES "${NUMI_MATTER_METALLIB}" DESTINATION lib/numi-matter)
+    install(FILES
+        "${NUMI_MATTER_METALLIB}"
+        "${NUMI_MATTER_PHYSICAL_DIGEST_METALLIB}"
+        DESTINATION lib/numi-matter)
     install(TARGETS numi_matter_runtime ARCHIVE DESTINATION lib)
 endif()
 
@@ -242,6 +276,80 @@ if(APPLE)
         add_test(NAME matter.metal.source_fiber COMMAND numi-matter-fiber-check)
         set_tests_properties(matter.compiler.source_fiber matter.metal.source_fiber
             PROPERTIES LABELS "matter;material;human" TIMEOUT 60)
+    endif()
+endif()
+
+# Allocation-free incremental SHA-256 used by exact physical-state evidence.
+# The vector probe compiles and executes the production Metal implementation;
+# it intentionally does not claim that any runtime state has been captured.
+if(APPLE)
+    set(NUMI_SHA256_CHECK_AIR
+        "${CMAKE_CURRENT_BINARY_DIR}/shaders/sha256_gpu_check.air")
+    set(NUMI_SHA256_CHECK_METALLIB
+        "${CMAKE_CURRENT_BINARY_DIR}/shaders/sha256_gpu_check.metallib")
+    add_custom_command(OUTPUT "${NUMI_SHA256_CHECK_METALLIB}"
+        COMMAND "${CMAKE_COMMAND}" -E make_directory
+            "${CMAKE_CURRENT_BINARY_DIR}/shaders"
+        COMMAND xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${CMAKE_CURRENT_SOURCE_DIR}/tools/sha256_gpu_check.metal"
+            -o "${NUMI_SHA256_CHECK_AIR}"
+        COMMAND xcrun -sdk macosx metallib "${NUMI_SHA256_CHECK_AIR}"
+            -o "${NUMI_SHA256_CHECK_METALLIB}"
+        DEPENDS
+            tools/sha256_gpu_check.metal
+            src/metal/sha256.metalinc
+            src/metal/sha256_kernels.metalinc
+            include/numi/matter/sha256_gpu.h
+            include/numi/matter/shared.h
+        VERBATIM)
+    add_custom_target(numi_sha256_check_shaders
+        DEPENDS "${NUMI_SHA256_CHECK_METALLIB}")
+    add_executable(numi-matter-sha256-gpu-check tools/sha256_gpu_check.mm)
+    add_dependencies(numi-matter-sha256-gpu-check numi_sha256_check_shaders)
+    target_include_directories(numi-matter-sha256-gpu-check PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/include")
+    target_link_libraries(numi-matter-sha256-gpu-check PRIVATE
+        "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_compile_definitions(numi-matter-sha256-gpu-check PRIVATE
+        NUMI_SHA256_CHECK_METALLIB="${NUMI_SHA256_CHECK_METALLIB}")
+    target_compile_options(numi-matter-sha256-gpu-check PRIVATE
+        -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    if(BUILD_TESTING)
+        add_test(NAME matter.metal.sha256
+            COMMAND numi-matter-sha256-gpu-check)
+        set_tests_properties(matter.metal.sha256 PROPERTIES
+            LABELS "matter;metal;sha256;physical-state" TIMEOUT 60)
+    endif()
+endif()
+
+# Canonical physical-state digest schema parity. This drives all production
+# digest kernels over controlled bytes and compares every owner/root SHA-256
+# against an independent CommonCrypto oracle. It is algorithm/schema evidence,
+# not a claim that live physical state has been captured or qualified.
+if(APPLE)
+    add_custom_target(numi_physical_state_digest_check_shaders
+        DEPENDS "${NUMI_MATTER_PHYSICAL_DIGEST_METALLIB}")
+    add_executable(numi-matter-physical-state-digest-gpu-check
+        tools/physical_state_digest_gpu_check.mm)
+    add_dependencies(numi-matter-physical-state-digest-gpu-check
+        numi_physical_state_digest_check_shaders)
+    target_include_directories(numi-matter-physical-state-digest-gpu-check
+        PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+    target_link_libraries(numi-matter-physical-state-digest-gpu-check PRIVATE
+        "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_compile_definitions(numi-matter-physical-state-digest-gpu-check
+        PRIVATE
+            NUMI_PHYSICAL_DIGEST_CHECK_METALLIB="${NUMI_MATTER_PHYSICAL_DIGEST_METALLIB}")
+    target_compile_options(numi-matter-physical-state-digest-gpu-check PRIVATE
+        -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    if(BUILD_TESTING)
+        add_test(NAME matter.metal.physical_state_digest_schema
+            COMMAND numi-matter-physical-state-digest-gpu-check)
+        set_tests_properties(matter.metal.physical_state_digest_schema
+            PROPERTIES
+                LABELS "matter;metal;sha256;schema;synthetic"
+                TIMEOUT 60)
     endif()
 endif()
 
