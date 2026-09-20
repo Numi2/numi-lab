@@ -3539,6 +3539,14 @@ set(NUMANX_FULLBODY_VISUAL_PACK_ASSET "" CACHE FILEPATH
     "Canonical source-authored visual pack for the NumanX bridge probe")
 set(NUMANX_FULLBODY_VISION_PROFILE_ASSET "" CACHE FILEPATH
     "Canonical calibrated head-vision profile for the NumanX bridge probe")
+set(NUMANX_FULLBODY_BEHAVIOR_METRIC_ASSET "" CACHE FILEPATH
+    "Source-bound NHBHV1 metric program for exact-runtime behavior telemetry")
+if(NUMANX_FULLBODY_BEHAVIOR_METRIC_ASSET AND
+   NOT EXISTS "${NUMANX_FULLBODY_BEHAVIOR_METRIC_ASSET}")
+    message(FATAL_ERROR
+        "NUMANX_FULLBODY_BEHAVIOR_METRIC_ASSET does not exist: "
+        "${NUMANX_FULLBODY_BEHAVIOR_METRIC_ASSET}")
+endif()
 set(_NUMANX_FULLBODY_SUPPORT_CONTACT_ASSET
     "${NUMANX_FULLBODY_SUPPORT_CONTACT_ASSET}")
 if(NOT _NUMANX_FULLBODY_SUPPORT_CONTACT_ASSET AND
@@ -4245,15 +4253,45 @@ if(BUILD_TESTING)
                 COMMAND
                     $<TARGET_FILE:metalrobo_numanx_exact_runtime_v3_lifecycle_probe>
             )
+            set(_NUMANX_EXACT_RUNTIME_TEST_ENV
+                "MTL_DEBUG_LAYER=1"
+                "MRNX_EXACT_WORLD=$ENV{MRNX_EXACT_WORLD}"
+                "MRNX_EXACT_INITIAL_STATE=$ENV{MRNX_EXACT_INITIAL_STATE}"
+                "MRNX_EXACT_SUPPORT_CONTACT=$ENV{MRNX_EXACT_SUPPORT_CONTACT}"
+                "MRNX_EXACT_JOINT_EQUALITIES=$ENV{MRNX_EXACT_JOINT_EQUALITIES}"
+                "MRNX_EXACT_JOINT_LIMITS=$ENV{MRNX_EXACT_JOINT_LIMITS}")
             set_tests_properties(
                 numanx.integration.fullbody_exact_runtime_v3_lifecycle
                 PROPERTIES
-                    ENVIRONMENT
-                        "MTL_DEBUG_LAYER=1;MRNX_EXACT_WORLD=$ENV{MRNX_EXACT_WORLD};MRNX_EXACT_INITIAL_STATE=$ENV{MRNX_EXACT_INITIAL_STATE};MRNX_EXACT_SUPPORT_CONTACT=$ENV{MRNX_EXACT_SUPPORT_CONTACT};MRNX_EXACT_JOINT_EQUALITIES=$ENV{MRNX_EXACT_JOINT_EQUALITIES};MRNX_EXACT_JOINT_LIMITS=$ENV{MRNX_EXACT_JOINT_LIMITS}"
+                    ENVIRONMENT "${_NUMANX_EXACT_RUNTIME_TEST_ENV}"
+                    ENVIRONMENT_MODIFICATION
+                        "MRNX_REQUIRE_EXACT_BEHAVIOR_METRIC=unset:;MRNX_EXACT_BEHAVIOR_METRIC=unset:;MRNX_EXACT_BEHAVIOR_METRIC_SHA256=unset:"
                     LABELS "numanx;human;matter;integration;exact-clock;metal;fullbody"
                     TIMEOUT 240
                     RUN_SERIAL TRUE
             )
+            if(NUMANX_FULLBODY_BEHAVIOR_METRIC_ASSET)
+                file(SHA256 "${NUMANX_FULLBODY_BEHAVIOR_METRIC_ASSET}"
+                    _NUMANX_FULLBODY_BEHAVIOR_METRIC_SHA256)
+                add_test(
+                    NAME numanx.integration.fullbody_exact_runtime_v3_behavior_metric
+                    COMMAND
+                        $<TARGET_FILE:metalrobo_numanx_exact_runtime_v3_lifecycle_probe>
+                )
+                set(_NUMANX_EXACT_BEHAVIOR_TEST_ENV
+                    ${_NUMANX_EXACT_RUNTIME_TEST_ENV}
+                    "MRNX_REQUIRE_EXACT_BEHAVIOR_METRIC=1"
+                    "MRNX_EXACT_BEHAVIOR_METRIC=${NUMANX_FULLBODY_BEHAVIOR_METRIC_ASSET}"
+                    "MRNX_EXACT_BEHAVIOR_METRIC_SHA256=${_NUMANX_FULLBODY_BEHAVIOR_METRIC_SHA256}")
+                set_tests_properties(
+                    numanx.integration.fullbody_exact_runtime_v3_behavior_metric
+                    PROPERTIES
+                        ENVIRONMENT "${_NUMANX_EXACT_BEHAVIOR_TEST_ENV}"
+                        LABELS "numanx;human;matter;integration;exact-clock;metal;fullbody;behavior"
+                        TIMEOUT 240
+                        RUN_SERIAL TRUE
+                )
+            endif()
         endif()
     endif()
     set_tests_properties(

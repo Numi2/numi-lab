@@ -3,10 +3,14 @@
 #undef main
 
 #include "metalrobo/NumanXExactTransaction.hpp"
+#include "metalrobo/mrnx_human_behavior_v1.h"
 #include "metalrobo/numanx_human_matter_gpu.h"
 
 #include <condition_variable>
+#include <cstdlib>
 #include <mutex>
+#include <string>
+#include <vector>
 
 namespace exact_runtime_probe {
 
@@ -1292,6 +1296,31 @@ int runLifecycle() {
                 info.accepted_state_proof_program_fingerprint != 0u,
             "exact runtime v8 construction failed");
 
+        const char* behaviorMetricPath =
+            std::getenv("MRNX_EXACT_BEHAVIOR_METRIC");
+        const char* behaviorMetricSHA256 =
+            std::getenv("MRNX_EXACT_BEHAVIOR_METRIC_SHA256");
+        const bool behaviorRequired =
+            std::getenv("MRNX_REQUIRE_EXACT_BEHAVIOR_METRIC") != nullptr;
+        const bool behaviorRequested = behaviorMetricPath != nullptr ||
+            behaviorMetricSHA256 != nullptr;
+        require(
+            !behaviorRequired || behaviorRequested,
+            "required exact behavior metric was not supplied");
+        require(
+            !behaviorRequested ||
+                (behaviorMetricPath != nullptr && behaviorMetricPath[0] != '\0' &&
+                 behaviorMetricSHA256 != nullptr &&
+                 behaviorMetricSHA256[0] != '\0'),
+            "exact behavior metric path and SHA-256 must be supplied together");
+        if (behaviorRequested) {
+            require(
+                mrnx_bridge_v1_runtime_behavior_attach(
+                    runtime, behaviorMetricPath, behaviorMetricSHA256,
+                    kInitialTimestampNanoseconds),
+                "source-bound behavior metric did not attach to exact runtime");
+        }
+
         mrnx_aggregate_snapshot_v5 unpublished{};
         unpublished.abi_version = MRNX_AGGREGATE_SNAPSHOT_ABI_V5;
         unpublished.struct_size = sizeof(unpublished);
@@ -1362,14 +1391,113 @@ int runLifecycle() {
                 clock.publication_epoch == 2u,
             "exact clock did not advance with the second publication");
 
+        std::string behaviorJSON;
+        if (behaviorRequested) {
+            const std::size_t required =
+                mrnx_bridge_v1_runtime_behavior_flush_json(runtime, nullptr, 0u);
+            require(required > 1u, "exact behavior telemetry did not flush");
+            std::vector<char> bytes(required, '\0');
+            require(
+                mrnx_bridge_v1_runtime_behavior_flush_json(
+                    runtime, bytes.data(), bytes.size()) == required &&
+                    bytes.back() == '\0',
+                "exact behavior telemetry flush failed");
+            std::vector<char> replayBytes(required, '\0');
+            require(
+                mrnx_bridge_v1_runtime_behavior_flush_json(
+                    runtime, replayBytes.data(), replayBytes.size()) ==
+                        required &&
+                    replayBytes.back() == '\0' && replayBytes == bytes,
+                "repeated exact behavior telemetry flush changed bytes");
+            behaviorJSON.assign(bytes.data());
+            NSData* behaviorData = [NSData
+                dataWithBytes:behaviorJSON.data()
+                length:behaviorJSON.size()];
+            NSError* behaviorError = nil;
+            id parsed = [NSJSONSerialization
+                JSONObjectWithData:behaviorData
+                options:0
+                error:&behaviorError];
+            require(
+                behaviorError == nil &&
+                    [parsed isKindOfClass:[NSDictionary class]],
+                "exact behavior telemetry is not a JSON object");
+            NSDictionary* document = (NSDictionary*)parsed;
+            const auto unsignedField = [&](NSString* key,
+                                           const std::uint64_t expected) {
+                id value = document[key];
+                require(
+                    [value isKindOfClass:[NSNumber class]] &&
+                        CFGetTypeID((__bridge CFTypeRef)value) !=
+                            CFBooleanGetTypeID() &&
+                        [value unsignedLongLongValue] == expected,
+                    "exact behavior telemetry numeric field mismatch");
+            };
+            const auto booleanField = [&](NSString* key,
+                                          const bool expected) {
+                id value = document[key];
+                require(
+                    value != nil &&
+                        CFGetTypeID((__bridge CFTypeRef)value) ==
+                            CFBooleanGetTypeID() &&
+                        [value boolValue] == expected,
+                    "exact behavior telemetry Boolean field mismatch");
+            };
+            const auto measuredBooleanField = [&](NSString* key) {
+                id value = document[key];
+                require(
+                    value != nil &&
+                        CFGetTypeID((__bridge CFTypeRef)value) ==
+                            CFBooleanGetTypeID(),
+                    "exact behavior telemetry measured Boolean is missing");
+            };
+            require(
+                [document[@"schema"]
+                    isEqual:@"numi.human.accepted-metric-snapshot.v1"] &&
+                    [document[@"metric_program_sha256"]
+                        isEqual:[NSString
+                            stringWithUTF8String:behaviorMetricSHA256]] &&
+                    [document[@"native_audit_coverage"]
+                        isEqual:@"unavailable"] &&
+                    [document[@"forbidden_contact_coverage"]
+                        isEqual:@"unavailable"] &&
+                    [document[@"generic_taskpack_lowering"]
+                        isEqual:@"source_bound_metric_program"] &&
+                    document[@"accepted_root_proof_sha256"] == [NSNull null],
+                "exact behavior telemetry source or evidence boundary mismatch");
+            unsignedField(@"accepted_root_count", 2u);
+            unsignedField(@"rejected_attempt_count", 0u);
+            unsignedField(@"completed_attempt_count", 2u);
+            unsignedField(@"metric_sample_count", 2u);
+            unsignedField(@"step_ns", kTimestepNanoseconds);
+            unsignedField(
+                @"initial_timestamp_ns", kInitialTimestampNanoseconds);
+            unsignedField(
+                @"end_ns",
+                kInitialTimestampNanoseconds + 2u * kTimestepNanoseconds);
+            measuredBooleanField(@"initial_posture_valid");
+            measuredBooleanField(@"initial_settled");
+            booleanField(@"full_behavior_qualified", false);
+            booleanField(@"finalized", true);
+        } else {
+            require(
+                mrnx_bridge_v1_runtime_behavior_flush_json(
+                    runtime, nullptr, 0u) == 0u,
+                "unattached exact runtime exposed behavior telemetry");
+        }
+
         mrnx_bridge_v1_runtime_drop(runtime);
         std::printf(
             "numanx_exact_runtime_v3_lifecycle_probe=pass "
             "roots=2 publications=2 aggregate=v5 clock=nanoseconds "
             "proof_program=v2 legacy_downconversion=rejected "
-            "timeout_race=serialized "
+            "timeout_race=serialized behavior_metric=%s "
+            "full_behavior_qualified=false "
+            "audit_coverage=unavailable contact_coverage=unavailable "
+            "accepted_root_proof=unavailable "
             "concurrent_reads=%llu "
             "final_timestamp_ns=%llu\n",
+            behaviorRequested ? "source_bound_exact_clock" : "not_attached",
             static_cast<unsigned long long>(readerCount.load()),
             static_cast<unsigned long long>(
                 second.publication.committed_timestamp_nanoseconds));

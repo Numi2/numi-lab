@@ -3092,6 +3092,20 @@ void fillRuntimeInfoFailure(
         const std::lock_guard lock(runtime->mutex);
         runtime->lastAttemptedControlStep = root.controlStepIdentifier;
     }
+    std::optional<metalrobo::HumanBehaviorTelemetrySnapshot>
+        behaviorBeforeSubmit;
+    try {
+        if (runtime->behavior != nullptr)
+            behaviorBeforeSubmit = runtime->behavior->snapshot();
+    } catch (...) {
+        const std::lock_guard lock(runtime->mutex);
+        runtime->behaviorError =
+            "behavior pre-submit checkpoint allocation failed";
+        runtime->info.request_failure_stage = 640u;
+        runtime->beginInProgress = false;
+        runtime->info.status = MRNX_RUNTIME_METAL_FAILURE_V1;
+        return false;
+    }
 
     std::uint64_t slotGeneration = 0u;
     std::uint64_t sensorGeneration = 0u;
@@ -3338,10 +3352,14 @@ void fillRuntimeInfoFailure(
         }
         (void)runtime->humanIO->cancelPrepared(
             root.transactionFingerprint, humanProgram.fingerprint);
+        const bool behaviorRestored = !behaviorBeforeSubmit.has_value() ||
+            (runtime->behavior != nullptr && runtime->behavior->restore(
+                *behaviorBeforeSubmit, runtime->behaviorError));
         {
             const std::lock_guard lock(runtime->mutex);
             runtime->info.request_failure_stage = 900u +
                 static_cast<std::uint32_t>(submitted.status);
+            if (!behaviorRestored) runtime->terminalQuarantine = true;
         }
         return failBegin(MRNX_RUNTIME_SUBMISSION_FAILURE_V1);
     }
@@ -3757,6 +3775,20 @@ void fillRuntimeInfoFailure(
         }
         return failBegin(MRNX_RUNTIME_INVALID_REQUEST_V1);
     }
+    std::optional<metalrobo::HumanBehaviorTelemetrySnapshot>
+        behaviorBeforeSubmit;
+    try {
+        if (runtime->behavior != nullptr)
+            behaviorBeforeSubmit = runtime->behavior->snapshot();
+    } catch (...) {
+        const std::lock_guard lock(runtime->mutex);
+        runtime->behaviorError =
+            "behavior pre-submit checkpoint allocation failed";
+        runtime->info.request_failure_stage = 640u;
+        runtime->beginInProgress = false;
+        runtime->info.status = MRNX_RUNTIME_METAL_FAILURE_V1;
+        return false;
+    }
 
     std::uint64_t slotGeneration = 0u;
     std::uint64_t sensorGeneration = 0u;
@@ -3996,10 +4028,14 @@ void fillRuntimeInfoFailure(
         }
         (void)runtime->humanIO->cancelPrepared(
             root.transactionFingerprint, humanProgram.fingerprint);
+        const bool behaviorRestored = !behaviorBeforeSubmit.has_value() ||
+            (runtime->behavior != nullptr && runtime->behavior->restore(
+                *behaviorBeforeSubmit, runtime->behaviorError));
         {
             const std::lock_guard lock(runtime->mutex);
             runtime->info.request_failure_stage = 900u +
                 static_cast<std::uint32_t>(submitted.status);
+            if (!behaviorRestored) runtime->terminalQuarantine = true;
         }
         return failBegin(MRNX_RUNTIME_SUBMISSION_FAILURE_V1);
     }
@@ -5592,13 +5628,14 @@ bool encodeRuntimeBehaviorCandidate(void* raw,
     if (!encodeOwnerSnapshot()) return false;
     if (runtime->behavior == nullptr) return true;
     if (pass.phase == metalrobo::MetalNumanXHumanMatterPhase::beginStep) {
-        if (!runtime->behavior->encodeFlush(pass.commandBuffer, runtime->behaviorError)) return false;
-        if (runtime->behavior->completedAttempts() == 0u)
+        return runtime->behavior->encodeFlush(
+            pass.commandBuffer, runtime->behaviorError);
+    }
+    if (pass.phase == metalrobo::MetalNumanXHumanMatterPhase::preDynamics) {
+        if (!runtime->behavior->initialObservationEncoded())
             return runtime->behavior->encodeInitial(pass, runtime->behaviorError);
         return true;
     }
-    if (pass.phase == metalrobo::MetalNumanXHumanMatterPhase::preDynamics)
-        return true;
     if (pass.phase != metalrobo::MetalNumanXHumanMatterPhase::postDynamics)
         return false;
     const auto* active = runtime->encodingActive;

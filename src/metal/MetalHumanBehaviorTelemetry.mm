@@ -47,6 +47,7 @@ MetalHumanBehaviorTelemetry::MetalHumanBehaviorTelemetry(void* device,const Comp
 MetalHumanBehaviorTelemetry::~MetalHumanBehaviorTelemetry()=default;
 std::uint64_t MetalHumanBehaviorTelemetry::fingerprint()const noexcept{return state_->fp;}
 std::uint64_t MetalHumanBehaviorTelemetry::completedAttempts()const noexcept{return state_->terminalSerial;}
+bool MetalHumanBehaviorTelemetry::initialObservationEncoded()const noexcept{return state_->initialEncoded;}
 void MetalHumanBehaviorTelemetry::reset(){auto& s=*state_;s.terminalSerial=0;s.initialEncoded=false;
     for(auto b:{s.candidate,s.release,s.fences,s.reduction})std::memset(b.contents,0,b.length);
     auto* out=static_cast<MRHumanBehaviorReductionGPU*>(s.reduction.contents);
@@ -55,7 +56,7 @@ void MetalHumanBehaviorTelemetry::reset(){auto& s=*state_;s.terminalSerial=0;s.i
         out[i].initialPostureValid=2;out[i].initialSettled=2;} // unmeasured reset, explicit unknown
 }
 bool MetalHumanBehaviorTelemetry::encodeInitial(const MetalNumanXHumanMatterPass& pass,std::string& error)noexcept{
-    try{auto& s=*state_;require(!s.initialEncoded&&pass.abiVersion==kMetalNumanXHumanMatterPassABIVersion&&pass.structSize==sizeof(pass)&&pass.phase==MetalNumanXHumanMatterPhase::beginStep,"invalid initial behavior pass");require(pass.environmentCount==s.environments&&pass.physicsSubstepCount==1,"invalid initial behavior root shape");require(pass.bodyPoses!=nullptr&&pass.bodyPositionLow!=nullptr&&pass.pointJacobians!=nullptr&&pass.v!=nullptr,"missing initial behavior geometry");require(pass.bodyPoseStride>=s.cooked.bodyCount&&pass.vStride>=s.cooked.dofCount&&pass.dofCount==s.cooked.dofCount,"initial behavior shape drift");
+    try{auto& s=*state_;require(!s.initialEncoded&&pass.abiVersion==kMetalNumanXHumanMatterPassABIVersion&&pass.structSize==sizeof(pass)&&pass.phase==MetalNumanXHumanMatterPhase::preDynamics,"invalid initial behavior pass");require(pass.environmentCount==s.environments&&pass.physicsSubstepCount==1,"invalid initial behavior root shape");require(pass.bodyPoses!=nullptr&&pass.bodyPositionLow!=nullptr&&pass.pointJacobians!=nullptr&&pass.v!=nullptr,"missing initial behavior geometry");require(pass.bodyPoseStride>=s.cooked.bodyCount&&pass.vStride>=s.cooked.dofCount&&pass.dofCount==s.cooked.dofCount,"initial behavior shape drift");
         MRHumanBehaviorDispatchGPU d{};d.environmentCount=s.environments;d.bodyPoseStride=static_cast<std::uint32_t>(pass.bodyPoseStride);d.pointJacobianStride=static_cast<std::uint32_t>(pass.pointJacobianStride);d.vStride=static_cast<std::uint32_t>(pass.vStride);d.bodyJacobianPointOffset=static_cast<std::uint32_t>(pass.bodyJacobianPointOffset);d.transactionFingerprint=pass.transactionFingerprint;d.linearizationEpoch=pass.linearizationEpoch;d.slotGeneration=pass.slotGeneration;d.physicsGeneration=s.initialPhysicsGeneration;d.acceptedTimestampNanoseconds=s.initialTimestampNanoseconds;
         require(pass.bodyPoseStride<=UINT32_MAX&&pass.pointJacobianStride<=UINT32_MAX&&pass.vStride<=UINT32_MAX&&pass.bodyJacobianPointOffset<=UINT32_MAX,"initial behavior stride overflow");
         auto buffer=[&](void* p,NSUInteger bytes){id<MTLBuffer> b=(__bridge id<MTLBuffer>)p;require(b!=nil&&b.device==s.device&&b.length>=bytes,"initial behavior buffer shape/device mismatch");return b;};
@@ -92,7 +93,13 @@ bool MetalHumanBehaviorTelemetry::encodeCandidate(const MetalNumanXHumanMatterPa
     }catch(const std::exception& e){error=e.what();return false;}}
 bool MetalHumanBehaviorTelemetry::terminal(const MRHumanBehaviorReleaseGPU& r,const MRNumanXHumanMatterJointPublicationFenceGPU* fence,std::string& error)noexcept{
     try{auto& s=*state_;require(r.programFingerprint==s.fp&&r.publicationSerial==s.terminalSerial+1&&s.terminalSerial!=std::numeric_limits<std::uint64_t>::max()&&r.transactionFingerprint!=0&&r.slotGeneration!=0&&(r.released==1||r.released==2)&&r.reserved0==0&&r.reserved1==0&&r.reserved2==0,"invalid telemetry terminal identity");
-        require(r.released!=1||(fence!=nullptr&&fence->status==MR_NUMANX_HUMAN_MATTER_PUBLICATION_COMMITTED&&fence->fenceFingerprint==r.jointFenceFingerprint&&r.jointFenceFingerprint!=0),"telemetry acceptance requires released COMMITTED root");
+        require(r.released!=1||(fence!=nullptr&&
+            (fence->abiVersion==MR_NUMANX_HUMAN_MATTER_PUBLICATION_FENCE_ABI_VERSION||
+             fence->abiVersion==MR_NUMANX_HUMAN_MATTER_PUBLICATION_FENCE_ABI_VERSION_V2)&&
+            fence->structBytes==sizeof(*fence)&&
+            fence->status==MR_NUMANX_HUMAN_MATTER_PUBLICATION_COMMITTED&&
+            fence->fenceFingerprint==r.jointFenceFingerprint&&
+            r.jointFenceFingerprint!=0),"telemetry acceptance requires released COMMITTED root");
         if(fence)std::memcpy(s.fences.contents,fence,sizeof(*fence));else std::memset(s.fences.contents,0,s.fences.length);
         std::memcpy(s.release.contents,&r,sizeof(r));s.terminalSerial=r.publicationSerial;error.clear();return true;
     }catch(const std::exception& e){error=e.what();return false;}}

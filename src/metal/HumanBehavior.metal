@@ -133,7 +133,9 @@ kernel void human_behavior_reduce(
         ++out.rejectedAttemptCount;
     } else {
         const device auto& f=fences[env];
-        valid=sampleMatches&&s.status==0&&f.abiVersion==MR_NUMANX_HUMAN_MATTER_PUBLICATION_FENCE_ABI_VERSION&&
+        valid=sampleMatches&&s.status==0&&
+            (f.abiVersion==MR_NUMANX_HUMAN_MATTER_PUBLICATION_FENCE_ABI_VERSION||
+             f.abiVersion==MR_NUMANX_HUMAN_MATTER_PUBLICATION_FENCE_ABI_VERSION_V2)&&
             f.structBytes==MR_NUMANX_HUMAN_MATTER_PUBLICATION_FENCE_BYTES&&f.status==MR_NUMANX_HUMAN_MATTER_PUBLICATION_COMMITTED&&
             f.environment==env&&f.substepIndex==0&&f.physicsSubstepCount==1&&f.reserved0==0&&
             f.transactionFingerprint==r.transactionFingerprint&&f.linearizationEpoch==r.linearizationEpoch&&f.slotGeneration==r.slotGeneration&&

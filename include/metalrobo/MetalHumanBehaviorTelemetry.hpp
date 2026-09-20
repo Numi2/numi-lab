@@ -25,9 +25,10 @@ public:
     ~MetalHumanBehaviorTelemetry();
     MetalHumanBehaviorTelemetry(const MetalHumanBehaviorTelemetry&)=delete;
     MetalHumanBehaviorTelemetry& operator=(const MetalHumanBehaviorTelemetry&)=delete;
-    // Measure the exact accepted reset state on the existing owner command
-    // buffer. This records posture/settled observations only; it does not
-    // advance physics or authorize a publication.
+    // Measure the exact accepted reset state in the existing owner
+    // pre-dynamics pass, after kinematics exist and before dynamics advance.
+    // This records posture/settled observations only; it does not authorize a
+    // publication.
     [[nodiscard]] bool encodeInitial(const MetalNumanXHumanMatterPass& pass,
         std::string& error) noexcept;
     [[nodiscard]] bool encodeCandidate(const MetalNumanXHumanMatterPass& pass, std::uint64_t physicsGeneration, std::uint64_t acceptedTimestampNanoseconds, std::string& error) noexcept;
@@ -42,6 +43,7 @@ public:
     void reset();
     [[nodiscard]] std::uint64_t fingerprint() const noexcept;
     [[nodiscard]] std::uint64_t completedAttempts() const noexcept;
+    [[nodiscard]] bool initialObservationEncoded() const noexcept;
 private:
     struct State; std::unique_ptr<State> state_;
 };
