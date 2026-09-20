@@ -649,6 +649,164 @@ bool validExactTokenShape(
                 token);
 }
 
+struct CandidatePhysicalStateCapture {
+    metalrobo::MetalNumanXTransactionProgram delegate{};
+    id<MTLBuffer> rootTranslations = nil;
+    id<MTLBuffer> q = nil;
+    id<MTLBuffer> v = nil;
+    id<MTLBuffer> mujocoStates = nil;
+    bool encoded = false;
+};
+
+bool encodeCandidatePhysicalStateCapture(
+    void* raw,
+    const metalrobo::MetalNumanXTransactionPass& pass
+) noexcept {
+    auto* capture = static_cast<CandidatePhysicalStateCapture*>(raw);
+    if (capture == nullptr || !capture->delegate.valid() ||
+        !capture->delegate.encode(capture->delegate.context, pass)) {
+        return false;
+    }
+    if (pass.phase != metalrobo::MetalNumanXTransactionPhase::postDynamics)
+        return true;
+    if (capture->encoded || pass.commandBuffer == nullptr ||
+        pass.environmentCount != 1u ||
+        pass.rootTranslation == nullptr || pass.q == nullptr ||
+        pass.v == nullptr || pass.mujocoStates == nullptr ||
+        pass.rootTranslationElementCount != 1u ||
+        pass.qElementCount != owner_fixture::kNq ||
+        pass.qStride != owner_fixture::kNq ||
+        pass.vElementCount != owner_fixture::kNv ||
+        pass.vStride != owner_fixture::kNv ||
+        pass.mujocoStateElementCount != 1u ||
+        pass.mujocoStateStride != 1u ||
+        capture->rootTranslations == nil || capture->q == nil ||
+        capture->v == nil || capture->mujocoStates == nil) {
+        return false;
+    }
+
+    __unsafe_unretained id<MTLCommandBuffer> command =
+        (__bridge id<MTLCommandBuffer>)pass.commandBuffer;
+    id<MTLBlitCommandEncoder> blit = [command blitCommandEncoder];
+    if (blit == nil) return false;
+    [blit copyFromBuffer:(__bridge id<MTLBuffer>)pass.rootTranslation
+            sourceOffset:0u
+                toBuffer:capture->rootTranslations
+       destinationOffset:0u
+                    size:sizeof(MRCompensatedRootTranslationGPU)];
+    [blit copyFromBuffer:(__bridge id<MTLBuffer>)pass.q
+            sourceOffset:0u
+                toBuffer:capture->q
+       destinationOffset:0u
+                    size:owner_fixture::kNq * sizeof(float)];
+    [blit copyFromBuffer:(__bridge id<MTLBuffer>)pass.v
+            sourceOffset:0u
+                toBuffer:capture->v
+       destinationOffset:0u
+                    size:owner_fixture::kNv * sizeof(float)];
+    [blit copyFromBuffer:(__bridge id<MTLBuffer>)pass.mujocoStates
+            sourceOffset:0u
+                toBuffer:capture->mujocoStates
+       destinationOffset:0u
+                    size:sizeof(MRMujocoMuscleStateGPU)];
+    [blit endEncoding];
+    capture->encoded = true;
+    return true;
+}
+
+void abortCandidatePhysicalStateCapture(
+    void* raw,
+    void* commandBuffer
+) noexcept {
+    auto* capture = static_cast<CandidatePhysicalStateCapture*>(raw);
+    if (capture != nullptr && capture->delegate.abort != nullptr) {
+        capture->delegate.abort(capture->delegate.context, commandBuffer);
+    }
+}
+
+struct PhysicalStateObserverAudit {
+    id<MTLBuffer> rootTranslations = nil;
+    id<MTLBuffer> q = nil;
+    id<MTLBuffer> v = nil;
+    id<MTLBuffer> mujocoStates = nil;
+    std::uint64_t transactionFingerprint = 0u;
+    std::uint64_t physicsGeneration = 0u;
+    std::uint64_t acceptedTokenFingerprint = 0u;
+    bool encoded = false;
+};
+
+bool finiteFloat4(const mr_float4 value) noexcept {
+    return std::isfinite(value.x) && std::isfinite(value.y) &&
+        std::isfinite(value.z) && std::isfinite(value.w);
+}
+
+bool finiteFloats(const void* raw, const std::size_t count) noexcept {
+    const auto* values = static_cast<const float*>(raw);
+    if (values == nullptr) return false;
+    for (std::size_t index = 0u; index < count; ++index) {
+        if (!std::isfinite(values[index])) return false;
+    }
+    return true;
+}
+
+bool encodePhysicalStateObserver(
+    void* raw,
+    const metalrobo::MetalArticulatedOperatorPhysicalStateObserverPass& pass
+) noexcept {
+    auto* audit = static_cast<PhysicalStateObserverAudit*>(raw);
+    if (audit == nullptr || pass.abiVersion != metalrobo::
+            kMetalArticulatedOperatorPhysicalStateObserverABIVersion ||
+        pass.structSize != sizeof(pass) || pass.environmentCount != 1u ||
+        pass.commandBuffer == nullptr || pass.rootTranslations == nullptr ||
+        pass.q == nullptr || pass.v == nullptr ||
+        pass.mujocoStates == nullptr ||
+        pass.rootTranslationsGPUAddress == 0u || pass.qGPUAddress == 0u ||
+        pass.vGPUAddress == 0u || pass.mujocoStatesGPUAddress == 0u ||
+        pass.rootTranslationElementCount != 1u ||
+        pass.qElementCount != owner_fixture::kNq ||
+        pass.vElementCount != owner_fixture::kNv ||
+        pass.mujocoStateElementCount != 1u ||
+        pass.rootTranslationStride != 1u ||
+        pass.qStride != owner_fixture::kNq ||
+        pass.vStride != owner_fixture::kNv ||
+        pass.mujocoStateStride != 1u ||
+        pass.transactionFingerprint != audit->transactionFingerprint ||
+        pass.physicsGeneration != audit->physicsGeneration ||
+        pass.acceptedTokenFingerprint != audit->acceptedTokenFingerprint ||
+        audit->rootTranslations == nil || audit->q == nil ||
+        audit->v == nil || audit->mujocoStates == nil) {
+        return false;
+    }
+
+    __unsafe_unretained id<MTLCommandBuffer> command =
+        (__bridge id<MTLCommandBuffer>)pass.commandBuffer;
+    id<MTLBlitCommandEncoder> blit = [command blitCommandEncoder];
+    if (blit == nil) return false;
+    [blit copyFromBuffer:(__bridge id<MTLBuffer>)pass.rootTranslations
+            sourceOffset:0u
+                toBuffer:audit->rootTranslations
+       destinationOffset:0u
+                    size:sizeof(MRCompensatedRootTranslationGPU)];
+    [blit copyFromBuffer:(__bridge id<MTLBuffer>)pass.q
+            sourceOffset:0u
+                toBuffer:audit->q
+       destinationOffset:0u
+                    size:owner_fixture::kNq * sizeof(float)];
+    [blit copyFromBuffer:(__bridge id<MTLBuffer>)pass.v
+            sourceOffset:0u
+                toBuffer:audit->v
+       destinationOffset:0u
+                    size:owner_fixture::kNv * sizeof(float)];
+    [blit copyFromBuffer:(__bridge id<MTLBuffer>)pass.mujocoStates
+            sourceOffset:0u
+                toBuffer:audit->mujocoStates
+       destinationOffset:0u
+                    size:sizeof(MRMujocoMuscleStateGPU)];
+    [blit endEncoding];
+    audit->encoded = true;
+    return true;
+}
+
 void runLifecycle(id<MTLDevice> device) {
     auto world = compileSettledLifecycleWorld();
     numi::matter::RuntimeConfiguration runtimeConfig;
@@ -769,7 +927,25 @@ void runLifecycle(id<MTLDevice> device) {
     const auto ownerPoints = owner_fixture::bodyProbes();
     auto input = owner_fixture::makeInput(
         model, ownerPoints, ownerFixture);
-    input.stand.numanXTransactionProgram = humanIOProgram;
+    CandidatePhysicalStateCapture candidatePhysicalState{};
+    candidatePhysicalState.delegate = humanIOProgram;
+    candidatePhysicalState.rootTranslations = makeZeroBuffer(
+        device, sizeof(MRCompensatedRootTranslationGPU),
+        @"candidate Human root capture");
+    candidatePhysicalState.q = makeZeroBuffer(
+        device, owner_fixture::kNq * sizeof(float),
+        @"candidate Human q capture");
+    candidatePhysicalState.v = makeZeroBuffer(
+        device, owner_fixture::kNv * sizeof(float),
+        @"candidate Human v capture");
+    candidatePhysicalState.mujocoStates = makeZeroBuffer(
+        device, sizeof(MRMujocoMuscleStateGPU),
+        @"candidate Human MyoSim capture");
+    auto capturedHumanIOProgram = humanIOProgram;
+    capturedHumanIOProgram.context = &candidatePhysicalState;
+    capturedHumanIOProgram.encode = &encodeCandidatePhysicalStateCapture;
+    capturedHumanIOProgram.abort = &abortCandidatePhysicalStateCapture;
+    input.stand.numanXTransactionProgram = capturedHumanIOProgram;
     input.stand.numanXHumanMatterProgram = humanMatterProgram;
     const float exactTimestepSeconds = static_cast<float>(
         static_cast<double>(kDurationNanoseconds) * 1.0e-9);
@@ -1290,6 +1466,17 @@ void runLifecycle(id<MTLDevice> device) {
                     MetalNumanXHumanIOStatus::candidateUnavailable,
         "exact PENDING publication fence exposed or misidentified the root");
 
+    PhysicalStateObserverAudit quarantinedPhysicalObserver{};
+    std::string quarantinedPhysicalObserverError;
+    require(!owner->flushPhysicalStateObserver(
+                &quarantinedPhysicalObserver,
+                &encodePhysicalStateObserver,
+                quarantinedPhysicalObserverError) &&
+            !quarantinedPhysicalObserver.encoded &&
+            quarantinedPhysicalObserverError.find(
+                "quiescent released accepted root") != std::string::npos,
+        "physical-state observer escaped before accepted-root release");
+
     fence.status = MR_NUMANX_HUMAN_MATTER_PUBLICATION_COMMITTED;
     fence.fenceFingerprint = recordFingerprint(fence);
     metalrobo::MetalNumanXHumanMatterPublicationReleaseRequest
@@ -1315,6 +1502,112 @@ void runLifecycle(id<MTLDevice> device) {
     require(prepared->releasePublishedRoot(releasePublication) == metalrobo::
                 MetalNumanXHumanMatterPrepareLeaseDisposition::released,
         "exact COMMITTED publication fence did not release the root");
+
+    PhysicalStateObserverAudit physicalObserver{};
+    physicalObserver.rootTranslations = makeZeroBuffer(
+        device, sizeof(MRCompensatedRootTranslationGPU),
+        @"accepted Human root observation");
+    physicalObserver.q = makeZeroBuffer(
+        device, owner_fixture::kNq * sizeof(float),
+        @"accepted Human q observation");
+    physicalObserver.v = makeZeroBuffer(
+        device, owner_fixture::kNv * sizeof(float),
+        @"accepted Human v observation");
+    physicalObserver.mujocoStates = makeZeroBuffer(
+        device, sizeof(MRMujocoMuscleStateGPU),
+        @"accepted Human MyoSim observation");
+    physicalObserver.transactionFingerprint =
+        transaction.transactionFingerprint;
+    physicalObserver.physicsGeneration = transaction.physicsGeneration;
+    physicalObserver.acceptedTokenFingerprint = finalToken.tokenFingerprint;
+    std::string physicalObserverError;
+    require(owner->flushPhysicalStateObserver(
+                &physicalObserver, &encodePhysicalStateObserver,
+                physicalObserverError) && physicalObserver.encoded,
+        "released Human physical-state observation failed: " +
+            physicalObserverError);
+    const auto observedRoot = value<MRCompensatedRootTranslationGPU>(
+        physicalObserver.rootTranslations);
+    const auto observedMuscle = value<MRMujocoMuscleStateGPU>(
+        physicalObserver.mujocoStates);
+    require(finiteFloats(
+                physicalObserver.q.contents, owner_fixture::kNq) &&
+            finiteFloats(
+                physicalObserver.v.contents, owner_fixture::kNv) &&
+            finiteFloat4(observedRoot.reference) &&
+            finiteFloat4(observedRoot.displacement) &&
+            finiteFloat4(observedRoot.correction) &&
+            finiteFloat4(observedMuscle.excitationAndActivation),
+        "released Human physical-state observer exposed non-finite state");
+    const bool candidateChangedFromCheckpoint =
+        std::memcmp(
+            candidatePhysicalState.q.contents, model.defaultQ.data(),
+            owner_fixture::kNq * sizeof(float)) != 0 ||
+        std::memcmp(
+            candidatePhysicalState.v.contents, model.defaultV.data(),
+            owner_fixture::kNv * sizeof(float)) != 0;
+    require(candidatePhysicalState.encoded &&
+            candidateChangedFromCheckpoint &&
+            std::memcmp(
+                physicalObserver.rootTranslations.contents,
+                candidatePhysicalState.rootTranslations.contents,
+                sizeof(MRCompensatedRootTranslationGPU)) == 0 &&
+            std::memcmp(
+                physicalObserver.q.contents,
+                candidatePhysicalState.q.contents,
+                owner_fixture::kNq * sizeof(float)) == 0 &&
+            std::memcmp(
+                physicalObserver.v.contents,
+                candidatePhysicalState.v.contents,
+                owner_fixture::kNv * sizeof(float)) == 0 &&
+            std::memcmp(
+                physicalObserver.mujocoStates.contents,
+                candidatePhysicalState.mujocoStates.contents,
+                sizeof(MRMujocoMuscleStateGPU)) == 0,
+        "released Human observer did not expose the accepted candidate "
+        "physical bytes");
+
+    PhysicalStateObserverAudit repeatedPhysicalObserver{};
+    repeatedPhysicalObserver.rootTranslations = makeZeroBuffer(
+        device, sizeof(MRCompensatedRootTranslationGPU),
+        @"repeated accepted Human root observation");
+    repeatedPhysicalObserver.q = makeZeroBuffer(
+        device, owner_fixture::kNq * sizeof(float),
+        @"repeated accepted Human q observation");
+    repeatedPhysicalObserver.v = makeZeroBuffer(
+        device, owner_fixture::kNv * sizeof(float),
+        @"repeated accepted Human v observation");
+    repeatedPhysicalObserver.mujocoStates = makeZeroBuffer(
+        device, sizeof(MRMujocoMuscleStateGPU),
+        @"repeated accepted Human MyoSim observation");
+    repeatedPhysicalObserver.transactionFingerprint =
+        transaction.transactionFingerprint;
+    repeatedPhysicalObserver.physicsGeneration =
+        transaction.physicsGeneration;
+    repeatedPhysicalObserver.acceptedTokenFingerprint =
+        finalToken.tokenFingerprint;
+    require(owner->flushPhysicalStateObserver(
+                &repeatedPhysicalObserver, &encodePhysicalStateObserver,
+                physicalObserverError) && repeatedPhysicalObserver.encoded,
+        "repeated released Human physical-state observation failed: " +
+            physicalObserverError);
+    require(std::memcmp(
+                physicalObserver.rootTranslations.contents,
+                repeatedPhysicalObserver.rootTranslations.contents,
+                sizeof(MRCompensatedRootTranslationGPU)) == 0 &&
+            std::memcmp(
+                physicalObserver.q.contents,
+                repeatedPhysicalObserver.q.contents,
+                owner_fixture::kNq * sizeof(float)) == 0 &&
+            std::memcmp(
+                physicalObserver.v.contents,
+                repeatedPhysicalObserver.v.contents,
+                owner_fixture::kNv * sizeof(float)) == 0 &&
+            std::memcmp(
+                physicalObserver.mujocoStates.contents,
+                repeatedPhysicalObserver.mujocoStates.contents,
+                sizeof(MRMujocoMuscleStateGPU)) == 0,
+        "quiescent Human physical-state observations were not byte-stable");
 
     metalrobo::MetalNumanXHumanIOSensorView publishedSensor{};
     const auto publishedDiagnostics = humanIO->publishedView(publishedSensor);

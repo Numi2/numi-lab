@@ -306,6 +306,10 @@ struct MetalArticulatedOperatorContextState {
         std::size_t qBytes = 0u;
         std::size_t velocityBytes = 0u;
         std::size_t mujocoStateBytes = 0u;
+        std::uint32_t environmentCount = 0u;
+        std::uint32_t qStride = 0u;
+        std::uint32_t velocityStride = 0u;
+        std::uint32_t mujocoStateStride = 0u;
     } publishedResident{};
     struct HumanMatterPreparedRuntimeState {
         bool active = false;
@@ -7671,6 +7675,10 @@ MetalNumanXHumanMatterPrepared::releasePublishedRoot(
             .qBytes = current.residentQBytes,
             .velocityBytes = current.residentVelocityBytes,
             .mujocoStateBytes = current.residentMujocoStateBytes,
+            .environmentCount = current.dispatch.environmentCount,
+            .qStride = current.dispatch.qStride,
+            .velocityStride = current.dispatch.vStride,
+            .mujocoStateStride = current.dispatch.mujocoStateStride,
         };
         auto& owner = ownerStatuses[0u];
         owner.stage = MR_NUMANX_HUMAN_MATTER_STAGE_ROOT_PUBLISHED;
@@ -8162,6 +8170,124 @@ bool MetalArticulatedOperatorContext::flushReadOnlyObserver(
         error.clear();return true;
     } catch(const std::exception& exception){error=exception.what();return false;}
       catch(...){error="read-only owner observer exception";return false;}
+}
+
+bool MetalArticulatedOperatorContext::flushPhysicalStateObserver(
+    void* context,
+    MetalArticulatedOperatorEncodePhysicalStateObserver encode,
+    std::string& error
+) {
+    if (state_ == nullptr || context == nullptr || encode == nullptr) {
+        error = "invalid physical-state owner observer";
+        return false;
+    }
+    try {
+        const std::lock_guard lock(state_->mutex);
+        const auto& resident = state_->publishedResident;
+        if (!state_->initialized || state_->queue == nil || state_->inFlight ||
+            state_->humanMatterPrepared.active || !resident.active) {
+            error = "physical-state owner observer requires a quiescent "
+                    "released accepted root";
+            return false;
+        }
+
+        const std::uint64_t environmentCount = resident.environmentCount;
+        const std::uint64_t qElements =
+            resident.qBytes / sizeof(float);
+        const std::uint64_t velocityElements =
+            resident.velocityBytes / sizeof(float);
+        const std::uint64_t mujocoStateElements =
+            resident.mujocoStateBytes / sizeof(MRMujocoMuscleStateGPU);
+        const std::uint64_t rootTranslationBytes = environmentCount *
+            sizeof(MRCompensatedRootTranslationGPU);
+        const bool layoutValid =
+            environmentCount != 0u &&
+            resident.qStride != 0u &&
+            resident.velocityStride != 0u &&
+            resident.qBytes % sizeof(float) == 0u &&
+            resident.velocityBytes % sizeof(float) == 0u &&
+            resident.mujocoStateBytes %
+                    sizeof(MRMujocoMuscleStateGPU) == 0u &&
+            qElements == environmentCount * resident.qStride &&
+            velocityElements ==
+                environmentCount * resident.velocityStride &&
+            mujocoStateElements ==
+                environmentCount * resident.mujocoStateStride;
+        const bool buffersValid =
+            state_->standBuffers[kStandRootTranslationBuffer] != nil &&
+            state_->buffers[6u] != nil &&
+            state_->standBuffers[kStandVelocityBuffer] != nil &&
+            state_->buffers[kMujocoStatesBuffer] != nil &&
+            state_->standCapacities[kStandRootTranslationBuffer] >=
+                rootTranslationBytes &&
+            state_->capacities[6u] >= resident.qBytes &&
+            state_->standCapacities[kStandVelocityBuffer] >=
+                resident.velocityBytes &&
+            state_->capacities[kMujocoStatesBuffer] >=
+                resident.mujocoStateBytes;
+        if (!layoutValid || !buffersValid) {
+            error = "published physical-state owner arena is incoherent";
+            return false;
+        }
+
+        @autoreleasepool {
+            id<MTLCommandBuffer> command = [state_->queue commandBuffer];
+            if (command == nil) {
+                error = "physical-state owner command allocation failed";
+                return false;
+            }
+            command.label = @"NumanX accepted physical-state observation";
+
+            MetalArticulatedOperatorPhysicalStateObserverPass pass{};
+            pass.environmentCount = resident.environmentCount;
+            pass.commandBuffer = (__bridge void*)command;
+            pass.rootTranslations = (__bridge void*)state_->standBuffers[
+                kStandRootTranslationBuffer];
+            pass.q = (__bridge void*)state_->buffers[6u];
+            pass.v = (__bridge void*)state_->standBuffers[
+                kStandVelocityBuffer];
+            pass.mujocoStates = (__bridge void*)state_->buffers[
+                kMujocoStatesBuffer];
+            pass.rootTranslationsGPUAddress = state_->standBuffers[
+                kStandRootTranslationBuffer].gpuAddress;
+            pass.qGPUAddress = state_->buffers[6u].gpuAddress;
+            pass.vGPUAddress = state_->standBuffers[
+                kStandVelocityBuffer].gpuAddress;
+            pass.mujocoStatesGPUAddress = state_->buffers[
+                kMujocoStatesBuffer].gpuAddress;
+            pass.rootTranslationElementCount = environmentCount;
+            pass.qElementCount = qElements;
+            pass.vElementCount = velocityElements;
+            pass.mujocoStateElementCount = mujocoStateElements;
+            pass.rootTranslationStride = 1u;
+            pass.qStride = resident.qStride;
+            pass.vStride = resident.velocityStride;
+            pass.mujocoStateStride = resident.mujocoStateStride;
+            pass.transactionFingerprint =
+                resident.transactionFingerprint;
+            pass.physicsGeneration = resident.physicsGeneration;
+            pass.acceptedTokenFingerprint =
+                resident.acceptedTokenFingerprint;
+            if (!encode(context, pass)) {
+                error = "physical-state owner observer encoding failed";
+                return false;
+            }
+            [command commit];
+            [command waitUntilCompleted];
+            if (command.status != MTLCommandBufferStatusCompleted) {
+                error = "physical-state owner observer command failed";
+                return false;
+            }
+        }
+        error.clear();
+        return true;
+    } catch (const std::exception& exception) {
+        error = exception.what();
+        return false;
+    } catch (...) {
+        error = "physical-state owner observer exception";
+        return false;
+    }
 }
 
 MetalArticulatedOperatorContext::

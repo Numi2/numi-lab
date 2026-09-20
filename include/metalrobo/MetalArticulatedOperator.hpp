@@ -1953,6 +1953,54 @@ struct MetalArticulatedOperatorContextStats {
     bool hasInFlightSubmission = false;
 };
 
+inline constexpr std::uint32_t
+    kMetalArticulatedOperatorPhysicalStateObserverABIVersion = 1u;
+
+// Borrowed, read-only view of the exact Human state at a released accepted
+// root. The callback may encode reads of these four authoritative arenas onto
+// commandBuffer and may write only caller-owned diagnostic output. It must not
+// mutate, retain, replace, commit, or wait for any borrowed object. Poses,
+// contacts, forces, statuses, and other derived state are intentionally absent.
+struct MetalArticulatedOperatorPhysicalStateObserverPass {
+    std::uint32_t abiVersion =
+        kMetalArticulatedOperatorPhysicalStateObserverABIVersion;
+    std::uint32_t structSize =
+        sizeof(MetalArticulatedOperatorPhysicalStateObserverPass);
+    std::uint32_t environmentCount = 0u;
+    std::uint32_t reserved0 = 0u;
+
+    void* commandBuffer = nullptr;
+    void* rootTranslations = nullptr;
+    void* q = nullptr;
+    void* v = nullptr;
+    void* mujocoStates = nullptr;
+
+    std::uint64_t rootTranslationsGPUAddress = 0u;
+    std::uint64_t qGPUAddress = 0u;
+    std::uint64_t vGPUAddress = 0u;
+    std::uint64_t mujocoStatesGPUAddress = 0u;
+
+    std::uint64_t rootTranslationElementCount = 0u;
+    std::uint64_t qElementCount = 0u;
+    std::uint64_t vElementCount = 0u;
+    std::uint64_t mujocoStateElementCount = 0u;
+
+    std::uint32_t rootTranslationStride = 0u;
+    std::uint32_t qStride = 0u;
+    std::uint32_t vStride = 0u;
+    std::uint32_t mujocoStateStride = 0u;
+
+    // Identity of the accepted root whose exact bytes are being observed.
+    std::uint64_t transactionFingerprint = 0u;
+    std::uint64_t physicsGeneration = 0u;
+    std::uint64_t acceptedTokenFingerprint = 0u;
+};
+
+using MetalArticulatedOperatorEncodePhysicalStateObserver = bool (*)(
+    void* context,
+    const MetalArticulatedOperatorPhysicalStateObserverPass& pass
+) noexcept;
+
 class MetalArticulatedOperatorContext;
 
 // A committed Metal batch. submit() copies all caller-owned spans before
@@ -2012,6 +2060,15 @@ public:
     // dispatch or clock advance. Callback writes only its diagnostic buffers.
     [[nodiscard]] bool flushReadOnlyObserver(void* context,
         bool (*encode)(void*,void*) noexcept, std::string& error);
+
+    // Encodes one read-only observation on the owner queue and waits for its
+    // completion. This succeeds only after an accepted Human/Matter root has
+    // been published and all transaction ownership has been released.
+    [[nodiscard]] bool flushPhysicalStateObserver(
+        void* context,
+        MetalArticulatedOperatorEncodePhysicalStateObserver encode,
+        std::string& error
+    );
 
     explicit MetalArticulatedOperatorContext(
         MetalArticulatedOperatorConfig config = {}
