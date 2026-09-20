@@ -4,9 +4,11 @@
 #include "metalrobo/MujocoMuscleReference.hpp"
 #include "metalrobo/NumiHumanJointEquality.hpp"
 #include "metalrobo/NumiHumanInitialState.hpp"
+#include "metalrobo/NumiHumanSupport.hpp"
 #include "metalrobo/NumiHumanMuscleEquilibrium.hpp"
 #include "metalrobo/NumiHumanTendon.hpp"
 #include "metalrobo/NumiHumanTendonMetal.hpp"
+#include <CommonCrypto/CommonDigest.h>
 
 #include <algorithm>
 #include <array>
@@ -425,6 +427,31 @@ std::vector<std::byte> readBytes(const char* path) {
         require(input.good(), "truncated tendon payload");
     }
     return bytes;
+}
+
+metalrobo::NumiHumanSupportPayloadIdentity loadSupportIdentity(
+    const char* path, const RigidHeader& rigid
+) {
+    const auto bytes = readBytes(path);
+    require(bytes.size() >= sizeof(metalrobo::NumiHumanSupportHeader) &&
+        bytes.size() <= std::numeric_limits<CC_LONG>::max(),
+        "support payload cannot be identified");
+    metalrobo::NumiHumanSupportHeader rawHeader{};
+    std::memcpy(&rawHeader, bytes.data(), sizeof(rawHeader));
+    metalrobo::NumiHumanSupportPayload decoded;
+    std::string error;
+    require(metalrobo::decodeNumiHumanSupportPayload(bytes,
+        rigid.engineBodyCount, rigid.sourceSha256, decoded, error),
+        "prepared path support input: " + error);
+    metalrobo::NumiHumanSupportPayloadIdentity identity;
+    CC_SHA256(bytes.data(), static_cast<CC_LONG>(bytes.size()),
+        identity.sha256.data());
+    identity.byteCount = bytes.size();
+    identity.payloadABI = rawHeader.payloadAbi;
+    identity.sourceRecordCount = rawHeader.contactCount;
+    identity.expandedRowCount =
+        static_cast<std::uint32_t>(decoded.contacts.size());
+    return identity;
 }
 
 struct EqualityDerivativeAudit {
@@ -2539,16 +2566,25 @@ int run(
 
 // Same admitted FP32 pose, independent native FP64 route evaluation and
 // Metal path evaluation. This does not advance a body or grant reset authority.
-int runPreparedPathReference(const char* rigidPath, const char* musclePath, const char* initialPath, std::uint64_t timestepOverride = 0u, bool pairedGeometry = false) {
+int runPreparedPathReference(const char* rigidPath, const char* musclePath,
+    const char* initialPath, std::uint64_t timestepOverride = 0u,
+    bool pairedGeometry = false, const char* supportPath = nullptr) {
     const LoadedRigid rigid = loadRigid(rigidPath);
     const LoadedMuscles muscles = loadMuscles(musclePath, rigid.header);
     const auto& model = rigid.model;
     const auto& articulation = model.articulations.at(0u);
     metalrobo::NumiHumanInitialState initial;
     std::string error;
-    require(metalrobo::decodeNumiHumanInitialState(readBytes(initialPath), articulation.nq,
-        articulation.nv, static_cast<std::uint32_t>(muscles.gpuMuscles.size()), rigid.header.sourceSha256,
-        initial, error), "prepared path input: " + error);
+    const auto initialBytes = readBytes(initialPath);
+    const bool decoded = supportPath == nullptr
+        ? metalrobo::decodeNumiHumanInitialState(initialBytes, articulation.nq,
+            articulation.nv, static_cast<std::uint32_t>(muscles.gpuMuscles.size()),
+            rigid.header.sourceSha256, initial, error)
+        : metalrobo::decodeNumiHumanInitialState(initialBytes, articulation.nq,
+            articulation.nv, static_cast<std::uint32_t>(muscles.gpuMuscles.size()),
+            rigid.header.sourceSha256, loadSupportIdentity(supportPath, rigid.header),
+            initial, error);
+    require(decoded, "prepared path input: " + error);
     require(timestepOverride <= 1'000'000u, "fibre-reference timestep exceeds one second");
     const auto exactNanoseconds = timestepOverride != 0u ? timestepOverride * 1000u
         : metalrobo::numiHumanInitialStateTimestepNanoseconds(initial);
@@ -2825,18 +2861,33 @@ int main(int argc, char** argv) {
                 argv[1], argv[2], argv[4], argv[5]
             );
         }
-        if ((argc == 5 || argc == 7) && (std::string(argv[3]) == "--prepared-paths" ||
+        if ((argc == 5 || argc == 7 || argc == 9) && (std::string(argv[3]) == "--prepared-paths" ||
             std::string(argv[3]) == "--prepared-compensated-paths")) {
             std::uint64_t timestepOverride = 0u;
-            if (argc == 7) {
-                require(std::string(argv[5]) == "--timestep-us", "expected --timestep-us");
-                const char* end = argv[6] + std::strlen(argv[6]);
-                const auto parsed = std::from_chars(argv[6], end, timestepOverride);
-                require(parsed.ec == std::errc{} && parsed.ptr == end && timestepOverride > 0u,
-                    "timestep must be a positive integer microsecond count");
+            const char* supportPath = nullptr;
+            for (int option = 5; option < argc; option += 2) {
+                const std::string name(argv[option]);
+                require(option + 1 < argc, "prepared path option lacks a value");
+                if (name == "--timestep-us") {
+                    require(timestepOverride == 0u, "duplicate --timestep-us");
+                    const char* end = argv[option + 1] + std::strlen(argv[option + 1]);
+                    const auto parsed = std::from_chars(
+                        argv[option + 1], end, timestepOverride);
+                    require(parsed.ec == std::errc{} && parsed.ptr == end &&
+                        timestepOverride > 0u,
+                        "timestep must be a positive integer microsecond count");
+                } else if (name == "--support-contacts") {
+                    require(supportPath == nullptr,
+                        "duplicate --support-contacts");
+                    supportPath = argv[option + 1];
+                } else {
+                    throw std::runtime_error(
+                        "expected --timestep-us or --support-contacts");
+                }
             }
             return runPreparedPathReference(argv[1], argv[2], argv[4], timestepOverride,
-                std::string(argv[3]) == "--prepared-compensated-paths");
+                std::string(argv[3]) == "--prepared-compensated-paths",
+                supportPath);
         }
         if (argc < 3 || argc > 7) {
             std::cerr << "usage: " << argv[0] << " <myosim-fullbody-core-reference.nhrigid> "
@@ -2849,7 +2900,8 @@ int main(int argc, char** argv) {
                          "<rigid> <NHEQ1> --trace-equality-limit-active-set-audit "
                          "<trace> <step> | "
                          "--prepared-paths/--prepared-compensated-paths "
-                         "<prepared.nhinit> [--timestep-us N]\n";
+                         "<prepared.nhinit> [--support-contacts support.nhcnt] "
+                         "[--timestep-us N]\n";
             return 2;
         }
         const char* tendonPath = nullptr;

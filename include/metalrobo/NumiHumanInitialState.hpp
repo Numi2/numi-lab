@@ -12,6 +12,42 @@
 
 namespace metalrobo {
 
+// Exact identity of the immutable support-contact payload that supplied the
+// prepared rows. sourceRecordCount is the on-disk NHCNT record count;
+// expandedRowCount is the Matter row count after NHCNT2 capsule expansion.
+struct NumiHumanSupportPayloadIdentity {
+    std::array<std::uint8_t, 32u> sha256{};
+    std::uint64_t byteCount = 0u;
+    std::uint32_t payloadABI = 0u;
+    std::uint32_t sourceRecordCount = 0u;
+    std::uint32_t expandedRowCount = 0u;
+
+    [[nodiscard]] bool operator==(
+        const NumiHumanSupportPayloadIdentity&) const = default;
+};
+
+// Matter's accepted support-history representation. xyz is a world-space
+// tangent impulse and w is the scalar impulse along the bound ground normal.
+// Units are N*s. Geometry-aware admission (tangency and the Coulomb cone) is
+// performed by the owner that has the decoded NHCNT rows and ground plane.
+struct NumiHumanSupportHistoryRecord {
+    float tangentImpulseWorldX = 0.0f;
+    float tangentImpulseWorldY = 0.0f;
+    float tangentImpulseWorldZ = 0.0f;
+    float normalImpulse = 0.0f;
+
+    [[nodiscard]] bool operator==(
+        const NumiHumanSupportHistoryRecord&) const = default;
+};
+
+struct NumiHumanPreparedSupportHistory {
+    NumiHumanSupportPayloadIdentity support;
+    std::vector<NumiHumanSupportHistoryRecord> rows;
+
+    [[nodiscard]] bool operator==(
+        const NumiHumanPreparedSupportHistory&) const = default;
+};
+
 // Construction-only FP32 state in the final Human ownership frames. NHINIT1
 // contains q, v and source-ordered excitation/activation/fibre length/velocity.
 // Source rest coordinates and physical force laws are never overwritten.
@@ -26,6 +62,10 @@ struct NumiHumanInitialState {
     std::uint64_t timestepNanoseconds = 0u;
     // Absent state derives reference=q[0:3], displacement=correction=0 at runtime.
     std::optional<MRCompensatedRootTranslationGPU> rootTranslation;
+    // Presence selects NHINIT3. Row order is the bound payload's canonical
+    // expanded order: NHCNT1 file order; NHCNT2 primitive order with capsule
+    // endpoint A followed by endpoint B.
+    std::optional<NumiHumanPreparedSupportHistory> preparedSupportHistory;
     std::array<std::uint8_t, 32u> sourceArchiveSHA256{};
     std::vector<float> q;
     std::vector<float> v;
@@ -47,6 +87,13 @@ struct NumiHumanInitialState {
 
 // Canonical little-endian: NHINIT1 has the unchanged 96-byte header. A nonzero
 // nanosecond clock or rootTranslation selects NHINIT2 and its 160-byte header.
+// Prepared support history selects NHINIT3 and its 224-byte header. V3 retains
+// every v2 offset; flags@32 bit1 is required and identifies the trailing
+// expanded-row float4 records. The exact raw NHCNT SHA-256 is @160, byte count
+// @192, ABI/source/expanded counts @200/@204/@208, record bytes 16 @212,
+// encoding 1 (Matter world-tangent Coulomb impulse) @216 and reserved zero
+// @220. q/v/muscles begin at the selected header boundary; v3 histories follow
+// them. NHINIT1/2 encoding and bytes are unchanged.
 // V2 retains v1 offsets, uses flags@32 bit0 for translation presence, ns@96,
 // three explicit float4 blocks@104, and reserved zero bytes@152..159. All other
 // flags/padding are zero; absent translation has 48 zero bytes. V2 requires
@@ -60,6 +107,14 @@ struct NumiHumanInitialState {
 [[nodiscard]] bool decodeNumiHumanInitialState(
     std::span<const std::byte> bytes, std::uint32_t nq, std::uint32_t nv,
     std::uint32_t muscleCount, const std::array<std::uint8_t, 32u>& sourceArchiveSHA256,
+    NumiHumanInitialState& output, std::string& error);
+// Bound overload required for NHINIT3. The legacy overload deliberately
+// rejects NHINIT3 so prepared impulses can never be admitted without the exact
+// raw NHCNT identity. Both overloads preserve output on failure.
+[[nodiscard]] bool decodeNumiHumanInitialState(
+    std::span<const std::byte> bytes, std::uint32_t nq, std::uint32_t nv,
+    std::uint32_t muscleCount, const std::array<std::uint8_t, 32u>& sourceArchiveSHA256,
+    const NumiHumanSupportPayloadIdentity& expectedSupport,
     NumiHumanInitialState& output, std::string& error);
 
 } // namespace metalrobo

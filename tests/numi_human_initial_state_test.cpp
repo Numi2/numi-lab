@@ -1,5 +1,6 @@
 #include "metalrobo/NumiHumanInitialState.hpp"
 #include "metalrobo/mrnx_bridge_v1.h"
+#include "numi/matter/detail.hpp"
 #include <cstring>
 #include <bit>
 #include <cmath>
@@ -7,6 +8,7 @@
 #include <iostream>
 #include <limits>
 #include <stdexcept>
+#include <utility>
 
 namespace {
 std::size_t checks = 0;
@@ -20,6 +22,40 @@ int main() {
     static_assert(offsetof(mrnx_runtime_config_v7, initial_state_payload_path) == 248u);
     static_assert(offsetof(mrnx_runtime_config_v7, expected_initial_state_fingerprint) == 256u);
     try {
+        const std::uint64_t legacyMatterFingerprint=0x91a2b3c4d5e6f708ull;
+        bool preparedHistoryMixed=false;
+        std::uint64_t observedHistoryHash=0u;
+        const auto preparedHistoryMixer=[&](const std::uint64_t base,
+                                             const std::uint64_t historyHash) noexcept {
+            preparedHistoryMixed=true;
+            observedHistoryHash=historyHash;
+            return base^historyHash;
+        };
+        require(numi::matter::detail::mixPreparedSupportHistoryFingerprint(
+                    legacyMatterFingerprint,std::span<const nm_float4>{},
+                    preparedHistoryMixer)==legacyMatterFingerprint &&
+                !preparedHistoryMixed,
+            "empty prepared support history preserves legacy Matter fingerprint");
+        const nm_float4 seededHistory{1.0f,-2.0f,3.0f,4.0f};
+        const std::span<const nm_float4> seededHistories{&seededHistory,1u};
+        const auto expectedHistoryHash=numi::matter::detail::hashBytes(
+            seededHistories.data(),seededHistories.size_bytes());
+        require(numi::matter::detail::mixPreparedSupportHistoryFingerprint(
+                    legacyMatterFingerprint,seededHistories,
+                    preparedHistoryMixer)==
+                    (legacyMatterFingerprint^expectedHistoryHash) &&
+                preparedHistoryMixed &&
+                observedHistoryHash==expectedHistoryHash,
+            "nonempty prepared support history extends Matter fingerprint");
+        require(numi::matter::detail::humanSupportHistoryAdmissible(
+                {1.0f,0.0f,0.0f,2.0f},0.5f,{0.0f,1.0f,0.0f,0.0f}),
+            "finite tangent history satisfies the exact Coulomb boundary");
+        require(!numi::matter::detail::humanSupportHistoryAdmissible(
+                {0.0f,0.0f,0.0f,std::numeric_limits<float>::max()},
+                std::numeric_limits<float>::max(),
+                {0.0f,1.0f,0.0f,0.0f}),
+            "FP32-overflowing Coulomb radius fails closed");
+
         metalrobo::NumiHumanInitialState input;
         input.humanSourceFingerprint=0x0123456789abcdefull;
         input.worldFingerprint=7; input.timestepMicroseconds=100;
@@ -167,6 +203,99 @@ int main() {
             replay=v2bytes;
             require(!metalrobo::encodeNumiHumanInitialState(bad,replay,error) && replay==v2bytes, "encode failure preserves entire output");
         }
+
+        auto v3input=v2input;
+        metalrobo::NumiHumanPreparedSupportHistory prepared;
+        for(std::size_t i=0;i<prepared.support.sha256.size();++i)
+            prepared.support.sha256[i]=static_cast<std::uint8_t>(i+1u);
+        prepared.support.byteCount=84u+2u*48u;
+        prepared.support.payloadABI=1u;
+        prepared.support.sourceRecordCount=2u;
+        prepared.support.expandedRowCount=2u;
+        prepared.rows={{1.0f,2.0f,3.0f,4.0f},{-0.5f,0.25f,0.0f,8.0f}};
+        v3input.preparedSupportHistory=prepared;
+        std::vector<std::byte> v3bytes;
+        require(metalrobo::encodeNumiHumanInitialState(v3input,v3bytes,error),
+            "NHINIT3 prepared support encode");
+        require(v3bytes.size()==224u+4u*(8u+7u+4u)+2u*16u,
+            "NHINIT3 exact extent");
+        require(v3bytes[6]==std::byte{'3'} && v3bytes[8]==std::byte{3} &&
+            v3bytes[12]==std::byte{224} && v3bytes[32]==std::byte{3},
+            "NHINIT3 golden envelope");
+        for(std::size_t i=0;i<32u;++i)
+            require(v3bytes[160u+i]==std::byte(i+1u),
+                "NHINIT3 golden raw support SHA");
+        require(v3bytes[192]==std::byte{180} && v3bytes[200]==std::byte{1} &&
+            v3bytes[204]==std::byte{2} && v3bytes[208]==std::byte{2} &&
+            v3bytes[212]==std::byte{16} && v3bytes[216]==std::byte{1} &&
+            v3bytes[220]==std::byte{0}, "NHINIT3 golden support ABI fields");
+        const std::size_t historyOffset=224u+4u*(8u+7u+4u);
+        require(v3bytes[historyOffset+2u]==std::byte{0x80} &&
+            v3bytes[historyOffset+3u]==std::byte{0x3f} &&
+            v3bytes[historyOffset+12u+2u]==std::byte{0x80} &&
+            v3bytes[historyOffset+12u+3u]==std::byte{0x40},
+            "NHINIT3 golden first history words");
+        metalrobo::NumiHumanInitialState v3output=v2output;
+        require(!metalrobo::decodeNumiHumanInitialState(v3bytes,8,7,1,
+            input.sourceArchiveSHA256,v3output,error),
+            "unbound decoder rejects NHINIT3");
+        require(metalrobo::encodeNumiHumanInitialState(v3output,replay,error) &&
+            replay==v2bytes, "unbound rejection preserves destination");
+        require(metalrobo::decodeNumiHumanInitialState(v3bytes,8,7,1,
+            input.sourceArchiveSHA256,prepared.support,v3output,error),
+            "bound NHINIT3 decode");
+        require(v3output.preparedSupportHistory.has_value() &&
+            *v3output.preparedSupportHistory==prepared,
+            "NHINIT3 exact support history replay state");
+        require(metalrobo::encodeNumiHumanInitialState(v3output,replay,error) &&
+            replay==v3bytes, "NHINIT3 byte replay");
+        const auto rejectedV3=[&](const std::vector<std::byte>& invalid,
+                                  const metalrobo::NumiHumanSupportPayloadIdentity& identity,
+                                  const char* label) {
+            require(!metalrobo::decodeNumiHumanInitialState(invalid,8,7,1,
+                input.sourceArchiveSHA256,identity,v3output,error),label);
+            require(!error.empty(),"NHINIT3 rejection diagnostic");
+            require(metalrobo::encodeNumiHumanInitialState(v3output,replay,error) &&
+                replay==v3bytes,"NHINIT3 rejection preserves destination");
+        };
+        for(std::size_t at:{0u,6u,8u,12u,32u,36u,160u,192u,200u,204u,208u,212u,216u,220u}) {
+            auto bad=v3bytes;bad[at]^=std::byte{1};
+            rejectedV3(bad,prepared.support,"NHINIT3 header/support mutation");
+        }
+        auto wrongSupport=prepared.support;wrongSupport.sha256[31]^=1u;
+        rejectedV3(v3bytes,wrongSupport,"NHINIT3 expected support mismatch");
+        auto sameExtentReorderedSupport=prepared.support;
+        std::swap(sameExtentReorderedSupport.sha256[0],
+            sameExtentReorderedSupport.sha256[1]);
+        require(sameExtentReorderedSupport.byteCount==prepared.support.byteCount &&
+            sameExtentReorderedSupport.payloadABI==prepared.support.payloadABI &&
+            sameExtentReorderedSupport.sourceRecordCount==prepared.support.sourceRecordCount &&
+            sameExtentReorderedSupport.expandedRowCount==prepared.support.expandedRowCount,
+            "same-extent reordered support control preserves all non-content identity");
+        rejectedV3(v3bytes,sameExtentReorderedSupport,
+            "NHINIT3 rejects same-count reordered support payload identity");
+        auto badV3=v3bytes;put(badV3,32,1u,4);
+        rejectedV3(badV3,prepared.support,"NHINIT3 missing support flag");
+        badV3=v3bytes;put(badV3,32,7u,4);
+        rejectedV3(badV3,prepared.support,"NHINIT3 unknown flag");
+        badV3=v3bytes;put(badV3,historyOffset+12u,0xbf800000u,4);
+        rejectedV3(badV3,prepared.support,"NHINIT3 negative normal impulse");
+        badV3=v3bytes;put(badV3,historyOffset,0x7fc00000u,4);
+        rejectedV3(badV3,prepared.support,"NHINIT3 nonfinite tangent impulse");
+        badV3=v3bytes;badV3.pop_back();
+        rejectedV3(badV3,prepared.support,"NHINIT3 truncated history");
+        for(unsigned mode=0;mode<4;++mode) {
+            auto bad=v3input;
+            switch(mode) {
+            case 0:bad.preparedSupportHistory->support.sha256.fill(0u);break;
+            case 1:bad.preparedSupportHistory->support.sourceRecordCount=1u;break;
+            case 2:bad.preparedSupportHistory->rows.pop_back();break;
+            default:bad.preparedSupportHistory->rows[0].normalImpulse=-1.0f;break;
+            }
+            replay=v3bytes;
+            require(!metalrobo::encodeNumiHumanInitialState(bad,replay,error) &&
+                replay==v3bytes,"NHINIT3 encode failure atomicity");
+        }
         // ABI admission rejects malformed v7 before native allocation.
         mrnx_runtime_info_v1 info{};
         require(mrnx_bridge_v1_runtime_create_v7(nullptr,&info)==nullptr);
@@ -174,7 +303,7 @@ int main() {
         mrnx_runtime_config_v7 config{};
         config.abi_version=MRNX_RUNTIME_CONFIG_ABI_V7; config.struct_size=sizeof(config);
         require(mrnx_bridge_v1_runtime_create_v7(&config,&info)==nullptr);
-        std::cout << "NHINIT1 golden migration and NHINIT2 compensated/ns serialization: " << checks << " controls passed; no GPU execution\n";
+        std::cout << "NHINIT1/2 byte preservation and NHINIT3 bound support history: " << checks << " controls passed; no GPU execution\n";
         return 0;
     } catch(const std::exception& error) { std::cerr << error.what() << '\n';return 1; }
 }

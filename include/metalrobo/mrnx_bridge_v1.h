@@ -357,10 +357,12 @@ typedef struct mrnx_runtime_config_v6 {
     uint64_t expected_costal_binding_fingerprint;
 } mrnx_runtime_config_v6;
 
-// Explicit construction-only NHINIT1 state. Requires the complete v6 source
-// physics and authored world. Native admission binds the prepared pose/fibres
-// into Human identity; it never changes source rest coordinates or installs a
-// runtime reset/recruitment path. No equilibrium claim is implied by admission.
+// Explicit construction-only NHINIT1/2/3 state. Requires the complete v6
+// source physics and authored world. NHINIT3 is additionally bound to the
+// already loaded exact NHCNT payload and seeds Matter's accepted support-
+// history owner. Native admission binds the prepared state into Human identity;
+// it never changes source rest coordinates or installs a runtime reset or
+// recruitment path. No equilibrium claim is implied by admission.
 typedef struct mrnx_runtime_config_v7 {
     uint32_t abi_version;
     uint32_t struct_size;

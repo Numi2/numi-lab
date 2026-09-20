@@ -184,6 +184,27 @@ const char kImageAnchor = 0;
     return hash;
 }
 
+[[nodiscard]] bool validHumanSupportHistories(
+    const std::span<const nm_float4> histories,
+    const std::span<const NMHumanSupportContactGPU> contacts,
+    const nm_float4 groundNormal
+) noexcept {
+    if (histories.empty()) return true;
+    if (contacts.empty() || histories.size() % contacts.size() != 0u)
+        return false;
+    for (std::size_t historyIndex = 0u;
+         historyIndex < histories.size(); ++historyIndex) {
+        const auto& history = histories[historyIndex];
+        const auto& contact = contacts[historyIndex % contacts.size()];
+        const float friction = contact.frictionSlopAndStabilization.x;
+        if (!detail::humanSupportHistoryAdmissible(
+                history, friction, groundNormal)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 [[nodiscard]] std::uint64_t publicationFenceFingerprint(
     const PreparedStatePublicationFence& fence
 ) noexcept {
@@ -279,6 +300,13 @@ const char kImageAnchor = 0;
         &configuration.humanSupportGroundPoint, sizeof(nm_float4)));
     hash = mixFingerprint(hash, detail::hashBytes(
         &configuration.humanSupportGroundNormal, sizeof(nm_float4)));
+    // Preserve the device-program identity produced before prepared support
+    // histories existed. An absent history is the legacy execution policy;
+    // only an explicitly supplied payload extends that identity.
+    hash = detail::mixPreparedSupportHistoryFingerprint(
+        hash,
+        configuration.humanSupportInitialHistories,
+        mixFingerprint);
     return hash == 0u ? 1u : hash;
 }
 
@@ -929,6 +957,7 @@ struct Runtime::State {
     id<MTLBuffer> humanLimitTangent = nil;
     NMHumanLimitDispatchGPU humanLimitDispatch{};
     id<MTLBuffer> humanSupportContacts = nil;
+    std::vector<NMHumanSupportContactGPU> humanSupportContactLayout;
     id<MTLBuffer> humanSupportPointQueries = nil;
     id<MTLBuffer> humanSupportPointJacobians = nil;
     id<MTLBuffer> humanSupportSamples = nil;
@@ -1263,6 +1292,8 @@ RuntimeDiagnostics Runtime::initialize(
         }
         const auto& supportContacts = configuration.humanSupportContacts;
         const auto& supportQueries = configuration.humanSupportPointQueries;
+        const auto& initialSupportHistories =
+            configuration.humanSupportInitialHistories;
         const float supportNormalLength = std::sqrt(
             configuration.humanSupportGroundNormal.x *
                 configuration.humanSupportGroundNormal.x +
@@ -1270,8 +1301,13 @@ RuntimeDiagnostics Runtime::initialize(
                 configuration.humanSupportGroundNormal.y +
             configuration.humanSupportGroundNormal.z *
                 configuration.humanSupportGroundNormal.z);
+        const std::uint64_t expectedInitialHistoryCount =
+            static_cast<std::uint64_t>(world.dispatch.environmentCount) *
+            supportContacts.size();
         if (supportContacts.size() != supportQueries.size() ||
             supportContacts.size() > NM_HUMAN_SUPPORT_CONTACT_CAPACITY ||
+            (!initialSupportHistories.empty() &&
+             initialSupportHistories.size() != expectedInitialHistoryCount) ||
             (!supportContacts.empty() &&
              (!std::isfinite(supportNormalLength) ||
               std::abs(supportNormalLength - 1.0f) > 1.0e-5f ||
@@ -1307,6 +1343,14 @@ RuntimeDiagnostics Runtime::initialize(
                 return diagnostics;
             }
         }
+        if (!validHumanSupportHistories(initialSupportHistories,
+                supportContacts, configuration.humanSupportGroundNormal)) {
+            diagnostics.message =
+                "Human support initial history violates its tangent/Coulomb cone";
+            return diagnostics;
+        }
+        candidate->humanSupportContactLayout.assign(
+            supportContacts.begin(), supportContacts.end());
         candidate->humanSupportDispatch.contactCount =
             static_cast<std::uint32_t>(supportContacts.size());
         candidate->humanSupportDispatch.groundPointAndTimestep =
@@ -2300,11 +2344,15 @@ RuntimeDiagnostics Runtime::initialize(
         // immutable support queries. Contacts themselves remain shared rows.
         candidate->humanSupportPointQueries = uploads.repeated(
             supportQueries, environments, valid, candidate->residentBytes);
-        const std::vector<nm_float4> initialHumanSupportHistories(
+        const std::vector<nm_float4> zeroHumanSupportHistories(
             supportContacts.size());
-        candidate->humanSupportHistoriesAccepted = uploads.repeated(
-            std::span<const nm_float4>(initialHumanSupportHistories),
-            environments, valid, candidate->residentBytes);
+        candidate->humanSupportHistoriesAccepted =
+            initialSupportHistories.empty()
+                ? uploads.repeated(
+                    std::span<const nm_float4>(zeroHumanSupportHistories),
+                    environments, valid, candidate->residentBytes)
+                : uploads.one(initialSupportHistories, valid,
+                    candidate->residentBytes);
         const std::vector<NMHumanSupportConsequenceGPU>
             initialHumanSupportConsequences(supportContacts.size());
         candidate->humanSupportConsequencesAccepted = uploads.repeated(
@@ -10237,6 +10285,65 @@ RuntimeDiagnostics Runtime::encodeTopologyGrowth(
                 "topology growth destination does not match source authored physics";
             return diagnostics;
         }
+        const auto sameFloat3 = [](const nm_float4 left,
+                                   const nm_float4 right) noexcept {
+            return left.x == right.x && left.y == right.y &&
+                left.z == right.z;
+        };
+        const std::size_t supportContactBytes =
+            previous.humanSupportContactLayout.size() *
+            sizeof(NMHumanSupportContactGPU);
+        const bool matchingSupportProgram =
+            destination.humanSupportDispatch.contactCount ==
+                previous.humanSupportDispatch.contactCount &&
+            destination.humanSupportContactLayout.size() ==
+                previous.humanSupportContactLayout.size() &&
+            destination.humanSupportContactLayout.size() ==
+                destination.humanSupportDispatch.contactCount &&
+            sameFloat3(
+                destination.humanSupportDispatch.groundPointAndTimestep,
+                previous.humanSupportDispatch.groundPointAndTimestep) &&
+            std::memcmp(&destination.humanSupportDispatch.groundNormal,
+                &previous.humanSupportDispatch.groundNormal,
+                sizeof(nm_float4)) == 0 &&
+            (supportContactBytes == 0u ||
+             std::memcmp(destination.humanSupportContactLayout.data(),
+                 previous.humanSupportContactLayout.data(),
+                 supportContactBytes) == 0);
+        const auto exactTransactionalExtent = [](id<MTLBuffer> sourceAccepted,
+                                                  id<MTLBuffer> sourceCandidate,
+                                                  id<MTLBuffer> sourceCheckpoint,
+                                                  id<MTLBuffer> destinationAccepted,
+                                                  id<MTLBuffer> destinationCandidate,
+                                                  id<MTLBuffer> destinationCheckpoint) {
+            return sourceAccepted != nil && sourceCandidate != nil &&
+                sourceCheckpoint != nil && destinationAccepted != nil &&
+                destinationCandidate != nil && destinationCheckpoint != nil &&
+                sourceCandidate.length == sourceAccepted.length &&
+                sourceCheckpoint.length == sourceAccepted.length &&
+                destinationAccepted.length == sourceAccepted.length &&
+                destinationCandidate.length == sourceAccepted.length &&
+                destinationCheckpoint.length == sourceAccepted.length;
+        };
+        if (!matchingSupportProgram ||
+            !exactTransactionalExtent(
+                previous.humanSupportHistoriesAccepted,
+                previous.humanSupportHistoriesCandidate,
+                previous.humanSupportHistoriesCheckpoint,
+                destination.humanSupportHistoriesAccepted,
+                destination.humanSupportHistoriesCandidate,
+                destination.humanSupportHistoriesCheckpoint) ||
+            !exactTransactionalExtent(
+                previous.humanSupportConsequencesAccepted,
+                previous.humanSupportConsequencesCandidate,
+                previous.humanSupportConsequencesCheckpoint,
+                destination.humanSupportConsequencesAccepted,
+                destination.humanSupportConsequencesCandidate,
+                destination.humanSupportConsequencesCheckpoint)) {
+            diagnostics.message =
+                "topology growth destination changed the Human support program";
+            return diagnostics;
+        }
         if (destination.device.registryID != previous.device.registryID ||
             destination.dispatch.environmentCount !=
                 previous.dispatch.environmentCount ||
@@ -10340,6 +10447,17 @@ RuntimeDiagnostics Runtime::encodeTopologyGrowth(
             copyBytes(input, 0u, checkpoint, 0u,
                 std::min(input.length, checkpoint.length));
         };
+        const auto copyExactAccepted = ^(
+            id<MTLBuffer> input,
+            id<MTLBuffer> accepted,
+            id<MTLBuffer> candidate,
+            id<MTLBuffer> checkpoint
+        ) {
+            const NSUInteger bytes = input.length;
+            copyBytes(input, 0u, accepted, 0u, bytes);
+            copyBytes(input, 0u, candidate, 0u, bytes);
+            copyBytes(input, 0u, checkpoint, 0u, bytes);
+        };
         copyWholeAccepted(previous.particleAccepted,
             destination.particleAccepted, destination.particleCandidate,
             destination.particleCheckpoint);
@@ -10368,6 +10486,14 @@ RuntimeDiagnostics Runtime::encodeTopologyGrowth(
             destination.learnedRevisionAccepted,
             destination.learnedRevisionCandidate,
             destination.learnedRevisionCheckpoint);
+        copyExactAccepted(previous.humanSupportHistoriesAccepted,
+            destination.humanSupportHistoriesAccepted,
+            destination.humanSupportHistoriesCandidate,
+            destination.humanSupportHistoriesCheckpoint);
+        copyExactAccepted(previous.humanSupportConsequencesAccepted,
+            destination.humanSupportConsequencesAccepted,
+            destination.humanSupportConsequencesCandidate,
+            destination.humanSupportConsequencesCheckpoint);
 
         const NSUInteger environments = previous.dispatch.environmentCount;
         const NSUInteger stateStride = previous.dispatch.materialStateStride;
@@ -11444,6 +11570,23 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
         state.coupledGeneralizedCandidate, "rigid-generalized-candidate");
     boundedArena(snapshot.contactHistories,
         state.contactHistoriesAccepted, "contact-history");
+    const std::size_t logicalHumanSupportCount =
+        static_cast<std::size_t>(state.dispatch.environmentCount) *
+        state.humanSupportDispatch.contactCount;
+    if (snapshot.humanSupportHistories.size() != logicalHumanSupportCount) {
+        diagnostics.message =
+            "Matter snapshot Human-support-history logical size changed";
+        return diagnostics;
+    }
+    if (state.humanSupportContactLayout.size() !=
+            state.humanSupportDispatch.contactCount ||
+        !validHumanSupportHistories(snapshot.humanSupportHistories,
+            state.humanSupportContactLayout,
+            state.humanSupportDispatch.groundNormal)) {
+        diagnostics.message =
+            "Matter snapshot Human-support-history is inadmissible";
+        return diagnostics;
+    }
     boundedArena(snapshot.humanSupportHistories,
         state.humanSupportHistoriesAccepted, "Human-support-history");
     boundedArena(snapshot.humanSupportConsequences,

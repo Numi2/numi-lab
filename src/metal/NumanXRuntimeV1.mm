@@ -14,6 +14,7 @@
 #include "metalrobo/NumiHumanTissueBinding.hpp"
 #include <CommonCrypto/CommonDigest.h>
 #include "metalrobo/VisualPresentation.hpp"
+#include "numi/matter/detail.hpp"
 #include "numi/matter/matter.hpp"
 
 #include <algorithm>
@@ -262,6 +263,7 @@ struct FullBodyAssets {
     std::uint64_t limitFingerprint = 0u;
     std::vector<NMHumanSupportContactGPU> matterSupportContacts;
     std::vector<NMHumanSupportPointQueryGPU> matterSupportPointQueries;
+    metalrobo::NumiHumanSupportPayloadIdentity supportIdentity{};
     mr_float4 groundPoint{};
     mr_float4 groundNormal{0.0f, 1.0f, 0.0f, 0.0f};
     std::uint32_t bodyJacobianPointOffset = 0u;
@@ -947,6 +949,17 @@ FullBodyAssets loadFullBodyAssets(
     std::istringstream supportInput(
         supportImage.bytes, std::ios::in | std::ios::binary);
     const std::vector<char> supportRaw((std::istreambuf_iterator<char>(supportInput)), {});
+    requireBuild(supportRaw.size() >= sizeof(SupportContactHeader) &&
+        supportRaw.size() <= std::numeric_limits<CC_LONG>::max(),
+        MRNX_RUNTIME_ASSET_FAILURE_V1,
+        "NHCNT payload extent is outside support-identity bounds");
+    SupportContactHeader rawSupportHeader{};
+    std::memcpy(&rawSupportHeader, supportRaw.data(), sizeof(rawSupportHeader));
+    result.supportIdentity.byteCount = supportRaw.size();
+    result.supportIdentity.payloadABI = rawSupportHeader.payloadAbi;
+    result.supportIdentity.sourceRecordCount = rawSupportHeader.contactCount;
+    CC_SHA256(supportRaw.data(), static_cast<CC_LONG>(supportRaw.size()),
+        result.supportIdentity.sha256.data());
     metalrobo::NumiHumanSupportPayload supportPayload;
     std::string supportError;
     requireBuild(metalrobo::decodeNumiHumanSupportPayload(std::as_bytes(std::span(supportRaw)),
@@ -954,6 +967,12 @@ FullBodyAssets loadFullBodyAssets(
         MRNX_RUNTIME_ASSET_FAILURE_V1, supportError);
     const auto& supportHeader = supportPayload.header;
     const auto& supportRecords = supportPayload.contacts;
+    requireBuild(supportRecords.size() <=
+            std::numeric_limits<std::uint32_t>::max(),
+        MRNX_RUNTIME_ASSET_FAILURE_V1,
+        "expanded NHCNT support rows exceed identity capacity");
+    result.supportIdentity.expandedRowCount =
+        static_cast<std::uint32_t>(supportRecords.size());
     result.groundPoint = {supportHeader.groundPointX, supportHeader.groundPointY,
         supportHeader.groundPointZ, 0.0f};
     result.groundNormal = {supportHeader.groundNormalX, supportHeader.groundNormalY,
@@ -1979,6 +1998,7 @@ void cultureCompletion(
     // default pose remains authoritative for rest coordinates and ownership;
     // these vectors belong only to construction and the first resident submit.
     metalrobo::NumiHumanInitialState initialState;
+    std::vector<nm_float4> initialSupportHistories;
     runtime->assets.initialQ = runtime->assets.model.defaultQ;
     runtime->assets.initialV = runtime->assets.model.defaultV;
     if (initialConfig != nullptr) {
@@ -1989,7 +2009,8 @@ void cultureCompletion(
         requireBuild(metalrobo::decodeNumiHumanInitialState(
             std::as_bytes(std::span(image.bytes.data(), image.bytes.size())),
             runtime->assets.rigid.nq, runtime->assets.rigid.nv, runtime->assets.muscle.muscleCount,
-            runtime->assets.rigid.sourceSHA256, initialState, error),
+            runtime->assets.rigid.sourceSHA256, runtime->assets.supportIdentity,
+            initialState, error),
             MRNX_RUNTIME_ASSET_FAILURE_V1, "initial-state admission failed: " + error);
         const auto initialNanoseconds =
             metalrobo::numiHumanInitialStateTimestepNanoseconds(initialState);
@@ -2008,6 +2029,34 @@ void cultureCompletion(
         runtime->assets.initialQ = initialState.q;
         runtime->assets.initialV = initialState.v;
         runtime->assets.states = initialState.muscles;
+        if (initialState.preparedSupportHistory) {
+            const auto& prepared = *initialState.preparedSupportHistory;
+            requireBuild(prepared.rows.size() ==
+                    runtime->assets.matterSupportContacts.size(),
+                MRNX_RUNTIME_ASSET_FAILURE_V1,
+                "prepared support history row count changed after NHCNT admission");
+            const auto normal = runtime->assets.groundNormal;
+            initialSupportHistories.reserve(prepared.rows.size());
+            for (std::size_t rowIndex = 0u;
+                 rowIndex < prepared.rows.size(); ++rowIndex) {
+                const auto& row = prepared.rows[rowIndex];
+                const float friction = runtime->assets
+                    .matterSupportContacts[rowIndex]
+                    .frictionSlopAndStabilization.x;
+                const nm_float4 history{
+                    row.tangentImpulseWorldX,
+                    row.tangentImpulseWorldY,
+                    row.tangentImpulseWorldZ,
+                    row.normalImpulse};
+                requireBuild(numi::matter::detail::
+                        humanSupportHistoryAdmissible(
+                            history, friction,
+                            {normal.x, normal.y, normal.z, normal.w}),
+                    MRNX_RUNTIME_ASSET_FAILURE_V1,
+                    "prepared support history violates its NHCNT tangent/Coulomb cone");
+                initialSupportHistories.push_back(history);
+            }
+        }
     }
     requireBuild(runtime->assets.initialQ.size() >= 7u,
         MRNX_RUNTIME_ASSET_FAILURE_V1, "initial-state floating root is absent");
@@ -2148,6 +2197,7 @@ void cultureCompletion(
     matterConfig.humanSupportGroundNormal = {
         runtime->assets.groundNormal.x, runtime->assets.groundNormal.y,
         runtime->assets.groundNormal.z, runtime->assets.groundNormal.w};
+    matterConfig.humanSupportInitialHistories = initialSupportHistories;
     const auto matterDiagnostics = runtime->matter->initialize(
         world, matterConfig);
     requireBuild(

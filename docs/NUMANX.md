@@ -156,6 +156,15 @@ nonzero multiplier, `J^T lambda`, `J^T D J`, commit, and exact rollback. A
 frozen square projector is insufficient here because the unilateral Coulomb
 active set is solution-dependent.
 
+NHINIT3 may seed that multiplier history at construction. It binds the exact
+raw NHCNT SHA-256, byte count, payload ABI and both source and expanded row
+counts; NHCNT2 capsule rows therefore cannot be confused with source primitive
+count. NumanX verifies tangency and the per-row Coulomb cone against the loaded
+support payload, then passes an environment-major float4 stream to Matter's
+accepted history owner. NHINIT1/2 and an empty Matter seed retain bit-identical
+legacy zero-history behavior. This is a warm start, not another force source or
+an equilibrium/standing claim.
+
 Moving FEM attachments obey
 
 ```text

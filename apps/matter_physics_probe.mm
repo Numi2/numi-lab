@@ -3432,6 +3432,17 @@ void runHumanSupportLoaded() {
                 contacts[i].frictionSlopAndStabilization = {c.friction,1.0e-6f,0.2f,0};
                 queries[i].bodyIndex = 1;
             }
+            const float weight = c.mass * 9.81f * c.timestep;
+            std::vector<nm_float4> configuredInitialHistories;
+            const bool legacyZeroInitialization =
+                std::string_view(c.name) == "cold_97kg";
+            if (!legacyZeroInitialization) {
+                configuredInitialHistories.resize(environments*c.rows);
+                for (unsigned env=0;env<environments;++env)
+                    for (unsigned row=0;row<c.rows;++row)
+                        configuredInitialHistories[env*c.rows+row] =
+                            {0,0,0,(c.seed+env)*weight/c.rows};
+            }
             numi::matter::Runtime matter;
             const numi::matter::RuntimeConfiguration runtimeConfiguration{
                 .metallib = NUMI_MATTER_METALLIB,
@@ -3443,6 +3454,7 @@ void runHumanSupportLoaded() {
                 .humanSupportContacts = contacts,
                 .humanSupportPointQueries = queries,
                 .humanSupportGroundNormal = {0,1,0,0},
+                .humanSupportInitialHistories = configuredInitialHistories,
             };
             auto init = matter.initialize(compiled.world, runtimeConfiguration);
             require(init.encoded, "support initialize: "+init.message);
@@ -3481,19 +3493,125 @@ void runHumanSupportLoaded() {
                     "Human support initial body arena has wrong device provenance or byte capacity",
                     "support admitted short explicit initial pose arena: " + denied.message);
                 std::cout << "support_initial_bodies_missing_and_short_rejected=1\n";
+
+                auto wrongCountConfiguration = runtimeConfiguration;
+                std::vector<nm_float4> wrongCount(
+                    environments*c.rows-1u);
+                wrongCountConfiguration.humanSupportInitialHistories =
+                    wrongCount;
+                numi::matter::Runtime wrongCountRuntime;
+                const auto wrongCountAdmission = wrongCountRuntime.initialize(
+                    compiled.world, wrongCountConfiguration);
+                require(!wrongCountAdmission.encoded &&
+                    wrongCountAdmission.message ==
+                        "Human support rows have an invalid count or ground plane",
+                    "support initial-history extent failed open: " +
+                        wrongCountAdmission.message);
+                auto coneConfiguration = runtimeConfiguration;
+                std::vector<nm_float4> outsideCone(
+                    environments*c.rows, nm_float4{1,0,0,1});
+                coneConfiguration.humanSupportInitialHistories = outsideCone;
+                numi::matter::Runtime coneRuntime;
+                const auto coneAdmission = coneRuntime.initialize(
+                    compiled.world, coneConfiguration);
+                require(!coneAdmission.encoded &&
+                    coneAdmission.message ==
+                        "Human support initial history violates its tangent/Coulomb cone",
+                    "support initial-history cone failed open: " +
+                        coneAdmission.message);
+                auto overflowConfiguration = runtimeConfiguration;
+                auto overflowContacts = contacts;
+                for (auto& contact : overflowContacts) {
+                    contact.frictionSlopAndStabilization.x =
+                        std::numeric_limits<float>::max();
+                }
+                std::vector<nm_float4> overflowHistories(
+                    environments*c.rows,
+                    nm_float4{0,0,0,std::numeric_limits<float>::max()});
+                overflowConfiguration.humanSupportContacts = overflowContacts;
+                overflowConfiguration.humanSupportInitialHistories =
+                    overflowHistories;
+                numi::matter::Runtime overflowRuntime;
+                const auto overflowAdmission = overflowRuntime.initialize(
+                    compiled.world, overflowConfiguration);
+                require(!overflowAdmission.encoded &&
+                    overflowAdmission.message ==
+                        "Human support initial history violates its tangent/Coulomb cone",
+                    "support initial-history FP32 cone radius failed open: " +
+                        overflowAdmission.message);
+                std::cout <<
+                    "support_initial_history_bad_count_cone_and_overflow_rejected=1\n";
             }
             require(matter.coupledCandidatePointCapacity() >= c.rows,
                 "Human support queries exceed advertised candidate capacity");
             auto checkpoint = matter.snapshot();
             require(checkpoint.available && checkpoint.humanSupportHistories.size()==environments*c.rows,
                 "support initial snapshot missing");
-            const float weight = c.mass * 9.81f * c.timestep;
-            for (unsigned env=0;env<environments;++env)
-                for (unsigned row=0;row<c.rows;++row)
-                    checkpoint.humanSupportHistories[env*c.rows+row] =
-                        {0,0,0,(c.seed+env)*weight/c.rows};
-            auto restored = matter.restore(checkpoint);
-            require(restored.encoded, "support seed restore: "+restored.message);
+            const std::vector<nm_float4> expectedInitialHistories =
+                legacyZeroInitialization
+                    ? std::vector<nm_float4>(environments*c.rows)
+                    : configuredInitialHistories;
+            require(std::memcmp(checkpoint.humanSupportHistories.data(),
+                expectedInitialHistories.data(),
+                expectedInitialHistories.size()*sizeof(nm_float4))==0,
+                "support accepted owner did not retain configured initialization");
+            if (legacyZeroInitialization) {
+                const auto rejectSupportRestore = [&, checkpoint](
+                    numi::matter::RuntimeStateSnapshot invalid,
+                    const std::string_view expectedMessage,
+                    const std::string_view label) {
+                    invalid.controlStep = checkpoint.controlStep + 17u;
+                    const auto rejected = matter.restore(invalid);
+                    require(!rejected.encoded &&
+                        rejected.message == expectedMessage,
+                        std::string(label) + " failed open: " +
+                            rejected.message);
+                    const auto after = matter.snapshot();
+                    require(after.available &&
+                        after.controlStep == checkpoint.controlStep &&
+                        after.humanSupportHistories.size() ==
+                            checkpoint.humanSupportHistories.size() &&
+                        std::memcmp(after.humanSupportHistories.data(),
+                            checkpoint.humanSupportHistories.data(),
+                            checkpoint.humanSupportHistories.size() *
+                                sizeof(nm_float4)) == 0,
+                        std::string(label) +
+                            " changed accepted state before rejection");
+                };
+                auto invalid = checkpoint;
+                invalid.humanSupportHistories.pop_back();
+                rejectSupportRestore(invalid,
+                    "Matter snapshot Human-support-history logical size changed",
+                    "undersized support-history restore");
+                invalid = checkpoint;
+                invalid.humanSupportHistories.push_back({0,0,0,1});
+                rejectSupportRestore(invalid,
+                    "Matter snapshot Human-support-history logical size changed",
+                    "oversized support-history restore");
+                invalid = checkpoint;
+                invalid.humanSupportHistories.front().x =
+                    std::numeric_limits<float>::quiet_NaN();
+                rejectSupportRestore(invalid,
+                    "Matter snapshot Human-support-history is inadmissible",
+                    "nonfinite support-history restore");
+                invalid = checkpoint;
+                invalid.humanSupportHistories.front().w = -1.0f;
+                rejectSupportRestore(invalid,
+                    "Matter snapshot Human-support-history is inadmissible",
+                    "negative-normal support-history restore");
+                invalid = checkpoint;
+                invalid.humanSupportHistories.front() = {0,1,0,1};
+                rejectSupportRestore(invalid,
+                    "Matter snapshot Human-support-history is inadmissible",
+                    "nontangent support-history restore");
+                invalid = checkpoint;
+                invalid.humanSupportHistories.front() = {1,0,0,1};
+                rejectSupportRestore(invalid,
+                    "Matter snapshot Human-support-history is inadmissible",
+                    "outside-cone support-history restore");
+                std::cout <<
+                    "support_restore_extent_admissibility_and_atomicity_rejected=1\n";
+            }
             auto model = metalrobo::makeFreeSphereEngineModel();
             model.name = std::string("support_")+c.name;
             model.bodies[1].massAndInverseMass = {c.mass,1/c.mass,0,0};

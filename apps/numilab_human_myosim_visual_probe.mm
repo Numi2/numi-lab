@@ -27,6 +27,7 @@
 #include "metalrobo/WorldCompiler.hpp"
 #include "numi/matter/matter.hpp"
 #include "numi/matter/numi_human.hpp"
+#include <CommonCrypto/CommonDigest.h>
 
 #include <algorithm>
 #include <array>
@@ -48,6 +49,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <type_traits>
 #include <utility>
 #include <vector>
@@ -890,6 +892,7 @@ struct LoadedTorsoAnatomy {
 struct LoadedSupportContacts {
     SupportContactHeader header{};
     std::vector<SupportContactRecord> records;
+    metalrobo::NumiHumanSupportPayloadIdentity identity{};
     std::vector<metalrobo::NumiHumanSupportPoseCoordinate> stanceCoordinates;
     std::vector<std::uint32_t> stanceContacts;
 };
@@ -953,6 +956,19 @@ void require(const bool condition, const std::string& message) {
     if (!condition) {
         throw std::runtime_error(message);
     }
+}
+
+std::string supportSHA256Hex(
+    const metalrobo::NumiHumanSupportPayloadIdentity& identity
+) {
+    constexpr std::string_view digits = "0123456789abcdef";
+    std::string result;
+    result.reserve(identity.sha256.size() * 2u);
+    for (const std::uint8_t byte : identity.sha256) {
+        result.push_back(digits[byte >> 4u]);
+        result.push_back(digits[byte & 0x0fu]);
+    }
+    return result;
 }
 
 metalrobo::MujocoRouteNodeType referenceRouteType(const std::uint32_t type) {
@@ -1579,12 +1595,24 @@ LoadedSupportContacts loadSupportContacts(
     require(input.is_open(), "cannot open MyoSim support-contact payload " + path.string());
     LoadedSupportContacts result;
     const std::vector<char> raw((std::istreambuf_iterator<char>(input)), {});
+    require(raw.size() >= sizeof(SupportContactHeader) &&
+        raw.size() <= std::numeric_limits<CC_LONG>::max(),
+        "NHCNT payload cannot be identified");
+    SupportContactHeader rawHeader{};
+    std::memcpy(&rawHeader, raw.data(), sizeof(rawHeader));
     metalrobo::NumiHumanSupportPayload decoded;
     std::string error;
     require(metalrobo::decodeNumiHumanSupportPayload(
         std::as_bytes(std::span(raw)), rigid.engineBodyCount, rigid.sourceSha256, decoded, error), error);
     result.header = decoded.header;
     result.records = std::move(decoded.contacts);
+    CC_SHA256(raw.data(), static_cast<CC_LONG>(raw.size()),
+        result.identity.sha256.data());
+    result.identity.byteCount = raw.size();
+    result.identity.payloadABI = rawHeader.payloadAbi;
+    result.identity.sourceRecordCount = rawHeader.contactCount;
+    result.identity.expandedRowCount =
+        static_cast<std::uint32_t>(result.records.size());
     return result;
 }
 
@@ -15343,7 +15371,8 @@ int sourceCompliantCertificate(int argc,char** argv) {
     const auto raw=bytes(argv[5]);
     metalrobo::NumiHumanInitialState initial;std::string error;
     const bool decoded=metalrobo::decodeNumiHumanInitialState(std::as_bytes(std::span(raw)),rigid.header.nq,
-        rigid.header.nv,std::uint32_t(muscles.referenceMuscles.size()),rigid.header.sourceSha256,initial,error);
+        rigid.header.nv,std::uint32_t(muscles.referenceMuscles.size()),rigid.header.sourceSha256,
+        contacts.identity,initial,error);
     require(decoded,error);
     require(std::all_of(initial.v.begin(),initial.v.end(),[](float v){return v==0;}),"static input must have zero velocity");
     struct Header {
@@ -15407,7 +15436,14 @@ int sourceCompliantCertificate(int argc,char** argv) {
         std::cout<<'[';for(std::size_t i=0;i<values.size();++i){if(i)std::cout<<',';std::cout<<values[i];}std::cout<<']';
     };
     const auto& s=result.state;
-    std::cout<<std::setprecision(17)<<"source_compliant_equilibrium={\"schema\":\"numi.human.source-compliant-equilibrium.v1\",\"balanced\":"
+    const std::string supportPayloadSHA256=supportSHA256Hex(contacts.identity);
+    std::cout<<std::setprecision(17)<<"source_compliant_equilibrium={\"schema\":\"numi.human.source-compliant-equilibrium.v1\""
+        <<",\"support_sha256\":\""<<supportPayloadSHA256<<"\""
+        <<",\"support_bytes\":"<<contacts.identity.byteCount
+        <<",\"support_abi\":"<<contacts.identity.payloadABI
+        <<",\"support_source_records\":"<<contacts.identity.sourceRecordCount
+        <<",\"support_expanded_rows\":"<<contacts.identity.expandedRowCount
+        <<",\"balanced\":"
         <<(status.balanced?"true":"false")<<",\"iterations\":"<<status.acceptedPoseSteps<<",\"rejected\":"<<result.rejectedEvaluations
         <<",\"initial_acceleration_rms\":"<<status.initialNormalizedResidualRms<<",\"acceleration_rms\":"<<status.normalizedResidualRms
         <<",\"maximum_acceleration\":"<<status.maximumGeneralizedAccelerationResidual<<",\"maximum_acceleration_dof\":"<<status.maximumAccelerationResidualDof
@@ -16727,10 +16763,17 @@ int main(int argc, char** argv) {
                 writeReactionVector("actuator_force_n", support.muscleTendonForce);
                 writeReactionVector("passive_actuator_force_n", support.passiveMuscleTendonForce);
                 std::cout << "}\n";
+                const std::string supportPayloadSHA256 =
+                    supportSHA256Hex(supportContactPayload->identity);
                 std::cout << std::setprecision(12)
                           << "numi_human_whole_body_support_wrench=ok"
                           << " source_model=pinned_MyoSim_full_body"
                           << " support_payload=NHCNT" << supportContactPayload->header.payloadAbi
+                          << " support_sha256=" << supportPayloadSHA256
+                          << " support_bytes=" << supportContactPayload->identity.byteCount
+                          << " support_abi=" << supportContactPayload->identity.payloadABI
+                          << " support_source_records=" << supportContactPayload->identity.sourceRecordCount
+                          << " support_expanded_rows=" << supportContactPayload->identity.expandedRowCount
                           << " joint_manifold=NHEQ1"
                           << " passive_joint_tissue="
                           << (sourcePassiveJointTissue

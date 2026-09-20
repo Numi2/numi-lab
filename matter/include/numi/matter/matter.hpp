@@ -845,6 +845,13 @@ struct RuntimeConfiguration {
     // A configured compensated Human owner must opt in; all candidate services,
     // support initial poses and accepted-state proofs then carry the full pair.
     bool coupledCandidateCompensatedTranslation = false;
+    // Optional accepted support-history seed in exact environment-major row
+    // order. Empty preserves legacy zero initialization. A nonempty span must
+    // contain environmentCount * humanSupportContacts.size() float4 records;
+    // Matter owns these as accepted/candidate/checkpoint transactional state.
+    // RuntimeConfiguration is an append-only, rebuild-required C++ surface;
+    // tail placement preserves every pre-existing member offset.
+    std::span<const nm_float4> humanSupportInitialHistories{};
 };
 
 struct HumanSupportConsequencesView {

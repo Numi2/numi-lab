@@ -4,6 +4,7 @@
 #include "metalrobo/MetalNumanXHumanIO.hpp"
 #include "metalrobo/ArticulatedDynamics.hpp"
 #include "metalrobo/NumiHumanInitialState.hpp"
+#include "metalrobo/NumiHumanSupport.hpp"
 #include "numi/matter/matter.hpp"
 #include "metalrobo/NeuronCultureArtifacts.hpp"
 #include "metalrobo/engine_types.h"
@@ -11,23 +12,29 @@
 #include "metalrobo/numanx_human_matter_adapter_gpu.h"
 #include "metalrobo/numanx_human_io_gpu.h"
 #include "numi/matter/shared.h"
+#include <CommonCrypto/CommonDigest.h>
 
 #include <array>
 #include <algorithm>
 #include <atomic>
 #include <bit>
+#include <cerrno>
 #include <chrono>
 #include <cmath>
 #include <cstdint>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <fstream>
 #include <iostream>
 #include <filesystem>
 #include <iterator>
 #include <limits>
+#include <optional>
 #include <stdexcept>
+#include <sstream>
 #include <string>
+#include <string_view>
 #include <thread>
 #include <vector>
 #include <unistd.h>
@@ -74,6 +81,71 @@ constexpr std::uint64_t kDurationMicros = 2'000u;
 
 void require(const bool condition, const char* message) {
     if (!condition) throw std::runtime_error(message);
+}
+
+std::string supportSHA256Hex(
+    const metalrobo::NumiHumanSupportPayloadIdentity& identity
+) {
+    constexpr std::string_view digits = "0123456789abcdef";
+    std::string result;
+    result.reserve(identity.sha256.size() * 2u);
+    for (const std::uint8_t byte : identity.sha256) {
+        result.push_back(digits[byte >> 4u]);
+        result.push_back(digits[byte & 0x0fu]);
+    }
+    return result;
+}
+
+std::array<std::uint8_t, 32u> parseSupportSHA256Hex(
+    const std::string_view text
+) {
+    require(text.size() == 64u, "support SHA-256 must contain 64 hex digits");
+    const auto nibble = [](const char value) -> std::optional<std::uint8_t> {
+        if (value >= '0' && value <= '9')
+            return static_cast<std::uint8_t>(value - '0');
+        if (value >= 'a' && value <= 'f')
+            return static_cast<std::uint8_t>(value - 'a' + 10);
+        if (value >= 'A' && value <= 'F')
+            return static_cast<std::uint8_t>(value - 'A' + 10);
+        return std::nullopt;
+    };
+    std::array<std::uint8_t, 32u> result{};
+    for (std::size_t index = 0u; index < result.size(); ++index) {
+        const auto high = nibble(text[index * 2u]);
+        const auto low = nibble(text[index * 2u + 1u]);
+        require(high.has_value() && low.has_value(),
+            "support SHA-256 contains a non-hex character");
+        result[index] = static_cast<std::uint8_t>((*high << 4u) | *low);
+    }
+    return result;
+}
+
+std::uint64_t parseUnsignedIdentityField(
+    const std::string_view text, const std::uint64_t maximum
+) {
+    require(!text.empty(), "support identity integer is empty");
+    std::uint64_t result = 0u;
+    for (const char value : text) {
+        require(value >= '0' && value <= '9',
+            "support identity integer contains a non-digit");
+        const std::uint64_t digit = static_cast<std::uint64_t>(value - '0');
+        require(result <= (maximum - digit) / 10u,
+            "support identity integer exceeds its ABI domain");
+        result = result * 10u + digit;
+    }
+    return result;
+}
+
+double parseExactFiniteDecimal(const std::string_view text) {
+    require(!text.empty(), "support force is empty");
+    const std::string owned(text);
+    char* end = nullptr;
+    errno = 0;
+    const double value = std::strtod(owned.c_str(), &end);
+    require(end == owned.c_str() + owned.size() && errno != ERANGE &&
+        std::isfinite(value),
+        "support force is not one complete finite decimal");
+    return value;
 }
 
 void mixU32(std::uint64_t& hash, const std::uint32_t value) noexcept {
@@ -857,29 +929,137 @@ int writePreparedStanceFixture(const char* certificate, const char* output,
             "prepared fixture clock units disagree");
         const auto exactNanoseconds = timestepNanoseconds != 0u
             ? timestepNanoseconds : timestepMicroseconds * 1000u;
+        const auto rigid = readPayloadBytes(MRNX_FULLBODY_RIGID);
+        require(rigid.size() >= 80u, "truncated source rigid fixture");
+        const std::uint32_t rigidBodyCount =
+            std::uint32_t(rigid[20]) |
+            (std::uint32_t(rigid[21]) << 8u) |
+            (std::uint32_t(rigid[22]) << 16u) |
+            (std::uint32_t(rigid[23]) << 24u);
+        std::array<std::uint8_t, 32u> sourceSHA{};
+        std::copy_n(rigid.begin()+48u, 32u, sourceSHA.begin());
+        const auto supportBytes = readPayloadBytes(contacts);
+        require(supportBytes.size() >= sizeof(metalrobo::NumiHumanSupportHeader) &&
+            supportBytes.size() <= std::numeric_limits<CC_LONG>::max(),
+            "support payload cannot be identified");
+        metalrobo::NumiHumanSupportHeader rawSupportHeader{};
+        std::memcpy(&rawSupportHeader, supportBytes.data(), sizeof(rawSupportHeader));
+        metalrobo::NumiHumanSupportPayload supportPayload;
+        std::string supportError;
+        require(metalrobo::decodeNumiHumanSupportPayload(
+            std::as_bytes(std::span(supportBytes)), rigidBodyCount,
+            sourceSHA, supportPayload, supportError), supportError.c_str());
+        metalrobo::NumiHumanSupportPayloadIdentity supportIdentity;
+        CC_SHA256(supportBytes.data(), static_cast<CC_LONG>(supportBytes.size()),
+            supportIdentity.sha256.data());
+        supportIdentity.byteCount = supportBytes.size();
+        supportIdentity.payloadABI = rawSupportHeader.payloadAbi;
+        supportIdentity.sourceRecordCount = rawSupportHeader.contactCount;
+        supportIdentity.expandedRowCount =
+            static_cast<std::uint32_t>(supportPayload.contacts.size());
         metalrobo::NumiHumanInitialState initial;
         if (importInitialState) {
-            const auto rigid = readPayloadBytes(MRNX_FULLBODY_RIGID);
-            require(rigid.size() >= 80u, "truncated source rigid fixture");
-            std::array<std::uint8_t, 32u> sourceSHA{};
-            std::copy_n(rigid.begin()+48u, 32u, sourceSHA.begin());
             const auto bytes = readPayloadBytes(certificate);
             std::string error;
             const bool decoded = metalrobo::decodeNumiHumanInitialState(
                 {reinterpret_cast<const std::byte*>(bytes.data()), bytes.size()},
                 MRNX_FULL_BODY_NQ, MRNX_FULL_BODY_NV, MRNX_FULL_BODY_MUSCLE_COUNT,
-                sourceSHA, initial, error);
+                sourceSHA, supportIdentity, initial, error);
             require(decoded, error.c_str());
         } else {
         std::ifstream log(certificate);
         require(log.good(), "could not open native stance certificate");
-        std::string line, qText, muscleText;
-        unsigned qCount=0, muscleCount=0;
+        std::string line, qText, muscleText, compliantText;
+        std::vector<double> loggedSupportNormalForces;
+        unsigned qCount=0, muscleCount=0, compliantCount=0, supportLineCount=0;
         while(std::getline(log,line)) {
             const std::string qPrefix="compiled_equilibrium_q=";
             const std::string musclePrefix="compiled_equilibrium_muscles=";
+            const std::string compliantPrefix="source_compliant_equilibrium=";
             if(line.starts_with(qPrefix)) {qText=line.substr(qPrefix.size());++qCount;}
             if(line.starts_with(musclePrefix)) {muscleText=line.substr(musclePrefix.size());++muscleCount;}
+            if(line.starts_with(compliantPrefix)) {compliantText=line.substr(compliantPrefix.size());++compliantCount;}
+            if(line.starts_with("numi_human_whole_body_support_wrench=ok")) {
+                ++supportLineCount;
+                metalrobo::NumiHumanSupportPayloadIdentity loggedSupportIdentity;
+                unsigned supportSHACount=0u, supportByteCount=0u,
+                    supportABICount=0u, supportSourceCount=0u,
+                    supportExpandedCount=0u;
+                std::istringstream fields(line);
+                for (std::string token; fields >> token;) {
+                    constexpr std::string_view shaPrefix="support_sha256=";
+                    constexpr std::string_view bytesPrefix="support_bytes=";
+                    constexpr std::string_view abiPrefix="support_abi=";
+                    constexpr std::string_view sourcePrefix="support_source_records=";
+                    constexpr std::string_view expandedPrefix="support_expanded_rows=";
+                    if (token.starts_with(shaPrefix)) {
+                        require(++supportSHACount==1u,
+                            "duplicate support SHA-256 in certificate");
+                        loggedSupportIdentity.sha256=parseSupportSHA256Hex(
+                            std::string_view(token).substr(shaPrefix.size()));
+                        continue;
+                    }
+                    if (token.starts_with(bytesPrefix)) {
+                        require(++supportByteCount==1u,
+                            "duplicate support byte count in certificate");
+                        loggedSupportIdentity.byteCount=parseUnsignedIdentityField(
+                            std::string_view(token).substr(bytesPrefix.size()),
+                            std::numeric_limits<CC_LONG>::max());
+                        continue;
+                    }
+                    if (token.starts_with(abiPrefix)) {
+                        require(++supportABICount==1u,
+                            "duplicate support ABI in certificate");
+                        loggedSupportIdentity.payloadABI=static_cast<std::uint32_t>(
+                            parseUnsignedIdentityField(
+                                std::string_view(token).substr(abiPrefix.size()),
+                                std::numeric_limits<std::uint32_t>::max()));
+                        continue;
+                    }
+                    if (token.starts_with(sourcePrefix)) {
+                        require(++supportSourceCount==1u,
+                            "duplicate support source count in certificate");
+                        loggedSupportIdentity.sourceRecordCount=static_cast<std::uint32_t>(
+                            parseUnsignedIdentityField(
+                                std::string_view(token).substr(sourcePrefix.size()),
+                                std::numeric_limits<std::uint32_t>::max()));
+                        continue;
+                    }
+                    if (token.starts_with(expandedPrefix)) {
+                        require(++supportExpandedCount==1u,
+                            "duplicate support expanded count in certificate");
+                        loggedSupportIdentity.expandedRowCount=static_cast<std::uint32_t>(
+                            parseUnsignedIdentityField(
+                                std::string_view(token).substr(expandedPrefix.size()),
+                                std::numeric_limits<std::uint32_t>::max()));
+                        continue;
+                    }
+                    constexpr std::string_view prefix="contact_";
+                    constexpr std::string_view infix="_normal_force_n=";
+                    if (!token.starts_with(prefix)) continue;
+                    const auto split=token.find(infix);
+                    if (split==std::string::npos) continue;
+                    const auto indexText=token.substr(prefix.size(),split-prefix.size());
+                    require(!indexText.empty() && indexText.find_first_not_of("0123456789")==std::string::npos,
+                        "invalid support force row identity in certificate");
+                    const auto index=std::stoull(indexText);
+                    require(index<=std::numeric_limits<std::uint32_t>::max(),
+                        "support force row exceeds ABI capacity");
+                    if (loggedSupportNormalForces.size()<=index)
+                        loggedSupportNormalForces.resize(index+1u,
+                            std::numeric_limits<double>::quiet_NaN());
+                    require(std::isnan(loggedSupportNormalForces[index]),
+                        "duplicate support force row in certificate");
+                    loggedSupportNormalForces[index]=parseExactFiniteDecimal(
+                        std::string_view(token).substr(split+infix.size()));
+                }
+                require(supportSHACount==1u && supportByteCount==1u &&
+                    supportABICount==1u && supportSourceCount==1u &&
+                    supportExpandedCount==1u,
+                    "certificate lacks exact support payload identity");
+                require(loggedSupportIdentity==supportIdentity,
+                    "certificate support payload identity disagrees with supplied NHCNT");
+            }
         }
         require(qCount==1 && muscleCount==1,"certificate state missing or duplicated");
         const auto parse=[](const std::string& text) -> id {
@@ -889,6 +1069,62 @@ int writePreparedStanceFixture(const char* certificate, const char* output,
             require(result!=nil && error==nil,"invalid native state JSON");return result;
         };
         id qJSON=parse(qText), muscleJSON=parse(muscleText);
+        if (compliantCount != 0u) {
+            require(compliantCount==1u && supportLineCount==0u,
+                "certificate support history source is duplicated");
+            id compliantJSON=parse(compliantText);
+            require([compliantJSON isKindOfClass:[NSDictionary class]] &&
+                [compliantJSON[@"schema"] isEqual:@"numi.human.source-compliant-equilibrium.v1"],
+                "source-compliant certificate schema is invalid");
+            const auto unsignedJSON=[](id value, const std::uint64_t maximum) {
+                require([value isKindOfClass:[NSNumber class]] &&
+                    CFGetTypeID((__bridge CFTypeRef)value)!=CFBooleanGetTypeID(),
+                    "support identity field is not numeric");
+                const double scalar=[value doubleValue];
+                require(std::isfinite(scalar) && scalar>=0.0 &&
+                    std::floor(scalar)==scalar,
+                    "support identity field is not an unsigned integer");
+                const auto parsed=[value unsignedLongLongValue];
+                require(parsed<=maximum && static_cast<double>(parsed)==scalar,
+                    "support identity field exceeds its ABI domain");
+                return static_cast<std::uint64_t>(parsed);
+            };
+            id shaJSON=compliantJSON[@"support_sha256"];
+            require([shaJSON isKindOfClass:[NSString class]],
+                "source-compliant certificate lacks support SHA-256");
+            const char* shaText=[shaJSON UTF8String];
+            require(shaText!=nullptr,
+                "source-compliant support SHA-256 is not UTF-8");
+            metalrobo::NumiHumanSupportPayloadIdentity loggedSupportIdentity;
+            loggedSupportIdentity.sha256=parseSupportSHA256Hex(shaText);
+            loggedSupportIdentity.byteCount=unsignedJSON(
+                compliantJSON[@"support_bytes"],
+                std::numeric_limits<CC_LONG>::max());
+            loggedSupportIdentity.payloadABI=static_cast<std::uint32_t>(unsignedJSON(
+                compliantJSON[@"support_abi"],
+                std::numeric_limits<std::uint32_t>::max()));
+            loggedSupportIdentity.sourceRecordCount=static_cast<std::uint32_t>(unsignedJSON(
+                compliantJSON[@"support_source_records"],
+                std::numeric_limits<std::uint32_t>::max()));
+            loggedSupportIdentity.expandedRowCount=static_cast<std::uint32_t>(unsignedJSON(
+                compliantJSON[@"support_expanded_rows"],
+                std::numeric_limits<std::uint32_t>::max()));
+            require(loggedSupportIdentity==supportIdentity,
+                "source-compliant support identity disagrees with supplied NHCNT");
+            id forceJSON=compliantJSON[@"support_normal_force"];
+            require([forceJSON isKindOfClass:[NSArray class]],
+                "source-compliant certificate lacks support normal force rows");
+            loggedSupportNormalForces.reserve([forceJSON count]);
+            for (id value in forceJSON) {
+                require([value isKindOfClass:[NSNumber class]] &&
+                    CFGetTypeID((__bridge CFTypeRef)value)!=CFBooleanGetTypeID(),
+                    "support normal force is not numeric");
+                loggedSupportNormalForces.push_back([value doubleValue]);
+            }
+        } else {
+            require(supportLineCount==1u,
+                "certificate lacks one support force history source");
+        }
         require([qJSON isKindOfClass:[NSArray class]] && [qJSON count]==MRNX_FULL_BODY_NQ &&
             [muscleJSON isKindOfClass:[NSDictionary class]] &&
             [muscleJSON[@"schema"] isEqual:@"numi.human.offline-muscle-state.v1"],"native state schema mismatch");
@@ -909,6 +1145,21 @@ int writePreparedStanceFixture(const char* certificate, const char* output,
             MRMujocoMuscleStateGPU state{};state.excitationAndActivation={a,a,scalar(fiber[i]),0.0f};
             initial.muscles.push_back(state);
         }
+        require(loggedSupportNormalForces.size()==supportIdentity.expandedRowCount,
+            "certificate support forces do not cover the expanded NHCNT rows");
+        metalrobo::NumiHumanPreparedSupportHistory prepared;
+        prepared.support=supportIdentity;
+        prepared.rows.reserve(loggedSupportNormalForces.size());
+        const double timestepSeconds=double(exactNanoseconds)*1.0e-9;
+        for (const double force : loggedSupportNormalForces) {
+            require(std::isfinite(force) && force>=0.0,
+                "certificate support normal force is invalid");
+            const float impulse=static_cast<float>(force*timestepSeconds);
+            require(std::isfinite(impulse) && impulse>=0.0f,
+                "prepared support impulse is not FP32-representable");
+            prepared.rows.push_back({0.0f,0.0f,0.0f,impulse});
+        }
+        initial.preparedSupportHistory=std::move(prepared);
         }
         require(newtonIterations > 0u && newtonIterations <= 128u, "invalid prepared Newton iteration budget");
         const bool includeVascular = std::getenv("MRNX_INCLUDE_SYNTHETIC_VASCULAR") != nullptr;
@@ -917,8 +1168,6 @@ int writePreparedStanceFixture(const char* certificate, const char* output,
         numi::matter::CompileOptions options;options.maximumRateExponent=0u;
         const auto compiled=numi::matter::compileWorld(world,options);
         require(compiled.succeeded(),"prepared fixture world failed to compile");
-        const auto rigid=readPayloadBytes(MRNX_FULLBODY_RIGID);
-        require(rigid.size()>=80u,"truncated source rigid fixture");
         std::copy_n(rigid.begin()+48u,32u,initial.sourceArchiveSHA256.begin());
         const auto base=fullBodySourceFingerprint(rigid,readPayloadBytes(MRNX_FULLBODY_MUSCLE),readPayloadBytes(contacts));
         auto source=constrainedFingerprint(base,readPayloadBytes(equalities));
@@ -930,7 +1179,9 @@ int writePreparedStanceFixture(const char* certificate, const char* output,
         initial.humanSourceFingerprint=expectedSource;
         initial.worldFingerprint=compiled.world.fingerprint;
         initial.timestepMicroseconds=exactNanoseconds % 1000u == 0u ? exactNanoseconds / 1000u : 0u;
-        // Preserve old NHINIT1 fixtures unless an exact-ns/v2 state was requested.
+        // Preserve imported NHINIT1/2 state unless an exact clock was
+        // requested. Newly authored stance state already selects NHINIT3 via
+        // its prepared support history and retains the same clock semantics.
         if (timestepNanoseconds != 0u || initial.timestepNanoseconds != 0u || initial.rootTranslation) {
             initial.timestepNanoseconds=exactNanoseconds;
             if (!initial.rootTranslation) initial.rootTranslation=mrCompensatedTranslationFromProjection(
@@ -951,12 +1202,18 @@ int writePreparedStanceFixture(const char* certificate, const char* output,
         require(stateFile.good(),"could not write prepared state");
         const std::vector<std::uint8_t> raw(reinterpret_cast<const std::uint8_t*>(bytes.data()),
             reinterpret_cast<const std::uint8_t*>(bytes.data())+bytes.size());
+        const std::string supportSHAHex=supportSHA256Hex(supportIdentity);
         std::ofstream receipt(directory/"prepared.json");
-        receipt << "{\"schema\":\"numi.human.prepared-stance-fixture.v1\",\"human_source_fp\":\"" << std::hex << base
+        receipt << "{\"schema\":\"numi.human.prepared-stance-fixture.v2\",\"human_source_fp\":\"" << std::hex << base
             << "\",\"composed_human_source_fp\":\"" << initial.humanSourceFingerprint
             << "\",\"world_fp\":\"" << initial.worldFingerprint
             << "\",\"initial_state_fp\":\"" << equalityFingerprint(raw)
-            << "\",\"scope\":\"three tiny pelvis samples; no anatomical tissue or sustained behavior qualification\"}\n";
+            << "\",\"support_sha256\":\"" << supportSHAHex
+            << "\",\"support_bytes\":" << std::dec << supportIdentity.byteCount
+            << ",\"support_abi\":" << supportIdentity.payloadABI
+            << ",\"support_source_records\":" << supportIdentity.sourceRecordCount
+            << ",\"support_expanded_rows\":" << supportIdentity.expandedRowCount
+            << ",\"scope\":\"three tiny pelvis samples; no anatomical tissue or sustained behavior qualification\"}\n";
         require(receipt.good(),"could not write prepared fixture identity");
         std::cout << "prepared_stance_fixture=compiled nq=129 nv=128 muscles=416 objects=3 attachments=12\n";
         return 0;

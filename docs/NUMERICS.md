@@ -586,8 +586,10 @@ API result. `--recruit` optimizes activation along with posture.
 `--support-reactions-only` holds q and activation exactly fixed while solving
 normal load sharing, which is required when checking FP32 conversion: a
 floating-root wrench alone does not uniquely determine internal foot loading.
-NHINIT1 continues to carry only q/v/muscle state, with no prescribed ground or
-joint reaction. Registered tissue, accepted-root stability, causal control,
+NHINIT1/2 continue to carry only q/v/muscle state, with no prescribed ground or
+joint reaction. NHINIT3 may carry NHCNT-bound initial support impulses into
+Matter's accepted history owner; it does not prescribe a recurring ground
+force. Registered tissue, accepted-root stability, causal control,
 standing, walking and experimental calibration require their own evidence.
 
 Analytic tests cover loaded equality and lower/upper stop deformation, REFSAFE,
@@ -713,7 +715,9 @@ separate pose error from route arithmetic without adding a dynamics owner.
 `--prepared-state-fixture <prepared.nhinit> <outdir> <contacts> <equalities>
 <limits> [dt_us] [newton_iterations]` decodes and validates the exact supplied
 physical state before rebinding the authored world/timestep identity. The
-existing certificate-derived fixture mode remains available. Neither fixture
+support payload is mandatory for NHINIT3 because unbound decoding fails closed.
+The existing certificate-derived fixture mode emits exact NHCNT-bound NHINIT3
+from its per-row support forces. Neither fixture
 mode is anatomical tissue qualification: it creates three tiny pelvis samples.
 
 Equal-duration 100/50-microsecond zero-command trajectories replay exactly over
