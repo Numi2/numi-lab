@@ -284,6 +284,9 @@ int main() {
         wrongShape.initialQ.expectedElementCount * sizeof(float));
     require(!serializeNumiHumanProductionOwnerSnapshotV1(
         wrongShape, second, error), "wrong logical shape was serialized");
+    require(error.find("logical shape mismatch (initial_q:") !=
+            std::string::npos,
+        "logical shape failure did not identify its field");
 
     auto wrongFactorShape = source;
     wrongFactorShape.effectiveTangentFactorStorage.expectedElementCount--;

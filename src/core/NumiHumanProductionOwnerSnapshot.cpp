@@ -384,82 +384,123 @@ bool serializeNumiHumanProductionOwnerSnapshotV1(
             return false;
         }
     }
-    const auto shape = [](
+    const auto shape = [&error](
+        const char* name,
         const NumiHumanProductionOwnerArrayV1& array,
         const std::uint64_t expected,
-        const std::uint32_t expectedElementBytes) noexcept {
-        return array.elementBytes == expectedElementBytes &&
-            (!array.available || array.expectedElementCount == expected);
+        const std::uint32_t expectedElementBytes) {
+        if (array.elementBytes == expectedElementBytes &&
+            (!array.available || array.expectedElementCount == expected)) {
+            return true;
+        }
+        std::ostringstream detail;
+        detail << "production-owner snapshot logical shape mismatch ("
+               << name << ": expected_elements=" << expected
+               << ", array_elements=" << array.expectedElementCount
+               << ", expected_element_bytes=" << expectedElementBytes
+               << ", array_element_bytes=" << array.elementBytes
+               << ", available=" << (array.available ? "true" : "false")
+               << ')';
+        error = detail.str();
+        return false;
     };
     const bool shapesValid =
-        shape(s.initialQ, s.qCoordinateCount, floatBytes) &&
-        shape(s.initialV, s.dofCount, floatBytes) &&
-        shape(s.initialRoot, 1u, compensatedRootBytes) &&
-        shape(s.initialMuscles, s.muscleCount, muscleStateBytes) &&
-        shape(s.muscleRecords, s.muscleCount, muscleRecordBytes) &&
-        shape(s.muscleSites, s.muscleSiteCount, muscleSiteBytes) &&
-        shape(s.muscleWraps, s.muscleWrapCount, muscleWrapBytes) &&
-        shape(s.muscleRouteNodes,
+        shape("initial_q", s.initialQ, s.qCoordinateCount, floatBytes) &&
+        shape("initial_v", s.initialV, s.dofCount, floatBytes) &&
+        shape("initial_root", s.initialRoot, 1u, compensatedRootBytes) &&
+        shape("initial_muscles", s.initialMuscles, s.muscleCount,
+            muscleStateBytes) &&
+        shape("muscle_records", s.muscleRecords, s.muscleCount,
+            muscleRecordBytes) &&
+        shape("muscle_sites", s.muscleSites, s.muscleSiteCount,
+            muscleSiteBytes) &&
+        shape("muscle_wraps", s.muscleWraps, s.muscleWrapCount,
+            muscleWrapBytes) &&
+        shape("muscle_route_nodes", s.muscleRouteNodes,
             s.muscleRouteNodeCount, muscleRouteNodeBytes) &&
-        shape(s.checkpointQ, s.qCoordinateCount, floatBytes) &&
-        shape(s.checkpointV, s.dofCount, floatBytes) &&
-        shape(s.checkpointRoot, 1u, compensatedRootBytes) &&
-        shape(s.checkpointMuscles, s.muscleCount, muscleStateBytes) &&
-        shape(s.effectiveTangentFactorStorage,
+        shape("checkpoint_q", s.checkpointQ, s.qCoordinateCount,
+            floatBytes) &&
+        shape("checkpoint_v", s.checkpointV, s.dofCount, floatBytes) &&
+        shape("checkpoint_root", s.checkpointRoot, 1u,
+            compensatedRootBytes) &&
+        shape("checkpoint_muscles", s.checkpointMuscles, s.muscleCount,
+            muscleStateBytes) &&
+        shape("effective_tangent_factor_storage",
+            s.effectiveTangentFactorStorage,
             static_cast<std::uint64_t>(s.dofCount) * s.dofCount,
             floatBytes) &&
-        shape(s.sourceGeneralizedForce, s.dofCount, floatBytes) &&
-        shape(s.sourcePredictedVelocity, s.dofCount, floatBytes) &&
-        shape(s.candidateQ, s.qCoordinateCount, floatBytes) &&
-        shape(s.candidateV, s.dofCount, floatBytes) &&
-        shape(s.candidateRoot, 1u, compensatedRootBytes) &&
-        shape(s.candidateMuscles, s.muscleCount, muscleStateBytes) &&
-        shape(s.muscleResults, s.muscleCount, muscleResultBytes) &&
-        shape(s.muscleGeneralizedForces,
+        shape("source_generalized_force", s.sourceGeneralizedForce,
+            s.dofCount, floatBytes) &&
+        shape("source_predicted_velocity", s.sourcePredictedVelocity,
+            s.dofCount, floatBytes) &&
+        shape("candidate_q", s.candidateQ, s.qCoordinateCount,
+            floatBytes) &&
+        shape("candidate_v", s.candidateV, s.dofCount, floatBytes) &&
+        shape("candidate_root", s.candidateRoot, 1u,
+            compensatedRootBytes) &&
+        shape("candidate_muscles", s.candidateMuscles, s.muscleCount,
+            muscleStateBytes) &&
+        shape("muscle_results", s.muscleResults, s.muscleCount,
+            muscleResultBytes) &&
+        shape("muscle_generalized_forces", s.muscleGeneralizedForces,
             static_cast<std::uint64_t>(s.muscleCount) * s.dofCount,
             floatBytes) &&
-        shape(s.reducedMuscleGeneralizedForce, s.dofCount, floatBytes) &&
-        shape(s.tendonTransfers, s.tendonRowCount, tendonTransferBytes) &&
-        shape(s.tendonGeneralizedCorrections,
+        shape("reduced_muscle_generalized_force",
+            s.reducedMuscleGeneralizedForce, s.dofCount, floatBytes) &&
+        shape("tendon_transfers", s.tendonTransfers, s.tendonRowCount,
+            tendonTransferBytes) &&
+        shape("tendon_generalized_corrections",
+            s.tendonGeneralizedCorrections,
             static_cast<std::uint64_t>(s.tendonRowCount) * s.dofCount,
             floatBytes) &&
-        shape(s.matterGeneralizedReaction, s.dofCount, floatBytes) &&
-        shape(s.supportRows,
+        shape("matter_generalized_reaction", s.matterGeneralizedReaction,
+            s.dofCount, floatBytes) &&
+        shape("support_rows", s.supportRows,
             s.supportRowCount, humanSupportRowBytes) &&
-        shape(s.supportPlane, 2u, float4Bytes) &&
-        shape(s.initialSupportHistories,
+        shape("support_plane", s.supportPlane, 2u, float4Bytes) &&
+        shape("initial_support_histories", s.initialSupportHistories,
             s.supportRowCount, float4Bytes) &&
-        shape(s.candidateSupportHistories,
+        shape("candidate_support_histories", s.candidateSupportHistories,
             s.supportRowCount, float4Bytes) &&
-        shape(s.candidateSupportConsequences,
+        shape("candidate_support_consequences",
+            s.candidateSupportConsequences,
             s.supportRowCount, humanSupportConsequenceBytes) &&
-        shape(s.terminalAcceptedSupportHistories,
+        shape("terminal_accepted_support_histories",
+            s.terminalAcceptedSupportHistories,
             s.supportRowCount, float4Bytes) &&
-        shape(s.terminalAcceptedSupportConsequences,
+        shape("terminal_accepted_support_consequences",
+            s.terminalAcceptedSupportConsequences,
             s.supportRowCount, humanSupportConsequenceBytes) &&
-        shape(s.equalityRows, s.equalityRowCount, equalityRowBytes) &&
-        shape(s.equalityLinearizationImpulses,
+        shape("equality_rows", s.equalityRows, s.equalityRowCount,
+            equalityRowBytes) &&
+        shape("equality_linearization_impulses",
+            s.equalityLinearizationImpulses,
             s.equalityRowCount, reconstructedConstraintWitnessBytes) &&
-        shape(s.limitRows, s.limitRowCount, limitRowBytes) &&
-        shape(s.limitLinearizationImpulses,
+        shape("limit_rows", s.limitRows, s.limitRowCount,
+            limitRowBytes) &&
+        shape("limit_linearization_impulses",
+            s.limitLinearizationImpulses,
             static_cast<std::uint64_t>(2u) * s.limitRowCount,
             reconstructedConstraintWitnessBytes) &&
-        shape(s.contactSamples, s.contactSampleCount, contactSampleBytes) &&
-        shape(s.terminalAcceptedMatterRigidGeneralizedState,
+        shape("contact_samples", s.contactSamples, s.contactSampleCount,
+            contactSampleBytes) &&
+        shape("terminal_accepted_matter_rigid_generalized_state",
+            s.terminalAcceptedMatterRigidGeneralizedState,
             s.terminalAcceptedMatterRigidGeneralizedStateCount,
             floatBytes) &&
-        shape(s.terminalAcceptedMatterRigidReactions,
+        shape("terminal_accepted_matter_rigid_reactions",
+            s.terminalAcceptedMatterRigidReactions,
             s.terminalAcceptedMatterRigidReactionCount,
             rigidReactionBytes) &&
-        shape(s.acceleration, s.dofCount, floatBytes) &&
-        shape(s.sourceRHS, s.dofCount, floatBytes) &&
-        shape(s.sourceBias, s.dofCount, floatBytes) &&
-        shape(s.workEnergyComponents, 3u, floatBytes) &&
-        shape(s.standStatus, 1u, standStatusBytes) &&
-        shape(s.humanMatterOwnerStatus,
+        shape("acceleration", s.acceleration, s.dofCount, floatBytes) &&
+        shape("source_rhs", s.sourceRHS, s.dofCount, floatBytes) &&
+        shape("source_bias", s.sourceBias, s.dofCount, floatBytes) &&
+        shape("work_energy_components", s.workEnergyComponents, 3u,
+            floatBytes) &&
+        shape("stand_status", s.standStatus, 1u, standStatusBytes) &&
+        shape("human_matter_owner_status", s.humanMatterOwnerStatus,
             1u, humanMatterOwnerStatusBytes);
     if (!shapesValid) {
-        error = "production-owner snapshot logical shape mismatch";
         return false;
     }
     const std::uint64_t actualCoverage =
