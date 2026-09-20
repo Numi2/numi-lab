@@ -26,6 +26,8 @@ constexpr std::uint64_t kFastProgramFingerprint =
     0x4e58464153545032ull;
 constexpr std::uint64_t kFastGateFingerprint =
     0x4e58464153544732ull;
+constexpr std::uint64_t kJointCommitFingerprint =
+    0x4e584a4f494e5432ull;
 
 static_assert(kStartNanoseconds % 1000u != 0u);
 static_assert(kDeliveryNanoseconds % 1000u != 0u);
@@ -818,6 +820,79 @@ void runLifecycle(id<MTLDevice> device) {
                 !legacyLease.valid(),
         "exact HumanIO escaped through the legacy publication ABI");
 
+    auto wrongAuthority = exactHumanIO.authority;
+    ++wrongAuthority.acceptedBrainTimestampNanoseconds;
+    wrongAuthority.rangeIdentityFingerprint = metalrobo::
+        metalNumanXHumanIOExactAuthorityRangeIdentityFingerprint(
+            wrongAuthority);
+    require(wrongAuthority.valid(),
+        "mutated exact HumanIO authority was not internally canonical");
+    metalrobo::MetalNumanXHumanIOCandidatePublicationLease wrongLease{};
+    const auto wrongReservation = humanIO->reserveCandidatePublication(
+        key, wrongAuthority, wrongLease);
+    require(wrongReservation.status == metalrobo::
+                MetalNumanXHumanIOStatus::incompatibleTransaction &&
+                !wrongLease.valid(),
+        "exact HumanIO admitted a different private authority receipt");
+
+    metalrobo::MetalNumanXHumanIOCandidatePublicationLease publicationLease{};
+    const auto publicationReservation = humanIO->reserveCandidatePublication(
+        key, exactHumanIO.authority, publicationLease);
+    require(publicationReservation.succeeded() &&
+                !publicationReservation.published &&
+                publicationLease.valid() &&
+                publicationLease.program().valid() &&
+                publicationLease.program().abiVersion == metalrobo::
+                    kMetalNumanXHumanIOExactPublicationABIVersion &&
+                publicationLease.view().abiVersion == metalrobo::
+                    kMetalNumanXHumanIOExactPublicationABIVersion &&
+                publicationLease.program().humanIOProgramFingerprint ==
+                    humanIOProgram.fingerprint &&
+                publicationLease.program().transactionFingerprint ==
+                    transaction.transactionFingerprint &&
+                publicationLease.program().acceptedBrainGeneration ==
+                    ioFixture.candidate.brainGeneration &&
+                publicationLease.view().sensor.deliveryTimestampNanoseconds ==
+                    kDeliveryNanoseconds,
+        "exact HumanIO did not issue an ABI2 authority-bound publication lease");
+    const auto publicationProgram = publicationLease.program();
+    const auto publicationSensor = publicationLease.view().sensor;
+    auto downgradedPublicationProgram = publicationProgram;
+    downgradedPublicationProgram.abiVersion = metalrobo::
+        kMetalNumanXHumanIOPublicationABIVersion;
+    downgradedPublicationProgram.identityFingerprint =
+        downgradedPublicationProgram.computedIdentityFingerprint();
+    require(downgradedPublicationProgram.valid() &&
+                !prepared->bindHumanIOCandidatePublication(
+                    downgradedPublicationProgram),
+        "exact HumanMatter admitted an ABI1 publication downgrade");
+    require(prepared->bindHumanIOCandidatePublication(publicationProgram) &&
+                !prepared->bindHumanIOCandidatePublication(
+                    publicationProgram) &&
+                prepared->view(view) &&
+                view.humanIOCandidateKeyFingerprint ==
+                    publicationProgram.candidateKeyFingerprint &&
+                view.acceptedBrainGeneration ==
+                    publicationProgram.acceptedBrainGeneration &&
+                view.humanIOSensorGeneration ==
+                    publicationProgram.sensorGeneration &&
+                view.humanIOProgramFingerprint ==
+                    publicationProgram.humanIOProgramFingerprint &&
+                view.humanIOSensorFingerprint ==
+                    publicationProgram.sensorFingerprint &&
+                view.humanIOTransactionInstanceFingerprint ==
+                    publicationProgram.transactionInstanceFingerprint &&
+                view.humanIOCandidatePublicationFingerprint ==
+                    publicationProgram.candidatePublicationFingerprint &&
+                view.humanIODeviceRegistryID == device.registryID &&
+                view.humanIOIdentityFingerprint ==
+                    publicationProgram.identityFingerprint,
+        "exact HumanMatter did not retain the ABI2 HumanIO publication identity");
+    metalrobo::MetalNumanXHumanIOSensorView unpublishedSensor{};
+    require(humanIO->publishedView(unpublishedSensor).status == metalrobo::
+                MetalNumanXHumanIOStatus::candidateUnavailable,
+        "exact HumanIO sensor became visible before root publication");
+
     id<MTLBuffer> tokenReadback = makeZeroBuffer(
         device, sizeof(MRNumanXAcceptedPhysicsStateTokenGPUV2),
         @"lifecycle exact token readback");
@@ -894,85 +969,379 @@ void runLifecycle(id<MTLDevice> device) {
     proposalRequest.linearizationEpoch = view.linearizationEpoch;
     proposalRequest.slotGeneration = view.slotGeneration;
 
-    // Exact HumanIO has produced and retained the private authority receipt,
-    // but its public candidate-publication API is still ABI1-only. Do not
-    // manufacture an ABI1 capability: proposal must remain fail-closed until
-    // an authority-bearing exact publication lease can be bound here.
-    const auto proposalBlocked = prepared->proposePrepared(proposalRequest);
-    require(proposalBlocked.status == metalrobo::
-                MetalNumanXHumanMatterOperationStatus::invalidRequest &&
-                !proposalBlocked.encoded &&
-                proposalBlocked.message.find(
-                    "post-physical HumanIO candidate publication binding") !=
-                    std::string::npos,
-        "exact proposal did not stop at the missing HumanIO V2 publication binding");
-    require(prepared->valid() &&
+    proposalRequest.mode = metalrobo::
+        MetalNumanXHumanMatterProposalMode::validateBrainWitness;
+    const auto proposed = prepared->proposePrepared(proposalRequest);
+    require(proposed.succeeded() && proposed.encoded,
+        "exact mutation-free proposal was rejected: " + proposed.message);
+    require(!prepared->proposePrepared(proposalRequest).succeeded(),
+        "exact prepared generation admitted a duplicate proposal");
+    finish(proposalCommand);
+    __unsafe_unretained id<MTLSharedEvent> ownerEvent =
+        (__bridge id<MTLSharedEvent>)view.physicalPreparedEvent;
+    waitForSharedEventValue(
+        ownerEvent, view.proposalEventValue,
+        "exact proposal completion event did not advance");
+
+    const auto proposal = value<MRNumanXHumanMatterProposalGPU>(
+        (__bridge id<MTLBuffer>)view.proposals);
+    const auto proposedToken =
+        value<MRNumanXAcceptedPhysicsStateTokenGPUV2>(
+            (__bridge id<MTLBuffer>)view.proposedPhysicsStateTokens);
+    require(proposal.status == MR_NUMANX_HUMAN_MATTER_PROPOSAL_READY &&
+                proposal.decision == MR_NUMANX_HUMAN_MATTER_ROOT_ACCEPT &&
+                proposal.code == MR_NUMANX_HUMAN_MATTER_PROPOSAL_SUCCESS &&
+                proposal.programFingerprint == humanMatterProgram.fingerprint &&
+                proposal.transactionFingerprint ==
+                    transaction.transactionFingerprint &&
+                proposal.linearizationEpoch == transaction.linearizationEpoch &&
+                proposal.slotGeneration == transaction.slotGeneration &&
+                proposal.physicsTokenFingerprint == token.tokenFingerprint &&
+                proposal.brainProgramFingerprint ==
+                    kBrainProgramFingerprint &&
+                proposal.brainShadowStateFingerprint ==
+                    kBrainShadowFingerprint &&
+                proposal.brainWitnessFingerprint ==
+                    witness.witnessFingerprint &&
+                proposal.candidatePublicationFingerprint ==
+                    publicationProgram.candidatePublicationFingerprint &&
+                proposal.humanIOIdentityFingerprint ==
+                    publicationProgram.identityFingerprint &&
+                proposal.environment == 0u &&
+                proposal.stepIndex == view.stepIndex &&
+                proposal.substepIndex == transaction.physicsSubstep &&
+                proposal.transactionSlot == transaction.transactionSlot &&
+                proposal.physicsSubstepCount == transaction.physicsSubsteps &&
+                proposal.controlStep == transaction.controlStep &&
+                proposal.proposalFingerprint == recordFingerprint(proposal) &&
+                validExactTokenShape(
+                    proposedToken, transaction, kDeliveryNanoseconds) &&
+                std::memcmp(
+                    &proposedToken, &token, sizeof(proposedToken)) == 0,
+        "exact proposal lost its Brain, HumanIO, or V2 token identity");
+
+    const auto preflight = makePreflight(
+        transaction, humanMatterProgram, proposal);
+    require(preflight.preflightFingerprint == recordFingerprint(preflight),
+        "exact Brain preflight fingerprint is not canonical");
+    id<MTLBuffer> preflightBuffer = makeBuffer(
+        device, preflight, @"lifecycle exact Brain preflight");
+    id<MTLSharedEvent> preflightReady = [device newSharedEvent];
+    require(preflightReady != nil,
+        "failed to allocate exact Brain preflight event");
+    preflightReady.signaledValue = 1u;
+    metalrobo::MetalNumanXHumanMatterBrainPreflightView preflightView{};
+    preflightView.brainCommitPreflights = (__bridge void*)preflightBuffer;
+    preflightView.preflightReadyEvent = (__bridge void*)preflightReady;
+    preflightView.brainCommitPreflightsGPUAddress = preflightBuffer.gpuAddress;
+    preflightView.brainCommitPreflightElementCount = 1u;
+    preflightView.preflightReadyEventValue = 1u;
+    preflightView.brainCommitPreflightStride = 1u;
+    preflightView.environmentCount = view.environmentCount;
+    preflightView.transactionSlot = view.transactionSlot;
+    preflightView.stepIndex = view.stepIndex;
+    preflightView.substepIndex = view.substepIndex;
+    preflightView.physicsSubstepCount = view.physicsSubstepCount;
+    preflightView.controlStep = view.controlStep;
+    preflightView.programFingerprint = view.programFingerprint;
+    preflightView.transactionFingerprint = view.transactionFingerprint;
+    preflightView.linearizationEpoch = view.linearizationEpoch;
+    preflightView.slotGeneration = view.slotGeneration;
+    auto stalePreflight = preflightView;
+    ++stalePreflight.controlStep;
+    require(!prepared->reservePreparedApplication(stalePreflight),
+        "exact application reservation admitted a stale control step");
+    require(prepared->reservePreparedApplication(preflightView) &&
+                !prepared->reservePreparedApplication(preflightView),
+        "exact application reservation was not accepted exactly once");
+
+    const auto ack = makeAck(
+        transaction, humanMatterProgram, proposal, preflight);
+    require(ack.ackFingerprint == recordFingerprint(ack),
+        "exact Brain ACK fingerprint is not canonical");
+    id<MTLBuffer> ackBuffer = makeBuffer(
+        device, ack, @"lifecycle exact Brain ACK");
+    id<MTLSharedEvent> ackReady = [device newSharedEvent];
+    require(ackReady != nil, "failed to allocate exact Brain ACK event");
+    ackReady.signaledValue = 1u;
+    OwnerApplyCompletionCapture applyCompletion;
+    id<MTLCommandBuffer> applyCommand = [queue commandBuffer];
+    require(applyCommand != nil,
+        "failed to allocate exact apply command");
+    metalrobo::MetalNumanXHumanMatterApplyRequest applyRequest{};
+    applyRequest.mode = metalrobo::
+        MetalNumanXHumanMatterApplyMode::validateBrainAck;
+    applyRequest.commandBuffer = (__bridge void*)applyCommand;
+    applyRequest.brainAcks = (__bridge void*)ackBuffer;
+    applyRequest.brainAckEvent = (__bridge void*)ackReady;
+    applyRequest.completionContext = &applyCompletion;
+    applyRequest.completion = &captureOwnerApplyCompletion;
+    applyRequest.brainAckEventValue = 1u;
+    applyRequest.brainAcksGPUAddress = ackBuffer.gpuAddress;
+    applyRequest.brainAckElementCount = 1u;
+    applyRequest.brainAckStride = 1u;
+    applyRequest.environmentCount = view.environmentCount;
+    applyRequest.transactionSlot = view.transactionSlot;
+    applyRequest.stepIndex = view.stepIndex;
+    applyRequest.substepIndex = view.substepIndex;
+    applyRequest.physicsSubstepCount = view.physicsSubstepCount;
+    applyRequest.controlStep = view.controlStep;
+    applyRequest.programFingerprint = view.programFingerprint;
+    applyRequest.transactionFingerprint = view.transactionFingerprint;
+    applyRequest.linearizationEpoch = view.linearizationEpoch;
+    applyRequest.slotGeneration = view.slotGeneration;
+    const auto appliedDiagnostics = prepared->applyPrepared(applyRequest);
+    require(appliedDiagnostics.succeeded() && appliedDiagnostics.encoded,
+        "exact V2 apply was rejected: " + appliedDiagnostics.message);
+    require(!prepared->applyPrepared(applyRequest).succeeded(),
+        "exact prepared generation admitted a duplicate apply");
+    id<MTLBuffer> matterApplyReadback = makeZeroBuffer(
+        device, sizeof(MRNumanXHumanMatterMatterApplyOutcomeGPU),
+        @"lifecycle exact Matter apply readback");
+    id<MTLBlitCommandEncoder> matterApplyBlit =
+        [applyCommand blitCommandEncoder];
+    require(matterApplyBlit != nil && copy(
+                matterApplyBlit,
+                (__bridge id<MTLBuffer>)view.matterApplyOutcomes,
+                (__bridge void*)matterApplyReadback,
+                sizeof(MRNumanXHumanMatterMatterApplyOutcomeGPU)),
+        "failed to stage exact Matter apply outcome");
+    [matterApplyBlit endEncoding];
+    finish(applyCommand);
+    waitForOwnerApplyCompletion(applyCompletion);
+    require(applyCompletion.status.load(std::memory_order_acquire) ==
+                static_cast<std::uint32_t>(metalrobo::
+                    MetalNumanXHumanMatterApplyTerminalStatus::
+                        acceptedPendingPublication) &&
+                applyCompletion.slotGeneration.load(
+                    std::memory_order_acquire) == view.slotGeneration,
+        "exact apply completion lost accepted quarantine identity");
+
+    const auto action = value<MRNumanXHumanMatterApplyActionGPU>(
+        (__bridge id<MTLBuffer>)view.applyActions);
+    const auto matterApply =
+        value<MRNumanXHumanMatterMatterApplyOutcomeGPU>(
+            matterApplyReadback);
+    const auto applied = value<MRNumanXHumanMatterAppliedOutcomeGPU>(
+        (__bridge id<MTLBuffer>)view.appliedOutcomes);
+    const auto finalToken =
+        value<MRNumanXAcceptedPhysicsStateTokenGPUV2>(
+            (__bridge id<MTLBuffer>)view.finalAcceptedPhysicsStateTokens);
+    require(action.status == MR_NUMANX_HUMAN_MATTER_APPLY_ACCEPT &&
+                action.decision == MR_NUMANX_HUMAN_MATTER_ROOT_ACCEPT &&
+                action.code == MR_NUMANX_HUMAN_MATTER_APPLIED_SUCCESS &&
+                action.physicsTokenFingerprint == token.tokenFingerprint &&
+                action.proposalFingerprint == proposal.proposalFingerprint &&
+                action.ackFingerprint == ack.ackFingerprint &&
+                action.preflightFingerprint == preflight.preflightFingerprint &&
+                action.fastGateFingerprint == kFastGateFingerprint &&
+                action.brainWitnessFingerprint ==
+                    witness.witnessFingerprint &&
+                action.actionFingerprint == recordFingerprint(action) &&
+                matterApply.status == MR_NUMANX_HUMAN_MATTER_APPLY_ACCEPT &&
+                matterApply.decision == MR_NUMANX_HUMAN_MATTER_ROOT_ACCEPT &&
+                matterApply.code == MR_NUMANX_HUMAN_MATTER_APPLIED_SUCCESS &&
+                matterApply.physicsTokenFingerprint == token.tokenFingerprint &&
+                matterApply.proposalFingerprint ==
+                    proposal.proposalFingerprint &&
+                matterApply.ackFingerprint == ack.ackFingerprint &&
+                matterApply.actionFingerprint == action.actionFingerprint &&
+                matterApply.matterProgramFingerprint ==
+                    matter->acceptedStateProofProgramFingerprintV2() &&
+                matterApply.outcomeFingerprint ==
+                    recordFingerprint(matterApply) &&
+                applied.status ==
+                    MR_NUMANX_HUMAN_MATTER_APPLIED_ACCEPT_QUARANTINED &&
+                applied.decision == MR_NUMANX_HUMAN_MATTER_ROOT_ACCEPT &&
+                applied.code == MR_NUMANX_HUMAN_MATTER_APPLIED_SUCCESS &&
+                applied.physicsTokenFingerprint == token.tokenFingerprint &&
+                applied.proposalFingerprint == proposal.proposalFingerprint &&
+                applied.ackFingerprint == ack.ackFingerprint &&
+                applied.preflightFingerprint == preflight.preflightFingerprint &&
+                applied.fastGateFingerprint == kFastGateFingerprint &&
+                applied.matterApplyFingerprint ==
+                    matterApply.outcomeFingerprint &&
+                applied.appliedFingerprint == recordFingerprint(applied) &&
+                validExactTokenShape(
+                    finalToken, transaction, kDeliveryNanoseconds) &&
+                std::memcmp(
+                    &finalToken, &proposedToken, sizeof(finalToken)) == 0 &&
+                prepared->valid() && publicationLease.valid() &&
                 matter->preparedStateDisposition(
                     dispositionIdentity(transaction, humanMatterProgram)) ==
-                    numi::matter::PreparedStateDisposition::prepared,
-        "blocked exact proposal changed quarantined prepared authority");
+                    numi::matter::PreparedStateDisposition::
+                        acceptedPendingPublication,
+        "exact apply did not retain one immutable accepted V2 root");
 
-    id<MTLBuffer> finalTokenReadback = makeZeroBuffer(
-        device, sizeof(MRNumanXAcceptedPhysicsStateTokenGPUV2),
-        @"lifecycle exact final-token readback");
-    id<MTLCommandBuffer> finalReadbackCommand = [queue commandBuffer];
-    id<MTLBlitCommandEncoder> finalReadbackBlit =
-        [finalReadbackCommand blitCommandEncoder];
-    require(finalReadbackCommand != nil && finalReadbackBlit != nil,
-        "failed to allocate exact final-token readback command");
-    [finalReadbackBlit
-        copyFromBuffer:(__bridge id<MTLBuffer>)
-            view.finalAcceptedPhysicsStateTokens
-           sourceOffset:0u
-               toBuffer:finalTokenReadback
-      destinationOffset:0u
-                   size:sizeof(MRNumanXAcceptedPhysicsStateTokenGPUV2)];
-    [finalReadbackBlit endEncoding];
-    finish(finalReadbackCommand);
-    const auto finalToken =
-        value<MRNumanXAcceptedPhysicsStateTokenGPUV2>(finalTokenReadback);
-    const MRNumanXAcceptedPhysicsStateTokenGPUV2 zeroToken{};
-    require(std::memcmp(&finalToken, &zeroToken, sizeof(finalToken)) == 0,
-        "blocked exact proposal exposed an uncommitted final token");
+    const std::uint64_t publicationBrainGeneration =
+        publicationProgram.acceptedBrainGeneration;
+    metalrobo::MetalNumanXHumanMatterPublicationReservationRequest
+        reservePublication{};
+    reservePublication.environmentCount = view.environmentCount;
+    reservePublication.transactionSlot = view.transactionSlot;
+    reservePublication.stepIndex = view.stepIndex;
+    reservePublication.substepIndex = view.substepIndex;
+    reservePublication.physicsSubstepCount = view.physicsSubstepCount;
+    reservePublication.controlStep = view.controlStep;
+    reservePublication.programFingerprint = view.programFingerprint;
+    reservePublication.transactionFingerprint = view.transactionFingerprint;
+    reservePublication.linearizationEpoch = view.linearizationEpoch;
+    reservePublication.slotGeneration = view.slotGeneration;
+    reservePublication.jointCommitFingerprint = kJointCommitFingerprint;
+    reservePublication.brainGeneration = publicationBrainGeneration;
+    require(prepared->reservePublishedRoot(reservePublication) &&
+                !prepared->reservePublishedRoot(reservePublication),
+        "exact joint publication reservation was not accepted exactly once");
+
+    id<MTLBuffer> fenceBuffer =
+        (__bridge id<MTLBuffer>)view.publicationFences;
+    require(fenceBuffer != nil && fenceBuffer.contents != nullptr,
+        "exact publication fence is not host-visible");
+    auto& fence = *static_cast<
+        MRNumanXHumanMatterJointPublicationFenceGPU*>(fenceBuffer.contents);
+    require(fence.abiVersion ==
+                MR_NUMANX_HUMAN_MATTER_PUBLICATION_FENCE_ABI_VERSION_V2 &&
+                fence.structBytes ==
+                    MR_NUMANX_HUMAN_MATTER_PUBLICATION_FENCE_BYTES &&
+                fence.status == MR_NUMANX_HUMAN_MATTER_PUBLICATION_PENDING &&
+                fence.environment == 0u &&
+                fence.controlStep == transaction.controlStep &&
+                fence.substepIndex == transaction.physicsSubstep &&
+                fence.physicsSubstepCount == transaction.physicsSubsteps &&
+                fence.ownerProgramFingerprint ==
+                    humanMatterProgram.fingerprint &&
+                fence.transactionFingerprint ==
+                    transaction.transactionFingerprint &&
+                fence.linearizationEpoch == transaction.linearizationEpoch &&
+                fence.slotGeneration == transaction.slotGeneration &&
+                fence.physicsTokenFingerprint == token.tokenFingerprint &&
+                fence.brainProgramFingerprint == kBrainProgramFingerprint &&
+                fence.brainShadowStateFingerprint ==
+                    kBrainShadowFingerprint &&
+                fence.brainWitnessFingerprint == witness.witnessFingerprint &&
+                fence.appliedDecisionFingerprint ==
+                    applied.appliedFingerprint &&
+                fence.jointCommitFingerprint == kJointCommitFingerprint &&
+                fence.brainGeneration == publicationBrainGeneration &&
+                fence.fenceFingerprint == recordFingerprint(fence) &&
+                publicationLease.valid() &&
+                humanIO->publishedView(unpublishedSensor).status == metalrobo::
+                    MetalNumanXHumanIOStatus::candidateUnavailable,
+        "exact PENDING publication fence exposed or misidentified the root");
+
+    fence.status = MR_NUMANX_HUMAN_MATTER_PUBLICATION_COMMITTED;
+    fence.fenceFingerprint = recordFingerprint(fence);
+    metalrobo::MetalNumanXHumanMatterPublicationReleaseRequest
+        releasePublication{};
+    releasePublication.publicationFences = view.publicationFences;
+    releasePublication.publicationFencesGPUAddress =
+        view.publicationFencesGPUAddress;
+    releasePublication.publicationFenceElementCount =
+        view.publicationFenceElementCount;
+    releasePublication.publicationFenceStride = view.publicationFenceStride;
+    releasePublication.environmentCount = view.environmentCount;
+    releasePublication.transactionSlot = view.transactionSlot;
+    releasePublication.stepIndex = view.stepIndex;
+    releasePublication.substepIndex = view.substepIndex;
+    releasePublication.physicsSubstepCount = view.physicsSubstepCount;
+    releasePublication.controlStep = view.controlStep;
+    releasePublication.programFingerprint = view.programFingerprint;
+    releasePublication.transactionFingerprint = view.transactionFingerprint;
+    releasePublication.linearizationEpoch = view.linearizationEpoch;
+    releasePublication.slotGeneration = view.slotGeneration;
+    releasePublication.jointCommitFingerprint = kJointCommitFingerprint;
+    releasePublication.brainGeneration = publicationBrainGeneration;
+    require(prepared->releasePublishedRoot(releasePublication) == metalrobo::
+                MetalNumanXHumanMatterPrepareLeaseDisposition::released,
+        "exact COMMITTED publication fence did not release the root");
+
+    metalrobo::MetalNumanXHumanIOSensorView publishedSensor{};
+    const auto publishedDiagnostics = humanIO->publishedView(publishedSensor);
+    const auto publishedFinalToken =
+        value<MRNumanXAcceptedPhysicsStateTokenGPUV2>(
+            (__bridge id<MTLBuffer>)view.finalAcceptedPhysicsStateTokens);
+    const auto ownerStats = owner->stats();
+    require(!prepared->valid() && !publicationLease.valid() &&
+                matter->preparedStateDisposition(
+                    dispositionIdentity(transaction, humanMatterProgram)) ==
+                    numi::matter::PreparedStateDisposition::resolved &&
+                matter->snapshot().available &&
+                publishedDiagnostics.succeeded() &&
+                publishedDiagnostics.published &&
+                publishedSensor.state ==
+                    metalrobo::MetalNumanXHumanIOViewState::published &&
+                publishedSensor.programFingerprint ==
+                    humanIOProgram.fingerprint &&
+                publishedSensor.transactionFingerprint ==
+                    transaction.transactionFingerprint &&
+                publishedSensor.sensorGeneration ==
+                    publicationProgram.sensorGeneration &&
+                publishedSensor.sensorFingerprint ==
+                    publicationProgram.sensorFingerprint &&
+                publishedSensor.transactionInstanceFingerprint ==
+                    key.transactionInstanceFingerprint &&
+                publishedSensor.commandBufferIdentity ==
+                    key.commandBufferIdentity &&
+                publishedSensor.acceptedBrainGeneration ==
+                    publicationBrainGeneration &&
+                publishedSensor.proprioceptionMetalBuffer ==
+                    publicationSensor.proprioceptionMetalBuffer &&
+                publishedSensor.validityMetalBuffer ==
+                    publicationSensor.validityMetalBuffer &&
+                publishedSensor.interoceptionMetalBuffer ==
+                    publicationSensor.interoceptionMetalBuffer &&
+                publishedSensor.interoceptionValidityMetalBuffer ==
+                    publicationSensor.interoceptionValidityMetalBuffer &&
+                publishedSensor.proprioceptionGPUAddress ==
+                    publicationSensor.proprioceptionGPUAddress &&
+                publishedSensor.validityGPUAddress ==
+                    publicationSensor.validityGPUAddress &&
+                publishedSensor.interoceptionGPUAddress ==
+                    publicationSensor.interoceptionGPUAddress &&
+                publishedSensor.interoceptionValidityGPUAddress ==
+                    publicationSensor.interoceptionValidityGPUAddress &&
+                publishedSensor.receptorTimestampMicroseconds == 0u &&
+                publishedSensor.deliveryTimestampMicroseconds == 0u &&
+                publishedSensor.latencyMicroseconds == 0u &&
+                publishedSensor.stepTimeStrideMicroseconds == 0u &&
+                publishedSensor.timestampQuantumNanoseconds ==
+                    MR_NUMANX_BRAIN_EXACT_CLOCK_QUANTUM_NANOSECONDS &&
+                publishedSensor.receptorTimestampNanoseconds ==
+                    kStartNanoseconds &&
+                publishedSensor.deliveryTimestampNanoseconds ==
+                    kDeliveryNanoseconds &&
+                publishedSensor.latencyNanoseconds ==
+                    kDurationNanoseconds &&
+                publishedSensor.stepTimeStrideNanoseconds ==
+                    kDurationNanoseconds &&
+                validExactTokenShape(
+                    publishedFinalToken, transaction, kDeliveryNanoseconds) &&
+                std::memcmp(
+                    &publishedFinalToken, &finalToken,
+                    sizeof(publishedFinalToken)) == 0 &&
+                ownerStats.completedSubmissionCount == 1u &&
+                ownerStats.submissionDestructorWaitCount == 0u &&
+                ownerStats.terminalSubmissionNonwaitingReapCount == 1u &&
+                !ownerStats.hasInFlightSubmission,
+        "exact COMMITTED root did not expose coherent resolved owner views");
 
     std::cout
-        << "PASS exact_v2_publication_boundary device="
+        << "PASS exact_v2_lifecycle device="
         << device.name.UTF8String
-        << " disposition=prepared"
+        << " disposition=resolved"
         << " authority_storage=private"
+        << " publication_abi=2"
         << " token=accepted_v2"
-        << " final_token=zero"
+        << " final_token=published_v2"
         << " joint=" << outcome.jointDecision
         << " human=" << outcome.humanCode
         << " matter=" << outcome.matterCode
         << " world=" << outcome.worldCode
-        << " stand=" << outcome.worldABACode
-        << " stand_failing=" << outcome.humanFailingIndex
-        << " stand_contact_iterations=" << outcome.humanContactIterations
-        << " stand_factor=" << outcome.humanFactorAndAssistance[0u] << ','
-        << outcome.humanFactorAndAssistance[1u] << ','
-        << outcome.humanFactorAndAssistance[2u] << ','
-        << outcome.humanFactorAndAssistance[3u]
-        << " matter_object=" << outcome.matterObjectIndex
-        << " matter_failing=" << outcome.matterFailingIndex
         << " matter_fgmres=" << outcome.matterFGMRESIterations
-        << " matter_diag=" << outcome.matterDiagnostics[0u] << ','
-        << outcome.matterDiagnostics[1u] << ','
-        << outcome.matterDiagnostics[2u] << ','
-        << outcome.matterDiagnostics[3u]
-        << " negatives=family,clock"
-        << " proposal=blocked_missing_publication_binding"
-        << " publication=blocked_exact_humanio_abi\n";
-
-    // Preflight, ACK, V2 apply, and COMMITTED publication remain deliberately
-    // unreachable until HumanIO can issue an exact authority-bearing
-    // candidate-publication capability. The accepted prepare token remains
-    // quarantined and the root-visible final token remains zero.
-    (void)prepared;
-    (void)owner;
-    (void)humanIO;
-    (void)adapter;
-    (void)matter;
+        << " negatives=family,clock,authority,duplicate"
+        << " proposal=accepted"
+        << " apply=accepted_quarantined"
+        << " publication=committed\n";
 }
 
 } // namespace exact_v2_lifecycle_fixture

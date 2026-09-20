@@ -806,7 +806,10 @@ mrnx_candidate_v1* adoptCandidate(
         const std::uint64_t keyFingerprint = candidateKeyFingerprint(key);
         const std::uint64_t receptorMicros =
             sensor.receptorTimestampMicroseconds;
-        if (!program.valid() || !key.valid() || keyFingerprint == 0u ||
+        if (!program.valid() ||
+            program.abiVersion !=
+                kMetalNumanXHumanIOPublicationABIVersion ||
+            !key.valid() || keyFingerprint == 0u ||
             program.candidateKeyFingerprint != keyFingerprint ||
             program.transactionFingerprint != key.transactionFingerprint ||
             program.acceptedBrainGeneration !=

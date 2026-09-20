@@ -335,6 +335,29 @@ using Slot = detail::MetalNumanXHumanMatterSlot;
 using PhysicalDiagnostics = detail::PhysicalDiagnosticsReadback;
 using SlotStage = detail::HumanMatterSlotStage;
 using ProofFamily = detail::HumanMatterProofFamily;
+
+[[nodiscard]] std::uint32_t humanIOPublicationABI(
+    const ProofFamily family
+) noexcept {
+    switch (family) {
+    case ProofFamily::legacyV1:
+        return kMetalNumanXHumanIOPublicationABIVersion;
+    case ProofFamily::exactV2:
+        return kMetalNumanXHumanIOExactPublicationABIVersion;
+    case ProofFamily::none:
+        return 0u;
+    }
+    return 0u;
+}
+
+[[nodiscard]] bool validHumanIOCandidateFamily(
+    const MetalNumanXHumanIOCandidatePublicationProgram& candidate,
+    const ProofFamily family
+) noexcept {
+    const std::uint32_t expectedABI = humanIOPublicationABI(family);
+    return expectedABI != 0u && candidate.valid() &&
+        candidate.abiVersion == expectedABI;
+}
 using Frame = detail::MetalNumanXHumanMatterCallbackFrame;
 
 constexpr std::uint64_t kFNVOffset = 14695981039346656037ull;
@@ -2072,7 +2095,8 @@ void dispatchEnvironments(
         return false;
     }
     if (slot.humanIOCandidateBound) {
-        if (!slot.humanIOCandidate.valid() ||
+        if (!validHumanIOCandidateFamily(
+                slot.humanIOCandidate, slot.proofFamily) ||
             (slot.proofFamily == ProofFamily::exactV2 &&
              slot.humanIOCandidate.humanIOProgramFingerprint !=
                 slot.exactHumanIO.authority.humanIOProgramFingerprint) ||
@@ -2301,7 +2325,9 @@ void dispatchEnvironments(
         proposal.transactionSlot == slot.transaction.transactionSlot &&
         proposal.physicsSubstepCount == slot.transaction.physicsSubsteps &&
         proposal.controlStep == slot.transaction.controlStep &&
-        slot.humanIOCandidateBound && slot.humanIOCandidate.valid() &&
+        slot.humanIOCandidateBound &&
+        validHumanIOCandidateFamily(
+            slot.humanIOCandidate, slot.proofFamily) &&
         proposal.candidatePublicationFingerprint ==
             slot.humanIOCandidate.candidatePublicationFingerprint &&
         proposal.humanIOIdentityFingerprint ==
@@ -2468,9 +2494,12 @@ void dispatchEnvironments(
             slot.exactHumanIO.authority.humanIOProgramFingerprint &&
          binding.humanIOProgramFingerprint ==
             slot.exactHumanIO.authority.humanIOProgramFingerprint);
-    return slot.humanIOCandidateBound && candidate.valid() &&
+    const std::uint32_t expectedPublicationABI =
+        humanIOPublicationABI(slot.proofFamily);
+    return slot.humanIOCandidateBound &&
+        validHumanIOCandidateFamily(candidate, slot.proofFamily) &&
         expectedProgramFingerprint != 0u && exactHumanIOProgramBound &&
-        binding.abiVersion == kMetalNumanXHumanIOPublicationABIVersion &&
+        binding.abiVersion == expectedPublicationABI &&
         binding.structSize == sizeof(binding) &&
         binding.environmentCount == slot.transaction.environmentCount &&
         binding.environmentCount == 1u &&
@@ -3245,7 +3274,9 @@ void abortCallback(void* opaque, void* commandBuffer) noexcept {
             Slot& slot = state->slots[stagedLease.transactionSlot];
             auto baseLease = stagedLease;
             baseLease.humanIOCandidate = {};
-            if (!slot.leaseAcquired ||
+            if (!validHumanIOCandidateFamily(
+                    candidate, slot.proofFamily) ||
+                !slot.leaseAcquired ||
                 slot.stage != SlotStage::postEncoded ||
                 slot.humanIOCandidateBound ||
                 slot.physicalCommandFailed ||
@@ -3887,7 +3918,8 @@ releasePrepareLeaseCallback(
                     return Disposition::terminalNoTouch;
                 }
                 if (!slot.humanIOCandidateBound ||
-                    !slot.humanIOCandidate.valid() ||
+                    !validHumanIOCandidateFamily(
+                        slot.humanIOCandidate, slot.proofFamily) ||
                     slot.humanIORootReserved ||
                     slot.humanIOCandidate.rejectCandidate(
                         slot.humanIOCandidate.context,
@@ -4150,7 +4182,8 @@ releasePublishedRootCallback(
                 MR_NUMANX_HUMAN_MATTER_PUBLICATION_COMMITTED);
             const bool humanValid = slot.humanIOCandidateBound &&
                 slot.humanIORootReserved &&
-                slot.humanIOCandidate.valid() &&
+                validHumanIOCandidateFamily(
+                    slot.humanIOCandidate, slot.proofFamily) &&
                 slot.humanIOBinding.bindingFingerprint != 0u &&
                 slot.humanIOBinding.jointCommitFingerprint ==
                     ownerFence->jointCommitFingerprint &&
@@ -4176,6 +4209,7 @@ releasePublishedRootCallback(
                 return Disposition::terminalNoTouch;
             }
             MetalNumanXHumanIOCandidatePublicationCommit humanCommit{};
+            humanCommit.abiVersion = slot.humanIOCandidate.abiVersion;
             humanCommit.candidatePublicationFingerprint =
                 slot.humanIOCandidate.candidatePublicationFingerprint;
             humanCommit.bindingFingerprint =

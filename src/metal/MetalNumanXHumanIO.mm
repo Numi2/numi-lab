@@ -466,6 +466,40 @@ void rememberFailureLocked(
     return view;
 }
 
+[[nodiscard]] bool exactAuthorityMatches(
+    const State& state,
+    const Slot& slot,
+    const MetalNumanXHumanIOExactInboundAuthorityRange& authority
+) noexcept {
+    if (slot.inputFamily != InputFamily::exactV2 || !authority.valid()) {
+        return false;
+    }
+    const auto expected = makeExactPreparedView(state, slot).authority;
+    return expected.valid() &&
+        authority.abiVersion == expected.abiVersion &&
+        authority.structSize == expected.structSize &&
+        authority.metalBuffer == expected.metalBuffer &&
+        authority.gpuAddress == expected.gpuAddress &&
+        authority.byteOffset == expected.byteOffset &&
+        authority.byteCount == expected.byteCount &&
+        authority.deviceRegistryID == expected.deviceRegistryID &&
+        authority.humanIOProgramFingerprint ==
+            expected.humanIOProgramFingerprint &&
+        authority.transactionFingerprint ==
+            expected.transactionFingerprint &&
+        authority.substepFingerprint == expected.substepFingerprint &&
+        authority.motorCandidateFingerprint ==
+            expected.motorCandidateFingerprint &&
+        authority.acceptedBrainTimestampNanoseconds ==
+            expected.acceptedBrainTimestampNanoseconds &&
+        authority.brainGeneration == expected.brainGeneration &&
+        authority.clockDomain == expected.clockDomain &&
+        authority.clockQuantumNanoseconds ==
+            expected.clockQuantumNanoseconds &&
+        authority.rangeIdentityFingerprint ==
+            expected.rangeIdentityFingerprint;
+}
+
 [[nodiscard]] MetalNumanXHumanIOTransactionKey makeKey(
     const Slot& slot
 ) noexcept {
@@ -566,13 +600,18 @@ void clearCandidateOwnershipLocked(State& state) noexcept;
     const Slot& slot,
     const MetalNumanXHumanIOTransactionKey& key
 ) noexcept {
+    const bool exact = slot.inputFamily == InputFamily::exactV2;
     std::uint64_t hash = hashCString(
         kFnvOffset,
-        "metalrobo.numanx-human-io.candidate-publication.v1"
+        exact
+            ? "metalrobo.numanx-human-io.candidate-publication.exact-v2.v1"
+            : "metalrobo.numanx-human-io.candidate-publication.v1"
     );
     hash = hashU32(
         hash,
-        kMetalNumanXHumanIOPublicationABIVersion
+        exact
+            ? kMetalNumanXHumanIOExactPublicationABIVersion
+            : kMetalNumanXHumanIOPublicationABIVersion
     );
     hash = hashU64(hash, state.device != nil ? state.device.registryID : 0u);
     hash = hashU64(hash, key.transactionFingerprint);
@@ -689,6 +728,26 @@ void clearCandidateOwnershipLocked(State& state) noexcept;
     hash = hashU64(hash, slot.receptorTimestampMicroseconds);
     hash = hashU64(hash, slot.excitationGPUAddress);
     hash = hashU64(hash, slot.motorOutputHeaderGPUAddress);
+    if (exact) {
+        const auto authority = makeExactPreparedView(state, slot).authority;
+        hash = hashU32(
+            hash, static_cast<std::uint32_t>(slot.inputFamily));
+        hash = hashU64(hash, slot.substepFingerprint);
+        hash = hashU64(hash, slot.timestepNanoseconds);
+        hash = hashU64(hash, slot.receptorTimestampNanoseconds);
+        hash = hashU64(hash, slot.deliveryTimestampNanoseconds);
+        hash = hashU64(
+            hash,
+            reinterpret_cast<std::uintptr_t>(
+                (__bridge void*)slot.exactInboundAuthority));
+        hash = hashU64(
+            hash, slot.exactInboundAuthority.gpuAddress);
+        hash = hashU64(hash, 0u);
+        hash = hashU64(hash, slot.exactInboundAuthorityByteCount);
+        hash = hashU64(hash, authority.rangeIdentityFingerprint);
+        hash = hashU32(hash, authority.clockDomain);
+        hash = hashU32(hash, authority.clockQuantumNanoseconds);
+    }
     return nonzeroHash(hash);
 }
 
@@ -699,6 +758,9 @@ makeCandidatePublicationView(
     const std::uint64_t fingerprint
 ) noexcept {
     MetalNumanXHumanIOCandidatePublicationView view{};
+    view.abiVersion = slot.inputFamily == InputFamily::exactV2
+        ? kMetalNumanXHumanIOExactPublicationABIVersion
+        : kMetalNumanXHumanIOPublicationABIVersion;
     view.sensor = makeView(
         slot,
         MetalNumanXHumanIOViewState::candidate
@@ -755,8 +817,12 @@ makeCandidatePublicationProgram(
     const Slot& slot,
     const MetalNumanXHumanIOCandidatePublicationProgram& program
 ) noexcept {
-    return binding.abiVersion ==
-            kMetalNumanXHumanIOPublicationABIVersion &&
+    const std::uint32_t expectedABI =
+        slot.inputFamily == InputFamily::exactV2
+            ? kMetalNumanXHumanIOExactPublicationABIVersion
+            : kMetalNumanXHumanIOPublicationABIVersion;
+    return program.abiVersion == expectedABI &&
+        binding.abiVersion == expectedABI &&
         binding.structSize == sizeof(binding) &&
         binding.environmentCount == slot.environmentCount &&
         binding.environmentCount == 1u &&
@@ -855,7 +921,10 @@ publishCandidateCallback(
             state.rootPublicationReserved &&
             state.candidatePublicationFingerprint == candidateFingerprint &&
             commit.abiVersion ==
-                kMetalNumanXHumanIOPublicationABIVersion &&
+                (state.slots[state.candidateSlot].inputFamily ==
+                         InputFamily::exactV2
+                     ? kMetalNumanXHumanIOExactPublicationABIVersion
+                     : kMetalNumanXHumanIOPublicationABIVersion) &&
             commit.structSize == sizeof(commit) &&
             commit.status ==
                 MetalNumanXHumanIOCandidatePublicationCommitStatus::committed &&
@@ -924,6 +993,9 @@ makeCandidatePublicationProgram(
     const std::uint64_t fingerprint
 ) noexcept {
     MetalNumanXHumanIOCandidatePublicationProgram program{};
+    program.abiVersion = slot.inputFamily == InputFamily::exactV2
+        ? kMetalNumanXHumanIOExactPublicationABIVersion
+        : kMetalNumanXHumanIOPublicationABIVersion;
     program.context = &state;
     program.reservePublishedRoot = &reservePublishedRootCallback;
     program.publishCandidate = &publishCandidateCallback;
@@ -4109,7 +4181,10 @@ std::uint64_t metalNumanXHumanIOPublicationBindingFingerprint(
 ) noexcept {
     std::uint64_t hash = hashCString(
         kFnvOffset,
-        "metalrobo.numanx-human-io.publication-binding.v1"
+        binding.abiVersion ==
+                kMetalNumanXHumanIOExactPublicationABIVersion
+            ? "metalrobo.numanx-human-io.publication-binding.exact-v2.v1"
+            : "metalrobo.numanx-human-io.publication-binding.v1"
     );
     hash = hashU32(hash, binding.abiVersion);
     hash = hashU32(hash, binding.structSize);
@@ -4149,13 +4224,23 @@ std::uint64_t metalNumanXHumanIOCandidatePublicationIdentityFingerprint(
 
 bool MetalNumanXHumanIOCandidatePublicationLease::valid() const noexcept {
     if (state_ == nullptr || !program_.valid() ||
+        view_.abiVersion != program_.abiVersion ||
+        view_.structSize != sizeof(view_) ||
         view_.candidatePublicationFingerprint !=
             program_.candidatePublicationFingerprint) {
         return false;
     }
     try {
         const std::lock_guard lock(state_->mutex);
-        return state_->candidatePrepared && state_->candidateSlot >= 0 &&
+        if (!state_->candidatePrepared || state_->candidateSlot < 0) {
+            return false;
+        }
+        const auto expectedABI =
+            state_->slots[state_->candidateSlot].inputFamily ==
+                    InputFamily::exactV2
+                ? kMetalNumanXHumanIOExactPublicationABIVersion
+                : kMetalNumanXHumanIOPublicationABIVersion;
+        return program_.abiVersion == expectedABI &&
             state_->candidatePublicationLeased &&
             !state_->candidatePublicationTerminal &&
             state_->candidatePublicationFingerprint ==
@@ -4781,6 +4866,24 @@ MetalNumanXHumanIOContext::reserveCandidatePublication(
     const MetalNumanXHumanIOTransactionKey& key,
     MetalNumanXHumanIOCandidatePublicationLease& lease
 ) {
+    return reserveCandidatePublicationImpl(key, nullptr, lease);
+}
+
+MetalNumanXHumanIODiagnostics
+MetalNumanXHumanIOContext::reserveCandidatePublication(
+    const MetalNumanXHumanIOTransactionKey& key,
+    const MetalNumanXHumanIOExactInboundAuthorityRange& exactAuthority,
+    MetalNumanXHumanIOCandidatePublicationLease& lease
+) {
+    return reserveCandidatePublicationImpl(key, &exactAuthority, lease);
+}
+
+MetalNumanXHumanIODiagnostics
+MetalNumanXHumanIOContext::reserveCandidatePublicationImpl(
+    const MetalNumanXHumanIOTransactionKey& key,
+    const MetalNumanXHumanIOExactInboundAuthorityRange* exactAuthority,
+    MetalNumanXHumanIOCandidatePublicationLease& lease
+) {
     if (state_ == nullptr) {
         MetalNumanXHumanIODiagnostics result{};
         result.status = MetalNumanXHumanIOStatus::internalFailure;
@@ -4797,11 +4900,12 @@ MetalNumanXHumanIOContext::reserveCandidatePublication(
             );
         }
         Slot& slot = state_->slots[state_->candidateSlot];
-        if (slot.inputFamily == InputFamily::exactV2) {
+        if (slot.inputFamily == InputFamily::exactV2 &&
+            exactAuthority == nullptr) {
             return diagnosticsLocked(
                 *state_,
                 MetalNumanXHumanIOStatus::candidateUnavailable,
-                "exact-v2 publication is unavailable until the authority-bearing HumanMatter v2 lease is connected"
+                "exact-v2 publication requires the prepared private authority range and ABI2 reservation"
             );
         }
         if (!keyMatches(key, slot)) {
@@ -4809,6 +4913,21 @@ MetalNumanXHumanIOContext::reserveCandidatePublication(
                 *state_,
                 MetalNumanXHumanIOStatus::incompatibleTransaction,
                 "publication key does not match the candidate transaction, command-buffer identity, generation, and fingerprints"
+            );
+        }
+        if (slot.inputFamily == InputFamily::exactV2) {
+            if (!exactAuthorityMatches(*state_, slot, *exactAuthority)) {
+                return diagnosticsLocked(
+                    *state_,
+                    MetalNumanXHumanIOStatus::incompatibleTransaction,
+                    "exact publication authority range does not match the prepared private receipt"
+                );
+            }
+        } else if (exactAuthority != nullptr) {
+            return diagnosticsLocked(
+                *state_,
+                MetalNumanXHumanIOStatus::incompatibleTransaction,
+                "legacy publication cannot consume an exact authority range"
             );
         }
         if (lease.state_ != nullptr) {

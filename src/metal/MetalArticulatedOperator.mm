@@ -178,6 +178,22 @@ struct NumanXTransactionAbortGuard {
     return false;
 }
 
+[[nodiscard]] bool validHumanIOPublicationFamily(
+    const MetalNumanXHumanIOCandidatePublicationProgram& candidate,
+    const MetalNumanXHumanMatterTokenFamily family
+) noexcept {
+    if (!candidate.valid()) return false;
+    switch (family) {
+    case MetalNumanXHumanMatterTokenFamily::legacyMicrosecondsV1:
+        return candidate.abiVersion ==
+            kMetalNumanXHumanIOPublicationABIVersion;
+    case MetalNumanXHumanMatterTokenFamily::exactNanosecondsV2:
+        return candidate.abiVersion ==
+            kMetalNumanXHumanIOExactPublicationABIVersion;
+    }
+    return false;
+}
+
 struct NumanXHumanMatterAbortGuard {
     void* context = nullptr;
     MetalNumanXHumanMatterAbort abort = nullptr;
@@ -4402,6 +4418,11 @@ struct MetalBufferRegion {
         proposal.physicsSubstepCount == dispatch.physicsSubstepCount &&
         proposal.controlStep == dispatch.controlStep &&
         humanIOCandidate.valid() &&
+        humanIOCandidate.abiVersion ==
+            (((dispatch.flags &
+               MR_NUMANX_HUMAN_MATTER_EXACT_TOKEN_FAMILY) != 0u)
+                 ? kMetalNumanXHumanIOExactPublicationABIVersion
+                 : kMetalNumanXHumanIOPublicationABIVersion) &&
         humanIOCandidate.transactionFingerprint ==
             dispatch.transactionFingerprint &&
         proposal.candidatePublicationFingerprint ==
@@ -5593,6 +5614,8 @@ bool MetalNumanXHumanMatterPrepared::bindHumanIOCandidatePublication(
         const bool exactFamily = prepared.tokenFamily ==
             MetalNumanXHumanMatterTokenFamily::exactNanosecondsV2;
         if (!exactGeneration() || prepared.humanIOBindInFlight ||
+            !validHumanIOPublicationFamily(
+                candidate, prepared.tokenFamily) ||
             !validHumanMatterFamilyIdentity(
                 prepared.tokenFamily,
                 prepared.humanIOProgramFingerprint,
@@ -5744,7 +5767,9 @@ MetalNumanXHumanMatterPrepared::proposePrepared(
                 prepared.tokenFamily,
                 prepared.humanIOProgramFingerprint,
                 prepared.dispatch.flags) ||
-            !prepared.lease.humanIOCandidate.valid() ||
+            !validHumanIOPublicationFamily(
+                prepared.lease.humanIOCandidate,
+                prepared.tokenFamily) ||
             prepared.lease.humanIOCandidate.transactionFingerprint !=
                 prepared.dispatch.transactionFingerprint ||
             (exactFamily &&
@@ -6441,7 +6466,9 @@ MetalNumanXHumanMatterPrepared::applyPrepared(
                 prepared.tokenFamily,
                 prepared.humanIOProgramFingerprint,
                 prepared.dispatch.flags) ||
-            !prepared.lease.humanIOCandidate.valid() ||
+            !validHumanIOPublicationFamily(
+                prepared.lease.humanIOCandidate,
+                prepared.tokenFamily) ||
             (exactFamily &&
              prepared.lease.humanIOCandidate.humanIOProgramFingerprint !=
                  prepared.humanIOProgramFingerprint)) {
@@ -7114,7 +7141,9 @@ bool MetalNumanXHumanMatterPrepared::reservePublishedRoot(
             prepared.publicationReserved ||
             prepared.publicationReleaseInFlight ||
             prepared.reservePublishedRoot == nullptr ||
-            !prepared.lease.humanIOCandidate.valid() ||
+            !validHumanIOPublicationFamily(
+                prepared.lease.humanIOCandidate,
+                prepared.tokenFamily) ||
             !validHumanMatterFamilyIdentity(
                 prepared.tokenFamily,
                 prepared.humanIOProgramFingerprint,
@@ -7330,6 +7359,7 @@ bool MetalNumanXHumanMatterPrepared::reservePublishedRoot(
         reservation.brainGeneration = request.brainGeneration;
         const auto& humanIO = prepared.lease.humanIOCandidate;
         auto& humanIOBinding = reservation.humanIOBinding;
+        humanIOBinding.abiVersion = humanIO.abiVersion;
         humanIOBinding.environmentCount = prepared.dispatch.environmentCount;
         humanIOBinding.transactionSlot = prepared.transactionSlot;
         humanIOBinding.stepIndex = prepared.dispatch.stepIndex;
@@ -7437,6 +7467,9 @@ MetalNumanXHumanMatterPrepared::releasePublishedRoot(
                 prepared.tokenFamily,
                 prepared.humanIOProgramFingerprint,
                 prepared.dispatch.flags) ||
+            !validHumanIOPublicationFamily(
+                prepared.lease.humanIOCandidate,
+                prepared.tokenFamily) ||
             request.abiVersion != kMetalNumanXHumanMatterABIVersion ||
             request.structSize != sizeof(request) ||
             request.publicationFences != prepared.lease.publicationFences ||

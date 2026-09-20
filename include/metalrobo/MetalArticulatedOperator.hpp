@@ -622,6 +622,8 @@ using MetalNumanXHumanMatterAbort = void (*)(
 ) noexcept;
 
 inline constexpr std::uint32_t kMetalNumanXHumanIOPublicationABIVersion = 1u;
+inline constexpr std::uint32_t
+    kMetalNumanXHumanIOExactPublicationABIVersion = 2u;
 
 enum class MetalNumanXHumanIOCandidatePublicationDisposition : std::uint32_t {
     released = 1u,
@@ -756,7 +758,10 @@ struct MetalNumanXHumanIOCandidatePublicationProgram {
     }
 
     [[nodiscard]] bool valid() const noexcept {
-        return abiVersion == kMetalNumanXHumanIOPublicationABIVersion &&
+        const bool knownABI =
+            abiVersion == kMetalNumanXHumanIOPublicationABIVersion ||
+            abiVersion == kMetalNumanXHumanIOExactPublicationABIVersion;
+        return knownABI &&
             structSize == sizeof(*this) && context != nullptr &&
             reservePublishedRoot != nullptr && publishCandidate != nullptr &&
             rejectCandidate != nullptr && candidateKeyFingerprint != 0u &&

@@ -742,8 +742,59 @@ int main(const int argc, const char* const argv[]) {
                             candidateUnavailable &&
                         !legacyPublicationLease.valid(),
                     "exact candidate escaped through the legacy publication API");
-            require(context.reject(contextKey).succeeded(),
-                    "public exact candidate rejection failed");
+
+            auto mutatedAuthority = prepared.authority;
+            mutatedAuthority.rangeIdentityFingerprint ^= 1u;
+            metalrobo::MetalNumanXHumanIOCandidatePublicationLease
+                mutatedAuthorityLease{};
+            contextDiagnostics = context.reserveCandidatePublication(
+                contextKey, mutatedAuthority, mutatedAuthorityLease);
+            require(contextDiagnostics.status ==
+                        metalrobo::MetalNumanXHumanIOStatus::
+                            incompatibleTransaction &&
+                        !mutatedAuthorityLease.valid(),
+                    "mutated exact authority range reserved a publication lease");
+
+            metalrobo::MetalNumanXHumanIOCandidatePublicationLease
+                exactPublicationLease{};
+            contextDiagnostics = context.reserveCandidatePublication(
+                contextKey, prepared.authority, exactPublicationLease);
+            require(contextDiagnostics.succeeded() &&
+                        exactPublicationLease.valid() &&
+                        exactPublicationLease.program().abiVersion ==
+                            metalrobo::
+                                kMetalNumanXHumanIOExactPublicationABIVersion &&
+                        exactPublicationLease.view().abiVersion ==
+                            metalrobo::
+                                kMetalNumanXHumanIOExactPublicationABIVersion &&
+                        exactPublicationLease.program().
+                            candidatePublicationFingerprint ==
+                            exactPublicationLease.view().
+                                candidatePublicationFingerprint &&
+                        exactPublicationLease.view().sensor.
+                            receptorTimestampNanoseconds ==
+                            substep.startTimestampNanoseconds &&
+                        exactPublicationLease.view().sensor.
+                            deliveryTimestampNanoseconds ==
+                            substep.candidateTimestampNanoseconds,
+                    "valid exact authority did not mint a coherent ABI2 publication lease");
+            const auto& exactPublicationProgram =
+                exactPublicationLease.program();
+            require(exactPublicationProgram.rejectCandidate(
+                        exactPublicationProgram.context,
+                        exactPublicationProgram.
+                            candidatePublicationFingerprint) ==
+                        metalrobo::
+                            MetalNumanXHumanIOCandidatePublicationDisposition::
+                                rejected &&
+                        !exactPublicationLease.valid(),
+                    "exact ABI2 program rejection did not release its candidate");
+            contextDiagnostics = context.pendingCandidate(
+                contextKey, pendingSensor);
+            require(contextDiagnostics.status ==
+                        metalrobo::MetalNumanXHumanIOStatus::
+                            candidateUnavailable,
+                    "rejected exact publication candidate remained pending");
 
             // A terminal gate failure is transport-successful but must mark
             // the owning physical status failed, clear the private receipt,

@@ -671,6 +671,16 @@ public:
         MetalNumanXHumanIOCandidatePublicationLease& lease
     );
 
+    // Exact publication is a distinct ABI2 capability. Re-presenting the
+    // private authority range returned by prepare(V2) prevents a completed
+    // exact candidate from being downgraded into the legacy publication API.
+    [[nodiscard]] MetalNumanXHumanIODiagnostics
+    reserveCandidatePublication(
+        const MetalNumanXHumanIOTransactionKey& key,
+        const MetalNumanXHumanIOExactInboundAuthorityRange& exactAuthority,
+        MetalNumanXHumanIOCandidatePublicationLease& lease
+    );
+
     [[nodiscard]] MetalNumanXHumanIODiagnostics reject(
         const MetalNumanXHumanIOTransactionKey& key
     );
@@ -680,6 +690,13 @@ public:
     ) const;
 
 private:
+    [[nodiscard]] MetalNumanXHumanIODiagnostics
+    reserveCandidatePublicationImpl(
+        const MetalNumanXHumanIOTransactionKey& key,
+        const MetalNumanXHumanIOExactInboundAuthorityRange* exactAuthority,
+        MetalNumanXHumanIOCandidatePublicationLease& lease
+    );
+
     std::shared_ptr<detail::MetalNumanXHumanIOState> state_;
 };
 
