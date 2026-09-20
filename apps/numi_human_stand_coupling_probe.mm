@@ -439,6 +439,27 @@ struct Fixture {
     }
 };
 
+[[nodiscard]] metalrobo::ArticulatedPointQuery fp64SupportQuery(
+    const Fixture& fixture
+) {
+    require(fixture.contacts.size() == 1u,
+            "FP64 support oracle requires exactly one contact");
+    const MRNumiHumanStandContactGPU& contact = fixture.contacts.front();
+    require(contact.pointQueryIndex < fixture.points.size(),
+            "FP64 support oracle point index is out of range");
+    const MRArticulatedPointImpulseGPU& source =
+        fixture.points[contact.pointQueryIndex];
+    require(source.bodyIndex == contact.bodyIndex,
+            "FP64 support oracle body differs from the production contact");
+    metalrobo::ArticulatedPointQuery result{};
+    require(
+        metalrobo::widenArticulatedPointQueryFromGPU(source, result) ==
+            metalrobo::ArticulatedDynamicsStatus::success,
+        "FP64 support oracle rejected the production point record"
+    );
+    return result;
+}
+
 struct Run {
     MetalArticulatedOperatorDiagnostics diagnostics;
     MetalArticulatedOperatorResult result;
@@ -744,11 +765,7 @@ struct ProductionOrderTriadReference {
     dynamicsConfig.gravity = {0.0, -9.81, 0.0};
     dynamicsConfig.timestep = fixture.timestepSeconds;
 
-    metalrobo::ArticulatedPointQuery support{};
-    support.bodyIndex = kTerminalBody;
-    support.localPoint = {0.0, 0.0, 0.0};
-    support.supportRadius = 0.03;
-    support.supportPlaneNormal = {0.0, 1.0, 0.0};
+    metalrobo::ArticulatedPointQuery support = fp64SupportQuery(fixture);
     std::array<metalrobo::ArticulatedPointKinematics, 1u> points{};
     const std::size_t nv = fixture.model.world.nv;
     std::vector<double> pointJacobians(3u * nv, 0.0);
@@ -1048,11 +1065,7 @@ struct ProductionOrderTriadReference {
     dynamicsConfig.gravity = {0.0, -9.81, 0.0};
     dynamicsConfig.timestep = fixture.timestepSeconds;
 
-    metalrobo::ArticulatedPointQuery support{};
-    support.bodyIndex = kTerminalBody;
-    support.localPoint = {0.0, 0.0, 0.0};
-    support.supportRadius = 0.03;
-    support.supportPlaneNormal = {0.0, 1.0, 0.0};
+    metalrobo::ArticulatedPointQuery support = fp64SupportQuery(fixture);
     std::array<metalrobo::ArticulatedPointKinematics, 1u> points{};
     std::vector<double> pointJacobians(3u * fixture.model.world.nv, 0.0);
     const auto pointDiagnostics = metalrobo::computeArticulatedPointJacobians(
@@ -1423,11 +1436,10 @@ void checkPostProjectionPreStepConstraintDiagnostics() {
     }
 }
 
-// At the exact support surface, an FP64 geometric reconstruction can retain a
-// sub-float penetration while the production Metal path rounds it to zero.
-// At short timesteps that changes the Baumgarte target by gap/dt. This probe
-// reports the boundary explicitly, alongside free and equality-only controls,
-// so an oracle mismatch is not mistaken for a coupled-solver regression.
+// At the exact support surface, the FP64 oracle widens the same source point
+// record consumed by Metal. The constructed coincident witness and its contact
+// target must therefore agree exactly; free and equality-only controls retain
+// the surrounding arithmetic discriminator.
 void checkExactContactPrecisionDiagnostic() {
     constexpr float kFinestTimestep = 12.5e-6f;
     Fixture fixture(kFinestTimestep);
@@ -1469,9 +1481,9 @@ void checkExactContactPrecisionDiagnostic() {
         -contactStabilization * std::min(gpuMinimumGap, 0.0) /
             static_cast<double>(kFinestTimestep)
     );
-    // This is a counterfactual FP64 reference, not the gate above: it keeps
-    // the same FP64 dynamics and rows but uses the target published by the
-    // Metal geometry, isolating the solver remainder after target agreement.
+    // Retain an independently supplied-target reference after source geometry
+    // agreement. It should now receive the same zero target, while continuing
+    // to isolate any later solver-path remainder.
     const SimultaneousTriadReference metalTargetReference =
         simultaneousTriadReference(fixture, gpuContactTargetVelocity);
     const VelocityComparison targetMatchedComparison = compareVelocities(
@@ -1499,6 +1511,13 @@ void checkExactContactPrecisionDiagnostic() {
         freeComparison.maximumDifference <= 1.0e-8 &&
             equalityOnlyComparison.maximumDifference <= 1.0e-8,
         "exact-contact precision diagnostic cannot isolate the contact path"
+    );
+    require(
+        reference.initialContactGap == 0.0 && gpuMinimumGap == 0.0 &&
+            reference.targetVelocity[0u] == 0.0 &&
+            gpuContactTargetVelocity == 0.0 &&
+            contactTargetVelocityDifference == 0.0,
+        "source-identical support witness changed its exact contact target"
     );
     std::cout << "exact_contact_precision_diagnostic"
               << " dt_us=" << static_cast<double>(kFinestTimestep) * 1.0e6
@@ -1536,9 +1555,9 @@ void checkExactContactPrecisionDiagnostic() {
 // The simultaneous KKT reference establishes the ideal coupled-row target,
 // while this second reference follows the production contact/equality/limit
 // order and its final equality overwrite.  Keeping both references on the
-// same Metal-published contact target separates three quantities: surface
-// precision, finite-sweep ordering/projection, and the remaining FP32 path
-// difference.  It does not choose a corrective runtime formulation.
+// same source-authored contact target separates finite-sweep
+// ordering/projection from the remaining FP32 path difference. It does not
+// choose a corrective runtime formulation.
 void checkProductionOrderTriadReference() {
     constexpr float kFinestTimestep = 12.5e-6f;
     constexpr std::uint32_t kCoupledSweepCount = 64u;
