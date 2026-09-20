@@ -2592,6 +2592,17 @@ void cancelSlot(State& state, Slot& slot) noexcept {
         cancelSlot(state, slot);
         return false;
     }
+    // The pre-dynamics observer runs after Matter has encoded the staged
+    // reaction but before the owning Human graph consumes it into the source
+    // generalized-force arena. This is the only boundary where evidence can
+    // capture both records without relabeling the post-consumption force as
+    // its source input.
+    if (state.config.observeCandidate != nullptr &&
+        !state.config.observeCandidate(
+            state.config.candidateObserverContext, pass)) {
+        cancelSlot(state, slot);
+        return false;
+    }
     slot.stage = SlotStage::preEncoded;
     return true;
 }

@@ -1117,6 +1117,59 @@ struct PreparedTransaction {
     std::uint32_t reactionConsumptions = 0u;
 };
 
+struct CandidateObserverTrace {
+    struct Record {
+        std::uint64_t transactionFingerprint = 0u;
+        std::uint32_t observedPhaseCount = 0u;
+    };
+    std::array<Record, 64u> records{};
+    std::size_t recordCount = 0u;
+
+    [[nodiscard]] bool completed(
+        const std::uint64_t transactionFingerprint) const noexcept {
+        for (std::size_t index = 0u; index < recordCount; ++index) {
+            if (records[index].transactionFingerprint ==
+                    transactionFingerprint) {
+                return records[index].observedPhaseCount == 3u;
+            }
+        }
+        return false;
+    }
+};
+
+[[nodiscard]] bool observeCandidatePhase(
+    void* raw,
+    const metalrobo::MetalNumanXHumanMatterPass& pass
+) noexcept {
+    auto* trace = static_cast<CandidateObserverTrace*>(raw);
+    if (trace == nullptr || pass.transactionFingerprint == 0u) return false;
+    CandidateObserverTrace::Record* record = nullptr;
+    for (std::size_t index = 0u; index < trace->recordCount; ++index) {
+        if (trace->records[index].transactionFingerprint ==
+                pass.transactionFingerprint) {
+            record = &trace->records[index];
+            break;
+        }
+    }
+    if (record == nullptr) {
+        if (trace->recordCount == trace->records.size()) return false;
+        record = &trace->records[trace->recordCount++];
+        record->transactionFingerprint = pass.transactionFingerprint;
+    }
+    constexpr std::array<metalrobo::MetalNumanXHumanMatterPhase, 3u>
+        expectedPhases{
+            metalrobo::MetalNumanXHumanMatterPhase::beginStep,
+            metalrobo::MetalNumanXHumanMatterPhase::preDynamics,
+            metalrobo::MetalNumanXHumanMatterPhase::postDynamics,
+        };
+    if (record->observedPhaseCount >= expectedPhases.size() ||
+        pass.phase != expectedPhases[record->observedPhaseCount]) {
+        return false;
+    }
+    ++record->observedPhaseCount;
+    return true;
+}
+
 void verifyFirstCommandAbort(
     metalrobo::MetalNumanXHumanMatterContext& adapter,
     numi::matter::Runtime& matter,
@@ -2851,6 +2904,7 @@ int main() {
             require(matterInit.encoded,
                 "Matter Runtime initialization failed: " + matterInit.message);
 
+            CandidateObserverTrace observerTrace;
             metalrobo::MetalNumanXHumanMatterConfig config;
             config.matterRuntime = &matter;
             config.coupledHumanMetallibPath = NUMANX_ADAPTER_METALLIB;
@@ -2862,6 +2916,8 @@ int main() {
             config.stateProofProgram.encode = &encodeRuntimeProof;
             config.stateProofProgram.fingerprint =
                 matter.acceptedStateProofProgramFingerprint();
+            config.candidateObserverContext = &observerTrace;
+            config.observeCandidate = &observeCandidatePhase;
             metalrobo::MetalNumanXHumanMatterContext adapter(config);
             const auto initialized = adapter.initialize();
             require(initialized.succeeded(),
@@ -2894,6 +2950,9 @@ int main() {
                 adapter, matter, queue, arenas, exact);
             auto accepted = prepareTransaction(
                 adapter, matter, queue, arenas, exact, 2u, 37u, true);
+            require(observerTrace.completed(
+                    accepted.transaction.transactionFingerprint),
+                "candidate observer did not receive begin/pre/post in order");
             const auto acceptedApply = applyTransaction(
                 matter, queue, arenas, accepted,
                 ApplyMode::accept, true);

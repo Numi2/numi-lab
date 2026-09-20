@@ -1,5 +1,7 @@
 #include "metalrobo/NumiHumanSupport.hpp"
 #include "metalrobo/NumiHumanInitialState.hpp"
+#include "metalrobo/NumiHumanProductionOwnerEvidenceWriter.hpp"
+#include "metalrobo/NumiHumanProductionOwnerSnapshot.hpp"
 #include "metalrobo/NumiHumanRuntimeIdentity.hpp"
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
@@ -21,6 +23,7 @@
 #include <algorithm>
 #include <array>
 #include <atomic>
+#include <charconv>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -29,6 +32,7 @@
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
+#include <iomanip>
 #include <limits>
 #include <memory>
 #include <mutex>
@@ -1605,6 +1609,40 @@ struct ImportedRange {
 
 struct RuntimeState;
 
+struct OwnerSnapshotCaptureLayout {
+    std::uint64_t checkpointQ = 0u;
+    std::uint64_t checkpointV = 0u;
+    std::uint64_t checkpointRoot = 0u;
+    std::uint64_t checkpointMuscles = 0u;
+    std::uint64_t effectiveTangentFactorStorage = 0u;
+    std::uint64_t sourceGeneralizedForce = 0u;
+    std::uint64_t sourcePredictedVelocity = 0u;
+    std::uint64_t matterGeneralizedReaction = 0u;
+    std::uint64_t ownerStatus = 0u;
+    std::uint64_t candidateQ = 0u;
+    std::uint64_t candidateV = 0u;
+    std::uint64_t candidateRoot = 0u;
+    std::uint64_t candidateMuscles = 0u;
+    std::uint64_t muscleResults = 0u;
+    std::uint64_t muscleGeneralizedForces = 0u;
+    std::uint64_t reducedMuscleGeneralizedForce = 0u;
+    std::uint64_t standStatus = 0u;
+    std::uint64_t candidateSupportConsequences = 0u;
+    std::uint64_t tendonTransfers = 0u;
+    std::uint64_t tendonGeneralizedCorrections = 0u;
+    std::uint64_t totalBytes = 0u;
+};
+
+struct OwnerSnapshotCapture {
+    __strong id<MTLBuffer> buffer = nil;
+    OwnerSnapshotCaptureLayout layout{};
+    std::uint64_t ownerProgramFingerprint = 0u;
+    std::uint64_t linearizationEpoch = 0u;
+    bool preDynamicsEncoded = false;
+    bool humanMatterPostDynamicsEncoded = false;
+    bool postDynamicsEncoded = false;
+};
+
 struct ActiveRoot final : std::enable_shared_from_this<ActiveRoot> {
     RuntimeState* runtime = nullptr;
     std::mutex mutex;
@@ -1632,6 +1670,9 @@ struct ActiveRoot final : std::enable_shared_from_this<ActiveRoot> {
     // Optional qualification copy, populated on the original physical command
     // buffer and exposed only after joint publication. Never a state owner.
     __strong id<MTLBuffer> rootTranslationTrace = nil;
+    // Optional bounded evidence copy. It owns no simulation state and is read
+    // only after the enclosing prepared root reaches a terminal disposition.
+    std::optional<OwnerSnapshotCapture> ownerSnapshotCapture;
     __strong id<MTLBuffer> kinesthesia = nil;
     __strong id<MTLBuffer> kinesthesiaValidity = nil;
     __strong id<MTLBuffer> vestibular = nil;
@@ -1691,6 +1732,21 @@ struct RuntimeState final : std::enable_shared_from_this<RuntimeState> {
     std::uint64_t publishedPhysicsGeneration = 0u;
     std::uint64_t publishedTimestampMicroseconds = 0u;
     std::uint64_t publishedControlStep = 0u;
+    // Opt-in, bounded production-owner evidence. At most the first published
+    // root and one explicitly selected control root are persisted.
+    std::filesystem::path ownerSnapshotDirectory;
+    std::optional<std::uint64_t> ownerSnapshotSelectedControlStep;
+    bool ownerSnapshotFirstPublishedCaptured = false;
+    bool ownerSnapshotSelectedCaptured = false;
+    std::uint64_t ownerSnapshotBaseStateFingerprint = 0u;
+    std::uint64_t ownerSnapshotTreatmentHistoryFingerprint = 0u;
+    std::uint64_t ownerSnapshotHumanSourceWithoutInitialHistory = 0u;
+    std::uint64_t ownerSnapshotContactSampleCount = 0u;
+    std::uint64_t ownerSnapshotMatterGeneralizedStateCount = 0u;
+    std::uint64_t ownerSnapshotMatterReactionCount = 0u;
+    metalrobo::NumiHumanProductionOwnerTreatmentV1 ownerSnapshotTreatment =
+        metalrobo::NumiHumanProductionOwnerTreatmentV1::cold;
+    std::vector<nm_float4> ownerSnapshotInitialSupportHistories;
     // Attempts advance even when the root is authoritatively rejected; public
     // generation/timestamp authority advances only on accepted publication.
     std::uint64_t lastAttemptedControlStep = 0u;
@@ -1892,6 +1948,102 @@ void cultureCompletion(
     const std::shared_ptr<ActiveRoot>& active
 ) noexcept {
     if (runtime == nullptr || active == nullptr) return false;
+    bool captureOwnerSnapshot = false;
+    {
+        const std::lock_guard lock(runtime->mutex);
+        captureOwnerSnapshot = !runtime->ownerSnapshotDirectory.empty() &&
+            (!runtime->ownerSnapshotFirstPublishedCaptured ||
+             (runtime->ownerSnapshotSelectedControlStep.has_value() &&
+              !runtime->ownerSnapshotSelectedCaptured &&
+              active->controlStep ==
+                  *runtime->ownerSnapshotSelectedControlStep));
+    }
+    if (captureOwnerSnapshot) {
+        OwnerSnapshotCapture capture;
+        std::uint64_t cursor = 0u;
+        const auto add = [&cursor](
+            const std::uint64_t count,
+            const std::uint64_t elementBytes,
+            std::uint64_t& offset) noexcept {
+            if (elementBytes == 0u || count >
+                    std::numeric_limits<std::uint64_t>::max() /
+                        elementBytes) return false;
+            const std::uint64_t bytes = count * elementBytes;
+            if (cursor > std::numeric_limits<std::uint64_t>::max() - 15u)
+                return false;
+            cursor = (cursor + 15u) & ~std::uint64_t{15u};
+            offset = cursor;
+            if (bytes > std::numeric_limits<std::uint64_t>::max() - cursor)
+                return false;
+            cursor += bytes;
+            return true;
+        };
+        auto& layout = capture.layout;
+        const std::uint64_t nq = runtime->assets.rigid.nq;
+        const std::uint64_t nv = runtime->assets.rigid.nv;
+        const std::uint64_t muscles = runtime->assets.muscle.muscleCount;
+        const std::uint64_t tendonRows = 0u;
+        if ((nv != 0u && nv >
+                std::numeric_limits<std::uint64_t>::max() / nv) ||
+            (nv != 0u && muscles >
+                std::numeric_limits<std::uint64_t>::max() / nv) ||
+            (nv != 0u && tendonRows >
+                std::numeric_limits<std::uint64_t>::max() / nv)) {
+            return false;
+        }
+        const std::uint64_t factorElements = nv * nv;
+        const std::uint64_t muscleForceElements = muscles * nv;
+        const std::uint64_t tendonCorrectionElements = tendonRows * nv;
+        if (!add(nq, sizeof(float), layout.checkpointQ) ||
+            !add(nv, sizeof(float), layout.checkpointV) ||
+            !add(1u, sizeof(MRCompensatedRootTranslationGPU),
+                layout.checkpointRoot) ||
+            !add(muscles, sizeof(MRMujocoMuscleStateGPU),
+                layout.checkpointMuscles) ||
+            !add(factorElements, sizeof(float),
+                layout.effectiveTangentFactorStorage) ||
+            !add(nv, sizeof(float), layout.sourceGeneralizedForce) ||
+            !add(nv, sizeof(float), layout.sourcePredictedVelocity) ||
+            !add(nv, sizeof(float), layout.matterGeneralizedReaction) ||
+            !add(1u, sizeof(MRNumanXHumanMatterOwnerStatusGPU),
+                layout.ownerStatus) ||
+            !add(nq, sizeof(float), layout.candidateQ) ||
+            !add(nv, sizeof(float), layout.candidateV) ||
+            !add(1u, sizeof(MRCompensatedRootTranslationGPU),
+                layout.candidateRoot) ||
+            !add(muscles, sizeof(MRMujocoMuscleStateGPU),
+                layout.candidateMuscles) ||
+            !add(muscles, sizeof(MRMujocoMuscleResultGPU),
+                layout.muscleResults) ||
+            !add(muscleForceElements, sizeof(float),
+                layout.muscleGeneralizedForces) ||
+            !add(nv, sizeof(float),
+                layout.reducedMuscleGeneralizedForce) ||
+            !add(1u, sizeof(MRNumiHumanStandStatusGPU),
+                layout.standStatus) ||
+            !add(runtime->assets.matterSupportContacts.size(),
+                sizeof(NMHumanSupportConsequenceGPU),
+                layout.candidateSupportConsequences) ||
+            !add(tendonRows, sizeof(MRNumiHumanTendonTransferResultGPU),
+                layout.tendonTransfers) ||
+            !add(tendonCorrectionElements, sizeof(float),
+                layout.tendonGeneralizedCorrections) ||
+            cursor == 0u || cursor > std::numeric_limits<NSUInteger>::max()) {
+            return false;
+        }
+        layout.totalBytes = cursor;
+        capture.buffer = [runtime->device
+            newBufferWithLength:static_cast<NSUInteger>(cursor)
+            options:MTLResourceStorageModeShared];
+        if (capture.buffer == nil || capture.buffer.gpuAddress == 0u ||
+            capture.buffer.contents == nullptr ||
+            capture.buffer.length != cursor) return false;
+        capture.buffer.label =
+            @"NumanX persistent production-owner snapshot v1";
+        std::memset(capture.buffer.contents, 0,
+            static_cast<std::size_t>(cursor));
+        active->ownerSnapshotCapture.emplace(std::move(capture));
+    }
     if (std::getenv("MRNX_PHYSICAL_BUFFER_TRACE") != nullptr) {
         active->rootTranslationTrace = [runtime->device
             newBufferWithLength:sizeof(MRCompensatedRootTranslationGPU)
@@ -2154,6 +2306,8 @@ void cultureCompletion(
         appendFingerprintU64(runtime->assets.sourceFingerprint,tissueConfig->expected_costal_binding_fingerprint);
         appendFingerprintU64(runtime->assets.sourceFingerprint,world.fingerprint);
     }
+    runtime->ownerSnapshotHumanSourceWithoutInitialHistory =
+        runtime->assets.sourceFingerprint;
     if (initialConfig != nullptr) {
         requireBuild(initialState.humanSourceFingerprint == runtime->assets.sourceFingerprint,
             MRNX_RUNTIME_ASSET_FAILURE_V1, "initial-state composed Human source mismatch");
@@ -2168,6 +2322,29 @@ void cultureCompletion(
         world.dispatch.objectCount, world.dispatch.femNodeCount,
         world.dispatch.femHumanAttachmentCount,
         world.fingerprint, world.physicsFingerprint};
+    const std::uint64_t matterEnvironmentCount =
+        world.dispatch.environmentCount;
+    requireBuild(
+        (world.dispatch.contactPairCount == 0u ||
+         matterEnvironmentCount <=
+            std::numeric_limits<std::uint64_t>::max() /
+                world.dispatch.contactPairCount) &&
+        (world.dispatch.rigidGeneralizedCapacity == 0u ||
+         matterEnvironmentCount <=
+            std::numeric_limits<std::uint64_t>::max() /
+                world.dispatch.rigidGeneralizedCapacity) &&
+        (world.dispatch.rigidProxyCount == 0u ||
+         matterEnvironmentCount <=
+            std::numeric_limits<std::uint64_t>::max() /
+                world.dispatch.rigidProxyCount),
+        MRNX_RUNTIME_ASSET_FAILURE_V1,
+        "production-owner Matter snapshot shape overflows uint64");
+    runtime->ownerSnapshotContactSampleCount = matterEnvironmentCount *
+        world.dispatch.contactPairCount;
+    runtime->ownerSnapshotMatterGeneralizedStateCount =
+        matterEnvironmentCount * world.dispatch.rigidGeneralizedCapacity;
+    runtime->ownerSnapshotMatterReactionCount = matterEnvironmentCount *
+        world.dispatch.rigidProxyCount;
     runtime->domain = metalrobo::numanx_bridge_v1::makeDomain(
         config.metal_device);
     requireBuild(
@@ -2178,6 +2355,65 @@ void cultureCompletion(
     runtime->clockQuantumNanoseconds = exactClock ? 1u : 1000u;
     runtime->timestepSeconds = timestepSeconds;
     runtime->exactClock = exactClock;
+    runtime->ownerSnapshotInitialSupportHistories = initialSupportHistories;
+    runtime->ownerSnapshotTreatment = initialSupportHistories.empty()
+        ? metalrobo::NumiHumanProductionOwnerTreatmentV1::cold
+        : metalrobo::NumiHumanProductionOwnerTreatmentV1::seeded;
+    runtime->ownerSnapshotBaseStateFingerprint =
+        metalrobo::numiHumanProductionOwnerBaseStateFingerprintV1(
+            runtime->ownerSnapshotHumanSourceWithoutInitialHistory,
+            world.fingerprint, timestepNanoseconds,
+            std::as_bytes(std::span(runtime->assets.initialQ)),
+            std::as_bytes(std::span(runtime->assets.initialV)),
+            std::as_bytes(std::span(
+                runtime->assets.initialRootTranslations)),
+            std::as_bytes(std::span(runtime->assets.states)));
+    std::vector<std::byte> supportIdentityBytes;
+    supportIdentityBytes.reserve(52u);
+    for (const auto value : runtime->assets.supportIdentity.sha256)
+        supportIdentityBytes.push_back(std::byte{value});
+    const auto appendLittleEndian = [&supportIdentityBytes](
+        const std::uint64_t value, const std::uint32_t byteCount) {
+        for (std::uint32_t index = 0u; index < byteCount; ++index) {
+            supportIdentityBytes.push_back(std::byte{
+                static_cast<std::uint8_t>(value >> (8u * index))});
+        }
+    };
+    appendLittleEndian(runtime->assets.supportIdentity.byteCount, 8u);
+    appendLittleEndian(runtime->assets.supportIdentity.payloadABI, 4u);
+    appendLittleEndian(runtime->assets.supportIdentity.sourceRecordCount, 4u);
+    appendLittleEndian(runtime->assets.supportIdentity.expandedRowCount, 4u);
+    runtime->ownerSnapshotTreatmentHistoryFingerprint =
+        metalrobo::numiHumanProductionOwnerTreatmentHistoryFingerprintV1(
+            supportIdentityBytes,
+            std::as_bytes(std::span(
+                runtime->ownerSnapshotInitialSupportHistories)));
+    const char* ownerSnapshotPath =
+        std::getenv("MRNX_PRODUCTION_OWNER_SNAPSHOT_PATH");
+    const char* ownerSnapshotControlStep =
+        std::getenv("MRNX_PRODUCTION_OWNER_SNAPSHOT_CONTROL_STEP");
+    requireBuild(
+        ownerSnapshotControlStep == nullptr ||
+            (ownerSnapshotPath != nullptr && ownerSnapshotPath[0] != '\0'),
+        MRNX_RUNTIME_INVALID_CONFIGURATION_V1,
+        "production-owner selected control step requires a snapshot path");
+    if (ownerSnapshotPath != nullptr) {
+        requireBuild(ownerSnapshotPath[0] != '\0',
+            MRNX_RUNTIME_INVALID_CONFIGURATION_V1,
+            "production-owner snapshot path is empty");
+        runtime->ownerSnapshotDirectory = ownerSnapshotPath;
+    }
+    if (ownerSnapshotControlStep != nullptr) {
+        std::uint64_t selected = 0u;
+        const char* end = ownerSnapshotControlStep +
+            std::strlen(ownerSnapshotControlStep);
+        const auto parsed = std::from_chars(
+            ownerSnapshotControlStep, end, selected);
+        requireBuild(parsed.ec == std::errc{} && parsed.ptr == end,
+            MRNX_RUNTIME_INVALID_CONFIGURATION_V1,
+            "production-owner selected control step is not an exact uint64");
+        runtime->ownerSnapshotSelectedControlStep = selected;
+    }
     runtime->transactionSlotCount = config.transaction_slot_count;
     runtime->visionProfile = loadVisionProfile(
         config.visual_pack_path,
@@ -4009,6 +4245,98 @@ bool encodeSupplementalSensors(
                 size:sizeof(MRCompensatedRootTranslationGPU)];
             [copy endEncoding];
         }
+        if (active->ownerSnapshotCapture) {
+            auto& capture = *active->ownerSnapshotCapture;
+            __unsafe_unretained id<MTLBuffer> mujocoStates = nil;
+            __unsafe_unretained id<MTLBuffer> mujocoResults = nil;
+            __unsafe_unretained id<MTLBuffer> forceArena = nil;
+            const std::uint64_t muscleCount =
+                runtime.assets.muscle.muscleCount;
+            const std::uint64_t dofCount = runtime.assets.rigid.nv;
+            if (dofCount != 0u && muscleCount >
+                    std::numeric_limits<std::uint64_t>::max() / dofCount) {
+                return false;
+            }
+            const std::uint64_t perMuscleForceCount =
+                muscleCount * dofCount;
+            const bool captureValid = !capture.postDynamicsEncoded &&
+                capture.buffer != nil &&
+                capture.buffer.device == runtime.device &&
+                capture.buffer.contents != nullptr &&
+                capture.layout.totalBytes == capture.buffer.length &&
+                pass.mujocoMuscleCount == muscleCount &&
+                pass.mujocoStateElementCount == muscleCount &&
+                pass.mujocoStateStride == muscleCount &&
+                pass.mujocoResultElementCount == muscleCount &&
+                pass.mujocoResultStride == muscleCount &&
+                pass.mujocoMuscleGeneralizedForceElementCount ==
+                    perMuscleForceCount &&
+                pass.mujocoMuscleGeneralizedForceRowStride == dofCount &&
+                pass.mujocoMuscleGeneralizedForceEnvironmentStride ==
+                    perMuscleForceCount &&
+                pass.mujocoGeneralizedForceElementCount == dofCount &&
+                pass.mujocoGeneralizedForceStride == dofCount &&
+                pass.mujocoGeneralizedForceOffset == perMuscleForceCount &&
+                pass.mujocoGeneralizedForceOffset <=
+                    pass.mujocoGeneralizedForceArenaElementCount &&
+                dofCount <= pass.mujocoGeneralizedForceArenaElementCount -
+                    pass.mujocoGeneralizedForceOffset &&
+                pass.tendonBindingCount == 0u &&
+                pass.tendonEnvelopeCount == 0u &&
+                pass.tendonTransferElementCount == 0u &&
+                pass.tendonCorrectionElementCount == 0u &&
+                bufferObject(pass.mujocoStates, mujocoStates) &&
+                bufferObject(pass.mujocoResults, mujocoResults) &&
+                bufferObject(pass.mujocoGeneralizedForceArena, forceArena) &&
+                mujocoStates.device == runtime.device &&
+                mujocoResults.device == runtime.device &&
+                forceArena.device == runtime.device &&
+                mujocoStates != capture.buffer &&
+                mujocoResults != capture.buffer &&
+                forceArena != capture.buffer;
+            if (!captureValid) return false;
+            struct Copy {
+                __unsafe_unretained id<MTLBuffer> source = nil;
+                std::uint64_t sourceOffset = 0u;
+                std::uint64_t destinationOffset = 0u;
+                std::uint64_t bytes = 0u;
+            };
+            const Copy copies[] = {
+                {mujocoStates, 0u, capture.layout.candidateMuscles,
+                    muscleCount * sizeof(MRMujocoMuscleStateGPU)},
+                {mujocoResults, 0u, capture.layout.muscleResults,
+                    muscleCount * sizeof(MRMujocoMuscleResultGPU)},
+                {forceArena, 0u, capture.layout.muscleGeneralizedForces,
+                    perMuscleForceCount * sizeof(float)},
+                {standStatuses, 0u, capture.layout.standStatus,
+                    sizeof(MRNumiHumanStandStatusGPU)},
+                {supportConsequences, 0u,
+                    capture.layout.candidateSupportConsequences,
+                    supportView.elementCount *
+                        sizeof(NMHumanSupportConsequenceGPU)},
+            };
+            for (const auto& copy : copies) {
+                if (copy.sourceOffset > copy.source.length ||
+                    copy.bytes > copy.source.length - copy.sourceOffset ||
+                    copy.destinationOffset > capture.buffer.length ||
+                    copy.bytes > capture.buffer.length -
+                        copy.destinationOffset) return false;
+            }
+            id<MTLBlitCommandEncoder> copy =
+                [commandBuffer blitCommandEncoder];
+            if (copy == nil) return false;
+            copy.label = @"NumanX production-owner MyoSim snapshot";
+            for (const auto& region : copies) {
+                [copy copyFromBuffer:region.source
+                    sourceOffset:static_cast<NSUInteger>(region.sourceOffset)
+                    toBuffer:capture.buffer
+                    destinationOffset:static_cast<NSUInteger>(
+                        region.destinationOffset)
+                    size:static_cast<NSUInteger>(region.bytes)];
+            }
+            [copy endEncoding];
+            capture.postDynamicsEncoded = true;
+        }
         id<MTLComputeCommandEncoder> reduction = [commandBuffer computeCommandEncoder];
         if (reduction == nil) return false;
         [reduction setComputePipelineState:runtime.supportAggregationPipeline];
@@ -4063,6 +4391,168 @@ bool encodeRuntimeBehaviorCandidate(void* raw,
     const metalrobo::MetalNumanXHumanMatterPass& pass) noexcept {
     auto* runtime = static_cast<RuntimeState*>(raw);
     if (runtime == nullptr) return false;
+    const auto encodeOwnerSnapshot = [&]() noexcept {
+        if (pass.phase ==
+            metalrobo::MetalNumanXHumanMatterPhase::beginStep) return true;
+        auto* active = runtime->encodingActive;
+        if (active == nullptr || !active->ownerSnapshotCapture) return true;
+        auto& capture = *active->ownerSnapshotCapture;
+        const bool preDynamics = pass.phase ==
+            metalrobo::MetalNumanXHumanMatterPhase::preDynamics;
+        const bool postDynamics = pass.phase ==
+            metalrobo::MetalNumanXHumanMatterPhase::postDynamics;
+        if ((!preDynamics && !postDynamics) ||
+            (preDynamics && capture.preDynamicsEncoded) ||
+            (postDynamics && (!capture.preDynamicsEncoded ||
+                capture.humanMatterPostDynamicsEncoded)) ||
+            capture.buffer == nil ||
+            capture.buffer.device != runtime->device ||
+            capture.buffer.contents == nullptr ||
+            capture.layout.totalBytes != capture.buffer.length ||
+            active->slotGeneration != pass.slotGeneration ||
+            active->transactionFingerprint != pass.transactionFingerprint ||
+            pass.abiVersion !=
+                metalrobo::kMetalNumanXHumanMatterPassABIVersion ||
+            pass.structSize != sizeof(pass) || pass.environmentCount != 1u ||
+            pass.qCoordinateCount != runtime->assets.rigid.nq ||
+            pass.dofCount != runtime->assets.rigid.nv ||
+            pass.mujocoStateCount != runtime->assets.muscle.muscleCount ||
+            pass.qStride < pass.qCoordinateCount ||
+            pass.vStride < pass.dofCount ||
+            pass.mujocoStateStride < pass.mujocoStateCount ||
+            pass.generalizedForceStride < pass.dofCount ||
+            pass.generalizedForceOffset >
+                pass.generalizedForceArenaElementCount ||
+            pass.generalizedForceOffset >
+                std::numeric_limits<std::uint64_t>::max() / sizeof(float) ||
+            pass.dofCount > pass.generalizedForceArenaElementCount -
+                pass.generalizedForceOffset ||
+            pass.reactionStride < pass.dofCount ||
+            pass.rootTranslationElementCount < 1u ||
+            pass.rootTranslationCheckpointElementCount < 1u) return false;
+        if (pass.dofCount != 0u && pass.dofCount >
+                std::numeric_limits<std::uint64_t>::max() /
+                    pass.dofCount) return false;
+        const std::uint64_t factorElements =
+            pass.dofCount * pass.dofCount;
+        if (pass.factorStride < factorElements ||
+            pass.qCoordinateCount >
+                std::numeric_limits<std::uint64_t>::max() / sizeof(float) ||
+            pass.dofCount >
+                std::numeric_limits<std::uint64_t>::max() / sizeof(float) ||
+            pass.mujocoStateCount >
+                std::numeric_limits<std::uint64_t>::max() /
+                    sizeof(MRMujocoMuscleStateGPU) ||
+            factorElements >
+                std::numeric_limits<std::uint64_t>::max() / sizeof(float)) {
+            return false;
+        }
+        if (postDynamics &&
+            (capture.ownerProgramFingerprint != pass.programFingerprint ||
+             capture.linearizationEpoch != pass.linearizationEpoch)) {
+            return false;
+        }
+
+        __unsafe_unretained id<MTLCommandBuffer> commandBuffer = nil;
+        if (!commandBufferObject(pass.commandBuffer, commandBuffer))
+            return false;
+        struct Copy {
+            void* raw = nullptr;
+            std::uint64_t sourceOffset = 0u;
+            std::uint64_t destinationOffset = 0u;
+            std::uint64_t bytes = 0u;
+        };
+        const std::uint64_t nqBytes =
+            pass.qCoordinateCount * sizeof(float);
+        const std::uint64_t nvBytes = pass.dofCount * sizeof(float);
+        const std::uint64_t muscleBytes = pass.mujocoStateCount *
+            sizeof(MRMujocoMuscleStateGPU);
+        const std::uint64_t factorBytes = factorElements * sizeof(float);
+        const Copy preDynamicsCopies[] = {
+            {pass.qCheckpoint, 0u, capture.layout.checkpointQ, nqBytes},
+            {pass.vCheckpoint, 0u, capture.layout.checkpointV, nvBytes},
+            {pass.rootTranslationCheckpoint, 0u,
+                capture.layout.checkpointRoot,
+                sizeof(MRCompensatedRootTranslationGPU)},
+            {pass.mujocoStateCheckpoint, 0u,
+                capture.layout.checkpointMuscles, muscleBytes},
+            {pass.sourceEffectiveTangentFactor, 0u,
+                capture.layout.effectiveTangentFactorStorage, factorBytes},
+            {pass.mujocoGeneralizedForceArena,
+                pass.generalizedForceOffset * sizeof(float),
+                capture.layout.sourceGeneralizedForce, nvBytes},
+            {pass.mujocoGeneralizedForceArena,
+                pass.generalizedForceOffset * sizeof(float),
+                capture.layout.reducedMuscleGeneralizedForce, nvBytes},
+            {pass.sourcePredictedVelocity, 0u,
+                capture.layout.sourcePredictedVelocity, nvBytes},
+            {pass.matterGeneralizedReaction, 0u,
+                capture.layout.matterGeneralizedReaction, nvBytes},
+        };
+        const Copy postDynamicsCopies[] = {
+            {pass.ownerStatuses, 0u, capture.layout.ownerStatus,
+                sizeof(MRNumanXHumanMatterOwnerStatusGPU)},
+            {pass.q, 0u, capture.layout.candidateQ, nqBytes},
+            {pass.v, 0u, capture.layout.candidateV, nvBytes},
+            {pass.rootTranslation, 0u, capture.layout.candidateRoot,
+                sizeof(MRCompensatedRootTranslationGPU)},
+        };
+        const auto encodeCopies = [&] (
+            const std::span<const Copy> copies,
+            NSString* label) noexcept {
+            if (copies.size() > std::size(preDynamicsCopies)) return false;
+            struct BorrowedSource {
+                __unsafe_unretained id<MTLBuffer> buffer = nil;
+            };
+            std::array<BorrowedSource,
+                std::size(preDynamicsCopies)> sources{};
+            for (std::size_t index = 0u; index < copies.size(); ++index) {
+                __unsafe_unretained id<MTLBuffer> source = nil;
+                const auto& copy = copies[index];
+                if (!bufferObject(copy.raw, source) ||
+                    source == capture.buffer ||
+                    source.device != runtime->device ||
+                    copy.sourceOffset > source.length ||
+                    copy.bytes > source.length - copy.sourceOffset ||
+                    copy.destinationOffset > capture.buffer.length ||
+                    copy.bytes > capture.buffer.length -
+                        copy.destinationOffset) return false;
+                sources[index].buffer = source;
+            }
+            id<MTLBlitCommandEncoder> encoder =
+                [commandBuffer blitCommandEncoder];
+            if (encoder == nil) return false;
+            encoder.label = label;
+            for (std::size_t index = 0u; index < copies.size(); ++index) {
+                const auto& copy = copies[index];
+                [encoder copyFromBuffer:sources[index].buffer
+                    sourceOffset:static_cast<NSUInteger>(copy.sourceOffset)
+                    toBuffer:capture.buffer
+                    destinationOffset:static_cast<NSUInteger>(
+                        copy.destinationOffset)
+                    size:static_cast<NSUInteger>(copy.bytes)];
+            }
+            [encoder endEncoding];
+            return true;
+        };
+        if (preDynamics) {
+            if (!encodeCopies(preDynamicsCopies,
+                    @"NumanX production-owner source snapshot")) {
+                return false;
+            }
+            capture.ownerProgramFingerprint = pass.programFingerprint;
+            capture.linearizationEpoch = pass.linearizationEpoch;
+            capture.preDynamicsEncoded = true;
+        } else {
+            if (!encodeCopies(postDynamicsCopies,
+                    @"NumanX production-owner candidate snapshot")) {
+                return false;
+            }
+            capture.humanMatterPostDynamicsEncoded = true;
+        }
+        return true;
+    };
+    if (!encodeOwnerSnapshot()) return false;
     if (runtime->behavior == nullptr) return true;
     if (pass.phase == metalrobo::MetalNumanXHumanMatterPhase::beginStep) {
         if (!runtime->behavior->encodeFlush(pass.commandBuffer, runtime->behaviorError)) return false;
@@ -4070,7 +4560,10 @@ bool encodeRuntimeBehaviorCandidate(void* raw,
             return runtime->behavior->encodeInitial(pass, runtime->behaviorError);
         return true;
     }
-    if (pass.phase != metalrobo::MetalNumanXHumanMatterPhase::postDynamics) return false;
+    if (pass.phase == metalrobo::MetalNumanXHumanMatterPhase::preDynamics)
+        return true;
+    if (pass.phase != metalrobo::MetalNumanXHumanMatterPhase::postDynamics)
+        return false;
     const auto* active = runtime->encodingActive;
     if (active == nullptr || active->slotGeneration != pass.slotGeneration ||
         active->transactionFingerprint != pass.transactionFingerprint ||
@@ -4112,6 +4605,728 @@ void recordRuntimeBehaviorTerminal(RuntimeState& runtime, const ActiveRoot& acti
     (void)runtime.behavior->terminal(release, fence, runtime.behaviorError);
 }
 
+template <typename T>
+[[nodiscard]] metalrobo::NumiHumanProductionOwnerArrayV1 ownerHostArray(
+    const std::span<const T> values) {
+    static_assert(std::is_trivially_copyable_v<T>);
+    metalrobo::NumiHumanProductionOwnerArrayV1 result;
+    result.available = true;
+    result.expectedElementCount = values.size();
+    result.elementBytes = sizeof(T);
+    const auto bytes = std::as_bytes(values);
+    result.bytes.assign(bytes.begin(), bytes.end());
+    return result;
+}
+
+[[nodiscard]] bool ownerCapturedArray(
+    const OwnerSnapshotCapture& capture,
+    const std::uint64_t offset,
+    const std::uint64_t count,
+    const std::uint32_t elementBytes,
+    metalrobo::NumiHumanProductionOwnerArrayV1& output
+) noexcept {
+    if (capture.buffer == nil || capture.buffer.contents == nullptr ||
+        elementBytes == 0u || count >
+            std::numeric_limits<std::uint64_t>::max() / elementBytes) {
+        return false;
+    }
+    const std::uint64_t bytes = count * elementBytes;
+    if (offset > capture.buffer.length ||
+        bytes > capture.buffer.length - offset ||
+        bytes > std::numeric_limits<std::size_t>::max()) return false;
+    metalrobo::NumiHumanProductionOwnerArrayV1 result;
+    result.available = true;
+    result.expectedElementCount = count;
+    result.elementBytes = elementBytes;
+    const auto* begin = static_cast<const std::byte*>(
+        capture.buffer.contents) + offset;
+    result.bytes.assign(begin, begin + static_cast<std::size_t>(bytes));
+    output = std::move(result);
+    return true;
+}
+
+[[nodiscard]] bool ownerFloatValues(
+    const metalrobo::NumiHumanProductionOwnerArrayV1& source,
+    const std::size_t expectedCount,
+    std::vector<float>& output
+) noexcept {
+    if (!source.available || source.elementBytes != sizeof(float) ||
+        source.expectedElementCount != expectedCount ||
+        expectedCount > std::numeric_limits<std::size_t>::max() /
+            sizeof(float) ||
+        source.bytes.size() != expectedCount * sizeof(float)) {
+        return false;
+    }
+    output.resize(expectedCount);
+    if (!output.empty()) {
+        std::memcpy(output.data(), source.bytes.data(), source.bytes.size());
+    }
+    return true;
+}
+
+[[nodiscard]] bool deriveOwnerSnapshotDynamics(
+    metalrobo::NumiHumanProductionOwnerSnapshotV1& snapshot,
+    std::string& error
+) noexcept {
+    const std::size_t nv = snapshot.dofCount;
+    std::vector<float> v0;
+    std::vector<float> freeVelocity;
+    std::vector<float> sourceForce;
+    std::vector<float> reaction;
+    std::vector<float> candidateVelocity;
+    std::vector<float> lower;
+    if (!ownerFloatValues(snapshot.checkpointV, nv, v0) ||
+        !ownerFloatValues(
+            snapshot.sourcePredictedVelocity, nv, freeVelocity) ||
+        !ownerFloatValues(
+            snapshot.sourceGeneralizedForce, nv, sourceForce) ||
+        !ownerFloatValues(snapshot.matterGeneralizedReaction, nv, reaction) ||
+        !ownerFloatValues(snapshot.candidateV, nv, candidateVelocity) ||
+        !ownerFloatValues(snapshot.effectiveTangentFactorStorage,
+            nv * nv, lower) ||
+        snapshot.timestepNanoseconds == 0u) {
+        error = "production-owner dynamic derivation inputs are incomplete";
+        return false;
+    }
+    const double timestep =
+        static_cast<double>(snapshot.timestepNanoseconds) * 1.0e-9;
+    std::vector<float> acceleration(nv);
+    std::vector<double> transposeAction(nv, 0.0);
+    std::vector<float> rhs(nv);
+    std::vector<float> bias(nv);
+    std::vector<double> candidateDelta(nv, 0.0);
+    for (std::size_t row = 0u; row < nv; ++row) {
+        if (!std::isfinite(v0[row]) || !std::isfinite(freeVelocity[row]) ||
+            !std::isfinite(sourceForce[row]) ||
+            !std::isfinite(reaction[row]) ||
+            !std::isfinite(candidateVelocity[row])) {
+            error = "production-owner dynamic vector is nonfinite";
+            return false;
+        }
+        const double value =
+            (static_cast<double>(freeVelocity[row]) - v0[row]) / timestep;
+        if (!std::isfinite(value) ||
+            std::abs(value) > std::numeric_limits<float>::max()) {
+            error = "production-owner acceleration is not FP32 representable";
+            return false;
+        }
+        acceleration[row] = static_cast<float>(value);
+        candidateDelta[row] =
+            static_cast<double>(candidateVelocity[row]) - v0[row];
+    }
+    // A0 = L L^T. Preserve the exact device factor bytes in the record and
+    // derive the missing RHS/bias in host FP64 before emitting FP32 witnesses.
+    for (std::size_t column = 0u; column < nv; ++column) {
+        double value = 0.0;
+        for (std::size_t row = column; row < nv; ++row) {
+            const float coefficient = lower[row * nv + column];
+            if (!std::isfinite(coefficient)) {
+                error = "production-owner effective tangent is nonfinite";
+                return false;
+            }
+            value += static_cast<double>(coefficient) * acceleration[row];
+        }
+        transposeAction[column] = value;
+    }
+    for (std::size_t row = 0u; row < nv; ++row) {
+        double value = 0.0;
+        for (std::size_t column = 0u; column <= row; ++column) {
+            value += static_cast<double>(lower[row * nv + column]) *
+                transposeAction[column];
+        }
+        const double biasValue = static_cast<double>(sourceForce[row]) - value;
+        if (!std::isfinite(value) || !std::isfinite(biasValue) ||
+            std::abs(value) > std::numeric_limits<float>::max() ||
+            std::abs(biasValue) > std::numeric_limits<float>::max()) {
+            error = "production-owner RHS/bias is not FP32 representable";
+            return false;
+        }
+        rhs[row] = static_cast<float>(value);
+        bias[row] = static_cast<float>(biasValue);
+    }
+    double sourceWork = 0.0;
+    double reactionWork = 0.0;
+    for (std::size_t index = 0u; index < nv; ++index) {
+        sourceWork += 0.5 * timestep *
+            (static_cast<double>(v0[index]) + freeVelocity[index]) *
+            sourceForce[index];
+        reactionWork += 0.5 * timestep *
+            (static_cast<double>(freeVelocity[index]) +
+             candidateVelocity[index]) * reaction[index];
+    }
+    std::vector<double> deltaTranspose(nv, 0.0);
+    for (std::size_t column = 0u; column < nv; ++column) {
+        for (std::size_t row = column; row < nv; ++row) {
+            deltaTranspose[column] +=
+                static_cast<double>(lower[row * nv + column]) *
+                candidateDelta[row];
+        }
+    }
+    double effectiveEnergy = 0.0;
+    for (const double value : deltaTranspose)
+        effectiveEnergy += 0.5 * value * value;
+    if (!std::isfinite(sourceWork) || !std::isfinite(reactionWork) ||
+        !std::isfinite(effectiveEnergy) ||
+        std::abs(sourceWork) > std::numeric_limits<float>::max() ||
+        std::abs(reactionWork) > std::numeric_limits<float>::max() ||
+        effectiveEnergy > std::numeric_limits<float>::max()) {
+        error = "production-owner work component is not FP32 representable";
+        return false;
+    }
+    const std::array<float, 3u> work{
+        static_cast<float>(sourceWork), static_cast<float>(reactionWork),
+        static_cast<float>(effectiveEnergy)};
+    snapshot.acceleration = ownerHostArray<float>(acceleration);
+    snapshot.sourceRHS = ownerHostArray<float>(rhs);
+    snapshot.sourceBias = ownerHostArray<float>(bias);
+    snapshot.workEnergyComponents = ownerHostArray<float>(work);
+    return true;
+}
+
+[[nodiscard]] float ownerScalarImpedance(
+    const nm_float4 solimp0,
+    const nm_float4 solimp1,
+    const float phi
+) noexcept {
+    const float d0 = std::clamp(solimp0.x, 0.0001f, 0.9999f);
+    const float dw = std::clamp(solimp0.y, 0.0001f, 0.9999f);
+    const float width = std::max(solimp0.z, 0.0f);
+    const float midpoint = std::clamp(solimp0.w, 0.0001f, 0.9999f);
+    const float power = std::max(solimp1.x, 1.0f);
+    if (d0 == dw || width <= 1.0e-15f) return 0.5f * (d0 + dw);
+    const float x = std::clamp(std::abs(phi) / width, 0.0f, 1.0f);
+    const float y = power == 1.0f ? x :
+        (x <= midpoint
+            ? std::pow(x, power) /
+                std::pow(midpoint, power - 1.0f)
+            : 1.0f - std::pow(1.0f - x, power) /
+                std::pow(1.0f - midpoint, power - 1.0f));
+    return d0 + y * (dw - d0);
+}
+
+[[nodiscard]] std::array<float, 2u> ownerScalarStiffnessDamping(
+    const nm_float4 solref,
+    const float dw,
+    const std::uint32_t flags,
+    const float timestep
+) noexcept {
+    const bool positive = solref.x > 0.0f;
+    const float timeConstant =
+        (flags & NM_HUMAN_EQUALITY_REFSAFE) != 0u
+        ? std::max(solref.x, 2.0f * timestep) : solref.x;
+    const float stiffness = positive
+        ? 1.0f / std::max(1.0e-15f,
+            dw * dw * timeConstant * timeConstant * solref.y * solref.y)
+        : -solref.x / std::max(1.0e-15f, dw * dw);
+    const float damping = positive
+        ? 2.0f / std::max(1.0e-15f, dw * timeConstant)
+        : -solref.y / std::max(1.0e-15f, dw);
+    return {stiffness, damping};
+}
+
+[[nodiscard]] bool deriveOwnerConstraintWitnesses(
+    const RuntimeState& runtime,
+    metalrobo::NumiHumanProductionOwnerSnapshotV1& snapshot,
+    std::string& error
+) noexcept {
+    using Witness = std::array<float, 8u>;
+    const std::size_t nq = snapshot.qCoordinateCount;
+    const std::size_t nv = snapshot.dofCount;
+    std::vector<float> q0;
+    std::vector<float> v0;
+    std::vector<float> vFree;
+    std::vector<float> candidateV;
+    if (!ownerFloatValues(snapshot.checkpointQ, nq, q0) ||
+        !ownerFloatValues(snapshot.checkpointV, nv, v0) ||
+        !ownerFloatValues(snapshot.sourcePredictedVelocity, nv, vFree) ||
+        !ownerFloatValues(snapshot.candidateV, nv, candidateV) ||
+        snapshot.timestepNanoseconds == 0u) {
+        error = "production-owner constraint reconstruction inputs are incomplete";
+        return false;
+    }
+    const float timestep = static_cast<float>(
+        static_cast<double>(snapshot.timestepNanoseconds) * 1.0e-9);
+    std::vector<float> deltaVelocity(nv);
+    for (std::size_t index = 0u; index < nv; ++index)
+        deltaVelocity[index] = candidateV[index] - vFree[index];
+
+    std::vector<Witness> equalities;
+    equalities.reserve(runtime.assets.jointEqualities.size());
+    for (const auto& row : runtime.assets.jointEqualities) {
+        const bool fixed = row.indices.z == NM_INVALID_INDEX;
+        if (row.indices.x >= nq || row.indices.y >= nv ||
+            (!fixed && (row.indices.z >= nq || row.indices.w >= nv))) {
+            error = "production-owner equality row escapes captured state";
+            return false;
+        }
+        const float x = fixed ? 0.0f :
+            q0[row.indices.z] - row.referencesAndCoefficients0.y;
+        const float a0 = row.referencesAndCoefficients0.z;
+        const float a1 = row.referencesAndCoefficients0.w;
+        const float a2 = row.coefficients1.x;
+        const float a3 = row.coefficients1.y;
+        const float a4 = row.coefficients1.z;
+        const float polynomial =
+            (((a4 * x + a3) * x + a2) * x + a1) * x + a0;
+        const float derivative = fixed ? 0.0f :
+            ((4.0f * a4 * x + 3.0f * a3) * x + 2.0f * a2) * x + a1;
+        const float phi = q0[row.indices.x] -
+            row.referencesAndCoefficients0.x - polynomial;
+        const float sourceVelocity = v0[row.indices.y] -
+            (fixed ? 0.0f : derivative * v0[row.indices.w]);
+        const float freeIncrement =
+            vFree[row.indices.y] - v0[row.indices.y] -
+            (fixed ? 0.0f : derivative *
+                (vFree[row.indices.w] - v0[row.indices.w]));
+        const float dw = std::clamp(
+            row.solimp0.y, 0.0001f, 0.9999f);
+        const float impedance = ownerScalarImpedance(
+            row.solimp0, row.solimp1, phi);
+        const auto kb = ownerScalarStiffnessDamping(
+            row.solref, dw, runtime.assets.equalityDispatch.flags,
+            timestep);
+        const float referenceAcceleration =
+            -kb[1] * sourceVelocity - kb[0] * impedance * phi;
+        const float regularizer = std::max(1.0e-15f,
+            (1.0f - impedance) / impedance *
+            (row.sourceInverseWeights.x + row.sourceInverseWeights.y));
+        const float bDelta = timestep * referenceAcceleration - freeIncrement;
+        const float inverseRegularizer = 1.0f / regularizer;
+        const float rowDeltaVelocity = deltaVelocity[row.indices.y] -
+            (fixed ? 0.0f : derivative * deltaVelocity[row.indices.w]);
+        const float impulse =
+            (rowDeltaVelocity - bDelta) * inverseRegularizer;
+        const Witness witness{derivative, bDelta, inverseRegularizer, phi,
+            impulse, rowDeltaVelocity, 1.0f, 0.0f};
+        if (!std::all_of(witness.begin(), witness.end(),
+                [](const float value) { return std::isfinite(value); })) {
+            error = "production-owner equality witness is nonfinite";
+            return false;
+        }
+        equalities.push_back(witness);
+    }
+
+    std::vector<Witness> limits;
+    limits.reserve(2u * runtime.assets.jointLimits.size());
+    for (const auto& row : runtime.assets.jointLimits) {
+        if (row.indices.x >= nq || row.indices.y >= nv) {
+            error = "production-owner limit row escapes captured state";
+            return false;
+        }
+        for (std::uint32_t side = 0u; side < 2u; ++side) {
+            const bool lower = side == 0u;
+            const float position = q0[row.indices.x];
+            const float direction = lower ? 1.0f : -1.0f;
+            const float distance = lower
+                ? position - row.rangeMarginInverseWeight.x
+                : row.rangeMarginInverseWeight.y - position;
+            const float margin = row.rangeMarginInverseWeight.z;
+            if (!std::isfinite(distance)) {
+                error = "production-owner limit distance is nonfinite";
+                return false;
+            }
+            Witness witness{};
+            if (distance < margin) {
+                const float phi = distance - margin;
+                const float sourceVelocity = direction * v0[row.indices.y];
+                const float freeIncrement = direction *
+                    (vFree[row.indices.y] - v0[row.indices.y]);
+                const float dw = std::clamp(
+                    row.solimp0.y, 0.0001f, 0.9999f);
+                const float impedance = ownerScalarImpedance(
+                    row.solimp0, row.solimp1, phi);
+                const auto kb = ownerScalarStiffnessDamping(
+                    row.solref, dw, runtime.assets.limitDispatch.flags,
+                    timestep);
+                const float referenceAcceleration =
+                    -kb[1] * sourceVelocity - kb[0] * impedance * phi;
+                const float regularizer = std::max(1.0e-15f,
+                    (1.0f - impedance) / impedance *
+                    row.rangeMarginInverseWeight.w);
+                const float bDelta =
+                    timestep * referenceAcceleration - freeIncrement;
+                const float inverseRegularizer = 1.0f / regularizer;
+                const float violation = direction *
+                    deltaVelocity[row.indices.y] - bDelta;
+                const float impulse =
+                    std::min(0.0f, violation) * inverseRegularizer;
+                witness = {direction, bDelta, inverseRegularizer, phi,
+                    impulse, violation, 1.0f, 0.0f};
+            }
+            if (!std::all_of(witness.begin(), witness.end(),
+                    [](const float value) { return std::isfinite(value); })) {
+                error = "production-owner limit witness is nonfinite";
+                return false;
+            }
+            limits.push_back(witness);
+        }
+    }
+    snapshot.equalityLinearizationImpulses =
+        ownerHostArray<Witness>(equalities);
+    snapshot.limitLinearizationImpulses = ownerHostArray<Witness>(limits);
+    return true;
+}
+
+[[nodiscard]] bool writeOwnerSnapshotEvidence(
+    RuntimeState& runtime,
+    const ActiveRoot& active,
+    const mrnx_root_v1& terminalRoot,
+    const PreparedTerminalDisposition disposition,
+    const std::uint64_t publicationEpoch,
+    const MRNumanXHumanMatterJointPublicationFenceGPU* committedFence,
+    std::string& error
+) noexcept {
+    try {
+        if (!active.ownerSnapshotCapture ||
+            !active.ownerSnapshotCapture->preDynamicsEncoded ||
+            !active.ownerSnapshotCapture->humanMatterPostDynamicsEncoded ||
+            !active.ownerSnapshotCapture->postDynamicsEncoded) {
+            error = "production-owner GPU capture phases are incomplete";
+            return false;
+        }
+        const auto& capture = *active.ownerSnapshotCapture;
+        const auto matter = runtime.matter->snapshot();
+        if (!matter.available) {
+            error = "production-owner Matter terminal snapshot unavailable: " +
+                matter.message;
+            return false;
+        }
+        const bool published =
+            disposition == PreparedTerminalDisposition::published;
+        const bool rejected =
+            disposition == PreparedTerminalDisposition::rejected;
+        if (!published && !rejected) {
+            error = "production-owner terminal disposition is not final";
+            return false;
+        }
+        const bool terminalRootIdentityValid =
+            terminalRoot.abi_version == MRNX_BRIDGE_ABI_V1 &&
+            terminalRoot.struct_size == sizeof(terminalRoot) &&
+            terminalRoot.owner_wire_abi_version == MRNX_OWNER_WIRE_ABI_V4 &&
+            terminalRoot.environment_count == 1u &&
+            terminalRoot.environment == 0u &&
+            terminalRoot.transaction_slot == active.transactionSlot &&
+            terminalRoot.step_index == 0u &&
+            terminalRoot.control_step == active.controlStep &&
+            terminalRoot.substep_index == 0u &&
+            terminalRoot.physics_substep_count == 1u &&
+            terminalRoot.q_coordinate_count == runtime.assets.rigid.nq &&
+            terminalRoot.dof_count == runtime.assets.rigid.nv &&
+            terminalRoot.dof_layout_version ==
+                metalrobo::kMetalNumanXHumanMatterDofLayoutVersion &&
+            terminalRoot.reserved0 == 0u &&
+            terminalRoot.program_fingerprint ==
+                capture.ownerProgramFingerprint &&
+            terminalRoot.transaction_fingerprint ==
+                active.transactionFingerprint &&
+            terminalRoot.linearization_epoch == capture.linearizationEpoch &&
+            terminalRoot.slot_generation == active.slotGeneration &&
+            terminalRoot.device_registry_id == runtime.device.registryID;
+        const bool publicationIdentityValid = published &&
+            terminalRootIdentityValid &&
+            committedFence != nullptr &&
+            committedFence->fenceFingerprint != 0u &&
+            committedFence->transactionFingerprint ==
+                active.transactionFingerprint &&
+            committedFence->linearizationEpoch ==
+                capture.linearizationEpoch &&
+            committedFence->slotGeneration == active.slotGeneration &&
+            committedFence->controlStep == active.controlStep &&
+            publicationEpoch != 0u &&
+            matter.controlStep == active.controlStep;
+        const bool rollbackIdentityValid = rejected &&
+            terminalRootIdentityValid &&
+            matter.controlStep == active.controlStep;
+        if ((published && !publicationIdentityValid) ||
+            (rejected && !rollbackIdentityValid)) {
+            error = "production-owner terminal publication/rollback identity mismatch";
+            return false;
+        }
+
+        metalrobo::NumiHumanProductionOwnerSnapshotV1 snapshot;
+        snapshot.treatment = runtime.ownerSnapshotTreatment;
+        snapshot.disposition = published
+            ? metalrobo::NumiHumanProductionOwnerDispositionV1::published
+            : metalrobo::NumiHumanProductionOwnerDispositionV1::rejected;
+        snapshot.baseStateFingerprint =
+            runtime.ownerSnapshotBaseStateFingerprint;
+        snapshot.treatmentHistoryFingerprint =
+            runtime.ownerSnapshotTreatmentHistoryFingerprint;
+        snapshot.humanSourceFingerprint = runtime.assets.sourceFingerprint;
+        snapshot.matterSourcePhysicsFingerprint =
+            matter.sourcePhysicsFingerprint;
+        snapshot.matterDeviceProgramFingerprint =
+            matter.deviceProgramFingerprint;
+        snapshot.ownerProgramFingerprint = capture.ownerProgramFingerprint;
+        snapshot.transactionFingerprint = active.transactionFingerprint;
+        snapshot.previousTransactionFingerprint =
+            active.previousTransactionFingerprint;
+        snapshot.linearizationEpoch = capture.linearizationEpoch;
+        snapshot.slotGeneration = active.slotGeneration;
+        snapshot.controlStep = active.controlStep;
+        snapshot.physicsGeneration = active.physicsGeneration;
+        snapshot.previousPhysicsGeneration = active.previousPhysicsGeneration;
+        snapshot.brainGeneration = active.brainGeneration;
+        snapshot.sensorGeneration = active.candidateKey.sensorGeneration;
+        snapshot.humanIOProgramFingerprint =
+            active.candidateKey.programFingerprint;
+        snapshot.sensorFingerprint = active.candidateKey.sensorFingerprint;
+        snapshot.transactionInstanceFingerprint =
+            active.candidateKey.transactionInstanceFingerprint;
+        if (active.acceptedTimestampMicroseconds >
+            std::numeric_limits<std::uint64_t>::max() /
+                runtime.clockQuantumNanoseconds) {
+            error = "production-owner accepted timestamp overflow";
+            return false;
+        }
+        snapshot.candidateTimestampNanoseconds =
+            active.acceptedTimestampMicroseconds *
+            runtime.clockQuantumNanoseconds;
+        snapshot.publicationEpoch = published ? publicationEpoch : 0u;
+        snapshot.jointFenceFingerprint = published
+            ? committedFence->fenceFingerprint : 0u;
+        snapshot.timestepNanoseconds = runtime.timestepNanoseconds;
+        snapshot.equalityProgramFingerprint =
+            runtime.assets.equalityFingerprint;
+        snapshot.limitProgramFingerprint = runtime.assets.limitFingerprint;
+        snapshot.supportPayloadByteCount =
+            runtime.assets.supportIdentity.byteCount;
+        snapshot.supportPayloadABI = runtime.assets.supportIdentity.payloadABI;
+        snapshot.supportPayloadSHA256.reserve(
+            runtime.assets.supportIdentity.sha256.size());
+        for (const auto byte : runtime.assets.supportIdentity.sha256)
+            snapshot.supportPayloadSHA256.push_back(std::byte{byte});
+        snapshot.qCoordinateCount = runtime.assets.rigid.nq;
+        snapshot.dofCount = runtime.assets.rigid.nv;
+        snapshot.muscleCount = runtime.assets.muscle.muscleCount;
+        snapshot.muscleSiteCount = runtime.assets.sites.size();
+        snapshot.muscleWrapCount = runtime.assets.wraps.size();
+        snapshot.muscleRouteNodeCount = runtime.assets.routes.size();
+        snapshot.supportRowCount = runtime.assets.matterSupportContacts.size();
+        snapshot.equalityRowCount = runtime.assets.jointEqualities.size();
+        snapshot.limitRowCount = runtime.assets.jointLimits.size();
+        snapshot.tendonRowCount = 0u;
+        snapshot.matterControlStep = matter.controlStep;
+        snapshot.publicationIdentityAvailable = publicationIdentityValid;
+        snapshot.rollbackIdentityAvailable = rollbackIdentityValid;
+
+        snapshot.initialQ = ownerHostArray<float>(runtime.assets.initialQ);
+        snapshot.initialV = ownerHostArray<float>(runtime.assets.initialV);
+        snapshot.initialRoot =
+            ownerHostArray<MRCompensatedRootTranslationGPU>(
+                runtime.assets.initialRootTranslations);
+        snapshot.initialMuscles = ownerHostArray<MRMujocoMuscleStateGPU>(
+            runtime.assets.states);
+        snapshot.muscleRecords = ownerHostArray<MRMujocoMuscleGPU>(
+            runtime.assets.muscles);
+        snapshot.muscleSites = ownerHostArray<MRMujocoMuscleSiteGPU>(
+            runtime.assets.sites);
+        snapshot.muscleWraps = ownerHostArray<MRMujocoMuscleWrapGPU>(
+            runtime.assets.wraps);
+        snapshot.muscleRouteNodes =
+            ownerHostArray<MRMujocoMuscleRouteNodeGPU>(
+                runtime.assets.routes);
+        snapshot.supportRows = ownerHostArray<NMHumanSupportContactGPU>(
+            runtime.assets.matterSupportContacts);
+        const std::array<mr_float4, 2u> supportPlane{
+            runtime.assets.groundPoint, runtime.assets.groundNormal};
+        snapshot.supportPlane = ownerHostArray<mr_float4>(supportPlane);
+        std::vector<nm_float4> realizedInitialSupportHistories =
+            runtime.ownerSnapshotInitialSupportHistories;
+        if (realizedInitialSupportHistories.empty()) {
+            realizedInitialSupportHistories.resize(
+                runtime.assets.matterSupportContacts.size());
+        }
+        snapshot.initialSupportHistories = ownerHostArray<nm_float4>(
+            realizedInitialSupportHistories);
+        snapshot.terminalAcceptedSupportHistories = ownerHostArray<nm_float4>(
+            matter.humanSupportHistories);
+        snapshot.terminalAcceptedSupportConsequences =
+            ownerHostArray<NMHumanSupportConsequenceGPU>(
+                matter.humanSupportConsequences);
+        snapshot.equalityRows = ownerHostArray<NMHumanJointEqualityGPU>(
+            runtime.assets.jointEqualities);
+        snapshot.limitRows = ownerHostArray<NMHumanJointLimitGPU>(
+            runtime.assets.jointLimits);
+        snapshot.contactSampleCount =
+            runtime.ownerSnapshotContactSampleCount;
+        snapshot.contactSamples = ownerHostArray<NMContactSampleGPU>(
+            matter.contactSamples);
+        snapshot.terminalAcceptedMatterRigidGeneralizedStateCount =
+            runtime.ownerSnapshotMatterGeneralizedStateCount;
+        snapshot.terminalAcceptedMatterRigidGeneralizedState =
+            ownerHostArray<float>(matter.rigidGeneralizedCandidate);
+        snapshot.terminalAcceptedMatterRigidReactionCount =
+            runtime.ownerSnapshotMatterReactionCount;
+        snapshot.terminalAcceptedMatterRigidReactions =
+            ownerHostArray<NMRigidReactionGPU>(matter.reactions);
+        snapshot.tendonTransfers.available = true;
+        snapshot.tendonTransfers.expectedElementCount = 0u;
+        snapshot.tendonTransfers.elementBytes =
+            sizeof(MRNumiHumanTendonTransferResultGPU);
+        snapshot.tendonGeneralizedCorrections.available = true;
+        snapshot.tendonGeneralizedCorrections.expectedElementCount = 0u;
+        snapshot.tendonGeneralizedCorrections.elementBytes = sizeof(float);
+
+        const std::uint64_t nq = snapshot.qCoordinateCount;
+        const std::uint64_t nv = snapshot.dofCount;
+        const std::uint64_t muscleCount = snapshot.muscleCount;
+        if (!ownerCapturedArray(capture, capture.layout.checkpointQ,
+                nq, sizeof(float), snapshot.checkpointQ) ||
+            !ownerCapturedArray(capture, capture.layout.checkpointV,
+                nv, sizeof(float), snapshot.checkpointV) ||
+            !ownerCapturedArray(capture, capture.layout.checkpointRoot,
+                1u, sizeof(MRCompensatedRootTranslationGPU),
+                snapshot.checkpointRoot) ||
+            !ownerCapturedArray(capture, capture.layout.checkpointMuscles,
+                muscleCount, sizeof(MRMujocoMuscleStateGPU),
+                snapshot.checkpointMuscles) ||
+            !ownerCapturedArray(capture,
+                capture.layout.effectiveTangentFactorStorage, nv * nv,
+                sizeof(float), snapshot.effectiveTangentFactorStorage) ||
+            !ownerCapturedArray(capture,
+                capture.layout.sourceGeneralizedForce, nv, sizeof(float),
+                snapshot.sourceGeneralizedForce) ||
+            !ownerCapturedArray(capture,
+                capture.layout.sourcePredictedVelocity, nv, sizeof(float),
+                snapshot.sourcePredictedVelocity) ||
+            !ownerCapturedArray(capture,
+                capture.layout.matterGeneralizedReaction, nv, sizeof(float),
+                snapshot.matterGeneralizedReaction) ||
+            !ownerCapturedArray(capture, capture.layout.candidateQ,
+                nq, sizeof(float), snapshot.candidateQ) ||
+            !ownerCapturedArray(capture, capture.layout.candidateV,
+                nv, sizeof(float), snapshot.candidateV) ||
+            !ownerCapturedArray(capture, capture.layout.candidateRoot,
+                1u, sizeof(MRCompensatedRootTranslationGPU),
+                snapshot.candidateRoot) ||
+            !ownerCapturedArray(capture, capture.layout.candidateMuscles,
+                muscleCount, sizeof(MRMujocoMuscleStateGPU),
+                snapshot.candidateMuscles) ||
+            !ownerCapturedArray(capture, capture.layout.muscleResults,
+                muscleCount, sizeof(MRMujocoMuscleResultGPU),
+                snapshot.muscleResults) ||
+            !ownerCapturedArray(capture,
+                capture.layout.muscleGeneralizedForces,
+                muscleCount * nv, sizeof(float),
+                snapshot.muscleGeneralizedForces) ||
+            !ownerCapturedArray(capture,
+                capture.layout.reducedMuscleGeneralizedForce, nv,
+                sizeof(float), snapshot.reducedMuscleGeneralizedForce) ||
+            !ownerCapturedArray(capture, capture.layout.standStatus,
+                1u, sizeof(MRNumiHumanStandStatusGPU),
+                snapshot.standStatus) ||
+            !ownerCapturedArray(capture, capture.layout.ownerStatus,
+                1u, sizeof(MRNumanXHumanMatterOwnerStatusGPU),
+                snapshot.humanMatterOwnerStatus) ||
+            !ownerCapturedArray(capture,
+                capture.layout.candidateSupportConsequences,
+                snapshot.supportRowCount,
+                sizeof(NMHumanSupportConsequenceGPU),
+                snapshot.candidateSupportConsequences)) {
+            error = "production-owner captured Metal range is incomplete";
+            return false;
+        }
+        std::vector<nm_float4> candidateSupportHistories(
+            snapshot.supportRowCount);
+        for (std::size_t index = 0u;
+             index < candidateSupportHistories.size(); ++index) {
+            NMHumanSupportConsequenceGPU consequence{};
+            std::memcpy(&consequence,
+                snapshot.candidateSupportConsequences.bytes.data() +
+                    index * sizeof(consequence),
+                sizeof(consequence));
+            const auto normal = runtime.assets.groundNormal;
+            const float normalImpulse =
+                consequence.impulseAndNormal.w;
+            candidateSupportHistories[index] = {
+                consequence.impulseAndNormal.x -
+                    normal.x * normalImpulse,
+                consequence.impulseAndNormal.y -
+                    normal.y * normalImpulse,
+                consequence.impulseAndNormal.z -
+                    normal.z * normalImpulse,
+                normalImpulse};
+            const auto& history = candidateSupportHistories[index];
+            if (!std::isfinite(history.x) || !std::isfinite(history.y) ||
+                !std::isfinite(history.z) || !std::isfinite(history.w)) {
+                error = "production-owner candidate support history is nonfinite";
+                return false;
+            }
+        }
+        snapshot.candidateSupportHistories = ownerHostArray<nm_float4>(
+            candidateSupportHistories);
+        if (!deriveOwnerSnapshotDynamics(snapshot, error) ||
+            !deriveOwnerConstraintWitnesses(runtime, snapshot, error)) {
+            return false;
+        }
+        snapshot.requiredCoverageMask =
+            metalrobo::NumiHumanOwnerInitialStateV1 |
+            metalrobo::NumiHumanOwnerCheckpointStateV1 |
+            metalrobo::NumiHumanOwnerEffectiveTangentFactorV1 |
+            metalrobo::NumiHumanOwnerSourceGeneralizedForceV1 |
+            metalrobo::NumiHumanOwnerFreeVelocityV1 |
+            metalrobo::NumiHumanOwnerCandidateStateV1 |
+            metalrobo::NumiHumanOwnerMuscleStateV1 |
+            metalrobo::NumiHumanOwnerMuscleResultsV1 |
+            metalrobo::NumiHumanOwnerMuscleGeneralizedForcesV1 |
+            metalrobo::NumiHumanOwnerMuscleProgramV1 |
+            metalrobo::NumiHumanOwnerTendonV1 |
+            metalrobo::NumiHumanOwnerMatterReactionV1 |
+            metalrobo::NumiHumanOwnerSupportRowsV1 |
+            metalrobo::NumiHumanOwnerSupportHistoryV1 |
+            metalrobo::NumiHumanOwnerEqualityRowsV1 |
+            metalrobo::NumiHumanOwnerLimitRowsV1 |
+            metalrobo::NumiHumanOwnerRHSBiasAccelerationV1 |
+            metalrobo::NumiHumanOwnerWorkEnergyV1 |
+            metalrobo::NumiHumanOwnerContactSamplesV1 |
+            metalrobo::NumiHumanOwnerStatusRecordsV1 |
+            (published
+                ? metalrobo::NumiHumanOwnerMatterIntegrationUpdateV1
+                : 0u) |
+            (published
+                ? metalrobo::NumiHumanOwnerPublicationIdentityV1
+                : metalrobo::NumiHumanOwnerRollbackIdentityV1);
+        snapshot.coverageMask =
+            metalrobo::numiHumanProductionOwnerCoverageMaskV1(snapshot);
+        std::string envelope;
+        std::string payloadSHA256;
+        if (!metalrobo::
+                serializeNumiHumanProductionOwnerSnapshotEvidenceV1(
+                    snapshot, envelope, payloadSHA256, error)) {
+            return false;
+        }
+        envelope.push_back('\n');
+
+        std::ostringstream name;
+        name << "persistent-production-owner-snapshot.v1.root-"
+             << active.controlStep << '.' << std::hex << std::nouppercase
+             << std::setfill('0') << std::setw(16)
+             << active.transactionFingerprint << '.'
+             << (published ? "published" : "rejected") << ".json";
+        const auto target = runtime.ownerSnapshotDirectory / name.str();
+        if (!metalrobo::publishNumiHumanProductionOwnerEvidenceNoReplace(
+                target, envelope, error))
+            return false;
+        std::fprintf(stderr,
+            "mrnx_production_owner_snapshot={\"path\":\"%s\","
+            "\"payload_sha256\":\"%s\",\"root\":%llu,"
+            "\"disposition\":\"%s\"}\n",
+            target.string().c_str(), payloadSHA256.c_str(),
+            static_cast<unsigned long long>(active.controlStep),
+            published ? "published" : "rejected");
+        error.clear();
+        return true;
+    } catch (const std::exception& exception) {
+        error = std::string("production-owner evidence exception: ") +
+            exception.what();
+        return false;
+    } catch (...) {
+        error = "production-owner evidence unknown exception";
+        return false;
+    }
+}
+
 void runtimeTerminalCompletion(
     void* raw,
     const PreparedTerminalDisposition disposition,
@@ -4124,6 +5339,7 @@ void runtimeTerminalCompletion(
     auto* runtime = static_cast<RuntimeState*>(raw);
     if (runtime == nullptr) return;
     std::shared_ptr<ActiveRoot> active;
+    bool persistRejectedOwnerSnapshot = false;
     {
         const std::lock_guard lock(runtime->mutex);
         if (runtime->active == nullptr ||
@@ -4134,9 +5350,21 @@ void runtimeTerminalCompletion(
             return;
         }
         active = runtime->active;
+        persistRejectedOwnerSnapshot =
+            disposition == PreparedTerminalDisposition::rejected &&
+            active->ownerSnapshotCapture.has_value() &&
+            runtime->ownerSnapshotSelectedControlStep.has_value() &&
+            !runtime->ownerSnapshotSelectedCaptured &&
+            active->controlStep ==
+                *runtime->ownerSnapshotSelectedControlStep;
         if (disposition == PreparedTerminalDisposition::rejected)
             recordRuntimeBehaviorTerminal(*runtime, *active, root, false, nullptr);
-        if (disposition != PreparedTerminalDisposition::published) {
+        // Keep a selected rejected root reserved until its completion-boundary
+        // evidence has been read and durably published. Clearing active here
+        // would admit a new Matter transaction that could race the synchronous
+        // terminal snapshot below and mix two roots in one record.
+        if (disposition != PreparedTerminalDisposition::published &&
+            !persistRejectedOwnerSnapshot) {
             runtime->active.reset();
         }
         if (disposition == PreparedTerminalDisposition::terminalNoTouch) {
@@ -4149,17 +5377,51 @@ void runtimeTerminalCompletion(
             runtime->culture != nullptr) {
             runtime->culture->rejectPrepared();
         }
+        if (persistRejectedOwnerSnapshot) {
+            std::string evidenceError;
+            const bool persisted = writeOwnerSnapshotEvidence(
+                    *runtime, *active, root, disposition, 0u, nullptr,
+                    evidenceError);
+            const std::lock_guard lock(runtime->mutex);
+            if (runtime->active == active) runtime->active.reset();
+            if (persisted) {
+                runtime->ownerSnapshotSelectedCaptured = true;
+            } else {
+                std::fprintf(stderr,
+                    "mrnx_production_owner_snapshot_failure=%s\n",
+                    evidenceError.c_str());
+                runtime->terminalQuarantine = true;
+            }
+        }
         return;
     }
     const bool commonIdentityValid = active != nullptr &&
         candidate != nullptr && channels != nullptr && channelCount == 7u &&
+        candidate->abi_version == MRNX_BRIDGE_ABI_V1 &&
+        candidate->struct_size == sizeof(*candidate) &&
+        candidate->key.abi_version == MRNX_BRIDGE_ABI_V1 &&
+        candidate->key.struct_size == sizeof(candidate->key) &&
         candidate->channel_count == channelCount &&
+        candidate->reserved0 == 0u &&
+        candidate->device_registry_id == runtime->device.registryID &&
         root.transaction_fingerprint == active->transactionFingerprint &&
         root.control_step == active->controlStep &&
         candidate->accepted_brain_generation == active->brainGeneration &&
         candidate->key.transaction_fingerprint ==
             active->transactionFingerprint &&
-        candidate->key.sensor_generation != 0u;
+        candidate->key.program_fingerprint ==
+            active->candidateKey.programFingerprint &&
+        candidate->key.sensor_fingerprint ==
+            active->candidateKey.sensorFingerprint &&
+        candidate->key.transaction_instance_fingerprint ==
+            active->candidateKey.transactionInstanceFingerprint &&
+        candidate->key.sensor_generation ==
+            active->candidateKey.sensorGeneration &&
+        candidate->key.command_buffer_identity ==
+            active->candidateKey.commandBufferIdentity &&
+        candidate->key.fingerprint != 0u &&
+        candidate->candidate_publication_fingerprint != 0u &&
+        candidate->candidate_identity_fingerprint != 0u;
     if (!commonIdentityValid) {
         const std::lock_guard lock(runtime->mutex);
         if (runtime->active == active) runtime->active.reset();
@@ -4372,6 +5634,31 @@ void runtimeTerminalCompletion(
             mrCompensatedTranslationValid(translation) ? "true" : "false",
             words[0], words[1], words[2], words[3], words[4], words[5],
             words[6], words[7], words[8], words[9], words[10], words[11]);
+    }
+    const bool selectedOwnerSnapshot =
+        runtime->ownerSnapshotSelectedControlStep.has_value() &&
+        !runtime->ownerSnapshotSelectedCaptured &&
+        active->controlStep ==
+            *runtime->ownerSnapshotSelectedControlStep;
+    const bool firstOwnerSnapshot =
+        !runtime->ownerSnapshotFirstPublishedCaptured;
+    if (active->ownerSnapshotCapture &&
+        (firstOwnerSnapshot || selectedOwnerSnapshot)) {
+        std::string evidenceError;
+        if (writeOwnerSnapshotEvidence(
+                *runtime, *active, root, disposition,
+                runtime->aggregate.publication_epoch, committedFence,
+                evidenceError)) {
+            if (firstOwnerSnapshot)
+                runtime->ownerSnapshotFirstPublishedCaptured = true;
+            if (selectedOwnerSnapshot)
+                runtime->ownerSnapshotSelectedCaptured = true;
+        } else {
+            std::fprintf(stderr,
+                "mrnx_production_owner_snapshot_failure=%s\n",
+                evidenceError.c_str());
+            runtime->terminalQuarantine = true;
+        }
     }
     runtime->active.reset();
 }
