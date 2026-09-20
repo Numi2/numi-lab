@@ -1,4 +1,5 @@
 import Foundation
+import Metal
 import MetalRoboC
 
 public enum MetalRoboTaskTerminationReason: UInt32, Sendable {
@@ -13,12 +14,12 @@ public enum MetalRoboTaskTerminationReason: UInt32, Sendable {
 
 private func withOptionalCString<Result>(
     _ value: String?,
-    _ body: (UnsafePointer<CChar>?) -> Result
-) -> Result {
+    _ body: (UnsafePointer<CChar>?) throws -> Result
+) rethrows -> Result {
     guard let value else {
-        return body(nil)
+        return try body(nil)
     }
-    return value.withCString(body)
+    return try value.withCString(body)
 }
 
 private func withUnsafeFloatBuffers<Result>(
@@ -44,22 +45,22 @@ private func withUnsafeFloatBuffers<Result>(
 
 private func withUnsafeCStringBuffers<Result>(
     _ strings: [String],
-    _ body: ([UnsafePointer<CChar>]) -> Result
-) -> Result {
+    _ body: ([UnsafePointer<CChar>]) throws -> Result
+) rethrows -> Result {
     let storage = strings.map { Array($0.utf8CString) }
     var pointers: [UnsafePointer<CChar>] = []
     pointers.reserveCapacity(storage.count)
-    func visit(_ index: Int) -> Result {
+    func visit(_ index: Int) throws -> Result {
         guard index < storage.count else {
-            return body(pointers)
+            return try body(pointers)
         }
-        return storage[index].withUnsafeBufferPointer { buffer in
+        return try storage[index].withUnsafeBufferPointer { buffer in
             pointers.append(buffer.baseAddress!)
             defer { pointers.removeLast() }
-            return visit(index + 1)
+            return try visit(index + 1)
         }
     }
-    return visit(0)
+    return try visit(0)
 }
 
 public enum MetalRoboTaskRolloutError:
@@ -1036,22 +1037,39 @@ public struct MetalRoboRunManifest: Sendable {
     public let sensorsAndPhysics: MetalRoboTaskRolloutConfiguration
     public let visualSensor:
         MetalRoboTaskVisualObservationConfiguration?
+    // Presentation-only renderer. This uses the same authored visual schema
+    // without entering the SensorPack or policy observation contract.
+    public let inspectionVisual:
+        MetalRoboTaskVisualObservationConfiguration?
     public let teacher: MetalRoboTeacherSource?
 
     public init(
         source: MetalRoboRunSource,
         sensorsAndPhysics: MetalRoboTaskRolloutConfiguration,
         visualSensor: MetalRoboTaskVisualObservationConfiguration? = nil,
+        inspectionVisual: MetalRoboTaskVisualObservationConfiguration? = nil,
         teacher: MetalRoboTeacherSource? = nil
     ) {
         self.source = source
         self.sensorsAndPhysics = sensorsAndPhysics
         self.visualSensor = visualSensor
+        self.inspectionVisual = inspectionVisual
         self.teacher = teacher
     }
 }
 
-public final class MetalRoboTaskRolloutContext {
+public struct MetalRoboTaskInspectionFrame: @unchecked Sendable {
+    public let rgbBuffer: MTLBuffer
+    public let slotIndex: UInt32
+    public let width: Int
+    public let height: Int
+    public let frameIndex: UInt64
+    public let submissionIndex: UInt64
+    public let environmentIndex: UInt32
+    public let droppedFrames: UInt32
+}
+
+public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
     private var handle: OpaquePointer?
 
     public init(
@@ -1102,6 +1120,9 @@ public final class MetalRoboTaskRolloutContext {
         let created: OpaquePointer? = try Self.withNativeVisualSensor(
             authored.visualSensor
         ) { visualSensor in
+            try Self.withNativeVisualSensor(
+                authored.inspectionVisual
+            ) { inspectionVisual in
             Self.withNativeConfiguration(configuration) { config in
                 withOptionalCString(urdfPath) { urdf in
                     withOptionalCString(srdfPath) { srdf in
@@ -1144,6 +1165,8 @@ public final class MetalRoboTaskRolloutContext {
                                                 teacherClip
                                             manifest.visual_sensor_program =
                                                 visualSensor
+                                            manifest.inspection_visual_program =
+                                                inspectionVisual
                                             manifest.metallib_path = metallib
                                             return mr_create_task_rollout(
                                                 &manifest
@@ -1158,6 +1181,7 @@ public final class MetalRoboTaskRolloutContext {
                         }
                     }
                 }
+            }
             }
         }
         guard let created else {
@@ -1247,10 +1271,10 @@ public final class MetalRoboTaskRolloutContext {
             MetalRoboTaskVisualObservationConfiguration?,
         _ body: (
             UnsafePointer<MRTaskVisualObservationConfigC>?
-        ) -> Result
+        ) throws -> Result
     ) throws -> Result {
         guard let configuration else {
-            return body(nil)
+            return try body(nil)
         }
         guard !configuration.packs.isEmpty,
               configuration.width > 0,
@@ -1268,7 +1292,7 @@ public final class MetalRoboTaskRolloutContext {
             strings.append(pack.assetID)
         }
         strings.append(configuration.cameraParentBody)
-        return withUnsafeCStringBuffers(strings) { pointers in
+        return try withUnsafeCStringBuffers(strings) { pointers in
             var nativePacks: [MRTaskVisualPackC] = []
             nativePacks.reserveCapacity(configuration.packs.count)
             for index in configuration.packs.indices {
@@ -1279,11 +1303,11 @@ public final class MetalRoboTaskRolloutContext {
                 pack.instance_id = configuration.packs[index].instanceID
                 nativePacks.append(pack)
             }
-            return nativePacks.withUnsafeBufferPointer { packs in
-                withOptionalCString(
+            return try nativePacks.withUnsafeBufferPointer { packs in
+                try withOptionalCString(
                     configuration.environmentPackURL?.path
                 ) { environment in
-                    "sensor_fast".withCString { profile in
+                    try "sensor_fast".withCString { profile in
                         var native = MRTaskVisualObservationConfigC()
                         native.packs = packs.baseAddress
                         native.pack_count = UInt32(packs.count)
@@ -1314,7 +1338,7 @@ public final class MetalRoboTaskRolloutContext {
                         native.capture_height = configuration.captureHeight
                         native.capture_policy_camera =
                             configuration.capturePolicyCamera ? 1 : 0
-                        return withUnsafePointer(to: &native, body)
+                        return try withUnsafePointer(to: &native, body)
                     }
                 }
             }
@@ -1553,10 +1577,6 @@ public final class MetalRoboTaskRolloutContext {
         }
     }
 
-    public var installedPolicyRevision: UInt64 {
-        mr_task_rollout_policy_revision(handle)
-    }
-
     public func loadPolicy(at url: URL) throws {
         let status = url.path.withCString {
             mr_task_rollout_load_policy_pack(handle, $0)
@@ -1566,6 +1586,10 @@ public final class MetalRoboTaskRolloutContext {
                 Self.lastError()
             )
         }
+    }
+
+    public var installedPolicyRevision: UInt64 {
+        mr_task_rollout_policy_revision(handle)
     }
 
     public func clearPolicy() throws {
@@ -1611,6 +1635,55 @@ public final class MetalRoboTaskRolloutContext {
             )
         }
         return (Int(width), Int(height), values)
+    }
+
+    // The returned buffer remains private GPU memory. Present it directly and
+    // release the slot only from the presentation command buffer completion
+    // handler; this never copies pixels through Swift or the CPU.
+    public func acquireInspectionFrame() throws
+        -> MetalRoboTaskInspectionFrame?
+    {
+        var native = MRTaskInspectionFrameC()
+        let status = mr_task_rollout_acquire_inspection_frame(
+            handle,
+            &native
+        )
+        if status == 0 {
+            return nil
+        }
+        guard status == 1, let opaque = native.rgb_buffer else {
+            throw MetalRoboTaskRolloutError.native(Self.lastError())
+        }
+        let object = Unmanaged<AnyObject>.fromOpaque(opaque)
+            .takeUnretainedValue()
+        guard let buffer = object as? MTLBuffer else {
+            throw MetalRoboTaskRolloutError.native(
+                "inspection frame did not return a Metal buffer."
+            )
+        }
+        return MetalRoboTaskInspectionFrame(
+            rgbBuffer: buffer,
+            slotIndex: native.slot_index,
+            width: Int(native.width),
+            height: Int(native.height),
+            frameIndex: native.frame_index,
+            submissionIndex: native.submission_index,
+            environmentIndex: native.environment_index,
+            droppedFrames: native.dropped_frames
+        )
+    }
+
+    public func setInspectionEnabled(_ enabled: Bool) throws {
+        guard mr_task_rollout_set_inspection_enabled(
+            handle,
+            enabled ? 1 : 0
+        ) == 0 else {
+            throw MetalRoboTaskRolloutError.native(Self.lastError())
+        }
+    }
+
+    public func releaseInspectionFrame(slotIndex: UInt32) {
+        _ = mr_task_rollout_release_inspection_frame(handle, slotIndex)
     }
 
     public func advance(

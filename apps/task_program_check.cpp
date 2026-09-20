@@ -174,6 +174,11 @@ TaskWorldFixture makeG1TaskWorld(
             makeUnitreeG1AdultLocomotionTaskPack(
                 surface, result.observations, result.reset);
         break;
+    case metalrobo::UnitreeG1Task::g1LegsLocomotion:
+        result.task = metalrobo::
+            makeUnitreeG1LegsLocomotionTaskPack(
+                surface, result.observations, result.reset);
+        break;
     }
     return result;
 }
@@ -246,7 +251,24 @@ InteractionRuntimeEvidence runInteractionRuntimeProbe(
         .deterministic = true,
         .warmStart = true,
     };
-    metalrobo::MetalWorldContext context;
+    metalrobo::MetalWorldConfig contextConfig;
+    contextConfig.preferParallelABA = false;
+    metalrobo::MetalWorldContext context(contextConfig);
+    metalrobo::MetalWorldStepConfig freeMotionConfig = config;
+    freeMotionConfig.solverMode =
+        metalrobo::MetalWorldSolverMode::freeMotionABA;
+    metalrobo::MetalWorldResult freeMotion;
+    const metalrobo::MetalWorldDiagnostics freeMotionStatus =
+        context.run(world, batch, freeMotionConfig, freeMotion);
+    if (!freeMotionStatus.succeeded() ||
+        freeMotion.layout.usesParallelABA ||
+        (freeMotion.layout.contactDispatch.flags &
+         MR_METAL_WORLD_CONTACT_STREAMED_RESPONSES) != 0u) {
+        fail(
+            "serial free-motion lifecycle preflight failed: " +
+            freeMotionStatus.message
+        );
+    }
     metalrobo::MetalWorldResult first;
     metalrobo::MetalWorldResult replay;
     const metalrobo::MetalWorldDiagnostics firstStatus =
@@ -258,6 +280,9 @@ InteractionRuntimeEvidence runInteractionRuntimeProbe(
     const bool expectContactIntent =
         program.layout().interactionContactCount != 0u;
     if (!firstStatus.succeeded() || !replayStatus.succeeded() ||
+        first.layout.usesParallelABA ||
+        (first.layout.contactDispatch.flags &
+         MR_METAL_WORLD_CONTACT_STREAMED_RESPONSES) == 0u ||
         firstStatus.successfulStepCount != controlStepCount ||
         replayStatus.successfulStepCount != controlStepCount ||
         firstStatus.failedStepCount != 0u ||
@@ -1969,6 +1994,76 @@ int main(const int argc, const char* const* argv) {
                 "G1 get-up autonomous reset did not separate initialization from reference control"
             );
         }
+        const auto& guideLayout = getUpInteractionProgram.layout();
+        metalrobo::PolicyPack guidedPolicy;
+        guidedPolicy.id = "guided_get_up_policy";
+        guidedPolicy.revision = 1u;
+        guidedPolicy.layers = {
+            {
+                .inputCount = guideLayout.actorObservationSize,
+                .outputCount = guideLayout.actionCount,
+                .activation = metalrobo::PolicyActivation::identity,
+                .weights = std::vector<float>(
+                    static_cast<std::size_t>(
+                        guideLayout.actorObservationSize
+                    ) * guideLayout.actionCount,
+                    0.0f
+                ),
+                .bias = std::vector<float>(
+                    guideLayout.actionCount,
+                    0.0f
+                ),
+            },
+        };
+        metalrobo::bindPolicyPack(
+            guidedPolicy,
+            getUpInteractionProgram
+        );
+        metalrobo::CompiledPolicyProgram autonomousPolicy;
+        const auto strictAutonomousStatus =
+            metalrobo::compilePolicyProgram(
+                guidedPolicy,
+                autonomousGetUpProgram,
+                autonomousPolicy
+            );
+        const auto compatibleAutonomousStatus =
+            metalrobo::compilePolicyProgramForTaskVariant(
+                guidedPolicy,
+                getUpInteractionProgram,
+                autonomousGetUpProgram,
+                autonomousPolicy
+            );
+        const std::uint64_t autonomousPolicyFingerprint =
+            autonomousPolicy.fingerprint();
+        const auto mismatchedSourceStatus =
+            metalrobo::compilePolicyProgramForTaskVariant(
+                guidedPolicy,
+                autonomousGetUpProgram,
+                getUpInteractionProgram,
+                autonomousPolicy
+            );
+        const auto unrelatedVariantStatus =
+            metalrobo::compilePolicyProgramForTaskVariant(
+                guidedPolicy,
+                getUpInteractionProgram,
+                compiledAdult.task,
+                autonomousPolicy
+            );
+        if (strictAutonomousStatus.status !=
+                metalrobo::PolicyCompileStatus::incompatibleContract ||
+            !compatibleAutonomousStatus.succeeded() ||
+            autonomousPolicy.taskFingerprint() !=
+                autonomousGetUpProgram.fingerprint() ||
+            mismatchedSourceStatus.status !=
+                metalrobo::PolicyCompileStatus::incompatibleContract ||
+            unrelatedVariantStatus.status !=
+                metalrobo::PolicyCompileStatus::incompatibleContract ||
+            autonomousPolicy.fingerprint() !=
+                autonomousPolicyFingerprint) {
+            fail(
+                "guided get-up policy was not safely rebound to its autonomous task variant"
+            );
+        }
         const auto getUpRewards = compiledGetUp.task.rewardOperators();
         const auto standingReward = std::find_if(
             getUpRewards.begin(),
@@ -2624,6 +2719,99 @@ int main(const int argc, const char* const* argv) {
             fail(
                 "typed joint-velocity actuator did not compile into its native program"
             );
+        }
+        // Source-muscle task actions intentionally remain opaque to the task
+        // compiler: the immutable Millard source program is only available
+        // when MetalWorld admits a concrete execution.  Verify the compiler
+        // nevertheless preserves a complete ordered normalized action
+        // surface, with no joint/controller substitute introduced here.
+        std::vector<metalrobo::RobotActuatorSpec> millardActuators;
+        millardActuators.reserve(authored.task.actions.size());
+        for (std::size_t action = 0u;
+             action < authored.task.actions.size();
+             ++action) {
+            millardActuators.push_back({
+                .id = authored.task.actions[action].actuator,
+                .kind = metalrobo::RobotActuatorKind::millardExcitation,
+                .target = "source_muscle_" + std::to_string(action),
+                .scale = 1.0f,
+                .responseTimeSeconds = 0.02f,
+            });
+        }
+        metalrobo::TaskPack millardTask = authored.task;
+        // This compiler-only witness is a source-actuation surface, not a
+        // joint-coordinate controller: source muscles do not satisfy the
+        // G1-only joint-group semantics retained by the unrelated fixture.
+        millardTask.jointGroups.clear();
+        millardTask.contactGroups.clear();
+        millardTask.outcomes.clear();
+        millardTask.terminations.clear();
+        millardTask.rewards = {{
+            .operation = metalrobo::TaskRewardOperator::constant,
+            .weight = 0.0f,
+        }};
+        metalrobo::TaskObservationProgram millardObservations;
+        millardObservations.actorHistoryLength = 1u;
+        millardObservations.criticHistoryLength = 1u;
+        for (const metalrobo::TaskActionBinding& action :
+             millardTask.actions) {
+            const metalrobo::TaskObservationOperatorSpec previousAction{
+                .source = metalrobo::TaskObservationSource::previousAction,
+                .target = action.actuator,
+            };
+            millardObservations.actorFrame.push_back(previousAction);
+            millardObservations.critic.push_back(previousAction);
+        }
+        metalrobo::CompiledTaskProgram millardTaskProgram;
+        const auto millardTaskStatus = metalrobo::compileTaskProgram(
+            millardTask,
+            millardActuators,
+            millardObservations,
+            authored.reset,
+            world,
+            millardTaskProgram
+        );
+        if (!millardTaskStatus.succeeded() ||
+            millardTaskProgram.actionBindings().size() !=
+                millardActuators.size()) {
+            fail(
+                "source Millard task action surface did not compile: " +
+                millardTaskStatus.element + ": " +
+                millardTaskStatus.message
+            );
+        }
+        for (std::size_t action = 0u;
+             action < millardTaskProgram.actionBindings().size();
+             ++action) {
+            const MRTaskActionBindingGPU& binding =
+                millardTaskProgram.actionBindings()[action];
+            if (binding.actuator.x != MR_TASK_ACTUATOR_MILLARD_EXCITATION ||
+                binding.actuator.y != action ||
+                binding.indices.x != action ||
+                binding.indices.y != MR_INVALID_INDEX ||
+                binding.indices.z != MR_INVALID_INDEX ||
+                binding.indices.w != MR_INVALID_INDEX ||
+                binding.parameters.x != 1.0f ||
+                binding.parameters.y != -1.0f ||
+                binding.parameters.z != 1.0f ||
+                std::abs(binding.parameters.w - 0.02f) > 1.0e-7f) {
+                fail("source Millard task action surface lost its typed ABI");
+            }
+        }
+        std::vector<metalrobo::RobotActuatorSpec> invalidMillardActuators =
+            millardActuators;
+        invalidMillardActuators.front().scale = 0.9f;
+        const auto invalidMillardStatus = metalrobo::compileTaskProgram(
+            millardTask,
+            invalidMillardActuators,
+            millardObservations,
+            authored.reset,
+            world,
+            millardTaskProgram
+        );
+        if (invalidMillardStatus.status !=
+                metalrobo::TaskCompileStatus::invalidPack) {
+            fail("non-unit source Millard task action was not rejected");
         }
         metalrobo::TaskPack mismatched = authored.task;
         ++mismatched.capacities.candidatePairs;

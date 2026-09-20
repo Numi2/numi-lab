@@ -145,6 +145,18 @@ private:
     CompiledPolicyProgram& output
 );
 
+// Compile a policy against an explicitly selected task variant without
+// weakening the normal exact-contract boundary. The source task must match
+// the persisted PolicyPack exactly, while source and target must retain the
+// same world, observation, and action semantics. The resulting in-memory
+// policy is bound to the target task; the persisted pack is not modified.
+[[nodiscard]] PolicyCompileDiagnostics compilePolicyProgramForTaskVariant(
+    const PolicyPack& pack,
+    const CompiledTaskProgram& sourceTask,
+    const CompiledTaskProgram& targetTask,
+    CompiledPolicyProgram& output
+);
+
 [[nodiscard]] const char* policyCompileStatusName(
     PolicyCompileStatus status
 ) noexcept;

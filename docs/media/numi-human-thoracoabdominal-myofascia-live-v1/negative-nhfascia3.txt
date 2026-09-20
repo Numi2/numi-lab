@@ -1,0 +1,2 @@
+tendon_payload=NHTENDON3 tendon_endpoints=832 tendon_point_bindings=190 tendon_triangle_bindings=0 tendon_envelope_bindings=642 tendon_migrated_envelope_bindings=18 tendon_max_reference_path_delta_m=0.0107642 tendon_max_architecture_scale_change=0.0492621
+myosim_articulated_visual=failed error="pectoralis fascia header is malformed"

@@ -738,6 +738,9 @@ kernel void mr_multi_contact_project_equalities(
     threadgroup float solution[
         MR_MULTI_CONTACT_MAX_EQUALITY_ROWS
     ];
+    threadgroup float equilibration[
+        MR_MULTI_CONTACT_MAX_EQUALITY_ROWS
+    ];
     threadgroup atomic_uint sharedStatusCode;
     threadgroup uint failingRow;
     threadgroup float minimumPivot;
@@ -801,7 +804,6 @@ kernel void mr_multi_contact_project_equalities(
             }
         }
 
-        float maximumDiagonal = 1.0f;
         for (uint row = 0u;
              statusCode ==
                      MR_MULTI_CONTACT_EQUALITY_SUCCESS &&
@@ -881,10 +883,6 @@ kernel void mr_multi_contact_project_equalities(
             }
             factor[row * equalityRows + row] +=
                 equalityRegularization[equalityBase + row];
-            maximumDiagonal = max(
-                maximumDiagonal,
-                abs(factor[row * equalityRows + row])
-            );
         }
         for (uint index = 0u;
              index < equalityRows * equalityRows;
@@ -892,8 +890,42 @@ kernel void mr_multi_contact_project_equalities(
             equalityOperator[operatorBase + index] =
                 factor[index];
         }
-        const float pivotFloor =
-            dispatch.equalityEvaluation1.x * maximumDiagonal;
+        // Equality rows mix translational, angular, and generalized units.
+        // A single dimensional maximum diagonal can therefore reject a
+        // perfectly valid small-unit pivot merely because another row is
+        // expressed in inverse radians. Symmetric Jacobi equilibration makes
+        // the Cholesky acceptance test dimensionless while preserving the
+        // physical operator published above. For S = diag(1/sqrt(A_ii)),
+        // solve (S A S)y = S b and recover the physical impulse x = S y.
+        for (uint row = 0u;
+             statusCode ==
+                     MR_MULTI_CONTACT_EQUALITY_SUCCESS &&
+                 row < equalityRows;
+             ++row) {
+            const float diagonal =
+                factor[row * equalityRows + row];
+            if (!(diagonal > 0.0f) || !isfinite(diagonal)) {
+                statusCode =
+                    MR_MULTI_CONTACT_EQUALITY_FACTORIZATION_FAILED;
+                failingRow = row;
+                break;
+            }
+            equilibration[row] = rsqrt(diagonal);
+        }
+        for (uint row = 0u;
+             statusCode ==
+                     MR_MULTI_CONTACT_EQUALITY_SUCCESS &&
+                 row < equalityRows;
+             ++row) {
+            right[row] *= equilibration[row];
+            for (uint column = 0u;
+                 column < equalityRows;
+                 ++column) {
+                factor[row * equalityRows + column] *=
+                    equilibration[row] * equilibration[column];
+            }
+        }
+        const float pivotFloor = dispatch.equalityEvaluation1.x;
         for (uint row = 0u;
              statusCode ==
                      MR_MULTI_CONTACT_EQUALITY_SUCCESS &&
@@ -993,7 +1025,7 @@ kernel void mr_multi_contact_project_equalities(
                  ++row) {
                 equalityFreeImpulses[
                     equalityBase + row
-                ] = right[row];
+                ] = equilibration[row] * right[row];
             }
 
             for (uint contactRow = 0u;
@@ -1023,7 +1055,8 @@ kernel void mr_multi_contact_project_equalities(
                             value
                         );
                     }
-                    solution[equalityRow] = value;
+                    solution[equalityRow] =
+                        equilibration[equalityRow] * value;
                 }
                 for (uint row = 0u;
                      row < equalityRows;
@@ -1071,7 +1104,7 @@ kernel void mr_multi_contact_project_equalities(
                     equalityCoupling[
                         couplingBase +
                         row * contactRows + contactRow
-                    ] = solution[row];
+                    ] = equilibration[row] * solution[row];
                 }
             }
         }

@@ -1,0 +1,32 @@
+{
+  "schema": "numi.human.fifth-mcp-lower-stop-negative-control.v1",
+  "result": "rejected_nonanatomical_hard_stop",
+  "device": {
+    "host": "macmini",
+    "architecture": "arm64",
+    "product": "Mac mini M4 Pro",
+    "macos": "26.6"
+  },
+  "source_revision_parent": "acaa308",
+  "binary_sha256": "0e67f5d7ae50c678213a74dbf253d65ccef29aae3ef5fbae60c1ee426a8c7287",
+  "raw_trace_sha256": "281637e51b7ce93a936d4ab937c4db574947f098c908a1c6473ced2e9609b3f3",
+  "baseline": {
+    "internal_normalized_residual_rms": 3.79966295338,
+    "right_fifth_mcp_residual_nm": -0.0740494832131,
+    "left_fifth_mcp_residual_nm": -0.0728524869508
+  },
+  "counterfactual": {
+    "coordinate_position_rad": -0.261799007654,
+    "right_residual_nm": 0.0,
+    "left_residual_nm": 0.0,
+    "right_acceleration_rad_s2": 87.4905,
+    "left_acceleration_rad_s2": 95.0098,
+    "normalized_residual_rms": 3.03864,
+    "right_limit_reaction_nm": 0.10906,
+    "left_limit_reaction_nm": 0.119588,
+    "replay": "bitwise"
+  },
+  "interpretation": "The stop reduces the scalar objective but leaves large coupled accelerations and requires bilateral neutral fifth-MCP coordinates to rest at their negative 15-degree limits. It is a negative control, not an anatomical correction.",
+  "command": "metalrobo_numilab_human_myosim_visual_probe NHRIGID2 NHMYO2 output --muscle-step-seconds 0.0001 --support-contact-payload NHCNT1 --joint-equality-payload NHEQ1 --whole-body-support-certificate --source-passive-joint-tissue --fifth-mcp-lower-stop-counterfactual",
+  "boundary": "static_counterfactual_only_not_an_admitted_joint_tissue_or_actuator"
+}

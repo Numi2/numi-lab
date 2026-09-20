@@ -1,0 +1,11 @@
+tendon_payload=NHTENDON3 tendon_endpoints=832 tendon_point_bindings=194 tendon_triangle_bindings=0 tendon_envelope_bindings=638 tendon_migrated_envelope_bindings=18 tendon_max_reference_path_delta_m=0.0107642 tendon_max_architecture_scale_change=0.0492621
+joint_equality_payload=NHEQ1 joint_equalities=51
+open_knee_articular_cook=accepted pairs=7 samples=69701 mechanical_samples=57930 internal_same_body_samples=11771 adjacent_candidates=201898
+open_knee_solver_preflight=accepted formulation=displacement newton_iterations=8 fgmres_restart=16 fgmres_budget=32 fgmres_escalation_step=2 fgmres_escalated_budget=64 line_search_steps=6
+open_knee_passive_ligament_cook=accepted tissue=PCL rest_length_m=0.0303031 volume_m3=7.23995e-07 effective_area_m2=2.38918e-05 source_fiber_alignment=0.99644 source_initial_stretch=1 reference_tension_n=0
+open_knee_passive_ligament_cook=accepted tissue=ACL rest_length_m=0.0324358 volume_m3=1.43859e-06 effective_area_m2=4.4352e-05 source_fiber_alignment=0.996945 source_initial_stretch=1.016 reference_tension_n=3.34181
+open_knee_passive_ligament_cook=accepted tissue=MCL rest_length_m=0.0489108 volume_m3=1.15627e-06 effective_area_m2=2.36405e-05 source_fiber_alignment=0.999282 source_initial_stretch=1.034 reference_tension_n=55.4378
+open_knee_passive_ligament_cook=accepted tissue=PTL rest_length_m=0.0610492 volume_m3=4.42344e-06 effective_area_m2=7.2457e-05 source_fiber_alignment=0.999702 source_initial_stretch=1 reference_tension_n=0
+open_knee_passive_ligament_cook=accepted tissue=LCL rest_length_m=0.0496997 volume_m3=2.75962e-07 effective_area_m2=5.55259e-06 source_fiber_alignment=0.999931 source_initial_stretch=1.027 reference_tension_n=8.40188
+open_knee_qat_load_preflight=accepted load_nodes=378 positive_mass_nodes=378 patch_mass_kg=0.000120273 minimum_node_mass_kg=4.97846e-08 ptl_patella_load_nodes=424 ptl_tibia_load_nodes=553 ptl_patella_patch_area_m2=0.000214181 ptl_tibia_patch_area_m2=0.000293686
+myosim_articulated_visual=failed error="persistent Human stand Metal horizon failed: GPU rejected the Numi Human stand horizon: code=9 completed_steps=2 failing_index=5"

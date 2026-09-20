@@ -34,9 +34,14 @@ The repository header declares `MR_TASK_PROGRAM_CLOCK_STRESS` (`include/metalrob
 
 The active trainer command uses the v5 native library/metallib but the v4 `--python-root`; the v4 Mac mini source tree does not expose the adult-task or clock-stress symbols searched during this audit. This may be an intentional artifact split, but the run currently lacks a directly recorded source revision proving that the v5 binaries contain the authored adult task. Record the runtime build manifest and source fingerprint together before accepting adult evidence.
 
-### Low — evidence cache integrity is weaker than exact replay claims
+### Resolved — evidence cache integrity is bound to exact trace content
 
-`python/metalrobo/policy_selection.py:805-825` reuses cached evidence when the contract matches and the state trace is merely non-empty. It does not validate a trace hash, row count, or terminal record. A truncated-but-nonempty trace could therefore be accepted as resumable evidence. This does not affect the current pending run, but it weakens future cache provenance.
+The selector now publishes a v2 cache record only after validating the complete
+canonical trace: exact SHA-256 and byte count, one correctly sized finite row
+per requested step, and the expected terminal step. Reuse also verifies the
+exact evidence JSON hash and trace manifest; stale v1, truncated, altered, or
+partial artifacts are cache misses and are regenerated. Evidence and metadata
+are atomically replaced after validation.
 
 ## Strengths verified
 

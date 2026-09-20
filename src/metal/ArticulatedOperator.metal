@@ -1,6 +1,8 @@
 #include <metal_stdlib>
 
 #include "metalrobo/engine_types.h"
+#include "metalrobo/opensim_spatial_transform_gpu.h"
+#include "metalrobo/compensated_geometry_gpu.h"
 
 using namespace metal;
 
@@ -13,6 +15,20 @@ using namespace metal;
 #endif
 
 namespace {
+#if MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
+using MRKinematicPosition = MRCompensatedPositionGPU;
+inline MRKinematicPosition kinematicPosition(float3 v) { return mrCompensatedVector(float4(v,0.0f)); }
+inline MRKinematicPosition operator+(MRKinematicPosition a, MRKinematicPosition b) { return mrCompensatedVectorAdd(a,b); }
+inline MRKinematicPosition operator+(MRKinematicPosition a, float3 b) { return a+kinematicPosition(b); }
+inline float3 operator+(float3 a, MRKinematicPosition b) { return a+b.high.xyz; }
+inline float3 operator-(MRKinematicPosition a, MRKinematicPosition b) {
+    return mrCompensatedPositionDifference(a.high,a.low,b.high,b.low).xyz;
+}
+inline bool finite3(MRKinematicPosition value) { return all(isfinite(value.high)) && all(isfinite(value.low)); }
+#else
+using MRKinematicPosition = float3;
+inline MRKinematicPosition kinematicPosition(float3 v) { return v; }
+#endif
 
 constant float kQuaternionTolerance = 2.0e-5f;
 constant float kQuaternionMinimum = 1.0e-12f;
@@ -25,6 +41,25 @@ struct MotionColumn {
     float3 linear;
     float3 angular;
 };
+
+// This is the in-kernel form of one immutable OpenSim FunctionBased joint.
+// The GPU program ABI remains identical to the independently qualified
+// spatial-transform kernel; this operator consumes the same packed source
+// table rather than approximating it as a serial chain.
+struct FunctionBasedJointKinematics {
+    float4 rotation;
+    float3 translation;
+    float3 angular[MR_OPENSIM_SPATIAL_MAX_COORDINATES];
+    float3 linear[MR_OPENSIM_SPATIAL_MAX_COORDINATES];
+    uint coordinateCount;
+};
+
+inline float opensimPackedScalar(
+    thread const mr_float4* blocks,
+    const uint index
+) {
+    return blocks[index >> 2u][index & 3u];
+}
 
 inline bool finite3(const float3 value) {
     return all(isfinite(value));
@@ -99,6 +134,196 @@ inline float4 axisAngleQuaternion(
         normalizedAxis * sin(halfAngle),
         cos(halfAngle)
     );
+}
+
+inline bool evaluateOpenSimFunction(
+    thread const MROpenSimFunctionGPU& function,
+    const float argument,
+    thread float3& result
+) {
+    if (!isfinite(argument)) {
+        return false;
+    }
+    const uint coefficientCount = function.coefficientCount;
+    const uint knotCount = function.knotCount;
+    if (function.kind == MR_OPENSIM_FUNCTION_CONSTANT) {
+        if (coefficientCount != 1u || knotCount != 0u) {
+            return false;
+        }
+        result = float3(
+            opensimPackedScalar(function.coefficients, 0u),
+            0.0f,
+            0.0f
+        );
+        return isfinite(result.x);
+    }
+    if (function.kind == MR_OPENSIM_FUNCTION_LINEAR) {
+        if (coefficientCount != 2u || knotCount != 0u) {
+            return false;
+        }
+        const float slope = opensimPackedScalar(function.coefficients, 0u);
+        result = float3(
+            slope * argument +
+                opensimPackedScalar(function.coefficients, 1u),
+            slope,
+            0.0f
+        );
+        return finite3(result);
+    }
+    if (function.kind == MR_OPENSIM_FUNCTION_POLYNOMIAL) {
+        if (coefficientCount == 0u ||
+            coefficientCount > MR_OPENSIM_SPATIAL_MAX_COEFFICIENTS ||
+            knotCount != 0u) {
+            return false;
+        }
+        float value = 0.0f;
+        float derivative = 0.0f;
+        float secondDerivative = 0.0f;
+        for (uint index = 0u; index < coefficientCount; ++index) {
+            secondDerivative =
+                secondDerivative * argument + 2.0f * derivative;
+            derivative = derivative * argument + value;
+            value = value * argument +
+                opensimPackedScalar(function.coefficients, index);
+        }
+        result = float3(value, derivative, secondDerivative);
+        return finite3(result);
+    }
+    if (function.kind != MR_OPENSIM_FUNCTION_SIMM_SPLINE ||
+        coefficientCount != 0u || knotCount < 2u ||
+        knotCount > MR_OPENSIM_SPATIAL_MAX_KNOTS) {
+        return false;
+    }
+    for (uint index = 0u; index < knotCount; ++index) {
+        const float x = opensimPackedScalar(function.abscissae, index);
+        const float y = opensimPackedScalar(function.ordinates, index);
+        const float slope = opensimPackedScalar(function.splineSlope, index);
+        const float quadratic = opensimPackedScalar(
+            function.splineQuadratic,
+            index
+        );
+        const float cubic = opensimPackedScalar(function.splineCubic, index);
+        if (!isfinite(x) || !isfinite(y) || !isfinite(slope) ||
+            !isfinite(quadratic) || !isfinite(cubic) ||
+            (index > 0u && !(x > opensimPackedScalar(
+                function.abscissae,
+                index - 1u
+            )))) {
+            return false;
+        }
+    }
+    const uint final = knotCount - 1u;
+    const float firstX = opensimPackedScalar(function.abscissae, 0u);
+    const float finalX = opensimPackedScalar(function.abscissae, final);
+    if (argument < firstX || argument > finalX) {
+        const uint endpoint = argument < firstX ? 0u : final;
+        const float x = opensimPackedScalar(function.abscissae, endpoint);
+        const float y = opensimPackedScalar(function.ordinates, endpoint);
+        const float slope = opensimPackedScalar(function.splineSlope, endpoint);
+        result = float3(y + (argument - x) * slope, slope, 0.0f);
+        return finite3(result);
+    }
+    uint low = 0u;
+    uint high = final;
+    uint interval = 0u;
+    for (uint iteration = 0u; iteration < 5u; ++iteration) {
+        interval = (low + high) >> 1u;
+        if (argument < opensimPackedScalar(function.abscissae, interval)) {
+            high = interval;
+        } else if (argument > opensimPackedScalar(
+                       function.abscissae,
+                       interval + 1u
+                   )) {
+            low = interval;
+        } else {
+            break;
+        }
+    }
+    const float delta = argument -
+        opensimPackedScalar(function.abscissae, interval);
+    const float slope = opensimPackedScalar(function.splineSlope, interval);
+    const float quadratic = opensimPackedScalar(
+        function.splineQuadratic,
+        interval
+    );
+    const float cubic = opensimPackedScalar(function.splineCubic, interval);
+    result = float3(
+        opensimPackedScalar(function.ordinates, interval) + delta *
+            (slope + delta * (quadratic + delta * cubic)),
+        slope + delta * (2.0f * quadratic + 3.0f * delta * cubic),
+        2.0f * quadratic + 6.0f * delta * cubic
+    );
+    return finite3(result);
+}
+
+inline bool evaluateFunctionBasedJoint(
+    device const MROpenSimSpatialTransformGPU& program,
+    device const float* coordinates,
+    thread FunctionBasedJointKinematics& result
+) {
+    result = {};
+    if (program.abiVersion != MR_OPENSIM_SPATIAL_TRANSFORM_GPU_ABI_VERSION ||
+        program.coordinateCount == 0u ||
+        program.coordinateCount > MR_OPENSIM_SPATIAL_MAX_COORDINATES ||
+        program.reserved0 != 0u || program.reserved1 != 0u) {
+        return false;
+    }
+    float3 values[6];
+    float3 axes[6];
+    uint coordinateIndex[6];
+    for (uint index = 0u; index < 6u; ++index) {
+        const MROpenSimFunctionGPU function = program.axes[index];
+        const bool functionIsConstant =
+            function.kind == MR_OPENSIM_FUNCTION_CONSTANT;
+        if ((functionIsConstant &&
+             function.coordinateIndex != MR_OPENSIM_SPATIAL_NO_COORDINATE) ||
+            (!functionIsConstant &&
+             (function.coordinateIndex == MR_OPENSIM_SPATIAL_NO_COORDINATE ||
+              function.coordinateIndex >= program.coordinateCount)) ||
+            !finite4(function.axis) || function.axis.w != 0.0f ||
+            !(dot(function.axis.xyz, function.axis.xyz) > 1.0e-10f)) {
+            return false;
+        }
+        coordinateIndex[index] = function.coordinateIndex;
+        axes[index] = normalize(function.axis.xyz);
+        const float argument = functionIsConstant
+            ? 0.0f
+            : coordinates[function.coordinateIndex];
+        if (!evaluateOpenSimFunction(function, argument, values[index])) {
+            return false;
+        }
+    }
+    const float4 rotation0 = axisAngleQuaternion(axes[0], values[0].x);
+    const float4 rotation01 = quaternionMultiply(
+        rotation0,
+        axisAngleQuaternion(axes[1], values[1].x)
+    );
+    result.rotation = quaternionMultiply(
+        rotation01,
+        axisAngleQuaternion(axes[2], values[2].x)
+    );
+    result.translation =
+        axes[3] * values[3].x +
+        axes[4] * values[4].x +
+        axes[5] * values[5].x;
+    const float3 angularAxes[3] = {
+        axes[0],
+        quaternionRotate(rotation0, axes[1]),
+        quaternionRotate(rotation01, axes[2]),
+    };
+    for (uint index = 0u; index < 6u; ++index) {
+        const uint coordinate = coordinateIndex[index];
+        if (coordinate == MR_OPENSIM_SPATIAL_NO_COORDINATE) {
+            continue;
+        }
+        if (index < 3u) {
+            result.angular[coordinate] += angularAxes[index] * values[index].y;
+        } else {
+            result.linear[coordinate] += axes[index] * values[index].y;
+        }
+    }
+    result.coordinateCount = program.coordinateCount;
+    return finite4(result.rotation) && finite3(result.translation);
 }
 
 inline float3 inertiaMultiply(
@@ -235,6 +460,21 @@ inline bool zero4(const float4 value) {
     return all(value == float4(0.0f));
 }
 
+inline bool validZeroInertiaTransformCarrier(
+    device const MRBodyPropertiesGPU& body
+) {
+    return
+        body.motionType == MR_MOTION_STATIC &&
+        body.massAndInverseMass.x == 0.0f &&
+        body.massAndInverseMass.y == 0.0f &&
+        zero4(body.inertiaRow0) &&
+        zero4(body.inertiaRow1) &&
+        zero4(body.inertiaRow2) &&
+        zero4(body.inverseInertiaRow0) &&
+        zero4(body.inverseInertiaRow1) &&
+        zero4(body.inverseInertiaRow2);
+}
+
 inline uint alignedThreadgroupOffset(const uint value) {
     return (value + 15u) & ~15u;
 }
@@ -280,8 +520,7 @@ inline bool validDofParameters(
     return
         (actuated || (!effortLimited && !driven)) &&
         (!driven || actuated) &&
-        (driven ||
-         (dof.drive.x == 0.0f && dof.drive.y == 0.0f)) &&
+        (driven || dof.drive.x == 0.0f) &&
         (!positionLimited ||
          (dof.qIndex != MR_INVALID_INDEX &&
           jointType != MR_JOINT_CONTINUOUS &&
@@ -310,11 +549,15 @@ inline MotionColumn bodyMotionForDof(
     const uint dof,
     device const MRArticulationGPU& articulation,
     device const MRJointDescriptorGPU* joints,
-    threadgroup const float3* bodyPosition,
-    threadgroup const float3* jointPosition,
+    device const MROpenSimSpatialTransformGPU* functionPrograms,
+    device const float* q,
+    threadgroup const MRKinematicPosition* bodyPosition,
+    threadgroup const float4* bodyRotation,
+    threadgroup const MRKinematicPosition* jointPosition,
     threadgroup const float3* jointAxis,
     threadgroup const uint* inboundJoint,
-    threadgroup const uint* parentLocal
+    threadgroup const uint* parentLocal,
+    const uint knownAncestor = MR_INVALID_INDEX
 ) {
     MotionColumn result;
     result.linear = float3(0.0f);
@@ -337,7 +580,7 @@ inline MotionColumn bodyMotionForDof(
         }
     }
 
-    uint cursor = localBody;
+    uint cursor = knownAncestor == MR_INVALID_INDEX ? localBody : knownAncestor;
     for (uint depth = 0u;
          depth < articulation.bodyCount && cursor != rootLocal;
          ++depth) {
@@ -347,8 +590,39 @@ inline MotionColumn bodyMotionForDof(
         }
         device const MRJointDescriptorGPU& joint =
             joints[globalJoint];
+        const uint jointLocalV =
+            joint.vOffset - articulation.vOffset;
+        if (joint.jointType == MR_JOINT_FUNCTION_BASED &&
+            dof >= jointLocalV && dof - jointLocalV < joint.nv) {
+            FunctionBasedJointKinematics functionState;
+            const uint localQ = joint.qOffset - articulation.qOffset;
+            if (!evaluateFunctionBasedJoint(
+                    functionPrograms[globalJoint],
+                    q + localQ,
+                    functionState
+                ) || functionState.coordinateCount != joint.nv) {
+                return result;
+            }
+            const float4 parentToJointRotation = quaternionMultiply(
+                bodyRotation[parentLocal[cursor]],
+                joint.parentRotation
+            );
+            const uint localDof = dof - jointLocalV;
+            result.angular = quaternionRotate(
+                parentToJointRotation,
+                functionState.angular[localDof]
+            );
+            result.linear = quaternionRotate(
+                parentToJointRotation,
+                functionState.linear[localDof]
+            ) + cross(
+                result.angular,
+                bodyPosition[localBody] - jointPosition[cursor]
+            );
+            return result;
+        }
         if (joint.nv == 1u &&
-            joint.vOffset - articulation.vOffset == dof) {
+            jointLocalV == dof) {
             if (joint.jointType == MR_JOINT_PRISMATIC) {
                 result.linear = jointAxis[cursor];
             } else {
@@ -371,14 +645,16 @@ inline float massElement(
     const uint column,
     device const MRArticulationGPU& articulation,
     device const MRJointDescriptorGPU* joints,
+    device const MROpenSimSpatialTransformGPU* functionPrograms,
+    device const float* q,
     device const MRBodyPropertiesGPU* bodies,
 #if MR_ARTICULATED_OPERATOR_BODY_PARAMETERS
     device const float4* bodyParameters,
     const uint bodyParameterBase,
 #endif
-    threadgroup const float3* bodyPosition,
+    threadgroup const MRKinematicPosition* bodyPosition,
     threadgroup const float4* bodyRotation,
-    threadgroup const float3* jointPosition,
+    threadgroup const MRKinematicPosition* jointPosition,
     threadgroup const float3* jointAxis,
     threadgroup const uint* inboundJoint,
     threadgroup const uint* parentLocal
@@ -392,7 +668,10 @@ inline float massElement(
             row,
             articulation,
             joints,
+            functionPrograms,
+            q,
             bodyPosition,
+            bodyRotation,
             jointPosition,
             jointAxis,
             inboundJoint,
@@ -403,7 +682,10 @@ inline float massElement(
             column,
             articulation,
             joints,
+            functionPrograms,
+            q,
             bodyPosition,
+            bodyRotation,
             jointPosition,
             jointAxis,
             inboundJoint,
@@ -459,8 +741,16 @@ inline bool validDispatch(
              MR_ARTICULATED_OPERATOR_WRITE_CHOLESKY_FACTOR |
              MR_ARTICULATED_OPERATOR_KINEMATICS_ONLY |
              MR_ARTICULATED_OPERATOR_IMPLICIT_DRIVES |
-             MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY
+             MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY |
+             MR_ARTICULATED_OPERATOR_IGNORE_FOREIGN_POINTS
+#if MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
+             | MR_ARTICULATED_OPERATOR_COMPENSATED_TRANSLATION
+#endif
          )) != 0u ||
+        ((dispatch.flags &
+          MR_ARTICULATED_OPERATOR_IGNORE_FOREIGN_POINTS) != 0u &&
+         (dispatch.flags &
+          MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY) == 0u) ||
         ((dispatch.flags &
           MR_ARTICULATED_OPERATOR_WRITE_DIAGNOSTIC_MASS) != 0u &&
          (dispatch.flags &
@@ -503,6 +793,7 @@ inline bool validModelAndLayout(
     device const MRWorldGPU& world,
     device const MRArticulationGPU& articulation,
     device const MRJointDescriptorGPU* joints,
+    device const MROpenSimSpatialTransformGPU* functionPrograms,
     device const MRDofPropertiesGPU* dofs,
     device const MRBodyPropertiesGPU* bodies,
     device const MRArticulatedOperatorDispatchGPU& dispatch,
@@ -511,13 +802,21 @@ inline bool validModelAndLayout(
     threadgroup uchar* known,
     thread MRArticulatedOperatorStatusGPU& status
 ) {
+    const bool pointJacobiansOnly =
+        (dispatch.flags &
+         MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY) != 0u;
+    const uint maximumBodies = pointJacobiansOnly
+        ? MR_ARTICULATED_OPERATOR_KINEMATICS_MAX_BODIES
+        : MR_ARTICULATED_OPERATOR_MAX_BODIES;
+    const uint maximumDofs = pointJacobiansOnly
+        ? MR_ARTICULATED_OPERATOR_KINEMATICS_MAX_DOFS
+        : MR_ARTICULATED_OPERATOR_MAX_DOFS;
     if ((articulation.rootType != MR_ROOT_FIXED &&
          articulation.rootType != MR_ROOT_FLOATING) ||
         articulation.bodyCount == 0u ||
-        articulation.bodyCount >
-            MR_ARTICULATED_OPERATOR_MAX_BODIES ||
+        articulation.bodyCount > maximumBodies ||
         articulation.nv == 0u ||
-        articulation.nv > MR_ARTICULATED_OPERATOR_MAX_DOFS ||
+        articulation.nv > maximumDofs ||
         articulation.firstBody > world.bodyCount ||
         articulation.bodyCount >
             world.bodyCount - articulation.firstBody ||
@@ -534,10 +833,8 @@ inline bool validModelAndLayout(
         articulation.jointCount + 1u != articulation.bodyCount) {
         setFailure(
             status,
-            articulation.bodyCount >
-                    MR_ARTICULATED_OPERATOR_MAX_BODIES ||
-                articulation.nv >
-                    MR_ARTICULATED_OPERATOR_MAX_DOFS
+            articulation.bodyCount > maximumBodies ||
+                articulation.nv > maximumDofs
                 ? MR_ARTICULATED_OPERATOR_CAPACITY_OVERFLOW
                 : MR_ARTICULATED_OPERATOR_INVALID_MODEL,
             MR_INVALID_INDEX
@@ -621,6 +918,32 @@ inline bool validModelAndLayout(
             joint.jointType == MR_JOINT_PRISMATIC) {
             jointNq = 1u;
             jointNv = 1u;
+        } else if (joint.jointType == MR_JOINT_FUNCTION_BASED) {
+            if (functionPrograms == nullptr) {
+                setFailure(
+                    status,
+                    MR_ARTICULATED_OPERATOR_UNSUPPORTED_TOPOLOGY,
+                    globalJoint
+                );
+                return false;
+            }
+            const MROpenSimSpatialTransformGPU program =
+                functionPrograms[globalJoint];
+            if (program.abiVersion !=
+                    MR_OPENSIM_SPATIAL_TRANSFORM_GPU_ABI_VERSION ||
+                program.coordinateCount == 0u ||
+                program.coordinateCount >
+                    MR_OPENSIM_SPATIAL_MAX_COORDINATES ||
+                program.coordinateCount != joint.nq) {
+                setFailure(
+                    status,
+                    MR_ARTICULATED_OPERATOR_INVALID_MODEL,
+                    globalJoint
+                );
+                return false;
+            }
+            jointNq = joint.nq;
+            jointNv = joint.nv;
         } else if (joint.jointType != MR_JOINT_FIXED) {
             setFailure(
                 status,
@@ -644,7 +967,8 @@ inline bool validModelAndLayout(
             );
             return false;
         }
-        if (jointNv == 1u) {
+        if (jointNv == 1u &&
+            joint.jointType != MR_JOINT_FUNCTION_BASED) {
             const float axisNormSquared =
                 dot(joint.axis0.xyz, joint.axis0.xyz);
             if (!finite4(joint.axis0) ||
@@ -656,8 +980,7 @@ inline bool validModelAndLayout(
                 );
                 return false;
             }
-            device const MRDofPropertiesGPU& dof =
-                dofs[joint.vOffset];
+            device const MRDofPropertiesGPU& dof = dofs[joint.vOffset];
             if (dof.articulationIndex !=
                     dispatch.articulationIndex ||
                 dof.jointIndex != globalJoint ||
@@ -675,6 +998,29 @@ inline bool validModelAndLayout(
                     joint.vOffset
                 );
                 return false;
+            }
+        }
+        if (joint.jointType == MR_JOINT_FUNCTION_BASED) {
+            for (uint localDof = 0u; localDof < jointNv; ++localDof) {
+                device const MRDofPropertiesGPU& dof =
+                    dofs[joint.vOffset + localDof];
+                if (dof.articulationIndex != dispatch.articulationIndex ||
+                    dof.jointIndex != globalJoint ||
+                    dof.qIndex != joint.qOffset + localDof ||
+                    dof.vIndex != joint.vOffset + localDof ||
+                    dof.localDof != localDof ||
+                    !validDofParameters(
+                        dof,
+                        false,
+                        joint.jointType
+                    )) {
+                    setFailure(
+                        status,
+                        MR_ARTICULATED_OPERATOR_INVALID_MODEL,
+                        joint.vOffset + localDof
+                    );
+                    return false;
+                }
             }
         }
         float4 checkedRotation;
@@ -745,19 +1091,27 @@ inline bool validModelAndLayout(
         const uint globalBody =
             articulation.firstBody + localBody;
         device const MRBodyPropertiesGPU& body = bodies[globalBody];
-        if (body.articulationIndex !=
-                dispatch.articulationIndex ||
-            body.motionType != MR_MOTION_DYNAMIC ||
-            !finite4(body.massAndInverseMass) ||
-            !(body.massAndInverseMass.x > 0.0f) ||
-            !(body.massAndInverseMass.y > 0.0f) ||
+        const bool dynamicBody =
+            body.motionType == MR_MOTION_DYNAMIC &&
+            body.massAndInverseMass.x > 0.0f &&
+            body.massAndInverseMass.y > 0.0f &&
             abs(
                 body.massAndInverseMass.x *
                     body.massAndInverseMass.y -
                 1.0f
-            ) > 3.0e-5f ||
+            ) <= 3.0e-5f &&
+            validBodyInertia(body);
+        // MyoSim encodes several serial source joints on a single body. The
+        // native tree inserts a massless transform carrier for each preceding
+        // joint. It owns kinematics but must contribute exactly zero spatial
+        // inertia; admitting only this exact form cannot turn an arbitrary
+        // static body into an articulation member.
+        const bool transformCarrier = validZeroInertiaTransformCarrier(body);
+        if (body.articulationIndex !=
+                dispatch.articulationIndex ||
+            !finite4(body.massAndInverseMass) ||
             !finite4(body.centerOfMass) ||
-            !validBodyInertia(body) ||
+            (!dynamicBody && !transformCarrier) ||
             !finite4(body.dampingAndSpeedLimits) ||
             any(body.dampingAndSpeedLimits < float4(0.0f))) {
             setFailure(
@@ -796,10 +1150,11 @@ inline bool validModelAndLayout(
 inline bool buildKinematics(
     device const MRArticulationGPU& articulation,
     device const MRJointDescriptorGPU* joints,
+    device const MROpenSimSpatialTransformGPU* functionPrograms,
     device const float* q,
-    threadgroup float3* bodyPosition,
+    threadgroup MRKinematicPosition* bodyPosition,
     threadgroup float4* bodyRotation,
-    threadgroup float3* jointPosition,
+    threadgroup MRKinematicPosition* jointPosition,
     threadgroup float3* jointAxis,
     threadgroup uchar* known,
     thread MRArticulatedOperatorStatusGPU& status
@@ -821,11 +1176,13 @@ inline bool buildKinematics(
             );
             return false;
         }
-        bodyPosition[rootLocal] =
-            float3(q[0], q[1], q[2]);
+        // The internal frame follows root translation. World translation is
+        // applied only when publishing poses and points, avoiding cumulative
+        // rounding at every joint in a tall articulated tree.
+        bodyPosition[rootLocal] = kinematicPosition(float3(0.0f));
         bodyRotation[rootLocal] = checkedRootRotation;
     } else {
-        bodyPosition[rootLocal] = float3(0.0f);
+        bodyPosition[rootLocal] = kinematicPosition(float3(0.0f));
         bodyRotation[rootLocal] =
             float4(0.0f, 0.0f, 0.0f, 1.0f);
     }
@@ -880,8 +1237,27 @@ inline bool buildKinematics(
             float4 motionRotation =
                 float4(0.0f, 0.0f, 0.0f, 1.0f);
             float3 axisInJoint = float3(1.0f, 0.0f, 0.0f);
+            float3 translationInJoint = float3(0.0f);
             float jointCoordinate = 0.0f;
-            if (joint.nv == 1u) {
+            if (joint.jointType == MR_JOINT_FUNCTION_BASED) {
+                const uint localQ =
+                    joint.qOffset - articulation.qOffset;
+                FunctionBasedJointKinematics functionState;
+                if (!evaluateFunctionBasedJoint(
+                        functionPrograms[globalJoint],
+                        q + localQ,
+                        functionState
+                    ) || functionState.coordinateCount != joint.nq) {
+                    setFailure(
+                        status,
+                        MR_ARTICULATED_OPERATOR_INVALID_MODEL,
+                        globalJoint
+                    );
+                    return false;
+                }
+                motionRotation = functionState.rotation;
+                translationInJoint = functionState.translation;
+            } else if (joint.nv == 1u) {
                 const float axisMagnitude =
                     length(joint.axis0.xyz);
                 axisInJoint = joint.axis0.xyz / axisMagnitude;
@@ -930,24 +1306,50 @@ inline bool buildKinematics(
                 parentToJointRotation,
                 axisInJoint
             );
-            jointPosition[localChild] =
-                bodyPosition[localParent] +
+#if MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
+            MRKinematicPosition parentToJointOffset = mrCompensatedQuaternionRotate(
+                bodyRotation[localParent], joint.parentAnchor);
+            if (joint.jointType == MR_JOINT_FUNCTION_BASED)
+                parentToJointOffset = parentToJointOffset + mrCompensatedQuaternionRotate(
+                    parentToJointRotation, float4(translationInJoint,0.0f));
+            else if (joint.jointType == MR_JOINT_PRISMATIC)
+                parentToJointOffset = parentToJointOffset + mrCompensatedVectorScale(
+                    kinematicPosition(jointAxis[localChild]), {jointCoordinate,0.0f});
+            jointPosition[localChild] = bodyPosition[localParent] + parentToJointOffset;
+            const MRKinematicPosition parentToChildOffset = parentToJointOffset +
+                mrCompensatedVectorNegate(mrCompensatedQuaternionRotate(
+                    bodyRotation[localChild], joint.childAnchor));
+            bodyPosition[localChild] = bodyPosition[localParent] + parentToChildOffset;
+#else
+            const float3 parentToJointOffset =
                 quaternionRotate(
                     bodyRotation[localParent],
                     joint.parentAnchor.xyz
                 ) +
-                (joint.jointType == MR_JOINT_PRISMATIC
-                    ? jointAxis[localChild] * jointCoordinate
-                    : float3(0.0f));
-            bodyPosition[localChild] =
-                jointPosition[localChild] -
+                (joint.jointType == MR_JOINT_FUNCTION_BASED
+                    ? quaternionRotate(
+                        parentToJointRotation,
+                        translationInJoint
+                    )
+                    : (joint.jointType == MR_JOINT_PRISMATIC
+                        ? jointAxis[localChild] * jointCoordinate
+                        : float3(0.0f)));
+            jointPosition[localChild] = bodyPosition[localParent] + parentToJointOffset;
+            // Compose the COM-relative displacement before adding the world
+            // translation. Avoid rounding an intermediate large world anchor
+            // and then subtracting its child offset at every carrier joint.
+            const float3 parentToChildOffset = parentToJointOffset -
                 quaternionRotate(
                     bodyRotation[localChild],
                     joint.childAnchor.xyz
                 );
+            bodyPosition[localChild] = bodyPosition[localParent] + parentToChildOffset;
+#endif
             if (!finite3(jointPosition[localChild]) ||
                 !finite3(jointAxis[localChild]) ||
-                !finite3(bodyPosition[localChild])) {
+                !finite3(bodyPosition[localChild]) ||
+                (articulation.rootType == MR_ROOT_FLOATING &&
+                 !finite3(float3(q[0], q[1], q[2]) + bodyPosition[localChild]))) {
                 setFailure(
                     status,
                     MR_ARTICULATED_OPERATOR_NONFINITE_RESULT,
@@ -980,8 +1382,8 @@ inline bool buildBodyVelocities(
     device const MRArticulationGPU& articulation,
     device const MRJointDescriptorGPU* joints,
     device const float* v,
-    threadgroup const float3* bodyPosition,
-    threadgroup const float3* jointPosition,
+    threadgroup const MRKinematicPosition* bodyPosition,
+    threadgroup const MRKinematicPosition* jointPosition,
     threadgroup const float3* jointAxis,
     threadgroup float3* bodyLinearVelocity,
     threadgroup float3* bodyAngularVelocity,
@@ -1097,6 +1499,33 @@ inline bool buildBodyVelocities(
 }
 #endif
 
+#if MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
+inline MRCompensatedPositionGPU pointSurfaceOffsetPair(
+    const float4 rotation, device const MRArticulatedPointImpulseGPU& query
+) {
+    return mrCompensatedSupportOffset(rotation,query.localPoint,query.supportOrientation,
+        query.supportRadii,query.supportPlaneNormalAndRadius,
+        (query.flags & MR_ARTICULATED_POINT_ELLIPSOID_SUPPORT) != 0u ? 2u :
+        ((query.flags & MR_ARTICULATED_POINT_SPHERE_SUPPORT) != 0u ? 1u : 0u));
+}
+#endif
+inline float3 pointSurfaceOffset(
+    const float4 rotation, device const MRArticulatedPointImpulseGPU& query
+) {
+#if MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
+    return pointSurfaceOffsetPair(rotation,query).high.xyz;
+#else
+    const float3 centre = quaternionRotate(rotation, query.localPoint.xyz);
+    if ((query.flags & MR_ARTICULATED_POINT_ELLIPSOID_SUPPORT) != 0u) {
+        const float4 shape = quaternionMultiply(rotation, query.supportOrientation);
+        const float3 direction = quaternionRotate(quaternionConjugate(shape), query.supportPlaneNormalAndRadius.xyz);
+        const float3 scaled = query.supportRadii.xyz * direction;
+        return centre - quaternionRotate(shape, query.supportRadii.xyz * scaled / length(scaled));
+    }
+    return centre - query.supportPlaneNormalAndRadius.w * query.supportPlaneNormalAndRadius.xyz;
+#endif
+}
+
 inline bool validatePoints(
     const uint environment,
     device const MRArticulationGPU& articulation,
@@ -1108,10 +1537,25 @@ inline bool validatePoints(
     for (uint point = 0u; point < dispatch.pointCount; ++point) {
         device const MRArticulatedPointImpulseGPU& query =
             points[base + point];
-        if (query.bodyIndex < articulation.firstBody ||
+        const bool foreign =
+            query.bodyIndex < articulation.firstBody ||
             query.bodyIndex >=
-                articulation.firstBody + articulation.bodyCount ||
-            (query.flags & ~MR_ARTICULATED_POINT_INACTIVE) != 0u ||
+                articulation.firstBody + articulation.bodyCount;
+        const bool allowForeign =
+            (dispatch.flags &
+             MR_ARTICULATED_OPERATOR_IGNORE_FOREIGN_POINTS) != 0u;
+        if ((!allowForeign && foreign) ||
+            (query.flags & ~(MR_ARTICULATED_POINT_INACTIVE | MR_ARTICULATED_POINT_SPHERE_SUPPORT | MR_ARTICULATED_POINT_ELLIPSOID_SUPPORT)) != 0u ||
+            !finite4(query.supportPlaneNormalAndRadius) || !finite4(query.supportRadii) || !finite4(query.supportOrientation) ||
+            (((query.flags & MR_ARTICULATED_POINT_ELLIPSOID_SUPPORT) != 0u)
+                ? ((query.flags & MR_ARTICULATED_POINT_SPHERE_SUPPORT) != 0u ||
+                   query.supportPlaneNormalAndRadius.w != 0.0f || any(query.supportRadii.xyz <= 0.0f) ||
+                   query.supportRadii.w != 0.0f || abs(dot(query.supportOrientation,query.supportOrientation)-1.0f)>1.0e-5f)
+                : (any(query.supportRadii != float4(0.0f)) || any(query.supportOrientation != float4(0.0f)))) ||
+            (((query.flags & (MR_ARTICULATED_POINT_SPHERE_SUPPORT | MR_ARTICULATED_POINT_ELLIPSOID_SUPPORT)) != 0u)
+                ? (abs(dot(query.supportPlaneNormalAndRadius.xyz,query.supportPlaneNormalAndRadius.xyz)-1.0f)>1.0e-5f ||
+                   ((query.flags & MR_ARTICULATED_POINT_SPHERE_SUPPORT) != 0u && !(query.supportPlaneNormalAndRadius.w>0.0f)))
+                : any(query.supportPlaneNormalAndRadius != float4(0.0f))) ||
             query.reserved0 != 0u ||
             query.reserved1 != 0u ||
             !finite4(query.localPoint) ||
@@ -1155,6 +1599,14 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
 #if MR_ARTICULATED_OPERATOR_BODY_PARAMETERS
     device const float4* bodyParameters [[buffer(15)]],
     device const float4* controllerParameters [[buffer(16)]],
+#else
+    device const MROpenSimSpatialTransformGPU* functionPrograms
+        [[buffer(15)]],
+#endif
+#if MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
+    device const MRCompensatedRootTranslationGPU* rootTranslations [[buffer(17)]],
+    device float4* bodyPositionLow [[buffer(18)]],
+    device float4* pointPositionLow [[buffer(19)]],
 #endif
     threadgroup uchar* scratch [[threadgroup(0)]],
     uint environment [[threadgroup_position_in_grid]],
@@ -1178,6 +1630,11 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
     threadgroup_barrier(mem_flags::mem_threadgroup);
 
     device const MRWorldGPU& world = worlds[0];
+#if MR_ARTICULATED_OPERATOR_BODY_PARAMETERS
+    // Parameterized world paths retain their existing FunctionBased host
+    // rejection. This null program is never dereferenced in that mode.
+    device const MROpenSimSpatialTransformGPU* functionPrograms = nullptr;
+#endif
     if (lane == 0u) {
         initializationSucceeded =
             validDispatch(world, dispatch, status) ? 1u : 0u;
@@ -1193,13 +1650,13 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
     device const MRArticulationGPU& articulation =
         articulations[dispatch.articulationIndex];
     uint scratchOffset = 0u;
-    threadgroup float3* bodyPosition =
-        reinterpret_cast<threadgroup float3*>(
+    threadgroup MRKinematicPosition* bodyPosition =
+        reinterpret_cast<threadgroup MRKinematicPosition*>(
             scratch + scratchOffset
         );
     scratchOffset = alignedThreadgroupOffset(
         scratchOffset +
-        articulation.bodyCount * sizeof(float3)
+        articulation.bodyCount * sizeof(MRKinematicPosition)
     );
     threadgroup float4* bodyRotation =
         reinterpret_cast<threadgroup float4*>(
@@ -1209,13 +1666,13 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
         scratchOffset +
         articulation.bodyCount * sizeof(float4)
     );
-    threadgroup float3* jointPosition =
-        reinterpret_cast<threadgroup float3*>(
+    threadgroup MRKinematicPosition* jointPosition =
+        reinterpret_cast<threadgroup MRKinematicPosition*>(
             scratch + scratchOffset
         );
     scratchOffset = alignedThreadgroupOffset(
         scratchOffset +
-        articulation.bodyCount * sizeof(float3)
+        articulation.bodyCount * sizeof(MRKinematicPosition)
     );
     threadgroup float3* jointAxis =
         reinterpret_cast<threadgroup float3*>(
@@ -1285,6 +1742,7 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                 world,
                 articulation,
                 joints,
+                functionPrograms,
                 dofs,
                 bodies,
                 dispatch,
@@ -1296,6 +1754,7 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
             buildKinematics(
                 articulation,
                 joints,
+                functionPrograms,
                 environmentQ,
                 bodyPosition,
                 bodyRotation,
@@ -1322,6 +1781,28 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
         return;
     }
 
+#if MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
+    const bool compensatedTranslation =
+        (dispatch.flags & MR_ARTICULATED_OPERATOR_COMPENSATED_TRANSLATION) != 0u;
+    MRCompensatedRootTranslationGPU translation = mrCompensatedTranslationFromProjection(
+        articulation.rootType == MR_ROOT_FLOATING
+            ? float4(environmentQ[0], environmentQ[1], environmentQ[2], 0.0f)
+            : float4(0.0f));
+#if MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
+    if (compensatedTranslation) {
+        translation = rootTranslations[environment];
+        if (articulation.rootType != MR_ROOT_FLOATING || !mrCompensatedTranslationValid(translation)) {
+            if (lane == 0u) {
+                setFailure(status, MR_ARTICULATED_OPERATOR_NONFINITE_INPUT, 0u);
+                statuses[environment] = status;
+            }
+            return;
+        }
+    }
+#endif
+#endif
+    const float3 worldTranslation = articulation.rootType == MR_ROOT_FLOATING
+        ? float3(environmentQ[0], environmentQ[1], environmentQ[2]) : float3(0.0f);
     const bool posesOnly =
         (dispatch.flags &
          MR_ARTICULATED_OPERATOR_KINEMATICS_ONLY) != 0u;
@@ -1336,11 +1817,43 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
              localBody += threadsPerThreadgroup) {
             MRArticulatedBodyPoseGPU pose;
             pose.position =
-                float4(bodyPosition[localBody], 1.0f);
+                float4(worldTranslation + bodyPosition[localBody], 1.0f);
             pose.orientation = bodyRotation[localBody];
+#if MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
+            if (compensatedTranslation) {
+                const auto paired = mrCompensatedTranslationPositionPair(translation,
+                    bodyPosition[localBody]);
+                pose.position = float4(paired.high.xyz, 1.0f);
+                bodyPositionLow[poseBase + localBody] = paired.low;
+            }
+#endif
             bodyPoses[poseBase + localBody] = pose;
         }
         if (pointJacobiansOnly) {
+            // The same body is queried at its COM and several local points.
+            // Resolve ancestry once per body, then reuse the authoritative
+            // motion-column calculation at the owning joint. No candidate
+            // data survives this dispatch or bypasses model validation.
+            const uint ancestryWords = (articulation.nv + 31u) / 32u;
+            threadgroup uint* ancestors = reinterpret_cast<threadgroup uint*>(factor);
+            for (uint body = lane; body < articulation.bodyCount; body += threadsPerThreadgroup) {
+                threadgroup uint* mask = ancestors + body * ancestryWords;
+                for (uint word = 0u; word < ancestryWords; ++word) mask[word] = 0u;
+                if (articulation.rootType == MR_ROOT_FLOATING) mask[0] = 63u;
+                uint cursor = body;
+                const uint rootLocal = articulation.rootBody - articulation.firstBody;
+                for (uint depth = 0u; depth < articulation.bodyCount && cursor != rootLocal; ++depth) {
+                    const uint jointIndex = inboundJoint[cursor];
+                    if (jointIndex == MR_INVALID_INDEX) break;
+                    device const MRJointDescriptorGPU& joint = joints[jointIndex];
+                    for (uint local = 0u; local < joint.nv; ++local) {
+                        const uint dof = joint.vOffset - articulation.vOffset + local;
+                        mask[dof >> 5u] |= 1u << (dof & 31u);
+                    }
+                    cursor = parentLocal[cursor];
+                }
+            }
+            threadgroup_barrier(mem_flags::mem_threadgroup);
             const uint pointBase =
                 environment * dispatch.pointStride;
             const uint pointWorldBase =
@@ -1357,26 +1870,40 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                     point * articulation.nv;
                 device const MRArticulatedPointImpulseGPU& query =
                     points[pointBase + point];
+                const bool foreign =
+                    query.bodyIndex < articulation.firstBody ||
+                    query.bodyIndex - articulation.firstBody >=
+                        articulation.bodyCount;
                 const bool inactive =
-                    (query.flags & MR_ARTICULATED_POINT_INACTIVE) != 0u;
-                const uint localBody =
-                    query.bodyIndex - articulation.firstBody;
-                const float3 pointOffset = quaternionRotate(
-                    bodyRotation[localBody],
-                    query.localPoint.xyz
-                );
-                const MotionColumn bodyMotion = inactive
+                    (query.flags & MR_ARTICULATED_POINT_INACTIVE) != 0u ||
+                    (((dispatch.flags &
+                       MR_ARTICULATED_OPERATOR_IGNORE_FOREIGN_POINTS) != 0u) &&
+                     foreign);
+                const uint localBody = inactive
+                    ? articulation.rootBody - articulation.firstBody
+                    : query.bodyIndex - articulation.firstBody;
+                const float3 pointOffset = pointSurfaceOffset(bodyRotation[localBody], query);
+                const bool affectsBody = !inactive &&
+                    (ancestors[localBody * ancestryWords + (dof >> 5u)] & (1u << (dof & 31u))) != 0u;
+                const uint owningJoint = affectsBody ? dofs[articulation.vOffset + dof].jointIndex : MR_INVALID_INDEX;
+                const uint knownAncestor = owningJoint == MR_INVALID_INDEX
+                    ? MR_INVALID_INDEX : joints[owningJoint].childBody - articulation.firstBody;
+                const MotionColumn bodyMotion = !affectsBody
                     ? MotionColumn{float3(0.0f), float3(0.0f)}
                     : bodyMotionForDof(
                         localBody,
                         dof,
                         articulation,
                         joints,
+                        functionPrograms,
+                        environmentQ,
                         bodyPosition,
+                        bodyRotation,
                         jointPosition,
                         jointAxis,
                         inboundJoint,
-                        parentLocal
+                        parentLocal,
+                        knownAncestor
                     );
                 const float3 pointLinear =
                     bodyMotion.linear +
@@ -1399,9 +1926,17 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                 if (dof == 0u) {
                     MRArticulatedPointWorldGPU worldPoint;
                     worldPoint.position = float4(
-                        bodyPosition[localBody] + pointOffset,
+                        worldTranslation + (bodyPosition[localBody] + pointOffset),
                         1.0f
                     );
+#if MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
+                    if (compensatedTranslation) {
+                        const auto paired = mrCompensatedTranslationPositionPair(translation,
+                            bodyPosition[localBody] + pointSurfaceOffsetPair(bodyRotation[localBody],query));
+                        worldPoint.position = float4(paired.high.xyz, worldPoint.position.w);
+                        pointPositionLow[pointWorldBase + point] = paired.low;
+                    }
+#endif
                     pointWorld[
                         pointWorldBase + point
                     ] = worldPoint;
@@ -1448,6 +1983,8 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
             column,
             articulation,
             joints,
+            functionPrograms,
+            environmentQ,
             bodies,
 #if MR_ARTICULATED_OPERATOR_BODY_PARAMETERS
             bodyParameters,
@@ -1536,12 +2073,16 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
 
     float minimumPivot = INFINITY;
     float maximumPivot = 0.0f;
-    // A pivot is rejected relative to the matrix magnitude, dimension, and
-    // FP32 resolution, with an absolute floor only for the all-small regime.
-    // This reports ill-conditioned input instead of silently regularizing M.
+    // A pivot is rejected relative to the matrix magnitude and FP32
+    // roundoff, with an absolute floor only for the all-small regime. The
+    // factor is consumed by the residual gate below, so use a square-root
+    // dimension scale here rather than a linear worst-case summation bound:
+    // otherwise physically valid light anatomical segments are rejected
+    // before their actual solve accuracy can be measured.
     const float pivotFloor = max(
         kFactorAbsolutePivotFloor,
-        maximumMass * float(articulation.nv) * kFloatEpsilon
+        maximumMass * 4.0f * sqrt(float(articulation.nv)) *
+            kFloatEpsilon
     );
     for (uint row = 0u; row < articulation.nv; ++row) {
         for (uint column = 0u;
@@ -1620,17 +2161,17 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
         }
         const uint localBody =
             query.bodyIndex - articulation.firstBody;
-        const float3 pointOffset = quaternionRotate(
-            bodyRotation[localBody],
-            query.localPoint.xyz
-        );
+        const float3 pointOffset = pointSurfaceOffset(bodyRotation[localBody], query);
         for (uint dof = 0u; dof < articulation.nv; ++dof) {
             const MotionColumn bodyMotion = bodyMotionForDof(
                 localBody,
                 dof,
                 articulation,
                 joints,
+                functionPrograms,
+                environmentQ,
                 bodyPosition,
+                bodyRotation,
                 jointPosition,
                 jointAxis,
                 inboundJoint,
@@ -1767,7 +2308,7 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
     for (uint localBody = 0u;
          localBody < articulation.bodyCount;
          ++localBody) {
-        if (!finite3(bodyPosition[localBody]) ||
+        if (!finite3(worldTranslation + bodyPosition[localBody]) ||
             !finite4(bodyRotation[localBody])) {
             setFailure(
                 status,
@@ -1788,12 +2329,9 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
         }
         const uint localBody =
             query.bodyIndex - articulation.firstBody;
-        const float3 pointOffset = quaternionRotate(
-            bodyRotation[localBody],
-            query.localPoint.xyz
-        );
+        const float3 pointOffset = pointSurfaceOffset(bodyRotation[localBody], query);
         const float3 candidateWorld =
-            bodyPosition[localBody] + pointOffset;
+            worldTranslation + (bodyPosition[localBody] + pointOffset);
         if (!finite3(pointOffset) || !finite3(candidateWorld)) {
             setFailure(
                 status,
@@ -1809,7 +2347,10 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                 dof,
                 articulation,
                 joints,
+                functionPrograms,
+                environmentQ,
                 bodyPosition,
+                bodyRotation,
                 jointPosition,
                 jointAxis,
                 inboundJoint,
@@ -1885,8 +2426,16 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
          ++localBody) {
         MRArticulatedBodyPoseGPU pose;
         pose.position =
-            float4(bodyPosition[localBody], 1.0f);
+            float4(worldTranslation + bodyPosition[localBody], 1.0f);
         pose.orientation = bodyRotation[localBody];
+#if MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
+        if (compensatedTranslation) {
+            const auto paired = mrCompensatedTranslationPositionPair(translation,
+                bodyPosition[localBody]);
+            pose.position = float4(paired.high.xyz, 1.0f);
+            bodyPositionLow[poseBase + localBody] = paired.low;
+        }
+#endif
         bodyPoses[poseBase + localBody] = pose;
     }
 
@@ -1901,15 +2450,20 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
             points[pointBase + point];
         const uint localBody =
             query.bodyIndex - articulation.firstBody;
-        const float3 pointOffset = quaternionRotate(
-            bodyRotation[localBody],
-            query.localPoint.xyz
-        );
+        const float3 pointOffset = pointSurfaceOffset(bodyRotation[localBody], query);
         MRArticulatedPointWorldGPU worldPoint;
         worldPoint.position = float4(
-            bodyPosition[localBody] + pointOffset,
+            worldTranslation + (bodyPosition[localBody] + pointOffset),
             1.0f
         );
+#if MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
+        if (compensatedTranslation) {
+            const auto paired = mrCompensatedTranslationPositionPair(translation,
+                bodyPosition[localBody] + pointSurfaceOffsetPair(bodyRotation[localBody],query));
+            worldPoint.position = float4(paired.high.xyz, worldPoint.position.w);
+            pointPositionLow[pointWorldBase + point] = paired.low;
+        }
+#endif
         pointWorld[pointWorldBase + point] = worldPoint;
         if ((query.flags & MR_ARTICULATED_POINT_INACTIVE) != 0u) {
             for (uint dof = 0u; dof < articulation.nv; ++dof) {
@@ -1934,7 +2488,10 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                 dof,
                 articulation,
                 joints,
+                functionPrograms,
+                environmentQ,
                 bodyPosition,
+                bodyRotation,
                 jointPosition,
                 jointAxis,
                 inboundJoint,
@@ -2024,7 +2581,7 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
     statuses[environment] = status;
 }
 
-#if !MR_ARTICULATED_OPERATOR_BODY_PARAMETERS
+#if !MR_ARTICULATED_OPERATOR_BODY_PARAMETERS && !MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
 // Materializes world-space rigid-body velocities from the same generalized
 // state used by the solver. Tactile sampling needs point velocity at arbitrary
 // atlas hits, so publishing only articulation poses would silently erase the
@@ -2119,6 +2676,7 @@ kernel void mr_articulated_materialize_body_velocities(
                 world,
                 articulation,
                 joints,
+                nullptr,
                 dofs,
                 bodies,
                 dispatch,
@@ -2130,6 +2688,7 @@ kernel void mr_articulated_materialize_body_velocities(
             buildKinematics(
                 articulation,
                 joints,
+                nullptr,
                 environmentQ,
                 bodyPosition,
                 bodyRotation,

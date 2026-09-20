@@ -90,6 +90,7 @@ struct ShapeSource {
     std::array<double, 4> rotation;
     std::array<double, 3> dimensions;
     double boundingRadius;
+    std::uint32_t materialIndex = 0u;
 };
 
 constexpr double kClassicShaftLength = 0.4162;
@@ -99,6 +100,66 @@ constexpr double kOrbitFixedToolTipMass = 0.1;
 // ORBIT's fixed joint places the tooltip at +Y=9.3 mm in its yaw-link frame.
 // MetalRobo's serial frame maps that tool-longitudinal direction onto +Z.
 constexpr double kCanonicalFixedToolTipZ = 0.0093;
+// Intuitive's X/Xi 8 mm instrument catalogue specifies a 9.7 mm jaw for the
+// Large Needle Driver 471006. The finite transverse patches below are a bounded
+// primitive approximation of the replaceable gripping insert, not a scan or
+// manufacturer tooth-profile claim.
+constexpr double kLargeNeedleDriverDiameter = 0.008;
+constexpr double kLargeNeedleDriverJawLength = 0.0097;
+constexpr double kLargeNeedleDriverJawCenter =
+    0.5 * kLargeNeedleDriverJawLength;
+// The smooth carrier leaves a 0.80 mm opposing-surface gap at zero jaw
+// aperture. That is wider than the 0.70 mm research needle section, so the
+// finite insert rails below, rather than overlapping smooth primitives, own
+// the grasp. The carrier thickness is research geometry, not a catalogue
+// dimension.
+constexpr double kJawCarrierRadius = 0.00090;
+constexpr double kJawCarrierHalfLength =
+    0.5 * kLargeNeedleDriverJawLength - kJawCarrierRadius;
+constexpr double kJawInsertRailRadius = 0.00020;
+constexpr double kJawInsertPatchHalfLength = 0.00015;
+constexpr double kJawInsertPatchOffset = 0.00040;
+constexpr double kJawInsertCenter = 0.00920;
+// Two rows straddle the needle cross-section at 0.5 mm pitch. Each row is
+// represented by two separated short capsules across the jaw width. A single
+// long capsule collapses its distributed line contact to one closest point;
+// the four finite patches instead retain the longitudinal moment arm needed
+// to resist needle roll under swage torque. They are a collision-level
+// approximation of a finite serrated insert, not a manufacturer tooth scan.
+constexpr double kJawInsertRowHalfSpacing = 0.00025;
+// A separate proximal medial strip resolves 0.20 mm 3-0 thread without
+// changing the distal needle groove. It remains inside the 9.7 mm jaw length
+// and uses the same unresolved insert material; location and patching are
+// research geometry pending manufacturer CAD.
+constexpr double kJawThreadInsertCenter = 0.00650;
+// Whole-system normal compliance of the unresolved insert, clevis, drive,
+// and local contact patch. A controlled Apple-GPU pickup sweep selected
+// 50 um/N: it removes the mutually over-constrained hard-rail kinetic mode
+// while retaining bilateral positive contact and micrometre swage error.
+// This is research calibration, not bulk insert compliance or clinical data.
+constexpr double kJawInsertSystemNormalCompliance = 5.0e-5;
+constexpr double kNeedleInsertEffectiveStaticFriction = 1.20;
+constexpr double kNeedleInsertEffectiveDynamicFriction = 0.90;
+constexpr std::array<std::uint32_t, 4u> kJawAInsertShapeIndices{
+    15u,
+    18u,
+    20u,
+    22u,
+};
+constexpr std::array<std::uint32_t, 4u> kJawBInsertShapeIndices{
+    17u,
+    19u,
+    21u,
+    23u,
+};
+constexpr std::array<std::uint32_t, 2u> kJawAThreadInsertShapeIndices{
+    24u,
+    26u,
+};
+constexpr std::array<std::uint32_t, 2u> kJawBThreadInsertShapeIndices{
+    25u,
+    27u,
+};
 constexpr double kFoldedToolYawMass =
     kOrbitToolYawLinkMass + kOrbitFixedToolTipMass;
 constexpr double kFoldedToolYawCenterZ =
@@ -242,16 +303,26 @@ constexpr std::array<BodySource, kSurgicalPSMBodyCount> kBodies{{
         6u,
         6u,
         0.02,
-        {0.0013, 0.0, 0.011},
-        boxInertia(0.02, 0.004, 0.003, 0.022),
+        {0.0013, 0.0, kLargeNeedleDriverJawCenter},
+        boxInertia(
+            0.02,
+            0.004,
+            0.003,
+            kLargeNeedleDriverJawLength
+        ),
     },
     {
         "psm_tool_gripper2_link",
         6u,
         7u,
         0.02,
-        {-0.0013, 0.0, 0.011},
-        boxInertia(0.02, 0.004, 0.003, 0.022),
+        {-0.0013, 0.0, kLargeNeedleDriverJawCenter},
+        boxInertia(
+            0.02,
+            0.004,
+            0.003,
+            kLargeNeedleDriverJawLength
+        ),
     },
 }};
 
@@ -361,30 +432,91 @@ constexpr std::array<ShapeSource, kSurgicalPSMShapeCount> kShapes{{
 
     {6u, MR_SHAPE_BOX, {0.0, 0.0, 0.008}, kIdentity,
      {0.006, 0.009, 0.008}, 0.0134536240},
-    {6u, MR_SHAPE_CAPSULE, {0.0, 0.0, 0.018}, kYToZ,
-     {0.004, 0.008, 0.0}, 0.012},
+    // Research clevis envelope ends at +16 mm in the yaw-link frame. The jaw
+    // children begin at the +12 mm pivot and carry their gripping insert near
+    // +21.2 mm in this frame, leaving a finite collision clearance instead of
+    // the legacy 24 mm capsule overlapping the needle handling zone.
+    {6u, MR_SHAPE_CAPSULE, {0.0, 0.0, 0.008}, kYToZ,
+     {0.004, 0.004, 0.0}, 0.008},
 
-    // At q=0 the two authored jaw surfaces are tangent on the center plane.
-    // With the -Y joint axes above, ORBIT's [-q,+q] convention then opens the
-    // jaws monotonically instead of driving the primitive tips through one
-    // another. The four 0.35 mm spheres form a deliberately research-default
-    // finite contact patch: two proud teeth per jaw, separated along the jaw's
-    // longitudinal Z axis. That separation supplies a real contact moment arm
-    // around a transversely held needle instead of duplicating one point
-    // contact. This is executable collision geometry, not a calibrated LND
-    // tooth profile.
-    {7u, MR_SHAPE_CAPSULE, {0.0013, 0.0, 0.011}, kYToZ,
-     {0.0013, 0.010, 0.0}, 0.0113},
-    {7u, MR_SHAPE_SPHERE, {0.00035, 0.0, 0.02160}, kIdentity,
-     {0.00035, 0.0, 0.0}, 0.00035},
-    {8u, MR_SHAPE_CAPSULE, {-0.0013, 0.0, 0.011}, kYToZ,
-     {0.0013, 0.010, 0.0}, 0.0113},
-    {8u, MR_SHAPE_SPHERE, {-0.00035, 0.0, 0.02160}, kIdentity,
-     {0.00035, 0.0, 0.0}, 0.00035},
-    {7u, MR_SHAPE_SPHERE, {0.00035, 0.0, 0.02240}, kIdentity,
-     {0.00035, 0.0, 0.0}, 0.00035},
-    {8u, MR_SHAPE_SPHERE, {-0.00035, 0.0, 0.02240}, kIdentity,
-     {0.00035, 0.0, 0.0}, 0.00035},
+    // At q=0 the two jaw surfaces are tangent on the centre plane. The 9.7 mm
+    // capsule envelope comes from the official 8 mm LND specification. Each
+    // insert uses two grooved rows split into four finite patches. This keeps
+    // distinct contact points across the jaw width instead of collapsing a
+    // distributed serrated surface to one capsule closest point. The values
+    // remain explicit research geometry pending a manufacturer CAD profile.
+    {7u, MR_SHAPE_CAPSULE,
+     {0.0013, 0.0, kLargeNeedleDriverJawCenter}, kYToZ,
+     {kJawCarrierRadius, kJawCarrierHalfLength, 0.0},
+     kJawCarrierRadius + kJawCarrierHalfLength},
+    {7u, MR_SHAPE_CAPSULE,
+     {kJawInsertRailRadius, -kJawInsertPatchOffset,
+      kJawInsertCenter - kJawInsertRowHalfSpacing}, kIdentity,
+     {kJawInsertRailRadius, kJawInsertPatchHalfLength, 0.0},
+     kJawInsertRailRadius + kJawInsertPatchHalfLength, 1u},
+    {8u, MR_SHAPE_CAPSULE,
+     {-0.0013, 0.0, kLargeNeedleDriverJawCenter}, kYToZ,
+     {kJawCarrierRadius, kJawCarrierHalfLength, 0.0},
+     kJawCarrierRadius + kJawCarrierHalfLength},
+    {8u, MR_SHAPE_CAPSULE,
+     {-kJawInsertRailRadius, -kJawInsertPatchOffset,
+      kJawInsertCenter - kJawInsertRowHalfSpacing}, kIdentity,
+     {kJawInsertRailRadius, kJawInsertPatchHalfLength, 0.0},
+     kJawInsertRailRadius + kJawInsertPatchHalfLength, 1u},
+    {7u, MR_SHAPE_CAPSULE,
+     {kJawInsertRailRadius, -kJawInsertPatchOffset,
+      kJawInsertCenter + kJawInsertRowHalfSpacing}, kIdentity,
+     {kJawInsertRailRadius, kJawInsertPatchHalfLength, 0.0},
+     kJawInsertRailRadius + kJawInsertPatchHalfLength, 1u},
+    {8u, MR_SHAPE_CAPSULE,
+     {-kJawInsertRailRadius, -kJawInsertPatchOffset,
+      kJawInsertCenter + kJawInsertRowHalfSpacing}, kIdentity,
+     {kJawInsertRailRadius, kJawInsertPatchHalfLength, 0.0},
+     kJawInsertRailRadius + kJawInsertPatchHalfLength, 1u},
+    {7u, MR_SHAPE_CAPSULE,
+     {kJawInsertRailRadius, kJawInsertPatchOffset,
+      kJawInsertCenter - kJawInsertRowHalfSpacing}, kIdentity,
+     {kJawInsertRailRadius, kJawInsertPatchHalfLength, 0.0},
+     kJawInsertRailRadius + kJawInsertPatchHalfLength, 1u},
+    {8u, MR_SHAPE_CAPSULE,
+     {-kJawInsertRailRadius, kJawInsertPatchOffset,
+      kJawInsertCenter - kJawInsertRowHalfSpacing}, kIdentity,
+     {kJawInsertRailRadius, kJawInsertPatchHalfLength, 0.0},
+     kJawInsertRailRadius + kJawInsertPatchHalfLength, 1u},
+    {7u, MR_SHAPE_CAPSULE,
+     {kJawInsertRailRadius, kJawInsertPatchOffset,
+      kJawInsertCenter + kJawInsertRowHalfSpacing}, kIdentity,
+     {kJawInsertRailRadius, kJawInsertPatchHalfLength, 0.0},
+     kJawInsertRailRadius + kJawInsertPatchHalfLength, 1u},
+    {8u, MR_SHAPE_CAPSULE,
+     {-kJawInsertRailRadius, kJawInsertPatchOffset,
+      kJawInsertCenter + kJawInsertRowHalfSpacing}, kIdentity,
+     {kJawInsertRailRadius, kJawInsertPatchHalfLength, 0.0},
+     kJawInsertRailRadius + kJawInsertPatchHalfLength, 1u},
+    // Proximal medial thread-handling strip: two finite flat patches per jaw.
+    // The flat capsule-box manifold avoids the collinear capsule degeneracy of
+    // a 0.20 mm strand while remaining separate from the eight distal needle
+    // patches. Dimensions are research geometry, not a serration scan.
+    {7u, MR_SHAPE_BOX,
+     {kJawInsertRailRadius, -kJawInsertPatchOffset,
+      kJawThreadInsertCenter}, kIdentity,
+     {kJawInsertRailRadius, 2.0 * kJawInsertPatchHalfLength,
+      kJawInsertRailRadius}, 0.0004123105626, 1u},
+    {8u, MR_SHAPE_BOX,
+     {-kJawInsertRailRadius, -kJawInsertPatchOffset,
+      kJawThreadInsertCenter}, kIdentity,
+     {kJawInsertRailRadius, 2.0 * kJawInsertPatchHalfLength,
+      kJawInsertRailRadius}, 0.0004123105626, 1u},
+    {7u, MR_SHAPE_BOX,
+     {kJawInsertRailRadius, kJawInsertPatchOffset,
+      kJawThreadInsertCenter}, kIdentity,
+     {kJawInsertRailRadius, 2.0 * kJawInsertPatchHalfLength,
+      kJawInsertRailRadius}, 0.0004123105626, 1u},
+    {8u, MR_SHAPE_BOX,
+     {-kJawInsertRailRadius, kJawInsertPatchOffset,
+      kJawThreadInsertCenter}, kIdentity,
+     {kJawInsertRailRadius, 2.0 * kJawInsertPatchHalfLength,
+      kJawInsertRailRadius}, 0.0004123105626, 1u},
 }};
 
 constexpr std::array<float, kSurgicalPSMJointCount> kDefaultQ{{
@@ -552,7 +684,7 @@ MRShapeGPU makeShape(const ShapeSource& source) {
     MRShapeGPU shape{};
     shape.bodyIndex = source.bodyIndex;
     shape.shapeType = source.shapeType;
-    shape.materialIndex = 0u;
+    shape.materialIndex = source.materialIndex;
     shape.collisionGroup = kRobotCollisionGroup;
     shape.collisionMask = ~kRobotCollisionGroup;
     shape.slotGeneration = 1u;
@@ -585,13 +717,15 @@ const SurgicalPSMModelMetadata& surgicalPSMMetadata() noexcept {
     static const SurgicalPSMModelMetadata metadata = [] {
         SurgicalPSMModelMetadata value{};
         value.modelName =
-            "dvrk_psm_classic_lnd_source_coupled_abi_v3";
+            "dvrk_psm_classic_lnd_source_coupled_abi_v4";
         value.fidelityContract =
             "source-grounded serial RCM mechanism; JHU limits/efforts/LND "
             "actuator coupling and executable symmetric jaw gear; ORBIT "
             "masses/reset/drive with fixed tooltip folded into yaw; authored "
-            "primitive inertias/collision; no hardware-specific calibration "
-            "or clinical validation";
+            "primitive inertias/collision; official 8 mm, 9.7 mm LND jaw "
+            "envelope with research grooved needle and flat thread-insert "
+            "primitives; no "
+            "hardware-specific calibration or clinical validation";
 
         value.orbitRepository =
             "https://github.com/orbit-surgical/orbit-surgical";
@@ -659,6 +793,26 @@ const SurgicalPSMModelMetadata& surgicalPSMMetadata() noexcept {
             static_cast<float>(kClassicShaftLength);
         value.wristLinkOffset =
             static_cast<float>(kWristLinkOffset);
+        value.instrumentDiameter =
+            static_cast<float>(kLargeNeedleDriverDiameter);
+        value.largeNeedleDriverJawLength =
+            static_cast<float>(kLargeNeedleDriverJawLength);
+        value.insertSystemNormalComplianceMPerN =
+            static_cast<float>(kJawInsertSystemNormalCompliance);
+        value.targetNeedleInsertStaticFriction =
+            static_cast<float>(kNeedleInsertEffectiveStaticFriction);
+        value.targetNeedleInsertDynamicFriction =
+            static_cast<float>(kNeedleInsertEffectiveDynamicFriction);
+        value.jawAInsertShapeIndices = kJawAInsertShapeIndices;
+        value.jawBInsertShapeIndices = kJawBInsertShapeIndices;
+        value.jawAThreadInsertShapeIndices =
+            kJawAThreadInsertShapeIndices;
+        value.jawBThreadInsertShapeIndices =
+            kJawBThreadInsertShapeIndices;
+        value.intuitiveInstrumentCatalog =
+            "https://www.intuitive.com/fr-fr/-/media/ISI/Intuitive/Pdf/"
+            "da-vinci-x-xi-instrument-accessory-catalogue-eu-1075017.pdf";
+        value.intuitiveInstrumentPartNumber = "471006";
         value.orbitToolYawLinkMass =
             static_cast<float>(kOrbitToolYawLinkMass);
         value.orbitFixedToolTipMass =
@@ -680,11 +834,55 @@ const SurgicalPSMModelMetadata& surgicalPSMMetadata() noexcept {
     return metadata;
 }
 
+void calibrateSurgicalNeedleInsertMaterial(
+    MRMaterialGPU& insertMaterial,
+    const MRMaterialGPU& needleMaterial
+) {
+    const SurgicalPSMModelMetadata& metadata = surgicalPSMMetadata();
+    if (!(needleMaterial.friction.x > 0.0f) ||
+        !(needleMaterial.friction.y > 0.0f) ||
+        !(metadata.targetNeedleInsertStaticFriction > 0.0f) ||
+        !(metadata.targetNeedleInsertDynamicFriction > 0.0f)) {
+        throw std::invalid_argument(
+            "surgical PSM/needle material calibration is incomplete"
+        );
+    }
+    const float rawStatic =
+        metadata.targetNeedleInsertStaticFriction *
+        metadata.targetNeedleInsertStaticFriction /
+        needleMaterial.friction.x;
+    const float rawDynamic =
+        metadata.targetNeedleInsertDynamicFriction *
+        metadata.targetNeedleInsertDynamicFriction /
+        needleMaterial.friction.y;
+    if (!std::isfinite(rawStatic) || !std::isfinite(rawDynamic) ||
+        rawStatic < rawDynamic || rawDynamic < 0.0f) {
+        throw std::invalid_argument(
+            "surgical PSM/needle effective friction is invalid"
+        );
+    }
+    MRMaterialGPU calibrated = insertMaterial;
+    calibrated.friction.x = rawStatic;
+    calibrated.friction.y = rawDynamic;
+    insertMaterial = calibrated;
+}
+
 EngineModel makeDvrkPsmLargeNeedleDriverEngineModel() {
     EngineModel model;
     const SurgicalPSMModelMetadata& metadata =
         surgicalPSMMetadata();
     model.name = std::string{metadata.modelName};
+    model.bodyNames.reserve(metadata.bodyNames.size());
+    for (const std::string_view name : metadata.bodyNames) {
+        model.bodyNames.emplace_back(name);
+    }
+    model.jointNames.reserve(metadata.joints.size());
+    for (const SurgicalPSMJointMetadata& joint : metadata.joints) {
+        model.jointNames.emplace_back(joint.name);
+    }
+    // The canonical PSM topology has exactly one generalized coordinate per
+    // scalar joint, so joint and DoF semantic identities intentionally agree.
+    model.dofNames = model.jointNames;
 
     model.world.abiVersion = MR_ENGINE_ABI_VERSION;
     model.world.bodyCount =
@@ -694,7 +892,7 @@ EngineModel makeDvrkPsmLargeNeedleDriverEngineModel() {
         static_cast<mr_u32>(kSurgicalPSMJointCount);
     model.world.shapeCount =
         static_cast<mr_u32>(kSurgicalPSMShapeCount);
-    model.world.materialCount = 1u;
+    model.world.materialCount = 2u;
     model.world.nq =
         static_cast<mr_u32>(kSurgicalPSMJointCount);
     model.world.nv =
@@ -752,9 +950,37 @@ EngineModel makeDvrkPsmLargeNeedleDriverEngineModel() {
     material.geometry = f4(0.0, 0.0, 0.0, 0.0);
     model.materials.push_back(material);
 
+    MRMaterialGPU insertMaterial{};
+    // Baseline insert values. The surgical needle composition compensates for
+    // geometric material mixing so the live pair—not this isolated material—
+    // owns the 1.20/0.90 unresolved-serration surrogate above.
+    insertMaterial.friction = f4(
+        kNeedleInsertEffectiveStaticFriction,
+        kNeedleInsertEffectiveDynamicFriction,
+        0.0,
+        0.0
+    );
+    insertMaterial.response = f4(
+        0.0,
+        0.05,
+        kJawInsertSystemNormalCompliance,
+        0.0
+    );
+    insertMaterial.geometry = f4(0.0, 0.0, 0.0, 0.0);
+    model.materials.push_back(insertMaterial);
+
     model.shapes.reserve(kShapes.size());
     for (const ShapeSource& source : kShapes) {
         model.shapes.push_back(makeShape(source));
+    }
+    model.shapeNames.reserve(model.shapes.size());
+    for (std::size_t shapeIndex = 0u;
+         shapeIndex < model.shapes.size();
+         ++shapeIndex) {
+        model.shapeNames.push_back(
+            model.bodyNames[model.shapes[shapeIndex].bodyIndex] +
+            "/collision_" + std::to_string(shapeIndex)
+        );
     }
 
     model.defaultQ.assign(kDefaultQ.begin(), kDefaultQ.end());

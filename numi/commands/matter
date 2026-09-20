@@ -1,0 +1,42 @@
+#!/bin/sh
+
+set -eu
+
+if [ "${1:-}" = "--numi-describe" ]; then
+    printf 'Compile dimension-checked material programs into Apple-GPU matter packages.\n'
+    exit 0
+fi
+
+if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ]; then
+    cat <<'HELP'
+Usage: numi matter compile --material FILE.nmatter --output FILE.nmatterpack \
+           [--generated-metal FILE.metal] [--mode mpm|fem|both] [--envs N]
+
+The Matter compiler parses unit-checked constitutive programs, derives stress
+and tangent-vector operators, cooks MPM/FEM/contact topology, and emits one
+versioned device package. The package is executed by MetalWorld through the
+same borrowed command buffer as articulated dynamics and policy inference.
+HELP
+    exit 0
+fi
+
+[ "${1:-}" = "compile" ] || {
+    printf 'numi matter: expected "compile"; run numi matter --help\n' >&2
+    exit 2
+}
+shift
+
+numi_root=${NUMI_LAB_ROOT:?Run this capability through the numi dispatcher.}
+numi_build=${NUMI_BUILD_DIR:-$numi_root/build}
+if [ -x "$numi_build/matter/numi-matterc" ]; then
+    numi_matterc=$numi_build/matter/numi-matterc
+elif [ -x "$numi_build/bin/numi-matterc" ]; then
+    numi_matterc=$numi_build/bin/numi-matterc
+else
+    numi_matterc=$numi_root/bin/numi-matterc
+fi
+[ -x "$numi_matterc" ] || {
+    printf 'numi matter: compiler is unavailable; run numi doctor\n' >&2
+    exit 1
+}
+exec "$numi_matterc" "$@"

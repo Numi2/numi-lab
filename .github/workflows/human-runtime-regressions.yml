@@ -1,0 +1,87 @@
+name: Human integrated runtime regressions
+on:
+  push:
+    branches: [human-native-runtime-20260915]
+    paths:
+      - 'include/metalrobo/*Human*'
+      - 'include/metalrobo/numi_human*'
+      - 'include/metalrobo/MujocoMuscleReference.hpp'
+      - 'src/core/NumiHuman*'
+      - 'src/core/MujocoMuscleReference.cpp'
+      - 'src/metal/NumiHumanStand.metal'
+      - 'src/metal/MetalArticulatedOperator.mm'
+      - 'apps/numilab_human_myosim*'
+      - 'tools/check_human*'
+      - 'tests/numi_human*'
+      - 'tests/mujoco_muscle_path_batch_test.cpp'
+      - 'CMakeLists.txt'
+      - '.github/workflows/human-runtime-regressions.yml'
+  pull_request:
+    paths:
+      - 'include/metalrobo/*Human*'
+      - 'include/metalrobo/numi_human*'
+      - 'include/metalrobo/MujocoMuscleReference.hpp'
+      - 'src/core/NumiHuman*'
+      - 'src/core/MujocoMuscleReference.cpp'
+      - 'src/metal/NumiHumanStand.metal'
+      - 'src/metal/MetalArticulatedOperator.mm'
+      - 'apps/numilab_human_myosim*'
+      - 'tools/check_human*'
+      - 'tests/numi_human*'
+      - 'tests/mujoco_muscle_path_batch_test.cpp'
+      - 'CMakeLists.txt'
+      - '.github/workflows/human-runtime-regressions.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: human-integrated-regressions-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  portable:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Retain exact integrated source
+        run: |
+          set -euo pipefail
+          mkdir -p human-runtime-evidence
+          git rev-parse HEAD > human-runtime-evidence/revision.txt
+          git archive --format=tar HEAD include src apps tests tools cmake matter CMakeLists.txt AGENTS.md .github | gzip > human-runtime-evidence/source.tar.gz
+          (cd human-runtime-evidence && sha256sum source.tar.gz > source.sha256)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: human-integrated-source
+          path: human-runtime-evidence
+          retention-days: 14
+          if-no-files-found: error
+      - name: Check shared numerical policies
+        run: |
+          set -eu
+          for name in constraint_projection equality_limit_block passive_joint friction bilateral; do
+            c++ -std=c++20 -O2 -Wall -Wextra -Werror -Iinclude tests/numi_human_${name}_test.cpp -o /tmp/human-${name}
+            /tmp/human-${name}
+          done
+          c++ -std=c++20 -O2 -fno-fast-math -ffp-contract=off -Iinclude tests/mujoco_muscle_path_batch_test.cpp src/core/MujocoMuscleReference.cpp src/core/ArticulatedDynamics.cpp src/core/OpenSimSpatialTransform.cpp src/core/OpenSimFunction.cpp -o /tmp/human-path-batch
+          /tmp/human-path-batch
+          python3 tools/check_human_constraint_owner.py
+          python3 tools/check_human_mechanics_mode.py
+          git diff --exit-code
+  apple:
+    runs-on: macos-26
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Build and exercise production numerical owners
+        run: |
+          set -eu
+          cmake -S . -B BuildHuman -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
+          cmake --build BuildHuman --target metalrobo_numi_human_static_support_test metalrobo_numi_human_root_placement_test metalrobo_mujoco_muscle_path_batch_test metalrobo_numi_human_friction_test metalrobo_numi_human_bilateral_test --parallel 3
+          ctest --test-dir BuildHuman -R '^(numi_human_static_support|numi_human_root_placement|mujoco_muscle_path_batch|numi_human_friction|numi_human_bilateral)$' --output-on-failure
+          python3 tools/check_human_host_syntax.py
+          git diff --exit-code

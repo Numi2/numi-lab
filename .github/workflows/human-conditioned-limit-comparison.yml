@@ -1,0 +1,176 @@
+name: Human matched conditioned-limit comparison
+on:
+  push:
+    branches: [human-native-runtime-20260915]
+    paths: [.github/workflows/human-conditioned-limit-comparison.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: human-conditioned-limit-comparison
+  cancel-in-progress: false
+jobs:
+  compare:
+    runs-on: macos-26
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        source:
+          - {label: baseline, ref: '042298217ee3784f91f17f6a0f191d32473c5a48'}
+          - {label: conditioned, ref: '05149236e321fe72fa139acdad88900188450377'}
+        grid:
+          - {name: 100us, ns: 100000, steps: 8}
+          - {name: 12p5us, ns: 12500, steps: 64}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ matrix.source.ref }}
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: Numi2/numilab-human
+          ref: 36245dd2b81ea4273468a5438de9838def0f8fbd
+          path: human-inputs
+          sparse-checkout: |
+            .numi/commands
+            Docs/media/native-runtime-source-package-20260915
+          persist-credentials: false
+      - name: Build the exact paired numerical source
+        run: |
+          set -euo pipefail
+          mkdir -p human-limit-comparison
+          git rev-parse HEAD > human-limit-comparison/native-revision.txt
+          git -C human-inputs rev-parse HEAD > human-limit-comparison/input-revision.txt
+          sw_vers > human-limit-comparison/machine.txt
+          xcodebuild -version >> human-limit-comparison/machine.txt
+          python3 tools/check_human_mechanics_mode.py
+          cmake -S . -B BuildHuman -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF 2>&1 | tee human-limit-comparison/configure.txt
+          cmake --build BuildHuman --target metalrobo_numilab_human_myosim_visual_probe --parallel 3 2>&1 | tee human-limit-comparison/build.txt
+      - name: Measure one-step and equal-duration unassisted releases
+        shell: python
+        env:
+          SOURCE_REF: ${{ matrix.source.ref }}
+          SOURCE_LABEL: ${{ matrix.source.label }}
+          GRID_NS: ${{ matrix.grid.ns }}
+          RELEASE_STEPS: ${{ matrix.grid.steps }}
+        run: |
+          import hashlib, json, math, os, pathlib, shlex, signal, subprocess, time
+          root = pathlib.Path.cwd()
+          evidence = root / 'human-limit-comparison'
+          inputs = root / 'human-inputs'
+          published = json.loads((inputs / 'Docs/media/native-runtime-source-package-20260915/source-package-receipt-v1.json').read_text())
+          native = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
+          assert native == os.environ['SOURCE_REF'], 'native checkout differs'
+          input_revision = subprocess.check_output(['git', '-C', str(inputs), 'rev-parse', 'HEAD'], text=True).strip()
+          assert input_revision == '36245dd2b81ea4273468a5438de9838def0f8fbd'
+          def digest(path):
+              h = hashlib.sha256()
+              with path.open('rb') as stream:
+                  for block in iter(lambda: stream.read(1024 * 1024), b''): h.update(block)
+              return h.hexdigest()
+          payloads = {key: inputs / row['path'] for key, row in published['inputs'].items()}
+          for key, path in payloads.items():
+              assert digest(path) == published['inputs'][key]['sha256'], 'payload differs: ' + key
+          wrapper = inputs / '.numi/commands/human'
+          binary = root / 'BuildHuman/bin/metalrobo_numilab_human_myosim_visual_probe'
+          files = {**payloads, 'launcher': wrapper, 'binary': binary}
+          for path in sorted((root / 'BuildHuman').rglob('*.metallib')) + sorted((root / 'BuildHuman/lib').glob('*.dylib')):
+              files[str(path.relative_to(root))] = path
+          hashes = {key: digest(path) for key, path in files.items()}
+          ns = int(os.environ['GRID_NS'])
+          release_steps = int(os.environ['RELEASE_STEPS'])
+          assert ns * release_steps == 800000
+          record = {'schema': 'numi.human.conditioned-limit-comparison.v1',
+              'native_commit': native, 'input_commit': input_revision,
+              'source_label': os.environ['SOURCE_LABEL'], 'artifacts': hashes,
+              'execution_environment': 'hosted macos-26; device identity in native output',
+              'force_convergence': False, 'sustained_standing': False, 'cases': []}
+          def publish():
+              target = evidence / 'execution.json.tmp'
+              target.write_text(json.dumps(record, indent=2, allow_nan=False) + '\n')
+              target.replace(evidence / 'execution.json')
+          def unique(pairs):
+              result = {}
+              for key, value in pairs:
+                  if key in result: raise ValueError('duplicate key: ' + key)
+                  result[key] = value
+              return result
+          def invalid(value):
+              raise ValueError('nonfinite JSON constant: ' + value)
+          publish()
+          for name, count, with_trace in [('one-step', 1, False), ('release', release_steps, True)]:
+              folder = evidence / name
+              folder.mkdir()
+              command = [str(wrapper), 'stand', str(payloads['rigid'].parent),
+                  str(folder / 'unused.nhbones'), str(payloads['tendon']),
+                  str(payloads['support_contact']), str(folder / 'frames'),
+                  '--mechanics-only', '--steps', str(count), '--timestep', format(ns * 1e-9, '.12g')]
+              if not with_trace: command.append('--no-step-trace')
+              case = {'name': name, 'steps': count, 'timestep_nanoseconds': ns,
+                  'command': command, 'status': 'running', 'timeout_seconds': 600}
+              record['cases'].append(case)
+              publish()
+              start = time.monotonic()
+              environment = {**os.environ, 'NUMI_LAB_ROOT': str(root),
+                  'NUMI_BUILD_DIR': str(root / 'BuildHuman'), 'MTL_DEBUG_LAYER': '1',
+                  'NUMI_HUMAN_EXECUTION_STAGES': '1'}
+              with (folder / 'stdout.txt').open('w') as out, (folder / 'stderr.txt').open('w') as err:
+                  process = subprocess.Popen(command, env=environment, stdout=out, stderr=err, start_new_session=True)
+                  try:
+                      code = process.wait(timeout=case['timeout_seconds'])
+                  except subprocess.TimeoutExpired:
+                      with (folder / 'timeout-profile.txt').open('w') as profile:
+                          try:
+                              subprocess.run(['/usr/bin/sample', str(process.pid), '3', '1'], stdout=profile, stderr=subprocess.STDOUT, timeout=12)
+                          except (OSError, subprocess.TimeoutExpired) as error: profile.write(str(error))
+                      try: os.killpg(process.pid, signal.SIGKILL)
+                      except ProcessLookupError: pass
+                      process.wait()
+                      code = None
+              case.update(exit_code=code, wall_seconds=time.monotonic() - start,
+                  status='completed' if code == 0 else 'timeout' if code is None else 'failed')
+              for key in ('stdout', 'stderr'): case[key + '_sha256'] = digest(folder / (key + '.txt'))
+              case['artifacts_unchanged'] = all(digest(path) == hashes[key] for key, path in files.items())
+              publish()
+              assert code == 0 and case['artifacts_unchanged'], 'native process incomplete or source changed'
+              lines = (folder / 'stdout.txt').read_text().splitlines()
+              summaries = [line for line in lines if line.startswith('myosim_articulated_mechanics=')]
+              assert len(summaries) == 1, 'missing or ambiguous native summary'
+              metrics = unique([tuple(token.split('=', 1)) for token in shlex.split(summaries[0]) if '=' in token])
+              case['metrics'] = metrics
+              publish()
+              for key, value in {'myosim_articulated_mechanics': 'ok', 'core_bodies': '157',
+                  'persistent_completed_steps': str(count), 'muscle_step_count': str(count),
+                  'compiled_stand_recruited_muscles': '416', 'compiled_stand_balanced': 'true',
+                  'persistent_root_assistance': 'none', 'stand_deterministic_replay': 'bitwise',
+                  'rendering_performed': 'false', 'visual_coverage_qualified': 'false',
+                  'persistent_passive_joint_law': 'current_state_linear_backward_euler'}.items():
+                  assert metrics.get(key) == value, 'execution contract: ' + key
+              for key in ('persistent_max_acceleration', 'persistent_max_penetration_m',
+                          'stand_max_equality_velocity_error', 'muscle_step_max_velocity_delta'):
+                  assert math.isfinite(float(metrics[key])) and float(metrics[key]) >= 0, key
+              assert abs(float(metrics['muscle_step_seconds']) - ns * 1e-9) < 1e-15
+              if with_trace:
+                  traces = [line.split('=', 1)[1] for line in lines if line.startswith('persistent_stand_trace=')]
+                  assert len(traces) == 1
+                  trace = json.loads(traces[0], object_pairs_hook=unique, parse_constant=invalid)
+                  assert trace['schema'] == 'numi.human.persistent-stand-trace.v4'
+                  assert trace['endpoint_equivalent'] == 'bitwise'
+                  assert trace['endpoint_max_q_delta'] == 0 and trace['endpoint_max_v_delta'] == 0
+                  assert len(trace['samples']) == count + 1
+                  for i, sample in enumerate(trace['samples']):
+                      assert sample['step'] == i and abs(sample['time_seconds'] - i * ns * 1e-9) < 1e-12
+                      for key, width in [('q', 129), ('v', 128)]:
+                          assert len(sample[key]) == width and all(type(x) in (int, float) and math.isfinite(x) for x in sample[key])
+                  case['trace_complete'] = True
+              case['execution_contract_matched'] = True
+              publish()
+              print(name, metrics['source_support_metal_device'], 'peak_generalized_acceleration=', metrics['persistent_max_acceleration'], flush=True)
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: human-limit-comparison-${{ matrix.source.label }}-${{ matrix.grid.name }}
+          path: human-limit-comparison
+          retention-days: 14
+          if-no-files-found: error

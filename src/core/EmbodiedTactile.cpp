@@ -606,12 +606,26 @@ EngineModel makeDvrkPsmTactileEngineModel() {
         shape.flags |= MR_SHAPE_FLAG_ENABLE_CCD;
     }
     model.bodies.push_back(needle.rigid.body);
+    if (!model.bodyNames.empty()) {
+        model.bodyNames.emplace_back(needle.rigid.name);
+    }
     model.materials.push_back(needle.rigid.material);
+    const std::size_t firstNeedleShape = model.shapes.size();
     model.shapes.insert(
         model.shapes.end(),
         needle.rigid.shapes.begin(),
         needle.rigid.shapes.end()
     );
+    if (!model.shapeNames.empty()) {
+        for (std::size_t shapeIndex = firstNeedleShape;
+             shapeIndex < model.shapes.size();
+             ++shapeIndex) {
+            model.shapeNames.push_back(
+                std::string{needle.rigid.name} +
+                "/collision_" + std::to_string(shapeIndex)
+            );
+        }
+    }
     model.world.bodyCount =
         static_cast<std::uint32_t>(model.bodies.size());
     model.world.materialCount =

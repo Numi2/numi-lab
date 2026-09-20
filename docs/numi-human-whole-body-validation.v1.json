@@ -1,0 +1,929 @@
+{
+  "schema": "numilab.human.whole-body-validation-manifest.v1",
+  "evidence_levels": [
+    "structural",
+    "preflight",
+    "one_step",
+    "sustained",
+    "validated"
+  ],
+  "evidence_boundary": "This manifest inventories current repository evidence and fails closed on missing, contradicted, stale-strength, or weaker-than-required claims. Geometry continuity, source-model coverage, a prescribed displacement, and a one-step transaction do not by themselves prove realistic sustained human mechanics or medical validity.",
+  "evidence": {
+    "bodyparts3d_bone_structure": {
+      "path": "docs/media/numi-human-lower-joint-focus-v1/receipts/nhbones1.manifest.json",
+      "format": "json",
+      "level": "structural",
+      "checks": [
+        {"pointer": "/payload/bone_count", "op": "equals", "value": 185},
+        {"pointer": "/payload/vertex_count", "op": "minimum", "value": 250000},
+        {"pointer": "/axial_continuity/transitions/*/status", "op": "equals", "value": "bounded_default_pose_visual_continuity_witness"},
+        {"pointer": "/knee_continuity/transitions/*/status", "op": "equals", "value": "bounded_default_pose_visual_continuity_witness"},
+        {"pointer": "/foot_continuity/transitions/*/status", "op": "equals", "value": "bounded_default_pose_visual_continuity_witness"},
+        {"pointer": "/upper_limb_continuity/transitions/*/status", "op": "equals", "value": "bounded_default_pose_visual_continuity_witness"},
+        {"pointer": "/hand_digit_continuity/transitions/*/status", "op": "equals", "value": "bounded_default_pose_visual_continuity_witness"},
+        {"pointer": "/hallux_rigid_compounds/*/independent_articulation_count", "op": "equals", "value": 0},
+        {"pointer": "/toe_rigid_compounds/*/independent_articulation_count", "op": "equals", "value": 0}
+      ]
+    },
+    "upper_multi_pose_geometry": {
+      "path": "docs/media/numi-human-lower-joint-focus-v1/receipts/upper-multi-pose-regression-audit.v1.json",
+      "format": "json",
+      "level": "structural",
+      "checks": [
+        {"pointer": "/pose_count", "op": "minimum", "value": 6},
+        {"pointer": "/continuity_evaluation_count", "op": "minimum", "value": 300},
+        {"pointer": "/bilateral_parity_evaluation_count", "op": "minimum", "value": 150},
+        {"pointer": "/poses/*/continuity/*/passed", "op": "equals", "value": true},
+        {"pointer": "/poses/*/bilateral_gap_parity/*/passed", "op": "equals", "value": true}
+      ]
+    },
+    "lower_multi_pose_geometry": {
+      "path": "docs/media/numi-human-lower-joint-focus-v1/receipts/lower-multi-pose-audit.v1.json",
+      "format": "json",
+      "level": "structural",
+      "checks": [
+        {"pointer": "/pose_count", "op": "minimum", "value": 7},
+        {"pointer": "/continuity_evaluation_count", "op": "minimum", "value": 280},
+        {"pointer": "/bilateral_parity_evaluation_count", "op": "minimum", "value": 140},
+        {"pointer": "/poses/*/continuity/*/passed", "op": "equals", "value": true},
+        {"pointer": "/poses/*/bilateral_gap_parity/*/passed", "op": "equals", "value": true}
+      ]
+    },
+    "source_tendon_endpoint_coverage": {
+      "path": "docs/media/numi-human-lower-joint-focus-v1/receipts/nhtendon3.manifest.json",
+      "format": "json",
+      "level": "structural",
+      "checks": [
+        {"pointer": "/coverage/muscle_count", "op": "equals", "value": 416},
+        {"pointer": "/coverage/expected_endpoint_count", "op": "equals", "value": 832},
+        {"pointer": "/coverage/mechanical_endpoint_count", "op": "equals", "value": 832},
+        {"pointer": "/endpoints", "op": "length_equals", "value": 832},
+        {"pointer": "/admission/multiple_bone_members_fail_closed", "op": "equals", "value": true}
+      ]
+    },
+    "fully_distributed_exact_entheses": {
+      "path": "docs/media/numi-human-lower-joint-focus-v1/receipts/nhtendon3.manifest.json",
+      "format": "json",
+      "level": "one_step",
+      "checks": [
+        {"pointer": "/coverage/source_site_point_fallback_count", "op": "equals", "value": 0},
+        {"pointer": "/coverage/surface_coverage_fraction", "op": "equals", "value": 1.0},
+        {"pointer": "/admission/rejection_counts/body_has_no_registered_bone_surface", "op": "equals", "value": 0},
+        {"pointer": "/admission/rejection_counts/surface_distance_exceeds_gate", "op": "equals", "value": 0},
+        {"pointer": "/admission/rejection_counts/surface_patch_conditioning_failed_after_topology_aware_exact_surface_points", "op": "equals", "value": 0}
+      ]
+    },
+    "source_route_transaction": {
+      "path": "docs/media/numi-human-open-knee-extensor-chain-v1/integrated-runtime-m4-pro.json",
+      "format": "json",
+      "level": "one_step",
+      "checks": [
+        {"pointer": "/schema", "op": "equals", "value": "numilab.human.open-knee-extensor-chain.integrated-runtime-qualification.v1"},
+        {"pointer": "/qualified_revision", "op": "equals", "value": "385e77e2b63b310ba2c6c21568001224c897e0e3"},
+        {"pointer": "/device", "op": "equals", "value": "Apple M4 Pro"},
+        {"pointer": "/source_body_count", "op": "equals", "value": 157},
+        {"pointer": "/source_muscle_count", "op": "equals", "value": 416},
+        {"pointer": "/tendon_endpoint_count", "op": "equals", "value": 832},
+        {"pointer": "/joint_equality_count", "op": "equals", "value": 51},
+        {"pointer": "/numanx_label/tests", "op": "equals", "value": 12},
+        {"pointer": "/numanx_label/passed", "op": "equals", "value": 12},
+        {"pointer": "/numanx_label/failed", "op": "equals", "value": 0},
+        {"pointer": "/adapter/status", "op": "equals", "value": "passed"},
+        {"pointer": "/adapter/replay", "op": "equals", "value": "bitwise"},
+        {"pointer": "/adapter/rollback", "op": "equals", "value": "verified"},
+        {"pointer": "/left/status", "op": "equals", "value": "passed"},
+        {"pointer": "/right_mirrored/status", "op": "equals", "value": "passed"}
+      ],
+      "artifacts": [
+        {"path": "src/metal/MetalArticulatedOperator.mm", "sha256": "fcd78dbabf674ad7a8ec653d5f018842896a3e9c30c8904e011a79d2815a98e0"},
+        {"path": "src/metal/NumiHumanTendonMetal.mm", "sha256": "4447a71e3f904ac8bf1946970b6a54f05e136f5eb59353b3babb3457d4749bb2"},
+        {"path": "src/core/NumiHumanTendon.cpp", "sha256": "f63a350cd58d571502528e60c652b97d1c06fb0ad610d98404e341c4db9e4dd4"},
+        {"path": "src/core/MujocoMuscleReference.cpp", "sha256": "11793c869a52a9d41b7395a9f4b46af31438874d1aa5c06a60bed348fd46c777"}
+      ]
+    },
+    "internal_fem_contact_transaction": {
+      "path": "docs/media/numi-human-knee-contact-preflight-v1/internal-contact-adapter-m4-pro.json",
+      "format": "json",
+      "level": "one_step",
+      "checks": [
+        {"pointer": "/schema", "op": "equals", "value": "numilab.human.internal-fem-contact-transaction-fixture.v1"},
+        {"pointer": "/device", "op": "equals", "value": "Apple M4 Pro"},
+        {"pointer": "/contact_sample_count", "op": "equals", "value": 1},
+        {"pointer": "/encoded_pass_count", "op": "equals", "value": 3},
+        {"pointer": "/contact_repulsion_displacement_m", "op": "minimum", "value": 1e-9},
+        {"pointer": "/malformed_contact_incidence_rejected", "op": "equals", "value": true},
+        {"pointer": "/replay", "op": "equals", "value": "bitwise"},
+        {"pointer": "/rollback", "op": "equals", "value": "verified"},
+        {"pointer": "/evidence_level", "op": "equals", "value": "one_step"},
+        {"pointer": "/anatomical_contact", "op": "equals", "value": false}
+      ],
+      "artifacts": [
+        {"path": "matter/include/numi/matter/numi_human.hpp", "sha256": "966e12ed4a5059a3b5a4db2d8bc2049dc7e9059a65d7d3f17609bc60ca883635"},
+        {"path": "matter/include/numi/matter/numi_human_shared.h", "sha256": "8e74ce563e58e4493c3f21c4716106c5b09aa113d1277356e42c21f0ef13cba2"},
+        {"path": "matter/include/numi/matter/matter.hpp", "sha256": "6cfc1af24286a026d99a8ded360faa351462ce4e8058bc7c38229215c41f47b2"},
+        {"path": "matter/src/runtime.mm", "sha256": "7b74ec6ace16db2d04eb50ce534a466eb6dc86d24262a40f4840833d2ff999d4"},
+        {"path": "matter/src/numi_human.mm", "sha256": "896b96432099522cbc323822ae0b83826569ffb31018c3de128302074078df18"},
+        {"path": "matter/src/metal/numi_human.metalinc", "sha256": "907f553026232398b2c3814e3799d88cef22c174182d14427434ddc5e17ebc85"},
+        {"path": "apps/numi_human_tendon_fem_load_probe.mm", "sha256": "e8705b0af201263661a99c8b148bf80e30a872d9f263db0e392c3335977f7252"}
+      ]
+    },
+    "articular_contact_wrench_transaction": {
+      "path": "docs/media/numi-human-knee-contact-preflight-v1/articular-wrench-adapter-m4-pro.json",
+      "format": "json",
+      "level": "one_step",
+      "checks": [
+        {"pointer": "/schema", "op": "equals", "value": "numilab.human.articular-contact-wrench-transaction-fixture.v1"},
+        {"pointer": "/device", "op": "equals", "value": "Apple M4 Pro"},
+        {"pointer": "/adapter_abi", "op": "equals", "value": 7},
+        {"pointer": "/contact_sample_count", "op": "equals", "value": 2},
+        {"pointer": "/mechanical_sample_count", "op": "equals", "value": 1},
+        {"pointer": "/internal_same_body_sample_count", "op": "equals", "value": 1},
+        {"pointer": "/measured_generalized_force_correction", "op": "equals", "value": 0.9999},
+        {"pointer": "/force_residual_newtons", "op": "maximum", "value": 1e-6},
+        {"pointer": "/moment_residual_newton_meters", "op": "maximum", "value": 1e-6},
+        {"pointer": "/fem_state_ab", "op": "equals", "value": "bitwise"},
+        {"pointer": "/malformed_active_same_body_contact_rejected", "op": "equals", "value": true},
+        {"pointer": "/typed_internal_same_body_contact_retained", "op": "equals", "value": true},
+        {"pointer": "/replay", "op": "equals", "value": "bitwise"},
+        {"pointer": "/rollback", "op": "equals", "value": "verified"},
+        {"pointer": "/anatomical_contact", "op": "equals", "value": false}
+      ],
+      "artifacts": [
+        {"path": "matter/include/numi/matter/numi_human.hpp", "sha256": "966e12ed4a5059a3b5a4db2d8bc2049dc7e9059a65d7d3f17609bc60ca883635"},
+        {"path": "matter/include/numi/matter/numi_human_shared.h", "sha256": "8e74ce563e58e4493c3f21c4716106c5b09aa113d1277356e42c21f0ef13cba2"},
+        {"path": "matter/src/numi_human.mm", "sha256": "896b96432099522cbc323822ae0b83826569ffb31018c3de128302074078df18"},
+        {"path": "matter/src/metal/numi_human.metalinc", "sha256": "907f553026232398b2c3814e3799d88cef22c174182d14427434ddc5e17ebc85"},
+        {"path": "apps/numi_human_tendon_fem_load_probe.mm", "sha256": "e8705b0af201263661a99c8b148bf80e30a872d9f263db0e392c3335977f7252"}
+      ]
+    },
+    "left_knee_extensor_chain": {
+      "path": "docs/media/numi-human-open-knee-extensor-chain-v1/left-m4-pro.json",
+      "format": "json",
+      "level": "one_step",
+      "checks": [
+        {"pointer": "/schema", "op": "equals", "value": "numilab.human.open-knee-extensor-chain.qualification.v1"},
+        {"pointer": "/side", "op": "equals", "value": "left"},
+        {"pointer": "/regions", "op": "equals", "value": 6},
+        {"pointer": "/quadriceps_force_owner_fraction", "op": "equals", "value": 1.0},
+        {"pointer": "/qat_attachment_nodes", "op": "equals", "value": 378},
+        {"pointer": "/ptl_patella_attachment_nodes", "op": "equals", "value": 424},
+        {"pointer": "/ptl_tibia_attachment_nodes", "op": "equals", "value": 553},
+        {"pointer": "/minimum_J", "op": "minimum", "value": 0.25},
+        {"pointer": "/maximum_J", "op": "maximum", "value": 2.5},
+        {"pointer": "/replay", "op": "equals", "value": "bitwise"},
+        {"pointer": "/rollback", "op": "equals", "value": "verified"},
+        {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
+      ],
+      "artifacts": [
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "81cf69c5f1eba975efa8db44a9ec8aa59fad007f88e31b1e5e048146e09248c8"},
+        {"path": "apps/numilab_human_open_knee_ligament_probe.mm", "sha256": "ddcfeda37f47321b80e5d01fb249fe248d94b06ae5126a08d22377ef1ab1439d"},
+        {"path": "matter/include/numi/matter/numi_human.hpp", "sha256": "966e12ed4a5059a3b5a4db2d8bc2049dc7e9059a65d7d3f17609bc60ca883635"},
+        {"path": "matter/include/numi/matter/numi_human_shared.h", "sha256": "8e74ce563e58e4493c3f21c4716106c5b09aa113d1277356e42c21f0ef13cba2"},
+        {"path": "matter/src/metal/numi_human.metalinc", "sha256": "907f553026232398b2c3814e3799d88cef22c174182d14427434ddc5e17ebc85"},
+        {"path": "matter/src/numi_human.mm", "sha256": "896b96432099522cbc323822ae0b83826569ffb31018c3de128302074078df18"},
+        {"path": "docs/media/numi-human-open-knee-extensor-chain-v1/left/front.png", "sha256": "0fb97c9cf3f7e1f2c8e670ffe25ea11af189fd742987f87231c43ea20d535ff2"},
+        {"path": "docs/media/numi-human-open-knee-extensor-chain-v1/left/oblique.png", "sha256": "818c18626e53942115c051ed206b6d5c622a749eea8a0730ceab94c24acbb2be"},
+        {"path": "docs/media/numi-human-open-knee-extensor-chain-v1/left/rear.png", "sha256": "58e3b94c6a06a986f8f0f268b3aeb6d7977ee4922cb326419485582aeaebcc98"},
+        {"path": "docs/media/numi-human-open-knee-extensor-chain-v1/left/side.png", "sha256": "043e1b73483b9a5fb0a324887e6799f4e05089b14cb51b5d03a56ecbaed0159d"}
+      ]
+    },
+    "right_knee_extensor_chain": {
+      "path": "docs/media/numi-human-open-knee-extensor-chain-v1/right-m4-pro.json",
+      "format": "json",
+      "level": "one_step",
+      "checks": [
+        {"pointer": "/schema", "op": "equals", "value": "numilab.human.open-knee-extensor-chain.qualification.v1"},
+        {"pointer": "/side", "op": "equals", "value": "right_mirrored"},
+        {"pointer": "/regions", "op": "equals", "value": 6},
+        {"pointer": "/quadriceps_force_owner_fraction", "op": "equals", "value": 1.0},
+        {"pointer": "/qat_attachment_nodes", "op": "equals", "value": 378},
+        {"pointer": "/ptl_patella_attachment_nodes", "op": "equals", "value": 424},
+        {"pointer": "/ptl_tibia_attachment_nodes", "op": "equals", "value": 553},
+        {"pointer": "/minimum_J", "op": "minimum", "value": 0.25},
+        {"pointer": "/maximum_J", "op": "maximum", "value": 2.5},
+        {"pointer": "/replay", "op": "equals", "value": "bitwise"},
+        {"pointer": "/rollback", "op": "equals", "value": "verified"},
+        {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
+      ],
+      "artifacts": [
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "81cf69c5f1eba975efa8db44a9ec8aa59fad007f88e31b1e5e048146e09248c8"},
+        {"path": "apps/numilab_human_open_knee_ligament_probe.mm", "sha256": "ddcfeda37f47321b80e5d01fb249fe248d94b06ae5126a08d22377ef1ab1439d"},
+        {"path": "matter/include/numi/matter/numi_human.hpp", "sha256": "966e12ed4a5059a3b5a4db2d8bc2049dc7e9059a65d7d3f17609bc60ca883635"},
+        {"path": "matter/include/numi/matter/numi_human_shared.h", "sha256": "8e74ce563e58e4493c3f21c4716106c5b09aa113d1277356e42c21f0ef13cba2"},
+        {"path": "matter/src/metal/numi_human.metalinc", "sha256": "907f553026232398b2c3814e3799d88cef22c174182d14427434ddc5e17ebc85"},
+        {"path": "matter/src/numi_human.mm", "sha256": "896b96432099522cbc323822ae0b83826569ffb31018c3de128302074078df18"},
+        {"path": "docs/media/numi-human-open-knee-extensor-chain-v1/right/front.png", "sha256": "1048ceaddda34f44d1352e7bbd961b00983318d77bcdd0946c21e32f2cae8280"},
+        {"path": "docs/media/numi-human-open-knee-extensor-chain-v1/right/oblique.png", "sha256": "844c44c1303bed877956ebb9f221eee2a7d219291d3a4c3e120bc988018a7676"},
+        {"path": "docs/media/numi-human-open-knee-extensor-chain-v1/right/rear.png", "sha256": "26ec4ac37da1c873b5739eab196f838723df36a7afc2c01bf1263806c1d2ac72"},
+        {"path": "docs/media/numi-human-open-knee-extensor-chain-v1/right/side.png", "sha256": "2e76ecc951af5f039614accdbafe3cc970136f4fa344b1cbb63d076cf3b79a6c"}
+      ]
+    },
+    "left_knee_sustained_loaded_motion": {
+      "path": "docs/media/numi-human-knee-sustained-v1/qualification.json",
+      "format": "json",
+      "level": "sustained",
+      "checks": [
+        {"pointer": "/schema", "op": "equals", "value": "numilab.human.open-knee-sustained-loaded-motion.v1"},
+        {"pointer": "/side", "op": "equals", "value": "left"},
+        {"pointer": "/device", "op": "equals", "value": "Apple M4 Pro"},
+        {"pointer": "/trajectory/accepted_step_count", "op": "minimum", "value": 8},
+        {"pointer": "/continuum/node_count", "op": "equals", "value": 62402},
+        {"pointer": "/continuum/tetrahedron_count", "op": "equals", "value": 264442},
+        {"pointer": "/continuum/minimum_deformation_jacobian", "op": "minimum", "value": 0.25},
+        {"pointer": "/continuum/maximum_deformation_jacobian", "op": "maximum", "value": 2.5},
+        {"pointer": "/continuum/patella_anchor_residual_meters", "op": "maximum", "value": 0.00005},
+        {"pointer": "/force_transfer/quadriceps_patella_reaction_newtons", "op": "minimum", "value": 1.0},
+        {"pointer": "/force_transfer/patellar_tendon_patella_reaction_newtons", "op": "minimum", "value": 1.0},
+        {"pointer": "/force_transfer/patellar_tendon_tibia_reaction_newtons", "op": "minimum", "value": 1.0},
+        {"pointer": "/articular_contact/minimum_closed_sample_count", "op": "minimum", "value": 1},
+        {"pointer": "/articular_contact/minimum_normal_force_newtons", "op": "minimum", "value": 1.0},
+        {"pointer": "/articular_contact/maximum_force_residual_newtons", "op": "maximum", "value": 0.02},
+        {"pointer": "/articular_contact/maximum_moment_residual_newton_meters", "op": "maximum", "value": 0.02},
+        {"pointer": "/transaction/replay", "op": "equals", "value": "bitwise"},
+        {"pointer": "/transaction/rollback", "op": "equals", "value": "verified"},
+        {"pointer": "/transaction/external_physics_failure_propagation", "op": "equals", "value": "verified"},
+        {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
+      ]
+    },
+    "left_knee_contact_preflight": {
+      "path": "docs/media/numi-human-knee-contact-preflight-v1/left-m4-pro.json",
+      "format": "json",
+      "level": "preflight",
+      "checks": [
+        {"pointer": "/schema", "op": "equals", "value": "numilab.human.knee-articular-contact-preflight.v1"},
+        {"pointer": "/side", "op": "equals", "value": "left"},
+        {"pointer": "/device", "op": "equals", "value": "Apple M4 Pro"},
+        {"pointer": "/articular_pair_count", "op": "equals", "value": 7},
+        {"pointer": "/contact_sample_count", "op": "equals", "value": 69701},
+        {"pointer": "/sustained_step_count", "op": "minimum", "value": 65},
+        {"pointer": "/maximum_force_residual_n", "op": "maximum", "value": 1e-8},
+        {"pointer": "/maximum_moment_residual_nm", "op": "maximum", "value": 1e-8},
+        {"pointer": "/elastic_energy_relative_error", "op": "maximum", "value": 1e-12},
+        {"pointer": "/replay", "op": "equals", "value": "bitwise"},
+        {"pointer": "/unloaded_restore", "op": "equals", "value": "verified"},
+        {"pointer": "/evidence_level", "op": "equals", "value": "preflight"},
+        {"pointer": "/live_human_coupling", "op": "equals", "value": false},
+        {"pointer": "/nonpenetration_solve", "op": "equals", "value": false},
+        {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
+      ],
+      "artifacts": [
+        {"path": "include/metalrobo/NumiHumanKnee.hpp", "sha256": "f0622032ce8fdd41ae7c5d96aee7253f6b86d1a26425d671bbdcbf17f7d7c5b5"},
+        {"path": "src/core/NumiHumanKnee.cpp", "sha256": "e93a7c9869ec0a1e3016597df291dd3e7cc619e0185111896e9a36dd63274ae7"},
+        {"path": "include/metalrobo/NumiHumanKneeContact.hpp", "sha256": "516be1f1396c8ad10db0ade0328a99923e617674d1173e62802390fc614a8719"},
+        {"path": "src/core/NumiHumanKneeContact.cpp", "sha256": "9fccb7c2bdef3cb494217030eeb364bda1232ec10d52299fc7947502c412e247"},
+        {"path": "apps/numilab_human_knee_contact_probe.cpp", "sha256": "925efa6cc8c8ef6f52cfc816a63ef100a8dd8a75c18f1619b4869982000f508c"},
+        {"path": "tests/numi_human_knee_contact_test.cpp", "sha256": "904a5b0c25387fd923cd7805bc0656ab57adad9d0146c26c97c86a8d9d3bb903"}
+      ]
+    },
+    "right_knee_contact_preflight": {
+      "path": "docs/media/numi-human-knee-contact-preflight-v1/right-mirrored-m4-pro.json",
+      "format": "json",
+      "level": "preflight",
+      "checks": [
+        {"pointer": "/schema", "op": "equals", "value": "numilab.human.knee-articular-contact-preflight.v1"},
+        {"pointer": "/side", "op": "equals", "value": "right_mirrored"},
+        {"pointer": "/device", "op": "equals", "value": "Apple M4 Pro"},
+        {"pointer": "/articular_pair_count", "op": "equals", "value": 7},
+        {"pointer": "/contact_sample_count", "op": "equals", "value": 69701},
+        {"pointer": "/sustained_step_count", "op": "minimum", "value": 65},
+        {"pointer": "/maximum_force_residual_n", "op": "maximum", "value": 1e-8},
+        {"pointer": "/maximum_moment_residual_nm", "op": "maximum", "value": 1e-8},
+        {"pointer": "/elastic_energy_relative_error", "op": "maximum", "value": 1e-12},
+        {"pointer": "/replay", "op": "equals", "value": "bitwise"},
+        {"pointer": "/unloaded_restore", "op": "equals", "value": "verified"},
+        {"pointer": "/evidence_level", "op": "equals", "value": "preflight"},
+        {"pointer": "/live_human_coupling", "op": "equals", "value": false},
+        {"pointer": "/nonpenetration_solve", "op": "equals", "value": false},
+        {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
+      ],
+      "artifacts": [
+        {"path": "include/metalrobo/NumiHumanKnee.hpp", "sha256": "f0622032ce8fdd41ae7c5d96aee7253f6b86d1a26425d671bbdcbf17f7d7c5b5"},
+        {"path": "src/core/NumiHumanKnee.cpp", "sha256": "e93a7c9869ec0a1e3016597df291dd3e7cc619e0185111896e9a36dd63274ae7"},
+        {"path": "include/metalrobo/NumiHumanKneeContact.hpp", "sha256": "516be1f1396c8ad10db0ade0328a99923e617674d1173e62802390fc614a8719"},
+        {"path": "src/core/NumiHumanKneeContact.cpp", "sha256": "9fccb7c2bdef3cb494217030eeb364bda1232ec10d52299fc7947502c412e247"},
+        {"path": "apps/numilab_human_knee_contact_probe.cpp", "sha256": "925efa6cc8c8ef6f52cfc816a63ef100a8dd8a75c18f1619b4869982000f508c"},
+        {"path": "tests/numi_human_knee_contact_test.cpp", "sha256": "904a5b0c25387fd923cd7805bc0656ab57adad9d0146c26c97c86a8d9d3bb903"}
+      ]
+    },
+    "left_knee_contact_live": {
+      "path": "docs/media/numi-human-knee-articular-live-v1/left-m4-pro.json",
+      "format": "json",
+      "level": "one_step",
+      "checks": [
+        {"pointer": "/schema", "op": "equals", "value": "numilab.human.knee-articular-contact-live.v1"},
+        {"pointer": "/side", "op": "equals", "value": "left"},
+        {"pointer": "/device", "op": "equals", "value": "Apple M4 Pro"},
+        {"pointer": "/adapter_abi", "op": "equals", "value": 7},
+        {"pointer": "/articular_pair_count", "op": "equals", "value": 7},
+        {"pointer": "/contact_sample_count", "op": "equals", "value": 69701},
+        {"pointer": "/mechanical_sample_count", "op": "equals", "value": 57930},
+        {"pointer": "/internal_same_body_sample_count", "op": "equals", "value": 11771},
+        {"pointer": "/closed_sample_count", "op": "minimum", "value": 1},
+        {"pointer": "/normal_force_newtons", "op": "minimum", "value": 1e-6},
+        {"pointer": "/force_residual_newtons", "op": "maximum", "value": 1e-5},
+        {"pointer": "/moment_residual_newton_meters", "op": "maximum", "value": 1e-5},
+        {"pointer": "/minimum_deformation_jacobian", "op": "minimum", "value": 0.25},
+        {"pointer": "/maximum_deformation_jacobian", "op": "maximum", "value": 2.5},
+        {"pointer": "/live_human_coupling", "op": "equals", "value": true},
+        {"pointer": "/same_borrowed_command_buffer", "op": "equals", "value": true},
+        {"pointer": "/unilateral_nonpenetration_solve", "op": "equals", "value": false},
+        {"pointer": "/current_surface_search", "op": "equals", "value": false},
+        {"pointer": "/replay", "op": "equals", "value": "bitwise"},
+        {"pointer": "/rollback", "op": "equals", "value": "verified"},
+        {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
+      ],
+      "artifacts": [
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "81cf69c5f1eba975efa8db44a9ec8aa59fad007f88e31b1e5e048146e09248c8"},
+        {"path": "matter/include/numi/matter/numi_human.hpp", "sha256": "966e12ed4a5059a3b5a4db2d8bc2049dc7e9059a65d7d3f17609bc60ca883635"},
+        {"path": "matter/include/numi/matter/numi_human_shared.h", "sha256": "8e74ce563e58e4493c3f21c4716106c5b09aa113d1277356e42c21f0ef13cba2"},
+        {"path": "matter/src/metal/numi_human.metalinc", "sha256": "907f553026232398b2c3814e3799d88cef22c174182d14427434ddc5e17ebc85"},
+        {"path": "matter/src/numi_human.mm", "sha256": "896b96432099522cbc323822ae0b83826569ffb31018c3de128302074078df18"},
+        {"path": "docs/media/numi-human-knee-articular-live-v1/left-m4-pro.txt", "sha256": "fd5440553d87074c750b397fb0b49912ee7a18250004d4c7f6cb5d96826c0644"}
+      ]
+    },
+    "right_knee_contact_live": {
+      "path": "docs/media/numi-human-knee-articular-live-v1/right-mirrored-m4-pro.json",
+      "format": "json",
+      "level": "one_step",
+      "checks": [
+        {"pointer": "/schema", "op": "equals", "value": "numilab.human.knee-articular-contact-live.v1"},
+        {"pointer": "/side", "op": "equals", "value": "right_mirrored"},
+        {"pointer": "/device", "op": "equals", "value": "Apple M4 Pro"},
+        {"pointer": "/adapter_abi", "op": "equals", "value": 7},
+        {"pointer": "/articular_pair_count", "op": "equals", "value": 7},
+        {"pointer": "/contact_sample_count", "op": "equals", "value": 69701},
+        {"pointer": "/mechanical_sample_count", "op": "equals", "value": 57930},
+        {"pointer": "/internal_same_body_sample_count", "op": "equals", "value": 11771},
+        {"pointer": "/closed_sample_count", "op": "minimum", "value": 1},
+        {"pointer": "/normal_force_newtons", "op": "minimum", "value": 1e-6},
+        {"pointer": "/force_residual_newtons", "op": "maximum", "value": 1e-5},
+        {"pointer": "/moment_residual_newton_meters", "op": "maximum", "value": 1e-5},
+        {"pointer": "/minimum_deformation_jacobian", "op": "minimum", "value": 0.25},
+        {"pointer": "/maximum_deformation_jacobian", "op": "maximum", "value": 2.5},
+        {"pointer": "/live_human_coupling", "op": "equals", "value": true},
+        {"pointer": "/same_borrowed_command_buffer", "op": "equals", "value": true},
+        {"pointer": "/unilateral_nonpenetration_solve", "op": "equals", "value": false},
+        {"pointer": "/current_surface_search", "op": "equals", "value": false},
+        {"pointer": "/independently_segmented_right_specimen", "op": "equals", "value": false},
+        {"pointer": "/replay", "op": "equals", "value": "bitwise"},
+        {"pointer": "/rollback", "op": "equals", "value": "verified"},
+        {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
+      ],
+      "artifacts": [
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "81cf69c5f1eba975efa8db44a9ec8aa59fad007f88e31b1e5e048146e09248c8"},
+        {"path": "matter/include/numi/matter/numi_human.hpp", "sha256": "966e12ed4a5059a3b5a4db2d8bc2049dc7e9059a65d7d3f17609bc60ca883635"},
+        {"path": "matter/include/numi/matter/numi_human_shared.h", "sha256": "8e74ce563e58e4493c3f21c4716106c5b09aa113d1277356e42c21f0ef13cba2"},
+        {"path": "matter/src/metal/numi_human.metalinc", "sha256": "907f553026232398b2c3814e3799d88cef22c174182d14427434ddc5e17ebc85"},
+        {"path": "matter/src/numi_human.mm", "sha256": "896b96432099522cbc323822ae0b83826569ffb31018c3de128302074078df18"},
+        {"path": "docs/media/numi-human-knee-articular-live-v1/right-mirrored-m4-pro.txt", "sha256": "f7006a154a8c245959463e5faa941e460efeae308ec1aca018a892b667042b9c"}
+      ]
+    },
+    "bilateral_achilles_force_transfer": {
+      "path": "docs/media/numi-human-achilles-force-transfer-v1/bilateral-m4-pro.json",
+      "format": "json",
+      "level": "one_step",
+      "checks": [
+        {"pointer": "/schema", "op": "equals", "value": "numilab.human.achilles-force-transfer.qualification.v1"},
+        {"pointer": "/device", "op": "equals", "value": "Apple M4 Pro"},
+        {"pointer": "/selected_source_muscle_indices", "op": "equals", "value": [348, 349, 369, 388, 389, 409]},
+        {"pointer": "/accepted_step_count", "op": "equals", "value": 2},
+        {"pointer": "/same_borrowed_command_buffer", "op": "equals", "value": true},
+        {"pointer": "/force_authority", "op": "equals", "value": "single_source_route_JT_with_distributed_enthesis_correction"},
+        {"pointer": "/sides/*/muscle_count", "op": "equals", "value": 3},
+        {"pointer": "/sides/*/distributed_endpoint_count", "op": "equals", "value": 3},
+        {"pointer": "/sides/*/represented_force_l1_newtons", "op": "minimum", "value": 1.0},
+        {"pointer": "/sides/*/represented_force_increment_l1_newtons", "op": "minimum", "value": 1.0},
+        {"pointer": "/sides/*/source_ankle_torque_magnitude_newton_meters", "op": "minimum", "value": 0.001},
+        {"pointer": "/sides/*/source_ankle_torque_increment_magnitude_newton_meters", "op": "minimum", "value": 0.001},
+        {"pointer": "/sides/*/aggregate_force_residual_newtons", "op": "maximum", "value": 0.003},
+        {"pointer": "/sides/*/maximum_endpoint_force_residual_newtons", "op": "maximum", "value": 0.0001},
+        {"pointer": "/sides/*/maximum_endpoint_moment_residual_newton_meters", "op": "maximum", "value": 0.00001},
+        {"pointer": "/sides/*/minimum_normalized_tendon_tension", "op": "minimum", "value": 0.000001},
+        {"pointer": "/sides/*/maximum_damped_equilibrium_residual", "op": "maximum", "value": 0.001},
+        {"pointer": "/sides/*/minimum_patch_radius_meters", "op": "minimum", "value": 0.001},
+        {"pointer": "/sides/*/ankle_configuration_increment_magnitude_radians", "op": "minimum", "value": 0.000000001},
+        {"pointer": "/sides/*/ankle_velocity_increment_magnitude_radians_per_second", "op": "minimum", "value": 0.000001},
+        {"pointer": "/replay", "op": "equals", "value": "bitwise"},
+        {"pointer": "/rollback", "op": "equals", "value": "verified"},
+        {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
+      ],
+      "artifacts": [
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "ed623be68e7e573d2ec83fdd4d94b0fa75424819b1f2c20dafcb578392ec3a65"}
+      ]
+    },
+    "bilateral_plantar_fascia_force_transfer": {
+      "path": "docs/media/numi-human-plantar-fascia-v2/bilateral-m4-pro-live.json",
+      "format": "json",
+      "level": "sustained",
+      "checks": [
+        {"pointer": "/schema", "op": "equals", "value": "numilab.human.plantar-fascia.live.v2"},
+        {"pointer": "/device", "op": "equals", "value": "Apple M4 Pro"},
+        {"pointer": "/evidence_level", "op": "equals", "value": "live"},
+        {"pointer": "/same_borrowed_command_buffer", "op": "equals", "value": true},
+        {"pointer": "/force_authority", "op": "equals", "value": "tension_only_three_point_route_plus_wrap_arc_couple_mapped_once_by_exact_body_JT"},
+        {"pointer": "/plantar_actuation", "op": "equals", "value": "none"},
+        {"pointer": "/toe_articulation", "op": "equals", "value": "one_source_MTP_coordinate_per_foot_shared_by_all_five_rays"},
+        {"pointer": "/live_human_matter_owner", "op": "equals", "value": true},
+        {"pointer": "/deformable_fem", "op": "equals", "value": true},
+        {"pointer": "/accepted_step_count", "op": "equals", "value": 8},
+        {"pointer": "/sides/right/rays", "op": "length_equals", "value": 5},
+        {"pointer": "/sides/left/rays", "op": "length_equals", "value": 5},
+        {"pointer": "/sides/*/rays/*/tension_newtons", "op": "minimum", "value": 0.001},
+        {"pointer": "/sides/*/rays/*/pulley_radius_meters", "op": "minimum", "value": 0.001},
+        {"pointer": "/sides/*/rays/*/stored_energy_joules", "op": "minimum", "value": 0.000001},
+        {"pointer": "/sides/*/maximum_rest_pattern_relative_residual", "op": "maximum", "value": 0.06},
+        {"pointer": "/sides/*/total_tension_newtons", "op": "minimum", "value": 1.0},
+        {"pointer": "/sides/*/maximum_force_closure_residual_newtons", "op": "maximum", "value": 0.00001},
+        {"pointer": "/sides/*/maximum_moment_closure_residual_newton_meters", "op": "maximum", "value": 0.000001},
+        {"pointer": "/sides/*/minimum_J", "op": "minimum", "value": 0.35},
+        {"pointer": "/sides/*/maximum_J", "op": "maximum", "value": 2.5},
+        {"pointer": "/sides/*/maximum_anchor_target_residual_meters", "op": "maximum", "value": 0.00002},
+        {"pointer": "/sides/*/maximum_configuration_delta_from_source_only", "op": "minimum", "value": 0.000000001},
+        {"pointer": "/sides/*/maximum_velocity_delta_from_source_only", "op": "minimum", "value": 0.000001},
+        {"pointer": "/replay", "op": "equals", "value": "bitwise"},
+        {"pointer": "/rollback", "op": "equals", "value": "verified"},
+        {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
+      ]
+    },
+    "whole_body_support_wrench": {
+      "path": "docs/media/numi-human-support-wrench-v1/bilateral-m4-pro.json",
+      "format": "json",
+      "level": "preflight",
+      "checks": [
+        {"pointer": "/schema", "op": "equals", "value": "numilab.human.whole-body-support-wrench.preflight.v1"},
+        {"pointer": "/device", "op": "equals", "value": "Apple M4 Pro"},
+        {"pointer": "/evidence_level", "op": "equals", "value": "preflight"},
+        {"pointer": "/support_contact_count", "op": "equals", "value": 10},
+        {"pointer": "/active_support_contact_count", "op": "equals", "value": 10},
+        {"pointer": "/relative_weight_error", "op": "maximum", "value": 0.00001},
+        {"pointer": "/maximum_floating_root_force_residual", "op": "maximum", "value": 0.001},
+        {"pointer": "/contacts", "op": "length_equals", "value": 10},
+        {"pointer": "/contacts/*/normal_force_newtons", "op": "minimum", "value": 0.0},
+        {"pointer": "/internal_balanced", "op": "equals", "value": false},
+        {"pointer": "/replay", "op": "equals", "value": "bitwise"},
+        {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
+      ],
+      "artifacts": [
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "ed623be68e7e573d2ec83fdd4d94b0fa75424819b1f2c20dafcb578392ec3a65"},
+        {"path": "include/metalrobo/NumiHumanMuscleEquilibrium.hpp", "sha256": "d25f8d65ed62fdc79276c4bc7862278947e333c84639255e1f5bce284cc30571"},
+        {"path": "src/core/NumiHumanMuscleEquilibrium.cpp", "sha256": "dbdeb976bf1a7e4a4a76368a1ce794107b9c2534f0783258acc1cef086dea129"}
+      ]
+    },
+    "upper_passive_joint_tissue_preflight": {
+      "path": "docs/media/numi-human-upper-passive-joint-v1/m4-pro.json",
+      "format": "json",
+      "level": "preflight",
+      "checks": [
+        {"pointer": "/schema", "op": "equals", "value": "numilab.human.upper-passive-joint-tissue.preflight.v1"},
+        {"pointer": "/device", "op": "equals", "value": "Apple M4 Pro"},
+        {"pointer": "/evidence_level", "op": "equals", "value": "preflight"},
+        {"pointer": "/passive_coordinate_coupling_count", "op": "equals", "value": 40},
+        {"pointer": "/result/support_contact_count", "op": "equals", "value": 10},
+        {"pointer": "/result/active_support_contact_count", "op": "equals", "value": 10},
+        {"pointer": "/result/relative_weight_error", "op": "maximum", "value": 0.00001},
+        {"pointer": "/result/maximum_floating_root_force_residual", "op": "maximum", "value": 0.001},
+        {"pointer": "/result/residual_reduction_percent", "op": "minimum", "value": 80.0},
+        {"pointer": "/result/replay", "op": "equals", "value": "bitwise"},
+        {"pointer": "/result/internal_balanced", "op": "equals", "value": false},
+        {"pointer": "/dominant_remaining_residuals", "op": "length_equals", "value": 2},
+        {"pointer": "/dominant_remaining_residuals/*/within_position_limits", "op": "equals", "value": true},
+        {"pointer": "/remaining_blocker", "op": "equals", "value": "source_extensor_hood_interosseous_route_and_force_sharing"}
+      ],
+      "artifacts": [
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "ed623be68e7e573d2ec83fdd4d94b0fa75424819b1f2c20dafcb578392ec3a65"},
+        {"path": "include/metalrobo/NumiHumanMuscleEquilibrium.hpp", "sha256": "d25f8d65ed62fdc79276c4bc7862278947e333c84639255e1f5bce284cc30571"},
+        {"path": "src/core/NumiHumanMuscleEquilibrium.cpp", "sha256": "dbdeb976bf1a7e4a4a76368a1ce794107b9c2534f0783258acc1cef086dea129"}
+      ]
+    },
+    "extensor_hood_tension_network_reference": {
+      "path": "docs/media/numi-human-extensor-hood-reference-v1/m4-pro.json",
+      "format": "json",
+      "level": "preflight",
+      "checks": [
+        {"pointer": "/schema", "op": "equals", "value": "numilab.human.extensor-hood-tension-network.preflight.v1"},
+        {"pointer": "/device", "op": "equals", "value": "Apple M4 Pro"},
+        {"pointer": "/evidence_level", "op": "equals", "value": "preflight"},
+        {"pointer": "/topology/node_count", "op": "equals", "value": 11},
+        {"pointer": "/topology/element_count", "op": "equals", "value": 13},
+        {"pointer": "/topology/active_element_count", "op": "minimum", "value": 9},
+        {"pointer": "/full_network/maximum_free_node_residual_newtons", "op": "maximum", "value": 0.00000002},
+        {"pointer": "/full_network/force_closure_residual_newtons", "op": "maximum", "value": 0.00000001},
+        {"pointer": "/full_network/moment_closure_residual_newton_meters", "op": "maximum", "value": 0.00000001},
+        {"pointer": "/force_transfer_delta_newtons", "op": "minimum", "value": 0.00001},
+        {"pointer": "/bilateral_maximum_tension_error_newtons", "op": "maximum", "value": 0.000000000001},
+        {"pointer": "/replay", "op": "equals", "value": "bitwise"},
+        {"pointer": "/rollback", "op": "equals", "value": "verified"},
+        {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
+      ],
+      "artifacts": [
+        {"path": "include/metalrobo/NumiHumanTensionNetwork.hpp", "sha256": "f9846b267e35ca542284baadbd0820b1b7cbb963eb6710bcd75d0483a507cbde"},
+        {"path": "src/core/NumiHumanTensionNetwork.cpp", "sha256": "3198a1230a8dbd9c3f41d9459ca865e1fd82e8f267b4644a0fdf2e65c43140d2"},
+        {"path": "apps/numilab_human_extensor_hood_reference_probe.cpp", "sha256": "f594bd73ec00a06d9026a31062e71fa108dbdc2de86137bad1bb7887d46ab97b"},
+        {"path": "CMakeLists.txt", "sha256": "0fd37d5c58527f657428e0c3a1da7fa4a953a43559ad80a4bcb2b0e31960d60a"}
+      ]
+    },
+    "extensor_hood_source_posed_reference": {
+      "path": "docs/media/numi-human-extensor-hood-all-rays-v2/m4-pro.json",
+      "format": "json",
+      "level": "preflight",
+      "checks": [
+        {"pointer": "/schema", "op": "equals", "value": "numilab.human.extensor-hood-all-rays.preflight.v2"},
+        {"pointer": "/device", "op": "equals", "value": "Apple M4 Pro"},
+        {"pointer": "/source_artifact/format", "op": "equals", "value": "NHHOOD2"},
+        {"pointer": "/source_artifact/bytes", "op": "equals", "value": 7044},
+        {"pointer": "/topology/hand_count", "op": "equals", "value": 2},
+        {"pointer": "/topology/ray_count", "op": "equals", "value": 8},
+        {"pointer": "/topology/node_count", "op": "equals", "value": 84},
+        {"pointer": "/topology/element_count", "op": "equals", "value": 100},
+        {"pointer": "/topology/muscle_input_count", "op": "equals", "value": 34},
+        {"pointer": "/topology/active_element_count", "op": "minimum", "value": 48},
+        {"pointer": "/topology/source_oracle_active_element_count", "op": "minimum", "value": 48},
+        {"pointer": "/geometry/minimum_source_element_length_m", "op": "minimum", "value": 0.0001},
+        {"pointer": "/geometry/maximum_source_element_length_m", "op": "maximum", "value": 0.1},
+        {"pointer": "/mechanics/maximum_free_node_residual_newtons", "op": "maximum", "value": 0.0000002},
+        {"pointer": "/mechanics/maximum_force_closure_residual_newtons", "op": "maximum", "value": 0.000002},
+        {"pointer": "/mechanics/maximum_moment_closure_residual_newton_meters", "op": "maximum", "value": 0.0000002},
+        {"pointer": "/source_oracle_force_transfer/root_generalized_force_residual_newtons", "op": "maximum", "value": 0.000016},
+        {"pointer": "/source_oracle_force_transfer/root_generalized_moment_residual_newton_meters", "op": "maximum", "value": 0.000016},
+        {"pointer": "/source_oracle_force_transfer/replay", "op": "equals", "value": "bitwise"},
+        {"pointer": "/replay", "op": "equals", "value": "bitwise"},
+        {"pointer": "/rollback", "op": "equals", "value": "verified"},
+        {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
+      ],
+      "artifacts": [
+        {"path": "apps/numilab_human_extensor_hood_source_probe.cpp", "sha256": "63d8f610e4fad403a998e7a1e90a59399293e8d55f91092e9076b4588cf34f1f"},
+        {"path": "include/metalrobo/NumiHumanTensionNetwork.hpp", "sha256": "f9846b267e35ca542284baadbd0820b1b7cbb963eb6710bcd75d0483a507cbde"},
+        {"path": "src/core/NumiHumanTensionNetwork.cpp", "sha256": "3198a1230a8dbd9c3f41d9459ca865e1fd82e8f267b4644a0fdf2e65c43140d2"},
+        {"path": "CMakeLists.txt", "sha256": "2b3af3e792297b437e7206407c1f0162d7e25176561a980d01078b0e16f8db02"}
+      ]
+    },
+    "extensor_hood_live_route_replacement": {
+      "path": "docs/media/numi-human-extensor-hood-live-v1/m4-pro.json",
+      "format": "json",
+      "level": "one_step",
+      "checks": [
+        {"pointer": "/schema", "op": "equals", "value": "numilab.human.extensor-hood-live-metal.v1"},
+        {"pointer": "/device", "op": "equals", "value": "Apple M4 Pro"},
+        {"pointer": "/runtime_revision", "op": "equals", "value": "38cf13d"},
+        {"pointer": "/topology/rays", "op": "equals", "value": 8},
+        {"pointer": "/topology/nodes", "op": "equals", "value": 84},
+        {"pointer": "/topology/elements", "op": "equals", "value": 100},
+        {"pointer": "/topology/source_muscle_inputs", "op": "equals", "value": 34},
+        {"pointer": "/one_step/accepted_rays", "op": "equals", "value": 8},
+        {"pointer": "/eight_step/accepted_rays", "op": "equals", "value": 8},
+        {"pointer": "/eight_step/maximum_free_node_residual_newtons", "op": "maximum", "value": 0.0025},
+        {"pointer": "/eight_step/maximum_force_closure_residual_newtons", "op": "maximum", "value": 0.01},
+        {"pointer": "/eight_step/maximum_moment_closure_residual_newton_meters", "op": "maximum", "value": 0.01},
+        {"pointer": "/eight_step/maximum_free_node_displacement_meters", "op": "maximum", "value": 0.01},
+        {"pointer": "/eight_step/maximum_engineering_strain", "op": "maximum", "value": 0.15},
+        {"pointer": "/eight_step/maximum_generalized_correction", "op": "minimum", "value": 0.000001},
+        {"pointer": "/visual_validation/actual_frames_inspected", "op": "equals", "value": 8},
+        {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
+      ],
+      "artifacts": [
+        {"path": "include/metalrobo/NumiHumanExtensorHoodMetal.hpp", "sha256": "996dc44814a626863c233ef3edc0528b0688235e1f947485d3adb0b877828aac"},
+        {"path": "include/metalrobo/numi_human_extensor_hood_gpu.h", "sha256": "eb085f779ad594ddca759833e2ae36db1e4202b79bd8ac31dd2c492694b3fa20"},
+        {"path": "src/metal/NumiHumanExtensorHood.metal", "sha256": "867d63e1420520205d97a0c3dbc0679d790d80c841d244efc393871b1b2feb3f"},
+        {"path": "src/metal/NumiHumanExtensorHoodMetal.mm", "sha256": "bf7478de4ff823f76c52abba0bee827ac5d9b4a4e93e2c187d81719c0fa9f19e"},
+        {"path": "src/metal/MujocoMuscleReference.metal", "sha256": "636655ef4c8113577c99c47c028fd7b962a06b9114c10cc295842e22fb4493f9"},
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "b31cce7da5d83a38cdba63f904298593da323696736762112909a4c2f9759e99"}
+      ]
+    },
+    "bilateral_thumb_direct_tendon_force_transfer": {
+      "path": "docs/media/numi-human-thumb-tendon-live-v1/m4-pro.json",
+      "format": "json",
+      "level": "one_step",
+      "checks": [
+        {"pointer": "/schema", "op": "equals", "value": "numilab.human.thumb-tendon-live-metal.v1"},
+        {"pointer": "/device", "op": "equals", "value": "Apple M4 Pro"},
+        {"pointer": "/anatomy/right_source_muscle_indices", "op": "length_equals", "value": 4},
+        {"pointer": "/anatomy/left_source_muscle_indices", "op": "length_equals", "value": 4},
+        {"pointer": "/mechanics/distributed_endpoint_count", "op": "equals", "value": 16},
+        {"pointer": "/mechanics/endpoint_migration_maximum_m", "op": "equals", "value": 0.0},
+        {"pointer": "/current_requalification/one_step/accepted_steps", "op": "equals", "value": 1},
+        {"pointer": "/current_requalification/eight_step/accepted_steps", "op": "equals", "value": 8},
+        {"pointer": "/current_requalification/eight_step/bilateral_force_relative_difference", "op": "maximum", "value": 0.05},
+        {"pointer": "/current_requalification/eight_step/right_maximum_endpoint_force_residual_n", "op": "maximum", "value": 0.001},
+        {"pointer": "/current_requalification/eight_step/left_maximum_endpoint_force_residual_n", "op": "maximum", "value": 0.001},
+        {"pointer": "/current_requalification/eight_step/right_maximum_endpoint_moment_residual_nm", "op": "maximum", "value": 0.00005},
+        {"pointer": "/current_requalification/eight_step/left_maximum_endpoint_moment_residual_nm", "op": "maximum", "value": 0.00005},
+        {"pointer": "/visual_validation/actual_frames_inspected", "op": "equals", "value": 8},
+        {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
+      ],
+      "artifacts": [
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "11a44b0eaf8df5afcdcc3ee274c568572968fab6625acb02eba9d1dcb206000c"},
+        {"path": "docs/media/numi-human-thumb-tendon-live-v1/m4-pro-current-one-step.txt", "sha256": "e5a088dc0180c51af0ed027a466cb11c54d71f247b45b588d8a534d852c17465"},
+        {"path": "docs/media/numi-human-thumb-tendon-live-v1/m4-pro-current-eight-step.txt", "sha256": "d42a72391d70d95172c299ef2290b80b8243695484f2f1043e40b604d3f8d3ae"}
+      ]
+    },
+    "bilateral_triceps_medialis_enthesis_force_transfer": {
+      "path": "docs/media/numi-human-triceps-medialis-enthesis-live-v1/m4-pro.json",
+      "format": "json",
+      "level": "one_step",
+      "checks": [
+        {"pointer": "/schema", "op": "equals", "value": "numilab.human.triceps-medialis-enthesis-live-metal.v1"},
+        {"pointer": "/device", "op": "equals", "value": "Apple M4 Pro"},
+        {"pointer": "/anatomy/right_muscle_index", "op": "equals", "value": 227},
+        {"pointer": "/anatomy/left_muscle_index", "op": "equals", "value": 290},
+        {"pointer": "/mechanics/distributed_endpoint_count", "op": "equals", "value": 4},
+        {"pointer": "/mechanics/selected_endpoint_migration_maximum_m", "op": "equals", "value": 0.0},
+        {"pointer": "/current_requalification/payload/envelope_bindings", "op": "equals", "value": 642},
+        {"pointer": "/current_requalification/one_step/accepted_steps", "op": "equals", "value": 1},
+        {"pointer": "/current_requalification/eight_step/accepted_steps", "op": "equals", "value": 8},
+        {"pointer": "/current_requalification/eight_step/bilateral_force_relative_difference", "op": "maximum", "value": 0.05},
+        {"pointer": "/current_requalification/eight_step/right_maximum_endpoint_force_residual_n", "op": "maximum", "value": 0.001},
+        {"pointer": "/current_requalification/eight_step/left_maximum_endpoint_force_residual_n", "op": "maximum", "value": 0.001},
+        {"pointer": "/current_requalification/eight_step/right_maximum_endpoint_moment_residual_nm", "op": "maximum", "value": 0.00005},
+        {"pointer": "/current_requalification/eight_step/left_maximum_endpoint_moment_residual_nm", "op": "maximum", "value": 0.00005},
+        {"pointer": "/visual_validation/actual_frames_inspected", "op": "equals", "value": 8},
+        {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
+      ],
+      "artifacts": [
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "11a44b0eaf8df5afcdcc3ee274c568572968fab6625acb02eba9d1dcb206000c"},
+        {"path": "docs/media/numi-human-triceps-medialis-enthesis-live-v1/qualified-current.nhtendon", "sha256": "aa81f08b640ca225bdbc508abde44ed34d1d84c7550225efd40cd7fc71a6559b"},
+        {"path": "docs/media/numi-human-triceps-medialis-enthesis-live-v1/m4-pro-current-one-step.txt", "sha256": "d199241088e3dc1c79ebd31cc12428792b2d7ada14ee0044db3b3955fdac5281"},
+        {"path": "docs/media/numi-human-triceps-medialis-enthesis-live-v1/m4-pro-current-eight-step.txt", "sha256": "2798be4431e4e5104f7bb8a6cffda4ed4ddc9cbcc8b55cd75058524a2aeaa6e0"}
+      ]
+    },
+    "thoracoabdominal_myofascia_force_transfer": {
+      "path": "docs/media/numi-human-thoracoabdominal-myofascia-glide-live-v1/m4-pro.json",
+      "format": "json",
+      "level": "one_step",
+      "checks": [
+        {"pointer": "/schema", "op": "equals", "value": "numilab.human.thoracoabdominal-myofascia-glide-metal.v1"},
+        {"pointer": "/device", "op": "equals", "value": "Apple M4 Pro"},
+        {"pointer": "/anatomy/region_count", "op": "equals", "value": 26},
+        {"pointer": "/anatomy/abdominal_terminal_count", "op": "equals", "value": 14},
+        {"pointer": "/anatomy/contact_sample_count", "op": "equals", "value": 495},
+        {"pointer": "/mechanics/node_count", "op": "equals", "value": 1202},
+        {"pointer": "/mechanics/tetrahedron_count", "op": "equals", "value": 2127},
+        {"pointer": "/mechanics/fixed_node_count", "op": "equals", "value": 212},
+        {"pointer": "/mechanics/traction_node_count", "op": "equals", "value": 212},
+        {"pointer": "/mechanics/directional_region_count", "op": "equals", "value": 26},
+        {"pointer": "/mechanics/material_object_count", "op": "equals", "value": 12},
+        {"pointer": "/mechanics/minimum_exact_terminal_axis_alignment", "op": "minimum", "value": 0.9999},
+        {"pointer": "/mechanics/minimum_sheet_axis_alignment", "op": "minimum", "value": 0.2},
+        {"pointer": "/mechanics/minimum_group_route_alignment", "op": "minimum", "value": 0.95},
+        {"pointer": "/reference_one_step/accepted_steps", "op": "equals", "value": 1},
+        {"pointer": "/reference_one_step/audited_steps", "op": "equals", "value": 1},
+        {"pointer": "/reference_one_step/minimum_deformation_jacobian", "op": "minimum", "value": 0.35},
+        {"pointer": "/sixteen_step/accepted_steps", "op": "equals", "value": 16},
+        {"pointer": "/sixteen_step/audited_steps", "op": "equals", "value": 16},
+        {"pointer": "/sixteen_step/closed_samples", "op": "minimum", "value": 1},
+        {"pointer": "/sixteen_step/contact_area_m2", "op": "minimum", "value": 0.000001},
+        {"pointer": "/sixteen_step/maximum_normal_force_n", "op": "minimum", "value": 0.000001},
+        {"pointer": "/sixteen_step/maximum_tangent_glide_m", "op": "minimum", "value": 0.000000001},
+        {"pointer": "/sixteen_step/maximum_closure_m", "op": "maximum", "value": 0.01},
+        {"pointer": "/sixteen_step/force_residual_n", "op": "maximum", "value": 0.000001},
+        {"pointer": "/sixteen_step/moment_residual_nm", "op": "maximum", "value": 0.000001},
+        {"pointer": "/sixteen_step/minimum_deformation_jacobian", "op": "minimum", "value": 0.35},
+        {"pointer": "/transaction/replay", "op": "equals", "value": "bitwise"},
+        {"pointer": "/transaction/rollback", "op": "equals", "value": "verified"},
+        {"pointer": "/visual_validation/actual_frames_inspected", "op": "equals", "value": 4},
+        {"pointer": "/gates", "op": "all_values_equal", "value": "passed"}
+      ],
+      "artifacts": [
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "11a44b0eaf8df5afcdcc3ee274c568572968fab6625acb02eba9d1dcb206000c"},
+        {"path": "apps/numi_human_tendon_fem_load_probe.mm", "sha256": "cda1e3e20b6e8d9591ea019de8d319d73d50a273dbc72bd9fb64c82377813844"},
+        {"path": "matter/materials/human_myofascia_regional_transverse_isotropic.nmatter", "sha256": "38b23df6bd18174dc6058d4748e56e995027cef2ab4494cdf5ded2c887b03ac0"},
+        {"path": "docs/media/numi-human-thoracoabdominal-myofascia-glide-live-v1/front.png", "sha256": "e05006881d1543893321bade6feda12236f63ef8a8213782eba281de45634c32"},
+        {"path": "docs/media/numi-human-thoracoabdominal-myofascia-glide-live-v1/oblique.png", "sha256": "7da122412cb18590ab1ac95755ab937fb6695c9dee75ab2961cdc06ac804d3e6"},
+        {"path": "docs/media/numi-human-thoracoabdominal-myofascia-glide-live-v1/side.png", "sha256": "e7635ef95665f057573636d72485ace1a3bede005f11d57a3609b7d913f8280b"},
+        {"path": "docs/media/numi-human-thoracoabdominal-myofascia-glide-live-v1/rear.png", "sha256": "b375e1ad778dee370f2a0e4a11eb777b8682e95af58061c01a08101819aba01f"},
+        {"path": "docs/media/numi-human-thoracoabdominal-myofascia-glide-live-v1/m4-pro-reference-one-step.txt", "sha256": "b46d7e4b749b9470eac30398570bc22f115c24e9152eaf8ec21581b7f4d78807"},
+        {"path": "docs/media/numi-human-thoracoabdominal-myofascia-glide-live-v1/m4-pro-sixteen-step.txt", "sha256": "ec41ca278c97e6068dae612487562735fc228eb14aef70a20dc9f5dc8597b606"}
+      ]
+    },
+    "adm_source_inferred_feasibility_rejection": {
+      "path": "docs/media/numi-human-adm-feasibility-v1/m4-pro.json",
+      "format": "json",
+      "level": "preflight",
+      "checks": [
+        {"pointer": "/schema", "op": "equals", "value": "numi.human.adm-feasibility-evidence.v1"},
+        {"pointer": "/result", "op": "equals", "value": "rejected_wrong_sign_or_capacity"},
+        {"pointer": "/qualified", "op": "equals", "value": false},
+        {"pointer": "/measurements/right_required_force_n", "op": "maximum", "value": 0.0},
+        {"pointer": "/measurements/left_required_force_n", "op": "maximum", "value": 0.0},
+        {"pointer": "/measurements/maximum_jacobian_oracle_error_m", "op": "maximum", "value": 0.00000002},
+        {"pointer": "/measurements/bilateral_moment_arm_relative_difference", "op": "maximum", "value": 0.25},
+        {"pointer": "/measurements/root_force_residual_n", "op": "maximum", "value": 0.000000001},
+        {"pointer": "/measurements/root_moment_residual_nm", "op": "maximum", "value": 0.000000001},
+        {"pointer": "/measurements/replay", "op": "equals", "value": "bitwise"}
+      ],
+      "artifacts": [
+        {"path": "apps/numilab_human_adm_feasibility_probe.cpp", "sha256": "95897cf78761543c3aa35db10ae4d883dde1ca5353e68c64e3e30d2061743721"},
+        {"path": "CMakeLists.txt", "sha256": "0fd37d5c58527f657428e0c3a1da7fa4a953a43559ad80a4bcb2b0e31960d60a"}
+      ]
+    },
+    "fifth_mcp_lower_stop_negative_control": {
+      "path": "docs/media/numi-human-fifth-mcp-lower-stop-negative-v1/m4-pro.json",
+      "format": "json",
+      "level": "preflight",
+      "checks": [
+        {"pointer": "/schema", "op": "equals", "value": "numi.human.fifth-mcp-lower-stop-negative-control.v1"},
+        {"pointer": "/result", "op": "equals", "value": "rejected_nonanatomical_hard_stop"},
+        {"pointer": "/counterfactual/right_residual_nm", "op": "equals", "value": 0.0},
+        {"pointer": "/counterfactual/left_residual_nm", "op": "equals", "value": 0.0},
+        {"pointer": "/counterfactual/right_acceleration_rad_s2", "op": "minimum", "value": 50.0},
+        {"pointer": "/counterfactual/left_acceleration_rad_s2", "op": "minimum", "value": 50.0},
+        {"pointer": "/counterfactual/replay", "op": "equals", "value": "bitwise"}
+      ],
+      "artifacts": [
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "ed623be68e7e573d2ec83fdd4d94b0fa75424819b1f2c20dafcb578392ec3a65"}
+      ]
+    },
+    "whole_body_all_dof_support_report": {
+      "path": "docs/media/numi-human-global-recruitment-v6/m4-pro.json",
+      "format": "json",
+      "level": "preflight",
+      "checks": [
+        {"pointer": "/schema", "op": "equals", "value": "numi.human.whole-body-support-all-dof-report.v1"},
+        {"pointer": "/derived/dof_count", "op": "equals", "value": 128},
+        {"pointer": "/residuals", "op": "length_equals", "value": 128},
+        {"pointer": "/contacts", "op": "length_equals", "value": 10},
+        {"pointer": "/summary/relative_weight_error", "op": "maximum", "value": 0.00001},
+        {"pointer": "/summary/internal_balanced", "op": "equals", "value": false},
+        {"pointer": "/summary/replay", "op": "equals", "value": "bitwise"},
+        {"pointer": "/derived/coordinates_over_100_rad_s2", "op": "equals", "value": 0}
+      ],
+      "artifacts": [
+        {"path": "apps/numilab_human_myosim_visual_probe.mm", "sha256": "481686800d4327c0d9b4543633686486bfa1ccc8a36087923277a2108471a842"},
+        {"path": "include/metalrobo/NumiHumanMuscleEquilibrium.hpp", "sha256": "f7944cbfe339497822af8a766fa9e655c24fcab6d35499189f7b98bc2d4fee39"},
+        {"path": "src/core/NumiHumanMuscleEquilibrium.cpp", "sha256": "9ac6b073c15313c57cd3fdc2dab1ba5c510d2940fc96aa0e902904374a4a726d"},
+        {"path": "tools/parse_numilab_human_support_report.py", "sha256": "f3dc6737fe704bb68f9e7157f0b56e30a1216d9348a3112a616695a776c2c2fa"}
+      ]
+    },
+    "costal_cartilage_preflight": {
+      "path": "docs/media/numi-human-passive-fem-attachments-v1/costal-cartilage-passive-m4-pro.transcript.txt",
+      "format": "text",
+      "level": "preflight",
+      "required_regex": [
+        "numi_human_costal_cartilage=passed",
+        "source_regions=14",
+        "fem_nodes=13516",
+        "tetrahedra=46278",
+        "replay=bitwise",
+        "rollback=verified",
+        "production_owner_fraction=0"
+      ]
+    },
+    "complete_soft_tissue_geometry": {
+      "path": "docs/media/numi-human-lower-joint-focus-v1/receipts/registration.v3.json",
+      "format": "json",
+      "level": "structural",
+      "checks": [
+        {"pointer": "/coverage/not_yet_represented", "op": "length_equals", "value": 0}
+      ]
+    }
+  },
+  "profiles": {
+    "upper_joint": {
+      "geometry_registration": {"minimum_level": "structural", "evidence": ["upper_multi_pose_geometry"]},
+      "joint_kinematics": {"minimum_level": "one_step", "evidence": ["source_route_transaction"]},
+      "source_muscle_actuation": {"minimum_level": "one_step", "evidence": ["source_route_transaction"]},
+      "active_tendon_to_bone": {"minimum_level": "one_step", "evidence": ["fully_distributed_exact_entheses", "extensor_hood_live_route_replacement"], "gap": "the live hood closes the bilateral non-thumb distal extensor share; replace remaining point fallbacks and inferred endpoints with region-specific loaded enthesis transfer"},
+      "passive_joint_tissue": {"minimum_level": "one_step", "evidence": ["upper_passive_joint_tissue_preflight", "extensor_hood_tension_network_reference", "extensor_hood_source_posed_reference", "extensor_hood_live_route_replacement"], "gap": "active non-thumb hood and direct thumb tendons are live; add loaded passive capsule, ligament, retinacular and pulley tissue, cartilage, and contact mechanics"},
+      "articular_contact": {"minimum_level": "one_step", "evidence": [], "gap": "add compliant articular contact and nonpenetration evidence"},
+      "bilateral_parity": {"minimum_level": "structural", "evidence": ["upper_multi_pose_geometry", "extensor_hood_live_route_replacement"]},
+      "deterministic_transaction": {"minimum_level": "one_step", "evidence": ["source_route_transaction", "extensor_hood_live_route_replacement"]},
+      "sustained_loaded_motion": {"minimum_level": "sustained", "evidence": [], "gap": "qualify a sustained loaded trajectory with force, strain, energy, and contact bounds"}
+    },
+    "lower_joint": {
+      "geometry_registration": {"minimum_level": "structural", "evidence": ["lower_multi_pose_geometry"]},
+      "joint_kinematics": {"minimum_level": "one_step", "evidence": ["source_route_transaction"]},
+      "source_muscle_actuation": {"minimum_level": "one_step", "evidence": ["source_route_transaction"]},
+      "active_tendon_to_bone": {"minimum_level": "one_step", "evidence": ["fully_distributed_exact_entheses"], "gap": "replace point fallbacks and inferred whole-body endpoints with region-specific exact loaded enthesis transfer"},
+      "passive_joint_tissue": {"minimum_level": "one_step", "evidence": [], "gap": "add anatomically sourced ligament, tendon, capsule, and cartilage mechanics"},
+      "articular_contact": {"minimum_level": "one_step", "evidence": [], "gap": "add compliant articular contact and nonpenetration evidence"},
+      "bilateral_parity": {"minimum_level": "structural", "evidence": ["lower_multi_pose_geometry"]},
+      "deterministic_transaction": {"minimum_level": "one_step", "evidence": ["source_route_transaction"]},
+      "sustained_loaded_motion": {"minimum_level": "sustained", "evidence": [], "gap": "qualify a sustained loaded trajectory with force, strain, energy, and contact bounds"}
+    },
+    "axial": {
+      "geometry_registration": {"minimum_level": "structural", "evidence": ["bodyparts3d_bone_structure"]},
+      "joint_kinematics": {"minimum_level": "one_step", "evidence": ["source_route_transaction"]},
+      "source_muscle_actuation": {"minimum_level": "one_step", "evidence": ["source_route_transaction"]},
+      "active_tendon_to_bone": {"minimum_level": "one_step", "evidence": ["fully_distributed_exact_entheses"], "gap": "resolve remaining axial point fallbacks and non-bone source endpoints with explicit anatomy"},
+      "passive_joint_tissue": {"minimum_level": "one_step", "evidence": ["costal_cartilage_preflight"], "gap": "integrate spine, thorax, and rib passive tissues into the live Human transaction"},
+      "articular_contact": {"minimum_level": "one_step", "evidence": [], "gap": "add axial joint/disc/contact mechanics where anatomically applicable"},
+      "bilateral_parity": {"required": false, "minimum_level": "structural", "evidence": []},
+      "deterministic_transaction": {"minimum_level": "one_step", "evidence": ["source_route_transaction"]},
+      "sustained_loaded_motion": {"minimum_level": "sustained", "evidence": [], "gap": "qualify breathing, bending, and trunk-load trajectories"}
+    },
+    "continuum": {
+      "anatomical_geometry": {"minimum_level": "structural", "evidence": ["complete_soft_tissue_geometry"], "gap": "the registered payload explicitly omits this soft-tissue layer"},
+      "deformable_mechanics": {"minimum_level": "one_step", "evidence": [], "gap": "implement a live deformable mechanics owner"},
+      "attachment_coupling": {"minimum_level": "one_step", "evidence": [], "gap": "couple accepted reactions to the articulated Human"},
+      "material_calibration": {"minimum_level": "validated", "evidence": [], "gap": "calibrate against independent material data and held-out response"},
+      "contact_or_interaction": {"minimum_level": "one_step", "evidence": [], "gap": "implement anatomically relevant contact or interaction"},
+      "deterministic_transaction": {"minimum_level": "one_step", "evidence": [], "gap": "add rejection rollback and bitwise replay"},
+      "sustained_loaded_motion": {"minimum_level": "sustained", "evidence": [], "gap": "qualify sustained coupled deformation"}
+    }
+  },
+  "regions": [
+    {"id": "axial_head_neck_spine_thorax", "profile": "axial", "requirements": {}},
+    {"id": "left_shoulder", "profile": "upper_joint", "requirements": {}},
+    {"id": "right_shoulder", "profile": "upper_joint", "requirements": {}},
+    {"id": "left_elbow_forearm", "profile": "upper_joint", "requirements": {"triceps_medialis_enthesis_transfer": {"minimum_level": "one_step", "evidence": ["bilateral_triceps_medialis_enthesis_force_transfer"]}}},
+    {"id": "right_elbow_forearm", "profile": "upper_joint", "requirements": {"triceps_medialis_enthesis_transfer": {"minimum_level": "one_step", "evidence": ["bilateral_triceps_medialis_enthesis_force_transfer"]}}},
+    {"id": "left_wrist_hand_fingers", "profile": "upper_joint", "requirements": {"thumb_direct_tendon_transfer": {"minimum_level": "one_step", "evidence": ["bilateral_thumb_direct_tendon_force_transfer"]}}},
+    {"id": "right_wrist_hand_fingers", "profile": "upper_joint", "requirements": {"thumb_direct_tendon_transfer": {"minimum_level": "one_step", "evidence": ["bilateral_thumb_direct_tendon_force_transfer"]}}},
+    {"id": "left_hip", "profile": "lower_joint", "requirements": {}},
+    {"id": "right_hip", "profile": "lower_joint", "requirements": {}},
+    {
+      "id": "left_knee",
+      "profile": "lower_joint",
+      "requirements": {
+        "source_muscle_actuation": {"minimum_level": "one_step", "evidence": ["source_route_transaction"]},
+        "active_tendon_to_bone": {"minimum_level": "one_step", "evidence": ["left_knee_extensor_chain", "source_route_transaction"], "evidence_mode": "all"},
+        "passive_joint_tissue": {"minimum_level": "one_step", "evidence": ["left_knee_extensor_chain", "source_route_transaction"], "evidence_mode": "all"},
+        "articular_contact": {"minimum_level": "one_step", "evidence": ["left_knee_contact_live", "left_knee_contact_preflight"], "gap": "promote fixed-reference one-step contact to sustained current-surface or implicit unilateral nonpenetration"},
+        "deterministic_transaction": {"minimum_level": "one_step", "evidence": ["left_knee_extensor_chain", "source_route_transaction"], "evidence_mode": "all"},
+        "sustained_loaded_motion": {"minimum_level": "sustained", "evidence": ["left_knee_sustained_loaded_motion"], "gap": "extend bounded 0.4 ms motion to physiological-duration loading and independent pressure validation"}
+      }
+    },
+    {
+      "id": "right_knee_mirrored",
+      "profile": "lower_joint",
+      "requirements": {
+        "source_muscle_actuation": {"minimum_level": "one_step", "evidence": ["source_route_transaction"]},
+        "active_tendon_to_bone": {"minimum_level": "one_step", "evidence": ["right_knee_extensor_chain", "source_route_transaction"], "evidence_mode": "all"},
+        "passive_joint_tissue": {"minimum_level": "one_step", "evidence": ["right_knee_extensor_chain", "source_route_transaction"], "evidence_mode": "all"},
+        "articular_contact": {"minimum_level": "one_step", "evidence": ["right_knee_contact_live", "right_knee_contact_preflight"], "gap": "promote fixed-reference one-step contact to sustained current-surface or implicit unilateral nonpenetration"},
+        "deterministic_transaction": {"minimum_level": "one_step", "evidence": ["right_knee_extensor_chain", "source_route_transaction"], "evidence_mode": "all"}
+      }
+    },
+    {
+      "id": "left_ankle_hindfoot_midfoot",
+      "profile": "lower_joint",
+      "requirements": {
+        "source_muscle_actuation": {"minimum_level": "one_step", "evidence": ["bilateral_achilles_force_transfer", "source_route_transaction"], "evidence_mode": "all"},
+        "active_tendon_to_bone": {"minimum_level": "one_step", "evidence": ["bilateral_achilles_force_transfer", "source_route_transaction"], "evidence_mode": "all"},
+        "passive_joint_tissue": {"minimum_level": "one_step", "evidence": ["bilateral_plantar_fascia_force_transfer"], "gap": "promote the reduced windlass preflight into the owning live transaction and add ankle ligaments, capsule, and cartilage"},
+        "support_wrench": {"minimum_level": "preflight", "evidence": ["whole_body_support_wrench"]},
+        "deterministic_transaction": {"minimum_level": "one_step", "evidence": ["bilateral_achilles_force_transfer", "source_route_transaction"], "evidence_mode": "all"}
+      }
+    },
+    {
+      "id": "right_ankle_hindfoot_midfoot",
+      "profile": "lower_joint",
+      "requirements": {
+        "source_muscle_actuation": {"minimum_level": "one_step", "evidence": ["bilateral_achilles_force_transfer", "source_route_transaction"], "evidence_mode": "all"},
+        "active_tendon_to_bone": {"minimum_level": "one_step", "evidence": ["bilateral_achilles_force_transfer", "source_route_transaction"], "evidence_mode": "all"},
+        "passive_joint_tissue": {"minimum_level": "one_step", "evidence": ["bilateral_plantar_fascia_force_transfer"], "gap": "promote the reduced windlass preflight into the owning live transaction and add ankle ligaments, capsule, and cartilage"},
+        "support_wrench": {"minimum_level": "preflight", "evidence": ["whole_body_support_wrench"]},
+        "deterministic_transaction": {"minimum_level": "one_step", "evidence": ["bilateral_achilles_force_transfer", "source_route_transaction"], "evidence_mode": "all"}
+      }
+    },
+    {
+      "id": "left_toes_compound",
+      "profile": "lower_joint",
+      "requirements": {
+        "compound_dof_policy": {"minimum_level": "structural", "evidence": ["bodyparts3d_bone_structure"], "gap": "retain one authored MTP body without invented independent toe articulation"},
+        "passive_joint_tissue": {"minimum_level": "one_step", "evidence": ["bilateral_plantar_fascia_force_transfer"], "gap": "promote the five-ray reduced windlass law into the owning live transaction"},
+        "windlass_force_transfer": {"minimum_level": "preflight", "evidence": ["bilateral_plantar_fascia_force_transfer"]}
+      }
+    },
+    {
+      "id": "right_toes_compound",
+      "profile": "lower_joint",
+      "requirements": {
+        "compound_dof_policy": {"minimum_level": "structural", "evidence": ["bodyparts3d_bone_structure"], "gap": "retain one authored MTP body without invented independent toe articulation"},
+        "passive_joint_tissue": {"minimum_level": "one_step", "evidence": ["bilateral_plantar_fascia_force_transfer"], "gap": "promote the five-ray reduced windlass law into the owning live transaction"},
+        "windlass_force_transfer": {"minimum_level": "preflight", "evidence": ["bilateral_plantar_fascia_force_transfer"]}
+      }
+    }
+  ],
+  "continuum_layers": [
+    {"id": "skin", "profile": "continuum", "requirements": {}},
+    {
+      "id": "fascia",
+      "profile": "continuum",
+      "requirements": {
+        "anatomical_geometry": {
+          "minimum_level": "one_step",
+          "evidence": ["thoracoabdominal_myofascia_force_transfer"],
+          "gap": "external oblique has an exact BodyParts3D presentation surface, but slip-resolved fascia and internal-oblique regional segmentation remain generated"
+        },
+        "deformable_mechanics": {"minimum_level": "one_step", "evidence": ["thoracoabdominal_myofascia_force_transfer"]},
+        "attachment_coupling": {"minimum_level": "one_step", "evidence": ["thoracoabdominal_myofascia_force_transfer"]},
+        "material_calibration": {"minimum_level": "validated", "evidence": [], "gap": "replace homogeneous bilateral class frames and assumed matrix-fibre splits with spatial directional fields calibrated against independent biaxial and held-out deformation data"},
+        "contact_or_interaction": {"minimum_level": "one_step", "evidence": ["thoracoabdominal_myofascia_force_transfer"], "gap": "replace the bounded normal-only frictionless foundation with registered multilayer geometry and calibrated friction adhesion or lubrication without duplicating force authority"},
+        "deterministic_transaction": {"minimum_level": "one_step", "evidence": ["thoracoabdominal_myofascia_force_transfer"]},
+        "sustained_loaded_motion": {"minimum_level": "sustained", "evidence": [], "gap": "qualify sustained trunk loading with bounded strain force energy and failure behavior"}
+      }
+    },
+    {"id": "organs", "profile": "continuum", "requirements": {}},
+    {"id": "vessels", "profile": "continuum", "requirements": {}},
+    {"id": "nerves", "profile": "continuum", "requirements": {}},
+    {
+      "id": "costal_cartilage",
+      "profile": "continuum",
+      "requirements": {
+        "anatomical_geometry": {"minimum_level": "preflight", "evidence": ["costal_cartilage_preflight"]},
+        "deformable_mechanics": {"minimum_level": "one_step", "evidence": ["costal_cartilage_preflight"], "gap": "the current prescribed-displacement preflight has production_owner_fraction=0"},
+        "deterministic_transaction": {"minimum_level": "preflight", "evidence": ["costal_cartilage_preflight"]}
+      }
+    }
+  ]
+}

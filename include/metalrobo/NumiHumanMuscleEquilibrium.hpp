@@ -1,0 +1,344 @@
+#pragma once
+
+#include "metalrobo/MujocoMuscleReference.hpp"
+#include "metalrobo/NumiHumanJointEquality.hpp"
+
+#include <array>
+#include <cstdint>
+#include <span>
+#include <vector>
+
+namespace metalrobo {
+
+// Offline compiler for a source-faithful, muscle-supported Human state. This
+// is deliberately outside the dynamics hot loop: it resolves one bounded
+// posture/recruitment program which the persistent Metal transaction then
+// consumes without host-side control or per-step force restaging.
+enum class NumiHumanMuscleEquilibriumStatus : std::uint32_t {
+    success = 0u,
+    invalidConfiguration,
+    invalidArticulation,
+    invalidDimensions,
+    nonfiniteInput,
+    invalidSelection,
+    unsupportedMuscleArchitecture,
+    equalityFailure,
+    kinematicsFailure,
+    muscleFailure,
+    dynamicsFailure,
+    nonfiniteResult,
+    supportPenetration,
+    supportPoseInfeasible,
+    positionLimitViolation,
+    constraintSolveFailure,
+};
+
+struct NumiHumanMuscleEquilibriumConfig {
+    // Used only by the compliant-muscle reference call. Zero-state fibres are
+    // first initialized at zero-velocity equilibrium, so a stationary compile
+    // is timestep independent within numerical tolerance.
+    double timestep = 1.0e-4;
+    double activationLimit = 1.0;
+    std::uint32_t activationSamples = 9u;
+    std::uint32_t activationSweeps = 160u;
+    // Nonlinear force-law checkpoints retain the best exact state instead of
+    // trusting a long piecewise-linear coordinate trajectory blindly.
+    std::uint32_t activationExactCheckpointInterval = 8u;
+    double activationRegularization = 2.5e-4;
+    double activationConvergence = 1.0e-7;
+    // A simultaneous, bound-constrained coupled Gauss-Newton polish follows
+    // the source-ordered coordinate sweeps. Local exact force-law derivatives
+    // retain cross-muscle coupling. Exact nonlinear-force evaluation and a new
+    // physical reaction solve admit only objective-decreasing updates.
+    std::uint32_t globalActivationPolishIterations = 24u;
+    std::uint32_t globalActivationLineSearchSteps = 24u;
+    double globalActivationConvergence = 1.0e-8;
+    // Recruitment is evaluated in constrained acceleration space, not raw
+    // generalized-force units. This prevents small distal-joint torque
+    // errors from disappearing beside pelvis/hip loads merely because their
+    // effective inertias differ by orders of magnitude.
+    double minimumGeneralizedAccelerationScale = 1.0;
+    double balanceTolerance = 5.0e-2;
+
+    // Deterministic bounded coordinate and coupled block posture search.
+    // Only scalar, authoritative position-limited internal DoFs are candidates;
+    // root and quaternion-rate coordinates are never altered. Block directions
+    // use exact equality-projected residual differences; all trials require
+    // geometric/source-range admission and complete recruitment before selection.
+    std::uint32_t poseSweeps = 4u;
+    std::uint32_t poseCandidateCount = 8u;
+    // Re-recruit at the strongest fixed-activation pose candidates before
+    // deciding whether a posture step helps. A coupled pose/activation move
+    // must not be rejected solely by its stale-activation objective.
+    std::uint32_t poseRecruitmentCandidateCount = 2u;
+    double poseStepFraction = 0.025;
+    double maximumPoseStep = 0.08;
+    double positionLimitMarginFraction = 0.01;
+    double poseRegularization = 2.5e-3;
+    double poseImprovementTolerance = 1.0e-8;
+    // Optional fixed-pose load-sharing refinement AFTER physical balance.
+    // Every accepted iterate retains balanceTolerance; failed or infeasible
+    // refinements preserve the balanced baseline. The reaction cost uses the
+    // same normalized acceleration metric and a fixed authored coordinate
+    // count. Structural locks are excluded. Zero preserves legacy callers.
+    double finiteRangePositionLimitReactionRegularization = 0.0;
+    // A static unilateral reaction exists only at the stop, within this
+    // numerical tolerance. The broader runtime activation distance belongs
+    // to the velocity-level complementarity solve, not this equilibrium
+    // certificate.
+    double positionLimitTolerance = 1.0e-7;
+    // Optional static support reactions are optimized as nonnegative normal
+    // forces. The cap is an admission bound, not a prescribed load.
+    // Geometric roundoff bound, not a compliant-contact activation distance.
+    // A separated witness carries exactly zero force; penetration beyond this
+    // bound rejects the initial pose or discards a pose-search candidate.
+    double supportGapToleranceMeters = 1.0e-6;
+    // Runtime speculative-contact search distance. It never enlarges the
+    // static load-bearing region: only supportGapToleranceMeters admits
+    // numerical roundoff in static closed-contact geometry.
+    double supportActivationDistanceMeters = 2.0e-3;
+    double maximumSupportForceNewtons = 5000.0;
+    double supportForceRegularization = 1.0e-14;
+    std::uint32_t supportForceSweeps = 4096u;
+    double supportForceConvergence = 1.0e-10;
+};
+
+struct NumiHumanStaticSupportContact {
+    std::uint32_t bodyIndex = MR_INVALID_INDEX;
+    std::array<double, 3> localPoint{};
+    // World-space force direction applied to the Human, normally the outward
+    // ground-plane normal. Static v1 intentionally admits no adhesion and no
+    // tangential force variable.
+    std::array<double, 3> normal{0.0, 0.0, 1.0};
+    // One point on the authored world plane. This is geometry, not the
+    // current witness position: pose search must never move the ground.
+    std::array<double, 3> planePoint{};
+    double supportRadius = 0.0; // Sphere centre in localPoint when positive.
+    std::array<double, 3> supportRadii{};
+    std::array<double, 4> supportOrientation{};
+};
+
+// Explicit offline placement variables. Root translations and bounded scalar
+// independent joints are admitted; root rotation and dependent coordinates are
+// excluded. Displacement is measured from the equality-projected input pose.
+struct NumiHumanSupportPoseCoordinate {
+    std::uint32_t dofIndex = MR_INVALID_INDEX;
+    double maximumDisplacement = 0.0;
+};
+struct NumiHumanSupportPoseConfig {
+    std::uint32_t maximumIterations = 64u;
+    std::uint32_t lineSearchSteps = 24u;
+    double gapToleranceMeters = 1.0e-8;
+    double normalizedStepLimit = 0.25;
+};
+struct NumiHumanSupportPoseResult {
+    std::vector<double> q;
+    std::vector<double> supportPlaneGapMeters;
+    std::uint32_t iterations = 0u;
+    double maximumActiveGapMeters = 0.0;
+    double minimumGapMeters = 0.0;
+};
+
+// One row of an anatomically sourced linearized passive joint-tissue law.
+// The target generalized force is -K(row,column) * (q_column - q_rest).
+// Separate rows permit a symmetric coupled stiffness matrix (for example the
+// measured wrist flexion/deviation matrix) without inventing an actuator.
+struct NumiHumanPassiveCoordinateCoupling {
+    std::uint32_t targetDofIndex = MR_INVALID_INDEX;
+    std::uint32_t sourceDofIndex = MR_INVALID_INDEX;
+    double sourceRestPosition = 0.0;
+    double stiffness = 0.0;
+};
+
+struct NumiHumanMuscleEquilibriumDiagnostics {
+    NumiHumanMuscleEquilibriumStatus status =
+        NumiHumanMuscleEquilibriumStatus::success;
+    MujocoMuscleReferenceStatus muscleStatus =
+        MujocoMuscleReferenceStatus::success;
+    ArticulatedDynamicsStatus dynamicsStatus =
+        ArticulatedDynamicsStatus::success;
+    NumiHumanJointEqualityStatus equalityStatus =
+        NumiHumanJointEqualityStatus::success;
+    std::uint32_t failingIndex = MR_INVALID_INDEX;
+    std::uint32_t muscleCount = 0u;
+    std::uint32_t recruitedMuscleCount = 0u;
+    std::uint32_t activeMuscleCount = 0u;
+    std::uint32_t activationSweeps = 0u;
+    // Iterations in the final polish call; accepted steps accumulated along
+    // the retained search trajectory, respectively.
+    std::uint32_t globalActivationPolishIterations = 0u;
+    std::uint32_t acceptedGlobalActivationPolishSteps = 0u;
+    std::uint32_t acceptedPoseSteps = 0u;
+    std::uint32_t acceptedCoupledPoseSteps = 0u;
+    // Rejected numerical search evaluations, including derivative probes.
+    std::uint32_t rejectedConstraintCandidates = 0u;
+    std::uint32_t rejectedSupportManifoldPoseCandidates = 0u;
+    std::uint32_t rejectedPenetratingPoseCandidates = 0u;
+    std::uint32_t rejectedPositionLimitPoseCandidates = 0u;
+    std::uint32_t activePositionLimitCount = 0u;
+    // Separate collapsed/near-collapsed coordinate locks from finite-range
+    // anatomical stops. They are both solved by the unilateral reaction
+    // owner, but only the latter indicate posture resting on a joint bound.
+    std::uint32_t activeStructuralLockCount = 0u;
+    std::uint32_t activeFiniteRangePositionLimitCount = 0u;
+    std::uint32_t maximumStructuralLockReactionDof = MR_INVALID_INDEX;
+    std::uint32_t maximumFiniteRangePositionLimitReactionDof = MR_INVALID_INDEX;
+    std::uint32_t jointEqualityCount = 0u;
+    std::uint32_t supportContactCount = 0u;
+    std::uint32_t activeSupportContactCount = 0u;
+    std::uint32_t maximumNormalizedResidualDof = MR_INVALID_INDEX;
+    std::uint32_t maximumAccelerationResidualDof = MR_INVALID_INDEX;
+    double initialNormalizedResidualRms = 0.0;
+    double normalizedResidualRms = 0.0;
+    double maximumGeneralizedForceResidual = 0.0;
+    double maximumNormalizedAccelerationResidual = 0.0;
+    double maximumGeneralizedAccelerationResidual = 0.0;
+    double maximumActivation = 0.0;
+    double minimumNormalizedPositionLimitMargin = 1.0;
+    double maximumPositionLimitReaction = 0.0;
+    double maximumStructuralLockReaction = 0.0;
+    double maximumFiniteRangePositionLimitReaction = 0.0;
+    // Independent, unit-Delassus-scaled physical complementarity check.
+    // Includes equality-dependent source stops; no runtime compliance claim.
+    double positionLimitKktResidual = 0.0;
+    double maximumJointEqualityReaction = 0.0;
+    double maximumInitialEqualityProjection = 0.0;
+    double maximumJointEqualityError = 0.0;
+    double totalSupportForceNewtons = 0.0;
+    double maximumSupportForceNewtons = 0.0;
+    double maximumFloatingRootForceResidual = 0.0;
+    double maximumFloatingRootAccelerationResidual = 0.0;
+    bool balanced = false;
+    bool floatingRootIncluded = false;
+
+    [[nodiscard]] bool succeeded() const noexcept {
+        return status == NumiHumanMuscleEquilibriumStatus::success;
+    }
+};
+
+// Accepted offline search history. kind: 0 initialization, 1 posture update,
+// 2 final state, 3 secondary stop-load recruitment within balanceTolerance.
+// The objective is always the physical recruitment objective, without the
+// optional stop cost; kind 3 need not decrease it. No record is a time step.
+struct NumiHumanEquilibriumSearchRecord {
+    std::uint32_t kind = 0u;
+    std::uint32_t acceptedPoseSteps = 0u;
+    double normalizedResidualRms = 0.0;
+    double objective = 0.0;
+    bool coupledPoseProposal = false;
+    std::uint32_t rejectedConstraintCandidates = 0u;
+    bool operator==(const NumiHumanEquilibriumSearchRecord&) const = default;
+};
+
+struct NumiHumanMuscleEquilibriumResult {
+    NumiHumanMuscleEquilibriumDiagnostics diagnostics{};
+    std::vector<NumiHumanEquilibriumSearchRecord> searchTrace;
+    // Articulation-local q and activation in source muscle order.
+    std::vector<double> q;
+    std::vector<double> activation;
+    // Static accepted fibre state matching q/activation. These values are an
+    // FP64 oracle; the Metal transaction may independently initialize its
+    // typed state from the zero sentinel and parity-check the result.
+    std::vector<double> fiberLength;
+    std::vector<double> muscleTendonForce;
+    std::vector<double> passiveMuscleTendonForce;
+    std::vector<double> generalizedMuscleForce;
+    // Signed articulation-local unilateral reaction. Lower stops contribute
+    // positive generalized force and upper stops negative generalized force.
+    std::vector<double> generalizedPositionLimitForce;
+    std::vector<double> generalizedJointEqualityForce;
+    std::vector<double> supportNormalForce;
+    // Signed world-plane gaps, in the same order as supportNormalForce.
+    std::vector<double> supportPlaneGapMeters;
+    std::vector<double> generalizedSupportForce;
+    std::vector<double> generalizedPassiveCoordinateForce;
+    std::vector<double> gravityTarget;
+    std::vector<double> generalizedForceResidual;
+    // Full physical acceleration after the mass-coupled unilateral reaction
+    // solve, including dependent coordinates lifted through the exact source
+    // equality tangent. generalizedForceResidual is the corresponding full
+    // force sum, rather than coordinatewise cancellation at the stops.
+    // This is offline diagnostic state, not a runtime force stream.
+    std::vector<double> generalizedAccelerationResidual;
+};
+
+// Fit the requested contact manifold on the authored planes, using native
+// point Jacobians and the exact source equality tangent. All other witnesses
+// remain unilateral. This is initial-condition compilation, never runtime root
+// assistance, and does not certify muscle or floating-base wrench balance.
+// Infeasible/nonfinite candidates leave the accepted destination unchanged.
+[[nodiscard]] NumiHumanMuscleEquilibriumDiagnostics
+compileNumiHumanSupportPose(
+    const EngineModel& model,
+    std::uint32_t articulationIndex,
+    std::span<const double> initialQ,
+    std::span<const MRNumiHumanJointEqualityGPU> jointEqualities,
+    std::span<const NumiHumanStaticSupportContact> supportContacts,
+    std::span<const std::uint32_t> activeSupportIndices,
+    std::span<const NumiHumanSupportPoseCoordinate> coordinates,
+    NumiHumanSupportPoseResult& result,
+    const NumiHumanSupportPoseConfig& config = {}
+);
+
+// selectedMuscleIndices controls which muscles may recruit. Empty means all.
+// Passive force is always retained for every supplied muscle. The destination
+// is published only after a complete finite compile.
+[[nodiscard]] NumiHumanMuscleEquilibriumDiagnostics
+compileNumiHumanMuscleEquilibrium(
+    const EngineModel& model,
+    std::uint32_t articulationIndex,
+    std::span<const double> initialQ,
+    std::span<const MujocoMuscleSite> sites,
+    std::span<const MujocoWrapGeometry> wraps,
+    std::span<const MujocoMuscleDefinition> muscles,
+    std::span<const MujocoCompliantMuscleArchitecture> architectures,
+    std::span<const MRNumiHumanJointEqualityGPU> jointEqualities,
+    std::span<const std::uint32_t> selectedMuscleIndices,
+    NumiHumanMuscleEquilibriumResult& result,
+    const NumiHumanMuscleEquilibriumConfig& config = {}
+);
+
+// Supported passive-tissue overload. Couplings are conservative linearized
+// coordinate forces evaluated at every pose candidate and included once in
+// recruitment; they are not muscle actuation or support reaction.
+[[nodiscard]] NumiHumanMuscleEquilibriumDiagnostics
+compileNumiHumanMuscleEquilibrium(
+    const EngineModel& model,
+    std::uint32_t articulationIndex,
+    std::span<const double> initialQ,
+    std::span<const MujocoMuscleSite> sites,
+    std::span<const MujocoWrapGeometry> wraps,
+    std::span<const MujocoMuscleDefinition> muscles,
+    std::span<const MujocoCompliantMuscleArchitecture> architectures,
+    std::span<const MRNumiHumanJointEqualityGPU> jointEqualities,
+    std::span<const std::uint32_t> selectedMuscleIndices,
+    std::span<const NumiHumanStaticSupportContact> supportContacts,
+    std::span<const NumiHumanPassiveCoordinateCoupling> passiveCouplings,
+    NumiHumanMuscleEquilibriumResult& result,
+    const NumiHumanMuscleEquilibriumConfig& config = {}
+);
+
+// Supported overload. Ground reactions and muscle activation are optimized
+// in one constrained acceleration-space problem, including the floating root.
+// An empty support span is exactly equivalent to the legacy overload above.
+[[nodiscard]] NumiHumanMuscleEquilibriumDiagnostics
+compileNumiHumanMuscleEquilibrium(
+    const EngineModel& model,
+    std::uint32_t articulationIndex,
+    std::span<const double> initialQ,
+    std::span<const MujocoMuscleSite> sites,
+    std::span<const MujocoWrapGeometry> wraps,
+    std::span<const MujocoMuscleDefinition> muscles,
+    std::span<const MujocoCompliantMuscleArchitecture> architectures,
+    std::span<const MRNumiHumanJointEqualityGPU> jointEqualities,
+    std::span<const std::uint32_t> selectedMuscleIndices,
+    std::span<const NumiHumanStaticSupportContact> supportContacts,
+    NumiHumanMuscleEquilibriumResult& result,
+    const NumiHumanMuscleEquilibriumConfig& config = {}
+);
+
+[[nodiscard]] const char* numiHumanMuscleEquilibriumStatusName(
+    NumiHumanMuscleEquilibriumStatus status
+) noexcept;
+
+} // namespace metalrobo

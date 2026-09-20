@@ -1,0 +1,2 @@
+open_knee_ligament_fem_snapshot=NHKFEM1 regions=4 nodes=38159 tetrahedra=159416 maximum_displacement_m=2.31927e-07 pose_boundary=accepted_submicron_preflight_only
+myosim_articulated_visual=failed error="NHKFEM1 v1 is an accepted neutral preflight snapshot and cannot be rendered as an arbitrary pose"

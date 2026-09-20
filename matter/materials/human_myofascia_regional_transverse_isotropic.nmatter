@@ -1,0 +1,65 @@
+// Regional direction-aware law for the bounded NHFASC4 Human continuum.
+// All 26 source-muscle routes retain exact endpoint ownership. Six pectoral
+// objects remain separate; routes are otherwise grouped only within one
+// anatomical class and body side, yielding 12 material instances. Each unit
+// fibre axis is the polarity-invariant mean of its member routes' exact two-
+// terminal directions in the owning compiled Human reference pose. The
+// matrix/fibre split is a transparent reduction: pectoral parameters preserve
+// the published mean GOH fit, thoracolumbar parameters preserve the existing
+// 10%-ownership mean axial modulus with a 25/75 matrix/fibre split, and EO/IO
+// use 10% of their respective human uniaxial median moduli with the same
+// split. The split, exponential curvature and homogeneous group axis are research
+// assumptions, not biaxial calibration, per-tetrahedron histology, failure,
+// subject-specific material identification, or clinical validation.
+material human_myofascia_regional_transverse_isotropic {
+    parameter density : kg/m^3 = 1000 in [900, 1150];
+    parameter matrix_shear : kPa = 1.84 in [0.1, 10000] log identifiable;
+    parameter bulk : kPa = 500 in [20, 100000] log identifiable;
+    parameter fiber_k1 : kPa = 10 in [0.1, 50000] log identifiable;
+    parameter fiber_k2 : one = 2.36 in [0.25, 12] identifiable;
+    parameter fiber_x : one = 1 in [-1, 1];
+    parameter fiber_y : one = 0 in [-1, 1];
+    parameter fiber_z : one = 0 in [-1, 1];
+    parameter tension_smoothing : one = 0.0001 in [0.00001, 0.005] log;
+    parameter minimum_valid_J : one = 0.35 in [0.35, 0.50];
+    parameter numerical_viscosity : Pa*s = 0 in [0, 500];
+
+    model generic;
+    energy = 0.5 * matrix_shear * (I1() - 3 - 2 * log(J()))
+        + 0.5 * bulk * pow(log(J()), 2)
+        + fiber_k1 / (2 * fiber_k2) * (
+            exp(fiber_k2 * pow(0.5 * (
+                pow(F(0, 0) * fiber_x + F(0, 1) * fiber_y + F(0, 2) * fiber_z, 2) +
+                pow(F(1, 0) * fiber_x + F(1, 1) * fiber_y + F(1, 2) * fiber_z, 2) +
+                pow(F(2, 0) * fiber_x + F(2, 1) * fiber_y + F(2, 2) * fiber_z, 2) - 1
+                + sqrt(pow(
+                    pow(F(0, 0) * fiber_x + F(0, 1) * fiber_y + F(0, 2) * fiber_z, 2) +
+                    pow(F(1, 0) * fiber_x + F(1, 1) * fiber_y + F(1, 2) * fiber_z, 2) +
+                    pow(F(2, 0) * fiber_x + F(2, 1) * fiber_y + F(2, 2) * fiber_z, 2) - 1,
+                    2
+                ) + pow(tension_smoothing, 2)) - tension_smoothing
+            ), 2)) - 1
+        );
+    dissipation = 0.5 * numerical_viscosity * (
+        pow(Fdot(0, 0), 2) + pow(Fdot(1, 1), 2) + pow(Fdot(2, 2), 2) +
+        0.5 * pow(Fdot(0, 1) + Fdot(1, 0), 2) +
+        0.5 * pow(Fdot(0, 2) + Fdot(2, 0), 2) +
+        0.5 * pow(Fdot(1, 2) + Fdot(2, 1), 2)
+    );
+    valid = J() - minimum_valid_J;
+    supports fem;
+
+    interface {
+        static_friction = 0.05;
+        dynamic_friction = 0.03;
+        restitution = 0.0;
+        adhesion = 0.0;
+    }
+
+    limits {
+        minimum_J = 0.35;
+        maximum_J = 2.5;
+        maximum_stress = 5e8;
+        maximum_energy_density = 2e8;
+    }
+}

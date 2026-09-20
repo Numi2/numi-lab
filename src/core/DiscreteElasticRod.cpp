@@ -146,12 +146,60 @@ struct RodFrames {
     std::vector<std::array<double, 2>> curvature;
 };
 
+struct RodReferenceFrames {
+    std::vector<Vec3> tangents;
+    std::vector<Vec3> directors;
+};
+
+bool buildReferenceFrames(
+    const std::span<const Vec3> restPositions,
+    RodReferenceFrames& references
+) {
+    if (restPositions.size() < 2u) {
+        return false;
+    }
+    const std::size_t edgeCount = restPositions.size() - 1u;
+    references = {};
+    references.tangents.resize(edgeCount);
+    references.directors.resize(edgeCount);
+    for (std::size_t edge = 0u; edge < edgeCount; ++edge) {
+        if (!normalize(
+                subtract(
+                    restPositions[edge + 1u],
+                    restPositions[edge]
+                ),
+                references.tangents[edge]
+            )) {
+            return false;
+        }
+    }
+    references.directors[0] =
+        leastAlignedDirector(references.tangents[0]);
+    for (std::size_t edge = 1u; edge < edgeCount; ++edge) {
+        if (!transport(
+                references.directors[edge - 1u],
+                references.tangents[edge - 1u],
+                references.tangents[edge],
+                references.directors[edge]
+            )) {
+            return false;
+        }
+    }
+    return true;
+}
+
 bool buildFrames(
     const std::span<const Vec3> positions,
     const std::span<const double> twists,
+    const RodReferenceFrames& references,
     RodFrames& frames
 ) {
     const std::size_t edgeCount = positions.size() - 1u;
+    if (twists.size() != edgeCount ||
+        references.tangents.size() != edgeCount ||
+        references.directors.size() != edgeCount) {
+        return false;
+    }
     frames = {};
     frames.tangents.resize(edgeCount);
     frames.director1.resize(edgeCount);
@@ -170,8 +218,15 @@ bool buildFrames(
             return false;
         }
     }
-    Vec3 reference =
-        leastAlignedDirector(frames.tangents[0]);
+    Vec3 reference;
+    if (!transport(
+            references.directors[0],
+            references.tangents[0],
+            frames.tangents[0],
+            reference
+        )) {
+        return false;
+    }
     for (std::size_t edge = 0u; edge < edgeCount; ++edge) {
         if (edge != 0u &&
             !transport(
@@ -274,16 +329,23 @@ bool energy(
     const DiscreteElasticRodState& state,
     DiscreteElasticRodEnergy& result
 ) {
+    RodReferenceFrames references;
     RodFrames restFrames;
     RodFrames frames;
-    if (!buildFrames(
+    if (!buildReferenceFrames(
+            model.restPositions,
+            references
+        ) ||
+        !buildFrames(
             model.restPositions,
             model.restTwists,
+            references,
             restFrames
         ) ||
         !buildFrames(
             state.positions,
             state.twists,
+            references,
             frames
         )) {
         return false;
@@ -362,7 +424,9 @@ bool validConfig(const DiscreteElasticRodStepConfig& config) {
         finite(config.selfCollisionMargin) &&
         config.selfCollisionMargin >= 0.0 &&
         finite(config.selfCollisionCompliance) &&
-        config.selfCollisionCompliance >= 0.0;
+        config.selfCollisionCompliance >= 0.0 &&
+        finite(config.selfCollisionFriction) &&
+        config.selfCollisionFriction >= 0.0;
 }
 
 double stretchCompliance(
@@ -378,6 +442,7 @@ bool projectStretch(
     DiscreteElasticRodState& state,
     const double timestep,
     const std::size_t edge,
+    double& accumulatedMultiplier,
     double& maximumError,
     double& maximumCorrection
 ) {
@@ -403,7 +468,9 @@ bool projectStretch(
         stretchCompliance(model, edge) /
         (timestep * timestep);
     const double lambda =
-        -constraint / (inverseA + inverseB + alpha);
+        (-constraint - alpha * accumulatedMultiplier) /
+        (inverseA + inverseB + alpha);
+    accumulatedMultiplier += lambda;
     const Vec3 firstCorrection =
         multiply(direction, -inverseA * lambda);
     const Vec3 secondCorrection =
@@ -423,10 +490,22 @@ bool projectStretch(
 bool localCurvature(
     const std::array<Vec3, 3>& positions,
     const std::array<double, 2>& twists,
+    const std::array<Vec3, 2>& referenceTangents,
+    const std::array<Vec3, 2>& referenceDirectors,
     std::array<double, 2>& curvature
 ) {
+    RodReferenceFrames references{
+        .tangents = {
+            referenceTangents[0],
+            referenceTangents[1],
+        },
+        .directors = {
+            referenceDirectors[0],
+            referenceDirectors[1],
+        },
+    };
     RodFrames frames;
-    if (!buildFrames(positions, twists, frames) ||
+    if (!buildFrames(positions, twists, references, frames) ||
         frames.curvature.size() != 1u) {
         return false;
     }
@@ -434,13 +513,14 @@ bool localCurvature(
     return true;
 }
 
-bool projectBendComponent(
+bool projectBend(
     const DiscreteElasticRodModel& model,
     DiscreteElasticRodState& state,
+    const RodReferenceFrames& references,
     const RodFrames& restFrames,
     const DiscreteElasticRodStepConfig& config,
     const std::size_t vertex,
-    const std::size_t component,
+    std::array<double, 2>& accumulatedMultiplier,
     double& maximumError,
     double& maximumCorrection
 ) {
@@ -453,24 +533,44 @@ bool projectBendComponent(
         state.twists[vertex],
         state.twists[vertex + 1u],
     }};
+    const std::array<Vec3, 2> referenceTangents{{
+        references.tangents[vertex],
+        references.tangents[vertex + 1u],
+    }};
+    const std::array<Vec3, 2> referenceDirectors{{
+        references.directors[vertex],
+        references.directors[vertex + 1u],
+    }};
     std::array<double, 2> current{};
     if (!localCurvature(
             localPositions,
             localTwists,
+            referenceTangents,
+            referenceDirectors,
             current
         )) {
         return false;
     }
-    const double constraint =
-        current[component] -
-        restFrames.curvature[vertex][component];
+    const std::array<double, 2> constraint{{
+        current[0] - restFrames.curvature[vertex][0],
+        current[1] - restFrames.curvature[vertex][1],
+    }};
+    const bool zeroIntrinsicCurvature =
+        restFrames.curvature[vertex][0] *
+                restFrames.curvature[vertex][0] +
+            restFrames.curvature[vertex][1] *
+                restFrames.curvature[vertex][1] <=
+        1.0e-24;
     maximumError = std::max(
         maximumError,
-        std::abs(constraint)
+        std::max(
+            std::abs(constraint[0]),
+            std::abs(constraint[1])
+        )
     );
 
-    std::array<Vec3, 3> positionGradient{};
-    std::array<double, 2> twistGradient{};
+    std::array<std::array<Vec3, 3>, 2> positionGradient{};
+    std::array<std::array<double, 2>, 2> twistGradient{};
     for (std::size_t node = 0u; node < 3u; ++node) {
         for (std::size_t axis = 0u; axis < 3u; ++axis) {
             const double scale = std::max({
@@ -486,6 +586,8 @@ bool projectBendComponent(
             const bool plusOk = localCurvature(
                 localPositions,
                 localTwists,
+                referenceTangents,
+                referenceDirectors,
                 plus
             );
             localPositions[node][axis] -= 2.0 * step;
@@ -493,73 +595,138 @@ bool projectBendComponent(
             const bool minusOk = localCurvature(
                 localPositions,
                 localTwists,
+                referenceTangents,
+                referenceDirectors,
                 minus
             );
             localPositions[node][axis] += step;
             if (!plusOk || !minusOk) {
                 return false;
             }
-            positionGradient[node][axis] =
-                (plus[component] - minus[component]) /
-                (2.0 * step);
+            for (std::size_t component = 0u;
+                 component < 2u;
+                 ++component) {
+                positionGradient[component][node][axis] =
+                    (plus[component] - minus[component]) /
+                    (2.0 * step);
+            }
         }
     }
-    for (std::size_t edge = 0u; edge < 2u; ++edge) {
-        const double step = config.derivativeStep;
-        localTwists[edge] += step;
-        std::array<double, 2> plus{};
-        const bool plusOk = localCurvature(
-            localPositions,
-            localTwists,
-            plus
-        );
-        localTwists[edge] -= 2.0 * step;
-        std::array<double, 2> minus{};
-        const bool minusOk = localCurvature(
-            localPositions,
-            localTwists,
-            minus
-        );
-        localTwists[edge] += step;
-        if (!plusOk || !minusOk) {
-            return false;
+    // A circular rod with a straight intrinsic centerline has isotropic
+    // bending energy: spinning its material frame cannot change EI*kappa^2.
+    // Leaving finite-difference twist gradients in this block lets roundoff
+    // pump the extremely small polar inertia. Curved intrinsic rods retain
+    // the full material-frame coupling below.
+    if (!zeroIntrinsicCurvature) {
+        for (std::size_t edge = 0u; edge < 2u; ++edge) {
+            const double step = config.derivativeStep;
+            localTwists[edge] += step;
+            std::array<double, 2> plus{};
+            const bool plusOk = localCurvature(
+                localPositions,
+                localTwists,
+                referenceTangents,
+                referenceDirectors,
+                plus
+            );
+            localTwists[edge] -= 2.0 * step;
+            std::array<double, 2> minus{};
+            const bool minusOk = localCurvature(
+                localPositions,
+                localTwists,
+                referenceTangents,
+                referenceDirectors,
+                minus
+            );
+            localTwists[edge] += step;
+            if (!plusOk || !minusOk) {
+                return false;
+            }
+            for (std::size_t component = 0u;
+                 component < 2u;
+                 ++component) {
+                twistGradient[component][edge] =
+                    (plus[component] - minus[component]) /
+                    (2.0 * step);
+            }
         }
-        twistGradient[edge] =
-            (plus[component] - minus[component]) /
-            (2.0 * step);
     }
 
-    double denominator = 0.0;
+    double effective00 = 0.0;
+    double effective01 = 0.0;
+    double effective11 = 0.0;
     for (std::size_t node = 0u; node < 3u; ++node) {
-        denominator +=
-            dot(positionGradient[node], positionGradient[node]) /
-            model.nodeMasses[vertex + node];
+        const double inverseMass =
+            1.0 / model.nodeMasses[vertex + node];
+        effective00 += inverseMass * dot(
+            positionGradient[0][node],
+            positionGradient[0][node]
+        );
+        effective01 += inverseMass * dot(
+            positionGradient[0][node],
+            positionGradient[1][node]
+        );
+        effective11 += inverseMass * dot(
+            positionGradient[1][node],
+            positionGradient[1][node]
+        );
     }
-    for (std::size_t edge = 0u; edge < 2u; ++edge) {
-        denominator +=
-            twistGradient[edge] * twistGradient[edge] /
-            model.edgeRotationalInertias[vertex + edge];
+    if (!zeroIntrinsicCurvature) {
+        for (std::size_t edge = 0u; edge < 2u; ++edge) {
+            const double inverseInertia =
+                1.0 / model.edgeRotationalInertias[vertex + edge];
+            effective00 += inverseInertia *
+                twistGradient[0][edge] * twistGradient[0][edge];
+            effective01 += inverseInertia *
+                twistGradient[0][edge] * twistGradient[1][edge];
+            effective11 += inverseInertia *
+                twistGradient[1][edge] * twistGradient[1][edge];
+        }
     }
     const double voronoi =
         0.5 * (
             model.restLengths[vertex] +
             model.restLengths[vertex + 1u]
         );
-    const double compliance =
-        voronoi / model.bendStiffness[vertex];
     const double alpha =
-        compliance /
+        voronoi / model.bendStiffness[vertex] /
         (config.timestep * config.timestep);
-    if (!(denominator + alpha > 0.0) ||
-        !finite(denominator)) {
+    effective00 += alpha;
+    effective11 += alpha;
+    const double determinant =
+        effective00 * effective11 - effective01 * effective01;
+    const double determinantScale =
+        std::max(effective00 * effective11, 1.0);
+    if (!(effective00 > 0.0) ||
+        !(effective11 > 0.0) ||
+        !(determinant >
+            32.0 * std::numeric_limits<double>::epsilon() *
+                determinantScale) ||
+        !finite(effective00) ||
+        !finite(effective01) ||
+        !finite(effective11) ||
+        !finite(determinant)) {
         return false;
     }
-    const double lambda =
-        -constraint / (denominator + alpha);
+    const std::array<double, 2> rhs{{
+        constraint[0] + alpha * accumulatedMultiplier[0],
+        constraint[1] + alpha * accumulatedMultiplier[1],
+    }};
+    const std::array<double, 2> lambda{{
+        (-effective11 * rhs[0] + effective01 * rhs[1]) /
+            determinant,
+        (effective01 * rhs[0] - effective00 * rhs[1]) /
+            determinant,
+    }};
+    accumulatedMultiplier[0] += lambda[0];
+    accumulatedMultiplier[1] += lambda[1];
     for (std::size_t node = 0u; node < 3u; ++node) {
         const Vec3 correction = multiply(
-            positionGradient[node],
-            lambda / model.nodeMasses[vertex + node]
+            add(
+                multiply(positionGradient[0][node], lambda[0]),
+                multiply(positionGradient[1][node], lambda[1])
+            ),
+            1.0 / model.nodeMasses[vertex + node]
         );
         state.positions[vertex + node] =
             add(state.positions[vertex + node], correction);
@@ -568,10 +735,15 @@ bool projectBendComponent(
             norm(correction)
         );
     }
-    for (std::size_t edge = 0u; edge < 2u; ++edge) {
-        state.twists[vertex + edge] +=
-            lambda * twistGradient[edge] /
-            model.edgeRotationalInertias[vertex + edge];
+    if (!zeroIntrinsicCurvature) {
+        for (std::size_t edge = 0u; edge < 2u; ++edge) {
+            state.twists[vertex + edge] +=
+                (
+                    lambda[0] * twistGradient[0][edge] +
+                    lambda[1] * twistGradient[1][edge]
+                ) /
+                model.edgeRotationalInertias[vertex + edge];
+        }
     }
     return true;
 }
@@ -581,6 +753,7 @@ bool projectTwist(
     DiscreteElasticRodState& state,
     const DiscreteElasticRodStepConfig& config,
     const std::size_t vertex,
+    double& accumulatedMultiplier,
     double& maximumError
 ) {
     const double constraint =
@@ -610,7 +783,9 @@ bool projectTwist(
         model.twistStiffness[vertex] /
         (config.timestep * config.timestep);
     const double lambda =
-        -constraint / (inverseA + inverseB + alpha);
+        (-constraint - alpha * accumulatedMultiplier) /
+        (inverseA + inverseB + alpha);
+    accumulatedMultiplier += lambda;
     state.twists[vertex] -= inverseA * lambda;
     state.twists[vertex + 1u] += inverseB * lambda;
     return finite(state.twists[vertex]) &&
@@ -831,11 +1006,256 @@ bool projectSelfContact(
     );
 }
 
+bool applySelfContactFriction(
+    const DiscreteElasticRodModel& model,
+    DiscreteElasticRodState& state,
+    const DiscreteElasticRodStepConfig& config,
+    const std::span<const Vec3> unconstrainedVelocities
+) {
+    struct FrictionContact {
+        std::size_t firstEdge = 0u;
+        std::size_t secondEdge = 0u;
+        Vec3 accumulatedImpulse{};
+        double normalImpulse = 0.0;
+    };
+    const double contactDistance =
+        2.0 * model.radius + config.selfCollisionMargin;
+    const double contactThreshold =
+        contactDistance + config.constraintTolerance;
+    const auto contactKinematics = [&model, &state](
+        const std::size_t firstEdge,
+        const std::size_t secondEdge,
+        ClosestSegments& closest,
+        Vec3& normal,
+        std::array<double, 4>& weights,
+        std::array<std::size_t, 4>& nodes,
+        double& inverseEffectiveMass
+    ) {
+        if (!closestSegments(
+                state.positions[firstEdge],
+                state.positions[firstEdge + 1u],
+                state.positions[secondEdge],
+                state.positions[secondEdge + 1u],
+                closest
+            )) {
+            return false;
+        }
+        const Vec3 firstDirection = subtract(
+            state.positions[firstEdge + 1u],
+            state.positions[firstEdge]
+        );
+        const Vec3 secondDirection = subtract(
+            state.positions[secondEdge + 1u],
+            state.positions[secondEdge]
+        );
+        if (closest.distance > 1.0e-14) {
+            normal = multiply(
+                closest.delta,
+                1.0 / closest.distance
+            );
+        } else {
+            normal = cross(firstDirection, secondDirection);
+            if (!normalize(normal, normal)) {
+                Vec3 firstTangent;
+                if (!normalize(firstDirection, firstTangent)) {
+                    return false;
+                }
+                normal = leastAlignedDirector(firstTangent);
+            }
+            if (((firstEdge ^ secondEdge) & 1u) != 0u) {
+                normal = multiply(normal, -1.0);
+            }
+        }
+        weights = {
+            1.0 - closest.first,
+            closest.first,
+            1.0 - closest.second,
+            closest.second,
+        };
+        nodes = {
+            firstEdge,
+            firstEdge + 1u,
+            secondEdge,
+            secondEdge + 1u,
+        };
+        inverseEffectiveMass = 0.0;
+        for (std::size_t slot = 0u; slot < nodes.size(); ++slot) {
+            inverseEffectiveMass +=
+                weights[slot] * weights[slot] /
+                model.nodeMasses[nodes[slot]];
+        }
+        return inverseEffectiveMass > 0.0 &&
+            finite(inverseEffectiveMass) && finite(normal);
+    };
+    const auto relativeVelocity = [](
+        const std::span<const Vec3> velocities,
+        const std::array<double, 4>& weights,
+        const std::array<std::size_t, 4>& nodes
+    ) {
+        Vec3 first{};
+        Vec3 second{};
+        for (std::size_t slot = 0u; slot < nodes.size(); ++slot) {
+            if (slot < 2u) {
+                first = add(
+                    first,
+                    multiply(velocities[nodes[slot]], weights[slot])
+                );
+            } else {
+                second = add(
+                    second,
+                    multiply(velocities[nodes[slot]], weights[slot])
+                );
+            }
+        }
+        return subtract(second, first);
+    };
+
+    std::vector<FrictionContact> contacts;
+    for (std::size_t firstEdge = 0u;
+         firstEdge < model.restLengths.size();
+         ++firstEdge) {
+        for (std::size_t secondEdge = firstEdge + 2u;
+             secondEdge < model.restLengths.size();
+             ++secondEdge) {
+            ClosestSegments closest;
+            Vec3 normal;
+            std::array<double, 4> weights{};
+            std::array<std::size_t, 4> nodes{};
+            double inverseEffectiveMass = 0.0;
+            if (!contactKinematics(
+                    firstEdge,
+                    secondEdge,
+                    closest,
+                    normal,
+                    weights,
+                    nodes,
+                    inverseEffectiveMass
+                )) {
+                return false;
+            }
+            if (closest.distance > contactThreshold) {
+                continue;
+            }
+            const Vec3 constrainedRelativeVelocity = relativeVelocity(
+                state.velocities,
+                weights,
+                nodes
+            );
+            const Vec3 unconstrainedRelativeVelocity = relativeVelocity(
+                unconstrainedVelocities,
+                weights,
+                nodes
+            );
+            const double normalImpulse = std::max(
+                dot(
+                    subtract(
+                        constrainedRelativeVelocity,
+                        unconstrainedRelativeVelocity
+                    ),
+                    normal
+                ),
+                0.0
+            ) / inverseEffectiveMass;
+            if (normalImpulse > 0.0) {
+                contacts.push_back({
+                    .firstEdge = firstEdge,
+                    .secondEdge = secondEdge,
+                    .normalImpulse = normalImpulse,
+                });
+            }
+        }
+    }
+
+    constexpr std::size_t frictionIterations = 8u;
+    for (std::size_t iteration = 0u;
+         iteration < frictionIterations;
+         ++iteration) {
+        for (std::size_t order = 0u;
+             order < contacts.size();
+             ++order) {
+            const std::size_t contactIndex =
+                (iteration & 1u) == 0u
+                ? order
+                : contacts.size() - 1u - order;
+            FrictionContact& contact = contacts[contactIndex];
+            ClosestSegments closest;
+            Vec3 normal;
+            std::array<double, 4> weights{};
+            std::array<std::size_t, 4> nodes{};
+            double inverseEffectiveMass = 0.0;
+            if (!contactKinematics(
+                    contact.firstEdge,
+                    contact.secondEdge,
+                    closest,
+                    normal,
+                    weights,
+                    nodes,
+                    inverseEffectiveMass
+                )) {
+                return false;
+            }
+            const Vec3 currentRelativeVelocity = relativeVelocity(
+                state.velocities,
+                weights,
+                nodes
+            );
+            const Vec3 tangentVelocity = subtract(
+                currentRelativeVelocity,
+                multiply(
+                    normal,
+                    dot(currentRelativeVelocity, normal)
+                )
+            );
+            Vec3 projectedImpulse = subtract(
+                contact.accumulatedImpulse,
+                multiply(
+                    tangentVelocity,
+                    1.0 / inverseEffectiveMass
+                )
+            );
+            const double frictionLimit =
+                config.selfCollisionFriction *
+                contact.normalImpulse;
+            const double projectedMagnitude = norm(projectedImpulse);
+            if (projectedMagnitude > frictionLimit &&
+                projectedMagnitude > 0.0) {
+                projectedImpulse = multiply(
+                    projectedImpulse,
+                    frictionLimit / projectedMagnitude
+                );
+            }
+            const Vec3 deltaImpulse = subtract(
+                projectedImpulse,
+                contact.accumulatedImpulse
+            );
+            contact.accumulatedImpulse = projectedImpulse;
+            for (std::size_t slot = 0u;
+                 slot < nodes.size();
+                 ++slot) {
+                const double sign = slot < 2u ? -1.0 : 1.0;
+                state.velocities[nodes[slot]] = add(
+                    state.velocities[nodes[slot]],
+                    multiply(
+                        deltaImpulse,
+                        sign * weights[slot] /
+                            model.nodeMasses[nodes[slot]]
+                    )
+                );
+                if (!finite(state.velocities[nodes[slot]])) {
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+}
+
 bool projectAttachment(
     const DiscreteElasticRodModel& model,
     DiscreteElasticRodState& state,
     const DiscreteRodAttachment& attachment,
     const double timestep,
+    Vec3& accumulatedMultiplier,
     Vec3& impulseOnTarget,
     double& maximumError,
     double& maximumCorrection
@@ -849,9 +1269,17 @@ bool projectAttachment(
         1.0 / model.nodeMasses[attachment.nodeIndex];
     const double alpha =
         attachment.compliance / (timestep * timestep);
+    const Vec3 deltaMultiplier = multiply(
+        add(delta, multiply(accumulatedMultiplier, alpha)),
+        -1.0 / (inverseMass + alpha)
+    );
+    accumulatedMultiplier = add(
+        accumulatedMultiplier,
+        deltaMultiplier
+    );
     const Vec3 correction = multiply(
-        delta,
-        -inverseMass / (inverseMass + alpha)
+        deltaMultiplier,
+        inverseMass
     );
     state.positions[attachment.nodeIndex] =
         add(
@@ -957,8 +1385,15 @@ bool DiscreteElasticRodModel::valid(
             return reject("rod rest length disagrees with rest geometry");
         }
     }
+    RodReferenceFrames references;
     RodFrames frames;
-    if (!buildFrames(restPositions, restTwists, frames)) {
+    if (!buildReferenceFrames(restPositions, references) ||
+        !buildFrames(
+            restPositions,
+            restTwists,
+            references,
+            frames
+        )) {
         return reject("rod rest geometry is degenerate");
     }
     return true;
@@ -1194,10 +1629,16 @@ DiscreteElasticRodDiagnostics stepDiscreteElasticRodCpu(
             h * candidate.twistRates[edge];
     }
 
+    RodReferenceFrames references;
     RodFrames restFrames;
-    if (!buildFrames(
+    if (!buildReferenceFrames(
+            model.restPositions,
+            references
+        ) ||
+        !buildFrames(
             model.restPositions,
             model.restTwists,
+            references,
             restFrames
         )) {
         return fail(
@@ -1206,6 +1647,27 @@ DiscreteElasticRodDiagnostics stepDiscreteElasticRodCpu(
             "rod rest frames are invalid"
         );
     }
+
+    // XPBD compliance is iteration-count independent only when every
+    // constraint keeps its Lagrange multiplier for the whole time step.  A
+    // zeroed multiplier per nonlinear sweep turns these projections back into
+    // an order-dependent PBD iteration and can stall under a stiff swage load.
+    std::vector<double> stretchMultipliers(
+        model.restLengths.size(),
+        0.0
+    );
+    std::vector<std::array<double, 2>> bendMultipliers(
+        model.bendStiffness.size(),
+        std::array<double, 2>{0.0, 0.0}
+    );
+    std::vector<double> twistMultipliers(
+        model.twistStiffness.size(),
+        0.0
+    );
+    std::vector<Vec3> attachmentMultipliers(
+        attachments.size(),
+        Vec3{}
+    );
 
     bool converged = false;
     for (std::uint32_t iteration = 0u;
@@ -1224,6 +1686,7 @@ DiscreteElasticRodDiagnostics stepDiscreteElasticRodCpu(
                     candidate,
                     h,
                     edge,
+                    stretchMultipliers[edge],
                     maximumError,
                     diagnostics.maximumPositionCorrection
                 )) {
@@ -1238,32 +1701,30 @@ DiscreteElasticRodDiagnostics stepDiscreteElasticRodCpu(
         for (std::size_t vertex = 0u;
              vertex < model.bendStiffness.size();
              ++vertex) {
-            for (std::size_t component = 0u;
-                 component < 2u;
-                 ++component) {
-                if (!projectBendComponent(
-                        model,
-                        candidate,
-                        restFrames,
-                        config,
-                        vertex,
-                        component,
-                        maximumError,
-                        diagnostics.maximumPositionCorrection
-                    )) {
-                    return fail(
-                        std::move(diagnostics),
-                        DiscreteElasticRodStatus::degenerateGeometry,
-                        "bend projection encountered a degenerate frame"
-                    );
-                }
-                ++diagnostics.projectedBendConstraints;
+            if (!projectBend(
+                    model,
+                    candidate,
+                    references,
+                    restFrames,
+                    config,
+                    vertex,
+                    bendMultipliers[vertex],
+                    maximumError,
+                    diagnostics.maximumPositionCorrection
+                )) {
+                return fail(
+                    std::move(diagnostics),
+                    DiscreteElasticRodStatus::degenerateGeometry,
+                    "bend projection encountered a degenerate frame"
+                );
             }
+            diagnostics.projectedBendConstraints += 2u;
             if (!projectTwist(
                     model,
                     candidate,
                     config,
                     vertex,
+                    twistMultipliers[vertex],
                     maximumError
                 )) {
                 return fail(
@@ -1319,6 +1780,7 @@ DiscreteElasticRodDiagnostics stepDiscreteElasticRodCpu(
                     candidate,
                     attachment,
                     h,
+                    attachmentMultipliers[attachmentIndex],
                     candidateReactions[
                         attachmentIndex
                     ].impulseOnTarget,
@@ -1335,12 +1797,12 @@ DiscreteElasticRodDiagnostics stepDiscreteElasticRodCpu(
         }
         diagnostics.iterations = iteration + 1u;
         diagnostics.maximumConstraintError = maximumError;
-        double iterationCorrection = 0.0;
+        double iterationPositionCorrection = 0.0;
         for (std::size_t node = 0u;
              node < candidate.positions.size();
              ++node) {
-            iterationCorrection = std::max(
-                iterationCorrection,
+            iterationPositionCorrection = std::max(
+                iterationPositionCorrection,
                 norm(
                     subtract(
                         candidate.positions[node],
@@ -1349,19 +1811,26 @@ DiscreteElasticRodDiagnostics stepDiscreteElasticRodCpu(
                 )
             );
         }
+        double iterationTwistCorrection = 0.0;
         for (std::size_t edge = 0u;
              edge < candidate.twists.size();
              ++edge) {
-            iterationCorrection = std::max(
-                iterationCorrection,
+            iterationTwistCorrection = std::max(
+                iterationTwistCorrection,
                 std::abs(
                     candidate.twists[edge] -
                     iterationTwists[edge]
                 )
             );
         }
-        if (iterationCorrection <=
-            config.constraintTolerance) {
+        diagnostics.maximumPositionCorrection = std::max(
+            diagnostics.maximumPositionCorrection,
+            model.radius * iterationTwistCorrection
+        );
+        if (std::max(
+                iterationPositionCorrection,
+                model.radius * iterationTwistCorrection
+            ) <= config.constraintTolerance) {
             converged = true;
             break;
         }
@@ -1371,6 +1840,11 @@ DiscreteElasticRodDiagnostics stepDiscreteElasticRodCpu(
         std::exp(-config.linearDamping * h);
     const double twistDecay =
         std::exp(-config.twistDamping * h);
+    std::vector<Vec3> unconstrainedVelocities =
+        candidate.velocities;
+    for (Vec3& velocity : unconstrainedVelocities) {
+        velocity = multiply(velocity, linearDecay);
+    }
     for (std::size_t node = 0u;
          node < candidate.positions.size();
          ++node) {
@@ -1390,6 +1864,21 @@ DiscreteElasticRodDiagnostics stepDiscreteElasticRodCpu(
                 candidate.twists[edge] -
                 oldTwists[edge]
             ) * twistDecay / h;
+    }
+    if (config.enableSelfCollision &&
+        config.selfCollisionFriction > 0.0 &&
+        diagnostics.projectedSelfContacts > 0u &&
+        !applySelfContactFriction(
+            model,
+            candidate,
+            config,
+            unconstrainedVelocities
+        )) {
+        return fail(
+            std::move(diagnostics),
+            DiscreteElasticRodStatus::nonfiniteResult,
+            "self-contact friction encountered a degenerate pair"
+        );
     }
     for (std::size_t attachmentIndex = 0u;
          attachmentIndex < attachments.size();

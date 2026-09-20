@@ -1,0 +1,2004 @@
+{
+  "schema": "numi.human.mujoco-limit-oracle.v1",
+  "mujoco_version": "3.12.0",
+  "source": "https://github.com/google-deepmind/mujoco/blob/3.12.0/src/engine/engine_core_constraint.c",
+  "method": "mj_forward then mj_constraintUpdate at explicit acceleration candidates; no stepping",
+  "cases": [
+    {
+      "name": "lower",
+      "xml": "<mujoco><compiler angle=\"radian\"/>\n<option timestep=\"0.0010000000474974513\" gravity=\"0 0 0\" integrator=\"Euler\" jacobian=\"dense\">\n<flag refsafe=\"enable\"/></option><worldbody>\n<body><freejoint/><geom type=\"sphere\" size=\".1\" mass=\"2\" contype=\"0\" conaffinity=\"0\"/>\n<body pos=\"0 0 .2\"><joint type=\"hinge\" axis=\"0 1 0\" limited=\"true\"\nrange=\"-.25 .5\" margin=\"0.03125\" solreflimit=\"0.019999999552965164 1.0\"\nsolimplimit=\"0.699999988079071 0.8999999761581421 0.10000000149011612 0.4000000059604645 2.0\"/>\n<geom type=\"capsule\" size=\".02 .2\" mass=\"1\" contype=\"0\" conaffinity=\"0\"/>\n</body></body></worldbody></mujoco>",
+      "xml_sha256": "280080033b5ffd817ef48a6ba8c619c897f918d7b368e788df39320b3c53b342",
+      "h": 0.0010000000474974513,
+      "flags": 1,
+      "q": -0.30000001192092896,
+      "v0": -0.029999999329447746,
+      "v_free": 0.03999999910593033,
+      "range": [
+        -0.25,
+        0.5
+      ],
+      "margin": 0.03125,
+      "solref": [
+        0.019999999552965164,
+        1.0
+      ],
+      "solimp": [
+        0.699999988079071,
+        0.8999999761581421,
+        0.10000000149011612,
+        0.4000000059604645,
+        2.0
+      ],
+      "source_inverse_weight": 94.24303114526278,
+      "linearization": [
+        [
+          1.0,
+          0.15608911239087173,
+          0.08436749182901807,
+          -0.08125001192092896
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "candidates": [
+        {
+          "delta": 0.0,
+          "residual": 0.013168846914235553,
+          "tangent": 0.08436749182901807,
+          "source_jar": [
+            -156.08910497703707
+          ],
+          "source_force": [
+            13.168846288748918
+          ],
+          "source_state": [
+            1
+          ]
+        },
+        {
+          "delta": -0.10000000149011612,
+          "residual": 0.02160559622285472,
+          "tangent": 0.08436749182901807,
+          "source_jar": [
+            -256.0891017174082
+          ],
+          "source_force": [
+            21.605595196644014
+          ],
+          "source_state": [
+            1
+          ]
+        },
+        {
+          "delta": 0.10000000149011612,
+          "residual": 0.004732097605616386,
+          "tangent": 0.08436749182901807,
+          "source_jar": [
+            -56.08910823666591
+          ],
+          "source_force": [
+            4.732097380853821
+          ],
+          "source_state": [
+            1
+          ]
+        },
+        {
+          "delta": -2.0,
+          "residual": 0.1819038305722717,
+          "tangent": 0.08436749182901807,
+          "source_jar": [
+            -2156.089009982139
+          ],
+          "source_force": [
+            181.90382193230377
+          ],
+          "source_state": [
+            1
+          ]
+        },
+        {
+          "delta": 2.0,
+          "residual": 0.0,
+          "tangent": 0.0,
+          "source_jar": [
+            1843.9108000280646
+          ],
+          "source_force": [
+            0.0
+          ],
+          "source_state": [
+            0
+          ]
+        },
+        {
+          "delta": 0.13608911633491516,
+          "residual": 0.0016873495038313082,
+          "tangent": 0.08436749182901807,
+          "source_jar": [
+            -19.99999510600776
+          ],
+          "source_force": [
+            1.687349423686511
+          ],
+          "source_state": [
+            1
+          ]
+        },
+        {
+          "delta": 0.1760891079902649,
+          "residual": 0.0,
+          "tangent": 0.0,
+          "source_jar": [
+            19.999994649444403
+          ],
+          "source_force": [
+            0.0
+          ],
+          "source_state": [
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "upper",
+      "xml": "<mujoco><compiler angle=\"radian\"/>\n<option timestep=\"0.0010000000474974513\" gravity=\"0 0 0\" integrator=\"Euler\" jacobian=\"dense\">\n<flag refsafe=\"enable\"/></option><worldbody>\n<body><freejoint/><geom type=\"sphere\" size=\".1\" mass=\"2\" contype=\"0\" conaffinity=\"0\"/>\n<body pos=\"0 0 .2\"><joint type=\"hinge\" axis=\"0 1 0\" limited=\"true\"\nrange=\"-.25 .5\" margin=\"0.03125\" solreflimit=\"0.019999999552965164 1.0\"\nsolimplimit=\"0.699999988079071 0.8999999761581421 0.10000000149011612 0.4000000059604645 2.0\"/>\n<geom type=\"capsule\" size=\".02 .2\" mass=\"1\" contype=\"0\" conaffinity=\"0\"/>\n</body></body></worldbody></mujoco>",
+      "xml_sha256": "280080033b5ffd817ef48a6ba8c619c897f918d7b368e788df39320b3c53b342",
+      "h": 0.0010000000474974513,
+      "flags": 1,
+      "q": 0.550000011920929,
+      "v0": -0.029999999329447746,
+      "v_free": 0.03999999910593033,
+      "range": [
+        -0.25,
+        0.5
+      ],
+      "margin": 0.03125,
+      "solref": [
+        0.019999999552965164,
+        1.0
+      ],
+      "solimp": [
+        0.699999988079071,
+        0.8999999761581421,
+        0.10000000149011612,
+        0.4000000059604645,
+        2.0
+      ],
+      "source_inverse_weight": 94.24303114526278,
+      "linearization": [
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          -1.0,
+          0.28942244210170515,
+          0.08436749182901807,
+          -0.08125001192092896
+        ]
+      ],
+      "candidates": [
+        {
+          "delta": 0.0,
+          "residual": -0.02441784551915006,
+          "tangent": 0.08436749182901807,
+          "source_jar": [
+            -289.4224283548774
+          ],
+          "source_force": [
+            24.417844359364686
+          ],
+          "source_state": [
+            1
+          ]
+        },
+        {
+          "delta": -0.10000000149011612,
+          "residual": -0.0159810962105309,
+          "tangent": 0.08436749182901807,
+          "source_jar": [
+            -189.4224316145063
+          ],
+          "source_force": [
+            15.981095451469594
+          ],
+          "source_state": [
+            1
+          ]
+        },
+        {
+          "delta": 0.10000000149011612,
+          "residual": -0.03285459482776923,
+          "tangent": 0.08436749182901807,
+          "source_jar": [
+            -389.4224250952486
+          ],
+          "source_force": [
+            32.85459326725979
+          ],
+          "source_state": [
+            1
+          ]
+        },
+        {
+          "delta": -2.0,
+          "residual": 0.0,
+          "tangent": 0.0,
+          "source_jar": [
+            1710.5774766502245
+          ],
+          "source_force": [
+            0.0
+          ],
+          "source_state": [
+            0
+          ]
+        },
+        {
+          "delta": 2.0,
+          "residual": -0.19315282917718618,
+          "tangent": 0.08436749182901807,
+          "source_jar": [
+            -2289.4223333599793
+          ],
+          "source_force": [
+            193.15282000291953
+          ],
+          "source_state": [
+            1
+          ]
+        },
+        {
+          "delta": -0.30942243337631226,
+          "residual": 0.0,
+          "tangent": 0.0,
+          "source_jar": [
+            19.99999032465854
+          ],
+          "source_force": [
+            0.0
+          ],
+          "source_state": [
+            0
+          ]
+        },
+        {
+          "delta": -0.2694224417209625,
+          "residual": -0.0016873498687026611,
+          "tangent": 0.08436749182901807,
+          "source_jar": [
+            -19.999999430793622
+          ],
+          "source_force": [
+            1.6873497885578468
+          ],
+          "source_state": [
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "name": "inactive",
+      "xml": "<mujoco><compiler angle=\"radian\"/>\n<option timestep=\"0.0010000000474974513\" gravity=\"0 0 0\" integrator=\"Euler\" jacobian=\"dense\">\n<flag refsafe=\"enable\"/></option><worldbody>\n<body><freejoint/><geom type=\"sphere\" size=\".1\" mass=\"2\" contype=\"0\" conaffinity=\"0\"/>\n<body pos=\"0 0 .2\"><joint type=\"hinge\" axis=\"0 1 0\" limited=\"true\"\nrange=\"-.25 .5\" margin=\"0.03125\" solreflimit=\"0.019999999552965164 1.0\"\nsolimplimit=\"0.699999988079071 0.8999999761581421 0.10000000149011612 0.4000000059604645 2.0\"/>\n<geom type=\"capsule\" size=\".02 .2\" mass=\"1\" contype=\"0\" conaffinity=\"0\"/>\n</body></body></worldbody></mujoco>",
+      "xml_sha256": "280080033b5ffd817ef48a6ba8c619c897f918d7b368e788df39320b3c53b342",
+      "h": 0.0010000000474974513,
+      "flags": 1,
+      "q": 0.0,
+      "v0": -0.029999999329447746,
+      "v_free": 0.03999999910593033,
+      "range": [
+        -0.25,
+        0.5
+      ],
+      "margin": 0.03125,
+      "solref": [
+        0.019999999552965164,
+        1.0
+      ],
+      "solimp": [
+        0.699999988079071,
+        0.8999999761581421,
+        0.10000000149011612,
+        0.4000000059604645,
+        2.0
+      ],
+      "source_inverse_weight": 94.24303114526278,
+      "linearization": [
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "candidates": [
+        {
+          "delta": 0.0,
+          "residual": 0.0,
+          "tangent": 0.0,
+          "source_jar": [],
+          "source_force": [],
+          "source_state": []
+        },
+        {
+          "delta": -0.10000000149011612,
+          "residual": 0.0,
+          "tangent": 0.0,
+          "source_jar": [],
+          "source_force": [],
+          "source_state": []
+        },
+        {
+          "delta": 0.10000000149011612,
+          "residual": 0.0,
+          "tangent": 0.0,
+          "source_jar": [],
+          "source_force": [],
+          "source_state": []
+        },
+        {
+          "delta": -2.0,
+          "residual": 0.0,
+          "tangent": 0.0,
+          "source_jar": [],
+          "source_force": [],
+          "source_state": []
+        },
+        {
+          "delta": 2.0,
+          "residual": 0.0,
+          "tangent": 0.0,
+          "source_jar": [],
+          "source_force": [],
+          "source_state": []
+        }
+      ]
+    },
+    {
+      "name": "exact_lower_margin",
+      "xml": "<mujoco><compiler angle=\"radian\"/>\n<option timestep=\"0.0010000000474974513\" gravity=\"0 0 0\" integrator=\"Euler\" jacobian=\"dense\">\n<flag refsafe=\"enable\"/></option><worldbody>\n<body><freejoint/><geom type=\"sphere\" size=\".1\" mass=\"2\" contype=\"0\" conaffinity=\"0\"/>\n<body pos=\"0 0 .2\"><joint type=\"slide\" axis=\"0 1 0\" limited=\"true\"\nrange=\"-.25 .5\" margin=\"0.125\" solreflimit=\"0.019999999552965164 1.0\"\nsolimplimit=\"0.699999988079071 0.8999999761581421 0.10000000149011612 0.4000000059604645 2.0\"/>\n<geom type=\"capsule\" size=\".02 .2\" mass=\"1\" contype=\"0\" conaffinity=\"0\"/>\n</body></body></worldbody></mujoco>",
+      "xml_sha256": "16256b3ff79109ecc96932ef36a651949c78c57cfe626bddb6cf1f008639ce1b",
+      "h": 0.0010000000474974513,
+      "flags": 1,
+      "q": -0.125,
+      "v0": -0.029999999329447746,
+      "v_free": 0.03999999910593033,
+      "range": [
+        -0.25,
+        0.5
+      ],
+      "margin": 0.125,
+      "solref": [
+        0.019999999552965164,
+        1.0
+      ],
+      "solimp": [
+        0.699999988079071,
+        0.8999999761581421,
+        0.10000000149011612,
+        0.4000000059604645,
+        2.0
+      ],
+      "source_inverse_weight": 3.2173831374443194,
+      "linearization": [
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "candidates": [
+        {
+          "delta": 0.0,
+          "residual": 0.0,
+          "tangent": 0.0,
+          "source_jar": [],
+          "source_force": [],
+          "source_state": []
+        },
+        {
+          "delta": -0.10000000149011612,
+          "residual": 0.0,
+          "tangent": 0.0,
+          "source_jar": [],
+          "source_force": [],
+          "source_state": []
+        },
+        {
+          "delta": 0.10000000149011612,
+          "residual": 0.0,
+          "tangent": 0.0,
+          "source_jar": [],
+          "source_force": [],
+          "source_state": []
+        },
+        {
+          "delta": -2.0,
+          "residual": 0.0,
+          "tangent": 0.0,
+          "source_jar": [],
+          "source_force": [],
+          "source_state": []
+        },
+        {
+          "delta": 2.0,
+          "residual": 0.0,
+          "tangent": 0.0,
+          "source_jar": [],
+          "source_force": [],
+          "source_state": []
+        }
+      ]
+    },
+    {
+      "name": "exact_upper_margin",
+      "xml": "<mujoco><compiler angle=\"radian\"/>\n<option timestep=\"0.0010000000474974513\" gravity=\"0 0 0\" integrator=\"Euler\" jacobian=\"dense\">\n<flag refsafe=\"enable\"/></option><worldbody>\n<body><freejoint/><geom type=\"sphere\" size=\".1\" mass=\"2\" contype=\"0\" conaffinity=\"0\"/>\n<body pos=\"0 0 .2\"><joint type=\"slide\" axis=\"0 1 0\" limited=\"true\"\nrange=\"-.25 .5\" margin=\"0.125\" solreflimit=\"0.019999999552965164 1.0\"\nsolimplimit=\"0.699999988079071 0.8999999761581421 0.10000000149011612 0.4000000059604645 2.0\"/>\n<geom type=\"capsule\" size=\".02 .2\" mass=\"1\" contype=\"0\" conaffinity=\"0\"/>\n</body></body></worldbody></mujoco>",
+      "xml_sha256": "16256b3ff79109ecc96932ef36a651949c78c57cfe626bddb6cf1f008639ce1b",
+      "h": 0.0010000000474974513,
+      "flags": 1,
+      "q": 0.375,
+      "v0": -0.029999999329447746,
+      "v_free": 0.03999999910593033,
+      "range": [
+        -0.25,
+        0.5
+      ],
+      "margin": 0.125,
+      "solref": [
+        0.019999999552965164,
+        1.0
+      ],
+      "solimp": [
+        0.699999988079071,
+        0.8999999761581421,
+        0.10000000149011612,
+        0.4000000059604645,
+        2.0
+      ],
+      "source_inverse_weight": 3.2173831374443194,
+      "linearization": [
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "candidates": [
+        {
+          "delta": 0.0,
+          "residual": 0.0,
+          "tangent": 0.0,
+          "source_jar": [],
+          "source_force": [],
+          "source_state": []
+        },
+        {
+          "delta": -0.10000000149011612,
+          "residual": 0.0,
+          "tangent": 0.0,
+          "source_jar": [],
+          "source_force": [],
+          "source_state": []
+        },
+        {
+          "delta": 0.10000000149011612,
+          "residual": 0.0,
+          "tangent": 0.0,
+          "source_jar": [],
+          "source_force": [],
+          "source_state": []
+        },
+        {
+          "delta": -2.0,
+          "residual": 0.0,
+          "tangent": 0.0,
+          "source_jar": [],
+          "source_force": [],
+          "source_state": []
+        },
+        {
+          "delta": 2.0,
+          "residual": 0.0,
+          "tangent": 0.0,
+          "source_jar": [],
+          "source_force": [],
+          "source_state": []
+        }
+      ]
+    },
+    {
+      "name": "inside_margin",
+      "xml": "<mujoco><compiler angle=\"radian\"/>\n<option timestep=\"0.0010000000474974513\" gravity=\"0 0 0\" integrator=\"Euler\" jacobian=\"dense\">\n<flag refsafe=\"enable\"/></option><worldbody>\n<body><freejoint/><geom type=\"sphere\" size=\".1\" mass=\"2\" contype=\"0\" conaffinity=\"0\"/>\n<body pos=\"0 0 .2\"><joint type=\"slide\" axis=\"0 1 0\" limited=\"true\"\nrange=\"-.25 .5\" margin=\"0.03125\" solreflimit=\"0.019999999552965164 1.0\"\nsolimplimit=\"0.699999988079071 0.8999999761581421 0.10000000149011612 0.4000000059604645 2.0\"/>\n<geom type=\"capsule\" size=\".02 .2\" mass=\"1\" contype=\"0\" conaffinity=\"0\"/>\n</body></body></worldbody></mujoco>",
+      "xml_sha256": "57c509497ca15ff396d40e4e9b9e61698d301c65c6125f1aca4dae381d42c90f",
+      "h": 0.0010000000474974513,
+      "flags": 1,
+      "q": -0.234375,
+      "v0": -0.029999999329447746,
+      "v_free": 0.03999999910593033,
+      "range": [
+        -0.25,
+        0.5
+      ],
+      "margin": 0.03125,
+      "solref": [
+        0.019999999552965164,
+        1.0
+      ],
+      "solimp": [
+        0.699999988079071,
+        0.8999999761581421,
+        0.10000000149011612,
+        0.4000000059604645,
+        2.0
+      ],
+      "source_inverse_weight": 3.2173831374443194,
+      "linearization": [
+        [
+          1.0,
+          -0.03232025660618714,
+          0.7691716495274056,
+          -0.015625
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "candidates": [
+        {
+          "delta": 0.0,
+          "residual": 0.0,
+          "tangent": 0.0,
+          "source_jar": [
+            32.320255071057396
+          ],
+          "source_force": [
+            0.0
+          ],
+          "source_state": [
+            0
+          ]
+        },
+        {
+          "delta": -0.10000000149011612,
+          "residual": 0.052057341011965644,
+          "tangent": 0.7691716495274056,
+          "source_jar": [
+            -67.67974166931374
+          ],
+          "source_force": [
+            52.05733853937474
+          ],
+          "source_state": [
+            1
+          ]
+        },
+        {
+          "delta": 0.10000000149011612,
+          "residual": 0.0,
+          "tangent": 0.0,
+          "source_jar": [
+            132.32025181142856
+          ],
+          "source_force": [
+            0.0
+          ],
+          "source_state": [
+            0
+          ]
+        },
+        {
+          "delta": -2.0,
+          "residual": 1.5134834739678813,
+          "tangent": 0.7691716495274056,
+          "source_jar": [
+            -1967.6796499340446
+          ],
+          "source_force": [
+            1513.483402081277
+          ],
+          "source_state": [
+            1
+          ]
+        },
+        {
+          "delta": 2.0,
+          "residual": 0.0,
+          "tangent": 0.0,
+          "source_jar": [
+            2032.320160076159
+          ],
+          "source_force": [
+            0.0
+          ],
+          "source_state": [
+            0
+          ]
+        },
+        {
+          "delta": -0.05232025682926178,
+          "residual": 0.015383433162130799,
+          "tangent": 0.7691716495274056,
+          "source_jar": [
+            -19.999999273125646
+          ],
+          "source_force": [
+            15.383432431456965
+          ],
+          "source_state": [
+            1
+          ]
+        },
+        {
+          "delta": -0.012320256792008877,
+          "residual": 0.0,
+          "tangent": 0.0,
+          "source_jar": [
+            19.99999886422929
+          ],
+          "source_force": [
+            0.0
+          ],
+          "source_state": [
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "direct",
+      "xml": "<mujoco><compiler angle=\"radian\"/>\n<option timestep=\"0.0010000000474974513\" gravity=\"0 0 0\" integrator=\"Euler\" jacobian=\"dense\">\n<flag refsafe=\"enable\"/></option><worldbody>\n<body><freejoint/><geom type=\"sphere\" size=\".1\" mass=\"2\" contype=\"0\" conaffinity=\"0\"/>\n<body pos=\"0 0 .2\"><joint type=\"hinge\" axis=\"0 1 0\" limited=\"true\"\nrange=\"-.25 .5\" margin=\"0.0\" solreflimit=\"-2500.0 -90.0\"\nsolimplimit=\"0.800000011920929 0.949999988079071 0.10000000149011612 0.699999988079071 3.0\"/>\n<geom type=\"capsule\" size=\".02 .2\" mass=\"1\" contype=\"0\" conaffinity=\"0\"/>\n</body></body></worldbody></mujoco>",
+      "xml_sha256": "d3336d7cd278084ab9db0e2b9093c0337e28a35f83ede862926b2c49e6c41395",
+      "h": 0.0010000000474974513,
+      "flags": 1,
+      "q": -0.30000001192092896,
+      "v0": -0.029999999329447746,
+      "v_free": 0.03999999910593033,
+      "range": [
+        -0.25,
+        0.5
+      ],
+      "margin": 0.0,
+      "solref": [
+        -2500.0,
+        -90.0
+      ],
+      "solimp": [
+        0.800000011920929,
+        0.949999988079071,
+        0.10000000149011612,
+        0.699999988079071,
+        3.0
+      ],
+      "source_inverse_weight": 94.24303114526278,
+      "linearization": [
+        [
+          1.0,
+          0.04894537558237158,
+          0.05499575396347475,
+          -0.050000011920928955
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "candidates": [
+        {
+          "delta": 0.0,
+          "residual": 0.002691787833177972,
+          "tangent": 0.05499575396347475,
+          "source_jar": [
+            -48.9453732575911
+          ],
+          "source_force": [
+            2.691787705324917
+          ],
+          "source_state": [
+            1
+          ]
+        },
+        {
+          "delta": -0.10000000149011612,
+          "residual": 0.008191363311475507,
+          "tangent": 0.05499575396347475,
+          "source_jar": [
+            -148.94536999796225
+          ],
+          "source_force": [
+            8.191362922406645
+          ],
+          "source_state": [
+            1
+          ]
+        },
+        {
+          "delta": 0.10000000149011612,
+          "residual": 0.0,
+          "tangent": 0.0,
+          "source_jar": [
+            51.05462348278006
+          ],
+          "source_force": [
+            0.0
+          ],
+          "source_state": [
+            0
+          ]
+        },
+        {
+          "delta": -2.0,
+          "residual": 0.11268329576012748,
+          "tangent": 0.05499575396347475,
+          "source_jar": [
+            -2048.945278262693
+          ],
+          "source_force": [
+            112.68329040795838
+          ],
+          "source_state": [
+            1
+          ]
+        },
+        {
+          "delta": 2.0,
+          "residual": 0.0,
+          "tangent": 0.0,
+          "source_jar": [
+            1951.0545317475105
+          ],
+          "source_force": [
+            0.0
+          ],
+          "source_state": [
+            0
+          ]
+        },
+        {
+          "delta": 0.028945375233888626,
+          "residual": 0.0010999150984345781,
+          "tangent": 0.05499575396347475,
+          "source_jar": [
+            -19.99999939853396
+          ],
+          "source_force": [
+            1.0999150461914167
+          ],
+          "source_state": [
+            1
+          ]
+        },
+        {
+          "delta": 0.06894537806510925,
+          "residual": 0.0,
+          "tangent": 0.0,
+          "source_jar": [
+            20.000001532788573
+          ],
+          "source_force": [
+            0.0
+          ],
+          "source_state": [
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "refsafe",
+      "xml": "<mujoco><compiler angle=\"radian\"/>\n<option timestep=\"0.0010000000474974513\" gravity=\"0 0 0\" integrator=\"Euler\" jacobian=\"dense\">\n<flag refsafe=\"enable\"/></option><worldbody>\n<body><freejoint/><geom type=\"sphere\" size=\".1\" mass=\"2\" contype=\"0\" conaffinity=\"0\"/>\n<body pos=\"0 0 .2\"><joint type=\"slide\" axis=\"0 1 0\" limited=\"true\"\nrange=\"-.25 .5\" margin=\"0.0\" solreflimit=\"9.999999747378752e-06 0.75\"\nsolimplimit=\"0.800000011920929 0.949999988079071 0.10000000149011612 0.5 2.0\"/>\n<geom type=\"capsule\" size=\".02 .2\" mass=\"1\" contype=\"0\" conaffinity=\"0\"/>\n</body></body></worldbody></mujoco>",
+      "xml_sha256": "f908b8daa560ca0d6758c64c8c148c179abcef4426de423b5d817ad1948d4500",
+      "h": 0.0010000000474974513,
+      "flags": 1,
+      "q": 0.550000011920929,
+      "v0": -0.029999999329447746,
+      "v_free": 0.03999999910593033,
+      "range": [
+        -0.25,
+        0.5
+      ],
+      "margin": 0.0,
+      "solref": [
+        9.999999747378752e-06,
+        0.75
+      ],
+      "solimp": [
+        0.800000011920929,
+        0.949999988079071,
+        0.10000000149011612,
+        0.5,
+        2.0
+      ],
+      "source_inverse_weight": 3.2173831374443194,
+      "linearization": [
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          -1.0,
+          21.583517328217408,
+          2.1756818652712666,
+          -0.050000011920928955
+        ]
+      ],
+      "candidates": [
+        {
+          "delta": 0.0,
+          "residual": -46.958867239770754,
+          "tangent": 2.1756818652712666,
+          "source_jar": [
+            -21583.516303055392
+          ],
+          "source_force": [
+            46958.86500934435
+          ],
+          "source_state": [
+            1
+          ]
+        },
+        {
+          "delta": -0.10000000149011612,
+          "residual": -46.74129905000161,
+          "tangent": 2.1756818652712666,
+          "source_jar": [
+            -21483.51630631502
+          ],
+          "source_force": [
+            46741.29682990914
+          ],
+          "source_state": [
+            1
+          ]
+        },
+        {
+          "delta": 0.10000000149011612,
+          "residual": -47.17643542953989,
+          "tangent": 2.1756818652712666,
+          "source_jar": [
+            -21683.516299795763
+          ],
+          "source_force": [
+            47176.433188779556
+          ],
+          "source_state": [
+            1
+          ]
+        },
+        {
+          "delta": -2.0,
+          "residual": -42.60750350922822,
+          "tangent": 2.1756818652712666,
+          "source_jar": [
+            -19583.51639805029
+          ],
+          "source_force": [
+            42607.5014854805
+          ],
+          "source_state": [
+            1
+          ]
+        },
+        {
+          "delta": 2.0,
+          "residual": -51.310230970313285,
+          "tangent": 2.1756818652712666,
+          "source_jar": [
+            -23583.516208060493
+          ],
+          "source_force": [
+            51310.2285332082
+          ],
+          "source_state": [
+            1
+          ]
+        },
+        {
+          "delta": -21.603517532348633,
+          "residual": 0.0,
+          "tangent": 0.0,
+          "source_jar": [
+            20.000203181265533
+          ],
+          "source_force": [
+            0.0
+          ],
+          "source_state": [
+            0
+          ]
+        },
+        {
+          "delta": -21.56351661682129,
+          "residual": -0.04351518507706107,
+          "tangent": 2.1756818652712666,
+          "source_jar": [
+            -20.00071044613651
+          ],
+          "source_force": [
+            43.515183010200786
+          ],
+          "source_state": [
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "name": "refsafe_off",
+      "xml": "<mujoco><compiler angle=\"radian\"/>\n<option timestep=\"0.0010000000474974513\" gravity=\"0 0 0\" integrator=\"Euler\" jacobian=\"dense\">\n<flag refsafe=\"disable\"/></option><worldbody>\n<body><freejoint/><geom type=\"sphere\" size=\".1\" mass=\"2\" contype=\"0\" conaffinity=\"0\"/>\n<body pos=\"0 0 .2\"><joint type=\"slide\" axis=\"0 1 0\" limited=\"true\"\nrange=\"-.25 .5\" margin=\"0.0\" solreflimit=\"9.999999747378752e-05 0.75\"\nsolimplimit=\"0.800000011920929 0.949999988079071 0.10000000149011612 0.5 2.0\"/>\n<geom type=\"capsule\" size=\".02 .2\" mass=\"1\" contype=\"0\" conaffinity=\"0\"/>\n</body></body></worldbody></mujoco>",
+      "xml_sha256": "744d34dfab0ad177879f7d432f4345a7808d25ef159564d3c89db6f1c914a61a",
+      "h": 0.0010000000474974513,
+      "flags": 0,
+      "q": 0.550000011920929,
+      "v0": -0.029999999329447746,
+      "v_free": 0.03999999910593033,
+      "range": [
+        -0.25,
+        0.5
+      ],
+      "margin": 0.0,
+      "solref": [
+        9.999999747378752e-05,
+        0.75
+      ],
+      "solimp": [
+        0.800000011920929,
+        0.949999988079071,
+        0.10000000149011612,
+        0.5,
+        2.0
+      ],
+      "source_inverse_weight": 3.2173831374443194,
+      "linearization": [
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          -1.0,
+          8617.478185837388,
+          2.1756818652712666,
+          -0.050000011920928955
+        ]
+      ],
+      "candidates": [
+        {
+          "delta": 0.0,
+          "residual": -18748.89101329714,
+          "tangent": 2.1756818652712666,
+          "source_jar": [
+            -8617477.776529158
+          ],
+          "source_force": [
+            18748890.122772645
+          ],
+          "source_state": [
+            1
+          ]
+        },
+        {
+          "delta": -0.10000000149011612,
+          "residual": -18748.67344510737,
+          "tangent": 2.1756818652712666,
+          "source_jar": [
+            -8617377.776532417
+          ],
+          "source_force": [
+            18748672.55459321
+          ],
+          "source_state": [
+            1
+          ]
+        },
+        {
+          "delta": 0.10000000149011612,
+          "residual": -18749.10858148691,
+          "tangent": 2.1756818652712666,
+          "source_jar": [
+            -8617577.776525898
+          ],
+          "source_force": [
+            18749107.69095208
+          ],
+          "source_state": [
+            1
+          ]
+        },
+        {
+          "delta": -2.0,
+          "residual": -18744.5396495666,
+          "tangent": 2.1756818652712666,
+          "source_jar": [
+            -8615477.776624152
+          ],
+          "source_force": [
+            18744538.759248782
+          ],
+          "source_state": [
+            1
+          ]
+        },
+        {
+          "delta": 2.0,
+          "residual": -18753.242377027684,
+          "tangent": 2.1756818652712666,
+          "source_jar": [
+            -8619477.776434163
+          ],
+          "source_force": [
+            18753241.48629651
+          ],
+          "source_state": [
+            1
+          ]
+        },
+        {
+          "delta": -8617.498046875,
+          "residual": 0.0,
+          "tangent": 0.0,
+          "source_jar": [
+            19.861036667600274
+          ],
+          "source_force": [
+            0.0
+          ],
+          "source_state": [
+            0
+          ]
+        },
+        {
+          "delta": -8617.4580078125,
+          "residual": -0.04390096282808472,
+          "tangent": 2.1756818652712666,
+          "source_jar": [
+            -20.17802393063903
+          ],
+          "source_force": [
+            43.90096074290098
+          ],
+          "source_state": [
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "name": "both_sides",
+      "xml": "<mujoco><compiler angle=\"radian\"/>\n<option timestep=\"0.0010000000474974513\" gravity=\"0 0 0\" integrator=\"Euler\" jacobian=\"dense\">\n<flag refsafe=\"enable\"/></option><worldbody>\n<body><freejoint/><geom type=\"sphere\" size=\".1\" mass=\"2\" contype=\"0\" conaffinity=\"0\"/>\n<body pos=\"0 0 .2\"><joint type=\"slide\" axis=\"0 1 0\" limited=\"true\"\nrange=\"-.25 .5\" margin=\"0.5\" solreflimit=\"-300.0 -20.0\"\nsolimplimit=\"0.6000000238418579 0.8500000238418579 0.20000000298023224 0.5 2.0\"/>\n<geom type=\"capsule\" size=\".02 .2\" mass=\"1\" contype=\"0\" conaffinity=\"0\"/>\n</body></body></worldbody></mujoco>",
+      "xml_sha256": "93cb7349768ccb91cd6f668086149c189661889c503f2230fffb7306204b1d76",
+      "h": 0.0010000000474974513,
+      "flags": 1,
+      "q": 0.125,
+      "v0": -0.029999999329447746,
+      "v_free": 0.03999999910593033,
+      "range": [
+        -0.25,
+        0.5
+      ],
+      "margin": 0.5,
+      "solref": [
+        -300.0,
+        -20.0
+      ],
+      "solimp": [
+        0.6000000238418579,
+        0.8500000238418579,
+        0.20000000298023224,
+        0.5,
+        2.0
+      ],
+      "source_inverse_weight": 3.2173831374443194,
+      "linearization": [
+        [
+          1.0,
+          -0.028825906033797387,
+          1.0999645862071603,
+          -0.125
+        ],
+        [
+          -1.0,
+          0.10976232613517553,
+          1.0999645862071603,
+          -0.125
+        ]
+      ],
+      "candidates": [
+        {
+          "delta": 0.0,
+          "residual": -0.12073467164841373,
+          "tangent": 1.0999645862071603,
+          "source_jar": [
+            28.825904664640376,
+            -109.76232092174503
+          ],
+          "source_force": [
+            0.0,
+            120.73466591382481
+          ],
+          "source_state": [
+            0,
+            1
+          ]
+        },
+        {
+          "delta": -0.10000000149011612,
+          "residual": 0.06755077306865581,
+          "tangent": 2.1999291724143206,
+          "source_jar": [
+            -71.17409207573075,
+            -9.762324181373891
+          ],
+          "source_force": [
+            78.2889807387515,
+            10.738210878585088
+          ],
+          "source_state": [
+            1,
+            1
+          ]
+        },
+        {
+          "delta": 0.10000000149011612,
+          "residual": -0.23073113190820474,
+          "tangent": 1.0999645862071603,
+          "source_jar": [
+            128.82590140501154,
+            -209.76231766211617
+          ],
+          "source_force": [
+            0.0,
+            230.73112094906455
+          ],
+          "source_state": [
+            0,
+            1
+          ]
+        },
+        {
+          "delta": -2.0,
+          "residual": 2.168221696611808,
+          "tangent": 1.0999645862071603,
+          "source_jar": [
+            -1971.1740003404616,
+            1890.237584083357
+          ],
+          "source_force": [
+            2168.2215936268085,
+            0.0
+          ],
+          "source_state": [
+            1,
+            0
+          ]
+        },
+        {
+          "delta": 2.0,
+          "residual": -2.320663844062734,
+          "tangent": 1.0999645862071603,
+          "source_jar": [
+            2028.825809669742,
+            -2109.762225926847
+          ],
+          "source_force": [
+            0.0,
+            2320.6637338371215
+          ],
+          "source_state": [
+            0,
+            1
+          ]
+        },
+        {
+          "delta": -0.04882590472698212,
+          "residual": -0.045028615272515934,
+          "tangent": 2.1999291724143206,
+          "source_jar": [
+            -19.999997743235813,
+            -60.936418513868844
+          ],
+          "source_force": [
+            21.99928924178252,
+            67.02790237555409
+          ],
+          "source_state": [
+            1,
+            1
+          ]
+        },
+        {
+          "delta": -0.008825905621051788,
+          "residual": -0.11102648802405005,
+          "tangent": 1.0999645862071603,
+          "source_jar": [
+            19.999999462796595,
+            -100.93641571990125
+          ],
+          "source_force": [
+            0.0,
+            111.02648275057508
+          ],
+          "source_state": [
+            0,
+            1
+          ]
+        },
+        {
+          "delta": -0.12976232171058655,
+          "residual": 0.11102648270315332,
+          "tangent": 1.0999645862071603,
+          "source_jar": [
+            -100.9364108825669,
+            19.99999462546225
+          ],
+          "source_force": [
+            111.02647742967862,
+            0.0
+          ],
+          "source_state": [
+            1,
+            0
+          ]
+        },
+        {
+          "delta": -0.08976232260465622,
+          "residual": 0.04502860463072246,
+          "tangent": 2.1999291724143206,
+          "source_jar": [
+            -60.93641367653449,
+            -20.00000258057016
+          ],
+          "source_force": [
+            67.0278970546576,
+            21.999294562678994
+          ],
+          "source_state": [
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "name": "constant_impedance",
+      "xml": "<mujoco><compiler angle=\"radian\"/>\n<option timestep=\"0.0010000000474974513\" gravity=\"0 0 0\" integrator=\"Euler\" jacobian=\"dense\">\n<flag refsafe=\"enable\"/></option><worldbody>\n<body><freejoint/><geom type=\"sphere\" size=\".1\" mass=\"2\" contype=\"0\" conaffinity=\"0\"/>\n<body pos=\"0 0 .2\"><joint type=\"hinge\" axis=\"0 1 0\" limited=\"true\"\nrange=\"-.25 .5\" margin=\"0.0\" solreflimit=\"0.019999999552965164 1.0\"\nsolimplimit=\"0.8999999761581421 0.8999999761581421 0.10000000149011612 0.5 2.0\"/>\n<geom type=\"capsule\" size=\".02 .2\" mass=\"1\" contype=\"0\" conaffinity=\"0\"/>\n</body></body></worldbody></mujoco>",
+      "xml_sha256": "09cc07e70758e8deece063b4210135732d912c6f31f2f979e335e537843c0ab1",
+      "h": 0.0010000000474974513,
+      "flags": 1,
+      "q": -0.30000001192092896,
+      "v0": -0.029999999329447746,
+      "v_free": 0.03999999910593033,
+      "range": [
+        -0.25,
+        0.5
+      ],
+      "margin": 0.0,
+      "solref": [
+        0.019999999552965164,
+        1.0
+      ],
+      "solimp": [
+        0.8999999761581421,
+        0.8999999761581421,
+        0.10000000149011612,
+        0.5,
+        2.0
+      ],
+      "source_inverse_weight": 94.24303114526278,
+      "linearization": [
+        [
+          1.0,
+          0.07222227363215303,
+          0.09549775199762525,
+          -0.050000011920928955
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "candidates": [
+        {
+          "delta": 0.0,
+          "residual": 0.006897064776027981,
+          "tangent": 0.09549775199762525,
+          "source_jar": [
+            -72.22227020177928
+          ],
+          "source_force": [
+            6.897064448434998
+          ],
+          "source_state": [
+            1
+          ]
+        },
+        {
+          "delta": -0.10000000149011612,
+          "residual": 0.016446840118093244,
+          "tangent": 0.09549775199762525,
+          "source_jar": [
+            -172.2222669421504
+          ],
+          "source_force": [
+            16.446839336910294
+          ],
+          "source_state": [
+            1
+          ]
+        },
+        {
+          "delta": 0.10000000149011612,
+          "residual": 0.0,
+          "tangent": 0.0,
+          "source_jar": [
+            27.777726538591878
+          ],
+          "source_force": [
+            0.0
+          ],
+          "source_state": [
+            0
+          ]
+        },
+        {
+          "delta": -2.0,
+          "residual": 0.19789256877127848,
+          "tangent": 0.09549775199762525,
+          "source_jar": [
+            -2072.2221752068813
+          ],
+          "source_force": [
+            197.89255937188628
+          ],
+          "source_state": [
+            1
+          ]
+        },
+        {
+          "delta": 2.0,
+          "residual": 0.0,
+          "tangent": 0.0,
+          "source_jar": [
+            1927.7776348033224
+          ],
+          "source_force": [
+            0.0
+          ],
+          "source_state": [
+            0
+          ]
+        },
+        {
+          "delta": 0.052222274243831635,
+          "residual": 0.0019099549815385745,
+          "tangent": 0.09549775199762525,
+          "source_jar": [
+            -19.999998438372458
+          ],
+          "source_force": [
+            1.9099548908205852
+          ],
+          "source_state": [
+            1
+          ]
+        },
+        {
+          "delta": 0.09222227334976196,
+          "residual": 0.0,
+          "tangent": 0.0,
+          "source_jar": [
+            19.999998767659946
+          ],
+          "source_force": [
+            0.0
+          ],
+          "source_state": [
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zero_width",
+      "xml": "<mujoco><compiler angle=\"radian\"/>\n<option timestep=\"0.0010000000474974513\" gravity=\"0 0 0\" integrator=\"Euler\" jacobian=\"dense\">\n<flag refsafe=\"enable\"/></option><worldbody>\n<body><freejoint/><geom type=\"sphere\" size=\".1\" mass=\"2\" contype=\"0\" conaffinity=\"0\"/>\n<body pos=\"0 0 .2\"><joint type=\"slide\" axis=\"0 1 0\" limited=\"true\"\nrange=\"-.25 .5\" margin=\"0.0\" solreflimit=\"0.019999999552965164 1.0\"\nsolimplimit=\"0.699999988079071 0.8999999761581421 0.0 0.5 2.0\"/>\n<geom type=\"capsule\" size=\".02 .2\" mass=\"1\" contype=\"0\" conaffinity=\"0\"/>\n</body></body></worldbody></mujoco>",
+      "xml_sha256": "6035f66229bf07df09ddb679f81eac3f196d9decfcbfec1a63e916d78581094c",
+      "h": 0.0010000000474974513,
+      "flags": 1,
+      "q": -0.30000001192092896,
+      "v0": -0.029999999329447746,
+      "v_free": 0.03999999910593033,
+      "range": [
+        -0.25,
+        0.5
+      ],
+      "margin": 0.0,
+      "solref": [
+        0.019999999552965164,
+        1.0
+      ],
+      "solimp": [
+        0.699999988079071,
+        0.8999999761581421,
+        0.0,
+        0.5,
+        2.0
+      ],
+      "source_inverse_weight": 3.2173831374443194,
+      "linearization": [
+        [
+          1.0,
+          0.05679016986677035,
+          1.243246260108936,
+          -0.050000011920928955
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "candidates": [
+        {
+          "delta": 0.0,
+          "residual": 0.07060416629781344,
+          "tangent": 1.243246260108936,
+          "source_jar": [
+            -56.79016716938216
+          ],
+          "source_force": [
+            70.60416294429565
+          ],
+          "source_state": [
+            1
+          ]
+        },
+        {
+          "delta": -0.10000000149011612,
+          "residual": 0.1949287941612883,
+          "tangent": 1.243246260108936,
+          "source_jar": [
+            -156.7901639097533
+          ],
+          "source_force": [
+            194.92878490266784
+          ],
+          "source_state": [
+            1
+          ]
+        },
+        {
+          "delta": 0.10000000149011612,
+          "residual": 0.0,
+          "tangent": 0.0,
+          "source_jar": [
+            43.209829570989
+          ],
+          "source_force": [
+            0.0
+          ],
+          "source_state": [
+            0
+          ]
+        },
+        {
+          "delta": -2.0,
+          "residual": 2.5570966865156857,
+          "tangent": 1.243246260108936,
+          "source_jar": [
+            -2056.790072174484
+          ],
+          "source_force": [
+            2557.096565060116
+          ],
+          "source_state": [
+            1
+          ]
+        },
+        {
+          "delta": 2.0,
+          "residual": 0.0,
+          "tangent": 0.0,
+          "source_jar": [
+            1943.2097378357196
+          ],
+          "source_force": [
+            0.0
+          ],
+          "source_state": [
+            0
+          ]
+        },
+        {
+          "delta": 0.03679016977548599,
+          "residual": 0.024864925315667665,
+          "tangent": 1.243246260108936,
+          "source_jar": [
+            -19.99999914133538
+          ],
+          "source_force": [
+            24.864924134647143
+          ],
+          "source_state": [
+            1
+          ]
+        },
+        {
+          "delta": 0.07679016888141632,
+          "residual": 0.0,
+          "tangent": 0.0,
+          "source_jar": [
+            19.999998064697024
+          ],
+          "source_force": [
+            0.0
+          ],
+          "source_state": [
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "linear_impedance",
+      "xml": "<mujoco><compiler angle=\"radian\"/>\n<option timestep=\"0.0010000000474974513\" gravity=\"0 0 0\" integrator=\"Euler\" jacobian=\"dense\">\n<flag refsafe=\"enable\"/></option><worldbody>\n<body><freejoint/><geom type=\"sphere\" size=\".1\" mass=\"2\" contype=\"0\" conaffinity=\"0\"/>\n<body pos=\"0 0 .2\"><joint type=\"slide\" axis=\"0 1 0\" limited=\"true\"\nrange=\"-.25 .5\" margin=\"0.03125\" solreflimit=\"0.019999999552965164 1.0\"\nsolimplimit=\"0.699999988079071 0.8999999761581421 0.10000000149011612 0.5 1.0\"/>\n<geom type=\"capsule\" size=\".02 .2\" mass=\"1\" contype=\"0\" conaffinity=\"0\"/>\n</body></body></worldbody></mujoco>",
+      "xml_sha256": "e89b6b00ad433488af435ab8917a4bd5d7f0b023dfe3fe86cc7cae3ef65a82c2",
+      "h": 0.0010000000474974513,
+      "flags": 1,
+      "q": 0.5099999904632568,
+      "v0": -0.029999999329447746,
+      "v_free": 0.03999999910593033,
+      "range": [
+        -0.25,
+        0.5
+      ],
+      "margin": 0.03125,
+      "solref": [
+        0.019999999552965164,
+        1.0
+      ],
+      "solimp": [
+        0.699999988079071,
+        0.8999999761581421,
+        0.10000000149011612,
+        0.5,
+        1.0
+      ],
+      "source_inverse_weight": 3.2173831374443194,
+      "linearization": [
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          -1.0,
+          0.16629049415065011,
+          1.1182070056977853,
+          -0.041249990463256836
+        ]
+      ],
+      "candidates": [
+        {
+          "delta": 0.0,
+          "residual": -0.18594719554020356,
+          "tangent": 1.1182070056977853,
+          "source_jar": [
+            -166.29048625227585
+          ],
+          "source_force": [
+            185.9471867081861
+          ],
+          "source_state": [
+            1
+          ]
+        },
+        {
+          "delta": -0.10000000149011612,
+          "residual": -0.07412649330416676,
+          "tangent": 1.1182070056977853,
+          "source_jar": [
+            -66.29048951190472
+          ],
+          "source_force": [
+            74.12648978334742
+          ],
+          "source_state": [
+            1
+          ]
+        },
+        {
+          "delta": 0.10000000149011612,
+          "residual": -0.2977678977762404,
+          "tangent": 1.1182070056977853,
+          "source_jar": [
+            -266.290482992647
+          ],
+          "source_force": [
+            297.76788363302484
+          ],
+          "source_state": [
+            1
+          ]
+        },
+        {
+          "delta": -2.0,
+          "residual": 0.0,
+          "tangent": 0.0,
+          "source_jar": [
+            1833.709418752826
+          ],
+          "source_force": [
+            0.0
+          ],
+          "source_state": [
+            0
+          ]
+        },
+        {
+          "delta": 2.0,
+          "residual": -2.422361206935774,
+          "tangent": 1.1182070056977853,
+          "source_jar": [
+            -2166.2903912573775
+          ],
+          "source_force": [
+            2422.361091879796
+          ],
+          "source_state": [
+            1
+          ]
+        },
+        {
+          "delta": -0.18629048764705658,
+          "residual": 0.0,
+          "tangent": 0.0,
+          "source_jar": [
+            19.999992546457776
+          ],
+          "source_force": [
+            0.0
+          ],
+          "source_state": [
+            0
+          ]
+        },
+        {
+          "delta": -0.14629049599170685,
+          "residual": -0.022364138055273184,
+          "tangent": 1.1182070056977853,
+          "source_jar": [
+            -19.999997208994387
+          ],
+          "source_force": [
+            22.364136993033675
+          ],
+          "source_state": [
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "name": "clamped_impedance",
+      "xml": "<mujoco><compiler angle=\"radian\"/>\n<option timestep=\"0.0010000000474974513\" gravity=\"0 0 0\" integrator=\"Euler\" jacobian=\"dense\">\n<flag refsafe=\"enable\"/></option><worldbody>\n<body><freejoint/><geom type=\"sphere\" size=\".1\" mass=\"2\" contype=\"0\" conaffinity=\"0\"/>\n<body pos=\"0 0 .2\"><joint type=\"hinge\" axis=\"0 1 0\" limited=\"true\"\nrange=\"-.25 .5\" margin=\"0.0\" solreflimit=\"0.019999999552965164 1.0\"\nsolimplimit=\"1.0 1.0 0.10000000149011612 0.0 0.5\"/>\n<geom type=\"capsule\" size=\".02 .2\" mass=\"1\" contype=\"0\" conaffinity=\"0\"/>\n</body></body></worldbody></mujoco>",
+      "xml_sha256": "538e862613afdef6ea8ecf8de54e2c39bca59736e4092ec2c80dc2c1ba252a7a",
+      "h": 0.0010000000474974513,
+      "flags": 1,
+      "q": -0.30000001192092896,
+      "v0": -0.029999999329447746,
+      "v_free": 0.03999999910593033,
+      "range": [
+        -0.25,
+        0.5
+      ],
+      "margin": 0.0,
+      "solref": [
+        0.019999999552965164,
+        1.0
+      ],
+      "solimp": [
+        1.0,
+        1.0,
+        0.10000000149011612,
+        0.0,
+        0.5
+      ],
+      "source_inverse_weight": 94.24303114526278,
+      "linearization": [
+        [
+          1.0,
+          0.058012844318832135,
+          106.09803057574631,
+          -0.050000011920928955
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "candidates": [
+        {
+          "delta": 0.0,
+          "residual": 6.155048530325462,
+          "tangent": 106.09803057574631,
+          "source_jar": [
+            -58.01284156337002
+          ],
+          "source_force": [
+            6155.048237976358
+          ],
+          "source_state": [
+            1
+          ]
+        },
+        {
+          "delta": -0.10000000149011612,
+          "residual": 16.764851745998477,
+          "tangent": 106.09803057574631,
+          "source_jar": [
+            -158.01283830374115
+          ],
+          "source_force": [
+            16764.850949710784
+          ],
+          "source_state": [
+            1
+          ]
+        },
+        {
+          "delta": 0.10000000149011612,
+          "residual": 0.0,
+          "tangent": 0.0,
+          "source_jar": [
+            41.98715517700114
+          ],
+          "source_force": [
+            0.0
+          ],
+          "source_state": [
+            0
+          ]
+        },
+        {
+          "delta": -2.0,
+          "residual": 218.35110968181806,
+          "tangent": 106.09803057574631,
+          "source_jar": [
+            -2058.012746568472
+          ],
+          "source_force": [
+            218351.09931069735
+          ],
+          "source_state": [
+            1
+          ]
+        },
+        {
+          "delta": 2.0,
+          "residual": 0.0,
+          "tangent": 0.0,
+          "source_jar": [
+            1941.9870634417316
+          ],
+          "source_force": [
+            0.0
+          ],
+          "source_state": [
+            0
+          ]
+        },
+        {
+          "delta": 0.03801284357905388,
+          "residual": 2.1219606900039416,
+          "tangent": 106.09803057574631,
+          "source_jar": [
+            -19.999999789829232
+          ],
+          "source_force": [
+            2121.9605892162217
+          ],
+          "source_state": [
+            1
+          ]
+        },
+        {
+          "delta": 0.0780128464102745,
+          "residual": 0.0,
+          "tangent": 0.0,
+          "source_jar": [
+            20.0000011414933
+          ],
+          "source_force": [
+            0.0
+          ],
+          "source_state": [
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "zero_stiffness",
+      "xml": "<mujoco><compiler angle=\"radian\"/>\n<option timestep=\"0.0010000000474974513\" gravity=\"0 0 0\" integrator=\"Euler\" jacobian=\"dense\">\n<flag refsafe=\"enable\"/></option><worldbody>\n<body><freejoint/><geom type=\"sphere\" size=\".1\" mass=\"2\" contype=\"0\" conaffinity=\"0\"/>\n<body pos=\"0 0 .2\"><joint type=\"slide\" axis=\"0 1 0\" limited=\"true\"\nrange=\"-.25 .5\" margin=\"0.0\" solreflimit=\"0.0 -5.0\"\nsolimplimit=\"0.699999988079071 0.8999999761581421 0.10000000149011612 0.5 2.0\"/>\n<geom type=\"capsule\" size=\".02 .2\" mass=\"1\" contype=\"0\" conaffinity=\"0\"/>\n</body></body></worldbody></mujoco>",
+      "xml_sha256": "f8d6701833503b576107b9353e392dad4f6b148d07a9f0ed7d492957cf02affe",
+      "h": 0.0010000000474974513,
+      "flags": 1,
+      "q": -0.30000001192092896,
+      "v0": -0.029999999329447746,
+      "v_free": 0.03999999910593033,
+      "range": [
+        -0.25,
+        0.5
+      ],
+      "margin": 0.0,
+      "solref": [
+        0.0,
+        -5.0
+      ],
+      "solimp": [
+        0.699999988079071,
+        0.8999999761581421,
+        0.10000000149011612,
+        0.5,
+        2.0
+      ],
+      "source_inverse_weight": 3.2173831374443194,
+      "linearization": [
+        [
+          1.0,
+          -0.0698333317601053,
+          1.2432466074679178,
+          -0.050000011920928955
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "candidates": [
+        {
+          "delta": 0.0,
+          "residual": 0.0,
+          "tangent": 0.0,
+          "source_jar": [
+            69.83332844320017
+          ],
+          "source_force": [
+            0.0
+          ],
+          "source_state": [
+            0
+          ]
+        },
+        {
+          "delta": -0.10000000149011612,
+          "residual": 0.03750460980044108,
+          "tangent": 1.2432466074679178,
+          "source_jar": [
+            -30.16666829717096
+          ],
+          "source_force": [
+            37.50460801906779
+          ],
+          "source_state": [
+            1
+          ]
+        },
+        {
+          "delta": 0.10000000149011612,
+          "residual": 0.0,
+          "tangent": 0.0,
+          "source_jar": [
+            169.83332518357133
+          ],
+          "source_force": [
+            0.0
+          ],
+          "source_state": [
+            0
+          ]
+        },
+        {
+          "delta": -2.0,
+          "residual": 2.3996731621369034,
+          "tangent": 1.2432466074679178,
+          "source_jar": [
+            -1930.1665765619018
+          ],
+          "source_force": [
+            2399.6730481585496
+          ],
+          "source_state": [
+            1
+          ]
+        },
+        {
+          "delta": 2.0,
+          "residual": 0.0,
+          "tangent": 0.0,
+          "source_jar": [
+            2069.833233448302
+          ],
+          "source_force": [
+            0.0
+          ],
+          "source_state": [
+            0
+          ]
+        },
+        {
+          "delta": -0.0898333340883255,
+          "residual": 0.024864935043910227,
+          "tangent": 1.2432466074679178,
+          "source_jar": [
+            -20.00000137827111
+          ],
+          "source_force": [
+            24.86493386288924
+          ],
+          "source_state": [
+            1
+          ]
+        },
+        {
+          "delta": -0.049833331257104874,
+          "residual": 0.0,
+          "tangent": 0.0,
+          "source_jar": [
+            19.99999955305142
+          ],
+          "source_force": [
+            0.0
+          ],
+          "source_state": [
+            0
+          ]
+        }
+      ]
+    }
+  ]
+}

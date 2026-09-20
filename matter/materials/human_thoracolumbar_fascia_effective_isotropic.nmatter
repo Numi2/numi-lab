@@ -1,0 +1,42 @@
+// Reduced effective starting law for the 10%-ownership posterior human
+// thoracolumbar-fascia proxy. Newell and Driscoll measured a mean 150.9 MPa
+// tensile modulus in 51 cadaveric TLF samples
+// (DOI 10.1109/TBME.2024.3387343). This regional proxy owns 10% of terminal
+// force, so it also uses 10% of the mean isotropic-equivalent stiffness to
+// preserve the first-order force/stiffness strain scale. E=15.09 MPa and the
+// declared nu=0.45 assumption give mu=5.20344828 MPa and K=50.3 MPa. Human
+// TLF is anisotropic; this is an explicit bounded fallback until Matter carries
+// per-tetrahedron fibre frames.
+material human_thoracolumbar_fascia_effective_isotropic {
+    parameter density : kg/m^3 = 1000 in [900, 1150];
+    parameter shear : MPa = 5.20344828 in [0.5, 50] log identifiable;
+    parameter bulk : MPa = 50.3 in [10, 500] log identifiable;
+    parameter numerical_viscosity : Pa*s = 25 in [0.1, 500] log;
+
+    model generic;
+    energy = 0.5 * shear * (I1() - 3 - 2 * log(J()))
+        + 0.5 * bulk * pow(log(J()), 2);
+    dissipation = 0.5 * numerical_viscosity * (
+        pow(Fdot(0, 0), 2) + pow(Fdot(1, 1), 2) +
+        pow(Fdot(2, 2), 2) +
+        0.5 * pow(Fdot(0, 1) + Fdot(1, 0), 2) +
+        0.5 * pow(Fdot(0, 2) + Fdot(2, 0), 2) +
+        0.5 * pow(Fdot(1, 2) + Fdot(2, 1), 2)
+    );
+    valid = J() - 0.50;
+    supports fem;
+
+    interface {
+        static_friction = 0.05;
+        dynamic_friction = 0.03;
+        restitution = 0.0;
+        adhesion = 0.0;
+    }
+
+    limits {
+        minimum_J = 0.50;
+        maximum_J = 1.75;
+        maximum_stress = 5e8;
+        maximum_energy_density = 2e8;
+    }
+}

@@ -1,0 +1,4301 @@
+#import <Foundation/Foundation.h>
+#import <Metal/Metal.h>
+
+#include "numi/matter/matter.hpp"
+#include "numi/matter/metal_world.hpp"
+#include "metalrobo/EngineModel.hpp"
+#include "metalrobo/MatterSnapshotArchive.hpp"
+#include "metalrobo/MetalWorld.hpp"
+#include "metalrobo/engine_types.h"
+
+#include <algorithm>
+#include <array>
+#include <cmath>
+#include <cstdio>
+#include <cstdint>
+#include <cstring>
+#include <filesystem>
+#include <iostream>
+#include <limits>
+#include <stdexcept>
+#include <string>
+#include <string_view>
+
+#ifndef NUMI_MATTER_MATERIAL
+#define NUMI_MATTER_MATERIAL ""
+#endif
+
+#ifndef NUMI_MATTER_STATEFUL_MATERIAL
+#define NUMI_MATTER_STATEFUL_MATERIAL ""
+#endif
+
+#ifndef NUMI_MATTER_METALLIB
+#define NUMI_MATTER_METALLIB ""
+#endif
+
+namespace {
+
+void require(const bool condition, const std::string& message) {
+    if (!condition) {
+        throw std::runtime_error(message);
+    }
+}
+
+std::string diagnosticFloat(const float value) {
+    std::array<char, 32> text{};
+    const int written = std::snprintf(
+        text.data(), text.size(), "%.9g", static_cast<double>(value));
+    return written > 0 ? std::string(text.data()) : std::string("invalid");
+}
+
+metalrobo::EngineModel makeTwoFreeSphereEngineModel() {
+    metalrobo::EngineModel model =
+        metalrobo::makeFreeSphereEngineModel();
+    model.name = "two_free_sphere_articulations";
+    const auto firstQ = model.defaultQ;
+
+    MRArticulationGPU second = model.articulations.front();
+    second.rootBody = 2u;
+    second.firstBody = 2u;
+    second.qOffset = 7u;
+    second.vOffset = 6u;
+    model.articulations.push_back(second);
+
+    MRBodyPropertiesGPU secondBody = model.bodies[1];
+    secondBody.articulationIndex = 1u;
+    model.bodies.push_back(secondBody);
+    for (std::uint32_t local = 0u; local < 6u; ++local) {
+        MRDofPropertiesGPU dof = model.dofs[local];
+        dof.articulationIndex = 1u;
+        dof.qIndex = local < 3u ? 7u + local : MR_INVALID_INDEX;
+        dof.vIndex = 6u + local;
+        model.dofs.push_back(dof);
+    }
+    MRShapeGPU secondShape = model.shapes[1];
+    secondShape.bodyIndex = 2u;
+    secondShape.slotGeneration = 2u;
+    model.shapes.push_back(secondShape);
+    model.defaultQ.insert(
+        model.defaultQ.end(),
+        firstQ.begin(),
+        firstQ.end()
+    );
+    model.defaultV.resize(12u, 0.0f);
+    model.world.bodyCount = static_cast<mr_u32>(model.bodies.size());
+    model.world.articulationCount =
+        static_cast<mr_u32>(model.articulations.size());
+    model.world.shapeCount = static_cast<mr_u32>(model.shapes.size());
+    model.world.nq = static_cast<mr_u32>(model.defaultQ.size());
+    model.world.nv = static_cast<mr_u32>(model.defaultV.size());
+    model.world.pairCapacity = std::max(model.world.pairCapacity, 3u);
+    model.world.contactCapacity =
+        std::max(model.world.contactCapacity, 8u);
+    model.world.constraintCapacity =
+        std::max(model.world.constraintCapacity, 24u);
+    std::string reason;
+    require(model.valid(&reason),
+        "two-free-sphere model is invalid: " + reason);
+    return model;
+}
+
+void encodeRigidWorldFailure(
+    id<MTLDevice> device,
+    id<MTLCommandBuffer> commandBuffer,
+    id<MTLBuffer> destination,
+    const std::uint32_t successfulSubsteps = 0u
+) {
+    require(
+        device != nil && commandBuffer != nil && destination != nil &&
+            destination.length >= sizeof(MRMetalWorldStatusGPU),
+        "cannot encode a rigid-world failure into an invalid status arena"
+    );
+    MRMetalWorldStatusGPU failure{};
+    failure.code = MR_STEP_DID_NOT_CONVERGE;
+    failure.environment = 0u;
+    failure.successfulSubsteps = successfulSubsteps;
+    id<MTLBuffer> source = [device
+        newBufferWithBytes:&failure
+        length:sizeof(failure)
+        options:MTLResourceStorageModeShared];
+    require(source != nil, "failed to allocate rigid-world failure record");
+    id<MTLBlitCommandEncoder> blit = [commandBuffer blitCommandEncoder];
+    require(blit != nil, "failed to encode rigid-world failure handoff");
+    blit.label = @"Matter probe rigid-world failure injection";
+    [blit
+        copyFromBuffer:source
+        sourceOffset:0u
+        toBuffer:destination
+        destinationOffset:0u
+        size:sizeof(failure)];
+    [blit endEncoding];
+    // Retain the source record until the GPU has consumed the ordered blit.
+    [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+        (void)completed;
+        (void)source;
+    }];
+}
+
+numi::matter::CompiledWorld compileCase(
+    const numi::matter::Representation representation,
+    const bool includePlane,
+    const bool singleMPMParticle = false,
+    const bool fullRate = false,
+    const bool nearPlane = false,
+    const bool gentleMPMContact = false,
+    const bool bodyBackedPlane = false,
+    const double frameTimestep = 1.0 / 240.0,
+    const std::uint32_t environmentCount = 1u,
+    const std::uint32_t identificationCandidates = 0u,
+    const std::uint32_t maximumRateExponentOverride = NM_INVALID_INDEX,
+    const bool secondBodyBackedPlane = false,
+    const bool enableMultiphysics = false,
+    const bool enableMutation = false,
+    const bool enableLearned = false
+) {
+    const auto parsed = numi::matter::parseMatterFile(NUMI_MATTER_MATERIAL);
+    require(parsed.succeeded(), "reference silicone material did not parse");
+
+    numi::matter::WorldSource source;
+    source.environmentCount = environmentCount;
+    source.frameTimestep = frameTimestep;
+    source.identificationCandidates = identificationCandidates;
+    source.gravity = {0.0, 0.0, -9.81};
+    source.materials.push_back(parsed.material);
+    if (enableLearned) {
+        numi::matter::LearnedMaterialSource learned;
+        learned.invariantCount = 4u;
+        learned.softplusBeta = 2.0f;
+        learned.determinantFloor = 0.05f;
+        learned.growthCoefficient = 0.01f;
+        numi::matter::LearnedLayerSource layer;
+        layer.inputWidth = 4u;
+        layer.outputWidth = 1u;
+        layer.inputWeights = {0.04f, 0.03f, 0.02f, 0.01f};
+        layer.biases = {-0.1f};
+        learned.layers.push_back(std::move(layer));
+        source.materials[0].hint =
+            numi::matter::ConstitutiveHint::polyconvexICNN;
+        source.materials[0].learned = std::move(learned);
+    }
+
+    if (includePlane) {
+        numi::matter::RigidProxySource plane;
+        plane.shape = NM_RIGID_PLANE;
+        plane.localCenter = {0.0, 0.0, 1.0};
+        // MPM contact quadrature lives on fixed grid nodes. Align the plane
+        // just below the lowest cooked node so the boundary begins
+        // collision-free inside IPC support rather than cutting through the
+        // compiler's mandatory one-cell grid halo.
+        plane.radiusOrOffset =
+            representation == numi::matter::Representation::mpm
+            ? 0.01 - 0.9 * source.contactSlop
+            : 0.0;
+        if (bodyBackedPlane) {
+            // `makeFreeSphereEngineModel` owns its free articulated body at
+            // global body index 1.  A plane attached there gives Matter a
+            // real ABA wrench destination rather than a standalone proxy.
+            plane.bodyIndex = 1u;
+            plane.articulated = true;
+        }
+        source.rigidProxies.push_back(plane);
+        if (bodyBackedPlane && secondBodyBackedPlane) {
+            plane.bodyIndex = 2u;
+            source.rigidProxies.push_back(plane);
+        }
+    }
+
+    numi::matter::ObjectSource object;
+    object.name = representation == numi::matter::Representation::mpm
+        ? "mpm_drop"
+        : "fem_drop";
+    object.materialIndex = 0u;
+    object.representation = representation;
+    object.characteristicLength = 0.01;
+    // This is deliberately the smallest fixed background domain that covers
+    // the probe trajectory plus the compiler's quadratic-kernel halo.  The
+    // production package still cooks its authored domain; a qualification
+    // probe should exercise coupled particles without turning an O(P×G)
+    // reference scatter into a minute-long benchmark.
+    // Plane-contact MPM uses active grid nodes as its boundary quadrature.
+    // Keep the fixed grid half-space collision-free; a grid extending behind
+    // the plane would manufacture permanently penetrating contact features.
+    object.mpmGridMinimum = {
+        -0.015, -0.015, includePlane ? 0.02 : -0.01
+    };
+    object.mpmGridMaximum = {0.015, 0.015, 0.06};
+    if (representation == numi::matter::Representation::mpm) {
+        constexpr double spacing = 0.005;
+        constexpr double volume = spacing * spacing * spacing;
+        constexpr int kParticlesPerAxis = 2;
+        for (int z = 0; z < (singleMPMParticle ? 1 : kParticlesPerAxis); ++z) {
+            for (int y = 0; y < (singleMPMParticle ? 1 : kParticlesPerAxis); ++y) {
+                for (int x = 0; x < (singleMPMParticle ? 1 : kParticlesPerAxis); ++x) {
+                    numi::matter::ParticleSource particle;
+                    particle.position = {
+                        -0.005 + spacing * x,
+                        -0.005 + spacing * y,
+                        // The MetalWorld bridge probe begins inside the
+                        // quadratic-grid contact halo, so its first accepted
+                        // microstep necessarily exercises the body-wrench
+                        // handoff. Standalone drops retain their free-flight
+                        // approach trajectories below.
+                        (bodyBackedPlane
+                             ? 0.02
+                             : (gentleMPMContact ? 0.02 : 0.03)) +
+                            spacing * z,
+                    };
+                    particle.velocity = {
+                        0.0, 0.0,
+                        gentleMPMContact ? 0.0 : -1.0
+                    };
+                    particle.mass = 1100.0 * volume;
+                    particle.referenceVolume = volume;
+                    object.particles.push_back(particle);
+                }
+            }
+        }
+    } else {
+        const double baseHeight = nearPlane ? 0.002 : 0.02;
+        if (fullRate && !nearPlane) {
+            object.femInitialVelocity = {0.0, 0.0, -1.0};
+        }
+        object.femNodes = {
+            {-0.01, -0.01, baseHeight},
+            { 0.01, -0.01, baseHeight},
+            {-0.01,  0.01, baseHeight},
+            {-0.01, -0.01, baseHeight + 0.02},
+        };
+        object.tetrahedra.push_back({{0u, 1u, 2u, 3u}});
+        if (enableMultiphysics) {
+            object.multiphysics.enabled = true;
+            object.multiphysics.initialTemperature = 300.0;
+            object.multiphysics.initialPorePressure = 2.0;
+            object.multiphysics.initialElectricPotential = 0.25;
+            object.multiphysics.initialActivation = 0.0;
+            numi::matter::FieldBoundarySource hot;
+            hot.node = 0u;
+            hot.flags = NM_FIELD_DIRICHLET_TEMPERATURE |
+                NM_FIELD_DIRICHLET_ELECTRIC_POTENTIAL;
+            hot.value = {350.0, 0.0, 1.0, 0.0};
+            object.fieldBoundaries.push_back(hot);
+            numi::matter::FieldBoundarySource ground;
+            ground.node = 1u;
+            ground.flags = NM_FIELD_DIRICHLET_TEMPERATURE |
+                NM_FIELD_DIRICHLET_ELECTRIC_POTENTIAL;
+            ground.value = {300.0, 0.0, 0.0, 0.0};
+            object.fieldBoundaries.push_back(ground);
+            source.materials[0].mixed.heatCapacity = 1.0;
+            source.materials[0].mixed.thermalConductivity = 0.1;
+            source.materials[0].mixed.poreStorage = 1.0;
+            source.materials[0].mixed.poreMobility = 0.1;
+            source.materials[0].mixed.electricalConductivity = 1.0;
+            source.materials[0].mixed.activationDiffusivity = 0.1;
+            source.materials[0].mixed.activationOnRate = 8.0;
+            source.materials[0].mixed.activationOffRate = 1.0;
+            source.materials[0].mixed.activationThreshold = 0.2;
+            source.materials[0].mixed.activationSlope = 12.0;
+            source.materials[0].mixed.maximumActiveTension = 50.0;
+        }
+        if (enableMutation) {
+            object.mutationPolicy.enabled = true;
+            object.femCapacity.tetrahedra = 1u;
+            object.femCapacity.mutationCommands = 1u;
+            numi::matter::MutationCommandSource command;
+            command.kind = NM_MUTATION_DEACTIVATE_TETRAHEDRON;
+            command.controlStep = 0u;
+            command.target = 0u;
+            command.priority = 1u;
+            command.stableIdentifier = 17u;
+            object.mutationCommands.push_back(command);
+        }
+    }
+    source.objects.push_back(std::move(object));
+
+    numi::matter::CompileOptions options;
+    // FEM is qualified first at one implicit step per frame. MPM must retain
+    // its material-selected CFL subdivision; forcing it to the FEM baseline
+    // would knowingly test an unstable explicit material update.
+    options.maximumRateExponent =
+        maximumRateExponentOverride != NM_INVALID_INDEX
+        ? maximumRateExponentOverride
+        : (representation == numi::matter::Representation::mpm || fullRate
+            ? NM_MAX_RATE_EXPONENT
+            : 0u);
+    auto compiled = numi::matter::compileWorld(source, options);
+    require(compiled.succeeded(), "Matter world compilation failed");
+    require(
+        !includePlane || compiled.world.dispatch.contactPairCount > 0u,
+        "drop case has no continuum-to-plane contact pairs"
+    );
+    return std::move(compiled.world);
+}
+
+numi::matter::CompiledWorld compileMixedCase() {
+    auto parsed = numi::matter::parseMatterFile(NUMI_MATTER_MATERIAL);
+    require(parsed.succeeded(), "reference silicone material did not parse");
+    for (auto& parameter : parsed.material.parameters) {
+        if (parameter.name == "mu") {
+            parameter.defaultValue = 1.0e3;
+            parameter.lower = 5.0e2;
+            parameter.upper = 2.0e3;
+        } else if (parameter.name == "lambda") {
+            parameter.defaultValue = 4.0e3;
+            parameter.lower = 1.0e3;
+            parameter.upper = 8.0e3;
+        }
+    }
+
+    numi::matter::WorldSource source;
+    source.environmentCount = 1u;
+    source.frameTimestep = 1.0 / 240.0;
+    source.gravity = {0.0, 0.0, -9.81};
+    source.materials.push_back(parsed.material);
+
+    numi::matter::ObjectSource mpm;
+    mpm.name = "mixed_mpm";
+    mpm.materialIndex = 0u;
+    mpm.representation = numi::matter::Representation::mpm;
+    mpm.characteristicLength = 0.01;
+    mpm.mpmGridMinimum = {-0.04, -0.02, -0.01};
+    mpm.mpmGridMaximum = {-0.01, 0.02, 0.06};
+    constexpr double particleSpacing = 0.005;
+    constexpr double particleVolume =
+        particleSpacing * particleSpacing * particleSpacing;
+    for (int index = 0; index < 2; ++index) {
+        numi::matter::ParticleSource particle;
+        particle.position = {
+            -0.03 + particleSpacing * index,
+            0.0,
+            0.03,
+        };
+        particle.velocity = {0.0, 0.0, -0.2};
+        particle.mass = 1100.0 * particleVolume;
+        particle.referenceVolume = particleVolume;
+        mpm.particles.push_back(particle);
+    }
+    source.objects.push_back(std::move(mpm));
+
+    numi::matter::ObjectSource fem;
+    fem.name = "mixed_fem";
+    fem.materialIndex = 0u;
+    fem.representation = numi::matter::Representation::fem;
+    fem.characteristicLength = 0.02;
+    fem.femInitialVelocity = {0.0, 0.0, -0.1};
+    fem.femNodes = {
+        {0.015, -0.01, 0.025},
+        {0.035, -0.01, 0.025},
+        {0.015,  0.01, 0.025},
+        {0.015, -0.01, 0.045},
+    };
+    fem.tetrahedra.push_back({{0u, 1u, 2u, 3u}});
+    source.objects.push_back(std::move(fem));
+
+    numi::matter::CompileOptions options;
+    options.maximumRateExponent = 2u;
+    auto compiled = numi::matter::compileWorld(source, options);
+    require(compiled.succeeded(), "mixed Matter world compilation failed");
+    require(
+        compiled.world.dispatch.particleCount != 0u &&
+            compiled.world.dispatch.femNodeCount != 0u &&
+            compiled.world.dispatch.tetrahedronCount != 0u,
+        "mixed Matter world did not retain both backends"
+    );
+    return std::move(compiled.world);
+}
+
+numi::matter::CompiledWorld compileCohesiveMutationCase() {
+    const auto parsed = numi::matter::parseMatterFile(NUMI_MATTER_MATERIAL);
+    require(parsed.succeeded(), "cohesive oracle material did not parse");
+    numi::matter::WorldSource source;
+    source.environmentCount = 1u;
+    source.frameTimestep = 1.0 / 240.0;
+    source.gravity = {0.0, 0.0, 0.0};
+    source.mixedSolver.newtonIterations = 2u;
+    source.materials.push_back(parsed.material);
+    numi::matter::ObjectSource object;
+    object.name = "cohesive_two_tet";
+    object.materialIndex = 0u;
+    object.representation = numi::matter::Representation::fem;
+    object.characteristicLength = 0.1;
+    object.femNodes = {
+        {0.0, 0.0, 0.0}, {1.0, 0.0, 0.0},
+        {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0},
+        {0.0, 0.0, -1.0},
+    };
+    object.tetrahedra = {
+        {{0u, 1u, 2u, 3u}},
+        {{0u, 2u, 1u, 4u}},
+    };
+    object.mutationPolicy.enabled = true;
+    object.mutationPolicy.cohesiveFracture = true;
+    object.femCapacity.nodes = 8u;
+    object.femCapacity.cohesiveFaces = 1u;
+    object.femCapacity.mutationCommands = 1u;
+    numi::matter::MutationCommandSource command;
+    command.kind = NM_MUTATION_COHESIVE_SEPARATION;
+    command.stableIdentifier = 41u;
+    command.controlStep = 0u;
+    command.target = 0u;
+    command.priority = 0u;
+    object.mutationCommands.push_back(command);
+    source.objects.push_back(std::move(object));
+    auto compiled = numi::matter::compileWorld(source);
+    require(compiled.succeeded(), "cohesive mutation world did not compile");
+    return std::move(compiled.world);
+}
+
+numi::matter::CompiledWorld compileSmallScaleRemeshCase() {
+    const auto parsed = numi::matter::parseMatterFile(NUMI_MATTER_MATERIAL);
+    require(parsed.succeeded(), "small-scale remesh material did not parse");
+    numi::matter::WorldSource source;
+    source.environmentCount = 1u;
+    source.frameTimestep = 1.0 / 16000.0;
+    source.gravity = {0.0, 0.0, 0.0};
+    source.mixedSolver.newtonIterations = 2u;
+    source.materials.push_back(parsed.material);
+
+    // A two-millimetre tetrahedron has microgram-scale nodal masses. The old
+    // max(quantity, 1 SI unit) certificate admitted more mass error than the
+    // entire specimen; this case requires the live Metal remesher to conserve
+    // the actual small-scale mass and momentum instead.
+    constexpr double scale = 2.0e-3;
+    numi::matter::ObjectSource object;
+    object.name = "small_scale_edge_split";
+    object.materialIndex = 0u;
+    object.representation = numi::matter::Representation::fem;
+    object.characteristicLength = scale;
+    object.mixedFEM = false;
+    object.femInitialVelocity = {0.013, -0.007, 0.004};
+    object.femNodes = {
+        {0.0, 0.0, 0.0}, {scale, 0.0, 0.0},
+        {0.0, scale, 0.0}, {0.0, 0.0, scale},
+    };
+    object.tetrahedra = {{{0u, 1u, 2u, 3u}}};
+    object.mutationPolicy.enabled = true;
+    object.femCapacity.nodes = 5u;
+    object.femCapacity.tetrahedra = 2u;
+    object.femCapacity.mutationCommands = 1u;
+    numi::matter::MutationCommandSource command;
+    command.kind = NM_MUTATION_EDGE_SPLIT;
+    command.stableIdentifier = 59u;
+    command.controlStep = 0u;
+    command.target = 0u;
+    command.priority = 0u;
+    object.mutationCommands.push_back(command);
+    source.objects.push_back(std::move(object));
+
+    numi::matter::CompileOptions options;
+    options.maximumRateExponent = 0u;
+    auto compiled = numi::matter::compileWorld(source, options);
+    require(compiled.succeeded(), "small-scale remesh world did not compile");
+    return std::move(compiled.world);
+}
+
+numi::matter::CompiledWorld compilePunctureMutationCase() {
+    const auto parsed = numi::matter::parseMatterFile(NUMI_MATTER_MATERIAL);
+    require(parsed.succeeded(), "puncture oracle material did not parse");
+    numi::matter::WorldSource source;
+    source.environmentCount = 1u;
+    source.frameTimestep = 1.0 / 240.0;
+    source.gravity = {0.0, 0.0, 0.0};
+    source.mixedSolver.newtonIterations = 2u;
+    source.materials.push_back(parsed.material);
+    numi::matter::ObjectSource object;
+    object.name = "puncture_tet";
+    object.materialIndex = 0u;
+    object.representation = numi::matter::Representation::fem;
+    object.characteristicLength = 0.1;
+    object.femNodes = {
+        {-0.1, -0.1, 0.0}, {0.1, -0.1, 0.0},
+        {-0.1, 0.1, 0.0}, {-0.1, -0.1, 0.2},
+    };
+    object.tetrahedra = {{{0u, 1u, 2u, 3u}}};
+    object.mutationPolicy.enabled = true;
+    object.femCapacity.punctureChannels = 1u;
+    object.femCapacity.mutationCommands = 1u;
+    numi::matter::MutationCommandSource command;
+    command.kind = NM_MUTATION_CYLINDER_PUNCTURE;
+    command.stableIdentifier = 73u;
+    command.controlStep = 0u;
+    command.geometry0 = {0.0, 0.0, 1.0, 0.25};
+    command.geometry1 = {0.0, 0.0, 0.1, 0.5};
+    object.mutationCommands.push_back(command);
+    source.objects.push_back(std::move(object));
+    auto compiled = numi::matter::compileWorld(source);
+    require(compiled.succeeded(), "puncture mutation world did not compile");
+    return std::move(compiled.world);
+}
+
+numi::matter::CompiledWorld compilePoroelasticCompressionCase() {
+    auto parsed = numi::matter::parseMatterFile(NUMI_MATTER_MATERIAL);
+    require(parsed.succeeded(), "poroelastic material did not parse");
+    for (auto& parameter : parsed.material.parameters) {
+        if (parameter.name == "mu") parameter.defaultValue = 2.0e4;
+        if (parameter.name == "lambda") parameter.defaultValue = 2.0e5;
+    }
+    parsed.material.mixed.bulkModulus = 3.0e5;
+    parsed.material.mixed.biotCoefficient = 0.65;
+    parsed.material.mixed.poreStorage = 1.0;
+    parsed.material.mixed.poreMobility = 0.08;
+
+    numi::matter::WorldSource source;
+    source.environmentCount = 1u;
+    source.frameTimestep = 1.0 / 480.0;
+    source.gravity = {0.0, 0.0, 0.0};
+    source.contactSlop = 2.0e-6;
+    source.mixedSolver.minimumContactSeparationRatio = 0.05;
+    source.mixedSolver.fieldSmootherPasses = 3u;
+    source.materials.push_back(std::move(parsed.material));
+
+    numi::matter::RigidProxySource lower;
+    lower.shape = NM_RIGID_PLANE;
+    lower.localCenter = {0.0, 0.0, 1.0};
+    lower.radiusOrOffset = 0.0;
+    source.rigidProxies.push_back(lower);
+    numi::matter::RigidProxySource upper;
+    upper.shape = NM_RIGID_PLANE;
+    upper.localCenter = {0.0, 0.0, -1.0};
+    // IPC requires a collision-free initial iterate. Keep the upper nodes
+    // inside the 2 um barrier support without seeding the solve in 50 um of
+    // penetration, which conservative CCD must reject transactionally.
+    upper.radiusOrOffset = -0.0210019;
+    source.rigidProxies.push_back(upper);
+
+    numi::matter::ObjectSource cube;
+    cube.name = "drained_poroelastic_cube";
+    cube.materialIndex = 0u;
+    cube.representation = numi::matter::Representation::fem;
+    cube.mixedFEM = true;
+    cube.characteristicLength = 0.02;
+    cube.femNodes = {
+        {-0.01, -0.01, 0.001}, {0.01, -0.01, 0.001},
+        {-0.01,  0.01, 0.001}, {0.01,  0.01, 0.001},
+        {-0.01, -0.01, 0.021}, {0.01, -0.01, 0.021},
+        {-0.01,  0.01, 0.021}, {0.01,  0.01, 0.021},
+    };
+    cube.tetrahedra = {
+        {{0u, 1u, 3u, 7u}}, {{0u, 3u, 2u, 7u}},
+        {{0u, 2u, 6u, 7u}}, {{0u, 6u, 4u, 7u}},
+        {{0u, 4u, 5u, 7u}}, {{0u, 5u, 1u, 7u}},
+    };
+    cube.multiphysics.enabled = true;
+    cube.multiphysics.initialTemperature = 293.15;
+    cube.multiphysics.initialPorePressure = 0.5;
+    std::uint32_t boundaryIdentifier = 1u;
+    for (const std::uint32_t node : {4u, 5u, 6u, 7u}) {
+        numi::matter::FieldBoundarySource drained;
+        drained.node = node;
+        drained.stableIdentifier = boundaryIdentifier++;
+        drained.flags = NM_FIELD_DIRICHLET_PORE_PRESSURE;
+        drained.value = {0.0, 0.0, 0.0, 0.0};
+        cube.fieldBoundaries.push_back(drained);
+    }
+    source.objects.push_back(std::move(cube));
+    numi::matter::CompileOptions options;
+    options.maximumRateExponent = 0u;
+    auto compiled = numi::matter::compileWorld(source, options);
+    std::string failure = "poroelastic compression world did not compile";
+    for (const auto& diagnostic : compiled.diagnostics) {
+        failure += "; " + diagnostic.message;
+    }
+    require(compiled.succeeded(), failure);
+    require(compiled.world.dispatch.contactPairCount == 16u,
+        "poroelastic compression did not cook both plate contact sets");
+    return std::move(compiled.world);
+}
+
+numi::matter::CompiledWorld compileArticulatedFootPadScene(
+    const bool contactBoundary = false,
+    const bool staticProxy = false
+) {
+    auto parsed = numi::matter::parseMatterFile(NUMI_MATTER_MATERIAL);
+    require(parsed.succeeded(), "foot-pad material did not parse");
+    for (auto& parameter : parsed.material.parameters) {
+        if (parameter.name == "mu") parameter.defaultValue = 2.0e4;
+        if (parameter.name == "lambda") parameter.defaultValue = 2.0e5;
+    }
+    parsed.material.mixed.bulkModulus = 3.0e5;
+    parsed.material.mixed.biotCoefficient = 0.55;
+    parsed.material.mixed.poreStorage = 1.0;
+    parsed.material.mixed.poreMobility = 0.04;
+
+    numi::matter::WorldSource source;
+    source.environmentCount = 1u;
+    source.frameTimestep = 1.0 / 480.0;
+    source.gravity = {0.0, 0.0, 0.0};
+    // A 100 um IPC support is resolved cleanly in FP32 at this centimeter
+    // world scale while remaining thin relative to the 14 mm pad.
+    source.contactSlop = 1.0e-4;
+    // Coupled IPC starts from the accepted collision-free pose and resolves
+    // the incoming articulated velocity through the monolithic KKT system.
+    // Retain enough nonlinear iterations to qualify that solve rather than a
+    // single Newton update.
+    source.mixedSolver.newtonIterations = 16u;
+    source.mixedSolver.minimumContactSeparationRatio =
+        contactBoundary ? 0.5 : 0.05;
+    source.mixedSolver.fieldSmootherPasses = 3u;
+    source.materials.push_back(std::move(parsed.material));
+    numi::matter::RigidProxySource foot;
+    foot.shape = NM_RIGID_BOX;
+    foot.bodyIndex = staticProxy ? 0u : 1u;
+    foot.articulated = !staticProxy;
+    foot.localCenter = {0.0, 0.0, -0.0079};
+    foot.localExtent = {0.011, 0.009, 0.002};
+    foot.radiusOrOffset = 1.0;
+    source.rigidProxies.push_back(foot);
+
+    numi::matter::ObjectSource pad;
+    pad.name = "poroelastic_foot_pad";
+    pad.materialIndex = 0u;
+    pad.representation = numi::matter::Representation::fem;
+    pad.mixedFEM = true;
+    pad.characteristicLength = 0.02;
+    pad.femNodes = {
+        {-0.01, -0.008, 0.0}, {0.01, -0.008, 0.0},
+        {-0.01,  0.008, 0.0}, {0.01,  0.008, 0.0},
+        {-0.01, -0.008, 0.014}, {0.01, -0.008, 0.014},
+        {-0.01,  0.008, 0.014}, {0.01,  0.008, 0.014},
+    };
+    pad.femFixedNodes = {0u, 1u, 2u, 3u};
+    pad.tetrahedra = {
+        {{0u, 1u, 3u, 7u}}, {{0u, 3u, 2u, 7u}},
+        {{0u, 2u, 6u, 7u}}, {{0u, 6u, 4u, 7u}},
+        {{0u, 4u, 5u, 7u}}, {{0u, 5u, 1u, 7u}},
+    };
+    pad.multiphysics.enabled = true;
+    pad.multiphysics.initialTemperature = 293.15;
+    pad.multiphysics.initialPorePressure = 0.25;
+    for (std::uint32_t node = 0u; node < 4u; ++node) {
+        numi::matter::FieldBoundarySource drained;
+        drained.node = node;
+        drained.stableIdentifier = 100u + node;
+        drained.flags = NM_FIELD_DIRICHLET_PORE_PRESSURE;
+        drained.value = {0.0, 0.0, 0.0, 0.0};
+        pad.fieldBoundaries.push_back(drained);
+    }
+    source.objects.push_back(std::move(pad));
+    numi::matter::CompileOptions options;
+    options.maximumRateExponent = 0u;
+    auto compiled = numi::matter::compileWorld(source, options);
+    std::string failure = "articulated foot-pad world did not compile";
+    for (const auto& diagnostic : compiled.diagnostics) {
+        failure += "; " + diagnostic.message;
+    }
+    require(compiled.succeeded(), failure);
+    require(compiled.world.dispatch.contactPairCount == 8u,
+        "foot-pad scene did not cook the articulated-foot contact capacity");
+    return std::move(compiled.world);
+}
+
+numi::matter::CompiledWorld compileSutureProxyWindowCase() {
+    auto parsed = numi::matter::parseMatterFile(NUMI_MATTER_MATERIAL);
+    require(parsed.succeeded(), "suture-window material did not parse");
+    numi::matter::WorldSource source;
+    source.environmentCount = 1u;
+    source.frameTimestep = 1.0 / 1000.0;
+    source.gravity = {0.0, 0.0, 0.0};
+    source.contactSlop = 1.0e-4;
+    source.materials.push_back(std::move(parsed.material));
+    for (std::uint32_t edge = 0u; edge < 2u; ++edge) {
+        numi::matter::RigidProxySource proxy;
+        proxy.shape = NM_RIGID_CAPSULE;
+        proxy.materialIndex = 0u;
+        proxy.radiusOrOffset = 1.0e-4;
+        proxy.sutureStrand = true;
+        proxy.strandNodeA = edge;
+        proxy.strandNodeB = edge + 1u;
+        source.rigidProxies.push_back(proxy);
+    }
+    numi::matter::ObjectSource object;
+    object.name = "suture_window_fem";
+    object.materialIndex = 0u;
+    object.representation = numi::matter::Representation::fem;
+    object.characteristicLength = 0.001;
+    object.femNodes = {
+        {0.0, 0.0, 0.0},
+        {0.001, 0.0, 0.0},
+        {0.0, 0.001, 0.0},
+        {0.0, 0.0, 0.001},
+    };
+    object.tetrahedra = {{{0u, 1u, 2u, 3u}}};
+    source.objects.push_back(std::move(object));
+    numi::matter::CompileOptions options;
+    options.maximumRateExponent = 0u;
+    auto compiled = numi::matter::compileWorld(source, options);
+    std::string failure = "suture proxy window world did not compile";
+    for (const auto& diagnostic : compiled.diagnostics) {
+        failure += "; " + diagnostic.message;
+    }
+    require(compiled.succeeded() &&
+                compiled.world.contact.rigidProxies.size() == 2u,
+        failure);
+    return std::move(compiled.world);
+}
+
+numi::matter::CompiledWorld compilePunctureChannelExitCase(
+    const bool exitsOnNextPredictor
+) {
+    auto parsed = numi::matter::parseMatterFile(NUMI_MATTER_MATERIAL);
+    require(parsed.succeeded(), "puncture-exit material did not parse");
+
+    constexpr double timestep = 1.0e-3;
+    constexpr double channelHalfLength = 1.0e-3;
+    constexpr double channelRadius = 3.5e-4;
+    constexpr double channelTolerance = 0.25 * channelRadius;
+    constexpr double currentAxial =
+        channelHalfLength + channelTolerance - 1.0e-6;
+    constexpr double exitVelocity = 2.0e-3;
+
+    numi::matter::WorldSource source;
+    source.environmentCount = 1u;
+    source.frameTimestep = timestep;
+    source.gravity = {0.0, 0.0, 0.0};
+    source.contactSlop = 1.0e-4;
+    source.mixedSolver.newtonIterations = 16u;
+    source.mixedSolver.minimumContactSeparationRatio = 0.05;
+    source.materials.push_back(std::move(parsed.material));
+
+    numi::matter::RigidProxySource needle;
+    needle.shape = NM_RIGID_CAPSULE;
+    needle.localCenter = {-5.0e-4, 0.0, currentAxial};
+    needle.localExtent = {5.0e-4, 0.0, currentAxial};
+    needle.radiusOrOffset = channelRadius;
+    source.rigidProxies.push_back(needle);
+
+    numi::matter::ObjectSource tissue;
+    tissue.name = exitsOnNextPredictor
+        ? "puncture_channel_predictive_exit"
+        : "puncture_channel_contained_control";
+    tissue.materialIndex = 0u;
+    tissue.representation = numi::matter::Representation::fem;
+    tissue.mixedFEM = false;
+    tissue.characteristicLength = 1.5e-3;
+    tissue.femInitialVelocity = {
+        0.0, 0.0, exitsOnNextPredictor ? exitVelocity : 0.0
+    };
+    const double initialAxial = exitsOnNextPredictor
+        ? currentAxial - timestep * exitVelocity
+        : currentAxial;
+    tissue.femNodes = {
+        {0.0,    4.0e-4, initialAxial},
+        {1.5e-3, 4.0e-4, initialAxial},
+        {0.0,    1.9e-3, initialAxial},
+        {0.0,    4.0e-4, initialAxial + 1.5e-3},
+    };
+    tissue.tetrahedra = {{{0u, 1u, 2u, 3u}}};
+    tissue.mutationPolicy.enabled = true;
+    tissue.femCapacity.punctureChannels = 1u;
+    source.objects.push_back(std::move(tissue));
+
+    numi::matter::CompileOptions options;
+    options.maximumRateExponent = 0u;
+    auto compiled = numi::matter::compileWorld(source, options);
+    std::string failure = "puncture-channel exit world did not compile";
+    for (const auto& diagnostic : compiled.diagnostics) {
+        failure += "; " + diagnostic.message;
+    }
+    require(compiled.succeeded() &&
+                compiled.world.fem.punctureChannels.size() == 1u &&
+                !compiled.world.contact.pairs.empty(),
+        failure);
+
+    NMPunctureChannelGPU& channel =
+        compiled.world.fem.punctureChannels.front();
+    channel.identity = {
+        0u, 0x80000000u, 1u, NM_TOPOLOGY_ACTIVE
+    };
+    channel.originAndRadius = {0.0f, 0.0f, 0.0f,
+        static_cast<float>(channelRadius)};
+    channel.axisAndHalfLength = {0.0f, 0.0f, 1.0f,
+        static_cast<float>(channelHalfLength)};
+    compiled.world.fingerprint =
+        numi::matter::compiledWorldFingerprint(compiled.world);
+    compiled.world.physicsFingerprint = compiled.world.fingerprint;
+    return std::move(compiled.world);
+}
+
+
+numi::matter::CompiledWorld compileStatefulCase(
+    const numi::matter::Representation representation
+) {
+    auto parsed = numi::matter::parseMatterFile(
+        NUMI_MATTER_STATEFUL_MATERIAL
+    );
+    require(parsed.succeeded(), "stateful silicone material did not parse");
+    for (auto& parameter : parsed.material.parameters) {
+        if (parameter.name == "mu") {
+            parameter.defaultValue = 5.0e3;
+            parameter.lower = 5.0e2;
+            parameter.upper = 2.0e4;
+        } else if (parameter.name == "lambda") {
+            parameter.defaultValue = 2.0e4;
+            parameter.lower = 2.0e3;
+            parameter.upper = 8.0e4;
+        } else if (parameter.name == "eta") {
+            parameter.defaultValue = 100.0;
+            parameter.lower = 10.0;
+            parameter.upper = 1.0e3;
+        } else if (parameter.name == "damage_rate") {
+            parameter.defaultValue = 50.0;
+            parameter.lower = 0.0;
+            parameter.upper = 200.0;
+        } else if (parameter.name == "damage_threshold") {
+            parameter.defaultValue = 1.0e-4;
+            parameter.lower = 0.0;
+            parameter.upper = 0.1;
+        }
+    }
+
+    numi::matter::WorldSource source;
+    source.environmentCount = 1u;
+    source.frameTimestep = 1.0 / 960.0;
+    source.gravity = {0.0, 0.0, 0.0};
+    source.materials.push_back(parsed.material);
+
+    numi::matter::ObjectSource object;
+    object.name = representation == numi::matter::Representation::mpm
+        ? "stateful_mpm"
+        : "stateful_fem";
+    object.materialIndex = 0u;
+    object.representation = representation;
+    object.characteristicLength = 0.01;
+    constexpr double strainRate = 20.0;
+    if (representation == numi::matter::Representation::mpm) {
+        object.mpmGridMinimum = {-0.02, -0.02, -0.02};
+        object.mpmGridMaximum = {0.02, 0.02, 0.02};
+        constexpr double spacing = 0.005;
+        constexpr double volume = spacing * spacing * spacing;
+        for (int z = 0; z < 2; ++z) {
+            for (int y = 0; y < 2; ++y) {
+                for (int x = 0; x < 2; ++x) {
+                    numi::matter::ParticleSource particle;
+                    particle.position = {
+                        -0.0025 + spacing * x,
+                        -0.0025 + spacing * y,
+                        -0.0025 + spacing * z,
+                    };
+                    particle.velocity = {
+                        strainRate * particle.position[0],
+                        -0.5 * strainRate * particle.position[1],
+                        -0.5 * strainRate * particle.position[2],
+                    };
+                    particle.mass = 1100.0 * volume;
+                    particle.referenceVolume = volume;
+                    object.particles.push_back(particle);
+                }
+            }
+        }
+    } else {
+        object.femNodes = {
+            {-0.005, -0.005, -0.005},
+            { 0.005, -0.005, -0.005},
+            {-0.005,  0.005, -0.005},
+            {-0.005, -0.005,  0.005},
+        };
+        object.tetrahedra.push_back({{0u, 1u, 2u, 3u}});
+    }
+    source.objects.push_back(std::move(object));
+
+    numi::matter::CompileOptions options;
+    options.maximumRateExponent = 4u;
+    auto compiled = numi::matter::compileWorld(source, options);
+    require(compiled.succeeded(), "stateful Matter world compilation failed");
+    require(
+        compiled.world.dispatch.materialStateStride == 2u,
+        "stateful Matter world has the wrong material-state stride"
+    );
+    if (representation == numi::matter::Representation::fem) {
+        require(
+            compiled.world.fem.nodes.size() == 4u,
+            "stateful FEM world did not retain its tetrahedron"
+        );
+        for (NMFEMNodeStateGPU& node : compiled.world.fem.nodes) {
+            node.velocityAndInverseMass.x =
+                static_cast<float>(strainRate) * node.positionAndMass.x;
+            node.velocityAndInverseMass.y =
+                static_cast<float>(-0.5 * strainRate) *
+                node.positionAndMass.y;
+            node.velocityAndInverseMass.z =
+                static_cast<float>(-0.5 * strainRate) *
+                node.positionAndMass.z;
+        }
+        compiled.world.fingerprint =
+            numi::matter::compiledWorldFingerprint(compiled.world);
+    }
+    return std::move(compiled.world);
+}
+
+void runStatefulMaterial(
+    const numi::matter::Representation representation
+) {
+    @autoreleasepool {
+        const auto world = compileStatefulCase(representation);
+        id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+        require(device != nil, "no Metal device is available");
+        id<MTLCommandQueue> queue = [device newCommandQueue];
+        require(queue != nil, "failed to create stateful Matter queue");
+        id<MTLBuffer> worldStatuses = [device
+            newBufferWithLength:sizeof(MRMetalWorldStatusGPU)
+            options:MTLResourceStorageModeShared];
+        require(
+            worldStatuses != nil,
+            "failed to allocate stateful world-status buffer"
+        );
+        auto* worldStatus = static_cast<MRMetalWorldStatusGPU*>(
+            worldStatuses.contents
+        );
+
+        numi::matter::Runtime runtime;
+        const auto initialized = runtime.initialize(
+            world,
+            {
+                .metallib = NUMI_MATTER_METALLIB,
+                .environmentCount = 1u,
+                .captureEvents = true,
+                .captureDiagnostics = true,
+                .automaticIdentification = false,
+                .adaptiveTransfer = false,
+            }
+        );
+        require(initialized.encoded && runtime.valid(), initialized.message);
+
+        const auto runStep = [&](
+            const std::uint32_t controlStep,
+            const bool reject
+        ) {
+            *worldStatus = {};
+            worldStatus->code = MR_STEP_SUCCESS;
+            worldStatus->environment = 0u;
+            id<MTLCommandBuffer> commandBuffer = [queue commandBuffer];
+            require(
+                commandBuffer != nil,
+                "failed to allocate stateful Matter command buffer"
+            );
+            numi::matter::EncodeRequest request{};
+            request.commandBuffer = (__bridge void*)commandBuffer;
+            request.environmentStatuses = (__bridge void*)worldStatuses;
+            request.phase = numi::matter::EncodePhase::preDynamics;
+            request.controlStep = controlStep;
+            request.physicsSubstep = 0u;
+            request.physicsSubsteps = 1u;
+            request.timestepSeconds = runtime.timestepSeconds();
+            request.runAdaptiveTransfer = false;
+            auto encoded = runtime.encode(request);
+            require(
+                encoded.encoded,
+                std::string("stateful pre-dynamics: ") + encoded.message
+            );
+            if (reject) {
+                encodeRigidWorldFailure(
+                    device,
+                    commandBuffer,
+                    worldStatuses
+                );
+            }
+            request.phase = numi::matter::EncodePhase::postCommit;
+            encoded = runtime.encode(request);
+            require(
+                encoded.encoded,
+                std::string("stateful post-commit: ") + encoded.message
+            );
+            [commandBuffer commit];
+            [commandBuffer waitUntilCompleted];
+            require(
+                commandBuffer.status == MTLCommandBufferStatusCompleted,
+                "stateful Matter command buffer did not complete"
+            );
+        };
+
+        const auto initial = runtime.snapshot();
+        require(initial.available, initial.message);
+        require(
+            initial.materialStateStride == 2u,
+            "stateful runtime snapshot has the wrong state stride"
+        );
+        const std::vector<float>& initialState =
+            representation == numi::matter::Representation::mpm
+            ? initial.particleMaterialState
+            : initial.femMaterialState;
+        require(
+            !initialState.empty() &&
+                std::ranges::all_of(initialState, [](const float value) {
+                    return value == 0.0f;
+                }),
+            "stateful runtime did not initialize material state exactly"
+        );
+
+        for (std::uint32_t step = 0u; step < 4u; ++step) {
+            runStep(step, false);
+        }
+        const auto evolved = runtime.snapshot();
+        require(evolved.available, evolved.message);
+        const std::vector<float>& evolvedState =
+            representation == numi::matter::Representation::mpm
+            ? evolved.particleMaterialState
+            : evolved.femMaterialState;
+        require(
+            evolvedState.size() == initialState.size(),
+            "stateful runtime changed material-state capacity"
+        );
+        bool accumulated = false;
+        float maximumDamage = 0.0f;
+        float maximumAccumulatedStrain = 0.0f;
+        for (std::size_t base = 0u;
+             base + 1u < evolvedState.size();
+             base += evolved.materialStateStride) {
+            const float damage = evolvedState[base];
+            const float accumulatedStrain = evolvedState[base + 1u];
+            require(
+                std::isfinite(damage) &&
+                    std::isfinite(accumulatedStrain) &&
+                    damage >= 0.0f && damage <= 0.9501f &&
+                    accumulatedStrain >= 0.0f,
+                "stateful runtime produced invalid material state"
+            );
+            maximumDamage = std::max(maximumDamage, damage);
+            maximumAccumulatedStrain = std::max(
+                maximumAccumulatedStrain,
+                accumulatedStrain
+            );
+            accumulated = accumulated || accumulatedStrain > 1.0e-6f;
+        }
+        require(
+            accumulated,
+            "rate-dependent material state did not evolve"
+        );
+
+        runStep(4u, true);
+        const auto restored = runtime.snapshot();
+        require(restored.available, restored.message);
+        const std::vector<float>& restoredState =
+            representation == numi::matter::Representation::mpm
+            ? restored.particleMaterialState
+            : restored.femMaterialState;
+        require(
+            restoredState.size() == evolvedState.size() &&
+                std::memcmp(
+                    restoredState.data(),
+                    evolvedState.data(),
+                    evolvedState.size() * sizeof(float)
+                ) == 0,
+            "rejected transaction did not restore material state exactly"
+        );
+
+        const auto equalBytes = [](const auto& left, const auto& right) {
+            using Value = typename std::decay_t<decltype(left)>::value_type;
+            return left.size() == right.size() &&
+                (left.empty() || std::memcmp(
+                    left.data(),
+                    right.data(),
+                    left.size() * sizeof(Value)
+                ) == 0);
+        };
+        const auto sameAuthority = [&](
+            const numi::matter::RuntimeStateSnapshot& left,
+            const numi::matter::RuntimeStateSnapshot& right
+        ) {
+            return left.available && right.available &&
+                left.sourcePhysicsFingerprint ==
+                    right.sourcePhysicsFingerprint &&
+                left.deviceProgramFingerprint ==
+                    right.deviceProgramFingerprint &&
+                left.controlStep == right.controlStep &&
+                left.physicsSubstep == right.physicsSubstep &&
+                left.identificationGeneration ==
+                    right.identificationGeneration &&
+                left.identificationCheckpoint ==
+                    right.identificationCheckpoint &&
+                left.identificationAdvanced ==
+                    right.identificationAdvanced &&
+                left.sutureProxyBindingRevision ==
+                    right.sutureProxyBindingRevision &&
+                left.coupledTimestepMultiplier ==
+                    right.coupledTimestepMultiplier &&
+                left.coupledTimestepDivisor ==
+                    right.coupledTimestepDivisor &&
+                left.fgmresIterationBudgetOverride ==
+                    right.fgmresIterationBudgetOverride &&
+                left.newtonIterationBudgetOverride ==
+                    right.newtonIterationBudgetOverride &&
+                left.allocationGeneration == right.allocationGeneration &&
+                left.learnedWeightRevision == right.learnedWeightRevision &&
+                left.materialStateStride == right.materialStateStride &&
+                equalBytes(left.sutureProxyEdges, right.sutureProxyEdges) &&
+                equalBytes(left.particles, right.particles) &&
+                equalBytes(left.femNodes, right.femNodes) &&
+                equalBytes(left.femFields, right.femFields) &&
+                equalBytes(
+                    left.femTopologyNodes,
+                    right.femTopologyNodes
+                ) &&
+                equalBytes(
+                    left.femTopologyTetrahedra,
+                    right.femTopologyTetrahedra
+                ) &&
+                equalBytes(left.cohesiveFaces, right.cohesiveFaces) &&
+                equalBytes(
+                    left.punctureChannels,
+                    right.punctureChannels
+                ) &&
+                equalBytes(left.topologyStates, right.topologyStates) &&
+                equalBytes(left.statuses, right.statuses) &&
+                equalBytes(
+                    left.solverCertificates,
+                    right.solverCertificates
+                ) &&
+                equalBytes(
+                    left.mpmActiveNodeIndices,
+                    right.mpmActiveNodeIndices
+                ) &&
+                equalBytes(left.mpmNodeToActive, right.mpmNodeToActive) &&
+                equalBytes(
+                    left.mpmActiveNodeCounts,
+                    right.mpmActiveNodeCounts
+                ) &&
+                equalBytes(
+                    left.rigidGeneralizedCandidate,
+                    right.rigidGeneralizedCandidate
+                ) &&
+                equalBytes(left.learnedWeights, right.learnedWeights) &&
+                equalBytes(left.adaptive, right.adaptive) &&
+                equalBytes(left.schedulers, right.schedulers) &&
+                equalBytes(left.reactions, right.reactions) &&
+                equalBytes(left.rigidStates, right.rigidStates) &&
+                equalBytes(left.contactSamples, right.contactSamples) &&
+                equalBytes(
+                    left.contactHistories,
+                    right.contactHistories
+                ) &&
+                equalBytes(
+                    left.deformableContactHistories,
+                    right.deformableContactHistories
+                ) &&
+                equalBytes(
+                    left.particleMaterialState,
+                    right.particleMaterialState
+                ) &&
+                equalBytes(
+                    left.femMaterialState,
+                    right.femMaterialState
+                ) &&
+                equalBytes(left.identification, right.identification) &&
+                equalBytes(
+                    left.environmentParameters,
+                    right.environmentParameters
+                );
+        };
+
+        numi::matter::RuntimeStateSnapshot mismatched = evolved;
+        mismatched.deviceProgramFingerprint ^= 1u;
+        const auto rejectedRestore = runtime.restore(mismatched);
+        require(
+            !rejectedRestore.encoded,
+            "mismatched Matter device program was restored"
+        );
+        const auto afterRejectedRestore = runtime.snapshot();
+        require(
+            sameAuthority(afterRejectedRestore, restored),
+            "rejected Matter snapshot restore mutated live state"
+        );
+
+        const std::filesystem::path archivePath =
+            std::filesystem::temp_directory_path() /
+            (
+                std::string{"metalrobo-matter-stateful-"} +
+                (representation == numi::matter::Representation::mpm
+                    ? "mpm-"
+                    : "fem-") +
+                std::to_string(evolved.deviceProgramFingerprint) + ".bin"
+            );
+        const auto archiveWritten =
+            metalrobo::writeMatterSnapshotArchive(evolved, archivePath);
+        require(archiveWritten.succeeded(), archiveWritten.message);
+        numi::matter::RuntimeStateSnapshot decoded;
+        const auto archiveRead = metalrobo::readMatterSnapshotArchive(
+            archivePath,
+            decoded
+        );
+        require(
+            archiveRead.succeeded() &&
+                archiveRead.contentHash == archiveWritten.contentHash &&
+                archiveRead.payloadBytes == archiveWritten.payloadBytes &&
+                sameAuthority(decoded, evolved),
+            archiveRead.message.empty()
+                ? "serialized Matter snapshot changed authority"
+                : archiveRead.message
+        );
+
+        const auto restore = runtime.restore(decoded);
+        require(restore.encoded, restore.message);
+        const auto explicitlyRestored = runtime.snapshot();
+        require(
+            sameAuthority(explicitlyRestored, evolved),
+            "explicit Matter snapshot restore was not byte-exact"
+        );
+        runStep(4u, false);
+        const auto continued = runtime.snapshot();
+        require(continued.available, continued.message);
+        const auto rewind = runtime.restore(decoded);
+        require(rewind.encoded, rewind.message);
+        runStep(4u, false);
+        const auto replayed = runtime.snapshot();
+        require(replayed.available, replayed.message);
+        require(
+            sameAuthority(replayed, continued),
+            "restored Matter continuation was not deterministic"
+        );
+        std::error_code removeError;
+        std::filesystem::remove(archivePath, removeError);
+        require(
+            !removeError,
+            "could not remove serialized Matter checkpoint fixture"
+        );
+
+        std::cout
+            << "{\"schema\":\"numi.matter.stateful-runtime.v1\""
+            << ",\"representation\":\""
+            << (representation == numi::matter::Representation::mpm
+                    ? "mpm"
+                    : "fem")
+            << "\",\"state_stride\":"
+            << evolved.materialStateStride
+            << ",\"maximum_damage\":" << maximumDamage
+            << ",\"maximum_accumulated_strain\":"
+            << maximumAccumulatedStrain
+            << ",\"rollback_exact\":true"
+            << ",\"mismatched_program_rejected\":true"
+            << ",\"archive_restore_exact\":true"
+            << ",\"explicit_restore_exact\":true"
+            << ",\"continuation_exact\":true}\n";
+    }
+}
+
+struct Outcome {
+    double gpuMilliseconds = 0.0;
+    std::size_t residentBytes = 0u;
+    std::uint64_t threadDispatches = 0u;
+    std::uint64_t simdgroupDispatches = 0u;
+    std::uint64_t indirectDispatches = 0u;
+    std::uint64_t requestedThreads = 0u;
+    std::uint64_t requestedThreadgroups = 0u;
+    std::uint32_t environmentCount = 0u;
+    std::uint32_t contactSamples = 0u;
+    std::uint32_t minimumContactSamples =
+        std::numeric_limits<std::uint32_t>::max();
+    std::uint32_t completedMicrosteps = 0u;
+    std::uint64_t totalCompletedMicrosteps = 0u;
+    std::uint32_t fgmresIterations = 0u;
+    bool sawContactOnset = false;
+    bool sawContactEvent = false;
+    float minimumDeterminant = std::numeric_limits<float>::infinity();
+    float minimumHeight = std::numeric_limits<float>::infinity();
+    float maximumHeight = -std::numeric_limits<float>::infinity();
+    float minimumVerticalVelocity = std::numeric_limits<float>::infinity();
+    float maximumVerticalVelocity = -std::numeric_limits<float>::infinity();
+    float minimumTemperature = std::numeric_limits<float>::infinity();
+    float maximumTemperature = -std::numeric_limits<float>::infinity();
+    float minimumMechanicalPressure = std::numeric_limits<float>::infinity();
+    float maximumMechanicalPressure = -std::numeric_limits<float>::infinity();
+    float minimumPorePressure = std::numeric_limits<float>::infinity();
+    float maximumPorePressure = -std::numeric_limits<float>::infinity();
+    float maximumActivation = 0.0f;
+    float maximumElectricPotential = -std::numeric_limits<float>::infinity();
+    std::uint32_t activeTetrahedra = 0u;
+    std::uint32_t activeTopologyNodes = 0u;
+    std::uint32_t separatedFaces = 0u;
+    std::uint32_t activeChannels = 0u;
+    float removedMass = 0.0f;
+    double femMass = 0.0;
+    std::array<double, 3> femMomentum{};
+    std::uint32_t learnedRevision = 0u;
+    float nonlinearResidual = 0.0f;
+    float relativeCorrection = 0.0f;
+    float volumeResidual = 0.0f;
+    float pressureResidual = 0.0f;
+    float maximumBarrierImpulse = 0.0f;
+    float authoredContactSeparationFloor = 0.0f;
+    float minimumContactSeparation =
+        std::numeric_limits<float>::infinity();
+    float maximumTangentialImpulse = 0.0f;
+    float maximumContactEnergy = 0.0f;
+    float transportResidual = 0.0f;
+    bool topologySnapshotRestored = false;
+};
+
+Outcome runCase(
+    const numi::matter::CompiledWorld& world,
+    const char* label,
+    bool requireContact,
+    bool requireDescent,
+    std::uint32_t controlSteps,
+    bool forceRollback = false,
+    bool updateLearned = false,
+    bool verifyTopologyRestore = false
+);
+
+void runIdentification() {
+    @autoreleasepool {
+        const auto world = compileCase(
+            numi::matter::Representation::mpm,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            1.0 / 480.0,
+            2u,
+            2u
+        );
+        require(world.dispatch.identificationCandidateCount == 2u &&
+                    !world.identification.empty(),
+            "identification probe did not compile paired candidate state");
+
+        id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+        require(device != nil, "no Metal device is available");
+        id<MTLCommandQueue> queue = [device newCommandQueue];
+        require(queue != nil, "failed to create Matter identification queue");
+        id<MTLBuffer> statuses = [device
+            newBufferWithLength:2u * sizeof(MRMetalWorldStatusGPU)
+            options:MTLResourceStorageModeShared];
+        require(statuses != nil, "failed to allocate identification world statuses");
+        auto* worldStatuses = static_cast<MRMetalWorldStatusGPU*>(statuses.contents);
+        require(worldStatuses != nullptr, "identification world statuses are unavailable");
+        for (std::uint32_t environment = 0u; environment < 2u; ++environment) {
+            worldStatuses[environment] = {};
+            worldStatuses[environment].code = MR_STEP_SUCCESS;
+            worldStatuses[environment].environment = environment;
+        }
+
+        numi::matter::Runtime runtime;
+        const auto initialized = runtime.initialize(
+            world,
+            {
+                .metallib = NUMI_MATTER_METALLIB,
+                .environmentCount = 2u,
+                .captureEvents = true,
+                .captureDiagnostics = true,
+                .automaticIdentification = true,
+                .adaptiveTransfer = false,
+            }
+        );
+        require(initialized.encoded && runtime.valid(),
+            "identification runtime could not initialize: " + initialized.message);
+        const auto matterStatuses = (__bridge id<MTLBuffer>)runtime.statusBuffer();
+        const auto* matterStatusData = static_cast<const NMMatterStatusGPU*>(
+            matterStatuses.contents
+        );
+        require(matterStatusData != nullptr,
+            "identification Matter statuses are unavailable");
+
+        const auto runStep = [&](const std::uint32_t controlStep) {
+            id<MTLCommandBuffer> commandBuffer = [queue commandBuffer];
+            require(commandBuffer != nil, "failed to allocate identification command buffer");
+            numi::matter::EncodeRequest request{};
+            request.commandBuffer = (__bridge void*)commandBuffer;
+            request.environmentStatuses = (__bridge void*)statuses;
+            request.phase = numi::matter::EncodePhase::preDynamics;
+            request.controlStep = controlStep;
+            request.physicsSubstep = 0u;
+            request.physicsSubsteps = 1u;
+            request.timestepSeconds = runtime.timestepSeconds();
+            request.runIdentification = true;
+            request.runAdaptiveTransfer = false;
+            auto encoded = runtime.encode(request);
+            require(encoded.encoded,
+                "identification pre-dynamics encoding failed: " + encoded.message);
+            request.phase = numi::matter::EncodePhase::postCommit;
+            request.runIdentification = false;
+            encoded = runtime.encode(request);
+            require(encoded.encoded,
+                "identification post-commit encoding failed: " + encoded.message);
+            [commandBuffer commit];
+            [commandBuffer waitUntilCompleted];
+            require(commandBuffer.status == MTLCommandBufferStatusCompleted,
+                "identification command buffer did not complete");
+            for (std::uint32_t environment = 0u; environment < 2u; ++environment) {
+                require(matterStatusData[environment].code == NM_STATUS_SUCCESS,
+                    "identification continuum step failed in environment " +
+                        std::to_string(environment));
+            }
+        };
+
+        runStep(0u);
+        const auto sampled = runtime.snapshot();
+        require(sampled.available && !sampled.identification.empty() &&
+                    sampled.environmentParameters.size() ==
+                        2u * world.dispatch.parameterCount,
+            "identification sampling did not publish diagnostic state");
+        const float priorMean = sampled.identification[0].momentsAndBounds.x;
+        bool antitheticOverlay = false;
+        for (std::uint32_t parameter = 0u;
+             parameter < world.dispatch.parameterCount;
+             ++parameter) {
+            antitheticOverlay = antitheticOverlay ||
+                std::abs(sampled.environmentParameters[parameter] -
+                         sampled.environmentParameters[
+                             world.dispatch.parameterCount + parameter]) >
+                    1.0e-6f;
+        }
+        require(antitheticOverlay,
+            "identification candidates did not produce paired environment overlays");
+
+        const auto losses = (__bridge id<MTLBuffer>)runtime.identificationLossBuffer();
+        require(losses != nil && losses.contents != nullptr,
+            "identification loss boundary is unavailable");
+        auto* lossData = static_cast<float*>(losses.contents);
+        lossData[0] = 0.0f;
+        lossData[1] = 100.0f;
+        runStep(1u);
+        const auto updated = runtime.snapshot();
+        require(updated.available && updated.identification.size() ==
+                    sampled.identification.size(),
+            "identification update did not publish posterior state");
+        require(std::abs(updated.identification[0].momentsAndBounds.x -
+                         priorMean) > 1.0e-5f,
+            "identification posterior did not respond to asymmetric losses");
+        std::cout
+            << "{\"schema\":\"numi.matter.physics-probe.v1\""
+            << ",\"representation\":\"inverse_identification\""
+            << ",\"prior_mean\":" << priorMean
+            << ",\"posterior_mean\":"
+            << updated.identification[0].momentsAndBounds.x
+            << "}\n";
+    }
+}
+
+numi::matter::CompiledWorld compileAdaptiveCase() {
+    const auto parsed = numi::matter::parseMatterFile(NUMI_MATTER_MATERIAL);
+    require(parsed.succeeded(), "reference silicone material did not parse");
+    numi::matter::WorldSource source;
+    source.environmentCount = 1u;
+    source.frameTimestep = 1.0 / 480.0;
+    source.gravity = {0.0, 0.0, 0.0};
+    source.materials.push_back(parsed.material);
+
+    numi::matter::RigidProxySource fallback;
+    fallback.shape = NM_RIGID_SPHERE;
+    fallback.bodyIndex = 0u;
+    fallback.sceneBodyIndex = 0u;
+    fallback.radiusOrOffset = 0.01;
+    fallback.dynamic = true;
+    source.rigidProxies.push_back(fallback);
+
+    numi::matter::ObjectSource object;
+    object.name = "adaptive_mpm";
+    object.materialIndex = 0u;
+    object.representation = numi::matter::Representation::mpm;
+    object.adaptive = true;
+    object.rigidBinding = 0u;
+    object.characteristicLength = 0.01;
+    object.mpmGridMinimum = {-0.02, -0.02, -0.02};
+    object.mpmGridMaximum = {0.02, 0.02, 0.02};
+    constexpr double spacing = 0.005;
+    constexpr double volume = spacing * spacing * spacing;
+    for (int z = 0; z < 2; ++z) {
+        for (int y = 0; y < 2; ++y) {
+            for (int x = 0; x < 2; ++x) {
+                object.particles.push_back({
+                    .position = {
+                        -0.005 + spacing * x,
+                        -0.005 + spacing * y,
+                        -0.005 + spacing * z,
+                    },
+                    .velocity = {0.0, 0.0, 0.0},
+                    .mass = 1100.0 * volume,
+                    .referenceVolume = volume,
+                });
+            }
+        }
+    }
+    source.objects.push_back(std::move(object));
+    numi::matter::CompileOptions options;
+    options.maximumRateExponent = 0u;
+    const auto compiled = numi::matter::compileWorld(source, options);
+    require(compiled.succeeded(), "adaptive Matter world did not compile");
+    return compiled.world;
+}
+
+MRBodyStateGPU adaptiveBodyState() {
+    MRBodyStateGPU state{};
+    state.position = {10.0f, 0.0f, 0.0f, 1.0f};
+    state.orientation.w = 1.0f;
+    state.linearVelocityAndInverseMass.w = 1.0f;
+    state.inverseInertiaWorldRow0.x = 1.0f;
+    state.inverseInertiaWorldRow1.y = 1.0f;
+    state.inverseInertiaWorldRow2.z = 1.0f;
+    state.flagsAndIndices[0] = MR_MOTION_DYNAMIC;
+    state.flagsAndIndices[1] = MR_INVALID_INDEX;
+    state.flagsAndIndices[2] = 0u;
+    return state;
+}
+
+void runAdaptiveTransfer(
+    const bool requirePromotion,
+    const bool rejectPromotion = false
+) {
+    @autoreleasepool {
+        const auto world = compileAdaptiveCase();
+        id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+        require(device != nil, "no Metal device is available");
+        id<MTLCommandQueue> queue = [device newCommandQueue];
+        require(queue != nil, "failed to create adaptive Matter queue");
+        id<MTLBuffer> statuses = [device
+            newBufferWithLength:sizeof(MRMetalWorldStatusGPU)
+            options:MTLResourceStorageModeShared];
+        id<MTLBuffer> currentBodies = [device
+            newBufferWithLength:sizeof(MRBodyStateGPU)
+            options:MTLResourceStorageModeShared];
+        id<MTLBuffer> sceneBodies = [device
+            newBufferWithLength:sizeof(MRBodyStateGPU)
+            options:MTLResourceStorageModeShared];
+        id<MTLBuffer> bodyWrenches = [device
+            newBufferWithLength:sizeof(MRABABodyWrenchGPU)
+            options:MTLResourceStorageModeShared];
+        require(statuses != nil && currentBodies != nil && sceneBodies != nil &&
+                    bodyWrenches != nil,
+            "failed to allocate adaptive bridge arenas");
+        auto* worldStatus = static_cast<MRMetalWorldStatusGPU*>(statuses.contents);
+        auto* current = static_cast<MRBodyStateGPU*>(currentBodies.contents);
+        auto* scene = static_cast<MRBodyStateGPU*>(sceneBodies.contents);
+        require(worldStatus != nullptr && current != nullptr && scene != nullptr,
+            "adaptive bridge arenas are unavailable");
+        *worldStatus = {};
+        worldStatus->code = MR_STEP_SUCCESS;
+        *current = adaptiveBodyState();
+        *scene = adaptiveBodyState();
+
+        numi::matter::Runtime runtime;
+        const auto initialized = runtime.initialize(
+            world,
+            {
+                .metallib = NUMI_MATTER_METALLIB,
+                .environmentCount = 1u,
+                .captureEvents = true,
+                .captureDiagnostics = true,
+                .automaticIdentification = false,
+                .adaptiveTransfer = true,
+            }
+        );
+        require(initialized.encoded && runtime.valid(),
+            "adaptive runtime could not initialize: " + initialized.message);
+        const auto matterStatuses = (__bridge id<MTLBuffer>)runtime.statusBuffer();
+        const auto* matterStatus = static_cast<const NMMatterStatusGPU*>(
+            matterStatuses.contents
+        );
+        require(matterStatus != nullptr, "adaptive Matter status is unavailable");
+
+        for (std::uint32_t step = 0u; step < 30u; ++step) {
+            id<MTLCommandBuffer> commandBuffer = [queue commandBuffer];
+            require(commandBuffer != nil, "failed to allocate adaptive command buffer");
+            numi::matter::EncodeRequest request{};
+            request.commandBuffer = (__bridge void*)commandBuffer;
+            request.rigid.currentBodies = (__bridge void*)currentBodies;
+            request.rigid.bodyWrenches = (__bridge void*)bodyWrenches;
+            request.rigid.sceneBodies = (__bridge void*)sceneBodies;
+            request.rigid.currentBodyCount = 1u;
+            request.rigid.currentBodyStride = 1u;
+            request.rigid.bodyWrenchCount = 1u;
+            request.rigid.sceneBodyCount = 1u;
+            request.rigid.bodyWrenchStride = 1u;
+            request.rigid.sceneStride = 1u;
+            request.environmentStatuses = (__bridge void*)statuses;
+            request.controlStep = step;
+            request.physicsSubstep = 0u;
+            request.physicsSubsteps = 1u;
+            request.timestepSeconds = runtime.timestepSeconds();
+            request.phase = numi::matter::EncodePhase::preDynamics;
+            request.runAdaptiveTransfer = false;
+            auto encoded = runtime.encode(request);
+            require(encoded.encoded,
+                "adaptive pre-dynamics encoding failed: " + encoded.message);
+            request.phase = numi::matter::EncodePhase::postCommit;
+            request.runAdaptiveTransfer = true;
+            encoded = runtime.encode(request);
+            require(encoded.encoded,
+                "adaptive post-commit encoding failed: " + encoded.message);
+            [commandBuffer commit];
+            [commandBuffer waitUntilCompleted];
+            require(commandBuffer.status == MTLCommandBufferStatusCompleted,
+                "adaptive command buffer did not complete");
+            require(matterStatus->code == NM_STATUS_SUCCESS,
+                "adaptive continuum step failed at frame " + std::to_string(step));
+        }
+
+        const auto snapshot = runtime.snapshot();
+        require(snapshot.available && snapshot.adaptive.size() == 1u,
+            "adaptive transfer did not publish diagnostic state");
+        const NMAdaptiveStateGPU& adaptive = snapshot.adaptive[0];
+        require(adaptive.activeRepresentation == NM_REPRESENTATION_RIGID &&
+                    adaptive.requestedRepresentation == NM_REPRESENTATION_RIGID,
+            "low-strain adaptive object did not demote to rigid ownership");
+        require(std::abs(scene->position.x - adaptive.centerAndRadius.x) < 1.0e-5f &&
+                    (scene->flagsAndIndices[3] &
+                     MR_BODY_STATE_COLLISION_DISABLED) == 0u,
+            "adaptive demotion did not publish its rigid scene authority");
+        require(adaptive.inverseInertiaRow0.x > 0.0f &&
+                    adaptive.inverseInertiaRow1.y > 0.0f &&
+                    adaptive.inverseInertiaRow2.z > 0.0f,
+            "adaptive demotion produced no valid rigid inverse inertia");
+        if (requirePromotion) {
+            // The direct probe uses the same typed arena MetalWorld exposes
+            // after a solved contact substep.  The fallback body's real
+            // pre-solve normal speed crosses the authored promotion threshold.
+            *current = *scene;
+            id<MTLBuffer> contactStatuses = [device
+                newBufferWithLength:sizeof(MRMetalWorldContactStatusGPU)
+                options:MTLResourceStorageModeShared];
+            id<MTLBuffer> contacts = [device
+                newBufferWithLength:sizeof(MRContactConstraintGPU)
+                options:MTLResourceStorageModeShared];
+            require(contactStatuses != nil && contacts != nil,
+                "failed to allocate adaptive rigid contact evidence");
+            auto* contactStatus = static_cast<MRMetalWorldContactStatusGPU*>(
+                contactStatuses.contents
+            );
+            auto* contact = static_cast<MRContactConstraintGPU*>(contacts.contents);
+            require(contactStatus != nullptr && contact != nullptr,
+                "adaptive rigid contact evidence is unavailable");
+            *contactStatus = {};
+            contactStatus->code = MR_STEP_SUCCESS;
+            contactStatus->environment = 0u;
+            contactStatus->requiredConstraints = 1u;
+            contactStatus->activeContacts = 1u;
+            *contact = {};
+            contact->bodyA = 0u;
+            contact->bodyB = MR_INVALID_INDEX;
+            contact->targetVelocityAndPreSolveNormal.w = -1.0f;
+            contact->impulses.x = 0.1f;
+            const auto beforePromotion = runtime.snapshot();
+            require(beforePromotion.available,
+                "adaptive promotion rollback baseline is unavailable");
+
+            id<MTLCommandBuffer> commandBuffer = [queue commandBuffer];
+            require(commandBuffer != nil,
+                "failed to allocate adaptive promotion command buffer");
+            numi::matter::EncodeRequest request{};
+            request.commandBuffer = (__bridge void*)commandBuffer;
+            request.rigid.currentBodies = (__bridge void*)currentBodies;
+            request.rigid.bodyWrenches = (__bridge void*)bodyWrenches;
+            request.rigid.sceneBodies = (__bridge void*)sceneBodies;
+            request.rigid.currentBodyCount = 1u;
+            request.rigid.currentBodyStride = 1u;
+            request.rigid.bodyWrenchCount = 1u;
+            request.rigid.sceneBodyCount = 1u;
+            request.rigid.bodyWrenchStride = 1u;
+            request.rigid.sceneStride = 1u;
+            request.environmentStatuses = (__bridge void*)statuses;
+            request.rigidContactConstraints = (__bridge void*)contacts;
+            request.rigidContactStatuses = (__bridge void*)contactStatuses;
+            request.rigidContactConstraintStride = 1u;
+            request.controlStep = 30u;
+            request.physicsSubstep = 0u;
+            request.physicsSubsteps = 1u;
+            request.timestepSeconds = runtime.timestepSeconds();
+            request.phase = numi::matter::EncodePhase::preDynamics;
+            request.runAdaptiveTransfer = false;
+            auto encoded = runtime.encode(request);
+            require(encoded.encoded,
+                "adaptive promotion pre-dynamics encoding failed: " + encoded.message);
+            if (rejectPromotion) {
+                encodeRigidWorldFailure(
+                    device,
+                    commandBuffer,
+                    statuses
+                );
+            }
+            request.phase = numi::matter::EncodePhase::postCommit;
+            request.runAdaptiveTransfer = true;
+            encoded = runtime.encode(request);
+            require(encoded.encoded,
+                "adaptive promotion post-commit encoding failed: " + encoded.message);
+            [commandBuffer commit];
+            [commandBuffer waitUntilCompleted];
+            require(commandBuffer.status == MTLCommandBufferStatusCompleted,
+                "adaptive promotion command buffer did not complete");
+
+            if (rejectPromotion) {
+                require(matterStatus->code == NM_STATUS_RIGID_WORLD_FAILURE,
+                    "rejected rigid contact did not latch Matter failure");
+                const auto restored = runtime.snapshot();
+                const auto equalBytes = [](const auto& left, const auto& right) {
+                    return left.size() == right.size() &&
+                        (left.empty() || std::memcmp(
+                            left.data(), right.data(),
+                            left.size() * sizeof(left.front())
+                        ) == 0);
+                };
+                require(restored.available &&
+                            restored.adaptive.size() == 1u &&
+                            restored.schedulers.size() == 1u &&
+                            equalBytes(restored.adaptive, beforePromotion.adaptive) &&
+                            equalBytes(restored.schedulers, beforePromotion.schedulers) &&
+                            restored.adaptive[0].activeRepresentation ==
+                                NM_REPRESENTATION_RIGID &&
+                            (scene->flagsAndIndices[3] &
+                             MR_BODY_STATE_COLLISION_DISABLED) == 0u,
+                    "rejected rigid contact did not restore adaptive rigid ownership");
+                std::cout
+                    << "{\"schema\":\"numi.matter.physics-probe.v1\""
+                    << ",\"representation\":\"adaptive_promotion_rollback\""
+                    << ",\"transaction_rollback\":true}\n";
+                return;
+            }
+            require(matterStatus->code == NM_STATUS_SUCCESS,
+                "adaptive promotion command buffer did not complete successfully");
+
+            const auto promoted = runtime.snapshot();
+            require(promoted.available && promoted.adaptive.size() == 1u &&
+                        promoted.schedulers.size() == 1u,
+                "adaptive promotion did not publish diagnostic state");
+            require(promoted.adaptive[0].activeRepresentation ==
+                        NM_REPRESENTATION_MPM &&
+                        promoted.adaptive[0].requestedRepresentation ==
+                            NM_REPRESENTATION_MPM &&
+                        promoted.schedulers[0].physical.x >= 1.0f &&
+                        (scene->flagsAndIndices[3] &
+                         MR_BODY_STATE_COLLISION_DISABLED) != 0u,
+                "rigid contact did not restore continuum ownership");
+            std::cout
+                << "{\"schema\":\"numi.matter.physics-probe.v1\""
+                << ",\"representation\":\"adaptive_rigid_to_mpm\""
+                << ",\"contact_speed\":"
+                << promoted.schedulers[0].physical.x
+                << ",\"continuum_collision_disabled\":true}\n";
+            return;
+        }
+        std::cout
+            << "{\"schema\":\"numi.matter.physics-probe.v1\""
+            << ",\"representation\":\"adaptive_mpm_to_rigid\""
+            << ",\"stable_frames\":" << adaptive.stableFrames
+            << ",\"scene_x\":" << scene->position.x
+            << ",\"inverse_inertia_diag\":["
+            << adaptive.inverseInertiaRow0.x << ','
+            << adaptive.inverseInertiaRow1.y << ','
+            << adaptive.inverseInertiaRow2.z << ']'
+            << "}\n";
+    }
+}
+
+void runPostCommitContactGuard() {
+    @autoreleasepool {
+        const auto world = compileArticulatedFootPadScene(false, true);
+        numi::matter::Runtime runtime;
+        const auto initialized = runtime.initialize(world, {
+            .metallib = NUMI_MATTER_METALLIB,
+            .environmentCount = 1u,
+            .captureEvents = true,
+            .captureDiagnostics = true,
+            .automaticIdentification = false,
+            .adaptiveTransfer = false,
+        });
+        require(initialized.encoded && runtime.valid(),
+            "post-commit contact guard could not initialize Matter: " +
+                initialized.message);
+
+        id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+        require(device != nil, "post-commit contact guard has no Metal device");
+        id<MTLCommandQueue> queue = [device newCommandQueue];
+        require(queue != nil,
+            "post-commit contact guard could not allocate a command queue");
+
+        MRBodyStateGPU initialBody{};
+        initialBody.position = {0.0f, 0.0f, 0.023999f, 1.0f};
+        initialBody.orientation.w = 1.0f;
+        initialBody.flagsAndIndices[0] = MR_MOTION_STATIC;
+        initialBody.flagsAndIndices[1] = MR_INVALID_INDEX;
+        initialBody.flagsAndIndices[2] = MR_INVALID_INDEX;
+        MRBodyStateGPU crossedBody = initialBody;
+        // The box bottom moves from 99 um above the accepted pad surface to
+        // 50 um inside it after pre-dynamics. This deliberately models the
+        // external-owner motion that the surgical needle run exposed.
+        crossedBody.position.z = 0.02385f;
+        id<MTLBuffer> initialStaging = [device
+            newBufferWithBytes:&initialBody
+                        length:sizeof(initialBody)
+                       options:MTLResourceStorageModeShared];
+        id<MTLBuffer> crossedStaging = [device
+            newBufferWithBytes:&crossedBody
+                        length:sizeof(crossedBody)
+                       options:MTLResourceStorageModeShared];
+        id<MTLBuffer> currentBodies = [device
+            newBufferWithLength:sizeof(MRBodyStateGPU)
+                       options:MTLResourceStorageModePrivate];
+        id<MTLBuffer> worldStatuses = [device
+            newBufferWithLength:sizeof(MRMetalWorldStatusGPU)
+                       options:MTLResourceStorageModeShared];
+        require(initialStaging != nil && crossedStaging != nil &&
+                    currentBodies != nil && worldStatuses != nil,
+            "post-commit contact guard could not allocate borrowed buffers");
+        auto* worldStatus = static_cast<MRMetalWorldStatusGPU*>(
+            worldStatuses.contents);
+        *worldStatus = {};
+        worldStatus->code = MR_STEP_SUCCESS;
+        worldStatus->environment = 0u;
+        // Model MetalWorld's provisional rigid publication before a late
+        // post-commit Matter rejection. The latch must retract this substep
+        // from public success accounting when it rejects the transaction.
+        worldStatus->successfulSubsteps = 1u;
+
+        const auto initialMatter = runtime.snapshot();
+        require(initialMatter.available && !initialMatter.femNodes.empty(),
+            "post-commit contact guard has no initial Matter snapshot");
+        id<MTLCommandBuffer> commandBuffer = [queue commandBuffer];
+        require(commandBuffer != nil,
+            "post-commit contact guard could not allocate a command buffer");
+        id<MTLBlitCommandEncoder> blit = [commandBuffer blitCommandEncoder];
+        require(blit != nil,
+            "post-commit contact guard could not allocate an initial blit");
+        [blit copyFromBuffer:initialStaging sourceOffset:0u
+                   toBuffer:currentBodies destinationOffset:0u
+                       size:sizeof(MRBodyStateGPU)];
+        [blit endEncoding];
+
+        numi::matter::EncodeRequest request{};
+        request.commandBuffer = (__bridge void*)commandBuffer;
+        request.rigid.currentBodies = (__bridge void*)currentBodies;
+        request.rigid.currentBodyCount = 1u;
+        request.rigid.currentBodyStride = 1u;
+        request.environmentStatuses = (__bridge void*)worldStatuses;
+        request.phase = numi::matter::EncodePhase::preDynamics;
+        request.controlStep = 0u;
+        request.physicsSubstep = 0u;
+        request.physicsSubsteps = 1u;
+        request.rigidWorldPhysicsSubstep = 0u;
+        request.timestepSeconds = runtime.timestepSeconds();
+        auto encoded = runtime.encode(request);
+        require(encoded.encoded,
+            "post-commit contact guard pre-dynamics failed: " +
+                encoded.message);
+
+        blit = [commandBuffer blitCommandEncoder];
+        require(blit != nil,
+            "post-commit contact guard could not allocate a crossing blit");
+        [blit copyFromBuffer:crossedStaging sourceOffset:0u
+                   toBuffer:currentBodies destinationOffset:0u
+                       size:sizeof(MRBodyStateGPU)];
+        [blit endEncoding];
+        request.phase = numi::matter::EncodePhase::postCommit;
+        encoded = runtime.encode(request);
+        require(encoded.encoded,
+            "post-commit contact guard reconciliation failed: " +
+                encoded.message);
+        [commandBuffer commit];
+        [commandBuffer waitUntilCompleted];
+        require(commandBuffer.status == MTLCommandBufferStatusCompleted,
+            "post-commit contact guard command buffer did not complete");
+
+        const auto rejected = runtime.snapshot();
+        require(rejected.available && rejected.statuses.size() == 1u &&
+                    rejected.statuses[0].code == NM_STATUS_CONTACT_FAILURE &&
+                    rejected.statuses[0].failingIndex <
+                        world.contact.pairs.size() &&
+                    worldStatus->code != MR_STEP_SUCCESS &&
+                    worldStatus->successfulSubsteps == 0u &&
+                    worldStatus->failingSubstep == 0u &&
+                    rejected.femNodes.size() == initialMatter.femNodes.size() &&
+                    std::memcmp(
+                        rejected.femNodes.data(), initialMatter.femNodes.data(),
+                        rejected.femNodes.size() * sizeof(NMFEMNodeStateGPU)
+                    ) == 0,
+            "post-commit contact crossing was not rejected and rolled back");
+        const NMMatterStatusGPU status = rejected.statuses[0];
+        const float authoredFloor =
+            world.mixedSolver.contactAcceptance.x *
+            world.dispatch.numericalLimits.x;
+        require(std::isfinite(status.diagnostics.x) &&
+                    status.diagnostics.x <= authoredFloor &&
+                    std::abs(status.diagnostics.y - authoredFloor) <= 1.0e-9f,
+            "post-commit contact guard reported the wrong authored floor");
+        std::cout
+            << "{\"schema\":\"numi.matter.post-commit-contact.v1\""
+            << ",\"matter_status\":" << status.code
+            << ",\"world_status\":" << worldStatus->code
+            << ",\"separation\":" << status.diagnostics.x
+            << ",\"authored_floor\":" << authoredFloor
+            << ",\"successful_substeps\":"
+            << worldStatus->successfulSubsteps
+            << ",\"rollback_exact\":true}\n";
+    }
+}
+
+void runPunctureChannelExitGuard() {
+    @autoreleasepool {
+        const auto containedWorld = compilePunctureChannelExitCase(false);
+        const auto exitingWorld = compilePunctureChannelExitCase(true);
+
+        const auto execute = [](
+            const numi::matter::CompiledWorld& world,
+            const char* label
+        ) {
+            numi::matter::Runtime runtime;
+            const auto initialized = runtime.initialize(world, {
+                .metallib = NUMI_MATTER_METALLIB,
+                .environmentCount = 1u,
+                .captureEvents = true,
+                .captureDiagnostics = true,
+                .automaticIdentification = false,
+                .adaptiveTransfer = false,
+            });
+            require(initialized.encoded && runtime.valid(),
+                std::string(label) + " could not initialize Matter: " +
+                    initialized.message);
+
+            id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+            require(device != nil,
+                std::string(label) + " has no Metal device");
+            id<MTLCommandQueue> queue = [device newCommandQueue];
+            id<MTLBuffer> worldStatuses = [device
+                newBufferWithLength:sizeof(MRMetalWorldStatusGPU)
+                           options:MTLResourceStorageModeShared];
+            require(queue != nil && worldStatuses != nil,
+                std::string(label) + " could not allocate Metal state");
+            auto* worldStatus = static_cast<MRMetalWorldStatusGPU*>(
+                worldStatuses.contents);
+            *worldStatus = {};
+            worldStatus->code = MR_STEP_SUCCESS;
+            worldStatus->environment = 0u;
+
+            id<MTLCommandBuffer> commandBuffer = [queue commandBuffer];
+            require(commandBuffer != nil,
+                std::string(label) + " could not allocate a command buffer");
+            numi::matter::EncodeRequest request{};
+            request.commandBuffer = (__bridge void*)commandBuffer;
+            request.environmentStatuses = (__bridge void*)worldStatuses;
+            request.phase = numi::matter::EncodePhase::preDynamics;
+            request.controlStep = 0u;
+            request.physicsSubstep = 0u;
+            request.physicsSubsteps = 1u;
+            request.rigidWorldPhysicsSubstep = 0u;
+            request.timestepSeconds = runtime.timestepSeconds();
+            auto encoded = runtime.encode(request);
+            require(encoded.encoded,
+                std::string(label) + " pre-dynamics failed: " +
+                    encoded.message);
+            request.phase = numi::matter::EncodePhase::postCommit;
+            encoded = runtime.encode(request);
+            require(encoded.encoded,
+                std::string(label) + " post-commit failed: " +
+                    encoded.message);
+            [commandBuffer commit];
+            [commandBuffer waitUntilCompleted];
+            require(commandBuffer.status == MTLCommandBufferStatusCompleted,
+                std::string(label) + " Metal transaction did not complete");
+            const auto snapshot = runtime.snapshot();
+            require(snapshot.available && snapshot.statuses.size() == 1u &&
+                        snapshot.statuses[0].code == NM_STATUS_SUCCESS &&
+                        worldStatus->code == MR_STEP_SUCCESS,
+                std::string(label) + " did not retain a healthy transaction");
+            return snapshot;
+        };
+
+        const auto contained = execute(
+            containedWorld, "puncture-channel contained control");
+        const auto exiting = execute(
+            exitingWorld, "puncture-channel predictive exit");
+        std::uint32_t containedContacts = 0u;
+        std::uint32_t exitContacts = 0u;
+        float exitSeparation = std::numeric_limits<float>::infinity();
+        float exitPredictorVelocity = 0.0f;
+        for (const NMContactSampleGPU& sample : contained.contactSamples) {
+            containedContacts +=
+                (sample.identity.w & NM_CONTACT_VALID) != 0u;
+        }
+        for (const NMContactSampleGPU& sample : exiting.contactSamples) {
+            if ((sample.identity.w & NM_CONTACT_VALID) == 0u) continue;
+            ++exitContacts;
+            exitSeparation = std::min(
+                exitSeparation, sample.pointAndSeparation.w);
+            exitPredictorVelocity = std::max(
+                exitPredictorVelocity,
+                sample.admissionVelocityAndNormal.z);
+        }
+
+        constexpr float channelRadius = 3.5e-4f;
+        constexpr float channelHalfLength = 1.0e-3f;
+        constexpr float currentAxial =
+            channelHalfLength + 0.25f * channelRadius - 1.0e-6f;
+        constexpr float predictedAxial = currentAxial + 2.0e-6f;
+        const float channelLimit =
+            channelHalfLength + 0.25f * channelRadius;
+        const float authoredFloor =
+            exitingWorld.mixedSolver.contactAcceptance.x *
+            exitingWorld.dispatch.numericalLimits.x;
+        require(containedContacts == 0u && exitContacts >= 1u &&
+                    currentAxial < channelLimit &&
+                    predictedAxial > channelLimit &&
+                    std::isfinite(exitSeparation) &&
+                    exitSeparation > authoredFloor &&
+                    exitPredictorVelocity > 0.0f,
+            "puncture-channel exit did not activate contact one transaction "
+            "before the exemption boundary");
+        std::cout
+            << "{\"schema\":\"numi.matter.puncture-channel-exit.v1\""
+            << ",\"contained_contacts\":" << containedContacts
+            << ",\"predictive_exit_contacts\":" << exitContacts
+            << ",\"current_axial\":" << currentAxial
+            << ",\"predicted_axial\":" << predictedAxial
+            << ",\"channel_limit\":" << channelLimit
+            << ",\"minimum_separation\":" << exitSeparation
+            << ",\"authored_floor\":" << authoredFloor
+            << "}\n";
+    }
+}
+
+void runSutureProxyWindow() {
+    @autoreleasepool {
+        const auto world = compileSutureProxyWindowCase();
+        numi::matter::Runtime runtime;
+        const auto initialized = runtime.initialize(world, {
+            .metallib = NUMI_MATTER_METALLIB,
+            .environmentCount = 1u,
+            .captureEvents = true,
+            .captureDiagnostics = true,
+            .automaticIdentification = false,
+            .adaptiveTransfer = false,
+        });
+        require(initialized.encoded && runtime.valid(),
+            "suture proxy window runtime did not initialize");
+        const std::uint32_t fgmresRestart = std::min(
+            world.mixedSolver.nonlinearIterations.y,
+            static_cast<std::uint32_t>(NM_MIXED_FGMRES_RESTART)
+        );
+        const std::uint32_t cookedFGMRESBudget = std::max(
+            fgmresRestart,
+            world.mixedSolver.nonlinearIterations.z
+        );
+        const std::uint32_t phaseFGMRESBudget = 2u * fgmresRestart;
+        const std::uint32_t cookedNewtonBudget =
+            world.mixedSolver.nonlinearIterations.x;
+        const std::uint32_t phaseNewtonBudget = cookedNewtonBudget + 1u;
+        require(
+            fgmresRestart > 1u &&
+                cookedNewtonBudget != 0u &&
+                runtime.fgmresIterationBudget() == cookedFGMRESBudget &&
+                !runtime.setFGMRESIterationBudget(fgmresRestart - 1u) &&
+                runtime.setFGMRESIterationBudget(phaseFGMRESBudget) &&
+                runtime.fgmresIterationBudget() == phaseFGMRESBudget &&
+                runtime.newtonIterationBudget() == cookedNewtonBudget &&
+                !runtime.setNewtonIterationBudget(0u) &&
+                runtime.setNewtonIterationBudget(phaseNewtonBudget) &&
+                runtime.newtonIterationBudget() == phaseNewtonBudget,
+            "suture proxy window could not select phase-local FGMRES and "
+            "Newton iteration budgets"
+        );
+        const std::array<std::uint32_t, 2u> discontinuous{3u, 4u};
+        const auto rejected = runtime.setSutureProxyEdges(discontinuous, 6u);
+        require(!rejected.encoded,
+            "suture proxy window accepted a transition with no stable slot");
+        const std::array<std::uint32_t, 2u> advanced{3u, 1u};
+        const auto remapped = runtime.setSutureProxyEdges(advanced, 5u);
+        require(remapped.encoded,
+            "suture proxy window could not advance to a sparse two-tract set: " +
+                remapped.message);
+        const auto binding = runtime.snapshot();
+        require(binding.available &&
+                    binding.sutureProxyEdges ==
+                        std::vector<std::uint32_t>(advanced.begin(), advanced.end()) &&
+                    binding.sutureProxyBindingRevision == 1u,
+            "suture proxy window did not publish its active binding evidence");
+        const float baseTimestep = runtime.timestepSeconds();
+        require(runtime.setCoupledTimestepDivisor(2u) &&
+                    runtime.coupledTimestepMultiplier() == 1u &&
+                    runtime.coupledTimestepDivisor() == 2u &&
+                    runtime.timestepSeconds() == baseTimestep * 0.5f,
+            "suture proxy window could not select exact half-step cadence");
+
+        std::array<MRRodNodeStateGPU, 5u> rodNodes{};
+        for (std::uint32_t node = 0u; node < rodNodes.size(); ++node) {
+            rodNodes[node].position = {
+                0.1f + 0.01f * static_cast<float>(node),
+                0.0f,
+                0.0f,
+                1.0f,
+            };
+        }
+        const std::array<float, 5u> inverseMasses{
+            1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+        };
+        id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+        id<MTLCommandQueue> queue = [device newCommandQueue];
+        id<MTLBuffer> rodBuffer = [device
+            newBufferWithBytes:rodNodes.data()
+                        length:sizeof(rodNodes)
+                       options:MTLResourceStorageModeShared];
+        id<MTLBuffer> inverseMassBuffer = [device
+            newBufferWithBytes:inverseMasses.data()
+                        length:sizeof(inverseMasses)
+                       options:MTLResourceStorageModeShared];
+        id<MTLBuffer> worldStatuses = [device
+            newBufferWithLength:sizeof(MRMetalWorldStatusGPU)
+                       options:MTLResourceStorageModeShared];
+        require(device != nil && queue != nil && rodBuffer != nil &&
+                    inverseMassBuffer != nil && worldStatuses != nil,
+            "suture proxy window could not allocate borrowed Metal buffers");
+        auto* worldStatus = static_cast<MRMetalWorldStatusGPU*>(
+            worldStatuses.contents);
+        *worldStatus = {};
+        worldStatus->code = MR_STEP_SUCCESS;
+        id<MTLCommandBuffer> commandBuffer = [queue commandBuffer];
+        numi::matter::EncodeRequest request{};
+        request.commandBuffer = (__bridge void*)commandBuffer;
+        request.rigid.rodNodes = (__bridge void*)rodBuffer;
+        request.rigid.rodInverseMasses = (__bridge void*)inverseMassBuffer;
+        request.rigid.rodNodeCount = 5u;
+        request.rigid.rodNodeStride = 5u;
+        request.environmentStatuses = (__bridge void*)worldStatuses;
+        request.phase = numi::matter::EncodePhase::preDynamics;
+        request.controlStep = 0u;
+        request.physicsSubstep = 0u;
+        request.physicsSubsteps = 1u;
+        request.timestepSeconds = runtime.timestepSeconds();
+        auto encoded = runtime.encode(request);
+        require(encoded.encoded,
+            "suture proxy window pre-dynamics failed: " + encoded.message);
+        request.phase = numi::matter::EncodePhase::postCommit;
+        encoded = runtime.encode(request);
+        require(encoded.encoded,
+            "suture proxy window post-commit failed: " + encoded.message);
+        [commandBuffer commit];
+        [commandBuffer waitUntilCompleted];
+        require(commandBuffer.status == MTLCommandBufferStatusCompleted,
+            "suture proxy window Metal transaction did not complete");
+        const auto projected = runtime.snapshot();
+        require(projected.available && projected.statuses.size() == 1u &&
+                    projected.statuses[0].code == NM_STATUS_SUCCESS &&
+                    projected.coupledTimestepMultiplier == 1u &&
+                    projected.coupledTimestepDivisor == 2u &&
+                    projected.fgmresIterationBudgetOverride ==
+                        phaseFGMRESBudget &&
+                    projected.newtonIterationBudgetOverride ==
+                        phaseNewtonBudget &&
+                    projected.rigidStates.size() == 2u &&
+                    std::abs(projected.rigidStates[0].centerAndRadius.x -
+                        rodNodes[3].position.x) <= 1.0e-7f &&
+                    std::abs(projected.rigidStates[0].extent.x -
+                        rodNodes[4].position.x) <= 1.0e-7f &&
+                    std::abs(projected.rigidStates[1].centerAndRadius.x -
+                        rodNodes[1].position.x) <= 1.0e-7f &&
+                    std::abs(projected.rigidStates[1].extent.x -
+                        rodNodes[2].position.x) <= 1.0e-7f,
+            "live Metal projection did not consume the sparse DER edge set");
+
+        numi::matter::Runtime restoredRuntime;
+        const auto restoredInitialized = restoredRuntime.initialize(world, {
+            .metallib = NUMI_MATTER_METALLIB,
+            .environmentCount = 1u,
+            .captureEvents = true,
+            .captureDiagnostics = true,
+            .automaticIdentification = false,
+            .adaptiveTransfer = false,
+        });
+        require(restoredInitialized.encoded && restoredRuntime.valid(),
+            "suture proxy restore runtime did not initialize");
+        const auto restored = restoredRuntime.restore(projected);
+        require(restored.encoded,
+            "sparse suture proxy set did not restore into a fresh runtime: " +
+                restored.message);
+        const auto restoredSnapshot = restoredRuntime.snapshot();
+        require(restoredSnapshot.available &&
+                    restoredSnapshot.sutureProxyEdges ==
+                        std::vector<std::uint32_t>(
+                            advanced.begin(), advanced.end()) &&
+                    restoredSnapshot.sutureProxyBindingRevision == 1u &&
+                    restoredRuntime.fgmresIterationBudget() ==
+                        phaseFGMRESBudget &&
+                    restoredSnapshot.fgmresIterationBudgetOverride ==
+                        phaseFGMRESBudget &&
+                    restoredRuntime.newtonIterationBudget() ==
+                        phaseNewtonBudget &&
+                    restoredSnapshot.newtonIterationBudgetOverride ==
+                        phaseNewtonBudget,
+            "fresh runtime did not retain sparse suture proxy authority");
+        std::cout
+            << "{\"schema\":\"numi.matter.suture-window.v1\""
+            << ",\"edges\":[" << projected.sutureProxyEdges[0] << ','
+            << projected.sutureProxyEdges[1] << ']'
+            << ",\"sparse\":true"
+            << ",\"restored\":true"
+            << ",\"revision\":"
+            << projected.sutureProxyBindingRevision
+            << ",\"cadence\":\"1/"
+            << projected.coupledTimestepDivisor << "\""
+            << ",\"fgmres_iteration_budget\":"
+            << restoredRuntime.fgmresIterationBudget()
+            << ",\"newton_iteration_budget\":"
+            << restoredRuntime.newtonIterationBudget()
+            << ",\"slot0_endpoints\":["
+            << projected.rigidStates[0].centerAndRadius.x << ','
+            << projected.rigidStates[0].extent.x << "]}\n";
+    }
+}
+
+void runMetalWorldCoupling() {
+    @autoreleasepool {
+        constexpr std::uint32_t controlSteps = 1u;
+        // This probe qualifies both directions of the borrowed transaction:
+        // continuum reactions enter MetalWorld ABA, while real inverse-ABA
+        // point-response columns return to Matter's contact CSR. One particle
+        // activates several distinct grid-node contacts against each of two
+        // independently articulated planes. This gives both a nontrivial
+        // within-articulation off-diagonal oracle and a zero cross-articulation
+        // oracle without turning the material CFL planner into the benchmark.
+        const auto matterWorld = compileCase(
+            numi::matter::Representation::mpm,
+            true,
+            true,
+            false,
+            false,
+            false,
+            true,
+            1.0 / 480.0,
+            1u,
+            0u,
+            0u,
+            true
+        );
+        numi::matter::Runtime matter;
+        const auto initialized = matter.initialize(
+            matterWorld,
+            {
+                .metallib = NUMI_MATTER_METALLIB,
+                .captureEvents = true,
+                .captureDiagnostics = true,
+                .automaticIdentification = false,
+                .adaptiveTransfer = false,
+            }
+        );
+        require(initialized.encoded && matter.valid(),
+            "MetalWorld coupling could not initialize Matter: " + initialized.message);
+
+        const metalrobo::EngineModel model =
+            makeTwoFreeSphereEngineModel();
+        metalrobo::CompiledWorld rigidWorld;
+        const auto compiled = metalrobo::compileMetalWorld(model, 0u, rigidWorld);
+        require(compiled.succeeded(),
+            "MetalWorld coupling could not compile free body: " + compiled.message);
+        std::vector<float> efforts(
+            static_cast<std::size_t>(controlSteps) * rigidWorld.nv(),
+            0.0f
+        );
+        const metalrobo::MetalWorldBatch batch{
+            .environmentCount = 1u,
+            .controlStepCount = controlSteps,
+            .initialQ = model.defaultQ,
+            .initialV = model.defaultV,
+            .efforts = efforts,
+        };
+        metalrobo::MetalWorldStepConfig config{};
+        config.timestepSeconds = 1.0f / 480.0f;
+        config.physicsSubsteps = 1u;
+        // Matter owns the continuum-plane contact in this probe. MetalWorld
+        // only consumes the equal-and-opposite articulated body wrench, so
+        // running the rigid contact compiler here is redundant and can
+        // dominate qualification latency on shared Apple runners.
+        config.solverMode = metalrobo::MetalWorldSolverMode::freeMotionABA;
+        config.matrixFreeArticulatedContact = false;
+        config.streamedArticulatedContactResponses = false;
+        config.captureContactEvidence = false;
+        config.devicePhysicsProgram =
+            numi::matter::makeMetalWorldDevicePhysicsProgram(matter);
+        require(config.devicePhysicsProgram.valid(),
+            "Matter did not produce a valid MetalWorld adapter");
+        require(
+            (config.devicePhysicsProgram.flags &
+             metalrobo::MetalWorldDevicePhysicsWritesBodyWrenches) != 0u &&
+            (config.devicePhysicsProgram.flags &
+             metalrobo::
+                 MetalWorldDevicePhysicsRequiresRigidContactEvidence) == 0u,
+            "non-adaptive Matter coupling published incorrect device-physics capabilities"
+        );
+
+        metalrobo::MetalWorldContext context;
+        metalrobo::MetalWorldResult result;
+        const auto ran = context.run(rigidWorld, batch, config, result);
+        const id<MTLBuffer> matterStatusBuffer =
+            (__bridge id<MTLBuffer>)matter.statusBuffer();
+        const auto* matterStatus = static_cast<const NMMatterStatusGPU*>(
+            matterStatusBuffer.contents
+        );
+        require(matterStatus != nullptr,
+            "foot-pad Matter status buffer is unavailable");
+        std::string matterFailure;
+        if (matterStatus->code != NM_STATUS_SUCCESS) {
+            matterFailure = " matter_status=" +
+                std::to_string(matterStatus->code) +
+                " object=" + std::to_string(matterStatus->objectIndex) +
+                " index=" + std::to_string(matterStatus->failingIndex) +
+                " diagnostics=(" + std::to_string(matterStatus->diagnostics.x) +
+                "," + std::to_string(matterStatus->diagnostics.y) +
+                "," + std::to_string(matterStatus->diagnostics.z) +
+                "," + std::to_string(matterStatus->diagnostics.w) + ")";
+        }
+        const std::string layoutFailure =
+            " dispatch=(abi=" +
+            std::to_string(ran.layout.dispatch.abiVersion) +
+            ",flags=" + std::to_string(ran.layout.dispatch.flags) +
+            ",steps=" + std::to_string(ran.layout.dispatch.controlStepCount) +
+            ",substeps=" + std::to_string(ran.layout.dispatch.physicsSubsteps) +
+            ",nq=" + std::to_string(ran.layout.dispatch.nq) +
+            ",nv=" + std::to_string(ran.layout.dispatch.nv) + ")";
+        const std::string operatorFailure =
+            ran.layout.kinematicsDispatches.empty()
+            ? " operator=(missing)"
+            : " operator=(count=" + std::to_string(
+                ran.layout.kinematicsDispatches.size()
+            ) + ",factor_count=" + std::to_string(
+                ran.layout.factorDispatches.size()
+            ) + ",articulation=" + std::to_string(
+                ran.layout.kinematicsDispatches[0].articulationIndex
+            ) + ",env=" + std::to_string(
+                ran.layout.kinematicsDispatches[0].environmentCount
+            ) + ",flags=" + std::to_string(
+                ran.layout.kinematicsDispatches[0].flags
+            ) + ",point_count=" + std::to_string(
+                ran.layout.kinematicsDispatches[0].pointCount
+            ) + ",q_stride=" + std::to_string(
+                ran.layout.kinematicsDispatches[0].qStride
+            ) + ",body_stride=" + std::to_string(
+                ran.layout.kinematicsDispatches[0].bodyPoseStride
+            ) + ")";
+        const std::string contactFailure = result.contactStatuses.empty()
+            ? " contact=(missing)"
+            : " contact=(code=" + std::to_string(
+                result.contactStatuses[0].code
+            ) + ",constraint=" + std::to_string(
+                result.contactStatuses[0].firstFailingConstraint
+            ) + ",stable_low=" + std::to_string(
+                result.contactStatuses[0].firstFailingStableKeyLow
+            ) + ",stable_high=" + std::to_string(
+                result.contactStatuses[0].firstFailingStableKeyHigh
+            ) + ",flags=" + std::to_string(
+                result.contactStatuses[0].flags
+            ) + ",diagnostics=(" + std::to_string(
+                result.contactStatuses[0].diagnostics.x
+            ) + "," + std::to_string(
+                result.contactStatuses[0].diagnostics.y
+            ) + "," + std::to_string(
+                result.contactStatuses[0].diagnostics.z
+            ) + "," + std::to_string(
+                result.contactStatuses[0].diagnostics.w
+            ) + ")";
+        require(ran.succeeded(),
+            "MetalWorld/Matter coupling failed: " + ran.message +
+                matterFailure + layoutFailure + operatorFailure + contactFailure);
+        require(
+            result.environmentStatuses.size() == 1u &&
+                result.environmentStatuses[0].code == MR_STEP_SUCCESS &&
+                result.finalV.size() == rigidWorld.nv(),
+            "MetalWorld/Matter coupling did not publish an accepted state"
+        );
+        const auto snapshot = matter.snapshot();
+        require(snapshot.available && !snapshot.reactions.empty(),
+            "MetalWorld/Matter coupling did not publish Matter reactions");
+        require(
+            snapshot.contactSamples.size() == matterWorld.contact.pairs.size(),
+            "MetalWorld/Matter coupling did not publish primal contact diagnostics"
+        );
+        const float reactionZ = snapshot.reactions[0].impulseAndCount.z;
+        require(snapshot.reactions.size() >= 2u,
+            "multi-articulation coupling did not publish both rigid reactions");
+        const float secondReactionZ =
+            snapshot.reactions[1].impulseAndCount.z;
+        // Matter sees a downward particle impact, so the equal-and-opposite
+        // impulse applied to the body-backed plane is downward as well.
+        require(reactionZ < -1.0e-6f,
+            "continuum impact did not accumulate a rigid reaction: reaction_z=" +
+                std::to_string(reactionZ) +
+                " final_body_velocity_z=" +
+                std::to_string(result.finalV[2]));
+        require(
+            result.finalV[2] < -1.0e-6f &&
+                result.finalV.size() >= 12u &&
+                result.finalV[8] < -1.0e-6f &&
+                std::abs(result.finalV[2] - reactionZ) < 1.0e-5f &&
+                std::abs(result.finalV[8] - secondReactionZ) < 1.0e-5f,
+            "MetalWorld ABA did not consume the continuum rigid reaction: reaction_z=" +
+                std::to_string(reactionZ) +
+                " final_body_velocity_z=" +
+                std::to_string(result.finalV[2])
+        );
+        std::cout
+            << "{\"schema\":\"numi.matter.physics-probe.v1\""
+            << ",\"representation\":\"mpm_articulated_coupling\""
+            << ",\"rigid_reaction_z\":" << reactionZ
+            << ",\"accepted_body_velocity_z\":" << result.finalV[2]
+            << ",\"second_rigid_reaction_z\":" << secondReactionZ
+            << ",\"second_body_velocity_z\":" << result.finalV[8]
+            << ",\"gpu_milliseconds\":" << ran.gpuElapsedMilliseconds
+            << "}\n";
+    }
+}
+
+void runArticulatedFootPadScene(
+    const bool sequence = false,
+    const bool contactBoundary = false
+) {
+    @autoreleasepool {
+        const auto world = compileArticulatedFootPadScene(contactBoundary);
+        numi::matter::Runtime matter;
+        const auto initialized = matter.initialize(world, {
+            .metallib = NUMI_MATTER_METALLIB,
+            .environmentCount = 1u,
+            .captureEvents = true,
+            .captureDiagnostics = true,
+            .automaticIdentification = false,
+            .adaptiveTransfer = false,
+        });
+        require(initialized.encoded && matter.valid(),
+            "foot-pad Matter runtime could not initialize: " + initialized.message);
+        metalrobo::EngineModel model = metalrobo::makeFreeSphereEngineModel();
+        model.name = "articulated_foot_driver";
+        model.defaultQ[1] = 0.0f;
+        // Begin collision-free but inside the 100 um IPC support. Exact
+        // surface coincidence has no unique contact normal and is not a
+        // valid barrier iterate.
+        model.defaultQ[2] = contactBoundary ? 0.02395f : 0.023999f;
+        model.defaultV[2] = contactBoundary ? 0.0f : -0.004f;
+        metalrobo::CompiledWorld rigidWorld;
+        const auto compiled = metalrobo::compileMetalWorld(model, 0u, rigidWorld);
+        require(compiled.succeeded(),
+            "foot-pad MetalWorld compilation failed: " + compiled.message);
+        std::vector<float> efforts(rigidWorld.nv(), 0.0f);
+        metalrobo::MetalWorldStepConfig config{};
+        config.timestepSeconds = 1.0f / 480.0f;
+        config.physicsSubsteps = 1u;
+        config.solverMode = metalrobo::MetalWorldSolverMode::freeMotionABA;
+        config.matrixFreeArticulatedContact = false;
+        config.streamedArticulatedContactResponses = false;
+        config.captureContactEvidence = false;
+        config.devicePhysicsProgram =
+            numi::matter::makeMetalWorldDevicePhysicsProgram(matter);
+        require(config.devicePhysicsProgram.valid(),
+            "foot-pad scene did not publish a Matter device program");
+        metalrobo::MetalWorldContext context;
+        std::vector<float> currentQ = model.defaultQ;
+        std::vector<float> currentV = model.defaultV;
+        if (sequence) currentV[2] = -0.001f;
+        const std::uint32_t frameCount = sequence ? 6u : 1u;
+        for (std::uint32_t frame = 0u; frame < frameCount; ++frame) {
+        const metalrobo::MetalWorldBatch batch{
+            .environmentCount = 1u,
+            .controlStepCount = 1u,
+            .initialQ = currentQ,
+            .initialV = currentV,
+            .efforts = efforts,
+        };
+        metalrobo::MetalWorldResult result;
+        const auto ran = context.run(rigidWorld, batch, config, result);
+        const id<MTLBuffer> matterStatusBuffer =
+            (__bridge id<MTLBuffer>)matter.statusBuffer();
+        const auto* matterStatus = static_cast<const NMMatterStatusGPU*>(
+            matterStatusBuffer.contents
+        );
+        std::string matterFailure;
+        if (matterStatus != nullptr && matterStatus->code != NM_STATUS_SUCCESS) {
+            matterFailure = " matter_status=" +
+                std::to_string(matterStatus->code) +
+                " object=" + std::to_string(matterStatus->objectIndex) +
+                " index=" + std::to_string(matterStatus->failingIndex) +
+                " diagnostics=(" + std::to_string(matterStatus->diagnostics.x) +
+                "," + std::to_string(matterStatus->diagnostics.y) +
+                "," + std::to_string(matterStatus->diagnostics.z) +
+                "," + std::to_string(matterStatus->diagnostics.w) + ")";
+        }
+        require(ran.succeeded(),
+            "articulated foot-pad transaction failed: " + ran.message +
+            matterFailure);
+        const auto snapshot = matter.snapshot();
+        require(snapshot.available && snapshot.reactions.size() >= 1u,
+            "foot-pad scene did not publish accepted diagnostics");
+
+        std::uint32_t contacts = 0u;
+        std::uint32_t allContacts = 0u;
+        float normalImpulse = 0.0f;
+        float weightedX = 0.0f, weightedY = 0.0f;
+        std::vector<std::array<float, 4u>> contactEvidence;
+        for (std::size_t index = 0u; index < snapshot.contactSamples.size(); ++index) {
+            const auto& sample = snapshot.contactSamples[index];
+            allContacts += (sample.identity.w & NM_CONTACT_VALID) != 0u;
+            if ((sample.identity.w & NM_CONTACT_VALID) == 0u ||
+                index >= world.contact.pairs.size() ||
+                world.contact.pairs[index].rigidProxy != 0u) continue;
+            ++contacts;
+            const float load = std::max(sample.impulseAndNormal.w, 0.0f);
+            normalImpulse += load;
+            weightedX += load * sample.pointAndSeparation.x;
+            weightedY += load * sample.pointAndSeparation.y;
+            contactEvidence.push_back({
+                sample.pointAndSeparation.x,
+                sample.pointAndSeparation.y,
+                sample.pointAndSeparation.z,
+                load,
+            });
+        }
+        const float centerX = normalImpulse > 0.0f
+            ? weightedX / normalImpulse : 0.0f;
+        const float centerY = normalImpulse > 0.0f
+            ? weightedY / normalImpulse : 0.0f;
+        float topHeight = 0.0f;
+        for (std::uint32_t node = 4u; node < 8u; ++node) {
+            topHeight += snapshot.femNodes[node].positionAndMass.z;
+        }
+        topHeight *= 0.25f;
+        const float compression = 0.014f - topHeight;
+        float porePressure = 0.0f;
+        for (const auto& field : snapshot.femFields) {
+            porePressure = std::max(porePressure, field.primary.z);
+        }
+        float kktResidual = 0.0f, relativeCorrection = 0.0f;
+        float volumeResidual = 0.0f;
+        float maximumBarrierImpulse = 0.0f;
+        const float authoredContactSeparationFloor =
+            world.mixedSolver.contactAcceptance.x *
+            world.dispatch.numericalLimits.x;
+        float minimumContactSeparation =
+            std::numeric_limits<float>::infinity();
+        float maximumTangentialImpulse = 0.0f;
+        float maximumContactEnergy = 0.0f;
+        float transportResidual = 0.0f;
+        for (const auto& certificate : snapshot.solverCertificates) {
+            kktResidual = std::max(kktResidual, certificate.nonlinear.x);
+            relativeCorrection = std::max(
+                relativeCorrection, certificate.nonlinear.y);
+            volumeResidual = std::max(volumeResidual, certificate.nonlinear.z);
+            maximumBarrierImpulse = std::max(
+                maximumBarrierImpulse, certificate.contact.x);
+            if (certificate.contact.y > 0.0f) {
+                minimumContactSeparation = std::min(
+                    minimumContactSeparation, certificate.contact.y);
+            }
+            maximumTangentialImpulse = std::max(
+                maximumTangentialImpulse, certificate.contact.z);
+            maximumContactEnergy = std::max(
+                maximumContactEnergy, certificate.contact.w);
+            transportResidual = std::max({transportResidual,
+                certificate.transport.x, certificate.transport.y,
+                certificate.transport.z, certificate.transport.w});
+        }
+        const float reactionZ = snapshot.reactions[0].impulseAndCount.z;
+        float maximumFixedBaseError = 0.0f;
+        for (std::uint32_t node = 0u; node < 4u; ++node) {
+            const auto& accepted = snapshot.femNodes[node];
+            maximumFixedBaseError = std::max(maximumFixedBaseError,
+                std::abs(accepted.positionAndMass.x - accepted.restAndFixed.x));
+            maximumFixedBaseError = std::max(maximumFixedBaseError,
+                std::abs(accepted.positionAndMass.y - accepted.restAndFixed.y));
+            maximumFixedBaseError = std::max(maximumFixedBaseError,
+                std::abs(accepted.positionAndMass.z - accepted.restAndFixed.z));
+            maximumFixedBaseError = std::max(maximumFixedBaseError,
+                std::abs(accepted.velocityAndInverseMass.x));
+            maximumFixedBaseError = std::max(maximumFixedBaseError,
+                std::abs(accepted.velocityAndInverseMass.y));
+            maximumFixedBaseError = std::max(maximumFixedBaseError,
+                std::abs(accepted.velocityAndInverseMass.z));
+        }
+        require(contacts >= 2u && normalImpulse > 0.0f &&
+                    reactionZ > 0.0f && result.finalV[2] > currentV[2] &&
+                    maximumFixedBaseError <= 1.0e-8f &&
+                    compression > 0.0f && porePressure > 0.0f &&
+                    kktResidual <= 1.0e-4f &&
+                    volumeResidual <= 1.0e-4f &&
+                    std::isfinite(maximumBarrierImpulse) &&
+                    maximumBarrierImpulse > 0.0f &&
+                    std::isfinite(minimumContactSeparation) &&
+                    minimumContactSeparation >
+                        authoredContactSeparationFloor &&
+                    std::isfinite(maximumTangentialImpulse) &&
+                    std::isfinite(maximumContactEnergy) &&
+                    transportResidual <= 1.0e-4f,
+            "articulated foot-pad scene failed physical or certificate acceptance: "
+            "contacts=" + std::to_string(contacts) +
+            " all_contacts=" + std::to_string(allContacts) +
+            " impulse=" + std::to_string(normalImpulse) +
+            " reaction=" + std::to_string(reactionZ) +
+            " initial_v=" + std::to_string(currentV[2]) +
+            " final_v=" + std::to_string(result.finalV[2]) +
+            " fixed_base_error=" + std::to_string(maximumFixedBaseError) +
+            " compression=" + std::to_string(compression) +
+            " pore=" + std::to_string(porePressure) +
+            " kkt=" + std::to_string(kktResidual) +
+            " correction=" + std::to_string(relativeCorrection) +
+            " volume=" + std::to_string(volumeResidual) +
+            " barrier_impulse=" + std::to_string(maximumBarrierImpulse) +
+            " minimum_separation=" +
+                std::to_string(minimumContactSeparation) +
+            " tangential_impulse=" +
+                std::to_string(maximumTangentialImpulse) +
+            " contact_energy=" + std::to_string(maximumContactEnergy) +
+            " transport=" + std::to_string(transportResidual));
+        std::cout
+            << "{\"schema\":\"numi.matter.scene.v1\""
+            << ",\"scene\":\"articulated_foot_poroelastic_pad\""
+            << ",\"contact_boundary_start\":"
+            << (contactBoundary ? "true" : "false")
+            << ",\"frame\":" << frame
+            << ",\"frame_count\":" << frameCount
+            << ",\"contacts\":" << contacts
+            << ",\"normal_impulse\":" << normalImpulse
+            << ",\"center_of_pressure\":[" << centerX << ',' << centerY << ']'
+            << ",\"pad_compression\":" << compression
+            << ",\"pore_pressure_max\":" << porePressure
+            << ",\"rigid_reaction_z\":" << reactionZ
+            << ",\"accepted_foot_velocity_z\":" << result.finalV[2]
+            << ",\"fixed_base_error\":" << maximumFixedBaseError
+            << ",\"policy_observation\":[" << normalImpulse << ','
+            << centerX << ',' << centerY << ',' << compression << ','
+            << porePressure << ']'
+            << ",\"kkt_residual\":" << kktResidual
+            << ",\"relative_correction\":" << relativeCorrection
+            << ",\"volume_residual\":" << volumeResidual
+            << ",\"maximum_barrier_impulse\":" << maximumBarrierImpulse
+            << ",\"minimum_contact_separation\":"
+            << minimumContactSeparation
+            << ",\"authored_contact_separation_floor\":"
+            << authoredContactSeparationFloor
+            << ",\"maximum_tangential_impulse\":"
+            << maximumTangentialImpulse
+            << ",\"maximum_contact_energy\":" << maximumContactEnergy
+            << ",\"transport_residual\":" << transportResidual
+            << ",\"gpu_milliseconds\":" << ran.gpuElapsedMilliseconds
+            << ",\"maximum_krylov_iterations\":"
+            << matterStatus->fgmresIterations
+            << ",\"foot_position\":[" << result.finalQ[0] << ','
+            << result.finalQ[1] << ',' << result.finalQ[2] << ']'
+            << ",\"pad_nodes\":[";
+        for (std::size_t node = 0u; node < snapshot.femNodes.size(); ++node) {
+            if (node != 0u) std::cout << ',';
+            const auto& position = snapshot.femNodes[node].positionAndMass;
+            std::cout << '[' << position.x << ',' << position.y << ','
+                      << position.z << ']';
+        }
+        std::cout << "]"
+                  << ",\"contact_points\":[";
+        for (std::size_t contact = 0u; contact < contactEvidence.size(); ++contact) {
+            if (contact != 0u) std::cout << ',';
+            const auto& value = contactEvidence[contact];
+            std::cout << '[' << value[0] << ',' << value[1] << ','
+                      << value[2] << ',' << value[3] << ']';
+        }
+        std::cout << "]}\n";
+        currentQ = result.finalQ;
+        currentV = result.finalV;
+        if (sequence) {
+            // A displacement-controlled vertical guide isolates compression
+            // from lateral free-body drift while each Matter state continues
+            // from the preceding accepted transaction.
+            currentQ[0] = model.defaultQ[0];
+            currentQ[1] = model.defaultQ[1];
+            currentV[0] = 0.0f;
+            currentV[1] = 0.0f;
+            currentV[2] = -0.001f;
+        }
+        }
+    }
+}
+
+void runLearnedDifferentialOracle(
+    const numi::matter::CompiledWorld& world
+) {
+    require(world.learnedMaterials.size() == 1u &&
+            !world.learnedLayers.empty() && !world.learnedWeights.empty(),
+        "learned differential oracle has no compiled network");
+    using Matrix = std::array<double, 9u>;
+    const auto determinant = [](const Matrix& a) {
+        return a[0] * (a[4] * a[8] - a[5] * a[7]) -
+            a[1] * (a[3] * a[8] - a[5] * a[6]) +
+            a[2] * (a[3] * a[7] - a[4] * a[6]);
+    };
+    const auto energy = [&](const Matrix& deformation) {
+        const NMLearnedMaterialGPU& network = world.learnedMaterials[0];
+        const double j = determinant(deformation);
+        require(j > network.policy.y, "CPU learned oracle left determinant domain");
+        Matrix cofactor{
+            deformation[4] * deformation[8] - deformation[5] * deformation[7],
+            deformation[5] * deformation[6] - deformation[3] * deformation[8],
+            deformation[3] * deformation[7] - deformation[4] * deformation[6],
+            deformation[2] * deformation[7] - deformation[1] * deformation[8],
+            deformation[0] * deformation[8] - deformation[2] * deformation[6],
+            deformation[1] * deformation[6] - deformation[0] * deformation[7],
+            deformation[1] * deformation[5] - deformation[2] * deformation[4],
+            deformation[2] * deformation[3] - deformation[0] * deformation[5],
+            deformation[0] * deformation[4] - deformation[1] * deformation[3],
+        };
+        double i1 = 0.0, i2 = 0.0;
+        for (std::size_t index = 0u; index < 9u; ++index) {
+            i1 += deformation[index] * deformation[index];
+            i2 += cofactor[index] * cofactor[index];
+        }
+        std::array<double, NM_LEARNED_MAX_INVARIANTS> invariant{};
+        invariant[0] = i1 - 3.0;
+        invariant[1] = i2 - 3.0;
+        invariant[2] = j - 1.0;
+        invariant[3] = 1.0 / j - 1.0;
+        std::array<double, NM_LEARNED_MAX_WIDTH> previous{};
+        std::uint32_t previousWidth = 0u;
+        for (std::uint32_t local = 0u; local < network.layout.y; ++local) {
+            const NMLearnedLayerGPU& layer =
+                world.learnedLayers[network.layout.x + local];
+            std::array<double, NM_LEARNED_MAX_WIDTH> next{};
+            for (std::uint32_t output = 0u; output < layer.layout.y; ++output) {
+                double value = world.learnedWeights[layer.layout.w + output];
+                for (std::uint32_t input = 0u; input < layer.layout.x; ++input)
+                    value += world.learnedWeights[
+                        layer.layout.z + output * layer.layout.x + input
+                    ] * invariant[input];
+                for (std::uint32_t hidden = 0u; hidden < previousWidth; ++hidden)
+                    value += world.learnedWeights[
+                        layer.routing.x + output * previousWidth + hidden
+                    ] * previous[hidden];
+                const double beta = network.policy.x;
+                next[output] = std::max(value, 0.0) +
+                    std::log1p(std::exp(-std::abs(beta * value))) / beta;
+            }
+            previous = next;
+            previousWidth = layer.layout.y;
+        }
+        return previous[0] + network.policy.z * (j + 1.0 / j - 2.0);
+    };
+    const auto firstPiola = [&](const Matrix& deformation) {
+        Matrix result{};
+        constexpr double epsilon = 2.0e-6;
+        for (std::size_t entry = 0u; entry < result.size(); ++entry) {
+            Matrix plus = deformation, minus = deformation;
+            plus[entry] += epsilon;
+            minus[entry] -= epsilon;
+            result[entry] = (energy(plus) - energy(minus)) /
+                (2.0 * epsilon);
+        }
+        return result;
+    };
+    const Matrix deformation{
+        1.10, 0.05, 0.00,
+        0.02, 0.95, 0.03,
+        0.00, 0.01, 1.05,
+    };
+    const Matrix direction{
+        0.03, -0.02, 0.01,
+        0.01, 0.02, -0.01,
+        -0.02, 0.01, 0.04,
+    };
+    const Matrix cpuStress = firstPiola(deformation);
+    constexpr double tangentStep = 2.0e-4;
+    Matrix plus = deformation, minus = deformation;
+    for (std::size_t entry = 0u; entry < 9u; ++entry) {
+        plus[entry] += tangentStep * direction[entry];
+        minus[entry] -= tangentStep * direction[entry];
+    }
+    const Matrix plusStress = firstPiola(plus);
+    const Matrix minusStress = firstPiola(minus);
+    Matrix cpuTangent{};
+    for (std::size_t entry = 0u; entry < 9u; ++entry)
+        cpuTangent[entry] = (plusStress[entry] - minusStress[entry]) /
+            (2.0 * tangentStep);
+
+    @autoreleasepool {
+        id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+        require(device != nil, "no Metal device for learned differential oracle");
+        NSError* error = nil;
+        id<MTLLibrary> library = [device
+            newLibraryWithURL:[NSURL fileURLWithPath:@NUMI_MATTER_METALLIB]
+                       error:&error];
+        require(library != nil, "could not load learned differential metallib");
+        id<MTLFunction> function = [library newFunctionWithName:
+            @"numi_matter_metal::nm_learned_differential_oracle"];
+        require(function != nil, "learned differential kernel is missing");
+        id<MTLComputePipelineState> pipeline = [device
+            newComputePipelineStateWithFunction:function error:&error];
+        require(pipeline != nil, "could not compile learned differential pipeline");
+        NMLearnedDifferentialGPU sample{};
+        sample.deformationRow0 = {float(deformation[0]), float(deformation[1]), float(deformation[2]), 0.0f};
+        sample.deformationRow1 = {float(deformation[3]), float(deformation[4]), float(deformation[5]), 0.0f};
+        sample.deformationRow2 = {float(deformation[6]), float(deformation[7]), float(deformation[8]), 0.0f};
+        sample.directionRow0 = {float(direction[0]), float(direction[1]), float(direction[2]), 0.0f};
+        sample.directionRow1 = {float(direction[3]), float(direction[4]), float(direction[5]), 0.0f};
+        sample.directionRow2 = {float(direction[6]), float(direction[7]), float(direction[8]), 0.0f};
+        const nm_float4 fibre = world.mixedMaterials.empty()
+            ? nm_float4{1.0f, 0.0f, 0.0f, 0.0f}
+            : world.mixedMaterials[0].fibre;
+        const auto buffer = [&](const void* data, const NSUInteger bytes) {
+            id<MTLBuffer> result = [device newBufferWithBytes:data length:bytes
+                options:MTLResourceStorageModeShared];
+            require(result != nil, "learned differential buffer allocation failed");
+            return result;
+        };
+        id<MTLBuffer> networks = buffer(world.learnedMaterials.data(),
+            world.learnedMaterials.size() * sizeof(NMLearnedMaterialGPU));
+        id<MTLBuffer> layers = buffer(world.learnedLayers.data(),
+            world.learnedLayers.size() * sizeof(NMLearnedLayerGPU));
+        id<MTLBuffer> weights = buffer(world.learnedWeights.data(),
+            world.learnedWeights.size() * sizeof(float));
+        id<MTLBuffer> sampleBuffer = buffer(&sample, sizeof(sample));
+        id<MTLCommandQueue> queue = [device newCommandQueue];
+        id<MTLCommandBuffer> command = [queue commandBuffer];
+        id<MTLComputeCommandEncoder> encoder = [command computeCommandEncoder];
+        [encoder setComputePipelineState:pipeline];
+        [encoder setBuffer:networks offset:0u atIndex:0u];
+        [encoder setBuffer:layers offset:0u atIndex:1u];
+        [encoder setBuffer:weights offset:0u atIndex:2u];
+        [encoder setBytes:&fibre length:sizeof(fibre) atIndex:3u];
+        [encoder setBuffer:sampleBuffer offset:0u atIndex:4u];
+        [encoder dispatchThreads:MTLSizeMake(1u, 1u, 1u)
+          threadsPerThreadgroup:MTLSizeMake(1u, 1u, 1u)];
+        [encoder endEncoding];
+        [command commit];
+        [command waitUntilCompleted];
+        require(command.status == MTLCommandBufferStatusCompleted,
+            "learned differential Metal command failed");
+        const auto& gpu = *static_cast<const NMLearnedDifferentialGPU*>(
+            sampleBuffer.contents
+        );
+        const Matrix gpuStress{
+            gpu.firstPiolaRow0.x, gpu.firstPiolaRow0.y, gpu.firstPiolaRow0.z,
+            gpu.firstPiolaRow1.x, gpu.firstPiolaRow1.y, gpu.firstPiolaRow1.z,
+            gpu.firstPiolaRow2.x, gpu.firstPiolaRow2.y, gpu.firstPiolaRow2.z,
+        };
+        const Matrix gpuTangent{
+            gpu.tangentRow0.x, gpu.tangentRow0.y, gpu.tangentRow0.z,
+            gpu.tangentRow1.x, gpu.tangentRow1.y, gpu.tangentRow1.z,
+            gpu.tangentRow2.x, gpu.tangentRow2.y, gpu.tangentRow2.z,
+        };
+        double stressError = 0.0, tangentError = 0.0;
+        for (std::size_t entry = 0u; entry < 9u; ++entry) {
+            stressError = std::max(stressError,
+                std::abs(gpuStress[entry] - cpuStress[entry]));
+            tangentError = std::max(tangentError,
+                std::abs(gpuTangent[entry] - cpuTangent[entry]));
+        }
+        require(gpu.diagnostics.w > 0.5f && stressError < 3.0e-3 &&
+                tangentError < 1.5e-2,
+            "learned Metal stress/tangent diverged from FP64 differentiation");
+        std::cout
+            << "{\"schema\":\"numi.matter.physics-probe.v3\""
+            << ",\"representation\":\"polyconvex_icnn_differential\""
+            << ",\"stress_fp64_error\":" << stressError
+            << ",\"tangent_fp64_error\":" << tangentError
+            << ",\"minimum_J\":" << gpu.diagnostics.x
+            << "}\n";
+    }
+}
+
+Outcome runCase(
+    const numi::matter::CompiledWorld& world,
+    const char* label,
+    const bool requireContact,
+    const bool requireDescent,
+    const std::uint32_t controlSteps,
+    const bool forceRollback,
+    const bool updateLearned,
+    const bool verifyTopologyRestore
+) {
+    @autoreleasepool {
+        const std::uint32_t environmentCount = world.dispatch.environmentCount;
+        require(environmentCount > 0u, "Matter probe world has no environments");
+        require(!forceRollback || environmentCount == 1u,
+            "failure injection is qualified only for a single environment");
+        id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+        require(device != nil, "no Metal device is available");
+        id<MTLCommandQueue> queue = [device newCommandQueue];
+        require(queue != nil, "failed to create Matter probe command queue");
+        id<MTLBuffer> worldStatuses = [device
+            newBufferWithLength:environmentCount * sizeof(MRMetalWorldStatusGPU)
+            options:MTLResourceStorageModeShared];
+        require(worldStatuses != nil, "failed to allocate world status buffer");
+        auto* worldStatusData = static_cast<MRMetalWorldStatusGPU*>(
+            worldStatuses.contents
+        );
+        for (std::uint32_t environment = 0u;
+             environment < environmentCount;
+             ++environment) {
+            worldStatusData[environment] = {};
+            worldStatusData[environment].code = MR_STEP_SUCCESS;
+            worldStatusData[environment].environment = environment;
+        }
+
+        numi::matter::Runtime runtime;
+        const auto initialized = runtime.initialize(
+            world,
+            {
+                .metallib = NUMI_MATTER_METALLIB,
+                .environmentCount = environmentCount,
+                .captureEvents = true,
+                .captureDiagnostics = true,
+                .automaticIdentification = false,
+                .adaptiveTransfer = false,
+            }
+        );
+        require(initialized.encoded && runtime.valid(), initialized.message);
+
+        const auto events = (__bridge id<MTLBuffer>)runtime.eventBuffer();
+        const auto statuses = (__bridge id<MTLBuffer>)runtime.statusBuffer();
+        require(events != nil && statuses != nil, "Matter probe diagnostics are unavailable");
+        auto* eventData = static_cast<NMEventTokenGPU*>(events.contents);
+        auto* statusData = static_cast<NMMatterStatusGPU*>(statuses.contents);
+        require(eventData != nullptr && statusData != nullptr, "Matter diagnostics are not CPU-visible");
+        const auto baseline = forceRollback
+            ? runtime.snapshot()
+            : numi::matter::RuntimeStateSnapshot{};
+        if (forceRollback) {
+            require(baseline.available, label + std::string(" baseline: ") + baseline.message);
+        }
+        std::vector<float> learnedUpdateValues = world.learnedWeights;
+        for (float& value : learnedUpdateValues) value += 0.001f;
+        id<MTLBuffer> learnedUpdate = learnedUpdateValues.empty()
+            ? nil
+            : [device newBufferWithBytes:learnedUpdateValues.data()
+                length:learnedUpdateValues.size() * sizeof(float)
+                options:MTLResourceStorageModeShared];
+
+        Outcome outcome;
+        outcome.environmentCount = environmentCount;
+        outcome.residentBytes = initialized.residentBytes;
+        outcome.authoredContactSeparationFloor =
+            world.mixedSolver.contactAcceptance.x *
+            world.dispatch.numericalLimits.x;
+        const auto recordEncoding = [&outcome](
+            const numi::matter::RuntimeDiagnostics& value
+        ) {
+            outcome.threadDispatches += value.threadDispatchCount;
+            outcome.simdgroupDispatches += value.simdgroupDispatchCount;
+            outcome.indirectDispatches += value.indirectDispatchCount;
+            outcome.requestedThreads += value.requestedThreadCount;
+            outcome.requestedThreadgroups += value.requestedThreadgroupCount;
+        };
+        float initialMinimumHeight = std::numeric_limits<float>::infinity();
+        for (const NMParticleStateGPU& particle : world.mpm.particles) {
+            initialMinimumHeight = std::min(
+                initialMinimumHeight,
+                particle.positionAndMass.z
+            );
+        }
+        for (const NMFEMNodeStateGPU& node : world.fem.nodes) {
+            initialMinimumHeight = std::min(
+                initialMinimumHeight,
+                node.positionAndMass.z
+            );
+        }
+        auto recordSnapshot = [&](const numi::matter::RuntimeStateSnapshot& snapshot) {
+            require(snapshot.available, label + std::string(" snapshot: ") + snapshot.message);
+            if (!snapshot.particles.empty()) {
+                for (const NMParticleStateGPU& particle : snapshot.particles) {
+                    outcome.minimumHeight = std::min(
+                        outcome.minimumHeight, particle.positionAndMass.z
+                    );
+                    outcome.maximumHeight = std::max(
+                        outcome.maximumHeight, particle.positionAndMass.z
+                    );
+                    outcome.minimumVerticalVelocity = std::min(
+                        outcome.minimumVerticalVelocity, particle.velocityAndReferenceVolume.z
+                    );
+                    outcome.maximumVerticalVelocity = std::max(
+                        outcome.maximumVerticalVelocity, particle.velocityAndReferenceVolume.z
+                    );
+                }
+            }
+            if (!snapshot.femNodes.empty()) {
+                outcome.femMass = 0.0;
+                outcome.femMomentum = {};
+                for (const NMFEMNodeStateGPU& node : snapshot.femNodes) {
+                    const double mass = std::max(
+                        static_cast<double>(node.positionAndMass.w), 0.0);
+                    const std::array<double, 3> velocity{
+                        node.velocityAndInverseMass.x,
+                        node.velocityAndInverseMass.y,
+                        node.velocityAndInverseMass.z,
+                    };
+                    outcome.femMass += mass;
+                    for (std::size_t axis = 0u; axis < 3u; ++axis) {
+                        outcome.femMomentum[axis] += mass * velocity[axis];
+                    }
+                    outcome.minimumHeight = std::min(
+                        outcome.minimumHeight, node.positionAndMass.z
+                    );
+                    outcome.maximumHeight = std::max(
+                        outcome.maximumHeight, node.positionAndMass.z
+                    );
+                    outcome.minimumVerticalVelocity = std::min(
+                        outcome.minimumVerticalVelocity, node.velocityAndInverseMass.z
+                    );
+                    outcome.maximumVerticalVelocity = std::max(
+                        outcome.maximumVerticalVelocity, node.velocityAndInverseMass.z
+                    );
+                }
+            }
+            for (const NMFEMFieldStateGPU& field : snapshot.femFields) {
+                outcome.minimumMechanicalPressure = std::min(
+                    outcome.minimumMechanicalPressure, field.primary.x
+                );
+                outcome.maximumMechanicalPressure = std::max(
+                    outcome.maximumMechanicalPressure, field.primary.x
+                );
+                outcome.minimumTemperature = std::min(
+                    outcome.minimumTemperature, field.primary.y
+                );
+                outcome.maximumTemperature = std::max(
+                    outcome.maximumTemperature, field.primary.y
+                );
+                outcome.maximumElectricPotential = std::max(
+                    outcome.maximumElectricPotential, field.primary.w
+                );
+                outcome.minimumPorePressure = std::min(
+                    outcome.minimumPorePressure, field.primary.z
+                );
+                outcome.maximumPorePressure = std::max(
+                    outcome.maximumPorePressure, field.primary.z
+                );
+                outcome.maximumActivation = std::max(
+                    outcome.maximumActivation, field.secondary.x
+                );
+            }
+            outcome.activeTetrahedra = 0u;
+            for (const NMTetrahedronGPU& tetrahedron :
+                 snapshot.femTopologyTetrahedra) {
+                outcome.activeTetrahedra +=
+                    (tetrahedron.identity.w & NM_OBJECT_ACTIVE) != 0u;
+            }
+            outcome.activeTopologyNodes = 0u;
+            for (const NMFEMTopologyNodeGPU& node : snapshot.femTopologyNodes)
+                outcome.activeTopologyNodes +=
+                    (node.identity.w & NM_TOPOLOGY_ACTIVE) != 0u;
+            outcome.separatedFaces = 0u;
+            for (const NMCohesiveFaceGPU& face : snapshot.cohesiveFaces)
+                outcome.separatedFaces +=
+                    (face.adjacency.w & NM_TOPOLOGY_SEPARATED) != 0u;
+            outcome.activeChannels = 0u;
+            for (const NMPunctureChannelGPU& channel : snapshot.punctureChannels)
+                outcome.activeChannels +=
+                    (channel.identity.w & NM_TOPOLOGY_ACTIVE) != 0u;
+            outcome.removedMass = 0.0f;
+            for (const NMFEMTopologyStateGPU& topology : snapshot.topologyStates)
+                outcome.removedMass += topology.accounting.y;
+            outcome.learnedRevision = snapshot.learnedWeightRevision;
+            for (const NMSolverCertificateGPU& certificate :
+                 snapshot.solverCertificates) {
+                outcome.nonlinearResidual = std::max(
+                    outcome.nonlinearResidual, certificate.nonlinear.x);
+                outcome.relativeCorrection = std::max(
+                    outcome.relativeCorrection, certificate.nonlinear.y);
+                outcome.volumeResidual = std::max(
+                    outcome.volumeResidual, certificate.nonlinear.z);
+                outcome.pressureResidual = std::max(
+                    outcome.pressureResidual, certificate.nonlinear.w);
+                outcome.maximumBarrierImpulse = std::max(
+                    outcome.maximumBarrierImpulse, certificate.contact.x);
+                if (certificate.contact.y > 0.0f) {
+                    outcome.minimumContactSeparation = std::min(
+                        outcome.minimumContactSeparation,
+                        certificate.contact.y);
+                }
+                outcome.maximumTangentialImpulse = std::max(
+                    outcome.maximumTangentialImpulse,
+                    certificate.contact.z);
+                outcome.maximumContactEnergy = std::max(
+                    outcome.maximumContactEnergy, certificate.contact.w);
+                outcome.transportResidual = std::max({
+                    outcome.transportResidual,
+                    certificate.transport.x, certificate.transport.y,
+                    certificate.transport.z, certificate.transport.w
+                });
+            }
+        };
+        for (std::uint32_t step = 0u; step < controlSteps; ++step) {
+            id<MTLCommandBuffer> commandBuffer = [queue commandBuffer];
+            require(commandBuffer != nil, "failed to allocate Matter command buffer");
+            numi::matter::EncodeRequest request{};
+            request.commandBuffer = (__bridge void*)commandBuffer;
+            request.environmentStatuses = (__bridge void*)worldStatuses;
+            request.phase = numi::matter::EncodePhase::preDynamics;
+            request.controlStep = step;
+            request.physicsSubstep = 0u;
+            request.physicsSubsteps = 1u;
+            request.timestepSeconds = runtime.timestepSeconds();
+            request.runAdaptiveTransfer = false;
+            if (updateLearned && step == 0u) {
+                request.learnedWeightUpdate = (__bridge void*)learnedUpdate;
+                request.learnedWeightCount =
+                    static_cast<std::uint32_t>(learnedUpdateValues.size());
+                request.learnedWeightRevision = 1u;
+            }
+            auto encoded = runtime.encode(request);
+            require(encoded.encoded, label + std::string(" pre-dynamics: ") + encoded.message);
+            recordEncoding(encoded);
+            if (forceRollback) {
+                // The ordered blit executes after the tentative continuum
+                // update and before post-commit reconciliation. This verifies
+                // real GPU rollback rather than pre-marking the transaction
+                // failed before any Matter work executes.
+                encodeRigidWorldFailure(
+                    device,
+                    commandBuffer,
+                    worldStatuses
+                );
+            }
+            request.phase = numi::matter::EncodePhase::postCommit;
+            encoded = runtime.encode(request);
+            require(encoded.encoded, label + std::string(" post-commit: ") + encoded.message);
+            recordEncoding(encoded);
+            [commandBuffer commit];
+            [commandBuffer waitUntilCompleted];
+            require(
+                commandBuffer.status == MTLCommandBufferStatusCompleted,
+                label + std::string(" command buffer did not complete")
+            );
+            const CFTimeInterval gpuStart = commandBuffer.GPUStartTime;
+            const CFTimeInterval gpuEnd = commandBuffer.GPUEndTime;
+            if (std::isfinite(gpuStart) && std::isfinite(gpuEnd) &&
+                gpuEnd >= gpuStart) {
+                outcome.gpuMilliseconds += 1000.0 * (gpuEnd - gpuStart);
+            }
+
+            for (std::uint32_t environment = 0u;
+                 environment < environmentCount;
+                 ++environment) {
+                const NMMatterStatusGPU status = statusData[environment];
+                outcome.totalCompletedMicrosteps += status.completedMicrosteps;
+                std::string certificateFailure;
+                if (status.code != (forceRollback
+                        ? NM_STATUS_RIGID_WORLD_FAILURE
+                        : NM_STATUS_SUCCESS)) {
+                    const auto failedSnapshot = runtime.snapshot();
+                    const std::size_t certificateIndex =
+                        static_cast<std::size_t>(environment) *
+                        world.dispatch.objectCount;
+                    if (failedSnapshot.available && certificateIndex <
+                        failedSnapshot.solverCertificates.size()) {
+                        const auto& certificate =
+                            failedSnapshot.solverCertificates[certificateIndex];
+                        certificateFailure =
+                            " certificate=(kkt=" +
+                            std::to_string(certificate.nonlinear.x) +
+                            ",correction=" +
+                            std::to_string(certificate.nonlinear.y) +
+                            ",volume=" +
+                            std::to_string(certificate.nonlinear.z) +
+                            ",pressure=" +
+                            std::to_string(certificate.nonlinear.w) +
+                            ",contact=" +
+                            std::to_string(certificate.contact.x) + "," +
+                            std::to_string(certificate.contact.y) + "," +
+                            std::to_string(certificate.contact.z) + "," +
+                            std::to_string(certificate.contact.w) + ")";
+                    }
+                }
+                require(
+                    status.code == (forceRollback
+                        ? NM_STATUS_RIGID_WORLD_FAILURE
+                        : NM_STATUS_SUCCESS),
+                    label + std::string(" reported Matter status ") +
+                        std::to_string(status.code) +
+                        " environment=" + std::to_string(environment) +
+                        " step=" + std::to_string(step) +
+                        " object=" + std::to_string(status.objectIndex) +
+                        " index=" + std::to_string(status.failingIndex) +
+                        " diagnostics=(" +
+                        diagnosticFloat(status.diagnostics.x) + "," +
+                        diagnosticFloat(status.diagnostics.y) + "," +
+                        diagnosticFloat(status.diagnostics.z) + "," +
+                        diagnosticFloat(status.diagnostics.w) + ")" +
+                        certificateFailure
+                );
+                if (!forceRollback) {
+                    require(
+                        !std::isnan(status.diagnostics.x) &&
+                            status.diagnostics.x > 0.0f,
+                        label + std::string(
+                            " lost a valid deformation determinant")
+                    );
+                }
+                outcome.contactSamples = std::max(
+                    outcome.contactSamples, status.contactCount);
+                outcome.minimumContactSamples = std::min(
+                    outcome.minimumContactSamples, status.contactCount);
+                outcome.completedMicrosteps = std::max(
+                    outcome.completedMicrosteps,
+                    status.completedMicrosteps
+                );
+                outcome.fgmresIterations = std::max(
+                    outcome.fgmresIterations, status.fgmresIterations);
+                outcome.minimumDeterminant = std::min(
+                    outcome.minimumDeterminant,
+                    status.diagnostics.x
+                );
+            }
+            for (std::uint32_t event = 0u;
+                 event < environmentCount * world.dispatch.eventStride;
+                 ++event) {
+                const NMEventTokenGPU& token = eventData[event];
+                outcome.sawContactEvent = outcome.sawContactEvent || (
+                    token.eventClass == NM_EVENT_CONTACT_ONSET &&
+                    token.payload.z > 0.0f
+                );
+            }
+            recordSnapshot(runtime.snapshot());
+            if (verifyTopologyRestore && step == 0u) {
+                const auto mutated = runtime.snapshot();
+                require(
+                    mutated.available,
+                    label + std::string(" mutated snapshot: ") +
+                        mutated.message
+                );
+                std::uint32_t cookedGeneration = 0u;
+                for (const NMContinuumObjectGPU& object : world.objects) {
+                    if (object.representation == NM_REPRESENTATION_FEM) {
+                        cookedGeneration = std::max(
+                            cookedGeneration,
+                            object.topologyGeneration
+                        );
+                    }
+                }
+                require(
+                    mutated.allocationGeneration > cookedGeneration,
+                    label + std::string(
+                        " did not advance accepted topology generation"
+                    )
+                );
+                const auto restoredMutation = runtime.restore(mutated);
+                require(
+                    restoredMutation.encoded,
+                    label + std::string(" topology restore: ") +
+                        restoredMutation.message
+                );
+                require(
+                    metalrobo::sameMatterSnapshotAuthority(
+                        runtime.snapshot(),
+                        mutated
+                    ),
+                    label + std::string(
+                        " topology restore changed accepted snapshot authority"
+                    )
+                );
+                outcome.topologySnapshotRestored = true;
+            }
+        }
+        if (forceRollback) {
+            const auto restored = runtime.snapshot();
+            require(restored.available, label + std::string(" restored: ") + restored.message);
+            const auto equalBytes = [](const auto& left, const auto& right) {
+                return left.size() == right.size() &&
+                    (left.empty() || std::memcmp(
+                        left.data(), right.data(), left.size() * sizeof(left.front())
+                    ) == 0);
+            };
+            const auto requireEqual = [&](const auto& current, const auto& before,
+                                          const char* authority) {
+                require(equalBytes(current, before), label + std::string(
+                    " did not byte-restore ") + authority);
+            };
+            requireEqual(restored.particles, baseline.particles, "particles");
+            requireEqual(restored.femNodes, baseline.femNodes, "FEM nodes");
+            requireEqual(restored.particleMaterialState,
+                         baseline.particleMaterialState, "MPM material state");
+            requireEqual(restored.femMaterialState,
+                         baseline.femMaterialState, "FEM material state");
+            requireEqual(restored.femFields, baseline.femFields, "mixed fields");
+            requireEqual(restored.learnedWeights, baseline.learnedWeights,
+                         "learned weights");
+            require(restored.learnedWeightRevision == baseline.learnedWeightRevision,
+                    label + std::string(" did not restore learned revision"));
+            requireEqual(restored.femTopologyTetrahedra,
+                         baseline.femTopologyTetrahedra, "tetrahedra");
+            requireEqual(restored.femTopologyNodes,
+                         baseline.femTopologyNodes, "topology nodes");
+            requireEqual(restored.cohesiveFaces, baseline.cohesiveFaces,
+                         "cohesive state");
+            requireEqual(restored.punctureChannels, baseline.punctureChannels,
+                         "puncture channels");
+            requireEqual(restored.topologyStates, baseline.topologyStates,
+                         "topology accounting");
+            requireEqual(restored.contactHistories, baseline.contactHistories,
+                         "primal contact history");
+            requireEqual(restored.schedulers, baseline.schedulers,
+                         "scheduler state");
+            requireEqual(restored.adaptive, baseline.adaptive,
+                         "adaptive ownership");
+            requireEqual(restored.reactions, baseline.reactions,
+                         "reaction state");
+            requireEqual(restored.identification, baseline.identification,
+                         "identification state");
+        }
+        if (!forceRollback) {
+            require(outcome.completedMicrosteps > 0u, label + std::string(" executed no microsteps"));
+        }
+        if (requireContact) {
+            require(
+                outcome.minimumContactSamples > 0u || outcome.sawContactEvent,
+                label + std::string(" never produced continuum contact")
+            );
+            // A high-rate impact can begin and release entirely inside one
+            // control frame. In that case the event/scheduler stream retains
+            // contact incidence while the final-microtick certificate has no
+            // active row. Whenever a contact certificate is published, it
+            // must demonstrate the authored live-Metal separation floor.
+            if (std::isfinite(outcome.minimumContactSeparation)) {
+                require(
+                    outcome.minimumContactSeparation >
+                            outcome.authoredContactSeparationFloor,
+                    label + std::string(
+                        " did not satisfy the authored contact-separation floor: ") +
+                        std::to_string(outcome.minimumContactSeparation) +
+                        " <= " +
+                        std::to_string(outcome.authoredContactSeparationFloor)
+                );
+            }
+        }
+        outcome.sawContactOnset = outcome.contactSamples > 0u;
+        if (requireDescent) {
+            const float descentTolerance = std::max(
+                1.0e-6f,
+                std::abs(initialMinimumHeight) * 1.0e-6f
+            );
+            require(
+                std::isfinite(initialMinimumHeight) &&
+                    outcome.minimumHeight <
+                        initialMinimumHeight - descentTolerance,
+                label + std::string(" did not advance under gravity")
+            );
+        }
+        if (!forceRollback) {
+            require(
+                !std::isnan(outcome.minimumDeterminant) &&
+                    outcome.minimumDeterminant > 0.0f,
+                label + std::string(" produced an invalid deformation determinant")
+            );
+        }
+        return outcome;
+    }
+}
+
+
+// Independent rigid load/friction oracle through the actual MetalWorld/Matter
+// candidate service, nonlinear FGMRES, line search and accepted transaction.
+// The fixed tetrahedron reserves the normal continuum path without exerting
+// forces on the body. Its articulated proxy is deliberately far from the tet.
+void runHumanSupportLoaded() {
+    @autoreleasepool {
+        constexpr unsigned environments = 3;
+        struct Case {
+            const char* name;
+            float mass, timestep, seed, gap, vx, vz, friction;
+            unsigned rows;
+        };
+        const Case cases[] = {
+            {"cold_97kg",97,0.0001f,0,0,0,0,0,1},
+            {"weight_seed_97kg",97,0.0001f,1,0,0,0,0,1},
+            {"double_seed_97kg",97,0.0001f,2,0,0,0,0,1},
+            {"redundant_six_cold",97,0.0001f,0,0,0,0,0,6},
+            {"redundant_six_double",97,0.0001f,2,0,0,0,0,6},
+            {"cold_1kg",1,0.0001f,0,0,0,0,0,1},
+            {"half_timestep",97,0.00005f,0,0,0,0,0,1},
+            {"airborne_double_seed",97,0.0001f,2,0.01f,0,0,0,1},
+            {"sticking",97,0.0001f,0,0,0.0001f,0.0002f,0.5f,1},
+            {"sliding",97,0.0001f,0,0,0.1f,0.2f,0.5f,1},
+            {"sliding_warm",97,0.0001f,2,0,0.1f,0.2f,0.5f,1},
+        };
+        for (const auto c : cases) {
+            auto material = numi::matter::parseMatterFile(NUMI_MATTER_MATERIAL);
+            require(material.succeeded(), "support material failed to parse");
+            numi::matter::WorldSource source;
+            source.environmentCount = environments;
+            source.frameTimestep = c.timestep;
+            source.gravity = {0,0,0};
+            source.mixedSolver.newtonIterations = 12;
+            // Resolve the 97 kg impulse oracle to 2 micro-newton-seconds,
+            // while retaining the FP32 momentum roundoff floor.
+            source.mixedSolver.relativeResidual = 1.0e-8;
+            source.materials.push_back(std::move(material.material));
+            numi::matter::RigidProxySource proxy;
+            proxy.shape = NM_RIGID_SPHERE;
+            proxy.bodyIndex = 1;
+            proxy.articulated = true;
+            proxy.localCenter = {0,100,0};
+            proxy.radiusOrOffset = 0.01;
+            source.rigidProxies.push_back(proxy);
+            numi::matter::ObjectSource object;
+            object.name = "fixed_remote_tetrahedron";
+            object.materialIndex = 0;
+            object.representation = numi::matter::Representation::fem;
+            object.characteristicLength = 0.01;
+            object.femNodes = {{10,0,0},{10.01,0,0},{10,0.01,0},{10,0,0.01}};
+            object.femFixedNodes = {0,1,2,3};
+            object.tetrahedra = {{{0,1,2,3}}};
+            source.objects.push_back(object);
+            numi::matter::CompileOptions options;
+            options.maximumRateExponent = 0;
+            auto compiled = numi::matter::compileWorld(source,options);
+            std::string compileError;
+            for (const auto& diagnostic : compiled.diagnostics) compileError += diagnostic.message + "; ";
+            require(compiled.succeeded(), "support world compile: " + compileError);
+            std::vector<NMHumanSupportContactGPU> contacts(c.rows);
+            std::vector<NMHumanSupportPointQueryGPU> queries(c.rows);
+            for (unsigned i=0;i<c.rows;++i) {
+                contacts[i].identity = {1,i,i,0};
+                contacts[i].frictionSlopAndStabilization = {c.friction,1.0e-6f,0.2f,0};
+                queries[i].bodyIndex = 1;
+            }
+            const float weight = c.mass * 9.81f * c.timestep;
+            std::vector<nm_float4> configuredInitialHistories;
+            const bool legacyZeroInitialization =
+                std::string_view(c.name) == "cold_97kg";
+            if (!legacyZeroInitialization) {
+                configuredInitialHistories.resize(environments*c.rows);
+                for (unsigned env=0;env<environments;++env)
+                    for (unsigned row=0;row<c.rows;++row)
+                        configuredInitialHistories[env*c.rows+row] =
+                            {0,0,0,(c.seed+env)*weight/c.rows};
+            }
+            numi::matter::Runtime matter;
+            const numi::matter::RuntimeConfiguration runtimeConfiguration{
+                .metallib = NUMI_MATTER_METALLIB,
+                .environmentCount = environments,
+                .captureEvents = true,
+                .captureDiagnostics = true,
+                .automaticIdentification = false,
+                .adaptiveTransfer = false,
+                .humanSupportContacts = contacts,
+                .humanSupportPointQueries = queries,
+                .humanSupportGroundNormal = {0,1,0,0},
+                .humanSupportInitialHistories = configuredInitialHistories,
+            };
+            auto init = matter.initialize(compiled.world, runtimeConfiguration);
+            require(init.encoded, "support initialize: "+init.message);
+            if (c.rows == 6u && c.seed == 0.0f) {
+                auto supportOnlySource = source;
+                supportOnlySource.rigidProxies.clear();
+                const auto supportOnlyWorld = numi::matter::compileWorld(supportOnlySource, options);
+                require(supportOnlyWorld.succeeded(), "support-only fixture compilation failed");
+                numi::matter::Runtime supportOnly;
+                require(supportOnly.initialize(supportOnlyWorld.world, runtimeConfiguration).encoded,
+                    "support-only fixture initialization failed");
+                id<MTLDevice> device = ((__bridge id<MTLBuffer>)matter.statusBuffer()).device;
+                id<MTLCommandQueue> queue = [device newCommandQueue];
+                id<MTLCommandBuffer> command = [queue commandBuffer];
+                numi::matter::EncodeRequest invalid;
+                invalid.commandBuffer = (__bridge void*)command;
+                invalid.physicsSubsteps = 1u;
+                invalid.rigid.currentBodyCount = 2u;
+                invalid.rigid.currentBodyStride = 2u;
+                auto denied = supportOnly.encode(invalid);
+                require(!denied.encoded && denied.message ==
+                    "Human support requires an initial body pose arena",
+                    "support admitted missing initial body arena: " + denied.message);
+                id<MTLBuffer> shortBodies = [device newBufferWithLength:
+                    environments * 2u * sizeof(MRBodyStateGPU) - 1u
+                    options:MTLResourceStorageModePrivate];
+                invalid.rigid.currentBodies = (__bridge void*)shortBodies;
+                denied = supportOnly.encode(invalid);
+                require(!denied.encoded && denied.message ==
+                    "Human support initial body arena has wrong device provenance or byte capacity",
+                    "support admitted short initial body arena: " + denied.message);
+                invalid.humanSupportInitialBodies = (__bridge void*)shortBodies;
+                invalid.rigid.currentBodies = nullptr;
+                denied = supportOnly.encode(invalid);
+                require(!denied.encoded && denied.message ==
+                    "Human support initial body arena has wrong device provenance or byte capacity",
+                    "support admitted short explicit initial pose arena: " + denied.message);
+                std::cout << "support_initial_bodies_missing_and_short_rejected=1\n";
+
+                auto wrongCountConfiguration = runtimeConfiguration;
+                std::vector<nm_float4> wrongCount(
+                    environments*c.rows-1u);
+                wrongCountConfiguration.humanSupportInitialHistories =
+                    wrongCount;
+                numi::matter::Runtime wrongCountRuntime;
+                const auto wrongCountAdmission = wrongCountRuntime.initialize(
+                    compiled.world, wrongCountConfiguration);
+                require(!wrongCountAdmission.encoded &&
+                    wrongCountAdmission.message ==
+                        "Human support rows have an invalid count or ground plane",
+                    "support initial-history extent failed open: " +
+                        wrongCountAdmission.message);
+                auto coneConfiguration = runtimeConfiguration;
+                std::vector<nm_float4> outsideCone(
+                    environments*c.rows, nm_float4{1,0,0,1});
+                coneConfiguration.humanSupportInitialHistories = outsideCone;
+                numi::matter::Runtime coneRuntime;
+                const auto coneAdmission = coneRuntime.initialize(
+                    compiled.world, coneConfiguration);
+                require(!coneAdmission.encoded &&
+                    coneAdmission.message ==
+                        "Human support initial history violates its tangent/Coulomb cone",
+                    "support initial-history cone failed open: " +
+                        coneAdmission.message);
+                auto overflowConfiguration = runtimeConfiguration;
+                auto overflowContacts = contacts;
+                for (auto& contact : overflowContacts) {
+                    contact.frictionSlopAndStabilization.x =
+                        std::numeric_limits<float>::max();
+                }
+                std::vector<nm_float4> overflowHistories(
+                    environments*c.rows,
+                    nm_float4{0,0,0,std::numeric_limits<float>::max()});
+                overflowConfiguration.humanSupportContacts = overflowContacts;
+                overflowConfiguration.humanSupportInitialHistories =
+                    overflowHistories;
+                numi::matter::Runtime overflowRuntime;
+                const auto overflowAdmission = overflowRuntime.initialize(
+                    compiled.world, overflowConfiguration);
+                require(!overflowAdmission.encoded &&
+                    overflowAdmission.message ==
+                        "Human support initial history violates its tangent/Coulomb cone",
+                    "support initial-history FP32 cone radius failed open: " +
+                        overflowAdmission.message);
+                std::cout <<
+                    "support_initial_history_bad_count_cone_and_overflow_rejected=1\n";
+            }
+            require(matter.coupledCandidatePointCapacity() >= c.rows,
+                "Human support queries exceed advertised candidate capacity");
+            auto checkpoint = matter.snapshot();
+            require(checkpoint.available && checkpoint.humanSupportHistories.size()==environments*c.rows,
+                "support initial snapshot missing");
+            const std::vector<nm_float4> expectedInitialHistories =
+                legacyZeroInitialization
+                    ? std::vector<nm_float4>(environments*c.rows)
+                    : configuredInitialHistories;
+            require(std::memcmp(checkpoint.humanSupportHistories.data(),
+                expectedInitialHistories.data(),
+                expectedInitialHistories.size()*sizeof(nm_float4))==0,
+                "support accepted owner did not retain configured initialization");
+            if (legacyZeroInitialization) {
+                const auto rejectSupportRestore = [&, checkpoint](
+                    numi::matter::RuntimeStateSnapshot invalid,
+                    const std::string_view expectedMessage,
+                    const std::string_view label) {
+                    invalid.controlStep = checkpoint.controlStep + 17u;
+                    const auto rejected = matter.restore(invalid);
+                    require(!rejected.encoded &&
+                        rejected.message == expectedMessage,
+                        std::string(label) + " failed open: " +
+                            rejected.message);
+                    const auto after = matter.snapshot();
+                    require(after.available &&
+                        after.controlStep == checkpoint.controlStep &&
+                        after.humanSupportHistories.size() ==
+                            checkpoint.humanSupportHistories.size() &&
+                        std::memcmp(after.humanSupportHistories.data(),
+                            checkpoint.humanSupportHistories.data(),
+                            checkpoint.humanSupportHistories.size() *
+                                sizeof(nm_float4)) == 0,
+                        std::string(label) +
+                            " changed accepted state before rejection");
+                };
+                auto invalid = checkpoint;
+                invalid.humanSupportHistories.pop_back();
+                rejectSupportRestore(invalid,
+                    "Matter snapshot Human-support-history logical size changed",
+                    "undersized support-history restore");
+                invalid = checkpoint;
+                invalid.humanSupportHistories.push_back({0,0,0,1});
+                rejectSupportRestore(invalid,
+                    "Matter snapshot Human-support-history logical size changed",
+                    "oversized support-history restore");
+                invalid = checkpoint;
+                invalid.humanSupportHistories.front().x =
+                    std::numeric_limits<float>::quiet_NaN();
+                rejectSupportRestore(invalid,
+                    "Matter snapshot Human-support-history is inadmissible",
+                    "nonfinite support-history restore");
+                invalid = checkpoint;
+                invalid.humanSupportHistories.front().w = -1.0f;
+                rejectSupportRestore(invalid,
+                    "Matter snapshot Human-support-history is inadmissible",
+                    "negative-normal support-history restore");
+                invalid = checkpoint;
+                invalid.humanSupportHistories.front() = {0,1,0,1};
+                rejectSupportRestore(invalid,
+                    "Matter snapshot Human-support-history is inadmissible",
+                    "nontangent support-history restore");
+                invalid = checkpoint;
+                invalid.humanSupportHistories.front() = {1,0,0,1};
+                rejectSupportRestore(invalid,
+                    "Matter snapshot Human-support-history is inadmissible",
+                    "outside-cone support-history restore");
+                std::cout <<
+                    "support_restore_extent_admissibility_and_atomicity_rejected=1\n";
+            }
+            auto model = metalrobo::makeFreeSphereEngineModel();
+            model.name = std::string("support_")+c.name;
+            model.bodies[1].massAndInverseMass = {c.mass,1/c.mass,0,0};
+            model.defaultQ[0]=0; model.defaultQ[1]=c.gap; model.defaultQ[2]=0;
+            // Supply the known free predictor to the coupled correction service.
+            // The generic device hook precedes ABA, so applying gravity again
+            // in MetalWorld would double this authored predictor impulse.
+            model.world.gravityAndTimestep = {0,0,0,c.timestep};
+            model.defaultV[0]=c.vx; model.defaultV[1]=-9.81f*c.timestep; model.defaultV[2]=c.vz;
+            metalrobo::CompiledWorld rigidWorld;
+            auto rigidCompile = metalrobo::compileMetalWorld(model,0,rigidWorld);
+            require(rigidCompile.succeeded(), "support rigid compile: "+rigidCompile.message);
+            std::vector<float> efforts(rigidWorld.nv(),0);
+            metalrobo::MetalWorldStepConfig config{};
+            config.timestepSeconds = c.timestep;
+            config.physicsSubsteps = 1;
+            config.solverMode = metalrobo::MetalWorldSolverMode::freeMotionABA;
+            config.matrixFreeArticulatedContact = false;
+            config.streamedArticulatedContactResponses = false;
+            config.captureContactEvidence = false;
+            config.devicePhysicsProgram = numi::matter::makeMetalWorldDevicePhysicsProgram(matter);
+            std::vector<float> initialQ,initialV;
+            for (unsigned env=0;env<environments;++env) {
+                initialQ.insert(initialQ.end(),model.defaultQ.begin(),model.defaultQ.end());
+                initialV.insert(initialV.end(),model.defaultV.begin(),model.defaultV.end());
+            }
+            efforts.resize(environments*rigidWorld.nv(),0);
+            const metalrobo::MetalWorldBatch batch{
+                .environmentCount = environments,
+                .controlStepCount = 1,
+                .initialQ = initialQ,
+                .initialV = initialV,
+                .efforts = efforts,
+            };
+            if (c.rows == 6u && c.seed == 0.0f) {
+                numi::matter::Runtime undersizedMatter;
+                require(undersizedMatter.initialize(compiled.world,
+                    runtimeConfiguration).encoded,
+                    "undersized support fixture initialization failed");
+                auto undersizedConfig = config;
+                undersizedConfig.devicePhysicsProgram =
+                    numi::matter::makeMetalWorldDevicePhysicsProgram(undersizedMatter);
+                undersizedConfig.devicePhysicsProgram.coupledCandidatePointCapacity = 1u;
+                metalrobo::MetalWorldContext undersizedContext;
+                metalrobo::MetalWorldResult rejected;
+                const auto rejection = undersizedContext.run(
+                    rigidWorld,batch,undersizedConfig,rejected);
+                require(!rejection.succeeded(),
+                    "undersized borrowed-query arena reached GPU execution");
+                std::cout << "SUPPORT_CAPACITY_REJECTION message=" << rejection.message << '\n';
+            }
+            metalrobo::MetalWorldContext context;
+            metalrobo::MetalWorldResult result;
+            auto run = context.run(rigidWorld,batch,config,result);
+            const auto status = *static_cast<const NMMatterStatusGPU*>(
+                ((__bridge id<MTLBuffer>)matter.statusBuffer()).contents);
+            std::cout << "SUPPORT_RUN name=" << c.name << " success=" << run.succeeded()
+                << " status=" << status.code << " diagnostic=" << status.diagnostics.x
+                << ',' << status.diagnostics.y << ',' << status.diagnostics.z
+                << ',' << status.diagnostics.w << " message=" << run.message << '\n';
+            require(run.succeeded(), "support loaded transaction failed");
+            const auto accepted = matter.snapshot();
+            for (unsigned env=0;env<environments;++env) {
+                const auto row=accepted.humanSupportConsequences[env*c.rows];
+                std::cout<<"SUPPORT_GEOMETRY env="<<env<<" point="<<row.pointAndSeparation.x<<','
+                    <<row.pointAndSeparation.y<<','<<row.pointAndSeparation.z<<" gap="
+                    <<row.pointAndSeparation.w<<" impulse="<<row.impulseAndNormal.w<<'\n';
+            }
+            for (unsigned env=0;env<environments;++env) {
+            double normal=0, tangentX=0, tangentZ=0;
+            for (unsigned i=0;i<c.rows;++i) {
+                const auto& row=accepted.humanSupportConsequences[env*c.rows+i];
+                normal += row.impulseAndNormal.y;
+                tangentX += row.impulseAndNormal.x;
+                tangentZ += row.impulseAndNormal.z;
+            }
+            const double expectedNormal = c.gap==0 ? weight : 0;
+            const double speed = std::hypot(c.vx,c.vz);
+            const double expectedTangent = std::min(c.mass*speed,c.friction*expectedNormal);
+            const double tx = speed>0 ? -expectedTangent*c.vx/speed : 0;
+            const double tz = speed>0 ? -expectedTangent*c.vz/speed : 0;
+            const double expectedVy = -9.81*c.timestep + expectedNormal/c.mass;
+            const double expectedVx = c.vx + tx/c.mass;
+            const double expectedVz = c.vz + tz/c.mass;
+            std::cout << "SUPPORT_LOAD name=" << c.name << " environment=" << env << " lambda=" << normal
+                << " expected=" << expectedNormal << " tangent=" << tangentX << ',' << tangentZ
+                << " velocity=" << result.finalV[env*rigidWorld.nv()+0] << ',' << result.finalV[env*rigidWorld.nv()+1] << ',' << result.finalV[env*rigidWorld.nv()+2]
+                << " gap=" << result.finalQ[env*rigidWorld.nq()+1] << '\n';
+            require(std::abs(normal-expectedNormal)<2.0e-6 &&
+                std::abs(tangentX-tx)<2.0e-6 && std::abs(tangentZ-tz)<2.0e-6,
+                "support impulse violates independent weight/friction oracle");
+            require(std::abs(result.finalV[env*rigidWorld.nv()+1]-expectedVy)<2.0e-7 &&
+                std::abs(result.finalV[env*rigidWorld.nv()+0]-expectedVx)<2.0e-7 &&
+                std::abs(result.finalV[env*rigidWorld.nv()+2]-expectedVz)<2.0e-7,
+                "support motion violates independent momentum oracle");
+            }
+            require(matter.restore(checkpoint).encoded, "support replay restore failed");
+            metalrobo::MetalWorldContext replayContext;
+            metalrobo::MetalWorldResult replay;
+            require(replayContext.run(rigidWorld,batch,config,replay).succeeded(),
+                "support replay transaction failed");
+            const auto replayState=matter.snapshot();
+            double replayQ=0,replayV=0,replayImpulse=0;
+            for (unsigned i=0;i<result.finalQ.size();++i) replayQ=std::max(replayQ,double(std::abs(result.finalQ[i]-replay.finalQ[i])));
+            for (unsigned i=0;i<result.finalV.size();++i) replayV=std::max(replayV,double(std::abs(result.finalV[i]-replay.finalV[i])));
+            for (unsigned i=0;i<accepted.humanSupportHistories.size();++i) {
+                replayImpulse=std::max(replayImpulse,double(std::abs(accepted.humanSupportHistories[i].w-replayState.humanSupportHistories[i].w)));
+            }
+            std::cout<<"SUPPORT_REPLAY name="<<c.name<<" q_error="<<replayQ<<" v_error="<<replayV<<" normal_error="<<replayImpulse<<'\n';
+            require(replay.finalQ.size()==result.finalQ.size() &&
+                replay.finalV.size()==result.finalV.size() &&
+                std::memcmp(replay.finalQ.data(),result.finalQ.data(),result.finalQ.size()*sizeof(float))==0 &&
+                std::memcmp(replay.finalV.data(),result.finalV.data(),result.finalV.size()*sizeof(float))==0 &&
+                std::memcmp(replayState.humanSupportHistories.data(),
+                    accepted.humanSupportHistories.data(),
+                    accepted.humanSupportHistories.size()*sizeof(nm_float4))==0,
+                "support replay changed physical state or impulses");
+        }
+        std::cout << "Human support loaded runtime: 11 cases x 3 environments passed; replay exact\n";
+    }
+}
+
+} // namespace
+
+int main(int argc, const char* argv[]) {
+    try {
+        if (argc==2 && std::string_view(argv[1])=="--human-support-loaded") {
+            runHumanSupportLoaded(); return 0;
+        }
+        const bool femOnly = argc == 2 && std::string_view(argv[1]) == "--fem";
+        const bool mixedOnly = argc == 2 && std::string_view(argv[1]) == "--mixed";
+        const bool statefulMPM = argc == 2 &&
+            std::string_view(argv[1]) == "--stateful-mpm";
+        const bool statefulFEM = argc == 2 &&
+            std::string_view(argv[1]) == "--stateful-fem";
+        const bool mpmOnly = argc == 2 && std::string_view(argv[1]) == "--mpm";
+        const bool mpmFree = argc == 2 && std::string_view(argv[1]) == "--mpm-free";
+        const bool mpmSingle = argc == 2 && std::string_view(argv[1]) == "--mpm-single";
+        const bool mpmSingleContact = argc == 2 && std::string_view(argv[1]) == "--mpm-single-contact";
+        const bool mpmGentle = argc == 2 && std::string_view(argv[1]) == "--mpm-gentle-contact";
+        const bool mpmBatch = argc == 2 &&
+            std::string_view(argv[1]) == "--mpm-batch";
+        const bool mpmRollback = argc == 2 && std::string_view(argv[1]) == "--mpm-rollback";
+        const bool metalWorldCoupling = argc == 2 && std::string_view(argv[1]) == "--metal-world-coupling";
+        const bool multiphysics = argc == 2 && std::string_view(argv[1]) == "--multiphysics";
+        const bool topologyMutation = argc == 2 &&
+            std::string_view(argv[1]) == "--topology-mutation";
+        const bool topologyRollback = argc == 2 &&
+            std::string_view(argv[1]) == "--topology-rollback";
+        const bool cohesiveMutation = argc == 2 &&
+            std::string_view(argv[1]) == "--cohesive-mutation";
+        const bool smallScaleRemesh = argc == 2 &&
+            std::string_view(argv[1]) == "--small-scale-remesh";
+        const bool punctureMutation = argc == 2 &&
+            std::string_view(argv[1]) == "--puncture-mutation";
+        const bool learnedMaterial = argc == 2 &&
+            std::string_view(argv[1]) == "--learned-material";
+        const bool productionRollback = argc == 2 &&
+            std::string_view(argv[1]) == "--production-rollback";
+        const bool poroelasticCompression = argc == 2 &&
+            std::string_view(argv[1]) == "--poroelastic-compression";
+        const bool articulatedFootPad = argc == 2 &&
+            std::string_view(argv[1]) == "--articulated-foot-pad";
+        const bool articulatedFootPadSequence = argc == 2 &&
+            std::string_view(argv[1]) == "--articulated-foot-pad-sequence";
+        const bool articulatedFootPadContactBoundary = argc == 2 &&
+            std::string_view(argv[1]) ==
+                "--articulated-foot-pad-contact-boundary";
+        const bool postCommitContactGuard = argc == 2 &&
+            std::string_view(argv[1]) ==
+                "--post-commit-contact-guard";
+        const bool punctureChannelExitGuard = argc == 2 &&
+            std::string_view(argv[1]) ==
+                "--puncture-channel-exit-guard";
+        const bool sutureProxyWindow = argc == 2 &&
+            std::string_view(argv[1]) == "--suture-proxy-window";
+        const bool identification = argc == 2 && std::string_view(argv[1]) == "--identification";
+        const bool adaptiveDemotion = argc == 2 && std::string_view(argv[1]) == "--adaptive-demotion";
+        const bool adaptivePromotion = argc == 2 && std::string_view(argv[1]) == "--adaptive-promotion";
+        const bool adaptivePromotionRollback = argc == 2 && std::string_view(argv[1]) == "--adaptive-promotion-rollback";
+        const bool femFree = argc == 2 && std::string_view(argv[1]) == "--fem-free";
+        const bool femHighRate = argc == 2 && std::string_view(argv[1]) == "--fem-high-rate";
+        const bool femHighDrop = argc == 2 && std::string_view(argv[1]) == "--fem-high-drop";
+        require(
+            argc == 1 || mixedOnly || statefulMPM || statefulFEM ||
+                femOnly || mpmOnly || mpmFree || mpmSingle ||
+                mpmSingleContact || mpmGentle || mpmBatch || mpmRollback ||
+                metalWorldCoupling || multiphysics ||
+                topologyMutation || topologyRollback || cohesiveMutation ||
+                smallScaleRemesh || punctureMutation || learnedMaterial ||
+                productionRollback || poroelasticCompression ||
+                articulatedFootPad ||
+                articulatedFootPadSequence ||
+                articulatedFootPadContactBoundary ||
+                postCommitContactGuard ||
+                punctureChannelExitGuard ||
+                sutureProxyWindow ||
+                identification || adaptiveDemotion ||
+                adaptivePromotion || adaptivePromotionRollback || femFree ||
+                femHighRate || femHighDrop,
+            "usage: metalrobo_matter_physics_probe [--poroelastic-compression|--articulated-foot-pad|--articulated-foot-pad-sequence|--articulated-foot-pad-contact-boundary|--post-commit-contact-guard|--puncture-channel-exit-guard|--suture-proxy-window|--mixed|--multiphysics|--topology-mutation|--topology-rollback|--cohesive-mutation|--small-scale-remesh|--puncture-mutation|--learned-material|--production-rollback|--stateful-mpm|--stateful-fem|--mpm|--mpm-free|--mpm-single|--mpm-single-contact|--mpm-gentle-contact|--mpm-batch|--mpm-rollback|--metal-world-coupling|--identification|--adaptive-demotion|--adaptive-promotion|--adaptive-promotion-rollback|--fem|--fem-free|--fem-high-rate|--fem-high-drop]"
+        );
+        if (articulatedFootPad) {
+            runArticulatedFootPadScene();
+        }
+        if (articulatedFootPadSequence) {
+            runArticulatedFootPadScene(true);
+        }
+        if (articulatedFootPadContactBoundary) {
+            runArticulatedFootPadScene(false, true);
+        }
+        if (postCommitContactGuard) {
+            runPostCommitContactGuard();
+        }
+        if (punctureChannelExitGuard) {
+            runPunctureChannelExitGuard();
+        }
+        if (sutureProxyWindow) {
+            runSutureProxyWindow();
+        }
+        if (poroelasticCompression) {
+            const auto outcome = runCase(
+                compilePoroelasticCompressionCase(),
+                "poroelastic plate compression", true, false, 4u
+            );
+            require(outcome.maximumMechanicalPressure > 0.0f &&
+                    outcome.minimumPorePressure <= 1.0e-5f &&
+                    outcome.maximumPorePressure > 0.0f &&
+                    outcome.maximumPorePressure < 0.5f &&
+                    outcome.contactSamples > 0u &&
+                    outcome.nonlinearResidual <= 1.0e-4f &&
+                    outcome.volumeResidual <= 1.0e-4f &&
+                    outcome.pressureResidual <= 1.0e-4f &&
+                    std::isfinite(outcome.maximumBarrierImpulse) &&
+                    outcome.maximumBarrierImpulse > 0.0f &&
+                    std::isfinite(outcome.minimumContactSeparation) &&
+                    outcome.minimumContactSeparation >
+                        outcome.authoredContactSeparationFloor &&
+                    std::isfinite(outcome.maximumTangentialImpulse) &&
+                    std::isfinite(outcome.maximumContactEnergy) &&
+                    outcome.transportResidual <= 1.0e-4f,
+                "poroelastic compression did not satisfy its coupled certificates");
+            std::cout
+                << "{\"schema\":\"numi.matter.scene.v1\""
+                << ",\"scene\":\"poroelastic_plate_compression\""
+                << ",\"contacts\":" << outcome.contactSamples
+                << ",\"mechanical_pressure_max\":"
+                << outcome.maximumMechanicalPressure
+                << ",\"pore_pressure_range\":["
+                << outcome.minimumPorePressure << ','
+                << outcome.maximumPorePressure << ']'
+                << ",\"minimum_J\":" << outcome.minimumDeterminant
+                << ",\"kkt_residual\":" << outcome.nonlinearResidual
+                << ",\"volume_residual\":" << outcome.volumeResidual
+                << ",\"pressure_residual\":" << outcome.pressureResidual
+                << ",\"maximum_barrier_impulse\":"
+                << outcome.maximumBarrierImpulse
+                << ",\"minimum_contact_separation\":"
+                << outcome.minimumContactSeparation
+                << ",\"authored_contact_separation_floor\":"
+                << outcome.authoredContactSeparationFloor
+                << ",\"maximum_tangential_impulse\":"
+                << outcome.maximumTangentialImpulse
+                << ",\"maximum_contact_energy\":"
+                << outcome.maximumContactEnergy
+                << ",\"transport_residual\":" << outcome.transportResidual
+                << "}\n";
+        }
+        if (identification) {
+            runIdentification();
+        }
+        if (adaptiveDemotion) {
+            runAdaptiveTransfer(false);
+        }
+        if (adaptivePromotion) {
+            runAdaptiveTransfer(true);
+        }
+        if (adaptivePromotionRollback) {
+            runAdaptiveTransfer(true, true);
+        }
+        if (metalWorldCoupling) {
+            runMetalWorldCoupling();
+        }
+        if (multiphysics) {
+            const auto outcome = runCase(
+                compileCase(
+                    numi::matter::Representation::fem,
+                    false, false, false, false, false, false,
+                    1.0 / 240.0, 1u, 0u, 0u, false, true
+                ),
+                "monolithic multiphysics", false, false, 2u
+            );
+            require(
+                outcome.minimumTemperature >= 299.9f &&
+                outcome.maximumTemperature >= 349.9f &&
+                outcome.maximumElectricPotential >= 0.99f &&
+                outcome.maximumActivation > 0.0f,
+                "multiphysics fields did not diffuse and activate on the Metal timeline"
+            );
+            require(
+                outcome.nonlinearResidual <= 1.0e-4f &&
+                outcome.volumeResidual <= 1.0e-4f &&
+                outcome.pressureResidual <= 1.0e-4f &&
+                outcome.transportResidual <= 1.0e-4f,
+                "monolithic KKT or transport certificate exceeded its budget: "
+                "kkt=" + std::to_string(outcome.nonlinearResidual) +
+                " correction=" + std::to_string(outcome.relativeCorrection) +
+                " volume=" + std::to_string(outcome.volumeResidual) +
+                " pressure=" + std::to_string(outcome.pressureResidual) +
+                " transport=" + std::to_string(outcome.transportResidual)
+            );
+            std::cout
+                << "{\"schema\":\"numi.matter.physics-probe.v2\""
+                << ",\"representation\":\"monolithic_multiphysics\""
+                << ",\"temperature_min\":" << outcome.minimumTemperature
+                << ",\"temperature_max\":" << outcome.maximumTemperature
+                << ",\"electric_max\":" << outcome.maximumElectricPotential
+                << ",\"activation_max\":" << outcome.maximumActivation
+                << ",\"kkt_residual\":" << outcome.nonlinearResidual
+                << ",\"relative_correction\":" << outcome.relativeCorrection
+                << ",\"volume_residual\":" << outcome.volumeResidual
+                << ",\"pressure_residual\":" << outcome.pressureResidual
+                << ",\"transport_residual\":" << outcome.transportResidual
+                << "}\n";
+        }
+        if (topologyMutation || topologyRollback) {
+            const auto outcome = runCase(
+                compileCase(
+                    numi::matter::Representation::fem,
+                    false, false, false, false, false, false,
+                    1.0 / 240.0, 1u, 0u, 0u, false, false, true
+                ),
+                topologyRollback ? "topology rollback" : "topology mutation",
+                false,
+                false,
+                topologyRollback ? 1u : 2u,
+                topologyRollback,
+                false,
+                !topologyRollback
+            );
+            if (!topologyRollback) {
+                require(outcome.activeTetrahedra == 0u,
+                    "device mutation did not deactivate the target tetrahedron");
+            }
+            std::cout
+                << "{\"schema\":\"numi.matter.physics-probe.v2\""
+                << ",\"representation\":\"topology_mutation\""
+                << ",\"rollback\":" << (topologyRollback ? "true" : "false")
+                << ",\"active_tetrahedra\":" << outcome.activeTetrahedra
+                << ",\"topology_snapshot_restored\":"
+                << (outcome.topologySnapshotRestored ? "true" : "false")
+                << "}\n";
+        }
+        if (cohesiveMutation) {
+            const auto outcome = runCase(
+                compileCohesiveMutationCase(), "cohesive mutation",
+                false, false, 1u
+            );
+            require(outcome.activeTetrahedra == 2u &&
+                    outcome.activeTopologyNodes == 8u &&
+                    outcome.separatedFaces == 1u,
+                "cohesive separation did not duplicate and reconnect the node star");
+            std::cout
+                << "{\"schema\":\"numi.matter.physics-probe.v3\""
+                << ",\"representation\":\"cohesive_separation\""
+                << ",\"active_nodes\":" << outcome.activeTopologyNodes
+                << ",\"active_tetrahedra\":" << outcome.activeTetrahedra
+                << ",\"separated_faces\":" << outcome.separatedFaces
+                << "}\n";
+        }
+        if (smallScaleRemesh) {
+            const auto world = compileSmallScaleRemeshCase();
+            double expectedMass = 0.0;
+            std::array<double, 3> expectedMomentum{};
+            for (const NMFEMNodeStateGPU& node : world.fem.nodes) {
+                const double mass = std::max(
+                    static_cast<double>(node.positionAndMass.w), 0.0);
+                const std::array<double, 3> velocity{
+                    node.velocityAndInverseMass.x,
+                    node.velocityAndInverseMass.y,
+                    node.velocityAndInverseMass.z,
+                };
+                expectedMass += mass;
+                for (std::size_t axis = 0u; axis < 3u; ++axis) {
+                    expectedMomentum[axis] += mass * velocity[axis];
+                }
+            }
+            const auto outcome = runCase(
+                world, "small-scale edge split", false, false, 1u);
+            const double massError = std::abs(outcome.femMass - expectedMass);
+            double momentumErrorSquared = 0.0;
+            double momentumScaleSquared = 0.0;
+            for (std::size_t axis = 0u; axis < 3u; ++axis) {
+                const double error =
+                    outcome.femMomentum[axis] - expectedMomentum[axis];
+                momentumErrorSquared += error * error;
+                momentumScaleSquared +=
+                    expectedMomentum[axis] * expectedMomentum[axis];
+            }
+            const double momentumError = std::sqrt(momentumErrorSquared);
+            const double momentumScale = std::sqrt(momentumScaleSquared);
+            require(expectedMass > 0.0 && expectedMass < 1.0e-5 &&
+                    outcome.activeTopologyNodes == 5u &&
+                    outcome.activeTetrahedra == 2u,
+                "millimetre-scale edge split did not commit its remeshed topology");
+            require(massError <= 2.0e-4 * expectedMass &&
+                    momentumError <= 2.0e-4 * momentumScale,
+                "millimetre-scale edge split exceeded scale-aware conservation");
+            std::cout
+                << "{\"schema\":\"numi.matter.physics-probe.v3\""
+                << ",\"representation\":\"small_scale_edge_split\""
+                << ",\"mass_kg\":" << outcome.femMass
+                << ",\"mass_error_kg\":" << massError
+                << ",\"momentum_error_kg_mps\":" << momentumError
+                << ",\"active_nodes\":" << outcome.activeTopologyNodes
+                << ",\"active_tetrahedra\":" << outcome.activeTetrahedra
+                << "}\n";
+        }
+        if (punctureMutation) {
+            const auto outcome = runCase(
+                compilePunctureMutationCase(), "puncture mutation",
+                false, false, 1u
+            );
+            require(outcome.activeTetrahedra == 0u &&
+                    outcome.activeChannels == 1u &&
+                    outcome.removedMass > 0.0f,
+                "puncture did not construct a channel with conservative removal accounting");
+            std::cout
+                << "{\"schema\":\"numi.matter.physics-probe.v3\""
+                << ",\"representation\":\"cylindrical_puncture\""
+                << ",\"active_channels\":" << outcome.activeChannels
+                << ",\"removed_mass\":" << outcome.removedMass
+                << "}\n";
+        }
+        if (learnedMaterial) {
+            const auto world = compileCase(
+                numi::matter::Representation::fem,
+                false, false, false, false, false, false,
+                1.0 / 240.0, 1u, 0u, 0u, false, false, false, true
+            );
+            require(world.dispatch.learnedMaterialCount == 1u &&
+                    world.dispatch.learnedWeightCount == 5u,
+                "learned ICNN was not retained in the executable package");
+            runLearnedDifferentialOracle(world);
+            const auto outcome = runCase(
+                world, "polyconvex ICNN", false, true, 2u, false, true
+            );
+            require(outcome.minimumDeterminant > 0.0f &&
+                    outcome.learnedRevision == 1u,
+                "learned ICNN failed its transactional weight update");
+            std::cout
+                << "{\"schema\":\"numi.matter.physics-probe.v2\""
+                << ",\"representation\":\"polyconvex_icnn\""
+                << ",\"weights\":" << world.dispatch.learnedWeightCount
+                << ",\"revision\":" << outcome.learnedRevision
+                << ",\"minimum_J\":" << outcome.minimumDeterminant
+                << "}\n";
+        }
+        if (productionRollback) {
+            const auto outcome = runCase(
+                compileCase(
+                    numi::matter::Representation::fem,
+                    false, false, false, false, false, false,
+                    1.0 / 240.0, 1u, 0u, 0u, false, true, true, true
+                ),
+                "production transaction rollback", false, false, 1u,
+                true, true
+            );
+            require(outcome.activeTetrahedra == 1u &&
+                    outcome.learnedRevision == 0u,
+                "production rollback published topology or learned revision");
+            std::cout
+                << "{\"schema\":\"numi.matter.physics-probe.v2\""
+                << ",\"representation\":\"production_transaction\""
+                << ",\"rollback\":true"
+                << ",\"active_tetrahedra\":" << outcome.activeTetrahedra
+                << ",\"learned_revision\":" << outcome.learnedRevision
+                << "}\n";
+        }
+        if (statefulMPM) {
+            runStatefulMaterial(numi::matter::Representation::mpm);
+        }
+        if (statefulFEM) {
+            runStatefulMaterial(numi::matter::Representation::fem);
+        }
+        if (mixedOnly) {
+            const auto mixed = runCase(
+                compileMixedCase(),
+                "mixed MPM/FEM",
+                false,
+                true,
+                3u
+            );
+            require(
+                mixed.fgmresIterations > 0u,
+                "mixed MPM/FEM world did not execute monolithic FGMRES"
+            );
+            std::cout
+                << "{\"schema\":\"numi.matter.physics-probe.v3\""
+                << ",\"representation\":\"mixed_mpm_fem\""
+                << ",\"fgmres_iterations\":" << mixed.fgmresIterations
+                << ",\"completed_microsteps\":"
+                << mixed.completedMicrosteps
+                << ",\"minimum_J\":" << mixed.minimumDeterminant
+                << "}\n";
+        }
+        if (mpmBatch) {
+            constexpr std::uint32_t kBatchEnvironments = 32u;
+            constexpr std::uint32_t kBatchControlSteps = 1u;
+            const auto batch = runCase(
+                compileCase(
+                    numi::matter::Representation::mpm,
+                    true, false, false, false, true, false,
+                    1.0 / 240.0, kBatchEnvironments
+                ),
+                "MPM throughput batch", true, false, kBatchControlSteps
+            );
+            const std::uint64_t expectedMicrosteps =
+                static_cast<std::uint64_t>(kBatchEnvironments) *
+                batch.completedMicrosteps * kBatchControlSteps;
+            require(
+                batch.totalCompletedMicrosteps == expectedMicrosteps,
+                "MPM throughput batch did not complete every environment"
+            );
+            const double environmentMicrostepsPerSecond =
+                batch.gpuMilliseconds > 0.0
+                ? 1000.0 * batch.totalCompletedMicrosteps /
+                    batch.gpuMilliseconds
+                : 0.0;
+            std::cout
+                << "{\"schema\":\"numi.matter.throughput.v1\""
+                << ",\"representation\":\"mpm\""
+                << ",\"environments\":" << batch.environmentCount
+                << ",\"control_steps\":" << kBatchControlSteps
+                << ",\"microsteps_per_control_step\":"
+                << batch.completedMicrosteps
+                << ",\"total_environment_microsteps\":"
+                << batch.totalCompletedMicrosteps
+                << ",\"environment_microsteps_per_second\":"
+                << environmentMicrostepsPerSecond
+                << ",\"maximum_krylov_iterations\":"
+                << batch.fgmresIterations
+                << ",\"minimum_J\":" << batch.minimumDeterminant
+                << ",\"minimum_contacts_per_environment\":"
+                << batch.minimumContactSamples
+                << ",\"gpu_milliseconds\":" << batch.gpuMilliseconds
+                << ",\"resident_bytes\":" << batch.residentBytes
+                << ",\"thread_dispatches\":" << batch.threadDispatches
+                << ",\"simdgroup_dispatches\":"
+                << batch.simdgroupDispatches
+                << ",\"indirect_dispatches\":"
+                << batch.indirectDispatches
+                << ",\"requested_threads\":" << batch.requestedThreads
+                << ",\"requested_threadgroups\":"
+                << batch.requestedThreadgroups
+                << "}\n";
+        }
+        if (!identification && !adaptiveDemotion && !adaptivePromotion &&
+            !adaptivePromotionRollback && !metalWorldCoupling &&
+            !multiphysics &&
+            !topologyMutation && !topologyRollback && !cohesiveMutation &&
+            !smallScaleRemesh && !punctureMutation &&
+            !learnedMaterial &&
+            !productionRollback &&
+            !poroelasticCompression &&
+            !articulatedFootPad && !articulatedFootPadSequence &&
+            !articulatedFootPadContactBoundary &&
+            !postCommitContactGuard &&
+            !punctureChannelExitGuard &&
+            !sutureProxyWindow &&
+            !mixedOnly && !mpmBatch && !statefulMPM && !statefulFEM &&
+            !femOnly && !femFree && !femHighRate && !femHighDrop) {
+            const bool withPlane = !mpmFree && !mpmSingle;
+            const auto mpm = runCase(
+                compileCase(
+                    numi::matter::Representation::mpm,
+                    withPlane || mpmSingleContact || mpmGentle,
+                    mpmSingle || mpmSingleContact,
+                    false,
+                    false,
+                    mpmGentle
+                ),
+                withPlane ? "MPM" : "MPM freefall",
+                !mpmRollback && (withPlane || mpmSingleContact || mpmGentle),
+                !mpmRollback && !mpmGentle,
+                mpmRollback || mpmGentle
+                    ? 1u
+                    : (mpmFree || mpmSingle ? 8u : 4u),
+                mpmRollback
+            );
+            std::cout
+                << "{\"schema\":\"numi.matter.physics-probe.v1\""
+                << ",\"representation\":\"mpm\""
+                << ",\"contact_samples\":" << mpm.contactSamples
+                << ",\"minimum_J\":";
+            if (mpmRollback) {
+                std::cout << "null";
+            } else {
+                std::cout << mpm.minimumDeterminant;
+            }
+            std::cout
+                << ",\"minimum_height\":" << mpm.minimumHeight
+                << ",\"maximum_height\":" << mpm.maximumHeight
+                << ",\"vertical_velocity_range\":[" << mpm.minimumVerticalVelocity
+                << ',' << mpm.maximumVerticalVelocity << ']'
+                << ",\"contact_event\":" << (mpm.sawContactEvent ? "true" : "false")
+                << ",\"microsteps_per_control_step\":" << mpm.completedMicrosteps
+                << ",\"total_microsteps\":" << mpm.totalCompletedMicrosteps
+                << ",\"maximum_krylov_iterations\":" << mpm.fgmresIterations
+                << ",\"kkt_residual\":" << mpm.nonlinearResidual
+                << ",\"relative_correction\":" << mpm.relativeCorrection
+                << ",\"maximum_barrier_impulse\":"
+                << mpm.maximumBarrierImpulse
+                << ",\"minimum_contact_separation\":"
+                << mpm.minimumContactSeparation
+                << ",\"authored_contact_separation_floor\":"
+                << mpm.authoredContactSeparationFloor
+                << ",\"maximum_contact_energy\":"
+                << mpm.maximumContactEnergy
+                << ",\"gpu_milliseconds\":" << mpm.gpuMilliseconds
+                << ",\"transaction_rollback\":" << (mpmRollback ? "true" : "false")
+                << "}\n";
+        }
+        if (!mixedOnly && !statefulMPM && !statefulFEM &&
+            !mpmOnly && !mpmFree && !mpmSingle && !mpmSingleContact &&
+            !mpmGentle && !mpmBatch && !mpmRollback && !metalWorldCoupling &&
+            !multiphysics &&
+            !topologyMutation && !topologyRollback && !cohesiveMutation &&
+            !smallScaleRemesh && !punctureMutation &&
+            !learnedMaterial &&
+            !productionRollback &&
+            !poroelasticCompression &&
+            !articulatedFootPad && !articulatedFootPadSequence &&
+            !articulatedFootPadContactBoundary &&
+            !postCommitContactGuard &&
+            !punctureChannelExitGuard &&
+            !sutureProxyWindow &&
+            !identification && !adaptiveDemotion && !adaptivePromotion &&
+            !adaptivePromotionRollback) {
+            const bool withPlane = !femFree;
+            const auto fem = runCase(
+                compileCase(
+                    numi::matter::Representation::fem,
+                    withPlane,
+                    false,
+                    femHighRate || femHighDrop,
+                    femHighRate
+                ),
+                femHighRate || femHighDrop
+                    ? "FEM high-rate"
+                    : (withPlane ? "FEM" : "FEM freefall"),
+                withPlane,
+                true,
+                femHighRate || femHighDrop ? 8u : 20u
+            );
+            require(
+                fem.fgmresIterations > 0u,
+                "FEM did not execute monolithic FGMRES"
+            );
+            std::cout
+                << "{\"schema\":\"numi.matter.physics-probe.v2\""
+                << ",\"representation\":\"fem\""
+                << ",\"contact_samples\":" << fem.contactSamples
+                << ",\"fgmres_iterations\":" << fem.fgmresIterations
+                << ",\"minimum_J\":" << fem.minimumDeterminant
+                << ",\"minimum_height\":" << fem.minimumHeight
+                << ",\"maximum_height\":" << fem.maximumHeight
+                << ",\"vertical_velocity_range\":[" << fem.minimumVerticalVelocity
+                << ',' << fem.maximumVerticalVelocity << ']'
+                << ",\"contact_event\":" << (fem.sawContactEvent ? "true" : "false")
+                << ",\"minimum_contact_separation\":";
+            if (std::isfinite(fem.minimumContactSeparation)) {
+                std::cout << fem.minimumContactSeparation;
+            } else {
+                std::cout << "null";
+            }
+            std::cout
+                << ",\"authored_contact_separation_floor\":"
+                << fem.authoredContactSeparationFloor
+                << "}\n";
+        }
+        return 0;
+    } catch (const std::exception& error) {
+        std::cerr << "matter_physics_probe: " << error.what() << '\n';
+        return 1;
+    }
+}

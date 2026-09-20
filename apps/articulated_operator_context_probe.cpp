@@ -113,7 +113,25 @@ bool samePayload(
         byteEqual(left.generalizedImpulse,
                   right.generalizedImpulse) &&
         byteEqual(left.deltaVelocity, right.deltaVelocity) &&
-        byteEqual(left.statuses, right.statuses);
+        byteEqual(left.statuses, right.statuses) &&
+        byteEqual(left.millardResults, right.millardResults) &&
+        byteEqual(left.millardGeneralizedForces,
+                  right.millardGeneralizedForces) &&
+        byteEqual(left.mujocoResults, right.mujocoResults) &&
+        byteEqual(left.mujocoActivationStates,
+                  right.mujocoActivationStates) &&
+        byteEqual(left.mujocoMuscleGeneralizedForces,
+                  right.mujocoMuscleGeneralizedForces) &&
+        byteEqual(left.mujocoGeneralizedForces,
+                  right.mujocoGeneralizedForces) &&
+        byteEqual(left.standQ, right.standQ) &&
+        byteEqual(left.standV, right.standV) &&
+        byteEqual(left.standStatuses, right.standStatuses) &&
+        byteEqual(left.standTendonTransfers, right.standTendonTransfers) &&
+        byteEqual(
+            left.standTendonGeneralizedCorrections,
+            right.standTendonGeneralizedCorrections
+        );
 }
 
 void requireSuccess(
@@ -157,12 +175,29 @@ int main() {
         const auto warmStats = context.stats();
         require(
             warmStats.pipelineCreationCount == 1u &&
-                warmStats.bufferAllocationCount == 15u &&
+                // The cold fixed binding arena retains the 16 generic slots,
+                // eight Millard slots, seven MyoSim route-force slots, and
+                // one stand-velocity placeholder. The remaining stand arena
+                // is allocated only when a persistent-Human horizon exists.
+                // Empty source programs deliberately retain one typed
+                // placeholder apiece so every dispatched ABI slot is bound.
+                warmStats.bufferAllocationCount == 32u &&
                 warmStats.bufferGrowthCount == 0u &&
                 warmStats.submissionCount == 1u &&
                 warmStats.completedSubmissionCount == 1u &&
                 !warmStats.hasInFlightSubmission,
-            "cold context counters are inconsistent"
+            "cold context counters are inconsistent: pipelines=" +
+                std::to_string(warmStats.pipelineCreationCount) +
+                " allocations=" +
+                std::to_string(warmStats.bufferAllocationCount) +
+                " growths=" +
+                std::to_string(warmStats.bufferGrowthCount) +
+                " submissions=" +
+                std::to_string(warmStats.submissionCount) +
+                " completions=" +
+                std::to_string(warmStats.completedSubmissionCount) +
+                " in_flight=" +
+                std::to_string(warmStats.hasInFlightSubmission)
         );
 
         metalrobo::MetalArticulatedOperatorResult replay;

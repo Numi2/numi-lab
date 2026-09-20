@@ -1,5 +1,6 @@
 #include "metalrobo/DiscreteElasticRod.hpp"
 
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <iostream>
@@ -25,15 +26,145 @@ double distance(
     return std::sqrt(x * x + y * y + z * z);
 }
 
-std::array<double, 3> midpoint(
-    const std::array<double, 3>& a,
-    const std::array<double, 3>& b
+double dot(
+    const std::array<double, 3>& left,
+    const std::array<double, 3>& right
+) {
+    return left[0] * right[0] +
+        left[1] * right[1] +
+        left[2] * right[2];
+}
+
+std::array<double, 3> subtract(
+    const std::array<double, 3>& left,
+    const std::array<double, 3>& right
 ) {
     return {
-        0.5 * (a[0] + b[0]),
-        0.5 * (a[1] + b[1]),
-        0.5 * (a[2] + b[2]),
+        left[0] - right[0],
+        left[1] - right[1],
+        left[2] - right[2],
     };
+}
+
+struct SegmentWitness {
+    double first = 0.0;
+    double second = 0.0;
+    std::array<double, 3> delta{};
+    double distance = 0.0;
+};
+
+SegmentWitness closestSegmentWitness(
+    const std::array<double, 3>& firstA,
+    const std::array<double, 3>& firstB,
+    const std::array<double, 3>& secondA,
+    const std::array<double, 3>& secondB
+) {
+    const auto first = subtract(firstB, firstA);
+    const auto second = subtract(secondB, secondA);
+    const auto offset = subtract(firstA, secondA);
+    const double aa = dot(first, first);
+    const double bb = dot(second, second);
+    const double ab = dot(first, second);
+    const double ao = dot(first, offset);
+    const double bo = dot(second, offset);
+    const double denominator = aa * bb - ab * ab;
+    double firstParameter = denominator > 1.0e-14 * aa * bb
+        ? std::clamp(
+              (ab * bo - ao * bb) / denominator,
+              0.0,
+              1.0
+          )
+        : 0.0;
+    const double secondNumerator =
+        ab * firstParameter + bo;
+    double secondParameter = 0.0;
+    if (secondNumerator < 0.0) {
+        firstParameter = std::clamp(-ao / aa, 0.0, 1.0);
+    } else if (secondNumerator > bb) {
+        secondParameter = 1.0;
+        firstParameter = std::clamp(
+            (ab - ao) / aa,
+            0.0,
+            1.0
+        );
+    } else {
+        secondParameter = secondNumerator / bb;
+    }
+    const std::array<double, 3> firstPoint{
+        firstA[0] + firstParameter * first[0],
+        firstA[1] + firstParameter * first[1],
+        firstA[2] + firstParameter * first[2],
+    };
+    const std::array<double, 3> secondPoint{
+        secondA[0] + secondParameter * second[0],
+        secondA[1] + secondParameter * second[1],
+        secondA[2] + secondParameter * second[2],
+    };
+    SegmentWitness witness;
+    witness.first = firstParameter;
+    witness.second = secondParameter;
+    witness.delta = subtract(secondPoint, firstPoint);
+    witness.distance = std::sqrt(dot(witness.delta, witness.delta));
+    return witness;
+}
+
+double tangentialContactSlip(
+    const metalrobo::DiscreteElasticRodState& state
+) {
+    const SegmentWitness witness = closestSegmentWitness(
+        state.positions[0],
+        state.positions[1],
+        state.positions[2],
+        state.positions[3]
+    );
+    require(
+        witness.distance > 0.0,
+        "DER slip witness has no contact normal"
+    );
+    std::array<double, 3> normal = witness.delta;
+    for (double& component : normal) {
+        component /= witness.distance;
+    }
+    const std::array<double, 3> firstVelocity{
+        (1.0 - witness.first) * state.velocities[0][0] +
+            witness.first * state.velocities[1][0],
+        (1.0 - witness.first) * state.velocities[0][1] +
+            witness.first * state.velocities[1][1],
+        (1.0 - witness.first) * state.velocities[0][2] +
+            witness.first * state.velocities[1][2],
+    };
+    const std::array<double, 3> secondVelocity{
+        (1.0 - witness.second) * state.velocities[2][0] +
+            witness.second * state.velocities[3][0],
+        (1.0 - witness.second) * state.velocities[2][1] +
+            witness.second * state.velocities[3][1],
+        (1.0 - witness.second) * state.velocities[2][2] +
+            witness.second * state.velocities[3][2],
+    };
+    const auto relativeVelocity = subtract(
+        secondVelocity,
+        firstVelocity
+    );
+    const double normalSpeed = dot(relativeVelocity, normal);
+    return std::sqrt(std::max(
+        dot(relativeVelocity, relativeVelocity) -
+            normalSpeed * normalSpeed,
+        0.0
+    ));
+}
+
+double segmentDistance(
+    const std::array<double, 3>& firstA,
+    const std::array<double, 3>& firstB,
+    const std::array<double, 3>& secondA,
+    const std::array<double, 3>& secondB
+) {
+    return closestSegmentWitness(
+        firstA,
+        firstB,
+        secondA,
+        secondB
+    ).distance;
 }
 
 } // namespace
@@ -181,8 +312,8 @@ int main() {
         crossing.positions = {{
             {-0.02, 0.00, 0.0},
             { 0.02, 0.00, 0.0},
-            { 0.00, -0.02, 0.0},
-            { 0.00, 0.02, 0.0},
+            { 0.00, -0.03464101615137755, 0.0},
+            { 0.00, 0.00535898384862245, 0.0},
         }};
         metalrobo::DiscreteElasticRodStepConfig collisionConfig;
         collisionConfig.gravity = {0.0, 0.0, 0.0};
@@ -197,22 +328,18 @@ int main() {
                 {},
                 collisionConfig
             );
-        const double separatedMidpoints = distance(
-            midpoint(
-                crossing.positions[1],
-                crossing.positions[0]
-            ),
-            midpoint(
-                crossing.positions[2],
-                crossing.positions[3]
-            )
+        const double selfContactClearance = segmentDistance(
+            crossing.positions[0],
+            crossing.positions[1],
+            crossing.positions[2],
+            crossing.positions[3]
         );
         require(
             collisionDiagnostics.succeeded() &&
                 collisionDiagnostics.projectedSelfContacts > 0u &&
                 collisionDiagnostics.maximumSelfPenetration >=
                     1.9 * collisionModel.radius &&
-                separatedMidpoints >=
+                selfContactClearance >=
                     0.95 * 2.0 * collisionModel.radius,
             "DER capsule self-contact did not separate crossing edges: " +
                 collisionDiagnostics.message +
@@ -225,7 +352,7 @@ int main() {
                     collisionDiagnostics.maximumSelfPenetration
                 ) +
                 " separation=" +
-                std::to_string(separatedMidpoints)
+                std::to_string(selfContactClearance)
         );
         auto crossingReplay = crossingInput;
         const auto crossingReplayDiagnostics =
@@ -240,6 +367,86 @@ int main() {
                 crossingReplay.positions == crossing.positions &&
                 crossingReplay.velocities == crossing.velocities,
             "DER self-contact replay is not deterministic"
+        );
+
+        auto slidingInput = crossingInput;
+        slidingInput.velocities[2] = {0.02, 0.0, 0.0};
+        slidingInput.velocities[3] = {0.02, 0.0, 0.0};
+        auto frictionlessSliding = slidingInput;
+        const auto frictionlessSlidingDiagnostics =
+            metalrobo::stepDiscreteElasticRodCpu(
+                collisionModel,
+                frictionlessSliding,
+                {},
+                collisionConfig
+            );
+        auto frictionConfig = collisionConfig;
+        frictionConfig.selfCollisionFriction = 0.12;
+        auto frictionalSliding = slidingInput;
+        const auto frictionalSlidingDiagnostics =
+            metalrobo::stepDiscreteElasticRodCpu(
+                collisionModel,
+                frictionalSliding,
+                {},
+                frictionConfig
+            );
+        const double frictionlessSlip =
+            tangentialContactSlip(frictionlessSliding);
+        const double frictionalSlip =
+            tangentialContactSlip(frictionalSliding);
+        std::array<double, 3> frictionMomentumDelta{};
+        for (std::size_t node = 0u;
+             node < collisionModel.nodeMasses.size();
+             ++node) {
+            for (std::size_t axis = 0u; axis < 3u; ++axis) {
+                frictionMomentumDelta[axis] +=
+                    collisionModel.nodeMasses[node] *
+                    (
+                        frictionalSliding.velocities[node][axis] -
+                        frictionlessSliding.velocities[node][axis]
+                    );
+            }
+        }
+        require(
+            frictionlessSlidingDiagnostics.succeeded() &&
+                frictionalSlidingDiagnostics.succeeded() &&
+                frictionalSlip < 0.9 * frictionlessSlip &&
+                std::sqrt(
+                    frictionMomentumDelta[0] *
+                        frictionMomentumDelta[0] +
+                    frictionMomentumDelta[1] *
+                        frictionMomentumDelta[1] +
+                    frictionMomentumDelta[2] *
+                        frictionMomentumDelta[2]
+                ) <= 1.0e-12,
+            "DER Coulomb self-contact did not reduce slip with "
+            "equal-and-opposite impulse: frictionless_slip=" +
+                std::to_string(frictionlessSlip) +
+                " frictional_slip=" +
+                std::to_string(frictionalSlip) +
+                " momentum_delta=" +
+                std::to_string(std::sqrt(
+                    frictionMomentumDelta[0] *
+                        frictionMomentumDelta[0] +
+                    frictionMomentumDelta[1] *
+                        frictionMomentumDelta[1] +
+                    frictionMomentumDelta[2] *
+                        frictionMomentumDelta[2]
+                ))
+        );
+        auto frictionReplay = slidingInput;
+        const auto frictionReplayDiagnostics =
+            metalrobo::stepDiscreteElasticRodCpu(
+                collisionModel,
+                frictionReplay,
+                {},
+                frictionConfig
+            );
+        require(
+            frictionReplayDiagnostics.succeeded() &&
+                frictionReplay.positions == frictionalSliding.positions &&
+                frictionReplay.velocities == frictionalSliding.velocities,
+            "DER frictional self-contact replay is not deterministic"
         );
 
         std::cout
@@ -265,8 +472,10 @@ int main() {
             << collisionDiagnostics.projectedSelfContacts
             << " self_penetration="
             << collisionDiagnostics.maximumSelfPenetration
-            << " separated_midpoints="
-            << separatedMidpoints
+            << " self_contact_clearance_m="
+            << selfContactClearance
+            << " frictionless_slip_mps=" << frictionlessSlip
+            << " frictional_slip_mps=" << frictionalSlip
             << " deterministic=yes transactional=yes\n";
         return 0;
     } catch (const std::exception& error) {

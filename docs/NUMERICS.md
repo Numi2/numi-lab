@@ -21,6 +21,63 @@
 - Contact normals point from body A to body B. Geometric witnesses retain
   separate points on A and B and signed separation.
 
+## Coupled Human support
+
+Human fixed-plane support contributes independent world-space impulse unknowns
+to Matter's monolithic Newton–FGMRES solve. The runtime-only Krylov layout
+appends one float4 per support row (xyz impulse correction, zero w); physical
+FEM, MPM and generalized-coordinate strides and the serialized Matter dispatch
+remain unchanged. Allocation checks include the complete extended column arena.
+
+With `v = v_free + delta_v`, the mechanical residual includes `J(q)^T lambda`.
+For an initially admissible point, the normal constraint is the candidate gap
+divided by the root timestep. For pre-existing penetration, the target gap is
+`(1-beta)*min(initial_gap,0)`, using the authored recovery fraction `beta`.
+This recovery does not turn a penetrating initial state into anatomical
+admission evidence. The initial and candidate witnesses use the same point,
+sphere or ellipsoid geometry and the borrowed body's global identity.
+Witness velocity is `J(q_candidate)*v`, including the source free predictor;
+pose-only body projections are not a substitute for that velocity.
+
+The dual residual is `P(lambda-rho*c)-lambda`, where `c` combines normal
+gap-over-time with tangential velocity. `P` projects the normal component onto
+the nonnegative half-line and the tangent onto the disk of radius `mu` times
+the projected normal impulse. This is a non-associated Coulomb law, not an
+orthogonal projection onto the friction cone. The positive numerical scaling
+`rho = 1 kg` affects conditioning and the residual's units, not the converged
+contact law. Accepted impulse history initializes the simultaneous unknown once
+per transaction; it does not define a finite penalty spring or external force.
+
+For projection derivative `D`, the contact Jacobian blocks of `-dR` are
+`-J^T` in the mechanical row and `rho*D*J`, `I-D` in the dual row. Sliding keeps
+both the disk's radial derivative and normal-to-tangent coupling. This generally
+nonsymmetric tangent must not be replaced by a PSD Hessian. Geometry and point
+Jacobians are refreshed at each nonlinear assembly; the linear action holds
+that geometry fixed. Every Krylov norm, basis operation, restart and nonlinear
+certificate includes the dual block. Velocity and impulse use the same accepted
+line-search fraction. Failed publication restores checkpoint impulse histories
+and consequences with the other coupled state.
+
+The advertised candidate point capacity covers continuum contact, anatomical
+attachments and Human support. The borrowed query boundary also checks the
+world's private point and Jacobian arenas before encoding; a valid caller-owned
+output buffer is insufficient. Immutable support queries are replicated per
+environment. Source velocity and published effort use the physical `nv` stride,
+while solver increments retain their larger capacity stride. Each replacement
+compute encoder declares the resources reached through its contact argument
+buffer before use.
+
+`matter.physics.human_support_loaded` checks analytic weight, separation,
+sticking and sliding through the production candidate service and solver,
+including redundant contacts, varied impulse guesses, batched environments and
+bitwise replay and rejection of an undersized internal arena. The fixture supplies an analytic free predictor before the generic
+device hook, which precedes MetalWorld ABA. Its small continuum is fixed and
+remote from the rigid body; it does not certify anatomical tissue loading.
+`matter.physics.human_support_linearization` independently differences the dual
+residual, checks point/sphere/ellipsoid witnesses, the shared update fraction and
+exact history rollback. Full anatomical equilibrium and sustained behavior need
+their owning Human qualifications.
+
 ## Precision boundary
 
 Metal physics is FP32 because Metal shaders do not provide native `double`.
@@ -59,10 +116,11 @@ transaction.
 ## Articulated dynamics
 
 The generalized CPU reference supports fixed or floating trees containing
-revolute, continuous, and fixed joints. It:
+revolute, prismatic, continuous, fixed, and immutable OpenSim
+`FunctionBased` joints. It:
 
-- forms a dense FP64 mass matrix with a world-coordinate
-  composite-rigid-body recursion;
+- forms a dense FP64 mass matrix from analytic world-coordinate tree
+  Jacobians and COM spatial inertias (not configuration finite differences);
 - verifies positive definiteness and solves forward dynamics with Cholesky;
 - computes velocity, gyroscopic, gravity, damping, and external-wrench terms
   through recursive Newton-Euler kinematics and analytic generalized-force
@@ -91,15 +149,59 @@ the internal FP64 analytical and forward/inverse probes. Analytic point
 Jacobians and a retained CRBA factor now provide `J`, `Jᵀ`, and
 `J M⁻¹ Jᵀ` contact actions. The transactional CPU world composes this with
 collision, evaluated ConstraintIR, exact-cone contact, the common residual,
-and integration for G1 ground contact. A correctness-first Metal operator
-executes the same G1 mass/Jacobian/impulse equations, but a batched parallel
-Metal timestep remains open.
+and integration for G1 ground contact. The production forward-dynamics path
+now executes parent-complete and child-complete body frontiers across SIMD32.
+Each body lane writes a disjoint spatial contribution; parent lanes reduce
+siblings in cooked order without floating-point atomics. Width-one chains
+stay on the lower-overhead ordered kernel. Both paths retain the same
+transactional candidate-state boundary, and the SIMD32 result is qualified
+against both the serial FP32 kernel and the FP64 generalized oracle. A fully
+parallel collision/contact timestep remains a separate frontier.
 
 The original Franka runtime remains a separate compatibility API. The
-canonical Metal world now reuses the generic FP32 articulated-body kernel and
+canonical Metal world now reuses the generic FP32 articulated-body kernels and
 checks multi-step q/v/acceleration against the FP64 generalized oracle. On the
 same device and build its complete output/status stream replays bitwise.
 Neither internal agreement is an external-simulator accuracy promise.
+
+OpenSim `FunctionBased` SpatialTransforms have two deliberately separate
+contracts. The CPU reference admits an immutable
+`FunctionBasedJointProgram` only when it is canonically packable and owned by
+exactly one `MR_JOINT_FUNCTION_BASED` descriptor. It evaluates source-order
+pose, `H`, and `Hdot`, uses all `H` columns in the tree Jacobian/mass matrix,
+and uses `Hdot*qdot` in recursive acceleration and bias evaluation. The
+CPU articulated probe closes forward/inverse dynamics on the actual pinned
+Rajagopal `walker_knee_r` program; that is a unit-scale solver contract, not
+whole-human or experimental validation.
+
+`MROpenSimSpatialTransformGPU` and its fixed
+`MROpenSimSpatialTransformInputGPU` sidecar are canonical only when a decode
+then re-pack is byte-identical; the device probe compares source-order pose,
+`H`, and `Hdot` against the decoded FP64 evaluator and repeats the GPU result
+byte-for-byte. A paired device primitive also projects a source-frame wrench
+with `H transpose` and returns `Hdot*qdot` at zero generalized acceleration.
+This GPU program/projection path accepts source-derived immutable programs
+without a hand-entered fixture. The bounded generic articulated operator also
+admits them for source-tree kinematics, point Jacobians, dense mass, and impulse
+response. Generic Metal ABA still does not admit `MR_JOINT_FUNCTION_BASED`,
+but MetalWorld admits one bounded fixed-root source tree through the dense
+FunctionBased state kernel. That path is free motion with direct effort, not
+contact or broad multi-articulation support. Universal joints remain excluded
+except when source-locked at the exact fixed zero transform.
+
+The optional `MetalMillardReferenceInput` is a separate device-side source
+reference pass attached to the generic articulated operator. In the same
+command buffer it consumes the operator's private body poses, path-point world
+positions, and analytic point Jacobians; it reconstructs the source-materialized
+Millard curves, applies the finite-cylinder GeometryPath rule, solves static
+fiber-tendon equilibrium, and publishes one generalized-force vector per
+muscle. It is an active force evaluation at supplied activation/normalized
+fiber velocity, not a persistent activation/fiber/tendon state integrator.
+For the bounded fixed-root FunctionBased path, MetalWorld evaluates this
+program from private pose/Jacobian streams, reduces its generalized force into
+the resident effort arena, and advances the same source state in one command
+buffer. It remains neither a contact simulation nor an OpenSim
+binary-equivalence result.
 
 ## Free-body integration
 
@@ -111,6 +213,29 @@ quaternion composition. Neither integrator alone supplies collision
 time-of-impact handling.
 
 ## Collision and contact
+
+### Matter continuum surface search
+
+Matter builds a balanced bounds hierarchy over its stable Morton-ordered
+continuum surfaces at each candidate assembly. Parallel per-left traversal
+uses the same swept AABB and object/topology eligibility rules as exhaustive
+pair enumeration. Left-first traversal and an ordered prefix scan preserve
+candidate membership and order. Capacity is checked across all left rows
+before scatter; an exactly full prefix cannot hide additional eligible pairs.
+The hierarchy is scratch state, rebuilt after pose or topology changes and
+never part of accepted-state authority. Its padded heap uses 64 bytes per leaf
+per environment; the runtime checks all device indices and accounts for the
+allocation. Radix ping-pong scratch is reused for pair counts and offsets after
+sorting. Zero contact capacity allocates no hierarchy.
+
+`metalrobo_matter_surface_bvh_probe` compares complete ordered candidates with
+an independent exhaustive oracle, including touching bounds, object masks,
+shared nodes, cohesive lineage, overflow, multiple environments, changed
+geometry and restored replay. Large separated geometry also carries an
+independent separation witness. These are broadphase checks, not evidence of
+whole-Human equilibrium or sustained behavior.
+
+### Rigid collision
 
 The CPU collision oracle uses FP64 sweep-and-prune, analytic primitive
 witnesses, stable feature identifiers, and deterministic four-point manifold
@@ -150,9 +275,12 @@ FP32/FP64 threshold. Contacts outside that band must agree within witness
 tolerances; inside it, bounded speculative contacts are permitted but missing
 an oracle contact is not.
 
-No CCD algorithm is implemented. Fast bodies can therefore tunnel; substeps
-are not a semantic substitute for conservative advancement, speculative CCD,
-or time-of-impact island stepping.
+The core rigid collision path does not implement CCD. Fast rigid bodies can
+therefore tunnel; substeps are not a semantic substitute for conservative
+advancement, speculative CCD, or time-of-impact island stepping. Matter's
+deformable surface path is a separate owner: it rebuilds swept FEM triangles
+and applies conservative-advancement vertex-triangle and edge-edge CCD inside
+its nonlinear transaction.
 
 The contact portfolio has three distinct numerical contracts:
 
@@ -199,6 +327,217 @@ flags after an arithmetic failure. Static/kinematic endpoints are never
 written during solve or rollback, allowing independent islands to share static
 geometry safely.
 
+## Matter monolithic variational system
+
+Matter's continuum solve is one environment-wide Newton system. Its
+matrix-free generalized unknown packs FEM velocity and mixed pressure,
+thermal/pore/electric/activation fields, active sparse MPM grid velocity, and
+articulated/free-body generalized velocity increments. Contact uses the IPC
+squared-distance potential `-k(s-shat)^2 log(s/shat)`, where `s` is squared
+feature distance, and contributes analytic gradients plus a PSD-projected
+spatial barrier/friction Hessian directly to those mechanical blocks. Signed
+feature weights map the compact 3x3 metric into the complete VT/EE/point nodal
+block. Per-node timestep ratios apply the action chain rule on both residual
+and Hessian sides, so different power-of-two object rates still share one
+variational contact block. Restarted flexible GMRES
+uses compensated SIMD32 reductions, selective reorthogonalization, device
+Givens rotations, and an inexact-Newton forcing schedule. The right
+preconditioner combines fine node-star mechanics blocks, overlapping
+connectivity-aware tetrahedron-patch corrections, an object-scale Galerkin
+translation/mean-pressure correction, a fixed-pass field polynomial smoother,
+MPM lumped-mass, particle-patch and object-translation blocks, rigid
+inverse-mass action, and the componentwise diagonal of the exact PSD barrier
+blocks already applied by the matrix-free operator. Signed deformable feature
+weights enter that diagonal quadratically, and the same per-node timestep
+ratios appear on both sides of each block. The MPM fine, particle-patch, and
+object-translation denominators therefore remain consistent in contact; no
+assembled contact matrix is retained. The fine MPM pass caches this ephemeral
+diagonal in operator scratch for the two coarse modes, avoiding repeated
+contact-incidence traversal without another allocation or command. FGMRES is
+the only linear iteration
+owner; the patch and field smoothers
+have no independent convergence or publication contract.
+The versioned Matter ABI therefore contains no velocity, pressure, field, or
+per-object Krylov iteration budget outside the Newton/FGMRES owner. The field
+smoother has a bounded fixed-pass count only. Equilibrium, volume, pressure,
+and transport residuals govern publication; relative correction is retained
+as finite telemetry rather than a second convergence gate. The authored
+minimum separation ratio is multiplied by contact slop and consumed by both
+contact line search and final Metal certification, alongside an unavoidable
+coordinate-scale FP32 geometry floor.
+The one-wave environment reduction fuses Arnoldi orthogonalization with its
+norm, Givens update, and next-basis publication without changing arithmetic
+order. Per-environment restart reconstruction and triangular backsolve also
+share one ordered dispatch, and a final restart cycle skips coefficient work
+that no successor can consume. These are command-graph optimizations, not a
+change to the residual, preconditioner, stopping rule, or transaction.
+
+All coupled objects in one environment use the minimum admissible determinant
+mixed-volume backtracking, conservative CCD, a barrier
+fraction-to-boundary cap, and per-feature barrier Armijo backtracking. FEM surface
+topology starts cooked, while current exposed/cohesive FEM faces and compact
+active MPM point primitives, swept
+bounds, stable Morton ordering, non-adjacent self-contact candidates, CCD
+witnesses, and active barrier pairs are rebuilt on Metal. Stable compacted pairs
+also produce deterministic contact-node incidence and a cross-environment indirect
+work list; node gathers visit only incident rows and downstream contact kernels
+dispatch only active work without a CPU synchronization. Deformable contact
+history stores only stable source/frame and lagged primal-friction state and participates in
+the same checkpoint/commit/rollback transaction as nodes, fields, topology,
+materials, schedulers, and rigid primal-contact history.
+
+Conservative advancement distinguishes a certified miss from iteration
+exhaustion or a nonfinite witness. Only the former may disappear from the
+candidate set; an uncertified VT/EE/point query fails that environment closed.
+Near-degenerate VT and EE features use a C1 IPC mollifier with its analytic
+product-rule gradient and a PSD Gauss-Newton mollifier block, while endpoint
+and vertex candidates own the limiting configuration.
+Barrier stiffness is raised from its inertial floor when closing speed demands
+a stronger feasible-step response. Lagged friction transports the prior world
+tangent into the new contact frame and blends static to dynamic friction over
+a thickness/timestep-scaled smooth transition.
+
+Matter Language distinguishes accepted `state` from `next(state)`. An authored
+`implicit state = residual;` declaration compiles local residual, pivoted
+Jacobian, deformation-action, and stress-state derivative bytecode. Each
+particle/tetrahedron executes damped bounded local Newton and the global operator uses
+the consistent action `P_F - P_z R_z^-1 R_F`. Explicit `update` remains a
+supported compatibility path. `model von_mises` and
+`model drucker_prager` select multiplicative finite-strain elastic-predictor /
+plastic-corrector policies. They require row-major `plastic_f00` through
+`plastic_f22` state initialized to identity plus
+`equivalent_plastic_strain transfer max`; the compiler rejects an incomplete
+layout. Their radial return applies isotropic hardening, a transactional
+second-order exponential update of `Fp`, and the directional derivative of
+the active algorithmic stress branch. Drucker-Prager additionally compiles
+friction angle and cohesion into its pressure-sensitive corrector.
+
+Topology capacity is immutable during a borrowed submission. Cohesive
+insertion, erosion, edge split/collapse, 2-3 and 3-2 flips, vertex smoothing,
+and crack/channel exposure execute in stable priority/identifier/target/source
+order. An invalid target requests a deterministic on-device quality proposal.
+Accepted generations rebuild nodal mass/incidence, dynamically exposed contact
+faces, compact contact work and connectivity-derived preconditioner data.
+Material state follows its compiled average/max/sum transfer policy across the
+complete affected cavity. After mass rebuild, compensated object sums drive an
+object-wide constant correction and one bounded residual refinement on free
+active nodes. They restore pre-remesh momentum and each volume-integrated field
+component without erasing relative variation. The post-rebuild certificate is
+relative to the represented volume, mass, momentum, and per-component field
+moments; it has no one-SI-unit tolerance floor. It also validates finite,
+nonnegative, monotone removal/work ledgers and rejects inverted/low-volume
+tetrahedra or remaining FP32 drift. Exhaustion reports
+`NM_STATUS_TOPOLOGY_GROWTH_REQUIRED`; after completion the runtime publishes a
+geometric `TopologyGrowthRequest`. `encodeTopologyGrowth` can initialize an
+empty destination from a larger recook or use an already initialized larger
+runtime, then imports accepted state on a borrowed command buffer,
+advances allocation generation, rebuilds incidence/mass, and mirrors rebuilt
+accepted state into its candidate/checkpoint arenas. Active tetrahedron and
+cohesive-face node/element references are first rebased from each source
+object arena to its expanded destination arena; an invalid reference rejects
+the growth transaction. Migration requires the
+same allocation-independent source-physics fingerprint; the capacity-dependent
+package fingerprint and accepted allocation generation remain distinct replay
+evidence.
+The logical mesh can therefore grow across submissions until 32-bit indices or
+the device working set is exhausted, without allocation inside a transaction.
+
+The MPM block evaluates a backward-Euler residual at the current grid
+candidate. After P2G, a stable SIMD32 prefix pass compacts positive-mass nodes
+into environment-major Krylov slots and publishes the inverse node-to-slot map;
+the cooked slot capacity is bounded per object by
+`min(grid nodes, 27 * particles)`, so inactive authored grid capacity consumes
+neither mechanical unknowns nor private Krylov-basis storage. Sparse
+active blocks deterministically gather candidate velocity
+gradients into particles, evaluate the same implicit material projection and
+consistent tangent used by FEM, and gather particle force directions back to
+grid rows without floating-point scatter atomics. APIC particle state is
+published only after the enclosing Newton candidate succeeds. Analytic rigid
+barriers write equal-and-opposite terms into continuum and rigid generalized
+rows, while MetalWorld supplies ABA/free-body mass action on the same borrowed
+timeline. MPM/FEM, MPM/rigid, FEM/rigid,
+FEM/FEM and FEM self-contact all enter through the same primal barrier
+gradient/Hessian action; there is no staggered contact correction.
+The accepted-candidate certificate reduces FEM, field, active MPM, and rigid
+generalized residual rows together, so articulated reaction imbalance cannot
+be hidden behind a converged continuum block.
+
+The borrowed MetalWorld device-physics ABI exposes a primal coupled-candidate
+service. Matter requests candidate articulated kinematics, a
+mass action, inverse-mass preconditioning, and accepted-candidate publication
+without writing `q` or `v`. Publication maps an accepted generalized velocity
+increment through MetalWorld's Cholesky mass action and adds the equivalent
+substep effort to the owning ABA stream. The retired point-response/Delassus
+CSR path is absent; equal-and-opposite continuum/rigid terms are applied by the
+same generalized operator.
+After MetalWorld integrates free/articulated bodies and DER nodes, Matter
+re-projects those realized owners in the post-commit phase and certifies every
+cooked continuum/proxy pair against the same authored minimum-separation ratio
+and coordinate-scale FP32 floor. This closes the transaction around rigid jaw
+contact that can change a free needle after the primal candidate was formed: a
+post-integration floor violation latches both Matter and MetalWorld failure and
+rolls continuum, topology, contact history, rigid, and rod state back together.
+The latch retracts a provisionally published rigid substep from successful-step
+accounting, so a late Matter rejection remains a typed physics failure rather
+than an internal-accounting error. An embedded puncture-channel exemption is
+retained only when both the current tissue point and its immutable one-step
+predictor remain inside the union of compatible tract segments. A point about
+to leave a curved tract therefore activates its analytic needle row one
+transaction early, while it is still above the unchanged authored contact
+floor, instead of appearing below that floor after the geometric exemption
+switches off.
+Long strand motion retains a fixed-size contact graph by advancing a compact
+DER-edge proxy set only at completed command boundaries. The set may be sparse
+so one bounded graph can retain material ownership in two distinct puncture
+tracts. One slot changes per maintenance command, so every retained physical
+edge keeps its stable proxy identity and friction history; only the retired
+slot's history is cleared on Metal before rebinding. The active edge list and
+completed binding revision are explicit, restorable snapshot evidence rather
+than an untracked host-side alias.
+Contact-critical motion can refine that same transaction by a power-of-two
+coupled timestep divisor between command buffers. Matter, DER, rigid bodies,
+and commands all use the exact refined step; physical-duration preservation is
+owned by the caller's expanded command stream. The canonical multiplier and
+divisor are snapshot evidence, and selecting either resets the other to one.
+Completion-boundary runtime selectors may likewise raise the total FGMRES
+column budget or outer Newton reassembly/correction count for a bounded phase.
+They change encoded work only: restart width, allocated arenas, residual and
+contact tolerances, line search, and publication certificates remain the
+cooked program's authority. Zero denotes the cooked budget, while every
+nonzero override is snapshot and archive continuation authority and must be
+explicitly restored when the bounded phase ends.
+An explicit runtime restore requires the exact device-program fingerprint and
+a completed command boundary. It repopulates the accepted, candidate, and
+checkpoint mirrors together, including constitutive state, fields, contact
+histories, scheduler ownership, coupled cadence, and the live strand-proxy
+window. Stateful MPM/FEM probes require both byte-exact readback after restore
+and byte-identical continuation. A snapshot whose allocation generation differs
+from the cooked generation is rejected until rebuilt FEM incidence is included
+in the exported authority.
+The matching binary snapshot archive retains raw GPU records rather than
+rounding them through text. Its version, endian marker, Matter ABI, payload
+length, content hash, source-physics fingerprint, and exact device-program
+fingerprint are validated before decode. Publication is temporary-file plus
+atomic rename, and corruption leaves the destination snapshot unchanged. The
+surgical v3 consumer first reconstructs the original authored Matter program,
+then loads the articulated/rigid/DER reset and restores the decoded private
+arenas. It requires byte-exact authority and physical FEM/topology certificates
+before allowing a later command to advance physics; compiling Matter directly
+from a deformed checkpoint would change the owning program identity and is not
+a valid resume. The checkpoint hold probe restores the recorded coupled cadence,
+advances one full MetalWorld/Matter transaction twice from the same state, and
+requires byte-identical rigid, articulated, DER, and Matter results. MetalWorld
+manifold/warm-start caches are not yet part of the archive, so this is a
+deterministic cold-cache continuation rather than byte equivalence to an
+uninterrupted resident submission.
+The v1 MetalWorld contract owns one articulation per environment; all of its
+collision proxies therefore share one articulated generalized/q reserve, while
+each distinct free body contributes exactly six additional coordinates.
+
+The implementation uses FP32 barrier arithmetic and conservative CCD. It does
+not claim exact-real arithmetic or a mathematical proof of non-intersection;
+those remain distinct from executable nonpenetration evidence.
+
 ## Current accuracy boundary
 
 The implemented probes establish internal analytical cases, CPU/Metal
@@ -208,3 +547,194 @@ execution. They do not establish universal agreement with an external
 simulator, complete unilateral joint-limit behavior, high-speed impact
 accuracy, real-hardware fidelity, safety, or sim-to-real transfer. Those
 claims require their own pinned comparisons and physical evidence.
+
+### Source-compliant Human initial conditions
+
+`compileNumiHumanCompliantEquilibrium` prepares a stationary initial condition
+using the NHEQ2/NHLIM1 source scalar law, curved support witnesses and the exact
+static muscle fibre law. It is an offline native compiler. It never steps
+physics, projects a live coordinate, or injects an offline reaction into Matter.
+Source rest coordinates, inverse weights, solref/solimp and REFSAFE are retained.
+At zero velocity and acceleration the signed row force is `a_ref / R`, with
+`a_ref = -K*d*phi` and `R = (1-d)/d * sourceInverseWeight`. A unilateral source
+row is admitted strictly inside its margin and contributes only inward force.
+Zero deformation cannot acquire an ideal constraint reaction.
+
+The bounded Gauss-Newton search admits simultaneous scalar coordinate,
+nonnegative normal support force and optional [0,1] activation updates. Dependent
+source coordinates may deform. Quaternion coordinates remain fixed. Exact
+nonlinear force and witness evaluation decides every search update; a frozen
+initial mass inverse supplies the search metric. The final certificate uses
+`M(q_final)^-1 * force_sum`, with a maximum per-coordinate acceleration bound
+(default 0.05 in that coordinate's acceleration units), and independently
+checks loaded support gaps and penetration. This is a static force-balance
+residual, not the instantaneous acceleration of the compliant dynamic system.
+Search history is not physical time. The input touching-contact set is fixed
+for this bounded preparation; arbitrary contact discovery belongs to Matter.
+
+The visual qualification CLI exposes the compiler without creating a renderer:
+
+```
+metalrobo_numilab_human_myosim_visual_probe --source-compliant-certificate \
+  rigid.nhrigid muscle.nhmyo support.nhcnt prepared.nhinit source.nheq \
+  source.nhlim iterations [--recruit|--support-reactions-only]
+```
+
+Exit 0 means the offline static and geometry gates pass; exit 2 retains a finite
+but unbalanced candidate; malformed inputs fail without replacing the accepted
+API result. `--recruit` optimizes activation along with posture.
+`--support-reactions-only` holds q and activation exactly fixed while solving
+normal load sharing, which is required when checking FP32 conversion: a
+floating-root wrench alone does not uniquely determine internal foot loading.
+NHINIT1/2 continue to carry only q/v/muscle state, with no prescribed ground or
+joint reaction. NHINIT3 may carry NHCNT-bound initial support impulses into
+Matter's accepted history owner; it does not prescribe a recurring ground
+force. Registered tissue, accepted-root stability, causal control,
+standing, walking and experimental calibration require their own evidence.
+
+Analytic tests cover loaded equality and lower/upper stop deformation, REFSAFE,
+failed-output isolation, displacement and activation bounds, gravity recruitment
+and replay. The equality Metal probe directly compares stationary source forces
+with the compiler, and the limit probe compares against its independent pinned
+MuJoCo linearization after removing damping and free-predictor terms. The latter
+explicitly accounts for FP64 oracle versus FP32 payload inverse-weight storage.
+
+
+## Human support initial-pose ownership (2026-09-10)
+
+Human support recovery evaluates the authored target gap from the root's
+initial body poses, separately from each Newton candidate. The Human adapter
+materializes its existing COM pose records into a private, slot-owned GPU view
+on the same command buffer before Matter. This view is overwritten in full at
+every root, including prefix records outside the articulation. Its capacity
+uses checked arithmetic and counts against the adapter's retained-byte budget.
+It is derived scratch, not accepted state or another kinematics/dynamics owner.
+
+`EncodeRequest::humanSupportInitialBodies` supplies this pose-only view with
+`rigid.currentBodyCount/currentBodyStride` indexing. Generic MetalWorld callers
+continue to use `rigid.currentBodies` when the explicit view is absent. The
+explicit view is consumed only by support's initial-gap calculation; it cannot
+supply generic proxy dynamics or post-commit reconciliation. Matter rejects
+missing initial poses, insufficient body coverage, a wrong device and truncated
+byte capacity before encoding support. Candidate poses retain their independent
+arena and cannot overwrite the recovery reference during nonlinear iterations.
+
+Previously the Human adapter supplied null current bodies. Support rows did
+not require them, and the support kernel indexed Matter's dummy buffer as body
+records. A repeated 64-root comparison exposed scenario-dependent contact
+recovery despite identical initial q, free predictor, support points and
+Jacobians. The first differing normal constraint was 17.9370499 versus
+395.966522 before the first linear solve. The repair changes input ownership;
+the contact law, stabilization fraction, solver tolerance and Brain inhibition
+remain unchanged. The loaded-support regression now includes support-only
+missing/short implicit and short explicit initial-pose rejection.
+
+The adapter probe always exercises ACCEPT/REJECT, stale generations, rollback,
+retained authority and publication. Its bounded Objective-C allocation loop
+separately reports `command_buffer_address_reuse=not_observed` if the allocator
+does not reproduce an address. That is partial address-reuse coverage, never a
+claimed pointer-reuse pass. Ten native checks and the prepared four-root cohort
+pass on the repaired boundary; longer dynamics and anatomical standing remain
+separate qualification gates.
+
+
+## Prepared muscle path and implicit fibre precision (2026-09-11)
+
+The prepared-pose reference probe now compares all 416 Metal routes to native
+FP64 routes at the identical NHINIT1 q/v. It separately compares the compliant
+fibre update to FP64 at the identical GPU path length/rate and accepted FP32
+fibre state. `--prepared-paths <prepared.nhinit> [--timestep-us N]` is a static
+numerical reference operation; overriding its timestep does not admit or reset
+a live Human transaction.
+
+Inside-sphere wrapping solves the same source equation in theta=asin(z), using
+a monotone bracket and safeguarded Newton steps. The previous z derivative is
+singular near one and its FP32 overshoot could select the midpoint fallback.
+Prepared EDC5_l/EDC4_l errors were 0.275/0.174 mm. The corrected all-muscle maximum
+is 0.572 micrometres against native FP64, below the fixed two-micrometre budget.
+The source tolerance and fallback for an absent interior root remain unchanged.
+
+The implicit fibre update solves a displacement relative to the accepted
+length. Tendon extension and velocity use that displacement before the final
+absolute length is rounded for the existing FP32 publication. Strain is formed
+from extension directly rather than subtracting one from a nearly-unit ratio.
+The reported residual is recomputed at the returned implicit displacement.
+The published length differs from previous length plus timestep times published
+velocity by at most 0.501 length ULPs in the reference checks. There is no extra
+accepted-state field or host dynamics owner.
+
+The authored positive timestep is used exactly. The old ten-microsecond floor
+silently changed the fibre update at smaller steps. The old solver fails the
+prepared 1- and 100-microsecond reference gates. The corrected solver passes at
+1, 5, 10 and 100 microseconds: maximum normalized same-path force error below
+1.81e-6 and normalized residual below 2.90e-7, against unchanged 1e-5 numerical
+budgets. Default-pose path/force/activation checks and ten native regressions
+also pass. This is numerical agreement for the supplied reference state.
+
+Full source-path force parity remains distinct: sub-micrometre FP32 geometry
+errors are amplified by these stiff fitted architectures (maximum 0.780 N at
+100 microseconds and 4.844 N at one microsecond here). The prepared geometry,
+full source force/convergence, anatomical loading and experimental calibration
+still require their owning evidence; same-path scalar agreement cannot certify
+them.
+
+## Candidate kinematics cost and prepared refinement (2026-09-11)
+
+Candidate FK/Jacobian dispatches now use up to 256 lanes. In Jacobian-only
+mode each body builds a dispatch-local ancestral-DOF bit mask after topology
+validation. Unrelated motion columns become zero without repeated ancestor
+walks; related columns still call the authoritative motion-column routine.
+The mask occupies the unused dense-factor region and is included explicitly
+in Jacobian-only threadgroup sizing. It is rebuilt for every candidate, with
+no cache across linearization epochs or transactions. The generic context
+also keeps its 17 unbound Human/Matter buffers lazy when no coupled program
+exists, preserving the existing 32-allocation cold-context contract.
+
+`MRNX_CANDIDATE_GPU_TIMING=1` enables six stage-boundary GPU timestamps around
+candidate preparation, FK/Jacobians, and materialization. Completion handlers
+resolve these after the owning command buffer finishes. Unsupported timestamp
+sampling is reported as invalid evidence. This diagnostic adds no submission,
+wait, or physical-state authority. In the measured 16-root Human cohort, width
+and ancestry changes preserve every physical trace byte while reducing the
+median FK/Jacobian interval from 18.073 ms to approximately 1.4 ms. End-to-end
+cost, API validation, compilation, and the five performance workloads remain
+separate measurements.
+
+Body and joint positions are now accumulated relative to the floating root;
+the root translation is added only at world-pose/point publication. Joint
+anchor offsets are grouped before accumulation. Jacobians, body motion and
+mass use translation-invariant relative differences. This reduces the prepared
+416-route maximum FP64 discrepancy from 0.572 to 0.326 micrometres, and the
+maximum full source-force difference from 0.780 to 0.385 N at 100 microseconds.
+The remaining error is not qualified as full source-force convergence. At one
+microsecond the maximum full source-force error remains 3.290 N.
+
+The reference probe emits native/GPU body poses and, for unwrapped routes,
+FP64 route arithmetic at the returned GPU body poses. These diagnostics
+separate pose error from route arithmetic without adding a dynamics owner.
+`--prepared-state-fixture <prepared.nhinit> <outdir> <contacts> <equalities>
+<limits> [dt_us] [newton_iterations]` decodes and validates the exact supplied
+physical state before rebinding the authored world/timestep identity. The
+support payload is mandatory for NHINIT3 because unbound decoding fails closed.
+The existing certificate-derived fixture mode emits exact NHCNT-bound NHINIT3
+from its per-row support forces. Neither fixture
+mode is anatomical tissue qualification: it creates three tiny pelvis samples.
+
+Equal-duration 100/50-microsecond zero-command trajectories replay exactly over
+1.6 ms. The 25-microsecond trajectory fails its unchanged 0.005 nonlinear gate
+at root 9 after eight accepted roots. Doubling Newton iterations also fails
+at root 9; iteration count must not be presented as a precision repair.
+Support certification diagnostics now report total residual, threshold,
+support residual and rigid residual. The retained 16-iteration failure is
+0.00872637 total, 0.00871225 support and 0.00049626 rigid.
+
+`NM_HUMAN_SUPPORT_TRACE_ROOT=N` optionally copies q, delta-v, free velocity,
+support samples, KKT rows and Jacobians for every assembly of one single-env
+root, including the final certificate. Hex-encoded byte snapshots resolve
+only after GPU completion and survive rollback as diagnostics. At failed
+root 9, contact row 5 dominates; stored root height changes in 119-nanometre
+steps while Newton requests smaller corrections. This identifies a precision
+limitation to investigate in candidate-state/geometry representation, not a
+license to weaken the contact law or nonlinear threshold. Loaded anatomical
+settling, timestep convergence, calibrated tissue and standing/walking remain
+separate open gates.

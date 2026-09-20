@@ -1,0 +1,99 @@
+{
+  "schema": "numilab.human.extensor-hood-all-rays.preflight.v2",
+  "device": "Apple M4 Pro",
+  "evidence_level": "preflight",
+  "runtime_revision": "fec7794",
+  "source_compiler_repository": "https://github.com/Numi2/numilab-human.git",
+  "source_compiler_revision": "48bb878",
+  "myosim_revision": "33c89c2bde282553dde3f526768eb3bdcfaa7649",
+  "source_artifact": {
+    "format": "NHHOOD2",
+    "abi": 2,
+    "bytes": 7044,
+    "sha256": "9af89a7e5b4ea48d9e00674da8b9fb67e6749b66a3b62d267487cce89bfb1962"
+  },
+  "topology": {
+    "hand_count": 2,
+    "digits_per_hand": [2, 3, 4, 5],
+    "ray_count": 8,
+    "node_count": 84,
+    "element_count": 100,
+    "muscle_input_count": 34,
+    "active_element_count": 80,
+    "source_oracle_active_element_count": 88,
+    "digit_5_additional_source_muscle": "EDM"
+  },
+  "geometry": {
+    "minimum_source_element_length_m": 0.00474472476159,
+    "maximum_source_element_length_m": 0.0505758252391,
+    "fixed_anchors_per_ray": [
+      "metacarpal_sagittal_band",
+      "middle_phalanx",
+      "distal_phalanx"
+    ],
+    "distinct_fixed_bone_gate": "passed"
+  },
+  "mechanics": {
+    "law": "T=(EA/L0)*max(L-L0,0)",
+    "applied_input_force_each_newtons": 2.9,
+    "strain_energy_joules": 0.168815085765,
+    "maximum_free_node_residual_newtons": 2.71919656603e-8,
+    "maximum_force_closure_residual_newtons": 2.78342809789e-8,
+    "maximum_moment_closure_residual_newton_meters": 1.81535461768e-8
+  },
+  "source_oracle_force_transfer": {
+    "maximum_source_oracle_force_newtons": 56.459072113,
+    "strain_energy_joules": 11.997257092,
+    "maximum_free_node_residual_newtons": 1.44026162412e-7,
+    "maximum_force_closure_residual_newtons": 1.41851120646e-7,
+    "maximum_moment_closure_residual_newton_meters": 9.50880932494e-8,
+    "root_generalized_force_residual_newtons": 3.88464184896e-7,
+    "root_generalized_moment_residual_newton_meters": 4.06060758696e-6,
+    "maximum_internal_generalized_force": 0.657258909222,
+    "ray_maximum_internal_generalized_force": {
+      "right_2": 0.478662689982,
+      "right_3": 0.150819374591,
+      "right_4": 0.657258909222,
+      "right_5": 0.0375946032041,
+      "left_2": 0.478663240858,
+      "left_3": 0.150819374591,
+      "left_4": 0.657258909222,
+      "left_5": 0.0375943339032
+    },
+    "right_fifth_mcp_abduction_generalized_force_newton_meters": 1.15977755594e-6,
+    "left_fifth_mcp_abduction_generalized_force_newton_meters": 1.15977744561e-6,
+    "replay": "bitwise"
+  },
+  "visual_validation": {
+    "device": "Apple M4 Pro",
+    "frame_dimension": 1024,
+    "views_per_hand": ["front", "oblique", "side", "rear"],
+    "source_route_muscles_per_hand": 17,
+    "source_route_segments_per_hand": 89,
+    "visual_only_surface_projected_sites_per_hand": 99,
+    "bone_payload_sha256": "f9132393dfb259a80e2b2084ac5ff15f2bf988f7e073f7a961a7ddcfb9febc3c",
+    "frame_directories": {
+      "right": "docs/media/numi-human-extensor-hood-all-rays-v2/right",
+      "left": "docs/media/numi-human-extensor-hood-all-rays-v2/left"
+    },
+    "boundary": "The projected spheres and route endpoints are a visual-only nearest-BodyParts3D-triangle diagnostic. Exact MyoSim site/body coordinates, not these projected display points, own the FP64 mechanics."
+  },
+  "replay": "bitwise",
+  "rollback": "verified",
+  "gates": {
+    "payload_shape_source_hash_and_ray_identity": "passed",
+    "exact_source_site_body_and_route_binding": "passed",
+    "bilateral_per_digit_topology": "passed",
+    "distinct_metacarpal_middle_and_distal_bone_anchors": "passed",
+    "anatomical_element_length_bounds": "passed",
+    "free_node_equilibrium": "passed",
+    "force_and_moment_closure": "passed",
+    "every_ray_nonzero_generalized_force_transfer": "passed",
+    "exact_point_jacobian_projection": "passed",
+    "deterministic_replay": "passed",
+    "malformed_topology_rollback": "passed",
+    "multi_angle_visual_route_endpoint_diagnostic": "passed"
+  },
+  "remaining_blocker": "NHHOOD2 is an FP64 source-posed mechanics preflight and has not replaced the distal shares of the live 416-muscle route transaction. Whole-body wrist and finger equilibrium must be rerun only after one generalized-force authority integrates the network; thumb extensor apparatus remains separately unmodeled.",
+  "boundary": "All eight non-thumb rays are source-posed CPU FP64 tension networks under both the literature 2.9 N condition and MyoSim source-default force fields. Exact sites, bodies, muscle IDs, route-cut ordinals, route directions, and source-force fields are preserved. Hood connectivity and material parameters remain literature-constrained inference. This is force-transfer evidence, not a live Metal muscle-route replacement, whole-body balance, subject-specific calibration, or deformable fascia solve."
+}

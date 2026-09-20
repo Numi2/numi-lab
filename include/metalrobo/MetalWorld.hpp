@@ -3,14 +3,17 @@
 #include "metalrobo/EngineModel.hpp"
 #include "metalrobo/HeterogeneousWorld.hpp"
 #include "metalrobo/MetalWorldCapacity.hpp"
+#include "metalrobo/ParallelABASchedule.hpp"
 #include "metalrobo/multicopter_types.h"
 #include "metalrobo/PolicyProgram.hpp"
 #include "metalrobo/TaskProgram.hpp"
 #include "metalrobo/parallel_aba_shared.h"
 #include "metalrobo/rod_gpu_shared.h"
+#include "metalrobo/millard_muscle_gpu.h"
 #include "metalrobo/unified_quality_shared.h"
 
 #include <array>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <limits>
@@ -167,6 +170,8 @@ public:
     sceneBodyDynamicNodes() const noexcept;
     [[nodiscard]] std::span<const std::uint32_t>
     rodDynamicNodes() const noexcept;
+    [[nodiscard]] const ParallelABASchedule& parallelABASchedule()
+        const noexcept;
     [[nodiscard]] const MetalWorldCapacityProfile& capacities()
         const noexcept;
     [[nodiscard]] const MetalWorldCapacityProfile&
@@ -212,6 +217,7 @@ private:
     std::vector<std::uint32_t> bodyDynamicNodes_;
     std::vector<std::uint32_t> sceneBodyDynamicNodes_;
     std::vector<std::uint32_t> rodDynamicNodes_;
+    ParallelABASchedule parallelABASchedule_;
     std::uint64_t modelFingerprint_ = 0u;
     std::uint64_t fingerprint_ = 0u;
 };
@@ -252,6 +258,11 @@ struct MetalWorldBatch {
     // [control step][environment][task action] normalized actions and leaves
     // efforts empty; its native control operators produce nv-wide targets.
     std::span<const float> actions{};
+    // Optional source Millard controls, packed
+    // [control step][environment][source muscle]. Entries are normalized
+    // excitations in [0, 1], not generalized efforts. They require a valid
+    // source Millard program and explicit activation time constants below.
+    std::span<const float> millardExcitations{};
     std::uint64_t policyRevision = 0u;
     std::span<const std::uint32_t> resetMasks{};
     std::span<const float> resetQ{};
@@ -273,6 +284,185 @@ struct MetalWorldBatch {
     std::span<const MRRodEdgeStateGPU> initialRodEdges{};
     std::span<const MRRodNodeStateGPU> resetRodNodes{};
     std::span<const MRRodEdgeStateGPU> resetRodEdges{};
+};
+
+// Device-resident physics extension encoded inside every rigid-world
+// microstep after the global body-wrench arena is cleared and articulated/
+// scene body state is projected, but before ABA and scene prediction consume
+// those wrenches.
+// The callback borrows every object and may encode work only; it must not
+// commit, wait, retain, or replace the command buffer or its buffers.
+enum class MetalWorldDevicePhysicsPhase : std::uint32_t {
+    preDynamics = 0u,
+    postCommit = 1u,
+};
+
+enum MetalWorldDevicePhysicsFlags : std::uint32_t {
+    // The pre-dynamics pass contributes forces/torques to MetalWorld's
+    // global MRABABodyWrenchGPU arena. This capability is independent of the
+    // rigid contact solver: a continuum-only contact world may drive ABA or
+    // free scene bodies while MetalWorld remains in free-motion mode.
+    MetalWorldDevicePhysicsWritesBodyWrenches = 1u << 0u,
+    // The post-commit pass consumes accepted rigid contact constraints. This
+    // is required for adaptive rigid->continuum promotion, but should not
+    // force every device-physics program through the rigid contact pipeline.
+    MetalWorldDevicePhysicsRequiresRigidContactEvidence = 1u << 1u,
+    // The extension owns a primal rigid/articulated candidate inside its
+    // nonlinear solve. MetalWorld still owns generalized coordinates, mass
+    // operators, ABA, and integration; the extension may only use the
+    // borrowed coupled-candidate service below.
+    MetalWorldDevicePhysicsOwnsCoupledCandidate = 1u << 2u,
+    // The extension reads the active MRRodNodeStateGPU arena and may add an
+    // accepted contact impulse to node velocities before MetalWorld's DER
+    // substep. The immutable inverse-mass arena is borrowed alongside it.
+    // Publication and rollback remain owned by MetalWorld's rod transaction.
+    MetalWorldDevicePhysicsCouplesRodNodes = 1u << 3u,
+};
+
+inline constexpr std::uint32_t kMetalWorldDevicePhysicsKnownFlags =
+    MetalWorldDevicePhysicsWritesBodyWrenches |
+    MetalWorldDevicePhysicsRequiresRigidContactEvidence |
+    MetalWorldDevicePhysicsOwnsCoupledCandidate |
+    MetalWorldDevicePhysicsCouplesRodNodes;
+
+struct MetalWorldDevicePhysicsPass;
+
+enum class MetalWorldCoupledCandidateOperation : std::uint32_t {
+    // Integrate q(q0, v0 + dv) over the borrowed substep and materialize the
+    // corresponding articulated body states without publishing them.
+    candidateKinematics = 0u,
+    // output = M(q0) input. The block-diagonal articulated mass action is
+    // evaluated by MetalWorld at its current generalized coordinates.
+    massAction = 1u,
+    // output = M(q0)^-1 input using MetalWorld's same-timeline ABA operator.
+    inverseMassPreconditioner = 2u,
+    // Publish an accepted dv as M(q0) dv / dt into MetalWorld's generalized
+    // effort stream. ABA and generalized-coordinate integration remain owned
+    // by MetalWorld and source q/v are never modified by the extension.
+    publishCandidate = 3u,
+};
+
+// Borrowed primal articulated operator. Buffers are environment-major and
+// use the global q/v/body strides supplied by the enclosing pass. `input` and
+// `output` hold float generalized vectors; candidateQ holds float generalized
+// coordinates; candidateBodies holds MRBodyStateGPU. `statuses` is one
+// MRInverseMassStatusGPU per [articulation][environment] for inverse mass and
+// may be null for the other operations. Output buffers are overwritten.
+struct MetalWorldCoupledCandidateQuery {
+    void* input = nullptr;
+    void* output = nullptr;
+    void* candidateQ = nullptr;
+    void* candidateBodies = nullptr;
+    void* statuses = nullptr;
+    void* pointQueries = nullptr;
+    void* pointJacobians = nullptr;
+    MetalWorldCoupledCandidateOperation operation =
+        MetalWorldCoupledCandidateOperation::candidateKinematics;
+    std::uint32_t generalizedVectorStride = 0u;
+    std::uint32_t candidateQStride = 0u;
+    std::uint32_t candidateBodyStride = 0u;
+    std::uint32_t statusStride = 0u;
+    std::uint32_t pointCount = 0u;
+    std::uint32_t pointStride = 0u;
+    std::uint32_t pointJacobianStride = 0u;
+};
+
+using MetalWorldEncodeCoupledCandidate = bool (*)(
+    void* context,
+    const MetalWorldDevicePhysicsPass& pass,
+    const MetalWorldCoupledCandidateQuery& query
+);
+
+struct MetalWorldDevicePhysicsPass {
+    void* commandBuffer = nullptr;
+    void* q = nullptr;
+    void* v = nullptr;
+    void* sceneBodies = nullptr;
+    void* currentBodies = nullptr;
+    void* bodyWrenches = nullptr;
+    void* resetMasks = nullptr;
+    void* environmentStatuses = nullptr;
+    // Final per-environment contact state for this rigid substep.  Device
+    // physics may read this only during postCommit, after MetalWorld has
+    // accepted the contact solve; it remains borrowed with the command
+    // buffer and is never retained by the extension.
+    void* contactConstraints = nullptr;
+    void* contactStatuses = nullptr;
+    // Active environment-major DER node state and immutable world-local node
+    // inverse masses. These are non-null only when the compiled world owns a
+    // rod. A coupling extension may update velocity.xyz during preDynamics;
+    // position and all postCommit state are read-only.
+    void* rodNodes = nullptr;
+    void* rodInverseMasses = nullptr;
+    void* coupledCandidateContext = nullptr;
+    MetalWorldEncodeCoupledCandidate encodeCoupledCandidate = nullptr;
+    std::uint64_t seed = 0u;
+    MetalWorldDevicePhysicsPhase phase =
+        MetalWorldDevicePhysicsPhase::preDynamics;
+    std::uint32_t controlStep = 0u;
+    std::uint32_t physicsSubstep = 0u;
+    std::uint32_t physicsSubsteps = 0u;
+    std::uint32_t environmentCount = 0u;
+    std::uint32_t articulationCount = 0u;
+    std::uint32_t bodyCount = 0u;
+    std::uint32_t sceneBodyCount = 0u;
+    std::uint32_t nq = 0u;
+    std::uint32_t nv = 0u;
+    std::uint32_t bodyStateStride = 0u;
+    std::uint32_t sceneBodyStride = 0u;
+    std::uint32_t bodyWrenchStride = 0u;
+    std::uint32_t contactConstraintStride = 0u;
+    std::uint32_t rodNodeCount = 0u;
+    std::uint32_t rodNodeStride = 0u;
+    std::uint32_t articulationRootBody = 0u;
+    std::uint32_t qStride = 0u;
+    std::uint32_t articulatedInverseMassFlags = 0u;
+    std::uint32_t resetMaskStepStride = 0u;
+    float timestepSeconds = 0.0f;
+};
+
+using MetalWorldDevicePhysicsEncode = bool (*)(
+    void* context,
+    const MetalWorldDevicePhysicsPass& pass
+);
+
+// Called only when MetalWorld abandons a command buffer after a device-physics
+// pass has been encoded but before submission. It releases runtime-side
+// transaction ownership; it must not commit, wait, or touch borrowed buffers.
+using MetalWorldDevicePhysicsAbort = void (*)(
+    void* context,
+    void* commandBuffer
+);
+
+struct MetalWorldDevicePhysicsProgram {
+    void* context = nullptr;
+    MetalWorldDevicePhysicsEncode encode = nullptr;
+    MetalWorldDevicePhysicsAbort abort = nullptr;
+    std::uint64_t fingerprint = 0u;
+    std::uint32_t flags = 0u;
+    // Maximum point-query count used by the borrowed coupled-candidate
+    // service. Declaring this capacity keeps MetalWorld's private operator
+    // scratch exact instead of reserving the ABI-wide maximum per environment.
+    std::uint32_t coupledCandidatePointCapacity = 0u;
+
+    [[nodiscard]] bool valid() const noexcept {
+        const bool ownsCoupledCandidate =
+            (flags & MetalWorldDevicePhysicsOwnsCoupledCandidate) != 0u;
+        return context != nullptr && encode != nullptr && abort != nullptr &&
+            fingerprint != 0u &&
+            (flags & ~kMetalWorldDevicePhysicsKnownFlags) == 0u &&
+            coupledCandidatePointCapacity <=
+                MR_ARTICULATED_OPERATOR_MAX_POINTS &&
+            (ownsCoupledCandidate
+                 ? coupledCandidatePointCapacity != 0u
+                 : coupledCandidatePointCapacity == 0u);
+    }
+
+    [[nodiscard]] bool configured() const noexcept {
+        return context != nullptr || encode != nullptr || abort != nullptr ||
+            fingerprint != 0u || flags != 0u ||
+            coupledCandidatePointCapacity != 0u;
+    }
 };
 
 // Device-resident observation extension encoded after the generic SensorPack
@@ -377,6 +567,39 @@ struct MetalWorldDeviceActionProgram {
     }
 };
 
+// Presentation-only extension encoded after the final accepted state of a
+// submitted rollout. Like device observations, it borrows every resource and
+// must neither commit nor wait. Unlike device observations, it has no actor
+// observation or policy dependency: it is deliberately outside the physics
+// and policy contracts.
+struct MetalWorldInspectionPass {
+    void* commandBuffer = nullptr;
+    void* currentBodies = nullptr;
+    std::uint64_t seed = 0u;
+    std::uint64_t submissionIndex = 0u;
+    std::uint32_t controlStepCount = 0u;
+    std::uint32_t environmentCount = 0u;
+    std::uint32_t bodyCount = 0u;
+};
+
+using MetalWorldInspectionEncode = bool (*) (
+    void* context,
+    const MetalWorldInspectionPass& pass
+);
+
+struct MetalWorldInspectionProgram {
+    void* context = nullptr;
+    MetalWorldInspectionEncode encode = nullptr;
+
+    [[nodiscard]] bool valid() const noexcept {
+        return context != nullptr && encode != nullptr;
+    }
+
+    [[nodiscard]] bool configured() const noexcept {
+        return context != nullptr || encode != nullptr;
+    }
+};
+
 // Immutable robot-authored multicopter actuator program. MetalWorld executes
 // it immediately before every ABA microstep and writes the resulting
 // world-frame wrench into the same external-wrench arena used by articulated
@@ -400,6 +623,60 @@ struct MetalWorldMulticopterProgram {
     }
 };
 
+// Immutable source-materialized Millard program executed inside every
+// MetalWorld FunctionBased microstep.  `states` is one source state per
+// muscle; MetalWorld expands it across environments privately, evaluates the
+// path/Jacobian force on device, and adds the reduced generalized effort to
+// the resident effort arena before source dynamics.  Activation control is
+// intentionally not inferred from generic effort actions: callers must
+// provide an explicit muscle-state program when that control contract is
+// authored.
+struct MetalWorldMillardProgram {
+    std::uint32_t articulationIndex = MR_INVALID_INDEX;
+    std::span<const MRArticulatedPointImpulseGPU> pointQueries{};
+    std::span<const MRMillardMuscleGPU> muscles{};
+    std::span<const MRMillardMuscleStateGPU> states{};
+    std::span<const MRMillardPathPointGPU> pathPoints{};
+    std::span<const MRMillardSourceCurveGPU> curves{};
+    std::span<const MRMillardCylinderWrapGPU> cylinderWraps{};
+
+    [[nodiscard]] bool configured() const noexcept {
+        return articulationIndex != MR_INVALID_INDEX ||
+            !pointQueries.empty() || !muscles.empty() || !states.empty() ||
+            !pathPoints.empty() || !curves.empty() ||
+            !cylinderWraps.empty();
+    }
+
+    [[nodiscard]] bool valid() const noexcept {
+        return articulationIndex != MR_INVALID_INDEX &&
+            !pointQueries.empty() && !muscles.empty() &&
+            states.size() == muscles.size() &&
+            curves.size() == muscles.size() && !pathPoints.empty();
+    }
+};
+
+// Caller-owned temporal contract for per-control source Millard excitation.
+// The source model does not provide a universally valid activation default;
+// importers must materialize/provenance both positive time constants before
+// submitting controls. An unconfigured record preserves the static-source
+// state behavior used by existing reference executions.
+struct MetalWorldMillardActivationDynamics {
+    float activationTimeConstantSeconds = 0.0f;
+    float deactivationTimeConstantSeconds = 0.0f;
+
+    [[nodiscard]] bool configured() const noexcept {
+        return activationTimeConstantSeconds != 0.0f ||
+            deactivationTimeConstantSeconds != 0.0f;
+    }
+
+    [[nodiscard]] bool valid() const noexcept {
+        return std::isfinite(activationTimeConstantSeconds) &&
+            std::isfinite(deactivationTimeConstantSeconds) &&
+            activationTimeConstantSeconds > 0.0f &&
+            deactivationTimeConstantSeconds > 0.0f;
+    }
+};
+
 struct MetalWorldStepConfig {
     // Control-period duration. The immutable model gravity is retained and
     // its authored integration timestep is replaced by
@@ -408,9 +685,12 @@ struct MetalWorldStepConfig {
     std::uint32_t physicsSubsteps = 1u;
     MetalWorldSolverMode solverMode =
         MetalWorldSolverMode::temporalCone;
-    // In effort mode, MetalWorldBatch::efforts is generalized effort. In
-    // implicitPositionDrive mode it is the desired position per scalar
-    // driven DoF; floating-root and unactuated entries are ignored.
+    // In effort mode, MetalWorldBatch::efforts is requested generalized
+    // actuator effort. Every entry is clipped by its immutable effort and
+    // torque-speed envelope; floating-root and unactuated entries resolve to
+    // zero. External loads belong in the body-wrench path. In
+    // implicitPositionDrive mode, efforts holds the desired position per
+    // scalar driven DoF; floating-root and unactuated entries are ignored.
     MetalWorldActuationMode actuationMode =
         MetalWorldActuationMode::effort;
     // Empty means a policy-independent physics submission. A valid compiled
@@ -424,10 +704,27 @@ struct MetalWorldStepConfig {
     // not a constructor hint; its complete contents participate in the run
     // fingerprint before reaching MetalWorld.
     MetalWorldMulticopterProgram multicopterProgram{};
+    // Optional source Millard muscle-tendon program. It is admitted only by
+    // the bounded FunctionBased direct-effort path for a fixed or mobile
+    // root: free motion
+    // or the streamed temporal-cone contact response. A native task may join
+    // only through its complete ordered `millardExcitation` action surface;
+    // generic task body/controller parameterization and anatomical collider
+    // admission remain separate gates.
+    MetalWorldMillardProgram millardProgram{};
+    MetalWorldMillardActivationDynamics millardActivationDynamics{};
+    // Optional multiphysics pass. It executes before rigid dynamics and again
+    // after transactional publication in every physics substep. The pre pass
+    // contributes to the shared global body-wrench arena; the post pass may
+    // synchronize accepted state and perform representation transfer.
+    MetalWorldDevicePhysicsProgram devicePhysicsProgram{};
     // Optional renderer/perception pass. It receives only borrowed device
     // resources and executes inside the native rollout command buffer.
     MetalWorldDeviceObservationProgram deviceObservationProgram{};
     MetalWorldDeviceActionProgram deviceActionProgram{};
+    // Optional non-authoritative presentation pass. It runs once after a
+    // completed rollout chunk has produced its final accepted body state.
+    MetalWorldInspectionProgram inspectionProgram{};
     // Publish V(s_T) from the accepted post-rollout state in the same command
     // buffer. This does not apply the sampled action or advance physics.
     bool evaluateFinalPolicy = false;
@@ -477,6 +774,10 @@ struct MetalWorldConfig {
     // MetalRobo dylib, with the configured build-tree path as fallback.
     std::string metallibPath;
     bool preferPrivateHeaps = true;
+    // Production uses schedule-driven SIMD32 ABA for branching frontiers and
+    // keeps narrow serial chains on the lower-overhead ordered kernel. False
+    // forces the serial oracle for paired numerical/performance replay.
+    bool preferParallelABA = true;
     std::uint32_t maximumInFlightSubmissions = 3u;
 };
 
@@ -490,6 +791,11 @@ struct MetalWorldMemoryPlan {
 
 struct MetalWorldLayout {
     MRMetalWorldDispatchGPU dispatch{};
+    std::uint64_t devicePhysicsFingerprint = 0u;
+    std::uint64_t millardProgramFingerprint = 0u;
+    std::uint32_t millardMuscleCount = 0u;
+    bool usesParallelABA = false;
+    std::uint32_t parallelABAMaximumLevelWidth = 0u;
     MRABADispatchGPU abaDispatch{};
     std::vector<MRMultiABADispatchGPU> abaDispatches;
     std::vector<MRArticulatedOperatorDispatchGPU>
@@ -504,6 +810,7 @@ struct MetalWorldLayout {
     std::size_t initialSceneBodyElements = 0u;
     std::size_t effortElements = 0u;
     std::size_t actionElements = 0u;
+    std::size_t millardExcitationElements = 0u;
     std::size_t resetMaskElements = 0u;
     std::size_t resetQElements = 0u;
     std::size_t resetVElements = 0u;
@@ -646,6 +953,10 @@ struct MetalWorldResult {
     std::vector<MRBodyStateGPU> finalSceneBodies;
     std::vector<MRRodNodeStateGPU> finalRodNodes;
     std::vector<MRRodEdgeStateGPU> finalRodEdges;
+    // Final per-environment/per-rod convergence certificate. Unlike the
+    // accepted node state, this remains available even when final-state
+    // publication is disabled so a caller can qualify the implicit solve.
+    std::vector<MRRodGPUStatus> rodStatuses;
     // Packed [control step][environment][q then v].
     std::vector<float> observations;
     // Compact learning boundary produced only by a native task graph.
@@ -668,6 +979,16 @@ struct MetalWorldResult {
     // Packed [control step][environment][local v]. Failed steps publish zero
     // acceleration and preserve their pre-step accepted state.
     std::vector<float> accelerations;
+    // Final source-muscle evaluation in this command-buffer submission.
+    // Individual generalized forces remain unpacked [environment][muscle][v]
+    // so an audit can establish that the active source elements, rather than
+    // a host-restaged aggregate, drove the accepted state.
+    std::vector<MRMillardMuscleResultGPU> millardResults;
+    std::vector<float> millardGeneralizedForces;
+    // Final private source-muscle state, packed [environment][muscle]. This
+    // lets an activation-control audit verify the exact device-updated state
+    // that produced the final force records without publishing a host update.
+    std::vector<MRMillardMuscleStateGPU> millardStates;
     std::vector<MRMetalWorldStatusGPU> statuses;
     std::vector<MRMetalWorldContactStatusGPU> contactStatuses;
     // One record per environment when qualityNewton is selected.

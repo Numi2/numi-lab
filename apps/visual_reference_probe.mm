@@ -358,6 +358,40 @@ int main() {
                 ),
                 "reference compile"
             );
+            const auto liveMotion = makeMotion(
+                environmentCount,
+                static_cast<std::uint32_t>(model.bodies.size()),
+                0u
+            );
+            const std::size_t liveSampleStride =
+                static_cast<std::size_t>(environmentCount) *
+                model.bodies.size();
+            metalrobo::HybridLiveStateBatch unsupportedLiveState;
+            unsupportedLiveState.environmentCount = environmentCount;
+            unsupportedLiveState.bodyCount = static_cast<std::uint32_t>(
+                model.bodies.size()
+            );
+            unsupportedLiveState.currentBodies = {
+                liveMotion.bodyStates.data(),
+                liveSampleStride,
+            };
+            unsupportedLiveState.previousBodies = {
+                liveMotion.bodyStates.data() + liveSampleStride,
+                liveSampleStride,
+            };
+            const auto rejectedLive = renderer.renderLive(
+                worlds,
+                unsupportedLiveState,
+                0u
+            );
+            if (rejectedLive.status !=
+                    metalrobo::MetalHybridRendererStatus::missingLiveState ||
+                rejectedLive.message.find("renderFrame/encodeFrame") ==
+                    std::string::npos) {
+                throw std::runtime_error(
+                    "reference profile silently accepted the fast live-state path"
+                );
+            }
 
             id<MTLDevice> device = MTLCreateSystemDefaultDevice();
             id<MTLCommandQueue> queue = [device newCommandQueue];

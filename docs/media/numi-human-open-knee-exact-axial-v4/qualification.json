@@ -1,0 +1,103 @@
+{
+  "schema": "numi-human-open-knee-exact-axial-qualification.v1",
+  "qualified_code_revision": "3dc8777",
+  "device": "Apple M4 Pro",
+  "runtime": {
+    "visual_probe_sha256": "c9a4f2c74463afede660ebe0e3ff4c7e56c93313186a73780d247eabb9f55313",
+    "libmetalrobo_sha256": "58a7195b2fa59a6838562078145ec45cd69a6aee397c9e8d822bda4eaee81235",
+    "numi_matter_metallib_sha256": "53df7037a5cde3cd0e81a3286f505b40b6f85aaf93e0a2eafd71db38ea1d1086"
+  },
+  "input": {
+    "left_payload_sha256": "c5116b2cff086dae43e71a282ca5a15088b682875af4f0c0c1beb563fa255b4e",
+    "right_mirrored_payload_sha256": "27efaed583d3a0dcae5b27d1481c336f9d630a6cce0bd64420577b06170c56be",
+    "febio_custom_sha256": "00b6efb53ad7e7330296cbb9569d358d48ed60819e22732e6149db6fb98a158a",
+    "passive_axial_regions": ["PCL", "ACL", "MCL", "PTL", "LCL"],
+    "source_fiber_alignment_minimum": 0.99644,
+    "effective_area_rule": "source_tetrahedral_volume/reference_attachment_node_centroid_separation",
+    "source_reference_tension_n": {
+      "PCL": 0.0,
+      "ACL": 3.34181,
+      "MCL": 55.4378,
+      "PTL": 0.0,
+      "LCL": 8.40188
+    },
+    "source_reference_endpoint_force_l1_n": 134.36298
+  },
+  "live_human": {
+    "regions": 6,
+    "nodes": 62402,
+    "tetrahedra": 264442,
+    "left": {
+      "host_diagnostic_boundary": "mechanics-identical pre-output host binary; passive gates passed internally but aggregate passive fields were not printed",
+      "maximum_displacement_m": 2.5474e-7,
+      "minimum_jacobian": 0.99976,
+      "maximum_jacobian": 1.00026,
+      "quadriceps_resultant_n": 2765.125,
+      "ptl_resultant_n": 2787.985,
+      "bitwise_replay": true,
+      "rejected_step_rollback": true
+    },
+    "right_mirrored": {
+      "maximum_displacement_m": 2.048571e-7,
+      "minimum_jacobian": 0.999714375,
+      "maximum_jacobian": 1.000294328,
+      "quadriceps_resultant_n": 4612.770508,
+      "ptl_resultant_n": 4654.123535,
+      "passive_ligament_count": 5,
+      "passive_ligament_latest_transaction_accepted": true,
+      "passive_endpoint_force_l1_n": 134.384201,
+      "passive_maximum_tension_n": 55.453167,
+      "passive_minimum_effective_stretch": 0.999998629,
+      "passive_maximum_effective_stretch": 1.034004688,
+      "passive_force_residual_n": 0.0,
+      "passive_moment_residual_nm": 6.143906e-8,
+      "bitwise_replay": true,
+      "rejected_step_rollback": true
+    }
+  },
+  "focused_neutral_mcl": {
+    "left": {
+      "nodes": 15693,
+      "tetrahedra": 62712,
+      "minimum_jacobian": 0.999827,
+      "maximum_jacobian": 1.00015,
+      "bitwise_replay": true,
+      "rejected_step_rollback": true
+    },
+    "right_mirrored": {
+      "nodes": 15693,
+      "tetrahedra": 62712,
+      "minimum_jacobian": 0.999771,
+      "maximum_jacobian": 1.00017,
+      "bitwise_replay": true,
+      "rejected_step_rollback": true
+    }
+  },
+  "validation_correction": {
+    "rejected_gate": "minimum effective stretch was rigidly required to be at least 1",
+    "observed_minimum_stretch": 0.999998629,
+    "resolution": "allow tension-only slack while retaining positive finite stretch, force, closure, replay, and rollback gates",
+    "corrected_run_passed": true
+  },
+  "render": {
+    "resolution": [512, 512],
+    "temporal_area_light_samples": 32,
+    "visual_inspection": {
+      "patella_anterior_and_seated": true,
+      "fibula_lateral": true,
+      "qat_patella_ptl_chain_continuous": true,
+      "detached_or_inverted_tissue_seen": false
+    },
+    "frames": {
+      "left-front.png": "ceb5e05fda325251243e8417377725a31c225ca5701019931d9b3e35883d73b7",
+      "left-oblique.png": "0e8da0156ce32695c14a4ab46b439652f8b941347aac851902d87df482672dd0",
+      "left-side.png": "08b17c55d812233c1de566a4ca6f0b7c933f82833aab62a717a9c1b3ffb877ea",
+      "left-rear.png": "8601d07e0930b6d0a6fd873fa1cfde637976e3d59d78f06c1123e4b01d1ca8b2",
+      "right-front.png": "c18638564111e6df876d4bebc40a045a81c48ee306c92db7eaa2d5c153e514f5",
+      "right-oblique.png": "059ee19910b686a0fe3306d2149ceffa5ae1e234923174e27ef47403a30911a7",
+      "right-side.png": "ed3c64657f4406599712d6b17c9c5e04e7f5f963f46f0176d7951c7807ef2120",
+      "right-rear.png": "9c3f91e35347dd1579c0187c22d84448c50c64b9781daa1f3ff4ce35fe4ad88a"
+    }
+  },
+  "evidence_boundary": "Exact source piecewise exponential-linear axial fiber stress is reduced to one tension-only force-transfer element per passive region between source enthesis attachment-node centroids. Exact source tetrahedral FEM remains active for neutral matrix response and 3D shape, with its axial fiber scale disabled to prevent double counting. This is not the exact FEBio fiber strain energy, a spatially incompatible prestressed continuum field, a subject-specific calibration, sustained gait, or clinical validation. The right knee is a registered sagittal mirror of the left specimen, not independent right-subject anatomy."
+}

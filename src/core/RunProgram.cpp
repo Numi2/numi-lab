@@ -190,6 +190,20 @@ bool validActuators(const RobotPack& robot, std::string& reason) {
             // These target robot-authored named controller groups or bodies;
             // their specialized compiler validates the concrete program.
             break;
+        case RobotActuatorKind::millardExcitation:
+            if (!actuator.terms.empty() || actuator.component != 0u ||
+                actuator.parameters.x != 0.0f ||
+                actuator.parameters.y != 0.0f ||
+                actuator.parameters.z != 0.0f ||
+                actuator.parameters.w != 0.0f ||
+                actuator.scale != 1.0f) {
+                reason = "Millard excitation actuator '" + actuator.id +
+                    "' requires unit scale and no joint/vector parameters";
+                return false;
+            }
+            // The source muscle target is intentionally resolved only when
+            // MetalWorld has the immutable Millard source program in scope.
+            break;
         default:
             reason = "robot actuator '" + actuator.id +
                 "' has an unknown kind";

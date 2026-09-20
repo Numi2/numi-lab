@@ -1,0 +1,56 @@
+{
+  "schema": "numilab.human.extensor-hood-tension-network.preflight.v1",
+  "evidence_level": "preflight",
+  "device": "Apple M4 Pro",
+  "runtime": "Core FP64",
+  "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12271525/",
+  "topology": {
+    "name": "medial_lateral_hood_intercrossing_fibres",
+    "node_count": 11,
+    "element_count": 13,
+    "active_element_count": 9,
+    "muscle_inputs": ["EDC", "radial_interosseous", "ulnar_interosseous", "lumbrical"],
+    "fixed_attachments": ["middle_phalanx", "distal_phalanx", "sagittal_band_capsule"]
+  },
+  "material": {
+    "young_modulus_megapascals": [90.0, 110.0],
+    "band_area_square_millimeters": [0.3, 1.0],
+    "intercrossing_fibre_area_square_millimeters": 0.01,
+    "main_band_rest_scale": 0.99,
+    "intercrossing_fibre_rest_scale": 0.95,
+    "element_law": "unilateral_linear_axial_tension",
+    "parameter_boundary": "literature_bounded_preflight_not_subject_identified"
+  },
+  "loading": {
+    "force_per_muscle_newtons": 2.9,
+    "muscle_count": 4
+  },
+  "full_network": {
+    "strain_energy_joules": 0.0287704383977,
+    "maximum_free_node_residual_newtons": 1.09453528944e-9,
+    "force_closure_residual_newtons": 1.09209535832e-9,
+    "moment_closure_residual_newton_meters": 4.47422963752e-13,
+    "middle_attachment_reaction_newtons": 2.88127414977,
+    "distal_attachment_reaction_newtons": 8.6915634552
+  },
+  "trivial_network": {
+    "middle_attachment_reaction_newtons": 2.90000000001,
+    "distal_attachment_reaction_newtons": 8.67290754059
+  },
+  "force_transfer_delta_newtons": 0.0264329456743,
+  "bilateral_maximum_tension_error_newtons": 0.0,
+  "replay": "bitwise",
+  "rollback": "verified",
+  "gates": {
+    "finite": "passed",
+    "unilateral_tension": "passed",
+    "free_node_equilibrium": "passed",
+    "force_closure": "passed",
+    "moment_closure": "passed",
+    "intercrossing_force_transfer": "passed",
+    "bilateral_parity": "passed",
+    "bitwise_replay": "passed",
+    "transactional_rollback": "passed"
+  },
+  "boundary": "cpu_fp64_literature_scale_reference_not_yet_posed_source_hand_or_live_metal_transaction"
+}

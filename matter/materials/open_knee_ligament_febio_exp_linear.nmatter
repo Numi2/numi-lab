@@ -1,0 +1,60 @@
+// Source-directed Open Knee(s) oks003 trans-iso Mooney-Rivlin continuum.
+// All six admitted tissues have c2=0. The caller must reject nonzero c2.
+// Fp=s*a*a^T+s^(-1/2)*(I-a*a^T), det(Fp)=1; F*=F*Fp.
+// The fibre primitive preserves FEBio's q=lambda*dW/dlambda and its
+// tension/toe/linear branches. Energy uses bounded quadrature; stress and
+// tangent use the analytic source law, including its tangent jumps.
+// This material does not establish equilibrium of the registered volume.
+material open_knee_ligament_febio_exp_linear_v1 {
+    parameter density : kg/m^3 = 1000 in [900, 1200];
+    parameter c1 : MPa = 1.95 in [0.001, 20] log identifiable;
+    parameter c3 : MPa = 0.0139 in [0.0001, 5] log identifiable;
+    parameter c4 : one = 116.22 in [1, 300] log identifiable;
+    parameter c5 : MPa = 535.039 in [0.001, 2000] log identifiable;
+    parameter lambda_max : one = 1.046 in [1.001, 1.2];
+    parameter fiber_scale : one = 1 in [0, 1];
+    parameter bulk : MPa = 146.41 in [20, 1200] log identifiable;
+    parameter initial_stretch : one = 1.016 in [1, 1.20];
+    parameter fiber_x : one = 1 in [-1, 1];
+    parameter fiber_y : one = 0 in [-1, 1];
+    parameter fiber_z : one = 0 in [-1, 1];
+    parameter numerical_viscosity : Pa*s = 25 in [0.1, 500] log;
+
+    model generic;
+    energy = c1 * (
+        exp((-2.0 / 3.0) * log(J())) * (
+            I1() / initial_stretch +
+            (pow(initial_stretch, 2) - 1 / initial_stretch) * (
+                pow(F(0, 0)*fiber_x + F(0, 1)*fiber_y + F(0, 2)*fiber_z, 2) +
+                pow(F(1, 0)*fiber_x + F(1, 1)*fiber_y + F(1, 2)*fiber_z, 2) +
+                pow(F(2, 0)*fiber_x + F(2, 1)*fiber_y + F(2, 2)*fiber_z, 2)
+            )
+        ) - 3
+    ) + 0.5 * bulk * pow(log(J()), 2) + fiber_scale * fiber_exp_linear(
+        initial_stretch * exp((-1.0 / 3.0) * log(J())) * sqrt(
+            pow(F(0, 0)*fiber_x + F(0, 1)*fiber_y + F(0, 2)*fiber_z, 2) +
+            pow(F(1, 0)*fiber_x + F(1, 1)*fiber_y + F(1, 2)*fiber_z, 2) +
+            pow(F(2, 0)*fiber_x + F(2, 1)*fiber_y + F(2, 2)*fiber_z, 2)
+        ), c3, c4, c5, lambda_max
+    );
+    dissipation = 0.5 * numerical_viscosity * (
+        pow(Fdot(0, 0), 2) + pow(Fdot(1, 1), 2) + pow(Fdot(2, 2), 2) +
+        0.5 * pow(Fdot(0, 1) + Fdot(1, 0), 2) +
+        0.5 * pow(Fdot(0, 2) + Fdot(2, 0), 2) +
+        0.5 * pow(Fdot(1, 2) + Fdot(2, 1), 2)
+    );
+    valid = J() - 0.50;
+    supports fem;
+    interface {
+        static_friction = 0.05;
+        dynamic_friction = 0.03;
+        restitution = 0.0;
+        adhesion = 0.0;
+    }
+    limits {
+        minimum_J = 0.50;
+        maximum_J = 1.75;
+        maximum_stress = 5e8;
+        maximum_energy_density = 2e8;
+    }
+}

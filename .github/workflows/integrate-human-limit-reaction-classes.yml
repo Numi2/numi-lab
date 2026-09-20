@@ -1,0 +1,177 @@
+name: Integrate Human limit reaction classification
+on:
+  push:
+    branches: [human-native-runtime-20260915]
+    paths: [.github/workflows/integrate-human-limit-reaction-classes.yml]
+permissions:
+  contents: write
+concurrency:
+  group: integrate-human-limit-reaction-classes
+  cancel-in-progress: false
+jobs:
+  integrate:
+    runs-on: macos-26
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply exact equilibrium diagnostics patch
+        shell: python
+        run: |
+          import base64, hashlib, pathlib, subprocess, zlib
+          encoded = (
+            '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'
+          )
+          patch = zlib.decompress(base64.b64decode(encoded, validate=True))
+          assert len(patch) == 6655
+          assert hashlib.sha256(patch).hexdigest() == 'cee1def5367f01b46d655bc013ea206577d8e1a012b86b74a1d8134abff89707'
+          subprocess.run(['git', 'apply', '--check', '-'], input=patch, check=True)
+          subprocess.run(['git', 'apply', '--index', '-'], input=patch, check=True)
+
+          path = pathlib.Path('apps/numilab_human_myosim_visual_probe.mm')
+          text = path.read_text(encoding='utf-8')
+          def replace_once(old, new, label):
+              global text
+              count = text.count(old)
+              if count != 1:
+                  raise RuntimeError(f'{label}: expected one anchor, found {count}')
+              text = text.replace(old, new, 1)
+
+          replace_once(
+              '    std::uint32_t activePositionLimitCount = 0u;\n    std::uint32_t acceptedPoseSteps = 0u;\n',
+              '    std::uint32_t activePositionLimitCount = 0u;\n'
+              '    std::uint32_t activeStructuralLockCount = 0u;\n'
+              '    std::uint32_t activeFiniteRangePositionLimitCount = 0u;\n'
+              '    std::uint32_t maximumStructuralLockReactionDof = MR_INVALID_INDEX;\n'
+              '    std::uint32_t maximumFiniteRangePositionLimitReactionDof = MR_INVALID_INDEX;\n'
+              '    std::uint32_t acceptedPoseSteps = 0u;\n',
+              'compiled activation counts')
+          replace_once(
+              '    double maximumLimitReaction = 0.0;\n    double positionLimitKktResidual = 0.0;\n',
+              '    double maximumLimitReaction = 0.0;\n'
+              '    double maximumStructuralLockReaction = 0.0;\n'
+              '    double maximumFiniteRangePositionLimitReaction = 0.0;\n'
+              '    double positionLimitKktResidual = 0.0;\n',
+              'compiled activation reactions')
+          replace_once(
+              '    result.activePositionLimitCount = diagnostics.activePositionLimitCount;\n    result.acceptedPoseSteps = diagnostics.acceptedPoseSteps;\n',
+              '    result.activePositionLimitCount = diagnostics.activePositionLimitCount;\n'
+              '    result.activeStructuralLockCount = diagnostics.activeStructuralLockCount;\n'
+              '    result.activeFiniteRangePositionLimitCount =\n'
+              '        diagnostics.activeFiniteRangePositionLimitCount;\n'
+              '    result.maximumStructuralLockReactionDof =\n'
+              '        diagnostics.maximumStructuralLockReactionDof;\n'
+              '    result.maximumFiniteRangePositionLimitReactionDof =\n'
+              '        diagnostics.maximumFiniteRangePositionLimitReactionDof;\n'
+              '    result.acceptedPoseSteps = diagnostics.acceptedPoseSteps;\n',
+              'compiled activation count assignment')
+          replace_once(
+              '    result.maximumLimitReaction = diagnostics.maximumPositionLimitReaction;\n    result.positionLimitKktResidual = diagnostics.positionLimitKktResidual;\n',
+              '    result.maximumLimitReaction = diagnostics.maximumPositionLimitReaction;\n'
+              '    result.maximumStructuralLockReaction =\n'
+              '        diagnostics.maximumStructuralLockReaction;\n'
+              '    result.maximumFiniteRangePositionLimitReaction =\n'
+              '        diagnostics.maximumFiniteRangePositionLimitReaction;\n'
+              '    result.positionLimitKktResidual = diagnostics.positionLimitKktResidual;\n',
+              'compiled activation reaction assignment')
+
+          replace_once(
+              '    std::uint32_t compiledActivePositionLimitCount = 0u;\n    std::uint32_t compiledAcceptedPoseSteps = 0u;\n',
+              '    std::uint32_t compiledActivePositionLimitCount = 0u;\n'
+              '    std::uint32_t compiledActiveStructuralLockCount = 0u;\n'
+              '    std::uint32_t compiledActiveFiniteRangePositionLimitCount = 0u;\n'
+              '    std::uint32_t compiledMaximumStructuralLockReactionDof = MR_INVALID_INDEX;\n'
+              '    std::uint32_t compiledMaximumFiniteRangePositionLimitReactionDof = MR_INVALID_INDEX;\n'
+              '    std::uint32_t compiledAcceptedPoseSteps = 0u;\n',
+              'persistent result counts')
+          replace_once(
+              '    double compiledMaximumLimitReaction = 0.0;\n    std::uint32_t compiledSupportContactCount = 0u;\n',
+              '    double compiledMaximumLimitReaction = 0.0;\n'
+              '    double compiledMaximumStructuralLockReaction = 0.0;\n'
+              '    double compiledMaximumFiniteRangePositionLimitReaction = 0.0;\n'
+              '    std::uint32_t compiledSupportContactCount = 0u;\n',
+              'persistent result reactions')
+          replace_once(
+              '    result.compiledActivePositionLimitCount =\n        compiledActivation.activePositionLimitCount;\n    result.compiledAcceptedPoseSteps = compiledActivation.acceptedPoseSteps;\n',
+              '    result.compiledActivePositionLimitCount =\n'
+              '        compiledActivation.activePositionLimitCount;\n'
+              '    result.compiledActiveStructuralLockCount =\n'
+              '        compiledActivation.activeStructuralLockCount;\n'
+              '    result.compiledActiveFiniteRangePositionLimitCount =\n'
+              '        compiledActivation.activeFiniteRangePositionLimitCount;\n'
+              '    result.compiledMaximumStructuralLockReactionDof =\n'
+              '        compiledActivation.maximumStructuralLockReactionDof;\n'
+              '    result.compiledMaximumFiniteRangePositionLimitReactionDof =\n'
+              '        compiledActivation.maximumFiniteRangePositionLimitReactionDof;\n'
+              '    result.compiledAcceptedPoseSteps = compiledActivation.acceptedPoseSteps;\n',
+              'persistent result count assignment')
+          replace_once(
+              '    result.compiledMaximumLimitReaction =\n        compiledActivation.maximumLimitReaction;\n    result.compiledSupportContactCount =\n',
+              '    result.compiledMaximumLimitReaction =\n'
+              '        compiledActivation.maximumLimitReaction;\n'
+              '    result.compiledMaximumStructuralLockReaction =\n'
+              '        compiledActivation.maximumStructuralLockReaction;\n'
+              '    result.compiledMaximumFiniteRangePositionLimitReaction =\n'
+              '        compiledActivation.maximumFiniteRangePositionLimitReaction;\n'
+              '    result.compiledSupportContactCount =\n',
+              'persistent result reaction assignment')
+          replace_once(
+              '                      << " compiled_stand_active_limits=" << (muscleDrivenState.has_value()\n                              ? muscleDrivenState->compiledActivePositionLimitCount : 0u)\n                      << " compiled_stand_pose_steps="',
+              '                      << " compiled_stand_active_limits=" << (muscleDrivenState.has_value()\n'
+              '                              ? muscleDrivenState->compiledActivePositionLimitCount : 0u)\n'
+              '                      << " compiled_stand_active_structural_locks=" << (muscleDrivenState.has_value()\n'
+              '                              ? muscleDrivenState->compiledActiveStructuralLockCount : 0u)\n'
+              '                      << " compiled_stand_active_finite_range_limits=" << (muscleDrivenState.has_value()\n'
+              '                              ? muscleDrivenState->compiledActiveFiniteRangePositionLimitCount : 0u)\n'
+              '                      << " compiled_stand_pose_steps="',
+              'summary limit counts')
+          replace_once(
+              '                      << " compiled_stand_max_limit_reaction=" << (muscleDrivenState.has_value()\n                              ? muscleDrivenState->compiledMaximumLimitReaction : 0.0)\n                      << " stand_joint_equalities="',
+              '                      << " compiled_stand_max_limit_reaction=" << (muscleDrivenState.has_value()\n'
+              '                              ? muscleDrivenState->compiledMaximumLimitReaction : 0.0)\n'
+              '                      << " compiled_stand_max_structural_lock_reaction=" << (muscleDrivenState.has_value()\n'
+              '                              ? muscleDrivenState->compiledMaximumStructuralLockReaction : 0.0)\n'
+              '                      << " compiled_stand_max_structural_lock_reaction_dof=" << (muscleDrivenState.has_value()\n'
+              '                              ? muscleDrivenState->compiledMaximumStructuralLockReactionDof : MR_INVALID_INDEX)\n'
+              '                      << " compiled_stand_max_finite_range_limit_reaction=" << (muscleDrivenState.has_value()\n'
+              '                              ? muscleDrivenState->compiledMaximumFiniteRangePositionLimitReaction : 0.0)\n'
+              '                      << " compiled_stand_max_finite_range_limit_reaction_dof=" << (muscleDrivenState.has_value()\n'
+              '                              ? muscleDrivenState->compiledMaximumFiniteRangePositionLimitReactionDof : MR_INVALID_INDEX)\n'
+              '                      << " stand_joint_equalities="',
+              'summary limit reactions')
+          path.write_text(text, encoding='utf-8')
+          subprocess.run(['git', 'add', '--', str(path)], check=True)
+          subprocess.run(['git', 'diff', '--cached', '--check'], check=True)
+      - name: Build and test the numerical owner
+        run: |
+          set -euo pipefail
+          cat > /tmp/numi-metal-toolchain-probe.metal <<'METAL'
+          #include <metal_stdlib>
+          using namespace metal;
+          kernel void numi_toolchain_probe(device float* value [[buffer(0)]]) {
+              if (value != nullptr) value[0] = value[0];
+          }
+          METAL
+          if ! xcrun -sdk macosx metal -std=metal4.0 -c /tmp/numi-metal-toolchain-probe.metal -o /tmp/numi-metal-toolchain-probe.air >/tmp/metal-probe.txt 2>&1; then
+              xcodebuild -downloadComponent MetalToolchain
+          fi
+          cmake -S . -B BuildHuman -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
+          cmake --build BuildHuman --target metalrobo_numi_human_static_support_test metalrobo_numilab_human_myosim_visual_probe --parallel 3
+          ctest --test-dir BuildHuman -R '^numi_human_static_support$' --output-on-failure
+          python3 tools/check_human_host_syntax.py
+      - name: Publish classified limit diagnostics
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'Separate structural locks from finite-range Human stops'
+          git push origin HEAD:refs/heads/human-native-runtime-20260915
+          git rev-parse HEAD > human-limit-reaction-classification-revision.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: human-limit-reaction-classification
+          path: human-limit-reaction-classification-revision.txt
+          retention-days: 14
+          if-no-files-found: warn

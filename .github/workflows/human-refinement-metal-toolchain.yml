@@ -1,0 +1,167 @@
+name: Human ABI-8 common-duration refinement
+on:
+  push:
+    branches: [human-native-runtime-20260915]
+    paths: [.github/workflows/human-refinement-metal-toolchain.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: human-abi8-refinement-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  native-release:
+    runs-on: macos-26
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {name: 100us, dt: '0.0001', steps: 64}
+          - {name: 50us, dt: '0.00005', steps: 128}
+          - {name: 25us, dt: '0.000025', steps: 256}
+          - {name: 12p5us, dt: '0.0000125', steps: 512}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: Numi2/numilab-human
+          ref: bbf07157d6cc57265cfa401b8f1fafeeec61b3c9
+          path: human-inputs
+          sparse-checkout: |
+            .numi/commands
+            Docs/media/native-runtime-source-package-20260915
+          persist-credentials: false
+      - name: Verify or install the optional Metal toolchain
+        run: |
+          set -euo pipefail
+          mkdir -p human-release-evidence
+          cat > /tmp/numi-metal-toolchain-probe.metal <<'METAL'
+          #include <metal_stdlib>
+          using namespace metal;
+          kernel void numi_toolchain_probe(device float* value [[buffer(0)]]) {
+              if (value != nullptr) value[0] = value[0];
+          }
+          METAL
+          if ! xcrun -sdk macosx metal -std=metal4.0 -c /tmp/numi-metal-toolchain-probe.metal -o /tmp/numi-metal-toolchain-probe.air > human-release-evidence/metal-toolchain-initial.txt 2>&1; then
+              xcodebuild -downloadComponent MetalToolchain 2>&1 | tee human-release-evidence/metal-toolchain-download.txt
+          fi
+          xcrun -sdk macosx metal -std=metal4.0 -c /tmp/numi-metal-toolchain-probe.metal -o /tmp/numi-metal-toolchain-probe.air 2>&1 | tee human-release-evidence/metal-toolchain-final.txt
+          xcrun -sdk macosx metallib /tmp/numi-metal-toolchain-probe.air -o /tmp/numi-metal-toolchain-probe.metallib
+      - name: Record exact source and build the owning Human target
+        run: |
+          set -euo pipefail
+          git rev-parse HEAD > human-release-evidence/native-revision.txt
+          git -C human-inputs rev-parse HEAD > human-release-evidence/input-revision.txt
+          sw_vers > human-release-evidence/machine.txt
+          xcodebuild -version >> human-release-evidence/machine.txt
+          python3 tools/check_human_mechanics_mode.py
+          cmake -S . -B BuildHuman -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF 2>&1 | tee human-release-evidence/configure.txt
+          cmake --build BuildHuman --target metalrobo_numilab_human_myosim_visual_probe --parallel 3 2>&1 | tee human-release-evidence/build.txt
+      - name: Execute the canonical unassisted common-duration case
+        shell: python
+        env:
+          CASE_NAME: ${{ matrix.name }}
+          CASE_DT: ${{ matrix.dt }}
+          CASE_STEPS: ${{ matrix.steps }}
+        run: |
+          import hashlib, json, os, pathlib, shlex, signal, subprocess, time
+          root=pathlib.Path.cwd()
+          output=root/'human-release-evidence'
+          inputs=root/'human-inputs'
+          published=json.loads((inputs/'Docs/media/native-runtime-source-package-20260915/source-package-receipt-v1.json').read_text())
+          def digest(path):
+              h=hashlib.sha256()
+              with path.open('rb') as stream:
+                  for block in iter(lambda:stream.read(1024*1024),b''): h.update(block)
+              return h.hexdigest()
+          payloads={name:inputs/value['path'] for name,value in published['inputs'].items()}
+          for name,path in payloads.items():
+              if digest(path)!=published['inputs'][name]['sha256']:
+                  raise RuntimeError('Source payload changed: '+name)
+          wrapper=inputs/'.numi/commands/human'
+          binary=root/'BuildHuman/bin/metalrobo_numilab_human_myosim_visual_probe'
+          files={**payloads,'launcher':wrapper,'binary':binary}
+          for path in sorted((root/'BuildHuman').rglob('*.metallib'))+sorted((root/'BuildHuman/lib').glob('*.dylib')):
+              files[str(path.relative_to(root))]=path
+          artifacts={name:{'path':str(path),'sha256':digest(path)} for name,path in files.items()}
+          record={'schema':'numi.human.hosted-bounded-release.v2',
+              'native_commit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
+              'input_commit':subprocess.check_output(['git','-C',str(inputs),'rev-parse','HEAD'],text=True).strip(),
+              'execution_environment':'GitHub macos-26; actual device reported by native executable',
+              'initialization':'canonical_numi_human_stand_authored_support_stance',
+              'rendering_requested':False,'artifacts':artifacts,'cases':[],
+              'full_human_qualification':False,'force_convergence':False}
+          def publish():
+              temporary=output/'execution.json.tmp'
+              temporary.write_text(json.dumps(record,indent=2,allow_nan=False)+'\n')
+              temporary.replace(output/'execution.json')
+          name=os.environ['CASE_NAME'];dt=os.environ['CASE_DT'];steps=int(os.environ['CASE_STEPS'])
+          ns=round(float(dt)*1e9)
+          if ns*steps!=6400000: raise RuntimeError('Cases do not share exactly 6.4 ms')
+          directory=output/name;directory.mkdir()
+          command=[str(wrapper),'stand',str(payloads['rigid'].parent),
+              str(directory/'unused-in-mechanics-mode.nhbones'),str(payloads['tendon']),
+              str(payloads['support_contact']),str(directory/'frames'),
+              '--mechanics-only','--steps',str(steps),'--timestep',dt]
+          case={'name':name,'command':command,'timestep_nanoseconds':ns,'steps':steps,
+              'status':'running','timeout_seconds':1800}
+          record['cases'].append(case);publish()
+          start=time.monotonic()
+          environment={**os.environ,'NUMI_LAB_ROOT':str(root),'NUMI_BUILD_DIR':str(root/'BuildHuman'),'MTL_DEBUG_LAYER':'1'}
+          with (directory/'stdout.txt').open('w') as out,(directory/'stderr.txt').open('w') as err:
+              process=subprocess.Popen(command,stdout=out,stderr=err,env=environment,start_new_session=True)
+              try: code=process.wait(timeout=case['timeout_seconds'])
+              except subprocess.TimeoutExpired:
+                  with (directory/'timeout-profile.txt').open('w') as profile:
+                      try:
+                          sampled=subprocess.run(['/usr/bin/sample',str(process.pid),'3','1'],stdout=profile,stderr=subprocess.STDOUT,timeout=12)
+                          case['timeout_profile_exit_code']=sampled.returncode
+                      except (OSError,subprocess.TimeoutExpired) as exc: profile.write(str(exc))
+                  try: os.killpg(process.pid,signal.SIGKILL)
+                  except ProcessLookupError: pass
+                  process.wait();code=None
+          case.update(exit_code=code,wall_seconds=time.monotonic()-start,
+              status='process_completed' if code==0 else 'timeout' if code is None else 'failed')
+          for key in ['stdout','stderr']: case[key+'_sha256']=digest(directory/(key+'.txt'))
+          lines=(directory/'stdout.txt').read_text().splitlines()
+          summaries=[line for line in lines if line.startswith('myosim_articulated_mechanics=')]
+          metrics={}
+          if len(summaries)==1:
+              for token in shlex.split(summaries[0]):
+                  if '=' in token:
+                      key,value=token.split('=',1)
+                      if key in metrics: raise RuntimeError('Duplicate native metric: '+key)
+                      metrics[key]=value
+          case['metrics']=metrics
+          required={
+              'myosim_articulated_mechanics':'ok','rendering_performed':'false',
+              'visual_coverage_qualified':'false','core_bodies':'157',
+              'persistent_metal_horizon':'true','persistent_completed_steps':str(steps),
+              'persistent_root_assistance':'none','stand_deterministic_replay':'bitwise',
+              'persistent_passive_joint_law':'current_state_linear_backward_euler',
+              'persistent_max_acceleration_semantics':'pre_projection_total_delta_v_divided_by_timestep'}
+          case['execution_contract_matched']=all(metrics.get(key)==value for key,value in required.items())
+          stage_keys=['persistent_max_free_acceleration','persistent_max_free_acceleration_dof',
+              'persistent_max_constraint_delta_v','persistent_max_constraint_delta_v_dof',
+              'persistent_max_pre_projection_delta_v','persistent_max_pre_projection_delta_v_dof',
+              'persistent_max_published_delta_v','persistent_max_published_delta_v_dof']
+          case['velocity_stage_diagnostics_complete']=all(key in metrics for key in stage_keys)
+          case['compiled_static_balance']=metrics.get('compiled_stand_balanced')=='true'
+          case['source_artifacts_unchanged']=all(digest(path)==artifacts[key]['sha256'] for key,path in files.items())
+          publish()
+          print(name,case['status'],'static_balance=',case['compiled_static_balance'],flush=True)
+          if code!=0 or not case['execution_contract_matched'] or not case['velocity_stage_diagnostics_complete'] or not case['source_artifacts_unchanged']:
+              raise RuntimeError('Canonical Human execution incomplete; raw evidence retained')
+          if not case['compiled_static_balance']:
+              raise RuntimeError('Initial equilibrium remains unbalanced; no standing claim')
+          record['status']='execution_complete_not_force_or_behavior_qualification';publish()
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: human-abi8-refinement-${{ matrix.name }}
+          path: human-release-evidence
+          retention-days: 14
+          if-no-files-found: error

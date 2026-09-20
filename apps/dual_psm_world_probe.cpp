@@ -34,7 +34,8 @@ int main() {
                 world.model.world.nq == 30u &&
                 world.model.world.nv == 28u &&
                 world.model.bodies.size() == 18u &&
-                world.model.shapes.size() == 40u,
+                world.model.shapes.size() ==
+                    2u * metalrobo::kSurgicalPSMShapeCount,
             "dual PSM packed dimensions changed"
         );
         require(
@@ -154,12 +155,33 @@ int main() {
                 surgical.threadModel.restPositions.size() == 9u &&
                 surgical.threadState.positions.front() ==
                     surgical.metadata.swageAnchorWorld &&
+                surgical.threadContactMaterial.friction.x == 0.18f &&
+                surgical.threadContactMaterial.friction.y == 0.12f &&
                 surgical.attachments[0].targetPosition ==
                     surgical.metadata.swageAnchorWorld &&
+                surgical.attachments.size() == 1u &&
+                surgical.attachments[0].compliance == 0.0 &&
+                surgical.metadata.hardSwagedThreadNodeCount == 1u &&
+                surgical.metadata.threadBoundaryNodeCount == 2u &&
                 surgical.rigidBindings[0].bodyIndex ==
+                    surgical.metadata.needleSceneBodyIndex &&
+                surgical.tangentBindings.size() == 1u &&
+                surgical.tangentBindings[0].edgeIndex == 0u &&
+                surgical.tangentBindings[0].bodyIndex ==
                     surgical.metadata.needleSceneBodyIndex &&
                 surgical.rigidBindings[0].localAnchor ==
                     surgical.metadata.swageAnchorLocal &&
+                surgical.tangentBindings[0].localTangent ==
+                    surgicalConfig.threadExitDirectionLocal &&
+                surgical.tangentBindings[0].complianceRadPerNm == 0.0 &&
+                surgical.metadata.swageTangentComplianceRadPerNm == 0.0 &&
+                surgical.twistBindings.size() == 1u &&
+                surgical.twistBindings[0].edgeIndex == 0u &&
+                surgical.twistBindings[0].bodyIndex ==
+                    surgical.metadata.needleSceneBodyIndex &&
+                surgical.twistBindings[0].localMaterialDirector ==
+                    surgical.metadata.swageMaterialDirectorLocal &&
+                surgical.twistBindings[0].complianceRadPerNm == 0.0 &&
                 surgical.needleState.flagsAndIndices[0] ==
                     MR_MOTION_DYNAMIC &&
                 surgical.needleState.
@@ -186,7 +208,15 @@ int main() {
             << surgical.needle.rigid.shapes.size()
             << " thread_nodes="
             << surgical.threadModel.restPositions.size()
-            << " swage_binding=geometry_owned"
+            << " swage_bindings="
+            << surgical.attachments.size() +
+                   surgical.tangentBindings.size() +
+                   surgical.twistBindings.size()
+            << " swage_binding=hard_root_two_axis_tangent_material_frame"
+            << " tangent_compliance_rad_per_nm="
+            << surgical.tangentBindings[0].complianceRadPerNm
+            << " torsional_compliance_rad_per_nm="
+            << surgical.twistBindings[0].complianceRadPerNm
             << " hidden_grasp=no"
             << " transactional=yes\n";
         return 0;

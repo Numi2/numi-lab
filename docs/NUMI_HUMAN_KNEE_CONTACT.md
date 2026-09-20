@@ -1,0 +1,352 @@
+# NumiLab Human exact knee articular contact
+
+NumiLab now has a reusable, nonvisual small-deformation contact operator for
+the seven cartilage/meniscus surface pairs authored in the bilateral
+`NHKNEE1` Open Knee(s) oks003 payloads. It is intentionally separate from the
+payload's twelve ligament/tendon collision pairs.
+
+The operator builds exact source-triangle correspondences from the named
+surfaces and gives every slave node a tributary surface area. ABI 10 also
+records the opposite vertex across each manifold edge. At runtime it searches
+the source triangle and its at-most three immediate neighbours in their current
+rigid pose. Face, edge, and vertex regions therefore use the current
+closest-point direction, oriented by the stored anatomical reference normal.
+The compressive traction is scattered to the selected current triangle with
+the closest point's barycentric weights. The result is frictionless and
+tensile-free; every sample adds a collinear equal-and-opposite force pair and
+preserves world-origin moment balance.
+
+The pressure-overclosure law is
+
+```text
+k_i = (1 - nu_i) E_i / ((1 + nu_i) (1 - 2 nu_i) t_i)
+k_eff = 1 / (1 / k_master + 1 / k_slave)
+p = k_eff max(0, closure)
+```
+
+Cartilage uses the Open Knee/KneeHub elastic-foundation reference values
+`E=12 MPa`, `nu=0.45`, and `t=3 mm`. Meniscus normal compression uses the
+published radial/axial `E=20 MPa`, `nu=0.3`; thickness is measured from the
+actual specimen mesh as `2 volume / (top contact area + bottom contact area)`.
+The Open Knee(s) generation-2 models use deformable, nearly incompressible
+cartilage and transversely isotropic menisci, so this efficient elastic
+foundation remains a reduced v1 contact law rather than a replacement for a
+fully coupled continuum model.
+
+Primary source context:
+
+- [Open Knee(s) specimen-specific model paper](https://pmc.ncbi.nlm.nih.gov/articles/PMC9832097/)
+- [KneeHub/Open Knee documentation](https://simtk.org/docman/view.php/1061/11501/KneeHub_OKS.pdf)
+
+## M4 Pro nonvisual qualification
+
+The left and sagittally mirrored-right payloads each passed a 65-step
+load/unload ramp across 69,701 exact contact samples and seven source pairs.
+The 50 micrometre prescribed closure is a small-strain constitutive exercise;
+it is applied to all registered pairs separately and is not a physiological
+whole-knee load case.
+
+Both sides passed:
+
+- exact seven-pair admission and non-empty coverage per pair;
+- compressive-only pressure and monotonic loading;
+- force and moment balance near machine precision;
+- `U = 1/2 F delta` elastic work/energy identity;
+- bitwise peak replay; and
+- exact restoration of the unloaded zero-force state.
+
+Receipts:
+
+- [`left-m4-pro.json`](media/numi-human-knee-contact-preflight-v1/left-m4-pro.json)
+- [`right-mirrored-m4-pro.json`](media/numi-human-knee-contact-preflight-v1/right-mirrored-m4-pro.json)
+
+## M4 Pro live Human one-step qualification
+
+The live adapter cooks every one of the same 69,701 exact correspondences into
+the Human transaction. Of those, 57,930 cross femur/tibia/patella rigid-body
+ownership and generate balanced articulated wrenches. The remaining 11,771
+are meniscus/cartilage interfaces owned by the same tibia body: they stay in
+the immutable anatomy fingerprint and audit ledger, but cannot add a duplicate
+rigid wrench until they have a relative deformable owner.
+
+Both sides ran with the active four-muscle quadriceps/QAT/PTL chain, passive
+ACL/PCL/MCL/LCL/QAT/PTL Matter FEM, source foot support, gravity, and joint
+equalities in the same borrowed Apple Metal command buffer. The left accepted
+1,077 closed samples, `0.000485220 m^2` active area, `0.0310359 N` normal
+force, and `371.812 Pa` peak pressure. The mirrored right accepted 8,816
+closed samples, `0.00387656 m^2`, `0.969647 N`, and `880.507 Pa`.
+
+The left force/moment residuals were `7.68e-9 N` and `7.48e-9 N m`; the right
+residuals were `5.96e-7 N` and `7.18e-7 N m`. Both retained positive FEM
+deformation Jacobians, bitwise replay, rejected-step rollback, and the prior
+approximately 2 kN extensor-chain force transfer.
+
+The current-triangle owner was then checked on the left Human after the ABI 9
+change. The accepted one-step transaction retained 600 closed samples,
+`0.000267622 m^2` active area, `0.0146814 N` normal force, and `230.508 Pa`
+peak pressure. Its force and moment residuals were `2.51e-9 N` and
+`2.33e-10 N m`; FEM Jacobians remained `0.999760..1.000261`, replay was
+bitwise, and rejected-step rollback passed. A deliberately rejected
+plane-interior-only implementation admitted only 11 samples and is not
+qualification evidence.
+
+The same ABI 9 owner then passed a two-step `10 microrad` flexion trajectory.
+The accepted ledger retained 25,293 to 30,987 closed samples and 4.632 to
+16.431 N normal force. Trajectory maxima were 2,773.98 Pa pressure,
+`1.59182e-6 J` stored energy, `1.02716e-4` layer-normal strain, and
+`3.65661e-7 m` closure. Maximum force and moment residuals were
+`2.16047e-5 N` and `2.46338e-6 N m`; deformation Jacobians stayed in
+`0.999426..1.000620`, replay was bitwise, and rollback passed. This is a
+bounded short trajectory, not sustained or physiological flexion. A requested
+two-step 1 mrad run under ABI 9 failed closed at the projected-anchor
+compatibility gate before solving. That historical rejection is retained as a
+diagnostic; the moving-enthesis section below records the replacement and its
+accepted one-step 1 mrad result.
+
+ABI 9 receipts:
+
+- [`qualification.json`](media/numi-human-knee-current-triangle-v1/qualification.json)
+- [`left two-step M4 Pro transcript`](media/numi-human-knee-current-triangle-v1/left-two-step-m4-pro.log)
+- [`CPU regression`](media/numi-human-knee-current-triangle-v1/cpu-regression.log)
+- [`Metal transaction fixture`](media/numi-human-knee-current-triangle-v1/metal-fixture.log)
+- [`whole-body gate report`](media/numi-human-knee-current-triangle-v1/whole-body-gate.json)
+- [front](media/numi-human-knee-current-triangle-v1/left-two-step-front.png),
+  [oblique](media/numi-human-knee-current-triangle-v1/left-two-step-oblique.png),
+  [side](media/numi-human-knee-current-triangle-v1/left-two-step-side.png), and
+  [rear](media/numi-human-knee-current-triangle-v1/left-two-step-rear.png)
+
+## ABI 10 one-ring edge-crossing repair
+
+ABI 10 replaces the single-facet runtime query with a bounded four-candidate
+query: the original source triangle plus the triangle across each of its three
+manifold edges. The CPU cooker rejects non-manifold source surfaces and stores
+each neighbour's opposite vertex. Metal chooses the nearest current candidate,
+uses that candidate's barycentric weights for force scatter, and retains the
+anatomical reference normal solely to orient the live geometric normal. This
+runs in the existing borrowed Human command buffer and adds neither a host
+per-step search nor a second solver.
+
+Both exact payloads passed the 65-step preflight with every one of 69,701
+samples owning at least one adjacent candidate. The left surface contributed
+201,898 neighbour candidates and the mirrored right 201,658. A dedicated M4
+Pro fixture placed the slave beyond the base triangle and inside its neighbour;
+the selected neighbour produced `0.9999 N`, `9999 Pa`, zero force/moment
+residual, bitwise replay, and verified rollback. Invalid adjacency flags fail
+closed.
+
+The live left Human then passed the same two-step `10 microrad` comparison.
+ABI 10 retained 25,310 to 30,989 closed samples and 4.641 to 16.441 N normal
+force, versus ABI 9's 25,293 to 30,987 and 4.632 to 16.431 N. Maximum pressure
+was `2773.98 Pa`; force and moment residuals stayed below `2.31e-5 N` and
+`5.79e-6 N m`; deformation Jacobians stayed in `0.999426..1.000620`; replay
+and rollback passed. The four reviewed views place the fibula laterally, the
+patella anteriorly in the trochlear region, and show a continuous
+quadriceps-patella-patellar-tendon path. They are presentation checks, not
+mechanical promotion evidence.
+
+ABI 10 receipts:
+
+- [`qualification.json`](media/numi-human-knee-one-ring-v1/qualification.json)
+- [`left two-step M4 Pro transcript`](media/numi-human-knee-one-ring-v1/left-two-step-run.log)
+- [`left preflight`](media/numi-human-knee-one-ring-v1/left-preflight.log) and
+  [`mirrored-right preflight`](media/numi-human-knee-one-ring-v1/right-preflight.log)
+- [`CPU regression`](media/numi-human-knee-one-ring-v1/cpu-regression.log)
+- [`Metal cross-edge fixture`](media/numi-human-knee-one-ring-v1/metal-fixture.log)
+- [`whole-body gate report`](media/numi-human-knee-one-ring-v1/whole-body-gate.json)
+- [front](media/numi-human-knee-one-ring-v1/left-two-step-front.png),
+  [oblique](media/numi-human-knee-one-ring-v1/left-two-step-oblique.png),
+  [side](media/numi-human-knee-one-ring-v1/left-two-step-side.png), and
+  [rear](media/numi-human-knee-one-ring-v1/left-two-step-rear.png)
+
+## Moving-enthesis initial continuum map
+
+The prior live path initialized every exact knee tissue through the femur's
+rigid transform even when fixed nodes belonged to the tibia or patella. At
+`1 mrad` that produced incompatible attachment targets and correctly failed
+before solving. The replacement builds a geodesic distance field from every
+named bone-owned enthesis on each tetrahedral edge graph. Fixed nodes follow
+their owning body exactly; free nodes use normalized inverse-square distance
+weights to blend the owner transforms. A single-owner tissue therefore moves
+rigidly, while a two-bone ligament or tendon receives a smooth topology-aware
+initial field between its entheses.
+
+The core operator fails closed on unknown or duplicate owners, disconnected
+components, degenerate tetrahedra, non-finite data, and mapped Jacobians outside
+the configured positive range. The exact left six-region map has zero
+construction anchor residual and `J=0.9979996..1.0012733`. It feeds the existing
+Matter world and NHTENDON3 consumer; it adds no alternate dynamics owner,
+command buffer, or host per-step loop.
+
+The formerly rejected `1 mrad` case now passes one accepted `0.1 ms` M4 Pro
+step. The accepted 62,402-node, 264,442-tetrahedron state retained
+`J=0.999803..1.000216`; femur/tibia/patella attachment residuals were below
+`35 nm`; replay was bitwise and rollback verified. The active extensor chain
+transferred `2767.01 N` quadriceps and `2789.89 N` patellar-tendon resultants.
+The one-ring articular owner accepted 34,973 closed samples, `2966.64 N`,
+`384.21 kPa`, `1.373%` maximum layer-normal strain, and `50.65 um` maximum
+closure; its force and world-origin moment residuals were `0.00327 N` and
+`0.00368 N m`.
+
+Front, oblique, side, and rear review retains a lateral fibula, an anterior
+patella in the trochlear region, and a continuous quadriceps-patella-patellar-
+tendon path. This is a one-step initialization/force-transfer qualification,
+not physiological patellar tracking.
+
+Receipts:
+
+- [`qualification.json`](media/numi-human-knee-moving-enthesis-v1/qualification.json)
+- [`M4 Pro transcript`](media/numi-human-knee-moving-enthesis-v1/left-1mrad-one-step-m4-pro.log)
+- [`CPU regression`](media/numi-human-knee-moving-enthesis-v1/cpu-regression.log)
+- [`whole-body gate report`](media/numi-human-knee-moving-enthesis-v1/whole-body-gate.json)
+- [front](media/numi-human-knee-moving-enthesis-v1/left-1mrad-front.png),
+  [oblique](media/numi-human-knee-moving-enthesis-v1/left-1mrad-oblique.png),
+  [side](media/numi-human-knee-moving-enthesis-v1/left-1mrad-side.png), and
+  [rear](media/numi-human-knee-moving-enthesis-v1/left-1mrad-rear.png)
+
+Receipts and full transcripts:
+
+- [`left-m4-pro.json`](media/numi-human-knee-articular-live-v1/left-m4-pro.json)
+- [`right-mirrored-m4-pro.json`](media/numi-human-knee-articular-live-v1/right-mirrored-m4-pro.json)
+
+## M4 Pro accepted trajectory audit
+
+ABI 8 adds an anatomy-derived maximum layer-normal compliance to every sample
+and a fixed 4,096-step device audit ledger. The provisional contact record is
+committed into that ledger only after the enclosing Human stand status accepts
+the same step. Rejected and aborted transactions therefore cannot be counted as
+trajectory evidence; replay deterministically overwrites the same accepted
+step slot.
+
+The synthetic M4 Pro fixture measured `0.9999 N`, `9999 Pa`, `0.009999`
+maximum layer-normal strain, `0.0009999 m` closure, and `0.0004999 J` stored
+energy. Its deliberately rejected second step rolled Matter back and left the
+accepted history count at one; replay was bitwise.
+
+The exact left knee then passed a bounded two-step run. Both steps retained
+nonzero compression: the closed-sample range was `550..1077` and the normal
+force range was `0.0101987..0.0310359 N`. Trajectory maxima were `371.812 Pa`,
+`8.43778e-6` layer-normal strain, `4.90116e-8 m` closure, and `2.34765e-10 J`
+stored energy. Maximum force and world-origin moment residuals were
+`7.68e-9 N` and `7.48e-9 N m`; FEM deformation Jacobians stayed in
+`0.999302..1.000699`, replay was bitwise, and rejected-step rollback passed.
+
+Receipts:
+
+- [`m4-pro-fixture.json`](media/numi-human-knee-articular-history-v1/m4-pro-fixture.json)
+- [`left-two-step-m4-pro.json`](media/numi-human-knee-articular-history-v1/left-two-step-m4-pro.json)
+
+## Eight-state loaded Human qualification
+
+The left exact Open Knee(s) integration now passes eight accepted loaded Human
+states on Apple M4 Pro at `50 us` per state and `1 mrad` prescribed flexion.
+The run retains all six QAT/PTL/ACL/PCL/MCL/LCL source regions (`62,402` nodes,
+`264,442` tetrahedra), the four source quadriceps Hill-type actuators, five
+source-law passive axial elements, and all `69,701` one-ring articular samples.
+
+Across the accepted trajectory, closed contact remained between `34,972` and
+`34,978` samples and normal force remained between `2966.64` and `3045.35 N`.
+Maximum pressure was `394.09 kPa`, maximum layer-normal strain `1.4096%`, and
+maximum closure `51.95 um`. The continuum retained `J=0.98682..1.00707`; the
+patellar enthesis target residual remained below `31 nm`. The quadriceps,
+patellar QAT reaction, PTL resultant, patellar PTL reaction, and tibial PTL
+reaction were respectively `2767.93`, `2764.92`, `2790.82`, `2789.53`, and
+`2791.95 N`. Replay was bitwise and rejection rollback was verified.
+
+The original `100 us` continuation failed closed at LCL after two accepted
+states. Doubling the linear iteration budget did not repair it and was rejected
+as an inefficient non-solution. Halving the physical step while retaining the
+original 32-iteration budget completed all eight states. The focused adapter
+fixture also proves that a Matter nonlinear failure immediately rejects the
+owning Human transaction instead of letting the remaining horizon run.
+
+The [machine-readable receipt](media/numi-human-knee-sustained-v1/qualification.json),
+[accepted M4 Pro transcript](media/numi-human-knee-sustained-v1/left-8step-50us-m4-pro.log),
+and rejected convergence transcripts are retained together. This is bounded
+multi-state computational evidence over `0.4 ms`, not physiological-duration
+motion, right-side sustained qualification, subject-specific pressure
+validation, poroelasticity, or clinical validation.
+
+## Evidence boundary and next integration gate
+
+The prescribed 65-step CPU ramp remains `preflight`. Bilateral historical
+coverage and the ABI 10 one-ring topology pass, while the left one-ring owner
+has a bounded two-step live trajectory. Accepted contact wrenches enter
+femur/tibia/patella generalized force in the owning Human transaction. ABI 10
+repairs an immediate edge crossing, but does not search a second ring or the
+global current surface. Its explicit penalty is also not an implicit
+unilateral nonpenetration solve. Meniscus/cartilage pairs on the same rigid
+tibia still need a relative deformable owner. The right side is a mirror of
+oks003, not an independently segmented right specimen.
+
+The moving-enthesis map now permits a one-step `1 mrad` case without projected-
+anchor incompatibility. Promotion still requires a pose-continuation or
+stress-equilibrated prestrain treatment rather than silently making every
+requested pose a new stress-free continuum, a broader current-surface or
+bounded nonpenetration owner, relative deformable ownership for same-body
+meniscus interfaces, and sustained physiological flexion/compression with
+pressure, area, strain, energy, replay, rollback, and explicit failure criteria
+over time. The surrounding compiled whole-body state is also not balanced in
+this run and remains outside the knee qualification.
+
+## Shared Human/Matter transaction infrastructure
+
+The existing Numi Human tendon/FEM adapter now accepts optional internal FEM
+contact samples. Contact does not own a second adapter, command queue, commit,
+or external-force buffer. One Metal kernel evaluates closure from the current
+accepted FEM nodes and accumulates slave/master forces through a validated
+per-node incidence table after tendon traction assembly. Matter then solves
+the combined load, and the existing fixed-node reaction kernel returns the
+accepted cartilage/meniscus attachment reactions through the owning Human
+body Jacobians.
+
+The internal FEM-contact kernel remains an explicit fixed-reference penalty
+on the previously accepted deformable state. The articulated articular kernel
+is now different: it performs a current closest-point query on each paired
+triangle and its first-ring neighbours, then subtracts a `0.1 um` FP32 preload
+slop. Together they prove same-transaction force transfer, not a multi-ring or
+global current-surface search, an implicit contact solve, or unilateral
+nonpenetration.
+
+A fresh Apple M4 Pro one-tetrahedron fixture passed with one mechanical sample
+and one explicitly retained same-body sample:
+the slave moved `19.8344 um` in the repulsive direction, combined anchor
+reaction was `14.0519 N`, the combined NHTENDON/articular full-row result was
+`-12.4389`, a malformed contribution table failed initialization, peak replay
+was bitwise, and rejected-step rollback was verified. The machine-readable receipt is
+[`internal-contact-adapter-m4-pro.json`](media/numi-human-knee-contact-preflight-v1/internal-contact-adapter-m4-pro.json).
+
+This fixture proves transaction composition only. Bilateral anatomical
+promotion comes from the separate 69,701-sample live receipts above.
+
+## Reduced exact-surface articular wrench path
+
+A full-resolution 12-region experiment admitted the exact six articular
+volumes (194,729 total live nodes and 844,287 tetrahedra) and all 69,701
+contact samples, but did not finish one replay-qualified step inside a
+30-minute M4 Pro smoke bound. That path was rejected rather than promoted.
+
+ABI 8 therefore provides a reduced path consistent with the existing
+elastic-foundation law. Each cooked sample stores exact slave and closest
+master points in their owning bone frames, the master-frame normal, tributary
+area, reference separation, foundation stiffness, and the more compliant
+layer's normal-strain-per-pressure coefficient. Metal evaluates closure,
+reduces equal/opposite sample forces and moments to per-body wrenches, and
+scatters those wrenches through the existing articulated-body Jacobians. It
+uses the same borrowed command buffer, status, generalized-force arena,
+replay, and rollback boundary; it does not create a second solver or CPU loop.
+
+The M4 Pro two-body A/B fixture measured a `0.9999` generalized-force
+correction while the Matter FEM state remained bitwise identical to the
+no-mechanical-articular-contact run. An active sample mislabeled across the
+same body failed initialization; a correctly typed same-body sample was
+retained without generalized force. The audit measured `1.9998 N` body-force
+L1, `9999 Pa` pressure, and zero force/moment residual. ABI 8 additionally
+audits strain, closure, energy, and accepted trajectory history. Replay and
+rollback passed. The current receipt is
+[`m4-pro-fixture.json`](media/numi-human-knee-articular-history-v1/m4-pro-fixture.json).
+
+The bilateral cook, force/moment balance, and one-step pressure/area gates pass,
+and the left two-step history gate passes. Sustained loaded flexion remains
+open. Meniscus relative motion and
+fluid/poroelastic effects remain future continuum refinements rather than
+claims of this reduced v1 law.

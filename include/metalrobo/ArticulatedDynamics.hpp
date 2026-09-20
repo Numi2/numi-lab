@@ -42,6 +42,11 @@ struct ArticulatedDynamicsConfig {
     std::array<double, 3> gravity{0.0, 0.0, -9.81};
     double timestep = 1.0 / 1000.0;
     bool applyBodyDamping = true;
+    // Treat passive, non-drive DoF damping with the same one-step
+    // backward-Euler diagonal used by the persistent Human Metal solver.
+    // This is opt-in so the general continuous forward-dynamics reference
+    // keeps its existing explicit-force semantics.
+    bool implicitPassiveDofDamping = false;
     bool enforceBodySpeedLimits = false;
     ArticulatedIntegrator integrator =
         ArticulatedIntegrator::symplecticEuler;
@@ -99,6 +104,13 @@ struct ArticulatedBodyKinematics {
 struct ArticulatedPointQuery {
     std::uint32_t bodyIndex = 0u;
     std::array<double, 3> localPoint{};
+    // Positive radius selects the plane-facing sphere surface. Zero retains
+    // fixed material-point semantics. The Jacobian is the material velocity
+    // Jacobian, not the tangential derivative of the closest-point location.
+    double supportRadius = 0.0;
+    std::array<double, 3> supportPlaneNormal{0.0, 0.0, 1.0};
+    std::array<double, 3> supportRadii{};
+    std::array<double, 4> supportOrientation{};
 };
 
 struct ArticulatedPointKinematics {
@@ -116,10 +128,12 @@ struct ArticulatedPointKinematics {
 // coordinates relative to each body's COM (not its URDF link-frame origin).
 //
 // Supported production-independent reference topology is a tree with a fixed
-// or floating root and revolute, prismatic, continuous, or fixed joints. The
-// computation is FP64. The dense mass matrix is assembled by a world-coordinate
-// composite rigid-body recursion, while velocity/gravity bias is evaluated by
-// recursive Newton-Euler kinematics.
+// or floating root and revolute, prismatic, continuous, fixed, or immutable
+// OpenSim FunctionBased joints. The computation is FP64. The dense mass
+// matrix is assembled from analytic tree Jacobians, while velocity/gravity
+// bias is evaluated by recursive Newton-Euler kinematics. Generic O(n) Metal
+// ABA does not admit FunctionBased joints; MetalWorld separately admits the
+// bounded fixed-root source tree through its dense source-dynamics kernel.
 //
 // The following two queries expose that same analytic tree recursion to
 // constraint layers. Results are transactional. Point Jacobians are packed
@@ -154,6 +168,18 @@ computeArticulatedMassMatrix(
     std::uint32_t articulationIndex,
     std::span<const double> q,
     std::span<double> massMatrixRowMajor,
+    const ArticulatedDynamicsConfig& config = {}
+);
+
+// FP64 reference for device contact-response columns. rhs and response are
+// row-major [columnCount][nv], and FunctionBased source joints are retained.
+[[nodiscard]] ArticulatedDynamicsDiagnostics
+computeArticulatedInverseMassResponses(
+    const EngineModel& model,
+    std::uint32_t articulationIndex,
+    std::span<const double> q,
+    std::span<const double> rhsRowMajor,
+    std::span<double> responseRowMajor,
     const ArticulatedDynamicsConfig& config = {}
 );
 

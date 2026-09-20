@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 40u
+#define MR_TASK_PROGRAM_ABI_VERSION 41u
 
 #define MR_TASK_ACTUATOR_JOINT_POSITION 0u
 #define MR_TASK_ACTUATOR_JOINT_VELOCITY 1u
@@ -11,6 +11,10 @@
 #define MR_TASK_ACTUATOR_GRIPPER_POSITION 4u
 #define MR_TASK_ACTUATOR_ROTOR_MIXER 5u
 #define MR_TASK_ACTUATOR_BODY_WRENCH 6u
+// A normalized policy/task action drives exactly one source Millard muscle.
+// The mapping from ordered task actions to ordered source muscles is checked
+// by MetalWorld, where the immutable source program is available.
+#define MR_TASK_ACTUATOR_MILLARD_EXCITATION 7u
 #define MR_TASK_INTERACTION_CONTACT_FEATURE_COUNT 13u
 #define MR_TASK_MASKED_DEPTH_FEATURE_COUNT 24u
 

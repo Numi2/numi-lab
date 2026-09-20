@@ -666,6 +666,25 @@ EngineModelComposeDiagnostics composeEngineModels(
                 }
                 staged.joints.push_back(joint);
             }
+            for (const FunctionBasedJointProgram& sourceProgram :
+                 source.functionBasedJointPrograms) {
+                FunctionBasedJointProgram program = sourceProgram;
+                if (!checkedOffset(
+                        program.jointIndex,
+                        offsets.joint,
+                        program.jointIndex
+                    )) {
+                    return fail(
+                        std::move(diagnostics),
+                        EngineModelComposeStatus::capacityOverflow,
+                        "FunctionBased program rebase overflow",
+                        componentIndex
+                    );
+                }
+                staged.functionBasedJointPrograms.push_back(
+                    std::move(program)
+                );
+            }
             for (const MRDofPropertiesGPU& sourceDof :
                  source.dofs) {
                 MRDofPropertiesGPU dof = sourceDof;

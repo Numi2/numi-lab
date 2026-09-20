@@ -125,6 +125,15 @@ numi_find_mlx_python() {
 }
 
 numi_doctor() {
+    [ "$#" -le 1 ] || numi_die "doctor accepts at most one option; run 'numi doctor --help'"
+    case "${1:-}" in
+        "") ;;
+        --help|-h)
+            printf 'Usage: numi doctor\n\nVerify Apple/Metal, native runtimes, the robot catalog, and MLX readiness.\n'
+            return 0
+            ;;
+        *) numi_die "doctor does not accept arguments; run 'numi doctor --help'" ;;
+    esac
     numi_doctor_status=0
     printf 'Numi Lab doctor\n\n'
     printf 'Runtime root: %s\n' "$NUMI_LAB_ROOT"
@@ -166,6 +175,22 @@ numi_doctor() {
         fi
     done
 
+    if [ -x "$numi_build_dir/bin/metalrobo_robot_catalog" ]; then
+        numi_robot_catalog=$numi_build_dir/bin/metalrobo_robot_catalog
+    else
+        numi_robot_catalog=$NUMI_LAB_ROOT/bin/metalrobo_robot_catalog
+    fi
+    if [ ! -x "$numi_robot_catalog" ]; then
+        printf '%-18s missing (%s)\n' "robot catalog:" "$numi_robot_catalog"
+        numi_doctor_status=1
+    elif "$numi_robot_catalog" --self-check >/dev/null 2>&1; then
+        printf '%-18s ok\n' "robot catalog:"
+    else
+        printf '%-18s incompatible (%s)\n' \
+            "robot catalog:" "$numi_robot_catalog"
+        numi_doctor_status=1
+    fi
+
     numi_python=$(numi_find_mlx_python || true)
     if [ "$numi_python" != "" ]; then
         printf 'MLX learner:  ok (%s)\n' "$numi_python"
@@ -176,17 +201,155 @@ numi_doctor() {
 
     printf '\nCapabilities:\n'
     numi_list_commands | sed 's/^/  /'
+    if [ "$numi_doctor_status" -eq 0 ]; then
+        printf '\nStatus: ready. Run `numi context` to choose a capability.\n'
+    else
+        printf '\nStatus: action required. Resolve the items above, then rerun `numi doctor`.\n'
+    fi
     return "$numi_doctor_status"
 }
 
+numi_context_probe() {
+    if ! command -v python3 >/dev/null 2>&1; then
+        case "$1" in
+            status) printf '%s\n' 'unknown (Python 3 unavailable for bounded Git status)' ;;
+            describe) printf '%s\n' 'unknown (Python 3 unavailable for bounded description)' ;;
+        esac
+        return 0
+    fi
+    # Read-only discovery can stall on a file-provider checkout or an overlay
+    # command. Bound it without changing normal capability execution.
+    python3 - "$@" <<'PY'
+import os
+import signal
+import subprocess
+import sys
+import tempfile
+import time
+
+
+def stop_group(process):
+    # Children may outlive discovery even on a normal exit. The private process
+    # group belongs only to this probe; do not leave helpers behind.
+    for sig in (signal.SIGTERM, signal.SIGKILL):
+        try:
+            os.killpg(process.pid, sig)
+        except ProcessLookupError:
+            break
+        if sig == signal.SIGTERM:
+            time.sleep(0.1)
+    try:
+        process.wait(timeout=0.25)
+    except subprocess.TimeoutExpired:
+        pass  # An uninterruptible kernel wait must not stall context either.
+
+
+def count_paths(stream):
+    data = stream.read()
+    if not data:
+        return 0
+    if not data.endswith(b"\0"):
+        raise ValueError("truncated output")
+    entries = data.split(b"\0")[:-1]
+    count = index = 0
+    while index < len(entries):
+        record = entries[index]
+        if len(record) < 4 or record[2:3] != b" ":
+            raise ValueError("invalid output")
+        if any(value not in b" MADRCU?!T" for value in record[:2]):
+            raise ValueError("invalid status")
+        index += 1
+        if b"R" in record[:2] or b"C" in record[:2]:
+            if index >= len(entries) or not entries[index]:
+                raise ValueError("truncated rename")
+            index += 1
+        count += 1
+    return count
+
+
+mode, target = sys.argv[1:]
+label = "git status" if mode == "status" else "description"
+if mode == "status":
+    command = ["git", "-C", target, "status", "--porcelain=v1", "-z", "--untracked-files=normal"]
+    environment = dict(os.environ, GIT_OPTIONAL_LOCKS="0")
+else:
+    # Launch a local interpreter first so even a blocked exec of an external
+    # capability happens inside the timed process group, not inside Popen.
+    command = [sys.executable, "-c",
+               "import os,sys; os.execv(sys.argv[1], sys.argv[1:])",
+               target, "--numi-describe"]
+    environment = None
+
+with tempfile.TemporaryFile() as output, tempfile.TemporaryFile() as errors:
+    process = None
+    try:
+        process = subprocess.Popen(
+            command,
+            stdin=subprocess.DEVNULL, stdout=output, stderr=errors,
+            env=environment,
+            start_new_session=True,
+        )
+        try:
+            code = process.wait(timeout=2.0)
+        finally:
+            stop_group(process)
+        if code:
+            print("unknown (%s exited %s)" % (label, code))
+            errors.seek(0)
+            diagnostic = errors.read(2048).decode("utf-8", errors="replace").strip()
+            if diagnostic and mode == "status":
+                print("numi: git status: " + diagnostic, file=sys.stderr)
+        else:
+            output.seek(0)
+            if mode == "status":
+                print(count_paths(output))
+            else:
+                line = output.readline(65537)
+                if len(line) > 65536:
+                    raise ValueError("first line exceeds 64 KiB")
+                description = line.decode("utf-8").rstrip("\n")
+                if not description or "\0" in description:
+                    raise ValueError("no valid description provided")
+                print(description)
+    except subprocess.TimeoutExpired:
+        print("unknown (%s timed out after 2s)" % label)
+    except (OSError, ValueError) as error:
+        print("unknown (%s unavailable: %s)" % (label, error))
+PY
+}
+
+numi_context_dirty_count() {
+    numi_context_probe status "$NUMI_LAB_ROOT"
+}
+
+numi_context_description() {
+    numi_context_probe describe "$1"
+}
+
 numi_context() {
+    [ "$#" -le 1 ] || numi_die "context accepts at most one option; run 'numi context --help'"
+    case "${1:-}" in
+        "") numi_context_show_paths=0 ;;
+        --paths) numi_context_show_paths=1 ;;
+        --help|-h)
+            cat <<'EOF'
+Usage: numi context [--paths]
+
+Describe the live runtime, workspace overlays, and discovered capabilities.
+Use --paths to include the resolved executable that owns each capability.
+EOF
+            return 0
+            ;;
+        *) numi_die "unknown context option '$1'; run 'numi context --help'" ;;
+    esac
     printf 'Numi Lab %s\n\n' "$(numi_version)"
     printf 'Runtime root: %s\n' "$NUMI_LAB_ROOT"
     printf 'Workspace:    %s\n' "$NUMI_WORKSPACE_ROOT"
     if command -v git >/dev/null 2>&1 && git -C "$NUMI_LAB_ROOT" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
         printf 'Revision:     %s\n' "$(git -C "$NUMI_LAB_ROOT" rev-parse --short HEAD)"
         printf 'Branch:       %s\n' "$(git -C "$NUMI_LAB_ROOT" branch --show-current)"
-        numi_dirty_count=$(git -C "$NUMI_LAB_ROOT" status --short | wc -l | tr -d ' ')
+        numi_dirty_count=$(numi_context_dirty_count) || \
+            numi_dirty_count='unknown (bounded Git status failed)'
         printf 'Dirty paths:  %s\n' "$numi_dirty_count"
     elif [ -f "$NUMI_LAB_ROOT/share/numi/REVISION" ]; then
         printf 'Revision:     %.12s\n' "$(sed -n '1p' "$NUMI_LAB_ROOT/share/numi/REVISION")"
@@ -209,13 +372,19 @@ numi_context() {
     [ "$numi_overlay_count" -gt 0 ] || printf '  none\n'
 
     printf '\nAvailable capabilities:\n'
-    numi_list_commands | while IFS= read -r numi_capability; do
+    numi_context_capabilities=$(numi_list_commands)
+    numi_context_width=$(printf '%s\n' "$numi_context_capabilities" | \
+        awk 'length($0) > width { width = length($0) } END { print width + 0 }')
+    printf '%s\n' "$numi_context_capabilities" | while IFS= read -r numi_capability; do
+        [ -n "$numi_capability" ] || continue
         numi_capability_path=$(numi_find_command "$numi_capability") || continue
-        numi_description=$(
-            "$numi_capability_path" --numi-describe 2>/dev/null | sed -n '1p'
-        )
-        [ "$numi_description" != "" ] || numi_description='No description provided.'
-        printf '  %-12s %s\n' "$numi_capability" "$numi_description"
+        numi_description=$(numi_context_description "$numi_capability_path") || \
+            numi_description='unknown (bounded description failed)'
+        printf '  %-*s  %s\n' \
+            "$numi_context_width" "$numi_capability" "$numi_description"
+        if [ "$numi_context_show_paths" -eq 1 ]; then
+            printf '  %-*s  %s\n' "$numi_context_width" "" "source: $numi_capability_path"
+        fi
     done
 
     printf '\nFreedom model:\n'
@@ -236,19 +405,62 @@ Core commands:
   context                Describe the live lab, overlays, and capabilities
   run <capability> ...   Run a discovered capability
   version                Print the Numi Lab version
-  help                   Show this help
+  help [capability]      Show core or capability help
 
-Any other command is discovered from workspace, user, extra, bundled, then
+Any other command is discovered from workspace, extra, user, bundled, then
 installed command directories. Add an executable to .numi/commands to teach
 this workspace a new capability without changing the CLI.
 EOF
 }
 
+numi_suggest_command() {
+    numi_suggestion_query=$1
+    {
+        printf '%s\n' doctor context run version help
+        numi_list_commands
+    } | awk -v query="$numi_suggestion_query" '
+        function minimum(a, b, c) {
+            value = a < b ? a : b
+            return value < c ? value : c
+        }
+        function distance(left, right, i, j, cost, current) {
+            delete old
+            delete current
+            for (j = 0; j <= length(right); j++) old[j] = j
+            for (i = 1; i <= length(left); i++) {
+                current[0] = i
+                for (j = 1; j <= length(right); j++) {
+                    cost = substr(left, i, 1) == substr(right, j, 1) ? 0 : 1
+                    current[j] = minimum(current[j - 1] + 1, old[j] + 1, old[j - 1] + cost)
+                }
+                for (j = 0; j <= length(right); j++) old[j] = current[j]
+            }
+            return old[length(right)]
+        }
+        {
+            score = distance(query, $0)
+            if (best == "" || score < best_score) {
+                best = $0
+                best_score = score
+            }
+        }
+        END {
+            limit = length(query) <= 4 ? 1 : 2
+            if (best_score <= limit) print best
+        }
+    '
+}
+
 numi_dispatch() {
     numi_dispatch_name=$1
     shift
-    numi_dispatch_path=$(numi_find_command "$numi_dispatch_name") ||
+    if ! numi_dispatch_path=$(numi_find_command "$numi_dispatch_name"); then
+        numi_dispatch_suggestion=$(numi_suggest_command "$numi_dispatch_name")
+        if [ -n "$numi_dispatch_suggestion" ]; then
+            numi_die "unknown capability '$numi_dispatch_name'; did you mean '$numi_dispatch_suggestion'?"
+        fi
         numi_die "unknown capability '$numi_dispatch_name'; run 'numi context'"
+    fi
     exec "$numi_dispatch_path" "$@"
 }
 
@@ -258,10 +470,28 @@ if [ "$#" -gt 0 ]; then
 fi
 
 case "$numi_main_command" in
-    help|-h|--help)
+    help)
+        if [ "$#" -eq 0 ]; then
+            numi_help
+        elif [ "$#" -eq 1 ]; then
+            case "$1" in
+                doctor) numi_doctor --help ;;
+                context) numi_context --help ;;
+                run) printf 'Usage: numi run CAPABILITY [arguments...]\n' ;;
+                version) printf 'Usage: numi version\n' ;;
+                help) numi_help ;;
+                *) numi_dispatch "$1" --help ;;
+            esac
+        else
+            numi_die "help accepts at most one capability"
+        fi
+        ;;
+    -h|--help)
+        [ "$#" -eq 0 ] || numi_die "'$numi_main_command' does not accept arguments"
         numi_help
         ;;
     version|--version)
+        [ "$#" -eq 0 ] || numi_die "version does not accept arguments"
         numi_version
         ;;
     doctor)
@@ -271,7 +501,13 @@ case "$numi_main_command" in
         numi_context "$@"
         ;;
     run)
-        [ "$#" -gt 0 ] || numi_die "run requires a capability"
+        case "${1:-}" in
+            --help|-h)
+                printf 'Usage: numi run CAPABILITY [arguments...]\n'
+                exit 0
+                ;;
+            "") numi_die "run requires a capability; run 'numi context'" ;;
+        esac
         numi_run_name=$1
         shift
         numi_dispatch "$numi_run_name" "$@"

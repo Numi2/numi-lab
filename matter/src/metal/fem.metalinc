@@ -1,0 +1,2011 @@
+#include "metalrobo/compensated_translation_gpu.h"
+
+namespace numi_matter_metal {
+
+// restAndFixed.w is a small, versioned constraint tag rather than a boolean:
+// 0 = free, 1 = authored static Dirichlet, 2 = moving Human attachment.
+// A Human attachment is eliminated from Matter's nodal unknowns, but its
+// unconstrained residual/operator row remains physically meaningful because
+// the reduced articulated row owns J^T r and J^T A J.
+inline bool femStaticConstraint(const float marker) {
+    return marker > 0.5f && marker < 1.5f;
+}
+
+inline bool femHumanAttachmentConstraint(const float marker) {
+    return marker > 1.5f && marker < 2.5f;
+}
+
+struct NMPrimalContactArguments {
+    device const NMContactPairGPU* pairs [[id(0)]];
+    device const NMContactSampleGPU* samples [[id(1)]];
+    device const uint* nodeIncidence [[id(2)]];
+    device const NMIncidenceRangeGPU* nodeRanges [[id(3)]];
+    device const uint* activePairs [[id(4)]];
+    device const uint* activeSlotsByPair [[id(5)]];
+    device const uint* activeCounts [[id(6)]];
+    device NMDeformableContactGPU* deformableContacts [[id(7)]];
+    device const uint* deformableNodeIncidence [[id(8)]];
+    device const NMIncidenceRangeGPU* deformableNodeRanges [[id(9)]];
+    device const uint* mpmNodeToActive [[id(10)]];
+    device const uint* mpmActiveNodeCounts [[id(11)]];
+    device const NMRigidProxyGPU* rigidProxies [[id(12)]];
+    device const NMRigidStateGPU* rigidStates [[id(13)]];
+    device const uint* deformableActiveCounts [[id(14)]];
+};
+
+// Reflection-only anchor for the monolithic contact argument table. Runtime
+// obtains its MTLArgumentEncoder from this function but never dispatches it.
+// Reading every member prevents Metal from pruning bindings that are consumed
+// only by a subset of the KKT kernels.
+kernel void nm_primal_contact_argument_layout(
+    constant NMPrimalContactArguments& contact [[buffer(0)]],
+    device uint* sink [[buffer(1)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global != 0u) return;
+    uint checksum = 0u;
+    checksum ^= reinterpret_cast<device const uint*>(contact.pairs)[0];
+    checksum ^= reinterpret_cast<device const uint*>(contact.samples)[0];
+    checksum ^= contact.nodeIncidence[0];
+    checksum ^= reinterpret_cast<device const uint*>(contact.nodeRanges)[0];
+    checksum ^= contact.activePairs[0];
+    checksum ^= contact.activeSlotsByPair[0];
+    checksum ^= contact.activeCounts[0];
+    checksum ^=
+        reinterpret_cast<device const uint*>(contact.deformableContacts)[0];
+    checksum ^= contact.deformableNodeIncidence[0];
+    checksum ^=
+        reinterpret_cast<device const uint*>(contact.deformableNodeRanges)[0];
+    checksum ^= contact.mpmNodeToActive[0];
+    checksum ^= contact.mpmActiveNodeCounts[0];
+    checksum ^=
+        reinterpret_cast<device const uint*>(contact.rigidProxies)[0];
+    checksum ^=
+        reinterpret_cast<device const uint*>(contact.rigidStates)[0];
+    checksum ^= contact.deformableActiveCounts[0];
+    sink[0] = checksum;
+}
+
+inline void deformableContactFrame(
+    const float3 normal,
+    thread float3& tangent0,
+    thread float3& tangent1
+) {
+    const float3 axis = abs(normal.x) < 0.57735026919f
+        ? float3(1.0f, 0.0f, 0.0f)
+        : (abs(normal.y) < 0.57735026919f
+            ? float3(0.0f, 1.0f, 0.0f)
+            : float3(0.0f, 0.0f, 1.0f));
+    tangent0 = normalize(cross(normal, axis));
+    tangent1 = cross(normal, tangent0);
+}
+
+inline float3 deformableMollifierGradient(
+    const NMDeformableContactGPU contact,
+    const uint local
+) {
+    if (local == 0u) return contact.mollifierGradientRow0.xyz;
+    if (local == 1u) return contact.mollifierGradientRow1.xyz;
+    if (local == 2u) return contact.mollifierGradientRow2.xyz;
+    return contact.mollifierGradientRow3.xyz;
+}
+
+inline float3x3 cofactorMatrix(const float3x3 value);
+inline float3x3 cofactorDirectional(
+    const float3x3 value,
+    const float3x3 direction
+);
+
+inline NMTetrahedronGPU environmentTetrahedron(
+    const NMMatterDispatchGPU dispatch,
+    device const NMTetrahedronGPU* tetrahedra,
+    const uint environment,
+    const uint local
+) {
+    return tetrahedra[environment * dispatch.tetrahedronCount + local];
+}
+
+// Only the constitutive coordinate system rotates. Geometry, volume constraints,
+// rest gradients, contact and nodal momentum remain in the reference-world basis.
+// The explicit object flag preserves the legacy arithmetic path exactly.
+inline float3x3 femMaterialFrame(const NMTetrahedronGPU tetrahedron) {
+    const float4 raw = tetrahedron.materialFrameRotation;
+    const float4 q = raw * rsqrt(dot(raw, raw));
+    const float x = q.x, y = q.y, z = q.z, w = q.w;
+    return matrixFromRows(
+        float4(1.0f-2.0f*(y*y+z*z), 2.0f*(x*y-z*w), 2.0f*(x*z+y*w), 0.0f),
+        float4(2.0f*(x*y+z*w), 1.0f-2.0f*(x*x+z*z), 2.0f*(y*z-x*w), 0.0f),
+        float4(2.0f*(x*z-y*w), 2.0f*(y*z+x*w), 1.0f-2.0f*(x*x+y*y), 0.0f));
+}
+
+inline float3x3 femMaterialInput(const NMContinuumObjectGPU object,
+    const NMTetrahedronGPU tetrahedron, const float3x3 value) {
+    return (object.flags & NM_OBJECT_FEM_MATERIAL_FRAME) != 0u
+        ? value * femMaterialFrame(tetrahedron) : value;
+}
+
+inline float3x3 femMaterialOutput(const NMContinuumObjectGPU object,
+    const NMTetrahedronGPU tetrahedron, const float3x3 value) {
+    return (object.flags & NM_OBJECT_FEM_MATERIAL_FRAME) != 0u
+        ? value * transpose(femMaterialFrame(tetrahedron)) : value;
+}
+
+inline NMMixedMaterialGPU femMixedMaterial(const NMContinuumObjectGPU object,
+    const NMTetrahedronGPU tetrahedron, const NMMixedMaterialGPU source) {
+    NMMixedMaterialGPU result = source;
+    if ((object.flags & NM_OBJECT_FEM_MATERIAL_FRAME) != 0u)
+        result.fibre.xyz = femMaterialFrame(tetrahedron) * source.fibre.xyz;
+    return result;
+}
+
+inline float3x3 tetrahedronDeformation(
+    const NMTetrahedronGPU tetrahedron,
+    device const NMFEMNodeStateGPU* nodes,
+    const uint nodeBase
+) {
+    const float3 x0 = nodes[nodeBase + tetrahedron.nodes.x].positionAndMass.xyz;
+    const float3 x1 = nodes[nodeBase + tetrahedron.nodes.y].positionAndMass.xyz;
+    const float3 x2 = nodes[nodeBase + tetrahedron.nodes.z].positionAndMass.xyz;
+    const float3 x3 = nodes[nodeBase + tetrahedron.nodes.w].positionAndMass.xyz;
+    const float3x3 ds = float3x3(x1 - x0, x2 - x0, x3 - x0);
+    const float3x3 inverseRest = matrixFromRows(
+        tetrahedron.inverseRestRow0,
+        tetrahedron.inverseRestRow1,
+        tetrahedron.inverseRestRow2
+    );
+    return ds * inverseRest;
+}
+
+inline float3x3 tetrahedronVelocityGradient(
+    const NMTetrahedronGPU tetrahedron,
+    device const NMFEMNodeStateGPU* nodes,
+    const uint nodeBase
+) {
+    const float3 v0 =
+        nodes[nodeBase + tetrahedron.nodes.x].velocityAndInverseMass.xyz;
+    const float3 v1 =
+        nodes[nodeBase + tetrahedron.nodes.y].velocityAndInverseMass.xyz;
+    const float3 v2 =
+        nodes[nodeBase + tetrahedron.nodes.z].velocityAndInverseMass.xyz;
+    const float3 v3 =
+        nodes[nodeBase + tetrahedron.nodes.w].velocityAndInverseMass.xyz;
+    const float3x3 dv = float3x3(v1 - v0, v2 - v0, v3 - v0);
+    const float3x3 inverseRest = matrixFromRows(
+        tetrahedron.inverseRestRow0,
+        tetrahedron.inverseRestRow1,
+        tetrahedron.inverseRestRow2
+    );
+    return dv * inverseRest;
+}
+
+inline NMFEMElementVectorGPU tetrahedronForce(
+    const NMTetrahedronGPU tetrahedron,
+    const float3x3 stress
+) {
+    const float3x3 inverseRest = matrixFromRows(
+        tetrahedron.inverseRestRow0,
+        tetrahedron.inverseRestRow1,
+        tetrahedron.inverseRestRow2
+    );
+    const float volume = tetrahedron.inverseRestRow0.w;
+    const float3x3 h = -volume * stress * transpose(inverseRest);
+    NMFEMElementVectorGPU result;
+    result.node1 = float4(h[0], 0.0f);
+    result.node2 = float4(h[1], 0.0f);
+    result.node3 = float4(h[2], 0.0f);
+    result.node0 = float4(-(h[0] + h[1] + h[2]), 0.0f);
+    return result;
+}
+
+inline float3x3 mixedFirstPiola(
+    const float3x3 analytic,
+    const float3x3 deformation,
+    const NMMixedMaterialGPU mixed,
+    const float pressure,
+    const float porePressure,
+    const float activation
+) {
+    const float j = determinant(deformation);
+    const float3x3 cofactor = float3x3(
+        cross(deformation[1], deformation[2]),
+        cross(deformation[2], deformation[0]),
+        cross(deformation[0], deformation[1])
+    );
+    const float3x3 kirchhoff = analytic * transpose(deformation);
+    const float hydrostatic = (
+        kirchhoff[0].x + kirchhoff[1].y + kirchhoff[2].z
+    ) / 3.0f;
+    const float3x3 deviatoricKirchhoff = kirchhoff - float3x3(
+        float3(hydrostatic, 0.0f, 0.0f),
+        float3(0.0f, hydrostatic, 0.0f),
+        float3(0.0f, 0.0f, hydrostatic)
+    );
+    float3x3 result = deviatoricKirchhoff * cofactor / max(j, 1.0e-20f);
+    result -= (pressure + mixed.mechanics.z * porePressure) * cofactor;
+    const float3 referenceFibre = normalize(mixed.fibre.xyz);
+    const float3 deformedFibre = deformation * referenceFibre;
+    const float fibreLength = length(deformedFibre);
+    if (fibreLength > 1.0e-12f && mixed.fibre.w > 0.0f) {
+        const float3 direction = deformedFibre / fibreLength;
+        const float tension = mixed.fibre.w * clamp(activation, 0.0f, 1.0f);
+        const float3x3 cauchy = float3x3(
+            tension * direction.x * direction,
+            tension * direction.y * direction,
+            tension * direction.z * direction
+        );
+        result += cauchy * cofactor;
+    }
+    return result;
+}
+
+inline float3x3 mixedFirstPiolaTangent(
+    const float3x3 analytic,
+    const float3x3 analyticTangent,
+    const float3x3 deformation,
+    const float3x3 direction,
+    const NMMixedMaterialGPU mixed,
+    const float pressure,
+    const float porePressure,
+    const float activation
+) {
+    const float j = determinant(deformation);
+    const float3x3 cofactor = cofactorMatrix(deformation);
+    const float3x3 dcofactor = cofactorDirectional(deformation, direction);
+    const float dj = dot(cofactor[0], direction[0]) +
+        dot(cofactor[1], direction[1]) +
+        dot(cofactor[2], direction[2]);
+    const float inverseJ = 1.0f / max(j, 1.0e-20f);
+    const float3x3 inverseTranspose = cofactor * inverseJ;
+    const float3x3 inverseTransposeDirection =
+        dcofactor * inverseJ - cofactor * (dj * inverseJ * inverseJ);
+    const float3x3 kirchhoff = analytic * transpose(deformation);
+    const float3x3 kirchhoffDirection =
+        analyticTangent * transpose(deformation) +
+        analytic * transpose(direction);
+    const float hydrostatic = (
+        kirchhoff[0].x + kirchhoff[1].y + kirchhoff[2].z
+    ) / 3.0f;
+    const float hydrostaticDirection = (
+        kirchhoffDirection[0].x + kirchhoffDirection[1].y +
+        kirchhoffDirection[2].z
+    ) / 3.0f;
+    const float3x3 identity = float3x3(
+        float3(1.0f, 0.0f, 0.0f),
+        float3(0.0f, 1.0f, 0.0f),
+        float3(0.0f, 0.0f, 1.0f)
+    );
+    const float3x3 deviatoric = kirchhoff - hydrostatic * identity;
+    const float3x3 deviatoricDirection =
+        kirchhoffDirection - hydrostaticDirection * identity;
+    float3x3 result = deviatoricDirection * inverseTranspose +
+        deviatoric * inverseTransposeDirection -
+        (pressure + mixed.mechanics.z * porePressure) * dcofactor;
+    const float3 fibre = normalize(mixed.fibre.xyz);
+    const float3 ff = deformation * fibre;
+    const float3 dff = direction * fibre;
+    const float lengthF = length(ff);
+    if (lengthF > 1.0e-12f && mixed.fibre.w > 0.0f) {
+        const float3 m = ff / lengthF;
+        const float3 dm = (dff - m * dot(m, dff)) / lengthF;
+        const float tension = mixed.fibre.w * clamp(activation, 0.0f, 1.0f);
+        const float3x3 sigma = float3x3(
+            tension * m.x * m, tension * m.y * m, tension * m.z * m
+        );
+        const float3x3 dsigma = float3x3(
+            tension * (dm.x * m + m.x * dm),
+            tension * (dm.y * m + m.y * dm),
+            tension * (dm.z * m + m.z * dm)
+        );
+        result += dsigma * cofactor + sigma * dcofactor;
+    }
+    return result;
+}
+
+inline float learnedSoftplus(const float value, const float beta) {
+    const float scaled = clamp(beta * value, -80.0f, 80.0f);
+    return max(value, 0.0f) + log(1.0f + exp(-abs(scaled))) / beta;
+}
+
+inline float learnedSigmoid(const float value, const float beta) {
+    return 1.0f / (1.0f + exp(clamp(-beta * value, -80.0f, 80.0f)));
+}
+
+inline float3x3 learnedFirstPiola(
+    const NMLearnedMaterialGPU network,
+    device const NMLearnedLayerGPU* layers,
+    device const float* weights,
+    const float3x3 deformation,
+    const float3 referenceFibre,
+    thread bool& valid
+) {
+    const float j = determinant(deformation);
+    if (!(j > network.policy.y) || !isfinite(j)) {
+        valid = false;
+        return float3x3(0.0f);
+    }
+    const float3x3 cofactor = float3x3(
+        cross(deformation[1], deformation[2]),
+        cross(deformation[2], deformation[0]),
+        cross(deformation[0], deformation[1])
+    );
+    const float i1 = dot(deformation[0], deformation[0]) +
+        dot(deformation[1], deformation[1]) +
+        dot(deformation[2], deformation[2]);
+    const float i2 = dot(cofactor[0], cofactor[0]) +
+        dot(cofactor[1], cofactor[1]) + dot(cofactor[2], cofactor[2]);
+    const float3 fibre = normalize(referenceFibre);
+    const float3 deformedFibre = deformation * fibre;
+    thread float invariant[NM_LEARNED_MAX_INVARIANTS];
+    for (uint index = 0u; index < NM_LEARNED_MAX_INVARIANTS; ++index)
+        invariant[index] = 0.0f;
+    invariant[0] = i1 - 3.0f;
+    invariant[1] = i2 - 3.0f;
+    invariant[2] = j - 1.0f;
+    invariant[3] = 1.0f / j - 1.0f;
+    if (network.identity.x > 4u)
+        invariant[4] = dot(deformedFibre, deformedFibre) - 1.0f;
+
+    thread float previous[NM_LEARNED_MAX_WIDTH];
+    thread float next[NM_LEARNED_MAX_WIDTH];
+    thread float previousGradient[NM_LEARNED_MAX_WIDTH * NM_LEARNED_MAX_INVARIANTS];
+    thread float nextGradient[NM_LEARNED_MAX_WIDTH * NM_LEARNED_MAX_INVARIANTS];
+    for (uint index = 0u; index < NM_LEARNED_MAX_WIDTH; ++index) {
+        previous[index] = 0.0f;
+        for (uint input = 0u; input < NM_LEARNED_MAX_INVARIANTS; ++input)
+            previousGradient[index * NM_LEARNED_MAX_INVARIANTS + input] = 0.0f;
+    }
+    uint previousWidth = 0u;
+    for (uint localLayer = 0u; localLayer < network.layout.y; ++localLayer) {
+        const NMLearnedLayerGPU layer = layers[network.layout.x + localLayer];
+        for (uint output = 0u; output < layer.layout.y; ++output) {
+            float preactivation = weights[layer.layout.w + output];
+            for (uint input = 0u; input < layer.layout.x; ++input)
+                preactivation += weights[layer.layout.z + output * layer.layout.x + input] *
+                    invariant[input];
+            for (uint hidden = 0u; hidden < previousWidth; ++hidden)
+                preactivation += weights[layer.routing.x + output * previousWidth + hidden] *
+                    previous[hidden];
+            const float slope = learnedSigmoid(preactivation, network.policy.x);
+            next[output] = learnedSoftplus(preactivation, network.policy.x);
+            for (uint input = 0u; input < network.identity.x; ++input) {
+                float gradient = weights[
+                    layer.layout.z + output * layer.layout.x + input
+                ];
+                for (uint hidden = 0u; hidden < previousWidth; ++hidden)
+                    gradient += weights[
+                        layer.routing.x + output * previousWidth + hidden
+                    ] * previousGradient[
+                        hidden * NM_LEARNED_MAX_INVARIANTS + input
+                    ];
+                nextGradient[output * NM_LEARNED_MAX_INVARIANTS + input] =
+                    slope * gradient;
+            }
+        }
+        previousWidth = layer.layout.y;
+        for (uint output = 0u; output < previousWidth; ++output) {
+            previous[output] = next[output];
+            for (uint input = 0u; input < network.identity.x; ++input)
+                previousGradient[output * NM_LEARNED_MAX_INVARIANTS + input] =
+                    nextGradient[output * NM_LEARNED_MAX_INVARIANTS + input];
+        }
+    }
+    const float3x3 c = transpose(deformation) * deformation;
+    const float3x3 identity = float3x3(
+        float3(1.0f, 0.0f, 0.0f),
+        float3(0.0f, 1.0f, 0.0f),
+        float3(0.0f, 0.0f, 1.0f)
+    );
+    float3x3 result = 2.0f * previousGradient[0] * deformation;
+    result += 2.0f * previousGradient[1] * deformation * (i1 * identity - c);
+    result += previousGradient[2] * cofactor;
+    result -= previousGradient[3] * cofactor / (j * j);
+    if (network.identity.x > 4u) {
+        const float3 fibreGradient = 2.0f * previousGradient[4] * deformedFibre;
+        result += float3x3(
+            fibre.x * fibreGradient,
+            fibre.y * fibreGradient,
+            fibre.z * fibreGradient
+        );
+    }
+    result += network.policy.z * (1.0f - 1.0f / (j * j)) * cofactor;
+    valid = valid && isfinite(maximumAbs(result));
+    return result;
+}
+
+inline float3x3 cofactorMatrix(const float3x3 value) {
+    return float3x3(
+        cross(value[1], value[2]),
+        cross(value[2], value[0]),
+        cross(value[0], value[1])
+    );
+}
+
+inline float3x3 cofactorDirectional(
+    const float3x3 value,
+    const float3x3 direction
+) {
+    return float3x3(
+        cross(direction[1], value[2]) + cross(value[1], direction[2]),
+        cross(direction[2], value[0]) + cross(value[2], direction[0]),
+        cross(direction[0], value[1]) + cross(value[0], direction[1])
+    );
+}
+
+// Exact directional derivative of the ICNN first-Piola map.  The forward
+// pass carries value, first invariant gradient, directional value and the
+// Hessian-vector product, so no finite differencing or CPU material callback
+// enters the matrix-free velocity operator.
+inline float3x3 learnedTangentVector(
+    const NMLearnedMaterialGPU network,
+    device const NMLearnedLayerGPU* layers,
+    device const float* weights,
+    const float3x3 deformation,
+    const float3x3 deformationDirection,
+    const float3 referenceFibre,
+    thread bool& valid
+) {
+    const float j = determinant(deformation);
+    if (!(j > network.policy.y) || !isfinite(j)) {
+        valid = false;
+        return float3x3(0.0f);
+    }
+    const float3x3 cof = cofactorMatrix(deformation);
+    const float3x3 dcof = cofactorDirectional(
+        deformation, deformationDirection
+    );
+    const float dJ = dot(cof[0], deformationDirection[0]) +
+        dot(cof[1], deformationDirection[1]) +
+        dot(cof[2], deformationDirection[2]);
+    const float i1 = dot(deformation[0], deformation[0]) +
+        dot(deformation[1], deformation[1]) +
+        dot(deformation[2], deformation[2]);
+    const float dI1 = 2.0f * (
+        dot(deformation[0], deformationDirection[0]) +
+        dot(deformation[1], deformationDirection[1]) +
+        dot(deformation[2], deformationDirection[2])
+    );
+    const float i2 = dot(cof[0], cof[0]) + dot(cof[1], cof[1]) +
+        dot(cof[2], cof[2]);
+    const float dI2 = 2.0f * (dot(cof[0], dcof[0]) +
+        dot(cof[1], dcof[1]) + dot(cof[2], dcof[2]));
+    const float3 fibre = normalize(referenceFibre);
+    const float3 ff = deformation * fibre;
+    const float3 dff = deformationDirection * fibre;
+    thread float x[NM_LEARNED_MAX_INVARIANTS];
+    thread float dx[NM_LEARNED_MAX_INVARIANTS];
+    for (uint i = 0u; i < NM_LEARNED_MAX_INVARIANTS; ++i) {
+        x[i] = 0.0f;
+        dx[i] = 0.0f;
+    }
+    x[0] = i1 - 3.0f; dx[0] = dI1;
+    x[1] = i2 - 3.0f; dx[1] = dI2;
+    x[2] = j - 1.0f; dx[2] = dJ;
+    x[3] = 1.0f / j - 1.0f; dx[3] = -dJ / (j * j);
+    if (network.identity.x > 4u) {
+        x[4] = dot(ff, ff) - 1.0f;
+        dx[4] = 2.0f * dot(ff, dff);
+    }
+    thread float pv[NM_LEARNED_MAX_WIDTH];
+    thread float pd[NM_LEARNED_MAX_WIDTH];
+    thread float pg[NM_LEARNED_MAX_WIDTH * NM_LEARNED_MAX_INVARIANTS];
+    thread float ph[NM_LEARNED_MAX_WIDTH * NM_LEARNED_MAX_INVARIANTS];
+    thread float nv[NM_LEARNED_MAX_WIDTH];
+    thread float nd[NM_LEARNED_MAX_WIDTH];
+    thread float ng[NM_LEARNED_MAX_WIDTH * NM_LEARNED_MAX_INVARIANTS];
+    thread float nh[NM_LEARNED_MAX_WIDTH * NM_LEARNED_MAX_INVARIANTS];
+    for (uint i = 0u; i < NM_LEARNED_MAX_WIDTH; ++i) {
+        pv[i] = pd[i] = 0.0f;
+        for (uint k = 0u; k < NM_LEARNED_MAX_INVARIANTS; ++k) {
+            pg[i * NM_LEARNED_MAX_INVARIANTS + k] = 0.0f;
+            ph[i * NM_LEARNED_MAX_INVARIANTS + k] = 0.0f;
+        }
+    }
+    uint previousWidth = 0u;
+    for (uint li = 0u; li < network.layout.y; ++li) {
+        const NMLearnedLayerGPU layer = layers[network.layout.x + li];
+        for (uint o = 0u; o < layer.layout.y; ++o) {
+            float z = weights[layer.layout.w + o];
+            float dz = 0.0f;
+            for (uint k = 0u; k < layer.layout.x; ++k) {
+                const float w = weights[layer.layout.z + o * layer.layout.x + k];
+                z += w * x[k]; dz += w * dx[k];
+            }
+            for (uint h = 0u; h < previousWidth; ++h) {
+                const float w = weights[layer.routing.x + o * previousWidth + h];
+                z += w * pv[h]; dz += w * pd[h];
+            }
+            const float slope = learnedSigmoid(z, network.policy.x);
+            const float curvature = network.policy.x * slope * (1.0f - slope);
+            nv[o] = learnedSoftplus(z, network.policy.x);
+            nd[o] = slope * dz;
+            for (uint k = 0u; k < network.identity.x; ++k) {
+                float gz = weights[layer.layout.z + o * layer.layout.x + k];
+                float hz = 0.0f;
+                for (uint h = 0u; h < previousWidth; ++h) {
+                    const float w = weights[layer.routing.x + o * previousWidth + h];
+                    gz += w * pg[h * NM_LEARNED_MAX_INVARIANTS + k];
+                    hz += w * ph[h * NM_LEARNED_MAX_INVARIANTS + k];
+                }
+                ng[o * NM_LEARNED_MAX_INVARIANTS + k] = slope * gz;
+                nh[o * NM_LEARNED_MAX_INVARIANTS + k] =
+                    slope * hz + curvature * dz * gz;
+            }
+        }
+        previousWidth = layer.layout.y;
+        for (uint o = 0u; o < previousWidth; ++o) {
+            pv[o] = nv[o]; pd[o] = nd[o];
+            for (uint k = 0u; k < network.identity.x; ++k) {
+                pg[o * NM_LEARNED_MAX_INVARIANTS + k] =
+                    ng[o * NM_LEARNED_MAX_INVARIANTS + k];
+                ph[o * NM_LEARNED_MAX_INVARIANTS + k] =
+                    nh[o * NM_LEARNED_MAX_INVARIANTS + k];
+            }
+        }
+    }
+    const float3x3 identity = float3x3(
+        float3(1.0f, 0.0f, 0.0f), float3(0.0f, 1.0f, 0.0f),
+        float3(0.0f, 0.0f, 1.0f)
+    );
+    const float3x3 c = transpose(deformation) * deformation;
+    const float3x3 dc = transpose(deformationDirection) * deformation +
+        transpose(deformation) * deformationDirection;
+    const float3x3 g0 = 2.0f * deformation;
+    const float3x3 dg0 = 2.0f * deformationDirection;
+    const float3x3 a = i1 * identity - c;
+    const float3x3 da = dI1 * identity - dc;
+    const float3x3 g1 = 2.0f * deformation * a;
+    const float3x3 dg1 = 2.0f * (deformationDirection * a + deformation * da);
+    const float3x3 g2 = cof;
+    const float3x3 dg2 = dcof;
+    const float3x3 g3 = (-1.0f / (j * j)) * cof;
+    const float3x3 dg3 = (-1.0f / (j * j)) * dcof +
+        2.0f * cof * dJ / (j * j * j);
+    float3x3 result = ph[0] * g0 + pg[0] * dg0 +
+        ph[1] * g1 + pg[1] * dg1 +
+        ph[2] * g2 + pg[2] * dg2 +
+        ph[3] * g3 + pg[3] * dg3;
+    if (network.identity.x > 4u) {
+        const float3x3 g4 = float3x3(
+            fibre.x * (2.0f * ff), fibre.y * (2.0f * ff),
+            fibre.z * (2.0f * ff)
+        );
+        const float3x3 dg4 = float3x3(
+            fibre.x * (2.0f * dff), fibre.y * (2.0f * dff),
+            fibre.z * (2.0f * dff)
+        );
+        result += ph[4] * g4 + pg[4] * dg4;
+    }
+    result += network.policy.z * (
+        (2.0f * dJ / (j * j * j)) * cof +
+        (1.0f - 1.0f / (j * j)) * dcof
+    );
+    valid = valid && isfinite(maximumAbs(result));
+    return result;
+}
+
+inline float3 elementNodeValue(
+    const NMFEMElementVectorGPU value,
+    const NMTetrahedronGPU tetrahedron,
+    const uint node
+) {
+    if (tetrahedron.nodes.x == node) return value.node0.xyz;
+    if (tetrahedron.nodes.y == node) return value.node1.xyz;
+    if (tetrahedron.nodes.z == node) return value.node2.xyz;
+    if (tetrahedron.nodes.w == node) return value.node3.xyz;
+    return float3(0.0f);
+}
+
+inline float4 elementNodeVector(
+    const NMFEMElementVectorGPU value,
+    const NMTetrahedronGPU tetrahedron,
+    const uint node
+) {
+    if (tetrahedron.nodes.x == node) return value.node0;
+    if (tetrahedron.nodes.y == node) return value.node1;
+    if (tetrahedron.nodes.z == node) return value.node2;
+    if (tetrahedron.nodes.w == node) return value.node3;
+    return float4(0.0f);
+}
+
+kernel void nm_fem_checkpoint(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMFEMNodeStateGPU* accepted [[buffer(1)]],
+    device NMFEMNodeStateGPU* checkpoint [[buffer(2)]],
+    device const float* acceptedMaterialState [[buffer(3)]],
+    device float* checkpointMaterialState [[buffer(4)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint width = max(dispatch.femNodeCount, dispatch.tetrahedronCount);
+    const uint total = dispatch.environmentCount * width;
+    if (global >= total || width == 0u) {
+        return;
+    }
+    const uint environment = global / width;
+    const uint local = global - environment * width;
+    if (local < dispatch.femNodeCount) {
+        const uint node = environment * dispatch.femNodeCount + local;
+        checkpoint[node] = accepted[node];
+    }
+    if (local < dispatch.tetrahedronCount) {
+        const uint element = environment * dispatch.tetrahedronCount + local;
+        const uint stateBase = element * dispatch.materialStateStride;
+        for (uint state = 0u; state < dispatch.materialStateStride; ++state) {
+            checkpointMaterialState[stateBase + state] =
+                acceptedMaterialState[stateBase + state];
+        }
+    }
+}
+
+kernel void nm_fem_prepare_candidate(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(3)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(4)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(5)]],
+    device const NMFEMNodeStateGPU* accepted [[buffer(6)]],
+    device NMFEMNodeStateGPU* candidate [[buffer(7)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    NMFEMNodeStateGPU next = accepted[global];
+    next.deltaVelocity = float4(0.0f);
+    const uint objectIndex = nodeRanges[global].objectIndex;
+    if (objectIndex != NM_INVALID_INDEX && objectIndex < dispatch.objectCount) {
+        const NMContinuumObjectGPU object = objects[objectIndex];
+        const NMSchedulerStateGPU scheduler =
+            schedulers[environment * dispatch.objectCount + objectIndex];
+        const NMAdaptiveStateGPU adaptiveState =
+            adaptive[environment * dispatch.objectCount + objectIndex];
+        if (object.representation == NM_REPRESENTATION_FEM &&
+            objectDue(object, scheduler, adaptiveState, microstep) &&
+            next.restAndFixed.w <= 0.5f) {
+            // Newton must start from an accepted collision-free pose. The
+            // velocity is the primal unknown, so zero is a feasible initial
+            // iterate and the inertial residual below recovers the complete
+            // unconstrained predictor without first stepping through a
+            // barrier.
+            next.velocityAndInverseMass.xyz = float3(0.0f);
+            next.deltaVelocity.xyz =
+                -accepted[global].velocityAndInverseMass.xyz;
+            next.positionAndMass.xyz = accepted[global].positionAndMass.xyz;
+        }
+    }
+    candidate[global] = next;
+}
+
+kernel void nm_fem_apply_kinematic_targets(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMFEMNodeStateGPU* accepted [[buffer(2)]],
+    device NMFEMNodeStateGPU* candidate [[buffer(3)]],
+    device const float4* targets [[buffer(4)]],
+    device NMMatterStatusGPU* statuses [[buffer(5)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    if (!environmentHealthy(statuses, environment)) return;
+    const float4 target = targets[global];
+    if (target.w <= 0.0f) return;
+    const uint nodeIndex = global - environment * dispatch.femNodeCount;
+    const NMFEMNodeStateGPU previous = accepted[global];
+    if (!all(isfinite(target)) || target.w != 1.0f ||
+        previous.restAndFixed.w <= 0.5f ||
+        microstep.microtick >= microstep.microtickCount ||
+        !(microstep.time.x > 0.0f) || !isfinite(microstep.time.x)) {
+        recordFailure(
+            statuses[environment], NM_STATUS_INVALID_DISPATCH,
+            NM_INVALID_INDEX, nodeIndex, target
+        );
+        return;
+    }
+    const float remaining = float(microstep.microtickCount - microstep.microtick);
+    const float3 displacement =
+        (target.xyz - previous.positionAndMass.xyz) / remaining;
+    const float3 velocity = displacement / microstep.time.x;
+    if (!all(isfinite(displacement)) || !all(isfinite(velocity))) {
+        recordFailure(
+            statuses[environment], NM_STATUS_INVALID_DEFORMATION,
+            NM_INVALID_INDEX, nodeIndex,
+            float4(displacement, length(velocity))
+        );
+        return;
+    }
+    NMFEMNodeStateGPU next = candidate[global];
+    next.positionAndMass.xyz = previous.positionAndMass.xyz + displacement;
+    next.velocityAndInverseMass.xyz = velocity;
+    next.deltaVelocity.xyz = velocity - previous.velocityAndInverseMass.xyz;
+    candidate[global] = next;
+}
+
+// Materialize an exact moving Dirichlet node from the Human candidate that
+// owns the queried body point. Position comes from the exact candidate body
+// pose and velocity comes from that body's exact candidate linear/angular
+// state. The query input is Matter's delta-v, not the complete candidate
+// velocity, so multiplying it by J here would silently discard the accepted
+// Human velocity. There is no first-order position update and no host-visible
+// staging boundary.
+kernel void nm_fem_human_attachment_drive_candidate(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& candidateBodyCount [[buffer(1)]],
+    constant uint& candidateBodyStride [[buffer(2)]],
+    constant uint& articulatedNv [[buffer(3)]],
+    device const NMFEMHumanAttachmentGPU* attachments [[buffer(4)]],
+    device const MRBodyStateGPU* candidateBodies [[buffer(5)]],
+    device const float* pointJacobians [[buffer(6)]],
+    device const float* generalizedCandidate [[buffer(7)]],
+    device const NMFEMNodeStateGPU* accepted [[buffer(8)]],
+    device NMFEMNodeStateGPU* candidate [[buffer(9)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(10)]],
+    device NMMatterStatusGPU* statuses [[buffer(11)]],
+    device const float4* candidateBodyPositionLow [[buffer(12)]],
+    constant uint& compensatedTranslation [[buffer(13)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint count = dispatch.femHumanAttachmentCount;
+    const uint total = dispatch.environmentCount * count;
+    if (global >= total || count == 0u) return;
+    const uint environment = global / count;
+    const uint attachmentIndex = global - environment * count;
+    if (!environmentHealthy(statuses, environment)) return;
+
+    const NMFEMHumanAttachmentGPU attachment =
+        attachments[attachmentIndex];
+    const uint node = attachment.identity.x;
+    const uint body = attachment.identity.y;
+    const uint object = attachment.identity.z;
+    const uint nodeGlobal = environment * dispatch.femNodeCount + node;
+    const uint pointJacobianStride =
+        dispatch.femHumanAttachmentPointJacobianStride;
+    const bool layoutValid = compensatedTranslation <= 1u &&
+        node < dispatch.femNodeCount && object < dispatch.objectCount &&
+        body < candidateBodyCount && candidateBodyCount <= candidateBodyStride &&
+        articulatedNv > 0u &&
+        articulatedNv <= dispatch.rigidGeneralizedCapacity &&
+        attachment.identity.w != 0u &&
+        attachment.identity.w != NM_INVALID_INDEX &&
+        attachment.localPoint.w == 0.0f && finite3(attachment.localPoint.xyz) &&
+        nodeRanges[nodeGlobal].objectIndex == object &&
+        femHumanAttachmentConstraint(accepted[nodeGlobal].restAndFixed.w);
+    if (!layoutValid) {
+        recordFailure(
+            statuses[environment], NM_STATUS_INVALID_DISPATCH,
+            object, attachmentIndex,
+            float4(float(node), float(body), float(candidateBodyCount),
+                   float(candidateBodyStride))
+        );
+        return;
+    }
+
+    const MRBodyStateGPU bodyState =
+        candidateBodies[environment * candidateBodyStride + body];
+    const float orientationNorm = dot(
+        bodyState.orientation, bodyState.orientation);
+    if (!finite3(bodyState.position.xyz) ||
+        !all(isfinite(bodyState.orientation)) ||
+        !(orientationNorm > 0.0f) ||
+        abs(orientationNorm - 1.0f) > 256.0f * kEpsilon) {
+        recordFailure(
+            statuses[environment], NM_STATUS_NONFINITE_INPUT,
+            object, attachmentIndex,
+            float4(bodyState.position.xyz, orientationNorm)
+        );
+        return;
+    }
+
+    const uint jacobianBase = environment * pointJacobianStride +
+        attachmentIndex * 3u * dispatch.rigidGeneralizedCapacity;
+    // The attachment operator consumes this exact Jacobian later. Validate
+    // the complete active row here before either the kinematics or reduced
+    // J^T residual can observe it.
+    for (uint dof = 0u; dof < articulatedNv; ++dof) {
+        const float3 jacobian = float3(
+            pointJacobians[jacobianBase + dof],
+            pointJacobians[
+                jacobianBase + dispatch.rigidGeneralizedCapacity + dof],
+            pointJacobians[
+                jacobianBase + 2u * dispatch.rigidGeneralizedCapacity + dof]
+        );
+        if (!finite3(jacobian)) {
+            recordFailure(
+                statuses[environment], NM_STATUS_NONFINITE_INPUT,
+                object, attachmentIndex,
+                float4(float(dof), jacobian)
+            );
+            return;
+        }
+    }
+    const float3 offset = quaternionRotate(
+        bodyState.orientation, attachment.localPoint.xyz);
+    const float4 bodyLow = compensatedTranslation != 0u
+        ? candidateBodyPositionLow[environment * candidateBodyStride + body] : float4(0.0f);
+    if (!all(isfinite(bodyLow)) || as_type<uint>(bodyLow.w) != 0u) {
+        recordFailure(statuses[environment], NM_STATUS_NONFINITE_INPUT,
+            object, attachmentIndex, bodyLow);
+        return;
+    }
+    const float3 position = compensatedTranslation != 0u ? float3(
+        mrCompensatedPositionScalar(bodyState.position.x, bodyLow.x, 0.0f, offset.x).high,
+        mrCompensatedPositionScalar(bodyState.position.y, bodyLow.y, 0.0f, offset.y).high,
+        mrCompensatedPositionScalar(bodyState.position.z, bodyLow.z, 0.0f, offset.z).high)
+        : bodyState.position.xyz + offset;
+    const float3 velocity = bodyState.linearVelocityAndInverseMass.xyz +
+        cross(bodyState.angularVelocity.xyz, offset);
+    if (!finite3(position) || !finite3(velocity)) {
+        recordFailure(
+            statuses[environment], NM_STATUS_NONFINITE_RESULT,
+            object, attachmentIndex, float4(position, length(velocity))
+        );
+        return;
+    }
+
+    NMFEMNodeStateGPU next = candidate[nodeGlobal];
+    next.positionAndMass.xyz = position;
+    next.velocityAndInverseMass.xyz = velocity;
+    next.deltaVelocity.xyz =
+        velocity - accepted[nodeGlobal].velocityAndInverseMass.xyz;
+    candidate[nodeGlobal] = next;
+    (void)generalizedCandidate;
+}
+
+kernel void nm_fem_internal_forces(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMMaterialGPU* materials [[buffer(3)]],
+    device const NMScalarProgramGPU* programs [[buffer(4)]],
+    device const NMExpressionInstructionGPU* instructions [[buffer(5)]],
+    device const float* environmentParameters [[buffer(6)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(7)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(8)]],
+    device const float* acceptedMaterialState [[buffer(9)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(10)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(11)]],
+    device NMFEMElementVectorGPU* elementForces [[buffer(12)]],
+    device NMMatterStatusGPU* statuses [[buffer(13)]],
+    device const NMMixedMaterialGPU* mixedMaterials [[buffer(14)]],
+    device const NMFEMFieldStateGPU* fields [[buffer(15)]],
+    device const NMLearnedMaterialGPU* learnedMaterials [[buffer(16)]],
+    device const NMLearnedLayerGPU* learnedLayers [[buffer(17)]],
+    device const float* learnedWeights [[buffer(18)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.tetrahedronCount;
+    if (global >= total || dispatch.tetrahedronCount == 0u) {
+        return;
+    }
+    const uint environment = global / dispatch.tetrahedronCount;
+    const uint tetrahedronIndex = global - environment * dispatch.tetrahedronCount;
+    const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
+        dispatch, tetrahedra, environment, tetrahedronIndex
+    );
+    const uint objectIndex = tetrahedron.identity.y;
+    elementForces[global] = {};
+    if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+        objectIndex >= dispatch.objectCount ||
+        !environmentHealthy(statuses, environment)) {
+        return;
+    }
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    const NMSchedulerStateGPU scheduler =
+        schedulers[environment * dispatch.objectCount + objectIndex];
+    const NMAdaptiveStateGPU adaptiveState =
+        adaptive[environment * dispatch.objectCount + objectIndex];
+    if (object.representation != NM_REPRESENTATION_FEM ||
+        !objectDue(object, scheduler, adaptiveState, microstep)) {
+        return;
+    }
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    const float3x3 deformation = tetrahedronDeformation(
+        tetrahedron, candidate, nodeBase
+    );
+    const float3x3 deformationRate = tetrahedronVelocityGradient(
+        tetrahedron, candidate, nodeBase
+    );
+    const float determinantValue = determinant(deformation);
+    const NMMaterialGPU material = materials[tetrahedron.identity.x];
+    device const float* internalState = material.stateCount == 0u
+        ? nullptr
+        : acceptedMaterialState + global * dispatch.materialStateStride;
+    bool valid = isfinite(determinantValue) &&
+        determinantValue >= material.validity.x &&
+        determinantValue <= material.validity.y;
+    float3x3 stress = evaluateAlgorithmicStress(
+        material,
+        programs,
+        instructions,
+        environmentParameters + environment * dispatch.parameterCount,
+        internalState,
+        femMaterialInput(object, tetrahedron, deformation),
+        femMaterialInput(object, tetrahedron, deformationRate),
+        objectTimestep(dispatch, scheduler),
+        material.bulk.y,
+        valid
+    );
+    if (material.constitutiveKind == NM_CONSTITUTIVE_POLYCONVEX_ICNN) {
+        bool found = false;
+        for (uint networkIndex = 0u;
+             networkIndex < dispatch.learnedMaterialCount;
+             ++networkIndex) {
+            const NMLearnedMaterialGPU network = learnedMaterials[networkIndex];
+            if (network.identity.y == tetrahedron.identity.x) {
+                stress += learnedFirstPiola(
+                    network, learnedLayers, learnedWeights, femMaterialInput(object, tetrahedron, deformation),
+                    mixedMaterials[tetrahedron.identity.x].fibre.xyz, valid
+                );
+                found = true;
+                break;
+            }
+        }
+        valid = valid && found;
+    }
+    stress = femMaterialOutput(object, tetrahedron, stress);
+    if ((object.flags & NM_OBJECT_MIXED_FEM) != 0u &&
+        object.materialIndex < dispatch.mixedMaterialCount) {
+        float4 fieldAverage = float4(0.0f);
+        float activation = 0.0f;
+        for (uint slot = 0u; slot < 4u; ++slot) {
+            const NMFEMFieldStateGPU field =
+                fields[nodeBase + tetrahedron.nodes[slot]];
+            fieldAverage += field.primary;
+            activation += field.secondary.x;
+        }
+        fieldAverage *= 0.25f;
+        activation *= 0.25f;
+        stress = mixedFirstPiola(
+            stress, deformation, femMixedMaterial(object, tetrahedron, mixedMaterials[object.materialIndex]),
+            fieldAverage.x, fieldAverage.z, activation
+        );
+    }
+    if (!valid || maximumAbs(stress) > material.validity.z) {
+        recordFailure(
+            statuses[environment],
+            NM_STATUS_INVALID_DEFORMATION,
+            objectIndex,
+            tetrahedronIndex,
+            float4(determinantValue, maximumAbs(stress), 0.0f, 0.0f)
+        );
+        return;
+    }
+    elementForces[global] = tetrahedronForce(tetrahedron, stress);
+}
+
+kernel void nm_fem_build_mechanical_residual(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMFEMNodeStateGPU* accepted [[buffer(3)]],
+    device NMFEMNodeStateGPU* candidate [[buffer(4)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(5)]],
+    device const NMFEMElementVectorGPU* elementForces [[buffer(6)]],
+    device const uint* nodeIncidence [[buffer(7)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(8)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(9)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(10)]],
+    device float4* solution [[buffer(11)]],
+    device float4* residual [[buffer(12)]],
+    device float4* preconditioned [[buffer(13)]],
+    device float4* direction [[buffer(14)]],
+    device float4* operatorValue [[buffer(15)]],
+    device NMMatterStatusGPU* statuses [[buffer(16)]],
+    constant NMMixedSolverGPU& solver [[buffer(17)]],
+    device const NMMixedMaterialGPU* mixedMaterials [[buffer(18)]],
+    device const NMFEMFieldStateGPU* fields [[buffer(19)]],
+    constant uint& preserveSolution [[buffer(20)]],
+    device const float4* externalForces [[buffer(21)]],
+    constant uint& hasExternalForces [[buffer(22)]],
+    device float4* constraintReactions [[buffer(23)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u) {
+        return;
+    }
+    const uint environment = global / dispatch.femNodeCount;
+    const uint nodeIndex = global - environment * dispatch.femNodeCount;
+    constraintReactions[global] = float4(0.0f);
+    const NMFEMNodeStateGPU node = accepted[global];
+    const NMFEMNodeStateGPU current = candidate[global];
+    if (preserveSolution == 0u) {
+        solution[global] = float4(0.0f);
+    }
+    residual[global] = float4(0.0f);
+    preconditioned[global] = float4(0.0f);
+    direction[global] = float4(0.0f);
+    operatorValue[global] = float4(0.0f);
+    const NMIncidenceRangeGPU range = nodeRanges[global];
+    if (range.objectIndex == NM_INVALID_INDEX ||
+        range.objectIndex >= dispatch.objectCount ||
+        !environmentHealthy(statuses, environment)) {
+        return;
+    }
+    const NMContinuumObjectGPU object = objects[range.objectIndex];
+    const NMSchedulerStateGPU scheduler =
+        schedulers[environment * dispatch.objectCount + range.objectIndex];
+    const NMAdaptiveStateGPU adaptiveState =
+        adaptive[environment * dispatch.objectCount + range.objectIndex];
+    if (object.representation != NM_REPRESENTATION_FEM ||
+        !objectDue(object, scheduler, adaptiveState, microstep)) {
+        return;
+    }
+    float3 internalForce = float3(0.0f);
+    const uint elementBase = environment * dispatch.tetrahedronCount;
+    for (uint local = 0u; local < range.count; ++local) {
+        const uint tetrahedronIndex = nodeIncidence[range.first + local];
+        internalForce += elementNodeValue(
+            elementForces[elementBase + tetrahedronIndex],
+            environmentTetrahedron(dispatch, tetrahedra, environment,
+                tetrahedronIndex),
+            nodeIndex
+        );
+    }
+    const float dt = objectTimestep(dispatch, scheduler);
+    const float3 momentumCorrection = node.positionAndMass.w *
+        (current.velocityAndInverseMass.xyz -
+         node.velocityAndInverseMass.xyz);
+    const bool fixedVelocity = femStaticConstraint(node.restAndFixed.w) ||
+        node.positionAndMass.w <= 0.0f;
+    const float3 externalForce = hasExternalForces != 0u
+        ? externalForces[global].xyz
+        : float3(0.0f);
+    const float3 unconstrainedRhs = dt * (
+        internalForce + externalForce +
+        node.positionAndMass.w * dispatch.gravityAndTimestep.xyz
+    ) - momentumCorrection;
+    // For a prescribed node, unconstrainedRhs is the impulse that its owning
+    // boundary receives from the continuum over this microstep. Publishing
+    // force (rather than constraint impulse on the node) gives the caller the
+    // action on the bone with the correct sign for J^T projection.
+    if (fixedVelocity) {
+        constraintReactions[global] = float4(unconstrainedRhs / dt, 0.0f);
+    }
+    const float3 rhs = fixedVelocity ? float3(0.0f) : unconstrainedRhs;
+    const float inverseMass = node.velocityAndInverseMass.w;
+    const float3 z = fixedVelocity ? float3(0.0f) : inverseMass * rhs;
+    float pressureResidual = 0.0f;
+    float pressureDiagonal = 1.0f;
+    if ((object.flags & NM_OBJECT_MIXED_FEM) != 0u &&
+        object.materialIndex < dispatch.mixedMaterialCount) {
+        pressureDiagonal = 0.0f;
+        const NMMixedMaterialGPU mixed = mixedMaterials[object.materialIndex];
+        const float bulk = max(mixed.mechanics.x, 1.0e-12f);
+        const float nodalQ = fields[global].primary.x / bulk;
+        uint active = 0u;
+        for (uint local = 0u; local < range.count; ++local) {
+            const uint tetIndex = nodeIncidence[range.first + local];
+            if (tetIndex >= dispatch.tetrahedronCount) continue;
+            const NMTetrahedronGPU tet = environmentTetrahedron(
+                dispatch, tetrahedra, environment, tetIndex
+            );
+            if ((tet.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
+            const float determinantValue = determinant(
+                tetrahedronDeformation(tet, candidate,
+                    environment * dispatch.femNodeCount)
+            );
+            if (!(determinantValue > dispatch.numericalLimits.z)) continue;
+            float temperature = 0.0f;
+            float averageQ = 0.0f;
+            for (uint slot = 0u; slot < 4u; ++slot) {
+                const NMFEMFieldStateGPU field = fields[
+                    environment * dispatch.femNodeCount + tet.nodes[slot]
+                ];
+                temperature += field.primary.y;
+                averageQ += field.primary.x / bulk;
+            }
+            temperature *= 0.25f;
+            averageQ *= 0.25f;
+            pressureResidual -= log(determinantValue) -
+                3.0f * mixed.mechanics.y *
+                    (temperature - mixed.mechanics.w) +
+                averageQ + solver.globalization.w * (nodalQ - averageQ);
+            pressureDiagonal += 0.25f +
+                0.75f * solver.globalization.w;
+            ++active;
+        }
+        if (active > 0u) {
+            pressureResidual /= float(active);
+            pressureDiagonal /= float(active);
+        } else {
+            pressureDiagonal = 1.0f;
+        }
+    }
+    residual[global] = float4(rhs, pressureResidual);
+    preconditioned[global] = float4(z, pressureResidual / pressureDiagonal);
+    direction[global] = preconditioned[global];
+}
+
+kernel void nm_fem_apply_operator_elements(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMMaterialGPU* materials [[buffer(3)]],
+    device const NMScalarProgramGPU* programs [[buffer(4)]],
+    device const NMExpressionInstructionGPU* instructions [[buffer(5)]],
+    device const float* environmentParameters [[buffer(6)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(7)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(8)]],
+    device const float* acceptedMaterialState [[buffer(9)]],
+    device const float4* direction [[buffer(10)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(11)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(12)]],
+    device NMFEMElementVectorGPU* elementOperator [[buffer(13)]],
+    device NMMatterStatusGPU* statuses [[buffer(14)]],
+    device const NMMixedMaterialGPU* mixedMaterials [[buffer(16)]],
+    device const NMFEMFieldStateGPU* fields [[buffer(17)]],
+    device const NMLearnedMaterialGPU* learnedMaterials [[buffer(18)]],
+    device const NMLearnedLayerGPU* learnedLayers [[buffer(19)]],
+    device const float* learnedWeights [[buffer(20)]],
+    constant NMMixedSolverGPU& solver [[buffer(21)]],
+    device const NMFGMRESStateGPU* fgmresStates [[buffer(22)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.tetrahedronCount;
+    if (global >= total || dispatch.tetrahedronCount == 0u) {
+        return;
+    }
+    const uint environment = global / dispatch.tetrahedronCount;
+    const uint tetrahedronIndex = global - environment * dispatch.tetrahedronCount;
+    const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
+        dispatch, tetrahedra, environment, tetrahedronIndex
+    );
+    const uint objectIndex = tetrahedron.identity.y;
+    elementOperator[global] = {};
+    if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+        objectIndex >= dispatch.objectCount ||
+        !environmentHealthy(statuses, environment)) {
+        return;
+    }
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    const NMSchedulerStateGPU scheduler =
+        schedulers[environment * dispatch.objectCount + objectIndex];
+    const NMAdaptiveStateGPU adaptiveState =
+        adaptive[environment * dispatch.objectCount + objectIndex];
+    if (object.representation != NM_REPRESENTATION_FEM ||
+        !objectDue(object, scheduler, adaptiveState, microstep) ||
+        (microstep.flags & NM_MICROSTEP_FGMRES_OPERATOR) == 0u ||
+        fgmresStates[environment].diagnostics.z > 0.5f) {
+        return;
+    }
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    const float3 p0 = direction[nodeBase + tetrahedron.nodes.x].xyz;
+    const float3 p1 = direction[nodeBase + tetrahedron.nodes.y].xyz;
+    const float3 p2 = direction[nodeBase + tetrahedron.nodes.z].xyz;
+    const float3 p3 = direction[nodeBase + tetrahedron.nodes.w].xyz;
+    const float3x3 dp = float3x3(p1 - p0, p2 - p0, p3 - p0);
+    const float3x3 inverseRest = matrixFromRows(
+        tetrahedron.inverseRestRow0,
+        tetrahedron.inverseRestRow1,
+        tetrahedron.inverseRestRow2
+    );
+    const float3x3 deformationDirection = dp * inverseRest;
+    const float3x3 deformation = tetrahedronDeformation(
+        tetrahedron, candidate, nodeBase
+    );
+    const float3x3 deformationRate = tetrahedronVelocityGradient(
+        tetrahedron, candidate, nodeBase
+    );
+    const float dt = objectTimestep(dispatch, scheduler);
+    const float3x3 rateDirection = deformationDirection / max(dt, 1.0e-12f);
+    const NMMaterialGPU material = materials[tetrahedron.identity.x];
+    device const float* internalState = material.stateCount == 0u
+        ? nullptr
+        : acceptedMaterialState + global * dispatch.materialStateStride;
+    bool valid = true;
+    float3x3 analytic;
+    float3x3 tangent;
+    evaluateAlgorithmicStressTangent(
+        material,
+        programs,
+        instructions,
+        environmentParameters + environment * dispatch.parameterCount,
+        internalState,
+        femMaterialInput(object, tetrahedron, deformation),
+        femMaterialInput(object, tetrahedron, deformationDirection),
+        femMaterialInput(object, tetrahedron, deformationRate),
+        femMaterialInput(object, tetrahedron, rateDirection),
+        dt,
+        material.bulk.y,
+        analytic,
+        tangent,
+        valid
+    );
+    if (material.constitutiveKind == NM_CONSTITUTIVE_POLYCONVEX_ICNN) {
+        bool found = false;
+        for (uint networkIndex = 0u;
+             networkIndex < dispatch.learnedMaterialCount;
+             ++networkIndex) {
+            const NMLearnedMaterialGPU network = learnedMaterials[networkIndex];
+            if (network.identity.y == tetrahedron.identity.x) {
+                const float3 fibre = tetrahedron.identity.x <
+                    dispatch.mixedMaterialCount
+                    ? mixedMaterials[tetrahedron.identity.x].fibre.xyz
+                    : float3(1.0f, 0.0f, 0.0f);
+                analytic += learnedFirstPiola(
+                    network, learnedLayers, learnedWeights, femMaterialInput(object, tetrahedron, deformation),
+                    fibre, valid
+                );
+                tangent += learnedTangentVector(
+                    network, learnedLayers, learnedWeights, femMaterialInput(object, tetrahedron, deformation),
+                    femMaterialInput(object, tetrahedron, deformationDirection), fibre, valid
+                );
+                found = true;
+                break;
+            }
+        }
+        valid = valid && found;
+    }
+    analytic = femMaterialOutput(object, tetrahedron, analytic);
+    tangent = femMaterialOutput(object, tetrahedron, tangent);
+    if ((object.flags & NM_OBJECT_MIXED_FEM) != 0u &&
+        object.materialIndex < dispatch.mixedMaterialCount) {
+        const NMMixedMaterialGPU mixed = femMixedMaterial(
+            object, tetrahedron, mixedMaterials[object.materialIndex]);
+        float4 fieldAverage = float4(0.0f);
+        float activation = 0.0f;
+        float averagePressureDirection = 0.0f;
+        float4 averageFieldDirection = float4(0.0f);
+        const uint fieldBase = dispatch.environmentCount *
+            dispatch.femNodeCount;
+        for (uint slot = 0u; slot < 4u; ++slot) {
+            const NMFEMFieldStateGPU field =
+                fields[nodeBase + tetrahedron.nodes[slot]];
+            fieldAverage += field.primary;
+            activation += field.secondary.x;
+            averagePressureDirection +=
+                direction[nodeBase + tetrahedron.nodes[slot]].w;
+            if ((microstep.flags & NM_MICROSTEP_FGMRES_OPERATOR) != 0u)
+                averageFieldDirection += direction[
+                    fieldBase + nodeBase + tetrahedron.nodes[slot]];
+        }
+        fieldAverage *= 0.25f;
+        activation *= 0.25f;
+        averagePressureDirection *= 0.25f;
+        averageFieldDirection *= 0.25f;
+        tangent = mixedFirstPiolaTangent(
+            analytic, tangent, deformation, deformationDirection,
+            mixed, fieldAverage.x,
+            fieldAverage.z, activation
+        );
+        // d(-pi cof(F))/d(pi) belongs to the same KKT element block. Scale
+        // by 1/dt because the node gather applies the mechanical dt^2 factor
+        // while pressure traction enters momentum with one power of dt.
+        const float bulk = max(mixed.mechanics.x, 1.0e-12f);
+        tangent += (-bulk * averagePressureDirection / max(dt, 1.0e-12f)) *
+            cofactorMatrix(deformation);
+        // Exact off-diagonal material columns. Field increments are state
+        // increments while the gathered mechanical block carries dt^2, so
+        // direct pore-pressure and activation stress derivatives carry 1/dt.
+        const float3x3 cofactor = cofactorMatrix(deformation);
+        tangent += (-mixed.mechanics.z * averageFieldDirection.y /
+                    max(dt, 1.0e-12f)) * cofactor;
+        const float3 referenceFibre = normalize(mixed.fibre.xyz);
+        const float3 deformedFibre = deformation * referenceFibre;
+        const float fibreLength = length(deformedFibre);
+        if (fibreLength > 1.0e-12f && mixed.fibre.w > 0.0f) {
+            const float3 m = deformedFibre / fibreLength;
+            const float scale = mixed.fibre.w * averageFieldDirection.w /
+                max(dt, 1.0e-12f);
+            const float3x3 activationCauchy = float3x3(
+                scale * m.x * m, scale * m.y * m, scale * m.z * m);
+            tangent += activationCauchy * cofactor;
+        }
+    }
+    if (!valid) {
+        recordFailure(
+            statuses[environment],
+            NM_STATUS_NONFINITE_RESULT,
+            objectIndex,
+            tetrahedronIndex,
+            float4(maximumAbs(deformationDirection), 0.0f, 0.0f, 0.0f)
+        );
+        return;
+    }
+    NMFEMElementVectorGPU value = tetrahedronForce(tetrahedron, tangent);
+    if ((object.flags & NM_OBJECT_MIXED_FEM) != 0u &&
+        object.materialIndex < dispatch.mixedMaterialCount) {
+        float averagePressureDirection = 0.0f;
+        for (uint slot = 0u; slot < 4u; ++slot)
+            averagePressureDirection +=
+                direction[nodeBase + tetrahedron.nodes[slot]].w;
+        averagePressureDirection *= 0.25f;
+        const float determinantValue = determinant(deformation);
+        const float3x3 cofactor = cofactorMatrix(deformation);
+        const float volumeDirection = dt * (
+            dot(cofactor[0], deformationDirection[0]) +
+            dot(cofactor[1], deformationDirection[1]) +
+            dot(cofactor[2], deformationDirection[2])) /
+            max(determinantValue, 1.0e-20f);
+        const float stabilization = solver.globalization.w;
+        float averageTemperatureDirection = 0.0f;
+        const uint fieldBase = dispatch.environmentCount *
+            dispatch.femNodeCount;
+        if ((microstep.flags & NM_MICROSTEP_FGMRES_OPERATOR) != 0u)
+            for (uint slot = 0u; slot < 4u; ++slot)
+                averageTemperatureDirection += direction[
+                    fieldBase + nodeBase + tetrahedron.nodes[slot]].x;
+        averageTemperatureDirection *= 0.25f;
+        const float thermalConstraint = -3.0f *
+            mixedMaterials[object.materialIndex].mechanics.y *
+            averageTemperatureDirection;
+        value.node0.w = volumeDirection + averagePressureDirection +
+            thermalConstraint +
+            stabilization * (direction[nodeBase + tetrahedron.nodes.x].w -
+                             averagePressureDirection);
+        value.node1.w = volumeDirection + averagePressureDirection +
+            thermalConstraint +
+            stabilization * (direction[nodeBase + tetrahedron.nodes.y].w -
+                             averagePressureDirection);
+        value.node2.w = volumeDirection + averagePressureDirection +
+            thermalConstraint +
+            stabilization * (direction[nodeBase + tetrahedron.nodes.z].w -
+                             averagePressureDirection);
+        value.node3.w = volumeDirection + averagePressureDirection +
+            thermalConstraint +
+            stabilization * (direction[nodeBase + tetrahedron.nodes.w].w -
+                             averagePressureDirection);
+    }
+    elementOperator[global] = value;
+}
+
+kernel void nm_fem_apply_solution(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(3)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(4)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(5)]],
+    device const NMFEMNodeStateGPU* accepted [[buffer(6)]],
+    device float4* solution [[buffer(7)]],
+    device NMFEMNodeStateGPU* candidate [[buffer(8)]],
+    device const float4* lineSearch [[buffer(9)]],
+    device const NMMixedMaterialGPU* mixedMaterials [[buffer(10)]],
+    device NMFEMFieldStateGPU* fields [[buffer(11)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u) {
+        return;
+    }
+    const uint environment = global / dispatch.femNodeCount;
+    const uint objectIndex = nodeRanges[global].objectIndex;
+    NMFEMNodeStateGPU next = candidate[global];
+    if (objectIndex != NM_INVALID_INDEX && objectIndex < dispatch.objectCount) {
+        const NMContinuumObjectGPU object = objects[objectIndex];
+        const NMSchedulerStateGPU scheduler =
+            schedulers[environment * dispatch.objectCount + objectIndex];
+        const NMAdaptiveStateGPU adaptiveState =
+            adaptive[environment * dispatch.objectCount + objectIndex];
+        if (object.representation == NM_REPRESENTATION_FEM &&
+            objectDue(object, scheduler, adaptiveState, microstep)) {
+            const float alpha = clamp(
+                lineSearch[environment * dispatch.objectCount + objectIndex].x,
+                0.0f, 1.0f
+            );
+            if (next.restAndFixed.w <= 0.5f) {
+                next.velocityAndInverseMass.xyz +=
+                    alpha * solution[global].xyz;
+                next.deltaVelocity.xyz = next.velocityAndInverseMass.xyz -
+                    accepted[global].velocityAndInverseMass.xyz;
+                next.positionAndMass.xyz = accepted[global].positionAndMass.xyz +
+                    objectTimestep(dispatch, scheduler) *
+                    next.velocityAndInverseMass.xyz;
+            }
+            if ((object.flags & NM_OBJECT_MIXED_FEM) != 0u &&
+                object.materialIndex < dispatch.mixedMaterialCount) {
+                fields[global].primary.x += alpha *
+                    mixedMaterials[object.materialIndex].mechanics.x *
+                    solution[global].w;
+            }
+            // Certification consumes the correction that actually reached
+            // the candidate, not the unscaled Newton proposal.
+            solution[global].xyz *= alpha;
+        }
+    }
+    candidate[global] = next;
+}
+
+kernel void nm_fem_select_backtracking(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    constant NMMixedSolverGPU& solver [[buffer(2)]],
+    device const NMContinuumObjectGPU* objects [[buffer(3)]],
+    device const NMMaterialGPU* materials [[buffer(4)]],
+    device const NMFEMNodeStateGPU* accepted [[buffer(5)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(6)]],
+    device const float4* correction [[buffer(7)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(8)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(9)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(10)]],
+    device float4* lineSearch [[buffer(11)]],
+    device NMMatterStatusGPU* statuses [[buffer(12)]],
+    device const NMMixedMaterialGPU* mixedMaterials [[buffer(13)]],
+    device const NMFEMFieldStateGPU* fields [[buffer(14)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.objectCount;
+    if (global >= total || dispatch.objectCount == 0u) return;
+    const uint environment = global / dispatch.objectCount;
+    const uint objectIndex = global - environment * dispatch.objectCount;
+    lineSearch[global] = float4(1.0f, INFINITY, 0.0f, 0.0f);
+    if (!environmentHealthy(statuses, environment)) return;
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    const NMSchedulerStateGPU scheduler = schedulers[global];
+    const NMAdaptiveStateGPU adaptiveState = adaptive[global];
+    if (object.representation != NM_REPRESENTATION_FEM ||
+        !objectDue(object, scheduler, adaptiveState, microstep)) return;
+    const uint candidateCount = min(solver.nonlinearIterations.w, 8u);
+    const float dt = objectTimestep(dispatch, scheduler);
+    float chosen = 0.0f;
+    float chosenMinimum = -INFINITY;
+    for (uint trial = 0u; trial < candidateCount; ++trial) {
+        const float alpha = exp2(-float(trial));
+        float minimumJ = INFINITY;
+        float currentVolumeMerit2 = 0.0f;
+        float trialVolumeMerit2 = 0.0f;
+        uint volumeElementCount = 0u;
+        bool valid = true;
+        for (uint local = 0u; local < dispatch.tetrahedronCount; ++local) {
+            const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
+                dispatch, tetrahedra, environment, local
+            );
+            if (tetrahedron.identity.y != objectIndex ||
+                (tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
+            const uint nodeBase = environment * dispatch.femNodeCount;
+            float3 x[4];
+            for (uint slot = 0u; slot < 4u; ++slot) {
+                const uint index = nodeBase + tetrahedron.nodes[slot];
+                const float3 velocity =
+                    candidate[index].velocityAndInverseMass.xyz +
+                    alpha * correction[index].xyz;
+                x[slot] = accepted[index].positionAndMass.xyz + dt * velocity;
+            }
+            const float3x3 inverseRest = matrixFromRows(
+                tetrahedron.inverseRestRow0,
+                tetrahedron.inverseRestRow1,
+                tetrahedron.inverseRestRow2
+            );
+            const float3x3 deformation = float3x3(
+                x[1] - x[0], x[2] - x[0], x[3] - x[0]
+            ) * inverseRest;
+            const float determinantValue = determinant(deformation);
+            const float currentDeterminant = determinant(
+                tetrahedronDeformation(tetrahedron, candidate, nodeBase));
+            minimumJ = min(minimumJ, determinantValue);
+            const NMMaterialGPU material = materials[tetrahedron.identity.x];
+            valid = valid && isfinite(determinantValue) &&
+                determinantValue >= max(
+                    dispatch.numericalLimits.z, material.validity.x
+                ) && determinantValue <= material.validity.y;
+            if ((object.flags & NM_OBJECT_MIXED_FEM) != 0u &&
+                object.materialIndex < dispatch.mixedMaterialCount &&
+                currentDeterminant > dispatch.numericalLimits.z &&
+                determinantValue > dispatch.numericalLimits.z) {
+                const NMMixedMaterialGPU mixed =
+                    mixedMaterials[object.materialIndex];
+                const float bulk = max(
+                    mixed.mechanics.x, solver.regularization.x);
+                float currentPressure = 0.0f;
+                float trialPressure = 0.0f;
+                float currentTemperature = 0.0f;
+                float trialTemperature = 0.0f;
+                const uint totalNodes = dispatch.environmentCount *
+                    dispatch.femNodeCount;
+                for (uint slot = 0u; slot < 4u; ++slot) {
+                    const uint index = nodeBase + tetrahedron.nodes[slot];
+                    currentPressure += fields[index].primary.x;
+                    trialPressure += fields[index].primary.x +
+                        alpha * bulk * correction[index].w;
+                    currentTemperature += fields[index].primary.y;
+                    trialTemperature += fields[index].primary.y + alpha *
+                        correction[totalNodes + index].x;
+                }
+                currentPressure *= 0.25f;
+                trialPressure *= 0.25f;
+                currentTemperature *= 0.25f;
+                trialTemperature *= 0.25f;
+                const float currentConstraint = log(currentDeterminant) +
+                    currentPressure / bulk - 3.0f * mixed.mechanics.y *
+                        (currentTemperature - mixed.mechanics.w);
+                const float trialConstraint = log(determinantValue) +
+                    trialPressure / bulk - 3.0f * mixed.mechanics.y *
+                        (trialTemperature - mixed.mechanics.w);
+                currentVolumeMerit2 += currentConstraint * currentConstraint;
+                trialVolumeMerit2 += trialConstraint * trialConstraint;
+                ++volumeElementCount;
+            }
+        }
+        const float inverseVolumeCount = volumeElementCount > 0u
+            ? 1.0f / float(volumeElementCount) : 0.0f;
+        const float currentVolumeMerit = sqrt(max(
+            currentVolumeMerit2 * inverseVolumeCount, 0.0f));
+        const float trialVolumeMerit = sqrt(max(
+            trialVolumeMerit2 * inverseVolumeCount, 0.0f));
+        const bool volumeArmijo = currentVolumeMerit <=
+            solver.residualTolerances.y || trialVolumeMerit <= max(
+                solver.residualTolerances.y,
+                (1.0f - solver.globalization.x * alpha) *
+                    currentVolumeMerit);
+        const bool boundedTrustFallback = trial + 1u == candidateCount;
+        valid = valid && (volumeArmijo || boundedTrustFallback);
+        if (valid) {
+            chosen = alpha;
+            chosenMinimum = minimumJ;
+            break;
+        }
+    }
+    lineSearch[global] = float4(
+        chosen, chosenMinimum, float(candidateCount), float(microstep.solverIteration)
+    );
+    if (!(chosen > 0.0f)) {
+        recordFailure(
+            statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+            objectIndex, microstep.solverIteration,
+            float4(chosenMinimum, float(candidateCount), 0.0f, 0.0f)
+        );
+    }
+}
+
+// The Newton/KKT unknown is environment-wide: cross-object contact rows and
+// mixed fields cannot apply independently selected object steps. Reduce the
+// admissible object trials to one deterministic SIMD32 step per environment
+// and publish that value back to every participating block.
+kernel void nm_fem_synchronize_environment_line_search(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device float4* lineSearch [[buffer(1)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]
+) {
+    if (lane >= 32u || environment >= dispatch.environmentCount) return;
+    float alpha = 1.0f;
+    const uint base = environment * dispatch.objectCount;
+    for (uint objectIndex = lane; objectIndex < dispatch.objectCount;
+         objectIndex += 32u)
+        alpha = min(alpha, lineSearch[base + objectIndex].x);
+    alpha = simd_min(alpha);
+    for (uint objectIndex = lane; objectIndex < dispatch.objectCount;
+         objectIndex += 32u) {
+        float4 state = lineSearch[base + objectIndex];
+        state.x = alpha;
+        lineSearch[base + objectIndex] = state;
+    }
+}
+
+kernel void nm_fem_integrate(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(3)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(4)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(5)]],
+    device const NMFEMNodeStateGPU* accepted [[buffer(6)]],
+    device NMFEMNodeStateGPU* candidate [[buffer(7)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u) {
+        return;
+    }
+    const uint environment = global / dispatch.femNodeCount;
+    const uint objectIndex = nodeRanges[global].objectIndex;
+    if (objectIndex == NM_INVALID_INDEX || objectIndex >= dispatch.objectCount) {
+        return;
+    }
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    const NMSchedulerStateGPU scheduler =
+        schedulers[environment * dispatch.objectCount + objectIndex];
+    const NMAdaptiveStateGPU adaptiveState =
+        adaptive[environment * dispatch.objectCount + objectIndex];
+    if (object.representation == NM_REPRESENTATION_FEM &&
+        objectDue(object, scheduler, adaptiveState, microstep) &&
+        candidate[global].restAndFixed.w <= 0.5f) {
+        candidate[global].positionAndMass.xyz =
+            accepted[global].positionAndMass.xyz +
+            objectTimestep(dispatch, scheduler) *
+            candidate[global].velocityAndInverseMass.xyz;
+    }
+}
+
+kernel void nm_fem_validate(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMMaterialGPU* materials [[buffer(3)]],
+    device const NMScalarProgramGPU* programs [[buffer(4)]],
+    device const NMExpressionInstructionGPU* instructions [[buffer(5)]],
+    device const float* environmentParameters [[buffer(6)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(7)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(8)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(9)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(10)]],
+    device const float* acceptedMaterialState [[buffer(11)]],
+    device float* candidateMaterialState [[buffer(12)]],
+    device NMMatterStatusGPU* statuses [[buffer(13)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.tetrahedronCount;
+    if (global >= total || dispatch.tetrahedronCount == 0u) {
+        return;
+    }
+    const uint environment = global / dispatch.tetrahedronCount;
+    const uint tetrahedronIndex = global - environment * dispatch.tetrahedronCount;
+    const uint materialStateBase = global * dispatch.materialStateStride;
+    for (uint state = 0u; state < dispatch.materialStateStride; ++state) {
+        candidateMaterialState[materialStateBase + state] =
+            acceptedMaterialState[materialStateBase + state];
+    }
+    if (!environmentHealthy(statuses, environment)) {
+        return;
+    }
+    const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
+        dispatch, tetrahedra, environment, tetrahedronIndex
+    );
+    const uint objectIndex = tetrahedron.identity.y;
+    if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u) {
+        return;
+    }
+    if (objectIndex >= dispatch.objectCount ||
+        tetrahedron.identity.x >= dispatch.materialCount) {
+        recordFailure(
+            statuses[environment],
+            NM_STATUS_INVALID_DISPATCH,
+            objectIndex,
+            tetrahedronIndex,
+            float4(0.0f)
+        );
+        return;
+    }
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    const NMSchedulerStateGPU scheduler =
+        schedulers[environment * dispatch.objectCount + objectIndex];
+    const NMAdaptiveStateGPU adaptiveState =
+        adaptive[environment * dispatch.objectCount + objectIndex];
+    if (object.representation != NM_REPRESENTATION_FEM ||
+        !objectDue(object, scheduler, adaptiveState, microstep)) {
+        return;
+    }
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    const float3x3 deformation = tetrahedronDeformation(
+        tetrahedron,
+        candidate,
+        nodeBase
+    );
+    const float3x3 deformationRate = tetrahedronVelocityGradient(
+        tetrahedron,
+        candidate,
+        nodeBase
+    );
+    const float determinantValue = determinant(deformation);
+    const NMMaterialGPU material = materials[tetrahedron.identity.x];
+    device const float* internalState = material.stateCount == 0u
+        ? nullptr
+        : acceptedMaterialState + materialStateBase;
+    const float dt = objectTimestep(dispatch, scheduler);
+    float validityMargin = 1.0f;
+    bool valid = isfinite(determinantValue) &&
+        determinantValue >= material.validity.x &&
+        determinantValue <= material.validity.y &&
+        evaluateMaterialValidity(
+            material,
+            programs,
+            instructions,
+            environmentParameters + environment * dispatch.parameterCount,
+            internalState,
+            femMaterialInput(object, tetrahedron, deformation),
+            femMaterialInput(object, tetrahedron, deformationRate),
+            dt,
+            material.bulk.y,
+            validityMargin
+        ) && validityMargin > 0.0f;
+    if (!valid) {
+        recordFailure(
+            statuses[environment],
+            NM_STATUS_INVALID_DEFORMATION,
+            objectIndex,
+            tetrahedronIndex,
+            float4(determinantValue, validityMargin, 0.0f, 0.0f)
+        );
+        return;
+    }
+    float projectedState[NM_MAX_MATERIAL_STATE];
+    if (!projectMaterialState(
+            material, programs, instructions,
+            environmentParameters + environment * dispatch.parameterCount,
+            internalState, femMaterialInput(object, tetrahedron, deformation), femMaterialInput(object, tetrahedron, deformationRate), dt,
+            material.bulk.y, projectedState)) {
+        recordFailure(statuses[environment],
+            NM_STATUS_LOCAL_MATERIAL_FAILURE, objectIndex, tetrahedronIndex,
+            float4(validityMargin, determinantValue,
+                   float(material.localNewtonIterations), 0.0f));
+        return;
+    }
+    for (uint state = 0u; state < material.stateCount; ++state)
+        candidateMaterialState[materialStateBase + state] =
+            projectedState[state];
+}
+
+kernel void nm_learned_differential_oracle(
+    device const NMLearnedMaterialGPU* networks [[buffer(0)]],
+    device const NMLearnedLayerGPU* layers [[buffer(1)]],
+    device const float* weights [[buffer(2)]],
+    constant float4& referenceFibre [[buffer(3)]],
+    device NMLearnedDifferentialGPU* sample [[buffer(4)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global != 0u) return;
+    const float3x3 deformation = matrixFromRows(
+        sample->deformationRow0,
+        sample->deformationRow1,
+        sample->deformationRow2
+    );
+    const float3x3 direction = matrixFromRows(
+        sample->directionRow0,
+        sample->directionRow1,
+        sample->directionRow2
+    );
+    bool valid = true;
+    const float3x3 stress = learnedFirstPiola(
+        networks[0], layers, weights, deformation,
+        referenceFibre.xyz, valid
+    );
+    const float3x3 tangent = learnedTangentVector(
+        networks[0], layers, weights, deformation, direction,
+        referenceFibre.xyz, valid
+    );
+    matrixToRows(stress, sample->firstPiolaRow0,
+        sample->firstPiolaRow1, sample->firstPiolaRow2);
+    matrixToRows(tangent, sample->tangentRow0,
+        sample->tangentRow1, sample->tangentRow2);
+    sample->diagnostics = float4(
+        determinant(deformation), maximumAbs(stress),
+        maximumAbs(tangent), valid ? 1.0f : 0.0f
+    );
+}
+
+inline float4 fusedFEMOperatorAtNode(
+    const NMMatterDispatchGPU dispatch,
+    const NMMicrostepGPU microstep,
+    const NMMixedSolverGPU solver,
+    const uint environment,
+    const uint objectIndex,
+    const uint node,
+    device const NMContinuumObjectGPU* objects,
+    device const NMMaterialGPU* materials,
+    device const NMScalarProgramGPU* programs,
+    device const NMExpressionInstructionGPU* instructions,
+    device const float* environmentParameters,
+    device const NMFEMNodeStateGPU* candidate,
+    device const NMTetrahedronGPU* tetrahedra,
+    device const float* materialState,
+    device const uint* nodeIncidence,
+    device const NMIncidenceRangeGPU* nodeRanges,
+    device const NMSchedulerStateGPU* schedulers,
+    device const NMMixedMaterialGPU* mixedMaterials,
+    device const NMFEMFieldStateGPU* fields,
+    device const NMLearnedMaterialGPU* learnedMaterials,
+    device const NMLearnedLayerGPU* learnedLayers,
+    device const float* learnedWeights,
+    device const float4* direction,
+    thread bool& valid
+) {
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    const uint globalNode = nodeBase + node;
+    if (candidate[globalNode].restAndFixed.w > 0.5f ||
+        candidate[globalNode].positionAndMass.w <= 0.0f) {
+        return float4(0.0f);
+    }
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    const NMSchedulerStateGPU scheduler =
+        schedulers[environment * dispatch.objectCount + objectIndex];
+    float3 derivativeForce = float3(0.0f);
+    float3 pressureForce = float3(0.0f);
+    float pressureOperator = 0.0f;
+    uint pressureElements = 0u;
+    const NMIncidenceRangeGPU range = nodeRanges[globalNode];
+    for (uint local = 0u; local < range.count; ++local) {
+        const uint tetrahedronIndex = nodeIncidence[range.first + local];
+        if (tetrahedronIndex >= dispatch.tetrahedronCount) continue;
+        const uint globalTet = environment * dispatch.tetrahedronCount +
+            tetrahedronIndex;
+        const NMTetrahedronGPU tetrahedron = tetrahedra[globalTet];
+        if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+            tetrahedron.identity.y != objectIndex) continue;
+        const float3 p0 = direction[nodeBase + tetrahedron.nodes.x].xyz;
+        const float3 p1 = direction[nodeBase + tetrahedron.nodes.y].xyz;
+        const float3 p2 = direction[nodeBase + tetrahedron.nodes.z].xyz;
+        const float3 p3 = direction[nodeBase + tetrahedron.nodes.w].xyz;
+        const float3x3 inverseRest = matrixFromRows(
+            tetrahedron.inverseRestRow0,
+            tetrahedron.inverseRestRow1,
+            tetrahedron.inverseRestRow2
+        );
+        const float3x3 deformationDirection = float3x3(
+            p1 - p0, p2 - p0, p3 - p0
+        ) * inverseRest;
+        const float3x3 deformation = tetrahedronDeformation(
+            tetrahedron, candidate, nodeBase
+        );
+        const float3x3 deformationRate = tetrahedronVelocityGradient(
+            tetrahedron, candidate, nodeBase
+        );
+        const float dt = objectTimestep(dispatch, scheduler);
+        const NMMaterialGPU material = materials[tetrahedron.identity.x];
+        device const float* internalState = material.stateCount == 0u
+            ? nullptr
+            : materialState + globalTet * dispatch.materialStateStride;
+        bool elementValid = true;
+        float3x3 analytic;
+        float3x3 tangent;
+        evaluateAlgorithmicStressTangent(
+            material, programs, instructions,
+            environmentParameters + environment * dispatch.parameterCount,
+            internalState, femMaterialInput(object, tetrahedron, deformation), femMaterialInput(object, tetrahedron, deformationDirection),
+            femMaterialInput(object, tetrahedron, deformationRate),
+            femMaterialInput(object, tetrahedron, deformationDirection) / max(dt, 1.0e-12f),
+            dt, material.bulk.y, analytic, tangent, elementValid
+        );
+        if (material.constitutiveKind == NM_CONSTITUTIVE_POLYCONVEX_ICNN) {
+            bool found = false;
+            const float3 fibre = tetrahedron.identity.x < dispatch.mixedMaterialCount
+                ? mixedMaterials[tetrahedron.identity.x].fibre.xyz
+                : float3(1.0f, 0.0f, 0.0f);
+            for (uint networkIndex = 0u;
+                 networkIndex < dispatch.learnedMaterialCount; ++networkIndex) {
+                const NMLearnedMaterialGPU network =
+                    learnedMaterials[networkIndex];
+                if (network.identity.y != tetrahedron.identity.x) continue;
+                analytic += learnedFirstPiola(
+                    network, learnedLayers, learnedWeights,
+                    femMaterialInput(object, tetrahedron, deformation), fibre, elementValid
+                );
+                tangent += learnedTangentVector(
+                    network, learnedLayers, learnedWeights,
+                    femMaterialInput(object, tetrahedron, deformation), femMaterialInput(object, tetrahedron, deformationDirection), fibre, elementValid
+                );
+                found = true;
+                break;
+            }
+            elementValid = elementValid && found;
+        }
+        analytic = femMaterialOutput(object, tetrahedron, analytic);
+        tangent = femMaterialOutput(object, tetrahedron, tangent);
+        if ((object.flags & NM_OBJECT_MIXED_FEM) != 0u &&
+            object.materialIndex < dispatch.mixedMaterialCount) {
+            const NMMixedMaterialGPU mixed = femMixedMaterial(
+                object, tetrahedron, mixedMaterials[object.materialIndex]);
+            float4 fieldAverage = float4(0.0f);
+            float activation = 0.0f;
+            float averageQDirection = 0.0f;
+            for (uint slot = 0u; slot < 4u; ++slot) {
+                const NMFEMFieldStateGPU field =
+                    fields[nodeBase + tetrahedron.nodes[slot]];
+                fieldAverage += field.primary;
+                activation += field.secondary.x;
+                averageQDirection += direction[
+                    nodeBase + tetrahedron.nodes[slot]
+                ].w;
+            }
+            fieldAverage *= 0.25f;
+            activation *= 0.25f;
+            averageQDirection *= 0.25f;
+            tangent = mixedFirstPiolaTangent(
+                analytic, tangent, deformation, deformationDirection,
+                mixed, fieldAverage.x,
+                fieldAverage.z, activation
+            );
+            const float3x3 cofactor = cofactorMatrix(deformation);
+            const float bulk = max(mixed.mechanics.x, 1.0e-12f);
+            pressureForce += elementNodeValue(
+                tetrahedronForce(
+                    tetrahedron, -bulk * averageQDirection * cofactor
+                ),
+                tetrahedron,
+                node
+            );
+            const float determinantValue = determinant(deformation);
+            const float volumeDirection = dt * (
+                dot(cofactor[0], deformationDirection[0]) +
+                dot(cofactor[1], deformationDirection[1]) +
+                dot(cofactor[2], deformationDirection[2])
+            ) / max(determinantValue, 1.0e-20f);
+            pressureOperator += volumeDirection + averageQDirection +
+                solver.globalization.w *
+                    (direction[globalNode].w - averageQDirection);
+            ++pressureElements;
+        }
+        valid = valid && elementValid;
+        derivativeForce += elementNodeValue(
+            tetrahedronForce(tetrahedron, tangent), tetrahedron, node
+        );
+    }
+    const float dt = objectTimestep(
+        dispatch, schedulers[environment * dispatch.objectCount + objectIndex]
+    );
+    return float4(
+        candidate[globalNode].positionAndMass.w *
+                direction[globalNode].xyz -
+            dt * dt * derivativeForce - dt * pressureForce,
+        pressureElements > 0u
+            ? pressureOperator / float(pressureElements)
+            : 0.0f
+    );
+}
+
+kernel void nm_fem_commit_microstep(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMMatterStatusGPU* statuses [[buffer(1)]],
+    device NMFEMNodeStateGPU* accepted [[buffer(2)]],
+    device NMFEMNodeStateGPU* candidate [[buffer(3)]],
+    device float* acceptedMaterialState [[buffer(4)]],
+    device float* candidateMaterialState [[buffer(5)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint width = max(dispatch.femNodeCount, dispatch.tetrahedronCount);
+    const uint total = dispatch.environmentCount * width;
+    if (global >= total || width == 0u) {
+        return;
+    }
+    const uint environment = global / width;
+    const uint local = global - environment * width;
+    const bool healthy = environmentHealthy(statuses, environment);
+    if (local < dispatch.femNodeCount) {
+        const uint node = environment * dispatch.femNodeCount + local;
+        if (healthy) {
+            accepted[node] = candidate[node];
+        } else {
+            candidate[node] = accepted[node];
+        }
+    }
+    if (local < dispatch.tetrahedronCount) {
+        const uint element = environment * dispatch.tetrahedronCount + local;
+        const uint stateBase = element * dispatch.materialStateStride;
+        for (uint state = 0u; state < dispatch.materialStateStride; ++state) {
+            if (healthy) {
+                acceptedMaterialState[stateBase + state] =
+                    candidateMaterialState[stateBase + state];
+            } else {
+                candidateMaterialState[stateBase + state] =
+                    acceptedMaterialState[stateBase + state];
+            }
+        }
+    }
+}
+
+kernel void nm_fem_rollback_frame(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMMatterStatusGPU* statuses [[buffer(1)]],
+    device NMFEMNodeStateGPU* accepted [[buffer(2)]],
+    device const NMFEMNodeStateGPU* checkpoint [[buffer(3)]],
+    device float* acceptedMaterialState [[buffer(4)]],
+    device const float* checkpointMaterialState [[buffer(5)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint width = max(dispatch.femNodeCount, dispatch.tetrahedronCount);
+    const uint total = dispatch.environmentCount * width;
+    if (global >= total || width == 0u) {
+        return;
+    }
+    const uint environment = global / width;
+    if (environmentHealthy(statuses, environment)) {
+        return;
+    }
+    const uint local = global - environment * width;
+    if (local < dispatch.femNodeCount) {
+        const uint node = environment * dispatch.femNodeCount + local;
+        accepted[node] = checkpoint[node];
+    }
+    if (local < dispatch.tetrahedronCount) {
+        const uint element = environment * dispatch.tetrahedronCount + local;
+        const uint stateBase = element * dispatch.materialStateStride;
+        for (uint state = 0u; state < dispatch.materialStateStride; ++state) {
+            acceptedMaterialState[stateBase + state] =
+                checkpointMaterialState[stateBase + state];
+        }
+    }
+}
+
+
+} // namespace numi_matter_metal

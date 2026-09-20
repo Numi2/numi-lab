@@ -56,6 +56,7 @@ mr_u32 expectedQIndex(
     case MR_JOINT_PRISMATIC:
     case MR_JOINT_CONTINUOUS:
     case MR_JOINT_PLANAR:
+    case MR_JOINT_FUNCTION_BASED:
         return joint.qOffset + localDof;
     case MR_JOINT_FREE:
         return localDof < 3u
@@ -127,8 +128,7 @@ bool validNonRootDofMetadata(
     return
         (actuated || (!effortLimited && !driven)) &&
         (!driven || actuated) &&
-        (driven ||
-         (dof.drive.x == 0.0f && dof.drive.y == 0.0f)) &&
+        (driven || dof.drive.x == 0.0f) &&
         (positionLimited
              ? (dof.qIndex != MR_INVALID_INDEX &&
                 joint.jointType != MR_JOINT_CONTINUOUS &&

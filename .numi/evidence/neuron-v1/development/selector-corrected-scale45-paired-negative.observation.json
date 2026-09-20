@@ -1,0 +1,35 @@
+{
+  "schema": "numi.neuron-culture.development-observation.v1",
+  "status": "retained_negative_not_promotable",
+  "reason": "corrected paper-faithful selector exposed behaviorally weak hard-coded recurrent current gain",
+  "device": "Apple M4 Pro",
+  "os": "macOS 26.6 (25G72)",
+  "metal": "Metal 4",
+  "base_revision": "3aff1bb2467ae5631416733f0852606d6a1682f9",
+  "binary_sha256": "aef59b38f34c0d7fee6479b15ef1f0d07d99f7dc12bdbec2c3df81bd66a9627d",
+  "metallib_sha256": "7d6bea39c65b301c7501d08cb7b09038f9fe51dd971e27d8ff781f8b2499a887",
+  "probe_source_sha256": "9903c588f436c0e5c2a307848938fd265788a16a159d3378b641688442a1fedf",
+  "protocol_source_sha256": "5efa28289c89474f4abb02754f99099aa7e6ebfd3e1bc88b3bcd88c75bc4890c",
+  "network_seed": 2056,
+  "sensory_mapping": 0,
+  "culture_fingerprint": 2809771343816368562,
+  "windows_per_trial": 3020,
+  "post_switch_windows": 2880,
+  "adaptive": {
+    "protocol_fingerprint": 13562495642219038062,
+    "baseline_success": 0.641666651,
+    "final_interval_success": 0.483333319,
+    "mean_weight": 0.0783496432,
+    "mean_depression": 0.364245176
+  },
+  "pts_off": {
+    "protocol_fingerprint": 8953809019900021836,
+    "baseline_success": 0.641666651,
+    "final_interval_success": 0.533333361,
+    "mean_weight": 0.0767380365,
+    "mean_depression": 0.36464554
+  },
+  "adaptive_minus_pts_off": -0.050000042,
+  "promotion_threshold_relaxed": false,
+  "simulation_only": true
+}

@@ -8,9 +8,10 @@
 // batches; a connected island above this limit returns an explicit overflow.
 
 #include "metalrobo/gpu_types.h"
+#include "metalrobo/compensated_translation_gpu.h"
 #include "metalrobo/constraint_ir_shared.h"
 
-#define MR_ENGINE_ABI_VERSION 4u
+#define MR_ENGINE_ABI_VERSION 5u
 #define MR_INVALID_INDEX 0xffffffffu
 #define MR_MAX_CONTACTS_PER_SOLVER_BATCH 128u
 #define MR_MAX_BODIES_PER_SOLVER_BATCH \
@@ -24,10 +25,16 @@
 // threadgroup memory.
 #define MR_ARTICULATED_OPERATOR_MAX_BODIES 64u
 #define MR_ARTICULATED_OPERATOR_MAX_DOFS 64u
+// Kinematics/Jacobian queries never assemble or factor the dense mass matrix.
+// They retain the same one-tree-per-threadgroup ordering but can use a larger
+// fixed-capacity class that still fits the 16 KiB Apple threadgroup floor.
+// Full dynamics remains deliberately bounded by the dense-factor class above.
+#define MR_ARTICULATED_OPERATOR_KINEMATICS_MAX_BODIES 192u
+#define MR_ARTICULATED_OPERATOR_KINEMATICS_MAX_DOFS 160u
 // Retained as the legacy standalone operator's recommended allocation class.
 // It is not a runtime limit: checked GPU strides and caller-provided storage
 // now determine the point/contact capacity.
-#define MR_ARTICULATED_OPERATOR_MAX_POINTS 1024u
+#define MR_ARTICULATED_OPERATOR_MAX_POINTS 4096u
 // Versioned FP32 backward-error gate for M * deltaV = J^T * impulse.
 // A finite but inaccurate factor solve is a failure, never publishable state.
 #define MR_ARTICULATED_OPERATOR_MAX_RELATIVE_RESIDUAL 0.00003f
@@ -43,7 +50,7 @@
 // a command-buffer completion or CPU-visible intermediate state.
 #define MR_METAL_WORLD_ABI_VERSION 6u
 #define MR_METAL_WORLD_MAX_PHYSICS_SUBSTEPS 64u
-#define MR_METAL_WORLD_CONTACT_ABI_VERSION 8u
+#define MR_METAL_WORLD_CONTACT_ABI_VERSION 9u
 #define MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY 4u
 #define MR_METAL_WORLD_RAW_CONTACTS_PER_PAIR 8u
 #define MR_WAVE32_CONTACTS_PER_TILE 32u
@@ -103,6 +110,16 @@ enum MRBodyStateFlags : mr_u32 {
     // Task reset restores the authored scene-state velocity instead of
     // clearing it. Used by launched objects and moving reset fixtures.
     MR_BODY_STATE_PRESERVE_RESET_VELOCITY = 1u << 0u,
+    // The body remains dynamically integrated but its colliders are excluded
+    // from broadphase/narrowphase. Adaptive Matter objects use this bit so the
+    // rigid fallback and continuum representation are never simultaneously
+    // authoritative for contact.
+    MR_BODY_STATE_COLLISION_DISABLED = 1u << 1u,
+    // Dynamic scene state owns an environment-specific world-space inverse
+    // inertia tensor. Adaptive continuum-to-rigid transfer sets this bit so
+    // the exact measured inertia, not a mass-scaled authored approximation,
+    // remains authoritative across later rigid integration and contact.
+    MR_BODY_STATE_INERTIA_OVERRIDE = 1u << 2u,
 };
 
 #define MR_BODY_STATE_LAUNCH_STEP_SHIFT 8u
@@ -121,6 +138,12 @@ enum MRJointTypeExt : mr_u32 {
     MR_JOINT_PLANAR = 4u,
     MR_JOINT_FIXED = 5u,
     MR_JOINT_FREE = 6u,
+    // Variable-DoF OpenSim CustomJoint evaluated from an immutable
+    // FunctionBased SpatialTransform program owned by EngineModel. The
+    // generic CPU articulated reference admits this type; current fixed-size
+    // Metal ABA/operator kernels reject it explicitly until their multi-DoF
+    // program stream is implemented.
+    MR_JOINT_FUNCTION_BASED = 7u,
 };
 
 enum MRConstraintType : mr_u32 {
@@ -370,7 +393,10 @@ typedef struct MR_ALIGN16 MRDofPropertiesGPU {
     // These limits are authoritative metadata; this record does not imply
     // post-step clamping or an actuator/limit constraint implementation.
     mr_float4 limits;
-    // stiffness, damping, armature inertia, dry-friction loss.
+    // stiffness, damping, armature inertia, dry-friction loss. When
+    // MR_DOF_FLAG_DRIVE is absent, stiffness must be zero and damping is a
+    // passive generalized viscous coefficient. This lets source models retain
+    // joint damping without falsely making a muscle-driven coordinate a motor.
     // Armature is physical generalized inertia and is independent of whether
     // a drive is enabled. The generic dynamics operators consume armature;
     // the explicit CPU articulated-actuation evaluator consumes named-model
@@ -492,6 +518,11 @@ enum MRArticulatedOperatorFlags : mr_u32 {
     // spatial-row frontend for multi-articulation contact graphs whose shared
     // inverse-ABA stage owns mass response.
     MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY = 1u << 4u,
+    // In Jacobian-only mode, treats point queries owned by another
+    // articulation as inactive zero rows. This permits one fixed global point
+    // list to be streamed through several block-diagonal articulations.
+    MR_ARTICULATED_OPERATOR_IGNORE_FOREIGN_POINTS = 1u << 5u,
+    MR_ARTICULATED_OPERATOR_COMPENSATED_TRANSLATION = 1u << 6u,
 };
 
 // One dispatch describes a batch of states for one immutable articulation.
@@ -518,6 +549,9 @@ enum MRArticulatedPointFlags : mr_u32 {
     // Fixed-capacity placeholder with no articulated endpoint. Its canonical
     // query slot remains addressable, but its Jacobian is identically zero.
     MR_ARTICULATED_POINT_INACTIVE = 1u << 0u,
+    // localPoint is a sphere centre; evaluate its current plane-facing surface.
+    MR_ARTICULATED_POINT_SPHERE_SUPPORT = 1u << 1u,
+    MR_ARTICULATED_POINT_ELLIPSOID_SUPPORT = 1u << 2u,
 };
 
 // A world impulse applied at a COM-relative body point. bodyIndex is global
@@ -530,6 +564,14 @@ typedef struct MR_ALIGN16 MRArticulatedPointImpulseGPU {
 
     mr_float4 localPoint;
     mr_float4 worldImpulse;
+    // Unit world plane normal xyz, positive sphere radius w for SPHERE_SUPPORT.
+    // All zero for a fixed material point. Surface material velocity/J uses
+    // R*localPoint - radius*normal, including its frictional moment arm.
+    mr_float4 supportPlaneNormalAndRadius;
+    // Ellipsoid semi-axes xyz (w=0) and shape-to-COM-frame quaternion xyzw.
+    // Both all zero unless ELLIPSOID_SUPPORT is selected (sphere radius=0).
+    mr_float4 supportRadii;
+    mr_float4 supportOrientation;
 } MRArticulatedPointImpulseGPU;
 
 typedef struct MR_ALIGN16 MRArticulatedBodyPoseGPU {
@@ -751,6 +793,10 @@ enum MRMetalWorldContactFlags : mr_u32 {
     MR_METAL_WORLD_CONTACT_QUALITY = 1u << 7u,
     MR_METAL_WORLD_CONTACT_BODY_PARAMETERS = 1u << 8u,
     MR_METAL_WORLD_CONTACT_STREAMED_RESPONSES = 1u << 9u,
+    // Dynamic scene prediction consumes the same environment-major global
+    // body-wrench arena as ABA. This keeps continuum, typed actuator, and
+    // multicopter reactions additive under one clear/write/consume contract.
+    MR_METAL_WORLD_CONTACT_BODY_WRENCHES = 1u << 10u,
 };
 
 // One stable, cooker-produced pair. The pair stream is canonical collider
@@ -1346,6 +1392,58 @@ typedef struct MR_ALIGN16 MRInverseMassStatusGPU {
     mr_float4 diagnostics;
 } MRInverseMassStatusGPU;
 
+#define MR_EXTERNAL_ARTICULATED_RESPONSE_ABI_VERSION 1u
+#define MR_COUPLED_CANDIDATE_ABI_VERSION 1u
+
+enum MRCoupledCandidateOperation : mr_u32 {
+    MR_COUPLED_CANDIDATE_KINEMATICS = 0u,
+    MR_COUPLED_CANDIDATE_MASS_ACTION = 1u,
+    MR_COUPLED_CANDIDATE_INVERSE_MASS = 2u,
+    MR_COUPLED_CANDIDATE_PUBLISH = 3u,
+};
+
+// Dispatch for MetalWorld-owned primal articulated operations borrowed by a
+// device-physics extension. All strides are scalar element counts.
+typedef struct MR_ALIGN16 MRCoupledCandidateDispatchGPU {
+    mr_u32 abiVersion;
+    mr_u32 operation;
+    mr_u32 environmentCount;
+    mr_u32 articulationIndex;
+
+    mr_u32 qStride;
+    mr_u32 vStride;
+    mr_u32 bodyStride;
+    mr_u32 statusStride;
+
+    mr_u32 qOffset;
+    mr_u32 vOffset;
+    mr_u32 firstBody;
+    mr_u32 bodyCount;
+
+    mr_u32 nq;
+    mr_u32 nv;
+    mr_u32 pointCount;
+    mr_u32 pointStride;
+
+    mr_u32 pointJacobianStride;
+    mr_u32 reserved0;
+    mr_float4 timestepAndInverse;
+} MRCoupledCandidateDispatchGPU;
+
+// Borrowed-command-buffer articulation response contraction. Point and
+// response strides are fixed per environment; CSR indices address point rows.
+typedef struct MR_ALIGN16 MRExternalArticulatedResponseDispatchGPU {
+    mr_u32 abiVersion;
+    mr_u32 environmentCount;
+    mr_u32 pointCount;
+    mr_u32 responseEntryCount;
+
+    mr_u32 nv;
+    mr_u32 pointStride;
+    mr_u32 generalizedVectorStride;
+    mr_u32 inverseMassStatusStride;
+} MRExternalArticulatedResponseDispatchGPU;
+
 typedef struct MR_ALIGN16 MRMaterialGPU {
     // Static/dynamic coefficients; effective rolling/torsional lengths (m).
     mr_float4 friction;
@@ -1622,7 +1720,7 @@ static_assert(sizeof(MRBodyWrenchGPU) == 32);
 static_assert(sizeof(MRFreeBodyBatchGPU) % 16 == 0);
 static_assert(sizeof(MRFreeBodyStatusGPU) % 16 == 0);
 static_assert(sizeof(MRArticulatedOperatorDispatchGPU) == 48);
-static_assert(sizeof(MRArticulatedPointImpulseGPU) == 48);
+static_assert(sizeof(MRArticulatedPointImpulseGPU) == 96);
 static_assert(sizeof(MRArticulatedBodyPoseGPU) == 32);
 static_assert(sizeof(MRArticulatedPointWorldGPU) == 16);
 static_assert(sizeof(MRArticulatedOperatorStatusGPU) == 48);
@@ -1660,6 +1758,8 @@ static_assert(sizeof(MRArticulationFactorCacheGPU) == 48);
 static_assert(sizeof(MRMetalWorldContactStatusGPU) == 288);
 static_assert(sizeof(MRInverseMassDispatchGPU) == 48);
 static_assert(sizeof(MRInverseMassStatusGPU) == 48);
+static_assert(sizeof(MRExternalArticulatedResponseDispatchGPU) == 32);
+static_assert(sizeof(MRCoupledCandidateDispatchGPU) == 96);
 static_assert(sizeof(MRMaterialGPU) % 16 == 0);
 static_assert(sizeof(MRGeometryHeaderGPU) == 96);
 static_assert(sizeof(MRConvexFaceGPU) == 32);

@@ -1,0 +1,1665 @@
+#include "metalrobo/numi_human_stand_gpu.h"
+#include "metalrobo/numi_human_tendon_gpu.h"
+#include "numi/matter/numi_human_shared.h"
+
+namespace numi_matter_metal {
+
+namespace {
+
+inline bool finite4(const float4 value) { return all(isfinite(value)); }
+
+inline float3 humanQuaternionRotate(const float4 quaternion, const float3 value) {
+    const float3 doubledCross = 2.0f * cross(quaternion.xyz, value);
+    return value + quaternion.w * doubledCross +
+        cross(quaternion.xyz, doubledCross);
+}
+
+inline float4 humanQuaternionConjugate(const float4 quaternion) {
+    return float4(-quaternion.xyz, quaternion.w);
+}
+
+inline float4 humanQuaternionMultiply(const float4 first, const float4 second) {
+    return float4(
+        first.w * second.xyz + second.w * first.xyz +
+            cross(first.xyz, second.xyz),
+        first.w * second.w - dot(first.xyz, second.xyz));
+}
+
+// Christer Ericson's Voronoi-region tests. Keeping this query identical in
+// spirit to the CPU reference gives edge and vertex contacts the normal-cone
+// direction from the current closest point, rather than an artificial face
+// normal or a frozen reference projection.
+inline float3 humanClosestPointOnTriangle(
+    const float3 point,
+    const float3 a,
+    const float3 b,
+    const float3 c
+) {
+    const float3 ab = b - a;
+    const float3 ac = c - a;
+    const float3 ap = point - a;
+    const float d1 = dot(ab, ap);
+    const float d2 = dot(ac, ap);
+    if (d1 <= 0.0f && d2 <= 0.0f) return a;
+
+    const float3 bp = point - b;
+    const float d3 = dot(ab, bp);
+    const float d4 = dot(ac, bp);
+    if (d3 >= 0.0f && d4 <= d3) return b;
+
+    const float vc = d1 * d4 - d3 * d2;
+    if (vc <= 0.0f && d1 >= 0.0f && d3 <= 0.0f) {
+        const float v = d1 / (d1 - d3);
+        return a + v * ab;
+    }
+
+    const float3 cp = point - c;
+    const float d5 = dot(ab, cp);
+    const float d6 = dot(ac, cp);
+    if (d6 >= 0.0f && d5 <= d6) return c;
+
+    const float vb = d5 * d2 - d1 * d6;
+    if (vb <= 0.0f && d2 >= 0.0f && d6 <= 0.0f) {
+        const float w = d2 / (d2 - d6);
+        return a + w * ac;
+    }
+
+    const float va = d3 * d6 - d5 * d4;
+    if (va <= 0.0f && (d4 - d3) >= 0.0f &&
+        (d5 - d6) >= 0.0f) {
+        const float w = (d4 - d3) /
+            ((d4 - d3) + (d5 - d6));
+        return b + w * (c - b);
+    }
+
+    const float inverse = 1.0f / (va + vb + vc);
+    const float v = vb * inverse;
+    const float w = vc * inverse;
+    return a + v * ab + w * ac;
+}
+
+inline bool humanValidAdjacentOpposite(
+    const float3 first,
+    const float3 second,
+    const float4 opposite
+) {
+    if (!finite4(opposite) ||
+        (opposite.w != 0.0f && opposite.w != 1.0f)) return false;
+    if (opposite.w == 0.0f) return all(opposite.xyz == float3(0.0f));
+    const float3 rawNormal = cross(second - first, opposite.xyz - first);
+    return finite4(float4(rawNormal, 0.0f)) &&
+        dot(rawNormal, rawNormal) > 1.0e-20f;
+}
+
+inline bool humanConsiderArticularTriangle(
+    const float3 slavePoint,
+    const float3 first,
+    const float3 second,
+    const float3 third,
+    thread float3& closestPoint,
+    thread float3& faceNormal,
+    thread float& squaredDistance
+) {
+    const float3 candidateNormal = cross(second - first, third - first);
+    const float squaredNormalLength = dot(candidateNormal, candidateNormal);
+    if (!finite4(float4(candidateNormal, squaredNormalLength)) ||
+        squaredNormalLength <= 1.0e-20f) return false;
+    const float3 candidatePoint = humanClosestPointOnTriangle(
+        slavePoint, first, second, third);
+    const float candidateSquaredDistance = dot(
+        slavePoint - candidatePoint, slavePoint - candidatePoint);
+    if (!finite4(float4(candidatePoint, candidateSquaredDistance)))
+        return false;
+    if (candidateSquaredDistance < squaredDistance) {
+        closestPoint = candidatePoint;
+        faceNormal = candidateNormal;
+        squaredDistance = candidateSquaredDistance;
+    }
+    return true;
+}
+
+inline bool humanArticularContactState(
+    const NMNumiHumanArticularContactSampleGPU sample,
+    const MRArticulatedBodyPoseGPU slavePose,
+    const MRArticulatedBodyPoseGPU masterPose,
+    thread float3& slavePoint,
+    thread float3& masterPoint,
+    thread float3& normal,
+    thread float& closure
+) {
+    slavePoint = slavePose.position.xyz + humanQuaternionRotate(
+        slavePose.orientation, sample.slaveLocalPointAndArea.xyz);
+    const float3 triangle0 = masterPose.position.xyz + humanQuaternionRotate(
+        masterPose.orientation,
+        sample.masterLocalTriangle0AndReferenceSeparation.xyz);
+    const float3 triangle1 = masterPose.position.xyz + humanQuaternionRotate(
+        masterPose.orientation,
+        sample.masterLocalTriangle1AndStiffness.xyz);
+    const float3 triangle2 = masterPose.position.xyz + humanQuaternionRotate(
+        masterPose.orientation,
+        sample.masterLocalTriangle2AndNormalStrainPerPressure.xyz);
+    float3 rawFaceNormal = cross(
+        triangle1 - triangle0, triangle2 - triangle0);
+    const float squaredFaceNormalLength = dot(rawFaceNormal, rawFaceNormal);
+    if (!finite4(float4(slavePoint, squaredFaceNormalLength)) ||
+        squaredFaceNormalLength <= 1.0e-20f) return false;
+    masterPoint = humanClosestPointOnTriangle(
+        slavePoint, triangle0, triangle1, triangle2);
+    float bestSquaredDistance = dot(
+        slavePoint - masterPoint, slavePoint - masterPoint);
+    const float4 adjacent0 = sample.masterLocalAdjacentOpposite0AndActive;
+    const float4 adjacent1 = sample.masterLocalAdjacentOpposite1AndActive;
+    const float4 adjacent2 = sample.masterLocalAdjacentOpposite2AndActive;
+    if (!humanValidAdjacentOpposite(
+            sample.masterLocalTriangle0AndReferenceSeparation.xyz,
+            sample.masterLocalTriangle1AndStiffness.xyz, adjacent0) ||
+        !humanValidAdjacentOpposite(
+            sample.masterLocalTriangle1AndStiffness.xyz,
+            sample.masterLocalTriangle2AndNormalStrainPerPressure.xyz,
+            adjacent1) ||
+        !humanValidAdjacentOpposite(
+            sample.masterLocalTriangle2AndNormalStrainPerPressure.xyz,
+            sample.masterLocalTriangle0AndReferenceSeparation.xyz,
+            adjacent2))
+        return false;
+    if (adjacent0.w == 1.0f) {
+        const float3 opposite = masterPose.position.xyz +
+            humanQuaternionRotate(masterPose.orientation, adjacent0.xyz);
+        if (!humanConsiderArticularTriangle(
+                slavePoint, triangle0, triangle1, opposite, masterPoint,
+                rawFaceNormal, bestSquaredDistance)) return false;
+    }
+    if (adjacent1.w == 1.0f) {
+        const float3 opposite = masterPose.position.xyz +
+            humanQuaternionRotate(masterPose.orientation, adjacent1.xyz);
+        if (!humanConsiderArticularTriangle(
+                slavePoint, triangle1, triangle2, opposite, masterPoint,
+                rawFaceNormal, bestSquaredDistance)) return false;
+    }
+    if (adjacent2.w == 1.0f) {
+        const float3 opposite = masterPose.position.xyz +
+            humanQuaternionRotate(masterPose.orientation, adjacent2.xyz);
+        if (!humanConsiderArticularTriangle(
+                slavePoint, triangle2, triangle0, opposite, masterPoint,
+                rawFaceNormal, bestSquaredDistance)) return false;
+    }
+    const float3 separationVector = slavePoint - masterPoint;
+    const float squaredSeparationLength = dot(
+        separationVector, separationVector);
+    const float3 referenceNormal = humanQuaternionRotate(
+        masterPose.orientation,
+        sample.masterLocalReferenceNormalAndReserved.xyz);
+    if (!finite4(float4(masterPoint, squaredSeparationLength)) ||
+        !finite4(float4(referenceNormal, 0.0f))) return false;
+    normal = squaredSeparationLength > 1.0e-20f
+        ? separationVector * rsqrt(squaredSeparationLength)
+        : rawFaceNormal * rsqrt(dot(rawFaceNormal, rawFaceNormal));
+    if (dot(normal, referenceNormal) < 0.0f) normal = -normal;
+    const float separation = dot(separationVector, normal);
+    closure = max(
+        0.0f,
+        sample.masterLocalTriangle0AndReferenceSeparation.w - separation -
+            1.0e-7f);
+    return finite4(float4(masterPoint, closure)) && finite4(float4(normal, 0.0f));
+}
+
+inline bool humanFEMBodyContactState(
+    const NMNumiHumanFEMBodyContactSampleGPU sample,
+    const NMFEMNodeStateGPU slaveState,
+    const MRArticulatedBodyPoseGPU bodyPose,
+    thread float3& slavePoint,
+    thread float3& bodyPoint,
+    thread float3& normal,
+    thread float& closure
+) {
+    if (sample.flags != NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE ||
+        sample.reserved0 != 0u ||
+        !finite4(sample.bodyLocalPointAndArea) ||
+        !finite4(sample.bodyLocalNormalAndReferenceSeparation) ||
+        !finite4(sample.stiffnessAndNormalStrainPerPressure) ||
+        sample.bodyLocalPointAndArea.w <= 0.0f ||
+        sample.bodyLocalNormalAndReferenceSeparation.w < 0.0f ||
+        sample.stiffnessAndNormalStrainPerPressure.x <= 0.0f ||
+        sample.stiffnessAndNormalStrainPerPressure.y <= 0.0f ||
+        any(sample.stiffnessAndNormalStrainPerPressure.zw != float2(0.0f)) ||
+        !finite4(slaveState.positionAndMass) ||
+        !finite4(bodyPose.position) || !finite4(bodyPose.orientation))
+        return false;
+    const float3 localNormal =
+        sample.bodyLocalNormalAndReferenceSeparation.xyz;
+    const float localNormalLength = length(localNormal);
+    if (!isfinite(localNormalLength) ||
+        abs(localNormalLength - 1.0f) > 1.0e-5f) return false;
+    slavePoint = slaveState.positionAndMass.xyz;
+    const float3 planeOrigin = bodyPose.position.xyz + humanQuaternionRotate(
+        bodyPose.orientation, sample.bodyLocalPointAndArea.xyz);
+    normal = humanQuaternionRotate(bodyPose.orientation, localNormal);
+    const float separation = dot(slavePoint - planeOrigin, normal);
+    // Project onto the live tangent plane so tangential sliding produces no
+    // artificial moment arm and no shear force.
+    bodyPoint = slavePoint - separation * normal;
+    closure = max(
+        0.0f,
+        sample.bodyLocalNormalAndReferenceSeparation.w - separation - 1.0e-7f);
+    return finite4(float4(slavePoint, closure)) &&
+        finite4(float4(bodyPoint, 0.0f)) && finite4(float4(normal, 0.0f));
+}
+
+inline float3 humanAngularJacobian(
+    const uint environment,
+    const uint dof,
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch,
+    device const MRArticulatedBodyPoseGPU* bodyPoses,
+    device const float* pointJacobians,
+    const uint bodyIndex
+) {
+    const uint localBody = bodyIndex - dispatch.articulationFirstBody;
+    const MRArticulatedBodyPoseGPU pose = bodyPoses[
+        environment * dispatch.bodyPoseStride + localBody
+    ];
+    const uint bodyPoint = dispatch.bodyJacobianPointOffset + 4u * localBody;
+    const uint centerBase = environment * dispatch.pointJacobianStride +
+        bodyPoint * 3u * dispatch.dofCount;
+    float3 angular = float3(0.0f);
+    for (uint axis = 0u; axis < 3u; ++axis) {
+        const float3 localAxis = axis == 0u
+            ? float3(1.0f, 0.0f, 0.0f)
+            : (axis == 1u
+                ? float3(0.0f, 1.0f, 0.0f)
+                : float3(0.0f, 0.0f, 1.0f));
+        const float3 worldAxis = humanQuaternionRotate(pose.orientation, localAxis);
+        const uint axisBase = centerBase +
+            (axis + 1u) * 3u * dispatch.dofCount;
+        const float3 probe = float3(
+            pointJacobians[axisBase + dof],
+            pointJacobians[axisBase + dispatch.dofCount + dof],
+            pointJacobians[axisBase + 2u * dispatch.dofCount + dof]
+        );
+        const float3 center = float3(
+            pointJacobians[centerBase + dof],
+            pointJacobians[centerBase + dispatch.dofCount + dof],
+            pointJacobians[centerBase + 2u * dispatch.dofCount + dof]
+        );
+        angular += 0.5f * cross(worldAxis, probe - center);
+    }
+    return angular;
+}
+
+inline float3 humanPointJacobian(
+    const uint environment,
+    const uint dof,
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch,
+    device const MRArticulatedBodyPoseGPU* bodyPoses,
+    device const float* pointJacobians,
+    const uint bodyIndex,
+    const float3 worldPoint
+) {
+    const uint localBody = bodyIndex - dispatch.articulationFirstBody;
+    const MRArticulatedBodyPoseGPU pose = bodyPoses[
+        environment * dispatch.bodyPoseStride + localBody
+    ];
+    const uint bodyPoint = dispatch.bodyJacobianPointOffset + 4u * localBody;
+    const uint centerBase = environment * dispatch.pointJacobianStride +
+        bodyPoint * 3u * dispatch.dofCount;
+    const float3 center = float3(
+        pointJacobians[centerBase + dof],
+        pointJacobians[centerBase + dispatch.dofCount + dof],
+        pointJacobians[centerBase + 2u * dispatch.dofCount + dof]
+    );
+    const float3 angular = humanAngularJacobian(
+        environment, dof, dispatch, bodyPoses, pointJacobians, bodyIndex);
+    return center + cross(angular, worldPoint - pose.position.xyz);
+}
+
+inline bool validBody(
+    const uint bodyIndex,
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch
+) {
+    return bodyIndex >= dispatch.articulationFirstBody &&
+        bodyIndex - dispatch.articulationFirstBody < dispatch.bodyPoseStride;
+}
+
+inline bool passiveLigamentState(
+    const uint environment,
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch,
+    device const MRArticulatedBodyPoseGPU* bodyPoses,
+    const NMNumiHumanPassiveLigamentGPU ligament,
+    thread float3& firstPoint,
+    thread float3& secondPoint,
+    thread float3& firstForce,
+    thread float& effectiveStretch,
+    thread float& tension
+) {
+    if (ligament.flags != NM_NUMI_HUMAN_PASSIVE_LIGAMENT_ACTIVE ||
+        ligament.reserved0 != 0u ||
+        !validBody(ligament.firstBodyIndex, dispatch) ||
+        !validBody(ligament.secondBodyIndex, dispatch) ||
+        ligament.firstBodyIndex == ligament.secondBodyIndex ||
+        !finite4(ligament.firstLocalPoint) ||
+        !finite4(ligament.secondLocalPoint) ||
+        ligament.firstLocalPoint.w != 0.0f ||
+        ligament.secondLocalPoint.w != 0.0f ||
+        !finite4(ligament.material) || !finite4(ligament.reference) ||
+        any(ligament.material.xyz <= float3(0.0f)) ||
+        ligament.material.w <= 1.0f ||
+        any(ligament.reference.xyz <= float3(0.0f)) ||
+        ligament.reference.z < 1.0f || ligament.reference.w != 0.0f)
+        return false;
+    const MRArticulatedBodyPoseGPU firstPose = bodyPoses[
+        environment * dispatch.bodyPoseStride +
+        ligament.firstBodyIndex - dispatch.articulationFirstBody];
+    const MRArticulatedBodyPoseGPU secondPose = bodyPoses[
+        environment * dispatch.bodyPoseStride +
+        ligament.secondBodyIndex - dispatch.articulationFirstBody];
+    if (!finite4(firstPose.position) || !finite4(firstPose.orientation) ||
+        !finite4(secondPose.position) || !finite4(secondPose.orientation))
+        return false;
+    firstPoint = firstPose.position.xyz + humanQuaternionRotate(
+        firstPose.orientation, ligament.firstLocalPoint.xyz);
+    secondPoint = secondPose.position.xyz + humanQuaternionRotate(
+        secondPose.orientation, ligament.secondLocalPoint.xyz);
+    const float3 delta = secondPoint - firstPoint;
+    const float currentLength = length(delta);
+    if (!isfinite(currentLength) || currentLength <= 1.0e-8f) return false;
+    effectiveStretch = ligament.reference.z * currentLength /
+        ligament.reference.x;
+    float stress = 0.0f;
+    if (effectiveStretch > 1.0f &&
+        effectiveStretch < ligament.material.w) {
+        stress = ligament.material.x *
+            (exp(ligament.material.y * (effectiveStretch - 1.0f)) - 1.0f);
+    } else if (effectiveStretch >= ligament.material.w) {
+        const float c6 = ligament.material.x *
+                (exp(ligament.material.y *
+                    (ligament.material.w - 1.0f)) - 1.0f) -
+            ligament.material.z * ligament.material.w;
+        stress = ligament.material.z * effectiveStretch + c6;
+    }
+    tension = stress * ligament.reference.y;
+    if (!isfinite(effectiveStretch) || effectiveStretch <= 0.0f ||
+        !isfinite(tension) || tension < 0.0f) return false;
+    firstForce = tension * delta / currentLength;
+    return all(isfinite(firstPoint)) && all(isfinite(secondPoint)) &&
+        all(isfinite(firstForce));
+}
+
+inline float routedBandTensionAtStretch(
+    const NMNumiHumanPassiveRoutedBandGPU band,
+    const float stretch
+) {
+    if (stretch <= 1.0f) return 0.0f;
+    const float stretch2 = stretch * stretch;
+    const float stress = band.material.x *
+            (stretch2 - 1.0f / stretch) +
+        band.material.y / (2.0f * band.material.z) *
+            (exp(band.material.z * (stretch2 - 1.0f)) - 1.0f) *
+            stretch2;
+    const float area = band.reference.y *
+        pow(stretch, -2.0f * band.material.w);
+    return stress * area;
+}
+
+inline bool passiveRoutedBandState(
+    const uint environment,
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch,
+    device const MRArticulatedBodyPoseGPU* bodyPoses,
+    const NMNumiHumanPassiveRoutedBandGPU band,
+    thread float3& originPoint,
+    thread float3& pulleyPoint,
+    thread float3& insertionPoint,
+    thread float3& originForce,
+    thread float3& pulleyForce,
+    thread float3& insertionForce,
+    thread float3& pulleyTorque,
+    thread float3& insertionTorque,
+    thread float& strain,
+    thread float& tension,
+    thread float& extension,
+    thread float& storedEnergy
+) {
+    const float axisLength = length(band.pulleyLocalAxisAndRadius.xyz);
+    const float neutralLength = length(band.neutralRelativeOrientation);
+    if (band.flags != NM_NUMI_HUMAN_PASSIVE_ROUTED_BAND_ACTIVE ||
+        !validBody(band.originBodyIndex, dispatch) ||
+        !validBody(band.pulleyBodyIndex, dispatch) ||
+        !validBody(band.insertionBodyIndex, dispatch) ||
+        band.pulleyBodyIndex == band.insertionBodyIndex ||
+        !finite4(band.originLocalPoint) ||
+        !finite4(band.pulleyLocalPoint) ||
+        !finite4(band.insertionLocalPoint) ||
+        any(float3(band.originLocalPoint.w, band.pulleyLocalPoint.w,
+            band.insertionLocalPoint.w) != float3(0.0f)) ||
+        !finite4(band.pulleyLocalAxisAndRadius) ||
+        !finite4(band.neutralRelativeOrientation) ||
+        !finite4(band.material) || !finite4(band.reference) ||
+        abs(axisLength - 1.0f) > 1.0e-5f ||
+        band.pulleyLocalAxisAndRadius.w <= 0.0f ||
+        abs(neutralLength - 1.0f) > 1.0e-5f ||
+        any(band.material.xyz <= float3(0.0f)) ||
+        band.material.w < 0.0f || band.material.w >= 0.5f ||
+        any(band.reference.xyz <= float3(0.0f)) ||
+        band.reference.w != 0.0f) return false;
+
+    const MRArticulatedBodyPoseGPU originPose = bodyPoses[
+        environment * dispatch.bodyPoseStride + band.originBodyIndex -
+            dispatch.articulationFirstBody];
+    const MRArticulatedBodyPoseGPU pulleyPose = bodyPoses[
+        environment * dispatch.bodyPoseStride + band.pulleyBodyIndex -
+            dispatch.articulationFirstBody];
+    const MRArticulatedBodyPoseGPU insertionPose = bodyPoses[
+        environment * dispatch.bodyPoseStride + band.insertionBodyIndex -
+            dispatch.articulationFirstBody];
+    if (!finite4(originPose.position) || !finite4(originPose.orientation) ||
+        !finite4(pulleyPose.position) || !finite4(pulleyPose.orientation) ||
+        !finite4(insertionPose.position) ||
+        !finite4(insertionPose.orientation)) return false;
+    originPoint = originPose.position.xyz + humanQuaternionRotate(
+        originPose.orientation, band.originLocalPoint.xyz);
+    pulleyPoint = pulleyPose.position.xyz + humanQuaternionRotate(
+        pulleyPose.orientation, band.pulleyLocalPoint.xyz);
+    insertionPoint = insertionPose.position.xyz + humanQuaternionRotate(
+        insertionPose.orientation, band.insertionLocalPoint.xyz);
+    const float3 firstDelta = pulleyPoint - originPoint;
+    const float3 secondDelta = insertionPoint - pulleyPoint;
+    const float firstLength = length(firstDelta);
+    const float secondLength = length(secondDelta);
+    if (!isfinite(firstLength) || !isfinite(secondLength) ||
+        firstLength <= 1.0e-8f || secondLength <= 1.0e-8f) return false;
+
+    float4 relative = humanQuaternionMultiply(
+        humanQuaternionConjugate(pulleyPose.orientation),
+        insertionPose.orientation);
+    float4 delta = humanQuaternionMultiply(
+        humanQuaternionConjugate(band.neutralRelativeOrientation), relative);
+    const float projection = dot(
+        delta.xyz, band.pulleyLocalAxisAndRadius.xyz);
+    const float twistLength = length(float2(projection, delta.w));
+    if (!finite4(relative) || !finite4(delta) ||
+        !isfinite(twistLength) || twistLength <= 1.0e-8f) return false;
+    float projected = projection / twistLength;
+    float scalar = delta.w / twistLength;
+    if (scalar < 0.0f) {
+        projected = -projected;
+        scalar = -scalar;
+    }
+    const float signedWinding = 2.0f * atan2(projected, scalar);
+    const float routeLength = firstLength + secondLength +
+        band.pulleyLocalAxisAndRadius.w * abs(signedWinding);
+    const float stretch = routeLength / band.reference.x;
+    strain = stretch - 1.0f;
+    extension = max(routeLength - band.reference.x, 0.0f);
+    if (!isfinite(routeLength) || !isfinite(stretch) || stretch <= 0.0f ||
+        !isfinite(strain) || strain > band.reference.z) return false;
+    tension = routedBandTensionAtStretch(band, stretch);
+    if (!isfinite(tension) || tension < 0.0f) return false;
+
+    const float3 firstDirection = firstDelta / firstLength;
+    const float3 secondDirection = secondDelta / secondLength;
+    originForce = tension * firstDirection;
+    insertionForce = -tension * secondDirection;
+    pulleyForce = -(originForce + insertionForce);
+    const float windingSign = signedWinding > 0.0f ? 1.0f :
+        (signedWinding < 0.0f ? -1.0f : 0.0f);
+    const float3 worldAxis = humanQuaternionRotate(
+        pulleyPose.orientation, band.pulleyLocalAxisAndRadius.xyz);
+    insertionTorque = -tension * band.pulleyLocalAxisAndRadius.w *
+        windingSign * worldAxis;
+    pulleyTorque = -insertionTorque;
+
+    storedEnergy = 0.0f;
+    if (stretch > 1.0f) {
+        constexpr uint intervals = 32u;
+        const float h = (stretch - 1.0f) / float(intervals);
+        float integral = routedBandTensionAtStretch(band, 1.0f) + tension;
+        for (uint index = 1u; index < intervals; ++index) {
+            integral += (index & 1u ? 4.0f : 2.0f) *
+                routedBandTensionAtStretch(band, 1.0f + h * float(index));
+        }
+        storedEnergy = band.reference.x * h * integral / 3.0f;
+    }
+    return all(isfinite(originPoint)) && all(isfinite(pulleyPoint)) &&
+        all(isfinite(insertionPoint)) && all(isfinite(originForce)) &&
+        all(isfinite(pulleyForce)) && all(isfinite(insertionForce)) &&
+        all(isfinite(pulleyTorque)) && all(isfinite(insertionTorque)) &&
+        isfinite(extension) && isfinite(storedEnergy) && storedEnergy >= 0.0f;
+}
+
+} // namespace
+
+kernel void nm_numi_human_prepare_provisional_status(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const NMNumiHumanTendonFEMNodeLoadGPU* nodeLoads [[buffer(1)]],
+    device const NMNumiHumanTendonFEMNodeAnchorGPU* nodeAnchors [[buffer(2)]],
+    device const NMNumiHumanTendonFEMEndpointReplacementGPU* replacements [[buffer(3)]],
+    device const MRNumiHumanTendonBindingGPU* bindings [[buffer(4)]],
+    device const MRNumiHumanTendonTransferResultGPU* transfers [[buffer(5)]],
+    device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(6)]],
+    device MRMetalWorldStatusGPU* worldStatuses [[buffer(7)]],
+    device const NMNumiHumanArticularContactSampleGPU* articularSamples
+        [[buffer(8)]],
+    device const NMNumiHumanPassiveLigamentGPU* passiveLigaments [[buffer(9)]],
+    device const NMNumiHumanFEMBodyContactSampleGPU* femBodyContactSamples
+        [[buffer(10)]],
+    device const NMNumiHumanPassiveRoutedBandGPU* passiveRoutedBands
+        [[buffer(11)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) return;
+    bool accepted =
+        dispatch.abiVersion == NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION &&
+        dispatch.environmentCount > 0u && dispatch.femNodeCount > 0u &&
+        dispatch.endpointCount > 0u &&
+        dispatch.dofCount > 0u && dispatch.transferStride >= dispatch.endpointCount &&
+        dispatch.generalizedForceStride >= dispatch.dofCount &&
+        dispatch.muscleCount > 0u &&
+        dispatch.bodyPoseStride > 0u && dispatch.pointJacobianStride > 0u &&
+        dispatch.bodyJacobianPointOffset != MR_INVALID_INDEX &&
+        dispatch.stepIndex <
+            NM_NUMI_HUMAN_ARTICULAR_CONTACT_AUDIT_MAX_STEPS;
+    for (uint node = 0u; accepted && node < dispatch.femNodeCount; ++node) {
+        const NMNumiHumanTendonFEMNodeLoadGPU load = nodeLoads[node];
+        const NMNumiHumanTendonFEMNodeAnchorGPU anchor = nodeAnchors[node];
+        const bool anchorActive =
+            (anchor.flags & NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE) != 0u;
+        accepted = finite4(load.scale) &&
+            anchor.reserved0 == 0u && anchor.reserved1 == 0u &&
+            (anchor.flags & ~NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE) == 0u &&
+            finite4(anchor.localPoint) && anchor.localPoint.w == 0.0f &&
+            (!anchorActive || validBody(anchor.bodyIndex, dispatch)) &&
+            (anchorActive || anchor.bodyIndex == MR_INVALID_INDEX);
+        for (uint slot = 0u; accepted && slot < 4u; ++slot) {
+            const uint endpoint = load.endpointIndex[slot];
+            const float scale = load.scale[slot];
+            const bool active = endpoint != NM_INVALID_INDEX;
+            accepted = active == (scale != 0.0f) &&
+                (!active || endpoint < dispatch.endpointCount);
+            for (uint previous = 0u; accepted && previous < slot; ++previous) {
+                accepted = !active || load.endpointIndex[previous] != endpoint;
+            }
+            if (!active) continue;
+            const MRNumiHumanTendonTransferResultGPU transfer = transfers[
+                environment * dispatch.transferStride + endpoint
+            ];
+            accepted = transfer.status == MR_NUMI_HUMAN_TENDON_TRANSFER_SUCCESS &&
+                transfer.environment == environment &&
+                transfer.bindingIndex == endpoint &&
+                finite4(transfer.terminalWorldForce);
+        }
+        if (anchorActive) {
+            const MRArticulatedBodyPoseGPU pose = bodyPoses[
+                environment * dispatch.bodyPoseStride +
+                anchor.bodyIndex - dispatch.articulationFirstBody
+            ];
+            accepted = accepted && finite4(pose.position) &&
+                finite4(pose.orientation);
+        }
+    }
+    for (uint index = 0u; accepted && index < dispatch.replacementCount; ++index) {
+        const NMNumiHumanTendonFEMEndpointReplacementGPU replacement =
+            replacements[index];
+        const uint replacementFlagMask =
+            NM_NUMI_HUMAN_TENDON_FEM_ENDPOINT_REPLACEMENT_ACTIVE |
+            NM_NUMI_HUMAN_TENDON_FEM_ENDPOINT_REPLACEMENT_FULL_MUSCLE_ROW |
+            NM_NUMI_HUMAN_TENDON_FEM_ENDPOINT_REPLACEMENT_DISTAL_FORCE_COUPLE;
+        const bool fullMuscleRow = (replacement.flags &
+            NM_NUMI_HUMAN_TENDON_FEM_ENDPOINT_REPLACEMENT_FULL_MUSCLE_ROW) != 0u;
+        const bool distalForceCouple = (replacement.flags &
+            NM_NUMI_HUMAN_TENDON_FEM_ENDPOINT_REPLACEMENT_DISTAL_FORCE_COUPLE) != 0u;
+        accepted =
+            (replacement.flags &
+                NM_NUMI_HUMAN_TENDON_FEM_ENDPOINT_REPLACEMENT_ACTIVE) != 0u &&
+            (replacement.flags & ~replacementFlagMask) == 0u &&
+            (!distalForceCouple || fullMuscleRow) &&
+            replacement.reserved0 == 0u &&
+            replacement.loadEndpointIndex < dispatch.endpointCount &&
+            replacement.anchorEndpointIndex < dispatch.endpointCount &&
+            replacement.loadEndpointIndex != replacement.anchorEndpointIndex &&
+            finite4(replacement.forceOwnerFraction) &&
+            replacement.forceOwnerFraction.x > 0.0f &&
+            replacement.forceOwnerFraction.x <= 1.0f &&
+            all(replacement.forceOwnerFraction.yzw == float3(0.0f));
+        if (!accepted) break;
+        const MRNumiHumanTendonBindingGPU load =
+            bindings[replacement.loadEndpointIndex];
+        const MRNumiHumanTendonBindingGPU anchor =
+            bindings[replacement.anchorEndpointIndex];
+        const MRNumiHumanTendonTransferResultGPU loadTransfer = transfers[
+            environment * dispatch.transferStride +
+            replacement.loadEndpointIndex
+        ];
+        const MRNumiHumanTendonTransferResultGPU anchorTransfer = transfers[
+            environment * dispatch.transferStride +
+            replacement.anchorEndpointIndex
+        ];
+        accepted = load.muscleIndex == anchor.muscleIndex &&
+            load.muscleIndex < dispatch.muscleCount &&
+            load.endpointOrdinal != anchor.endpointOrdinal &&
+            validBody(load.bodyIndex, dispatch) &&
+            validBody(anchor.bodyIndex, dispatch) &&
+            finite4(load.sourceLocalPoint) && load.sourceLocalPoint.w == 0.0f &&
+            finite4(anchor.sourceLocalPoint) && anchor.sourceLocalPoint.w == 0.0f &&
+            loadTransfer.status == MR_NUMI_HUMAN_TENDON_TRANSFER_SUCCESS &&
+            loadTransfer.environment == environment &&
+            loadTransfer.bindingIndex == replacement.loadEndpointIndex &&
+            finite4(loadTransfer.terminalWorldForce) &&
+            anchorTransfer.status == MR_NUMI_HUMAN_TENDON_TRANSFER_SUCCESS &&
+            anchorTransfer.environment == environment &&
+            anchorTransfer.bindingIndex == replacement.anchorEndpointIndex &&
+            finite4(anchorTransfer.terminalWorldForce);
+    }
+    for (uint index = 0u;
+         accepted && index < dispatch.articularContactSampleCount; ++index) {
+        const NMNumiHumanArticularContactSampleGPU sample =
+            articularSamples[index];
+        const bool sameBody =
+            sample.slaveBodyIndex == sample.masterBodyIndex;
+        const uint expectedFlags = sameBody
+            ? NM_NUMI_HUMAN_ARTICULAR_CONTACT_INTERNAL_SAME_BODY
+            : NM_NUMI_HUMAN_ARTICULAR_CONTACT_ACTIVE;
+        accepted =
+            sample.flags == expectedFlags &&
+            sample.reserved0 == 0u &&
+            validBody(sample.slaveBodyIndex, dispatch) &&
+            validBody(sample.masterBodyIndex, dispatch) &&
+            finite4(sample.slaveLocalPointAndArea) &&
+            sample.slaveLocalPointAndArea.w > 0.0f &&
+            finite4(sample.masterLocalTriangle0AndReferenceSeparation) &&
+            finite4(sample.masterLocalTriangle1AndStiffness) &&
+            sample.masterLocalTriangle1AndStiffness.w > 0.0f &&
+            finite4(sample.masterLocalTriangle2AndNormalStrainPerPressure) &&
+            sample.masterLocalTriangle2AndNormalStrainPerPressure.w > 0.0f &&
+            finite4(sample.masterLocalReferenceNormalAndReserved) &&
+            abs(length(sample.masterLocalReferenceNormalAndReserved.xyz) -
+                1.0f) <= 1.0e-5f &&
+            sample.masterLocalReferenceNormalAndReserved.w == 0.0f &&
+            humanValidAdjacentOpposite(
+                sample.masterLocalTriangle0AndReferenceSeparation.xyz,
+                sample.masterLocalTriangle1AndStiffness.xyz,
+                sample.masterLocalAdjacentOpposite0AndActive) &&
+            humanValidAdjacentOpposite(
+                sample.masterLocalTriangle1AndStiffness.xyz,
+                sample.masterLocalTriangle2AndNormalStrainPerPressure.xyz,
+                sample.masterLocalAdjacentOpposite1AndActive) &&
+            humanValidAdjacentOpposite(
+                sample.masterLocalTriangle2AndNormalStrainPerPressure.xyz,
+                sample.masterLocalTriangle0AndReferenceSeparation.xyz,
+                sample.masterLocalAdjacentOpposite2AndActive) &&
+            dot(cross(
+                    sample.masterLocalTriangle1AndStiffness.xyz -
+                        sample.masterLocalTriangle0AndReferenceSeparation.xyz,
+                    sample.masterLocalTriangle2AndNormalStrainPerPressure.xyz -
+                        sample.masterLocalTriangle0AndReferenceSeparation.xyz),
+                cross(
+                    sample.masterLocalTriangle1AndStiffness.xyz -
+                        sample.masterLocalTriangle0AndReferenceSeparation.xyz,
+                    sample.masterLocalTriangle2AndNormalStrainPerPressure.xyz -
+                        sample.masterLocalTriangle0AndReferenceSeparation.xyz)) >
+                1.0e-20f;
+        if (accepted) {
+            const MRArticulatedBodyPoseGPU slavePose = bodyPoses[
+                environment * dispatch.bodyPoseStride +
+                sample.slaveBodyIndex - dispatch.articulationFirstBody];
+            const MRArticulatedBodyPoseGPU masterPose = bodyPoses[
+                environment * dispatch.bodyPoseStride +
+                sample.masterBodyIndex - dispatch.articulationFirstBody];
+            accepted = finite4(slavePose.position) &&
+                finite4(slavePose.orientation) &&
+                finite4(masterPose.position) &&
+                finite4(masterPose.orientation);
+        }
+    }
+    for (uint index = 0u;
+         accepted && index < dispatch.femBodyContactSampleCount; ++index) {
+        const NMNumiHumanFEMBodyContactSampleGPU sample =
+            femBodyContactSamples[index];
+        accepted = sample.slaveNode < dispatch.femNodeCount &&
+            validBody(sample.bodyIndex, dispatch);
+        if (!accepted) break;
+        NMFEMNodeStateGPU placeholder{};
+        placeholder.positionAndMass = float4(0.0f, 0.0f, 0.0f, 1.0f);
+        const MRArticulatedBodyPoseGPU pose = bodyPoses[
+            environment * dispatch.bodyPoseStride +
+            sample.bodyIndex - dispatch.articulationFirstBody];
+        float3 slavePoint;
+        float3 bodyPoint;
+        float3 normal;
+        float closure;
+        accepted = humanFEMBodyContactState(
+            sample, placeholder, pose, slavePoint, bodyPoint, normal, closure);
+    }
+    for (uint index = 0u;
+         accepted && index < dispatch.passiveLigamentCount; ++index) {
+        float3 firstPoint;
+        float3 secondPoint;
+        float3 firstForce;
+        float effectiveStretch;
+        float tension;
+        accepted = passiveLigamentState(
+            environment, dispatch, bodyPoses, passiveLigaments[index],
+            firstPoint, secondPoint, firstForce, effectiveStretch, tension);
+    }
+    for (uint index = 0u;
+         accepted && index < dispatch.passiveRoutedBandCount; ++index) {
+        float3 originPoint;
+        float3 pulleyPoint;
+        float3 insertionPoint;
+        float3 originForce;
+        float3 pulleyForce;
+        float3 insertionForce;
+        float3 pulleyTorque;
+        float3 insertionTorque;
+        float strain;
+        float tension;
+        float extension;
+        float storedEnergy;
+        accepted = passiveRoutedBandState(
+            environment, dispatch, bodyPoses, passiveRoutedBands[index],
+            originPoint, pulleyPoint, insertionPoint, originForce,
+            pulleyForce, insertionForce, pulleyTorque, insertionTorque,
+            strain, tension, extension, storedEnergy);
+    }
+    MRMetalWorldStatusGPU world{};
+    world.code = accepted ? MR_STEP_SUCCESS : MR_STEP_DID_NOT_CONVERGE;
+    world.environment = environment;
+    world.controlStep = dispatch.stepIndex;
+    world.successfulSubsteps = accepted ? 1u : 0u;
+    world.abaCode = accepted ? MR_ABA_SUCCESS : MR_ABA_INVALID_DISPATCH;
+    world.failingSubstep = accepted ? MR_INVALID_INDEX : 0u;
+    world.failingIndex = accepted ? MR_INVALID_INDEX : 0u;
+    worldStatuses[environment] = world;
+}
+
+kernel void nm_numi_human_adapt_stand_status(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device MRNumiHumanStandStatusGPU* standStatuses [[buffer(1)]],
+    device MRMetalWorldStatusGPU* worldStatuses [[buffer(2)]],
+    device const NMMatterStatusGPU* matterStatuses [[buffer(3)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) return;
+    MRNumiHumanStandStatusGPU stand = standStatuses[environment];
+    const NMMatterStatusGPU matter = matterStatuses[environment];
+    const bool matterAccepted =
+        matter.code == NM_STATUS_SUCCESS &&
+        matter.environment == environment &&
+        matter.completedMicrosteps == 1u;
+    if (stand.code == MR_NUMI_HUMAN_STAND_SUCCESS && !matterAccepted) {
+        stand.code = MR_NUMI_HUMAN_STAND_EXTERNAL_PHYSICS_FAILED;
+        stand.completedSteps = dispatch.stepIndex;
+        stand.failingIndex = matter.environment == environment
+            ? matter.objectIndex
+            : NM_INVALID_INDEX;
+        standStatuses[environment] = stand;
+    }
+    const bool accepted =
+        dispatch.abiVersion == NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION &&
+        dispatch.muscleCount > 0u &&
+        matterAccepted &&
+        stand.code == MR_NUMI_HUMAN_STAND_SUCCESS &&
+        stand.environment == environment &&
+        stand.completedSteps == dispatch.stepIndex + 1u;
+    MRMetalWorldStatusGPU world{};
+    world.code = accepted ? MR_STEP_SUCCESS : MR_STEP_DID_NOT_CONVERGE;
+    world.environment = environment;
+    world.controlStep = dispatch.stepIndex;
+    world.successfulSubsteps = accepted ? 1u : 0u;
+    world.abaCode = accepted ? MR_ABA_SUCCESS : MR_ABA_INVALID_DISPATCH;
+    world.failingSubstep = accepted ? MR_INVALID_INDEX : 0u;
+    world.failingIndex = accepted ? MR_INVALID_INDEX : stand.failingIndex;
+    worldStatuses[environment] = world;
+}
+
+kernel void nm_numi_human_assemble_tendon_fem_loads(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const NMNumiHumanTendonFEMNodeLoadGPU* nodeLoads [[buffer(1)]],
+    device const MRNumiHumanTendonTransferResultGPU* transfers [[buffer(2)]],
+    device float4* externalForces [[buffer(3)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total) return;
+    const uint environment = global / dispatch.femNodeCount;
+    const uint node = global - environment * dispatch.femNodeCount;
+    externalForces[global] = float4(0.0f);
+    const NMNumiHumanTendonFEMNodeLoadGPU load = nodeLoads[node];
+    if (!all(isfinite(load.scale))) return;
+    float3 force = float3(0.0f);
+    for (uint slot = 0u; slot < 4u; ++slot) {
+        const uint endpoint = load.endpointIndex[slot];
+        const float scale = load.scale[slot];
+        if (endpoint == NM_INVALID_INDEX || scale == 0.0f) continue;
+        if (endpoint >= dispatch.endpointCount) return;
+        const MRNumiHumanTendonTransferResultGPU transfer = transfers[
+            environment * dispatch.transferStride + endpoint
+        ];
+        if (transfer.status != MR_NUMI_HUMAN_TENDON_TRANSFER_SUCCESS ||
+            transfer.environment != environment ||
+            transfer.bindingIndex != endpoint ||
+            !all(isfinite(transfer.terminalWorldForce))) return;
+        // terminalWorldForce is the action on the load-side bone. The
+        // continuum receives its equal-and-opposite force. Endpoint mode
+        // retains the body's load-side J^T reaction; full-row mode restores
+        // that reaction explicitly after removing the complete source row.
+        // A declared negative distal-couple scale reverses this action at the
+        // opposing attachment, giving the two entheses zero net force.
+        force -= scale * transfer.terminalWorldForce.xyz;
+    }
+    externalForces[global] = float4(force, 0.0f);
+}
+
+kernel void nm_numi_human_assemble_internal_fem_contact_loads(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const NMNumiHumanFEMContactSampleGPU* samples [[buffer(1)]],
+    device const NMNumiHumanFEMContactContributionGPU* contributions
+        [[buffer(2)]],
+    device const NMIncidenceRangeGPU* ranges [[buffer(3)]],
+    device const NMFEMNodeStateGPU* acceptedNodes [[buffer(4)]],
+    device float4* externalForces [[buffer(5)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femContactSampleCount == 0u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    const uint node = global - environment * dispatch.femNodeCount;
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    const NMIncidenceRangeGPU range = ranges[node];
+    float3 nodeForce = float3(0.0f);
+    for (uint local = 0u; local < range.count; ++local) {
+        const NMNumiHumanFEMContactContributionGPU contribution =
+            contributions[range.first + local];
+        if (contribution.sampleIndex >= dispatch.femContactSampleCount ||
+            contribution.role > 3u || contribution.reserved0 != 0u ||
+            contribution.reserved1 != 0u) return;
+        const NMNumiHumanFEMContactSampleGPU sample =
+            samples[contribution.sampleIndex];
+        const float3 weights =
+            sample.barycentricAndReferenceSeparation.xyz;
+        const float3 normal = sample.normalAndArea.xyz;
+        const float3 slave = acceptedNodes[
+            nodeBase + sample.slaveNode].positionAndMass.xyz;
+        const float3 master =
+            weights.x * acceptedNodes[
+                nodeBase + sample.masterNode0].positionAndMass.xyz +
+            weights.y * acceptedNodes[
+                nodeBase + sample.masterNode1].positionAndMass.xyz +
+            weights.z * acceptedNodes[
+                nodeBase + sample.masterNode2].positionAndMass.xyz;
+        const float separation = dot(slave - master, normal);
+        // One tenth of a micron prevents an artificial preload caused only by
+        // FP32 reconstruction of a preload-free reference correspondence.
+        const float closure = max(
+            0.0f,
+            sample.barycentricAndReferenceSeparation.w - separation - 1.0e-7f
+        );
+        const float pressure = sample.stiffness.x * closure;
+        const float3 sampleForce =
+            normal * (pressure * sample.normalAndArea.w);
+        const float contributionWeight = contribution.role == 0u
+            ? 1.0f : -weights[contribution.role - 1u];
+        nodeForce += contributionWeight * sampleForce;
+    }
+    externalForces[global].xyz += nodeForce;
+}
+
+kernel void nm_numi_human_assemble_fem_body_contact_loads(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const NMNumiHumanFEMBodyContactSampleGPU* samples [[buffer(1)]],
+    device const NMFEMNodeStateGPU* acceptedNodes [[buffer(2)]],
+    device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(3)]],
+    device float4* externalForces [[buffer(4)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femBodyContactSampleCount == 0u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    const uint node = global - environment * dispatch.femNodeCount;
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    const uint poseBase = environment * dispatch.bodyPoseStride;
+    float3 nodeForce = float3(0.0f);
+    for (uint index = 0u; index < dispatch.femBodyContactSampleCount; ++index) {
+        const NMNumiHumanFEMBodyContactSampleGPU sample = samples[index];
+        if (sample.slaveNode != node || !validBody(sample.bodyIndex, dispatch))
+            continue;
+        float3 slavePoint;
+        float3 bodyPoint;
+        float3 normal;
+        float closure;
+        if (!humanFEMBodyContactState(
+                sample, acceptedNodes[nodeBase + node],
+                bodyPoses[poseBase + sample.bodyIndex -
+                    dispatch.articulationFirstBody],
+                slavePoint, bodyPoint, normal, closure)) return;
+        const float pressure =
+            sample.stiffnessAndNormalStrainPerPressure.x * closure;
+        nodeForce += normal * (pressure * sample.bodyLocalPointAndArea.w);
+    }
+    externalForces[global].xyz += nodeForce;
+}
+
+kernel void nm_numi_human_assemble_fem_body_contact_wrenches(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const NMNumiHumanFEMBodyContactSampleGPU* samples [[buffer(1)]],
+    device const NMFEMNodeStateGPU* acceptedNodes [[buffer(2)]],
+    device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(3)]],
+    device NMNumiHumanBodyWrenchGPU* bodyWrenches [[buffer(4)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.bodyPoseStride;
+    if (global >= total || dispatch.femBodyContactSampleCount == 0u) return;
+    const uint environment = global / dispatch.bodyPoseStride;
+    const uint localBody = global - environment * dispatch.bodyPoseStride;
+    const uint bodyIndex = dispatch.articulationFirstBody + localBody;
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    const uint poseBase = environment * dispatch.bodyPoseStride;
+    const MRArticulatedBodyPoseGPU bodyPose = bodyPoses[poseBase + localBody];
+    float3 force = float3(0.0f);
+    float3 torque = float3(0.0f);
+    for (uint index = 0u; index < dispatch.femBodyContactSampleCount; ++index) {
+        const NMNumiHumanFEMBodyContactSampleGPU sample = samples[index];
+        if (sample.bodyIndex != bodyIndex ||
+            sample.slaveNode >= dispatch.femNodeCount) continue;
+        float3 slavePoint;
+        float3 bodyPoint;
+        float3 normal;
+        float closure;
+        if (!humanFEMBodyContactState(
+                sample, acceptedNodes[nodeBase + sample.slaveNode], bodyPose,
+                slavePoint, bodyPoint, normal, closure)) return;
+        const float pressure =
+            sample.stiffnessAndNormalStrainPerPressure.x * closure;
+        const float3 ownedForce =
+            -normal * (pressure * sample.bodyLocalPointAndArea.w);
+        force += ownedForce;
+        torque += cross(bodyPoint - bodyPose.position.xyz, ownedForce);
+    }
+    bodyWrenches[global].force = float4(force, 0.0f);
+    bodyWrenches[global].torque = float4(torque, 0.0f);
+}
+
+kernel void nm_numi_human_audit_fem_body_contact(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const NMNumiHumanFEMBodyContactSampleGPU* samples [[buffer(1)]],
+    device const NMFEMNodeStateGPU* acceptedNodes [[buffer(2)]],
+    device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(3)]],
+    device NMNumiHumanArticularContactAuditGPU* audits [[buffer(4)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) return;
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    const uint poseBase = environment * dispatch.bodyPoseStride;
+    float3 forceResidual = float3(0.0f);
+    float3 momentResidual = float3(0.0f);
+    float maximumTangentialSlip = 0.0f;
+    float maximumPressure = 0.0f;
+    float normalForce = 0.0f;
+    float contactArea = 0.0f;
+    float closedSamples = 0.0f;
+    float storedEnergy = 0.0f;
+    float maximumNormalStrain = 0.0f;
+    float maximumClosure = 0.0f;
+    for (uint index = 0u; index < dispatch.femBodyContactSampleCount; ++index) {
+        const NMNumiHumanFEMBodyContactSampleGPU sample = samples[index];
+        if (sample.slaveNode >= dispatch.femNodeCount ||
+            !validBody(sample.bodyIndex, dispatch)) {
+            audits[environment].forceResidualAndL1 = float4(NAN);
+            return;
+        }
+        float3 slavePoint;
+        float3 bodyPoint;
+        float3 normal;
+        float closure;
+        const MRArticulatedBodyPoseGPU bodyPose = bodyPoses[
+            poseBase + sample.bodyIndex - dispatch.articulationFirstBody];
+        if (!humanFEMBodyContactState(
+                sample, acceptedNodes[nodeBase + sample.slaveNode],
+                bodyPose,
+                slavePoint, bodyPoint, normal, closure)) {
+            audits[environment].forceResidualAndL1 = float4(NAN);
+            return;
+        }
+        if (closure <= 0.0f) continue;
+        const float pressure =
+            sample.stiffnessAndNormalStrainPerPressure.x * closure;
+        const float3 slaveForce =
+            normal * (pressure * sample.bodyLocalPointAndArea.w);
+        const float3 bodyForce = -slaveForce;
+        forceResidual += slaveForce + bodyForce;
+        momentResidual += cross(slavePoint, slaveForce) +
+            cross(bodyPoint, bodyForce);
+        const float3 planeOrigin = bodyPose.position.xyz +
+            humanQuaternionRotate(
+                bodyPose.orientation, sample.bodyLocalPointAndArea.xyz);
+        maximumTangentialSlip = max(
+            maximumTangentialSlip, length(bodyPoint - planeOrigin));
+        normalForce += length(slaveForce);
+        contactArea += sample.bodyLocalPointAndArea.w;
+        closedSamples += 1.0f;
+        maximumPressure = max(maximumPressure, pressure);
+        storedEnergy += 0.5f * pressure * closure *
+            sample.bodyLocalPointAndArea.w;
+        maximumNormalStrain = max(
+            maximumNormalStrain,
+            pressure *
+                sample.stiffnessAndNormalStrainPerPressure.y);
+        maximumClosure = max(maximumClosure, closure);
+    }
+    NMNumiHumanArticularContactAuditGPU audit{};
+    // w is maximum tangential glide for this sample family; unlike articular
+    // audit rows this contact type has analytically balanced force magnitude.
+    audit.forceResidualAndL1 =
+        float4(forceResidual, maximumTangentialSlip);
+    audit.momentResidualAndMaximumPressure =
+        float4(momentResidual, maximumPressure);
+    audit.normalForceAreaAndCounts =
+        float4(normalForce, contactArea, closedSamples,
+               float(dispatch.femBodyContactSampleCount));
+    audit.energyStrainClosureAndAccepted =
+        float4(storedEnergy, maximumNormalStrain, maximumClosure, 0.0f);
+    audits[environment] = audit;
+}
+
+kernel void nm_numi_human_assemble_articular_contact_wrenches(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const NMNumiHumanArticularContactSampleGPU* samples [[buffer(1)]],
+    device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(2)]],
+    device NMNumiHumanBodyWrenchGPU* bodyWrenches [[buffer(3)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.bodyPoseStride;
+    if (global >= total || dispatch.articularContactSampleCount == 0u) return;
+    const uint environment = global / dispatch.bodyPoseStride;
+    const uint localBody = global - environment * dispatch.bodyPoseStride;
+    const uint bodyIndex = dispatch.articulationFirstBody + localBody;
+    const uint poseBase = environment * dispatch.bodyPoseStride;
+    const MRArticulatedBodyPoseGPU bodyPose = bodyPoses[poseBase + localBody];
+    float3 force = float3(0.0f);
+    float3 torque = float3(0.0f);
+    for (uint index = 0u; index < dispatch.articularContactSampleCount;
+         ++index) {
+        const NMNumiHumanArticularContactSampleGPU sample = samples[index];
+        if (sample.flags != NM_NUMI_HUMAN_ARTICULAR_CONTACT_ACTIVE ||
+            (sample.slaveBodyIndex != bodyIndex &&
+             sample.masterBodyIndex != bodyIndex)) continue;
+        if (!validBody(sample.slaveBodyIndex, dispatch) ||
+            !validBody(sample.masterBodyIndex, dispatch)) continue;
+        const MRArticulatedBodyPoseGPU slavePose = bodyPoses[
+            poseBase + sample.slaveBodyIndex - dispatch.articulationFirstBody];
+        const MRArticulatedBodyPoseGPU masterPose = bodyPoses[
+            poseBase + sample.masterBodyIndex - dispatch.articulationFirstBody];
+        float3 slavePoint;
+        float3 masterPoint;
+        float3 normal;
+        float closure;
+        if (!humanArticularContactState(
+                sample, slavePose, masterPose, slavePoint, masterPoint,
+                normal, closure)) continue;
+        const float3 sampleForce = normal * (
+            sample.masterLocalTriangle1AndStiffness.w * closure *
+            sample.slaveLocalPointAndArea.w);
+        const bool slaveOwner = sample.slaveBodyIndex == bodyIndex;
+        const float3 ownedForce = slaveOwner ? sampleForce : -sampleForce;
+        const float3 ownedPoint = slaveOwner ? slavePoint : masterPoint;
+        force += ownedForce;
+        torque += cross(ownedPoint - bodyPose.position.xyz, ownedForce);
+    }
+    bodyWrenches[global].force = float4(force, 0.0f);
+    bodyWrenches[global].torque = float4(torque, 0.0f);
+}
+
+kernel void nm_numi_human_audit_articular_contact_wrenches(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const NMNumiHumanArticularContactSampleGPU* samples [[buffer(1)]],
+    device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(2)]],
+    device const NMNumiHumanBodyWrenchGPU* bodyWrenches [[buffer(3)]],
+    device NMNumiHumanArticularContactAuditGPU* audits [[buffer(4)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) return;
+    const uint poseBase = environment * dispatch.bodyPoseStride;
+    float3 forceResidual = float3(0.0f);
+    float3 momentResidual = float3(0.0f);
+    float bodyForceL1 = 0.0f;
+    for (uint localBody = 0u; localBody < dispatch.bodyPoseStride;
+         ++localBody) {
+        const NMNumiHumanBodyWrenchGPU wrench =
+            bodyWrenches[poseBase + localBody];
+        const MRArticulatedBodyPoseGPU pose = bodyPoses[poseBase + localBody];
+        forceResidual += wrench.force.xyz;
+        momentResidual += wrench.torque.xyz +
+            cross(pose.position.xyz, wrench.force.xyz);
+        bodyForceL1 += length(wrench.force.xyz);
+    }
+    float normalForce = 0.0f;
+    float contactArea = 0.0f;
+    float closedSamples = 0.0f;
+    float sameBodySamples = 0.0f;
+    float maximumPressure = 0.0f;
+    float storedEnergy = 0.0f;
+    float maximumNormalStrain = 0.0f;
+    float maximumClosure = 0.0f;
+    for (uint index = 0u; index < dispatch.articularContactSampleCount;
+         ++index) {
+        const NMNumiHumanArticularContactSampleGPU sample = samples[index];
+        if (sample.flags ==
+            NM_NUMI_HUMAN_ARTICULAR_CONTACT_INTERNAL_SAME_BODY) {
+            sameBodySamples += 1.0f;
+            continue;
+        }
+        if (sample.flags != NM_NUMI_HUMAN_ARTICULAR_CONTACT_ACTIVE ||
+            !validBody(sample.slaveBodyIndex, dispatch) ||
+            !validBody(sample.masterBodyIndex, dispatch)) continue;
+        const MRArticulatedBodyPoseGPU slavePose = bodyPoses[
+            poseBase + sample.slaveBodyIndex - dispatch.articulationFirstBody];
+        const MRArticulatedBodyPoseGPU masterPose = bodyPoses[
+            poseBase + sample.masterBodyIndex - dispatch.articulationFirstBody];
+        float3 slavePoint;
+        float3 masterPoint;
+        float3 normal;
+        float closure;
+        if (!humanArticularContactState(
+                sample, slavePose, masterPose, slavePoint, masterPoint,
+                normal, closure)) continue;
+        if (closure <= 0.0f) continue;
+        const float pressure =
+            sample.masterLocalTriangle1AndStiffness.w * closure;
+        normalForce += pressure * sample.slaveLocalPointAndArea.w;
+        contactArea += sample.slaveLocalPointAndArea.w;
+        closedSamples += 1.0f;
+        maximumPressure = max(maximumPressure, pressure);
+        storedEnergy += 0.5f * pressure * closure *
+            sample.slaveLocalPointAndArea.w;
+        maximumNormalStrain = max(
+            maximumNormalStrain,
+            pressure *
+                sample.masterLocalTriangle2AndNormalStrainPerPressure.w);
+        maximumClosure = max(maximumClosure, closure);
+    }
+    audits[environment].forceResidualAndL1 =
+        float4(forceResidual, bodyForceL1);
+    audits[environment].momentResidualAndMaximumPressure =
+        float4(momentResidual, maximumPressure);
+    audits[environment].normalForceAreaAndCounts = float4(
+        normalForce, contactArea, closedSamples, sameBodySamples);
+    audits[environment].energyStrainClosureAndAccepted = float4(
+        storedEnergy, maximumNormalStrain, maximumClosure, 0.0f);
+}
+
+kernel void nm_numi_human_commit_articular_contact_audit(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const MRNumiHumanStandStatusGPU* standStatuses [[buffer(1)]],
+    device const NMNumiHumanArticularContactAuditGPU* provisionalAudits
+        [[buffer(2)]],
+    device NMNumiHumanArticularContactAuditGPU* acceptedHistory [[buffer(3)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount ||
+        dispatch.stepIndex >=
+            NM_NUMI_HUMAN_ARTICULAR_CONTACT_AUDIT_MAX_STEPS) return;
+    const MRNumiHumanStandStatusGPU stand = standStatuses[environment];
+    if (dispatch.abiVersion != NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION ||
+        stand.code != MR_NUMI_HUMAN_STAND_SUCCESS ||
+        stand.environment != environment ||
+        stand.completedSteps != dispatch.stepIndex + 1u) return;
+    NMNumiHumanArticularContactAuditGPU accepted =
+        provisionalAudits[environment];
+    accepted.energyStrainClosureAndAccepted.w = 1.0f;
+    acceptedHistory[
+        environment * NM_NUMI_HUMAN_ARTICULAR_CONTACT_AUDIT_MAX_STEPS +
+        dispatch.stepIndex] = accepted;
+}
+
+kernel void nm_numi_human_audit_tendon_fem_loads(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const float4* externalForces [[buffer(1)]],
+    device float4* audits [[buffer(2)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) return;
+    float3 resultant = float3(0.0f);
+    float magnitudeL1 = 0.0f;
+    const uint base = environment * dispatch.femNodeCount;
+    for (uint node = 0u; node < dispatch.femNodeCount; ++node) {
+        const float3 force = externalForces[base + node].xyz;
+        if (!all(isfinite(force))) {
+            audits[environment] = float4(NAN);
+            return;
+        }
+        resultant += force;
+        magnitudeL1 += length(force);
+    }
+    audits[environment] = float4(resultant, magnitudeL1);
+}
+
+kernel void nm_numi_human_assemble_fem_kinematic_targets(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const NMNumiHumanTendonFEMNodeAnchorGPU* anchors [[buffer(1)]],
+    device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(2)]],
+    device float4* targets [[buffer(3)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total) return;
+    const uint environment = global / dispatch.femNodeCount;
+    const uint node = global - environment * dispatch.femNodeCount;
+    targets[global] = float4(0.0f);
+    const NMNumiHumanTendonFEMNodeAnchorGPU anchor = anchors[node];
+    if (anchor.flags != NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE ||
+        !validBody(anchor.bodyIndex, dispatch) ||
+        !finite4(anchor.localPoint) || anchor.localPoint.w != 0.0f) return;
+    const MRArticulatedBodyPoseGPU pose = bodyPoses[
+        environment * dispatch.bodyPoseStride +
+        anchor.bodyIndex - dispatch.articulationFirstBody
+    ];
+    targets[global] = float4(
+        pose.position.xyz + humanQuaternionRotate(pose.orientation, anchor.localPoint.xyz),
+        1.0f
+    );
+}
+
+// Capture the exact reaction field consumed by the J^T projection while the
+// borrowed Human command buffer still owns the accepted Matter candidate.
+// Reading Runtime's private scratch after replay/rollback is not evidence of
+// the accepted pass because restore is allowed to reuse that scratch.
+kernel void nm_numi_human_audit_fem_anchor_reactions(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const NMNumiHumanTendonFEMNodeAnchorGPU* nodeAnchors [[buffer(1)]],
+    device const float4* constraintReactions [[buffer(2)]],
+    device const NMMatterStatusGPU* matterStatuses [[buffer(3)]],
+    device float4* audits [[buffer(4)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) return;
+    float3 resultant = float3(0.0f);
+    float l1 = 0.0f;
+    if (matterStatuses[environment].code == NM_STATUS_SUCCESS) {
+        const uint base = environment * dispatch.femNodeCount;
+        for (uint node = 0u; node < dispatch.femNodeCount; ++node) {
+            const NMNumiHumanTendonFEMNodeAnchorGPU anchor = nodeAnchors[node];
+            if ((anchor.flags & NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE) == 0u)
+                continue;
+            const float3 reaction = constraintReactions[base + node].xyz;
+            if (!finite3(reaction)) {
+                audits[environment] = float4(NAN);
+                return;
+            }
+            resultant += reaction;
+            l1 += length(reaction);
+        }
+    }
+    const float4 audit = float4(resultant, l1);
+    audits[environment] = audit;
+}
+
+kernel void nm_numi_human_commit_fem_anchor_reaction_audit(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const MRNumiHumanStandStatusGPU* standStatuses [[buffer(1)]],
+    device const float4* provisionalAudits [[buffer(2)]],
+    device float4* acceptedHistory [[buffer(3)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount ||
+        dispatch.stepIndex >=
+            NM_NUMI_HUMAN_ARTICULAR_CONTACT_AUDIT_MAX_STEPS) return;
+    const MRNumiHumanStandStatusGPU stand = standStatuses[environment];
+    if (dispatch.abiVersion != NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION ||
+        stand.code != MR_NUMI_HUMAN_STAND_SUCCESS ||
+        stand.environment != environment ||
+        stand.completedSteps != dispatch.stepIndex + 1u) return;
+    const uint historyIndex =
+        environment * NM_NUMI_HUMAN_ARTICULAR_CONTACT_AUDIT_MAX_STEPS +
+        dispatch.stepIndex;
+    const float4 accepted = provisionalAudits[environment];
+    if (accepted.w >= acceptedHistory[historyIndex].w) {
+        acceptedHistory[historyIndex] = accepted;
+    }
+}
+
+kernel void nm_numi_human_audit_passive_ligaments(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const NMNumiHumanPassiveLigamentGPU* passiveLigaments [[buffer(1)]],
+    device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(2)]],
+    device NMNumiHumanPassiveLigamentAuditGPU* audits [[buffer(3)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) return;
+    float3 forceResidual = float3(0.0f);
+    float3 momentResidual = float3(0.0f);
+    float endpointForceL1 = 0.0f;
+    float maximumTension = 0.0f;
+    float minimumStretch = INFINITY;
+    float maximumStretch = 0.0f;
+    uint activeCount = 0u;
+    for (uint index = 0u; index < dispatch.passiveLigamentCount; ++index) {
+        float3 firstPoint;
+        float3 secondPoint;
+        float3 firstForce;
+        float stretch;
+        float tension;
+        if (!passiveLigamentState(
+                environment, dispatch, bodyPoses, passiveLigaments[index],
+                firstPoint, secondPoint, firstForce, stretch, tension)) {
+            audits[environment].forceResidualAndL1 = float4(NAN);
+            audits[environment].momentResidualAndMaximumTension = float4(NAN);
+            audits[environment].stretchCountAndAccepted = float4(NAN);
+            return;
+        }
+        const float3 secondForce = -firstForce;
+        forceResidual += firstForce + secondForce;
+        momentResidual += cross(firstPoint, firstForce) +
+            cross(secondPoint, secondForce);
+        endpointForceL1 += 2.0f * tension;
+        maximumTension = max(maximumTension, tension);
+        minimumStretch = min(minimumStretch, stretch);
+        maximumStretch = max(maximumStretch, stretch);
+        ++activeCount;
+    }
+    if (activeCount == 0u) minimumStretch = 0.0f;
+    NMNumiHumanPassiveLigamentAuditGPU audit{};
+    audit.forceResidualAndL1 = float4(forceResidual, endpointForceL1);
+    audit.momentResidualAndMaximumTension =
+        float4(momentResidual, maximumTension);
+    audit.stretchCountAndAccepted = float4(
+        minimumStretch, maximumStretch, float(activeCount), 0.0f);
+    audits[environment] = audit;
+}
+
+kernel void nm_numi_human_commit_passive_ligament_audit(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const MRNumiHumanStandStatusGPU* standStatuses [[buffer(1)]],
+    device NMNumiHumanPassiveLigamentAuditGPU* audits [[buffer(2)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) return;
+    const MRNumiHumanStandStatusGPU stand = standStatuses[environment];
+    if (dispatch.abiVersion == NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION &&
+        stand.code == MR_NUMI_HUMAN_STAND_SUCCESS &&
+        stand.environment == environment &&
+        stand.completedSteps == dispatch.stepIndex + 1u) {
+        audits[environment].stretchCountAndAccepted.w = 1.0f;
+    }
+}
+
+kernel void nm_numi_human_audit_passive_routed_bands(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const NMNumiHumanPassiveRoutedBandGPU* passiveRoutedBands
+        [[buffer(1)]],
+    device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(2)]],
+    device NMNumiHumanPassiveRoutedBandAuditGPU* audits [[buffer(3)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) return;
+    float3 forceResidual = float3(0.0f);
+    float3 momentResidual = float3(0.0f);
+    float endpointForceL1 = 0.0f;
+    float maximumTension = 0.0f;
+    float minimumStrain = INFINITY;
+    float maximumStrain = -INFINITY;
+    float storedEnergy = 0.0f;
+    float maximumExtension = 0.0f;
+    uint activeCount = 0u;
+    for (uint index = 0u; index < dispatch.passiveRoutedBandCount; ++index) {
+        float3 originPoint;
+        float3 pulleyPoint;
+        float3 insertionPoint;
+        float3 originForce;
+        float3 pulleyForce;
+        float3 insertionForce;
+        float3 pulleyTorque;
+        float3 insertionTorque;
+        float strain;
+        float tension;
+        float extension;
+        float energy;
+        if (!passiveRoutedBandState(
+                environment, dispatch, bodyPoses, passiveRoutedBands[index],
+                originPoint, pulleyPoint, insertionPoint, originForce,
+                pulleyForce, insertionForce, pulleyTorque, insertionTorque,
+                strain, tension, extension, energy)) {
+            audits[environment].forceResidualAndL1 = float4(NAN);
+            audits[environment].momentResidualAndMaximumTension = float4(NAN);
+            audits[environment].strainCountAndAccepted = float4(NAN);
+            audits[environment].energyAndMaximumExtension = float4(NAN);
+            return;
+        }
+        forceResidual += originForce + pulleyForce + insertionForce;
+        momentResidual += cross(originPoint, originForce) +
+            cross(pulleyPoint, pulleyForce) +
+            cross(insertionPoint, insertionForce) + pulleyTorque +
+            insertionTorque;
+        endpointForceL1 += length(originForce) + length(pulleyForce) +
+            length(insertionForce);
+        maximumTension = max(maximumTension, tension);
+        minimumStrain = min(minimumStrain, strain);
+        maximumStrain = max(maximumStrain, strain);
+        storedEnergy += energy;
+        maximumExtension = max(maximumExtension, extension);
+        ++activeCount;
+    }
+    if (activeCount == 0u) {
+        minimumStrain = 0.0f;
+        maximumStrain = 0.0f;
+    }
+    NMNumiHumanPassiveRoutedBandAuditGPU audit{};
+    audit.forceResidualAndL1 = float4(forceResidual, endpointForceL1);
+    audit.momentResidualAndMaximumTension =
+        float4(momentResidual, maximumTension);
+    audit.strainCountAndAccepted = float4(
+        minimumStrain, maximumStrain, float(activeCount), 0.0f);
+    audit.energyAndMaximumExtension = float4(
+        storedEnergy, maximumExtension, 0.0f, 0.0f);
+    audits[environment] = audit;
+}
+
+kernel void nm_numi_human_commit_passive_routed_band_audit(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const MRNumiHumanStandStatusGPU* standStatuses [[buffer(1)]],
+    device NMNumiHumanPassiveRoutedBandAuditGPU* audits [[buffer(2)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) return;
+    const MRNumiHumanStandStatusGPU stand = standStatuses[environment];
+    if (dispatch.abiVersion == NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION &&
+        stand.code == MR_NUMI_HUMAN_STAND_SUCCESS &&
+        stand.environment == environment &&
+        stand.completedSteps == dispatch.stepIndex + 1u) {
+        audits[environment].strainCountAndAccepted.w = 1.0f;
+    }
+}
+
+kernel void nm_numi_human_apply_fem_anchor_reactions(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const NMNumiHumanTendonFEMNodeAnchorGPU* nodeAnchors [[buffer(1)]],
+    device const NMNumiHumanTendonFEMEndpointReplacementGPU* replacements [[buffer(2)]],
+    device const MRNumiHumanTendonBindingGPU* bindings [[buffer(3)]],
+    device const MRNumiHumanTendonTransferResultGPU* transfers [[buffer(4)]],
+    device const float4* constraintReactions [[buffer(5)]],
+    device const NMMatterStatusGPU* matterStatuses [[buffer(6)]],
+    device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(7)]],
+    device const float* pointJacobians [[buffer(8)]],
+    device float* generalizedForces [[buffer(9)]],
+    device const NMNumiHumanBodyWrenchGPU* articularBodyWrenches [[buffer(10)]],
+    device const NMNumiHumanPassiveLigamentGPU* passiveLigaments [[buffer(11)]],
+    device const NMNumiHumanBodyWrenchGPU* femBodyContactWrenches [[buffer(12)]],
+    device const NMNumiHumanPassiveRoutedBandGPU* passiveRoutedBands
+        [[buffer(13)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.dofCount;
+    if (global >= total) return;
+    const uint environment = global / dispatch.dofCount;
+    const uint dof = global - environment * dispatch.dofCount;
+    if (matterStatuses[environment].code != NM_STATUS_SUCCESS) return;
+    float correction = 0.0f;
+    for (uint index = 0u; index < dispatch.replacementCount; ++index) {
+        const NMNumiHumanTendonFEMEndpointReplacementGPU replacement =
+            replacements[index];
+        const bool fullMuscleRow = (replacement.flags &
+            NM_NUMI_HUMAN_TENDON_FEM_ENDPOINT_REPLACEMENT_FULL_MUSCLE_ROW) != 0u;
+        const uint endpointIndex = fullMuscleRow
+            ? replacement.loadEndpointIndex
+            : replacement.anchorEndpointIndex;
+        const MRNumiHumanTendonBindingGPU endpoint = bindings[endpointIndex];
+        const MRNumiHumanTendonTransferResultGPU transfer = transfers[
+            environment * dispatch.transferStride + endpointIndex
+        ];
+        const uint localBody =
+            endpoint.bodyIndex - dispatch.articulationFirstBody;
+        const MRArticulatedBodyPoseGPU pose = bodyPoses[
+            environment * dispatch.bodyPoseStride + localBody
+        ];
+        const float3 worldPoint = pose.position.xyz + humanQuaternionRotate(
+            pose.orientation, endpoint.sourceLocalPoint.xyz
+        );
+        const float endpointEffort = dot(
+            transfer.terminalWorldForce.xyz,
+            humanPointJacobian(
+                environment, dof, dispatch, bodyPoses, pointJacobians,
+                endpoint.bodyIndex, worldPoint
+            )
+        );
+        if (fullMuscleRow) {
+            const uint rowIndex =
+                (environment * dispatch.muscleCount + endpoint.muscleIndex) *
+                    dispatch.dofCount + dof;
+            correction += replacement.forceOwnerFraction.x *
+                (endpointEffort - generalizedForces[rowIndex]);
+        } else {
+            correction -=
+                replacement.forceOwnerFraction.x * endpointEffort;
+        }
+    }
+    const uint reactionBase = environment * dispatch.femNodeCount;
+    for (uint node = 0u; node < dispatch.femNodeCount; ++node) {
+        const NMNumiHumanTendonFEMNodeAnchorGPU anchor = nodeAnchors[node];
+        if ((anchor.flags & NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE) == 0u)
+            continue;
+        const uint localBody = anchor.bodyIndex - dispatch.articulationFirstBody;
+        const MRArticulatedBodyPoseGPU pose = bodyPoses[
+            environment * dispatch.bodyPoseStride + localBody
+        ];
+        const float3 worldPoint = pose.position.xyz +
+            humanQuaternionRotate(pose.orientation, anchor.localPoint.xyz);
+        const float3 reaction = constraintReactions[reactionBase + node].xyz;
+        correction += dot(
+            reaction,
+            humanPointJacobian(
+                environment, dof, dispatch, bodyPoses, pointJacobians,
+                anchor.bodyIndex, worldPoint
+            )
+        );
+    }
+    if (dispatch.articularContactSampleCount > 0u) {
+        for (uint localBody = 0u; localBody < dispatch.bodyPoseStride;
+             ++localBody) {
+            const NMNumiHumanBodyWrenchGPU wrench = articularBodyWrenches[
+                environment * dispatch.bodyPoseStride + localBody];
+            if (!finite4(wrench.force) || !finite4(wrench.torque)) return;
+            const uint bodyIndex = dispatch.articulationFirstBody + localBody;
+            const MRArticulatedBodyPoseGPU pose = bodyPoses[
+                environment * dispatch.bodyPoseStride + localBody];
+            correction += dot(
+                wrench.force.xyz,
+                humanPointJacobian(
+                    environment, dof, dispatch, bodyPoses, pointJacobians,
+                    bodyIndex, pose.position.xyz));
+            correction += dot(
+                wrench.torque.xyz,
+                humanAngularJacobian(
+                    environment, dof, dispatch, bodyPoses, pointJacobians,
+                    bodyIndex));
+        }
+    }
+    if (dispatch.femBodyContactSampleCount > 0u) {
+        for (uint localBody = 0u; localBody < dispatch.bodyPoseStride;
+             ++localBody) {
+            const NMNumiHumanBodyWrenchGPU wrench = femBodyContactWrenches[
+                environment * dispatch.bodyPoseStride + localBody];
+            if (!finite4(wrench.force) || !finite4(wrench.torque)) return;
+            const uint bodyIndex = dispatch.articulationFirstBody + localBody;
+            const MRArticulatedBodyPoseGPU pose = bodyPoses[
+                environment * dispatch.bodyPoseStride + localBody];
+            correction += dot(
+                wrench.force.xyz,
+                humanPointJacobian(
+                    environment, dof, dispatch, bodyPoses, pointJacobians,
+                    bodyIndex, pose.position.xyz));
+            correction += dot(
+                wrench.torque.xyz,
+                humanAngularJacobian(
+                    environment, dof, dispatch, bodyPoses, pointJacobians,
+                    bodyIndex));
+        }
+    }
+    for (uint index = 0u; index < dispatch.passiveLigamentCount; ++index) {
+        const NMNumiHumanPassiveLigamentGPU ligament = passiveLigaments[index];
+        float3 firstPoint;
+        float3 secondPoint;
+        float3 firstForce;
+        float stretch;
+        float tension;
+        if (!passiveLigamentState(
+                environment, dispatch, bodyPoses, ligament, firstPoint,
+                secondPoint, firstForce, stretch, tension)) return;
+        correction += dot(
+            firstForce,
+            humanPointJacobian(
+                environment, dof, dispatch, bodyPoses, pointJacobians,
+                ligament.firstBodyIndex, firstPoint));
+        correction += dot(
+            -firstForce,
+            humanPointJacobian(
+                environment, dof, dispatch, bodyPoses, pointJacobians,
+                ligament.secondBodyIndex, secondPoint));
+    }
+    for (uint index = 0u; index < dispatch.passiveRoutedBandCount; ++index) {
+        const NMNumiHumanPassiveRoutedBandGPU band = passiveRoutedBands[index];
+        float3 originPoint;
+        float3 pulleyPoint;
+        float3 insertionPoint;
+        float3 originForce;
+        float3 pulleyForce;
+        float3 insertionForce;
+        float3 pulleyTorque;
+        float3 insertionTorque;
+        float strain;
+        float tension;
+        float extension;
+        float storedEnergy;
+        if (!passiveRoutedBandState(
+                environment, dispatch, bodyPoses, band, originPoint,
+                pulleyPoint, insertionPoint, originForce, pulleyForce,
+                insertionForce, pulleyTorque, insertionTorque, strain,
+                tension, extension, storedEnergy)) return;
+        correction += dot(
+            originForce,
+            humanPointJacobian(
+                environment, dof, dispatch, bodyPoses, pointJacobians,
+                band.originBodyIndex, originPoint));
+        correction += dot(
+            pulleyForce,
+            humanPointJacobian(
+                environment, dof, dispatch, bodyPoses, pointJacobians,
+                band.pulleyBodyIndex, pulleyPoint));
+        correction += dot(
+            insertionForce,
+            humanPointJacobian(
+                environment, dof, dispatch, bodyPoses, pointJacobians,
+                band.insertionBodyIndex, insertionPoint));
+        correction += dot(
+            pulleyTorque,
+            humanAngularJacobian(
+                environment, dof, dispatch, bodyPoses, pointJacobians,
+                band.pulleyBodyIndex));
+        correction += dot(
+            insertionTorque,
+            humanAngularJacobian(
+                environment, dof, dispatch, bodyPoses, pointJacobians,
+                band.insertionBodyIndex));
+    }
+    if (!isfinite(correction)) return;
+    const uint forceIndex = environment * dispatch.generalizedForceStride +
+        dispatch.generalizedForceOffset + dof;
+    generalizedForces[forceIndex] += correction;
+}
+
+} // namespace numi_matter_metal

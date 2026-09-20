@@ -312,6 +312,25 @@ checks all pass. Selecting one canonical FP32 triangle intentionally removes
 the separately rounded upper-triangle evaluation, so long chaotic rollout
 fingerprints are not claimed bit-identical to the prior redundant storage.
 
+Forward ABA also has a schedule-driven SIMD32 implementation for branching
+trees. `CompiledWorld` cooks and fingerprints the immutable level/parent/child
+schedule once; submissions only upload it when the compiled world or immutable
+arena changes. One lane owns each body in a frontier. Reverse body lanes emit
+disjoint projected inertia and bias contributions, and parent lanes add
+siblings in stable cooked order without floating-point atomics. The runtime
+selects the ordered kernel for width-one chains and SIMD32 only when a body
+frontier has useful parallel work. `MetalWorldConfig::preferParallelABA=false`
+retains the serial kernel as a paired qualification oracle.
+
+On an Apple M4, a same-binary 4,096-environment x 8-control-step G1 free-motion
+pair measured 291.8 ms median GPU time for SIMD32 versus 398.4 ms for the
+serial kernel, a 1.365x speedup. The width-4 SIMD32 result differed from the
+serial FP32 oracle by at most `2.33e-10` in q, `2.98e-8` in v, and `5.06e-6`
+in scaled acceleration; multi-step FP64 gates, bitwise same-path replay,
+rollback, native-task parameterization, and dual-PSM multi-articulation probes
+also pass. These are same-device internal measurements, not an external
+simulator or hardware-dynamics accuracy claim.
+
 Analytic/SAT paths cover the inexpensive primitive pairs. Exact cylinder
 support, robust GJK with MPR/EPA fallback, cooked convex patches, static or
 kinematic mesh BVH4 traversal, and direct cell-indexed static heightfields
@@ -429,13 +448,391 @@ equal-and-opposite attachment impulse plus average force, and applies that
 impulse at the dynamic needle anchor without floating-point atomics. The
 public dual-PSM needle/thread factory derives its binding from the curved
 needle's rear swage geometry and initializes the thread in world coordinates.
-The standalone host currently submits this three-kernel graph and publishes
-rod and rigid output together. Non-adjacent edges are now radius-correct
-capsules: closest witnesses, coincident normals, four-node inverse-mass
-response, and contact refresh run inside every DER sweep on FP64 and Metal.
-The versioned heterogeneous rod program owns and fingerprints this policy.
-Promotion into persistent `MetalWorld`, thread-tool witness generation, and
-strong coupled rod/rigid iterations remain open.
+The standalone host and persistent `MetalWorld` both publish rod and rigid
+output transactionally. Non-adjacent edges are radius-correct capsules:
+closest witnesses, coincident normals, four-node inverse-mass response, and
+contact refresh run inside every DER sweep on FP64 and Metal. After the
+position solve, SIMD32 rebuilds the final contact shell and canonical pair
+order compacts at most 64 load-bearing contacts. Eight alternating projected
+Gauss-Seidel sweeps retain each tangent multiplier and project its accumulated
+impulse onto the Coulomb disk capped by the normal impulse inferred from the
+constraint-induced normal velocity change. Capacity overflow rejects the
+transaction instead of dropping a contact. The surgical PDO preset uses its
+conservative dynamic calibration for this single-coefficient self-friction
+path. The versioned heterogeneous rod program validates and fingerprints the
+coefficient. ABI v11 retains the friction-active pair count, maximum inferred
+normal impulse, maximum accumulated tangential impulse, and maximum
+Coulomb-disk utilization in each completion-boundary rod status. The
+frictionless control must publish zero values, while the frictional replay must
+publish nonzero load and remain bit-exact. This record lets a live throw prove
+that final strand proximity was dynamically load bearing rather than merely
+geometric. Resolved surface-spin torque, distinct static and dynamic
+self-friction, and stronger coupled rod/rigid iterations remain open fidelity
+boundaries.
+
+Knot execution has a separate instrument-trajectory gate before the expensive
+coupled replay. `SurgicalKnot` derives the finite envelope from the source-
+pinned 8 mm Large Needle Driver, integrates signed jaw-centre winding, checks a
+finite-radius bight transfer, bounds commanded centre speed, and requires
+monotone opposing cinch motion. The accepted protocol is a two-wrap first throw
+followed by one oppositely handed throw; same-handed, missing-wrap, and missed-
+gate controls reject. This certificate does not infer thread topology from the
+instrument path. The DER self-contact network, temporary jaw/thread grasp,
+articulated reachability, and loaded-knot retention remain independent live
+physics authorities.
+
+The shared DER knot-contact certificate now owns the first of those missing
+authorities. It measures closest witnesses for every materially separated pair
+of finite-radius thread edges, rejects any centreline distance below the 0.20
+mm PDO diameter (apart from an explicit readback tolerance), and requires a
+caller-selected count inside the contact shell. Straight-thread and geometric
+interpenetration controls reject. On the deterministic Apple M4 five-crossing
+loaded fixture it independently recovered all 14 discrete edge pairs in the
+50 um shell, with 2.346-39.267 um surface gaps and no interpenetrating pair.
+Proximity is not called a knot by itself: live promotion must combine this
+certificate with the executed throw, retained jaws, frictional impulses, and
+an opposing load test.
+
+Knot preparation now has a separate material-coordinate certificate. It uses
+DER rest arc from the needle swage to the return tract, between the two tracts,
+and from the first tract to the free end; these three intervals must conserve
+the complete 250 mm strand exactly. The research fixture targets a 19 mm short
+end with 1 mm tolerance, staying within the intracorporeal 20 mm limit reported in
+<https://pmc.ncbi.nlm.nih.gov/articles/PMC3015354/>, while reserving 180 mm on
+the working side for the two 12 mm-radius wraps, bight transfer, and finite jaw
+grasp. A 25 mm maximum draw produces eight deterministic regrasp strokes from
+the synthetic two-tract state. Reversed material order, an already over-pulled
+tail, insufficient working/stitch arc, and an undersized stroke budget reject.
+This is a source-aware pull plan, not evidence that either PSM has executed the
+strokes or formed a knot.
+
+Temporary thread handling uses the rod/tool contact graph rather than adding a
+second attachment kind. The focused clamp fixture seats the 0.20 mm PDO 3-0
+strand in four flat proximal medial LND insert patches, distinct from the
+unchanged eight-patch distal needle groove. The strand is aligned with the
+instrument axis while the open PSM starts 2 mm away, advances at a bounded
+15 mm/s for 200 ms, and then closes for 120 ms below the authored jaw-rate
+limit to reach 15 um geometric preload. The fixture releases the far-end
+support before pulling one endpoint at 2 mm/s. Acceptance requires at least
+36/40 bilateral loaded steps, terminal bilateral contact, exact replay,
+nonzero tangential impulse, greater pull resistance, and less absolute
+centre-node slip than the same Metal solve with zero insert friction. Full
+retention throughout the throw sequence remains an open execution boundary.
+
+The six-axis pre-grasp boundary is owned by `SurgicalThreadTargeting`. It scans
+the resolved DER centreline rather than an authored straight fixture, retains
+the source-pinned 1.4 mm span of the four proximal LND thread patches, and
+rejects insufficient working/tail arc, excessive local bend, live triangle-
+surface encroachment, and collision with the complete finite-capsule needle.
+It returns a deterministic right-handed rail/separation/approach frame. The
+standalone probe supplies exact replay and blocked-needle, near-surface, and
+malformed-topology controls. The operative `--tissue-thread-target-only` mode
+is stricter: it requires a v3 `tissue-suture-pull-complete` checkpoint, uses
+its restored DER, needle, and deformed FEM state, and first proves that the
+source-coordinate draw is complete. The larger proxy edge identifies the first
+tract in material order; candidates are restricted beyond that boundary and
+scored around the middle of the measured short tail with finite tract-side and
+free-end reserves. The gate applies the conservative 4 mm radius of the 8 mm
+instrument as the target envelope, then runs velocity-limited giver IK and
+sampled cross-arm, support, and needle collision audits. It reports
+`physics_advanced=no`; jaw closure, live thread contact, retention, and throw
+execution remain subsequent authorities.
+
+The related `--tissue-thread-acquisition-only` continuation advances those
+authorities and gives the two PSMs opposite knot ends: the receiver retains the
+needle/working side while the giver closes on the bounded short tail. It does
+not treat the distal needle groove as the PDO frame. A
+dedicated regression resolves the actual proximal thread patches and measures
+their 2.696 mm longitudinal offset from the needle groove. The live command
+executes a velocity-limited open approach, 15 um calibrated thread preload,
+settle, and a 0.5 mm outward load at no more than 2 mm/s. Every sampled distal
+jaw capsule must retain clearance from the restored FEM triangle surface; this
+is deliberately narrower than a full-link deformable collision claim. Before
+closure it publishes `tissue-thread-approached`. It publishes
+`tissue-thread-acquired` only after bilateral selected-edge contact persists
+with nonzero normal and tangential impulse, material-point seat error remains
+bounded, the receiver needle grasp and hard swage remain qualified, puncture
+channels remain byte-identical, and the Matter determinant, mass, topology,
+and residual certificates remain accepted. The command is implemented but is
+not recorded as live-qualified until an earned completed-pull v3 checkpoint is
+available.
+
+`--tissue-knot-first-throw-preflight-only` consumes that loaded two-ended
+checkpoint rather than reconstructing a synthetic thread. It re-identifies the
+standing LND's short-tail material window, certifies the source-sized two-wrap
+first throw, and rigidly places the protocol in the current deformed-tissue
+frame. The standing centre is 32 mm above the measured operative surface; this
+is a collision-clear research placement, not a clinical spacing prescription.
+The gate joins the accepted jaw state to the throw with 128 smooth staging
+samples, then solves both complete six-coordinate PSM frames at every protocol
+sample while preserving the standing PDO insert frame and receiver needle
+frame. Each sample translates the complete curved-needle geometry with the
+working jaw and audits the two finite LND envelopes against current exterior
+FEM triangles, all receiver/needle contacts, joint-speed limits, and cross-arm
+collision. The output remains `physics_advanced=no`: it proves an articulated
+placement for the already grasped ends, not DER winding, bight transfer,
+self-contact topology, cinch load, or knot retention.
+
+The live continuation is
+`--tissue-knot-first-throw-stage-only`. It consumes the same earned
+`tissue-thread-acquired` v3 state and executes only the 128-sample join into
+the first protocol pose. The solved joint path is resampled at the restored
+free-space coupling cadence: one 1 ms Matter transaction contains sixteen
+62.5 us DER/rigid substeps. A second dense audit precedes dispatch and checks
+every interpolated joint state, both complete distal LND envelopes, the entire
+translated curved needle, receiver insert contact, joint speed, support, and
+cross-arm separation. During execution the needle remains a dynamic rigid
+body carried by receiver jaw contact and the short PDO end remains carried by
+the standing thread patches; neither is prescribed kinematically.
+
+Execution is split into 64 ms completion-bounded chunks. At each boundary the
+standing PDO window must retain bilateral target-only contact and normal load,
+the moving interval must also publish tangential load, and the receiver must
+retain bilateral distributed needle contact with bounded relative seat motion.
+The DER edge/stretch and self-clearance certificate, hard swage, terminal cone
+residual, live instrument/tissue clearance, active puncture channels, all
+compiled operative tetrahedra, zero removed mass, positive determinant, and
+accepted Matter certificates remain mandatory. The two exact DER material
+edges in the tracts and their binding revision are immutable throughout this
+phase: unlike pull-through, knot staging has no proxy-rebind maintenance path.
+After the motion, two consecutive quiescent boundaries below the existing
+needle and strand speed gates publish `tissue-knot-first-throw-staged`. The v3
+manifest also persists a canonical fingerprint over every ordered protocol
+field and sample, the completed sample, exact held material window, and placed
+right-handed knot frame. Continuations reject missing, partial, or
+content-mismatched metadata, which prevents deformation or a process boundary
+from silently retargeting another DER edge or changed throw. This is an
+implemented execution boundary pending
+an earned upstream replay; it is not evidence of winding, self-contact
+formation, bight transfer, cinch loading, or knot retention.
+
+`--tissue-knot-first-double-throw-only` is the next transactional boundary. It
+accepts only the immutable staged phase and requires the persisted protocol
+identity to match the current source-sized two-wrap throw. Starting at sample
+one, it solves both complete PSM frames, densely resamples at the restored 1 ms
+Matter / sixteen-substep DER cadence, and audits every state for joint speed,
+full curved-needle contact ownership, both finite distal LND envelopes,
+cross-arm collision, and live-FEM clearance before dispatch. The dynamic replay
+is completion-bounded in 64 ms chunks. At every boundary the standing LND must
+retain its exact short-tail edge and the working LND must retain the needle;
+the hard swage, DER bounds, contact residual, two puncture channels, tract proxy
+edges/revision, tetrahedra, mass, determinant, and nonlinear certificates stay
+authoritative.
+
+After two quiescent hold boundaries, the terminal DER centreline must contain
+at least two non-neighbouring, radius-correct contacts in the 50 um collision
+shell without interpenetration. ABI v11 must independently report nonzero
+normal and tangential self-contact impulse during the throw and Coulomb
+utilization no greater than one. Only then is
+`tissue-knot-first-double-throw` published with the same continuation frame and
+material ownership. This proves a physical double first throw when executed on
+an earned checkpoint; it explicitly does not certify the remaining five
+alternating single throws or opposing-load retention.
+
+`--tissue-knot-next-square-throw-only` makes each remaining throw its own
+immutable transaction. It accepts only `tissue-knot-first-double-throw` or
+`tissue-knot-square-throw-1` through `-4`, verifies that the persisted phase,
+throw index, completed sample, expected winding/transfer signs, and full
+protocol fingerprint identify the prior terminal endpoint, and rejects skipped
+or replayed throws. Before the next alternating path, both PSMs traverse a
+128-sample cubic smoothstep recenter whose duration bounds the analytical peak
+jaw speed. Sparse and dense articulated audits cover that join and the new
+winding as one continuous path.
+
+Live execution preserves the same exact short-tail material window, working
+needle grasp, hard swage, two tract proxy edges and binding revision, tissue
+topology/mass, finite LND and needle clearances, and accepted DER/Matter
+certificates. Promotion of square throw `i` additionally requires at least
+`2+i` materially separated terminal centreline contacts and at least that many
+live Metal self-friction contacts, with nonzero normal/tangential impulse and a
+bounded Coulomb ratio. The output phases are
+`tissue-knot-square-throw-1` through `-5`; their visual manifests must carry the
+matching throw index and a completed sample. These boundaries are implemented
+but remain pending earned-checkpoint Apple Metal replay. Phase `-5` establishes
+only completion of the authored `2=1=1=1=1=1` instrument sequence; a separate
+opposing-load transaction must still establish knot retention.
+
+That final transaction is `--tissue-knot-retention-only`, and it accepts only
+`tissue-knot-square-throw-5`. The prior checkpoint must already expose the
+seven-contact centreline certificate. Without releasing either live grasp, a
+128-sample cubic smoothstep moves the standing LND 0.5 mm along negative knot
+X and the needle-owning LND 0.5 mm along positive knot X at a 2 mm/s peak-speed
+budget. The same sparse/dense full-articulation, needle, instrument, and tissue
+audits run before dispatch, and the dynamic path retains all throw-boundary
+authorities.
+
+Promotion requires at least 0.4 mm achieved displacement at each end and 0.8
+mm projected jaw-separation gain, preservation of at least seven
+material-separated terminal contacts, nonzero bounded DER self-friction, and
+at least 0.05 N at both load paths. The standing load is derived from its
+target-window tangential contact impulse; the working load comes from the
+three-axis hard-swage attachment impulse. Each is divided by the actual 62.5
+us physics substep, not the outer 1 ms Matter transaction. Two quiescent loaded
+boundaries publish `tissue-knot-load-retained` with the unchanged protocol and
+material-window identity. This is an executable source-scaled simulation gate,
+not package-calibrated tensile strength or clinical validation, and remains
+pending earned full-sequence Apple Metal execution.
+
+The surgical visual probe accepts the finite set of transactionally published
+dual-PSM operative checkpoints through receiver extraction and the opposing
+bite. It binds the checkpoint's exact articulated state, rigid needle pose, and
+all DER nodes into the Metal renderer. Tissue checkpoints use the v3 text
+manifest plus an atomically published, content-hashed Matter binary sidecar
+containing the exact private completion authority. Sidecar filenames include
+their content hash: a new sidecar generation is complete before the text
+manifest is atomically replaced, so an interrupted publication cannot replace
+the Matter bytes still named by the preceding valid manifest. The visual probe
+verifies that sidecar identity, filters its active tetrahedra and nodes, derives
+the oriented exterior boundary, and binds the archived deformed FEM positions
+directly in the live world frame. Thus a v3 frame presents the same tissue
+geometry that reached the physics boundary; rendering still remains visual
+evidence rather than a substitute for the archived solver/contact
+certificates. Legacy v2 visual states remain readable with the calibrated rest
+mesh but are not resumable Matter checkpoints.
+
+Long neutral-zone handoff motion also publishes a bounded
+`giver-handoff-stage-prefix`. New prefixes carry the cumulative completed
+staging count separately from the global physics step, because each restore
+adds a certified settling hold. Resume reads that count from the checkpoint
+and rejects a conflicting CLI value; `--resume-staging-completed-steps` remains
+required only for legacy prefixes that predate this metadata.
+
+`--tissue-checkpoint-restore-only --resume-tissue-checkpoint PHASE STATE.tsv`
+is the executable pre-advance gate for v3 tissue checkpoints. It rebuilds the
+phase's original Matter contact program, restores the manifest's exact
+articulated/needle/DER reset and binary FEM/contact authority, recompiles that
+MetalWorld reset, and rejects any byte or physical-certificate mismatch. The
+runtime deterministically rebuilds FEM node incidence from an archived accepted
+topology generation and mirrors it into the rollback state; incidence is derived
+rather than a second checkpoint authority. The reported `physics_advanced=no`
+boundary is deliberate: the gate proves an exact
+resume point, while phase continuation remains a subsequent physical command.
+The CTest fixture publishes and consumes a real `tissue-rest` checkpoint; the
+same gate accepts every transactionally published receiver and opposing-bite
+phase.
+
+`--tissue-checkpoint-hold-only` crosses that boundary by restoring the recorded
+Matter cadence and advancing one coupled transaction. It rewinds and repeats the
+transaction, requires byte-identical articulated, needle, DER, and Matter state,
+then can atomically publish the continued v3 checkpoint. This is intentionally
+reported as `metalworld_warmstart=cold_reinitialized`: Matter continuation is
+exact, while MetalWorld contact-manifold and warm-start caches are not archived,
+so uninterrupted resident equivalence is not claimed.
+
+A long resident Apple M4 receiver-acquisition replay first exposed a narrow live
+boundary after the complete stand-off alignment. At 36 ms into its nominal
+hold, a valid strand/tissue proxy contact carried 4.969391739 um separation and
+-6.039572414 mm/s admission-normal velocity. Matter correctly rolled the
+transaction back: the sample was 30.608261 nm below the unchanged 5 um IPC
+collision floor and the pending Newton correction moved a further 25.372575 nm
+inward. The first repair refined only this alignment-settling interval. A fresh
+resident replay then exposed the same class of boundary upstream, during the
+open receiver's collision-free alignment motion: after 384 accepted 62.5 us
+steps the needle had accelerated to 8.9286892 mm/s and 2.88587072 rad/s, and the
+next bounded transaction rolled back a tissue sample with -0.110274414 um
+separation and -182.18784 mm/s admission-normal velocity. Tissue topology was
+still conserved, all 40,800 tetrahedra remained active, and the last accepted
+minimum determinant was 0.994691253; the failure was contact feasibility, not a
+fracture surrogate.
+
+The same saved bridge's causal rigid/DER replay, deliberately excluding the
+private Matter state, produced byte-identical stationary and receiver-alignment
+branches (`trajectory_state_fnv64=0x8e76be314e86f69b`). Both branches peaked at
+0.106595612 mm/s needle speed, 0.0380236393 rad/s angular speed, and
+0.660966791 mm/s temporal-cone velocity residual. This isolates the observed
+acceleration to the live needle/strand/tissue interaction rather than the open
+receiver trajectory; it does not itself qualify tissue continuation.
+
+The acquisition therefore remains unqualified; neither finiteness nor the
+collision-free arm trajectory is accepted as dynamic contact feasibility. The
+operative path now refines the complete alignment motion and settling interval
+from 62.5 us to 31.25 us, requires two consecutive quiescent 4 ms chunks with
+strand speed at or below 20 mm/s, and mirrors the live Metal line-search floor
+including its coordinate-scaled FP32 CCD roundoff. Refined motion and settling
+are converted explicitly back to 62.5 us DER substep counts in every checkpoint.
+Every active contact must predict positive margin for a complete future base
+step. The runtime then restores the base cadence and executes another 4 ms
+physical proof before publishing the settled checkpoint. No contact tolerance
+or residual gate is relaxed; a fresh long M4 replay is still required to qualify
+the expanded repair.
+
+The dual-PSM operative probe keeps post-extraction needle transport separate
+from the next bite. It first translates the receiver-held complete half-circle
+needle without changing attitude, then performs the half-turn only on a distal
+safe plane, and finally approaches the deformed-wall target. The geometry gate
+projects every finite needle capsule onto the tissue thickness axis: clearance
+must increase monotonically during withdrawal, remain at least 12 mm through
+the sampled reorientation sweep, and decrease without penetration on the
+opposing approach. Each instrument path is independently checked against the
+other PSM and the support. This is a kinematic/path certificate; the live
+Matter/DER replay remains the authority for tissue, strand, grasp, and contact
+acceptance. The `--tissue-opposing-bite-reorientation-only` continuation keeps
+that accepted Matter state resident, resolves the opposing target from current
+deformed contact nodes, and executes clearance, half-turn, and approach as
+separate bounded streams. Every completion boundary rechecks the bilateral
+receiver grasp, hard swage, DER state, tissue determinant, conserved topology,
+and solver residual. Its terminal artifact is explicitly pre-puncture; it does
+not claim a second bite or knot before those contact-driven stages execute.
+The separate `--tissue-opposing-bite-passage-only` continuation drives the
+receiver-held needle about its measured circular orbit at the same 20 mm/s
+research insertion speed, permits only new puncture-channel slots while
+requiring the first tract to remain byte-identical, and stops on measured
+clearance beyond the live proximal wall. Acceptance requires a connected new
+tract spanning the current tissue thickness, all tetrahedra and mass retained,
+the receiver grasp and hard swage intact, and the terminal Matter/DER/contact
+certificates accepted.
+
+`--tissue-opposing-bite-thread-root-only` crosses the next material boundary.
+After the connected second tract is accepted it switches to the four-substep
+shank cadence, retaining 5 um of carried motion per Matter transaction, and
+continues the measured circular drive only while the complete Large Needle
+Driver envelope remains outside the live FEM surface. It stops only when the
+full steel needle and hard-swaged DER root clear the proximal wall and the
+fixed contact graph owns one measured material edge in each tract. The
+terminal checkpoint records those ordered tract edges and derives the bounded
+source-coordinate pull strokes needed to leave a 19 mm free tail without
+changing the stitch span. A preflight that finds the receiver jaw would reach
+tissue fails before dispatch and explicitly requires a needle regrasp; it does
+not tunnel the tool through tissue. The continuation still requires long
+Apple-Metal qualification.
+
+The checkpointed `--tissue-suture-pull-stroke-only` continuation executes the
+next source-coordinate draw rather than treating Cartesian tool travel as
+material progress. The receiver keeps the needle in its qualified handling
+zone and translates it proximally by at most 25 mm at a 20 mm/s peak while the
+giver remains clear. Before every bounded submission, spatially classified
+first/opposing channel capsules select one current DER edge per tract and the
+runtime changes only retired proxy slots. The accepted boundary requires the
+working material coordinate and remaining draw to advance by the commanded
+stroke within the finite DER edge-resolution band, preserves the stitch span,
+and rechecks tool/tissue clearance, grasp, swage, rod, channel bytes, FEM mass
+and topology, and solver certificates. Intermediate invocations publish
+`tissue-suture-pull-stroke`; the final one publishes
+`tissue-suture-pull-complete`, which is the earliest checkpoint admitted by
+post-bite thread targeting. Implementation and lightweight contracts are
+present; no long live stroke is claimed yet.
+
+Live strand/tissue ownership no longer assumes that proxy slot zero is DER
+edge zero. Before every bounded pull, bridge, acquisition, extraction, and
+opposing-bite submission, `SurgicalThreadTargeting` measures all resolved DER
+segments against the accepted puncture-channel capsules. With one occupied
+tract the two fixed Matter slots cover adjacent material edges for overlap;
+when the strand physically reaches the opposing tract, the same graph becomes
+sparse and retains one material edge in each tract. The second-tract state is
+latched, so a later miss fails instead of silently dropping tissue contact.
+Immediately after sharp-tip passage, the swage and first DER edge can still be
+millimetres behind the distal wall. A `noContactEdgeSet` result in that
+pre-strand interval now leaves both existing proxy slots and their binding
+revision unchanged instead of inventing material in the tract. Deferral is
+allowed only before any second-tract ownership has been latched and only after
+the selector expands its contact band by the complete next-chunk travel; every
+other status still fails. As soon as a real edge reaches that predictive band,
+normal exact-edge selection and rebinding resume.
+Rebinding changes one retired slot per maintenance command, preserves retained
+friction history, and records the slot-ordered edges plus binding revision in
+the restorable Matter snapshot and surgical state hash. The lightweight probe
+qualifies deterministic two-tract selection and one-slot plans; full live
+sequence qualification still requires the long Apple-Metal continuation.
 
 `HeterogeneousWorld` is the owned compilation boundary above those executors.
 It composes `EngineModel` instances transactionally, records the exact global
@@ -454,8 +851,53 @@ velocity offsets, retained articulation-local factors apply every
 articulation-articulation and articulation-static contacts without a dense
 global inverse. The Metal articulated operator now has a dedicated
 kinematics-plus-point-Jacobian mode which skips mass assembly, factorization
-and impulse response; it emits deterministic zero generalized payloads while
-preserving point results bitwise against the full operator. The CPU operator
+and impulse response; its generic impulse/delta-velocity payloads remain
+deterministic zero while preserving point results bitwise against the full
+operator. An optional MyoSim MuJoCo sidecar then consumes those private poses
+and four analytic Jacobian probes per body to produce source spatial-route
+`J^T` generalized muscle forces and their deterministic reduction on device.
+The generic operator remains force projection only. Numi Human now has a
+separate large-state horizon in the same persistent context: it re-encodes
+current-pose kinematics and all MyoSim routes, advances activation, reconstructs
+157-body spatial Jacobians, assembles/factors the 128-DoF mass operator, applies
+gravity and low-velocity bias, preserves imported passive DoF damping through
+the backward-Euler solve, projects source-foot Coulomb support, and updates q/v
+without per-step host publication. The live NHMYO2 fiber/tendon equilibrium
+also retains the imported passive muscle curve, and the compiler subtracts the
+measured passive generalized row before its acceleration-weighted bounded
+recruitment. This is deliberately Human-specific and does not increase the
+generic dense bucket. Its current bias still omits exact high-velocity
+`Jdot*v`/RNEA terms, so it is bounded standing evidence rather than a general
+high-speed articulated dynamics claim.
+
+An optional `NHTENDON2` program now executes after current-pose MyoSim force
+reduction and before each Human state update. It preserves every authored
+endpoint, distributes admitted terminal loads to four immutable BodyParts3D
+bone nodes, retains explicit source-point fallbacks, and records force, moment,
+and generalized-wrench residuals. The stand kernel validates every endpoint
+record before advancing `q`/`v`; a failed transfer leaves the horizon
+unpublished. MyoSim's original source-route `J^T` force remains the rigid-body
+authority, and the generalized correction is diagnostic only, so the tendon
+pass cannot double-count force as direct joint torque. After each stand encoder,
+an optional encode-only callback borrows the command buffer, bindings,
+envelopes, body poses, loads, corrections, and stand statuses for a downstream
+bone/FEM/MPM stage. Because the complete horizon is encoded before execution,
+that stage must gate physical writes on the per-environment success status and
+completed step. Consumer encoding rejection invokes its abort hook before commit.
+This is a device-resident load-composition boundary, not evidence that a
+deformable tendon or bone material model has already consumed the loads.
+
+Runtime `45fede450ba889b8feb1df0a8330db3c31706497` was qualified on Apple M4
+Pro against the final Human v4 bone/v4 tendon/v6 tissue assets. A 64-step
+assisted phase followed by 64 steps with root assistance removed applied
+106,496 terminal transfers: 37,888 admitted four-node envelopes and 68,608
+exact source-point fallbacks. Maximum force and moment conservation residuals
+were `1.72633488546e-4 N` and `2.44306352215e-6 N m`; one-step FP64 q/v
+errors were `3.90537220115e-8` and `3.90584484736e-4`; final replay was
+bitwise. The compiler reported `balanced=false`, so this remains a 12.8 ms
+transaction qualification rather than static balance or seconds-long standing.
+
+The CPU operator
 also appends one 6D maximal-coordinate block per dynamic scene body, applies
 world-frame inverse mass/inertia directly, and treats static/kinematic point
 velocity as prescribed. The dual-PSM/needle `HeterogeneousWorld` now enters
@@ -548,6 +990,25 @@ rows close at `7.5e-9`.
 The former Python/MLX physics extension and MLX-owned task frontends have been
 removed. Simulator state, reset, reward, termination, observation construction,
 and rollout scheduling have one owner: the native compiled-task executor.
+
+### Coupled promotion profiling
+
+Run `numi coupled-profile` to qualify the current tissue-coupling transaction
+with two exact replays, a Metal System Trace, target exit and failed-step gates,
+command-buffer error export, thermal evidence, and the detailed Apple GPU
+counter profile. `--mode static` selects the contact-free control and
+`--mode settle` selects the longer rod/needle physical outcome. Evidence is
+stored under `.numi/runs/` by default with the revision and worktree state that
+owned the executable.
+
+Detailed occupancy, limiter, and bandwidth counters are a strict independent
+gate. If Instruments reports that its selected counter profile is unsupported,
+the capability preserves the valid timeline and replay artifacts but exits 4;
+it does not promote RT-unit-only samples or CPU timing as a substitute. Use
+`--timeline-only` only when explicitly collecting supported timeline evidence
+without making a detailed-counter claim. A headless Mac at the login window may
+require opening the trace in an active GUI Metal debugger and selecting Profile
+after Replay before the strict counter gate can pass.
 
 ### Apple-silicon training scale
 
@@ -747,9 +1208,12 @@ accounting, and both throughput solvers.
 The contact probe covers a resting sphere/plane cache, greater than 99 percent
 unchanged-frame retention, deterministic replay, a mixed Franka/1 kg cube
 contact, exact isolated capacity rollback, and a 66,049-eligible-pair stream
-beyond the former scan ceiling. The free-world probe covers
-Franka/G1 FP64 parity, asynchronous ownership, bitwise replay, failure
-rollback, grow-only reuse, and the 4,096-environment throughput gate.
+beyond the former scan ceiling. The free-world probe covers Franka/G1 FP64
+parity, paired SIMD32/serial G1 parity and throughput, topology-aware kernel
+selection, asynchronous ownership, bitwise same-path replay, failure rollback,
+grow-only reuse, and the 4,096-environment throughput gate. The
+heterogeneous-world probe additionally executes the multi-articulation SIMD32
+path.
 
 The MLX learner check performs a real PPO update without importing simulator
 state or scheduling a transition, then publishes a PolicyPack accepted by the

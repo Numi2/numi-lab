@@ -216,8 +216,8 @@ def configure_scene(options: argparse.Namespace):
     floor_surface = material(
         "Numi floor",
         (0.012, 0.020, 0.032, 1.0),
-        metallic=0.18,
-        roughness=0.26,
+        metallic=0.0,
+        roughness=0.88,
     )
     # Presentation shares the solver's exact z=0 support plane. Never lower
     # the visible floor to conceal contact penetration.
@@ -225,6 +225,29 @@ def configure_scene(options: argparse.Namespace):
     floor = bpy.context.object
     floor.name = "Numi studio floor"
     floor.data.materials.append(floor_surface)
+
+    # Matte floor branding: avoids the expensive reflective floor path while
+    # keeping a legible studio mark under the robot.
+    logo_surface = material(
+        "Numi matte logo",
+        (0.02, 0.28, 0.40, 1.0),
+        metallic=0.0,
+        roughness=0.92,
+    )
+    for logo_index, (logo_x, logo_y) in enumerate(
+        ((0.0, 0.0), (-1.25, 0.0), (1.25, 0.0),
+         (0.0, -1.25), (0.0, 1.25))
+    ):
+        bpy.ops.object.text_add(location=(logo_x, logo_y, 0.004))
+        logo = bpy.context.object
+        logo.name = f"numi floor mark {logo_index}"
+        logo.data.body = "numi"
+        logo.data.align_x = "CENTER"
+        logo.data.align_y = "CENTER"
+        logo.data.size = 0.72
+        logo.data.extrude = 0.002
+        logo.data.bevel_depth = 0.001
+        logo.data.materials.append(logo_surface)
 
     ring_surface = material(
         "Numi cyan ring",

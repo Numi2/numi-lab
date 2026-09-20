@@ -1,0 +1,48 @@
+// Population-mean whole-segment pseudo-elastic costal-cartilage starting law.
+// Forman et al. report an effective modulus of 22 +/- 13.6 MPa (4.8--49 MPa)
+// under cadaveric cantilever-like dynamic loading, DOI
+// 10.1080/15389588.2010.517254. Weber et al. independently show material
+// anisotropy and age dependence, DOI 10.1038/s41598-021-93176-x. This v2 law
+// is deliberately homogeneous and isotropic until a subject/age/calcification
+// field is available; it is not an injury or clinical material certificate.
+// v2 corrects the v1 K-versus-lambda parameterization; previous v1 evidence
+// remains evidence for that earlier law, not for these corrected parameters.
+material human_costal_cartilage_pseudoelastic_v2 {
+    parameter density : kg/m^3 = 1100 in [950, 1250];
+    // E=22 MPa and nu=0.45 give mu=E/(2*(1+nu)) and
+    // lambda=E*nu/((1+nu)*(1-2*nu)). Physical K=lambda+2*mu/3
+    // is 73.333333333 MPa; the log(J)^2 coefficient below is lambda, not K.
+    // Near-incompressibility is an explicit modelling assumption, not a
+    // value reported by Forman et al. Conventional parameter names also let
+    // the mixed-FEM compiler derive the same physical K.
+    parameter mu : kPa = 7586.206896551724 in [1000, 30000] log identifiable;
+    parameter lambda : kPa = 68275.86206896554 in [10000, 500000] log identifiable;
+    parameter numerical_viscosity : Pa*s = 25 in [0.1, 500] log;
+
+    model generic;
+    energy = 0.5 * mu * (I1() - 3 - 2 * log(J()))
+        + 0.5 * lambda * pow(log(J()), 2);
+    dissipation = 0.5 * numerical_viscosity * (
+        pow(Fdot(0, 0), 2) + pow(Fdot(1, 1), 2) +
+        pow(Fdot(2, 2), 2) +
+        0.5 * pow(Fdot(0, 1) + Fdot(1, 0), 2) +
+        0.5 * pow(Fdot(0, 2) + Fdot(2, 0), 2) +
+        0.5 * pow(Fdot(1, 2) + Fdot(2, 1), 2)
+    );
+    valid = J() - 0.50;
+    supports fem;
+
+    interface {
+        static_friction = 0.05;
+        dynamic_friction = 0.03;
+        restitution = 0.0;
+        adhesion = 0.0;
+    }
+
+    limits {
+        minimum_J = 0.50;
+        maximum_J = 1.75;
+        maximum_stress = 1e8;
+        maximum_energy_density = 5e7;
+    }
+}

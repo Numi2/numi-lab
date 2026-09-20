@@ -1,0 +1,51 @@
+{
+  "schema": "numilab.human.whole-body-support-wrench.preflight.v1",
+  "device": "Apple M4 Pro",
+  "execution": "CPU FP64 static support compile on Apple M4 Pro",
+  "source_model": "pinned MyoSim full-body model",
+  "support_payload": "NHCNT1",
+  "joint_manifold": "NHEQ1",
+  "body_mass_kilograms": 97.1319506911,
+  "expected_weight_newtons": 952.864477038,
+  "total_support_force_newtons": 952.864474846,
+  "relative_weight_error": 2.30059458101e-9,
+  "support_contact_count": 10,
+  "active_support_contact_count": 10,
+  "maximum_floating_root_force_residual": 2.19215417019e-6,
+  "maximum_floating_root_acceleration_residual": 5.75388559893,
+  "internal_normalized_residual_rms": 22.9850160206,
+  "internal_balanced": false,
+  "replay": "bitwise",
+  "contacts": [
+    {"index": 0, "body_index": 153, "normal_force_newtons": 77.0165237199},
+    {"index": 1, "body_index": 139, "normal_force_newtons": 1.5870045508},
+    {"index": 2, "body_index": 153, "normal_force_newtons": 58.7278216293},
+    {"index": 3, "body_index": 139, "normal_force_newtons": 2.04363511483},
+    {"index": 4, "body_index": 152, "normal_force_newtons": 158.681444455},
+    {"index": 5, "body_index": 138, "normal_force_newtons": 236.015164984},
+    {"index": 6, "body_index": 152, "normal_force_newtons": 125.324569751},
+    {"index": 7, "body_index": 138, "normal_force_newtons": 250.385654759},
+    {"index": 8, "body_index": 152, "normal_force_newtons": 29.6952779628},
+    {"index": 9, "body_index": 138, "normal_force_newtons": 13.3873779197}
+  ],
+  "input_sha256": {
+    "myosim-fullbody-core-reference.nhrigid": "6328f7e84663c611c5498624d1386b00b2d5b0e162c4cc2967c7b1dc49ab0c44",
+    "myosim-fullbody-muscle-reference.nhmyo": "9a988f19a6fd8e533cd0f2bf3192cb8535fb008ccd394ffbf1a4432d3db76a05",
+    "myosim-fullbody-support-contact.nhcnt": "4d54f8155cd83baaee7af536099824ac0da61e5d5e77544b42c6e5ce1b48c907",
+    "myosim-fullbody-joint-equalities.nheq": "b97f755c769d0af16e02ab5deb9d85bd0cc921649197f71d308e98130ac69b6a"
+  },
+  "artifacts": {
+    "apps/numilab_human_myosim_visual_probe.mm": "07436ea01e9472117bb6e32114ca87e6f14ad965019c20fc0fcc635a7ebecdc2",
+    "include/metalrobo/NumiHumanMuscleEquilibrium.hpp": "68a5d5b95c4989f350a97dcfddfa5dd6ec9e310c0e01400a0b9407142cd9e627",
+    "src/core/NumiHumanMuscleEquilibrium.cpp": "f9c05ded802aced3ba5f7b44bbfcc91fe630d16e31c34b1341ee8411c027cf15"
+  },
+  "gates": {
+    "unilateral_nonnegative_reactions": "passed",
+    "all_authored_witnesses_active": "passed",
+    "body_weight_closure": "passed",
+    "floating_base_force_and_moment_closure": "passed",
+    "bitwise_replay": "passed"
+  },
+  "evidence_level": "preflight",
+  "evidence_boundary": "This certifies a deterministic static unilateral floating-base support wrench at the ten authored foot witnesses. It does not certify internal muscle equilibrium, dynamic foot-ground complementarity, frictional balance, sustained standing, gait, or clinical validity."
+}

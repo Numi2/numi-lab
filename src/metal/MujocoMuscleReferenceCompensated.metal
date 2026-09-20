@@ -1,0 +1,4 @@
+#define MR_SOURCE_PAIRED_GEOMETRY 1
+#define MR_MUJOCO_REFERENCE_KERNEL_NAME mr_mujoco_muscle_reference_compensated
+#define MR_MUJOCO_SUFFIX_KERNEL_NAME mr_mujoco_muscle_route_suffix_jacobian_compensated
+#include "MujocoMuscleReference.metal"

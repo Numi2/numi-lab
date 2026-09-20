@@ -2,6 +2,11 @@
 
 #include "metalrobo/engine_types.h"
 #include "metalrobo/generalized_constraint_shared.h"
+#include "metalrobo/millard_muscle_gpu.h"
+#include "metalrobo/mujoco_muscle_gpu.h"
+#include "metalrobo/numi_human_joint_equality_gpu.h"
+#include "metalrobo/numi_human_stand_gpu.h"
+#include "metalrobo/numi_human_tendon_gpu.h"
 #include "metalrobo/multi_contact_shared.h"
 #include "metalrobo/parallel_aba_shared.h"
 #include "metalrobo/policy_program_types.h"
@@ -46,6 +51,7 @@ constexpr std::uint64_t appendRuntimeAbiType(
 // compile-time value before any custom primitive may submit GPU work.
 constexpr std::uint64_t runtimeAbiFingerprint() noexcept {
     std::uint64_t hash = 14695981039346656037ull;
+    hash = detail::appendRuntimeAbiType<MRArticulatedPointImpulseGPU>(hash);
     hash = detail::appendRuntimeAbiWord(
         hash,
         MR_ENGINE_ABI_VERSION
@@ -69,7 +75,8 @@ constexpr std::uint64_t runtimeAbiFingerprint() noexcept {
             MR_METAL_WORLD_CONTACT_HAS_FUTURE_KINEMATICS |
             MR_METAL_WORLD_CONTACT_QUALITY |
             MR_METAL_WORLD_CONTACT_BODY_PARAMETERS |
-            MR_METAL_WORLD_CONTACT_STREAMED_RESPONSES
+            MR_METAL_WORLD_CONTACT_STREAMED_RESPONSES |
+            MR_METAL_WORLD_CONTACT_BODY_WRENCHES
     );
     hash = detail::appendRuntimeAbiWord(
         hash,
@@ -118,6 +125,26 @@ constexpr std::uint64_t runtimeAbiFingerprint() noexcept {
     hash = detail::appendRuntimeAbiWord(
         hash,
         MR_POLICY_PROGRAM_ABI_VERSION
+    );
+    hash = detail::appendRuntimeAbiWord(
+        hash,
+        MR_MILLARD_REFERENCE_GPU_ABI_VERSION
+    );
+    hash = detail::appendRuntimeAbiWord(
+        hash,
+        MR_MILLARD_ACTIVATION_GPU_ABI_VERSION
+    );
+    hash = detail::appendRuntimeAbiWord(
+        hash,
+        MR_MUJOCO_MUSCLE_REFERENCE_GPU_ABI_VERSION
+    );
+    hash = detail::appendRuntimeAbiWord(
+        hash,
+        MR_MUJOCO_MUSCLE_ACTIVATION_GPU_ABI_VERSION
+    );
+    hash = detail::appendRuntimeAbiWord(
+        hash,
+        MR_NUMI_HUMAN_TENDON_TRANSFER_GPU_ABI_VERSION
     );
 
     hash = detail::appendRuntimeAbiType<MRWorldGPU>(hash);
@@ -176,6 +203,33 @@ constexpr std::uint64_t runtimeAbiFingerprint() noexcept {
     hash = detail::appendRuntimeAbiType<
         MRPolicyProgramHeaderGPU
     >(hash);
+    hash = detail::appendRuntimeAbiType<
+        MRMillardActivationDispatchGPU
+    >(hash);
+    hash = detail::appendRuntimeAbiType<
+        MRMujocoMuscleReferenceDispatchGPU
+    >(hash);
+    hash = detail::appendRuntimeAbiType<MRMujocoMuscleGPU>(hash);
+    hash = detail::appendRuntimeAbiType<MRMujocoMuscleSiteGPU>(hash);
+    hash = detail::appendRuntimeAbiType<MRMujocoMuscleWrapGPU>(hash);
+    hash = detail::appendRuntimeAbiType<MRMujocoMuscleRouteNodeGPU>(hash);
+    hash = detail::appendRuntimeAbiType<MRMujocoMuscleStateGPU>(hash);
+    hash = detail::appendRuntimeAbiType<
+        MRMujocoMuscleActivationDispatchGPU
+    >(hash);
+    hash = detail::appendRuntimeAbiType<MRMujocoMuscleResultGPU>(hash);
+    hash = detail::appendRuntimeAbiType<
+        MRNumiHumanTendonTransferDispatchGPU
+    >(hash);
+    hash = detail::appendRuntimeAbiType<MRNumiHumanTendonBindingGPU>(hash);
+    hash = detail::appendRuntimeAbiType<MRNumiHumanTendonEnvelopeGPU>(hash);
+    hash = detail::appendRuntimeAbiType<
+        MRNumiHumanTendonTransferResultGPU
+    >(hash);
+    hash = detail::appendRuntimeAbiType<MRNumiHumanStandContactGPU>(hash);
+    hash = detail::appendRuntimeAbiType<MRNumiHumanJointEqualityGPU>(hash);
+    hash = detail::appendRuntimeAbiType<MRNumiHumanStandDispatchGPU>(hash);
+    hash = detail::appendRuntimeAbiType<MRNumiHumanStandStatusGPU>(hash);
     return hash;
 }
 

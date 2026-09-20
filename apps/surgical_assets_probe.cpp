@@ -11,6 +11,7 @@
 #include <iomanip>
 #include <iostream>
 #include <limits>
+#include <numbers>
 #include <span>
 #include <stdexcept>
 #include <string>
@@ -529,6 +530,83 @@ int main() {
         requirePositiveInertia(needle.rigid, "needle");
         requireAabbAgreement(needle.rigid, "needle");
 
+        const auto bowelNeedleSpec =
+            metalrobo::makeBowelAnastomosisNeedleSpec();
+        const auto bowelNeedle = metalrobo::makeCurvedSutureNeedleAsset(
+            needleIds,
+            bowelNeedleSpec
+        );
+        const auto bowelNeedleReplay =
+            metalrobo::makeCurvedSutureNeedleAsset(
+                needleIds,
+                bowelNeedleSpec
+            );
+        require(
+            sameRigidAsset(
+                bowelNeedle.rigid,
+                bowelNeedleReplay.rigid
+            ) &&
+                bowelNeedle.spec.arcLengthM.value == 0.026 &&
+                bowelNeedle.spec.arcAngleRad.value == std::numbers::pi &&
+                bowelNeedle.spec.arcSegments == 40u &&
+                bowelNeedle.metadata.graspZoneStartM >=
+                    bowelNeedle.spec.arcLengthM.value / 3.0 - 1.0e-12 &&
+                bowelNeedle.metadata.graspZoneEndM <=
+                    0.5 * bowelNeedle.spec.arcLengthM.value + 1.0e-12 &&
+                metalrobo::surgicalValueBasisName(
+                    metalrobo::SurgicalValueBasis::
+                        uspSyntheticSutureDiameterStandard
+                ) != "invalid" &&
+                metalrobo::surgicalValueSourceReference(
+                    metalrobo::SurgicalValueBasis::
+                        uspSyntheticSutureDiameterStandard
+                ).find("usp.org") != std::string_view::npos,
+            "PDS II bowel needle lost product geometry or handling zone"
+        );
+        requirePositiveInertia(bowelNeedle.rigid, "PDS II bowel needle");
+        requireAabbAgreement(bowelNeedle.rigid, "PDS II bowel needle");
+
+        const metalrobo::SurgicalAssetIds padIds{
+            .bodyIndex = 0u,
+            .materialIndex = 0u,
+            .slotGenerationBase = 15000u,
+            .collisionGroup = 1u,
+            .collisionMask = 1u,
+            .motionType = MR_MOTION_STATIC,
+        };
+        const auto neutralPad =
+            metalrobo::makeSurgicalNeutralZonePadAsset(padIds);
+        const auto neutralPadReplay =
+            metalrobo::makeSurgicalNeutralZonePadAsset(padIds);
+        require(
+            sameRigidAsset(neutralPad.rigid, neutralPadReplay.rigid) &&
+                neutralPad.rigid.shapes.size() == 1u &&
+                neutralPad.rigid.body.massAndInverseMass.y == 0.0f &&
+                std::abs(
+                    neutralPad.metadata.topSurfaceLocalM -
+                    0.5 * neutralPad.spec.thicknessM.value
+                ) < 1.0e-12,
+            "neutral-zone pad lost static geometry or replay stability"
+        );
+        require(
+            std::abs(
+                neutralPad.rigid.localAabbUpperM[0] -
+                (0.5 * neutralPad.spec.sizeXM.value +
+                 neutralPad.spec.contactOffsetM)
+            ) < 1.0e-7 &&
+                std::abs(
+                    neutralPad.rigid.localAabbUpperM[1] -
+                    (0.5 * neutralPad.spec.sizeYM.value +
+                     neutralPad.spec.contactOffsetM)
+                ) < 1.0e-7 &&
+                std::abs(
+                    neutralPad.rigid.localAabbUpperM[2] -
+                    (0.5 * neutralPad.spec.thicknessM.value +
+                     neutralPad.spec.contactOffsetM)
+                ) < 1.0e-7,
+            "neutral-zone pad authored bounds exclude contact offset"
+        );
+
         const metalrobo::SurgicalAssetIds ringIds{
             .bodyIndex = 0u,
             .materialIndex = 0u,
@@ -634,6 +712,12 @@ int main() {
             << needle.metadata.maximumCenterlineErrorM * 1.0e6
             << " needle_plane_contacts=" << planeContacts
             << " needle_jaw_contacts=" << jawContacts
+            << " bowel_needle_arc_mm="
+            << bowelNeedle.spec.arcLengthM.value * 1000.0
+            << " bowel_needle_shapes="
+            << bowelNeedle.rigid.shapes.size()
+            << " neutral_zone_shapes="
+            << neutralPad.rigid.shapes.size()
             << " ring_shapes=" << ring.rigid.shapes.size()
             << " peg_shapes=" << pegBlock.rigid.shapes.size()
             << " ring_peg_contacts=" << pegContacts

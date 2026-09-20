@@ -1,0 +1,111 @@
+# Prepared Human initial conditions
+
+NumanX construction v7 extends the complete v6 authored-world/source-physics
+contract with an immutable NHINIT payload and its nonzero FNV-1a fingerprint.
+NHINIT1 and NHINIT2 remain byte-identical. NHINIT3 adds an exact, construction-
+only handoff of prepared support multipliers to Matter's accepted history
+owner. Existing v1–v6 construction retains the source default state. There is
+no live reset API or host stepping/control path.
+
+The canonical 96-byte little-endian envelope is:
+
+| Offset | Field |
+|---:|---|
+| 0 | eight bytes `NHINIT1\0` |
+| 8 | u32 ABI 1 |
+| 12 | u32 header size 96 |
+| 16, 20, 24 | u32 nq, nv, source muscle count |
+| 28 | u32 scalar size 4 |
+| 32, 36 | u32 flags/reserved, both zero |
+| 40 | u64 composed Human source fingerprint before adding NHINIT1 |
+| 48 | u64 exact authored Matter world fingerprint |
+| 56 | u64 timestep in microseconds |
+| 64 | 32-byte source archive SHA-256 |
+| 96 | FP32 q, then v, then four FP32 values per source muscle |
+
+NHINIT2 retains all NHINIT1 offsets, uses a 160-byte header, carries the exact
+nanosecond clock at offset 96, and optionally carries the compensated root
+translation at offsets 104–151. Its reserved bytes at 152–159 remain zero.
+
+NHINIT3 retains all NHINIT2 offsets and uses this canonical extension:
+
+| Offset | Field |
+|---:|---|
+| 0 | eight bytes `NHINIT3\0` |
+| 8, 12 | u32 ABI 3, u32 header size 224 |
+| 32 | flags: bit 0 compensated root, bit 1 prepared support history; bit 1 required |
+| 160 | SHA-256 of the complete raw NHCNT byte image, 32 bytes |
+| 192 | u64 raw NHCNT byte count |
+| 200 | u32 NHCNT payload ABI, 1 or 2 |
+| 204, 208 | u32 source record count, u32 expanded runtime row count |
+| 212, 216 | u32 history record bytes 16, u32 encoding 1 |
+| 220 | u32 reserved zero |
+| 224 | existing q, v and muscle records, then one history float4 per expanded support row |
+
+Encoding 1 stores `{tangentImpulseWorldX, tangentImpulseWorldY,
+tangentImpulseWorldZ, normalImpulse}` in N·s. The tangent vector must be
+orthogonal to the bound ground normal, the normal impulse must be nonnegative,
+and the resultant must remain inside that row's Coulomb cone. NHCNT1 uses file
+order. NHCNT2 uses primitive order; capsules expand endpoint A then endpoint B.
+The exact NHINIT3 extent is
+`224 + 4*nq + 4*nv + 16*muscleCount + 16*expandedRowCount`.
+
+The muscle values are excitation, activation, fibre length in metres and fibre
+velocity in metres/second. Excitation/activation lie in `[0,1]`, fibre length is
+strictly positive and every scalar is finite. State dimensions must match the
+loaded source. The runtime checks root quaternion normalization and source,
+world and clock identity. It rejects trailing bytes and incomplete state;
+decoding failure preserves the destination. The legacy decode entry point
+rejects NHINIT3. Its bound overload requires an expected raw NHCNT SHA-256,
+byte count, ABI and source/expanded counts, so a history cannot be rebound by
+matching only its row count or the rigid-source digest.
+
+Prepared q/v remain separate from `EngineModel.defaultQ/defaultV`. Source rest
+coordinates and source anatomy remain unchanged. Mass ownership establishes the
+final body frames before the prepared state is applied. Authored FEM attachment
+position and velocity must agree with this same state at the existing FP32
+packing tolerance. The runtime never relocates nodes to make a package pass.
+The prepared source target includes NHEQ2, NHLIM1 and optional tissue ownership;
+the NHINIT domain and exact payload fingerprint then enter Human program and
+publication identity. All later physical state remains the resident owner's.
+
+`RuntimeConfiguration::humanSupportInitialHistories` is the only support seed
+handoff. Empty retains legacy all-zero initialization; otherwise its exact
+environment-major extent is `environmentCount * supportContactCount`. Matter
+uploads those values into `humanSupportHistoriesAccepted`; its existing
+checkpoint, candidate, commit, rollback, snapshot and proof paths retain
+ownership thereafter. The seed is never written into the contact descriptor's
+reserved `.w` word and is never reapplied as a spring or force.
+
+`encodeNumiHumanInitialState` is the native offline serialization interface.
+The qualification probe also accepts:
+
+```
+metalrobo_numanx_fullbody_bridge_probe --prepared-stance-fixture \
+  CERTIFICATE_LOG OUTPUT_DIRECTORY NHCNT_PAYLOAD NHEQ2_PAYLOAD NHLIM1_PAYLOAD
+```
+
+This helper reads the saved native compiler q/muscle records and per-row normal
+support forces, binds the exact supplied NHCNT1 or NHCNT2 bytes, rounds each
+`force * exactTimestep` once to FP32 impulse, serializes NHINIT3, and compiles
+the existing three tiny pelvis samples at that pose. Its receipt publishes the
+raw support SHA-256, byte count, ABI and source/expanded counts. Both accepted
+certificate forms retain those same five identity fields; authoring requires
+their exact equality with the supplied NHCNT before assigning any force row.
+The source-compliant JSON remains schema v1 with these additive provenance
+fields.
+It is an explicit qualification fixture, not anatomical tissue registration.
+It does not apply NHEQ1 reaction forces to the source-compliant solver.
+
+Curved support keeps capsule endpoints as separate physical rows. A device
+reduction groups contiguous rows by immutable source geometry into the existing
+ten touch receptors. It conserves total normal/tangential impulse and normal
+centre of pressure, reports the minimum gap and impulse-weighted slip velocity,
+and uses the nearest witness when unloaded. Bad rows invalidate their receptor.
+All supplemental channels and the optional neuron-culture consumer use that
+derived view. Matter retains sole authority over physical contact rows and
+acceptance; sensing never writes them.
+
+Admission does not certify equilibrium, tissue calibration or standing/walking.
+Loaded source-compliant contact/equality/limit/fibre response, anatomical tissue
+and sustained behavior require separate accepted-trajectory evidence.

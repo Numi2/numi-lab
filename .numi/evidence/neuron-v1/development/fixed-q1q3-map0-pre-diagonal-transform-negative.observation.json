@@ -1,0 +1,40 @@
+{
+  "schema": "numi.neuron-culture.development-observation.v1",
+  "classification": "retained-negative-superseded",
+  "reference_platform": {
+    "host": "macmini",
+    "device": "Apple M4 Pro",
+    "os": "macOS 26.6",
+    "sdk": "26.5"
+  },
+  "binary_sha256": "75b1e01ef7105fad49e2df2fd86a3bef8c9aece99ee21852f8d83fecd34298f3",
+  "metallib_sha256": "dfb88fb93170abcb844d029ee73ec3838c6eb329abc26b6f40b56dffb547dfd9",
+  "protocol_source_sha256": "3e2310ddde6938603a32be11a346e1f3e9963591e9521639153ee73dd56d4105",
+  "culture_fingerprint": 17079466552160195465,
+  "network_seed": 2056,
+  "cps_set": 0,
+  "sensory_switch": "Q1<->Q3",
+  "adaptive": {
+    "baseline_success": 0.616666675,
+    "trailing_success": 0.516666651,
+    "patterned_training_windows": 1434,
+    "pattern_reinforcements": 1308,
+    "pattern_copy_removals": 52,
+    "mean_weight": 0.0479806066,
+    "mean_depression": 0.665699919,
+    "accepted_state_fingerprint": 10280675981221375299
+  },
+  "pts_off": {
+    "baseline_success": 0.616666675,
+    "trailing_success": 0.491666675,
+    "patterned_training_windows": 0,
+    "mean_weight": 0.0480639418,
+    "mean_depression": 0.660340772,
+    "accepted_state_fingerprint": 8801701641064959096
+  },
+  "observed_improvement": 0.024999976,
+  "promotion_required_improvement": 0.10,
+  "diagnosis": "The adaptive and PTS-off neural states diverged, proving that stimulation and plasticity were connected, but behavior stayed near 0.5 immediately after the switch and at the end. Source review against Chao-Bakkum-Potter equation (3) found that this binary used a rotation-plus-scale motor transform instead of the paper's independent alpha*CAx and beta*CAy scaling. The run therefore did not establish the intended sensory-switch perturbation and is retained only as negative development evidence.",
+  "promotion_evidence": false,
+  "simulation_only": true
+}

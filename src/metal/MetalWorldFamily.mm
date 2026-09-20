@@ -193,6 +193,19 @@ id<MTLBuffer> makePrivateBuffer(
     return buffer;
 }
 
+template <typename T>
+id<MTLBuffer> makePrivateTypedBuffer(
+    id<MTLDevice> device,
+    const std::size_t logicalBytes,
+    NSString* label
+) {
+    return makePrivateBuffer(
+        device,
+        std::max<std::size_t>(logicalBytes, sizeof(T)),
+        label
+    );
+}
+
 id<MTLBuffer> makeSharedBuffer(
     id<MTLDevice> device,
     const std::size_t logicalBytes,
@@ -966,62 +979,62 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::compile(
         }
 
         FamilyBuffers candidate;
-        candidate.baseAssets = makePrivateBuffer(
+        candidate.baseAssets = makePrivateTypedBuffer<MRWorldAssetInstanceGPU>(
             state_->device,
             baseAssetBytes,
             @"MetalRobo base world assets"
         );
-        candidate.baseSensors = makePrivateBuffer(
+        candidate.baseSensors = makePrivateTypedBuffer<MRWorldSensorInstanceGPU>(
             state_->device,
             baseSensorBytes,
             @"MetalRobo base world sensors"
         );
-        candidate.baseAppearances = makePrivateBuffer(
+        candidate.baseAppearances = makePrivateTypedBuffer<MRWorldAppearanceInstanceGPU>(
             state_->device,
             baseAppearanceBytes,
             @"MetalRobo base world appearances"
         );
-        candidate.variations = makePrivateBuffer(
+        candidate.variations = makePrivateTypedBuffer<MRWorldVariationGPU>(
             state_->device,
             variationBytes,
             @"MetalRobo world variations"
         );
-        candidate.categoricalValues = makePrivateBuffer(
+        candidate.categoricalValues = makePrivateTypedBuffer<std::uint32_t>(
             state_->device,
             categoricalBytes,
             @"MetalRobo categorical values"
         );
-        candidate.assetBindings = makePrivateBuffer(
+        candidate.assetBindings = makePrivateTypedBuffer<MRWorldAssetBindingGPU>(
             state_->device,
             assetBindingBytes,
             @"MetalRobo world asset bindings"
         );
-        candidate.bindingIndices = makePrivateBuffer(
+        candidate.bindingIndices = makePrivateTypedBuffer<std::uint32_t>(
             state_->device,
             bindingIndexBytes,
             @"MetalRobo world binding indices"
         );
-        candidate.baseQ = makePrivateBuffer(
+        candidate.baseQ = makePrivateTypedBuffer<float>(
             state_->device,
             baseQBytes,
             @"MetalRobo world-family base q"
         );
-        candidate.baseV = makePrivateBuffer(
+        candidate.baseV = makePrivateTypedBuffer<float>(
             state_->device,
             baseVBytes,
             @"MetalRobo world-family base v"
         );
-        candidate.baseSceneBodies = makePrivateBuffer(
+        candidate.baseSceneBodies = makePrivateTypedBuffer<MRBodyStateGPU>(
             state_->device,
             baseSceneBodyBytes,
             @"MetalRobo world-family base scene bodies"
         );
-        candidate.bodyToScene = makePrivateBuffer(
+        candidate.bodyToScene = makePrivateTypedBuffer<std::uint32_t>(
             state_->device,
             bodyToSceneBytes,
             @"MetalRobo world-family body-to-scene map"
         );
-        candidate.bodyProperties = makePrivateBuffer(
+        candidate.bodyProperties = makePrivateTypedBuffer<MRBodyPropertiesGPU>(
             state_->device,
             bodyPropertyBytes,
             @"MetalRobo world-family body properties"
@@ -1036,32 +1049,32 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::compile(
             sizeof(MRWorldFamilyMaterializeUniformsGPU),
             @"MetalRobo world-family physics uniforms"
         );
-        candidate.instances = makePrivateBuffer(
+        candidate.instances = makePrivateTypedBuffer<MRWorldInstanceHeaderGPU>(
             state_->device,
             layout.instancePrivateBytes,
             @"MetalRobo world instance headers"
         );
-        candidate.assets = makePrivateBuffer(
+        candidate.assets = makePrivateTypedBuffer<MRWorldAssetInstanceGPU>(
             state_->device,
             layout.assetPrivateBytes,
             @"MetalRobo world asset instances"
         );
-        candidate.sensors = makePrivateBuffer(
+        candidate.sensors = makePrivateTypedBuffer<MRWorldSensorInstanceGPU>(
             state_->device,
             layout.sensorPrivateBytes,
             @"MetalRobo world sensor instances"
         );
-        candidate.appearances = makePrivateBuffer(
+        candidate.appearances = makePrivateTypedBuffer<MRWorldAppearanceInstanceGPU>(
             state_->device,
             layout.appearancePrivateBytes,
             @"MetalRobo world appearance instances"
         );
-        candidate.scenarioHeaders = makePrivateBuffer(
+        candidate.scenarioHeaders = makePrivateTypedBuffer<MRWorldScenarioHeaderGPU>(
             state_->device,
             layout.scenarioHeaderPrivateBytes,
             @"MetalRobo world scenario headers"
         );
-        candidate.scenarioValues = makePrivateBuffer(
+        candidate.scenarioValues = makePrivateTypedBuffer<MRWorldScenarioValueGPU>(
             state_->device,
             layout.scenarioValuePrivateBytes,
             @"MetalRobo world scenario values"
@@ -1071,47 +1084,47 @@ MetalWorldFamilyDiagnostics MetalWorldFamilyContext::compile(
             sizeof(MRWorldAdaptiveSampleUniformsGPU),
             @"MetalRobo adaptive sampling uniforms"
         );
-        candidate.alignmentParticles = makePrivateBuffer(
+        candidate.alignmentParticles = makePrivateTypedBuffer<MRWorldAlignmentParticleGPU>(
             state_->device,
             sizeof(MRWorldAlignmentParticleGPU),
             @"MetalRobo alignment particles"
         );
-        candidate.alignmentQuantiles = makePrivateBuffer(
+        candidate.alignmentQuantiles = makePrivateTypedBuffer<float>(
             state_->device,
             0u,
             @"MetalRobo alignment quantiles"
         );
-        candidate.feedbackRegions = makePrivateBuffer(
+        candidate.feedbackRegions = makePrivateTypedBuffer<MRWorldFeedbackRegionGPU>(
             state_->device,
             sizeof(MRWorldFeedbackRegionGPU),
             @"MetalRobo feedback regions"
         );
-        candidate.feedbackBounds = makePrivateBuffer(
+        candidate.feedbackBounds = makePrivateTypedBuffer<mr_float4>(
             state_->device,
             0u,
             @"MetalRobo feedback bounds"
         );
-        candidate.resetQ = makePrivateBuffer(
+        candidate.resetQ = makePrivateTypedBuffer<float>(
             state_->device,
             resetQBytes,
             @"MetalRobo world-family reset q"
         );
-        candidate.resetV = makePrivateBuffer(
+        candidate.resetV = makePrivateTypedBuffer<float>(
             state_->device,
             resetVBytes,
             @"MetalRobo world-family reset v"
         );
-        candidate.resetSceneBodies = makePrivateBuffer(
+        candidate.resetSceneBodies = makePrivateTypedBuffer<MRBodyStateGPU>(
             state_->device,
             resetSceneBodyBytes,
             @"MetalRobo world-family reset scene bodies"
         );
-        candidate.bodyParameters = makePrivateBuffer(
+        candidate.bodyParameters = makePrivateTypedBuffer<MRWorldBodyParametersGPU>(
             state_->device,
             bodyParameterBytes,
             @"MetalRobo world-family body parameters"
         );
-        candidate.controllerParameters = makePrivateBuffer(
+        candidate.controllerParameters = makePrivateTypedBuffer<MRWorldControllerParametersGPU>(
             state_->device,
             controllerParameterBytes,
             @"MetalRobo world-family controller parameters"

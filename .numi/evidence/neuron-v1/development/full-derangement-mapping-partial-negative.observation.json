@@ -1,0 +1,23 @@
+{
+  "schema": "numi.neuron-culture.development-observation.v1",
+  "status": "retained_negative_not_promotable",
+  "reason": "stopped after primary-source review showed that the five setup index had been misinterpreted as five full quadrant derangements; the paper uses five independently selected CPS sets and one fixed Q1/Q3 exchange",
+  "device": "Apple M4 Pro",
+  "os": "macOS 26.6 (25G72)",
+  "metal": "Metal 4",
+  "base_revision": "3aff1bb2467ae5631416733f0852606d6a1682f9",
+  "binary_sha256": "5e6d9a4bd6b166bf279ce2a63d87a2f98560ad95379780e72fd224ff69265484",
+  "metallib_sha256": "dfb88fb93170abcb844d029ee73ec3838c6eb329abc26b6f40b56dffb547dfd9",
+  "protocol_source_sha256": "553e63d9ab0483e48cb76a00d95a5b758fe47d3ec155be080f50540eaa307687",
+  "core_source_sha256": "185edf5f429d0e3f23a507683bb1aa5b4d9121421cf28a54ca760626084799ed",
+  "network_seed": 2056,
+  "sensory_mapping": 0,
+  "culture_fingerprint": 17079466552160195465,
+  "completed_windows": 1440,
+  "final_interval_measured": 120,
+  "final_interval_success": 0.466667,
+  "terminal_checkpoint": false,
+  "paired_control_started": false,
+  "promotion_threshold_relaxed": false,
+  "simulation_only": true
+}

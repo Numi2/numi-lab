@@ -1,0 +1,35 @@
+{
+  "schema": "numilab.human.knee-articular-contact-preflight.v1",
+  "side": "left",
+  "device": "Apple M4 Pro",
+  "source_payload": "NHKNEE1 Open Knee(s) oks003",
+  "articular_pair_count": 7,
+  "contact_sample_count": 69701,
+  "sustained_step_count": 65,
+  "peak_prescribed_closure_m": 0.00005,
+  "peak_normal_force_n": 11386.939590567326,
+  "peak_pressure_pa": 458057.3733710318,
+  "peak_stored_energy_j": 0.28467348976418277,
+  "elastic_energy_relative_error": 1.4004373680869321e-15,
+  "maximum_force_residual_n": 2.19661229301149e-11,
+  "maximum_moment_residual_nm": 8.722905647315977e-12,
+  "meniscus_geometry_thickness_m": {
+    "minimum": 0.0011643568672987834,
+    "maximum": 0.0012076477381593653
+  },
+  "replay": "bitwise",
+  "unloaded_restore": "verified",
+  "evidence_level": "preflight",
+  "live_human_coupling": false,
+  "nonpenetration_solve": false,
+  "gates": {
+    "exact_seven_pair_coverage": "passed",
+    "compressive_only": "passed",
+    "monotonic_loading": "passed",
+    "force_balance": "passed",
+    "moment_balance": "passed",
+    "elastic_work_identity": "passed",
+    "bitwise_replay": "passed",
+    "unloaded_restore": "passed"
+  }
+}

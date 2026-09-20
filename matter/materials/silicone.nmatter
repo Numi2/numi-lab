@@ -1,0 +1,24 @@
+material silicone {
+    parameter density : kg/m^3 = 1100 in [900, 1300];
+    parameter mu : kPa = 150 in [5, 1000] log identifiable;
+    parameter lambda : MPa = 3 in [0.1, 30] log identifiable;
+
+    model neo_hookean;
+    energy = neo_hookean(mu, lambda);
+    valid = J() - 0.05;
+    supports mpm, fem, rigid;
+
+    interface {
+        static_friction = 0.80;
+        dynamic_friction = 0.65;
+        restitution = 0.0;
+        adhesion = 0.0;
+    }
+
+    limits {
+        minimum_J = 0.05;
+        maximum_J = 20.0;
+        maximum_stress = 1e9;
+        maximum_energy_density = 1e9;
+    }
+}

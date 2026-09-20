@@ -1,0 +1,85 @@
+name: Human constraint projection
+on:
+  push:
+    branches: [human-native-runtime-20260915]
+    paths:
+      - include/metalrobo/numi_human_constraint_projection.h
+      - include/metalrobo/numi_human_passive_joint.h
+      - include/metalrobo/NumiHumanPassiveJoint.hpp
+      - include/metalrobo/numi_human_stand_gpu.h
+      - include/metalrobo/MetalArticulatedOperator.hpp
+      - src/metal/NumiHumanStand.metal
+      - src/metal/MetalArticulatedOperator.mm
+      - apps/numilab_human_myosim_visual_probe.mm
+      - tests/numi_human_constraint_projection_test.cpp
+      - tests/numi_human_equality_limit_block_test.cpp
+      - tests/numi_human_passive_joint_test.cpp
+      - tools/check_human_constraint_owner.py
+      - tools/check_human_host_syntax.py
+      - .github/workflows/human-constraint-projection.yml
+  pull_request:
+    paths:
+      - include/metalrobo/numi_human_constraint_projection.h
+      - include/metalrobo/numi_human_passive_joint.h
+      - include/metalrobo/NumiHumanPassiveJoint.hpp
+      - include/metalrobo/numi_human_stand_gpu.h
+      - include/metalrobo/MetalArticulatedOperator.hpp
+      - src/metal/NumiHumanStand.metal
+      - src/metal/MetalArticulatedOperator.mm
+      - apps/numilab_human_myosim_visual_probe.mm
+      - tests/numi_human_constraint_projection_test.cpp
+      - tests/numi_human_equality_limit_block_test.cpp
+      - tests/numi_human_passive_joint_test.cpp
+      - tools/check_human_constraint_owner.py
+      - tools/check_human_host_syntax.py
+      - .github/workflows/human-constraint-projection.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: human-constraint-projection-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  portable:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check production constraint ownership
+        run: python3 tools/check_human_constraint_owner.py
+      - name: Test shared numerical policies
+        run: |
+          for name in constraint_projection equality_limit_block passive_joint; do
+            c++ -std=c++20 -O2 -Wall -Wextra -Werror -fno-fast-math -Iinclude tests/numi_human_${name}_test.cpp -o /tmp/human-${name}
+            /tmp/human-${name}
+          done
+          git diff --exit-code
+      - name: Retain source-bound compiler inputs
+        run: |
+          git rev-parse HEAD > human-source-revision.txt
+          git archive --format=tar HEAD AGENTS.md CMakeLists.txt cmake include src apps tests tools .github | gzip > human-native-source.tar.gz
+      - uses: actions/upload-artifact@v4
+        with:
+          name: human-native-compiler-inputs
+          path: |
+            human-native-source.tar.gz
+            human-source-revision.txt
+          retention-days: 14
+          if-no-files-found: error
+  metal-compile:
+    runs-on: macos-15
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile production Metal constraint owner
+        run: xcrun --sdk macosx metal -std=metal3.1 -fno-fast-math -Iinclude -c src/metal/NumiHumanStand.metal -o /tmp/NumiHumanStand.air
+      - name: Test shared policies with Apple clang
+        run: |
+          for name in constraint_projection equality_limit_block passive_joint; do
+            clang++ -std=c++20 -O2 -Wall -Wextra -Werror -fno-fast-math -Iinclude tests/numi_human_${name}_test.cpp -o /tmp/human-${name}
+            /tmp/human-${name}
+          done
+      - name: Compile production host owners
+        run: python3 tools/check_human_host_syntax.py
+      - name: Check production constraint ownership
+        run: python3 tools/check_human_constraint_owner.py

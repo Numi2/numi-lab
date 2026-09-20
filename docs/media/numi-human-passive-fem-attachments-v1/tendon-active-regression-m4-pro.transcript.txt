@@ -1,0 +1,1 @@
+numi_human_tendon_fem_load=passed device="Apple M4 Pro" encoded_passes=3 max_displacement_m=0.000206897 anchor_reaction_l1_n=0.124873 replay=bitwise rollback=verified production_owner_fraction=0.1

@@ -29,6 +29,15 @@ enum MRConstraintIRBlockFlags : mr_u32 {
     // Typed rod-node to rigid/world anchor. It is normalized as three scalar
     // blocks so throughput and quality modes consume the same product cone.
     MR_CONSTRAINT_IR_BLOCK_ROD_ATTACHMENT = 1u << 5u,
+    // Scalar Cosserat material-frame weld between one rod edge and one rigid
+    // body. Its Jacobian is -theta_dot + omega_body dot tangent, and its
+    // position error is the wrapped director phase difference.
+    MR_CONSTRAINT_IR_BLOCK_ROD_TWIST_ATTACHMENT = 1u << 6u,
+    // Two transverse line rows clamp a rod edge tangent to a rigid body while
+    // preserving the DER's independent axial stretch coordinate. This bit is
+    // paired with ROD_ATTACHMENT so the retained translation-factor path is
+    // shared rather than introducing a second operator.
+    MR_CONSTRAINT_IR_BLOCK_ROD_TANGENT_ATTACHMENT = 1u << 7u,
 };
 
 enum MRConstraintIRRowFlags : mr_u32 {

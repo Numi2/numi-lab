@@ -1147,7 +1147,8 @@ TaskCompileDiagnostics compileTaskProgram(
         if (!jointActuator &&
             actuator->kind != RobotActuatorKind::tendonPosition &&
             actuator->kind != RobotActuatorKind::rotorMixer &&
-            actuator->kind != RobotActuatorKind::bodyWrench) {
+            actuator->kind != RobotActuatorKind::bodyWrench &&
+            actuator->kind != RobotActuatorKind::millardExcitation) {
             return reject(
                 TaskCompileStatus::unsupportedOperator,
                 actuator->id,
@@ -1252,6 +1253,48 @@ TaskCompileDiagnostics compileTaskProgram(
                     static_cast<std::uint32_t>(actuator->kind),
                     MR_INVALID_INDEX,
                     actuator->component,
+                    0u,
+                },
+            });
+            continue;
+        }
+        if (actuator->kind == RobotActuatorKind::millardExcitation) {
+            if (!actuator->terms.empty() || actuator->component != 0u ||
+                actuator->scale != 1.0f ||
+                !finite(actuator->responseTimeSeconds) ||
+                actuator->responseTimeSeconds < 0.0f ||
+                !finite(actuator->parameters) ||
+                actuator->parameters.x != 0.0f ||
+                actuator->parameters.y != 0.0f ||
+                actuator->parameters.z != 0.0f ||
+                actuator->parameters.w != 0.0f) {
+                return reject(
+                    TaskCompileStatus::invalidPack,
+                    actuator->id,
+                    "Millard excitation actuator requires unit scale and no joint/vector parameters"
+                );
+            }
+            actionJoints.push_back(MR_INVALID_INDEX);
+            actionTargets.push_back(actuator->target);
+            actionIds.push_back(actuator->id);
+            staged->actionBindings.push_back({
+                {
+                    static_cast<std::uint32_t>(actionIndex),
+                    MR_INVALID_INDEX,
+                    MR_INVALID_INDEX,
+                    MR_INVALID_INDEX,
+                },
+                {
+                    1.0f,
+                    -1.0f,
+                    1.0f,
+                    actuator->responseTimeSeconds,
+                },
+                {},
+                {
+                    static_cast<std::uint32_t>(actuator->kind),
+                    static_cast<std::uint32_t>(actionIndex),
+                    0u,
                     0u,
                 },
             });

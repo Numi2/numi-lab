@@ -9,9 +9,28 @@ the installed runtime and the user's overlays.
 ```sh
 ./tools/numi doctor
 ./tools/numi context
+./tools/numi context --paths
+./tools/numi help train
+./tools/numi solvers list
 ./tools/numi run train --help
 ./tools/numi version
 ```
+
+Core commands reject unsupported arguments instead of silently ignoring them.
+`numi help CAPABILITY` is a shortcut for the capability's live `--help`, and
+`numi context --paths` shows the resolved owner executable after overlay
+precedence is applied. Unknown capabilities offer a close dynamic match when
+one is available.
+
+Solver discovery is another capability rather than core CLI schema. See
+[Numi solver configuration](NUMI_SOLVERS.md) for the bundled portfolio,
+nine family-first choices, backend variants, fingerprinted profiles,
+compatibility boundaries, and external overlays.
+
+`numi doctor` validates the Apple/Metal toolchain, native trainer and rollout
+executables, MLX availability, and robot-catalog list-to-inspect coherence. A
+catalog executable built against an incompatible runtime library fails the
+doctor check instead of advertising robot inspection that cannot execute.
 
 Make the local runtime available throughout Codex with one command:
 
@@ -23,6 +42,11 @@ This registers the repository marketplace, installs and enables the Numi Lab
 plugin, and links the dispatcher into `${XDG_BIN_HOME:-~/.local/bin}` without
 replacing an existing command. Start a new Codex task after installation so its
 Numi Lab skill is loaded.
+
+Use `numi codex status` to verify more than registration. It fails when the
+plugin is disabled, Codex reports another source or version, the versioned cache
+is absent, or any cached plugin file differs from this runtime's source. This
+prevents an old cached skill from being reported as current after a source edit.
 
 `numi train` and `numi evaluate` are discovered commands, not core CLI logic.
 The dispatcher searches in this order:
@@ -37,6 +61,21 @@ The first executable with the requested name wins. A custom capability only
 needs to implement normal command-line behavior and may optionally answer
 `--numi-describe` with a one-line description for `numi context`.
 
+`numi window` is the workspace's one-command live renderer. It builds an
+isolated presentation runtime, finds the saved authored scene, and opens an
+`MTKView` preview of environment zero:
+
+```sh
+numi window
+```
+
+The first setup only needs an authored `numi.visual-observation.v1` file:
+place or link it at `.numi/window.visual-observation.json`. Subsequent preview
+runs need no executable, metallib, scene, or display flags. The preview uses a
+GPU-private three-slot ring and drops stale frames rather than delaying the
+native rollout; closing the window ends that preview run. See
+`numi window --help` for scene discovery and optional rollout overrides.
+
 Motion imagination is another discovered capability. It executes a provider
 without giving that provider authority over robot actions or physical truth:
 
@@ -49,6 +88,22 @@ numi motion infer --model-directory /path/to/ardy --output-directory /path/to/ru
 
 See [Motion providers](MOTION_PROVIDERS.md) for the artifact boundary and the
 qualified native ARDY G1 and generic ARDY Core ONNX paths.
+
+Neuron-culture simulation is a discovered native capability:
+
+```sh
+numi neurons inspect
+numi neurons grow --quick
+numi neurons simulate --quick
+numi neurons embody --quick
+numi neurons replay --quick
+numi neurons render --quick --output .numi/runs/neuron-culture.ppm
+```
+
+It compiles a fingerprinted synthetic culture, runs transactional phase/tubulin
+growth and delayed LIF/STDP dynamics on Metal, and exposes a virtual-MEA
+reference task. It is simulation-only and does not control biological cultures
+or physical MEA hardware. See [Synthetic neuron-culture twin](NEURON_CULTURE.md).
 
 ## User-owned overlays
 
@@ -134,6 +189,11 @@ held-out physical rollout to compare deployment actor with deployment actor.
 The plugin under `plugins/numi-lab` intentionally contains a small skill. It
 teaches Codex to begin with `numi context`; changing robotics knowledge remains
 owned by the live installation, its commands, and its source.
+
+Representative activation, incomplete-input, non-trigger, hardware, and
+evidence-boundary requests live in the skill's `evals/evals.json`. The stdlib
+contract test validates that corpus and the plugin install/cache checker; prompt
+quality still requires evaluation in a fresh Codex task after reinstall.
 
 Validate the plugin from the plugin-creator skill root:
 

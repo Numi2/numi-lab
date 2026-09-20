@@ -1,0 +1,16 @@
+name: Dispatch Human common-duration refinement
+on:
+  push:
+    branches: [human-native-runtime-20260915]
+    paths: [.github/workflows/dispatch-human-refinement.yml]
+permissions:
+  actions: write
+  contents: read
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch the source-locked four-grid workflow
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run human-bounded-release.yml --repo "$GITHUB_REPOSITORY" --ref "$GITHUB_REF_NAME"

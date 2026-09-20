@@ -70,8 +70,10 @@ runtime bindings against `visual_scene_manifest_v3.schema.json`.
 
 `composeVisualBodyStates` evaluates articulated bodies with MetalRobo's
 authoritative FP64 kinematics and combines them with sampled scene bodies in
-global `EngineModel` body order. The renderer therefore consumes the same
-poses used by collision and contact.
+global `EngineModel` body order. Articulated body poses are COM-centred, so
+URDF visual cooking applies each link's authored origin-from-COM offset before
+binding its mesh. The renderer therefore consumes the same poses used by
+collision and contact without disassembling link-origin geometry.
 
 ### Visual sensor runtime
 
@@ -146,6 +148,28 @@ exposure samples.
 compute encoder. It commits no command buffer and performs no readback. RGB,
 depth, identity, normal, motion, and validity buffers stay device-resident and
 are exposed through `nativeBuffer` for MLX, Core ML, or another Metal stage.
+Surgical v3 replay is equally state-bound: `metalrobo_suture_visual_probe`
+reads the checkpoint's Matter archive, verifies its content hash, byte count,
+source-physics fingerprint, and device-program fingerprint, then reconstructs
+the visible jejunal boundary from the archive's live FEM positions and active
+tetrahedra. It applies no neutral-zone translation and has no rest-mesh
+fallback for a v3 checkpoint. Older v2 handoff fixtures, which predate live
+tissue coupling, retain their explicitly authored rest-coupon presentation.
+Knot-stage and double-throw manifests are accepted only when all six exact
+continuation rows are present (protocol, material window, origin, and three
+frame axes); partial knot metadata or knot rows on another phase are rejected
+before rendering.
+The support field retains semantic identity `301`; tissue uses independent
+identity `302`, so render qualification must observe the jejunal surface in
+both surgical views rather than satisfying coverage with the pad alone.
+Live-tissue evidence compacts the verified exterior boundary before upload;
+it preserves every retained FEM position and triangle winding while omitting
+interior nodes that cannot contribute a drawable surface. The two inferred
+fixed-end bars use identity `303`. They touch the exact terminal fixed-node
+planes and make the coupon's Dirichlet support visible, but remain
+presentation-only boxes: they add no collision shape, contact, constraint, or
+physics authority. Matter visual evidence schema v3 reports their triangle and
+per-view pixel counts independently from tissue coverage.
 `MetalHybridObjectTracker` is the native closed-loop adapter: it renders on a
 borrowed `MetalWorld` command buffer, reduces metric depth and instance
 identity into compact root-local object position and velocity tracks, and
@@ -207,6 +231,70 @@ Explicit inspection/export readback coalesces every plane into one transient
 aligned shared buffer and reuses caller-owned host capacity. This avoids
 per-modality Metal allocations without retaining a resolution-sized staging
 buffer after the readback completes.
+
+### Live run inspector
+
+`metalrobo_task_rollout` and `metalrobo_task_train` can open a small native
+macOS `MTKView` beside a run. For ordinary use, save the authored visual
+observation file as `.numi/window.visual-observation.json` and run:
+
+```sh
+numi window
+```
+
+The workspace command builds its own isolated runtime, discovers that saved
+scene, starts a one-environment zero-action preview, and stops it when the
+window closes. The lower-level executable remains available for composed
+training/evaluation flows:
+
+```sh
+metalrobo_task_rollout ... \
+    --inspect-scene /path/to/visual-observation.json \
+    --inspect-width 960 --inspect-height 540
+```
+
+`--inspect-scene` takes the same portable `numi.visual-observation.v1`
+artifact used for authored cameras, but it compiles an independent
+presentation-only renderer. It neither changes `CompiledRun`, policy
+observations, policy fingerprints, nor the task SensorPack. The render is
+encoded after the final accepted control state of each existing rollout
+submission, into the submission's command buffer; it never introduces a
+command-buffer wait, a CPU state copy, or a pixel readback.
+
+The window consumes device-private linear RGB buffers through a three-slot
+ring. A slot is released only after its display command buffer completes; if
+the window or compositor falls behind, the producer drops the newest preview
+instead of blocking physics, control, or learning. The window currently
+shows representative environment zero. It is an inspection aid, not evidence
+of real-hardware behavior or a media-capture path. Use ordinary visual export
+or state-trace facilities when durable frames or artifacts are required.
+
+The inspector has three controls: **Pause/Resume**, a robot-grouped **Policy
+Selector**, and **Latest Policy**. The selector reads
+`.numi/policies/<robot-id>/*.policypack` (or `NUMI_WINDOW_POLICY_CATALOG`) and
+groups choices by `<robot-id>` without hard-coding a robot catalog. Pause does
+not pause physics or training: it gates the GPU presentation sidecar at the
+next normal rollout boundary, eliminating preview encoding and dropped-frame
+atomics until Resume. Minimizing or fully occluding the window applies the same
+automatic sidecar gate and resumes it when the window is visible again. Policy
+selection and Latest Policy reload at that same boundary and only accept a
+compatible immutable revision; the selector advances only after a successful
+transaction and returns to the active policy after rejection. The image is
+aspect-fit automatically, so authored camera geometry is never stretched to
+the resizable window.
+
+Presentation remains event-driven rather than timer-driven. The `MTKView`
+keeps its drawable render-target-only with a single sample, creates the display
+command buffer before requesting a drawable, and rate-limits title-bar metadata
+updates to four per second. Its drawable is capped to the authored frame's
+useful resolution instead of implicitly shading a 2x Retina surface. Those UI
+choices never add a wait, readback, or second simulation command buffer.
+
+`metalrobo_bodyparts3d_visual_probe` is a separate source-static inspection
+utility. It reads a cooked BodyParts3D pack and exports three PPM views from
+world-up-stable cameras. It intentionally binds the source surface only to a
+static asset; it is not a BodyParts3D-to-OpenSim registration, a skinned Human
+renderer, or a mechanics/contact qualification.
 
 Fixed and wrist cameras in `FrankaPickPlaceWorldFamily` are the reference
 integration. The fixed camera is calibrated toward the manipulation

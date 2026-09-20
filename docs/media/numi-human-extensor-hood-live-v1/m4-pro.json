@@ -1,0 +1,120 @@
+{
+  "schema": "numilab.human.extensor-hood-live-metal.v1",
+  "device": "Apple M4 Pro",
+  "evidence_level": "one_step",
+  "bounded_extension_step_count": 8,
+  "runtime_revision": "38cf13d",
+  "source_compiler_revision": "48bb878",
+  "source_artifacts": {
+    "nhhood2_sha256": "9af89a7e5b4ea48d9e00674da8b9fb67e6749b66a3b62d267487cce89bfb1962",
+    "nhrigid_sha256": "6328f7e84663c611c5498624d1386b00b2d5b0e162c4cc2967c7b1dc49ab0c44",
+    "nhmyo_sha256": "a4381465ca97a7af20108180e2fc0d0f0d9c11778d913de4c0728bd20ed459a7",
+    "nhbones_sha256": "f9132393dfb259a80e2b2084ac5ff15f2bf988f7e073f7a961a7ddcfb9febc3c"
+  },
+  "topology": {
+    "hands": 2,
+    "digits_per_hand": [2, 3, 4, 5],
+    "rays": 8,
+    "nodes": 84,
+    "elements": 100,
+    "source_muscle_inputs": 34,
+    "solved_segments_per_hand": 50,
+    "fixed_anchor_classes": [
+      "metacarpal_sagittal_band",
+      "middle_phalanx",
+      "distal_phalanx"
+    ]
+  },
+  "transaction": {
+    "force_authority": "source_prefix_plus_exact_distal_suffix_replacement",
+    "route_derivative": "source_owned_exact_site_sphere_cylinder_suffix_jacobian",
+    "command_buffer": "borrowed_same_command_buffer",
+    "replay": "bitwise",
+    "rollback": "abandoned_command_buffer",
+    "rejected_pass_count": 1
+  },
+  "one_step": {
+    "accepted_rays": 8,
+    "maximum_free_node_residual_newtons": 0.000636039010715,
+    "maximum_force_closure_residual_newtons": 0.00846569426358,
+    "maximum_moment_closure_residual_newton_meters": 0.00670708250254,
+    "maximum_tension_newtons": 0.808561623096,
+    "maximum_free_node_displacement_meters": 0.000963605474681,
+    "maximum_engineering_strain": 0.0283383000642,
+    "maximum_generalized_correction": 0.0161568988115,
+    "source_jt_configuration_delta": 2.00263318817e-7,
+    "source_jt_velocity_delta": 0.00200263332226
+  },
+  "eight_step": {
+    "accepted_rays": 8,
+    "maximum_free_node_residual_newtons": 0.00204676948488,
+    "maximum_force_closure_residual_newtons": 0.00844780635089,
+    "maximum_moment_closure_residual_newton_meters": 0.00668844394386,
+    "maximum_tension_newtons": 0.808790504932,
+    "maximum_free_node_displacement_meters": 0.000963086495176,
+    "maximum_engineering_strain": 0.028329981491,
+    "maximum_generalized_correction": 0.0161366611719,
+    "source_jt_configuration_delta": 5.58584378041e-6,
+    "source_jt_velocity_delta": 0.010726837907
+  },
+  "fp64_oracle": {
+    "test": "numi_human.extensor_hood_reference",
+    "status": "passed",
+    "source_probe_status": "passed",
+    "active_elements": 80,
+    "maximum_free_node_residual_newtons": 1.44026162412e-7,
+    "root_generalized_force_residual_newtons": 3.88464184896e-7,
+    "root_generalized_moment_residual_newton_meters": 4.06060758696e-6,
+    "replay": "bitwise",
+    "rollback": "verified"
+  },
+  "visual_validation": {
+    "frame_dimension": 1024,
+    "views_per_hand": ["front", "oblique", "side", "rear"],
+    "actual_frames_inspected": 8,
+    "right": {
+      "directory": "docs/media/numi-human-extensor-hood-live-v1/final-right",
+      "visible_bone_bodies": 29,
+      "solved_segments": 50,
+      "hood_pixels": [15856, 11384, 9151, 19728]
+    },
+    "left": {
+      "directory": "docs/media/numi-human-extensor-hood-live-v1/final-left",
+      "visible_bone_bodies": 29,
+      "solved_segments": 50,
+      "hood_pixels": [16567, 24252, 29665, 16730]
+    },
+    "inspection": "passed_no_contralateral_or_free_floating_segments_and_all_digit_5_distal_owners_visible"
+  },
+  "implementation_artifacts": {
+    "adapter_sha256": "bf7478de4ff823f76c52abba0bee827ac5d9b4a4e93e2c187d81719c0fa9f19e",
+    "shader_sha256": "867d63e1420520205d97a0c3dbc0679d790d80c841d244efc393871b1b2feb3f",
+    "gpu_abi_sha256": "eb085f779ad594ddca759833e2ae36db1e4202b79bd8ac31dd2c492694b3fa20",
+    "source_route_kernel_sha256": "636655ef4c8113577c99c47c028fd7b962a06b9114c10cc295842e22fb4493f9",
+    "live_probe_sha256": "b31cce7da5d83a38cdba63f904298593da323696736762112909a4c2f9759e99"
+  },
+  "gates": {
+    "exact_source_site_body_and_route_cut_identity": "passed",
+    "complete_wrapped_source_suffix_grammar": "passed",
+    "all_eight_bilateral_non_thumb_rays": "passed",
+    "same_command_buffer_single_force_authority": "passed",
+    "one_step_state_effect": "passed",
+    "eight_step_history_commit": "passed",
+    "force_and_moment_closure": "passed",
+    "free_node_displacement_below_0_01_m": "passed",
+    "engineering_strain_below_0_15": "passed",
+    "deterministic_replay": "passed",
+    "rejected_transaction_rollback": "passed",
+    "cpu_fp64_oracle": "passed",
+    "bilateral_four_angle_visual_inspection": "passed"
+  },
+  "remaining_blockers": [
+    "thumb_extensor_apparatus_is_not_in_NHHOOD2",
+    "hood_topology_materials_and_body_relative_fascial_foundation_are_literature_constrained_inference_not_subject_specific_calibration",
+    "the_foundation_is_not_a_deformable_fascia_sheet_or_FEM_solve",
+    "passive_capsule_ligament_retinacular_and_articular_contact_mechanics_remain_separate_gaps",
+    "eight_steps_are_not_a_sustained_loaded_motion_certificate",
+    "the_whole_body_stand_probe_is_not_a_static_equilibrium_certificate"
+  ],
+  "boundary": "This certifies a live Apple Metal force-transfer replacement for both hands, digits 2 through 5, inside the persistent 416-route Human transaction. It does not certify thumb mechanics, subject-specific anatomy or material calibration, passive joint tissue, articular contact, a deformable fascia continuum, sustained motion, or whole-body static equilibrium."
+}

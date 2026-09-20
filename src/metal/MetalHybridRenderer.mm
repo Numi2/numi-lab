@@ -5936,6 +5936,14 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::renderLive(
                 "host live-state dimensions do not match the visual scene"
             );
         }
+        if (state_->rendererProfile.rayQueryVisibility) {
+            return reject(
+                {},
+                MetalHybridRendererStatus::missingLiveState,
+                "sensor_reference requires renderFrame/encodeFrame "
+                "motion samples; renderLive supports sensor_fast"
+            );
+        }
         const std::size_t bytes =
             expected * sizeof(MRBodyStateGPU);
         if (bytes > state_->buffers.currentBodies.length ||
@@ -6055,6 +6063,7 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::renderFrame(
     }
     MetalHybridFrameCommandContext context;
     context.commandBuffer = (__bridge void*)command;
+    const auto start = std::chrono::steady_clock::now();
     auto diagnostics = encodeFrame(
         worlds,
         motion,
@@ -6066,6 +6075,10 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::renderFrame(
     }
     [command commit];
     [command waitUntilCompleted];
+    diagnostics.elapsedMilliseconds =
+        std::chrono::duration<double, std::milli>(
+            std::chrono::steady_clock::now() - start
+        ).count();
     if (command.status != MTLCommandBufferStatusCompleted) {
         return reject(
             std::move(diagnostics),
@@ -6252,6 +6265,11 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::encodeGraph(
         EncodePassOptions options;
         options.currentBodyOffset = liveState.currentBodyOffset;
         options.previousBodyOffset = liveState.previousBodyOffset;
+        // Graph consumers (the live inspector and device observation) need
+        // the same exposure setup as the owned-command-buffer render path.
+        // Without it, the presentation graph can bypass the scene's physical
+        // camera response even though it produces an RGB buffer.
+        options.physicalExposure = true;
         options.outputs = &outputs;
         return encodeLocked(
             *state_,

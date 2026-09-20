@@ -344,6 +344,11 @@ inline bool validDispatch(
 
 } // namespace
 
+#ifndef MR_ABA_EMIT_SERIAL_KERNEL
+#define MR_ABA_EMIT_SERIAL_KERNEL 1
+#endif
+
+#if MR_ABA_EMIT_SERIAL_KERNEL
 // O(n) articulated-body forward dynamics and symplectic state update.
 // One 32-lane threadgroup owns one environment. The initial executable spine
 // is lane-zero ordered: tree traversal and sibling accumulation therefore
@@ -1576,3 +1581,4 @@ kernel void MR_ABA_KERNEL_NAME(
     );
     statuses[environment] = status;
 }
+#endif

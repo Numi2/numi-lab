@@ -13,7 +13,7 @@ namespace metalrobo {
 
 inline constexpr std::size_t kSurgicalPSMBodyCount = 9u;
 inline constexpr std::size_t kSurgicalPSMJointCount = 8u;
-inline constexpr std::size_t kSurgicalPSMShapeCount = 20u;
+inline constexpr std::size_t kSurgicalPSMShapeCount = 28u;
 inline constexpr std::size_t kSurgicalPSMJawCount = 2u;
 inline constexpr std::size_t kSurgicalPSMArmDofCount = 6u;
 inline constexpr std::size_t
@@ -69,6 +69,27 @@ struct SurgicalPSMModelMetadata {
 
     float classicShaftLength = 0.0f;
     float wristLinkOffset = 0.0f;
+    // Official 8 mm X/Xi Large Needle Driver envelope. The Classic research
+    // transmission remains JHU-sourced; this dimensional reference does not
+    // imply interchangeability or clinical validation.
+    float instrumentDiameter = 0.0f;
+    float largeNeedleDriverJawLength = 0.0f;
+    // Research system calibration for the unresolved replaceable insert,
+    // clevis, transmission, and contact patch. These are not manufacturer
+    // material data or a clinical force prescription. Surgical composition
+    // rescales each insert material so geometric pair mixing with the authored
+    // needle material yields the target effective friction coefficients.
+    float insertSystemNormalComplianceMPerN = 0.0f;
+    float targetNeedleInsertStaticFriction = 0.0f;
+    float targetNeedleInsertDynamicFriction = 0.0f;
+    std::array<std::uint32_t, 4u> jawAInsertShapeIndices{};
+    std::array<std::uint32_t, 4u> jawBInsertShapeIndices{};
+    // Separate proximal medial patches resolve thin monofilament without
+    // changing the qualified distal two-row needle groove.
+    std::array<std::uint32_t, 2u> jawAThreadInsertShapeIndices{};
+    std::array<std::uint32_t, 2u> jawBThreadInsertShapeIndices{};
+    std::string_view intuitiveInstrumentCatalog;
+    std::string_view intuitiveInstrumentPartNumber;
     float orbitToolYawLinkMass = 0.0f;
     float orbitFixedToolTipMass = 0.0f;
     bool independentJawCoordinates = false;
@@ -105,6 +126,16 @@ struct SurgicalPSMModelMetadata {
 // calibration, safety model, or clinical device representation.
 [[nodiscard]] const SurgicalPSMModelMetadata&
 surgicalPSMMetadata() noexcept;
+
+// Rescales an unresolved LND insert material so geometric material mixing
+// with the supplied needle material yields the effective friction authored in
+// SurgicalPSMModelMetadata. This is a research pair calibration, not a bulk
+// material coefficient or clinical force prescription. Throws on an invalid
+// material contract and does not mutate on failure.
+void calibrateSurgicalNeedleInsertMaterial(
+    MRMaterialGPU& insertMaterial,
+    const MRMaterialGPU& needleMaterial
+);
 
 // Fixed-root, eight-coordinate dVRK PSM with a Classic Large Needle Driver.
 // The first six coordinates reproduce the research control topology:

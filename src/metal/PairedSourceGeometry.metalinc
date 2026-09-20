@@ -1,0 +1,44 @@
+// Source geometry arithmetic shared by full routes, route cuts and terminal
+// transfer. The legacy build retains its exact float3 operations and ABI.
+#include "metalrobo/compensated_geometry_gpu.h"
+#ifndef MR_SOURCE_PAIRED_GEOMETRY
+#define MR_SOURCE_PAIRED_GEOMETRY 0
+#endif
+// These helpers intentionally have different return types in the legacy and
+// paired translation units. Return types do not distinguish their link names;
+// internal linkage prevents a weak out-of-line helper from another AIR being
+// selected when the two production variants share one metallib.
+namespace {
+#if MR_SOURCE_PAIRED_GEOMETRY
+using MRSourcePoint = MRCompensatedPositionGPU;
+inline MRSourcePoint mrSourceBodyPoint(float4 high, device const float4* lows, uint index) {
+    const float4 low = lows[index];
+    if (!all(isfinite(high)) || !all(isfinite(low)) || low.w != 0.0f)
+        return {float4(NAN),float4(NAN)};
+    return {float4(high.xyz,0.0f),low};
+}
+inline MRSourcePoint operator+(MRSourcePoint a, MRSourcePoint b) { return mrCompensatedVectorAdd(a,b); }
+inline MRSourcePoint mrSourceRotate(float4 q,float3 v) { return mrCompensatedQuaternionRotate(q,float4(v,0.0f)); }
+inline MRSourcePoint operator+(MRSourcePoint point, float3 offset) {
+    const auto x=mrCompensatedAdd({point.high.x,point.low.x},{offset.x,0.0f});
+    const auto y=mrCompensatedAdd({point.high.y,point.low.y},{offset.y,0.0f});
+    const auto z=mrCompensatedAdd({point.high.z,point.low.z},{offset.z,0.0f});
+    return {float4(x.high,y.high,z.high,0.0f),float4(x.low,y.low,z.low,0.0f)};
+}
+inline float3 operator-(MRSourcePoint a, MRSourcePoint b) {
+    return mrCompensatedPositionDifference(a.high,a.low,b.high,b.low).xyz;
+}
+inline MRSourcePoint mrSourceZeroPoint() { return {float4(0.0f),float4(0.0f)}; }
+inline float3 mrSourcePointProjection(MRSourcePoint point) { return point.high.xyz; }
+inline bool mrSourcePointFinite(MRSourcePoint point) {
+    return all(isfinite(point.high)) && all(isfinite(point.low));
+}
+#else
+using MRSourcePoint = float3;
+inline MRSourcePoint mrSourceRotate(float4 q,float3 v) { const float3 t=2.0f*cross(q.xyz,v); return v+q.w*t+cross(q.xyz,t); }
+inline MRSourcePoint mrSourceZeroPoint() { return float3(0.0f); }
+inline float3 mrSourcePointProjection(MRSourcePoint point) { return point; }
+inline MRSourcePoint mrSourceBodyPoint(float4 high, device const float4*, uint) { return high.xyz; }
+inline bool mrSourcePointFinite(MRSourcePoint point) { return all(isfinite(point)); }
+#endif
+} // namespace

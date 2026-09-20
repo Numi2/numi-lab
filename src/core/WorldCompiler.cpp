@@ -252,11 +252,27 @@ void appendTask(HashBuilder& hash, const TaskSpec& task) {
     hash.appendScalar(task.horizonSeconds);
 }
 
+void appendFunctionBasedJointPrograms(
+    HashBuilder& hash,
+    const std::vector<FunctionBasedJointProgram>& programs
+) {
+    hash.appendScalar<std::uint64_t>(programs.size());
+    for (const FunctionBasedJointProgram& program : programs) {
+        hash.appendScalar(program.jointIndex);
+        MROpenSimSpatialTransformGPU packed{};
+        const OpenSimSpatialTransformStatus status =
+            packOpenSimSpatialTransformGPU(program.transform, packed);
+        hash.appendScalar(status);
+        hash.appendScalar(packed);
+    }
+}
+
 void appendEngineModel(HashBuilder& hash, const EngineModel& model) {
     hash.appendString(model.name);
     hash.appendScalar(model.world);
     hash.appendSpan<MRArticulationGPU>(model.articulations);
     hash.appendSpan<MRJointDescriptorGPU>(model.joints);
+    appendFunctionBasedJointPrograms(hash, model.functionBasedJointPrograms);
     hash.appendSpan<MRDofPropertiesGPU>(model.dofs);
     hash.appendSpan<MRActuatorProfileGPU>(
         model.actuatorProfiles

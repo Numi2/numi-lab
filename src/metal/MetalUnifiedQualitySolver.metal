@@ -1348,7 +1348,6 @@ inline void mrUnifiedQualitySolveProblem(
     threadgroup float* cgPreconditioned,
     threadgroup float* cgDirection,
     threadgroup float* cgAction,
-    threadgroup float* preconditioner,
     threadgroup float* rowVelocity,
     threadgroup float* candidateRowVelocity,
     threadgroup float* impulses,
@@ -1690,45 +1689,6 @@ inline void mrUnifiedQualitySolveProblem(
             maximumPivot = max(maximumPivot, scalars[10]);
         } else {
             for (uint dof = lane; dof < nv; dof += kWidth) {
-                float diagonal =
-                    dynamics[dof * nv + dof];
-                for (uint blockIndex = 0u;
-                     blockIndex < dispatch.blockCount;
-                     ++blockIndex) {
-                    const MRUnifiedQualityBlockGPU block =
-                        problemBlocks[blockIndex];
-                    const uint offset = block.layout.x;
-                    const uint dimension = block.layout.y;
-                    const uint derivativeBase =
-                        blockIndex * 36u;
-                    for (uint row = 0u;
-                         row < dimension;
-                         ++row) {
-                        const float left =
-                            jacobian[
-                                (offset + row) * nv + dof
-                            ];
-                        for (uint column = 0u;
-                             column < dimension;
-                             ++column) {
-                            diagonal = fma(
-                                left *
-                                    derivatives[
-                                        derivativeBase +
-                                        row * dimension +
-                                        column
-                                    ],
-                                jacobian[
-                                    (offset + column) *
-                                        nv +
-                                    dof
-                                ],
-                                diagonal
-                            );
-                        }
-                    }
-                }
-                preconditioner[dof] = diagonal;
                 direction[dof] = 0.0f;
                 cgResidual[dof] = -gradient[dof];
             }
@@ -2124,11 +2084,38 @@ inline void mrUnifiedQualitySolveProblem(
     }
     if (failureCode != MR_UNIFIED_QUALITY_SUCCESS) {
         if (lane == 0u) {
+            float largestEquality = -1.0f;
+            uint largestEqualityBlock =
+                MR_UNIFIED_QUALITY_INVALID_INDEX;
+            for (uint blockIndex = 0u;
+                 blockIndex < dispatch.blockCount;
+                 ++blockIndex) {
+                const MRUnifiedQualityBlockGPU block =
+                    problemBlocks[blockIndex];
+                if ((block.layout.w &
+                     MR_UNIFIED_QUALITY_BLOCK_HARD_EQUALITY) == 0u) {
+                    continue;
+                }
+                for (uint index = 0u;
+                     index < block.layout.y;
+                     ++index) {
+                    const float magnitude = abs(
+                        rowVelocity[block.layout.x + index]
+                    );
+                    if (magnitude > largestEquality) {
+                        largestEquality = magnitude;
+                        largestEqualityBlock = blockIndex;
+                    }
+                }
+            }
             status.code = failureCode;
-            status.failingBlock = control[0];
-            if (control[0] < dispatch.blockCount) {
+            status.failingBlock =
+                largestEqualityBlock < dispatch.blockCount
+                ? largestEqualityBlock
+                : control[0];
+            if (status.failingBlock < dispatch.blockCount) {
                 status.firstFailingStableKey =
-                    problemBlocks[control[0]].stableKey;
+                    problemBlocks[status.failingBlock].stableKey;
             }
             status.newtonIterations =
                 completedNewtonIterations;
@@ -2244,13 +2231,12 @@ struct MRUnifiedQualityThreadgroupWorkspace {
     float direction[kMaxV];
     float gradient[kMaxV];
     // State evaluation, PCG, and line search never consume these phases
-    // concurrently. Reusing the same Wave32-owned storage keeps the 384-DoF
-    // articulated/body/rod bucket below Apple GPU threadgroup-memory limits.
+    // concurrently. Reusing the same Wave32-owned storage keeps the 576-DoF
+    // articulated/body/rod bucket below Apple GPU's 32 KiB threadgroup limit.
     float dynamicsAction[kMaxV];
     float constraintAction[kMaxV];
     float cgDirection[kMaxV];
     float cgAction[kMaxV];
-    float preconditioner[kMaxV];
     float rowVelocity[kMaxRows];
     float impulses[kMaxRows];
     float rowWork[kMaxRows];
@@ -2302,12 +2288,11 @@ inline void mrUnifiedQualitySolveWithWorkspace(
         workspace.dynamicsAction,
         workspace.cgAction,
         workspace.constraintAction,
-        workspace.preconditioner,
+        workspace.dynamicsAction,
         workspace.dynamicsAction,
         workspace.constraintAction,
         workspace.cgDirection,
         workspace.cgAction,
-        workspace.preconditioner,
         workspace.rowVelocity,
         workspace.rowWork,
         workspace.impulses,

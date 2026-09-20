@@ -1,8 +1,10 @@
 #include "metalrobo/ArticulatedDynamics.hpp"
+#include "metalrobo/EngineModelComposer.hpp"
 #include "metalrobo/G1.hpp"
 #include "metalrobo/MetalArticulatedABA.hpp"
 
 #include <algorithm>
+#include <array>
 #include <chrono>
 #include <cmath>
 #include <cstddef>
@@ -26,95 +28,26 @@ void require(const bool condition, const std::string& message) {
 metalrobo::EngineModel duplicateModel(
     const metalrobo::EngineModel& source
 ) {
-    metalrobo::EngineModel combined = source;
-    const auto articulationBase = static_cast<mr_u32>(
-        combined.articulations.size()
+    const std::array<metalrobo::EngineModelComponent, 2u> components{{
+        {&source, "first"},
+        {&source, "second"},
+    }};
+    metalrobo::EngineModelComposeConfig config;
+    config.name = source.name + "_duplicated";
+    config.gravityAndTimestep = source.world.gravityAndTimestep;
+    config.solverScales = source.world.solverScales;
+    config.solverType = source.world.solverType;
+    config.frictionConeType = source.world.frictionConeType;
+    metalrobo::EngineModel combined;
+    const auto diagnostics = metalrobo::composeEngineModels(
+        components,
+        combined,
+        config
     );
-    const auto bodyBase =
-        static_cast<mr_u32>(combined.bodies.size());
-    const auto jointBase =
-        static_cast<mr_u32>(combined.joints.size());
-    const auto qBase =
-        static_cast<mr_u32>(combined.defaultQ.size());
-    const auto vBase =
-        static_cast<mr_u32>(combined.defaultV.size());
-    const auto materialBase =
-        static_cast<mr_u32>(combined.materials.size());
-
-    for (MRArticulationGPU articulation :
-         source.articulations) {
-        articulation.rootBody += bodyBase;
-        articulation.firstBody += bodyBase;
-        articulation.firstJoint += jointBase;
-        articulation.qOffset += qBase;
-        articulation.vOffset += vBase;
-        combined.articulations.push_back(articulation);
-    }
-    for (MRJointDescriptorGPU joint : source.joints) {
-        joint.parentBody += bodyBase;
-        joint.childBody += bodyBase;
-        joint.qOffset += qBase;
-        joint.vOffset += vBase;
-        combined.joints.push_back(joint);
-    }
-    for (MRDofPropertiesGPU dof : source.dofs) {
-        dof.articulationIndex += articulationBase;
-        if (dof.jointIndex != MR_INVALID_INDEX) {
-            dof.jointIndex += jointBase;
-        }
-        if (dof.qIndex != MR_INVALID_INDEX) {
-            dof.qIndex += qBase;
-        }
-        dof.vIndex += vBase;
-        combined.dofs.push_back(dof);
-    }
-    for (MRBodyPropertiesGPU body : source.bodies) {
-        if (body.articulationIndex != MR_INVALID_INDEX) {
-            body.articulationIndex += articulationBase;
-        }
-        if (body.parentBody != MR_INVALID_INDEX) {
-            body.parentBody += bodyBase;
-        }
-        if (body.inboundJoint != MR_INVALID_INDEX) {
-            body.inboundJoint += jointBase;
-        }
-        combined.bodies.push_back(body);
-    }
-    combined.materials.insert(
-        combined.materials.end(),
-        source.materials.begin(),
-        source.materials.end()
+    require(
+        diagnostics.succeeded(),
+        "offset model composition failed: " + diagnostics.message
     );
-    for (MRShapeGPU shape : source.shapes) {
-        shape.bodyIndex += bodyBase;
-        shape.materialIndex += materialBase;
-        combined.shapes.push_back(shape);
-    }
-    combined.defaultQ.insert(
-        combined.defaultQ.end(),
-        source.defaultQ.begin(),
-        source.defaultQ.end()
-    );
-    combined.defaultV.insert(
-        combined.defaultV.end(),
-        source.defaultV.begin(),
-        source.defaultV.end()
-    );
-    combined.world.bodyCount =
-        static_cast<mr_u32>(combined.bodies.size());
-    combined.world.articulationCount =
-        static_cast<mr_u32>(combined.articulations.size());
-    combined.world.jointCount =
-        static_cast<mr_u32>(combined.joints.size());
-    combined.world.shapeCount =
-        static_cast<mr_u32>(combined.shapes.size());
-    combined.world.materialCount =
-        static_cast<mr_u32>(combined.materials.size());
-    combined.world.nq =
-        static_cast<mr_u32>(combined.defaultQ.size());
-    combined.world.nv =
-        static_cast<mr_u32>(combined.defaultV.size());
-    combined.name = source.name + "_duplicated";
     return combined;
 }
 

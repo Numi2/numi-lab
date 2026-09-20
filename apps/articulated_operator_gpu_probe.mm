@@ -2,6 +2,7 @@
 #import <Metal/Metal.h>
 
 #include "metalrobo/ArticulatedDynamics.hpp"
+#include "metalrobo/opensim_spatial_transform_gpu.h"
 #include "metalrobo/G1.hpp"
 #include "metalrobo/MetalArticulatedOperator.hpp"
 
@@ -379,6 +380,9 @@ MetalResult runMetal(
             @"articulated status"
         );
 
+        require(model.functionBasedJointPrograms.empty(), "probe fixture requires scalar joints");
+        const MROpenSimSpatialTransformGPU emptyFunction{};
+        id<MTLBuffer> functionBuffer=makeSharedBuffer(device,&emptyFunction,1u,@"empty function program");
         id<MTLCommandBuffer> commandBuffer = [queue commandBuffer];
         id<MTLComputeCommandEncoder> encoder =
             [commandBuffer computeCommandEncoder];
@@ -402,6 +406,7 @@ MetalResult runMetal(
         [encoder setBuffer:generalizedBuffer offset:0 atIndex:12];
         [encoder setBuffer:deltaBuffer offset:0 atIndex:13];
         [encoder setBuffer:statusBuffer offset:0 atIndex:14];
+        [encoder setBuffer:functionBuffer offset:0 atIndex:15];
         [encoder
             setThreadgroupMemoryLength:threadgroupBytes
                               atIndex:0u];
@@ -667,6 +672,12 @@ CpuReference buildCpuReference(
     );
     for (std::size_t point = 0u; point < points.size(); ++point) {
         queries[point].bodyIndex = points[point].bodyIndex;
+        queries[point].supportRadius = points[point].supportPlaneNormalAndRadius.w;
+        if (points[point].flags != 0) queries[point].supportPlaneNormal = {
+            points[point].supportPlaneNormalAndRadius.x, points[point].supportPlaneNormalAndRadius.y,
+            points[point].supportPlaneNormalAndRadius.z};
+        queries[point].supportRadii={points[point].supportRadii.x,points[point].supportRadii.y,points[point].supportRadii.z};
+        queries[point].supportOrientation={points[point].supportOrientation.x,points[point].supportOrientation.y,points[point].supportOrientation.z,points[point].supportOrientation.w};
         queries[point].localPoint = {
             points[point].localPoint.x,
             points[point].localPoint.y,
@@ -1045,6 +1056,30 @@ int main() {
             freeMetrics
         );
         validateMetrics(freeMetrics, "floating analytic");
+        auto spherePoints = freePoints;
+        spherePoints[0][0].flags = MR_ARTICULATED_POINT_SPHERE_SUPPORT;
+        spherePoints[0][0].supportPlaneNormalAndRadius = {0.0f,0.6f,0.8f,0.2f};
+        const MetalResult sphereGpu = runMetal(freeModel, freeQ, spherePoints);
+        const CpuReference sphereCpu = buildCpuReference(freeModel, freeQ[0], spherePoints[0]);
+        ParityMetrics sphereMetrics;
+        compareEnvironment(freeModel,0u,sphereCpu,sphereGpu,sphereMetrics);
+        validateMetrics(sphereMetrics,"floating sphere surface");
+        auto ellipsoidPoints=spherePoints;
+        ellipsoidPoints[0][0].flags=MR_ARTICULATED_POINT_ELLIPSOID_SUPPORT;
+        ellipsoidPoints[0][0].supportPlaneNormalAndRadius.w=0;
+        ellipsoidPoints[0][0].supportRadii={0.1f,0.2f,0.3f,0};
+        ellipsoidPoints[0][0].supportOrientation={0,0,std::sqrt(0.5f),std::sqrt(0.5f)};
+        const auto ellipsoidGpu=runMetal(freeModel,freeQ,ellipsoidPoints);
+        const auto ellipsoidCpu=buildCpuReference(freeModel,freeQ[0],ellipsoidPoints[0]);
+        ParityMetrics ellipsoidMetrics;
+        compareEnvironment(freeModel,0u,ellipsoidCpu,ellipsoidGpu,ellipsoidMetrics);
+        validateMetrics(ellipsoidMetrics,"floating ellipsoid surface");
+        auto malformedSphere = spherePoints;
+        malformedSphere[0][0].supportPlaneNormalAndRadius.w = -0.2f;
+        const MetalResult rejectedSphere = runMetal(freeModel,freeQ,malformedSphere);
+        require(rejectedSphere.statuses[0].code == MR_ARTICULATED_OPERATOR_NONFINITE_INPUT &&
+                rejectedSphere.payloadUntouched(), "invalid sphere did not roll back");
+
 
         const metalrobo::EngineModel fixedModel =
             makeFixedPendulumModel();
@@ -1321,6 +1356,8 @@ int main() {
             freeMetrics,
             freeGpu.elapsedMilliseconds
         );
+        printMetrics("sphere surface",sphereMetrics,sphereGpu.elapsedMilliseconds);
+        printMetrics("ellipsoid surface",ellipsoidMetrics,ellipsoidGpu.elapsedMilliseconds);
         printMetrics(
             "fixed 1-DoF analytic",
             fixedMetrics,

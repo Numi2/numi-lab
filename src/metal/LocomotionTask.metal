@@ -3743,11 +3743,10 @@ kernel void mr_locomotion_task_apply_native_actuators(
     device const MRTaskActuatorTermGPU* terms =
         taskTable<MRTaskActuatorTermGPU>(arena, program.actuatorTerms.x);
     const uint bodyCount = dispatch.sampling.z;
-    if ((worldDispatch.flags & MR_METAL_WORLD_HAS_BODY_WRENCHES) != 0u) {
-        for (uint body = 0u; body < bodyCount; ++body) {
-            bodyWrenches[environment * bodyCount + body] = {};
-        }
-    }
+    // MetalWorld clears the complete global wrench arena exactly once before
+    // all actuator and multiphysics producers execute. Every producer is
+    // therefore additive and cannot erase a reaction authored by another
+    // subsystem.
     const uint qBase = environment * dispatch.counts.z;
     const uint vBase = environment * dispatch.counts.w;
     const uint filterSlot = program.layout.w - 1u;
@@ -3759,7 +3758,8 @@ kernel void mr_locomotion_task_apply_native_actuators(
         const uint kind = binding.actuator.x;
         if (kind == MR_TASK_ACTUATOR_JOINT_POSITION ||
             kind == MR_TASK_ACTUATOR_GRIPPER_POSITION ||
-            kind == MR_TASK_ACTUATOR_ROTOR_MIXER) {
+            kind == MR_TASK_ACTUATOR_ROTOR_MIXER ||
+            kind == MR_TASK_ACTUATOR_MILLARD_EXCITATION) {
             continue;
         }
         const float filtered = actionHistory[historyBase + action];
@@ -6219,10 +6219,46 @@ kernel void mr_locomotion_task_complete(
                       compactContact[wrench + 1u],
                       compactContact[wrench + 2u]
                   )) > program.dynamics.y;
+            bool contactFeaturesAccepted = true;
+            if (expectedContact && actualContact) {
+                device const float* compact =
+                    compactContact + compactBase;
+                for (uint feature = 0u;
+                     feature <
+                         MR_TASK_INTERACTION_CONTACT_FEATURE_COUNT;
+                     ++feature) {
+                    if ((sample.metadata.y & (1u << feature)) == 0u) {
+                        continue;
+                    }
+                    const uint targetIndex =
+                        sampleIndex *
+                            MR_TASK_INTERACTION_CONTACT_FEATURE_COUNT +
+                        feature;
+                    const float target =
+                        interactionContactTargets[targetIndex];
+                    const float tolerance =
+                        interactionContactTolerances[targetIndex];
+                    const float actual = supportPatchFeature(
+                        program,
+                        group,
+                        compact,
+                        feature
+                    );
+                    contactFeaturesAccepted =
+                        contactFeaturesAccepted &&
+                        isfinite(actual) &&
+                        isfinite(target) &&
+                        isfinite(tolerance) &&
+                        tolerance > 0.0f &&
+                        abs(actual - target) <= tolerance;
+                }
+            }
             ++comparedContacts;
             expectedContacts += expectedContact ? 1u : 0u;
             transitionMode = transitionMode || transitional;
-            if (!transitional && expectedContact != actualContact) {
+            if (!transitional &&
+                (expectedContact != actualContact ||
+                 !contactFeaturesAccepted)) {
                 ++strictContactMismatches;
             }
         }
