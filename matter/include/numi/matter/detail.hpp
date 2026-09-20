@@ -3,6 +3,7 @@
 #include "numi/matter/matter.hpp"
 
 #include <algorithm>
+#include <bit>
 #include <cmath>
 #include <limits>
 
@@ -63,6 +64,20 @@ struct ConstitutiveCompileResult {
     std::uint64_t seed = 1469598103934665603ull
 ) noexcept;
 
+// Metal may flush FP32 denormals before arithmetic classification. Support
+// friction therefore admits only either signed zero or a finite,
+// nonnegative normal value; callers must reject rather than silently change
+// an authored frictional law to frictionless.
+[[nodiscard]] inline bool humanSupportFrictionAdmissible(
+    const float friction
+) noexcept {
+    const std::uint32_t bits = std::bit_cast<std::uint32_t>(friction);
+    const std::uint32_t magnitude = bits & 0x7fffffffu;
+    if (magnitude == 0u) return true;
+    return (bits & 0x80000000u) == 0u &&
+        magnitude >= 0x00800000u && magnitude < 0x7f800000u;
+}
+
 // NHCNT histories are consumed by FP32 Metal kernels. Evaluate their physical
 // predicates in FP64 so hostile finite operands cannot overflow the admission
 // arithmetic, then reject values whose squared tangent length or Coulomb
@@ -74,7 +89,7 @@ struct ConstitutiveCompileResult {
 ) noexcept {
     if (!std::isfinite(history.x) || !std::isfinite(history.y) ||
         !std::isfinite(history.z) || !std::isfinite(history.w) ||
-        history.w < 0.0f || !std::isfinite(friction) || friction < 0.0f) {
+        history.w < 0.0f || !humanSupportFrictionAdmissible(friction)) {
         return false;
     }
     const double tangentProjection =

@@ -49,6 +49,18 @@ inline bool finite3(const float3 value) {
     return all(isfinite(value));
 }
 
+// Raw-bit classification is required at host-to-Metal boundaries: Apple GPUs
+// may flush FP32 denormals before an arithmetic comparison observes them.
+// Preserve either signed zero, but reject every nonzero subnormal, negative,
+// infinity and NaN value.
+inline bool finiteNonnegativeNormalOrZero(const float value) {
+    const uint bits = as_type<uint>(value);
+    const uint magnitude = bits & 0x7fffffffu;
+    if (magnitude == 0u) return true;
+    return (bits & 0x80000000u) == 0u &&
+        magnitude >= 0x00800000u && magnitude < 0x7f800000u;
+}
+
 inline float3x3 matrixFromRows(
     const float4 row0,
     const float4 row1,

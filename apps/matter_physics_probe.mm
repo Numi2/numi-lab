@@ -3549,8 +3549,25 @@ void runHumanSupportLoaded() {
                         "Human support initial history violates its tangent/Coulomb cone",
                     "support initial-history FP32 cone radius failed open: " +
                         overflowAdmission.message);
+                auto subnormalConfiguration = runtimeConfiguration;
+                auto subnormalContacts = contacts;
+                for (auto& contact : subnormalContacts) {
+                    contact.frictionSlopAndStabilization.x =
+                        std::numeric_limits<float>::denorm_min();
+                }
+                subnormalConfiguration.humanSupportContacts =
+                    subnormalContacts;
+                numi::matter::Runtime subnormalRuntime;
+                const auto subnormalAdmission = subnormalRuntime.initialize(
+                    compiled.world, subnormalConfiguration);
+                require(!subnormalAdmission.encoded &&
+                    subnormalAdmission.message ==
+                        "Human support row has invalid scalar data or disagrees with its candidate surface query",
+                    "support subnormal friction failed open: " +
+                        subnormalAdmission.message);
                 std::cout <<
-                    "support_initial_history_bad_count_cone_and_overflow_rejected=1\n";
+                    "support_initial_history_bad_count_cone_and_overflow_rejected=1 "
+                    "subnormal_friction_rejected=1\n";
             }
             require(matter.coupledCandidatePointCapacity() >= c.rows,
                 "Human support queries exceed advertised candidate capacity");

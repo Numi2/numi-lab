@@ -3522,6 +3522,33 @@ kernel void nm_fgmres_apply_support_dual(
         pointDirection - impulseDirection), 0.0f);
 }
 
+// Boundary targets are transient globalization states, not accepted-law
+// projections. Give them normal-range FP32 slack, then validate the actual
+// final shared-alpha interpolation after every coupled limiter has run. The
+// natural Coulomb equation is still reassembled on the next solve and the
+// terminal certificate remains strict.
+inline float humanSupportConeInteriorMargin(
+    const float normalImpulse,
+    const float tangentMagnitude,
+    const float friction
+) {
+    if (!(friction > 0.0f)) return 0.0f;
+    // 2^-108 times 32*epsilon is FLT_MIN. Never request a subnormal guard:
+    // Metal is permitted to flush either its inputs or result to zero.
+    const float scale = max(max(abs(friction * normalImpulse),
+        tangentMagnitude), 3.0814879110195774e-33f);
+    return 32.0f * kEpsilon * scale;
+}
+
+inline float4 humanSupportConeSharedStep(
+    const float4 history,
+    const float4 target,
+    const float alpha
+) {
+    return alpha == 1.0f
+        ? target : fma(float4(alpha), target - history, history);
+}
+
 // A free support direction that leaves the admissible impulse cone cannot be
 // repaired after the coupled solve. Normal exits select the exact full-impulse
 // lambda=0 constraint. An outward direction from the Coulomb boundary selects
@@ -3571,8 +3598,8 @@ kernel void nm_human_support_resolve_working_set(
                 if (state > 2u || coneState > 2u ||
                     (state != 0u && coneState != 0u) ||
                     !all(isfinite(history)) || !finite3(direction) ||
-                    history.w < 0.0f || !isfinite(friction) ||
-                    friction < 0.0f) {
+                    history.w < 0.0f ||
+                    !finiteNonnegativeNormalOrZero(friction)) {
                     recordFailure(statuses[environment],
                         NM_STATUS_LINEAR_SOLVER_FAILURE,
                         NM_INVALID_INDEX, row,
@@ -3655,19 +3682,32 @@ kernel void nm_human_support_resolve_working_set(
                             const float middle = 0.5f * (lower + upper);
                             if (middle == lower || middle == upper) break;
                             const float3 tangent = middle * predictedTangent;
+                            const float tangentMagnitude = length(tangent);
                             const float margin = friction * predictedNormal -
-                                length(tangent);
-                            if (isfinite(margin) && margin >= 0.0f)
+                                tangentMagnitude;
+                            const float interiorMargin =
+                                humanSupportConeInteriorMargin(
+                                    predictedNormal, tangentMagnitude,
+                                    friction);
+                            if (isfinite(margin) &&
+                                margin >= interiorMargin)
                                 lower = middle;
                             else
                                 upper = middle;
                         }
                         const float3 targetTangent =
                             lower * predictedTangent;
-                        const float targetMargin = friction * predictedNormal -
+                        const float targetTangentMagnitude =
                             length(targetTangent);
+                        const float targetMargin = friction * predictedNormal -
+                            targetTangentMagnitude;
+                        const float targetInteriorMargin =
+                            humanSupportConeInteriorMargin(
+                                predictedNormal, targetTangentMagnitude,
+                                friction);
                         if (!finite3(targetTangent) ||
-                            !isfinite(targetMargin) || targetMargin < 0.0f ||
+                            !isfinite(targetMargin) ||
+                            targetMargin < targetInteriorMargin ||
                             predictedNormal <= 0.0f) {
                             recordFailure(statuses[environment],
                                 NM_STATUS_CONTACT_FAILURE,
@@ -3789,8 +3829,8 @@ kernel void nm_human_support_limit_line_search(
         if (!all(isfinite(history)) || !finite3(correction) ||
             state > 2u || coneState > 1u ||
             (state != 0u && coneState != 0u) ||
-            history.w < 0.0f || !isfinite(friction) ||
-            friction < 0.0f ||
+            history.w < 0.0f ||
+            !finiteNonnegativeNormalOrZero(friction) ||
             !isfinite(predictedNormal) || predictedNormal < 0.0f ||
             (predictedNormal == 0.0f &&
              any(predictedTangent != float3(0.0f))) ||
@@ -3886,6 +3926,93 @@ kernel void nm_human_support_limit_line_search(
         objectLineSearch[objectBase + object].x = alpha;
 }
 
+// Coupled blocks may reduce the shared alpha after the support limiter has
+// selected its cone target. Validate the exact final interpolation before any
+// candidate arena is mutated. Failure zeros every shared-alpha owner as well
+// as recording status, so apply kernels that do not consume status remain
+// no-ops and transaction rollback retains sole publication authority.
+kernel void nm_human_support_validate_final_line_search(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    constant NMHumanSupportDispatchGPU& support [[buffer(1)]],
+    device const float4* histories [[buffer(2)]],
+    device float4* objectLineSearch [[buffer(3)]],
+    device float* environmentLineSearch [[buffer(4)]],
+    device NMMatterStatusGPU* statuses [[buffer(5)]],
+    device const uint* changed [[buffer(6)]],
+    device const NMHumanSupportContactGPU* contacts [[buffer(7)]],
+    device const uint* coneWorkingSet [[buffer(8)]],
+    device const float4* coneTargets [[buffer(9)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]
+) {
+    if (lane >= 32u || environment >= dispatch.environmentCount) return;
+    const bool deferred = changed[environment] != 0u;
+    const float alpha = environmentLineSearch[environment];
+    const bool healthy = environmentHealthy(statuses, environment);
+    const bool alphaValid = isfinite(alpha) && alpha >= 0.0f &&
+        alpha <= 1.0f && (deferred || alpha > 0.0f);
+    const bool countValid =
+        support.contactCount == layout.supportContactCount;
+    bool valid = healthy && alphaValid && countValid;
+    if (lane == 0u && healthy && (!alphaValid || !countValid))
+        recordFailure(statuses[environment],
+            NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+            NM_INVALID_INDEX, NM_INVALID_INDEX,
+            float4(alpha, float(deferred), float(support.contactCount),
+                float(layout.supportContactCount)));
+    const uint objectBase = environment * dispatch.objectCount;
+    for (uint object = lane; object < dispatch.objectCount; object += 32u) {
+        const float objectAlpha = objectLineSearch[objectBase + object].x;
+        const bool objectValid = isfinite(objectAlpha) &&
+            objectAlpha == alpha;
+        if (healthy && alphaValid && countValid && !objectValid)
+            recordFailure(statuses[environment],
+                NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+                object, NM_INVALID_INDEX,
+                float4(alpha, objectAlpha, 0.0f, 0.0f));
+        valid = valid && objectValid;
+    }
+    const uint supportBase = environment * support.contactCount;
+    for (uint row = lane; valid && !deferred && row < support.contactCount;
+         row += 32u) {
+        const uint global = supportBase + row;
+        if (coneWorkingSet[global] != 1u) continue;
+        const float4 history = histories[global];
+        const float4 target = coneTargets[global];
+        const float friction = contacts[row].frictionSlopAndStabilization.x;
+        const float targetMargin =
+            friction * target.w - length(target.xyz);
+        const float targetInteriorMargin = humanSupportConeInteriorMargin(
+            target.w, length(target.xyz), friction);
+        const float4 nextHistory = humanSupportConeSharedStep(
+            history, target, alpha);
+        const float nextMargin =
+            friction * nextHistory.w - length(nextHistory.xyz);
+        const bool rowValid = all(isfinite(history)) &&
+            all(isfinite(target)) && target.w > 0.0f &&
+            finiteNonnegativeNormalOrZero(friction) &&
+            isfinite(targetMargin) &&
+            targetMargin >= targetInteriorMargin &&
+            all(isfinite(nextHistory)) && nextHistory.w >= 0.0f &&
+            isfinite(nextMargin) && nextMargin >= 0.0f &&
+            ((nextHistory.w != 0.0f && friction != 0.0f) ||
+             all(nextHistory.xyz == float3(0.0f)));
+        if (!rowValid) {
+            valid = false;
+            recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+                NM_INVALID_INDEX, row,
+                float4(nextHistory.w, length(nextHistory.xyz),
+                    nextMargin, targetMargin));
+        }
+    }
+    const bool environmentValid = simd_all(valid);
+    if (environmentValid) return;
+    if (lane == 0u) environmentLineSearch[environment] = 0.0f;
+    for (uint object = lane; object < dispatch.objectCount; object += 32u)
+        objectLineSearch[objectBase + object].x = 0.0f;
+}
+
 kernel void nm_human_support_apply_solution(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
@@ -3916,7 +4043,7 @@ kernel void nm_human_support_apply_solution(
     if (!isfinite(alpha) || !(alpha > 0.0f) || alpha > 1.0f ||
         !all(isfinite(history)) || state > 2u || coneState > 1u ||
         (state != 0u && coneState != 0u) || history.w < 0.0f ||
-        !isfinite(friction) || friction < 0.0f) {
+        !finiteNonnegativeNormalOrZero(friction)) {
         recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
             NM_INVALID_INDEX, row,
             float4(alpha, history.w, float(state), float(coneState)));
@@ -3937,8 +4064,8 @@ kernel void nm_human_support_apply_solution(
         const float4 target = coneTargets[global];
         const float targetMargin =
             friction * target.w - length(target.xyz);
-        const float4 nextHistory = alpha == 1.0f
-            ? target : history + alpha * (target - history);
+        const float4 nextHistory = humanSupportConeSharedStep(
+            history, target, alpha);
         const float nextMargin =
             friction * nextHistory.w - length(nextHistory.xyz);
         if (!all(isfinite(target)) || target.w <= 0.0f ||
@@ -4031,8 +4158,9 @@ kernel void nm_human_support_certify(
             const float coneMargin = friction * normalImpulse - tangentMagnitude;
             const float tolerance = 8.0f * kEpsilon *
                 max(1.0f, max(tangentMagnitude, normalImpulse));
-            if (!all(isfinite(history)) || !isfinite(friction) ||
-                friction < 0.0f || normalImpulse < 0.0f ||
+            if (!all(isfinite(history)) ||
+                !finiteNonnegativeNormalOrZero(friction) ||
+                normalImpulse < 0.0f ||
                 !isfinite(tangentProjection) ||
                 !isfinite(tangentMagnitude) || !isfinite(coneMargin) ||
                 ((normalImpulse == 0.0f || friction == 0.0f) &&

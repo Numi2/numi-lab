@@ -55,6 +55,13 @@ int main() {
                 std::numeric_limits<float>::max(),
                 {0.0f,1.0f,0.0f,0.0f}),
             "FP32-overflowing Coulomb radius fails closed");
+        require(numi::matter::detail::humanSupportFrictionAdmissible(0.0f) &&
+                numi::matter::detail::humanSupportFrictionAdmissible(-0.0f) &&
+                numi::matter::detail::humanSupportFrictionAdmissible(
+                    std::numeric_limits<float>::min()) &&
+                !numi::matter::detail::humanSupportFrictionAdmissible(
+                    std::numeric_limits<float>::denorm_min()),
+            "Human support friction did not reject the Metal FTZ domain");
 
         metalrobo::NumiHumanInitialState input;
         input.humanSourceFingerprint=0x0123456789abcdefull;

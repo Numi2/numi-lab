@@ -1699,6 +1699,15 @@ RuntimeDiagnostics Runtime::initialize(
             const auto& row=supportContacts[i];const auto& query=supportQueries[i];
             const bool sphere=row.identity.w==1u;const bool ellipsoid=row.identity.w==2u;
             if (row.identity.w>2u || row.identity.z!=i || row.identity.x!=query.bodyIndex ||
+                !detail::humanSupportFrictionAdmissible(
+                    row.frictionSlopAndStabilization.x) ||
+                !std::isfinite(row.frictionSlopAndStabilization.y) ||
+                !std::isfinite(row.frictionSlopAndStabilization.z) ||
+                !std::isfinite(row.frictionSlopAndStabilization.w) ||
+                row.frictionSlopAndStabilization.y < 0.0f ||
+                row.frictionSlopAndStabilization.z < 0.0f ||
+                row.frictionSlopAndStabilization.z > 1.0f ||
+                row.frictionSlopAndStabilization.w != 0.0f ||
                 !std::isfinite(row.localPoint.x) || !std::isfinite(row.localPoint.y) ||
                 !std::isfinite(row.localPoint.z) || !std::isfinite(row.localPoint.w) ||
                 (sphere ? row.localPoint.w<=0.0f : row.localPoint.w!=0.0f) ||
@@ -1714,7 +1723,7 @@ RuntimeDiagnostics Runtime::initialize(
                 query.supportPlaneNormalAndRadius.x!=((sphere || ellipsoid) ? configuration.humanSupportGroundNormal.x : 0.0f) ||
                 query.supportPlaneNormalAndRadius.y!=((sphere || ellipsoid) ? configuration.humanSupportGroundNormal.y : 0.0f) ||
                 query.supportPlaneNormalAndRadius.z!=((sphere || ellipsoid) ? configuration.humanSupportGroundNormal.z : 0.0f)) {
-                diagnostics.message="Human support geometry disagrees with candidate surface query";
+                diagnostics.message="Human support row has invalid scalar data or disagrees with its candidate surface query";
                 return diagnostics;
             }
         }
@@ -2008,6 +2017,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_human_support_select_working_set",
             "nm_human_support_resolve_working_set",
             "nm_human_support_limit_line_search",
+            "nm_human_support_validate_final_line_search",
             "nm_human_support_apply_solution",
             "nm_human_support_certify",
             "nm_vascular_checkpoint",
@@ -7874,6 +7884,33 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.femCandidate offset:0u atIndex:28u];
                 [encoder setBuffer:state.femAccepted offset:0u atIndex:29u];
             });
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            dispatchGroups32(
+                "nm_human_support_validate_final_line_search",
+                environments,
+                [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.humanSupportDispatch
+                               length:sizeof(state.humanSupportDispatch)
+                              atIndex:1u];
+                    [encoder setBuffer:state.humanSupportHistoriesCandidate
+                                 offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femLineSearch
+                                 offset:0u atIndex:3u];
+                    [encoder setBuffer:state.environmentLineSearch
+                                 offset:0u atIndex:4u];
+                    [encoder setBuffer:state.statuses
+                                 offset:0u atIndex:5u];
+                    [encoder setBuffer:state.vascularWorkingSetChanged
+                                 offset:0u atIndex:6u];
+                    [encoder setBuffer:state.humanSupportContacts
+                                 offset:0u atIndex:7u];
+                    [encoder setBuffer:state.humanSupportConeWorkingSet
+                                 offset:0u atIndex:8u];
+                    [encoder setBuffer:state.humanSupportConeTargets
+                                 offset:0u atIndex:9u];
+                });
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             if (!encodeVascularTrace("line_search")) {
                 ownership->preDynamicsOpen = false;
                 return diagnostics;

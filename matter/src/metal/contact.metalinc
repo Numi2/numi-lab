@@ -130,7 +130,8 @@ kernel void nm_human_support_evaluate(
                abs(dot(row.supportOrientation,row.supportOrientation)-1.0f)<1.0e-5f)
             : (all(row.supportRadii == float4(0.0f)) && all(row.supportOrientation == float4(0.0f)))) &&
         all(isfinite(row.frictionSlopAndStabilization)) &&
-        row.frictionSlopAndStabilization.x >= 0.0f &&
+        finiteNonnegativeNormalOrZero(
+            row.frictionSlopAndStabilization.x) &&
         row.frictionSlopAndStabilization.y >= 0.0f &&
         row.frictionSlopAndStabilization.z >= 0.0f &&
         row.frictionSlopAndStabilization.z <= 1.0f &&

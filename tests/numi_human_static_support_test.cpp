@@ -220,6 +220,22 @@ void testCurvedSupport() {
             payload.contacts[0].localPointX==-0.5f && payload.contacts[1].localPointX==0.5f &&
             payload.contacts[0].supportRadius==0.2f && payload.header.contactCount==2,
         "capsule did not compile both endpoint-sphere constraints");
+    for (const std::size_t offset : {std::size_t(80),std::size_t(128)}) {
+        auto subnormal=bytes;
+        const float value=std::numeric_limits<float>::denorm_min();
+        std::memcpy(subnormal.data()+offset,&value,sizeof(value));
+        require(!decodeNumiHumanSupportPayload(subnormal,1,h.sourceSha256,payload,error) &&
+                payload.contacts.size()==2 && payload.contacts[0].friction==0.7f,
+            "subnormal NHCNT2 friction admitted or mutated prior output");
+    }
+    for (const float value : {0.0f,std::numeric_limits<float>::min()}) {
+        auto representable=bytes;
+        std::memcpy(representable.data()+128,&value,sizeof(value));
+        NumiHumanSupportPayload admitted;
+        require(decodeNumiHumanSupportPayload(representable,1,h.sourceSha256,admitted,error) &&
+                admitted.contacts.size()==2 && admitted.contacts[0].friction==value,
+            "representable NHCNT2 friction rejected");
+    }
     auto bad=bytes;bad.pop_back();
     require(!decodeNumiHumanSupportPayload(bad,1,h.sourceSha256,payload,error) && payload.contacts.size()==2,
         "truncated primitive published output");
@@ -235,6 +251,12 @@ void testCurvedSupport() {
     std::memcpy(bytes.data()+84,&legacy,48);
     require(decodeNumiHumanSupportPayload(bytes,1,h.sourceSha256,payload,error) && payload.contacts.size()==1 &&
         payload.contacts[0].supportRadius==0,"legacy witness changed semantics");
+    auto subnormalLegacy=bytes;
+    const float subnormal=std::numeric_limits<float>::denorm_min();
+    std::memcpy(subnormalLegacy.data()+116,&subnormal,sizeof(subnormal));
+    require(!decodeNumiHumanSupportPayload(subnormalLegacy,1,h.sourceSha256,payload,error) &&
+            payload.contacts.size()==1 && payload.contacts[0].friction==0.0f,
+        "subnormal NHCNT1 friction admitted or mutated prior output");
 }
 
 void testPointQuerySourceWidening() {

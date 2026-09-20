@@ -42,6 +42,13 @@ bool decodeNumiHumanSupportPayload(std::span<const std::byte> bytes,
     const bool legacy = h.magic == v1 && h.payloadAbi == 1;
     const bool primitive = h.magic == v2 && h.payloadAbi == 2;
     const auto finite = [](float v) { return std::isfinite(v); };
+    const auto admissibleFriction = [](const float value) {
+        const std::uint32_t bits = std::bit_cast<std::uint32_t>(value);
+        const std::uint32_t magnitude = bits & 0x7fffffffu;
+        if (magnitude == 0u) return true;
+        return (bits & 0x80000000u) == 0u &&
+            magnitude >= 0x00800000u && magnitude < 0x7f800000u;
+    };
     const float normal2 = h.groundNormalX*h.groundNormalX +
         h.groundNormalY*h.groundNormalY + h.groundNormalZ*h.groundNormalZ;
     if ((!legacy && !primitive) || h.engineBodyCount != expectedBodyCount ||
@@ -49,7 +56,7 @@ bool decodeNumiHumanSupportPayload(std::span<const std::byte> bytes,
         h.contactCount == 0 || h.contactCount > MR_NUMI_HUMAN_STAND_MAX_CONTACTS ||
         !finite(h.groundPointX) || !finite(h.groundPointY) || !finite(h.groundPointZ) ||
         !finite(normal2) || std::abs(normal2-1.0f) > 1.0e-5f ||
-        !finite(h.groundFriction) || h.groundFriction < 0)
+        !admissibleFriction(h.groundFriction))
         return fail("invalid or foreign NHCNT header/plane");
     if (bytes.size() != 84 + std::size_t(h.contactCount)*(legacy ? 48 : 96))
         return fail("NHCNT record extent mismatch");
@@ -63,7 +70,7 @@ bool decodeNumiHumanSupportPayload(std::span<const std::byte> bytes,
                 (contact.worldWitnessZ-h.groundPointZ)*h.groundNormalZ;
             if (!finite(contact.localPointX) || !finite(contact.localPointY) || !finite(contact.localPointZ) ||
                 !finite(contact.worldWitnessX) || !finite(contact.worldWitnessY) || !finite(contact.worldWitnessZ) ||
-                !finite(contact.friction) || contact.friction < 0 ||
+                !admissibleFriction(contact.friction) ||
                 !finite(contact.defaultSignedPlaneDistance) || !finite(gap) || std::abs(gap)>2.0e-4f ||
                 contact.reserved0 != 0 || contact.reserved1 != 0)
                 return fail("malformed NHCNT1 witness");
@@ -74,7 +81,8 @@ bool decodeNumiHumanSupportPayload(std::span<const std::byte> bytes,
             if ((p.kind != 1 && p.kind != 2 && p.kind != 3) || p.reserved != 0 ||
                 !std::all_of(std::begin(p.endpointA),std::end(p.endpointA),finite) ||
                 !std::all_of(std::begin(p.endpointB),std::end(p.endpointB),finite) ||
-                !finite(p.radius) || (p.kind == 3 ? p.radius != 0 : p.radius <= 0) || !finite(p.friction) || p.friction < 0 ||
+                !finite(p.radius) || (p.kind == 3 ? p.radius != 0 : p.radius <= 0) ||
+                !admissibleFriction(p.friction) ||
                 !finite(p.gapA) || !finite(p.gapB) || p.reserved0 != 0 || p.reserved1 != 0 ||
                 (p.kind != 2 && (p.endpointA[0]!=p.endpointB[0] || p.endpointA[1]!=p.endpointB[1] ||
                                 p.endpointA[2]!=p.endpointB[2] || p.gapA!=p.gapB)))

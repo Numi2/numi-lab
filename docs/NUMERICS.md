@@ -58,6 +58,21 @@ certificate includes the dual block. Velocity and impulse use the same accepted
 line-search fraction. Failed publication restores checkpoint impulse histories
 and consequences with the other coupled state.
 
+Normal exits use a primal-dual active set and constrain the complete support
+impulse to zero. An outward sliding direction is discarded and re-solved
+against a fixed-normal disk target. That transient target retains a
+normal-range, scale-relative FP32 interior margin to reduce boundary
+sensitivity. Another coupled limiter may still select an arbitrarily smaller
+shared alpha, so a no-write gate recomputes the exact stored interpolation
+after all limiters and rejects the environment before any state application if
+that point is not representably feasible. Nonzero subnormal friction is
+rejected at source and direct-runtime admission rather than being silently
+flushed to a different frictionless law. These are transient globalization
+rules: the next iteration restores the natural Coulomb equation, and
+accepted-state certification still requires a nonnegative normal impulse and a
+strict nonnegative Coulomb margin without a tolerance waiver or post-solve
+dual projection.
+
 The advertised candidate point capacity covers continuum contact, anatomical
 attachments and Human support. The borrowed query boundary also checks the
 world's private point and Jacobian arenas before encoding; a valid caller-owned
