@@ -5159,8 +5159,37 @@ template <typename T>
             ownerHostArray<float>(matter.rigidGeneralizedCandidate);
         snapshot.terminalAcceptedMatterRigidReactionCount =
             runtime.ownerSnapshotMatterReactionCount;
+        if (runtime.ownerSnapshotMatterReactionCount >
+                std::numeric_limits<std::size_t>::max()) {
+            error = "production-owner Matter reaction count exceeds host size";
+            return false;
+        }
+        const std::size_t logicalMatterReactionCount =
+            static_cast<std::size_t>(
+                runtime.ownerSnapshotMatterReactionCount);
+        // Matter deliberately retains one fully typed allocation sentinel for
+        // a zero-width Metal binding. It is physical storage, not a logical
+        // reaction, and must never be promoted into production-owner evidence.
+        // Every nonzero logical range remains exact and fail-closed.
+        const bool exactMatterReactionShape =
+            matter.reactions.size() == logicalMatterReactionCount;
+        const bool typedZeroMatterReactionSentinel =
+            logicalMatterReactionCount == 0u &&
+            matter.reactions.size() == 1u;
+        if (!exactMatterReactionShape &&
+            !typedZeroMatterReactionSentinel) {
+            std::ostringstream detail;
+            detail << "production-owner Matter reaction logical shape mismatch"
+                   << " (expected_elements=" << logicalMatterReactionCount
+                   << ", physical_elements=" << matter.reactions.size()
+                   << ')';
+            error = detail.str();
+            return false;
+        }
         snapshot.terminalAcceptedMatterRigidReactions =
-            ownerHostArray<NMRigidReactionGPU>(matter.reactions);
+            ownerHostArray<NMRigidReactionGPU>(
+                std::span<const NMRigidReactionGPU>(matter.reactions)
+                    .first(logicalMatterReactionCount));
         snapshot.tendonTransfers.available = true;
         snapshot.tendonTransfers.expectedElementCount = 0u;
         snapshot.tendonTransfers.elementBytes =

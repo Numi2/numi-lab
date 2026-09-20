@@ -288,6 +288,23 @@ int main() {
             std::string::npos,
         "logical shape failure did not identify its field");
 
+    auto zeroLogicalMatterReactions = source;
+    zeroLogicalMatterReactions
+        .terminalAcceptedMatterRigidReactionCount = 0u;
+    zeroLogicalMatterReactions.terminalAcceptedMatterRigidReactions
+        .expectedElementCount = 0u;
+    zeroLogicalMatterReactions.terminalAcceptedMatterRigidReactions
+        .bytes.clear();
+    require(serializeNumiHumanProductionOwnerSnapshotV1(
+        zeroLogicalMatterReactions, second, error),
+        "zero logical Matter-reaction range did not serialize");
+    require(second.find(
+            "\"terminal_accepted_matter_rigid_reactions\":{"
+            "\"available\":true,\"expected_elements\":0,"
+            "\"captured_elements\":0,\"element_bytes\":32,"
+            "\"words\":[]}") != std::string::npos,
+        "zero logical Matter-reaction range changed representation");
+
     auto wrongFactorShape = source;
     wrongFactorShape.effectiveTangentFactorStorage.expectedElementCount--;
     wrongFactorShape.effectiveTangentFactorStorage.bytes.resize(
