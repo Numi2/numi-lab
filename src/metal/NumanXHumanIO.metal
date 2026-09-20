@@ -57,6 +57,29 @@ inline ulong readyGateFingerprintV2(
     return hash == 0ul ? kFnvOffset : hash;
 }
 
+inline ulong exactInboundAuthorityFingerprintV2(
+    const thread MRNumanXExactInboundAuthorityGPUV2& authority
+) {
+    ulong hash = kFnvOffset;
+    mixU32(hash, MR_NUMANX_FINGERPRINT_DOMAIN_EXACT_INBOUND_AUTHORITY_V2);
+    mixU32(hash, authority.abiVersion);
+    mixU32(hash, authority.structSize);
+    mixU32(hash, authority.clockDomain);
+    mixU32(hash, authority.clockQuantumNanoseconds);
+    mixU64(hash, authority.acceptedBrainTimestampNanoseconds);
+    mixU64(hash, authority.brainGeneration);
+    mixU64(hash, authority.transactionFingerprint);
+    mixU64(hash, authority.substepFingerprint);
+    mixU64(hash, authority.motorCandidateFingerprint);
+    mixU64(hash, authority.motorOutputFingerprint);
+    mixU64(hash, authority.motorProfileFingerprint);
+    mixU64(hash, authority.motorReadyGateFingerprint);
+    mixU64(hash, authority.brainProgramFingerprint);
+    mixU64(hash, authority.fastProgramFingerprint);
+    mixU64(hash, authority.decisionGateFingerprint);
+    return hash;
+}
+
 inline bool validReceptorSource(
     const device MRMujocoMuscleStateGPU& state,
     const device MRMujocoMuscleResultGPU& result,
@@ -300,11 +323,20 @@ kernel void numanx_human_validate_motor_output_v2(
     constant MRNumanXHumanMotorDispatchGPUV2& dispatch [[buffer(3)]],
     const device MRNumanXBrainMotorReadyGateGPUV2* motorReadyGate
         [[buffer(4)]],
+    device MRNumanXExactInboundAuthorityGPUV2* inboundAuthority
+        [[buffer(5)]],
     uint environment [[thread_position_in_grid]]
 ) {
+    if (environment == 0u) {
+        inboundAuthority[0] = {};
+    }
     if (environment >= dispatch.environmentCount) {
         return;
     }
+    // The exact lane is single-environment. Thread zero clears before every
+    // validation, including a corrupt zero environment count, so a reused
+    // private receipt can never retain stale authority. Nonzero threads never
+    // write the single receipt record.
     headerValidation[environment] = MR_NUMANX_HUMAN_MOTOR_HEADER_PENDING;
 
     constexpr uint requiredCandidateFlags =
@@ -478,6 +510,34 @@ kernel void numanx_human_validate_motor_output_v2(
             MR_NUMANX_HUMAN_MOTOR_HEADER_FINGERPRINT;
         return;
     }
+
+    MRNumanXExactInboundAuthorityGPUV2 receipt{};
+    receipt.abiVersion =
+        MR_NUMANX_EXACT_INBOUND_AUTHORITY_ABI_VERSION_V2;
+    receipt.structSize = sizeof(MRNumanXExactInboundAuthorityGPUV2);
+    receipt.clockDomain = dispatch.clockDomain;
+    receipt.clockQuantumNanoseconds = dispatch.clockQuantumNanoseconds;
+    receipt.acceptedBrainTimestampNanoseconds =
+        dispatch.acceptedBrainTimestampNanoseconds;
+    receipt.brainGeneration = dispatch.acceptedBrainGeneration;
+    receipt.transactionFingerprint = dispatch.transactionFingerprint;
+    receipt.substepFingerprint = dispatch.substepFingerprint;
+    receipt.motorCandidateFingerprint =
+        dispatch.motorCandidateFingerprint;
+    receipt.motorOutputFingerprint = header.outputFingerprint;
+    receipt.motorProfileFingerprint = dispatch.motorProfileFingerprint;
+    receipt.motorReadyGateFingerprint = ready.gateFingerprint;
+    receipt.brainProgramFingerprint = ready.brainProgramFingerprint;
+    receipt.fastProgramFingerprint = ready.fastProgramFingerprint;
+    receipt.decisionGateFingerprint = ready.decisionGateFingerprint;
+    receipt.inboundAuthorityFingerprint =
+        exactInboundAuthorityFingerprintV2(receipt);
+    if (receipt.inboundAuthorityFingerprint == 0ul) {
+        headerValidation[environment] =
+            MR_NUMANX_HUMAN_MOTOR_HEADER_FINGERPRINT;
+        return;
+    }
+    inboundAuthority[0] = receipt;
     headerValidation[environment] = MR_NUMANX_HUMAN_MOTOR_HEADER_VALID;
 }
 

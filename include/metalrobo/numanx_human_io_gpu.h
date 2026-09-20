@@ -63,6 +63,8 @@
 #define MR_NUMANX_BRAIN_READY_GATE_SUCCESS 1u
 #define MR_NUMANX_BRAIN_READY_GATE_FAILURE 2u
 #define MR_NUMANX_HUMAN_MOTOR_DISPATCH_ABI_VERSION_V2 2u
+#define MR_NUMANX_EXACT_INBOUND_AUTHORITY_ABI_VERSION_V2 2u
+#define MR_NUMANX_FINGERPRINT_DOMAIN_EXACT_INBOUND_AUTHORITY_V2 0x4e584941u
 
 enum MRNumanXBrainMotorOutputFlags : mr_u32 {
     MR_NUMANX_BRAIN_MOTOR_OUTPUT_VALID = 1u << 0u,
@@ -431,6 +433,32 @@ typedef struct MR_ALIGN16 MRNumanXHumanMotorDispatchGPUV2 {
     mr_u64 expectedMotorOutputHeaderGPUAddress;
 } MRNumanXHumanMotorDispatchGPUV2;
 
+// Device-authored terminal receipt for the exact Brain authority admitted by
+// numanx_human_validate_motor_output_v2. Its byte layout is intentionally
+// identical to mrnx_exact_inbound_authority_v2, but this Metal-safe spelling
+// keeps the shader ABI independent from the host bridge header. The receipt is
+// cleared before validation and populated only after the complete ready gate,
+// motor header, and excitation payload authenticate on the same command
+// buffer.
+typedef struct MR_ALIGN16 MRNumanXExactInboundAuthorityGPUV2 {
+    mr_u32 abiVersion;
+    mr_u32 structSize;
+    mr_u32 clockDomain;
+    mr_u32 clockQuantumNanoseconds;
+    mr_u64 acceptedBrainTimestampNanoseconds;
+    mr_u64 brainGeneration;
+    mr_u64 transactionFingerprint;
+    mr_u64 substepFingerprint;
+    mr_u64 motorCandidateFingerprint;
+    mr_u64 motorOutputFingerprint;
+    mr_u64 motorProfileFingerprint;
+    mr_u64 motorReadyGateFingerprint;
+    mr_u64 brainProgramFingerprint;
+    mr_u64 fastProgramFingerprint;
+    mr_u64 decisionGateFingerprint;
+    mr_u64 inboundAuthorityFingerprint;
+} MRNumanXExactInboundAuthorityGPUV2;
+
 // Constants used by both post-stand kernels. Proprioception is laid out as
 // [environment][step][muscle/receptor][feature]; validity is
 // [environment][step][muscle/receptor], one UInt32 bit mask per receptor.
@@ -636,6 +664,29 @@ static_assert(offsetof(
 static_assert(offsetof(
     MRNumanXHumanMotorDispatchGPUV2,
     expectedMotorOutputHeaderGPUAddress) == 152u);
+static_assert(sizeof(MRNumanXExactInboundAuthorityGPUV2) == 112u);
+static_assert(alignof(MRNumanXExactInboundAuthorityGPUV2) == 16u);
+static_assert(offsetof(
+    MRNumanXExactInboundAuthorityGPUV2,
+    acceptedBrainTimestampNanoseconds) == 16u);
+static_assert(offsetof(
+    MRNumanXExactInboundAuthorityGPUV2,
+    transactionFingerprint) == 32u);
+static_assert(offsetof(
+    MRNumanXExactInboundAuthorityGPUV2,
+    motorCandidateFingerprint) == 48u);
+static_assert(offsetof(
+    MRNumanXExactInboundAuthorityGPUV2,
+    motorReadyGateFingerprint) == 72u);
+static_assert(offsetof(
+    MRNumanXExactInboundAuthorityGPUV2,
+    brainProgramFingerprint) == 80u);
+static_assert(offsetof(
+    MRNumanXExactInboundAuthorityGPUV2,
+    decisionGateFingerprint) == 96u);
+static_assert(offsetof(
+    MRNumanXExactInboundAuthorityGPUV2,
+    inboundAuthorityFingerprint) == 104u);
 static_assert(sizeof(MRNumanXHumanProprioceptionDispatchGPU) == 128u);
 static_assert(alignof(MRNumanXHumanProprioceptionDispatchGPU) == 16u);
 static_assert(

@@ -3806,6 +3806,41 @@ set_target_properties(
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
 )
+
+add_executable(
+    metalrobo_numanx_human_io_exact_receipt_probe
+    apps/numanx_human_io_exact_receipt_probe.mm
+)
+add_dependencies(
+    metalrobo_numanx_human_io_exact_receipt_probe
+    metalrobo_shaders
+)
+target_compile_features(
+    metalrobo_numanx_human_io_exact_receipt_probe
+    PRIVATE cxx_std_20
+)
+target_compile_options(
+    metalrobo_numanx_human_io_exact_receipt_probe
+    PRIVATE
+        -fobjc-arc
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_numanx_human_io_exact_receipt_probe
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_numanx_human_io_exact_receipt_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
 target_compile_features(
     metalrobo_numanx_exact_outbound_v2_contract_test
     PRIVATE cxx_std_20
@@ -3932,6 +3967,20 @@ if(BUILD_TESTING)
     set_tests_properties(
         numanx.contract.human_io_exact_v2_cpu
         PROPERTIES LABELS "numanx;human;contract;cpu;exact-clock"
+    )
+    add_test(
+        NAME numanx.integration.human_io_exact_receipt_gpu
+        COMMAND
+            $<TARGET_FILE:metalrobo_numanx_human_io_exact_receipt_probe>
+            "${METALROBO_METALLIB}"
+    )
+    set_tests_properties(
+        numanx.integration.human_io_exact_receipt_gpu
+        PROPERTIES
+            ENVIRONMENT "MTL_DEBUG_LAYER=1"
+            LABELS "numanx;human;contract;exact-clock;metal"
+            RUN_SERIAL TRUE
+            TIMEOUT 60
     )
     add_test(
         NAME numanx.integration.human_transaction
