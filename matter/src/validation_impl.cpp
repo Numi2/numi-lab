@@ -345,7 +345,13 @@ private:
         const NMMixedSolverGPU& solver = world_.mixedSolver;
         if (solver.nonlinearIterations.x == 0u ||
             solver.nonlinearIterations.y == 0u ||
+            solver.nonlinearIterations.y > NM_MIXED_FGMRES_RESTART ||
             solver.nonlinearIterations.z < solver.nonlinearIterations.y ||
+            solver.nonlinearIterations.z >
+                NM_MIXED_FGMRES_MAX_ITERATIONS ||
+            solver.nonlinearIterations.z >
+                std::numeric_limits<std::uint32_t>::max() -
+                    solver.nonlinearIterations.y + 1u ||
             solver.nonlinearIterations.w == 0u ||
             solver.executionBudgets.x == 0u ||
             solver.executionBudgets.x >
@@ -354,7 +360,7 @@ private:
             solver.executionBudgets.z != 0u ||
             solver.executionBudgets.w != 0u ||
             !finite4(solver.residualTolerances) ||
-            solver.residualTolerances.x < 0.0f ||
+            !(solver.residualTolerances.x > 0.0f) ||
             solver.residualTolerances.y < 0.0f ||
             solver.residualTolerances.z < 0.0f ||
             solver.residualTolerances.w < 0.0f ||

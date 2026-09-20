@@ -26,11 +26,13 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <fcntl.h>
 #include <fstream>
 #include <iostream>
 #include <filesystem>
 #include <iterator>
 #include <limits>
+#include <locale>
 #include <optional>
 #include <stdexcept>
 #include <sstream>
@@ -38,6 +40,8 @@
 #include <string_view>
 #include <thread>
 #include <vector>
+#include <sys/stat.h>
+#include <sys/stdio.h>
 #include <unistd.h>
 
 #ifndef MRNX_FULLBODY_RIGID
@@ -174,6 +178,78 @@ std::vector<std::uint8_t> readPayloadBytes(const char* path) {
     return bytes;
 }
 
+class ScopedDescriptor final {
+public:
+    explicit ScopedDescriptor(const int descriptor) noexcept
+        : descriptor_(descriptor) {}
+    ~ScopedDescriptor() {
+        if (descriptor_ >= 0) (void)::close(descriptor_);
+    }
+    ScopedDescriptor(const ScopedDescriptor&) = delete;
+    ScopedDescriptor& operator=(const ScopedDescriptor&) = delete;
+    [[nodiscard]] int get() const noexcept { return descriptor_; }
+
+private:
+    int descriptor_ = -1;
+};
+
+int openNoFollow(
+    const std::filesystem::path& path,
+    const int flags,
+    const char* label
+) {
+    int descriptor = -1;
+    do {
+        descriptor = ::open(path.c_str(), flags | O_NOFOLLOW);
+    } while (descriptor < 0 && errno == EINTR);
+    if (descriptor < 0) {
+        throw std::runtime_error(
+            std::string("could not open ") + label + ": " +
+            std::strerror(errno));
+    }
+    return descriptor;
+}
+
+void fullSyncDescriptor(const int descriptor, const char* label) {
+    int result = 0;
+    do {
+        result = ::fcntl(descriptor, F_FULLFSYNC);
+    } while (result != 0 && errno == EINTR);
+    const int savedErrno = errno;
+    if (result != 0) {
+        throw std::runtime_error(
+            std::string("could not durably sync ") + label + ": " +
+            std::strerror(savedErrno));
+    }
+}
+
+void syncPublishedPath(
+    const std::filesystem::path& path,
+    const char* label
+) {
+    const ScopedDescriptor descriptor(
+        openNoFollow(path, O_RDONLY, label));
+    fullSyncDescriptor(descriptor.get(), label);
+}
+
+void requirePinnedDirectoryEntry(
+    const int parentDescriptor,
+    const std::filesystem::path& leaf,
+    const int directoryDescriptor
+) {
+    struct stat pinned{};
+    struct stat entry{};
+    require(
+        leaf.has_filename() && leaf == leaf.filename() &&
+            ::fstat(directoryDescriptor, &pinned) == 0 &&
+            ::fstatat(
+                parentDescriptor, leaf.c_str(), &entry,
+                AT_SYMLINK_NOFOLLOW) == 0 &&
+            S_ISDIR(pinned.st_mode) && S_ISDIR(entry.st_mode) &&
+            pinned.st_dev == entry.st_dev && pinned.st_ino == entry.st_ino,
+        "prepared fixture staging entry no longer matches its pinned directory");
+}
+
 void qualifyHumanSupportKKT(id<MTLDevice> device, unsigned shape = 0) {
     NSError* libraryError = nil;
     id<MTLLibrary> library = [device
@@ -270,7 +346,11 @@ void qualifyHumanSupportKKT(id<MTLDevice> device, unsigned shape = 0) {
     const std::uint32_t compensatedTranslation = 0u;
     id<MTLBuffer> generalizedBuffer = buffer(&generalized, sizeof(generalized));
     id<MTLBuffer> jacobians = buffer(jacobian.data(), sizeof(jacobian));
-    const nm_float4 initialHistory{shape==2 ? 0.5f : 0.0f, 0.0f, 0.0f, 0.5f};
+    // Keep the direct apply fixture inside the authored Coulomb cone. The
+    // runtime now rejects an already-infeasible accepted history instead of
+    // carrying it forward as this legacy probe once did for the ellipsoid.
+    const nm_float4 initialHistory{
+        shape==2 ? 0.18f : 0.0f, 0.0f, 0.0f, 0.5f};
     id<MTLBuffer> acceptedHistory = buffer(&initialHistory, sizeof(initialHistory));
     id<MTLBuffer> candidateHistory = buffer(&zero4, sizeof(zero4));
     id<MTLBuffer> checkpointHistory = buffer(&zero4, sizeof(zero4));
@@ -291,6 +371,14 @@ void qualifyHumanSupportKKT(id<MTLDevice> device, unsigned shape = 0) {
     id<MTLBuffer> directionBuffer = buffer(directionRows.data(), sizeof(directionRows));
     id<MTLBuffer> work = buffer(zeroRows.data(), sizeof(zeroRows));
     id<MTLBuffer> fgmresState = buffer(&fgmres, sizeof(fgmres));
+    const std::uint32_t zeroWorkingSet = 0u;
+    id<MTLBuffer> supportWorkingSet =
+        buffer(&zeroWorkingSet, sizeof(zeroWorkingSet));
+    id<MTLBuffer> supportChanged =
+        buffer(&zeroWorkingSet, sizeof(zeroWorkingSet));
+    id<MTLBuffer> supportConeWorkingSet =
+        buffer(&zeroWorkingSet, sizeof(zeroWorkingSet));
+    id<MTLBuffer> supportConeTarget = buffer(&zero4, sizeof(zero4));
     id<MTLBuffer> committedHistory = buffer(&zero4, sizeof(zero4));
     id<MTLBuffer> committedConsequence =
         buffer(&zeroConsequence, sizeof(zeroConsequence));
@@ -377,6 +465,12 @@ void qualifyHumanSupportKKT(id<MTLDevice> device, unsigned shape = 0) {
         [encoder setBuffer:directionBuffer offset:0u atIndex:2u];
         [encoder setBuffer:alphaBuffer offset:0u atIndex:3u];
         [encoder setBuffer:candidateHistory offset:0u atIndex:4u];
+        [encoder setBuffer:supportWorkingSet offset:0u atIndex:5u];
+        [encoder setBuffer:supportChanged offset:0u atIndex:6u];
+        [encoder setBuffer:successStatus offset:0u atIndex:7u];
+        [encoder setBuffer:contacts offset:0u atIndex:8u];
+        [encoder setBuffer:supportConeWorkingSet offset:0u atIndex:9u];
+        [encoder setBuffer:supportConeTarget offset:0u atIndex:10u];
     });
     encodeOne(evaluatePipeline, [&](id<MTLComputeCommandEncoder> encoder) {
         [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
@@ -640,8 +734,17 @@ bool generationLatch(
 void waitForCompletion(Completion& completion, const unsigned timeoutSeconds=10u) {
     const auto deadline = std::chrono::steady_clock::now() +
         std::chrono::seconds(timeoutSeconds);
-    while (completion.count.load(std::memory_order_acquire) == 0u &&
-           std::chrono::steady_clock::now() < deadline) {
+    while (completion.count.load(std::memory_order_acquire) == 0u) {
+        if (std::chrono::steady_clock::now() >= deadline) {
+            std::fprintf(
+                stderr,
+                "full-body root exceeded terminal callback deadline\n");
+            std::fflush(stderr);
+            // The accepted asynchronous begin borrows this stack capture.
+            // Exit without unwinding so a lost or late callback cannot write
+            // into an expired context.
+            std::_Exit(124);
+        }
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
     require(
@@ -911,7 +1014,11 @@ void qualifyTouchAggregation(id<MTLDevice> device) {
 int writePreparedStanceFixture(const char* certificate, const char* output,
     const char* contacts, const char* equalities, const char* limits,
     const std::uint64_t timestepMicroseconds = 100u, const bool importInitialState = false,
-    const std::uint32_t newtonIterations = 16u, const std::uint64_t timestepNanoseconds = 0u) {
+    const std::uint32_t newtonIterations = 16u,
+    const std::uint64_t timestepNanoseconds = 0u,
+    const std::uint32_t fgmresRestart = NM_MIXED_FGMRES_DEFAULT_RESTART,
+    const std::uint32_t fgmresIterations = NM_MIXED_FGMRES_ITERATIONS,
+    const double relativeResidual = 5.0e-3) {
     @autoreleasepool {
         require(timestepMicroseconds <= 1'000'000u && timestepNanoseconds <= 1'000'000'000u,
             "prepared fixture timestep exceeds one second");
@@ -1155,12 +1262,34 @@ int writePreparedStanceFixture(const char* certificate, const char* output,
         initial.preparedSupportHistory=std::move(prepared);
         }
         require(newtonIterations > 0u && newtonIterations <= 128u, "invalid prepared Newton iteration budget");
+        require(
+            fgmresRestart > 0u &&
+                fgmresRestart <= NM_MIXED_FGMRES_RESTART &&
+                fgmresIterations >= fgmresRestart &&
+                fgmresIterations <= NM_MIXED_FGMRES_MAX_ITERATIONS &&
+                fgmresIterations <=
+                    std::numeric_limits<std::uint32_t>::max() -
+                        fgmresRestart + 1u &&
+                std::isfinite(relativeResidual) &&
+                relativeResidual > 0.0 &&
+                std::isfinite(static_cast<float>(relativeResidual)) &&
+                static_cast<float>(relativeResidual) > 0.0f,
+            "invalid prepared FGMRES or residual policy");
         const bool includeVascular = std::getenv("MRNX_INCLUDE_SYNTHETIC_VASCULAR") != nullptr;
         auto world=authoredFixtureWorld(initial.q, includeVascular);world.frameTimestep=exactNanoseconds*1.0e-9;
         world.mixedSolver.newtonIterations = newtonIterations;
+        world.mixedSolver.fgmresRestart = fgmresRestart;
+        world.mixedSolver.fgmresIterations = fgmresIterations;
+        world.mixedSolver.relativeResidual = relativeResidual;
         numi::matter::CompileOptions options;options.maximumRateExponent=0u;
         const auto compiled=numi::matter::compileWorld(world,options);
         require(compiled.succeeded(),"prepared fixture world failed to compile");
+        const float compiledRelativeResidual =
+            compiled.world.mixedSolver.residualTolerances.x;
+        require(
+            std::isfinite(compiledRelativeResidual) &&
+                compiledRelativeResidual > 0.0f,
+            "compiled prepared relative residual is invalid");
         std::copy_n(rigid.begin()+48u,32u,initial.sourceArchiveSHA256.begin());
         const auto base=fullBodySourceFingerprint(rigid,readPayloadBytes(MRNX_FULLBODY_MUSCLE),readPayloadBytes(contacts));
         auto source=constrainedFingerprint(base,readPayloadBytes(equalities));
@@ -1185,29 +1314,236 @@ int writePreparedStanceFixture(const char* certificate, const char* output,
         std::string error;std::vector<std::byte> bytes;
         const bool encoded=metalrobo::encodeNumiHumanInitialState(initial,bytes,error);
         require(encoded,error.c_str());
-        const std::filesystem::path directory(output);std::filesystem::create_directories(directory);
+        const std::filesystem::path suppliedDirectory(output);
+        require(!suppliedDirectory.empty(),
+            "prepared fixture output path is empty");
+        for (const auto& component : suppliedDirectory) {
+            require(
+                component != "..",
+                "prepared fixture output may not contain .. components");
+        }
+        std::filesystem::path directory =
+            std::filesystem::absolute(suppliedDirectory).lexically_normal();
+        if (!directory.has_filename() &&
+            directory != directory.root_path()) {
+            directory = directory.parent_path();
+        }
+        require(
+            directory.has_filename() &&
+                directory != directory.root_path(),
+            "prepared fixture output must name a non-root directory");
+        std::error_code pathError;
+        auto parent = std::filesystem::canonical(
+            directory.parent_path(), pathError);
+        require(
+            !pathError && std::filesystem::is_directory(parent, pathError) &&
+                !pathError,
+            "prepared fixture output parent is not an existing directory");
+        directory = parent / directory.filename();
+        const ScopedDescriptor parentDescriptor(
+            openNoFollow(
+                parent, O_RDONLY | O_DIRECTORY,
+                "prepared fixture parent directory"));
+        const auto destinationStatus =
+            std::filesystem::symlink_status(directory, pathError);
+        require(
+            (!pathError || pathError == std::errc::no_such_file_or_directory) &&
+                destinationStatus.type() == std::filesystem::file_type::not_found,
+            "prepared fixture output already exists or cannot be inspected");
+
+        std::filesystem::path staging;
+        bool published = false;
         const auto durationName=timestepNanoseconds != 0u
             ? std::to_string(exactNanoseconds)+"ns" : std::to_string(initial.timestepMicroseconds)+"us";
-        const bool saved=numi::matter::writePackage(compiled,directory/("prepared-"+durationName+".nmatterpack"),&error);
-        require(saved,error.c_str());
-        std::ofstream stateFile(directory/"prepared.nhinit",std::ios::binary);
-        stateFile.write(reinterpret_cast<const char*>(bytes.data()),bytes.size());
-        require(stateFile.good(),"could not write prepared state");
         const std::vector<std::uint8_t> raw(reinterpret_cast<const std::uint8_t*>(bytes.data()),
             reinterpret_cast<const std::uint8_t*>(bytes.data())+bytes.size());
         const std::string supportSHAHex=supportSHA256Hex(supportIdentity);
-        std::ofstream receipt(directory/"prepared.json");
-        receipt << "{\"schema\":\"numi.human.prepared-stance-fixture.v2\",\"human_source_fp\":\"" << std::hex << base
-            << "\",\"composed_human_source_fp\":\"" << initial.humanSourceFingerprint
-            << "\",\"world_fp\":\"" << initial.worldFingerprint
-            << "\",\"initial_state_fp\":\"" << equalityFingerprint(raw)
-            << "\",\"support_sha256\":\"" << supportSHAHex
-            << "\",\"support_bytes\":" << std::dec << supportIdentity.byteCount
-            << ",\"support_abi\":" << supportIdentity.payloadABI
-            << ",\"support_source_records\":" << supportIdentity.sourceRecordCount
-            << ",\"support_expanded_rows\":" << supportIdentity.expandedRowCount
-            << ",\"scope\":\"three tiny pelvis samples; no anatomical tissue or sustained behavior qualification\"}\n";
-        require(receipt.good(),"could not write prepared fixture identity");
+        try {
+            std::string stagingTemplate =
+                (parent / ("." + directory.filename().string() +
+                           ".staging.XXXXXX")).string();
+            std::vector<char> mutableTemplate(
+                stagingTemplate.begin(), stagingTemplate.end());
+            mutableTemplate.push_back('\0');
+            const char* created = ::mkdtemp(mutableTemplate.data());
+            require(created != nullptr,
+                "could not create prepared fixture staging directory");
+            staging = std::filesystem::path(created);
+            const ScopedDescriptor stagingDescriptor(
+                openNoFollow(
+                    staging, O_RDONLY | O_DIRECTORY,
+                    "prepared fixture staging directory"));
+            requirePinnedDirectoryEntry(
+                parentDescriptor.get(), staging.filename(),
+                stagingDescriptor.get());
+
+            const auto packagePath =
+                staging/("prepared-"+durationName+".nmatterpack");
+            const auto statePath = staging/"prepared.nhinit";
+            const auto receiptPath = staging/"prepared.json";
+            const bool saved=numi::matter::writePackage(compiled,packagePath,&error);
+            require(saved,error.c_str());
+            std::ofstream stateFile(statePath,std::ios::binary);
+            stateFile.write(reinterpret_cast<const char*>(bytes.data()),bytes.size());
+            stateFile.close();
+            require(stateFile.good(),"could not write prepared state");
+            std::ostringstream receiptText;
+            receiptText.imbue(std::locale::classic());
+            receiptText << "{\"schema\":\"numi.human.prepared-stance-fixture.v2\",\"human_source_fp\":\"" << std::hex << base
+                << "\",\"composed_human_source_fp\":\"" << initial.humanSourceFingerprint
+                << "\",\"world_fp\":\"" << initial.worldFingerprint
+                << "\",\"initial_state_fp\":\"" << equalityFingerprint(raw)
+                << "\",\"support_sha256\":\"" << supportSHAHex
+                << "\",\"support_bytes\":" << std::dec << supportIdentity.byteCount
+                << ",\"support_abi\":" << supportIdentity.payloadABI
+                << ",\"support_source_records\":" << supportIdentity.sourceRecordCount
+                << ",\"support_expanded_rows\":" << supportIdentity.expandedRowCount
+                << ",\"solver_newton_iterations\":" << newtonIterations
+                << ",\"solver_fgmres_restart\":" << fgmresRestart
+                << ",\"solver_fgmres_iterations\":" << fgmresIterations
+                << ",\"solver_relative_residual_requested\":" << std::setprecision(17)
+                << relativeResidual
+                << ",\"solver_relative_residual_fp32\":"
+                << std::setprecision(std::numeric_limits<float>::max_digits10)
+                << compiledRelativeResidual
+                << ",\"solver_relative_residual_fp32_bits\":\"0x"
+                << std::hex << std::setw(8) << std::setfill('0')
+                << std::bit_cast<std::uint32_t>(compiledRelativeResidual)
+                << std::dec << std::setfill(' ')
+                << "\",\"scope\":\"three tiny pelvis samples; no anatomical tissue or sustained behavior qualification\"}\n";
+            const std::string expectedReceipt = receiptText.str();
+            std::ofstream receipt(receiptPath, std::ios::binary);
+            receipt.write(expectedReceipt.data(), expectedReceipt.size());
+            receipt.close();
+            require(receipt.good(),"could not write prepared fixture identity");
+
+            numi::matter::CompiledWorld reloadedWorld;
+            error.clear();
+            require(
+                numi::matter::readPackage(
+                    packagePath, reloadedWorld, nullptr, &error) &&
+                    numi::matter::validateCompiledWorldLayout(
+                        reloadedWorld, &error),
+                error.c_str());
+            require(
+                reloadedWorld.fingerprint == compiled.world.fingerprint &&
+                    reloadedWorld.mixedSolver.nonlinearIterations.x ==
+                        newtonIterations &&
+                    reloadedWorld.mixedSolver.nonlinearIterations.y ==
+                        fgmresRestart &&
+                    reloadedWorld.mixedSolver.nonlinearIterations.z ==
+                        fgmresIterations &&
+                    std::bit_cast<std::uint32_t>(
+                        reloadedWorld.mixedSolver.residualTolerances.x) ==
+                        std::bit_cast<std::uint32_t>(compiledRelativeResidual),
+                "prepared Matter package readback changed solver identity");
+
+            const auto statePathText = statePath.string();
+            const auto reloadedStateBytes =
+                readPayloadBytes(statePathText.c_str());
+            metalrobo::NumiHumanInitialState reloadedInitial;
+            error.clear();
+            require(
+                metalrobo::decodeNumiHumanInitialState(
+                    {reinterpret_cast<const std::byte*>(
+                         reloadedStateBytes.data()),
+                     reloadedStateBytes.size()},
+                    MRNX_FULL_BODY_NQ, MRNX_FULL_BODY_NV,
+                    MRNX_FULL_BODY_MUSCLE_COUNT, sourceSHA, supportIdentity,
+                    reloadedInitial, error),
+                error.c_str());
+            std::vector<std::byte> reencodedState;
+            error.clear();
+            require(
+                metalrobo::encodeNumiHumanInitialState(
+                    reloadedInitial, reencodedState, error),
+                error.c_str());
+            require(
+                reencodedState == bytes,
+                "prepared initial-state readback changed bytes");
+            const auto receiptPathText = receiptPath.string();
+            const auto reloadedReceipt =
+                readPayloadBytes(receiptPathText.c_str());
+            require(
+                reloadedReceipt.size() == expectedReceipt.size() &&
+                    std::memcmp(
+                        reloadedReceipt.data(), expectedReceipt.data(),
+                        expectedReceipt.size()) == 0,
+                "prepared fixture receipt readback changed bytes");
+            NSData* receiptData = [NSData
+                dataWithBytes:reloadedReceipt.data()
+                length:reloadedReceipt.size()];
+            NSError* receiptJSONError = nil;
+            id receiptDocument = [NSJSONSerialization
+                JSONObjectWithData:receiptData
+                options:0
+                error:&receiptJSONError];
+            require(
+                receiptJSONError == nil &&
+                    [receiptDocument isKindOfClass:[NSDictionary class]],
+                "prepared fixture receipt is not valid JSON");
+            NSDictionary* receiptObject = (NSDictionary*)receiptDocument;
+            NSNumber* receiptResidual =
+                receiptObject[@"solver_relative_residual_fp32"];
+            NSString* receiptResidualBits =
+                receiptObject[@"solver_relative_residual_fp32_bits"];
+            const std::uint32_t compiledResidualBits =
+                std::bit_cast<std::uint32_t>(compiledRelativeResidual);
+            NSString* expectedResidualBits = [NSString
+                stringWithFormat:@"0x%08x", compiledResidualBits];
+            require(
+                [receiptObject[@"schema"] isEqualToString:
+                    @"numi.human.prepared-stance-fixture.v2"] &&
+                    [receiptResidual isKindOfClass:[NSNumber class]] &&
+                    std::bit_cast<std::uint32_t>(receiptResidual.floatValue) ==
+                        compiledResidualBits &&
+                    [receiptResidualBits isKindOfClass:[NSString class]] &&
+                    [receiptResidualBits isEqualToString:expectedResidualBits],
+                "prepared fixture receipt changed executable FP32 policy");
+
+            syncPublishedPath(packagePath, "prepared Matter package");
+            syncPublishedPath(statePath, "prepared initial state");
+            syncPublishedPath(receiptPath, "prepared fixture receipt");
+            fullSyncDescriptor(
+                stagingDescriptor.get(),
+                "prepared fixture staging directory");
+            requirePinnedDirectoryEntry(
+                parentDescriptor.get(), staging.filename(),
+                stagingDescriptor.get());
+            if (::renameatx_np(
+                    parentDescriptor.get(),
+                    staging.filename().c_str(),
+                    parentDescriptor.get(),
+                    directory.filename().c_str(),
+                    RENAME_EXCL | RENAME_NOFOLLOW_ANY) != 0) {
+                const std::string message =
+                    "could not publish prepared fixture without replacement: " +
+                    std::string(std::strerror(errno));
+                throw std::runtime_error(message);
+            }
+            published = true;
+            staging.clear();
+            fullSyncDescriptor(
+                parentDescriptor.get(),
+                "prepared fixture parent directory");
+        } catch (...) {
+            if (published) {
+                std::fprintf(
+                    stderr,
+                    "prepared fixture is visible at %s but final directory "
+                    "durability is uncertain\n",
+                    directory.c_str());
+            } else if (!staging.empty()) {
+                // Preserve a failed attempt for inspection. Recursive cleanup
+                // through a pathname would be unsafe if a same-UID process
+                // renamed or replaced an ancestor after mkdtemp returned.
+                std::fprintf(
+                    stderr,
+                    "prepared fixture staging retained after failure: %s\n",
+                    staging.c_str());
+            }
+            throw;
+        }
         std::cout << "prepared_stance_fixture=compiled nq=129 nv=128 muscles=416 objects=3 attachments=12\n";
         return 0;
     }
@@ -2559,8 +2895,12 @@ int main(int argc, char** argv) {
         const bool importedStateFixture =
             fixtureMode == "--prepared-state-fixture" ||
             fixtureMode == "--prepared-state-fixture-ns";
-        if ((argc==7 || argc==8 || argc==9) &&
-            (certificateFixture || importedStateFixture)) {
+        if (certificateFixture || importedStateFixture) {
+            require(
+                argc==7 || argc==8 || argc==9 || argc==12,
+                "fixture usage: MODE SOURCE OUTPUT CONTACTS EQUALITIES LIMITS "
+                "[TIMESTEP [NEWTON [FGMRES_RESTART FGMRES_ITERATIONS "
+                "RELATIVE_RESIDUAL]]]");
             const bool exactNs =
                 fixtureMode == "--prepared-stance-fixture-ns" ||
                 fixtureMode == "--prepared-state-fixture-ns";
@@ -2573,7 +2913,7 @@ int main(int argc, char** argv) {
                 timestep = std::stoull(value);
             }
             std::uint32_t iterations = 16u;
-            if (argc == 9) {
+            if (argc == 9 || argc == 12) {
                 const std::string value(argv[8]);
                 require(!value.empty() && value.find_first_not_of("0123456789") == std::string::npos,
                     "Newton iteration budget must be an unsigned integer");
@@ -2581,8 +2921,44 @@ int main(int argc, char** argv) {
                 require(parsed > 0u && parsed <= 128u, "invalid Newton iteration budget");
                 iterations = static_cast<std::uint32_t>(parsed);
             }
+            std::uint32_t fgmresRestart = NM_MIXED_FGMRES_DEFAULT_RESTART;
+            std::uint32_t fgmresIterations = NM_MIXED_FGMRES_ITERATIONS;
+            double relativeResidual = 5.0e-3;
+            if (argc == 12) {
+                const auto parseBudget = [](const char* raw,
+                                            const char* message) {
+                    const std::string value(raw);
+                    require(
+                        !value.empty() &&
+                            value.find_first_not_of("0123456789") ==
+                                std::string::npos,
+                        message);
+                    const auto parsed = std::stoull(value);
+                    require(
+                        parsed > 0u &&
+                            parsed <=
+                                std::numeric_limits<std::uint32_t>::max(),
+                        message);
+                    return static_cast<std::uint32_t>(parsed);
+                };
+                fgmresRestart = parseBudget(
+                    argv[9],
+                    "FGMRES restart must be a positive unsigned integer");
+                fgmresIterations = parseBudget(
+                    argv[10],
+                    "FGMRES iterations must be a positive unsigned integer");
+                const std::string residualText(argv[11]);
+                std::size_t residualEnd = 0u;
+                relativeResidual = std::stod(residualText, &residualEnd);
+                require(
+                    residualEnd == residualText.size() &&
+                        std::isfinite(relativeResidual) &&
+                        relativeResidual > 0.0,
+                    "relative residual must be finite and positive");
+            }
             return writePreparedStanceFixture(argv[2],argv[3],argv[4],argv[5],argv[6],exactNs?0u:timestep,
-                importedStateFixture,iterations,exactNs?timestep:0u);
+                importedStateFixture,iterations,exactNs?timestep:0u,
+                fgmresRestart,fgmresIterations,relativeResidual);
         }
         if (argc==2 && std::string(argv[1])=="--support-only") {
             @autoreleasepool {

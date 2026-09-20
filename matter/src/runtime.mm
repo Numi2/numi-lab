@@ -1022,6 +1022,9 @@ struct Runtime::State {
     id<MTLBuffer> humanSupportHistoriesAccepted = nil;
     id<MTLBuffer> humanSupportHistoriesCandidate = nil;
     id<MTLBuffer> humanSupportHistoriesCheckpoint = nil;
+    id<MTLBuffer> humanSupportWorkingSet = nil;
+    id<MTLBuffer> humanSupportConeWorkingSet = nil;
+    id<MTLBuffer> humanSupportConeTargets = nil;
     id<MTLBuffer> humanSupportConsequencesAccepted = nil;
     id<MTLBuffer> humanSupportConsequencesCandidate = nil;
     id<MTLBuffer> humanSupportConsequencesCheckpoint = nil;
@@ -2002,6 +2005,8 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_precondition_support",
             "nm_fgmres_accumulate_support",
             "nm_fgmres_restart_residual_support",
+            "nm_human_support_select_working_set",
+            "nm_human_support_resolve_working_set",
             "nm_human_support_limit_line_search",
             "nm_human_support_apply_solution",
             "nm_human_support_certify",
@@ -2989,6 +2994,15 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->device, multiplied(supportContacts.size()),
             valid, candidate->residentBytes);
         candidate->humanSupportHistoriesCheckpoint = privateScratch<nm_float4>(
+            candidate->device, multiplied(supportContacts.size()),
+            valid, candidate->residentBytes);
+        candidate->humanSupportWorkingSet = privateScratch<std::uint32_t>(
+            candidate->device, multiplied(supportContacts.size()),
+            valid, candidate->residentBytes);
+        candidate->humanSupportConeWorkingSet = privateScratch<std::uint32_t>(
+            candidate->device, multiplied(supportContacts.size()),
+            valid, candidate->residentBytes);
+        candidate->humanSupportConeTargets = privateScratch<nm_float4>(
             candidate->device, multiplied(supportContacts.size()),
             valid, candidate->residentBytes);
         candidate->humanSupportConsequencesCandidate =
@@ -6307,6 +6321,26 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:buffer(supportInitialBodyLowArena) offset:0u atIndex:16u];
                     [encoder setBytes:&coupledPositionPrecision length:sizeof(coupledPositionPrecision) atIndex:17u];
                 });
+                if (!certify) {
+                    dispatchThreads("nm_human_support_select_working_set",
+                        humanSupportTotal, [&] {
+                        setDispatch();
+                        [encoder setBytes:&state.humanSupportDispatch
+                                   length:sizeof(state.humanSupportDispatch)
+                                  atIndex:1u];
+                        [encoder setBytes:&micro length:sizeof(micro) atIndex:2u];
+                        [encoder setBuffer:state.humanSupportSamples offset:0u atIndex:3u];
+                        [encoder setBuffer:state.humanSupportHistoriesCandidate offset:0u atIndex:4u];
+                        [encoder setBuffer:state.humanSupportLinearizations offset:0u atIndex:5u];
+                        [encoder setBuffer:state.femResidual offset:0u atIndex:6u];
+                        [encoder setBuffer:state.humanSupportWorkingSet offset:0u atIndex:7u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:8u];
+                        [encoder setBuffer:state.humanSupportConeWorkingSet
+                                     offset:0u atIndex:9u];
+                        [encoder setBuffer:state.humanSupportConeTargets
+                                     offset:0u atIndex:10u];
+                    });
+                }
                 // Explicit, single-root diagnostic copies of each contact
                 // assembly. Resolve after completion, before any host read;
                 // retain the failing iterate even when authority rolls back.
@@ -6314,13 +6348,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 if (traceRoot != nullptr && humanSupportTotal != 0u &&
                     environments == 1u && request.controlStep == std::strtoul(traceRoot, nullptr, 10)) {
                     struct TraceArena { const char* name; id<MTLBuffer> source; NSUInteger bytes; };
-                    const std::array<TraceArena, 6u> arenas{{
+                    const std::array<TraceArena, 9u> arenas{{
                         {"q", state.coupledCandidateQ, state.coupledQStride * sizeof(float)},
                         {"delta_v", state.coupledGeneralizedCandidate, state.dispatch.rigidGeneralizedCapacity * sizeof(float)},
                         {"free_v", buffer(request.rigid.v), state.humanSupportDispatch.articulatedNv * sizeof(float)},
                         {"sample", state.humanSupportSamples, humanSupportTotal * sizeof(NMContactSampleGPU)},
                         {"kkt", state.humanSupportLinearizations, humanSupportTotal * sizeof(NMHumanSupportKKTGPU)},
                         {"jacobian", state.humanSupportPointJacobians, humanSupportTotal * 3u * state.dispatch.rigidGeneralizedCapacity * sizeof(float)},
+                        {"working_set", state.humanSupportWorkingSet, humanSupportTotal * sizeof(std::uint32_t)},
+                        {"cone_working_set", state.humanSupportConeWorkingSet, humanSupportTotal * sizeof(std::uint32_t)},
+                        {"cone_target", state.humanSupportConeTargets, humanSupportTotal * sizeof(nm_float4)},
                     }};
                     NSUInteger bytes = 0u;
                     for (const auto& arena : arenas) bytes += (arena.bytes + 15u) & ~15u;
@@ -7616,6 +7653,27 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.vascularCavities offset:0u atIndex:11u];
                 [encoder setBuffer:state.vascularCompartmentCavity offset:0u atIndex:12u];
             });
+            dispatchGroups32("nm_human_support_resolve_working_set",
+                environments, [&] {
+                setDispatch();
+                [encoder setBytes:&state.humanSupportDispatch
+                           length:sizeof(state.humanSupportDispatch)
+                          atIndex:1u];
+                [encoder setBuffer:state.femSolution offset:0u atIndex:2u];
+                [encoder setBuffer:state.humanSupportHistoriesCandidate
+                             offset:0u atIndex:3u];
+                [encoder setBuffer:state.humanSupportWorkingSet
+                             offset:0u atIndex:4u];
+                [encoder setBuffer:state.vascularWorkingSetChanged
+                             offset:0u atIndex:5u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:6u];
+                [encoder setBuffer:state.humanSupportContacts
+                             offset:0u atIndex:7u];
+                [encoder setBuffer:state.humanSupportConeWorkingSet
+                             offset:0u atIndex:8u];
+                [encoder setBuffer:state.humanSupportConeTargets
+                             offset:0u atIndex:9u];
+            });
             dispatchGroups32("nm_fgmres_measure_correction", environments, [&] {
                 setDispatch();
                 [encoder setBuffer:state.objects offset:0u atIndex:1u];
@@ -7772,6 +7830,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:5u];
                     [encoder setBuffer:state.statuses
                                  offset:0u atIndex:6u];
+                    [encoder setBuffer:state.humanSupportWorkingSet
+                                 offset:0u atIndex:7u];
+                    [encoder setBuffer:state.vascularWorkingSetChanged
+                                 offset:0u atIndex:8u];
+                    [encoder setBuffer:state.humanSupportContacts
+                                 offset:0u atIndex:9u];
+                    [encoder setBuffer:state.humanSupportConeWorkingSet
+                                 offset:0u atIndex:10u];
+                    [encoder setBuffer:state.humanSupportConeTargets
+                                 offset:0u atIndex:11u];
                 });
             dispatchGroups32("nm_vascular_limit_line_search", environments, [&] {
                 setDispatch();
@@ -7828,6 +7896,14 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.femSolution offset:0u atIndex:2u];
                 [encoder setBuffer:state.environmentLineSearch offset:0u atIndex:3u];
                 [encoder setBuffer:state.humanSupportHistoriesCandidate offset:0u atIndex:4u];
+                [encoder setBuffer:state.humanSupportWorkingSet offset:0u atIndex:5u];
+                [encoder setBuffer:state.vascularWorkingSetChanged offset:0u atIndex:6u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:7u];
+                [encoder setBuffer:state.humanSupportContacts offset:0u atIndex:8u];
+                [encoder setBuffer:state.humanSupportConeWorkingSet
+                             offset:0u atIndex:9u];
+                [encoder setBuffer:state.humanSupportConeTargets
+                             offset:0u atIndex:10u];
             });
             dispatchThreads("nm_rigid_apply_candidate_solution",
                 rigidCandidateTotal, [&] {
@@ -8273,6 +8349,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:3u];
                     [encoder setBuffer:state.statuses offset:0u atIndex:4u];
                     [encoder setBuffer:state.humanSupportHistoriesCandidate offset:0u atIndex:5u];
+                    [encoder setBytes:&state.humanSupportDispatch
+                               length:sizeof(state.humanSupportDispatch)
+                              atIndex:6u];
+                    [encoder setBuffer:state.humanSupportContacts offset:0u atIndex:7u];
                 });
 
             }
@@ -9109,6 +9189,9 @@ bool Runtime::encodeAcceptedStateProofImpl(
             state.humanSupportHistoriesAccepted,
             state.humanSupportHistoriesCandidate,
             state.humanSupportHistoriesCheckpoint,
+            state.humanSupportWorkingSet,
+            state.humanSupportConeWorkingSet,
+            state.humanSupportConeTargets,
             state.humanSupportConsequencesAccepted,
             state.humanSupportConsequencesCandidate,
             state.humanSupportConsequencesCheckpoint,
@@ -9979,6 +10062,9 @@ bool Runtime::applyPreparedStateImpl(
             state.humanSupportHistoriesAccepted,
             state.humanSupportHistoriesCandidate,
             state.humanSupportHistoriesCheckpoint,
+            state.humanSupportWorkingSet,
+            state.humanSupportConeWorkingSet,
+            state.humanSupportConeTargets,
             state.humanSupportConsequencesAccepted,
             state.humanSupportConsequencesCandidate,
             state.humanSupportConsequencesCheckpoint,
@@ -11938,6 +12024,7 @@ bool Runtime::setFGMRESIterationBudget(
             static_cast<std::uint32_t>(NM_MIXED_FGMRES_RESTART)
         );
         if (restart == 0u || iterations < restart ||
+            iterations > NM_MIXED_FGMRES_MAX_ITERATIONS ||
             iterations >
                 std::numeric_limits<std::uint32_t>::max() - restart + 1u) {
             return false;
@@ -12098,6 +12185,7 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
             ? state.mixedSolverValue.nonlinearIterations.z
             : snapshot.fgmresIterationBudgetOverride;
     if (fgmresRestart == 0u || fgmresBudget < fgmresRestart ||
+        fgmresBudget > NM_MIXED_FGMRES_MAX_ITERATIONS ||
         fgmresBudget >
             std::numeric_limits<std::uint32_t>::max() - fgmresRestart + 1u) {
         diagnostics.message =

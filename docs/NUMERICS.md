@@ -713,18 +713,38 @@ The reference probe emits native/GPU body poses and, for unwrapped routes,
 FP64 route arithmetic at the returned GPU body poses. These diagnostics
 separate pose error from route arithmetic without adding a dynamics owner.
 `--prepared-state-fixture <prepared.nhinit> <outdir> <contacts> <equalities>
-<limits> [dt_us] [newton_iterations]` decodes and validates the exact supplied
+<limits> [dt_us [newton_iterations [fgmres_restart fgmres_iterations
+relative_residual]]]` decodes and validates the exact supplied
 physical state before rebinding the authored world/timestep identity. The
 support payload is mandatory for NHINIT3 because unbound decoding fails closed.
 `--prepared-stance-fixture-ns <certificate.log> <outdir> <contacts>
-<equalities> <limits> <dt_ns> [newton_iterations]` authors the equivalent
+<equalities> <limits> <dt_ns> [newton_iterations [fgmres_restart
+fgmres_iterations relative_residual]]` authors the equivalent
 exact-nanosecond fixture directly from a newly generated certificate. It does
 not pass through a rounded microsecond clock or rescale an older support
-history. `--prepared-state-fixture-ns` remains the stricter import path and
-rejects a prepared state when its composed source identity has drifted.
+history. A Newton-only override remains compatible; once any FGMRES field is
+present, the complete three-field FGMRES tuple is required. The same nested
+override applies to the legacy microsecond fixture modes. The receipt records
+the requested residual plus the executable FP32 value and bit pattern.
+`--prepared-state-fixture-ns` remains the stricter import path and rejects a
+prepared state when its composed source identity has drifted.
+Both authoring forms require a fresh destination under an already-existing
+parent and publish the pack, NHINIT, and receipt as one exclusive atomic
+directory rename; they never merge into or replace an existing evidence
+directory. The output is owner-private (`0700`), failed staging is retained for
+inspection, and the total FGMRES budget is capped at 1024 iterations.
 The existing certificate-derived fixture mode emits exact NHCNT-bound NHINIT3
 from its per-row support forces. Neither fixture
 mode is anatomical tissue qualification: it creates three tiny pelvis samples.
+
+For sustained exact-runtime qualification, use
+`metalrobo_numanx_exact_runtime_horizon_probe --roots <N> --timestep-ns 12500
+--uniform-excitation <x> --snapshot-step <root> --snapshot-dir
+<absolute-new-path>` with all five `MRNX_EXACT_*` inputs bound. It publishes
+exactly the root-1 and selected-root snapshots plus a no-replace manifest of
+input, device, runtime, world, clock, source-revision, and snapshot identities.
+The result is explicitly sustained-execution evidence with a required
+independent snapshot audit; it is not a standing or full-behavior claim.
 
 Equal-duration 100/50-microsecond zero-command trajectories replay exactly over
 1.6 ms. The 25-microsecond trajectory fails its unchanged 0.005 nonlinear gate

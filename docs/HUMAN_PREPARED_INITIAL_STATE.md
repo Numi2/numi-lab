@@ -82,7 +82,9 @@ The qualification probe also accepts:
 
 ```
 metalrobo_numanx_fullbody_bridge_probe --prepared-stance-fixture \
-  CERTIFICATE_LOG OUTPUT_DIRECTORY NHCNT_PAYLOAD NHEQ2_PAYLOAD NHLIM1_PAYLOAD
+  CERTIFICATE_LOG OUTPUT_DIRECTORY NHCNT_PAYLOAD NHEQ2_PAYLOAD NHLIM1_PAYLOAD \
+  [TIMESTEP_MICROSECONDS [NEWTON_ITERATIONS \
+  [FGMRES_RESTART FGMRES_ITERATIONS RELATIVE_RESIDUAL]]]
 ```
 
 Exact-nanosecond authoring keeps certificate and imported-state provenance
@@ -91,11 +93,13 @@ separate:
 ```
 metalrobo_numanx_fullbody_bridge_probe --prepared-stance-fixture-ns \
   CERTIFICATE_LOG OUTPUT_DIRECTORY NHCNT_PAYLOAD NHEQ2_PAYLOAD NHLIM1_PAYLOAD \
-  TIMESTEP_NANOSECONDS [NEWTON_ITERATIONS]
+  TIMESTEP_NANOSECONDS [NEWTON_ITERATIONS \
+  [FGMRES_RESTART FGMRES_ITERATIONS RELATIVE_RESIDUAL]]
 
 metalrobo_numanx_fullbody_bridge_probe --prepared-state-fixture-ns \
   PREPARED_NHINIT OUTPUT_DIRECTORY NHCNT_PAYLOAD NHEQ2_PAYLOAD NHLIM1_PAYLOAD \
-  TIMESTEP_NANOSECONDS [NEWTON_ITERATIONS]
+  TIMESTEP_NANOSECONDS [NEWTON_ITERATIONS \
+  [FGMRES_RESTART FGMRES_ITERATIONS RELATIVE_RESIDUAL]]
 ```
 
 The stance form authors a new NHINIT from the certificate and rounds each
@@ -103,6 +107,23 @@ support `force * exact timestep` directly at nanosecond precision. The state
 form only rebinds an already composed NHINIT whose source identity matches the
 current rigid, muscle, support, equality, and limit payloads; source drift
 fails closed instead of relabelling stale state.
+
+The legacy Newton-only override remains accepted. If any FGMRES field is
+supplied, restart width, total budget, and relative residual must all be
+present. The receipt records the requested value plus the executable FP32
+residual and its exact bits, so a stricter diagnostic world cannot be mistaken
+for the default fixture or silently promoted into calibrated physical
+evidence. The same nested solver override is accepted by the microsecond
+fixture modes.
+
+Fixture authoring requires a fresh output path. The pack, NHINIT, and receipt
+are written into a sibling staging directory and published together with an
+exclusive atomic rename; an existing destination is never merged, truncated,
+or replaced. The leaf must be new and its parent directory must already exist
+so the parent entry can be durably ordered. The published directory remains
+owner-private (`0700`). A failed pre-publication attempt retains its uniquely
+named staging directory for inspection instead of recursively deleting through
+a pathname. The FGMRES total budget is operationally capped at 1024 iterations.
 
 This helper reads the saved native compiler q/muscle records and per-row normal
 support forces, binds the exact supplied NHCNT1 or NHCNT2 bytes, rounds each
@@ -113,6 +134,32 @@ certificate forms retain those same five identity fields; authoring requires
 their exact equality with the supplied NHCNT before assigning any force row.
 The source-compliant JSON remains schema v1 with these additive provenance
 fields.
+
+## Sustained exact-runtime evidence
+
+With the five exact inputs exported as `MRNX_EXACT_WORLD`,
+`MRNX_EXACT_INITIAL_STATE`, `MRNX_EXACT_SUPPORT_CONTACT`,
+`MRNX_EXACT_JOINT_EQUALITIES`, and `MRNX_EXACT_JOINT_LIMITS`, run:
+
+```
+metalrobo_numanx_exact_runtime_horizon_probe \
+  --roots ROOTS --timestep-ns 12500 --uniform-excitation EXCITATION \
+  --snapshot-step SELECTED_ROOT --snapshot-dir ABSOLUTE_NEW_PATH
+```
+
+The snapshot path must be a new leaf under an existing parent. The harness
+requires exactly root 1 and `SELECTED_ROOT`, validates their semantic identities
+and canonical filenames, and adds a no-replace run manifest binding argv,
+device/runtime/world/clock identities, five input hashes, configure-time Git
+revision, and snapshot file/payload hashes. Its success line deliberately says
+`sustained-execution-only audit_required=true full_behavior=false`.
+
+Audit both snapshots separately with
+`tools/audit_numi_human_production_owner_snapshot.py` and a digest retained
+outside the artifact via `--expected-payload-sha256`. A horizon completion and
+snapshot audit establish repeatable runtime and numerical evidence only; they
+do not establish standing, physical, biological, performance, or production
+qualification.
 It is an explicit qualification fixture, not anatomical tissue registration.
 It does not apply NHEQ1 reaction forces to the source-compliant solver.
 

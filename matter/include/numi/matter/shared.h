@@ -57,6 +57,9 @@ typedef struct NM_ALIGN16 nm_int4 {
 // restart/total budget explicitly.
 #define NM_MIXED_FGMRES_DEFAULT_RESTART 10u
 #define NM_MIXED_FGMRES_ITERATIONS 10u
+// Operational command-encoding ceiling. This bounds restart-cycle host work;
+// it is intentionally separate from the smaller compiled basis depth above.
+#define NM_MIXED_FGMRES_MAX_ITERATIONS 1024u
 #define NM_MIXED_LINE_SEARCH_STEPS 8u
 #define NM_MIXED_FIELD_SMOOTHER_MAX_PASSES 3u
 #define NM_MIXED_MUTATION_RESTARTS 4u

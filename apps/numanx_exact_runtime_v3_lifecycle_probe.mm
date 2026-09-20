@@ -71,8 +71,18 @@ void waitForCapture(
 ) {
     const auto deadline = std::chrono::steady_clock::now() +
         std::chrono::seconds(timeoutSeconds);
-    while (capture.count.load(std::memory_order_acquire) == 0u &&
-           std::chrono::steady_clock::now() < deadline) {
+    while (capture.count.load(std::memory_order_acquire) == 0u) {
+        if (std::chrono::steady_clock::now() >= deadline) {
+            std::fprintf(
+                stderr,
+                "exact runtime callback exceeded terminal deadline: %s\n",
+                message);
+            std::fflush(stderr);
+            // A successful begin borrows this stack capture until its terminal
+            // callback. Terminate the process without unwinding so a lost or
+            // late callback can never observe an expired context.
+            std::_Exit(124);
+        }
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
     require(capture.count.load(std::memory_order_acquire) == 1u, message);
@@ -269,7 +279,8 @@ ExactRequestResources makeRequest(
     const std::uint64_t controlStep,
     const std::uint64_t baseBrainGeneration,
     const std::uint64_t basePhysicsGeneration,
-    const std::uint64_t committedTimestampNanoseconds
+    const std::uint64_t committedTimestampNanoseconds,
+    const float uniformExcitation = -1.0f
 ) {
     constexpr std::size_t excitationBytes =
         MRNX_FULL_BODY_MUSCLE_COUNT * sizeof(float);
@@ -320,10 +331,16 @@ ExactRequestResources makeRequest(
     auto* excitation = reinterpret_cast<float*>(
         static_cast<std::uint8_t*>(result.excitation.contents) +
         kExcitationByteOffset);
+    require(
+        uniformExcitation == -1.0f ||
+            (std::isfinite(uniformExcitation) &&
+             uniformExcitation >= 0.0f && uniformExcitation <= 1.0f),
+        "uniform exact-runtime excitation is outside [0,1]");
     for (std::uint32_t index = 0u;
          index < MRNX_FULL_BODY_MUSCLE_COUNT; ++index) {
-        excitation[index] = 0.05f +
-            0.1f * static_cast<float>(index % 7u) / 6.0f;
+        excitation[index] = uniformExcitation >= 0.0f
+            ? uniformExcitation
+            : 0.05f + 0.1f * static_cast<float>(index % 7u) / 6.0f;
     }
     std::memset(
         static_cast<std::uint8_t*>(result.autonomic.contents) +
@@ -821,11 +838,12 @@ RootOutcome executeAcceptedRoot(
     const std::uint64_t baseBrainGeneration,
     const std::uint64_t basePhysicsGeneration,
     const std::uint64_t committedTimestampNanoseconds,
-    const bool checkMixedFamilyEntry
+    const bool checkMixedFamilyEntry,
+    const float uniformExcitation = -1.0f
 ) {
     auto resources = makeRequest(
         device, controlStep, baseBrainGeneration, basePhysicsGeneration,
-        committedTimestampNanoseconds);
+        committedTimestampNanoseconds, uniformExcitation);
     if (checkMixedFamilyEntry) {
         mrnx_physical_root_request_v1 legacy{};
         legacy.abi_version = MRNX_BRIDGE_ABI_V1;
@@ -864,14 +882,26 @@ RootOutcome executeAcceptedRoot(
             "exact root ignored its unsignaled Brain ready event");
     resources.readyEvent.signaledValue = 1u;
     waitForCompletion(physical, 60u);
-    require(
-        physical.status.load(std::memory_order_acquire) ==
-                MRNX_COMPLETION_READY_V1 &&
-            physical.prepared != nullptr && physical.candidate != nullptr &&
-            physical.root.transaction_fingerprint ==
-                resources.request.root.transaction_fingerprint &&
-            physical.root.control_step == controlStep,
-        "exact physical/HumanIO root did not reach READY");
+    const auto completionStatus =
+        physical.status.load(std::memory_order_acquire);
+    if (completionStatus != MRNX_COMPLETION_READY_V1 ||
+        physical.prepared == nullptr || physical.candidate == nullptr ||
+        physical.root.transaction_fingerprint !=
+            resources.request.root.transaction_fingerprint ||
+        physical.root.control_step != controlStep) {
+        mrnx_runtime_info_v1 failedInfo{};
+        failedInfo.abi_version = MRNX_BRIDGE_ABI_V1;
+        failedInfo.struct_size = sizeof(failedInfo);
+        (void)mrnx_bridge_v1_runtime_copy_info(runtime, &failedInfo);
+        throw std::runtime_error(
+            "exact physical/HumanIO root did not reach READY status=" +
+            std::to_string(completionStatus) + " stage=" +
+            std::to_string(failedInfo.request_failure_stage) +
+            " prepared=" + std::to_string(physical.prepared != nullptr) +
+            " candidate=" + std::to_string(physical.candidate != nullptr) +
+            " root_control_step=" +
+            std::to_string(physical.root.control_step));
+    }
 
     mrnx_candidate_view_v1 sensor{};
     sensor.abi_version = MRNX_BRIDGE_ABI_V1;
@@ -1851,6 +1881,7 @@ int runLifecycle() {
 
 } // namespace exact_runtime_probe
 
+#if !defined(MRNX_EXACT_RUNTIME_LIFECYCLE_EMBEDDED)
 int main() {
     try {
         return exact_runtime_probe::runLifecycle();
@@ -1861,3 +1892,4 @@ int main() {
         return 1;
     }
 }
+#endif

@@ -487,6 +487,64 @@ void verifyAdaptiveLayout() {
         "compiler accepted an unsupported FGMRES restart depth"
     );
 
+    auto overflowingIterationBudget = source;
+    overflowingIterationBudget.mixedSolver.fgmresIterations =
+        std::numeric_limits<std::uint32_t>::max();
+    const auto rejectedIterationBudget =
+        numi::matter::compileWorld(overflowingIterationBudget);
+    require(
+        !rejectedIterationBudget.succeeded() &&
+            std::ranges::any_of(
+                rejectedIterationBudget.diagnostics,
+                [](const numi::matter::Diagnostic& diagnostic) {
+                    return diagnostic.message.find(
+                        "FGMRES iteration budget overflows restart-cycle arithmetic"
+                    ) != std::string::npos;
+                }
+            ),
+        "compiler accepted an overflowing FGMRES iteration budget"
+    );
+
+    auto excessiveIterationBudget = source;
+    excessiveIterationBudget.mixedSolver.fgmresIterations =
+        NM_MIXED_FGMRES_MAX_ITERATIONS + 1u;
+    const auto rejectedExcessiveIterationBudget =
+        numi::matter::compileWorld(excessiveIterationBudget);
+    require(
+        !rejectedExcessiveIterationBudget.succeeded() &&
+            std::ranges::any_of(
+                rejectedExcessiveIterationBudget.diagnostics,
+                [](const numi::matter::Diagnostic& diagnostic) {
+                    return diagnostic.message.find(
+                        "FGMRES iteration budget exceeds the operational encoding capacity"
+                    ) != std::string::npos;
+                }
+            ),
+        "compiler accepted an operationally unbounded FGMRES budget"
+    );
+
+    for (const double invalidResidual : {
+             std::numeric_limits<double>::denorm_min(),
+             std::numeric_limits<double>::max()}) {
+        auto unrepresentableResidual = source;
+        unrepresentableResidual.mixedSolver.relativeResidual =
+            invalidResidual;
+        const auto rejectedResidual =
+            numi::matter::compileWorld(unrepresentableResidual);
+        require(
+            !rejectedResidual.succeeded() &&
+                std::ranges::any_of(
+                    rejectedResidual.diagnostics,
+                    [](const numi::matter::Diagnostic& diagnostic) {
+                        return diagnostic.message.find(
+                            "relative residual is not positive finite FP32 policy"
+                        ) != std::string::npos;
+                    }
+                ),
+            "compiler accepted a relative residual that is not executable FP32 policy"
+        );
+    }
+
     auto unsupportedSmoother = source;
     unsupportedSmoother.mixedSolver.fieldSmootherPasses =
         NM_MIXED_FIELD_SMOOTHER_MAX_PASSES + 1u;
@@ -700,6 +758,27 @@ void verifyAdaptiveLayout() {
     {
         auto candidate = roundTrip;
         candidate.mixedSolver.residualTolerances.x = -1.0f;
+        requireRejected(std::move(candidate), "mixed solver policy");
+    }
+    {
+        auto candidate = roundTrip;
+        candidate.mixedSolver.residualTolerances.x = 0.0f;
+        requireRejected(std::move(candidate), "mixed solver policy");
+    }
+    {
+        auto candidate = roundTrip;
+        candidate.mixedSolver.nonlinearIterations.y =
+            NM_MIXED_FGMRES_RESTART + 1u;
+        candidate.mixedSolver.nonlinearIterations.z =
+            NM_MIXED_FGMRES_RESTART + 1u;
+        requireRejected(std::move(candidate), "mixed solver policy");
+    }
+    {
+        auto candidate = roundTrip;
+        candidate.mixedSolver.nonlinearIterations.y =
+            NM_MIXED_FGMRES_RESTART;
+        candidate.mixedSolver.nonlinearIterations.z =
+            NM_MIXED_FGMRES_MAX_ITERATIONS + 1u;
         requireRejected(std::move(candidate), "mixed solver policy");
     }
     {

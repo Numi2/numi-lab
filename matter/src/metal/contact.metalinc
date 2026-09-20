@@ -49,7 +49,10 @@ inline NMHumanSupportKKTGPU humanSupportProjection(
     float3x3 derivative(0.0f);
     if (trialNormal > 0.0f) {
         derivative = N;
-        if (tangentLength <= radius) {
+        // The exact disk boundary belongs to the sliding generalized
+        // derivative. Treating the tie as sticking can generate an outward
+        // Newton direction from an otherwise feasible Coulomb-boundary row.
+        if (tangentLength < radius) {
             projected += trialTangent;
             // Zero-friction rows have no tangent equality, including at rest.
             if (friction > 0.0f) derivative += T;
@@ -235,7 +238,8 @@ kernel void nm_human_support_evaluate(
     const float3 tangentImpulse = history.xyz - dot(history.xyz, normal) * normal;
     const float normalImpulse = history.w;
     const float3 impulse = tangentImpulse + normalImpulse * normal;
-    if (!finite3(impulse) || !isfinite(normalConstraint)) {
+    if (!finite3(impulse) || !isfinite(normalConstraint) ||
+        normalImpulse < 0.0f) {
         recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
             NM_INVALID_INDEX, rowIndex, float4(impulse, normalConstraint));
         samples[global] = sample;
@@ -264,6 +268,95 @@ kernel void nm_human_support_evaluate(
     consequence.tangentVelocityAndImpulse.w = tangentLength;
     samples[global] = sample;
     consequences[global] = consequence;
+}
+
+// Primal-dual active set for the normal half-line. State 0 uses the natural
+// non-associated Coulomb equation assembled above. State 1 is a newly selected
+// inactive row and state 2 has completed at least one constrained solve. A
+// constrained row eliminates the complete world-space impulse, not only its
+// normal component, so a zero normal multiplier can never retain friction.
+kernel void nm_human_support_select_working_set(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMHumanSupportDispatchGPU& support [[buffer(1)]],
+    constant NMMicrostepGPU& microstep [[buffer(2)]],
+    device const NMContactSampleGPU* samples [[buffer(3)]],
+    device const float4* histories [[buffer(4)]],
+    device NMHumanSupportKKTGPU* linearizations [[buffer(5)]],
+    device float4* residual [[buffer(6)]],
+    device uint* workingSet [[buffer(7)]],
+    device NMMatterStatusGPU* statuses [[buffer(8)]],
+    device uint* coneWorkingSet [[buffer(9)]],
+    device float4* coneTargets [[buffer(10)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= dispatch.environmentCount * support.contactCount) return;
+    const uint environment = global / support.contactCount;
+    const uint row = global - environment * support.contactCount;
+    if (microstep.solverIteration == 0u) {
+        workingSet[global] = 0u;
+        coneWorkingSet[global] = 0u;
+        coneTargets[global] = float4(0.0f);
+    }
+    if (!environmentHealthy(statuses, environment)) return;
+
+    uint state = workingSet[global];
+    uint coneState = coneWorkingSet[global];
+    const NMContactSampleGPU sample = samples[global];
+    const float4 history = histories[global];
+    const float3 impulse = sample.impulseAndNormal.xyz;
+    const float normalConstraint = sample.admissionVelocityAndNormal.w;
+    if (coneState == 2u) {
+        // The exact affine cone target has been reached. Return to the natural
+        // Coulomb equation assembled immediately before this selector so the
+        // next solve certifies the physical sliding law, not the pivot target.
+        coneState = 0u;
+        coneWorkingSet[global] = 0u;
+        coneTargets[global] = float4(0.0f);
+    }
+    if (state > 2u || coneState > 2u ||
+        (state != 0u && coneState != 0u) ||
+        (sample.identity.w & NM_CONTACT_VALID) == 0u ||
+        !all(isfinite(history)) || !finite3(impulse) ||
+        !isfinite(normalConstraint) || history.w < 0.0f) {
+        recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+            NM_INVALID_INDEX, row,
+            float4(float(state), float(coneState), history.w,
+                normalConstraint));
+        return;
+    }
+
+    if (coneState == 1u) {
+        const float4 target = coneTargets[global];
+        const float3 targetImpulse = target.xyz +
+            target.w * support.groundNormal.xyz;
+        if (!all(isfinite(target)) || target.w <= 0.0f ||
+            !finite3(targetImpulse)) {
+            recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+                NM_INVALID_INDEX, row, target);
+            return;
+        }
+        NMHumanSupportKKTGPU constrained = {};
+        constrained.residual = float4(targetImpulse - impulse, 0.0f);
+        linearizations[global] = constrained;
+        residual[layout.supportBase + global] = constrained.residual;
+        return;
+    }
+
+    // A pending row must receive its constrained solve before release. Once
+    // solved, release only from exact lambda=0 and only when the freshly
+    // assembled natural inactive inequality c_n >= 0 is violated.
+    if (state == 2u && all(impulse == float3(0.0f)) &&
+        history.w == 0.0f && normalConstraint < 0.0f) {
+        state = 0u;
+        workingSet[global] = 0u;
+    }
+    if (state == 0u) return;
+
+    NMHumanSupportKKTGPU constrained = {};
+    constrained.residual = float4(-impulse, 0.0f);
+    linearizations[global] = constrained;
+    residual[layout.supportBase + global] = constrained.residual;
 }
 
 kernel void nm_human_support_checkpoint(

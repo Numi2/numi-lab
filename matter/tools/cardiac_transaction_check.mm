@@ -91,40 +91,56 @@ void clockCarry(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> li
     require(out[2].low==130&&out[2].high==clocks[2].high&&status[2].code==0,"clock overflow contaminated other environment");
     std::cout<<"cardiac_clock_kernel=pass carry=exact overflow=denied environment_isolation=pass\n";
 }
-void supportFractionToBoundary(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
-    NMMatterDispatchGPU dispatch{};dispatch.environmentCount=2;dispatch.objectCount=1;
-    NMFGMRESLayoutGPU layout{};layout.supportContactCount=1;layout.supportBase=0;
+void supportWorkingSetPivot(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
+    NMMatterDispatchGPU dispatch{};dispatch.environmentCount=4;dispatch.objectCount=1;
+    NMFGMRESLayoutGPU layout{};layout.supportContactCount=1;layout.supportBase=0;layout.unknownCount=4;
     NMHumanSupportDispatchGPU support{};support.contactCount=1;support.groundNormal={0,0,1,0};
-    auto solution=buffer(device,std::vector<nm_float4>{{0,0,-2,0},{0,0,1,0}});
-    auto histories=buffer(device,std::vector<nm_float4>{{0,0,0,1},{0,0,0,.25f}});
-    auto lines=buffer(device,std::vector<nm_float4>{{.8f,17,18,19},{.6f,17,18,19}});
-    auto alpha=buffer(device,std::vector<float>{-1,-1});
-    auto statuses=buffer(device,std::vector<NMMatterStatusGPU>(2));
+    NMHumanSupportContactGPU contact{};contact.frictionSlopAndStabilization.x=1;auto contacts=buffer(device,std::vector<NMHumanSupportContactGPU>{contact});
+    auto solution=buffer(device,std::vector<nm_float4>{{0,0,-1,0},{0,0,-1e-6f,0},{1,0,-1,0},{0,0,1,0}});
+    const std::vector<nm_float4> initial={{0,0,0,0},{0,0,0,1e-8f},{0,0,0,1},{0,0,0,.25f}};
+    auto histories=buffer(device,initial),working=buffer(device,std::vector<std::uint32_t>(4));
+    auto coneWorking=buffer(device,std::vector<std::uint32_t>(4));
+    auto coneTargets=buffer(device,std::vector<nm_float4>(4));
+    auto changed=buffer(device,std::vector<std::uint32_t>(4));
+    auto lines=buffer(device,std::vector<nm_float4>{{.8f,17,18,19},{.7f,17,18,19},{.9f,17,18,19},{.6f,17,18,19}});
+    auto alpha=buffer(device,std::vector<float>(4,-1));
+    auto statuses=buffer(device,std::vector<NMMatterStatusGPU>(4));
     auto cb=[queue commandBuffer];auto e=[cb computeCommandEncoder];
+    [e setComputePipelineState:pipeline(device,library,@"numi_matter_metal::nm_human_support_resolve_working_set")];
+    [e setBytes:&dispatch length:sizeof(dispatch) atIndex:0];[e setBytes:&layout length:sizeof(layout) atIndex:30];[e setBytes:&support length:sizeof(support) atIndex:1];
+    [e setBuffer:solution offset:0 atIndex:2];[e setBuffer:histories offset:0 atIndex:3];[e setBuffer:working offset:0 atIndex:4];[e setBuffer:changed offset:0 atIndex:5];[e setBuffer:statuses offset:0 atIndex:6];[e setBuffer:contacts offset:0 atIndex:7];[e setBuffer:coneWorking offset:0 atIndex:8];[e setBuffer:coneTargets offset:0 atIndex:9];
+    [e dispatchThreadgroups:MTLSizeMake(4,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];
     [e setComputePipelineState:pipeline(device,library,@"numi_matter_metal::nm_human_support_limit_line_search")];
-    [e setBytes:&dispatch length:sizeof(dispatch) atIndex:0];[e setBytes:&layout length:sizeof(layout) atIndex:30];
-    [e setBytes:&support length:sizeof(support) atIndex:1];[e setBuffer:solution offset:0 atIndex:2];
-    [e setBuffer:histories offset:0 atIndex:3];[e setBuffer:lines offset:0 atIndex:4];
-    [e setBuffer:alpha offset:0 atIndex:5];[e setBuffer:statuses offset:0 atIndex:6];
-    [e dispatchThreadgroups:MTLSizeMake(2,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];[e endEncoding];complete(cb);
-    const auto* out=static_cast<const float*>(alpha.contents);
-    const auto* mirrored=static_cast<const nm_float4*>(lines.contents);
-    const auto* status=static_cast<const NMMatterStatusGPU*>(statuses.contents);
-    require(status[0].code==NM_STATUS_SUCCESS&&status[1].code==NM_STATUS_SUCCESS,"support fraction-to-boundary rejected valid directions");
-    require(std::abs(out[0]-.495f)<1e-6f,"support fraction-to-boundary missed the normal half-line");
-    require(std::abs(out[1]-.6f)<1e-6f,"support fraction-to-boundary missed the object minimum");
-    for(unsigned env=0;env<2;++env)
-        require(mirrored[env].x==out[env]&&mirrored[env].y==17&&mirrored[env].z==18&&mirrored[env].w==19,"support fraction-to-boundary did not publish one shared alpha");
-    std::cout<<"cardiac_support_fraction_to_boundary=pass normal_half_line=preserved object_minimum=shared no_projection=true\n";
+    [e setBytes:&dispatch length:sizeof(dispatch) atIndex:0];[e setBytes:&layout length:sizeof(layout) atIndex:30];[e setBytes:&support length:sizeof(support) atIndex:1];
+    [e setBuffer:solution offset:0 atIndex:2];[e setBuffer:histories offset:0 atIndex:3];[e setBuffer:lines offset:0 atIndex:4];[e setBuffer:alpha offset:0 atIndex:5];[e setBuffer:statuses offset:0 atIndex:6];[e setBuffer:working offset:0 atIndex:7];[e setBuffer:changed offset:0 atIndex:8];[e setBuffer:contacts offset:0 atIndex:9];[e setBuffer:coneWorking offset:0 atIndex:10];[e setBuffer:coneTargets offset:0 atIndex:11];
+    [e dispatchThreadgroups:MTLSizeMake(4,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+    [e setComputePipelineState:pipeline(device,library,@"numi_matter_metal::nm_human_support_apply_solution")];
+    [e setBytes:&dispatch length:sizeof(dispatch) atIndex:0];[e setBytes:&layout length:sizeof(layout) atIndex:30];[e setBytes:&support length:sizeof(support) atIndex:1];
+    [e setBuffer:solution offset:0 atIndex:2];[e setBuffer:alpha offset:0 atIndex:3];[e setBuffer:histories offset:0 atIndex:4];[e setBuffer:working offset:0 atIndex:5];[e setBuffer:changed offset:0 atIndex:6];[e setBuffer:statuses offset:0 atIndex:7];[e setBuffer:contacts offset:0 atIndex:8];[e setBuffer:coneWorking offset:0 atIndex:9];[e setBuffer:coneTargets offset:0 atIndex:10];
+    [e dispatchThreads:MTLSizeMake(4,1,1) threadsPerThreadgroup:MTLSizeMake(4,1,1)];[e endEncoding];complete(cb);
+    const auto* masks=static_cast<const std::uint32_t*>(working.contents);const auto* flags=static_cast<const std::uint32_t*>(changed.contents);
+    const auto* out=static_cast<const float*>(alpha.contents);const auto* h=static_cast<const nm_float4*>(histories.contents);
+    const auto* mirrored=static_cast<const nm_float4*>(lines.contents);const auto* status=static_cast<const NMMatterStatusGPU*>(statuses.contents);
+    for(unsigned env=0;env<4;++env)require(status[env].code==NM_STATUS_SUCCESS,"support PDAS pivot rejected a finite case");
+    for(unsigned env=0;env<3;++env){require(masks[env]==1&&flags[env]==1,"support normal-cone exit did not select a pending inactive row");require(std::memcmp(h+env,initial.data()+env,sizeof(nm_float4))==0,"discarded support direction changed its history");}
+    require(masks[3]==0&&flags[3]==0,"support pivot contaminated an independent environment");
+    require(h[3].x==0&&h[3].y==0&&h[3].z==0&&std::abs(h[3].w-.85f)<1e-7f,"feasible support row missed the shared object alpha");
+    const std::array<float,4> expectedAlpha={.8f,.7f,.9f,.6f};
+    for(unsigned env=0;env<4;++env)require(out[env]==expectedAlpha[env]&&mirrored[env].x==out[env]&&mirrored[env].y==17&&mirrored[env].z==18&&mirrored[env].w==19,"support PDAS lost the object-wide alpha");
+    std::cout<<"cardiac_support_working_set_pivot=pass zero_and_tiny_positive=bounded exact_zero_with_tangent=inactive object_alpha=shared environment_isolation=pass\n";
 }
 void sharedAlpha(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
     for(unsigned mode=0;mode<3;++mode) {
         NMMatterDispatchGPU dispatch{};dispatch.environmentCount=2;dispatch.rigidGeneralizedCapacity=1;dispatch.objectCount=mode==2?1:0;
         NMFGMRESLayoutGPU layout{};layout.supportContactCount=1;layout.supportBase=2;layout.vascularBase=4;layout.vascularUnknownCount=mode==1?0:1;
         NMHumanSupportDispatchGPU support{};support.contactCount=1;support.groundNormal={0,0,1,0};
-        const std::vector<nm_float4> initial(2,nm_float4{1,2,3,4});
+        NMHumanSupportContactGPU contact{};contact.frictionSlopAndStabilization.x=10;auto contacts=buffer(device,std::vector<NMHumanSupportContactGPU>{contact});
+        const std::vector<nm_float4> initial(2,nm_float4{1,2,0,4});
         auto candidate=buffer(device,std::vector<float>{2,2});auto histories=buffer(device,initial);
         auto solution=buffer(device,std::vector<nm_float4>{{8,0,0,0},{8,0,0,0},{8,12,16,0},{8,12,16,0}});
+        auto working=buffer(device,std::vector<std::uint32_t>(2));auto changed=buffer(device,std::vector<std::uint32_t>(2));
+        auto coneWorking=buffer(device,std::vector<std::uint32_t>(2));auto coneTargets=buffer(device,std::vector<nm_float4>(2));
+        auto statuses=buffer(device,std::vector<NMMatterStatusGPU>(2));
         const std::vector<float> expectedAlpha = mode == 0
             ? std::vector<float>{0.0f, 0.25f}
             : mode == 1
@@ -138,17 +154,169 @@ void sharedAlpha(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> l
         [e dispatchThreads:MTLSizeMake(2,1,1) threadsPerThreadgroup:MTLSizeMake(2,1,1)];
         [e setComputePipelineState:pipeline(device,library,@"numi_matter_metal::nm_human_support_apply_solution")];
         [e setBytes:&dispatch length:sizeof(dispatch) atIndex:0];[e setBytes:&layout length:sizeof(layout) atIndex:30];[e setBytes:&support length:sizeof(support) atIndex:1];
-        [e setBuffer:solution offset:0 atIndex:2];[e setBuffer:alpha offset:0 atIndex:3];[e setBuffer:histories offset:0 atIndex:4];
+        [e setBuffer:solution offset:0 atIndex:2];[e setBuffer:alpha offset:0 atIndex:3];[e setBuffer:histories offset:0 atIndex:4];[e setBuffer:working offset:0 atIndex:5];[e setBuffer:changed offset:0 atIndex:6];[e setBuffer:statuses offset:0 atIndex:7];[e setBuffer:contacts offset:0 atIndex:8];[e setBuffer:coneWorking offset:0 atIndex:9];[e setBuffer:coneTargets offset:0 atIndex:10];
         [e dispatchThreads:MTLSizeMake(2,1,1) threadsPerThreadgroup:MTLSizeMake(2,1,1)];[e endEncoding];complete(cb);
         const auto* out=static_cast<const float*>(candidate.contents);const auto* h=static_cast<const nm_float4*>(histories.contents);
         for(unsigned env=0;env<2;++env) {
             const float a=expectedAlpha[env];
             require(out[env]==2+8*a,"rigid candidate bypassed shared environment alpha");
             if(a==0)require(std::memcmp(h+env,initial.data()+env,sizeof(nm_float4))==0,"deferred support history changed");
-            else require(h[env].x==1+8*a&&h[env].y==2+12*a&&h[env].z==0&&h[env].w==7+16*a,"support impulse bypassed shared environment alpha");
+            else require(h[env].x==1+8*a&&h[env].y==2+12*a&&h[env].z==0&&h[env].w==4+16*a,"support impulse bypassed shared environment alpha");
+            require(static_cast<const NMMatterStatusGPU*>(statuses.contents)[env].code==0,"shared support alpha failed closed unexpectedly");
         }
     }
     std::cout<<"cardiac_shared_alpha=pass objectless_rigid_support=pass deferral=exact fractional=pass nonvascular_baseline=pass object_baseline=pass\n";
+}
+void supportConstrainedSharedAlpha(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
+    NMMatterDispatchGPU dispatch{};dispatch.environmentCount=2;dispatch.objectCount=1;
+    NMFGMRESLayoutGPU layout{};layout.supportContactCount=1;layout.supportBase=0;layout.unknownCount=2;
+    NMHumanSupportDispatchGPU support{};support.contactCount=1;support.groundNormal={0,0,1,0};
+    NMHumanSupportContactGPU contact{};contact.frictionSlopAndStabilization.x=1;auto contacts=buffer(device,std::vector<NMHumanSupportContactGPU>{contact});
+    const std::vector<nm_float4> initial={{1,0,0,2},{0,1,0,1}};
+    auto histories=buffer(device,initial),solution=buffer(device,std::vector<nm_float4>(2,nm_float4{9,9,9,0}));
+    auto working=buffer(device,std::vector<std::uint32_t>{1,1}),changed=buffer(device,std::vector<std::uint32_t>(2));
+    auto coneWorking=buffer(device,std::vector<std::uint32_t>(2)),coneTargets=buffer(device,std::vector<nm_float4>(2));
+    auto lines=buffer(device,std::vector<nm_float4>{{.5f,2,3,4},{1,2,3,4}}),alpha=buffer(device,std::vector<float>(2,-1));
+    auto statuses=buffer(device,std::vector<NMMatterStatusGPU>(2));
+    auto cb=[queue commandBuffer];auto e=[cb computeCommandEncoder];
+    [e setComputePipelineState:pipeline(device,library,@"numi_matter_metal::nm_human_support_resolve_working_set")];
+    [e setBytes:&dispatch length:sizeof(dispatch) atIndex:0];[e setBytes:&layout length:sizeof(layout) atIndex:30];[e setBytes:&support length:sizeof(support) atIndex:1];[e setBuffer:solution offset:0 atIndex:2];[e setBuffer:histories offset:0 atIndex:3];[e setBuffer:working offset:0 atIndex:4];[e setBuffer:changed offset:0 atIndex:5];[e setBuffer:statuses offset:0 atIndex:6];[e setBuffer:contacts offset:0 atIndex:7];[e setBuffer:coneWorking offset:0 atIndex:8];[e setBuffer:coneTargets offset:0 atIndex:9];
+    [e dispatchThreadgroups:MTLSizeMake(2,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+    [e setComputePipelineState:pipeline(device,library,@"numi_matter_metal::nm_human_support_limit_line_search")];
+    [e setBytes:&dispatch length:sizeof(dispatch) atIndex:0];[e setBytes:&layout length:sizeof(layout) atIndex:30];[e setBytes:&support length:sizeof(support) atIndex:1];[e setBuffer:solution offset:0 atIndex:2];[e setBuffer:histories offset:0 atIndex:3];[e setBuffer:lines offset:0 atIndex:4];[e setBuffer:alpha offset:0 atIndex:5];[e setBuffer:statuses offset:0 atIndex:6];[e setBuffer:working offset:0 atIndex:7];[e setBuffer:changed offset:0 atIndex:8];[e setBuffer:contacts offset:0 atIndex:9];[e setBuffer:coneWorking offset:0 atIndex:10];[e setBuffer:coneTargets offset:0 atIndex:11];
+    [e dispatchThreadgroups:MTLSizeMake(2,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+    [e setComputePipelineState:pipeline(device,library,@"numi_matter_metal::nm_human_support_apply_solution")];
+    [e setBytes:&dispatch length:sizeof(dispatch) atIndex:0];[e setBytes:&layout length:sizeof(layout) atIndex:30];[e setBytes:&support length:sizeof(support) atIndex:1];[e setBuffer:solution offset:0 atIndex:2];[e setBuffer:alpha offset:0 atIndex:3];[e setBuffer:histories offset:0 atIndex:4];[e setBuffer:working offset:0 atIndex:5];[e setBuffer:changed offset:0 atIndex:6];[e setBuffer:statuses offset:0 atIndex:7];[e setBuffer:contacts offset:0 atIndex:8];[e setBuffer:coneWorking offset:0 atIndex:9];[e setBuffer:coneTargets offset:0 atIndex:10];
+    [e dispatchThreads:MTLSizeMake(2,1,1) threadsPerThreadgroup:MTLSizeMake(2,1,1)];[e endEncoding];complete(cb);
+    const auto* s=static_cast<const nm_float4*>(solution.contents);const auto* h=static_cast<const nm_float4*>(histories.contents);const auto* mask=static_cast<const std::uint32_t*>(working.contents);
+    require(s[0].x==-1&&s[0].y==0&&s[0].z==-2&&s[1].x==0&&s[1].y==-1&&s[1].z==-1,"constrained support solve did not use exact full -impulse");
+    require(h[0].x==.5f&&h[0].y==0&&h[0].z==0&&h[0].w==1&&mask[0]==2,"partial object alpha did not scale full constrained impulse coherently");
+    const nm_float4 zero{};require(std::memcmp(h+1,&zero,sizeof(zero))==0&&mask[1]==2,"full constrained step did not publish canonical zero");
+    const auto* status=static_cast<const NMMatterStatusGPU*>(statuses.contents);require(status[0].code==0&&status[1].code==0,"constrained support shared-alpha solve failed");
+    std::cout<<"cardiac_support_constrained_alpha=pass full_impulse=coherent partial_object_alpha=shared exact_zero=canonical state2=solved\n";
+}
+void supportConeIntersection(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
+    NMMatterDispatchGPU dispatch{};dispatch.environmentCount=2;dispatch.objectCount=1;
+    NMFGMRESLayoutGPU layout{};layout.supportContactCount=1;layout.supportBase=0;layout.unknownCount=2;
+    NMHumanSupportDispatchGPU support{};support.contactCount=1;support.groundNormal={0,0,1,0};
+    NMHumanSupportContactGPU contact{};contact.frictionSlopAndStabilization.x=.5f;auto contacts=buffer(device,std::vector<NMHumanSupportContactGPU>{contact});
+    auto histories=buffer(device,std::vector<nm_float4>{{0,0,0,1},{.25f,0,0,1}}),solution=buffer(device,std::vector<nm_float4>{{1,0,0,0},{.1f,0,0,0}});
+    auto working=buffer(device,std::vector<std::uint32_t>(2)),changed=buffer(device,std::vector<std::uint32_t>(2)),statuses=buffer(device,std::vector<NMMatterStatusGPU>(2));
+    auto coneWorking=buffer(device,std::vector<std::uint32_t>(2)),coneTargets=buffer(device,std::vector<nm_float4>(2));
+    auto lines=buffer(device,std::vector<nm_float4>{{.8f,2,3,4},{.4f,2,3,4}}),alpha=buffer(device,std::vector<float>(2,-1));
+    auto cb=[queue commandBuffer];auto e=[cb computeCommandEncoder];[e setComputePipelineState:pipeline(device,library,@"numi_matter_metal::nm_human_support_limit_line_search")];
+    [e setBytes:&dispatch length:sizeof(dispatch) atIndex:0];[e setBytes:&layout length:sizeof(layout) atIndex:30];[e setBytes:&support length:sizeof(support) atIndex:1];[e setBuffer:solution offset:0 atIndex:2];[e setBuffer:histories offset:0 atIndex:3];[e setBuffer:lines offset:0 atIndex:4];[e setBuffer:alpha offset:0 atIndex:5];[e setBuffer:statuses offset:0 atIndex:6];[e setBuffer:working offset:0 atIndex:7];[e setBuffer:changed offset:0 atIndex:8];[e setBuffer:contacts offset:0 atIndex:9];[e setBuffer:coneWorking offset:0 atIndex:10];[e setBuffer:coneTargets offset:0 atIndex:11];
+    [e dispatchThreadgroups:MTLSizeMake(2,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+    [e setComputePipelineState:pipeline(device,library,@"numi_matter_metal::nm_human_support_apply_solution")];[e setBytes:&dispatch length:sizeof(dispatch) atIndex:0];[e setBytes:&layout length:sizeof(layout) atIndex:30];[e setBytes:&support length:sizeof(support) atIndex:1];[e setBuffer:solution offset:0 atIndex:2];[e setBuffer:alpha offset:0 atIndex:3];[e setBuffer:histories offset:0 atIndex:4];[e setBuffer:working offset:0 atIndex:5];[e setBuffer:changed offset:0 atIndex:6];[e setBuffer:statuses offset:0 atIndex:7];[e setBuffer:contacts offset:0 atIndex:8];[e setBuffer:coneWorking offset:0 atIndex:9];[e setBuffer:coneTargets offset:0 atIndex:10];
+    [e dispatchThreads:MTLSizeMake(2,1,1) threadsPerThreadgroup:MTLSizeMake(2,1,1)];[e endEncoding];complete(cb);
+    const auto* a=static_cast<const float*>(alpha.contents);const auto* h=static_cast<const nm_float4*>(histories.contents);const auto* status=static_cast<const NMMatterStatusGPU*>(statuses.contents);
+    require(a[0]==.5f&&h[0].x==.5f&&h[0].w==1,"shared support step did not land on the exact Coulomb-disk intersection");
+    require(a[1]==.4f&&std::abs(h[1].x-.29f)<1e-7f&&h[1].w==1,"object alpha did not remain authoritative inside the support cone");
+    require(status[0].code==0&&status[1].code==0,"support cone intersection rejected a finite feasible path");
+    std::cout<<"cardiac_support_cone_intersection=pass shared_alpha=boundary object_alpha=interior no_dual_projection=true\n";
+}
+void supportConeWorkingSetPivot(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
+    NMMatterDispatchGPU dispatch{};dispatch.environmentCount=4;dispatch.objectCount=1;
+    NMFGMRESLayoutGPU layout{};layout.supportContactCount=1;layout.supportBase=0;layout.unknownCount=4;
+    NMHumanSupportDispatchGPU support{};support.contactCount=1;support.groundNormal={0,0,1,0};
+    NMHumanSupportContactGPU contact{};contact.frictionSlopAndStabilization.x=.5f;auto contacts=buffer(device,std::vector<NMHumanSupportContactGPU>{contact});
+    const std::vector<nm_float4> initial={{0,0,0,0},{.5f,0,0,1},{.5f,0,0,1},{.25f,0,0,1}};
+    auto histories=buffer(device,initial),solution=buffer(device,std::vector<nm_float4>{{1,0,1,0},{.2f,0,.2f,0},{.2f,0,.2f,0},{.1f,0,0,0}});
+    auto working=buffer(device,std::vector<std::uint32_t>(4)),coneWorking=buffer(device,std::vector<std::uint32_t>(4));
+    auto coneTargets=buffer(device,std::vector<nm_float4>(4)),changed=buffer(device,std::vector<std::uint32_t>(4));
+    auto statuses=buffer(device,std::vector<NMMatterStatusGPU>(4));
+    auto lines=buffer(device,std::vector<nm_float4>{{1,2,3,4},{.5f,2,3,4},{1,2,3,4},{.75f,2,3,4}}),alpha=buffer(device,std::vector<float>(4,-1));
+    auto resolve=[&]{auto cb=[queue commandBuffer];auto e=[cb computeCommandEncoder];[e setComputePipelineState:pipeline(device,library,@"numi_matter_metal::nm_human_support_resolve_working_set")];
+        [e setBytes:&dispatch length:sizeof(dispatch) atIndex:0];[e setBytes:&layout length:sizeof(layout) atIndex:30];[e setBytes:&support length:sizeof(support) atIndex:1];[e setBuffer:solution offset:0 atIndex:2];[e setBuffer:histories offset:0 atIndex:3];[e setBuffer:working offset:0 atIndex:4];[e setBuffer:changed offset:0 atIndex:5];[e setBuffer:statuses offset:0 atIndex:6];[e setBuffer:contacts offset:0 atIndex:7];[e setBuffer:coneWorking offset:0 atIndex:8];[e setBuffer:coneTargets offset:0 atIndex:9];
+        [e dispatchThreadgroups:MTLSizeMake(4,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];[e endEncoding];complete(cb);};
+    auto limitAndApply=[&]{auto cb=[queue commandBuffer];auto e=[cb computeCommandEncoder];[e setComputePipelineState:pipeline(device,library,@"numi_matter_metal::nm_human_support_limit_line_search")];
+        [e setBytes:&dispatch length:sizeof(dispatch) atIndex:0];[e setBytes:&layout length:sizeof(layout) atIndex:30];[e setBytes:&support length:sizeof(support) atIndex:1];[e setBuffer:solution offset:0 atIndex:2];[e setBuffer:histories offset:0 atIndex:3];[e setBuffer:lines offset:0 atIndex:4];[e setBuffer:alpha offset:0 atIndex:5];[e setBuffer:statuses offset:0 atIndex:6];[e setBuffer:working offset:0 atIndex:7];[e setBuffer:changed offset:0 atIndex:8];[e setBuffer:contacts offset:0 atIndex:9];[e setBuffer:coneWorking offset:0 atIndex:10];[e setBuffer:coneTargets offset:0 atIndex:11];
+        [e dispatchThreadgroups:MTLSizeMake(4,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+        [e setComputePipelineState:pipeline(device,library,@"numi_matter_metal::nm_human_support_apply_solution")];[e setBytes:&dispatch length:sizeof(dispatch) atIndex:0];[e setBytes:&layout length:sizeof(layout) atIndex:30];[e setBytes:&support length:sizeof(support) atIndex:1];[e setBuffer:solution offset:0 atIndex:2];[e setBuffer:alpha offset:0 atIndex:3];[e setBuffer:histories offset:0 atIndex:4];[e setBuffer:working offset:0 atIndex:5];[e setBuffer:changed offset:0 atIndex:6];[e setBuffer:statuses offset:0 atIndex:7];[e setBuffer:contacts offset:0 atIndex:8];[e setBuffer:coneWorking offset:0 atIndex:9];[e setBuffer:coneTargets offset:0 atIndex:10];
+        [e dispatchThreads:MTLSizeMake(4,1,1) threadsPerThreadgroup:MTLSizeMake(4,1,1)];[e endEncoding];complete(cb);};
+    resolve();
+    const auto* firstModes=static_cast<const std::uint32_t*>(coneWorking.contents);const auto* firstFlags=static_cast<const std::uint32_t*>(changed.contents);const auto* firstTargets=static_cast<const nm_float4*>(coneTargets.contents);const auto* discarded=static_cast<const nm_float4*>(solution.contents);
+    for(unsigned env=0;env<3;++env){const float margin=.5f*firstTargets[env].w-std::sqrt(firstTargets[env].x*firstTargets[env].x+firstTargets[env].y*firstTargets[env].y+firstTargets[env].z*firstTargets[env].z);require(firstModes[env]==1&&firstFlags[env]==1&&margin>=0&&margin<1e-6f,"support cone pivot missed an exact feasible boundary target");require(discarded[env].x==0&&discarded[env].y==0&&discarded[env].z==0,"support cone pivot did not discard the rejected direction");}
+    require(firstTargets[0].w==1&&firstTargets[1].w==1.2f&&firstTargets[2].w==1.2f,"support cone pivot changed the solved normal");
+    require(firstModes[3]==0&&firstFlags[3]==0&&discarded[3].x==.1f,"support cone pivot contaminated an interior environment");
+    std::memset(changed.contents,0,4*sizeof(std::uint32_t));const std::vector<nm_float4> arbitrary={{9,8,7,0},{9,8,7,0},{9,8,7,0},{0,0,0,0}};std::memcpy(solution.contents,arbitrary.data(),arbitrary.size()*sizeof(nm_float4));resolve();limitAndApply();
+    const auto* h=static_cast<const nm_float4*>(histories.contents);const auto* modes=static_cast<const std::uint32_t*>(coneWorking.contents);const auto* targets=static_cast<const nm_float4*>(coneTargets.contents);
+    require(modes[0]==2&&modes[1]==1&&modes[2]==2&&modes[3]==0,"support cone target ignored shared-alpha completion state");
+    require(std::memcmp(h+0,targets+0,sizeof(nm_float4))==0&&std::memcmp(h+2,targets+2,sizeof(nm_float4))==0,"full cone-target solve did not publish its exact selected impulse");
+    require(h[1].w>initial[1].w&&h[1].w<targets[1].w&&.5f*h[1].w-std::sqrt(h[1].x*h[1].x+h[1].y*h[1].y+h[1].z*h[1].z)>=0,"partial shared alpha left the cone-target segment");
+    std::vector<NMContactSampleGPU> samples(4);for(unsigned env=0;env<4;++env){samples[env].identity.w=NM_CONTACT_VALID;samples[env].impulseAndNormal={h[env].x,h[env].y,h[env].w,h[env].w};}
+    std::vector<NMHumanSupportKKTGPU> natural(4);for(auto& k:natural){k.residual={3,4,5,0};k.projectionRow0={1,0,0,0};k.projectionRow1={0,1,0,0};k.projectionRow2={0,0,1,0};}
+    auto sampleBuffer=buffer(device,samples),kkt=buffer(device,natural),residual=buffer(device,std::vector<nm_float4>(4,nm_float4{3,4,5,0}));NMMicrostepGPU micro{};micro.solverIteration=2;
+    auto select=[&]{auto cb=[queue commandBuffer];auto e=[cb computeCommandEncoder];[e setComputePipelineState:pipeline(device,library,@"numi_matter_metal::nm_human_support_select_working_set")];[e setBytes:&dispatch length:sizeof(dispatch) atIndex:0];[e setBytes:&support length:sizeof(support) atIndex:1];[e setBytes:&micro length:sizeof(micro) atIndex:2];[e setBuffer:sampleBuffer offset:0 atIndex:3];[e setBuffer:histories offset:0 atIndex:4];[e setBuffer:kkt offset:0 atIndex:5];[e setBuffer:residual offset:0 atIndex:6];[e setBuffer:working offset:0 atIndex:7];[e setBuffer:statuses offset:0 atIndex:8];[e setBuffer:coneWorking offset:0 atIndex:9];[e setBuffer:coneTargets offset:0 atIndex:10];[e setBytes:&layout length:sizeof(layout) atIndex:30];[e dispatchThreads:MTLSizeMake(4,1,1) threadsPerThreadgroup:MTLSizeMake(4,1,1)];[e endEncoding];complete(cb);};
+    select();require(static_cast<const std::uint32_t*>(coneWorking.contents)[0]==0&&static_cast<const std::uint32_t*>(coneWorking.contents)[1]==1&&static_cast<const std::uint32_t*>(coneWorking.contents)[2]==0,"completed cone target did not return to the natural law");
+    std::memset(changed.contents,0,4*sizeof(std::uint32_t));std::memset(solution.contents,0,4*sizeof(nm_float4));resolve();for(unsigned env=0;env<4;++env)static_cast<nm_float4*>(lines.contents)[env].x=1;limitAndApply();
+    h=static_cast<const nm_float4*>(histories.contents);samples=std::vector<NMContactSampleGPU>(4);for(unsigned env=0;env<4;++env){samples[env].identity.w=NM_CONTACT_VALID;samples[env].impulseAndNormal={h[env].x,h[env].y,h[env].w,h[env].w};}std::memcpy(sampleBuffer.contents,samples.data(),samples.size()*sizeof(NMContactSampleGPU));select();
+    const auto* finalModes=static_cast<const std::uint32_t*>(coneWorking.contents);const auto* status=static_cast<const NMMatterStatusGPU*>(statuses.contents);for(unsigned env=0;env<4;++env){require(finalModes[env]==0,"cone-target pivot did not terminate back on the natural equation");require(status[env].code==0,"cone-target pivot rejected a finite case");}
+    std::cout<<"cardiac_support_cone_working_set=pass apex_sliding=resolved warm_sliding=resolved shared_alpha=preserved full_direction=resolved environment_isolation=pass\n";
+}
+void supportWorkingSetRelease(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
+    NMMatterDispatchGPU dispatch{};dispatch.environmentCount=3;
+    NMFGMRESLayoutGPU layout{};layout.supportContactCount=1;layout.supportBase=0;layout.unknownCount=3;
+    NMHumanSupportDispatchGPU support{};support.contactCount=1;support.groundNormal={0,0,1,0};
+    NMHumanSupportContactGPU contact{};contact.frictionSlopAndStabilization.x=1;auto contacts=buffer(device,std::vector<NMHumanSupportContactGPU>{contact});
+    NMMicrostepGPU micro{};micro.solverIteration=1;
+    std::vector<NMContactSampleGPU> samples(3);for(auto& sample:samples)sample.identity.w=NM_CONTACT_VALID;
+    samples[0].admissionVelocityAndNormal.w=-.1f;samples[1].admissionVelocityAndNormal.w=.1f;samples[2].admissionVelocityAndNormal.w=-.1f;
+    samples[2].impulseAndNormal={.2f,0,.1f,.1f};
+    std::vector<NMHumanSupportKKTGPU> initialKKT(3);for(auto& kkt:initialKKT){kkt.residual={1,2,3,0};kkt.projectionRow0={1,0,0,0};kkt.projectionRow1={0,1,0,0};kkt.projectionRow2={0,0,1,0};}
+    auto sampleBuffer=buffer(device,samples),histories=buffer(device,std::vector<nm_float4>{{0,0,0,0},{0,0,0,0},{.2f,0,0,.1f}});
+    auto kkt=buffer(device,initialKKT),residual=buffer(device,std::vector<nm_float4>(3,nm_float4{1,2,3,0}));
+    auto working=buffer(device,std::vector<std::uint32_t>{2,2,1}),changed=buffer(device,std::vector<std::uint32_t>(3));
+    auto coneWorking=buffer(device,std::vector<std::uint32_t>(3)),coneTargets=buffer(device,std::vector<nm_float4>(3));
+    auto statuses=buffer(device,std::vector<NMMatterStatusGPU>(3));
+    auto cb=[queue commandBuffer];auto e=[cb computeCommandEncoder];
+    [e setComputePipelineState:pipeline(device,library,@"numi_matter_metal::nm_human_support_select_working_set")];
+    [e setBytes:&dispatch length:sizeof(dispatch) atIndex:0];[e setBytes:&support length:sizeof(support) atIndex:1];[e setBytes:&micro length:sizeof(micro) atIndex:2];[e setBuffer:sampleBuffer offset:0 atIndex:3];[e setBuffer:histories offset:0 atIndex:4];[e setBuffer:kkt offset:0 atIndex:5];[e setBuffer:residual offset:0 atIndex:6];[e setBuffer:working offset:0 atIndex:7];[e setBuffer:statuses offset:0 atIndex:8];[e setBuffer:coneWorking offset:0 atIndex:9];[e setBuffer:coneTargets offset:0 atIndex:10];[e setBytes:&layout length:sizeof(layout) atIndex:30];
+    [e dispatchThreads:MTLSizeMake(3,1,1) threadsPerThreadgroup:MTLSizeMake(3,1,1)];[e endEncoding];complete(cb);
+    const auto* maskAfterSelect=static_cast<const std::uint32_t*>(working.contents);const auto* r=static_cast<const nm_float4*>(residual.contents);const auto* l=static_cast<const NMHumanSupportKKTGPU*>(kkt.contents);
+    require(maskAfterSelect[0]==0&&r[0].x==1&&l[0].projectionRow2.z==1,"solved zero support failed to release on violated inactive inequality");
+    require(maskAfterSelect[1]==2&&r[1].x==0&&l[1].projectionRow0.x==0,"feasible solved inactive support row released or retained a derivative");
+    require(maskAfterSelect[2]==1&&r[2].x==-.2f&&r[2].z==-.1f&&l[2].projectionRow0.x==0,"pending support row bypassed its constrained full-impulse solve");
+    auto solution=buffer(device,std::vector<nm_float4>{{0,0,-.1f,0},{7,8,9,0},{4,5,6,0}});
+    cb=[queue commandBuffer];e=[cb computeCommandEncoder];[e setComputePipelineState:pipeline(device,library,@"numi_matter_metal::nm_human_support_resolve_working_set")];
+    [e setBytes:&dispatch length:sizeof(dispatch) atIndex:0];[e setBytes:&layout length:sizeof(layout) atIndex:30];[e setBytes:&support length:sizeof(support) atIndex:1];[e setBuffer:solution offset:0 atIndex:2];[e setBuffer:histories offset:0 atIndex:3];[e setBuffer:working offset:0 atIndex:4];[e setBuffer:changed offset:0 atIndex:5];[e setBuffer:statuses offset:0 atIndex:6];[e setBuffer:contacts offset:0 atIndex:7];[e setBuffer:coneWorking offset:0 atIndex:8];[e setBuffer:coneTargets offset:0 atIndex:9];
+    [e dispatchThreadgroups:MTLSizeMake(3,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];[e endEncoding];complete(cb);
+    const auto* flags=static_cast<const std::uint32_t*>(changed.contents);const auto* out=static_cast<const nm_float4*>(solution.contents);const auto* mask=static_cast<const std::uint32_t*>(working.contents);
+    require(mask[0]==1&&flags[0]==1,"released support row did not reactivate through a fresh free solve");
+    require(mask[1]==2&&flags[1]==0&&out[1].x==0&&out[1].y==0&&out[1].z==0,"support release contaminated a feasible inactive environment");
+    require(mask[2]==1&&flags[2]==0&&out[2].x==-.2f&&out[2].y==0&&out[2].z==-.1f,"pending support row did not receive exact constrained direction");
+    const auto* status=static_cast<const NMMatterStatusGPU*>(statuses.contents);for(unsigned env=0;env<3;++env)require(status[env].code==0,"support release/reactivation failed");
+    std::cout<<"cardiac_support_release=pass exact_zero_and_violated_inequality=released pending_row=retained reactivation=fresh_solve environment_isolation=pass\n";
+}
+void supportMonolithicDeferral(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
+    NMMatterDispatchGPU dispatch{};dispatch.environmentCount=2;dispatch.femNodeCount=1;dispatch.mpmActiveNodeCapacity=1;dispatch.rigidGeneralizedCapacity=1;
+    NMFGMRESLayoutGPU layout{};layout.supportContactCount=1;layout.supportBase=8;layout.vascularUnknownCount=1;layout.vascularBase=10;layout.unknownCount=12;
+    NMHumanSupportDispatchGPU support{};support.contactCount=1;support.groundNormal={0,0,1,0};
+    NMHumanSupportContactGPU contact{};contact.frictionSlopAndStabilization.x=1;auto contacts=buffer(device,std::vector<NMHumanSupportContactGPU>{contact});
+    const std::vector<nm_float4> before(12,nm_float4{.125f,.25f,.5f,1});auto direction=before;direction[8]={0,0,-1,0};direction[9]={0,0,1,0};
+    auto solution=buffer(device,direction),histories=buffer(device,std::vector<nm_float4>{{0,0,0,0},{0,0,0,1}}),working=buffer(device,std::vector<std::uint32_t>(2)),changed=buffer(device,std::vector<std::uint32_t>(2)),statuses=buffer(device,std::vector<NMMatterStatusGPU>(2));
+    auto coneWorking=buffer(device,std::vector<std::uint32_t>(2)),coneTargets=buffer(device,std::vector<nm_float4>(2));
+    auto cb=[queue commandBuffer];auto e=[cb computeCommandEncoder];[e setComputePipelineState:pipeline(device,library,@"numi_matter_metal::nm_human_support_resolve_working_set")];
+    [e setBytes:&dispatch length:sizeof(dispatch) atIndex:0];[e setBytes:&layout length:sizeof(layout) atIndex:30];[e setBytes:&support length:sizeof(support) atIndex:1];[e setBuffer:solution offset:0 atIndex:2];[e setBuffer:histories offset:0 atIndex:3];[e setBuffer:working offset:0 atIndex:4];[e setBuffer:changed offset:0 atIndex:5];[e setBuffer:statuses offset:0 atIndex:6];[e setBuffer:contacts offset:0 atIndex:7];[e setBuffer:coneWorking offset:0 atIndex:8];[e setBuffer:coneTargets offset:0 atIndex:9];
+    [e dispatchThreadgroups:MTLSizeMake(2,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];[e endEncoding];complete(cb);
+    const auto* out=static_cast<const nm_float4*>(solution.contents);const auto* flags=static_cast<const std::uint32_t*>(changed.contents);const nm_float4 zero{};
+    const std::array<unsigned,6> cleared={0,2,4,6,8,10};for(unsigned i=0;i<12;++i){const bool reset=std::find(cleared.begin(),cleared.end(),i)!=cleared.end();require(std::memcmp(out+i,reset?&zero:direction.data()+i,sizeof(nm_float4))==0,"support pivot did not discard exactly one environment's monolithic direction");}
+    require(flags[0]==1&&flags[1]==0,"support monolithic deferral contaminated another environment");
+    std::cout<<"cardiac_support_monolithic_deferral=pass fem_mpm_rigid_support_vascular=zero environment_isolation=pass\n";
+}
+void supportConeCertificate(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
+    NMMatterDispatchGPU dispatch{};dispatch.environmentCount=4;
+    NMFGMRESLayoutGPU layout{};layout.supportContactCount=2;layout.supportBase=0;layout.unknownCount=8;
+    NMHumanSupportDispatchGPU support{};support.contactCount=2;support.groundNormal={0,0,1,0};
+    NMMixedSolverGPU solver{};solver.regularization.x=1e-4f;solver.residualTolerances.x=1e-4f;
+    std::vector<NMHumanSupportContactGPU> contacts(2);contacts[0].frictionSlopAndStabilization.x=0;contacts[1].frictionSlopAndStabilization.x=.5f;
+    auto contactBuffer=buffer(device,contacts),residual=buffer(device,std::vector<nm_float4>(8));auto states=buffer(device,std::vector<NMFGMRESStateGPU>(4));auto statuses=buffer(device,std::vector<NMMatterStatusGPU>(4));
+    auto histories=buffer(device,std::vector<nm_float4>{{0,0,0,1},{.5f,0,0,1},{1e-3f,0,0,1},{.5f,0,0,1},{0,0,0,1},{.501f,0,0,1},{0,0,0,-1},{0,0,0,1}});
+    auto cb=[queue commandBuffer];auto e=[cb computeCommandEncoder];[e setComputePipelineState:pipeline(device,library,@"numi_matter_metal::nm_human_support_certify")];
+    [e setBytes:&dispatch length:sizeof(dispatch) atIndex:0];[e setBytes:&layout length:sizeof(layout) atIndex:30];[e setBytes:&solver length:sizeof(solver) atIndex:1];[e setBuffer:residual offset:0 atIndex:2];[e setBuffer:states offset:0 atIndex:3];[e setBuffer:statuses offset:0 atIndex:4];[e setBuffer:histories offset:0 atIndex:5];[e setBytes:&support length:sizeof(support) atIndex:6];[e setBuffer:contactBuffer offset:0 atIndex:7];
+    [e dispatchThreadgroups:MTLSizeMake(4,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];[e endEncoding];complete(cb);
+    const auto* status=static_cast<const NMMatterStatusGPU*>(statuses.contents);require(status[0].code==0,"valid zero-friction and Coulomb-boundary histories failed certification");require(status[1].code==NM_STATUS_CONTACT_FAILURE&&status[1].failingIndex==0,"mu=0 retained a tangential impulse");require(status[2].code==NM_STATUS_CONTACT_FAILURE&&status[2].failingIndex==1,"negative terminal Coulomb margin passed certification");require(status[3].code==NM_STATUS_CONTACT_FAILURE&&status[3].failingIndex==0,"negative normal tension passed certification");
+    std::cout<<"cardiac_support_cone_certificate=pass mu_zero=exact coulomb_margin=terminal normal_tension=forbidden\n";
 }
 void deferredDirection(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
     NMMatterDispatchGPU dispatch{};dispatch.environmentCount=2;dispatch.femNodeCount=1;dispatch.rigidGeneralizedCapacity=1;dispatch.mpmActiveNodeCapacity=1;
@@ -286,5 +454,5 @@ int main(){@autoreleasepool{try{
     require([[device name] rangeOfString:@"Apple"].location!=NSNotFound&&[[device name] rangeOfString:@"Paravirtual"].location==NSNotFound,"physical Apple Metal required");
     auto queue=[device newCommandQueue];NSError* error=nil;
     auto library=[device newLibraryWithURL:[NSURL fileURLWithPath:@NUMI_MATTER_METALLIB] error:&error];require(library!=nil,"Matter library unavailable");
-    regionalLaws(device,queue,library);waveform(device,queue,library);clockCarry(device,queue,library);supportFractionToBoundary(device,queue,library);sharedAlpha(device,queue,library);deferredDirection(device,queue,library);pendingZeroRelease(device,queue,library);return 0;
+    regionalLaws(device,queue,library);waveform(device,queue,library);clockCarry(device,queue,library);supportWorkingSetPivot(device,queue,library);sharedAlpha(device,queue,library);supportConstrainedSharedAlpha(device,queue,library);supportConeIntersection(device,queue,library);supportConeWorkingSetPivot(device,queue,library);supportWorkingSetRelease(device,queue,library);supportMonolithicDeferral(device,queue,library);supportConeCertificate(device,queue,library);deferredDirection(device,queue,library);pendingZeroRelease(device,queue,library);return 0;
 }catch(const std::exception& error){std::cerr<<"cardiac_transaction_check=failed reason="<<error.what()<<'\n';return 1;}}}

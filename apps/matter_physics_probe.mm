@@ -2073,6 +2073,8 @@ void runSutureProxyWindow() {
                 cookedNewtonBudget != 0u &&
                 runtime.fgmresIterationBudget() == cookedFGMRESBudget &&
                 !runtime.setFGMRESIterationBudget(fgmresRestart - 1u) &&
+                !runtime.setFGMRESIterationBudget(
+                    NM_MIXED_FGMRES_MAX_ITERATIONS + 1u) &&
                 runtime.setFGMRESIterationBudget(phaseFGMRESBudget) &&
                 runtime.fgmresIterationBudget() == phaseFGMRESBudget &&
                 runtime.newtonIterationBudget() == cookedNewtonBudget &&
@@ -3377,19 +3379,21 @@ void runHumanSupportLoaded() {
             const char* name;
             float mass, timestep, seed, gap, vx, vz, friction;
             unsigned rows;
+            bool mixedReleaseBoundary;
         };
         const Case cases[] = {
-            {"cold_97kg",97,0.0001f,0,0,0,0,0,1},
-            {"weight_seed_97kg",97,0.0001f,1,0,0,0,0,1},
-            {"double_seed_97kg",97,0.0001f,2,0,0,0,0,1},
-            {"redundant_six_cold",97,0.0001f,0,0,0,0,0,6},
-            {"redundant_six_double",97,0.0001f,2,0,0,0,0,6},
-            {"cold_1kg",1,0.0001f,0,0,0,0,0,1},
-            {"half_timestep",97,0.00005f,0,0,0,0,0,1},
-            {"airborne_double_seed",97,0.0001f,2,0.01f,0,0,0,1},
-            {"sticking",97,0.0001f,0,0,0.0001f,0.0002f,0.5f,1},
-            {"sliding",97,0.0001f,0,0,0.1f,0.2f,0.5f,1},
-            {"sliding_warm",97,0.0001f,2,0,0.1f,0.2f,0.5f,1},
+            {"cold_97kg",97,0.0001f,0,0,0,0,0,1,false},
+            {"weight_seed_97kg",97,0.0001f,1,0,0,0,0,1,false},
+            {"double_seed_97kg",97,0.0001f,2,0,0,0,0,1,false},
+            {"redundant_six_cold",97,0.0001f,0,0,0,0,0,6,false},
+            {"redundant_six_double",97,0.0001f,2,0,0,0,0,6,false},
+            {"cold_1kg",1,0.0001f,0,0,0,0,0,1,false},
+            {"half_timestep",97,0.00005f,0,0,0,0,0,1,false},
+            {"airborne_double_seed",97,0.0001f,2,0.01f,0,0,0,1,false},
+            {"release_boundary_mixed",97,0.0001f,0,0.01f,0,0,0,1,true},
+            {"sticking",97,0.0001f,0,0,0.0001f,0.0002f,0.5f,1,false},
+            {"sliding",97,0.0001f,0,0,0.1f,0.2f,0.5f,1,false},
+            {"sliding_warm",97,0.0001f,2,0,0.1f,0.2f,0.5f,1,false},
         };
         for (const auto c : cases) {
             auto material = numi::matter::parseMatterFile(NUMI_MATTER_MATERIAL);
@@ -3440,8 +3444,14 @@ void runHumanSupportLoaded() {
                 configuredInitialHistories.resize(environments*c.rows);
                 for (unsigned env=0;env<environments;++env)
                     for (unsigned row=0;row<c.rows;++row)
-                        configuredInitialHistories[env*c.rows+row] =
-                            {0,0,0,(c.seed+env)*weight/c.rows};
+                        configuredInitialHistories[env*c.rows+row] = {0,0,0,
+                            c.mixedReleaseBoundary
+                                ? (env == 0u
+                                    ? 0.0f
+                                    : (env == 1u
+                                        ? weight * std::numeric_limits<float>::epsilon()
+                                        : weight))
+                                : (c.seed+env)*weight/c.rows};
             }
             numi::matter::Runtime matter;
             const numi::matter::RuntimeConfiguration runtimeConfiguration{
@@ -3635,7 +3645,11 @@ void runHumanSupportLoaded() {
             config.devicePhysicsProgram = numi::matter::makeMetalWorldDevicePhysicsProgram(matter);
             std::vector<float> initialQ,initialV;
             for (unsigned env=0;env<environments;++env) {
-                initialQ.insert(initialQ.end(),model.defaultQ.begin(),model.defaultQ.end());
+                auto environmentQ = model.defaultQ;
+                if (c.mixedReleaseBoundary && env == 2u) {
+                    environmentQ[1] = 0.0f;
+                }
+                initialQ.insert(initialQ.end(),environmentQ.begin(),environmentQ.end());
                 initialV.insert(initialV.end(),model.defaultV.begin(),model.defaultV.end());
             }
             efforts.resize(environments*rigidWorld.nv(),0);
@@ -3674,6 +3688,55 @@ void runHumanSupportLoaded() {
                 << ',' << status.diagnostics.w << " message=" << run.message << '\n';
             require(run.succeeded(), "support loaded transaction failed");
             const auto accepted = matter.snapshot();
+            require(accepted.available &&
+                accepted.humanSupportHistories.size() == environments*c.rows,
+                "support accepted snapshot missing histories");
+            for (unsigned env=0;env<environments;++env) {
+                for (unsigned row=0;row<c.rows;++row) {
+                    const auto& history =
+                        accepted.humanSupportHistories[env*c.rows+row];
+                    const double tangentProjection = history.y;
+                    const double tangentMagnitude = std::sqrt(
+                        static_cast<double>(history.x) * history.x +
+                        static_cast<double>(history.y) * history.y +
+                        static_cast<double>(history.z) * history.z);
+                    const double coneRadius =
+                        static_cast<double>(c.friction) * history.w;
+                    const double coneTolerance = 8.0 *
+                        std::numeric_limits<float>::epsilon() *
+                        std::max(1.0, static_cast<double>(history.w));
+                    require(std::isfinite(history.x) &&
+                        std::isfinite(history.y) &&
+                        std::isfinite(history.z) &&
+                        std::isfinite(history.w) && history.w >= 0.0f &&
+                        std::abs(tangentProjection) <= coneTolerance &&
+                        tangentMagnitude <= coneRadius + coneTolerance,
+                        "support accepted a tensile or off-cone history");
+                }
+            }
+            if (c.mixedReleaseBoundary) {
+                require(checkpoint.humanSupportHistories[0].w == 0.0f &&
+                    checkpoint.humanSupportHistories[1].w > 0.0f &&
+                    checkpoint.humanSupportHistories[1].w < weight*1.0e-6f &&
+                    checkpoint.humanSupportHistories[2].w == weight,
+                    "support release boundary fixture lost zero/tiny/loaded seeds");
+                require(accepted.humanSupportHistories[0].x == 0.0f &&
+                    accepted.humanSupportHistories[0].y == 0.0f &&
+                    accepted.humanSupportHistories[0].z == 0.0f &&
+                    accepted.humanSupportHistories[0].w == 0.0f &&
+                    accepted.humanSupportHistories[1].x == 0.0f &&
+                    accepted.humanSupportHistories[1].y == 0.0f &&
+                    accepted.humanSupportHistories[1].z == 0.0f &&
+                    accepted.humanSupportHistories[1].w == 0.0f,
+                    "support release did not converge zero/tiny histories to exact zero");
+                require(accepted.humanSupportHistories[2].w > 0.0f,
+                    "support release leaked across environments into loaded support");
+                std::cout <<
+                    "SUPPORT_RELEASE_BOUNDARY zero=0 tiny=" <<
+                    checkpoint.humanSupportHistories[1].w <<
+                    " released=1 loaded=" <<
+                    accepted.humanSupportHistories[2].w << '\n';
+            }
             for (unsigned env=0;env<environments;++env) {
                 const auto row=accepted.humanSupportConsequences[env*c.rows];
                 std::cout<<"SUPPORT_GEOMETRY env="<<env<<" point="<<row.pointAndSeparation.x<<','
@@ -3688,7 +3751,9 @@ void runHumanSupportLoaded() {
                 tangentX += row.impulseAndNormal.x;
                 tangentZ += row.impulseAndNormal.z;
             }
-            const double expectedNormal = c.gap==0 ? weight : 0;
+            const bool loadedEnvironment = c.gap == 0 ||
+                (c.mixedReleaseBoundary && env == 2u);
+            const double expectedNormal = loadedEnvironment ? weight : 0;
             const double speed = std::hypot(c.vx,c.vz);
             const double expectedTangent = std::min(c.mass*speed,c.friction*expectedNormal);
             const double tx = speed>0 ? -expectedTangent*c.vx/speed : 0;
@@ -3709,6 +3774,15 @@ void runHumanSupportLoaded() {
                 "support motion violates independent momentum oracle");
             }
             require(matter.restore(checkpoint).encoded, "support replay restore failed");
+            const auto restoredCheckpoint = matter.snapshot();
+            require(restoredCheckpoint.available &&
+                restoredCheckpoint.controlStep == checkpoint.controlStep &&
+                restoredCheckpoint.humanSupportHistories.size() ==
+                    checkpoint.humanSupportHistories.size() &&
+                std::memcmp(restoredCheckpoint.humanSupportHistories.data(),
+                    checkpoint.humanSupportHistories.data(),
+                    checkpoint.humanSupportHistories.size()*sizeof(nm_float4)) == 0,
+                "support replay restore changed environment histories");
             metalrobo::MetalWorldContext replayContext;
             metalrobo::MetalWorldResult replay;
             require(replayContext.run(rigidWorld,batch,config,replay).succeeded(),
@@ -3730,7 +3804,7 @@ void runHumanSupportLoaded() {
                     accepted.humanSupportHistories.size()*sizeof(nm_float4))==0,
                 "support replay changed physical state or impulses");
         }
-        std::cout << "Human support loaded runtime: 11 cases x 3 environments passed; replay exact\n";
+        std::cout << "Human support loaded runtime: 12 cases x 3 environments passed; replay exact\n";
     }
 }
 

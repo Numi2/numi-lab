@@ -3656,6 +3656,55 @@ if(APPLE AND EXISTS "${NUMANX_FULLBODY_RIGID_ASSET}" AND
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
             BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
     )
+
+    add_executable(
+        metalrobo_numanx_exact_runtime_horizon_probe
+        apps/numanx_exact_runtime_horizon_probe.mm
+    )
+    add_dependencies(
+        metalrobo_numanx_exact_runtime_horizon_probe
+        metalrobo_shaders
+        numi_matter_shaders
+    )
+    target_compile_definitions(
+        metalrobo_numanx_exact_runtime_horizon_probe
+        PRIVATE
+            MRNX_FULLBODY_RIGID="${NUMANX_FULLBODY_RIGID_ASSET}"
+            MRNX_FULLBODY_MUSCLE="${NUMANX_FULLBODY_MUSCLE_ASSET}"
+            MRNX_FULLBODY_SUPPORT_CONTACT="${_NUMANX_FULLBODY_SUPPORT_CONTACT_ASSET}"
+            MRNX_FULLBODY_VISUAL_PACK="${NUMANX_FULLBODY_VISUAL_PACK_ASSET}"
+            MRNX_FULLBODY_VISION_PROFILE="${NUMANX_FULLBODY_VISION_PROFILE_ASSET}"
+            MRNX_METALROBO_METALLIB="${METALROBO_METALLIB}"
+            MRNX_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
+            MRNX_MATTER_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/silicone.nmatter"
+            MRNX_SOURCE_GIT_REVISION="${NUMI_SOURCE_REVISION}"
+    )
+    target_compile_features(
+        metalrobo_numanx_exact_runtime_horizon_probe
+        PRIVATE cxx_std_20
+    )
+    target_compile_options(
+        metalrobo_numanx_exact_runtime_horizon_probe
+        PRIVATE
+            -fobjc-arc
+            -Wall
+            -Wextra
+            -Wpedantic
+            -Werror
+    )
+    target_link_libraries(
+        metalrobo_numanx_exact_runtime_horizon_probe
+        PRIVATE
+            metalrobo
+            "${FOUNDATION_FRAMEWORK}"
+            "${METAL_FRAMEWORK}"
+    )
+    set_target_properties(
+        metalrobo_numanx_exact_runtime_horizon_probe
+        PROPERTIES
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+            BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+    )
 endif()
 add_dependencies(
     metalrobo_numanx_human_matter_adapter_probe
@@ -4080,6 +4129,21 @@ if(BUILD_TESTING)
         numanx.contract.production_owner_snapshot_cpu
         PROPERTIES LABELS "numanx;human;contract;cpu"
     )
+    if(_metalrobo_stdlib_python)
+        add_test(
+            NAME numanx.contract.production_owner_snapshot_audit_cpu
+            COMMAND
+                "${_metalrobo_stdlib_python}"
+                "${CMAKE_CURRENT_SOURCE_DIR}/tests/numi_human_production_owner_snapshot_audit_test.py"
+                -v
+        )
+        set_tests_properties(
+            numanx.contract.production_owner_snapshot_audit_cpu
+            PROPERTIES
+                LABELS "numanx;human;contract;cpu;python"
+                TIMEOUT 120
+        )
+    endif()
     add_test(
         NAME numanx.contract.exact_request_v3_cpu
         COMMAND $<TARGET_FILE:metalrobo_numanx_exact_request_v3_contract_test>
@@ -4223,6 +4287,20 @@ if(BUILD_TESTING)
                 TIMEOUT 180
                 RUN_SERIAL TRUE
         )
+        if(TARGET metalrobo_numanx_exact_runtime_horizon_probe)
+            add_test(
+                NAME numanx.contract.fullbody_exact_runtime_horizon_self_test
+                COMMAND
+                    $<TARGET_FILE:metalrobo_numanx_exact_runtime_horizon_probe>
+                    --self-test
+            )
+            set_tests_properties(
+                numanx.contract.fullbody_exact_runtime_horizon_self_test
+                PROPERTIES
+                    LABELS "numanx;human;contract;cpu;horizon"
+                    TIMEOUT 30
+            )
+        endif()
         if(DEFINED ENV{MRNX_EXACT_WORLD} AND
            DEFINED ENV{MRNX_EXACT_INITIAL_STATE} AND
            DEFINED ENV{MRNX_EXACT_SUPPORT_CONTACT} AND
@@ -4233,6 +4311,9 @@ if(BUILD_TESTING)
            EXISTS "$ENV{MRNX_EXACT_SUPPORT_CONTACT}" AND
            EXISTS "$ENV{MRNX_EXACT_JOINT_EQUALITIES}" AND
            EXISTS "$ENV{MRNX_EXACT_JOINT_LIMITS}")
+            set(_NUMANX_PRODUCTION_OWNER_SNAPSHOT_ENV_UNSET
+                "MRNX_PRODUCTION_OWNER_SNAPSHOT_PATH=unset:"
+                "MRNX_PRODUCTION_OWNER_SNAPSHOT_CONTROL_STEP=unset:")
             add_test(
                 NAME numanx.contract.fullbody_exact_request_v3_admission
                 COMMAND
@@ -4244,6 +4325,8 @@ if(BUILD_TESTING)
                 PROPERTIES
                     ENVIRONMENT
                         "MRNX_EXACT_WORLD=$ENV{MRNX_EXACT_WORLD};MRNX_EXACT_INITIAL_STATE=$ENV{MRNX_EXACT_INITIAL_STATE};MRNX_EXACT_SUPPORT_CONTACT=$ENV{MRNX_EXACT_SUPPORT_CONTACT};MRNX_EXACT_JOINT_EQUALITIES=$ENV{MRNX_EXACT_JOINT_EQUALITIES};MRNX_EXACT_JOINT_LIMITS=$ENV{MRNX_EXACT_JOINT_LIMITS}"
+                    ENVIRONMENT_MODIFICATION
+                        "${_NUMANX_PRODUCTION_OWNER_SNAPSHOT_ENV_UNSET}"
                     LABELS "numanx;human;contract;exact-clock;metal"
                     TIMEOUT 180
                     RUN_SERIAL TRUE
@@ -4265,7 +4348,7 @@ if(BUILD_TESTING)
                 PROPERTIES
                     ENVIRONMENT "${_NUMANX_EXACT_RUNTIME_TEST_ENV}"
                     ENVIRONMENT_MODIFICATION
-                        "MRNX_REQUIRE_EXACT_BEHAVIOR_METRIC=unset:;MRNX_EXACT_BEHAVIOR_METRIC=unset:;MRNX_EXACT_BEHAVIOR_METRIC_SHA256=unset:"
+                        "${_NUMANX_PRODUCTION_OWNER_SNAPSHOT_ENV_UNSET};MRNX_REQUIRE_EXACT_BEHAVIOR_METRIC=unset:;MRNX_EXACT_BEHAVIOR_METRIC=unset:;MRNX_EXACT_BEHAVIOR_METRIC_SHA256=unset:"
                     LABELS "numanx;human;matter;integration;exact-clock;metal;fullbody"
                     TIMEOUT 240
                     RUN_SERIAL TRUE
@@ -4287,11 +4370,207 @@ if(BUILD_TESTING)
                     numanx.integration.fullbody_exact_runtime_v3_behavior_metric
                     PROPERTIES
                         ENVIRONMENT "${_NUMANX_EXACT_BEHAVIOR_TEST_ENV}"
+                        ENVIRONMENT_MODIFICATION
+                            "${_NUMANX_PRODUCTION_OWNER_SNAPSHOT_ENV_UNSET}"
                         LABELS "numanx;human;matter;integration;exact-clock;metal;fullbody;behavior"
                         TIMEOUT 240
                         RUN_SERIAL TRUE
                 )
             endif()
+            if(TARGET metalrobo_numanx_exact_runtime_horizon_probe)
+                set(_NUMANX_EXACT_RUNTIME_HORIZON_SMOKE_RUNNER
+                    "${CMAKE_CURRENT_BINARY_DIR}/generated/numanx_exact_runtime_horizon_smoke.cmake")
+                file(CONFIGURE
+                    OUTPUT "${_NUMANX_EXACT_RUNTIME_HORIZON_SMOKE_RUNNER}"
+                    CONTENT [=[
+if(NOT DEFINED PROBE OR PROBE STREQUAL "")
+    message(FATAL_ERROR "exact-runtime horizon probe path is absent")
+endif()
+set(_parent "@CMAKE_CURRENT_BINARY_DIR@/testing/numanx-exact-runtime-horizon")
+file(MAKE_DIRECTORY "${_parent}")
+string(TIMESTAMP _stamp "%Y%m%dT%H%M%SZ" UTC)
+string(RANDOM LENGTH 16 ALPHABET 0123456789abcdef _random)
+set(_snapshot_directory "${_parent}/run-${_stamp}-${_random}")
+execute_process(
+    COMMAND "${PROBE}"
+        --roots 2
+        --timestep-ns 12500
+        --uniform-excitation 0.0
+        --snapshot-step 2
+        --snapshot-dir "${_snapshot_directory}"
+    RESULT_VARIABLE _result
+    OUTPUT_VARIABLE _stdout
+    ERROR_VARIABLE _stderr)
+if(NOT _stdout STREQUAL "")
+    message("${_stdout}")
+endif()
+if(NOT _stderr STREQUAL "")
+    message("${_stderr}")
+endif()
+if(NOT _result EQUAL 0)
+    message(FATAL_ERROR
+        "exact-runtime two-root horizon smoke failed with ${_result}")
+endif()
+]=]
+                    @ONLY
+                    NEWLINE_STYLE UNIX
+                )
+                add_test(
+                    NAME numanx.integration.fullbody_exact_runtime_horizon_two_roots
+                    COMMAND
+                        "${CMAKE_COMMAND}"
+                        "-DPROBE=$<TARGET_FILE:metalrobo_numanx_exact_runtime_horizon_probe>"
+                        -P "${_NUMANX_EXACT_RUNTIME_HORIZON_SMOKE_RUNNER}"
+                )
+                set_tests_properties(
+                    numanx.integration.fullbody_exact_runtime_horizon_two_roots
+                    PROPERTIES
+                        ENVIRONMENT "${_NUMANX_EXACT_RUNTIME_TEST_ENV}"
+                        ENVIRONMENT_MODIFICATION
+                            "MRNX_REQUIRE_EXACT_BEHAVIOR_METRIC=unset:;MRNX_EXACT_BEHAVIOR_METRIC=unset:;MRNX_EXACT_BEHAVIOR_METRIC_SHA256=unset:"
+                        LABELS "numanx;human;matter;integration;exact-clock;metal;fullbody;horizon;smoke"
+                        TIMEOUT 300
+                        RUN_SERIAL TRUE
+                )
+            endif()
+            set(_NUMANX_PREPARED_FIXTURE_PUBLICATION_RUNNER
+                "${CMAKE_CURRENT_BINARY_DIR}/generated/numanx_prepared_fixture_publication_check.cmake")
+            file(CONFIGURE
+                OUTPUT "${_NUMANX_PREPARED_FIXTURE_PUBLICATION_RUNNER}"
+                CONTENT [=[
+foreach(_required PROBE STATE CONTACTS EQUALITIES LIMITS)
+    if(NOT DEFINED ${_required} OR "${${_required}}" STREQUAL "")
+        message(FATAL_ERROR "prepared-fixture check lacks ${_required}")
+    endif()
+endforeach()
+set(_parent "@CMAKE_CURRENT_BINARY_DIR@/testing/numanx-prepared-fixture")
+file(MAKE_DIRECTORY "${_parent}")
+string(TIMESTAMP _stamp "%Y%m%dT%H%M%SZ" UTC)
+string(RANDOM LENGTH 16 ALPHABET 0123456789abcdef _random)
+set(_run "${_parent}/run-${_stamp}-${_random}")
+file(MAKE_DIRECTORY "${_run}")
+
+function(_run_fixture _name _output _newton _restart _iterations)
+    execute_process(
+        COMMAND "${PROBE}" --prepared-state-fixture-ns
+            "${STATE}" "${_output}" "${CONTACTS}" "${EQUALITIES}"
+            "${LIMITS}" 12500 ${ARGN}
+        RESULT_VARIABLE _result
+        OUTPUT_VARIABLE _stdout
+        ERROR_VARIABLE _stderr)
+    if(NOT _result EQUAL 0)
+        message(FATAL_ERROR
+            "${_name} prepared fixture failed (${_result}): ${_stderr}")
+    endif()
+    foreach(_leaf prepared-12500ns.nmatterpack prepared.nhinit prepared.json)
+        if(NOT EXISTS "${_output}/${_leaf}")
+            message(FATAL_ERROR "${_name} omitted ${_leaf}")
+        endif()
+    endforeach()
+    file(READ "${_output}/prepared.json" _receipt)
+    string(JSON _schema GET "${_receipt}" schema)
+    string(JSON _actual_newton GET "${_receipt}" solver_newton_iterations)
+    string(JSON _actual_restart GET "${_receipt}" solver_fgmres_restart)
+    string(JSON _actual_iterations GET "${_receipt}" solver_fgmres_iterations)
+    string(JSON _residual GET "${_receipt}" solver_relative_residual_fp32)
+    string(JSON _residual_bits GET "${_receipt}" solver_relative_residual_fp32_bits)
+    string(LENGTH "${_residual_bits}" _residual_bits_length)
+    if(NOT _schema STREQUAL "numi.human.prepared-stance-fixture.v2" OR
+       NOT _actual_newton EQUAL _newton OR
+       NOT _actual_restart EQUAL _restart OR
+       NOT _actual_iterations EQUAL _iterations OR
+       _residual LESS_EQUAL 0 OR
+       NOT _residual_bits MATCHES "^0x[0-9a-f]+$" OR
+       NOT _residual_bits_length EQUAL 10)
+        message(FATAL_ERROR "${_name} receipt policy is noncanonical")
+    endif()
+endfunction()
+
+file(MAKE_DIRECTORY "${_run}/default-parent")
+set(_default "${_run}/default-parent/./default-output")
+_run_fixture(default "${_default}" 16 10 10)
+set(_newton "${_run}/newton-output/")
+_run_fixture(newton "${_newton}" 24 10 10 24)
+set(_full "${_run}/full-output")
+_run_fixture(full "${_full}" 24 16 32 24 16 32 0.005)
+
+file(MAKE_DIRECTORY "${_run}/real-parent")
+file(CREATE_LINK "${_run}/real-parent" "${_run}/linked-parent"
+    SYMBOLIC RESULT _link_result)
+if(NOT _link_result STREQUAL "0")
+    message(FATAL_ERROR "could not create publication parent symlink: ${_link_result}")
+endif()
+set(_symlinked "${_run}/linked-parent/symlink-output")
+_run_fixture(symlinked-parent "${_symlinked}" 16 10 10)
+
+set(_legacy "${_run}/legacy-output")
+execute_process(
+    COMMAND "${PROBE}" --prepared-state-fixture
+        "${STATE}" "${_legacy}" "${CONTACTS}" "${EQUALITIES}"
+        "${LIMITS}"
+    RESULT_VARIABLE _legacy_result
+    ERROR_VARIABLE _legacy_stderr)
+if(NOT _legacy_result EQUAL 0 OR
+   NOT EXISTS "${_legacy}/prepared-100us.nmatterpack" OR
+   NOT EXISTS "${_legacy}/prepared.nhinit" OR
+   NOT EXISTS "${_legacy}/prepared.json")
+    message(FATAL_ERROR
+        "legacy argc-7 prepared fixture failed: ${_legacy_stderr}")
+endif()
+
+set(_partial "${_run}/partial-output")
+execute_process(
+    COMMAND "${PROBE}" --prepared-state-fixture-ns
+        "${STATE}" "${_partial}" "${CONTACTS}" "${EQUALITIES}"
+        "${LIMITS}" 12500 24 16
+    RESULT_VARIABLE _partial_result)
+if(_partial_result EQUAL 0 OR EXISTS "${_partial}")
+    message(FATAL_ERROR "partial FGMRES tuple was not rejected cleanly")
+endif()
+
+set(_missing_parent "${_run}/absent-parent/output")
+execute_process(
+    COMMAND "${PROBE}" --prepared-state-fixture-ns
+        "${STATE}" "${_missing_parent}" "${CONTACTS}" "${EQUALITIES}"
+        "${LIMITS}" 12500
+    RESULT_VARIABLE _missing_parent_result)
+if(_missing_parent_result EQUAL 0 OR EXISTS "${_missing_parent}")
+    message(FATAL_ERROR "missing output parent was not rejected cleanly")
+endif()
+
+file(SHA256 "${_full}/prepared.json" _before_retry)
+execute_process(
+    COMMAND "${PROBE}" --prepared-state-fixture-ns
+        "${STATE}" "${_full}" "${CONTACTS}" "${EQUALITIES}"
+        "${LIMITS}" 12500 24 16 32 0.005
+    RESULT_VARIABLE _retry_result)
+file(SHA256 "${_full}/prepared.json" _after_retry)
+if(_retry_result EQUAL 0 OR NOT _before_retry STREQUAL _after_retry)
+    message(FATAL_ERROR "no-replace retry changed a published receipt")
+endif()
+message("prepared_fixture_publication_check=pass run=${_run}")
+]=]
+                @ONLY
+                NEWLINE_STYLE UNIX
+            )
+            add_test(
+                NAME numanx.integration.prepared_fixture_publication
+                COMMAND
+                    "${CMAKE_COMMAND}"
+                    "-DPROBE=$<TARGET_FILE:metalrobo_numanx_fullbody_bridge_probe>"
+                    "-DSTATE=$ENV{MRNX_EXACT_INITIAL_STATE}"
+                    "-DCONTACTS=$ENV{MRNX_EXACT_SUPPORT_CONTACT}"
+                    "-DEQUALITIES=$ENV{MRNX_EXACT_JOINT_EQUALITIES}"
+                    "-DLIMITS=$ENV{MRNX_EXACT_JOINT_LIMITS}"
+                    -P "${_NUMANX_PREPARED_FIXTURE_PUBLICATION_RUNNER}"
+            )
+            set_tests_properties(
+                numanx.integration.prepared_fixture_publication
+                PROPERTIES
+                    LABELS "numanx;human;matter;integration;fixture;publication"
+                    TIMEOUT 180
+                    RUN_SERIAL TRUE
+            )
         endif()
     endif()
     set_tests_properties(

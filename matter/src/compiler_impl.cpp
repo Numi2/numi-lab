@@ -533,6 +533,30 @@ void validateWorld(
             "mixed solver FGMRES restart exceeds the compiled basis capacity",
         });
     }
+    if (solver.fgmresRestart != 0u &&
+        solver.fgmresIterations >
+            std::numeric_limits<std::uint32_t>::max() -
+                solver.fgmresRestart + 1u) {
+        diagnostics.push_back({
+            Diagnostic::Severity::error, 0u, 0u,
+            "mixed solver FGMRES iteration budget overflows restart-cycle arithmetic",
+        });
+    }
+    if (solver.fgmresIterations > NM_MIXED_FGMRES_MAX_ITERATIONS) {
+        diagnostics.push_back({
+            Diagnostic::Severity::error, 0u, 0u,
+            "mixed solver FGMRES iteration budget exceeds the operational encoding capacity",
+        });
+    }
+    const float cookedRelativeResidual =
+        static_cast<float>(solver.relativeResidual);
+    if (!std::isfinite(cookedRelativeResidual) ||
+        !(cookedRelativeResidual > 0.0f)) {
+        diagnostics.push_back({
+            Diagnostic::Severity::error, 0u, 0u,
+            "mixed solver relative residual is not positive finite FP32 policy",
+        });
+    }
     if (solver.fieldSmootherPasses >
             NM_MIXED_FIELD_SMOOTHER_MAX_PASSES) {
         diagnostics.push_back({
