@@ -288,9 +288,19 @@ int main() {
             std::string::npos,
         "logical shape failure did not identify its field");
 
-    auto zeroLogicalMatterReactions = source;
-    zeroLogicalMatterReactions
+    auto leakedMatterReactionSentinel = source;
+    leakedMatterReactionSentinel
         .terminalAcceptedMatterRigidReactionCount = 0u;
+    require(!serializeNumiHumanProductionOwnerSnapshotV1(
+        leakedMatterReactionSentinel, second, error),
+        "physical zero-width Matter sentinel was serialized as a reaction");
+    require(error.find(
+            "logical shape mismatch ("
+            "terminal_accepted_matter_rigid_reactions:") !=
+            std::string::npos,
+        "Matter sentinel leakage did not identify its field");
+
+    auto zeroLogicalMatterReactions = leakedMatterReactionSentinel;
     zeroLogicalMatterReactions.terminalAcceptedMatterRigidReactions
         .expectedElementCount = 0u;
     zeroLogicalMatterReactions.terminalAcceptedMatterRigidReactions
