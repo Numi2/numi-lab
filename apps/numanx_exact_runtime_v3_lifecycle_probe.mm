@@ -33,6 +33,35 @@ constexpr std::size_t kExcitationByteOffset = 512u;
 constexpr std::size_t kAutonomicByteOffset = 768u;
 constexpr std::size_t kActiveSensingByteOffset = 1'024u;
 constexpr std::size_t kReadyGateByteOffset = 1'280u;
+constexpr std::uint32_t kUnavailableBehaviorEvidenceFlags =
+    MRNX_BEHAVIOR_TRACE_EVIDENCE_NATIVE_AUDIT_V1 |
+    MRNX_BEHAVIOR_TRACE_EVIDENCE_FORBIDDEN_CONTACT_V1 |
+    MRNX_BEHAVIOR_TRACE_EVIDENCE_ACCEPTED_ROOT_PROOF_V1 |
+    MRNX_BEHAVIOR_TRACE_EVIDENCE_FULL_BEHAVIOR_V1 |
+    MRNX_BEHAVIOR_TRACE_EVIDENCE_PHYSICAL_V1 |
+    MRNX_BEHAVIOR_TRACE_EVIDENCE_BIOLOGICAL_V1 |
+    MRNX_BEHAVIOR_TRACE_EVIDENCE_PERFORMANCE_V1 |
+    MRNX_BEHAVIOR_TRACE_EVIDENCE_PRODUCTION_V1;
+
+std::array<std::uint8_t, 32u> parseSHA256(const char* text) {
+    require(text != nullptr && std::strlen(text) == 64u,
+            "behavior metric SHA-256 is not 64 characters");
+    const auto nibble = [](const char value) -> std::uint8_t {
+        if (value >= '0' && value <= '9')
+            return static_cast<std::uint8_t>(value - '0');
+        if (value >= 'a' && value <= 'f')
+            return static_cast<std::uint8_t>(10 + value - 'a');
+        throw std::runtime_error(
+            "behavior metric SHA-256 is not lower-case hexadecimal");
+    };
+    std::array<std::uint8_t, 32u> result{};
+    for (std::size_t index = 0u; index < result.size(); ++index) {
+        result[index] = static_cast<std::uint8_t>(
+            (nibble(text[index * 2u]) << 4u) |
+            nibble(text[index * 2u + 1u]));
+    }
+    return result;
+}
 
 template <typename Capture>
 void waitForCapture(
@@ -58,6 +87,36 @@ std::uint64_t recordFingerprint(const void* raw) noexcept {
         hash *= kFnvPrime;
     }
     return hash == 0u ? kFnvOffset : hash;
+}
+
+std::uint64_t behaviorTraceRecordFingerprint(
+    const mrnx_behavior_trace_record_v1& record
+) noexcept {
+    const auto* bytes = reinterpret_cast<const std::uint8_t*>(&record);
+    std::uint64_t hash = kFnvOffset;
+    for (std::size_t index = 0u;
+         index < offsetof(
+             mrnx_behavior_trace_record_v1, record_fingerprint);
+         ++index) {
+        hash ^= bytes[index];
+        hash *= kFnvPrime;
+    }
+    return hash;
+}
+
+std::uint64_t behaviorTraceTerminalFingerprint(
+    const mrnx_behavior_trace_terminal_v1& terminal
+) noexcept {
+    const auto* bytes = reinterpret_cast<const std::uint8_t*>(&terminal);
+    std::uint64_t hash = kFnvOffset;
+    for (std::size_t index = 0u;
+         index < offsetof(
+             mrnx_behavior_trace_terminal_v1, terminal_fingerprint);
+         ++index) {
+        hash ^= bytes[index];
+        hash *= kFnvPrime;
+    }
+    return hash;
 }
 
 std::uint64_t witnessFingerprint(
@@ -751,6 +810,8 @@ bool legacyAggregateReadersRejectExact(mrnx_runtime_v1* runtime) noexcept {
 struct RootOutcome {
     mrnx_aggregate_snapshot_v5 aggregate{};
     mrnx_publication_v2 publication{};
+    std::uint64_t acceptedTokenFingerprint = 0u;
+    std::uint64_t jointFenceFingerprint = 0u;
 };
 
 RootOutcome executeAcceptedRoot(
@@ -1262,10 +1323,273 @@ RootOutcome executeAcceptedRoot(
                 acceptedToken.physicsGeneration,
         "exact aggregate v5 did not publish one coherent root");
     outcome.publication = publication;
+    outcome.acceptedTokenFingerprint = acceptedToken.tokenFingerprint;
+    outcome.jointFenceFingerprint = fence.fenceFingerprint;
 
     mrnx_bridge_v1_candidate_drop(physical.candidate);
     mrnx_bridge_v1_prepared_drop(physical.prepared);
     return outcome;
+}
+
+void validateAcceptedBehaviorTraceRecord(
+    const mrnx_behavior_trace_record_v1& record,
+    const RootOutcome& outcome,
+    const std::uint64_t attemptIndex,
+    const std::uint64_t basePublicationEpoch,
+    const std::uint64_t basePhysicsGeneration,
+    const std::uint64_t baseTimestampNanoseconds,
+    const std::uint64_t baseAcceptedTokenFingerprint,
+    const std::uint64_t previousRecordFingerprint
+) {
+    require(
+        record.abi_version == MRNX_BEHAVIOR_TRACE_ABI_V1 &&
+            record.struct_size == sizeof(record) &&
+            record.disposition ==
+                MRNX_BEHAVIOR_TRACE_JOINTLY_PUBLISHED_V1 &&
+            record.metric_kind ==
+                MRNX_BEHAVIOR_TRACE_METRIC_ACCEPTED_V1 &&
+            record.control_step == outcome.aggregate.root.control_step &&
+            record.runtime_failure_stage == 0u &&
+            record.candidate_status == 0u &&
+            record.posture_valid <= 1u && record.settled <= 1u &&
+            record.audit_covered_mask == 0u &&
+            record.audit_violation_mask == 0u &&
+            record.forbidden_contact_coverage == 0u &&
+            record.forbidden_contact_count == 0u &&
+            record.reserved0 == 0u && record.reserved1 == 0u &&
+            record.reserved2 == 0u && record.reserved_tail == 0u,
+        "accepted behavior trace record header is invalid");
+    require(
+        record.attempt_index == attemptIndex &&
+            record.transaction_fingerprint ==
+                outcome.aggregate.root.transaction_fingerprint &&
+            record.linearization_epoch ==
+                outcome.aggregate.root.linearization_epoch &&
+            record.slot_generation ==
+                outcome.aggregate.root.slot_generation &&
+            record.base_publication_epoch == basePublicationEpoch &&
+            record.base_physics_generation == basePhysicsGeneration &&
+            record.base_accepted_timestamp_nanoseconds ==
+                baseTimestampNanoseconds &&
+            record.base_accepted_token_fingerprint ==
+                baseAcceptedTokenFingerprint,
+        "accepted behavior trace base identity is stale");
+    require(
+        record.candidate_physics_generation ==
+                outcome.aggregate.physics_generation &&
+            record.candidate_timestamp_nanoseconds ==
+                outcome.publication.committed_timestamp_nanoseconds &&
+            record.candidate_state_proof_fingerprint != 0u &&
+            record.candidate_accepted_token_fingerprint ==
+                outcome.acceptedTokenFingerprint &&
+            record.candidate_publication_fingerprint ==
+                outcome.aggregate.sensor_packet.
+                    candidate_publication_fingerprint &&
+            record.after_publication_epoch ==
+                outcome.aggregate.publication_epoch &&
+            record.after_physics_generation ==
+                outcome.aggregate.physics_generation &&
+            record.after_accepted_timestamp_nanoseconds ==
+                outcome.publication.committed_timestamp_nanoseconds &&
+            record.after_accepted_token_fingerprint ==
+                outcome.acceptedTokenFingerprint &&
+            record.after_publication_fingerprint ==
+                outcome.publication.publication_fingerprint &&
+            record.joint_fence_fingerprint ==
+                outcome.jointFenceFingerprint,
+        "accepted behavior trace candidate/publication identity is stale");
+    for (const float value : record.value_high)
+        require(std::isfinite(value),
+                "accepted behavior trace high component is nonfinite");
+    for (const float value : record.value_low)
+        require(std::isfinite(value),
+                "accepted behavior trace low component is nonfinite");
+    require(
+        record.previous_record_fingerprint == previousRecordFingerprint &&
+            record.record_fingerprint != 0u &&
+            record.record_fingerprint ==
+                behaviorTraceRecordFingerprint(record),
+        "accepted behavior trace fingerprint chain is invalid");
+}
+
+void validateAttachedBehaviorTrace(
+    mrnx_runtime_v1* runtime,
+    id<MTLDevice> device,
+    const mrnx_runtime_info_v1& info,
+    const RootOutcome& first,
+    const RootOutcome& second,
+    const char* behaviorMetricSHA256
+) {
+    std::array<mrnx_behavior_trace_record_v1, 2u> records{};
+    for (auto& record : records) {
+        record.abi_version = MRNX_BEHAVIOR_TRACE_ABI_V1;
+        record.struct_size = sizeof(record);
+    }
+    mrnx_behavior_trace_chunk_v1 chunk{};
+    chunk.abi_version = MRNX_BEHAVIOR_TRACE_ABI_V1;
+    chunk.struct_size = sizeof(chunk);
+    require(
+        mrnx_bridge_v1_runtime_behavior_trace_drain(
+            runtime, &chunk, records.data(), records.size()),
+        "bounded behavior attempt trace did not drain");
+
+    validateAcceptedBehaviorTraceRecord(
+        records[0], first, 1u, 0u, 0u,
+        kInitialTimestampNanoseconds, 0u,
+        chunk.trace_instance_fingerprint);
+    validateAcceptedBehaviorTraceRecord(
+        records[1], second, 2u, first.aggregate.publication_epoch,
+        first.aggregate.physics_generation,
+        first.publication.committed_timestamp_nanoseconds,
+        first.acceptedTokenFingerprint, records[0].record_fingerprint);
+
+    const auto metricSHA256 = parseSHA256(behaviorMetricSHA256);
+    require(
+        chunk.abi_version == MRNX_BEHAVIOR_TRACE_ABI_V1 &&
+            chunk.struct_size == sizeof(chunk) &&
+            chunk.trace_status == MRNX_BEHAVIOR_TRACE_STATUS_READY_V1 &&
+            chunk.record_capacity == records.size() &&
+            chunk.trace_instance_fingerprint != 0u &&
+            chunk.expected_accepted_roots == 2u &&
+            chunk.chunk_index == 0u && chunk.record_count == records.size() &&
+            chunk.first_attempt_index == 1u &&
+            chunk.last_attempt_index == 2u &&
+            chunk.previous_record_fingerprint ==
+                chunk.trace_instance_fingerprint &&
+            chunk.last_record_fingerprint ==
+                records[1].record_fingerprint &&
+            chunk.observed_attempt_count == 2u &&
+            chunk.total_record_count == 2u &&
+            chunk.dropped_record_count == 0u &&
+            chunk.drained_record_count == 2u,
+        "bounded behavior trace chunk counts or chain are invalid");
+    require(
+        std::memcmp(
+            chunk.metric_program_sha256, metricSHA256.data(),
+            metricSHA256.size()) == 0 &&
+            chunk.behavior_program_fingerprint != 0u &&
+            chunk.model_source_fingerprint ==
+                info.model_source_fingerprint &&
+            chunk.accepted_state_proof_program_fingerprint ==
+                info.accepted_state_proof_program_fingerprint &&
+            chunk.timestep_nanoseconds == kTimestepNanoseconds &&
+            chunk.initial_timestamp_nanoseconds ==
+                kInitialTimestampNanoseconds &&
+            chunk.initial_physics_generation == 0u &&
+            chunk.clock_domain ==
+                MRNX_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS &&
+            chunk.clock_quantum_nanoseconds ==
+                MRNX_EXACT_CLOCK_QUANTUM_NANOSECONDS &&
+            chunk.reserved0 == 0u && chunk.reserved1 == 0u,
+        "bounded behavior trace source or exact-clock binding is invalid");
+
+    mrnx_behavior_trace_terminal_request_v1 request{};
+    request.abi_version = MRNX_BEHAVIOR_TRACE_ABI_V1;
+    request.struct_size = sizeof(request);
+    request.reason = MRNX_BEHAVIOR_TRACE_TERMINAL_COMPLETED_V1;
+    mrnx_behavior_trace_terminal_v1 terminal{};
+    terminal.abi_version = MRNX_BEHAVIOR_TRACE_ABI_V1;
+    terminal.struct_size = sizeof(terminal);
+    require(
+        mrnx_bridge_v1_runtime_behavior_trace_finalize(
+            runtime, &request, &terminal),
+        "bounded behavior trace did not finalize");
+    require(
+        terminal.abi_version == MRNX_BEHAVIOR_TRACE_ABI_V1 &&
+            terminal.struct_size == sizeof(terminal) &&
+            terminal.capture_status ==
+                MRNX_BEHAVIOR_TRACE_CAPTURE_COMPLETE_V1 &&
+            terminal.reason == MRNX_BEHAVIOR_TRACE_TERMINAL_COMPLETED_V1 &&
+            terminal.caller_exit_code == 0 &&
+            terminal.qualification_flags ==
+                MRNX_BEHAVIOR_TRACE_EVIDENCE_SOURCE_BOUND_METRIC_V1 &&
+            terminal.unavailable_evidence_flags ==
+                kUnavailableBehaviorEvidenceFlags &&
+            terminal.reserved0 == 0u,
+        "bounded behavior terminal promoted unavailable evidence");
+    require(
+        terminal.expected_accepted_roots == 2u &&
+            terminal.observed_attempt_count == 2u &&
+            terminal.total_record_count == 2u &&
+            terminal.drained_record_count == 2u &&
+            terminal.dropped_record_count == 0u &&
+            terminal.chunk_count == 1u &&
+            terminal.accepted_root_count == 2u &&
+            terminal.rejected_attempt_count == 0u &&
+            terminal.completed_attempt_count == 2u &&
+            terminal.initial_timestamp_nanoseconds ==
+                kInitialTimestampNanoseconds &&
+            terminal.end_timestamp_nanoseconds ==
+                kInitialTimestampNanoseconds +
+                    2u * kTimestepNanoseconds &&
+            terminal.timestep_nanoseconds == kTimestepNanoseconds,
+        "bounded behavior terminal counts or exact timestamps are invalid");
+    require(
+        terminal.final_publication_epoch ==
+                second.aggregate.publication_epoch &&
+            terminal.final_physics_generation ==
+                second.aggregate.physics_generation &&
+            terminal.final_brain_generation ==
+                second.aggregate.brain_generation &&
+            terminal.final_sensor_generation ==
+                second.aggregate.sensor_generation &&
+            terminal.final_timestamp_nanoseconds ==
+                second.publication.committed_timestamp_nanoseconds &&
+            terminal.final_accepted_token_fingerprint ==
+                second.acceptedTokenFingerprint &&
+            terminal.final_publication_fingerprint ==
+                second.publication.publication_fingerprint &&
+            terminal.behavior_program_fingerprint ==
+                chunk.behavior_program_fingerprint &&
+            terminal.last_record_fingerprint ==
+                chunk.last_record_fingerprint &&
+            terminal.terminal_fingerprint != 0u &&
+            terminal.terminal_fingerprint ==
+                behaviorTraceTerminalFingerprint(terminal),
+        "bounded behavior terminal final identity is invalid");
+
+    mrnx_behavior_trace_terminal_v1 repeated{};
+    repeated.abi_version = MRNX_BEHAVIOR_TRACE_ABI_V1;
+    repeated.struct_size = sizeof(repeated);
+    require(
+        mrnx_bridge_v1_runtime_behavior_trace_finalize(
+            runtime, &request, &repeated) &&
+            std::memcmp(&repeated, &terminal, sizeof(terminal)) == 0,
+        "identical behavior terminal finalization was not idempotent");
+
+    auto sealedRequest = makeRequest(
+        device, 3u, second.aggregate.brain_generation,
+        second.aggregate.physics_generation,
+        second.publication.committed_timestamp_nanoseconds);
+    Completion sealedCompletion{};
+    require(
+        !mrnx_bridge_v1_runtime_begin_physical_root_v3(
+            runtime, &sealedRequest.request, &sealedCompletion, &settled) &&
+            sealedCompletion.count.load(std::memory_order_acquire) == 0u,
+        "finalized behavior trace admitted another physical root");
+}
+
+void validateUnattachedBehaviorTrace(mrnx_runtime_v1* runtime) {
+    std::array<mrnx_behavior_trace_record_v1, 2u> records{};
+    mrnx_behavior_trace_chunk_v1 chunk{};
+    chunk.abi_version = MRNX_BEHAVIOR_TRACE_ABI_V1;
+    chunk.struct_size = sizeof(chunk);
+    require(
+        !mrnx_bridge_v1_runtime_behavior_trace_drain(
+            runtime, &chunk, records.data(), records.size()),
+        "baseline runtime unexpectedly exposed a behavior attempt trace");
+
+    mrnx_behavior_trace_terminal_request_v1 request{};
+    request.abi_version = MRNX_BEHAVIOR_TRACE_ABI_V1;
+    request.struct_size = sizeof(request);
+    request.reason = MRNX_BEHAVIOR_TRACE_TERMINAL_COMPLETED_V1;
+    mrnx_behavior_trace_terminal_v1 terminal{};
+    terminal.abi_version = MRNX_BEHAVIOR_TRACE_ABI_V1;
+    terminal.struct_size = sizeof(terminal);
+    require(
+        !mrnx_bridge_v1_runtime_behavior_trace_finalize(
+            runtime, &request, &terminal),
+        "baseline runtime unexpectedly finalized a behavior attempt trace");
 }
 
 int runLifecycle() {
@@ -1319,6 +1643,15 @@ int runLifecycle() {
                     runtime, behaviorMetricPath, behaviorMetricSHA256,
                     kInitialTimestampNanoseconds),
                 "source-bound behavior metric did not attach to exact runtime");
+            mrnx_behavior_trace_config_v1 traceConfig{};
+            traceConfig.abi_version = MRNX_BEHAVIOR_TRACE_ABI_V1;
+            traceConfig.struct_size = sizeof(traceConfig);
+            traceConfig.record_capacity = 2u;
+            traceConfig.expected_accepted_roots = 2u;
+            require(
+                mrnx_bridge_v1_runtime_behavior_trace_attach(
+                    runtime, &traceConfig),
+                "bounded behavior attempt trace did not attach before roots");
         }
 
         mrnx_aggregate_snapshot_v5 unpublished{};
@@ -1390,6 +1723,14 @@ int runLifecycle() {
                     second.publication.committed_timestamp_nanoseconds &&
                 clock.publication_epoch == 2u,
             "exact clock did not advance with the second publication");
+
+        if (behaviorRequested) {
+            validateAttachedBehaviorTrace(
+                runtime, device, info, first, second,
+                behaviorMetricSHA256);
+        } else {
+            validateUnattachedBehaviorTrace(runtime);
+        }
 
         std::string behaviorJSON;
         if (behaviorRequested) {
@@ -1492,12 +1833,15 @@ int runLifecycle() {
             "roots=2 publications=2 aggregate=v5 clock=nanoseconds "
             "proof_program=v2 legacy_downconversion=rejected "
             "timeout_race=serialized behavior_metric=%s "
+            "behavior_trace=%s "
             "full_behavior_qualified=false "
             "audit_coverage=unavailable contact_coverage=unavailable "
             "accepted_root_proof=unavailable "
             "concurrent_reads=%llu "
             "final_timestamp_ns=%llu\n",
             behaviorRequested ? "source_bound_exact_clock" : "not_attached",
+            behaviorRequested ? "capture_complete_source_bound" :
+                "not_attached",
             static_cast<unsigned long long>(readerCount.load()),
             static_cast<unsigned long long>(
                 second.publication.committed_timestamp_nanoseconds));

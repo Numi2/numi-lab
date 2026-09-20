@@ -8,7 +8,8 @@ extern "C" bool mrnx_bridge_v1_runtime_behavior_attach(
     try {
         const std::lock_guard lock(runtime->mutex);
         if(runtime->behavior!=nullptr||runtime->active!=nullptr||runtime->beginInProgress||
-           runtime->terminalQuarantine||runtime->publishedOnce||runtime->lastAttemptedControlStep!=0||
+           runtime->terminalQuarantine||runtime->behaviorTraceFinalized||
+           runtime->publishedOnce||runtime->lastAttemptedControlStep!=0||
            (!runtime->exactClock && initialCommittedTimestampNanoseconds%1000ull!=0))return false;
         const std::string expected(expectedSHA);
         if(expected.size()!=64||!std::all_of(expected.begin(),expected.end(),[](char c){return (c>='0'&&c<='9')||(c>='a'&&c<='f');}))return false;
@@ -68,4 +69,223 @@ extern "C" std::size_t mrnx_bridge_v1_runtime_behavior_flush_json(
         if(output!=nullptr&&capacity>=required){std::memcpy(output,data.bytes,data.length);output[data.length]='\0';}
         return required;
     }catch(const std::exception& e){try{const std::lock_guard lock(runtime->mutex);runtime->behaviorError=e.what();}catch(...){}return 0;}catch(...){return 0;}
+}
+
+extern "C" bool mrnx_bridge_v1_runtime_behavior_trace_attach(
+    mrnx_runtime_v1* handle,
+    const mrnx_behavior_trace_config_v1* config) {
+    if (handle == nullptr || handle->state == nullptr || config == nullptr)
+        return false;
+    auto runtime = handle->state;
+    try {
+        const std::lock_guard lock(runtime->mutex);
+        if (!runtime->exactClock ||
+            runtime->clockQuantumNanoseconds !=
+                MRNX_EXACT_CLOCK_QUANTUM_NANOSECONDS ||
+            runtime->behavior == nullptr ||
+            runtime->behavior->traceAttached() ||
+            runtime->behaviorTraceFinalized ||
+            runtime->behaviorTraceTerminalCached ||
+            runtime->active != nullptr || runtime->beginInProgress ||
+            runtime->terminalQuarantine || runtime->publishedOnce ||
+            runtime->lastAttemptedControlStep != 0u ||
+            runtime->behaviorMetricSHA256.size() != 64u ||
+            runtime->assets.sourceFingerprint == 0u ||
+            runtime->matter == nullptr) {
+            return false;
+        }
+        const std::uint64_t proofProgramFingerprint =
+            runtime->matter->acceptedStateProofProgramFingerprintV2();
+        if (proofProgramFingerprint == 0u ||
+            proofProgramFingerprint != runtime->info.
+                accepted_state_proof_program_fingerprint) {
+            return false;
+        }
+
+        metalrobo::HumanBehaviorTraceBinding binding{};
+        const auto nibble = [](const char character,
+                               std::uint8_t& value) noexcept {
+            if (character >= '0' && character <= '9') {
+                value = static_cast<std::uint8_t>(character - '0');
+                return true;
+            }
+            if (character >= 'a' && character <= 'f') {
+                value = static_cast<std::uint8_t>(character - 'a' + 10);
+                return true;
+            }
+            return false;
+        };
+        for (std::size_t index = 0u;
+             index < binding.metricProgramSHA256.size(); ++index) {
+            std::uint8_t high = 0u;
+            std::uint8_t low = 0u;
+            if (!nibble(runtime->behaviorMetricSHA256[index * 2u], high) ||
+                !nibble(runtime->behaviorMetricSHA256[index * 2u + 1u], low)) {
+                return false;
+            }
+            binding.metricProgramSHA256[index] =
+                static_cast<std::uint8_t>((high << 4u) | low);
+        }
+        binding.modelSourceFingerprint = runtime->assets.sourceFingerprint;
+        binding.acceptedStateProofProgramFingerprint =
+            proofProgramFingerprint;
+        binding.clockDomain =
+            MRNX_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS;
+        binding.clockQuantumNanoseconds =
+            MRNX_EXACT_CLOCK_QUANTUM_NANOSECONDS;
+        const bool attached = runtime->behavior->traceAttach(
+            *config, binding, runtime->behaviorTraceError);
+        if (attached) runtime->behaviorTraceError.clear();
+        return attached;
+    } catch (const std::exception& exception) {
+        try {
+            const std::lock_guard lock(runtime->mutex);
+            runtime->behaviorTraceError = exception.what();
+        } catch (...) {}
+        return false;
+    } catch (...) {
+        return false;
+    }
+}
+
+extern "C" bool mrnx_bridge_v1_runtime_behavior_trace_drain(
+    mrnx_runtime_v1* handle,
+    mrnx_behavior_trace_chunk_v1* chunk,
+    mrnx_behavior_trace_record_v1* records,
+    const std::uint32_t recordCapacity) {
+    if (handle == nullptr || handle->state == nullptr || chunk == nullptr ||
+        (recordCapacity != 0u && records == nullptr)) {
+        return false;
+    }
+    auto runtime = handle->state;
+    try {
+        const std::lock_guard lock(runtime->mutex);
+        if (!runtime->exactClock || runtime->behavior == nullptr ||
+            !runtime->behavior->traceAttached() ||
+            runtime->behavior->traceFinalized() ||
+            runtime->behaviorTraceFinalized ||
+            runtime->behaviorTraceTerminalCached ||
+            runtime->active != nullptr || runtime->beginInProgress) {
+            return false;
+        }
+        const auto encode = [](void* raw, void* commandBuffer) noexcept {
+            auto* state = static_cast<RuntimeState*>(raw);
+            return state->behavior->encodeFlush(
+                commandBuffer, state->behaviorError);
+        };
+        if (!runtime->owner->flushReadOnlyObserver(
+                runtime.get(), encode, runtime->behaviorError)) {
+            return false;
+        }
+        mrnx_behavior_trace_chunk_v1 result{};
+        if (!runtime->behavior->traceDrain(
+                result,
+                std::span<mrnx_behavior_trace_record_v1>(
+                    records, recordCapacity),
+                runtime->behaviorTraceError)) {
+            return false;
+        }
+        *chunk = result;
+        runtime->behaviorTraceError.clear();
+        return true;
+    } catch (const std::exception& exception) {
+        try {
+            const std::lock_guard lock(runtime->mutex);
+            runtime->behaviorTraceError = exception.what();
+        } catch (...) {}
+        return false;
+    } catch (...) {
+        return false;
+    }
+}
+
+extern "C" bool mrnx_bridge_v1_runtime_behavior_trace_finalize(
+    mrnx_runtime_v1* handle,
+    const mrnx_behavior_trace_terminal_request_v1* request,
+    mrnx_behavior_trace_terminal_v1* terminal) {
+    if (handle == nullptr || handle->state == nullptr || request == nullptr ||
+        terminal == nullptr ||
+        request->abi_version != MRNX_BEHAVIOR_TRACE_ABI_V1 ||
+        request->struct_size != sizeof(*request) ||
+        request->reason < MRNX_BEHAVIOR_TRACE_TERMINAL_COMPLETED_V1 ||
+        request->reason > MRNX_BEHAVIOR_TRACE_TERMINAL_FAILED_V1 ||
+        request->reserved0 != 0u || request->reserved1 != 0u) {
+        return false;
+    }
+    auto runtime = handle->state;
+    try {
+        const mrnx_behavior_trace_terminal_request_v1 copiedRequest =
+            *request;
+        const std::lock_guard lock(runtime->mutex);
+        if (runtime->behaviorTraceTerminalCached) {
+            if (std::memcmp(
+                    &copiedRequest, &runtime->behaviorTraceTerminalRequest,
+                    sizeof(copiedRequest)) != 0) {
+                return false;
+            }
+            *terminal = runtime->behaviorTraceTerminal;
+            return true;
+        }
+        if (!runtime->exactClock || runtime->behavior == nullptr ||
+            !runtime->behavior->traceAttached() ||
+            runtime->behavior->traceFinalized() ||
+            runtime->behaviorTraceFinalized ||
+            runtime->active != nullptr || runtime->beginInProgress) {
+            return false;
+        }
+
+        const bool priorBehaviorFailure = !runtime->behaviorError.empty();
+        const auto encode = [](void* raw, void* commandBuffer) noexcept {
+            auto* state = static_cast<RuntimeState*>(raw);
+            return state->behavior->encodeFlush(
+                commandBuffer, state->behaviorError);
+        };
+        if (!runtime->owner->flushReadOnlyObserver(
+                runtime.get(), encode, runtime->behaviorError)) {
+            return false;
+        }
+
+        metalrobo::HumanBehaviorTraceFinalContext finalContext{};
+        finalContext.quiescent = true;
+        finalContext.terminalQuarantine =
+            runtime->terminalQuarantine || priorBehaviorFailure ||
+            !runtime->behaviorError.empty();
+        finalContext.publicationEpoch =
+            runtime->exactAggregate.publication_epoch;
+        finalContext.physicsGeneration =
+            runtime->exactAggregate.physics_generation;
+        finalContext.brainGeneration =
+            runtime->exactAggregate.brain_generation;
+        finalContext.sensorGeneration =
+            runtime->exactAggregate.sensor_generation;
+        finalContext.timestampNanoseconds = runtime->publishedOnce
+            ? runtime->publishedTimestampNanoseconds
+            : runtime->behaviorInitialTimestampNanoseconds;
+        finalContext.acceptedTokenFingerprint = runtime->exactAggregate.
+            sensor_packet.accepted_physics_token_fingerprint;
+        finalContext.publicationFingerprint = runtime->exactAggregate.
+            publication.publication_fingerprint;
+
+        mrnx_behavior_trace_terminal_v1 result{};
+        if (!runtime->behavior->traceFinalize(
+                copiedRequest, finalContext, result,
+                runtime->behaviorTraceError)) {
+            return false;
+        }
+        runtime->behaviorTraceTerminalRequest = copiedRequest;
+        runtime->behaviorTraceTerminal = result;
+        runtime->behaviorTraceTerminalCached = true;
+        runtime->behaviorTraceFinalized = true;
+        runtime->behaviorTraceError.clear();
+        *terminal = result;
+        return true;
+    } catch (const std::exception& exception) {
+        try {
+            const std::lock_guard lock(runtime->mutex);
+            runtime->behaviorTraceError = exception.what();
+        } catch (...) {}
+        return false;
+    } catch (...) {
+        return false;
+    }
 }

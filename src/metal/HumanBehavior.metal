@@ -15,6 +15,107 @@ inline ulong fenceHash(const device MRNumanXHumanMatterJointPublicationFenceGPU&
     const device uchar* bytes=reinterpret_cast<const device uchar*>(&f);ulong h=14695981039346656037ul;
     for(uint i=0;i<120u;++i){h^=bytes[i];h*=1099511628211ul;}return h;
 }
+inline ulong traceRecordHash(const thread MRHumanBehaviorTraceRecordGPU& r) {
+    const thread uchar* bytes=reinterpret_cast<const thread uchar*>(&r);ulong h=14695981039346656037ul;
+    for(uint i=0;i<264u;++i){h^=bytes[i];h*=1099511628211ul;}return h;
+}
+inline void traceDrop(device MRHumanBehaviorTracePageGPU& page,ulong attempt,uint status) {
+    page.observedAttemptCount=attempt;
+    if(page.droppedRecordCount!=ULONG_MAX)++page.droppedRecordCount;
+    if(status==MR_HUMAN_BEHAVIOR_TRACE_STATUS_INVALID||page.status==MR_HUMAN_BEHAVIOR_TRACE_STATUS_INVALID)
+        page.status=MR_HUMAN_BEHAVIOR_TRACE_STATUS_INVALID;
+    else page.status=MR_HUMAN_BEHAVIOR_TRACE_STATUS_OVERFLOW;
+}
+inline void appendTrace(
+    constant MRHumanBehaviorProgramGPU& p,
+    const thread MRHumanBehaviorCandidateGPU& sample,
+    const thread MRHumanBehaviorReleaseGPU& release,
+    const device MRNumanXHumanMatterJointPublicationFenceGPU& fence,
+    device MRHumanBehaviorTracePageGPU& page,
+    const device MRHumanBehaviorTraceAttemptContextGPU& context,
+    device MRHumanBehaviorTraceRecordGPU* records) {
+    if(page.status==MR_HUMAN_BEHAVIOR_TRACE_STATUS_DISABLED||page.status==MR_HUMAN_BEHAVIOR_TRACE_STATUS_FINALIZED)return;
+    const bool pageValid=page.abiVersion==MR_HUMAN_BEHAVIOR_TRACE_ABI_VERSION&&
+        page.structSize==sizeof(MRHumanBehaviorTracePageGPU)&&page.recordCapacity>0&&
+        page.traceInstanceFingerprint!=0&&page.expectedAcceptedRoots>0&&
+        page.recordCount<=page.recordCapacity&&page.drainedRecordCount<=page.totalRecordCount&&
+        page.totalRecordCount-page.drainedRecordCount==page.recordCount&&
+        page.droppedRecordCount<=page.observedAttemptCount&&
+        page.totalRecordCount<=page.observedAttemptCount-page.droppedRecordCount&&
+        page.totalRecordCount<=ULONG_MAX-page.droppedRecordCount&&
+        page.totalRecordCount+page.droppedRecordCount==page.observedAttemptCount&&
+        ((page.lastAfterPublicationEpoch==0u&&page.lastAfterAcceptedTokenFingerprint==0u&&page.lastAfterPublicationFingerprint==0u)||
+         (page.lastAfterPublicationEpoch!=0u&&page.lastAfterAcceptedTokenFingerprint!=0u&&page.lastAfterPublicationFingerprint!=0u))&&
+        page.observedAttemptCount!=ULONG_MAX&&release.publicationSerial==page.observedAttemptCount+1ul;
+    if(!pageValid){traceDrop(page,release.publicationSerial,MR_HUMAN_BEHAVIOR_TRACE_STATUS_INVALID);return;}
+    const bool sampleMatches=sample.abiVersion==MR_HUMAN_BEHAVIOR_ABI_VERSION&&sample.programFingerprint==p.fingerprint&&
+        sample.transactionFingerprint==release.transactionFingerprint&&sample.linearizationEpoch==release.linearizationEpoch&&
+        sample.slotGeneration==release.slotGeneration&&sample.physicsGeneration==release.physicsGeneration&&
+        sample.acceptedTimestampNanoseconds==release.acceptedTimestampNanoseconds;
+    bool contextValid=context.abiVersion==MR_HUMAN_BEHAVIOR_TRACE_ABI_VERSION&&
+        context.structSize==sizeof(MRHumanBehaviorTraceAttemptContextGPU)&&context.present==1u&&context.controlStep!=0u&&
+        context.reserved0==0u&&context.reserved1==0u&&context.reserved2==0u&&
+        context.basePublicationEpoch==page.lastAfterPublicationEpoch&&
+        context.basePhysicsGeneration==page.lastAfterPhysicsGeneration&&
+        context.baseAcceptedTimestampNanoseconds==page.lastAfterAcceptedTimestampNanoseconds&&
+        context.baseAcceptedTokenFingerprint==page.lastAfterAcceptedTokenFingerprint&&
+        context.basePublicationFingerprint==page.lastAfterPublicationFingerprint&&
+        context.basePhysicsGeneration!=ULONG_MAX&&release.physicsGeneration==context.basePhysicsGeneration+1ul&&
+        context.baseAcceptedTimestampNanoseconds<=ULONG_MAX-p.timestepNanoseconds&&
+        release.acceptedTimestampNanoseconds==context.baseAcceptedTimestampNanoseconds+p.timestepNanoseconds;
+    if(release.released==1u) {
+        contextValid=contextValid&&context.basePublicationEpoch!=ULONG_MAX&&
+            fence.abiVersion==MR_NUMANX_HUMAN_MATTER_PUBLICATION_FENCE_ABI_VERSION_V2&&
+            fence.structBytes==MR_NUMANX_HUMAN_MATTER_PUBLICATION_FENCE_BYTES&&
+            fence.status==MR_NUMANX_HUMAN_MATTER_PUBLICATION_COMMITTED&&
+            context.afterPublicationEpoch==context.basePublicationEpoch+1ul&&
+            context.afterPhysicsGeneration==release.physicsGeneration&&
+            context.afterAcceptedTimestampNanoseconds==release.acceptedTimestampNanoseconds&&
+            context.candidateStateProofFingerprint!=0&&context.candidateAcceptedTokenFingerprint!=0&&
+            context.candidatePublicationFingerprint!=0&&context.afterPublicationFingerprint!=0&&
+            context.afterAcceptedTokenFingerprint==context.candidateAcceptedTokenFingerprint&&
+            context.candidateAcceptedTokenFingerprint==fence.physicsTokenFingerprint&&
+            fence.controlStep==context.controlStep&&release.jointFenceFingerprint==fence.fenceFingerprint;
+    } else {
+        const bool noCandidateProof=context.candidateStateProofFingerprint==0&&
+            context.candidateAcceptedTokenFingerprint==0&&context.candidatePublicationFingerprint==0;
+        const bool completeCandidateProof=context.candidateStateProofFingerprint!=0&&
+            context.candidateAcceptedTokenFingerprint!=0&&context.candidatePublicationFingerprint!=0;
+        contextValid=contextValid&&(noCandidateProof||completeCandidateProof)&&
+            context.afterPublicationEpoch==context.basePublicationEpoch&&
+            context.afterPhysicsGeneration==context.basePhysicsGeneration&&
+            context.afterAcceptedTimestampNanoseconds==context.baseAcceptedTimestampNanoseconds&&
+            context.afterAcceptedTokenFingerprint==context.baseAcceptedTokenFingerprint&&
+            context.afterPublicationFingerprint==context.basePublicationFingerprint&&
+            ((context.basePublicationEpoch==0u&&context.basePublicationFingerprint==0u)||
+             (context.basePublicationEpoch!=0u&&context.basePublicationFingerprint!=0u))&&
+            release.jointFenceFingerprint==0u;
+    }
+    if(!contextValid){traceDrop(page,release.publicationSerial,MR_HUMAN_BEHAVIOR_TRACE_STATUS_INVALID);return;}
+    page.lastAfterPublicationEpoch=context.afterPublicationEpoch;
+    page.lastAfterPhysicsGeneration=context.afterPhysicsGeneration;
+    page.lastAfterAcceptedTimestampNanoseconds=context.afterAcceptedTimestampNanoseconds;
+    page.lastAfterAcceptedTokenFingerprint=context.afterAcceptedTokenFingerprint;
+    page.lastAfterPublicationFingerprint=context.afterPublicationFingerprint;
+    if(page.recordCount>=page.recordCapacity||page.totalRecordCount==ULONG_MAX){traceDrop(page,release.publicationSerial,MR_HUMAN_BEHAVIOR_TRACE_STATUS_OVERFLOW);return;}
+    MRHumanBehaviorTraceRecordGPU record={};record.abiVersion=MR_HUMAN_BEHAVIOR_TRACE_ABI_VERSION;record.structSize=sizeof(record);
+    record.disposition=release.released==1u?MR_HUMAN_BEHAVIOR_TRACE_JOINTLY_PUBLISHED:MR_HUMAN_BEHAVIOR_TRACE_REJECTED_RELEASED;
+    record.metricKind=release.released==1u?MR_HUMAN_BEHAVIOR_TRACE_METRIC_ACCEPTED:
+        (sampleMatches&&sample.status==0u?MR_HUMAN_BEHAVIOR_TRACE_METRIC_REJECTED_CANDIDATE:MR_HUMAN_BEHAVIOR_TRACE_METRIC_UNAVAILABLE);
+    record.controlStep=context.controlStep;record.runtimeFailureStage=context.runtimeFailureStage;
+    record.candidateStatus=sampleMatches?sample.status:2u;
+    if(record.metricKind!=MR_HUMAN_BEHAVIOR_TRACE_METRIC_UNAVAILABLE){record.postureValid=sample.postureValid;record.settled=sample.settled;record.auditCoveredMask=sample.audit.coveredMask;record.auditViolationMask=sample.audit.violationMask;record.forbiddenContactCoverage=sample.audit.forbiddenContactCoverage;record.forbiddenContactCount=sample.audit.forbiddenContactCount;record.valueHigh[0]=sample.valueHigh.x;record.valueHigh[1]=sample.valueHigh.y;record.valueHigh[2]=sample.valueHigh.z;record.valueHigh[3]=sample.valueHigh.w;record.valueLow[0]=sample.valueLow.x;record.valueLow[1]=sample.valueLow.y;record.valueLow[2]=sample.valueLow.z;record.valueLow[3]=sample.valueLow.w;}
+    record.attemptIndex=release.publicationSerial;record.transactionFingerprint=release.transactionFingerprint;record.linearizationEpoch=release.linearizationEpoch;record.slotGeneration=release.slotGeneration;
+    record.basePublicationEpoch=context.basePublicationEpoch;record.basePhysicsGeneration=context.basePhysicsGeneration;record.baseAcceptedTimestampNanoseconds=context.baseAcceptedTimestampNanoseconds;record.baseAcceptedTokenFingerprint=context.baseAcceptedTokenFingerprint;
+    record.candidatePhysicsGeneration=release.physicsGeneration;record.candidateTimestampNanoseconds=release.acceptedTimestampNanoseconds;record.candidateStateProofFingerprint=context.candidateStateProofFingerprint;record.candidateAcceptedTokenFingerprint=context.candidateAcceptedTokenFingerprint;record.candidatePublicationFingerprint=context.candidatePublicationFingerprint;
+    record.afterPublicationEpoch=context.afterPublicationEpoch;record.afterPhysicsGeneration=context.afterPhysicsGeneration;record.afterAcceptedTimestampNanoseconds=context.afterAcceptedTimestampNanoseconds;record.afterAcceptedTokenFingerprint=context.afterAcceptedTokenFingerprint;record.afterPublicationFingerprint=context.afterPublicationFingerprint;record.jointFenceFingerprint=release.jointFenceFingerprint;
+    record.previousRecordFingerprint=page.lastRecordFingerprint;record.recordFingerprint=traceRecordHash(record);
+    if(record.recordFingerprint==0u){traceDrop(page,release.publicationSerial,MR_HUMAN_BEHAVIOR_TRACE_STATUS_INVALID);return;}
+    records[page.recordCount]=record;if(page.recordCount==0u)page.firstAttemptIndex=release.publicationSerial;
+    page.lastAttemptIndex=release.publicationSerial;++page.recordCount;++page.totalRecordCount;page.observedAttemptCount=release.publicationSerial;page.lastRecordFingerprint=record.recordFingerprint;
+    if(release.released==1u){++page.acceptedRecordCount;++page.acceptedProofRecordCount;if(sample.audit.forbiddenContactCoverage==1u)++page.forbiddenContactCoveredAcceptedCount;}else ++page.rejectedRecordCount;
+    if(sampleMatches&&sample.status==0u&&sample.audit.coveredMask==MR_HUMAN_BEHAVIOR_COMPLETE_AUDIT_MASK)++page.nativeAuditRecordCount;
+}
 }
 
 kernel void human_behavior_measure(
@@ -111,7 +212,10 @@ kernel void human_behavior_reduce(
     const device MRHumanBehaviorCandidateGPU* samples [[buffer(2)]],
     const device MRHumanBehaviorReleaseGPU* release [[buffer(3)]],
     const device MRNumanXHumanMatterJointPublicationFenceGPU* fences [[buffer(4)]],
-    device MRHumanBehaviorReductionGPU* reductions [[buffer(5)]],uint env [[thread_position_in_grid]]) {
+    device MRHumanBehaviorReductionGPU* reductions [[buffer(5)]],
+    device MRHumanBehaviorTracePageGPU* tracePage [[buffer(6)]],
+    const device MRHumanBehaviorTraceAttemptContextGPU* traceContext [[buffer(7)]],
+    device MRHumanBehaviorTraceRecordGPU* traceRecords [[buffer(8)]],uint env [[thread_position_in_grid]]) {
     if(env>=environments)return;
     const auto r=release[env];if(r.released==0)return;
     auto out=reductions[env];if(out.status!=0)return;
@@ -166,4 +270,5 @@ kernel void human_behavior_reduce(
     }
     out.publicationSerial=r.publicationSerial;out.lastTransactionFingerprint=r.transactionFingerprint;out.lastJointFenceFingerprint=r.jointFenceFingerprint;
     reductions[env]=out;
+    appendTrace(p,s,r,fences[env],tracePage[env],traceContext[env],traceRecords);
 }

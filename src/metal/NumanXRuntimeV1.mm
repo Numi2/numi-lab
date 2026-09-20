@@ -1748,6 +1748,9 @@ struct ActiveRoot final : std::enable_shared_from_this<ActiveRoot> {
     std::uint64_t previousPhysicsGeneration = 0u;
     std::uint64_t previousAcceptedTokenFingerprint = 0u;
     std::uint64_t previousHumanIOProgramFingerprint = 0u;
+    std::uint64_t basePublicationEpoch = 0u;
+    std::uint64_t baseAcceptedTimestampNanoseconds = 0u;
+    std::uint64_t basePublicationFingerprint = 0u;
     bool exactFamily = false;
     metalrobo::MetalNumanXHumanIOExactPreparedView exactHumanIO{};
     metalrobo::MetalNumanXHumanMatterExactPhysicalReceipt exactReceipt{};
@@ -1876,6 +1879,11 @@ struct RuntimeState final : std::enable_shared_from_this<RuntimeState> {
     std::string behaviorError;
     std::string behaviorMetricSHA256;
     std::uint64_t behaviorInitialTimestampNanoseconds = 0u;
+    std::string behaviorTraceError;
+    bool behaviorTraceFinalized = false;
+    bool behaviorTraceTerminalCached = false;
+    mrnx_behavior_trace_terminal_request_v1 behaviorTraceTerminalRequest{};
+    mrnx_behavior_trace_terminal_v1 behaviorTraceTerminal{};
     std::unique_ptr<numi::matter::Runtime> matter;
     std::unique_ptr<metalrobo::MetalNumanXHumanMatterContext> adapter;
     std::unique_ptr<metalrobo::MetalNumanXHumanIOContext> humanIO;
@@ -3059,7 +3067,7 @@ void fillRuntimeInfoFailure(
     {
         const std::lock_guard lock(runtime->mutex);
         if (runtime->beginInProgress || runtime->active != nullptr ||
-            runtime->terminalQuarantine ||
+            runtime->terminalQuarantine || runtime->behaviorTraceFinalized ||
             runtime->nextSlotGeneration == 0u ||
             runtime->nextSensorGeneration == 0u ||
             runtime->nextLinearizationEpoch == 0u) {
@@ -3709,6 +3717,12 @@ void fillRuntimeInfoFailure(
     result->receptorTimestampNanoseconds = substep.startTimestampNanoseconds;
     {
         const std::lock_guard lock(runtime->mutex);
+        result->basePublicationEpoch =
+            runtime->exactAggregate.publication_epoch;
+        result->baseAcceptedTimestampNanoseconds =
+            root.committedTimestampNanoseconds;
+        result->basePublicationFingerprint =
+            runtime->exactAggregate.publication.publication_fingerprint;
         if (runtime->publishedOnce) {
             result->previousTransactionFingerprint =
                 runtime->publishedTransactionFingerprint;
@@ -3736,6 +3750,7 @@ void fillRuntimeInfoFailure(
         const std::lock_guard lock(runtime->mutex);
         if (!runtime->exactClock || runtime->beginInProgress ||
             runtime->active != nullptr || runtime->terminalQuarantine ||
+            runtime->behaviorTraceFinalized ||
             runtime->nextSlotGeneration == 0u ||
             runtime->nextSensorGeneration == 0u ||
             runtime->nextLinearizationEpoch == 0u) {
@@ -4763,7 +4778,8 @@ bool mrnx_bridge_v1_runtime_begin_physical_root_v2(
         try {
             const std::lock_guard lock(state->mutex);
             if (state->beginInProgress || state->active != nullptr ||
-                state->terminalQuarantine) return false;
+                state->terminalQuarantine ||
+                state->behaviorTraceFinalized) return false;
             // ABI v2 was published with unit-ambiguous all-v1 nested records.
             // Preserve its symbol and layout, but never inspect its borrowed
             // resource descriptors or route it into an exact-clock runtime.
@@ -5679,7 +5695,56 @@ void recordRuntimeBehaviorTerminal(RuntimeState& runtime, const ActiveRoot& acti
     release.publicationSerial = runtime.behavior->completedAttempts() + 1u;
     release.jointFenceFingerprint = fence != nullptr ? fence->fenceFingerprint : 0u;
     release.released = accepted ? 1u : 2u;
-    (void)runtime.behavior->terminal(release, fence, runtime.behaviorError);
+    if (!runtime.behavior->traceAttached() || !active.exactFamily) {
+        (void)runtime.behavior->terminal(
+            release, fence, runtime.behaviorError);
+        return;
+    }
+
+    metalrobo::HumanBehaviorTraceAttemptContext trace{};
+    trace.controlStep = active.controlStep <=
+            std::numeric_limits<std::uint32_t>::max()
+        ? static_cast<std::uint32_t>(active.controlStep)
+        : 0u;
+    trace.runtimeFailureStage = runtime.info.request_failure_stage;
+    trace.basePublicationEpoch = active.basePublicationEpoch;
+    trace.basePhysicsGeneration = active.previousPhysicsGeneration;
+    trace.baseAcceptedTimestampNanoseconds =
+        active.baseAcceptedTimestampNanoseconds;
+    trace.baseAcceptedTokenFingerprint =
+        active.previousAcceptedTokenFingerprint;
+    trace.basePublicationFingerprint =
+        active.basePublicationFingerprint;
+    trace.candidateStateProofFingerprint =
+        active.exactReceipt.acceptedStateProof.proofFingerprint;
+    trace.candidateAcceptedTokenFingerprint =
+        active.exactReceipt.acceptedPhysicsStateToken.tokenFingerprint;
+    trace.candidatePublicationFingerprint =
+        active.exactSensorPacket.candidate_publication_fingerprint;
+    if (accepted) {
+        trace.afterPublicationEpoch = runtime.exactAggregate.publication_epoch;
+        trace.afterPhysicsGeneration = runtime.publishedPhysicsGeneration;
+        trace.afterAcceptedTimestampNanoseconds =
+            runtime.publishedTimestampNanoseconds;
+        trace.afterAcceptedTokenFingerprint = runtime.exactAggregate.
+            sensor_packet.accepted_physics_token_fingerprint;
+        trace.afterPublicationFingerprint = runtime.exactAggregate.
+            publication.publication_fingerprint;
+    } else {
+        // A rejected attempt exposes typed candidate evidence but never
+        // advances, fabricates, or aliases accepted/publication authority.
+        trace.afterPublicationEpoch = active.basePublicationEpoch;
+        trace.afterPhysicsGeneration = active.previousPhysicsGeneration;
+        trace.afterAcceptedTimestampNanoseconds =
+            active.baseAcceptedTimestampNanoseconds;
+        trace.afterAcceptedTokenFingerprint =
+            active.previousAcceptedTokenFingerprint;
+        trace.afterPublicationFingerprint =
+            active.basePublicationFingerprint;
+    }
+    (void)runtime.behavior->terminal(
+        release, accepted ? fence : nullptr, &trace,
+        runtime.behaviorError);
 }
 
 template <typename T>
