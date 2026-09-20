@@ -36,9 +36,11 @@ extern "C" {
 #define MRNX_BRAIN_MOTOR_CANDIDATE_DECISION_SHADOW_V1 (1u << 1u)
 #define MRNX_BRAIN_MOTOR_READY_ABI_VERSION_V1 1u
 #define MRNX_BRAIN_MOTOR_READY_ABI_VERSION_V2 2u
+#define MRNX_BRAIN_MOTOR_READY_GATE_SUCCESS_V2 1u
 #define MRNX_BRAIN_MOTOR_READY_GATE_BYTES_V1 160u
 #define MRNX_BRAIN_JOINT_TRANSACTION_VERSION_V2 2u
 #define MRNX_BRAIN_MOTOR_OUTPUT_VERSION_V2 4u
+#define MRNX_BRAIN_MOTOR_OUTPUT_VALID_V2 (1u << 0u)
 #define MRNX_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS 2u
 #define MRNX_EXACT_CLOCK_QUANTUM_NANOSECONDS 1u
 #define MRNX_RUNTIME_CONFIG_ABI_V2 2u
@@ -54,6 +56,18 @@ extern "C" {
 #define MRNX_REQUEST_FAILURE_STAGE_LEGACY_EXACT_V2_UNROUTABLE 901u
 #define MRNX_EXACT_CLOCK_INFO_ABI_V1 1u
 #define MRNX_AGGREGATE_SNAPSHOT_ABI_V4 4u
+#define MRNX_AGGREGATE_SNAPSHOT_ABI_V5 5u
+#define MRNX_CANDIDATE_CHANNEL_ABI_V2 2u
+#define MRNX_CANDIDATE_TIMING_ABI_V2 2u
+#define MRNX_EXACT_INBOUND_AUTHORITY_ABI_V2 2u
+#define MRNX_EXACT_SENSOR_PACKET_ABI_V2 2u
+#define MRNX_PUBLICATION_ABI_V2 2u
+#define MRNX_FINGERPRINT_DOMAIN_EXACT_INBOUND_AUTHORITY_V2 0x4e584941u
+#define MRNX_FINGERPRINT_DOMAIN_EXACT_SENSOR_CHANNEL_V2 0x4e584348u
+#define MRNX_FINGERPRINT_DOMAIN_EXACT_SENSOR_CHANNEL_SET_V2 0x4e584353u
+#define MRNX_FINGERPRINT_DOMAIN_EXACT_SENSOR_TIMING_V2 0x4e58544du
+#define MRNX_FINGERPRINT_DOMAIN_EXACT_SENSOR_PACKET_V2 0x4e585350u
+#define MRNX_FINGERPRINT_DOMAIN_EXACT_PUBLICATION_V2 0x4e585050u
 #define MRNX_CULTURE_ACCEPTED_VIEW_ABI_V1 1u
 #define MRNX_CULTURE_PREPARED_VIEW_ABI_V1 1u
 #define MRNX_CULTURE_ACCEPTED_BUFFER_COUNT_V1 11u
@@ -197,6 +211,25 @@ typedef struct mrnx_candidate_channel_v1 {
     mrnx_metal_range_v1 validity;
 } mrnx_candidate_channel_v1;
 
+// Exact-clock successor to the public sensor-channel descriptor. It is
+// additive: v1 keeps its immutable microsecond word and layout. The timestamp,
+// domain, and quantum travel together so a nanosecond value can never be
+// admitted through the legacy record by convention alone.
+typedef struct mrnx_candidate_channel_v2 {
+    uint32_t abi_version;
+    uint32_t struct_size;
+    uint32_t modality;
+    uint32_t flags;
+    uint64_t receptor_timestamp_nanoseconds;
+    uint32_t clock_domain;
+    uint32_t clock_quantum_nanoseconds;
+    uint32_t receptor_count;
+    uint32_t feature_dimension;
+    mrnx_metal_range_v1 values;
+    mrnx_metal_range_v1 validity;
+    uint64_t channel_fingerprint;
+} mrnx_candidate_channel_v2;
+
 typedef struct mrnx_candidate_timing_v1 {
     uint32_t abi_version;
     uint32_t struct_size;
@@ -206,6 +239,73 @@ typedef struct mrnx_candidate_timing_v1 {
     uint32_t sample_interval_microseconds;
     uint64_t timing_fingerprint;
 } mrnx_candidate_timing_v1;
+
+// Exact sensor timing is never projected through a 32-bit microsecond latency.
+// timing_fingerprint is the domain-separated FNV identity of every preceding
+// field and therefore binds the explicit clock as well as the four durations.
+typedef struct mrnx_candidate_timing_v2 {
+    uint32_t abi_version;
+    uint32_t struct_size;
+    uint64_t capture_timestamp_nanoseconds;
+    uint64_t delivery_timestamp_nanoseconds;
+    uint64_t latency_nanoseconds;
+    uint64_t sample_interval_nanoseconds;
+    uint32_t clock_domain;
+    uint32_t clock_quantum_nanoseconds;
+    uint64_t timing_fingerprint;
+} mrnx_candidate_timing_v2;
+
+// Canonical, pointer-free receipt for the validated Brain authority that drove
+// one physical candidate. Accepted Brain time/generation and the
+// candidate/output/profile identify the motor payload; the ready gate plus all
+// three Brain program identities close the asynchronous producer chain. Exact
+// physical proof and sensor publication both bind this terminal fingerprint so
+// stale motor authority cannot be republished or relabeled.
+typedef struct mrnx_exact_inbound_authority_v2 {
+    uint32_t abi_version;
+    uint32_t struct_size;
+    uint32_t clock_domain;
+    uint32_t clock_quantum_nanoseconds;
+    uint64_t accepted_brain_timestamp_nanoseconds;
+    uint64_t brain_generation;
+    uint64_t transaction_fingerprint;
+    uint64_t substep_fingerprint;
+    uint64_t motor_candidate_fingerprint;
+    uint64_t motor_output_fingerprint;
+    uint64_t motor_profile_fingerprint;
+    uint64_t motor_ready_gate_fingerprint;
+    uint64_t brain_program_fingerprint;
+    uint64_t fast_program_fingerprint;
+    uint64_t decision_gate_fingerprint;
+    uint64_t inbound_authority_fingerprint;
+} mrnx_exact_inbound_authority_v2;
+
+// Canonical exact sensor-publication envelope. Channel fingerprints are folded
+// in strictly increasing modality order into channel_set_fingerprint. The
+// terminal candidate_publication_fingerprint thereby binds the v2 root and
+// substep, accepted physics token, HumanIO identity, timing, and all channel
+// descriptors, including the process-local borrowed Metal-buffer identities.
+typedef struct mrnx_exact_sensor_packet_v2 {
+    uint32_t abi_version;
+    uint32_t struct_size;
+    uint32_t clock_domain;
+    uint32_t clock_quantum_nanoseconds;
+    uint32_t channel_count;
+    uint32_t channel_capacity;
+    uint64_t transaction_fingerprint;
+    uint64_t substep_fingerprint;
+    uint64_t accepted_physics_token_fingerprint;
+    uint64_t inbound_authority_fingerprint;
+    uint64_t human_io_program_fingerprint;
+    uint64_t sensor_fingerprint;
+    uint64_t transaction_instance_fingerprint;
+    uint64_t sensor_generation;
+    uint64_t accepted_brain_generation;
+    uint64_t device_registry_id;
+    uint64_t timing_fingerprint;
+    uint64_t channel_set_fingerprint;
+    uint64_t candidate_publication_fingerprint;
+} mrnx_exact_sensor_packet_v2;
 
 typedef struct mrnx_wire_lease_v1 {
     uint32_t abi_version;
@@ -251,6 +351,24 @@ typedef struct mrnx_publication_v1 {
     uint64_t joint_commit_fingerprint;
     uint64_t brain_generation;
 } mrnx_publication_v1;
+
+// Exact joint-publication authority. The accepted physics token and HumanIO
+// candidate remain private until this complete record is reserved and released
+// under the existing writer gate. A future executable request-v3 lane must use
+// this record; it may not reinterpret mrnx_publication_v1.
+typedef struct mrnx_publication_v2 {
+    uint32_t abi_version;
+    uint32_t struct_size;
+    uint32_t clock_domain;
+    uint32_t clock_quantum_nanoseconds;
+    uint64_t transaction_fingerprint;
+    uint64_t accepted_physics_token_fingerprint;
+    uint64_t candidate_publication_fingerprint;
+    uint64_t joint_commit_fingerprint;
+    uint64_t brain_generation;
+    uint64_t committed_timestamp_nanoseconds;
+    uint64_t publication_fingerprint;
+} mrnx_publication_v2;
 
 typedef enum mrnx_runtime_status_v1 {
     MRNX_RUNTIME_READY_V1 = 1u,
@@ -615,6 +733,27 @@ typedef struct mrnx_aggregate_snapshot_v4 {
     mrnx_culture_accepted_view_v1 culture;
 } mrnx_aggregate_snapshot_v4;
 
+// First all-exact public aggregate. It intentionally carries the accepted
+// publication receipt alongside exact timing and channel records. The v1-v4
+// readers remain legacy-only; an exact runtime must fail them closed rather
+// than down-convert a sub-microsecond accepted root.
+typedef struct mrnx_aggregate_snapshot_v5 {
+    uint32_t abi_version;
+    uint32_t struct_size;
+    uint64_t publication_epoch;
+    uint64_t brain_generation;
+    uint64_t physics_generation;
+    uint64_t sensor_generation;
+    mrnx_root_v1 root;
+    mrnx_candidate_view_v1 sensor;
+    mrnx_candidate_timing_v2 timing;
+    mrnx_exact_inbound_authority_v2 inbound_authority;
+    mrnx_exact_sensor_packet_v2 sensor_packet;
+    mrnx_publication_v2 publication;
+    mrnx_candidate_channel_v2 channels[MRNX_MAX_SENSOR_CHANNELS_V2];
+    mrnx_culture_accepted_view_v1 culture;
+} mrnx_aggregate_snapshot_v5;
+
 typedef struct mrnx_brain_joint_transaction_v1 {
     uint32_t format_version;
     uint32_t environment_identifier;
@@ -853,7 +992,8 @@ typedef struct mrnx_physical_root_request_v2 {
 // distinct v2 record with an explicit nanosecond clock domain. The resource
 // descriptors for motor_header and motor_ready_gate use their typed v2 element
 // kinds and full record element sizes. CPU admission only; execution remains
-// blocked until the complete outbound/persistent v2 family exists.
+// blocked until the exact outbound records declared above have executable
+// HumanIO/HumanMatter producers and a persistent joint-publication owner.
 typedef struct mrnx_physical_root_request_v3 {
     uint32_t abi_version;
     uint32_t struct_size;
@@ -1174,9 +1314,24 @@ static_assert(offsetof(mrnx_candidate_view_v1,
 static_assert(sizeof(mrnx_candidate_channel_v1) == 128u);
 static_assert(offsetof(mrnx_candidate_channel_v1, values) == 32u);
 static_assert(offsetof(mrnx_candidate_channel_v1, validity) == 80u);
+static_assert(sizeof(mrnx_candidate_channel_v2) == 144u);
+static_assert(alignof(mrnx_candidate_channel_v2) == 8u);
+static_assert(offsetof(mrnx_candidate_channel_v2, values) == 40u);
+static_assert(offsetof(mrnx_candidate_channel_v2, validity) == 88u);
+static_assert(offsetof(mrnx_candidate_channel_v2,
+                       channel_fingerprint) == 136u);
 static_assert(sizeof(mrnx_candidate_timing_v1) == 40u);
 static_assert(offsetof(mrnx_candidate_timing_v1,
                        timing_fingerprint) == 32u);
+static_assert(sizeof(mrnx_candidate_timing_v2) == 56u);
+static_assert(offsetof(mrnx_candidate_timing_v2,
+                       timing_fingerprint) == 48u);
+static_assert(sizeof(mrnx_exact_inbound_authority_v2) == 112u);
+static_assert(offsetof(mrnx_exact_inbound_authority_v2,
+                       inbound_authority_fingerprint) == 104u);
+static_assert(sizeof(mrnx_exact_sensor_packet_v2) == 128u);
+static_assert(offsetof(mrnx_exact_sensor_packet_v2,
+                       candidate_publication_fingerprint) == 120u);
 static_assert(sizeof(mrnx_wire_lease_v1) == 184u);
 static_assert(offsetof(mrnx_wire_lease_v1, record) == 104u);
 static_assert(offsetof(mrnx_wire_lease_v1, ready) == 152u);
@@ -1191,6 +1346,9 @@ static_assert(offsetof(mrnx_completion_v1, slot_generation) == 16u);
 static_assert(sizeof(mrnx_publication_v1) == 24u);
 static_assert(offsetof(mrnx_publication_v1,
                        joint_commit_fingerprint) == 8u);
+static_assert(sizeof(mrnx_publication_v2) == 72u);
+static_assert(offsetof(mrnx_publication_v2,
+                       publication_fingerprint) == 64u);
 static_assert(sizeof(mrnx_runtime_config_v1) == 104u);
 static_assert(offsetof(mrnx_runtime_config_v1,
                        timestep_microseconds) == 80u);
@@ -1241,6 +1399,14 @@ static_assert(sizeof(mrnx_culture_prepared_view_v1) == 184u);
 static_assert(offsetof(mrnx_culture_prepared_view_v1, ready) == 144u);
 static_assert(sizeof(mrnx_aggregate_snapshot_v4) == 1944u);
 static_assert(offsetof(mrnx_aggregate_snapshot_v4, culture) == 1320u);
+static_assert(sizeof(mrnx_aggregate_snapshot_v5) == 2392u);
+static_assert(offsetof(mrnx_aggregate_snapshot_v5, timing) == 248u);
+static_assert(offsetof(mrnx_aggregate_snapshot_v5,
+                       inbound_authority) == 304u);
+static_assert(offsetof(mrnx_aggregate_snapshot_v5, sensor_packet) == 416u);
+static_assert(offsetof(mrnx_aggregate_snapshot_v5, publication) == 544u);
+static_assert(offsetof(mrnx_aggregate_snapshot_v5, channels) == 616u);
+static_assert(offsetof(mrnx_aggregate_snapshot_v5, culture) == 1768u);
 static_assert(sizeof(mrnx_brain_joint_transaction_v1) == 96u);
 static_assert(alignof(mrnx_brain_joint_transaction_v1) == 8u);
 static_assert(offsetof(mrnx_brain_joint_transaction_v1,
@@ -1348,11 +1514,37 @@ _Static_assert(sizeof(mrnx_candidate_channel_v1) == 128u,
                "mrnx_candidate_channel_v1 ABI");
 _Static_assert(offsetof(mrnx_candidate_channel_v1, values) == 32u,
                "mrnx_candidate_channel_v1 values offset");
+_Static_assert(sizeof(mrnx_candidate_channel_v2) == 144u,
+               "mrnx_candidate_channel_v2 ABI");
+_Static_assert(_Alignof(mrnx_candidate_channel_v2) == 8u,
+               "mrnx_candidate_channel_v2 alignment");
+_Static_assert(offsetof(mrnx_candidate_channel_v2, values) == 40u,
+               "mrnx_candidate_channel_v2 values offset");
+_Static_assert(offsetof(mrnx_candidate_channel_v2, validity) == 88u,
+               "mrnx_candidate_channel_v2 validity offset");
+_Static_assert(offsetof(mrnx_candidate_channel_v2,
+                        channel_fingerprint) == 136u,
+               "mrnx_candidate_channel_v2 fingerprint offset");
 _Static_assert(sizeof(mrnx_candidate_timing_v1) == 40u,
                "mrnx_candidate_timing_v1 ABI");
 _Static_assert(offsetof(mrnx_candidate_timing_v1,
                         timing_fingerprint) == 32u,
                "mrnx_candidate_timing_v1 fingerprint offset");
+_Static_assert(sizeof(mrnx_candidate_timing_v2) == 56u,
+               "mrnx_candidate_timing_v2 ABI");
+_Static_assert(offsetof(mrnx_candidate_timing_v2,
+                        timing_fingerprint) == 48u,
+               "mrnx_candidate_timing_v2 fingerprint offset");
+_Static_assert(sizeof(mrnx_exact_inbound_authority_v2) == 112u,
+               "mrnx_exact_inbound_authority_v2 ABI");
+_Static_assert(offsetof(mrnx_exact_inbound_authority_v2,
+                        inbound_authority_fingerprint) == 104u,
+               "mrnx_exact_inbound_authority_v2 fingerprint offset");
+_Static_assert(sizeof(mrnx_exact_sensor_packet_v2) == 128u,
+               "mrnx_exact_sensor_packet_v2 ABI");
+_Static_assert(offsetof(mrnx_exact_sensor_packet_v2,
+                        candidate_publication_fingerprint) == 120u,
+               "mrnx_exact_sensor_packet_v2 fingerprint offset");
 _Static_assert(sizeof(mrnx_wire_lease_v1) == 184u,
                "mrnx_wire_lease_v1 ABI");
 _Static_assert(offsetof(mrnx_wire_lease_v1, ready) == 152u,
@@ -1371,6 +1563,11 @@ _Static_assert(offsetof(mrnx_completion_v1, slot_generation) == 16u,
                "mrnx_completion_v1 generation offset");
 _Static_assert(sizeof(mrnx_publication_v1) == 24u,
                "mrnx_publication_v1 ABI");
+_Static_assert(sizeof(mrnx_publication_v2) == 72u,
+               "mrnx_publication_v2 ABI");
+_Static_assert(offsetof(mrnx_publication_v2,
+                        publication_fingerprint) == 64u,
+               "mrnx_publication_v2 fingerprint offset");
 _Static_assert(sizeof(mrnx_runtime_config_v3) == 168u, "mrnx_runtime_config_v3 ABI");
 _Static_assert(sizeof(mrnx_runtime_config_v4) == 192u, "mrnx_runtime_config_v4 ABI");
 _Static_assert(sizeof(mrnx_runtime_config_v5) == 224u, "mrnx_runtime_config_v5 ABI");
@@ -1440,6 +1637,21 @@ _Static_assert(sizeof(mrnx_aggregate_snapshot_v4) == 1944u,
                "mrnx_aggregate_snapshot_v4 ABI");
 _Static_assert(offsetof(mrnx_aggregate_snapshot_v4, culture) == 1320u,
                "mrnx_aggregate_snapshot_v4 culture offset");
+_Static_assert(sizeof(mrnx_aggregate_snapshot_v5) == 2392u,
+               "mrnx_aggregate_snapshot_v5 ABI");
+_Static_assert(offsetof(mrnx_aggregate_snapshot_v5, timing) == 248u,
+               "mrnx_aggregate_snapshot_v5 timing offset");
+_Static_assert(offsetof(mrnx_aggregate_snapshot_v5,
+                        inbound_authority) == 304u,
+               "mrnx_aggregate_snapshot_v5 inbound authority offset");
+_Static_assert(offsetof(mrnx_aggregate_snapshot_v5, sensor_packet) == 416u,
+               "mrnx_aggregate_snapshot_v5 sensor packet offset");
+_Static_assert(offsetof(mrnx_aggregate_snapshot_v5, publication) == 544u,
+               "mrnx_aggregate_snapshot_v5 publication offset");
+_Static_assert(offsetof(mrnx_aggregate_snapshot_v5, channels) == 616u,
+               "mrnx_aggregate_snapshot_v5 channels offset");
+_Static_assert(offsetof(mrnx_aggregate_snapshot_v5, culture) == 1768u,
+               "mrnx_aggregate_snapshot_v5 culture offset");
 _Static_assert(sizeof(mrnx_brain_joint_transaction_v1) == 96u,
                "mrnx_brain_joint_transaction_v1 ABI");
 _Static_assert(_Alignof(mrnx_brain_joint_transaction_v1) == 8u,

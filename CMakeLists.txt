@@ -992,6 +992,7 @@ add_library(
     src/core/NumiHumanMuscleEquilibrium.cpp
     src/core/NumiHumanInitialState.cpp
     src/core/NumiHumanRuntimeIdentity.cpp
+    src/core/NumanXExactTransaction.cpp
     src/core/HumanBehaviorProgram.cpp
     src/core/NumiHumanTensionNetwork.cpp
     src/core/NumiHumanTendon.cpp
@@ -3729,6 +3730,35 @@ set_target_properties(
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
 )
 
+add_executable(
+    metalrobo_numanx_exact_outbound_v2_contract_test
+    tests/numanx_exact_outbound_v2_contract_test.cpp
+    src/core/NumanXExactTransaction.cpp
+)
+target_compile_features(
+    metalrobo_numanx_exact_outbound_v2_contract_test
+    PRIVATE cxx_std_20
+)
+target_compile_options(
+    metalrobo_numanx_exact_outbound_v2_contract_test
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_include_directories(
+    metalrobo_numanx_exact_outbound_v2_contract_test
+    PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/include"
+)
+set_target_properties(
+    metalrobo_numanx_exact_outbound_v2_contract_test
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
 if(BUILD_TESTING)
     add_test(
         NAME numanx.contract.exact_request_v3_cpu
@@ -3736,6 +3766,15 @@ if(BUILD_TESTING)
     )
     set_tests_properties(
         numanx.contract.exact_request_v3_cpu
+        PROPERTIES LABELS "numanx;human;contract;cpu"
+    )
+    add_test(
+        NAME numanx.contract.exact_outbound_v2_cpu
+        COMMAND
+            $<TARGET_FILE:metalrobo_numanx_exact_outbound_v2_contract_test>
+    )
+    set_tests_properties(
+        numanx.contract.exact_outbound_v2_cpu
         PROPERTIES LABELS "numanx;human;contract;cpu"
     )
     add_test(

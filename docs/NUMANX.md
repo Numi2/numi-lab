@@ -104,6 +104,73 @@ The accepted physics token must contain a GPU-derived fingerprint of the live
 accepted Human and Matter state. A hash of transaction metadata, buffer
 addresses, or program identity alone is not a physical-state proof.
 
+### Exact-clock outbound boundary
+
+Request-v3 has a complete fixed-layout record family for its eventual native
+close: `MRNumanXAcceptedStateProofGPUV2`,
+`MRNumanXAcceptedPhysicsStateTokenGPUV2`, `mrnx_candidate_timing_v2`,
+`mrnx_candidate_channel_v2`, `mrnx_exact_inbound_authority_v2`,
+`mrnx_exact_sensor_packet_v2`, `mrnx_publication_v2`, and aggregate snapshot
+v5. The records carry an explicit exact-nanosecond domain and one-nanosecond
+quantum; no v1 microsecond field is reinterpreted. The accepted proof also
+binds the state-proof producer, adapter, transaction policy, linearization
+epoch, slot generation, motor candidate, and canonical inbound authority.
+
+The shared CPU contract gives the inbound Brain authority, physics state,
+accepted proof, accepted token, sensor timing, channel, ordered channel set,
+sensor packet, and publication separate v2 FNV domains. The canonical fixture in
+`numanx_exact_outbound_v2_contract_test.cpp` fixes the following byte-order
+goldens:
+
+| Record | Domain | Golden |
+| --- | --- | --- |
+| inbound Brain authority | `NXIA` | `67f243f667d0323d` |
+| physics state | `NXPS` | `18c6c3b27fbfde9b` |
+| accepted proof | `NXAP` | `b9311ace7f609680` |
+| accepted token | `NXAT` | `49daecb782375620` |
+| sensor timing | `NXTM` | `5cf5d8e731b234a0` |
+| sensor channel | `NXCH` | `29c4e62cfb2378e8` |
+| ordered channel set | `NXCS` | `c5e815775b80108f` |
+| sensor packet | `NXSP` | `a2a401361deb9f57` |
+| joint publication | `NXPP` | `7badb8d7c8eea93e` |
+
+The inbound authority names the accepted Brain timestamp and generation, v2
+root/substep, motor candidate, motor output, motor profile, ready gate, and
+Brain/fast/decision program identities. Its
+fingerprint enters the accepted physical state before the accepted token is
+formed, then enters the sensor packet again. This yields an auditable
+Brain-to-body-to-sensor chain; a self-consistent but stale candidate, output,
+ready gate, Brain timestamp/generation, or Brain program cannot be paired with
+the accepted proof or relabeled by the sensor packet.
+After the existing v2 validators accept the root, substep, candidate, output,
+and ready gate, the exact-authority matcher requires every receipt field to
+equal those source records before the receipt can enter this chain.
+
+The sensor packet also binds the HumanIO program and transaction identity,
+timing, generations, device, and channel set. Modalities must be strictly
+increasing, which makes their order canonical and rejects duplicates. A
+channel descriptor fingerprint includes its process-local borrowed buffer
+identity and GPU slice:
+`gpu_address` is the slice start and `byte_offset` is relative to the owning
+Metal buffer. Validation checks both additions for overflow and checks
+same-buffer overlap in buffer-relative coordinates while checking independent
+buffers in GPU-address coordinates. Native publication must additionally prove
+the borrowed pointer, buffer length, and device agree with that declared slice.
+
+Validation rejects mixed record families, noncanonical sensor modalities,
+wrapping timestamps or tensor/range arithmetic, sensor delivery that differs
+from the accepted physical timestamp, descriptor changes after packet
+identity, and publication metadata that differs from the accepted token or
+sensor packet.
+
+These definitions are an admission and ownership boundary, not an execution
+claim. HumanIO and HumanMatter do not yet produce this full family, and the
+persistent publication owner does not yet release aggregate snapshot v5.
+Therefore a structurally valid request-v3 still stops at failure stage 900
+before importing a Metal object, allocating a slot, advancing an attempt, or
+constructing a command buffer. The v1 and published request-v2 layouts remain
+unchanged.
+
 ## Physics ownership
 
 The implicit coupled unknown contains Matter field state and a variable-size
