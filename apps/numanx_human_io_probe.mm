@@ -1164,25 +1164,49 @@ void initializeHumanInputs(const BorrowedHumanBuffers& buffers) {
             program,
             preparedView
         );
+        const char* invalidInitialMetadata = nullptr;
+        if (!program.valid()) {
+            invalidInitialMetadata = "program";
+        } else if (preparedView.transactionInstanceFingerprint != 0u) {
+            invalidInitialMetadata = "transaction instance fingerprint";
+        } else if (preparedView.motorOutputHeaderGPUAddress !=
+                   motorHeaders.gpuAddress) {
+            invalidInitialMetadata = "motor-output header address";
+        } else if (preparedView.receptorTimestampMicroseconds !=
+                   input.receptorTimestampMicroseconds) {
+            invalidInitialMetadata = "receptor timestamp";
+        } else if (preparedView.timestampQuantumNanoseconds !=
+                   input.timestampQuantumNanoseconds) {
+            invalidInitialMetadata = "timestamp quantum";
+        } else if (preparedView.receptorTimestampNanoseconds !=
+                   input.receptorTimestampMicroseconds *
+                       input.timestampQuantumNanoseconds) {
+            invalidInitialMetadata = "receptor nanosecond timestamp";
+        } else if (preparedView.receptorTimeSeconds !=
+                   static_cast<double>(input.receptorTimestampMicroseconds) *
+                       (static_cast<double>(
+                            input.timestampQuantumNanoseconds) *
+                        1.0e-9)) {
+            invalidInitialMetadata = "receptor time";
+        } else if (preparedView.deliveryTimeSeconds !=
+                   preparedView.receptorTimeSeconds +
+                       input.timestepSeconds) {
+            invalidInitialMetadata = "delivery time";
+        } else if (preparedView.latencySeconds != input.timestepSeconds) {
+            invalidInitialMetadata = "latency";
+        }
         if (!checkDiagnostics(
                 diagnostics,
                 failure,
                 10,
                 "initial prepare"
-            ) || !program.valid() ||
-            preparedView.transactionInstanceFingerprint != 0u ||
-            preparedView.motorOutputHeaderGPUAddress !=
-                motorHeaders.gpuAddress ||
-            preparedView.receptorTimestampMicroseconds !=
-                input.receptorTimestampMicroseconds ||
-            preparedView.receptorTimeSeconds !=
-                static_cast<double>(input.receptorTimestampMicroseconds) /
-                    1'000'000.0 ||
-            preparedView.deliveryTimeSeconds !=
-                preparedView.receptorTimeSeconds + input.timestepSeconds ||
-            preparedView.latencySeconds != input.timestepSeconds) {
+            ) || invalidInitialMetadata != nullptr) {
             if (failure.message.empty()) {
-                failure = fail(11, "initial program/view metadata is invalid");
+                failure = fail(
+                    11,
+                    std::string("initial program/view metadata is invalid: ") +
+                        invalidInitialMetadata
+                );
             }
             std::fprintf(stderr, "%s\n", failure.message.c_str());
             return failure.code;
