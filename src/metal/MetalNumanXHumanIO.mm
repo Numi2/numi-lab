@@ -75,6 +75,7 @@ struct MetalNumanXHumanIOState final
     id<MTLLibrary> library = nil;
     id<MTLComputePipelineState> admitPipeline = nil;
     id<MTLComputePipelineState> validateMotorHeaderPipeline = nil;
+    id<MTLComputePipelineState> validateMotorHeaderV2Pipeline = nil;
     id<MTLComputePipelineState> gatePipeline = nil;
     id<MTLComputePipelineState> writePipeline = nil;
     NumanXExecutableImageIdentity metallibIdentity{};
@@ -1025,6 +1026,13 @@ void clearCandidateOwnershipLocked(State& state) noexcept {
         MetalNumanXHumanIODiagnostics result = makePipeline(
             @"numanx_human_validate_motor_output",
             state.validateMotorHeaderPipeline
+        );
+        if (!result.succeeded()) {
+            return result;
+        }
+        result = makePipeline(
+            @"numanx_human_validate_motor_output_v2",
+            state.validateMotorHeaderV2Pipeline
         );
         if (!result.succeeded()) {
             return result;
@@ -3135,6 +3143,161 @@ bool metalNumanXBrainMotorReadyGateV2Valid(
         gate.gateFingerprint != 0u &&
         gate.gateFingerprint ==
             metalNumanXBrainMotorReadyGateV2Fingerprint(gate);
+}
+
+bool metalNumanXHumanIOBuildMotorDispatchV2(
+    const MetalNumanXHumanIOInputV2& input,
+    MRNumanXHumanMotorDispatchGPUV2& dispatch
+) noexcept {
+    constexpr std::uint32_t requiredCandidateFlags =
+        MR_NUMANX_BRAIN_MOTOR_CANDIDATE_VALID |
+        MR_NUMANX_BRAIN_MOTOR_CANDIDATE_DECISION_SHADOW;
+    const auto& candidate = input.candidate;
+    if (!metalNumanXBrainJointTransactionV2Valid(input.root) ||
+        !metalNumanXBrainJointSubstepV2Valid(input.root, input.substep) ||
+        !metalNumanXBrainMotorCandidateV2Valid(
+            input.root, input.substep, candidate) ||
+        candidate.flags != requiredCandidateFlags ||
+        input.substep.substepIndex != 0u ||
+        input.substep.attemptIndex != 0u ||
+        input.environmentCount != 1u || input.muscleCount == 0u ||
+        input.muscleCount != candidate.muscleCount ||
+        input.stepCount != 1u || input.reserved0 != 0u ||
+        input.timestepNanoseconds == 0u ||
+        input.timestepNanoseconds != input.substep.durationNanoseconds ||
+        input.receptorTimestampNanoseconds !=
+            input.substep.startTimestampNanoseconds ||
+        input.receptorTimestampNanoseconds !=
+            candidate.acceptedBrainTimestampNanoseconds ||
+        input.candidateSensorGeneration == 0u ||
+        (input.supplementalProgram.configured() &&
+         !input.supplementalProgram.valid()) ||
+        candidate.actuatorCommandKind !=
+            MR_NUMANX_BRAIN_ACTUATOR_MUSCLE_EXCITATION ||
+        input.motorOutputHeaderMetalBuffer == nullptr ||
+        input.excitationMetalBuffer == nullptr ||
+        input.autonomicCommandMetalBuffer == nullptr ||
+        input.activeSensingCommandMetalBuffer == nullptr ||
+        input.motorReadyGateMetalBuffer == nullptr ||
+        input.motorReadySharedEvent == nullptr ||
+        input.motorReadySharedEventValue == 0u ||
+        input.motorOutputHeaderByteCount !=
+            candidate.motorOutputHeaderByteCount ||
+        input.motorOutputHeaderByteCount !=
+            sizeof(MRNumanXBrainMotorOutputHeaderGPUV2) ||
+        input.motorOutputHeaderEnvironmentStride !=
+            sizeof(MRNumanXBrainMotorOutputHeaderGPUV2) ||
+        input.excitationByteCount !=
+            candidate.muscleExcitationByteCount ||
+        input.excitationEnvironmentStride != input.muscleCount ||
+        input.autonomicCommandByteCount !=
+            candidate.autonomicCommandByteCount ||
+        input.activeSensingCommandByteCount !=
+            candidate.activeSensingCommandByteCount ||
+        input.motorReadyGateByteCount !=
+            sizeof(MRNumanXBrainMotorReadyGateGPUV2) ||
+        input.expectedMotorOutputHeaderGPUAddress !=
+            candidate.motorOutputHeaderGPUAddress ||
+        input.expectedExcitationGPUAddress !=
+            candidate.muscleExcitationGPUAddress ||
+        input.expectedAutonomicCommandGPUAddress !=
+            candidate.autonomicCommandGPUAddress ||
+        input.expectedActiveSensingCommandGPUAddress !=
+            candidate.activeSensingCommandGPUAddress ||
+        input.expectedMotorReadyGateGPUAddress == 0u ||
+        input.motorOutputHeaderByteOffset %
+                alignof(MRNumanXBrainMotorOutputHeaderGPUV2) != 0u ||
+        input.excitationByteOffset % alignof(float) != 0u ||
+        input.autonomicCommandByteOffset % alignof(std::uint32_t) != 0u ||
+        input.activeSensingCommandByteOffset % alignof(std::uint32_t) != 0u ||
+        input.motorReadyGateByteOffset %
+                alignof(MRNumanXBrainMotorReadyGateGPUV2) != 0u ||
+        input.expectedMotorReadyGateGPUAddress %
+                alignof(MRNumanXBrainMotorReadyGateGPUV2) != 0u ||
+        input.excitationEnvironmentStride >
+            std::numeric_limits<mr_u32>::max()) {
+        return false;
+    }
+
+    struct Slice {
+        void* object;
+        std::size_t offset;
+        std::size_t count;
+        std::uint64_t address;
+    };
+    const Slice slices[] = {
+        {input.motorOutputHeaderMetalBuffer,
+         input.motorOutputHeaderByteOffset,
+         input.motorOutputHeaderByteCount,
+         input.expectedMotorOutputHeaderGPUAddress},
+        {input.excitationMetalBuffer, input.excitationByteOffset,
+         input.excitationByteCount, input.expectedExcitationGPUAddress},
+        {input.autonomicCommandMetalBuffer,
+         input.autonomicCommandByteOffset,
+         input.autonomicCommandByteCount,
+         input.expectedAutonomicCommandGPUAddress},
+        {input.activeSensingCommandMetalBuffer,
+         input.activeSensingCommandByteOffset,
+         input.activeSensingCommandByteCount,
+         input.expectedActiveSensingCommandGPUAddress},
+        {input.motorReadyGateMetalBuffer, input.motorReadyGateByteOffset,
+         input.motorReadyGateByteCount,
+         input.expectedMotorReadyGateGPUAddress},
+    };
+    for (std::size_t first = 0u; first < std::size(slices); ++first) {
+        std::size_t end = 0u;
+        if (!checkedAdd(slices[first].offset, slices[first].count, end)) {
+            return false;
+        }
+        for (std::size_t second = first + 1u;
+             second < std::size(slices); ++second) {
+            if (!gpuRangesDisjoint(
+                    slices[first].address, slices[first].count,
+                    slices[second].address, slices[second].count) ||
+                slicesOverlap(
+                    slices[first].object, slices[first].offset,
+                    slices[first].count, slices[second].object,
+                    slices[second].offset, slices[second].count)) {
+                return false;
+            }
+        }
+    }
+
+    MRNumanXHumanMotorDispatchGPUV2 staged{};
+    staged.abiVersion = MR_NUMANX_HUMAN_MOTOR_DISPATCH_ABI_VERSION_V2;
+    staged.environmentCount = input.environmentCount;
+    staged.muscleCount = input.muscleCount;
+    staged.excitationEnvironmentStride = static_cast<mr_u32>(
+        input.excitationEnvironmentStride);
+    staged.motorOutputFormatVersion =
+        MR_NUMANX_BRAIN_MOTOR_OUTPUT_VERSION_V2;
+    staged.motorCandidateFormatVersion = candidate.formatVersion;
+    staged.motorCandidateFlags = candidate.flags;
+    staged.actuatorCommandKind = candidate.actuatorCommandKind;
+    staged.environmentIdentifierBase = candidate.environmentIdentifier;
+    staged.headerEnvironmentStride = 1u;
+    staged.substepIndex = input.substep.substepIndex;
+    staged.attemptIndex = input.substep.attemptIndex;
+    staged.clockDomain = input.root.clockDomain;
+    staged.clockQuantumNanoseconds = input.root.clockQuantumNanoseconds;
+    staged.controlStep = input.root.controlStepIdentifier;
+    staged.transactionFingerprint = input.root.transactionFingerprint;
+    staged.substepFingerprint = input.substep.substepFingerprint;
+    staged.motorCandidateFingerprint = candidate.candidateFingerprint;
+    staged.acceptedBrainGeneration = candidate.brainGeneration;
+    staged.acceptedBrainTimestampNanoseconds =
+        candidate.acceptedBrainTimestampNanoseconds;
+    staged.motorProfileFingerprint = candidate.motorProfileFingerprint;
+    staged.randomCounterGeneration = candidate.randomCounterGeneration;
+    staged.speciesTemplateFingerprint = candidate.speciesTemplateFingerprint;
+    staged.compiledSpeciesTemplateFingerprint =
+        candidate.compiledSpeciesTemplateFingerprint;
+    staged.expectedExcitationGPUAddress =
+        input.expectedExcitationGPUAddress;
+    staged.expectedMotorOutputHeaderGPUAddress =
+        input.expectedMotorOutputHeaderGPUAddress;
+    dispatch = staged;
+    return true;
 }
 
 std::uint64_t metalNumanXHumanIOPublicationBindingFingerprint(

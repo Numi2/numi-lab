@@ -3776,6 +3776,36 @@ add_executable(
     tests/numanx_exact_outbound_v2_contract_test.cpp
     src/core/NumanXExactTransaction.cpp
 )
+
+add_executable(
+    metalrobo_numanx_human_io_exact_v2_contract_test
+    tests/numanx_human_io_exact_v2_contract_test.cpp
+)
+target_compile_features(
+    metalrobo_numanx_human_io_exact_v2_contract_test
+    PRIVATE cxx_std_20
+)
+target_compile_options(
+    metalrobo_numanx_human_io_exact_v2_contract_test
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_numanx_human_io_exact_v2_contract_test
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_numanx_human_io_exact_v2_contract_test
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
 target_compile_features(
     metalrobo_numanx_exact_outbound_v2_contract_test
     PRIVATE cxx_std_20
@@ -3893,6 +3923,15 @@ if(BUILD_TESTING)
     set_tests_properties(
         numanx.contract.exact_outbound_v2_cpu
         PROPERTIES LABELS "numanx;human;contract;cpu"
+    )
+    add_test(
+        NAME numanx.contract.human_io_exact_v2_cpu
+        COMMAND
+            $<TARGET_FILE:metalrobo_numanx_human_io_exact_v2_contract_test>
+    )
+    set_tests_properties(
+        numanx.contract.human_io_exact_v2_cpu
+        PROPERTIES LABELS "numanx;human;contract;cpu;exact-clock"
     )
     add_test(
         NAME numanx.integration.human_transaction

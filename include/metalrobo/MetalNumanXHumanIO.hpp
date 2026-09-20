@@ -184,6 +184,66 @@ struct MetalNumanXHumanIOInput {
     MetalNumanXHumanIOSupplementalProgram supplementalProgram{};
 };
 
+// Exact-clock successor to MetalNumanXHumanIOInput. This is a distinct input
+// type rather than a mode bit: every Brain authority is the v2 nanosecond
+// family, the ready gate is mandatory, and timestep/receptor time never pass
+// through the legacy microsecond-named words. The first executable exact lane
+// will consume this type; request-v3 remains terminal at stage 900 until that
+// lane and its exact outbound owners are connected.
+struct MetalNumanXHumanIOInputV2 {
+    MRNumanXBrainJointTransactionTokenV2 root{};
+    MRNumanXBrainJointSubstepTokenV2 substep{};
+    MRNumanXBrainMotorCandidateV2 candidate{};
+
+    void* motorOutputHeaderMetalBuffer = nullptr;
+    std::size_t motorOutputHeaderByteOffset = 0u;
+    std::size_t motorOutputHeaderByteCount = 0u;
+    std::size_t motorOutputHeaderEnvironmentStride = 0u;
+    std::uint64_t expectedMotorOutputHeaderGPUAddress = 0u;
+
+    void* excitationMetalBuffer = nullptr;
+    std::size_t excitationByteOffset = 0u;
+    std::size_t excitationByteCount = 0u;
+    std::size_t excitationEnvironmentStride = 0u;
+    std::uint64_t expectedExcitationGPUAddress = 0u;
+
+    void* autonomicCommandMetalBuffer = nullptr;
+    std::size_t autonomicCommandByteOffset = 0u;
+    std::size_t autonomicCommandByteCount = 0u;
+    std::uint64_t expectedAutonomicCommandGPUAddress = 0u;
+
+    void* activeSensingCommandMetalBuffer = nullptr;
+    std::size_t activeSensingCommandByteOffset = 0u;
+    std::size_t activeSensingCommandByteCount = 0u;
+    std::uint64_t expectedActiveSensingCommandGPUAddress = 0u;
+
+    void* motorReadyGateMetalBuffer = nullptr;
+    std::size_t motorReadyGateByteOffset = 0u;
+    std::size_t motorReadyGateByteCount = 0u;
+    std::uint64_t expectedMotorReadyGateGPUAddress = 0u;
+    void* motorReadySharedEvent = nullptr;
+    std::uint64_t motorReadySharedEventValue = 0u;
+
+    std::uint32_t environmentCount = 0u;
+    std::uint32_t muscleCount = 0u;
+    std::uint32_t stepCount = 0u;
+    std::uint32_t reserved0 = 0u;
+    std::uint64_t timestepNanoseconds = 0u;
+    std::uint64_t receptorTimestampNanoseconds = 0u;
+
+    std::uint64_t candidateSensorGeneration = 0u;
+    MetalNumanXHumanIOSupplementalProgram supplementalProgram{};
+};
+
+// Builds the immutable constants consumed by
+// numanx_human_validate_motor_output_v2. This is scalar admission only: native
+// MTLBuffer/MTLSharedEvent ownership is still checked by the future exact
+// prepare path, and output/gate payload bytes remain GPU-validated.
+[[nodiscard]] bool metalNumanXHumanIOBuildMotorDispatchV2(
+    const MetalNumanXHumanIOInputV2& input,
+    MRNumanXHumanMotorDispatchGPUV2& dispatch
+) noexcept;
+
 enum class MetalNumanXHumanIOViewState : std::uint32_t {
     candidate = 0u,
     published = 1u,

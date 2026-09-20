@@ -44,6 +44,19 @@ inline ulong readyGateFingerprint(
     return hash == 0ul ? kFnvOffset : hash;
 }
 
+inline ulong readyGateFingerprintV2(
+    const device MRNumanXBrainMotorReadyGateGPUV2& gate
+) {
+    const device uchar* bytes =
+        reinterpret_cast<const device uchar*>(&gate);
+    ulong hash = kFnvOffset;
+    for (uint index = 0u; index < 152u; ++index) {
+        hash ^= static_cast<ulong>(bytes[index]);
+        hash *= kFnvPrime;
+    }
+    return hash == 0ul ? kFnvOffset : hash;
+}
+
 inline bool validReceptorSource(
     const device MRMujocoMuscleStateGPU& state,
     const device MRMujocoMuscleResultGPU& result,
@@ -268,6 +281,199 @@ kernel void numanx_human_validate_motor_output(
     }
     if (header.outputFingerprint == 0ul ||
         header.outputFingerprint != hash) {
+        headerValidation[environment] =
+            MR_NUMANX_HUMAN_MOTOR_HEADER_FINGERPRINT;
+        return;
+    }
+    headerValidation[environment] = MR_NUMANX_HUMAN_MOTOR_HEADER_VALID;
+}
+
+// Exact-clock counterpart to numanx_human_validate_motor_output. The v2
+// dispatch and record types make it impossible to route a legacy microsecond
+// word into this kernel by convention. The ready event remains liveness only;
+// this same-command-buffer validation of the complete terminal gate is the
+// authority for every subsequent exact HumanIO payload touch.
+kernel void numanx_human_validate_motor_output_v2(
+    const device MRNumanXBrainMotorOutputHeaderGPUV2* headers [[buffer(0)]],
+    const device float* excitations [[buffer(1)]],
+    device uint* headerValidation [[buffer(2)]],
+    constant MRNumanXHumanMotorDispatchGPUV2& dispatch [[buffer(3)]],
+    const device MRNumanXBrainMotorReadyGateGPUV2* motorReadyGate
+        [[buffer(4)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) {
+        return;
+    }
+    headerValidation[environment] = MR_NUMANX_HUMAN_MOTOR_HEADER_PENDING;
+
+    constexpr uint requiredCandidateFlags =
+        MR_NUMANX_BRAIN_MOTOR_CANDIDATE_VALID |
+        MR_NUMANX_BRAIN_MOTOR_CANDIDATE_DECISION_SHADOW;
+    if (dispatch.abiVersion !=
+            MR_NUMANX_HUMAN_MOTOR_DISPATCH_ABI_VERSION_V2 ||
+        dispatch.environmentCount != 1u ||
+        dispatch.motorOutputFormatVersion !=
+            MR_NUMANX_BRAIN_MOTOR_OUTPUT_VERSION_V2 ||
+        dispatch.motorCandidateFormatVersion !=
+            MR_NUMANX_BRAIN_MOTOR_CANDIDATE_VERSION_V2 ||
+        dispatch.motorCandidateFlags != requiredCandidateFlags ||
+        dispatch.actuatorCommandKind !=
+            MR_NUMANX_BRAIN_ACTUATOR_MUSCLE_EXCITATION ||
+        dispatch.headerEnvironmentStride != 1u ||
+        dispatch.substepIndex != 0u || dispatch.attemptIndex != 0u ||
+        dispatch.clockDomain !=
+            MR_NUMANX_BRAIN_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS ||
+        dispatch.clockQuantumNanoseconds !=
+            MR_NUMANX_BRAIN_EXACT_CLOCK_QUANTUM_NANOSECONDS ||
+        dispatch.reserved0 != 0u || dispatch.reserved1 != 0u ||
+        dispatch.transactionFingerprint == 0ul ||
+        dispatch.substepFingerprint == 0ul ||
+        dispatch.motorCandidateFingerprint == 0ul ||
+        dispatch.motorProfileFingerprint == 0ul ||
+        dispatch.speciesTemplateFingerprint == 0ul ||
+        dispatch.compiledSpeciesTemplateFingerprint == 0ul ||
+        dispatch.expectedExcitationGPUAddress == 0ul ||
+        dispatch.expectedMotorOutputHeaderGPUAddress == 0ul) {
+        headerValidation[environment] =
+            MR_NUMANX_HUMAN_MOTOR_HEADER_FORMAT;
+        return;
+    }
+
+    const device MRNumanXBrainMotorReadyGateGPUV2& ready =
+        motorReadyGate[0];
+    if (ready.abiVersion != MR_NUMANX_BRAIN_MOTOR_READY_ABI_VERSION_V2 ||
+        ready.structBytes != MR_NUMANX_BRAIN_MOTOR_READY_GATE_BYTE_COUNT ||
+        ready.status != MR_NUMANX_BRAIN_READY_GATE_SUCCESS ||
+        ready.environment != dispatch.environmentIdentifierBase ||
+        ready.substepIndex != dispatch.substepIndex ||
+        ready.attemptIndex != dispatch.attemptIndex ||
+        ready.muscleCount != dispatch.muscleCount ||
+        ready.actuatorCommandKind != dispatch.actuatorCommandKind ||
+        ready.controlStep != dispatch.controlStep ||
+        ready.transactionFingerprint != dispatch.transactionFingerprint ||
+        ready.substepFingerprint != dispatch.substepFingerprint ||
+        ready.candidateFingerprint != dispatch.motorCandidateFingerprint ||
+        ready.motorOutputFingerprint == 0ul ||
+        ready.motorProfileFingerprint != dispatch.motorProfileFingerprint ||
+        ready.brainGeneration != dispatch.acceptedBrainGeneration ||
+        ready.acceptedBrainTimestampNanoseconds !=
+            dispatch.acceptedBrainTimestampNanoseconds ||
+        ready.randomCounterGeneration != dispatch.randomCounterGeneration ||
+        ready.speciesTemplateFingerprint !=
+            dispatch.speciesTemplateFingerprint ||
+        ready.compiledSpeciesTemplateFingerprint !=
+            dispatch.compiledSpeciesTemplateFingerprint ||
+        ready.brainProgramFingerprint == 0ul ||
+        ready.fastProgramFingerprint == 0ul ||
+        ready.decisionGateFingerprint == 0ul ||
+        ready.clockDomain != dispatch.clockDomain ||
+        ready.clockQuantumNanoseconds !=
+            dispatch.clockQuantumNanoseconds ||
+        ready.gateFingerprint == 0ul ||
+        ready.gateFingerprint != readyGateFingerprintV2(ready)) {
+        headerValidation[environment] =
+            MR_NUMANX_HUMAN_MOTOR_HEADER_READY_GATE;
+        return;
+    }
+
+    const device MRNumanXBrainMotorOutputHeaderGPUV2& header =
+        headers[environment * dispatch.headerEnvironmentStride];
+    if (header.formatVersion != dispatch.motorOutputFormatVersion) {
+        headerValidation[environment] =
+            MR_NUMANX_HUMAN_MOTOR_HEADER_FORMAT;
+        return;
+    }
+    if ((header.flags & MR_NUMANX_BRAIN_MOTOR_OUTPUT_VALID) == 0u ||
+        (header.flags & ~MR_NUMANX_BRAIN_MOTOR_OUTPUT_KNOWN_FLAGS) != 0u) {
+        headerValidation[environment] =
+            MR_NUMANX_HUMAN_MOTOR_HEADER_FLAGS;
+        return;
+    }
+    if (header.muscleCount != dispatch.muscleCount ||
+        header.environmentIdentifier !=
+            dispatch.environmentIdentifierBase + environment ||
+        header.profileFingerprint != dispatch.motorProfileFingerprint ||
+        header.profileFingerprint == 0ul ||
+        header.protectiveCommandFingerprint == 0ul) {
+        headerValidation[environment] =
+            MR_NUMANX_HUMAN_MOTOR_HEADER_IDENTITY;
+        return;
+    }
+    if (header.timestampNanoseconds !=
+            dispatch.acceptedBrainTimestampNanoseconds ||
+        header.brainGeneration != dispatch.acceptedBrainGeneration) {
+        headerValidation[environment] =
+            MR_NUMANX_HUMAN_MOTOR_HEADER_GENERATION;
+        return;
+    }
+    if (!isfinite(header.motorInhibition) ||
+        !isfinite(header.autonomicArousal) ||
+        !isfinite(header.outputMinimum) ||
+        !isfinite(header.outputMaximum)) {
+        headerValidation[environment] =
+            MR_NUMANX_HUMAN_MOTOR_HEADER_NONFINITE;
+        return;
+    }
+    if (header.motorInhibition < 0.0f ||
+        header.motorInhibition > 1.0f ||
+        header.autonomicArousal < 0.0f ||
+        header.autonomicArousal > 1.0f ||
+        !(header.outputMinimum < header.outputMaximum)) {
+        headerValidation[environment] =
+            MR_NUMANX_HUMAN_MOTOR_HEADER_RANGE;
+        return;
+    }
+    if (header.actuatorCommandKind != dispatch.actuatorCommandKind ||
+        header.actuatorCommandKind !=
+            MR_NUMANX_BRAIN_ACTUATOR_MUSCLE_EXCITATION ||
+        header.clockDomain != dispatch.clockDomain ||
+        header.clockDomain !=
+            MR_NUMANX_BRAIN_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS) {
+        headerValidation[environment] =
+            MR_NUMANX_HUMAN_MOTOR_HEADER_COMMAND_KIND;
+        return;
+    }
+    const bool emergency =
+        (header.flags & MR_NUMANX_BRAIN_MOTOR_OUTPUT_EMERGENCY_STOP) != 0u;
+    if (emergency != (header.motorInhibition == 1.0f)) {
+        headerValidation[environment] =
+            MR_NUMANX_HUMAN_MOTOR_HEADER_RELATION;
+        return;
+    }
+
+    ulong hash = kFnvOffset;
+    mixU32(hash, MR_NUMANX_BRAIN_MOTOR_OUTPUT_VERSION_V2);
+    mixU32(hash, header.formatVersion);
+    mixU32(hash, header.flags);
+    mixU64(hash, header.timestampNanoseconds);
+    mixU64(hash, header.brainGeneration);
+    mixU64(hash, header.profileFingerprint);
+    mixU64(hash, header.protectiveCommandFingerprint);
+    mixU32(hash, header.muscleCount);
+    mixU32(hash, header.environmentIdentifier);
+    mixFloat(hash, header.motorInhibition);
+    mixFloat(hash, header.autonomicArousal);
+    mixU32(hash, header.actuatorCommandKind);
+    mixU32(hash, header.clockDomain);
+    mixFloat(hash, header.outputMinimum);
+    mixFloat(hash, header.outputMaximum);
+    const ulong excitationBase =
+        static_cast<ulong>(environment) *
+            dispatch.excitationEnvironmentStride;
+    for (uint muscle = 0u; muscle < dispatch.muscleCount; ++muscle) {
+        const float command = excitations[excitationBase + muscle];
+        if (!isfinite(command) || command < header.outputMinimum ||
+            command > header.outputMaximum) {
+            headerValidation[environment] =
+                MR_NUMANX_HUMAN_MOTOR_HEADER_PAYLOAD;
+            return;
+        }
+        mixFloat(hash, command);
+    }
+    if (header.outputFingerprint == 0ul ||
+        header.outputFingerprint != hash ||
+        ready.motorOutputFingerprint != header.outputFingerprint) {
         headerValidation[environment] =
             MR_NUMANX_HUMAN_MOTOR_HEADER_FINGERPRINT;
         return;

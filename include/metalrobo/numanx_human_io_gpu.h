@@ -62,6 +62,7 @@
 #define MR_NUMANX_BRAIN_EXACT_RECORD_ALIGNMENT 16u
 #define MR_NUMANX_BRAIN_READY_GATE_SUCCESS 1u
 #define MR_NUMANX_BRAIN_READY_GATE_FAILURE 2u
+#define MR_NUMANX_HUMAN_MOTOR_DISPATCH_ABI_VERSION_V2 2u
 
 enum MRNumanXBrainMotorOutputFlags : mr_u32 {
     MR_NUMANX_BRAIN_MOTOR_OUTPUT_VALID = 1u << 0u,
@@ -390,6 +391,46 @@ typedef struct MR_ALIGN16 MRNumanXHumanMotorDispatchGPU {
     mr_u64 programFingerprint;
 } MRNumanXHumanMotorDispatchGPU;
 
+// Exact-clock dispatch for the v2 HumanIO motor validator. This is deliberately
+// not layout-compatible with MRNumanXHumanMotorDispatchGPU: it binds the v2
+// root/substep/candidate identities and carries only explicit nanosecond clock
+// authority. The existing admission/write kernels continue to consume the
+// legacy dispatch until the complete exact transaction lane is connected.
+typedef struct MR_ALIGN16 MRNumanXHumanMotorDispatchGPUV2 {
+    mr_u32 abiVersion;
+    mr_u32 environmentCount;
+    mr_u32 muscleCount;
+    mr_u32 excitationEnvironmentStride;
+
+    mr_u32 motorOutputFormatVersion;
+    mr_u32 motorCandidateFormatVersion;
+    mr_u32 motorCandidateFlags;
+    mr_u32 actuatorCommandKind;
+
+    mr_u32 environmentIdentifierBase;
+    mr_u32 headerEnvironmentStride;
+    mr_u32 substepIndex;
+    mr_u32 attemptIndex;
+
+    mr_u32 clockDomain;
+    mr_u32 clockQuantumNanoseconds;
+    mr_u32 reserved0;
+    mr_u32 reserved1;
+
+    mr_u64 controlStep;
+    mr_u64 transactionFingerprint;
+    mr_u64 substepFingerprint;
+    mr_u64 motorCandidateFingerprint;
+    mr_u64 acceptedBrainGeneration;
+    mr_u64 acceptedBrainTimestampNanoseconds;
+    mr_u64 motorProfileFingerprint;
+    mr_u64 randomCounterGeneration;
+    mr_u64 speciesTemplateFingerprint;
+    mr_u64 compiledSpeciesTemplateFingerprint;
+    mr_u64 expectedExcitationGPUAddress;
+    mr_u64 expectedMotorOutputHeaderGPUAddress;
+} MRNumanXHumanMotorDispatchGPUV2;
+
 // Constants used by both post-stand kernels. Proprioception is laid out as
 // [environment][step][muscle/receptor][feature]; validity is
 // [environment][step][muscle/receptor], one UInt32 bit mask per receptor.
@@ -583,6 +624,18 @@ static_assert(
         expectedMotorOutputHeaderGPUAddress
     ) == 88u
 );
+static_assert(sizeof(MRNumanXHumanMotorDispatchGPUV2) == 160u);
+static_assert(alignof(MRNumanXHumanMotorDispatchGPUV2) == 16u);
+static_assert(offsetof(
+    MRNumanXHumanMotorDispatchGPUV2, clockDomain) == 48u);
+static_assert(offsetof(
+    MRNumanXHumanMotorDispatchGPUV2, controlStep) == 64u);
+static_assert(offsetof(
+    MRNumanXHumanMotorDispatchGPUV2,
+    acceptedBrainTimestampNanoseconds) == 104u);
+static_assert(offsetof(
+    MRNumanXHumanMotorDispatchGPUV2,
+    expectedMotorOutputHeaderGPUAddress) == 152u);
 static_assert(sizeof(MRNumanXHumanProprioceptionDispatchGPU) == 128u);
 static_assert(alignof(MRNumanXHumanProprioceptionDispatchGPU) == 16u);
 static_assert(
