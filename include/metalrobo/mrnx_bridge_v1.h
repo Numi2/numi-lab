@@ -15,6 +15,12 @@
 #  define MRNX_BRIDGE_EXPORT __attribute__((visibility("default")))
 #endif
 
+#if defined(_MSC_VER)
+#  define MRNX_ALIGN16 __declspec(align(16))
+#else
+#  define MRNX_ALIGN16 __attribute__((aligned(16)))
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -25,10 +31,16 @@ extern "C" {
 #define MRNX_FULL_BODY_NV 128u
 #define MRNX_FULL_BODY_MUSCLE_COUNT 416u
 #define MRNX_BRAIN_MOTOR_CANDIDATE_VERSION_V1 7u
+#define MRNX_BRAIN_MOTOR_CANDIDATE_VERSION_V2 8u
 #define MRNX_BRAIN_MOTOR_CANDIDATE_VALID_V1 (1u << 0u)
 #define MRNX_BRAIN_MOTOR_CANDIDATE_DECISION_SHADOW_V1 (1u << 1u)
 #define MRNX_BRAIN_MOTOR_READY_ABI_VERSION_V1 1u
+#define MRNX_BRAIN_MOTOR_READY_ABI_VERSION_V2 2u
 #define MRNX_BRAIN_MOTOR_READY_GATE_BYTES_V1 160u
+#define MRNX_BRAIN_JOINT_TRANSACTION_VERSION_V2 2u
+#define MRNX_BRAIN_MOTOR_OUTPUT_VERSION_V2 4u
+#define MRNX_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS 2u
+#define MRNX_EXACT_CLOCK_QUANTUM_NANOSECONDS 1u
 #define MRNX_RUNTIME_CONFIG_ABI_V2 2u
 #define MRNX_RUNTIME_CONFIG_ABI_V3 3u
 #define MRNX_RUNTIME_CONFIG_ABI_V4 4u
@@ -37,6 +49,9 @@ extern "C" {
 #define MRNX_RUNTIME_CONFIG_ABI_V7 7u
 #define MRNX_RUNTIME_CONFIG_ABI_V8 8u
 #define MRNX_PHYSICAL_ROOT_REQUEST_ABI_V2 2u
+#define MRNX_PHYSICAL_ROOT_REQUEST_ABI_V3 3u
+#define MRNX_REQUEST_FAILURE_STAGE_EXACT_OUTBOUND_UNAVAILABLE 900u
+#define MRNX_REQUEST_FAILURE_STAGE_LEGACY_EXACT_V2_UNROUTABLE 901u
 #define MRNX_EXACT_CLOCK_INFO_ABI_V1 1u
 #define MRNX_AGGREGATE_SNAPSHOT_ABI_V4 4u
 #define MRNX_CULTURE_ACCEPTED_VIEW_ABI_V1 1u
@@ -51,6 +66,11 @@ typedef enum mrnx_element_type_v1 {
     MRNX_ELEMENT_RAW_BYTES_V1 = 0u,
     MRNX_ELEMENT_FLOAT32_V1 = 1u,
     MRNX_ELEMENT_UINT32_V1 = 2u,
+    // Typed declarations used only by request-v3 admission. They prevent a
+    // legacy raw-byte motor header/gate lease from claiming the exact family
+    // before the asynchronous GPU producer has made the contents readable.
+    MRNX_ELEMENT_BRAIN_MOTOR_OUTPUT_HEADER_V2 = 3u,
+    MRNX_ELEMENT_BRAIN_MOTOR_READY_GATE_V2 = 4u,
 } mrnx_element_type_v1;
 
 typedef enum mrnx_completion_status_v1 {
@@ -612,6 +632,27 @@ typedef struct mrnx_brain_joint_transaction_v1 {
     uint64_t transaction_fingerprint;
 } mrnx_brain_joint_transaction_v1;
 
+// Explicit exact-nanosecond successor. This mirrors
+// NBJointTransactionTokenV2 without reinterpreting the immutable v1 record.
+// Clock fields occupy the former v1 flags/reserved words so the ABI remains
+// 96 bytes while the hash domain and time unit are unambiguous.
+typedef struct mrnx_brain_joint_transaction_v2 {
+    uint32_t format_version;
+    uint32_t environment_identifier;
+    uint64_t episode_identifier;
+    uint64_t control_step_identifier;
+    uint64_t parameter_version_fingerprint;
+    uint64_t base_brain_generation;
+    uint64_t base_physics_generation;
+    uint64_t committed_timestamp_nanoseconds;
+    uint64_t target_timestamp_nanoseconds;
+    uint64_t shadow_generation;
+    uint64_t random_counter_generation;
+    uint32_t clock_domain;
+    uint32_t clock_quantum_nanoseconds;
+    uint64_t transaction_fingerprint;
+} mrnx_brain_joint_transaction_v2;
+
 typedef struct mrnx_brain_joint_substep_v1 {
     uint64_t transaction_fingerprint;
     uint32_t substep_index;
@@ -625,6 +666,20 @@ typedef struct mrnx_brain_joint_substep_v1 {
     uint32_t reserved;
     uint64_t substep_fingerprint;
 } mrnx_brain_joint_substep_v1;
+
+typedef struct mrnx_brain_joint_substep_v2 {
+    uint64_t transaction_fingerprint;
+    uint32_t substep_index;
+    uint32_t attempt_index;
+    uint64_t start_timestamp_nanoseconds;
+    uint64_t duration_nanoseconds;
+    uint64_t candidate_timestamp_nanoseconds;
+    uint64_t shadow_generation;
+    uint64_t random_counter_generation;
+    uint32_t clock_domain;
+    uint32_t clock_quantum_nanoseconds;
+    uint64_t substep_fingerprint;
+} mrnx_brain_joint_substep_v2;
 
 typedef struct mrnx_brain_motor_candidate_v1 {
     uint32_t format_version;
@@ -654,6 +709,52 @@ typedef struct mrnx_brain_motor_candidate_v1 {
     uint64_t candidate_fingerprint;
 } mrnx_brain_motor_candidate_v1;
 
+typedef struct mrnx_brain_motor_candidate_v2 {
+    uint32_t format_version;
+    uint32_t flags;
+    uint64_t transaction_fingerprint;
+    uint64_t substep_fingerprint;
+    uint64_t accepted_brain_timestamp_nanoseconds;
+    uint64_t brain_generation;
+    uint64_t motor_profile_fingerprint;
+    uint64_t motor_output_header_gpu_address;
+    uint64_t muscle_excitation_gpu_address;
+    uint64_t random_counter_generation;
+    uint32_t motor_output_header_byte_count;
+    uint32_t muscle_excitation_byte_count;
+    uint32_t muscle_count;
+    uint32_t environment_identifier;
+    uint64_t autonomic_command_gpu_address;
+    uint32_t autonomic_command_byte_count;
+    uint32_t autonomic_command_count;
+    uint64_t active_sensing_command_gpu_address;
+    uint32_t active_sensing_command_byte_count;
+    uint32_t active_sensing_command_count;
+    uint32_t actuator_command_kind;
+    uint32_t clock_domain;
+    uint64_t species_template_fingerprint;
+    uint64_t compiled_species_template_fingerprint;
+    uint64_t candidate_fingerprint;
+} mrnx_brain_motor_candidate_v2;
+
+typedef struct MRNX_ALIGN16 mrnx_brain_motor_output_header_v2 {
+    uint32_t format_version;
+    uint32_t flags;
+    uint64_t timestamp_nanoseconds;
+    uint64_t brain_generation;
+    uint64_t profile_fingerprint;
+    uint64_t protective_command_fingerprint;
+    uint32_t muscle_count;
+    uint32_t environment_identifier;
+    float motor_inhibition;
+    float autonomic_arousal;
+    uint32_t actuator_command_kind;
+    uint32_t clock_domain;
+    float output_minimum;
+    float output_maximum;
+    uint64_t output_fingerprint;
+} mrnx_brain_motor_output_header_v2;
+
 typedef struct mrnx_brain_motor_ready_gate_v1 {
     uint32_t abi_version;
     uint32_t struct_bytes;
@@ -681,6 +782,34 @@ typedef struct mrnx_brain_motor_ready_gate_v1 {
     uint64_t gate_fingerprint;
 } mrnx_brain_motor_ready_gate_v1;
 
+typedef struct MRNX_ALIGN16 mrnx_brain_motor_ready_gate_v2 {
+    uint32_t abi_version;
+    uint32_t struct_bytes;
+    uint32_t status;
+    uint32_t environment;
+    uint32_t substep_index;
+    uint32_t attempt_index;
+    uint32_t muscle_count;
+    uint32_t actuator_command_kind;
+    uint64_t control_step;
+    uint64_t transaction_fingerprint;
+    uint64_t substep_fingerprint;
+    uint64_t candidate_fingerprint;
+    uint64_t motor_output_fingerprint;
+    uint64_t motor_profile_fingerprint;
+    uint64_t brain_generation;
+    uint64_t accepted_brain_timestamp_nanoseconds;
+    uint64_t random_counter_generation;
+    uint64_t species_template_fingerprint;
+    uint64_t compiled_species_template_fingerprint;
+    uint64_t brain_program_fingerprint;
+    uint64_t fast_program_fingerprint;
+    uint64_t decision_gate_fingerprint;
+    uint32_t clock_domain;
+    uint32_t clock_quantum_nanoseconds;
+    uint64_t gate_fingerprint;
+} mrnx_brain_motor_ready_gate_v2;
+
 // Exact asynchronous Brain authority offered to the future native full-body
 // begin call. Every range is an exact checked slice of a retained same-device
 // MTLBuffer; object identity, base+offset GPU address, count, type, and pairwise
@@ -702,10 +831,10 @@ typedef struct mrnx_physical_root_request_v1 {
     mrnx_event_point_v1 motor_ready;
 } mrnx_physical_root_request_v1;
 
-// Exact-clock request extension. The fixed-width token layouts are retained
-// so GPU ownership and fingerprints stay identical; in this entry point the
-// timestamp words in root, substep, candidate, and the motor header/gate are
-// exact nanoseconds. The v1 entry point rejects an exact-clock runtime.
+// Published request-v2 shape. Its embedded records are the immutable v1
+// family; the exact runtime now rejects this unit-ambiguous ABI before any
+// borrowed resource is inspected. Keep this layout unchanged for binary
+// compatibility with existing callers.
 typedef struct mrnx_physical_root_request_v2 {
     uint32_t abi_version;
     uint32_t struct_size;
@@ -719,6 +848,25 @@ typedef struct mrnx_physical_root_request_v2 {
     mrnx_metal_range_v1 motor_ready_gate;
     mrnx_event_point_v1 motor_ready;
 } mrnx_physical_root_request_v2;
+
+// Additive exact-clock request. Every embedded time-bearing authority is a
+// distinct v2 record with an explicit nanosecond clock domain. The resource
+// descriptors for motor_header and motor_ready_gate use their typed v2 element
+// kinds and full record element sizes. CPU admission only; execution remains
+// blocked until the complete outbound/persistent v2 family exists.
+typedef struct mrnx_physical_root_request_v3 {
+    uint32_t abi_version;
+    uint32_t struct_size;
+    mrnx_brain_joint_transaction_v2 root;
+    mrnx_brain_joint_substep_v2 substep;
+    mrnx_brain_motor_candidate_v2 candidate;
+    mrnx_metal_range_v1 motor_header;
+    mrnx_metal_range_v1 muscle_excitation;
+    mrnx_metal_range_v1 autonomic_command;
+    mrnx_metal_range_v1 active_sensing_command;
+    mrnx_metal_range_v1 motor_ready_gate;
+    mrnx_event_point_v1 motor_ready;
+} mrnx_physical_root_request_v3;
 
 // candidate_handle and every view passed here are borrowed for the callback
 // invocation. On success candidate_handle is non-null and carries an internal
@@ -826,9 +974,22 @@ MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_runtime_begin_physical_root(
     const mrnx_physical_root_request_v1* request,
     void* completion_context,
     mrnx_physical_root_settled_callback_v1 completion);
+// Frozen compatibility entry point for the published all-v1 request-v2
+// shape. Exact runtimes reject it as unit-ambiguous at the legacy-v2 failure
+// stage before inspecting any borrowed Metal buffer or event.
 MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_runtime_begin_physical_root_v2(
     mrnx_runtime_v1* runtime,
     const mrnx_physical_root_request_v2* request,
+    void* completion_context,
+    mrnx_physical_root_settled_callback_v1 completion);
+// CPU schema/admission entry point for the all-exact request-v3 family. Even a
+// coherent request intentionally returns false with
+// MRNX_RUNTIME_CONTINUATION_UNAVAILABLE_V1 at the outbound-unavailable stage
+// before resource admission or GPU submission while HumanMatter, accepted
+// publication, and persistent state remain v1.
+MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_runtime_begin_physical_root_v3(
+    mrnx_runtime_v1* runtime,
+    const mrnx_physical_root_request_v3* request,
     void* completion_context,
     mrnx_physical_root_settled_callback_v1 completion);
 MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_runtime_copy_aggregate_snapshot(
@@ -986,6 +1147,7 @@ static_assert(sizeof(mrnx_runtime_config_v6) == 240u);
 static_assert(offsetof(mrnx_runtime_config_v8, runtime) == 8u);
 static_assert(offsetof(mrnx_runtime_config_v8, timestep_nanoseconds) == 8u + sizeof(mrnx_runtime_config_v7));
 static_assert(sizeof(mrnx_physical_root_request_v2) == sizeof(mrnx_physical_root_request_v1));
+static_assert(sizeof(mrnx_physical_root_request_v3) == sizeof(mrnx_physical_root_request_v1));
 static_assert(sizeof(mrnx_exact_clock_info_v1) == 40u);
 static_assert(offsetof(mrnx_runtime_config_v6, joint_limit_payload_path) == 200u);
 static_assert(offsetof(mrnx_runtime_config_v6, costal_cartilage_payload_path) == 216u);
@@ -1083,17 +1245,47 @@ static_assert(sizeof(mrnx_brain_joint_transaction_v1) == 96u);
 static_assert(alignof(mrnx_brain_joint_transaction_v1) == 8u);
 static_assert(offsetof(mrnx_brain_joint_transaction_v1,
                        transaction_fingerprint) == 88u);
+static_assert(sizeof(mrnx_brain_joint_transaction_v2) == 96u);
+static_assert(alignof(mrnx_brain_joint_transaction_v2) == 8u);
+static_assert(offsetof(mrnx_brain_joint_transaction_v2,
+                       clock_domain) == 80u);
+static_assert(offsetof(mrnx_brain_joint_transaction_v2,
+                       transaction_fingerprint) == 88u);
 static_assert(sizeof(mrnx_brain_joint_substep_v1) == 72u);
 static_assert(alignof(mrnx_brain_joint_substep_v1) == 8u);
 static_assert(offsetof(mrnx_brain_joint_substep_v1,
+                       substep_fingerprint) == 64u);
+static_assert(sizeof(mrnx_brain_joint_substep_v2) == 72u);
+static_assert(alignof(mrnx_brain_joint_substep_v2) == 8u);
+static_assert(offsetof(mrnx_brain_joint_substep_v2,
+                       clock_domain) == 56u);
+static_assert(offsetof(mrnx_brain_joint_substep_v2,
                        substep_fingerprint) == 64u);
 static_assert(sizeof(mrnx_brain_motor_candidate_v1) == 152u);
 static_assert(alignof(mrnx_brain_motor_candidate_v1) == 8u);
 static_assert(offsetof(mrnx_brain_motor_candidate_v1,
                        candidate_fingerprint) == 144u);
+static_assert(sizeof(mrnx_brain_motor_candidate_v2) == 152u);
+static_assert(alignof(mrnx_brain_motor_candidate_v2) == 8u);
+static_assert(offsetof(mrnx_brain_motor_candidate_v2,
+                       clock_domain) == 124u);
+static_assert(offsetof(mrnx_brain_motor_candidate_v2,
+                       candidate_fingerprint) == 144u);
+static_assert(sizeof(mrnx_brain_motor_output_header_v2) == 80u);
+static_assert(alignof(mrnx_brain_motor_output_header_v2) == 16u);
+static_assert(offsetof(mrnx_brain_motor_output_header_v2,
+                       clock_domain) == 60u);
+static_assert(offsetof(mrnx_brain_motor_output_header_v2,
+                       output_fingerprint) == 72u);
 static_assert(sizeof(mrnx_brain_motor_ready_gate_v1) == 160u);
 static_assert(alignof(mrnx_brain_motor_ready_gate_v1) == 8u);
 static_assert(offsetof(mrnx_brain_motor_ready_gate_v1,
+                       gate_fingerprint) == 152u);
+static_assert(sizeof(mrnx_brain_motor_ready_gate_v2) == 160u);
+static_assert(alignof(mrnx_brain_motor_ready_gate_v2) == 16u);
+static_assert(offsetof(mrnx_brain_motor_ready_gate_v2,
+                       clock_domain) == 144u);
+static_assert(offsetof(mrnx_brain_motor_ready_gate_v2,
                        gate_fingerprint) == 152u);
 static_assert(sizeof(mrnx_physical_root_request_v1) == 600u);
 static_assert(alignof(mrnx_physical_root_request_v1) == 8u);
@@ -1103,6 +1295,26 @@ static_assert(offsetof(mrnx_physical_root_request_v1,
 static_assert(offsetof(mrnx_physical_root_request_v1,
                        motor_ready_gate) == 520u);
 static_assert(offsetof(mrnx_physical_root_request_v1,
+                       motor_ready) == 568u);
+static_assert(sizeof(mrnx_physical_root_request_v2) == 600u);
+static_assert(alignof(mrnx_physical_root_request_v2) == 8u);
+static_assert(offsetof(mrnx_physical_root_request_v2, root) == 8u);
+static_assert(offsetof(mrnx_physical_root_request_v2,
+                       motor_header) == 328u);
+static_assert(offsetof(mrnx_physical_root_request_v2,
+                       motor_ready_gate) == 520u);
+static_assert(offsetof(mrnx_physical_root_request_v2,
+                       motor_ready) == 568u);
+static_assert(sizeof(mrnx_physical_root_request_v3) == 600u);
+static_assert(alignof(mrnx_physical_root_request_v3) == 8u);
+static_assert(offsetof(mrnx_physical_root_request_v3, root) == 8u);
+static_assert(offsetof(mrnx_physical_root_request_v3,
+                       candidate) == 176u);
+static_assert(offsetof(mrnx_physical_root_request_v3,
+                       motor_header) == 328u);
+static_assert(offsetof(mrnx_physical_root_request_v3,
+                       motor_ready_gate) == 520u);
+static_assert(offsetof(mrnx_physical_root_request_v3,
                        motor_ready) == 568u);
 #else
 _Static_assert(sizeof(mrnx_root_v1) == 96u, "mrnx_root_v1 ABI");
@@ -1166,6 +1378,7 @@ _Static_assert(sizeof(mrnx_runtime_config_v6) == 240u, "mrnx_runtime_config_v6 A
 _Static_assert(offsetof(mrnx_runtime_config_v8, runtime) == 8u, "mrnx_runtime_config_v8 runtime offset");
 _Static_assert(offsetof(mrnx_runtime_config_v8, timestep_nanoseconds) == 8u + sizeof(mrnx_runtime_config_v7), "mrnx_runtime_config_v8 clock offset");
 _Static_assert(sizeof(mrnx_physical_root_request_v2) == sizeof(mrnx_physical_root_request_v1), "mrnx_physical_root_request_v2 ABI");
+_Static_assert(sizeof(mrnx_physical_root_request_v3) == sizeof(mrnx_physical_root_request_v1), "mrnx_physical_root_request_v3 ABI");
 _Static_assert(sizeof(mrnx_exact_clock_info_v1) == 40u, "mrnx_exact_clock_info_v1 ABI");
 _Static_assert(offsetof(mrnx_runtime_config_v6, joint_limit_payload_path) == 200u, "mrnx limits offset");
 _Static_assert(offsetof(mrnx_runtime_config_v6, costal_cartilage_payload_path) == 216u, "mrnx costal offset");
@@ -1234,6 +1447,16 @@ _Static_assert(_Alignof(mrnx_brain_joint_transaction_v1) == 8u,
 _Static_assert(offsetof(mrnx_brain_joint_transaction_v1,
                         transaction_fingerprint) == 88u,
                "mrnx_brain_joint_transaction_v1 fingerprint offset");
+_Static_assert(sizeof(mrnx_brain_joint_transaction_v2) == 96u,
+               "mrnx_brain_joint_transaction_v2 ABI");
+_Static_assert(_Alignof(mrnx_brain_joint_transaction_v2) == 8u,
+               "mrnx_brain_joint_transaction_v2 alignment");
+_Static_assert(offsetof(mrnx_brain_joint_transaction_v2,
+                        clock_domain) == 80u,
+               "mrnx_brain_joint_transaction_v2 clock offset");
+_Static_assert(offsetof(mrnx_brain_joint_transaction_v2,
+                        transaction_fingerprint) == 88u,
+               "mrnx_brain_joint_transaction_v2 fingerprint offset");
 _Static_assert(sizeof(mrnx_brain_joint_substep_v1) == 72u,
                "mrnx_brain_joint_substep_v1 ABI");
 _Static_assert(_Alignof(mrnx_brain_joint_substep_v1) == 8u,
@@ -1241,6 +1464,16 @@ _Static_assert(_Alignof(mrnx_brain_joint_substep_v1) == 8u,
 _Static_assert(offsetof(mrnx_brain_joint_substep_v1,
                         substep_fingerprint) == 64u,
                "mrnx_brain_joint_substep_v1 fingerprint offset");
+_Static_assert(sizeof(mrnx_brain_joint_substep_v2) == 72u,
+               "mrnx_brain_joint_substep_v2 ABI");
+_Static_assert(_Alignof(mrnx_brain_joint_substep_v2) == 8u,
+               "mrnx_brain_joint_substep_v2 alignment");
+_Static_assert(offsetof(mrnx_brain_joint_substep_v2,
+                        clock_domain) == 56u,
+               "mrnx_brain_joint_substep_v2 clock offset");
+_Static_assert(offsetof(mrnx_brain_joint_substep_v2,
+                        substep_fingerprint) == 64u,
+               "mrnx_brain_joint_substep_v2 fingerprint offset");
 _Static_assert(sizeof(mrnx_brain_motor_candidate_v1) == 152u,
                "mrnx_brain_motor_candidate_v1 ABI");
 _Static_assert(_Alignof(mrnx_brain_motor_candidate_v1) == 8u,
@@ -1248,11 +1481,41 @@ _Static_assert(_Alignof(mrnx_brain_motor_candidate_v1) == 8u,
 _Static_assert(offsetof(mrnx_brain_motor_candidate_v1,
                         candidate_fingerprint) == 144u,
                "mrnx_brain_motor_candidate_v1 fingerprint offset");
+_Static_assert(sizeof(mrnx_brain_motor_candidate_v2) == 152u,
+               "mrnx_brain_motor_candidate_v2 ABI");
+_Static_assert(_Alignof(mrnx_brain_motor_candidate_v2) == 8u,
+               "mrnx_brain_motor_candidate_v2 alignment");
+_Static_assert(offsetof(mrnx_brain_motor_candidate_v2,
+                        clock_domain) == 124u,
+               "mrnx_brain_motor_candidate_v2 clock offset");
+_Static_assert(offsetof(mrnx_brain_motor_candidate_v2,
+                        candidate_fingerprint) == 144u,
+               "mrnx_brain_motor_candidate_v2 fingerprint offset");
+_Static_assert(sizeof(mrnx_brain_motor_output_header_v2) == 80u,
+               "mrnx_brain_motor_output_header_v2 ABI");
+_Static_assert(_Alignof(mrnx_brain_motor_output_header_v2) == 16u,
+               "mrnx_brain_motor_output_header_v2 alignment");
+_Static_assert(offsetof(mrnx_brain_motor_output_header_v2,
+                        clock_domain) == 60u,
+               "mrnx_brain_motor_output_header_v2 clock offset");
+_Static_assert(offsetof(mrnx_brain_motor_output_header_v2,
+                        output_fingerprint) == 72u,
+               "mrnx_brain_motor_output_header_v2 fingerprint offset");
 _Static_assert(sizeof(mrnx_brain_motor_ready_gate_v1) == 160u,
                "mrnx_brain_motor_ready_gate_v1 ABI");
 _Static_assert(offsetof(mrnx_brain_motor_ready_gate_v1,
                         gate_fingerprint) == 152u,
                "mrnx_brain_motor_ready_gate_v1 fingerprint offset");
+_Static_assert(sizeof(mrnx_brain_motor_ready_gate_v2) == 160u,
+               "mrnx_brain_motor_ready_gate_v2 ABI");
+_Static_assert(_Alignof(mrnx_brain_motor_ready_gate_v2) == 16u,
+               "mrnx_brain_motor_ready_gate_v2 alignment");
+_Static_assert(offsetof(mrnx_brain_motor_ready_gate_v2,
+                        clock_domain) == 144u,
+               "mrnx_brain_motor_ready_gate_v2 clock offset");
+_Static_assert(offsetof(mrnx_brain_motor_ready_gate_v2,
+                        gate_fingerprint) == 152u,
+               "mrnx_brain_motor_ready_gate_v2 fingerprint offset");
 _Static_assert(sizeof(mrnx_physical_root_request_v1) == 600u,
                "mrnx_physical_root_request_v1 ABI");
 _Static_assert(offsetof(mrnx_physical_root_request_v1,
@@ -1264,6 +1527,33 @@ _Static_assert(offsetof(mrnx_physical_root_request_v1,
 _Static_assert(offsetof(mrnx_physical_root_request_v1,
                         motor_ready) == 568u,
                "mrnx_physical_root_request_v1 event offset");
+_Static_assert(sizeof(mrnx_physical_root_request_v2) == 600u,
+               "mrnx_physical_root_request_v2 ABI");
+_Static_assert(offsetof(mrnx_physical_root_request_v2,
+                        motor_header) == 328u,
+               "mrnx_physical_root_request_v2 motor header offset");
+_Static_assert(offsetof(mrnx_physical_root_request_v2,
+                        motor_ready_gate) == 520u,
+               "mrnx_physical_root_request_v2 gate offset");
+_Static_assert(offsetof(mrnx_physical_root_request_v2,
+                        motor_ready) == 568u,
+               "mrnx_physical_root_request_v2 event offset");
+_Static_assert(sizeof(mrnx_physical_root_request_v3) == 600u,
+               "mrnx_physical_root_request_v3 ABI");
+_Static_assert(offsetof(mrnx_physical_root_request_v3,
+                        candidate) == 176u,
+               "mrnx_physical_root_request_v3 candidate offset");
+_Static_assert(offsetof(mrnx_physical_root_request_v3,
+                        motor_header) == 328u,
+               "mrnx_physical_root_request_v3 motor header offset");
+_Static_assert(offsetof(mrnx_physical_root_request_v3,
+                        motor_ready_gate) == 520u,
+               "mrnx_physical_root_request_v3 gate offset");
+_Static_assert(offsetof(mrnx_physical_root_request_v3,
+                        motor_ready) == 568u,
+               "mrnx_physical_root_request_v3 event offset");
 #endif
+
+#undef MRNX_ALIGN16
 
 #endif // METALROBO_MRNX_BRIDGE_V1_H

@@ -1737,58 +1737,249 @@ int run(const bool authored, const bool sourceEqualities, const bool costalTissu
             metalrobo::metalNumanXBrainMotorCandidateFingerprint(
                 nativeCandidate);
 
+        mrnx_physical_root_request_v3 exactRequest{};
+        MRNumanXBrainJointTransactionTokenV2 nativeExactRoot{};
+        MRNumanXBrainJointSubstepTokenV2 nativeExactSubstep{};
+        MRNumanXBrainMotorCandidateV2 nativeExactCandidate{};
+        if (exactClock) {
+            exactRequest.abi_version = MRNX_PHYSICAL_ROOT_REQUEST_ABI_V3;
+            exactRequest.struct_size = sizeof(exactRequest);
+            exactRequest.root.format_version =
+                MRNX_BRAIN_JOINT_TRANSACTION_VERSION_V2;
+            exactRequest.root.environment_identifier = 0u;
+            exactRequest.root.episode_identifier = 1u;
+            exactRequest.root.control_step_identifier = 1u;
+            exactRequest.root.parameter_version_fingerprint = 2u;
+            exactRequest.root.base_brain_generation = 0u;
+            exactRequest.root.base_physics_generation = 0u;
+            exactRequest.root.committed_timestamp_nanoseconds =
+                startTimestamp;
+            exactRequest.root.target_timestamp_nanoseconds =
+                startTimestamp + durationTicks;
+            exactRequest.root.shadow_generation = 1u;
+            exactRequest.root.random_counter_generation = 3u;
+            exactRequest.root.clock_domain =
+                MRNX_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS;
+            exactRequest.root.clock_quantum_nanoseconds =
+                MRNX_EXACT_CLOCK_QUANTUM_NANOSECONDS;
+            std::memcpy(
+                &nativeExactRoot, &exactRequest.root,
+                sizeof(nativeExactRoot));
+            exactRequest.root.transaction_fingerprint =
+                metalrobo::metalNumanXBrainJointTransactionV2Fingerprint(
+                    nativeExactRoot);
+
+            exactRequest.substep.transaction_fingerprint =
+                exactRequest.root.transaction_fingerprint;
+            exactRequest.substep.substep_index = 0u;
+            exactRequest.substep.attempt_index = 0u;
+            exactRequest.substep.start_timestamp_nanoseconds = startTimestamp;
+            exactRequest.substep.duration_nanoseconds = durationTicks;
+            exactRequest.substep.candidate_timestamp_nanoseconds =
+                startTimestamp + durationTicks;
+            exactRequest.substep.shadow_generation =
+                exactRequest.root.shadow_generation;
+            exactRequest.substep.random_counter_generation =
+                exactRequest.root.random_counter_generation;
+            exactRequest.substep.clock_domain =
+                exactRequest.root.clock_domain;
+            exactRequest.substep.clock_quantum_nanoseconds =
+                exactRequest.root.clock_quantum_nanoseconds;
+            std::memcpy(
+                &nativeExactSubstep, &exactRequest.substep,
+                sizeof(nativeExactSubstep));
+            exactRequest.substep.substep_fingerprint =
+                metalrobo::metalNumanXBrainJointSubstepV2Fingerprint(
+                    nativeExactSubstep);
+
+            exactRequest.candidate.format_version =
+                MRNX_BRAIN_MOTOR_CANDIDATE_VERSION_V2;
+            exactRequest.candidate.flags =
+                MR_NUMANX_BRAIN_MOTOR_CANDIDATE_VALID |
+                MR_NUMANX_BRAIN_MOTOR_CANDIDATE_DECISION_SHADOW;
+            exactRequest.candidate.transaction_fingerprint =
+                exactRequest.root.transaction_fingerprint;
+            exactRequest.candidate.substep_fingerprint =
+                exactRequest.substep.substep_fingerprint;
+            exactRequest.candidate.accepted_brain_timestamp_nanoseconds =
+                startTimestamp;
+            exactRequest.candidate.brain_generation =
+                exactRequest.root.shadow_generation;
+            exactRequest.candidate.motor_profile_fingerprint = 4u;
+            exactRequest.candidate.motor_output_header_gpu_address =
+                headerBuffer.gpuAddress;
+            exactRequest.candidate.muscle_excitation_gpu_address =
+                excitationBuffer.gpuAddress;
+            exactRequest.candidate.random_counter_generation =
+                exactRequest.root.random_counter_generation;
+            exactRequest.candidate.motor_output_header_byte_count =
+                headerBuffer.length;
+            exactRequest.candidate.muscle_excitation_byte_count =
+                excitationBuffer.length;
+            exactRequest.candidate.muscle_count = 416u;
+            exactRequest.candidate.environment_identifier = 0u;
+            exactRequest.candidate.autonomic_command_gpu_address =
+                autonomicBuffer.gpuAddress;
+            exactRequest.candidate.autonomic_command_byte_count =
+                autonomicBuffer.length;
+            exactRequest.candidate.autonomic_command_count = 1u;
+            exactRequest.candidate.active_sensing_command_gpu_address =
+                activeBuffer.gpuAddress;
+            exactRequest.candidate.active_sensing_command_byte_count =
+                activeBuffer.length;
+            exactRequest.candidate.active_sensing_command_count = 1u;
+            exactRequest.candidate.actuator_command_kind =
+                MR_NUMANX_BRAIN_ACTUATOR_MUSCLE_EXCITATION;
+            exactRequest.candidate.clock_domain =
+                MRNX_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS;
+            exactRequest.candidate.species_template_fingerprint = 5u;
+            exactRequest.candidate.compiled_species_template_fingerprint = 6u;
+            std::memcpy(
+                &nativeExactCandidate, &exactRequest.candidate,
+                sizeof(nativeExactCandidate));
+            exactRequest.candidate.candidate_fingerprint =
+                metalrobo::metalNumanXBrainMotorCandidateV2Fingerprint(
+                    nativeExactCandidate);
+            require(
+                exactRequest.root.transaction_fingerprint !=
+                    request.root.transaction_fingerprint &&
+                exactRequest.substep.substep_fingerprint !=
+                    request.substep.substep_fingerprint &&
+                exactRequest.candidate.candidate_fingerprint !=
+                    request.candidate.candidate_fingerprint,
+                "exact-clock fingerprints were not domain-separated from v1");
+        }
+
         auto* header = static_cast<MRNumanXBrainMotorOutputHeaderGPU*>(
             headerBuffer.contents);
-        *header = {};
-        header->formatVersion = MR_NUMANX_BRAIN_MOTOR_OUTPUT_VERSION;
-        header->flags = MR_NUMANX_BRAIN_MOTOR_OUTPUT_VALID;
-        header->timestampMicroseconds = startTimestamp;
-        header->brainGeneration = request.root.shadow_generation;
-        header->profileFingerprint =
-            request.candidate.motor_profile_fingerprint;
-        header->protectiveCommandFingerprint = 7u;
-        header->muscleCount = 416u;
-        header->environmentIdentifier = 0u;
-        header->motorInhibition = 0.1f;
-        header->autonomicArousal = 0.2f;
-        header->actuatorCommandKind =
-            MR_NUMANX_BRAIN_ACTUATOR_MUSCLE_EXCITATION;
-        header->outputMinimum = 0.0f;
-        header->outputMaximum = 1.0f;
-        header->outputFingerprint = motorOutputFingerprint(
-            *header, excitation);
+        auto* exactHeader =
+            static_cast<MRNumanXBrainMotorOutputHeaderGPUV2*>(
+                headerBuffer.contents);
+        if (exactClock) {
+            *exactHeader = {};
+            exactHeader->formatVersion =
+                MR_NUMANX_BRAIN_MOTOR_OUTPUT_VERSION_V2;
+            exactHeader->flags = MR_NUMANX_BRAIN_MOTOR_OUTPUT_VALID;
+            exactHeader->timestampNanoseconds = startTimestamp;
+            exactHeader->brainGeneration =
+                exactRequest.root.shadow_generation;
+            exactHeader->profileFingerprint =
+                exactRequest.candidate.motor_profile_fingerprint;
+            exactHeader->protectiveCommandFingerprint = 7u;
+            exactHeader->muscleCount = 416u;
+            exactHeader->environmentIdentifier = 0u;
+            exactHeader->motorInhibition = 0.1f;
+            exactHeader->autonomicArousal = 0.2f;
+            exactHeader->actuatorCommandKind =
+                MR_NUMANX_BRAIN_ACTUATOR_MUSCLE_EXCITATION;
+            exactHeader->clockDomain =
+                MR_NUMANX_BRAIN_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS;
+            exactHeader->outputMinimum = 0.0f;
+            exactHeader->outputMaximum = 1.0f;
+            exactHeader->outputFingerprint =
+                metalrobo::metalNumanXBrainMotorOutputV2Fingerprint(
+                    *exactHeader, excitation, 416u);
+        } else {
+            *header = {};
+            header->formatVersion = MR_NUMANX_BRAIN_MOTOR_OUTPUT_VERSION;
+            header->flags = MR_NUMANX_BRAIN_MOTOR_OUTPUT_VALID;
+            header->timestampMicroseconds = startTimestamp;
+            header->brainGeneration = request.root.shadow_generation;
+            header->profileFingerprint =
+                request.candidate.motor_profile_fingerprint;
+            header->protectiveCommandFingerprint = 7u;
+            header->muscleCount = 416u;
+            header->environmentIdentifier = 0u;
+            header->motorInhibition = 0.1f;
+            header->autonomicArousal = 0.2f;
+            header->actuatorCommandKind =
+                MR_NUMANX_BRAIN_ACTUATOR_MUSCLE_EXCITATION;
+            header->outputMinimum = 0.0f;
+            header->outputMaximum = 1.0f;
+            header->outputFingerprint = motorOutputFingerprint(
+                *header, excitation);
+        }
 
         auto* gate = static_cast<MRNumanXBrainMotorReadyGateGPU*>(
             gateBuffer.contents);
-        *gate = {};
-        gate->abiVersion = MR_NUMANX_BRAIN_MOTOR_READY_ABI_VERSION;
-        gate->structBytes = sizeof(*gate);
-        gate->status = MR_NUMANX_BRAIN_READY_GATE_SUCCESS;
-        gate->environment = 0u;
-        gate->substepIndex = 0u;
-        gate->attemptIndex = 0u;
-        gate->muscleCount = 416u;
-        gate->actuatorCommandKind =
-            MR_NUMANX_BRAIN_ACTUATOR_MUSCLE_EXCITATION;
-        gate->controlStep = request.root.control_step_identifier;
-        gate->transactionFingerprint = request.root.transaction_fingerprint;
-        gate->substepFingerprint = request.substep.substep_fingerprint;
-        gate->candidateFingerprint = request.candidate.candidate_fingerprint;
-        gate->motorOutputFingerprint = header->outputFingerprint;
-        gate->motorProfileFingerprint =
-            request.candidate.motor_profile_fingerprint;
-        gate->brainGeneration = request.root.shadow_generation;
-        gate->acceptedBrainTimestampMicroseconds = startTimestamp;
-        gate->randomCounterGeneration =
-            request.root.random_counter_generation;
-        gate->speciesTemplateFingerprint =
-            request.candidate.species_template_fingerprint;
-        gate->compiledSpeciesTemplateFingerprint =
-            request.candidate.compiled_species_template_fingerprint;
-        gate->brainProgramFingerprint = 8u;
-        gate->fastProgramFingerprint = 9u;
-        gate->decisionGateFingerprint = 10u;
-        gate->gateFingerprint = readyGateFingerprint(*gate);
+        auto* exactGate = static_cast<MRNumanXBrainMotorReadyGateGPUV2*>(
+            gateBuffer.contents);
+        if (exactClock) {
+            *exactGate = {};
+            exactGate->abiVersion =
+                MR_NUMANX_BRAIN_MOTOR_READY_ABI_VERSION_V2;
+            exactGate->structBytes = sizeof(*exactGate);
+            exactGate->status = MR_NUMANX_BRAIN_READY_GATE_SUCCESS;
+            exactGate->environment = 0u;
+            exactGate->substepIndex = 0u;
+            exactGate->attemptIndex = 0u;
+            exactGate->muscleCount = 416u;
+            exactGate->actuatorCommandKind =
+                MR_NUMANX_BRAIN_ACTUATOR_MUSCLE_EXCITATION;
+            exactGate->controlStep =
+                exactRequest.root.control_step_identifier;
+            exactGate->transactionFingerprint =
+                exactRequest.root.transaction_fingerprint;
+            exactGate->substepFingerprint =
+                exactRequest.substep.substep_fingerprint;
+            exactGate->candidateFingerprint =
+                exactRequest.candidate.candidate_fingerprint;
+            exactGate->motorOutputFingerprint =
+                exactHeader->outputFingerprint;
+            exactGate->motorProfileFingerprint =
+                exactRequest.candidate.motor_profile_fingerprint;
+            exactGate->brainGeneration =
+                exactRequest.root.shadow_generation;
+            exactGate->acceptedBrainTimestampNanoseconds = startTimestamp;
+            exactGate->randomCounterGeneration =
+                exactRequest.root.random_counter_generation;
+            exactGate->speciesTemplateFingerprint =
+                exactRequest.candidate.species_template_fingerprint;
+            exactGate->compiledSpeciesTemplateFingerprint =
+                exactRequest.candidate.compiled_species_template_fingerprint;
+            exactGate->brainProgramFingerprint = 8u;
+            exactGate->fastProgramFingerprint = 9u;
+            exactGate->decisionGateFingerprint = 10u;
+            exactGate->clockDomain =
+                MR_NUMANX_BRAIN_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS;
+            exactGate->clockQuantumNanoseconds =
+                MR_NUMANX_BRAIN_EXACT_CLOCK_QUANTUM_NANOSECONDS;
+            exactGate->gateFingerprint =
+                metalrobo::metalNumanXBrainMotorReadyGateV2Fingerprint(
+                    *exactGate);
+        } else {
+            *gate = {};
+            gate->abiVersion = MR_NUMANX_BRAIN_MOTOR_READY_ABI_VERSION;
+            gate->structBytes = sizeof(*gate);
+            gate->status = MR_NUMANX_BRAIN_READY_GATE_SUCCESS;
+            gate->environment = 0u;
+            gate->substepIndex = 0u;
+            gate->attemptIndex = 0u;
+            gate->muscleCount = 416u;
+            gate->actuatorCommandKind =
+                MR_NUMANX_BRAIN_ACTUATOR_MUSCLE_EXCITATION;
+            gate->controlStep = request.root.control_step_identifier;
+            gate->transactionFingerprint =
+                request.root.transaction_fingerprint;
+            gate->substepFingerprint = request.substep.substep_fingerprint;
+            gate->candidateFingerprint =
+                request.candidate.candidate_fingerprint;
+            gate->motorOutputFingerprint = header->outputFingerprint;
+            gate->motorProfileFingerprint =
+                request.candidate.motor_profile_fingerprint;
+            gate->brainGeneration = request.root.shadow_generation;
+            gate->acceptedBrainTimestampMicroseconds = startTimestamp;
+            gate->randomCounterGeneration =
+                request.root.random_counter_generation;
+            gate->speciesTemplateFingerprint =
+                request.candidate.species_template_fingerprint;
+            gate->compiledSpeciesTemplateFingerprint =
+                request.candidate.compiled_species_template_fingerprint;
+            gate->brainProgramFingerprint = 8u;
+            gate->fastProgramFingerprint = 9u;
+            gate->decisionGateFingerprint = 10u;
+            gate->gateFingerprint = readyGateFingerprint(*gate);
+        }
 
         request.motor_header = range(
             headerBuffer, MRNX_ELEMENT_RAW_BYTES_V1, 1u);
@@ -1805,6 +1996,22 @@ int run(const bool authored, const bool sourceEqualities, const bool costalTissu
         request.motor_ready.shared_event = (__bridge void*)readyEvent;
         request.motor_ready.value = 1u;
         request.motor_ready.device_registry_id = device.registryID;
+
+        if (exactClock) {
+            exactRequest.motor_header = range(
+                headerBuffer,
+                MRNX_ELEMENT_BRAIN_MOTOR_OUTPUT_HEADER_V2,
+                sizeof(MRNumanXBrainMotorOutputHeaderGPUV2));
+            exactRequest.muscle_excitation = request.muscle_excitation;
+            exactRequest.autonomic_command = request.autonomic_command;
+            exactRequest.active_sensing_command =
+                request.active_sensing_command;
+            exactRequest.motor_ready_gate = range(
+                gateBuffer,
+                MRNX_ELEMENT_BRAIN_MOTOR_READY_GATE_V2,
+                sizeof(MRNumanXBrainMotorReadyGateGPUV2));
+            exactRequest.motor_ready = request.motor_ready;
+        }
 
         std::memcpy(&nativeRoot, &request.root, sizeof(nativeRoot));
         std::memcpy(&nativeSubstep, &request.substep, sizeof(nativeSubstep));
@@ -1823,39 +2030,291 @@ int run(const bool authored, const bool sourceEqualities, const bool costalTissu
                         nativeCandidate),
                 "fixture candidate fingerprint mismatch");
 
+        if (exactClock) {
+            std::memcpy(
+                &nativeExactRoot, &exactRequest.root,
+                sizeof(nativeExactRoot));
+            std::memcpy(
+                &nativeExactSubstep, &exactRequest.substep,
+                sizeof(nativeExactSubstep));
+            std::memcpy(
+                &nativeExactCandidate, &exactRequest.candidate,
+                sizeof(nativeExactCandidate));
+            require(
+                metalrobo::metalNumanXBrainJointTransactionV2Valid(
+                    nativeExactRoot) &&
+                metalrobo::metalNumanXBrainJointSubstepV2Valid(
+                    nativeExactRoot, nativeExactSubstep) &&
+                metalrobo::metalNumanXBrainMotorCandidateV2Valid(
+                    nativeExactRoot, nativeExactSubstep,
+                    nativeExactCandidate) &&
+                metalrobo::metalNumanXBrainMotorOutputV2Valid(
+                    nativeExactCandidate, *exactHeader, excitation, 416u) &&
+                metalrobo::metalNumanXBrainMotorReadyGateV2Valid(
+                    nativeExactRoot, nativeExactSubstep,
+                    nativeExactCandidate, *exactHeader, *exactGate),
+                "coherent exact-clock v2 fixture failed CPU validation");
+        }
+
+        if (exactClock) {
+            Completion rejected{};
+            require(!mrnx_bridge_v1_runtime_begin_physical_root(
+                        runtime, &request, &rejected, &settled),
+                    "legacy physical-root entry admitted an exact-clock runtime");
+            require(
+                rejected.count.load(std::memory_order_acquire) == 0u &&
+                    readyEvent.signaledValue == 0u,
+                "legacy exact-runtime rejection invoked completion or event");
+
+            mrnx_physical_root_request_v2 legacyExactRequest{};
+            std::memcpy(
+                &legacyExactRequest, &request, sizeof(legacyExactRequest));
+            legacyExactRequest.abi_version =
+                MRNX_PHYSICAL_ROOT_REQUEST_ABI_V2;
+            legacyExactRequest.struct_size = sizeof(legacyExactRequest);
+            legacyExactRequest.motor_header.metal_buffer =
+                reinterpret_cast<void*>(static_cast<std::uintptr_t>(0x201u));
+            legacyExactRequest.motor_ready.shared_event =
+                reinterpret_cast<void*>(static_cast<std::uintptr_t>(0x202u));
+            require(!mrnx_bridge_v1_runtime_begin_physical_root_v2(
+                        runtime, &legacyExactRequest, &rejected, &settled),
+                    "published all-v1 request-v2 entered an exact runtime");
+            mrnx_runtime_info_v1 legacyV2Info{};
+            legacyV2Info.abi_version = MRNX_BRIDGE_ABI_V1;
+            legacyV2Info.struct_size = sizeof(legacyV2Info);
+            require(
+                mrnx_bridge_v1_runtime_copy_info(
+                    runtime, &legacyV2Info) &&
+                legacyV2Info.status == MRNX_RUNTIME_INVALID_REQUEST_V1 &&
+                legacyV2Info.request_failure_stage ==
+                    MRNX_REQUEST_FAILURE_STAGE_LEGACY_EXACT_V2_UNROUTABLE &&
+                rejected.count.load(std::memory_order_acquire) == 0u &&
+                readyEvent.signaledValue == 0u,
+                "published request-v2 did not fail before resource admission");
+
+            const auto requireV3RejectedAtStage = [
+                &rejected, runtime, readyEvent
+            ](
+                const mrnx_physical_root_request_v3& rejectedRequest,
+                const std::uint32_t expectedStage,
+                const char* admittedMessage,
+                const char* stageMessage
+            ) {
+                require(!mrnx_bridge_v1_runtime_begin_physical_root_v3(
+                            runtime, &rejectedRequest, &rejected, &settled),
+                        admittedMessage);
+                mrnx_runtime_info_v1 rejectedInfo{};
+                rejectedInfo.abi_version = MRNX_BRIDGE_ABI_V1;
+                rejectedInfo.struct_size = sizeof(rejectedInfo);
+                require(
+                    mrnx_bridge_v1_runtime_copy_info(
+                        runtime, &rejectedInfo) &&
+                    rejectedInfo.status == MRNX_RUNTIME_INVALID_REQUEST_V1 &&
+                    rejectedInfo.request_failure_stage == expectedStage &&
+                    rejected.count.load(std::memory_order_acquire) == 0u &&
+                    readyEvent.signaledValue == 0u,
+                    stageMessage);
+            };
+
+            auto overflowExact = exactRequest;
+            overflowExact.root.control_step_identifier =
+                static_cast<std::uint64_t>(
+                    std::numeric_limits<std::uint32_t>::max()) + 1u;
+            requireV3RejectedAtStage(
+                overflowExact, 1u,
+                "UInt64 control-step overflow was admitted on exact clock",
+                "control-step overflow missed request-v3 stage 1");
+
+            auto legacyRoot = exactRequest;
+            std::memcpy(
+                &legacyRoot.root, &request.root, sizeof(legacyRoot.root));
+            requireV3RejectedAtStage(
+                legacyRoot, 10u,
+                "request-v3 admitted a legacy joint root",
+                "legacy joint root missed request-v3 stage 10");
+
+            auto mixedSubstep = exactRequest;
+            mixedSubstep.substep.clock_domain = 0u;
+            std::memcpy(
+                &nativeExactSubstep, &mixedSubstep.substep,
+                sizeof(nativeExactSubstep));
+            mixedSubstep.substep.substep_fingerprint =
+                metalrobo::metalNumanXBrainJointSubstepV2Fingerprint(
+                    nativeExactSubstep);
+            requireV3RejectedAtStage(
+                mixedSubstep, 2u,
+                "request-v3 admitted a mixed-domain substep",
+                "mixed-domain substep missed request-v3 stage 2");
+
+            auto legacyCandidate = exactRequest;
+            legacyCandidate.candidate.format_version =
+                MRNX_BRAIN_MOTOR_CANDIDATE_VERSION_V1;
+            legacyCandidate.candidate.clock_domain = 0u;
+            std::memcpy(
+                &nativeExactCandidate, &legacyCandidate.candidate,
+                sizeof(nativeExactCandidate));
+            legacyCandidate.candidate.candidate_fingerprint =
+                metalrobo::metalNumanXBrainMotorCandidateV2Fingerprint(
+                    nativeExactCandidate);
+            requireV3RejectedAtStage(
+                legacyCandidate, 3u,
+                "request-v3 admitted a legacy motor candidate",
+                "legacy motor candidate missed request-v3 stage 3");
+
+            auto misalignedCandidate = exactRequest;
+            misalignedCandidate.candidate.motor_output_header_gpu_address +=
+                8u;
+            std::memcpy(
+                &nativeExactCandidate, &misalignedCandidate.candidate,
+                sizeof(nativeExactCandidate));
+            misalignedCandidate.candidate.candidate_fingerprint =
+                metalrobo::metalNumanXBrainMotorCandidateV2Fingerprint(
+                    nativeExactCandidate);
+            requireV3RejectedAtStage(
+                misalignedCandidate, 3u,
+                "request-v3 admitted a misaligned candidate motor header",
+                "misaligned candidate missed request-v3 stage 3");
+
+            auto legacyHeaderDeclaration = exactRequest;
+            legacyHeaderDeclaration.motor_header.element_type =
+                MRNX_ELEMENT_RAW_BYTES_V1;
+            requireV3RejectedAtStage(
+                legacyHeaderDeclaration, 41u,
+                "request-v3 admitted a legacy motor-header declaration",
+                "legacy motor header missed request-v3 stage 41");
+
+            auto wrongHeaderElementSize = exactRequest;
+            wrongHeaderElementSize.motor_header.element_byte_count = 1u;
+            requireV3RejectedAtStage(
+                wrongHeaderElementSize, 41u,
+                "request-v3 admitted a scalar-sized typed motor header",
+                "typed motor-header size missed request-v3 stage 41");
+
+            auto misalignedHeaderAddress = exactRequest;
+            misalignedHeaderAddress.motor_header.gpu_address += 8u;
+            requireV3RejectedAtStage(
+                misalignedHeaderAddress, 41u,
+                "request-v3 admitted a misaligned motor-header address",
+                "motor-header address alignment missed request-v3 stage 41");
+
+            auto misalignedHeaderOffset = exactRequest;
+            misalignedHeaderOffset.motor_header.byte_offset = 8u;
+            requireV3RejectedAtStage(
+                misalignedHeaderOffset, 41u,
+                "request-v3 admitted a misaligned motor-header offset",
+                "motor-header offset alignment missed request-v3 stage 41");
+
+            auto legacyGateDeclaration = exactRequest;
+            legacyGateDeclaration.motor_ready_gate.element_type =
+                MRNX_ELEMENT_RAW_BYTES_V1;
+            requireV3RejectedAtStage(
+                legacyGateDeclaration, 45u,
+                "request-v3 admitted a legacy ready-gate declaration",
+                "legacy ready gate missed request-v3 stage 45");
+
+            auto wrongGateElementSize = exactRequest;
+            wrongGateElementSize.motor_ready_gate.element_byte_count = 1u;
+            requireV3RejectedAtStage(
+                wrongGateElementSize, 45u,
+                "request-v3 admitted a scalar-sized typed ready gate",
+                "typed ready-gate size missed request-v3 stage 45");
+
+            auto misalignedGateAddress = exactRequest;
+            misalignedGateAddress.motor_ready_gate.gpu_address += 8u;
+            requireV3RejectedAtStage(
+                misalignedGateAddress, 45u,
+                "request-v3 admitted a misaligned ready-gate address",
+                "ready-gate address alignment missed request-v3 stage 45");
+
+            auto misalignedGateOffset = exactRequest;
+            misalignedGateOffset.motor_ready_gate.byte_offset = 8u;
+            requireV3RejectedAtStage(
+                misalignedGateOffset, 45u,
+                "request-v3 admitted a misaligned ready-gate offset",
+                "ready-gate offset alignment missed request-v3 stage 45");
+
+            const auto requireV3BlockedBeforeResources = [
+                runtime, readyEvent
+            ](
+                const mrnx_physical_root_request_v3& blockedRequest,
+                Completion& blockedCompletion,
+                const char* admittedMessage,
+                const char* stageMessage
+            ) {
+                require(!mrnx_bridge_v1_runtime_begin_physical_root_v3(
+                            runtime, &blockedRequest, &blockedCompletion,
+                            &settled),
+                        admittedMessage);
+                mrnx_runtime_info_v1 blockedInfo{};
+                blockedInfo.abi_version = MRNX_BRIDGE_ABI_V1;
+                blockedInfo.struct_size = sizeof(blockedInfo);
+                require(
+                    mrnx_bridge_v1_runtime_copy_info(
+                        runtime, &blockedInfo) &&
+                    blockedInfo.status ==
+                        MRNX_RUNTIME_CONTINUATION_UNAVAILABLE_V1 &&
+                    blockedInfo.request_failure_stage ==
+                        MRNX_REQUEST_FAILURE_STAGE_EXACT_OUTBOUND_UNAVAILABLE &&
+                    blockedCompletion.count.load(
+                        std::memory_order_acquire) == 0u &&
+                    readyEvent.signaledValue == 0u,
+                    stageMessage);
+            };
+
+            // These deliberately invalid opaque pointers prove stage 900 is
+            // reached from scalar descriptor metadata alone. Any Objective-C
+            // bridge/message, retain, buffer query, or event import here would
+            // dereference a sentinel instead of returning normally.
+            auto noTouchRequest = exactRequest;
+            noTouchRequest.motor_header.metal_buffer =
+                reinterpret_cast<void*>(static_cast<std::uintptr_t>(0x101u));
+            noTouchRequest.muscle_excitation.metal_buffer =
+                reinterpret_cast<void*>(static_cast<std::uintptr_t>(0x102u));
+            noTouchRequest.autonomic_command.metal_buffer =
+                reinterpret_cast<void*>(static_cast<std::uintptr_t>(0x103u));
+            noTouchRequest.active_sensing_command.metal_buffer =
+                reinterpret_cast<void*>(static_cast<std::uintptr_t>(0x104u));
+            noTouchRequest.motor_ready_gate.metal_buffer =
+                reinterpret_cast<void*>(static_cast<std::uintptr_t>(0x105u));
+            noTouchRequest.motor_ready.shared_event =
+                reinterpret_cast<void*>(static_cast<std::uintptr_t>(0x106u));
+            Completion noTouchBlocked{};
+            requireV3BlockedBeforeResources(
+                noTouchRequest, noTouchBlocked,
+                "metadata-only request-v3 unexpectedly submitted",
+                "request-v3 touched resources before stage 900");
+
+            Completion blocked{};
+            requireV3BlockedBeforeResources(
+                exactRequest, blocked,
+                "inbound-only exact request unexpectedly submitted",
+                "coherent request-v3 did not stop at the outbound ABI boundary");
+            mrnx_bridge_v1_runtime_drop(runtime);
+            std::filesystem::remove(culturePath);
+            std::printf(
+                "numanx_fullbody_bridge_probe=pass clock=exact-nanoseconds "
+                "timestep=12500ns inbound_v3=validated mixed_v1=rejected "
+                "gpu_submission=blocked root_fp=%llu substep_fp=%llu "
+                "candidate_fp=%llu\n",
+                static_cast<unsigned long long>(
+                    exactRequest.root.transaction_fingerprint),
+                static_cast<unsigned long long>(
+                    exactRequest.substep.substep_fingerprint),
+                static_cast<unsigned long long>(
+                    exactRequest.candidate.candidate_fingerprint));
+            return 0;
+        }
+
         auto overflow = request;
         overflow.root.control_step_identifier =
             static_cast<std::uint64_t>(
                 std::numeric_limits<std::uint32_t>::max()) + 1u;
-        if (exactClock) {
-            require(!mrnx_bridge_v1_runtime_begin_physical_root(
-                        runtime, &request, nullptr, &settled),
-                    "legacy physical-root entry admitted an exact-clock runtime");
-            auto overflowExact = mrnx_physical_root_request_v2{};
-            std::memcpy(&overflowExact, &overflow, sizeof(overflow));
-            overflowExact.abi_version = MRNX_PHYSICAL_ROOT_REQUEST_ABI_V2;
-            overflowExact.struct_size = sizeof(overflowExact);
-            require(!mrnx_bridge_v1_runtime_begin_physical_root_v2(
-                        runtime, &overflowExact, nullptr, &settled),
-                    "UInt64 control-step overflow was admitted on exact clock");
-        } else {
-            require(!mrnx_bridge_v1_runtime_begin_physical_root(
-                        runtime, &overflow, nullptr, &settled),
-                    "UInt64 control-step overflow was admitted");
-        }
+        require(!mrnx_bridge_v1_runtime_begin_physical_root(
+                    runtime, &overflow, nullptr, &settled),
+                "UInt64 control-step overflow was admitted");
         Completion completion{};
-        bool began = false;
-        if (exactClock) {
-            auto exactRequest = mrnx_physical_root_request_v2{};
-            std::memcpy(&exactRequest, &request, sizeof(request));
-            exactRequest.abi_version = MRNX_PHYSICAL_ROOT_REQUEST_ABI_V2;
-            exactRequest.struct_size = sizeof(exactRequest);
-            began = mrnx_bridge_v1_runtime_begin_physical_root_v2(
-                runtime, &exactRequest, &completion, &settled);
-        } else {
-            began = mrnx_bridge_v1_runtime_begin_physical_root(
-                runtime, &request, &completion, &settled);
-        }
+        const bool began = mrnx_bridge_v1_runtime_begin_physical_root(
+            runtime, &request, &completion, &settled);
         if (!began) {
             mrnx_runtime_info_v1 failedInfo{};
             failedInfo.abi_version = MRNX_BRIDGE_ABI_V1;

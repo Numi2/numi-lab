@@ -2771,6 +2771,372 @@ std::uint64_t metalNumanXBrainMotorCandidateFingerprint(
     return hash;
 }
 
+std::uint64_t metalNumanXBrainJointTransactionV2Fingerprint(
+    const MRNumanXBrainJointTransactionTokenV2& token
+) noexcept {
+    std::uint64_t hash = kFnvOffset;
+    hash = hashU32(hash, MR_NUMANX_BRAIN_JOINT_TRANSACTION_VERSION_V2);
+    hash = hashU32(hash, token.formatVersion);
+    hash = hashU32(hash, token.environmentIdentifier);
+    hash = hashU64(hash, token.episodeIdentifier);
+    hash = hashU64(hash, token.controlStepIdentifier);
+    hash = hashU64(hash, token.parameterVersionFingerprint);
+    hash = hashU64(hash, token.baseBrainGeneration);
+    hash = hashU64(hash, token.basePhysicsGeneration);
+    hash = hashU64(hash, token.committedTimestampNanoseconds);
+    hash = hashU64(hash, token.targetTimestampNanoseconds);
+    hash = hashU64(hash, token.shadowGeneration);
+    hash = hashU64(hash, token.randomCounterGeneration);
+    hash = hashU32(hash, token.clockDomain);
+    hash = hashU32(hash, token.clockQuantumNanoseconds);
+    return hash;
+}
+
+bool metalNumanXBrainJointTransactionV2Valid(
+    const MRNumanXBrainJointTransactionTokenV2& token
+) noexcept {
+    return token.formatVersion ==
+            MR_NUMANX_BRAIN_JOINT_TRANSACTION_VERSION_V2 &&
+        token.parameterVersionFingerprint != 0u &&
+        token.targetTimestampNanoseconds >
+            token.committedTimestampNanoseconds &&
+        token.baseBrainGeneration !=
+            std::numeric_limits<std::uint64_t>::max() &&
+        token.shadowGeneration == token.baseBrainGeneration + 1u &&
+        token.clockDomain ==
+            MR_NUMANX_BRAIN_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS &&
+        token.clockQuantumNanoseconds ==
+            MR_NUMANX_BRAIN_EXACT_CLOCK_QUANTUM_NANOSECONDS &&
+        token.transactionFingerprint != 0u &&
+        token.transactionFingerprint ==
+            metalNumanXBrainJointTransactionV2Fingerprint(token);
+}
+
+std::uint64_t metalNumanXBrainJointSubstepV2Fingerprint(
+    const MRNumanXBrainJointSubstepTokenV2& token
+) noexcept {
+    std::uint64_t hash = kFnvOffset;
+    hash = hashU32(hash, MR_NUMANX_BRAIN_JOINT_TRANSACTION_VERSION_V2);
+    hash = hashU64(hash, token.transactionFingerprint);
+    hash = hashU32(hash, token.substepIndex);
+    hash = hashU32(hash, token.attemptIndex);
+    hash = hashU64(hash, token.startTimestampNanoseconds);
+    hash = hashU64(hash, token.durationNanoseconds);
+    hash = hashU64(hash, token.candidateTimestampNanoseconds);
+    hash = hashU64(hash, token.shadowGeneration);
+    hash = hashU64(hash, token.randomCounterGeneration);
+    hash = hashU32(hash, token.clockDomain);
+    hash = hashU32(hash, token.clockQuantumNanoseconds);
+    return hash;
+}
+
+bool metalNumanXBrainJointSubstepV2Valid(
+    const MRNumanXBrainJointTransactionTokenV2& root,
+    const MRNumanXBrainJointSubstepTokenV2& substep
+) noexcept {
+    return metalNumanXBrainJointTransactionV2Valid(root) &&
+        substep.transactionFingerprint == root.transactionFingerprint &&
+        substep.shadowGeneration == root.shadowGeneration &&
+        substep.randomCounterGeneration == root.randomCounterGeneration &&
+        substep.clockDomain == root.clockDomain &&
+        substep.clockQuantumNanoseconds == root.clockQuantumNanoseconds &&
+        substep.clockDomain ==
+            MR_NUMANX_BRAIN_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS &&
+        substep.clockQuantumNanoseconds ==
+            MR_NUMANX_BRAIN_EXACT_CLOCK_QUANTUM_NANOSECONDS &&
+        substep.durationNanoseconds != 0u &&
+        substep.startTimestampNanoseconds >=
+            root.committedTimestampNanoseconds &&
+        substep.startTimestampNanoseconds < root.targetTimestampNanoseconds &&
+        substep.durationNanoseconds <=
+            std::numeric_limits<std::uint64_t>::max() -
+                substep.startTimestampNanoseconds &&
+        substep.candidateTimestampNanoseconds ==
+            substep.startTimestampNanoseconds + substep.durationNanoseconds &&
+        substep.candidateTimestampNanoseconds <=
+            root.targetTimestampNanoseconds &&
+        substep.substepFingerprint != 0u &&
+        substep.substepFingerprint ==
+            metalNumanXBrainJointSubstepV2Fingerprint(substep);
+}
+
+std::uint64_t metalNumanXBrainMotorCandidateV2Fingerprint(
+    const MRNumanXBrainMotorCandidateV2& candidate
+) noexcept {
+    std::uint64_t hash = kFnvOffset;
+    hash = hashU32(hash, MR_NUMANX_BRAIN_MOTOR_CANDIDATE_VERSION_V2);
+    hash = hashU32(hash, candidate.formatVersion);
+    hash = hashU32(hash, candidate.flags);
+    hash = hashU64(hash, candidate.transactionFingerprint);
+    hash = hashU64(hash, candidate.substepFingerprint);
+    hash = hashU64(hash, candidate.acceptedBrainTimestampNanoseconds);
+    hash = hashU64(hash, candidate.brainGeneration);
+    hash = hashU64(hash, candidate.motorProfileFingerprint);
+    hash = hashU64(hash, candidate.motorOutputHeaderGPUAddress);
+    hash = hashU64(hash, candidate.muscleExcitationGPUAddress);
+    hash = hashU64(hash, candidate.randomCounterGeneration);
+    hash = hashU32(hash, candidate.motorOutputHeaderByteCount);
+    hash = hashU32(hash, candidate.muscleExcitationByteCount);
+    hash = hashU32(hash, candidate.muscleCount);
+    hash = hashU32(hash, candidate.environmentIdentifier);
+    hash = hashU64(hash, candidate.autonomicCommandGPUAddress);
+    hash = hashU32(hash, candidate.autonomicCommandByteCount);
+    hash = hashU32(hash, candidate.autonomicCommandCount);
+    hash = hashU64(hash, candidate.activeSensingCommandGPUAddress);
+    hash = hashU32(hash, candidate.activeSensingCommandByteCount);
+    hash = hashU32(hash, candidate.activeSensingCommandCount);
+    hash = hashU32(hash, candidate.actuatorCommandKind);
+    hash = hashU32(hash, candidate.clockDomain);
+    hash = hashU64(hash, candidate.speciesTemplateFingerprint);
+    hash = hashU64(hash, candidate.compiledSpeciesTemplateFingerprint);
+    return hash;
+}
+
+bool metalNumanXBrainMotorCandidateV2Valid(
+    const MRNumanXBrainJointTransactionTokenV2& root,
+    const MRNumanXBrainJointSubstepTokenV2& substep,
+    const MRNumanXBrainMotorCandidateV2& candidate
+) noexcept {
+    constexpr std::uint32_t knownFlags =
+        MR_NUMANX_BRAIN_MOTOR_CANDIDATE_VALID |
+        MR_NUMANX_BRAIN_MOTOR_CANDIDATE_DECISION_SHADOW;
+    const bool decisionShadow =
+        (candidate.flags &
+         MR_NUMANX_BRAIN_MOTOR_CANDIDATE_DECISION_SHADOW) != 0u;
+    const std::uint64_t expectedGeneration = decisionShadow
+        ? root.shadowGeneration
+        : (substep.substepIndex == 0u
+               ? root.baseBrainGeneration
+               : root.shadowGeneration);
+    const std::uint64_t excitationBytes =
+        static_cast<std::uint64_t>(candidate.muscleCount) * sizeof(float);
+    const std::uint64_t autonomicBytes =
+        static_cast<std::uint64_t>(candidate.autonomicCommandCount) *
+            MR_NUMANX_BRAIN_AUTONOMIC_COMMAND_BYTE_COUNT;
+    const std::uint64_t activeSensingBytes =
+        static_cast<std::uint64_t>(candidate.activeSensingCommandCount) *
+            MR_NUMANX_BRAIN_ACTIVE_SENSING_COMMAND_BYTE_COUNT;
+    return metalNumanXBrainJointSubstepV2Valid(root, substep) &&
+        candidate.formatVersion ==
+            MR_NUMANX_BRAIN_MOTOR_CANDIDATE_VERSION_V2 &&
+        (candidate.flags & MR_NUMANX_BRAIN_MOTOR_CANDIDATE_VALID) != 0u &&
+        (candidate.flags & ~knownFlags) == 0u &&
+        (!decisionShadow || substep.substepIndex == 0u) &&
+        candidate.transactionFingerprint == root.transactionFingerprint &&
+        candidate.substepFingerprint == substep.substepFingerprint &&
+        candidate.acceptedBrainTimestampNanoseconds ==
+            substep.startTimestampNanoseconds &&
+        candidate.brainGeneration == expectedGeneration &&
+        candidate.randomCounterGeneration ==
+            substep.randomCounterGeneration &&
+        candidate.environmentIdentifier == root.environmentIdentifier &&
+        candidate.clockDomain == root.clockDomain &&
+        candidate.clockDomain == substep.clockDomain &&
+        candidate.clockDomain ==
+            MR_NUMANX_BRAIN_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS &&
+        candidate.motorProfileFingerprint != 0u &&
+        candidate.speciesTemplateFingerprint != 0u &&
+        candidate.compiledSpeciesTemplateFingerprint != 0u &&
+        candidate.actuatorCommandKind >= 1u &&
+        candidate.actuatorCommandKind <= 7u &&
+        candidate.motorOutputHeaderGPUAddress != 0u &&
+        candidate.muscleExcitationGPUAddress != 0u &&
+        candidate.autonomicCommandGPUAddress != 0u &&
+        candidate.activeSensingCommandGPUAddress != 0u &&
+        candidate.motorOutputHeaderGPUAddress %
+            MR_NUMANX_BRAIN_EXACT_RECORD_ALIGNMENT == 0u &&
+        candidate.muscleExcitationGPUAddress % 4u == 0u &&
+        candidate.autonomicCommandGPUAddress % 4u == 0u &&
+        candidate.activeSensingCommandGPUAddress % 4u == 0u &&
+        candidate.motorOutputHeaderByteCount ==
+            MR_NUMANX_BRAIN_MOTOR_OUTPUT_HEADER_BYTE_COUNT &&
+        candidate.muscleCount != 0u && excitationBytes <= UINT32_MAX &&
+        candidate.muscleExcitationByteCount == excitationBytes &&
+        candidate.autonomicCommandCount != 0u &&
+        autonomicBytes <= UINT32_MAX &&
+        candidate.autonomicCommandByteCount == autonomicBytes &&
+        candidate.activeSensingCommandCount != 0u &&
+        activeSensingBytes <= UINT32_MAX &&
+        candidate.activeSensingCommandByteCount == activeSensingBytes &&
+        candidate.candidateFingerprint != 0u &&
+        candidate.candidateFingerprint ==
+            metalNumanXBrainMotorCandidateV2Fingerprint(candidate);
+}
+
+std::uint64_t metalNumanXBrainMotorOutputV2Fingerprint(
+    const MRNumanXBrainMotorOutputHeaderGPUV2& header,
+    const float* outputs,
+    const std::size_t outputCount
+) noexcept {
+    if (outputs == nullptr || outputCount != header.muscleCount) return 0u;
+    std::uint64_t hash = kFnvOffset;
+    hash = hashU32(hash, MR_NUMANX_BRAIN_MOTOR_OUTPUT_VERSION_V2);
+    hash = hashU32(hash, header.formatVersion);
+    hash = hashU32(hash, header.flags);
+    hash = hashU64(hash, header.timestampNanoseconds);
+    hash = hashU64(hash, header.brainGeneration);
+    hash = hashU64(hash, header.profileFingerprint);
+    hash = hashU64(hash, header.protectiveCommandFingerprint);
+    hash = hashU32(hash, header.muscleCount);
+    hash = hashU32(hash, header.environmentIdentifier);
+    hash = hashU32(hash, std::bit_cast<std::uint32_t>(header.motorInhibition));
+    hash = hashU32(hash, std::bit_cast<std::uint32_t>(header.autonomicArousal));
+    hash = hashU32(hash, header.actuatorCommandKind);
+    hash = hashU32(hash, header.clockDomain);
+    hash = hashU32(hash, std::bit_cast<std::uint32_t>(header.outputMinimum));
+    hash = hashU32(hash, std::bit_cast<std::uint32_t>(header.outputMaximum));
+    for (std::size_t index = 0u; index < outputCount; ++index) {
+        hash = hashU32(hash, std::bit_cast<std::uint32_t>(outputs[index]));
+    }
+    return hash;
+}
+
+bool metalNumanXBrainMotorOutputV2Valid(
+    const MRNumanXBrainMotorCandidateV2& candidate,
+    const MRNumanXBrainMotorOutputHeaderGPUV2& header,
+    const float* outputs,
+    const std::size_t outputCount
+) noexcept {
+    constexpr std::uint32_t knownCandidateFlags =
+        MR_NUMANX_BRAIN_MOTOR_CANDIDATE_VALID |
+        MR_NUMANX_BRAIN_MOTOR_CANDIDATE_DECISION_SHADOW;
+    if (outputs == nullptr || outputCount != header.muscleCount ||
+        candidate.clockDomain !=
+            MR_NUMANX_BRAIN_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS ||
+        candidate.formatVersion !=
+            MR_NUMANX_BRAIN_MOTOR_CANDIDATE_VERSION_V2 ||
+        (candidate.flags & MR_NUMANX_BRAIN_MOTOR_CANDIDATE_VALID) == 0u ||
+        (candidate.flags & ~knownCandidateFlags) != 0u ||
+        candidate.candidateFingerprint == 0u ||
+        candidate.candidateFingerprint !=
+            metalNumanXBrainMotorCandidateV2Fingerprint(candidate) ||
+        candidate.motorOutputHeaderGPUAddress == 0u ||
+        candidate.motorOutputHeaderGPUAddress %
+            MR_NUMANX_BRAIN_EXACT_RECORD_ALIGNMENT != 0u ||
+        candidate.motorOutputHeaderByteCount !=
+            MR_NUMANX_BRAIN_MOTOR_OUTPUT_HEADER_BYTE_COUNT ||
+        candidate.muscleCount == 0u ||
+        header.formatVersion != MR_NUMANX_BRAIN_MOTOR_OUTPUT_VERSION_V2 ||
+        (header.flags & MR_NUMANX_BRAIN_MOTOR_OUTPUT_VALID) == 0u ||
+        (header.flags & ~MR_NUMANX_BRAIN_MOTOR_OUTPUT_KNOWN_FLAGS) != 0u ||
+        header.timestampNanoseconds !=
+            candidate.acceptedBrainTimestampNanoseconds ||
+        header.brainGeneration != candidate.brainGeneration ||
+        header.profileFingerprint == 0u ||
+        header.profileFingerprint != candidate.motorProfileFingerprint ||
+        header.protectiveCommandFingerprint == 0u ||
+        header.muscleCount != candidate.muscleCount ||
+        header.environmentIdentifier != candidate.environmentIdentifier ||
+        header.actuatorCommandKind < 1u ||
+        header.actuatorCommandKind > 7u ||
+        header.actuatorCommandKind != candidate.actuatorCommandKind ||
+        header.clockDomain != candidate.clockDomain ||
+        header.clockDomain !=
+            MR_NUMANX_BRAIN_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS ||
+        !std::isfinite(header.motorInhibition) ||
+        !std::isfinite(header.autonomicArousal) ||
+        !std::isfinite(header.outputMinimum) ||
+        !std::isfinite(header.outputMaximum) ||
+        header.motorInhibition < 0.0f || header.motorInhibition > 1.0f ||
+        header.autonomicArousal < 0.0f || header.autonomicArousal > 1.0f ||
+        !(header.outputMinimum < header.outputMaximum) ||
+        (((header.flags & MR_NUMANX_BRAIN_MOTOR_OUTPUT_EMERGENCY_STOP) != 0u)
+            != (header.motorInhibition == 1.0f))) {
+        return false;
+    }
+    for (std::size_t index = 0u; index < outputCount; ++index) {
+        if (!std::isfinite(outputs[index]) ||
+            outputs[index] < header.outputMinimum ||
+            outputs[index] > header.outputMaximum) return false;
+    }
+    return header.outputFingerprint != 0u &&
+        header.outputFingerprint ==
+            metalNumanXBrainMotorOutputV2Fingerprint(
+                header, outputs, outputCount);
+}
+
+std::uint64_t metalNumanXBrainMotorReadyGateV2Fingerprint(
+    const MRNumanXBrainMotorReadyGateGPUV2& gate
+) noexcept {
+    const auto* bytes = reinterpret_cast<const std::uint8_t*>(&gate);
+    std::uint64_t hash = kFnvOffset;
+    for (std::size_t index = 0u;
+         index < offsetof(MRNumanXBrainMotorReadyGateGPUV2, gateFingerprint);
+         ++index) {
+        hash ^= bytes[index];
+        hash *= kFnvPrime;
+    }
+    return hash == 0u ? kFnvOffset : hash;
+}
+
+bool metalNumanXBrainMotorReadyGateV2Valid(
+    const MRNumanXBrainJointTransactionTokenV2& root,
+    const MRNumanXBrainJointSubstepTokenV2& substep,
+    const MRNumanXBrainMotorCandidateV2& candidate,
+    const MRNumanXBrainMotorOutputHeaderGPUV2& header,
+    const MRNumanXBrainMotorReadyGateGPUV2& gate
+) noexcept {
+    return metalNumanXBrainMotorCandidateV2Valid(root, substep, candidate) &&
+        header.formatVersion == MR_NUMANX_BRAIN_MOTOR_OUTPUT_VERSION_V2 &&
+        (header.flags & MR_NUMANX_BRAIN_MOTOR_OUTPUT_VALID) != 0u &&
+        (header.flags & ~MR_NUMANX_BRAIN_MOTOR_OUTPUT_KNOWN_FLAGS) == 0u &&
+        header.timestampNanoseconds ==
+            candidate.acceptedBrainTimestampNanoseconds &&
+        header.brainGeneration == candidate.brainGeneration &&
+        header.profileFingerprint == candidate.motorProfileFingerprint &&
+        header.protectiveCommandFingerprint != 0u &&
+        header.muscleCount == candidate.muscleCount &&
+        header.environmentIdentifier == candidate.environmentIdentifier &&
+        header.actuatorCommandKind == candidate.actuatorCommandKind &&
+        header.clockDomain == candidate.clockDomain &&
+        header.clockDomain ==
+            MR_NUMANX_BRAIN_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS &&
+        std::isfinite(header.motorInhibition) &&
+        std::isfinite(header.autonomicArousal) &&
+        std::isfinite(header.outputMinimum) &&
+        std::isfinite(header.outputMaximum) &&
+        header.motorInhibition >= 0.0f && header.motorInhibition <= 1.0f &&
+        header.autonomicArousal >= 0.0f && header.autonomicArousal <= 1.0f &&
+        header.outputMinimum < header.outputMaximum &&
+        (((header.flags & MR_NUMANX_BRAIN_MOTOR_OUTPUT_EMERGENCY_STOP) != 0u)
+            == (header.motorInhibition == 1.0f)) &&
+        header.outputFingerprint != 0u &&
+        gate.abiVersion == MR_NUMANX_BRAIN_MOTOR_READY_ABI_VERSION_V2 &&
+        gate.structBytes == sizeof(gate) &&
+        gate.status == MR_NUMANX_BRAIN_READY_GATE_SUCCESS &&
+        gate.environment == candidate.environmentIdentifier &&
+        gate.substepIndex == substep.substepIndex &&
+        gate.attemptIndex == substep.attemptIndex &&
+        gate.muscleCount == candidate.muscleCount &&
+        gate.actuatorCommandKind == candidate.actuatorCommandKind &&
+        gate.controlStep == root.controlStepIdentifier &&
+        gate.transactionFingerprint == root.transactionFingerprint &&
+        gate.substepFingerprint == substep.substepFingerprint &&
+        gate.candidateFingerprint == candidate.candidateFingerprint &&
+        gate.motorOutputFingerprint == header.outputFingerprint &&
+        gate.motorOutputFingerprint != 0u &&
+        gate.motorProfileFingerprint == candidate.motorProfileFingerprint &&
+        gate.brainGeneration == candidate.brainGeneration &&
+        gate.acceptedBrainTimestampNanoseconds ==
+            candidate.acceptedBrainTimestampNanoseconds &&
+        gate.randomCounterGeneration == candidate.randomCounterGeneration &&
+        gate.speciesTemplateFingerprint ==
+            candidate.speciesTemplateFingerprint &&
+        gate.compiledSpeciesTemplateFingerprint ==
+            candidate.compiledSpeciesTemplateFingerprint &&
+        gate.brainProgramFingerprint != 0u &&
+        gate.fastProgramFingerprint != 0u &&
+        gate.decisionGateFingerprint != 0u &&
+        gate.clockDomain == candidate.clockDomain &&
+        gate.clockDomain ==
+            MR_NUMANX_BRAIN_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS &&
+        gate.clockQuantumNanoseconds ==
+            MR_NUMANX_BRAIN_EXACT_CLOCK_QUANTUM_NANOSECONDS &&
+        gate.gateFingerprint != 0u &&
+        gate.gateFingerprint ==
+            metalNumanXBrainMotorReadyGateV2Fingerprint(gate);
+}
+
 std::uint64_t metalNumanXHumanIOPublicationBindingFingerprint(
     const MetalNumanXHumanIOCandidatePublicationBinding& binding
 ) noexcept {

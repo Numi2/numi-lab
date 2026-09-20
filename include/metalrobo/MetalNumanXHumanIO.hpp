@@ -29,6 +29,57 @@ struct MetalNumanXHumanIOState;
     const MRNumanXBrainMotorCandidate& candidate
 ) noexcept;
 
+// Exact-nanosecond inbound family. These functions deliberately do not fall
+// back to the legacy hash formulas: version, clock domain, and quantum are all
+// part of the v2 identities. They are CPU admission helpers only; accepting a
+// v2 root for GPU execution still requires a complete v2 outbound lane.
+[[nodiscard]] std::uint64_t metalNumanXBrainJointTransactionV2Fingerprint(
+    const MRNumanXBrainJointTransactionTokenV2& token
+) noexcept;
+[[nodiscard]] bool metalNumanXBrainJointTransactionV2Valid(
+    const MRNumanXBrainJointTransactionTokenV2& token
+) noexcept;
+[[nodiscard]] std::uint64_t metalNumanXBrainJointSubstepV2Fingerprint(
+    const MRNumanXBrainJointSubstepTokenV2& token
+) noexcept;
+[[nodiscard]] bool metalNumanXBrainJointSubstepV2Valid(
+    const MRNumanXBrainJointTransactionTokenV2& root,
+    const MRNumanXBrainJointSubstepTokenV2& substep
+) noexcept;
+[[nodiscard]] std::uint64_t metalNumanXBrainMotorCandidateV2Fingerprint(
+    const MRNumanXBrainMotorCandidateV2& candidate
+) noexcept;
+[[nodiscard]] bool metalNumanXBrainMotorCandidateV2Valid(
+    const MRNumanXBrainJointTransactionTokenV2& root,
+    const MRNumanXBrainJointSubstepTokenV2& substep,
+    const MRNumanXBrainMotorCandidateV2& candidate
+) noexcept;
+[[nodiscard]] std::uint64_t metalNumanXBrainMotorOutputV2Fingerprint(
+    const MRNumanXBrainMotorOutputHeaderGPUV2& header,
+    const float* outputs,
+    std::size_t outputCount
+) noexcept;
+[[nodiscard]] bool metalNumanXBrainMotorOutputV2Valid(
+    const MRNumanXBrainMotorCandidateV2& candidate,
+    const MRNumanXBrainMotorOutputHeaderGPUV2& header,
+    const float* outputs,
+    std::size_t outputCount
+) noexcept;
+[[nodiscard]] std::uint64_t metalNumanXBrainMotorReadyGateV2Fingerprint(
+    const MRNumanXBrainMotorReadyGateGPUV2& gate
+) noexcept;
+// Validates the complete root/substep/candidate relation plus the output
+// header metadata bound by the gate. Call metalNumanXBrainMotorOutputV2Valid
+// separately when the output payload bytes are available; a gate fingerprint
+// cannot authenticate those bytes by itself.
+[[nodiscard]] bool metalNumanXBrainMotorReadyGateV2Valid(
+    const MRNumanXBrainJointTransactionTokenV2& root,
+    const MRNumanXBrainJointSubstepTokenV2& substep,
+    const MRNumanXBrainMotorCandidateV2& candidate,
+    const MRNumanXBrainMotorOutputHeaderGPUV2& header,
+    const MRNumanXBrainMotorReadyGateGPUV2& gate
+) noexcept;
+
 struct MetalNumanXHumanIOConfig {
     // Explicit library selection is intentional: the adapter never falls
     // back to a process-default metallib or runtime source compilation.

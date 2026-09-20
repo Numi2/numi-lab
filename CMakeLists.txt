@@ -3698,7 +3698,46 @@ set_target_properties(
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
 )
+
+add_executable(
+    metalrobo_numanx_exact_request_v3_contract_test
+    tests/numanx_exact_request_v3_contract_test.cpp
+)
+target_compile_features(
+    metalrobo_numanx_exact_request_v3_contract_test
+    PRIVATE cxx_std_20
+)
+target_compile_options(
+    metalrobo_numanx_exact_request_v3_contract_test
+    PRIVATE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Werror
+)
+target_link_libraries(
+    metalrobo_numanx_exact_request_v3_contract_test
+    PRIVATE
+        metalrobo
+        "${FOUNDATION_FRAMEWORK}"
+        "${METAL_FRAMEWORK}"
+)
+set_target_properties(
+    metalrobo_numanx_exact_request_v3_contract_test
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
 if(BUILD_TESTING)
+    add_test(
+        NAME numanx.contract.exact_request_v3_cpu
+        COMMAND $<TARGET_FILE:metalrobo_numanx_exact_request_v3_contract_test>
+    )
+    set_tests_properties(
+        numanx.contract.exact_request_v3_cpu
+        PROPERTIES LABELS "numanx;human;contract;cpu"
+    )
     add_test(
         NAME numanx.integration.human_transaction
         COMMAND $<TARGET_FILE:metalrobo_numanx_transaction_probe> --accept
@@ -3784,6 +3823,32 @@ if(BUILD_TESTING)
                 TIMEOUT 180
                 RUN_SERIAL TRUE
         )
+        if(DEFINED ENV{MRNX_EXACT_WORLD} AND
+           DEFINED ENV{MRNX_EXACT_INITIAL_STATE} AND
+           DEFINED ENV{MRNX_EXACT_SUPPORT_CONTACT} AND
+           DEFINED ENV{MRNX_EXACT_JOINT_EQUALITIES} AND
+           DEFINED ENV{MRNX_EXACT_JOINT_LIMITS} AND
+           EXISTS "$ENV{MRNX_EXACT_WORLD}" AND
+           EXISTS "$ENV{MRNX_EXACT_INITIAL_STATE}" AND
+           EXISTS "$ENV{MRNX_EXACT_SUPPORT_CONTACT}" AND
+           EXISTS "$ENV{MRNX_EXACT_JOINT_EQUALITIES}" AND
+           EXISTS "$ENV{MRNX_EXACT_JOINT_LIMITS}")
+            add_test(
+                NAME numanx.contract.fullbody_exact_request_v3_admission
+                COMMAND
+                    $<TARGET_FILE:metalrobo_numanx_fullbody_bridge_probe>
+                    --exact-clock
+            )
+            set_tests_properties(
+                numanx.contract.fullbody_exact_request_v3_admission
+                PROPERTIES
+                    ENVIRONMENT
+                        "MRNX_EXACT_WORLD=$ENV{MRNX_EXACT_WORLD};MRNX_EXACT_INITIAL_STATE=$ENV{MRNX_EXACT_INITIAL_STATE};MRNX_EXACT_SUPPORT_CONTACT=$ENV{MRNX_EXACT_SUPPORT_CONTACT};MRNX_EXACT_JOINT_EQUALITIES=$ENV{MRNX_EXACT_JOINT_EQUALITIES};MRNX_EXACT_JOINT_LIMITS=$ENV{MRNX_EXACT_JOINT_LIMITS}"
+                    LABELS "numanx;human;contract;exact-clock;metal"
+                    TIMEOUT 180
+                    RUN_SERIAL TRUE
+            )
+        endif()
     endif()
     set_tests_properties(
         numanx.integration.human_transaction

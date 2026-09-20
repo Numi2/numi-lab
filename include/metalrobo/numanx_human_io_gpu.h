@@ -42,6 +42,11 @@
 #define MR_NUMANX_BRAIN_MOTOR_OUTPUT_VERSION 3u
 #define MR_NUMANX_BRAIN_JOINT_TRANSACTION_VERSION 1u
 #define MR_NUMANX_BRAIN_MOTOR_CANDIDATE_VERSION 7u
+#define MR_NUMANX_BRAIN_MOTOR_OUTPUT_VERSION_V2 4u
+#define MR_NUMANX_BRAIN_JOINT_TRANSACTION_VERSION_V2 2u
+#define MR_NUMANX_BRAIN_MOTOR_CANDIDATE_VERSION_V2 8u
+#define MR_NUMANX_BRAIN_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS 2u
+#define MR_NUMANX_BRAIN_EXACT_CLOCK_QUANTUM_NANOSECONDS 1u
 #define MR_NUMANX_BRAIN_MOTOR_CANDIDATE_VALID 1u
 #define MR_NUMANX_BRAIN_MOTOR_CANDIDATE_DECISION_SHADOW (1u << 1u)
 #define MR_NUMANX_BRAIN_JOINT_TRANSACTION_BYTE_COUNT 96u
@@ -52,7 +57,9 @@
 #define MR_NUMANX_BRAIN_ACTIVE_SENSING_COMMAND_BYTE_COUNT 16u
 #define MR_NUMANX_BRAIN_ACTUATOR_MUSCLE_EXCITATION 1u
 #define MR_NUMANX_BRAIN_MOTOR_READY_ABI_VERSION 1u
+#define MR_NUMANX_BRAIN_MOTOR_READY_ABI_VERSION_V2 2u
 #define MR_NUMANX_BRAIN_MOTOR_READY_GATE_BYTE_COUNT 160u
+#define MR_NUMANX_BRAIN_EXACT_RECORD_ALIGNMENT 16u
 #define MR_NUMANX_BRAIN_READY_GATE_SUCCESS 1u
 #define MR_NUMANX_BRAIN_READY_GATE_FAILURE 2u
 
@@ -87,6 +94,28 @@ typedef struct MR_ALIGN16 MRNumanXBrainMotorOutputHeaderGPU {
     mr_u64 outputFingerprint;
 } MRNumanXBrainMotorOutputHeaderGPU;
 
+// Exact-clock successor to the immutable v3 motor-output header. The layout
+// remains 80 bytes, but formatVersion=4 and the former reserved word carries
+// the explicit nanosecond clock domain. V1 hashes and field meanings are not
+// reused for this record.
+typedef struct MR_ALIGN16 MRNumanXBrainMotorOutputHeaderGPUV2 {
+    mr_u32 formatVersion;
+    mr_u32 flags;
+    mr_u64 timestampNanoseconds;
+    mr_u64 brainGeneration;
+    mr_u64 profileFingerprint;
+    mr_u64 protectiveCommandFingerprint;
+    mr_u32 muscleCount;
+    mr_u32 environmentIdentifier;
+    float motorInhibition;
+    float autonomicArousal;
+    mr_u32 actuatorCommandKind;
+    mr_u32 clockDomain;
+    float outputMinimum;
+    float outputMaximum;
+    mr_u64 outputFingerprint;
+} MRNumanXBrainMotorOutputHeaderGPUV2;
+
 // Exact value mirrors of NumiBrain ABI v7. They are host-validated before
 // any borrowed Metal resource is offered to the Human transaction. GPU virtual
 // addresses are ephemeral lease identity and are deliberately included in the
@@ -108,6 +137,26 @@ typedef struct MRNumanXBrainJointTransactionToken {
     mr_u64 transactionFingerprint;
 } MRNumanXBrainJointTransactionToken;
 
+// Exact mirror of NumiBrain's explicit-clock v2 root. Timestamp words are
+// nanoseconds for the only clock family admitted by the native exact runtime.
+// The clock fields occupy the v1 flags/reserved slots, preserving 96 bytes.
+typedef struct MRNumanXBrainJointTransactionTokenV2 {
+    mr_u32 formatVersion;
+    mr_u32 environmentIdentifier;
+    mr_u64 episodeIdentifier;
+    mr_u64 controlStepIdentifier;
+    mr_u64 parameterVersionFingerprint;
+    mr_u64 baseBrainGeneration;
+    mr_u64 basePhysicsGeneration;
+    mr_u64 committedTimestampNanoseconds;
+    mr_u64 targetTimestampNanoseconds;
+    mr_u64 shadowGeneration;
+    mr_u64 randomCounterGeneration;
+    mr_u32 clockDomain;
+    mr_u32 clockQuantumNanoseconds;
+    mr_u64 transactionFingerprint;
+} MRNumanXBrainJointTransactionTokenV2;
+
 typedef struct MRNumanXBrainJointSubstepToken {
     mr_u64 transactionFingerprint;
     mr_u32 substepIndex;
@@ -121,6 +170,20 @@ typedef struct MRNumanXBrainJointSubstepToken {
     mr_u32 reserved;
     mr_u64 substepFingerprint;
 } MRNumanXBrainJointSubstepToken;
+
+typedef struct MRNumanXBrainJointSubstepTokenV2 {
+    mr_u64 transactionFingerprint;
+    mr_u32 substepIndex;
+    mr_u32 attemptIndex;
+    mr_u64 startTimestampNanoseconds;
+    mr_u64 durationNanoseconds;
+    mr_u64 candidateTimestampNanoseconds;
+    mr_u64 shadowGeneration;
+    mr_u64 randomCounterGeneration;
+    mr_u32 clockDomain;
+    mr_u32 clockQuantumNanoseconds;
+    mr_u64 substepFingerprint;
+} MRNumanXBrainJointSubstepTokenV2;
 
 typedef struct MRNumanXBrainMotorCandidate {
     mr_u32 formatVersion;
@@ -149,6 +212,37 @@ typedef struct MRNumanXBrainMotorCandidate {
     mr_u64 compiledSpeciesTemplateFingerprint;
     mr_u64 candidateFingerprint;
 } MRNumanXBrainMotorCandidate;
+
+// Domain-separated exact-clock motor candidate. Version 8 and clockDomain in
+// the former reserved word prevent a v7 microsecond candidate from being
+// interpreted as nanoseconds while retaining the 152-byte lease shape.
+typedef struct MRNumanXBrainMotorCandidateV2 {
+    mr_u32 formatVersion;
+    mr_u32 flags;
+    mr_u64 transactionFingerprint;
+    mr_u64 substepFingerprint;
+    mr_u64 acceptedBrainTimestampNanoseconds;
+    mr_u64 brainGeneration;
+    mr_u64 motorProfileFingerprint;
+    mr_u64 motorOutputHeaderGPUAddress;
+    mr_u64 muscleExcitationGPUAddress;
+    mr_u64 randomCounterGeneration;
+    mr_u32 motorOutputHeaderByteCount;
+    mr_u32 muscleExcitationByteCount;
+    mr_u32 muscleCount;
+    mr_u32 environmentIdentifier;
+    mr_u64 autonomicCommandGPUAddress;
+    mr_u32 autonomicCommandByteCount;
+    mr_u32 autonomicCommandCount;
+    mr_u64 activeSensingCommandGPUAddress;
+    mr_u32 activeSensingCommandByteCount;
+    mr_u32 activeSensingCommandCount;
+    mr_u32 actuatorCommandKind;
+    mr_u32 clockDomain;
+    mr_u64 speciesTemplateFingerprint;
+    mr_u64 compiledSpeciesTemplateFingerprint;
+    mr_u64 candidateFingerprint;
+} MRNumanXBrainMotorCandidateV2;
 
 // Exact value mirror of NumiBrain's 160-byte async motor-ready gate. The
 // paired shared event provides ordering/liveness only; this record is the GPU
@@ -179,6 +273,37 @@ typedef struct MR_ALIGN16 MRNumanXBrainMotorReadyGateGPU {
     mr_u64 reserved64_0;
     mr_u64 gateFingerprint;
 } MRNumanXBrainMotorReadyGateGPU;
+
+// Exact-clock successor to the ready gate. The final pre-fingerprint 64-bit
+// reserved slot is split into domain+quantum so a v1 gate cannot authenticate
+// an otherwise byte-compatible nanosecond candidate.
+typedef struct MR_ALIGN16 MRNumanXBrainMotorReadyGateGPUV2 {
+    mr_u32 abiVersion;
+    mr_u32 structBytes;
+    mr_u32 status;
+    mr_u32 environment;
+    mr_u32 substepIndex;
+    mr_u32 attemptIndex;
+    mr_u32 muscleCount;
+    mr_u32 actuatorCommandKind;
+    mr_u64 controlStep;
+    mr_u64 transactionFingerprint;
+    mr_u64 substepFingerprint;
+    mr_u64 candidateFingerprint;
+    mr_u64 motorOutputFingerprint;
+    mr_u64 motorProfileFingerprint;
+    mr_u64 brainGeneration;
+    mr_u64 acceptedBrainTimestampNanoseconds;
+    mr_u64 randomCounterGeneration;
+    mr_u64 speciesTemplateFingerprint;
+    mr_u64 compiledSpeciesTemplateFingerprint;
+    mr_u64 brainProgramFingerprint;
+    mr_u64 fastProgramFingerprint;
+    mr_u64 decisionGateFingerprint;
+    mr_u32 clockDomain;
+    mr_u32 clockQuantumNanoseconds;
+    mr_u64 gateFingerprint;
+} MRNumanXBrainMotorReadyGateGPUV2;
 
 enum MRNumanXHumanMotorHeaderValidation : mr_u32 {
     MR_NUMANX_HUMAN_MOTOR_HEADER_PENDING = 0u,
@@ -378,11 +503,25 @@ static_assert(sizeof(MRNumanXBrainJointTransactionToken) ==
 static_assert(alignof(MRNumanXBrainJointTransactionToken) == 8u);
 static_assert(offsetof(
     MRNumanXBrainJointTransactionToken, transactionFingerprint) == 88u);
+static_assert(sizeof(MRNumanXBrainJointTransactionTokenV2) ==
+    MR_NUMANX_BRAIN_JOINT_TRANSACTION_BYTE_COUNT);
+static_assert(alignof(MRNumanXBrainJointTransactionTokenV2) == 8u);
+static_assert(offsetof(
+    MRNumanXBrainJointTransactionTokenV2, clockDomain) == 80u);
+static_assert(offsetof(
+    MRNumanXBrainJointTransactionTokenV2, transactionFingerprint) == 88u);
 static_assert(sizeof(MRNumanXBrainJointSubstepToken) ==
     MR_NUMANX_BRAIN_JOINT_SUBSTEP_BYTE_COUNT);
 static_assert(alignof(MRNumanXBrainJointSubstepToken) == 8u);
 static_assert(offsetof(
     MRNumanXBrainJointSubstepToken, substepFingerprint) == 64u);
+static_assert(sizeof(MRNumanXBrainJointSubstepTokenV2) ==
+    MR_NUMANX_BRAIN_JOINT_SUBSTEP_BYTE_COUNT);
+static_assert(alignof(MRNumanXBrainJointSubstepTokenV2) == 8u);
+static_assert(offsetof(
+    MRNumanXBrainJointSubstepTokenV2, clockDomain) == 56u);
+static_assert(offsetof(
+    MRNumanXBrainJointSubstepTokenV2, substepFingerprint) == 64u);
 static_assert(sizeof(MRNumanXBrainMotorCandidate) ==
     MR_NUMANX_BRAIN_MOTOR_CANDIDATE_BYTE_COUNT);
 static_assert(alignof(MRNumanXBrainMotorCandidate) == 8u);
@@ -398,11 +537,25 @@ static_assert(offsetof(
     MRNumanXBrainMotorCandidate, speciesTemplateFingerprint) == 128u);
 static_assert(offsetof(
     MRNumanXBrainMotorCandidate, candidateFingerprint) == 144u);
+static_assert(sizeof(MRNumanXBrainMotorCandidateV2) ==
+    MR_NUMANX_BRAIN_MOTOR_CANDIDATE_BYTE_COUNT);
+static_assert(alignof(MRNumanXBrainMotorCandidateV2) == 8u);
+static_assert(offsetof(
+    MRNumanXBrainMotorCandidateV2, clockDomain) == 124u);
+static_assert(offsetof(
+    MRNumanXBrainMotorCandidateV2, candidateFingerprint) == 144u);
 static_assert(sizeof(MRNumanXBrainMotorReadyGateGPU) ==
     MR_NUMANX_BRAIN_MOTOR_READY_GATE_BYTE_COUNT);
 static_assert(alignof(MRNumanXBrainMotorReadyGateGPU) == 16u);
 static_assert(offsetof(
     MRNumanXBrainMotorReadyGateGPU, gateFingerprint) == 152u);
+static_assert(sizeof(MRNumanXBrainMotorReadyGateGPUV2) ==
+    MR_NUMANX_BRAIN_MOTOR_READY_GATE_BYTE_COUNT);
+static_assert(alignof(MRNumanXBrainMotorReadyGateGPUV2) == 16u);
+static_assert(offsetof(
+    MRNumanXBrainMotorReadyGateGPUV2, clockDomain) == 144u);
+static_assert(offsetof(
+    MRNumanXBrainMotorReadyGateGPUV2, gateFingerprint) == 152u);
 static_assert(sizeof(MRNumanXBrainMotorOutputHeaderGPU) == 80u);
 static_assert(alignof(MRNumanXBrainMotorOutputHeaderGPU) == 16u);
 static_assert(
@@ -411,6 +564,14 @@ static_assert(
 static_assert(
     offsetof(MRNumanXBrainMotorOutputHeaderGPU, outputFingerprint) == 72u
 );
+static_assert(sizeof(MRNumanXBrainMotorOutputHeaderGPUV2) == 80u);
+static_assert(alignof(MRNumanXBrainMotorOutputHeaderGPUV2) == 16u);
+static_assert(offsetof(
+    MRNumanXBrainMotorOutputHeaderGPUV2, timestampNanoseconds) == 8u);
+static_assert(offsetof(
+    MRNumanXBrainMotorOutputHeaderGPUV2, clockDomain) == 60u);
+static_assert(offsetof(
+    MRNumanXBrainMotorOutputHeaderGPUV2, outputFingerprint) == 72u);
 static_assert(sizeof(MRNumanXHumanMotorDispatchGPU) == 128u);
 static_assert(alignof(MRNumanXHumanMotorDispatchGPU) == 16u);
 static_assert(

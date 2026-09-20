@@ -194,6 +194,20 @@ static_assert(sizeof(mrnx_brain_joint_substep_v1) ==
               sizeof(MRNumanXBrainJointSubstepToken));
 static_assert(sizeof(mrnx_brain_motor_candidate_v1) ==
               sizeof(MRNumanXBrainMotorCandidate));
+static_assert(sizeof(mrnx_brain_joint_transaction_v2) ==
+              sizeof(MRNumanXBrainJointTransactionTokenV2));
+static_assert(sizeof(mrnx_brain_joint_substep_v2) ==
+              sizeof(MRNumanXBrainJointSubstepTokenV2));
+static_assert(sizeof(mrnx_brain_motor_candidate_v2) ==
+              sizeof(MRNumanXBrainMotorCandidateV2));
+static_assert(sizeof(mrnx_brain_motor_output_header_v2) ==
+              sizeof(MRNumanXBrainMotorOutputHeaderGPUV2));
+static_assert(alignof(mrnx_brain_motor_output_header_v2) ==
+              alignof(MRNumanXBrainMotorOutputHeaderGPUV2));
+static_assert(sizeof(mrnx_brain_motor_ready_gate_v2) ==
+              sizeof(MRNumanXBrainMotorReadyGateGPUV2));
+static_assert(alignof(mrnx_brain_motor_ready_gate_v2) ==
+              alignof(MRNumanXBrainMotorReadyGateGPUV2));
 
 class RuntimeBuildFailure final : public std::runtime_error {
 public:
@@ -1512,6 +1526,32 @@ bool encodeRuntimeProof(
         (firstEnd <= secondAddress || secondEnd <= firstAddress);
 }
 
+// Scalar request-v3 admission only. This validates the caller's descriptor
+// declaration without bridging, messaging, importing, or retaining the
+// borrowed Metal object. Object/device/base-address authentication belongs to
+// the future executable v3 resource lane, after its outbound ABI exists.
+[[nodiscard]] bool validateExactRangeDescriptorMetadata(
+    const mrnx_metal_range_v1& range,
+    const std::uint64_t expectedBytes,
+    const mrnx_element_type_v1 expectedType,
+    const std::uint32_t expectedElementBytes,
+    const std::uint64_t expectedAlignment
+) noexcept {
+    std::uint64_t end = 0u;
+    return range.abi_version == MRNX_BRIDGE_ABI_V1 &&
+        range.struct_size == sizeof(range) &&
+        range.metal_buffer != nullptr &&
+        range.byte_count == expectedBytes &&
+        range.element_type == expectedType &&
+        range.element_byte_count == expectedElementBytes &&
+        expectedAlignment != 0u &&
+        range.gpu_address % expectedAlignment == 0u &&
+        range.byte_offset % expectedAlignment == 0u &&
+        range.byte_offset <=
+            std::numeric_limits<std::uint64_t>::max() - expectedBytes &&
+        checkedEnd(range.gpu_address, expectedBytes, end);
+}
+
 struct ImportedRange {
     __strong id<MTLBuffer> buffer = nil;
     std::uint64_t address = 0u;
@@ -1743,6 +1783,16 @@ void cultureCompletion(
     MRNumanXBrainJointTransactionToken& root,
     MRNumanXBrainJointSubstepToken& substep,
     MRNumanXBrainMotorCandidate& candidate,
+    std::uint32_t& failureStage
+) noexcept;
+// Caller holds RuntimeState::mutex across this pure scalar admission so
+// behavior attachment and legacy publication state cannot change mid-check.
+[[nodiscard]] bool validateRootRequestV3CPUAdmissionLocked(
+    const std::shared_ptr<RuntimeState>& runtime,
+    const mrnx_physical_root_request_v3& request,
+    MRNumanXBrainJointTransactionTokenV2& root,
+    MRNumanXBrainJointSubstepTokenV2& substep,
+    MRNumanXBrainMotorCandidateV2& candidate,
     std::uint32_t& failureStage
 ) noexcept;
 
@@ -2728,6 +2778,184 @@ void fillRuntimeInfoFailure(
     return true;
 }
 
+[[nodiscard]] bool validateRootRequestV3CPUAdmissionLocked(
+    const std::shared_ptr<RuntimeState>& runtime,
+    const mrnx_physical_root_request_v3& request,
+    MRNumanXBrainJointTransactionTokenV2& root,
+    MRNumanXBrainJointSubstepTokenV2& substep,
+    MRNumanXBrainMotorCandidateV2& candidate,
+    std::uint32_t& failureStage
+) noexcept {
+    failureStage = 1u;
+    if (runtime == nullptr || !runtime->exactClock ||
+        request.abi_version != MRNX_PHYSICAL_ROOT_REQUEST_ABI_V3 ||
+        request.struct_size != sizeof(request) ||
+        request.root.control_step_identifier >
+            std::numeric_limits<std::uint32_t>::max()) {
+        return false;
+    }
+    std::memcpy(&root, &request.root, sizeof(root));
+    std::memcpy(&substep, &request.substep, sizeof(substep));
+    std::memcpy(&candidate, &request.candidate, sizeof(candidate));
+
+    failureStage = 10u;
+    if (!metalrobo::metalNumanXBrainJointTransactionV2Valid(root) ||
+        root.environmentIdentifier != 0u ||
+        root.clockDomain != MRNX_PHYSICAL_CLOCK_DOMAIN_EXACT_NANOSECONDS ||
+        root.clockQuantumNanoseconds !=
+            MRNX_EXACT_CLOCK_QUANTUM_NANOSECONDS ||
+        root.basePhysicsGeneration ==
+            std::numeric_limits<std::uint64_t>::max() ||
+        root.committedTimestampNanoseconds >
+            std::numeric_limits<std::uint64_t>::max() -
+                runtime->timestepNanoseconds ||
+        root.targetTimestampNanoseconds !=
+            root.committedTimestampNanoseconds +
+                runtime->timestepNanoseconds) {
+        return false;
+    }
+    if (runtime->behavior != nullptr && !runtime->publishedOnce &&
+        root.committedTimestampNanoseconds !=
+            runtime->behaviorInitialTimestampNanoseconds) {
+        return false;
+    }
+
+    failureStage = 2u;
+    if (!metalrobo::metalNumanXBrainJointSubstepV2Valid(root, substep) ||
+        substep.substepIndex != 0u || substep.attemptIndex != 0u ||
+        substep.clockDomain != root.clockDomain ||
+        substep.clockQuantumNanoseconds != root.clockQuantumNanoseconds ||
+        substep.durationNanoseconds != runtime->timestepNanoseconds ||
+        substep.startTimestampNanoseconds !=
+            root.committedTimestampNanoseconds ||
+        substep.candidateTimestampNanoseconds !=
+            root.targetTimestampNanoseconds) {
+        return false;
+    }
+
+    failureStage = 3u;
+    if (!metalrobo::metalNumanXBrainMotorCandidateV2Valid(
+            root, substep, candidate) ||
+        candidate.flags !=
+            (MR_NUMANX_BRAIN_MOTOR_CANDIDATE_VALID |
+             MR_NUMANX_BRAIN_MOTOR_CANDIDATE_DECISION_SHADOW) ||
+        candidate.clockDomain != root.clockDomain ||
+        candidate.muscleCount != MRNX_FULL_BODY_MUSCLE_COUNT ||
+        candidate.environmentIdentifier != 0u ||
+        candidate.actuatorCommandKind !=
+            MR_NUMANX_BRAIN_ACTUATOR_MUSCLE_EXCITATION ||
+        candidate.motorOutputHeaderByteCount !=
+            sizeof(MRNumanXBrainMotorOutputHeaderGPUV2) ||
+        candidate.muscleExcitationByteCount !=
+            MRNX_FULL_BODY_MUSCLE_COUNT * sizeof(float) ||
+        candidate.autonomicCommandByteCount !=
+            MR_NUMANX_BRAIN_AUTONOMIC_COMMAND_BYTE_COUNT ||
+        candidate.activeSensingCommandByteCount !=
+            MR_NUMANX_BRAIN_ACTIVE_SENSING_COMMAND_BYTE_COUNT ||
+        candidate.autonomicCommandCount != 1u ||
+        candidate.activeSensingCommandCount != 1u) {
+        return false;
+    }
+
+    failureStage = 41u;
+    if (!validateExactRangeDescriptorMetadata(
+            request.motor_header,
+            sizeof(MRNumanXBrainMotorOutputHeaderGPUV2),
+            MRNX_ELEMENT_BRAIN_MOTOR_OUTPUT_HEADER_V2,
+            sizeof(MRNumanXBrainMotorOutputHeaderGPUV2),
+            MR_NUMANX_BRAIN_EXACT_RECORD_ALIGNMENT)) {
+        return false;
+    }
+    failureStage = 42u;
+    if (!validateExactRangeDescriptorMetadata(
+            request.muscle_excitation,
+            MRNX_FULL_BODY_MUSCLE_COUNT * sizeof(float),
+            MRNX_ELEMENT_FLOAT32_V1, sizeof(float), alignof(float))) {
+        return false;
+    }
+    failureStage = 43u;
+    if (!validateExactRangeDescriptorMetadata(
+            request.autonomic_command,
+            MR_NUMANX_BRAIN_AUTONOMIC_COMMAND_BYTE_COUNT,
+            MRNX_ELEMENT_RAW_BYTES_V1, 1u, alignof(std::uint32_t))) {
+        return false;
+    }
+    failureStage = 44u;
+    if (!validateExactRangeDescriptorMetadata(
+            request.active_sensing_command,
+            MR_NUMANX_BRAIN_ACTIVE_SENSING_COMMAND_BYTE_COUNT,
+            MRNX_ELEMENT_RAW_BYTES_V1, 1u, alignof(std::uint32_t))) {
+        return false;
+    }
+    failureStage = 45u;
+    if (!validateExactRangeDescriptorMetadata(
+            request.motor_ready_gate,
+            sizeof(MRNumanXBrainMotorReadyGateGPUV2),
+            MRNX_ELEMENT_BRAIN_MOTOR_READY_GATE_V2,
+            sizeof(MRNumanXBrainMotorReadyGateGPUV2),
+            MR_NUMANX_BRAIN_EXACT_RECORD_ALIGNMENT)) {
+        return false;
+    }
+
+    failureStage = 5u;
+    const mrnx_metal_range_v1* ranges[] = {
+        &request.motor_header, &request.muscle_excitation,
+        &request.autonomic_command, &request.active_sensing_command,
+        &request.motor_ready_gate};
+    for (std::size_t first = 0u; first < std::size(ranges); ++first) {
+        for (std::size_t second = first + 1u;
+             second < std::size(ranges); ++second) {
+            if (ranges[first]->metal_buffer == ranges[second]->metal_buffer ||
+                !disjoint(
+                    ranges[first]->gpu_address, ranges[first]->byte_count,
+                    ranges[second]->gpu_address, ranges[second]->byte_count)) {
+                return false;
+            }
+        }
+    }
+
+    failureStage = 6u;
+    if (request.motor_ready.abi_version != MRNX_BRIDGE_ABI_V1 ||
+        request.motor_ready.struct_size != sizeof(request.motor_ready) ||
+        request.motor_ready.shared_event == nullptr ||
+        request.motor_ready.value == 0u ||
+        request.motor_ready.device_registry_id !=
+            runtime->info.device_registry_id) return false;
+    failureStage = 62u;
+    if (candidate.motorOutputHeaderGPUAddress !=
+        request.motor_header.gpu_address)
+        return false;
+    failureStage = 63u;
+    if (candidate.muscleExcitationGPUAddress !=
+        request.muscle_excitation.gpu_address)
+        return false;
+    failureStage = 64u;
+    if (candidate.autonomicCommandGPUAddress !=
+        request.autonomic_command.gpu_address)
+        return false;
+    failureStage = 65u;
+    if (candidate.activeSensingCommandGPUAddress !=
+        request.active_sensing_command.gpu_address) return false;
+
+    failureStage = 7u;
+    if (runtime->publishedOnce) {
+        // Published runtime continuity is still owned by the immutable
+        // v1 microsecond state. Never compare or bind that state to an
+        // exact-nanosecond root. Exact continuation remains closed until
+        // persistent publication has an explicit v2 clock-domain ABI.
+        failureStage = 71u;
+        return false;
+    }
+    if (root.baseBrainGeneration != 0u ||
+        root.basePhysicsGeneration != 0u ||
+        runtime->aggregate.publication_epoch != 0u ||
+        root.controlStepIdentifier != 1u) {
+        return false;
+    }
+    failureStage = 0u;
+    return true;
+}
+
 } // namespace
 
 extern "C" {
@@ -3374,24 +3602,67 @@ bool mrnx_bridge_v1_runtime_begin_physical_root_v2(
             return false;
         }
         const auto state = runtime->state;
-        mrnx_physical_root_request_v1 internal{};
-        internal.abi_version = MRNX_BRIDGE_ABI_V1;
-        internal.struct_size = sizeof(internal);
-        internal.root = request->root;
-        internal.substep = request->substep;
-        internal.candidate = request->candidate;
-        internal.motor_header = request->motor_header;
-        internal.muscle_excitation = request->muscle_excitation;
-        internal.autonomic_command = request->autonomic_command;
-        internal.active_sensing_command = request->active_sensing_command;
-        internal.motor_ready_gate = request->motor_ready_gate;
-        internal.motor_ready = request->motor_ready;
         try {
-            return beginPhysicalRoot(
-                state, internal, completionContext, completion);
-        } catch (...) {
             const std::lock_guard lock(state->mutex);
-            state->beginInProgress = false;
+            if (state->beginInProgress || state->active != nullptr ||
+                state->terminalQuarantine) return false;
+            // ABI v2 was published with unit-ambiguous all-v1 nested records.
+            // Preserve its symbol and layout, but never inspect its borrowed
+            // resource descriptors or route it into an exact-clock runtime.
+            (void)completionContext;
+            state->info.status = MRNX_RUNTIME_INVALID_REQUEST_V1;
+            state->info.request_failure_stage =
+                MRNX_REQUEST_FAILURE_STAGE_LEGACY_EXACT_V2_UNROUTABLE;
+            return false;
+        } catch (...) {
+            return false;
+        }
+    }
+}
+
+bool mrnx_bridge_v1_runtime_begin_physical_root_v3(
+    mrnx_runtime_v1* runtime,
+    const mrnx_physical_root_request_v3* request,
+    void* completionContext,
+    const mrnx_physical_root_settled_callback_v1 completion
+) {
+    @autoreleasepool {
+        if (runtime == nullptr || runtime->state == nullptr ||
+            request == nullptr || completion == nullptr ||
+            !runtime->state->exactClock ||
+            request->abi_version != MRNX_PHYSICAL_ROOT_REQUEST_ABI_V3 ||
+            request->struct_size != sizeof(*request)) {
+            return false;
+        }
+        const auto state = runtime->state;
+        try {
+            const std::lock_guard lock(state->mutex);
+            if (state->beginInProgress || state->active != nullptr ||
+                state->terminalQuarantine) return false;
+            MRNumanXBrainJointTransactionTokenV2 root{};
+            MRNumanXBrainJointSubstepTokenV2 substep{};
+            MRNumanXBrainMotorCandidateV2 candidate{};
+            std::uint32_t failureStage = 0u;
+            if (!validateRootRequestV3CPUAdmissionLocked(
+                    state, *request, root, substep, candidate,
+                    failureStage)) {
+                state->info.status = MRNX_RUNTIME_INVALID_REQUEST_V1;
+                state->info.request_failure_stage = failureStage;
+                return false;
+            }
+
+            // Pure CPU record/descriptor admission is complete, but the
+            // native outbound sensor, HumanMatter close, accepted-token, and
+            // persistent-state ABIs are still v1/microsecond families. No
+            // borrowed Metal object/event has been bridged, retained, or
+            // imported. Fail before resource admission, slot allocation,
+            // attempt advancement, or command-buffer construction.
+            (void)completionContext;
+            state->info.status = MRNX_RUNTIME_CONTINUATION_UNAVAILABLE_V1;
+            state->info.request_failure_stage =
+                MRNX_REQUEST_FAILURE_STAGE_EXACT_OUTBOUND_UNAVAILABLE;
+            return false;
+        } catch (...) {
             return false;
         }
     }
