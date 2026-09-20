@@ -89,6 +89,13 @@ std::uint64_t MetalHumanBehaviorTelemetry::completedAttempts()const noexcept{ret
 bool MetalHumanBehaviorTelemetry::initialObservationEncoded()const noexcept{return state_->initialEncoded;}
 bool MetalHumanBehaviorTelemetry::traceAttached()const noexcept{return state_->traceEnabled;}
 bool MetalHumanBehaviorTelemetry::traceFinalized()const noexcept{return state_->traceClosed;}
+bool MetalHumanBehaviorTelemetry::copyTerminalCandidate(
+    MRHumanBehaviorCandidateGPU& candidate)const noexcept{
+    candidate={};
+    if(state_==nullptr||state_->candidate==nil||state_->candidate.contents==nullptr||
+       state_->environments!=1u||state_->candidate.length<sizeof(candidate))return false;
+    std::memcpy(&candidate,state_->candidate.contents,sizeof(candidate));return true;
+}
 void MetalHumanBehaviorTelemetry::reset(){auto& s=*state_;s.terminalSerial=0;s.initialEncoded=false;
     for(auto b:{s.candidate,s.release,s.fences,s.reduction})std::memset(b.contents,0,b.length);
     auto* out=static_cast<MRHumanBehaviorReductionGPU*>(s.reduction.contents);

@@ -33,7 +33,7 @@ constexpr std::size_t kExcitationByteOffset = 512u;
 constexpr std::size_t kAutonomicByteOffset = 768u;
 constexpr std::size_t kActiveSensingByteOffset = 1'024u;
 constexpr std::size_t kReadyGateByteOffset = 1'280u;
-constexpr std::uint32_t kExpectedBehaviorAuditCoveredMask = 0x21u;
+constexpr std::uint32_t kExpectedBehaviorAuditCoveredMask = 0x61u;
 constexpr std::uint32_t kUnavailableBehaviorEvidenceFlags =
     MRNX_BEHAVIOR_TRACE_EVIDENCE_NATIVE_AUDIT_V1 |
     MRNX_BEHAVIOR_TRACE_EVIDENCE_FORBIDDEN_CONTACT_V1 |

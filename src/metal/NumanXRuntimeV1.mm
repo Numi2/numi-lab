@@ -11,6 +11,7 @@
 #include "metalrobo/ArticulatedDynamics.hpp"
 #include "metalrobo/MetalNeuronCulture.hpp"
 #include "metalrobo/MetalHumanBehaviorTelemetry.hpp"
+#include "metalrobo/HumanBehaviorNativeAudit.hpp"
 #include "metalrobo/mrnx_human_behavior_v1.h"
 #include "metalrobo/MetalNumanXHumanMatter.hpp"
 #include "metalrobo/NeuronCultureArtifacts.hpp"
@@ -5782,6 +5783,28 @@ void recordRuntimeBehaviorTerminal(RuntimeState& runtime, const ActiveRoot& acti
             trace.auditViolationMask |=
                 MR_HUMAN_BEHAVIOR_AUDIT_ROOT_ASSISTANCE;
         }
+    }
+    MRHumanBehaviorCandidateGPU behaviorCandidate{};
+    if (runtime.behavior->copyTerminalCandidate(behaviorCandidate)) {
+        const metalrobo::HumanBehaviorNativeAttemptIdentity identity{
+            .behaviorProgramFingerprint = runtime.behavior->fingerprint(),
+            .transactionFingerprint = root.transaction_fingerprint,
+            .linearizationEpoch = root.linearization_epoch,
+            .slotGeneration = root.slot_generation,
+            .physicsGeneration = active.physicsGeneration,
+            .acceptedTimestampNanoseconds =
+                release.acceptedTimestampNanoseconds,
+        };
+        const auto nonfiniteAudit =
+            metalrobo::humanBehaviorNativeNonfiniteAudit(
+                active.physicalReady,
+                active.physicalOutcome.has_value()
+                    ? &*active.physicalOutcome
+                    : nullptr,
+                &behaviorCandidate,
+                identity);
+        trace.auditCoveredMask |= nonfiniteAudit.coveredMask;
+        trace.auditViolationMask |= nonfiniteAudit.violationMask;
     }
     trace.auditCoveredMask |=
         MR_HUMAN_BEHAVIOR_AUDIT_UNACCEPTED_PUBLICATION;

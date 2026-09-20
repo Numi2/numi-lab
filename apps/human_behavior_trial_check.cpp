@@ -1,4 +1,5 @@
 #include "metalrobo/HumanBehaviorTrial.hpp"
+#include "metalrobo/HumanBehaviorNativeAudit.hpp"
 
 #include <cmath>
 #include <cstdio>
@@ -193,6 +194,145 @@ void exerciseDigestContract() {
     require(!decodeHumanBehaviorDigest(encoded.substr(1u), unchanged, error) &&
                 unchanged == sentinel,
             "short digest was admitted or mutated output");
+}
+
+std::uint32_t exerciseNativeNonfiniteAudit() {
+    MetalNumanXHumanMatterPhysicalOutcome physical{};
+    physical.jointDecision = MR_NUMANX_COUPLED_HUMAN_ACCEPT;
+    physical.humanCode = MR_NUMI_HUMAN_STAND_SUCCESS;
+    physical.matterCode = 0u;
+    physical.humanCompletedSteps = 1u;
+    physical.matterCompletedMicrosteps = 1u;
+    physical.worldCode = MR_STEP_SUCCESS;
+    physical.worldSuccessfulSubsteps = 1u;
+    physical.worldABACode = MR_ABA_SUCCESS;
+
+    HumanBehaviorNativeAttemptIdentity identity{};
+    identity.behaviorProgramFingerprint = 11u;
+    identity.transactionFingerprint = 12u;
+    identity.linearizationEpoch = 13u;
+    identity.slotGeneration = 14u;
+    identity.physicsGeneration = 15u;
+    identity.acceptedTimestampNanoseconds = 16u;
+
+    MRHumanBehaviorCandidateGPU candidate{};
+    candidate.abiVersion = MR_HUMAN_BEHAVIOR_ABI_VERSION;
+    candidate.status = 0u;
+    candidate.programFingerprint = identity.behaviorProgramFingerprint;
+    candidate.transactionFingerprint = identity.transactionFingerprint;
+    candidate.linearizationEpoch = identity.linearizationEpoch;
+    candidate.slotGeneration = identity.slotGeneration;
+    candidate.physicsGeneration = identity.physicsGeneration;
+    candidate.acceptedTimestampNanoseconds =
+        identity.acceptedTimestampNanoseconds;
+
+    const auto clean = humanBehaviorNativeNonfiniteAudit(
+        true, &physical, &candidate, identity);
+    require(clean.coveredMask == MR_HUMAN_BEHAVIOR_AUDIT_NONFINITE &&
+                clean.violationMask == 0u,
+            "clean native nonfinite audit was not covered");
+
+    std::uint32_t negativeCases = 0u;
+    const auto requireUnknown = [&](const bool ready,
+                                    const MetalNumanXHumanMatterPhysicalOutcome*
+                                        outcome,
+                                    const MRHumanBehaviorCandidateGPU* sample,
+                                    const char* message) {
+        const auto audit = humanBehaviorNativeNonfiniteAudit(
+            ready, outcome, sample, identity);
+        require(audit.coveredMask == 0u && audit.violationMask == 0u,
+                message);
+        ++negativeCases;
+    };
+    requireUnknown(false, &physical, &candidate,
+                   "unready physical owner claimed nonfinite coverage");
+    requireUnknown(true, nullptr, &candidate,
+                   "missing physical outcome claimed nonfinite coverage");
+    requireUnknown(true, &physical, nullptr,
+                   "missing metric candidate claimed nonfinite coverage");
+
+    const auto rejectPhysicalStatus = [&](auto mutate, const char* message) {
+        auto changed = physical;
+        mutate(changed);
+        requireUnknown(true, &changed, &candidate, message);
+    };
+    rejectPhysicalStatus(
+        [](auto& value) { value.jointDecision ^= 1u; },
+        "non-accept joint decision claimed nonfinite coverage");
+    rejectPhysicalStatus(
+        [](auto& value) { value.humanCode = 1u; },
+        "failed Human owner claimed nonfinite coverage");
+    rejectPhysicalStatus(
+        [](auto& value) { value.matterCode = 1u; },
+        "failed Matter owner claimed nonfinite coverage");
+    rejectPhysicalStatus(
+        [](auto& value) { value.humanCompletedSteps = 0u; },
+        "incomplete Human owner claimed nonfinite coverage");
+    rejectPhysicalStatus(
+        [](auto& value) { value.matterCompletedMicrosteps = 0u; },
+        "incomplete Matter owner claimed nonfinite coverage");
+    rejectPhysicalStatus(
+        [](auto& value) { value.worldCode = 1u; },
+        "failed world owner claimed nonfinite coverage");
+    rejectPhysicalStatus(
+        [](auto& value) { value.worldSuccessfulSubsteps = 0u; },
+        "incomplete world owner claimed nonfinite coverage");
+    rejectPhysicalStatus(
+        [](auto& value) { value.worldABACode = 1u; },
+        "failed ABA owner claimed nonfinite coverage");
+
+    auto staleCandidate = candidate;
+    ++staleCandidate.transactionFingerprint;
+    requireUnknown(true, &physical, &staleCandidate,
+                   "stale metric candidate claimed nonfinite coverage");
+    auto failedCandidate = candidate;
+    failedCandidate.status = 2u;
+    requireUnknown(true, &physical, &failedCandidate,
+                   "failed metric candidate claimed nonfinite coverage");
+
+    const auto requireViolation = [&](const auto& changedPhysical,
+                                      const auto& changedCandidate,
+                                      const char* message) {
+        const auto audit = humanBehaviorNativeNonfiniteAudit(
+            true, &changedPhysical, &changedCandidate, identity);
+        require(audit.coveredMask == MR_HUMAN_BEHAVIOR_AUDIT_NONFINITE &&
+                    audit.violationMask ==
+                        MR_HUMAN_BEHAVIOR_AUDIT_NONFINITE,
+                message);
+        ++negativeCases;
+    };
+    const float nan = std::numeric_limits<float>::quiet_NaN();
+    for (std::size_t index = 0u;
+         index < physical.humanContactAndAcceleration.size(); ++index) {
+        auto changed = physical;
+        changed.humanContactAndAcceleration[index] = nan;
+        requireViolation(changed, candidate,
+                         "nonfinite Human diagnostic was not a violation");
+    }
+    for (std::size_t index = 0u;
+         index < physical.humanFactorAndAssistance.size(); ++index) {
+        auto changed = physical;
+        changed.humanFactorAndAssistance[index] = nan;
+        requireViolation(changed, candidate,
+                         "nonfinite assistance diagnostic was not a violation");
+    }
+    for (std::size_t index = 0u; index < physical.matterDiagnostics.size();
+         ++index) {
+        auto changed = physical;
+        changed.matterDiagnostics[index] = nan;
+        requireViolation(changed, candidate,
+                         "nonfinite Matter diagnostic was not a violation");
+    }
+    auto nonfiniteMetric = candidate;
+    nonfiniteMetric.valueHigh.x = nan;
+    requireViolation(physical, nonfiniteMetric,
+                     "nonfinite high metric was not a violation");
+    nonfiniteMetric = candidate;
+    nonfiniteMetric.valueLow.w =
+        std::numeric_limits<float>::infinity();
+    requireViolation(physical, nonfiniteMetric,
+                     "nonfinite low metric was not a violation");
+    return negativeCases;
 }
 
 std::uint32_t exerciseDescriptorFailures() {
@@ -551,6 +691,8 @@ void exerciseRecoveryTrial() {
 int main(const int argc, const char* const argv[]) {
     try {
         exerciseDigestContract();
+        const auto nativeAuditNegativeCases =
+            exerciseNativeNonfiniteAudit();
         const auto descriptorNegativeCases = exerciseDescriptorFailures();
         std::uint32_t attemptNegativeCases = 0u;
         const auto standingTrace = exerciseStandingTrial(attemptNegativeCases);
@@ -562,9 +704,11 @@ int main(const int argc, const char* const argv[]) {
             require(argc == 1, "usage: human_behavior_trial_check [--emit]");
             std::printf(
                 "human_behavior_trial=pass descriptor_negative=%u "
-                "attempt_negative=%u accepted_roots=6 exact_ns=pass "
+                "attempt_negative=%u native_audit_negative=%u "
+                "accepted_roots=6 exact_ns=pass "
                 "quiescent_footer=pass physical_steps=0\n",
-                descriptorNegativeCases, attemptNegativeCases);
+                descriptorNegativeCases, attemptNegativeCases,
+                nativeAuditNegativeCases);
         }
         return 0;
     } catch (const std::exception& exception) {

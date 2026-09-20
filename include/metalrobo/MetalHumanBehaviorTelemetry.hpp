@@ -106,6 +106,10 @@ public:
         std::string& error) noexcept;
     [[nodiscard]] bool traceAttached() const noexcept;
     [[nodiscard]] bool traceFinalized() const noexcept;
+    // Read-only owner-buffer copy used at the already-settled terminal
+    // boundary. It does not flush, submit work, or advance telemetry state.
+    [[nodiscard]] bool copyTerminalCandidate(
+        MRHumanBehaviorCandidateGPU& candidate) const noexcept;
     [[nodiscard]] HumanBehaviorTelemetrySnapshot snapshot() const;
     [[nodiscard]] bool restore(const HumanBehaviorTelemetrySnapshot&, std::string& error) noexcept;
     void reset();
