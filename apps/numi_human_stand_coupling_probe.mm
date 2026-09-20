@@ -702,12 +702,13 @@ struct SimultaneousTriadReference {
     double minimumAbsolutePivot = 0.0;
 };
 
-// This follows the production order exactly in FP64: normal contact, then
-// equality, then the source position limit for every sweep, followed by the
-// existing exact equality-coordinate overwrite.  It is intentionally not a
-// new solver or a candidate runtime policy.  Comparing it with the
-// simultaneous KKT reference separates order/projection behavior from FP32
-// arithmetic and the exact-surface contact target.
+// This follows the current production solve in FP64: normal contact, two
+// bilateral-block refinements, then every source position limit using a
+// response projected through the complete equality block, followed by the
+// existing exact equality-coordinate overwrite. It is intentionally not a
+// new solver or a candidate runtime policy. Comparing it with the simultaneous
+// KKT reference separates finite-sweep/projection behavior from FP32 arithmetic
+// and the exact-surface contact target.
 struct ProductionOrderTriadReference {
     std::vector<double> preProjectionVelocity;
     std::vector<double> postProjectionVelocity;
@@ -727,8 +728,10 @@ struct ProductionOrderTriadReference {
     constexpr double kRegularization = 1.0e-7;
     constexpr std::size_t kContactNormalRow = 0u;
     constexpr std::size_t kEqualityRow = 1u;
-    constexpr std::size_t kUpperLimitRow = 2u;
-    constexpr std::size_t kRowCount = 3u;
+    constexpr std::size_t kMasterLimitRow = 2u;
+    constexpr std::size_t kDependentLimitRow = 3u;
+    constexpr std::size_t kRowCount = 4u;
+    constexpr std::size_t kLimitCount = 2u;
     require(coupledSweepCount != 0u,
             "production-order reference needs at least one coupled sweep");
     require(fixture.contacts.size() == 1u &&
@@ -774,9 +777,12 @@ struct ProductionOrderTriadReference {
         rows[kEqualityRow * nv + dof] =
             dof == kMasterV ? -static_cast<double>(kEqualitySlope) :
             dof == kDependentV ? 1.0 : 0.0;
-        // The production limit response stores +e_dof and uses a negative
-        // unilateral impulse for an upper limit.
-        rows[kUpperLimitRow * nv + dof] = dof == kDependentV ? 1.0 : 0.0;
+        // Production prepares every authored scalar interval. The response
+        // stores +e_dof; the interval projection gives an upper stop a
+        // negative impulse and a lower stop a positive impulse.
+        rows[kMasterLimitRow * nv + dof] = dof == kMasterV ? 1.0 : 0.0;
+        rows[kDependentLimitRow * nv + dof] =
+            dof == kDependentV ? 1.0 : 0.0;
     }
     std::vector<double> responses(kRowCount * nv, 0.0);
     const auto responseDiagnostics = metalrobo::computeArticulatedInverseMassResponses(
@@ -794,19 +800,21 @@ struct ProductionOrderTriadReference {
         return value;
     };
     const auto applyResponse = [&](std::vector<double>& velocity,
-                                   const std::size_t row,
+                                   const std::span<const double> response,
                                    const double impulse) {
         for (std::size_t dof = 0u; dof < nv; ++dof) {
-            velocity[dof] += impulse * responses[row * nv + dof];
+            velocity[dof] += impulse * response[dof];
         }
     };
-    const auto effectiveMass = [&](const std::size_t row) {
-        double value = kRegularization;
+    const auto responseFor = [&](const std::size_t row) {
+        return std::span<const double>(responses.data() + row * nv, nv);
+    };
+    const auto contraction = [&](const std::size_t row,
+                                 const std::span<const double> response) {
+        double value = 0.0;
         for (std::size_t dof = 0u; dof < nv; ++dof) {
-            value += rows[row * nv + dof] * responses[row * nv + dof];
+            value += rows[row * nv + dof] * response[dof];
         }
-        require(std::isfinite(value) && value > kRegularization,
-                "FP64 production-order triad effective mass is invalid");
         return value;
     };
 
@@ -826,18 +834,88 @@ struct ProductionOrderTriadReference {
         -0.2 * equalityError / static_cast<double>(fixture.timestepSeconds),
         -4.0, 4.0
     );
-    result.targetVelocity[kUpperLimitRow] = std::min(
-        0.0,
-        std::max(
-            -4.0,
-            -0.2 * (dependentPosition - upperLimit) /
+    const auto positionLimitSlop = [](const double position,
+                                      const double bound) {
+        constexpr double kFloatEpsilon = 1.1920928955078125e-7;
+        return 16.0 * kFloatEpsilon *
+            std::max({std::abs(position), std::abs(bound), 1.0});
+    };
+    const auto lowerLimitTarget = [&](const double position,
+                                      const double lower) {
+        const double gap = position - lower;
+        if (gap >= 0.0) {
+            return -gap / static_cast<double>(fixture.timestepSeconds);
+        }
+        const double slop = positionLimitSlop(position, lower);
+        if (gap >= -slop) return 0.0;
+        return std::min(
+            4.0,
+            -0.2 * (gap + slop) /
                 static_cast<double>(fixture.timestepSeconds)
-        )
+        );
+    };
+    const auto upperLimitTarget = [&](const double position,
+                                      const double upper) {
+        return -lowerLimitTarget(-position, -upper);
+    };
+    result.targetVelocity[2u] = upperLimitTarget(
+        dependentPosition, upperLimit
     );
 
-    const double contactMass = effectiveMass(kContactNormalRow);
-    const double equalityMass = effectiveMass(kEqualityRow);
-    const double limitMass = effectiveMass(kUpperLimitRow);
+    const double contactMass = kRegularization + contraction(
+        kContactNormalRow, responseFor(kContactNormalRow)
+    );
+    const double equalityMass = contraction(
+        kEqualityRow, responseFor(kEqualityRow)
+    );
+    require(std::isfinite(contactMass) && contactMass > kRegularization &&
+                std::isfinite(equalityMass) && equalityMass > 1.0e-12,
+            "FP64 production-order contact/equality response is invalid");
+
+    const std::array<std::size_t, kLimitCount> limitRows{
+        kMasterLimitRow, kDependentLimitRow};
+    const std::array<std::size_t, kLimitCount> limitDofs{
+        kMasterV, kDependentV};
+    const std::array<double, kLimitCount> limitPositions{
+        q[kMasterQ], q[kDependentQ]};
+    const std::array<double, kLimitCount> limitLowerBounds{
+        static_cast<double>(fixture.model.dofs.at(kMasterV).limits.x),
+        lowerLimit};
+    const std::array<double, kLimitCount> limitUpperBounds{
+        static_cast<double>(fixture.model.dofs.at(kMasterV).limits.y),
+        upperLimit};
+    std::array<std::vector<double>, kLimitCount> projectedLimitResponses;
+    std::array<double, kLimitCount> limitMasses{};
+    for (std::size_t limit = 0u; limit < kLimitCount; ++limit) {
+        const std::span<const double> rawResponse = responseFor(limitRows[limit]);
+        projectedLimitResponses[limit].assign(
+            rawResponse.begin(), rawResponse.end()
+        );
+        const double rawDiagonal = rawResponse[limitDofs[limit]];
+        for (std::size_t refinement = 0u; refinement < 2u; ++refinement) {
+            const double residual = contraction(
+                kEqualityRow, projectedLimitResponses[limit]
+            );
+            const double correction = residual / equalityMass;
+            for (std::size_t dof = 0u; dof < nv; ++dof) {
+                projectedLimitResponses[limit][dof] -=
+                    correction * responses[kEqualityRow * nv + dof];
+            }
+        }
+        if (!(projectedLimitResponses[limit][limitDofs[limit]] >
+              1.0e-6 * rawDiagonal)) {
+            projectedLimitResponses[limit].assign(
+                rawResponse.begin(), rawResponse.end()
+            );
+        }
+        limitMasses[limit] =
+            projectedLimitResponses[limit][limitDofs[limit]] +
+            kRegularization;
+        require(std::isfinite(limitMasses[limit]) &&
+                    limitMasses[limit] > kRegularization,
+                "FP64 production-order projected limit response is invalid");
+    }
+
     std::vector<double> candidate = v;
     const std::vector<double> freeAcceleration = freeReferenceAcceleration(fixture);
     for (std::size_t dof = 0u; dof < nv; ++dof) {
@@ -846,10 +924,7 @@ struct ProductionOrderTriadReference {
     }
     double contactLambda = 0.0;
     double equalityLambda = 0.0;
-    double limitLambda = 0.0;
-    bool limitAdmitted = false;
-    bool lowerLimitAdmitted = false;
-    constexpr double kLimitTolerance = 1.0e-7;
+    std::array<double, kLimitCount> limitLambdas{};
     for (std::uint32_t sweep = 0u; sweep < coupledSweepCount; ++sweep) {
         const double oldContactLambda = contactLambda;
         contactLambda = std::max(
@@ -858,70 +933,60 @@ struct ProductionOrderTriadReference {
                  rowVelocity(kContactNormalRow, candidate)) / contactMass,
             0.0
         );
-        applyResponse(candidate, kContactNormalRow,
+        applyResponse(candidate, responseFor(kContactNormalRow),
                       contactLambda - oldContactLambda);
 
-        const double equalityDelta =
-            (result.targetVelocity[kEqualityRow] -
-             rowVelocity(kEqualityRow, candidate)) / equalityMass;
-        equalityLambda += equalityDelta;
-        applyResponse(candidate, kEqualityRow, equalityDelta);
+        // The production bilateral block runs two residual refinements per
+        // coupled sweep. With this fixture's one row, the second correction is
+        // normally roundoff-sized but remains part of the reference contract.
+        for (std::size_t refinement = 0u; refinement < 2u; ++refinement) {
+            const double equalityDelta =
+                (result.targetVelocity[kEqualityRow] -
+                 rowVelocity(kEqualityRow, candidate)) / equalityMass;
+            equalityLambda += equalityDelta;
+            applyResponse(candidate, responseFor(kEqualityRow), equalityDelta);
+        }
 
-        if (sweep == 0u) {
-            const bool lowerNear = dependentPosition <= lowerLimit + kLimitTolerance;
-            const bool upperNear = dependentPosition >= upperLimit - kLimitTolerance;
-            const bool lowerActive = lowerNear &&
-                (dependentPosition < lowerLimit || candidate[kDependentV] < 0.0);
-            const bool upperActive = upperNear &&
-                (dependentPosition > upperLimit || candidate[kDependentV] > 0.0);
-            require(!(lowerActive && upperActive),
-                    "FP64 production-order triad admitted conflicting limit rows");
-            limitAdmitted = lowerActive || upperActive;
-            lowerLimitAdmitted = lowerActive;
-            result.upperLimitAdmitted = upperActive;
-        }
-        if (!limitAdmitted) continue;
-        const bool lowerActive = dependentPosition <= lowerLimit + kLimitTolerance &&
-            (dependentPosition < lowerLimit || candidate[kDependentV] < 0.0);
-        const bool upperActive = dependentPosition >= upperLimit - kLimitTolerance &&
-            (dependentPosition > upperLimit || candidate[kDependentV] > 0.0);
-        double limitDelta = 0.0;
-        if (lowerActive) {
-            const double targetVelocity = std::max(
-                0.0,
-                std::min(
-                    4.0,
-                    -0.2 * (dependentPosition - lowerLimit) /
-                        static_cast<double>(fixture.timestepSeconds)
-                )
+        for (std::size_t limit = 0u; limit < kLimitCount; ++limit) {
+            const double lowerVelocity = lowerLimitTarget(
+                limitPositions[limit], limitLowerBounds[limit]
             );
-            if (candidate[kDependentV] < targetVelocity) {
-                limitDelta = std::max(
-                    0.0, (targetVelocity - candidate[kDependentV]) / limitMass
-                );
+            const double upperVelocity = upperLimitTarget(
+                limitPositions[limit], limitUpperBounds[limit]
+            );
+            const double lowerCandidate = limitLambdas[limit] +
+                (lowerVelocity - candidate[limitDofs[limit]]) /
+                    limitMasses[limit];
+            const double upperCandidate = limitLambdas[limit] +
+                (upperVelocity - candidate[limitDofs[limit]]) /
+                    limitMasses[limit];
+            double nextImpulse = 0.0;
+            if (lowerCandidate > 0.0) {
+                nextImpulse = lowerCandidate;
+            } else if (upperCandidate < 0.0) {
+                nextImpulse = upperCandidate;
             }
-        } else if (upperActive) {
-            const double targetVelocity = result.targetVelocity[kUpperLimitRow];
-            if (candidate[kDependentV] > targetVelocity) {
-                limitDelta = std::min(
-                    0.0, (targetVelocity - candidate[kDependentV]) / limitMass
-                );
-            }
+            const double impulse = nextImpulse - limitLambdas[limit];
+            limitLambdas[limit] = nextImpulse;
+            applyResponse(candidate, projectedLimitResponses[limit], impulse);
         }
-        limitLambda += limitDelta;
-        applyResponse(candidate, kUpperLimitRow, limitDelta);
     }
-    require(limitAdmitted && result.upperLimitAdmitted && !lowerLimitAdmitted,
+    result.upperLimitAdmitted = limitLambdas[1u] < 0.0;
+    require(result.upperLimitAdmitted && limitLambdas[0u] == 0.0,
             "FP64 production-order triad did not retain the source upper limit");
-    result.accumulatedImpulses = {contactLambda, equalityLambda, limitLambda};
+    result.accumulatedImpulses = {
+        contactLambda, equalityLambda, limitLambdas[1u]};
     result.preProjectionVelocity = candidate;
     result.preProjectionTargetResidual[kContactNormalRow] = std::max(
         0.0, result.targetVelocity[kContactNormalRow] -
             rowVelocity(kContactNormalRow, candidate)
     );
-    result.preProjectionTargetResidual[kUpperLimitRow] = std::max(
-        0.0, candidate[kDependentV] - result.targetVelocity[kUpperLimitRow]
-    );
+    result.preProjectionTargetResidual[2u] = std::max({
+        0.0,
+        lowerLimitTarget(dependentPosition, lowerLimit) -
+            candidate[kDependentV],
+        candidate[kDependentV] - result.targetVelocity[2u]
+    });
     const double postIntegrationEqualityError =
         q[kDependentQ] + static_cast<double>(fixture.timestepSeconds) *
             candidate[kDependentV] -
@@ -944,10 +1009,12 @@ struct ProductionOrderTriadReference {
         0.0, result.targetVelocity[kContactNormalRow] -
             rowVelocity(kContactNormalRow, result.postProjectionVelocity)
     );
-    result.postProjectionTargetResidual[kUpperLimitRow] = std::max(
-        0.0, result.postProjectionVelocity[kDependentV] -
-            result.targetVelocity[kUpperLimitRow]
-    );
+    result.postProjectionTargetResidual[2u] = std::max({
+        0.0,
+        lowerLimitTarget(dependentPosition, lowerLimit) -
+            result.postProjectionVelocity[kDependentV],
+        result.postProjectionVelocity[kDependentV] - result.targetVelocity[2u]
+    });
     result.postProjectionTargetResidual[kEqualityRow] = std::abs(
         rowVelocity(kEqualityRow, result.postProjectionVelocity) -
             result.targetVelocity[kEqualityRow]
@@ -1670,6 +1737,47 @@ void checkContactAndReplay(const Fixture& fixture) {
               << '\n';
 }
 
+// Exercise the terminal coordinate owner with a deliberately off-manifold
+// state. The coupled block can legitimately arrive at the terminal projection
+// with a zero correction, so non-zero diagnostic magnitude is proven here
+// rather than inferred from a contact/limit interaction.
+void checkFinalEqualityProjection() {
+    Fixture fixture(12.5e-6f);
+    fixture.moveOffDependentPositionLimit();
+    fixture.q[kDependentQ] += 1.0e-4f;
+    const Run run = runHorizon(fixture, 1u, false, true, 64u);
+    const MRNumiHumanStandStatusGPU& status =
+        run.result.standStatuses.front();
+    const double velocityError = std::abs(
+        static_cast<double>(run.result.standV[kDependentV]) -
+        static_cast<double>(kEqualitySlope) *
+            run.result.standV[kMasterV]
+    );
+    const double positionError = std::abs(
+        static_cast<double>(run.result.standQ[kDependentQ]) -
+        static_cast<double>(kEqualitySlope) *
+            run.result.standQ[kMasterQ]
+    );
+    require(
+        velocityError <= 2.0e-6 && positionError <= 2.0e-6 &&
+            status.jointEqualityProjectionDiagnostics.x > 1.0e-6f &&
+            status.jointEqualityProjectionDiagnostics.y >=
+                status.jointEqualityProjectionDiagnostics.x &&
+            status.jointEqualityProjectionDiagnostics.z > 1.0e-6f &&
+            status.jointEqualityProjectionDiagnostics.w >=
+                status.jointEqualityProjectionDiagnostics.z,
+        "off-manifold control omitted its terminal equality projection"
+    );
+    std::cout << "terminal_equality_projection=pass"
+              << " position_projection_m_or_rad="
+              << status.jointEqualityProjectionDiagnostics.x
+              << " velocity_projection_m_s_or_rad_s="
+              << status.jointEqualityProjectionDiagnostics.z
+              << " position_residual_m_or_rad=" << positionError
+              << " velocity_residual_m_s_or_rad_s=" << velocityError
+              << '\n';
+}
+
 struct RefinementSummary {
     float timestepSeconds = 0.0f;
     std::uint32_t steps = 0u;
@@ -1732,26 +1840,29 @@ void checkCommonDurationRefinement() {
                     (variant.equality || status.jointEqualityCounts.x == 0u),
                 "common-duration discriminator did not retain its selected coupling"
             );
-            // The final dependent-coordinate overwrite is not a generic
-            // equality side effect in this fixture: it occurs only where
-            // contact, the bilateral equality, and the active dependent
-            // limit interact. Keep that causal discriminator under test.
-            const bool expectsFinalEqualityProjection =
-                variant.contact && variant.equality &&
-                variant.dependentLimitActive;
-            if (expectsFinalEqualityProjection) {
-                require(
-                    status.jointEqualityProjectionDiagnostics.z > 1.0e-8f &&
-                        status.jointEqualityProjectionDiagnostics.w > 1.0e-8f,
-                    "coupled contact/equality/limit path omitted its final equality velocity projection"
+            if (variant.equality) {
+                const double velocityEqualityError = std::abs(
+                    static_cast<double>(run.result.standV[kDependentV]) -
+                    static_cast<double>(kEqualitySlope) *
+                        run.result.standV[kMasterV]
+                );
+                const double positionEqualityError = std::abs(
+                    static_cast<double>(run.result.standQ[kDependentQ]) -
+                    static_cast<double>(kEqualitySlope) *
+                        run.result.standQ[kMasterQ]
                 );
                 require(
-                    status.constraintImpulseDiagnostics.x > 0.0f &&
-                        status.constraintImpulseDiagnostics.z > 0.0f &&
-                        status.constraintImpulseOwners.x == 0u &&
-                        status.constraintImpulseOwners.z == kDependentV &&
-                        status.constraintImpulseOwners.w == 0u,
-                    "coupled contact/equality/limit path did not retain its impulse owners"
+                    velocityEqualityError <= 2.0e-6 &&
+                        positionEqualityError <= 2.0e-6 &&
+                        std::isfinite(
+                            status.jointEqualityProjectionDiagnostics.x) &&
+                        std::isfinite(
+                            status.jointEqualityProjectionDiagnostics.y) &&
+                        std::isfinite(
+                            status.jointEqualityProjectionDiagnostics.z) &&
+                        std::isfinite(
+                            status.jointEqualityProjectionDiagnostics.w),
+                    "common-duration equality path left the source manifold"
                 );
             } else {
                 require(
@@ -1760,6 +1871,18 @@ void checkCommonDurationRefinement() {
                         status.jointEqualityProjectionDiagnostics.z == 0.0f &&
                         status.jointEqualityProjectionDiagnostics.w == 0.0f,
                     "uncoupled control unexpectedly used final equality projection"
+                );
+            }
+            const bool coupledTriad = variant.contact && variant.equality &&
+                variant.dependentLimitActive;
+            if (coupledTriad) {
+                require(
+                    status.constraintImpulseDiagnostics.x > 0.0f &&
+                        status.constraintImpulseDiagnostics.z > 0.0f &&
+                        status.constraintImpulseOwners.x == 0u &&
+                        status.constraintImpulseOwners.z == kDependentV &&
+                        status.constraintImpulseOwners.w == 0u,
+                    "coupled contact/equality/limit path did not retain its impulse owners"
                 );
             }
             summaries.push_back({
@@ -1840,6 +1963,7 @@ int main() {
         checkExactContactPrecisionDiagnostic();
         checkProductionOrderTriadReference();
         checkContactAndReplay(fixture);
+        checkFinalEqualityProjection();
         checkCommonDurationRefinement();
         std::cout << "numi_human_stand_coupling_probe=passed "
                   << "scope=minimal_production_path "
