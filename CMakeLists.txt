@@ -991,6 +991,7 @@ add_library(
     src/core/NumiHumanJointEquality.cpp
     src/core/NumiHumanMuscleEquilibrium.cpp
     src/core/NumiHumanInitialState.cpp
+    src/core/NumiHumanRuntimeIdentity.cpp
     src/core/HumanBehaviorProgram.cpp
     src/core/NumiHumanTensionNetwork.cpp
     src/core/NumiHumanTendon.cpp
@@ -1595,6 +1596,16 @@ if(BUILD_TESTING)
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
     add_test(NAME numi_human_initial_state COMMAND metalrobo_numi_human_initial_state_test)
+    add_executable(metalrobo_numi_human_runtime_identity_test
+        tests/numi_human_runtime_identity_test.cpp)
+    target_link_libraries(metalrobo_numi_human_runtime_identity_test PRIVATE metalrobo)
+    target_compile_options(metalrobo_numi_human_runtime_identity_test PRIVATE
+        -Wall -Wextra -Wpedantic -Werror)
+    set_target_properties(metalrobo_numi_human_runtime_identity_test PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
+    add_test(NAME numi_human_runtime_identity
+        COMMAND metalrobo_numi_human_runtime_identity_test)
     add_executable(metalrobo_numi_human_root_placement_test tests/numi_human_root_placement_test.cpp)
     target_link_libraries(metalrobo_numi_human_root_placement_test PRIVATE metalrobo)
     target_compile_options(metalrobo_numi_human_root_placement_test PRIVATE -Wall -Wextra -Wpedantic -Werror -fno-fast-math -ffp-contract=off)
@@ -1607,7 +1618,8 @@ if(BUILD_TESTING)
         set_tests_properties(numanx.integration.human_touch_aggregation
             PROPERTIES LABELS "numanx;human;metal;support")
     endif()
-    set_tests_properties(numi_human_initial_state PROPERTIES LABELS "numi-human;initialization;numanx")
+    set_tests_properties(numi_human_initial_state numi_human_runtime_identity
+        PROPERTIES LABELS "numi-human;initialization;numanx")
 endif()
 
 if(BUILD_TESTING)

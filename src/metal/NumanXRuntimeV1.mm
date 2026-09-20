@@ -1,5 +1,6 @@
 #include "metalrobo/NumiHumanSupport.hpp"
 #include "metalrobo/NumiHumanInitialState.hpp"
+#include "metalrobo/NumiHumanRuntimeIdentity.hpp"
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
 
@@ -391,16 +392,10 @@ void appendFingerprintU64(
     const ImmutablePayload& muscle,
     const ImmutablePayload& support
 ) noexcept {
-    constexpr char domain[] = "mrnx.fullbody.source.v1";
-    std::uint64_t hash = kFnvOffset;
-    appendFingerprintBytes(hash, domain, sizeof(domain) - 1u);
-    for (const ImmutablePayload* payload : {&rigid, &muscle, &support}) {
-        appendFingerprintU64(
-            hash, static_cast<std::uint64_t>(payload->bytes.size()));
-        appendFingerprintBytes(
-            hash, payload->bytes.data(), payload->bytes.size());
-    }
-    return hash == 0u ? kFnvOffset : hash;
+    return metalrobo::numiHumanRuntimeBaseSourceFingerprint(
+        std::as_bytes(std::span(rigid.bytes)),
+        std::as_bytes(std::span(muscle.bytes)),
+        std::as_bytes(std::span(support.bytes)));
 }
 
 [[nodiscard]] mr_float4 quaternionRotateHost(
@@ -485,11 +480,8 @@ void loadJointEqualities(FullBodyAssets& assets,
     assets.equalityDispatch.flags = header.flags;
     assets.equalityFingerprint = fingerprint;
     // The base world admission was checked before adding this source owner.
-    assets.sourceFingerprint ^= hashBytes("NHEQ2", 5u);
-    assets.sourceFingerprint *= kFnvPrime;
-    assets.sourceFingerprint ^= fingerprint;
-    assets.sourceFingerprint *= kFnvPrime;
-    if (assets.sourceFingerprint == 0u) assets.sourceFingerprint = kFnvOffset;
+    assets.sourceFingerprint = metalrobo::numiHumanRuntimeAppendPayloadOwner(
+        assets.sourceFingerprint, "NHEQ2", fingerprint);
 }
 
 void loadJointLimits(FullBodyAssets& assets, const mrnx_runtime_config_v6& config) {
@@ -537,11 +529,8 @@ void loadJointLimits(FullBodyAssets& assets, const mrnx_runtime_config_v6& confi
     assets.limitDispatch.policy = header.policy;
     assets.limitDispatch.flags = header.flags;
     assets.limitFingerprint = fingerprint;
-    assets.sourceFingerprint ^= hashBytes("NHLIM1", 6u);
-    assets.sourceFingerprint *= kFnvPrime;
-    assets.sourceFingerprint ^= fingerprint;
-    assets.sourceFingerprint *= kFnvPrime;
-    if (assets.sourceFingerprint == 0u) assets.sourceFingerprint = kFnvOffset;
+    assets.sourceFingerprint = metalrobo::numiHumanRuntimeAppendPayloadOwner(
+        assets.sourceFingerprint, "NHLIM1", fingerprint);
 }
 
 VisionProfile loadVisionProfile(
@@ -2118,9 +2107,10 @@ void cultureCompletion(
     if (initialConfig != nullptr) {
         requireBuild(initialState.humanSourceFingerprint == runtime->assets.sourceFingerprint,
             MRNX_RUNTIME_ASSET_FAILURE_V1, "initial-state composed Human source mismatch");
-        constexpr char marker[] = "NHINIT1";
-        appendFingerprintBytes(runtime->assets.sourceFingerprint, marker, sizeof(marker)-1u);
-        appendFingerprintU64(runtime->assets.sourceFingerprint, initialConfig->expected_initial_state_fingerprint);
+        runtime->assets.sourceFingerprint =
+            metalrobo::numiHumanRuntimeAppendInitialState(
+                runtime->assets.sourceFingerprint,
+                initialConfig->expected_initial_state_fingerprint);
     }
     runtime->worldInfo = {
         MRNX_BRIDGE_ABI_V1, sizeof(mrnx_runtime_world_info_v1),

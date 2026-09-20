@@ -4,6 +4,7 @@
 #include "metalrobo/MetalNumanXHumanIO.hpp"
 #include "metalrobo/ArticulatedDynamics.hpp"
 #include "metalrobo/NumiHumanInitialState.hpp"
+#include "metalrobo/NumiHumanRuntimeIdentity.hpp"
 #include "metalrobo/NumiHumanSupport.hpp"
 #include "numi/matter/matter.hpp"
 #include "metalrobo/NeuronCultureArtifacts.hpp"
@@ -63,17 +64,13 @@ namespace {
 constexpr std::uint64_t kFnvOffset = 14695981039346656037ull;
 constexpr std::uint64_t kFnvPrime = 1099511628211ull;
 std::uint64_t equalityFingerprint(const std::vector<std::uint8_t>& bytes) {
-    std::uint64_t hash=kFnvOffset;
-    for (const auto byte : bytes) { hash ^= byte; hash *= kFnvPrime; }
-    return hash;
+    return metalrobo::numiHumanRuntimePayloadFingerprint(
+        std::as_bytes(std::span(bytes)));
 }
 
 std::uint64_t constrainedFingerprint(std::uint64_t base, const std::vector<std::uint8_t>& bytes) {
-    base ^= equalityFingerprint({'N','H','E','Q','2'});
-    base *= kFnvPrime;
-    base ^= equalityFingerprint(bytes);
-    base *= kFnvPrime;
-    return base == 0u ? kFnvOffset : base;
+    return metalrobo::numiHumanRuntimeAppendPayloadOwner(
+        base, "NHEQ2", equalityFingerprint(bytes));
 }
 
 constexpr std::uint64_t kStartMicros = 1'000u;
@@ -523,31 +520,15 @@ void qualifyHumanSupportKKT(id<MTLDevice> device, unsigned shape = 0) {
             "Matter support checkpoint rollback did not restore exact bytes");
 }
 
-void mixBytes(
-    std::uint64_t& hash,
-    const void* raw,
-    const std::size_t byteCount
-) noexcept {
-    const auto* bytes = static_cast<const std::uint8_t*>(raw);
-    for (std::size_t index = 0u; index < byteCount; ++index) {
-        hash ^= bytes[index];
-        hash *= kFnvPrime;
-    }
-}
-
 std::uint64_t fullBodySourceFingerprint(
     const std::vector<std::uint8_t>& rigid,
     const std::vector<std::uint8_t>& muscle,
     const std::vector<std::uint8_t>& support
 ) noexcept {
-    constexpr char domain[] = "mrnx.fullbody.source.v1";
-    std::uint64_t hash = kFnvOffset;
-    mixBytes(hash, domain, sizeof(domain) - 1u);
-    for (const auto* payload : {&rigid, &muscle, &support}) {
-        mixU64(hash, static_cast<std::uint64_t>(payload->size()));
-        mixBytes(hash, payload->data(), payload->size());
-    }
-    return hash == 0u ? kFnvOffset : hash;
+    return metalrobo::numiHumanRuntimeBaseSourceFingerprint(
+        std::as_bytes(std::span(rigid)),
+        std::as_bytes(std::span(muscle)),
+        std::as_bytes(std::span(support)));
 }
 
 std::uint64_t motorOutputFingerprint(
@@ -1171,9 +1152,9 @@ int writePreparedStanceFixture(const char* certificate, const char* output,
         std::copy_n(rigid.begin()+48u,32u,initial.sourceArchiveSHA256.begin());
         const auto base=fullBodySourceFingerprint(rigid,readPayloadBytes(MRNX_FULLBODY_MUSCLE),readPayloadBytes(contacts));
         auto source=constrainedFingerprint(base,readPayloadBytes(equalities));
-        source=((source^equalityFingerprint({'N','H','L','I','M','1'}))*kFnvPrime ^
-            equalityFingerprint(readPayloadBytes(limits)))*kFnvPrime;
-        const auto expectedSource = source==0u?kFnvOffset:source;
+        source=metalrobo::numiHumanRuntimeAppendPayloadOwner(
+            source,"NHLIM1",equalityFingerprint(readPayloadBytes(limits)));
+        const auto expectedSource = source;
         require(!importInitialState || initial.humanSourceFingerprint == expectedSource,
             "imported prepared state composed source mismatch");
         initial.humanSourceFingerprint=expectedSource;
@@ -1423,18 +1404,11 @@ mrnx_runtime_v1* makeExactRuntime(
     const auto initial = readPayloadBytes(initialPath);
     const auto baseSource = fullBodySourceFingerprint(rigid, muscle, support);
     auto source = constrainedFingerprint(baseSource, equality);
-    source = ((source ^ equalityFingerprint({'N','H','L','I','M','1'})) *
-        kFnvPrime ^ equalityFingerprint(limits)) * kFnvPrime;
-    for (const auto byte : std::array<std::uint8_t, 7u>{'N','H','I','N','I','T','1'}) {
-        source ^= byte;
-        source *= kFnvPrime;
-    }
+    source = metalrobo::numiHumanRuntimeAppendPayloadOwner(
+        source, "NHLIM1", equalityFingerprint(limits));
     const auto initialFingerprint = equalityFingerprint(initial);
-    for (std::uint32_t byte = 0u; byte < 8u; ++byte) {
-        source ^= (initialFingerprint >> (byte * 8u)) & 0xffu;
-        source *= kFnvPrime;
-    }
-    if (source == 0u) source = kFnvOffset;
+    source = metalrobo::numiHumanRuntimeAppendInitialState(
+        source, initialFingerprint);
 
     mrnx_runtime_config_v8 config{};
     config.abi_version = MRNX_RUNTIME_CONFIG_ABI_V8;
@@ -1633,18 +1607,11 @@ int run(const bool authored, const bool sourceEqualities, const bool costalTissu
             expectedSource = constrainedFingerprint(
                 fullBodySourceFingerprint(rigidPayload, musclePayload, supportExact),
                 equalityExact);
-            expectedSource = ((expectedSource ^ equalityFingerprint({'N','H','L','I','M','1'})) *
-                kFnvPrime ^ equalityFingerprint(limitsExact)) * kFnvPrime;
-            for (const auto byte : std::array<std::uint8_t, 7u>{'N','H','I','N','I','T','1'}) {
-                expectedSource ^= byte;
-                expectedSource *= kFnvPrime;
-            }
+            expectedSource = metalrobo::numiHumanRuntimeAppendPayloadOwner(
+                expectedSource,"NHLIM1",equalityFingerprint(limitsExact));
             const auto initialFingerprint = equalityFingerprint(initialExact);
-            for (std::uint32_t byte = 0u; byte < 8u; ++byte) {
-                expectedSource ^= (initialFingerprint >> (byte * 8u)) & 0xffu;
-                expectedSource *= kFnvPrime;
-            }
-            if (expectedSource == 0u) expectedSource = kFnvOffset;
+            expectedSource = metalrobo::numiHumanRuntimeAppendInitialState(
+                expectedSource,initialFingerprint);
         }
         require(
             info.model_source_fingerprint == expectedSource,
