@@ -2,10 +2,11 @@
 """Audit one persistent Numi Human production-owner snapshot evidence file.
 
 The evidence envelope hashes the literal JSON bytes occupied by ``payload``.
-This tool verifies that byte range without reserializing it, validates the v1
-shape and coverage contract, reconstructs every word as little-endian bytes,
-and independently reproduces the recorder's FP64 dynamics derivation before
-requiring bit-exact FP32 witnesses.
+This tool verifies that byte range without reserializing it, validates the V1
+or V2 shape and coverage contract, and reconstructs every word as
+little-endian bytes. V1 retains the legacy host-reconstructed RHS/bias audit;
+V2 validates direct device source-dynamics witnesses without relabeling old
+artifacts.
 """
 from __future__ import annotations
 
@@ -20,9 +21,17 @@ import sys
 from typing import Any, Callable
 
 
-EVIDENCE_SCHEMA = "persistent-production-owner-snapshot-evidence.v1"
-PAYLOAD_SCHEMA = "persistent-production-owner-snapshot.v1"
-AUDIT_SCHEMA = "numi.human.production-owner-snapshot-audit.v1"
+EVIDENCE_SCHEMA_V1 = "persistent-production-owner-snapshot-evidence.v1"
+EVIDENCE_SCHEMA_V2 = "persistent-production-owner-snapshot-evidence.v2"
+PAYLOAD_SCHEMA_V1 = "persistent-production-owner-snapshot.v1"
+PAYLOAD_SCHEMA_V2 = "persistent-production-owner-snapshot.v2"
+AUDIT_SCHEMA_V1 = "numi.human.production-owner-snapshot-audit.v1"
+AUDIT_SCHEMA_V2 = "numi.human.production-owner-snapshot-audit.v2"
+# Preserve the original public module constants for import compatibility.
+# New producers and callers must opt into the explicit V2 names above.
+EVIDENCE_SCHEMA = EVIDENCE_SCHEMA_V1
+PAYLOAD_SCHEMA = PAYLOAD_SCHEMA_V1
+AUDIT_SCHEMA = AUDIT_SCHEMA_V1
 MAX_INPUT_BYTES = 1 << 30
 UINT32_MAX = (1 << 32) - 1
 UINT64_MAX = (1 << 64) - 1
@@ -357,12 +366,25 @@ def _identity(payload: dict[str, Any], name: str) -> int:
 
 def _validate_payload_header(payload: dict[str, Any]) -> dict[str, int]:
     _exact_keys(payload, PAYLOAD_FIELDS, "payload")
-    require(payload["schema"] == PAYLOAD_SCHEMA, "payload schema is not v1")
-    require(payload["format_version"] == 1 and type(payload["format_version"]) is int,
-            "payload format_version is not 1")
+    version = payload["format_version"]
+    require(type(version) is int and version in (1, 2),
+            "payload format_version is not supported")
+    contracts = {
+        1: (
+            PAYLOAD_SCHEMA_V1,
+            "host-reconstructed-from-captured-A0-v0-vfree-tau",
+        ),
+        2: (
+            PAYLOAD_SCHEMA_V2,
+            "device-captured-pre-overwrite-source-dynamics-witness-v1",
+        ),
+    }
+    expected_schema, expected_rhs_bias_origin = contracts[version]
+    require(payload["schema"] == expected_schema,
+            "payload schema does not match format_version")
     fixed = {
         "comparison_identity_algorithm": "fnv1a64-domain-v1",
-        "rhs_bias_origin": "host-reconstructed-from-captured-A0-v0-vfree-tau",
+        "rhs_bias_origin": expected_rhs_bias_origin,
         "constraint_witness_origin": "host-reconstructed-from-captured-production-inputs",
         "inertial_operator_capture": "source-effective-tangent-factor-storage",
         "effective_tangent_factor_storage_layout":
@@ -627,9 +649,10 @@ def _require_positive_zero_word(data: bytes, word: int, context: str) -> None:
 def _audit_effective_tangent(factor: list[float], count: int) -> dict[str, Any]:
     """Check positive L pivots and the source A0 retained above the diagonal.
 
-    v1 stores L in the lower triangle (including the diagonal) and retains the
-    original FP32 A0 only in the strict upper triangle.  The diagonal of A0 is
-    therefore reconstructible but is not independently retained.
+    Both snapshot versions store L in the lower triangle (including the
+    diagonal) and retain the original FP32 A0 only in the strict upper
+    triangle. The diagonal of A0 is therefore reconstructible but is not
+    independently retained.
     """
     minimum_pivot = math.inf
     for row in range(count):
@@ -1107,19 +1130,108 @@ def _audit_dynamics(payload: dict[str, Any], arrays: dict[str, bytes],
                 f"acceleration[{index}]")
         for index in range(nv)
     ]
-    transpose_action = [0.0] * nv
-    for column in range(nv):
-        value = 0.0
-        for row in range(column, nv):
-            value += float(factor[row * nv + column]) * acceleration[row]
-        transpose_action[column] = value
-    rhs64 = [0.0] * nv
-    for row in range(nv):
-        value = 0.0
-        for column in range(row + 1):
-            value += float(factor[row * nv + column]) * transpose_action[column]
-        rhs64[row] = value
-    bias64 = [float(source[row]) - rhs64[row] for row in range(nv)]
+    if payload["format_version"] == 1:
+        # Preserve the original V1 contract exactly: RHS and bias were host
+        # reconstructions from the captured Cholesky factor, acceleration and
+        # source force, then rounded to exact FP32 witness words.
+        transpose_action = [0.0] * nv
+        for column in range(nv):
+            for row in range(column, nv):
+                transpose_action[column] += (
+                    float(factor[row * nv + column]) * acceleration[row]
+                )
+        rhs64 = [0.0] * nv
+        for row in range(nv):
+            for column in range(row + 1):
+                rhs64[row] += (
+                    float(factor[row * nv + column]) *
+                    transpose_action[column]
+                )
+        bias64 = [float(source[row]) - rhs64[row] for row in range(nv)]
+        stored_rhs = _compare_f32("source_rhs", rhs64, arrays["source_rhs"])
+        _compare_f32("source_bias", bias64, arrays["source_bias"])
+        source_dynamics: dict[str, Any] = {}
+    else:
+        stored_rhs = _floats(arrays["source_rhs"], nv, "source_rhs")
+        stored_bias = _floats(arrays["source_bias"], nv, "source_bias")
+        dot_operations = nv + 2
+        dot_roundoff_product = dot_operations * FLOAT32_EPSILON
+        require(dot_roundoff_product < 1.0,
+                "source dynamics dimension exceeds FP32 dot-product bound")
+        dot_gamma = dot_roundoff_product / (1.0 - dot_roundoff_product)
+        maximum_force_ratio = -1.0
+        maximum_force_record: dict[str, int | float] = {}
+        maximum_residual_ratio = -1.0
+        maximum_residual_record: dict[str, int | float] = {}
+        for row in range(nv):
+            require(math.isfinite(stored_rhs[row]) and
+                    math.isfinite(stored_bias[row]),
+                    f"source witness row {row} is nonfinite")
+            force_error = abs(
+                float(stored_bias[row]) + stored_rhs[row] - source[row]
+            )
+            force_scale = (
+                abs(float(stored_bias[row])) + abs(float(stored_rhs[row])) +
+                abs(float(source[row]))
+            )
+            force_bound = 2.0e-5 * (1.0 + force_scale)
+            force_ratio = force_error / force_bound
+            require(
+                force_ratio <= 1.0,
+                "direct source bias/RHS does not close against source force "
+                f"at row {row}",
+            )
+            if force_ratio > maximum_force_ratio:
+                maximum_force_ratio = force_ratio
+                maximum_force_record = {
+                    "row": row,
+                    "absolute_error": force_error,
+                    "local_scale": force_scale,
+                    "local_bound": force_bound,
+                    "error_to_bound_ratio": force_ratio,
+                }
+
+            diagonal = 0.0
+            for column in range(row + 1):
+                coefficient = float(factor[row * nv + column])
+                diagonal += coefficient * coefficient
+            product = 0.0
+            product_scale = 0.0
+            for column in range(nv):
+                coefficient = (
+                    diagonal if row == column
+                    else float(factor[min(row, column) * nv + max(row, column)])
+                )
+                term = coefficient * acceleration[column]
+                product += term
+                product_scale += abs(term)
+            residual = abs(product - stored_rhs[row])
+            residual_bound = (
+                dot_gamma * product_scale + 8.0 * _f32_ulp(stored_rhs[row])
+            )
+            residual_ratio = residual / residual_bound
+            require(
+                residual_ratio <= 1.0,
+                "direct source RHS fails the captured A0/free-velocity "
+                f"residual at row {row}",
+            )
+            if residual_ratio > maximum_residual_ratio:
+                maximum_residual_ratio = residual_ratio
+                maximum_residual_record = {
+                    "row": row,
+                    "absolute_residual": residual,
+                    "absolute_product_sum": product_scale,
+                    "local_bound": residual_bound,
+                    "error_to_bound_ratio": residual_ratio,
+                }
+        source_dynamics = {
+            "direct_source_dynamics": {
+                "fp32_dot_product_operations": dot_operations,
+                "fp32_dot_product_gamma": dot_gamma,
+                "maximum_force_closure_ratio": maximum_force_record,
+                "maximum_residual_ratio": maximum_residual_record,
+            },
+        }
 
     source_work = 0.0
     reaction_work = 0.0
@@ -1145,8 +1257,6 @@ def _audit_dynamics(payload: dict[str, Any], arrays: dict[str, bytes],
     stored_acceleration = _compare_f32(
         "acceleration", acceleration, arrays["acceleration"]
     )
-    stored_rhs = _compare_f32("source_rhs", rhs64, arrays["source_rhs"])
-    _compare_f32("source_bias", bias64, arrays["source_bias"])
     work = _compare_f32(
         "work_energy_components",
         [source_work, reaction_work, effective_energy],
@@ -1160,6 +1270,7 @@ def _audit_dynamics(payload: dict[str, Any], arrays: dict[str, bytes],
             "matter_reaction": _dominant(reaction),
         },
         "effective_tangent": tangent_audit,
+        **source_dynamics,
         "constraint_witnesses": constraints,
         "work_energy_components": {
             "source_force_midpoint_work": work[0],
@@ -1182,8 +1293,12 @@ def audit_text(text: str, source: str = "<memory>",
     spans = _top_level_spans(text)
     _exact_keys(envelope, {"evidence_schema", "payload_sha256", "payload"},
                 "evidence envelope")
-    require(envelope["evidence_schema"] == EVIDENCE_SCHEMA,
-            "evidence_schema is not persistent production-owner v1")
+    evidence_versions = {
+        EVIDENCE_SCHEMA_V1: 1,
+        EVIDENCE_SCHEMA_V2: 2,
+    }
+    require(envelope["evidence_schema"] in evidence_versions,
+            "evidence_schema is not a supported persistent production-owner schema")
     digest = envelope["payload_sha256"]
     require(isinstance(digest, str) and SHA256.fullmatch(digest) is not None,
             "payload_sha256 is not lowercase SHA-256")
@@ -1201,6 +1316,9 @@ def audit_text(text: str, source: str = "<memory>",
     payload = _strict_json(payload_text, "embedded payload")
     require(payload == envelope["payload"], "embedded payload parse is inconsistent")
     identities = _validate_payload_header(payload)
+    version = payload["format_version"]
+    require(evidence_versions[envelope["evidence_schema"]] == version,
+            "evidence_schema does not match payload format_version")
     arrays, available = _validate_arrays(payload)
     actual_coverage = _coverage_mask(payload, available)
     coverage = identities["coverage_mask"]
@@ -1212,7 +1330,7 @@ def audit_text(text: str, source: str = "<memory>",
             "payload coverage_mask does not contain required_coverage_mask")
     dynamics = _audit_dynamics(payload, arrays, available)
     return {
-        "audit_schema": AUDIT_SCHEMA,
+        "audit_schema": AUDIT_SCHEMA_V1 if version == 1 else AUDIT_SCHEMA_V2,
         "artifact": source,
         "payload_digest": {
             "embedded_self_sha256": digest,
@@ -1247,14 +1365,15 @@ def audit_text(text: str, source: str = "<memory>",
             "coverage_and_shapes": True,
             "little_endian_words": True,
             "positive_cholesky_and_strict_upper_source_a0": True,
-            "fp64_dynamics_to_exact_fp32": True,
+            ("fp64_dynamics_to_exact_fp32" if version == 1
+             else "direct_source_dynamics_closure"): True,
             "constraint_witness_internal_identities": True,
         },
         "limitations": [
             "The embedded payload digest is a self-integrity check, not authenticated provenance.",
             "A detached digest match proves identity only relative to the separately trusted digest source.",
-            "Snapshot v1 does not retain the equality/limit dispatch reference-safe flag; the audit checks the common set of policy values consistent with all witnesses but cannot identify that flag independently.",
-            "Snapshot v1 retains source A0 only above the diagonal; its diagonal is reconstructed from L and is not independently cross-checked.",
+            f"Snapshot v{version} does not retain the equality/limit dispatch reference-safe flag; the audit checks the common set of policy values consistent with all witnesses but cannot identify that flag independently.",
+            f"Snapshot v{version} retains source A0 only above the diagonal; its diagonal is reconstructed from L and is not independently cross-checked.",
             "Constraint witnesses are host reconstructions, not device readbacks, and work terms are not physical whole-body energy closure.",
         ],
         **dynamics,

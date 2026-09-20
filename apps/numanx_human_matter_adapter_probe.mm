@@ -302,6 +302,7 @@ struct OwnerArenas {
     id<MTLBuffer> predictedV = nil;
     id<MTLBuffer> mujocoCheckpoint = nil;
     id<MTLBuffer> factor = nil;
+    id<MTLBuffer> sourceDynamicsWitness = nil;
     id<MTLBuffer> ownerStatus = nil;
 };
 
@@ -349,6 +350,9 @@ OwnerArenas makeOwnerArenas(id<MTLDevice> device) {
         device, sizeof(MRMujocoMuscleStateGPU), @"owner MyoSim checkpoint");
     result.factor = makeBuffer<float>(
         device, std::span<const float>(factor), @"owner frozen A0 factor");
+    result.sourceDynamicsWitness = makeZeroBuffer(
+        device, 3u * kDofs * sizeof(float),
+        @"owner source dynamics witness");
     result.ownerStatus = makeZeroBuffer(
         device, sizeof(MRNumanXHumanMatterOwnerStatusGPU),
         @"owner transaction status");
@@ -401,6 +405,8 @@ metalrobo::MetalNumanXHumanMatterPass makePass(
     pass.sourcePredictedVelocity = (__bridge void*)arena.predictedV;
     pass.mujocoStateCheckpoint = (__bridge void*)arena.mujocoCheckpoint;
     pass.sourceEffectiveTangentFactor = (__bridge void*)arena.factor;
+    pass.sourceDynamicsWitness =
+        (__bridge void*)arena.sourceDynamicsWitness;
     pass.ownerStatuses = (__bridge void*)arena.ownerStatus;
     pass.matterGeneralizedReaction = program.matterGeneralizedReaction;
     pass.jointStatuses = program.jointStatuses;
@@ -424,6 +430,8 @@ metalrobo::MetalNumanXHumanMatterPass makePass(
     pass.sourcePredictedVelocityGPUAddress = arena.predictedV.gpuAddress;
     pass.mujocoStateCheckpointGPUAddress = arena.mujocoCheckpoint.gpuAddress;
     pass.sourceEffectiveTangentFactorGPUAddress = arena.factor.gpuAddress;
+    pass.sourceDynamicsWitnessGPUAddress =
+        arena.sourceDynamicsWitness.gpuAddress;
     pass.ownerStatusesGPUAddress = arena.ownerStatus.gpuAddress;
     pass.matterGeneralizedReactionGPUAddress =
         program.matterGeneralizedReactionGPUAddress;
@@ -444,6 +452,8 @@ metalrobo::MetalNumanXHumanMatterPass makePass(
     pass.pointJacobianStride = 3u * kDofs;
     pass.mujocoStateStride = 1u;
     pass.factorStride = kDofs * kDofs;
+    pass.sourceDynamicsWitnessElementCount = 3u * kDofs;
+    pass.sourceDynamicsWitnessStride = 3u * kDofs;
     pass.generalizedForceOffset = 0u;
     pass.generalizedForceStride = kDofs;
     pass.generalizedForceArenaElementCount = kDofs;
@@ -845,13 +855,13 @@ void checkpointHuman(const OwnerArenas& arenas) {
 std::vector<std::uint8_t> ownerAuthorityBytes(
     const OwnerArenas& arenas
 ) {
-    const std::array<id<MTLBuffer>, 19u> buffers{{
+    const std::array<id<MTLBuffer>, 20u> buffers{{
         arenas.rootTranslation, arenas.rootTranslationCheckpoint,
         arenas.bodyPositionLow, arenas.pointPositionLow,
         arenas.q, arenas.v, arenas.predictedV, arenas.mujoco, arenas.forces, arenas.poses,
         arenas.points, arenas.pointWorld, arenas.jacobian, arenas.stand,
         arenas.qCheckpoint, arenas.vCheckpoint, arenas.mujocoCheckpoint,
-        arenas.factor, arenas.ownerStatus,
+        arenas.factor, arenas.sourceDynamicsWitness, arenas.ownerStatus,
     }};
     std::vector<std::uint8_t> result;
     for (id<MTLBuffer> buffer : buffers) {
@@ -1375,6 +1385,13 @@ void verifyCrossSlotAuthorityRejected(
     factorOnly.sourceEffectiveTangentFactorGPUAddress = begin.sourceEffectiveTangentFactorGPUAddress;
     require(!program.encode(program.context, factorOnly),
         "cross-slot original tangent factor substitution was admitted");
+    auto sourceDynamicsOnly = fresh;
+    sourceDynamicsOnly.sourceDynamicsWitness =
+        begin.sourceDynamicsWitness;
+    sourceDynamicsOnly.sourceDynamicsWitnessGPUAddress =
+        begin.sourceDynamicsWitnessGPUAddress;
+    require(!program.encode(program.context, sourceDynamicsOnly),
+        "cross-slot source-dynamics witness substitution was admitted");
     finish(commandBuffer);
     require(freshBefore == ownerAuthorityBytes(freshArenas),
         "cross-slot rejection mutated fresh authority");

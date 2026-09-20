@@ -10,12 +10,20 @@ namespace metalrobo {
 
 inline constexpr std::uint32_t
     kNumiHumanProductionOwnerSnapshotVersionV1 = 1u;
+inline constexpr std::uint32_t
+    kNumiHumanProductionOwnerSnapshotVersionV2 = 2u;
 inline constexpr const char*
     kNumiHumanProductionOwnerSnapshotSchemaV1 =
         "persistent-production-owner-snapshot.v1";
 inline constexpr const char*
+    kNumiHumanProductionOwnerSnapshotSchemaV2 =
+        "persistent-production-owner-snapshot.v2";
+inline constexpr const char*
     kNumiHumanProductionOwnerSnapshotEvidenceSchemaV1 =
         "persistent-production-owner-snapshot-evidence.v1";
+inline constexpr const char*
+    kNumiHumanProductionOwnerSnapshotEvidenceSchemaV2 =
+        "persistent-production-owner-snapshot-evidence.v2";
 
 enum class NumiHumanProductionOwnerTreatmentV1 : std::uint32_t {
     cold = 1u,
@@ -67,6 +75,10 @@ struct NumiHumanProductionOwnerArrayV1 {
 struct NumiHumanProductionOwnerSnapshotV1 {
     NumiHumanProductionOwnerSnapshotV1() noexcept;
 
+    // The in-memory capture carrier remains layout-compatible with the
+    // original V1 producer API and therefore retains its V1 default. A V2
+    // producer must select formatVersion=2 explicitly; the V1-named carrier
+    // never silently upgrades evidence semantics.
     std::uint32_t formatVersion =
         kNumiHumanProductionOwnerSnapshotVersionV1;
     NumiHumanProductionOwnerTreatmentV1 treatment =
@@ -192,6 +204,12 @@ struct NumiHumanProductionOwnerSnapshotV1 {
     NumiHumanProductionOwnerArrayV1 terminalAcceptedMatterRigidReactions;
     NumiHumanProductionOwnerArrayV1 standStatus;
     NumiHumanProductionOwnerArrayV1 humanMatterOwnerStatus;
+    // acceleration is derived from the checkpoint/free-velocity consequence.
+    // In the V2 wire contract sourceRHS and sourceBias are direct device
+    // witnesses captured before the source solver overwrites its vector
+    // scratch; they are not reconstructed from acceleration or source force.
+    // In the legacy V1 wire contract they retain their original reconstructed
+    // semantics.
     NumiHumanProductionOwnerArrayV1 acceleration;
     NumiHumanProductionOwnerArrayV1 sourceRHS;
     NumiHumanProductionOwnerArrayV1 sourceBias;
@@ -200,6 +218,12 @@ struct NumiHumanProductionOwnerSnapshotV1 {
     // components, not a physical whole-body energy-closure certificate.
     NumiHumanProductionOwnerArrayV1 workEnergyComponents;
 };
+
+// V2 changes evidence semantics, not the capture-carrier layout. The alias
+// gives new call sites an explicit type name without forcing the runtime to
+// duplicate hundreds of fields or change its capture ABI.
+using NumiHumanProductionOwnerSnapshotV2 =
+    NumiHumanProductionOwnerSnapshotV1;
 
 [[nodiscard]] std::uint64_t numiHumanProductionOwnerBaseStateFingerprintV1(
     std::uint64_t humanSourceWithoutInitialHistory,
@@ -224,17 +248,33 @@ numiHumanProductionOwnerTreatmentHistoryFingerprintV1(
 
 // Canonical single-line JSON with fixed field order. All identities and every
 // raw FP32/record word are lowercase fixed-width hexadecimal strings, so the
-// result is independent of locale and floating-point text formatting.
+// result is independent of locale and floating-point text formatting. The V1
+// entry point is strict: it accepts only formatVersion=1 and retains the
+// reconstructed RHS/bias contract.
 [[nodiscard]] bool serializeNumiHumanProductionOwnerSnapshotV1(
     const NumiHumanProductionOwnerSnapshotV1& snapshot,
     std::string& output,
     std::string& error);
 
+// Explicit V2 serializer. It accepts only formatVersion=2 and emits the V2
+// schema with direct device source-dynamics witness semantics.
+[[nodiscard]] bool serializeNumiHumanProductionOwnerSnapshotV2(
+    const NumiHumanProductionOwnerSnapshotV2& snapshot,
+    std::string& output,
+    std::string& error);
+
 // Wraps the canonical payload in a collision-resistant evidence envelope.
 // The SHA-256 digest is deliberately separate from every versioned FNV64
-// runtime join and from the accepted-root publication proof.
+// runtime join and from the accepted-root publication proof. The V1 evidence
+// entry point is likewise strict.
 [[nodiscard]] bool serializeNumiHumanProductionOwnerSnapshotEvidenceV1(
     const NumiHumanProductionOwnerSnapshotV1& snapshot,
+    std::string& output,
+    std::string& payloadSHA256,
+    std::string& error);
+
+[[nodiscard]] bool serializeNumiHumanProductionOwnerSnapshotEvidenceV2(
+    const NumiHumanProductionOwnerSnapshotV2& snapshot,
     std::string& output,
     std::string& payloadSHA256,
     std::string& error);

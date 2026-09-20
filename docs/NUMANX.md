@@ -184,6 +184,16 @@ The v1 and published request-v2 layouts remain unchanged. Legacy aggregate
 readers fail closed for an exact runtime rather than down-converting the clock
 or returning a mixed-family snapshot.
 
+An exact runtime also enables the direct-byte physical-state SHA-256 pass.
+Deployment must keep `NumiMatterPhysicalStateDigest.metallib` beside
+`NumiMatter.metallib`; the exact runtime deliberately fails construction when
+that sidecar is absent instead of silently reverting to the older 64-bit
+fingerprint-only proof. The physical digest is encoded after the accepted-state
+proof on the same borrowed physical command buffer, retained as candidate state
+until joint publication, and exposed only as the last accepted snapshot.
+In-flight and rejected candidate bytes are never observable through the public
+digest reader.
+
 ## Physics ownership
 
 The implicit coupled unknown contains Matter field state and a variable-size

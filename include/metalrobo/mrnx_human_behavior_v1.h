@@ -41,6 +41,8 @@ extern "C" {
 #define MRNX_BEHAVIOR_TRACE_STATE_COMPONENT_COMPLETE_MASK_V1 \
     (MRNX_BEHAVIOR_TRACE_STATE_COMPONENT_SENSOR_V1 | \
      MRNX_BEHAVIOR_TRACE_STATE_COMPONENT_PUBLICATION_V1)
+#define MRNX_BEHAVIOR_PHYSICAL_STATE_DIGEST_ABI_V1 1u
+#define MRNX_BEHAVIOR_PHYSICAL_STATE_DIGEST_READY_V1 1u
 
 typedef struct mrnx_behavior_trace_config_v1 {
     uint32_t abi_version;
@@ -136,6 +138,31 @@ typedef struct MRNX_BEHAVIOR_ALIGN16 mrnx_behavior_trace_state_component_record_
     uint8_t record_sha256[32];
 } mrnx_behavior_trace_state_component_record_v1;
 
+// Direct-byte SHA-256 identity of the currently jointly published physical
+// state. The Human, Matter, and combined roots are produced on the original
+// physical command-buffer timeline. The 64-bit fingerprints are provenance,
+// not substitutes for the SHA roots. No record exists before the first exact
+// publication, and a rejected attempt cannot modify this record.
+typedef struct MRNX_BEHAVIOR_ALIGN16 mrnx_behavior_physical_state_digest_v1 {
+    uint32_t abi_version;
+    uint32_t struct_size;
+    uint32_t status;
+    uint32_t environment;
+    uint32_t schema_version;
+    uint32_t manifest_version;
+    uint32_t source_count;
+    uint32_t reserved0;
+    uint64_t publication_epoch;
+    uint64_t accepted_timestamp_nanoseconds;
+    uint64_t physics_generation;
+    uint64_t matter_source_physics_fingerprint;
+    uint64_t matter_device_program_fingerprint;
+    uint8_t human_sha256[32];
+    uint8_t matter_sha256[32];
+    uint8_t physical_sha256[32];
+    uint64_t reserved_tail;
+} mrnx_behavior_physical_state_digest_v1;
+
 typedef struct MRNX_BEHAVIOR_ALIGN16 mrnx_behavior_trace_chunk_v1 {
     uint32_t abi_version;
     uint32_t struct_size;
@@ -225,6 +252,12 @@ static_assert(offsetof(mrnx_behavior_trace_state_component_record_v1,
                        previous_record_sha256) == 192u);
 static_assert(offsetof(mrnx_behavior_trace_state_component_record_v1,
                        record_sha256) == 224u);
+static_assert(sizeof(mrnx_behavior_physical_state_digest_v1) == 176u);
+static_assert(alignof(mrnx_behavior_physical_state_digest_v1) == 16u);
+static_assert(offsetof(mrnx_behavior_physical_state_digest_v1,
+                       human_sha256) == 72u);
+static_assert(offsetof(mrnx_behavior_physical_state_digest_v1,
+                       physical_sha256) == 136u);
 static_assert(sizeof(mrnx_behavior_trace_chunk_v1) == 208u);
 static_assert(alignof(mrnx_behavior_trace_chunk_v1) == 16u);
 static_assert(sizeof(mrnx_behavior_trace_terminal_request_v1) == 32u);
@@ -257,6 +290,16 @@ _Static_assert(offsetof(mrnx_behavior_trace_state_component_record_v1,
 _Static_assert(offsetof(mrnx_behavior_trace_state_component_record_v1,
                         record_sha256) == 224u,
                "mrnx_behavior_trace_state_component_record_v1 digest offset");
+_Static_assert(sizeof(mrnx_behavior_physical_state_digest_v1) == 176u,
+               "mrnx_behavior_physical_state_digest_v1 ABI");
+_Static_assert(_Alignof(mrnx_behavior_physical_state_digest_v1) == 16u,
+               "mrnx_behavior_physical_state_digest_v1 alignment");
+_Static_assert(offsetof(mrnx_behavior_physical_state_digest_v1,
+                        human_sha256) == 72u,
+               "mrnx_behavior_physical_state_digest_v1 Human digest offset");
+_Static_assert(offsetof(mrnx_behavior_physical_state_digest_v1,
+                        physical_sha256) == 136u,
+               "mrnx_behavior_physical_state_digest_v1 physical digest offset");
 _Static_assert(sizeof(mrnx_behavior_trace_chunk_v1) == 208u,
                "mrnx_behavior_trace_chunk_v1 ABI");
 _Static_assert(_Alignof(mrnx_behavior_trace_chunk_v1) == 16u,
@@ -299,6 +342,16 @@ MRNX_BRIDGE_EXPORT bool mrnx_bridge_v1_runtime_behavior_trace_state_component_dr
     mrnx_behavior_trace_record_v1* records,
     mrnx_behavior_trace_state_component_record_v1* state_components,
     uint32_t record_capacity);
+
+// Copy a publication-gated snapshot of the currently accepted physical SHA
+// identity. The last accepted snapshot remains observable while a later
+// attempt is in flight; candidate bytes are never exposed and a rejected
+// attempt cannot change the result. Once output's ABI version and size have
+// been validated, any failure zeroes output.
+MRNX_BRIDGE_EXPORT bool
+mrnx_bridge_v1_runtime_copy_accepted_physical_state_digest(
+    const mrnx_runtime_v1* runtime,
+    mrnx_behavior_physical_state_digest_v1* output);
 
 // Finalization is idempotent for an identical request and closes this runtime
 // to further physical-root admission so the terminal record cannot go stale.

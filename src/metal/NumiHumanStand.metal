@@ -206,6 +206,7 @@ kernel void mr_numi_human_stand_step(
     device const float4* bodyPositionLow [[buffer(22)]],
     device const float4* pointPositionLow [[buffer(23)]],
     device const float* passiveJointProgram [[buffer(24)]],
+    device float* sourceDynamicsWitness [[buffer(25)]],
     uint environment [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]],
     uint threadCount [[threads_per_threadgroup]]
@@ -254,6 +255,9 @@ kernel void mr_numi_human_stand_step(
     device float* contactMatrices =
         equalityLambdas + dispatch.jointEqualityCount;
     device float* factor = factorScratch + factorBase;
+    const bool captureSourceDynamics =
+        (dispatch.flags & MR_NUMI_HUMAN_STAND_PREDICT_VELOCITY_ONLY) != 0u;
+    const uint sourceDynamicsBase = environment * 3u * nv;
 
     if (lane == 0u) {
         if (dispatch.stepIndex == 0u) {
@@ -597,6 +601,11 @@ kernel void mr_numi_human_stand_step(
             }
         }
         bias[row] = value;
+        if (captureSourceDynamics) {
+            // Preserve the raw device bias before the vector row becomes the
+            // free-velocity scratch later in this same kernel.
+            sourceDynamicsWitness[sourceDynamicsBase + nv + row] = value;
+        }
     }
 
     const uint matrixElements = nv * nv;
@@ -646,6 +655,12 @@ kernel void mr_numi_human_stand_step(
                 passiveJointProgram[index], dispatch.groundPointAndTimestep.w);
         }
         factor[index] = value;
+        if (captureSourceDynamics && row == column) {
+            // The upper triangle remains the exact source A0, but Cholesky
+            // overwrites its diagonal. Preserve that missing diagonal here,
+            // before the factorization barrier.
+            sourceDynamicsWitness[sourceDynamicsBase + row] = value;
+        }
     }
     threadgroup_barrier(mem_flags::mem_device);
     if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
@@ -727,6 +742,12 @@ kernel void mr_numi_human_stand_step(
         if (dof < 3u) effort += assistanceForce[dof];
         else if (dof < 6u) effort += assistanceTorque[dof - 3u];
         candidateV[dof] = effort - bias[dof];
+        if (captureSourceDynamics) {
+            // solveFactor consumes and overwrites candidateV. This final
+            // segment is the exact unsolved source RHS presented to A0.
+            sourceDynamicsWitness[sourceDynamicsBase + 2u * nv + dof] =
+                candidateV[dof];
+        }
     }
     if (!solveFactor(factor, workspace, candidateV, nv)) {
         fail(status, MR_NUMI_HUMAN_STAND_FACTORIZATION_FAILED, MR_INVALID_INDEX);

@@ -820,6 +820,68 @@ bool snapshotInternallyConsistent(
         snapshot.sensor.channel_count <= MRNX_MAX_SENSOR_CHANNELS_V2;
 }
 
+bool digestBytesPresent(const std::uint8_t (&digest)[32]) noexcept {
+    for (const std::uint8_t byte : digest) {
+        if (byte != 0u) return true;
+    }
+    return false;
+}
+
+bool physicalStateDigestZeroed(
+    const mrnx_behavior_physical_state_digest_v1& digest
+) noexcept {
+    const auto* bytes = reinterpret_cast<const std::uint8_t*>(&digest);
+    return std::all_of(
+        bytes, bytes + sizeof(digest),
+        [](const std::uint8_t byte) { return byte == 0u; });
+}
+
+mrnx_behavior_physical_state_digest_v1 poisonedPhysicalStateDigest() noexcept {
+    mrnx_behavior_physical_state_digest_v1 digest{};
+    std::memset(&digest, 0xa5, sizeof(digest));
+    digest.abi_version = MRNX_BEHAVIOR_PHYSICAL_STATE_DIGEST_ABI_V1;
+    digest.struct_size = sizeof(digest);
+    return digest;
+}
+
+bool physicalStateDigestReady(
+    const mrnx_behavior_physical_state_digest_v1& digest
+) noexcept {
+    return digest.abi_version ==
+            MRNX_BEHAVIOR_PHYSICAL_STATE_DIGEST_ABI_V1 &&
+        digest.struct_size == sizeof(digest) &&
+        digest.status == MRNX_BEHAVIOR_PHYSICAL_STATE_DIGEST_READY_V1 &&
+        digest.environment == 0u &&
+        digest.schema_version != 0u && digest.manifest_version != 0u &&
+        digest.source_count != 0u && digest.reserved0 == 0u &&
+        digest.reserved_tail == 0u && digest.publication_epoch != 0u &&
+        digest.accepted_timestamp_nanoseconds != 0u &&
+        digest.physics_generation != 0u &&
+        digest.matter_source_physics_fingerprint != 0u &&
+        digest.matter_device_program_fingerprint != 0u &&
+        digestBytesPresent(digest.human_sha256) &&
+        digestBytesPresent(digest.matter_sha256) &&
+        digestBytesPresent(digest.physical_sha256);
+}
+
+bool physicalStateDigestConsistent(
+    const mrnx_behavior_physical_state_digest_v1& digest,
+    const mrnx_aggregate_snapshot_v5& snapshot
+) noexcept {
+    return physicalStateDigestReady(digest) &&
+        digest.publication_epoch == snapshot.publication_epoch &&
+        digest.accepted_timestamp_nanoseconds ==
+            snapshot.publication.committed_timestamp_nanoseconds &&
+        digest.physics_generation == snapshot.physics_generation;
+}
+
+bool physicalStateDigestMatches(
+    const mrnx_behavior_physical_state_digest_v1& observed,
+    const mrnx_behavior_physical_state_digest_v1& expected
+) noexcept {
+    return std::memcmp(&observed, &expected, sizeof(observed)) == 0;
+}
+
 bool legacyAggregateReadersRejectExact(mrnx_runtime_v1* runtime) noexcept {
     mrnx_aggregate_snapshot_v1 v1{};
     v1.abi_version = MRNX_BRIDGE_ABI_V1;
@@ -839,9 +901,73 @@ bool legacyAggregateReadersRejectExact(mrnx_runtime_v1* runtime) noexcept {
         !mrnx_bridge_v1_runtime_copy_aggregate_snapshot_v4(runtime, &v4);
 }
 
+void validateLegacyPhysicalStateDigestCopyRejection(
+    const mrnx_runtime_config_v2& base
+) {
+    auto legacyConfig = base;
+    legacyConfig.timestep_microseconds = 100u;
+    mrnx_runtime_info_v1 info{};
+    mrnx_runtime_v1* legacy =
+        mrnx_bridge_v1_runtime_create_v2(&legacyConfig, &info);
+    require(
+        legacy != nullptr && info.status == MRNX_RUNTIME_READY_V1,
+        "legacy runtime for physical-digest API rejection did not initialize");
+    auto output = poisonedPhysicalStateDigest();
+    const bool copied =
+        mrnx_bridge_v1_runtime_copy_accepted_physical_state_digest(
+            legacy, &output);
+    mrnx_bridge_v1_runtime_drop(legacy);
+    require(
+        !copied && physicalStateDigestZeroed(output),
+        "legacy runtime exposed a physical digest or left valid output dirty");
+}
+
+void validateUnpublishedPhysicalStateDigestCopyContract(
+    mrnx_runtime_v1* runtime
+) {
+    require(
+        !mrnx_bridge_v1_runtime_copy_accepted_physical_state_digest(
+            runtime, nullptr),
+        "physical-digest copy accepted a null output");
+
+    auto wrongABI = poisonedPhysicalStateDigest();
+    wrongABI.abi_version =
+        MRNX_BEHAVIOR_PHYSICAL_STATE_DIGEST_ABI_V1 + 1u;
+    const auto wrongABIBefore = wrongABI;
+    require(
+        !mrnx_bridge_v1_runtime_copy_accepted_physical_state_digest(
+            runtime, &wrongABI) &&
+            physicalStateDigestMatches(wrongABI, wrongABIBefore),
+        "physical-digest copy admitted or mutated a wrong-ABI output");
+
+    auto wrongSize = poisonedPhysicalStateDigest();
+    wrongSize.struct_size = sizeof(wrongSize) - 8u;
+    const auto wrongSizeBefore = wrongSize;
+    require(
+        !mrnx_bridge_v1_runtime_copy_accepted_physical_state_digest(
+            runtime, &wrongSize) &&
+            physicalStateDigestMatches(wrongSize, wrongSizeBefore),
+        "physical-digest copy admitted or mutated a wrong-size output");
+
+    auto nullHandle = poisonedPhysicalStateDigest();
+    require(
+        !mrnx_bridge_v1_runtime_copy_accepted_physical_state_digest(
+            nullptr, &nullHandle) &&
+            physicalStateDigestZeroed(nullHandle),
+        "physical-digest copy left valid output dirty for a null runtime");
+
+    auto unpublished = poisonedPhysicalStateDigest();
+    require(
+        !mrnx_bridge_v1_runtime_copy_accepted_physical_state_digest(
+            runtime, &unpublished) &&
+            physicalStateDigestZeroed(unpublished),
+        "unpublished exact runtime exposed a digest or left output dirty");
+}
+
 struct RootOutcome {
     mrnx_aggregate_snapshot_v5 aggregate{};
     mrnx_publication_v2 publication{};
+    mrnx_behavior_physical_state_digest_v1 physicalStateDigest{};
     std::uint64_t acceptedTokenFingerprint = 0u;
     std::uint64_t jointFenceFingerprint = 0u;
 };
@@ -1375,6 +1501,16 @@ RootOutcome executeAcceptedRoot(
             outcome.aggregate.physics_generation ==
                 acceptedToken.physicsGeneration,
         "exact aggregate v5 did not publish one coherent root");
+    outcome.physicalStateDigest.abi_version =
+        MRNX_BEHAVIOR_PHYSICAL_STATE_DIGEST_ABI_V1;
+    outcome.physicalStateDigest.struct_size =
+        sizeof(outcome.physicalStateDigest);
+    require(
+        mrnx_bridge_v1_runtime_copy_accepted_physical_state_digest(
+            runtime, &outcome.physicalStateDigest) &&
+            physicalStateDigestConsistent(
+                outcome.physicalStateDigest, outcome.aggregate),
+        "exact publication did not expose its direct physical SHA identity");
     outcome.publication = publication;
     outcome.acceptedTokenFingerprint = acceptedToken.tokenFingerprint;
     outcome.jointFenceFingerprint = fence.fenceFingerprint;
@@ -1399,15 +1535,23 @@ RejectedOutcome executeTimeoutRejectedRoot(
     const bool aggregatePublishedBefore =
         mrnx_bridge_v1_runtime_copy_aggregate_snapshot_v5(
             runtime, &aggregateBefore);
+    auto physicalBefore = poisonedPhysicalStateDigest();
+    const bool physicalPublishedBefore =
+        mrnx_bridge_v1_runtime_copy_accepted_physical_state_digest(
+            runtime, &physicalBefore);
     require(
         mrnx_bridge_v1_runtime_copy_exact_clock(runtime, &clockBefore),
         "timeout-reject exact clock baseline is unavailable");
     if (acceptedBase != nullptr) {
         require(
             aggregatePublishedBefore &&
+                physicalPublishedBefore &&
                 std::memcmp(
                     &aggregateBefore, &acceptedBase->aggregate,
                     sizeof(aggregateBefore)) == 0 &&
+                std::memcmp(
+                    &physicalBefore, &acceptedBase->physicalStateDigest,
+                    sizeof(physicalBefore)) == 0 &&
                 clockBefore.publication_epoch ==
                     acceptedBase->aggregate.publication_epoch &&
                 clockBefore.published_timestamp_nanoseconds ==
@@ -1415,7 +1559,9 @@ RejectedOutcome executeTimeoutRejectedRoot(
             "timeout-reject baseline did not match the accepted public state");
     } else {
         require(
-            !aggregatePublishedBefore && clockBefore.publication_epoch == 0u &&
+            !aggregatePublishedBefore && !physicalPublishedBefore &&
+                physicalStateDigestZeroed(physicalBefore) &&
+                clockBefore.publication_epoch == 0u &&
                 clockBefore.published_timestamp_nanoseconds == 0u,
             "timeout-reject unpublished baseline exposed accepted state");
     }
@@ -1449,6 +1595,23 @@ RejectedOutcome executeTimeoutRejectedRoot(
             physical.root.transaction_fingerprint ==
                 resources.request.root.transaction_fingerprint,
         "timeout-reject physical/HumanIO root did not reach READY");
+
+    auto physicalInFlight = poisonedPhysicalStateDigest();
+    const bool physicalPublishedInFlight =
+        mrnx_bridge_v1_runtime_copy_accepted_physical_state_digest(
+            runtime, &physicalInFlight);
+    if (acceptedBase != nullptr) {
+        require(
+            physicalPublishedInFlight &&
+                physicalStateDigestMatches(
+                    physicalInFlight, acceptedBase->physicalStateDigest),
+            "in-flight rejected candidate changed the accepted physical digest");
+    } else {
+        require(
+            !physicalPublishedInFlight &&
+                physicalStateDigestZeroed(physicalInFlight),
+            "first in-flight candidate exposed unpublished physical bytes");
+    }
 
     RejectedOutcome outcome{};
     outcome.root = physical.root;
@@ -1662,6 +1825,10 @@ RejectedOutcome executeTimeoutRejectedRoot(
     const bool aggregatePublishedAfter =
         mrnx_bridge_v1_runtime_copy_aggregate_snapshot_v5(
             runtime, &aggregateAfter);
+    auto physicalAfter = poisonedPhysicalStateDigest();
+    const bool physicalPublishedAfter =
+        mrnx_bridge_v1_runtime_copy_accepted_physical_state_digest(
+            runtime, &physicalAfter);
     require(
         mrnx_bridge_v1_runtime_copy_exact_clock(runtime, &clockAfter) &&
             std::memcmp(&clockAfter, &clockBefore, sizeof(clockAfter)) == 0,
@@ -1669,9 +1836,13 @@ RejectedOutcome executeTimeoutRejectedRoot(
     if (acceptedBase != nullptr) {
         require(
             aggregatePublishedAfter &&
+                physicalPublishedAfter &&
                 std::memcmp(
                     &aggregateAfter, &aggregateBefore,
                     sizeof(aggregateAfter)) == 0 &&
+                std::memcmp(
+                    &physicalAfter, &physicalBefore,
+                    sizeof(physicalAfter)) == 0 &&
                 aggregateAfter.publication_epoch ==
                     acceptedBase->aggregate.publication_epoch &&
                 aggregateAfter.physics_generation ==
@@ -1687,7 +1858,9 @@ RejectedOutcome executeTimeoutRejectedRoot(
             "timeout-rejected attempt changed accepted aggregate");
     } else {
         require(
-            !aggregatePublishedAfter && clockAfter.publication_epoch == 0u &&
+            !aggregatePublishedAfter && !physicalPublishedAfter &&
+                physicalStateDigestZeroed(physicalAfter) &&
+                clockAfter.publication_epoch == 0u &&
                 clockAfter.published_timestamp_nanoseconds == 0u,
             "timeout-rejected first attempt published accepted state");
     }
@@ -2351,6 +2524,8 @@ int runLifecycle() {
         base.maximum_retained_bytes = 1024ull * 1024ull * 1024ull;
         base.transaction_slot_count = 2u;
 
+        validateLegacyPhysicalStateDigestCopyRejection(base);
+
         mrnx_runtime_info_v1 info{};
         mrnx_runtime_v1* runtime = makeExactRuntime(base, info);
         require(
@@ -2358,6 +2533,7 @@ int runLifecycle() {
                 info.device_registry_id == device.registryID &&
                 info.accepted_state_proof_program_fingerprint != 0u,
             "exact runtime v8 construction failed");
+        validateUnpublishedPhysicalStateDigestCopyContract(runtime);
 
         const char* behaviorMetricPath =
             std::getenv("MRNX_EXACT_BEHAVIOR_METRIC");
@@ -2410,6 +2586,8 @@ int runLifecycle() {
         std::atomic<bool> readerStop{false};
         std::atomic<std::uint64_t> readerCount{0u};
         std::atomic<bool> readerFailure{false};
+        mrnx_behavior_physical_state_digest_v1 readerSecondPhysical{};
+        bool readerObservedSecondPhysical = false;
         std::thread reader([&] {
             while (!readerStop.load(std::memory_order_acquire)) {
                 mrnx_aggregate_snapshot_v5 snapshot{};
@@ -2422,6 +2600,39 @@ int runLifecycle() {
                      snapshot.publication_epoch != 2u)) {
                     readerFailure.store(true, std::memory_order_release);
                     break;
+                }
+                mrnx_behavior_physical_state_digest_v1 physical{};
+                physical.abi_version =
+                    MRNX_BEHAVIOR_PHYSICAL_STATE_DIGEST_ABI_V1;
+                physical.struct_size = sizeof(physical);
+                if (!mrnx_bridge_v1_runtime_copy_accepted_physical_state_digest(
+                        runtime, &physical) ||
+                    !physicalStateDigestReady(physical) ||
+                    (physical.publication_epoch != 1u &&
+                     physical.publication_epoch != 2u)) {
+                    readerFailure.store(true, std::memory_order_release);
+                    break;
+                }
+                if (physical.publication_epoch == 1u) {
+                    if (!physicalStateDigestMatches(
+                            physical, first.physicalStateDigest)) {
+                        readerFailure.store(true, std::memory_order_release);
+                        break;
+                    }
+                } else {
+                    if (physical.physics_generation !=
+                            first.aggregate.physics_generation + 1u ||
+                        physical.accepted_timestamp_nanoseconds !=
+                            first.publication.committed_timestamp_nanoseconds +
+                                kTimestepNanoseconds ||
+                        (readerObservedSecondPhysical &&
+                         !physicalStateDigestMatches(
+                             physical, readerSecondPhysical))) {
+                        readerFailure.store(true, std::memory_order_release);
+                        break;
+                    }
+                    readerSecondPhysical = physical;
+                    readerObservedSecondPhysical = true;
                 }
                 readerCount.fetch_add(1u, std::memory_order_relaxed);
             }
@@ -2440,8 +2651,13 @@ int runLifecycle() {
         }
         readerStop.store(true, std::memory_order_release);
         reader.join();
+        const bool readerPhysicalRootsKnown =
+            !readerObservedSecondPhysical ||
+            physicalStateDigestMatches(
+                readerSecondPhysical, second.physicalStateDigest);
         if (readerFailure.load(std::memory_order_acquire) ||
             readerCount.load(std::memory_order_acquire) == 0u ||
+            !readerPhysicalRootsKnown ||
             second.aggregate.publication_epoch != 2u ||
             second.aggregate.brain_generation != 2u ||
             second.aggregate.physics_generation != 2u ||
@@ -2457,12 +2673,14 @@ int runLifecycle() {
             std::fprintf(
                 stderr,
                 "accepted retry diagnostics reader_failure=%u readers=%llu "
+                "physical_roots_known=%u "
                 "pub=%llu brain=%llu physics=%llu sensor=%llu step=%u "
                 "tx=%016llx/%016llx substep=%016llx/%016llx "
                 "candidate=%016llx/%016llx timestamp=%llu/%llu\n",
                 readerFailure.load(std::memory_order_acquire) ? 1u : 0u,
                 static_cast<unsigned long long>(
                     readerCount.load(std::memory_order_acquire)),
+                readerPhysicalRootsKnown ? 1u : 0u,
                 static_cast<unsigned long long>(
                     second.aggregate.publication_epoch),
                 static_cast<unsigned long long>(
@@ -2494,6 +2712,7 @@ int runLifecycle() {
         require(
             !readerFailure.load(std::memory_order_acquire) &&
                 readerCount.load(std::memory_order_acquire) != 0u &&
+                readerPhysicalRootsKnown &&
                 second.aggregate.publication_epoch == 2u &&
                 second.aggregate.brain_generation == 2u &&
                 second.aggregate.physics_generation == 2u &&

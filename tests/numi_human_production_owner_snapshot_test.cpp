@@ -73,6 +73,7 @@ metalrobo::NumiHumanProductionOwnerSnapshotV1 record() {
     const std::vector<std::array<float, 4u>> coldHistory{};
 
     NumiHumanProductionOwnerSnapshotV1 result;
+    result.formatVersion = kNumiHumanProductionOwnerSnapshotVersionV2;
     result.treatment = NumiHumanProductionOwnerTreatmentV1::cold;
     result.disposition = NumiHumanProductionOwnerDispositionV1::published;
     result.baseStateFingerprint =
@@ -153,6 +154,10 @@ metalrobo::NumiHumanProductionOwnerSnapshotV1 record() {
 
 int main() {
     using namespace metalrobo;
+    const NumiHumanProductionOwnerSnapshotV1 legacyDefault;
+    require(legacyDefault.formatVersion ==
+            kNumiHumanProductionOwnerSnapshotVersionV1,
+        "V1 carrier default version changed");
     auto source = record();
     require(source.baseStateFingerprint == 0x72655bd196980b6aull,
         "base-state fingerprint golden changed");
@@ -162,14 +167,21 @@ int main() {
     std::string first;
     std::string second;
     std::string error;
-    require(serializeNumiHumanProductionOwnerSnapshotV1(
+    require(serializeNumiHumanProductionOwnerSnapshotV2(
         source, first, error), "valid record did not serialize");
-    require(serializeNumiHumanProductionOwnerSnapshotV1(
+    require(serializeNumiHumanProductionOwnerSnapshotV2(
         source, second, error), "repeat serialization failed");
     require(first == second, "serialization is not deterministic");
-    require(first.find("\"schema\":\"persistent-production-owner-snapshot.v1\"")
+    require(first.find("\"schema\":\"persistent-production-owner-snapshot.v2\"")
             != std::string::npos,
-        "schema marker missing");
+        "V2 schema marker missing");
+    std::string explicitV2;
+    require(serializeNumiHumanProductionOwnerSnapshotV2(
+        source, explicitV2, error), "explicit V2 serializer rejected V2 record");
+    require(explicitV2 == first,
+        "repeat explicit V2 serialization diverged");
+    require(!serializeNumiHumanProductionOwnerSnapshotV1(
+        source, second, error), "strict V1 serializer accepted V2 record");
     require(first.find("\"control_step\":0") != std::string::npos,
         "control step zero was not preserved");
     require(first.find("\"muscle_site_count\":2") != std::string::npos &&
@@ -185,6 +197,10 @@ int main() {
     require(first.find("\"comparison_identity_is_cryptographic_proof\":false")
             != std::string::npos,
         "non-cryptographic comparison identity boundary missing");
+    require(first.find(
+            "\"rhs_bias_origin\":\"device-captured-pre-overwrite-source-dynamics-witness-v1\"") !=
+            std::string::npos,
+        "direct source-dynamics witness origin missing");
     require(first.find(
             "\"effective_tangent_factor_storage_layout\":\"row-major-lower-cholesky-upper-source-A0\"") !=
             std::string::npos &&
@@ -228,10 +244,10 @@ int main() {
     std::string repeatedEvidence;
     std::string payloadSHA256;
     std::string repeatedSHA256;
-    require(serializeNumiHumanProductionOwnerSnapshotEvidenceV1(
+    require(serializeNumiHumanProductionOwnerSnapshotEvidenceV2(
         source, evidence, payloadSHA256, error),
         "valid evidence envelope did not serialize");
-    require(serializeNumiHumanProductionOwnerSnapshotEvidenceV1(
+    require(serializeNumiHumanProductionOwnerSnapshotEvidenceV2(
         source, repeatedEvidence, repeatedSHA256, error),
         "repeat evidence envelope did not serialize");
     require(evidence == repeatedEvidence &&
@@ -239,12 +255,52 @@ int main() {
             payloadSHA256.size() == 64u,
         "SHA-256 evidence envelope is not deterministic");
     require(evidence.find(
-            "\"evidence_schema\":\"persistent-production-owner-snapshot-evidence.v1\"")
+            "\"evidence_schema\":\"persistent-production-owner-snapshot-evidence.v2\"")
             != std::string::npos &&
             evidence.find("\"payload_sha256\":\"" + payloadSHA256 + "\"")
             != std::string::npos &&
             evidence.find("\"payload\":" + first) != std::string::npos,
         "canonical payload SHA-256 envelope is incomplete");
+
+    std::string explicitV2Evidence;
+    std::string explicitV2SHA256;
+    require(serializeNumiHumanProductionOwnerSnapshotEvidenceV2(
+        source, explicitV2Evidence, explicitV2SHA256, error),
+        "explicit V2 evidence serializer rejected V2 record");
+    require(explicitV2Evidence == evidence &&
+            explicitV2SHA256 == payloadSHA256,
+        "repeat explicit V2 evidence diverged");
+    require(!serializeNumiHumanProductionOwnerSnapshotEvidenceV1(
+        source, repeatedEvidence, repeatedSHA256, error),
+        "strict V1 evidence serializer accepted V2 record");
+
+    auto legacy = source;
+    legacy.formatVersion = kNumiHumanProductionOwnerSnapshotVersionV1;
+    std::string legacyPayload;
+    require(serializeNumiHumanProductionOwnerSnapshotV1(
+        legacy, legacyPayload, error), "legacy V1 record did not serialize");
+    require(legacyPayload.find(
+            "\"schema\":\"persistent-production-owner-snapshot.v1\"") !=
+            std::string::npos &&
+            legacyPayload.find(
+                "\"rhs_bias_origin\":\"host-reconstructed-from-captured-A0-v0-vfree-tau\"") !=
+                std::string::npos &&
+            legacyPayload.find("device-captured-pre-overwrite") ==
+                std::string::npos,
+        "legacy V1 wire semantics changed");
+    require(!serializeNumiHumanProductionOwnerSnapshotV2(
+        legacy, second, error), "strict V2 serializer accepted V1 record");
+    std::string legacyEvidence;
+    std::string legacySHA256;
+    require(serializeNumiHumanProductionOwnerSnapshotEvidenceV1(
+        legacy, legacyEvidence, legacySHA256, error),
+        "legacy V1 evidence did not serialize");
+    require(legacyEvidence.find(
+            "\"evidence_schema\":\"persistent-production-owner-snapshot-evidence.v1\"") !=
+            std::string::npos &&
+            legacyEvidence.find("\"payload\":" + legacyPayload) !=
+                std::string::npos,
+        "legacy V1 evidence envelope changed");
 
     const std::array<std::uint8_t, 8u> supportIdentity{
         1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u};
@@ -263,18 +319,18 @@ int main() {
 
     auto truncated = source;
     truncated.initialQ.bytes.pop_back();
-    require(!serializeNumiHumanProductionOwnerSnapshotV1(
+    require(!serializeNumiHumanProductionOwnerSnapshotV2(
         truncated, second, error), "truncated array was serialized");
 
     auto explicitTruncation = source;
     explicitTruncation.truncationMask = NumiHumanOwnerInitialStateV1;
-    require(!serializeNumiHumanProductionOwnerSnapshotV1(
+    require(!serializeNumiHumanProductionOwnerSnapshotV2(
         explicitTruncation, second, error),
         "explicit truncation was serialized");
 
     auto falseCoverage = source;
     falseCoverage.coverageMask |= NumiHumanOwnerMatterReactionV1;
-    require(!serializeNumiHumanProductionOwnerSnapshotV1(
+    require(!serializeNumiHumanProductionOwnerSnapshotV2(
         falseCoverage, second, error), "false coverage was serialized");
 
     auto wrongShape = source;
@@ -282,7 +338,7 @@ int main() {
         wrongShape.qCoordinateCount - 1u;
     wrongShape.initialQ.bytes.resize(
         wrongShape.initialQ.expectedElementCount * sizeof(float));
-    require(!serializeNumiHumanProductionOwnerSnapshotV1(
+    require(!serializeNumiHumanProductionOwnerSnapshotV2(
         wrongShape, second, error), "wrong logical shape was serialized");
     require(error.find("logical shape mismatch (initial_q:") !=
             std::string::npos,
@@ -291,7 +347,7 @@ int main() {
     auto leakedMatterReactionSentinel = source;
     leakedMatterReactionSentinel
         .terminalAcceptedMatterRigidReactionCount = 0u;
-    require(!serializeNumiHumanProductionOwnerSnapshotV1(
+    require(!serializeNumiHumanProductionOwnerSnapshotV2(
         leakedMatterReactionSentinel, second, error),
         "physical zero-width Matter sentinel was serialized as a reaction");
     require(error.find(
@@ -305,7 +361,7 @@ int main() {
         .expectedElementCount = 0u;
     zeroLogicalMatterReactions.terminalAcceptedMatterRigidReactions
         .bytes.clear();
-    require(serializeNumiHumanProductionOwnerSnapshotV1(
+    require(serializeNumiHumanProductionOwnerSnapshotV2(
         zeroLogicalMatterReactions, second, error),
         "zero logical Matter-reaction range did not serialize");
     require(second.find(
@@ -320,7 +376,7 @@ int main() {
     wrongFactorShape.effectiveTangentFactorStorage.bytes.resize(
         wrongFactorShape.effectiveTangentFactorStorage.expectedElementCount *
         sizeof(float));
-    require(!serializeNumiHumanProductionOwnerSnapshotV1(
+    require(!serializeNumiHumanProductionOwnerSnapshotV2(
         wrongFactorShape, second, error),
         "partial effective-tangent factor storage was serialized");
 
@@ -328,13 +384,13 @@ int main() {
     wrongElementWidth.initialQ.elementBytes = 8u;
     wrongElementWidth.initialQ.bytes.resize(
         wrongElementWidth.initialQ.expectedElementCount * 8u);
-    require(!serializeNumiHumanProductionOwnerSnapshotV1(
+    require(!serializeNumiHumanProductionOwnerSnapshotV2(
         wrongElementWidth, second, error),
         "type-confused nonempty array was serialized");
 
     auto wrongZeroCountElementWidth = source;
     wrongZeroCountElementWidth.tendonTransfers.elementBytes = sizeof(float);
-    require(!serializeNumiHumanProductionOwnerSnapshotV1(
+    require(!serializeNumiHumanProductionOwnerSnapshotV2(
         wrongZeroCountElementWidth, second, error),
         "type-confused zero-count array was serialized");
 
@@ -342,7 +398,7 @@ int main() {
         "unavailable complex-field fixture unexpectedly became available");
     auto wrongUnavailableElementWidth = source;
     wrongUnavailableElementWidth.candidateRoot.elementBytes = sizeof(float);
-    require(!serializeNumiHumanProductionOwnerSnapshotV1(
+    require(!serializeNumiHumanProductionOwnerSnapshotV2(
         wrongUnavailableElementWidth, second, error),
         "type-confused unavailable array was serialized");
 
@@ -356,67 +412,67 @@ int main() {
     auto truncatedSites = source;
     resizeArray(truncatedSites.muscleSites,
         truncatedSites.muscleSiteCount - 1u);
-    require(!serializeNumiHumanProductionOwnerSnapshotV1(
+    require(!serializeNumiHumanProductionOwnerSnapshotV2(
         truncatedSites, second, error),
         "truncated muscle-site program was serialized");
 
     auto overlongSites = source;
     resizeArray(overlongSites.muscleSites,
         overlongSites.muscleSiteCount + 1u);
-    require(!serializeNumiHumanProductionOwnerSnapshotV1(
+    require(!serializeNumiHumanProductionOwnerSnapshotV2(
         overlongSites, second, error),
         "overlong muscle-site program was serialized");
 
     auto truncatedWraps = source;
     resizeArray(truncatedWraps.muscleWraps,
         truncatedWraps.muscleWrapCount - 1u);
-    require(!serializeNumiHumanProductionOwnerSnapshotV1(
+    require(!serializeNumiHumanProductionOwnerSnapshotV2(
         truncatedWraps, second, error),
         "truncated muscle-wrap program was serialized");
 
     auto overlongWraps = source;
     resizeArray(overlongWraps.muscleWraps,
         overlongWraps.muscleWrapCount + 1u);
-    require(!serializeNumiHumanProductionOwnerSnapshotV1(
+    require(!serializeNumiHumanProductionOwnerSnapshotV2(
         overlongWraps, second, error),
         "overlong muscle-wrap program was serialized");
 
     auto truncatedRouteNodes = source;
     resizeArray(truncatedRouteNodes.muscleRouteNodes,
         truncatedRouteNodes.muscleRouteNodeCount - 1u);
-    require(!serializeNumiHumanProductionOwnerSnapshotV1(
+    require(!serializeNumiHumanProductionOwnerSnapshotV2(
         truncatedRouteNodes, second, error),
         "truncated muscle-route program was serialized");
 
     auto overlongRouteNodes = source;
     resizeArray(overlongRouteNodes.muscleRouteNodes,
         overlongRouteNodes.muscleRouteNodeCount + 1u);
-    require(!serializeNumiHumanProductionOwnerSnapshotV1(
+    require(!serializeNumiHumanProductionOwnerSnapshotV2(
         overlongRouteNodes, second, error),
         "overlong muscle-route program was serialized");
 
     auto wrongContactCount = source;
     ++wrongContactCount.contactSampleCount;
-    require(!serializeNumiHumanProductionOwnerSnapshotV1(
+    require(!serializeNumiHumanProductionOwnerSnapshotV2(
         wrongContactCount, second, error),
         "contact-sample logical-count mismatch was serialized");
 
     auto wrongMatterStateCount = source;
     wrongMatterStateCount.terminalAcceptedMatterRigidGeneralizedStateCount +=
         1u;
-    require(!serializeNumiHumanProductionOwnerSnapshotV1(
+    require(!serializeNumiHumanProductionOwnerSnapshotV2(
         wrongMatterStateCount, second, error),
         "terminal Matter generalized-state count mismatch was serialized");
 
     auto wrongMatterReactionCount = source;
     ++wrongMatterReactionCount.terminalAcceptedMatterRigidReactionCount;
-    require(!serializeNumiHumanProductionOwnerSnapshotV1(
+    require(!serializeNumiHumanProductionOwnerSnapshotV2(
         wrongMatterReactionCount, second, error),
         "terminal Matter reaction count mismatch was serialized");
 
     auto unmetCoverage = source;
     unmetCoverage.requiredCoverageMask |= NumiHumanOwnerMatterReactionV1;
-    require(!serializeNumiHumanProductionOwnerSnapshotV1(
+    require(!serializeNumiHumanProductionOwnerSnapshotV2(
         unmetCoverage, second, error),
         "missing required coverage was serialized");
 
@@ -432,7 +488,7 @@ int main() {
     require((rejected.coverageMask &
             NumiHumanOwnerMatterIntegrationUpdateV1) == 0u,
         "rejected attempt claimed a Matter integration update");
-    require(serializeNumiHumanProductionOwnerSnapshotV1(
+    require(serializeNumiHumanProductionOwnerSnapshotV2(
         rejected, second, error), "complete rollback record was rejected");
     require(second.find(
             "\"terminal_matter_state_role\":\"prior-accepted-state-context-after-rejection\"") !=
@@ -444,7 +500,7 @@ int main() {
     auto rejectedIntegrationClaim = rejected;
     rejectedIntegrationClaim.requiredCoverageMask |=
         NumiHumanOwnerMatterIntegrationUpdateV1;
-    require(!serializeNumiHumanProductionOwnerSnapshotV1(
+    require(!serializeNumiHumanProductionOwnerSnapshotV2(
         rejectedIntegrationClaim, second, error),
         "rejected attempt admitted a Matter integration-update claim");
 
@@ -454,14 +510,14 @@ int main() {
     rejectedPublicationClaim.jointFenceFingerprint = 0x808u;
     rejectedPublicationClaim.coverageMask =
         numiHumanProductionOwnerCoverageMaskV1(rejectedPublicationClaim);
-    require(!serializeNumiHumanProductionOwnerSnapshotV1(
+    require(!serializeNumiHumanProductionOwnerSnapshotV2(
         rejectedPublicationClaim, second, error),
         "rejected record with publication identity serialized");
 
     auto rejectedPublicationResidue = rejected;
     rejectedPublicationResidue.publicationEpoch = 11u;
     rejectedPublicationResidue.jointFenceFingerprint = 0x808u;
-    require(!serializeNumiHumanProductionOwnerSnapshotV1(
+    require(!serializeNumiHumanProductionOwnerSnapshotV2(
         rejectedPublicationResidue, second, error),
         "rejected record with publication residue serialized");
 
@@ -469,7 +525,7 @@ int main() {
     publishedRollbackClaim.rollbackIdentityAvailable = true;
     publishedRollbackClaim.coverageMask =
         numiHumanProductionOwnerCoverageMaskV1(publishedRollbackClaim);
-    require(!serializeNumiHumanProductionOwnerSnapshotV1(
+    require(!serializeNumiHumanProductionOwnerSnapshotV2(
         publishedRollbackClaim, second, error),
         "published record with rollback identity serialized");
 
@@ -478,7 +534,7 @@ int main() {
     missingRollbackIdentity.coverageMask =
         numiHumanProductionOwnerCoverageMaskV1(missingRollbackIdentity);
     missingRollbackIdentity.requiredCoverageMask = NumiHumanOwnerInitialStateV1;
-    require(!serializeNumiHumanProductionOwnerSnapshotV1(
+    require(!serializeNumiHumanProductionOwnerSnapshotV2(
         missingRollbackIdentity, second, error),
         "rejected record without lifecycle rollback identity serialized");
 

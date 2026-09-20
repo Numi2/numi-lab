@@ -316,13 +316,16 @@ std::uint64_t numiHumanProductionOwnerCoverageMaskV1(
     return result;
 }
 
-bool serializeNumiHumanProductionOwnerSnapshotV1(
+static bool serializeNumiHumanProductionOwnerSnapshotForVersion(
     const NumiHumanProductionOwnerSnapshotV1& s,
+    const std::uint32_t expectedVersion,
+    const char* schema,
+    const char* rhsBiasOrigin,
     std::string& output,
     std::string& error) {
     const char* treatment = treatmentName(s.treatment);
     const char* disposition = dispositionName(s.disposition);
-    if (s.formatVersion != kNumiHumanProductionOwnerSnapshotVersionV1 ||
+    if (s.formatVersion != expectedVersion ||
         treatment == nullptr || disposition == nullptr) {
         error = "production-owner snapshot version/treatment/disposition invalid";
         return false;
@@ -529,11 +532,11 @@ bool serializeNumiHumanProductionOwnerSnapshotV1(
 
     std::ostringstream json;
     json.imbue(std::locale::classic());
-    json << "{\"schema\":\"" << kNumiHumanProductionOwnerSnapshotSchemaV1
+    json << "{\"schema\":\"" << schema
          << "\",\"format_version\":" << s.formatVersion
          << ",\"comparison_identity_algorithm\":\"fnv1a64-domain-v1\""
          << ",\"comparison_identity_is_cryptographic_proof\":false"
-         << ",\"rhs_bias_origin\":\"host-reconstructed-from-captured-A0-v0-vfree-tau\""
+         << ",\"rhs_bias_origin\":\"" << rhsBiasOrigin << '"'
          << ",\"constraint_witness_origin\":\"host-reconstructed-from-captured-production-inputs\""
          << ",\"inertial_operator_capture\":\"source-effective-tangent-factor-storage\""
          << ",\"effective_tangent_factor_storage_layout\":\"row-major-lower-cholesky-upper-source-A0\""
@@ -687,14 +690,46 @@ bool serializeNumiHumanProductionOwnerSnapshotV1(
     return true;
 }
 
-bool serializeNumiHumanProductionOwnerSnapshotEvidenceV1(
+bool serializeNumiHumanProductionOwnerSnapshotV2(
+    const NumiHumanProductionOwnerSnapshotV2& snapshot,
+    std::string& output,
+    std::string& error) {
+    return serializeNumiHumanProductionOwnerSnapshotForVersion(
+        snapshot,
+        kNumiHumanProductionOwnerSnapshotVersionV2,
+        kNumiHumanProductionOwnerSnapshotSchemaV2,
+        "device-captured-pre-overwrite-source-dynamics-witness-v1",
+        output,
+        error);
+}
+
+bool serializeNumiHumanProductionOwnerSnapshotV1(
     const NumiHumanProductionOwnerSnapshotV1& snapshot,
+    std::string& output,
+    std::string& error) {
+    return serializeNumiHumanProductionOwnerSnapshotForVersion(
+        snapshot,
+        kNumiHumanProductionOwnerSnapshotVersionV1,
+        kNumiHumanProductionOwnerSnapshotSchemaV1,
+        "host-reconstructed-from-captured-A0-v0-vfree-tau",
+        output,
+        error);
+}
+
+using SnapshotSerializer = bool (*)(
+    const NumiHumanProductionOwnerSnapshotV1&,
+    std::string&,
+    std::string&);
+
+static bool serializeNumiHumanProductionOwnerSnapshotEvidenceForVersion(
+    const NumiHumanProductionOwnerSnapshotV1& snapshot,
+    const SnapshotSerializer serializer,
+    const char* evidenceSchema,
     std::string& output,
     std::string& payloadSHA256,
     std::string& error) {
     std::string payload;
-    if (!serializeNumiHumanProductionOwnerSnapshotV1(
-            snapshot, payload, error)) {
+    if (!serializer(snapshot, payload, error)) {
         return false;
     }
     if (payload.size() > std::numeric_limits<CC_LONG>::max()) {
@@ -710,11 +745,39 @@ bool serializeNumiHumanProductionOwnerSnapshotEvidenceV1(
         digestHex << std::setw(2) << static_cast<unsigned>(byte);
     payloadSHA256 = digestHex.str();
     output = std::string{"{\"evidence_schema\":\""} +
-        kNumiHumanProductionOwnerSnapshotEvidenceSchemaV1 +
+        evidenceSchema +
         "\",\"payload_sha256\":\"" + payloadSHA256 +
         "\",\"payload\":" + payload + '}';
     error.clear();
     return true;
+}
+
+bool serializeNumiHumanProductionOwnerSnapshotEvidenceV2(
+    const NumiHumanProductionOwnerSnapshotV2& snapshot,
+    std::string& output,
+    std::string& payloadSHA256,
+    std::string& error) {
+    return serializeNumiHumanProductionOwnerSnapshotEvidenceForVersion(
+        snapshot,
+        serializeNumiHumanProductionOwnerSnapshotV2,
+        kNumiHumanProductionOwnerSnapshotEvidenceSchemaV2,
+        output,
+        payloadSHA256,
+        error);
+}
+
+bool serializeNumiHumanProductionOwnerSnapshotEvidenceV1(
+    const NumiHumanProductionOwnerSnapshotV1& snapshot,
+    std::string& output,
+    std::string& payloadSHA256,
+    std::string& error) {
+    return serializeNumiHumanProductionOwnerSnapshotEvidenceForVersion(
+        snapshot,
+        serializeNumiHumanProductionOwnerSnapshotV1,
+        kNumiHumanProductionOwnerSnapshotEvidenceSchemaV1,
+        output,
+        payloadSHA256,
+        error);
 }
 
 } // namespace metalrobo

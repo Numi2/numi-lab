@@ -82,11 +82,11 @@ def factor_storage(*, upper01: float = 1.0, diagonal0: float = 2.0) -> bytes:
 
 def payload() -> dict:
     result = {
-        "schema": audit.PAYLOAD_SCHEMA,
-        "format_version": 1,
+        "schema": audit.PAYLOAD_SCHEMA_V2,
+        "format_version": 2,
         "comparison_identity_algorithm": "fnv1a64-domain-v1",
         "comparison_identity_is_cryptographic_proof": False,
-        "rhs_bias_origin": "host-reconstructed-from-captured-A0-v0-vfree-tau",
+        "rhs_bias_origin": "device-captured-pre-overwrite-source-dynamics-witness-v1",
         "constraint_witness_origin": "host-reconstructed-from-captured-production-inputs",
         "inertial_operator_capture": "source-effective-tangent-factor-storage",
         "effective_tangent_factor_storage_layout":
@@ -198,8 +198,13 @@ def envelope(value: dict, *, indent: int | None = None) -> str:
     payload_text = json.dumps(value, separators=(",", ":") if indent is None else None,
                               indent=indent, allow_nan=False)
     digest = hashlib.sha256(payload_text.encode("utf-8")).hexdigest()
+    evidence_schema = (
+        audit.EVIDENCE_SCHEMA_V1
+        if value.get("format_version") == 1
+        else audit.EVIDENCE_SCHEMA_V2
+    )
     return (
-        '{"evidence_schema":"' + audit.EVIDENCE_SCHEMA +
+        '{"evidence_schema":"' + evidence_schema +
         '","payload_sha256":"' + digest + '","payload":' + payload_text + "}"
     )
 
@@ -224,12 +229,34 @@ def rejected_payload() -> dict:
     return result
 
 
+def legacy_payload() -> dict:
+    result = payload()
+    result["schema"] = audit.PAYLOAD_SCHEMA_V1
+    result["format_version"] = 1
+    result["rhs_bias_origin"] = (
+        "host-reconstructed-from-captured-A0-v0-vfree-tau"
+    )
+    return result
+
+
 class ProductionOwnerSnapshotAuditTests(unittest.TestCase):
     def test_valid_snapshot_recomputes_dynamics_and_reports_dominant_rows(self) -> None:
         report = audit.audit_text(envelope(payload()))
-        self.assertTrue(report["verified"]["fp64_dynamics_to_exact_fp32"])
+        self.assertEqual(report["audit_schema"], audit.AUDIT_SCHEMA_V2)
+        self.assertTrue(report["verified"]["direct_source_dynamics_closure"])
         self.assertTrue(
             report["verified"]["positive_cholesky_and_strict_upper_source_a0"]
+        )
+        direct = report["direct_source_dynamics"]
+        operations = payload()["dof_count"] + 2
+        expected_gamma = (
+            operations * audit.FLOAT32_EPSILON /
+            (1.0 - operations * audit.FLOAT32_EPSILON)
+        )
+        self.assertEqual(direct["fp32_dot_product_operations"], operations)
+        self.assertEqual(direct["fp32_dot_product_gamma"], expected_gamma)
+        self.assertLessEqual(
+            direct["maximum_residual_ratio"]["error_to_bound_ratio"], 1.0
         )
         self.assertEqual(report["dominant_dofs"]["acceleration"], {"dof": 1, "value": 4.0})
         self.assertEqual(report["dominant_dofs"]["source_rhs"], {"dof": 1, "value": 39.0})
@@ -248,13 +275,31 @@ class ProductionOwnerSnapshotAuditTests(unittest.TestCase):
         )
         self.assertFalse(report["payload_digest"]["authenticated_provenance_claimed"])
 
+    def test_legacy_v1_snapshot_remains_auditable_with_original_semantics(self) -> None:
+        self.assertEqual(audit.EVIDENCE_SCHEMA, audit.EVIDENCE_SCHEMA_V1)
+        self.assertEqual(audit.PAYLOAD_SCHEMA, audit.PAYLOAD_SCHEMA_V1)
+        self.assertEqual(audit.AUDIT_SCHEMA, audit.AUDIT_SCHEMA_V1)
+        report = audit.audit_text(envelope(legacy_payload()))
+        self.assertEqual(report["audit_schema"], audit.AUDIT_SCHEMA_V1)
+        self.assertEqual(report["payload_schema"], audit.PAYLOAD_SCHEMA_V1)
+        self.assertTrue(report["verified"]["fp64_dynamics_to_exact_fp32"])
+        self.assertNotIn("direct_source_dynamics_closure", report["verified"])
+        self.assertNotIn("direct_source_dynamics", report)
+
+        changed = legacy_payload()
+        changed["arrays"]["source_rhs"] = captured(
+            7, 4, floats([12.0, 38.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+        )
+        with self.assertRaisesRegex(audit.AuditError, r"source_rhs\[1\]"):
+            audit.audit_text(envelope(changed))
+
     def test_hash_uses_exact_pretty_printed_payload_substring(self) -> None:
         report = audit.audit_text(envelope(payload(), indent=1))
         self.assertTrue(report["verified"]["exact_embedded_payload_self_digest"])
 
     def test_payload_byte_change_without_digest_update_fails(self) -> None:
         source = envelope(payload())
-        changed = source.replace('"format_version":1', '"format_version": 1')
+        changed = source.replace('"format_version":2', '"format_version": 2')
         with self.assertRaisesRegex(audit.AuditError, "exact embedded payload bytes"):
             audit.audit_text(changed)
 
@@ -295,13 +340,41 @@ class ProductionOwnerSnapshotAuditTests(unittest.TestCase):
         with self.assertRaisesRegex(audit.AuditError, "partially captured"):
             audit.audit_text(envelope(bad_shape))
 
-    def test_fp32_witness_tampering_fails_exact_comparison(self) -> None:
+    def test_direct_source_witness_tampering_fails_closure_or_residual(self) -> None:
         changed = payload()
         changed["arrays"]["source_rhs"] = captured(
             7, 4, floats([12.0, 38.0, 0.0, 0.0, 0.0, 0.0, 0.0])
         )
-        with self.assertRaisesRegex(audit.AuditError, r"source_rhs\[1\]"):
+        with self.assertRaisesRegex(audit.AuditError, "does not close"):
             audit.audit_text(envelope(changed))
+
+        self_consistent_force = payload()
+        self_consistent_force["arrays"]["source_rhs"] = captured(
+            7, 4, floats([12.0, 38.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+        )
+        self_consistent_force["arrays"]["source_bias"] = captured(
+            7, 4, floats([8.0, -8.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+        )
+        with self.assertRaisesRegex(audit.AuditError, "source RHS fails"):
+            audit.audit_text(envelope(self_consistent_force))
+
+    def test_v2_direct_checks_use_local_row_bounds(self) -> None:
+        low_scale_force = payload()
+        low_scale_force["arrays"]["source_rhs"] = captured(
+            7, 4, floats([12.0, 39.0, 3.0e-5, 0.0, 0.0, 0.0, 0.0])
+        )
+        with self.assertRaisesRegex(audit.AuditError, r"close.*row 2"):
+            audit.audit_text(envelope(low_scale_force))
+
+        compensating_low_scale = payload()
+        compensating_low_scale["arrays"]["source_rhs"] = captured(
+            7, 4, floats([12.0, 39.0, 0.038, 0.0, 0.0, 0.0, 0.0])
+        )
+        compensating_low_scale["arrays"]["source_bias"] = captured(
+            7, 4, floats([8.0, -9.0, -0.038, 0.0, 0.0, 0.0, 0.0])
+        )
+        with self.assertRaisesRegex(audit.AuditError, r"residual.*row 2"):
+            audit.audit_text(envelope(compensating_low_scale))
 
     def test_cholesky_pivot_and_retained_upper_a0_tampering_fail(self) -> None:
         upper = payload()
@@ -365,9 +438,18 @@ class ProductionOwnerSnapshotAuditTests(unittest.TestCase):
         with self.assertRaisesRegex(audit.AuditError, "duplicate JSON key"):
             audit.audit_text(duplicate)
         wrong = payload()
-        wrong["schema"] = "persistent-production-owner-snapshot.v2"
+        wrong["schema"] = "persistent-production-owner-snapshot.v3"
         with self.assertRaisesRegex(audit.AuditError, "payload schema"):
             audit.audit_text(envelope(wrong))
+        mismatched = legacy_payload()
+        mismatched["schema"] = audit.PAYLOAD_SCHEMA_V2
+        with self.assertRaisesRegex(audit.AuditError, "format_version"):
+            audit.audit_text(envelope(mismatched))
+        mismatched_envelope = envelope(legacy_payload()).replace(
+            audit.EVIDENCE_SCHEMA_V1, audit.EVIDENCE_SCHEMA_V2, 1
+        )
+        with self.assertRaisesRegex(audit.AuditError, "evidence_schema"):
+            audit.audit_text(mismatched_envelope)
         with self.assertRaisesRegex(audit.AuditError, "not strict JSON"):
             audit.audit_text('{"evidence_schema":')
 
@@ -417,7 +499,7 @@ class ProductionOwnerSnapshotAuditTests(unittest.TestCase):
             )
             self.assertEqual(completed.returncode, 0, completed.stderr)
             cli_report = json.loads(completed.stdout)
-            self.assertEqual(cli_report["audit_schema"], audit.AUDIT_SCHEMA)
+            self.assertEqual(cli_report["audit_schema"], audit.AUDIT_SCHEMA_V2)
             self.assertTrue(
                 cli_report["payload_digest"]["detached_expected_match"]
             )

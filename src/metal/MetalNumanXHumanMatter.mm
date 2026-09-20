@@ -220,8 +220,9 @@ struct PhysicalDiagnosticsReadback {
     MetalNumanXHumanMatterExactPhysicalReceipt exactReceipt{};
 };
 
-// Four compensated arenas plus the original fourteen live/checkpoint arenas.
-constexpr std::size_t kOwnerPhysicalAuthorityRegionCount = 18u;
+// Four compensated arenas, the original fourteen live/checkpoint arenas, and
+// the immutable v7 source-dynamics witness.
+constexpr std::size_t kOwnerPhysicalAuthorityRegionCount = 19u;
 
 struct MetalNumanXHumanMatterSlot {
     MetalNumanXCoupledHumanArenaView coupledArena{};
@@ -1396,13 +1397,14 @@ void dispatchEnvironments(
     const MetalNumanXHumanMatterPass& pass
 ) noexcept {
     std::uint64_t hash = kFNVOffset;
-    const std::array<void*, 23u> pointers{{
+    const std::array<void*, 24u> pointers{{
         pass.commandBuffer, pass.q, pass.v, pass.mujocoStates,
         pass.sourcePredictedVelocity,
         pass.mujocoGeneralizedForceArena, pass.bodyPoses, pass.pointQueries,
         pass.pointWorld, pass.pointJacobians, pass.standStatuses,
         pass.qCheckpoint, pass.vCheckpoint, pass.mujocoStateCheckpoint,
-        pass.sourceEffectiveTangentFactor, pass.ownerStatuses,
+        pass.sourceEffectiveTangentFactor, pass.sourceDynamicsWitness,
+        pass.ownerStatuses,
         pass.matterGeneralizedReaction, pass.jointStatuses,
         pass.acceptedPhysicsStateTokens,
         pass.rootTranslation, pass.rootTranslationCheckpoint, pass.bodyPositionLow, pass.pointPositionLow,
@@ -1411,7 +1413,7 @@ void dispatchEnvironments(
         const std::uintptr_t value = reinterpret_cast<std::uintptr_t>(pointer);
         mixValue(hash, static_cast<std::uint64_t>(value));
     }
-    const std::array<std::uint64_t, 47u> values{{
+    const std::array<std::uint64_t, 50u> values{{
         pass.qGPUAddress, pass.vGPUAddress,
         pass.sourcePredictedVelocityGPUAddress,
         pass.mujocoStatesGPUAddress,
@@ -1421,6 +1423,7 @@ void dispatchEnvironments(
         pass.standStatusesGPUAddress, pass.qCheckpointGPUAddress,
         pass.vCheckpointGPUAddress, pass.mujocoStateCheckpointGPUAddress,
         pass.sourceEffectiveTangentFactorGPUAddress,
+        pass.sourceDynamicsWitnessGPUAddress,
         pass.ownerStatusesGPUAddress,
         pass.matterGeneralizedReactionGPUAddress,
         pass.jointStatusesGPUAddress,
@@ -1438,6 +1441,8 @@ void dispatchEnvironments(
         pass.bodyPositionLowGPUAddress, pass.pointPositionLowGPUAddress,
         pass.rootTranslationElementCount, pass.rootTranslationCheckpointElementCount,
         pass.bodyPositionLowElementCount, pass.pointPositionLowElementCount,
+        pass.sourceDynamicsWitnessElementCount,
+        pass.sourceDynamicsWitnessStride,
     }};
     for (const auto value : values) mixValue(hash, value);
     mixValue(hash, pass.articulationIndex);
@@ -1497,6 +1502,7 @@ void dispatchEnvironments(
     constexpr std::uint32_t baseCapabilities =
         MetalNumanXHumanMatterExactCandidateKinematics |
         MetalNumanXHumanMatterSourceEffectiveTangent |
+        MetalNumanXHumanMatterSourceDynamicsWitness |
         MetalNumanXHumanMatterStagedReaction |
         MetalNumanXHumanMatterJointDecision |
         MetalNumanXHumanMatterPreparedPhysicsGate;
@@ -1507,6 +1513,7 @@ void dispatchEnvironments(
         MetalNumanXHumanMatterReadLiveHumanState |
         MetalNumanXHumanMatterReadHumanCheckpoints |
         MetalNumanXHumanMatterReadSourceEffectiveTangent |
+        MetalNumanXHumanMatterReadSourceDynamicsWitness |
         MetalNumanXHumanMatterMayEncodeExactCandidate |
         MetalNumanXHumanMatterWriteStagedReaction |
         MetalNumanXHumanMatterWriteJointStatus |
@@ -1565,6 +1572,8 @@ void dispatchEnvironments(
     std::uint64_t jacobianElements = 0u;
     std::uint64_t stateElements = 0u, factorElements = 0u;
     std::uint64_t standElements = 0u, ownerElements = 0u;
+    std::uint64_t sourceDynamicsStride = 0u;
+    std::uint64_t sourceDynamicsElements = 0u;
     if (!checkedMultiply(pass.environmentCount, pass.qStride, qElements) ||
         !checkedMultiply(pass.environmentCount, pass.vStride, vElements) ||
         !checkedMultiply(
@@ -1581,11 +1590,19 @@ void dispatchEnvironments(
             pass.environmentCount, pass.mujocoStateStride, stateElements) ||
         !checkedMultiply(
             pass.environmentCount, pass.factorStride, factorElements) ||
+        !checkedMultiply(pass.dofCount, 3u, sourceDynamicsStride) ||
+        !checkedMultiply(
+            pass.environmentCount, sourceDynamicsStride,
+            sourceDynamicsElements) ||
         !checkedMultiply(
             pass.environmentCount - 1u, 1u,
             standElements) ||
         !checkedAdd(standElements, 1u, standElements) ||
         !checkedMultiply(pass.environmentCount, 1u, ownerElements)) {
+        return false;
+    }
+    if (pass.sourceDynamicsWitnessStride != sourceDynamicsStride ||
+        pass.sourceDynamicsWitnessElementCount != sourceDynamicsElements) {
         return false;
     }
     // Object inequality is not an alias proof: distinct MTLBuffer resources
@@ -1595,7 +1612,7 @@ void dispatchEnvironments(
     // access modes: checkpoints, live destinations, owner status, staged
     // reaction, joint status, proof scratch and the prepared token form one
     // rollback/proof authority and must never share bytes.
-    std::array<BufferRegion, 28u> regions{};
+    std::array<BufferRegion, 29u> regions{};
     std::size_t regionCount = 0u;
     const auto appendBuffer = [&] (
         void* raw, const std::uint64_t address,
@@ -1666,7 +1683,10 @@ void dispatchEnvironments(
                 stateElements, sizeof(MRMujocoMuscleStateGPU)) ||
         !appendBuffer(pass.sourceEffectiveTangentFactor,
                 pass.sourceEffectiveTangentFactorGPUAddress,
-                factorElements, sizeof(float))) {
+                factorElements, sizeof(float)) ||
+        !appendBuffer(pass.sourceDynamicsWitness,
+                pass.sourceDynamicsWitnessGPUAddress,
+                sourceDynamicsElements, sizeof(float))) {
         return false;
     }
     // Fail closed if a later arena addition is not reflected in retained
@@ -4698,6 +4718,7 @@ MetalNumanXHumanMatterProgram MetalNumanXHumanMatterContext::program(
     result.capabilities =
         MetalNumanXHumanMatterExactCandidateKinematics |
         MetalNumanXHumanMatterSourceEffectiveTangent |
+        MetalNumanXHumanMatterSourceDynamicsWitness |
         MetalNumanXHumanMatterStagedReaction |
         MetalNumanXHumanMatterJointDecision |
         MetalNumanXHumanMatterPreparedPhysicsGate;
@@ -4705,6 +4726,7 @@ MetalNumanXHumanMatterProgram MetalNumanXHumanMatterContext::program(
         MetalNumanXHumanMatterReadLiveHumanState |
         MetalNumanXHumanMatterReadHumanCheckpoints |
         MetalNumanXHumanMatterReadSourceEffectiveTangent |
+        MetalNumanXHumanMatterReadSourceDynamicsWitness |
         MetalNumanXHumanMatterMayEncodeExactCandidate |
         MetalNumanXHumanMatterWriteStagedReaction |
         MetalNumanXHumanMatterWriteJointStatus |
@@ -4866,6 +4888,7 @@ MetalNumanXHumanMatterProgram MetalNumanXHumanMatterContext::program(
     result.capabilities =
         MetalNumanXHumanMatterExactCandidateKinematics |
         MetalNumanXHumanMatterSourceEffectiveTangent |
+        MetalNumanXHumanMatterSourceDynamicsWitness |
         MetalNumanXHumanMatterStagedReaction |
         MetalNumanXHumanMatterJointDecision |
         MetalNumanXHumanMatterPreparedPhysicsGate |
@@ -4874,6 +4897,7 @@ MetalNumanXHumanMatterProgram MetalNumanXHumanMatterContext::program(
         MetalNumanXHumanMatterReadLiveHumanState |
         MetalNumanXHumanMatterReadHumanCheckpoints |
         MetalNumanXHumanMatterReadSourceEffectiveTangent |
+        MetalNumanXHumanMatterReadSourceDynamicsWitness |
         MetalNumanXHumanMatterMayEncodeExactCandidate |
         MetalNumanXHumanMatterWriteStagedReaction |
         MetalNumanXHumanMatterWriteJointStatus |

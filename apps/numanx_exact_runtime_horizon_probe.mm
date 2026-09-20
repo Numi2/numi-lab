@@ -2,6 +2,7 @@
 #include "numanx_exact_runtime_v3_lifecycle_probe.mm"
 
 #include "metalrobo/NumiHumanProductionOwnerEvidenceWriter.hpp"
+#include "metalrobo/NumiHumanProductionOwnerSnapshot.hpp"
 
 #include <cerrno>
 #include <charconv>
@@ -324,7 +325,7 @@ SnapshotIdentity inspectSnapshot(const std::filesystem::path& path) {
         require(
             [evidenceSchema isKindOfClass:[NSString class]] &&
                 [(NSString*)evidenceSchema isEqualToString:
-                    @"persistent-production-owner-snapshot-evidence.v1"],
+                    @"persistent-production-owner-snapshot-evidence.v2"],
             "production-owner snapshot evidence schema is not canonical");
         id payloadValue = envelope[@"payload"];
         require(
@@ -335,8 +336,13 @@ SnapshotIdentity inspectSnapshot(const std::filesystem::path& path) {
         require(
             [payloadSchema isKindOfClass:[NSString class]] &&
                 [(NSString*)payloadSchema isEqualToString:
-                    @"persistent-production-owner-snapshot.v1"],
+                    @"persistent-production-owner-snapshot.v2"],
             "production-owner snapshot payload schema is not canonical");
+        require(
+            exactJSONUnsigned(payload[@"format_version"],
+                "production-owner snapshot payload version is not an exact uint64") ==
+                metalrobo::kNumiHumanProductionOwnerSnapshotVersionV2,
+            "production-owner snapshot payload version is not V2");
         id disposition = payload[@"disposition"];
         require(
             [disposition isKindOfClass:[NSString class]] &&
@@ -372,7 +378,7 @@ SnapshotIdentity inspectSnapshot(const std::filesystem::path& path) {
             isLowerHex(payloadSHA256, 64u),
             "production-owner snapshot payload SHA-256 is not canonical");
         const std::string expectedName =
-            "persistent-production-owner-snapshot.v1.root-" +
+            "persistent-production-owner-snapshot.v2.root-" +
             std::to_string(root) + "." + transactionFingerprint +
             ".published.json";
         require(
@@ -874,9 +880,10 @@ std::string selfTestSnapshotJSON(
     const std::string_view transaction
 ) {
     return
-        "{\"evidence_schema\":\"persistent-production-owner-snapshot-evidence.v1\","
+        "{\"evidence_schema\":\"persistent-production-owner-snapshot-evidence.v2\","
         "\"payload_sha256\":\"" + std::string(64u, '0') +
-        "\",\"payload\":{\"schema\":\"persistent-production-owner-snapshot.v1\","
+        "\",\"payload\":{\"schema\":\"persistent-production-owner-snapshot.v2\","
+        "\"format_version\":2,"
         "\"disposition\":\"published\",\"control_step\":" +
         std::to_string(root) + ",\"publication_epoch\":" +
         std::to_string(root) + ",\"transaction_fingerprint\":\"" +
@@ -889,7 +896,7 @@ void publishSelfTestSnapshot(
 ) {
     const std::string transaction = hex64(root);
     const auto path = directory /
-        ("persistent-production-owner-snapshot.v1.root-" +
+        ("persistent-production-owner-snapshot.v2.root-" +
          std::to_string(root) + "." + transaction + ".published.json");
     std::string error;
     require(
@@ -968,6 +975,32 @@ int runSelfTests() {
         snapshots.unique.size() == 2u && snapshots.rootOne.root == 1u &&
             snapshots.selected.root == 2u,
         "horizon canonical snapshot-set self-test failed");
+
+    const auto fractionalVersionDirectory =
+        temporary.path() / "fractional-version-snapshot";
+    const std::string fractionalTransaction = hex64(1u);
+    const auto fractionalVersionPath = fractionalVersionDirectory /
+        ("persistent-production-owner-snapshot.v2.root-1." +
+         fractionalTransaction + ".published.json");
+    std::string fractionalVersionJSON =
+        selfTestSnapshotJSON(1u, fractionalTransaction);
+    const auto versionOffset = fractionalVersionJSON.find(
+        "\"format_version\":2,");
+    require(versionOffset != std::string::npos,
+        "horizon fractional-version self-test fixture changed");
+    fractionalVersionJSON.replace(
+        versionOffset, std::string_view("\"format_version\":2").size(),
+        "\"format_version\":2.5");
+    std::string fractionalVersionError;
+    require(
+        metalrobo::publishNumiHumanProductionOwnerEvidenceNoReplace(
+            fractionalVersionPath, fractionalVersionJSON,
+            fractionalVersionError),
+        "horizon fractional-version self-test publication failed");
+    expectSelfTestFailure(
+        [&] { (void)inspectSnapshot(fractionalVersionPath); },
+        "payload version is not an exact uint64");
+
     publishSelfTestSnapshot(snapshotDirectory, 3u);
     expectSelfTestFailure(
         [&] { (void)inspectSnapshots(inspection); },

@@ -22,6 +22,7 @@
 #include "metalrobo/VisualPresentation.hpp"
 #include "numi/matter/detail.hpp"
 #include "numi/matter/matter.hpp"
+#include "numi/matter/physical_state_digest_gpu.h"
 
 #include <algorithm>
 #include <array>
@@ -1463,12 +1464,68 @@ bool encodeRuntimeProof(
     return runtime->encodeAcceptedStateProof(pass);
 }
 
+// Exact NumanX publication requires a direct-byte physical SHA observer in
+// addition to the existing FNV proof/token authority. The transient output is
+// retained by the active root and is borrowed only while owner submission is
+// synchronously encoding its command buffer.
+struct RuntimeProofV2Context {
+    numi::matter::Runtime* matter = nullptr;
+    __unsafe_unretained id<MTLBuffer> candidatePhysicalDigest = nil;
+};
+
+[[nodiscard]] bool physicalStateSHA256Present(
+    const NMSHA256DigestGPU& digest
+) noexcept {
+    for (const std::uint8_t byte : digest.bytes) {
+        if (byte != 0u) return true;
+    }
+    return false;
+}
+
+[[nodiscard]] bool validRuntimePhysicalStateDigest(
+    const NMPhysicalStateDigestGPU& digest,
+    const std::uint64_t acceptedTimestampNanoseconds,
+    const std::uint64_t physicsGeneration,
+    const std::uint64_t matterSourcePhysicsFingerprint,
+    const std::uint64_t matterDeviceProgramFingerprint
+) noexcept {
+    return digest.abiVersion ==
+            NM_MATTER_PHYSICAL_STATE_DIGEST_ABI_VERSION &&
+        digest.structSize == NM_MATTER_PHYSICAL_STATE_DIGEST_BYTES &&
+        digest.status == NM_PHYSICAL_STATE_DIGEST_VALID &&
+        digest.environment == 0u &&
+        digest.schemaVersion ==
+            NM_MATTER_PHYSICAL_STATE_DIGEST_SCHEMA_VERSION &&
+        digest.manifestVersion ==
+            NM_MATTER_PHYSICAL_STATE_DIGEST_MANIFEST_VERSION &&
+        digest.sourceCount ==
+            NM_MATTER_PHYSICAL_STATE_DIGEST_SOURCE_COUNT &&
+        digest.reserved0 == 0u &&
+        digest.acceptedTimestampNanoseconds ==
+            acceptedTimestampNanoseconds &&
+        digest.physicsGeneration == physicsGeneration &&
+        digest.matterSourcePhysicsFingerprint ==
+            matterSourcePhysicsFingerprint &&
+        digest.matterDeviceProgramFingerprint ==
+            matterDeviceProgramFingerprint &&
+        physicalStateSHA256Present(digest.humanSHA256) &&
+        physicalStateSHA256Present(digest.matterSHA256) &&
+        physicalStateSHA256Present(digest.physicalSHA256);
+}
+
 bool encodeRuntimeProofV2(
     void* context,
     const metalrobo::MetalNumanXHumanMatterStateProofPassV2& source
 ) noexcept {
-    auto* runtime = static_cast<numi::matter::Runtime*>(context);
-    if (runtime == nullptr ||
+    auto* proofContext = static_cast<RuntimeProofV2Context*>(context);
+    auto* runtime = proofContext != nullptr ? proofContext->matter : nullptr;
+    id<MTLBuffer> candidatePhysicalDigest = proofContext != nullptr
+        ? proofContext->candidatePhysicalDigest : nil;
+    if (runtime == nullptr || candidatePhysicalDigest == nil ||
+        candidatePhysicalDigest.contents == nullptr ||
+        candidatePhysicalDigest.gpuAddress == 0u ||
+        candidatePhysicalDigest.length <
+            sizeof(NMPhysicalStateDigestGPU) ||
         source.abiVersion !=
             MR_NUMANX_HUMAN_MATTER_EXACT_ADAPTER_ABI_VERSION ||
         source.structSize != sizeof(source)) {
@@ -1540,7 +1597,44 @@ bool encodeRuntimeProofV2(
     pass.matterDeviceProgramFingerprint =
         source.matterDeviceProgramFingerprint;
     pass.motorCandidateFingerprint = source.motorCandidateFingerprint;
-    return runtime->encodeAcceptedStateProofV2(pass);
+    if (!runtime->encodeAcceptedStateProofV2(pass)) return false;
+
+    numi::matter::PhysicalStateDigestPassV1 digest{};
+    digest.mode =
+        numi::matter::PhysicalStateDigestMode::preparedCandidate;
+    digest.environmentCount = source.environmentCount;
+    digest.environmentIdentifierBase = source.environmentIdentifierBase;
+    digest.clockDomain = source.clockDomain;
+    digest.clockQuantumNanoseconds = source.clockQuantumNanoseconds;
+    digest.commandBuffer = source.commandBuffer;
+    digest.rootTranslation = source.rootTranslation;
+    digest.q = source.q;
+    digest.v = source.v;
+    digest.mujocoStates = source.mujocoStates;
+    digest.output = (__bridge void*)candidatePhysicalDigest;
+    digest.rootTranslationGPUAddress = source.rootTranslationGPUAddress;
+    digest.qGPUAddress = source.qGPUAddress;
+    digest.vGPUAddress = source.vGPUAddress;
+    digest.mujocoStatesGPUAddress = source.mujocoStatesGPUAddress;
+    digest.outputGPUAddress = candidatePhysicalDigest.gpuAddress;
+    digest.rootTranslationElementCount =
+        source.rootTranslationElementCount;
+    digest.qElementCount = source.qElementCount;
+    digest.vElementCount = source.vElementCount;
+    digest.mujocoStateCount = source.mujocoStateCount;
+    digest.outputElementCount = source.environmentCount;
+    digest.rootTranslationStride = source.rootTranslationStride;
+    digest.qStride = source.qStride;
+    digest.vStride = source.vStride;
+    digest.mujocoStateStride = source.mujocoStateStride;
+    digest.acceptedTimestampNanoseconds =
+        source.acceptedTimestampNanoseconds;
+    digest.physicsGeneration = source.physicsGeneration;
+    digest.matterSourcePhysicsFingerprint =
+        source.matterSourcePhysicsFingerprint;
+    digest.matterDeviceProgramFingerprint =
+        source.matterDeviceProgramFingerprint;
+    return runtime->encodePhysicalStateDigestV1(digest);
 }
 
 [[nodiscard]] bool bufferObject(
@@ -1700,6 +1794,7 @@ struct OwnerSnapshotCaptureLayout {
     std::uint64_t checkpointRoot = 0u;
     std::uint64_t checkpointMuscles = 0u;
     std::uint64_t effectiveTangentFactorStorage = 0u;
+    std::uint64_t sourceDynamicsWitness = 0u;
     std::uint64_t sourceGeneralizedForce = 0u;
     std::uint64_t sourcePredictedVelocity = 0u;
     std::uint64_t matterGeneralizedReaction = 0u;
@@ -1786,6 +1881,11 @@ struct ActiveRoot final : std::enable_shared_from_this<ActiveRoot> {
     metalrobo::MetalNumanXHumanMatterExactPhysicalReceipt exactReceipt{};
     std::optional<metalrobo::MetalNumanXHumanMatterPhysicalOutcome>
         physicalOutcome;
+    // Direct-byte SHA observer output. Candidate bytes remain quarantined on
+    // rejection; only a jointly published exact root may install them in the
+    // runtime's accepted physical identity.
+    __strong id<MTLBuffer> candidatePhysicalStateDigest = nil;
+    std::optional<NMPhysicalStateDigestGPU> candidatePhysicalStateIdentity;
     bool rootAssistanceDisabledByOwner = false;
     mrnx_candidate_timing_v2 exactTiming{};
     mrnx_exact_inbound_authority_v2 exactInboundAuthority{};
@@ -1874,6 +1974,8 @@ struct RuntimeState final : std::enable_shared_from_this<RuntimeState> {
     std::uint64_t publishedTimestampMicroseconds = 0u;
     std::uint64_t publishedTimestampNanoseconds = 0u;
     std::uint64_t publishedControlStep = 0u;
+    RuntimeProofV2Context proofV2Context{};
+    std::optional<NMPhysicalStateDigestGPU> publishedPhysicalStateIdentity;
     // Opt-in, bounded production-owner evidence. At most the first published
     // root and one explicitly selected control root are persisted.
     std::filesystem::path ownerSnapshotDirectory;
@@ -1981,7 +2083,19 @@ void recordRuntimeBehaviorTerminal(
 ) noexcept {
     if (active == nullptr || !active->exactFamily || candidate == nullptr ||
         legacyChannels != nullptr || legacyChannelCount != 0u ||
-        committedFence == nullptr || active->exactChannelCount != 7u) {
+        committedFence == nullptr || active->exactChannelCount != 7u ||
+        runtime.matter == nullptr ||
+        !active->candidatePhysicalStateIdentity.has_value()) {
+        return false;
+    }
+    const auto& physicalIdentity =
+        *active->candidatePhysicalStateIdentity;
+    if (!validRuntimePhysicalStateDigest(
+            physicalIdentity,
+            active->acceptedTimestampNanoseconds,
+            active->physicsGeneration,
+            runtime.matter->sourcePhysicsFingerprint(),
+            runtime.matter->deviceProgramFingerprint())) {
         return false;
     }
     const auto& authority = active->exactInboundAuthority;
@@ -2216,6 +2330,7 @@ void recordRuntimeBehaviorTerminal(
         active->acceptedTimestampNanoseconds;
     runtime.publishedTimestampMicroseconds = 0u;
     runtime.publishedControlStep = active->controlStep;
+    runtime.publishedPhysicalStateIdentity = physicalIdentity;
     recordRuntimeBehaviorTerminal(
         runtime, *active, root, true, committedFence);
 
@@ -2434,6 +2549,7 @@ void cultureCompletion(
         const std::uint64_t tendonRows = 0u;
         if ((nv != 0u && nv >
                 std::numeric_limits<std::uint64_t>::max() / nv) ||
+            nv > std::numeric_limits<std::uint64_t>::max() / 3u ||
             (nv != 0u && muscles >
                 std::numeric_limits<std::uint64_t>::max() / nv) ||
             (nv != 0u && tendonRows >
@@ -2441,6 +2557,7 @@ void cultureCompletion(
             return false;
         }
         const std::uint64_t factorElements = nv * nv;
+        const std::uint64_t sourceDynamicsElements = 3u * nv;
         const std::uint64_t muscleForceElements = muscles * nv;
         const std::uint64_t tendonCorrectionElements = tendonRows * nv;
         if (!add(nq, sizeof(float), layout.checkpointQ) ||
@@ -2451,6 +2568,8 @@ void cultureCompletion(
                 layout.checkpointMuscles) ||
             !add(factorElements, sizeof(float),
                 layout.effectiveTangentFactorStorage) ||
+            !add(sourceDynamicsElements, sizeof(float),
+                layout.sourceDynamicsWitness) ||
             !add(nv, sizeof(float), layout.sourceGeneralizedForce) ||
             !add(nv, sizeof(float), layout.sourcePredictedVelocity) ||
             !add(nv, sizeof(float), layout.matterGeneralizedReaction) ||
@@ -3048,6 +3167,10 @@ void cultureCompletion(
     matterConfig.coupledCandidateCompensatedTranslation = true;
     matterConfig.captureDiagnostics = true;
     matterConfig.adaptiveTransfer = false;
+    // The exact NumanX path treats the direct-byte physical SHA as permanent
+    // accepted-root infrastructure. Legacy execution continues to use its
+    // existing proof family and never observes this optional Matter pass.
+    matterConfig.enablePhysicalStateDigest = runtime->exactClock;
     matterConfig.acceptedStateProofMujocoBytesPerEnvironmentCapacity =
         static_cast<std::uint64_t>(MRNX_FULL_BODY_MUSCLE_COUNT) *
         sizeof(MRMujocoMuscleStateGPU);
@@ -3074,6 +3197,7 @@ void cultureCompletion(
         matterDiagnostics.encoded, MRNX_RUNTIME_MATTER_FAILURE_V1,
         "Matter Runtime initialization failed: " +
             matterDiagnostics.message);
+    runtime->proofV2Context.matter = runtime->matter.get();
     metalrobo::MetalNumanXHumanMatterConfig adapterConfig;
     adapterConfig.matterRuntime = runtime->matter.get();
     adapterConfig.candidateObserverContext = runtime.get();
@@ -3092,7 +3216,7 @@ void cultureCompletion(
     adapterConfig.stateProofProgram.encode = &encodeRuntimeProof;
     adapterConfig.stateProofProgram.fingerprint =
         runtime->matter->acceptedStateProofProgramFingerprint();
-    adapterConfig.stateProofProgramV2.context = runtime->matter.get();
+    adapterConfig.stateProofProgramV2.context = &runtime->proofV2Context;
     adapterConfig.stateProofProgramV2.encode = &encodeRuntimeProofV2;
     adapterConfig.stateProofProgramV2.fingerprint =
         runtime->matter->acceptedStateProofProgramFingerprintV2();
@@ -3850,6 +3974,21 @@ void fillRuntimeInfoFailure(
     result->cultureSettled = runtime->culture == nullptr;
     result->cultureReady = runtime->culture == nullptr;
 
+    failureStage = 46u;
+    result->candidatePhysicalStateDigest = [runtime->device
+        newBufferWithLength:sizeof(NMPhysicalStateDigestGPU)
+        options:MTLResourceStorageModeShared];
+    if (result->candidatePhysicalStateDigest == nil ||
+        result->candidatePhysicalStateDigest.contents == nullptr ||
+        result->candidatePhysicalStateDigest.gpuAddress == 0u) {
+        return false;
+    }
+    result->candidatePhysicalStateDigest.label =
+        @"NumanX candidate direct physical-state SHA-256";
+    std::memset(
+        result->candidatePhysicalStateDigest.contents, 0,
+        sizeof(NMPhysicalStateDigestGPU));
+
     failureStage = 41u;
     if (!importExactRange(
             runtime->device, request.motor_header,
@@ -4262,9 +4401,14 @@ void fillRuntimeInfoFailure(
     const auto submitted = [&] {
         struct EncodingScope {
             RuntimeState& runtime;
-            ~EncodingScope() { runtime.encodingActive = nullptr; }
+            ~EncodingScope() {
+                runtime.encodingActive = nullptr;
+                runtime.proofV2Context.candidatePhysicalDigest = nil;
+            }
         } scope{*runtime};
         runtime->encodingActive = active.get();
+        runtime->proofV2Context.candidatePhysicalDigest =
+            active->candidatePhysicalStateDigest;
         return runtime->owner->submit(
             runtime->assets.model, ownerInput, *submission);
     }();
@@ -5825,14 +5969,27 @@ bool encodeRuntimeBehaviorCandidate(void* raw,
             pass.dofCount > pass.generalizedForceArenaElementCount -
                 pass.generalizedForceOffset ||
             pass.reactionStride < pass.dofCount ||
+            (pass.capabilities &
+             metalrobo::MetalNumanXHumanMatterSourceDynamicsWitness) == 0u ||
+            (pass.accessFlags &
+             metalrobo::MetalNumanXHumanMatterReadSourceDynamicsWitness) ==
+                0u ||
             pass.rootTranslationElementCount < 1u ||
             pass.rootTranslationCheckpointElementCount < 1u) return false;
-        if (pass.dofCount != 0u && pass.dofCount >
-                std::numeric_limits<std::uint64_t>::max() /
-                    pass.dofCount) return false;
+        if ((pass.dofCount != 0u && pass.dofCount >
+                 std::numeric_limits<std::uint64_t>::max() /
+                     pass.dofCount) ||
+            pass.dofCount >
+                std::numeric_limits<std::uint64_t>::max() / 3u) return false;
         const std::uint64_t factorElements =
             pass.dofCount * pass.dofCount;
+        const std::uint64_t sourceDynamicsElements =
+            3u * pass.dofCount;
         if (pass.factorStride < factorElements ||
+            pass.sourceDynamicsWitness == nullptr ||
+            pass.sourceDynamicsWitnessElementCount !=
+                sourceDynamicsElements ||
+            pass.sourceDynamicsWitnessStride != sourceDynamicsElements ||
             pass.qCoordinateCount >
                 std::numeric_limits<std::uint64_t>::max() / sizeof(float) ||
             pass.dofCount >
@@ -5841,6 +5998,8 @@ bool encodeRuntimeBehaviorCandidate(void* raw,
                 std::numeric_limits<std::uint64_t>::max() /
                     sizeof(MRMujocoMuscleStateGPU) ||
             factorElements >
+                std::numeric_limits<std::uint64_t>::max() / sizeof(float) ||
+            sourceDynamicsElements >
                 std::numeric_limits<std::uint64_t>::max() / sizeof(float)) {
             return false;
         }
@@ -5865,6 +6024,8 @@ bool encodeRuntimeBehaviorCandidate(void* raw,
         const std::uint64_t muscleBytes = pass.mujocoStateCount *
             sizeof(MRMujocoMuscleStateGPU);
         const std::uint64_t factorBytes = factorElements * sizeof(float);
+        const std::uint64_t sourceDynamicsBytes =
+            sourceDynamicsElements * sizeof(float);
         const Copy preDynamicsCopies[] = {
             {pass.qCheckpoint, 0u, capture.layout.checkpointQ, nqBytes},
             {pass.vCheckpoint, 0u, capture.layout.checkpointV, nvBytes},
@@ -5875,6 +6036,9 @@ bool encodeRuntimeBehaviorCandidate(void* raw,
                 capture.layout.checkpointMuscles, muscleBytes},
             {pass.sourceEffectiveTangentFactor, 0u,
                 capture.layout.effectiveTangentFactorStorage, factorBytes},
+            {pass.sourceDynamicsWitness, 0u,
+                capture.layout.sourceDynamicsWitness,
+                sourceDynamicsBytes},
             {pass.mujocoGeneralizedForceArena,
                 pass.generalizedForceOffset * sizeof(float),
                 capture.layout.sourceGeneralizedForce, nvBytes},
@@ -6274,8 +6438,21 @@ template <typename T>
     return true;
 }
 
+[[nodiscard]] double ownerFloatULP(const float value) noexcept {
+    const float magnitude = std::abs(value);
+    const float next = std::nextafterf(
+        magnitude, std::numeric_limits<float>::infinity());
+    if (std::isfinite(next)) {
+        return static_cast<double>(next) - magnitude;
+    }
+    const float previous = std::nextafterf(magnitude, 0.0f);
+    return static_cast<double>(magnitude) - previous;
+}
+
 [[nodiscard]] bool deriveOwnerSnapshotDynamics(
     metalrobo::NumiHumanProductionOwnerSnapshotV1& snapshot,
+    const metalrobo::NumiHumanProductionOwnerArrayV1&
+        sourceEffectiveTangentDiagonal,
     std::string& error
 ) {
     const std::size_t nv = snapshot.dofCount;
@@ -6285,6 +6462,9 @@ template <typename T>
     std::vector<float> reaction;
     std::vector<float> candidateVelocity;
     std::vector<float> lower;
+    std::vector<float> diagonal;
+    std::vector<float> rhs;
+    std::vector<float> bias;
     if (!ownerFloatValues(snapshot.checkpointV, nv, v0) ||
         !ownerFloatValues(
             snapshot.sourcePredictedVelocity, nv, freeVelocity) ||
@@ -6294,6 +6474,9 @@ template <typename T>
         !ownerFloatValues(snapshot.candidateV, nv, candidateVelocity) ||
         !ownerFloatValues(snapshot.effectiveTangentFactorStorage,
             nv * nv, lower) ||
+        !ownerFloatValues(sourceEffectiveTangentDiagonal, nv, diagonal) ||
+        !ownerFloatValues(snapshot.sourceRHS, nv, rhs) ||
+        !ownerFloatValues(snapshot.sourceBias, nv, bias) ||
         snapshot.timestepNanoseconds == 0u) {
         error = "production-owner dynamic derivation inputs are incomplete";
         return false;
@@ -6301,15 +6484,14 @@ template <typename T>
     const double timestep =
         static_cast<double>(snapshot.timestepNanoseconds) * 1.0e-9;
     std::vector<float> acceleration(nv);
-    std::vector<double> transposeAction(nv, 0.0);
-    std::vector<float> rhs(nv);
-    std::vector<float> bias(nv);
     std::vector<double> candidateDelta(nv, 0.0);
     for (std::size_t row = 0u; row < nv; ++row) {
         if (!std::isfinite(v0[row]) || !std::isfinite(freeVelocity[row]) ||
             !std::isfinite(sourceForce[row]) ||
             !std::isfinite(reaction[row]) ||
-            !std::isfinite(candidateVelocity[row])) {
+            !std::isfinite(candidateVelocity[row]) ||
+            !std::isfinite(diagonal[row]) ||
+            !std::isfinite(rhs[row]) || !std::isfinite(bias[row])) {
             error = "production-owner dynamic vector is nonfinite";
             return false;
         }
@@ -6324,35 +6506,91 @@ template <typename T>
         candidateDelta[row] =
             static_cast<double>(candidateVelocity[row]) - v0[row];
     }
-    // A0 = L L^T. Preserve the exact device factor bytes in the record and
-    // derive the missing RHS/bias in host FP64 before emitting FP32 witnesses.
-    for (std::size_t column = 0u; column < nv; ++column) {
-        double value = 0.0;
-        for (std::size_t row = column; row < nv; ++row) {
+    // The source owner captures A0's diagonal, raw bias, and raw RHS before
+    // factorization or scratch overwrite. Validate that direct witness against
+    // the retained upper A0 bytes, lower Cholesky factor, source force, and
+    // free-velocity consequence; never reconstruct the claimed source inputs
+    // from the consequence itself.
+    constexpr double kDiagonalRelativeTolerance = 2.0e-4;
+    constexpr double kForceClosureRelativeTolerance = 2.0e-5;
+    constexpr double kRHSULPAllowance = 8.0;
+    const double residualOperationError =
+        (static_cast<double>(nv) + 2.0) *
+        std::numeric_limits<float>::epsilon();
+    if (!(residualOperationError < 1.0)) {
+        error = "production-owner residual dimension exceeds FP32 audit bound";
+        return false;
+    }
+    const double residualGamma =
+        residualOperationError / (1.0 - residualOperationError);
+    double maximumDiagonalBoundRatio = 0.0;
+    double maximumForceClosureBoundRatio = 0.0;
+    double maximumResidualBoundRatio = 0.0;
+    for (std::size_t row = 0u; row < nv; ++row) {
+        double reconstructedDiagonal = 0.0;
+        for (std::size_t column = 0u; column <= row; ++column) {
             const float coefficient = lower[row * nv + column];
             if (!std::isfinite(coefficient)) {
                 error = "production-owner effective tangent is nonfinite";
                 return false;
             }
-            value += static_cast<double>(coefficient) * acceleration[row];
+            reconstructedDiagonal +=
+                static_cast<double>(coefficient) * coefficient;
         }
-        transposeAction[column] = value;
+        const double diagonalError =
+            std::abs(reconstructedDiagonal - diagonal[row]);
+        const double diagonalScale = std::max(
+            std::abs(reconstructedDiagonal),
+            std::abs(static_cast<double>(diagonal[row])));
+        maximumDiagonalBoundRatio = std::max(
+            maximumDiagonalBoundRatio,
+            diagonalError /
+                (kDiagonalRelativeTolerance * (1.0 + diagonalScale)));
+
+        const double forceClosure =
+            std::abs(static_cast<double>(bias[row]) + rhs[row] -
+                sourceForce[row]);
+        const double forceScale =
+            std::abs(static_cast<double>(bias[row])) +
+            std::abs(static_cast<double>(rhs[row])) +
+            std::abs(static_cast<double>(sourceForce[row]));
+        maximumForceClosureBoundRatio = std::max(
+            maximumForceClosureBoundRatio,
+            forceClosure /
+                (kForceClosureRelativeTolerance * (1.0 + forceScale)));
+
+        double product = 0.0;
+        double productScale = 0.0;
+        for (std::size_t column = 0u; column < nv; ++column) {
+            const float coefficient = row == column
+                ? diagonal[row]
+                : lower[std::min(row, column) * nv +
+                    std::max(row, column)];
+            if (!std::isfinite(coefficient)) {
+                error = "production-owner source A0 is nonfinite";
+                return false;
+            }
+            const double term =
+                static_cast<double>(coefficient) * acceleration[column];
+            product += term;
+            productScale += std::abs(term);
+        }
+        const double residual = std::abs(product - rhs[row]);
+        const double rhsULP = ownerFloatULP(rhs[row]);
+        const double residualBound =
+            residualGamma * productScale + kRHSULPAllowance * rhsULP;
+        const double residualBoundRatio = residualBound > 0.0
+            ? residual / residualBound
+            : (residual == 0.0
+                ? 0.0 : std::numeric_limits<double>::infinity());
+        maximumResidualBoundRatio = std::max(
+            maximumResidualBoundRatio, residualBoundRatio);
     }
-    for (std::size_t row = 0u; row < nv; ++row) {
-        double value = 0.0;
-        for (std::size_t column = 0u; column <= row; ++column) {
-            value += static_cast<double>(lower[row * nv + column]) *
-                transposeAction[column];
-        }
-        const double biasValue = static_cast<double>(sourceForce[row]) - value;
-        if (!std::isfinite(value) || !std::isfinite(biasValue) ||
-            std::abs(value) > std::numeric_limits<float>::max() ||
-            std::abs(biasValue) > std::numeric_limits<float>::max()) {
-            error = "production-owner RHS/bias is not FP32 representable";
-            return false;
-        }
-        rhs[row] = static_cast<float>(value);
-        bias[row] = static_cast<float>(biasValue);
+    if (maximumDiagonalBoundRatio > 1.0 ||
+        maximumForceClosureBoundRatio > 1.0 ||
+        maximumResidualBoundRatio > 1.0) {
+        error = "production-owner direct source-dynamics witness does not close";
+        return false;
     }
     double sourceWork = 0.0;
     double reactionWork = 0.0;
@@ -6387,8 +6625,6 @@ template <typename T>
         static_cast<float>(sourceWork), static_cast<float>(reactionWork),
         static_cast<float>(effectiveEnergy)};
     snapshot.acceleration = ownerHostArray<float>(acceleration);
-    snapshot.sourceRHS = ownerHostArray<float>(rhs);
-    snapshot.sourceBias = ownerHostArray<float>(bias);
     snapshot.workEnergyComponents = ownerHostArray<float>(work);
     return true;
 }
@@ -6653,7 +6889,9 @@ template <typename T>
             return false;
         }
 
-        metalrobo::NumiHumanProductionOwnerSnapshotV1 snapshot;
+        metalrobo::NumiHumanProductionOwnerSnapshotV2 snapshot;
+        snapshot.formatVersion =
+            metalrobo::kNumiHumanProductionOwnerSnapshotVersionV2;
         snapshot.treatment = runtime.ownerSnapshotTreatment;
         snapshot.disposition = published
             ? metalrobo::NumiHumanProductionOwnerDispositionV1::published
@@ -6812,6 +7050,8 @@ template <typename T>
         const std::uint64_t nq = snapshot.qCoordinateCount;
         const std::uint64_t nv = snapshot.dofCount;
         const std::uint64_t muscleCount = snapshot.muscleCount;
+        metalrobo::NumiHumanProductionOwnerArrayV1
+            sourceEffectiveTangentDiagonal;
         if (!ownerCapturedArray(capture, capture.layout.checkpointQ,
                 nq, sizeof(float), snapshot.checkpointQ) ||
             !ownerCapturedArray(capture, capture.layout.checkpointV,
@@ -6825,6 +7065,16 @@ template <typename T>
             !ownerCapturedArray(capture,
                 capture.layout.effectiveTangentFactorStorage, nv * nv,
                 sizeof(float), snapshot.effectiveTangentFactorStorage) ||
+            !ownerCapturedArray(capture,
+                capture.layout.sourceDynamicsWitness, nv, sizeof(float),
+                sourceEffectiveTangentDiagonal) ||
+            !ownerCapturedArray(capture,
+                capture.layout.sourceDynamicsWitness + nv * sizeof(float),
+                nv, sizeof(float), snapshot.sourceBias) ||
+            !ownerCapturedArray(capture,
+                capture.layout.sourceDynamicsWitness +
+                    2u * nv * sizeof(float),
+                nv, sizeof(float), snapshot.sourceRHS) ||
             !ownerCapturedArray(capture,
                 capture.layout.sourceGeneralizedForce, nv, sizeof(float),
                 snapshot.sourceGeneralizedForce) ||
@@ -6897,7 +7147,8 @@ template <typename T>
         }
         snapshot.candidateSupportHistories = ownerHostArray<nm_float4>(
             candidateSupportHistories);
-        if (!deriveOwnerSnapshotDynamics(snapshot, error) ||
+        if (!deriveOwnerSnapshotDynamics(
+                snapshot, sourceEffectiveTangentDiagonal, error) ||
             !deriveOwnerConstraintWitnesses(runtime, snapshot, error)) {
             return false;
         }
@@ -6933,14 +7184,15 @@ template <typename T>
         std::string envelope;
         std::string payloadSHA256;
         if (!metalrobo::
-                serializeNumiHumanProductionOwnerSnapshotEvidenceV1(
+                serializeNumiHumanProductionOwnerSnapshotEvidenceV2(
                     snapshot, envelope, payloadSHA256, error)) {
             return false;
         }
         envelope.push_back('\n');
 
         std::ostringstream name;
-        name << "persistent-production-owner-snapshot.v1.root-"
+        name << metalrobo::kNumiHumanProductionOwnerSnapshotSchemaV2
+             << ".root-"
              << active.controlStep << '.' << std::hex << std::nouppercase
              << std::setfill('0') << std::setw(16)
              << active.transactionFingerprint << '.'
@@ -7910,6 +8162,36 @@ void physicalCompletion(
                  active->transactionFingerprint,
                  active->slotGeneration,
                  exactReceipt));
+        const std::uint64_t matterSourcePhysicsFingerprint =
+            active->exactFamily && active->runtime->matter != nullptr
+            ? active->runtime->matter->sourcePhysicsFingerprint()
+            : 0u;
+        const std::uint64_t matterDeviceProgramFingerprint =
+            active->exactFamily && active->runtime->matter != nullptr
+            ? active->runtime->matter->deviceProgramFingerprint()
+            : 0u;
+        std::optional<NMPhysicalStateDigestGPU> candidatePhysicalIdentity;
+        if (active->exactFamily && active->physicalReady &&
+            active->candidatePhysicalStateDigest != nil &&
+            active->candidatePhysicalStateDigest.contents != nullptr &&
+            active->candidatePhysicalStateDigest.length >=
+                sizeof(NMPhysicalStateDigestGPU)) {
+            NMPhysicalStateDigestGPU digest{};
+            std::memcpy(
+                &digest,
+                active->candidatePhysicalStateDigest.contents,
+                sizeof(digest));
+            if (validRuntimePhysicalStateDigest(
+                    digest,
+                    active->acceptedTimestampNanoseconds,
+                    active->physicsGeneration,
+                    matterSourcePhysicsFingerprint,
+                    matterDeviceProgramFingerprint)) {
+                candidatePhysicalIdentity = digest;
+            }
+        }
+        const bool hasPhysicalIdentity = !active->exactFamily ||
+            candidatePhysicalIdentity.has_value();
         const std::uint64_t exactProofProgramFingerprint =
             active->exactFamily && active->runtime->matter != nullptr
             ? active->runtime->matter
@@ -7924,11 +8206,15 @@ void physicalCompletion(
                      accepted_state_proof_program_fingerprint ==
                  exactProofProgramFingerprint);
         active->physicalReady = active->physicalReady && hasOutcome &&
-            hasExactReceipt && exactProvenanceValid;
+            hasExactReceipt && hasPhysicalIdentity && exactProvenanceValid;
         if (active->physicalReady) active->physicalOutcome = outcome;
         else active->physicalOutcome.reset();
         if (active->physicalReady && active->exactFamily) {
             active->exactReceipt = exactReceipt;
+            active->candidatePhysicalStateIdentity =
+                *candidatePhysicalIdentity;
+        } else {
+            active->candidatePhysicalStateIdentity.reset();
         }
         const std::uint32_t typedFailureStage = physicalFailureStage(
             hasOutcome, outcome.humanCode, outcome.matterCode,

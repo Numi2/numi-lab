@@ -275,6 +275,81 @@ mrnx_bridge_v1_runtime_behavior_trace_state_component_drain(
     }
 }
 
+extern "C" bool
+mrnx_bridge_v1_runtime_copy_accepted_physical_state_digest(
+    const mrnx_runtime_v1* handle,
+    mrnx_behavior_physical_state_digest_v1* output) {
+    if (output == nullptr || output->abi_version !=
+            MRNX_BEHAVIOR_PHYSICAL_STATE_DIGEST_ABI_V1 ||
+        output->struct_size != sizeof(*output)) {
+        return false;
+    }
+    *output = {};
+    if (handle == nullptr || handle->state == nullptr ||
+        !handle->state->exactClock) {
+        return false;
+    }
+    struct Read {
+        RuntimeState* state;
+        mrnx_behavior_physical_state_digest_v1* output;
+    } read{handle->state.get(), output};
+    return metalrobo::numanx_bridge_v1::withDomainPublicReadGate(
+        handle->state->domain, &read, +[](void* raw) noexcept {
+            auto& context = *static_cast<Read*>(raw);
+            auto& runtime = *context.state;
+            if (runtime.terminalQuarantine || !runtime.publishedOnce ||
+                runtime.matter == nullptr ||
+                !runtime.publishedPhysicalStateIdentity.has_value()) {
+                return false;
+            }
+            const auto& source =
+                *runtime.publishedPhysicalStateIdentity;
+            if (!validRuntimePhysicalStateDigest(
+                    source,
+                    runtime.publishedTimestampNanoseconds,
+                    runtime.publishedPhysicsGeneration,
+                    runtime.matter->sourcePhysicsFingerprint(),
+                    runtime.matter->deviceProgramFingerprint()) ||
+                runtime.exactAggregate.publication_epoch == 0u ||
+                runtime.exactAggregate.publication_epoch !=
+                    metalrobo::numanx_bridge_v1::domainPublicationEpoch(
+                        runtime.domain)) {
+                return false;
+            }
+            auto& result = *context.output;
+            result.abi_version =
+                MRNX_BEHAVIOR_PHYSICAL_STATE_DIGEST_ABI_V1;
+            result.struct_size = sizeof(result);
+            result.status = MRNX_BEHAVIOR_PHYSICAL_STATE_DIGEST_READY_V1;
+            result.environment = source.environment;
+            result.schema_version = source.schemaVersion;
+            result.manifest_version = source.manifestVersion;
+            result.source_count = source.sourceCount;
+            result.publication_epoch =
+                runtime.exactAggregate.publication_epoch;
+            result.accepted_timestamp_nanoseconds =
+                source.acceptedTimestampNanoseconds;
+            result.physics_generation = source.physicsGeneration;
+            result.matter_source_physics_fingerprint =
+                source.matterSourcePhysicsFingerprint;
+            result.matter_device_program_fingerprint =
+                source.matterDeviceProgramFingerprint;
+            std::memcpy(
+                result.human_sha256,
+                source.humanSHA256.bytes,
+                sizeof(result.human_sha256));
+            std::memcpy(
+                result.matter_sha256,
+                source.matterSHA256.bytes,
+                sizeof(result.matter_sha256));
+            std::memcpy(
+                result.physical_sha256,
+                source.physicalSHA256.bytes,
+                sizeof(result.physical_sha256));
+            return true;
+        });
+}
+
 extern "C" bool mrnx_bridge_v1_runtime_behavior_trace_finalize(
     mrnx_runtime_v1* handle,
     const mrnx_behavior_trace_terminal_request_v1* request,

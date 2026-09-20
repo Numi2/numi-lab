@@ -32,13 +32,119 @@ constexpr std::uint64_t kTransactionFingerprint = 0x484d54584e303031ull;
 constexpr std::uint64_t kLinearizationEpoch = 0x484d45504f434831ull;
 constexpr std::uint64_t kSlotGeneration = 0x484d47454e303031ull;
 constexpr std::uint32_t kControlStep = 37u;
+constexpr double kSourceDiagonalRelativeTolerance = 2.0e-4;
+constexpr double kSourceForceClosureRelativeTolerance = 2.0e-5;
+constexpr double kSourcePredictorAbsoluteTolerance = 2.0e-5;
+constexpr double kSourceRHSULPAllowance = 8.0;
 
 using Phase = metalrobo::MetalNumanXHumanMatterPhase;
 using Pass = metalrobo::MetalNumanXHumanMatterPass;
 using Query = metalrobo::MetalNumanXHumanMatterCandidateQuery;
 
+static_assert(
+    metalrobo::kMetalNumanXHumanMatterPassABIVersionV6 == 6u &&
+    metalrobo::kMetalNumanXHumanMatterPassABIVersion == 7u);
+static_assert(offsetof(Pass, sourceDynamicsWitness) == 672u,
+    "v7 source witness must be a strict tail addition to the 672-byte v6 pass");
+static_assert(sizeof(Pass) == 704u,
+    "unexpected MetalNumanXHumanMatterPass v7 layout");
+
 void require(const bool condition, const std::string& message) {
     if (!condition) throw std::runtime_error(message);
+}
+
+void accumulateBoundRatio(
+    const double error,
+    const double scale,
+    const double tolerance,
+    double& maximumRatio
+) {
+    require(std::isfinite(error) && error >= 0.0 &&
+                std::isfinite(scale) && scale >= 0.0 &&
+                std::isfinite(tolerance) && tolerance > 0.0,
+            "source-dynamics bound input is invalid");
+    maximumRatio = std::max(
+        maximumRatio, error / (tolerance * (1.0 + scale)));
+}
+
+double sourceResidualGamma(const std::size_t dimension) {
+    const double operationError =
+        (static_cast<double>(dimension) + 2.0) *
+        std::numeric_limits<float>::epsilon();
+    require(operationError < 1.0,
+            "source residual dimension exceeds FP32 audit bound");
+    return operationError / (1.0 - operationError);
+}
+
+double floatULP(const float value) {
+    require(std::isfinite(value), "FP32 ULP input is nonfinite");
+    const float magnitude = std::abs(value);
+    const float next = std::nextafterf(
+        magnitude, std::numeric_limits<float>::infinity());
+    if (std::isfinite(next)) {
+        return static_cast<double>(next) - magnitude;
+    }
+    const float previous = std::nextafterf(magnitude, 0.0f);
+    return static_cast<double>(magnitude) - previous;
+}
+
+double sourceResidualBound(
+    const std::size_t dimension,
+    const float rhs,
+    const double productScale
+) {
+    require(std::isfinite(rhs) && std::isfinite(productScale) &&
+                productScale >= 0.0,
+            "source residual bound input is invalid");
+    return sourceResidualGamma(dimension) * productScale +
+        kSourceRHSULPAllowance * floatULP(rhs);
+}
+
+void accumulateAbsoluteBoundRatio(
+    const double error,
+    const double bound,
+    double& maximumRatio
+) {
+    require(std::isfinite(error) && error >= 0.0 &&
+                std::isfinite(bound) && bound >= 0.0,
+            "source-dynamics absolute bound input is invalid");
+    const double ratio = bound > 0.0
+        ? error / bound
+        : (error == 0.0 ? 0.0 : std::numeric_limits<double>::infinity());
+    maximumRatio = std::max(maximumRatio, ratio);
+}
+
+void verifyHeterogeneousScaleGate() {
+    // A large, well-closed row must never donate its scale to a corrupted
+    // zero/small row. This specifically guards against the old
+    // max(error) <= tolerance * max(scale) formulation.
+    const std::array<double, 2u> errors{{0.01, 0.0}};
+    const std::array<double, 2u> scales{{0.0, 1.0e8}};
+    for (const double tolerance : {
+             kSourceDiagonalRelativeTolerance,
+             kSourceForceClosureRelativeTolerance}) {
+        double maximumRatio = 0.0;
+        for (std::size_t row = 0u; row < errors.size(); ++row) {
+            accumulateBoundRatio(
+                errors[row], scales[row], tolerance, maximumRatio);
+        }
+        require(maximumRatio > 1.0,
+                "heterogeneous-scale source corruption escaped its row bound");
+    }
+    double residualRatio = 0.0;
+    accumulateAbsoluteBoundRatio(
+        errors[0], sourceResidualBound(errors.size(), 0.0f, scales[0]),
+        residualRatio);
+    accumulateAbsoluteBoundRatio(
+        errors[1], sourceResidualBound(errors.size(), 1.0e8f, scales[1]),
+        residualRatio);
+    require(residualRatio > 1.0,
+            "heterogeneous-scale residual corruption escaped its row bound");
+    const double maximumFiniteRHSBound = sourceResidualBound(
+        errors.size(), std::numeric_limits<float>::max(), 0.0);
+    require(std::isfinite(maximumFiniteRHSBound) &&
+                maximumFiniteRHSBound > 0.0,
+            "maximum finite RHS produced an unbounded residual allowance");
 }
 
 mr_float4 f4(
@@ -243,6 +349,9 @@ struct CandidateAudit {
     id<MTLBuffer> factorBefore = nil;
     id<MTLBuffer> factorAfter = nil;
     id<MTLBuffer> predictorSnapshot = nil;
+    id<MTLBuffer> sourceDynamicsBefore = nil;
+    id<MTLBuffer> sourceDynamicsAfter = nil;
+    id<MTLBuffer> sourceForceSnapshot = nil;
     id<MTLBuffer> finalQSnapshot = nil;
     id<MTLBuffer> finalVSnapshot = nil;
     id<MTLBuffer> shortRootTranslation = nil;
@@ -267,6 +376,7 @@ struct CandidateAudit {
     bool malformedAddressRejected = false;
     bool malformedStrideRejected = false;
     bool aliasRejected = false;
+    bool witnessAliasRejected = false;
     bool bodyOnlyAccepted = false;
     bool optionalPointWorldAccepted = false;
 
@@ -341,7 +451,16 @@ bool encodeProgram(void* raw, const Pass& pass) noexcept {
         pass.linearizationEpoch != kLinearizationEpoch ||
         pass.slotGeneration != kSlotGeneration ||
         pass.physicsSubstepCount != 1u ||
-        pass.controlStep != kControlStep) {
+        pass.controlStep != kControlStep ||
+        (pass.capabilities &
+         metalrobo::MetalNumanXHumanMatterSourceDynamicsWitness) == 0u ||
+        (pass.accessFlags &
+         metalrobo::MetalNumanXHumanMatterReadSourceDynamicsWitness) == 0u ||
+        pass.sourceDynamicsWitness == nullptr ||
+        pass.sourceDynamicsWitnessGPUAddress !=
+            [(__bridge id<MTLBuffer>)pass.sourceDynamicsWitness gpuAddress] ||
+        pass.sourceDynamicsWitnessElementCount != 3u * kNv ||
+        pass.sourceDynamicsWitnessStride != 3u * kNv) {
         return audit.fail("owner pass metadata mismatch");
     }
     __unsafe_unretained id<MTLCommandBuffer> commandBuffer =
@@ -370,6 +489,14 @@ bool encodeProgram(void* raw, const Pass& pass) noexcept {
         [before copyFromBuffer:(__bridge id<MTLBuffer>)pass.sourcePredictedVelocity
             sourceOffset:0u toBuffer:audit.predictorSnapshot destinationOffset:0u
             size:kNv * sizeof(float)];
+        [before copyFromBuffer:(__bridge id<MTLBuffer>)pass.sourceDynamicsWitness
+            sourceOffset:0u toBuffer:audit.sourceDynamicsBefore
+            destinationOffset:0u size:3u * kNv * sizeof(float)];
+        [before copyFromBuffer:(__bridge id<MTLBuffer>)
+                                   pass.mujocoGeneralizedForceArena
+            sourceOffset:pass.generalizedForceOffset * sizeof(float)
+            toBuffer:audit.sourceForceSnapshot destinationOffset:0u
+            size:kNv * sizeof(float)];
         [before endEncoding];
 
         Pass aliasPredictor = pass;
@@ -378,6 +505,16 @@ bool encodeProgram(void* raw, const Pass& pass) noexcept {
         if (pass.encodeExactCandidate(pass.exactCandidateContext, aliasPredictor,
                 candidateQuery(audit, audit.freeMotion, false)))
             return audit.fail("checkpoint alias admitted as the free predictor");
+        Pass aliasWitness = pass;
+        aliasWitness.sourceDynamicsWitness =
+            pass.sourceEffectiveTangentFactor;
+        aliasWitness.sourceDynamicsWitnessGPUAddress =
+            pass.sourceEffectiveTangentFactorGPUAddress;
+        audit.witnessAliasRejected = !pass.encodeExactCandidate(
+            pass.exactCandidateContext, aliasWitness,
+            candidateQuery(audit, audit.freeMotion, false));
+        if (!audit.witnessAliasRejected)
+            return audit.fail("source factor alias admitted as dynamics witness");
         Pass staleABI = pass;
         staleABI.abiVersion = metalrobo::kMetalNumanXHumanMatterABIVersion;
         if (pass.encodeExactCandidate(pass.exactCandidateContext, staleABI,
@@ -532,6 +669,10 @@ bool encodeProgram(void* raw, const Pass& pass) noexcept {
         [publish copyFromBuffer:(__bridge id<MTLBuffer>)pass.standStatuses
                    sourceOffset:0u toBuffer:audit.standStatusSnapshot
               destinationOffset:0u size:sizeof(MRNumiHumanStandStatusGPU)];
+        [publish copyFromBuffer:(__bridge id<MTLBuffer>)
+                                    pass.sourceDynamicsWitness
+                   sourceOffset:0u toBuffer:audit.sourceDynamicsAfter
+              destinationOffset:0u size:3u * kNv * sizeof(float)];
         [publish copyFromBuffer:audit.acceptJoint sourceOffset:0u
                        toBuffer:audit.joint destinationOffset:0u
                             size:sizeof(MRNumanXCoupledHumanStatusGPU)];
@@ -707,6 +848,12 @@ void initializeAudit(CandidateAudit& audit, id<MTLDevice> device) {
 
     audit.freeMotion = makeCandidateArena(device, @"zero-delta candidate", false);
     audit.predictorSnapshot = makeBuffer<float>(device, kNv, @"free predictor snapshot");
+    audit.sourceDynamicsBefore = makeBuffer<float>(
+        device, 3u * kNv, @"source dynamics before physical stand");
+    audit.sourceDynamicsAfter = makeBuffer<float>(
+        device, 3u * kNv, @"source dynamics after physical stand");
+    audit.sourceForceSnapshot = makeBuffer<float>(
+        device, kNv, @"source generalized force snapshot");
     audit.finalQSnapshot = makeBuffer<float>(device, kNq, @"actual Human q");
     audit.finalVSnapshot = makeBuffer<float>(device, kNv, @"actual Human v");
 
@@ -781,6 +928,7 @@ metalrobo::MetalArticulatedOperatorInput makeInput(
                 .capabilities =
                     metalrobo::MetalNumanXHumanMatterExactCandidateKinematics |
                     metalrobo::MetalNumanXHumanMatterSourceEffectiveTangent |
+                    metalrobo::MetalNumanXHumanMatterSourceDynamicsWitness |
                     metalrobo::MetalNumanXHumanMatterStagedReaction |
                     metalrobo::MetalNumanXHumanMatterJointDecision |
                     metalrobo::MetalNumanXHumanMatterPreparedPhysicsGate,
@@ -788,6 +936,7 @@ metalrobo::MetalArticulatedOperatorInput makeInput(
                     metalrobo::MetalNumanXHumanMatterReadLiveHumanState |
                     metalrobo::MetalNumanXHumanMatterReadHumanCheckpoints |
                     metalrobo::MetalNumanXHumanMatterReadSourceEffectiveTangent |
+                    metalrobo::MetalNumanXHumanMatterReadSourceDynamicsWitness |
                     metalrobo::MetalNumanXHumanMatterMayEncodeExactCandidate |
                     metalrobo::MetalNumanXHumanMatterWriteStagedReaction |
                     metalrobo::MetalNumanXHumanMatterWriteJointStatus |
@@ -861,6 +1010,126 @@ float maximumFactorDifference(const CandidateAudit& audit) {
     return maximum;
 }
 
+void verifySourceDynamicsWitness(
+    const metalrobo::EngineModel& model,
+    const CandidateAudit& audit
+) {
+    require(std::memcmp(
+                audit.sourceDynamicsBefore.contents,
+                audit.sourceDynamicsAfter.contents,
+                3u * kNv * sizeof(float)) == 0,
+            "source-dynamics witness changed after preDynamics");
+    const float* witness = contents<float>(audit.sourceDynamicsBefore);
+    const float* diagonal = witness;
+    const float* bias = witness + kNv;
+    const float* rhs = witness + 2u * kNv;
+    const float* factor = contents<float>(audit.factorBefore);
+    const float* sourceForce = contents<float>(audit.sourceForceSnapshot);
+    const float* predictor = contents<float>(audit.predictorSnapshot);
+
+    std::vector<double> forward(kNv, 0.0);
+    std::vector<double> acceleration(kNv, 0.0);
+    double maximumDiagonalBoundRatio = 0.0;
+    double maximumForceClosureBoundRatio = 0.0;
+    double witnessMagnitude = 0.0;
+    for (std::uint32_t row = 0u; row < kNv; ++row) {
+        require(std::isfinite(diagonal[row]) && std::isfinite(bias[row]) &&
+                    std::isfinite(rhs[row]),
+                "source-dynamics witness contains nonfinite values");
+        witnessMagnitude = std::max(witnessMagnitude,
+            std::max({std::abs(static_cast<double>(diagonal[row])),
+                      std::abs(static_cast<double>(bias[row])),
+                      std::abs(static_cast<double>(rhs[row]))}));
+        double reconstructedDiagonal = 0.0;
+        for (std::uint32_t column = 0u; column <= row; ++column) {
+            const double value = factor[row * kNv + column];
+            reconstructedDiagonal += value * value;
+        }
+        const double diagonalError =
+            std::abs(reconstructedDiagonal - diagonal[row]);
+        const double diagonalScale = std::max(
+            std::abs(reconstructedDiagonal),
+            std::abs(static_cast<double>(diagonal[row])));
+        accumulateBoundRatio(
+            diagonalError, diagonalScale,
+            kSourceDiagonalRelativeTolerance,
+            maximumDiagonalBoundRatio);
+        const double forceClosure =
+            std::abs(static_cast<double>(bias[row]) + rhs[row] -
+                     sourceForce[row]);
+        const double forceScale =
+            std::abs(static_cast<double>(bias[row])) +
+            std::abs(static_cast<double>(rhs[row])) +
+            std::abs(static_cast<double>(sourceForce[row]));
+        accumulateBoundRatio(
+            forceClosure, forceScale,
+            kSourceForceClosureRelativeTolerance,
+            maximumForceClosureBoundRatio);
+    }
+    require(witnessMagnitude > 0.0, "source-dynamics witness remained zero");
+    require(maximumDiagonalBoundRatio <= 1.0,
+            "A0 diagonal witness does not close against source Cholesky: " +
+                std::to_string(maximumDiagonalBoundRatio));
+    require(maximumForceClosureBoundRatio <= 1.0,
+            "raw bias/RHS witness does not close against source force: " +
+                std::to_string(maximumForceClosureBoundRatio));
+
+    for (std::uint32_t row = 0u; row < kNv; ++row) {
+        double value = rhs[row];
+        for (std::uint32_t column = 0u; column < row; ++column) {
+            value -= factor[row * kNv + column] * forward[column];
+        }
+        const double pivot = factor[row * kNv + row];
+        require(std::isfinite(pivot) && pivot > 0.0,
+                "source Cholesky has an invalid pivot");
+        forward[row] = value / pivot;
+    }
+    for (std::uint32_t reverse = 0u; reverse < kNv; ++reverse) {
+        const std::uint32_t row = kNv - 1u - reverse;
+        double value = forward[row];
+        for (std::uint32_t column = row + 1u; column < kNv; ++column) {
+            value -= factor[column * kNv + row] * acceleration[column];
+        }
+        acceleration[row] = value / factor[row * kNv + row];
+    }
+
+    double maximumResidualBoundRatio = 0.0;
+    double maximumPredictorBoundRatio = 0.0;
+    for (std::uint32_t row = 0u; row < kNv; ++row) {
+        double product = 0.0;
+        double productScale = 0.0;
+        for (std::uint32_t column = 0u; column < kNv; ++column) {
+            const double a0 = row == column
+                ? diagonal[row]
+                : factor[std::min(row, column) * kNv +
+                         std::max(row, column)];
+            product += a0 * acceleration[column];
+            productScale += std::abs(a0 * acceleration[column]);
+        }
+        accumulateAbsoluteBoundRatio(
+            std::abs(product - rhs[row]),
+            sourceResidualBound(kNv, rhs[row], productScale),
+            maximumResidualBoundRatio);
+        const double expectedVelocity = model.defaultV[row] +
+            static_cast<double>(kTimestep) * acceleration[row];
+        accumulateBoundRatio(
+            std::abs(expectedVelocity - predictor[row]), 0.0,
+            kSourcePredictorAbsoluteTolerance,
+            maximumPredictorBoundRatio);
+    }
+    require(maximumResidualBoundRatio <= 1.0,
+            "source A0/RHS witness fails the CPU residual oracle: " +
+                std::to_string(maximumResidualBoundRatio));
+    require(maximumPredictorBoundRatio <= 1.0,
+            "source witness solve does not reproduce free predictor: " +
+                std::to_string(maximumPredictorBoundRatio));
+    std::cout << "SOURCE_DYNAMICS immutable=yes diagonal_bound_ratio="
+              << maximumDiagonalBoundRatio << " force_closure_bound_ratio="
+              << maximumForceClosureBoundRatio << " residual_bound_ratio="
+              << maximumResidualBoundRatio << " predictor_bound_ratio="
+              << maximumPredictorBoundRatio << '\n';
+}
+
 void verifyCandidate(
     const metalrobo::EngineModel& model,
     const CandidateAudit& audit
@@ -873,6 +1142,7 @@ void verifyCandidate(
             "owner phase/abort count mismatch");
     require(audit.malformedAddressRejected &&
                 audit.malformedStrideRejected && audit.aliasRejected &&
+                audit.witnessAliasRejected &&
                 audit.bodyOnlyAccepted && audit.optionalPointWorldAccepted,
             "candidate admission evidence is incomplete");
     require(audit.companionNegativeCount == 18u,
@@ -889,6 +1159,7 @@ void verifyCandidate(
             "Human stand did not accept the coupled step");
     require(maximumFactorDifference(audit) == 0.0f,
             "candidate kinematics modified frozen A0 bytes");
+    verifySourceDynamicsWitness(model, audit);
 
     const float* predictor = contents<float>(audit.predictorSnapshot);
     const float* actualV = contents<float>(audit.finalVSnapshot);
@@ -1013,6 +1284,7 @@ int main(int argc, const char* argv[]) {
         try {
             require(argc == 2,
                     "usage: numanx_human_matter_candidate_probe <metallib>");
+            verifyHeterogeneousScaleGate();
             id<MTLDevice> device = MTLCreateSystemDefaultDevice();
             require(device != nil, "NumanX candidate probe requires Metal");
             metalrobo::EngineModel model = makeHumanModel();
@@ -1054,6 +1326,7 @@ int main(int argc, const char* argv[]) {
                 << " nonlinear_fd=passed malformed=fail_closed"
                 << " alias=fail_closed point_world=materialized"
                 << " body_only=accepted A0=frozen"
+                << " source_dynamics=immutable_3xnv"
                 << " compensated_companion_negative=" << audit.companionNegativeCount
                 << " optional_point_low=absent root_reference=preserved\n";
             return 0;

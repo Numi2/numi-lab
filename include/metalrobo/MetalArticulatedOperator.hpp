@@ -341,9 +341,11 @@ enum class MetalNumanXHumanMatterPhase : std::uint32_t {
 
 inline constexpr std::uint32_t kMetalNumanXHumanMatterABIVersion =
     MR_NUMANX_HUMAN_MATTER_ABI_VERSION;
-// Host borrowed-pass v5 adds the immutable free Human velocity predictor.
-// The pointer-free two-phase root/publication ABI remains v4.
-inline constexpr std::uint32_t kMetalNumanXHumanMatterPassABIVersion = 6u;
+// Borrowed-pass v6 ends at pointPositionLowElementCount. V7 tail-appends the
+// immutable source-dynamics witness without moving any v6 member. The
+// pointer-free two-phase root/publication ABI remains v4.
+inline constexpr std::uint32_t kMetalNumanXHumanMatterPassABIVersionV6 = 6u;
+inline constexpr std::uint32_t kMetalNumanXHumanMatterPassABIVersion = 7u;
 inline constexpr std::uint32_t kMetalNumanXHumanMatterDofLayoutVersion = 1u;
 
 enum MetalNumanXHumanMatterAccessFlag : std::uint32_t {
@@ -354,6 +356,7 @@ enum MetalNumanXHumanMatterAccessFlag : std::uint32_t {
     MetalNumanXHumanMatterWriteStagedReaction = 1u << 4u,
     MetalNumanXHumanMatterWriteJointStatus = 1u << 5u,
     MetalNumanXHumanMatterWritePreparedPhysicsToken = 1u << 6u,
+    MetalNumanXHumanMatterReadSourceDynamicsWitness = 1u << 7u,
 };
 
 inline constexpr std::uint32_t kMetalNumanXHumanMatterKnownAccess =
@@ -363,7 +366,8 @@ inline constexpr std::uint32_t kMetalNumanXHumanMatterKnownAccess =
     MetalNumanXHumanMatterMayEncodeExactCandidate |
     MetalNumanXHumanMatterWriteStagedReaction |
     MetalNumanXHumanMatterWriteJointStatus |
-    MetalNumanXHumanMatterWritePreparedPhysicsToken;
+    MetalNumanXHumanMatterWritePreparedPhysicsToken |
+    MetalNumanXHumanMatterReadSourceDynamicsWitness;
 
 enum MetalNumanXHumanMatterCapability : std::uint32_t {
     // Exact q/body/attachment kinematics are encoded by the Human owner from
@@ -382,6 +386,10 @@ enum MetalNumanXHumanMatterCapability : std::uint32_t {
     // family and consume a device-private HumanIO admission receipt. Token
     // byte size is deliberately not a family discriminator.
     MetalNumanXHumanMatterExactClockAuthority = 1u << 5u,
+    // Immutable environment-major [A0 diagonal | raw bias | raw RHS], each
+    // segment exactly dofCount floats and captured before source factorization
+    // or vector-scratch overwrite.
+    MetalNumanXHumanMatterSourceDynamicsWitness = 1u << 6u,
 };
 
 enum class MetalNumanXHumanMatterTokenFamily : std::uint32_t {
@@ -395,7 +403,8 @@ inline constexpr std::uint32_t kMetalNumanXHumanMatterKnownCapabilities =
     MetalNumanXHumanMatterStagedReaction |
     MetalNumanXHumanMatterJointDecision |
     MetalNumanXHumanMatterPreparedPhysicsGate |
-    MetalNumanXHumanMatterExactClockAuthority;
+    MetalNumanXHumanMatterExactClockAuthority |
+    MetalNumanXHumanMatterSourceDynamicsWitness;
 
 struct MetalNumanXHumanMatterPass;
 
@@ -608,6 +617,14 @@ struct MetalNumanXHumanMatterPass {
     std::uint64_t rootTranslationCheckpointElementCount = 0u;
     std::uint64_t bodyPositionLowElementCount = 0u;
     std::uint64_t pointPositionLowElementCount = 0u;
+
+    // V7 tail. Environment-major, sourceDynamicsWitnessStride == 3*dofCount:
+    // [0,nv) exact A0 diagonal, [nv,2nv) raw device bias, and [2nv,3nv)
+    // raw generalized RHS before solveFactor overwrites its input.
+    void* sourceDynamicsWitness = nullptr;
+    std::uint64_t sourceDynamicsWitnessGPUAddress = 0u;
+    std::uint64_t sourceDynamicsWitnessElementCount = 0u;
+    std::uint64_t sourceDynamicsWitnessStride = 0u;
 
 };
 
@@ -1147,6 +1164,7 @@ struct MetalNumanXHumanMatterProgram {
     [[nodiscard]] bool valid() const noexcept {
         constexpr std::uint32_t requiredCapabilities =
             MetalNumanXHumanMatterSourceEffectiveTangent |
+            MetalNumanXHumanMatterSourceDynamicsWitness |
             MetalNumanXHumanMatterStagedReaction |
             MetalNumanXHumanMatterJointDecision |
             MetalNumanXHumanMatterPreparedPhysicsGate;
@@ -1154,6 +1172,7 @@ struct MetalNumanXHumanMatterProgram {
             MetalNumanXHumanMatterReadLiveHumanState |
             MetalNumanXHumanMatterReadHumanCheckpoints |
             MetalNumanXHumanMatterReadSourceEffectiveTangent |
+            MetalNumanXHumanMatterReadSourceDynamicsWitness |
             MetalNumanXHumanMatterWriteStagedReaction |
             MetalNumanXHumanMatterWriteJointStatus |
             MetalNumanXHumanMatterWritePreparedPhysicsToken;
@@ -1864,6 +1883,10 @@ struct MetalArticulatedOperatorLayout {
     // Includes immutable model buffers and one-element placeholders required
     // to bind logically empty Metal buffers.
     std::size_t totalAllocatedBytes = 0u;
+    // Tail-added with borrowed-pass v7; one immutable [environment][3*nv]
+    // source-dynamics record owned by the Human transaction.
+    std::size_t humanMatterSourceDynamicsWitnessElements = 0u;
+    std::size_t humanMatterSourceDynamicsWitnessBytes = 0u;
 };
 
 struct MetalArticulatedOperatorResult {

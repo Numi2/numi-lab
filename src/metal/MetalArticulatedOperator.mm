@@ -54,7 +54,7 @@ constexpr std::size_t kStandVCheckpointBuffer = 14u;
 constexpr std::size_t kStandMujocoCheckpointBuffer = 15u;
 constexpr std::size_t kStandStatusCheckpointBuffer = 16u;
 constexpr std::size_t kStandVectorCheckpointBuffer = 17u;
-constexpr std::size_t kHumanMatterBufferCount = 20u;
+constexpr std::size_t kHumanMatterBufferCount = 21u;
 constexpr std::size_t kHumanMatterRootTranslationCheckpointBuffer = 17u;
 constexpr std::size_t kHumanMatterCandidateBodyPositionLowBuffer = 18u;
 constexpr std::size_t kHumanMatterCandidatePointPositionLowBuffer = 19u;
@@ -75,6 +75,7 @@ constexpr std::size_t kHumanMatterProposedTokenBuffer = 13u;
 constexpr std::size_t kHumanMatterApplyActionBuffer = 14u;
 constexpr std::size_t kHumanMatterPublicationFenceBuffer = 15u;
 constexpr std::size_t kHumanMatterPredictedVelocityBuffer = 16u;
+constexpr std::size_t kHumanMatterSourceDynamicsWitnessBuffer = 20u;
 constexpr std::size_t kStandVelocityBuffer = 0u;
 constexpr std::size_t kStandContactsBuffer = 1u;
 constexpr std::size_t kStandSpatialJacobianBuffer = 2u;
@@ -1798,6 +1799,12 @@ bool buildRequirements(
             requirements.humanMatterEntries[kHumanMatterPredictedVelocityBuffer]
         ) ||
         !makeRequirement<float>(
+            "NumanX Human/Matter source dynamics witness",
+            layout.humanMatterSourceDynamicsWitnessElements,
+            requirements.humanMatterEntries[
+                kHumanMatterSourceDynamicsWitnessBuffer]
+        ) ||
+        !makeRequirement<float>(
             "NumanX Human/Matter v checkpoint",
             layout.humanMatterVCheckpointElements,
             requirements.humanMatterEntries[
@@ -2331,6 +2338,15 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
                 layout.mujocoStateElements;
             layout.humanMatterSourceFactorElements =
                 layout.standFactorElements;
+            if (!checkedMultiply(
+                    layout.standVelocityElements, 3u,
+                    layout.humanMatterSourceDynamicsWitnessElements)) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::arithmeticOverflow,
+                    "derived NumanX source-dynamics witness overflow"
+                );
+            }
             layout.humanMatterOwnerStatusElements = input.environmentCount;
             layout.humanMatterProposalElements =
                 input.environmentCount;
@@ -2464,6 +2480,8 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
         exceedsShaderAddressing(
             layout.humanMatterSourceFactorElements) ||
         exceedsShaderAddressing(
+            layout.humanMatterSourceDynamicsWitnessElements) ||
+        exceedsShaderAddressing(
             layout.humanMatterOwnerStatusElements) ||
         exceedsShaderAddressing(
             layout.humanMatterCandidatePointElements) ||
@@ -2579,6 +2597,9 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
             kHumanMatterMujocoCheckpointBuffer].logicalBytes;
     layout.humanMatterSourceFactorBytes =
         requirements.standEntries[kStandFactorBuffer].logicalBytes;
+    layout.humanMatterSourceDynamicsWitnessBytes =
+        requirements.humanMatterEntries[
+            kHumanMatterSourceDynamicsWitnessBuffer].logicalBytes;
     layout.humanMatterOwnerStatusBytes =
         requirements.humanMatterEntries[
             kHumanMatterOwnerStatusBuffer].logicalBytes;
@@ -3964,7 +3985,7 @@ void uploadBatch(
         return false;
     }
 
-    const std::array<id<MTLBuffer>, 21u> ownerBuffers{{
+    const std::array<id<MTLBuffer>, 22u> ownerBuffers{{
         context.buffers[6u],
         context.standBuffers[kStandVelocityBuffer],
         context.buffers[kMujocoStatesBuffer],
@@ -3986,8 +4007,10 @@ void uploadBatch(
         context.humanMatterBuffers[kHumanMatterApplyActionBuffer],
         context.humanMatterBuffers[kHumanMatterPublicationFenceBuffer],
         context.humanMatterBuffers[kHumanMatterPredictedVelocityBuffer],
+        context.humanMatterBuffers[
+            kHumanMatterSourceDynamicsWitnessBuffer],
     }};
-    const std::array<std::uint64_t, 21u> ownerMinimumBytes{{
+    const std::array<std::uint64_t, 22u> ownerMinimumBytes{{
         layout.qBytes,
         layout.standVelocityBytes,
         layout.mujocoStateBytes,
@@ -4009,6 +4032,7 @@ void uploadBatch(
         layout.humanMatterApplyActionBytes,
         layout.humanMatterPublicationFenceBytes,
         layout.standVelocityBytes,
+        layout.humanMatterSourceDynamicsWitnessBytes,
     }};
     for (std::size_t index = 0u; index < ownerBuffers.size(); ++index) {
         if (!ownedMetalBuffer(
@@ -4581,6 +4605,14 @@ struct MetalBufferRegion {
             kHumanMatterPredictedVelocityBuffer].gpuAddress &&
         pass.sourceEffectiveTangentFactor ==
             (__bridge void*)state.standBuffers[kStandFactorBuffer] &&
+        pass.sourceDynamicsWitness == (__bridge void*)
+            state.humanMatterBuffers[
+                kHumanMatterSourceDynamicsWitnessBuffer] &&
+        pass.sourceDynamicsWitnessElementCount ==
+            static_cast<std::uint64_t>(context.environmentCount) * 3u *
+                context.nv &&
+        pass.sourceDynamicsWitnessStride ==
+            static_cast<std::uint64_t>(3u) * context.nv &&
         pass.matterGeneralizedReaction == context.matterReaction &&
         pass.jointStatuses == context.jointStatuses &&
         pass.acceptedPhysicsStateTokens == context.acceptedTokens &&
@@ -4594,6 +4626,9 @@ struct MetalBufferRegion {
             kHumanMatterVCheckpointBuffer].gpuAddress &&
         pass.sourceEffectiveTangentFactorGPUAddress ==
             state.standBuffers[kStandFactorBuffer].gpuAddress &&
+        pass.sourceDynamicsWitnessGPUAddress ==
+            state.humanMatterBuffers[
+                kHumanMatterSourceDynamicsWitnessBuffer].gpuAddress &&
         pass.matterGeneralizedReactionGPUAddress ==
             context.matterReactionGPUAddress &&
         pass.jointStatusesGPUAddress == context.jointStatusesGPUAddress &&
@@ -9006,6 +9041,9 @@ MetalArticulatedOperatorContext::submit(
                         kHumanMatterMujocoCheckpointBuffer];
                 pass.sourceEffectiveTangentFactor =
                     (__bridge void*)state_->standBuffers[kStandFactorBuffer];
+                pass.sourceDynamicsWitness = (__bridge void*)
+                    state_->humanMatterBuffers[
+                        kHumanMatterSourceDynamicsWitnessBuffer];
                 pass.ownerStatuses =
                     (__bridge void*)state_->humanMatterBuffers[
                         kHumanMatterOwnerStatusBuffer];
@@ -9049,6 +9087,9 @@ MetalArticulatedOperatorContext::submit(
                         kHumanMatterMujocoCheckpointBuffer].gpuAddress;
                 pass.sourceEffectiveTangentFactorGPUAddress =
                     state_->standBuffers[kStandFactorBuffer].gpuAddress;
+                pass.sourceDynamicsWitnessGPUAddress =
+                    state_->humanMatterBuffers[
+                        kHumanMatterSourceDynamicsWitnessBuffer].gpuAddress;
                 pass.ownerStatusesGPUAddress = state_->humanMatterBuffers[
                     kHumanMatterOwnerStatusBuffer].gpuAddress;
                 pass.matterGeneralizedReactionGPUAddress =
@@ -9075,6 +9116,10 @@ MetalArticulatedOperatorContext::submit(
                 pass.mujocoStateStride = pass.mujocoStateCount;
                 pass.factorStride = static_cast<std::uint64_t>(
                     articulation.nv) * articulation.nv;
+                pass.sourceDynamicsWitnessElementCount =
+                    layout.humanMatterSourceDynamicsWitnessElements;
+                pass.sourceDynamicsWitnessStride =
+                    static_cast<std::uint64_t>(3u) * articulation.nv;
                 pass.generalizedForceOffset =
                     layout.mujocoMuscleGeneralizedForceElements;
                 pass.generalizedForceStride = articulation.nv;
@@ -9727,6 +9772,8 @@ MetalArticulatedOperatorContext::submit(
                 [predictor setBuffer:state_->standBuffers[kStandBodyPositionLowBuffer] offset:0u atIndex:22u];
                 [predictor setBuffer:state_->standBuffers[kStandPointPositionLowBuffer] offset:0u atIndex:23u];
                 [predictor setBuffer:state_->standBuffers[kStandPassiveJointBuffer] offset:0u atIndex:24u];
+                [predictor setBuffer:state_->humanMatterBuffers[
+                    kHumanMatterSourceDynamicsWitnessBuffer] offset:0u atIndex:25u];
                 [predictor setComputePipelineState:state_->standPipeline];
                 [predictor setBuffer:state_->buffers[0u] offset:0u atIndex:0u];
                 [predictor setBuffer:state_->buffers[1u] offset:0u atIndex:1u];
@@ -9762,8 +9809,10 @@ MetalArticulatedOperatorContext::submit(
                     [trace copyFromBuffer:state_->buffers[kMillardForcesBuffer]
                         sourceOffset:traceForceOffset * sizeof(float) toBuffer:initialPhysicalTrace
                         destinationOffset:0u size:rowBytes];
-                    [trace copyFromBuffer:state_->standBuffers[kStandVectorBuffer]
-                        sourceOffset:0u toBuffer:initialPhysicalTrace destinationOffset:rowBytes size:rowBytes];
+                    [trace copyFromBuffer:state_->humanMatterBuffers[
+                            kHumanMatterSourceDynamicsWitnessBuffer]
+                        sourceOffset:rowBytes toBuffer:initialPhysicalTrace
+                        destinationOffset:rowBytes size:rowBytes];
                     [trace copyFromBuffer:state_->humanMatterBuffers[kHumanMatterPredictedVelocityBuffer]
                         sourceOffset:0u toBuffer:initialPhysicalTrace destinationOffset:2u * rowBytes size:rowBytes];
                     [trace copyFromBuffer:state_->buffers[6u]
@@ -9842,6 +9891,16 @@ MetalArticulatedOperatorContext::submit(
                 [standEncoder setBuffer:state_->standBuffers[kStandBodyPositionLowBuffer] offset:0u atIndex:22u];
                 [standEncoder setBuffer:state_->standBuffers[kStandPointPositionLowBuffer] offset:0u atIndex:23u];
                 [standEncoder setBuffer:state_->standBuffers[kStandPassiveJointBuffer] offset:0u atIndex:24u];
+                // The physical stand never writes the witness. Generic stand
+                // submissions bind a safe float sentinel because the v7
+                // witness arena exists only for a Human/Matter transaction.
+                [standEncoder setBuffer:
+                    state_->humanMatterBuffers[
+                        kHumanMatterSourceDynamicsWitnessBuffer] != nil
+                        ? state_->humanMatterBuffers[
+                              kHumanMatterSourceDynamicsWitnessBuffer]
+                        : state_->standBuffers[kStandPassiveJointBuffer]
+                    offset:0u atIndex:25u];
                 [standEncoder setBuffer:state_->buffers[0u] offset:0u atIndex:0u];
                 [standEncoder setBuffer:state_->buffers[1u] offset:0u atIndex:1u];
                 [standEncoder setBuffer:state_->buffers[3u] offset:0u atIndex:2u];
