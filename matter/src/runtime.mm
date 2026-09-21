@@ -12732,6 +12732,19 @@ std::uint32_t Runtime::coupledCandidatePointCapacity() const noexcept {
         : 0u;
 }
 
+std::uint32_t Runtime::environmentCount() const noexcept {
+    return state_ != nullptr ? state_->dispatch.environmentCount : 0u;
+}
+
+std::uint32_t Runtime::femNodeCount() const noexcept {
+    return state_ != nullptr ? state_->dispatch.femNodeCount : 0u;
+}
+
+std::uint32_t Runtime::femHumanAttachmentCount() const noexcept {
+    return state_ != nullptr
+        ? state_->dispatch.femHumanAttachmentCount : 0u;
+}
+
 bool Runtime::requiresRigidContactEvidence() const noexcept {
     return state_ != nullptr && state_->adaptiveTransfer &&
         state_->hasAdaptive;

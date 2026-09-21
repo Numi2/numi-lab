@@ -1728,6 +1728,11 @@ public:
     [[nodiscard]] bool requiresRodNodes() const noexcept;
     [[nodiscard]] bool requiresCoupledCandidate() const noexcept;
     [[nodiscard]] std::uint32_t coupledCandidatePointCapacity() const noexcept;
+    // Immutable cooked dimensions used to bind external same-device programs
+    // before they enter a Runtime transaction.
+    [[nodiscard]] std::uint32_t environmentCount() const noexcept;
+    [[nodiscard]] std::uint32_t femNodeCount() const noexcept;
+    [[nodiscard]] std::uint32_t femHumanAttachmentCount() const noexcept;
     [[nodiscard]] bool requiresRigidContactEvidence() const noexcept;
     // Move a compact live-DER contact set between completed command buffers.
     // firstRodEdges is ordered by compiled strand-proxy slot and must contain

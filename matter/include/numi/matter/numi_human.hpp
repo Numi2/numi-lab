@@ -122,14 +122,33 @@ struct NumiHumanTendonFEMLoadSource {
     float productionForceOwnerFraction = 0.0f;
 };
 
+enum class NumiHumanTendonFEMLoadExecutionMode : std::uint32_t {
+    // The adapter opens and reconciles its own Runtime transaction. This is
+    // the existing standalone Human tendon/FEM path.
+    standaloneRuntime = 0u,
+    // The adapter assembles the exact nodal field and source-force
+    // corrections only. A bound NumanX Human/Matter owner consumes the field
+    // in its one Runtime transaction and remains the sole prepare/apply owner.
+    numanXDeferred = 1u,
+};
+
 struct NumiHumanTendonFEMLoadConfiguration {
     std::filesystem::path metallib;
+    NumiHumanTendonFEMLoadExecutionMode executionMode =
+        NumiHumanTendonFEMLoadExecutionMode::standaloneRuntime;
+    std::uint32_t reserved0 = 0u;
 };
 
 struct NumiHumanTendonFEMLoadDiagnostics {
     bool initialized = false;
     std::uint32_t encodedPassCount = 0u;
     std::uint32_t abortCount = 0u;
+    std::uint32_t preSourceCorrectionEncodeCount = 0u;
+    std::uint32_t deferredExternalForceBorrowCount = 0u;
+    std::uint32_t runtimePreDynamicsEncodeCount = 0u;
+    std::uint32_t runtimePostCommitEncodeCount = 0u;
+    NumiHumanTendonFEMLoadExecutionMode executionMode =
+        NumiHumanTendonFEMLoadExecutionMode::standaloneRuntime;
     std::uint64_t fingerprint = 0u;
     // Valid after the enclosing borrowed command buffer has completed. L1 is
     // the sum of nodal force magnitudes; resultant is the magnitude of their
@@ -207,6 +226,86 @@ struct NumiHumanTendonFEMLoadDiagnostics {
     double passiveRoutedBandStoredEnergyJoules = 0.0;
     double passiveRoutedBandMaximumExtensionMeters = 0.0;
     std::string message;
+};
+
+inline constexpr std::uint32_t
+    kNumiHumanTendonFEMDeferredLoadABIVersion = 1u;
+
+// Ephemeral, read-only view produced by a successful deferred pre-source
+// callback for one exact command buffer and Human step. The adapter owns both
+// Metal buffers. Consumers may bind them only on that command buffer; they may
+// not retain, replace, mutate, commit, wait, or read them back. Validation
+// statuses are the exact GPU admission result for the assembled force field.
+struct NumiHumanTendonFEMDeferredExternalForceView {
+    std::uint32_t abiVersion =
+        kNumiHumanTendonFEMDeferredLoadABIVersion;
+    std::uint32_t structSize = sizeof(
+        NumiHumanTendonFEMDeferredExternalForceView);
+    void* externalForces = nullptr;       // id<MTLBuffer>, float4
+    void* validationStatuses = nullptr;   // id<MTLBuffer>, MRMetalWorldStatusGPU
+    std::uint64_t externalForcesGPUAddress = 0u;
+    std::uint64_t validationStatusesGPUAddress = 0u;
+    std::uint64_t externalForceElementCount = 0u;
+    std::uint64_t validationStatusElementCount = 0u;
+    std::uint64_t deviceRegistryID = 0u;
+    std::uint64_t programFingerprint = 0u;
+    std::uint32_t environmentCount = 0u;
+    std::uint32_t femNodeCount = 0u;
+    std::uint32_t externalForceStride = 0u;
+    std::uint32_t validationStatusStride = 0u;
+    std::uint32_t stepIndex = 0u;
+    std::uint32_t reserved0 = 0u;
+};
+
+using NumiHumanTendonFEMBorrowDeferredExternalForces = bool (*)(
+    void* context,
+    void* commandBuffer,
+    std::uint32_t stepIndex,
+    std::uint32_t environmentCount,
+    NumiHumanTendonFEMDeferredExternalForceView& output
+) noexcept;
+
+// Immutable bridge capability shared by the enclosing Human owner and its
+// NumanX Human/Matter adapter. The Human owner invokes
+// encodePreSourceCorrections through MetalNumiHumanTendonLoadProgram before
+// its free predictor. NumanX then borrows the resulting exact-command nodal
+// field through borrowExternalForces. The callback never opens, prepares, or
+// commits a Matter Runtime transaction.
+struct NumiHumanTendonFEMDeferredLoadProgram {
+    std::uint32_t abiVersion =
+        kNumiHumanTendonFEMDeferredLoadABIVersion;
+    std::uint32_t structSize = sizeof(
+        NumiHumanTendonFEMDeferredLoadProgram);
+    void* context = nullptr;
+    metalrobo::MetalNumiHumanTendonLoadEncode
+        encodePreSourceCorrections = nullptr;
+    NumiHumanTendonFEMBorrowDeferredExternalForces
+        borrowExternalForces = nullptr;
+    std::uint64_t fingerprint = 0u;
+    std::uint64_t runtimeDeviceProgramFingerprint = 0u;
+    std::uint32_t environmentCount = 0u;
+    std::uint32_t femNodeCount = 0u;
+    std::uint32_t activeAnchorCount = 0u;
+    std::uint32_t reserved0 = 0u;
+
+    [[nodiscard]] bool valid() const noexcept {
+        return abiVersion == kNumiHumanTendonFEMDeferredLoadABIVersion &&
+            structSize == sizeof(NumiHumanTendonFEMDeferredLoadProgram) &&
+            context != nullptr && encodePreSourceCorrections != nullptr &&
+            borrowExternalForces != nullptr && fingerprint != 0u &&
+            runtimeDeviceProgramFingerprint != 0u &&
+            environmentCount != 0u && femNodeCount != 0u &&
+            activeAnchorCount != 0u && reserved0 == 0u;
+    }
+
+    [[nodiscard]] bool configured() const noexcept {
+        return abiVersion != kNumiHumanTendonFEMDeferredLoadABIVersion ||
+            structSize != sizeof(NumiHumanTendonFEMDeferredLoadProgram) ||
+            context != nullptr || encodePreSourceCorrections != nullptr ||
+            borrowExternalForces != nullptr || fingerprint != 0u ||
+            runtimeDeviceProgramFingerprint != 0u || environmentCount != 0u ||
+            femNodeCount != 0u || activeAnchorCount != 0u || reserved0 != 0u;
+    }
 };
 
 inline constexpr std::uint32_t
@@ -344,6 +443,8 @@ public:
     );
     [[nodiscard]] metalrobo::MetalNumiHumanTendonLoadProgram
     program() noexcept;
+    [[nodiscard]] NumiHumanTendonFEMDeferredLoadProgram
+    deferredProgram() noexcept;
     [[nodiscard]] NumiHumanTendonFEMLoadDiagnostics diagnostics() const noexcept;
     // Snapshot/restore are completion-boundary operations: the caller must not
     // have an in-flight borrowed command buffer using this adapter. Restore
@@ -362,6 +463,12 @@ private:
     [[nodiscard]] bool encodePostValidation(
         const metalrobo::MetalNumiHumanTendonLoadPass& pass
     );
+    [[nodiscard]] bool borrowDeferredExternalForces(
+        void* commandBuffer,
+        std::uint32_t stepIndex,
+        std::uint32_t environmentCount,
+        NumiHumanTendonFEMDeferredExternalForceView& output
+    ) noexcept;
     void abort(void* commandBuffer) noexcept;
     struct State;
     std::unique_ptr<State> state_;

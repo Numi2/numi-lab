@@ -2806,14 +2806,15 @@ void maybeReleaseLifetimeHold(State& state) noexcept {
     return encoded;
 }
 
-[[nodiscard]] numi::matter::EncodeRequest makeMatterRequest(
-    State&,
+[[nodiscard]] bool makeMatterRequest(
+    State& state,
     Slot& slot,
     const MetalNumanXHumanMatterPass& pass,
     Frame& frame,
-    const numi::matter::EncodePhase phase
+    const numi::matter::EncodePhase phase,
+    numi::matter::EncodeRequest& request
 ) noexcept {
-    numi::matter::EncodeRequest request;
+    request = {};
     request.commandBuffer = pass.commandBuffer;
     request.phase = phase;
     request.rigid.q = pass.q;
@@ -2846,7 +2847,59 @@ void maybeReleaseLifetimeHold(State& state) noexcept {
     request.runIdentification = false;
     request.runAdaptiveTransfer = false;
     request.enablePreparedState = true;
-    return request;
+    const auto& deferred = state.config.tendonFEMDeferredLoadProgram;
+    if (!deferred.configured()) return true;
+    numi::matter::NumiHumanTendonFEMDeferredExternalForceView view{};
+    if (!deferred.valid() ||
+        !deferred.borrowExternalForces(
+            deferred.context, pass.commandBuffer, pass.stepIndex,
+            static_cast<std::uint32_t>(pass.environmentCount), view)) {
+        return false;
+    }
+    std::uint64_t expectedForceElements = 0u;
+    std::uint64_t expectedForceBytes = 0u;
+    std::uint64_t expectedStatusBytes = 0u;
+    if (view.abiVersion !=
+            numi::matter::kNumiHumanTendonFEMDeferredLoadABIVersion ||
+        view.structSize != sizeof(view) || view.reserved0 != 0u ||
+        view.programFingerprint != deferred.fingerprint ||
+        view.deviceRegistryID != state.device.registryID ||
+        view.environmentCount != pass.environmentCount ||
+        view.environmentCount != deferred.environmentCount ||
+        view.femNodeCount != deferred.femNodeCount ||
+        view.externalForceStride != view.femNodeCount ||
+        view.validationStatusStride != 1u ||
+        view.stepIndex != pass.stepIndex ||
+        !checkedMultiply(
+            view.environmentCount, view.femNodeCount,
+            expectedForceElements) ||
+        !checkedMultiply(
+            expectedForceElements, sizeof(mr_float4),
+            expectedForceBytes) ||
+        !checkedMultiply(
+            view.environmentCount, sizeof(MRMetalWorldStatusGPU),
+            expectedStatusBytes) ||
+        view.externalForceElementCount != expectedForceElements ||
+        view.validationStatusElementCount != view.environmentCount ||
+        !exactBuffer(
+            state.device, view.externalForces,
+            view.externalForcesGPUAddress, expectedForceBytes) ||
+        !exactBuffer(
+            state.device, view.validationStatuses,
+            view.validationStatusesGPUAddress, expectedStatusBytes)) {
+        return false;
+    }
+    request.femExternalForces = view.externalForces;
+    if (!narrowU32(expectedForceElements, request.femExternalForceCount)) {
+        return false;
+    }
+    // The deferred producer's validation status is the exact admission gate
+    // for the field on preDynamics. postCommit uses NumanX's final Human map;
+    // the borrowed force view remains bound for identity symmetry only.
+    if (phase == numi::matter::EncodePhase::preDynamics) {
+        request.environmentStatuses = view.validationStatuses;
+    }
+    return true;
 }
 
 void cancelSlot(State& state, Slot& slot) noexcept {
@@ -2987,8 +3040,14 @@ void cancelSlot(State& state, Slot& slot) noexcept {
         MetalNumanXCoupledHumanPhase::preDynamics);
     frame.coupledPass.encodeExactKinematics = &exactCandidateCallback;
     slot.callbackFrame = &frame;
-    auto request = makeMatterRequest(
-        state, slot, pass, frame, numi::matter::EncodePhase::preDynamics);
+    numi::matter::EncodeRequest request{};
+    if (!makeMatterRequest(
+            state, slot, pass, frame,
+            numi::matter::EncodePhase::preDynamics, request)) {
+        slot.callbackFrame = nullptr;
+        cancelSlot(state, slot);
+        return false;
+    }
     const auto encoded = state.config.matterRuntime->encode(request);
     slot.callbackFrame = nullptr;
     slot.matterOpened = encoded.encoded;
@@ -3145,8 +3204,13 @@ void cancelSlot(State& state, Slot& slot) noexcept {
         state, pass, &frame,
         MetalNumanXCoupledHumanPhase::postDynamics);
     frame.coupledPass.encodeExactKinematics = &exactCandidateCallback;
-    auto request = makeMatterRequest(
-        state, slot, pass, frame, numi::matter::EncodePhase::postCommit);
+    numi::matter::EncodeRequest request{};
+    if (!makeMatterRequest(
+            state, slot, pass, frame,
+            numi::matter::EncodePhase::postCommit, request)) {
+        cancelSlot(state, slot);
+        return false;
+    }
     request.coupledCandidateContext = nullptr;
     request.encodeCoupledCandidate = nullptr;
     const auto encoded =
@@ -4364,7 +4428,9 @@ MetalNumanXHumanMatterContext::initialize() {
         (config.stateProofProgram.configured() &&
          !config.stateProofProgram.valid()) ||
         (config.stateProofProgramV2.configured() &&
-         !config.stateProofProgramV2.valid())) {
+         !config.stateProofProgramV2.valid()) ||
+        (config.tendonFEMDeferredLoadProgram.configured() &&
+         !config.tendonFEMDeferredLoadProgram.valid())) {
         return diagnostics(
             &state, MetalNumanXHumanMatterHostStatus::invalidConfiguration,
             "runtime, metallibs, capacities, proof program, or reserved fields are invalid");
@@ -4390,6 +4456,7 @@ MetalNumanXHumanMatterContext::initialize() {
         config.matterRuntime->acceptedStateProofProgramFingerprint();
     const std::uint64_t matterProofFingerprintV2 =
         config.matterRuntime->acceptedStateProofProgramFingerprintV2();
+    const auto& deferred = config.tendonFEMDeferredLoadProgram;
     if (state.matterSourceFingerprint == 0u ||
         state.matterDeviceFingerprint == 0u ||
         matterProofFingerprint == 0u ||
@@ -4397,7 +4464,16 @@ MetalNumanXHumanMatterContext::initialize() {
         (config.stateProofProgram.valid() &&
          config.stateProofProgram.fingerprint != matterProofFingerprint) ||
         (config.stateProofProgramV2.valid() &&
-         config.stateProofProgramV2.fingerprint != matterProofFingerprintV2)) {
+         config.stateProofProgramV2.fingerprint != matterProofFingerprintV2) ||
+        (deferred.configured() &&
+         (deferred.runtimeDeviceProgramFingerprint !=
+              state.matterDeviceFingerprint ||
+          deferred.environmentCount != config.environmentCapacity ||
+          deferred.environmentCount !=
+              config.matterRuntime->environmentCount() ||
+          deferred.femNodeCount != config.matterRuntime->femNodeCount() ||
+          deferred.activeAnchorCount !=
+              config.matterRuntime->femHumanAttachmentCount()))) {
         return diagnostics(
             &state,
             MetalNumanXHumanMatterHostStatus::matterRuntimeIncompatible,
@@ -4626,6 +4702,7 @@ MetalNumanXHumanMatterContext::initialize() {
     mixValue(fingerprint, state.coupledProgram.fingerprint);
     mixValue(fingerprint, config.stateProofProgram.valid()
         ? config.stateProofProgram.fingerprint : 0u);
+    mixValue(fingerprint, deferred.valid() ? deferred.fingerprint : 0u);
     mixValue(fingerprint,
         static_cast<std::uint64_t>(config.environmentCapacity));
     mixValue(fingerprint,
@@ -4644,6 +4721,8 @@ MetalNumanXHumanMatterContext::initialize() {
         mixValue(exactFingerprint, state.matterDeviceFingerprint);
         mixValue(exactFingerprint, state.coupledProgram.fingerprint);
         mixValue(exactFingerprint, config.stateProofProgramV2.fingerprint);
+        mixValue(exactFingerprint,
+            deferred.valid() ? deferred.fingerprint : 0u);
         mixValue(exactFingerprint,
             static_cast<std::uint64_t>(config.environmentCapacity));
         mixValue(exactFingerprint,

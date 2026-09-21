@@ -3,6 +3,7 @@
 #include "metalrobo/MetalArticulatedOperator.hpp"
 #include "metalrobo/numanx_human_io_gpu.h"
 #include "metalrobo/numanx_human_matter_adapter_gpu.h"
+#include "numi/matter/numi_human.hpp"
 
 #include <array>
 #include <cstdint>
@@ -288,6 +289,13 @@ struct MetalNumanXHumanMatterConfig {
     // Distinct exact-clock proof producer. It must consume the private
     // HumanIO receipt; configuring only the V1 producer never enables V2.
     MetalNumanXHumanMatterStateProofProgramV2 stateProofProgramV2{};
+    // Optional ownership-bound tendon/FEM input. The program must have run
+    // its pre-source correction hook through the enclosing Human owner for
+    // the exact command buffer before preDynamics. This adapter borrows only
+    // its force/status view and passes it to the one existing Matter Runtime
+    // lifecycle; it never invokes the hook or retains the view itself.
+    numi::matter::NumiHumanTendonFEMDeferredLoadProgram
+        tendonFEMDeferredLoadProgram{};
     // Optional same-command-buffer observer. A successful root invokes it in
     // strict beginStep, preDynamics, postDynamics order. The preDynamics call
     // occurs after Matter has encoded the staged reaction and before the Human

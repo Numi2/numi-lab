@@ -554,10 +554,17 @@ struct NumiHumanTendonFEMLoadAdapter::State {
     std::vector<NMNumiHumanPassiveLigamentGPU> passiveLigaments;
     std::vector<NMNumiHumanPassiveRoutedBandGPU> passiveRoutedBands;
     std::filesystem::path metallib;
+    NumiHumanTendonFEMLoadExecutionMode executionMode =
+        NumiHumanTendonFEMLoadExecutionMode::standaloneRuntime;
     std::uint32_t endpointCount = 0u;
     std::uint32_t environmentCount = 0u;
+    std::uint32_t activeAnchorCount = 0u;
     std::uint32_t encodedPassCount = 0u;
     std::uint32_t abortCount = 0u;
+    std::uint32_t preSourceCorrectionEncodeCount = 0u;
+    std::uint32_t deferredExternalForceBorrowCount = 0u;
+    std::uint32_t runtimePreDynamicsEncodeCount = 0u;
+    std::uint32_t runtimePostCommitEncodeCount = 0u;
     std::uint32_t articularBodyPoseStride = 0u;
     // Allocation cache retained across accepted-state restore. The bound
     // stride above is authoritative; this value only describes private
@@ -568,6 +575,10 @@ struct NumiHumanTendonFEMLoadAdapter::State {
     std::uint32_t articularContactPairCount = 0u;
     std::uint32_t articularAttemptedStepCount = 0u;
     std::uint64_t fingerprint = 0u;
+    std::uint64_t runtimeDeviceProgramFingerprint = 0u;
+    std::uintptr_t deferredCommandBufferIdentity = 0u;
+    std::uint32_t deferredStepIndex = 0u;
+    bool deferredExternalForcesAvailable = false;
     std::string message;
 
     // Host shadows make an accepted snapshot restorable before the lazy Metal
@@ -607,6 +618,7 @@ struct NumiHumanTendonFEMLoadAdapter::State {
     __strong id<MTLComputePipelineState> reactionAuditPipeline = nil;
     __strong id<MTLComputePipelineState> reactionAuditCommitPipeline = nil;
     __strong id<MTLComputePipelineState> reactionPipeline = nil;
+    __strong id<MTLComputePipelineState> preSourceCorrectionPipeline = nil;
     __strong id<MTLBuffer> nodeLoadBuffer = nil;
     __strong id<MTLBuffer> nodeAnchorBuffer = nil;
     __strong id<MTLBuffer> replacementBuffer = nil;
@@ -652,8 +664,14 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
 ) {
     const bool passiveAttachmentOnly = source.endpointReplacements.empty();
     const bool hasContact = !source.contactSamples.empty();
+    const bool standalone = configuration.executionMode ==
+        NumiHumanTendonFEMLoadExecutionMode::standaloneRuntime;
+    const bool deferred = configuration.executionMode ==
+        NumiHumanTendonFEMLoadExecutionMode::numanXDeferred;
     if (!runtime.valid() || source.nodeLoads.empty() ||
         source.nodeAnchors.size() != source.nodeLoads.size() ||
+        source.nodeLoads.size() != runtime.femNodeCount() ||
+        source.environmentCount != runtime.environmentCount() ||
         source.endpointCount == 0u || source.environmentCount == 0u ||
         !std::isfinite(source.productionForceOwnerFraction) ||
         (passiveAttachmentOnly
@@ -662,6 +680,7 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
         source.productionForceOwnerFraction > 1.0f ||
         configuration.metallib.empty() ||
         !std::filesystem::is_regular_file(configuration.metallib) ||
+        (!standalone && !deferred) || configuration.reserved0 != 0u ||
         source.articularContactSamples.size() >
             std::numeric_limits<std::uint32_t>::max() ||
         source.articularContactPairRanges.size() >
@@ -999,7 +1018,9 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
             return false;
         }
     }
-    if (anchorCount == 0u || std::any_of(
+    if (anchorCount == 0u ||
+        (deferred && runtime.femHumanAttachmentCount() != anchorCount) ||
+        std::any_of(
             endpointAbsoluteScales.begin(), endpointAbsoluteScales.end(),
             [](const double scale) {
                 return !std::isfinite(scale) || scale > 2.000001;
@@ -1058,8 +1079,12 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
         }
     }
     candidate->metallib = configuration.metallib;
+    candidate->executionMode = configuration.executionMode;
     candidate->endpointCount = source.endpointCount;
     candidate->environmentCount = source.environmentCount;
+    candidate->activeAnchorCount = anchorCount;
+    candidate->runtimeDeviceProgramFingerprint =
+        runtime.deviceProgramFingerprint();
     candidate->articularContactPairCount = static_cast<std::uint32_t>(
         candidate->articularContactPairRanges.size());
     const std::size_t acceptedHistoryElements =
@@ -1094,7 +1119,8 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
             candidate->environmentCount);
     }
     std::uint64_t fingerprint = 1469598103934665603ull;
-    const std::uint64_t runtimeFingerprint = runtime.deviceProgramFingerprint();
+    const std::uint64_t runtimeFingerprint =
+        candidate->runtimeDeviceProgramFingerprint;
     fingerprint = appendFingerprint(
         fingerprint, &runtimeFingerprint, sizeof(runtimeFingerprint)
     );
@@ -1104,6 +1130,14 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
     fingerprint = appendFingerprint(
         fingerprint, &candidate->environmentCount,
         sizeof(candidate->environmentCount)
+    );
+    fingerprint = appendFingerprint(
+        fingerprint, &candidate->activeAnchorCount,
+        sizeof(candidate->activeAnchorCount)
+    );
+    fingerprint = appendFingerprint(
+        fingerprint, &candidate->executionMode,
+        sizeof(candidate->executionMode)
     );
     fingerprint = appendFingerprint(
         fingerprint, candidate->nodeLoads.data(),
@@ -1158,6 +1192,11 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
     const metalrobo::MetalNumiHumanTendonLoadPass& pass
 ) {
     @autoreleasepool {
+        if (state_ != nullptr && state_->executionMode ==
+                NumiHumanTendonFEMLoadExecutionMode::numanXDeferred) {
+            state_->deferredExternalForcesAvailable = false;
+            state_->deferredCommandBufferIdentity = 0u;
+        }
         if (state_ == nullptr || state_->runtime == nullptr ||
             pass.commandBuffer == nullptr || pass.bindings == nullptr ||
             pass.transfers == nullptr || pass.generalizedForces == nullptr ||
@@ -1258,7 +1297,11 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
             };
             state_->provisionalStatusPipeline = pipeline(
                 "nm_numi_human_prepare_provisional_status");
-            state_->statusPipeline = pipeline("nm_numi_human_adapt_stand_status");
+            if (state_->executionMode ==
+                    NumiHumanTendonFEMLoadExecutionMode::standaloneRuntime) {
+                state_->statusPipeline = pipeline(
+                    "nm_numi_human_adapt_stand_status");
+            }
             state_->forcePipeline = pipeline(
                 "nm_numi_human_assemble_tendon_fem_loads");
             state_->forceAuditPipeline = pipeline(
@@ -1306,14 +1349,20 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                 state_->passiveRoutedBandAuditCommitPipeline = pipeline(
                     "nm_numi_human_commit_passive_routed_band_audit");
             }
-            state_->targetPipeline = pipeline(
-                "nm_numi_human_assemble_fem_kinematic_targets");
-            state_->reactionAuditPipeline = pipeline(
-                "nm_numi_human_audit_fem_anchor_reactions");
-            state_->reactionAuditCommitPipeline = pipeline(
-                "nm_numi_human_commit_fem_anchor_reaction_audit");
-            state_->reactionPipeline = pipeline(
-                "nm_numi_human_apply_fem_anchor_reactions");
+            if (state_->executionMode ==
+                    NumiHumanTendonFEMLoadExecutionMode::standaloneRuntime) {
+                state_->targetPipeline = pipeline(
+                    "nm_numi_human_assemble_fem_kinematic_targets");
+                state_->reactionAuditPipeline = pipeline(
+                    "nm_numi_human_audit_fem_anchor_reactions");
+                state_->reactionAuditCommitPipeline = pipeline(
+                    "nm_numi_human_commit_fem_anchor_reaction_audit");
+                state_->reactionPipeline = pipeline(
+                    "nm_numi_human_apply_fem_anchor_reactions");
+            } else {
+                state_->preSourceCorrectionPipeline = pipeline(
+                    "nm_numi_human_apply_pre_source_rigid_corrections");
+            }
             const NSUInteger nodeLoadBytes = static_cast<NSUInteger>(
                 state_->nodeLoads.size() * sizeof(state_->nodeLoads.front())
             );
@@ -1503,28 +1552,31 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
             state_->externalForceAuditBuffer = [device
                 newBufferWithLength:state_->environmentCount * sizeof(nm_float4)
                 options:MTLResourceStorageModeShared];
-            state_->anchorReactionAuditBuffer = [device
-                newBufferWithLength:state_->environmentCount * sizeof(nm_float4)
-                options:MTLResourceStorageModeShared];
-            state_->anchorReactionAuditHistoryBuffer = [device
-                newBufferWithLength:state_->environmentCount *
-                    NM_NUMI_HUMAN_ARTICULAR_CONTACT_AUDIT_MAX_STEPS *
-                    sizeof(nm_float4)
-                options:MTLResourceStorageModeShared];
-            if (state_->anchorReactionAuditHistoryBuffer != nil) {
-                std::memcpy(
-                    state_->anchorReactionAuditHistoryBuffer.contents,
-                    state_->anchorReactionAcceptedHistory.data(),
-                    state_->anchorReactionAuditHistoryBuffer.length);
+            if (state_->executionMode ==
+                    NumiHumanTendonFEMLoadExecutionMode::standaloneRuntime) {
+                state_->anchorReactionAuditBuffer = [device
+                    newBufferWithLength:state_->environmentCount * sizeof(nm_float4)
+                    options:MTLResourceStorageModeShared];
+                state_->anchorReactionAuditHistoryBuffer = [device
+                    newBufferWithLength:state_->environmentCount *
+                        NM_NUMI_HUMAN_ARTICULAR_CONTACT_AUDIT_MAX_STEPS *
+                        sizeof(nm_float4)
+                    options:MTLResourceStorageModeShared];
+                if (state_->anchorReactionAuditHistoryBuffer != nil) {
+                    std::memcpy(
+                        state_->anchorReactionAuditHistoryBuffer.contents,
+                        state_->anchorReactionAcceptedHistory.data(),
+                        state_->anchorReactionAuditHistoryBuffer.length);
+                }
+                state_->kinematicTargetBuffer = [device
+                    newBufferWithLength:externalForceBytes
+                    options:MTLResourceStorageModePrivate];
             }
-            state_->kinematicTargetBuffer = [device
-                newBufferWithLength:externalForceBytes
-                options:MTLResourceStorageModePrivate];
             state_->worldStatusBuffer = [device
                 newBufferWithLength:statusBytes
                 options:MTLResourceStorageModeShared];
             if (state_->provisionalStatusPipeline == nil ||
-                state_->statusPipeline == nil || state_->forcePipeline == nil ||
+                state_->forcePipeline == nil ||
                 state_->forceAuditPipeline == nil ||
                 (!state_->contactSamples.empty() &&
                  state_->contactForcePipeline == nil) ||
@@ -1546,10 +1598,16 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                 (!state_->passiveRoutedBands.empty() &&
                  (state_->passiveRoutedBandAuditPipeline == nil ||
                   state_->passiveRoutedBandAuditCommitPipeline == nil)) ||
-                state_->targetPipeline == nil ||
-                state_->reactionAuditPipeline == nil ||
-                state_->reactionAuditCommitPipeline == nil ||
-                state_->reactionPipeline == nil) {
+                (state_->executionMode ==
+                        NumiHumanTendonFEMLoadExecutionMode::standaloneRuntime &&
+                 (state_->targetPipeline == nil ||
+                  state_->statusPipeline == nil ||
+                  state_->reactionAuditPipeline == nil ||
+                  state_->reactionAuditCommitPipeline == nil ||
+                  state_->reactionPipeline == nil)) ||
+                (state_->executionMode ==
+                        NumiHumanTendonFEMLoadExecutionMode::numanXDeferred &&
+                 state_->preSourceCorrectionPipeline == nil)) {
                 if (state_->message == "initialized") {
                     state_->message = "Human tendon/FEM pipeline is unavailable";
                 }
@@ -1610,9 +1668,11 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
             }
             if (state_->externalForceBuffer == nil ||
                 state_->externalForceAuditBuffer == nil ||
-                state_->anchorReactionAuditBuffer == nil ||
-                state_->anchorReactionAuditHistoryBuffer == nil ||
-                state_->kinematicTargetBuffer == nil) {
+                (state_->executionMode ==
+                        NumiHumanTendonFEMLoadExecutionMode::standaloneRuntime &&
+                 (state_->anchorReactionAuditBuffer == nil ||
+                  state_->anchorReactionAuditHistoryBuffer == nil ||
+                  state_->kinematicTargetBuffer == nil))) {
                 state_->message = "Human tendon/FEM force/target buffer is unavailable";
                 return false;
             }
@@ -1896,8 +1956,73 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                                 offset:0u atIndex:1u];
                     [encoder setBuffer:state_->externalForceAuditBuffer
                                 offset:0u atIndex:2u];
-                }
-            ) || !encodeKernel(
+                })) {
+            state_->message = "Human tendon/FEM assembly kernel encoding failed";
+            return false;
+        }
+        if (state_->executionMode ==
+                NumiHumanTendonFEMLoadExecutionMode::numanXDeferred) {
+            if (!encodeKernel(
+                    state_->preSourceCorrectionPipeline,
+                    state_->environmentCount * pass.dofCount,
+                    [&](id<MTLComputeCommandEncoder> encoder) {
+                        [encoder setBuffer:state_->replacementBuffer
+                                    offset:0u atIndex:1u];
+                        [encoder setBuffer:bindings offset:0u atIndex:2u];
+                        [encoder setBuffer:transfers offset:0u atIndex:3u];
+                        [encoder setBuffer:bodyPoses offset:0u atIndex:4u];
+                        [encoder setBuffer:pointJacobians offset:0u atIndex:5u];
+                        [encoder setBuffer:generalizedForces offset:0u atIndex:6u];
+                        if (state_->articularBodyWrenchBuffer != nil) {
+                            [encoder setBuffer:state_->articularBodyWrenchBuffer
+                                        offset:0u atIndex:7u];
+                        } else {
+                            const NMNumiHumanBodyWrenchGPU empty{};
+                            [encoder setBytes:&empty length:sizeof(empty)
+                                      atIndex:7u];
+                        }
+                        if (state_->passiveLigamentBuffer != nil) {
+                            [encoder setBuffer:state_->passiveLigamentBuffer
+                                        offset:0u atIndex:8u];
+                        } else {
+                            const NMNumiHumanPassiveLigamentGPU empty{};
+                            [encoder setBytes:&empty length:sizeof(empty)
+                                      atIndex:8u];
+                        }
+                        if (state_->femBodyContactWrenchBuffer != nil) {
+                            [encoder setBuffer:state_->femBodyContactWrenchBuffer
+                                        offset:0u atIndex:9u];
+                        } else {
+                            const NMNumiHumanBodyWrenchGPU empty{};
+                            [encoder setBytes:&empty length:sizeof(empty)
+                                      atIndex:9u];
+                        }
+                        if (state_->passiveRoutedBandBuffer != nil) {
+                            [encoder setBuffer:state_->passiveRoutedBandBuffer
+                                        offset:0u atIndex:10u];
+                        } else {
+                            const NMNumiHumanPassiveRoutedBandGPU empty{};
+                            [encoder setBytes:&empty length:sizeof(empty)
+                                      atIndex:10u];
+                        }
+                        [encoder setBuffer:state_->worldStatusBuffer
+                                    offset:0u atIndex:11u];
+                    })) {
+                state_->message =
+                    "Human tendon/FEM pre-source correction encoding failed";
+                return false;
+            }
+            ++state_->preSourceCorrectionEncodeCount;
+            state_->deferredCommandBufferIdentity =
+                reinterpret_cast<std::uintptr_t>(pass.commandBuffer);
+            state_->deferredStepIndex = pass.stepIndex;
+            state_->deferredExternalForcesAvailable = true;
+            state_->articularAttemptedStepCount = std::max(
+                state_->articularAttemptedStepCount, pass.stepIndex + 1u);
+            state_->message = "deferred pre-source loads encoded";
+            return true;
+        }
+        if (!encodeKernel(
                 state_->targetPipeline,
                 state_->environmentCount * state_->nodeAnchors.size(),
                 [&](id<MTLComputeCommandEncoder> encoder) {
@@ -1905,9 +2030,8 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                     [encoder setBuffer:bodyPoses offset:0u atIndex:2u];
                     [encoder setBuffer:state_->kinematicTargetBuffer
                                 offset:0u atIndex:3u];
-                }
-            )) {
-            state_->message = "Human tendon/FEM assembly kernel encoding failed";
+                })) {
+            state_->message = "Human tendon/FEM target encoding failed";
             return false;
         }
 
@@ -1929,6 +2053,7 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
         request.timestepSeconds = state_->runtime->timestepSeconds();
         request.phase = EncodePhase::preDynamics;
         const auto pre = state_->runtime->encode(request);
+        ++state_->runtimePreDynamicsEncodeCount;
         if (!pre.encoded) {
             state_->message = "Human tendon/FEM Matter pre-dynamics failed: " + pre.message;
             return false;
@@ -2001,7 +2126,10 @@ bool NumiHumanTendonFEMLoadAdapter::encodePostValidation(
 ) {
     @autoreleasepool {
         if (state_ == nullptr || state_->runtime == nullptr ||
-            state_->device == nil || state_->statusPipeline == nil ||
+            state_->device == nil ||
+            (state_->executionMode ==
+                 NumiHumanTendonFEMLoadExecutionMode::standaloneRuntime &&
+             state_->statusPipeline == nil) ||
             pass.commandBuffer == nullptr || pass.standStatuses == nullptr ||
             pass.environmentCount != state_->environmentCount ||
             pass.endpointCount != state_->endpointCount ||
@@ -2012,14 +2140,28 @@ bool NumiHumanTendonFEMLoadAdapter::encodePostValidation(
                 state_->message = "invalid borrowed Human post-validation pass";
             return false;
         }
+        const bool deferred = state_->executionMode ==
+            NumiHumanTendonFEMLoadExecutionMode::numanXDeferred;
+        if (deferred &&
+            (!state_->deferredExternalForcesAvailable ||
+             state_->deferredCommandBufferIdentity !=
+                reinterpret_cast<std::uintptr_t>(pass.commandBuffer) ||
+             state_->deferredStepIndex != pass.stepIndex)) {
+            state_->message =
+                "deferred tendon/FEM post-validation lost its exact pre-source pass";
+            return false;
+        }
         id<MTLCommandBuffer> command =
             (__bridge id<MTLCommandBuffer>)pass.commandBuffer;
         id<MTLBuffer> standStatuses =
             (__bridge id<MTLBuffer>)pass.standStatuses;
-        id<MTLBuffer> matterStatuses =
+        id<MTLBuffer> matterStatuses = deferred ? nil :
             (__bridge id<MTLBuffer>)state_->runtime->statusBuffer();
-        if (command == nil || standStatuses == nil || matterStatuses == nil ||
-            standStatuses.device.registryID != state_->device.registryID) {
+        if (command == nil || standStatuses == nil ||
+            standStatuses.device.registryID != state_->device.registryID ||
+            (!deferred &&
+             (matterStatuses == nil ||
+              matterStatuses.device.registryID != state_->device.registryID))) {
             state_->message =
                 "borrowed Human or Matter status is unavailable";
             return false;
@@ -2054,44 +2196,53 @@ bool NumiHumanTendonFEMLoadAdapter::encodePostValidation(
             .articularContactPairCount =
                 state_->articularContactPairCount,
         };
-        id<MTLComputeCommandEncoder> encoder = [command computeCommandEncoder];
-        if (encoder == nil) {
-            state_->message = "Human tendon/FEM status encoder is unavailable";
-            return false;
-        }
-        [encoder setComputePipelineState:state_->statusPipeline];
-        [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
-        [encoder setBuffer:standStatuses offset:0u atIndex:1u];
-        [encoder setBuffer:state_->worldStatusBuffer offset:0u atIndex:2u];
-        [encoder setBuffer:matterStatuses offset:0u atIndex:3u];
         const NSUInteger count = state_->environmentCount;
-        const NSUInteger width = std::min<NSUInteger>(
-            count, std::min<NSUInteger>(
-                state_->statusPipeline.maxTotalThreadsPerThreadgroup, 256u));
-        [encoder dispatchThreads:MTLSizeMake(count, 1u, 1u)
-            threadsPerThreadgroup:MTLSizeMake(
-                std::max<NSUInteger>(width, 1u), 1u, 1u)];
-        [encoder endEncoding];
+        if (!deferred) {
+            id<MTLComputeCommandEncoder> encoder =
+                [command computeCommandEncoder];
+            if (encoder == nil) {
+                state_->message =
+                    "Human tendon/FEM status encoder is unavailable";
+                return false;
+            }
+            [encoder setComputePipelineState:state_->statusPipeline];
+            [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+            [encoder setBuffer:standStatuses offset:0u atIndex:1u];
+            [encoder setBuffer:state_->worldStatusBuffer offset:0u atIndex:2u];
+            [encoder setBuffer:matterStatuses offset:0u atIndex:3u];
+            const NSUInteger width = std::min<NSUInteger>(
+                count, std::min<NSUInteger>(
+                    state_->statusPipeline.maxTotalThreadsPerThreadgroup,
+                    256u));
+            [encoder dispatchThreads:MTLSizeMake(count, 1u, 1u)
+                threadsPerThreadgroup:MTLSizeMake(
+                    std::max<NSUInteger>(width, 1u), 1u, 1u)];
+            [encoder endEncoding];
 
-        EncodeRequest request{};
-        request.commandBuffer = pass.commandBuffer;
-        request.environmentStatuses = (__bridge void*)state_->worldStatusBuffer;
-        request.femExternalForces = (__bridge void*)state_->externalForceBuffer;
-        request.femExternalForceCount = static_cast<std::uint32_t>(
-            state_->environmentCount * state_->nodeLoads.size());
-        request.femKinematicTargets =
-            (__bridge void*)state_->kinematicTargetBuffer;
-        request.femKinematicTargetCount = request.femExternalForceCount;
-        request.controlStep = pass.stepIndex;
-        request.physicsSubstep = 0u;
-        request.physicsSubsteps = 1u;
-        request.timestepSeconds = state_->runtime->timestepSeconds();
-        request.phase = EncodePhase::postCommit;
-        const auto post = state_->runtime->encode(request);
-        if (!post.encoded) {
-            state_->message =
-                "Human tendon/FEM Matter post-commit failed: " + post.message;
-            return false;
+            EncodeRequest request{};
+            request.commandBuffer = pass.commandBuffer;
+            request.environmentStatuses =
+                (__bridge void*)state_->worldStatusBuffer;
+            request.femExternalForces =
+                (__bridge void*)state_->externalForceBuffer;
+            request.femExternalForceCount = static_cast<std::uint32_t>(
+                state_->environmentCount * state_->nodeLoads.size());
+            request.femKinematicTargets =
+                (__bridge void*)state_->kinematicTargetBuffer;
+            request.femKinematicTargetCount = request.femExternalForceCount;
+            request.controlStep = pass.stepIndex;
+            request.physicsSubstep = 0u;
+            request.physicsSubsteps = 1u;
+            request.timestepSeconds = state_->runtime->timestepSeconds();
+            request.phase = EncodePhase::postCommit;
+            const auto post = state_->runtime->encode(request);
+            ++state_->runtimePostCommitEncodeCount;
+            if (!post.encoded) {
+                state_->message =
+                    "Human tendon/FEM Matter post-commit failed: " +
+                    post.message;
+                return false;
+            }
         }
         id<MTLComputeCommandEncoder> commitEncoder =
             [command computeCommandEncoder];
@@ -2100,22 +2251,24 @@ bool NumiHumanTendonFEMLoadAdapter::encodePostValidation(
                 "Human FEM audit commit encoder is unavailable";
             return false;
         }
-        [commitEncoder setComputePipelineState:
-            state_->reactionAuditCommitPipeline];
-        [commitEncoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
-        [commitEncoder setBuffer:standStatuses offset:0u atIndex:1u];
-        [commitEncoder setBuffer:state_->anchorReactionAuditBuffer
-                          offset:0u atIndex:2u];
-        [commitEncoder setBuffer:state_->anchorReactionAuditHistoryBuffer
-                          offset:0u atIndex:3u];
-        const NSUInteger reactionCommitWidth = std::min<NSUInteger>(
-            count, std::min<NSUInteger>(
-                state_->reactionAuditCommitPipeline
-                    .maxTotalThreadsPerThreadgroup,
-                256u));
-        [commitEncoder dispatchThreads:MTLSizeMake(count, 1u, 1u)
-            threadsPerThreadgroup:MTLSizeMake(
-                std::max<NSUInteger>(reactionCommitWidth, 1u), 1u, 1u)];
+        if (!deferred) {
+            [commitEncoder setComputePipelineState:
+                state_->reactionAuditCommitPipeline];
+            [commitEncoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+            [commitEncoder setBuffer:standStatuses offset:0u atIndex:1u];
+            [commitEncoder setBuffer:state_->anchorReactionAuditBuffer
+                              offset:0u atIndex:2u];
+            [commitEncoder setBuffer:state_->anchorReactionAuditHistoryBuffer
+                              offset:0u atIndex:3u];
+            const NSUInteger reactionCommitWidth = std::min<NSUInteger>(
+                count, std::min<NSUInteger>(
+                    state_->reactionAuditCommitPipeline
+                        .maxTotalThreadsPerThreadgroup,
+                    256u));
+            [commitEncoder dispatchThreads:MTLSizeMake(count, 1u, 1u)
+                threadsPerThreadgroup:MTLSizeMake(
+                    std::max<NSUInteger>(reactionCommitWidth, 1u), 1u, 1u)];
+        }
         if (!state_->articularContactSamples.empty()) {
             [commitEncoder setComputePipelineState:
                 state_->articularContactAuditCommitPipeline];
@@ -2205,7 +2358,13 @@ bool NumiHumanTendonFEMLoadAdapter::encodePostValidation(
         }
         [commitEncoder endEncoding];
         ++state_->encodedPassCount;
-        state_->message = "two-way transaction encoded";
+        if (deferred) {
+            state_->deferredExternalForcesAvailable = false;
+            state_->deferredCommandBufferIdentity = 0u;
+            state_->message = "deferred audit reconciliation encoded";
+        } else {
+            state_->message = "two-way transaction encoded";
+        }
         return true;
     }
 }
@@ -2214,8 +2373,131 @@ void NumiHumanTendonFEMLoadAdapter::abort(void* commandBuffer) noexcept {
     if (state_ != nullptr && state_->runtime != nullptr &&
         commandBuffer != nullptr) {
         ++state_->abortCount;
-        state_->runtime->cancel(commandBuffer);
+        if (state_->executionMode ==
+                NumiHumanTendonFEMLoadExecutionMode::numanXDeferred) {
+            if (state_->deferredCommandBufferIdentity ==
+                    reinterpret_cast<std::uintptr_t>(commandBuffer)) {
+                state_->deferredExternalForcesAvailable = false;
+                state_->deferredCommandBufferIdentity = 0u;
+            }
+        } else {
+            state_->runtime->cancel(commandBuffer);
+        }
     }
+}
+
+bool NumiHumanTendonFEMLoadAdapter::borrowDeferredExternalForces(
+    void* commandBuffer,
+    const std::uint32_t stepIndex,
+    const std::uint32_t environmentCount,
+    NumiHumanTendonFEMDeferredExternalForceView& output
+) noexcept {
+    @autoreleasepool {
+        if (state_ == nullptr || state_->runtime == nullptr ||
+            state_->executionMode !=
+                NumiHumanTendonFEMLoadExecutionMode::numanXDeferred ||
+            !state_->deferredExternalForcesAvailable ||
+            commandBuffer == nullptr ||
+            state_->deferredCommandBufferIdentity !=
+                reinterpret_cast<std::uintptr_t>(commandBuffer) ||
+            stepIndex != state_->deferredStepIndex ||
+            environmentCount != state_->environmentCount ||
+            state_->fingerprint == 0u ||
+            state_->runtimeDeviceProgramFingerprint == 0u ||
+            state_->runtime->deviceProgramFingerprint() !=
+                state_->runtimeDeviceProgramFingerprint ||
+            state_->runtime->environmentCount() != state_->environmentCount ||
+            state_->runtime->femNodeCount() != state_->nodeLoads.size() ||
+            state_->runtime->femHumanAttachmentCount() !=
+                state_->activeAnchorCount) {
+            return false;
+        }
+        __unsafe_unretained id<MTLCommandBuffer> command =
+            (__bridge id<MTLCommandBuffer>)commandBuffer;
+        __unsafe_unretained id<MTLBuffer> forces =
+            state_->externalForceBuffer;
+        __unsafe_unretained id<MTLBuffer> statuses =
+            state_->worldStatusBuffer;
+        const std::uint64_t forceElements =
+            static_cast<std::uint64_t>(state_->environmentCount) *
+            state_->nodeLoads.size();
+        const std::uint64_t forceBytes =
+            forceElements * sizeof(nm_float4);
+        const std::uint64_t statusBytes =
+            static_cast<std::uint64_t>(state_->environmentCount) *
+            sizeof(MRMetalWorldStatusGPU);
+        if (command == nil || command.commandQueue == nil ||
+            command.status != MTLCommandBufferStatusNotEnqueued ||
+            forces == nil || statuses == nil || state_->device == nil ||
+            command.commandQueue.device.registryID !=
+                state_->device.registryID ||
+            forces.device.registryID != state_->device.registryID ||
+            statuses.device.registryID != state_->device.registryID ||
+            forces.gpuAddress == 0u || statuses.gpuAddress == 0u ||
+            forces.length < forceBytes || statuses.length < statusBytes ||
+            state_->nodeLoads.size() >
+                std::numeric_limits<std::uint32_t>::max()) {
+            return false;
+        }
+        NumiHumanTendonFEMDeferredExternalForceView result;
+        result.externalForces = (__bridge void*)forces;
+        result.validationStatuses = (__bridge void*)statuses;
+        result.externalForcesGPUAddress = forces.gpuAddress;
+        result.validationStatusesGPUAddress = statuses.gpuAddress;
+        result.externalForceElementCount = forceElements;
+        result.validationStatusElementCount = state_->environmentCount;
+        result.deviceRegistryID = state_->device.registryID;
+        result.programFingerprint = state_->fingerprint;
+        result.environmentCount = state_->environmentCount;
+        result.femNodeCount = static_cast<std::uint32_t>(
+            state_->nodeLoads.size());
+        result.externalForceStride = result.femNodeCount;
+        result.validationStatusStride = 1u;
+        result.stepIndex = stepIndex;
+        output = result;
+        ++state_->deferredExternalForceBorrowCount;
+        return true;
+    }
+}
+
+NumiHumanTendonFEMDeferredLoadProgram
+NumiHumanTendonFEMLoadAdapter::deferredProgram() noexcept {
+    NumiHumanTendonFEMDeferredLoadProgram result{};
+    if (state_ == nullptr || state_->executionMode !=
+            NumiHumanTendonFEMLoadExecutionMode::numanXDeferred ||
+        state_->fingerprint == 0u ||
+        state_->runtimeDeviceProgramFingerprint == 0u) {
+        return result;
+    }
+    result.context = this;
+    result.encodePreSourceCorrections = [](
+        void* context,
+        const metalrobo::MetalNumiHumanTendonLoadPass& pass
+    ) {
+        return context != nullptr &&
+            static_cast<NumiHumanTendonFEMLoadAdapter*>(context)->
+                encodePreDynamics(pass);
+    };
+    result.borrowExternalForces = [](
+        void* context,
+        void* commandBuffer,
+        const std::uint32_t stepIndex,
+        const std::uint32_t environmentCount,
+        NumiHumanTendonFEMDeferredExternalForceView& output
+    ) noexcept {
+        return context != nullptr &&
+            static_cast<NumiHumanTendonFEMLoadAdapter*>(context)->
+                borrowDeferredExternalForces(
+                    commandBuffer, stepIndex, environmentCount, output);
+    };
+    result.fingerprint = state_->fingerprint;
+    result.runtimeDeviceProgramFingerprint =
+        state_->runtimeDeviceProgramFingerprint;
+    result.environmentCount = state_->environmentCount;
+    result.femNodeCount = static_cast<std::uint32_t>(
+        state_->nodeLoads.size());
+    result.activeAnchorCount = state_->activeAnchorCount;
+    return result;
 }
 
 metalrobo::MetalNumiHumanTendonLoadProgram
@@ -2223,12 +2505,21 @@ NumiHumanTendonFEMLoadAdapter::program() noexcept {
     metalrobo::MetalNumiHumanTendonLoadProgram result{};
     if (state_ == nullptr || state_->fingerprint == 0u) return result;
     result.context = this;
-    result.encodePreDynamics = [](void* context,
-                                  const metalrobo::MetalNumiHumanTendonLoadPass& pass) {
-        return context != nullptr &&
-            static_cast<NumiHumanTendonFEMLoadAdapter*>(context)->
-                encodePreDynamics(pass);
-    };
+    if (state_->executionMode ==
+            NumiHumanTendonFEMLoadExecutionMode::numanXDeferred) {
+        const auto deferred = deferredProgram();
+        if (!deferred.valid()) return {};
+        result.encodePreDynamics = deferred.encodePreSourceCorrections;
+    } else {
+        result.encodePreDynamics = [](
+            void* context,
+            const metalrobo::MetalNumiHumanTendonLoadPass& pass
+        ) {
+            return context != nullptr &&
+                static_cast<NumiHumanTendonFEMLoadAdapter*>(context)->
+                    encodePreDynamics(pass);
+        };
+    }
     result.encodePostValidation = [](
         void* context,
         const metalrobo::MetalNumiHumanTendonLoadPass& pass
@@ -2466,9 +2757,11 @@ NumiHumanTendonFEMLoadAdapter::restore(
             return buffer.contents != nullptr &&
                 buffer.length == expectedBytes;
         };
-        if (!writable(
-                state_->anchorReactionAuditHistoryBuffer,
-                stagedAnchor.size() * sizeof(stagedAnchor.front())) ||
+        if ((state_->executionMode !=
+                    NumiHumanTendonFEMLoadExecutionMode::numanXDeferred &&
+             !writable(
+                 state_->anchorReactionAuditHistoryBuffer,
+                 stagedAnchor.size() * sizeof(stagedAnchor.front()))) ||
             !writable(
                 state_->femBodyContactAuditHistoryBuffer,
                 stagedFEMBody.size() *
@@ -2544,6 +2837,15 @@ NumiHumanTendonFEMLoadAdapter::diagnostics() const noexcept {
     result.initialized = state_->runtime != nullptr && state_->fingerprint != 0u;
     result.encodedPassCount = state_->encodedPassCount;
     result.abortCount = state_->abortCount;
+    result.preSourceCorrectionEncodeCount =
+        state_->preSourceCorrectionEncodeCount;
+    result.deferredExternalForceBorrowCount =
+        state_->deferredExternalForceBorrowCount;
+    result.runtimePreDynamicsEncodeCount =
+        state_->runtimePreDynamicsEncodeCount;
+    result.runtimePostCommitEncodeCount =
+        state_->runtimePostCommitEncodeCount;
+    result.executionMode = state_->executionMode;
     result.fingerprint = state_->fingerprint;
     result.contactSampleCount = static_cast<std::uint32_t>(
         state_->contactSamples.size());

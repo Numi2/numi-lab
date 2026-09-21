@@ -1569,30 +1569,23 @@ kernel void nm_numi_human_commit_passive_routed_band_audit(
     }
 }
 
-kernel void nm_numi_human_apply_fem_anchor_reactions(
-    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
-    device const NMNumiHumanTendonFEMNodeAnchorGPU* nodeAnchors [[buffer(1)]],
-    device const NMNumiHumanTendonFEMEndpointReplacementGPU* replacements [[buffer(2)]],
-    device const MRNumiHumanTendonBindingGPU* bindings [[buffer(3)]],
-    device const MRNumiHumanTendonTransferResultGPU* transfers [[buffer(4)]],
-    device const float4* constraintReactions [[buffer(5)]],
-    device const NMMatterStatusGPU* matterStatuses [[buffer(6)]],
-    device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(7)]],
-    device const float* pointJacobians [[buffer(8)]],
-    device float* generalizedForces [[buffer(9)]],
-    device const NMNumiHumanBodyWrenchGPU* articularBodyWrenches [[buffer(10)]],
-    device const NMNumiHumanPassiveLigamentGPU* passiveLigaments [[buffer(11)]],
-    device const NMNumiHumanBodyWrenchGPU* femBodyContactWrenches [[buffer(12)]],
-    device const NMNumiHumanPassiveRoutedBandGPU* passiveRoutedBands
-        [[buffer(13)]],
-    uint global [[thread_position_in_grid]]
+inline bool humanPreSourceRigidCorrection(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch,
+    device const NMNumiHumanTendonFEMEndpointReplacementGPU* replacements,
+    device const MRNumiHumanTendonBindingGPU* bindings,
+    device const MRNumiHumanTendonTransferResultGPU* transfers,
+    device const MRArticulatedBodyPoseGPU* bodyPoses,
+    device const float* pointJacobians,
+    device const float* generalizedForces,
+    device const NMNumiHumanBodyWrenchGPU* articularBodyWrenches,
+    device const NMNumiHumanPassiveLigamentGPU* passiveLigaments,
+    device const NMNumiHumanBodyWrenchGPU* femBodyContactWrenches,
+    device const NMNumiHumanPassiveRoutedBandGPU* passiveRoutedBands,
+    const uint environment,
+    const uint dof,
+    thread float& correction
 ) {
-    const uint total = dispatch.environmentCount * dispatch.dofCount;
-    if (global >= total) return;
-    const uint environment = global / dispatch.dofCount;
-    const uint dof = global - environment * dispatch.dofCount;
-    if (matterStatuses[environment].code != NM_STATUS_SUCCESS) return;
-    float correction = 0.0f;
+    correction = 0.0f;
     for (uint index = 0u; index < dispatch.replacementCount; ++index) {
         const NMNumiHumanTendonFEMEndpointReplacementGPU replacement =
             replacements[index];
@@ -1631,32 +1624,12 @@ kernel void nm_numi_human_apply_fem_anchor_reactions(
                 replacement.forceOwnerFraction.x * endpointEffort;
         }
     }
-    const uint reactionBase = environment * dispatch.femNodeCount;
-    for (uint node = 0u; node < dispatch.femNodeCount; ++node) {
-        const NMNumiHumanTendonFEMNodeAnchorGPU anchor = nodeAnchors[node];
-        if ((anchor.flags & NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE) == 0u)
-            continue;
-        const uint localBody = anchor.bodyIndex - dispatch.articulationFirstBody;
-        const MRArticulatedBodyPoseGPU pose = bodyPoses[
-            environment * dispatch.bodyPoseStride + localBody
-        ];
-        const float3 worldPoint = pose.position.xyz +
-            humanQuaternionRotate(pose.orientation, anchor.localPoint.xyz);
-        const float3 reaction = constraintReactions[reactionBase + node].xyz;
-        correction += dot(
-            reaction,
-            humanPointJacobian(
-                environment, dof, dispatch, bodyPoses, pointJacobians,
-                anchor.bodyIndex, worldPoint
-            )
-        );
-    }
     if (dispatch.articularContactSampleCount > 0u) {
         for (uint localBody = 0u; localBody < dispatch.bodyPoseStride;
              ++localBody) {
             const NMNumiHumanBodyWrenchGPU wrench = articularBodyWrenches[
                 environment * dispatch.bodyPoseStride + localBody];
-            if (!finite4(wrench.force) || !finite4(wrench.torque)) return;
+            if (!finite4(wrench.force) || !finite4(wrench.torque)) return false;
             const uint bodyIndex = dispatch.articulationFirstBody + localBody;
             const MRArticulatedBodyPoseGPU pose = bodyPoses[
                 environment * dispatch.bodyPoseStride + localBody];
@@ -1677,7 +1650,7 @@ kernel void nm_numi_human_apply_fem_anchor_reactions(
              ++localBody) {
             const NMNumiHumanBodyWrenchGPU wrench = femBodyContactWrenches[
                 environment * dispatch.bodyPoseStride + localBody];
-            if (!finite4(wrench.force) || !finite4(wrench.torque)) return;
+            if (!finite4(wrench.force) || !finite4(wrench.torque)) return false;
             const uint bodyIndex = dispatch.articulationFirstBody + localBody;
             const MRArticulatedBodyPoseGPU pose = bodyPoses[
                 environment * dispatch.bodyPoseStride + localBody];
@@ -1702,7 +1675,7 @@ kernel void nm_numi_human_apply_fem_anchor_reactions(
         float tension;
         if (!passiveLigamentState(
                 environment, dispatch, bodyPoses, ligament, firstPoint,
-                secondPoint, firstForce, stretch, tension)) return;
+                secondPoint, firstForce, stretch, tension)) return false;
         correction += dot(
             firstForce,
             humanPointJacobian(
@@ -1732,7 +1705,7 @@ kernel void nm_numi_human_apply_fem_anchor_reactions(
                 environment, dispatch, bodyPoses, band, originPoint,
                 pulleyPoint, insertionPoint, originForce, pulleyForce,
                 insertionForce, pulleyTorque, insertionTorque, strain,
-                tension, extension, storedEnergy)) return;
+                tension, extension, storedEnergy)) return false;
         correction += dot(
             originForce,
             humanPointJacobian(
@@ -1759,7 +1732,100 @@ kernel void nm_numi_human_apply_fem_anchor_reactions(
                 environment, dof, dispatch, bodyPoses, pointJacobians,
                 band.insertionBodyIndex));
     }
+    return isfinite(correction);
+}
+
+kernel void nm_numi_human_apply_fem_anchor_reactions(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const NMNumiHumanTendonFEMNodeAnchorGPU* nodeAnchors [[buffer(1)]],
+    device const NMNumiHumanTendonFEMEndpointReplacementGPU* replacements [[buffer(2)]],
+    device const MRNumiHumanTendonBindingGPU* bindings [[buffer(3)]],
+    device const MRNumiHumanTendonTransferResultGPU* transfers [[buffer(4)]],
+    device const float4* constraintReactions [[buffer(5)]],
+    device const NMMatterStatusGPU* matterStatuses [[buffer(6)]],
+    device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(7)]],
+    device const float* pointJacobians [[buffer(8)]],
+    device float* generalizedForces [[buffer(9)]],
+    device const NMNumiHumanBodyWrenchGPU* articularBodyWrenches [[buffer(10)]],
+    device const NMNumiHumanPassiveLigamentGPU* passiveLigaments [[buffer(11)]],
+    device const NMNumiHumanBodyWrenchGPU* femBodyContactWrenches [[buffer(12)]],
+    device const NMNumiHumanPassiveRoutedBandGPU* passiveRoutedBands
+        [[buffer(13)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.dofCount;
+    if (global >= total) return;
+    const uint environment = global / dispatch.dofCount;
+    const uint dof = global - environment * dispatch.dofCount;
+    if (matterStatuses[environment].code != NM_STATUS_SUCCESS) return;
+    float correction = 0.0f;
+    if (!humanPreSourceRigidCorrection(
+            dispatch, replacements, bindings, transfers, bodyPoses,
+            pointJacobians, generalizedForces, articularBodyWrenches,
+            passiveLigaments, femBodyContactWrenches, passiveRoutedBands,
+            environment, dof, correction)) return;
+    const uint reactionBase = environment * dispatch.femNodeCount;
+    for (uint node = 0u; node < dispatch.femNodeCount; ++node) {
+        const NMNumiHumanTendonFEMNodeAnchorGPU anchor = nodeAnchors[node];
+        if ((anchor.flags & NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE) == 0u)
+            continue;
+        const uint localBody = anchor.bodyIndex - dispatch.articulationFirstBody;
+        const MRArticulatedBodyPoseGPU pose = bodyPoses[
+            environment * dispatch.bodyPoseStride + localBody
+        ];
+        const float3 worldPoint = pose.position.xyz +
+            humanQuaternionRotate(pose.orientation, anchor.localPoint.xyz);
+        const float3 reaction = constraintReactions[reactionBase + node].xyz;
+        correction += dot(
+            reaction,
+            humanPointJacobian(
+                environment, dof, dispatch, bodyPoses, pointJacobians,
+                anchor.bodyIndex, worldPoint
+            )
+        );
+    }
     if (!isfinite(correction)) return;
+    const uint forceIndex = environment * dispatch.generalizedForceStride +
+        dispatch.generalizedForceOffset + dof;
+    generalizedForces[forceIndex] += correction;
+}
+
+// Deferred NumanX mode applies only source-row replacement and reduced rigid
+// forces known before Matter. Fixed-node reactions stay inside Matter's
+// generic coupled Human attachments and return once through the NumanX staged
+// generalized reaction.
+kernel void nm_numi_human_apply_pre_source_rigid_corrections(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const NMNumiHumanTendonFEMEndpointReplacementGPU* replacements
+        [[buffer(1)]],
+    device const MRNumiHumanTendonBindingGPU* bindings [[buffer(2)]],
+    device const MRNumiHumanTendonTransferResultGPU* transfers [[buffer(3)]],
+    device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(4)]],
+    device const float* pointJacobians [[buffer(5)]],
+    device float* generalizedForces [[buffer(6)]],
+    device const NMNumiHumanBodyWrenchGPU* articularBodyWrenches [[buffer(7)]],
+    device const NMNumiHumanPassiveLigamentGPU* passiveLigaments [[buffer(8)]],
+    device const NMNumiHumanBodyWrenchGPU* femBodyContactWrenches [[buffer(9)]],
+    device const NMNumiHumanPassiveRoutedBandGPU* passiveRoutedBands
+        [[buffer(10)]],
+    device const MRMetalWorldStatusGPU* validationStatuses [[buffer(11)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.dofCount;
+    if (global >= total) return;
+    const uint environment = global / dispatch.dofCount;
+    const uint dof = global - environment * dispatch.dofCount;
+    const MRMetalWorldStatusGPU validation = validationStatuses[environment];
+    if (validation.code != MR_STEP_SUCCESS ||
+        validation.environment != environment ||
+        validation.controlStep != dispatch.stepIndex ||
+        validation.successfulSubsteps != 1u) return;
+    float correction = 0.0f;
+    if (!humanPreSourceRigidCorrection(
+            dispatch, replacements, bindings, transfers, bodyPoses,
+            pointJacobians, generalizedForces, articularBodyWrenches,
+            passiveLigaments, femBodyContactWrenches, passiveRoutedBands,
+            environment, dof, correction)) return;
     const uint forceIndex = environment * dispatch.generalizedForceStride +
         dispatch.generalizedForceOffset + dof;
     generalizedForces[forceIndex] += correction;

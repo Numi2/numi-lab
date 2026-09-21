@@ -8,6 +8,7 @@
 #include "metalrobo/compensated_translation_gpu.h"
 #include "metalrobo/mujoco_muscle_gpu.h"
 #include "numi/matter/matter.hpp"
+#include "numi/matter/numi_human.hpp"
 #include "numi/matter/shared.h"
 
 #include <algorithm>
@@ -2652,6 +2653,51 @@ void verifyOwnerAdapterMatterIntegration(id<MTLDevice> device) {
         "integrated owner Matter initialization failed: " +
             matterInit.message);
 
+    std::array<NMNumiHumanTendonFEMNodeLoadGPU, 4u> nodeLoads{};
+    for (auto& load : nodeLoads) {
+        std::fill(std::begin(load.endpointIndex),
+                  std::end(load.endpointIndex), NM_INVALID_INDEX);
+    }
+    nodeLoads[1u].endpointIndex[0u] = 0u;
+    nodeLoads[1u].scale.x = 0.1f;
+    std::array<NMNumiHumanTendonFEMNodeAnchorGPU, 4u> nodeAnchors{};
+    for (auto& anchor : nodeAnchors) anchor.bodyIndex = NM_INVALID_INDEX;
+    nodeAnchors[0u].bodyIndex = attachmentBody;
+    nodeAnchors[0u].flags =
+        NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE;
+    nodeAnchors[0u].localPoint = {-0.005f, -0.005f, -0.005f, 0.0f};
+    std::array<NMNumiHumanTendonFEMEndpointReplacementGPU, 1u>
+        replacements{};
+    replacements[0u].loadEndpointIndex = 0u;
+    replacements[0u].anchorEndpointIndex = 1u;
+    replacements[0u].flags =
+        NM_NUMI_HUMAN_TENDON_FEM_ENDPOINT_REPLACEMENT_ACTIVE;
+    replacements[0u].forceOwnerFraction.x = 0.1f;
+    numi::matter::NumiHumanTendonFEMLoadSource tendonSource;
+    tendonSource.nodeLoads = nodeLoads;
+    tendonSource.nodeAnchors = nodeAnchors;
+    tendonSource.endpointReplacements = replacements;
+    tendonSource.endpointCount = 2u;
+    tendonSource.environmentCount = 1u;
+    tendonSource.productionForceOwnerFraction = 0.1f;
+    numi::matter::NumiHumanTendonFEMLoadConfiguration tendonConfiguration;
+    tendonConfiguration.metallib = NUMI_MATTER_METALLIB;
+    tendonConfiguration.executionMode = numi::matter::
+        NumiHumanTendonFEMLoadExecutionMode::numanXDeferred;
+    numi::matter::NumiHumanTendonFEMLoadAdapter tendonAdapter;
+    require(tendonAdapter.initialize(
+                matter, tendonSource, tendonConfiguration),
+        "integrated deferred tendon/FEM adapter initialization failed");
+    const auto deferredLoads = tendonAdapter.deferredProgram();
+    require(deferredLoads.valid() &&
+            deferredLoads.environmentCount == matter.environmentCount() &&
+            deferredLoads.femNodeCount == matter.femNodeCount() &&
+            deferredLoads.activeAnchorCount ==
+                matter.femHumanAttachmentCount() &&
+            deferredLoads.runtimeDeviceProgramFingerprint ==
+                matter.deviceProgramFingerprint(),
+        "integrated deferred force program lost Runtime shape identity");
+
     metalrobo::MetalNumanXHumanMatterConfig adapterConfig;
     adapterConfig.matterRuntime = &matter;
     adapterConfig.coupledHumanMetallibPath = NUMANX_ADAPTER_METALLIB;
@@ -2663,6 +2709,26 @@ void verifyOwnerAdapterMatterIntegration(id<MTLDevice> device) {
     adapterConfig.stateProofProgram.encode = &encodeRuntimeProof;
     adapterConfig.stateProofProgram.fingerprint =
         matter.acceptedStateProofProgramFingerprint();
+    adapterConfig.tendonFEMDeferredLoadProgram = deferredLoads;
+    {
+        auto malformedConfig = adapterConfig;
+        malformedConfig.tendonFEMDeferredLoadProgram.borrowExternalForces =
+            nullptr;
+        metalrobo::MetalNumanXHumanMatterContext malformed(
+            std::move(malformedConfig));
+        require(malformed.initialize().status == metalrobo::
+                    MetalNumanXHumanMatterHostStatus::invalidConfiguration,
+            "NumanX admitted a partial deferred force program");
+    }
+    {
+        auto mismatchedConfig = adapterConfig;
+        ++mismatchedConfig.tendonFEMDeferredLoadProgram.femNodeCount;
+        metalrobo::MetalNumanXHumanMatterContext mismatched(
+            std::move(mismatchedConfig));
+        require(mismatched.initialize().status == metalrobo::
+                    MetalNumanXHumanMatterHostStatus::matterRuntimeIncompatible,
+            "NumanX admitted a deferred FEM-node count mismatch");
+    }
     metalrobo::MetalNumanXHumanMatterContext adapter(adapterConfig);
     const auto adapterInit = adapter.initialize();
     require(adapterInit.succeeded() &&
@@ -2692,6 +2758,25 @@ void verifyOwnerAdapterMatterIntegration(id<MTLDevice> device) {
     owner_fixture::CandidateAudit ownerFixture;
     owner_fixture::initializeAudit(ownerFixture, device);
     auto input = owner_fixture::makeInput(model, points, ownerFixture);
+    std::array<MRNumiHumanTendonBindingGPU, 2u> tendonBindings{};
+    tendonBindings[0u].muscleIndex = 0u;
+    tendonBindings[0u].endpointOrdinal = 0u;
+    tendonBindings[0u].bodyIndex = owner_fixture::kFirstBody;
+    tendonBindings[0u].mode = MR_NUMI_HUMAN_TENDON_TRANSFER_SOURCE_POINT;
+    tendonBindings[0u].envelopeIndex = MR_INVALID_INDEX;
+    tendonBindings[0u].boneStableId = 0u;
+    tendonBindings[0u].sourceLocalPoint =
+        ownerFixture.muscleSites[0u].localPoint;
+    tendonBindings[1u].muscleIndex = 0u;
+    tendonBindings[1u].endpointOrdinal = 1u;
+    tendonBindings[1u].bodyIndex = owner_fixture::kFirstBody;
+    tendonBindings[1u].mode = MR_NUMI_HUMAN_TENDON_TRANSFER_SOURCE_POINT;
+    tendonBindings[1u].envelopeIndex = MR_INVALID_INDEX;
+    tendonBindings[1u].boneStableId = 0u;
+    tendonBindings[1u].sourceLocalPoint =
+        ownerFixture.muscleSites[1u].localPoint;
+    input.stand.tendonBindings = tendonBindings;
+    input.stand.tendonLoadProgram = tendonAdapter.program();
     input.stand.numanXHumanMatterProgram = program;
     const metalrobo::MetalArticulatedOperatorConfig ownerConfig{
         .pointJacobiansOnly = true,
@@ -2706,7 +2791,8 @@ void verifyOwnerAdapterMatterIntegration(id<MTLDevice> device) {
     const auto submitted = owner.submit(model, input, submission);
     require(submitted.succeeded() && submitted.dispatched &&
             submission.valid(),
-        "real owner rejected adapter+Matter prepare: " + submitted.message);
+        "real owner rejected adapter+Matter prepare: " + submitted.message +
+            "; tendon/FEM: " + tendonAdapter.diagnostics().message);
     metalrobo::MetalNumanXHumanMatterPrepared prepared;
     require(submission.extractPreparedHumanMatter(prepared) &&
             prepared.valid(),
@@ -2912,6 +2998,17 @@ void verifyOwnerAdapterMatterIntegration(id<MTLDevice> device) {
             humanIO->publishCalls == 0u &&
             humanIO->rejectCalls == 1u,
         "owner+adapter+Matter reject did not resolve and byte-restore");
+    const auto tendonDiagnostics = tendonAdapter.diagnostics();
+    require(tendonDiagnostics.initialized &&
+            tendonDiagnostics.executionMode == numi::matter::
+                NumiHumanTendonFEMLoadExecutionMode::numanXDeferred &&
+            tendonDiagnostics.preSourceCorrectionEncodeCount == 1u &&
+            tendonDiagnostics.deferredExternalForceBorrowCount == 2u &&
+            tendonDiagnostics.runtimePreDynamicsEncodeCount == 0u &&
+            tendonDiagnostics.runtimePostCommitEncodeCount == 0u &&
+            tendonDiagnostics.encodedPassCount == 1u,
+        "deferred tendon/FEM path opened a duplicate Runtime lifecycle or "
+        "lost its exact force-view borrows");
 }
 
 } // namespace adapter_fixture
