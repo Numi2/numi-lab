@@ -31,10 +31,11 @@
 // Full dynamics remains deliberately bounded by the dense-factor class above.
 #define MR_ARTICULATED_OPERATOR_KINEMATICS_MAX_BODIES 192u
 #define MR_ARTICULATED_OPERATOR_KINEMATICS_MAX_DOFS 160u
-// Retained as the legacy standalone operator's recommended allocation class.
-// It is not a runtime limit: checked GPU strides and caller-provided storage
-// now determine the point/contact capacity.
-#define MR_ARTICULATED_OPERATOR_MAX_POINTS 4096u
+// Hard admission ceiling for one generic kinematics/Jacobian point stream.
+// The source-compliant Numi Human/Matter path needs 628 private body probes
+// plus 3,831 loaded-knee attachment points (4,459 total). Allocation remains
+// exact to each request; this ceiling only bounds the checked ABI shape.
+#define MR_ARTICULATED_OPERATOR_MAX_POINTS 8192u
 // Versioned FP32 backward-error gate for M * deltaV = J^T * impulse.
 // A finite but inaccurate factor solve is a failure, never publishable state.
 #define MR_ARTICULATED_OPERATOR_MAX_RELATIVE_RESIDUAL 0.00003f

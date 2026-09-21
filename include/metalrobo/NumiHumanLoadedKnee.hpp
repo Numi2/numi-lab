@@ -36,6 +36,11 @@ inline constexpr std::uint32_t kNumiHumanLoadedKneeLoadedTetrahedronCount = 264'
 inline constexpr std::uint32_t kNumiHumanLoadedKneeContactPairCount = 7u;
 inline constexpr std::uint32_t kNumiHumanLoadedKneeActiveReplacementCount = 4u;
 inline constexpr std::uint32_t kNumiHumanLoadedKneePassiveOwnerCount = 5u;
+// Stable identifiers for direct Matter Human attachments are the domain tag
+// "KN" followed by the one-based executable FEM row. The executable row is
+// profile/object/local order, not the sparse ABI3 source-global node index.
+inline constexpr std::uint32_t
+    kNumiHumanLoadedKneeAttachmentStableIdentifierBase = 0x4b4e0000u;
 inline constexpr std::uint64_t kNumiHumanLoadedKneePayloadBytesV1 = 34'357'400u;
 inline constexpr std::string_view kNumiHumanLoadedKneeLabAuthoringBoundaryV1 =
     "Candidate-only source/projected-reference and donor provenance export. "
@@ -288,6 +293,21 @@ struct NumiHumanLoadedKneeExecutedAnchorV1 {
     const std::array<double, 3u>& donorCOMOffsetM,
     const NMFEMNodeStateGPU& matterNode,
     const NumiHumanLoadedKneeExecutedAnchorV1& executedAnchor,
+    std::string& error
+);
+
+// Proves that an active ABI3 anchor is represented by the exact native Matter
+// attachment row used by the coupled Human solve. Marker 2, body/object/node,
+// deterministic stable identifier, and rebased body-local point are all
+// checked exactly. Inactive nodes have no compiled attachment row and are
+// enforced by the enclosing topology binder.
+[[nodiscard]] bool validateNumiHumanLoadedKneeCompiledAttachmentRowV1(
+    std::uint32_t expectedExecutableNodeIndex,
+    std::uint32_t expectedObjectIndex,
+    const NumiHumanKneeNode& sourceNode,
+    const NumiHumanLoadedKneeExecutedAnchorV1& executedAnchor,
+    const NMFEMNodeStateGPU& matterNode,
+    const NMFEMHumanAttachmentGPU& matterAttachment,
     std::string& error
 );
 

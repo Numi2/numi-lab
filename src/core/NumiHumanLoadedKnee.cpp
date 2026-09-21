@@ -1179,7 +1179,7 @@ bool validateNumiHumanLoadedKneeExecutedAnchorRowV1(
             std::isfinite(executedAnchor.localPoint[0u]) &&
             std::isfinite(executedAnchor.localPoint[1u]) &&
             std::isfinite(executedAnchor.localPoint[2u]) &&
-            matterNode.restAndFixed.w > 0.0f;
+            matterNode.restAndFixed.w == 2.0f;
         std::array<float, 3u> expectedExecutedLocal =
             sourceNode.anchorLocal;
         if (attached) {
@@ -1216,6 +1216,62 @@ bool validateNumiHumanLoadedKneeExecutedAnchorRowV1(
         return false;
     } catch (...) {
         error = "loaded-knee executed anchor row validation failed";
+        return false;
+    }
+}
+
+bool validateNumiHumanLoadedKneeCompiledAttachmentRowV1(
+    const std::uint32_t expectedExecutableNodeIndex,
+    const std::uint32_t expectedObjectIndex,
+    const NumiHumanKneeNode& sourceNode,
+    const NumiHumanLoadedKneeExecutedAnchorV1& executedAnchor,
+    const NMFEMNodeStateGPU& matterNode,
+    const NMFEMHumanAttachmentGPU& matterAttachment,
+    std::string& error
+) {
+    try {
+        if (expectedExecutableNodeIndex >=
+                kNumiHumanLoadedKneeLoadedNodeCount ||
+            expectedObjectIndex >= kNumiHumanLoadedKneeRegionCount ||
+            !sourceNode.rigidlyAttached ||
+            executedAnchor.flags != 1u ||
+            executedAnchor.bodyIndex != sourceNode.anchorBodyIndex ||
+            !std::isfinite(executedAnchor.localPoint[0u]) ||
+            !std::isfinite(executedAnchor.localPoint[1u]) ||
+            !std::isfinite(executedAnchor.localPoint[2u]) ||
+            matterNode.restAndFixed.w != 2.0f) {
+            return fail(error,
+                "loaded-knee compiled attachment is not an active direct Matter row");
+        }
+        const std::uint32_t expectedStableIdentifier =
+            kNumiHumanLoadedKneeAttachmentStableIdentifierBase +
+            expectedExecutableNodeIndex + 1u;
+        const bool exactLocalPoint =
+            std::bit_cast<std::uint32_t>(matterAttachment.localPoint.x) ==
+                std::bit_cast<std::uint32_t>(
+                    executedAnchor.localPoint[0u]) &&
+            std::bit_cast<std::uint32_t>(matterAttachment.localPoint.y) ==
+                std::bit_cast<std::uint32_t>(
+                    executedAnchor.localPoint[1u]) &&
+            std::bit_cast<std::uint32_t>(matterAttachment.localPoint.z) ==
+                std::bit_cast<std::uint32_t>(
+                    executedAnchor.localPoint[2u]) &&
+            std::bit_cast<std::uint32_t>(matterAttachment.localPoint.w) == 0u;
+        if (matterAttachment.identity.x != expectedExecutableNodeIndex ||
+            matterAttachment.identity.y != executedAnchor.bodyIndex ||
+            matterAttachment.identity.z != expectedObjectIndex ||
+            matterAttachment.identity.w != expectedStableIdentifier ||
+            !exactLocalPoint) {
+            return fail(error,
+                "loaded-knee compiled attachment differs from the profile-order direct Matter binding");
+        }
+        error.clear();
+        return true;
+    } catch (const std::exception& exception) {
+        error = exception.what();
+        return false;
+    } catch (...) {
+        error = "loaded-knee compiled attachment row validation failed";
         return false;
     }
 }
@@ -2126,6 +2182,41 @@ bool bindNumiHumanLoadedKneeExecutableTopologyV1(
                 "loaded-knee decoded ABI3 topology does not match HumanPack");
         }
 
+        if (world.objects.size() != kNumiHumanLoadedKneeRegionCount) {
+            return fail(error,
+                "loaded-knee executable world does not contain exactly the six profile-order FEM objects");
+        }
+        std::uint32_t expectedNodeOffset = 0u;
+        std::uint32_t expectedTetrahedronOffset = 0u;
+        for (std::size_t objectIndex = 0u;
+             objectIndex < world.objects.size(); ++objectIndex) {
+            const auto payloadRegion = std::find_if(
+                decodedPayload.regions.begin(), decodedPayload.regions.end(),
+                [objectIndex](const NumiHumanKneeRegion& region) {
+                    return region.name == kRegionNames[objectIndex];
+                });
+            const auto& object = world.objects[objectIndex];
+            if (payloadRegion == decodedPayload.regions.end() ||
+                object.representation != NM_REPRESENTATION_FEM ||
+                object.stateOffset != expectedNodeOffset ||
+                object.stateCount != payloadRegion->nodeCount ||
+                object.elementOffset != expectedTetrahedronOffset ||
+                object.elementCount != payloadRegion->tetrahedronCount) {
+                return fail(error,
+                    "loaded-knee compiled FEM object spans left profile/object/local order");
+            }
+            expectedNodeOffset += payloadRegion->nodeCount;
+            expectedTetrahedronOffset += payloadRegion->tetrahedronCount;
+        }
+        if (expectedNodeOffset != kNumiHumanLoadedKneeLoadedNodeCount ||
+            expectedTetrahedronOffset !=
+                kNumiHumanLoadedKneeLoadedTetrahedronCount ||
+            world.dispatch.femHumanAttachmentCount !=
+                world.fem.humanAttachments.size()) {
+            return fail(error,
+                "loaded-knee compiled FEM spans or direct-attachment dispatch count are inconsistent");
+        }
+
         SHA256Writer referenceWriter;
         SHA256Writer executableTopologyWriter;
         SHA256Writer executedAnchorWriter;
@@ -2138,6 +2229,8 @@ bool bindNumiHumanLoadedKneeExecutableTopologyV1(
                     "loaded-knee executable anchor binding has repeated donor offsets");
             }
         }
+        std::size_t objectIndex = 0u;
+        std::size_t attachmentIndex = 0u;
         for (std::size_t index = 0u; index < world.fem.nodes.size(); ++index) {
             const auto& node = world.fem.nodes[index];
             if (!std::isfinite(node.restAndFixed.x) ||
@@ -2154,6 +2247,19 @@ bool bindNumiHumanLoadedKneeExecutableTopologyV1(
                 decoded.sourceGlobalNodeIndices[index];
             const auto& sourceNode = decodedPayload.nodes[sourceGlobal];
             const auto& anchor = executedAnchors[index];
+            while (objectIndex + 1u < world.objects.size() &&
+                   index >= static_cast<std::size_t>(
+                       world.objects[objectIndex].stateOffset) +
+                       world.objects[objectIndex].stateCount) {
+                ++objectIndex;
+            }
+            const auto& object = world.objects[objectIndex];
+            if (index < object.stateOffset ||
+                index >= static_cast<std::size_t>(object.stateOffset) +
+                    object.stateCount) {
+                return fail(error,
+                    "loaded-knee executable node escaped its profile-order FEM object span");
+            }
             std::array<double, 3u> donorCOMOffset{};
             if (const auto offset = donorCOMOffsets.find(
                     sourceNode.anchorBodyIndex);
@@ -2172,6 +2278,35 @@ bool bindNumiHumanLoadedKneeExecutableTopologyV1(
                 return fail(error,
                     "loaded-knee executed anchor table is not the ABI3 profile-order ownership map");
             }
+
+            if (attachmentIndex < world.fem.humanAttachments.size() &&
+                world.fem.humanAttachments[attachmentIndex].identity.x <
+                    index) {
+                return fail(error,
+                    "loaded-knee compiled attachment row is out of profile-order or unclaimed");
+            }
+            if (sourceNode.rigidlyAttached) {
+                if (attachmentIndex >= world.fem.humanAttachments.size() ||
+                    !validateNumiHumanLoadedKneeCompiledAttachmentRowV1(
+                        static_cast<std::uint32_t>(index),
+                        static_cast<std::uint32_t>(objectIndex),
+                        sourceNode, anchor, node,
+                        world.fem.humanAttachments[attachmentIndex], error)) {
+                    return fail(error,
+                        "loaded-knee active ABI3 anchor is missing its exact compiled Matter attachment row");
+                }
+                ++attachmentIndex;
+            } else if (attachmentIndex <
+                           world.fem.humanAttachments.size() &&
+                       world.fem.humanAttachments[attachmentIndex]
+                               .identity.x == index) {
+                return fail(error,
+                    "loaded-knee inactive ABI3 node owns an unexpected compiled Matter attachment row");
+            }
+        }
+        if (attachmentIndex != world.fem.humanAttachments.size()) {
+            return fail(error,
+                "loaded-knee compiled Matter attachment table contains trailing or unbound rows");
         }
 
         for (std::size_t index = 0u;

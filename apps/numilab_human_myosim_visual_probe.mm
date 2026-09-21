@@ -11052,7 +11052,6 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
             anchor.bodyIndex = sourceNode.anchorBodyIndex;
             anchor.flags = NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE;
             regionAnchorBodies[local] = sourceNode.anchorBodyIndex;
-            object.femFixedNodes.push_back(local);
             ++runtimeRegion.anchorCounts[bodySlot];
         }
         for (std::uint32_t local = 0u;
@@ -11224,6 +11223,18 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
                              targetExpected));
             anchor.localPoint = {
                 immutableLocal.x, immutableLocal.y, immutableLocal.z, 0.0f};
+            numi::matter::FEMHumanAttachmentSource attachment;
+            attachment.node = local;
+            attachment.bodyIndex = anchor.bodyIndex;
+            // Domain-separated, deterministic executable identity.  The
+            // profile-order FEM row is global across all six objects, while
+            // attachment.node remains object-local as required by Matter.
+            attachment.stableIdentifier =
+                metalrobo::kNumiHumanLoadedKneeAttachmentStableIdentifierBase +
+                femNode + 1u;
+            attachment.localPoint = {
+                immutableLocal.x, immutableLocal.y, immutableLocal.z};
+            object.femHumanAttachments.push_back(attachment);
         }
         require(
             regionDiagnostics.
@@ -11298,7 +11309,8 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
             : runtimeRegion.anchorCounts[0u] > 0u &&
                 runtimeRegion.anchorCounts[1u] > 0u &&
                 runtimeRegion.anchorCounts[2u] == 0u;
-        require(exactBoundaryOwnership && object.femFixedNodes.size() ==
+        require(exactBoundaryOwnership && object.femFixedNodes.empty() &&
+                    object.femHumanAttachments.size() ==
                     runtimeRegion.anchorCounts[0u] +
                     runtimeRegion.anchorCounts[1u] +
                     runtimeRegion.anchorCounts[2u],
@@ -11860,10 +11872,6 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
                     authoring, model, referenceWorldCoordinates, restBodies,
                     cookedNodes, *loadedKneeMassEvidence, massError),
                 "loaded-knee donor mass preparation failed: " + massError);
-        require(metalrobo::bindNumiHumanLoadedKneeMassToMatterWorldV1(
-                    compiled.world, *loadedKneeMassEvidence, massError),
-                "loaded-knee executable Matter mass binding failed: " +
-                    massError);
 
         std::vector<std::array<double, 3u>> donorCOMOffsets(
             model.bodies.size());
@@ -11890,6 +11898,17 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
                 !donorRebased[body]) return;
             for (std::size_t axis = 0u; axis < 3u; ++axis)
                 point[axis] -= donorCOMOffsets[body][axis];
+        };
+        const auto shiftAuthoredFloatPoint = [
+            &donorCOMOffsets, &donorRebased
+        ](std::array<double, 3u>& point, const std::uint32_t body) {
+            if (body == MR_INVALID_INDEX || body >= donorRebased.size() ||
+                !donorRebased[body]) return;
+            for (std::size_t axis = 0u; axis < 3u; ++axis) {
+                const float rebased = static_cast<float>(point[axis]) -
+                    static_cast<float>(donorCOMOffsets[body][axis]);
+                point[axis] = static_cast<double>(rebased);
+            }
         };
 
         rebasedMuscles = muscles;
@@ -11979,6 +11998,31 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
                     sample.masterLocalAdjacentOpposite2AndActive,
                     sample.masterBodyIndex);
         }
+
+        // The first compile owns only the density-derived nodal mass needed
+        // to compute the donor COM subtraction.  Rebase Matter's native
+        // articulated attachments by that exact subtraction and compile the
+        // executable world again.  Mutating a cooked row would leave the
+        // physics fingerprint and package identity stale.
+        for (auto& object : worldSource.objects) {
+            for (auto& attachment : object.femHumanAttachments) {
+                shiftAuthoredFloatPoint(
+                    attachment.localPoint, attachment.bodyIndex);
+            }
+        }
+        auto executableCompiled =
+            numi::matter::compileWorld(worldSource, compileOptions);
+        std::string executableCompileMessage;
+        for (const auto& diagnostic : executableCompiled.diagnostics)
+            executableCompileMessage += diagnostic.message + "; ";
+        require(executableCompiled.succeeded(),
+                "rebased loaded-knee Matter world did not compile: " +
+                    executableCompileMessage);
+        compiled = std::move(executableCompiled);
+        require(metalrobo::bindNumiHumanLoadedKneeMassToMatterWorldV1(
+                    compiled.world, *loadedKneeMassEvidence, massError),
+                "loaded-knee executable Matter mass binding failed: " +
+                    massError);
 
         loadedKneeExecutedAnchors.resize(totalNodes);
         for (const LiveOpenKneeRegion& runtimeRegion : regions) {

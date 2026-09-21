@@ -943,7 +943,7 @@ int main() {
         constexpr std::array<double, 3u> donorCOMOffset{{
             0.125, -0.0625, 0.25}};
         NMFEMNodeStateGPU anchoredMatterNode{};
-        anchoredMatterNode.restAndFixed.w = 1.0f;
+        anchoredMatterNode.restAndFixed.w = 2.0f;
         NumiHumanLoadedKneeExecutedAnchorV1 executedAnchor{
             .sourceGlobalNodeIndex = 1234u,
             .bodyIndex = NUMI_HUMAN_KNEE_FEMUR_BODY,
@@ -959,6 +959,12 @@ int main() {
         require(validateNumiHumanLoadedKneeExecutedAnchorRowV1(
                     1234u, sourceAnchor, donorCOMOffset,
                     anchoredMatterNode, executedAnchor, error), error);
+        auto fixedInsteadOfAttachedNode = anchoredMatterNode;
+        fixedInsteadOfAttachedNode.restAndFixed.w = 1.0f;
+        require(!validateNumiHumanLoadedKneeExecutedAnchorRowV1(
+                    1234u, sourceAnchor, donorCOMOffset,
+                    fixedInsteadOfAttachedNode, executedAnchor, error),
+                "statically fixed loaded-knee anchor was admitted as a direct Matter attachment");
         auto bitMutatedAnchor = executedAnchor;
         bitMutatedAnchor.localPoint[0u] = std::bit_cast<float>(
             std::bit_cast<std::uint32_t>(
@@ -973,6 +979,47 @@ int main() {
                     1234u, sourceAnchor, donorCOMOffset,
                     anchoredMatterNode, coordinateMutatedAnchor, error),
                 "executed anchor coordinate drift was admitted");
+
+        constexpr std::uint32_t executableNode = 1234u;
+        constexpr std::uint32_t objectIndex = 2u;
+        NMFEMHumanAttachmentGPU compiledAttachment{};
+        compiledAttachment.identity = {
+            executableNode,
+            executedAnchor.bodyIndex,
+            objectIndex,
+            kNumiHumanLoadedKneeAttachmentStableIdentifierBase +
+                executableNode + 1u};
+        compiledAttachment.localPoint = {
+            executedAnchor.localPoint[0u],
+            executedAnchor.localPoint[1u],
+            executedAnchor.localPoint[2u], 0.0f};
+        require(validateNumiHumanLoadedKneeCompiledAttachmentRowV1(
+                    executableNode, objectIndex, sourceAnchor,
+                    executedAnchor, anchoredMatterNode,
+                    compiledAttachment, error), error);
+        auto wrongStableAttachment = compiledAttachment;
+        ++wrongStableAttachment.identity.w;
+        require(!validateNumiHumanLoadedKneeCompiledAttachmentRowV1(
+                    executableNode, objectIndex, sourceAnchor,
+                    executedAnchor, anchoredMatterNode,
+                    wrongStableAttachment, error),
+                "loaded-knee compiled attachment stable-identifier drift was admitted");
+        auto wrongObjectAttachment = compiledAttachment;
+        ++wrongObjectAttachment.identity.z;
+        require(!validateNumiHumanLoadedKneeCompiledAttachmentRowV1(
+                    executableNode, objectIndex, sourceAnchor,
+                    executedAnchor, anchoredMatterNode,
+                    wrongObjectAttachment, error),
+                "loaded-knee compiled attachment object drift was admitted");
+        auto wrongLocalAttachment = compiledAttachment;
+        wrongLocalAttachment.localPoint.x = std::bit_cast<float>(
+            std::bit_cast<std::uint32_t>(
+                wrongLocalAttachment.localPoint.x) ^ 1u);
+        require(!validateNumiHumanLoadedKneeCompiledAttachmentRowV1(
+                    executableNode, objectIndex, sourceAnchor,
+                    executedAnchor, anchoredMatterNode,
+                    wrongLocalAttachment, error),
+                "loaded-knee compiled attachment local-point drift was admitted");
 
         NumiHumanLoadedKneeMassEvidenceV1 mass;
         mass.partitions.resize(2u);

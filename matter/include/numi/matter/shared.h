@@ -72,8 +72,10 @@ typedef struct NM_ALIGN16 nm_int4 {
 // the legacy MetalWorld bridge remains valid at its smaller ABA capacity.
 #define NM_MATTER_MAX_ARTICULATED_DOFS 160u
 #define NM_MATTER_MAX_ARTICULATED_Q 161u
-// The borrowed articulated-operator query has this fixed point capacity. Reject
-// larger authored attachment batches while compiling, before a package can
+// Matter's authored Human-attachment suffix remains independently bounded at
+// 4,096 points. The borrowed generic operator also carries private body probes,
+// so its enclosing point-stream ceiling may be larger than this suffix cap.
+// Reject larger attachment batches while compiling, before a package can
 // encode a shape that the owning candidate service must reject at runtime.
 #define NM_MATTER_MAX_HUMAN_ATTACHMENT_POINTS 4096u
 

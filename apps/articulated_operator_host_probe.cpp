@@ -368,6 +368,50 @@ int main() {
             "typed output sizes or statuses are inconsistent"
         );
 
+        // Source-compliant loaded-knee candidate service shape: four private
+        // probes for each of the 157 Human bodies, followed by the exact 3,831
+        // native Matter attachment queries.
+        constexpr std::size_t loadedKneeBodyProbeCount = 4u * 157u;
+        constexpr std::size_t loadedKneeAttachmentCount = 3'831u;
+        constexpr std::size_t loadedKneeCombinedPointCount =
+            loadedKneeBodyProbeCount + loadedKneeAttachmentCount;
+        static_assert(loadedKneeCombinedPointCount == 4'459u);
+        static_assert(MR_ARTICULATED_OPERATOR_MAX_POINTS == 8'192u);
+        static_assert(
+            loadedKneeCombinedPointCount <=
+                MR_ARTICULATED_OPERATOR_MAX_POINTS);
+        std::vector<float> loadedKneeQ(
+            g1.defaultQ.begin() + articulation.qOffset,
+            g1.defaultQ.begin() + articulation.qOffset + articulation.nq);
+        std::vector<MRArticulatedPointImpulseGPU> loadedKneePoints(
+            loadedKneeCombinedPointCount,
+            point(6u, f4(0.02f, 0.01f, -0.03f),
+                  f4(0.0f, 0.0f, 0.0f)));
+        MetalArticulatedOperatorInput loadedKneeCapacityInput{
+            .articulationIndex = 0u,
+            .environmentCount = 1u,
+            .pointCount = loadedKneeCombinedPointCount,
+            .q = loadedKneeQ,
+            .points = loadedKneePoints,
+        };
+        MetalArticulatedOperatorConfig loadedKneeCapacityConfig{
+            .pointJacobiansOnly = true,
+        };
+        MetalArticulatedOperatorResult loadedKneeCapacityResult;
+        const auto loadedKneeCapacityDiagnostics =
+            metalrobo::runMetalArticulatedOperator(
+                g1,
+                loadedKneeCapacityInput,
+                loadedKneeCapacityResult,
+                loadedKneeCapacityConfig);
+        require(
+            loadedKneeCapacityDiagnostics.succeeded() &&
+                loadedKneeCapacityDiagnostics.dispatched &&
+                loadedKneeCapacityDiagnostics.published &&
+                loadedKneeCapacityResult.layout.dispatch.pointCount ==
+                    loadedKneeCombinedPointCount,
+            "4,459-point loaded-knee Human/Matter shape was not admitted");
+
         MetalArticulatedOperatorConfig jacobianOnlyConfig{
             .pointJacobiansOnly = true,
         };
@@ -619,8 +663,7 @@ int main() {
 
         rejected = sentinel;
         MetalArticulatedOperatorInput overCapacity = input;
-        overCapacity.pointCount =
-            MR_ARTICULATED_OPERATOR_MAX_POINTS + 1u;
+        overCapacity.pointCount = 8'193u;
         rejectedDiagnostics =
             metalrobo::runMetalArticulatedOperator(
                 g1,
@@ -633,7 +676,7 @@ int main() {
             MetalArticulatedOperatorHostStatus::capacityOverflow,
             rejected,
             sentinel,
-            "point capacity overflow"
+            "8,193-point capacity overflow"
         );
 
         rejected = sentinel;
@@ -769,6 +812,9 @@ int main() {
             << " replay=bitwise"
             << " offset_articulation=pass"
             << " jacobian_only=pass"
+            << " loaded_knee_points="
+            << loadedKneeCombinedPointCount
+            << " rejected_points=8193"
             << " predispatch_canaries=7"
             << " empty_buffers=pass"
             << " gpu_status_publication=pass"

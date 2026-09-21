@@ -44,7 +44,7 @@ namespace numi::matter {
 namespace {
 
 static_assert(
-    NM_MATTER_MAX_HUMAN_ATTACHMENT_POINTS ==
+    NM_MATTER_MAX_HUMAN_ATTACHMENT_POINTS <=
         MR_ARTICULATED_OPERATOR_MAX_POINTS
 );
 static_assert(
