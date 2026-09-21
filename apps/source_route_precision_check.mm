@@ -289,6 +289,35 @@ void compliantFiberChecks(GPU& gpu) {
         architecture.fitNormalizedRmse
     );
 
+    Fixture zeroInitialized = fixture;
+    zeroInitialized.muscleState.excitationAndActivation = f4(
+        fixture.state.excitation, fixture.state.activation, 0.0, 0.0
+    );
+    const auto zeroRoot = evaluateGPU(
+        gpu, zeroInitialized, Geometry(zeroInitialized, 0.0, q), true,
+        static_cast<float>(timestepSeconds)
+    );
+    require(zeroRoot.result.status == MR_MUJOCO_MUSCLE_REFERENCE_SUCCESS &&
+                std::isfinite(
+                    zeroRoot.result.fiberStateTendonForceResidual.x) &&
+                zeroRoot.result.fiberStateTendonForceResidual.x > 0.0f &&
+                zeroRoot.result.fiberStateTendonForceResidual.y == 0.0f,
+            "zero-sentinel Metal fibre initialization publishes a stationary root");
+    Fixture zeroReplay = zeroInitialized;
+    zeroReplay.muscleState.excitationAndActivation.z =
+        zeroRoot.result.fiberStateTendonForceResidual.x;
+    const auto replayedZeroRoot = evaluateGPU(
+        gpu, zeroReplay, Geometry(zeroReplay, 0.0, q), true,
+        static_cast<float>(timestepSeconds)
+    );
+    require(replayedZeroRoot.result.status ==
+                MR_MUJOCO_MUSCLE_REFERENCE_SUCCESS &&
+                std::memcmp(
+                    &zeroRoot.result.fiberStateTendonForceResidual,
+                    &replayedZeroRoot.result.fiberStateTendonForceResidual,
+                    sizeof(mr_float4)) == 0,
+            "zero-sentinel Metal fibre root is byte-exact on fixed-pose replay");
+
     const MujocoCompliantMuscleState unresolved{
         fixture.state.excitation, fixture.state.activation, 0.0, 0.0
     };

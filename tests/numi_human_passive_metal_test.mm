@@ -34,7 +34,7 @@ std::size_t exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
                      float supportSeedScale=-1.0f,unsigned contactMode=0u) {
     const unsigned contactCount=supportSeedScale>=0.0f?1u:0u;
     // Even disabled arguments require one ABI-sized element for Metal validation.
-    const std::array<std::size_t,25> sizes={
+    const std::array<std::size_t,26> sizes={
         sizeof(MRWorldGPU),sizeof(MRArticulationGPU),nv*sizeof(MRDofPropertiesGPU),
         bodies*sizeof(MRBodyPropertiesGPU),sizeof(MRNumiHumanStandDispatchGPU),
         environments*nq*sizeof(float),environments*nv*sizeof(float),
@@ -51,8 +51,8 @@ std::size_t exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
         sizeof(MRNumiHumanJointEqualityGPU),
         environments*sizeof(MRCompensatedRootTranslationGPU),
         environments*bodies*sizeof(mr_float4),environments*points*sizeof(mr_float4),
-        nv*(nv+1)*sizeof(float)};
-    std::array<id<MTLBuffer>,25> buffers;
+        nv*(nv+1)*sizeof(float),environments*3u*nv*sizeof(float)};
+    std::array<id<MTLBuffer>,26> buffers;
     for (unsigned i=0;i<buffers.size();++i) {
         buffers[i]=[device newBufferWithLength:sizes[i] options:MTLResourceStorageModeShared];
         require(buffers[i]!=nil,"Metal buffer allocation failed");

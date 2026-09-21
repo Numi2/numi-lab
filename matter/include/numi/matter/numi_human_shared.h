@@ -2,7 +2,7 @@
 
 #include "numi/matter/shared.h"
 
-#define NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION 12u
+#define NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION 13u
 #define NM_NUMI_HUMAN_ARTICULAR_CONTACT_AUDIT_MAX_STEPS 4096u
 
 enum NMNumiHumanTendonFEMNodeLoadFlags : nm_u32 {
@@ -52,6 +52,11 @@ typedef struct NM_ALIGN16 NMNumiHumanTendonFEMLoadDispatchGPU {
     nm_u32 passiveLigamentCount;
     nm_u32 femBodyContactSampleCount;
     nm_u32 passiveRoutedBandCount;
+    nm_u32 articularContactPairCount;
+
+    nm_u32 reserved0;
+    nm_u32 reserved1;
+    nm_u32 reserved2;
 } NMNumiHumanTendonFEMLoadDispatchGPU;
 
 typedef struct NM_ALIGN16 NMNumiHumanTendonFEMNodeLoadGPU {
@@ -283,7 +288,7 @@ typedef struct NM_ALIGN16 NMNumiHumanArticularContactAuditGPU {
 } NMNumiHumanArticularContactAuditGPU;
 
 #ifndef __METAL_VERSION__
-static_assert(sizeof(NMNumiHumanTendonFEMLoadDispatchGPU) == 80u);
+static_assert(sizeof(NMNumiHumanTendonFEMLoadDispatchGPU) == 96u);
 static_assert(sizeof(NMNumiHumanTendonFEMNodeLoadGPU) == 32u);
 static_assert(sizeof(NMNumiHumanTendonFEMNodeAnchorGPU) == 32u);
 static_assert(sizeof(NMNumiHumanTendonFEMEndpointReplacementGPU) == 32u);

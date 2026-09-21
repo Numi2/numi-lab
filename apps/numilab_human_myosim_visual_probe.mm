@@ -1,4 +1,5 @@
 #include "metalrobo/NumiHumanSupport.hpp"
+#import <Foundation/Foundation.h>
 #import <CoreGraphics/CoreGraphics.h>
 #import <ImageIO/ImageIO.h>
 #import <Metal/Metal.h>
@@ -7,6 +8,8 @@
 #include "metalrobo/MetalArticulatedOperator.hpp"
 #include "metalrobo/MetalHybridRenderer.hpp"
 #include "metalrobo/MetalMultiArticulatedContact.hpp"
+#include "metalrobo/MetalWorld.hpp"
+#include "metalrobo/MatterSnapshotArchive.hpp"
 #include "metalrobo/MultiArticulatedContact.hpp"
 #include "metalrobo/MujocoMuscleReference.hpp"
 #include "metalrobo/NumiHumanContinuumMap.hpp"
@@ -14,6 +17,8 @@
 #include "metalrobo/NumiHumanJointEquality.hpp"
 #include "metalrobo/NumiHumanKnee.hpp"
 #include "metalrobo/NumiHumanKneeContact.hpp"
+#include "metalrobo/NumiHumanLoadedKnee.hpp"
+#include "metalrobo/NumiHumanLoadedKneeBinding.hpp"
 #include "metalrobo/NumiHumanMuscleEquilibrium.hpp"
 #include "metalrobo/NumiHumanForceParity.hpp"
 #include "metalrobo/NumiHumanPassiveJoint.hpp"
@@ -33,6 +38,7 @@
 #include <array>
 #include <cmath>
 #include <chrono>
+#include <charconv>
 #include <cstdlib>
 #include <cstdint>
 #include <cstring>
@@ -53,6 +59,7 @@
 #include <type_traits>
 #include <utility>
 #include <vector>
+#include <unistd.h>
 
 namespace {
 
@@ -969,6 +976,196 @@ std::string supportSHA256Hex(
         result.push_back(digits[byte & 0x0fu]);
     }
     return result;
+}
+
+std::string loadedKneeSHA256Hex(
+    const metalrobo::NumiHumanLoadedKneeDigest& digest
+) {
+    constexpr std::string_view digits = "0123456789abcdef";
+    std::string result;
+    result.reserve(digest.size() * 2u);
+    for (const std::uint8_t byte : digest) {
+        result.push_back(digits[byte >> 4u]);
+        result.push_back(digits[byte & 0x0fu]);
+    }
+    return result;
+}
+
+metalrobo::NumiHumanLoadedKneeDigest loadedKneeSHA256(
+    const void* bytes,
+    const std::size_t size
+) {
+    require(bytes != nullptr || size == 0u,
+            "loaded-knee SHA-256 input is invalid");
+    metalrobo::NumiHumanLoadedKneeDigest result{};
+    CC_SHA256_CTX context{};
+    require(CC_SHA256_Init(&context) == 1,
+            "loaded-knee SHA-256 initialization failed");
+    const auto* cursor = static_cast<const std::uint8_t*>(bytes);
+    std::size_t remaining = size;
+    while (remaining != 0u) {
+        const auto count = static_cast<CC_LONG>(std::min<std::size_t>(
+            remaining, std::numeric_limits<CC_LONG>::max()));
+        require(CC_SHA256_Update(&context, cursor, count) == 1,
+                "loaded-knee SHA-256 update failed");
+        cursor += count;
+        remaining -= count;
+    }
+    require(CC_SHA256_Final(result.data(), &context) == 1,
+            "loaded-knee SHA-256 finalization failed");
+    return result;
+}
+
+metalrobo::NumiHumanLoadedKneeDigest loadedKneeFileSHA256(
+    const std::filesystem::path& path
+) {
+    require(std::filesystem::is_regular_file(path) &&
+                !std::filesystem::is_symlink(path),
+            "loaded-knee immutable source file is absent or redirected: " +
+                path.string());
+    std::ifstream input(path, std::ios::binary);
+    require(static_cast<bool>(input),
+            "loaded-knee immutable source file could not be opened: " +
+                path.string());
+    CC_SHA256_CTX context{};
+    require(CC_SHA256_Init(&context) == 1,
+            "loaded-knee file SHA-256 initialization failed");
+    std::array<char, 1u << 16u> block{};
+    while (input) {
+        input.read(block.data(), static_cast<std::streamsize>(block.size()));
+        const auto count = input.gcount();
+        require(count >= 0 && CC_SHA256_Update(
+                    &context, block.data(), static_cast<CC_LONG>(count)) == 1,
+                "loaded-knee file SHA-256 update failed");
+    }
+    require(input.eof(), "loaded-knee immutable source file read failed");
+    metalrobo::NumiHumanLoadedKneeDigest result{};
+    require(CC_SHA256_Final(result.data(), &context) == 1,
+            "loaded-knee file SHA-256 finalization failed");
+    return result;
+}
+
+NSString* loadedKneeNSString(const std::string_view value) {
+    NSString* result = [[NSString alloc]
+        initWithBytes:value.data()
+               length:value.size()
+             encoding:NSUTF8StringEncoding];
+    require(result != nil, "loaded-knee UTF-8 string is invalid");
+    return result;
+}
+
+NSData* loadedKneeCanonicalJSON(id object) {
+    const auto appendString = [](std::string& output, NSString* value) {
+        const char* utf8 = [value UTF8String];
+        require(utf8 != nullptr, "loaded-knee JSON string is not UTF-8");
+        output.push_back('"');
+        constexpr char digits[] = "0123456789abcdef";
+        for (const unsigned char byte : std::string_view{utf8}) {
+            switch (byte) {
+            case '"': output += "\\\""; break;
+            case '\\': output += "\\\\"; break;
+            case '\b': output += "\\b"; break;
+            case '\f': output += "\\f"; break;
+            case '\n': output += "\\n"; break;
+            case '\r': output += "\\r"; break;
+            case '\t': output += "\\t"; break;
+            default:
+                if (byte < 0x20u) {
+                    output += "\\u00";
+                    output.push_back(digits[byte >> 4u]);
+                    output.push_back(digits[byte & 0x0fu]);
+                } else {
+                    output.push_back(static_cast<char>(byte));
+                }
+            }
+        }
+        output.push_back('"');
+    };
+    std::function<void(std::string&, id)> appendValue;
+    appendValue = [&](std::string& output, id value) {
+        require(value != nil, "loaded-knee canonical JSON contains nil");
+        if ([value isKindOfClass:[NSDictionary class]]) {
+            NSDictionary* dictionary = static_cast<NSDictionary*>(value);
+            std::vector<NSString*> keys;
+            keys.reserve(dictionary.count);
+            for (id key in dictionary) {
+                require([key isKindOfClass:[NSString class]],
+                        "loaded-knee JSON object key is not a string");
+                keys.push_back(static_cast<NSString*>(key));
+            }
+            std::sort(keys.begin(), keys.end(), [](NSString* left, NSString* right) {
+                return std::string_view{[left UTF8String]} <
+                    std::string_view{[right UTF8String]};
+            });
+            output.push_back('{');
+            for (std::size_t index = 0u; index < keys.size(); ++index) {
+                if (index != 0u) output.push_back(',');
+                appendString(output, keys[index]);
+                output.push_back(':');
+                appendValue(output, dictionary[keys[index]]);
+            }
+            output.push_back('}');
+        } else if ([value isKindOfClass:[NSArray class]]) {
+            NSArray* array = static_cast<NSArray*>(value);
+            output.push_back('[');
+            for (NSUInteger index = 0u; index < array.count; ++index) {
+                if (index != 0u) output.push_back(',');
+                appendValue(output, array[index]);
+            }
+            output.push_back(']');
+        } else if ([value isKindOfClass:[NSString class]]) {
+            appendString(output, static_cast<NSString*>(value));
+        } else if ([value isKindOfClass:[NSNumber class]]) {
+            NSNumber* number = static_cast<NSNumber*>(value);
+            if (CFGetTypeID((__bridge CFTypeRef)number) ==
+                CFBooleanGetTypeID()) {
+                output += number.boolValue ? "true" : "false";
+                return;
+            }
+            const char type = number.objCType[0u];
+            std::array<char, 128u> buffer{};
+            std::to_chars_result encoded{};
+            if (type == 'c' || type == 's' || type == 'i' || type == 'l' ||
+                type == 'q') {
+                encoded = std::to_chars(
+                    buffer.data(), buffer.data() + buffer.size(),
+                    number.longLongValue);
+            } else if (type == 'C' || type == 'S' || type == 'I' ||
+                       type == 'L' || type == 'Q') {
+                encoded = std::to_chars(
+                    buffer.data(), buffer.data() + buffer.size(),
+                    number.unsignedLongLongValue);
+            } else {
+                const double numeric = number.doubleValue;
+                require(std::isfinite(numeric),
+                        "loaded-knee canonical JSON rejects NaN or infinity");
+                encoded = std::to_chars(
+                    buffer.data(), buffer.data() + buffer.size(), numeric,
+                    std::chars_format::general);
+            }
+            require(encoded.ec == std::errc{},
+                    "loaded-knee canonical JSON number encoding failed");
+            output.append(buffer.data(), encoded.ptr);
+        } else if (value == [NSNull null]) {
+            output += "null";
+        } else {
+            throw std::runtime_error(
+                "loaded-knee canonical JSON contains an unsupported value");
+        }
+    };
+    std::string bytes;
+    appendValue(bytes, object);
+    return [NSData dataWithBytes:bytes.data() length:bytes.size()];
+}
+
+void writeLoadedKneeImmutableBytes(
+    const std::filesystem::path& path,
+    const std::span<const std::byte> bytes
+) {
+    std::string error;
+    require(metalrobo::writeNumiHumanLoadedKneeImmutableFileV1(
+                path, bytes, error),
+            error);
 }
 
 metalrobo::MujocoRouteNodeType referenceRouteType(const std::uint32_t type) {
@@ -2919,6 +3116,7 @@ struct TendonLoadAuditConsumer {
     __strong id<MTLBuffer> statusSnapshot = nil;
     std::uint32_t encodedPassCount = 0u;
     std::uint32_t abortCount = 0u;
+    std::vector<std::uint32_t> acceptedStepIndices;
     bool reject = false;
 };
 
@@ -2975,27 +3173,60 @@ metalrobo::MetalNumiHumanTendonLoadProgram tendonLoadProgramChain(
     };
 }
 
-bool sameFEMState(
-    const numi::matter::RuntimeStateSnapshot& first,
-    const numi::matter::RuntimeStateSnapshot& second
-) {
-    return first.available && second.available &&
-        first.femNodes.size() == second.femNodes.size() &&
-        (first.femNodes.empty() ||
-         std::memcmp(
-             first.femNodes.data(), second.femNodes.data(),
-             first.femNodes.size() * sizeof(NMFEMNodeStateGPU)
-         ) == 0);
-}
-
 struct HumanTendonContinuumTransaction {
+    struct AcceptedStep {
+        numi::matter::RuntimeStateSnapshot matter;
+        numi::matter::NumiHumanTendonFEMLoadAdapterSnapshotV1 adapter;
+        std::vector<float> q;
+        std::vector<float> v;
+        std::vector<MRCompensatedRootTranslationGPU> roots;
+        std::vector<MRArticulatedBodyPoseGPU> bodyPoses;
+        std::vector<MRMujocoMuscleStateGPU> muscleStates;
+        std::vector<MRNumiHumanTendonTransferResultGPU> tendonTransfers;
+        std::vector<float> tendonCorrections;
+        std::vector<MRNumiHumanStandStatusGPU> standStatuses;
+    };
     metalrobo::MetalNumiHumanTendonLoadProgram program{};
     numi::matter::Runtime* runtime = nullptr;
+    numi::matter::NumiHumanTendonFEMLoadAdapter* adapter = nullptr;
     numi::matter::RuntimeStateSnapshot initial;
     numi::matter::RuntimeStateSnapshot accepted;
+    numi::matter::NumiHumanTendonFEMLoadAdapterSnapshotV1 initialAdapter;
+    numi::matter::NumiHumanTendonFEMLoadAdapterSnapshotV1 rejectedAdapter;
+    numi::matter::NumiHumanTendonFEMLoadAdapterSnapshotV1 acceptedAdapter;
+    std::vector<AcceptedStep> acceptedSteps;
+    std::vector<AcceptedStep> replayedSteps;
     bool rollbackVerified = false;
     bool replayVerified = false;
 };
+
+template <typename T>
+bool sameVectorBytes(const std::vector<T>& first,
+                     const std::vector<T>& second) {
+    static_assert(std::is_trivially_copyable_v<T>);
+    return first.size() == second.size() &&
+        (first.empty() || std::memcmp(
+            first.data(), second.data(), first.size() * sizeof(T)) == 0);
+}
+
+bool sameHumanTendonContinuumAcceptedStep(
+    const HumanTendonContinuumTransaction::AcceptedStep& first,
+    const HumanTendonContinuumTransaction::AcceptedStep& second
+) {
+    return metalrobo::sameMatterSnapshotAuthority(
+            first.matter, second.matter) &&
+        ((!first.adapter.available && !second.adapter.available) ||
+         numi::matter::sameNumiHumanTendonFEMLoadAdapterSnapshotAuthorityV1(
+             first.adapter, second.adapter)) &&
+        sameVectorBytes(first.q, second.q) &&
+        sameVectorBytes(first.v, second.v) &&
+        sameVectorBytes(first.roots, second.roots) &&
+        sameVectorBytes(first.bodyPoses, second.bodyPoses) &&
+        sameVectorBytes(first.muscleStates, second.muscleStates) &&
+        sameVectorBytes(first.tendonTransfers, second.tendonTransfers) &&
+        sameVectorBytes(first.tendonCorrections, second.tendonCorrections) &&
+        sameVectorBytes(first.standStatuses, second.standStatuses);
+}
 
 struct FEMReactionSnapshotProgram {
     metalrobo::MetalNumiHumanTendonLoadProgram delegate{};
@@ -3088,6 +3319,7 @@ bool encodeTendonLoadAuditPostValidation(
         return false;
     }
     ++audit->encodedPassCount;
+    audit->acceptedStepIndices.push_back(pass.stepIndex);
     id<MTLCommandBuffer> command =
         (__bridge id<MTLCommandBuffer>)pass.commandBuffer;
     id<MTLBuffer> transfers = (__bridge id<MTLBuffer>)pass.transfers;
@@ -3253,6 +3485,97 @@ struct MetalMujocoForceStep {
     double elapsedMilliseconds = 0.0;
     std::string deviceName;
 };
+
+struct StaticMujocoActivationOracle {
+    std::vector<double> fiberLength;
+    std::vector<double> muscleTendonForce;
+    std::vector<double> generalizedForce;
+};
+
+StaticMujocoActivationOracle evaluateStaticMujocoActivationOracle(
+    const metalrobo::EngineModel& model,
+    const LoadedMuscles& muscles,
+    const std::span<const double> configuration,
+    const std::span<const float> activation,
+    const double timestepSeconds
+) {
+    require(model.articulations.size() == 1u &&
+                activation.size() == muscles.referenceMuscles.size() &&
+                muscles.referenceArchitectures.size() ==
+                    muscles.referenceMuscles.size() &&
+                std::isfinite(timestepSeconds) && timestepSeconds > 0.0,
+            "static MyoSim activation oracle received invalid dimensions");
+    const std::size_t dofCount = model.articulations.front().nv;
+    const std::vector<double> zeroVelocity(dofCount, 0.0);
+    std::vector<metalrobo::MujocoMusclePathResult> paths;
+    const auto pathStatus = metalrobo::evaluateMujocoMusclePaths(
+        model, 0u, configuration, zeroVelocity,
+        muscles.referenceSites, muscles.referenceWraps,
+        muscles.referenceMuscles, paths);
+    require(pathStatus.succeeded() &&
+                paths.size() == muscles.referenceMuscles.size(),
+            "static MyoSim activation oracle path evaluation failed");
+
+    StaticMujocoActivationOracle result;
+    result.fiberLength.resize(paths.size(), 0.0);
+    result.muscleTendonForce.resize(paths.size(), 0.0);
+    result.generalizedForce.assign(dofCount, 0.0);
+    for (std::size_t muscleIndex = 0u;
+         muscleIndex < paths.size(); ++muscleIndex) {
+        const auto& path = paths[muscleIndex];
+        require(path.lengthJacobian.size() == dofCount &&
+                    std::isfinite(activation[muscleIndex]) &&
+                    activation[muscleIndex] >= 0.0f &&
+                    activation[muscleIndex] <= 1.0f,
+                "static MyoSim activation oracle path is invalid");
+        const auto& architecture =
+            muscles.referenceArchitectures[muscleIndex];
+        double force = 0.0;
+        if (architecture.optimalFiberLength > 0.0 &&
+            architecture.tendonSlackLength > 0.0) {
+            metalrobo::MujocoCompliantMuscleResult compliant;
+            const auto status = metalrobo::evaluateMujocoCompliantMuscle(
+                path.length, 0.0, timestepSeconds,
+                muscles.referenceMuscles[muscleIndex], architecture,
+                {.excitation = activation[muscleIndex],
+                 .activation = activation[muscleIndex]},
+                compliant);
+            require(status.succeeded() &&
+                        std::isfinite(compliant.candidateFiberLength) &&
+                        compliant.candidateFiberLength > 0.0 &&
+                        std::isfinite(compliant.candidateFiberVelocity) &&
+                        std::abs(compliant.candidateFiberVelocity) <= 1.0e-8 &&
+                        std::isfinite(compliant.actuatorForce),
+                    "static MyoSim compliant activation oracle failed at muscle=" +
+                        std::to_string(muscleIndex) + " velocity=" +
+                        std::to_string(compliant.candidateFiberVelocity));
+            result.fiberLength[muscleIndex] =
+                compliant.candidateFiberLength;
+            force = compliant.actuatorForce;
+        } else {
+            const auto status = metalrobo::evaluateMujocoMuscleForceLaw(
+                path.length, 0.0,
+                muscles.referenceMuscles[muscleIndex],
+                {.excitation = activation[muscleIndex],
+                 .activation = activation[muscleIndex]},
+                force);
+            require(status.succeeded() && std::isfinite(force),
+                    "static MyoSim inelastic activation oracle failed");
+            result.fiberLength[muscleIndex] = path.length;
+        }
+        result.muscleTendonForce[muscleIndex] = force;
+        for (std::size_t dof = 0u; dof < dofCount; ++dof) {
+            result.generalizedForce[dof] +=
+                force * path.lengthJacobian[dof];
+        }
+    }
+    require(std::all_of(
+                result.generalizedForce.begin(),
+                result.generalizedForce.end(),
+                [](const double value) { return std::isfinite(value); }),
+            "static MyoSim activation oracle produced non-finite force");
+    return result;
+}
 
 MetalMujocoForceStep evaluateMetalMujocoForce(
     const metalrobo::EngineModel& model,
@@ -3713,6 +4036,27 @@ CompiledStandActivation compileStaticStandActivation(
             muscles.referenceMuscles, muscles.referenceArchitectures,
             jointEqualities.payload.records, selectedSourceMuscleIndices,
             staticSupports, passiveCouplings, compiled, config);
+    std::string positionLimitDetails;
+    if (diagnostics.status ==
+            metalrobo::NumiHumanMuscleEquilibriumStatus::positionLimitViolation &&
+        diagnostics.failingIndex < model.articulations.front().nv) {
+        const auto& articulation = model.articulations.front();
+        const auto& dof = model.dofs[
+            articulation.vOffset + diagnostics.failingIndex];
+        if (dof.qIndex != MR_INVALID_INDEX &&
+            dof.qIndex >= articulation.qOffset &&
+            dof.qIndex < articulation.qOffset + preparedQ.size()) {
+            std::ostringstream details;
+            details << std::setprecision(17)
+                    << " q_index=" << dof.qIndex
+                    << " position="
+                    << preparedQ[dof.qIndex - articulation.qOffset]
+                    << " lower=" << dof.limits.x
+                    << " upper=" << dof.limits.y
+                    << " tolerance=" << config.positionLimitTolerance;
+            positionLimitDetails = details.str();
+        }
+    }
     require(
         diagnostics.succeeded() &&
             (staticSupports.empty()
@@ -3725,7 +4069,8 @@ CompiledStandActivation compileStaticStandActivation(
         std::string("source-constrained stand equilibrium failed: ") +
             metalrobo::numiHumanMuscleEquilibriumStatusName(
                 diagnostics.status
-            ) + " residual=" +
+            ) + " failing_index=" +
+            std::to_string(diagnostics.failingIndex) + " residual=" +
             std::to_string(diagnostics.normalizedResidualRms) +
             " initial=" +
             std::to_string(diagnostics.initialNormalizedResidualRms) +
@@ -3738,7 +4083,8 @@ CompiledStandActivation compileStaticStandActivation(
             " support_force=" +
             std::to_string(diagnostics.totalSupportForceNewtons) +
             " active_supports=" +
-            std::to_string(diagnostics.activeSupportContactCount)
+            std::to_string(diagnostics.activeSupportContactCount) +
+            positionLimitDetails
     );
     require(compiled.supportPlaneGapMeters.size() == staticSupports.size() &&
                 compiled.supportNormalForce.size() == staticSupports.size(),
@@ -3882,6 +4228,8 @@ struct InitialMujocoFiberEquilibrium {
     std::uint32_t iterations = 0u;
     double maximumLengthDelta = std::numeric_limits<double>::infinity();
     double maximumFiberVelocity = std::numeric_limits<double>::infinity();
+    std::uint32_t maximumLengthDeltaMuscle = MR_INVALID_INDEX;
+    std::uint32_t maximumFiberVelocityMuscle = MR_INVALID_INDEX;
 };
 
 InitialMujocoFiberEquilibrium equilibrateInitialMujocoFiberStates(
@@ -3935,6 +4283,8 @@ InitialMujocoFiberEquilibrium equilibrateInitialMujocoFiberStates(
                 "initial MyoSim fibre equilibration changed state count");
         result.maximumLengthDelta = 0.0;
         result.maximumFiberVelocity = 0.0;
+        result.maximumLengthDeltaMuscle = MR_INVALID_INDEX;
+        result.maximumFiberVelocityMuscle = MR_INVALID_INDEX;
         for (std::size_t index = 0u; index < result.states.size(); ++index) {
             const mr_float4 state =
                 result.states[index].excitationAndActivation;
@@ -3942,15 +4292,22 @@ InitialMujocoFiberEquilibrium equilibrateInitialMujocoFiberStates(
                         std::isfinite(state.z) && std::isfinite(state.w) &&
                         state.z >= 0.0f,
                     "initial MyoSim fibre equilibration produced non-finite state");
-            result.maximumLengthDelta = std::max(
-                result.maximumLengthDelta,
-                std::abs(static_cast<double>(state.z) -
-                         static_cast<double>(previous[index].excitationAndActivation.z))
-            );
-            result.maximumFiberVelocity = std::max(
-                result.maximumFiberVelocity,
-                std::abs(static_cast<double>(state.w))
-            );
+            const double lengthDelta = std::abs(
+                static_cast<double>(state.z) -
+                static_cast<double>(
+                    previous[index].excitationAndActivation.z));
+            const double fiberVelocity = std::abs(
+                static_cast<double>(state.w));
+            if (lengthDelta > result.maximumLengthDelta) {
+                result.maximumLengthDelta = lengthDelta;
+                result.maximumLengthDeltaMuscle =
+                    static_cast<std::uint32_t>(index);
+            }
+            if (fiberVelocity > result.maximumFiberVelocity) {
+                result.maximumFiberVelocity = fiberVelocity;
+                result.maximumFiberVelocityMuscle =
+                    static_cast<std::uint32_t>(index);
+            }
         }
         result.iterations = iteration + 1u;
         if (result.maximumLengthDelta <= kLengthToleranceMeters &&
@@ -3959,8 +4316,18 @@ InitialMujocoFiberEquilibrium equilibrateInitialMujocoFiberStates(
             break;
         }
     }
-    require(converged,
-            "initial MyoSim fibre/tendon equilibrium did not converge at the prepared pose");
+    require(
+        converged,
+        "initial MyoSim fibre/tendon equilibrium did not converge at the prepared pose: iterations=" +
+            std::to_string(result.iterations) +
+            " maximum_length_delta_m=" +
+            std::to_string(result.maximumLengthDelta) +
+            " length_delta_muscle=" +
+            std::to_string(result.maximumLengthDeltaMuscle) +
+            " maximum_fiber_velocity_m_per_s=" +
+            std::to_string(result.maximumFiberVelocity) +
+            " fiber_velocity_muscle=" +
+            std::to_string(result.maximumFiberVelocityMuscle));
     return result;
 }
 
@@ -4033,7 +4400,11 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 (continuumTransaction->program.valid() &&
                  continuumTransaction->runtime != nullptr &&
                  continuumTransaction->runtime->valid() &&
-                 continuumTransaction->initial.available),
+                 continuumTransaction->initial.available &&
+                 ((continuumTransaction->adapter == nullptr &&
+                   !continuumTransaction->initialAdapter.available) ||
+                  (continuumTransaction->adapter != nullptr &&
+                   continuumTransaction->initialAdapter.available))),
             "persistent Human continuum transaction is incomplete");
     require(additionalTendonLoadProgram == nullptr ||
                 additionalTendonLoadProgram->valid(),
@@ -4104,6 +4475,16 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                     static_cast<float>(activation)
             );
         }
+        const StaticMujocoActivationOracle incrementedOracle =
+            evaluateStaticMujocoActivationOracle(
+                model, muscles, compiledActivation.q,
+                compiledActivation.activation, timestepSeconds);
+        compiledActivation.referenceFiberLength =
+            incrementedOracle.fiberLength;
+        compiledActivation.muscleTendonForce =
+            incrementedOracle.muscleTendonForce;
+        compiledActivation.generalizedMuscleForce =
+            incrementedOracle.generalizedForce;
     } else {
         compiledActivation = compileStaticStandActivation(
             model,
@@ -4226,7 +4607,12 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         states[muscleIndex].excitationAndActivation = {
             initialActivation,
             initialActivation,
-            static_cast<float>(compiledActivation.referenceFiberLength[muscleIndex]),
+            // The CPU FP64 root is a diagnostic oracle at the final prepared
+            // activation. Zero is the NHMYO2 ABI request for Metal to
+            // independently establish its deterministic, zero-velocity
+            // fibre/tendon root at that exact pose and activation; the Metal
+            // pass independently solves and then rechecks that root.
+            0.0f,
             0.0f,
         };
     }
@@ -4682,9 +5068,35 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         if (continuumTransaction != nullptr) {
             const auto rejectedContinuum =
                 continuumTransaction->runtime->snapshot();
-            continuumTransaction->rollbackVerified = sameFEMState(
-                rejectedContinuum, continuumTransaction->initial
-            );
+            if (continuumTransaction->adapter != nullptr) {
+                continuumTransaction->rejectedAdapter =
+                    continuumTransaction->adapter->snapshot();
+            }
+            continuumTransaction->rollbackVerified =
+                metalrobo::sameMatterSnapshotAuthority(
+                    rejectedContinuum, continuumTransaction->initial) &&
+                (continuumTransaction->adapter == nullptr ||
+                 (continuumTransaction->rejectedAdapter.available &&
+                  continuumTransaction->rejectedAdapter.abortCount ==
+                      continuumTransaction->initialAdapter.abortCount + 1u));
+            const auto restoredMatter =
+                continuumTransaction->runtime->restore(
+                    continuumTransaction->initial);
+            continuumTransaction->rollbackVerified =
+                continuumTransaction->rollbackVerified &&
+                restoredMatter.encoded;
+            if (continuumTransaction->adapter != nullptr) {
+                const auto restoredAdapter =
+                    continuumTransaction->adapter->restore(
+                        continuumTransaction->initialAdapter);
+                continuumTransaction->rollbackVerified =
+                    continuumTransaction->rollbackVerified &&
+                    restoredAdapter.succeeded() &&
+                    numi::matter::
+                        sameNumiHumanTendonFEMLoadAdapterSnapshotAuthorityV1(
+                            continuumTransaction->adapter->snapshot(),
+                            continuumTransaction->initialAdapter);
+            }
             tendonRollbackVerified = tendonRollbackVerified &&
                 continuumTransaction->rollbackVerified;
         }
@@ -4743,10 +5155,12 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     // execution envelope. Cap-8 is qualified against monolithic, cap-16 and
     // cap-32 mechanics, including physical-M4 replay and validation-layer runs.
     constexpr std::uint32_t kMaximumAuthoritativeSubmissionSteps = 8u;
+    const bool captureExactContinuumSteps = continuumTransaction != nullptr;
     const bool useSegmentedAuthoritativeHorizon =
-        !enableRootAssistance && !removeRootAssistance &&
-        continuumTransaction == nullptr && additionalTendonLoadProgram == nullptr &&
-        stepCount > kMaximumAuthoritativeSubmissionSteps;
+        captureExactContinuumSteps ||
+        (!enableRootAssistance && !removeRootAssistance &&
+         additionalTendonLoadProgram == nullptr &&
+         stepCount > kMaximumAuthoritativeSubmissionSteps);
     const auto mergeStandStatus = [](
         MRNumiHumanStandStatusGPU& aggregate,
         const MRNumiHumanStandStatusGPU& segment
@@ -4934,19 +5348,37 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     const auto runAuthoritativeHorizon = [&context, &model,
                                            &mergeStandStatus,
                                            useSegmentedAuthoritativeHorizon,
+                                           captureExactContinuumSteps,
+                                           continuumTransaction,
                                            kMaximumAuthoritativeSubmissionSteps](
         metalrobo::MetalArticulatedOperatorInput horizonInput,
-        metalrobo::MetalArticulatedOperatorResult& horizonResult
+        metalrobo::MetalArticulatedOperatorResult& horizonResult,
+        std::vector<HumanTendonContinuumTransaction::AcceptedStep>*
+            capturedSteps
     ) {
         const std::uint32_t requestedSteps = horizonInput.stand.stepCount;
         if (!useSegmentedAuthoritativeHorizon ||
-            requestedSteps <= kMaximumAuthoritativeSubmissionSteps) {
+            (!captureExactContinuumSteps &&
+             requestedSteps <= kMaximumAuthoritativeSubmissionSteps)) {
+            require(!captureExactContinuumSteps && capturedSteps == nullptr,
+                    "loaded-knee exact continuum steps bypassed segmented capture");
             return context.run(model, horizonInput, horizonResult);
         }
+        require((capturedSteps != nullptr) == captureExactContinuumSteps &&
+                    (!captureExactContinuumSteps ||
+                     (continuumTransaction != nullptr &&
+                      continuumTransaction->runtime != nullptr)),
+                "segmented Human horizon capture ownership is invalid");
+        if (capturedSteps != nullptr) capturedSteps->clear();
         require(!horizonInput.q.empty() && !horizonInput.stand.v.empty() &&
                     !horizonInput.mujoco.states.empty() &&
-                    horizonInput.rootTranslations.size() == 1u,
+                    horizonInput.rootTranslations.size() == 1u &&
+                    horizonInput.stand.stepIndexOffset == 0u &&
+                    (horizonInput.stand.authoritativeStepCount == 0u ||
+                     horizonInput.stand.authoritativeStepCount ==
+                         requestedSteps),
                 "segmented Human horizon requires complete authoritative state");
+        horizonInput.stand.authoritativeStepCount = requestedSteps;
         std::vector<float> currentQ(
             horizonInput.q.begin(), horizonInput.q.end()
         );
@@ -4969,11 +5401,12 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         std::uint32_t completedSteps = 0u;
         double elapsedMilliseconds = 0.0;
         while (completedSteps < requestedSteps) {
-            const std::uint32_t segmentSteps = std::min(
-                kMaximumAuthoritativeSubmissionSteps,
-                requestedSteps - completedSteps
-            );
+            const std::uint32_t segmentSteps = captureExactContinuumSteps
+                ? 1u
+                : std::min(kMaximumAuthoritativeSubmissionSteps,
+                           requestedSteps - completedSteps);
             horizonInput.stand.stepCount = segmentSteps;
+            horizonInput.stand.stepIndexOffset = completedSteps;
             horizonInput.q = currentQ;
             horizonInput.rootTranslations = currentRoots;
             horizonInput.stand.v = currentV;
@@ -4987,13 +5420,14 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             );
             reportHumanExecutionStage(
                 "authoritative_segment_end",
-                completedSteps + segmentDiagnostics.completedStandSteps
+                segmentDiagnostics.completedStandSteps
             );
             elapsedMilliseconds += segmentDiagnostics.elapsedMilliseconds;
             if (!segmentDiagnostics.succeeded() ||
                 !segmentDiagnostics.dispatched ||
                 !segmentDiagnostics.published ||
-                segmentDiagnostics.completedStandSteps != segmentSteps ||
+                segmentDiagnostics.completedStandSteps !=
+                    completedSteps + segmentSteps ||
                 segmentResult.standQ.size() != currentQ.size() ||
                 segmentResult.standV.size() != currentV.size() ||
                 segmentResult.mujocoActivationStates.size() !=
@@ -5002,7 +5436,6 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 segmentResult.standStatuses.size() != 1u ||
                 segmentResult.standStatuses.front().code !=
                     MR_NUMI_HUMAN_STAND_SUCCESS) {
-                segmentDiagnostics.completedStandSteps += completedSteps;
                 segmentDiagnostics.elapsedMilliseconds = elapsedMilliseconds;
                 segmentDiagnostics.message =
                     "segmented authoritative Human horizon failed after " +
@@ -5010,6 +5443,39 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                     segmentDiagnostics.message;
                 horizonResult = std::move(segmentResult);
                 return segmentDiagnostics;
+            }
+            if (capturedSteps != nullptr) {
+                HumanTendonContinuumTransaction::AcceptedStep captured;
+                captured.matter = continuumTransaction->runtime->snapshot();
+                require(captured.matter.available,
+                        "loaded-knee per-step Matter snapshot is unavailable");
+                if (continuumTransaction->adapter != nullptr) {
+                    captured.adapter =
+                        continuumTransaction->adapter->snapshot();
+                    require(captured.adapter.available,
+                            "loaded-knee per-step adapter snapshot is unavailable");
+                }
+                captured.q = segmentResult.standQ;
+                captured.v = segmentResult.standV;
+                captured.roots = segmentResult.standRootTranslations;
+                captured.bodyPoses = segmentResult.bodyPoses;
+                captured.muscleStates =
+                    segmentResult.mujocoActivationStates;
+                captured.tendonTransfers =
+                    segmentResult.standTendonTransfers;
+                captured.tendonCorrections =
+                    segmentResult.standTendonGeneralizedCorrections;
+                captured.standStatuses = segmentResult.standStatuses;
+                require(captured.standStatuses.size() == 1u &&
+                            captured.standStatuses.front().completedSteps ==
+                                completedSteps + segmentSteps &&
+                            (continuumTransaction->adapter == nullptr ||
+                             (captured.adapter.articularAttemptedStepCount ==
+                                  completedSteps + segmentSteps &&
+                              captured.adapter.encodedPassCount ==
+                                  completedSteps + segmentSteps)),
+                        "loaded-knee authoritative callback/status index did not advance globally");
+                capturedSteps->push_back(std::move(captured));
             }
             if (!haveStatus) {
                 aggregateStatus = segmentResult.standStatuses.front();
@@ -5040,7 +5506,10 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     metalrobo::MetalArticulatedOperatorResult metalResult;
     reportHumanExecutionStage("initial_force_checks_end");
     reportHumanExecutionStage("native_horizon_begin");
-    auto diagnostics = runAuthoritativeHorizon(input, metalResult);
+    auto diagnostics = runAuthoritativeHorizon(
+        input, metalResult,
+        continuumTransaction == nullptr
+            ? nullptr : &continuumTransaction->acceptedSteps);
     reportHumanExecutionStage("native_horizon_end", diagnostics.completedStandSteps);
     if (!diagnostics.succeeded() && continuumTransaction != nullptr) {
         const auto failed = continuumTransaction->runtime->snapshot();
@@ -5586,11 +6055,13 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             static_cast<const MRNumiHumanStandStatusGPU*>(
                 acceptedTendonConsumer.statusSnapshot.contents
             );
-        const std::uint32_t borrowedTendonStatusSteps =
-            useSegmentedAuthoritativeHorizon
-                ? ((stepCount - 1u) %
-                    kMaximumAuthoritativeSubmissionSteps) + 1u
-                : stepCount;
+        const std::uint32_t borrowedTendonLocalStatusSteps =
+            !useSegmentedAuthoritativeHorizon
+                ? stepCount
+                : captureExactContinuumSteps
+                    ? 1u
+                    : ((stepCount - 1u) %
+                       kMaximumAuthoritativeSubmissionSteps) + 1u;
         const bool borrowedTendonStatusMatchesPublication =
             acceptedTendonConsumer.statusSnapshot != nil &&
             (!useSegmentedAuthoritativeHorizon
@@ -5603,7 +6074,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                   borrowedTendonStatus->code == status.code &&
                   borrowedTendonStatus->environment == status.environment &&
                   borrowedTendonStatus->completedSteps ==
-                    borrowedTendonStatusSteps &&
+                    stepCount &&
                   borrowedTendonStatus->failingIndex == status.failingIndex &&
                   borrowedTendonStatus->flags == status.flags &&
                   borrowedTendonStatus->activeContactCount ==
@@ -5612,14 +6083,14 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                     status.contactAndAcceleration.z &&
                   borrowedTendonStatus->tendonTransferCount ==
                     tendonProgram.bindings.size() *
-                    borrowedTendonStatusSteps &&
+                    borrowedTendonLocalStatusSteps &&
                   borrowedTendonStatus->tendonEnvelopeTransferCount ==
                     tendonEnvelopeBindingCount *
-                    borrowedTendonStatusSteps &&
+                    borrowedTendonLocalStatusSteps &&
                   borrowedTendonStatus->tendonPointTransferCount ==
                     (tendonProgram.bindings.size() -
                      tendonEnvelopeBindingCount) *
-                    borrowedTendonStatusSteps &&
+                    borrowedTendonLocalStatusSteps &&
                   borrowedTendonStatus->tendonFailureCount == 0u);
         tendonBorrowedConsumerVerified =
             status.tendonTransferCount ==
@@ -5691,10 +6162,23 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     const MRNumiHumanStandStatusGPU& finalStatus =
         metalResult.standStatuses.front();
     if (continuumTransaction != nullptr) {
+        require(continuumTransaction->acceptedSteps.size() == stepCount &&
+                    !continuumTransaction->acceptedSteps.empty(),
+                "persistent Human continuum did not capture every accepted step");
         continuumTransaction->accepted =
-            continuumTransaction->runtime->snapshot();
-        require(continuumTransaction->accepted.available,
-                "persistent Human continuum accepted state is unavailable");
+            continuumTransaction->acceptedSteps.back().matter;
+        continuumTransaction->acceptedAdapter =
+            continuumTransaction->acceptedSteps.back().adapter;
+        require(continuumTransaction->accepted.available &&
+                    metalrobo::sameMatterSnapshotAuthority(
+                        continuumTransaction->accepted,
+                        continuumTransaction->runtime->snapshot()) &&
+                    (continuumTransaction->adapter == nullptr ||
+                     numi::matter::
+                        sameNumiHumanTendonFEMLoadAdapterSnapshotAuthorityV1(
+                            continuumTransaction->acceptedAdapter,
+                            continuumTransaction->adapter->snapshot())),
+                "persistent Human continuum accepted state is unavailable or stale");
     }
     double deterministicReplayElapsedMilliseconds = 0.0;
     bool deterministicReplayVerified = false;
@@ -5706,6 +6190,14 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             require(restored.encoded,
                     "persistent Human continuum replay restore failed: " +
                         restored.message);
+            if (continuumTransaction->adapter != nullptr) {
+                const auto restoredAdapter =
+                    continuumTransaction->adapter->restore(
+                        continuumTransaction->initialAdapter);
+                require(restoredAdapter.succeeded(),
+                        "persistent Human adapter replay restore failed: " +
+                            restoredAdapter.message);
+            }
         }
         input.rootTranslations = initialRoots;
         input.q = q;
@@ -5718,8 +6210,9 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         metalrobo::MetalArticulatedOperatorResult replayResult;
         reportHumanExecutionStage("deterministic_replay_begin");
         auto replayDiagnostics = runAuthoritativeHorizon(
-            input, replayResult
-        );
+            input, replayResult,
+            continuumTransaction == nullptr
+                ? nullptr : &continuumTransaction->replayedSteps);
         reportHumanExecutionStage("deterministic_replay_end", replayDiagnostics.completedStandSteps);
         require(replayDiagnostics.succeeded() && replayDiagnostics.published &&
                     replayDiagnostics.completedStandSteps == stepCount,
@@ -5804,11 +6297,28 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         if (continuumTransaction != nullptr) {
             const auto replayContinuum =
                 continuumTransaction->runtime->snapshot();
-            continuumTransaction->replayVerified = sameFEMState(
-                replayContinuum, continuumTransaction->accepted
-            );
+            continuumTransaction->replayVerified =
+                continuumTransaction->replayedSteps.size() ==
+                    continuumTransaction->acceptedSteps.size() &&
+                !continuumTransaction->replayedSteps.empty() &&
+                metalrobo::sameMatterSnapshotAuthority(
+                    replayContinuum, continuumTransaction->accepted) &&
+                (continuumTransaction->adapter == nullptr ||
+                 numi::matter::
+                    sameNumiHumanTendonFEMLoadAdapterSnapshotAuthorityV1(
+                        continuumTransaction->adapter->snapshot(),
+                        continuumTransaction->acceptedAdapter)) &&
+                std::equal(
+                    continuumTransaction->acceptedSteps.begin(),
+                    continuumTransaction->acceptedSteps.end(),
+                    continuumTransaction->replayedSteps.begin(),
+                    [](const auto& acceptedStep,
+                       const auto& replayedStep) {
+                        return sameHumanTendonContinuumAcceptedStep(
+                            acceptedStep, replayedStep);
+                    });
             require(continuumTransaction->replayVerified,
-                    "persistent Human continuum replay was not bitwise deterministic");
+                    "persistent Human continuum full-state replay was not bitwise deterministic");
         }
         deterministicReplayVerified = true;
     }
@@ -5816,8 +6326,21 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     if (!tendonProgram.bindings.empty()) {
         const std::uint32_t expectedConsumerPasses =
             stepCount * phaseCount * (verifyDeterminism ? 2u : 1u);
+        const bool exactConsumerStepSequence =
+            acceptedTendonConsumer.acceptedStepIndices.size() ==
+                expectedConsumerPasses &&
+            std::all_of(
+                acceptedTendonConsumer.acceptedStepIndices.begin(),
+                acceptedTendonConsumer.acceptedStepIndices.end(),
+                [stepCount, index = std::uint32_t{0u}](
+                    const std::uint32_t step) mutable {
+                    const bool matches = step == index % stepCount;
+                    ++index;
+                    return matches;
+                });
         tendonBorrowedConsumerVerified = tendonBorrowedConsumerVerified &&
             acceptedTendonConsumer.encodedPassCount == expectedConsumerPasses &&
+            exactConsumerStepSequence &&
             acceptedTendonConsumer.abortCount == 0u &&
             std::memcmp(
                 acceptedTendonConsumer.transferSnapshot.contents,
@@ -9023,10 +9546,10 @@ struct LiveOpenKneeTissueSpec {
 };
 
 constexpr std::array<LiveOpenKneeTissueSpec, 6u> kLiveOpenKneeTissueSpecs{{
-    {"PCL", 3.25, 243.90},
     {"ACL", 1.95, 146.41},
-    {"MCL", 1.44, 793.65},
     {"LCL", 1.44, 793.65},
+    {"MCL", 1.44, 793.65},
+    {"PCL", 3.25, 243.90},
     {"PTL", 2.75, 206.61},
     {"QAT", 2.75, 206.61},
 }};
@@ -9039,6 +9562,706 @@ struct LiveOpenKneeRegion {
     std::uint32_t tetrahedronCount = 0u;
     std::array<std::uint32_t, 3u> anchorCounts{};
 };
+
+struct LoadedKneeReferenceRegionDiagnostics {
+    std::string name;
+    std::uint32_t substepCount = 0u;
+    bool directMapRejectedInversion = false;
+    std::uint32_t directFailureTetrahedron =
+        metalrobo::NUMI_HUMAN_CONTINUUM_INVALID_INDEX;
+    double directFailureJacobian = 0.0;
+    double maximumSourceAnchorReconstructionResidualMeters = 0.0;
+    double maximumAnchorResidualMeters = 0.0;
+    double maximumPersistedF32AnchorResidualMeters = 0.0;
+};
+
+struct LoadedKneeAuthoringExportOptions {
+    std::filesystem::path xReferenceOutput;
+    std::filesystem::path envelopeOutput;
+    std::filesystem::path kneePayload;
+    std::filesystem::path rigidPayload;
+    std::filesystem::path equalityPayload;
+};
+
+template <typename T>
+void appendLoadedKneeScalar(
+    std::vector<std::byte>& bytes,
+    const T value
+) {
+    static_assert(std::is_trivially_copyable_v<T>);
+#if __BYTE_ORDER__ != __ORDER_LITTLE_ENDIAN__
+#error "loaded-knee authoring export requires explicit little-endian packing"
+#endif
+    const auto* first = reinterpret_cast<const std::byte*>(&value);
+    bytes.insert(bytes.end(), first, first + sizeof(T));
+}
+
+void appendLoadedKneeText(
+    std::vector<std::byte>& bytes,
+    const std::string_view value
+) {
+    require(value.size() <= std::numeric_limits<std::uint32_t>::max(),
+            "loaded-knee canonical text exceeds framing bounds");
+    appendLoadedKneeScalar(
+        bytes, static_cast<std::uint32_t>(value.size()));
+    const auto* first = reinterpret_cast<const std::byte*>(value.data());
+    bytes.insert(bytes.end(), first, first + value.size());
+}
+
+template <typename T>
+void appendLoadedKneeVectorField(
+    std::vector<std::byte>& bytes,
+    const std::string_view name,
+    const std::vector<T>& values
+) {
+    static_assert(std::is_trivially_copyable_v<T>);
+    appendLoadedKneeText(bytes, name);
+    appendLoadedKneeScalar(
+        bytes, static_cast<std::uint32_t>(sizeof(T)));
+    appendLoadedKneeScalar(
+        bytes, static_cast<std::uint64_t>(values.size()));
+    require(values.size() <=
+                std::numeric_limits<std::size_t>::max() / sizeof(T),
+            "loaded-knee canonical vector exceeds byte bounds");
+    const std::size_t byteCount = values.size() * sizeof(T);
+    if (byteCount != 0u) {
+        const auto* first = reinterpret_cast<const std::byte*>(values.data());
+        bytes.insert(bytes.end(), first, first + byteCount);
+    }
+}
+
+metalrobo::NumiHumanLoadedKneeDigest
+loadedKneeAcceptedStepExternalDigest(
+    const std::string_view componentID,
+    const HumanTendonContinuumTransaction::AcceptedStep& step,
+    const std::uint32_t acceptedStepIndex
+) {
+    require(acceptedStepIndex >= 1u &&
+                acceptedStepIndex <=
+                    metalrobo::kNumiHumanLoadedKneeAcceptedStepCount,
+            "loaded-knee external state step index is invalid");
+    std::vector<std::byte> bytes;
+    appendLoadedKneeText(
+        bytes, "numi.lab.loaded-knee.accepted-external-state.v1");
+    appendLoadedKneeScalar(
+        bytes, metalrobo::kNumiHumanLoadedKneeAcceptanceVersionV1);
+    appendLoadedKneeScalar(bytes, acceptedStepIndex);
+    appendLoadedKneeScalar(
+        bytes, static_cast<std::uint64_t>(acceptedStepIndex) *
+            metalrobo::kNumiHumanLoadedKneeStepNanoseconds);
+    appendLoadedKneeScalar(
+        bytes, metalrobo::kNumiHumanLoadedKneeStepNanoseconds);
+    if (componentID == "articulated-q-v-root-time") {
+        appendLoadedKneeVectorField(bytes, "q:f32", step.q);
+        appendLoadedKneeVectorField(bytes, "v:f32", step.v);
+        appendLoadedKneeVectorField(
+            bytes, "roots:MRCompensatedRootTranslationGPU", step.roots);
+        appendLoadedKneeVectorField(
+            bytes, "bodyPoses:MRArticulatedBodyPoseGPU", step.bodyPoses);
+        appendLoadedKneeVectorField(
+            bytes, "standStatuses:MRNumiHumanStandStatusGPU",
+            step.standStatuses);
+    } else if (
+        componentID ==
+        "muscle-activation-tendon-transfer-corrections") {
+        appendLoadedKneeVectorField(
+            bytes, "muscleStates:MRMujocoMuscleStateGPU",
+            step.muscleStates);
+        appendLoadedKneeVectorField(
+            bytes, "tendonTransfers:MRNumiHumanTendonTransferResultGPU",
+            step.tendonTransfers);
+        appendLoadedKneeVectorField(
+            bytes, "tendonCorrections:f32", step.tendonCorrections);
+    } else {
+        throw std::runtime_error(
+            "loaded-knee external step component is undeclared");
+    }
+    metalrobo::NumiHumanLoadedKneeDigest digest{};
+    std::string error;
+    require(metalrobo::digestNumiHumanLoadedKneeExternalComponentV1(
+                componentID, bytes, digest, error),
+            "loaded-knee external state hashing failed: " + error);
+    return digest;
+}
+
+metalrobo::NumiHumanLoadedKneeDigest loadedKneeAdapterExternalDigest(
+    const numi::matter::NumiHumanTendonFEMLoadAdapterSnapshotV1& snapshot
+) {
+    std::vector<std::uint8_t> canonical;
+    std::string error;
+    require(numi::matter::canonicalNumiHumanTendonFEMLoadAdapterSnapshotV1(
+                snapshot, canonical, error),
+            "loaded-knee adapter state canonicalization failed: " + error);
+    const auto bytes = std::span<const std::byte>{
+        reinterpret_cast<const std::byte*>(canonical.data()),
+        canonical.size()};
+    metalrobo::NumiHumanLoadedKneeDigest digest{};
+    require(metalrobo::digestNumiHumanLoadedKneeExternalComponentV1(
+                "adapter-passive-articular-accepted-state", bytes,
+                digest, error),
+            "loaded-knee adapter external-state hashing failed: " + error);
+    return digest;
+}
+
+metalrobo::NumiHumanLoadedKneeDigest loadedKneeBodyPoseSHA256(
+    const std::span<const MRBodyStateGPU> bodies
+) {
+    std::vector<std::byte> bytes;
+    constexpr std::string_view domain =
+        "numi.lab.loaded-knee.body-pose.f32le.v1";
+    bytes.reserve(domain.size() + sizeof(std::uint32_t) +
+                  bodies.size() * (sizeof(std::uint32_t) + 7u * sizeof(float)));
+    bytes.insert(bytes.end(),
+                 reinterpret_cast<const std::byte*>(domain.data()),
+                 reinterpret_cast<const std::byte*>(domain.data() + domain.size()));
+    appendLoadedKneeScalar(
+        bytes, static_cast<std::uint32_t>(bodies.size()));
+    for (std::uint32_t index = 0u; index < bodies.size(); ++index) {
+        const auto& body = bodies[index];
+        const std::array<float, 7u> pose{{
+            body.position.x, body.position.y, body.position.z,
+            body.orientation.x, body.orientation.y,
+            body.orientation.z, body.orientation.w,
+        }};
+        require(std::all_of(pose.begin(), pose.end(), [](const float value) {
+                    return std::isfinite(value);
+                }), "loaded-knee body pose contains a non-finite value");
+        appendLoadedKneeScalar(bytes, index);
+        for (const float value : pose) appendLoadedKneeScalar(bytes, value);
+    }
+    return loadedKneeSHA256(bytes.data(), bytes.size());
+}
+
+double loadedKneeSignedTetrahedronDeterminant(
+    const std::array<float, 3u>& a,
+    const std::array<float, 3u>& b,
+    const std::array<float, 3u>& c,
+    const std::array<float, 3u>& d
+) {
+    const std::array<double, 3u> ab{{
+        static_cast<double>(b[0u]) - a[0u],
+        static_cast<double>(b[1u]) - a[1u],
+        static_cast<double>(b[2u]) - a[2u],
+    }};
+    const std::array<double, 3u> ac{{
+        static_cast<double>(c[0u]) - a[0u],
+        static_cast<double>(c[1u]) - a[1u],
+        static_cast<double>(c[2u]) - a[2u],
+    }};
+    const std::array<double, 3u> ad{{
+        static_cast<double>(d[0u]) - a[0u],
+        static_cast<double>(d[1u]) - a[1u],
+        static_cast<double>(d[2u]) - a[2u],
+    }};
+    return ab[0u] * (ac[1u] * ad[2u] - ac[2u] * ad[1u]) -
+        ab[1u] * (ac[0u] * ad[2u] - ac[2u] * ad[0u]) +
+        ab[2u] * (ac[0u] * ad[1u] - ac[1u] * ad[0u]);
+}
+
+NSDictionary* loadedKneeDonorMoments(
+    const std::string_view semanticID,
+    const std::uint32_t sourceBodyID,
+    const std::uint32_t coreBodyIndex,
+    const MRBodyPropertiesGPU& properties,
+    const MRBodyStateGPU& pose
+) {
+    const double mass = properties.massAndInverseMass.x;
+    require(std::isfinite(mass) && mass > 0.0,
+            "loaded-knee donor has invalid source mass");
+    const std::array<std::array<double, 3u>, 3u> inertia{{
+        {{properties.inertiaRow0.x, properties.inertiaRow0.y,
+          properties.inertiaRow0.z}},
+        {{properties.inertiaRow1.x, properties.inertiaRow1.y,
+          properties.inertiaRow1.z}},
+        {{properties.inertiaRow2.x, properties.inertiaRow2.y,
+          properties.inertiaRow2.z}},
+    }};
+    double trace = 0.0;
+    for (std::size_t axis = 0u; axis < 3u; ++axis)
+        trace += inertia[axis][axis];
+    std::array<std::array<double, 3u>, 3u> central{};
+    for (std::size_t row = 0u; row < 3u; ++row) {
+        for (std::size_t column = 0u; column < 3u; ++column) {
+            central[row][column] =
+                (row == column ? 0.5 * trace : 0.0) -
+                inertia[row][column];
+        }
+    }
+    const auto rotatedAxis = [&pose](const std::size_t axis) {
+        mr_float4 basis{};
+        (&basis.x)[axis] = 1.0f;
+        return rotatePoint(pose.orientation, basis);
+    };
+    std::array<mr_float4, 3u> columns{{
+        rotatedAxis(0u), rotatedAxis(1u), rotatedAxis(2u)}};
+    std::array<std::array<double, 3u>, 3u> worldCentral{};
+    for (std::size_t row = 0u; row < 3u; ++row) {
+        for (std::size_t column = 0u; column < 3u; ++column) {
+            for (std::size_t i = 0u; i < 3u; ++i) {
+                for (std::size_t j = 0u; j < 3u; ++j) {
+                    worldCentral[row][column] +=
+                        (&columns[i].x)[row] * central[i][j] *
+                        (&columns[j].x)[column];
+                }
+            }
+        }
+    }
+    const std::array<double, 3u> position{{
+        pose.position.x, pose.position.y, pose.position.z}};
+    NSMutableArray* second = [NSMutableArray arrayWithCapacity:3u];
+    for (std::size_t row = 0u; row < 3u; ++row) {
+        NSMutableArray* values = [NSMutableArray arrayWithCapacity:3u];
+        for (std::size_t column = 0u; column < 3u; ++column) {
+            const double value = worldCentral[row][column] +
+                mass * position[row] * position[column];
+            require(std::isfinite(value),
+                    "loaded-knee donor second moment is non-finite");
+            [values addObject:@(value)];
+        }
+        [second addObject:values];
+    }
+    return @{
+        @"semantic_id": loadedKneeNSString(semanticID),
+        @"source_body_id": @(sourceBodyID),
+        @"core_body_index": @(coreBodyIndex),
+        @"moments": @{
+            @"zeroth_mass_kg": @(mass),
+            @"first_mass_moment_kg_m": @[
+                @(mass * position[0u]), @(mass * position[1u]),
+                @(mass * position[2u])],
+            @"raw_second_mass_moment_kg_m2": second,
+        },
+    };
+}
+
+void emitLoadedKneeAuthoringExport(
+    const LoadedKneeAuthoringExportOptions& options,
+    const metalrobo::NumiHumanKneePayload& knee,
+    const std::span<const LiveOpenKneeRegion> regions,
+    const metalrobo::EngineModel& model,
+    const std::span<const MRBodyStateGPU> sourceDefaultBodies,
+    const std::span<const MRBodyStateGPU> projectedReferenceBodies,
+    const std::span<const std::array<float, 3u>> sourceCoordinates,
+    const std::span<const std::array<float, 3u>> referenceCoordinates,
+    const std::span<const LoadedKneeReferenceRegionDiagnostics>
+        referenceRegionDiagnostics,
+    const numi::matter::CompiledWorld& compiled,
+    const double equalityResidualMaximum
+) {
+    constexpr std::string_view kneeSHA =
+        "2e38201528de25911ea496164602ea7e823cd9c2e3c94efa550ee52689324ae5";
+    constexpr std::string_view rigidSHA =
+        "6328f7e84663c611c5498624d1386b00b2d5b0e162c4cc2967c7b1dc49ab0c44";
+    constexpr std::string_view equalitySHA =
+        "b97f755c769d0af16e02ab5deb9d85bd0cc921649197f71d308e98130ac69b6a";
+    constexpr std::string_view sourceNodeSHA =
+        "e451aa9e773a90dfb0cde77d4fb1555c7f1393c0362c7fbb3614909045a6602b";
+    constexpr std::string_view topologySHA =
+        "56af24e63c9a4c2ecafb2c94bab98fa95bbcbc77085f425c84b9c1a95e3a9040";
+    constexpr std::string_view anchorSHA =
+        "04a5c374f15f8681af40ae2e07fe35258f0bbc805d4d9d8291eae1f891d23de6";
+    require(knee.side == metalrobo::NumiHumanKneeSide::left &&
+                knee.payloadAbi == 3u &&
+                regions.size() == kLiveOpenKneeTissueSpecs.size() &&
+                sourceCoordinates.size() ==
+                    metalrobo::kNumiHumanLoadedKneeLoadedNodeCount &&
+                referenceCoordinates.size() == sourceCoordinates.size() &&
+                referenceRegionDiagnostics.size() == regions.size() &&
+                sourceDefaultBodies.size() == model.bodies.size() &&
+                projectedReferenceBodies.size() == model.bodies.size(),
+            "loaded-knee authoring export has the wrong ABI3 extent");
+    require(std::filesystem::file_size(options.kneePayload) ==
+                metalrobo::kNumiHumanLoadedKneePayloadBytesV1 &&
+                loadedKneeSHA256Hex(loadedKneeFileSHA256(options.kneePayload)) ==
+                    kneeSHA &&
+                loadedKneeSHA256Hex(loadedKneeFileSHA256(options.rigidPayload)) ==
+                    rigidSHA &&
+                loadedKneeSHA256Hex(
+                    loadedKneeFileSHA256(options.equalityPayload)) == equalitySHA,
+            "loaded-knee authoring export source-file identity differs");
+
+    static_assert(sizeof(std::array<float, 3u>) == 12u);
+    const auto xReferenceBytes = std::as_bytes(referenceCoordinates);
+    writeLoadedKneeImmutableBytes(options.xReferenceOutput, xReferenceBytes);
+    metalrobo::NumiHumanLoadedKneeDigest sourceCoordinateSHA256{};
+    metalrobo::NumiHumanLoadedKneeDigest referenceCoordinateSHA256{};
+    std::string digestError;
+    require(metalrobo::digestNumiHumanLoadedKneeCoordinatesV1(
+                sourceCoordinates, sourceCoordinateSHA256, digestError) &&
+                metalrobo::digestNumiHumanLoadedKneeCoordinatesV1(
+                    referenceCoordinates, referenceCoordinateSHA256,
+                    digestError),
+            "loaded-knee export coordinate hashing failed: " + digestError);
+    require(referenceCoordinateSHA256 ==
+                loadedKneeFileSHA256(options.xReferenceOutput),
+            "loaded-knee persisted x_ref bytes differ from the executed B_ref");
+
+    std::vector<std::uint32_t> globalToRuntime(
+        knee.nodes.size(), metalrobo::NUMI_HUMAN_KNEE_INVALID_INDEX);
+    std::vector<std::byte> sourceNodeBytes;
+    std::vector<std::byte> executableTetrahedronBytes;
+    std::vector<std::byte> sourceAnchorBytes;
+    NSMutableArray* spanRows = [NSMutableArray arrayWithCapacity:regions.size()];
+    std::uint32_t runtimeFirstTetrahedron = 0u;
+    for (const LiveOpenKneeRegion& runtimeRegion : regions) {
+        const auto& region = knee.regions[runtimeRegion.payloadRegion];
+        [spanRows addObject:@{
+            @"name": loadedKneeNSString(region.name),
+            @"first_node": @(region.firstNode),
+            @"node_count": @(region.nodeCount),
+            @"first_tetrahedron": @(region.firstTetrahedron),
+            @"tetrahedron_count": @(region.tetrahedronCount),
+            @"runtime_first_node": @(runtimeRegion.firstFEMNode),
+            @"runtime_node_count": @(runtimeRegion.nodeCount),
+            @"runtime_first_tetrahedron": @(runtimeFirstTetrahedron),
+            @"runtime_tetrahedron_count": @(runtimeRegion.tetrahedronCount),
+        }];
+        for (std::uint32_t local = 0u; local < region.nodeCount; ++local) {
+            const std::uint32_t global = region.firstNode + local;
+            const std::uint32_t runtime = runtimeRegion.firstFEMNode + local;
+            globalToRuntime[global] = runtime;
+            appendLoadedKneeScalar(sourceNodeBytes, global);
+            const auto& node = knee.nodes[global];
+            appendLoadedKneeScalar(sourceAnchorBytes, global);
+            appendLoadedKneeScalar(sourceAnchorBytes, node.anchorBodyIndex);
+            appendLoadedKneeScalar(
+                sourceAnchorBytes,
+                static_cast<std::uint32_t>(node.rigidlyAttached ? 1u : 0u));
+            for (const float value : node.anchorLocal)
+                appendLoadedKneeScalar(sourceAnchorBytes, value);
+        }
+        for (std::uint32_t local = 0u;
+             local < region.tetrahedronCount; ++local) {
+            const auto& tetrahedron =
+                knee.tetrahedra[region.firstTetrahedron + local];
+            for (const std::uint32_t global : tetrahedron) {
+                require(global < globalToRuntime.size() &&
+                            globalToRuntime[global] !=
+                                metalrobo::NUMI_HUMAN_KNEE_INVALID_INDEX,
+                        "loaded-knee executable tetrahedron leaves profile order");
+                appendLoadedKneeScalar(
+                    executableTetrahedronBytes, globalToRuntime[global]);
+            }
+        }
+        runtimeFirstTetrahedron += runtimeRegion.tetrahedronCount;
+    }
+    const auto sourceNodeDigest = loadedKneeSHA256(
+        sourceNodeBytes.data(), sourceNodeBytes.size());
+    const auto executableTopologyDigest = loadedKneeSHA256(
+        executableTetrahedronBytes.data(), executableTetrahedronBytes.size());
+    const auto sourceAnchorDigest = loadedKneeSHA256(
+        sourceAnchorBytes.data(), sourceAnchorBytes.size());
+    require(loadedKneeSHA256Hex(sourceNodeDigest) == sourceNodeSHA &&
+                loadedKneeSHA256Hex(executableTopologyDigest) == topologySHA &&
+                loadedKneeSHA256Hex(sourceAnchorDigest) == anchorSHA,
+            "loaded-knee executable node/topology/anchor identity differs");
+
+    double maximumDisplacement = 0.0;
+    double minimumJacobian = std::numeric_limits<double>::infinity();
+    double maximumJacobian = -std::numeric_limits<double>::infinity();
+    std::vector<double> regionMinimumJacobian(
+        regions.size(), std::numeric_limits<double>::infinity());
+    std::vector<double> regionMaximumJacobian(
+        regions.size(), -std::numeric_limits<double>::infinity());
+    std::vector<double> independentlyCookedNodeMass(referenceCoordinates.size());
+    for (std::size_t node = 0u; node < referenceCoordinates.size(); ++node) {
+        double squared = 0.0;
+        for (std::size_t axis = 0u; axis < 3u; ++axis) {
+            const double difference =
+                static_cast<double>(referenceCoordinates[node][axis]) -
+                sourceCoordinates[node][axis];
+            squared += difference * difference;
+        }
+        maximumDisplacement = std::max(maximumDisplacement, std::sqrt(squared));
+    }
+    for (std::size_t regionSlot = 0u; regionSlot < regions.size();
+         ++regionSlot) {
+        const LiveOpenKneeRegion& runtimeRegion = regions[regionSlot];
+        const auto& region = knee.regions[runtimeRegion.payloadRegion];
+        require(referenceRegionDiagnostics[regionSlot].name == region.name,
+                "loaded-knee reference diagnostics region order differs");
+        for (std::uint32_t local = 0u;
+             local < region.tetrahedronCount; ++local) {
+            const auto& tetrahedron =
+                knee.tetrahedra[region.firstTetrahedron + local];
+            std::array<std::uint32_t, 4u> runtime{};
+            for (std::size_t corner = 0u; corner < runtime.size(); ++corner)
+                runtime[corner] = globalToRuntime[tetrahedron[corner]];
+            const double sourceDeterminant =
+                loadedKneeSignedTetrahedronDeterminant(
+                    sourceCoordinates[runtime[0u]],
+                    sourceCoordinates[runtime[1u]],
+                    sourceCoordinates[runtime[2u]],
+                    sourceCoordinates[runtime[3u]]);
+            const double referenceDeterminant =
+                loadedKneeSignedTetrahedronDeterminant(
+                    referenceCoordinates[runtime[0u]],
+                    referenceCoordinates[runtime[1u]],
+                    referenceCoordinates[runtime[2u]],
+                    referenceCoordinates[runtime[3u]]);
+            require(std::isfinite(sourceDeterminant) &&
+                        sourceDeterminant != 0.0 &&
+                        std::isfinite(referenceDeterminant),
+                    "loaded-knee persisted A/B_ref tetrahedron is invalid");
+            const double jacobian = referenceDeterminant / sourceDeterminant;
+            require(std::isfinite(jacobian) && jacobian > 0.0,
+                    "loaded-knee persisted B_ref inverted a source tetrahedron");
+            minimumJacobian = std::min(minimumJacobian, jacobian);
+            maximumJacobian = std::max(maximumJacobian, jacobian);
+            regionMinimumJacobian[regionSlot] = std::min(
+                regionMinimumJacobian[regionSlot], jacobian);
+            regionMaximumJacobian[regionSlot] = std::max(
+                regionMaximumJacobian[regionSlot], jacobian);
+            // Mirror the executable Matter ABI exactly: the reference
+            // volume stored in NMTetrahedronGPU is FP32, while deterministic
+            // source-order nodal accumulation is FP64 and the final arena is
+            // rounded once more to FP32.
+            const float executableVolume = static_cast<float>(
+                referenceDeterminant / 6.0);
+            require(std::isfinite(executableVolume) &&
+                        executableVolume > 0.0f,
+                    "loaded-knee executable tetrahedron volume is invalid");
+            const double nodalMass =
+                static_cast<double>(1000.0f) *
+                static_cast<double>(executableVolume) * 0.25;
+            for (const std::uint32_t node : runtime)
+                independentlyCookedNodeMass[node] += nodalMass;
+        }
+    }
+    NSMutableArray* mappingRegionRows = [NSMutableArray arrayWithCapacity:
+        referenceRegionDiagnostics.size()];
+    for (std::size_t regionSlot = 0u;
+         regionSlot < referenceRegionDiagnostics.size(); ++regionSlot) {
+        const auto& diagnostic = referenceRegionDiagnostics[regionSlot];
+        require(std::isfinite(regionMinimumJacobian[regionSlot]) &&
+                    regionMinimumJacobian[regionSlot] > 0.0 &&
+                    std::isfinite(regionMaximumJacobian[regionSlot]) &&
+                    regionMaximumJacobian[regionSlot] >=
+                        regionMinimumJacobian[regionSlot] &&
+                    diagnostic.substepCount >= 1u &&
+                    diagnostic.substepCount <= 256u &&
+                    (diagnostic.substepCount &
+                        (diagnostic.substepCount - 1u)) == 0u,
+                "loaded-knee persisted regional map evidence is invalid");
+        id directFailureTetrahedron = [NSNull null];
+        id directFailureJacobian = [NSNull null];
+        NSString* directStatus = @"accepted";
+        if (diagnostic.directMapRejectedInversion) {
+            directStatus = @"rejected_inversion";
+            directFailureTetrahedron = @(
+                diagnostic.directFailureTetrahedron);
+            directFailureJacobian = @(
+                diagnostic.directFailureJacobian);
+        }
+        [mappingRegionRows addObject:@{
+            @"name": loadedKneeNSString(diagnostic.name),
+            @"substep_count": @(diagnostic.substepCount),
+            @"direct_map_status": directStatus,
+            @"direct_failure_tetrahedron": directFailureTetrahedron,
+            @"direct_failure_jacobian": directFailureJacobian,
+            @"minimum_jacobian": @(regionMinimumJacobian[regionSlot]),
+            @"maximum_jacobian": @(regionMaximumJacobian[regionSlot]),
+            @"maximum_anchor_residual_m": @(
+                diagnostic.maximumAnchorResidualMeters),
+            @"maximum_persisted_f32_anchor_residual_m": @(
+                diagnostic.maximumPersistedF32AnchorResidualMeters),
+            @"maximum_source_anchor_reconstruction_residual_m": @(
+                diagnostic.maximumSourceAnchorReconstructionResidualMeters),
+        }];
+    }
+    std::vector<float> independentF32Mass;
+    independentF32Mass.reserve(independentlyCookedNodeMass.size());
+    for (const double value : independentlyCookedNodeMass) {
+        require(std::isfinite(value) && value > 0.0,
+                "loaded-knee independently cooked node mass is invalid");
+        independentF32Mass.push_back(static_cast<float>(value));
+    }
+    require(compiled.fem.nodes.size() >= referenceCoordinates.size(),
+            "loaded-knee compiled FEM mass arena is incomplete");
+    std::vector<float> executedF32Mass;
+    executedF32Mass.reserve(referenceCoordinates.size());
+    for (std::size_t node = 0u; node < referenceCoordinates.size(); ++node)
+        executedF32Mass.push_back(compiled.fem.nodes[node].positionAndMass.w);
+    const auto independentMassDigest = loadedKneeSHA256(
+        independentF32Mass.data(), independentF32Mass.size() * sizeof(float));
+    const auto executedMassDigest = loadedKneeSHA256(
+        executedF32Mass.data(), executedF32Mass.size() * sizeof(float));
+    require(independentMassDigest == executedMassDigest,
+            "loaded-knee executable f32 node masses differ from the independently recomputed authored distribution independent=" +
+                loadedKneeSHA256Hex(independentMassDigest) +
+                " executed=" + loadedKneeSHA256Hex(executedMassDigest));
+
+    metalrobo::NumiHumanLoadedKneeDigest sourceModelSHA256{};
+    require(metalrobo::digestNumiHumanLoadedKneeSourceModelV1(
+                model, sourceModelSHA256, digestError),
+            "loaded-knee source-model hashing failed: " + digestError);
+    const auto sourcePoseSHA256 =
+        loadedKneeBodyPoseSHA256(sourceDefaultBodies);
+    const auto projectedPoseSHA256 =
+        loadedKneeBodyPoseSHA256(projectedReferenceBodies);
+    const std::filesystem::path mappingSource =
+        std::filesystem::path(__FILE__).parent_path().parent_path() /
+        "src/core/NumiHumanContinuumMap.cpp";
+    const std::filesystem::path mappingHeader =
+        std::filesystem::path(__FILE__).parent_path().parent_path() /
+        "include/metalrobo/NumiHumanContinuumMap.hpp";
+    const auto mappingHeaderSHA256 = loadedKneeFileSHA256(mappingHeader);
+    const auto mappingCoreSHA256 = loadedKneeFileSHA256(mappingSource);
+    const auto mappingAdapterSHA256 = loadedKneeFileSHA256(__FILE__);
+    constexpr std::string_view mappingCodeDomain =
+        "numi.lab.loaded-knee.a-to-b-ref-code-identity.v1";
+    std::vector<std::byte> mappingCodeIdentityBytes;
+    mappingCodeIdentityBytes.insert(
+        mappingCodeIdentityBytes.end(),
+        reinterpret_cast<const std::byte*>(mappingCodeDomain.data()),
+        reinterpret_cast<const std::byte*>(
+            mappingCodeDomain.data() + mappingCodeDomain.size()));
+    mappingCodeIdentityBytes.insert(
+        mappingCodeIdentityBytes.end(),
+        reinterpret_cast<const std::byte*>(mappingHeaderSHA256.data()),
+        reinterpret_cast<const std::byte*>(
+            mappingHeaderSHA256.data() + mappingHeaderSHA256.size()));
+    mappingCodeIdentityBytes.insert(
+        mappingCodeIdentityBytes.end(),
+        reinterpret_cast<const std::byte*>(mappingCoreSHA256.data()),
+        reinterpret_cast<const std::byte*>(
+            mappingCoreSHA256.data() + mappingCoreSHA256.size()));
+    mappingCodeIdentityBytes.insert(
+        mappingCodeIdentityBytes.end(),
+        reinterpret_cast<const std::byte*>(mappingAdapterSHA256.data()),
+        reinterpret_cast<const std::byte*>(
+            mappingAdapterSHA256.data() + mappingAdapterSHA256.size()));
+    const auto mappingCodeSHA256 = loadedKneeSHA256(
+        mappingCodeIdentityBytes.data(), mappingCodeIdentityBytes.size());
+
+    require(model.bodies.size() > metalrobo::NUMI_HUMAN_KNEE_PATELLA_BODY &&
+                projectedReferenceBodies.size() >
+                    metalrobo::NUMI_HUMAN_KNEE_PATELLA_BODY,
+            "loaded-knee donor bodies are unavailable");
+    NSArray* donors = @[
+        loadedKneeDonorMoments(
+            "myosim_fullbody:myo_sim/models/leg/assets/myolegs_chain.xml#/mujocoinclude[1]/body[name=pelvis][1]/body[name=femur_l][1]",
+            98u, metalrobo::NUMI_HUMAN_KNEE_FEMUR_BODY,
+            model.bodies[metalrobo::NUMI_HUMAN_KNEE_FEMUR_BODY],
+            projectedReferenceBodies[metalrobo::NUMI_HUMAN_KNEE_FEMUR_BODY]),
+        loadedKneeDonorMoments(
+            "myosim_fullbody:myo_sim/models/leg/assets/myolegs_chain.xml#/mujocoinclude[1]/body[name=pelvis][1]/body[name=femur_l][1]/body[name=tibia_l][1]",
+            99u, metalrobo::NUMI_HUMAN_KNEE_TIBIA_BODY,
+            model.bodies[metalrobo::NUMI_HUMAN_KNEE_TIBIA_BODY],
+            projectedReferenceBodies[metalrobo::NUMI_HUMAN_KNEE_TIBIA_BODY]),
+    ];
+    NSMutableDictionary* envelope = [@{
+        @"schema": @"numi.lab.loaded-knee-authoring-export.v1",
+        @"status": @"candidate",
+        @"manifest_canonicalization":
+            @"utf8-json-sorted-keys-compact-ensure_ascii=false-allow_nan=false",
+        @"manifest_hash_exclusion": @"top-level manifest_sha256",
+        @"subject_id": @"OpenKnee:oks003:left",
+        @"side": @"left",
+        @"x_ref": @{
+            @"bytes": @(xReferenceBytes.size()),
+            @"file_sha256": loadedKneeNSString(
+                loadedKneeSHA256Hex(referenceCoordinateSHA256)),
+            @"encoding": @"float32-le-xyz",
+            @"node_count": @(referenceCoordinates.size()),
+            @"region_order": @[@"ACL", @"LCL", @"MCL", @"PCL", @"PTL", @"QAT"],
+            @"local_order": @"source-local-node-order",
+            @"region_spans": spanRows,
+            @"source_global_node_index_sha256":
+                loadedKneeNSString(loadedKneeSHA256Hex(sourceNodeDigest)),
+            @"source_global_node_index_encoding":
+                @"uint32-le-source-global-node-indices-profile-region-order",
+            @"executable_fem_topology_sha256":
+                loadedKneeNSString(loadedKneeSHA256Hex(executableTopologyDigest)),
+            @"executable_fem_topology_encoding":
+                @"uint32-le-tetrahedra-profile-region-order-source-element-order-concatenated-local-node-indices",
+            @"anchor_ownership_sha256":
+                loadedKneeNSString(loadedKneeSHA256Hex(sourceAnchorDigest)),
+            @"anchor_ownership_encoding":
+                @"uint32-le-source-global-node,anchor-body,flags;float32-le-anchor-local-xyz",
+        },
+        @"source": @{
+            @"nhknee_sha256": loadedKneeNSString(kneeSHA),
+            @"x_source_sha256": loadedKneeNSString(
+                loadedKneeSHA256Hex(sourceCoordinateSHA256)),
+            @"source_rigid_payload_sha256": loadedKneeNSString(rigidSHA),
+            @"equality_payload_sha256": loadedKneeNSString(equalitySHA),
+            @"source_model_fingerprint_sha256": loadedKneeNSString(
+                loadedKneeSHA256Hex(sourceModelSHA256)),
+        },
+        @"poses": @{
+            @"source_default": @{
+                @"id": @"numi-human:unprojected-myosim-default-body-pose",
+                @"identity_sha256": loadedKneeNSString(
+                    loadedKneeSHA256Hex(sourcePoseSHA256)),
+            },
+            @"projected_reference": @{
+                @"id": @"numi-human:equality-projected-default-reference-body-pose",
+                @"identity_sha256": loadedKneeNSString(
+                    loadedKneeSHA256Hex(projectedPoseSHA256)),
+            },
+        },
+        @"mapping": @{
+            @"id": @"numi-lab.open-knee-restWorld-to-equality-projected-default-body-poses.1",
+            @"algorithm": @"adaptive-dyadic-first-success-slerp-geodesic-inverse-distance-moving-enthesis.1",
+            @"code_identity_sha256": loadedKneeNSString(
+                loadedKneeSHA256Hex(mappingCodeSHA256)),
+            @"code_identity_encoding": @"sha256(domain-utf8||header-file-sha256||core-file-sha256||adapter-file-sha256)",
+            @"diagnostics": @{
+                @"finite": @YES,
+                @"source_node_count": @(sourceCoordinates.size()),
+                @"output_node_count": @(referenceCoordinates.size()),
+                @"maximum_displacement_m": @(maximumDisplacement),
+                @"equality_residual_maximum": @(equalityResidualMaximum),
+                @"jacobian": @{
+                    @"finite": @YES,
+                    @"minimum_determinant": @(minimumJacobian),
+                    @"maximum_determinant": @(maximumJacobian),
+                    @"orientation_preserving": @YES,
+                },
+                @"raw_f32_node_mass_sha256": loadedKneeNSString(
+                    loadedKneeSHA256Hex(executedMassDigest)),
+                @"raw_f32_node_mass_algorithm": @"matter-referenced-f32-volume-f32-density-fp64-source-order-accumulate-final-f32.1",
+                @"regions": mappingRegionRows,
+            },
+        },
+        @"donor_moments": @{
+            @"policy_id": @"explicit-proximal-segment-candidate-no-visual-body-inference",
+            @"frame_id": @"myosim-world-m",
+            @"source_kind": @"cooked-myosim-rigid-body-mass-properties",
+            @"donors": donors,
+        },
+        @"boundary": @"Candidate-only source/projected-reference and donor provenance export. Projected rest is not an unloaded or stress-free state; population material priors, prescribed contact coverage, and this export do not establish subject mechanics, production ownership, sustained tracking, mesh convergence, clinical validity, or a global seven-owner accepted-state root.",
+    } mutableCopy];
+    const NSData* canonicalWithoutIdentity = loadedKneeCanonicalJSON(envelope);
+    const auto envelopeIdentity = loadedKneeSHA256(
+        canonicalWithoutIdentity.bytes, canonicalWithoutIdentity.length);
+    envelope[@"manifest_sha256"] = loadedKneeNSString(
+        loadedKneeSHA256Hex(envelopeIdentity));
+    NSData* canonical = loadedKneeCanonicalJSON(envelope);
+    NSMutableData* immutableBytes = [canonical mutableCopy];
+    const std::uint8_t newline = '\n';
+    [immutableBytes appendBytes:&newline length:1u];
+    writeLoadedKneeImmutableBytes(
+        options.envelopeOutput,
+        std::span<const std::byte>{
+            static_cast<const std::byte*>(immutableBytes.bytes),
+            immutableBytes.length});
+    std::cout
+        << "loaded_knee_authoring_export=accepted"
+        << " x_ref_path=" << options.xReferenceOutput
+        << " x_ref_sha256=" << loadedKneeSHA256Hex(referenceCoordinateSHA256)
+        << " x_ref_bytes=" << xReferenceBytes.size()
+        << " envelope_path=" << options.envelopeOutput
+        << " envelope_manifest_sha256=" << loadedKneeSHA256Hex(envelopeIdentity)
+        << " envelope_file_sha256="
+        << loadedKneeSHA256Hex(loadedKneeFileSHA256(options.envelopeOutput))
+        << " envelope_bytes=" << immutableBytes.length
+        << " source_model_sha256=" << loadedKneeSHA256Hex(sourceModelSHA256)
+        << " raw_f32_node_mass_sha256="
+        << loadedKneeSHA256Hex(executedMassDigest)
+        << "\n" << std::flush;
+}
 
 void setMatterMaterialParameter(
     numi::matter::MaterialProgram& material,
@@ -9058,6 +10281,21 @@ void setMatterMaterialParameter(
 
 struct LiveOpenKneeArticularContactCook {
     std::vector<NMNumiHumanArticularContactSampleGPU> samples;
+    std::array<NMIncidenceRangeGPU,
+               metalrobo::kNumiHumanLoadedKneeContactPairCount>
+        pairRanges{};
+    std::array<std::string,
+               metalrobo::kNumiHumanLoadedKneeContactPairCount>
+        pairNames{};
+    std::array<std::string,
+               metalrobo::kNumiHumanLoadedKneeContactPairCount>
+        masterSurfaceNames{};
+    std::array<std::string,
+               metalrobo::kNumiHumanLoadedKneeContactPairCount>
+        slaveSurfaceNames{};
+    std::array<double,
+               metalrobo::kNumiHumanLoadedKneeContactPairCount>
+        prescribedClosurePairForceNewtons{};
     std::uint32_t pairCount = 0u;
     std::uint32_t mechanicalSampleCount = 0u;
     std::uint32_t internalSameBodySampleCount = 0u;
@@ -9180,6 +10418,16 @@ LiveOpenKneeArticularContactCook cookLiveOpenKneeArticularContact(
                 contactModel.samples.size() == 69701u,
             "live Open Knee exact articular contact cook failed: " +
                 built.message);
+    metalrobo::NumiHumanKneeContactResult prescribedClosure;
+    constexpr double prescribedClosureMeters = 50.0e-6;
+    const auto prescribed = metalrobo::evaluateNumiHumanKneeContact(
+        contactModel, referenceNodes, prescribedClosureMeters,
+        prescribedClosure);
+    require(prescribed.succeeded() &&
+                prescribedClosure.pairs.size() ==
+                    metalrobo::kNumiHumanLoadedKneeContactPairCount,
+            "live Open Knee prescribed-closure contact coverage failed: " +
+                prescribed.message);
     const auto materialForRegion = [&](const std::uint32_t regionIndex)
         -> const metalrobo::NumiHumanKneeContactMaterial& {
         const auto found = std::find_if(
@@ -9244,11 +10492,37 @@ LiveOpenKneeArticularContactCook cookLiveOpenKneeArticularContact(
     result.pairCount = static_cast<std::uint32_t>(contactModel.pairs.size());
     result.samples.reserve(contactModel.samples.size());
     std::uint32_t nextSample = 0u;
-    for (const auto& pair : contactModel.pairs) {
+    for (std::size_t pairIndex = 0u;
+         pairIndex < contactModel.pairs.size(); ++pairIndex) {
+        const auto& pair = contactModel.pairs[pairIndex];
         require(pair.firstSample == nextSample &&
                     pair.sampleCount <=
                         contactModel.samples.size() - pair.firstSample,
                 "live Open Knee contact pair sample coverage drifted");
+        require(pair.sourcePairIndex < knee.surfacePairs.size() &&
+                    pairIndex < prescribedClosure.pairs.size() &&
+                    prescribedClosure.pairs[pairIndex].name == pair.name &&
+                    std::isfinite(
+                        prescribedClosure.pairs[pairIndex]
+                            .normalForceNewtons) &&
+                    prescribedClosure.pairs[pairIndex]
+                            .normalForceNewtons > 0.0,
+                "live Open Knee prescribed-closure pair identity or force is invalid");
+        const auto& sourcePair = knee.surfacePairs[pair.sourcePairIndex];
+        require(sourcePair.masterSurface < knee.surfaces.size() &&
+                    sourcePair.slaveSurface < knee.surfaces.size(),
+                "live Open Knee source contact surfaces are unavailable");
+        result.pairRanges[pairIndex] = {
+            .first = pair.firstSample,
+            .count = pair.sampleCount,
+        };
+        result.pairNames[pairIndex] = pair.name;
+        result.masterSurfaceNames[pairIndex] =
+            knee.surfaces[sourcePair.masterSurface].name;
+        result.slaveSurfaceNames[pairIndex] =
+            knee.surfaces[sourcePair.slaveSurface].name;
+        result.prescribedClosurePairForceNewtons[pairIndex] =
+            prescribedClosure.pairs[pairIndex].normalForceNewtons;
         const std::uint32_t slaveBody = ownerBody(pair.slaveRegionIndex);
         const std::uint32_t masterBody = ownerBody(pair.masterRegionIndex);
         const double maximumLayerNormalStrainPerPressure = std::max(
@@ -9342,6 +10616,132 @@ LiveOpenKneeArticularContactCook cookLiveOpenKneeArticularContact(
     return result;
 }
 
+metalrobo::NumiHumanLoadedKneeRuntimeEvidenceV1
+makeLoadedKneeRuntimeEvidence(
+    const metalrobo::NumiHumanLoadedKneeAuthoringV1& authoring,
+    const metalrobo::NumiHumanLoadedKneeMassEvidenceV1& mass,
+    const LiveOpenKneeArticularContactCook& contact,
+    const HumanTendonContinuumTransaction::AcceptedStep& step,
+    const std::uint32_t acceptedStepIndex,
+    const metalrobo::NumiHumanLoadedKneeDigest& sourceCoordinateSHA256,
+    const metalrobo::NumiHumanLoadedKneeDigest& referenceCoordinateSHA256,
+    const metalrobo::NumiHumanLoadedKneeDigest& initialCoordinateSHA256,
+    const metalrobo::NumiHumanLoadedKneeDigest& referencePoseSHA256,
+    const metalrobo::NumiHumanLoadedKneeDigest& initialPoseSHA256,
+    const metalrobo::NumiHumanLoadedKneeDigest& coordinateDerivationSHA256,
+    const std::uint32_t loadedFEMNodeCount
+) {
+    using Evidence = metalrobo::NumiHumanLoadedKneeRuntimeEvidenceV1;
+    constexpr std::size_t pairCount =
+        metalrobo::kNumiHumanLoadedKneeContactPairCount;
+    require(acceptedStepIndex >= 1u &&
+                acceptedStepIndex <=
+                    metalrobo::kNumiHumanLoadedKneeAcceptedStepCount &&
+                loadedFEMNodeCount ==
+                    metalrobo::kNumiHumanLoadedKneeLoadedNodeCount &&
+                step.matter.available && step.adapter.available &&
+                step.adapter.environmentCount == 1u &&
+                step.adapter.articularContactPairCount == pairCount &&
+                step.adapter.articularContactPairForceAcceptedHistory.size() ==
+                    NM_NUMI_HUMAN_ARTICULAR_CONTACT_AUDIT_MAX_STEPS *
+                        (pairCount + 1u) &&
+                step.adapter.articularContactAcceptedHistory.size() ==
+                    NM_NUMI_HUMAN_ARTICULAR_CONTACT_AUDIT_MAX_STEPS,
+            "loaded-knee accepted step lacks exact Matter/adapter authority");
+    for (std::size_t pair = 0u; pair < pairCount; ++pair) {
+        require(contact.pairNames[pair] ==
+                        authoring.contactPairs[pair].sourcePairName &&
+                    contact.masterSurfaceNames[pair] ==
+                        authoring.contactPairs[pair].masterSurface &&
+                    contact.slaveSurfaceNames[pair] ==
+                        authoring.contactPairs[pair].slaveSurface,
+                "loaded-knee executed contact pair identity/order drifted");
+    }
+    const std::size_t pairStride = pairCount + 1u;
+    const std::size_t pairBase =
+        static_cast<std::size_t>(acceptedStepIndex - 1u) * pairStride;
+    const auto& aggregateAudit =
+        step.adapter.articularContactAcceptedHistory[acceptedStepIndex - 1u];
+    require(aggregateAudit.energyStrainClosureAndAccepted.w == 1.0f,
+            "loaded-knee articular aggregate was not transaction-accepted");
+
+    Evidence evidence;
+    evidence.acceptedStepIndex = acceptedStepIndex;
+    evidence.acceptedTimestampNanoseconds =
+        static_cast<std::uint64_t>(acceptedStepIndex) *
+        metalrobo::kNumiHumanLoadedKneeStepNanoseconds;
+    evidence.timestepNanoseconds =
+        metalrobo::kNumiHumanLoadedKneeStepNanoseconds;
+    evidence.loadedFEMNodeFirst = 0u;
+    evidence.loadedFEMNodeCount = loadedFEMNodeCount;
+    evidence.executedSourceCoordinateSHA256 = sourceCoordinateSHA256;
+    evidence.executedReferenceCoordinateSHA256 = referenceCoordinateSHA256;
+    evidence.executedInitialCoordinateSHA256 = initialCoordinateSHA256;
+    evidence.referencePoseSHA256 = referencePoseSHA256;
+    evidence.initialPoseSHA256 = initialPoseSHA256;
+    evidence.coordinateDerivationSHA256 = coordinateDerivationSHA256;
+    evidence.executedMassClosureSHA256 = mass.closureSHA256;
+    evidence.executedRawF32NodeMassSHA256 =
+        mass.executedRawF32NodeMassSHA256;
+    evidence.executedSourceGlobalNodeIndexSHA256 =
+        mass.sourceGlobalNodeIndexSHA256;
+    evidence.executedFEMTopologySHA256 = mass.executableFEMTopologySHA256;
+    evidence.executedSourceAnchorOwnershipSHA256 =
+        mass.sourceAnchorOwnershipSHA256;
+    evidence.executedAnchorOwnershipSHA256 =
+        mass.executedAnchorOwnershipSHA256;
+    evidence.executedMaterialExecutionSHA256 = mass.materialExecutionSHA256;
+    evidence.executedSourceRigidModelFingerprint =
+        mass.sourceRigidModelFingerprint;
+    evidence.executedSourcePhysicsFingerprint =
+        mass.executedSourcePhysicsFingerprint;
+    evidence.executedRigidModelFingerprint =
+        mass.executedRigidModelFingerprint;
+    double pairSum = 0.0;
+    for (std::size_t pair = 0u; pair < pairCount; ++pair) {
+        const float force = step.adapter
+            .articularContactPairForceAcceptedHistory[pairBase + pair];
+        require(std::isfinite(force) && force >= 0.0f,
+                "loaded-knee accepted pair force is invalid");
+        evidence.contactPairNormalForceNewtons[pair] = force;
+        pairSum += static_cast<double>(force);
+    }
+    const float pairAggregate = step.adapter
+        .articularContactPairForceAcceptedHistory[pairBase + pairCount];
+    const float wrenchAggregate =
+        aggregateAudit.normalForceAreaAndCounts.x;
+    const double aggregateScale = std::max(
+        {1.0, std::abs(pairSum),
+         std::abs(static_cast<double>(wrenchAggregate))});
+    require(std::isfinite(pairAggregate) && pairAggregate > 0.0f &&
+                std::isfinite(wrenchAggregate) && wrenchAggregate > 0.0f &&
+                std::abs(static_cast<double>(pairAggregate) - pairSum) <=
+                    16.0 * std::numeric_limits<float>::epsilon() *
+                        aggregateScale &&
+                std::abs(static_cast<double>(pairAggregate) -
+                         static_cast<double>(wrenchAggregate)) <=
+                    32.0 * std::numeric_limits<float>::epsilon() *
+                        aggregateScale,
+            "loaded-knee GPU pair forces do not reproduce the accepted wrench audit");
+    evidence.contactAggregateNormalForceNewtons = pairAggregate;
+    evidence.prescribedClosurePairForceNewtons =
+        contact.prescribedClosurePairForceNewtons;
+    evidence.executedContactPairs = authoring.contactPairs;
+    evidence.executedActiveReplacements = authoring.activeReplacements;
+    evidence.executedPassiveOwners = authoring.passiveOwners;
+    evidence.articulatedQVRootTimeSHA256 =
+        loadedKneeAcceptedStepExternalDigest(
+            "articulated-q-v-root-time", step, acceptedStepIndex);
+    evidence.muscleTendonStateSHA256 =
+        loadedKneeAcceptedStepExternalDigest(
+            "muscle-activation-tendon-transfer-corrections", step,
+            acceptedStepIndex);
+    evidence.adapterAcceptedStateSHA256 =
+        loadedKneeAdapterExternalDigest(step.adapter);
+    evidence.snapshot = step.matter;
+    return evidence;
+}
+
 LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
     const metalrobo::NumiHumanKneePayload& knee,
     const LoadedMuscles& muscles,
@@ -9357,7 +10757,10 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
     const bool applySelectedActivationIncrement,
     const bool enableRootAssistance,
     const bool removeRootAssistance,
-    const std::filesystem::path& matterMetallib
+    const std::filesystem::path& matterMetallib,
+    const std::optional<LoadedKneeAuthoringExportOptions>& authoringExport,
+    const std::optional<metalrobo::NumiHumanLoadedKneeBindingAdmissionV1>&
+        bindingAdmission
 ) {
     require(stepCount >= 1u && stepCount <= MR_NUMI_HUMAN_STAND_MAX_STEPS,
             "live Open Knee tissues require a valid Human horizon");
@@ -9418,6 +10821,8 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
         packMetalConfiguration(tissueActivation.q);
     const std::vector<MRBodyStateGPU> referenceBodies =
         poseBodies(supportQ, "support-reference");
+    const std::vector<MRBodyStateGPU> sourceDefaultBodies = poseBodies(
+        model.defaultQ, "unprojected-source-default");
     std::vector<double> projectedRestQ(
         model.defaultQ.begin(), model.defaultQ.end());
     double maximumRestProjection = 0.0;
@@ -9429,12 +10834,13 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
             "live Open Knee neutral equality projection failed");
     const std::vector<MRBodyStateGPU> restBodies =
         poseBodies(packMetalConfiguration(projectedRestQ), "projected-rest");
-    require(referenceBodies.size() == restBodies.size(),
+    require(referenceBodies.size() == restBodies.size() &&
+                sourceDefaultBodies.size() == restBodies.size(),
             "live Open Knee Human body count drifted");
     const auto bodyIndices = openKneeBodyIndices(knee);
     require(bodyIndices[2u] < referenceBodies.size(),
             "live Open Knee bodies escape the Human articulation");
-    const LiveOpenKneeArticularContactCook articularContact =
+    LiveOpenKneeArticularContactCook articularContact =
         cookLiveOpenKneeArticularContact(knee, restBodies, bodyIndices);
     std::cout
         << "open_knee_articular_cook=accepted"
@@ -9447,19 +10853,19 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
         << " adjacent_candidates="
         << articularContact.adjacentCandidateCount
         << "\n" << std::flush;
-    const auto moveVectorWithBody = [
-        &restBodies, &referenceBodies](
+    const auto moveSourceVectorToProjectedReference = [
+        &sourceDefaultBodies, &restBodies](
         const std::array<float, 3u>& vector,
         const std::uint32_t bodyIndex) {
-        const MRBodyStateGPU& restBody = restBodies[bodyIndex];
-        const MRBodyStateGPU& referenceBody = referenceBodies[bodyIndex];
-        const mr_float4 inverseRestOrientation{
-            -restBody.orientation.x, -restBody.orientation.y,
-            -restBody.orientation.z, restBody.orientation.w};
+        const MRBodyStateGPU& sourceBody = sourceDefaultBodies[bodyIndex];
+        const MRBodyStateGPU& projectedBody = restBodies[bodyIndex];
+        const mr_float4 inverseSourceOrientation{
+            -sourceBody.orientation.x, -sourceBody.orientation.y,
+            -sourceBody.orientation.z, sourceBody.orientation.w};
         const mr_float4 sourceWorld{vector[0u], vector[1u], vector[2u], 0.0f};
         const mr_float4 local = rotatePoint(
-            inverseRestOrientation, sourceWorld);
-        mr_float4 moved = rotatePoint(referenceBody.orientation, local);
+            inverseSourceOrientation, sourceWorld);
+        mr_float4 moved = rotatePoint(projectedBody.orientation, local);
         moved.w = 0.0f;
         const double norm = std::sqrt(
             static_cast<double>(moved.x) * moved.x +
@@ -9474,35 +10880,36 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
     std::vector<LiveOpenKneeRegion> regions;
     std::uint32_t totalNodes = 0u;
     std::uint32_t totalTetrahedra = 0u;
-    for (std::uint32_t regionIndex = 0u;
-         regionIndex < knee.regions.size(); ++regionIndex) {
-        const auto& region = knee.regions[regionIndex];
-        const auto specification = std::find_if(
-            kLiveOpenKneeTissueSpecs.begin(),
-            kLiveOpenKneeTissueSpecs.end(),
-            [&region](const LiveOpenKneeTissueSpec& candidate) {
-                return candidate.name == region.name;
+    for (const LiveOpenKneeTissueSpec& specification :
+         kLiveOpenKneeTissueSpecs) {
+        const auto region = std::find_if(
+            knee.regions.begin(), knee.regions.end(),
+            [&specification](const metalrobo::NumiHumanKneeRegion& candidate) {
+                return candidate.name == specification.name;
             });
-        if (specification == kLiveOpenKneeTissueSpecs.end()) continue;
-        const bool tendon = region.name == "PTL" || region.name == "QAT";
+        require(region != knee.regions.end(),
+                "live Open Knee profile region is absent");
+        const std::uint32_t regionIndex = static_cast<std::uint32_t>(
+            std::distance(knee.regions.begin(), region));
+        const bool tendon = region->name == "PTL" || region->name == "QAT";
         const bool exactKind =
             (tendon &&
-             region.kind == metalrobo::NumiHumanKneeRegionKind::tendon) ||
+             region->kind == metalrobo::NumiHumanKneeRegionKind::tendon) ||
             (!tendon &&
-             region.kind == metalrobo::NumiHumanKneeRegionKind::ligament);
+             region->kind == metalrobo::NumiHumanKneeRegionKind::ligament);
         require(exactKind, "live Open Knee tissue kind drifted");
-        require(region.material.hasHomogeneousFiber &&
-                    region.material.hasIsochoricInSituStretch,
+        require(region->material.hasHomogeneousFiber &&
+                    region->material.hasIsochoricInSituStretch,
                 "live Open Knee source fibre material is absent");
         regions.push_back({
-            .specification = &*specification,
+            .specification = &specification,
             .payloadRegion = regionIndex,
             .firstFEMNode = totalNodes,
-            .nodeCount = region.nodeCount,
-            .tetrahedronCount = region.tetrahedronCount,
+            .nodeCount = region->nodeCount,
+            .tetrahedronCount = region->tetrahedronCount,
         });
-        totalNodes += region.nodeCount;
-        totalTetrahedra += region.tetrahedronCount;
+        totalNodes += region->nodeCount;
+        totalTetrahedra += region->tetrahedronCount;
     }
     require(regions.size() == kLiveOpenKneeTissueSpecs.size() &&
                 totalNodes == 62402u && totalTetrahedra == 264442u,
@@ -9539,7 +10946,18 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
     std::vector<NMNumiHumanTendonFEMEndpointReplacementGPU>
         endpointReplacements;
     std::vector<NMNumiHumanPassiveLigamentGPU> passiveLigaments;
+    std::vector<std::array<float, 3u>> sourceWorldCoordinates(totalNodes);
+    std::vector<std::array<float, 3u>> referenceWorldCoordinates(totalNodes);
+    std::vector<std::array<float, 3u>> initialWorldCoordinates(totalNodes);
     std::vector<mr_float4> initialWorldNodes(totalNodes);
+    std::vector<LoadedKneeReferenceRegionDiagnostics>
+        referenceRegionDiagnostics;
+    referenceRegionDiagnostics.reserve(regions.size());
+    double referenceMapMaximumDisplacementMeters = 0.0;
+    double referenceMapMaximumAnchorResidualMeters = 0.0;
+    double referenceMapMinimumJacobian =
+        std::numeric_limits<double>::infinity();
+    double referenceMapMaximumJacobian = 0.0;
     double initialMapMaximumDisplacementMeters = 0.0;
     double initialMapMaximumAnchorResidualMeters = 0.0;
     double initialMapMinimumJacobian =
@@ -9550,12 +10968,17 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
         const auto& region = knee.regions[runtimeRegion.payloadRegion];
         numi::matter::MaterialProgram material = parsed.material;
         material.name = "open_knee_" + region.name +
-            "_live_human_transverse_isotropic_smooth";
+            "_live_human_febio_exp_linear_v1";
         material.fingerprint = 0u;
+        // The candidate executes the exact HumanPack source/population priors;
+        // it does not schedule identification distributions. Explicit FEM
+        // reference coordinates require this fixed ownership at compile time.
+        for (auto& parameter : material.parameters)
+            parameter.identifiable = false;
         const std::uint32_t fiberOwnerBody = region.name == "QAT"
             ? bodyIndices[2u]
             : region.name == "PTL" ? bodyIndices[2u] : bodyIndices[0u];
-        const auto fiber = moveVectorWithBody(
+        const auto fiber = moveSourceVectorToProjectedReference(
             region.material.homogeneousFiberWorld, fiberOwnerBody);
         setMatterMaterialParameter(material, "density", 1000.0);
         setMatterMaterialParameter(
@@ -9563,20 +10986,27 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
         setMatterMaterialParameter(
             material, "c3", 1.0e6 * region.material.c3MPa);
         setMatterMaterialParameter(material, "c4", region.material.c4);
+        setMatterMaterialParameter(
+            material, "c5", 1.0e6 * region.material.c5MPa);
+        setMatterMaterialParameter(
+            material, "lambda_max", region.material.lambdaMaximum);
         const bool reducedPassiveFiberOwner = region.name != "QAT";
         setMatterMaterialParameter(
             material, "fiber_scale", reducedPassiveFiberOwner ? 0.0 : 1.0);
         setMatterMaterialParameter(
             material, "bulk", 1.0e6 * region.material.bulkModulusMPa);
-        // ABI 2 retains the exact source value. A volumetric prestress claim
-        // requires an iteratively equilibrated, generally per-element
-        // compatible prestrain gradient; the bounded homogeneous jump/ramp
-        // experiments rejected and are not used in this Human path.
-        setMatterMaterialParameter(material, "initial_stretch", 1.0);
+        // The five passive regions transfer the complete source axial branch,
+        // including its in-situ stretch, to the same-command-buffer reduced
+        // owner and therefore execute only the neutral 3D matrix here. QAT has
+        // no reduced passive owner and executes the exact source fibre law.
+        setMatterMaterialParameter(
+            material, "initial_stretch",
+            reducedPassiveFiberOwner
+                ? 1.0
+                : region.material.initialStretch);
         setMatterMaterialParameter(material, "fiber_x", fiber[0u]);
         setMatterMaterialParameter(material, "fiber_y", fiber[1u]);
         setMatterMaterialParameter(material, "fiber_z", fiber[2u]);
-        setMatterMaterialParameter(material, "tension_smoothing", 1.0e-4);
         setMatterMaterialParameter(
             material, "numerical_viscosity", 25.0);
         const std::uint32_t materialIndex =
@@ -9605,6 +11035,7 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
                 sourceNode.restWorld[2u]};
             regionReferenceNodes.push_back(sourceWorldPoint);
             const std::uint32_t femNode = runtimeRegion.firstFEMNode + local;
+            sourceWorldCoordinates[femNode] = sourceNode.restWorld;
             initialWorldNodes[femNode] = {
                 sourceNode.restWorld[0u], sourceNode.restWorld[1u],
                 sourceNode.restWorld[2u], 1.0f};
@@ -9620,22 +11051,6 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
             auto& anchor = nodeAnchors[femNode];
             anchor.bodyIndex = sourceNode.anchorBodyIndex;
             anchor.flags = NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE;
-            const MRBodyStateGPU& restAnchorBody =
-                restBodies[sourceNode.anchorBodyIndex];
-            const mr_float4 inverseRestAnchorOrientation{
-                -restAnchorBody.orientation.x,
-                -restAnchorBody.orientation.y,
-                -restAnchorBody.orientation.z,
-                restAnchorBody.orientation.w};
-            const mr_float4 sourceAnchorWorld{
-                sourceNode.restWorld[0u], sourceNode.restWorld[1u],
-                sourceNode.restWorld[2u], 1.0f};
-            const mr_float4 resolvedLocal = rotatePoint(
-                inverseRestAnchorOrientation,
-                femSubtract(sourceAnchorWorld, restAnchorBody.position));
-            anchor.localPoint = {
-                resolvedLocal.x, resolvedLocal.y,
-                resolvedLocal.z, 0.0f};
             regionAnchorBodies[local] = sourceNode.anchorBodyIndex;
             object.femFixedNodes.push_back(local);
             ++runtimeRegion.anchorCounts[bodySlot];
@@ -9654,60 +11069,223 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
             object.tetrahedra.push_back({nodes});
             regionTetrahedra.push_back(nodes);
         }
-        std::vector<metalrobo::NumiHumanContinuumBodyMap> continuumBodies;
-        for (std::uint32_t bodySlot = 0u; bodySlot < bodyIndices.size();
-             ++bodySlot) {
-            if (runtimeRegion.anchorCounts[bodySlot] == 0u) continue;
-            const std::uint32_t bodyIndex = bodyIndices[bodySlot];
-            const MRBodyStateGPU& restPose = restBodies[bodyIndex];
-            const MRBodyStateGPU& targetPose = referenceBodies[bodyIndex];
-            continuumBodies.push_back({
-                .bodyIndex = bodyIndex,
-                .referencePose = {
-                    .position = {restPose.position.x, restPose.position.y,
-                                 restPose.position.z},
-                    .orientation = {restPose.orientation.x,
-                                    restPose.orientation.y,
-                                    restPose.orientation.z,
-                                    restPose.orientation.w}},
-                .targetPose = {
-                    .position = {targetPose.position.x, targetPose.position.y,
-                                 targetPose.position.z},
-                    .orientation = {targetPose.orientation.x,
-                                    targetPose.orientation.y,
-                                    targetPose.orientation.z,
-                                    targetPose.orientation.w}},
-            });
-        }
-        metalrobo::NumiHumanContinuumMapResult continuumMap;
-        const auto continuumDiagnostics =
-            metalrobo::mapNumiHumanContinuumToMovingEntheses(
+        const auto continuumBodies = [
+            &bodyIndices, &runtimeRegion](
+            const std::span<const MRBodyStateGPU> sourcePoses,
+            const std::span<const MRBodyStateGPU> targetPoses) {
+            std::vector<metalrobo::NumiHumanContinuumBodyMap> result;
+            for (std::uint32_t bodySlot = 0u;
+                 bodySlot < bodyIndices.size(); ++bodySlot) {
+                if (runtimeRegion.anchorCounts[bodySlot] == 0u) continue;
+                const std::uint32_t bodyIndex = bodyIndices[bodySlot];
+                const MRBodyStateGPU& sourcePose = sourcePoses[bodyIndex];
+                const MRBodyStateGPU& targetPose = targetPoses[bodyIndex];
+                result.push_back({
+                    .bodyIndex = bodyIndex,
+                    .referencePose = {
+                        .position = {sourcePose.position.x,
+                                     sourcePose.position.y,
+                                     sourcePose.position.z},
+                        .orientation = {sourcePose.orientation.x,
+                                        sourcePose.orientation.y,
+                                        sourcePose.orientation.z,
+                                        sourcePose.orientation.w}},
+                    .targetPose = {
+                        .position = {targetPose.position.x,
+                                     targetPose.position.y,
+                                     targetPose.position.z},
+                        .orientation = {targetPose.orientation.x,
+                                        targetPose.orientation.y,
+                                        targetPose.orientation.z,
+                                        targetPose.orientation.w}},
+                });
+            }
+            return result;
+        };
+
+        // A -> B_ref: raw ABI3 restWorld was registered against the
+        // unprojected MyoSim default pose. HumanPack owns this distinct,
+        // equality-projected authoring reference.
+        const auto referenceBodyMaps =
+            continuumBodies(sourceDefaultBodies, restBodies);
+        metalrobo::NumiHumanContinuumMapResult referenceMap;
+        const auto referenceContinuation =
+            metalrobo::mapNumiHumanContinuumToMovingEnthesesWithContinuation(
                 regionReferenceNodes, regionTetrahedra,
-                regionAnchorBodies, continuumBodies, continuumMap);
-        require(continuumDiagnostics.succeeded(),
-                "live Open Knee moving-enthesis map failed for " +
-                    region.name + ": " + continuumDiagnostics.message);
-        require(continuumMap.targetWorldPoints.size() == region.nodeCount,
-                "live Open Knee moving-enthesis map lost nodes");
-        initialMapMaximumDisplacementMeters = std::max(
-            initialMapMaximumDisplacementMeters,
-            continuumDiagnostics.maximumDisplacementMeters);
-        initialMapMaximumAnchorResidualMeters = std::max(
-            initialMapMaximumAnchorResidualMeters,
-            continuumDiagnostics.maximumAnchorResidualMeters);
-        initialMapMinimumJacobian = std::min(
-            initialMapMinimumJacobian,
-            continuumDiagnostics.minimumJacobian);
-        initialMapMaximumJacobian = std::max(
-            initialMapMaximumJacobian,
-            continuumDiagnostics.maximumJacobian);
+                regionAnchorBodies, referenceBodyMaps, referenceMap);
+        const auto& directReferenceDiagnostics =
+            referenceContinuation.directMap;
+        if (!directReferenceDiagnostics.succeeded()) {
+            std::cout
+                << "open_knee_reference_direct_map=rejected"
+                << " tissue=" << region.name
+                << " failing_tet="
+                << directReferenceDiagnostics.failingIndex
+                << " J=" << directReferenceDiagnostics.failingJacobian
+                << "\n" << std::flush;
+        }
+        const auto& referenceDiagnostics =
+            referenceContinuation.finalMap;
+        require(referenceContinuation.succeeded() &&
+                    referenceMap.targetWorldPoints.size() == region.nodeCount,
+                "live Open Knee A-to-B_ref moving-enthesis map failed for " +
+                    region.name + ": " + referenceDiagnostics.message +
+                    " failing_index=" +
+                    std::to_string(referenceDiagnostics.failingIndex));
+        LoadedKneeReferenceRegionDiagnostics regionDiagnostics;
+        regionDiagnostics.name = region.name;
+        regionDiagnostics.substepCount =
+            referenceContinuation.substepCount;
+        if (!directReferenceDiagnostics.succeeded()) {
+            require(directReferenceDiagnostics.jacobianGateFailure &&
+                        std::isfinite(
+                            directReferenceDiagnostics.failingJacobian) &&
+                        directReferenceDiagnostics.failingJacobian <= 0.0,
+                    "loaded-knee direct reference map rejected for a non-inversion reason");
+            regionDiagnostics.directMapRejectedInversion = true;
+            regionDiagnostics.directFailureTetrahedron =
+                directReferenceDiagnostics.failingIndex;
+            regionDiagnostics.directFailureJacobian =
+                directReferenceDiagnostics.failingJacobian;
+        }
+        std::cout
+            << "open_knee_reference_continuation=accepted"
+            << " tissue=" << region.name
+            << " substeps=" << referenceContinuation.substepCount
+            << " min_J=" << referenceDiagnostics.minimumJacobian
+            << " max_J=" << referenceDiagnostics.maximumJacobian
+            << "\n" << std::flush;
+        referenceMapMaximumDisplacementMeters = std::max(
+            referenceMapMaximumDisplacementMeters,
+            referenceDiagnostics.maximumDisplacementMeters);
+        referenceMapMinimumJacobian = std::min(
+            referenceMapMinimumJacobian,
+            referenceDiagnostics.minimumJacobian);
+        referenceMapMaximumJacobian = std::max(
+            referenceMapMaximumJacobian,
+            referenceDiagnostics.maximumJacobian);
+        std::vector<std::array<double, 3u>> quantizedReferenceNodes;
+        quantizedReferenceNodes.reserve(region.nodeCount);
+        object.femReferenceNodes.reserve(region.nodeCount);
         for (std::uint32_t local = 0u; local < region.nodeCount; ++local) {
-            const auto& mapped = continuumMap.targetWorldPoints[local];
-            object.femNodes[local] = mapped;
-            initialWorldNodes[runtimeRegion.firstFEMNode + local] = {
+            const auto& mapped = referenceMap.targetWorldPoints[local];
+            const std::array<float, 3u> exact{{
                 static_cast<float>(mapped[0u]),
                 static_cast<float>(mapped[1u]),
-                static_cast<float>(mapped[2u]), 1.0f};
+                static_cast<float>(mapped[2u])}};
+            const std::array<double, 3u> exactDouble{{
+                exact[0u], exact[1u], exact[2u]}};
+            const std::uint32_t femNode =
+                runtimeRegion.firstFEMNode + local;
+            referenceWorldCoordinates[femNode] = exact;
+            quantizedReferenceNodes.push_back(exactDouble);
+            object.femReferenceNodes.push_back(exactDouble);
+            const auto& sourceNode = knee.nodes[region.firstNode + local];
+            if (!sourceNode.rigidlyAttached)
+                continue;
+            auto& anchor = nodeAnchors[femNode];
+            const mr_float4 immutableLocal{
+                sourceNode.anchorLocal[0u], sourceNode.anchorLocal[1u],
+                sourceNode.anchorLocal[2u], 0.0f};
+            const auto reconstruct = [&immutableLocal](
+                const MRBodyStateGPU& pose) {
+                return femAdd(
+                    pose.position,
+                    rotatePoint(pose.orientation, immutableLocal));
+            };
+            const mr_float4 sourceExpected = reconstruct(
+                sourceDefaultBodies[anchor.bodyIndex]);
+            const mr_float4 targetExpected = reconstruct(
+                restBodies[anchor.bodyIndex]);
+            const auto distance = [](const double x, const double y,
+                                     const double z,
+                                     const mr_float4& expected) {
+                const double dx = x - expected.x;
+                const double dy = y - expected.y;
+                const double dz = z - expected.z;
+                return std::sqrt(dx * dx + dy * dy + dz * dz);
+            };
+            regionDiagnostics.maximumSourceAnchorReconstructionResidualMeters =
+                std::max(
+                    regionDiagnostics.
+                        maximumSourceAnchorReconstructionResidualMeters,
+                    distance(sourceNode.restWorld[0u],
+                             sourceNode.restWorld[1u],
+                             sourceNode.restWorld[2u], sourceExpected));
+            regionDiagnostics.maximumAnchorResidualMeters = std::max(
+                regionDiagnostics.maximumAnchorResidualMeters,
+                distance(mapped[0u], mapped[1u], mapped[2u],
+                         targetExpected));
+            regionDiagnostics.maximumPersistedF32AnchorResidualMeters =
+                std::max(
+                    regionDiagnostics.
+                        maximumPersistedF32AnchorResidualMeters,
+                    distance(exact[0u], exact[1u], exact[2u],
+                             targetExpected));
+            anchor.localPoint = {
+                immutableLocal.x, immutableLocal.y, immutableLocal.z, 0.0f};
+        }
+        require(
+            regionDiagnostics.
+                    maximumSourceAnchorReconstructionResidualMeters <=
+                2.0e-7 &&
+            regionDiagnostics.maximumAnchorResidualMeters <= 2.0e-7 &&
+            regionDiagnostics.maximumPersistedF32AnchorResidualMeters <=
+                2.0e-7,
+            "loaded-knee immutable anchor-local projection is inconsistent");
+        referenceMapMaximumAnchorResidualMeters = std::max(
+            referenceMapMaximumAnchorResidualMeters,
+            regionDiagnostics.maximumPersistedF32AnchorResidualMeters);
+        referenceRegionDiagnostics.push_back(regionDiagnostics);
+        std::cout
+            << "open_knee_reference_anchor_gate=accepted"
+            << " tissue=" << region.name
+            << " source_reconstruction_max_m="
+            << regionDiagnostics.
+                maximumSourceAnchorReconstructionResidualMeters
+            << " continuation_max_m="
+            << regionDiagnostics.maximumAnchorResidualMeters
+            << " persisted_f32_max_m="
+            << regionDiagnostics.maximumPersistedF32AnchorResidualMeters
+            << "\n" << std::flush;
+
+        // B_ref -> C_init: support-pose initialization is Lab runtime state,
+        // not the HumanPack projected reference and not an unloaded state.
+        metalrobo::NumiHumanContinuumMapResult initialMap;
+        const auto initialDiagnostics =
+            metalrobo::mapNumiHumanContinuumToMovingEntheses(
+                quantizedReferenceNodes, regionTetrahedra,
+                regionAnchorBodies,
+                continuumBodies(restBodies, referenceBodies), initialMap);
+        require(initialDiagnostics.succeeded() &&
+                    initialMap.targetWorldPoints.size() == region.nodeCount,
+                "live Open Knee B_ref-to-C_init moving-enthesis map failed for " +
+                    region.name + ": " + initialDiagnostics.message);
+        initialMapMaximumDisplacementMeters = std::max(
+            initialMapMaximumDisplacementMeters,
+            initialDiagnostics.maximumDisplacementMeters);
+        initialMapMaximumAnchorResidualMeters = std::max(
+            initialMapMaximumAnchorResidualMeters,
+            initialDiagnostics.maximumAnchorResidualMeters);
+        initialMapMinimumJacobian = std::min(
+            initialMapMinimumJacobian,
+            initialDiagnostics.minimumJacobian);
+        initialMapMaximumJacobian = std::max(
+            initialMapMaximumJacobian,
+            initialDiagnostics.maximumJacobian);
+        for (std::uint32_t local = 0u; local < region.nodeCount; ++local) {
+            const auto& mapped = initialMap.targetWorldPoints[local];
+            const std::array<float, 3u> exact{{
+                static_cast<float>(mapped[0u]),
+                static_cast<float>(mapped[1u]),
+                static_cast<float>(mapped[2u])}};
+            object.femNodes[local] = {
+                exact[0u], exact[1u], exact[2u]};
+            const std::uint32_t femNode =
+                runtimeRegion.firstFEMNode + local;
+            initialWorldCoordinates[femNode] = exact;
+            initialWorldNodes[femNode] = {
+                exact[0u], exact[1u], exact[2u], 1.0f};
         }
         const bool exactBoundaryOwnership = region.name == "PTL"
             ? runtimeRegion.anchorCounts[1u] > 0u &&
@@ -9731,8 +11309,10 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
             const std::uint32_t secondBody = bodyIndices[1u];
             mr_float4 firstLocal{};
             mr_float4 secondLocal{};
-            mr_float4 firstSourceWorld{};
-            mr_float4 secondSourceWorld{};
+            mr_float4 firstReferenceWorld{};
+            mr_float4 secondReferenceWorld{};
+            mr_float4 firstAuthoredSourceWorld{};
+            mr_float4 secondAuthoredSourceWorld{};
             std::uint32_t firstCount = 0u;
             std::uint32_t secondCount = 0u;
             for (std::uint32_t local = 0u; local < region.nodeCount; ++local) {
@@ -9741,17 +11321,19 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
                 if ((anchor.flags &
                      NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE) == 0u)
                     continue;
-                const auto& sourceNode = knee.nodes[region.firstNode + local];
                 mr_float4* localSum = nullptr;
-                mr_float4* worldSum = nullptr;
+                mr_float4* referenceWorldSum = nullptr;
+                mr_float4* authoredSourceWorldSum = nullptr;
                 std::uint32_t* count = nullptr;
                 if (anchor.bodyIndex == firstBody) {
                     localSum = &firstLocal;
-                    worldSum = &firstSourceWorld;
+                    referenceWorldSum = &firstReferenceWorld;
+                    authoredSourceWorldSum = &firstAuthoredSourceWorld;
                     count = &firstCount;
                 } else if (anchor.bodyIndex == secondBody) {
                     localSum = &secondLocal;
-                    worldSum = &secondSourceWorld;
+                    referenceWorldSum = &secondReferenceWorld;
+                    authoredSourceWorldSum = &secondAuthoredSourceWorld;
                     count = &secondCount;
                 } else {
                     continue;
@@ -9759,9 +11341,15 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
                 localSum->x += anchor.localPoint.x;
                 localSum->y += anchor.localPoint.y;
                 localSum->z += anchor.localPoint.z;
-                worldSum->x += sourceNode.restWorld[0u];
-                worldSum->y += sourceNode.restWorld[1u];
-                worldSum->z += sourceNode.restWorld[2u];
+                const auto& referencePoint =
+                    referenceWorldCoordinates[femNode];
+                referenceWorldSum->x += referencePoint[0u];
+                referenceWorldSum->y += referencePoint[1u];
+                referenceWorldSum->z += referencePoint[2u];
+                const auto& sourcePoint = sourceWorldCoordinates[femNode];
+                authoredSourceWorldSum->x += sourcePoint[0u];
+                authoredSourceWorldSum->y += sourcePoint[1u];
+                authoredSourceWorldSum->z += sourcePoint[2u];
                 ++*count;
             }
             require(firstCount > 0u && secondCount > 0u,
@@ -9776,18 +11364,27 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
             };
             firstLocal = average(firstLocal, firstCount);
             secondLocal = average(secondLocal, secondCount);
-            firstSourceWorld = average(firstSourceWorld, firstCount);
-            secondSourceWorld = average(secondSourceWorld, secondCount);
-            const mr_float4 sourceAxis = femSubtract(
-                secondSourceWorld, firstSourceWorld);
-            const double referenceLength = femLength(sourceAxis);
+            firstReferenceWorld = average(firstReferenceWorld, firstCount);
+            secondReferenceWorld = average(secondReferenceWorld, secondCount);
+            firstAuthoredSourceWorld = average(
+                firstAuthoredSourceWorld, firstCount);
+            secondAuthoredSourceWorld = average(
+                secondAuthoredSourceWorld, secondCount);
+            const mr_float4 referenceAxis = femSubtract(
+                secondReferenceWorld, firstReferenceWorld);
+            const mr_float4 authoredSourceAxis = femSubtract(
+                secondAuthoredSourceWorld, firstAuthoredSourceWorld);
+            const double referenceLength = femLength(referenceAxis);
+            const double authoredSourceLength = femLength(authoredSourceAxis);
             double volume = 0.0;
             for (std::uint32_t local = 0u;
                  local < region.tetrahedronCount; ++local) {
                 const auto& tet =
                     knee.tetrahedra[region.firstTetrahedron + local];
                 const auto point = [&](const std::uint32_t corner) {
-                    const auto& p = knee.nodes[tet[corner]].restWorld;
+                    const auto& p = referenceWorldCoordinates[
+                        runtimeRegion.firstFEMNode +
+                        tet[corner] - region.firstNode];
                     return mr_float4{p[0u], p[1u], p[2u], 0.0f};
                 };
                 const mr_float4 a = point(0u);
@@ -9798,14 +11395,20 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
                     femDot(ab, femCross(ac, ad)))) / 6.0;
             }
             const double effectiveArea = volume / referenceLength;
-            const mr_float4 unitAxis = femScale(
-                sourceAxis, static_cast<float>(1.0 / referenceLength));
+            const mr_float4 authoredSourceUnitAxis = femScale(
+                authoredSourceAxis,
+                static_cast<float>(1.0 / authoredSourceLength));
             const double fiberAlignment = std::abs(
-                unitAxis.x * region.material.homogeneousFiberWorld[0u] +
-                unitAxis.y * region.material.homogeneousFiberWorld[1u] +
-                unitAxis.z * region.material.homogeneousFiberWorld[2u]);
+                authoredSourceUnitAxis.x *
+                    region.material.homogeneousFiberWorld[0u] +
+                authoredSourceUnitAxis.y *
+                    region.material.homogeneousFiberWorld[1u] +
+                authoredSourceUnitAxis.z *
+                    region.material.homogeneousFiberWorld[2u]);
             require(std::isfinite(referenceLength) &&
                         referenceLength > 1.0e-4 &&
+                        std::isfinite(authoredSourceLength) &&
+                        authoredSourceLength > 1.0e-4 &&
                         std::isfinite(volume) && volume > 1.0e-10 &&
                         std::isfinite(effectiveArea) &&
                         effectiveArea > 1.0e-8 && effectiveArea < 0.01 &&
@@ -9838,9 +11441,18 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
                 << "open_knee_passive_ligament_cook=accepted"
                 << " tissue=" << region.name
                 << " rest_length_m=" << referenceLength
+                << " authored_source_length_m=" << authoredSourceLength
                 << " volume_m3=" << volume
                 << " effective_area_m2=" << effectiveArea
                 << " source_fiber_alignment=" << fiberAlignment
+                << " projected_first_enthesis_centroid_m="
+                << firstReferenceWorld.x << ","
+                << firstReferenceWorld.y << ","
+                << firstReferenceWorld.z
+                << " projected_second_enthesis_centroid_m="
+                << secondReferenceWorld.x << ","
+                << secondReferenceWorld.y << ","
+                << secondReferenceWorld.z
                 << " source_initial_stretch="
                 << region.material.initialStretch
                 << " reference_tension_n=" << evaluation.tensionNewtons
@@ -9848,6 +11460,47 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
         }
         worldSource.objects.push_back(std::move(object));
     }
+    metalrobo::NumiHumanLoadedKneeDigest sourceCoordinateSHA256{};
+    metalrobo::NumiHumanLoadedKneeDigest referenceCoordinateSHA256{};
+    metalrobo::NumiHumanLoadedKneeDigest initialCoordinateSHA256{};
+    std::string loadedKneeDigestError;
+    require(metalrobo::digestNumiHumanLoadedKneeCoordinatesV1(
+                sourceWorldCoordinates, sourceCoordinateSHA256,
+                loadedKneeDigestError) &&
+                metalrobo::digestNumiHumanLoadedKneeCoordinatesV1(
+                    referenceWorldCoordinates, referenceCoordinateSHA256,
+                    loadedKneeDigestError) &&
+                metalrobo::digestNumiHumanLoadedKneeCoordinatesV1(
+                    initialWorldCoordinates, initialCoordinateSHA256,
+                    loadedKneeDigestError),
+            "live Open Knee A/B_ref/C_init hashing failed: " +
+                loadedKneeDigestError);
+    std::array<std::uint64_t, 4u> referenceIdentity{};
+    std::memcpy(referenceIdentity.data(), referenceCoordinateSHA256.data(),
+                referenceCoordinateSHA256.size());
+    for (auto& object : worldSource.objects)
+        object.femReferenceSourceIdentity = referenceIdentity;
+    require(std::isfinite(referenceMapMaximumDisplacementMeters) &&
+                referenceMapMaximumDisplacementMeters > 0.0 &&
+                referenceMapMaximumAnchorResidualMeters <= 2.0e-7 &&
+                std::isfinite(referenceMapMinimumJacobian) &&
+                std::isfinite(referenceMapMaximumJacobian) &&
+                referenceMapMinimumJacobian > 0.0,
+            "live Open Knee A-to-B_ref authoring map is invalid");
+    std::cout
+        << "open_knee_coordinate_split=accepted"
+        << " order=ACL,LCL,MCL,PCL,PTL,QAT"
+        << " reference_maximum_displacement_m="
+        << referenceMapMaximumDisplacementMeters
+        << " reference_minimum_jacobian="
+        << referenceMapMinimumJacobian
+        << " reference_maximum_jacobian="
+        << referenceMapMaximumJacobian
+        << " initial_maximum_displacement_m="
+        << initialMapMaximumDisplacementMeters
+        << " initial_minimum_jacobian=" << initialMapMinimumJacobian
+        << " initial_maximum_jacobian=" << initialMapMaximumJacobian
+        << "\n" << std::flush;
     require(passiveLigaments.size() == 5u,
             "live Open Knee passive ligament coverage drifted");
 
@@ -10154,6 +11807,332 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
         compileMessage += diagnostic.message + "; ";
     require(compiled.succeeded(),
             "live Open Knee FEM world did not compile: " + compileMessage);
+    if (bindingAdmission.has_value()) {
+        std::string admissionError;
+        require(metalrobo::validateNumiHumanLoadedKneeAuthoringV1(
+                    bindingAdmission->authoring, &knee, admissionError),
+                "live Open Knee Human binding does not match the decoded ABI3 payload: " +
+                    admissionError);
+    }
+    if (authoringExport.has_value()) {
+        emitLoadedKneeAuthoringExport(
+            *authoringExport, knee, regions, model, sourceDefaultBodies,
+            restBodies, sourceWorldCoordinates, referenceWorldCoordinates,
+            referenceRegionDiagnostics, compiled.world,
+            maximumRestProjection);
+    }
+
+    std::optional<metalrobo::NumiHumanLoadedKneeMassEvidenceV1>
+        loadedKneeMassEvidence;
+    std::vector<metalrobo::NumiHumanLoadedKneeExecutedAnchorV1>
+        loadedKneeExecutedAnchors;
+    std::optional<LoadedMuscles> rebasedMuscles;
+    std::optional<LoadedSupportContacts> rebasedSupportContacts;
+    const metalrobo::EngineModel* executedModel = &model;
+    const LoadedMuscles* executedMuscles = &muscles;
+    const LoadedSupportContacts* executedSupportContacts = &supportContacts;
+    if (bindingAdmission.has_value()) {
+        const auto& authoring = bindingAdmission->authoring;
+        std::vector<metalrobo::NumiHumanTissueMassNode> cookedNodes;
+        cookedNodes.reserve(totalNodes);
+        for (const LiveOpenKneeRegion& runtimeRegion : regions) {
+            const auto& region = knee.regions[runtimeRegion.payloadRegion];
+            const std::uint32_t donorBody = region.name == "PTL"
+                ? metalrobo::NUMI_HUMAN_KNEE_TIBIA_BODY
+                : metalrobo::NUMI_HUMAN_KNEE_FEMUR_BODY;
+            for (std::uint32_t local = 0u; local < region.nodeCount; ++local) {
+                const std::uint32_t femNode =
+                    runtimeRegion.firstFEMNode + local;
+                cookedNodes.push_back({
+                    .nodeIndex = femNode,
+                    .donorBody = donorBody,
+                    .massKg = compiled.world.fem.nodes[femNode]
+                        .positionAndMass.w,
+                });
+            }
+        }
+        require(cookedNodes.size() == totalNodes,
+                "loaded-knee donor ownership did not cover the executable FEM arena");
+
+        loadedKneeMassEvidence.emplace();
+        std::string massError;
+        require(metalrobo::prepareNumiHumanLoadedKneeMassV1(
+                    authoring, model, referenceWorldCoordinates, restBodies,
+                    cookedNodes, *loadedKneeMassEvidence, massError),
+                "loaded-knee donor mass preparation failed: " + massError);
+        require(metalrobo::bindNumiHumanLoadedKneeMassToMatterWorldV1(
+                    compiled.world, *loadedKneeMassEvidence, massError),
+                "loaded-knee executable Matter mass binding failed: " +
+                    massError);
+
+        std::vector<std::array<double, 3u>> donorCOMOffsets(
+            model.bodies.size());
+        std::vector<bool> donorRebased(model.bodies.size(), false);
+        for (const auto& partition : loadedKneeMassEvidence->partitions) {
+            require(partition.donorBody < donorCOMOffsets.size() &&
+                        !donorRebased[partition.donorBody],
+                    "loaded-knee donor COM rebase is repeated or out of range");
+            donorCOMOffsets[partition.donorBody] =
+                partition.remainingCOMOffsetM;
+            donorRebased[partition.donorBody] = true;
+        }
+        const auto shiftFloatPoint = [&donorCOMOffsets, &donorRebased](
+            auto& point, const std::uint32_t body) {
+            if (body == MR_INVALID_INDEX || body >= donorRebased.size() ||
+                !donorRebased[body]) return;
+            point.x -= static_cast<float>(donorCOMOffsets[body][0u]);
+            point.y -= static_cast<float>(donorCOMOffsets[body][1u]);
+            point.z -= static_cast<float>(donorCOMOffsets[body][2u]);
+        };
+        const auto shiftDoublePoint = [&donorCOMOffsets, &donorRebased](
+            std::array<double, 3u>& point, const std::uint32_t body) {
+            if (body == MR_INVALID_INDEX || body >= donorRebased.size() ||
+                !donorRebased[body]) return;
+            for (std::size_t axis = 0u; axis < 3u; ++axis)
+                point[axis] -= donorCOMOffsets[body][axis];
+        };
+
+        rebasedMuscles = muscles;
+        for (auto& site : rebasedMuscles->sites) {
+            if (site.bodyIndex < donorRebased.size() &&
+                donorRebased[site.bodyIndex]) {
+                site.x -= static_cast<float>(
+                    donorCOMOffsets[site.bodyIndex][0u]);
+                site.y -= static_cast<float>(
+                    donorCOMOffsets[site.bodyIndex][1u]);
+                site.z -= static_cast<float>(
+                    donorCOMOffsets[site.bodyIndex][2u]);
+            }
+        }
+        for (auto& site : rebasedMuscles->referenceSites)
+            shiftDoublePoint(site.localPoint, site.bodyIndex);
+        for (auto& site : rebasedMuscles->gpuSites)
+            shiftFloatPoint(site.localPoint, site.bodyIndex);
+        for (auto& wrap : rebasedMuscles->wraps) {
+            if (wrap.bodyIndex < donorRebased.size() &&
+                donorRebased[wrap.bodyIndex]) {
+                wrap.centerX -= static_cast<float>(
+                    donorCOMOffsets[wrap.bodyIndex][0u]);
+                wrap.centerY -= static_cast<float>(
+                    donorCOMOffsets[wrap.bodyIndex][1u]);
+                wrap.centerZ -= static_cast<float>(
+                    donorCOMOffsets[wrap.bodyIndex][2u]);
+            }
+        }
+        for (auto& wrap : rebasedMuscles->referenceWraps)
+            shiftDoublePoint(wrap.localCenter, wrap.bodyIndex);
+        for (auto& wrap : rebasedMuscles->gpuWraps)
+            shiftFloatPoint(wrap.localCenter, wrap.bodyIndex);
+        for (auto& binding : rebasedMuscles->tendonPayload.bindings)
+            shiftDoublePoint(binding.resolvedLocalPoint, binding.bodyIndex);
+        for (auto& triangle : rebasedMuscles->tendonPayload.triangles)
+            for (auto& vertex : triangle.localVertices)
+                shiftDoublePoint(vertex, triangle.bodyIndex);
+        for (auto& envelope : rebasedMuscles->tendonPayload.envelopes)
+            for (auto& node : envelope.localNodes)
+                shiftDoublePoint(node, envelope.bodyIndex);
+
+        rebasedSupportContacts = supportContacts;
+        for (auto& contact : rebasedSupportContacts->records) {
+            if (contact.bodyIndex >= donorRebased.size() ||
+                !donorRebased[contact.bodyIndex]) continue;
+            contact.localPointX -= static_cast<float>(
+                donorCOMOffsets[contact.bodyIndex][0u]);
+            contact.localPointY -= static_cast<float>(
+                donorCOMOffsets[contact.bodyIndex][1u]);
+            contact.localPointZ -= static_cast<float>(
+                donorCOMOffsets[contact.bodyIndex][2u]);
+        }
+        for (auto& anchor : nodeAnchors) {
+            if ((anchor.flags &
+                 NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE) != 0u)
+                shiftFloatPoint(anchor.localPoint, anchor.bodyIndex);
+        }
+        for (auto& ligament : passiveLigaments) {
+            shiftFloatPoint(
+                ligament.firstLocalPoint, ligament.firstBodyIndex);
+            shiftFloatPoint(
+                ligament.secondLocalPoint, ligament.secondBodyIndex);
+        }
+        for (auto& sample : articularContact.samples) {
+            shiftFloatPoint(
+                sample.slaveLocalPointAndArea, sample.slaveBodyIndex);
+            shiftFloatPoint(
+                sample.masterLocalTriangle0AndReferenceSeparation,
+                sample.masterBodyIndex);
+            shiftFloatPoint(
+                sample.masterLocalTriangle1AndStiffness,
+                sample.masterBodyIndex);
+            shiftFloatPoint(
+                sample.masterLocalTriangle2AndNormalStrainPerPressure,
+                sample.masterBodyIndex);
+            if (sample.masterLocalAdjacentOpposite0AndActive.w == 1.0f)
+                shiftFloatPoint(
+                    sample.masterLocalAdjacentOpposite0AndActive,
+                    sample.masterBodyIndex);
+            if (sample.masterLocalAdjacentOpposite1AndActive.w == 1.0f)
+                shiftFloatPoint(
+                    sample.masterLocalAdjacentOpposite1AndActive,
+                    sample.masterBodyIndex);
+            if (sample.masterLocalAdjacentOpposite2AndActive.w == 1.0f)
+                shiftFloatPoint(
+                    sample.masterLocalAdjacentOpposite2AndActive,
+                    sample.masterBodyIndex);
+        }
+
+        loadedKneeExecutedAnchors.resize(totalNodes);
+        for (const LiveOpenKneeRegion& runtimeRegion : regions) {
+            const auto& region = knee.regions[runtimeRegion.payloadRegion];
+            for (std::uint32_t local = 0u; local < region.nodeCount; ++local) {
+                const std::uint32_t femNode =
+                    runtimeRegion.firstFEMNode + local;
+                const auto& adapterAnchor = nodeAnchors[femNode];
+                auto& executedAnchor = loadedKneeExecutedAnchors[femNode];
+                executedAnchor.sourceGlobalNodeIndex =
+                    region.firstNode + local;
+                executedAnchor.bodyIndex = adapterAnchor.bodyIndex;
+                executedAnchor.flags = adapterAnchor.flags;
+                executedAnchor.localPoint = {
+                    adapterAnchor.localPoint.x,
+                    adapterAnchor.localPoint.y,
+                    adapterAnchor.localPoint.z};
+            }
+        }
+        require(metalrobo::bindNumiHumanLoadedKneeExecutableTopologyV1(
+                    authoring, knee, compiled.world, loadedKneeExecutedAnchors,
+                    *loadedKneeMassEvidence, massError),
+                "loaded-knee executable topology/anchor binding failed: " +
+                    massError);
+
+        // Rebuild the reduced passive rows from the exact post-rebase adapter
+        // anchors in profile/object order. Averaging the pre-rebase centroids
+        // and then translating once is mathematically equivalent but not
+        // float-bit equivalent to the executed per-node accumulation that the
+        // material admission independently re-derives.
+        constexpr std::array<std::uint32_t, 5u> passiveFirstBodies{{
+            metalrobo::NUMI_HUMAN_KNEE_FEMUR_BODY,
+            metalrobo::NUMI_HUMAN_KNEE_FEMUR_BODY,
+            metalrobo::NUMI_HUMAN_KNEE_FEMUR_BODY,
+            metalrobo::NUMI_HUMAN_KNEE_FEMUR_BODY,
+            metalrobo::NUMI_HUMAN_KNEE_PATELLA_BODY,
+        }};
+        require(passiveLigaments.size() == passiveFirstBodies.size() &&
+                    compiled.world.objects.size() >= passiveLigaments.size(),
+                "loaded-knee post-rebase passive row coverage drifted");
+        for (std::size_t rowIndex = 0u;
+             rowIndex < passiveLigaments.size(); ++rowIndex) {
+            const auto& object = compiled.world.objects[rowIndex];
+            std::array<float, 3u> firstLocal{};
+            std::array<float, 3u> secondLocal{};
+            std::array<float, 3u> firstReference{};
+            std::array<float, 3u> secondReference{};
+            std::uint32_t firstCount = 0u;
+            std::uint32_t secondCount = 0u;
+            for (std::uint32_t local = 0u; local < object.stateCount; ++local) {
+                const std::uint32_t nodeIndex = object.stateOffset + local;
+                require(nodeIndex < loadedKneeExecutedAnchors.size() &&
+                            nodeIndex < compiled.world.fem.nodes.size(),
+                        "loaded-knee passive object node span escaped the executable world");
+                const auto& anchor = loadedKneeExecutedAnchors[nodeIndex];
+                if (anchor.flags == 0u) continue;
+                std::array<float, 3u>* localSum = nullptr;
+                std::array<float, 3u>* referenceSum = nullptr;
+                std::uint32_t* count = nullptr;
+                if (anchor.bodyIndex == passiveFirstBodies[rowIndex]) {
+                    localSum = &firstLocal;
+                    referenceSum = &firstReference;
+                    count = &firstCount;
+                } else if (anchor.bodyIndex ==
+                           metalrobo::NUMI_HUMAN_KNEE_TIBIA_BODY) {
+                    localSum = &secondLocal;
+                    referenceSum = &secondReference;
+                    count = &secondCount;
+                } else {
+                    continue;
+                }
+                const auto& reference =
+                    compiled.world.fem.nodes[nodeIndex].restAndFixed;
+                for (std::size_t axis = 0u; axis < 3u; ++axis) {
+                    (*localSum)[axis] += anchor.localPoint[axis];
+                    (*referenceSum)[axis] += (&reference.x)[axis];
+                }
+                ++*count;
+            }
+            require(firstCount > 0u && secondCount > 0u,
+                    "loaded-knee post-rebase passive row lacks both entheses");
+            for (std::size_t axis = 0u; axis < 3u; ++axis) {
+                firstLocal[axis] *= 1.0f / static_cast<float>(firstCount);
+                secondLocal[axis] *= 1.0f / static_cast<float>(secondCount);
+                firstReference[axis] *=
+                    1.0f / static_cast<float>(firstCount);
+                secondReference[axis] *=
+                    1.0f / static_cast<float>(secondCount);
+            }
+            const std::array<float, 3u> referenceAxis{{
+                secondReference[0u] - firstReference[0u],
+                secondReference[1u] - firstReference[1u],
+                secondReference[2u] - firstReference[2u],
+            }};
+            const float referenceLength = std::sqrt(
+                referenceAxis[0u] * referenceAxis[0u] +
+                referenceAxis[1u] * referenceAxis[1u] +
+                referenceAxis[2u] * referenceAxis[2u]);
+            double volume = 0.0;
+            for (std::uint32_t local = 0u;
+                 local < object.elementCount; ++local) {
+                const auto& nodes = compiled.world.fem.tetrahedra[
+                    object.elementOffset + local].nodes;
+                const std::array<std::uint32_t, 4u> indices{{
+                    nodes.x, nodes.y, nodes.z, nodes.w}};
+                std::array<std::array<float, 3u>, 4u> points{};
+                for (std::size_t corner = 0u; corner < points.size(); ++corner) {
+                    require(indices[corner] < compiled.world.fem.nodes.size(),
+                            "loaded-knee passive tetrahedron escaped the executable world");
+                    const auto& point =
+                        compiled.world.fem.nodes[indices[corner]].restAndFixed;
+                    points[corner] = {point.x, point.y, point.z};
+                }
+                std::array<float, 3u> ab{};
+                std::array<float, 3u> ac{};
+                std::array<float, 3u> ad{};
+                for (std::size_t axis = 0u; axis < 3u; ++axis) {
+                    ab[axis] = points[1u][axis] - points[0u][axis];
+                    ac[axis] = points[2u][axis] - points[0u][axis];
+                    ad[axis] = points[3u][axis] - points[0u][axis];
+                }
+                const std::array<float, 3u> cross{{
+                    ac[1u] * ad[2u] - ac[2u] * ad[1u],
+                    ac[2u] * ad[0u] - ac[0u] * ad[2u],
+                    ac[0u] * ad[1u] - ac[1u] * ad[0u],
+                }};
+                const float triple = ab[0u] * cross[0u] +
+                    ab[1u] * cross[1u] + ab[2u] * cross[2u];
+                volume += std::abs(static_cast<double>(triple)) / 6.0;
+            }
+            const float effectiveArea = static_cast<float>(
+                volume / static_cast<double>(referenceLength));
+            auto& row = passiveLigaments[rowIndex];
+            row.firstLocalPoint = {
+                firstLocal[0u], firstLocal[1u], firstLocal[2u], 0.0f};
+            row.secondLocalPoint = {
+                secondLocal[0u], secondLocal[1u], secondLocal[2u], 0.0f};
+            row.reference.x = referenceLength;
+            row.reference.y = effectiveArea;
+            row.reference.w = 0.0f;
+        }
+        require(metalrobo::bindNumiHumanLoadedKneeMaterialExecutionV1(
+                    authoring,
+                    std::filesystem::path{
+                        NUMI_HUMAN_OPEN_KNEE_LIGAMENT_MATERIAL},
+                    compiled.world, loadedKneeExecutedAnchors,
+                    authoring.passiveOwners, passiveLigaments,
+                    *loadedKneeMassEvidence, massError),
+                "loaded-knee exact material execution binding failed: " +
+                    massError);
+        executedModel = &loadedKneeMassEvidence->rebasedModel;
+        executedMuscles = &*rebasedMuscles;
+        executedSupportContacts = &*rebasedSupportContacts;
+    }
     numi::matter::Runtime runtime;
     const auto initialized = runtime.initialize(compiled.world, {
         .metallib = matterMetallib,
@@ -10208,13 +12187,19 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
                 .nodeAnchors = nodeAnchors,
                 .endpointReplacements = endpointReplacements,
                 .articularContactSamples = articularContact.samples,
+                .articularContactPairRanges = articularContact.pairRanges,
                 .passiveLigaments = passiveLigaments,
                 .endpointCount = static_cast<std::uint32_t>(
-                    muscles.tendonPayload.bindings.size()),
+                    executedMuscles->tendonPayload.bindings.size()),
                 .environmentCount = 1u,
                 .productionForceOwnerFraction = quadricepsForceOwnerFraction,
             }, {.metallib = matterMetallib}),
             "live Open Knee active extensor-chain adapter did not initialize");
+    const auto initialAdapter = adapter.snapshot();
+    require(initialAdapter.available && initialAdapter.encodedPassCount == 0u &&
+                initialAdapter.abortCount == 0u &&
+                initialAdapter.articularAttemptedStepCount == 0u,
+            "live Open Knee initial adapter authority is unavailable");
     id<MTLBuffer> reactionBuffer = (__bridge id<MTLBuffer>)
         runtime.femConstraintReactionBuffer();
     const NSUInteger reactionBytes = static_cast<NSUInteger>(
@@ -10234,15 +12219,38 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
     HumanTendonContinuumTransaction transaction{
         .program = femReactionSnapshotProgram(reactionProgram),
         .runtime = &runtime,
+        .adapter = &adapter,
         .initial = initial,
+        .initialAdapter = initialAdapter,
     };
     driven = integratePersistentMetalHumanState(
-        model, muscles, supportContacts, jointEqualities, timestepSeconds,
-        stepCount, activation, selectedSourceMuscleIndices,
+        *executedModel, *executedMuscles, *executedSupportContacts,
+        jointEqualities, timestepSeconds, stepCount, activation,
+        selectedSourceMuscleIndices,
         applySelectedActivationIncrement, enableRootAssistance,
         removeRootAssistance, true, &transaction,
         std::pair<std::uint32_t, double>{
             kneeQIndex, qualificationFlexionRadians}, false);
+    if (loadedKneeMassEvidence.has_value()) {
+        std::string massError;
+        require(metalrobo::bindNumiHumanLoadedKneeMassToRigidExecutionV1(
+                    *executedModel, *loadedKneeMassEvidence, massError),
+                "loaded-knee rebased rigid-execution binding failed: " +
+                    massError);
+        std::cout
+            << "loaded_knee_mass_binding=accepted"
+            << " partitions=" << loadedKneeMassEvidence->partitions.size()
+            << " cooked_nodes=" << loadedKneeMassEvidence->cookedNodes.size()
+            << " packed_moment_relative_error_max="
+            << loadedKneeMassEvidence->maximumPackedMomentRelativeError
+            << " matter_physics_fingerprint="
+            << loadedKneeMassEvidence->executedSourcePhysicsFingerprint
+            << " source_rigid_fingerprint="
+            << loadedKneeMassEvidence->sourceRigidModelFingerprint
+            << " rebased_rigid_fingerprint="
+            << loadedKneeMassEvidence->executedRigidModelFingerprint
+            << " patella_donor_excluded=true\n" << std::flush;
+    }
     driven.tendonContinuumPassiveReactionOnly = false;
     const auto accepted = transaction.accepted;
     require(accepted.available && accepted.femNodes.size() == totalNodes &&
@@ -10679,6 +12687,8 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
         1.0, adapterDiagnostics.articularBodyForceL1Newtons);
     const bool articularContactVerified =
         adapterDiagnostics.articularContactSampleCount == 69701u &&
+        adapterDiagnostics.articularContactPairCount ==
+            metalrobo::kNumiHumanLoadedKneeContactPairCount &&
         adapterDiagnostics.articularMechanicalSampleCount ==
             articularContact.mechanicalSampleCount &&
         adapterDiagnostics.articularInternalSameBodySampleCount ==
@@ -10822,12 +12832,141 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
                 " replay=" +
                 (transaction.replayVerified ? "verified" : "failed"));
     const std::uint32_t expectedAdapterPasses =
-        2u * driven.stepCount * driven.muscleMetalStepCount;
+        driven.stepCount * driven.muscleMetalStepCount;
     require(adapterDiagnostics.initialized &&
                 adapterDiagnostics.encodedPassCount == expectedAdapterPasses &&
-                adapterDiagnostics.abortCount == 1u,
+                adapterDiagnostics.abortCount == 0u &&
+                transaction.rejectedAdapter.available &&
+                transaction.rejectedAdapter.abortCount == 1u,
             "live Open Knee transaction accounting is incomplete: " +
                 adapterDiagnostics.message);
+    if (bindingAdmission.has_value()) {
+        constexpr std::size_t acceptedStepCount =
+            metalrobo::kNumiHumanLoadedKneeAcceptedStepCount;
+        const auto timestepNanoseconds = static_cast<std::uint64_t>(
+            std::llround(timestepSeconds * 1.0e9));
+        require(loadedKneeMassEvidence.has_value() &&
+                    stepCount == acceptedStepCount &&
+                    timestepNanoseconds ==
+                        metalrobo::kNumiHumanLoadedKneeStepNanoseconds &&
+                    std::abs(
+                        timestepSeconds -
+                        static_cast<double>(timestepNanoseconds) * 1.0e-9) <=
+                        0.25e-9 &&
+                    transaction.acceptedSteps.size() == acceptedStepCount &&
+                    transaction.replayedSteps.size() == acceptedStepCount,
+                "loaded-knee receipt path requires exactly eight accepted 50us states and replay states");
+        const auto& authoring = bindingAdmission->authoring;
+        const auto sourcePoseSHA256 =
+            loadedKneeBodyPoseSHA256(sourceDefaultBodies);
+        const auto referencePoseSHA256 =
+            loadedKneeBodyPoseSHA256(restBodies);
+        const auto initialPoseSHA256 =
+            loadedKneeBodyPoseSHA256(referenceBodies);
+        require(sourcePoseSHA256 == authoring.sourceDefaultPoseSHA256 &&
+                    referencePoseSHA256 ==
+                        authoring.projectedReferencePoseSHA256 &&
+                    sourceCoordinateSHA256 ==
+                        authoring.coordinates.sourceStateSHA256 &&
+                    referenceCoordinateSHA256 ==
+                        authoring.coordinates.referenceStateSHA256,
+                "loaded-knee executable A/B_ref/C_init identity drifted from HumanPack");
+        metalrobo::NumiHumanLoadedKneeDigest coordinateDerivationSHA256{};
+        std::string receiptError;
+        require(metalrobo::digestNumiHumanLoadedKneeCoordinateDerivationV1(
+                    authoring, initialCoordinateSHA256,
+                    referencePoseSHA256, initialPoseSHA256,
+                    coordinateDerivationSHA256, receiptError),
+                "loaded-knee coordinate derivation hashing failed: " +
+                    receiptError);
+        std::array<metalrobo::NumiHumanLoadedKneeRuntimeEvidenceV1,
+                   acceptedStepCount> acceptedEvidence{};
+        std::array<metalrobo::NumiHumanLoadedKneeRuntimeEvidenceV1,
+                   acceptedStepCount> replayedEvidence{};
+        for (std::uint32_t index = 0u; index < acceptedStepCount; ++index) {
+            acceptedEvidence[index] = makeLoadedKneeRuntimeEvidence(
+                authoring, *loadedKneeMassEvidence, articularContact,
+                transaction.acceptedSteps[index], index + 1u,
+                sourceCoordinateSHA256, referenceCoordinateSHA256,
+                initialCoordinateSHA256, referencePoseSHA256,
+                initialPoseSHA256, coordinateDerivationSHA256, totalNodes);
+            replayedEvidence[index] = makeLoadedKneeRuntimeEvidence(
+                authoring, *loadedKneeMassEvidence, articularContact,
+                transaction.replayedSteps[index], index + 1u,
+                sourceCoordinateSHA256, referenceCoordinateSHA256,
+                initialCoordinateSHA256, referencePoseSHA256,
+                initialPoseSHA256, coordinateDerivationSHA256, totalNodes);
+        }
+        require(metalrobo::verifyNumiHumanLoadedKneeRestoreReplayV1(
+                    acceptedEvidence, replayedEvidence, receiptError),
+                "loaded-knee full-state restore/replay verification failed: " +
+                    receiptError);
+        std::array<metalrobo::NumiHumanLoadedKneeAcceptanceReceiptV1,
+                   acceptedStepCount> receipts{};
+        for (std::uint32_t index = 0u; index < acceptedStepCount; ++index) {
+            const auto* previous = index == 0u
+                ? nullptr : &receipts[index - 1u];
+            require(metalrobo::acceptNumiHumanLoadedKneeRuntimeStateV1(
+                        authoring, *loadedKneeMassEvidence,
+                        acceptedEvidence[index], previous, receipts[index],
+                        receiptError),
+                    "loaded-knee runtime state acceptance failed at step " +
+                        std::to_string(index + 1u) + ": " + receiptError);
+        }
+        // Publish only after all physical gates, replay comparison, and eight
+        // chained state admissions have succeeded. A rejected attempt emits no
+        // partial receipt chain.
+        for (std::size_t index = 0u; index < receipts.size(); ++index) {
+            const auto& receipt = receipts[index];
+            const auto& evidence = acceptedEvidence[index];
+            std::cout
+                << std::setprecision(17)
+                << "loaded_knee_runtime_receipt=accepted"
+                << " step=" << receipt.acceptedStepIndex
+                << " timestamp_ns=" << receipt.acceptedTimestampNanoseconds
+                << " previous_transaction_sha256="
+                << loadedKneeSHA256Hex(
+                    receipt.previousTransactionSHA256)
+                << " transaction_sha256="
+                << loadedKneeSHA256Hex(receipt.transactionSHA256)
+                << " full_accepted_state_sha256="
+                << loadedKneeSHA256Hex(receipt.fullAcceptedStateSHA256)
+                << " x_current_sha256="
+                << loadedKneeSHA256Hex(receipt.xCurrentSHA256)
+                << " full_matter_snapshot_sha256="
+                << loadedKneeSHA256Hex(
+                    receipt.fullMatterSnapshotSHA256)
+                << " material_execution_sha256="
+                << loadedKneeSHA256Hex(receipt.materialExecutionSHA256)
+                << " adapter_accepted_state_sha256="
+                << loadedKneeSHA256Hex(
+                    receipt.adapterAcceptedStateSHA256)
+                << " contact_pair_normal_force_n=";
+            for (std::size_t pair = 0u;
+                 pair < evidence.contactPairNormalForceNewtons.size(); ++pair) {
+                if (pair != 0u) std::cout << ",";
+                std::cout << evidence.contactPairNormalForceNewtons[pair];
+            }
+            std::cout
+                << " contact_aggregate_normal_force_n="
+                << evidence.contactAggregateNormalForceNewtons
+                << " candidate_only=true production_qualified=false"
+                << " global_seven_owner_root_available=false\n";
+        }
+        std::cout
+            << "loaded_knee_runtime_chain=accepted"
+            << " steps=" << receipts.size()
+            << " timestep_ns="
+            << metalrobo::kNumiHumanLoadedKneeStepNanoseconds
+            << " final_transaction_sha256="
+            << loadedKneeSHA256Hex(receipts.back().transactionSHA256)
+            << " restore_replay=bitwise"
+            << " source_ownership_status="
+            << authoring.sourceOwnershipStatus
+            << " candidate_only=true production_qualified=false"
+            << " global_seven_owner_root_available=false\n"
+            << std::flush;
+    }
     // A conservative continuum may reproduce the source route's instantaneous
     // generalized load at neutral pose, so q/v inequality is not a physical
     // requirement. The stronger direct gate above proves nonzero QAT/PTL bone
@@ -15514,6 +17653,14 @@ int main(int argc, char** argv) {
             std::optional<double> openKneeFlexionRadians;
             bool openKneeLiveTissueFEM = false;
             bool openKneeSustainedCertificate = false;
+            std::optional<std::filesystem::path>
+                loadedKneeXReferenceOutput;
+            std::optional<std::filesystem::path>
+                loadedKneeAuthoringExportOutput;
+            std::optional<std::filesystem::path> loadedKneeHumanManifestPath;
+            std::optional<std::filesystem::path> loadedKneeHumanBindingPath;
+            std::optional<std::filesystem::path>
+                loadedKneeOwnershipManifestPath;
             std::optional<std::filesystem::path> skinPayloadPath;
             std::optional<std::filesystem::path> torsoAnatomyPayloadPath;
             std::optional<std::filesystem::path> supportContactPayloadPath;
@@ -15732,6 +17879,33 @@ int main(int argc, char** argv) {
                             "--open-knee-flexion-rad requires one value and may be given only once");
                     openKneeFlexionRadians.emplace(
                         parseOpenKneeFlexionRadians(argv[++index]));
+                } else if (argument == "--loaded-knee-x-ref-output") {
+                    require(index + 1 < argc &&
+                                !loadedKneeXReferenceOutput.has_value(),
+                            "--loaded-knee-x-ref-output requires one path and may be given only once");
+                    loadedKneeXReferenceOutput.emplace(argv[++index]);
+                } else if (argument ==
+                           "--loaded-knee-authoring-export-output") {
+                    require(index + 1 < argc &&
+                                !loadedKneeAuthoringExportOutput.has_value(),
+                            "--loaded-knee-authoring-export-output requires one path and may be given only once");
+                    loadedKneeAuthoringExportOutput.emplace(argv[++index]);
+                } else if (argument == "--loaded-knee-human-manifest") {
+                    require(index + 1 < argc &&
+                                !loadedKneeHumanManifestPath.has_value(),
+                            "--loaded-knee-human-manifest requires one path and may be given only once");
+                    loadedKneeHumanManifestPath.emplace(argv[++index]);
+                } else if (argument == "--loaded-knee-human-binding") {
+                    require(index + 1 < argc &&
+                                !loadedKneeHumanBindingPath.has_value(),
+                            "--loaded-knee-human-binding requires one path and may be given only once");
+                    loadedKneeHumanBindingPath.emplace(argv[++index]);
+                } else if (argument ==
+                           "--loaded-knee-ownership-manifest") {
+                    require(index + 1 < argc &&
+                                !loadedKneeOwnershipManifestPath.has_value(),
+                            "--loaded-knee-ownership-manifest requires one path and may be given only once");
+                    loadedKneeOwnershipManifestPath.emplace(argv[++index]);
                 } else if (argument == "--open-knee-tissue-fem-snapshot" ||
                            argument == "--open-knee-ligament-fem-snapshot") {
                     require(index + 1 < argc && !openKneeLigamentFEMPath.has_value(),
@@ -15837,6 +18011,11 @@ int main(int argc, char** argv) {
                           << " [--open-knee-live-tissue-fem]"
                           << " [--open-knee-sustained-certificate]"
                           << " [--open-knee-flexion-rad <0..1.6>]"
+                          << " [--loaded-knee-x-ref-output <float32-le-xyz>]"
+                          << " [--loaded-knee-authoring-export-output <json>]"
+                          << " [--loaded-knee-human-manifest <json>]"
+                          << " [--loaded-knee-human-binding <json>]"
+                          << " [--loaded-knee-ownership-manifest <json>]"
                           << " [--open-knee-tissue-fem-snapshot <NHKFEM1-or-NHKFEM2>]"
                           << " [--skin-payload <NHSKIN1>]"
                           << " [--torso-anatomy-payload <NHANAT1>]"
@@ -16403,6 +18582,27 @@ int main(int argc, char** argv) {
                     "--open-knee-live-tissue-fem cannot share the single continuum slot with NHKFEM1/2, pectoralis fascia, or anterior thorax");
             require(!openKneeFlexionRadians.has_value() || openKneeLiveTissueFEM,
                     "--open-knee-flexion-rad requires --open-knee-live-tissue-fem");
+            require(loadedKneeXReferenceOutput.has_value() ==
+                        loadedKneeAuthoringExportOutput.has_value(),
+                    "loaded-knee authoring export requires both x_ref and envelope output paths");
+            require(!loadedKneeXReferenceOutput.has_value() ||
+                        (openKneeLiveTissueFEM &&
+                         openKneePayloadPath.has_value() &&
+                         jointEqualityPayloadPath.has_value()),
+                    "loaded-knee authoring export requires the live ABI3 Open Knee and exact equality inputs");
+            const std::uint32_t loadedKneeAdmissionPathCount =
+                static_cast<std::uint32_t>(
+                    loadedKneeHumanManifestPath.has_value()) +
+                static_cast<std::uint32_t>(
+                    loadedKneeHumanBindingPath.has_value()) +
+                static_cast<std::uint32_t>(
+                    loadedKneeOwnershipManifestPath.has_value());
+            require(loadedKneeAdmissionPathCount == 0u ||
+                        loadedKneeAdmissionPathCount == 3u,
+                    "loaded-knee runtime admission requires manifest, binding, and ownership paths together");
+            require(loadedKneeAdmissionPathCount == 0u ||
+                        openKneeLiveTissueFEM,
+                    "loaded-knee Human runtime admission requires the live Open Knee path");
             require(!openKneeSustainedCertificate ||
                         (openKneeLiveTissueFEM && muscleStepCount.has_value() &&
                          *muscleStepCount >= 8u),
@@ -17120,6 +19320,49 @@ int main(int argc, char** argv) {
                     return 0;
                 } else if (openKneeLiveTissueFEM) {
                     MuscleDrivenVisualState coupledDriven;
+                    std::optional<LoadedKneeAuthoringExportOptions>
+                        authoringExport;
+                    if (loadedKneeXReferenceOutput.has_value()) {
+                        authoringExport.emplace(LoadedKneeAuthoringExportOptions{
+                            .xReferenceOutput =
+                                *loadedKneeXReferenceOutput,
+                            .envelopeOutput =
+                                *loadedKneeAuthoringExportOutput,
+                            .kneePayload = *openKneePayloadPath,
+                            .rigidPayload = positional[0u],
+                            .equalityPayload = *jointEqualityPayloadPath,
+                        });
+                    }
+                    std::optional<
+                        metalrobo::NumiHumanLoadedKneeBindingAdmissionV1>
+                        bindingAdmission;
+                    if (loadedKneeHumanManifestPath.has_value()) {
+                        metalrobo::NumiHumanLoadedKneeBindingAdmissionV1
+                            loaded;
+                        std::string loadError;
+                        require(metalrobo::loadNumiHumanLoadedKneeBindingV1(
+                                    *loadedKneeHumanManifestPath,
+                                    *loadedKneeHumanBindingPath,
+                                    *loadedKneeOwnershipManifestPath,
+                                    loaded, loadError),
+                                "loaded-knee Human binding admission failed: " +
+                                    loadError);
+                        std::cout
+                            << "loaded_knee_human_binding=admitted"
+                            << " source_ownership_status="
+                            << loaded.authoring.sourceOwnershipStatus
+                            << " manifest_file_sha256="
+                            << loadedKneeSHA256Hex(
+                                loaded.manifestFileSHA256)
+                            << " binding_file_sha256="
+                            << loadedKneeSHA256Hex(
+                                loaded.bindingFileSHA256)
+                            << " ownership_file_sha256="
+                            << loadedKneeSHA256Hex(
+                                loaded.ownershipFileSHA256)
+                            << "\n" << std::flush;
+                        bindingAdmission.emplace(std::move(loaded));
+                    }
                     openKneeLigamentFEM.emplace(runLiveOpenKneeTissueFEM(
                         *openKneePayload, musclePayload, coupledDriven,
                         rigid.model, *supportContactPayload,
@@ -17130,7 +19373,8 @@ int main(int argc, char** argv) {
                         selectedSourceMuscleActivations,
                         selectedTendonControl, standRootAssistance,
                         standRemoveAssistance,
-                        passiveFEMMetallibPath.value_or(NUMI_MATTER_METALLIB)
+                        passiveFEMMetallibPath.value_or(NUMI_MATTER_METALLIB),
+                        authoringExport, bindingAdmission
                     ));
                     muscleDrivenState.emplace(std::move(coupledDriven));
                     std::cout

@@ -237,6 +237,84 @@ struct RequiredBuffers {
         humanMatterEntries{};
 };
 
+constexpr std::uint64_t kSplitStandFNVOffset = 14695981039346656037ull;
+constexpr std::uint64_t kSplitStandFNVPrime = 1099511628211ull;
+
+void appendSplitStandFingerprint(
+    std::uint64_t& hash,
+    const void* data,
+    const std::size_t bytes
+) noexcept {
+    const auto* values = static_cast<const std::uint8_t*>(data);
+    for (std::size_t index = 0u; index < bytes; ++index) {
+        hash ^= values[index];
+        hash *= kSplitStandFNVPrime;
+    }
+}
+
+template <typename T>
+void appendSplitStandValue(
+    std::uint64_t& hash,
+    const T& value
+) noexcept {
+    appendSplitStandFingerprint(hash, &value, sizeof(value));
+}
+
+template <typename T>
+void appendSplitStandSpan(
+    std::uint64_t& hash,
+    const std::span<const T> values
+) noexcept {
+    const std::uint64_t size = values.size();
+    appendSplitStandValue(hash, size);
+    appendSplitStandFingerprint(
+        hash, values.data(), values.size_bytes());
+}
+
+[[nodiscard]] std::uint64_t splitStandBoundaryFingerprint(
+    const MetalArticulatedOperatorInput& input
+) noexcept {
+    constexpr std::array<std::uint8_t, 30u> domain{{
+        'm','r','n','x','.','s','p','l','i','t','-','s','t','a','n','d','.',
+        'b','o','u','n','d','a','r','y','.','v','1',0,0}};
+    std::uint64_t hash = kSplitStandFNVOffset;
+    appendSplitStandFingerprint(hash, domain.data(), domain.size());
+    appendSplitStandValue(hash, input.articulationIndex);
+    appendSplitStandValue(hash, input.environmentCount);
+    appendSplitStandValue(hash, input.pointCount);
+    appendSplitStandSpan(hash, input.points);
+    appendSplitStandSpan(hash, input.mujoco.muscles);
+    appendSplitStandSpan(hash, input.mujoco.sites);
+    appendSplitStandSpan(hash, input.mujoco.wraps);
+    appendSplitStandSpan(hash, input.mujoco.routeNodes);
+    appendSplitStandValue(hash, input.mujoco.bodyJacobianPointOffset);
+    appendSplitStandSpan(hash, input.stand.preloadedGeneralizedForce);
+    appendSplitStandSpan(hash, input.stand.passiveJointProgram);
+    appendSplitStandSpan(hash, input.stand.contacts);
+    appendSplitStandSpan(hash, input.stand.jointEqualities);
+    appendSplitStandSpan(hash, input.stand.tendonBindings);
+    appendSplitStandSpan(hash, input.stand.tendonEnvelopes);
+    appendSplitStandValue(hash, input.stand.tendonLoadProgram.fingerprint);
+    appendSplitStandValue(
+        hash, input.stand.numanXTransactionProgram.abiVersion);
+    appendSplitStandValue(
+        hash, input.stand.numanXTransactionProgram.structSize);
+    appendSplitStandValue(
+        hash, input.stand.numanXTransactionProgram.fingerprint);
+    appendSplitStandValue(hash, input.stand.contactIterationCount);
+    const std::uint8_t contact = input.stand.enableContact ? 1u : 0u;
+    const std::uint8_t assistance =
+        input.stand.enableRootAssistance ? 1u : 0u;
+    appendSplitStandValue(hash, contact);
+    appendSplitStandValue(hash, assistance);
+    appendSplitStandValue(hash, input.stand.groundPoint);
+    appendSplitStandValue(hash, input.stand.groundNormal);
+    appendSplitStandValue(hash, input.stand.targetRootPosition);
+    appendSplitStandValue(hash, input.stand.targetRootOrientation);
+    appendSplitStandValue(hash, input.stand.assistanceGains);
+    return hash == 0u ? kSplitStandFNVOffset : hash;
+}
+
 } // namespace
 
 namespace detail {
@@ -291,6 +369,17 @@ struct MetalArticulatedOperatorContextState {
     std::array<std::size_t, kRawBufferCount> capacities{};
     std::array<std::size_t, kStandBufferCount> standCapacities{};
     std::array<std::size_t, kHumanMatterBufferCount> humanMatterCapacities{};
+    struct SplitStandHorizonState {
+        bool active = false;
+        const EngineModel* model = nullptr;
+        std::uint64_t boundaryFingerprint = 0u;
+        std::uint32_t authoritativeStepCount = 0u;
+        std::uint32_t completedStepCount = 0u;
+        std::size_t qBytes = 0u;
+        std::size_t velocityBytes = 0u;
+        std::size_t mujocoStateBytes = 0u;
+        std::size_t rootTranslationBytes = 0u;
+    } splitStandHorizon{};
     struct PublishedResidentState {
         bool active = false;
         const EngineModel* model = nullptr;
@@ -470,6 +559,7 @@ struct MetalArticulatedOperatorSubmissionState {
     __strong id<MTLCommandBuffer> commandBuffer = nil;
     MetalArticulatedOperatorDiagnostics diagnostics{};
     std::chrono::steady_clock::time_point start{};
+    const EngineModel* model = nullptr;
     MRArticulationGPU articulation{};
     std::uint32_t articulationIndex = 0u;
     std::size_t pointCount = 0u;
@@ -481,6 +571,9 @@ struct MetalArticulatedOperatorSubmissionState {
     bool hasPreparedHumanMatter = false;
     std::uint64_t preparedHumanMatterGeneration = 0u;
     std::uint32_t standStepCount = 0u;
+    std::uint32_t standCompletedStepCount = 0u;
+    std::uint32_t standAuthoritativeStepCount = 0u;
+    std::uint64_t standBoundaryFingerprint = 0u;
     std::size_t standTendonBindingCount = 0u;
     std::size_t standTendonEnvelopeBindingCount = 0u;
     std::size_t standContactCount = 0u;
@@ -1184,11 +1277,25 @@ bool validNumiHumanStand(
             !stand.tendonBindings.empty() || !stand.tendonEnvelopes.empty() ||
             stand.tendonLoadProgram.configured() ||
             stand.numanXTransactionProgram.configured() ||
-            stand.numanXHumanMatterProgram.configured()) {
+            stand.numanXHumanMatterProgram.configured() ||
+            stand.stepIndexOffset != 0u ||
+            stand.authoritativeStepCount != 0u) {
             reason = "stand sidecar data or transaction program requires a nonzero stand horizon";
             return false;
         }
         return true;
+    }
+    const std::uint32_t authoritativeStepCount =
+        stand.authoritativeStepCount == 0u
+        ? stand.stepCount
+        : stand.authoritativeStepCount;
+    if ((stand.authoritativeStepCount == 0u &&
+         stand.stepIndexOffset != 0u) ||
+        authoritativeStepCount > MR_NUMI_HUMAN_STAND_MAX_STEPS ||
+        stand.stepIndexOffset >= authoritativeStepCount ||
+        stand.stepCount > authoritativeStepCount - stand.stepIndexOffset) {
+        reason = "stand authoritative step range is malformed";
+        return false;
     }
     if (!config.pointJacobiansOnly || !input.mujoco.enabled() ||
         !(config.mujocoActivationTimestepSeconds > 0.0f)) {
@@ -1204,7 +1311,8 @@ bool validNumiHumanStand(
         return false;
     }
     if (stand.numanXHumanMatterProgram.valid()) {
-        if (stand.stepCount != 1u ||
+        if (stand.stepCount != 1u || stand.stepIndexOffset != 0u ||
+            authoritativeStepCount != 1u ||
             articulation.nv !=
                 stand.numanXHumanMatterProgram.dofCount ||
             articulation.nq !=
@@ -3844,6 +3952,37 @@ void uploadBatch(
                 requirements.standEntries[index].allocationBytes
             );
         }
+        // A split authoritative horizon starts a fresh command submission and
+        // therefore a fresh status arena even when its global step is nonzero.
+        // Match the shader's step-zero sentinel initialization here so
+        // per-submission extrema and owner sentinels remain well-defined while
+        // dispatch.stepIndex continues to name the global accepted step.
+        if (input.stand.stepIndexOffset != 0u) {
+            auto* statuses = static_cast<MRNumiHumanStandStatusGPU*>(
+                context.standBuffers[kStandStatusBuffer].contents
+            );
+            for (std::size_t environment = 0u;
+                 environment < input.environmentCount; ++environment) {
+                MRNumiHumanStandStatusGPU status{};
+                status.code = MR_NUMI_HUMAN_STAND_SUCCESS;
+                status.environment = static_cast<mr_u32>(environment);
+                status.failingIndex = MR_INVALID_INDEX;
+                status.jointEqualityCounts.w = MR_INVALID_INDEX;
+                status.constraintImpulseOwners = {
+                    MR_INVALID_INDEX, MR_INVALID_INDEX,
+                    MR_INVALID_INDEX, MR_INVALID_INDEX};
+                status.velocityDiagnosticOwners = {
+                    MR_INVALID_INDEX, MR_INVALID_INDEX,
+                    MR_INVALID_INDEX, MR_INVALID_INDEX};
+                status.contactAndAcceleration.x =
+                    input.stand.enableContact && !input.stand.contacts.empty()
+                    ? std::numeric_limits<float>::infinity()
+                    : 0.0f;
+                status.factorAndAssistance.x =
+                    std::numeric_limits<float>::infinity();
+                statuses[environment] = status;
+            }
+        }
         copyToBuffer(
             context.standBuffers[kStandPassiveJointBuffer],
             input.stand.passiveJointProgram.empty() ? nullptr :
@@ -5126,7 +5265,9 @@ struct MetalBufferRegion {
     );
     dispatch.articulationIndex = input.articulationIndex;
     dispatch.stepIndex = stepIndex;
-    dispatch.stepCount = input.stand.stepCount;
+    dispatch.stepCount = input.stand.authoritativeStepCount == 0u
+        ? input.stand.stepCount
+        : input.stand.authoritativeStepCount;
     dispatch.bodyJacobianPointOffset =
         input.mujoco.bodyJacobianPointOffset;
     dispatch.supportContactCount = static_cast<mr_u32>(
@@ -8018,7 +8159,8 @@ MetalArticulatedOperatorSubmission::wait(
                 if (stand.environment != environment ||
                     stand.code > MR_NUMI_HUMAN_STAND_EXTERNAL_PHYSICS_FAILED ||
                     (stand.code == MR_NUMI_HUMAN_STAND_SUCCESS &&
-                     stand.completedSteps != pending->standStepCount)) {
+                     stand.completedSteps !=
+                         pending->standCompletedStepCount)) {
                     return reject(
                         std::move(diagnostics),
                         MetalArticulatedOperatorHostStatus::internalFailure,
@@ -8145,6 +8287,39 @@ MetalArticulatedOperatorSubmission::wait(
                     internalFailure,
                 "GPU batch contained non-finite typed payload"
             );
+        }
+        if (diagnostics.failedEnvironmentCount == 0u &&
+            pending->hasStandHorizon &&
+            pending->standAuthoritativeStepCount != 0u &&
+            pending->standCompletedStepCount <
+                pending->standAuthoritativeStepCount) {
+            const std::lock_guard lock(pending->context->mutex);
+            auto& splitStand = pending->context->splitStandHorizon;
+            if (splitStand.active || pending->model == nullptr ||
+                pending->standBoundaryFingerprint == 0u) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::internalFailure,
+                    "split authoritative stand predecessor publication is "
+                    "incoherent"
+                );
+            }
+            splitStand.active = true;
+            splitStand.model = pending->model;
+            splitStand.boundaryFingerprint =
+                pending->standBoundaryFingerprint;
+            splitStand.authoritativeStepCount =
+                pending->standAuthoritativeStepCount;
+            splitStand.completedStepCount =
+                pending->standCompletedStepCount;
+            splitStand.qBytes = diagnostics.layout.qBytes;
+            splitStand.velocityBytes =
+                diagnostics.layout.standVelocityBytes;
+            splitStand.mujocoStateBytes =
+                diagnostics.layout.mujocoStateBytes;
+            splitStand.rootTranslationBytes =
+                staged.standRootTranslations.size() *
+                sizeof(MRCompensatedRootTranslationGPU);
         }
 
         result = std::move(staged);
@@ -8469,6 +8644,87 @@ MetalArticulatedOperatorContext::submit(
                 MetalArticulatedOperatorHostStatus::invalidDimensions,
                 "device-resident continuation has no published predecessor"
             );
+        }
+
+        const bool hasExplicitAuthoritativeHorizon =
+            input.stand.enabled() &&
+            input.stand.authoritativeStepCount != 0u;
+        const bool isSplitStandSubmission =
+            hasExplicitAuthoritativeHorizon &&
+            (input.stand.stepIndexOffset != 0u ||
+             input.stand.stepCount < input.stand.authoritativeStepCount);
+        const std::uint64_t standBoundaryFingerprint =
+            hasExplicitAuthoritativeHorizon
+            ? splitStandBoundaryFingerprint(input)
+            : 0u;
+        auto& splitStand = state_->splitStandHorizon;
+        if (splitStand.active && input.stand.stepIndexOffset == 0u) {
+            return reject(
+                std::move(diagnostics),
+                MetalArticulatedOperatorHostStatus::invalidDimensions,
+                "an unfinished authoritative stand horizon cannot be reset "
+                "on the same context"
+            );
+        }
+        if (input.stand.stepIndexOffset != 0u) {
+            const std::size_t rootTranslationBytes =
+                requirements.standEntries[
+                    kStandRootTranslationBuffer].logicalBytes;
+            const bool predecessorIdentityValid =
+                isSplitStandSubmission && splitStand.active &&
+                splitStand.model == &model &&
+                splitStand.boundaryFingerprint == standBoundaryFingerprint &&
+                splitStand.authoritativeStepCount ==
+                    input.stand.authoritativeStepCount &&
+                splitStand.completedStepCount ==
+                    input.stand.stepIndexOffset &&
+                splitStand.qBytes == requirements.entries[6u].logicalBytes &&
+                splitStand.velocityBytes == requirements.standEntries[
+                    kStandVelocityBuffer].logicalBytes &&
+                splitStand.mujocoStateBytes == requirements.entries[
+                    kMujocoStatesBuffer].logicalBytes &&
+                splitStand.rootTranslationBytes == rootTranslationBytes;
+            const bool predecessorBuffersValid = predecessorIdentityValid &&
+                state_->buffers[6u] != nil &&
+                state_->standBuffers[kStandVelocityBuffer] != nil &&
+                state_->buffers[kMujocoStatesBuffer] != nil &&
+                state_->standBuffers[kStandRootTranslationBuffer] != nil &&
+                input.rootTranslations.size() == input.environmentCount &&
+                state_->capacities[6u] >= splitStand.qBytes &&
+                state_->standCapacities[kStandVelocityBuffer] >=
+                    splitStand.velocityBytes &&
+                state_->capacities[kMujocoStatesBuffer] >=
+                    splitStand.mujocoStateBytes &&
+                state_->standCapacities[kStandRootTranslationBuffer] >=
+                    splitStand.rootTranslationBytes;
+            const bool predecessorStateMatches = predecessorBuffersValid &&
+                std::memcmp(
+                    state_->buffers[6u].contents,
+                    input.q.data(), splitStand.qBytes) == 0 &&
+                std::memcmp(
+                    state_->standBuffers[kStandVelocityBuffer].contents,
+                    input.stand.v.data(), splitStand.velocityBytes) == 0 &&
+                std::memcmp(
+                    state_->buffers[kMujocoStatesBuffer].contents,
+                    input.mujoco.states.data(),
+                    splitStand.mujocoStateBytes) == 0 &&
+                std::memcmp(
+                    state_->standBuffers[
+                        kStandRootTranslationBuffer].contents,
+                    input.rootTranslations.data(),
+                    splitStand.rootTranslationBytes) == 0;
+            if (!predecessorStateMatches) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::invalidDimensions,
+                    "split authoritative stand submission does not match "
+                    "the exact preceding context state and boundary"
+                );
+            }
+            // Consume the predecessor before any upload or encoding. Only a
+            // completely validated and published segment may mint the next
+            // context-bound continuation state.
+            splitStand = {};
         }
 
         @autoreleasepool {
@@ -8858,7 +9114,9 @@ MetalArticulatedOperatorContext::submit(
                 pass.phase = phase;
                 pass.programFingerprint = program.fingerprint;
                 pass.stepIndex = stepIndex;
-                pass.stepCount = input.stand.stepCount;
+                pass.stepCount = input.stand.authoritativeStepCount == 0u
+                    ? input.stand.stepCount
+                    : input.stand.authoritativeStepCount;
                 pass.timestepSeconds =
                     state_->config.mujocoActivationTimestepSeconds;
                 pass.articulationFirstBody = articulation.firstBody;
@@ -9167,6 +9425,8 @@ MetalArticulatedOperatorContext::submit(
             std::uint32_t traceForceOffset = 0u, traceDofCount = 0u, traceQCount = 0u;
             for (std::uint32_t horizonStep = 0u;
                  horizonStep < horizonStepCount; ++horizonStep) {
+            const std::uint32_t authoritativeStep =
+                input.stand.stepIndexOffset + horizonStep;
             // The permanent NumanX root owns its own wider prepare/apply
             // protocol. Ordinary stand/tendon horizons retain their accepted
             // physical bytes here, before excitation or contact state changes.
@@ -9239,7 +9499,7 @@ MetalArticulatedOperatorContext::submit(
                 pass.standStatuses = (__bridge void*)state_->standBuffers[
                     kStandStatusBuffer
                 ];
-                pass.stepIndex = horizonStep;
+                pass.stepIndex = authoritativeStep;
                 pass.environmentCount = static_cast<std::uint32_t>(
                     input.environmentCount
                 );
@@ -9363,7 +9623,7 @@ MetalArticulatedOperatorContext::submit(
             }
             if (!encodeNumanXTransactionPhase(
                     MetalNumanXTransactionPhase::beginStep,
-                    horizonStep
+                    authoritativeStep
                 )) {
                 return reject(
                     std::move(diagnostics),
@@ -9732,7 +9992,7 @@ MetalArticulatedOperatorContext::submit(
 
             if (!encodeNumanXTransactionPhase(
                     MetalNumanXTransactionPhase::preDynamics,
-                    horizonStep
+                    authoritativeStep
                 )) {
                 return reject(
                     std::move(diagnostics),
@@ -9750,7 +10010,7 @@ MetalArticulatedOperatorContext::submit(
                         diagnostics.layout,
                         articulation,
                         state_->config.mujocoActivationTimestepSeconds,
-                        horizonStep
+                        authoritativeStep
                     );
                 MRNumiHumanStandDispatchGPU predictorDispatch = sourceStandDispatch;
                 predictorDispatch.flags |= MR_NUMI_HUMAN_STAND_PREDICT_VELOCITY_ONLY;
@@ -9874,7 +10134,7 @@ MetalArticulatedOperatorContext::submit(
                         diagnostics.layout,
                         articulation,
                         state_->config.mujocoActivationTimestepSeconds,
-                        horizonStep
+                        authoritativeStep
                     );
 
                 id<MTLComputeCommandEncoder> standEncoder =
@@ -9970,7 +10230,7 @@ MetalArticulatedOperatorContext::submit(
                 // chooses prepared versus restored physical state.
                 if (!encodeNumanXTransactionPhase(
                         MetalNumanXTransactionPhase::postDynamics,
-                        horizonStep
+                        authoritativeStep
                     )) {
                     return reject(
                         std::move(diagnostics),
@@ -10069,7 +10329,8 @@ MetalArticulatedOperatorContext::submit(
                             "failed to encode Human accepted-state reconciliation");
                     }
                     const mr_uint4 shape = {
-                        static_cast<std::uint32_t>(input.environmentCount), horizonStep,
+                        static_cast<std::uint32_t>(input.environmentCount),
+                        authoritativeStep,
                         static_cast<std::uint32_t>(input.mujoco.muscles.size()),
                         static_cast<std::uint32_t>(diagnostics.layout.standVectorElements / input.environmentCount)};
                     const mr_uint4 strides = {standDispatch.qStride, standDispatch.vStride, 0u, 0u};
@@ -10133,6 +10394,7 @@ MetalArticulatedOperatorContext::submit(
             pending->context = state_;
             pending->commandBuffer = commandBuffer;
             pending->diagnostics = diagnostics;
+            pending->model = &model;
             pending->articulation =
                 model.articulations[input.articulationIndex];
             pending->articulationIndex =
@@ -10144,6 +10406,12 @@ MetalArticulatedOperatorContext::submit(
             pending->mujocoMuscleCount = input.mujoco.muscles.size();
             pending->hasStandHorizon = input.stand.enabled();
             pending->standStepCount = input.stand.stepCount;
+            pending->standCompletedStepCount = input.stand.enabled()
+                ? input.stand.stepIndexOffset + input.stand.stepCount
+                : 0u;
+            pending->standAuthoritativeStepCount =
+                input.stand.authoritativeStepCount;
+            pending->standBoundaryFingerprint = standBoundaryFingerprint;
             pending->standTendonBindingCount =
                 input.stand.tendonBindings.size();
             pending->standTendonEnvelopeBindingCount =

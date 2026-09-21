@@ -22,6 +22,24 @@ bool near(const double actual, const double expected,
     return std::abs(actual - expected) <= tolerance;
 }
 
+double determinant(
+    const std::vector<std::array<double, 3u>>& points
+) {
+    const auto& a = points[0u];
+    const std::array<double, 3u> ab{{
+        points[1u][0u] - a[0u], points[1u][1u] - a[1u],
+        points[1u][2u] - a[2u]}};
+    const std::array<double, 3u> ac{{
+        points[2u][0u] - a[0u], points[2u][1u] - a[1u],
+        points[2u][2u] - a[2u]}};
+    const std::array<double, 3u> ad{{
+        points[3u][0u] - a[0u], points[3u][1u] - a[1u],
+        points[3u][2u] - a[2u]}};
+    return ab[0u] * (ac[1u] * ad[2u] - ac[2u] * ad[1u]) -
+        ab[1u] * (ac[0u] * ad[2u] - ac[2u] * ad[0u]) +
+        ab[2u] * (ac[0u] * ad[1u] - ac[1u] * ad[0u]);
+}
+
 metalrobo::NumiHumanContinuumBodyMap body(
     const std::uint32_t index,
     const std::array<double, 3u>& targetPosition,
@@ -138,6 +156,105 @@ int main() {
         require(diagnostics.status ==
                     metalrobo::NumiHumanContinuumMapStatus::invalidInput,
                 "unknown anchor owner did not fail closed");
+    }
+
+    {
+        // The one-shot inverse-distance blend folds this tetrahedron, while
+        // deterministic dyadic continuation reaches the exact same rigid
+        // endpoint constraints in two orientation-preserving increments.
+        const std::vector<std::uint32_t> anchors{
+            10u, 20u,
+            metalrobo::NUMI_HUMAN_CONTINUUM_INVALID_INDEX,
+            metalrobo::NUMI_HUMAN_CONTINUUM_INVALID_INDEX};
+        const std::array bodies{
+            body(10u, {0.0, 0.0, 0.0}),
+            body(20u, {-0.45153725588341853,
+                       0.448807078987282,
+                       -2.51833563015108})};
+        metalrobo::NumiHumanContinuumMapResult direct;
+        const auto rejected =
+            metalrobo::mapNumiHumanContinuumToMovingEntheses(
+                points, tetrahedra, anchors, bodies, direct);
+        require(rejected.jacobianGateFailure &&
+                    rejected.failingIndex == 0u &&
+                    rejected.failingJacobian < 0.0 &&
+                    direct.targetWorldPoints.empty(),
+                "synthetic direct inversion did not fail closed");
+
+        metalrobo::NumiHumanContinuumMapResult continued;
+        const auto accepted = metalrobo::
+            mapNumiHumanContinuumToMovingEnthesesWithContinuation(
+                points, tetrahedra, anchors, bodies, continued);
+        require(accepted.succeeded() && accepted.substepCount == 2u &&
+                    accepted.directMap.jacobianGateFailure &&
+                    accepted.directMap.failingJacobian < 0.0 &&
+                    continued.targetWorldPoints.size() == points.size() &&
+                    determinant(continued.targetWorldPoints) > 0.0,
+                "dyadic continuation did not repair a free-node fold");
+        require(near(continued.targetWorldPoints[0u][0u], 0.0) &&
+                    near(continued.targetWorldPoints[0u][1u], 0.0) &&
+                    near(continued.targetWorldPoints[0u][2u], 0.0) &&
+                    near(continued.targetWorldPoints[1u][0u],
+                         0.5484627441165815) &&
+                    near(continued.targetWorldPoints[1u][1u],
+                         0.448807078987282) &&
+                    near(continued.targetWorldPoints[1u][2u],
+                         -2.51833563015108),
+                "continued moving entheses are not exact");
+
+        metalrobo::NumiHumanContinuumMapResult replay;
+        const auto replayed = metalrobo::
+            mapNumiHumanContinuumToMovingEnthesesWithContinuation(
+                points, tetrahedra, anchors, bodies, replay);
+        require(replayed.succeeded() && replayed.substepCount == 2u &&
+                    replay.targetWorldPoints == continued.targetWorldPoints,
+                "dyadic continuation replay is not deterministic");
+
+        metalrobo::NumiHumanContinuumMapResult invalid;
+        const auto nonDyadic = metalrobo::
+            mapNumiHumanContinuumToMovingEnthesesWithContinuation(
+                points, tetrahedra, anchors, bodies, invalid, {}, 3u);
+        require(nonDyadic.finalMap.status ==
+                    metalrobo::NumiHumanContinuumMapStatus::invalidInput &&
+                    invalid.targetWorldPoints.empty(),
+                "non-dyadic continuation cap did not fail closed");
+        const auto oversized = metalrobo::
+            mapNumiHumanContinuumToMovingEnthesesWithContinuation(
+                points, tetrahedra, anchors, bodies, invalid, {}, 512u);
+        require(oversized.finalMap.status ==
+                    metalrobo::NumiHumanContinuumMapStatus::invalidInput &&
+                    invalid.targetWorldPoints.empty(),
+                "oversized continuation cap did not fail closed");
+    }
+
+    {
+        // Each of two increments stays below the configured expansion bound,
+        // but their compounded original-to-target Jacobian is 1.21. The
+        // continuation must not use subdivision to evade the total gate.
+        const std::vector<std::uint32_t> anchors{
+            10u, 20u,
+            metalrobo::NUMI_HUMAN_CONTINUUM_INVALID_INDEX,
+            metalrobo::NUMI_HUMAN_CONTINUUM_INVALID_INDEX};
+        const std::array bodies{
+            body(10u, {0.0, 0.0, 0.0}),
+            body(20u, {0.21, 0.0, 0.0})};
+        metalrobo::NumiHumanContinuumMapConfig config;
+        config.maximumJacobian = 1.15;
+        metalrobo::NumiHumanContinuumMapResult result;
+        const auto rejected = metalrobo::
+            mapNumiHumanContinuumToMovingEnthesesWithContinuation(
+                points, tetrahedra, anchors, bodies, result, config, 2u);
+        require(!rejected.succeeded() &&
+                    rejected.substepCount == 0u &&
+                    rejected.directMap.jacobianGateFailure &&
+                    rejected.finalMap.jacobianGateFailure &&
+                    rejected.finalMap.failingIndex == 0u &&
+                    near(rejected.finalMap.failingJacobian, 1.21) &&
+                    rejected.finalMap.message.find(
+                        "continuation final map violates") !=
+                        std::string::npos &&
+                    result.targetWorldPoints.empty(),
+                "continuation admitted a compounded out-of-bounds map");
     }
 
     std::cout << "numi_human_continuum_map_test=passed\n";

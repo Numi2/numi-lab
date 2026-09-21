@@ -3,10 +3,12 @@
 
 #import <Metal/Metal.h>
 
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <cstring>
 #include <iostream>
+#include <limits>
 #include <stdexcept>
 #include <vector>
 
@@ -232,6 +234,11 @@ int main() {
             const std::array<NMNumiHumanArticularContactSampleGPU, 2u>
                 articularContactSamples{{
                     articularContactSample, internalArticularContact}};
+            const std::array<NMIncidenceRangeGPU, 2u>
+                articularContactPairRanges{{
+                    {.first = 0u, .count = 1u},
+                    {.first = 1u, .count = 1u},
+                }};
             NMNumiHumanFEMBodyContactSampleGPU femBodyContactSample{};
             femBodyContactSample.slaveNode = 3u;
             femBodyContactSample.bodyIndex = 0u;
@@ -346,6 +353,8 @@ int main() {
                         .femBodyContactSamples =
                             std::span(&femBodyContactSample, 1u),
                         .articularContactSamples = articularContactSamples,
+                        .articularContactPairRanges =
+                            articularContactPairRanges,
                         .passiveRoutedBands = std::span(&routedBand, 1u),
                         .endpointCount = 2u,
                         .environmentCount = 1u,
@@ -356,6 +365,30 @@ int main() {
                     "probe tendon/FEM adapter did not initialize");
             const auto program = adapter.program();
             require(program.valid(), "probe tendon/FEM program is invalid");
+            const auto initialAdapterAuthority = adapter.snapshot();
+            require(initialAdapterAuthority.available &&
+                        initialAdapterAuthority.articularContactPairCount == 2u &&
+                        initialAdapterAuthority
+                                .articularContactPairForceAcceptedHistory.size() ==
+                            3u *
+                                NM_NUMI_HUMAN_ARTICULAR_CONTACT_AUDIT_MAX_STEPS &&
+                        std::all_of(
+                            initialAdapterAuthority
+                                .articularContactPairForceAcceptedHistory.begin(),
+                            initialAdapterAuthority
+                                .articularContactPairForceAcceptedHistory.end(),
+                            [](const float value) { return value == 0.0f; }),
+                    "probe initial adapter authority is unavailable");
+            std::vector<std::uint8_t> initialAdapterCanonicalBytes;
+            std::string adapterAuthorityError;
+            require(
+                numi::matter::
+                    canonicalNumiHumanTendonFEMLoadAdapterSnapshotV1(
+                        initialAdapterAuthority,
+                        initialAdapterCanonicalBytes,
+                        adapterAuthorityError) &&
+                    !initialAdapterCanonicalBytes.empty(),
+                "probe initial adapter canonical authority is unavailable");
             numi::matter::NumiHumanTendonFEMLoadAdapter baselineAdapter;
             require(baselineAdapter.initialize(runtime, {
                         .nodeLoads = nodeLoads,
@@ -541,8 +574,32 @@ int main() {
 
             execute(program, adapter, 0u, true);
             const auto accepted = runtime.snapshot();
+            const auto acceptedAdapterAuthority = adapter.snapshot();
+            std::vector<std::uint8_t> acceptedAdapterCanonicalBytes;
             require(accepted.available && accepted.femNodes.size() == 4u,
                     "probe accepted snapshot is unavailable");
+            require(
+                acceptedAdapterAuthority.available &&
+                    acceptedAdapterAuthority.encodedPassCount == 1u &&
+                    acceptedAdapterAuthority.abortCount == 0u &&
+                    acceptedAdapterAuthority.articularAttemptedStepCount == 1u &&
+                    acceptedAdapterAuthority.articularContactPairCount == 2u &&
+                    acceptedAdapterAuthority
+                            .articularContactPairForceAcceptedHistory[0u] > 0.0f &&
+                    acceptedAdapterAuthority
+                            .articularContactPairForceAcceptedHistory[1u] == 0.0f &&
+                    acceptedAdapterAuthority
+                            .articularContactPairForceAcceptedHistory[2u] ==
+                        acceptedAdapterAuthority
+                            .articularContactPairForceAcceptedHistory[0u] &&
+                    numi::matter::
+                        canonicalNumiHumanTendonFEMLoadAdapterSnapshotV1(
+                            acceptedAdapterAuthority,
+                            acceptedAdapterCanonicalBytes,
+                            adapterAuthorityError) &&
+                    acceptedAdapterCanonicalBytes !=
+                        initialAdapterCanonicalBytes,
+                "probe accepted adapter authority is incomplete");
             const float acceptedDisplacement = std::abs(
                 accepted.femNodes[3u].positionAndMass.x -
                 initial.femNodes[3u].positionAndMass.x
@@ -613,14 +670,39 @@ int main() {
                         ) == 0,
                     "probe rejected Human step did not roll Matter back");
             const auto rejectedDiagnostics = adapter.diagnostics();
+            const auto rejectedAdapterAuthority = adapter.snapshot();
             require(rejectedDiagnostics.articularAuditedStepCount == 1u &&
-                        rejectedDiagnostics.articularClosedSampleCount == 1u,
+                        rejectedDiagnostics.articularClosedSampleCount == 1u &&
+                        rejectedAdapterAuthority.available &&
+                        rejectedAdapterAuthority
+                                .articularContactPairForceAcceptedHistory[0u] ==
+                            acceptedAdapterAuthority
+                                .articularContactPairForceAcceptedHistory[0u] &&
+                        rejectedAdapterAuthority
+                                .articularContactPairForceAcceptedHistory[3u] == 0.0f &&
+                        rejectedAdapterAuthority
+                                .articularContactPairForceAcceptedHistory[4u] == 0.0f &&
+                        rejectedAdapterAuthority
+                                .articularContactPairForceAcceptedHistory[5u] == 0.0f,
                     "probe rejected Human step polluted accepted articular history");
 
             require(runtime.restore(initial).encoded,
                     "probe initial-state restore failed");
+            const auto adapterInitialRestore =
+                adapter.restore(initialAdapterAuthority);
+            require(adapterInitialRestore.succeeded(),
+                    "probe initial adapter-authority restore failed");
+            const auto restoredInitialAdapterAuthority = adapter.snapshot();
+            require(
+                numi::matter::
+                    sameNumiHumanTendonFEMLoadAdapterSnapshotAuthorityV1(
+                        initialAdapterAuthority,
+                        restoredInitialAdapterAuthority),
+                "probe initial adapter-authority restore was not bitwise");
             execute(program, adapter, 0u, true);
             const auto replay = runtime.snapshot();
+            const auto replayAdapterAuthority = adapter.snapshot();
+            std::vector<std::uint8_t> replayAdapterCanonicalBytes;
             const float replayGeneralizedForce =
                 static_cast<const float*>(
                     generalizedForceBuffer.contents)[1u];
@@ -633,8 +715,110 @@ int main() {
                             reactionReadback.contents, acceptedReactions.data(),
                             acceptedReactions.size() *
                                 sizeof(acceptedReactions.front())) == 0 &&
-                        replayGeneralizedForce == acceptedGeneralizedForce,
+                        replayGeneralizedForce == acceptedGeneralizedForce &&
+                        numi::matter::
+                            sameNumiHumanTendonFEMLoadAdapterSnapshotAuthorityV1(
+                                acceptedAdapterAuthority,
+                                replayAdapterAuthority) &&
+                        numi::matter::
+                            canonicalNumiHumanTendonFEMLoadAdapterSnapshotV1(
+                                replayAdapterAuthority,
+                                replayAdapterCanonicalBytes,
+                                adapterAuthorityError) &&
+                        replayAdapterCanonicalBytes ==
+                            acceptedAdapterCanonicalBytes,
                     "probe accepted tendon/FEM replay is not bitwise");
+            auto mutatedAdapterAuthority = replayAdapterAuthority;
+            require(!mutatedAdapterAuthority
+                         .articularContactAcceptedHistory.empty(),
+                    "probe adapter authority has no articular history to mutate");
+            auto* mutatedAdapterByte = reinterpret_cast<std::uint8_t*>(
+                mutatedAdapterAuthority
+                    .articularContactAcceptedHistory.data());
+            mutatedAdapterByte[0u] ^= 0x01u;
+            const auto rejectedAdapterRestore =
+                adapter.restore(mutatedAdapterAuthority);
+            require(!rejectedAdapterRestore.succeeded(),
+                    "probe mutated adapter authority was restored");
+            const auto afterRejectedAdapterRestore = adapter.snapshot();
+            require(
+                numi::matter::
+                    sameNumiHumanTendonFEMLoadAdapterSnapshotAuthorityV1(
+                        replayAdapterAuthority,
+                        afterRejectedAdapterRestore),
+                "probe rejected adapter restore changed accepted state");
+            auto mutatedPairAuthority = replayAdapterAuthority;
+            require(!mutatedPairAuthority
+                         .articularContactPairForceAcceptedHistory.empty(),
+                    "probe adapter authority has no pair-force history to mutate");
+            mutatedPairAuthority
+                .articularContactPairForceAcceptedHistory[0u] =
+                    std::nextafter(
+                        mutatedPairAuthority
+                            .articularContactPairForceAcceptedHistory[0u],
+                        std::numeric_limits<float>::infinity());
+            require(!adapter.restore(mutatedPairAuthority).succeeded() &&
+                        numi::matter::
+                            sameNumiHumanTendonFEMLoadAdapterSnapshotAuthorityV1(
+                                replayAdapterAuthority, adapter.snapshot()),
+                    "probe mutated pair-force authority was restored or changed state");
+            const auto rejectResignedMutation = [&](auto mutated,
+                                                     const char* acceptedMessage,
+                                                     const char* atomicMessage) {
+                require(
+                    numi::matter::
+                        digestNumiHumanTendonFEMLoadAdapterSnapshotV1(
+                            mutated, mutated.authoritySHA256,
+                            adapterAuthorityError),
+                    "probe could not re-sign adapter mutation");
+                require(!adapter.restore(mutated).succeeded(),
+                        acceptedMessage);
+                require(
+                    numi::matter::
+                        sameNumiHumanTendonFEMLoadAdapterSnapshotAuthorityV1(
+                            replayAdapterAuthority, adapter.snapshot()),
+                    atomicMessage);
+            };
+            auto wrongExtentAdapterAuthority = replayAdapterAuthority;
+            wrongExtentAdapterAuthority
+                .anchorReactionAcceptedHistory.pop_back();
+            rejectResignedMutation(
+                std::move(wrongExtentAdapterAuthority),
+                "probe re-signed wrong-extent adapter authority was restored",
+                "probe wrong-extent adapter rejection changed accepted state");
+            auto wrongPairExtentAuthority = replayAdapterAuthority;
+            wrongPairExtentAuthority
+                .articularContactPairForceAcceptedHistory.pop_back();
+            rejectResignedMutation(
+                std::move(wrongPairExtentAuthority),
+                "probe re-signed wrong pair-history extent was restored",
+                "probe wrong pair-history extent changed accepted state");
+            auto wrongPairIdentityAuthority = replayAdapterAuthority;
+            ++wrongPairIdentityAuthority.articularContactPairCount;
+            rejectResignedMutation(
+                std::move(wrongPairIdentityAuthority),
+                "probe re-signed wrong pair-count identity was restored",
+                "probe wrong pair-count rejection changed accepted state");
+            auto wrongCursorAdapterAuthority = replayAdapterAuthority;
+            wrongCursorAdapterAuthority.articularAttemptedStepCount =
+                NM_NUMI_HUMAN_ARTICULAR_CONTACT_AUDIT_MAX_STEPS + 1u;
+            rejectResignedMutation(
+                std::move(wrongCursorAdapterAuthority),
+                "probe re-signed wrong-cursor adapter authority was restored",
+                "probe wrong-cursor adapter rejection changed accepted state");
+            auto wrongIdentityAdapterAuthority = replayAdapterAuthority;
+            wrongIdentityAdapterAuthority.adapterFingerprint ^= 1u;
+            rejectResignedMutation(
+                std::move(wrongIdentityAdapterAuthority),
+                "probe re-signed wrong-identity adapter authority was restored",
+                "probe wrong-identity adapter rejection changed accepted state");
+            const auto acceptedAdapterRestore =
+                adapter.restore(acceptedAdapterAuthority);
+            require(acceptedAdapterRestore.succeeded() &&
+                        numi::matter::
+                            sameNumiHumanTendonFEMLoadAdapterSnapshotAuthorityV1(
+                                acceptedAdapterAuthority, adapter.snapshot()),
+                    "probe accepted adapter round-trip restore was not bitwise");
             require(runtime.restore(initial).encoded,
                     "probe baseline restore failed");
             execute(baselineProgram, baselineAdapter, 0u, true);
@@ -663,10 +847,10 @@ int main() {
                     diagnostics.anchorReactionTrajectoryMaximumL1Newtons) +
                 " anchor_max_resultant=" + std::to_string(
                     diagnostics.anchorReactionTrajectoryMaximumResultantNewtons);
-            require(diagnostics.initialized && diagnostics.encodedPassCount == 4u &&
+            require(diagnostics.initialized && diagnostics.encodedPassCount == 1u &&
                         diagnostics.abortCount == 0u &&
                         diagnostics.contactSampleCount == 1u &&
-                        diagnostics.anchorReactionAuditedStepCount == 2u &&
+                        diagnostics.anchorReactionAuditedStepCount == 1u &&
                         diagnostics.anchorReactionTrajectoryMaximumL1Newtons >
                             0.0 &&
                         diagnostics.anchorReactionTrajectoryMaximumResultantNewtons >
@@ -861,6 +1045,12 @@ int main() {
                 << diagnostics.anchorReactionTrajectoryMaximumL1Newtons
                 << " full_row_generalized_force=" << acceptedGeneralizedForce
                 << " replay=bitwise rollback=verified"
+                << " adapter_authority_replay=bitwise"
+                << " adapter_authority_roundtrip=bitwise"
+                << " adapter_authority_mutation=denied_atomic"
+                << " adapter_authority_resigned_extent=denied_atomic"
+                << " adapter_authority_resigned_cursor=denied_atomic"
+                << " adapter_authority_resigned_identity=denied_atomic"
                 << " matter_failure_propagation=verified"
                 << " production_owner_fraction=0.1"
                 << "\n";

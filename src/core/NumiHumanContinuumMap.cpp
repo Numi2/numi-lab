@@ -5,6 +5,7 @@
 #include <functional>
 #include <limits>
 #include <queue>
+#include <sstream>
 #include <utility>
 
 namespace metalrobo {
@@ -75,6 +76,52 @@ struct Edge {
     for (std::uint32_t component = 0u; component < 4u; ++component)
         normalized[component] = quaternion[component] * inverseNorm;
     return true;
+}
+
+[[nodiscard]] bool interpolatePoseShortestArc(
+    const NumiHumanContinuumRigidPose& source,
+    const NumiHumanContinuumRigidPose& target,
+    const double fraction,
+    NumiHumanContinuumRigidPose& result
+) noexcept {
+    if (!std::isfinite(fraction) || fraction < 0.0 || fraction > 1.0 ||
+        !finitePoint(source.position) || !finitePoint(target.position))
+        return false;
+    std::array<double, 4u> first{};
+    std::array<double, 4u> second{};
+    if (!normalizedQuaternion(source.orientation, first) ||
+        !normalizedQuaternion(target.orientation, second))
+        return false;
+    double cosine = 0.0;
+    for (std::size_t component = 0u; component < first.size(); ++component)
+        cosine += first[component] * second[component];
+    if (cosine < 0.0) {
+        cosine = -cosine;
+        for (double& component : second) component = -component;
+    }
+    cosine = std::clamp(cosine, 0.0, 1.0);
+    for (std::size_t axis = 0u; axis < result.position.size(); ++axis)
+        result.position[axis] = source.position[axis] + fraction *
+            (target.position[axis] - source.position[axis]);
+    if (cosine > 0.9995) {
+        for (std::size_t component = 0u; component < first.size(); ++component)
+            result.orientation[component] = first[component] + fraction *
+                (second[component] - first[component]);
+        return normalizedQuaternion(
+            result.orientation, result.orientation);
+    }
+    const double angle = std::acos(cosine);
+    const double denominator = std::sin(angle);
+    if (!std::isfinite(angle) || !std::isfinite(denominator) ||
+        denominator <= 0.0)
+        return false;
+    const double firstWeight = std::sin((1.0 - fraction) * angle) /
+        denominator;
+    const double secondWeight = std::sin(fraction * angle) / denominator;
+    for (std::size_t component = 0u; component < first.size(); ++component)
+        result.orientation[component] = firstWeight * first[component] +
+            secondWeight * second[component];
+    return normalizedQuaternion(result.orientation, result.orientation);
 }
 
 [[nodiscard]] Point rotate(
@@ -315,9 +362,22 @@ NumiHumanContinuumMapDiagnostics mapNumiHumanContinuumToMovingEntheses(
         if (!std::isfinite(jacobian) || jacobian < config.minimumJacobian ||
             jacobian > config.maximumJacobian) {
             result = {};
-            return fail(NumiHumanContinuumMapStatus::invalidDeformation,
-                        index,
-                        "moving-enthesis map violates the Jacobian gate");
+            std::ostringstream message;
+            message.precision(17);
+            message << "moving-enthesis map violates the Jacobian gate"
+                    << " J=" << jacobian
+                    << " reference_det=" << referenceVolume
+                    << " mapped_det=" << mappedVolume
+                    << " allowed=[" << config.minimumJacobian
+                    << "," << config.maximumJacobian << "]";
+            auto diagnostics = fail(
+                NumiHumanContinuumMapStatus::invalidDeformation,
+                index, message.str());
+            diagnostics.jacobianGateFailure = true;
+            diagnostics.failingJacobian = jacobian;
+            diagnostics.failingReferenceDeterminant = referenceVolume;
+            diagnostics.failingMappedDeterminant = mappedVolume;
+            return diagnostics;
         }
         minimumJacobian = std::min(minimumJacobian, jacobian);
         maximumJacobian = std::max(maximumJacobian, jacobian);
@@ -336,6 +396,151 @@ NumiHumanContinuumMapDiagnostics mapNumiHumanContinuumToMovingEntheses(
     diagnostics.maximumJacobian = maximumJacobian;
     diagnostics.message = "moving-enthesis continuum map succeeded";
     return diagnostics;
+}
+
+NumiHumanContinuumContinuationDiagnostics
+mapNumiHumanContinuumToMovingEnthesesWithContinuation(
+    const std::span<const Point> referenceWorldPoints,
+    const std::span<const std::array<std::uint32_t, 4u>> tetrahedra,
+    const std::span<const std::uint32_t> anchorBodyIndices,
+    const std::span<const NumiHumanContinuumBodyMap> bodyMaps,
+    NumiHumanContinuumMapResult& result,
+    const NumiHumanContinuumMapConfig& config,
+    const std::uint32_t maximumSubsteps
+) {
+    result = {};
+    NumiHumanContinuumContinuationDiagnostics continuation;
+    if (maximumSubsteps == 0u || maximumSubsteps > 256u ||
+        (maximumSubsteps & (maximumSubsteps - 1u)) != 0u) {
+        continuation.finalMap = fail(
+            NumiHumanContinuumMapStatus::invalidInput,
+            NUMI_HUMAN_CONTINUUM_INVALID_INDEX,
+            "moving-enthesis continuation maximum substeps is invalid");
+        return continuation;
+    }
+
+    NumiHumanContinuumMapDiagnostics lastFailure;
+    for (std::uint32_t substeps = 1u; substeps <= maximumSubsteps;
+         substeps *= 2u) {
+        std::vector<Point> current(
+            referenceWorldPoints.begin(), referenceWorldPoints.end());
+        double maximumAnchorResidual = 0.0;
+        NumiHumanContinuumMapDiagnostics lastStep;
+        bool attemptSucceeded = true;
+        for (std::uint32_t step = 0u; step < substeps; ++step) {
+            const double firstFraction =
+                static_cast<double>(step) / substeps;
+            const double secondFraction =
+                static_cast<double>(step + 1u) / substeps;
+            std::vector<NumiHumanContinuumBodyMap> stepMaps;
+            stepMaps.reserve(bodyMaps.size());
+            for (const auto& body : bodyMaps) {
+                NumiHumanContinuumBodyMap stepBody;
+                stepBody.bodyIndex = body.bodyIndex;
+                if (!interpolatePoseShortestArc(
+                        body.referencePose, body.targetPose,
+                        firstFraction, stepBody.referencePose) ||
+                    !interpolatePoseShortestArc(
+                        body.referencePose, body.targetPose,
+                        secondFraction, stepBody.targetPose)) {
+                    continuation.finalMap = fail(
+                        NumiHumanContinuumMapStatus::invalidInput,
+                        body.bodyIndex,
+                        "moving-enthesis continuation pose is invalid");
+                    return continuation;
+                }
+                stepMaps.push_back(stepBody);
+            }
+            NumiHumanContinuumMapResult next;
+            lastStep = mapNumiHumanContinuumToMovingEntheses(
+                current, tetrahedra, anchorBodyIndices, stepMaps, next,
+                config);
+            if (substeps == 1u) continuation.directMap = lastStep;
+            if (!lastStep.succeeded()) {
+                lastFailure = lastStep;
+                attemptSucceeded = false;
+                if (!lastStep.jacobianGateFailure) {
+                    continuation.finalMap = lastStep;
+                    return continuation;
+                }
+                break;
+            }
+            maximumAnchorResidual = std::max(
+                maximumAnchorResidual,
+                lastStep.maximumAnchorResidualMeters);
+            current = std::move(next.targetWorldPoints);
+        }
+        if (!attemptSucceeded) {
+            if (substeps == maximumSubsteps) break;
+            continue;
+        }
+
+        double minimumJacobian = std::numeric_limits<double>::infinity();
+        double maximumJacobian = -std::numeric_limits<double>::infinity();
+        bool finalJacobianAccepted = true;
+        for (std::uint32_t index = 0u; index < tetrahedra.size(); ++index) {
+            const auto& tetrahedron = tetrahedra[index];
+            const double referenceDeterminant = signedSixVolume(
+                referenceWorldPoints, tetrahedron);
+            const double targetDeterminant = signedSixVolume(
+                current, tetrahedron);
+            const double jacobian = targetDeterminant / referenceDeterminant;
+            if (!std::isfinite(jacobian) ||
+                jacobian < config.minimumJacobian ||
+                jacobian > config.maximumJacobian) {
+                std::ostringstream message;
+                message.precision(17);
+                message
+                    << "moving-enthesis continuation final map violates "
+                       "the Jacobian gate"
+                    << " J=" << jacobian
+                    << " reference_det=" << referenceDeterminant
+                    << " mapped_det=" << targetDeterminant
+                    << " allowed=[" << config.minimumJacobian
+                    << "," << config.maximumJacobian << "]";
+                lastFailure = fail(
+                    NumiHumanContinuumMapStatus::invalidDeformation,
+                    index, message.str());
+                lastFailure.jacobianGateFailure = true;
+                lastFailure.failingJacobian = jacobian;
+                lastFailure.failingReferenceDeterminant =
+                    referenceDeterminant;
+                lastFailure.failingMappedDeterminant = targetDeterminant;
+                finalJacobianAccepted = false;
+                break;
+            }
+            minimumJacobian = std::min(minimumJacobian, jacobian);
+            maximumJacobian = std::max(maximumJacobian, jacobian);
+        }
+        if (!finalJacobianAccepted) {
+            if (substeps == maximumSubsteps) break;
+            continue;
+        }
+
+        double maximumDisplacement = 0.0;
+        for (std::size_t node = 0u; node < current.size(); ++node)
+            maximumDisplacement = std::max(
+                maximumDisplacement,
+                length(subtract(current[node], referenceWorldPoints[node])));
+        continuation.finalMap = lastStep;
+        continuation.finalMap.maximumAnchorResidualMeters =
+            maximumAnchorResidual;
+        continuation.finalMap.maximumDisplacementMeters =
+            maximumDisplacement;
+        continuation.finalMap.minimumJacobian = minimumJacobian;
+        continuation.finalMap.maximumJacobian = maximumJacobian;
+        continuation.finalMap.message =
+            "adaptive dyadic first-success shortest-arc SLERP "
+            "moving-enthesis continuation succeeded";
+        continuation.substepCount = substeps;
+        result.targetWorldPoints = std::move(current);
+        return continuation;
+    }
+    continuation.finalMap = lastFailure;
+    continuation.finalMap.message =
+        "adaptive dyadic first-success shortest-arc SLERP "
+        "moving-enthesis continuation failed: " + lastFailure.message;
+    return continuation;
 }
 
 const char* numiHumanContinuumMapStatusName(

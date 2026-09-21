@@ -188,6 +188,7 @@ struct Fixture {
     id<MTLBuffer> tendonTransfers = nil;
     id<MTLBuffer> equalities = nil;
     id<MTLBuffer> passiveJointProgram = nil;
+    id<MTLBuffer> sourceDynamicsWitness = nil;
 
     MRNumiHumanStandDispatchGPU standDispatch{};
     MRNumanXHumanMatterDispatchGPU ownerDispatch{};
@@ -330,6 +331,9 @@ struct Fixture {
             device, 1u, @"equalities");
         passiveJointProgram = zeroBuffer<float>(
             device, 1u, @"empty passive joint program");
+        sourceDynamicsWitness = zeroBuffer<float>(
+            device, kEnvironmentCount * 3u * kNv,
+            @"source dynamics witness");
 
         standDispatch.abiVersion = MR_NUMI_HUMAN_STAND_ABI_VERSION;
         standDispatch.environmentCount = kEnvironmentCount;
@@ -604,6 +608,7 @@ RunResult run(Fixture& fixture, const Outcome outcome) {
     [stand setBuffer:fixture.bodyPositionLow offset:0u atIndex:22u];
     [stand setBuffer:fixture.pointPositionLow offset:0u atIndex:23u];
     [stand setBuffer:fixture.passiveJointProgram offset:0u atIndex:24u];
+    [stand setBuffer:fixture.sourceDynamicsWitness offset:0u atIndex:25u];
     encodeEnvironmentGroups(stand);
     [stand endEncoding];
 

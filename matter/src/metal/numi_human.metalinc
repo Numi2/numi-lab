@@ -1184,6 +1184,82 @@ kernel void nm_numi_human_audit_articular_contact_wrenches(
         storedEnergy, maximumNormalStrain, maximumClosure, 0.0f);
 }
 
+// Exact source-order pair forces for accepted-state evidence. The final value
+// in each row is accumulated sample-by-sample in source order to match the
+// independent wrench audit, while the pair vector shares that GPU authority.
+kernel void nm_numi_human_audit_articular_contact_pairs(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const NMNumiHumanArticularContactSampleGPU* samples [[buffer(1)]],
+    device const NMIncidenceRangeGPU* pairRanges [[buffer(2)]],
+    device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(3)]],
+    device float* pairAudits [[buffer(4)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount ||
+        dispatch.articularContactPairCount == 0u) return;
+    const uint pairStride = dispatch.articularContactPairCount + 1u;
+    const uint outputBase = environment * pairStride;
+    const uint poseBase = environment * dispatch.bodyPoseStride;
+    float aggregate = 0.0f;
+    for (uint pairIndex = 0u;
+         pairIndex < dispatch.articularContactPairCount; ++pairIndex) {
+        const NMIncidenceRangeGPU range = pairRanges[pairIndex];
+        float pairForce = 0.0f;
+        if (range.count == 0u || range.first >
+                dispatch.articularContactSampleCount ||
+            range.count > dispatch.articularContactSampleCount - range.first) {
+            pairAudits[outputBase + pairIndex] = NAN;
+            pairAudits[outputBase + dispatch.articularContactPairCount] = NAN;
+            return;
+        }
+        for (uint local = 0u; local < range.count; ++local) {
+            const NMNumiHumanArticularContactSampleGPU sample =
+                samples[range.first + local];
+            if (sample.flags ==
+                NM_NUMI_HUMAN_ARTICULAR_CONTACT_INTERNAL_SAME_BODY) {
+                continue;
+            }
+            if (sample.flags != NM_NUMI_HUMAN_ARTICULAR_CONTACT_ACTIVE ||
+                !validBody(sample.slaveBodyIndex, dispatch) ||
+                !validBody(sample.masterBodyIndex, dispatch)) {
+                pairAudits[outputBase + pairIndex] = NAN;
+                pairAudits[
+                    outputBase + dispatch.articularContactPairCount] = NAN;
+                return;
+            }
+            const MRArticulatedBodyPoseGPU slavePose = bodyPoses[
+                poseBase + sample.slaveBodyIndex -
+                    dispatch.articulationFirstBody];
+            const MRArticulatedBodyPoseGPU masterPose = bodyPoses[
+                poseBase + sample.masterBodyIndex -
+                    dispatch.articulationFirstBody];
+            float3 slavePoint;
+            float3 masterPoint;
+            float3 normal;
+            float closure;
+            if (!humanArticularContactState(
+                    sample, slavePose, masterPose, slavePoint, masterPoint,
+                    normal, closure)) {
+                pairAudits[outputBase + pairIndex] = NAN;
+                pairAudits[
+                    outputBase + dispatch.articularContactPairCount] = NAN;
+                return;
+            }
+            if (closure <= 0.0f) continue;
+            const float sampleForce =
+                sample.masterLocalTriangle1AndStiffness.w * closure *
+                sample.slaveLocalPointAndArea.w;
+            pairForce += sampleForce;
+            // Ranges are host-validated as contiguous source-order coverage.
+            // Preserve the aggregate's FP32 reduction association with the
+            // independent wrench audit rather than summing seven pair totals.
+            aggregate += sampleForce;
+        }
+        pairAudits[outputBase + pairIndex] = pairForce;
+    }
+    pairAudits[outputBase + dispatch.articularContactPairCount] = aggregate;
+}
+
 kernel void nm_numi_human_commit_articular_contact_audit(
     constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
     device const MRNumiHumanStandStatusGPU* standStatuses [[buffer(1)]],
@@ -1206,6 +1282,33 @@ kernel void nm_numi_human_commit_articular_contact_audit(
     acceptedHistory[
         environment * NM_NUMI_HUMAN_ARTICULAR_CONTACT_AUDIT_MAX_STEPS +
         dispatch.stepIndex] = accepted;
+}
+
+kernel void nm_numi_human_commit_articular_contact_pair_audit(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const MRNumiHumanStandStatusGPU* standStatuses [[buffer(1)]],
+    device const float* provisionalPairs [[buffer(2)]],
+    device float* acceptedHistory [[buffer(3)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount ||
+        dispatch.articularContactPairCount == 0u ||
+        dispatch.stepIndex >=
+            NM_NUMI_HUMAN_ARTICULAR_CONTACT_AUDIT_MAX_STEPS) return;
+    const MRNumiHumanStandStatusGPU stand = standStatuses[environment];
+    if (dispatch.abiVersion != NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION ||
+        stand.code != MR_NUMI_HUMAN_STAND_SUCCESS ||
+        stand.environment != environment ||
+        stand.completedSteps != dispatch.stepIndex + 1u) return;
+    const uint stride = dispatch.articularContactPairCount + 1u;
+    const uint sourceBase = environment * stride;
+    const uint targetBase = (
+        environment * NM_NUMI_HUMAN_ARTICULAR_CONTACT_AUDIT_MAX_STEPS +
+        dispatch.stepIndex) * stride;
+    for (uint value = 0u; value < stride; ++value) {
+        acceptedHistory[targetBase + value] =
+            provisionalPairs[sourceBase + value];
+    }
 }
 
 kernel void nm_numi_human_audit_tendon_fem_loads(

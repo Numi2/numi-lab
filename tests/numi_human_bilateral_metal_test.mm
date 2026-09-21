@@ -22,7 +22,7 @@ using V3=std::array<float,3>;
 V3 cross(V3 a,V3 b){return {a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]};}
 unsigned exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
                   id<MTLCommandQueue> queue,float h,unsigned sweeps,bool reverse,bool loaded,unsigned limitedDof) {
-    const std::array<std::size_t,25> sizes={
+    const std::array<std::size_t,26> sizes={
         sizeof(MRWorldGPU),sizeof(MRArticulationGPU),nv*sizeof(MRDofPropertiesGPU),
         bodies*sizeof(MRBodyPropertiesGPU),sizeof(MRNumiHumanStandDispatchGPU),
         envs*nq*sizeof(float),envs*nv*sizeof(float),envs*bodies*sizeof(MRArticulatedBodyPoseGPU),
@@ -32,8 +32,9 @@ unsigned exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
         envs*((neq+nv)*nv+neq*(neq+3+nv))*sizeof(float),envs*sizeof(MRNumiHumanStandStatusGPU),
         sizeof(MRNumiHumanTendonBindingGPU),sizeof(MRNumiHumanTendonTransferResultGPU),
         neq*sizeof(MRNumiHumanJointEqualityGPU),envs*sizeof(MRCompensatedRootTranslationGPU),
-        envs*bodies*sizeof(mr_float4),envs*points*sizeof(mr_float4),nv*(nv+1)*sizeof(float)};
-    std::array<id<MTLBuffer>,25> b;
+        envs*bodies*sizeof(mr_float4),envs*points*sizeof(mr_float4),nv*(nv+1)*sizeof(float),
+        envs*3u*nv*sizeof(float)};
+    std::array<id<MTLBuffer>,26> b;
     for(unsigned i=0;i<b.size();++i) {
         b[i]=[device newBufferWithLength:sizes[i] options:MTLResourceStorageModeShared];
         require(b[i]!=nil,"allocation failed");std::memset(b[i].contents,0,sizes[i]);

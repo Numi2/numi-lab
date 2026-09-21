@@ -1044,6 +1044,8 @@ add_library(
     src/core/NumiHumanTissueBinding.cpp
     src/core/NumiHumanKnee.cpp
     src/core/NumiHumanKneeContact.cpp
+    src/core/NumiHumanLoadedKnee.cpp
+    src/metal/NumiHumanLoadedKneeBinding.mm
     src/core/NumiHumanContinuumMap.cpp
     src/core/ArticulatedJointLimits.cpp
     src/core/ArticulatedContact.cpp
@@ -1993,7 +1995,7 @@ target_compile_definitions(
         NUMI_HUMAN_ANTERIOR_THORAX_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/human_anterior_abdominal_wall_composite_effective.nmatter"
         NUMI_HUMAN_REGIONAL_MYOFASCIA_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/human_myofascia_regional_transverse_isotropic.nmatter"
         NUMI_HUMAN_PLANTAR_FASCIA_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/human_plantar_fascia_reduced.nmatter"
-        NUMI_HUMAN_OPEN_KNEE_LIGAMENT_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/open_knee_ligament_transverse_isotropic_smooth.nmatter"
+        NUMI_HUMAN_OPEN_KNEE_LIGAMENT_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/open_knee_ligament_febio_exp_linear.nmatter"
         NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
 )
 target_compile_options(
@@ -5926,6 +5928,78 @@ target_compile_definitions(numi_human_tissue_binding_check PRIVATE NUMI_COSTAL_M
 set_target_properties(numi_human_tissue_binding_check PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
 
 if(BUILD_TESTING)
+    add_executable(
+        metalrobo_numi_human_loaded_knee_test
+        tests/numi_human_loaded_knee_test.cpp
+    )
+    target_link_libraries(
+        metalrobo_numi_human_loaded_knee_test
+        PRIVATE metalrobo
+    )
+    target_compile_options(
+        metalrobo_numi_human_loaded_knee_test
+        PRIVATE -Wall -Wextra -Wpedantic -Werror
+    )
+    set_target_properties(
+        metalrobo_numi_human_loaded_knee_test
+        PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+    )
+    add_test(
+        NAME numi_human_loaded_knee_acceptance
+        COMMAND metalrobo_numi_human_loaded_knee_test
+    )
+    set_tests_properties(
+        numi_human_loaded_knee_acceptance
+        PROPERTIES LABELS "numi;human;matter;acceptance" TIMEOUT 45
+    )
+
+    add_executable(
+        metalrobo_numi_human_loaded_knee_binding_test
+        tests/numi_human_loaded_knee_binding_test.cpp
+    )
+    target_link_libraries(
+        metalrobo_numi_human_loaded_knee_binding_test
+        PRIVATE metalrobo
+    )
+    target_compile_options(
+        metalrobo_numi_human_loaded_knee_binding_test
+        PRIVATE -Wall -Wextra -Wpedantic -Werror
+    )
+    set_target_properties(
+        metalrobo_numi_human_loaded_knee_binding_test
+        PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+    )
+    set(
+        NUMI_HUMAN_LOADED_KNEE_TEST_BUNDLE_DIR ""
+        CACHE PATH
+        "Directory containing the immutable loaded-knee manifest and binding test bundle"
+    )
+    set(
+        NUMI_HUMAN_LOADED_KNEE_TEST_OWNERSHIP_MANIFEST ""
+        CACHE FILEPATH
+        "Immutable HumanPack.ownership.v1 fixture for loaded-knee admission tests"
+    )
+    if(
+        NUMI_HUMAN_LOADED_KNEE_TEST_BUNDLE_DIR
+        AND NUMI_HUMAN_LOADED_KNEE_TEST_OWNERSHIP_MANIFEST
+    )
+        find_package(Python3 REQUIRED COMPONENTS Interpreter)
+        add_test(
+            NAME numi_human_loaded_knee_binding_mutations
+            COMMAND
+                "${Python3_EXECUTABLE}"
+                "${CMAKE_CURRENT_SOURCE_DIR}/tests/numi_human_loaded_knee_binding_mutation_test.py"
+                "$<TARGET_FILE:metalrobo_numi_human_loaded_knee_binding_test>"
+                "${NUMI_HUMAN_LOADED_KNEE_TEST_BUNDLE_DIR}/HumanPack.loaded-anatomy-knee.v1.json"
+                "${NUMI_HUMAN_LOADED_KNEE_TEST_BUNDLE_DIR}/HumanPack.loaded-anatomy-knee.binding.v1.json"
+                "${NUMI_HUMAN_LOADED_KNEE_TEST_OWNERSHIP_MANIFEST}"
+        )
+        set_tests_properties(
+            numi_human_loaded_knee_binding_mutations
+            PROPERTIES LABELS "numi;human;binding;security" TIMEOUT 240
+        )
+    endif()
+
     add_executable(metalrobo_numi_human_bilateral_test tests/numi_human_bilateral_test.cpp)
     target_include_directories(metalrobo_numi_human_bilateral_test PRIVATE include)
     target_compile_features(metalrobo_numi_human_bilateral_test PRIVATE cxx_std_20)

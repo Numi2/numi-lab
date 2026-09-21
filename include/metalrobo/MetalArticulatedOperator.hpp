@@ -1630,7 +1630,19 @@ struct MetalNumiHumanStandInput {
     MetalNumiHumanTendonLoadProgram tendonLoadProgram{};
     MetalNumanXTransactionProgram numanXTransactionProgram{};
     MetalNumanXHumanMatterProgram numanXHumanMatterProgram{};
+    // Local steps encoded by this submission. A caller that must observe an
+    // accepted state after every step may split one authoritative horizon
+    // across submissions on one context. In that case stepIndexOffset names
+    // the first global step and authoritativeStepCount retains the immutable
+    // total horizon. Every nonzero offset must immediately follow the exact
+    // prior published q/v/MyoSim/root bytes under the same immutable input
+    // boundary; a fresh context, a skipped step, or a changed boundary fails
+    // before dispatch.
+    // Zero authoritativeStepCount selects the legacy single-submission
+    // contract (total == stepCount); stepIndexOffset must then also be zero.
     std::uint32_t stepCount = 0u;
+    std::uint32_t stepIndexOffset = 0u;
+    std::uint32_t authoritativeStepCount = 0u;
     std::uint32_t contactIterationCount = 12u;
     bool enableContact = true;
     bool enableRootAssistance = false;

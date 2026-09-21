@@ -465,6 +465,37 @@ struct Run {
     MetalArticulatedOperatorResult result;
 };
 
+struct AbsoluteStepAudit {
+    std::vector<std::uint32_t> preDynamics;
+    std::vector<std::uint32_t> postValidation;
+    std::uint32_t abortCount = 0u;
+};
+
+bool recordAbsoluteStepPreDynamics(
+    void* opaque,
+    const metalrobo::MetalNumiHumanTendonLoadPass& pass
+) {
+    auto* audit = static_cast<AbsoluteStepAudit*>(opaque);
+    if (audit == nullptr || pass.commandBuffer == nullptr) return false;
+    audit->preDynamics.push_back(pass.stepIndex);
+    return true;
+}
+
+bool recordAbsoluteStepPostValidation(
+    void* opaque,
+    const metalrobo::MetalNumiHumanTendonLoadPass& pass
+) {
+    auto* audit = static_cast<AbsoluteStepAudit*>(opaque);
+    if (audit == nullptr || pass.commandBuffer == nullptr) return false;
+    audit->postValidation.push_back(pass.stepIndex);
+    return true;
+}
+
+void abortAbsoluteStepAudit(void* opaque, void*) {
+    auto* audit = static_cast<AbsoluteStepAudit*>(opaque);
+    if (audit != nullptr) ++audit->abortCount;
+}
+
 struct VelocityComparison {
     double maximumDifference = 0.0;
     std::size_t dof = 0u;
@@ -573,6 +604,187 @@ struct VelocityComparison {
     require(finiteVector(run.result.standQ) && finiteVector(run.result.standV),
             "Metal minimal Human horizon published non-finite state");
     return run;
+}
+
+void checkSplitAuthoritativeHorizon(const Fixture& fixture) {
+    constexpr std::uint32_t kSteps = 8u;
+    MetalArticulatedOperatorConfig configuration{};
+    configuration.pointJacobiansOnly = true;
+    configuration.mujocoActivationTimestepSeconds = fixture.timestepSeconds;
+    configuration.metallibPath = METALROBO_DEFAULT_METALLIB;
+    MetalArticulatedOperatorContext context(configuration);
+
+    AbsoluteStepAudit audit;
+    MetalArticulatedOperatorInput input{};
+    input.articulationIndex = 0u;
+    input.environmentCount = 1u;
+    input.pointCount = fixture.points.size();
+    input.q = fixture.q;
+    input.v = fixture.v;
+    input.points = fixture.points;
+    input.mujoco.muscles = fixture.gpuMuscles;
+    input.mujoco.states = fixture.gpuStates;
+    input.mujoco.sites = fixture.gpuSites;
+    input.mujoco.routeNodes = fixture.gpuRoutes;
+    input.mujoco.bodyJacobianPointOffset = 0u;
+    input.stand.v = fixture.v;
+    input.stand.preloadedGeneralizedForce = fixture.passivePreload;
+    input.stand.jointEqualities = fixture.equalities;
+    input.stand.tendonBindings = fixture.tendonBindings;
+    input.stand.tendonLoadProgram = {
+        .context = &audit,
+        .encodePreDynamics = &recordAbsoluteStepPreDynamics,
+        .encodePostValidation = &recordAbsoluteStepPostValidation,
+        .abort = &abortAbsoluteStepAudit,
+        .fingerprint = 0x53504c4954385354ull,
+    };
+    input.stand.stepCount = 1u;
+    input.stand.authoritativeStepCount = kSteps;
+    input.stand.contactIterationCount = 16u;
+    input.stand.enableContact = false;
+    input.stand.enableRootAssistance = false;
+    input.stand.groundNormal = f4(0.0f, 1.0f, 0.0f, 0.0f);
+    input.stand.targetRootPosition = f4(
+        fixture.q[0u], fixture.q[1u], fixture.q[2u], 0.0f);
+    input.stand.targetRootOrientation = f4(
+        fixture.q[3u], fixture.q[4u], fixture.q[5u], fixture.q[6u]);
+
+    std::vector<float> q = fixture.q;
+    std::vector<float> v = fixture.v;
+    std::vector<MRMujocoMuscleStateGPU> states = fixture.gpuStates;
+    std::vector<MRCompensatedRootTranslationGPU> roots;
+    MetalArticulatedOperatorResult finalResult;
+    for (std::uint32_t step = 0u; step < kSteps; ++step) {
+        input.q = q;
+        input.stand.v = v;
+        input.mujoco.states = states;
+        input.rootTranslations = roots;
+        input.stand.stepIndexOffset = step;
+        MetalArticulatedOperatorResult result;
+        const auto diagnostics = context.run(fixture.model, input, result);
+        require(diagnostics.succeeded() && diagnostics.published &&
+                    diagnostics.completedStandSteps == step + 1u &&
+                    result.standStatuses.size() == 1u &&
+                    result.standStatuses.front().code ==
+                        MR_NUMI_HUMAN_STAND_SUCCESS &&
+                    result.standStatuses.front().completedSteps == step + 1u &&
+                    result.standStatuses.front().tendonTransferCount ==
+                        fixture.tendonBindings.size(),
+                "split authoritative Human horizon lost its absolute step");
+        q = result.standQ;
+        v = result.standV;
+        states = result.mujocoActivationStates;
+        roots = result.standRootTranslations;
+        finalResult = std::move(result);
+    }
+    require(audit.abortCount == 0u && audit.preDynamics.size() == kSteps &&
+                audit.postValidation.size() == kSteps,
+            "split authoritative Human callbacks were incomplete");
+    for (std::uint32_t step = 0u; step < kSteps; ++step) {
+        require(audit.preDynamics[step] == step &&
+                    audit.postValidation[step] == step,
+                "split authoritative Human callback step sequence drifted");
+    }
+
+    const Run legacy = runHorizon(fixture, kSteps, false, true);
+    require(sameBytes(finalResult.standQ, legacy.result.standQ) &&
+                sameBytes(finalResult.standV, legacy.result.standV) &&
+                sameBytes(finalResult.mujocoActivationStates,
+                          legacy.result.mujocoActivationStates) &&
+                sameBytes(finalResult.standRootTranslations,
+                          legacy.result.standRootTranslations),
+            "split authoritative Human horizon differs from legacy execution");
+
+    const auto expectInvalidRange = [&](const std::uint32_t offset,
+                                        const std::uint32_t local,
+                                        const std::uint32_t total) {
+        input.q = fixture.q;
+        input.stand.v = fixture.v;
+        input.mujoco.states = fixture.gpuStates;
+        input.rootTranslations = {};
+        input.stand.stepIndexOffset = offset;
+        input.stand.stepCount = local;
+        input.stand.authoritativeStepCount = total;
+        MetalArticulatedOperatorResult sentinel;
+        sentinel.standQ = {-123.0f};
+        const auto diagnostics = context.run(fixture.model, input, sentinel);
+        require(!diagnostics.succeeded() && !diagnostics.dispatched &&
+                    !diagnostics.published && sentinel.standQ.size() == 1u &&
+                    sentinel.standQ.front() == -123.0f,
+                "malformed authoritative Human step range did not fail closed");
+    };
+    expectInvalidRange(1u, 1u, 0u);
+    expectInvalidRange(7u, 2u, 8u);
+    expectInvalidRange(
+        0u, 1u, MR_NUMI_HUMAN_STAND_MAX_STEPS + 1u);
+
+    // A nonzero global offset is not a caller-selected label. It must name
+    // the exact immediately preceding state and immutable boundary retained
+    // by this context.
+    AbsoluteStepAudit boundaryAudit;
+    input.stand.tendonLoadProgram.context = &boundaryAudit;
+    input.q = fixture.q;
+    input.stand.v = fixture.v;
+    input.mujoco.states = fixture.gpuStates;
+    input.rootTranslations = {};
+    input.stand.stepIndexOffset = 0u;
+    input.stand.stepCount = 1u;
+    input.stand.authoritativeStepCount = 2u;
+    input.stand.contactIterationCount = 16u;
+    MetalArticulatedOperatorContext boundaryContext(configuration);
+    MetalArticulatedOperatorResult firstSegment;
+    const auto firstDiagnostics = boundaryContext.run(
+        fixture.model, input, firstSegment);
+    require(firstDiagnostics.succeeded() && firstDiagnostics.published &&
+                firstDiagnostics.completedStandSteps == 1u,
+            "split predecessor fixture failed its first segment");
+
+    q = firstSegment.standQ;
+    v = firstSegment.standV;
+    states = firstSegment.mujocoActivationStates;
+    roots = firstSegment.standRootTranslations;
+    input.q = q;
+    input.stand.v = v;
+    input.mujoco.states = states;
+    input.rootTranslations = roots;
+    input.stand.stepIndexOffset = 1u;
+
+    MetalArticulatedOperatorContext freshContext(configuration);
+    MetalArticulatedOperatorResult freshSentinel;
+    freshSentinel.standQ = {-321.0f};
+    const auto freshRejected = freshContext.run(
+        fixture.model, input, freshSentinel);
+    require(!freshRejected.succeeded() && !freshRejected.dispatched &&
+                !freshRejected.published &&
+                freshSentinel.standQ.size() == 1u &&
+                freshSentinel.standQ.front() == -321.0f,
+            "fresh context admitted a nonzero authoritative offset");
+
+    input.stand.contactIterationCount = 15u;
+    MetalArticulatedOperatorResult boundarySentinel;
+    boundarySentinel.standQ = {-654.0f};
+    const auto boundaryRejected = boundaryContext.run(
+        fixture.model, input, boundarySentinel);
+    require(!boundaryRejected.succeeded() &&
+                !boundaryRejected.dispatched &&
+                !boundaryRejected.published &&
+                boundarySentinel.standQ.size() == 1u &&
+                boundarySentinel.standQ.front() == -654.0f,
+            "split continuation admitted a mutated immutable boundary");
+
+    input.stand.contactIterationCount = 16u;
+    MetalArticulatedOperatorResult secondSegment;
+    const auto secondDiagnostics = boundaryContext.run(
+        fixture.model, input, secondSegment);
+    require(secondDiagnostics.succeeded() && secondDiagnostics.published &&
+                secondDiagnostics.completedStandSteps == 2u &&
+                boundaryAudit.abortCount == 0u &&
+                boundaryAudit.preDynamics.size() == 2u &&
+                boundaryAudit.postValidation.size() == 2u,
+            "valid exact split predecessor did not remain admissible");
+    std::cout << "split_authoritative_horizon=pass steps=8 callbacks=0..7 "
+                 "malformed_ranges=3 legacy_byte_identity=true "
+                 "fresh_offset=rejected mutated_boundary=rejected\n";
 }
 
 [[nodiscard]] std::vector<double> freeReferenceAcceleration(
@@ -1975,6 +2187,7 @@ int main() {
         std::cout << std::setprecision(17);
         const Fixture fixture(kDefaultTimestepSeconds);
         checkOneStepReference(fixture);
+        checkSplitAuthoritativeHorizon(fixture);
         checkSimultaneousTriadReference();
         checkSimultaneousTriadTimestepReference();
         checkSimultaneousTriadFinestTimestepIterationConvergence();

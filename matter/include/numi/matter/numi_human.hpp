@@ -4,11 +4,13 @@
 #include "numi/matter/numi_human_shared.h"
 #include "metalrobo/MetalArticulatedOperator.hpp"
 
+#include <array>
 #include <cstdint>
 #include <filesystem>
 #include <memory>
 #include <span>
 #include <string>
+#include <vector>
 
 namespace numi::matter {
 
@@ -101,6 +103,11 @@ struct NumiHumanTendonFEMLoadSource {
     // compliance with a full-resolution cartilage volume solve.
     std::span<const NMNumiHumanArticularContactSampleGPU>
         articularContactSamples{};
+    // Optional contiguous source-order ranges over articularContactSamples.
+    // When present, Matter records exact accepted FP32 normal force for every
+    // pair plus the pair-summed aggregate under the same transaction gate as
+    // the aggregate wrench audit.
+    std::span<const NMIncidenceRangeGPU> articularContactPairRanges{};
     // Optional source-law passive ligament fibre families. These are reduced
     // force-transfer elements between exact enthesis attachment-node
     // centroids. They may coexist with neutral matrix-only FEM volumes without
@@ -157,6 +164,7 @@ struct NumiHumanTendonFEMLoadDiagnostics {
     double femBodyContactTrajectoryMaximumMomentResidualNewtonMeters = 0.0;
     double femBodyContactTrajectoryMaximumTangentialSlipMeters = 0.0;
     std::uint32_t articularContactSampleCount = 0u;
+    std::uint32_t articularContactPairCount = 0u;
     std::uint32_t articularMechanicalSampleCount = 0u;
     std::uint32_t articularInternalSameBodySampleCount = 0u;
     std::uint32_t articularClosedSampleCount = 0u;
@@ -200,6 +208,87 @@ struct NumiHumanTendonFEMLoadDiagnostics {
     double passiveRoutedBandMaximumExtensionMeters = 0.0;
     std::string message;
 };
+
+inline constexpr std::uint32_t
+    kNumiHumanTendonFEMLoadAdapterSnapshotVersionV1 = 1u;
+
+using NumiHumanTendonFEMLoadAdapterDigest =
+    std::array<std::uint8_t, 32u>;
+
+// Complete continuation authority owned by NumiHumanTendonFEMLoadAdapter.
+// Immutable source mappings and Metal pipeline caches are bound by
+// adapterFingerprint; provisional force/wrench/audit scratch is deliberately
+// excluded. The vectors below are the accepted records that survive command
+// completion and affect replay evidence or its accepted-history cursor.
+//
+// canonicalNumiHumanTendonFEMLoadAdapterSnapshotV1() emits a versioned,
+// field-name- and element-size-framed byte stream. It is the only byte stream
+// callers should embed in a larger owner digest. authoritySHA256 authenticates
+// those exact bytes and is checked before restore mutates any adapter state.
+struct NumiHumanTendonFEMLoadAdapterSnapshotV1 {
+    bool available = false;
+    std::uint32_t formatVersion =
+        kNumiHumanTendonFEMLoadAdapterSnapshotVersionV1;
+    std::uint64_t adapterFingerprint = 0u;
+    std::uint64_t runtimeDeviceProgramFingerprint = 0u;
+    std::uint32_t environmentCount = 0u;
+    std::uint32_t endpointCount = 0u;
+    std::uint32_t femNodeCount = 0u;
+    std::uint32_t contactSampleCount = 0u;
+    std::uint32_t femBodyContactSampleCount = 0u;
+    std::uint32_t articularContactSampleCount = 0u;
+    std::uint32_t articularContactPairCount = 0u;
+    std::uint32_t passiveLigamentCount = 0u;
+    std::uint32_t passiveRoutedBandCount = 0u;
+    // Zero before the first borrowed pass and the exact bound pose stride
+    // afterwards. This is restored with the accepted-state cursor.
+    std::uint32_t boundBodyPoseStride = 0u;
+    std::uint32_t encodedPassCount = 0u;
+    std::uint32_t abortCount = 0u;
+    std::uint32_t articularAttemptedStepCount = 0u;
+
+    std::vector<nm_float4> anchorReactionAcceptedHistory;
+    std::vector<NMNumiHumanArticularContactAuditGPU>
+        femBodyContactAcceptedHistory;
+    std::vector<NMNumiHumanArticularContactAuditGPU>
+        articularContactAcceptedHistory;
+    // [environment][accepted step][pair 0..pairCount-1, aggregate].
+    std::vector<float> articularContactPairForceAcceptedHistory;
+    std::vector<NMNumiHumanPassiveLigamentAuditGPU>
+        passiveLigamentAcceptedState;
+    std::vector<NMNumiHumanPassiveRoutedBandAuditGPU>
+        passiveRoutedBandAcceptedState;
+
+    NumiHumanTendonFEMLoadAdapterDigest authoritySHA256{};
+    // Diagnostic only; excluded from canonical bytes and equality.
+    std::string message;
+};
+
+struct NumiHumanTendonFEMLoadAdapterRestoreDiagnostics {
+    bool restored = false;
+    std::string message;
+
+    [[nodiscard]] bool succeeded() const noexcept { return restored; }
+};
+
+// Emits the stable ABI-bound authority bytes used by authoritySHA256. The
+// output is replaced only on success.
+[[nodiscard]] bool canonicalNumiHumanTendonFEMLoadAdapterSnapshotV1(
+    const NumiHumanTendonFEMLoadAdapterSnapshotV1& snapshot,
+    std::vector<std::uint8_t>& output,
+    std::string& error
+) noexcept;
+
+[[nodiscard]] bool digestNumiHumanTendonFEMLoadAdapterSnapshotV1(
+    const NumiHumanTendonFEMLoadAdapterSnapshotV1& snapshot,
+    NumiHumanTendonFEMLoadAdapterDigest& output,
+    std::string& error
+) noexcept;
+
+[[nodiscard]] bool sameNumiHumanTendonFEMLoadAdapterSnapshotAuthorityV1(
+    const NumiHumanTendonFEMLoadAdapterSnapshotV1& lhs,
+    const NumiHumanTendonFEMLoadAdapterSnapshotV1& rhs
+) noexcept;
 
 struct NumiHumanPassiveLigamentFiberEvaluation {
     double effectiveStretch = 0.0;
@@ -256,6 +345,15 @@ public:
     [[nodiscard]] metalrobo::MetalNumiHumanTendonLoadProgram
     program() noexcept;
     [[nodiscard]] NumiHumanTendonFEMLoadDiagnostics diagnostics() const noexcept;
+    // Snapshot/restore are completion-boundary operations: the caller must not
+    // have an in-flight borrowed command buffer using this adapter. Restore
+    // validates version, source/runtime identity, every vector extent, and the
+    // canonical digest before the first counter or GPU byte is changed.
+    [[nodiscard]] NumiHumanTendonFEMLoadAdapterSnapshotV1
+    snapshot() const noexcept;
+    [[nodiscard]] NumiHumanTendonFEMLoadAdapterRestoreDiagnostics restore(
+        const NumiHumanTendonFEMLoadAdapterSnapshotV1& snapshot
+    ) noexcept;
 
 private:
     [[nodiscard]] bool encodePreDynamics(

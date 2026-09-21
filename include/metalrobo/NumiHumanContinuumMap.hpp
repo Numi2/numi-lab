@@ -47,6 +47,10 @@ struct NumiHumanContinuumMapDiagnostics {
     double maximumDisplacementMeters = 0.0;
     double minimumJacobian = 1.0;
     double maximumJacobian = 1.0;
+    bool jacobianGateFailure = false;
+    double failingJacobian = 0.0;
+    double failingReferenceDeterminant = 0.0;
+    double failingMappedDeterminant = 0.0;
     std::string message;
 
     [[nodiscard]] bool succeeded() const noexcept {
@@ -56,6 +60,16 @@ struct NumiHumanContinuumMapDiagnostics {
 
 struct NumiHumanContinuumMapResult {
     std::vector<std::array<double, 3u>> targetWorldPoints;
+};
+
+struct NumiHumanContinuumContinuationDiagnostics {
+    NumiHumanContinuumMapDiagnostics directMap;
+    NumiHumanContinuumMapDiagnostics finalMap;
+    std::uint32_t substepCount = 0u;
+
+    [[nodiscard]] bool succeeded() const noexcept {
+        return finalMap.succeeded() && substepCount > 0u;
+    }
 };
 
 // Maps a tetrahedral continuum from its source anatomical pose to moved bone
@@ -72,6 +86,24 @@ mapNumiHumanContinuumToMovingEntheses(
     std::span<const NumiHumanContinuumBodyMap> bodyMaps,
     NumiHumanContinuumMapResult& result,
     const NumiHumanContinuumMapConfig& config = {}
+);
+
+// Deterministic first-success dyadic continuation for exact moving entheses.
+// Body poses follow linear translation plus shortest-arc quaternion SLERP.
+// Each substep reuses the accepted mesh and pose as the next reference and is
+// admitted only through the same per-step Jacobian gate. The recomputed
+// original-to-target map must also satisfy that gate, so subdivision cannot
+// hide a compounded deformation outside the configured bounds. The first
+// successful subdivision in 1,2,4,...,maximumSubsteps is the authored result.
+[[nodiscard]] NumiHumanContinuumContinuationDiagnostics
+mapNumiHumanContinuumToMovingEnthesesWithContinuation(
+    std::span<const std::array<double, 3u>> referenceWorldPoints,
+    std::span<const std::array<std::uint32_t, 4u>> tetrahedra,
+    std::span<const std::uint32_t> anchorBodyIndices,
+    std::span<const NumiHumanContinuumBodyMap> bodyMaps,
+    NumiHumanContinuumMapResult& result,
+    const NumiHumanContinuumMapConfig& config = {},
+    std::uint32_t maximumSubsteps = 256u
 );
 
 [[nodiscard]] const char* numiHumanContinuumMapStatusName(

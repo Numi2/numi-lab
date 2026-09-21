@@ -39,7 +39,7 @@ std::array<double,2> oracle(double a,double d,double vx,double vy,double radius)
 unsigned exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
                   id<MTLCommandQueue> queue,float friction,float speedSign,float seedScale,float angle) {
     constexpr unsigned nv=6,nq=7,points=5,contacts=1;
-    const std::array<std::size_t,25> sizes={
+    const std::array<std::size_t,26> sizes={
         sizeof(MRWorldGPU),sizeof(MRArticulationGPU),nv*sizeof(MRDofPropertiesGPU),
         sizeof(MRBodyPropertiesGPU),sizeof(MRNumiHumanStandDispatchGPU),
         nq*sizeof(float),nv*sizeof(float),sizeof(MRArticulatedBodyPoseGPU),
@@ -49,8 +49,8 @@ unsigned exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
         sizeof(MRNumiHumanStandStatusGPU),sizeof(MRNumiHumanTendonBindingGPU),
         sizeof(MRNumiHumanTendonTransferResultGPU),sizeof(MRNumiHumanJointEqualityGPU),
         sizeof(MRCompensatedRootTranslationGPU),sizeof(mr_float4),points*sizeof(mr_float4),
-        nv*(nv+1)*sizeof(float)};
-    std::array<id<MTLBuffer>,25> buffers;
+        nv*(nv+1)*sizeof(float),3u*nv*sizeof(float)};
+    std::array<id<MTLBuffer>,26> buffers;
     for(unsigned i=0;i<buffers.size();++i) {
         buffers[i]=[device newBufferWithLength:sizes[i] options:MTLResourceStorageModeShared];
         require(buffers[i]!=nil,"allocation failed");
