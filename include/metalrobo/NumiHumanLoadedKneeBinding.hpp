@@ -31,6 +31,13 @@ struct NumiHumanLoadedKneeSourceComplianceAdmissionV1 {
   NumiHumanLoadedKneeDigest baseManifestFileSHA256{};
   NumiHumanLoadedKneeDigest jointEqualityFileSHA256{};
   NumiHumanLoadedKneeDigest jointLimitFileSHA256{};
+  NumiHumanLoadedKneeDigest sourceArchiveSHA256{};
+  std::uint32_t nq = 0u;
+  std::uint32_t nv = 0u;
+  std::uint32_t jointEqualityRowCount = 0u;
+  std::uint32_t jointLimitRowCount = 0u;
+  std::uint32_t policy = 0u;
+  std::uint32_t flags = 0u;
 };
 
 [[nodiscard]] bool loadNumiHumanLoadedKneeBindingV1(

@@ -3167,10 +3167,14 @@ bool loadNumiHumanLoadedKneeSourceComplianceV1(
                 {"nq", "nv", "source_archive_sha256",
                  "source_rigid_payload_sha256"},
                 "source model binding");
-    require(unsigned32Field(source, @"nq", "source nq") == 129u &&
-                unsigned32Field(source, @"nv", "source nv") == 128u &&
-                digestField(source, @"source_archive_sha256",
-                            "source archive identity") ==
+    const std::uint32_t sourceNQ =
+        unsigned32Field(source, @"nq", "source nq");
+    const std::uint32_t sourceNV =
+        unsigned32Field(source, @"nv", "source nv");
+    const auto sourceArchiveIdentity = digestField(
+        source, @"source_archive_sha256", "source archive identity");
+    require(sourceNQ == 129u && sourceNV == 128u &&
+                sourceArchiveIdentity ==
                     parseDigest(std::string(kSourceArchiveSHA256),
                                 "source archive identity") &&
                 digestField(source, @"source_rigid_payload_sha256",
@@ -3182,14 +3186,30 @@ bool loadNumiHumanLoadedKneeSourceComplianceV1(
         field(companion, @"programs", "source programs"), "source programs");
     requireKeys(programs, {"joint_equalities", "joint_limits"},
                 "source programs");
+    NSDictionary *equalityProgram = dictionary(
+        field(programs, @"joint_equalities", "joint equalities"),
+        "joint equalities");
+    NSDictionary *limitProgram = dictionary(
+        field(programs, @"joint_limits", "joint limits"),
+        "joint limits");
     validateSourceComplianceProgramDescriptor(
-        dictionary(field(programs, @"joint_equalities", "joint equalities"),
-                   "joint equalities"),
-        kSourceEqualityProgram, equalityFileIdentity);
+        equalityProgram, kSourceEqualityProgram, equalityFileIdentity);
     validateSourceComplianceProgramDescriptor(
-        dictionary(field(programs, @"joint_limits", "joint limits"),
-                   "joint limits"),
-        kSourceLimitProgram, limitFileIdentity);
+        limitProgram, kSourceLimitProgram, limitFileIdentity);
+    const std::uint32_t equalityRowCount = unsigned32Field(
+        equalityProgram, @"row_count", "joint equalities row count");
+    const std::uint32_t limitRowCount = unsigned32Field(
+        limitProgram, @"row_count", "joint limits row count");
+    const std::uint32_t equalityPolicy = unsigned32Field(
+        equalityProgram, @"policy_id", "joint equalities policy");
+    const std::uint32_t limitPolicy = unsigned32Field(
+        limitProgram, @"policy_id", "joint limits policy");
+    const std::uint32_t equalityFlags = unsigned32Field(
+        equalityProgram, @"flags", "joint equalities flags");
+    const std::uint32_t limitFlags = unsigned32Field(
+        limitProgram, @"flags", "joint limits flags");
+    require(equalityPolicy == limitPolicy && equalityFlags == limitFlags,
+            "source program policy or flags differ after admission");
 
     NSDictionary *cross = dictionary(
         field(companion, @"cross_program", "cross-program binding"),
@@ -3243,6 +3263,13 @@ bool loadNumiHumanLoadedKneeSourceComplianceV1(
     candidate.baseManifestFileSHA256 = authenticatedBase.manifestFileSHA256;
     candidate.jointEqualityFileSHA256 = equalityFileIdentity;
     candidate.jointLimitFileSHA256 = limitFileIdentity;
+    candidate.sourceArchiveSHA256 = sourceArchiveIdentity;
+    candidate.nq = sourceNQ;
+    candidate.nv = sourceNV;
+    candidate.jointEqualityRowCount = equalityRowCount;
+    candidate.jointLimitRowCount = limitRowCount;
+    candidate.policy = equalityPolicy;
+    candidate.flags = equalityFlags;
     output = candidate;
     error.clear();
     return true;

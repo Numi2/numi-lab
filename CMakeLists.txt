@@ -1029,6 +1029,7 @@ add_library(
     src/core/NumiHumanMuscleEquilibrium.cpp
     src/core/NumiHumanInitialState.cpp
     src/core/NumiHumanRuntimeIdentity.cpp
+    src/core/NumiHumanSourceConstraints.cpp
     src/core/NumanXExactTransaction.cpp
     src/core/NumiHumanProductionOwnerEvidenceWriter.cpp
     src/core/NumiHumanProductionOwnerSnapshot.cpp
@@ -5927,7 +5928,49 @@ target_compile_options(numi_human_tissue_binding_check PRIVATE -Wall -Wextra -Wp
 target_compile_definitions(numi_human_tissue_binding_check PRIVATE NUMI_COSTAL_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/human_costal_cartilage_pseudoelastic.nmatter")
 set_target_properties(numi_human_tissue_binding_check PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
 
+add_executable(
+    metalrobo_numi_human_loaded_knee_source_constraint_check
+    apps/numi_human_loaded_knee_source_constraint_check.cpp
+)
+target_link_libraries(
+    metalrobo_numi_human_loaded_knee_source_constraint_check
+    PRIVATE metalrobo
+)
+target_compile_options(
+    metalrobo_numi_human_loaded_knee_source_constraint_check
+    PRIVATE -Wall -Wextra -Wpedantic -Werror
+)
+set_target_properties(
+    metalrobo_numi_human_loaded_knee_source_constraint_check
+    PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+)
+
 if(BUILD_TESTING)
+    add_executable(
+        metalrobo_numi_human_source_constraints_test
+        tests/numi_human_source_constraints_test.cpp
+    )
+    target_link_libraries(
+        metalrobo_numi_human_source_constraints_test
+        PRIVATE metalrobo
+    )
+    target_compile_options(
+        metalrobo_numi_human_source_constraints_test
+        PRIVATE -Wall -Wextra -Wpedantic -Werror
+    )
+    set_target_properties(
+        metalrobo_numi_human_source_constraints_test
+        PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+    )
+    add_test(
+        NAME numi_human_source_constraints
+        COMMAND metalrobo_numi_human_source_constraints_test
+    )
+    set_tests_properties(
+        numi_human_source_constraints
+        PROPERTIES LABELS "numi;human;matter;numanx;source" TIMEOUT 45
+    )
+
     add_executable(
         metalrobo_numi_human_loaded_knee_test
         tests/numi_human_loaded_knee_test.cpp
@@ -6055,6 +6098,21 @@ if(BUILD_TESTING)
         set_tests_properties(
             numi_human_loaded_knee_source_compliance_mutations
             PROPERTIES LABELS "numi;human;binding;constraints;security" TIMEOUT 240
+        )
+        add_test(
+            NAME numi_human_loaded_knee_source_constraint_config
+            COMMAND
+                $<TARGET_FILE:metalrobo_numi_human_loaded_knee_source_constraint_check>
+                "${NUMI_HUMAN_LOADED_KNEE_TEST_BUNDLE_DIR}/HumanPack.loaded-anatomy-knee.v1.json"
+                "${NUMI_HUMAN_LOADED_KNEE_TEST_BUNDLE_DIR}/HumanPack.loaded-anatomy-knee.binding.v1.json"
+                "${NUMI_HUMAN_LOADED_KNEE_TEST_OWNERSHIP_MANIFEST}"
+                "${NUMI_HUMAN_LOADED_KNEE_TEST_SOURCE_COMPLIANCE}"
+                "${NUMI_HUMAN_LOADED_KNEE_TEST_SOURCE_EQUALITIES}"
+                "${NUMI_HUMAN_LOADED_KNEE_TEST_SOURCE_LIMITS}"
+        )
+        set_tests_properties(
+            numi_human_loaded_knee_source_constraint_config
+            PROPERTIES LABELS "numi;human;matter;numanx;source" TIMEOUT 45
         )
     endif()
 
