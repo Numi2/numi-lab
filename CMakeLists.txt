@@ -1046,6 +1046,7 @@ add_library(
     src/core/NumiHumanKnee.cpp
     src/core/NumiHumanKneeContact.cpp
     src/core/NumiHumanLoadedKnee.cpp
+    src/core/NumiHumanLoadedKneeNumanX.cpp
     src/metal/NumiHumanLoadedKneeBinding.mm
     src/core/NumiHumanContinuumMap.cpp
     src/core/ArticulatedJointLimits.cpp
@@ -5969,6 +5970,31 @@ if(BUILD_TESTING)
     set_tests_properties(
         numi_human_source_constraints
         PROPERTIES LABELS "numi;human;matter;numanx;source" TIMEOUT 45
+    )
+
+    add_executable(
+        metalrobo_numi_human_loaded_knee_numanx_test
+        tests/numi_human_loaded_knee_numanx_test.cpp
+    )
+    target_link_libraries(
+        metalrobo_numi_human_loaded_knee_numanx_test
+        PRIVATE metalrobo
+    )
+    target_compile_options(
+        metalrobo_numi_human_loaded_knee_numanx_test
+        PRIVATE -Wall -Wextra -Wpedantic -Werror
+    )
+    set_target_properties(
+        metalrobo_numi_human_loaded_knee_numanx_test
+        PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+    )
+    add_test(
+        NAME numi_human_loaded_knee_numanx_command_admission
+        COMMAND metalrobo_numi_human_loaded_knee_numanx_test
+    )
+    set_tests_properties(
+        numi_human_loaded_knee_numanx_command_admission
+        PROPERTIES LABELS "numi;human;matter;numanx;acceptance" TIMEOUT 45
     )
 
     add_executable(
