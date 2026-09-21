@@ -30,6 +30,8 @@ constexpr std::string_view kManifestName =
     "HumanPack.loaded-anatomy-knee.v1.json";
 constexpr std::string_view kBindingName =
     "HumanPack.loaded-anatomy-knee.binding.v1.json";
+constexpr std::string_view kSourceComplianceName =
+    "HumanPack.loaded-anatomy-knee.source-compliance.v1.json";
 constexpr std::string_view kCanonicalization =
     "utf8-json-sorted-keys-compact-ensure_ascii=false-allow_nan=false";
 constexpr std::string_view kOwnershipManifestSHA256 =
@@ -45,6 +47,21 @@ constexpr std::string_view kSourceToReferenceMappingAlgorithm =
 constexpr std::string_view kMappingCodeIdentityEncoding =
     "sha256(domain-utf8||header-file-sha256||core-file-sha256||adapter-file-"
     "sha256)";
+constexpr std::string_view kSourceComplianceSchema =
+    "HumanPack.loaded-anatomy-knee.source-compliance.v1";
+constexpr std::string_view kSourceComplianceCompiler =
+    "numilab-human.loaded-anatomy-knee-source-compliance.1";
+constexpr std::string_view kSourceArchiveSHA256 =
+    "280d297aa496acccf3f1c5373a1304d23f9569362c2d6960910128bfba144975";
+constexpr std::string_view kSourceRigidPayloadSHA256 =
+    "6328f7e84663c611c5498624d1386b00b2d5b0e162c4cc2967c7b1dc49ab0c44";
+constexpr std::string_view kSourceComplianceBoundary =
+    "Candidate-only additive source-compliance binding for "
+    "HumanPack.loaded-anatomy-knee.v1. Human authors the immutable NHEQ2 and "
+    "NHLIM1 source-law bytes; Matter alone owns runtime constraint force and "
+    "accepted constraint state. This companion binds no prepared-state identity "
+    "and does not establish runtime execution, production physical ownership, "
+    "standing, walking, clinical validity, or integrated Human qualification.";
 constexpr std::size_t kMaximumJSONNestingDepth = 128u;
 
 class AdmissionError final : public std::runtime_error {
@@ -2557,6 +2574,262 @@ void populateAuthoring(
   output = std::move(candidate);
 }
 
+struct SourceComplianceProgramSpec final {
+  std::string_view key;
+  std::string_view schema;
+  std::string_view filename;
+  std::string_view magicLabel;
+  std::array<std::uint8_t, 8u> magic;
+  std::uint32_t abi = 0u;
+  std::uint32_t rowCount = 0u;
+  std::uint32_t recordBytes = 0u;
+  std::uint64_t byteCount = 0u;
+  std::string_view fileSHA256;
+};
+
+constexpr SourceComplianceProgramSpec kSourceEqualityProgram{
+    .key = "joint_equalities",
+    .schema = "numi.human.joint-equality-source-compliance-payload.v1",
+    .filename = "myosim-fullbody-joint-equalities-source-compliance.nheq",
+    .magicLabel = "NHEQ2",
+    .magic = {{'N', 'H', 'E', 'Q', '2', 0u, 0u, 0u}},
+    .abi = 2u,
+    .rowCount = 51u,
+    .recordBytes = 112u,
+    .byteCount = 5'792u,
+    .fileSHA256 =
+        "12db05fddb492e77e7fd461fad566d3e1e75390f2cb6f77f26568254a6cb4477",
+};
+
+constexpr SourceComplianceProgramSpec kSourceLimitProgram{
+    .key = "joint_limits",
+    .schema = "numi.human.joint-limit-source-compliance-payload.v1",
+    .filename = "myosim-fullbody-joint-limits.nhlim",
+    .magicLabel = "NHLIM1",
+    .magic = {{'N', 'H', 'L', 'I', 'M', '1', 0u, 0u}},
+    .abi = 1u,
+    .rowCount = 122u,
+    .recordBytes = 80u,
+    .byteCount = 9'840u,
+    .fileSHA256 =
+        "c583611fcedc326a32c6f69504a65e675c8e0adc987c6db622ca0d95a02438d3",
+};
+
+std::uint32_t sourceProgramU32(
+    const std::span<const std::uint8_t> bytes, const std::size_t offset,
+    const std::string_view label) {
+  require(offset <= bytes.size() && bytes.size() - offset >= 4u,
+          std::string(label) + " header is truncated");
+  return static_cast<std::uint32_t>(bytes[offset]) |
+         (static_cast<std::uint32_t>(bytes[offset + 1u]) << 8u) |
+         (static_cast<std::uint32_t>(bytes[offset + 2u]) << 16u) |
+         (static_cast<std::uint32_t>(bytes[offset + 3u]) << 24u);
+}
+
+NumiHumanLoadedKneeDigest validateSourceComplianceProgramBytes(
+    const std::span<const std::uint8_t> bytes,
+    const SourceComplianceProgramSpec &specification) {
+  constexpr std::size_t kHeaderBytes = 80u;
+  constexpr std::uint32_t kNQ = 129u;
+  constexpr std::uint32_t kNV = 128u;
+  constexpr std::uint32_t kPolicy = 1u;
+  constexpr std::uint32_t kFlags = 1u;
+  const std::string label(specification.key);
+  require(bytes.size() == specification.byteCount,
+          label + " byte count differs");
+  require(bytes.size() >= kHeaderBytes &&
+              std::equal(specification.magic.begin(),
+                         specification.magic.end(), bytes.begin()),
+          label + " magic differs");
+  require(sourceProgramU32(bytes, 8u, label) == specification.abi,
+          label + " ABI differs");
+  require(sourceProgramU32(bytes, 12u, label) == kNQ &&
+              sourceProgramU32(bytes, 16u, label) == kNV,
+          label + " nq/nv differ");
+  require(sourceProgramU32(bytes, 20u, label) == specification.rowCount,
+          label + " row count differs");
+  require(sourceProgramU32(bytes, 24u, label) == specification.recordBytes,
+          label + " record ABI differs");
+  require(sourceProgramU32(bytes, 28u, label) == specification.rowCount,
+          label + " source row count differs");
+  require(sourceProgramU32(bytes, 32u, label) == kPolicy,
+          label + " source policy differs");
+  require(sourceProgramU32(bytes, 36u, label) == kFlags,
+          label + " source flags differ");
+  require(sourceProgramU32(bytes, 40u, label) == 0u &&
+              sourceProgramU32(bytes, 44u, label) == 0u,
+          label + " reserved fields differ");
+  const auto sourceArchive = parseDigest(std::string(kSourceArchiveSHA256),
+                                         "source archive identity");
+  require(std::equal(sourceArchive.begin(), sourceArchive.end(),
+                     bytes.begin() + 48u),
+          label + " source archive identity differs");
+  require(kHeaderBytes +
+                  static_cast<std::uint64_t>(specification.rowCount) *
+                      specification.recordBytes ==
+              specification.byteCount,
+          label + " internal byte-count contract differs");
+  const auto fileIdentity = sha256(bytes);
+  require(fileIdentity ==
+              parseDigest(std::string(specification.fileSHA256),
+                          label + " pinned file identity"),
+          label + " exact payload SHA-256 differs");
+  return fileIdentity;
+}
+
+void validateSourceComplianceProgramDescriptor(
+    NSDictionary *program, const SourceComplianceProgramSpec &specification,
+    const NumiHumanLoadedKneeDigest &actualFileSHA256) {
+  const std::string label(specification.key);
+  requireKeys(program,
+              {"abi", "bytes", "file_sha256", "filename", "flags", "magic",
+               "nq", "nv", "policy_id", "record_bytes", "refsafe",
+               "row_count", "schema", "source_archive_sha256",
+               "source_row_count"},
+              label);
+  require(stringField(program, @"schema", label + " schema") ==
+                  specification.schema &&
+              stringField(program, @"filename", label + " filename") ==
+                  specification.filename &&
+              stringField(program, @"magic", label + " magic") ==
+                  specification.magicLabel,
+          label + " identity differs");
+  require(unsigned32Field(program, @"abi", label + " ABI") ==
+                  specification.abi &&
+              unsignedField(program, @"bytes", label + " bytes") ==
+                  specification.byteCount &&
+              unsigned32Field(program, @"nq", label + " nq") == 129u &&
+              unsigned32Field(program, @"nv", label + " nv") == 128u &&
+              unsigned32Field(program, @"row_count", label + " row count") ==
+                  specification.rowCount &&
+              unsigned32Field(program, @"record_bytes",
+                              label + " record bytes") ==
+                  specification.recordBytes &&
+              unsigned32Field(program, @"source_row_count",
+                              label + " source row count") ==
+                  specification.rowCount &&
+              unsigned32Field(program, @"policy_id", label + " policy") ==
+                  1u &&
+              unsigned32Field(program, @"flags", label + " flags") == 1u &&
+              booleanField(program, @"refsafe", label + " refsafe"),
+          label + " source-compliance metadata differs");
+  require(digestField(program, @"file_sha256", label + " file identity") ==
+                  actualFileSHA256 &&
+              actualFileSHA256 ==
+                  parseDigest(std::string(specification.fileSHA256),
+                              label + " pinned file identity") &&
+              digestField(program, @"source_archive_sha256",
+                          label + " source archive identity") ==
+                  parseDigest(std::string(kSourceArchiveSHA256),
+                              "source archive identity"),
+          label + " bound byte identity differs");
+}
+
+void validateSourceComplianceOwnership(
+    NSDictionary *ownership,
+    const NumiHumanLoadedKneeBindingAdmissionV1 &authenticatedBase) {
+  requireKeys(ownership, {"human_source_laws", "matter_runtime_constraints"},
+              "source-compliance ownership");
+  NSDictionary *human = dictionary(
+      field(ownership, @"human_source_laws", "Human source-law ownership"),
+      "Human source-law ownership");
+  requireKeys(human,
+              {"authority", "owner_id", "owner_system",
+               "owns_runtime_constraint_force", "owns_runtime_constraint_state",
+               "programs"},
+              "Human source-law ownership");
+  require(stringField(human, @"owner_id", "Human source-law owner") ==
+                  "numilab-human:loaded-anatomy-knee/source-constraint-laws" &&
+              stringField(human, @"owner_system", "Human owner system") ==
+                  "Human" &&
+              stringField(human, @"authority", "Human source-law authority") ==
+                  "immutable-source-law-program-bytes" &&
+              !booleanField(human, @"owns_runtime_constraint_force",
+                            "Human runtime-force authority") &&
+              !booleanField(human, @"owns_runtime_constraint_state",
+                            "Human runtime-state authority"),
+          "Human source-law ownership boundary differs");
+  const auto programs = stringArray(
+      field(human, @"programs", "Human source-law programs"),
+      "Human source-law programs");
+  require(programs ==
+              std::vector<std::string>{"joint_equalities", "joint_limits"},
+          "Human source-law program ownership differs");
+
+  NSDictionary *matter = dictionary(
+      field(ownership, @"matter_runtime_constraints",
+            "Matter runtime-constraint ownership"),
+      "Matter runtime-constraint ownership");
+  requireKeys(matter,
+              {"accepted_state_authority_identity_sha256",
+               "accepted_state_schema", "accepted_state_semantic_id",
+               "authors_source_laws", "authority", "owner_id", "owner_system",
+               "owns_runtime_constraint_force", "owns_runtime_constraint_state"},
+              "Matter runtime-constraint ownership");
+  require(stringField(matter, @"owner_id", "Matter runtime owner") ==
+                  authenticatedBase.authoring.fullStateOwnerID &&
+              stringField(matter, @"owner_id", "Matter runtime owner") ==
+                  "numi-lab:human-matter/accepted-step-transaction" &&
+              stringField(matter, @"owner_system", "Matter owner system") ==
+                  "Matter" &&
+              stringField(matter, @"authority", "Matter runtime authority") ==
+                  "runtime-constraint-force-and-accepted-state" &&
+              stringField(matter, @"accepted_state_schema",
+                          "Matter accepted-state schema") ==
+                  authenticatedBase.authoring.fullStateSchema &&
+              stringField(matter, @"accepted_state_semantic_id",
+                          "Matter accepted-state semantic ID") ==
+                  authenticatedBase.authoring.fullStateSemanticID &&
+              digestField(matter, @"accepted_state_authority_identity_sha256",
+                          "Matter accepted-state authority identity") ==
+                  authenticatedBase.authoring.fullStateIdentitySHA256 &&
+              !booleanField(matter, @"authors_source_laws",
+                            "Matter source-law authority") &&
+              booleanField(matter, @"owns_runtime_constraint_force",
+                           "Matter runtime-force authority") &&
+              booleanField(matter, @"owns_runtime_constraint_state",
+                           "Matter runtime-state authority"),
+          "Matter runtime-constraint ownership boundary differs");
+}
+
+void validateSourceComplianceQualification(NSDictionary *qualification) {
+  requireKeys(qualification,
+              {"base_manifest_identity_bound", "candidate_only",
+               "clinical_validity_qualified",
+               "cross_program_consistency_validated",
+               "exact_source_program_bytes_bound",
+               "integrated_human_qualification",
+               "prepared_state_identity_bound", "production_physical_ownership",
+               "program_headers_validated",
+               "runtime_constraint_force_or_state_executed",
+               "source_rigid_identity_bound"},
+              "source-compliance qualification");
+  require(
+      booleanField(qualification, @"candidate_only", "candidate-only status") &&
+          booleanField(qualification, @"base_manifest_identity_bound",
+                       "base manifest binding") &&
+          booleanField(qualification, @"exact_source_program_bytes_bound",
+                       "exact source-program binding") &&
+          booleanField(qualification, @"source_rigid_identity_bound",
+                       "source rigid binding") &&
+          booleanField(qualification, @"program_headers_validated",
+                       "program header validation") &&
+          booleanField(qualification, @"cross_program_consistency_validated",
+                       "cross-program validation") &&
+          !booleanField(qualification, @"prepared_state_identity_bound",
+                        "prepared-state binding") &&
+          !booleanField(qualification,
+                        @"runtime_constraint_force_or_state_executed",
+                        "runtime constraint execution") &&
+          !booleanField(qualification, @"production_physical_ownership",
+                        "production ownership") &&
+          !booleanField(qualification, @"clinical_validity_qualified",
+                        "clinical qualification") &&
+          !booleanField(qualification, @"integrated_human_qualification",
+                        "integrated Human qualification"),
+      "source-compliance qualification overclaims its authoring boundary");
+}
+
 } // namespace
 
 bool loadNumiHumanLoadedKneeBindingV1(
@@ -2792,6 +3065,192 @@ bool loadNumiHumanLoadedKneeBindingV1(
     return false;
   } catch (...) {
     error = "loaded-knee binding admission failed";
+    return false;
+  }
+}
+
+bool loadNumiHumanLoadedKneeSourceComplianceV1(
+    const std::filesystem::path &sourceCompliancePath,
+    const std::filesystem::path &jointEqualityPath,
+    const std::filesystem::path &jointLimitPath,
+    const NumiHumanLoadedKneeBindingAdmissionV1 &authenticatedBase,
+    NumiHumanLoadedKneeSourceComplianceAdmissionV1 &output,
+    std::string &error) {
+  try {
+    require(sourceCompliancePath.filename() == kSourceComplianceName,
+            "source-compliance companion must use its standard filename");
+    require(jointEqualityPath.filename() == kSourceEqualityProgram.filename &&
+                jointLimitPath.filename() == kSourceLimitProgram.filename,
+            "source-compliance programs must use their standard filenames");
+
+    std::string baseError;
+    require(validateNumiHumanLoadedKneeAuthoringV1(
+                authenticatedBase.authoring, nullptr, baseError),
+            "authenticated base admission is invalid: " + baseError);
+    require(authenticatedBase.authoring.schema ==
+                    "HumanPack.loaded-anatomy-knee.v1" &&
+                authenticatedBase.authoring.sourceRigidPayloadSHA256 ==
+                    parseDigest(std::string(kSourceRigidPayloadSHA256),
+                                "source rigid payload identity") &&
+                authenticatedBase.authoring.fullStateOwnerID ==
+                    "numi-lab:human-matter/accepted-step-transaction",
+            "authenticated base admission differs from the source-compliance "
+            "contract");
+
+    const auto companionBytes = readRegularFile(
+        sourceCompliancePath, 1024u * 1024u, "source-compliance companion");
+    const auto equalityBytes = readRegularFile(
+        jointEqualityPath, kSourceEqualityProgram.byteCount,
+        "NHEQ2 source program");
+    const auto limitBytes = readRegularFile(
+        jointLimitPath, kSourceLimitProgram.byteCount, "NHLIM1 source program");
+    const auto equalityFileIdentity =
+        validateSourceComplianceProgramBytes(equalityBytes,
+                                             kSourceEqualityProgram);
+    const auto limitFileIdentity =
+        validateSourceComplianceProgramBytes(limitBytes, kSourceLimitProgram);
+
+    CanonicalJSONScanner companionScanner(companionBytes);
+    const auto companionMembers = companionScanner.validateDocument();
+    NSDictionary *companion =
+        parseJSONObject(companionBytes, "source-compliance companion");
+    requireKeys(companion,
+                {"base_manifest", "binding_hash_exclusion", "binding_sha256",
+                 "boundary", "compiler", "cross_program",
+                 "manifest_canonicalization", "ownership", "prepared_state",
+                 "programs", "qualification", "schema", "source_model",
+                 "status"},
+                "source-compliance companion");
+    require(stringField(companion, @"schema", "source-compliance schema") ==
+                    kSourceComplianceSchema &&
+                stringField(companion, @"compiler",
+                            "source-compliance compiler") ==
+                    kSourceComplianceCompiler &&
+                stringField(companion, @"manifest_canonicalization",
+                            "source-compliance canonicalization") ==
+                    kCanonicalization &&
+                stringField(companion, @"binding_hash_exclusion",
+                            "source-compliance hash exclusion") ==
+                    "top-level binding_sha256" &&
+                stringField(companion, @"status", "source-compliance status") ==
+                    "candidate" &&
+                stringField(companion, @"boundary",
+                            "source-compliance boundary") ==
+                    kSourceComplianceBoundary,
+            "source-compliance envelope or boundary differs");
+
+    const auto bindingIdentity = hashExcludingTopLevelMember(
+        companionBytes, companionMembers, "binding_sha256");
+    require(bindingIdentity ==
+                digestField(companion, @"binding_sha256",
+                            "source-compliance binding identity"),
+            "source-compliance binding identity hash mismatch");
+
+    NSDictionary *base = dictionary(
+        field(companion, @"base_manifest", "base manifest binding"),
+        "base manifest binding");
+    requireKeys(base, {"file_sha256", "manifest_sha256", "schema"},
+                "base manifest binding");
+    require(stringField(base, @"schema", "base manifest schema") ==
+                    authenticatedBase.authoring.schema &&
+                digestField(base, @"manifest_sha256",
+                            "base manifest identity") ==
+                    authenticatedBase.authoring.manifestSHA256 &&
+                digestField(base, @"file_sha256", "base manifest file identity") ==
+                    authenticatedBase.manifestFileSHA256,
+            "source-compliance companion names a different base manifest");
+
+    NSDictionary *source = dictionary(
+        field(companion, @"source_model", "source model binding"),
+        "source model binding");
+    requireKeys(source,
+                {"nq", "nv", "source_archive_sha256",
+                 "source_rigid_payload_sha256"},
+                "source model binding");
+    require(unsigned32Field(source, @"nq", "source nq") == 129u &&
+                unsigned32Field(source, @"nv", "source nv") == 128u &&
+                digestField(source, @"source_archive_sha256",
+                            "source archive identity") ==
+                    parseDigest(std::string(kSourceArchiveSHA256),
+                                "source archive identity") &&
+                digestField(source, @"source_rigid_payload_sha256",
+                            "source rigid payload identity") ==
+                    authenticatedBase.authoring.sourceRigidPayloadSHA256,
+            "source model binding differs");
+
+    NSDictionary *programs = dictionary(
+        field(companion, @"programs", "source programs"), "source programs");
+    requireKeys(programs, {"joint_equalities", "joint_limits"},
+                "source programs");
+    validateSourceComplianceProgramDescriptor(
+        dictionary(field(programs, @"joint_equalities", "joint equalities"),
+                   "joint equalities"),
+        kSourceEqualityProgram, equalityFileIdentity);
+    validateSourceComplianceProgramDescriptor(
+        dictionary(field(programs, @"joint_limits", "joint limits"),
+                   "joint limits"),
+        kSourceLimitProgram, limitFileIdentity);
+
+    NSDictionary *cross = dictionary(
+        field(companion, @"cross_program", "cross-program binding"),
+        "cross-program binding");
+    requireKeys(cross,
+                {"same_flags", "same_nq_nv", "same_policy_id", "same_refsafe",
+                 "same_source_archive_sha256"},
+                "cross-program binding");
+    require(booleanField(cross, @"same_nq_nv", "cross-program nq/nv") &&
+                booleanField(cross, @"same_source_archive_sha256",
+                             "cross-program source archive") &&
+                booleanField(cross, @"same_policy_id", "cross-program policy") &&
+                booleanField(cross, @"same_flags", "cross-program flags") &&
+                booleanField(cross, @"same_refsafe", "cross-program refsafe"),
+            "cross-program consistency record differs");
+
+    validateSourceComplianceOwnership(
+        dictionary(field(companion, @"ownership",
+                         "source-compliance ownership"),
+                   "source-compliance ownership"),
+        authenticatedBase);
+
+    NSDictionary *prepared = dictionary(
+        field(companion, @"prepared_state", "prepared-state boundary"),
+        "prepared-state boundary");
+    requireKeys(prepared,
+                {"identity_sha256", "qualification_receipt_sha256", "qualified",
+                 "status"},
+                "prepared-state boundary");
+    require(stringField(prepared, @"status", "prepared-state status") ==
+                    "absent" &&
+                [field(prepared, @"identity_sha256",
+                       "prepared-state identity") isEqual:[NSNull null]] &&
+                [field(prepared, @"qualification_receipt_sha256",
+                       "prepared-state qualification receipt")
+                    isEqual:[NSNull null]] &&
+                !booleanField(prepared, @"qualified",
+                              "prepared-state qualification"),
+            "prepared-state identity must remain explicitly absent and "
+            "unqualified");
+
+    validateSourceComplianceQualification(
+        dictionary(field(companion, @"qualification",
+                         "source-compliance qualification"),
+                   "source-compliance qualification"));
+
+    NumiHumanLoadedKneeSourceComplianceAdmissionV1 candidate{};
+    candidate.bindingSHA256 = bindingIdentity;
+    candidate.fileSHA256 = sha256(companionBytes);
+    candidate.baseManifestSHA256 = authenticatedBase.authoring.manifestSHA256;
+    candidate.baseManifestFileSHA256 = authenticatedBase.manifestFileSHA256;
+    candidate.jointEqualityFileSHA256 = equalityFileIdentity;
+    candidate.jointLimitFileSHA256 = limitFileIdentity;
+    output = candidate;
+    error.clear();
+    return true;
+  } catch (const std::exception &exception) {
+    error = exception.what();
+    return false;
+  } catch (...) {
+    error = "loaded-knee source-compliance admission failed";
     return false;
   }
 }

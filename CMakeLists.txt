@@ -6000,6 +6000,64 @@ if(BUILD_TESTING)
         )
     endif()
 
+    add_executable(
+        metalrobo_numi_human_loaded_knee_source_compliance_test
+        tests/numi_human_loaded_knee_source_compliance_test.cpp
+    )
+    target_link_libraries(
+        metalrobo_numi_human_loaded_knee_source_compliance_test
+        PRIVATE metalrobo
+    )
+    target_compile_options(
+        metalrobo_numi_human_loaded_knee_source_compliance_test
+        PRIVATE -Wall -Wextra -Wpedantic -Werror
+    )
+    set_target_properties(
+        metalrobo_numi_human_loaded_knee_source_compliance_test
+        PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+    )
+    set(
+        NUMI_HUMAN_LOADED_KNEE_TEST_SOURCE_COMPLIANCE ""
+        CACHE FILEPATH
+        "Immutable loaded-knee source-compliance companion fixture"
+    )
+    set(
+        NUMI_HUMAN_LOADED_KNEE_TEST_SOURCE_EQUALITIES ""
+        CACHE FILEPATH
+        "Exact NHEQ2 loaded-knee source-compliance program fixture"
+    )
+    set(
+        NUMI_HUMAN_LOADED_KNEE_TEST_SOURCE_LIMITS ""
+        CACHE FILEPATH
+        "Exact NHLIM1 loaded-knee source-compliance program fixture"
+    )
+    if(
+        NUMI_HUMAN_LOADED_KNEE_TEST_BUNDLE_DIR
+        AND NUMI_HUMAN_LOADED_KNEE_TEST_OWNERSHIP_MANIFEST
+        AND NUMI_HUMAN_LOADED_KNEE_TEST_SOURCE_COMPLIANCE
+        AND NUMI_HUMAN_LOADED_KNEE_TEST_SOURCE_EQUALITIES
+        AND NUMI_HUMAN_LOADED_KNEE_TEST_SOURCE_LIMITS
+    )
+        find_package(Python3 REQUIRED COMPONENTS Interpreter)
+        add_test(
+            NAME numi_human_loaded_knee_source_compliance_mutations
+            COMMAND
+                "${Python3_EXECUTABLE}"
+                "${CMAKE_CURRENT_SOURCE_DIR}/tests/numi_human_loaded_knee_source_compliance_mutation_test.py"
+                "$<TARGET_FILE:metalrobo_numi_human_loaded_knee_source_compliance_test>"
+                "${NUMI_HUMAN_LOADED_KNEE_TEST_BUNDLE_DIR}/HumanPack.loaded-anatomy-knee.v1.json"
+                "${NUMI_HUMAN_LOADED_KNEE_TEST_BUNDLE_DIR}/HumanPack.loaded-anatomy-knee.binding.v1.json"
+                "${NUMI_HUMAN_LOADED_KNEE_TEST_OWNERSHIP_MANIFEST}"
+                "${NUMI_HUMAN_LOADED_KNEE_TEST_SOURCE_COMPLIANCE}"
+                "${NUMI_HUMAN_LOADED_KNEE_TEST_SOURCE_EQUALITIES}"
+                "${NUMI_HUMAN_LOADED_KNEE_TEST_SOURCE_LIMITS}"
+        )
+        set_tests_properties(
+            numi_human_loaded_knee_source_compliance_mutations
+            PROPERTIES LABELS "numi;human;binding;constraints;security" TIMEOUT 240
+        )
+    endif()
+
     add_executable(metalrobo_numi_human_bilateral_test tests/numi_human_bilateral_test.cpp)
     target_include_directories(metalrobo_numi_human_bilateral_test PRIVATE include)
     target_compile_features(metalrobo_numi_human_bilateral_test PRIVATE cxx_std_20)
