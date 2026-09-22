@@ -8335,6 +8335,38 @@ MetalArticulatedOperatorSubmission::wait(
                 "GPU batch contained non-finite typed payload"
             );
         }
+        if (diagnostics.failedEnvironmentCount == 0u && pending->hasStandHorizon &&
+            pending->context->config.readStandConstraintDiagnostics) {
+            // Read only after all physical/typed payload gates have passed.
+            // Failed environments receive no new evidence. The existing device
+            // reconciliation and result publication behavior remain unchanged.
+            const std::size_t environments = staged.standStatuses.size();
+            const std::size_t nv = pending->articulation.nv;
+            const std::size_t contacts = pending->standContactCount;
+            const std::size_t equalities = pending->standJointEqualityCount;
+            const std::size_t stride = diagnostics.layout.standVectorElements / environments;
+            const auto* vectors = static_cast<const float*>(
+                pending->context->standBuffers[kStandVectorBuffer].contents);
+            const auto* spatial = static_cast<const float*>(
+                pending->context->standBuffers[kStandSpatialJacobianBuffer].contents);
+            staged.standContactImpulses.resize(environments * 3u * contacts);
+            staged.standJointEqualityImpulses.resize(environments * equalities);
+            staged.standJointEqualityDerivatives.resize(environments * equalities);
+            staged.standFreeVelocity.resize(environments * nv);
+            staged.standPreviousVelocity.resize(environments * nv);
+            for (std::size_t env = 0u; env < environments; ++env) {
+                const float* row = vectors + env * stride;
+                std::copy_n(row + 4u * nv, 3u * contacts,
+                    staged.standContactImpulses.begin() + env * 3u * contacts);
+                std::copy_n(row + 4u * nv + 3u * contacts, equalities,
+                    staged.standJointEqualityImpulses.begin() + env * equalities);
+                std::copy_n(spatial + env * pending->articulation.bodyCount *
+                    MR_NUMI_HUMAN_STAND_SPATIAL_SCRATCH_ROWS * nv, equalities,
+                    staged.standJointEqualityDerivatives.begin() + env * equalities);
+                std::copy_n(row + nv, nv, staged.standFreeVelocity.begin() + env * nv);
+                std::copy_n(row + 3u * nv, nv, staged.standPreviousVelocity.begin() + env * nv);
+            }
+        }
         if (diagnostics.failedEnvironmentCount == 0u &&
             pending->hasStandHorizon &&
             pending->standAuthoritativeStepCount != 0u &&

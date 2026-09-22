@@ -1786,6 +1786,9 @@ struct MetalArticulatedOperatorConfig {
     // MetalRobo dylib, with the configured build-tree path as a fallback.
     // A non-empty path is an explicit trusted ABI-compatible override.
     std::string metallibPath;
+    // Read-only final-step constraint evidence, published through the same
+    // accepted-result boundary. No additional device passes or physics writes.
+    bool readStandConstraintDiagnostics = false;
 };
 
 enum class MetalArticulatedOperatorHostStatus : std::uint32_t {
@@ -1970,6 +1973,17 @@ struct MetalArticulatedOperatorResult {
     // are available to an optional per-step borrowed consumer.
     std::vector<MRNumiHumanTendonTransferResultGPU> standTendonTransfers;
     std::vector<float> standTendonGeneralizedCorrections;
+    // Optional final accepted step only, environment-major. Contacts use
+    // [normal, tangent0, tangent1] in the Stand kernel's pre-step basis;
+    // equalities include reactions induced by source limits. Derivatives are
+    // the exact native pre-step linearization. pointJacobians/MyoSim forces
+    // likewise describe that step's pre-dynamics evaluation, not terminal q.
+    // Direct source-limit multipliers are not exported by this interface.
+    std::vector<float> standContactImpulses;
+    std::vector<float> standJointEqualityImpulses;
+    std::vector<float> standJointEqualityDerivatives;
+    std::vector<float> standFreeVelocity;
+    std::vector<float> standPreviousVelocity;
 };
 
 struct MetalArticulatedOperatorDiagnostics {
