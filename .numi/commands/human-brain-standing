@@ -157,4 +157,17 @@ fi
 
 printf 'numi_human_brain_run_directory=%s\n' "$output_directory"
 export NUMI_HUMAN_EXECUTION_STAGES=${NUMI_HUMAN_EXECUTION_STAGES:-1}
+set +e
 "$binary" "${arguments[@]}" 2>&1 | tee "$output_directory/launch.log"
+pipeline_status=("${PIPESTATUS[@]}")
+set -e
+launcher_status=${pipeline_status[0]}
+if (( pipeline_status[1] != 0 )); then
+    launcher_status=${pipeline_status[1]}
+fi
+{
+    printf 'binary_exit_code=%s\n' "${pipeline_status[0]}"
+    printf 'tee_exit_code=%s\n' "${pipeline_status[1]}"
+    printf 'launcher_exit_code=%s\n' "$launcher_status"
+} > "$output_directory/launch.exit"
+exit "$launcher_status"
