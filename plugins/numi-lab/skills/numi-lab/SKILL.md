@@ -123,6 +123,20 @@ supply the matching bone and muscle-surface payloads. The wrapper retains
 The command's default short horizon is not a ten-second standing run;
 judge the requested horizon from the actual accepted trajectory and outcome.
 
+For the integrated Brain/Human path, run the published
+`.numi/commands/human-brain-standing` on the Apple-native owner with the
+matching Brain dynamic library. Its current launcher accepts 1–4 one-millisecond
+steps and renders the accepted skeleton and muscle surfaces. Check its run
+manifest, `human_brain_joint_commit`, and `human_standing_progress` records.
+The default Brain program relays source-prepared tonic excitation after the
+first receptor frame; the initial empty receptor validity produces zero
+excitation on step one. This short reproducible integration is not sustained
+Brain-controlled standing or evidence of recovery from a perturbation. For
+that claim, initialize only receptors measured from the prepared native state,
+run a source-bound feedback program, and compare matched controller-on/off
+physical trajectories under the same timed push before extending to at least
+10 simulated seconds without root assistance.
+
 For a short energy diagnosis, add `--endpoint-energy` to `--execute`.
 It reports mass/inertia kinetic energy and available work at accepted native
 endpoints. Keep solver-iterate correction work separate; missing source-limit,
