@@ -1,0 +1,146 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ "${1:-}" == "--numi-describe" ]]; then
+    printf '%s\n' 'Run one bounded native Human standing step with NumiBrain sensory and muscle participation, rendering the accepted BodyParts3D skeleton and muscle surfaces with source hashes.'
+    exit 0
+fi
+
+if (( $# > 1 )); then
+    printf 'usage: %s [new-output-directory]\n' "$0" >&2
+    exit 2
+fi
+
+command_directory=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
+repository_root=$(CDPATH= cd -- "$command_directory/../.." && pwd -P)
+build_directory=${NUMI_HUMAN_BRAIN_BUILD_DIR:-"$HOME/numi-lab-brain-cpu-build-20260922"}
+binary=${NUMI_HUMAN_BRAIN_BINARY:-"$build_directory/bin/metalrobo_numilab_human_myosim_visual_probe"}
+source_directory=${NUMI_HUMAN_BRAIN_SOURCE_DIR:-"$HOME/NumiHumanCurrent"}
+brain_library=${NUMI_HUMAN_BRAIN_DYLIB:-"$HOME/numi-brain-humanstanding-20260922/.build/arm64-apple-macosx/debug/libNumiBrainHumanStanding.dylib"}
+rigid_source="$source_directory/myosim-fullbody-core-reference.nhrigid"
+muscle_source="$source_directory/myosim-fullbody-muscle-reference.nhmyo"
+contact_source="$source_directory/myosim-fullbody-support-contact.nhcnt"
+equality_source="$source_directory/myosim-fullbody-joint-equalities.nheq"
+tendon_source="$source_directory/numi-human-tendon-attachments.nhtendon"
+bone_source=${NUMI_HUMAN_BRAIN_BONES:-"$HOME/human-completion-20260907/input/bodyparts3d-myosim-major-bones.nhbones"}
+muscle_surface_source=${NUMI_HUMAN_BRAIN_MUSCLE_SURFACES:-"$HOME/human-completion-20260907/input/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue"}
+seed=${NUMI_HUMAN_BRAIN_SEED:-1314213193}
+steps=${NUMI_HUMAN_BRAIN_STEPS:-1}
+if [[ ! "$steps" =~ ^[1-4]$ ]]; then
+    printf 'NUMI_HUMAN_BRAIN_STEPS must be from 1 through 4: %s\n' "$steps" >&2
+    exit 2
+fi
+
+require_file() {
+    if [[ ! -f "$1" ]]; then
+        printf 'required Human Brain input is missing: %s\n' "$1" >&2
+        exit 1
+    fi
+}
+
+require_file "$binary"
+require_file "$brain_library"
+require_file "$rigid_source"
+require_file "$muscle_source"
+require_file "$contact_source"
+require_file "$equality_source"
+require_file "$tendon_source"
+require_file "$bone_source"
+require_file "$muscle_surface_source"
+
+if (( $# == 1 )); then
+    output_directory=$1
+    if [[ -e "$output_directory" ]]; then
+        printf 'refusing to reuse existing output directory: %s\n' "$output_directory" >&2
+        exit 1
+    fi
+    mkdir -p "$(dirname -- "$output_directory")"
+    mkdir "$output_directory"
+else
+    run_root=${NUMI_HUMAN_BRAIN_RUN_ROOT:-"$HOME/NumiHumanBrainRuns"}
+    mkdir -p "$run_root"
+    output_directory=$(mktemp -d "$run_root/native-standing.XXXXXX")
+fi
+
+arguments=(
+    "$rigid_source"
+    "$muscle_source"
+    "$bone_source"
+    "$output_directory"
+    --persistent-metal-stand
+    --muscle-step-seconds 0.001
+    --muscle-step-count "$steps"
+    --persistent-source-passive-joint-tissue
+    --stand-contact-iterations 64
+    --support-contact-payload "$contact_source"
+    --joint-equality-payload "$equality_source"
+    --tendon-payload "$tendon_source"
+    --soft-tissue-payload "$muscle_surface_source"
+    --dimension 512
+    --support-stance-dof 2 0.02
+    --support-stance-dof 108 0.1
+    --support-stance-dof 109 0.1
+    --support-stance-dof 110 0.1
+    --support-stance-dof 122 0.1
+    --support-stance-dof 123 0.1
+    --support-stance-dof 124 0.1
+    --support-stance-contact 2
+    --support-stance-contact 3
+    --support-stance-contact 4
+    --support-stance-contact 5
+    --support-stance-contact 6
+    --support-stance-contact 7
+    --stand-brain-library "$brain_library"
+    --stand-brain-seed "$seed"
+)
+if [[ -n "${NUMI_HUMAN_BRAIN_PROGRAM:-}" ]]; then
+    require_file "$NUMI_HUMAN_BRAIN_PROGRAM"
+    arguments+=(--stand-brain-program "$NUMI_HUMAN_BRAIN_PROGRAM")
+fi
+
+{
+    printf 'output_directory=%s\n' "$output_directory"
+    printf 'native_timestep_microseconds=1000\nbrain_epoch_microseconds=1000\nrequested_physical_steps=%s\nseed=%s\n' "$steps" "$seed"
+    printf 'binary '; shasum -a 256 "$binary"
+    printf 'brain_library '; shasum -a 256 "$brain_library"
+    while IFS= read -r metallib; do
+        printf 'metal_library '; shasum -a 256 "$metallib"
+    done < <(find "$build_directory" -type f -name '*.metallib' -print | sort)
+    printf 'rigid_source '; shasum -a 256 "$rigid_source"
+    printf 'muscle_source '; shasum -a 256 "$muscle_source"
+    printf 'support_contact_source '; shasum -a 256 "$contact_source"
+    printf 'joint_equality_source '; shasum -a 256 "$equality_source"
+    printf 'tendon_source '; shasum -a 256 "$tendon_source"
+    printf 'bodyparts3d_bone_source '; shasum -a 256 "$bone_source"
+    printf 'bodyparts3d_muscle_surface_source '; shasum -a 256 "$muscle_surface_source"
+    if [[ -n "${NUMI_HUMAN_BRAIN_PROGRAM:-}" ]]; then
+        printf 'locomotor_program '; shasum -a 256 "$NUMI_HUMAN_BRAIN_PROGRAM"
+    fi
+    for source_file in \
+        CMakeLists.txt \
+        apps/numilab_human_myosim_visual_probe.mm \
+        apps/NumiHumanBrainController.hpp \
+        apps/NumiHumanBrainReceptors.hpp \
+        apps/NumiHumanBrainSource.hpp \
+        include/metalrobo/MetalArticulatedOperator.hpp \
+        include/metalrobo/NumiBrainHumanStandingABI.h \
+        src/metal/MetalArticulatedOperator.mm; do
+        printf 'lab_source_file=%s ' "$source_file"
+        shasum -a 256 "$repository_root/$source_file"
+    done
+    source_revision=${NUMI_HUMAN_BRAIN_SOURCE_REVISION:-}
+    if [[ -z "$source_revision" && -f "$build_directory/NUMI_LAB_SOURCE_REVISION" ]]; then
+        source_revision=$(<"$build_directory/NUMI_LAB_SOURCE_REVISION")
+    fi
+    if [[ -z "$source_revision" ]]; then
+        source_revision=$(git -C "$repository_root" rev-parse HEAD 2>/dev/null || printf 'unavailable')
+    fi
+    printf 'lab_source_revision=%s\n' "$source_revision"
+    printf 'command='
+    printf '%q ' "$binary" "${arguments[@]}"
+    printf '\n'
+} > "$output_directory/launch.manifest"
+
+printf 'numi_human_brain_run_directory=%s\n' "$output_directory"
+export NUMI_HUMAN_EXECUTION_STAGES=${NUMI_HUMAN_EXECUTION_STAGES:-1}
+"$binary" "${arguments[@]}" 2>&1 | tee "$output_directory/launch.log"

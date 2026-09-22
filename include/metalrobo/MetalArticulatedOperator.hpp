@@ -2137,6 +2137,16 @@ private:
 // independent contexts provide safe overlap when multiple queues are useful.
 class MetalArticulatedOperatorContext {
 public:
+    // Completes caller-owned neural shadow work after one accepted standing
+    // step on this SAME physical owner's queue. The callback receives only the
+    // borrowed command buffer, writes no physical state, and cannot submit/wait.
+    // Failure terminally closes this context; it never rewrites physical success
+    // as joint acceptance. GPU times are from the actual completion command.
+    [[nodiscard]] bool finishStandController(
+        const MetalArticulatedOperatorDiagnostics& accepted,
+        void* context, bool (*encode)(void*, void*) noexcept,
+        double& gpuStartSeconds, double& gpuEndSeconds, std::string& error);
+
     // Explicit quiescent collection on the original owner queue; no physical
     // dispatch or clock advance. Callback writes only its diagnostic buffers.
     [[nodiscard]] bool flushReadOnlyObserver(void* context,

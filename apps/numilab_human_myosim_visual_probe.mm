@@ -24,6 +24,8 @@
 #include "metalrobo/NumiHumanPassiveJoint.hpp"
 #include "metalrobo/NumiHumanCompliantEquilibrium.hpp"
 #include "metalrobo/NumiHumanInitialState.hpp"
+#include "NumiHumanBrainController.hpp"
+#include "NumiHumanBrainSource.hpp"
 #include "numi/matter/human_limits_gpu.h"
 #include "metalrobo/NumiHumanTendon.hpp"
 #include "metalrobo/NumiHumanTendonMetal.hpp"
@@ -36,6 +38,7 @@
 
 #include <algorithm>
 #include <array>
+#include <bit>
 #include <cmath>
 #include <chrono>
 #include <charconv>
@@ -3482,6 +3485,9 @@ std::vector<float> packMetalConfiguration(
 struct MetalMujocoForceStep {
     std::vector<float> generalizedForce;
     std::vector<float> muscleGeneralizedForces;
+    // Exact prepared path measurements retained for source-bound Brain
+    // calibration; the locomotor spindle reference is path length in metres.
+    std::vector<MRMujocoMuscleResultGPU> muscleResults;
     std::uint32_t appliedWrapCount = 0u;
     double elapsedMilliseconds = 0.0;
     std::string deviceName;
@@ -3629,6 +3635,7 @@ MetalMujocoForceStep evaluateMetalMujocoForce(
     for (const MRMujocoMuscleResultGPU& muscle : result.mujocoResults) {
         output.appliedWrapCount += muscle.appliedWrapCount;
     }
+    output.muscleResults = std::move(result.mujocoResults);
     states = std::move(result.mujocoActivationStates);
     return output;
 }
@@ -4633,6 +4640,119 @@ HumanEndpointEnergy measureHumanEndpointEnergy(
     return energy;
 }
 
+class HumanBrainSourceFingerprint {
+public:
+    void bytes(const void* data, std::size_t count) noexcept {
+        const auto* values = static_cast<const std::uint8_t*>(data);
+        for (std::size_t index = 0u; index < count; ++index) {
+            value_ ^= values[index];
+            value_ *= 1099511628211ull;
+        }
+    }
+
+    template <typename Integer>
+    void integer(Integer value) noexcept {
+        static_assert(std::is_integral_v<Integer>);
+        using Unsigned = std::make_unsigned_t<Integer>;
+        const Unsigned bits = static_cast<Unsigned>(value);
+        for (std::size_t byte = 0u; byte < sizeof(Unsigned); ++byte) {
+            const auto part = static_cast<std::uint8_t>(bits >> (byte * 8u));
+            bytes(&part, sizeof(part));
+        }
+    }
+
+    void floating(float value) noexcept {
+        integer(std::bit_cast<std::uint32_t>(value));
+    }
+
+    void text(std::string_view value) noexcept {
+        integer(static_cast<std::uint64_t>(value.size()));
+        bytes(value.data(), value.size());
+    }
+
+    [[nodiscard]] std::uint64_t value() const noexcept {
+        return value_ == 0u ? 14695981039346656037ull : value_;
+    }
+
+private:
+    std::uint64_t value_ = 14695981039346656037ull;
+};
+
+std::uint64_t humanBrainSourceFingerprint(
+    const LoadedMuscles& muscles,
+    const LoadedSupportContacts& supportContacts,
+    const LoadedJointEqualities& jointEqualities,
+    std::span<const float> preparedQ,
+    std::span<const float> preparedV,
+    std::span<const MRMujocoMuscleStateGPU> preparedStates,
+    std::span<const MRMujocoMuscleResultGPU> preparedResults,
+    std::span<const float> passiveJointProgram,
+    const std::uint32_t timestepMicroseconds,
+    const std::uint32_t headBodyIdentifier
+) {
+    require(preparedStates.size() == muscles.gpuMuscles.size() &&
+                preparedResults.size() == muscles.gpuMuscles.size() &&
+                preparedStates.size() == preparedResults.size() &&
+                timestepMicroseconds > 0u,
+            "Human Brain source fingerprint lacks the exact prepared muscle state");
+    HumanBrainSourceFingerprint fingerprint;
+    fingerprint.text("numi.human.brain.prepared-source.v1");
+    fingerprint.bytes(muscles.header.sourceSha256.data(),
+                      muscles.header.sourceSha256.size());
+    fingerprint.bytes(supportContacts.header.sourceSha256.data(),
+                      supportContacts.header.sourceSha256.size());
+    fingerprint.bytes(jointEqualities.payload.sourceSha256.data(),
+                      jointEqualities.payload.sourceSha256.size());
+    fingerprint.bytes(muscles.tendonPayload.sourceSha256.data(),
+                      muscles.tendonPayload.sourceSha256.size());
+    fingerprint.bytes(muscles.tendonPayload.musclePayloadSha256.data(),
+                      muscles.tendonPayload.musclePayloadSha256.size());
+    fingerprint.bytes(muscles.tendonPayload.bonePayloadSha256.data(),
+                      muscles.tendonPayload.bonePayloadSha256.size());
+    fingerprint.integer(muscles.tendonPayload.payloadAbi);
+    fingerprint.integer(muscles.tendonPayload.registrationFingerprint);
+    fingerprint.integer(supportContacts.header.engineBodyCount);
+    fingerprint.integer(supportContacts.header.contactCount);
+    fingerprint.integer(jointEqualities.payload.nq);
+    fingerprint.integer(jointEqualities.payload.nv);
+    fingerprint.integer(timestepMicroseconds);
+    fingerprint.integer(headBodyIdentifier);
+    fingerprint.integer(static_cast<std::uint64_t>(preparedQ.size()));
+    for (const float value : preparedQ) fingerprint.floating(value);
+    fingerprint.integer(static_cast<std::uint64_t>(preparedV.size()));
+    for (const float value : preparedV) fingerprint.floating(value);
+    fingerprint.integer(static_cast<std::uint64_t>(preparedStates.size()));
+    for (std::size_t index = 0u; index < preparedStates.size(); ++index) {
+        const auto& state = preparedStates[index].excitationAndActivation;
+        const auto& result = preparedResults[index];
+        fingerprint.integer(static_cast<std::uint32_t>(index));
+        fingerprint.floating(state.x);
+        fingerprint.floating(state.y);
+        fingerprint.floating(state.z);
+        fingerprint.floating(state.w);
+        fingerprint.integer(result.status);
+        fingerprint.integer(result.environment);
+        fingerprint.integer(result.muscleIndex);
+        fingerprint.floating(result.pathForceAndActivationDerivative.x);
+    }
+    fingerprint.integer(static_cast<std::uint64_t>(passiveJointProgram.size()));
+    for (const float value : passiveJointProgram) fingerprint.floating(value);
+    fingerprint.integer(static_cast<std::uint64_t>(supportContacts.records.size()));
+    for (const auto& contact : supportContacts.records) {
+        fingerprint.integer(contact.bodyIndex);
+        fingerprint.integer(contact.sourceGeometryIndex);
+        fingerprint.floating(contact.localPointX);
+        fingerprint.floating(contact.localPointY);
+        fingerprint.floating(contact.localPointZ);
+        fingerprint.floating(contact.friction);
+    }
+    fingerprint.integer(static_cast<std::uint64_t>(jointEqualities.payload.records.size()));
+    for (const auto& equality : jointEqualities.payload.records) {
+        fingerprint.bytes(&equality, sizeof(equality));
+    }
+    return fingerprint.value();
+}
+
 MuscleDrivenVisualState integratePersistentMetalHumanState(
     const metalrobo::EngineModel& model,
     const LoadedMuscles& muscles,
@@ -4659,7 +4779,11 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     const std::optional<std::pair<double, double>> muscleFeedback = std::nullopt,
     const bool musclePathFeedback = false,
     const bool endpointEnergy = false,
-    const MRNumiHumanTimedRootForceGPU timedRootForce = {}
+    const MRNumiHumanTimedRootForceGPU timedRootForce = {},
+    const std::optional<std::filesystem::path> standBrainLibraryPath = std::nullopt,
+    const std::optional<std::filesystem::path> standBrainProgramPath = std::nullopt,
+    const std::optional<std::filesystem::path> standBrainOutputPath = std::nullopt,
+    const std::uint32_t standBrainSeed = 0x4e554d49u
 ) {
     require(std::isfinite(timestepSeconds) && timestepSeconds >= 1.0e-6 &&
                 timestepSeconds <= 1.0e-3 && stepCount >= 1u &&
@@ -5145,6 +5269,101 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 : mr_float4{0.0f, 0.0f, 0.0f, 0.0f},
         },
     };
+    std::unique_ptr<numi_human_brain::Controller> standBrainController;
+    if (standBrainLibraryPath.has_value()) {
+        require(!verifyDeterminism && !capturePersistentStandTrace &&
+                    !muscleFeedback.has_value() && additionalTendonLoadProgram == nullptr &&
+                    continuumTransaction == nullptr && !applySelectedActivationIncrement &&
+                    !enableRootAssistance && !removeRootAssistance &&
+                    !endpointEnergy,
+                "Human Brain owner mode cannot inherit another controller or replay path");
+        require(model.world.bodyCount == 157u && model.world.nq == 129u &&
+                    model.world.nv == 128u && muscles.gpuMuscles.size() == 416u &&
+                    initialFiberEquilibrium.force.muscleResults.size() == 416u &&
+                    supportContacts.records.size() >= 10u &&
+                    supportContacts.records.size() <= 20u,
+                "Human Brain owner mode requires the exact prepared full-body source scene");
+        const double timestepMicrosecondsExact = timestepSeconds * 1.0e6;
+        const auto timestepMicroseconds = static_cast<std::uint32_t>(
+            std::llround(timestepMicrosecondsExact));
+        require(timestepMicroseconds > 0u &&
+                    std::abs(timestepMicrosecondsExact - timestepMicroseconds) <= 1.0e-6,
+                "Human Brain timestep must be an exact integer number of microseconds");
+        constexpr std::uint32_t headBodyIdentifier = 23u;
+        const std::uint64_t sourceFingerprint = humanBrainSourceFingerprint(
+            muscles, supportContacts, jointEqualities, q, v, states,
+            initialFiberEquilibrium.force.muscleResults, passiveJointProgram,
+            timestepMicroseconds, headBodyIdentifier);
+        const std::string sourceJSON = numi_human_brain::makeSourceJSON(
+            model, muscles.gpuMuscles, muscles.gpuSites, muscles.gpuRoutes,
+            states, initialFiberEquilibrium.force.muscleResults,
+            sourceFingerprint, headBodyIdentifier);
+        std::map<std::pair<std::uint32_t, std::uint32_t>, std::uint32_t>
+            touchReceptorByGeometry;
+        std::vector<numi_human_brain::ContactBinding> touchBindings;
+        touchBindings.reserve(supportContacts.records.size());
+        for (std::size_t contactIndex = 0u;
+             contactIndex < supportContacts.records.size(); ++contactIndex) {
+            const auto& contact = supportContacts.records[contactIndex];
+            const auto identity = std::pair{
+                contact.bodyIndex, contact.sourceGeometryIndex};
+            const auto [entry, inserted] = touchReceptorByGeometry.emplace(
+                identity, static_cast<std::uint32_t>(touchReceptorByGeometry.size()));
+            if (inserted) {
+                require(entry->second < 10u,
+                        "Human touch source exceeds the ten canonical receptors");
+            }
+            touchBindings.push_back({
+                static_cast<std::uint32_t>(contactIndex), entry->second,
+                contact.bodyIndex, contact.sourceGeometryIndex});
+        }
+        require(touchReceptorByGeometry.size() == 10u,
+                "Human touch must bind ten distinct source support geometries");
+        require(standBrainOutputPath.has_value() &&
+                    !standBrainOutputPath->empty(),
+                "Human Brain owner mode requires a run-local output directory");
+        std::filesystem::create_directories(*standBrainOutputPath);
+        std::string programJSON;
+        if (standBrainProgramPath.has_value()) {
+            std::ifstream programFile(*standBrainProgramPath, std::ios::binary);
+            require(programFile.is_open(), "cannot open Human Brain locomotor program JSON");
+            programJSON.assign(std::istreambuf_iterator<char>(programFile),
+                               std::istreambuf_iterator<char>());
+            require(!programFile.bad() && !programJSON.empty(),
+                    "Human Brain locomotor program JSON is empty or unreadable");
+        }
+        id<MTLDevice> brainDevice = MTLCreateSystemDefaultDevice();
+        NSError* libraryError = nil;
+        id<MTLLibrary> nativeLibrary = brainDevice == nil ? nil :
+            [brainDevice newLibraryWithURL:
+                [NSURL fileURLWithPath:@METALROBO_METALLIB] error:&libraryError];
+        require(brainDevice != nil && nativeLibrary != nil,
+                libraryError == nil
+                    ? "Human Brain could not load the native HumanIO Metal library"
+                    : std::string("Human Brain could not load the native HumanIO Metal library: ") +
+                        libraryError.localizedDescription.UTF8String);
+        const std::uint64_t epochMicroseconds = timestepMicroseconds;
+        standBrainController = std::make_unique<numi_human_brain::Controller>(
+            standBrainLibraryPath->string(), brainDevice, nativeLibrary,
+            sourceJSON, programJSON, standBrainOutputPath->string(),
+            model.world.bodyCount, headBodyIdentifier, sourceFingerprint,
+            touchBindings, timestepMicroseconds, epochMicroseconds, standBrainSeed);
+        const auto& brainInfo = standBrainController->info();
+        std::cout << "human_brain_native_binding=configured"
+                  << " model_source_fingerprint=" << brainInfo.model_source_fingerprint
+                  << " baseline_program_fingerprint=" << brainInfo.baseline_program_fingerprint
+                  << " locomotor_program_fingerprint=" << brainInfo.locomotor_program_fingerprint
+                  << " species_fingerprint=" << brainInfo.compiled_species_fingerprint
+                  << " sensory_profile_fingerprint=" << brainInfo.sensory_profile_fingerprint
+                  << " parameter_version_fingerprint=" << brainInfo.parameter_version_fingerprint
+                  << " touch_source_geometries=" << touchReceptorByGeometry.size()
+                  << " head_body=" << headBodyIdentifier
+                  << " epoch_microseconds=" << epochMicroseconds
+                  << " timestep_microseconds=" << timestepMicroseconds
+                  << " seed=" << standBrainSeed
+                  << " source_json_sha256_bound=true"
+                  << " same_native_queue=true" << std::endl;
+    }
     metalrobo::MetalArticulatedOperatorResult selectedControlBaselineResult;
     double selectedControlBaselineElapsedMilliseconds = 0.0;
     if (applySelectedActivationIncrement) {
@@ -5494,7 +5713,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     constexpr std::uint32_t kMaximumAuthoritativeSubmissionSteps = 8u;
     const bool captureExactContinuumSteps = continuumTransaction != nullptr;
     const bool useSegmentedAuthoritativeHorizon =
-        captureExactContinuumSteps || endpointEnergy || muscleFeedback.has_value() ||
+        standBrainController != nullptr || captureExactContinuumSteps || endpointEnergy ||
+        muscleFeedback.has_value() ||
         (!enableRootAssistance && !removeRootAssistance &&
          additionalTendonLoadProgram == nullptr &&
          stepCount > kMaximumAuthoritativeSubmissionSteps);
@@ -5683,6 +5903,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         }
     };
     const auto runAuthoritativeHorizon = [&context, &model,
+                                           &standBrainController,
                                            &mergeStandStatus,
                                            useSegmentedAuthoritativeHorizon,
                                            captureExactContinuumSteps,
@@ -5696,10 +5917,11 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             capturedSteps
     ) {
         const std::uint32_t requestedSteps = horizonInput.stand.stepCount;
-        if (!useSegmentedAuthoritativeHorizon ||
-            (!captureExactContinuumSteps &&
+        if (standBrainController == nullptr &&
+            (!useSegmentedAuthoritativeHorizon ||
+             (!captureExactContinuumSteps &&
              requestedSteps <= kMaximumAuthoritativeSubmissionSteps &&
-             !muscleFeedback.has_value() && !endpointEnergy)) {
+             !muscleFeedback.has_value() && !endpointEnergy))) {
             require(!captureExactContinuumSteps && capturedSteps == nullptr,
                     "loaded-knee exact continuum steps bypassed segmented capture");
             return context.run(model, horizonInput, horizonResult);
@@ -5748,6 +5970,10 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                       << (musclePathFeedback ? "committed_joint_q_v" : "committed_fibre_state")
                       << " actuation=muscle_excitation_only" << std::endl;
         }
+        if (standBrainController != nullptr) {
+            horizonInput.stand.numanXTransactionProgram =
+                standBrainController->program();
+        }
         metalrobo::MetalArticulatedOperatorDiagnostics aggregateDiagnostics;
         aggregateDiagnostics.dispatched = true;
         aggregateDiagnostics.published = true;
@@ -5763,7 +5989,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         double energyInitialGravity = 0.0, energyFinalGravity = 0.0;
         double energyInitialPassive = 0.0, energyFinalPassive = 0.0;
         while (completedSteps < requestedSteps) {
-            const std::uint32_t segmentSteps = (captureExactContinuumSteps || endpointEnergy)
+            const std::uint32_t segmentSteps =
+                (standBrainController != nullptr || captureExactContinuumSteps || endpointEnergy)
                 ? 1u
                 : std::min(kMaximumAuthoritativeSubmissionSteps,
                            requestedSteps - completedSteps);
@@ -5805,6 +6032,57 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                     segmentDiagnostics.message;
                 horizonResult = std::move(segmentResult);
                 return segmentDiagnostics;
+            }
+            if (standBrainController != nullptr) {
+                try {
+                    standBrainController->complete(
+                        context, segmentDiagnostics, segmentResult);
+                } catch (const std::exception& exception) {
+                    const auto& acceptedStatus = segmentResult.standStatuses.front();
+                    std::cerr << std::setprecision(12)
+                              << "human_brain_completion=failed"
+                              << " physical_endpoint=accepted"
+                              << " step=" << completedSteps + segmentSteps
+                              << " physical_command="
+                              << segmentDiagnostics.commandBufferIdentity
+                              << " brain_generation="
+                              << standBrainController->info().committed_generation
+                              << " root_xyz_m=[" << segmentResult.standQ[0] << ','
+                              << segmentResult.standQ[1] << ','
+                              << segmentResult.standQ[2] << ']'
+                              << " root_linear_speed_m_s="
+                              << std::sqrt(double(segmentResult.standV[0]) *
+                                           segmentResult.standV[0] +
+                                           double(segmentResult.standV[1]) *
+                                           segmentResult.standV[1] +
+                                           double(segmentResult.standV[2]) *
+                                           segmentResult.standV[2])
+                              << " native_status=" << acceptedStatus.code
+                              << " error=" << exception.what() << std::endl;
+                    segmentDiagnostics.status =
+                        metalrobo::MetalArticulatedOperatorHostStatus::externalProgramFailure;
+                    segmentDiagnostics.message =
+                        std::string("physical endpoint was accepted but Brain consequence failed: ") +
+                        exception.what();
+                    segmentDiagnostics.elapsedMilliseconds = elapsedMilliseconds;
+                    horizonResult = std::move(segmentResult);
+                    return segmentDiagnostics;
+                }
+                if (completedSteps == 0u ||
+                    (completedSteps + segmentSteps) % 1000u == 0u ||
+                    completedSteps + segmentSteps == requestedSteps) {
+                    const auto& brain = standBrainController->info();
+                    std::cout << "human_brain_joint_commit=accepted"
+                              << " step=" << completedSteps + segmentSteps
+                              << " brain_generation=" << brain.committed_generation
+                              << " joint_commit_fingerprint="
+                              << brain.last_joint_commit_fingerprint
+                              << " locomotor_program_fingerprint="
+                              << brain.locomotor_program_fingerprint
+                              << " physical_motor_same_command=true"
+                              << " accepted_consequence_followup_command=true"
+                              << " same_native_owner_queue=true" << std::endl;
+                }
             }
             if (endpointEnergy) {
                 const auto energy = measureHumanEndpointEnergy(
@@ -5854,6 +6132,27 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                             referenceMuscleStates[index].excitationAndActivation.x));
                 }
             }
+            double brainExcitationMinimum = std::numeric_limits<double>::infinity();
+            double brainExcitationMaximum = -std::numeric_limits<double>::infinity();
+            double brainExcitationSum = 0.0;
+            double brainExcitationMaximumDelta = 0.0;
+            if (standBrainController != nullptr) {
+                require(referenceMuscleStates.size() == 416u &&
+                            segmentResult.mujocoActivationStates.size() == 416u,
+                        "accepted Brain excitation telemetry lacks all source muscles");
+                for (std::size_t index = 0u; index < referenceMuscleStates.size(); ++index) {
+                    const double excitation =
+                        segmentResult.mujocoActivationStates[index].excitationAndActivation.x;
+                    require(std::isfinite(excitation),
+                            "accepted Brain excitation telemetry is non-finite");
+                    brainExcitationMinimum = std::min(brainExcitationMinimum, excitation);
+                    brainExcitationMaximum = std::max(brainExcitationMaximum, excitation);
+                    brainExcitationSum += excitation;
+                    brainExcitationMaximumDelta = std::max(brainExcitationMaximumDelta,
+                        std::abs(excitation -
+                            referenceMuscleStates[index].excitationAndActivation.x));
+                }
+            }
             const char* progress = std::getenv("NUMI_HUMAN_EXECUTION_STAGES");
             if (progress != nullptr && std::strcmp(progress, "1") == 0) {
                 const auto& accepted = segmentResult.standStatuses.front();
@@ -5878,6 +6177,16 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                           << " penetration_m=" << accepted.contactAndAcceleration.y
                           << " contact_count=" << accepted.activeContactCount
                           << " muscle_feedback_max_excitation_delta=" << maximumExcitationCorrection
+                          << (standBrainController != nullptr
+                                  ? " brain_muscle_excitation_min=" +
+                                        std::to_string(brainExcitationMinimum) +
+                                        " brain_muscle_excitation_max=" +
+                                        std::to_string(brainExcitationMaximum) +
+                                        " brain_muscle_excitation_mean=" +
+                                        std::to_string(brainExcitationSum / 416.0) +
+                                        " brain_muscle_excitation_max_abs_delta=" +
+                                        std::to_string(brainExcitationMaximumDelta)
+                                  : std::string{})
                           << " root_assistance_force_n=" << accepted.factorAndAssistance.z
                           << " root_assistance_torque_nm=" << accepted.factorAndAssistance.w
                           << std::endl;
@@ -6547,7 +6856,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         const std::uint32_t borrowedTendonLocalStatusSteps =
             !useSegmentedAuthoritativeHorizon
                 ? stepCount
-                : (captureExactContinuumSteps || endpointEnergy)
+                : (standBrainController != nullptr ||
+                   captureExactContinuumSteps || endpointEnergy)
                     ? 1u
                     : ((stepCount - 1u) %
                        kMaximumAuthoritativeSubmissionSteps) + 1u;
@@ -18193,6 +18503,10 @@ int main(int argc, char** argv) {
             bool standMusclePathFeedback = false;
             std::optional<MRNumiHumanTimedRootForceGPU> standPush;
             bool standEndpointEnergy = false;
+            std::optional<std::filesystem::path> standBrainLibraryPath;
+            std::optional<std::filesystem::path> standBrainProgramPath;
+            std::uint32_t standBrainSeed = 0x4e554d49u;
+            bool standBrainSeedSpecified = false;
             bool bilateralAchillesCertificate = false;
             bool bilateralThumbTendonCertificate = false;
             bool bilateralTricepsMedialisEnthesisCertificate = false;
@@ -18326,6 +18640,33 @@ int main(int argc, char** argv) {
                     pulse.forceNewtons.y = parseStandPushForce(argv[++index]);
                     pulse.forceNewtons.z = parseStandPushForce(argv[++index]);
                     standPush = pulse;
+                } else if (argument == "--stand-brain-library") {
+                    require(index + 1 < argc && !standBrainLibraryPath.has_value(),
+                            "--stand-brain-library requires one dylib path once");
+                    standBrainLibraryPath.emplace(argv[++index]);
+                    require(!standBrainLibraryPath->empty(),
+                            "--stand-brain-library path must not be empty");
+                } else if (argument == "--stand-brain-program") {
+                    require(index + 1 < argc && !standBrainProgramPath.has_value(),
+                            "--stand-brain-program requires one source-bound JSON file once");
+                    standBrainProgramPath.emplace(argv[++index]);
+                    require(!standBrainProgramPath->empty(),
+                            "--stand-brain-program path must not be empty");
+                } else if (argument == "--stand-brain-seed") {
+                    require(index + 1 < argc && !standBrainSeedSpecified,
+                            "--stand-brain-seed requires one uint32 value once");
+                    const std::string value(argv[++index]);
+                    std::size_t parsed = 0u;
+                    unsigned long long seed = 0ull;
+                    try { seed = std::stoull(value, &parsed, 0); }
+                    catch (const std::exception&) {
+                        throw std::runtime_error("--stand-brain-seed must be a uint32 integer");
+                    }
+                    require(parsed == value.size() &&
+                                seed <= std::numeric_limits<std::uint32_t>::max(),
+                            "--stand-brain-seed must be a uint32 integer");
+                    standBrainSeed = static_cast<std::uint32_t>(seed);
+                    standBrainSeedSpecified = true;
                 } else if (argument == "--stand-endpoint-energy") {
                     require(!standEndpointEnergy, "--stand-endpoint-energy may be given only once");
                     standEndpointEnergy = true;
@@ -18592,6 +18933,9 @@ int main(int argc, char** argv) {
                           << " [--muscle-activation <0..1>]"
                           << " [--persistent-metal-stand] [--mechanics-only] [--persistent-source-passive-joint-tissue] [--persistent-runtime-without-passive-joint-tissue] [--selected-tendon-control] [--stand-root-assistance] [--stand-remove-assistance] [--stand-deterministic-replay] [--persistent-stand-trace] [--stand-endpoint-energy] [--stand-contact-iterations <1..64>] [--stand-muscle-feedback <length-gain> <velocity-gain-seconds>] [--stand-muscle-path-feedback <length-gain> <velocity-gain-seconds>]"
                           << " [--stand-push <start-step> <duration-steps> <fx-N> <fy-N> <fz-N>]"
+                          << " [--stand-brain-library <NumiBrainHumanStanding.dylib>]"
+                          << " [--stand-brain-program <source-bound-MuscleLocomotorProgram.json>]"
+                          << " [--stand-brain-seed <uint32>]"
                           << " [--bilateral-achilles-certificate]"
                           << " [--bilateral-thumb-tendon-certificate]"
                           << " [--bilateral-triceps-medialis-enthesis-certificate]"
@@ -19228,6 +19572,21 @@ int main(int argc, char** argv) {
                          supportContactPayload.has_value() &&
                          jointEqualityPayload.has_value()),
                     "--persistent-metal-stand requires muscle timestep, support contacts, and NHEQ1 joint equalities");
+            require(!standBrainProgramPath.has_value() ||
+                        standBrainLibraryPath.has_value(),
+                    "--stand-brain-program requires --stand-brain-library");
+            require(!standBrainLibraryPath.has_value() ||
+                        (persistentMetalStand && !selectedTendonControl &&
+                         !standRootAssistance && !standRemoveAssistance &&
+                         !standDeterministicReplay && !persistentStandTrace &&
+                         !standEndpointEnergy && !standMuscleFeedback.has_value() &&
+                         !extensorHoodPayload.has_value() &&
+                         !bilateralPlantarFasciaCertificate &&
+                         !openKneeLiveTissueFEM &&
+                         !anteriorThoraxPayload.has_value() &&
+                         !pectoralisFasciaPayload.has_value() &&
+                         !passiveFEMTissueStableId.has_value()),
+                    "--stand-brain-library requires unassisted source-only persistent standing without a competing controller or replay");
             require(!extensorHoodPayload.has_value() ||
                         (persistentMetalStand &&
                          muscleStepSeconds.has_value() &&
@@ -20440,7 +20799,14 @@ int main(int argc, char** argv) {
                                 standContactIterationCount.value_or(16u),
                                 persistentRuntimeWithoutPassiveJointTissue,
                                 standMuscleFeedback, standMusclePathFeedback, standEndpointEnergy,
-                                standPush.value_or(MRNumiHumanTimedRootForceGPU{})
+                                standPush.value_or(MRNumiHumanTimedRootForceGPU{}),
+                                standBrainLibraryPath,
+                                standBrainProgramPath,
+                                standBrainLibraryPath.has_value()
+                                    ? std::optional<std::filesystem::path>(
+                                          std::filesystem::path(positional.back()) / "numi-brain")
+                                    : std::nullopt,
+                                standBrainSeed
                             )
                         );
                     }

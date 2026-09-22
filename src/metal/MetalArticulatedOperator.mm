@@ -420,6 +420,12 @@ struct MetalArticulatedOperatorContextState {
         std::size_t mujocoStateBytes = 0u;
         std::size_t rootTranslationBytes = 0u;
     } splitStandHorizon{};
+    std::uintptr_t publishedStandCommand = 0u;
+    std::uint64_t publishedStandProgram = 0u;
+    std::uint32_t publishedStandStep = 0u;
+    bool controllerCompletionConsumed = false;
+    bool controllerCompletionFailed = false;
+
     struct PublishedResidentState {
         bool active = false;
         const EngineModel* model = nullptr;
@@ -8401,6 +8407,13 @@ MetalArticulatedOperatorSubmission::wait(
                 sizeof(MRCompensatedRootTranslationGPU);
         }
 
+        if (pending->hasStandHorizon && diagnostics.failedEnvironmentCount == 0u) {
+            const std::lock_guard lock(pending->context->mutex);
+            pending->context->publishedStandCommand = diagnostics.commandBufferIdentity;
+            pending->context->publishedStandProgram = diagnostics.numanXProgramFingerprint;
+            pending->context->publishedStandStep = diagnostics.completedStandSteps;
+            pending->context->controllerCompletionConsumed = false;
+        }
         result = std::move(staged);
         diagnostics.published = true;
         if (diagnostics.failedEnvironmentCount != 0u) {
@@ -8439,6 +8452,66 @@ MetalArticulatedOperatorContext::
     : state_(std::make_shared<
           detail::MetalArticulatedOperatorContextState
       >(std::move(config))) {}
+
+bool MetalArticulatedOperatorContext::finishStandController(
+    const MetalArticulatedOperatorDiagnostics& accepted,
+    void* context, bool (*encode)(void*, void*) noexcept,
+    double& gpuStartSeconds, double& gpuEndSeconds, std::string& error
+) {
+    gpuStartSeconds = 0.0;
+    gpuEndSeconds = 0.0;
+    if (state_ == nullptr || context == nullptr || encode == nullptr) {
+        error = "invalid standing controller completion";
+        return false;
+    }
+    try {
+        const std::lock_guard lock(state_->mutex);
+        if (!state_->initialized || state_->queue == nil || state_->inFlight ||
+            state_->humanMatterPrepared.active || state_->controllerCompletionFailed ||
+            state_->controllerCompletionConsumed || !accepted.succeeded() ||
+            !accepted.dispatched || !accepted.published ||
+            accepted.failedEnvironmentCount != 0u || accepted.successfulEnvironmentCount != 1u ||
+            accepted.numanXProgramFingerprint == 0u || accepted.commandBufferIdentity == 0u ||
+            accepted.commandBufferIdentity != state_->publishedStandCommand ||
+            accepted.numanXProgramFingerprint != state_->publishedStandProgram ||
+            accepted.completedStandSteps != state_->publishedStandStep) {
+            error = "standing controller completion lacks its exact accepted native endpoint";
+            return false;
+        }
+        // Sticky until actual successful completion. An exception, failed
+        // encoding, or GPU fault leaves physical evidence intact and prevents
+        // any further physical continuation on this context.
+        state_->controllerCompletionFailed = true;
+        @autoreleasepool {
+            id<MTLCommandBuffer> command = [state_->queue commandBuffer];
+            if (command == nil || !encode(context, (__bridge void*)command)) {
+                error = "standing controller accepted-consequence encoding failed";
+                return false;
+            }
+            command.label = @"Human accepted Brain consequence";
+            [command commit];
+            [command waitUntilCompleted];
+            if (command.status != MTLCommandBufferStatusCompleted ||
+                !std::isfinite(command.GPUStartTime) || !std::isfinite(command.GPUEndTime) ||
+                command.GPUEndTime <= command.GPUStartTime) {
+                error = "standing controller accepted-consequence completion failed";
+                return false;
+            }
+            gpuStartSeconds = command.GPUStartTime;
+            gpuEndSeconds = command.GPUEndTime;
+        }
+        state_->controllerCompletionConsumed = true;
+        state_->controllerCompletionFailed = false;
+        error.clear();
+        return true;
+    } catch (const std::exception& exception) {
+        error = exception.what();
+        return false;
+    } catch (...) {
+        error = "standing controller completion exception";
+        return false;
+    }
+}
 
 bool MetalArticulatedOperatorContext::flushReadOnlyObserver(
     void* context, bool (*encode)(void*,void*) noexcept, std::string& error) {
@@ -8628,6 +8701,11 @@ MetalArticulatedOperatorContext::submit(
         }
 
         const std::lock_guard lock(state_->mutex);
+        if (state_->controllerCompletionFailed) {
+            return reject(std::move(diagnostics),
+                MetalArticulatedOperatorHostStatus::internalFailure,
+                "failed Brain consequence terminally closed this physical continuation");
+        }
         if (state_->inFlight) {
             return reject(
                 std::move(diagnostics),
