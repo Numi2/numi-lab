@@ -3947,8 +3947,18 @@ kernel void nm_human_support_resolve_working_set(
                             NM_INVALID_INDEX, row,
                             float4(history.w, currentMagnitude,
                                 currentMargin, predictedMargin));
-                    } else if (currentMargin == 0.0f &&
+                    } else if (currentMargin <= 2.0f *
+                                   humanSupportConeInteriorMargin(
+                                       history.w, currentMagnitude, friction) &&
                                predictedMargin < 0.0f) {
+                        // The retracted endpoint intentionally has FP32
+                        // interior slack. Treat that same roundoff-scale band
+                        // as boundary on the next assembly; exact-zero-only
+                        // classification alternates retraction with near-zero
+                        // shared steps. The second guard covers rounding of
+                        // the guarded endpoint. This selects a direction only:
+                        // stored histories and the strict certificate are
+                        // unchanged, and inward/interior directions stay free.
                         // At the cone boundary a scalar shared alpha may have
                         // no positive feasible value (the apex is the canonical
                         // cold-start example). Retract the dual endpoint to the

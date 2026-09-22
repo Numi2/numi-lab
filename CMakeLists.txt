@@ -4311,6 +4311,13 @@ if(BUILD_TESTING)
             PROPERTIES ENVIRONMENT "MTL_DEBUG_LAYER=1"
             LABELS "human;matter;metal;physics" TIMEOUT 30 RUN_SERIAL TRUE)
         add_test(
+            NAME matter.physics.human_support_cone_retraction
+            COMMAND $<TARGET_FILE:metalrobo_numanx_fullbody_bridge_probe> --support-cone-retraction
+        )
+        set_tests_properties(matter.physics.human_support_cone_retraction
+            PROPERTIES ENVIRONMENT "MTL_DEBUG_LAYER=1"
+            LABELS "human;matter;metal;physics" TIMEOUT 30 RUN_SERIAL TRUE)
+        add_test(
             NAME numanx.integration.fullbody_bridge_prepared_root
             COMMAND $<TARGET_FILE:metalrobo_numanx_fullbody_bridge_probe>
         )

@@ -6204,6 +6204,97 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.statuses offset:0u atIndex:5u];
                 });
             }
+            // Opt-in, single-root copies only after the full coupled residual
+            // (including eliminated FEM attachment reactions) is assembled,
+            // and after the shared line-search decision. No solver state is
+            // modified and submission remains with the physical owner.
+            const auto encodeHumanSupportTrace = [&](const char* stage, bool certify) -> bool {
+                const char* traceRoot = std::getenv("NM_HUMAN_SUPPORT_TRACE_ROOT");
+                if (traceRoot == nullptr || humanSupportTotal == 0u ||
+                    environments != 1u || request.controlStep != std::strtoul(traceRoot, nullptr, 10)) return true;
+                struct TraceArena { const char* name; id<MTLBuffer> source; NSUInteger bytes; };
+                const NSUInteger vectorBytes = state.fgmresLayout.unknownCount * sizeof(nm_float4);
+                const std::array<TraceArena, 17u> arenas{{
+                    {"q", state.coupledCandidateQ, state.coupledQStride * sizeof(float)},
+                    {"delta_v", state.coupledGeneralizedCandidate, state.dispatch.rigidGeneralizedCapacity * sizeof(float)},
+                    {"free_v", buffer(request.rigid.v), state.humanSupportDispatch.articulatedNv * sizeof(float)},
+                    {"sample", state.humanSupportSamples, humanSupportTotal * sizeof(NMContactSampleGPU)},
+                    {"history", state.humanSupportHistoriesCandidate, humanSupportTotal * sizeof(nm_float4)},
+                    {"kkt", state.humanSupportLinearizations, humanSupportTotal * sizeof(NMHumanSupportKKTGPU)},
+                    {"jacobian", state.humanSupportPointJacobians, humanSupportTotal * 3u * state.dispatch.rigidGeneralizedCapacity * sizeof(float)},
+                    {"working_set", state.humanSupportWorkingSet, humanSupportTotal * sizeof(std::uint32_t)},
+                    {"cone_working_set", state.humanSupportConeWorkingSet, humanSupportTotal * sizeof(std::uint32_t)},
+                    {"cone_target", state.humanSupportConeTargets, humanSupportTotal * sizeof(nm_float4)},
+                    {"residual", state.femResidual, vectorBytes},
+                    {"solution", state.femSolution, vectorBytes},
+                    {"fgmres", state.fgmresStates, environments * sizeof(NMFGMRESStateGPU)},
+                    {"alpha", state.environmentLineSearch, environments * sizeof(float)},
+                    {"object_line_search", state.femLineSearch, objectTotal * sizeof(nm_float4)},
+                    {"status", state.statuses, environments * sizeof(NMMatterStatusGPU)},
+                    {"attachment_impulses", state.femHumanAttachmentResidualImpulses, femHumanAttachmentTotal * sizeof(nm_float4)},
+                }};
+                NSUInteger bytes = 0u;
+                for (const auto& arena : arenas) bytes += (arena.bytes + 15u) & ~15u;
+                id<MTLBuffer> snapshot = [state.device newBufferWithLength:bytes options:MTLResourceStorageModeShared];
+                [encoder endEncoding];
+                encoder = nil;
+                id<MTLBlitCommandEncoder> copy = [commandBuffer blitCommandEncoder];
+                if (snapshot == nil || copy == nil) {
+                    if (copy != nil) [copy endEncoding];
+                    diagnostics.message = "failed to allocate Human support diagnostic snapshot";
+                    return false;
+                }
+                NSUInteger offset = 0u;
+                for (const auto& arena : arenas) {
+                    if (arena.bytes != 0u) {
+                        [copy copyFromBuffer:arena.source sourceOffset:0u toBuffer:snapshot destinationOffset:offset size:arena.bytes];
+                    }
+                    offset += (arena.bytes + 15u) & ~15u;
+                }
+                [copy endEncoding];
+                const auto root = request.controlStep;
+                const auto iteration = micro.solverIteration;
+                const auto tick = microtick;
+                const auto layout = state.fgmresLayout;
+                const auto femNodes = state.dispatch.femNodeCount;
+                const auto mpmCapacity = state.dispatch.mpmActiveNodeCapacity;
+                const auto rigidCapacity = state.dispatch.rigidGeneralizedCapacity;
+                const auto attachmentCount = state.dispatch.femHumanAttachmentCount;
+                [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+                    if (completed.status != MTLCommandBufferStatusCompleted) return;
+                    std::ostringstream line;
+                    line << "human_support_iterate={\"root\":" << root << ",\"microtick\":" << tick
+                         << ",\"iteration\":" << iteration << ",\"stage\":\"" << stage
+                         << "\",\"certificate\":" << (certify ? "true" : "false")
+                         << ",\"fem_node_count\":" << femNodes << ",\"mpm_active_node_capacity\":" << mpmCapacity
+                         << ",\"rigid_capacity\":" << rigidCapacity << ",\"support_base\":" << layout.supportBase
+                         << ",\"support_count\":" << layout.supportContactCount << ",\"vascular_base\":" << layout.vascularBase
+                         << ",\"vascular_count\":" << layout.vascularUnknownCount << ",\"unknown_count\":" << layout.unknownCount
+                         << ",\"attachment_count\":" << attachmentCount
+                         << ",\"terminal_human_qv_restore_observed\":false,\"arenas\":{";
+                    const auto* data = static_cast<const unsigned char*>(snapshot.contents);
+                    NSUInteger at = 0u;
+                    bool first = true;
+                    constexpr char hex[] = "0123456789abcdef";
+                    for (const auto& arena : arenas) {
+                        if (!first) line << ',';
+                        first = false;
+                        line << '\"' << arena.name << "\":\"";
+                        for (NSUInteger i = 0u; i < arena.bytes; ++i) line << hex[data[at + i] >> 4u] << hex[data[at + i] & 15u];
+                        line << '\"';
+                        at += (arena.bytes + 15u) & ~15u;
+                    }
+                    line << "}}\n";
+                    const auto text = line.str();
+                    std::fwrite(text.data(), 1u, text.size(), stderr);
+                }];
+                encoder = [commandBuffer computeCommandEncoder];
+                if (encoder == nil) {
+                    diagnostics.message = "failed to resume Matter after Human support diagnostic snapshot";
+                    return false;
+                }
+                return true;
+            };
             // Contact is a block of the nonlinear variational residual, not a
             // post-FEM correction. Re-evaluate candidate geometry and stream
             // inverse-ABA columns on every Newton candidate, then accumulate
@@ -6721,71 +6812,6 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:10u];
                     });
                 }
-                // Explicit, single-root diagnostic copies of each contact
-                // assembly. Resolve after completion, before any host read;
-                // retain the failing iterate even when authority rolls back.
-                const char* traceRoot = std::getenv("NM_HUMAN_SUPPORT_TRACE_ROOT");
-                if (traceRoot != nullptr && humanSupportTotal != 0u &&
-                    environments == 1u && request.controlStep == std::strtoul(traceRoot, nullptr, 10)) {
-                    struct TraceArena { const char* name; id<MTLBuffer> source; NSUInteger bytes; };
-                    const std::array<TraceArena, 10u> arenas{{
-                        {"q", state.coupledCandidateQ, state.coupledQStride * sizeof(float)},
-                        {"delta_v", state.coupledGeneralizedCandidate, state.dispatch.rigidGeneralizedCapacity * sizeof(float)},
-                        {"free_v", buffer(request.rigid.v), state.humanSupportDispatch.articulatedNv * sizeof(float)},
-                        {"sample", state.humanSupportSamples, humanSupportTotal * sizeof(NMContactSampleGPU)},
-                        {"history", state.humanSupportHistoriesCandidate, humanSupportTotal * sizeof(nm_float4)},
-                        {"kkt", state.humanSupportLinearizations, humanSupportTotal * sizeof(NMHumanSupportKKTGPU)},
-                        {"jacobian", state.humanSupportPointJacobians, humanSupportTotal * 3u * state.dispatch.rigidGeneralizedCapacity * sizeof(float)},
-                        {"working_set", state.humanSupportWorkingSet, humanSupportTotal * sizeof(std::uint32_t)},
-                        {"cone_working_set", state.humanSupportConeWorkingSet, humanSupportTotal * sizeof(std::uint32_t)},
-                        {"cone_target", state.humanSupportConeTargets, humanSupportTotal * sizeof(nm_float4)},
-                    }};
-                    NSUInteger bytes = 0u;
-                    for (const auto& arena : arenas) bytes += (arena.bytes + 15u) & ~15u;
-                    id<MTLBuffer> snapshot = [state.device newBufferWithLength:bytes options:MTLResourceStorageModeShared];
-                    [encoder endEncoding];
-                    encoder = nil;
-                    id<MTLBlitCommandEncoder> copy = [commandBuffer blitCommandEncoder];
-                    if (snapshot == nil || copy == nil) {
-                        if (copy != nil) [copy endEncoding];
-                        diagnostics.message = "failed to allocate Human support diagnostic snapshot";
-                        return false;
-                    }
-                    NSUInteger offset = 0u;
-                    for (const auto& arena : arenas) {
-                        [copy copyFromBuffer:arena.source sourceOffset:0u toBuffer:snapshot destinationOffset:offset size:arena.bytes];
-                        offset += (arena.bytes + 15u) & ~15u;
-                    }
-                    [copy endEncoding];
-                    const auto root = request.controlStep;
-                    const auto iteration = micro.solverIteration;
-                    [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
-                        if (completed.status != MTLCommandBufferStatusCompleted) return;
-                        std::ostringstream line;
-                        line << "human_support_iterate={\"root\":" << root << ",\"iteration\":" << iteration
-                             << ",\"certificate\":" << (certify ? "true" : "false") << ",\"arenas\":{";
-                        const auto* data = static_cast<const unsigned char*>(snapshot.contents);
-                        NSUInteger at = 0u;
-                        bool first = true;
-                        constexpr char hex[] = "0123456789abcdef";
-                        for (const auto& arena : arenas) {
-                            if (!first) line << ',';
-                            first = false;
-                            line << '\"' << arena.name << "\":\"";
-                            for (NSUInteger i = 0u; i < arena.bytes; ++i) line << hex[data[at + i] >> 4u] << hex[data[at + i] & 15u];
-                            line << '\"';
-                            at += (arena.bytes + 15u) & ~15u;
-                        }
-                        line << "}}\n";
-                        const auto text = line.str();
-                        std::fwrite(text.data(), 1u, text.size(), stderr);
-                    }];
-                    encoder = [commandBuffer computeCommandEncoder];
-                    if (encoder == nil) {
-                        diagnostics.message = "failed to resume Matter after Human support diagnostic snapshot";
-                        return false;
-                    }
-                }
                 dispatchThreads("nm_contact_accumulate_fem_residual", femNodeTotal, [&] {
                     setDispatch();
                     [encoder setBuffer:state.contactNodeIncidence offset:0u atIndex:1u];
@@ -7086,7 +7112,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
             });
             encodeVascularEquation("nm_vascular_residual",
                 state.femSolution, 0u, state.femResidual);
-            if (!encodeVascularTrace("assembly")) {
+            if (!encodeHumanSupportTrace("assembly", false) ||
+                !encodeVascularTrace("assembly")) {
                 ownership->preDynamicsOpen = false;
                 return diagnostics;
             }
@@ -8313,7 +8340,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:11u];
                 });
             [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-            if (!encodeVascularTrace("line_search")) {
+            if (!encodeHumanSupportTrace("line_search", false) ||
+                !encodeVascularTrace("line_search")) {
                 ownership->preDynamicsOpen = false;
                 return diagnostics;
             }
@@ -8797,7 +8825,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
             }
             encodeVascularEquation("nm_vascular_residual",
                 state.femSolution, 0u, state.femResidual, 0u);
-            if (!encodeVascularTrace("certificate")) {
+            if (!encodeHumanSupportTrace("support_certificate", true) ||
+                !encodeVascularTrace("certificate")) {
                 ownership->preDynamicsOpen = false;
                 return diagnostics;
             }
