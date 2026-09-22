@@ -103,7 +103,10 @@ bool admitNumiHumanLoadedKneeNumanXCommandV1(
         }
         if (qatIndex(index)) {
             const float expected = base + increment;
-            if (!(expected <= 1.0f) ||
+            // A positive scalar can round away at the stored FP32 baseline.
+            // Require every driven QAT muscle to actually change; domain-
+            // separated fingerprints alone cannot establish that contrast.
+            if (!(expected > base) || !(expected <= 1.0f) ||
                 std::bit_cast<std::uint32_t>(driven) !=
                     std::bit_cast<std::uint32_t>(expected)) {
                 error = "loaded-knee NumanX QAT command is not the exact "

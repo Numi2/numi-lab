@@ -88,6 +88,65 @@ int main() {
                 baseline, shortCommand, increment, admission, error),
             "wrong muscle count was admitted");
 
+    // A positive, normal FP32 increment may nevertheless disappear when
+    // added to a nonzero baseline. Such a no-op is not a physical contrast.
+    constexpr float roundedAwayIncrement = 0x1p-28f;
+    std::vector<float> preloaded(kNumiHumanLoadedKneeMuscleCountV1, 0.5f);
+    auto roundedCommand = preloaded;
+    for (const auto index : kNumiHumanLoadedKneeQATMuscleIndicesV1) {
+        roundedCommand[index] += roundedAwayIncrement;
+    }
+    require(roundedCommand == preloaded,
+            "rounded-away regression did not construct an unchanged command");
+    require(!admitNumiHumanLoadedKneeNumanXCommandV1(
+                preloaded, roundedCommand, roundedAwayIncrement,
+                admission, error),
+            "positive increment rounded to a complete QAT no-op was admitted");
+    require(admission.baselineFingerprint == 0u &&
+                admission.commandFingerprint == 0u &&
+                admission.increment == 0.0f && !error.empty(),
+            "rejected rounded-away command retained admission evidence");
+
+    // One changed muscle must not hide three unchanged QAT muscles.
+    auto mixedBaseline = preloaded;
+    mixedBaseline[kNumiHumanLoadedKneeQATMuscleIndicesV1[0u]] = 0.0f;
+    auto mixedCommand = mixedBaseline;
+    for (const auto index : kNumiHumanLoadedKneeQATMuscleIndicesV1) {
+        mixedCommand[index] += roundedAwayIncrement;
+    }
+    require(mixedCommand != mixedBaseline,
+            "partial-contrast regression did not change one muscle");
+    require(!admitNumiHumanLoadedKneeNumanXCommandV1(
+                mixedBaseline, mixedCommand, roundedAwayIncrement,
+                admission, error),
+            "a rounded-away increment in only some QAT muscles was admitted");
+
+    // Enforce representability, not an arbitrary minimum excitation threshold.
+    const float oneUlp = std::nextafter(0.5f, 1.0f) - 0.5f;
+    auto smallestCommand = preloaded;
+    for (const auto index : kNumiHumanLoadedKneeQATMuscleIndicesV1) {
+        smallestCommand[index] += oneUlp;
+    }
+    require(admitNumiHumanLoadedKneeNumanXCommandV1(
+                preloaded, smallestCommand, oneUlp, admission, error),
+            "the smallest representable positive QAT increase was rejected");
+    require(admission.candidateOnly && !admission.productionAuthorized &&
+                !admission.standClaimAuthorized,
+            "representable contrast changed its qualification boundary");
+
+    // Saturation is also a no-op even if base + increment rounds to exactly 1.
+    auto saturated = preloaded;
+    for (const auto index : kNumiHumanLoadedKneeQATMuscleIndicesV1) {
+        saturated[index] = 1.0f;
+    }
+    require(!admitNumiHumanLoadedKneeNumanXCommandV1(
+                saturated, saturated, roundedAwayIncrement, admission, error),
+            "rounded-away increment at saturation was admitted");
+    require(admission.baselineFingerprint == 0u &&
+                admission.commandFingerprint == 0u &&
+                admission.increment == 0.0f && !error.empty(),
+            "rejection after a valid command did not clear stale admission");
+
     // Matter's moving-attachment reaction is the action on the bone. A transient
     // continuum therefore closes only after dP/dt is included; the static
     // R==F comparison below is deliberately false.
