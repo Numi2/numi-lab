@@ -395,6 +395,207 @@ void qualifyHumanSupportNewtonAdmission(id<MTLDevice> device) {
 }
 
 
+void qualifyHumanSupportConeRetraction(id<MTLDevice> device, const char* libraryPath) {
+    NSError* error = nil;
+    id<MTLLibrary> library = [device newLibraryWithURL:[NSURL fileURLWithPath:
+        [NSString stringWithUTF8String:libraryPath]] error:&error];
+    require(library != nil, "support cone retraction library failed");
+    const auto pipeline = [&](NSString* name) {
+        id<MTLFunction> function = [library newFunctionWithName:
+            [@"numi_matter_metal::" stringByAppendingString:name]];
+        id<MTLComputePipelineState> result = function == nil ? nil :
+            [device newComputePipelineStateWithFunction:function error:&error];
+        require(result != nil, "support cone retraction pipeline failed");
+        return result;
+    };
+    const auto resolve = pipeline(@"nm_human_support_resolve_working_set");
+    const auto limit = pipeline(@"nm_human_support_limit_line_search");
+    const auto validate = pipeline(@"nm_human_support_validate_final_line_search");
+    const auto applySupport = pipeline(@"nm_human_support_apply_solution");
+    const auto applyRigid = pipeline(@"nm_rigid_apply_candidate_solution");
+    const auto certify = pipeline(@"nm_human_support_certify");
+    id<MTLCommandQueue> queue = [device newCommandQueue];
+    require(queue != nil, "support cone retraction queue failed");
+    const auto buffer = [&](const void* bytes, NSUInteger length) {
+        id<MTLBuffer> result = [device newBufferWithBytes:bytes length:length
+            options:MTLResourceStorageModeShared];
+        require(result != nil, "support cone retraction allocation failed");
+        return result;
+    };
+    struct Case {
+        const char* name;
+        nm_float4 history;
+        nm_float4 direction;
+        bool retract;
+        float maximumAlpha = 1.0f;
+    };
+    std::vector<Case> cases;
+    float tangent = 1.0f;
+    for (unsigned ulps = 1u; ulps <= 32u; ++ulps) {
+        tangent = std::nextafter(tangent, 0.0f);
+        for (const float alpha : {1.0f, 0.25f})
+            cases.push_back({"positive ULP margin outward",
+                {tangent,0,0,1}, {0.125f,0,0,0}, true, alpha});
+    }
+    cases.push_back({"exact boundary outward",{1,0,0,1},{0.125f,0,0,0},true});
+    cases.push_back({"near boundary inward",{tangent,0,0,1},{-0.125f,0,0,0},false});
+    cases.push_back({"exact interior outward",{0.5f,0,0,1},{0.75f,0,0,0},false});
+    cases.push_back({"exact interior feasible",{0.5f,0,0,1},{0.125f,0,0,0},false});
+    // At unit normal/friction the classification band ends at 64*epsilon:
+    // 128 representable steps immediately below one. Check both sides of
+    // that cutoff independently of the smaller margins seen in root 110.
+    float cutoffTangent = 1.0f;
+    for (unsigned ulps = 1u; ulps <= 129u; ++ulps) {
+        cutoffTangent = std::nextafter(cutoffTangent, 0.0f);
+        if (ulps >= 127u) {
+            for (const float alpha : {1.0f, 0.25f})
+                cases.push_back({"retraction band cutoff",
+                    {cutoffTangent,0,0,1}, {0.125f,0,0,0}, ulps <= 128u, alpha});
+        }
+    }
+    // Actual root-110 histories/directions before retraction. These retain the
+    // oblique tangent and changing normal that the axis-aligned ULP cases lack.
+    cases.push_back({"root110 Newton10 row5",
+        {-0.00492729852f,0.0101665612f,0,0.0112977093f},
+        {-0.00266952533f,0.0117072649f,-0.00176383660f,0},true});
+    cases.push_back({"root110 Newton10 row12",
+        {-0.00186214538f,0.00386021612f,0,0.00428590691f},
+        {0.000346548943f,-0.00256445492f,-0.00249843998f,0},true});
+    cases.push_back({"root110 Newton13 row12",
+        {-0.00186199020f,0.00385907060f,0,0.00428479118f},
+        {0.000347761117f,-0.00256453571f,-0.00249892962f,0},true});
+    cases.push_back({"root110 Newton14 row5",
+        {-0.00492650317f,0.0101661030f,0,0.0112969065f},
+        {-0.00266957888f,0.0117052970f,-0.00176316756f,0},true});
+    NMMatterDispatchGPU dispatch{};
+    dispatch.environmentCount=1u; dispatch.objectCount=1u;
+    dispatch.rigidGeneralizedCapacity=1u;
+    NMFGMRESLayoutGPU layout{};
+    layout.supportContactCount=1u; layout.supportBase=1u; layout.unknownCount=2u;
+    NMHumanSupportDispatchGPU support{};
+    support.contactCount=1u; support.articulatedNv=1u;
+    support.groundNormal={0,0,1,0};
+    NMMixedSolverGPU solver{}; solver.residualTolerances.x=0.001f;
+    const nm_float4 zero4{};
+    const std::uint32_t zero=0u;
+    const std::array<nm_float4,2> zeroResidual{};
+    NMFGMRESStateGPU state{}; state.nonlinear={1,1,0,0};
+    NMHumanSupportContactGPU contact{}; contact.frictionSlopAndStabilization.x=1.0f;
+    NMContactSampleGPU sample{}; sample.admissionVelocityAndNormal.w=-0.1f;
+    for (const auto& test : cases) {
+        const NMMatterStatusGPU success{};
+        const float initialRigid=0.5f, rigidDirection=0.25f;
+        const std::array<nm_float4,2> initialSolution{{{rigidDirection,0,0,0},test.direction}};
+        const nm_float4 objectStep{test.maximumAlpha,1,8,0};
+        auto solution=buffer(initialSolution.data(),sizeof(initialSolution));
+        auto history=buffer(&test.history,sizeof(test.history));
+        auto working=buffer(&zero,sizeof(zero));
+        auto changed=buffer(&zero,sizeof(zero));
+        auto status=buffer(&success,sizeof(success));
+        auto contacts=buffer(&contact,sizeof(contact));
+        auto cone=buffer(&zero,sizeof(zero));
+        auto target=buffer(&zero4,sizeof(zero4));
+        auto samples=buffer(&sample,sizeof(sample));
+        auto objectAlpha=buffer(&objectStep,sizeof(objectStep));
+        auto sharedAlpha=buffer(&test.maximumAlpha,sizeof(test.maximumAlpha));
+        auto rigid=buffer(&initialRigid,sizeof(initialRigid));
+        auto residual=buffer(zeroResidual.data(),sizeof(zeroResidual));
+        auto fgmres=buffer(&state,sizeof(state));
+        id<MTLCommandBuffer> command=[queue commandBuffer];
+        const auto encode = [&](id<MTLComputePipelineState> p, const auto& bind) {
+            id<MTLComputeCommandEncoder> e=[command computeCommandEncoder];
+            require(e != nil,"support cone retraction encoder failed");
+            [e setComputePipelineState:p];
+            [e setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+            [e setBytes:&layout length:sizeof(layout) atIndex:30u];
+            bind(e);
+            [e dispatchThreadgroups:MTLSizeMake(1,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+            [e endEncoding];
+        };
+        const auto finish = [&]() {
+            [command commit]; [command waitUntilCompleted];
+            require(command.status==MTLCommandBufferStatusCompleted,
+                "support cone retraction command failed");
+            require(static_cast<NMMatterStatusGPU*>(status.contents)->code==NM_STATUS_SUCCESS,test.name);
+        };
+        encode(resolve,[&](id<MTLComputeCommandEncoder> e) {
+            [e setBytes:&support length:sizeof(support) atIndex:1u];
+            [e setBuffer:solution offset:0 atIndex:2]; [e setBuffer:history offset:0 atIndex:3];
+            [e setBuffer:working offset:0 atIndex:4]; [e setBuffer:changed offset:0 atIndex:5];
+            [e setBuffer:status offset:0 atIndex:6]; [e setBuffer:contacts offset:0 atIndex:7];
+            [e setBuffer:cone offset:0 atIndex:8]; [e setBuffer:target offset:0 atIndex:9];
+            [e setBuffer:samples offset:0 atIndex:10];
+        });
+        finish();
+        require((*static_cast<std::uint32_t*>(cone.contents)==1u)==test.retract,test.name);
+        require(*static_cast<std::uint32_t*>(changed.contents)==0u,"cone retraction deferred coupled direction");
+        require(std::memcmp(history.contents,&test.history,sizeof(test.history))==0,
+            "direction classification changed stored physical impulse");
+        require(std::memcmp(solution.contents,initialSolution.data(),sizeof(nm_float4))==0,
+            "cone retraction changed coupled rigid correction");
+        if (!test.retract) require(std::memcmp(solution.contents,initialSolution.data(),sizeof(initialSolution))==0,
+            "inward or interior Newton direction changed");
+        const nm_float4 resolvedTarget=*static_cast<nm_float4*>(target.contents);
+        command=[queue commandBuffer];
+        encode(limit,[&](id<MTLComputeCommandEncoder> e) {
+            [e setBytes:&support length:sizeof(support) atIndex:1];
+            [e setBuffer:solution offset:0 atIndex:2]; [e setBuffer:history offset:0 atIndex:3];
+            [e setBuffer:objectAlpha offset:0 atIndex:4]; [e setBuffer:sharedAlpha offset:0 atIndex:5];
+            [e setBuffer:status offset:0 atIndex:6]; [e setBuffer:working offset:0 atIndex:7];
+            [e setBuffer:changed offset:0 atIndex:8]; [e setBuffer:contacts offset:0 atIndex:9];
+            [e setBuffer:cone offset:0 atIndex:10]; [e setBuffer:target offset:0 atIndex:11];
+        });
+        encode(validate,[&](id<MTLComputeCommandEncoder> e) {
+            [e setBytes:&support length:sizeof(support) atIndex:1];
+            [e setBuffer:history offset:0 atIndex:2]; [e setBuffer:objectAlpha offset:0 atIndex:3];
+            [e setBuffer:sharedAlpha offset:0 atIndex:4]; [e setBuffer:status offset:0 atIndex:5];
+            [e setBuffer:changed offset:0 atIndex:6]; [e setBuffer:contacts offset:0 atIndex:7];
+            [e setBuffer:cone offset:0 atIndex:8]; [e setBuffer:target offset:0 atIndex:9];
+            [e setBuffer:solution offset:0 atIndex:10]; [e setBuffer:working offset:0 atIndex:11];
+        });
+        encode(applySupport,[&](id<MTLComputeCommandEncoder> e) {
+            [e setBytes:&support length:sizeof(support) atIndex:1];
+            [e setBuffer:solution offset:0 atIndex:2]; [e setBuffer:sharedAlpha offset:0 atIndex:3];
+            [e setBuffer:history offset:0 atIndex:4]; [e setBuffer:working offset:0 atIndex:5];
+            [e setBuffer:changed offset:0 atIndex:6]; [e setBuffer:status offset:0 atIndex:7];
+            [e setBuffer:contacts offset:0 atIndex:8]; [e setBuffer:cone offset:0 atIndex:9];
+            [e setBuffer:target offset:0 atIndex:10];
+        });
+        encode(applyRigid,[&](id<MTLComputeCommandEncoder> e) {
+            [e setBuffer:solution offset:0 atIndex:1]; [e setBuffer:sharedAlpha offset:0 atIndex:2];
+            [e setBuffer:rigid offset:0 atIndex:3];
+        });
+        encode(certify,[&](id<MTLComputeCommandEncoder> e) {
+            [e setBytes:&solver length:sizeof(solver) atIndex:1];
+            [e setBuffer:residual offset:0 atIndex:2]; [e setBuffer:fgmres offset:0 atIndex:3];
+            [e setBuffer:status offset:0 atIndex:4]; [e setBuffer:history offset:0 atIndex:5];
+            [e setBytes:&support length:sizeof(support) atIndex:6];
+            [e setBuffer:contacts offset:0 atIndex:7];
+        });
+        finish();
+        const float alpha=*static_cast<float*>(sharedAlpha.contents);
+        require(alpha>0 && alpha<=test.maximumAlpha &&
+            static_cast<nm_float4*>(objectAlpha.contents)->x==alpha,
+            "support and rigid blocks disagree on shared alpha");
+        if (test.retract) require(alpha>=0.99f*test.maximumAlpha,
+            "near-boundary direction still starves the shared step");
+        require(std::abs(*static_cast<float*>(rigid.contents)-
+            (initialRigid+alpha*rigidDirection))<=1.0e-7f,
+            "rigid block did not apply the same shared alpha");
+        if (test.retract) {
+            const auto actual=*static_cast<nm_float4*>(history.contents);
+            const float* old=reinterpret_cast<const float*>(&test.history);
+            const float* endpoint=reinterpret_cast<const float*>(&resolvedTarget);
+            const float* value=reinterpret_cast<const float*>(&actual);
+            for(unsigned i=0;i<4u;++i) {
+                const float expected=alpha==1.0f?endpoint[i]:std::fma(alpha,endpoint[i]-old[i],old[i]);
+                require(value[i]==expected,"support impulse bypassed shared-alpha interpolation");
+            }
+        }
+    }
+    std::printf("numanx_support_cone_retraction=pass cases=%zu positive_margin=1-32ULP cutoff=127-129ULP rigid=shared-alpha certificate=strict\n",cases.size());
+}
+
 void qualifyHumanSupportKKT(id<MTLDevice> device, unsigned shape = 0) {
     NSError* libraryError = nil;
     id<MTLLibrary> library = [device
@@ -3030,6 +3231,13 @@ int run(const bool authored, const bool sourceEqualities, const bool costalTissu
 
 int main(int argc, char** argv) {
     try {
+        if ((argc == 2 || argc == 3) && std::string(argv[1]) == "--support-cone-retraction") {
+            @autoreleasepool {
+                qualifyHumanSupportConeRetraction(MTLCreateSystemDefaultDevice(),
+                    argc == 3 ? argv[2] : MRNX_MATTER_METALLIB);
+                return 0;
+            }
+        }
         if (argc == 2 && std::string(argv[1]) == "--support-newton-admission") {
             @autoreleasepool {
                 qualifyHumanSupportNewtonAdmission(MTLCreateSystemDefaultDevice());
