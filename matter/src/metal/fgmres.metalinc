@@ -1,3 +1,5 @@
+#include "numi/matter/support_feasibility.hpp"
+
 namespace numi_matter_metal {
 
 inline uint fgmresRigidBase(const NMMatterDispatchGPU dispatch);
@@ -592,6 +594,7 @@ kernel void nm_fgmres_begin(
     constant uint& nonlinearIteration [[buffer(16)]],
     device const NMFEMNodeStateGPU* candidateNodes [[buffer(17)]],
     device const float* rigidCandidate [[buffer(18)]],
+    device const float4* supportHistories [[buffer(19)]],
     uint lane [[thread_index_in_threadgroup]],
     uint group [[threadgroup_position_in_grid]]
 ) {
@@ -604,6 +607,7 @@ kernel void nm_fgmres_begin(
     float norm2 = 0.0f;
     float normCorrection = 0.0f;
     float maximumCandidateSpeedSquared = 0.0f;
+    uint invalidSupportImpulse = 0u;
     const bool active = environmentHealthy(statuses, environment) &&
         !completed;
     const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
@@ -633,10 +637,15 @@ kernel void nm_fgmres_begin(
                 norm2, normCorrection,
                 dot(residual[mpmBase + local], residual[mpmBase + local]));
         for (uint local = lane; local < layout.supportContactCount;
-             local += 32u)
+             local += 32u) {
             fgmresCompensatedAdd(
                 norm2, normCorrection,
                 dot(residual[supportBase + local], residual[supportBase + local]));
+            const float normalImpulse = supportHistories[
+                environment * layout.supportContactCount + local].w;
+            invalidSupportImpulse |=
+                numi_matter_contact::normalImpulseFeasible(normalImpulse) ? 0u : 1u;
+        }
         for (uint local = lane; local < layout.vascularUnknownCount;
              local += 32u)
             fgmresCompensatedAdd(
@@ -665,6 +674,7 @@ kernel void nm_fgmres_begin(
     }
     norm2 = simd_sum(norm2);
     maximumCandidateSpeedSquared = simd_max(maximumCandidateSpeedSquared);
+    const bool supportFeasible = simd_max(invalidSupportImpulse) == 0u;
     for (uint index = lane; index <
          (NM_MIXED_FGMRES_RESTART + 1u) * NM_MIXED_FGMRES_RESTART;
          index += 32u)
@@ -706,8 +716,10 @@ kernel void nm_fgmres_begin(
         !hasActiveContact &&
         maximumCandidateSpeedSquared == 0.0f &&
         all(dispatch.gravityAndTimestep.xyz == float3(0.0f));
+    // Residual convergence cannot bypass the unchanged support feasibility gate.
+    // Continue the coupled correction rather than clamping a dual variable.
     const bool nonlinearConverged = restartCycle == 0u &&
-        (correctionFinite || contactFreeStaticRest) &&
+        (correctionFinite || contactFreeStaticRest) && supportFeasible &&
         norm <= nonlinearThreshold;
     if (lane == 0u) {
         const float initialNorm = restartCycle == 0u
@@ -3587,12 +3599,16 @@ kernel void nm_human_support_certify(
         solver.residualTolerances.x * max(min(states[environment].nonlinear.x,
             states[environment].nonlinear.y), 1.0f));
     bool invalidSupportImpulse = false;
+    uint invalidSupportRow = NM_INVALID_INDEX;
+    float invalidNormalImpulse = 0.0f;
     if (lane == 0u) {
         for (uint row = 0u; row < layout.supportContactCount; ++row) {
             const float normalImpulse = supportHistories[
                 environment * layout.supportContactCount + row].w;
-            if (!isfinite(normalImpulse) || normalImpulse < -1.0e-7f) {
+            if (!numi_matter_contact::normalImpulseFeasible(normalImpulse)) {
                 invalidSupportImpulse = true;
+                invalidSupportRow = row;
+                invalidNormalImpulse = normalImpulse;
                 break;
             }
         }
@@ -3602,7 +3618,8 @@ kernel void nm_human_support_certify(
             NM_INVALID_INDEX, NM_INVALID_INDEX, float4(norm, threshold, supportNorm, rigidNorm));
     if (lane == 0u && invalidSupportImpulse)
         recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
-            NM_INVALID_INDEX, NM_INVALID_INDEX, float4(-1.0f, 0.0f, supportNorm, rigidNorm));
+            NM_INVALID_INDEX, invalidSupportRow,
+            float4(-1.0f, invalidNormalImpulse, supportNorm, rigidNorm));
 }
 
 } // namespace numi_matter_metal

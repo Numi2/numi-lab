@@ -143,6 +143,7 @@ if(APPLE)
             src/metal/accepted_state_proof.metalinc
             include/numi/matter/accepted_state_proof_gpu.h
             include/numi/matter/shared.h
+            include/numi/matter/support_feasibility.hpp
             include/numi/matter/fiber_exp_linear.h
             include/numi/matter/human_equality_gpu.h
             include/numi/matter/human_limits_gpu.h

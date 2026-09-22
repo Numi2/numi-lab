@@ -6348,6 +6348,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                              offset:0u atIndex:17u];
                 [encoder setBuffer:state.coupledGeneralizedCandidate
                              offset:0u atIndex:18u];
+                [encoder setBuffer:state.humanSupportHistoriesCandidate
+                             offset:0u atIndex:19u];
             });
             dispatchThreads("nm_fgmres_build_preconditioner", femNodeTotal, [&] {
                 setDispatch();
