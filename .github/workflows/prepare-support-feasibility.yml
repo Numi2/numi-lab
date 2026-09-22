@@ -1,0 +1,62 @@
+name: Prepare and test support-feasibility correction
+on:
+  push:
+    branches: [codex/human-support-feasibility-20260922]
+    paths: ['.github/workflows/prepare-support-feasibility.yml', 'tools/prepare_support_feasibility.py']
+permissions:
+  contents: read
+jobs:
+  candidate:
+    runs-on: macos-26
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply the bounded edit to the reviewed native source
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p support-evidence
+          python3 tools/prepare_support_feasibility.py
+          git diff --check
+          git diff --binary > support-evidence/implementation.patch
+      - name: Run portable boundary and stopping tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          c++ -std=c++20 -O2 -Wall -Wextra -Werror -Imatter/include tests/numi_matter_support_feasibility_test.cpp -o /tmp/support-feasibility
+          /tmp/support-feasibility | tee support-evidence/portable.log
+      - name: Compile production shader and host binding
+        shell: bash
+        run: |
+          set -euo pipefail
+          cmake -S matter -B BuildSupport -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF 2>&1 | tee support-evidence/configure.log
+          cmake --build BuildSupport --target numi_matter_shaders numi_matter_runtime_objects --parallel 3 2>&1 | tee support-evidence/build.log
+          clang++ -std=c++20 -fobjc-arc -fno-fast-math -Imatter/include tests/numi_matter_support_feasibility_metal_test.mm -framework Foundation -framework Metal -o /tmp/support-feasibility-metal 2>&1 | tee support-evidence/probe-build.log
+      - name: Execute actual production stopping and certificate kernels
+        shell: bash
+        run: |
+          set -euo pipefail
+          /tmp/support-feasibility-metal BuildSupport/shaders/NumiMatter.metallib 2>&1 | tee support-evidence/metal.log
+      - name: Preserve source candidate without promoting the native branch
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f support-evidence/edit-applied
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add matter/src/metal/fgmres.metalinc matter/src/runtime.mm matter/CMakeLists.txt
+          git commit -m 'fix(matter): require feasible support impulses before Newton convergence'
+          git rev-parse HEAD | tee support-evidence/source-commit.txt
+          git push origin HEAD:refs/heads/codex/human-support-feasibility-20260922
+          git archive --format=tar.gz HEAD matter tests/numi_matter_support_feasibility_test.cpp tests/numi_matter_support_feasibility_metal_test.mm > support-evidence/source.tar.gz
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: human-support-feasibility-${{ github.run_id }}
+          path: support-evidence/
+          if-no-files-found: error
+          retention-days: 14
