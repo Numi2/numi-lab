@@ -84,6 +84,37 @@ coupling. Missing integration belongs in the lowest owning layer, with an
 explicit qualification boundary; do not silently replace it with host loops,
 synthetic observations, or duplicated force/rate authority.
 
+## Human standing and embodied execution
+
+When the user asks for Human to stand, move, or function as a complete body,
+start the existing native whole-body run as soon as its inputs and device are
+resolved. Bound discovery; a stalled `numi context` is a reason to inspect the
+owner directly, not to repeat inventory. Verify the current source and binary
+because installed overlays and retained builds can belong to different revisions.
+
+Work against the first observed physical failure in that run. Prioritize
+muscle activation and fibre/tendon dynamics, skeletal articulation, joint
+constraints, gravity and unilateral foot contact. Keep one accepted physical
+state, and bind visualization and control to that state. Never substitute a
+robot demonstrator, static anatomy image, separate Brain simulation, hidden
+root wrench, direct joint torque, or artificial pose lock for muscle-driven
+Human standing. Explicit assistance is a diagnostic with its own label.
+
+Use short execution prefixes to locate a failure, then extend the corrected
+run toward at least 10 simulated seconds of unassisted loaded standing. Report
+accepted simulated time separately from wall time, muscle/tendon and support
+loads, falls or rejected steps, and the limiting failure. A 1:1 anatomical
+claim needs separate source and calibration evidence; a standing result alone
+does not establish it. If throughput prevents useful-duration execution,
+profile and repair the dominant native path while retaining physical checks.
+
+Run only checks needed to validate the change and its actual physical outcome.
+Do not turn a standing request into broad library tests, new evidence schemas,
+ownership abstractions, documentation campaigns, or repeated millisecond-only
+qualification. Finish with the runnable scene and measured outcome, or the
+specific unresolved execution blocker and retained run, never test counts as
+the standing result.
+
 ## Apple Silicon execution model
 
 For the Lab robotics/embodiment path, preserve this Apple-native ownership

@@ -83,11 +83,14 @@ inline bool mrNumiHumanBilateralFactor(
 }
 
 // rhs becomes the correction in ORIGINAL multiplier units: delta = D U^-1 L^-1 P D rhs.
+// Metal callers may cache the factor in threadgroup memory and keep the RHS
+// in device, threadgroup, or per-lane scratch. Arithmetic order is unchanged.
+template <typename FactorPointer, typename RhsPointer>
 inline bool mrNumiHumanBilateralSolve(
-    MR_NH_BILATERAL_DEVICE const float* factor,
+    FactorPointer factor,
     MR_NH_BILATERAL_DEVICE const float* inverseScale,
     MR_NH_BILATERAL_DEVICE const float* pivots,
-    MR_NH_BILATERAL_DEVICE float* rhs,
+    RhsPointer rhs,
     unsigned n
 ) {
     if (n==0u || n>160u) return false;

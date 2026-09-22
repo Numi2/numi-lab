@@ -4357,11 +4357,18 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
 ) {
     require(std::isfinite(timestepSeconds) && timestepSeconds >= 1.0e-6 &&
                 timestepSeconds <= 1.0e-3 && stepCount >= 1u &&
-                stepCount <= MR_NUMI_HUMAN_STAND_MAX_STEPS &&
+                stepCount <= MR_NUMI_HUMAN_STAND_MAX_HORIZON_STEPS &&
                 std::isfinite(activation) && activation >= 0.0 &&
                 activation <= 1.0 && contactIterationCount >= 1u &&
                 contactIterationCount <= 64u,
             "persistent Human stand horizon has an invalid timestep, step count, or contact iteration count");
+    require(stepCount <= MR_NUMI_HUMAN_STAND_MAX_STEPS ||
+                (!enableRootAssistance && !removeRootAssistance &&
+                 !applySelectedActivationIncrement &&
+                 continuumTransaction == nullptr &&
+                 additionalTendonLoadProgram == nullptr &&
+                 !capturePersistentStandTrace),
+            "long Human standing requires bounded unassisted submissions without a retained per-step trace");
     require(model.articulations.size() == 1u && model.world.nq ==
                 model.articulations.front().nq && model.world.nv ==
                 model.articulations.front().nv,
@@ -5350,6 +5357,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                                            useSegmentedAuthoritativeHorizon,
                                            captureExactContinuumSteps,
                                            continuumTransaction,
+                                           timestepSeconds,
                                            kMaximumAuthoritativeSubmissionSteps](
         metalrobo::MetalArticulatedOperatorInput horizonInput,
         metalrobo::MetalArticulatedOperatorResult& horizonResult,
@@ -5443,6 +5451,30 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                     segmentDiagnostics.message;
                 horizonResult = std::move(segmentResult);
                 return segmentDiagnostics;
+            }
+            const char* progress = std::getenv("NUMI_HUMAN_EXECUTION_STAGES");
+            if (progress != nullptr && std::strcmp(progress, "1") == 0) {
+                const auto& accepted = segmentResult.standStatuses.front();
+                const auto& acceptedQ = segmentResult.standQ;
+                const auto& acceptedV = segmentResult.standV;
+                std::cout << std::setprecision(12)
+                          << "human_standing_progress=accepted step="
+                          << completedSteps + segmentSteps
+                          << " simulated_seconds="
+                          << (completedSteps + segmentSteps) * timestepSeconds
+                          << " root_xyz_m=[" << acceptedQ[0] << ','
+                          << acceptedQ[1] << ',' << acceptedQ[2] << ']'
+                          << " root_linear_speed_m_s="
+                          << std::sqrt(double(acceptedV[0]) * acceptedV[0] +
+                                       double(acceptedV[1]) * acceptedV[1] +
+                                       double(acceptedV[2]) * acceptedV[2])
+                          << " support_force_n="
+                          << accepted.contactAndAcceleration.z / timestepSeconds
+                          << " penetration_m=" << accepted.contactAndAcceleration.y
+                          << " contact_count=" << accepted.activeContactCount
+                          << " root_assistance_force_n=" << accepted.factorAndAssistance.z
+                          << " root_assistance_torque_nm=" << accepted.factorAndAssistance.w
+                          << std::endl;
             }
             if (capturedSteps != nullptr) {
                 HumanTendonContinuumTransaction::AcceptedStep captured;
@@ -17444,7 +17476,7 @@ std::uint32_t parseMuscleStepCount(const std::string& value) {
     unsigned long result = 0ul;
     const std::string error =
         "--muscle-step-count must be an integer from 1 through " +
-        std::to_string(MR_NUMI_HUMAN_STAND_MAX_STEPS);
+        std::to_string(MR_NUMI_HUMAN_STAND_MAX_HORIZON_STEPS);
     try {
         result = std::stoul(value, &parsed, 10);
     } catch (const std::exception&) {
@@ -17452,7 +17484,7 @@ std::uint32_t parseMuscleStepCount(const std::string& value) {
     }
     require(parsed == value.size() &&
                 result >= 1ul &&
-                result <= static_cast<unsigned long>(MR_NUMI_HUMAN_STAND_MAX_STEPS),
+                result <= static_cast<unsigned long>(MR_NUMI_HUMAN_STAND_MAX_HORIZON_STEPS),
             error);
     return static_cast<std::uint32_t>(result);
 }
@@ -18033,7 +18065,7 @@ int main(int argc, char** argv) {
                           << " [bodyparts3d-myosim-major-bones.nhbones] <output-directory>"
                           << " [--muscle-step-seconds <1e-6..1e-3>]"
                           << " [--muscle-step-count <1.."
-                          << MR_NUMI_HUMAN_STAND_MAX_STEPS << ">]"
+                          << MR_NUMI_HUMAN_STAND_MAX_HORIZON_STEPS << "; extended horizons require unassisted persistent stand>]"
                           << " [--muscle-activation <0..1>]"
                           << " [--persistent-metal-stand] [--mechanics-only] [--persistent-source-passive-joint-tissue] [--persistent-runtime-without-passive-joint-tissue] [--selected-tendon-control] [--stand-root-assistance] [--stand-remove-assistance] [--stand-deterministic-replay] [--persistent-stand-trace] [--stand-contact-iterations <1..64>]"
                           << " [--bilateral-achilles-certificate]"

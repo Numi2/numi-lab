@@ -36,6 +36,45 @@
 namespace metalrobo {
 namespace {
 
+// Read-only timestamps for the first eight physical steps. Resolution happens
+// after the owning command buffer completes; profiling adds no submissions.
+id<MTLComputeCommandEncoder> humanTimedEncoder(
+    id<MTLCommandBuffer> commandBuffer, id<MTLDevice> device,
+    const char* stage, std::uint32_t step
+) {
+    const char* requested = std::getenv("NUMI_HUMAN_GPU_TIMING");
+    if (step >= 8u || requested == nullptr || std::strcmp(requested, "1") != 0 ||
+        ![device supportsCounterSampling:MTLCounterSamplingPointAtStageBoundary])
+        return [commandBuffer computeCommandEncoder];
+    id<MTLCounterSampleBuffer> timing = nil;
+    for (id<MTLCounterSet> set in device.counterSets) {
+        if (![set.name isEqualToString:MTLCommonCounterSetTimestamp]) continue;
+        MTLCounterSampleBufferDescriptor* descriptor = [MTLCounterSampleBufferDescriptor new];
+        descriptor.counterSet = set;
+        descriptor.storageMode = MTLStorageModeShared;
+        descriptor.sampleCount = 2u;
+        timing = [device newCounterSampleBufferWithDescriptor:descriptor error:nil];
+        break;
+    }
+    if (timing == nil) return [commandBuffer computeCommandEncoder];
+    MTLComputePassDescriptor* pass = [MTLComputePassDescriptor computePassDescriptor];
+    pass.sampleBufferAttachments[0].sampleBuffer = timing;
+    pass.sampleBufferAttachments[0].startOfEncoderSampleIndex = 0u;
+    pass.sampleBufferAttachments[0].endOfEncoderSampleIndex = 1u;
+    [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+        NSData* data = [timing resolveCounterRange:NSMakeRange(0u, 2u)];
+        if (completed.status != MTLCommandBufferStatusCompleted ||
+            data.length != 2u * sizeof(MTLCounterResultTimestamp)) return;
+        const auto* samples = static_cast<const MTLCounterResultTimestamp*>(data.bytes);
+        if (samples[0].timestamp == 0u || samples[1].timestamp < samples[0].timestamp ||
+            samples[0].timestamp == MTLCounterErrorValue ||
+            samples[1].timestamp == MTLCounterErrorValue) return;
+        std::fprintf(stderr, "human_gpu_stage=%s step=%u elapsed_ns=%llu\n", stage, step,
+            static_cast<unsigned long long>(samples[1].timestamp - samples[0].timestamp));
+    }];
+    return [commandBuffer computeCommandEncoderWithDescriptor:pass];
+}
+
 // The final stream carries one canonical packed OpenSim SpatialTransform per
 // global joint. Non-FunctionBased slots are all-zero and are never consumed.
 // Shared kernel ABI. The first sixteen slots are the established articulated
@@ -1291,7 +1330,7 @@ bool validNumiHumanStand(
         : stand.authoritativeStepCount;
     if ((stand.authoritativeStepCount == 0u &&
          stand.stepIndexOffset != 0u) ||
-        authoritativeStepCount > MR_NUMI_HUMAN_STAND_MAX_STEPS ||
+        authoritativeStepCount > MR_NUMI_HUMAN_STAND_MAX_HORIZON_STEPS ||
         stand.stepIndexOffset >= authoritativeStepCount ||
         stand.stepCount > authoritativeStepCount - stand.stepIndexOffset) {
         reason = "stand authoritative step range is malformed";
@@ -9632,7 +9671,7 @@ MetalArticulatedOperatorContext::submit(
                 );
             }
             id<MTLComputeCommandEncoder> encoder =
-                [commandBuffer computeCommandEncoder];
+                humanTimedEncoder(commandBuffer, state_->device, "kinematics", authoritativeStep);
             if (encoder == nil) {
                 return reject(
                     std::move(diagnostics),
@@ -9719,7 +9758,7 @@ MetalArticulatedOperatorContext::submit(
 
             if (input.mujoco.enabled()) {
                 id<MTLComputeCommandEncoder> mujocoEncoder =
-                    [commandBuffer computeCommandEncoder];
+                    humanTimedEncoder(commandBuffer, state_->device, "muscles", authoritativeStep);
                 if (mujocoEncoder == nil) {
                     return reject(
                         std::move(diagnostics),
@@ -10138,7 +10177,7 @@ MetalArticulatedOperatorContext::submit(
                     );
 
                 id<MTLComputeCommandEncoder> standEncoder =
-                    [commandBuffer computeCommandEncoder];
+                    humanTimedEncoder(commandBuffer, state_->device, "stand", authoritativeStep);
                 if (standEncoder == nil) {
                     return reject(
                         std::move(diagnostics),

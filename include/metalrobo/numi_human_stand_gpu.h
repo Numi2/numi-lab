@@ -10,6 +10,9 @@
 #define MR_NUMI_HUMAN_STAND_MAX_Q 161u
 #define MR_NUMI_HUMAN_STAND_MAX_CONTACTS 32u
 #define MR_NUMI_HUMAN_STAND_MAX_STEPS 4096u
+// Total accepted horizon across bounded submissions. This is not permission
+// to encode this many steps in one command buffer.
+#define MR_NUMI_HUMAN_STAND_MAX_HORIZON_STEPS 1000000u
 
 enum MRNumiHumanStandStatusCode {
     MR_NUMI_HUMAN_STAND_SUCCESS = 0u,
