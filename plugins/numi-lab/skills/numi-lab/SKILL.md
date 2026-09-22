@@ -125,15 +125,19 @@ judge the requested horizon from the actual accepted trajectory and outcome.
 
 For the integrated Brain/Human path, run the published
 `.numi/commands/human-brain-standing` on the Apple-native owner with the
-matching Brain dynamic library. Its current launcher accepts 1–4 one-millisecond
-steps and renders the accepted skeleton and muscle surfaces. Check its run
+matching Brain dynamic library. Its launcher defaults to four one-millisecond
+steps and accepts an explicit longer horizon up to ten simulated seconds; it
+renders the accepted skeleton and muscle surfaces. Check its run
 manifest, `human_brain_joint_commit`, and `human_standing_progress` records.
-The default Brain program relays source-prepared tonic excitation after the
-first receptor frame; the initial empty receptor validity produces zero
-excitation on step one. This short reproducible integration is not sustained
+The original default Brain program relayed source-prepared tonic excitation
+after the first receptor frame, with zero excitation on step one because the
+initial receptor validity was empty. The updated native source seeds only
+initial path length and velocity from the prepared MyoSim result; remeasure
+the first motor command on the named binary before claiming that fix executes.
+The original short reproducible integration is not sustained
 Brain-controlled standing or evidence of recovery from a perturbation. For
-that claim, initialize only receptors measured from the prepared native state,
-run a source-bound feedback program, and compare matched controller-on/off
+that claim, run a source-bound feedback program and compare matched
+controller-on/off
 physical trajectories under the same timed push before extending to at least
 10 simulated seconds without root assistance.
 

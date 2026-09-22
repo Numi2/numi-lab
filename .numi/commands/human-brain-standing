@@ -2,7 +2,7 @@
 set -euo pipefail
 
 if [[ "${1:-}" == "--numi-describe" ]]; then
-    printf '%s\n' 'Run native Human standing with NumiBrain sensory and muscle participation, rendering the accepted BodyParts3D skeleton and muscle surfaces with source hashes. Defaults to the verified 4 ms prefix; set NUMI_HUMAN_BRAIN_STEPS for a longer run.'
+    printf '%s\n' 'Run native Human standing with NumiBrain sensory and muscle participation, rendering the accepted BodyParts3D skeleton and muscle surfaces with source hashes. Defaults to 4 ms; set NUMI_HUMAN_BRAIN_STEPS for a longer run.'
     exit 0
 fi
 
