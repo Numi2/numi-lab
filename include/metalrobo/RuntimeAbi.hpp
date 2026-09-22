@@ -227,6 +227,7 @@ constexpr std::uint64_t runtimeAbiFingerprint() noexcept {
         MRNumiHumanTendonTransferResultGPU
     >(hash);
     hash = detail::appendRuntimeAbiType<MRNumiHumanStandContactGPU>(hash);
+    hash = detail::appendRuntimeAbiType<MRNumiHumanTimedRootForceGPU>(hash);
     hash = detail::appendRuntimeAbiType<MRNumiHumanJointEqualityGPU>(hash);
     hash = detail::appendRuntimeAbiType<MRNumiHumanStandDispatchGPU>(hash);
     hash = detail::appendRuntimeAbiType<MRNumiHumanStandStatusGPU>(hash);

@@ -351,6 +351,7 @@ void appendSplitStandSpan(
     appendSplitStandValue(hash, input.stand.targetRootPosition);
     appendSplitStandValue(hash, input.stand.targetRootOrientation);
     appendSplitStandValue(hash, input.stand.assistanceGains);
+    appendSplitStandValue(hash, input.stand.timedRootForce);
     return hash == 0u ? kSplitStandFNVOffset : hash;
 }
 
@@ -1317,6 +1318,7 @@ bool validNumiHumanStand(
             stand.tendonLoadProgram.configured() ||
             stand.numanXTransactionProgram.configured() ||
             stand.numanXHumanMatterProgram.configured() ||
+            mrNumiHumanTimedRootForceConfigured(stand.timedRootForce) ||
             stand.stepIndexOffset != 0u ||
             stand.authoritativeStepCount != 0u) {
             reason = "stand sidecar data or transaction program requires a nonzero stand horizon";
@@ -1334,6 +1336,11 @@ bool validNumiHumanStand(
         stand.stepIndexOffset >= authoritativeStepCount ||
         stand.stepCount > authoritativeStepCount - stand.stepIndexOffset) {
         reason = "stand authoritative step range is malformed";
+        return false;
+    }
+    if (!mrNumiHumanTimedRootForceValid(
+            stand.timedRootForce, authoritativeStepCount)) {
+        reason = "stand timed root force must be finite with a fixed window inside the authoritative horizon";
         return false;
     }
     if (!config.pointJacobiansOnly || !input.mujoco.enabled() ||
@@ -5359,6 +5366,7 @@ struct MetalBufferRegion {
     dispatch.targetRootPosition = input.stand.targetRootPosition;
     dispatch.targetRootOrientation = input.stand.targetRootOrientation;
     dispatch.assistanceGains = input.stand.assistanceGains;
+    dispatch.timedRootForce = input.stand.timedRootForce;
     return dispatch;
 }
 
@@ -9221,6 +9229,23 @@ MetalArticulatedOperatorContext::submit(
                 pass.standStatusElementCount = layout.standStatusElements;
                 pass.standStatusStride =
                     layout.standStatusElements / input.environmentCount;
+                pass.standContacts = (__bridge void*)state_->standBuffers[
+                    kStandContactsBuffer
+                ];
+                pass.standVectorWorkspace = (__bridge void*)state_->standBuffers[
+                    kStandVectorBuffer
+                ];
+                pass.standContactCount = layout.standContactElements;
+                pass.standVectorElementCount = layout.standVectorElements;
+                pass.standVectorStride =
+                    layout.standVectorElements / input.environmentCount;
+                pass.standContactImpulseOffset = 4u * articulation.nv;
+                pass.standContactImpulseSampleStepIndex =
+                    phase == MetalNumanXTransactionPhase::postDynamics
+                        ? stepIndex : MR_INVALID_INDEX;
+                pass.standContactEnabled = input.stand.enableContact ? 1u : 0u;
+                pass.standGroundPoint = input.stand.groundPoint;
+                pass.standGroundNormal = input.stand.groundNormal;
 
                 if (!numanXTransactionAbort.armed) {
                     numanXTransactionAbort.armed = true;

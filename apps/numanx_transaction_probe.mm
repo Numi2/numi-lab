@@ -54,6 +54,8 @@ struct BorrowedResources {
     void* tendonTransfers = nullptr;
     void* tendonGeneralizedCorrections = nullptr;
     void* standStatuses = nullptr;
+    void* standContacts = nullptr;
+    void* standVectorWorkspace = nullptr;
 };
 
 BorrowedResources borrowedResources(const Pass& pass) noexcept {
@@ -75,6 +77,8 @@ BorrowedResources borrowedResources(const Pass& pass) noexcept {
         .tendonTransfers = pass.tendonTransfers,
         .tendonGeneralizedCorrections = pass.tendonGeneralizedCorrections,
         .standStatuses = pass.standStatuses,
+        .standContacts = pass.standContacts,
+        .standVectorWorkspace = pass.standVectorWorkspace,
     };
 }
 
@@ -97,7 +101,9 @@ bool sameResources(
         lhs.tendonTransfers == rhs.tendonTransfers &&
         lhs.tendonGeneralizedCorrections ==
             rhs.tendonGeneralizedCorrections &&
-        lhs.standStatuses == rhs.standStatuses;
+        lhs.standStatuses == rhs.standStatuses &&
+        lhs.standContacts == rhs.standContacts &&
+        lhs.standVectorWorkspace == rhs.standVectorWorkspace;
 }
 
 bool borrowedBufferOnDevice(
@@ -137,7 +143,9 @@ bool validBorrowedResources(
         borrowedBufferOnDevice(
             resources.tendonGeneralizedCorrections, registryID
         ) &&
-        borrowedBufferOnDevice(resources.standStatuses, registryID);
+        borrowedBufferOnDevice(resources.standStatuses, registryID) &&
+        borrowedBufferOnDevice(resources.standContacts, registryID) &&
+        borrowedBufferOnDevice(resources.standVectorWorkspace, registryID);
 }
 
 struct PhaseRecord {
@@ -219,7 +227,17 @@ bool validatePassMetadata(const Pass& pass) noexcept {
         pass.tendonTransferStride == 0u &&
         pass.tendonCorrectionElementCount == 0u &&
         pass.tendonCorrectionStride == 0u &&
-        pass.standStatusElementCount == 1u && pass.standStatusStride == 1u;
+        pass.standStatusElementCount == 1u && pass.standStatusStride == 1u &&
+        pass.standContactCount == 0u &&
+        pass.standVectorElementCount == 24u && pass.standVectorStride == 24u &&
+        pass.standContactImpulseOffset == 24u &&
+        pass.standContactImpulseSampleStepIndex ==
+            (pass.phase == Phase::postDynamics ? pass.stepIndex : MR_INVALID_INDEX) &&
+        pass.standContactEnabled == 0u &&
+        pass.standGroundPoint.x == 0.0f && pass.standGroundPoint.y == 0.0f &&
+        pass.standGroundPoint.z == 0.0f && pass.standGroundPoint.w == 0.0f &&
+        pass.standGroundNormal.x == 0.0f && pass.standGroundNormal.y == 1.0f &&
+        pass.standGroundNormal.z == 0.0f && pass.standGroundNormal.w == 0.0f;
 }
 
 bool encodeTransaction(void* context, const Pass& pass) noexcept {

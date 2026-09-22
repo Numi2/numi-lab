@@ -31,7 +31,8 @@ mr_float4 rotation(float angle) { return {0,0,std::sin(angle/2),std::cos(angle/2
 
 std::size_t exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
                      id<MTLCommandQueue> queue,float h,bool enabled,
-                     float supportSeedScale=-1.0f,unsigned contactMode=0u) {
+                     float supportSeedScale=-1.0f,unsigned contactMode=0u,
+                     bool timedRootForce=false) {
     const unsigned contactCount=supportSeedScale>=0.0f?1u:0u;
     // Even disabled arguments require one ABI-sized element for Metal validation.
     const std::array<std::size_t,26> sizes={
@@ -96,6 +97,12 @@ std::size_t exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
     dispatch->targetRootOrientation={0,0,0,1};
     dispatch->flags=(enabled?MR_NUMI_HUMAN_STAND_HAS_PASSIVE_JOINT_PROGRAM:0) |
         (contactCount?MR_NUMI_HUMAN_STAND_ENABLE_CONTACT:0);
+    if(timedRootForce) {
+        require(contactCount==0u,"timed force oracle requires unconstrained root");
+        dispatch->stepCount=64u;
+        dispatch->timedRootForce.stepWindow={11u,7u,0u,0u};
+        dispatch->timedRootForce.forceNewtons={12.0f,-3.0f,1.5f,0.0f};
+    }
     auto* contact=static_cast<MRNumiHumanStandContactGPU*>(buffers[11].contents);
     contact->bodyIndex=0; contact->pointQueryIndex=0;
     contact->frictionSlopAndStabilization={0.5f,0.002f,0.2f,
@@ -115,12 +122,23 @@ std::size_t exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
     }
     std::size_t checks=0;
     for(unsigned step=0;step<(contactCount?1u:64u);++step) {
+        if(timedRootForce) dispatch->stepIndex=step;
         std::array<double,environments> expectedV{},expectedQ{},oldEnergy{},momentum{};
+        std::array<std::array<double,3>,environments> expectedRootV{};
         std::array<double,environments> normalImpulse{},tangentImpulse{},expectedX{},expectedZ{},freeX{},freeZ{};
         auto* poses=static_cast<MRArticulatedBodyPoseGPU*>(buffers[7].contents);
         auto* jacobian=static_cast<float*>(buffers[9].contents);
         std::memset(jacobian,0,sizes[9]);
         for(unsigned e=0;e<environments;++e) {
+            // Independent F dt / mass oracle for a predetermined 7-step
+            // force at the root origin; the shared schedule helper is not
+            // used to compute the expected physical response.
+            const std::array<double,3> force{12.0,-3.0,1.5};
+            for(unsigned axis=0u;axis<3u;++axis) {
+                expectedRootV[e][axis]=v[e*nv+axis] +
+                    (timedRootForce && step>=11u && step<18u
+                        ? double(h)*force[axis]/6.0 : 0.0);
+            }
             double x=q[e*nq+7]-double(program[nv*nv+6]), u=v[e*nv+6];
             const double k=enabled?program[6*nv+6]:0.0, damping=dofs[6].drive.y;
             expectedV[e]=((1.0/3.0)*u-double(h)*k*x)/(1.0/3.0+h*damping+double(h)*h*k);
@@ -178,8 +196,20 @@ std::size_t exercise(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
                          <<" status="<<status[e].code<<" failing_index="<<status[e].failingIndex
                          <<" expected_v="<<expectedV[e]<<" actual_v="<<v[e*nv+6]<<'\n';
             }
-            require(status[e].code==MR_NUMI_HUMAN_STAND_SUCCESS&&status[e].completedSteps==1,
+            require(status[e].code==MR_NUMI_HUMAN_STAND_SUCCESS&&
+                    status[e].completedSteps==(timedRootForce?step+1u:1u),
                     "production kernel did not complete the step");
+            if(timedRootForce) {
+                for(unsigned axis=0u;axis<3u;++axis) {
+                    require(std::abs(v[e*nv+axis]-expectedRootV[e][axis])<2e-7,
+                        "timed external force differs from independent F dt / mass oracle");
+                    ++checks;
+                }
+                require(status[e].factorAndAssistance.z==0.0f &&
+                        status[e].factorAndAssistance.w==0.0f,
+                    "external disturbance counted as root assistance");
+                ++checks;
+            }
             require(status[e].velocityDiagnosticOwners.x<nv &&
                         status[e].velocityDiagnosticOwners.y<nv &&
                         status[e].velocityDiagnosticOwners.z<nv &&
@@ -284,13 +314,16 @@ int main(int argc,char** argv) {
             for(float timestep:{1.25e-5f,1.0e-4f,1.0e-3f})
                 for(bool enabled:{false,true}) checks+=exercise(device,pipeline,queue,timestep,enabled);
             const auto passiveChecks=checks;
+            checks+=exercise(device,pipeline,queue,1.0e-3f,false,-1.0f,0u,true);
+            const auto timedRootForceChecks=checks-passiveChecks;
             for(float timestep:{1.25e-5f,1.0e-4f,1.0e-3f})
                 for(float seed:{0.0f,1.0f,2.0f})
                     for(unsigned mode:{0u,1u,2u,3u})
                         checks+=exercise(device,pipeline,queue,timestep,false,seed,mode);
             std::cout<<"gpu_available=true device=\""<<device.name.UTF8String
                      <<"\" production_kernel=mr_numi_human_stand_step checks="<<checks
-                     <<" passive_checks="<<passiveChecks<<" support_checks="<<(checks-passiveChecks)
+                     <<" passive_checks="<<passiveChecks<<" timed_root_force_checks="<<timedRootForceChecks
+                     <<" support_checks="<<(checks-passiveChecks-timedRootForceChecks)
                      <<" status=passed scope=two_body_passive_and_contact_not_full_human\n";
             return 0;
         } catch(const std::exception& error) { std::cerr<<error.what()<<'\n'; return 1; }

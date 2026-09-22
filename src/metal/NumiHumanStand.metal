@@ -318,6 +318,8 @@ kernel void mr_numi_human_stand_step(
             !finite4(dispatch.targetRootPosition) ||
             !finite4(dispatch.targetRootOrientation) ||
             !finite4(dispatch.assistanceGains) ||
+            !mrNumiHumanTimedRootForceValid(
+                dispatch.timedRootForce, dispatch.stepCount) ||
             dispatch.groundNormal.w != 0.0f ||
             dispatch.targetRootPosition.w != 0.0f ||
             dispatch.tendonTransferStride < dispatch.tendonEndpointCount ||
@@ -986,11 +988,17 @@ kernel void mr_numi_human_stand_step(
     }
     // Support belongs exclusively to the unilateral impulse solve below.
     // Static support is a retractable warm start, never an additional force.
+    // The external disturbance is fixed at episode admission and scheduled
+    // only by this authoritative step index. It has no state/feedback input.
+    const float3 timedRootForce = mrNumiHumanTimedRootForceActive(
+        dispatch.timedRootForce, dispatch.stepIndex)
+        ? dispatch.timedRootForce.forceNewtons.xyz : float3(0.0f);
     for (uint dof = 0u; dof < nv; ++dof) {
         float effort = generalizedForceWorkspace[forceBase + dof] +
             vectorScratch[preloadBase + dof];
         if (dof < 3u) effort += assistanceForce[dof];
         else if (dof < 6u) effort += assistanceTorque[dof - 3u];
+        if (dof < 3u) effort += timedRootForce[dof];
         candidateV[dof] = effort - bias[dof];
         if (captureSourceDynamics) {
             // solveFactor consumes and overwrites candidateV. This final

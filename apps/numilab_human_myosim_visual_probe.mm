@@ -4537,7 +4537,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     const std::uint32_t contactIterationCount = 16u,
     const bool removeRuntimePassiveJointTissue = false,
     const std::optional<std::pair<double, double>> muscleFeedback = std::nullopt,
-    const bool musclePathFeedback = false
+    const bool musclePathFeedback = false,
+    const MRNumiHumanTimedRootForceGPU timedRootForce = {}
 ) {
     require(std::isfinite(timestepSeconds) && timestepSeconds >= 1.0e-6 &&
                 timestepSeconds <= 1.0e-3 && stepCount >= 1u &&
@@ -4546,6 +4547,13 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 activation <= 1.0 && contactIterationCount >= 1u &&
                 contactIterationCount <= 64u,
             "persistent Human stand horizon has an invalid timestep, step count, or contact iteration count");
+    require(mrNumiHumanTimedRootForceValid(timedRootForce, stepCount),
+            "persistent Human push must have finite newtons and a fixed window inside the episode");
+    require(!mrNumiHumanTimedRootForceConfigured(timedRootForce) ||
+                (!enableRootAssistance && !removeRootAssistance &&
+                 !applySelectedActivationIncrement && continuumTransaction == nullptr &&
+                 additionalTendonLoadProgram == nullptr && !capturePersistentStandTrace),
+            "persistent Human push requires unassisted source-only standing without legacy trace replay");
     require(!muscleFeedback.has_value() ||
                 (std::isfinite(muscleFeedback->first) && muscleFeedback->first > 0.0 &&
                  muscleFeedback->first <= 100.0 &&
@@ -5759,6 +5767,25 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     };
     metalrobo::MetalArticulatedOperatorResult metalResult;
     reportHumanExecutionStage("initial_force_checks_end");
+    // Bind once to the authoritative episode after the separate, unperturbed
+    // force/parity diagnostics. Copies used for segmentation and deterministic
+    // replay retain these exact force/window bytes.
+    input.stand.timedRootForce = timedRootForce;
+    if (mrNumiHumanTimedRootForceConfigured(timedRootForce)) {
+        std::cout << std::setprecision(17)
+                  << "human_stand_push=immutable_world_root_force"
+                  << " first_step=" << timedRootForce.stepWindow.x
+                  << " duration_steps=" << timedRootForce.stepWindow.y
+                  << " timestep_seconds=" << config.mujocoActivationTimestepSeconds
+                  << " start_seconds=" << timedRootForce.stepWindow.x *
+                        static_cast<double>(config.mujocoActivationTimestepSeconds)
+                  << " duration_seconds=" << timedRootForce.stepWindow.y *
+                        static_cast<double>(config.mujocoActivationTimestepSeconds)
+                  << " force_x_n=" << timedRootForce.forceNewtons.x
+                  << " force_y_n=" << timedRootForce.forceNewtons.y
+                  << " force_z_n=" << timedRootForce.forceNewtons.z
+                  << " root_assistance=false" << std::endl;
+    }
     reportHumanExecutionStage("native_horizon_begin");
     auto diagnostics = runAuthoritativeHorizon(
         input, metalResult,
@@ -17728,6 +17755,38 @@ std::uint32_t parseStandContactIterationCount(const std::string& value) {
     return static_cast<std::uint32_t>(result);
 }
 
+std::uint32_t parseStandPushStep(const std::string& value, const bool duration) {
+    const std::string error =
+        "--stand-push requires a nonnegative decimal start step and positive duration within the standing horizon";
+    require(!value.empty() && std::all_of(value.begin(), value.end(), [](const char digit) {
+                return digit >= '0' && digit <= '9';
+            }), error);
+    std::size_t parsed = 0u;
+    unsigned long result = 0ul;
+    try {
+        result = std::stoul(value, &parsed, 10);
+    } catch (const std::exception&) {
+        throw std::runtime_error(error);
+    }
+    require(parsed == value.size() && result >= (duration ? 1ul : 0ul) &&
+                result <= static_cast<unsigned long>(MR_NUMI_HUMAN_STAND_MAX_HORIZON_STEPS),
+            error);
+    return static_cast<std::uint32_t>(result);
+}
+
+float parseStandPushForce(const std::string& value) {
+    std::size_t parsed = 0u;
+    float result = 0.0f;
+    constexpr const char* error = "--stand-push force components must be finite float32 newtons";
+    try {
+        result = std::stof(value, &parsed);
+    } catch (const std::exception&) {
+        throw std::runtime_error(error);
+    }
+    require(parsed == value.size() && std::isfinite(result), error);
+    return result;
+}
+
 std::uint32_t parseWholeBodyActivationSweeps(const std::string& value) {
     std::size_t parsed = 0u;
     unsigned long result = 0ul;
@@ -17924,6 +17983,7 @@ int main(int argc, char** argv) {
             std::optional<std::uint32_t> standContactIterationCount;
             std::optional<std::pair<double, double>> standMuscleFeedback;
             bool standMusclePathFeedback = false;
+            std::optional<MRNumiHumanTimedRootForceGPU> standPush;
             bool bilateralAchillesCertificate = false;
             bool bilateralThumbTendonCertificate = false;
             bool bilateralTricepsMedialisEnthesisCertificate = false;
@@ -18047,6 +18107,16 @@ int main(int argc, char** argv) {
                     require(lengthGain > 0.0, "muscle feedback length gain must be positive");
                     standMuscleFeedback.emplace(lengthGain, velocityGain);
                     standMusclePathFeedback = argument == "--stand-muscle-path-feedback";
+                } else if (argument == "--stand-push") {
+                    require(index + 5 < argc && !standPush.has_value(),
+                            "--stand-push requires start-step duration-steps fx-N fy-N fz-N once");
+                    MRNumiHumanTimedRootForceGPU pulse{};
+                    pulse.stepWindow.x = parseStandPushStep(argv[++index], false);
+                    pulse.stepWindow.y = parseStandPushStep(argv[++index], true);
+                    pulse.forceNewtons.x = parseStandPushForce(argv[++index]);
+                    pulse.forceNewtons.y = parseStandPushForce(argv[++index]);
+                    pulse.forceNewtons.z = parseStandPushForce(argv[++index]);
+                    standPush = pulse;
                 } else if (argument == "--stand-contact-iterations") {
                     require(index + 1 < argc &&
                                 !standContactIterationCount.has_value(),
@@ -18309,6 +18379,7 @@ int main(int argc, char** argv) {
                           << MR_NUMI_HUMAN_STAND_MAX_HORIZON_STEPS << "; extended horizons require unassisted persistent stand>]"
                           << " [--muscle-activation <0..1>]"
                           << " [--persistent-metal-stand] [--mechanics-only] [--persistent-source-passive-joint-tissue] [--persistent-runtime-without-passive-joint-tissue] [--selected-tendon-control] [--stand-root-assistance] [--stand-remove-assistance] [--stand-deterministic-replay] [--persistent-stand-trace] [--stand-contact-iterations <1..64>] [--stand-muscle-feedback <length-gain> <velocity-gain-seconds>] [--stand-muscle-path-feedback <length-gain> <velocity-gain-seconds>]"
+                          << " [--stand-push <start-step> <duration-steps> <fx-N> <fy-N> <fz-N>]"
                           << " [--bilateral-achilles-certificate]"
                           << " [--bilateral-thumb-tendon-certificate]"
                           << " [--bilateral-triceps-medialis-enthesis-certificate]"
@@ -18361,6 +18432,20 @@ int main(int argc, char** argv) {
                           << " [--dimension <512..2048; multiple-of-64>]\n";
                 return 2;
             }
+            require(!standPush.has_value() ||
+                        (persistentMetalStand && !standRootAssistance &&
+                         !standRemoveAssistance && !selectedTendonControl &&
+                         !persistentStandTrace && !extensorHoodPayloadPath.has_value() &&
+                         !bilateralPlantarFasciaCertificate && !openKneeLiveTissueFEM &&
+                         !bilateralAchillesCertificate && !bilateralThumbTendonCertificate &&
+                         !bilateralTricepsMedialisEnthesisCertificate &&
+                         !wholeBodySupportCertificate && !passiveFEMTissueStableId.has_value() &&
+                         !anteriorThoraxPayloadPath.has_value() &&
+                         !pectoralisFasciaPayloadPath.has_value()),
+                    "--stand-push requires unassisted source-only persistent standing without legacy trace replay");
+            require(!standPush.has_value() ||
+                        mrNumiHumanTimedRootForceValid(*standPush, muscleStepCount.value_or(1u)),
+                    "--stand-push window must lie inside --muscle-step-count");
             const bool bodypartsBoneVisual = positional.size() == 4u;
             const LoadedRigid rigid = loadRigid(positional[0]);
             LoadedMuscles musclePayload = loadMuscles(positional[1], rigid.header);
@@ -20133,7 +20218,8 @@ int main(int argc, char** argv) {
                                 persistentStandTrace,
                                 standContactIterationCount.value_or(16u),
                                 persistentRuntimeWithoutPassiveJointTissue,
-                                standMuscleFeedback, standMusclePathFeedback
+                                standMuscleFeedback, standMusclePathFeedback,
+                                standPush.value_or(MRNumiHumanTimedRootForceGPU{})
                             )
                         );
                     }

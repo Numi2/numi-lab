@@ -190,7 +190,7 @@ enum class MetalNumanXTransactionPhase : std::uint32_t {
     postDynamics = 2u,
 };
 
-inline constexpr std::uint32_t kMetalNumanXTransactionABIVersion = 2u;
+inline constexpr std::uint32_t kMetalNumanXTransactionABIVersion = 3u;
 
 enum MetalNumanXTransactionAccessFlag : std::uint32_t {
     MetalNumanXTransactionReadBorrowedState = 1u << 0u,
@@ -294,6 +294,31 @@ struct MetalNumanXTransactionPass {
     std::uint64_t bodyPositionLowElementCount = 0u;
     std::uint64_t pointPositionLowElementCount = 0u;
 
+    // V3 read-only contact receptor inputs. Contacts are the immutable shared
+    // MRNumiHumanStandContactGPU source rows; the FP32 vector arena is
+    // environment-major. For contact c in environment e its normal and two
+    // signed tangent impulses (N s) occupy
+    //   e * standVectorStride + standContactImpulseOffset + 3 * c + [0,1,2].
+    // Only postDynamics offers a CURRENT CANDIDATE impulse sample. Validate
+    // standStatuses[e] (success and completedSteps == stepIndex + 1) on device
+    // before using it, and retain resulting receptor output separately until
+    // the enclosing submission has completed and passed the owner's gates.
+    // beginStep is NOT a prior-accepted impulse lease: every new submission
+    // clears this scratch, even when continuing an accepted split horizon.
+    // The consumer must retain its own previously published receptor frame.
+    // Sample acquisition is at the end of stepIndex with timestepSeconds;
+    // delivery latency is a separate sensor-program property. Geometry in
+    // pointWorld/Jacobians remains the step's pre-dynamics contact geometry.
+    void* standContacts = nullptr;
+    void* standVectorWorkspace = nullptr;
+    std::uint64_t standContactCount = 0u;
+    std::uint64_t standVectorElementCount = 0u;
+    std::uint64_t standVectorStride = 0u;
+    std::uint64_t standContactImpulseOffset = 0u;
+    std::uint32_t standContactImpulseSampleStepIndex = MR_INVALID_INDEX;
+    std::uint32_t standContactEnabled = 0u;
+    mr_float4 standGroundPoint{};
+    mr_float4 standGroundNormal{};
 };
 
 using MetalNumanXTransactionEncode = bool (*)(
@@ -1652,6 +1677,13 @@ struct MetalNumiHumanStandInput {
     mr_float4 targetRootOrientation{0.0f, 0.0f, 0.0f, 1.0f};
     // linear stiffness, linear damping, angular stiffness, angular damping.
     mr_float4 assistanceGains{0.0f, 0.0f, 0.0f, 0.0f};
+
+    // Predetermined external force in world-space newtons at the root origin.
+    // Bound with the episode's immutable input boundary; every continuation
+    // must retain the same force and half-open authoritative step window.
+    // Physical start/duration are stepWindow.x/y * the context's fixed dt.
+    // The all-zero default is disabled. This is never stability assistance.
+    MRNumiHumanTimedRootForceGPU timedRootForce{};
 
     [[nodiscard]] bool enabled() const noexcept {
         return stepCount != 0u;

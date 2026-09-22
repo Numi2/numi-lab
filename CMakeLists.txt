@@ -859,6 +859,7 @@ add_custom_command(
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/gpu_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/engine_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numi_human_stand_gpu.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numi_human_timed_root_force.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numi_human_passive_joint.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numi_human_constraint_projection.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numi_human_friction.h"
@@ -1668,6 +1669,11 @@ if(BUILD_TESTING)
     target_include_directories(metalrobo_numi_human_passive_joint_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
     target_compile_options(metalrobo_numi_human_passive_joint_test PRIVATE -Wall -Wextra -Werror -fno-fast-math)
     add_test(NAME numi_human_passive_joint COMMAND metalrobo_numi_human_passive_joint_test)
+    add_executable(metalrobo_numi_human_timed_root_force_test tests/numi_human_timed_root_force_test.cpp)
+    target_include_directories(metalrobo_numi_human_timed_root_force_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+    target_compile_options(metalrobo_numi_human_timed_root_force_test PRIVATE -Wall -Wextra -Wpedantic -Werror -fno-fast-math)
+    add_test(NAME numi_human_timed_root_force COMMAND metalrobo_numi_human_timed_root_force_test)
+    set_tests_properties(numi_human_timed_root_force PROPERTIES LABELS "numi-human;mechanics;perturbation;cpu")
     add_executable(metalrobo_numi_human_initial_state_test tests/numi_human_initial_state_test.cpp)
     target_link_libraries(metalrobo_numi_human_initial_state_test PRIVATE metalrobo)
     target_compile_options(metalrobo_numi_human_initial_state_test PRIVATE -Wall -Wextra -Wpedantic -Werror -fno-fast-math -ffp-contract=off)

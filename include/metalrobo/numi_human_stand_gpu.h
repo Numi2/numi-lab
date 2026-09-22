@@ -1,8 +1,9 @@
 #pragma once
 
 #include "metalrobo/engine_types.h"
+#include "metalrobo/numi_human_timed_root_force.h"
 
-#define MR_NUMI_HUMAN_STAND_ABI_VERSION 13u
+#define MR_NUMI_HUMAN_STAND_ABI_VERSION 14u
 // Six spatial Jacobian rows plus three cached world-inertia products.
 #define MR_NUMI_HUMAN_STAND_SPATIAL_SCRATCH_ROWS 9u
 #define MR_NUMI_HUMAN_STAND_MAX_BODIES 192u
@@ -90,6 +91,8 @@ typedef struct MR_ALIGN16 MRNumiHumanStandDispatchGPU {
     mr_float4 targetRootOrientation;
     // linear stiffness, linear damping, angular stiffness, angular damping.
     mr_float4 assistanceGains;
+    // Immutable external disturbance, independent of root assistance/state.
+    MRNumiHumanTimedRootForceGPU timedRootForce;
 } MRNumiHumanStandDispatchGPU;
 
 typedef struct MR_ALIGN16 MRNumiHumanStandStatusGPU {
@@ -181,6 +184,6 @@ typedef struct MR_ALIGN16 MRNumiHumanStandStatusGPU {
 
 #if !defined(__METAL_VERSION__)
 static_assert(sizeof(MRNumiHumanStandContactGPU) == 32);
-static_assert(sizeof(MRNumiHumanStandDispatchGPU) == 160);
+static_assert(sizeof(MRNumiHumanStandDispatchGPU) == 192);
 static_assert(sizeof(MRNumiHumanStandStatusGPU) == 272);
 #endif
