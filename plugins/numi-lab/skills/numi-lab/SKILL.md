@@ -116,6 +116,13 @@ fixed source-path calibration. Both are explicit experimental excitation
 controllers. Compare them with the same excitation-only baseline and do not
 present them as an integrated NumiBrain run.
 
+For the source whole-body standing scene, explicitly request
+`--execute --steps 10000 --timestep 0.001 --muscle-path-feedback 10 1` and
+supply the matching bone and muscle-surface payloads. The wrapper retains
+64 contact iterations and the current-state source passive joint law.
+The command's default short horizon is not a ten-second standing run;
+judge the requested horizon from the actual accepted trajectory and outcome.
+
 Run only checks needed to validate the change and its actual physical outcome.
 Do not turn a standing request into broad library tests, new evidence schemas,
 ownership abstractions, documentation campaigns, or repeated millisecond-only
