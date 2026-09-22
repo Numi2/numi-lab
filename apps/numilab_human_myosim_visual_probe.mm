@@ -6182,6 +6182,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                           << acceptedQ[1] << ',' << acceptedQ[2] << ']'
                           << " root_orientation_xyzw=[" << acceptedQ[3] << ','
                           << acceptedQ[4] << ',' << acceptedQ[5] << ',' << acceptedQ[6] << ']'
+                          << " root_linear_velocity_xyz_m_s=[" << acceptedV[0] << ','
+                          << acceptedV[1] << ',' << acceptedV[2] << ']'
                           << " max_generalized_acceleration=" << accepted.contactAndAcceleration.w
                           << " root_linear_speed_m_s="
                           << std::sqrt(double(acceptedV[0]) * acceptedV[0] +
