@@ -4513,6 +4513,126 @@ kernel void human_muscle_feedback(
     }
 };
 
+// Read-only accounting from the two accepted endpoints of ONE native step.
+// The solver's intermediate-iterate work remains a distinct diagnostic.
+struct HumanEndpointEnergy {
+    double kineticBefore = 0.0, kineticAfter = 0.0;
+    double gravityBefore = 0.0, gravityAfter = 0.0;
+    double muscleWork = 0.0, jointDampingWork = 0.0, bodyDampingWork = 0.0;
+    double contactNormalWork = 0.0, contactTangentialWork = 0.0, equalityWork = 0.0;
+};
+
+HumanEndpointEnergy measureHumanEndpointEnergy(
+    const metalrobo::EngineModel& model,
+    const metalrobo::MetalArticulatedOperatorInput& input,
+    const metalrobo::MetalArticulatedOperatorResult& accepted,
+    const double requestedTimestep
+) {
+    const auto& articulation = model.articulations.front();
+    const std::size_t nv = articulation.nv;
+    require(input.environmentCount == 1u && input.stand.stepCount == 1u &&
+                input.rootTranslations.size() == 1u && accepted.standRootTranslations.size() == 1u &&
+                input.stand.v.size() == nv && accepted.standV.size() == nv &&
+                accepted.standPreviousVelocity.size() == nv &&
+                accepted.mujocoGeneralizedForces.size() == nv &&
+                accepted.standContactImpulses.size() == 3u * input.stand.contacts.size() &&
+                accepted.standJointEqualityImpulses.size() == input.stand.jointEqualities.size() &&
+                accepted.standJointEqualityDerivatives.size() == input.stand.jointEqualities.size(),
+            "endpoint energy requires one complete accepted native step");
+    require(std::memcmp(input.stand.v.data(), accepted.standPreviousVelocity.data(),
+                        nv * sizeof(float)) == 0,
+            "endpoint energy predecessor disagrees with native accepted checkpoint");
+    const auto configuration = [](const auto& coordinates, const MRCompensatedRootTranslationGPU& root) {
+        require(mrCompensatedTranslationValid(root) && coordinates.size() >= 7u,
+                "endpoint energy root record is invalid");
+        std::vector<double> q(coordinates.begin(), coordinates.end());
+        q[0] = double(root.reference.x) + root.displacement.x + root.correction.x;
+        q[1] = double(root.reference.y) + root.displacement.y + root.correction.y;
+        q[2] = double(root.reference.z) + root.displacement.z + root.correction.z;
+        return q;
+    };
+    const auto q0 = configuration(input.q, input.rootTranslations.front());
+    const auto q1 = configuration(accepted.standQ, accepted.standRootTranslations.front());
+    const std::vector<double> v0(input.stand.v.begin(), input.stand.v.end());
+    const std::vector<double> v1(accepted.standV.begin(), accepted.standV.end());
+    const double h = static_cast<float>(requestedTimestep); // Exact native timestep.
+    metalrobo::ArticulatedDynamicsConfig config;
+    config.gravity = {model.world.gravityAndTimestep.x, model.world.gravityAndTimestep.y,
+                      model.world.gravityAndTimestep.z};
+    config.timestep = h;
+    metalrobo::ArticulatedInvariants before, after;
+    require(metalrobo::computeArticulatedInvariants(model, 0u, q0, v0, before, config).succeeded() &&
+                metalrobo::computeArticulatedInvariants(model, 0u, q1, v1, after, config).succeeded(),
+            "accepted endpoint mass/inertia energy evaluation failed");
+    HumanEndpointEnergy energy;
+    energy.kineticBefore = before.kineticEnergy;
+    energy.kineticAfter = after.kineticEnergy;
+    energy.gravityBefore = before.potentialEnergy;
+    energy.gravityAfter = after.potentialEnergy;
+    std::vector<double> midpoint(nv);
+    for (std::size_t dof = 0u; dof < nv; ++dof) {
+        midpoint[dof] = 0.5 * (v0[dof] + v1[dof]);
+        energy.muscleWork += h * accepted.mujocoGeneralizedForces[dof] * midpoint[dof];
+        const auto& properties = model.dofs[articulation.vOffset + dof];
+        // Native joint damping is backward Euler. This endpoint quadrature
+        // uses accepted v1; exact coordinate projection is separately unowned.
+        if ((properties.flags & MR_DOF_FLAG_DRIVE) == 0u)
+            energy.jointDampingWork -= h * properties.drive.y * v1[dof] * midpoint[dof];
+    }
+    std::vector<metalrobo::ArticulatedBodyKinematics> bodies0(articulation.bodyCount);
+    std::vector<metalrobo::ArticulatedBodyKinematics> bodies1(articulation.bodyCount);
+    require(metalrobo::computeArticulatedBodyKinematics(model, 0u, q0, v0, bodies0, config).succeeded() &&
+                metalrobo::computeArticulatedBodyKinematics(model, 0u, q1, v1, bodies1, config).succeeded(),
+            "accepted endpoint body-damping evaluation failed");
+    for (std::size_t body = 0u; body < bodies0.size(); ++body) {
+        const auto& damping = model.bodies[articulation.firstBody + body].dampingAndSpeedLimits;
+        for (std::size_t axis = 0u; axis < 3u; ++axis) {
+            energy.bodyDampingWork -= 0.5 * h * (
+                damping.x * bodies0[body].linearVelocity[axis] *
+                    (bodies0[body].linearVelocity[axis] + bodies1[body].linearVelocity[axis]) +
+                damping.y * bodies0[body].angularVelocity[axis] *
+                    (bodies0[body].angularVelocity[axis] + bodies1[body].angularVelocity[axis]));
+        }
+    }
+    const std::array<double, 3u> normal{input.stand.groundNormal.x,
+        input.stand.groundNormal.y, input.stand.groundNormal.z};
+    const std::array<double, 3u> reference = std::abs(normal[0]) < 0.8
+        ? std::array<double, 3u>{1.0, 0.0, 0.0} : std::array<double, 3u>{0.0, 1.0, 0.0};
+    const double projection = normal[0] * reference[0] + normal[1] * reference[1];
+    const auto tangent0 = normalizedVector({reference[0] - projection * normal[0],
+        reference[1] - projection * normal[1], reference[2] - projection * normal[2]},
+        "endpoint energy contact tangent");
+    const auto tangent1 = crossProduct(normal, tangent0);
+    const std::array<std::array<double, 3u>, 3u> directions{normal, tangent0, tangent1};
+    for (std::size_t contact = 0u; contact < input.stand.contacts.size(); ++contact) {
+        const auto point = input.stand.contacts[contact].pointQueryIndex;
+        require((std::size_t(point) + 1u) * 3u * nv <= accepted.pointJacobians.size(),
+                "endpoint energy contact Jacobian is absent");
+        for (std::size_t axis = 0u; axis < 3u; ++axis) {
+            double rowVelocity = 0.0;
+            for (std::size_t dof = 0u; dof < nv; ++dof)
+                for (std::size_t component = 0u; component < 3u; ++component)
+                    rowVelocity += directions[axis][component] *
+                        accepted.pointJacobians[(point * 3u + component) * nv + dof] * midpoint[dof];
+            const double work = accepted.standContactImpulses[3u * contact + axis] * rowVelocity;
+            if (axis == 0u) energy.contactNormalWork += work;
+            else energy.contactTangentialWork += work;
+        }
+    }
+    for (std::size_t row = 0u; row < input.stand.jointEqualities.size(); ++row) {
+        const auto& equality = input.stand.jointEqualities[row];
+        double rowVelocity = midpoint[equality.indices.y];
+        if (equality.indices.w != MR_INVALID_INDEX)
+            rowVelocity -= accepted.standJointEqualityDerivatives[row] * midpoint[equality.indices.w];
+        energy.equalityWork += accepted.standJointEqualityImpulses[row] * rowVelocity;
+    }
+    require(std::isfinite(energy.muscleWork) && std::isfinite(energy.bodyDampingWork) &&
+                std::isfinite(energy.jointDampingWork) && std::isfinite(energy.contactNormalWork) &&
+                std::isfinite(energy.contactTangentialWork) && std::isfinite(energy.equalityWork),
+            "accepted endpoint work diagnostic is non-finite");
+    return energy;
+}
+
 MuscleDrivenVisualState integratePersistentMetalHumanState(
     const metalrobo::EngineModel& model,
     const LoadedMuscles& muscles,
@@ -4537,7 +4657,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     const std::uint32_t contactIterationCount = 16u,
     const bool removeRuntimePassiveJointTissue = false,
     const std::optional<std::pair<double, double>> muscleFeedback = std::nullopt,
-    const bool musclePathFeedback = false
+    const bool musclePathFeedback = false,
+    const bool endpointEnergy = false
 ) {
     require(std::isfinite(timestepSeconds) && timestepSeconds >= 1.0e-6 &&
                 timestepSeconds <= 1.0e-3 && stepCount >= 1u &&
@@ -4616,6 +4737,11 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         continuumTransaction != nullptr
             ? &continuumTransaction->program
             : additionalTendonLoadProgram;
+    require(!endpointEnergy || (!enableRootAssistance && !removeRootAssistance &&
+                !removeRuntimePassiveJointTissue &&
+                !applySelectedActivationIncrement && continuumTransaction == nullptr &&
+                additionalTendonLoadProgram == nullptr && !capturePersistentStandTrace),
+            "endpoint energy requires an unassisted source-only authoritative horizon");
     const auto persistentPassiveCouplings = sourcePassiveJointTissue
         ? wholeBodyUpperPassiveCoordinateCouplings()
         : std::vector<metalrobo::NumiHumanPassiveCoordinateCoupling>{};
@@ -4961,6 +5087,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     const metalrobo::MetalArticulatedOperatorConfig config{
         .pointJacobiansOnly = true,
         .mujocoActivationTimestepSeconds = static_cast<float>(timestepSeconds),
+        .readStandConstraintDiagnostics = endpointEnergy,
     };
     metalrobo::MetalArticulatedOperatorContext context(config);
     metalrobo::MetalArticulatedOperatorInput input{
@@ -5357,7 +5484,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     constexpr std::uint32_t kMaximumAuthoritativeSubmissionSteps = 8u;
     const bool captureExactContinuumSteps = continuumTransaction != nullptr;
     const bool useSegmentedAuthoritativeHorizon =
-        captureExactContinuumSteps || muscleFeedback.has_value() ||
+        captureExactContinuumSteps || endpointEnergy || muscleFeedback.has_value() ||
         (!enableRootAssistance && !removeRootAssistance &&
          additionalTendonLoadProgram == nullptr &&
          stepCount > kMaximumAuthoritativeSubmissionSteps);
@@ -5550,7 +5677,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                                            useSegmentedAuthoritativeHorizon,
                                            captureExactContinuumSteps,
                                            continuumTransaction,
-                                           timestepSeconds, muscleFeedback, musclePathFeedback, &muscles,
+                                           timestepSeconds, muscleFeedback, musclePathFeedback, endpointEnergy, &muscles,
+                                           &passiveEnergyAt,
                                            kMaximumAuthoritativeSubmissionSteps](
         metalrobo::MetalArticulatedOperatorInput horizonInput,
         metalrobo::MetalArticulatedOperatorResult& horizonResult,
@@ -5561,7 +5689,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         if (!useSegmentedAuthoritativeHorizon ||
             (!captureExactContinuumSteps &&
              requestedSteps <= kMaximumAuthoritativeSubmissionSteps &&
-             !muscleFeedback.has_value())) {
+             !muscleFeedback.has_value() && !endpointEnergy)) {
             require(!captureExactContinuumSteps && capturedSteps == nullptr,
                     "loaded-knee exact continuum steps bypassed segmented capture");
             return context.run(model, horizonInput, horizonResult);
@@ -5618,8 +5746,14 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         MRNumiHumanStandStatusGPU aggregateStatus{};
         std::uint32_t completedSteps = 0u;
         double elapsedMilliseconds = 0.0;
+        double energyMuscleWork = 0.0, energyJointDampingWork = 0.0, energyBodyDampingWork = 0.0;
+        double energyNormalWork = 0.0, energyTangentialWork = 0.0, energyEqualityWork = 0.0;
+        double energySolverEqualityWork = 0.0;
+        double energyInitialKinetic = 0.0, energyFinalKinetic = 0.0;
+        double energyInitialGravity = 0.0, energyFinalGravity = 0.0;
+        double energyInitialPassive = 0.0, energyFinalPassive = 0.0;
         while (completedSteps < requestedSteps) {
-            const std::uint32_t segmentSteps = captureExactContinuumSteps
+            const std::uint32_t segmentSteps = (captureExactContinuumSteps || endpointEnergy)
                 ? 1u
                 : std::min(kMaximumAuthoritativeSubmissionSteps,
                            requestedSteps - completedSteps);
@@ -5661,6 +5795,46 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                     segmentDiagnostics.message;
                 horizonResult = std::move(segmentResult);
                 return segmentDiagnostics;
+            }
+            if (endpointEnergy) {
+                const auto energy = measureHumanEndpointEnergy(
+                    model, horizonInput, segmentResult, timestepSeconds);
+                const double passiveBefore = passiveEnergyAt(currentQ);
+                const double passiveAfter = passiveEnergyAt(segmentResult.standQ);
+                if (completedSteps == 0u) {
+                    energyInitialKinetic = energy.kineticBefore;
+                    energyInitialGravity = energy.gravityBefore;
+                    energyInitialPassive = passiveBefore;
+                }
+                energyFinalKinetic = energy.kineticAfter;
+                energyFinalGravity = energy.gravityAfter;
+                energyFinalPassive = passiveAfter;
+                energyMuscleWork += energy.muscleWork;
+                energyJointDampingWork += energy.jointDampingWork;
+                energyBodyDampingWork += energy.bodyDampingWork;
+                energyNormalWork += energy.contactNormalWork;
+                energyTangentialWork += energy.contactTangentialWork;
+                energyEqualityWork += energy.equalityWork;
+                const auto& native = segmentResult.standStatuses.front();
+                energySolverEqualityWork += native.constraintImpulseWorkDiagnostics.z;
+                std::cout << std::setprecision(17)
+                          << "human_endpoint_energy=accepted step=" << completedSteps + segmentSteps
+                          << " kinetic_before_j=" << energy.kineticBefore
+                          << " kinetic_after_j=" << energy.kineticAfter
+                          << " delta_kinetic_j=" << energy.kineticAfter - energy.kineticBefore
+                          << " gravity_potential_work_j=" << energy.gravityBefore - energy.gravityAfter
+                          << " passive_potential_work_j=" << passiveBefore - passiveAfter
+                          << " muscle_midpoint_work_j=" << energy.muscleWork
+                          << " joint_damping_midpoint_work_j=" << energy.jointDampingWork
+                          << " body_damping_midpoint_work_j=" << energy.bodyDampingWork
+                          << " contact_normal_endpoint_work_j=" << energy.contactNormalWork
+                          << " contact_tangential_endpoint_work_j=" << energy.contactTangentialWork
+                          << " equality_endpoint_work_j=" << energy.equalityWork
+                          << " equality_solver_iterate_work_j=" << native.constraintImpulseWorkDiagnostics.z
+                          << " source_limit_endpoint_work=unavailable"
+                          << " exact_projection_work=unavailable"
+                          << " musculotendon_internal_energy=unavailable"
+                          << " closure=not_established" << std::endl;
             }
             double maximumExcitationCorrection = 0.0;
             if (muscleFeedback.has_value()) {
@@ -5746,6 +5920,38 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             currentRoots = segmentResult.standRootTranslations;
             aggregateDiagnostics = segmentDiagnostics;
             horizonResult = std::move(segmentResult);
+        }
+        if (endpointEnergy) {
+            const double deltaKinetic = energyFinalKinetic - energyInitialKinetic;
+            const double gravityWork = energyInitialGravity - energyFinalGravity;
+            const double passiveWork = energyInitialPassive - energyFinalPassive;
+            const double availableWork = gravityWork + passiveWork + energyMuscleWork +
+                energyJointDampingWork + energyBodyDampingWork + energyNormalWork +
+                energyTangentialWork + energyEqualityWork;
+            std::cout << std::setprecision(17)
+                      << "human_endpoint_energy_total=observed accepted_steps=" << completedSteps
+                      << " kinetic_before_j=" << energyInitialKinetic
+                      << " kinetic_after_j=" << energyFinalKinetic
+                      << " delta_kinetic_j=" << deltaKinetic
+                      << " gravity_potential_work_j=" << gravityWork
+                      << " passive_potential_work_j=" << passiveWork
+                      << " muscle_midpoint_work_j=" << energyMuscleWork
+                      << " joint_damping_midpoint_work_j=" << energyJointDampingWork
+                      << " body_damping_midpoint_work_j=" << energyBodyDampingWork
+                      << " contact_normal_endpoint_work_j=" << energyNormalWork
+                      << " contact_tangential_endpoint_work_j=" << energyTangentialWork
+                      << " equality_endpoint_work_j=" << energyEqualityWork
+                      << " equality_solver_iterate_work_j=" << energySolverEqualityWork
+                      << " unclosed_available_terms_residual_j=" << deltaKinetic - availableWork
+                      << " mass_basis=body_inertia_plus_armature_fp64"
+                      << " root_basis=accepted_compensated_translation"
+                      << " work_quadrature=accepted_endpoint_midpoint"
+                      << " constraint_geometry=native_pre_step_linearization"
+                      << " source_limit_endpoint_work=unavailable"
+                      << " exact_projection_work=unavailable"
+                      << " musculotendon_internal_energy=unavailable"
+                      << " integration_bias_and_quadrature_remainder=unresolved"
+                      << " closure=not_established" << std::endl;
         }
         require(haveStatus && horizonResult.standStatuses.size() == 1u,
                 "segmented Human horizon published no status");
@@ -6312,7 +6518,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         const std::uint32_t borrowedTendonLocalStatusSteps =
             !useSegmentedAuthoritativeHorizon
                 ? stepCount
-                : captureExactContinuumSteps
+                : (captureExactContinuumSteps || endpointEnergy)
                     ? 1u
                     : ((stepCount - 1u) %
                        kMaximumAuthoritativeSubmissionSteps) + 1u;
@@ -17924,6 +18130,7 @@ int main(int argc, char** argv) {
             std::optional<std::uint32_t> standContactIterationCount;
             std::optional<std::pair<double, double>> standMuscleFeedback;
             bool standMusclePathFeedback = false;
+            bool standEndpointEnergy = false;
             bool bilateralAchillesCertificate = false;
             bool bilateralThumbTendonCertificate = false;
             bool bilateralTricepsMedialisEnthesisCertificate = false;
@@ -18047,6 +18254,9 @@ int main(int argc, char** argv) {
                     require(lengthGain > 0.0, "muscle feedback length gain must be positive");
                     standMuscleFeedback.emplace(lengthGain, velocityGain);
                     standMusclePathFeedback = argument == "--stand-muscle-path-feedback";
+                } else if (argument == "--stand-endpoint-energy") {
+                    require(!standEndpointEnergy, "--stand-endpoint-energy may be given only once");
+                    standEndpointEnergy = true;
                 } else if (argument == "--stand-contact-iterations") {
                     require(index + 1 < argc &&
                                 !standContactIterationCount.has_value(),
@@ -18308,7 +18518,7 @@ int main(int argc, char** argv) {
                           << " [--muscle-step-count <1.."
                           << MR_NUMI_HUMAN_STAND_MAX_HORIZON_STEPS << "; extended horizons require unassisted persistent stand>]"
                           << " [--muscle-activation <0..1>]"
-                          << " [--persistent-metal-stand] [--mechanics-only] [--persistent-source-passive-joint-tissue] [--persistent-runtime-without-passive-joint-tissue] [--selected-tendon-control] [--stand-root-assistance] [--stand-remove-assistance] [--stand-deterministic-replay] [--persistent-stand-trace] [--stand-contact-iterations <1..64>] [--stand-muscle-feedback <length-gain> <velocity-gain-seconds>] [--stand-muscle-path-feedback <length-gain> <velocity-gain-seconds>]"
+                          << " [--persistent-metal-stand] [--mechanics-only] [--persistent-source-passive-joint-tissue] [--persistent-runtime-without-passive-joint-tissue] [--selected-tendon-control] [--stand-root-assistance] [--stand-remove-assistance] [--stand-deterministic-replay] [--persistent-stand-trace] [--stand-endpoint-energy] [--stand-contact-iterations <1..64>] [--stand-muscle-feedback <length-gain> <velocity-gain-seconds>] [--stand-muscle-path-feedback <length-gain> <velocity-gain-seconds>]"
                           << " [--bilateral-achilles-certificate]"
                           << " [--bilateral-thumb-tendon-certificate]"
                           << " [--bilateral-triceps-medialis-enthesis-certificate]"
@@ -18964,6 +19174,13 @@ int main(int argc, char** argv) {
                     "--stand-deterministic-replay requires --persistent-metal-stand");
             require(!persistentStandTrace || persistentMetalStand,
                     "--persistent-stand-trace requires --persistent-metal-stand");
+            require(!standEndpointEnergy ||
+                        (persistentMetalStand && !standRootAssistance && !persistentStandTrace &&
+                         !persistentRuntimeWithoutPassiveJointTissue &&
+                         !extensorHoodPayload.has_value() && !bilateralPlantarFasciaCertificate &&
+                         !openKneeLiveTissueFEM && !anteriorThoraxPayload.has_value() &&
+                         !pectoralisFasciaPayload.has_value()),
+                    "--stand-endpoint-energy requires unassisted source-only standing without trace replay");
             require(!standMuscleFeedback.has_value() ||
                         (persistentMetalStand && !extensorHoodPayload.has_value() &&
                          !bilateralPlantarFasciaCertificate && !openKneeLiveTissueFEM &&
@@ -20133,7 +20350,7 @@ int main(int argc, char** argv) {
                                 persistentStandTrace,
                                 standContactIterationCount.value_or(16u),
                                 persistentRuntimeWithoutPassiveJointTissue,
-                                standMuscleFeedback, standMusclePathFeedback
+                                standMuscleFeedback, standMusclePathFeedback, standEndpointEnergy
                             )
                         );
                     }

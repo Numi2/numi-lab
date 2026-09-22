@@ -123,6 +123,11 @@ supply the matching bone and muscle-surface payloads. The wrapper retains
 The command's default short horizon is not a ten-second standing run;
 judge the requested horizon from the actual accepted trajectory and outcome.
 
+For a short energy diagnosis, add `--endpoint-energy` to `--execute`.
+It reports mass/inertia kinetic energy and available work at accepted native
+endpoints. Keep solver-iterate correction work separate; missing source-limit,
+projection and internal muscle energy terms do not establish energy closure.
+
 Run only checks needed to validate the change and its actual physical outcome.
 Do not turn a standing request into broad library tests, new evidence schemas,
 ownership abstractions, documentation campaigns, or repeated millisecond-only
