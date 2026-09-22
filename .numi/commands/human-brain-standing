@@ -2,7 +2,7 @@
 set -euo pipefail
 
 if [[ "${1:-}" == "--numi-describe" ]]; then
-    printf '%s\n' 'Run one bounded native Human standing step with NumiBrain sensory and muscle participation, rendering the accepted BodyParts3D skeleton and muscle surfaces with source hashes.'
+    printf '%s\n' 'Run the reproducible 4 ms native Human standing prefix with NumiBrain sensory and muscle participation, rendering the accepted BodyParts3D skeleton and muscle surfaces with source hashes.'
     exit 0
 fi
 
@@ -25,7 +25,7 @@ tendon_source="$source_directory/numi-human-tendon-attachments.nhtendon"
 bone_source=${NUMI_HUMAN_BRAIN_BONES:-"$HOME/human-completion-20260907/input/bodyparts3d-myosim-major-bones.nhbones"}
 muscle_surface_source=${NUMI_HUMAN_BRAIN_MUSCLE_SURFACES:-"$HOME/human-completion-20260907/input/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue"}
 seed=${NUMI_HUMAN_BRAIN_SEED:-1314213193}
-steps=${NUMI_HUMAN_BRAIN_STEPS:-1}
+steps=${NUMI_HUMAN_BRAIN_STEPS:-4}
 if [[ ! "$steps" =~ ^[1-4]$ ]]; then
     printf 'NUMI_HUMAN_BRAIN_STEPS must be from 1 through 4: %s\n' "$steps" >&2
     exit 2
@@ -113,6 +113,7 @@ fi
     printf 'tendon_source '; shasum -a 256 "$tendon_source"
     printf 'bodyparts3d_bone_source '; shasum -a 256 "$bone_source"
     printf 'bodyparts3d_muscle_surface_source '; shasum -a 256 "$muscle_surface_source"
+    printf 'launcher '; shasum -a 256 "$repository_root/.numi/commands/human-brain-standing"
     if [[ -n "${NUMI_HUMAN_BRAIN_PROGRAM:-}" ]]; then
         printf 'locomotor_program '; shasum -a 256 "$NUMI_HUMAN_BRAIN_PROGRAM"
     fi
