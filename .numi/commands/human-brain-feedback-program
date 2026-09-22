@@ -27,7 +27,10 @@ def main() -> int:
             and math.isfinite(velocity_gain) and 0 <= velocity_gain <= 1):
         raise ValueError("feedback gains are outside the Brain v1 finite bounds")
 
-    source_bytes = (run / "prepared-brain-source.json").read_bytes()
+    source_path = run / "prepared-brain-source.json"
+    if not source_path.is_file():
+        source_path = run / "numi-brain" / "prepared-brain-source.json"
+    source_bytes = source_path.read_bytes()
     source = json.loads(source_bytes)
     binding = next(
         (line for line in (run / "launch.log").read_text().splitlines()
