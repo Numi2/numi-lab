@@ -48,6 +48,7 @@
 #include <iostream>
 #include <limits>
 #include <map>
+#include <memory>
 #include <numbers>
 #include <numeric>
 #include <optional>
@@ -4331,6 +4332,120 @@ InitialMujocoFiberEquilibrium equilibrateInitialMujocoFiberStates(
     return result;
 }
 
+// A bounded experimental stretch reflex. The existing transaction hook owns
+// excitation writes after the accepted-state checkpoint and before MyoSim.
+// No host edit of the preceding physical state is admitted.
+struct HumanMuscleFeedbackProgram {
+    id<MTLComputePipelineState> pipeline = nil;
+    id<MTLBuffer> references = nil;
+    mr_float4 gains{};
+    std::uint32_t count = 0u;
+    std::uint64_t fingerprint = 1469598103934665603ull;
+
+    HumanMuscleFeedbackProgram(
+        const LoadedMuscles& muscles,
+        const std::vector<MRMujocoMuscleStateGPU>& states,
+        const std::pair<double, double>& requestedGains
+    ) {
+        require(states.size() == muscles.gpuMuscles.size() && !states.empty(),
+                "muscle feedback state does not match source routes");
+        count = static_cast<std::uint32_t>(states.size());
+        gains = {static_cast<float>(requestedGains.first),
+                 static_cast<float>(requestedGains.second), 0.2f, 0.0f};
+        std::vector<mr_float4> records(count);
+        for (std::size_t index = 0u; index < count; ++index) {
+            const auto& state = states[index].excitationAndActivation;
+            const float optimalLength = muscles.gpuMuscles[index].compliantArchitecture0.x;
+            require(std::isfinite(optimalLength) && optimalLength > 0.0f &&
+                        std::isfinite(state.z) && state.z > 0.0f &&
+                        std::isfinite(state.w) && std::isfinite(state.x) &&
+                        state.x >= 0.0f && state.x <= 1.0f,
+                    "muscle feedback requires equilibrated compliant fibres");
+            records[index] = {state.x, state.z, optimalLength, state.w};
+        }
+        const auto hash = [this](const void* bytes, std::size_t size) {
+            const auto* values = static_cast<const unsigned char*>(bytes);
+            for (std::size_t index = 0u; index < size; ++index) {
+                fingerprint ^= values[index];
+                fingerprint *= 1099511628211ull;
+            }
+        };
+        constexpr std::uint32_t controllerVersion = 1u;
+        hash(&controllerVersion, sizeof(controllerVersion));
+        hash(&gains, sizeof(gains));
+        hash(records.data(), records.size() * sizeof(mr_float4));
+        if (fingerprint == 0u) fingerprint = 1u;
+        id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+        require(device != nil, "muscle feedback requires a Metal device");
+        references = [device newBufferWithBytes:records.data()
+            length:records.size() * sizeof(mr_float4) options:MTLResourceStorageModeShared];
+        MTLCompileOptions* options = [MTLCompileOptions new];
+        options.mathMode = MTLMathModeSafe;
+        NSError* error = nil;
+        NSString* source = [NSString stringWithUTF8String:R"METAL(
+#include <metal_stdlib>
+using namespace metal;
+kernel void human_muscle_feedback(
+    device float4* states [[buffer(0)]],
+    device const float4* reference [[buffer(1)]],
+    constant float4& gains [[buffer(2)]],
+    constant uint& count [[buffer(3)]],
+    device const uint* status [[buffer(4)]],
+    uint index [[thread_position_in_grid]]) {
+    if (index >= count || status[0] != 0u) return;
+    const float4 current = states[index];
+    const float4 target = reference[index];
+    const float error = gains.x * (current.z - target.y) / target.z +
+        gains.y * (current.w - target.w) / target.z;
+    // Nonfinite physical input must reach the owner's rejection path.
+    states[index].x = isfinite(error)
+        ? clamp(target.x + clamp(error, -gains.z, gains.z), 0.0f, 1.0f)
+        : NAN;
+}
+)METAL"];
+        id<MTLLibrary> library = [device newLibraryWithSource:source options:options error:&error];
+        require(library != nil && references != nil,
+                "muscle feedback Metal program could not be created");
+        id<MTLFunction> function = [library newFunctionWithName:@"human_muscle_feedback"];
+        pipeline = [device newComputePipelineStateWithFunction:function error:&error];
+        require(pipeline != nil, "muscle feedback Metal pipeline is unavailable");
+    }
+
+    static bool encode(void* context, const metalrobo::MetalNumanXTransactionPass& pass) noexcept {
+        auto& program = *static_cast<HumanMuscleFeedbackProgram*>(context);
+        if (pass.phase != metalrobo::MetalNumanXTransactionPhase::beginStep) return true;
+        if (pass.environmentCount != 1u || pass.mujocoStateElementCount != program.count ||
+            pass.programFingerprint != program.fingerprint ||
+            (pass.accessFlags & metalrobo::MetalNumanXTransactionWriteMujocoExcitation) == 0u)
+            return false;
+        id<MTLCommandBuffer> command = (__bridge id<MTLCommandBuffer>)pass.commandBuffer;
+        id<MTLComputeCommandEncoder> encoder = [command computeCommandEncoder];
+        if (encoder == nil) return false;
+        [encoder setComputePipelineState:program.pipeline];
+        [encoder setBuffer:(__bridge id<MTLBuffer>)pass.mujocoStates offset:0u atIndex:0u];
+        [encoder setBuffer:program.references offset:0u atIndex:1u];
+        [encoder setBytes:&program.gains length:sizeof(program.gains) atIndex:2u];
+        [encoder setBytes:&program.count length:sizeof(program.count) atIndex:3u];
+        [encoder setBuffer:(__bridge id<MTLBuffer>)pass.standStatuses offset:0u atIndex:4u];
+        [encoder dispatchThreads:MTLSizeMake(program.count, 1u, 1u)
+            threadsPerThreadgroup:MTLSizeMake(64u, 1u, 1u)];
+        [encoder endEncoding];
+        return true;
+    }
+    // Immutable reference and gains own no candidate history. Physical state
+    // (including excitation) is restored by the enclosing native transaction.
+    static void abort(void*, void*) noexcept {}
+
+    metalrobo::MetalNumanXTransactionProgram program() {
+        metalrobo::MetalNumanXTransactionProgram result;
+        result.context = this;
+        result.encode = &encode;
+        result.abort = &abort;
+        result.fingerprint = fingerprint;
+        return result;
+    }
+};
+
 MuscleDrivenVisualState integratePersistentMetalHumanState(
     const metalrobo::EngineModel& model,
     const LoadedMuscles& muscles,
@@ -4353,7 +4468,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     const bool sourcePassiveJointTissue = false,
     const bool capturePersistentStandTrace = false,
     const std::uint32_t contactIterationCount = 16u,
-    const bool removeRuntimePassiveJointTissue = false
+    const bool removeRuntimePassiveJointTissue = false,
+    const std::optional<std::pair<double, double>> muscleFeedback = std::nullopt
 ) {
     require(std::isfinite(timestepSeconds) && timestepSeconds >= 1.0e-6 &&
                 timestepSeconds <= 1.0e-3 && stepCount >= 1u &&
@@ -4362,6 +4478,15 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 activation <= 1.0 && contactIterationCount >= 1u &&
                 contactIterationCount <= 64u,
             "persistent Human stand horizon has an invalid timestep, step count, or contact iteration count");
+    require(!muscleFeedback.has_value() ||
+                (std::isfinite(muscleFeedback->first) && muscleFeedback->first > 0.0 &&
+                 muscleFeedback->first <= 100.0 &&
+                 std::isfinite(muscleFeedback->second) && muscleFeedback->second >= 0.0 &&
+                 muscleFeedback->second <= 10.0 && !enableRootAssistance &&
+                 !removeRootAssistance && !applySelectedActivationIncrement &&
+                 continuumTransaction == nullptr && additionalTendonLoadProgram == nullptr &&
+                 !capturePersistentStandTrace),
+            "muscle feedback requires a bounded unassisted source-only standing horizon");
     require(stepCount <= MR_NUMI_HUMAN_STAND_MAX_STEPS ||
                 (!enableRootAssistance && !removeRootAssistance &&
                  !applySelectedActivationIncrement &&
@@ -5164,7 +5289,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     constexpr std::uint32_t kMaximumAuthoritativeSubmissionSteps = 8u;
     const bool captureExactContinuumSteps = continuumTransaction != nullptr;
     const bool useSegmentedAuthoritativeHorizon =
-        captureExactContinuumSteps ||
+        captureExactContinuumSteps || muscleFeedback.has_value() ||
         (!enableRootAssistance && !removeRootAssistance &&
          additionalTendonLoadProgram == nullptr &&
          stepCount > kMaximumAuthoritativeSubmissionSteps);
@@ -5357,7 +5482,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                                            useSegmentedAuthoritativeHorizon,
                                            captureExactContinuumSteps,
                                            continuumTransaction,
-                                           timestepSeconds,
+                                           timestepSeconds, muscleFeedback, &muscles,
                                            kMaximumAuthoritativeSubmissionSteps](
         metalrobo::MetalArticulatedOperatorInput horizonInput,
         metalrobo::MetalArticulatedOperatorResult& horizonResult,
@@ -5367,7 +5492,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         const std::uint32_t requestedSteps = horizonInput.stand.stepCount;
         if (!useSegmentedAuthoritativeHorizon ||
             (!captureExactContinuumSteps &&
-             requestedSteps <= kMaximumAuthoritativeSubmissionSteps)) {
+             requestedSteps <= kMaximumAuthoritativeSubmissionSteps &&
+             !muscleFeedback.has_value())) {
             require(!captureExactContinuumSteps && capturedSteps == nullptr,
                     "loaded-knee exact continuum steps bypassed segmented capture");
             return context.run(model, horizonInput, horizonResult);
@@ -5400,6 +5526,20 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             horizonInput.rootTranslations.begin(),
             horizonInput.rootTranslations.end()
         );
+        const auto referenceMuscleStates = currentStates;
+        std::unique_ptr<HumanMuscleFeedbackProgram> feedbackProgram;
+        if (muscleFeedback.has_value()) {
+            feedbackProgram = std::make_unique<HumanMuscleFeedbackProgram>(
+                muscles, referenceMuscleStates, *muscleFeedback);
+            horizonInput.stand.numanXTransactionProgram = feedbackProgram->program();
+            std::cout << "human_muscle_feedback=length_velocity"
+                      << " length_gain=" << muscleFeedback->first
+                      << " velocity_gain_seconds=" << muscleFeedback->second
+                      << " excitation_correction_bound=0.2"
+                      << " update_period_seconds=" << timestepSeconds
+                      << " observation=committed_fibre_state"
+                      << " actuation=muscle_excitation_only" << std::endl;
+        }
         metalrobo::MetalArticulatedOperatorDiagnostics aggregateDiagnostics;
         aggregateDiagnostics.dispatched = true;
         aggregateDiagnostics.published = true;
@@ -5452,6 +5592,14 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 horizonResult = std::move(segmentResult);
                 return segmentDiagnostics;
             }
+            double maximumExcitationCorrection = 0.0;
+            if (muscleFeedback.has_value()) {
+                for (std::size_t index = 0u; index < referenceMuscleStates.size(); ++index) {
+                    maximumExcitationCorrection = std::max(maximumExcitationCorrection,
+                        std::abs(double(segmentResult.mujocoActivationStates[index].excitationAndActivation.x) -
+                            referenceMuscleStates[index].excitationAndActivation.x));
+                }
+            }
             const char* progress = std::getenv("NUMI_HUMAN_EXECUTION_STAGES");
             if (progress != nullptr && std::strcmp(progress, "1") == 0) {
                 const auto& accepted = segmentResult.standStatuses.front();
@@ -5472,6 +5620,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                           << accepted.contactAndAcceleration.z / timestepSeconds
                           << " penetration_m=" << accepted.contactAndAcceleration.y
                           << " contact_count=" << accepted.activeContactCount
+                          << " muscle_feedback_max_excitation_delta=" << maximumExcitationCorrection
                           << " root_assistance_force_n=" << accepted.factorAndAssistance.z
                           << " root_assistance_torque_nm=" << accepted.factorAndAssistance.w
                           << std::endl;
@@ -17700,6 +17849,7 @@ int main(int argc, char** argv) {
             bool standDeterministicReplay = false;
             bool persistentStandTrace = false;
             std::optional<std::uint32_t> standContactIterationCount;
+            std::optional<std::pair<double, double>> standMuscleFeedback;
             bool bilateralAchillesCertificate = false;
             bool bilateralThumbTendonCertificate = false;
             bool bilateralTricepsMedialisEnthesisCertificate = false;
@@ -17806,6 +17956,21 @@ int main(int argc, char** argv) {
                     require(!persistentStandTrace,
                             "--persistent-stand-trace may be given only once");
                     persistentStandTrace = true;
+                } else if (argument == "--stand-muscle-feedback") {
+                    require(index + 2 < argc && !standMuscleFeedback.has_value(),
+                            "--stand-muscle-feedback requires length and velocity gains once");
+                    const auto gain = [](const std::string& value, const double maximum) {
+                        std::size_t parsed = 0u;
+                        const double result = std::stod(value, &parsed);
+                        require(parsed == value.size() && std::isfinite(result) &&
+                                    result >= 0.0 && result <= maximum,
+                                "muscle feedback gain is outside its finite bounded range");
+                        return result;
+                    };
+                    const double lengthGain = gain(argv[++index], 100.0);
+                    const double velocityGain = gain(argv[++index], 10.0);
+                    require(lengthGain > 0.0, "muscle feedback length gain must be positive");
+                    standMuscleFeedback.emplace(lengthGain, velocityGain);
                 } else if (argument == "--stand-contact-iterations") {
                     require(index + 1 < argc &&
                                 !standContactIterationCount.has_value(),
@@ -18067,7 +18232,7 @@ int main(int argc, char** argv) {
                           << " [--muscle-step-count <1.."
                           << MR_NUMI_HUMAN_STAND_MAX_HORIZON_STEPS << "; extended horizons require unassisted persistent stand>]"
                           << " [--muscle-activation <0..1>]"
-                          << " [--persistent-metal-stand] [--mechanics-only] [--persistent-source-passive-joint-tissue] [--persistent-runtime-without-passive-joint-tissue] [--selected-tendon-control] [--stand-root-assistance] [--stand-remove-assistance] [--stand-deterministic-replay] [--persistent-stand-trace] [--stand-contact-iterations <1..64>]"
+                          << " [--persistent-metal-stand] [--mechanics-only] [--persistent-source-passive-joint-tissue] [--persistent-runtime-without-passive-joint-tissue] [--selected-tendon-control] [--stand-root-assistance] [--stand-remove-assistance] [--stand-deterministic-replay] [--persistent-stand-trace] [--stand-contact-iterations <1..64>] [--stand-muscle-feedback <length-gain> <velocity-gain-seconds>]"
                           << " [--bilateral-achilles-certificate]"
                           << " [--bilateral-thumb-tendon-certificate]"
                           << " [--bilateral-triceps-medialis-enthesis-certificate]"
@@ -18723,6 +18888,11 @@ int main(int argc, char** argv) {
                     "--stand-deterministic-replay requires --persistent-metal-stand");
             require(!persistentStandTrace || persistentMetalStand,
                     "--persistent-stand-trace requires --persistent-metal-stand");
+            require(!standMuscleFeedback.has_value() ||
+                        (persistentMetalStand && !extensorHoodPayload.has_value() &&
+                         !bilateralPlantarFasciaCertificate && !openKneeLiveTissueFEM &&
+                         !anteriorThoraxPayload.has_value() && !pectoralisFasciaPayload.has_value()),
+                    "--stand-muscle-feedback requires source-only persistent standing");
             require(!standContactIterationCount.has_value() || persistentMetalStand,
                     "--stand-contact-iterations requires --persistent-metal-stand");
             require(!passiveFEMTissueStableId.has_value() ||
@@ -19886,7 +20056,8 @@ int main(int argc, char** argv) {
                                 persistentSourcePassiveJointTissue,
                                 persistentStandTrace,
                                 standContactIterationCount.value_or(16u),
-                                persistentRuntimeWithoutPassiveJointTissue
+                                persistentRuntimeWithoutPassiveJointTissue,
+                                standMuscleFeedback
                             )
                         );
                     }
@@ -21039,9 +21210,15 @@ int main(int argc, char** argv) {
                               ? (muscleDrivenState->selectedTendonControl
                                   ? "compiled_posture_plus_selected_increment_" + tendonProgramName + "_transaction"
                                   : muscleDrivenState->persistentMetalHorizon
-                                  ? "compiled_persistent_stand"
+                                  ? (standMuscleFeedback.has_value()
+                                      ? "compiled_stand_plus_experimental_muscle_length_velocity_feedback"
+                                      : "compiled_persistent_stand")
                                   : "bounded_visual_difference")
                               : "none")
+                      << " stand_muscle_feedback_length_gain="
+                      << (standMuscleFeedback.has_value() ? standMuscleFeedback->first : 0.0)
+                      << " stand_muscle_feedback_velocity_gain_seconds="
+                      << (standMuscleFeedback.has_value() ? standMuscleFeedback->second : 0.0)
                       << " muscle_selected_source_activation_count=" << (muscleDrivenState.has_value()
                               ? muscleDrivenState->selectedSourceMuscleActivationCount : 0u)
                       << " selected_control_baseline=" << (muscleDrivenState.has_value() &&

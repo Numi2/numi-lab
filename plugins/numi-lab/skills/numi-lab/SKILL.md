@@ -108,6 +108,12 @@ claim needs separate source and calibration evidence; a standing result alone
 does not establish it. If throughput prevents useful-duration execution,
 profile and repair the dominant native path while retaining physical checks.
 
+For sustained runs, `numi human stand ... --execute` omits mandatory replay
+and retained per-step traces while preserving native physical admission.
+`--muscle-feedback <length-gain> <velocity-gain-seconds>` is an explicit
+experimental controller; compare it with the same excitation-only baseline
+and do not present it as an integrated NumiBrain run.
+
 Run only checks needed to validate the change and its actual physical outcome.
 Do not turn a standing request into broad library tests, new evidence schemas,
 ownership abstractions, documentation campaigns, or repeated millisecond-only
