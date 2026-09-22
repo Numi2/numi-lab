@@ -1,0 +1,74 @@
+name: Human loaded-knee portable contracts
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'include/metalrobo/NumiHumanLoadedKneeNumanX.hpp'
+      - 'src/core/NumiHumanLoadedKneeNumanX.cpp'
+      - 'tests/numi_human_loaded_knee_numanx_test.cpp'
+      - '.github/workflows/human-loaded-knee-contracts.yml'
+  pull_request:
+    paths:
+      - 'include/metalrobo/NumiHumanLoadedKneeNumanX.hpp'
+      - 'src/core/NumiHumanLoadedKneeNumanX.cpp'
+      - 'tests/numi_human_loaded_knee_numanx_test.cpp'
+      - '.github/workflows/human-loaded-knee-contracts.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  portable-contracts:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            include/metalrobo
+            src/core
+            tests
+      - name: Compile and execute command and momentum regressions
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="$RUNNER_TEMP/loaded-knee-contracts"
+          mkdir -p "$OUT"
+          git rev-parse HEAD > "$OUT/source-commit.txt"
+          git hash-object -- \
+            include/metalrobo/NumiHumanLoadedKneeNumanX.hpp \
+            src/core/NumiHumanLoadedKneeNumanX.cpp \
+            tests/numi_human_loaded_knee_numanx_test.cpp \
+            > "$OUT/source-blobs.txt"
+          for CXX in clang++ g++; do
+            "$CXX" --version > "$OUT/${CXX}-version.txt"
+            for MODE in plain sanitized; do
+              EXTRA=()
+              if [[ "$MODE" == sanitized ]]; then
+                EXTRA=(-fsanitize=address,undefined -fno-omit-frame-pointer)
+              fi
+              EXE="$OUT/${CXX}-${MODE}"
+              "$CXX" -std=c++20 -O1 -g -Wall -Wextra -Wpedantic -Werror \
+                -fno-fast-math -ffp-contract=off "${EXTRA[@]}" -Iinclude \
+                src/core/NumiHumanLoadedKneeNumanX.cpp \
+                tests/numi_human_loaded_knee_numanx_test.cpp -o "$EXE" \
+                2>&1 | tee "$EXE-build.log"
+              ASAN_OPTIONS=halt_on_error=1:detect_leaks=1 \
+                UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 \
+                "$EXE" 2>&1 | tee "$EXE-test.log"
+            done
+          done
+          printf '%s\n' 'Passed portable command-admission and momentum-closure regressions; not Metal execution or physical Human qualification.' \
+            > "$OUT/scope.txt"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: loaded-knee-contracts-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/loaded-knee-contracts/*.txt
+            ${{ runner.temp }}/loaded-knee-contracts/*.log
+          if-no-files-found: error
+          retention-days: 14
