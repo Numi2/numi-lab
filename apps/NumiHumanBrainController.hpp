@@ -22,6 +22,7 @@ public:
                const std::string& programJSON, const std::string& outputDirectory,
                std::uint32_t bodyCount, std::uint32_t headBodyIndex,
                std::uint64_t modelFingerprint, std::span<const ContactBinding> contacts,
+               std::span<const MRMujocoMuscleResultGPU> preparedMuscleResults,
                std::uint32_t timestepMicroseconds, std::uint64_t epochMicroseconds,
                std::uint32_t seed)
         : library_(libraryPath), brain_{&library_, nullptr}, device_(device),
@@ -47,7 +48,8 @@ public:
                     info_.committed_generation == 0u && info_.last_joint_commit_fingerprint == 0u,
                 "NumiBrain standing plugin source identity or initial generation disagrees");
         receptors_ = std::make_unique<Receptors>(device, nativeLibrary, bodyCount, headBodyIndex,
-            modelFingerprint, contacts, timestepMicroseconds, epochMicroseconds);
+            modelFingerprint, contacts, preparedMuscleResults,
+            timestepMicroseconds, epochMicroseconds);
         Fingerprint program;
         program.text("numi.human.brain.native-participant.v1");
         program.scalar(sourceJSONFingerprint_);

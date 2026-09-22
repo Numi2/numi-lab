@@ -5323,6 +5323,20 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                     !standBrainOutputPath->empty(),
                 "Human Brain owner mode requires a run-local output directory");
         std::filesystem::create_directories(*standBrainOutputPath);
+        const std::filesystem::path preparedSourcePath =
+            *standBrainOutputPath / "prepared-brain-source.json";
+        {
+            std::ofstream preparedSource(preparedSourcePath, std::ios::binary);
+            require(preparedSource.is_open(),
+                    "cannot open prepared Human Brain source export");
+            preparedSource.write(sourceJSON.data(),
+                                 static_cast<std::streamsize>(sourceJSON.size()));
+            preparedSource.close();
+            require(preparedSource.good(),
+                    "cannot write exact prepared Human Brain source export");
+        }
+        std::cout << "human_brain_prepared_source_path="
+                  << preparedSourcePath << std::endl;
         std::string programJSON;
         if (standBrainProgramPath.has_value()) {
             std::ifstream programFile(*standBrainProgramPath, std::ios::binary);
@@ -5347,7 +5361,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             standBrainLibraryPath->string(), brainDevice, nativeLibrary,
             sourceJSON, programJSON, standBrainOutputPath->string(),
             model.world.bodyCount, headBodyIdentifier, sourceFingerprint,
-            touchBindings, timestepMicroseconds, epochMicroseconds, standBrainSeed);
+            touchBindings, initialFiberEquilibrium.force.muscleResults,
+            timestepMicroseconds, epochMicroseconds, standBrainSeed);
         const auto& brainInfo = standBrainController->info();
         std::cout << "human_brain_native_binding=configured"
                   << " model_source_fingerprint=" << brainInfo.model_source_fingerprint

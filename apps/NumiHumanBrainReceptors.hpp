@@ -58,6 +58,7 @@ public:
               std::uint32_t bodyCount, std::uint32_t headBodyIndex,
               std::uint64_t modelFingerprint,
               std::span<const ContactBinding> contactBindings,
+              std::span<const MRMujocoMuscleResultGPU> preparedMuscleResults,
               std::uint32_t timestepMicroseconds,
               std::uint64_t epochMicroseconds)
         : device_(device), bodyCount_(bodyCount), headBodyIndex_(headBodyIndex),
@@ -68,6 +69,7 @@ public:
         require(bodyCount > 0u && bodyCount <= MR_NUMI_HUMAN_STAND_MAX_BODIES &&
                     headBodyIndex < bodyCount && modelFingerprint != 0u &&
                     timestepMicroseconds > 0u && epochMicroseconds >= timestepMicroseconds &&
+                    preparedMuscleResults.size() == 416u &&
                     !contactBindings.empty() && contactBindings.size() <= 20u,
                 "Human Brain receptor source binding or physical clock is invalid");
         std::array<bool, 20u> rows{};
@@ -120,6 +122,30 @@ public:
             slot.environmentGate = zeroBuffer(sizeof(std::uint32_t));
             slot.frame.receptorTimestampMicroseconds = epochMicroseconds - timestepMicroseconds;
             slot.frame.deliveryTimestampMicroseconds = epochMicroseconds;
+        }
+
+        // The initial packet is the source evaluator's actual prepared
+        // t=0 path measurement, delivered after one modeled sensory latency.
+        // No accepted impulse, body-motion or physiology measurement exists
+        // yet; all other initial receptor validity remains zero.
+        Channel& initialSpindles = slots_[publishedSlot_].frame.channels[3u];
+        auto* values = static_cast<float*>(initialSpindles.values.contents);
+        auto* validity = static_cast<std::uint32_t*>(initialSpindles.validity.contents);
+        constexpr std::uint32_t pathValidity =
+            (1u << MR_NUMANX_HUMAN_FEATURE_PATH_LENGTH_METRES) |
+            (1u << MR_NUMANX_HUMAN_FEATURE_PATH_VELOCITY_METRES_PER_SECOND);
+        for (std::size_t muscle = 0u; muscle < preparedMuscleResults.size(); ++muscle) {
+            const auto& result = preparedMuscleResults[muscle];
+            const auto path = result.pathForceAndActivationDerivative;
+            require(result.status == MR_MUJOCO_MUSCLE_REFERENCE_SUCCESS &&
+                        result.environment == 0u && result.muscleIndex == muscle &&
+                        std::isfinite(path.x) && path.x > 0.0f &&
+                        std::isfinite(path.y),
+                    "Human Brain initial spindle is not an admitted prepared path measurement");
+            const std::size_t offset = muscle * MR_NUMANX_HUMAN_PROPRIOCEPTION_FEATURE_COUNT;
+            values[offset + MR_NUMANX_HUMAN_FEATURE_PATH_LENGTH_METRES] = path.x;
+            values[offset + MR_NUMANX_HUMAN_FEATURE_PATH_VELOCITY_METRES_PER_SECOND] = path.y;
+            validity[muscle] = pathValidity;
         }
 
         NSError* error = nil;

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 if [[ "${1:-}" == "--numi-describe" ]]; then
-    printf '%s\n' 'Run the reproducible 4 ms native Human standing prefix with NumiBrain sensory and muscle participation, rendering the accepted BodyParts3D skeleton and muscle surfaces with source hashes.'
+    printf '%s\n' 'Run native Human standing with NumiBrain sensory and muscle participation, rendering the accepted BodyParts3D skeleton and muscle surfaces with source hashes. Defaults to the verified 4 ms prefix; set NUMI_HUMAN_BRAIN_STEPS for a longer run.'
     exit 0
 fi
 
@@ -26,8 +26,8 @@ bone_source=${NUMI_HUMAN_BRAIN_BONES:-"$HOME/human-completion-20260907/input/bod
 muscle_surface_source=${NUMI_HUMAN_BRAIN_MUSCLE_SURFACES:-"$HOME/human-completion-20260907/input/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue"}
 seed=${NUMI_HUMAN_BRAIN_SEED:-1314213193}
 steps=${NUMI_HUMAN_BRAIN_STEPS:-4}
-if [[ ! "$steps" =~ ^[1-4]$ ]]; then
-    printf 'NUMI_HUMAN_BRAIN_STEPS must be from 1 through 4: %s\n' "$steps" >&2
+if [[ ! "$steps" =~ ^[1-9][0-9]*$ ]] || (( ${#steps} > 5 )) || (( steps > 10000 )); then
+    printf 'NUMI_HUMAN_BRAIN_STEPS must be from 1 through 10000: %s\n' "$steps" >&2
     exit 2
 fi
 
@@ -96,6 +96,19 @@ arguments=(
 if [[ -n "${NUMI_HUMAN_BRAIN_PROGRAM:-}" ]]; then
     require_file "$NUMI_HUMAN_BRAIN_PROGRAM"
     arguments+=(--stand-brain-program "$NUMI_HUMAN_BRAIN_PROGRAM")
+fi
+if [[ -n "${NUMI_HUMAN_BRAIN_PUSH_START_STEP:-}" ]]; then
+    for name in NUMI_HUMAN_BRAIN_PUSH_DURATION_STEPS NUMI_HUMAN_BRAIN_PUSH_FORCE_X_N NUMI_HUMAN_BRAIN_PUSH_FORCE_Y_N NUMI_HUMAN_BRAIN_PUSH_FORCE_Z_N; do
+        if [[ -z "${!name:-}" ]]; then
+            printf 'timed Human Brain push requires %s\n' "$name" >&2
+            exit 2
+        fi
+    done
+    arguments+=(--stand-push "$NUMI_HUMAN_BRAIN_PUSH_START_STEP"
+        "$NUMI_HUMAN_BRAIN_PUSH_DURATION_STEPS"
+        "$NUMI_HUMAN_BRAIN_PUSH_FORCE_X_N"
+        "$NUMI_HUMAN_BRAIN_PUSH_FORCE_Y_N"
+        "$NUMI_HUMAN_BRAIN_PUSH_FORCE_Z_N")
 fi
 
 {
