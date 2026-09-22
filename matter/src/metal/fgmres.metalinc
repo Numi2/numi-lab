@@ -571,6 +571,15 @@ inline float3 fgmresContactDiagonal(
 }
 
 
+// Shared with the final support certificate below. Early convergence must
+// respect the same normal, tangent, and Coulomb-cone admissibility law.
+inline bool humanSupportStoredHistoryAdmissible(
+    const float4 history,
+    const float3 normal,
+    const float friction,
+    const bool requireInterior
+);
+
 kernel void nm_fgmres_begin(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
@@ -592,6 +601,9 @@ kernel void nm_fgmres_begin(
     constant uint& nonlinearIteration [[buffer(16)]],
     device const NMFEMNodeStateGPU* candidateNodes [[buffer(17)]],
     device const float* rigidCandidate [[buffer(18)]],
+    device const float4* supportHistories [[buffer(19)]],
+    constant NMHumanSupportDispatchGPU& support [[buffer(20)]],
+    device const NMHumanSupportContactGPU* supportContacts [[buffer(21)]],
     uint lane [[thread_index_in_threadgroup]],
     uint group [[threadgroup_position_in_grid]]
 ) {
@@ -706,9 +718,23 @@ kernel void nm_fgmres_begin(
         !hasActiveContact &&
         maximumCandidateSpeedSquared == 0.0f &&
         all(dispatch.gravityAndTimestep.xyz == float3(0.0f));
+    // The residual norm alone does not imply dual feasibility. Keep taking
+    // coupled Newton corrections until the exact stored-history predicate
+    // used by publication is satisfied; never project an impulse independently.
+    bool supportAdmissible = true;
+    for (uint local = lane; local < layout.supportContactCount; local += 32u) {
+        const float4 history = supportHistories[
+            environment * layout.supportContactCount + local];
+        const float friction =
+            supportContacts[local].frictionSlopAndStabilization.x;
+        supportAdmissible = supportAdmissible &&
+            humanSupportStoredHistoryAdmissible(
+                history, support.groundNormal.xyz, friction, false);
+    }
+    supportAdmissible = simd_all(supportAdmissible);
     const bool nonlinearConverged = restartCycle == 0u &&
         (correctionFinite || contactFreeStaticRest) &&
-        norm <= nonlinearThreshold;
+        norm <= nonlinearThreshold && supportAdmissible;
     if (lane == 0u) {
         const float initialNorm = restartCycle == 0u
             ? norm : previousDiagnostics.y;

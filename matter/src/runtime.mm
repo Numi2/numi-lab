@@ -7159,6 +7159,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                              offset:0u atIndex:17u];
                 [encoder setBuffer:state.coupledGeneralizedCandidate
                              offset:0u atIndex:18u];
+                [encoder setBuffer:state.humanSupportHistoriesCandidate
+                             offset:0u atIndex:19u];
+                [encoder setBytes:&state.humanSupportDispatch
+                           length:sizeof(state.humanSupportDispatch) atIndex:20u];
+                [encoder setBuffer:state.humanSupportContacts
+                             offset:0u atIndex:21u];
             });
             dispatchThreads("nm_fgmres_build_preconditioner", femNodeTotal, [&] {
                 setDispatch();

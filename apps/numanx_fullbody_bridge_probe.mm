@@ -250,6 +250,151 @@ void requirePinnedDirectoryEntry(
         "prepared fixture staging entry no longer matches its pinned directory");
 }
 
+void qualifyHumanSupportNewtonAdmission(id<MTLDevice> device) {
+    NSError* error = nil;
+    id<MTLLibrary> library = [device newLibraryWithURL:[NSURL fileURLWithPath:
+        [NSString stringWithUTF8String:MRNX_MATTER_METALLIB]] error:&error];
+    require(library != nil, "support Newton admission library failed");
+    id<MTLFunction> function = [library newFunctionWithName:@"numi_matter_metal::nm_fgmres_begin"];
+    id<MTLComputePipelineState> pipeline = [device newComputePipelineStateWithFunction:function error:&error];
+    require(pipeline != nil, "support Newton admission pipeline failed");
+    id<MTLFunction> layoutFunction = [library newFunctionWithName:@"numi_matter_metal::nm_primal_contact_argument_layout"];
+    id<MTLArgumentEncoder> arguments = [layoutFunction newArgumentEncoderWithBufferIndex:0u];
+    id<MTLBuffer> argumentBuffer = [device newBufferWithLength:arguments.encodedLength options:MTLResourceStorageModeShared];
+    [arguments setArgumentBuffer:argumentBuffer offset:0u];
+    id<MTLFunction> certifyFunction = [library newFunctionWithName:@"numi_matter_metal::nm_human_support_certify"];
+    id<MTLComputePipelineState> certifyPipeline = [device newComputePipelineStateWithFunction:certifyFunction error:&error];
+    require(certifyPipeline != nil, "support Newton admission certificate pipeline failed");
+    std::array<id<MTLBuffer>,22u> buffers;
+    for (NSUInteger i=0; i<buffers.size(); ++i) {
+        buffers[i] = [device newBufferWithLength:4096u options:MTLResourceStorageModeShared];
+        require(buffers[i] != nil, "support Newton admission allocation failed");
+        std::memset(buffers[i].contents, 0, 4096u);
+    }
+    for (NSUInteger i=0;i<15u;++i) [arguments setBuffer:buffers[2] offset:0u atIndex:i];
+    NMMatterDispatchGPU dispatch{}; dispatch.environmentCount=1u;
+    NMFGMRESLayoutGPU layout{}; layout.supportContactCount=2u;
+    NMMixedSolverGPU solver{}; solver.residualTolerances.x=0.001f;
+    NMHumanSupportDispatchGPU support{};
+    support.groundNormal = {0.0f,1.0f,0.0f,0.0f};
+    const std::uint32_t restart=0u, iteration=2u;
+    const float forcing=0.25f;
+    id<MTLCommandQueue> queue=[device newCommandQueue];
+    struct Case {
+        const char* name;
+        nm_float4 history;
+        float friction;
+        bool admissible;
+        std::uint32_t rows=2u, environments=1u;
+    };
+    const float nan=std::numeric_limits<float>::quiet_NaN();
+    const float infinity=std::numeric_limits<float>::infinity();
+    const Case cases[] = {
+        {"negative normal",{0,0,0,-0.0001f},0.5f,false},
+        {"historical negative boundary",{0,0,0,-0.0000001f},0.5f,false},
+        {"small negative normal",{0,0,0,-0.00000005f},0.5f,false},
+        {"positive normal",{0,0,0,0.25f},0.5f,true},
+        {"zero history",{0,0,0,0},0.5f,true},
+        {"normal NaN",{0,0,0,nan},0.5f,false},
+        {"normal positive infinity",{0,0,0,infinity},0.5f,false},
+        {"normal negative infinity",{0,0,0,-infinity},0.5f,false},
+        {"tangent NaN",{nan,0,0,0.25f},0.5f,false},
+        {"tangent infinity",{0,0,infinity,0.25f},0.5f,false},
+        {"cone boundary",{0.125f,0,0,0.25f},0.5f,true},
+        {"outside cone",{0.126f,0,0,0.25f},0.5f,false},
+        {"nonorthogonal tangent",{0,0.01f,0,0.25f},0.5f,false},
+        {"zero normal with tangent",{0.00001f,0,0,0},0.5f,false},
+        {"frictionless normal",{0,0,0,0.25f},0.0f,true},
+        {"frictionless tangent",{0.00001f,0,0,0.25f},0.0f,false},
+        {"negative friction",{0,0,0,0.25f},-0.5f,false},
+        {"nonfinite friction",{0,0,0,0.25f},nan,false},
+        {"second environment second SIMD pass negative",{0,0,0,-0.0001f},0.5f,false,40u,2u},
+        {"second environment second SIMD pass cone",{0.126f,0,0,0.25f},0.5f,false,40u,2u},
+        {"second environment second SIMD pass valid",{0.125f,0,0,0.25f},0.5f,true,40u,2u},
+        {"no support rows",{0,0,0,0},0.5f,true,0u,2u},
+    };
+    for (const auto test : cases) {
+        dispatch.environmentCount=test.environments;
+        layout.supportContactCount=test.rows;
+        support.contactCount=test.rows;
+        auto* state=static_cast<NMFGMRESStateGPU*>(buffers[8].contents);
+        auto* residual=static_cast<nm_float4*>(buffers[3].contents);
+        auto* history=static_cast<nm_float4*>(buffers[19].contents);
+        auto* contacts=static_cast<NMHumanSupportContactGPU*>(buffers[21].contents);
+        std::memset(buffers[3].contents,0,4096u);
+        std::memset(buffers[9].contents,0,4096u);
+        for (std::uint32_t row=0;row<test.rows;++row) {
+            contacts[row]={};
+            contacts[row].frictionSlopAndStabilization.x=0.5f;
+        }
+        for (std::uint32_t environment=0;environment<test.environments;++environment) {
+            state[environment]={}; state[environment].nonlinear={1.0f,1.0f,0.0f,0.0f};
+            for (std::uint32_t row=0;row<test.rows;++row)
+                history[environment*test.rows+row]={0,0,0,0.25f};
+            if (test.rows) residual[environment*test.rows]={0.0001f,0,0,0};
+        }
+        if (test.rows) {
+            history[test.environments*test.rows-1u]=test.history;
+            contacts[test.rows-1u].frictionSlopAndStabilization.x=test.friction;
+            // Contact parameters are shared across environments. Keep the
+            // preceding environment admissible even for invalid friction.
+            if (!std::isfinite(test.friction) || test.friction<0.0f)
+                require(test.environments==1u,"invalid-friction fixture must use one environment");
+        }
+        const std::vector<nm_float4> originalHistory(
+            history,history+test.environments*test.rows);
+        id<MTLCommandBuffer> command=[queue commandBuffer];
+        id<MTLComputeCommandEncoder> encoder=[command computeCommandEncoder];
+        [encoder setComputePipelineState:pipeline];
+        for(NSUInteger i=0;i<buffers.size();++i) [encoder setBuffer:buffers[i] offset:0u atIndex:i];
+        [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+        [encoder setBytes:&solver length:sizeof(solver) atIndex:1u];
+        [encoder setBuffer:argumentBuffer offset:0u atIndex:13u];
+        [encoder useResource:buffers[2] usage:MTLResourceUsageRead];
+        [encoder setBytes:&restart length:sizeof(restart) atIndex:14u];
+        [encoder setBytes:&forcing length:sizeof(forcing) atIndex:15u];
+        [encoder setBytes:&iteration length:sizeof(iteration) atIndex:16u];
+        [encoder setBytes:&support length:sizeof(support) atIndex:20u];
+        [encoder setBytes:&layout length:sizeof(layout) atIndex:30u];
+        [encoder dispatchThreadgroups:MTLSizeMake(test.environments,1u,1u) threadsPerThreadgroup:MTLSizeMake(32u,1u,1u)];
+        [encoder endEncoding]; [command commit]; [command waitUntilCompleted];
+        require(command.status==MTLCommandBufferStatusCompleted, "support Newton admission kernel failed");
+        for (std::uint32_t environment=0;environment<test.environments;++environment) {
+            const bool admissible=test.rows==0u || environment+1u<test.environments ||
+                test.admissible;
+            require((state[environment].nonlinear.w>0.5f)==admissible &&
+                    (state[environment].diagnostics.z>0.5f)==admissible,
+                test.name);
+        }
+        // Run the actual publication certificate over the same bytes, so a
+        // future change to its contact law cannot silently drift from stopping.
+        command=[queue commandBuffer];
+        encoder=[command computeCommandEncoder];
+        [encoder setComputePipelineState:certifyPipeline];
+        [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+        [encoder setBytes:&solver length:sizeof(solver) atIndex:1u];
+        [encoder setBuffer:buffers[3] offset:0u atIndex:2u];
+        [encoder setBuffer:buffers[8] offset:0u atIndex:3u];
+        [encoder setBuffer:buffers[9] offset:0u atIndex:4u];
+        [encoder setBuffer:buffers[19] offset:0u atIndex:5u];
+        [encoder setBytes:&support length:sizeof(support) atIndex:6u];
+        [encoder setBuffer:buffers[21] offset:0u atIndex:7u];
+        [encoder setBytes:&layout length:sizeof(layout) atIndex:30u];
+        [encoder dispatchThreadgroups:MTLSizeMake(test.environments,1u,1u) threadsPerThreadgroup:MTLSizeMake(32u,1u,1u)];
+        [encoder endEncoding]; [command commit]; [command waitUntilCompleted];
+        require(command.status==MTLCommandBufferStatusCompleted,"support Newton admission certificate failed");
+        const auto* statuses=static_cast<const NMMatterStatusGPU*>(buffers[9].contents);
+        for (std::uint32_t environment=0;environment<test.environments;++environment)
+            require((statuses[environment].code==NM_STATUS_SUCCESS)==
+                (state[environment].nonlinear.w>0.5f),
+                "Newton stopping disagrees with actual publication certificate");
+        if (test.rows) require(std::memcmp(history,originalHistory.data(),
+            originalHistory.size()*sizeof(nm_float4))==0,"Newton admission mutated physical impulses");
+    }
+    std::puts("numanx_support_newton_admission=pass cases=22 negative=continues cone=certified impulse=unchanged");
+}
+
+
 void qualifyHumanSupportKKT(id<MTLDevice> device, unsigned shape = 0) {
     NSError* libraryError = nil;
     id<MTLLibrary> library = [device
@@ -2885,6 +3030,12 @@ int run(const bool authored, const bool sourceEqualities, const bool costalTissu
 
 int main(int argc, char** argv) {
     try {
+        if (argc == 2 && std::string(argv[1]) == "--support-newton-admission") {
+            @autoreleasepool {
+                qualifyHumanSupportNewtonAdmission(MTLCreateSystemDefaultDevice());
+                return 0;
+            }
+        }
         if (argc==2 && std::string(argv[1])=="--touch-aggregation-only") {
             @autoreleasepool {qualifyTouchAggregation(MTLCreateSystemDefaultDevice());return 0;}
         }

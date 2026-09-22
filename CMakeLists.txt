@@ -4304,6 +4304,13 @@ if(BUILD_TESTING)
     )
     if(TARGET metalrobo_numanx_fullbody_bridge_probe)
         add_test(
+            NAME matter.physics.human_support_newton_admission
+            COMMAND $<TARGET_FILE:metalrobo_numanx_fullbody_bridge_probe> --support-newton-admission
+        )
+        set_tests_properties(matter.physics.human_support_newton_admission
+            PROPERTIES ENVIRONMENT "MTL_DEBUG_LAYER=1"
+            LABELS "human;matter;metal;physics" TIMEOUT 30 RUN_SERIAL TRUE)
+        add_test(
             NAME numanx.integration.fullbody_bridge_prepared_root
             COMMAND $<TARGET_FILE:metalrobo_numanx_fullbody_bridge_probe>
         )
