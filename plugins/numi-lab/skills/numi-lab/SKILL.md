@@ -110,9 +110,11 @@ profile and repair the dominant native path while retaining physical checks.
 
 For sustained runs, `numi human stand ... --execute` omits mandatory replay
 and retained per-step traces while preserving native physical admission.
-`--muscle-feedback <length-gain> <velocity-gain-seconds>` is an explicit
-experimental controller; compare it with the same excitation-only baseline
-and do not present it as an integrated NumiBrain run.
+`--muscle-feedback <length-gain> <velocity-gain-seconds>` observes committed
+fibre state; `--muscle-path-feedback` observes accepted joint q/v through a
+fixed source-path calibration. Both are explicit experimental excitation
+controllers. Compare them with the same excitation-only baseline and do not
+present them as an integrated NumiBrain run.
 
 Run only checks needed to validate the change and its actual physical outcome.
 Do not turn a standing request into broad library tests, new evidence schemas,
