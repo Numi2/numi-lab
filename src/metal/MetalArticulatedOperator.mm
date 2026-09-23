@@ -7983,13 +7983,24 @@ MetalArticulatedOperatorSubmission::wait(
     try {
         MetalArticulatedOperatorResult staged{};
         @autoreleasepool {
+            const auto waitStart = std::chrono::steady_clock::now();
             [pending->commandBuffer waitUntilCompleted];
             const auto end =
                 std::chrono::steady_clock::now();
+            diagnostics.hostWaitMilliseconds =
+                std::chrono::duration<double, std::milli>(
+                    end - waitStart
+                ).count();
             diagnostics.elapsedMilliseconds =
                 std::chrono::duration<double, std::milli>(
                     end - pending->start
                 ).count();
+            const double gpuStart = pending->commandBuffer.GPUStartTime;
+            const double gpuEnd = pending->commandBuffer.GPUEndTime;
+            if (std::isfinite(gpuStart) && std::isfinite(gpuEnd) &&
+                gpuEnd > gpuStart) {
+                diagnostics.gpuMilliseconds = 1000.0 * (gpuEnd - gpuStart);
+            }
             if (pending->commandBuffer.status !=
                 MTLCommandBufferStatusCompleted) {
                 return reject(
@@ -8126,6 +8137,10 @@ MetalArticulatedOperatorSubmission::wait(
                     ]
                 );
             }
+            diagnostics.hostCopyMilliseconds =
+                std::chrono::duration<double, std::milli>(
+                    std::chrono::steady_clock::now() - end
+                ).count();
         }
 
         for (std::size_t environment = 0u;

@@ -2013,6 +2013,11 @@ struct MetalArticulatedOperatorDiagnostics {
     std::uint64_t numanXProgramFingerprint = 0u;
     std::uintptr_t commandBufferIdentity = 0u;
     double elapsedMilliseconds = 0.0;
+    // Optional timings for a completed submission. GPU time excludes queue
+    // scheduling and host copies; a zero value means Metal did not report it.
+    double gpuMilliseconds = 0.0;
+    double hostWaitMilliseconds = 0.0;
+    double hostCopyMilliseconds = 0.0;
     std::string deviceName;
     std::string message;
 

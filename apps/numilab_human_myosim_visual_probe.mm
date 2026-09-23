@@ -60,6 +60,7 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <tuple>
 #include <type_traits>
 #include <utility>
 #include <vector>
@@ -82,6 +83,26 @@ void reportHumanExecutionStage(const char* stage, std::uint32_t step = 0u) {
     std::cout << "human_execution_stage=" << stage
               << " wall_elapsed_ms=" << elapsed
               << " stage_step=" << step << std::endl;
+}
+
+std::filesystem::path humanBrainMetallibPath() {
+    NSString* executable = [[NSBundle mainBundle] executablePath];
+    if (executable != nil) {
+        const std::filesystem::path packaged =
+            std::filesystem::path(executable.UTF8String).parent_path().parent_path() /
+            "shaders/MetalRobo.metallib";
+        std::error_code error;
+        if (std::filesystem::is_regular_file(packaged, error) && !error) {
+            return packaged;
+        }
+    }
+    const std::filesystem::path configured{METALROBO_METALLIB};
+    std::error_code error;
+    if (std::filesystem::is_regular_file(configured, error) && !error) {
+        return configured;
+    }
+    throw std::runtime_error(
+        "Human Brain requires MetalRobo.metallib beside the executable's build bundle");
 }
 
 constexpr std::array<char, 8u> kRigidMagic{
@@ -3901,6 +3922,186 @@ struct CompiledStandActivation {
     double maximumRootAccelerationResidual = 0.0;
 };
 
+template <typename T> auto standCacheVectors(T& value) {
+    return std::tie(value.searchTrace, value.q, value.activation,
+        value.referenceActivation, value.referenceFiberLength,
+        value.generalizedMuscleForce, value.generalizedPositionLimitForce,
+        value.generalizedJointEqualityForce, value.generalizedSupportForce,
+        value.generalizedPassiveCoordinateForce, value.gravityTarget,
+        value.generalizedForceResidual, value.generalizedAccelerationResidual,
+        value.muscleTendonForce, value.passiveMuscleTendonForce,
+        value.supportNormalForce);
+}
+
+template <typename T> auto standCacheScalars(T& value) {
+    return std::tie(value.activeMuscleCount, value.activationSweeps,
+        value.globalActivationPolishIterations,
+        value.acceptedGlobalActivationPolishSteps,
+        value.recruitedMuscleCount, value.activePositionLimitCount,
+        value.activeStructuralLockCount,
+        value.activeFiniteRangePositionLimitCount,
+        value.maximumStructuralLockReactionDof,
+        value.maximumFiniteRangePositionLimitReactionDof,
+        value.acceptedPoseSteps, value.acceptedCoupledPoseSteps,
+        value.rejectedConstraintCandidates,
+        value.rejectedSupportManifoldPoseCandidates,
+        value.normalizedResidualRms, value.initialNormalizedResidualRms,
+        value.maximumAccelerationResidual, value.maximumVelocityIncrement,
+        value.balanced, value.maximumActivation,
+        value.maximumEqualityReaction, value.maximumLimitReaction,
+        value.maximumStructuralLockReaction,
+        value.maximumFiniteRangePositionLimitReaction,
+        value.positionLimitKktResidual,
+        value.rejectedPositionLimitPoseCandidates,
+        value.supportContactCount, value.activeSupportContactCount,
+        value.totalSupportForceNewtons, value.maximumRootForceResidual,
+        value.maximumRootAccelerationResidual);
+}
+
+struct StandActivationCacheWriter {
+    std::vector<std::uint8_t> bytes;
+
+    template <typename T> void scalar(const T& value) {
+        static_assert(std::is_trivially_copyable_v<T>);
+        const auto* raw = reinterpret_cast<const std::uint8_t*>(&value);
+        bytes.insert(bytes.end(), raw, raw + sizeof(T));
+    }
+
+    template <typename T> void vector(const std::vector<T>& values) {
+        require(values.size() <= 1000000u,
+                "static Human activation cache vector exceeds capacity");
+        scalar(static_cast<std::uint32_t>(values.size()));
+        for (const T& value : values) scalar(value);
+    }
+};
+
+struct StandActivationCacheReader {
+    std::span<const std::uint8_t> bytes;
+    std::size_t offset = 0u;
+
+    template <typename T> void scalar(T& value) {
+        static_assert(std::is_trivially_copyable_v<T>);
+        require(offset <= bytes.size() && sizeof(T) <= bytes.size() - offset,
+                "static Human activation cache is truncated");
+        std::memcpy(&value, bytes.data() + offset, sizeof(T));
+        offset += sizeof(T);
+    }
+
+    template <typename T> void vector(std::vector<T>& values) {
+        std::uint32_t count = 0u;
+        scalar(count);
+        require(count <= 1000000u && count <=
+                    (bytes.size() - offset) / sizeof(T),
+                "static Human activation cache vector is invalid");
+        values.resize(count);
+        for (T& value : values) scalar(value);
+    }
+};
+
+constexpr std::uint64_t kStandActivationCacheMagic = 0x314548434143534eULL;
+
+void writeStandActivationCache(const std::filesystem::path& path,
+                               const std::string_view key,
+                               const CompiledStandActivation& value) {
+    require(key.size() == 64u,
+            "static Human activation cache key must be a SHA256 hex digest");
+    StandActivationCacheWriter writer;
+    writer.scalar(kStandActivationCacheMagic);
+    for (const char character : key) writer.scalar(character);
+    std::apply([&](const auto&... fields) {
+        (writer.vector(fields), ...);
+    }, standCacheVectors(value));
+    std::apply([&](const auto&... fields) {
+        (writer.scalar(fields), ...);
+    }, standCacheScalars(value));
+    std::array<std::uint8_t, CC_SHA256_DIGEST_LENGTH> digest{};
+    require(writer.bytes.size() <= 8u * 1024u * 1024u &&
+                CC_SHA256(writer.bytes.data(),
+                    static_cast<CC_LONG>(writer.bytes.size()), digest.data()) != nullptr,
+            "static Human activation cache digest failed");
+    writer.bytes.insert(writer.bytes.end(), digest.begin(), digest.end());
+    std::filesystem::create_directories(path.parent_path());
+    const std::filesystem::path temporary = path.string() + ".tmp." +
+        std::to_string(getpid());
+    {
+        std::ofstream stream(temporary, std::ios::binary | std::ios::trunc);
+        require(stream.good(), "cannot create static Human activation cache");
+        stream.write(reinterpret_cast<const char*>(writer.bytes.data()),
+                     static_cast<std::streamsize>(writer.bytes.size()));
+        stream.close();
+        require(stream.good(), "cannot finish static Human activation cache");
+    }
+    std::filesystem::rename(temporary, path);
+    std::cout << "human_static_equilibrium_cache=written path=" << path
+              << std::endl;
+}
+
+CompiledStandActivation readStandActivationCache(
+    const std::filesystem::path& path, const std::string_view key,
+    const std::size_t nq, const std::size_t nv,
+    const std::size_t muscleCount, const std::size_t supportCount
+) {
+    require(key.size() == 64u,
+            "static Human activation cache key must be a SHA256 hex digest");
+    const std::uintmax_t size = std::filesystem::file_size(path);
+    require(size >= 8u + 64u + CC_SHA256_DIGEST_LENGTH &&
+                size <= 8u * 1024u * 1024u,
+            "static Human activation cache size is invalid");
+    std::vector<std::uint8_t> data(static_cast<std::size_t>(size));
+    std::ifstream stream(path, std::ios::binary);
+    stream.read(reinterpret_cast<char*>(data.data()),
+                static_cast<std::streamsize>(data.size()));
+    require(stream.good() &&
+                static_cast<std::size_t>(stream.gcount()) == data.size(),
+            "static Human activation cache read failed");
+    std::array<std::uint8_t, CC_SHA256_DIGEST_LENGTH> digest{};
+    const std::size_t bodySize = data.size() - digest.size();
+    require(CC_SHA256(data.data(), static_cast<CC_LONG>(bodySize),
+                    digest.data()) != nullptr &&
+                std::memcmp(data.data() + bodySize, digest.data(),
+                    digest.size()) == 0,
+            "static Human activation cache digest mismatch");
+    StandActivationCacheReader reader{
+        std::span<const std::uint8_t>(data.data(), bodySize)};
+    std::uint64_t magic = 0u;
+    reader.scalar(magic);
+    require(magic == kStandActivationCacheMagic,
+            "static Human activation cache format is invalid");
+    for (const char character : key) {
+        char cached = 0;
+        reader.scalar(cached);
+        require(cached == character,
+                "static Human activation cache source identity differs");
+    }
+    CompiledStandActivation value;
+    std::apply([&](auto&... fields) {
+        (reader.vector(fields), ...);
+    }, standCacheVectors(value));
+    std::apply([&](auto&... fields) {
+        (reader.scalar(fields), ...);
+    }, standCacheScalars(value));
+    require(reader.offset == bodySize && value.q.size() == nq &&
+                value.activation.size() == muscleCount &&
+                value.referenceActivation.size() == muscleCount &&
+                value.referenceFiberLength.size() == muscleCount &&
+                value.muscleTendonForce.size() == muscleCount &&
+                value.passiveMuscleTendonForce.size() == muscleCount &&
+                value.generalizedMuscleForce.size() == nv &&
+                value.generalizedPositionLimitForce.size() == nv &&
+                value.generalizedJointEqualityForce.size() == nv &&
+                value.generalizedSupportForce.size() == nv &&
+                value.generalizedPassiveCoordinateForce.size() == nv &&
+                value.gravityTarget.size() == nv &&
+                value.generalizedForceResidual.size() == nv &&
+                value.generalizedAccelerationResidual.size() == nv &&
+                value.supportNormalForce.size() == supportCount &&
+                value.supportContactCount == supportCount,
+            "static Human activation cache dimensions differ");
+    std::cout << "human_static_equilibrium_cache=loaded path=" << path
+              << std::endl;
+    return value;
+}
+
 std::vector<metalrobo::NumiHumanPassiveCoordinateCoupling>
 wholeBodyUpperPassiveCoordinateCouplings() {
     using Coupling = metalrobo::NumiHumanPassiveCoordinateCoupling;
@@ -4936,6 +5137,21 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     }
     reportHumanExecutionStage("static_equilibrium_begin");
     CompiledStandActivation compiledActivation;
+    const char* staticCachePathSetting =
+        std::getenv("NUMI_HUMAN_STATIC_EQUILIBRIUM_CACHE_PATH");
+    const char* staticCacheKeySetting =
+        std::getenv("NUMI_HUMAN_STATIC_EQUILIBRIUM_CACHE_KEY");
+    const bool useStaticCache = staticCachePathSetting != nullptr &&
+        staticCachePathSetting[0] != '\0';
+    require(useStaticCache == (staticCacheKeySetting != nullptr &&
+                staticCacheKeySetting[0] != '\0') &&
+                (!useStaticCache || !applySelectedActivationIncrement),
+            "static Human activation cache needs an exact key and ordinary standing initialization");
+    const std::filesystem::path staticCachePath = useStaticCache
+        ? std::filesystem::path(staticCachePathSetting)
+        : std::filesystem::path{};
+    const bool staticCacheExists = useStaticCache &&
+        std::filesystem::is_regular_file(staticCachePath);
     double sourceDynamicForceParityMaximumNewtons = 0.0;
     double sourceDynamicForceParityMaximumVelocityIncrement = 0.0;
     double sourceDynamicForceParityMaximumAcceleration = 0.0;
@@ -4944,7 +5160,12 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     double sourceSupportForceParityMaximumNewtons = 0.0;
     std::uint32_t sourceSupportForceParityMaximumDof = MR_INVALID_INDEX;
     std::vector<float> selectedControlBaselineActivation;
-    if (applySelectedActivationIncrement) {
+    if (staticCacheExists) {
+        compiledActivation = readStandActivationCache(
+            staticCachePath, staticCacheKeySetting, aligned.q.size(),
+            model.articulations.front().nv,
+            muscles.referenceMuscles.size(), supportContacts.records.size());
+    } else if (applySelectedActivationIncrement) {
         compiledActivation = compileStaticStandActivation(
             model,
             muscles,
@@ -4992,6 +5213,10 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             std::optional<std::uint32_t>{24u},
             timestepSeconds
         );
+    }
+    if (useStaticCache && !staticCacheExists) {
+        writeStandActivationCache(
+            staticCachePath, staticCacheKeySetting, compiledActivation);
     }
     reportHumanExecutionStage("static_equilibrium_end");
     // Explicit tissue poses disable pose search before recruitment, so q,
@@ -5435,14 +5660,19 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         }
         id<MTLDevice> brainDevice = MTLCreateSystemDefaultDevice();
         NSError* libraryError = nil;
+        const std::filesystem::path nativeLibraryPath = humanBrainMetallibPath();
         id<MTLLibrary> nativeLibrary = brainDevice == nil ? nil :
             [brainDevice newLibraryWithURL:
-                [NSURL fileURLWithPath:@METALROBO_METALLIB] error:&libraryError];
+                [NSURL fileURLWithPath:
+                    [NSString stringWithUTF8String:nativeLibraryPath.c_str()]]
+                error:&libraryError];
         require(brainDevice != nil && nativeLibrary != nil,
                 libraryError == nil
                     ? "Human Brain could not load the native HumanIO Metal library"
                     : std::string("Human Brain could not load the native HumanIO Metal library: ") +
                         libraryError.localizedDescription.UTF8String);
+        std::cout << "human_brain_native_metallib=" << nativeLibraryPath
+                  << std::endl;
         const std::uint64_t epochMicroseconds = timestepMicroseconds;
         standBrainController = std::make_unique<numi_human_brain::Controller>(
             standBrainLibraryPath->string(), brainDevice, nativeLibrary,
@@ -6088,6 +6318,15 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         const bool brainSensorAudit = standBrainController != nullptr &&
             brainSensorAuditSetting != nullptr &&
             std::strcmp(brainSensorAuditSetting, "1") == 0;
+        const char* trainingProfileSetting =
+            std::getenv("NUMI_HUMAN_TRAINING_PROFILE");
+        require(trainingProfileSetting == nullptr ||
+                    trainingProfileSetting[0] == '\0' ||
+                    std::strcmp(trainingProfileSetting, "0") == 0 ||
+                    std::strcmp(trainingProfileSetting, "1") == 0,
+                "NUMI_HUMAN_TRAINING_PROFILE must be 0 or 1");
+        const bool trainingProfile = trainingProfileSetting != nullptr &&
+            std::strcmp(trainingProfileSetting, "1") == 0;
         metalrobo::MetalArticulatedOperatorDiagnostics aggregateDiagnostics;
         aggregateDiagnostics.dispatched = true;
         aggregateDiagnostics.published = true;
@@ -6121,9 +6360,11 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             reportHumanExecutionStage(
                 "authoritative_segment_begin", completedSteps
             );
+            const auto segmentStart = std::chrono::steady_clock::now();
             auto segmentDiagnostics = context.run(
                 model, horizonInput, segmentResult
             );
+            const auto physicalEnd = std::chrono::steady_clock::now();
             reportHumanExecutionStage(
                 "authoritative_segment_end",
                 segmentDiagnostics.completedStandSteps
@@ -6184,6 +6425,28 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                     segmentDiagnostics.elapsedMilliseconds = elapsedMilliseconds;
                     horizonResult = std::move(segmentResult);
                     return segmentDiagnostics;
+                }
+                if (trainingProfile) {
+                    const auto completionEnd = std::chrono::steady_clock::now();
+                    const auto millis = [](const auto duration) {
+                        return std::chrono::duration<double, std::milli>(duration).count();
+                    };
+                    std::cout << std::setprecision(9)
+                              << "human_training_step_profile=accepted"
+                              << " step=" << completedSteps + segmentSteps
+                              << " physical_wall_ms="
+                              << millis(physicalEnd - segmentStart)
+                              << " physical_command_ms="
+                              << segmentDiagnostics.elapsedMilliseconds
+                              << " physical_gpu_ms="
+                              << segmentDiagnostics.gpuMilliseconds
+                              << " physical_host_wait_ms="
+                              << segmentDiagnostics.hostWaitMilliseconds
+                              << " physical_host_copy_ms="
+                              << segmentDiagnostics.hostCopyMilliseconds
+                              << " brain_completion_wall_ms="
+                              << millis(completionEnd - physicalEnd)
+                              << std::endl;
                 }
                 if (brainSensorAudit) {
                     // Complete() published both the native receptor frame and
@@ -21509,8 +21772,14 @@ int main(int argc, char** argv) {
                         std::to_string(*focusJointChildBodyIndex) : "");
             const std::filesystem::path packPath = outputDirectory / (stem + ".mrvpack");
             std::string reason;
-            require(metalrobo::writeVisualAssetPack(pack, packPath, &reason),
-                    "could not write native Human visual pack: " + reason);
+            // A standing training run has already completed its physical and
+            // Brain transactions. Presentation artifacts are only needed when
+            // the renderer is requested; writing them for every worker wastes
+            // tens of MiB per independent rollout.
+            if (!mechanicsOnly) {
+                require(metalrobo::writeVisualAssetPack(pack, packPath, &reason),
+                        "could not write native Human visual pack: " + reason);
+            }
             const std::array references{
                 metalrobo::VisualAssetReferenceV3{
                     packPath, pack.contentHash, 0u,
@@ -21520,18 +21789,20 @@ int main(int argc, char** argv) {
                     1u,
                 },
             };
-            metalrobo::VisualSceneManifestV3 manifest;
-            require(metalrobo::compileVisualSceneManifestV3(
-                        world, references, metalrobo::makeNeutralStudioEnvironmentV2(),
-                        makeHumanAnatomyLightRig(
-                            cameraFraming.center, positions.front(), cameraFraming.distance
-                        ), manifest, &reason
-                    ),
-                    "native Human visual scene compile failed: " + reason);
-            require(metalrobo::writeVisualSceneManifestV3(
-                        manifest, outputDirectory / (stem + ".visual.v3.json"), &reason
-                    ),
-                    "could not write native Human visual manifest: " + reason);
+            if (!mechanicsOnly) {
+                metalrobo::VisualSceneManifestV3 manifest;
+                require(metalrobo::compileVisualSceneManifestV3(
+                            world, references, metalrobo::makeNeutralStudioEnvironmentV2(),
+                            makeHumanAnatomyLightRig(
+                                cameraFraming.center, positions.front(), cameraFraming.distance
+                            ), manifest, &reason
+                        ),
+                        "native Human visual scene compile failed: " + reason);
+                require(metalrobo::writeVisualSceneManifestV3(
+                            manifest, outputDirectory / (stem + ".visual.v3.json"), &reason
+                        ),
+                        "could not write native Human visual manifest: " + reason);
+            }
 
             metalrobo::VisualMotionSampleBatchV1 motion = makeMotion(bodies);
             bool completeVisualCoverage = !mechanicsOnly;

@@ -35,6 +35,11 @@ if [[ "$sensor_audit" != 0 && "$sensor_audit" != 1 ]]; then
     printf 'NUMI_HUMAN_BRAIN_SENSOR_AUDIT must be 0 or 1: %s\n' "$sensor_audit" >&2
     exit 2
 fi
+mechanics_only=${NUMI_HUMAN_BRAIN_MECHANICS_ONLY:-0}
+if [[ "$mechanics_only" != 0 && "$mechanics_only" != 1 ]]; then
+    printf 'NUMI_HUMAN_BRAIN_MECHANICS_ONLY must be 0 or 1: %s\n' "$mechanics_only" >&2
+    exit 2
+fi
 
 require_file() {
     if [[ ! -f "$1" ]]; then
@@ -102,6 +107,9 @@ if [[ -n "${NUMI_HUMAN_BRAIN_PROGRAM:-}" ]]; then
     require_file "$NUMI_HUMAN_BRAIN_PROGRAM"
     arguments+=(--stand-brain-program "$NUMI_HUMAN_BRAIN_PROGRAM")
 fi
+if [[ "$mechanics_only" == 1 ]]; then
+    arguments+=(--mechanics-only)
+fi
 if [[ -n "${NUMI_HUMAN_BRAIN_PUSH_START_STEP:-}" ]]; then
     for name in NUMI_HUMAN_BRAIN_PUSH_DURATION_STEPS NUMI_HUMAN_BRAIN_PUSH_FORCE_X_N NUMI_HUMAN_BRAIN_PUSH_FORCE_Y_N NUMI_HUMAN_BRAIN_PUSH_FORCE_Z_N; do
         if [[ -z "${!name:-}" ]]; then
@@ -120,6 +128,7 @@ fi
     printf 'output_directory=%s\n' "$output_directory"
     printf 'native_timestep_microseconds=1000\nbrain_epoch_microseconds=1000\nrequested_physical_steps=%s\nseed=%s\n' "$steps" "$seed"
     printf 'accepted_sensor_audit=%s\n' "$sensor_audit"
+    printf 'mechanics_only=%s\n' "$mechanics_only"
     printf 'binary '; shasum -a 256 "$binary"
     printf 'brain_library '; shasum -a 256 "$brain_library"
     while IFS= read -r metallib; do
