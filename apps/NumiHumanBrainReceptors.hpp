@@ -42,10 +42,10 @@ struct Frame {
     // touch, proprioception, vestibular, interoception, kinesthesia.
     std::array<Channel, 7u> channels{};
     // Head pose and source MyoSim/path measurements belong to the existing
-    // pre-dynamics evaluation at this step start. Touch force is impulse/dt
-    // over [receptorTimestamp, deliveryTimestamp], with pre-step slip. The
-    // frame is first deliverable at that interval's accepted end; these are
-    // not instantaneous endpoint pose/path measurements.
+    // pre-dynamics evaluation at this step start. Root linear velocity is the
+    // accepted endpoint velocity. Touch force is impulse/dt over
+    // [receptorTimestamp, deliveryTimestamp], with pre-step slip. The frame
+    // is first deliverable at that interval's accepted end.
     std::uint64_t receptorTimestampMicroseconds = 0u;
     std::uint64_t deliveryTimestampMicroseconds = 0u;
     std::uint64_t acceptedGeneration = 0u;
@@ -80,7 +80,7 @@ public:
         hash(modelFingerprint);
         hash(bodyCount); hash(headBodyIndex); hash(timestepMicroseconds); hash(epochMicroseconds);
         // Binds sparse physical meanings, including invalid unimplemented modalities.
-        constexpr std::uint32_t receptorProgramVersion = 1u;
+        constexpr std::uint32_t receptorProgramVersion = 2u;
         hash(receptorProgramVersion);
         for (const ContactBinding& binding : contactBindings) {
             require(binding.contactIndex < contactBindings.size() && !rows[binding.contactIndex] &&
@@ -203,6 +203,7 @@ public:
                     pass.standContactCount != contactCount_ || pass.standContactEnabled != 1u ||
                     pass.standContactImpulseSampleStepIndex != pass.stepIndex ||
                     pass.standContactImpulseOffset != 4u * pass.dofCount ||
+                    pass.vElementCount != 128u || pass.vStride != 128u ||
                     pass.standVectorStride != pass.standVectorElementCount ||
                     pass.standVectorStride < pass.standContactImpulseOffset + 3u * contactCount_ ||
                     pass.pointCount > std::numeric_limits<std::uint32_t>::max() ||
@@ -221,6 +222,7 @@ public:
                     !validBuffer(pass.standStatuses, sizeof(MRNumiHumanStandStatusGPU)) ||
                     !validBuffer(pass.bodyPoses, bodyCount_ * sizeof(MRArticulatedBodyPoseGPU)) ||
                     !validBuffer(pass.standContacts, contactCount_ * sizeof(MRNumiHumanStandContactGPU)) ||
+                    !validBuffer(pass.v, 128u * sizeof(float)) ||
                     !validBuffer(pass.standVectorWorkspace, pass.standVectorElementCount * sizeof(float)) ||
                     !validBuffer(pass.pointJacobians, pass.pointJacobianElementCount * sizeof(float))) return false;
 
@@ -302,6 +304,7 @@ public:
                 [writer setBytes:&sensorShape length:sizeof(sensorShape) atIndex:12u];
                 [writer setBytes:&sensorOffsets length:sizeof(sensorOffsets) atIndex:13u];
                 [writer setBytes:&groundAndTimestep length:sizeof(groundAndTimestep) atIndex:14u];
+                [writer setBuffer:(__bridge id<MTLBuffer>)pass.v offset:0u atIndex:15u];
                 [writer dispatchThreads:MTLSizeMake(416u, 1u, 1u) threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
                 [writer endEncoding];
                 encoded_ = true;
@@ -426,7 +429,9 @@ kernel void human_brain_body_touch(
     device float* vestibular [[buffer(8)]], device uint* vestibularValidity [[buffer(9)]],
     device float* interoception [[buffer(10)]], device uint* interoceptionValidity [[buffer(11)]],
     constant uint4& shape [[buffer(12)]], constant uint4& offsets [[buffer(13)]],
-    constant float4& normalAndTimestep [[buffer(14)]], uint index [[thread_position_in_grid]]) {
+    constant float4& normalAndTimestep [[buffer(14)]],
+    device const float* acceptedVelocity [[buffer(15)]],
+    uint index [[thread_position_in_grid]]) {
     // HumanIO's interoception writer emits workload proxies. They are not
     // measured oxygen, fatigue or tissue damage in this physical path.
     if (index < 416u) {
@@ -439,11 +444,19 @@ kernel void human_brain_body_touch(
         const float4 headOrientation = bodyPoses[2u * shape.x + 1u];
         const float norm = dot(headOrientation, headOrientation);
         if (gate[0] != 0u && all(isfinite(headOrientation)) && abs(norm - 1.0f) < 1.0e-3f) {
-            // Native head-to-world quaternion xyzw, sampled by the existing
-            // pre-dynamics kinematics. No global position or velocity input.
+            // Native head-to-world quaternion xyzw from pre-dynamics
+            // kinematics. Root velocity comes from the native post-dynamics
+            // candidate and is published only with the accepted transaction.
             for (uint component = 0u; component < 4u; ++component)
                 vestibular[16u + component] = headOrientation[component];
             vestibularValidity[0] = 0x000f0000u;
+        }
+        const float3 rootVelocity = float3(
+            acceptedVelocity[0u], acceptedVelocity[1u], acceptedVelocity[2u]);
+        if (gate[0] != 0u && all(isfinite(rootVelocity))) {
+            for (uint component = 0u; component < 3u; ++component)
+                vestibular[7u + component] = rootVelocity[component];
+            vestibularValidity[0] |= 0x00000380u;
         }
     }
     if (index >= 10u) return;
