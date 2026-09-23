@@ -1790,6 +1790,10 @@ struct MetalArticulatedOperatorConfig {
     // multipliers by DOF, published through the accepted-result boundary.
     // The extra device write is enabled only for this diagnostic path.
     bool readStandConstraintDiagnostics = false;
+    // Development path: keep stand assembly and completion in separate GPU
+    // dispatches of the same authoritative command buffer. Both phases use
+    // the same physical owner and accepted-state transaction.
+    bool splitStandSolve = false;
 };
 
 enum class MetalArticulatedOperatorHostStatus : std::uint32_t {

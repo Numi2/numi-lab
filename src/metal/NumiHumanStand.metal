@@ -343,8 +343,11 @@ kernel void mr_numi_human_stand_step(
                 MR_NUMI_HUMAN_STAND_HAS_JOINT_EQUALITIES |
                 MR_NUMI_HUMAN_STAND_PREDICT_VELOCITY_ONLY |
                 MR_NUMI_HUMAN_STAND_HAS_PASSIVE_JOINT_PROGRAM |
-                MR_NUMI_HUMAN_STAND_EXPORT_SOURCE_LIMIT_IMPULSES
+                MR_NUMI_HUMAN_STAND_EXPORT_SOURCE_LIMIT_IMPULSES |
+                MR_NUMI_HUMAN_STAND_PREPARE_ONLY
             )) != 0u ||
+            ((dispatch.flags & MR_NUMI_HUMAN_STAND_PREPARE_ONLY) != 0u &&
+             (dispatch.flags & MR_NUMI_HUMAN_STAND_PREDICT_VELOCITY_ONLY) != 0u) ||
             ((dispatch.flags & MR_NUMI_HUMAN_STAND_PREDICT_VELOCITY_ONLY) != 0u &&
              ((dispatch.flags & (MR_NUMI_HUMAN_STAND_ENABLE_CONTACT |
                                  MR_NUMI_HUMAN_STAND_HAS_JOINT_EQUALITIES)) != 0u ||
@@ -956,1099 +959,156 @@ kernel void mr_numi_human_stand_step(
         }
     }
     threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
-    if (lane != 0u) return;
-    const uint failedCondition = atomic_load_explicit(&responseFailure, memory_order_relaxed);
-    if (failedCondition != MR_INVALID_INDEX) {
-        fail(status, (failedCondition & 1u) == 0u
-            ? MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED
-            : MR_NUMI_HUMAN_STAND_NONFINITE_RESULT, failedCondition / 2u);
+    // An optional split owner keeps prepared matrices and response columns on
+    // the device for a following completion kernel in this command buffer.
+    // Report response failures before ending this phase; no state is advanced.
+    if ((dispatch.flags & MR_NUMI_HUMAN_STAND_PREPARE_ONLY) != 0u) {
+        if (lane == 0u) {
+            const uint failedCondition = atomic_load_explicit(
+                &responseFailure, memory_order_relaxed);
+            if (failedCondition != MR_INVALID_INDEX) {
+                fail(status, (failedCondition & 1u) == 0u
+                    ? MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED
+                    : MR_NUMI_HUMAN_STAND_NONFINITE_RESULT,
+                    failedCondition / 2u);
+            }
+        }
         return;
     }
+#include "NumiHumanStandSolve.metalinc"
 
-    float3 assistanceForce{0.0f};
-    float3 assistanceTorque{0.0f};
-    if ((dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_ROOT_ASSISTANCE) != 0u) {
-        assistanceForce = dispatch.assistanceGains.x *
-            (dispatch.targetRootPosition.xyz - float3(
-                qState[qBase + 0u], qState[qBase + 1u], qState[qBase + 2u]
-            )) - dispatch.assistanceGains.y * float3(
-                vState[vBase + 0u], vState[vBase + 1u], vState[vBase + 2u]
-            );
-        float4 currentOrientation;
-        float4 targetOrientation;
-        if (!normalizedQuaternion(float4(
-                qState[qBase + 3u], qState[qBase + 4u],
-                qState[qBase + 5u], qState[qBase + 6u]
-            ), currentOrientation) ||
-            !normalizedQuaternion(dispatch.targetRootOrientation, targetOrientation)) {
-            fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_INPUT, 3u);
-            return;
-        }
-        float4 error = quaternionMultiply(
-            targetOrientation, quaternionConjugate(currentOrientation)
-        );
-        if (error.w < 0.0f) error = -error;
-        assistanceTorque = dispatch.assistanceGains.z * 2.0f * error.xyz -
-            dispatch.assistanceGains.w * float3(
-                vState[vBase + 3u], vState[vBase + 4u], vState[vBase + 5u]
-            );
-    }
-    // Support belongs exclusively to the unilateral impulse solve below.
-    // Static support is a retractable warm start, never an additional force.
-    // The external disturbance is fixed at episode admission and scheduled
-    // only by this authoritative step index. It has no state/feedback input.
-    const float3 timedRootForce = mrNumiHumanTimedRootForceActive(
-        dispatch.timedRootForce, dispatch.stepIndex)
-        ? dispatch.timedRootForce.forceNewtons.xyz : float3(0.0f);
-    for (uint dof = 0u; dof < nv; ++dof) {
-        float effort = generalizedForceWorkspace[forceBase + dof] +
-            vectorScratch[preloadBase + dof];
-        if (dof < 3u) effort += assistanceForce[dof];
-        else if (dof < 6u) effort += assistanceTorque[dof - 3u];
-        if (dof < 3u) effort += timedRootForce[dof];
-        candidateV[dof] = effort - bias[dof];
-        if (captureSourceDynamics) {
-            // solveFactor consumes and overwrites candidateV. This final
-            // segment is the exact unsolved source RHS presented to A0.
-            sourceDynamicsWitness[sourceDynamicsBase + 2u * nv + dof] =
-                candidateV[dof];
-        }
-    }
-    if (!solveFactor(factor, workspace, candidateV, nv)) {
-        fail(status, MR_NUMI_HUMAN_STAND_FACTORIZATION_FAILED, MR_INVALID_INDEX);
-        return;
-    }
-    float maximumFreeAcceleration = 0.0f;
-    uint maximumFreeAccelerationDof = 0u;
-    for (uint dof = 0u; dof < nv; ++dof) {
-        const float acceleration = abs(candidateV[dof]);
-        if (acceleration > maximumFreeAcceleration) {
-            maximumFreeAcceleration = acceleration;
-            maximumFreeAccelerationDof = dof;
-        }
-        candidateV[dof] = vState[vBase + dof] + timestep * candidateV[dof];
-        // The bias arena is no longer needed after the free solve. Preserve the
-        // unconstrained velocity so contact/equality/limit corrections can be
-        // measured independently from smooth force acceleration.
-        bias[dof] = candidateV[dof];
-    }
+}
 
-    if ((dispatch.flags & MR_NUMI_HUMAN_STAND_PREDICT_VELOCITY_ONLY) != 0u) {
-        for (uint dof = 0u; dof < nv; ++dof) {
-            if (!isfinite(candidateV[dof])) {
-                fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT, dof);
-                return;
-            }
-        }
-        for (uint dof = 0u; dof < nv; ++dof) {
-            vState[vBase + dof] = candidateV[dof];
-            bias[nv + dof] = candidateV[dof];
-            bias[2u * nv + dof] = workspace[dof];
-        }
-        // This is a predictor, never a completed or published physical step.
-        return;
-    }
+// The split completion entry consumes the prepare phase in the same
+// authoritative command buffer. It is initially algebra-identical
+// to the original lane-zero solve; subsequent cooperative kernels
+// can replace this phase without reassembling source dynamics.
+kernel void mr_numi_human_stand_finish(
+    device const MRWorldGPU* worlds [[buffer(0)]],
+    device const MRArticulationGPU* articulations [[buffer(1)]],
+    device const MRDofPropertiesGPU* dofs [[buffer(2)]],
+    device const MRBodyPropertiesGPU* bodies [[buffer(3)]],
+    constant const MRNumiHumanStandDispatchGPU& dispatch [[buffer(4)]],
+    device float* qState [[buffer(5)]],
+    device float* vState [[buffer(6)]],
+    device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(7)]],
+    device const MRArticulatedPointWorldGPU* pointWorld [[buffer(8)]],
+    device const float* pointJacobians [[buffer(9)]],
+    device const float* generalizedForceWorkspace [[buffer(10)]],
+    device const MRNumiHumanStandContactGPU* contacts [[buffer(11)]],
+    device float* spatialJacobianScratch [[buffer(12)]],
+    device float4* bodyMotionScratch [[buffer(13)]],
+    device float* factorScratch [[buffer(14)]],
+    device float* vectorScratch [[buffer(15)]],
+    device float* responseScratch [[buffer(16)]],
+    device MRNumiHumanStandStatusGPU* statuses [[buffer(17)]],
+    device const MRNumiHumanTendonBindingGPU* tendonBindings [[buffer(18)]],
+    device const MRNumiHumanTendonTransferResultGPU* tendonTransfers [[buffer(19)]],
+    device const MRNumiHumanJointEqualityGPU* jointEqualities [[buffer(20)]],
+    device MRCompensatedRootTranslationGPU* rootTranslations [[buffer(21)]],
+    device const float4* bodyPositionLow [[buffer(22)]],
+    device const float4* pointPositionLow [[buffer(23)]],
+    device const float* passiveJointProgram [[buffer(24)]],
+    device float* sourceDynamicsWitness [[buffer(25)]],
+    uint environment [[threadgroup_position_in_grid]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint threadCount [[threads_per_threadgroup]]
+) {
+    if (environment >= dispatch.environmentCount) return;
+    device MRNumiHumanStandStatusGPU& status = statuses[environment];
+    device const MRArticulationGPU& articulation =
+        articulations[dispatch.articulationIndex];
+    const uint bodyCount = articulation.bodyCount;
+    const uint nv = articulation.nv;
+    const uint nq = articulation.nq;
+    const uint qBase = environment * dispatch.qStride;
+    const uint vBase = environment * dispatch.vStride;
+    const uint pointBase = environment * dispatch.pointWorldStride;
+    const uint pointJacobianBase = environment * dispatch.pointJacobianStride;
+    const uint forceBase = environment * dispatch.generalizedForceStride +
+        dispatch.generalizedForceOffset;
+    const uint spatialBase = environment * bodyCount *
+        MR_NUMI_HUMAN_STAND_SPATIAL_SCRATCH_ROWS * nv;
+    const uint factorBase = environment * nv * nv;
+    const uint vectorStride = nv + 3u * nv +
+        12u * dispatch.supportContactCount + dispatch.jointEqualityCount +
+        (((dispatch.flags & MR_NUMI_HUMAN_STAND_EXPORT_SOURCE_LIMIT_IMPULSES) != 0u)
+            ? nv + nq + nv : 0u);
+    const uint preloadBase = environment * vectorStride;
+    const uint vectorBase = preloadBase + nv;
+    const uint equalityCount = dispatch.jointEqualityCount;
+    const uint responseColumns = (dispatch.supportContactCount * 3u + equalityCount + nv) * nv;
+    const uint responseStride = responseColumns + equalityCount * (equalityCount + 3u) +
+        nv * equalityCount;
+    const uint responseBase = environment * responseStride;
+    device float* equalityFactor = responseScratch + responseBase + responseColumns;
+    device float* equalityScale = equalityFactor + equalityCount * equalityCount;
+    device float* equalityPivots = equalityScale + equalityCount;
+    // These vectors are repeatedly read and updated by the scalar constraint
+    // solve. Keep them in the threadgroup instead of round-tripping every
+    // scalar dependency through device memory. Retain the exported scratch
+    // layout and publish its final values below.
+    threadgroup float equalityRhsStorage[MR_NUMI_HUMAN_STAND_MAX_DOFS];
+    threadgroup float equalityFactorStorage[
+        kCachedEqualityCapacity * kCachedEqualityCapacity];
+    threadgroup float candidateVStorage[MR_NUMI_HUMAN_STAND_MAX_DOFS];
+    threadgroup float workspaceStorage[MR_NUMI_HUMAN_STAND_MAX_DOFS];
+    threadgroup float* equalityRhs = equalityRhsStorage;
+    // Equality multiplier corrections for each conditioned limit response.
+    device float* limitEqualityCorrections = equalityPivots + 2u * equalityCount;
+    device float* bias = vectorScratch + vectorBase;
+    threadgroup float* candidateV = candidateVStorage;
+    threadgroup float* workspace = workspaceStorage;
+    device float* lambdas = bias + 3u * nv;
+    device float* equalityLambdas =
+        lambdas + 3u * dispatch.supportContactCount;
+    device float* contactMatrices =
+        equalityLambdas + dispatch.jointEqualityCount;
+    device float* sourceLimitImpulseEvidence =
+        contactMatrices + 9u * dispatch.supportContactCount;
+    device float* preProjectionQEvidence = sourceLimitImpulseEvidence + nv;
+    device float* preProjectionVEvidence = preProjectionQEvidence + nq;
+    device float* factor = factorScratch + factorBase;
+    const bool captureSourceDynamics =
+        (dispatch.flags & MR_NUMI_HUMAN_STAND_PREDICT_VELOCITY_ONLY) != 0u;
+    const uint sourceDynamicsBase = environment * 3u * nv;
 
-    uint activeContacts = 0u;
-    float minimumGap = INFINITY;
-    float maximumPenetration = 0.0f;
-    const float3 normal = dispatch.groundNormal.xyz;
-    const float3 reference = abs(normal.x) < 0.8f
-        ? float3(1.0f, 0.0f, 0.0f)
-        : float3(0.0f, 1.0f, 0.0f);
-    const float3 tangent0 = normalize(reference - dot(reference, normal) * normal);
-    const float3 tangent1 = cross(normal, tangent0);
-    const float3 directions[3] = {normal, tangent0, tangent1};
-    float maximumEqualityVelocityError = 0.0f;
-    float maximumEqualityImpulse = 0.0f;
-    uint maximumEqualityImpulseIndex = MR_INVALID_INDEX;
-    float totalEqualityImpulse = 0.0f;
-    float maximumEqualityPositionProjection = 0.0f;
-    float totalEqualityPositionProjection = 0.0f;
-    float maximumEqualityVelocityProjection = 0.0f;
-    float totalEqualityVelocityProjection = 0.0f;
-    float contactNormalImpulseWork = 0.0f;
-    float contactTangentialImpulseWork = 0.0f;
-    float equalityImpulseWork = 0.0f;
-    float sourceLimitImpulseWork = 0.0f;
-    float contactNormalAbsoluteImpulseWork = 0.0f;
-    float contactTangentialAbsoluteImpulseWork = 0.0f;
-    float equalityAbsoluteImpulseWork = 0.0f;
-    float sourceLimitAbsoluteImpulseWork = 0.0f;
-
-    // Contact, bilateral equalities, and source position limits share one
-    // mass factor.  Interleave their existing projected updates so an active
-    // row cannot be silently invalidated by a later constraint family.
-    const uint coupledSweepCount = dispatch.contactIterationCount;
-    const uint limitResponseCapacity = nv;
-    const uint limitResponseBase = responseBase +
-        (3u * dispatch.supportContactCount + dispatch.jointEqualityCount) * nv;
-    uint limitCount = 0u;
-    uint limitDofs[MR_NUMI_HUMAN_STAND_MAX_DOFS];
-    float limitPreStepPositions[MR_NUMI_HUMAN_STAND_MAX_DOFS];
-    float limitAccumulatedImpulses[MR_NUMI_HUMAN_STAND_MAX_DOFS];
-    uint contactActiveForPostProjection[MR_NUMI_HUMAN_STAND_MAX_CONTACTS];
-    float contactTargetNormalVelocityForPostProjection[
-        MR_NUMI_HUMAN_STAND_MAX_CONTACTS
-    ];
-    for (uint contact = 0u;
-         contact < dispatch.supportContactCount;
-         ++contact) {
-        contactActiveForPostProjection[contact] = 0u;
-        contactTargetNormalVelocityForPostProjection[contact] = 0.0f;
-    }
-    for (uint coupledSweep = 0u;
-         coupledSweep < coupledSweepCount;
-         ++coupledSweep) {
-
-    if ((dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) != 0u) {
-        if (coupledSweep == 0u) {
-        for (uint contact = 0u; contact < dispatch.supportContactCount; ++contact) {
-            device const MRNumiHumanStandContactGPU& support = contacts[contact];
-            if (support.bodyIndex < articulation.firstBody ||
-                support.bodyIndex >= articulation.firstBody + bodyCount ||
-                support.pointQueryIndex >= dispatch.pointWorldStride ||
-                support.reserved0 != 0u ||
-                !finite4(support.frictionSlopAndStabilization) ||
-                support.frictionSlopAndStabilization.x < 0.0f ||
-                support.frictionSlopAndStabilization.y < 0.0f ||
-                support.frictionSlopAndStabilization.z < 0.0f ||
-                support.frictionSlopAndStabilization.z > 1.0f ||
-                support.frictionSlopAndStabilization.w < 0.0f) {
-                fail(status, MR_NUMI_HUMAN_STAND_INVALID_DISPATCH, contact);
-                return;
-            }
-            const float3 point = pointWorld[
-                pointBase + support.pointQueryIndex
-            ].position.xyz;
-            const float gap = dot(
-                mrCompensatedPositionDifference(float4(point,0.0f), pointPositionLow[pointBase + support.pointQueryIndex],
-                    dispatch.groundPointAndTimestep, float4(0.0f)).xyz, normal
-            );
-            minimumGap = min(minimumGap, gap);
-            maximumPenetration = max(maximumPenetration, max(-gap, 0.0f));
-            if (gap > support.frictionSlopAndStabilization.y) {
-                lambdas[3u * contact + 0u] = 0.0f;
-                lambdas[3u * contact + 1u] = 0.0f;
-                lambdas[3u * contact + 2u] = 0.0f;
-                continue;
-            }
-            ++activeContacts;
-            device float* matrix = contactMatrices + 9u * contact;
-            for (uint row = 0u; row < 3u; ++row) {
-                for (uint column = 0u; column < 3u; ++column) {
-                    float value = row == column ? kResponseRegularization : 0.0f;
-                    device const float* response = responseScratch + responseBase +
-                        (3u * contact + column) * nv;
-                    for (uint dof = 0u; dof < nv; ++dof) {
-                        value += pointJacobianAxis(
-                            pointJacobians, pointJacobianBase,
-                            support.pointQueryIndex, nv, dof, directions[row]
-                        ) * response[dof];
-                    }
-                    matrix[3u * row + column] = value;
-                }
-            }
-            // Every step starts with a new free velocity. Initialize the
-            // matching total impulse and apply it exactly once; retaining an
-            // unapplied previous-step lambda would corrupt complementarity.
-            const float seed = mrNumiHumanSupportSeedImpulse(
-                support.frictionSlopAndStabilization.w, timestep, gap,
-                support.frictionSlopAndStabilization.y);
-            if (!isfinite(seed)) {
-                fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT, contact);
-                return;
-            }
-            lambdas[3u * contact + 0u] = seed;
-            lambdas[3u * contact + 1u] = 0.0f;
-            lambdas[3u * contact + 2u] = 0.0f;
-            device const float* normalResponse = responseScratch +
-                responseBase + (3u * contact) * nv;
-            float normalVelocityBeforeSeed = 0.0f;
-            for (uint dof = 0u; dof < nv; ++dof) {
-                normalVelocityBeforeSeed += pointJacobianAxis(
-                    pointJacobians, pointJacobianBase,
-                    support.pointQueryIndex, nv, dof, normal
-                ) * candidateV[dof];
-            }
-            for (uint dof = 0u; dof < nv; ++dof) {
-                candidateV[dof] += seed * normalResponse[dof];
-            }
-            const float normalVelocityAfterSeed = fma(
-                seed, matrix[0u] - kResponseRegularization,
-                normalVelocityBeforeSeed
-            );
-            const float seedWork = 0.5f * seed *
-                (normalVelocityBeforeSeed + normalVelocityAfterSeed);
-            if (!isfinite(seedWork)) {
-                fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT, contact);
-                return;
-            }
-            contactNormalImpulseWork += seedWork;
-            contactNormalAbsoluteImpulseWork += abs(seedWork);
+    if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
+    device float* equalityDerivativeCache = spatialJacobianScratch + spatialBase;
+    device float* equalityTargetVelocityCache = equalityDerivativeCache + nv;
+    const float timestep = dispatch.groundPointAndTimestep.w;
+    float minimumPivot = INFINITY;
+    float maximumPivot = 0.0f;
+    float maximumEqualityPositionError = 0.0f;
+    threadgroup atomic_uint responseFailure;
+    if (lane == 0u) {
+        atomic_store_explicit(&responseFailure, MR_INVALID_INDEX,
+                              memory_order_relaxed);
+        for (uint row = 0u; row < nv; ++row) {
+            const float pivot = factor[row * nv + row];
+            minimumPivot = min(minimumPivot, pivot);
+            maximumPivot = max(maximumPivot, pivot);
         }
+        for (uint row = 0u; row < equalityCount; ++row) {
+            float target = 0.0f, derivative = 0.0f, error = 0.0f;
+            if (!evaluateJointEquality(jointEqualities[row], qState, qBase,
+                                       nq, nv, target, derivative, error)) {
+                fail(status, MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED, row);
+                break;
+            }
+            maximumEqualityPositionError = max(
+                maximumEqualityPositionError, abs(error));
         }
-        for (uint iteration = 0u;
-             iteration < 1u;
-             ++iteration) {
-            for (uint contact = 0u; contact < dispatch.supportContactCount; ++contact) {
-                device const MRNumiHumanStandContactGPU& support = contacts[contact];
-                const float3 point = pointWorld[
-                    pointBase + support.pointQueryIndex
-                ].position.xyz;
-                const float gap = dot(
-                    mrCompensatedPositionDifference(float4(point,0.0f), pointPositionLow[pointBase + support.pointQueryIndex],
-                    dispatch.groundPointAndTimestep, float4(0.0f)).xyz, normal
-                );
-                if (gap > support.frictionSlopAndStabilization.y) continue;
-                float3 velocity{0.0f};
-                for (uint axis = 0u; axis < 3u; ++axis) {
-                    for (uint dof = 0u; dof < nv; ++dof) {
-                        velocity[axis] += pointJacobianAxis(
-                            pointJacobians, pointJacobianBase,
-                            support.pointQueryIndex, nv, dof, directions[axis]
-                        ) * candidateV[dof];
-                    }
-                }
-                const float targetNormalVelocity =
-                    mrNumiHumanContactVelocityTarget(gap, timestep,
-                        support.frictionSlopAndStabilization.z);
-                if (coupledSweep + 1u == coupledSweepCount) {
-                    contactActiveForPostProjection[contact] = 1u;
-                    contactTargetNormalVelocityForPostProjection[contact] =
-                        targetNormalVelocity;
-                }
-                device float* matrix = contactMatrices + 9u * contact;
-                const float normalMass = matrix[0u];
-                const float tangentDeterminant =
-                    matrix[4u] * matrix[8u] - matrix[5u] * matrix[7u];
-                if (!(normalMass > kResponseRegularization) ||
-                    !isfinite(normalMass) ||
-                    (support.frictionSlopAndStabilization.x > 0.0f &&
-                     (!(tangentDeterminant > kResponseRegularization) ||
-                      !isfinite(tangentDeterminant)))) {
-                    fail(status, MR_NUMI_HUMAN_STAND_CONTACT_FAILED, contact);
-                    return;
-                }
-                const float3 oldLambda{
-                    lambdas[3u * contact + 0u],
-                    lambdas[3u * contact + 1u],
-                    lambdas[3u * contact + 2u],
-                };
-                // Solve the unilateral normal row first. A coupled 3x3
-                // inverse may produce a negative normal candidate because
-                // tangential velocity is not an admissible pull force.
-                const float normalDelta =
-                    (targetNormalVelocity - velocity.x) / normalMass;
-                float3 newLambda = oldLambda;
-                newLambda.x = max(oldLambda.x + normalDelta, 0.0f);
-                const float appliedNormal = newLambda.x - oldLambda.x;
-                // Tangential rows see the velocity after the normal update.
-                const float tangentialVelocityY =
-                    velocity.y + matrix[3u] * appliedNormal;
-                const float tangentialVelocityZ =
-                    velocity.z + matrix[6u] * appliedNormal;
-                if (support.frictionSlopAndStabilization.x > 0.0f && newLambda.x > 0.0f) {
-                    // Conditional maximum dissipation uses the tangent Delassus
-                    // metric, not Euclidean clipping of an unconstrained impulse.
-                    // Preserve both actual response contractions when removing
-                    // the old impulse; symmetrize only roundoff in the SPD metric.
-                    const float rhsY = matrix[4u] * oldLambda.y +
-                        matrix[5u] * oldLambda.z - tangentialVelocityY;
-                    const float rhsZ = matrix[7u] * oldLambda.y +
-                        matrix[8u] * oldLambda.z - tangentialVelocityZ;
-                    const auto tangent = mrNumiHumanSolveFrictionDisk(
-                        matrix[4u], 0.5f * matrix[5u] + 0.5f * matrix[7u],
-                        matrix[8u], rhsY, rhsZ,
-                        support.frictionSlopAndStabilization.x * newLambda.x);
-                    if (!tangent.valid) {
-                        fail(status, MR_NUMI_HUMAN_STAND_CONTACT_FAILED, contact);
-                        return;
-                    }
-                    newLambda.y = tangent.x;
-                    newLambda.z = tangent.y;
-                } else {
-                    newLambda.y = 0.0f;
-                    newLambda.z = 0.0f;
-                }
-                const float3 applied = newLambda - oldLambda;
-                lambdas[3u * contact + 0u] = newLambda.x;
-                lambdas[3u * contact + 1u] = newLambda.y;
-                lambdas[3u * contact + 2u] = newLambda.z;
-                // Reuse the already-computed actual Delassus contractions for
-                // diagnostic work. The solver adds regularization only to the
-                // diagonal; off-diagonal entries remain deliberately
-                // nonsymmetric FP32 contractions and must not be averaged.
-                const float normalVelocityAfter = fma(
-                    applied.x, matrix[0u] - kResponseRegularization,
-                    velocity.x
-                );
-                const float2 tangentialVelocityBefore{
-                    fma(applied.x, matrix[3u], velocity.y),
-                    fma(applied.x, matrix[6u], velocity.z),
-                };
-                float2 tangentialVelocityAfter = tangentialVelocityBefore;
-                tangentialVelocityAfter.x = fma(
-                    applied.y, matrix[4u] - kResponseRegularization,
-                    tangentialVelocityAfter.x
-                );
-                tangentialVelocityAfter.x = fma(
-                    applied.z, matrix[5u], tangentialVelocityAfter.x
-                );
-                tangentialVelocityAfter.y = fma(
-                    applied.y, matrix[7u], tangentialVelocityAfter.y
-                );
-                tangentialVelocityAfter.y = fma(
-                    applied.z, matrix[8u] - kResponseRegularization,
-                    tangentialVelocityAfter.y
-                );
-                // Preserve the production state-update order exactly: normal,
-                // tangent0, then tangent1, each in increasing DOF order.
-                for (uint axis = 0u; axis < 3u; ++axis) {
-                    device const float* response = responseScratch + responseBase +
-                        (3u * contact + axis) * nv;
-                    for (uint dof = 0u; dof < nv; ++dof) {
-                        candidateV[dof] += applied[axis] * response[dof];
-                    }
-                }
-                const float normalWork = 0.5f * applied.x *
-                    (velocity.x + normalVelocityAfter);
-                const float tangentialWork = 0.5f * (
-                    applied.y *
-                        (tangentialVelocityBefore.x + tangentialVelocityAfter.x) +
-                    applied.z *
-                        (tangentialVelocityBefore.y + tangentialVelocityAfter.y)
-                );
-                if (!isfinite(normalWork) || !isfinite(tangentialWork)) {
-                    fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT, contact);
-                    return;
-                }
-                contactNormalImpulseWork += normalWork;
-                contactTangentialImpulseWork += tangentialWork;
-                contactNormalAbsoluteImpulseWork += abs(normalWork);
-                contactTangentialAbsoluteImpulseWork += abs(tangentialWork);
+        if (equalityCount <= kCachedEqualityCapacity) {
+            for (uint index = 0u; index < equalityCount * equalityCount;
+                 ++index) {
+                equalityFactorStorage[index] = equalityFactor[index];
             }
         }
     }
-
-    // Equality rows use the same factored mass matrix as contact. Solving
-    // them in the coupled sweep keeps the authored anatomical manifold and
-    // active unilateral rows mutually consistent without a hidden motor.
-    if ((dispatch.flags & MR_NUMI_HUMAN_STAND_HAS_JOINT_EQUALITIES) != 0u) {
-
-        // Recompute the actual velocity residual for a refinement correction.
-        // This is still the same E M_eff^-1 E^T block and impulse ownership.
-        for (uint refinement=0u; refinement<2u; ++refinement) {
-            for (uint row=0u; row<equalityCount; ++row) {
-                device const MRNumiHumanJointEqualityGPU& equality=jointEqualities[row];
-                const float derivative = equalityDerivativeCache[row];
-                float velocity=candidateV[equality.indices.y];
-                if (equality.indices.w!=MR_INVALID_INDEX)
-                    velocity=fma(-derivative,candidateV[equality.indices.w],velocity);
-                workspace[row] = velocity;
-                equalityRhs[row] =
-                    equalityTargetVelocityCache[row] - velocity;
-            }
-            const bool equalitySolved = equalityCount <= kCachedEqualityCapacity
-                ? mrNumiHumanBilateralSolve(equalityFactorStorage, equalityScale,
-                    equalityPivots, equalityRhs, equalityCount)
-                : mrNumiHumanBilateralSolve(equalityFactor, equalityScale,
-                    equalityPivots, equalityRhs, equalityCount);
-            if (!equalitySolved) {
-                fail(status,MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED,MR_INVALID_INDEX);
-                return;
-            }
-            float refinementWork = 0.0f;
-            for (uint row=0u; row<equalityCount; ++row) {
-                refinementWork = fma(
-                    0.5f * equalityRhs[row], workspace[row], refinementWork
-                );
-                equalityLambdas[row]+=equalityRhs[row];
-            }
-            for (uint dof=0u; dof<nv; ++dof) {
-                float correction=0.0f;
-                for (uint row=0u; row<equalityCount; ++row) {
-                    device const float* response=responseScratch+responseBase+
-                        (3u*dispatch.supportContactCount+row)*nv;
-                    correction=fma(equalityRhs[row],response[dof],correction);
-                }
-                candidateV[dof]+=correction;
-            }
-            for (uint row = 0u; row < equalityCount; ++row) {
-                device const MRNumiHumanJointEqualityGPU& equality =
-                    jointEqualities[row];
-                const float derivative = equalityDerivativeCache[row];
-                float velocity = candidateV[equality.indices.y];
-                if (equality.indices.w != MR_INVALID_INDEX) {
-                    velocity = fma(
-                        -derivative, candidateV[equality.indices.w], velocity
-                    );
-                }
-                refinementWork = fma(
-                    0.5f * equalityRhs[row], velocity, refinementWork
-                );
-            }
-            if (!isfinite(refinementWork)) {
-                fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT,
-                     MR_INVALID_INDEX);
-                return;
-            }
-            equalityImpulseWork += refinementWork;
-            equalityAbsoluteImpulseWork += abs(refinementWork);
-        }
-    }
-
-    if ((dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) != 0u) {
-    // Source-authored scalar position limits are unilateral generalized
-    // constraints. Static Human recruitment may rely on their reaction; a
-    // stand horizon that omits them turns that accepted load into an
-    // artificial high-acceleration joint impulse. Their response columns are
-    // prepared once, then projected alongside contact and equality rows.
-    if (coupledSweep == 0u) {
-    for (uint dof = 0u; dof < nv; ++dof) {
-        device const MRDofPropertiesGPU& properties =
-            dofs[articulation.vOffset + dof];
-        if ((properties.flags & MR_DOF_FLAG_POSITION_LIMIT) == 0u) continue;
-        if (properties.qIndex == MR_INVALID_INDEX ||
-            properties.qIndex < articulation.qOffset ||
-            properties.qIndex >= articulation.qOffset + nq ||
-            !(properties.limits.x < properties.limits.y) ||
-            !isfinite(properties.limits.x) ||
-            !isfinite(properties.limits.y)) {
-            fail(status, MR_NUMI_HUMAN_STAND_INVALID_MODEL, dof);
-            return;
-        }
-        const float position = qState[
-            qBase + properties.qIndex - articulation.qOffset];
-        // Prepare every authored scalar interval. Contact/equality updates
-        // can activate a row that was inactive in the first free velocity.
-        if (!isfinite(position)) {
-            fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_INPUT, dof);
-            return;
-        }
-        if (limitCount >= limitResponseCapacity) {
-            // The fixed response arena is sized for contacts and equalities.
-            // Refuse an over-capacity limit set instead of silently dropping
-            // a source constraint.
-            fail(status, MR_NUMI_HUMAN_STAND_INVALID_DISPATCH, dof);
-            return;
-        }
-        limitDofs[limitCount] = dof;
-        limitPreStepPositions[limitCount] = position;
-        limitAccumulatedImpulses[limitCount] = 0.0f;
-        device float* response = responseScratch + limitResponseBase +
-            limitCount * nv;
-        // Conditioned responses were independently solved in parallel. Compact
-        // in ascending DOF order: limitCount <= dof, so no future column is
-        // overwritten before it is consumed.
-        if (limitCount != dof) {
-            device const float* raw = responseScratch + limitResponseBase + dof * nv;
-            for (uint index = 0u; index < nv; ++index) response[index] = raw[index];
-        }
-        if (limitCount != dof) {
-            for (uint ei = 0u; ei < equalityCount; ++ei)
-                limitEqualityCorrections[limitCount * equalityCount + ei] =
-                    limitEqualityCorrections[dof * equalityCount + ei];
-        }
-        ++limitCount;
-    }
-    }
-    for (uint iteration = 0u;
-         iteration < 1u && limitCount != 0u;
-         ++iteration) {
-        for (uint limit = 0u; limit < limitCount; ++limit) {
-            const uint dof = limitDofs[limit];
-            device const MRDofPropertiesGPU& properties =
-                dofs[articulation.vOffset + dof];
-            const float position = qState[
-                qBase + properties.qIndex - articulation.qOffset];
-            device const float* response = responseScratch + limitResponseBase +
-                limit * nv;
-            const float effectiveMass = response[dof] + kResponseRegularization;
-            if (!(effectiveMass > kResponseRegularization) ||
-                !isfinite(effectiveMass)) {
-                fail(status, MR_NUMI_HUMAN_STAND_FACTORIZATION_FAILED, dof);
-                return;
-            }
-            const float lowerVelocity = mrNumiHumanLowerLimitVelocityTarget(
-                position, properties.limits.x, timestep);
-            const float upperVelocity = mrNumiHumanUpperLimitVelocityTarget(
-                position, properties.limits.y, timestep);
-            if (!isfinite(lowerVelocity) || !isfinite(upperVelocity) ||
-                lowerVelocity > upperVelocity) {
-                fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT, dof);
-                return;
-            }
-            const float nextImpulse = mrNumiHumanProjectIntervalImpulse(
-                limitAccumulatedImpulses[limit], candidateV[dof],
-                lowerVelocity, upperVelocity, effectiveMass);
-            const float impulse = nextImpulse - limitAccumulatedImpulses[limit];
-            if (!isfinite(impulse)) {
-                fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT, dof);
-                return;
-            }
-            limitAccumulatedImpulses[limit] = nextImpulse;
-            if (impulse == 0.0f) continue;
-            // Preserve ownership of the compensating bilateral reactions,
-            // including negative increments when a limit is released.
-            device const float* equalityCorrection = limitEqualityCorrections +
-                limit * equalityCount;
-            float limitWorkIncrement =
-                0.5f * impulse * candidateV[dof];
-            float limitEqualityWorkIncrement = 0.0f;
-            for (uint ei = 0u; ei < equalityCount; ++ei) {
-                device const MRNumiHumanJointEqualityGPU& equality =
-                    jointEqualities[ei];
-                const float derivative = equalityDerivativeCache[ei];
-                float velocity = candidateV[equality.indices.y];
-                if (equality.indices.w != MR_INVALID_INDEX) {
-                    velocity = fma(
-                        -derivative, candidateV[equality.indices.w], velocity
-                    );
-                }
-                const float equalityImpulse = impulse * equalityCorrection[ei];
-                limitEqualityWorkIncrement = fma(
-                    0.5f * equalityImpulse, velocity,
-                    limitEqualityWorkIncrement
-                );
-                equalityLambdas[ei] += equalityImpulse;
-            }
-            for (uint index = 0u; index < nv; ++index)
-                candidateV[index] = fma(impulse, response[index], candidateV[index]);
-            limitWorkIncrement = fma(
-                0.5f * impulse, candidateV[dof], limitWorkIncrement
-            );
-            for (uint ei = 0u; ei < equalityCount; ++ei) {
-                device const MRNumiHumanJointEqualityGPU& equality =
-                    jointEqualities[ei];
-                const float derivative = equalityDerivativeCache[ei];
-                float velocity = candidateV[equality.indices.y];
-                if (equality.indices.w != MR_INVALID_INDEX) {
-                    velocity = fma(
-                        -derivative, candidateV[equality.indices.w], velocity
-                    );
-                }
-                const float equalityImpulse = impulse * equalityCorrection[ei];
-                limitEqualityWorkIncrement = fma(
-                    0.5f * equalityImpulse, velocity,
-                    limitEqualityWorkIncrement
-                );
-            }
-            if (!isfinite(limitWorkIncrement) ||
-                !isfinite(limitEqualityWorkIncrement)) {
-                fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT, dof);
-                return;
-            }
-            sourceLimitImpulseWork += limitWorkIncrement;
-            sourceLimitAbsoluteImpulseWork += abs(limitWorkIncrement);
-            equalityImpulseWork += limitEqualityWorkIncrement;
-            equalityAbsoluteImpulseWork += abs(limitEqualityWorkIncrement);
-        }
-    }
-
-    }
-
-    }
-
-    // Final equality evidence includes full-block limit corrections.
-        if ((dispatch.flags & MR_NUMI_HUMAN_STAND_HAS_JOINT_EQUALITIES) != 0u) {
-        for (uint equalityIndex = 0u;
-             equalityIndex < dispatch.jointEqualityCount;
-             ++equalityIndex) {
-            device const MRNumiHumanJointEqualityGPU& equality =
-                jointEqualities[equalityIndex];
-            const float derivative = equalityDerivativeCache[equalityIndex];
-            float velocityError = candidateV[equality.indices.y];
-            if (equality.indices.w != MR_INVALID_INDEX) {
-                velocityError -= derivative * candidateV[equality.indices.w];
-            }
-            const float targetVelocity =
-                equalityTargetVelocityCache[equalityIndex];
-            maximumEqualityVelocityError = max(
-                maximumEqualityVelocityError,
-                abs(velocityError - targetVelocity)
-            );
-            const float absoluteImpulse = abs(equalityLambdas[equalityIndex]);
-            if (absoluteImpulse > maximumEqualityImpulse) {
-                maximumEqualityImpulse = absoluteImpulse;
-                maximumEqualityImpulseIndex = equalityIndex;
-            }
-            totalEqualityImpulse += absoluteImpulse;
-        }
-        }
-
-    float maximumConstraintVelocityDelta = 0.0f;
-    uint maximumConstraintVelocityDeltaDof = 0u;
-    float maximumPreProjectionVelocityDelta = 0.0f;
-    uint maximumPreProjectionVelocityDeltaDof = 0u;
-    float maximumAcceleration = 0.0f;
-    uint maximumAccelerationDof = 0u;
-    for (uint dof = 0u; dof < nv; ++dof) {
-        // No factored solve follows this point, so the workspace can retain the
-        // accepted pre-step velocity through the exact equality projection.
-        workspace[dof] = vState[vBase + dof];
-        const float constraintDelta = abs(candidateV[dof] - bias[dof]);
-        if (constraintDelta > maximumConstraintVelocityDelta) {
-            maximumConstraintVelocityDelta = constraintDelta;
-            maximumConstraintVelocityDeltaDof = dof;
-        }
-        const float totalDelta = abs(candidateV[dof] - workspace[dof]);
-        if (totalDelta > maximumPreProjectionVelocityDelta) {
-            maximumPreProjectionVelocityDelta = totalDelta;
-            maximumPreProjectionVelocityDeltaDof = dof;
-        }
-        const float acceleration = totalDelta / timestep;
-        if (acceleration > maximumAcceleration) {
-            maximumAcceleration = acceleration;
-            maximumAccelerationDof = dof;
-        }
-        if (!isfinite(candidateV[dof])) {
-            fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT, dof);
-            return;
-        }
-        vState[vBase + dof] = candidateV[dof];
-    }
-    const MRCompensatedRootTranslationGPU previousTranslation = rootTranslations[environment];
-    const auto nextTranslation = mrCompensatedTranslationAdvance(previousTranslation,
-        float4(candidateV[0u], candidateV[1u], candidateV[2u], 0.0f), timestep);
-    if (!mrCompensatedTranslationValid(nextTranslation)) {
-        fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT, 0u);
-        return;
-    }
-    rootTranslations[environment] = nextTranslation;
-    const auto projection = mrCompensatedTranslationProjection(nextTranslation);
-    qState[qBase + 0u] = projection.x;
-    qState[qBase + 1u] = projection.y;
-    qState[qBase + 2u] = projection.z;
-    float4 orientation;
-    if (!normalizedQuaternion(float4(
-            qState[qBase + 3u], qState[qBase + 4u],
-            qState[qBase + 5u], qState[qBase + 6u]
-        ), orientation)) {
-        fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT, 3u);
-        return;
-    }
-    const float4 increment = quaternionFromRotationVector(
-        timestep * float3(candidateV[3u], candidateV[4u], candidateV[5u])
-    );
-    const float4 nextOrientation = normalize(quaternionMultiply(increment, orientation));
-    qState[qBase + 3u] = nextOrientation.x;
-    qState[qBase + 4u] = nextOrientation.y;
-    qState[qBase + 5u] = nextOrientation.z;
-    qState[qBase + 6u] = nextOrientation.w;
-    for (uint dof = 6u; dof < nv; ++dof) {
-        device const MRDofPropertiesGPU& properties =
-            dofs[articulation.vOffset + dof];
-        if (properties.qIndex == MR_INVALID_INDEX ||
-            properties.qIndex < articulation.qOffset ||
-            properties.qIndex >= articulation.qOffset + nq) {
-            fail(status, MR_NUMI_HUMAN_STAND_INVALID_MODEL, dof);
-            return;
-        }
-        qState[qBase + properties.qIndex - articulation.qOffset] +=
-            timestep * candidateV[dof];
-    }
-    if ((dispatch.flags & MR_NUMI_HUMAN_STAND_EXPORT_SOURCE_LIMIT_IMPULSES) != 0u) {
-        // The opt-in endpoint diagnostic needs the native state immediately
-        // before exact equality projection. Publication remains host-gated by
-        // acceptance; ordinary standing never writes this suffix.
-        for (uint coordinate = 0u; coordinate < nq; ++coordinate)
-            preProjectionQEvidence[coordinate] = qState[qBase + coordinate];
-        for (uint dof = 0u; dof < nv; ++dof)
-            preProjectionVEvidence[dof] = candidateV[dof];
-    }
-    // The velocity state is still the terminal coupled-sweep candidate here.
-    // Record its residual against the same pre-step contact and limit rows
-    // before the exact coordinate projection below overwrites dependencies.
-    float maximumPreProjectionContactResidual = 0.0f;
-    float maximumPreProjectionLimitResidual = 0.0f;
-    float maximumPreProjectionEqualityResidual = 0.0f;
-    if ((dispatch.flags & MR_NUMI_HUMAN_STAND_HAS_JOINT_EQUALITIES) != 0u) {
-        if ((dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) != 0u) {
-            for (uint contact = 0u;
-                 contact < dispatch.supportContactCount;
-                 ++contact) {
-                if (contactActiveForPostProjection[contact] == 0u) continue;
-                device const MRNumiHumanStandContactGPU& support =
-                    contacts[contact];
-                float normalVelocity = 0.0f;
-                for (uint dof = 0u; dof < nv; ++dof) {
-                    normalVelocity += pointJacobianAxis(
-                        pointJacobians, pointJacobianBase,
-                        support.pointQueryIndex, nv, dof, normal
-                    ) * candidateV[dof];
-                }
-                maximumPreProjectionContactResidual = max(
-                    maximumPreProjectionContactResidual,
-                    max(0.0f,
-                        contactTargetNormalVelocityForPostProjection[contact] -
-                            normalVelocity)
-                );
-            }
-            for (uint limit = 0u; limit < limitCount; ++limit) {
-                const uint dof = limitDofs[limit];
-                device const MRDofPropertiesGPU& properties =
-                    dofs[articulation.vOffset + dof];
-                const float position = limitPreStepPositions[limit];
-                const float lowerVelocity = mrNumiHumanLowerLimitVelocityTarget(
-                    position, properties.limits.x, timestep);
-                const float upperVelocity = mrNumiHumanUpperLimitVelocityTarget(
-                    position, properties.limits.y, timestep);
-                maximumPreProjectionLimitResidual = max(maximumPreProjectionLimitResidual,
-                    max(max(0.0f, lowerVelocity - candidateV[dof]),
-                        max(0.0f, candidateV[dof] - upperVelocity)));
-            }
-        }
-        for (uint equalityIndex = 0u;
-             equalityIndex < dispatch.jointEqualityCount;
-             ++equalityIndex) {
-            device const MRNumiHumanJointEqualityGPU& equality =
-                jointEqualities[equalityIndex];
-            float target = 0.0f;
-            float derivative = 0.0f;
-            float error = 0.0f;
-            if (!evaluateJointEquality(
-                    equality, qState, qBase, nq, nv,
-                    target, derivative, error
-                )) continue;
-            float velocity = candidateV[equality.indices.y];
-            if (equality.indices.w != MR_INVALID_INDEX) {
-                velocity -= derivative * candidateV[equality.indices.w];
-            }
-            const float targetVelocity = clamp(
-                -0.2f * error / timestep, -4.0f, 4.0f
-            );
-            maximumPreProjectionEqualityResidual = max(
-                maximumPreProjectionEqualityResidual,
-                abs(velocity - targetVelocity)
-            );
-        }
-    }
-
-    for (uint equalityIndex = 0u;
-         equalityIndex < dispatch.jointEqualityCount;
-         ++equalityIndex) {
-        device const MRNumiHumanJointEqualityGPU& equality =
-            jointEqualities[equalityIndex];
-        float target = 0.0f;
-        float derivative = 0.0f;
-        float error = 0.0f;
-        if (!evaluateJointEquality(
-                equality, qState, qBase, nq, nv,
-                target, derivative, error
-            )) {
-            ++status.jointEqualityCounts.z;
-            fail(status, MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED,
-                 equalityIndex);
-            return;
-        }
-        maximumEqualityPositionError = max(
-            maximumEqualityPositionError, abs(error)
-        );
-        const float positionProjection = abs(
-            target - qState[qBase + equality.indices.x]
-        );
-        maximumEqualityPositionProjection = max(
-            maximumEqualityPositionProjection, positionProjection
-        );
-        totalEqualityPositionProjection += positionProjection;
-        qState[qBase + equality.indices.x] = target;
-        const float dependentVelocity =
-            equality.indices.w == MR_INVALID_INDEX
-                ? 0.0f
-                : derivative * vState[vBase + equality.indices.w];
-        if (!isfinite(target) || !isfinite(dependentVelocity)) {
-            ++status.jointEqualityCounts.z;
-            fail(status, MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED,
-                 equalityIndex);
-            return;
-        }
-        const float velocityProjection = abs(
-            dependentVelocity - vState[vBase + equality.indices.y]
-        );
-        maximumEqualityVelocityProjection = max(
-            maximumEqualityVelocityProjection, velocityProjection
-        );
-        totalEqualityVelocityProjection += velocityProjection;
-        vState[vBase + equality.indices.y] = dependentVelocity;
-        candidateV[equality.indices.y] = dependentVelocity;
-    }
-
-    float maximumPublishedVelocityDelta = 0.0f;
-    uint maximumPublishedVelocityDeltaDof = 0u;
-    for (uint dof = 0u; dof < nv; ++dof) {
-        const float delta = abs(vState[vBase + dof] - workspace[dof]);
-        if (delta > maximumPublishedVelocityDelta) {
-            maximumPublishedVelocityDelta = delta;
-            maximumPublishedVelocityDeltaDof = dof;
-        }
-    }
-
-    // The exact coordinate projection intentionally follows the coupled
-    // contact/equality/limit sweeps. Measure its terminal state against the
-    // same pre-step linearization before re-querying geometry on the next
-    // accepted step. This records evidence without changing any solve row.
-    float maximumPostProjectionContactResidual = 0.0f;
-    float maximumPostProjectionLimitResidual = 0.0f;
-    float maximumPostProjectionEqualityResidual = 0.0f;
-    if ((dispatch.flags & MR_NUMI_HUMAN_STAND_HAS_JOINT_EQUALITIES) != 0u) {
-        if ((dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) != 0u) {
-            for (uint contact = 0u;
-                 contact < dispatch.supportContactCount;
-                 ++contact) {
-                if (contactActiveForPostProjection[contact] == 0u) continue;
-                device const MRNumiHumanStandContactGPU& support =
-                    contacts[contact];
-                float normalVelocity = 0.0f;
-                for (uint dof = 0u; dof < nv; ++dof) {
-                    normalVelocity += pointJacobianAxis(
-                        pointJacobians, pointJacobianBase,
-                        support.pointQueryIndex, nv, dof, normal
-                    ) * candidateV[dof];
-                }
-                maximumPostProjectionContactResidual = max(
-                    maximumPostProjectionContactResidual,
-                    max(0.0f,
-                        contactTargetNormalVelocityForPostProjection[contact] -
-                            normalVelocity)
-                );
-            }
-            for (uint limit = 0u; limit < limitCount; ++limit) {
-                const uint dof = limitDofs[limit];
-                device const MRDofPropertiesGPU& properties =
-                    dofs[articulation.vOffset + dof];
-                const float position = limitPreStepPositions[limit];
-                const float lowerVelocity = mrNumiHumanLowerLimitVelocityTarget(
-                    position, properties.limits.x, timestep);
-                const float upperVelocity = mrNumiHumanUpperLimitVelocityTarget(
-                    position, properties.limits.y, timestep);
-                maximumPostProjectionLimitResidual = max(maximumPostProjectionLimitResidual,
-                    max(max(0.0f, lowerVelocity - candidateV[dof]),
-                        max(0.0f, candidateV[dof] - upperVelocity)));
-            }
-        }
-        for (uint equalityIndex = 0u;
-             equalityIndex < dispatch.jointEqualityCount;
-             ++equalityIndex) {
-            device const MRNumiHumanJointEqualityGPU& equality =
-                jointEqualities[equalityIndex];
-            float target = 0.0f;
-            float derivative = 0.0f;
-            float error = 0.0f;
-            if (!evaluateJointEquality(
-                    equality, qState, qBase, nq, nv,
-                    target, derivative, error
-                )) continue;
-            float velocity = candidateV[equality.indices.y];
-            if (equality.indices.w != MR_INVALID_INDEX) {
-                velocity -= derivative * candidateV[equality.indices.w];
-            }
-            const float targetVelocity = clamp(
-                -0.2f * error / timestep, -4.0f, 4.0f
-            );
-            maximumPostProjectionEqualityResidual = max(
-                maximumPostProjectionEqualityResidual,
-                abs(velocity - targetVelocity)
-            );
-        }
-    }
-
-    float totalNormalImpulse = 0.0f;
-    float maximumNormalImpulse = 0.0f;
-    float maximumTangentialImpulse = 0.0f;
-    float maximumAbsoluteLimitImpulse = 0.0f;
-    float totalAbsoluteLimitImpulse = 0.0f;
-    uint maximumNormalImpulseContact = MR_INVALID_INDEX;
-    uint maximumTangentialImpulseContact = MR_INVALID_INDEX;
-    uint maximumAbsoluteLimitImpulseDof = MR_INVALID_INDEX;
-    for (uint contact = 0u; contact < dispatch.supportContactCount; ++contact) {
-        const float normalImpulse = lambdas[3u * contact + 0u];
-        const float tangentialImpulse = length(float2(
-            lambdas[3u * contact + 1u], lambdas[3u * contact + 2u]
-        ));
-        totalNormalImpulse += normalImpulse;
-        if (normalImpulse > maximumNormalImpulse) {
-            maximumNormalImpulse = normalImpulse;
-            maximumNormalImpulseContact = contact;
-        }
-        if (tangentialImpulse > maximumTangentialImpulse) {
-            maximumTangentialImpulse = tangentialImpulse;
-            maximumTangentialImpulseContact = contact;
-        }
-    }
-    for (uint limit = 0u; limit < limitCount; ++limit) {
-        const float absoluteImpulse = abs(limitAccumulatedImpulses[limit]);
-        totalAbsoluteLimitImpulse += absoluteImpulse;
-        if (absoluteImpulse > maximumAbsoluteLimitImpulse) {
-            maximumAbsoluteLimitImpulse = absoluteImpulse;
-            maximumAbsoluteLimitImpulseDof = limitDofs[limit];
-        }
-    }
-    if ((dispatch.flags & MR_NUMI_HUMAN_STAND_EXPORT_SOURCE_LIMIT_IMPULSES) != 0u) {
-        for (uint dof = 0u; dof < nv; ++dof)
-            sourceLimitImpulseEvidence[dof] = 0.0f;
-        for (uint limit = 0u; limit < limitCount; ++limit)
-            sourceLimitImpulseEvidence[limitDofs[limit]] +=
-                limitAccumulatedImpulses[limit];
-    }
-    for (uint dof = 0u; dof < nv; ++dof) {
-        bias[nv + dof] = candidateV[dof];
-        bias[2u * nv + dof] = workspace[dof];
-    }
-    for (uint row = 0u; row < equalityCount; ++row)
-        equalityPivots[equalityCount + row] = equalityRhs[row];
-    status.completedSteps = dispatch.stepIndex + 1u;
-    status.activeContactCount = activeContacts;
-    status.maximumActiveContactCount = max(
-        status.maximumActiveContactCount, activeContacts
-    );
-    status.contactIterations = dispatch.contactIterationCount;
-    status.flags = dispatch.flags;
-    status.contactAndAcceleration.x = min(
-        status.contactAndAcceleration.x, minimumGap
-    );
-    status.contactAndAcceleration.y = max(
-        status.contactAndAcceleration.y, maximumPenetration
-    );
-    status.contactAndAcceleration.z = totalNormalImpulse;
-    if (maximumAcceleration > status.contactAndAcceleration.w ||
-        status.jointEqualityCounts.w == MR_INVALID_INDEX) {
-        status.contactAndAcceleration.w = maximumAcceleration;
-        status.jointEqualityCounts.w = maximumAccelerationDof;
-    }
-    if (maximumFreeAcceleration > status.velocityDiagnostics.x ||
-        status.velocityDiagnosticOwners.x == MR_INVALID_INDEX) {
-        status.velocityDiagnostics.x = maximumFreeAcceleration;
-        status.velocityDiagnosticOwners.x = maximumFreeAccelerationDof;
-    }
-    if (maximumConstraintVelocityDelta > status.velocityDiagnostics.y ||
-        status.velocityDiagnosticOwners.y == MR_INVALID_INDEX) {
-        status.velocityDiagnostics.y = maximumConstraintVelocityDelta;
-        status.velocityDiagnosticOwners.y = maximumConstraintVelocityDeltaDof;
-    }
-    if (maximumPreProjectionVelocityDelta > status.velocityDiagnostics.z ||
-        status.velocityDiagnosticOwners.z == MR_INVALID_INDEX) {
-        status.velocityDiagnostics.z = maximumPreProjectionVelocityDelta;
-        status.velocityDiagnosticOwners.z = maximumPreProjectionVelocityDeltaDof;
-    }
-    if (maximumPublishedVelocityDelta > status.velocityDiagnostics.w ||
-        status.velocityDiagnosticOwners.w == MR_INVALID_INDEX) {
-        status.velocityDiagnostics.w = maximumPublishedVelocityDelta;
-        status.velocityDiagnosticOwners.w = maximumPublishedVelocityDeltaDof;
-    }
-    status.factorAndAssistance.x = min(
-        status.factorAndAssistance.x, minimumPivot
-    );
-    status.factorAndAssistance.y = max(
-        status.factorAndAssistance.y, maximumPivot
-    );
-    status.factorAndAssistance.z = max(
-        status.factorAndAssistance.z, length(assistanceForce)
-    );
-    status.factorAndAssistance.w = max(
-        status.factorAndAssistance.w, length(assistanceTorque)
-    );
-    status.jointEqualityCounts.x = dispatch.jointEqualityCount;
-    status.jointEqualityCounts.y = max(
-        status.jointEqualityCounts.y, dispatch.jointEqualityCount
-    );
-    status.jointEqualityDiagnostics.x = max(
-        status.jointEqualityDiagnostics.x, maximumEqualityPositionError
-    );
-    status.jointEqualityDiagnostics.y = max(
-        status.jointEqualityDiagnostics.y, maximumEqualityVelocityError
-    );
-    status.jointEqualityDiagnostics.z = max(
-        status.jointEqualityDiagnostics.z, maximumEqualityImpulse
-    );
-    status.jointEqualityDiagnostics.w += totalEqualityImpulse;
-    if (maximumNormalImpulse > status.constraintImpulseDiagnostics.x) {
-        status.constraintImpulseDiagnostics.x = maximumNormalImpulse;
-        status.constraintImpulseOwners.x = maximumNormalImpulseContact;
-    }
-    if (maximumTangentialImpulse > status.constraintImpulseDiagnostics.y) {
-        status.constraintImpulseDiagnostics.y = maximumTangentialImpulse;
-        status.constraintImpulseOwners.y = maximumTangentialImpulseContact;
-    }
-    if (maximumAbsoluteLimitImpulse > status.constraintImpulseDiagnostics.z) {
-        status.constraintImpulseDiagnostics.z = maximumAbsoluteLimitImpulse;
-        status.constraintImpulseOwners.z = maximumAbsoluteLimitImpulseDof;
-    }
-    status.constraintImpulseDiagnostics.w += totalAbsoluteLimitImpulse;
-    if (maximumEqualityImpulse > 0.0f &&
-        maximumEqualityImpulse >= status.jointEqualityDiagnostics.z) {
-        status.constraintImpulseOwners.w = maximumEqualityImpulseIndex;
-    }
-    status.constraintImpulseWorkDiagnostics += float4(
-        contactNormalImpulseWork,
-        contactTangentialImpulseWork,
-        equalityImpulseWork,
-        sourceLimitImpulseWork
-    );
-    status.constraintImpulseAbsoluteWorkDiagnostics += float4(
-        contactNormalAbsoluteImpulseWork,
-        contactTangentialAbsoluteImpulseWork,
-        equalityAbsoluteImpulseWork,
-        sourceLimitAbsoluteImpulseWork
-    );
-    status.jointEqualityProjectionDiagnostics.x = max(
-        status.jointEqualityProjectionDiagnostics.x,
-        maximumEqualityPositionProjection
-    );
-    status.jointEqualityProjectionDiagnostics.y +=
-        totalEqualityPositionProjection;
-    status.jointEqualityProjectionDiagnostics.z = max(
-        status.jointEqualityProjectionDiagnostics.z,
-        maximumEqualityVelocityProjection
-    );
-    status.jointEqualityProjectionDiagnostics.w +=
-        totalEqualityVelocityProjection;
-    const float maximumPreProjectionConstraintResidual = max(
-        maximumPreProjectionContactResidual,
-        max(
-            maximumPreProjectionLimitResidual,
-            maximumPreProjectionEqualityResidual
-        )
-    );
-    const float maximumPostProjectionConstraintResidual = max(
-        maximumPostProjectionContactResidual,
-        max(
-            maximumPostProjectionLimitResidual,
-            maximumPostProjectionEqualityResidual
-        )
-    );
-    status.preProjectionPreStepConstraintDiagnostics.x = max(
-        status.preProjectionPreStepConstraintDiagnostics.x,
-        maximumPreProjectionContactResidual
-    );
-    status.preProjectionPreStepConstraintDiagnostics.y = max(
-        status.preProjectionPreStepConstraintDiagnostics.y,
-        maximumPreProjectionLimitResidual
-    );
-    status.preProjectionPreStepConstraintDiagnostics.z = max(
-        status.preProjectionPreStepConstraintDiagnostics.z,
-        maximumPreProjectionEqualityResidual
-    );
-    status.preProjectionPreStepConstraintDiagnostics.w = max(
-        status.preProjectionPreStepConstraintDiagnostics.w,
-        maximumPreProjectionConstraintResidual
-    );
-    status.postProjectionPreStepConstraintDiagnostics.x = max(
-        status.postProjectionPreStepConstraintDiagnostics.x,
-        maximumPostProjectionContactResidual
-    );
-    status.postProjectionPreStepConstraintDiagnostics.y = max(
-        status.postProjectionPreStepConstraintDiagnostics.y,
-        maximumPostProjectionLimitResidual
-    );
-    status.postProjectionPreStepConstraintDiagnostics.z = max(
-        status.postProjectionPreStepConstraintDiagnostics.z,
-        maximumPostProjectionEqualityResidual
-    );
-    status.postProjectionPreStepConstraintDiagnostics.w = max(
-        status.postProjectionPreStepConstraintDiagnostics.w,
-        maximumPostProjectionConstraintResidual
-    );
+    threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+    if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
+#include "NumiHumanStandSolve.metalinc"
 }
 
 // Ordinary stand/tendon accepted-step owner. Derived poses/routes/factors are

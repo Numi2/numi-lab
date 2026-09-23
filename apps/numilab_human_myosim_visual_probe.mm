@@ -5479,7 +5479,14 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         .pointJacobiansOnly = true,
         .mujocoActivationTimestepSeconds = static_cast<float>(timestepSeconds),
         .readStandConstraintDiagnostics = endpointEnergy,
+        .splitStandSolve = [] {
+            const char* requested = std::getenv("NUMI_HUMAN_SPLIT_STAND");
+            return requested != nullptr && std::strcmp(requested, "1") == 0;
+        }(),
     };
+    std::cout << "human_stand_solver_path="
+              << (config.splitStandSolve ? "split_candidate" : "monolithic")
+              << '\n';
     metalrobo::MetalArticulatedOperatorContext context(config);
     metalrobo::MetalArticulatedOperatorInput input{
         .articulationIndex = 0u,

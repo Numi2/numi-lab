@@ -829,6 +829,7 @@ add_custom_command(
         "${METALROBO_ARTICULATED_ABA_SOURCE}"
         "${METALROBO_FUNCTION_BASED_DENSE_DYNAMICS_SOURCE}"
         "${METALROBO_NUMI_HUMAN_STAND_SOURCE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/NumiHumanStandSolve.metalinc"
         "${METALROBO_NUMI_HUMAN_TENDON_TRANSFER_SOURCE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numi_human_tendon_gpu.h"
         "${METALROBO_NUMI_HUMAN_EXTENSOR_HOOD_SOURCE}"

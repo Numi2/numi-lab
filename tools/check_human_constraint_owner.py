@@ -6,7 +6,10 @@ This guard does not certify physical standing or temporal convergence.
 from pathlib import Path
 
 root = Path(__file__).resolve().parents[1]
-kernel = (root / "src/metal/NumiHumanStand.metal").read_text()
+kernel = (
+    (root / "src/metal/NumiHumanStand.metal").read_text() +
+    (root / "src/metal/NumiHumanStandSolve.metalinc").read_text()
+)
 runner = (root / "apps/numilab_human_myosim_visual_probe.mm").read_text()
 
 

@@ -42,6 +42,9 @@ enum MRNumiHumanStandFlags {
     // Diagnostic only: export final signed source-limit multipliers by DOF
     // after the coupled solve. The default stand path performs no such write.
     MR_NUMI_HUMAN_STAND_EXPORT_SOURCE_LIMIT_IMPULSES = 1u << 6u,
+    // Internal split owner phase. Assemble/factor the current source state and
+    // leave q/v untouched for a following device-resident solve dispatch.
+    MR_NUMI_HUMAN_STAND_PREPARE_ONLY = 1u << 7u,
 };
 
 // One source-authored support witness. The point-query index addresses the

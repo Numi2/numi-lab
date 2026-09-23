@@ -145,6 +145,7 @@ constexpr std::size_t kMujocoRoutesBuffer = 29u;
 constexpr std::size_t kMujocoResultsBuffer = 30u;
 constexpr NSUInteger kThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kStandThreadsPerThreadgroup = 256u;
+constexpr NSUInteger kStandFinishThreadsPerThreadgroup = 32u;
 constexpr float kQuaternionHostTolerance = 1.9e-5f;
 constexpr std::uint64_t kShaderAddressableElements =
     static_cast<std::uint64_t>(
@@ -382,6 +383,7 @@ struct MetalArticulatedOperatorContextState {
     __strong id<MTLComputePipelineState> mujocoReducePipeline = nil;
     __strong id<MTLComputePipelineState> mujocoActivationPipeline = nil;
     __strong id<MTLComputePipelineState> standPipeline = nil;
+    __strong id<MTLComputePipelineState> standFinishPipeline = nil;
     __strong id<MTLComputePipelineState> standReconcilePipeline = nil;
     __strong id<MTLComputePipelineState> tendonPipeline = nil;
     __strong id<MTLComputePipelineState> tendonCompensatedPipeline = nil;
@@ -3243,6 +3245,23 @@ MetalArticulatedOperatorDiagnostics initializeContext(
                 describeError(error)
         );
     }
+    id<MTLComputePipelineState> standFinishPipeline = nil;
+    if (context.config.splitStandSolve) {
+        id<MTLFunction> standFinishFunction = [library
+            newFunctionWithName:@"mr_numi_human_stand_finish"];
+        error = nil;
+        standFinishPipeline = standFinishFunction == nil
+            ? nil : [device newComputePipelineStateWithFunction:standFinishFunction
+                                                         error:&error];
+        if (standFinishPipeline == nil ||
+            standFinishPipeline.maxTotalThreadsPerThreadgroup <
+                kStandFinishThreadsPerThreadgroup) {
+            return reject(std::move(diagnostics),
+                MetalArticulatedOperatorHostStatus::metalPipelineFailure,
+                "failed to create Numi Human stand completion pipeline: " +
+                    describeError(error));
+        }
+    }
     id<MTLFunction> reconcileFunction = [library
         newFunctionWithName:@"mr_numi_human_stand_reconcile"];
     if (reconcileFunction == nil) {
@@ -3309,6 +3328,7 @@ MetalArticulatedOperatorDiagnostics initializeContext(
     context.mujocoReducePipeline = mujocoReducePipeline;
     context.mujocoActivationPipeline = mujocoActivationPipeline;
     context.standPipeline = standPipeline;
+    context.standFinishPipeline = standFinishPipeline;
     context.standReconcilePipeline = reconcilePipeline;
     id<MTLFunction> tendonCompensatedFunction = [library
         newFunctionWithName:@"mr_numi_human_tendon_transfer_compensated"];
@@ -10375,70 +10395,84 @@ MetalArticulatedOperatorContext::submit(
                         authoritativeStep,
                         state_->config.readStandConstraintDiagnostics
                     );
-
-                id<MTLComputeCommandEncoder> standEncoder =
-                    humanTimedEncoder(commandBuffer, state_->device, "stand", authoritativeStep);
-                if (standEncoder == nil) {
-                    return reject(
-                        std::move(diagnostics),
-                        MetalArticulatedOperatorHostStatus::metalCommandFailure,
-                        "failed to create Numi Human stand encoder"
-                    );
+                const bool splitStand = state_->config.splitStandSolve;
+                for (std::uint32_t phase = 0u;
+                     phase < (splitStand ? 2u : 1u); ++phase) {
+                    MRNumiHumanStandDispatchGPU phaseDispatch = standDispatch;
+                    if (splitStand && phase == 0u)
+                        phaseDispatch.flags |= MR_NUMI_HUMAN_STAND_PREPARE_ONLY;
+                    const char* stageName = !splitStand ? "stand" :
+                        (phase == 0u ? "stand_prepare" : "stand_finish");
+                    id<MTLComputeCommandEncoder> standEncoder =
+                        humanTimedEncoder(commandBuffer, state_->device,
+                                          stageName, authoritativeStep);
+                    if (standEncoder == nil) {
+                        return reject(
+                            std::move(diagnostics),
+                            MetalArticulatedOperatorHostStatus::metalCommandFailure,
+                            "failed to create Numi Human stand encoder"
+                        );
+                    }
+                    [standEncoder setComputePipelineState:
+                        splitStand && phase == 1u
+                            ? state_->standFinishPipeline
+                            : state_->standPipeline];
+                    [standEncoder setBuffer:state_->standBuffers[kStandRootTranslationBuffer] offset:0u atIndex:21u];
+                    [standEncoder setBuffer:state_->standBuffers[kStandBodyPositionLowBuffer] offset:0u atIndex:22u];
+                    [standEncoder setBuffer:state_->standBuffers[kStandPointPositionLowBuffer] offset:0u atIndex:23u];
+                    [standEncoder setBuffer:state_->standBuffers[kStandPassiveJointBuffer] offset:0u atIndex:24u];
+                    // The physical stand never writes the witness. Generic stand
+                    // submissions bind a safe float sentinel because the v7
+                    // witness arena exists only for a Human/Matter transaction.
+                    [standEncoder setBuffer:
+                        state_->humanMatterBuffers[
+                            kHumanMatterSourceDynamicsWitnessBuffer] != nil
+                            ? state_->humanMatterBuffers[
+                                  kHumanMatterSourceDynamicsWitnessBuffer]
+                            : state_->standBuffers[kStandPassiveJointBuffer]
+                        offset:0u atIndex:25u];
+                    [standEncoder setBuffer:state_->buffers[0u] offset:0u atIndex:0u];
+                    [standEncoder setBuffer:state_->buffers[1u] offset:0u atIndex:1u];
+                    [standEncoder setBuffer:state_->buffers[3u] offset:0u atIndex:2u];
+                    [standEncoder setBuffer:state_->buffers[4u] offset:0u atIndex:3u];
+                    [standEncoder setBytes:&phaseDispatch
+                                     length:sizeof(phaseDispatch)
+                                    atIndex:4u];
+                    [standEncoder setBuffer:state_->buffers[6u] offset:0u atIndex:5u];
+                    [standEncoder setBuffer:state_->standBuffers[kStandVelocityBuffer]
+                                      offset:0u atIndex:6u];
+                    [standEncoder setBuffer:state_->buffers[8u] offset:0u atIndex:7u];
+                    [standEncoder setBuffer:state_->buffers[9u] offset:0u atIndex:8u];
+                    [standEncoder setBuffer:state_->buffers[11u] offset:0u atIndex:9u];
+                    [standEncoder setBuffer:state_->buffers[kMillardForcesBuffer]
+                                      offset:0u atIndex:10u];
+                    for (NSUInteger index = kStandContactsBuffer;
+                         index <= kStandStatusBuffer; ++index) {
+                        [standEncoder setBuffer:state_->standBuffers[index]
+                                          offset:0u
+                                         atIndex:10u + index];
+                    }
+                    [standEncoder setBuffer:state_->standBuffers[
+                        kStandTendonBindingsBuffer] offset:0u atIndex:18u];
+                    [standEncoder setBuffer:state_->standBuffers[
+                        kStandTendonTransfersBuffer] offset:0u atIndex:19u];
+                    [standEncoder setBuffer:state_->standBuffers[
+                        kStandJointEqualitiesBuffer] offset:0u atIndex:20u];
+                    [standEncoder
+                        dispatchThreadgroups:MTLSizeMake(
+                            static_cast<NSUInteger>(input.environmentCount),
+                            1u,
+                            1u
+                        )
+                        threadsPerThreadgroup:MTLSizeMake(
+                            splitStand && phase == 1u
+                                ? kStandFinishThreadsPerThreadgroup
+                                : kStandThreadsPerThreadgroup,
+                            1u,
+                            1u
+                        )];
+                    [standEncoder endEncoding];
                 }
-                [standEncoder setComputePipelineState:state_->standPipeline];
-                [standEncoder setBuffer:state_->standBuffers[kStandRootTranslationBuffer] offset:0u atIndex:21u];
-                [standEncoder setBuffer:state_->standBuffers[kStandBodyPositionLowBuffer] offset:0u atIndex:22u];
-                [standEncoder setBuffer:state_->standBuffers[kStandPointPositionLowBuffer] offset:0u atIndex:23u];
-                [standEncoder setBuffer:state_->standBuffers[kStandPassiveJointBuffer] offset:0u atIndex:24u];
-                // The physical stand never writes the witness. Generic stand
-                // submissions bind a safe float sentinel because the v7
-                // witness arena exists only for a Human/Matter transaction.
-                [standEncoder setBuffer:
-                    state_->humanMatterBuffers[
-                        kHumanMatterSourceDynamicsWitnessBuffer] != nil
-                        ? state_->humanMatterBuffers[
-                              kHumanMatterSourceDynamicsWitnessBuffer]
-                        : state_->standBuffers[kStandPassiveJointBuffer]
-                    offset:0u atIndex:25u];
-                [standEncoder setBuffer:state_->buffers[0u] offset:0u atIndex:0u];
-                [standEncoder setBuffer:state_->buffers[1u] offset:0u atIndex:1u];
-                [standEncoder setBuffer:state_->buffers[3u] offset:0u atIndex:2u];
-                [standEncoder setBuffer:state_->buffers[4u] offset:0u atIndex:3u];
-                [standEncoder setBytes:&standDispatch
-                                 length:sizeof(standDispatch)
-                                atIndex:4u];
-                [standEncoder setBuffer:state_->buffers[6u] offset:0u atIndex:5u];
-                [standEncoder setBuffer:state_->standBuffers[kStandVelocityBuffer]
-                                  offset:0u atIndex:6u];
-                [standEncoder setBuffer:state_->buffers[8u] offset:0u atIndex:7u];
-                [standEncoder setBuffer:state_->buffers[9u] offset:0u atIndex:8u];
-                [standEncoder setBuffer:state_->buffers[11u] offset:0u atIndex:9u];
-                [standEncoder setBuffer:state_->buffers[kMillardForcesBuffer]
-                                  offset:0u atIndex:10u];
-                for (NSUInteger index = kStandContactsBuffer;
-                     index <= kStandStatusBuffer; ++index) {
-                    [standEncoder setBuffer:state_->standBuffers[index]
-                                      offset:0u
-                                     atIndex:10u + index];
-                }
-                [standEncoder setBuffer:state_->standBuffers[
-                    kStandTendonBindingsBuffer] offset:0u atIndex:18u];
-                [standEncoder setBuffer:state_->standBuffers[
-                    kStandTendonTransfersBuffer] offset:0u atIndex:19u];
-                [standEncoder setBuffer:state_->standBuffers[
-                    kStandJointEqualitiesBuffer] offset:0u atIndex:20u];
-                [standEncoder
-                    dispatchThreadgroups:MTLSizeMake(
-                        static_cast<NSUInteger>(input.environmentCount),
-                        1u,
-                        1u
-                    )
-                    threadsPerThreadgroup:MTLSizeMake(
-                        kStandThreadsPerThreadgroup,
-                        1u,
-                        1u
-                    )];
-                [standEncoder endEncoding];
 
                 if (input.stand.numanXHumanMatterProgram.valid()) {
                     MRArticulatedOperatorDispatchGPU refreshed = diagnostics.layout.dispatch;
