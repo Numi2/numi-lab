@@ -2458,6 +2458,11 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
                         vectorPerEnvironment) ||
             !checkedAdd(vectorPerEnvironment, constraintVectorElements,
                         vectorPerEnvironment) ||
+            // The opt-in diagnostic keeps final signed source-limit impulses
+            // after the existing contact/equality arena, one float per DOF.
+            (config.readStandConstraintDiagnostics &&
+             !checkedAdd(vectorPerEnvironment, articulation.nv,
+                         vectorPerEnvironment)) ||
             !checkedMultiply(input.environmentCount, vectorPerEnvironment,
                              layout.standVectorElements) ||
             !checkedMultiply(input.stand.contacts.size(), 3u,
@@ -5308,7 +5313,8 @@ struct MetalBufferRegion {
     const MetalArticulatedOperatorLayout& layout,
     const MRArticulationGPU& articulation,
     const float timestepSeconds,
-    const std::uint32_t stepIndex
+    const std::uint32_t stepIndex,
+    const bool exportSourceLimitImpulses
 ) noexcept {
     MRNumiHumanStandDispatchGPU dispatch{};
     dispatch.abiVersion = MR_NUMI_HUMAN_STAND_ABI_VERSION;
@@ -5361,6 +5367,9 @@ struct MetalBufferRegion {
     }
     if (!input.stand.passiveJointProgram.empty()) {
         dispatch.flags |= MR_NUMI_HUMAN_STAND_HAS_PASSIVE_JOINT_PROGRAM;
+    }
+    if (exportSourceLimitImpulses) {
+        dispatch.flags |= MR_NUMI_HUMAN_STAND_EXPORT_SOURCE_LIMIT_IMPULSES;
     }
     dispatch.groundPointAndTimestep = {
         input.stand.groundPoint.x,
@@ -8357,6 +8366,7 @@ MetalArticulatedOperatorSubmission::wait(
                 pending->context->standBuffers[kStandSpatialJacobianBuffer].contents);
             staged.standContactImpulses.resize(environments * 3u * contacts);
             staged.standJointEqualityImpulses.resize(environments * equalities);
+            staged.standSourceLimitImpulses.resize(environments * nv);
             staged.standJointEqualityDerivatives.resize(environments * equalities);
             staged.standFreeVelocity.resize(environments * nv);
             staged.standPreviousVelocity.resize(environments * nv);
@@ -8366,11 +8376,20 @@ MetalArticulatedOperatorSubmission::wait(
                     staged.standContactImpulses.begin() + env * 3u * contacts);
                 std::copy_n(row + 4u * nv + 3u * contacts, equalities,
                     staged.standJointEqualityImpulses.begin() + env * equalities);
+                std::copy_n(row + 4u * nv + 12u * contacts + equalities, nv,
+                    staged.standSourceLimitImpulses.begin() + env * nv);
                 std::copy_n(spatial + env * pending->articulation.bodyCount *
                     MR_NUMI_HUMAN_STAND_SPATIAL_SCRATCH_ROWS * nv, equalities,
                     staged.standJointEqualityDerivatives.begin() + env * equalities);
                 std::copy_n(row + nv, nv, staged.standFreeVelocity.begin() + env * nv);
                 std::copy_n(row + 3u * nv, nv, staged.standPreviousVelocity.begin() + env * nv);
+            }
+            if (!std::all_of(staged.standSourceLimitImpulses.begin(),
+                             staged.standSourceLimitImpulses.end(),
+                             [](const float value) { return std::isfinite(value); })) {
+                return reject(std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::internalFailure,
+                    "GPU Numi Human source-limit impulse evidence is non-finite");
             }
         }
         if (diagnostics.failedEnvironmentCount == 0u &&
@@ -10184,7 +10203,8 @@ MetalArticulatedOperatorContext::submit(
                         diagnostics.layout,
                         articulation,
                         state_->config.mujocoActivationTimestepSeconds,
-                        authoritativeStep
+                        authoritativeStep,
+                        state_->config.readStandConstraintDiagnostics
                     );
                 MRNumiHumanStandDispatchGPU predictorDispatch = sourceStandDispatch;
                 predictorDispatch.flags |= MR_NUMI_HUMAN_STAND_PREDICT_VELOCITY_ONLY;
@@ -10308,7 +10328,8 @@ MetalArticulatedOperatorContext::submit(
                         diagnostics.layout,
                         articulation,
                         state_->config.mujocoActivationTimestepSeconds,
-                        authoritativeStep
+                        authoritativeStep,
+                        state_->config.readStandConstraintDiagnostics
                     );
 
                 id<MTLComputeCommandEncoder> standEncoder =

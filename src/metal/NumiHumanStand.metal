@@ -237,7 +237,9 @@ kernel void mr_numi_human_stand_step(
     const uint bodyMotionBase = environment * bodyCount * 2u;
     const uint factorBase = environment * nv * nv;
     const uint vectorStride = nv + 3u * nv +
-        12u * dispatch.supportContactCount + dispatch.jointEqualityCount;
+        12u * dispatch.supportContactCount + dispatch.jointEqualityCount +
+        (((dispatch.flags & MR_NUMI_HUMAN_STAND_EXPORT_SOURCE_LIMIT_IMPULSES) != 0u)
+            ? nv : 0u);
     const uint preloadBase = environment * vectorStride;
     const uint vectorBase = preloadBase + nv;
     const uint equalityCount = dispatch.jointEqualityCount;
@@ -268,6 +270,8 @@ kernel void mr_numi_human_stand_step(
         lambdas + 3u * dispatch.supportContactCount;
     device float* contactMatrices =
         equalityLambdas + dispatch.jointEqualityCount;
+    device float* sourceLimitImpulseEvidence =
+        contactMatrices + 9u * dispatch.supportContactCount;
     device float* factor = factorScratch + factorBase;
     const bool captureSourceDynamics =
         (dispatch.flags & MR_NUMI_HUMAN_STAND_PREDICT_VELOCITY_ONLY) != 0u;
@@ -336,7 +340,8 @@ kernel void mr_numi_human_stand_step(
                 MR_NUMI_HUMAN_STAND_HAS_TENDON_LOADS |
                 MR_NUMI_HUMAN_STAND_HAS_JOINT_EQUALITIES |
                 MR_NUMI_HUMAN_STAND_PREDICT_VELOCITY_ONLY |
-                MR_NUMI_HUMAN_STAND_HAS_PASSIVE_JOINT_PROGRAM
+                MR_NUMI_HUMAN_STAND_HAS_PASSIVE_JOINT_PROGRAM |
+                MR_NUMI_HUMAN_STAND_EXPORT_SOURCE_LIMIT_IMPULSES
             )) != 0u ||
             ((dispatch.flags & MR_NUMI_HUMAN_STAND_PREDICT_VELOCITY_ONLY) != 0u &&
              ((dispatch.flags & (MR_NUMI_HUMAN_STAND_ENABLE_CONTACT |
@@ -1867,6 +1872,13 @@ kernel void mr_numi_human_stand_step(
             maximumAbsoluteLimitImpulse = absoluteImpulse;
             maximumAbsoluteLimitImpulseDof = limitDofs[limit];
         }
+    }
+    if ((dispatch.flags & MR_NUMI_HUMAN_STAND_EXPORT_SOURCE_LIMIT_IMPULSES) != 0u) {
+        for (uint dof = 0u; dof < nv; ++dof)
+            sourceLimitImpulseEvidence[dof] = 0.0f;
+        for (uint limit = 0u; limit < limitCount; ++limit)
+            sourceLimitImpulseEvidence[limitDofs[limit]] +=
+                limitAccumulatedImpulses[limit];
     }
     for (uint dof = 0u; dof < nv; ++dof) {
         bias[nv + dof] = candidateV[dof];

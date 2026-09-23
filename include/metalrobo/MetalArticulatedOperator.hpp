@@ -1786,8 +1786,9 @@ struct MetalArticulatedOperatorConfig {
     // MetalRobo dylib, with the configured build-tree path as a fallback.
     // A non-empty path is an explicit trusted ABI-compatible override.
     std::string metallibPath;
-    // Read-only final-step constraint evidence, published through the same
-    // accepted-result boundary. No additional device passes or physics writes.
+    // Read-only final-step constraint evidence, including signed source-limit
+    // multipliers by DOF, published through the accepted-result boundary.
+    // The extra device write is enabled only for this diagnostic path.
     bool readStandConstraintDiagnostics = false;
 };
 
@@ -1978,9 +1979,12 @@ struct MetalArticulatedOperatorResult {
     // equalities include reactions induced by source limits. Derivatives are
     // the exact native pre-step linearization. pointJacobians/MyoSim forces
     // likewise describe that step's pre-dynamics evaluation, not terminal q.
-    // Direct source-limit multipliers are not exported by this interface.
+    // The optional direct source-limit multipliers are signed generalized
+    // impulses indexed by DOF. Equality reactions induced by limits remain
+    // in standJointEqualityImpulses and are not folded into this array.
     std::vector<float> standContactImpulses;
     std::vector<float> standJointEqualityImpulses;
+    std::vector<float> standSourceLimitImpulses;
     std::vector<float> standJointEqualityDerivatives;
     std::vector<float> standFreeVelocity;
     std::vector<float> standPreviousVelocity;

@@ -4527,6 +4527,7 @@ struct HumanEndpointEnergy {
     double gravityBefore = 0.0, gravityAfter = 0.0;
     double muscleWork = 0.0, jointDampingWork = 0.0, bodyDampingWork = 0.0;
     double contactNormalWork = 0.0, contactTangentialWork = 0.0, equalityWork = 0.0;
+    double sourceLimitWork = 0.0;
 };
 
 HumanEndpointEnergy measureHumanEndpointEnergy(
@@ -4544,6 +4545,7 @@ HumanEndpointEnergy measureHumanEndpointEnergy(
                 accepted.mujocoGeneralizedForces.size() == nv &&
                 accepted.standContactImpulses.size() == 3u * input.stand.contacts.size() &&
                 accepted.standJointEqualityImpulses.size() == input.stand.jointEqualities.size() &&
+                accepted.standSourceLimitImpulses.size() == nv &&
                 accepted.standJointEqualityDerivatives.size() == input.stand.jointEqualities.size(),
             "endpoint energy requires one complete accepted native step");
     require(std::memcmp(input.stand.v.data(), accepted.standPreviousVelocity.data(),
@@ -4633,9 +4635,12 @@ HumanEndpointEnergy measureHumanEndpointEnergy(
             rowVelocity -= accepted.standJointEqualityDerivatives[row] * midpoint[equality.indices.w];
         energy.equalityWork += accepted.standJointEqualityImpulses[row] * rowVelocity;
     }
+    for (std::size_t dof = 0u; dof < nv; ++dof)
+        energy.sourceLimitWork += accepted.standSourceLimitImpulses[dof] * midpoint[dof];
     require(std::isfinite(energy.muscleWork) && std::isfinite(energy.bodyDampingWork) &&
                 std::isfinite(energy.jointDampingWork) && std::isfinite(energy.contactNormalWork) &&
-                std::isfinite(energy.contactTangentialWork) && std::isfinite(energy.equalityWork),
+                std::isfinite(energy.contactTangentialWork) && std::isfinite(energy.equalityWork) &&
+                std::isfinite(energy.sourceLimitWork),
             "accepted endpoint work diagnostic is non-finite");
     return energy;
 }
@@ -6014,7 +6019,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         double elapsedMilliseconds = 0.0;
         double energyMuscleWork = 0.0, energyJointDampingWork = 0.0, energyBodyDampingWork = 0.0;
         double energyNormalWork = 0.0, energyTangentialWork = 0.0, energyEqualityWork = 0.0;
-        double energySolverEqualityWork = 0.0;
+        double energySourceLimitWork = 0.0;
+        double energySolverEqualityWork = 0.0, energySolverSourceLimitWork = 0.0;
         double energyInitialKinetic = 0.0, energyFinalKinetic = 0.0;
         double energyInitialGravity = 0.0, energyFinalGravity = 0.0;
         double energyInitialPassive = 0.0, energyFinalPassive = 0.0;
@@ -6146,8 +6152,10 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 energyNormalWork += energy.contactNormalWork;
                 energyTangentialWork += energy.contactTangentialWork;
                 energyEqualityWork += energy.equalityWork;
+                energySourceLimitWork += energy.sourceLimitWork;
                 const auto& native = segmentResult.standStatuses.front();
                 energySolverEqualityWork += native.constraintImpulseWorkDiagnostics.z;
+                energySolverSourceLimitWork += native.constraintImpulseWorkDiagnostics.w;
                 std::cout << std::setprecision(17)
                           << "human_endpoint_energy=accepted step=" << completedSteps + segmentSteps
                           << " kinetic_before_j=" << energy.kineticBefore
@@ -6162,7 +6170,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                           << " contact_tangential_endpoint_work_j=" << energy.contactTangentialWork
                           << " equality_endpoint_work_j=" << energy.equalityWork
                           << " equality_solver_iterate_work_j=" << native.constraintImpulseWorkDiagnostics.z
-                          << " source_limit_endpoint_work=unavailable"
+                          << " source_limit_endpoint_work_j=" << energy.sourceLimitWork
+                          << " source_limit_solver_iterate_work_j=" << native.constraintImpulseWorkDiagnostics.w
                           << " exact_projection_work=unavailable"
                           << " musculotendon_internal_energy=unavailable"
                           << " closure=not_established" << std::endl;
@@ -6291,7 +6300,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             const double passiveWork = energyInitialPassive - energyFinalPassive;
             const double availableWork = gravityWork + passiveWork + energyMuscleWork +
                 energyJointDampingWork + energyBodyDampingWork + energyNormalWork +
-                energyTangentialWork + energyEqualityWork;
+                energyTangentialWork + energyEqualityWork + energySourceLimitWork;
             std::cout << std::setprecision(17)
                       << "human_endpoint_energy_total=observed accepted_steps=" << completedSteps
                       << " kinetic_before_j=" << energyInitialKinetic
@@ -6306,12 +6315,13 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                       << " contact_tangential_endpoint_work_j=" << energyTangentialWork
                       << " equality_endpoint_work_j=" << energyEqualityWork
                       << " equality_solver_iterate_work_j=" << energySolverEqualityWork
+                      << " source_limit_endpoint_work_j=" << energySourceLimitWork
+                      << " source_limit_solver_iterate_work_j=" << energySolverSourceLimitWork
                       << " unclosed_available_terms_residual_j=" << deltaKinetic - availableWork
                       << " mass_basis=body_inertia_plus_armature_fp64"
                       << " root_basis=accepted_compensated_translation"
                       << " work_quadrature=accepted_endpoint_midpoint"
                       << " constraint_geometry=native_pre_step_linearization"
-                      << " source_limit_endpoint_work=unavailable"
                       << " exact_projection_work=unavailable"
                       << " musculotendon_internal_energy=unavailable"
                       << " integration_bias_and_quadrature_remainder=unresolved"

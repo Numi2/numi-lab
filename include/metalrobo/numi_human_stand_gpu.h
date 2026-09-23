@@ -3,7 +3,7 @@
 #include "metalrobo/engine_types.h"
 #include "metalrobo/numi_human_timed_root_force.h"
 
-#define MR_NUMI_HUMAN_STAND_ABI_VERSION 14u
+#define MR_NUMI_HUMAN_STAND_ABI_VERSION 15u
 // Six spatial Jacobian rows plus three cached world-inertia products.
 #define MR_NUMI_HUMAN_STAND_SPATIAL_SCRATCH_ROWS 9u
 #define MR_NUMI_HUMAN_STAND_MAX_BODIES 192u
@@ -39,6 +39,9 @@ enum MRNumiHumanStandFlags {
     // accepted v. Produce v_free without advancing q or completedSteps.
     MR_NUMI_HUMAN_STAND_PREDICT_VELOCITY_ONLY = 1u << 4u,
     MR_NUMI_HUMAN_STAND_HAS_PASSIVE_JOINT_PROGRAM = 1u << 5u,
+    // Diagnostic only: export final signed source-limit multipliers by DOF
+    // after the coupled solve. The default stand path performs no such write.
+    MR_NUMI_HUMAN_STAND_EXPORT_SOURCE_LIMIT_IMPULSES = 1u << 6u,
 };
 
 // One source-authored support witness. The point-query index addresses the
