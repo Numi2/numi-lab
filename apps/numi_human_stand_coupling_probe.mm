@@ -547,12 +547,14 @@ struct VelocityComparison {
     const std::uint32_t stepCount,
     const bool enableContact,
     const bool includeEquality,
-    const std::uint32_t contactIterationCount = 16u
+    const std::uint32_t contactIterationCount = 16u,
+    const bool splitStandSolve = false
 ) {
     MetalArticulatedOperatorConfig configuration{};
     configuration.pointJacobiansOnly = true;
     configuration.mujocoActivationTimestepSeconds = fixture.timestepSeconds;
     configuration.metallibPath = METALROBO_DEFAULT_METALLIB;
+    configuration.splitStandSolve = splitStandSolve;
     MetalArticulatedOperatorContext context(configuration);
 
     MetalArticulatedOperatorInput input{};
@@ -1459,6 +1461,17 @@ void checkSimultaneousTriadReference() {
                 maximumVelocityDifference <= 1.0e-5,
                 "sixty-four coupled sweeps did not converge toward the FP64 triad reference"
             );
+            const Run split = runHorizon(
+                fixture, 1u, true, true, contactIterationCount, true
+            );
+            require(
+                sameBytes(split.result.standQ, metal.result.standQ) &&
+                sameBytes(split.result.standV, metal.result.standV) &&
+                sameBytes(split.result.mujocoActivationStates,
+                          metal.result.mujocoActivationStates),
+                "cooperative split changed the coupled FP64 triad state"
+            );
+            std::cout << "cooperative_split_triad_byte_identity=true\n";
         }
     }
 }

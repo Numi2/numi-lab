@@ -1,14 +1,30 @@
+#if !defined(MR_NH_COOPERATIVE_FINISH)
     if (lane != 0u) return;
+#endif
     const uint failedCondition = atomic_load_explicit(&responseFailure, memory_order_relaxed);
+#if defined(MR_NH_COOPERATIVE_FINISH)
+    if (lane == 0u && failedCondition != MR_INVALID_INDEX) {
+        fail(status, (failedCondition & 1u) == 0u
+            ? MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED
+            : MR_NUMI_HUMAN_STAND_NONFINITE_RESULT, failedCondition / 2u);
+    }
+    threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+    if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
+#else
     if (failedCondition != MR_INVALID_INDEX) {
         fail(status, (failedCondition & 1u) == 0u
             ? MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED
             : MR_NUMI_HUMAN_STAND_NONFINITE_RESULT, failedCondition / 2u);
         return;
     }
+#endif
 
     float3 assistanceForce{0.0f};
     float3 assistanceTorque{0.0f};
+#if defined(MR_NH_COOPERATIVE_FINISH)
+    if (lane == 0u) {
+        auto prepareAssistance = [&]() {
+#endif
     if ((dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_ROOT_ASSISTANCE) != 0u) {
         assistanceForce = dispatch.assistanceGains.x *
             (dispatch.targetRootPosition.xyz - float3(
@@ -33,8 +49,15 @@
         assistanceTorque = dispatch.assistanceGains.z * 2.0f * error.xyz -
             dispatch.assistanceGains.w * float3(
                 vState[vBase + 3u], vState[vBase + 4u], vState[vBase + 5u]
-            );
+        );
     }
+#if defined(MR_NH_COOPERATIVE_FINISH)
+        };
+        prepareAssistance();
+    }
+    threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+    if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
+#endif
     // Support belongs exclusively to the unilateral impulse solve below.
     // Static support is a retractable warm start, never an additional force.
     // The external disturbance is fixed at episode admission and scheduled
@@ -42,6 +65,12 @@
     const float3 timedRootForce = mrNumiHumanTimedRootForceActive(
         dispatch.timedRootForce, dispatch.stepIndex)
         ? dispatch.timedRootForce.forceNewtons.xyz : float3(0.0f);
+    float maximumFreeAcceleration = 0.0f;
+    uint maximumFreeAccelerationDof = 0u;
+#if defined(MR_NH_COOPERATIVE_FINISH)
+    if (lane == 0u) {
+        auto solveFreeVelocity = [&]() {
+#endif
     for (uint dof = 0u; dof < nv; ++dof) {
         float effort = generalizedForceWorkspace[forceBase + dof] +
             vectorScratch[preloadBase + dof];
@@ -60,8 +89,6 @@
         fail(status, MR_NUMI_HUMAN_STAND_FACTORIZATION_FAILED, MR_INVALID_INDEX);
         return;
     }
-    float maximumFreeAcceleration = 0.0f;
-    uint maximumFreeAccelerationDof = 0u;
     for (uint dof = 0u; dof < nv; ++dof) {
         const float acceleration = abs(candidateV[dof]);
         if (acceleration > maximumFreeAcceleration) {
@@ -90,6 +117,15 @@
         // This is a predictor, never a completed or published physical step.
         return;
     }
+#if defined(MR_NH_COOPERATIVE_FINISH)
+        };
+        solveFreeVelocity();
+    }
+    threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+    if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS ||
+        (dispatch.flags & MR_NUMI_HUMAN_STAND_PREDICT_VELOCITY_ONLY) != 0u)
+        return;
+#endif
 
     uint activeContacts = 0u;
     float minimumGap = INFINITY;
@@ -143,6 +179,10 @@
          coupledSweep < coupledSweepCount;
          ++coupledSweep) {
 
+#if defined(MR_NH_COOPERATIVE_FINISH)
+    if (lane == 0u) {
+        auto solveContacts = [&]() {
+#endif
     if ((dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) != 0u) {
         if (coupledSweep == 0u) {
         for (uint contact = 0u; contact < dispatch.supportContactCount; ++contact) {
@@ -372,12 +412,107 @@
             }
         }
     }
+#if defined(MR_NH_COOPERATIVE_FINISH)
+        };
+        solveContacts();
+    }
+    threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+    if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
+#endif
 
     // Equality rows use the same factored mass matrix as contact. Solving
     // them in the coupled sweep keeps the authored anatomical manifold and
     // active unilateral rows mutually consistent without a hidden motor.
     if ((dispatch.flags & MR_NUMI_HUMAN_STAND_HAS_JOINT_EQUALITIES) != 0u) {
 
+#if defined(MR_NH_COOPERATIVE_FINISH)
+        for (uint refinement = 0u; refinement < 2u; ++refinement) {
+            float refinementWork = 0.0f;
+            if (lane == 0u) {
+                auto solveEqualityBlock = [&]() {
+                    for (uint row = 0u; row < equalityCount; ++row) {
+                        device const MRNumiHumanJointEqualityGPU& equality =
+                            jointEqualities[row];
+                        const float derivative = equalityDerivativeCache[row];
+                        float velocity = candidateV[equality.indices.y];
+                        if (equality.indices.w != MR_INVALID_INDEX)
+                            velocity = fma(-derivative,
+                                candidateV[equality.indices.w], velocity);
+                        workspace[row] = velocity;
+                        equalityRhs[row] =
+                            equalityTargetVelocityCache[row] - velocity;
+                    }
+                    const bool solved = equalityCount <= kCachedEqualityCapacity
+                        ? mrNumiHumanBilateralSolve(equalityFactorStorage,
+                            equalityScale, equalityPivots, equalityRhs,
+                            equalityCount)
+                        : mrNumiHumanBilateralSolve(equalityFactor,
+                            equalityScale, equalityPivots, equalityRhs,
+                            equalityCount);
+                    if (!solved) {
+                        fail(status, MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED,
+                             MR_INVALID_INDEX);
+                        return;
+                    }
+                    for (uint row = 0u; row < equalityCount; ++row) {
+                        refinementWork = fma(0.5f * equalityRhs[row],
+                                             workspace[row], refinementWork);
+                        equalityLambdas[row] += equalityRhs[row];
+                    }
+                };
+                solveEqualityBlock();
+            }
+            threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+            if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
+            // Each lane owns disjoint DOFs. The equality order and FP32 fma
+            // sequence for any one DOF remain identical to the scalar path.
+            for (uint dof = lane; dof < nv; dof += threadCount) {
+                float correction = 0.0f;
+                if (cacheEqualityResponseByDof) {
+                    device const float* responses =
+                        equalityResponseByDof + dof * equalityCount;
+                    for (uint row = 0u; row < equalityCount; ++row)
+                        correction = fma(equalityRhs[row], responses[row],
+                                         correction);
+                } else {
+                    for (uint row = 0u; row < equalityCount; ++row) {
+                        device const float* response = responseScratch +
+                            responseBase +
+                            (3u * dispatch.supportContactCount + row) * nv;
+                        correction = fma(equalityRhs[row], response[dof],
+                                         correction);
+                    }
+                }
+                candidateV[dof] += correction;
+            }
+            threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+            if (lane == 0u) {
+                auto recordEqualityWork = [&]() {
+                    for (uint row = 0u; row < equalityCount; ++row) {
+                        device const MRNumiHumanJointEqualityGPU& equality =
+                            jointEqualities[row];
+                        const float derivative = equalityDerivativeCache[row];
+                        float velocity = candidateV[equality.indices.y];
+                        if (equality.indices.w != MR_INVALID_INDEX)
+                            velocity = fma(-derivative,
+                                candidateV[equality.indices.w], velocity);
+                        refinementWork = fma(0.5f * equalityRhs[row],
+                                             velocity, refinementWork);
+                    }
+                    if (!isfinite(refinementWork)) {
+                        fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT,
+                             MR_INVALID_INDEX);
+                        return;
+                    }
+                    equalityImpulseWork += refinementWork;
+                    equalityAbsoluteImpulseWork += abs(refinementWork);
+                };
+                recordEqualityWork();
+            }
+            threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+            if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
+        }
+#else
         // Recompute the actual velocity residual for a refinement correction.
         // This is still the same E M_eff^-1 E^T block and impulse ownership.
         for (uint refinement=0u; refinement<2u; ++refinement) {
@@ -450,8 +585,13 @@
             equalityImpulseWork += refinementWork;
             equalityAbsoluteImpulseWork += abs(refinementWork);
         }
+#endif
     }
 
+#if defined(MR_NH_COOPERATIVE_FINISH)
+    if (lane == 0u) {
+        auto solveLimits = [&]() {
+#endif
     if ((dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) != 0u) {
     // Source-authored scalar position limits are unilateral generalized
     // constraints. Static Human recruitment may rely on their reaction; a
@@ -601,9 +741,19 @@
     }
 
     }
+#if defined(MR_NH_COOPERATIVE_FINISH)
+        };
+        solveLimits();
+    }
+    threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+    if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
+#endif
 
     }
 
+#if defined(MR_NH_COOPERATIVE_FINISH)
+    if (lane != 0u) return;
+#endif
     // Final equality evidence includes full-block limit corrections.
         if ((dispatch.flags & MR_NUMI_HUMAN_STAND_HAS_JOINT_EQUALITIES) != 0u) {
         for (uint equalityIndex = 0u;

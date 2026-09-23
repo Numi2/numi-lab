@@ -1002,9 +1002,9 @@ kernel void mr_numi_human_stand_step(
 }
 
 // The split completion entry consumes the prepare phase in the same
-// authoritative command buffer. It is initially algebra-identical
-// to the original lane-zero solve; subsequent cooperative kernels
-// can replace this phase without reassembling source dynamics.
+// authoritative command buffer. Contact and limit decisions retain their
+// ordered owner; equality response updates distribute disjoint DOFs across
+// the SIMD group without changing each DOF's FP32 accumulation order.
 kernel void mr_numi_human_stand_finish(
     device const MRWorldGPU* worlds [[buffer(0)]],
     device const MRArticulationGPU* articulations [[buffer(1)]],
@@ -1135,7 +1135,9 @@ kernel void mr_numi_human_stand_finish(
     }
     threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
     if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
+#define MR_NH_COOPERATIVE_FINISH 1
 #include "NumiHumanStandSolve.metalinc"
+#undef MR_NH_COOPERATIVE_FINISH
 }
 
 // Ordinary stand/tendon accepted-step owner. Derived poses/routes/factors are
