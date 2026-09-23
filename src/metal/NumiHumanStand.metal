@@ -698,6 +698,14 @@ kernel void mr_numi_human_stand_step(
         spatialJacobianScratch + spatialBase;
     device float* equalityTargetVelocityCache =
         equalityDerivativeCache + nv;
+    // The full-body spatial Jacobian is dead after response construction.
+    // Reuse its arena for DOF-major equality responses consumed on every
+    // coupled sweep. The derivative and target prefixes remain intact.
+    device float* equalityResponseByDof =
+        equalityTargetVelocityCache + nv;
+    const bool cacheEqualityResponseByDof =
+        bodyCount * MR_NUMI_HUMAN_STAND_SPATIAL_SCRATCH_ROWS >=
+        2u + equalityCount;
 
     float minimumPivot = INFINITY;
     float maximumPivot = 0.0f;
@@ -959,6 +967,20 @@ kernel void mr_numi_human_stand_step(
         }
     }
     threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+    // Prepare once while all lanes are available. The scalar coupled solve
+    // otherwise fetches one value from each nv-strided response column for
+    // every DOF on every sweep.
+    if (status.code == MR_NUMI_HUMAN_STAND_SUCCESS &&
+        cacheEqualityResponseByDof) {
+        for (uint dof = lane; dof < nv; dof += threadCount) {
+            for (uint row = 0u; row < equalityCount; ++row) {
+                equalityResponseByDof[dof * equalityCount + row] =
+                    responseScratch[responseBase +
+                        (3u * dispatch.supportContactCount + row) * nv + dof];
+            }
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
     // An optional split owner keeps prepared matrices and response columns on
     // the device for a following completion kernel in this command buffer.
     // Report response failures before ending this phase; no state is advanced.
@@ -1076,6 +1098,11 @@ kernel void mr_numi_human_stand_finish(
     if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
     device float* equalityDerivativeCache = spatialJacobianScratch + spatialBase;
     device float* equalityTargetVelocityCache = equalityDerivativeCache + nv;
+    device const float* equalityResponseByDof =
+        equalityTargetVelocityCache + nv;
+    const bool cacheEqualityResponseByDof =
+        bodyCount * MR_NUMI_HUMAN_STAND_SPATIAL_SCRATCH_ROWS >=
+        2u + equalityCount;
     const float timestep = dispatch.groundPointAndTimestep.w;
     float minimumPivot = INFINITY;
     float maximumPivot = 0.0f;

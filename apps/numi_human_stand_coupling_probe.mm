@@ -716,7 +716,7 @@ void checkSplitAuthoritativeHorizon(const Fixture& fixture) {
     expectInvalidRange(1u, 1u, 0u);
     expectInvalidRange(7u, 2u, 8u);
     expectInvalidRange(
-        0u, 1u, MR_NUMI_HUMAN_STAND_MAX_STEPS + 1u);
+        0u, 1u, MR_NUMI_HUMAN_STAND_MAX_HORIZON_STEPS + 1u);
 
     // A nonzero global offset is not a caller-selected label. It must name
     // the exact immediately preceding state and immutable boundary retained

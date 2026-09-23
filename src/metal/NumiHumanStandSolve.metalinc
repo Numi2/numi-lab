@@ -407,14 +407,26 @@
                 );
                 equalityLambdas[row]+=equalityRhs[row];
             }
-            for (uint dof=0u; dof<nv; ++dof) {
-                float correction=0.0f;
-                for (uint row=0u; row<equalityCount; ++row) {
-                    device const float* response=responseScratch+responseBase+
-                        (3u*dispatch.supportContactCount+row)*nv;
-                    correction=fma(equalityRhs[row],response[dof],correction);
+            if (cacheEqualityResponseByDof) {
+                for (uint dof=0u; dof<nv; ++dof) {
+                    float correction=0.0f;
+                    device const float* responses =
+                        equalityResponseByDof + dof * equalityCount;
+                    for (uint row=0u; row<equalityCount; ++row) {
+                        correction=fma(equalityRhs[row],responses[row],correction);
+                    }
+                    candidateV[dof]+=correction;
                 }
-                candidateV[dof]+=correction;
+            } else {
+                for (uint dof=0u; dof<nv; ++dof) {
+                    float correction=0.0f;
+                    for (uint row=0u; row<equalityCount; ++row) {
+                        device const float* response=responseScratch+responseBase+
+                            (3u*dispatch.supportContactCount+row)*nv;
+                        correction=fma(equalityRhs[row],response[dof],correction);
+                    }
+                    candidateV[dof]+=correction;
+                }
             }
             for (uint row = 0u; row < equalityCount; ++row) {
                 device const MRNumiHumanJointEqualityGPU& equality =
