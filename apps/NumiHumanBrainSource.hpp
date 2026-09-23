@@ -5,6 +5,8 @@
 #include "numi/matter/human_limits_gpu.h"
 
 #include <algorithm>
+#include <array>
+#include <bit>
 #include <cmath>
 #include <cstdint>
 #include <iomanip>
@@ -24,6 +26,15 @@ struct SupportEndpoint {
     std::uint32_t bodyIdentifier = 0u;
     std::uint32_t sourceGeometryIndex = 0u;
     std::uint32_t touchReceptorIndex = 0u;
+};
+
+// Source geometry evaluated once at the exact FP32 pose submitted as the
+// first native Human q. Jacobians are d(path length)/d(v) in muscle-major,
+// articulated v6..v127 order. This is preparation data, not a controller.
+struct JointPathCalibration {
+    std::span<const float> referenceQ;
+    std::span<const std::uint32_t> optimalFiberLengthBitsByMuscle;
+    std::span<const std::uint32_t> lengthJacobianBitsByMuscleDof;
 };
 
 namespace source_detail {
@@ -93,7 +104,8 @@ inline std::string makeSourceJSON(
     std::uint64_t modelSourceFingerprint,
     std::uint32_t headBodyIdentifier,
     std::span<const NMHumanJointLimitGPU> sourceJointLimits = {},
-    std::span<const SupportEndpoint> supportEndpoints = {}
+    std::span<const SupportEndpoint> supportEndpoints = {},
+    const JointPathCalibration* jointPathCalibration = nullptr
 ) {
     using source_detail::require;
     require(modelSourceFingerprint != 0u && !model.bodies.empty() &&
@@ -138,10 +150,44 @@ inline std::string makeSourceJSON(
         }
     }
 
+    if (jointPathCalibration != nullptr) {
+        require(!supportEndpoints.empty() && model.world.nq == 129u &&
+                    model.world.nv == 128u && model.dofs.size() == 128u &&
+                    muscles.size() == 416u &&
+                    jointPathCalibration->referenceQ.size() == 129u &&
+                    jointPathCalibration->optimalFiberLengthBitsByMuscle.size() == 416u &&
+                    jointPathCalibration->lengthJacobianBitsByMuscleDof.size() == 416u * 122u,
+                "Human Brain joint path calibration dimensions or support source are invalid");
+        std::array<bool, 129u> ownedQ{};
+        for (std::uint32_t vIndex = 6u; vIndex < 128u; ++vIndex) {
+            const auto& dof = model.dofs[vIndex];
+            require(dof.vIndex == vIndex && dof.qIndex >= 7u && dof.qIndex < 129u &&
+                        (dof.flags & MR_DOF_FLAG_ROOT) == 0u &&
+                        !ownedQ[dof.qIndex] &&
+                        std::isfinite(jointPathCalibration->referenceQ[dof.qIndex]),
+                    "Human Brain joint path reference coordinate is absent or duplicated");
+            ownedQ[dof.qIndex] = true;
+        }
+        for (std::uint32_t qIndex = 7u; qIndex < 129u; ++qIndex)
+            require(ownedQ[qIndex], "Human Brain joint path reference coverage is incomplete");
+        for (std::size_t muscle = 0u; muscle < 416u; ++muscle) {
+            const float optimum = std::bit_cast<float>(
+                jointPathCalibration->optimalFiberLengthBitsByMuscle[muscle]);
+            require(std::isfinite(optimum) && optimum > 0.0f &&
+                        std::bit_cast<std::uint32_t>(optimum) ==
+                            std::bit_cast<std::uint32_t>(muscles[muscle].compliantArchitecture0.x),
+                    "Human Brain joint path optimum is not the source muscle value");
+        }
+        for (const std::uint32_t bits : jointPathCalibration->lengthJacobianBitsByMuscleDof)
+            require(std::isfinite(std::bit_cast<float>(bits)),
+                    "Human Brain joint path Jacobian is nonfinite");
+    }
+
     std::ostringstream output;
     output.imbue(std::locale::classic());
     output << std::setprecision(std::numeric_limits<float>::max_digits10)
-           << "{\"version\":" << (supportEndpoints.empty() ? 1u : 2u)
+           << "{\"version\":" << (jointPathCalibration != nullptr ? 3u :
+                (supportEndpoints.empty() ? 1u : 2u))
            << ",\"modelSourceFingerprint\":" << modelSourceFingerprint
            << ",\"bodyCount\":" << model.bodies.size()
            << ",\"headBodyIdentifier\":" << headBodyIdentifier << ",\"joints\":[";
@@ -282,6 +328,26 @@ inline std::string makeSourceJSON(
                    << ",\"touchReceptorIndex\":" << endpoint.touchReceptorIndex << '}';
         }
         output << ']';
+    }
+    if (jointPathCalibration != nullptr) {
+        output << ",\"jointPathCalibration\":{\"version\":1,\"referencePositionBitsByDof\":[";
+        for (std::uint32_t vIndex = 6u; vIndex < 128u; ++vIndex) {
+            if (vIndex != 6u) output << ',';
+            output << std::bit_cast<std::uint32_t>(
+                jointPathCalibration->referenceQ[model.dofs[vIndex].qIndex]);
+        }
+        output << "],\"optimalFiberLengthBitsByMuscle\":[";
+        for (std::size_t muscle = 0u; muscle < 416u; ++muscle) {
+            if (muscle != 0u) output << ',';
+            output << jointPathCalibration->optimalFiberLengthBitsByMuscle[muscle];
+        }
+        output << "],\"lengthJacobianBitsByMuscleDof\":[";
+        for (std::size_t index = 0u;
+             index < jointPathCalibration->lengthJacobianBitsByMuscleDof.size(); ++index) {
+            if (index != 0u) output << ',';
+            output << jointPathCalibration->lengthJacobianBitsByMuscleDof[index];
+        }
+        output << "]}";
     }
     output << '}';
     return output.str();

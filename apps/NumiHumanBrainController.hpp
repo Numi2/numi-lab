@@ -28,6 +28,9 @@ public:
                std::uint32_t bodyCount, std::uint32_t headBodyIndex,
                std::uint64_t modelFingerprint, std::span<const ContactBinding> contacts,
                std::span<const MRMujocoMuscleResultGPU> preparedMuscleResults,
+               std::span<const MRDofPropertiesGPU> sourceDofs,
+               std::span<const float> preparedQ, std::span<const float> preparedV,
+               bool enableJointKinesthesia,
                std::uint32_t timestepMicroseconds, std::uint64_t epochMicroseconds,
                std::uint32_t seed)
         : library_(libraryPath), brain_{&library_, nullptr}, device_(device),
@@ -53,7 +56,8 @@ public:
                     info_.committed_generation == 0u && info_.last_joint_commit_fingerprint == 0u,
                 "NumiBrain standing plugin source identity or initial generation disagrees");
         receptors_ = std::make_unique<Receptors>(device, nativeLibrary, bodyCount, headBodyIndex,
-            modelFingerprint, contacts, preparedMuscleResults,
+            modelFingerprint, contacts, preparedMuscleResults, sourceDofs, preparedQ, preparedV,
+            enableJointKinesthesia,
             timestepMicroseconds, epochMicroseconds);
         Fingerprint program;
         program.text("numi.human.brain.native-participant.v1");
@@ -109,6 +113,7 @@ public:
         const Channel& touch = frame.channels[2u];
         const Channel& spindles = frame.channels[3u];
         const Channel& vestibular = frame.channels[4u];
+        const Channel& kinesthesia = frame.channels[6u];
         require(touch.modality == 3u && touch.receptorCount == 10u &&
                     touch.featureCount == 7u && touch.values != nil &&
                     touch.validity != nil &&
@@ -124,7 +129,13 @@ public:
                     vestibular.featureCount == 22u && vestibular.values != nil &&
                     vestibular.validity != nil &&
                     vestibular.values.length >= 22u * sizeof(float) &&
-                    vestibular.validity.length >= sizeof(std::uint32_t),
+                    vestibular.validity.length >= sizeof(std::uint32_t) &&
+                    kinesthesia.modality == 9u && kinesthesia.receptorCount == 128u &&
+                    kinesthesia.featureCount == MR_NUMANX_HUMAN_KINESTHESIA_FEATURE_COUNT &&
+                    kinesthesia.values != nil && kinesthesia.validity != nil &&
+                    kinesthesia.values.length >= 128u *
+                        MR_NUMANX_HUMAN_KINESTHESIA_FEATURE_COUNT * sizeof(float) &&
+                    kinesthesia.validity.length >= 128u * sizeof(std::uint32_t),
                 "Human Brain sensor audit packet dimensions are invalid");
         const auto* touchValues = static_cast<const float*>(touch.values.contents);
         const auto* touchValidity = static_cast<const std::uint32_t*>(touch.validity.contents);
@@ -132,15 +143,34 @@ public:
         const auto* spindleValidity = static_cast<const std::uint32_t*>(spindles.validity.contents);
         const auto* vestibularValues = static_cast<const float*>(vestibular.values.contents);
         const auto* vestibularValidity = static_cast<const std::uint32_t*>(vestibular.validity.contents);
+        const auto* jointValues = static_cast<const float*>(kinesthesia.values.contents);
+        const auto* jointValidity = static_cast<const std::uint32_t*>(kinesthesia.validity.contents);
         require(touchValues != nullptr && touchValidity != nullptr &&
                     spindleValues != nullptr && spindleValidity != nullptr &&
-                    vestibularValues != nullptr && vestibularValidity != nullptr,
+                    vestibularValues != nullptr && vestibularValidity != nullptr &&
+                    jointValues != nullptr && jointValidity != nullptr,
                 "Human Brain sensor audit shared buffers are unavailable");
         constexpr std::uint32_t pathValidity =
             (1u << MR_NUMANX_HUMAN_FEATURE_PATH_LENGTH_METRES) |
             (1u << MR_NUMANX_HUMAN_FEATURE_PATH_VELOCITY_METRES_PER_SECOND);
         std::size_t spindleValidFiniteCount = 0u;
         std::size_t spindleUsableCount = 0u;
+        std::size_t jointValidFiniteCount = 0u;
+        std::size_t rootJointInvalidCount = 0u;
+        for (std::size_t row = 0u; row < 128u; ++row) {
+            if (row < 6u) {
+                if (jointValidity[row] == 0u) ++rootJointInvalidCount;
+                continue;
+            }
+            const std::size_t offset = row * MR_NUMANX_HUMAN_KINESTHESIA_FEATURE_COUNT;
+            if (jointValidity[row] == 0x00000003u &&
+                std::isfinite(jointValues[offset]) && std::isfinite(jointValues[offset + 1u]))
+                ++jointValidFiniteCount;
+        }
+        require(rootJointInvalidCount == 6u &&
+                    (receptors_->jointKinesthesiaEnabled() ? jointValidFiniteCount == 122u :
+                        jointValidFiniteCount == 0u),
+                "Human Brain accepted joint kinesthesia coverage disagrees with source mode");
         for (std::size_t muscle = 0u; muscle < 416u; ++muscle) {
             if ((spindleValidity[muscle] & pathValidity) != pathValidity) continue;
             const std::size_t offset = muscle * MR_NUMANX_HUMAN_PROPRIOCEPTION_FEATURE_COUNT;
@@ -203,6 +233,10 @@ public:
         }
         line << "] spindle_valid_finite_count=" << spindleValidFiniteCount
              << " spindle_usable_count=" << spindleUsableCount;
+        if (receptors_->jointKinesthesiaEnabled()) {
+            line << " kinesthesia_valid_finite_count=" << jointValidFiniteCount
+                 << " kinesthesia_root_invalid_count=" << rootJointInvalidCount;
+        }
         return line.str();
     }
 
@@ -255,6 +289,39 @@ public:
                 require(std::bit_cast<std::uint32_t>(values[7u + axis]) ==
                             std::bit_cast<std::uint32_t>(result.standV[axis]),
                         "Human Brain root velocity differs from accepted native state");
+            }
+            if (receptors_->jointKinesthesiaEnabled()) {
+                const Channel& kinesthesia = candidate.channels[6u];
+                require(kinesthesia.modality == 9u && kinesthesia.receptorCount == 128u &&
+                            kinesthesia.featureCount == MR_NUMANX_HUMAN_KINESTHESIA_FEATURE_COUNT &&
+                            kinesthesia.values != nil && kinesthesia.validity != nil &&
+                            kinesthesia.values.length >= 128u *
+                                MR_NUMANX_HUMAN_KINESTHESIA_FEATURE_COUNT * sizeof(float) &&
+                            kinesthesia.validity.length >= 128u * sizeof(std::uint32_t),
+                        "Human Brain accepted joint kinesthesia packet is absent");
+                const auto* jointValues = static_cast<const float*>(kinesthesia.values.contents);
+                const auto* jointValidity = static_cast<const std::uint32_t*>(
+                    kinesthesia.validity.contents);
+                require(jointValues != nullptr && jointValidity != nullptr,
+                        "Human Brain accepted joint kinesthesia buffers are unreadable");
+                for (std::uint32_t row = 0u; row < 128u; ++row) {
+                    const std::size_t offset =
+                        std::size_t(row) * MR_NUMANX_HUMAN_KINESTHESIA_FEATURE_COUNT;
+                    if (row < 6u) {
+                        require(jointValidity[row] == 0u,
+                                "Human Brain root kinesthesia row became valid");
+                        continue;
+                    }
+                    const std::uint32_t qIndex = receptors_->sourceQIndex(row);
+                    require(jointValidity[row] == 0x00000003u &&
+                                std::isfinite(jointValues[offset]) &&
+                                std::isfinite(jointValues[offset + 1u]) &&
+                                std::bit_cast<std::uint32_t>(jointValues[offset]) ==
+                                    std::bit_cast<std::uint32_t>(result.standQ[qIndex]) &&
+                                std::bit_cast<std::uint32_t>(jointValues[offset + 1u]) ==
+                                    std::bit_cast<std::uint32_t>(result.standV[row]),
+                            "Human Brain joint kinesthesia differs from accepted native state");
+                }
             }
             std::array<char, 2048u> pluginError{};
             if (library_.publish(brain_.handle, gpuStart, gpuEnd, pluginError.data(), pluginError.size()) != 1u) {

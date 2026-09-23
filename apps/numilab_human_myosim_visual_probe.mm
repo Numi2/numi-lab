@@ -5351,10 +5351,61 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         }
         require(touchReceptorByGeometry.size() == 10u,
                 "Human touch must bind ten distinct source support geometries");
+        const char* jointPathCalibrationSetting =
+            std::getenv("NUMI_HUMAN_BRAIN_JOINT_PATH_CALIBRATION");
+        require(jointPathCalibrationSetting == nullptr ||
+                    jointPathCalibrationSetting[0] == '\0' ||
+                    std::strcmp(jointPathCalibrationSetting, "0") == 0 ||
+                    std::strcmp(jointPathCalibrationSetting, "1") == 0,
+                "NUMI_HUMAN_BRAIN_JOINT_PATH_CALIBRATION must be 0 or 1");
+        const bool exportJointPathCalibration =
+            jointPathCalibrationSetting != nullptr &&
+            std::strcmp(jointPathCalibrationSetting, "1") == 0;
+        std::vector<std::uint32_t> optimalFiberLengthBits;
+        std::vector<std::uint32_t> lengthJacobianBits;
+        std::optional<numi_human_brain::JointPathCalibration> jointPathCalibration;
+        if (exportJointPathCalibration) {
+            require(model.articulations.size() == 1u &&
+                        model.articulations.front().nq == 129u &&
+                        model.articulations.front().nv == 128u &&
+                        muscles.gpuMuscles.size() == 416u &&
+                        muscles.referenceMuscles.size() == 416u &&
+                        q.size() == 129u,
+                    "Human Brain joint path calibration requires the admitted source model");
+            const std::vector<double> referenceQ(q.begin(), q.end());
+            const std::vector<double> zeroV(128u, 0.0);
+            std::vector<metalrobo::MujocoMusclePathResult> sourcePaths;
+            const auto pathStatus = metalrobo::evaluateMujocoMusclePaths(
+                model, 0u, referenceQ, zeroV, muscles.referenceSites,
+                muscles.referenceWraps, muscles.referenceMuscles, sourcePaths);
+            require(pathStatus.succeeded() && sourcePaths.size() == 416u,
+                    "Human Brain joint path source geometry evaluation failed");
+            optimalFiberLengthBits.reserve(416u);
+            lengthJacobianBits.reserve(416u * 122u);
+            for (std::size_t muscle = 0u; muscle < 416u; ++muscle) {
+                const float optimum = muscles.gpuMuscles[muscle].compliantArchitecture0.x;
+                require(std::isfinite(optimum) && optimum > 0.0f &&
+                            sourcePaths[muscle].lengthJacobian.size() == 128u &&
+                            std::isfinite(sourcePaths[muscle].length) &&
+                            sourcePaths[muscle].length > 0.0,
+                        "Human Brain joint path source muscle is incomplete");
+                optimalFiberLengthBits.push_back(std::bit_cast<std::uint32_t>(optimum));
+                for (std::size_t dof = 6u; dof < 128u; ++dof) {
+                    const double sourceValue = sourcePaths[muscle].lengthJacobian[dof];
+                    const float value = static_cast<float>(sourceValue);
+                    require(std::isfinite(sourceValue) && std::isfinite(value),
+                            "Human Brain joint path source Jacobian is nonfinite");
+                    lengthJacobianBits.push_back(std::bit_cast<std::uint32_t>(value));
+                }
+            }
+            jointPathCalibration.emplace(numi_human_brain::JointPathCalibration{
+                q, optimalFiberLengthBits, lengthJacobianBits});
+        }
         const std::string sourceJSON = numi_human_brain::makeSourceJSON(
             model, muscles.gpuMuscles, muscles.gpuSites, muscles.gpuRoutes,
             states, initialFiberEquilibrium.force.muscleResults,
-            sourceFingerprint, headBodyIdentifier, {}, supportEndpoints);
+            sourceFingerprint, headBodyIdentifier, {}, supportEndpoints,
+            jointPathCalibration ? &*jointPathCalibration : nullptr);
         require(standBrainOutputPath.has_value() &&
                     !standBrainOutputPath->empty(),
                 "Human Brain owner mode requires a run-local output directory");
@@ -5398,6 +5449,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             sourceJSON, programJSON, standBrainOutputPath->string(),
             model.world.bodyCount, headBodyIdentifier, sourceFingerprint,
             touchBindings, initialFiberEquilibrium.force.muscleResults,
+            model.dofs, q, v, exportJointPathCalibration,
             timestepMicroseconds, epochMicroseconds, standBrainSeed);
         const auto& brainInfo = standBrainController->info();
         std::cout << "human_brain_native_binding=configured"

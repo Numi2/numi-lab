@@ -7,6 +7,7 @@
 #include "metalrobo/numanx_human_io_gpu.h"
 
 #include <array>
+#include <bit>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -59,10 +60,14 @@ public:
               std::uint64_t modelFingerprint,
               std::span<const ContactBinding> contactBindings,
               std::span<const MRMujocoMuscleResultGPU> preparedMuscleResults,
+              std::span<const MRDofPropertiesGPU> sourceDofs,
+              std::span<const float> preparedQ, std::span<const float> preparedV,
+              bool enableJointKinesthesia,
               std::uint32_t timestepMicroseconds,
               std::uint64_t epochMicroseconds)
         : device_(device), bodyCount_(bodyCount), headBodyIndex_(headBodyIndex),
-          timestepMicroseconds_(timestepMicroseconds), epochMicroseconds_(epochMicroseconds) {
+          timestepMicroseconds_(timestepMicroseconds), epochMicroseconds_(epochMicroseconds),
+          jointKinesthesiaEnabled_(enableJointKinesthesia) {
         require(device != nil && nativeLibrary != nil &&
                     nativeLibrary.device.registryID == device.registryID,
                 "Human Brain receptors require the owning native Metal device/library");
@@ -70,6 +75,9 @@ public:
                     headBodyIndex < bodyCount && modelFingerprint != 0u &&
                     timestepMicroseconds > 0u && epochMicroseconds >= timestepMicroseconds &&
                     preparedMuscleResults.size() == 416u &&
+                    (!enableJointKinesthesia ||
+                     (sourceDofs.size() == 128u && preparedQ.size() == 129u &&
+                      preparedV.size() == 128u)) &&
                     !contactBindings.empty() && contactBindings.size() <= 20u,
                 "Human Brain receptor source binding or physical clock is invalid");
         std::array<bool, 20u> rows{};
@@ -80,8 +88,39 @@ public:
         hash(modelFingerprint);
         hash(bodyCount); hash(headBodyIndex); hash(timestepMicroseconds); hash(epochMicroseconds);
         // Binds sparse physical meanings, including invalid unimplemented modalities.
-        constexpr std::uint32_t receptorProgramVersion = 3u;
+        const std::uint32_t receptorProgramVersion = enableJointKinesthesia ? 4u : 3u;
         hash(receptorProgramVersion);
+        std::array<bool, 129u> ownedQ{};
+        qIndexByV_.fill(MR_INVALID_INDEX);
+        for (std::uint32_t vIndex = 0u; enableJointKinesthesia && vIndex < sourceDofs.size(); ++vIndex) {
+            const auto& dof = sourceDofs[vIndex];
+            require(dof.vIndex == vIndex && dof.reserved0 == 0u &&
+                        dof.reserved1 == 0u && std::isfinite(preparedV[vIndex]),
+                    "Human Brain kinesthesia source velocity is invalid");
+            if (vIndex < 6u) {
+                require((dof.flags & MR_DOF_FLAG_ROOT) != 0u,
+                        "Human Brain kinesthesia root row is not source-authored root");
+                continue;
+            }
+            require((dof.flags & MR_DOF_FLAG_ROOT) == 0u &&
+                        dof.qIndex >= 7u && dof.qIndex < preparedQ.size() &&
+                        !ownedQ[dof.qIndex] && std::isfinite(preparedQ[dof.qIndex]),
+                    "Human Brain kinesthesia source coordinate is absent or duplicated");
+            ownedQ[dof.qIndex] = true;
+            qIndexByV_[vIndex] = dof.qIndex;
+            hash(vIndex); hash(dof.qIndex);
+            hash(std::bit_cast<std::uint32_t>(preparedQ[dof.qIndex]));
+            hash(std::bit_cast<std::uint32_t>(preparedV[vIndex]));
+        }
+        if (enableJointKinesthesia) {
+            for (std::uint32_t qIndex = 7u; qIndex < ownedQ.size(); ++qIndex)
+                require(ownedQ[qIndex], "Human Brain kinesthesia source q coverage is incomplete");
+        }
+        qIndexBuffer_ = [device newBufferWithBytes:qIndexByV_.data()
+            length:qIndexByV_.size() * sizeof(std::uint32_t)
+            options:MTLResourceStorageModeShared];
+        require(qIndexBuffer_ != nil, "Human Brain kinesthesia source map allocation failed");
+        qIndexBuffer_.label = @"Human Brain immutable source kinesthesia coordinates";
         for (const ContactBinding& binding : contactBindings) {
             require(binding.contactIndex < contactBindings.size() && !rows[binding.contactIndex] &&
                         binding.receptorIndex < 10u && binding.bodyIndex < bodyCount,
@@ -126,8 +165,9 @@ public:
 
         // The initial packet is the source evaluator's actual prepared
         // t=0 path measurement, delivered after one modeled sensory latency.
-        // No accepted impulse, body-motion or physiology measurement exists
-        // yet; all other initial receptor validity remains zero.
+        // Prepared articulated q/v are the exact first native input and can
+        // seed the one-step-delayed initial packet. No accepted impulse,
+        // body-motion or physiology measurement exists yet.
         Channel& initialSpindles = slots_[publishedSlot_].frame.channels[3u];
         auto* values = static_cast<float*>(initialSpindles.values.contents);
         auto* validity = static_cast<std::uint32_t*>(initialSpindles.validity.contents);
@@ -146,6 +186,17 @@ public:
             values[offset + MR_NUMANX_HUMAN_FEATURE_PATH_LENGTH_METRES] = path.x;
             values[offset + MR_NUMANX_HUMAN_FEATURE_PATH_VELOCITY_METRES_PER_SECOND] = path.y;
             validity[muscle] = pathValidity;
+        }
+        if (enableJointKinesthesia) {
+            Channel& initialKinesthesia = slots_[publishedSlot_].frame.channels[6u];
+            auto* jointValues = static_cast<float*>(initialKinesthesia.values.contents);
+            auto* jointValidity = static_cast<std::uint32_t*>(initialKinesthesia.validity.contents);
+            for (std::uint32_t vIndex = 6u; vIndex < 128u; ++vIndex) {
+                const std::uint32_t qIndex = qIndexByV_[vIndex];
+                jointValues[vIndex * MR_NUMANX_HUMAN_KINESTHESIA_FEATURE_COUNT] = preparedQ[qIndex];
+                jointValues[vIndex * MR_NUMANX_HUMAN_KINESTHESIA_FEATURE_COUNT + 1u] = preparedV[vIndex];
+                jointValidity[vIndex] = 0x00000003u;
+            }
         }
 
         NSError* error = nil;
@@ -168,6 +219,12 @@ public:
     Receptors& operator=(Receptors&&) = delete;
 
     [[nodiscard]] std::uint64_t fingerprint() const noexcept { return fingerprint_; }
+    [[nodiscard]] bool jointKinesthesiaEnabled() const noexcept { return jointKinesthesiaEnabled_; }
+    [[nodiscard]] std::uint32_t sourceQIndex(std::uint32_t vIndex) const {
+        require(vIndex >= 6u && vIndex < qIndexByV_.size(),
+                "Human Brain kinesthesia source row is not articulated");
+        return qIndexByV_[vIndex];
+    }
     [[nodiscard]] const Frame& deliveredFrame(std::uint64_t committedTimestampMicroseconds) const {
         const Frame& frame = slots_[publishedSlot_].frame;
         require(!pending_ && frame.deliveryTimestampMicroseconds == committedTimestampMicroseconds,
@@ -287,7 +344,7 @@ public:
 
                 const mr_uint4 sensorShape{headBodyIndex_, contactCount_, 128u, static_cast<std::uint32_t>(pass.pointCount)};
                 const mr_uint4 sensorOffsets{static_cast<std::uint32_t>(pass.standContactImpulseOffset),
-                    3u * 128u, 0u, 0u};
+                    3u * 128u, jointKinesthesiaEnabled_ ? 1u : 0u, 0u};
                 mr_float4 groundAndTimestep = pass.standGroundNormal;
                 groundAndTimestep.w = pass.timestepSeconds;
                 [writer setComputePipelineState:bodyTouchPipeline_];
@@ -308,6 +365,9 @@ public:
                 [writer setBytes:&groundAndTimestep length:sizeof(groundAndTimestep) atIndex:14u];
                 [writer setBuffer:(__bridge id<MTLBuffer>)pass.v offset:0u atIndex:15u];
                 [writer setBuffer:(__bridge id<MTLBuffer>)pass.q offset:0u atIndex:16u];
+                [writer setBuffer:qIndexBuffer_ offset:0u atIndex:17u];
+                [writer setBuffer:slot.frame.channels[6u].values offset:0u atIndex:18u];
+                [writer setBuffer:slot.frame.channels[6u].validity offset:0u atIndex:19u];
                 [writer dispatchThreads:MTLSizeMake(416u, 1u, 1u) threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
                 [writer endEncoding];
                 encoded_ = true;
@@ -353,11 +413,14 @@ private:
     struct Slot { Frame frame{}; id<MTLBuffer> environmentGate = nil; };
     id<MTLDevice> device_ = nil;
     id<MTLBuffer> bindings_ = nil;
+    id<MTLBuffer> qIndexBuffer_ = nil;
     id<MTLComputePipelineState> gatePipeline_ = nil, spindlePipeline_ = nil, bodyTouchPipeline_ = nil;
     std::array<Slot, 2u> slots_{};
+    std::array<std::uint32_t, 128u> qIndexByV_{};
     std::uint32_t bodyCount_ = 0u, headBodyIndex_ = 0u, contactCount_ = 0u;
     std::uint32_t timestepMicroseconds_ = 0u;
     std::uint64_t epochMicroseconds_ = 0u;
+    bool jointKinesthesiaEnabled_ = false;
     std::uint64_t fingerprint_ = 14695981039346656037ull;
     std::uint32_t publishedSlot_ = 0u, pendingStep_ = 0u;
     std::uintptr_t pendingCommand_ = 0u;
@@ -435,12 +498,32 @@ kernel void human_brain_body_touch(
     constant float4& normalAndTimestep [[buffer(14)]],
     device const float* acceptedVelocity [[buffer(15)]],
     device const float* acceptedPosition [[buffer(16)]],
+    device const uint* qIndexByV [[buffer(17)]],
+    device float* kinesthesia [[buffer(18)]],
+    device uint* kinesthesiaValidity [[buffer(19)]],
     uint index [[thread_position_in_grid]]) {
     // HumanIO's interoception writer emits workload proxies. They are not
     // measured oxygen, fatigue or tissue damage in this physical path.
     if (index < 416u) {
         for (uint feature = 0u; feature < 6u; ++feature) interoception[index*6u+feature] = 0.0f;
         interoceptionValidity[index] = 0u;
+    }
+    if (index < 128u) {
+        for (uint feature = 0u; feature < 7u; ++feature)
+            kinesthesia[index * 7u + feature] = 0.0f;
+        kinesthesiaValidity[index] = 0u;
+        if (index >= 6u && offsets.z != 0u && gate[0] != 0u) {
+            const uint qIndex = qIndexByV[index];
+            if (qIndex >= 7u && qIndex < 129u) {
+                const float position = acceptedPosition[qIndex];
+                const float velocity = acceptedVelocity[index];
+                if (isfinite(position) && isfinite(velocity)) {
+                    kinesthesia[index * 7u] = position;
+                    kinesthesia[index * 7u + 1u] = velocity;
+                    kinesthesiaValidity[index] = 0x00000003u;
+                }
+            }
+        }
     }
     if (index == 0u) {
         for (uint feature = 0u; feature < 22u; ++feature) vestibular[feature] = 0.0f;
