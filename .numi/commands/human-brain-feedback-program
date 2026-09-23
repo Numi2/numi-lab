@@ -9,6 +9,35 @@ import sys
 from pathlib import Path
 
 
+def valid_support_source(source: dict) -> bool:
+    if source.get("version") == 1:
+        return "supportEndpoints" not in source
+    if source.get("version") != 2:
+        return False
+    endpoints = source.get("supportEndpoints")
+    if not isinstance(endpoints, list) or len(endpoints) != 10:
+        return False
+    identities = set()
+    receptors = set()
+    for endpoint in endpoints:
+        if not isinstance(endpoint, dict):
+            return False
+        values = [endpoint.get(key) for key in (
+            "sourceEndpointIdentifier", "bodyIdentifier",
+            "sourceGeometryIndex", "touchReceptorIndex")]
+        if any(type(value) is not int for value in values):
+            return False
+        identifier, body, geometry, receptor = values
+        if (not 0 <= body < 157 or not 0 <= geometry < 0xffffffff
+                or not 0 <= receptor < 10
+                or identifier != ((body << 32) | geometry)
+                or identifier == 0):
+            return False
+        identities.add((body, geometry))
+        receptors.add(receptor)
+    return len(identities) == 10 and receptors == set(range(10))
+
+
 def main() -> int:
     if len(sys.argv) != 5:
         print(
@@ -45,7 +74,7 @@ def main() -> int:
             raise ValueError(f"native Brain binding lacks {name}")
         return int(match.group(1))
 
-    if (source.get("version") != 1 or source.get("bodyCount") != 157
+    if (not valid_support_source(source) or source.get("bodyCount") != 157
             or len(source.get("channels", [])) != 416
             or source.get("modelSourceFingerprint") != field("model_source_fingerprint")):
         raise ValueError("prepared source does not match the accepted Human Brain binding")

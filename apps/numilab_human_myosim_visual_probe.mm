@@ -5294,14 +5294,12 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             muscles, supportContacts, jointEqualities, q, v, states,
             initialFiberEquilibrium.force.muscleResults, passiveJointProgram,
             timestepMicroseconds, headBodyIdentifier);
-        const std::string sourceJSON = numi_human_brain::makeSourceJSON(
-            model, muscles.gpuMuscles, muscles.gpuSites, muscles.gpuRoutes,
-            states, initialFiberEquilibrium.force.muscleResults,
-            sourceFingerprint, headBodyIdentifier);
         std::map<std::pair<std::uint32_t, std::uint32_t>, std::uint32_t>
             touchReceptorByGeometry;
         std::vector<numi_human_brain::ContactBinding> touchBindings;
+        std::vector<numi_human_brain::SupportEndpoint> supportEndpoints;
         touchBindings.reserve(supportContacts.records.size());
+        supportEndpoints.reserve(10u);
         for (std::size_t contactIndex = 0u;
              contactIndex < supportContacts.records.size(); ++contactIndex) {
             const auto& contact = supportContacts.records[contactIndex];
@@ -5312,6 +5310,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             if (inserted) {
                 require(entry->second < 10u,
                         "Human touch source exceeds the ten canonical receptors");
+                supportEndpoints.push_back({
+                    contact.bodyIndex, contact.sourceGeometryIndex, entry->second});
             }
             touchBindings.push_back({
                 static_cast<std::uint32_t>(contactIndex), entry->second,
@@ -5319,6 +5319,10 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         }
         require(touchReceptorByGeometry.size() == 10u,
                 "Human touch must bind ten distinct source support geometries");
+        const std::string sourceJSON = numi_human_brain::makeSourceJSON(
+            model, muscles.gpuMuscles, muscles.gpuSites, muscles.gpuRoutes,
+            states, initialFiberEquilibrium.force.muscleResults,
+            sourceFingerprint, headBodyIdentifier, {}, supportEndpoints);
         require(standBrainOutputPath.has_value() &&
                     !standBrainOutputPath->empty(),
                 "Human Brain owner mode requires a run-local output directory");

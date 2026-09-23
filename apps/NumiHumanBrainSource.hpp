@@ -10,13 +10,22 @@
 #include <iomanip>
 #include <limits>
 #include <locale>
+#include <set>
 #include <span>
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace numi_human_brain {
+
+struct SupportEndpoint {
+    std::uint32_t bodyIdentifier = 0u;
+    std::uint32_t sourceGeometryIndex = 0u;
+    std::uint32_t touchReceptorIndex = 0u;
+};
+
 namespace source_detail {
 
 inline void require(bool condition, const char* message) {
@@ -83,7 +92,8 @@ inline std::string makeSourceJSON(
     std::span<const MRMujocoMuscleResultGPU> preparedResults,
     std::uint64_t modelSourceFingerprint,
     std::uint32_t headBodyIdentifier,
-    std::span<const NMHumanJointLimitGPU> sourceJointLimits = {}
+    std::span<const NMHumanJointLimitGPU> sourceJointLimits = {},
+    std::span<const SupportEndpoint> supportEndpoints = {}
 ) {
     using source_detail::require;
     require(modelSourceFingerprint != 0u && !model.bodies.empty() &&
@@ -110,10 +120,29 @@ inline std::string makeSourceJSON(
         limits[limit.indices.y] = &limit;
     }
 
+    // HumanIO numbers touch receptors by first distinct source geometry in
+    // the admitted NHCNT support payload. Preserve that same native order.
+    if (!supportEndpoints.empty()) {
+        require(supportEndpoints.size() == 10u,
+                "Human Brain support source requires ten touch endpoints");
+        std::set<std::pair<std::uint32_t, std::uint32_t>> sourceIdentities;
+        for (std::size_t index = 0u; index < supportEndpoints.size(); ++index) {
+            const auto& endpoint = supportEndpoints[index];
+            require(endpoint.bodyIdentifier < model.bodies.size() &&
+                        endpoint.sourceGeometryIndex != MR_INVALID_INDEX &&
+                        endpoint.touchReceptorIndex == index &&
+                        sourceIdentities.insert({endpoint.bodyIdentifier,
+                                                 endpoint.sourceGeometryIndex}).second &&
+                        (endpoint.bodyIdentifier != 0u || endpoint.sourceGeometryIndex != 0u),
+                    "Human Brain support source identity or touch order is invalid");
+        }
+    }
+
     std::ostringstream output;
     output.imbue(std::locale::classic());
     output << std::setprecision(std::numeric_limits<float>::max_digits10)
-           << "{\"version\":1,\"modelSourceFingerprint\":" << modelSourceFingerprint
+           << "{\"version\":" << (supportEndpoints.empty() ? 1u : 2u)
+           << ",\"modelSourceFingerprint\":" << modelSourceFingerprint
            << ",\"bodyCount\":" << model.bodies.size()
            << ",\"headBodyIdentifier\":" << headBodyIdentifier << ",\"joints\":[";
     std::vector<bool> ownedCoordinates(model.dofs.size(), false);
@@ -238,7 +267,23 @@ inline std::string makeSourceJSON(
                << ",\"tonicExcitation\":" << state.x
                << ",\"preparedActivation\":" << state.y << '}';
     }
-    output << "]}";
+    output << ']';
+    if (!supportEndpoints.empty()) {
+        output << ",\"supportEndpoints\":[";
+        for (std::size_t index = 0u; index < supportEndpoints.size(); ++index) {
+            const auto& endpoint = supportEndpoints[index];
+            const std::uint64_t sourceEndpointIdentifier =
+                (std::uint64_t{endpoint.bodyIdentifier} << 32u) |
+                endpoint.sourceGeometryIndex;
+            if (index != 0u) output << ',';
+            output << "{\"sourceEndpointIdentifier\":" << sourceEndpointIdentifier
+                   << ",\"bodyIdentifier\":" << endpoint.bodyIdentifier
+                   << ",\"sourceGeometryIndex\":" << endpoint.sourceGeometryIndex
+                   << ",\"touchReceptorIndex\":" << endpoint.touchReceptorIndex << '}';
+        }
+        output << ']';
+    }
+    output << '}';
     return output.str();
 }
 
