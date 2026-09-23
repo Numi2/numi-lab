@@ -239,7 +239,7 @@ kernel void mr_numi_human_stand_step(
     const uint vectorStride = nv + 3u * nv +
         12u * dispatch.supportContactCount + dispatch.jointEqualityCount +
         (((dispatch.flags & MR_NUMI_HUMAN_STAND_EXPORT_SOURCE_LIMIT_IMPULSES) != 0u)
-            ? nv : 0u);
+            ? nv + nq + nv : 0u);
     const uint preloadBase = environment * vectorStride;
     const uint vectorBase = preloadBase + nv;
     const uint equalityCount = dispatch.jointEqualityCount;
@@ -272,6 +272,8 @@ kernel void mr_numi_human_stand_step(
         equalityLambdas + dispatch.jointEqualityCount;
     device float* sourceLimitImpulseEvidence =
         contactMatrices + 9u * dispatch.supportContactCount;
+    device float* preProjectionQEvidence = sourceLimitImpulseEvidence + nv;
+    device float* preProjectionVEvidence = preProjectionQEvidence + nq;
     device float* factor = factorScratch + factorBase;
     const bool captureSourceDynamics =
         (dispatch.flags & MR_NUMI_HUMAN_STAND_PREDICT_VELOCITY_ONLY) != 0u;
@@ -1645,6 +1647,15 @@ kernel void mr_numi_human_stand_step(
         }
         qState[qBase + properties.qIndex - articulation.qOffset] +=
             timestep * candidateV[dof];
+    }
+    if ((dispatch.flags & MR_NUMI_HUMAN_STAND_EXPORT_SOURCE_LIMIT_IMPULSES) != 0u) {
+        // The opt-in endpoint diagnostic needs the native state immediately
+        // before exact equality projection. Publication remains host-gated by
+        // acceptance; ordinary standing never writes this suffix.
+        for (uint coordinate = 0u; coordinate < nq; ++coordinate)
+            preProjectionQEvidence[coordinate] = qState[qBase + coordinate];
+        for (uint dof = 0u; dof < nv; ++dof)
+            preProjectionVEvidence[dof] = candidateV[dof];
     }
     // The velocity state is still the terminal coupled-sweep candidate here.
     // Record its residual against the same pre-step contact and limit rows

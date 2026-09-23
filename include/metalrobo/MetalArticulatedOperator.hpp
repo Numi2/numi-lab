@@ -1988,6 +1988,10 @@ struct MetalArticulatedOperatorResult {
     std::vector<float> standJointEqualityDerivatives;
     std::vector<float> standFreeVelocity;
     std::vector<float> standPreviousVelocity;
+    // Optional accepted-step state after integration and coupled constraint
+    // sweeps, immediately before exact equality coordinate projection.
+    std::vector<float> standPreProjectionQ;
+    std::vector<float> standPreProjectionV;
 };
 
 struct MetalArticulatedOperatorDiagnostics {

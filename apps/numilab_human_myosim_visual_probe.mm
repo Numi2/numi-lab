@@ -4524,7 +4524,10 @@ kernel void human_muscle_feedback(
 // The solver's intermediate-iterate work remains a distinct diagnostic.
 struct HumanEndpointEnergy {
     double kineticBefore = 0.0, kineticAfter = 0.0;
+    double kineticFreeAtBeforeQ = 0.0, kineticCoupledAtBeforeQ = 0.0;
+    double kineticPreProjection = 0.0;
     double gravityBefore = 0.0, gravityAfter = 0.0;
+    double gravityPreProjection = 0.0;
     double muscleWork = 0.0, jointDampingWork = 0.0, bodyDampingWork = 0.0;
     double contactNormalWork = 0.0, contactTangentialWork = 0.0, equalityWork = 0.0;
     double sourceLimitWork = 0.0;
@@ -4538,6 +4541,7 @@ HumanEndpointEnergy measureHumanEndpointEnergy(
 ) {
     const auto& articulation = model.articulations.front();
     const std::size_t nv = articulation.nv;
+    const std::size_t nq = articulation.nq;
     require(input.environmentCount == 1u && input.stand.stepCount == 1u &&
                 input.rootTranslations.size() == 1u && accepted.standRootTranslations.size() == 1u &&
                 input.stand.v.size() == nv && accepted.standV.size() == nv &&
@@ -4546,6 +4550,9 @@ HumanEndpointEnergy measureHumanEndpointEnergy(
                 accepted.standContactImpulses.size() == 3u * input.stand.contacts.size() &&
                 accepted.standJointEqualityImpulses.size() == input.stand.jointEqualities.size() &&
                 accepted.standSourceLimitImpulses.size() == nv &&
+                accepted.standFreeVelocity.size() == nv &&
+                accepted.standPreProjectionQ.size() == nq &&
+                accepted.standPreProjectionV.size() == nv &&
                 accepted.standJointEqualityDerivatives.size() == input.stand.jointEqualities.size(),
             "endpoint energy requires one complete accepted native step");
     require(std::memcmp(input.stand.v.data(), accepted.standPreviousVelocity.data(),
@@ -4562,22 +4569,42 @@ HumanEndpointEnergy measureHumanEndpointEnergy(
     };
     const auto q0 = configuration(input.q, input.rootTranslations.front());
     const auto q1 = configuration(accepted.standQ, accepted.standRootTranslations.front());
+    // Exact equality projection changes only dependent joint coordinates and
+    // velocities. Both pre- and post-projection states share the advanced
+    // compensated root translation published by the native owner.
+    const auto qPre = configuration(
+        accepted.standPreProjectionQ, accepted.standRootTranslations.front());
     const std::vector<double> v0(input.stand.v.begin(), input.stand.v.end());
     const std::vector<double> v1(accepted.standV.begin(), accepted.standV.end());
+    const std::vector<double> vFree(
+        accepted.standFreeVelocity.begin(), accepted.standFreeVelocity.end());
+    const std::vector<double> vPre(
+        accepted.standPreProjectionV.begin(), accepted.standPreProjectionV.end());
     const double h = static_cast<float>(requestedTimestep); // Exact native timestep.
     metalrobo::ArticulatedDynamicsConfig config;
     config.gravity = {model.world.gravityAndTimestep.x, model.world.gravityAndTimestep.y,
                       model.world.gravityAndTimestep.z};
     config.timestep = h;
-    metalrobo::ArticulatedInvariants before, after;
+    metalrobo::ArticulatedInvariants before, after, freeAtBeforeQ,
+        coupledAtBeforeQ, preProjection;
     require(metalrobo::computeArticulatedInvariants(model, 0u, q0, v0, before, config).succeeded() &&
+                metalrobo::computeArticulatedInvariants(model, 0u, q0, vFree,
+                    freeAtBeforeQ, config).succeeded() &&
+                metalrobo::computeArticulatedInvariants(model, 0u, q0, vPre,
+                    coupledAtBeforeQ, config).succeeded() &&
+                metalrobo::computeArticulatedInvariants(model, 0u, qPre, vPre,
+                    preProjection, config).succeeded() &&
                 metalrobo::computeArticulatedInvariants(model, 0u, q1, v1, after, config).succeeded(),
             "accepted endpoint mass/inertia energy evaluation failed");
     HumanEndpointEnergy energy;
     energy.kineticBefore = before.kineticEnergy;
     energy.kineticAfter = after.kineticEnergy;
+    energy.kineticFreeAtBeforeQ = freeAtBeforeQ.kineticEnergy;
+    energy.kineticCoupledAtBeforeQ = coupledAtBeforeQ.kineticEnergy;
+    energy.kineticPreProjection = preProjection.kineticEnergy;
     energy.gravityBefore = before.potentialEnergy;
     energy.gravityAfter = after.potentialEnergy;
+    energy.gravityPreProjection = preProjection.potentialEnergy;
     std::vector<double> midpoint(nv);
     for (std::size_t dof = 0u; dof < nv; ++dof) {
         midpoint[dof] = 0.5 * (v0[dof] + v1[dof]);
@@ -6024,6 +6051,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         double energyInitialKinetic = 0.0, energyFinalKinetic = 0.0;
         double energyInitialGravity = 0.0, energyFinalGravity = 0.0;
         double energyInitialPassive = 0.0, energyFinalPassive = 0.0;
+        double energyFreeWorkGap = 0.0, energyCoupledWorkGap = 0.0;
+        double energyGeometryDelta = 0.0, energyProjectionDelta = 0.0;
         while (completedSteps < requestedSteps) {
             const std::uint32_t segmentSteps =
                 (standBrainController != nullptr || captureExactContinuumSteps || endpointEnergy)
@@ -6138,6 +6167,43 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                     model, horizonInput, segmentResult, timestepSeconds);
                 const double passiveBefore = passiveEnergyAt(currentQ);
                 const double passiveAfter = passiveEnergyAt(segmentResult.standQ);
+                const double passivePreProjection =
+                    passiveEnergyAt(segmentResult.standPreProjectionQ);
+                const double smoothWork = energy.muscleWork + energy.jointDampingWork +
+                    energy.bodyDampingWork;
+                const double constraintWork = energy.contactNormalWork +
+                    energy.contactTangentialWork + energy.equalityWork +
+                    energy.sourceLimitWork;
+                // This is an identity over measured accepted states, not a new
+                // work credit. Keep the free solve, coupled solve, coordinate
+                // integration, and exact projection as separate energy stages.
+                const double freeWorkGap =
+                    energy.kineticFreeAtBeforeQ - energy.kineticBefore - smoothWork;
+                const double coupledWorkGap =
+                    energy.kineticCoupledAtBeforeQ - energy.kineticFreeAtBeforeQ -
+                    constraintWork;
+                const double geometryEnergyDelta =
+                    energy.kineticPreProjection - energy.kineticCoupledAtBeforeQ +
+                    energy.gravityPreProjection - energy.gravityBefore +
+                    passivePreProjection - passiveBefore;
+                const double projectionEnergyDelta =
+                    energy.kineticAfter - energy.kineticPreProjection +
+                    energy.gravityAfter - energy.gravityPreProjection +
+                    passiveAfter - passivePreProjection;
+                const double availableWork =
+                    energy.gravityBefore - energy.gravityAfter +
+                    passiveBefore - passiveAfter + smoothWork + constraintWork;
+                const double unclosedResidual =
+                    energy.kineticAfter - energy.kineticBefore - availableWork;
+                const double stagedResidual = freeWorkGap + coupledWorkGap +
+                    geometryEnergyDelta + projectionEnergyDelta;
+                require(std::isfinite(freeWorkGap) && std::isfinite(coupledWorkGap) &&
+                            std::isfinite(geometryEnergyDelta) &&
+                            std::isfinite(projectionEnergyDelta) &&
+                            std::isfinite(unclosedResidual) &&
+                            std::abs(stagedResidual - unclosedResidual) <=
+                                1.0e-11 * std::max(1.0, std::abs(unclosedResidual)),
+                        "accepted pre-projection energy stages do not reconcile");
                 if (completedSteps == 0u) {
                     energyInitialKinetic = energy.kineticBefore;
                     energyInitialGravity = energy.gravityBefore;
@@ -6153,14 +6219,27 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 energyTangentialWork += energy.contactTangentialWork;
                 energyEqualityWork += energy.equalityWork;
                 energySourceLimitWork += energy.sourceLimitWork;
+                energyFreeWorkGap += freeWorkGap;
+                energyCoupledWorkGap += coupledWorkGap;
+                energyGeometryDelta += geometryEnergyDelta;
+                energyProjectionDelta += projectionEnergyDelta;
                 const auto& native = segmentResult.standStatuses.front();
                 energySolverEqualityWork += native.constraintImpulseWorkDiagnostics.z;
                 energySolverSourceLimitWork += native.constraintImpulseWorkDiagnostics.w;
                 std::cout << std::setprecision(17)
                           << "human_endpoint_energy=accepted step=" << completedSteps + segmentSteps
                           << " kinetic_before_j=" << energy.kineticBefore
+                          << " kinetic_free_before_q_j=" << energy.kineticFreeAtBeforeQ
+                          << " kinetic_coupled_before_q_j=" << energy.kineticCoupledAtBeforeQ
+                          << " kinetic_pre_projection_j=" << energy.kineticPreProjection
                           << " kinetic_after_j=" << energy.kineticAfter
                           << " delta_kinetic_j=" << energy.kineticAfter - energy.kineticBefore
+                          << " gravity_potential_before_j=" << energy.gravityBefore
+                          << " gravity_potential_pre_projection_j=" << energy.gravityPreProjection
+                          << " gravity_potential_after_j=" << energy.gravityAfter
+                          << " passive_potential_before_j=" << passiveBefore
+                          << " passive_potential_pre_projection_j=" << passivePreProjection
+                          << " passive_potential_after_j=" << passiveAfter
                           << " gravity_potential_work_j=" << energy.gravityBefore - energy.gravityAfter
                           << " passive_potential_work_j=" << passiveBefore - passiveAfter
                           << " muscle_midpoint_work_j=" << energy.muscleWork
@@ -6172,7 +6251,11 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                           << " equality_solver_iterate_work_j=" << native.constraintImpulseWorkDiagnostics.z
                           << " source_limit_endpoint_work_j=" << energy.sourceLimitWork
                           << " source_limit_solver_iterate_work_j=" << native.constraintImpulseWorkDiagnostics.w
-                          << " exact_projection_work=unavailable"
+                          << " free_solve_work_gap_j=" << freeWorkGap
+                          << " coupled_solve_work_gap_j=" << coupledWorkGap
+                          << " geometry_energy_delta_j=" << geometryEnergyDelta
+                          << " exact_projection_energy_delta_j=" << projectionEnergyDelta
+                          << " unclosed_available_terms_residual_j=" << unclosedResidual
                           << " musculotendon_internal_energy=unavailable"
                           << " closure=not_established" << std::endl;
             }
@@ -6318,11 +6401,14 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                       << " source_limit_endpoint_work_j=" << energySourceLimitWork
                       << " source_limit_solver_iterate_work_j=" << energySolverSourceLimitWork
                       << " unclosed_available_terms_residual_j=" << deltaKinetic - availableWork
+                      << " free_solve_work_gap_j=" << energyFreeWorkGap
+                      << " coupled_solve_work_gap_j=" << energyCoupledWorkGap
+                      << " geometry_energy_delta_j=" << energyGeometryDelta
+                      << " exact_projection_energy_delta_j=" << energyProjectionDelta
                       << " mass_basis=body_inertia_plus_armature_fp64"
                       << " root_basis=accepted_compensated_translation"
                       << " work_quadrature=accepted_endpoint_midpoint"
                       << " constraint_geometry=native_pre_step_linearization"
-                      << " exact_projection_work=unavailable"
                       << " musculotendon_internal_energy=unavailable"
                       << " integration_bias_and_quadrature_remainder=unresolved"
                       << " closure=not_established" << std::endl;

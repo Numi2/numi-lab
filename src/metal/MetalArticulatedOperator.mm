@@ -2419,6 +2419,7 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
         std::size_t factorPerEnvironment = 0u;
         std::size_t vectorPerEnvironment = 0u;
         std::size_t constraintVectorElements = 0u;
+        std::size_t preProjectionElements = 0u;
         std::size_t responsePerEnvironment = 0u;
         std::size_t bilateralScratchElements = 0u;
         if (!checkedMultiply(
@@ -2458,11 +2459,15 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
                         vectorPerEnvironment) ||
             !checkedAdd(vectorPerEnvironment, constraintVectorElements,
                         vectorPerEnvironment) ||
-            // The opt-in diagnostic keeps final signed source-limit impulses
-            // after the existing contact/equality arena, one float per DOF.
+            // The opt-in diagnostic keeps signed source-limit impulses and
+            // pre-projection q/v after the existing contact/equality arena.
             (config.readStandConstraintDiagnostics &&
-             !checkedAdd(vectorPerEnvironment, articulation.nv,
-                         vectorPerEnvironment)) ||
+             (!checkedAdd(articulation.nq, articulation.nv,
+                          preProjectionElements) ||
+              !checkedAdd(preProjectionElements, articulation.nv,
+                          preProjectionElements) ||
+              !checkedAdd(vectorPerEnvironment, preProjectionElements,
+                          vectorPerEnvironment))) ||
             !checkedMultiply(input.environmentCount, vectorPerEnvironment,
                              layout.standVectorElements) ||
             !checkedMultiply(input.stand.contacts.size(), 3u,
@@ -8357,9 +8362,17 @@ MetalArticulatedOperatorSubmission::wait(
             // reconciliation and result publication behavior remain unchanged.
             const std::size_t environments = staged.standStatuses.size();
             const std::size_t nv = pending->articulation.nv;
+            const std::size_t nq = pending->articulation.nq;
             const std::size_t contacts = pending->standContactCount;
             const std::size_t equalities = pending->standJointEqualityCount;
             const std::size_t stride = diagnostics.layout.standVectorElements / environments;
+            const std::size_t preProjectionBase =
+                5u * nv + 12u * contacts + equalities;
+            if (stride != preProjectionBase + nq + nv) {
+                return reject(std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::internalFailure,
+                    "GPU Numi Human endpoint diagnostic stride is invalid");
+            }
             const auto* vectors = static_cast<const float*>(
                 pending->context->standBuffers[kStandVectorBuffer].contents);
             const auto* spatial = static_cast<const float*>(
@@ -8370,6 +8383,8 @@ MetalArticulatedOperatorSubmission::wait(
             staged.standJointEqualityDerivatives.resize(environments * equalities);
             staged.standFreeVelocity.resize(environments * nv);
             staged.standPreviousVelocity.resize(environments * nv);
+            staged.standPreProjectionQ.resize(environments * nq);
+            staged.standPreProjectionV.resize(environments * nv);
             for (std::size_t env = 0u; env < environments; ++env) {
                 const float* row = vectors + env * stride;
                 std::copy_n(row + 4u * nv, 3u * contacts,
@@ -8383,6 +8398,10 @@ MetalArticulatedOperatorSubmission::wait(
                     staged.standJointEqualityDerivatives.begin() + env * equalities);
                 std::copy_n(row + nv, nv, staged.standFreeVelocity.begin() + env * nv);
                 std::copy_n(row + 3u * nv, nv, staged.standPreviousVelocity.begin() + env * nv);
+                std::copy_n(row + preProjectionBase, nq,
+                    staged.standPreProjectionQ.begin() + env * nq);
+                std::copy_n(row + preProjectionBase + nq, nv,
+                    staged.standPreProjectionV.begin() + env * nv);
             }
             if (!std::all_of(staged.standSourceLimitImpulses.begin(),
                              staged.standSourceLimitImpulses.end(),
@@ -8390,6 +8409,16 @@ MetalArticulatedOperatorSubmission::wait(
                 return reject(std::move(diagnostics),
                     MetalArticulatedOperatorHostStatus::internalFailure,
                     "GPU Numi Human source-limit impulse evidence is non-finite");
+            }
+            if (!std::all_of(staged.standPreProjectionQ.begin(),
+                             staged.standPreProjectionQ.end(),
+                             [](const float value) { return std::isfinite(value); }) ||
+                !std::all_of(staged.standPreProjectionV.begin(),
+                             staged.standPreProjectionV.end(),
+                             [](const float value) { return std::isfinite(value); })) {
+                return reject(std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::internalFailure,
+                    "GPU Numi Human pre-projection state evidence is non-finite");
             }
         }
         if (diagnostics.failedEnvironmentCount == 0u &&
