@@ -107,12 +107,19 @@ public:
                         frame.deliveryTimestampMicroseconds,
                 "Human Brain sensor audit frame is not the accepted delivery");
         const Channel& touch = frame.channels[2u];
+        const Channel& spindles = frame.channels[3u];
         const Channel& vestibular = frame.channels[4u];
         require(touch.modality == 3u && touch.receptorCount == 10u &&
                     touch.featureCount == 7u && touch.values != nil &&
                     touch.validity != nil &&
                     touch.values.length >= 70u * sizeof(float) &&
                     touch.validity.length >= 10u * sizeof(std::uint32_t) &&
+                    spindles.modality == 4u && spindles.receptorCount == 416u &&
+                    spindles.featureCount == MR_NUMANX_HUMAN_PROPRIOCEPTION_FEATURE_COUNT &&
+                    spindles.values != nil && spindles.validity != nil &&
+                    spindles.values.length >= 416u *
+                        MR_NUMANX_HUMAN_PROPRIOCEPTION_FEATURE_COUNT * sizeof(float) &&
+                    spindles.validity.length >= 416u * sizeof(std::uint32_t) &&
                     vestibular.modality == 5u && vestibular.receptorCount == 1u &&
                     vestibular.featureCount == 22u && vestibular.values != nil &&
                     vestibular.validity != nil &&
@@ -121,11 +128,29 @@ public:
                 "Human Brain sensor audit packet dimensions are invalid");
         const auto* touchValues = static_cast<const float*>(touch.values.contents);
         const auto* touchValidity = static_cast<const std::uint32_t*>(touch.validity.contents);
+        const auto* spindleValues = static_cast<const float*>(spindles.values.contents);
+        const auto* spindleValidity = static_cast<const std::uint32_t*>(spindles.validity.contents);
         const auto* vestibularValues = static_cast<const float*>(vestibular.values.contents);
         const auto* vestibularValidity = static_cast<const std::uint32_t*>(vestibular.validity.contents);
         require(touchValues != nullptr && touchValidity != nullptr &&
+                    spindleValues != nullptr && spindleValidity != nullptr &&
                     vestibularValues != nullptr && vestibularValidity != nullptr,
                 "Human Brain sensor audit shared buffers are unavailable");
+        constexpr std::uint32_t pathValidity =
+            (1u << MR_NUMANX_HUMAN_FEATURE_PATH_LENGTH_METRES) |
+            (1u << MR_NUMANX_HUMAN_FEATURE_PATH_VELOCITY_METRES_PER_SECOND);
+        std::size_t spindleValidFiniteCount = 0u;
+        std::size_t spindleUsableCount = 0u;
+        for (std::size_t muscle = 0u; muscle < 416u; ++muscle) {
+            if ((spindleValidity[muscle] & pathValidity) != pathValidity) continue;
+            const std::size_t offset = muscle * MR_NUMANX_HUMAN_PROPRIOCEPTION_FEATURE_COUNT;
+            const float length = spindleValues[offset + MR_NUMANX_HUMAN_FEATURE_PATH_LENGTH_METRES];
+            const float velocity = spindleValues[
+                offset + MR_NUMANX_HUMAN_FEATURE_PATH_VELOCITY_METRES_PER_SECOND];
+            if (!std::isfinite(length) || !std::isfinite(velocity)) continue;
+            ++spindleValidFiniteCount;
+            if (length > 0.0f) ++spindleUsableCount;
+        }
         std::ostringstream line;
         line.imbue(std::locale::classic());
         line << std::setprecision(std::numeric_limits<float>::max_digits10)
@@ -176,7 +201,8 @@ public:
                     "Human Brain accepted root velocity is nonfinite");
             line << (component == 0u ? "" : ",") << value;
         }
-        line << ']';
+        line << "] spindle_valid_finite_count=" << spindleValidFiniteCount
+             << " spindle_usable_count=" << spindleUsableCount;
         return line.str();
     }
 
