@@ -156,6 +156,16 @@ public:
                 "Human Brain accepted head orientation is nonfinite");
             line << (component == 0u ? "" : ",") << value;
         }
+        line << "] root_position_validity="
+             << (vestibularValidity[0u] & 0x00000007u)
+             << " root_position_xyz_m=[";
+        for (std::size_t component = 0u; component < 3u; ++component) {
+            const float value = vestibularValues[component];
+            require((vestibularValidity[0u] & (1u << component)) == 0u ||
+                        std::isfinite(value),
+                    "Human Brain accepted root position is nonfinite");
+            line << (component == 0u ? "" : ",") << value;
+        }
         line << "] root_linear_velocity_validity="
              << (vestibularValidity[0u] & 0x00000380u)
              << " root_linear_velocity_xyz_m_s=[";
@@ -204,17 +214,22 @@ public:
             require(vestibular.values != nil && vestibular.validity != nil &&
                         vestibular.values.length >= 10u * sizeof(float) &&
                         vestibular.validity.length >= sizeof(std::uint32_t),
-                    "Human Brain accepted root velocity receptor packet is absent");
+                    "Human Brain accepted root coordinate receptor packet is absent");
             const auto* values = static_cast<const float*>(vestibular.values.contents);
             const auto* validity = static_cast<const std::uint32_t*>(
                 vestibular.validity.contents);
             require(values != nullptr && validity != nullptr &&
+                        (validity[0u] & 0x00000007u) == 0x00000007u &&
                         (validity[0u] & 0x00000380u) == 0x00000380u,
-                    "Human Brain accepted root velocity is not physically valid");
-            for (std::size_t axis = 0u; axis < 3u; ++axis)
+                    "Human Brain accepted root coordinates are not physically valid");
+            for (std::size_t axis = 0u; axis < 3u; ++axis) {
+                require(std::bit_cast<std::uint32_t>(values[axis]) ==
+                            std::bit_cast<std::uint32_t>(result.standQ[axis]),
+                        "Human Brain root position differs from accepted native state");
                 require(std::bit_cast<std::uint32_t>(values[7u + axis]) ==
                             std::bit_cast<std::uint32_t>(result.standV[axis]),
                         "Human Brain root velocity differs from accepted native state");
+            }
             std::array<char, 2048u> pluginError{};
             if (library_.publish(brain_.handle, gpuStart, gpuEnd, pluginError.data(), pluginError.size()) != 1u) {
                 fail(pluginError[0] == '\0' ? "NumiBrain standing publication failed" : pluginError.data());

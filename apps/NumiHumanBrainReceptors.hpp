@@ -42,8 +42,8 @@ struct Frame {
     // touch, proprioception, vestibular, interoception, kinesthesia.
     std::array<Channel, 7u> channels{};
     // Head pose and source MyoSim/path measurements belong to the existing
-    // pre-dynamics evaluation at this step start. Root linear velocity is the
-    // accepted endpoint velocity. Touch force is impulse/dt over
+    // pre-dynamics evaluation at this step start. Root position and linear
+    // velocity are accepted endpoint coordinates. Touch force is impulse/dt over
     // [receptorTimestamp, deliveryTimestamp], with pre-step slip. The frame
     // is first deliverable at that interval's accepted end.
     std::uint64_t receptorTimestampMicroseconds = 0u;
@@ -80,7 +80,7 @@ public:
         hash(modelFingerprint);
         hash(bodyCount); hash(headBodyIndex); hash(timestepMicroseconds); hash(epochMicroseconds);
         // Binds sparse physical meanings, including invalid unimplemented modalities.
-        constexpr std::uint32_t receptorProgramVersion = 2u;
+        constexpr std::uint32_t receptorProgramVersion = 3u;
         hash(receptorProgramVersion);
         for (const ContactBinding& binding : contactBindings) {
             require(binding.contactIndex < contactBindings.size() && !rows[binding.contactIndex] &&
@@ -197,6 +197,7 @@ public:
                         metalrobo::MetalNumanXTransactionWriteStandFailure) ||
                     pass.environmentCount != 1u || pass.bodyCount != bodyCount_ ||
                     pass.dofCount != 128u || pass.qCoordinateCount != 129u ||
+                    pass.qElementCount != 129u || pass.qStride != 129u ||
                     pass.mujocoMuscleCount != 416u || pass.mujocoStateElementCount != 416u ||
                     pass.mujocoResultElementCount != 416u || pass.mujocoStateStride != 416u ||
                     pass.mujocoResultStride != 416u || pass.standStatusElementCount != 1u ||
@@ -222,6 +223,7 @@ public:
                     !validBuffer(pass.standStatuses, sizeof(MRNumiHumanStandStatusGPU)) ||
                     !validBuffer(pass.bodyPoses, bodyCount_ * sizeof(MRArticulatedBodyPoseGPU)) ||
                     !validBuffer(pass.standContacts, contactCount_ * sizeof(MRNumiHumanStandContactGPU)) ||
+                    !validBuffer(pass.q, 129u * sizeof(float)) ||
                     !validBuffer(pass.v, 128u * sizeof(float)) ||
                     !validBuffer(pass.standVectorWorkspace, pass.standVectorElementCount * sizeof(float)) ||
                     !validBuffer(pass.pointJacobians, pass.pointJacobianElementCount * sizeof(float))) return false;
@@ -305,6 +307,7 @@ public:
                 [writer setBytes:&sensorOffsets length:sizeof(sensorOffsets) atIndex:13u];
                 [writer setBytes:&groundAndTimestep length:sizeof(groundAndTimestep) atIndex:14u];
                 [writer setBuffer:(__bridge id<MTLBuffer>)pass.v offset:0u atIndex:15u];
+                [writer setBuffer:(__bridge id<MTLBuffer>)pass.q offset:0u atIndex:16u];
                 [writer dispatchThreads:MTLSizeMake(416u, 1u, 1u) threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
                 [writer endEncoding];
                 encoded_ = true;
@@ -431,6 +434,7 @@ kernel void human_brain_body_touch(
     constant uint4& shape [[buffer(12)]], constant uint4& offsets [[buffer(13)]],
     constant float4& normalAndTimestep [[buffer(14)]],
     device const float* acceptedVelocity [[buffer(15)]],
+    device const float* acceptedPosition [[buffer(16)]],
     uint index [[thread_position_in_grid]]) {
     // HumanIO's interoception writer emits workload proxies. They are not
     // measured oxygen, fatigue or tissue damage in this physical path.
@@ -445,11 +449,18 @@ kernel void human_brain_body_touch(
         const float norm = dot(headOrientation, headOrientation);
         if (gate[0] != 0u && all(isfinite(headOrientation)) && abs(norm - 1.0f) < 1.0e-3f) {
             // Native head-to-world quaternion xyzw from pre-dynamics
-            // kinematics. Root velocity comes from the native post-dynamics
-            // candidate and is published only with the accepted transaction.
+            // kinematics. Root coordinates come from the native post-dynamics
+            // candidate and are published only with the accepted transaction.
             for (uint component = 0u; component < 4u; ++component)
                 vestibular[16u + component] = headOrientation[component];
             vestibularValidity[0] = 0x000f0000u;
+        }
+        const float3 rootPosition = float3(
+            acceptedPosition[0u], acceptedPosition[1u], acceptedPosition[2u]);
+        if (gate[0] != 0u && all(isfinite(rootPosition))) {
+            for (uint component = 0u; component < 3u; ++component)
+                vestibular[component] = rootPosition[component];
+            vestibularValidity[0] |= 0x00000007u;
         }
         const float3 rootVelocity = float3(
             acceptedVelocity[0u], acceptedVelocity[1u], acceptedVelocity[2u]);
