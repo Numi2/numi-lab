@@ -6,8 +6,13 @@
 #include <dlfcn.h>
 #include <array>
 #include <bit>
+#include <cmath>
 #include <cstdio>
+#include <iomanip>
+#include <limits>
+#include <locale>
 #include <memory>
+#include <sstream>
 #include <string_view>
 #include <type_traits>
 
@@ -83,6 +88,77 @@ public:
     [[nodiscard]] std::uint64_t lastPhysicalStateFingerprint() const noexcept { return physicalFingerprint_; }
     [[nodiscard]] bool failed() const noexcept { return failed_; }
     [[nodiscard]] const char* error() const noexcept { return error_.data(); }
+
+    // Diagnostic only. The native and neural publications have both completed
+    // before the caller may read this delivered, shared-memory receptor frame.
+    // Validity is printed alongside every scalar so an absent observation is
+    // never mistaken for a measured zero force or orientation.
+    [[nodiscard]] std::string acceptedSensorAuditLine() const {
+        require(!failed_ && phase_ == Phase::ready && !rootOpen_ &&
+                    info_.committed_generation == std::uint64_t(step_) + 1u &&
+                    physicalFingerprint_ != 0u &&
+                    info_.last_joint_commit_fingerprint != 0u,
+                "Human Brain sensor audit requires a jointly accepted step");
+        const Frame& frame = receptors_->deliveredFrame(
+            stepTimestamp(info_.committed_generation));
+        require(frame.acceptedGeneration == info_.committed_generation &&
+                    frame.acceptedPhysicsFingerprint == physicalFingerprint_ &&
+                    frame.receptorTimestampMicroseconds + timestepMicroseconds_ ==
+                        frame.deliveryTimestampMicroseconds,
+                "Human Brain sensor audit frame is not the accepted delivery");
+        const Channel& touch = frame.channels[2u];
+        const Channel& vestibular = frame.channels[4u];
+        require(touch.modality == 3u && touch.receptorCount == 10u &&
+                    touch.featureCount == 7u && touch.values != nil &&
+                    touch.validity != nil &&
+                    touch.values.length >= 70u * sizeof(float) &&
+                    touch.validity.length >= 10u * sizeof(std::uint32_t) &&
+                    vestibular.modality == 5u && vestibular.receptorCount == 1u &&
+                    vestibular.featureCount == 22u && vestibular.values != nil &&
+                    vestibular.validity != nil &&
+                    vestibular.values.length >= 22u * sizeof(float) &&
+                    vestibular.validity.length >= sizeof(std::uint32_t),
+                "Human Brain sensor audit packet dimensions are invalid");
+        const auto* touchValues = static_cast<const float*>(touch.values.contents);
+        const auto* touchValidity = static_cast<const std::uint32_t*>(touch.validity.contents);
+        const auto* vestibularValues = static_cast<const float*>(vestibular.values.contents);
+        const auto* vestibularValidity = static_cast<const std::uint32_t*>(vestibular.validity.contents);
+        require(touchValues != nullptr && touchValidity != nullptr &&
+                    vestibularValues != nullptr && vestibularValidity != nullptr,
+                "Human Brain sensor audit shared buffers are unavailable");
+        std::ostringstream line;
+        line.imbue(std::locale::classic());
+        line << std::setprecision(std::numeric_limits<float>::max_digits10)
+             << "human_brain_sensor_audit=accepted"
+             << " step=" << frame.acceptedGeneration
+             << " brain_generation=" << info_.committed_generation
+             << " receptor_timestamp_us=" << frame.receptorTimestampMicroseconds
+             << " delivery_timestamp_us=" << frame.deliveryTimestampMicroseconds
+             << " physical_fingerprint=" << frame.acceptedPhysicsFingerprint
+             << " joint_commit_fingerprint=" << info_.last_joint_commit_fingerprint
+             << " touch_validity=[";
+        for (std::size_t index = 0u; index < 10u; ++index)
+            line << (index == 0u ? "" : ",") << touchValidity[index];
+        line << "] touch_normal_force_n=[";
+        for (std::size_t index = 0u; index < 10u; ++index) {
+            const float force = touchValues[index * 7u + 4u];
+            require((touchValidity[index] & (1u << 4u)) == 0u ||
+                        (std::isfinite(force) && force >= 0.0f),
+                "Human Brain accepted touch force is nonfinite or negative");
+            line << (index == 0u ? "" : ",") << force;
+        }
+        line << "] head_validity=" << vestibularValidity[0u]
+             << " head_quaternion_xyzw=[";
+        for (std::size_t component = 0u; component < 4u; ++component) {
+            const float value = vestibularValues[16u + component];
+            require((vestibularValidity[0u] & (1u << (16u + component))) == 0u ||
+                        std::isfinite(value),
+                "Human Brain accepted head orientation is nonfinite");
+            line << (component == 0u ? "" : ",") << value;
+        }
+        line << ']';
+        return line.str();
+    }
 
     // Called immediately after a ONE-step context.run(). A successful native
     // step remains physical evidence even if the later neural completion fails.

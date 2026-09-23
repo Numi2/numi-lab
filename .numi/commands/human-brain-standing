@@ -30,6 +30,11 @@ if [[ ! "$steps" =~ ^[1-9][0-9]*$ ]] || (( ${#steps} > 5 )) || (( steps > 10000 
     printf 'NUMI_HUMAN_BRAIN_STEPS must be from 1 through 10000: %s\n' "$steps" >&2
     exit 2
 fi
+sensor_audit=${NUMI_HUMAN_BRAIN_SENSOR_AUDIT:-0}
+if [[ "$sensor_audit" != 0 && "$sensor_audit" != 1 ]]; then
+    printf 'NUMI_HUMAN_BRAIN_SENSOR_AUDIT must be 0 or 1: %s\n' "$sensor_audit" >&2
+    exit 2
+fi
 
 require_file() {
     if [[ ! -f "$1" ]]; then
@@ -114,6 +119,7 @@ fi
 {
     printf 'output_directory=%s\n' "$output_directory"
     printf 'native_timestep_microseconds=1000\nbrain_epoch_microseconds=1000\nrequested_physical_steps=%s\nseed=%s\n' "$steps" "$seed"
+    printf 'accepted_sensor_audit=%s\n' "$sensor_audit"
     printf 'binary '; shasum -a 256 "$binary"
     printf 'brain_library '; shasum -a 256 "$brain_library"
     while IFS= read -r metallib; do

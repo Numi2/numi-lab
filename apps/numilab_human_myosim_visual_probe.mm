@@ -5993,6 +5993,17 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             horizonInput.stand.numanXTransactionProgram =
                 standBrainController->program();
         }
+        const char* brainSensorAuditSetting =
+            std::getenv("NUMI_HUMAN_BRAIN_SENSOR_AUDIT");
+        require(standBrainController == nullptr ||
+                    brainSensorAuditSetting == nullptr ||
+                    brainSensorAuditSetting[0] == '\0' ||
+                    std::strcmp(brainSensorAuditSetting, "0") == 0 ||
+                    std::strcmp(brainSensorAuditSetting, "1") == 0,
+                "NUMI_HUMAN_BRAIN_SENSOR_AUDIT must be 0 or 1");
+        const bool brainSensorAudit = standBrainController != nullptr &&
+            brainSensorAuditSetting != nullptr &&
+            std::strcmp(brainSensorAuditSetting, "1") == 0;
         metalrobo::MetalArticulatedOperatorDiagnostics aggregateDiagnostics;
         aggregateDiagnostics.dispatched = true;
         aggregateDiagnostics.published = true;
@@ -6086,6 +6097,19 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                     segmentDiagnostics.elapsedMilliseconds = elapsedMilliseconds;
                     horizonResult = std::move(segmentResult);
                     return segmentDiagnostics;
+                }
+                if (brainSensorAudit) {
+                    // Complete() published both the native receptor frame and
+                    // its matching Brain root. Rejected candidates never reach
+                    // this read-only diagnostic path.
+                    try {
+                        std::cout << standBrainController->acceptedSensorAuditLine()
+                                  << std::endl;
+                    } catch (const std::exception& exception) {
+                        std::cerr << "human_brain_sensor_audit=failed"
+                                  << " step=" << completedSteps + segmentSteps
+                                  << " reason=" << exception.what() << std::endl;
+                    }
                 }
                 if (completedSteps == 0u ||
                     (completedSteps + segmentSteps) % 1000u == 0u ||
