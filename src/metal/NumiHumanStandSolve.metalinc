@@ -931,6 +931,170 @@
             threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
             if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
         }
+        if (threadCount >= simdWidth && nv <= 4u * simdWidth &&
+            equalityCount <= 2u * simdWidth) {
+            // One SIMD group owns the ordered limit solve. Each lane holds up
+            // to four disjoint DOF velocities in registers, so the lane that
+            // owns a limit can broadcast its current velocity before any lane
+            // changes it. No cross-SIMD read/write of candidateV occurs inside
+            // the limit loop; the outer threadgroup barrier publishes it for
+            // the next contact sweep.
+            if (lane < simdWidth) {
+                const uint simdLane = lane;
+                const uint dof0 = simdLane;
+                const uint dof1 = simdLane + simdWidth;
+                const uint dof2 = simdLane + 2u * simdWidth;
+                const uint dof3 = simdLane + 3u * simdWidth;
+                float velocity0 = dof0 < nv ? candidateV[dof0] : 0.0f;
+                float velocity1 = dof1 < nv ? candidateV[dof1] : 0.0f;
+                float velocity2 = dof2 < nv ? candidateV[dof2] : 0.0f;
+                float velocity3 = dof3 < nv ? candidateV[dof3] : 0.0f;
+                const uint equality0 = simdLane;
+                const uint equality1 = simdLane + simdWidth;
+                uint equalityDof0 = MR_INVALID_INDEX;
+                uint equalityOtherDof0 = MR_INVALID_INDEX;
+                uint equalityDof1 = MR_INVALID_INDEX;
+                uint equalityOtherDof1 = MR_INVALID_INDEX;
+                float equalityDerivative0 = 0.0f;
+                float equalityDerivative1 = 0.0f;
+                float equalityVelocity0 = 0.0f;
+                float equalityVelocity1 = 0.0f;
+                if (equality0 < equalityCount) {
+                    device const auto& equality = jointEqualities[equality0];
+                    equalityDof0 = equality.indices.y;
+                    equalityOtherDof0 = equality.indices.w;
+                    equalityDerivative0 = equalityDerivativeCache[equality0];
+                    equalityVelocity0 = candidateV[equalityDof0];
+                    if (equalityOtherDof0 != MR_INVALID_INDEX)
+                        equalityVelocity0 = fma(-equalityDerivative0,
+                            candidateV[equalityOtherDof0], equalityVelocity0);
+                }
+                if (equality1 < equalityCount) {
+                    device const auto& equality = jointEqualities[equality1];
+                    equalityDof1 = equality.indices.y;
+                    equalityOtherDof1 = equality.indices.w;
+                    equalityDerivative1 = equalityDerivativeCache[equality1];
+                    equalityVelocity1 = candidateV[equalityDof1];
+                    if (equalityOtherDof1 != MR_INVALID_INDEX)
+                        equalityVelocity1 = fma(-equalityDerivative1,
+                            candidateV[equalityOtherDof1], equalityVelocity1);
+                }
+                for (uint limit = 0u; limit < cooperativeLimitCount; ++limit) {
+                    const uint dof = limitDofs[limit];
+                    const float effectiveMass = limitEffectiveMass[limit];
+                    if (!(effectiveMass > kResponseRegularization) ||
+                        !isfinite(effectiveMass)) {
+                        if (simdLane == 0u)
+                            fail(status, MR_NUMI_HUMAN_STAND_FACTORIZATION_FAILED, dof);
+                        break;
+                    }
+                    const float lowerVelocity = limitLowerVelocity[limit];
+                    const float upperVelocity = limitUpperVelocity[limit];
+                    if (!isfinite(lowerVelocity) || !isfinite(upperVelocity) ||
+                        lowerVelocity > upperVelocity) {
+                        if (simdLane == 0u)
+                            fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT, dof);
+                        break;
+                    }
+                    const uint owner = dof % simdWidth;
+                    const uint slot = dof / simdWidth;
+                    float ownedVelocity = 0.0f;
+                    if (simdLane == owner)
+                        ownedVelocity = slot == 0u ? velocity0 :
+                            slot == 1u ? velocity1 :
+                            slot == 2u ? velocity2 : velocity3;
+                    const float velocityBefore = simd_broadcast(
+                        ownedVelocity, owner);
+                    const float previousImpulse =
+                        limitAccumulatedImpulses[limit];
+                    const float nextImpulse = mrNumiHumanProjectIntervalImpulse(
+                        previousImpulse, velocityBefore, lowerVelocity,
+                        upperVelocity, effectiveMass);
+                    const float impulse = nextImpulse - previousImpulse;
+                    if (!isfinite(impulse)) {
+                        if (simdLane == 0u)
+                            fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT, dof);
+                        break;
+                    }
+                    if (impulse == 0.0f) continue;
+                    device const float* response = responseScratch +
+                        limitResponseBase + limit * nv;
+                    float equalityWorkContribution = 0.0f;
+                    if (equality0 < equalityCount) {
+                        const float equalityImpulse = impulse *
+                            limitEqualityCorrections[
+                                limit * equalityCount + equality0];
+                        const float before = equalityVelocity0;
+                        float responseEquality = response[equalityDof0];
+                        if (equalityOtherDof0 != MR_INVALID_INDEX)
+                            responseEquality = fma(-equalityDerivative0,
+                                response[equalityOtherDof0], responseEquality);
+                        equalityVelocity0 = fma(impulse, responseEquality,
+                            equalityVelocity0);
+                        equalityWorkContribution = fma(
+                            0.5f * equalityImpulse, before,
+                            equalityWorkContribution);
+                        equalityWorkContribution = fma(
+                            0.5f * equalityImpulse, equalityVelocity0,
+                            equalityWorkContribution);
+                        equalityLambdas[equality0] += equalityImpulse;
+                    }
+                    if (equality1 < equalityCount) {
+                        const float equalityImpulse = impulse *
+                            limitEqualityCorrections[
+                                limit * equalityCount + equality1];
+                        const float before = equalityVelocity1;
+                        float responseEquality = response[equalityDof1];
+                        if (equalityOtherDof1 != MR_INVALID_INDEX)
+                            responseEquality = fma(-equalityDerivative1,
+                                response[equalityOtherDof1], responseEquality);
+                        equalityVelocity1 = fma(impulse, responseEquality,
+                            equalityVelocity1);
+                        equalityWorkContribution = fma(
+                            0.5f * equalityImpulse, before,
+                            equalityWorkContribution);
+                        equalityWorkContribution = fma(
+                            0.5f * equalityImpulse, equalityVelocity1,
+                            equalityWorkContribution);
+                        equalityLambdas[equality1] += equalityImpulse;
+                    }
+                    const float equalityWorkIncrement =
+                        simd_sum(equalityWorkContribution);
+                    const float halfImpulse = 0.5f * impulse;
+                    const float velocityAfter = fma(impulse,
+                        response[dof], velocityBefore);
+                    const float limitWorkIncrement = fma(halfImpulse,
+                        velocityAfter, halfImpulse * velocityBefore);
+                    if (!isfinite(limitWorkIncrement) ||
+                        !isfinite(equalityWorkIncrement)) {
+                        if (simdLane == 0u)
+                            fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT, dof);
+                        break;
+                    }
+                    if (simdLane == 0u) {
+                        limitAccumulatedImpulses[limit] = nextImpulse;
+                        sourceLimitImpulseWork += limitWorkIncrement;
+                        sourceLimitAbsoluteImpulseWork +=
+                            abs(limitWorkIncrement);
+                        equalityImpulseWork += equalityWorkIncrement;
+                        equalityAbsoluteImpulseWork +=
+                            abs(equalityWorkIncrement);
+                    }
+                    if (dof0 < nv)
+                        velocity0 = fma(impulse, response[dof0], velocity0);
+                    if (dof1 < nv)
+                        velocity1 = fma(impulse, response[dof1], velocity1);
+                    if (dof2 < nv)
+                        velocity2 = fma(impulse, response[dof2], velocity2);
+                    if (dof3 < nv)
+                        velocity3 = fma(impulse, response[dof3], velocity3);
+                }
+                if (dof0 < nv) candidateV[dof0] = velocity0;
+                if (dof1 < nv) candidateV[dof1] = velocity1;
+                if (dof2 < nv) candidateV[dof2] = velocity2;
+                if (dof3 < nv) candidateV[dof3] = velocity3;
+            }
+        } else {
         for (uint limit = 0u; limit < cooperativeLimitCount; ++limit) {
             float limitWorkIncrement = 0.0f;
             float limitEqualityWorkIncrement = 0.0f;
@@ -1042,6 +1206,7 @@
             }
             threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
             if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
+        }
         }
     }
     threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
