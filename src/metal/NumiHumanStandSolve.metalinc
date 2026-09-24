@@ -380,6 +380,28 @@
         solveBilateral();
         if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
     }
+#if defined(MR_NH_COOPERATIVE_FINISH)
+    // The equality projection is linear in each contact impulse. Its work
+    // coefficient is fixed for the step, and the final equality multiplier
+    // receives the net contact impulse once after all coupled sweeps. This
+    // removes a serial equality-row walk from every contact projection.
+    if (lane == 0u && useProjectedContacts) {
+        for (uint contact = 0u;
+             contact < dispatch.supportContactCount; ++contact) {
+            for (uint axis = 0u; axis < 3u; ++axis) {
+                device const float* reaction = projectedContactEquality +
+                    (3u * contact + axis) * equalityCount;
+                float coefficient = 0.0f;
+                for (uint row = 0u; row < equalityCount; ++row)
+                    coefficient = fma(reaction[row],
+                        equalityTargetVelocityCache[row], coefficient);
+                cooperativeContactEqualityWork[3u * contact + axis] =
+                    coefficient;
+            }
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+#endif
     for (uint coupledSweep = 0u;
          coupledSweep < coupledSweepCount;
          ++coupledSweep) {
@@ -467,6 +489,10 @@
                 candidateV[dof] += seed * normalResponse[dof];
             }
             if (useProjectedContacts) {
+#if defined(MR_NH_COOPERATIVE_FINISH)
+                const float inducedWork = seed *
+                    cooperativeContactEqualityWork[3u * contact];
+#else
                 device const float* reaction =
                     projectedContactEquality + 3u * contact * equalityCount;
                 float inducedWork = 0.0f;
@@ -476,6 +502,7 @@
                     inducedWork = fma(induced,
                         equalityTargetVelocityCache[row], inducedWork);
                 }
+#endif
                 if (!isfinite(inducedWork)) {
                     fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT,
                          contact);
@@ -613,19 +640,10 @@
                     lambdas[3u * contact + 2u] = newLambda.z;
                     if (useProjectedContacts) {
                         float inducedWork = 0.0f;
-                        for (uint row = 0u; row < equalityCount; ++row) {
-                            float induced = 0.0f;
-                            for (uint axis = 0u; axis < 3u; ++axis) {
-                                device const float* reaction =
-                                    projectedContactEquality +
-                                    (3u * contact + axis) * equalityCount;
-                                induced = fma(applied[axis], reaction[row],
-                                              induced);
-                            }
-                            equalityLambdas[row] += induced;
-                            inducedWork = fma(induced,
-                                equalityTargetVelocityCache[row], inducedWork);
-                        }
+                        for (uint axis = 0u; axis < 3u; ++axis)
+                            inducedWork = fma(applied[axis],
+                                cooperativeContactEqualityWork[
+                                    3u * contact + axis], inducedWork);
                         if (!isfinite(inducedWork)) {
                             fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT,
                                  contact);
@@ -1429,6 +1447,21 @@
 
 #if defined(MR_NH_COOPERATIVE_FINISH)
     if (lane != 0u) return;
+    if (useProjectedContacts) {
+        for (uint row = 0u; row < equalityCount; ++row) {
+            float contactImpulse = 0.0f;
+            for (uint contact = 0u;
+                 contact < dispatch.supportContactCount; ++contact) {
+                for (uint axis = 0u; axis < 3u; ++axis) {
+                    device const float* reaction = projectedContactEquality +
+                        (3u * contact + axis) * equalityCount;
+                    contactImpulse = fma(lambdas[3u * contact + axis],
+                        reaction[row], contactImpulse);
+                }
+            }
+            equalityLambdas[row] += contactImpulse;
+        }
+    }
 #endif
     // Final equality evidence includes full-block limit corrections.
         if ((dispatch.flags & MR_NUMI_HUMAN_STAND_HAS_JOINT_EQUALITIES) != 0u) {

@@ -1949,6 +1949,8 @@ kernel void mr_numi_human_stand_finish(
         MR_NUMI_HUMAN_STAND_MAX_CONTACTS];
     threadgroup float cooperativeContactVelocities[3];
     threadgroup float cooperativeContactApplied[3];
+    threadgroup float cooperativeContactEqualityWork[
+        3u * MR_NUMI_HUMAN_STAND_MAX_CONTACTS];
     threadgroup float* equalityRhs = equalityRhsStorage;
     // Equality multiplier corrections for each conditioned limit response.
     device float* limitEqualityCorrections = equalityPivots + 2u * equalityCount;
