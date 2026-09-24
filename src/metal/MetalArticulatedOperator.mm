@@ -383,6 +383,8 @@ struct MetalArticulatedOperatorContextState {
     __strong id<MTLComputePipelineState> millardPipeline = nil;
     __strong id<MTLComputePipelineState> mujocoPipeline = nil;
     __strong id<MTLComputePipelineState> mujocoCompensatedPipeline = nil;
+    __strong id<MTLComputePipelineState> mujocoCachedPipeline = nil;
+    __strong id<MTLComputePipelineState> mujocoAngularPipeline = nil;
     __strong id<MTLComputePipelineState> mujocoActiveForcePipeline = nil;
     __strong id<MTLComputePipelineState> mujocoReducePipeline = nil;
     __strong id<MTLComputePipelineState> mujocoActivationPipeline = nil;
@@ -414,6 +416,8 @@ struct MetalArticulatedOperatorContextState {
     __strong id<MTLSharedEvent> humanMatterTimelineEvent = nil;
     std::uint64_t humanMatterNextEventValue = 0u;
     __strong id<MTLBuffer> buffers[kRawBufferCount] = {};
+    __strong id<MTLBuffer> mujocoAngularCache = nil;
+    std::size_t mujocoAngularCacheCapacity = 0u;
     __strong id<MTLBuffer> standBuffers[kStandBufferCount] = {};
     __strong id<MTLBuffer> humanMatterBuffers[kHumanMatterBufferCount] = {};
     std::array<std::size_t, kRawBufferCount> capacities{};
@@ -3390,6 +3394,34 @@ MetalArticulatedOperatorDiagnostics initializeContext(
             MetalArticulatedOperatorHostStatus::metalPipelineFailure,
             "failed to create paired MyoSim reference pipeline: " + describeError(error));
     context.mujocoCompensatedPipeline = mujocoCompensatedPipeline;
+    id<MTLFunction> mujocoCachedFunction = [library
+        newFunctionWithName:@"mr_mujoco_muscle_reference_cached"];
+    id<MTLFunction> mujocoAngularFunction = [library
+        newFunctionWithName:@"mr_mujoco_muscle_angular_jacobians"];
+    if (mujocoCachedFunction == nil || mujocoAngularFunction == nil)
+        return reject(std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::metalLibraryFailure,
+            "metallib lacks cached MyoSim angular Jacobian operators");
+    error = nil;
+    context.mujocoCachedPipeline = [device
+        newComputePipelineStateWithFunction:mujocoCachedFunction error:&error];
+    if (context.mujocoCachedPipeline == nil ||
+        context.mujocoCachedPipeline.maxTotalThreadsPerThreadgroup <
+            kThreadsPerThreadgroup)
+        return reject(std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::metalPipelineFailure,
+            "failed to create cached MyoSim reference pipeline: " +
+                describeError(error));
+    error = nil;
+    context.mujocoAngularPipeline = [device
+        newComputePipelineStateWithFunction:mujocoAngularFunction error:&error];
+    if (context.mujocoAngularPipeline == nil ||
+        context.mujocoAngularPipeline.maxTotalThreadsPerThreadgroup <
+            kThreadsPerThreadgroup)
+        return reject(std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::metalPipelineFailure,
+            "failed to create MyoSim angular Jacobian pipeline: " +
+                describeError(error));
     context.mujocoPipeline = mujocoPipeline;
     context.mujocoActiveForcePipeline = mujocoActiveForcePipeline;
     context.mujocoReducePipeline = mujocoReducePipeline;
@@ -3528,6 +3560,7 @@ std::size_t growthCapacity(
 MetalArticulatedOperatorDiagnostics ensureBufferArena(
     detail::MetalArticulatedOperatorContextState& context,
     const RequiredBuffers& requirements,
+    const bool useMujocoAngularCache,
     MetalArticulatedOperatorDiagnostics diagnostics
 ) {
     const std::size_t maximumBufferLength =
@@ -3540,6 +3573,25 @@ MetalArticulatedOperatorDiagnostics ensureBufferArena(
         context.standCapacities;
     std::array<std::size_t, kHumanMatterBufferCount> humanMatterProposed =
         context.humanMatterCapacities;
+    std::size_t angularCacheRequired = 0u;
+    if (useMujocoAngularCache) {
+        std::size_t angularElements = 0u;
+        if (!checkedMultiply(diagnostics.layout.bodyPoseElements,
+                             diagnostics.layout.dispatch.generalizedStride,
+                             angularElements) ||
+            !checkedMultiply(angularElements, sizeof(mr_float4),
+                             angularCacheRequired))
+            return reject(std::move(diagnostics),
+                MetalArticulatedOperatorHostStatus::arithmeticOverflow,
+                "MyoSim angular Jacobian cache size overflow");
+        if (angularCacheRequired > maximumBufferLength)
+            return reject(std::move(diagnostics),
+                MetalArticulatedOperatorHostStatus::metalBufferFailure,
+                "MyoSim angular Jacobian cache exceeds device.maxBufferLength");
+    }
+    std::size_t angularCacheProposed = growthCapacity(
+        context.mujocoAngularCacheCapacity, angularCacheRequired,
+        maximumBufferLength);
     for (std::size_t index = 0u;
          index < kRawBufferCount;
          ++index) {
@@ -3631,6 +3683,10 @@ MetalArticulatedOperatorDiagnostics ensureBufferArena(
             );
         }
     }
+    if (!checkedAdd(projectedBytes, angularCacheProposed, projectedBytes))
+        return reject(std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::arithmeticOverflow,
+            "persistent Metal arena byte-count overflow");
     const std::uint64_t recommendedWorkingSet =
         context.device.recommendedMaxWorkingSetSize;
     if (recommendedWorkingSet != 0u &&
@@ -3695,6 +3751,13 @@ MetalArticulatedOperatorDiagnostics ensureBufferArena(
                 );
             }
         }
+        angularCacheProposed = std::max(
+            context.mujocoAngularCacheCapacity, angularCacheRequired);
+        if (!checkedAdd(projectedBytes, angularCacheProposed,
+                        projectedBytes))
+            return reject(std::move(diagnostics),
+                MetalArticulatedOperatorHostStatus::arithmeticOverflow,
+                "persistent Metal arena byte-count overflow");
     }
     if (recommendedWorkingSet != 0u &&
         static_cast<std::uint64_t>(projectedBytes) >
@@ -3709,6 +3772,7 @@ MetalArticulatedOperatorDiagnostics ensureBufferArena(
     }
 
     __strong id<MTLBuffer> replacements[kRawBufferCount] = {};
+    __strong id<MTLBuffer> angularCacheReplacement = nil;
     __strong id<MTLBuffer> standReplacements[kStandBufferCount] = {};
     __strong id<MTLBuffer>
         humanMatterReplacements[kHumanMatterBufferCount] = {};
@@ -3782,6 +3846,17 @@ MetalArticulatedOperatorDiagnostics ensureBufferArena(
             [NSString stringWithUTF8String:
                 requirements.humanMatterEntries[index].label];
     }
+    if (angularCacheProposed != context.mujocoAngularCacheCapacity) {
+        angularCacheReplacement = [context.device
+            newBufferWithLength:static_cast<NSUInteger>(angularCacheProposed)
+            options:MTLResourceStorageModePrivate];
+        if (angularCacheReplacement == nil ||
+            angularCacheReplacement.length < angularCacheProposed)
+            return reject(std::move(diagnostics),
+                MetalArticulatedOperatorHostStatus::metalBufferFailure,
+                "persistent MyoSim angular Jacobian allocation failed");
+        angularCacheReplacement.label = @"MyoSim body angular Jacobians";
+    }
 
     for (std::size_t index = 0u;
          index < kRawBufferCount;
@@ -3821,6 +3896,13 @@ MetalArticulatedOperatorDiagnostics ensureBufferArena(
             humanMatterReplacements[index];
         context.humanMatterCapacities[index] =
             humanMatterProposed[index];
+    }
+    if (angularCacheReplacement != nil) {
+        if (context.mujocoAngularCacheCapacity != 0u)
+            ++context.stats.bufferGrowthCount;
+        ++context.stats.bufferAllocationCount;
+        context.mujocoAngularCache = angularCacheReplacement;
+        context.mujocoAngularCacheCapacity = angularCacheProposed;
     }
     context.stats.retainedBufferBytes = projectedBytes;
     return diagnostics;
@@ -9058,6 +9140,8 @@ MetalArticulatedOperatorContext::submit(
             diagnostics = ensureBufferArena(
                 *state_,
                 requirements,
+                input.stand.enabled() && input.mujoco.enabled() &&
+                    hasCompensatedGeometry(diagnostics.layout),
                 std::move(diagnostics)
             );
             if (!diagnostics.succeeded()) {
@@ -10063,6 +10147,41 @@ MetalArticulatedOperatorContext::submit(
             }
 
             if (input.mujoco.enabled()) {
+                const bool cacheMujocoAngular = input.stand.enabled() &&
+                    pairedGeometry;
+                if (cacheMujocoAngular) {
+                    if (state_->mujocoAngularCache == nil)
+                        return reject(std::move(diagnostics),
+                            MetalArticulatedOperatorHostStatus::metalBufferFailure,
+                            "MyoSim angular Jacobian cache was not retained");
+                    id<MTLComputeCommandEncoder> angularEncoder =
+                        humanTimedEncoder(commandBuffer, state_->device,
+                                          "muscle_angular", authoritativeStep);
+                    if (angularEncoder == nil)
+                        return reject(std::move(diagnostics),
+                            MetalArticulatedOperatorHostStatus::metalCommandFailure,
+                            "failed to create MyoSim angular Jacobian encoder");
+                    [angularEncoder setComputePipelineState:
+                        state_->mujocoAngularPipeline];
+                    [angularEncoder setBuffer:state_->buffers[8u]
+                                         offset:0u atIndex:0u];
+                    [angularEncoder setBuffer:state_->buffers[11u]
+                                         offset:0u atIndex:1u];
+                    [angularEncoder setBuffer:state_->buffers[kMujocoDispatchBuffer]
+                                         offset:0u atIndex:2u];
+                    [angularEncoder setBuffer:state_->mujocoAngularCache
+                                         offset:0u atIndex:3u];
+                    const std::size_t angularCount =
+                        diagnostics.layout.bodyPoseElements * articulation.nv;
+                    [angularEncoder dispatchThreadgroups:MTLSizeMake(
+                        static_cast<NSUInteger>(
+                            (angularCount + kThreadsPerThreadgroup - 1u) /
+                                kThreadsPerThreadgroup),
+                        1u, 1u)
+                        threadsPerThreadgroup:MTLSizeMake(
+                            kThreadsPerThreadgroup, 1u, 1u)];
+                    [angularEncoder endEncoding];
+                }
                 id<MTLComputeCommandEncoder> mujocoEncoder =
                     humanTimedEncoder(commandBuffer, state_->device, "muscles", authoritativeStep);
                 if (mujocoEncoder == nil) {
@@ -10072,8 +10191,10 @@ MetalArticulatedOperatorContext::submit(
                         "failed to create MyoSim reference encoder"
                     );
                 }
-                [mujocoEncoder setComputePipelineState:pairedGeometry
-                    ? state_->mujocoCompensatedPipeline : state_->mujocoPipeline];
+                [mujocoEncoder setComputePipelineState:cacheMujocoAngular
+                    ? state_->mujocoCachedPipeline
+                    : pairedGeometry ? state_->mujocoCompensatedPipeline
+                                     : state_->mujocoPipeline];
                 for (NSUInteger index = 0u;
                      index < kRawBufferCount;
                      ++index) {
@@ -10084,6 +10205,9 @@ MetalArticulatedOperatorContext::submit(
                 }
                 [mujocoEncoder setBuffer:state_->standBuffers[
                     kStandVelocityBuffer] offset:0u atIndex:7u];
+                if (cacheMujocoAngular)
+                    [mujocoEncoder setBuffer:state_->mujocoAngularCache
+                                         offset:0u atIndex:12u];
                 if (pairedGeometry)
                     [mujocoEncoder setBuffer:state_->standBuffers[
                         kStandBodyPositionLowBuffer] offset:0u atIndex:10u];

@@ -122,6 +122,9 @@ set(METALROBO_MUJOCO_MUSCLE_REFERENCE_SOURCE
 set(METALROBO_MUJOCO_MUSCLE_REFERENCE_COMPENSATED_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/MujocoMuscleReferenceCompensated.metal"
 )
+set(METALROBO_MUJOCO_MUSCLE_REFERENCE_CACHED_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/MujocoMuscleReferenceCached.metal"
+)
 set(METALROBO_NUMANX_HUMAN_IO_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/NumanXHumanIO.metal"
 )
@@ -247,6 +250,9 @@ set(METALROBO_MUJOCO_MUSCLE_REFERENCE_AIR
 )
 set(METALROBO_MUJOCO_MUSCLE_REFERENCE_COMPENSATED_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboMujocoMuscleReferenceCompensated.air"
+)
+set(METALROBO_MUJOCO_MUSCLE_REFERENCE_CACHED_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboMujocoMuscleReferenceCached.air"
 )
 set(METALROBO_NUMANX_HUMAN_IO_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboNumanXHumanIO.air"
@@ -528,6 +534,13 @@ add_custom_command(
             -O3
             -fno-fast-math
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_MUJOCO_MUSCLE_REFERENCE_CACHED_SOURCE}"
+            -o "${METALROBO_MUJOCO_MUSCLE_REFERENCE_CACHED_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_NUMANX_HUMAN_IO_SOURCE}"
             -o "${METALROBO_NUMANX_HUMAN_IO_AIR}"
     COMMAND xcrun -sdk macosx metal
@@ -767,6 +780,7 @@ add_custom_command(
             "${METALROBO_MILLARD_MUSCLE_REFERENCE_AIR}"
             "${METALROBO_MUJOCO_MUSCLE_REFERENCE_AIR}"
             "${METALROBO_MUJOCO_MUSCLE_REFERENCE_COMPENSATED_AIR}"
+            "${METALROBO_MUJOCO_MUSCLE_REFERENCE_CACHED_AIR}"
             "${METALROBO_NUMANX_HUMAN_IO_AIR}"
             "${METALROBO_NUMANX_COUPLED_HUMAN_AIR}"
             "${METALROBO_NUMANX_HUMAN_MATTER_AIR}"
@@ -820,6 +834,7 @@ add_custom_command(
         # The paired wrappers include the corresponding legacy source units,
         # which are also explicit dependencies of this shared metallib command.
         "${METALROBO_MUJOCO_MUSCLE_REFERENCE_COMPENSATED_SOURCE}"
+        "${METALROBO_MUJOCO_MUSCLE_REFERENCE_CACHED_SOURCE}"
         "${METALROBO_NUMI_HUMAN_TENDON_TRANSFER_COMPENSATED_SOURCE}"
         "${METALROBO_NUMI_HUMAN_EXTENSOR_HOOD_COMPENSATED_SOURCE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/PairedSourceGeometry.metalinc"

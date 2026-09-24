@@ -9,6 +9,13 @@ using namespace metal;
 #define MR_MUJOCO_REFERENCE_KERNEL_NAME mr_mujoco_muscle_reference
 #define MR_MUJOCO_SUFFIX_KERNEL_NAME mr_mujoco_muscle_route_suffix_jacobian
 #endif
+#if MR_MUJOCO_ANGULAR_CACHE
+#define MR_MUJOCO_CACHE_PARAMETER , device const float4* angularCache
+#define MR_MUJOCO_CACHE_ARGUMENT , angularCache
+#else
+#define MR_MUJOCO_CACHE_PARAMETER
+#define MR_MUJOCO_CACHE_ARGUMENT
+#endif
 
 namespace {
 
@@ -271,7 +278,7 @@ inline bool addPointLengthGradient(
     const uint bodyIndex,
     const MRSourcePoint worldPoint,
     const float3 gradient,
-    device float* lengthJacobian
+    device float* lengthJacobian MR_MUJOCO_CACHE_PARAMETER
 ) {
     if (bodyIndex < dispatch.articulationFirstBody ||
         bodyIndex - dispatch.articulationFirstBody >= dispatch.bodyPoseStride ||
@@ -303,11 +310,13 @@ inline bool addPointLengthGradient(
     // Body pose and query point are fixed for every DOF in this route
     // endpoint. Keep the three rotated body axes and the compensated lever
     // arm outside the source-order generalized Jacobian accumulation.
+#if !MR_MUJOCO_ANGULAR_CACHE
     const float3 worldAxes[3] = {
         quaternionRotate(pose.orientation, float3(1.0f, 0.0f, 0.0f)),
         quaternionRotate(pose.orientation, float3(0.0f, 1.0f, 0.0f)),
         quaternionRotate(pose.orientation, float3(0.0f, 0.0f, 1.0f)),
     };
+#endif
     const float3 pointLever = worldPoint - mrSourceBodyPoint(
         pose.position, bodyPositionLow,
         environment * dispatch.bodyPoseStride + localBody);
@@ -317,6 +326,11 @@ inline bool addPointLengthGradient(
             pointJacobians[centerBase + dispatch.dofCount + dof],
             pointJacobians[centerBase + 2u * dispatch.dofCount + dof]
         );
+#if MR_MUJOCO_ANGULAR_CACHE
+        const float3 angularJacobian = angularCache[
+            (environment * dispatch.bodyPoseStride + localBody) *
+                dispatch.dofCount + dof].xyz;
+#else
         float3 angularJacobian = float3(0.0f);
         for (uint axis = 0u; axis < 3u; ++axis) {
             const uint axisBase = centerBase +
@@ -331,6 +345,7 @@ inline bool addPointLengthGradient(
                 axisJacobian - centerJacobian
             );
         }
+#endif
         const float3 pointJacobian = centerJacobian + cross(
             angularJacobian, pointLever
         );
@@ -350,7 +365,7 @@ inline bool addSegmentLengthJacobian(
     const MRSourcePoint firstWorld,
     const uint secondBody,
     const MRSourcePoint secondWorld,
-    device float* lengthJacobian
+    device float* lengthJacobian MR_MUJOCO_CACHE_PARAMETER
 ) {
     const float3 difference = secondWorld - firstWorld;
     const float distance = length(difference);
@@ -361,10 +376,12 @@ inline bool addSegmentLengthJacobian(
     return addPointLengthGradient(
                environment, dispatch, bodyPoses, bodyPositionLow, pointJacobians,
                firstBody, firstWorld, -direction, lengthJacobian
+               MR_MUJOCO_CACHE_ARGUMENT
            ) &&
         addPointLengthGradient(
             environment, dispatch, bodyPoses, bodyPositionLow, pointJacobians,
             secondBody, secondWorld, direction, lengthJacobian
+            MR_MUJOCO_CACHE_ARGUMENT
         );
 }
 
@@ -619,10 +636,63 @@ inline float activationDerivative(
 
 } // namespace
 
+#if !MR_SOURCE_PAIRED_GEOMETRY
+// The four source body probes already hold each body's center and unit-axis
+// Jacobians. Materialize their angular contraction once per body/DOF, rather
+// than repeating it for every muscle route endpoint that touches that body.
+kernel void mr_mujoco_muscle_angular_jacobians(
+    device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(0)]],
+    device const float* pointJacobians [[buffer(1)]],
+    constant MRMujocoMuscleReferenceDispatchGPU& dispatch [[buffer(2)]],
+    device float4* angularCache [[buffer(3)]],
+    uint globalIndex [[thread_position_in_grid]]
+) {
+    if (dispatch.dofCount == 0u || dispatch.bodyPoseStride == 0u) return;
+    const ulong bodyDofs = ulong(dispatch.bodyPoseStride) * dispatch.dofCount;
+    const ulong total = ulong(dispatch.environmentCount) * bodyDofs;
+    if (ulong(globalIndex) >= total) return;
+    const uint environment = uint(ulong(globalIndex) / bodyDofs);
+    const uint localBody = uint((ulong(globalIndex) % bodyDofs) / dispatch.dofCount);
+    const uint dof = globalIndex % dispatch.dofCount;
+    const uint bodyPoint = dispatch.bodyJacobianPointOffset +
+        localBody * dispatch.bodyJacobianPointStride;
+    const uint centerBase = environment * dispatch.pointJacobianStride +
+        bodyPoint * 3u * dispatch.dofCount;
+    const float4 orientation = bodyPoses[
+        environment * dispatch.bodyPoseStride + localBody].orientation;
+    const float3 worldAxes[3] = {
+        quaternionRotate(orientation, float3(1.0f, 0.0f, 0.0f)),
+        quaternionRotate(orientation, float3(0.0f, 1.0f, 0.0f)),
+        quaternionRotate(orientation, float3(0.0f, 0.0f, 1.0f)),
+    };
+    const float3 centerJacobian = float3(
+        pointJacobians[centerBase + dof],
+        pointJacobians[centerBase + dispatch.dofCount + dof],
+        pointJacobians[centerBase + 2u * dispatch.dofCount + dof]
+    );
+    float3 angularJacobian = float3(0.0f);
+    for (uint axis = 0u; axis < 3u; ++axis) {
+        const uint axisBase = centerBase +
+            (axis + 1u) * 3u * dispatch.dofCount;
+        const float3 axisJacobian = float3(
+            pointJacobians[axisBase + dof],
+            pointJacobians[axisBase + dispatch.dofCount + dof],
+            pointJacobians[axisBase + 2u * dispatch.dofCount + dof]
+        );
+        angularJacobian += 0.5f * cross(
+            worldAxes[axis], axisJacobian - centerJacobian);
+    }
+    angularCache[globalIndex] = float4(angularJacobian, 0.0f);
+}
+#endif
+
 kernel void MR_MUJOCO_REFERENCE_KERNEL_NAME(
     device const float* generalizedVelocities [[buffer(7)]],
     device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(8)]],
     device const float* pointJacobians [[buffer(11)]],
+#if MR_MUJOCO_ANGULAR_CACHE
+    device const float4* angularCache [[buffer(12)]],
+#endif
     device const MRMujocoMuscleReferenceDispatchGPU& dispatch [[buffer(24)]],
     device const MRMujocoMuscleGPU* muscles [[buffer(25)]],
     device const MRMujocoMuscleStateGPU* states [[buffer(26)]],
@@ -720,6 +790,7 @@ kernel void MR_MUJOCO_REFERENCE_KERNEL_NAME(
                         : MR_INVALID_INDEX,
                     firstWorld, secondSite.bodyIndex, secondWorld,
                     muscleGeneralizedForces + forceBase
+                    MR_MUJOCO_CACHE_ARGUMENT
                 )) { validPath = false; break; }
             totalLength += length(secondWorld - firstWorld); cursor += 1u; continue;
         }
@@ -792,6 +863,7 @@ kernel void MR_MUJOCO_REFERENCE_KERNEL_NAME(
                     sites[firstNode.targetIndex].bodyIndex, firstWorld,
                     sites[lastNode.targetIndex].bodyIndex, lastWorld,
                     muscleGeneralizedForces + forceBase
+                    MR_MUJOCO_CACHE_ARGUMENT
                 )) { validPath = false; break; }
             totalLength += length(lastWorld - firstWorld);
         } else {
@@ -825,16 +897,19 @@ kernel void MR_MUJOCO_REFERENCE_KERNEL_NAME(
                     sites[firstNode.targetIndex].bodyIndex, firstWorld,
                     wrap.bodyIndex, worldTangentFirst,
                     muscleGeneralizedForces + forceBase
+                    MR_MUJOCO_CACHE_ARGUMENT
                 ) || !addSegmentLengthJacobian(
                     environment, dispatch, bodyPoses, bodyPositionLow, pointJacobians,
                     wrap.bodyIndex, worldTangentFirst,
                     wrap.bodyIndex, worldTangentLast,
                     muscleGeneralizedForces + forceBase
+                    MR_MUJOCO_CACHE_ARGUMENT
                 ) || !addSegmentLengthJacobian(
                     environment, dispatch, bodyPoses, bodyPositionLow, pointJacobians,
                     wrap.bodyIndex, worldTangentLast,
                     sites[lastNode.targetIndex].bodyIndex, lastWorld,
                     muscleGeneralizedForces + forceBase
+                    MR_MUJOCO_CACHE_ARGUMENT
                 )) { validPath = false; break; }
             totalLength += length(worldTangentFirst - firstWorld) + wrappingLength + length(lastWorld - worldTangentLast);
             ++appliedWraps;
@@ -1060,6 +1135,7 @@ kernel void mr_mujoco_muscle_activation_step(
 
 #endif
 
+#if !MR_MUJOCO_ANGULAR_CACHE
 // Publish the exact source-owned d(length_suffix)/dq row for each declared
 // route cut. Anatomical sidecars consume this row to remove only the share
 // they replace; all sphere/cylinder decisions and tangent Jacobians remain
@@ -1285,3 +1361,4 @@ kernel void MR_MUJOCO_SUFFIX_KERNEL_NAME(
             suffixJacobians[outputBase + dof] = NAN;
     }
 }
+#endif
