@@ -145,7 +145,9 @@ constexpr std::size_t kMujocoRoutesBuffer = 29u;
 constexpr std::size_t kMujocoResultsBuffer = 30u;
 constexpr NSUInteger kThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kStandThreadsPerThreadgroup = 256u;
-constexpr NSUInteger kStandFinishThreadsPerThreadgroup = 32u;
+// Four SIMD groups share the existing ordered constraint solve while its
+// independent velocity/response updates use all lanes.
+constexpr NSUInteger kStandFinishThreadsPerThreadgroup = 128u;
 constexpr float kQuaternionHostTolerance = 1.9e-5f;
 constexpr std::uint64_t kShaderAddressableElements =
     static_cast<std::uint64_t>(
