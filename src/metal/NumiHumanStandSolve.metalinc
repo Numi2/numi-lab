@@ -589,9 +589,178 @@
     }
 
 #if defined(MR_NH_COOPERATIVE_FINISH)
-    if (lane == 0u) {
-        auto solveLimits = [&]() {
-#endif
+    if ((dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) != 0u) {
+        if (coupledSweep == 0u) {
+            if (lane == 0u) {
+                auto prepareLimits = [&]() {
+                    for (uint dof = 0u; dof < nv; ++dof) {
+                        device const MRDofPropertiesGPU& properties =
+                            dofs[articulation.vOffset + dof];
+                        if ((properties.flags & MR_DOF_FLAG_POSITION_LIMIT) == 0u)
+                            continue;
+                        if (properties.qIndex == MR_INVALID_INDEX ||
+                            properties.qIndex < articulation.qOffset ||
+                            properties.qIndex >= articulation.qOffset + nq ||
+                            !(properties.limits.x < properties.limits.y) ||
+                            !isfinite(properties.limits.x) ||
+                            !isfinite(properties.limits.y)) {
+                            fail(status, MR_NUMI_HUMAN_STAND_INVALID_MODEL, dof);
+                            return;
+                        }
+                        const float position = qState[
+                            qBase + properties.qIndex - articulation.qOffset];
+                        if (!isfinite(position)) {
+                            fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_INPUT, dof);
+                            return;
+                        }
+                        if (limitCount >= limitResponseCapacity) {
+                            fail(status, MR_NUMI_HUMAN_STAND_INVALID_DISPATCH, dof);
+                            return;
+                        }
+                        limitDofs[limitCount] = dof;
+                        limitPreStepPositions[limitCount] = position;
+                        limitAccumulatedImpulses[limitCount] = 0.0f;
+                        device float* response = responseScratch +
+                            limitResponseBase + limitCount * nv;
+                        // Compact in ascending DOF order, as in the scalar
+                        // owner. No later source column is overwritten.
+                        if (limitCount != dof) {
+                            device const float* raw = responseScratch +
+                                limitResponseBase + dof * nv;
+                            for (uint index = 0u; index < nv; ++index)
+                                response[index] = raw[index];
+                            for (uint ei = 0u; ei < equalityCount; ++ei)
+                                limitEqualityCorrections[
+                                    limitCount * equalityCount + ei] =
+                                    limitEqualityCorrections[
+                                        dof * equalityCount + ei];
+                        }
+                        ++limitCount;
+                    }
+                };
+                prepareLimits();
+                cooperativeLimitCount = limitCount;
+            }
+            threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+            if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
+        }
+        for (uint limit = 0u; limit < cooperativeLimitCount; ++limit) {
+            float limitWorkIncrement = 0.0f;
+            float limitEqualityWorkIncrement = 0.0f;
+            if (lane == 0u) {
+                auto projectLimit = [&]() {
+                    const uint dof = limitDofs[limit];
+                    device const MRDofPropertiesGPU& properties =
+                        dofs[articulation.vOffset + dof];
+                    const float position = qState[
+                        qBase + properties.qIndex - articulation.qOffset];
+                    device const float* response = responseScratch +
+                        limitResponseBase + limit * nv;
+                    const float effectiveMass = response[dof] +
+                        kResponseRegularization;
+                    if (!(effectiveMass > kResponseRegularization) ||
+                        !isfinite(effectiveMass)) {
+                        fail(status, MR_NUMI_HUMAN_STAND_FACTORIZATION_FAILED,
+                             dof);
+                        return;
+                    }
+                    const float lowerVelocity =
+                        mrNumiHumanLowerLimitVelocityTarget(
+                            position, properties.limits.x, timestep);
+                    const float upperVelocity =
+                        mrNumiHumanUpperLimitVelocityTarget(
+                            position, properties.limits.y, timestep);
+                    if (!isfinite(lowerVelocity) || !isfinite(upperVelocity) ||
+                        lowerVelocity > upperVelocity) {
+                        fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT, dof);
+                        return;
+                    }
+                    const float nextImpulse = mrNumiHumanProjectIntervalImpulse(
+                        limitAccumulatedImpulses[limit], candidateV[dof],
+                        lowerVelocity, upperVelocity, effectiveMass);
+                    const float impulse =
+                        nextImpulse - limitAccumulatedImpulses[limit];
+                    if (!isfinite(impulse)) {
+                        fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT, dof);
+                        return;
+                    }
+                    limitAccumulatedImpulses[limit] = nextImpulse;
+                    cooperativeLimitImpulse = impulse;
+                    if (impulse == 0.0f) return;
+                    // Keep the sequential impulse owner and the exact FP32
+                    // accumulation order of its bilateral reaction work.
+                    device const float* equalityCorrection =
+                        limitEqualityCorrections + limit * equalityCount;
+                    limitWorkIncrement = 0.5f * impulse * candidateV[dof];
+                    for (uint ei = 0u; ei < equalityCount; ++ei) {
+                        device const MRNumiHumanJointEqualityGPU& equality =
+                            jointEqualities[ei];
+                        const float derivative = equalityDerivativeCache[ei];
+                        float velocity = candidateV[equality.indices.y];
+                        if (equality.indices.w != MR_INVALID_INDEX)
+                            velocity = fma(-derivative,
+                                candidateV[equality.indices.w], velocity);
+                        const float equalityImpulse =
+                            impulse * equalityCorrection[ei];
+                        limitEqualityWorkIncrement = fma(
+                            0.5f * equalityImpulse, velocity,
+                            limitEqualityWorkIncrement);
+                        equalityLambdas[ei] += equalityImpulse;
+                    }
+                };
+                cooperativeLimitImpulse = 0.0f;
+                projectLimit();
+            }
+            threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+            if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
+            const float impulse = cooperativeLimitImpulse;
+            if (impulse == 0.0f) continue;
+            device const float* response = responseScratch +
+                limitResponseBase + limit * nv;
+            for (uint index = lane; index < nv; index += threadCount)
+                candidateV[index] = fma(impulse, response[index],
+                                        candidateV[index]);
+            threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+            if (lane == 0u) {
+                auto finishLimit = [&]() {
+                    const uint dof = limitDofs[limit];
+                    device const float* equalityCorrection =
+                        limitEqualityCorrections + limit * equalityCount;
+                    limitWorkIncrement = fma(
+                        0.5f * impulse, candidateV[dof], limitWorkIncrement);
+                    for (uint ei = 0u; ei < equalityCount; ++ei) {
+                        device const MRNumiHumanJointEqualityGPU& equality =
+                            jointEqualities[ei];
+                        const float derivative = equalityDerivativeCache[ei];
+                        float velocity = candidateV[equality.indices.y];
+                        if (equality.indices.w != MR_INVALID_INDEX)
+                            velocity = fma(-derivative,
+                                candidateV[equality.indices.w], velocity);
+                        const float equalityImpulse =
+                            impulse * equalityCorrection[ei];
+                        limitEqualityWorkIncrement = fma(
+                            0.5f * equalityImpulse, velocity,
+                            limitEqualityWorkIncrement);
+                    }
+                    if (!isfinite(limitWorkIncrement) ||
+                        !isfinite(limitEqualityWorkIncrement)) {
+                        fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT, dof);
+                        return;
+                    }
+                    sourceLimitImpulseWork += limitWorkIncrement;
+                    sourceLimitAbsoluteImpulseWork += abs(limitWorkIncrement);
+                    equalityImpulseWork += limitEqualityWorkIncrement;
+                    equalityAbsoluteImpulseWork += abs(limitEqualityWorkIncrement);
+                };
+                finishLimit();
+            }
+            threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+            if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+    if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
+#else
     if ((dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) != 0u) {
     // Source-authored scalar position limits are unilateral generalized
     // constraints. Static Human recruitment may rely on their reaction; a
@@ -741,12 +910,6 @@
     }
 
     }
-#if defined(MR_NH_COOPERATIVE_FINISH)
-        };
-        solveLimits();
-    }
-    threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
-    if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
 #endif
 
     }

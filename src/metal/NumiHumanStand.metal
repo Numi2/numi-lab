@@ -1003,8 +1003,8 @@ kernel void mr_numi_human_stand_step(
 
 // The split completion entry consumes the prepare phase in the same
 // authoritative command buffer. Contact and limit decisions retain their
-// ordered owner; equality response updates distribute disjoint DOFs across
-// the SIMD group without changing each DOF's FP32 accumulation order.
+// ordered owner; equality and limit response updates distribute disjoint DOFs
+// across the SIMD group without changing each DOF's FP32 accumulation order.
 kernel void mr_numi_human_stand_finish(
     device const MRWorldGPU* worlds [[buffer(0)]],
     device const MRArticulationGPU* articulations [[buffer(1)]],
@@ -1075,6 +1075,10 @@ kernel void mr_numi_human_stand_finish(
         kCachedEqualityCapacity * kCachedEqualityCapacity];
     threadgroup float candidateVStorage[MR_NUMI_HUMAN_STAND_MAX_DOFS];
     threadgroup float workspaceStorage[MR_NUMI_HUMAN_STAND_MAX_DOFS];
+    // Lane zero owns the ordered unilateral decisions. The other lanes apply
+    // each accepted limit response to disjoint velocity DOFs.
+    threadgroup uint cooperativeLimitCount;
+    threadgroup float cooperativeLimitImpulse;
     threadgroup float* equalityRhs = equalityRhsStorage;
     // Equality multiplier corrections for each conditioned limit response.
     device float* limitEqualityCorrections = equalityPivots + 2u * equalityCount;
