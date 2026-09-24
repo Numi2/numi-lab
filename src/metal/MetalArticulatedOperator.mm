@@ -146,6 +146,7 @@ constexpr std::size_t kMujocoResultsBuffer = 30u;
 constexpr NSUInteger kThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kStandThreadsPerThreadgroup = 256u;
 constexpr NSUInteger kStandMassThreadsPerThreadgroup = 256u;
+constexpr NSUInteger kStandResponseThreadsPerThreadgroup = 32u;
 // Four SIMD groups share the existing ordered constraint solve while its
 // independent velocity/response updates use all lanes.
 constexpr NSUInteger kStandFinishThreadsPerThreadgroup = 128u;
@@ -387,6 +388,9 @@ struct MetalArticulatedOperatorContextState {
     __strong id<MTLComputePipelineState> mujocoActivationPipeline = nil;
     __strong id<MTLComputePipelineState> standPipeline = nil;
     __strong id<MTLComputePipelineState> standMassPipeline = nil;
+    __strong id<MTLComputePipelineState> standResponsePipeline = nil;
+    __strong id<MTLComputePipelineState> standEqualityPipeline = nil;
+    __strong id<MTLComputePipelineState> standProjectedResponsePipeline = nil;
     __strong id<MTLComputePipelineState> standFinishPipeline = nil;
     __strong id<MTLComputePipelineState> standReconcilePipeline = nil;
     __strong id<MTLComputePipelineState> tendonPipeline = nil;
@@ -3250,6 +3254,9 @@ MetalArticulatedOperatorDiagnostics initializeContext(
         );
     }
     id<MTLComputePipelineState> standMassPipeline = nil;
+    id<MTLComputePipelineState> standResponsePipeline = nil;
+    id<MTLComputePipelineState> standEqualityPipeline = nil;
+    id<MTLComputePipelineState> standProjectedResponsePipeline = nil;
     id<MTLComputePipelineState> standFinishPipeline = nil;
     if (context.config.splitStandSolve) {
         id<MTLFunction> standMassFunction = [library
@@ -3264,6 +3271,47 @@ MetalArticulatedOperatorDiagnostics initializeContext(
             return reject(std::move(diagnostics),
                 MetalArticulatedOperatorHostStatus::metalPipelineFailure,
                 "failed to create Numi Human parallel mass pipeline: " +
+                    describeError(error));
+        }
+        id<MTLFunction> standResponseFunction = [library
+            newFunctionWithName:@"mr_numi_human_stand_response_assemble"];
+        error = nil;
+        standResponsePipeline = standResponseFunction == nil
+            ? nil : [device newComputePipelineStateWithFunction:
+                standResponseFunction error:&error];
+        if (standResponsePipeline == nil ||
+            standResponsePipeline.maxTotalThreadsPerThreadgroup <
+                kStandResponseThreadsPerThreadgroup) {
+            return reject(std::move(diagnostics),
+                MetalArticulatedOperatorHostStatus::metalPipelineFailure,
+                "failed to create Numi Human parallel response pipeline: " +
+                    describeError(error));
+        }
+        id<MTLFunction> standEqualityFunction = [library
+            newFunctionWithName:@"mr_numi_human_stand_equality_prepare"];
+        error = nil;
+        standEqualityPipeline = standEqualityFunction == nil
+            ? nil : [device newComputePipelineStateWithFunction:
+                standEqualityFunction error:&error];
+        if (standEqualityPipeline == nil) {
+            return reject(std::move(diagnostics),
+                MetalArticulatedOperatorHostStatus::metalPipelineFailure,
+                "failed to create Numi Human equality preparation pipeline: " +
+                    describeError(error));
+        }
+        id<MTLFunction> standProjectedResponseFunction = [library
+            newFunctionWithName:
+                @"mr_numi_human_stand_projected_response_assemble"];
+        error = nil;
+        standProjectedResponsePipeline = standProjectedResponseFunction == nil
+            ? nil : [device newComputePipelineStateWithFunction:
+                standProjectedResponseFunction error:&error];
+        if (standProjectedResponsePipeline == nil ||
+            standProjectedResponsePipeline.maxTotalThreadsPerThreadgroup <
+                kStandResponseThreadsPerThreadgroup) {
+            return reject(std::move(diagnostics),
+                MetalArticulatedOperatorHostStatus::metalPipelineFailure,
+                "failed to create Numi Human projected response pipeline: " +
                     describeError(error));
         }
         id<MTLFunction> standFinishFunction = [library
@@ -3348,6 +3396,10 @@ MetalArticulatedOperatorDiagnostics initializeContext(
     context.mujocoActivationPipeline = mujocoActivationPipeline;
     context.standPipeline = standPipeline;
     context.standMassPipeline = standMassPipeline;
+    context.standResponsePipeline = standResponsePipeline;
+    context.standEqualityPipeline = standEqualityPipeline;
+    context.standProjectedResponsePipeline =
+        standProjectedResponsePipeline;
     context.standFinishPipeline = standFinishPipeline;
     context.standReconcilePipeline = reconcilePipeline;
     id<MTLFunction> tendonCompensatedFunction = [library
@@ -10437,7 +10489,7 @@ MetalArticulatedOperatorContext::submit(
                 const bool parallelMass = splitStand &&
                     (parallelMassSetting == nullptr ||
                      std::strcmp(parallelMassSetting, "1") == 0);
-                const std::uint32_t standPhaseCount = parallelMass ? 4u :
+                const std::uint32_t standPhaseCount = parallelMass ? 7u :
                     (splitStand ? 2u : 1u);
                 for (std::uint32_t phase = 0u;
                      phase < standPhaseCount; ++phase) {
@@ -10446,9 +10498,10 @@ MetalArticulatedOperatorContext::submit(
                         if (phase == 0u) {
                             phaseDispatch.flags |= MR_NUMI_HUMAN_STAND_PREPARE_ONLY |
                                 MR_NUMI_HUMAN_STAND_MASS_PREREQUISITES_ONLY;
-                        } else if (phase == 2u) {
+                        } else if (phase >= 2u && phase <= 5u) {
                             phaseDispatch.flags |= MR_NUMI_HUMAN_STAND_PREPARE_ONLY |
-                                MR_NUMI_HUMAN_STAND_MASS_READY;
+                                MR_NUMI_HUMAN_STAND_MASS_READY |
+                                MR_NUMI_HUMAN_STAND_FACTOR_ONLY;
                         }
                     } else if (splitStand && phase == 0u) {
                         phaseDispatch.flags |= MR_NUMI_HUMAN_STAND_PREPARE_ONLY;
@@ -10456,7 +10509,11 @@ MetalArticulatedOperatorContext::submit(
                     const char* stageName = parallelMass
                         ? (phase == 0u ? "stand_prework" :
                            phase == 1u ? "stand_mass" :
-                           phase == 2u ? "stand_prepare_finish" : "stand_finish")
+                           phase == 2u ? "stand_factor" :
+                           phase == 3u ? "stand_equality_responses" :
+                           phase == 4u ? "stand_equality_factor" :
+                           phase == 5u ? "stand_projected_responses" :
+                           "stand_finish")
                         : (!splitStand ? "stand" :
                            (phase == 0u ? "stand_prepare" : "stand_finish"));
                     id<MTLComputeCommandEncoder> standEncoder =
@@ -10472,6 +10529,12 @@ MetalArticulatedOperatorContext::submit(
                     [standEncoder setComputePipelineState:
                         parallelMass && phase == 1u
                             ? state_->standMassPipeline
+                            : parallelMass && phase == 3u
+                                ? state_->standResponsePipeline
+                            : parallelMass && phase == 4u
+                                ? state_->standEqualityPipeline
+                            : parallelMass && phase == 5u
+                                ? state_->standProjectedResponsePipeline
                             : splitStand && phase == standPhaseCount - 1u
                                 ? state_->standFinishPipeline
                                 : state_->standPipeline];
@@ -10526,6 +10589,34 @@ MetalArticulatedOperatorContext::submit(
                                 static_cast<NSUInteger>(input.environmentCount), 1u)
                             threadsPerThreadgroup:MTLSizeMake(
                                 kStandMassThreadsPerThreadgroup, 1u, 1u)];
+                    } else if (parallelMass && phase == 3u) {
+                        const NSUInteger responseColumns =
+                            static_cast<NSUInteger>(
+                                standDispatch.jointEqualityCount);
+                        [standEncoder dispatchThreadgroups:MTLSizeMake(
+                                std::max<NSUInteger>(1u,
+                                    (responseColumns + kStandResponseThreadsPerThreadgroup - 1u) /
+                                        kStandResponseThreadsPerThreadgroup),
+                                static_cast<NSUInteger>(input.environmentCount), 1u)
+                            threadsPerThreadgroup:MTLSizeMake(
+                                kStandResponseThreadsPerThreadgroup, 1u, 1u)];
+                    } else if (parallelMass && phase == 4u) {
+                        [standEncoder dispatchThreadgroups:MTLSizeMake(
+                                static_cast<NSUInteger>(input.environmentCount),
+                                1u, 1u)
+                            threadsPerThreadgroup:MTLSizeMake(
+                                kStandResponseThreadsPerThreadgroup, 1u, 1u)];
+                    } else if (parallelMass && phase == 5u) {
+                        const NSUInteger projectedColumns =
+                            3u * static_cast<NSUInteger>(
+                                standDispatch.supportContactCount) +
+                            static_cast<NSUInteger>(articulation.nv);
+                        [standEncoder dispatchThreadgroups:MTLSizeMake(
+                                (projectedColumns + kStandResponseThreadsPerThreadgroup - 1u) /
+                                    kStandResponseThreadsPerThreadgroup,
+                                static_cast<NSUInteger>(input.environmentCount), 1u)
+                            threadsPerThreadgroup:MTLSizeMake(
+                                kStandResponseThreadsPerThreadgroup, 1u, 1u)];
                     } else {
                         [standEncoder dispatchThreadgroups:MTLSizeMake(
                                 static_cast<NSUInteger>(input.environmentCount),
