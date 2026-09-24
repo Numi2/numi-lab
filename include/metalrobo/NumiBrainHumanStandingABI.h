@@ -66,6 +66,9 @@ uint32_t nb_human_standing_encode_accepted_fast_phased_v1(void* handle,
 uint32_t nb_human_standing_encode_accepted_cognitive_v1(void* handle, void* encoder,
     const NBHumanStandingReceptor* receptors, uint32_t receptor_count,
     char* error, size_t error_capacity);
+uint32_t nb_human_standing_encode_accepted_cognitive_phased_v1(void* handle,
+    void* command_buffer, const NBHumanStandingReceptor* receptors,
+    uint32_t receptor_count, char* error, size_t error_capacity);
 uint32_t nb_human_standing_publish_v1(void* handle, double gpu_start_seconds,
     double gpu_end_seconds, char* error, size_t error_capacity);
 uint32_t nb_human_standing_abort_v1(void* handle, char* error, size_t error_capacity);

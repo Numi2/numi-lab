@@ -200,6 +200,10 @@
     // threadgroup storage avoids a large dynamically indexed private array
     // on every lane of the 64-sweep completion kernel.
     threadgroup uint limitDofs[MR_NUMI_HUMAN_STAND_MAX_DOFS];
+    // Pack authored limit DOFs first, in their existing order, followed by
+    // unconstrained DOFs. The SIMD lane evaluating a limit then owns that
+    // row's current velocity; active-row scans need no cross-lane gather.
+    threadgroup uint cooperativeVelocityDofs[MR_NUMI_HUMAN_STAND_MAX_DOFS];
     threadgroup float limitPreStepPositions[MR_NUMI_HUMAN_STAND_MAX_DOFS];
     threadgroup float limitAccumulatedImpulses[MR_NUMI_HUMAN_STAND_MAX_DOFS];
     // Source position, limits and response mass stay fixed during all 64
@@ -948,6 +952,7 @@
                             return;
                         }
                         limitDofs[limitCount] = dof;
+                        cooperativeVelocityDofs[limitCount] = dof;
                         limitPreStepPositions[limitCount] = position;
                         limitAccumulatedImpulses[limitCount] = 0.0f;
                         device float* response = responseScratch +
@@ -975,6 +980,17 @@
                                 position, properties.limits.y, timestep);
                         ++limitCount;
                     }
+                    uint velocitySlot = limitCount;
+                    for (uint dof = 0u; dof < nv; ++dof) {
+                        if ((dofs[articulation.vOffset + dof].flags &
+                             MR_DOF_FLAG_POSITION_LIMIT) == 0u)
+                            cooperativeVelocityDofs[velocitySlot++] = dof;
+                    }
+                    if (velocitySlot != nv) {
+                        fail(status, MR_NUMI_HUMAN_STAND_INVALID_MODEL,
+                             MR_INVALID_INDEX);
+                        return;
+                    }
                 };
                 prepareLimits();
                 cooperativeLimitCount = limitCount;
@@ -985,17 +1001,20 @@
         if (threadCount >= simdWidth && nv <= 4u * simdWidth &&
             equalityCount <= 2u * simdWidth) {
             // One SIMD group owns the ordered limit solve. Each lane holds up
-            // to four disjoint DOF velocities in registers, so the lane that
-            // owns a limit can broadcast its current velocity before any lane
-            // changes it. No cross-SIMD read/write of candidateV occurs inside
-            // the limit loop; the outer threadgroup barrier publishes it for
-            // the next contact sweep.
+            // to four disjoint DOF velocities in registers. Limit index and
+            // register index now agree; the same lane previews and applies a
+            // row without shuffling every candidate velocity across SIMD32.
+            // Every DOF still receives the same ordered response FMAs.
             if (lane < simdWidth) {
                 const uint simdLane = lane;
-                const uint dof0 = simdLane;
-                const uint dof1 = simdLane + simdWidth;
-                const uint dof2 = simdLane + 2u * simdWidth;
-                const uint dof3 = simdLane + 3u * simdWidth;
+                const uint dof0 = simdLane < nv
+                    ? cooperativeVelocityDofs[simdLane] : nv;
+                const uint dof1 = simdLane + simdWidth < nv
+                    ? cooperativeVelocityDofs[simdLane + simdWidth] : nv;
+                const uint dof2 = simdLane + 2u * simdWidth < nv
+                    ? cooperativeVelocityDofs[simdLane + 2u * simdWidth] : nv;
+                const uint dof3 = simdLane + 3u * simdWidth < nv
+                    ? cooperativeVelocityDofs[simdLane + 3u * simdWidth] : nv;
                 float velocity0 = dof0 < nv ? candidateV[dof0] : 0.0f;
                 float velocity1 = dof1 < nv ? candidateV[dof1] : 0.0f;
                 float velocity2 = dof2 < nv ? candidateV[dof2] : 0.0f;
@@ -1037,25 +1056,13 @@
                 // their original fail-closed checks still run in order.
                 for (uint cursor = 0u; cursor < cooperativeLimitCount;) {
                     uint nextActive = cooperativeLimitCount;
-                    for (uint block = cursor;
+                    for (uint block = (cursor / simdWidth) * simdWidth;
                          block < cooperativeLimitCount;
                          block += simdWidth) {
                         const uint preview = block + simdLane;
-                        const uint previewDof =
-                            preview < cooperativeLimitCount
-                                ? limitDofs[preview] : 0u;
-                        const uint owner = previewDof % simdWidth;
-                        const uint slot = previewDof / simdWidth;
-                        const float previewVelocity0 =
-                            simd_shuffle(velocity0, owner);
-                        const float previewVelocity1 =
-                            simd_shuffle(velocity1, owner);
-                        const float previewVelocity2 =
-                            simd_shuffle(velocity2, owner);
-                        const float previewVelocity3 =
-                            simd_shuffle(velocity3, owner);
                         bool blockHasWork = false;
-                        if (preview < cooperativeLimitCount) {
+                        if (preview >= cursor &&
+                            preview < cooperativeLimitCount) {
                             const float previewMass =
                                 limitEffectiveMass[preview];
                             const float previewLower =
@@ -1072,10 +1079,11 @@
                                 previewLower > previewUpper ||
                                 !isfinite(previewPrevious);
                             if (!blockHasWork) {
+                                const uint slot = block / simdWidth;
                                 const float previewVelocity = slot == 0u
-                                    ? previewVelocity0 : slot == 1u
-                                    ? previewVelocity1 : slot == 2u
-                                    ? previewVelocity2 : previewVelocity3;
+                                    ? velocity0 : slot == 1u
+                                    ? velocity1 : slot == 2u
+                                    ? velocity2 : velocity3;
                                 const float next =
                                     mrNumiHumanProjectIntervalImpulse(
                                         previewPrevious, previewVelocity,
@@ -1109,8 +1117,8 @@
                             fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT, dof);
                         break;
                     }
-                    const uint owner = dof % simdWidth;
-                    const uint slot = dof / simdWidth;
+                    const uint owner = limit % simdWidth;
+                    const uint slot = limit / simdWidth;
                     float ownedVelocity = 0.0f;
                     if (simdLane == owner)
                         ownedVelocity = slot == 0u ? velocity0 :
