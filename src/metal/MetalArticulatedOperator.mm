@@ -145,6 +145,7 @@ constexpr std::size_t kMujocoRoutesBuffer = 29u;
 constexpr std::size_t kMujocoResultsBuffer = 30u;
 constexpr NSUInteger kThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kStandThreadsPerThreadgroup = 256u;
+constexpr NSUInteger kStandMassThreadsPerThreadgroup = 256u;
 // Four SIMD groups share the existing ordered constraint solve while its
 // independent velocity/response updates use all lanes.
 constexpr NSUInteger kStandFinishThreadsPerThreadgroup = 128u;
@@ -385,6 +386,7 @@ struct MetalArticulatedOperatorContextState {
     __strong id<MTLComputePipelineState> mujocoReducePipeline = nil;
     __strong id<MTLComputePipelineState> mujocoActivationPipeline = nil;
     __strong id<MTLComputePipelineState> standPipeline = nil;
+    __strong id<MTLComputePipelineState> standMassPipeline = nil;
     __strong id<MTLComputePipelineState> standFinishPipeline = nil;
     __strong id<MTLComputePipelineState> standReconcilePipeline = nil;
     __strong id<MTLComputePipelineState> tendonPipeline = nil;
@@ -3247,8 +3249,23 @@ MetalArticulatedOperatorDiagnostics initializeContext(
                 describeError(error)
         );
     }
+    id<MTLComputePipelineState> standMassPipeline = nil;
     id<MTLComputePipelineState> standFinishPipeline = nil;
     if (context.config.splitStandSolve) {
+        id<MTLFunction> standMassFunction = [library
+            newFunctionWithName:@"mr_numi_human_stand_mass_assemble"];
+        error = nil;
+        standMassPipeline = standMassFunction == nil
+            ? nil : [device newComputePipelineStateWithFunction:standMassFunction
+                                                         error:&error];
+        if (standMassPipeline == nil ||
+            standMassPipeline.maxTotalThreadsPerThreadgroup <
+                kStandMassThreadsPerThreadgroup) {
+            return reject(std::move(diagnostics),
+                MetalArticulatedOperatorHostStatus::metalPipelineFailure,
+                "failed to create Numi Human parallel mass pipeline: " +
+                    describeError(error));
+        }
         id<MTLFunction> standFinishFunction = [library
             newFunctionWithName:@"mr_numi_human_stand_finish"];
         error = nil;
@@ -3330,6 +3347,7 @@ MetalArticulatedOperatorDiagnostics initializeContext(
     context.mujocoReducePipeline = mujocoReducePipeline;
     context.mujocoActivationPipeline = mujocoActivationPipeline;
     context.standPipeline = standPipeline;
+    context.standMassPipeline = standMassPipeline;
     context.standFinishPipeline = standFinishPipeline;
     context.standReconcilePipeline = reconcilePipeline;
     id<MTLFunction> tendonCompensatedFunction = [library
@@ -10411,13 +10429,33 @@ MetalArticulatedOperatorContext::submit(
                         state_->config.readStandConstraintDiagnostics
                     );
                 const bool splitStand = state_->config.splitStandSolve;
+                const char* parallelMassSetting =
+                    std::getenv("NUMI_HUMAN_PARALLEL_MASS_ASSEMBLY");
+                const bool parallelMass = splitStand &&
+                    parallelMassSetting != nullptr &&
+                    std::strcmp(parallelMassSetting, "1") == 0;
+                const std::uint32_t standPhaseCount = parallelMass ? 4u :
+                    (splitStand ? 2u : 1u);
                 for (std::uint32_t phase = 0u;
-                     phase < (splitStand ? 2u : 1u); ++phase) {
+                     phase < standPhaseCount; ++phase) {
                     MRNumiHumanStandDispatchGPU phaseDispatch = standDispatch;
-                    if (splitStand && phase == 0u)
+                    if (parallelMass) {
+                        if (phase == 0u) {
+                            phaseDispatch.flags |= MR_NUMI_HUMAN_STAND_PREPARE_ONLY |
+                                MR_NUMI_HUMAN_STAND_MASS_PREREQUISITES_ONLY;
+                        } else if (phase == 2u) {
+                            phaseDispatch.flags |= MR_NUMI_HUMAN_STAND_PREPARE_ONLY |
+                                MR_NUMI_HUMAN_STAND_MASS_READY;
+                        }
+                    } else if (splitStand && phase == 0u) {
                         phaseDispatch.flags |= MR_NUMI_HUMAN_STAND_PREPARE_ONLY;
-                    const char* stageName = !splitStand ? "stand" :
-                        (phase == 0u ? "stand_prepare" : "stand_finish");
+                    }
+                    const char* stageName = parallelMass
+                        ? (phase == 0u ? "stand_prework" :
+                           phase == 1u ? "stand_mass" :
+                           phase == 2u ? "stand_prepare_finish" : "stand_finish")
+                        : (!splitStand ? "stand" :
+                           (phase == 0u ? "stand_prepare" : "stand_finish"));
                     id<MTLComputeCommandEncoder> standEncoder =
                         humanTimedEncoder(commandBuffer, state_->device,
                                           stageName, authoritativeStep);
@@ -10429,9 +10467,11 @@ MetalArticulatedOperatorContext::submit(
                         );
                     }
                     [standEncoder setComputePipelineState:
-                        splitStand && phase == 1u
-                            ? state_->standFinishPipeline
-                            : state_->standPipeline];
+                        parallelMass && phase == 1u
+                            ? state_->standMassPipeline
+                            : splitStand && phase == standPhaseCount - 1u
+                                ? state_->standFinishPipeline
+                                : state_->standPipeline];
                     [standEncoder setBuffer:state_->standBuffers[kStandRootTranslationBuffer] offset:0u atIndex:21u];
                     [standEncoder setBuffer:state_->standBuffers[kStandBodyPositionLowBuffer] offset:0u atIndex:22u];
                     [standEncoder setBuffer:state_->standBuffers[kStandPointPositionLowBuffer] offset:0u atIndex:23u];
@@ -10473,19 +10513,26 @@ MetalArticulatedOperatorContext::submit(
                         kStandTendonTransfersBuffer] offset:0u atIndex:19u];
                     [standEncoder setBuffer:state_->standBuffers[
                         kStandJointEqualitiesBuffer] offset:0u atIndex:20u];
-                    [standEncoder
-                        dispatchThreadgroups:MTLSizeMake(
-                            static_cast<NSUInteger>(input.environmentCount),
-                            1u,
-                            1u
-                        )
-                        threadsPerThreadgroup:MTLSizeMake(
-                            splitStand && phase == 1u
-                                ? kStandFinishThreadsPerThreadgroup
-                                : kStandThreadsPerThreadgroup,
-                            1u,
-                            1u
-                        )];
+                    if (parallelMass && phase == 1u) {
+                        const NSUInteger matrixElements =
+                            static_cast<NSUInteger>(articulation.nv) *
+                            static_cast<NSUInteger>(articulation.nv);
+                        [standEncoder dispatchThreadgroups:MTLSizeMake(
+                                (matrixElements + kStandMassThreadsPerThreadgroup - 1u) /
+                                    kStandMassThreadsPerThreadgroup,
+                                static_cast<NSUInteger>(input.environmentCount), 1u)
+                            threadsPerThreadgroup:MTLSizeMake(
+                                kStandMassThreadsPerThreadgroup, 1u, 1u)];
+                    } else {
+                        [standEncoder dispatchThreadgroups:MTLSizeMake(
+                                static_cast<NSUInteger>(input.environmentCount),
+                                1u, 1u)
+                            threadsPerThreadgroup:MTLSizeMake(
+                                splitStand && phase == standPhaseCount - 1u
+                                    ? kStandFinishThreadsPerThreadgroup
+                                    : kStandThreadsPerThreadgroup,
+                                1u, 1u)];
+                    }
                     [standEncoder endEncoding];
                 }
 

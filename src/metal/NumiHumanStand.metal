@@ -374,7 +374,21 @@ kernel void mr_numi_human_stand_step(
     const bool captureSourceDynamics =
         (dispatch.flags & MR_NUMI_HUMAN_STAND_PREDICT_VELOCITY_ONLY) != 0u;
     const uint sourceDynamicsBase = environment * 3u * nv;
+    const bool massPrerequisitesOnly =
+        (dispatch.flags & MR_NUMI_HUMAN_STAND_MASS_PREREQUISITES_ONLY) != 0u;
+    const bool massReady =
+        (dispatch.flags & MR_NUMI_HUMAN_STAND_MASS_READY) != 0u;
 
+    if (massReady) {
+        if (lane == 0u &&
+            ((dispatch.flags & MR_NUMI_HUMAN_STAND_PREPARE_ONLY) == 0u ||
+             massPrerequisitesOnly ||
+             (status.flags & MR_NUMI_HUMAN_STAND_MASS_PREREQUISITES_ONLY) == 0u))
+            fail(status, MR_NUMI_HUMAN_STAND_INVALID_DISPATCH,
+                 MR_INVALID_INDEX);
+        threadgroup_barrier(mem_flags::mem_device);
+        if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
+    } else {
     if (lane == 0u) {
         if (dispatch.stepIndex == 0u) {
             status = {};
@@ -440,8 +454,15 @@ kernel void mr_numi_human_stand_step(
                 MR_NUMI_HUMAN_STAND_PREDICT_VELOCITY_ONLY |
                 MR_NUMI_HUMAN_STAND_HAS_PASSIVE_JOINT_PROGRAM |
                 MR_NUMI_HUMAN_STAND_EXPORT_SOURCE_LIMIT_IMPULSES |
-                MR_NUMI_HUMAN_STAND_PREPARE_ONLY
+                MR_NUMI_HUMAN_STAND_PREPARE_ONLY |
+                MR_NUMI_HUMAN_STAND_MASS_PREREQUISITES_ONLY |
+                MR_NUMI_HUMAN_STAND_MASS_READY
             )) != 0u ||
+            (massPrerequisitesOnly &&
+             ((dispatch.flags & MR_NUMI_HUMAN_STAND_PREPARE_ONLY) == 0u ||
+              massReady)) ||
+            (massReady &&
+             (dispatch.flags & MR_NUMI_HUMAN_STAND_PREPARE_ONLY) == 0u) ||
             ((dispatch.flags & MR_NUMI_HUMAN_STAND_PREPARE_ONLY) != 0u &&
              (dispatch.flags & MR_NUMI_HUMAN_STAND_PREDICT_VELOCITY_ONLY) != 0u) ||
             ((dispatch.flags & MR_NUMI_HUMAN_STAND_PREDICT_VELOCITY_ONLY) != 0u &&
@@ -729,7 +750,15 @@ kernel void mr_numi_human_stand_step(
             sourceDynamicsWitness[sourceDynamicsBase + nv + row] = value;
         }
     }
+    }
+    if (massPrerequisitesOnly) {
+        threadgroup_barrier(mem_flags::mem_device);
+        if (lane == 0u && status.code == MR_NUMI_HUMAN_STAND_SUCCESS)
+            status.flags = dispatch.flags;
+        return;
+    }
 
+    if (!massReady) {
     const uint matrixElements = nv * nv;
     for (uint index = lane; index < matrixElements; index += threadCount) {
         const uint row = index / nv;
@@ -783,6 +812,7 @@ kernel void mr_numi_human_stand_step(
             // before the factorization barrier.
             sourceDynamicsWitness[sourceDynamicsBase + row] = value;
         }
+    }
     }
     threadgroup_barrier(mem_flags::mem_device);
     if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
@@ -1191,6 +1221,84 @@ kernel void mr_numi_human_stand_step(
     }
 #include "NumiHumanStandSolve.metalinc"
 
+}
+
+// Assemble independent mass entries across GPU threadgroups after the
+// prerequisite pass has published spatial and inertia-weighted Jacobians.
+// The per-entry body reduction and passive terms match stand_step exactly.
+kernel void mr_numi_human_stand_mass_assemble(
+    device const MRArticulationGPU* articulations [[buffer(1)]],
+    device const MRDofPropertiesGPU* dofs [[buffer(2)]],
+    device const MRBodyPropertiesGPU* bodies [[buffer(3)]],
+    constant const MRNumiHumanStandDispatchGPU& dispatch [[buffer(4)]],
+    device const float* spatialJacobianScratch [[buffer(12)]],
+    device float* factorScratch [[buffer(14)]],
+    device MRNumiHumanStandStatusGPU* statuses [[buffer(17)]],
+    device const float* passiveJointProgram [[buffer(24)]],
+    device float* sourceDynamicsWitness [[buffer(25)]],
+    uint2 position [[thread_position_in_grid]]
+) {
+    const uint environment = position.y;
+    if (environment >= dispatch.environmentCount) return;
+    device MRNumiHumanStandStatusGPU& status = statuses[environment];
+    if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS ||
+        (status.flags & MR_NUMI_HUMAN_STAND_MASS_PREREQUISITES_ONLY) == 0u)
+        return;
+    device const MRArticulationGPU& articulation =
+        articulations[dispatch.articulationIndex];
+    const uint nv = articulation.nv;
+    const uint index = position.x;
+    if (index >= nv * nv) return;
+    const uint row = index / nv;
+    const uint column = index - row * nv;
+    const uint bodyCount = articulation.bodyCount;
+    const uint spatialBase = environment * bodyCount *
+        MR_NUMI_HUMAN_STAND_SPATIAL_SCRATCH_ROWS * nv;
+    const uint inertiaWeightedBase = spatialBase + bodyCount * 6u * nv;
+    float value = 0.0f;
+    for (uint localBody = 0u; localBody < bodyCount; ++localBody) {
+        const uint globalBody = articulation.firstBody + localBody;
+        device const MRBodyPropertiesGPU& body = bodies[globalBody];
+        const uint base = spatialBase + localBody * 6u * nv;
+        const float3 leftAngular{
+            spatialJacobianScratch[base + 0u * nv + row],
+            spatialJacobianScratch[base + 1u * nv + row],
+            spatialJacobianScratch[base + 2u * nv + row],
+        };
+        const uint weighted = inertiaWeightedBase +
+            localBody * 3u * nv + column;
+        const float3 rightInertiaWeighted{
+            spatialJacobianScratch[weighted + 0u * nv],
+            spatialJacobianScratch[weighted + 1u * nv],
+            spatialJacobianScratch[weighted + 2u * nv],
+        };
+        const float3 leftLinear{
+            spatialJacobianScratch[base + 3u * nv + row],
+            spatialJacobianScratch[base + 4u * nv + row],
+            spatialJacobianScratch[base + 5u * nv + row],
+        };
+        const float3 rightLinear{
+            spatialJacobianScratch[base + 3u * nv + column],
+            spatialJacobianScratch[base + 4u * nv + column],
+            spatialJacobianScratch[base + 5u * nv + column],
+        };
+        value += dot(leftAngular, rightInertiaWeighted) +
+            body.massAndInverseMass.x * dot(leftLinear, rightLinear);
+    }
+    if (row == column) {
+        device const MRDofPropertiesGPU& dof =
+            dofs[articulation.vOffset + row];
+        value += dof.drive.z;
+        if ((dof.flags & MR_DOF_FLAG_DRIVE) == 0u)
+            value += dispatch.groundPointAndTimestep.w * dof.drive.y;
+    }
+    if ((dispatch.flags & MR_NUMI_HUMAN_STAND_HAS_PASSIVE_JOINT_PROGRAM) != 0u)
+        value += mrNumiHumanPassiveEffectiveInertia(
+            passiveJointProgram[index], dispatch.groundPointAndTimestep.w);
+    factorScratch[environment * nv * nv + index] = value;
+    if ((dispatch.flags & MR_NUMI_HUMAN_STAND_PREDICT_VELOCITY_ONLY) != 0u &&
+        row == column)
+        sourceDynamicsWitness[environment * 3u * nv + row] = value;
 }
 
 // The split completion entry consumes the prepare phase in the same

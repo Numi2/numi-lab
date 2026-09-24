@@ -45,6 +45,10 @@ enum MRNumiHumanStandFlags {
     // Internal split owner phase. Assemble/factor the current source state and
     // leave q/v untouched for a following device-resident solve dispatch.
     MR_NUMI_HUMAN_STAND_PREPARE_ONLY = 1u << 7u,
+    // Split preparation may publish spatial Jacobians/bias before a
+    // grid-parallel mass assembly, then factor the exact assembled matrix.
+    MR_NUMI_HUMAN_STAND_MASS_PREREQUISITES_ONLY = 1u << 8u,
+    MR_NUMI_HUMAN_STAND_MASS_READY = 1u << 9u,
 };
 
 // One source-authored support witness. The point-query index addresses the
