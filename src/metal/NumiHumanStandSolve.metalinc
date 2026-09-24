@@ -162,6 +162,18 @@
     const uint limitResponseBase = responseBase +
         (3u * dispatch.supportContactCount + dispatch.jointEqualityCount) * nv;
     uint limitCount = 0u;
+#if defined(MR_NH_COOPERATIVE_FINISH)
+    // Only lane 0 owns these ordered constraint histories. Keeping them in
+    // threadgroup storage avoids a large dynamically indexed private array
+    // on every lane of the 64-sweep completion kernel.
+    threadgroup uint limitDofs[MR_NUMI_HUMAN_STAND_MAX_DOFS];
+    threadgroup float limitPreStepPositions[MR_NUMI_HUMAN_STAND_MAX_DOFS];
+    threadgroup float limitAccumulatedImpulses[MR_NUMI_HUMAN_STAND_MAX_DOFS];
+    threadgroup uint contactActiveForPostProjection[
+        MR_NUMI_HUMAN_STAND_MAX_CONTACTS];
+    threadgroup float contactTargetNormalVelocityForPostProjection[
+        MR_NUMI_HUMAN_STAND_MAX_CONTACTS];
+#else
     uint limitDofs[MR_NUMI_HUMAN_STAND_MAX_DOFS];
     float limitPreStepPositions[MR_NUMI_HUMAN_STAND_MAX_DOFS];
     float limitAccumulatedImpulses[MR_NUMI_HUMAN_STAND_MAX_DOFS];
@@ -169,12 +181,19 @@
     float contactTargetNormalVelocityForPostProjection[
         MR_NUMI_HUMAN_STAND_MAX_CONTACTS
     ];
+#endif
+#if defined(MR_NH_COOPERATIVE_FINISH)
+    if (lane == 0u) {
+#endif
     for (uint contact = 0u;
          contact < dispatch.supportContactCount;
          ++contact) {
         contactActiveForPostProjection[contact] = 0u;
         contactTargetNormalVelocityForPostProjection[contact] = 0.0f;
     }
+#if defined(MR_NH_COOPERATIVE_FINISH)
+    }
+#endif
     for (uint coupledSweep = 0u;
          coupledSweep < coupledSweepCount;
          ++coupledSweep) {
@@ -297,7 +316,8 @@
                 }
                 cooperativeContactVelocities[axis] = velocity;
             }
-            threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+            // Only the three threadgroup velocity slots cross lanes here.
+            threadgroup_barrier(mem_flags::mem_threadgroup);
             if (lane == 0u) {
                 auto projectContact = [&]() {
                     const float gap = cooperativeContactGap[contact];
@@ -417,7 +437,8 @@
                         cooperativeContactApplied[axis] * response[dof];
                 }
             }
-            threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+            // candidateV is threadgroup-local; responses are read-only.
+            threadgroup_barrier(mem_flags::mem_threadgroup);
         }
     }
 #else
@@ -634,7 +655,9 @@
                 }
                 candidateV[dof] += correction;
             }
-            threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+            // Disjoint lanes update the threadgroup candidate before lane 0
+            // reads its equality velocity.
+            threadgroup_barrier(mem_flags::mem_threadgroup);
             if (lane == 0u) {
                 auto recordEqualityWork = [&]() {
                     for (uint row = 0u; row < equalityCount; ++row) {
@@ -859,7 +882,8 @@
                     impulse * equalityCorrection[ei];
                 cooperativeLimitEqualityVelocities[ei] = velocity;
             }
-            threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+            // Only the per-row threadgroup impulse/velocity slots cross lanes.
+            threadgroup_barrier(mem_flags::mem_threadgroup);
             if (lane == 0u) {
                 // The row evaluations are independent; the impulse work and
                 // multiplier additions still follow the original row order.
@@ -878,7 +902,9 @@
             for (uint index = lane; index < nv; index += threadCount)
                 candidateV[index] = fma(impulse, response[index],
                                         candidateV[index]);
-            threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+            // The updated velocity is threadgroup-local; the multiplier write
+            // is consumed by lane 0 after this limit loop.
+            threadgroup_barrier(mem_flags::mem_threadgroup);
             for (uint ei = lane; ei < equalityCount; ei += threadCount) {
                 device const MRNumiHumanJointEqualityGPU& equality =
                     jointEqualities[ei];
@@ -889,7 +915,7 @@
                         candidateV[equality.indices.w], velocity);
                 cooperativeLimitEqualityVelocities[ei] = velocity;
             }
-            threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+            threadgroup_barrier(mem_flags::mem_threadgroup);
             if (lane == 0u) {
                 auto finishLimit = [&]() {
                     const uint dof = limitDofs[limit];

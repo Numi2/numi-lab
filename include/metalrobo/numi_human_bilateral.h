@@ -109,14 +109,19 @@ inline bool mrNumiHumanBilateralSolve(
         const float value=rhs[k];rhs[k]=rhs[pivot];rhs[pivot]=value;
     }
     for (unsigned i=0u; i<n; ++i) {
-        for (unsigned j=0u; j<i; ++j) rhs[i]=mrNHBilateralFma(-factor[i*n+j],rhs[j],rhs[i]);
+        float value=rhs[i];
+        for (unsigned j=0u; j<i; ++j)
+            value=mrNHBilateralFma(-factor[i*n+j],rhs[j],value);
+        rhs[i]=value;
     }
     for (unsigned reverse=0u; reverse<n; ++reverse) {
         const unsigned i=n-1u-reverse;
-        for (unsigned j=i+1u; j<n; ++j) rhs[i]=mrNHBilateralFma(-factor[i*n+j],rhs[j],rhs[i]);
+        float value=rhs[i];
+        for (unsigned j=i+1u; j<n; ++j)
+            value=mrNHBilateralFma(-factor[i*n+j],rhs[j],value);
         const float pivot=factor[i*n+i];
         if (pivot==0.0f || !mrNHBilateralFinite(pivot)) return false;
-        rhs[i]/=pivot;
+        rhs[i]=value/pivot;
         if (!mrNHBilateralFinite(rhs[i])) return false;
     }
     for (unsigned i=0u; i<n; ++i) {
