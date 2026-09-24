@@ -3274,7 +3274,7 @@ MetalArticulatedOperatorDiagnostics initializeContext(
                     describeError(error));
         }
         id<MTLFunction> standResponseFunction = [library
-            newFunctionWithName:@"mr_numi_human_stand_response_assemble"];
+            newFunctionWithName:@"mr_numi_human_stand_equality_response_cooperative"];
         error = nil;
         standResponsePipeline = standResponseFunction == nil
             ? nil : [device newComputePipelineStateWithFunction:
@@ -10601,9 +10601,7 @@ MetalArticulatedOperatorContext::submit(
                             static_cast<NSUInteger>(
                                 standDispatch.jointEqualityCount);
                         [standEncoder dispatchThreadgroups:MTLSizeMake(
-                                std::max<NSUInteger>(1u,
-                                    (responseColumns + kStandResponseThreadsPerThreadgroup - 1u) /
-                                        kStandResponseThreadsPerThreadgroup),
+                                std::max<NSUInteger>(1u, responseColumns),
                                 static_cast<NSUInteger>(input.environmentCount), 1u)
                             threadsPerThreadgroup:MTLSizeMake(
                                 kStandResponseThreadsPerThreadgroup, 1u, 1u)];

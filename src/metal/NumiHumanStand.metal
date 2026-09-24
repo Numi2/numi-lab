@@ -1523,6 +1523,88 @@ kernel void mr_numi_human_stand_response_assemble(
     }
 }
 
+// One threadgroup owns each independent equality response. The ordered
+// triangular dependencies stay intact while future forward rows share the
+// current block across SIMD lanes.
+kernel void mr_numi_human_stand_equality_response_cooperative(
+    device const MRArticulationGPU* articulations [[buffer(1)]],
+    constant const MRNumiHumanStandDispatchGPU& dispatch [[buffer(4)]],
+    device const float* qState [[buffer(5)]],
+    device const float* factorScratch [[buffer(14)]],
+    device float* responseScratch [[buffer(16)]],
+    device MRNumiHumanStandStatusGPU* statuses [[buffer(17)]],
+    device const MRNumiHumanJointEqualityGPU* jointEqualities [[buffer(20)]],
+    uint3 group [[threadgroup_position_in_grid]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint3 groupSize [[threads_per_threadgroup]]
+) {
+    const uint environment = group.y;
+    const uint equalityIndex = group.x;
+    const uint threadCount = groupSize.x;
+    if (environment >= dispatch.environmentCount ||
+        equalityIndex >= dispatch.jointEqualityCount) return;
+    device MRNumiHumanStandStatusGPU& status = statuses[environment];
+    if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS ||
+        (dispatch.flags & (MR_NUMI_HUMAN_STAND_PREPARE_ONLY |
+                           MR_NUMI_HUMAN_STAND_MASS_READY |
+                           MR_NUMI_HUMAN_STAND_FACTOR_ONLY)) !=
+            (MR_NUMI_HUMAN_STAND_PREPARE_ONLY |
+             MR_NUMI_HUMAN_STAND_MASS_READY |
+             MR_NUMI_HUMAN_STAND_FACTOR_ONLY)) return;
+    device const MRArticulationGPU& articulation =
+        articulations[dispatch.articulationIndex];
+    const uint nv = articulation.nv;
+    const uint equalityCount = dispatch.jointEqualityCount;
+    const uint contactColumns = 3u * dispatch.supportContactCount;
+    const uint column = contactColumns + equalityIndex;
+    const uint responseColumns =
+        (contactColumns + equalityCount + nv) * nv;
+    const uint responseStride = responseColumns +
+        equalityCount * (equalityCount + 3u) + nv * equalityCount;
+    device float* response = responseScratch +
+        environment * responseStride + column * nv;
+    threadgroup float rhs[MR_NUMI_HUMAN_STAND_MAX_DOFS];
+    threadgroup float workspace[MR_NUMI_HUMAN_STAND_MAX_DOFS];
+    threadgroup uint rhsValid = 0u;
+    threadgroup uint solveSucceeded;
+    for (uint dof = lane; dof < nv; dof += threadCount)
+        rhs[dof] = 0.0f;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (lane == 0u) {
+        device const auto& equality = jointEqualities[equalityIndex];
+        float target = 0.0f, derivative = 0.0f, error = 0.0f;
+        rhsValid = evaluateJointEquality(equality, qState,
+            environment * dispatch.qStride, articulation.nq, nv,
+            target, derivative, error) ? 1u : 0u;
+        if (rhsValid != 0u) {
+            rhs[equality.indices.y] = 1.0f;
+            if (equality.indices.w != MR_INVALID_INDEX)
+                rhs[equality.indices.w] = -derivative;
+        } else {
+            device atomic_uint* failure =
+                reinterpret_cast<device atomic_uint*>(&status.failingIndex);
+            atomic_fetch_min_explicit(failure, column,
+                                      memory_order_relaxed);
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (rhsValid == 0u) return;
+    const bool solved = solveFactorCooperativeForward(
+        factorScratch + environment * nv * nv, workspace, rhs,
+        nv, lane, threadCount, &solveSucceeded);
+    if (!solved) {
+        if (lane == 0u) {
+            device atomic_uint* failure =
+                reinterpret_cast<device atomic_uint*>(&status.failingIndex);
+            atomic_fetch_min_explicit(failure, column,
+                                      memory_order_relaxed);
+        }
+        return;
+    }
+    for (uint dof = lane; dof < nv; dof += threadCount)
+        response[dof] = rhs[dof];
+}
+
 // The equality block depends on all equality response columns. Factor it
 // once, publish the source linearization, and transpose the equality columns
 // into the layout consumed by every coupled sweep.
