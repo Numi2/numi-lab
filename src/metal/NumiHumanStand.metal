@@ -1269,10 +1269,9 @@ kernel void mr_numi_human_stand_finish(
     threadgroup float candidateVStorage[MR_NUMI_HUMAN_STAND_MAX_DOFS];
     threadgroup float workspaceStorage[MR_NUMI_HUMAN_STAND_MAX_DOFS];
     threadgroup uint cooperativeEqualitySucceeded;
-    // Lane zero owns the ordered unilateral decisions. The other lanes apply
-    // each accepted limit response to disjoint velocity DOFs.
+    // Lanes evaluate ordered unilateral decisions together; lane zero owns
+    // impulse history, and disjoint lanes apply each accepted response.
     threadgroup uint cooperativeLimitCount;
-    threadgroup float cooperativeLimitImpulse;
     threadgroup float cooperativeLimitEqualityImpulses[
         MR_NUMI_HUMAN_STAND_MAX_DOFS];
     threadgroup float cooperativeLimitEqualityVelocities[

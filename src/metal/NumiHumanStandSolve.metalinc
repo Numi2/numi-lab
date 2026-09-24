@@ -912,44 +912,41 @@
         for (uint limit = 0u; limit < cooperativeLimitCount; ++limit) {
             float limitWorkIncrement = 0.0f;
             float limitEqualityWorkIncrement = 0.0f;
-            if (lane == 0u) {
-                auto projectLimit = [&]() {
-                    const uint dof = limitDofs[limit];
-                    const float effectiveMass = limitEffectiveMass[limit];
-                    if (!(effectiveMass > kResponseRegularization) ||
-                        !isfinite(effectiveMass)) {
-                        fail(status, MR_NUMI_HUMAN_STAND_FACTORIZATION_FAILED,
-                             dof);
-                        return;
-                    }
-                    const float lowerVelocity = limitLowerVelocity[limit];
-                    const float upperVelocity = limitUpperVelocity[limit];
-                    if (!isfinite(lowerVelocity) || !isfinite(upperVelocity) ||
-                        lowerVelocity > upperVelocity) {
-                        fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT, dof);
-                        return;
-                    }
-                    const float nextImpulse = mrNumiHumanProjectIntervalImpulse(
-                        limitAccumulatedImpulses[limit], candidateV[dof],
-                        lowerVelocity, upperVelocity, effectiveMass);
-                    const float impulse =
-                        nextImpulse - limitAccumulatedImpulses[limit];
-                    if (!isfinite(impulse)) {
-                        fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT, dof);
-                        return;
-                    }
-                    limitAccumulatedImpulses[limit] = nextImpulse;
-                    cooperativeLimitImpulse = impulse;
-                    if (impulse == 0.0f) return;
-                    limitWorkIncrement = 0.5f * impulse * candidateV[dof];
-                };
-                cooperativeLimitImpulse = 0.0f;
-                projectLimit();
+            // Every lane sees the same candidate and accumulated impulse.
+            // Project redundantly so inactive rows skip a full-group barrier.
+            const uint dof = limitDofs[limit];
+            const float effectiveMass = limitEffectiveMass[limit];
+            if (!(effectiveMass > kResponseRegularization) ||
+                !isfinite(effectiveMass)) {
+                if (lane == 0u)
+                    fail(status, MR_NUMI_HUMAN_STAND_FACTORIZATION_FAILED, dof);
+                return;
             }
-            threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
-            if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
-            const float impulse = cooperativeLimitImpulse;
+            const float lowerVelocity = limitLowerVelocity[limit];
+            const float upperVelocity = limitUpperVelocity[limit];
+            if (!isfinite(lowerVelocity) || !isfinite(upperVelocity) ||
+                lowerVelocity > upperVelocity) {
+                if (lane == 0u)
+                    fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT, dof);
+                return;
+            }
+            const float previousImpulse = limitAccumulatedImpulses[limit];
+            const float nextImpulse = mrNumiHumanProjectIntervalImpulse(
+                previousImpulse, candidateV[dof], lowerVelocity,
+                upperVelocity, effectiveMass);
+            const float impulse = nextImpulse - previousImpulse;
+            if (!isfinite(impulse)) {
+                if (lane == 0u)
+                    fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT, dof);
+                return;
+            }
             if (impulse == 0.0f) continue;
+            // Synchronize all reads of the old impulse before lane 0 updates it.
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+            if (lane == 0u) {
+                limitAccumulatedImpulses[limit] = nextImpulse;
+                limitWorkIncrement = 0.5f * impulse * candidateV[dof];
+            }
             device const float* equalityCorrection =
                 limitEqualityCorrections + limit * equalityCount;
             for (uint ei = lane; ei < equalityCount; ei += threadCount) {
