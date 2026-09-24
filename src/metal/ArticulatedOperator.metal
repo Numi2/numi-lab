@@ -1611,6 +1611,8 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
     threadgroup uchar* scratch [[threadgroup(0)]],
     uint environment [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]],
+    uint simdLane [[thread_index_in_simdgroup]],
+    uint simdWidth [[threads_per_simdgroup]],
     uint threadsPerThreadgroup [[threads_per_threadgroup]]
 ) {
     if (environment >= dispatch.environmentCount) {
@@ -1860,14 +1862,15 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                 environment * dispatch.pointWorldStride;
             const uint jacobianBase =
                 environment * dispatch.pointJacobianStride;
-            const uint entryCount =
-                dispatch.pointCount * articulation.nv;
-            for (uint entry = lane;
-                 entry < entryCount;
-                 entry += threadsPerThreadgroup) {
-                const uint point = entry / articulation.nv;
-                const uint dof = entry -
-                    point * articulation.nv;
+            // One SIMD group owns a point. Its first lane evaluates the
+            // compensated surface offset once and broadcasts the exact bits
+            // to the lanes writing that point's Jacobian columns.
+            const uint simdGroup = lane / simdWidth;
+            const uint simdGroupCount =
+                (threadsPerThreadgroup + simdWidth - 1u) / simdWidth;
+            for (uint point = simdGroup;
+                 point < dispatch.pointCount;
+                 point += simdGroupCount) {
                 device const MRArticulatedPointImpulseGPU& query =
                     points[pointBase + point];
                 const bool foreign =
@@ -1882,48 +1885,11 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                 const uint localBody = inactive
                     ? articulation.rootBody - articulation.firstBody
                     : query.bodyIndex - articulation.firstBody;
-                const float3 pointOffset = pointSurfaceOffset(bodyRotation[localBody], query);
-                const bool affectsBody = !inactive &&
-                    (ancestors[localBody * ancestryWords + (dof >> 5u)] & (1u << (dof & 31u))) != 0u;
-                const uint owningJoint = affectsBody ? dofs[articulation.vOffset + dof].jointIndex : MR_INVALID_INDEX;
-                const uint knownAncestor = owningJoint == MR_INVALID_INDEX
-                    ? MR_INVALID_INDEX : joints[owningJoint].childBody - articulation.firstBody;
-                const MotionColumn bodyMotion = !affectsBody
-                    ? MotionColumn{float3(0.0f), float3(0.0f)}
-                    : bodyMotionForDof(
-                        localBody,
-                        dof,
-                        articulation,
-                        joints,
-                        functionPrograms,
-                        environmentQ,
-                        bodyPosition,
-                        bodyRotation,
-                        jointPosition,
-                        jointAxis,
-                        inboundJoint,
-                        parentLocal,
-                        knownAncestor
-                    );
-                const float3 pointLinear =
-                    bodyMotion.linear +
-                    cross(bodyMotion.angular, pointOffset);
-                pointJacobians[
-                    jacobianBase +
-                    (point * 3u + 0u) * articulation.nv +
-                    dof
-                ] = pointLinear.x;
-                pointJacobians[
-                    jacobianBase +
-                    (point * 3u + 1u) * articulation.nv +
-                    dof
-                ] = pointLinear.y;
-                pointJacobians[
-                    jacobianBase +
-                    (point * 3u + 2u) * articulation.nv +
-                    dof
-                ] = pointLinear.z;
-                if (dof == 0u) {
+                const float3 ownOffset = simdLane == 0u
+                    ? pointSurfaceOffset(bodyRotation[localBody], query)
+                    : float3(0.0f);
+                const float3 pointOffset = simd_broadcast_first(ownOffset);
+                if (simdLane == 0u) {
                     MRArticulatedPointWorldGPU worldPoint;
                     worldPoint.position = float4(
                         worldTranslation + (bodyPosition[localBody] + pointOffset),
@@ -1940,6 +1906,50 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                     pointWorld[
                         pointWorldBase + point
                     ] = worldPoint;
+                }
+                for (uint dof = simdLane;
+                     dof < articulation.nv;
+                     dof += simdWidth) {
+                    const bool affectsBody = !inactive &&
+                        (ancestors[localBody * ancestryWords + (dof >> 5u)] & (1u << (dof & 31u))) != 0u;
+                    const uint owningJoint = affectsBody ? dofs[articulation.vOffset + dof].jointIndex : MR_INVALID_INDEX;
+                    const uint knownAncestor = owningJoint == MR_INVALID_INDEX
+                        ? MR_INVALID_INDEX : joints[owningJoint].childBody - articulation.firstBody;
+                    const MotionColumn bodyMotion = !affectsBody
+                        ? MotionColumn{float3(0.0f), float3(0.0f)}
+                        : bodyMotionForDof(
+                            localBody,
+                            dof,
+                            articulation,
+                            joints,
+                            functionPrograms,
+                            environmentQ,
+                            bodyPosition,
+                            bodyRotation,
+                            jointPosition,
+                            jointAxis,
+                            inboundJoint,
+                            parentLocal,
+                            knownAncestor
+                        );
+                    const float3 pointLinear =
+                        bodyMotion.linear +
+                        cross(bodyMotion.angular, pointOffset);
+                    pointJacobians[
+                        jacobianBase +
+                        (point * 3u + 0u) * articulation.nv +
+                        dof
+                    ] = pointLinear.x;
+                    pointJacobians[
+                        jacobianBase +
+                        (point * 3u + 1u) * articulation.nv +
+                        dof
+                    ] = pointLinear.y;
+                    pointJacobians[
+                        jacobianBase +
+                        (point * 3u + 2u) * articulation.nv +
+                        dof
+                    ] = pointLinear.z;
                 }
             }
             const uint generalizedBase =
