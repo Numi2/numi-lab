@@ -46,6 +46,13 @@ uint32_t nb_human_standing_encode_accepted_v1(void* handle, void* encoder,
     uint64_t physical_state_fingerprint, uint32_t completed_step_count,
     const NBHumanStandingReceptor* receptors, uint32_t receptor_count,
     char* error, size_t error_capacity);
+/* Optional split of accepted fast systems and cognition on one native command. */
+uint32_t nb_human_standing_encode_accepted_fast_v1(void* handle, void* encoder,
+    uint64_t physical_state_fingerprint, uint32_t completed_step_count,
+    char* error, size_t error_capacity);
+uint32_t nb_human_standing_encode_accepted_cognitive_v1(void* handle, void* encoder,
+    const NBHumanStandingReceptor* receptors, uint32_t receptor_count,
+    char* error, size_t error_capacity);
 uint32_t nb_human_standing_publish_v1(void* handle, double gpu_start_seconds,
     double gpu_end_seconds, char* error, size_t error_capacity);
 uint32_t nb_human_standing_abort_v1(void* handle, char* error, size_t error_capacity);

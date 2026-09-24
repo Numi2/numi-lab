@@ -397,6 +397,8 @@ private:
         decltype(&nb_human_standing_encode_motor_decision_v1) motorDecision = nullptr;
         decltype(&nb_human_standing_encode_motor_tissue_v1) motorTissue = nullptr;
         decltype(&nb_human_standing_encode_accepted_v1) accepted = nullptr;
+        decltype(&nb_human_standing_encode_accepted_fast_v1) acceptedFast = nullptr;
+        decltype(&nb_human_standing_encode_accepted_cognitive_v1) acceptedCognitive = nullptr;
         decltype(&nb_human_standing_publish_v1) publish = nullptr;
         decltype(&nb_human_standing_abort_v1) abort = nullptr;
         decltype(&nb_human_standing_info_v1) info = nullptr;
@@ -416,6 +418,10 @@ private:
                 motorTissue = optionalSymbol<decltype(motorTissue)>(
                     "nb_human_standing_encode_motor_tissue_v1");
                 accepted = symbol<decltype(accepted)>("nb_human_standing_encode_accepted_v1");
+                acceptedFast = optionalSymbol<decltype(acceptedFast)>(
+                    "nb_human_standing_encode_accepted_fast_v1");
+                acceptedCognitive = optionalSymbol<decltype(acceptedCognitive)>(
+                    "nb_human_standing_encode_accepted_cognitive_v1");
                 publish = symbol<decltype(publish)>("nb_human_standing_publish_v1");
                 abort = symbol<decltype(abort)>("nb_human_standing_abort_v1");
                 info = symbol<decltype(info)>("nb_human_standing_info_v1");
@@ -707,16 +713,46 @@ private:
                     owner.fail("Human Brain accepted completion changed Metal device"); return false;
                 }
                 const auto records = receptorRecords(owner.receptors_->pendingFrame(owner.step_ + 1u));
-                id<MTLComputeCommandEncoder> encoder = timedEncoder(
-                    command, owner.device_, "brain_accepted", owner.step_);
-                if (encoder == nil) { owner.fail("Human Brain accepted encoder allocation failed"); return false; }
                 std::array<char, 2048u> error{};
-                const auto success = owner.library_.accepted(owner.brain_.handle, (__bridge void*)encoder,
-                    owner.physicalFingerprint_, owner.step_ + 1u, records.data(),
-                    static_cast<std::uint32_t>(records.size()), error.data(), error.size());
-                [encoder endEncoding];
-                if (success != 1u) {
-                    owner.fail(error[0] == '\0' ? "NumiBrain accepted consequence encoding failed" : error.data()); return false;
+                const char* phaseTiming = std::getenv("NUMI_HUMAN_BRAIN_PHASE_TIMING");
+                if (phaseTiming != nullptr && std::strcmp(phaseTiming, "1") == 0) {
+                    if (owner.library_.acceptedFast == nullptr ||
+                        owner.library_.acceptedCognitive == nullptr) {
+                        owner.fail("NumiBrain accepted phase timing symbols are unavailable"); return false;
+                    }
+                    id<MTLComputeCommandEncoder> fast = timedEncoder(
+                        command, owner.device_, "brain_accepted_fast", owner.step_);
+                    if (fast == nil) { owner.fail("Human Brain accepted fast encoder allocation failed"); return false; }
+                    const auto fastSuccess = owner.library_.acceptedFast(owner.brain_.handle,
+                        (__bridge void*)fast, owner.physicalFingerprint_, owner.step_ + 1u,
+                        error.data(), error.size());
+                    [fast endEncoding];
+                    if (fastSuccess != 1u) {
+                        owner.fail(error[0] == '\0' ? "NumiBrain accepted fast encoding failed" : error.data()); return false;
+                    }
+                    id<MTLComputeCommandEncoder> cognitive = timedEncoder(
+                        command, owner.device_, "brain_accepted_cognitive", owner.step_);
+                    if (cognitive == nil) { owner.fail("Human Brain accepted cognitive encoder allocation failed"); return false; }
+                    error.fill('\0');
+                    const auto cognitiveSuccess = owner.library_.acceptedCognitive(owner.brain_.handle,
+                        (__bridge void*)cognitive, records.data(),
+                        static_cast<std::uint32_t>(records.size()), error.data(), error.size());
+                    [cognitive endEncoding];
+                    if (cognitiveSuccess != 1u) {
+                        owner.fail(error[0] == '\0' ? "NumiBrain accepted cognitive encoding failed" : error.data()); return false;
+                    }
+                } else {
+                    id<MTLComputeCommandEncoder> encoder = timedEncoder(
+                        command, owner.device_, "brain_accepted", owner.step_);
+                    if (encoder == nil) { owner.fail("Human Brain accepted encoder allocation failed"); return false; }
+                    const auto success = owner.library_.accepted(owner.brain_.handle,
+                        (__bridge void*)encoder, owner.physicalFingerprint_, owner.step_ + 1u,
+                        records.data(), static_cast<std::uint32_t>(records.size()),
+                        error.data(), error.size());
+                    [encoder endEncoding];
+                    if (success != 1u) {
+                        owner.fail(error[0] == '\0' ? "NumiBrain accepted consequence encoding failed" : error.data()); return false;
+                    }
                 }
                 owner.phase_ = Phase::acceptedEncoded;
                 return true;
