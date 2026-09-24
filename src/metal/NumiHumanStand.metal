@@ -802,6 +802,16 @@ kernel void mr_numi_human_stand_step(
     const bool cacheEqualityResponseByDof =
         bodyCount * MR_NUMI_HUMAN_STAND_SPATIAL_SCRATCH_ROWS >=
         2u + equalityCount;
+    device float* projectedContactEquality =
+        equalityResponseByDof + nv * equalityCount;
+    const bool useProjectedContacts =
+        equalityCount != 0u &&
+        equalityCount <= kCachedEqualityCapacity &&
+        (dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) != 0u &&
+        dispatch.supportContactCount != 0u &&
+        bodyCount * MR_NUMI_HUMAN_STAND_SPATIAL_SCRATCH_ROWS * nv >=
+            (2u + equalityCount) * nv +
+            3u * dispatch.supportContactCount * equalityCount;
 
     float minimumPivot = INFINITY;
     float maximumPivot = 0.0f;
@@ -1001,6 +1011,77 @@ kernel void mr_numi_human_stand_step(
 
     threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
     if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
+    // Eliminate the bilateral response from each active contact column once.
+    // The later contact sweeps can then update the same equality manifold
+    // without resolving its dense block twice per sweep.
+    if (useProjectedContacts && contactEnabled) {
+        float independentRhs[MR_NUMI_HUMAN_STAND_MAX_DOFS];
+        for (uint column = lane; column < contactColumns;
+             column += threadCount) {
+            device const auto& support = contacts[column / 3u];
+            const uint pointIndex = pointBase + support.pointQueryIndex;
+            const float gap = dot(mrCompensatedPositionDifference(
+                pointWorld[pointIndex].position,
+                pointPositionLow[pointIndex],
+                dispatch.groundPointAndTimestep, float4(0.0f)).xyz,
+                dispatch.groundNormal.xyz);
+            if (gap > support.frictionSlopAndStabilization.y) continue;
+            device float* response = responseScratch + responseBase +
+                column * nv;
+            device float* reaction =
+                projectedContactEquality + column * equalityCount;
+            for (uint row = 0u; row < equalityCount; ++row)
+                reaction[row] = 0.0f;
+            bool valid = true;
+            for (uint refinement = 0u; refinement < 2u && valid;
+                 ++refinement) {
+                for (uint row = 0u; row < equalityCount; ++row) {
+                    device const auto& equality = jointEqualities[row];
+                    float residual = response[equality.indices.y];
+                    if (equality.indices.w != MR_INVALID_INDEX)
+                        residual = fma(-equalityDerivativeCache[row],
+                            response[equality.indices.w], residual);
+                    independentRhs[row] = residual;
+                }
+                if (!mrNumiHumanBilateralSolve(equalityFactorStorage,
+                        equalityScale, equalityPivots, independentRhs,
+                        equalityCount)) {
+                    valid = false;
+                    break;
+                }
+                for (uint row = 0u; row < equalityCount; ++row)
+                    reaction[row] -= independentRhs[row];
+                for (uint dof = 0u; dof < nv; ++dof) {
+                    float correction = 0.0f;
+                    for (uint row = 0u; row < equalityCount; ++row) {
+                        device const float* equalityResponse =
+                            responseScratch + responseBase +
+                            (contactColumns + row) * nv;
+                        correction = fma(independentRhs[row],
+                            equalityResponse[dof], correction);
+                    }
+                    response[dof] -= correction;
+                    if (!isfinite(response[dof])) {
+                        valid = false;
+                        break;
+                    }
+                }
+            }
+            if (!valid)
+                atomic_fetch_min_explicit(&responseFailure, column,
+                    memory_order_relaxed);
+        }
+        threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+        if (lane == 0u) {
+            const uint failed = atomic_load_explicit(&responseFailure,
+                memory_order_relaxed);
+            if (failed != MR_INVALID_INDEX)
+                fail(status, MR_NUMI_HUMAN_STAND_CONTACT_FAILED,
+                    failed / 3u);
+        }
+        threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+        if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
+    }
     // Condition source-limit responses independently, preserving the original
     // two refinement passes and each column's exact reduction order. The
     // subsequent coupled impulse sweeps retain their sequential ordering.
@@ -1230,6 +1311,16 @@ kernel void mr_numi_human_stand_finish(
     const bool cacheEqualityResponseByDof =
         bodyCount * MR_NUMI_HUMAN_STAND_SPATIAL_SCRATCH_ROWS >=
         2u + equalityCount;
+    device const float* projectedContactEquality =
+        equalityResponseByDof + nv * equalityCount;
+    const bool useProjectedContacts =
+        equalityCount != 0u &&
+        equalityCount <= kCachedEqualityCapacity &&
+        (dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) != 0u &&
+        dispatch.supportContactCount != 0u &&
+        bodyCount * MR_NUMI_HUMAN_STAND_SPATIAL_SCRATCH_ROWS * nv >=
+            (2u + equalityCount) * nv +
+            3u * dispatch.supportContactCount * equalityCount;
     const float timestep = dispatch.groundPointAndTimestep.w;
     float minimumPivot = INFINITY;
     float maximumPivot = 0.0f;
