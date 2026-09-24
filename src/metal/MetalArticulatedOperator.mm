@@ -10002,12 +10002,19 @@ MetalArticulatedOperatorContext::submit(
                         8u * kinematicsPipeline.threadExecutionWidth,
                         kinematicsPipeline.maxTotalThreadsPerThreadgroup)
                     : kThreadsPerThreadgroup;
+            // Each tile recomputes its small body-state scratch, then owns a
+            // disjoint subset of point Jacobians. One tile publishes shared
+            // poses, generalized zeros, and the environment status.
+            const NSUInteger pointTiles = state_->config.pointJacobiansOnly
+                ? std::min<NSUInteger>(
+                    32u, std::max<NSUInteger>(1u, (input.pointCount + 15u) / 16u))
+                : 1u;
             [encoder
                 dispatchThreadgroups:MTLSizeMake(
                     static_cast<NSUInteger>(
                         input.environmentCount
                     ),
-                    1u,
+                    pointTiles,
                     1u
                 )
                 threadsPerThreadgroup:MTLSizeMake(

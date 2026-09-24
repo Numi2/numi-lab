@@ -1609,12 +1609,17 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
     device float4* pointPositionLow [[buffer(19)]],
 #endif
     threadgroup uchar* scratch [[threadgroup(0)]],
-    uint environment [[threadgroup_position_in_grid]],
+    uint3 workGroup [[threadgroup_position_in_grid]],
+    uint3 groupCount [[threadgroups_per_grid]],
     uint lane [[thread_index_in_threadgroup]],
     uint simdLane [[thread_index_in_simdgroup]],
     uint simdWidth [[threads_per_simdgroup]],
-    uint threadsPerThreadgroup [[threads_per_threadgroup]]
+    uint3 threadgroupSize [[threads_per_threadgroup]]
 ) {
+    const uint environment = workGroup.x;
+    const uint tile = workGroup.y;
+    const uint tileCount = groupCount.y;
+    const uint threadsPerThreadgroup = threadgroupSize.x;
     if (environment >= dispatch.environmentCount) {
         return;
     }
@@ -1641,7 +1646,7 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
         initializationSucceeded =
             validDispatch(world, dispatch, status) ? 1u : 0u;
         if (initializationSucceeded == 0u) {
-            statuses[environment] = status;
+            if (tile == 0u) statuses[environment] = status;
         }
     }
     threadgroup_barrier(mem_flags::mem_threadgroup);
@@ -1775,7 +1780,7 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
             ? 1u
             : 0u;
         if (initializationSucceeded == 0u) {
-            statuses[environment] = status;
+            if (tile == 0u) statuses[environment] = status;
         }
     }
     threadgroup_barrier(mem_flags::mem_threadgroup);
@@ -1796,7 +1801,7 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
         if (articulation.rootType != MR_ROOT_FLOATING || !mrCompensatedTranslationValid(translation)) {
             if (lane == 0u) {
                 setFailure(status, MR_ARTICULATED_OPERATOR_NONFINITE_INPUT, 0u);
-                statuses[environment] = status;
+                if (tile == 0u) statuses[environment] = status;
             }
             return;
         }
@@ -1826,10 +1831,11 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                 const auto paired = mrCompensatedTranslationPositionPair(translation,
                     bodyPosition[localBody]);
                 pose.position = float4(paired.high.xyz, 1.0f);
-                bodyPositionLow[poseBase + localBody] = paired.low;
+                if (tile == 0u)
+                    bodyPositionLow[poseBase + localBody] = paired.low;
             }
 #endif
-            bodyPoses[poseBase + localBody] = pose;
+            if (tile == 0u) bodyPoses[poseBase + localBody] = pose;
         }
         if (pointJacobiansOnly) {
             // The same body is queried at its COM and several local points.
@@ -1868,9 +1874,9 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
             const uint simdGroup = lane / simdWidth;
             const uint simdGroupCount =
                 (threadsPerThreadgroup + simdWidth - 1u) / simdWidth;
-            for (uint point = simdGroup;
+            for (uint point = tile * simdGroupCount + simdGroup;
                  point < dispatch.pointCount;
-                 point += simdGroupCount) {
+                 point += tileCount * simdGroupCount) {
                 device const MRArticulatedPointImpulseGPU& query =
                     points[pointBase + point];
                 const bool foreign =
@@ -1957,18 +1963,20 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
             for (uint dof = lane;
                  dof < articulation.nv;
                  dof += threadsPerThreadgroup) {
-                generalizedImpulse[
-                    generalizedBase + dof
-                ] = 0.0f;
-                deltaVelocity[
-                    generalizedBase + dof
-                ] = 0.0f;
+                if (tile == 0u) {
+                    generalizedImpulse[
+                        generalizedBase + dof
+                    ] = 0.0f;
+                    deltaVelocity[
+                        generalizedBase + dof
+                    ] = 0.0f;
+                }
             }
         }
         threadgroup_barrier(mem_flags::mem_device);
         if (lane == 0u) {
             status.diagnostics = float4(0.0f);
-            statuses[environment] = status;
+            if (tile == 0u) statuses[environment] = status;
         }
         return;
     }
