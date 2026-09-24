@@ -42,6 +42,11 @@ uint32_t nb_human_standing_encode_motor_decision_v1(void* handle, void* encoder,
     char* error, size_t error_capacity);
 uint32_t nb_human_standing_encode_motor_tissue_v1(void* handle, void* encoder,
     void* muscle_states, uint32_t muscle_count, char* error, size_t error_capacity);
+/* Optional inner GPU phase timing. The Brain borrows this exact owner command
+   buffer and encodes successive passes without submitting or waiting. */
+uint32_t nb_human_standing_encode_motor_tissue_phased_v1(void* handle,
+    void* command_buffer, void* muscle_states, uint32_t muscle_count,
+    char* error, size_t error_capacity);
 uint32_t nb_human_standing_encode_accepted_v1(void* handle, void* encoder,
     uint64_t physical_state_fingerprint, uint32_t completed_step_count,
     const NBHumanStandingReceptor* receptors, uint32_t receptor_count,
