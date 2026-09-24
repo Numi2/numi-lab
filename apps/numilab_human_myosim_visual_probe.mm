@@ -6395,6 +6395,11 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                     "segmented authoritative Human horizon failed after " +
                     std::to_string(completedSteps) + " accepted steps: " +
                     segmentDiagnostics.message;
+                if (standBrainController != nullptr &&
+                    standBrainController->error()[0] != '\0') {
+                    segmentDiagnostics.message += ": ";
+                    segmentDiagnostics.message += standBrainController->error();
+                }
                 horizonResult = std::move(segmentResult);
                 return segmentDiagnostics;
             }
