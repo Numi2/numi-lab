@@ -1003,9 +1003,9 @@ kernel void mr_numi_human_stand_step(
 
 // The split completion entry consumes the prepare phase in the same
 // authoritative command buffer. Contact and limit decisions retain their
-// ordered owner; equality and limit response updates distribute disjoint DOFs,
-// and limit reaction reads distribute equality rows. Scalar impulse work keeps
-// the original FP32 accumulation order.
+// ordered owner; contact, equality, and limit response updates distribute
+// disjoint DOFs. Contact velocity axes and limit reaction rows also use
+// independent lanes while scalar impulse work keeps its FP32 order.
 kernel void mr_numi_human_stand_finish(
     device const MRWorldGPU* worlds [[buffer(0)]],
     device const MRArticulationGPU* articulations [[buffer(1)]],
@@ -1084,6 +1084,12 @@ kernel void mr_numi_human_stand_finish(
         MR_NUMI_HUMAN_STAND_MAX_DOFS];
     threadgroup float cooperativeLimitEqualityVelocities[
         MR_NUMI_HUMAN_STAND_MAX_DOFS];
+    threadgroup uint cooperativeContactActive[
+        MR_NUMI_HUMAN_STAND_MAX_CONTACTS];
+    threadgroup float cooperativeContactGap[
+        MR_NUMI_HUMAN_STAND_MAX_CONTACTS];
+    threadgroup float cooperativeContactVelocities[3];
+    threadgroup float cooperativeContactApplied[3];
     threadgroup float* equalityRhs = equalityRhsStorage;
     // Equality multiplier corrections for each conditioned limit response.
     device float* limitEqualityCorrections = equalityPivots + 2u * equalityCount;
