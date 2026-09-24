@@ -3301,7 +3301,7 @@ MetalArticulatedOperatorDiagnostics initializeContext(
         }
         id<MTLFunction> standProjectedResponseFunction = [library
             newFunctionWithName:
-                @"mr_numi_human_stand_projected_response_assemble"];
+                @"mr_numi_human_stand_projected_response_cooperative"];
         error = nil;
         standProjectedResponsePipeline = standProjectedResponseFunction == nil
             ? nil : [device newComputePipelineStateWithFunction:
@@ -10617,8 +10617,7 @@ MetalArticulatedOperatorContext::submit(
                                 standDispatch.supportContactCount) +
                             static_cast<NSUInteger>(articulation.nv);
                         [standEncoder dispatchThreadgroups:MTLSizeMake(
-                                (projectedColumns + kStandResponseThreadsPerThreadgroup - 1u) /
-                                    kStandResponseThreadsPerThreadgroup,
+                                projectedColumns,
                                 static_cast<NSUInteger>(input.environmentCount), 1u)
                             threadsPerThreadgroup:MTLSizeMake(
                                 kStandResponseThreadsPerThreadgroup, 1u, 1u)];

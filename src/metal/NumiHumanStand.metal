@@ -1925,6 +1925,233 @@ kernel void mr_numi_human_stand_projected_response_assemble(
     }
 }
 
+// Contact and limit right hand sides are independent after the equality
+// factor is published. One SIMD group performs each ordered mass solve;
+// lane zero retains the authored two-pass equality conditioning for that row.
+kernel void mr_numi_human_stand_projected_response_cooperative(
+    device const MRArticulationGPU* articulations [[buffer(1)]],
+    device const MRDofPropertiesGPU* dofs [[buffer(2)]],
+    constant const MRNumiHumanStandDispatchGPU& dispatch [[buffer(4)]],
+    device const MRArticulatedPointWorldGPU* pointWorld [[buffer(8)]],
+    device const float* pointJacobians [[buffer(9)]],
+    device const MRNumiHumanStandContactGPU* contacts [[buffer(11)]],
+    device float* spatialJacobianScratch [[buffer(12)]],
+    device const float* factorScratch [[buffer(14)]],
+    device float* responseScratch [[buffer(16)]],
+    device MRNumiHumanStandStatusGPU* statuses [[buffer(17)]],
+    device const MRNumiHumanJointEqualityGPU* jointEqualities [[buffer(20)]],
+    device const float4* pointPositionLow [[buffer(23)]],
+    uint3 group [[threadgroup_position_in_grid]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint3 groupSize [[threads_per_threadgroup]]
+) {
+    const uint environment = group.y;
+    const uint positionIndex = group.x;
+    if (environment >= dispatch.environmentCount) return;
+    device MRNumiHumanStandStatusGPU& status = statuses[environment];
+    if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
+    device const MRArticulationGPU& articulation =
+        articulations[dispatch.articulationIndex];
+    const uint nv = articulation.nv;
+    const uint equalityCount = dispatch.jointEqualityCount;
+    const uint contactColumns = 3u * dispatch.supportContactCount;
+    const uint equalityColumnsEnd = contactColumns + equalityCount;
+    if (positionIndex >= contactColumns + nv) return;
+    const uint column = positionIndex < contactColumns
+        ? positionIndex : equalityColumnsEnd + positionIndex - contactColumns;
+    const uint responseColumns = (equalityColumnsEnd + nv) * nv;
+    const uint responseStride = responseColumns +
+        equalityCount * (equalityCount + 3u) + nv * equalityCount;
+    const uint responseBase = environment * responseStride;
+    device float* response = responseScratch + responseBase + column * nv;
+    device float* equalityFactor =
+        responseScratch + responseBase + responseColumns;
+    device float* equalityScale =
+        equalityFactor + equalityCount * equalityCount;
+    device float* equalityPivots = equalityScale + equalityCount;
+    device float* limitEqualityCorrections =
+        equalityPivots + 2u * equalityCount;
+    const uint spatialBase = environment * articulation.bodyCount *
+        MR_NUMI_HUMAN_STAND_SPATIAL_SCRATCH_ROWS * nv;
+    device const float* derivativeCache =
+        spatialJacobianScratch + spatialBase;
+    device float* projectedContactEquality =
+        spatialJacobianScratch + spatialBase +
+        (2u + equalityCount) * nv;
+    const bool contactEnabled =
+        (dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) != 0u;
+    const bool useProjectedContacts =
+        equalityCount != 0u && equalityCount <= kCachedEqualityCapacity &&
+        contactEnabled && dispatch.supportContactCount != 0u &&
+        articulation.bodyCount * MR_NUMI_HUMAN_STAND_SPATIAL_SCRATCH_ROWS * nv >=
+            (2u + equalityCount) * nv +
+            3u * dispatch.supportContactCount * equalityCount;
+    const uint pointBase = environment * dispatch.pointWorldStride;
+    const uint pointJacobianBase =
+        environment * dispatch.pointJacobianStride;
+    const uint threadCount = groupSize.x;
+    threadgroup float rhs[MR_NUMI_HUMAN_STAND_MAX_DOFS];
+    threadgroup float workspace[MR_NUMI_HUMAN_STAND_MAX_DOFS];
+    threadgroup float3 direction;
+    threadgroup uint responseActive = 0u;
+    threadgroup uint conditionValid = 1u;
+    threadgroup uint solveSucceeded = 0u;
+    if (lane == 0u) {
+        if (positionIndex < contactColumns) {
+            if (contactEnabled) {
+                device const auto& support = contacts[positionIndex / 3u];
+                const uint pointIndex = pointBase + support.pointQueryIndex;
+                const float3 normal = dispatch.groundNormal.xyz;
+                const float gap = dot(mrCompensatedPositionDifference(
+                    pointWorld[pointIndex].position, pointPositionLow[pointIndex],
+                    dispatch.groundPointAndTimestep, float4(0.0f)).xyz,
+                    normal);
+                if (gap <= support.frictionSlopAndStabilization.y) {
+                    const float3 reference = abs(normal.x) < 0.8f
+                        ? float3(1.0f, 0.0f, 0.0f)
+                        : float3(0.0f, 1.0f, 0.0f);
+                    const float3 tangent0 = normalize(
+                        reference - dot(reference, normal) * normal);
+                    direction = positionIndex % 3u == 0u ? normal :
+                        positionIndex % 3u == 1u ? tangent0 :
+                        cross(normal, tangent0);
+                    responseActive = 1u;
+                }
+            }
+        } else {
+            const uint dof = positionIndex - contactColumns;
+            responseActive = contactEnabled &&
+                (dofs[articulation.vOffset + dof].flags &
+                 MR_DOF_FLAG_POSITION_LIMIT) != 0u ? 1u : 0u;
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (responseActive == 0u) return;
+    for (uint dof = lane; dof < nv; dof += threadCount) {
+        rhs[dof] = positionIndex < contactColumns
+            ? pointJacobianAxis(pointJacobians, pointJacobianBase,
+                contacts[positionIndex / 3u].pointQueryIndex, nv, dof,
+                direction)
+            : (dof == positionIndex - contactColumns ? 1.0f : 0.0f);
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (!solveFactorCooperativeForward(
+            factorScratch + environment * nv * nv,
+            workspace, rhs, nv, lane, threadCount, &solveSucceeded)) {
+        if (lane == 0u) publishParallelResponseFailure(status, column);
+        return;
+    }
+    if (lane == 0u) {
+        float equalityRhs[MR_NUMI_HUMAN_STAND_MAX_DOFS];
+        bool valid = true;
+        if (positionIndex < contactColumns) {
+            if (useProjectedContacts) {
+                device float* reaction = projectedContactEquality +
+                    positionIndex * equalityCount;
+                for (uint row = 0u; row < equalityCount; ++row)
+                    reaction[row] = 0.0f;
+                for (uint refinement = 0u; refinement < 2u && valid;
+                     ++refinement) {
+                    for (uint row = 0u; row < equalityCount; ++row) {
+                        device const auto& equality = jointEqualities[row];
+                        float residual = rhs[equality.indices.y];
+                        if (equality.indices.w != MR_INVALID_INDEX)
+                            residual = fma(-derivativeCache[row],
+                                rhs[equality.indices.w], residual);
+                        equalityRhs[row] = residual;
+                    }
+                    if (!mrNumiHumanBilateralSolve(equalityFactor,
+                            equalityScale, equalityPivots, equalityRhs,
+                            equalityCount)) {
+                        valid = false;
+                        break;
+                    }
+                    for (uint row = 0u; row < equalityCount; ++row)
+                        reaction[row] -= equalityRhs[row];
+                    for (uint dof = 0u; dof < nv; ++dof) {
+                        float correction = 0.0f;
+                        for (uint row = 0u; row < equalityCount; ++row) {
+                            device const float* equalityResponse =
+                                responseScratch + responseBase +
+                                (contactColumns + row) * nv;
+                            correction = fma(equalityRhs[row],
+                                equalityResponse[dof], correction);
+                        }
+                        rhs[dof] -= correction;
+                        if (!isfinite(rhs[dof])) {
+                            valid = false;
+                            break;
+                        }
+                    }
+                }
+                if (!valid) publishParallelResponseFailure(status,
+                    kParallelContactConditionFailure + positionIndex);
+            }
+        } else {
+            const uint dof = positionIndex - contactColumns;
+            device float* equalityCorrection =
+                limitEqualityCorrections + dof * equalityCount;
+            for (uint row = 0u; row < equalityCount; ++row)
+                equalityCorrection[row] = 0.0f;
+            if (equalityCount != 0u) {
+                const float rawDiagonal = rhs[dof];
+                float rawResponse[MR_NUMI_HUMAN_STAND_MAX_DOFS];
+                for (uint index = 0u; index < nv; ++index)
+                    rawResponse[index] = rhs[index];
+                for (uint refinement = 0u; refinement < 2u && valid;
+                     ++refinement) {
+                    for (uint row = 0u; row < equalityCount; ++row) {
+                        device const auto& equality = jointEqualities[row];
+                        float residual = rhs[equality.indices.y];
+                        if (equality.indices.w != MR_INVALID_INDEX)
+                            residual = fma(-derivativeCache[row],
+                                rhs[equality.indices.w], residual);
+                        equalityRhs[row] = residual;
+                    }
+                    if (!mrNumiHumanBilateralSolve(equalityFactor,
+                            equalityScale, equalityPivots, equalityRhs,
+                            equalityCount)) {
+                        publishParallelResponseFailure(status,
+                            kParallelLimitConditionFailure + 2u * dof);
+                        valid = false;
+                        break;
+                    }
+                    for (uint row = 0u; row < equalityCount; ++row)
+                        equalityCorrection[row] -= equalityRhs[row];
+                    for (uint index = 0u; index < nv; ++index) {
+                        float correction = 0.0f;
+                        for (uint row = 0u; row < equalityCount; ++row) {
+                            device const float* equalityResponse =
+                                responseScratch + responseBase +
+                                (contactColumns + row) * nv;
+                            correction = fma(equalityRhs[row],
+                                equalityResponse[index], correction);
+                        }
+                        rhs[index] -= correction;
+                        if (!isfinite(rhs[index])) {
+                            publishParallelResponseFailure(status,
+                                kParallelLimitConditionFailure + 2u * dof + 1u);
+                            valid = false;
+                            break;
+                        }
+                    }
+                }
+                if (valid && !(rhs[dof] > 1.0e-6f * rawDiagonal)) {
+                    for (uint index = 0u; index < nv; ++index)
+                        rhs[index] = rawResponse[index];
+                    for (uint row = 0u; row < equalityCount; ++row)
+                        equalityCorrection[row] = 0.0f;
+                }
+            }
+        }
+        conditionValid = valid ? 1u : 0u;
+    }
+    threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+    if (conditionValid == 0u) return;
+    for (uint dof = lane; dof < nv; dof += threadCount)
+        response[dof] = rhs[dof];
+}
+
 // Assemble independent mass entries across GPU threadgroups after the
 // prerequisite pass has published spatial and inertia-weighted Jacobians.
 // The per-entry body reduction and passive terms match stand_step exactly.
