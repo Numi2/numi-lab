@@ -394,6 +394,8 @@ private:
         void* image = nullptr;
         decltype(&nb_human_standing_create_v1) create = nullptr;
         decltype(&nb_human_standing_encode_motor_v1) motor = nullptr;
+        decltype(&nb_human_standing_encode_motor_decision_v1) motorDecision = nullptr;
+        decltype(&nb_human_standing_encode_motor_tissue_v1) motorTissue = nullptr;
         decltype(&nb_human_standing_encode_accepted_v1) accepted = nullptr;
         decltype(&nb_human_standing_publish_v1) publish = nullptr;
         decltype(&nb_human_standing_abort_v1) abort = nullptr;
@@ -409,6 +411,10 @@ private:
             try {
                 create = symbol<decltype(create)>("nb_human_standing_create_v1");
                 motor = symbol<decltype(motor)>("nb_human_standing_encode_motor_v1");
+                motorDecision = optionalSymbol<decltype(motorDecision)>(
+                    "nb_human_standing_encode_motor_decision_v1");
+                motorTissue = optionalSymbol<decltype(motorTissue)>(
+                    "nb_human_standing_encode_motor_tissue_v1");
                 accepted = symbol<decltype(accepted)>("nb_human_standing_encode_accepted_v1");
                 publish = symbol<decltype(publish)>("nb_human_standing_publish_v1");
                 abort = symbol<decltype(abort)>("nb_human_standing_abort_v1");
@@ -424,6 +430,11 @@ private:
             if (address == nullptr || reason != nullptr)
                 throw std::runtime_error(std::string("NumiBrain standing symbol unavailable: ") + name);
             return reinterpret_cast<Function>(address);
+        }
+        template <typename Function> Function optionalSymbol(const char* name) {
+            dlerror();
+            void* address = dlsym(image, name);
+            return dlerror() == nullptr ? reinterpret_cast<Function>(address) : nullptr;
         }
     };
     struct BrainHandle {
@@ -611,16 +622,50 @@ private:
                     owner.physicalCommand_ = reinterpret_cast<std::uintptr_t>(pass.commandBuffer);
                     owner.step_ = pass.stepIndex;
                     owner.rootOpen_ = true;
-                    id<MTLComputeCommandEncoder> encoder = timedEncoder(
-                        command, owner.device_, "brain_motor", pass.stepIndex);
-                    if (encoder == nil) { owner.fail("Human Brain motor encoder allocation failed"); return false; }
                     std::array<char, 2048u> error{};
-                    const auto success = owner.library_.motor(owner.brain_.handle, (__bridge void*)encoder,
-                        pass.stepIndex, records.data(), static_cast<std::uint32_t>(records.size()),
-                        pass.mujocoStates, 416u, error.data(), error.size());
-                    [encoder endEncoding];
-                    if (success != 1u) {
-                        owner.fail(error[0] == '\0' ? "NumiBrain motor encoding failed" : error.data()); return false;
+                    const char* phaseTiming = std::getenv("NUMI_HUMAN_BRAIN_PHASE_TIMING");
+                    if (phaseTiming != nullptr && std::strcmp(phaseTiming, "1") == 0) {
+                        if (owner.library_.motorDecision == nullptr ||
+                            owner.library_.motorTissue == nullptr) {
+                            owner.fail("NumiBrain phase timing symbols are unavailable"); return false;
+                        }
+                        id<MTLComputeCommandEncoder> decision = timedEncoder(
+                            command, owner.device_, "brain_decision", pass.stepIndex);
+                        if (decision == nil) { owner.fail("Human Brain decision encoder allocation failed"); return false; }
+                        const auto decisionSuccess = owner.library_.motorDecision(
+                            owner.brain_.handle, (__bridge void*)decision, pass.stepIndex,
+                            records.data(), static_cast<std::uint32_t>(records.size()),
+                            error.data(), error.size());
+                        [decision endEncoding];
+                        if (decisionSuccess != 1u) {
+                            owner.fail(error[0] == '\0' ? "NumiBrain decision encoding failed" : error.data());
+                            return false;
+                        }
+                        id<MTLComputeCommandEncoder> tissue = timedEncoder(
+                            command, owner.device_, "brain_tissue", pass.stepIndex);
+                        if (tissue == nil) { owner.fail("Human Brain tissue encoder allocation failed"); return false; }
+                        error.fill('\0');
+                        const auto tissueSuccess = owner.library_.motorTissue(
+                            owner.brain_.handle, (__bridge void*)tissue,
+                            pass.mujocoStates, 416u, error.data(), error.size());
+                        [tissue endEncoding];
+                        if (tissueSuccess != 1u) {
+                            owner.fail(error[0] == '\0' ? "NumiBrain tissue encoding failed" : error.data());
+                            return false;
+                        }
+                    } else {
+                        id<MTLComputeCommandEncoder> encoder = timedEncoder(
+                            command, owner.device_, "brain_motor", pass.stepIndex);
+                        if (encoder == nil) { owner.fail("Human Brain motor encoder allocation failed"); return false; }
+                        const auto success = owner.library_.motor(owner.brain_.handle,
+                            (__bridge void*)encoder, pass.stepIndex, records.data(),
+                            static_cast<std::uint32_t>(records.size()),
+                            pass.mujocoStates, 416u, error.data(), error.size());
+                        [encoder endEncoding];
+                        if (success != 1u) {
+                            owner.fail(error[0] == '\0' ? "NumiBrain motor encoding failed" : error.data());
+                            return false;
+                        }
                     }
                     owner.phase_ = Phase::motorEncoded;
                     return true;
