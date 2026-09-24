@@ -513,6 +513,51 @@ private:
             a.sensory_profile_fingerprint == b.sensory_profile_fingerprint &&
             a.parameter_version_fingerprint == b.parameter_version_fingerprint;
     }
+    // Read-only GPU timestamps on the borrowed command timeline. The first
+    // eight steps are enough to separate neural motor work from physical GPU
+    // stages without instrumenting a sustained run.
+    static id<MTLComputeCommandEncoder> timedEncoder(
+        id<MTLCommandBuffer> command, id<MTLDevice> device,
+        const char* stage, std::uint32_t step) {
+        if (step >= 8u) return [command computeCommandEncoder];
+        const char* requested = std::getenv("NUMI_HUMAN_GPU_TIMING");
+        if (requested == nullptr || std::strcmp(requested, "1") != 0 ||
+            ![device supportsCounterSampling:MTLCounterSamplingPointAtStageBoundary])
+            return [command computeCommandEncoder];
+        id<MTLCounterSampleBuffer> timing = nil;
+        for (id<MTLCounterSet> set in device.counterSets) {
+            if (![set.name isEqualToString:MTLCommonCounterSetTimestamp]) continue;
+            MTLCounterSampleBufferDescriptor* descriptor =
+                [MTLCounterSampleBufferDescriptor new];
+            descriptor.counterSet = set;
+            descriptor.storageMode = MTLStorageModeShared;
+            descriptor.sampleCount = 2u;
+            timing = [device newCounterSampleBufferWithDescriptor:descriptor
+                                                             error:nil];
+            break;
+        }
+        if (timing == nil) return [command computeCommandEncoder];
+        MTLComputePassDescriptor* pass = [MTLComputePassDescriptor computePassDescriptor];
+        pass.sampleBufferAttachments[0].sampleBuffer = timing;
+        pass.sampleBufferAttachments[0].startOfEncoderSampleIndex = 0u;
+        pass.sampleBufferAttachments[0].endOfEncoderSampleIndex = 1u;
+        [command addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+            NSData* data = [timing resolveCounterRange:NSMakeRange(0u, 2u)];
+            if (completed.status != MTLCommandBufferStatusCompleted ||
+                data.length != 2u * sizeof(MTLCounterResultTimestamp)) return;
+            const auto* samples = static_cast<const MTLCounterResultTimestamp*>(
+                data.bytes);
+            if (samples[0].timestamp == 0u ||
+                samples[1].timestamp < samples[0].timestamp ||
+                samples[0].timestamp == MTLCounterErrorValue ||
+                samples[1].timestamp == MTLCounterErrorValue) return;
+            std::fprintf(stderr,
+                "human_gpu_stage=%s step=%u elapsed_ns=%llu\n", stage, step,
+                static_cast<unsigned long long>(
+                    samples[1].timestamp - samples[0].timestamp));
+        }];
+        return [command computeCommandEncoderWithDescriptor:pass];
+    }
     std::uint64_t physicalFingerprint(const metalrobo::MetalArticulatedOperatorResult& result,
                                       std::uint32_t completedSteps) const noexcept {
         Fingerprint hash;
@@ -566,7 +611,8 @@ private:
                     owner.physicalCommand_ = reinterpret_cast<std::uintptr_t>(pass.commandBuffer);
                     owner.step_ = pass.stepIndex;
                     owner.rootOpen_ = true;
-                    id<MTLComputeCommandEncoder> encoder = [command computeCommandEncoder];
+                    id<MTLComputeCommandEncoder> encoder = timedEncoder(
+                        command, owner.device_, "brain_motor", pass.stepIndex);
                     if (encoder == nil) { owner.fail("Human Brain motor encoder allocation failed"); return false; }
                     std::array<char, 2048u> error{};
                     const auto success = owner.library_.motor(owner.brain_.handle, (__bridge void*)encoder,
@@ -616,7 +662,8 @@ private:
                     owner.fail("Human Brain accepted completion changed Metal device"); return false;
                 }
                 const auto records = receptorRecords(owner.receptors_->pendingFrame(owner.step_ + 1u));
-                id<MTLComputeCommandEncoder> encoder = [command computeCommandEncoder];
+                id<MTLComputeCommandEncoder> encoder = timedEncoder(
+                    command, owner.device_, "brain_accepted", owner.step_);
                 if (encoder == nil) { owner.fail("Human Brain accepted encoder allocation failed"); return false; }
                 std::array<char, 2048u> error{};
                 const auto success = owner.library_.accepted(owner.brain_.handle, (__bridge void*)encoder,
