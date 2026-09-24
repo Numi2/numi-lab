@@ -354,6 +354,7 @@ kernel void mr_numi_human_stand_step(
         kCachedEqualityCapacity * kCachedEqualityCapacity];
     threadgroup float candidateVStorage[MR_NUMI_HUMAN_STAND_MAX_DOFS];
     threadgroup float workspaceStorage[MR_NUMI_HUMAN_STAND_MAX_DOFS];
+    threadgroup float massRowScale[MR_NUMI_HUMAN_STAND_MAX_DOFS];
     threadgroup float* equalityRhs = equalityRhsStorage;
     // Equality multiplier corrections for each conditioned limit response.
     device float* limitEqualityCorrections = equalityPivots + 2u * equalityCount;
@@ -804,35 +805,50 @@ kernel void mr_numi_human_stand_step(
 
     float minimumPivot = INFINITY;
     float maximumPivot = 0.0f;
-    if (lane == 0u) {
-        for (uint row = 0u; row < nv && status.code == MR_NUMI_HUMAN_STAND_SUCCESS; ++row) {
-            float scale = 0.0f;
-            for (uint column = 0u; column < nv; ++column) {
-                scale = max(scale, abs(factor[row * nv + column]));
-            }
-            for (uint column = 0u; column <= row; ++column) {
-                float value = factor[row * nv + column];
-                for (uint inner = 0u; inner < column; ++inner) {
-                    value -= factor[row * nv + inner] * factor[column * nv + inner];
-                }
-                if (row == column) {
-                    if (!(value > max(
-                            kPivotFloor,
-                            scale * 8.0f * 1.1920928955078125e-7f
-                        )) ||
-                        !isfinite(value)) {
-                        fail(status, MR_NUMI_HUMAN_STAND_FACTORIZATION_FAILED, row);
-                        break;
-                    }
-                    factor[row * nv + row] = sqrt(value);
-                    minimumPivot = min(minimumPivot, factor[row * nv + row]);
-                    maximumPivot = max(maximumPivot, factor[row * nv + row]);
-                } else {
-                    factor[row * nv + column] =
-                        value / factor[column * nv + column];
-                }
+    // Freeze each row's original pivot scale before any factor entry changes.
+    // Column k has one dependent diagonal; every row below it is independent.
+    // Each entry retains the original increasing-inner subtraction order.
+    for (uint row = lane; row < nv; row += threadCount) {
+        float scale = 0.0f;
+        for (uint column = 0u; column < nv; ++column)
+            scale = max(scale, abs(factor[row * nv + column]));
+        massRowScale[row] = scale;
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    for (uint column = 0u; column < nv; ++column) {
+        if (lane == 0u) {
+            float value = factor[column * nv + column];
+            for (uint inner = 0u; inner < column; ++inner)
+                value -= factor[column * nv + inner] *
+                    factor[column * nv + inner];
+            if (!(value > max(
+                    kPivotFloor,
+                    massRowScale[column] * 8.0f *
+                        1.1920928955078125e-7f
+                )) || !isfinite(value)) {
+                fail(status, MR_NUMI_HUMAN_STAND_FACTORIZATION_FAILED,
+                     column);
+            } else {
+                factor[column * nv + column] = sqrt(value);
+                minimumPivot = min(minimumPivot,
+                                   factor[column * nv + column]);
+                maximumPivot = max(maximumPivot,
+                                   factor[column * nv + column]);
             }
         }
+        threadgroup_barrier(mem_flags::mem_device |
+                            mem_flags::mem_threadgroup);
+        if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
+        for (uint row = column + 1u + lane; row < nv;
+             row += threadCount) {
+            float value = factor[row * nv + column];
+            for (uint inner = 0u; inner < column; ++inner)
+                value -= factor[row * nv + inner] *
+                    factor[column * nv + inner];
+            factor[row * nv + column] =
+                value / factor[column * nv + column];
+        }
+        threadgroup_barrier(mem_flags::mem_device);
     }
     // Every inverse-mass response has an independent RHS. Preserve each
     // scalar substitution's operation order while assigning columns to GPU
