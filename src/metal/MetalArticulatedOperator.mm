@@ -10028,7 +10028,8 @@ MetalArticulatedOperatorContext::submit(
                     );
                     activeDispatch.dofCount = articulation.nv;
                     id<MTLComputeCommandEncoder> activeForceEncoder =
-                        [commandBuffer computeCommandEncoder];
+                        humanTimedEncoder(commandBuffer, state_->device,
+                                          "active_force", authoritativeStep);
                     if (activeForceEncoder == nil) {
                         return reject(
                             std::move(diagnostics),
@@ -10068,7 +10069,8 @@ MetalArticulatedOperatorContext::submit(
                     [activeForceEncoder endEncoding];
                 }
                 id<MTLComputeCommandEncoder> mujocoReduceEncoder =
-                    [commandBuffer computeCommandEncoder];
+                    humanTimedEncoder(commandBuffer, state_->device,
+                                      "force_reduce", authoritativeStep);
                 if (mujocoReduceEncoder == nil) {
                     return reject(
                         std::move(diagnostics),
@@ -10130,7 +10132,8 @@ MetalArticulatedOperatorContext::submit(
                         input.mujoco.bodyJacobianPointOffset;
                     tendonDispatch.bodyJacobianPointStride = 4u;
                     id<MTLComputeCommandEncoder> tendonEncoder =
-                        [commandBuffer computeCommandEncoder];
+                        humanTimedEncoder(commandBuffer, state_->device,
+                                          "tendon_transfer", authoritativeStep);
                     if (tendonEncoder == nil) {
                         return reject(
                             std::move(diagnostics),
@@ -10207,7 +10210,8 @@ MetalArticulatedOperatorContext::submit(
                         0.0f,
                     };
                     id<MTLComputeCommandEncoder> activationEncoder =
-                        [commandBuffer computeCommandEncoder];
+                        humanTimedEncoder(commandBuffer, state_->device,
+                                          "activation", authoritativeStep);
                     if (activationEncoder == nil) {
                         return reject(
                             std::move(diagnostics),
