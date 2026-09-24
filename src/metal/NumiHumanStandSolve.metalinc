@@ -68,7 +68,40 @@
     float maximumFreeAcceleration = 0.0f;
     uint maximumFreeAccelerationDof = 0u;
 #if defined(MR_NH_COOPERATIVE_FINISH)
-    if (lane == 0u) {
+    if ((dispatch.flags & MR_NUMI_HUMAN_STAND_PREDICT_VELOCITY_ONLY) == 0u) {
+        if (lane == 0u) {
+            for (uint dof = 0u; dof < nv; ++dof) {
+                float effort = generalizedForceWorkspace[forceBase + dof] +
+                    vectorScratch[preloadBase + dof];
+                if (dof < 3u) effort += assistanceForce[dof];
+                else if (dof < 6u)
+                    effort += assistanceTorque[dof - 3u];
+                if (dof < 3u) effort += timedRootForce[dof];
+                candidateV[dof] = effort - bias[dof];
+            }
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        const bool freeSolved = solveFactorCooperativeForward(
+            factor, workspace, candidateV, nv, lane, threadCount,
+            &cooperativeFreeSolveSucceeded);
+        if (lane == 0u) {
+            if (!freeSolved) {
+                fail(status, MR_NUMI_HUMAN_STAND_FACTORIZATION_FAILED,
+                     MR_INVALID_INDEX);
+            } else {
+                for (uint dof = 0u; dof < nv; ++dof) {
+                    const float acceleration = abs(candidateV[dof]);
+                    if (acceleration > maximumFreeAcceleration) {
+                        maximumFreeAcceleration = acceleration;
+                        maximumFreeAccelerationDof = dof;
+                    }
+                    candidateV[dof] =
+                        vState[vBase + dof] + timestep * candidateV[dof];
+                    bias[dof] = candidateV[dof];
+                }
+            }
+        }
+    } else if (lane == 0u) {
         auto solveFreeVelocity = [&]() {
 #endif
     for (uint dof = 0u; dof < nv; ++dof) {

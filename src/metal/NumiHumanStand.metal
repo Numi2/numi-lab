@@ -310,6 +310,68 @@ inline bool solveFactor(
     return true;
 }
 
+// The free RHS is one ordered triangular solve. Resolve a small prefix on
+// lane zero, then apply that prefix to independent future rows in parallel.
+// Every row retains the scalar solver's increasing-column subtraction order;
+// backward substitution also retains its original descending-row owner.
+inline bool solveFactorCooperativeForward(
+    device const float* factor,
+    threadgroup float* workspace,
+    threadgroup float* output,
+    const uint nv,
+    const uint lane,
+    const uint threadCount,
+    threadgroup uint* succeeded
+) {
+    if (lane == 0u) *succeeded = 1u;
+    for (uint row = lane; row < nv; row += threadCount)
+        workspace[row] = output[row];
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+
+    constexpr uint blockSize = 4u;
+    for (uint begin = 0u; begin < nv; begin += blockSize) {
+        const uint end = min(begin + blockSize, nv);
+        if (lane == 0u) {
+            for (uint row = begin; row < end; ++row) {
+                float value = workspace[row];
+                for (uint column = begin; column < row; ++column)
+                    value -= factor[row * nv + column] * workspace[column];
+                const float diagonal = factor[row * nv + row];
+                if (!(diagonal > 0.0f) || !isfinite(diagonal)) {
+                    *succeeded = 0u;
+                    break;
+                }
+                workspace[row] = value / diagonal;
+            }
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        if (*succeeded == 0u) return false;
+        for (uint row = end + lane; row < nv; row += threadCount) {
+            float value = workspace[row];
+            for (uint column = begin; column < end; ++column)
+                value -= factor[row * nv + column] * workspace[column];
+            workspace[row] = value;
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+
+    if (lane == 0u) {
+        for (uint reverse = 0u; reverse < nv; ++reverse) {
+            const uint row = nv - 1u - reverse;
+            float value = workspace[row];
+            for (uint column = row + 1u; column < nv; ++column)
+                value -= factor[column * nv + row] * output[column];
+            output[row] = value / factor[row * nv + row];
+            if (!isfinite(output[row])) {
+                *succeeded = 0u;
+                break;
+            }
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    return *succeeded != 0u;
+}
+
 inline float pointJacobianAxis(
     device const float* pointJacobians,
     const uint base,
@@ -1935,6 +1997,7 @@ kernel void mr_numi_human_stand_finish(
         kCachedEqualityCapacity * kCachedEqualityCapacity];
     threadgroup float candidateVStorage[MR_NUMI_HUMAN_STAND_MAX_DOFS];
     threadgroup float workspaceStorage[MR_NUMI_HUMAN_STAND_MAX_DOFS];
+    threadgroup uint cooperativeFreeSolveSucceeded;
     threadgroup uint cooperativeEqualitySucceeded;
     // Lanes evaluate ordered unilateral decisions together; lane zero owns
     // impulse history, and disjoint lanes apply each accepted response.
