@@ -438,6 +438,42 @@
         }
     }
     threadgroup_barrier(mem_flags::mem_threadgroup);
+    // The first sweep consumes one independent 3x3 response matrix per
+    // support contact. Build its entries across the existing finish group;
+    // each entry keeps the original ascending-DOF accumulation order.
+    if ((dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) != 0u) {
+        for (uint entry = lane;
+             entry < 9u * dispatch.supportContactCount;
+             entry += threadCount) {
+            const uint contact = entry / 9u;
+            const uint row = (entry % 9u) / 3u;
+            const uint column = entry % 3u;
+            device const MRNumiHumanStandContactGPU& support = contacts[contact];
+            // Leave malformed contact reporting to the ordered source check
+            // in the first sweep, before accessing an invalid point query.
+            if (support.bodyIndex < articulation.firstBody ||
+                support.bodyIndex >= articulation.firstBody + bodyCount ||
+                support.pointQueryIndex >= dispatch.pointWorldStride)
+                continue;
+            const uint pointIndex = pointBase + support.pointQueryIndex;
+            const float3 point = pointWorld[pointIndex].position.xyz;
+            const float gap = dot(mrCompensatedPositionDifference(
+                float4(point, 0.0f), pointPositionLow[pointIndex],
+                dispatch.groundPointAndTimestep, float4(0.0f)).xyz,
+                normal);
+            if (gap > support.frictionSlopAndStabilization.y) continue;
+            float value = row == column ? kResponseRegularization : 0.0f;
+            device const float* response = responseScratch + responseBase +
+                (3u * contact + column) * nv;
+            for (uint dof = 0u; dof < nv; ++dof) {
+                value += pointJacobianAxis(pointJacobians,
+                    pointJacobianBase, support.pointQueryIndex, nv, dof,
+                    directions[row]) * response[dof];
+            }
+            contactMatrices[entry] = value;
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
 #endif
     for (uint coupledSweep = 0u;
          coupledSweep < coupledSweepCount;
@@ -486,6 +522,7 @@
             }
             ++activeContacts;
             device float* matrix = contactMatrices + 9u * contact;
+#if !defined(MR_NH_COOPERATIVE_FINISH)
             for (uint row = 0u; row < 3u; ++row) {
                 for (uint column = 0u; column < 3u; ++column) {
                     float value = row == column ? kResponseRegularization : 0.0f;
@@ -500,6 +537,7 @@
                     matrix[3u * row + column] = value;
                 }
             }
+#endif
             // Every step starts with a new free velocity. Initialize the
             // matching total impulse and apply it exactly once; retaining an
             // unapplied previous-step lambda would corrupt complementarity.
