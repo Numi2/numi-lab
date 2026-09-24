@@ -134,7 +134,8 @@ MetalResult runMetal(
         std::vector<MRArticulatedPointImpulseGPU>
     >& environmentPoints,
     const mr_u32 dispatchReserved0 = 0u,
-    const bool writeDiagnosticMass = true
+    const bool writeDiagnosticMass = true,
+    const bool pointJacobiansOnly = false
 ) {
     @autoreleasepool {
         require(
@@ -168,9 +169,10 @@ MetalResult runMetal(
         dispatch.environmentCount =
             static_cast<mr_u32>(environmentCount);
         dispatch.pointCount = static_cast<mr_u32>(pointCount);
-        dispatch.flags = writeDiagnosticMass
-            ? MR_ARTICULATED_OPERATOR_WRITE_DIAGNOSTIC_MASS
-            : 0u;
+        dispatch.flags = pointJacobiansOnly
+            ? MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY
+            : (writeDiagnosticMass
+                ? MR_ARTICULATED_OPERATOR_WRITE_DIAGNOSTIC_MASS : 0u);
         dispatch.qStride = articulation.nq;
         dispatch.pointStride = dispatch.pointCount;
         dispatch.bodyPoseStride = articulation.bodyCount;
@@ -252,8 +254,8 @@ MetalResult runMetal(
         require(device != nil, "no Metal-capable device is available");
         const std::size_t threadgroupBytes =
             metalrobo::detail::articulatedOperatorThreadgroupBytes(
-                articulation.bodyCount,
-                articulation.nv
+                articulation.bodyCount, articulation.nv,
+                !pointJacobiansOnly
             );
         require(
             threadgroupBytes <= device.maxThreadgroupMemoryLength,
@@ -411,8 +413,20 @@ MetalResult runMetal(
             setThreadgroupMemoryLength:threadgroupBytes
                               atIndex:0u];
         [encoder
-            dispatchThreadgroups:MTLSizeMake(environmentCount, 1u, 1u)
-            threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
+            dispatchThreadgroups:MTLSizeMake(
+                environmentCount,
+                pointJacobiansOnly
+                    ? std::min<std::size_t>(
+                        32u, std::max<std::size_t>(1u, (pointCount + 15u) / 16u))
+                    : 1u,
+                1u)
+            threadsPerThreadgroup:MTLSizeMake(
+                pointJacobiansOnly
+                    ? std::min<NSUInteger>(
+                        8u * pipeline.threadExecutionWidth,
+                        pipeline.maxTotalThreadsPerThreadgroup)
+                    : 32u,
+                1u, 1u)];
         [encoder endEncoding];
 
         const auto start = std::chrono::steady_clock::now();
@@ -1248,6 +1262,37 @@ int main() {
                 MR_ARTICULATED_OPERATOR_NONFINITE_INPUT &&
                 invalidGpu.payloadUntouched(),
             "invalid point did not preserve transactional output"
+        );
+        auto tiledPoints = freePoints;
+        tiledPoints[0].assign(128u, freePoints[0][0]);
+        const MetalResult tiledGpu =
+            runMetal(freeModel, freeQ, tiledPoints, 0u, false, true);
+        require(tiledGpu.statuses[0].code == MR_ARTICULATED_OPERATOR_SUCCESS,
+                "tiled point-Jacobian dispatch failed");
+        const std::size_t pointJacobianValues =
+            3u * freeModel.articulations[0].nv;
+        for (std::size_t point = 0u; point < tiledPoints[0].size(); ++point) {
+            require(
+                std::memcmp(&tiledGpu.pointWorld[point],
+                            &freeGpu.pointWorld[0],
+                            sizeof(MRArticulatedPointWorldGPU)) == 0 &&
+                std::memcmp(tiledGpu.pointJacobians.data() +
+                                point * pointJacobianValues,
+                            freeGpu.pointJacobians.data(),
+                            pointJacobianValues * sizeof(float)) == 0,
+                "tiled point-Jacobian output changed a point");
+        }
+        auto invalidTiledPoints = tiledPoints;
+        invalidTiledPoints[0][17u].reserved0 = 1u;
+        invalidTiledPoints[0][109u].reserved1 = 1u;
+        const MetalResult invalidTiledGpu =
+            runMetal(freeModel, freeQ, invalidTiledPoints, 0u, false, true);
+        require(
+            invalidTiledGpu.statuses[0].code ==
+                MR_ARTICULATED_OPERATOR_NONFINITE_INPUT &&
+                invalidTiledGpu.statuses[0].failingIndex == 17u &&
+                invalidTiledGpu.payloadUntouched(),
+            "tiled point validation lost first failure or published payload"
         );
         auto overflowQ = freeQ;
         auto overflowPoints = freePoints;

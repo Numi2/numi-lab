@@ -1526,6 +1526,38 @@ inline float3 pointSurfaceOffset(
 #endif
 }
 
+inline bool invalidPointQuery(
+    device const MRArticulationGPU& articulation,
+    device const MRArticulatedOperatorDispatchGPU& dispatch,
+    device const MRArticulatedPointImpulseGPU& query
+) {
+    const bool foreign =
+        query.bodyIndex < articulation.firstBody ||
+        query.bodyIndex >=
+            articulation.firstBody + articulation.bodyCount;
+    const bool allowForeign =
+        (dispatch.flags &
+         MR_ARTICULATED_OPERATOR_IGNORE_FOREIGN_POINTS) != 0u;
+    return (!allowForeign && foreign) ||
+        (query.flags & ~(MR_ARTICULATED_POINT_INACTIVE | MR_ARTICULATED_POINT_SPHERE_SUPPORT | MR_ARTICULATED_POINT_ELLIPSOID_SUPPORT)) != 0u ||
+        !finite4(query.supportPlaneNormalAndRadius) || !finite4(query.supportRadii) || !finite4(query.supportOrientation) ||
+        (((query.flags & MR_ARTICULATED_POINT_ELLIPSOID_SUPPORT) != 0u)
+            ? ((query.flags & MR_ARTICULATED_POINT_SPHERE_SUPPORT) != 0u ||
+               query.supportPlaneNormalAndRadius.w != 0.0f || any(query.supportRadii.xyz <= 0.0f) ||
+               query.supportRadii.w != 0.0f || abs(dot(query.supportOrientation,query.supportOrientation)-1.0f)>1.0e-5f)
+            : (any(query.supportRadii != float4(0.0f)) || any(query.supportOrientation != float4(0.0f)))) ||
+        (((query.flags & (MR_ARTICULATED_POINT_SPHERE_SUPPORT | MR_ARTICULATED_POINT_ELLIPSOID_SUPPORT)) != 0u)
+            ? (abs(dot(query.supportPlaneNormalAndRadius.xyz,query.supportPlaneNormalAndRadius.xyz)-1.0f)>1.0e-5f ||
+               ((query.flags & MR_ARTICULATED_POINT_SPHERE_SUPPORT) != 0u && !(query.supportPlaneNormalAndRadius.w>0.0f)))
+            : any(query.supportPlaneNormalAndRadius != float4(0.0f))) ||
+        query.reserved0 != 0u ||
+        query.reserved1 != 0u ||
+        !finite4(query.localPoint) ||
+        !finite4(query.worldImpulse) ||
+        query.localPoint.w != 0.0f ||
+        query.worldImpulse.w != 0.0f;
+}
+
 inline bool validatePoints(
     const uint environment,
     device const MRArticulationGPU& articulation,
@@ -1535,33 +1567,7 @@ inline bool validatePoints(
 ) {
     const uint base = environment * dispatch.pointStride;
     for (uint point = 0u; point < dispatch.pointCount; ++point) {
-        device const MRArticulatedPointImpulseGPU& query =
-            points[base + point];
-        const bool foreign =
-            query.bodyIndex < articulation.firstBody ||
-            query.bodyIndex >=
-                articulation.firstBody + articulation.bodyCount;
-        const bool allowForeign =
-            (dispatch.flags &
-             MR_ARTICULATED_OPERATOR_IGNORE_FOREIGN_POINTS) != 0u;
-        if ((!allowForeign && foreign) ||
-            (query.flags & ~(MR_ARTICULATED_POINT_INACTIVE | MR_ARTICULATED_POINT_SPHERE_SUPPORT | MR_ARTICULATED_POINT_ELLIPSOID_SUPPORT)) != 0u ||
-            !finite4(query.supportPlaneNormalAndRadius) || !finite4(query.supportRadii) || !finite4(query.supportOrientation) ||
-            (((query.flags & MR_ARTICULATED_POINT_ELLIPSOID_SUPPORT) != 0u)
-                ? ((query.flags & MR_ARTICULATED_POINT_SPHERE_SUPPORT) != 0u ||
-                   query.supportPlaneNormalAndRadius.w != 0.0f || any(query.supportRadii.xyz <= 0.0f) ||
-                   query.supportRadii.w != 0.0f || abs(dot(query.supportOrientation,query.supportOrientation)-1.0f)>1.0e-5f)
-                : (any(query.supportRadii != float4(0.0f)) || any(query.supportOrientation != float4(0.0f)))) ||
-            (((query.flags & (MR_ARTICULATED_POINT_SPHERE_SUPPORT | MR_ARTICULATED_POINT_ELLIPSOID_SUPPORT)) != 0u)
-                ? (abs(dot(query.supportPlaneNormalAndRadius.xyz,query.supportPlaneNormalAndRadius.xyz)-1.0f)>1.0e-5f ||
-                   ((query.flags & MR_ARTICULATED_POINT_SPHERE_SUPPORT) != 0u && !(query.supportPlaneNormalAndRadius.w>0.0f)))
-                : any(query.supportPlaneNormalAndRadius != float4(0.0f))) ||
-            query.reserved0 != 0u ||
-            query.reserved1 != 0u ||
-            !finite4(query.localPoint) ||
-            !finite4(query.worldImpulse) ||
-            query.localPoint.w != 0.0f ||
-            query.worldImpulse.w != 0.0f) {
+        if (invalidPointQuery(articulation, dispatch, points[base + point])) {
             setFailure(
                 status,
                 MR_ARTICULATED_OPERATOR_NONFINITE_INPUT,
@@ -1575,7 +1581,8 @@ inline bool validatePoints(
 
 } // namespace
 
-// Generic batched articulated operator. One threadgroup owns one environment.
+// Generic batched articulated operator. Point-Jacobian mode can tile one
+// environment over several threadgroups; the other modes use one group.
 // Model/kinematic validation, Cholesky, and publication remain lane-zero
 // ordered so their status and transactional semantics stay exact. Dense mass
 // assembly is independent per symmetric matrix entry and is distributed over
@@ -1625,6 +1632,7 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
     }
 
     threadgroup uint initializationSucceeded;
+    threadgroup atomic_uint firstInvalidPoint;
     MRArticulatedOperatorStatusGPU status = {};
     status.code = MR_ARTICULATED_OPERATOR_SUCCESS;
     status.environment = environment;
@@ -1633,6 +1641,8 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
 
     if (lane == 0u) {
         initializationSucceeded = 0u;
+        atomic_store_explicit(&firstInvalidPoint, MR_INVALID_INDEX,
+                              memory_order_relaxed);
     }
     threadgroup_barrier(mem_flags::mem_threadgroup);
 
@@ -1739,6 +1749,9 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
     const uint factorStride = articulation.nv;
     device const float* environmentQ =
         q + environment * dispatch.qStride;
+    const bool pointJacobiansOnly =
+        (dispatch.flags &
+         MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY) != 0u;
     if (lane == 0u) {
         status.bodyCount = articulation.bodyCount;
         status.nq = articulation.nq;
@@ -1770,13 +1783,9 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                 known,
                 status
             ) &&
-            validatePoints(
-                environment,
-                articulation,
-                dispatch,
-                points,
-                status
-            )
+            (pointJacobiansOnly || validatePoints(
+                environment, articulation, dispatch, points, status
+            ))
             ? 1u
             : 0u;
         if (initializationSucceeded == 0u) {
@@ -1786,6 +1795,30 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
     threadgroup_barrier(mem_flags::mem_threadgroup);
     if (initializationSucceeded == 0u) {
         return;
+    }
+    if (pointJacobiansOnly) {
+        const uint pointBase = environment * dispatch.pointStride;
+        for (uint point = lane; point < dispatch.pointCount;
+             point += threadsPerThreadgroup) {
+            if (invalidPointQuery(articulation, dispatch,
+                                  points[pointBase + point])) {
+                atomic_fetch_min_explicit(&firstInvalidPoint, point,
+                                          memory_order_relaxed);
+            }
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        if (lane == 0u) {
+            const uint first = atomic_load_explicit(&firstInvalidPoint,
+                                                    memory_order_relaxed);
+            if (first != MR_INVALID_INDEX) {
+                setFailure(status, MR_ARTICULATED_OPERATOR_NONFINITE_INPUT,
+                           first);
+                initializationSucceeded = 0u;
+                if (tile == 0u) statuses[environment] = status;
+            }
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        if (initializationSucceeded == 0u) return;
     }
 
 #if MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
@@ -1813,9 +1846,6 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
     const bool posesOnly =
         (dispatch.flags &
          MR_ARTICULATED_OPERATOR_KINEMATICS_ONLY) != 0u;
-    const bool pointJacobiansOnly =
-        (dispatch.flags &
-         MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY) != 0u;
     if (posesOnly || pointJacobiansOnly) {
         const uint poseBase =
             environment * dispatch.bodyPoseStride;
