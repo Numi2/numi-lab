@@ -40,6 +40,10 @@ uint32_t nb_human_standing_encode_motor_v1(void* handle, void* encoder,
 uint32_t nb_human_standing_encode_motor_decision_v1(void* handle, void* encoder,
     uint32_t step_index, const NBHumanStandingReceptor* receptors, uint32_t receptor_count,
     char* error, size_t error_capacity);
+uint32_t nb_human_standing_encode_motor_decision_phased_v1(void* handle,
+    void* command_buffer, uint32_t step_index,
+    const NBHumanStandingReceptor* receptors, uint32_t receptor_count,
+    char* error, size_t error_capacity);
 uint32_t nb_human_standing_encode_motor_tissue_v1(void* handle, void* encoder,
     void* muscle_states, uint32_t muscle_count, char* error, size_t error_capacity);
 /* Optional inner GPU phase timing. The Brain borrows this exact owner command

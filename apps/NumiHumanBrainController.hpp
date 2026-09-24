@@ -395,6 +395,7 @@ private:
         decltype(&nb_human_standing_create_v1) create = nullptr;
         decltype(&nb_human_standing_encode_motor_v1) motor = nullptr;
         decltype(&nb_human_standing_encode_motor_decision_v1) motorDecision = nullptr;
+        decltype(&nb_human_standing_encode_motor_decision_phased_v1) motorDecisionPhased = nullptr;
         decltype(&nb_human_standing_encode_motor_tissue_v1) motorTissue = nullptr;
         decltype(&nb_human_standing_encode_motor_tissue_phased_v1) motorTissuePhased = nullptr;
         decltype(&nb_human_standing_encode_accepted_v1) accepted = nullptr;
@@ -417,6 +418,8 @@ private:
                 motor = symbol<decltype(motor)>("nb_human_standing_encode_motor_v1");
                 motorDecision = optionalSymbol<decltype(motorDecision)>(
                     "nb_human_standing_encode_motor_decision_v1");
+                motorDecisionPhased = optionalSymbol<decltype(motorDecisionPhased)>(
+                    "nb_human_standing_encode_motor_decision_phased_v1");
                 motorTissue = optionalSymbol<decltype(motorTissue)>(
                     "nb_human_standing_encode_motor_tissue_v1");
                 motorTissuePhased = optionalSymbol<decltype(motorTissuePhased)>(
@@ -641,22 +644,33 @@ private:
                             owner.library_.motorTissue == nullptr) {
                             owner.fail("NumiBrain phase timing symbols are unavailable"); return false;
                         }
-                        id<MTLComputeCommandEncoder> decision = timedEncoder(
-                            command, owner.device_, "brain_decision", pass.stepIndex);
-                        if (decision == nil) { owner.fail("Human Brain decision encoder allocation failed"); return false; }
-                        const auto decisionSuccess = owner.library_.motorDecision(
-                            owner.brain_.handle, (__bridge void*)decision, pass.stepIndex,
-                            records.data(), static_cast<std::uint32_t>(records.size()),
-                            error.data(), error.size());
-                        [decision endEncoding];
+                        const char* innerTiming = std::getenv("NUMI_HUMAN_BRAIN_INNER_PHASE_TIMING");
+                        const bool splitInner = pass.stepIndex < 8u && innerTiming != nullptr &&
+                            std::strcmp(innerTiming, "1") == 0;
+                        std::uint32_t decisionSuccess = 0u;
+                        if (splitInner) {
+                            if (owner.library_.motorDecisionPhased == nullptr) {
+                                owner.fail("NumiBrain phased decision symbol is unavailable"); return false;
+                            }
+                            decisionSuccess = owner.library_.motorDecisionPhased(
+                                owner.brain_.handle, pass.commandBuffer, pass.stepIndex,
+                                records.data(), static_cast<std::uint32_t>(records.size()),
+                                error.data(), error.size());
+                        } else {
+                            id<MTLComputeCommandEncoder> decision = timedEncoder(
+                                command, owner.device_, "brain_decision", pass.stepIndex);
+                            if (decision == nil) { owner.fail("Human Brain decision encoder allocation failed"); return false; }
+                            decisionSuccess = owner.library_.motorDecision(
+                                owner.brain_.handle, (__bridge void*)decision, pass.stepIndex,
+                                records.data(), static_cast<std::uint32_t>(records.size()),
+                                error.data(), error.size());
+                            [decision endEncoding];
+                        }
                         if (decisionSuccess != 1u) {
                             owner.fail(error[0] == '\0' ? "NumiBrain decision encoding failed" : error.data());
                             return false;
                         }
                         error.fill('\0');
-                        const char* innerTiming = std::getenv("NUMI_HUMAN_BRAIN_INNER_PHASE_TIMING");
-                        const bool splitInner = pass.stepIndex < 8u && innerTiming != nullptr &&
-                            std::strcmp(innerTiming, "1") == 0;
                         std::uint32_t tissueSuccess = 0u;
                         if (splitInner) {
                             if (owner.library_.motorTissuePhased == nullptr) {
