@@ -55,6 +55,10 @@ uint32_t nb_human_standing_encode_accepted_v1(void* handle, void* encoder,
 uint32_t nb_human_standing_encode_accepted_fast_v1(void* handle, void* encoder,
     uint64_t physical_state_fingerprint, uint32_t completed_step_count,
     char* error, size_t error_capacity);
+/* Diagnostic inner split; every phase stays on the native owner command. */
+uint32_t nb_human_standing_encode_accepted_fast_phased_v1(void* handle,
+    void* command_buffer, uint64_t physical_state_fingerprint,
+    uint32_t completed_step_count, char* error, size_t error_capacity);
 uint32_t nb_human_standing_encode_accepted_cognitive_v1(void* handle, void* encoder,
     const NBHumanStandingReceptor* receptors, uint32_t receptor_count,
     char* error, size_t error_capacity);

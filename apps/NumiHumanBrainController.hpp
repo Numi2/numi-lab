@@ -399,6 +399,7 @@ private:
         decltype(&nb_human_standing_encode_motor_tissue_phased_v1) motorTissuePhased = nullptr;
         decltype(&nb_human_standing_encode_accepted_v1) accepted = nullptr;
         decltype(&nb_human_standing_encode_accepted_fast_v1) acceptedFast = nullptr;
+        decltype(&nb_human_standing_encode_accepted_fast_phased_v1) acceptedFastPhased = nullptr;
         decltype(&nb_human_standing_encode_accepted_cognitive_v1) acceptedCognitive = nullptr;
         decltype(&nb_human_standing_publish_v1) publish = nullptr;
         decltype(&nb_human_standing_abort_v1) abort = nullptr;
@@ -423,6 +424,8 @@ private:
                 accepted = symbol<decltype(accepted)>("nb_human_standing_encode_accepted_v1");
                 acceptedFast = optionalSymbol<decltype(acceptedFast)>(
                     "nb_human_standing_encode_accepted_fast_v1");
+                acceptedFastPhased = optionalSymbol<decltype(acceptedFastPhased)>(
+                    "nb_human_standing_encode_accepted_fast_phased_v1");
                 acceptedCognitive = optionalSymbol<decltype(acceptedCognitive)>(
                     "nb_human_standing_encode_accepted_cognitive_v1");
                 publish = symbol<decltype(publish)>("nb_human_standing_publish_v1");
@@ -736,13 +739,26 @@ private:
                         owner.library_.acceptedCognitive == nullptr) {
                         owner.fail("NumiBrain accepted phase timing symbols are unavailable"); return false;
                     }
-                    id<MTLComputeCommandEncoder> fast = timedEncoder(
-                        command, owner.device_, "brain_accepted_fast", owner.step_);
-                    if (fast == nil) { owner.fail("Human Brain accepted fast encoder allocation failed"); return false; }
-                    const auto fastSuccess = owner.library_.acceptedFast(owner.brain_.handle,
-                        (__bridge void*)fast, owner.physicalFingerprint_, owner.step_ + 1u,
-                        error.data(), error.size());
-                    [fast endEncoding];
+                    const char* innerTiming = std::getenv("NUMI_HUMAN_BRAIN_INNER_PHASE_TIMING");
+                    const bool splitInner = owner.step_ < 8u && innerTiming != nullptr &&
+                        std::strcmp(innerTiming, "1") == 0;
+                    std::uint32_t fastSuccess = 0u;
+                    if (splitInner) {
+                        if (owner.library_.acceptedFastPhased == nullptr) {
+                            owner.fail("NumiBrain accepted inner phase timing symbol is unavailable"); return false;
+                        }
+                        fastSuccess = owner.library_.acceptedFastPhased(owner.brain_.handle,
+                            commandBuffer, owner.physicalFingerprint_, owner.step_ + 1u,
+                            error.data(), error.size());
+                    } else {
+                        id<MTLComputeCommandEncoder> fast = timedEncoder(
+                            command, owner.device_, "brain_accepted_fast", owner.step_);
+                        if (fast == nil) { owner.fail("Human Brain accepted fast encoder allocation failed"); return false; }
+                        fastSuccess = owner.library_.acceptedFast(owner.brain_.handle,
+                            (__bridge void*)fast, owner.physicalFingerprint_, owner.step_ + 1u,
+                            error.data(), error.size());
+                        [fast endEncoding];
+                    }
                     if (fastSuccess != 1u) {
                         owner.fail(error[0] == '\0' ? "NumiBrain accepted fast encoding failed" : error.data()); return false;
                     }
