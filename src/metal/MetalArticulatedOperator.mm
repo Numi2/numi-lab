@@ -10431,9 +10431,12 @@ MetalArticulatedOperatorContext::submit(
                 const bool splitStand = state_->config.splitStandSolve;
                 const char* parallelMassSetting =
                     std::getenv("NUMI_HUMAN_PARALLEL_MASS_ASSEMBLY");
+                // Split stand uses the measured grid assembly by default.
+                // Keep the original one-group preparation for controlled
+                // comparison and recovery from a device-specific regression.
                 const bool parallelMass = splitStand &&
-                    parallelMassSetting != nullptr &&
-                    std::strcmp(parallelMassSetting, "1") == 0;
+                    (parallelMassSetting == nullptr ||
+                     std::strcmp(parallelMassSetting, "1") == 0);
                 const std::uint32_t standPhaseCount = parallelMass ? 4u :
                     (splitStand ? 2u : 1u);
                 for (std::uint32_t phase = 0u;
