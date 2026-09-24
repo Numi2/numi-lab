@@ -20,6 +20,101 @@ constant float kResponseRegularization = 1.0e-7f;
 // same device factor path; the supported equality count is unchanged.
 constant uint kCachedEqualityCapacity = 64u;
 
+// Forward substitution keeps each row's original increasing-column FMA
+// sequence. Completed blocks update independent future rows in parallel;
+// lane zero resolves dependencies within each block and performs the original
+// ordered backward substitution. All lanes enter every barrier together.
+inline bool mrNumiHumanBilateralSolveCooperative(
+    threadgroup const float* factor,
+    device const float* inverseScale,
+    device const float* pivots,
+    threadgroup float* rhs,
+    const uint n,
+    const uint lane,
+    const uint threadCount,
+    threadgroup uint* succeeded
+) {
+    if (lane == 0u) {
+        *succeeded = n != 0u && n <= kCachedEqualityCapacity ? 1u : 0u;
+        for (uint i = 0u; i < n && *succeeded != 0u; ++i) {
+            if (!(inverseScale[i] > 0.0f) ||
+                !isfinite(inverseScale[i])) {
+                *succeeded = 0u;
+                break;
+            }
+            rhs[i] *= inverseScale[i];
+            if (!isfinite(rhs[i])) *succeeded = 0u;
+        }
+        for (uint k = 0u; k < n && *succeeded != 0u; ++k) {
+            const float pivotValue = pivots[k];
+            if (!isfinite(pivotValue) ||
+                pivotValue < float(k) || pivotValue >= float(n)) {
+                *succeeded = 0u;
+                break;
+            }
+            const uint pivot = uint(pivotValue);
+            if (pivotValue != float(pivot)) {
+                *succeeded = 0u;
+                break;
+            }
+            const float value = rhs[k];
+            rhs[k] = rhs[pivot];
+            rhs[pivot] = value;
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (*succeeded == 0u) return false;
+
+    constexpr uint blockSize = 4u;
+    for (uint begin = 0u; begin < n; begin += blockSize) {
+        const uint end = min(begin + blockSize, n);
+        if (lane == 0u) {
+            for (uint i = begin; i < end; ++i) {
+                float value = rhs[i];
+                for (uint j = begin; j < i; ++j)
+                    value = mrNHBilateralFma(
+                        -factor[i * n + j], rhs[j], value);
+                rhs[i] = value;
+            }
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        for (uint i = end + lane; i < n; i += threadCount) {
+            float value = rhs[i];
+            for (uint j = begin; j < end; ++j)
+                value = mrNHBilateralFma(
+                    -factor[i * n + j], rhs[j], value);
+            rhs[i] = value;
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+
+    if (lane == 0u) {
+        for (uint reverse = 0u; reverse < n; ++reverse) {
+            const uint i = n - 1u - reverse;
+            float value = rhs[i];
+            for (uint j = i + 1u; j < n; ++j)
+                value = mrNHBilateralFma(
+                    -factor[i * n + j], rhs[j], value);
+            const float pivot = factor[i * n + i];
+            if (pivot == 0.0f || !isfinite(pivot)) {
+                *succeeded = 0u;
+                break;
+            }
+            rhs[i] = value / pivot;
+            if (!isfinite(rhs[i])) {
+                *succeeded = 0u;
+                break;
+            }
+        }
+        for (uint i = 0u; i < n && *succeeded != 0u; ++i) {
+            rhs[i] *= inverseScale[i];
+            if (!isfinite(rhs[i])) *succeeded = 0u;
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    return *succeeded != 0u;
+}
+
 inline bool finite4(const float4 value) { return all(isfinite(value)); }
 
 inline float4 quaternionConjugate(const float4 value) {
@@ -1076,6 +1171,7 @@ kernel void mr_numi_human_stand_finish(
         kCachedEqualityCapacity * kCachedEqualityCapacity];
     threadgroup float candidateVStorage[MR_NUMI_HUMAN_STAND_MAX_DOFS];
     threadgroup float workspaceStorage[MR_NUMI_HUMAN_STAND_MAX_DOFS];
+    threadgroup uint cooperativeEqualitySucceeded;
     // Lane zero owns the ordered unilateral decisions. The other lanes apply
     // each accepted limit response to disjoint velocity DOFs.
     threadgroup uint cooperativeLimitCount;

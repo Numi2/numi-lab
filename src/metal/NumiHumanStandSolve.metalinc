@@ -599,38 +599,41 @@
         for (uint refinement = 0u; refinement < 2u; ++refinement) {
             float refinementWork = 0.0f;
             if (lane == 0u) {
-                auto solveEqualityBlock = [&]() {
-                    for (uint row = 0u; row < equalityCount; ++row) {
-                        device const MRNumiHumanJointEqualityGPU& equality =
-                            jointEqualities[row];
-                        const float derivative = equalityDerivativeCache[row];
-                        float velocity = candidateV[equality.indices.y];
-                        if (equality.indices.w != MR_INVALID_INDEX)
-                            velocity = fma(-derivative,
-                                candidateV[equality.indices.w], velocity);
-                        workspace[row] = velocity;
-                        equalityRhs[row] =
-                            equalityTargetVelocityCache[row] - velocity;
-                    }
-                    const bool solved = equalityCount <= kCachedEqualityCapacity
-                        ? mrNumiHumanBilateralSolve(equalityFactorStorage,
-                            equalityScale, equalityPivots, equalityRhs,
-                            equalityCount)
-                        : mrNumiHumanBilateralSolve(equalityFactor,
-                            equalityScale, equalityPivots, equalityRhs,
-                            equalityCount);
-                    if (!solved) {
-                        fail(status, MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED,
-                             MR_INVALID_INDEX);
-                        return;
-                    }
+                for (uint row = 0u; row < equalityCount; ++row) {
+                    device const MRNumiHumanJointEqualityGPU& equality =
+                        jointEqualities[row];
+                    const float derivative = equalityDerivativeCache[row];
+                    float velocity = candidateV[equality.indices.y];
+                    if (equality.indices.w != MR_INVALID_INDEX)
+                        velocity = fma(-derivative,
+                            candidateV[equality.indices.w], velocity);
+                    workspace[row] = velocity;
+                    equalityRhs[row] =
+                        equalityTargetVelocityCache[row] - velocity;
+                }
+            }
+            bool solved = true;
+            if (equalityCount <= kCachedEqualityCapacity) {
+                solved = mrNumiHumanBilateralSolveCooperative(
+                    equalityFactorStorage, equalityScale, equalityPivots,
+                    equalityRhs, equalityCount, lane, threadCount,
+                    &cooperativeEqualitySucceeded);
+            } else if (lane == 0u) {
+                solved = mrNumiHumanBilateralSolve(equalityFactor,
+                    equalityScale, equalityPivots, equalityRhs,
+                    equalityCount);
+            }
+            if (lane == 0u) {
+                if (!solved) {
+                    fail(status, MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED,
+                         MR_INVALID_INDEX);
+                } else {
                     for (uint row = 0u; row < equalityCount; ++row) {
                         refinementWork = fma(0.5f * equalityRhs[row],
                                              workspace[row], refinementWork);
                         equalityLambdas[row] += equalityRhs[row];
                     }
-                };
-                solveEqualityBlock();
+                }
             }
             threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
             if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
