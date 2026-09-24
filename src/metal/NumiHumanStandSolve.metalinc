@@ -510,15 +510,37 @@
              contact < dispatch.supportContactCount; ++contact) {
             if (cooperativeContactActive[contact] == 0u) continue;
             device const MRNumiHumanStandContactGPU& support = contacts[contact];
-            for (uint axis = lane; axis < 3u; axis += threadCount) {
-                float velocity = 0.0f;
-                for (uint dof = 0u; dof < nv; ++dof) {
-                    velocity += pointJacobianAxis(
-                        pointJacobians, pointJacobianBase,
-                        support.pointQueryIndex, nv, dof, directions[axis]
-                    ) * candidateV[dof];
+            if (threadCount >= 3u * simdWidth) {
+                // Give each contact axis a SIMD group. The previous path
+                // loaded all nv Jacobian entries on only three lanes.
+                const uint axis = lane / simdWidth;
+                const uint simdLane = lane % simdWidth;
+                if (axis < 3u) {
+                    float velocity = 0.0f;
+                    for (uint dof = simdLane; dof < nv;
+                         dof += simdWidth) {
+                        velocity += pointJacobianAxis(
+                            pointJacobians, pointJacobianBase,
+                            support.pointQueryIndex, nv, dof,
+                            directions[axis]
+                        ) * candidateV[dof];
+                    }
+                    const float reduced = simd_sum(velocity);
+                    if (simdLane == 0u)
+                        cooperativeContactVelocities[axis] = reduced;
                 }
-                cooperativeContactVelocities[axis] = velocity;
+            } else {
+                for (uint axis = lane; axis < 3u; axis += threadCount) {
+                    float velocity = 0.0f;
+                    for (uint dof = 0u; dof < nv; ++dof) {
+                        velocity += pointJacobianAxis(
+                            pointJacobians, pointJacobianBase,
+                            support.pointQueryIndex, nv, dof,
+                            directions[axis]
+                        ) * candidateV[dof];
+                    }
+                    cooperativeContactVelocities[axis] = velocity;
+                }
             }
             // Only the three threadgroup velocity slots cross lanes here.
             threadgroup_barrier(mem_flags::mem_threadgroup);

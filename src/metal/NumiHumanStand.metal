@@ -1335,7 +1335,8 @@ kernel void mr_numi_human_stand_finish(
     device float* sourceDynamicsWitness [[buffer(25)]],
     uint environment [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]],
-    uint threadCount [[threads_per_threadgroup]]
+    uint threadCount [[threads_per_threadgroup]],
+    uint simdWidth [[threads_per_simdgroup]]
 ) {
     if (environment >= dispatch.environmentCount) return;
     device MRNumiHumanStandStatusGPU& status = statuses[environment];
