@@ -9900,7 +9900,9 @@ MetalArticulatedOperatorContext::submit(
                     "failed to create Metal compute encoder"
                 );
             }
-            [encoder setComputePipelineState:pairedGeometry ? state_->compensatedPipeline : state_->pipeline];
+            id<MTLComputePipelineState> kinematicsPipeline = pairedGeometry
+                ? state_->compensatedPipeline : state_->pipeline;
+            [encoder setComputePipelineState:kinematicsPipeline];
             for (NSUInteger index = 0u;
                  index < kRawBufferCount;
                  ++index) {
@@ -9923,6 +9925,13 @@ MetalArticulatedOperatorContext::submit(
                         pairedGeometry
                     )
                 atIndex:0u];
+            // Point Jacobians process independent points per SIMD group.
+            const NSUInteger kinematicsThreads =
+                state_->config.pointJacobiansOnly
+                    ? std::min<NSUInteger>(
+                        8u * kinematicsPipeline.threadExecutionWidth,
+                        kinematicsPipeline.maxTotalThreadsPerThreadgroup)
+                    : kThreadsPerThreadgroup;
             [encoder
                 dispatchThreadgroups:MTLSizeMake(
                     static_cast<NSUInteger>(
@@ -9932,7 +9941,7 @@ MetalArticulatedOperatorContext::submit(
                     1u
                 )
                 threadsPerThreadgroup:MTLSizeMake(
-                    kThreadsPerThreadgroup,
+                    kinematicsThreads,
                     1u,
                     1u
                 )];
