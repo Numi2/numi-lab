@@ -6,9 +6,13 @@
 #include <dlfcn.h>
 #include <array>
 #include <bit>
+#include <chrono>
 #include <cmath>
 #include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <iomanip>
+#include <iostream>
 #include <limits>
 #include <locale>
 #include <memory>
@@ -246,6 +250,7 @@ public:
     void complete(metalrobo::MetalArticulatedOperatorContext& context,
                   const metalrobo::MetalArticulatedOperatorDiagnostics& diagnostics,
                   const metalrobo::MetalArticulatedOperatorResult& result) {
+        const auto profileStart = std::chrono::steady_clock::now();
         if (failed_ || phase_ != Phase::candidateEncoded || !rootOpen_ ||
             !receptors_->canPublish(diagnostics, result, 1u)) {
             fail("Human Brain completion lacks the exact accepted native candidate");
@@ -261,6 +266,7 @@ public:
             const Frame& candidate = receptors_->pendingFrame(diagnostics.completedStandSteps);
             require(candidate.deliveryTimestampMicroseconds == stepTimestamp(std::uint64_t(step_) + 1u),
                     "Human Brain accepted receptor delivery clock disagrees");
+            const auto preflightEnd = std::chrono::steady_clock::now();
             double gpuStart = 0.0, gpuEnd = 0.0;
             std::string completionError;
             if (!context.finishStandController(diagnostics, this, &encodeAccepted,
@@ -268,6 +274,7 @@ public:
                 if (error_[0] == '\0') fail(completionError.c_str());
                 throw std::runtime_error(error_.data());
             }
+            const auto completionEnd = std::chrono::steady_clock::now();
             require(phase_ == Phase::acceptedEncoded,
                     "Human Brain owner completion did not encode the accepted consequence");
             const Channel& vestibular = candidate.channels[4u];
@@ -328,6 +335,7 @@ public:
                 fail(pluginError[0] == '\0' ? "NumiBrain standing publication failed" : pluginError.data());
                 throw std::runtime_error(error_.data());
             }
+            const auto publicationEnd = std::chrono::steady_clock::now();
             rootOpen_ = false;
             NBHumanStandingInfo published{};
             if (library_.info(brain_.handle, &published) != 1u ||
@@ -336,14 +344,41 @@ public:
                 fail("NumiBrain standing publication returned an incoherent committed generation");
                 throw std::runtime_error(error_.data());
             }
+            const auto infoEnd = std::chrono::steady_clock::now();
             // canPublish was checked above and no receptor mutation occurred
             // during the neural pass. This is the same already-validated flip.
             if (!receptors_->publishAccepted(diagnostics, result, physicalFingerprint_)) {
                 fail("Human Brain accepted receptor publication lost its prevalidated candidate");
                 throw std::runtime_error(error_.data());
             }
+            const auto receptorEnd = std::chrono::steady_clock::now();
             info_ = published;
             phase_ = Phase::ready; physicalCommand_ = 0u;
+            static const bool trainingProfile = [] {
+                const char* value = std::getenv("NUMI_HUMAN_TRAINING_PROFILE");
+                return value != nullptr && std::strcmp(value, "1") == 0;
+            }();
+            if (trainingProfile) {
+                const auto millis = [](const auto duration) {
+                    return std::chrono::duration<double, std::milli>(duration).count();
+                };
+                std::cout << std::setprecision(9)
+                          << "human_brain_completion_profile=accepted"
+                          << " step=" << info_.committed_generation
+                          << " preflight_wall_ms="
+                          << millis(preflightEnd - profileStart)
+                          << " consequence_command_wall_ms="
+                          << millis(completionEnd - preflightEnd)
+                          << " consequence_gpu_ms="
+                          << (gpuEnd - gpuStart) * 1000.0
+                          << " neural_publish_wall_ms="
+                          << millis(publicationEnd - completionEnd)
+                          << " neural_info_wall_ms="
+                          << millis(infoEnd - publicationEnd)
+                          << " receptor_publish_wall_ms="
+                          << millis(receptorEnd - infoEnd)
+                          << std::endl;
+            }
         } catch (const std::exception& exception) {
             fail(exception.what()); abandonNeuralCandidate();
             throw std::runtime_error(error_.data());
