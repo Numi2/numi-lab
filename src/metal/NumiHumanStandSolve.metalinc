@@ -955,21 +955,12 @@
                         cooperativeVelocityDofs[limitCount] = dof;
                         limitPreStepPositions[limitCount] = position;
                         limitAccumulatedImpulses[limitCount] = 0.0f;
-                        device float* response = responseScratch +
-                            limitResponseBase + limitCount * nv;
-                        // Compact in ascending DOF order, as in the scalar
-                        // owner. No later source column is overwritten.
-                        if (limitCount != dof) {
-                            device const float* raw = responseScratch +
-                                limitResponseBase + dof * nv;
-                            for (uint index = 0u; index < nv; ++index)
-                                response[index] = raw[index];
-                            for (uint ei = 0u; ei < equalityCount; ++ei)
-                                limitEqualityCorrections[
-                                    limitCount * equalityCount + ei] =
-                                    limitEqualityCorrections[
-                                        dof * equalityCount + ei];
-                        }
+                        // The response and equality reaction remain at their
+                        // authored DOF slots. Limit decisions still follow
+                        // ascending source order, without a serial 128-wide
+                        // device copy for every compacted row.
+                        device const float* response = responseScratch +
+                            limitResponseBase + dof * nv;
                         limitEffectiveMass[limitCount] =
                             response[dof] + kResponseRegularization;
                         limitLowerVelocity[limitCount] =
@@ -1139,12 +1130,12 @@
                     }
                     if (impulse == 0.0f) continue;
                     device const float* response = responseScratch +
-                        limitResponseBase + limit * nv;
+                        limitResponseBase + dof * nv;
                     float equalityWorkContribution = 0.0f;
                     if (equality0 < equalityCount) {
                         const float equalityImpulse = impulse *
                             limitEqualityCorrections[
-                                limit * equalityCount + equality0];
+                                dof * equalityCount + equality0];
                         const float before = equalityVelocity0;
                         float responseEquality = response[equalityDof0];
                         if (equalityOtherDof0 != MR_INVALID_INDEX)
@@ -1163,7 +1154,7 @@
                     if (equality1 < equalityCount) {
                         const float equalityImpulse = impulse *
                             limitEqualityCorrections[
-                                limit * equalityCount + equality1];
+                                dof * equalityCount + equality1];
                         const float before = equalityVelocity1;
                         float responseEquality = response[equalityDof1];
                         if (equalityOtherDof1 != MR_INVALID_INDEX)
@@ -1255,7 +1246,7 @@
                 limitWorkIncrement = 0.5f * impulse * candidateV[dof];
             }
             device const float* equalityCorrection =
-                limitEqualityCorrections + limit * equalityCount;
+                limitEqualityCorrections + dof * equalityCount;
             for (uint ei = lane; ei < equalityCount; ei += threadCount) {
                 device const MRNumiHumanJointEqualityGPU& equality =
                     jointEqualities[ei];
@@ -1284,7 +1275,7 @@
                 }
             }
             device const float* response = responseScratch +
-                limitResponseBase + limit * nv;
+                limitResponseBase + dof * nv;
             for (uint index = lane; index < nv; index += threadCount)
                 candidateV[index] = fma(impulse, response[index],
                                         candidateV[index]);
