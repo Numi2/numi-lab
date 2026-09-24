@@ -169,6 +169,11 @@
     threadgroup uint limitDofs[MR_NUMI_HUMAN_STAND_MAX_DOFS];
     threadgroup float limitPreStepPositions[MR_NUMI_HUMAN_STAND_MAX_DOFS];
     threadgroup float limitAccumulatedImpulses[MR_NUMI_HUMAN_STAND_MAX_DOFS];
+    // Source position, limits and response mass stay fixed during all 64
+    // coupled sweeps. Compute their projected-velocity inputs once.
+    threadgroup float limitLowerVelocity[MR_NUMI_HUMAN_STAND_MAX_DOFS];
+    threadgroup float limitUpperVelocity[MR_NUMI_HUMAN_STAND_MAX_DOFS];
+    threadgroup float limitEffectiveMass[MR_NUMI_HUMAN_STAND_MAX_DOFS];
     threadgroup uint contactActiveForPostProjection[
         MR_NUMI_HUMAN_STAND_MAX_CONTACTS];
     threadgroup float contactTargetNormalVelocityForPostProjection[
@@ -810,6 +815,14 @@
                                     limitEqualityCorrections[
                                         dof * equalityCount + ei];
                         }
+                        limitEffectiveMass[limitCount] =
+                            response[dof] + kResponseRegularization;
+                        limitLowerVelocity[limitCount] =
+                            mrNumiHumanLowerLimitVelocityTarget(
+                                position, properties.limits.x, timestep);
+                        limitUpperVelocity[limitCount] =
+                            mrNumiHumanUpperLimitVelocityTarget(
+                                position, properties.limits.y, timestep);
                         ++limitCount;
                     }
                 };
@@ -825,26 +838,15 @@
             if (lane == 0u) {
                 auto projectLimit = [&]() {
                     const uint dof = limitDofs[limit];
-                    device const MRDofPropertiesGPU& properties =
-                        dofs[articulation.vOffset + dof];
-                    const float position = qState[
-                        qBase + properties.qIndex - articulation.qOffset];
-                    device const float* response = responseScratch +
-                        limitResponseBase + limit * nv;
-                    const float effectiveMass = response[dof] +
-                        kResponseRegularization;
+                    const float effectiveMass = limitEffectiveMass[limit];
                     if (!(effectiveMass > kResponseRegularization) ||
                         !isfinite(effectiveMass)) {
                         fail(status, MR_NUMI_HUMAN_STAND_FACTORIZATION_FAILED,
                              dof);
                         return;
                     }
-                    const float lowerVelocity =
-                        mrNumiHumanLowerLimitVelocityTarget(
-                            position, properties.limits.x, timestep);
-                    const float upperVelocity =
-                        mrNumiHumanUpperLimitVelocityTarget(
-                            position, properties.limits.y, timestep);
+                    const float lowerVelocity = limitLowerVelocity[limit];
+                    const float upperVelocity = limitUpperVelocity[limit];
                     if (!isfinite(lowerVelocity) || !isfinite(upperVelocity) ||
                         lowerVelocity > upperVelocity) {
                         fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT, dof);
