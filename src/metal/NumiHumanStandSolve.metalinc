@@ -687,26 +687,7 @@
                     limitAccumulatedImpulses[limit] = nextImpulse;
                     cooperativeLimitImpulse = impulse;
                     if (impulse == 0.0f) return;
-                    // Keep the sequential impulse owner and the exact FP32
-                    // accumulation order of its bilateral reaction work.
-                    device const float* equalityCorrection =
-                        limitEqualityCorrections + limit * equalityCount;
                     limitWorkIncrement = 0.5f * impulse * candidateV[dof];
-                    for (uint ei = 0u; ei < equalityCount; ++ei) {
-                        device const MRNumiHumanJointEqualityGPU& equality =
-                            jointEqualities[ei];
-                        const float derivative = equalityDerivativeCache[ei];
-                        float velocity = candidateV[equality.indices.y];
-                        if (equality.indices.w != MR_INVALID_INDEX)
-                            velocity = fma(-derivative,
-                                candidateV[equality.indices.w], velocity);
-                        const float equalityImpulse =
-                            impulse * equalityCorrection[ei];
-                        limitEqualityWorkIncrement = fma(
-                            0.5f * equalityImpulse, velocity,
-                            limitEqualityWorkIncrement);
-                        equalityLambdas[ei] += equalityImpulse;
-                    }
                 };
                 cooperativeLimitImpulse = 0.0f;
                 projectLimit();
@@ -715,31 +696,60 @@
             if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
             const float impulse = cooperativeLimitImpulse;
             if (impulse == 0.0f) continue;
+            device const float* equalityCorrection =
+                limitEqualityCorrections + limit * equalityCount;
+            for (uint ei = lane; ei < equalityCount; ei += threadCount) {
+                device const MRNumiHumanJointEqualityGPU& equality =
+                    jointEqualities[ei];
+                const float derivative = equalityDerivativeCache[ei];
+                float velocity = candidateV[equality.indices.y];
+                if (equality.indices.w != MR_INVALID_INDEX)
+                    velocity = fma(-derivative,
+                        candidateV[equality.indices.w], velocity);
+                cooperativeLimitEqualityImpulses[ei] =
+                    impulse * equalityCorrection[ei];
+                cooperativeLimitEqualityVelocities[ei] = velocity;
+            }
+            threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+            if (lane == 0u) {
+                // The row evaluations are independent; the impulse work and
+                // multiplier additions still follow the original row order.
+                for (uint ei = 0u; ei < equalityCount; ++ei) {
+                    const float equalityImpulse =
+                        cooperativeLimitEqualityImpulses[ei];
+                    limitEqualityWorkIncrement = fma(
+                        0.5f * equalityImpulse,
+                        cooperativeLimitEqualityVelocities[ei],
+                        limitEqualityWorkIncrement);
+                    equalityLambdas[ei] += equalityImpulse;
+                }
+            }
             device const float* response = responseScratch +
                 limitResponseBase + limit * nv;
             for (uint index = lane; index < nv; index += threadCount)
                 candidateV[index] = fma(impulse, response[index],
                                         candidateV[index]);
             threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+            for (uint ei = lane; ei < equalityCount; ei += threadCount) {
+                device const MRNumiHumanJointEqualityGPU& equality =
+                    jointEqualities[ei];
+                const float derivative = equalityDerivativeCache[ei];
+                float velocity = candidateV[equality.indices.y];
+                if (equality.indices.w != MR_INVALID_INDEX)
+                    velocity = fma(-derivative,
+                        candidateV[equality.indices.w], velocity);
+                cooperativeLimitEqualityVelocities[ei] = velocity;
+            }
+            threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
             if (lane == 0u) {
                 auto finishLimit = [&]() {
                     const uint dof = limitDofs[limit];
-                    device const float* equalityCorrection =
-                        limitEqualityCorrections + limit * equalityCount;
                     limitWorkIncrement = fma(
                         0.5f * impulse, candidateV[dof], limitWorkIncrement);
                     for (uint ei = 0u; ei < equalityCount; ++ei) {
-                        device const MRNumiHumanJointEqualityGPU& equality =
-                            jointEqualities[ei];
-                        const float derivative = equalityDerivativeCache[ei];
-                        float velocity = candidateV[equality.indices.y];
-                        if (equality.indices.w != MR_INVALID_INDEX)
-                            velocity = fma(-derivative,
-                                candidateV[equality.indices.w], velocity);
-                        const float equalityImpulse =
-                            impulse * equalityCorrection[ei];
                         limitEqualityWorkIncrement = fma(
-                            0.5f * equalityImpulse, velocity,
+                            0.5f * cooperativeLimitEqualityImpulses[ei],
+                            cooperativeLimitEqualityVelocities[ei],
                             limitEqualityWorkIncrement);
                     }
                     if (!isfinite(limitWorkIncrement) ||
