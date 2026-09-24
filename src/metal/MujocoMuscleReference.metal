@@ -300,6 +300,17 @@ inline bool addPointLengthGradient(
     const uint environmentBase = environment * dispatch.pointJacobianStride;
     const uint centerBase = environmentBase +
         bodyPoint * 3u * dispatch.dofCount;
+    // Body pose and query point are fixed for every DOF in this route
+    // endpoint. Keep the three rotated body axes and the compensated lever
+    // arm outside the source-order generalized Jacobian accumulation.
+    const float3 worldAxes[3] = {
+        quaternionRotate(pose.orientation, float3(1.0f, 0.0f, 0.0f)),
+        quaternionRotate(pose.orientation, float3(0.0f, 1.0f, 0.0f)),
+        quaternionRotate(pose.orientation, float3(0.0f, 0.0f, 1.0f)),
+    };
+    const float3 pointLever = worldPoint - mrSourceBodyPoint(
+        pose.position, bodyPositionLow,
+        environment * dispatch.bodyPoseStride + localBody);
     for (uint dof = 0u; dof < dispatch.dofCount; ++dof) {
         const float3 centerJacobian = float3(
             pointJacobians[centerBase + dof],
@@ -308,15 +319,6 @@ inline bool addPointLengthGradient(
         );
         float3 angularJacobian = float3(0.0f);
         for (uint axis = 0u; axis < 3u; ++axis) {
-            const float3 localAxis = axis == 0u
-                ? float3(1.0f, 0.0f, 0.0f)
-                : (axis == 1u
-                    ? float3(0.0f, 1.0f, 0.0f)
-                    : float3(0.0f, 0.0f, 1.0f));
-            const float3 worldAxis = quaternionRotate(
-                pose.orientation,
-                localAxis
-            );
             const uint axisBase = centerBase +
                 (axis + 1u) * 3u * dispatch.dofCount;
             const float3 axisJacobian = float3(
@@ -325,13 +327,12 @@ inline bool addPointLengthGradient(
                 pointJacobians[axisBase + 2u * dispatch.dofCount + dof]
             );
             angularJacobian += 0.5f * cross(
-                worldAxis,
+                worldAxes[axis],
                 axisJacobian - centerJacobian
             );
         }
         const float3 pointJacobian = centerJacobian + cross(
-            angularJacobian,
-            worldPoint - mrSourceBodyPoint(pose.position,bodyPositionLow,environment*dispatch.bodyPoseStride+localBody)
+            angularJacobian, pointLever
         );
         if (!all(isfinite(pointJacobian))) return false;
         lengthJacobian[dof] += dot(gradient, pointJacobian);
