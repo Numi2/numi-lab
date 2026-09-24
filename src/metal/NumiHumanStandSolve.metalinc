@@ -979,7 +979,69 @@
                         equalityVelocity1 = fma(-equalityDerivative1,
                             candidateV[equalityOtherDof1], equalityVelocity1);
                 }
-                for (uint limit = 0u; limit < cooperativeLimitCount; ++limit) {
+                // A zero projected increment leaves every later row's input
+                // unchanged. Find the next nonzero row across SIMD lanes,
+                // apply it in ascending order, then rescan the remainder
+                // against the updated velocity. Invalid rows are selected so
+                // their original fail-closed checks still run in order.
+                for (uint cursor = 0u; cursor < cooperativeLimitCount;) {
+                    uint nextActive = cooperativeLimitCount;
+                    for (uint block = cursor;
+                         block < cooperativeLimitCount;
+                         block += simdWidth) {
+                        const uint preview = block + simdLane;
+                        const uint previewDof =
+                            preview < cooperativeLimitCount
+                                ? limitDofs[preview] : 0u;
+                        const uint owner = previewDof % simdWidth;
+                        const uint slot = previewDof / simdWidth;
+                        const float previewVelocity0 =
+                            simd_shuffle(velocity0, owner);
+                        const float previewVelocity1 =
+                            simd_shuffle(velocity1, owner);
+                        const float previewVelocity2 =
+                            simd_shuffle(velocity2, owner);
+                        const float previewVelocity3 =
+                            simd_shuffle(velocity3, owner);
+                        bool blockHasWork = false;
+                        if (preview < cooperativeLimitCount) {
+                            const float previewMass =
+                                limitEffectiveMass[preview];
+                            const float previewLower =
+                                limitLowerVelocity[preview];
+                            const float previewUpper =
+                                limitUpperVelocity[preview];
+                            const float previewPrevious =
+                                limitAccumulatedImpulses[preview];
+                            blockHasWork = !(previewMass >
+                                kResponseRegularization) ||
+                                !isfinite(previewMass) ||
+                                !isfinite(previewLower) ||
+                                !isfinite(previewUpper) ||
+                                previewLower > previewUpper ||
+                                !isfinite(previewPrevious);
+                            if (!blockHasWork) {
+                                const float previewVelocity = slot == 0u
+                                    ? previewVelocity0 : slot == 1u
+                                    ? previewVelocity1 : slot == 2u
+                                    ? previewVelocity2 : previewVelocity3;
+                                const float next =
+                                    mrNumiHumanProjectIntervalImpulse(
+                                        previewPrevious, previewVelocity,
+                                        previewLower, previewUpper,
+                                        previewMass);
+                                blockHasWork = !isfinite(next) ||
+                                    next - previewPrevious != 0.0f;
+                            }
+                        }
+                        const uint candidate = blockHasWork
+                            ? preview : cooperativeLimitCount;
+                        nextActive = simd_min(candidate);
+                        if (nextActive != cooperativeLimitCount) break;
+                    }
+                    if (nextActive == cooperativeLimitCount) break;
+                    const uint limit = nextActive;
+                    cursor = limit + 1u;
                     const uint dof = limitDofs[limit];
                     const float effectiveMass = limitEffectiveMass[limit];
                     if (!(effectiveMass > kResponseRegularization) ||
