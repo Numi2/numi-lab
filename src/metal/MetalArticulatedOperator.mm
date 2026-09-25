@@ -12,6 +12,7 @@
 
 #include <algorithm>
 #include <array>
+#include <atomic>
 #include <chrono>
 #include <cmath>
 #include <cstddef>
@@ -214,6 +215,19 @@ struct NumanXTransactionAbortGuard {
     }
 };
 
+struct AuxiliaryGeometryAbortGuard {
+    __strong id<MTLCommandBuffer> commandBuffer = nil;
+    bool committed = false;
+    bool released = false;
+
+    ~AuxiliaryGeometryAbortGuard() noexcept {
+        // An encoding rejection must not leave a GPU reader or writer on the
+        // context buffers while the caller retries or destroys the context.
+        if (committed && !released && commandBuffer != nil)
+            [commandBuffer waitUntilCompleted];
+    }
+};
+
 [[nodiscard]] bool knownNumanXHumanMatterPhase(
     const MetalNumanXHumanMatterPhase phase
 ) noexcept {
@@ -402,6 +416,11 @@ struct MetalArticulatedOperatorContextState {
     bool inFlight = false;
     __strong id<MTLDevice> device = nil;
     __strong id<MTLCommandQueue> queue = nil;
+    // Derived q-only geometry may be prepared beside the Brain decision. The
+    // authoritative physical command still owns every state mutation.
+    __strong id<MTLCommandQueue> geometryQueue = nil;
+    __strong id<MTLSharedEvent> geometryReadyEvent = nil;
+    std::uint64_t geometryNextEventValue = 0u;
     __strong id<MTLLibrary> library = nil;
     __strong id<MTLComputePipelineState> pipeline = nil;
     __strong id<MTLComputePipelineState> compensatedPipeline = nil;
@@ -464,6 +483,7 @@ struct MetalArticulatedOperatorContextState {
     std::uint32_t publishedStandStep = 0u;
     bool controllerCompletionConsumed = false;
     bool controllerCompletionFailed = false;
+    std::atomic<bool> geometryFailureQuarantine{false};
 
     struct PublishedResidentState {
         bool active = false;
@@ -642,6 +662,7 @@ struct MetalArticulatedOperatorSubmissionState {
 
     std::shared_ptr<MetalArticulatedOperatorContextState> context;
     __strong id<MTLCommandBuffer> commandBuffer = nil;
+    __strong id<MTLCommandBuffer> geometryCommandBuffer = nil;
     MetalArticulatedOperatorDiagnostics diagnostics{};
     std::chrono::steady_clock::time_point start{};
     const EngineModel* model = nullptr;
@@ -8200,6 +8221,18 @@ MetalArticulatedOperatorSubmission::wait(
                 gpuEnd > gpuStart) {
                 diagnostics.gpuMilliseconds = 1000.0 * (gpuEnd - gpuStart);
             }
+            if (pending->geometryCommandBuffer != nil) {
+                [pending->geometryCommandBuffer waitUntilCompleted];
+                if (pending->geometryCommandBuffer.status !=
+                    MTLCommandBufferStatusCompleted) {
+                    pending->context->geometryFailureQuarantine.store(true);
+                    return reject(std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::metalCommandFailure,
+                        "derived geometry command failed: " +
+                            describeError(
+                                pending->geometryCommandBuffer.error));
+                }
+            }
             if (pending->commandBuffer.status !=
                 MTLCommandBufferStatusCompleted) {
                 return reject(
@@ -8963,6 +8996,11 @@ MetalArticulatedOperatorContext::submit(
         }
 
         const std::lock_guard lock(state_->mutex);
+        if (state_->geometryFailureQuarantine.load()) {
+            return reject(std::move(diagnostics),
+                MetalArticulatedOperatorHostStatus::metalCommandFailure,
+                "failed derived geometry terminally closed this physical context");
+        }
         if (state_->controllerCompletionFailed) {
             return reject(std::move(diagnostics),
                 MetalArticulatedOperatorHostStatus::internalFailure,
@@ -9241,6 +9279,9 @@ MetalArticulatedOperatorContext::submit(
                 (__bridge void*)commandBuffer,
                 false,
             };
+            AuxiliaryGeometryAbortGuard geometryAbort{};
+            __strong id<MTLCommandBuffer> geometryCommandBuffer = nil;
+            std::uint64_t geometryReadyValue = 0u;
             std::uint64_t humanMatterPreparedEventValue = 0u;
             std::uint64_t humanMatterProposalEventValue = 0u;
             std::uint64_t humanMatterAppliedEventValue = 0u;
@@ -9372,6 +9413,37 @@ MetalArticulatedOperatorContext::submit(
             const MRArticulationGPU& articulation =
                 model.articulations[input.articulationIndex];
             const bool pairedGeometry = hasCompensatedGeometry(diagnostics.layout);
+            const char* geometryOverlapSetting =
+                std::getenv("NUMI_HUMAN_OVERLAP_GEOMETRY");
+            // The launcher also uses this operator for source fibre
+            // equilibration. Only the integrated one-step Brain root has the
+            // measured begin-step dependency needed by this pilot.
+            const bool overlapGeometry = geometryOverlapSetting != nullptr &&
+                std::strcmp(geometryOverlapSetting, "1") == 0 &&
+                input.stand.enabled() &&
+                input.stand.numanXTransactionProgram.valid() &&
+                !input.stand.numanXHumanMatterProgram.valid() &&
+                horizonStepCount == 1u && input.environmentCount == 1u &&
+                state_->config.pointJacobiansOnly && pairedGeometry;
+            if (overlapGeometry) {
+                if (state_->geometryQueue == nil)
+                    state_->geometryQueue = [state_->device newCommandQueue];
+                if (state_->geometryReadyEvent == nil)
+                    state_->geometryReadyEvent = [state_->device newSharedEvent];
+                if (state_->geometryQueue == nil ||
+                    state_->geometryReadyEvent == nil) {
+                    return reject(std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::metalDeviceUnavailable,
+                        "failed to create derived-geometry queue or event");
+                }
+                if (state_->geometryNextEventValue ==
+                    std::numeric_limits<std::uint64_t>::max()) {
+                    return reject(std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::arithmeticOverflow,
+                        "derived-geometry event value exhausted");
+                }
+                geometryReadyValue = ++state_->geometryNextEventValue;
+            }
             if (pairedGeometry &&
                 detail::articulatedOperatorThreadgroupBytes(articulation.bodyCount,
                     articulation.nv, !state_->config.pointJacobiansOnly, true) +
@@ -10059,7 +10131,7 @@ MetalArticulatedOperatorContext::submit(
                     );
                 }
             }
-            if (!encodeNumanXTransactionPhase(
+            if (!overlapGeometry && !encodeNumanXTransactionPhase(
                     MetalNumanXTransactionPhase::beginStep,
                     authoritativeStep
                 )) {
@@ -10069,8 +10141,23 @@ MetalArticulatedOperatorContext::submit(
                     "NumanX begin-step transaction rejected encoding"
                 );
             }
+            if (overlapGeometry) {
+                geometryCommandBuffer =
+                    [state_->geometryQueue commandBuffer];
+                if (geometryCommandBuffer == nil) {
+                    return reject(std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::metalCommandFailure,
+                        "failed to create derived-geometry command buffer");
+                }
+                geometryCommandBuffer.label =
+                    @"Numi Human derived pose and Jacobians";
+                geometryAbort.commandBuffer = geometryCommandBuffer;
+            }
+            id<MTLCommandBuffer> kinematicsCommandBuffer = overlapGeometry
+                ? geometryCommandBuffer : commandBuffer;
             id<MTLComputeCommandEncoder> encoder =
-                humanTimedEncoder(commandBuffer, state_->device, "kinematics", authoritativeStep);
+                humanTimedEncoder(kinematicsCommandBuffer, state_->device,
+                                  "kinematics", authoritativeStep);
             if (encoder == nil) {
                 return reject(
                     std::move(diagnostics),
@@ -10132,6 +10219,57 @@ MetalArticulatedOperatorContext::submit(
                     1u
                 )];
             [encoder endEncoding];
+
+            if (overlapGeometry) {
+                __strong id<MTLSharedEvent> retainedReadyEvent =
+                    state_->geometryReadyEvent;
+                const std::shared_ptr<
+                    detail::MetalArticulatedOperatorContextState>
+                    retainedGeometryContext = state_;
+                const std::uint64_t readyValue = geometryReadyValue;
+                [geometryCommandBuffer encodeSignalEvent:retainedReadyEvent
+                                                   value:readyValue];
+                // A failed auxiliary command might not execute its GPU signal.
+                // Release the dependent command so it can fail closed at wait.
+                [geometryCommandBuffer addCompletedHandler:
+                    ^(id<MTLCommandBuffer> completed) {
+                        if (completed.status != MTLCommandBufferStatusCompleted) {
+                            try {
+                                // submit() may be waiting for this auxiliary
+                                // command while holding the context mutex.
+                                retainedGeometryContext->geometryFailureQuarantine.store(true);
+                            } catch (...) {
+                                // The main submission also checks this GPU
+                                // command's terminal status before publishing.
+                            }
+                            if (retainedReadyEvent.signaledValue < readyValue)
+                                retainedReadyEvent.signaledValue = readyValue;
+                        }
+                    }];
+                [geometryCommandBuffer commit];
+                geometryAbort.committed = true;
+            }
+
+            // In the opt-in path, pose/Jacobians read the committed q/v state
+            // and do not consume the current motor command. The serial path
+            // retains its original begin-step ordering.
+            if (overlapGeometry && !encodeNumanXTransactionPhase(
+                    MetalNumanXTransactionPhase::beginStep,
+                    authoritativeStep
+                )) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::externalProgramFailure,
+                    "NumanX begin-step transaction rejected encoding"
+                );
+            }
+            if (overlapGeometry) {
+                // The Brain decision only reads its delivered receptor frame
+                // and writes muscle excitation. The next phase consumes the
+                // q-only geometry, so make that dependency explicit.
+                [commandBuffer encodeWaitForEvent:state_->geometryReadyEvent
+                                            value:geometryReadyValue];
+            }
 
             if (input.millard.enabled()) {
                 id<MTLComputeCommandEncoder> millardEncoder =
@@ -10979,6 +11117,7 @@ MetalArticulatedOperatorContext::submit(
             diagnostics.dispatched = true;
             pending->context = state_;
             pending->commandBuffer = commandBuffer;
+            pending->geometryCommandBuffer = geometryCommandBuffer;
             pending->diagnostics = diagnostics;
             pending->model = &model;
             pending->articulation =
@@ -11224,6 +11363,7 @@ MetalArticulatedOperatorContext::submit(
             numanXTransactionAbort.armed = false;
             tendonLoadAbort.armed = false;
             [commandBuffer commit];
+            geometryAbort.released = true;
             submission.state_ = std::move(pending);
         }
         return diagnostics;
