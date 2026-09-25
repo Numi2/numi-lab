@@ -1,6 +1,7 @@
 #include "metalrobo/NumiHumanPassiveJoint.hpp"
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
+#import <CommonCrypto/CommonDigest.h>
 
 #include "metalrobo/MetalArticulatedOperator.hpp"
 #include "metalrobo/MetalNumanXHumanIO.hpp"
@@ -281,38 +282,39 @@ struct RequiredBuffers {
         humanMatterEntries{};
 };
 
-constexpr std::uint64_t kSplitStandFNVOffset = 14695981039346656037ull;
-constexpr std::uint64_t kSplitStandFNVPrime = 1099511628211ull;
-
 void appendSplitStandFingerprint(
-    std::uint64_t& hash,
+    CC_SHA256_CTX& context,
     const void* data,
     const std::size_t bytes
 ) noexcept {
     const auto* values = static_cast<const std::uint8_t*>(data);
-    for (std::size_t index = 0u; index < bytes; ++index) {
-        hash ^= values[index];
-        hash *= kSplitStandFNVPrime;
+    std::size_t offset = 0u;
+    while (offset < bytes) {
+        const auto chunk = std::min<std::size_t>(
+            bytes - offset, std::numeric_limits<CC_LONG>::max());
+        CC_SHA256_Update(&context, values + offset,
+                         static_cast<CC_LONG>(chunk));
+        offset += chunk;
     }
 }
 
 template <typename T>
 void appendSplitStandValue(
-    std::uint64_t& hash,
+    CC_SHA256_CTX& context,
     const T& value
 ) noexcept {
-    appendSplitStandFingerprint(hash, &value, sizeof(value));
+    appendSplitStandFingerprint(context, &value, sizeof(value));
 }
 
 template <typename T>
 void appendSplitStandSpan(
-    std::uint64_t& hash,
+    CC_SHA256_CTX& context,
     const std::span<const T> values
 ) noexcept {
     const std::uint64_t size = values.size();
-    appendSplitStandValue(hash, size);
+    appendSplitStandValue(context, size);
     appendSplitStandFingerprint(
-        hash, values.data(), values.size_bytes());
+        context, values.data(), values.size_bytes());
 }
 
 [[nodiscard]] std::uint64_t splitStandBoundaryFingerprint(
@@ -320,44 +322,49 @@ void appendSplitStandSpan(
 ) noexcept {
     constexpr std::array<std::uint8_t, 30u> domain{{
         'm','r','n','x','.','s','p','l','i','t','-','s','t','a','n','d','.',
-        'b','o','u','n','d','a','r','y','.','v','1',0,0}};
-    std::uint64_t hash = kSplitStandFNVOffset;
-    appendSplitStandFingerprint(hash, domain.data(), domain.size());
-    appendSplitStandValue(hash, input.articulationIndex);
-    appendSplitStandValue(hash, input.environmentCount);
-    appendSplitStandValue(hash, input.pointCount);
-    appendSplitStandSpan(hash, input.points);
-    appendSplitStandSpan(hash, input.mujoco.muscles);
-    appendSplitStandSpan(hash, input.mujoco.sites);
-    appendSplitStandSpan(hash, input.mujoco.wraps);
-    appendSplitStandSpan(hash, input.mujoco.routeNodes);
-    appendSplitStandValue(hash, input.mujoco.bodyJacobianPointOffset);
-    appendSplitStandSpan(hash, input.stand.preloadedGeneralizedForce);
-    appendSplitStandSpan(hash, input.stand.passiveJointProgram);
-    appendSplitStandSpan(hash, input.stand.contacts);
-    appendSplitStandSpan(hash, input.stand.jointEqualities);
-    appendSplitStandSpan(hash, input.stand.tendonBindings);
-    appendSplitStandSpan(hash, input.stand.tendonEnvelopes);
-    appendSplitStandValue(hash, input.stand.tendonLoadProgram.fingerprint);
+        'b','o','u','n','d','a','r','y','.','v','2',0,0}};
+    CC_SHA256_CTX context{};
+    CC_SHA256_Init(&context);
+    appendSplitStandFingerprint(context, domain.data(), domain.size());
+    appendSplitStandValue(context, input.articulationIndex);
+    appendSplitStandValue(context, input.environmentCount);
+    appendSplitStandValue(context, input.pointCount);
+    appendSplitStandSpan(context, input.points);
+    appendSplitStandSpan(context, input.mujoco.muscles);
+    appendSplitStandSpan(context, input.mujoco.sites);
+    appendSplitStandSpan(context, input.mujoco.wraps);
+    appendSplitStandSpan(context, input.mujoco.routeNodes);
+    appendSplitStandValue(context, input.mujoco.bodyJacobianPointOffset);
+    appendSplitStandSpan(context, input.stand.preloadedGeneralizedForce);
+    appendSplitStandSpan(context, input.stand.passiveJointProgram);
+    appendSplitStandSpan(context, input.stand.contacts);
+    appendSplitStandSpan(context, input.stand.jointEqualities);
+    appendSplitStandSpan(context, input.stand.tendonBindings);
+    appendSplitStandSpan(context, input.stand.tendonEnvelopes);
+    appendSplitStandValue(context, input.stand.tendonLoadProgram.fingerprint);
     appendSplitStandValue(
-        hash, input.stand.numanXTransactionProgram.abiVersion);
+        context, input.stand.numanXTransactionProgram.abiVersion);
     appendSplitStandValue(
-        hash, input.stand.numanXTransactionProgram.structSize);
+        context, input.stand.numanXTransactionProgram.structSize);
     appendSplitStandValue(
-        hash, input.stand.numanXTransactionProgram.fingerprint);
-    appendSplitStandValue(hash, input.stand.contactIterationCount);
+        context, input.stand.numanXTransactionProgram.fingerprint);
+    appendSplitStandValue(context, input.stand.contactIterationCount);
     const std::uint8_t contact = input.stand.enableContact ? 1u : 0u;
     const std::uint8_t assistance =
         input.stand.enableRootAssistance ? 1u : 0u;
-    appendSplitStandValue(hash, contact);
-    appendSplitStandValue(hash, assistance);
-    appendSplitStandValue(hash, input.stand.groundPoint);
-    appendSplitStandValue(hash, input.stand.groundNormal);
-    appendSplitStandValue(hash, input.stand.targetRootPosition);
-    appendSplitStandValue(hash, input.stand.targetRootOrientation);
-    appendSplitStandValue(hash, input.stand.assistanceGains);
-    appendSplitStandValue(hash, input.stand.timedRootForce);
-    return hash == 0u ? kSplitStandFNVOffset : hash;
+    appendSplitStandValue(context, contact);
+    appendSplitStandValue(context, assistance);
+    appendSplitStandValue(context, input.stand.groundPoint);
+    appendSplitStandValue(context, input.stand.groundNormal);
+    appendSplitStandValue(context, input.stand.targetRootPosition);
+    appendSplitStandValue(context, input.stand.targetRootOrientation);
+    appendSplitStandValue(context, input.stand.assistanceGains);
+    appendSplitStandValue(context, input.stand.timedRootForce);
+    std::array<std::uint8_t, CC_SHA256_DIGEST_LENGTH> digest{};
+    CC_SHA256_Final(digest.data(), &context);
+    std::uint64_t fingerprint = 0u;
+    std::memcpy(&fingerprint, digest.data(), sizeof(fingerprint));
+    return fingerprint == 0u ? 1u : fingerprint;
 }
 
 } // namespace
