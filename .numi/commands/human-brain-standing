@@ -18,6 +18,7 @@ binary=${NUMI_HUMAN_BRAIN_BINARY:-"$build_directory/bin/metalrobo_numilab_human_
 lab_library="$build_directory/lib/libmetalrobo.dylib"
 source_directory=${NUMI_HUMAN_BRAIN_SOURCE_DIR:-"$HOME/NumiHumanCurrent"}
 brain_library=${NUMI_HUMAN_BRAIN_DYLIB:-"$HOME/numi-brain-humanstanding-20260922/.build/arm64-apple-macosx/debug/libNumiBrainHumanStanding.dylib"}
+brain_resource_bundle="$(dirname -- "$brain_library")/NumiBrain_NumiBrainMetal.bundle"
 rigid_source="$source_directory/myosim-fullbody-core-reference.nhrigid"
 muscle_source="$source_directory/myosim-fullbody-muscle-reference.nhmyo"
 contact_source="$source_directory/myosim-fullbody-support-contact.nhcnt"
@@ -52,6 +53,17 @@ require_file() {
 require_file "$binary"
 require_file "$lab_library"
 require_file "$brain_library"
+if [[ ! -d "$brain_resource_bundle" ]]; then
+    printf 'required Brain Metal resource bundle is missing: %s\n' "$brain_resource_bundle" >&2
+    exit 1
+fi
+for brain_shader in MemoryState DecisionState; do
+    if [[ ! -f "$brain_resource_bundle/$brain_shader.metal" &&
+          ! -f "$brain_resource_bundle/Shaders/$brain_shader.metal" ]]; then
+        printf 'required Brain Metal shader is missing: %s\n' "$brain_shader" >&2
+        exit 1
+    fi
+done
 require_file "$rigid_source"
 require_file "$muscle_source"
 require_file "$contact_source"
@@ -134,6 +146,9 @@ fi
     printf 'binary '; shasum -a 256 "$binary"
     printf 'lab_library '; shasum -a 256 "$lab_library"
     printf 'brain_library '; shasum -a 256 "$brain_library"
+    while IFS= read -r resource_file; do
+        printf 'brain_resource '; shasum -a 256 "$resource_file"
+    done < <(find "$brain_resource_bundle" -type f -print | sort)
     while IFS= read -r metallib; do
         printf 'metal_library '; shasum -a 256 "$metallib"
     done < <(find "$build_directory" -type f -name '*.metallib' -print | sort)
