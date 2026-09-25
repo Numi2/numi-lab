@@ -33,6 +33,11 @@ if [[ ! "$steps" =~ ^[1-9][0-9]*$ ]] || (( ${#steps} > 5 )) || (( steps > 10000 
     exit 2
 fi
 sensor_audit=${NUMI_HUMAN_BRAIN_SENSOR_AUDIT:-0}
+geometry_overlap=${NUMI_HUMAN_OVERLAP_GEOMETRY:-1}
+if [[ "$geometry_overlap" != 0 && "$geometry_overlap" != 1 ]]; then
+    printf 'NUMI_HUMAN_OVERLAP_GEOMETRY must be 0 or 1: %s\n' "$geometry_overlap" >&2
+    exit 2
+fi
 if [[ "$sensor_audit" != 0 && "$sensor_audit" != 1 ]]; then
     printf 'NUMI_HUMAN_BRAIN_SENSOR_AUDIT must be 0 or 1: %s\n' "$sensor_audit" >&2
     exit 2
@@ -200,6 +205,7 @@ fi
         source_revision=$(git -C "$repository_root" rev-parse HEAD 2>/dev/null || printf 'unavailable')
     fi
     printf 'lab_source_revision=%s\n' "$source_revision"
+    printf 'geometry_overlap=%s\n' "$geometry_overlap"
     printf 'command='
     printf '%q ' "$binary" "${arguments[@]}"
     printf '\n'
@@ -236,6 +242,7 @@ fi
 
 printf 'numi_human_brain_run_directory=%s\n' "$output_directory"
 export NUMI_HUMAN_EXECUTION_STAGES=${NUMI_HUMAN_EXECUTION_STAGES:-1}
+export NUMI_HUMAN_OVERLAP_GEOMETRY="$geometry_overlap"
 # macOS strips inherited DYLD variables while launching the bash shebang.
 # Bind the Lab dylib beside the selected binary inside this launcher so an
 # isolated build cannot silently execute the previous build's GPU runtime.
