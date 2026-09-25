@@ -37,15 +37,31 @@
 namespace metalrobo {
 namespace {
 
-// Read-only timestamps for the first eight physical steps. Resolution happens
-// after the owning command buffer completes; profiling adds no submissions.
+// Read-only timestamps. A focused stage samples its first eight physical
+// steps. The cycle option samples one stage per step so the GPU counter limit
+// cannot silently drop later encoders from an all-stage profile.
 id<MTLComputeCommandEncoder> humanTimedEncoder(
     id<MTLCommandBuffer> commandBuffer, id<MTLDevice> device,
     const char* stage, std::uint32_t step
 ) {
     const char* requested = std::getenv("NUMI_HUMAN_GPU_TIMING");
     const char* selectedStage = std::getenv("NUMI_HUMAN_GPU_TIMING_STAGE");
-    if (step >= 8u || requested == nullptr || std::strcmp(requested, "1") != 0 ||
+    const bool cycle = selectedStage != nullptr &&
+        std::strcmp(selectedStage, "cycle") == 0;
+    if (cycle) {
+        static constexpr std::array<const char*, 14u> stages{
+            "kinematics", "muscle_angular", "muscles", "active_force",
+            "force_reduce", "tendon_transfer", "activation",
+            "stand_prework", "stand_mass", "stand_factor",
+            "stand_equality_responses", "stand_equality_factor",
+            "stand_projected_responses", "stand_finish",
+        };
+        if (step >= stages.size() * 8u)
+            return [commandBuffer computeCommandEncoder];
+        selectedStage = stages[step % stages.size()];
+    }
+    if ((!cycle && step >= 8u) || requested == nullptr ||
+        std::strcmp(requested, "1") != 0 ||
         (selectedStage != nullptr && std::strcmp(selectedStage, stage) != 0) ||
         ![device supportsCounterSampling:MTLCounterSamplingPointAtStageBoundary])
         return [commandBuffer computeCommandEncoder];
