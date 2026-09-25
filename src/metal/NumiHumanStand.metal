@@ -228,6 +228,34 @@ inline bool mrNumiHumanBilateralFactorCooperative(
 
 inline bool finite4(const float4 value) { return all(isfinite(value)); }
 
+inline bool validTendonTransfer(
+    device const MRNumiHumanTendonBindingGPU& binding,
+    device const MRNumiHumanTendonTransferResultGPU& transfer,
+    constant const MRNumiHumanStandDispatchGPU& dispatch,
+    const uint environment,
+    const uint endpoint
+) {
+    bool validTransfer =
+        transfer.status == MR_NUMI_HUMAN_TENDON_TRANSFER_SUCCESS &&
+        transfer.environment == environment &&
+        transfer.bindingIndex == endpoint &&
+        finite4(transfer.terminalWorldForce) &&
+        finite4(transfer.residualsAndForce) &&
+        transfer.residualsAndForce.x >= 0.0f &&
+        transfer.residualsAndForce.y >= 0.0f &&
+        transfer.residualsAndForce.z >= 0.0f;
+    for (uint node = 0u; node < 4u && validTransfer; ++node)
+        validTransfer = finite4(transfer.nodalWorldForces[node]) &&
+            transfer.nodalWorldForces[node].w == 0.0f;
+    if (binding.mode == MR_NUMI_HUMAN_TENDON_TRANSFER_SOURCE_POINT)
+        return validTransfer && transfer.envelopeIndex == MR_INVALID_INDEX;
+    if (binding.mode == MR_NUMI_HUMAN_TENDON_TRANSFER_DISTRIBUTED_ENVELOPE)
+        return validTransfer &&
+            binding.envelopeIndex < dispatch.tendonEnvelopeCount &&
+            transfer.envelopeIndex == binding.envelopeIndex;
+    return false;
+}
+
 inline float4 quaternionConjugate(const float4 value) {
     return float4(-value.xyz, value.w);
 }
@@ -689,55 +717,78 @@ kernel void mr_numi_human_stand_step(
     // consumers and deliberately are not added here as a second joint torque.
     // A registered pre-dynamics consumer may already have replaced a declared
     // J^T share in generalizedForceWorkspace with a solved anchor reaction.
-    if (lane == 0u && dispatch.tendonEndpointCount != 0u) {
+    threadgroup uint tendonFailureByLane[256];
+    threadgroup uint tendonPointCountByLane[256];
+    threadgroup uint tendonEnvelopeCountByLane[256];
+    threadgroup float4 tendonDiagnosticByLane[256];
+    if (dispatch.tendonEndpointCount != 0u) {
         const uint transferBase = environment * dispatch.tendonTransferStride;
-        for (uint endpoint = 0u; endpoint < dispatch.tendonEndpointCount;
-             ++endpoint) {
+        uint firstFailure = MR_INVALID_INDEX;
+        uint pointCount = 0u;
+        uint envelopeCount = 0u;
+        float4 diagnostic = float4(0.0f);
+        for (uint endpoint = lane; endpoint < dispatch.tendonEndpointCount;
+             endpoint += threadCount) {
             device const MRNumiHumanTendonBindingGPU& binding =
                 tendonBindings[endpoint];
             device const MRNumiHumanTendonTransferResultGPU& transfer =
                 tendonTransfers[transferBase + endpoint];
-            bool validTransfer =
-                transfer.status == MR_NUMI_HUMAN_TENDON_TRANSFER_SUCCESS &&
-                transfer.environment == environment &&
-                transfer.bindingIndex == endpoint &&
-                finite4(transfer.terminalWorldForce) &&
-                finite4(transfer.residualsAndForce) &&
-                transfer.residualsAndForce.x >= 0.0f &&
-                transfer.residualsAndForce.y >= 0.0f &&
-                transfer.residualsAndForce.z >= 0.0f;
-            for (uint node = 0u; node < 4u && validTransfer; ++node) {
-                validTransfer = finite4(transfer.nodalWorldForces[node]) &&
-                    transfer.nodalWorldForces[node].w == 0.0f;
+            if (!validTendonTransfer(binding, transfer, dispatch,
+                                     environment, endpoint)) {
+                firstFailure = min(firstFailure, endpoint);
+                continue;
             }
-            if (binding.mode == MR_NUMI_HUMAN_TENDON_TRANSFER_SOURCE_POINT) {
-                validTransfer = validTransfer &&
-                    transfer.envelopeIndex == MR_INVALID_INDEX;
-            } else if (binding.mode ==
-                       MR_NUMI_HUMAN_TENDON_TRANSFER_DISTRIBUTED_ENVELOPE) {
-                validTransfer = validTransfer &&
-                    binding.envelopeIndex < dispatch.tendonEnvelopeCount &&
-                    transfer.envelopeIndex == binding.envelopeIndex;
-            } else {
-                validTransfer = false;
-            }
-            if (!validTransfer) {
-                ++status.tendonFailureCount;
-                fail(status, MR_NUMI_HUMAN_STAND_TENDON_TRANSFER_FAILED,
-                     endpoint);
-                break;
-            }
-            ++status.tendonTransferCount;
             if (binding.mode ==
-                MR_NUMI_HUMAN_TENDON_TRANSFER_DISTRIBUTED_ENVELOPE) {
-                ++status.tendonEnvelopeTransferCount;
+                MR_NUMI_HUMAN_TENDON_TRANSFER_DISTRIBUTED_ENVELOPE)
+                ++envelopeCount;
+            else
+                ++pointCount;
+            diagnostic = max(diagnostic, abs(transfer.residualsAndForce));
+        }
+        tendonFailureByLane[lane] = firstFailure;
+        tendonPointCountByLane[lane] = pointCount;
+        tendonEnvelopeCountByLane[lane] = envelopeCount;
+        tendonDiagnosticByLane[lane] = diagnostic;
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        if (lane == 0u) {
+            firstFailure = MR_INVALID_INDEX;
+            for (uint index = 0u; index < threadCount; ++index)
+                firstFailure = min(firstFailure, tendonFailureByLane[index]);
+            if (firstFailure == MR_INVALID_INDEX) {
+                for (uint index = 0u; index < threadCount; ++index) {
+                    status.tendonPointTransferCount +=
+                        tendonPointCountByLane[index];
+                    status.tendonEnvelopeTransferCount +=
+                        tendonEnvelopeCountByLane[index];
+                    status.tendonDiagnostics = max(status.tendonDiagnostics,
+                        tendonDiagnosticByLane[index]);
+                }
+                status.tendonTransferCount += dispatch.tendonEndpointCount;
             } else {
-                ++status.tendonPointTransferCount;
+                // Reproduce the original ordered prefix and typed first
+                // failure; no later transfer may enter an accepted record.
+                for (uint endpoint = 0u; endpoint <= firstFailure;
+                     ++endpoint) {
+                    device const auto& binding = tendonBindings[endpoint];
+                    device const auto& transfer =
+                        tendonTransfers[transferBase + endpoint];
+                    if (!validTendonTransfer(binding, transfer, dispatch,
+                                             environment, endpoint)) {
+                        ++status.tendonFailureCount;
+                        fail(status, MR_NUMI_HUMAN_STAND_TENDON_TRANSFER_FAILED,
+                             endpoint);
+                        break;
+                    }
+                    ++status.tendonTransferCount;
+                    if (binding.mode ==
+                        MR_NUMI_HUMAN_TENDON_TRANSFER_DISTRIBUTED_ENVELOPE)
+                        ++status.tendonEnvelopeTransferCount;
+                    else
+                        ++status.tendonPointTransferCount;
+                    status.tendonDiagnostics = max(status.tendonDiagnostics,
+                        abs(transfer.residualsAndForce));
+                }
             }
-            status.tendonDiagnostics = max(
-                status.tendonDiagnostics,
-                abs(transfer.residualsAndForce)
-            );
         }
     }
     threadgroup_barrier(mem_flags::mem_device);
