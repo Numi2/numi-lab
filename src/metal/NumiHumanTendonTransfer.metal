@@ -37,49 +37,6 @@ inline float3 mappedForce(
     );
 }
 
-inline float3 pointJacobian(
-    const uint environment,
-    const uint dof,
-    const MRNumiHumanTendonTransferDispatchGPU dispatch,
-    device const MRArticulatedBodyPoseGPU* bodyPoses,
-    device const float4* bodyPositionLow,
-    device const float* pointJacobians,
-    const uint bodyIndex,
-    const MRSourcePoint worldPoint
-) {
-    const uint localBody = bodyIndex - dispatch.articulationFirstBody;
-    const MRArticulatedBodyPoseGPU pose = bodyPoses[
-        environment * dispatch.bodyPoseStride + localBody
-    ];
-    const uint bodyPoint = dispatch.bodyJacobianPointOffset +
-        localBody * dispatch.bodyJacobianPointStride;
-    const uint centerBase = environment * dispatch.pointJacobianStride +
-        bodyPoint * 3u * dispatch.dofCount;
-    const float3 center = float3(
-        pointJacobians[centerBase + dof],
-        pointJacobians[centerBase + dispatch.dofCount + dof],
-        pointJacobians[centerBase + 2u * dispatch.dofCount + dof]
-    );
-    float3 angular = float3(0.0f);
-    for (uint axis = 0u; axis < 3u; ++axis) {
-        const float3 localAxis = axis == 0u
-            ? float3(1.0f, 0.0f, 0.0f)
-            : (axis == 1u
-                ? float3(0.0f, 1.0f, 0.0f)
-                : float3(0.0f, 0.0f, 1.0f));
-        const float3 worldAxis = quaternionRotate(pose.orientation, localAxis);
-        const uint axisBase = centerBase +
-            (axis + 1u) * 3u * dispatch.dofCount;
-        const float3 probe = float3(
-            pointJacobians[axisBase + dof],
-            pointJacobians[axisBase + dispatch.dofCount + dof],
-            pointJacobians[axisBase + 2u * dispatch.dofCount + dof]
-        );
-        angular += 0.5f * cross(worldAxis, probe - center);
-    }
-    return center + cross(angular, worldPoint - mrSourceBodyPoint(pose.position,bodyPositionLow,environment*dispatch.bodyPoseStride+localBody));
-}
-
 } // namespace
 
 kernel void MR_TENDON_TRANSFER_KERNEL_NAME(
@@ -203,7 +160,9 @@ kernel void MR_TENDON_TRANSFER_KERNEL_NAME(
     float3 localMoment = float3(0.0f);
     float3 localNodalForces[4];
     MRSourcePoint worldNodes[4];
-    const MRSourcePoint sourceWorld = mrSourceBodyPoint(pose.position,bodyPositionLow,environment*dispatch.bodyPoseStride+localBody) + mrSourceRotate(
+    const MRSourcePoint bodyWorld = mrSourceBodyPoint(pose.position,
+        bodyPositionLow, environment * dispatch.bodyPoseStride + localBody);
+    const MRSourcePoint sourceWorld = bodyWorld + mrSourceRotate(
         pose.orientation, binding.sourceLocalPoint.xyz
     );
     for (uint node = 0u; node < 4u; ++node) {
@@ -221,7 +180,7 @@ kernel void MR_TENDON_TRANSFER_KERNEL_NAME(
             }
         }
         localNodalForces[node] = mappedForce(envelope, node, terminalLocalForce);
-        worldNodes[node] = mrSourceBodyPoint(pose.position,bodyPositionLow,environment*dispatch.bodyPoseStride+localBody) + mrSourceRotate(
+        worldNodes[node] = bodyWorld + mrSourceRotate(
             pose.orientation, envelope.localNodes[node].xyz
         );
         const float3 worldForce = quaternionRotate(
@@ -236,19 +195,52 @@ kernel void MR_TENDON_TRANSFER_KERNEL_NAME(
     }
     const float forceResidual = length(localResultant - terminalLocalForce);
     const float momentResidual = length(localMoment);
+    // Each source and envelope node shares one body Jacobian. Reconstruct
+    // its linear/angular rows once per DOF, then retain the original source
+    // and four-node contraction order for the generalized correction.
+    const float3 worldAxisX = quaternionRotate(
+        pose.orientation, float3(1.0f, 0.0f, 0.0f));
+    const float3 worldAxisY = quaternionRotate(
+        pose.orientation, float3(0.0f, 1.0f, 0.0f));
+    const float3 worldAxisZ = quaternionRotate(
+        pose.orientation, float3(0.0f, 0.0f, 1.0f));
+    const float3 sourceLever = sourceWorld - bodyWorld;
+    float3 nodeLevers[4];
+    for (uint node = 0u; node < 4u; ++node)
+        nodeLevers[node] = worldNodes[node] - bodyWorld;
+    const uint bodyPoint = dispatch.bodyJacobianPointOffset +
+        localBody * dispatch.bodyJacobianPointStride;
+    const uint centerBase = environment * dispatch.pointJacobianStride +
+        bodyPoint * 3u * dispatch.dofCount;
     float maximumCorrection = 0.0f;
     for (uint dof = 0u; dof < dispatch.dofCount; ++dof) {
+        const float3 center{
+            pointJacobians[centerBase + dof],
+            pointJacobians[centerBase + dispatch.dofCount + dof],
+            pointJacobians[centerBase + 2u * dispatch.dofCount + dof]
+        };
+        float3 angular = float3(0.0f);
+        for (uint axis = 0u; axis < 3u; ++axis) {
+            const float3 worldAxis = axis == 0u ? worldAxisX :
+                axis == 1u ? worldAxisY : worldAxisZ;
+            const uint axisBase = centerBase +
+                (axis + 1u) * 3u * dispatch.dofCount;
+            const float3 probe{
+                pointJacobians[axisBase + dof],
+                pointJacobians[axisBase + dispatch.dofCount + dof],
+                pointJacobians[axisBase + 2u * dispatch.dofCount + dof]
+            };
+            angular += 0.5f * cross(worldAxis, probe - center);
+        }
         const float sourceGeneralized = dot(
             terminalWorldForce,
-            pointJacobian(environment, dof, dispatch, bodyPoses, bodyPositionLow, pointJacobians,
-                          binding.bodyIndex, sourceWorld)
+            center + cross(angular, sourceLever)
         );
         float distributedGeneralized = 0.0f;
         for (uint node = 0u; node < 4u; ++node) {
             distributedGeneralized += dot(
                 result.nodalWorldForces[node].xyz,
-                pointJacobian(environment, dof, dispatch, bodyPoses, bodyPositionLow, pointJacobians,
-                              binding.bodyIndex, worldNodes[node])
+                center + cross(angular, nodeLevers[node])
             );
         }
         const float correction = distributedGeneralized - sourceGeneralized;
