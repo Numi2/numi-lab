@@ -44,7 +44,9 @@ id<MTLComputeCommandEncoder> humanTimedEncoder(
     const char* stage, std::uint32_t step
 ) {
     const char* requested = std::getenv("NUMI_HUMAN_GPU_TIMING");
+    const char* selectedStage = std::getenv("NUMI_HUMAN_GPU_TIMING_STAGE");
     if (step >= 8u || requested == nullptr || std::strcmp(requested, "1") != 0 ||
+        (selectedStage != nullptr && std::strcmp(selectedStage, stage) != 0) ||
         ![device supportsCounterSampling:MTLCounterSamplingPointAtStageBoundary])
         return [commandBuffer computeCommandEncoder];
     id<MTLCounterSampleBuffer> timing = nil;
