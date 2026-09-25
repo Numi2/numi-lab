@@ -1058,6 +1058,13 @@
                 float equalityDerivative1 = 0.0f;
                 float equalityVelocity0 = 0.0f;
                 float equalityVelocity1 = 0.0f;
+                // Each SIMD lane alone owns these equality rows throughout
+                // the ordered limit pass. Keep their multipliers in FP32
+                // registers and publish once before the next contact sweep.
+                float equalityLambda0 = equality0 < equalityCount
+                    ? equalityLambdas[equality0] : 0.0f;
+                float equalityLambda1 = equality1 < equalityCount
+                    ? equalityLambdas[equality1] : 0.0f;
                 if (equality0 < equalityCount) {
                     device const auto& equality = jointEqualities[equality0];
                     equalityDof0 = equality.indices.y;
@@ -1187,7 +1194,7 @@
                         equalityWorkContribution = fma(
                             0.5f * equalityImpulse, equalityVelocity0,
                             equalityWorkContribution);
-                        equalityLambdas[equality0] += equalityImpulse;
+                        equalityLambda0 += equalityImpulse;
                     }
                     if (equality1 < equalityCount) {
                         const float equalityImpulse = impulse *
@@ -1206,7 +1213,7 @@
                         equalityWorkContribution = fma(
                             0.5f * equalityImpulse, equalityVelocity1,
                             equalityWorkContribution);
-                        equalityLambdas[equality1] += equalityImpulse;
+                        equalityLambda1 += equalityImpulse;
                     }
                     const float equalityWorkIncrement =
                         simd_sum(equalityWorkContribution);
@@ -1243,6 +1250,10 @@
                 if (dof1 < nv) candidateV[dof1] = velocity1;
                 if (dof2 < nv) candidateV[dof2] = velocity2;
                 if (dof3 < nv) candidateV[dof3] = velocity3;
+                if (equality0 < equalityCount)
+                    equalityLambdas[equality0] = equalityLambda0;
+                if (equality1 < equalityCount)
+                    equalityLambdas[equality1] = equalityLambda1;
             }
         } else {
         for (uint limit = 0u; limit < cooperativeLimitCount; ++limit) {
