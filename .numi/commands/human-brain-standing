@@ -15,6 +15,7 @@ command_directory=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
 repository_root=$(CDPATH= cd -- "$command_directory/../.." && pwd -P)
 build_directory=${NUMI_HUMAN_BRAIN_BUILD_DIR:-"$HOME/numi-lab-brain-cpu-build-20260922"}
 binary=${NUMI_HUMAN_BRAIN_BINARY:-"$build_directory/bin/metalrobo_numilab_human_myosim_visual_probe"}
+lab_library="$build_directory/lib/libmetalrobo.dylib"
 source_directory=${NUMI_HUMAN_BRAIN_SOURCE_DIR:-"$HOME/NumiHumanCurrent"}
 brain_library=${NUMI_HUMAN_BRAIN_DYLIB:-"$HOME/numi-brain-humanstanding-20260922/.build/arm64-apple-macosx/debug/libNumiBrainHumanStanding.dylib"}
 rigid_source="$source_directory/myosim-fullbody-core-reference.nhrigid"
@@ -49,6 +50,7 @@ require_file() {
 }
 
 require_file "$binary"
+require_file "$lab_library"
 require_file "$brain_library"
 require_file "$rigid_source"
 require_file "$muscle_source"
@@ -130,6 +132,7 @@ fi
     printf 'accepted_sensor_audit=%s\n' "$sensor_audit"
     printf 'mechanics_only=%s\n' "$mechanics_only"
     printf 'binary '; shasum -a 256 "$binary"
+    printf 'lab_library '; shasum -a 256 "$lab_library"
     printf 'brain_library '; shasum -a 256 "$brain_library"
     while IFS= read -r metallib; do
         printf 'metal_library '; shasum -a 256 "$metallib"
@@ -172,6 +175,10 @@ fi
 
 printf 'numi_human_brain_run_directory=%s\n' "$output_directory"
 export NUMI_HUMAN_EXECUTION_STAGES=${NUMI_HUMAN_EXECUTION_STAGES:-1}
+# macOS strips inherited DYLD variables while launching the bash shebang.
+# Bind the Lab dylib beside the selected binary inside this launcher so an
+# isolated build cannot silently execute the previous build's GPU runtime.
+export DYLD_LIBRARY_PATH="$build_directory/lib${DYLD_LIBRARY_PATH:+:$DYLD_LIBRARY_PATH}"
 set +e
 "$binary" "${arguments[@]}" 2>&1 | tee "$output_directory/launch.log"
 pipeline_status=("${PIPESTATUS[@]}")
