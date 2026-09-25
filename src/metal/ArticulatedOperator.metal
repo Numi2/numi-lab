@@ -1147,6 +1147,171 @@ inline bool validModelAndLayout(
     return true;
 }
 
+inline bool evaluateKinematicJoint(
+    const uint globalJoint,
+    device const MRArticulationGPU& articulation,
+    device const MRJointDescriptorGPU* joints,
+    device const MROpenSimSpatialTransformGPU* functionPrograms,
+    device const float* q,
+    threadgroup MRKinematicPosition* bodyPosition,
+    threadgroup float4* bodyRotation,
+    threadgroup MRKinematicPosition* jointPosition,
+    threadgroup float3* jointAxis,
+    thread MRArticulatedOperatorStatusGPU& status
+) {
+    device const MRJointDescriptorGPU& joint = joints[globalJoint];
+    const uint localParent = joint.parentBody - articulation.firstBody;
+    const uint localChild = joint.childBody - articulation.firstBody;
+    float4 parentJointRotation;
+    float4 childJointRotation;
+    if (!normalizedQuaternion(
+            joint.parentRotation,
+            parentJointRotation,
+            true
+        ) ||
+        !normalizedQuaternion(
+            joint.childRotation,
+            childJointRotation,
+            true
+        )) {
+        setFailure(
+            status,
+            MR_ARTICULATED_OPERATOR_INVALID_MODEL,
+            globalJoint
+        );
+        return false;
+    }
+    const float4 parentToJointRotation =
+        quaternionMultiply(
+            bodyRotation[localParent],
+            parentJointRotation
+        );
+    float4 motionRotation =
+        float4(0.0f, 0.0f, 0.0f, 1.0f);
+    float3 axisInJoint = float3(1.0f, 0.0f, 0.0f);
+    float3 translationInJoint = float3(0.0f);
+    float jointCoordinate = 0.0f;
+    if (joint.jointType == MR_JOINT_FUNCTION_BASED) {
+        const uint localQ =
+            joint.qOffset - articulation.qOffset;
+        FunctionBasedJointKinematics functionState;
+        if (!evaluateFunctionBasedJoint(
+                functionPrograms[globalJoint],
+                q + localQ,
+                functionState
+            ) || functionState.coordinateCount != joint.nq) {
+            setFailure(
+                status,
+                MR_ARTICULATED_OPERATOR_INVALID_MODEL,
+                globalJoint
+            );
+            return false;
+        }
+        motionRotation = functionState.rotation;
+        translationInJoint = functionState.translation;
+    } else if (joint.nv == 1u) {
+        const float axisMagnitude =
+            length(joint.axis0.xyz);
+        axisInJoint = joint.axis0.xyz / axisMagnitude;
+        const uint localQ =
+            joint.qOffset - articulation.qOffset;
+        if (!isfinite(q[localQ])) {
+            setFailure(
+                status,
+                MR_ARTICULATED_OPERATOR_NONFINITE_INPUT,
+                localQ
+            );
+            return false;
+        }
+        jointCoordinate = q[localQ];
+        if (joint.jointType == MR_JOINT_REVOLUTE ||
+            joint.jointType == MR_JOINT_CONTINUOUS) {
+            motionRotation = axisAngleQuaternion(
+                axisInJoint,
+                jointCoordinate
+            );
+        }
+    }
+
+    const float4 candidateRotation = quaternionMultiply(
+        quaternionMultiply(
+            parentToJointRotation,
+            motionRotation
+        ),
+        quaternionConjugate(childJointRotation)
+    );
+    float4 checkedChildRotation;
+    if (!normalizedQuaternion(
+            candidateRotation,
+            checkedChildRotation,
+            false
+        )) {
+        setFailure(
+            status,
+            MR_ARTICULATED_OPERATOR_NONFINITE_RESULT,
+            joint.childBody
+        );
+        return false;
+    }
+    bodyRotation[localChild] = checkedChildRotation;
+    jointAxis[localChild] = quaternionRotate(
+        parentToJointRotation,
+        axisInJoint
+    );
+#if MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
+    MRKinematicPosition parentToJointOffset = mrCompensatedQuaternionRotate(
+        bodyRotation[localParent], joint.parentAnchor);
+    if (joint.jointType == MR_JOINT_FUNCTION_BASED)
+        parentToJointOffset = parentToJointOffset + mrCompensatedQuaternionRotate(
+            parentToJointRotation, float4(translationInJoint,0.0f));
+    else if (joint.jointType == MR_JOINT_PRISMATIC)
+        parentToJointOffset = parentToJointOffset + mrCompensatedVectorScale(
+            kinematicPosition(jointAxis[localChild]), {jointCoordinate,0.0f});
+    jointPosition[localChild] = bodyPosition[localParent] + parentToJointOffset;
+    const MRKinematicPosition parentToChildOffset = parentToJointOffset +
+        mrCompensatedVectorNegate(mrCompensatedQuaternionRotate(
+            bodyRotation[localChild], joint.childAnchor));
+    bodyPosition[localChild] = bodyPosition[localParent] + parentToChildOffset;
+#else
+    const float3 parentToJointOffset =
+        quaternionRotate(
+            bodyRotation[localParent],
+            joint.parentAnchor.xyz
+        ) +
+        (joint.jointType == MR_JOINT_FUNCTION_BASED
+            ? quaternionRotate(
+                parentToJointRotation,
+                translationInJoint
+            )
+            : (joint.jointType == MR_JOINT_PRISMATIC
+                ? jointAxis[localChild] * jointCoordinate
+                : float3(0.0f)));
+    jointPosition[localChild] = bodyPosition[localParent] + parentToJointOffset;
+    // Compose the COM-relative displacement before adding the world
+    // translation. Avoid rounding an intermediate large world anchor
+    // and then subtracting its child offset at every carrier joint.
+    const float3 parentToChildOffset = parentToJointOffset -
+        quaternionRotate(
+            bodyRotation[localChild],
+            joint.childAnchor.xyz
+        );
+    bodyPosition[localChild] = bodyPosition[localParent] + parentToChildOffset;
+#endif
+    if (!finite3(jointPosition[localChild]) ||
+        !finite3(jointAxis[localChild]) ||
+        !finite3(bodyPosition[localChild]) ||
+        (articulation.rootType == MR_ROOT_FLOATING &&
+         !finite3(float3(q[0], q[1], q[2]) + bodyPosition[localChild]))) {
+        setFailure(
+            status,
+            MR_ARTICULATED_OPERATOR_NONFINITE_RESULT,
+            joint.childBody
+        );
+        return false;
+    }
+    return true;
+}
+
 inline bool buildKinematics(
     device const MRArticulationGPU& articulation,
     device const MRJointDescriptorGPU* joints,
@@ -1210,151 +1375,10 @@ inline bool buildKinematics(
                 continue;
             }
 
-            float4 parentJointRotation;
-            float4 childJointRotation;
-            if (!normalizedQuaternion(
-                    joint.parentRotation,
-                    parentJointRotation,
-                    true
-                ) ||
-                !normalizedQuaternion(
-                    joint.childRotation,
-                    childJointRotation,
-                    true
-                )) {
-                setFailure(
-                    status,
-                    MR_ARTICULATED_OPERATOR_INVALID_MODEL,
-                    globalJoint
-                );
-                return false;
-            }
-            const float4 parentToJointRotation =
-                quaternionMultiply(
-                    bodyRotation[localParent],
-                    parentJointRotation
-                );
-            float4 motionRotation =
-                float4(0.0f, 0.0f, 0.0f, 1.0f);
-            float3 axisInJoint = float3(1.0f, 0.0f, 0.0f);
-            float3 translationInJoint = float3(0.0f);
-            float jointCoordinate = 0.0f;
-            if (joint.jointType == MR_JOINT_FUNCTION_BASED) {
-                const uint localQ =
-                    joint.qOffset - articulation.qOffset;
-                FunctionBasedJointKinematics functionState;
-                if (!evaluateFunctionBasedJoint(
-                        functionPrograms[globalJoint],
-                        q + localQ,
-                        functionState
-                    ) || functionState.coordinateCount != joint.nq) {
-                    setFailure(
-                        status,
-                        MR_ARTICULATED_OPERATOR_INVALID_MODEL,
-                        globalJoint
-                    );
-                    return false;
-                }
-                motionRotation = functionState.rotation;
-                translationInJoint = functionState.translation;
-            } else if (joint.nv == 1u) {
-                const float axisMagnitude =
-                    length(joint.axis0.xyz);
-                axisInJoint = joint.axis0.xyz / axisMagnitude;
-                const uint localQ =
-                    joint.qOffset - articulation.qOffset;
-                if (!isfinite(q[localQ])) {
-                    setFailure(
-                        status,
-                        MR_ARTICULATED_OPERATOR_NONFINITE_INPUT,
-                        localQ
-                    );
-                    return false;
-                }
-                jointCoordinate = q[localQ];
-                if (joint.jointType == MR_JOINT_REVOLUTE ||
-                    joint.jointType == MR_JOINT_CONTINUOUS) {
-                    motionRotation = axisAngleQuaternion(
-                        axisInJoint,
-                        jointCoordinate
-                    );
-                }
-            }
-
-            const float4 candidateRotation = quaternionMultiply(
-                quaternionMultiply(
-                    parentToJointRotation,
-                    motionRotation
-                ),
-                quaternionConjugate(childJointRotation)
-            );
-            float4 checkedChildRotation;
-            if (!normalizedQuaternion(
-                    candidateRotation,
-                    checkedChildRotation,
-                    false
-                )) {
-                setFailure(
-                    status,
-                    MR_ARTICULATED_OPERATOR_NONFINITE_RESULT,
-                    joint.childBody
-                );
-                return false;
-            }
-            bodyRotation[localChild] = checkedChildRotation;
-            jointAxis[localChild] = quaternionRotate(
-                parentToJointRotation,
-                axisInJoint
-            );
-#if MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
-            MRKinematicPosition parentToJointOffset = mrCompensatedQuaternionRotate(
-                bodyRotation[localParent], joint.parentAnchor);
-            if (joint.jointType == MR_JOINT_FUNCTION_BASED)
-                parentToJointOffset = parentToJointOffset + mrCompensatedQuaternionRotate(
-                    parentToJointRotation, float4(translationInJoint,0.0f));
-            else if (joint.jointType == MR_JOINT_PRISMATIC)
-                parentToJointOffset = parentToJointOffset + mrCompensatedVectorScale(
-                    kinematicPosition(jointAxis[localChild]), {jointCoordinate,0.0f});
-            jointPosition[localChild] = bodyPosition[localParent] + parentToJointOffset;
-            const MRKinematicPosition parentToChildOffset = parentToJointOffset +
-                mrCompensatedVectorNegate(mrCompensatedQuaternionRotate(
-                    bodyRotation[localChild], joint.childAnchor));
-            bodyPosition[localChild] = bodyPosition[localParent] + parentToChildOffset;
-#else
-            const float3 parentToJointOffset =
-                quaternionRotate(
-                    bodyRotation[localParent],
-                    joint.parentAnchor.xyz
-                ) +
-                (joint.jointType == MR_JOINT_FUNCTION_BASED
-                    ? quaternionRotate(
-                        parentToJointRotation,
-                        translationInJoint
-                    )
-                    : (joint.jointType == MR_JOINT_PRISMATIC
-                        ? jointAxis[localChild] * jointCoordinate
-                        : float3(0.0f)));
-            jointPosition[localChild] = bodyPosition[localParent] + parentToJointOffset;
-            // Compose the COM-relative displacement before adding the world
-            // translation. Avoid rounding an intermediate large world anchor
-            // and then subtracting its child offset at every carrier joint.
-            const float3 parentToChildOffset = parentToJointOffset -
-                quaternionRotate(
-                    bodyRotation[localChild],
-                    joint.childAnchor.xyz
-                );
-            bodyPosition[localChild] = bodyPosition[localParent] + parentToChildOffset;
-#endif
-            if (!finite3(jointPosition[localChild]) ||
-                !finite3(jointAxis[localChild]) ||
-                !finite3(bodyPosition[localChild]) ||
-                (articulation.rootType == MR_ROOT_FLOATING &&
-                 !finite3(float3(q[0], q[1], q[2]) + bodyPosition[localChild]))) {
-                setFailure(
-                    status,
-                    MR_ARTICULATED_OPERATOR_NONFINITE_RESULT,
-                    joint.childBody
-                );
+            if (!evaluateKinematicJoint(
+                    globalJoint, articulation, joints, functionPrograms, q,
+                    bodyPosition, bodyRotation, jointPosition, jointAxis,
+                    status)) {
                 return false;
             }
             known[localChild] = 1u;
@@ -1374,6 +1398,114 @@ inline bool buildKinematics(
         );
         return false;
     }
+    return true;
+}
+
+// The source tree is small but its FunctionBased transforms are expensive.
+// Resolve only topology on lane zero, then evaluate all joints at a depth in
+// parallel. Parent transforms are complete before the next depth begins.
+// On any failure, replay the ordered path to retain its original rejection.
+inline bool buildKinematicsCooperative(
+    device const MRArticulationGPU& articulation,
+    device const MRJointDescriptorGPU* joints,
+    device const MROpenSimSpatialTransformGPU* functionPrograms,
+    device const float* q,
+    threadgroup MRKinematicPosition* bodyPosition,
+    threadgroup float4* bodyRotation,
+    threadgroup MRKinematicPosition* jointPosition,
+    threadgroup float3* jointAxis,
+    threadgroup uchar* known,
+    threadgroup atomic_uint* failed,
+    threadgroup uint* maximumDepth,
+    const uint lane,
+    const uint threadCount,
+    thread MRArticulatedOperatorStatusGPU& status
+) {
+    const uint rootLocal = articulation.rootBody - articulation.firstBody;
+    if (lane == 0u) {
+        atomic_store_explicit(failed, 0u, memory_order_relaxed);
+        if (articulation.rootType == MR_ROOT_FLOATING) {
+            float4 checkedRootRotation;
+            if (!finite3(float3(q[0], q[1], q[2])) ||
+                !normalizedQuaternion(float4(q[3], q[4], q[5], q[6]),
+                                      checkedRootRotation, true)) {
+                atomic_store_explicit(failed, 1u, memory_order_relaxed);
+            } else {
+                bodyPosition[rootLocal] = kinematicPosition(float3(0.0f));
+                bodyRotation[rootLocal] = checkedRootRotation;
+            }
+        } else {
+            bodyPosition[rootLocal] = kinematicPosition(float3(0.0f));
+            bodyRotation[rootLocal] = float4(0.0f, 0.0f, 0.0f, 1.0f);
+        }
+        known[rootLocal] = 1u;
+        uint discovered = 1u;
+        uint deepest = 1u;
+        if (atomic_load_explicit(failed, memory_order_relaxed) == 0u) {
+            for (uint pass = 0u;
+                 pass < articulation.bodyCount && discovered < articulation.bodyCount;
+                 ++pass) {
+                bool progressed = false;
+                for (uint localJoint = 0u; localJoint < articulation.jointCount;
+                     ++localJoint) {
+                    device const MRJointDescriptorGPU& joint =
+                        joints[articulation.firstJoint + localJoint];
+                    const uint parent = joint.parentBody - articulation.firstBody;
+                    const uint child = joint.childBody - articulation.firstBody;
+                    if (known[parent] == 0u || known[child] != 0u) continue;
+                    const uint depth = uint(known[parent]) + 1u;
+                    known[child] = uchar(depth);
+                    deepest = max(deepest, depth);
+                    ++discovered;
+                    progressed = true;
+                }
+                if (!progressed) break;
+            }
+            if (discovered != articulation.bodyCount || deepest > 255u)
+                atomic_store_explicit(failed, 1u, memory_order_relaxed);
+        }
+        *maximumDepth = deepest;
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (atomic_load_explicit(failed, memory_order_relaxed) == 0u) {
+        for (uint depth = 2u; depth <= *maximumDepth; ++depth) {
+            for (uint localJoint = lane; localJoint < articulation.jointCount;
+                 localJoint += threadCount) {
+                const uint globalJoint = articulation.firstJoint + localJoint;
+                device const MRJointDescriptorGPU& joint = joints[globalJoint];
+                const uint child = joint.childBody - articulation.firstBody;
+                if (known[child] != depth) continue;
+                MRArticulatedOperatorStatusGPU localStatus = status;
+                if (!evaluateKinematicJoint(
+                        globalJoint, articulation, joints, functionPrograms,
+                        q, bodyPosition, bodyRotation, jointPosition,
+                        jointAxis, localStatus)) {
+                    atomic_store_explicit(failed, 1u, memory_order_relaxed);
+                }
+            }
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+            if (atomic_load_explicit(failed, memory_order_relaxed) != 0u)
+                break;
+        }
+    }
+    if (atomic_load_explicit(failed, memory_order_relaxed) != 0u) {
+        if (lane == 0u) {
+            for (uint body = 0u; body < articulation.bodyCount; ++body)
+                known[body] = 0u;
+            if (buildKinematics(articulation, joints, functionPrograms, q,
+                                bodyPosition, bodyRotation, jointPosition,
+                                jointAxis, known, status)) {
+                setFailure(status, MR_ARTICULATED_OPERATOR_INVALID_MODEL,
+                           MR_INVALID_INDEX);
+            }
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        return false;
+    }
+    if (lane == 0u)
+        for (uint body = 0u; body < articulation.bodyCount; ++body)
+            known[body] = 1u;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
     return true;
 }
 
@@ -1752,6 +1884,8 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
     const bool pointJacobiansOnly =
         (dispatch.flags &
          MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY) != 0u;
+    threadgroup atomic_uint cooperativeKinematicsFailed;
+    threadgroup uint cooperativeKinematicsMaximumDepth;
     if (lane == 0u) {
         status.bodyCount = articulation.bodyCount;
         status.nq = articulation.nq;
@@ -1771,18 +1905,10 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                 known,
                 status
             ) &&
-            buildKinematics(
-                articulation,
-                joints,
-                functionPrograms,
-                environmentQ,
-                bodyPosition,
-                bodyRotation,
-                jointPosition,
-                jointAxis,
-                known,
-                status
-            ) &&
+            (pointJacobiansOnly || buildKinematics(
+                articulation, joints, functionPrograms, environmentQ,
+                bodyPosition, bodyRotation, jointPosition, jointAxis,
+                known, status)) &&
             (pointJacobiansOnly || validatePoints(
                 environment, articulation, dispatch, points, status
             ))
@@ -1797,6 +1923,19 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
         return;
     }
     if (pointJacobiansOnly) {
+        const bool kinematicsSucceeded = buildKinematicsCooperative(
+            articulation, joints, functionPrograms, environmentQ,
+            bodyPosition, bodyRotation, jointPosition, jointAxis, known,
+            &cooperativeKinematicsFailed,
+            &cooperativeKinematicsMaximumDepth,
+            lane, threadsPerThreadgroup, status);
+        if (!kinematicsSucceeded) {
+            if (lane == 0u) {
+                initializationSucceeded = 0u;
+                if (tile == 0u) statuses[environment] = status;
+            }
+            return;
+        }
         const uint pointBase = environment * dispatch.pointStride;
         for (uint point = lane; point < dispatch.pointCount;
              point += threadsPerThreadgroup) {
