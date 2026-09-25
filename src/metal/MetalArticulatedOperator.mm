@@ -10220,12 +10220,16 @@ MetalArticulatedOperatorContext::submit(
                         kStandBodyPositionLowBuffer] offset:0u atIndex:10u];
                 const std::size_t threadCount =
                     diagnostics.layout.mujocoResultElements;
+                // The cached Human route kernel owns one SIMD32 group per
+                // muscle so its independent generalized DOF rows run across
+                // lanes. Other MyoSim kernels retain one thread per muscle.
+                const std::size_t muscleThreadgroups = cacheMujocoAngular
+                    ? threadCount
+                    : (threadCount + kThreadsPerThreadgroup - 1u) /
+                        kThreadsPerThreadgroup;
                 [mujocoEncoder
                     dispatchThreadgroups:MTLSizeMake(
-                        static_cast<NSUInteger>(
-                            (threadCount + kThreadsPerThreadgroup - 1u) /
-                                kThreadsPerThreadgroup
-                        ),
+                        static_cast<NSUInteger>(muscleThreadgroups),
                         1u,
                         1u
                     )

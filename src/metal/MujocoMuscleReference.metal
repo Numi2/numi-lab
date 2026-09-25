@@ -16,6 +16,9 @@ using namespace metal;
 #define MR_MUJOCO_CACHE_PARAMETER
 #define MR_MUJOCO_CACHE_ARGUMENT
 #endif
+#ifndef MR_MUJOCO_COOPERATIVE
+#define MR_MUJOCO_COOPERATIVE 0
+#endif
 
 namespace {
 
@@ -278,7 +281,9 @@ inline bool addPointLengthGradient(
     const uint bodyIndex,
     const MRSourcePoint worldPoint,
     const float3 gradient,
-    device float* lengthJacobian MR_MUJOCO_CACHE_PARAMETER
+    device float* lengthJacobian MR_MUJOCO_CACHE_PARAMETER,
+    const uint dofLane = 0u,
+    const uint dofStride = 1u
 ) {
     if (bodyIndex < dispatch.articulationFirstBody ||
         bodyIndex - dispatch.articulationFirstBody >= dispatch.bodyPoseStride ||
@@ -320,7 +325,8 @@ inline bool addPointLengthGradient(
     const float3 pointLever = worldPoint - mrSourceBodyPoint(
         pose.position, bodyPositionLow,
         environment * dispatch.bodyPoseStride + localBody);
-    for (uint dof = 0u; dof < dispatch.dofCount; ++dof) {
+    bool finiteJacobian = true;
+    for (uint dof = dofLane; dof < dispatch.dofCount; dof += dofStride) {
         const float3 centerJacobian = float3(
             pointJacobians[centerBase + dof],
             pointJacobians[centerBase + dispatch.dofCount + dof],
@@ -349,10 +355,20 @@ inline bool addPointLengthGradient(
         const float3 pointJacobian = centerJacobian + cross(
             angularJacobian, pointLever
         );
-        if (!all(isfinite(pointJacobian))) return false;
+        if (!all(isfinite(pointJacobian))) {
+#if MR_MUJOCO_COOPERATIVE
+            finiteJacobian = false;
+#else
+            return false;
+#endif
+        }
         lengthJacobian[dof] += dot(gradient, pointJacobian);
     }
+#if MR_MUJOCO_COOPERATIVE
+    return simd_all(finiteJacobian);
+#else
     return true;
+#endif
 }
 
 inline bool addSegmentLengthJacobian(
@@ -365,7 +381,9 @@ inline bool addSegmentLengthJacobian(
     const MRSourcePoint firstWorld,
     const uint secondBody,
     const MRSourcePoint secondWorld,
-    device float* lengthJacobian MR_MUJOCO_CACHE_PARAMETER
+    device float* lengthJacobian MR_MUJOCO_CACHE_PARAMETER,
+    const uint dofLane = 0u,
+    const uint dofStride = 1u
 ) {
     const float3 difference = secondWorld - firstWorld;
     const float distance = length(difference);
@@ -376,12 +394,12 @@ inline bool addSegmentLengthJacobian(
     return addPointLengthGradient(
                environment, dispatch, bodyPoses, bodyPositionLow, pointJacobians,
                firstBody, firstWorld, -direction, lengthJacobian
-               MR_MUJOCO_CACHE_ARGUMENT
+               MR_MUJOCO_CACHE_ARGUMENT, dofLane, dofStride
            ) &&
         addPointLengthGradient(
             environment, dispatch, bodyPoses, bodyPositionLow, pointJacobians,
             secondBody, secondWorld, direction, lengthJacobian
-            MR_MUJOCO_CACHE_ARGUMENT
+            MR_MUJOCO_CACHE_ARGUMENT, dofLane, dofStride
         );
 }
 
@@ -704,8 +722,20 @@ kernel void MR_MUJOCO_REFERENCE_KERNEL_NAME(
 #if MR_SOURCE_PAIRED_GEOMETRY
     device const float4* bodyPositionLow [[buffer(10)]],
 #endif
+#if MR_MUJOCO_COOPERATIVE
+    uint3 workGroup [[threadgroup_position_in_grid]],
+    uint dofLane [[thread_index_in_threadgroup]]
+#else
     uint globalIndex [[thread_position_in_grid]]
+#endif
 ) {
+#if MR_MUJOCO_COOPERATIVE
+    const uint globalIndex = workGroup.x;
+    const uint dofStride = 32u;
+#else
+    const uint dofLane = 0u;
+    const uint dofStride = 1u;
+#endif
 #if !MR_SOURCE_PAIRED_GEOMETRY
     device const float4* bodyPositionLow = nullptr;
 #endif
@@ -724,12 +754,15 @@ kernel void MR_MUJOCO_REFERENCE_KERNEL_NAME(
         !finite4(dispatch.timestepSecondsAndReserved) ||
         any(dispatch.timestepSecondsAndReserved.yzw != float3(0.0f)) ||
         muscleIndex >= dispatch.muscleCount) {
-        results[globalIndex] = result; return;
+        if (dofLane == 0u) results[globalIndex] = result; return;
     }
     const uint forceBase = globalIndex * dispatch.dofCount;
-    for (uint dof = 0u; dof < dispatch.dofCount; ++dof) {
+    for (uint dof = dofLane; dof < dispatch.dofCount; dof += dofStride) {
         muscleGeneralizedForces[forceBase + dof] = 0.0f;
     }
+#if MR_MUJOCO_COOPERATIVE
+    threadgroup_barrier(mem_flags::mem_device);
+#endif
     const MRMujocoMuscleGPU muscle = muscles[muscleIndex];
     const uint routeOffset = muscle.route.x;
     const uint routeCount = muscle.route.y;
@@ -739,19 +772,19 @@ kernel void MR_MUJOCO_REFERENCE_KERNEL_NAME(
         !finite4(muscle.compliantArchitecture0) ||
         !finite4(muscle.compliantArchitecture1) ||
         muscle.lengthRangeAndAcceleration.w != 0.0f || muscle.controlRange.z != 0.0f || muscle.controlRange.w != 0.0f) {
-        results[globalIndex] = result; return;
+        if (dofLane == 0u) results[globalIndex] = result; return;
     }
     for (uint block = 0u; block < 3u; ++block) {
         if (!finite4(muscle.gainParameters[block]) || !finite4(muscle.biasParameters[block]) || !finite4(muscle.dynamicParameters[block]) ||
             (block == 2u && (any(muscle.gainParameters[block].zw != float2(0.0f)) || any(muscle.biasParameters[block].zw != float2(0.0f)) || any(muscle.dynamicParameters[block].zw != float2(0.0f))))) {
-            results[globalIndex] = result; return;
+            if (dofLane == 0u) results[globalIndex] = result; return;
         }
     }
     const MRMujocoMuscleStateGPU state = states[globalIndex];
     if (!finite4(state.excitationAndActivation) || state.excitationAndActivation.z < 0.0f ||
         (!compliantArchitecture(muscle) &&
          (state.excitationAndActivation.z != 0.0f || state.excitationAndActivation.w != 0.0f))) {
-        result.status = MR_MUJOCO_MUSCLE_REFERENCE_INVALID_STATE; results[globalIndex] = result; return;
+        result.status = MR_MUJOCO_MUSCLE_REFERENCE_INVALID_STATE; if (dofLane == 0u) results[globalIndex] = result; return;
     }
     float totalLength = 0.0f;
     uint appliedWraps = 0u;
@@ -790,7 +823,7 @@ kernel void MR_MUJOCO_REFERENCE_KERNEL_NAME(
                         : MR_INVALID_INDEX,
                     firstWorld, secondSite.bodyIndex, secondWorld,
                     muscleGeneralizedForces + forceBase
-                    MR_MUJOCO_CACHE_ARGUMENT
+                    MR_MUJOCO_CACHE_ARGUMENT, dofLane, dofStride
                 )) { validPath = false; break; }
             totalLength += length(secondWorld - firstWorld); cursor += 1u; continue;
         }
@@ -863,7 +896,7 @@ kernel void MR_MUJOCO_REFERENCE_KERNEL_NAME(
                     sites[firstNode.targetIndex].bodyIndex, firstWorld,
                     sites[lastNode.targetIndex].bodyIndex, lastWorld,
                     muscleGeneralizedForces + forceBase
-                    MR_MUJOCO_CACHE_ARGUMENT
+                    MR_MUJOCO_CACHE_ARGUMENT, dofLane, dofStride
                 )) { validPath = false; break; }
             totalLength += length(lastWorld - firstWorld);
         } else {
@@ -897,19 +930,19 @@ kernel void MR_MUJOCO_REFERENCE_KERNEL_NAME(
                     sites[firstNode.targetIndex].bodyIndex, firstWorld,
                     wrap.bodyIndex, worldTangentFirst,
                     muscleGeneralizedForces + forceBase
-                    MR_MUJOCO_CACHE_ARGUMENT
+                    MR_MUJOCO_CACHE_ARGUMENT, dofLane, dofStride
                 ) || !addSegmentLengthJacobian(
                     environment, dispatch, bodyPoses, bodyPositionLow, pointJacobians,
                     wrap.bodyIndex, worldTangentFirst,
                     wrap.bodyIndex, worldTangentLast,
                     muscleGeneralizedForces + forceBase
-                    MR_MUJOCO_CACHE_ARGUMENT
+                    MR_MUJOCO_CACHE_ARGUMENT, dofLane, dofStride
                 ) || !addSegmentLengthJacobian(
                     environment, dispatch, bodyPoses, bodyPositionLow, pointJacobians,
                     wrap.bodyIndex, worldTangentLast,
                     sites[lastNode.targetIndex].bodyIndex, lastWorld,
                     muscleGeneralizedForces + forceBase
-                    MR_MUJOCO_CACHE_ARGUMENT
+                    MR_MUJOCO_CACHE_ARGUMENT, dofLane, dofStride
                 )) { validPath = false; break; }
             totalLength += length(worldTangentFirst - firstWorld) + wrappingLength + length(lastWorld - worldTangentLast);
             ++appliedWraps;
@@ -920,15 +953,23 @@ kernel void MR_MUJOCO_REFERENCE_KERNEL_NAME(
         !isfinite(totalLength) || !originGradientObserved || !insertionGradientObserved ||
         !all(isfinite(originLengthGradient)) || !all(isfinite(insertionLengthGradient))) {
         result.status = MR_MUJOCO_MUSCLE_REFERENCE_INVALID_PATH;
-        results[globalIndex] = result;
+        if (dofLane == 0u) results[globalIndex] = result;
         return;
     }
     float pathVelocity = 0.0f;
     const uint velocityBase = environment * dispatch.dofCount;
-    for (uint dof = 0u; dof < dispatch.dofCount; ++dof) {
-        pathVelocity += muscleGeneralizedForces[forceBase + dof] *
-            generalizedVelocities[velocityBase + dof];
+#if MR_MUJOCO_COOPERATIVE
+    threadgroup_barrier(mem_flags::mem_device);
+#endif
+    if (dofLane == 0u) {
+        for (uint dof = 0u; dof < dispatch.dofCount; ++dof) {
+            pathVelocity += muscleGeneralizedForces[forceBase + dof] *
+                generalizedVelocities[velocityBase + dof];
+        }
     }
+#if MR_MUJOCO_COOPERATIVE
+    pathVelocity = simd_broadcast_first(pathVelocity);
+#endif
     const float derivative = activationDerivative(muscle, state.excitationAndActivation.x, state.excitationAndActivation.y);
     float force = 0.0f;
     float activeForce = 0.0f;
@@ -950,7 +991,7 @@ kernel void MR_MUJOCO_REFERENCE_KERNEL_NAME(
                 equilibriumResidual
             )) {
             result.status = MR_MUJOCO_MUSCLE_REFERENCE_NONFINITE_RESULT;
-            results[globalIndex] = result;
+            if (dofLane == 0u) results[globalIndex] = result;
             return;
         }
         const float maximumForce = forceScale(
@@ -964,15 +1005,27 @@ kernel void MR_MUJOCO_REFERENCE_KERNEL_NAME(
         activeForce = muscleGain(totalLength, pathVelocity, muscle) *
             state.excitationAndActivation.y;
     }
-    if (!isfinite(derivative) || !isfinite(force) || !isfinite(pathVelocity)) { result.status = MR_MUJOCO_MUSCLE_REFERENCE_NONFINITE_RESULT; results[globalIndex] = result; return; }
-    for (uint dof = 0u; dof < dispatch.dofCount; ++dof) {
+    if (!isfinite(derivative) || !isfinite(force) || !isfinite(pathVelocity)) { result.status = MR_MUJOCO_MUSCLE_REFERENCE_NONFINITE_RESULT; if (dofLane == 0u) results[globalIndex] = result; return; }
+    bool finiteForceRows = true;
+    for (uint dof = dofLane; dof < dispatch.dofCount; dof += dofStride) {
         muscleGeneralizedForces[forceBase + dof] *= force;
         if (!isfinite(muscleGeneralizedForces[forceBase + dof])) {
+#if MR_MUJOCO_COOPERATIVE
+            finiteForceRows = false;
+#else
             result.status = MR_MUJOCO_MUSCLE_REFERENCE_NONFINITE_RESULT;
-            results[globalIndex] = result;
+            if (dofLane == 0u) results[globalIndex] = result;
             return;
+#endif
         }
     }
+#if MR_MUJOCO_COOPERATIVE
+    if (!simd_all(finiteForceRows)) {
+        result.status = MR_MUJOCO_MUSCLE_REFERENCE_NONFINITE_RESULT;
+        if (dofLane == 0u) results[globalIndex] = result;
+        return;
+    }
+#endif
     result.status = MR_MUJOCO_MUSCLE_REFERENCE_SUCCESS;
     result.appliedWrapCount = appliedWraps;
     result.pathForceAndActivationDerivative = float4(totalLength, pathVelocity, force, derivative);
@@ -985,7 +1038,7 @@ kernel void MR_MUJOCO_REFERENCE_KERNEL_NAME(
         tendonTension,
         equilibriumResidual
     );
-    results[globalIndex] = result;
+    if (dofLane == 0u) results[globalIndex] = result;
 }
 
 // Converts total source force rows to their activation-dependent component
