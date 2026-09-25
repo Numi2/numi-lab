@@ -1992,10 +1992,14 @@ kernel void mr_numi_human_stand_projected_response_cooperative(
     const uint threadCount = groupSize.x;
     threadgroup float rhs[MR_NUMI_HUMAN_STAND_MAX_DOFS];
     threadgroup float workspace[MR_NUMI_HUMAN_STAND_MAX_DOFS];
+    threadgroup float equalityRhs[MR_NUMI_HUMAN_STAND_MAX_DOFS];
+    threadgroup float rawResponse[MR_NUMI_HUMAN_STAND_MAX_DOFS];
     threadgroup float3 direction;
     threadgroup uint responseActive = 0u;
     threadgroup uint conditionValid = 1u;
+    threadgroup uint restoreRawResponse = 0u;
     threadgroup uint solveSucceeded = 0u;
+    threadgroup atomic_uint correctionFailed;
     if (lane == 0u) {
         if (positionIndex < contactColumns) {
             if (contactEnabled) {
@@ -2041,110 +2045,93 @@ kernel void mr_numi_human_stand_projected_response_cooperative(
         if (lane == 0u) publishParallelResponseFailure(status, column);
         return;
     }
-    if (lane == 0u) {
-        float equalityRhs[MR_NUMI_HUMAN_STAND_MAX_DOFS];
-        bool valid = true;
-        if (positionIndex < contactColumns) {
-            if (useProjectedContacts) {
-                device float* reaction = projectedContactEquality +
-                    positionIndex * equalityCount;
-                for (uint row = 0u; row < equalityCount; ++row)
-                    reaction[row] = 0.0f;
-                for (uint refinement = 0u; refinement < 2u && valid;
-                     ++refinement) {
+    const bool contactColumn = positionIndex < contactColumns;
+    const bool projectEquality = contactColumn
+        ? useProjectedContacts : equalityCount != 0u;
+    const uint limitDof = contactColumn
+        ? 0u : positionIndex - contactColumns;
+    device float* reaction = projectedContactEquality +
+        (contactColumn ? positionIndex : 0u) * equalityCount;
+    device float* equalityCorrection =
+        limitEqualityCorrections + limitDof * equalityCount;
+    for (uint row = lane; row < equalityCount; row += threadCount) {
+        if (contactColumn && useProjectedContacts) reaction[row] = 0.0f;
+        if (!contactColumn) equalityCorrection[row] = 0.0f;
+    }
+    if (!contactColumn && projectEquality)
+        for (uint dof = lane; dof < nv; dof += threadCount)
+            rawResponse[dof] = rhs[dof];
+    const float rawDiagonal = !contactColumn && projectEquality
+        ? rhs[limitDof] : 0.0f;
+    threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+    if (projectEquality) {
+        for (uint refinement = 0u; refinement < 2u; ++refinement) {
+            if (lane == 0u) {
+                for (uint row = 0u; row < equalityCount; ++row) {
+                    device const auto& equality = jointEqualities[row];
+                    float residual = rhs[equality.indices.y];
+                    if (equality.indices.w != MR_INVALID_INDEX)
+                        residual = fma(-derivativeCache[row],
+                            rhs[equality.indices.w], residual);
+                    equalityRhs[row] = residual;
+                }
+                if (!mrNumiHumanBilateralSolve(equalityFactor,
+                        equalityScale, equalityPivots, equalityRhs,
+                        equalityCount)) {
+                    conditionValid = 0u;
+                    publishParallelResponseFailure(status, contactColumn
+                        ? kParallelContactConditionFailure + positionIndex
+                        : kParallelLimitConditionFailure + 2u * limitDof);
+                } else {
                     for (uint row = 0u; row < equalityCount; ++row) {
-                        device const auto& equality = jointEqualities[row];
-                        float residual = rhs[equality.indices.y];
-                        if (equality.indices.w != MR_INVALID_INDEX)
-                            residual = fma(-derivativeCache[row],
-                                rhs[equality.indices.w], residual);
-                        equalityRhs[row] = residual;
-                    }
-                    if (!mrNumiHumanBilateralSolve(equalityFactor,
-                            equalityScale, equalityPivots, equalityRhs,
-                            equalityCount)) {
-                        valid = false;
-                        break;
-                    }
-                    for (uint row = 0u; row < equalityCount; ++row)
-                        reaction[row] -= equalityRhs[row];
-                    for (uint dof = 0u; dof < nv; ++dof) {
-                        float correction = 0.0f;
-                        for (uint row = 0u; row < equalityCount; ++row) {
-                            device const float* equalityResponse =
-                                responseScratch + responseBase +
-                                (contactColumns + row) * nv;
-                            correction = fma(equalityRhs[row],
-                                equalityResponse[dof], correction);
-                        }
-                        rhs[dof] -= correction;
-                        if (!isfinite(rhs[dof])) {
-                            valid = false;
-                            break;
-                        }
+                        if (contactColumn) reaction[row] -= equalityRhs[row];
+                        else equalityCorrection[row] -= equalityRhs[row];
                     }
                 }
-                if (!valid) publishParallelResponseFailure(status,
-                    kParallelContactConditionFailure + positionIndex);
+                atomic_store_explicit(&correctionFailed, 0u,
+                                      memory_order_relaxed);
             }
-        } else {
-            const uint dof = positionIndex - contactColumns;
-            device float* equalityCorrection =
-                limitEqualityCorrections + dof * equalityCount;
-            for (uint row = 0u; row < equalityCount; ++row)
-                equalityCorrection[row] = 0.0f;
-            if (equalityCount != 0u) {
-                const float rawDiagonal = rhs[dof];
-                float rawResponse[MR_NUMI_HUMAN_STAND_MAX_DOFS];
-                for (uint index = 0u; index < nv; ++index)
-                    rawResponse[index] = rhs[index];
-                for (uint refinement = 0u; refinement < 2u && valid;
-                     ++refinement) {
-                    for (uint row = 0u; row < equalityCount; ++row) {
-                        device const auto& equality = jointEqualities[row];
-                        float residual = rhs[equality.indices.y];
-                        if (equality.indices.w != MR_INVALID_INDEX)
-                            residual = fma(-derivativeCache[row],
-                                rhs[equality.indices.w], residual);
-                        equalityRhs[row] = residual;
-                    }
-                    if (!mrNumiHumanBilateralSolve(equalityFactor,
-                            equalityScale, equalityPivots, equalityRhs,
-                            equalityCount)) {
-                        publishParallelResponseFailure(status,
-                            kParallelLimitConditionFailure + 2u * dof);
-                        valid = false;
-                        break;
-                    }
-                    for (uint row = 0u; row < equalityCount; ++row)
-                        equalityCorrection[row] -= equalityRhs[row];
-                    for (uint index = 0u; index < nv; ++index) {
-                        float correction = 0.0f;
-                        for (uint row = 0u; row < equalityCount; ++row) {
-                            device const float* equalityResponse =
-                                responseScratch + responseBase +
-                                (contactColumns + row) * nv;
-                            correction = fma(equalityRhs[row],
-                                equalityResponse[index], correction);
-                        }
-                        rhs[index] -= correction;
-                        if (!isfinite(rhs[index])) {
-                            publishParallelResponseFailure(status,
-                                kParallelLimitConditionFailure + 2u * dof + 1u);
-                            valid = false;
-                            break;
-                        }
-                    }
+            threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+            if (conditionValid == 0u) return;
+            // Each DOF preserves the original ascending equality-row FMA
+            // sequence; independent DOFs now occupy separate GPU lanes.
+            for (uint dof = lane; dof < nv; dof += threadCount) {
+                float correction = 0.0f;
+                for (uint row = 0u; row < equalityCount; ++row) {
+                    device const float* equalityResponse =
+                        responseScratch + responseBase +
+                        (contactColumns + row) * nv;
+                    correction = fma(equalityRhs[row],
+                        equalityResponse[dof], correction);
                 }
-                if (valid && !(rhs[dof] > 1.0e-6f * rawDiagonal)) {
-                    for (uint index = 0u; index < nv; ++index)
-                        rhs[index] = rawResponse[index];
-                    for (uint row = 0u; row < equalityCount; ++row)
-                        equalityCorrection[row] = 0.0f;
-                }
+                rhs[dof] -= correction;
+                if (!isfinite(rhs[dof]))
+                    atomic_store_explicit(&correctionFailed, 1u,
+                                          memory_order_relaxed);
             }
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+            if (lane == 0u && atomic_load_explicit(
+                    &correctionFailed, memory_order_relaxed) != 0u) {
+                conditionValid = 0u;
+                publishParallelResponseFailure(status, contactColumn
+                    ? kParallelContactConditionFailure + positionIndex
+                    : kParallelLimitConditionFailure + 2u * limitDof + 1u);
+            }
+            threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+            if (conditionValid == 0u) return;
         }
-        conditionValid = valid ? 1u : 0u;
+        if (!contactColumn) {
+            if (lane == 0u && !(rhs[limitDof] >
+                    1.0e-6f * rawDiagonal)) {
+                restoreRawResponse = 1u;
+                for (uint row = 0u; row < equalityCount; ++row)
+                    equalityCorrection[row] = 0.0f;
+            }
+            threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+            if (restoreRawResponse != 0u)
+                for (uint dof = lane; dof < nv; dof += threadCount)
+                    rhs[dof] = rawResponse[dof];
+        }
     }
     threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
     if (conditionValid == 0u) return;
