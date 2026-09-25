@@ -71,6 +71,23 @@ require_file "$equality_source"
 require_file "$tendon_source"
 require_file "$bone_source"
 require_file "$muscle_surface_source"
+if [[ "${NUMI_HUMAN_BRAIN_DISABLE_STATIC_CACHE:-0}" != 0 &&
+      "${NUMI_HUMAN_BRAIN_DISABLE_STATIC_CACHE:-0}" != 1 ]]; then
+    printf 'NUMI_HUMAN_BRAIN_DISABLE_STATIC_CACHE must be 0 or 1\n' >&2
+    exit 2
+fi
+if { [[ -n "${NUMI_HUMAN_STATIC_EQUILIBRIUM_CACHE_PATH:-}" ]] &&
+     [[ -z "${NUMI_HUMAN_STATIC_EQUILIBRIUM_CACHE_KEY:-}" ]]; } ||
+   { [[ -z "${NUMI_HUMAN_STATIC_EQUILIBRIUM_CACHE_PATH:-}" ]] &&
+     [[ -n "${NUMI_HUMAN_STATIC_EQUILIBRIUM_CACHE_KEY:-}" ]]; }; then
+    printf 'static Human cache needs both path and key\n' >&2
+    exit 2
+fi
+if [[ "${NUMI_HUMAN_BRAIN_DISABLE_STATIC_CACHE:-0}" == 1 &&
+      -n "${NUMI_HUMAN_STATIC_EQUILIBRIUM_CACHE_PATH:-}" ]]; then
+    printf 'static Human cache cannot be both disabled and explicitly selected\n' >&2
+    exit 2
+fi
 
 if (( $# == 1 )); then
     output_directory=$1
@@ -187,6 +204,35 @@ fi
     printf '%q ' "$binary" "${arguments[@]}"
     printf '\n'
 } > "$output_directory/launch.manifest"
+
+# Static standing equilibrium is independent of the Brain seed and episode
+# length. Bind its cache to the exact native physics executable, input packs,
+# shader libraries, and fixed standing options recorded above. This lets
+# repeated independent minds reuse initialization without sharing brain state.
+if [[ -n "${NUMI_HUMAN_STATIC_EQUILIBRIUM_CACHE_PATH:-}" ||
+      -n "${NUMI_HUMAN_STATIC_EQUILIBRIUM_CACHE_KEY:-}" ]]; then
+    printf 'static_cache_mode=external\nstatic_cache_key=%s\nstatic_cache_path=%s\n' \
+        "$NUMI_HUMAN_STATIC_EQUILIBRIUM_CACHE_KEY" \
+        "$NUMI_HUMAN_STATIC_EQUILIBRIUM_CACHE_PATH" >> "$output_directory/launch.manifest"
+elif [[ "${NUMI_HUMAN_BRAIN_DISABLE_STATIC_CACHE:-0}" == 1 ]]; then
+    printf 'static_cache_mode=disabled\n' >> "$output_directory/launch.manifest"
+else
+    cache_root=${NUMI_HUMAN_BRAIN_STATIC_CACHE_DIR:-"${NUMI_HUMAN_BRAIN_RUN_ROOT:-$HOME/NumiHumanBrainRuns}/.static-equilibrium-cache"}
+    cache_key=$({
+        printf '%s\n' 'numi.human.static-equilibrium-cache.v1'
+        printf '%s\n' 'timestep=0.001' 'activation=default' \
+            'source-passive-joint-tissue=1' 'stand-contact-iterations=64' \
+            'support-stance-dof=2:0.02,108:0.1,109:0.1,110:0.1,122:0.1,123:0.1,124:0.1' \
+            'support-stance-contact=2,3,4,5,6,7'
+        awk '/^(binary |lab_library |metal_library |rigid_source |muscle_source |support_contact_source |joint_equality_source |tendon_source |bodyparts3d_bone_source |bodyparts3d_muscle_surface_source |launcher |lab_source_file=)/ { print }' \
+            "$output_directory/launch.manifest"
+    } | shasum -a 256 | awk '{ print $1 }')
+    mkdir -p "$cache_root"
+    export NUMI_HUMAN_STATIC_EQUILIBRIUM_CACHE_KEY=$cache_key
+    export NUMI_HUMAN_STATIC_EQUILIBRIUM_CACHE_PATH="$cache_root/$cache_key.bin"
+    printf 'static_cache_mode=source_bound\nstatic_cache_key=%s\nstatic_cache_path=%s\n' \
+        "$cache_key" "$NUMI_HUMAN_STATIC_EQUILIBRIUM_CACHE_PATH" >> "$output_directory/launch.manifest"
+fi
 
 printf 'numi_human_brain_run_directory=%s\n' "$output_directory"
 export NUMI_HUMAN_EXECUTION_STAGES=${NUMI_HUMAN_EXECUTION_STAGES:-1}
