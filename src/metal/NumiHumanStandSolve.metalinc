@@ -1129,10 +1129,14 @@
                                     next - previewPrevious != 0.0f;
                             }
                         }
-                        const uint candidate = blockHasWork
-                            ? preview : cooperativeLimitCount;
-                        nextActive = simd_min(candidate);
-                        if (nextActive != cooperativeLimitCount) break;
+                        // A ballot selects the first authored limit in this
+                        // SIMD block without reducing 32 integer indices.
+                        const simd_vote activeRows = simd_ballot(blockHasWork);
+                        if (activeRows.any()) {
+                            nextActive = block + ctz(
+                                static_cast<simd_vote::vote_t>(activeRows));
+                            break;
+                        }
                     }
                     if (nextActive == cooperativeLimitCount) break;
                     const uint limit = nextActive;
