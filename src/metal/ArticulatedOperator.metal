@@ -27,11 +27,16 @@ inline float3 operator-(MRKinematicPosition a, MRKinematicPosition b) {
 inline bool finite3(MRKinematicPosition value) { return all(isfinite(value.high)) && all(isfinite(value.low)); }
 struct MRArticulatedKinematicsCache {
     uint valid;
+    uint firstInvalidPoint;
+    uint inboundJoint[MR_ARTICULATED_OPERATOR_KINEMATICS_MAX_BODIES];
+    uint parentLocal[MR_ARTICULATED_OPERATOR_KINEMATICS_MAX_BODIES];
     MRKinematicPosition bodyPosition[MR_ARTICULATED_OPERATOR_KINEMATICS_MAX_BODIES];
     float4 bodyRotation[MR_ARTICULATED_OPERATOR_KINEMATICS_MAX_BODIES];
     MRKinematicPosition jointPosition[MR_ARTICULATED_OPERATOR_KINEMATICS_MAX_BODIES];
     float4 jointAxis[MR_ARTICULATED_OPERATOR_KINEMATICS_MAX_BODIES];
 };
+static_assert(sizeof(MRArticulatedKinematicsCache) <= 32768u,
+              "articulated kinematics cache exceeds its Metal buffer");
 #else
 using MRKinematicPosition = float3;
 inline MRKinematicPosition kinematicPosition(float3 v) { return v; }
@@ -1914,7 +1919,10 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
         (dispatch.flags & MR_ARTICULATED_OPERATOR_KINEMATICS_CACHE_PREPARE) != 0u;
     const bool cacheConsume =
         (dispatch.flags & MR_ARTICULATED_OPERATOR_KINEMATICS_CACHE_CONSUME) != 0u;
-    if (cachePrepare && lane == 0u) kinematicsCache[environment].valid = 0u;
+    if (cachePrepare && lane == 0u) {
+        kinematicsCache[environment].valid = 0u;
+        kinematicsCache[environment].firstInvalidPoint = MR_INVALID_INDEX;
+    }
     if (cachePrepare) threadgroup_barrier(mem_flags::mem_device);
 #endif
     threadgroup atomic_uint cooperativeKinematicsFailed;
@@ -1924,7 +1932,17 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
         status.nq = articulation.nq;
         status.nv = articulation.nv;
         status.pointCount = dispatch.pointCount;
-        initializationSucceeded =
+        // The prepare encoder validates the immutable articulation and writes
+        // its topology maps. Consume tiles run in the same command buffer and
+        // may reuse that validated result. Failed preparation still takes the
+        // original validator path to retain its precise failure status.
+#if MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
+        const bool preparedModel = cacheConsume &&
+            kinematicsCache[environment].valid == 1u;
+#else
+        const bool preparedModel = false;
+#endif
+        const bool modelValid = preparedModel ||
             validModelAndLayout(
                 world,
                 articulation,
@@ -1937,7 +1955,8 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                 parentLocal,
                 known,
                 status
-            ) &&
+            );
+        initializationSucceeded = modelValid &&
             (pointJacobiansOnly || buildKinematics(
                 articulation, joints, functionPrograms, environmentQ,
                 bodyPosition, bodyRotation, jointPosition, jointAxis,
@@ -1959,10 +1978,16 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
         bool kinematicsSucceeded = true;
 #if MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
         if (cacheConsume) {
-            if (kinematicsCache[environment].valid != 1u) {
+            const uint cacheValidity = kinematicsCache[environment].valid;
+            if (cacheValidity != 1u) {
                 if (lane == 0u && tile == 0u) {
-                    setFailure(status, MR_ARTICULATED_OPERATOR_INVALID_DISPATCH,
-                               MR_INVALID_INDEX);
+                    const bool invalidPoint = cacheValidity == 2u;
+                    setFailure(status, invalidPoint
+                        ? MR_ARTICULATED_OPERATOR_NONFINITE_INPUT
+                        : MR_ARTICULATED_OPERATOR_INVALID_DISPATCH,
+                        invalidPoint
+                            ? kinematicsCache[environment].firstInvalidPoint
+                            : MR_INVALID_INDEX);
                     statuses[environment] = status;
                 }
                 return;
@@ -1973,6 +1998,8 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                 bodyRotation[body] = kinematicsCache[environment].bodyRotation[body];
                 jointPosition[body] = kinematicsCache[environment].jointPosition[body];
                 jointAxis[body] = kinematicsCache[environment].jointAxis[body].xyz;
+                inboundJoint[body] = kinematicsCache[environment].inboundJoint[body];
+                parentLocal[body] = kinematicsCache[environment].parentLocal[body];
             }
             threadgroup_barrier(mem_flags::mem_threadgroup);
         } else
@@ -1993,6 +2020,28 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
 #if MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
         if (cachePrepare) {
             const uint root = articulation.rootBody - articulation.firstBody;
+            const uint pointBase = environment * dispatch.pointStride;
+            for (uint point = lane; point < dispatch.pointCount;
+                 point += threadsPerThreadgroup) {
+                if (invalidPointQuery(articulation, dispatch,
+                                      points[pointBase + point])) {
+                    atomic_fetch_min_explicit(&firstInvalidPoint, point,
+                                              memory_order_relaxed);
+                }
+            }
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+            const uint invalidPoint = atomic_load_explicit(
+                &firstInvalidPoint, memory_order_relaxed);
+            if (invalidPoint != MR_INVALID_INDEX) {
+                if (lane == 0u) {
+                    kinematicsCache[environment].firstInvalidPoint = invalidPoint;
+                    kinematicsCache[environment].valid = 2u;
+                    setFailure(status, MR_ARTICULATED_OPERATOR_NONFINITE_INPUT,
+                               invalidPoint);
+                    statuses[environment] = status;
+                }
+                return;
+            }
             for (uint body = lane; body < articulation.bodyCount;
                  body += threadsPerThreadgroup) {
                 kinematicsCache[environment].bodyPosition[body] = bodyPosition[body];
@@ -2001,34 +2050,41 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                     body == root ? kinematicPosition(float3(0.0f)) : jointPosition[body];
                 kinematicsCache[environment].jointAxis[body] =
                     body == root ? float4(0.0f) : float4(jointAxis[body], 0.0f);
+                kinematicsCache[environment].inboundJoint[body] = inboundJoint[body];
+                kinematicsCache[environment].parentLocal[body] = parentLocal[body];
             }
             threadgroup_barrier(mem_flags::mem_device);
             if (lane == 0u) kinematicsCache[environment].valid = 1u;
             return;
         }
 #endif
-        const uint pointBase = environment * dispatch.pointStride;
-        for (uint point = lane; point < dispatch.pointCount;
-             point += threadsPerThreadgroup) {
-            if (invalidPointQuery(articulation, dispatch,
-                                  points[pointBase + point])) {
-                atomic_fetch_min_explicit(&firstInvalidPoint, point,
-                                          memory_order_relaxed);
+#if MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
+        if (!cacheConsume)
+#endif
+        {
+            const uint pointBase = environment * dispatch.pointStride;
+            for (uint point = lane; point < dispatch.pointCount;
+                 point += threadsPerThreadgroup) {
+                if (invalidPointQuery(articulation, dispatch,
+                                      points[pointBase + point])) {
+                    atomic_fetch_min_explicit(&firstInvalidPoint, point,
+                                              memory_order_relaxed);
+                }
             }
-        }
-        threadgroup_barrier(mem_flags::mem_threadgroup);
-        if (lane == 0u) {
-            const uint first = atomic_load_explicit(&firstInvalidPoint,
-                                                    memory_order_relaxed);
-            if (first != MR_INVALID_INDEX) {
-                setFailure(status, MR_ARTICULATED_OPERATOR_NONFINITE_INPUT,
-                           first);
-                initializationSucceeded = 0u;
-                if (tile == 0u) statuses[environment] = status;
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+            if (lane == 0u) {
+                const uint first = atomic_load_explicit(&firstInvalidPoint,
+                                                        memory_order_relaxed);
+                if (first != MR_INVALID_INDEX) {
+                    setFailure(status, MR_ARTICULATED_OPERATOR_NONFINITE_INPUT,
+                               first);
+                    initializationSucceeded = 0u;
+                    if (tile == 0u) statuses[environment] = status;
+                }
             }
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+            if (initializationSucceeded == 0u) return;
         }
-        threadgroup_barrier(mem_flags::mem_threadgroup);
-        if (initializationSucceeded == 0u) return;
     }
 
 #if MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
