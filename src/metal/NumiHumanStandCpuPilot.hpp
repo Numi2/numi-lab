@@ -220,6 +220,66 @@ inline bool factorMass(const float* source, MassFactor& factor,
     return true;
 }
 
+// Continue the already-owned CPU mass factor through the free velocity.
+// Explicit FMA matches the Metal ordered solve, including v + dt * a.
+inline bool solveFreeVelocity(
+    const MassFactor& factor, const MRNumiHumanStandDispatchGPU& dispatch,
+    const float* generalizedForce, const float* vector, const float* velocity,
+    Velocity& freeVelocity, float& maximumAcceleration,
+    unsigned& maximumAccelerationDof
+) {
+    if (generalizedForce == nullptr || vector == nullptr ||
+        velocity == nullptr ||
+        (dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_ROOT_ASSISTANCE) != 0u ||
+        !(dispatch.groundPointAndTimestep.w > 0.0f))
+        return false;
+    Velocity acceleration{};
+    Velocity workspace{};
+    const bool timedForce = mrNumiHumanTimedRootForceActive(
+        dispatch.timedRootForce, dispatch.stepIndex);
+    for (unsigned dof = 0u; dof < kDofs; ++dof) {
+        float effort = generalizedForce[dof] + vector[dof];
+        if (timedForce && dof == 0u)
+            effort += dispatch.timedRootForce.forceNewtons.x;
+        else if (timedForce && dof == 1u)
+            effort += dispatch.timedRootForce.forceNewtons.y;
+        else if (timedForce && dof == 2u)
+            effort += dispatch.timedRootForce.forceNewtons.z;
+        acceleration[dof] = effort - vector[kDofs + dof];
+    }
+    for (unsigned row = 0u; row < kDofs; ++row) {
+        float value = acceleration[row];
+        for (unsigned column = 0u; column < row; ++column)
+            value = std::fma(-factor[row * kDofs + column],
+                             workspace[column], value);
+        const float diagonal = factor[row * kDofs + row];
+        if (!(diagonal > 0.0f) || !std::isfinite(diagonal)) return false;
+        workspace[row] = value / diagonal;
+    }
+    for (unsigned reverse = 0u; reverse < kDofs; ++reverse) {
+        const unsigned row = kDofs - 1u - reverse;
+        float value = workspace[row];
+        for (unsigned column = row + 1u; column < kDofs; ++column)
+            value = std::fma(-factor[column * kDofs + row],
+                             acceleration[column], value);
+        acceleration[row] = value / factor[row * kDofs + row];
+        if (!std::isfinite(acceleration[row])) return false;
+    }
+    maximumAcceleration = 0.0f;
+    maximumAccelerationDof = 0u;
+    for (unsigned dof = 0u; dof < kDofs; ++dof) {
+        const float magnitude = std::abs(acceleration[dof]);
+        if (magnitude > maximumAcceleration) {
+            maximumAcceleration = magnitude;
+            maximumAccelerationDof = dof;
+        }
+        freeVelocity[dof] = std::fma(dispatch.groundPointAndTimestep.w,
+                                     acceleration[dof], velocity[dof]);
+        if (!std::isfinite(freeVelocity[dof])) return false;
+    }
+    return true;
+}
+
 struct Contact {
     float gap{}, mu{}, slop{}, stabilization{}, seedForce{};
     bool active{};

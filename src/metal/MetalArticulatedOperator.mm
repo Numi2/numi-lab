@@ -10848,6 +10848,22 @@ MetalArticulatedOperatorContext::submit(
                 const bool cpuProjectedRequested =
                     cpuProjectedSetting != nullptr &&
                     std::strcmp(cpuProjectedSetting, "1") == 0;
+                const char* cpuFreeSetting =
+                    std::getenv("NUMI_HUMAN_STAND_CPU_FREE");
+                const bool cpuFreeRequested = cpuFreeSetting != nullptr &&
+                    std::strcmp(cpuFreeSetting, "1") == 0;
+                if (cpuFreeRequested &&
+                    (!cpuFinishRequested || !cpuFactorRequested ||
+                     !cpuEqualityRequested || !cpuProjectedRequested ||
+                     !handoffProbeRequested || !freeSplit ||
+                     (standDispatch.flags &
+                      MR_NUMI_HUMAN_STAND_ENABLE_ROOT_ASSISTANCE) != 0u)) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::invalidDimensions,
+                        "CPU free solve requires the unassisted, shape-bound CPU stand path"
+                    );
+                }
                 if (handoffProbeRequested && !freeSplit) {
                     return reject(
                         std::move(diagnostics),
@@ -10875,6 +10891,7 @@ MetalArticulatedOperatorContext::submit(
                 // fails instead of silently changing solver authority.
                 const bool cpuFinish = cpuFinishRequested &&
                     input.stand.numanXTransactionProgram.valid();
+                const bool cpuFree = cpuFreeRequested && cpuFinish;
                 if (cpuFinish && (cpuEqualityRequested ||
                                   cpuEqualityShadowRequested) &&
                     (!cpuFactorRequested ||
@@ -10994,6 +11011,12 @@ MetalArticulatedOperatorContext::submit(
                         id<MTLBuffer> pointLowBuffer = cpuProjectedRequested
                             ? state_->standBuffers[kStandPointPositionLowBuffer]
                             : nil;
+                        id<MTLBuffer> freeForceBuffer = cpuFree
+                            ? state_->buffers[kMillardForcesBuffer] : nil;
+                        id<MTLBuffer> freeVectorBuffer = cpuFree
+                            ? state_->standBuffers[kStandVectorBuffer] : nil;
+                        id<MTLBuffer> freeVelocityBuffer = cpuFree
+                            ? state_->standBuffers[kStandVelocityBuffer] : nil;
                         if (factorBuffer == nil ||
                             factorBuffer.contents == nullptr ||
                             factorBuffer.length < sizeof(
@@ -11048,7 +11071,25 @@ MetalArticulatedOperatorContext::submit(
                               pointLowBuffer.length <
                                   static_cast<NSUInteger>(
                                       standDispatch.pointWorldStride) *
-                                      sizeof(mr_float4)))) {
+                                  sizeof(mr_float4))) ||
+                            (cpuFree &&
+                             (freeForceBuffer == nil ||
+                              freeForceBuffer.contents == nullptr ||
+                              freeForceBuffer.length <
+                                  (static_cast<NSUInteger>(
+                                      standDispatch.generalizedForceOffset) +
+                                   detail::stand_cpu_pilot::kDofs) *
+                                      sizeof(float) ||
+                              freeVectorBuffer == nil ||
+                              freeVectorBuffer.contents == nullptr ||
+                              freeVectorBuffer.length <
+                                  2u * detail::stand_cpu_pilot::kDofs *
+                                      sizeof(float) ||
+                              freeVelocityBuffer == nil ||
+                              freeVelocityBuffer.contents == nullptr ||
+                              freeVelocityBuffer.length <
+                                  detail::stand_cpu_pilot::kDofs *
+                                      sizeof(float)))) {
                             return reject(
                                 std::move(diagnostics),
                                 MetalArticulatedOperatorHostStatus::metalBufferFailure,
@@ -11267,6 +11308,47 @@ MetalArticulatedOperatorContext::submit(
                                             static_cast<long long>(projectedNs));
                                     }
                                 }
+                                if (cpuFree && factored &&
+                                    status->code ==
+                                        MR_NUMI_HUMAN_STAND_SUCCESS) {
+                                    detail::stand_cpu_pilot::Velocity free{};
+                                    float maximumAcceleration = 0.0f;
+                                    unsigned maximumAccelerationDof = 0u;
+                                    const bool solved =
+                                        detail::stand_cpu_pilot::solveFreeVelocity(
+                                            *shadowFactor, factorDispatch,
+                                            static_cast<const float*>(
+                                                freeForceBuffer.contents) +
+                                                factorDispatch.generalizedForceOffset,
+                                            static_cast<const float*>(
+                                                freeVectorBuffer.contents),
+                                            static_cast<const float*>(
+                                                freeVelocityBuffer.contents),
+                                            free, maximumAcceleration,
+                                            maximumAccelerationDof);
+                                    if (solved) {
+                                        auto* vector = static_cast<float*>(
+                                            freeVectorBuffer.contents);
+                                        std::copy(free.begin(), free.end(),
+                                            vector +
+                                                detail::stand_cpu_pilot::kDofs);
+                                        if (maximumAcceleration >
+                                                status->velocityDiagnostics.x ||
+                                            status->velocityDiagnosticOwners.x ==
+                                                MR_INVALID_INDEX) {
+                                            status->velocityDiagnostics.x =
+                                                maximumAcceleration;
+                                            status->velocityDiagnosticOwners.x =
+                                                maximumAccelerationDof;
+                                        }
+                                        status->flags |=
+                                            MR_NUMI_HUMAN_STAND_FREE_ONLY;
+                                    } else {
+                                        status->code =
+                                            MR_NUMI_HUMAN_STAND_NONFINITE_RESULT;
+                                        status->failingIndex = MR_INVALID_INDEX;
+                                    }
+                                }
                                 if (physicalFactor && !factored && valid &&
                                     status->code ==
                                         MR_NUMI_HUMAN_STAND_SUCCESS) {
@@ -11367,6 +11449,7 @@ MetalArticulatedOperatorContext::submit(
                     }
                     if (cpuFinish && cpuFactorRequested &&
                         cpuEqualityRequested && phase == 3u) continue;
+                    if (cpuFree && phase == 6u) continue;
                     if (handoffProbeRequested && phase == 7u) {
                         if (state_->standFreeHandoffEvent == nil) {
                             state_->standFreeHandoffEvent =
