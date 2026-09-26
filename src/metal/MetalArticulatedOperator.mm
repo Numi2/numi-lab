@@ -10833,6 +10833,16 @@ MetalArticulatedOperatorContext::submit(
                 const bool cpuFactorRequested =
                     cpuFactorSetting != nullptr &&
                     std::strcmp(cpuFactorSetting, "1") == 0;
+                const char* cpuEqualityShadowSetting =
+                    std::getenv("NUMI_HUMAN_STAND_CPU_EQUALITY_SHADOW");
+                const bool cpuEqualityShadowRequested =
+                    cpuEqualityShadowSetting != nullptr &&
+                    std::strcmp(cpuEqualityShadowSetting, "1") == 0;
+                const char* cpuEqualitySetting =
+                    std::getenv("NUMI_HUMAN_STAND_CPU_EQUALITY");
+                const bool cpuEqualityRequested =
+                    cpuEqualitySetting != nullptr &&
+                    std::strcmp(cpuEqualitySetting, "1") == 0;
                 if (handoffProbeRequested && !freeSplit) {
                     return reject(
                         std::move(diagnostics),
@@ -10860,6 +10870,16 @@ MetalArticulatedOperatorContext::submit(
                 // fails instead of silently changing solver authority.
                 const bool cpuFinish = cpuFinishRequested &&
                     input.stand.numanXTransactionProgram.valid();
+                if (cpuFinish && (cpuEqualityRequested ||
+                                  cpuEqualityShadowRequested) &&
+                    (!cpuFactorRequested ||
+                     (cpuEqualityRequested && cpuEqualityShadowRequested))) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::invalidDimensions,
+                        "stand CPU equality requires CPU factor and exclusive shadow or physical mode"
+                    );
+                }
                 if (cpuFinish && cpuFactorShadowRequested &&
                     cpuFactorRequested) {
                     return reject(
@@ -10942,6 +10962,16 @@ MetalArticulatedOperatorContext::submit(
                             kStandStatusBuffer];
                         id<MTLBuffer> contactBuffer = state_->standBuffers[
                             kStandContactsBuffer];
+                        const bool equalityMode = cpuEqualityRequested ||
+                            cpuEqualityShadowRequested;
+                        id<MTLBuffer> equalityBuffer = equalityMode
+                            ? state_->standBuffers[kStandJointEqualitiesBuffer]
+                            : nil;
+                        id<MTLBuffer> qBuffer = equalityMode
+                            ? state_->buffers[6u] : nil;
+                        id<MTLBuffer> responseBuffer = equalityMode
+                            ? state_->standBuffers[kStandResponseBuffer]
+                            : nil;
                         if (factorBuffer == nil ||
                             factorBuffer.contents == nullptr ||
                             factorBuffer.length < sizeof(
@@ -10953,7 +10983,24 @@ MetalArticulatedOperatorContext::submit(
                               contactBuffer.contents == nullptr ||
                               contactBuffer.length <
                                   detail::stand_cpu_pilot::kContacts *
-                                      sizeof(MRNumiHumanStandContactGPU)))) {
+                                      sizeof(MRNumiHumanStandContactGPU))) ||
+                            (equalityMode &&
+                             (equalityBuffer == nil ||
+                              equalityBuffer.contents == nullptr ||
+                              equalityBuffer.length <
+                                  detail::stand_cpu_pilot::kEqualities *
+                                      sizeof(MRNumiHumanJointEqualityGPU) ||
+                              qBuffer == nil || qBuffer.contents == nullptr ||
+                              qBuffer.length <
+                                  static_cast<NSUInteger>(articulation.nq) *
+                                      sizeof(float) ||
+                              responseBuffer == nil ||
+                              responseBuffer.contents == nullptr ||
+                              responseBuffer.length <
+                                  (3u * detail::stand_cpu_pilot::kContacts +
+                                   detail::stand_cpu_pilot::kEqualities) *
+                                      detail::stand_cpu_pilot::kDofs *
+                                      sizeof(float)))) {
                             return reject(
                                 std::move(diagnostics),
                                 MetalArticulatedOperatorHostStatus::metalBufferFailure,
@@ -10962,6 +11009,8 @@ MetalArticulatedOperatorContext::submit(
                         }
                         const auto shadowFactor = std::make_shared<
                             detail::stand_cpu_pilot::MassFactor>();
+                        const auto equalityResponses = std::make_shared<
+                            detail::stand_cpu_pilot::EqualityResponses>();
                         const auto shadowState =
                             std::make_shared<std::atomic<unsigned>>(0u);
                         const std::uint32_t probeStep = authoritativeStep;
@@ -11034,6 +11083,58 @@ MetalArticulatedOperatorContext::submit(
                                                   static_cast<float*>(
                                                       factorBuffer.contents));
                                 }
+                                bool equalitySolved = false;
+                                if (factored && equalityMode) {
+                                    const auto equalityBegin =
+                                        std::chrono::steady_clock::now();
+                                    unsigned failingEquality = MR_INVALID_INDEX;
+                                    equalitySolved =
+                                        detail::stand_cpu_pilot::
+                                            solveEqualityResponses(
+                                                *shadowFactor,
+                                                static_cast<const float*>(
+                                                    qBuffer.contents),
+                                                factorArticulation.nq,
+                                                static_cast<const
+                                                    MRNumiHumanJointEqualityGPU*>(
+                                                        equalityBuffer.contents),
+                                                *equalityResponses,
+                                                &failingEquality);
+                                    if (equalitySolved &&
+                                        cpuEqualityRequested) {
+                                        auto* destination =
+                                            static_cast<float*>(
+                                                responseBuffer.contents) +
+                                            3u * detail::stand_cpu_pilot::
+                                                kContacts *
+                                            detail::stand_cpu_pilot::kDofs;
+                                        std::copy(equalityResponses->begin(),
+                                                  equalityResponses->end(),
+                                                  destination);
+                                    } else if (!equalitySolved &&
+                                               cpuEqualityRequested) {
+                                        status->code =
+                                            MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED;
+                                        status->failingIndex = failingEquality;
+                                    }
+                                    if (probeStep < 8u ||
+                                        probeStep % 1024u == 0u ||
+                                        !equalitySolved) {
+                                        const auto equalityNs =
+                                            std::chrono::duration_cast<
+                                                std::chrono::nanoseconds>(
+                                                std::chrono::steady_clock::now() -
+                                                equalityBegin).count();
+                                        std::fprintf(stderr,
+                                            "human_stand_cpu_equality "
+                                            "step=%u physical=%u solved=%u "
+                                            "elapsed_ns=%lld\n",
+                                            probeStep,
+                                            cpuEqualityRequested ? 1u : 0u,
+                                            equalitySolved ? 1u : 0u,
+                                            static_cast<long long>(equalityNs));
+                                    }
+                                }
                                 if (physicalFactor && !factored && valid &&
                                     status->code ==
                                         MR_NUMI_HUMAN_STAND_SUCCESS) {
@@ -11102,8 +11203,38 @@ MetalArticulatedOperatorContext::submit(
                                             probeStep, maxDelta);
                                 }];
                         }
+                        if (cpuEqualityShadowRequested) {
+                            [commandBuffer addCompletedHandler:
+                                ^(id<MTLCommandBuffer> completed) {
+                                    if (completed.status !=
+                                            MTLCommandBufferStatusCompleted ||
+                                        shadowState->load(
+                                            std::memory_order_acquire) != 1u)
+                                        return;
+                                    const auto* gpu =
+                                        static_cast<const float*>(
+                                            responseBuffer.contents) +
+                                        3u * detail::stand_cpu_pilot::kContacts *
+                                            detail::stand_cpu_pilot::kDofs;
+                                    float maxDelta = 0.0f;
+                                    for (unsigned item = 0u;
+                                         item < equalityResponses->size();
+                                         ++item)
+                                        maxDelta = std::max(maxDelta,
+                                            std::abs(gpu[item] -
+                                                (*equalityResponses)[item]));
+                                    if (probeStep < 8u ||
+                                        probeStep % 1024u == 0u)
+                                        std::fprintf(stderr,
+                                            "human_stand_cpu_equality_delta "
+                                            "step=%u max_abs=%.9g\n",
+                                            probeStep, maxDelta);
+                                }];
+                        }
                         if (physicalFactor) continue;
                     }
+                    if (cpuFinish && cpuFactorRequested &&
+                        cpuEqualityRequested && phase == 3u) continue;
                     if (handoffProbeRequested && phase == 7u) {
                         if (state_->standFreeHandoffEvent == nil) {
                             state_->standFreeHandoffEvent =

@@ -11,6 +11,8 @@
 #include "metalrobo/numi_human_friction.h"
 #include "metalrobo/numi_human_stand_cpu_finish_gpu.h"
 
+#include <Accelerate/Accelerate.h>
+
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -25,6 +27,77 @@ constexpr unsigned kSweeps = 64u;
 constexpr float kRegularization = 1.0e-7f;
 using Velocity = std::array<float, kDofs>;
 using MassFactor = std::array<float, kDofs * kDofs>;
+using EqualityResponses = std::array<float, kEqualities * kDofs>;
+
+// The equality right hand sides are independent after the shared mass
+// factor is ready. Accelerate solves all 51 rows against that one factor in
+// two batched triangular calls; the Metal equality block still owns Schur
+// factorization and all subsequent contact and coupled impulse work.
+inline bool solveEqualityResponses(
+    const MassFactor& factor, const float* q, unsigned nq,
+    const MRNumiHumanJointEqualityGPU* equalities,
+    EqualityResponses& responses, unsigned* failingIndex = nullptr
+) {
+    if (q == nullptr || equalities == nullptr) return false;
+    responses.fill(0.0f);
+    for (unsigned index = 0u; index < kEqualities; ++index) {
+        const auto& equality = equalities[index];
+        const bool fixed = equality.indices.z == MR_INVALID_INDEX &&
+            equality.indices.w == MR_INVALID_INDEX;
+        const bool coupled = equality.indices.z < nq &&
+            equality.indices.w < kDofs;
+        const auto finite4 = [](const mr_float4& x) {
+            return std::isfinite(x.x) && std::isfinite(x.y) &&
+                std::isfinite(x.z) && std::isfinite(x.w);
+        };
+        if (equality.indices.x >= nq || equality.indices.y >= kDofs ||
+            (!fixed && !coupled) ||
+            (coupled && (equality.indices.x == equality.indices.z ||
+                         equality.indices.y == equality.indices.w)) ||
+            !finite4(equality.referencesAndCoefficients0) ||
+            !finite4(equality.coefficients1) || !finite4(equality.solref) ||
+            !finite4(equality.solimp0) || !finite4(equality.solimp1) ||
+            equality.coefficients1.w != 0.0f ||
+            equality.solref.z != 0.0f || equality.solref.w != 0.0f ||
+            equality.solimp1.y != 0.0f || equality.solimp1.z != 0.0f ||
+            equality.solimp1.w != 0.0f) {
+            if (failingIndex) *failingIndex = index;
+            return false;
+        }
+        const float delta = fixed ? 0.0f :
+            q[equality.indices.z] - equality.referencesAndCoefficients0.y;
+        const float a0 = equality.referencesAndCoefficients0.z;
+        const float a1 = equality.referencesAndCoefficients0.w;
+        const float a2 = equality.coefficients1.x;
+        const float a3 = equality.coefficients1.y;
+        const float a4 = equality.coefficients1.z;
+        const float polynomial = a0 + delta *
+            (a1 + delta * (a2 + delta * (a3 + delta * a4)));
+        const float derivative = fixed ? 0.0f : a1 + delta *
+            (2.0f * a2 + delta * (3.0f * a3 + 4.0f * delta * a4));
+        const float target = equality.referencesAndCoefficients0.x + polynomial;
+        const float error = q[equality.indices.x] - target;
+        if (!std::isfinite(target) || !std::isfinite(derivative) ||
+            !std::isfinite(error)) {
+            if (failingIndex) *failingIndex = index;
+            return false;
+        }
+        auto* rhs = responses.data() + index * kDofs;
+        rhs[equality.indices.y] = 1.0f;
+        if (!fixed) rhs[equality.indices.w] = -derivative;
+    }
+    // Rows of B are independent responses. Solve X L^T = B, then X L = X
+    // in row-major layout, yielding each row B (L L^T)^-1.
+    cblas_strsm(CblasRowMajor, CblasRight, CblasLower, CblasTrans,
+                CblasNonUnit, kEqualities, kDofs, 1.0f, factor.data(),
+                kDofs, responses.data(), kDofs);
+    cblas_strsm(CblasRowMajor, CblasRight, CblasLower, CblasNoTrans,
+                CblasNonUnit, kEqualities, kDofs, 1.0f, factor.data(),
+                kDofs, responses.data(), kDofs);
+    for (float value : responses)
+        if (!std::isfinite(value)) return false;
+    return true;
+}
 
 // Shadow the dependent 128-column Cholesky before changing its GPU owner.
 // Every row retains the Metal kernel's original increasing inner order.
