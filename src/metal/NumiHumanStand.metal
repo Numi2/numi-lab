@@ -22,6 +22,10 @@ constant float kResponseRegularization = 1.0e-7f;
 constant uint kCachedEqualityCapacity = 64u;
 constant uint kParallelContactConditionFailure = 0x40000000u;
 constant uint kParallelLimitConditionFailure = 0x80000000u;
+// The single-Human CPU finish has already performed every ordered sweep.
+// Specializing this path removes the unused GPU constraint solver from its
+// completion pipeline while the ordinary split stand keeps that solver.
+constant bool kCpuFinishSpecialized [[function_constant(0)]];
 
 // Forward substitution keeps each row's original increasing-column FMA
 // sequence. Completed blocks update independent future rows in parallel;

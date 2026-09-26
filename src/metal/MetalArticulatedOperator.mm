@@ -440,6 +440,7 @@ struct MetalArticulatedOperatorContextState {
     __strong id<MTLComputePipelineState> standEqualityPipeline = nil;
     __strong id<MTLComputePipelineState> standProjectedResponsePipeline = nil;
     __strong id<MTLComputePipelineState> standFinishPipeline = nil;
+    __strong id<MTLComputePipelineState> standCpuFinishPipeline = nil;
     __strong id<MTLSharedEvent> standFreeHandoffEvent = nil;
     __strong MTLSharedEventListener* standFreeHandoffListener = nil;
     std::uint64_t standFreeHandoffNextValue = 0u;
@@ -3314,6 +3315,7 @@ MetalArticulatedOperatorDiagnostics initializeContext(
     id<MTLComputePipelineState> standEqualityPipeline = nil;
     id<MTLComputePipelineState> standProjectedResponsePipeline = nil;
     id<MTLComputePipelineState> standFinishPipeline = nil;
+    id<MTLComputePipelineState> standCpuFinishPipeline = nil;
     if (context.config.splitStandSolve) {
         id<MTLFunction> standMassFunction = [library
             newFunctionWithName:@"mr_numi_human_stand_mass_assemble"];
@@ -3370,9 +3372,15 @@ MetalArticulatedOperatorDiagnostics initializeContext(
                 "failed to create Numi Human projected response pipeline: " +
                     describeError(error));
         }
-        id<MTLFunction> standFinishFunction = [library
-            newFunctionWithName:@"mr_numi_human_stand_finish"];
+        MTLFunctionConstantValues* finishConstants =
+            [[MTLFunctionConstantValues alloc] init];
+        bool cpuFinishSpecialized = false;
+        [finishConstants setConstantValue:&cpuFinishSpecialized
+                                    type:MTLDataTypeBool atIndex:0u];
         error = nil;
+        id<MTLFunction> standFinishFunction = [library
+            newFunctionWithName:@"mr_numi_human_stand_finish"
+                constantValues:finishConstants error:&error];
         standFinishPipeline = standFinishFunction == nil
             ? nil : [device newComputePipelineStateWithFunction:standFinishFunction
                                                          error:&error];
@@ -3382,6 +3390,24 @@ MetalArticulatedOperatorDiagnostics initializeContext(
             return reject(std::move(diagnostics),
                 MetalArticulatedOperatorHostStatus::metalPipelineFailure,
                 "failed to create Numi Human stand completion pipeline: " +
+                    describeError(error));
+        }
+        cpuFinishSpecialized = true;
+        [finishConstants setConstantValue:&cpuFinishSpecialized
+                                    type:MTLDataTypeBool atIndex:0u];
+        error = nil;
+        id<MTLFunction> standCpuFinishFunction = [library
+            newFunctionWithName:@"mr_numi_human_stand_finish"
+                constantValues:finishConstants error:&error];
+        standCpuFinishPipeline = standCpuFinishFunction == nil
+            ? nil : [device newComputePipelineStateWithFunction:
+                standCpuFinishFunction error:&error];
+        if (standCpuFinishPipeline == nil ||
+            standCpuFinishPipeline.maxTotalThreadsPerThreadgroup <
+                kStandFinishThreadsPerThreadgroup) {
+            return reject(std::move(diagnostics),
+                MetalArticulatedOperatorHostStatus::metalPipelineFailure,
+                "failed to create Numi Human CPU completion pipeline: " +
                     describeError(error));
         }
     }
@@ -3485,6 +3511,7 @@ MetalArticulatedOperatorDiagnostics initializeContext(
     context.standProjectedResponsePipeline =
         standProjectedResponsePipeline;
     context.standFinishPipeline = standFinishPipeline;
+    context.standCpuFinishPipeline = standCpuFinishPipeline;
     context.standReconcilePipeline = reconcilePipeline;
     id<MTLFunction> tendonCompensatedFunction = [library
         newFunctionWithName:@"mr_numi_human_tendon_transfer_compensated"];
@@ -12111,7 +12138,9 @@ MetalArticulatedOperatorContext::submit(
                             : splitStand &&
                                 (phase == standPhaseCount - 1u ||
                                  (freeSplit && phase == 6u))
-                                ? state_->standFinishPipeline
+                                ? (oneHandoff && phase == standPhaseCount - 1u
+                                    ? state_->standCpuFinishPipeline
+                                    : state_->standFinishPipeline)
                                 : state_->standPipeline];
                     [standEncoder setBuffer:state_->standBuffers[kStandRootTranslationBuffer] offset:0u atIndex:21u];
                     [standEncoder setBuffer:state_->standBuffers[kStandBodyPositionLowBuffer] offset:0u atIndex:22u];

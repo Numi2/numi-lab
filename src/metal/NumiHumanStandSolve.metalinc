@@ -2,12 +2,18 @@
     if (lane != 0u) return;
 #endif
 #if defined(MR_NH_COOPERATIVE_FINISH)
-    const bool freeOnly =
+    const bool freeOnly = !kCpuFinishSpecialized &&
         (dispatch.flags & MR_NUMI_HUMAN_STAND_FREE_ONLY) != 0u;
-    const bool freeReady =
+    const bool freeReady = kCpuFinishSpecialized ||
         (dispatch.flags & MR_NUMI_HUMAN_STAND_FREE_READY) != 0u;
-    const bool cpuReady =
+    const bool cpuReady = kCpuFinishSpecialized ||
         (dispatch.flags & MR_NUMI_HUMAN_STAND_CPU_FINISH_READY) != 0u;
+    if (lane == 0u && kCpuFinishSpecialized &&
+        (((dispatch.flags & MR_NUMI_HUMAN_STAND_FREE_READY) == 0u) ||
+         ((dispatch.flags & MR_NUMI_HUMAN_STAND_CPU_FINISH_READY) == 0u) ||
+         ((dispatch.flags & MR_NUMI_HUMAN_STAND_FREE_ONLY) != 0u)))
+        fail(status, MR_NUMI_HUMAN_STAND_INVALID_DISPATCH,
+             MR_INVALID_INDEX);
     if (lane == 0u &&
         ((freeOnly && freeReady) ||
          (cpuReady && (!freeReady || freeOnly)) ||
