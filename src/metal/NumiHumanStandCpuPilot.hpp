@@ -260,6 +260,93 @@ inline bool solveProjectedRawResponses(
     return true;
 }
 
+// Condition the CPU mass responses through the same two ordered bilateral
+// refinements as the Metal projected-response pass. Each column is independent;
+// each RHS and DOF retains the shader's ascending FP32 operation order.
+inline bool conditionProjectedResponseColumn(
+    const MRNumiHumanJointEqualityGPU* equalities,
+    const ProjectedActive& active, float* spatialScratch,
+    float* responseScratch, unsigned column,
+    unsigned* failingIndex = nullptr
+) {
+    if (equalities == nullptr || spatialScratch == nullptr ||
+        responseScratch == nullptr || column >= kProjectedColumns) return false;
+    if (!active[column]) return true;
+    constexpr unsigned responseColumns =
+        (3u * kContacts + kEqualities + kDofs) * kDofs;
+    const float* matrix = responseScratch + responseColumns;
+    const float* inverseScale = matrix + kEqualities * kEqualities;
+    const float* pivots = inverseScale + kEqualities;
+    float* limitCorrections = responseScratch + responseColumns +
+        kEqualities * (kEqualities + 3u);
+    const float* derivatives = spatialScratch;
+    float* contactReactions = spatialScratch +
+        (2u + kEqualities) * kDofs;
+        const bool contactColumn = column < 3u * kContacts;
+        const unsigned limitDof = contactColumn
+            ? 0u : column - 3u * kContacts;
+        const unsigned responseColumn = contactColumn
+            ? column : column + kEqualities;
+        float* response = responseScratch + responseColumn * kDofs;
+        float* reaction = contactColumn
+            ? contactReactions + column * kEqualities
+            : limitCorrections + limitDof * kEqualities;
+        std::fill_n(reaction, kEqualities, 0.0f);
+        Velocity raw{};
+        const float rawDiagonal = contactColumn ? 0.0f : response[limitDof];
+        if (!contactColumn) std::copy_n(response, kDofs, raw.data());
+        for (unsigned refinement = 0u; refinement < 2u; ++refinement) {
+            std::array<float, kEqualities> equalityRhs{};
+            for (unsigned row = 0u; row < kEqualities; ++row) {
+                const auto& equality = equalities[row];
+                float residual = response[equality.indices.y];
+                if (equality.indices.w != MR_INVALID_INDEX)
+                    residual = std::fma(-derivatives[row],
+                        response[equality.indices.w], residual);
+                equalityRhs[row] = residual;
+            }
+            if (!mrNumiHumanBilateralSolve(matrix, inverseScale, pivots,
+                    equalityRhs.data(), kEqualities)) {
+                if (failingIndex) *failingIndex = column;
+                return false;
+            }
+            for (unsigned row = 0u; row < kEqualities; ++row)
+                reaction[row] -= equalityRhs[row];
+            for (unsigned dof = 0u; dof < kDofs; ++dof) {
+                float correction = 0.0f;
+                for (unsigned row = 0u; row < kEqualities; ++row) {
+                    const float* equalityResponse = responseScratch +
+                        (3u * kContacts + row) * kDofs;
+                    correction = std::fma(equalityRhs[row],
+                        equalityResponse[dof], correction);
+                }
+                response[dof] -= correction;
+                if (!std::isfinite(response[dof])) {
+                    if (failingIndex) *failingIndex = column;
+                    return false;
+                }
+            }
+        }
+        if (!contactColumn && !(response[limitDof] >
+                1.0e-6f * rawDiagonal)) {
+            std::fill_n(reaction, kEqualities, 0.0f);
+            std::copy(raw.begin(), raw.end(), response);
+        }
+    return true;
+}
+
+inline bool conditionProjectedResponses(
+    const MRNumiHumanJointEqualityGPU* equalities,
+    const ProjectedActive& active, float* spatialScratch,
+    float* responseScratch, unsigned* failingIndex = nullptr
+) {
+    for (unsigned column = 0u; column < kProjectedColumns; ++column)
+        if (!conditionProjectedResponseColumn(equalities, active,
+                spatialScratch, responseScratch, column, failingIndex))
+            return false;
+    return true;
+}
+
 // Shadow the dependent 128-column Cholesky before changing its GPU owner.
 // Every row retains the Metal kernel's original increasing inner order.
 inline bool factorMass(const float* source, MassFactor& factor,
