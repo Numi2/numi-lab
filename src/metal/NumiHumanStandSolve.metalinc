@@ -262,6 +262,10 @@
         MR_NUMI_HUMAN_STAND_MAX_CONTACTS];
     threadgroup float contactTargetNormalVelocityForPostProjection[
         MR_NUMI_HUMAN_STAND_MAX_CONTACTS];
+    // Each contact's pre-projection residual has its own ordered DOF sum.
+    // The CPU-finish specialization computes those independent sums in lanes.
+    threadgroup float cpuPreContactResidual[
+        MR_NUMI_HUMAN_STAND_MAX_CONTACTS];
 #else
     uint limitDofs[MR_NUMI_HUMAN_STAND_MAX_DOFS];
     float limitPreStepPositions[MR_NUMI_HUMAN_STAND_MAX_DOFS];
@@ -1691,6 +1695,27 @@
 #endif
 
 #if defined(MR_NH_COOPERATIVE_FINISH)
+    if (kCpuFinishSpecialized) {
+        if (lane < dispatch.supportContactCount) {
+            float residual = 0.0f;
+            if ((dispatch.flags & MR_NUMI_HUMAN_STAND_HAS_JOINT_EQUALITIES) != 0u &&
+                (dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) != 0u &&
+                contactActiveForPostProjection[lane] != 0u) {
+                device const MRNumiHumanStandContactGPU& support = contacts[lane];
+                float normalVelocity = 0.0f;
+                for (uint dof = 0u; dof < nv; ++dof)
+                    normalVelocity += pointJacobianAxis(
+                        pointJacobians, pointJacobianBase,
+                        support.pointQueryIndex, nv, dof, normal
+                    ) * candidateV[dof];
+                residual = max(0.0f,
+                    contactTargetNormalVelocityForPostProjection[lane] -
+                        normalVelocity);
+            }
+            cpuPreContactResidual[lane] = residual;
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
     if (lane != 0u) return;
     if (!cpuReady && useProjectedContacts) {
         for (uint row = 0u; row < equalityCount; ++row) {
@@ -1823,25 +1848,36 @@
     float maximumPreProjectionEqualityResidual = 0.0f;
     if ((dispatch.flags & MR_NUMI_HUMAN_STAND_HAS_JOINT_EQUALITIES) != 0u) {
         if ((dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) != 0u) {
-            for (uint contact = 0u;
-                 contact < dispatch.supportContactCount;
-                 ++contact) {
-                if (contactActiveForPostProjection[contact] == 0u) continue;
-                device const MRNumiHumanStandContactGPU& support =
-                    contacts[contact];
-                float normalVelocity = 0.0f;
-                for (uint dof = 0u; dof < nv; ++dof) {
-                    normalVelocity += pointJacobianAxis(
-                        pointJacobians, pointJacobianBase,
-                        support.pointQueryIndex, nv, dof, normal
-                    ) * candidateV[dof];
+#if defined(MR_NH_COOPERATIVE_FINISH)
+            if (kCpuFinishSpecialized) {
+                for (uint contact = 0u;
+                     contact < dispatch.supportContactCount; ++contact)
+                    maximumPreProjectionContactResidual = max(
+                        maximumPreProjectionContactResidual,
+                        cpuPreContactResidual[contact]);
+            } else
+#endif
+            {
+                for (uint contact = 0u;
+                     contact < dispatch.supportContactCount;
+                     ++contact) {
+                    if (contactActiveForPostProjection[contact] == 0u) continue;
+                    device const MRNumiHumanStandContactGPU& support =
+                        contacts[contact];
+                    float normalVelocity = 0.0f;
+                    for (uint dof = 0u; dof < nv; ++dof) {
+                        normalVelocity += pointJacobianAxis(
+                            pointJacobians, pointJacobianBase,
+                            support.pointQueryIndex, nv, dof, normal
+                        ) * candidateV[dof];
+                    }
+                    maximumPreProjectionContactResidual = max(
+                        maximumPreProjectionContactResidual,
+                        max(0.0f,
+                            contactTargetNormalVelocityForPostProjection[contact] -
+                                normalVelocity)
+                    );
                 }
-                maximumPreProjectionContactResidual = max(
-                    maximumPreProjectionContactResidual,
-                    max(0.0f,
-                        contactTargetNormalVelocityForPostProjection[contact] -
-                            normalVelocity)
-                );
             }
             for (uint limit = 0u; limit < limitCount; ++limit) {
                 const uint dof = limitDofs[limit];
