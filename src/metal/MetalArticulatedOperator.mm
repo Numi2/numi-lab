@@ -11217,10 +11217,14 @@ MetalArticulatedOperatorContext::submit(
                                      MR_NUMI_HUMAN_STAND_MASS_PREREQUISITES_ONLY)
                                         != 0u;
                                 unsigned failingColumn = MR_INVALID_INDEX;
+                                const bool accelerateFactor =
+                                    std::getenv("NUMI_HUMAN_STAND_CPU_ACCELERATE_FACTOR") != nullptr;
                                 bool factored = valid &&
-                                    detail::stand_cpu_pilot::factorMass(
-                                        mass, *shadowFactor,
-                                        &failingColumn);
+                                    (accelerateFactor
+                                        ? detail::stand_cpu_pilot::factorMassAccelerate(
+                                            mass, *shadowFactor, &failingColumn)
+                                        : detail::stand_cpu_pilot::factorMass(
+                                            mass, *shadowFactor, &failingColumn));
                                 if (factored && physicalFactor) {
                                     const auto* supports = static_cast<const
                                         MRNumiHumanStandContactGPU*>(
@@ -11627,10 +11631,12 @@ MetalArticulatedOperatorContext::submit(
                                     std::fprintf(stderr,
                                         "human_stand_cpu_factor "
                                         "step=%u physical=%u valid=%u factored=%u "
+                                        "backend=%s "
                                         "elapsed_ns=%lld\n",
                                         probeStep, physicalFactor ? 1u : 0u,
                                         valid ? 1u : 0u,
                                         factored ? 1u : 0u,
+                                        accelerateFactor ? "accelerate" : "scalar",
                                         static_cast<long long>(elapsed));
                                 signaled.signaledValue = resume;
                             }];

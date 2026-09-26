@@ -387,6 +387,45 @@ inline bool factorMass(const float* source, MassFactor& factor,
     return true;
 }
 
+// Experimental Apple Accelerate Cholesky for the same positive-definite mass
+// matrix. Fortran column-major upper maps to the lower row-major triangle
+// consumed by the existing response, free-velocity, and contact solves.
+inline bool factorMassAccelerate(const float* source, MassFactor& factor,
+                                unsigned* failingColumn = nullptr) {
+    if (source == nullptr) return false;
+    std::array<float, kDofs> rowScale{};
+    std::copy_n(source, factor.size(), factor.data());
+    for (unsigned row = 0u; row < kDofs; ++row)
+        for (unsigned column = 0u; column < kDofs; ++column)
+            rowScale[row] = std::max(rowScale[row],
+                std::abs(factor[row * kDofs + column]));
+    const char upper = 'U';
+    const __LAPACK_int extent = kDofs;
+    __LAPACK_int info = 0;
+    spotrf_(&upper, &extent, factor.data(), &extent, &info);
+    if (info != 0) {
+        if (failingColumn)
+            *failingColumn = info > 0
+                ? static_cast<unsigned>(info - 1) : MR_INVALID_INDEX;
+        return false;
+    }
+    for (unsigned column = 0u; column < kDofs; ++column) {
+        const float diagonal = factor[column * kDofs + column];
+        if (!std::isfinite(diagonal) ||
+            !(diagonal * diagonal > std::max(1.0e-10f,
+                rowScale[column] * 8.0f * 1.1920928955078125e-7f))) {
+            if (failingColumn) *failingColumn = column;
+            return false;
+        }
+        for (unsigned row = column + 1u; row < kDofs; ++row)
+            if (!std::isfinite(factor[row * kDofs + column])) {
+                if (failingColumn) *failingColumn = column;
+                return false;
+            }
+    }
+    return true;
+}
+
 // Continue the already-owned CPU mass factor through the free velocity.
 // Explicit FMA matches the Metal ordered solve, including v + dt * a.
 inline bool solveFreeVelocity(
