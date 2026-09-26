@@ -2,6 +2,7 @@
 
 #include "metalrobo/numi_human_joint_equality_gpu.h"
 #include "metalrobo/numi_human_stand_gpu.h"
+#include "metalrobo/numi_human_stand_cpu_finish_gpu.h"
 #include "metalrobo/numi_human_constraint_projection.h"
 #include "metalrobo/numi_human_friction.h"
 #include "metalrobo/numi_human_bilateral.h"
@@ -2300,6 +2301,7 @@ kernel void mr_numi_human_stand_finish(
     device const float4* pointPositionLow [[buffer(23)]],
     device const float* passiveJointProgram [[buffer(24)]],
     device float* sourceDynamicsWitness [[buffer(25)]],
+    device const MRNumiHumanStandCpuFinishGPU* cpuFinishes [[buffer(26)]],
     uint environment [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]],
     uint threadCount [[threads_per_threadgroup]],

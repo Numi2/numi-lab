@@ -1,6 +1,25 @@
 #if !defined(MR_NH_COOPERATIVE_FINISH)
     if (lane != 0u) return;
 #endif
+#if defined(MR_NH_COOPERATIVE_FINISH)
+    const bool freeOnly =
+        (dispatch.flags & MR_NUMI_HUMAN_STAND_FREE_ONLY) != 0u;
+    const bool freeReady =
+        (dispatch.flags & MR_NUMI_HUMAN_STAND_FREE_READY) != 0u;
+    const bool cpuReady =
+        (dispatch.flags & MR_NUMI_HUMAN_STAND_CPU_FINISH_READY) != 0u;
+    if (lane == 0u &&
+        ((freeOnly && freeReady) ||
+         (cpuReady && (!freeReady || freeOnly)) ||
+         (freeOnly &&
+          (status.flags & MR_NUMI_HUMAN_STAND_FREE_ONLY) != 0u) ||
+         (freeReady &&
+          (status.flags & MR_NUMI_HUMAN_STAND_FREE_ONLY) == 0u)))
+        fail(status, MR_NUMI_HUMAN_STAND_INVALID_DISPATCH,
+             MR_INVALID_INDEX);
+    threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+    if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
+#endif
     const uint failedCondition = atomic_load_explicit(&responseFailure, memory_order_relaxed);
 #if defined(MR_NH_COOPERATIVE_FINISH)
     if (lane == 0u && failedCondition != MR_INVALID_INDEX) {
@@ -68,7 +87,11 @@
     float maximumFreeAcceleration = 0.0f;
     uint maximumFreeAccelerationDof = 0u;
 #if defined(MR_NH_COOPERATIVE_FINISH)
-    if ((dispatch.flags & MR_NUMI_HUMAN_STAND_PREDICT_VELOCITY_ONLY) == 0u) {
+    if (freeReady) {
+        if (lane == 0u)
+            for (uint dof = 0u; dof < nv; ++dof)
+                candidateV[dof] = bias[dof];
+    } else if ((dispatch.flags & MR_NUMI_HUMAN_STAND_PREDICT_VELOCITY_ONLY) == 0u) {
         if (lane == 0u) {
             for (uint dof = 0u; dof < nv; ++dof) {
                 float effort = generalizedForceWorkspace[forceBase + dof] +
@@ -158,6 +181,24 @@
     if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS ||
         (dispatch.flags & MR_NUMI_HUMAN_STAND_PREDICT_VELOCITY_ONLY) != 0u)
         return;
+    if (freeOnly) {
+        if (lane == 0u) {
+            for (uint dof = 0u; dof < nv; ++dof) {
+                if (!isfinite(candidateV[dof])) {
+                    fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT, dof);
+                    return;
+                }
+            }
+            if (maximumFreeAcceleration > status.velocityDiagnostics.x ||
+                status.velocityDiagnosticOwners.x == MR_INVALID_INDEX) {
+                status.velocityDiagnostics.x = maximumFreeAcceleration;
+                status.velocityDiagnosticOwners.x =
+                    maximumFreeAccelerationDof;
+            }
+            status.flags |= MR_NUMI_HUMAN_STAND_FREE_ONLY;
+        }
+        return;
+    }
 #endif
 
     uint activeContacts = 0u;
@@ -223,6 +264,115 @@
     float contactTargetNormalVelocityForPostProjection[
         MR_NUMI_HUMAN_STAND_MAX_CONTACTS
     ];
+#endif
+#if defined(MR_NH_COOPERATIVE_FINISH)
+    if (cpuReady) {
+        if (lane == 0u) {
+            device const MRNumiHumanStandCpuFinishGPU& cpu =
+                cpuFinishes[environment];
+            if (cpu.abiVersion !=
+                    MR_NUMI_HUMAN_STAND_CPU_FINISH_ABI_VERSION ||
+                cpu.stepIndex != dispatch.stepIndex ||
+                cpu.dofCount != nv ||
+                cpu.contactCount != dispatch.supportContactCount ||
+                cpu.equalityCount != equalityCount ||
+                cpu.limitCount > nv ||
+                cpu.activeContacts > dispatch.supportContactCount ||
+                !isfinite(cpu.minimumGap) ||
+                !isfinite(cpu.maximumPenetration) ||
+                !isfinite(cpu.contactNormalImpulseWork) ||
+                !isfinite(cpu.contactTangentialImpulseWork) ||
+                !isfinite(cpu.equalityImpulseWork) ||
+                !isfinite(cpu.sourceLimitImpulseWork) ||
+                !isfinite(cpu.contactNormalAbsoluteImpulseWork) ||
+                !isfinite(cpu.contactTangentialAbsoluteImpulseWork) ||
+                !isfinite(cpu.equalityAbsoluteImpulseWork) ||
+                !isfinite(cpu.sourceLimitAbsoluteImpulseWork)) {
+                fail(status, MR_NUMI_HUMAN_STAND_INVALID_DISPATCH,
+                     MR_INVALID_INDEX);
+            } else {
+                for (uint dof = 0u; dof < nv; ++dof) {
+                    if (!isfinite(cpu.velocity[dof])) {
+                        fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT,
+                             dof);
+                        break;
+                    }
+                    candidateV[dof] = cpu.velocity[dof];
+                }
+                for (uint contact = 0u;
+                     contact < dispatch.supportContactCount; ++contact) {
+                    if (cpu.contactActiveForPostProjection[contact] > 1u ||
+                        !isfinite(cpu.contactTargetNormalVelocityForPostProjection[
+                            contact])) {
+                        fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT,
+                             contact);
+                        break;
+                    }
+                    contactActiveForPostProjection[contact] =
+                        cpu.contactActiveForPostProjection[contact];
+                    contactTargetNormalVelocityForPostProjection[contact] =
+                        cpu.contactTargetNormalVelocityForPostProjection[contact];
+                    for (uint axis = 0u; axis < 3u; ++axis) {
+                        if (!isfinite(cpu.contactLambdas[
+                                3u * contact + axis])) {
+                            fail(status,
+                                 MR_NUMI_HUMAN_STAND_NONFINITE_RESULT,
+                                 contact);
+                            break;
+                        }
+                        lambdas[3u * contact + axis] =
+                            cpu.contactLambdas[3u * contact + axis];
+                    }
+                    for (uint entry = 0u; entry < 9u; ++entry)
+                        contactMatrices[9u * contact + entry] =
+                            cpu.contactMatrices[9u * contact + entry];
+                }
+                for (uint row = 0u; row < equalityCount; ++row) {
+                    if (!isfinite(cpu.equalityLambdas[row]) ||
+                        !isfinite(cpu.equalityRhs[row])) {
+                        fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT,
+                             row);
+                        break;
+                    }
+                    equalityLambdas[row] = cpu.equalityLambdas[row];
+                    equalityRhs[row] = cpu.equalityRhs[row];
+                }
+                limitCount = cpu.limitCount;
+                for (uint limit = 0u; limit < limitCount; ++limit) {
+                    if (cpu.limitDofs[limit] >= nv ||
+                        !isfinite(cpu.limitPreStepPositions[limit]) ||
+                        !isfinite(cpu.limitAccumulatedImpulses[limit])) {
+                        fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT,
+                             limit);
+                        break;
+                    }
+                    limitDofs[limit] = cpu.limitDofs[limit];
+                    limitPreStepPositions[limit] =
+                        cpu.limitPreStepPositions[limit];
+                    limitAccumulatedImpulses[limit] =
+                        cpu.limitAccumulatedImpulses[limit];
+                }
+                activeContacts = cpu.activeContacts;
+                minimumGap = cpu.minimumGap;
+                maximumPenetration = cpu.maximumPenetration;
+                contactNormalImpulseWork = cpu.contactNormalImpulseWork;
+                contactTangentialImpulseWork =
+                    cpu.contactTangentialImpulseWork;
+                equalityImpulseWork = cpu.equalityImpulseWork;
+                sourceLimitImpulseWork = cpu.sourceLimitImpulseWork;
+                contactNormalAbsoluteImpulseWork =
+                    cpu.contactNormalAbsoluteImpulseWork;
+                contactTangentialAbsoluteImpulseWork =
+                    cpu.contactTangentialAbsoluteImpulseWork;
+                equalityAbsoluteImpulseWork =
+                    cpu.equalityAbsoluteImpulseWork;
+                sourceLimitAbsoluteImpulseWork =
+                    cpu.sourceLimitAbsoluteImpulseWork;
+            }
+        }
+        threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+        if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
+    } else {
 #endif
 #if defined(MR_NH_COOPERATIVE_FINISH)
     if (lane == 0u) {
@@ -1531,8 +1681,12 @@
     }
 
 #if defined(MR_NH_COOPERATIVE_FINISH)
+    }
+#endif
+
+#if defined(MR_NH_COOPERATIVE_FINISH)
     if (lane != 0u) return;
-    if (useProjectedContacts) {
+    if (!cpuReady && useProjectedContacts) {
         for (uint row = 0u; row < equalityCount; ++row) {
             float contactImpulse = 0.0f;
             for (uint contact = 0u;
@@ -1901,7 +2055,9 @@
         status.maximumActiveContactCount, activeContacts
     );
     status.contactIterations = dispatch.contactIterationCount;
-    status.flags = dispatch.flags;
+    status.flags = dispatch.flags &
+        ~(MR_NUMI_HUMAN_STAND_FREE_READY |
+          MR_NUMI_HUMAN_STAND_CPU_FINISH_READY);
     status.contactAndAcceleration.x = min(
         status.contactAndAcceleration.x, minimumGap
     );

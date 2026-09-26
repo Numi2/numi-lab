@@ -53,6 +53,12 @@ enum MRNumiHumanStandFlags {
     // response columns on a grid, then condition their shared constraints.
     MR_NUMI_HUMAN_STAND_FACTOR_ONLY = 1u << 10u,
     MR_NUMI_HUMAN_STAND_RESPONSES_READY = 1u << 11u,
+    // Internal split-finish handshake. FREE_ONLY publishes the current
+    // unconstrained velocity without advancing physical state; FREE_READY
+    // consumes exactly that velocity in the next dispatch of the same owner.
+    MR_NUMI_HUMAN_STAND_FREE_ONLY = 1u << 12u,
+    MR_NUMI_HUMAN_STAND_FREE_READY = 1u << 13u,
+    MR_NUMI_HUMAN_STAND_CPU_FINISH_READY = 1u << 14u,
 };
 
 // One source-authored support witness. The point-query index addresses the

@@ -2,11 +2,13 @@
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
 #import <CommonCrypto/CommonDigest.h>
+#include <dispatch/dispatch.h>
 
 #include "metalrobo/MetalArticulatedOperator.hpp"
 #include "metalrobo/MetalNumanXHumanIO.hpp"
 #include "metalrobo/NumanXExactTransaction.hpp"
 #include "metalrobo/numanx_human_matter_adapter_gpu.h"
+#include "NumiHumanStandCpuPilot.hpp"
 
 #include <dlfcn.h>
 
@@ -438,6 +440,10 @@ struct MetalArticulatedOperatorContextState {
     __strong id<MTLComputePipelineState> standEqualityPipeline = nil;
     __strong id<MTLComputePipelineState> standProjectedResponsePipeline = nil;
     __strong id<MTLComputePipelineState> standFinishPipeline = nil;
+    __strong id<MTLSharedEvent> standFreeHandoffEvent = nil;
+    __strong MTLSharedEventListener* standFreeHandoffListener = nil;
+    std::uint64_t standFreeHandoffNextValue = 0u;
+    __strong id<MTLBuffer> standCpuFinishBuffer = nil;
     __strong id<MTLComputePipelineState> standReconcilePipeline = nil;
     __strong id<MTLComputePipelineState> tendonPipeline = nil;
     __strong id<MTLComputePipelineState> tendonCompensatedPipeline = nil;
@@ -10787,10 +10793,446 @@ MetalArticulatedOperatorContext::submit(
                 const bool parallelMass = splitStand &&
                     (parallelMassSetting == nullptr ||
                      std::strcmp(parallelMassSetting, "1") == 0);
-                const std::uint32_t standPhaseCount = parallelMass ? 7u :
+                const char* freeSplitSetting =
+                    std::getenv("NUMI_HUMAN_STAND_FREE_SPLIT");
+                const bool freeSplitRequested = freeSplitSetting != nullptr &&
+                    std::strcmp(freeSplitSetting, "1") == 0;
+                if (freeSplitRequested &&
+                    (!parallelMass || input.environmentCount != 1u ||
+                     (standDispatch.flags &
+                      MR_NUMI_HUMAN_STAND_PREDICT_VELOCITY_ONLY) != 0u)) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::invalidDimensions,
+                        "stand free split requires one environment and the parallel full-step finish"
+                    );
+                }
+                const bool freeSplit = freeSplitRequested;
+                const char* handoffProbeSetting =
+                    std::getenv("NUMI_HUMAN_STAND_FREE_HANDOFF_PROBE");
+                const bool handoffProbeRequested =
+                    handoffProbeSetting != nullptr &&
+                    std::strcmp(handoffProbeSetting, "1") == 0;
+                const char* cpuShadowSetting =
+                    std::getenv("NUMI_HUMAN_STAND_CPU_SHADOW");
+                const bool cpuShadowRequested =
+                    cpuShadowSetting != nullptr &&
+                    std::strcmp(cpuShadowSetting, "1") == 0;
+                const char* cpuFinishSetting =
+                    std::getenv("NUMI_HUMAN_STAND_CPU_FINISH");
+                const bool cpuFinishRequested =
+                    cpuFinishSetting != nullptr &&
+                    std::strcmp(cpuFinishSetting, "1") == 0;
+                if (handoffProbeRequested && !freeSplit) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::invalidDimensions,
+                        "stand free handoff probe requires the split free-velocity finish"
+                    );
+                }
+                if (cpuShadowRequested && !handoffProbeRequested) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::invalidDimensions,
+                        "stand CPU shadow requires the free-velocity handoff probe"
+                    );
+                }
+                if (cpuFinishRequested && !handoffProbeRequested) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::invalidDimensions,
+                        "stand CPU finish requires the free-velocity handoff"
+                    );
+                }
+                // Static source-equilibration submissions use other shapes;
+                // only the integrated Brain transaction can borrow a CPU
+                // continuation from this owner. A mismatched live shape
+                // fails instead of silently changing solver authority.
+                const bool cpuFinish = cpuFinishRequested &&
+                    input.stand.numanXTransactionProgram.valid();
+                if (cpuFinish &&
+                    (articulation.nv != detail::stand_cpu_pilot::kDofs ||
+                     standDispatch.supportContactCount !=
+                         detail::stand_cpu_pilot::kContacts ||
+                     standDispatch.jointEqualityCount !=
+                         detail::stand_cpu_pilot::kEqualities ||
+                     standDispatch.contactIterationCount !=
+                         detail::stand_cpu_pilot::kSweeps ||
+                     standDispatch.groundNormal.x != 0.0f ||
+                     standDispatch.groundNormal.y != 0.0f ||
+                     standDispatch.groundNormal.z != 1.0f)) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::invalidDimensions,
+                        "stand CPU finish does not support the live Human shape"
+                    );
+                }
+                if (cpuFinish) {
+                    if (state_->standCpuFinishBuffer == nil)
+                        state_->standCpuFinishBuffer =
+                            [state_->device newBufferWithLength:
+                                sizeof(MRNumiHumanStandCpuFinishGPU)
+                                options:MTLResourceStorageModeShared];
+                    if (state_->standCpuFinishBuffer == nil ||
+                        state_->standCpuFinishBuffer.contents == nullptr) {
+                        return reject(
+                            std::move(diagnostics),
+                            MetalArticulatedOperatorHostStatus::metalBufferFailure,
+                            "failed to allocate stand CPU finish buffer"
+                        );
+                    }
+                    static_cast<MRNumiHumanStandCpuFinishGPU*>(
+                        state_->standCpuFinishBuffer.contents)->abiVersion = 0u;
+                }
+                const std::uint32_t standPhaseCount = parallelMass ?
+                    (freeSplit ? 8u : 7u) :
                     (splitStand ? 2u : 1u);
                 for (std::uint32_t phase = 0u;
                      phase < standPhaseCount; ++phase) {
+                    if (handoffProbeRequested && phase == 7u) {
+                        if (state_->standFreeHandoffEvent == nil) {
+                            state_->standFreeHandoffEvent =
+                                [state_->device newSharedEvent];
+                            dispatch_queue_t callbackQueue =
+                                dispatch_queue_create(
+                                    "numi.human.stand.free-handoff",
+                                    DISPATCH_QUEUE_SERIAL);
+                            state_->standFreeHandoffListener =
+                                [[MTLSharedEventListener alloc]
+                                    initWithDispatchQueue:callbackQueue];
+                        }
+                        if (state_->standFreeHandoffEvent == nil ||
+                            state_->standFreeHandoffListener == nil ||
+                            state_->standFreeHandoffNextValue >
+                                UINT64_MAX - 2u) {
+                            return reject(
+                                std::move(diagnostics),
+                                MetalArticulatedOperatorHostStatus::metalCommandFailure,
+                                "failed to allocate stand free-velocity handoff event"
+                            );
+                        }
+                        const std::uint64_t ready =
+                            state_->standFreeHandoffNextValue + 1u;
+                        const std::uint64_t resume = ready + 1u;
+                        state_->standFreeHandoffNextValue = resume;
+                        id<MTLSharedEvent> event =
+                            state_->standFreeHandoffEvent;
+                        id<MTLBuffer> freeVector = state_->standBuffers[
+                            kStandVectorBuffer];
+                        id<MTLBuffer> standStatus = state_->standBuffers[
+                            kStandStatusBuffer];
+                        if (freeVector == nil ||
+                            freeVector.contents == nullptr ||
+                            standStatus == nil ||
+                            standStatus.contents == nullptr) {
+                            return reject(
+                                std::move(diagnostics),
+                                MetalArticulatedOperatorHostStatus::metalBufferFailure,
+                                "stand free-velocity handoff requires shared buffers"
+                            );
+                        }
+                        const std::uint32_t freeDofs = articulation.nv;
+                        const std::uint32_t probeStep = authoritativeStep;
+                        id<MTLBuffer> finishPayload = cpuFinish
+                            ? state_->standCpuFinishBuffer : nil;
+                        const auto shadowContext = state_;
+                        const auto shadowDispatch = standDispatch;
+                        const auto shadowArticulation = articulation;
+                        const auto shadowOutput = std::make_shared<
+                            detail::stand_cpu_pilot::Output>();
+                        const auto shadowState =
+                            std::make_shared<std::atomic<unsigned>>(0u);
+                        const auto shadowWorkBefore =
+                            std::make_shared<std::array<float, 8u>>();
+                        [event notifyListener:
+                            state_->standFreeHandoffListener
+                            atValue:ready
+                            block:^(id<MTLSharedEvent> signaled,
+                                    std::uint64_t /*value*/) {
+                                const auto begin =
+                                    std::chrono::steady_clock::now();
+                                auto* status = static_cast<
+                                    MRNumiHumanStandStatusGPU*>(
+                                        standStatus.contents);
+                                auto* vector = static_cast<float*>(
+                                    freeVector.contents);
+                                if (status != nullptr && vector != nullptr &&
+                                    status->code ==
+                                        MR_NUMI_HUMAN_STAND_SUCCESS &&
+                                    (status->flags &
+                                     MR_NUMI_HUMAN_STAND_FREE_ONLY) != 0u) {
+                                    for (std::uint32_t dof = 0u;
+                                         dof < freeDofs; ++dof) {
+                                        if (!std::isfinite(
+                                                vector[freeDofs + dof])) {
+                                            status->code =
+                                                MR_NUMI_HUMAN_STAND_NONFINITE_RESULT;
+                                            status->failingIndex = dof;
+                                            break;
+                                        }
+                                    }
+                                    if (probeStep == 0u &&
+                                        status->code ==
+                                            MR_NUMI_HUMAN_STAND_SUCCESS) {
+                                        unsigned char digest[
+                                            CC_SHA256_DIGEST_LENGTH];
+                                        CC_SHA256(vector + freeDofs,
+                                            static_cast<CC_LONG>(
+                                                freeDofs * sizeof(float)),
+                                            digest);
+                                        std::fprintf(stderr,
+                                            "human_stand_free_handoff "
+                                            "step=%u free_velocity_sha256=",
+                                            probeStep);
+                                        for (unsigned char byte : digest)
+                                            std::fprintf(stderr, "%02x", byte);
+                                        std::fprintf(stderr, "\n");
+                                    }
+                                    if ((cpuShadowRequested || cpuFinish) &&
+                                        status->code ==
+                                            MR_NUMI_HUMAN_STAND_SUCCESS) {
+                                        (*shadowWorkBefore)[0u] = status->
+                                            constraintImpulseWorkDiagnostics.x;
+                                        (*shadowWorkBefore)[1u] = status->
+                                            constraintImpulseWorkDiagnostics.y;
+                                        (*shadowWorkBefore)[2u] = status->
+                                            constraintImpulseWorkDiagnostics.z;
+                                        (*shadowWorkBefore)[3u] = status->
+                                            constraintImpulseWorkDiagnostics.w;
+                                        (*shadowWorkBefore)[4u] = status->
+                                            constraintImpulseAbsoluteWorkDiagnostics.x;
+                                        (*shadowWorkBefore)[5u] = status->
+                                            constraintImpulseAbsoluteWorkDiagnostics.y;
+                                        (*shadowWorkBefore)[6u] = status->
+                                            constraintImpulseAbsoluteWorkDiagnostics.z;
+                                        (*shadowWorkBefore)[7u] = status->
+                                            constraintImpulseAbsoluteWorkDiagnostics.w;
+                                        const auto cpuBegin =
+                                            std::chrono::steady_clock::now();
+                                        const auto raw = [&](std::size_t index)
+                                            -> id<MTLBuffer> {
+                                            return shadowContext->buffers[index];
+                                        };
+                                        const auto stand = [&](std::size_t index)
+                                            -> id<MTLBuffer> {
+                                            return shadowContext->standBuffers[index];
+                                        };
+                                        constexpr std::size_t n =
+                                            detail::stand_cpu_pilot::kDofs;
+                                        constexpr std::size_t c =
+                                            detail::stand_cpu_pilot::kContacts;
+                                        constexpr std::size_t e =
+                                            detail::stand_cpu_pilot::kEqualities;
+                                        constexpr std::size_t responseFloats =
+                                            (3u * c + e + n) * n +
+                                            e * (e + 3u) + n * e;
+                                        const bool extentsValid =
+                                            raw(3u).length >=
+                                                (shadowArticulation.vOffset + n) *
+                                                    sizeof(MRDofPropertiesGPU) &&
+                                            raw(9u).length >=
+                                                shadowDispatch.pointWorldStride *
+                                                    sizeof(MRArticulatedPointWorldGPU) &&
+                                            raw(11u).length >=
+                                                shadowDispatch.pointJacobianStride *
+                                                    sizeof(float) &&
+                                            stand(kStandContactsBuffer).length >=
+                                                c * sizeof(MRNumiHumanStandContactGPU) &&
+                                            stand(kStandQCheckpointBuffer).length >=
+                                                shadowArticulation.nq * sizeof(float) &&
+                                            stand(kStandVectorBuffer).length >=
+                                                2u * n * sizeof(float) &&
+                                            stand(kStandPointPositionLowBuffer).length >=
+                                                shadowDispatch.pointWorldStride *
+                                                    sizeof(mr_float4) &&
+                                            stand(kStandJointEqualitiesBuffer).length >=
+                                                e * sizeof(MRNumiHumanJointEqualityGPU) &&
+                                            stand(kStandResponseBuffer).length >=
+                                                responseFloats * sizeof(float) &&
+                                            stand(kStandSpatialJacobianBuffer).length >=
+                                                ((2u + e) * n + 3u * c * e) *
+                                                    sizeof(float);
+                                        detail::stand_cpu_pilot::Input cpuInput{};
+                                        const bool prepared = extentsValid &&
+                                            detail::stand_cpu_pilot::prepare(
+                                                shadowDispatch,
+                                                shadowArticulation,
+                                                static_cast<const MRDofPropertiesGPU*>(
+                                                    raw(3u).contents),
+                                                static_cast<const MRNumiHumanStandContactGPU*>(
+                                                    stand(kStandContactsBuffer).contents),
+                                                static_cast<const float*>(
+                                                    stand(kStandQCheckpointBuffer).contents),
+                                                vector,
+                                                static_cast<const MRArticulatedPointWorldGPU*>(
+                                                    raw(9u).contents),
+                                                static_cast<const mr_float4*>(
+                                                    stand(kStandPointPositionLowBuffer).contents),
+                                                static_cast<const float*>(
+                                                    raw(11u).contents),
+                                                static_cast<const MRNumiHumanJointEqualityGPU*>(
+                                                    stand(kStandJointEqualitiesBuffer).contents),
+                                                static_cast<const float*>(
+                                                    stand(kStandResponseBuffer).contents),
+                                                static_cast<const float*>(
+                                                    stand(kStandSpatialJacobianBuffer).contents),
+                                                cpuInput);
+                                        const bool solved = prepared &&
+                                            detail::stand_cpu_pilot::solve(
+                                                cpuInput, *shadowOutput);
+                                        bool published = solved;
+                                        if (cpuFinish) {
+                                            published = solved &&
+                                                detail::stand_cpu_pilot::publish(
+                                                    cpuInput, *shadowOutput,
+                                                    probeStep,
+                                                    *static_cast<
+                                                        MRNumiHumanStandCpuFinishGPU*>(
+                                                            finishPayload.contents));
+                                            if (!published) {
+                                                status->code =
+                                                    MR_NUMI_HUMAN_STAND_INVALID_DISPATCH;
+                                                status->failingIndex =
+                                                    MR_INVALID_INDEX;
+                                            }
+                                        }
+                                        shadowState->store(published ? 1u : 2u,
+                                                           std::memory_order_release);
+                                        const auto cpuElapsed =
+                                            std::chrono::duration_cast<
+                                                std::chrono::nanoseconds>(
+                                                    std::chrono::steady_clock::now() -
+                                                    cpuBegin).count();
+                                        if (cpuShadowRequested ||
+                                            probeStep < 8u ||
+                                            probeStep % 1024u == 0u ||
+                                            !published)
+                                            std::fprintf(stderr,
+                                                "human_stand_cpu_shadow "
+                                                "step=%u prepared=%u solved=%u "
+                                                "published=%u "
+                                                "limits=%u active_limit_updates=%u "
+                                                "friction_calls=%u elapsed_ns=%lld\n",
+                                                probeStep,
+                                                prepared ? 1u : 0u,
+                                                solved ? 1u : 0u,
+                                                published ? 1u : 0u,
+                                                cpuInput.limitCount,
+                                                shadowOutput->activeLimitUpdates,
+                                                shadowOutput->frictionCalls,
+                                                static_cast<long long>(cpuElapsed));
+                                    }
+                                } else if (status != nullptr &&
+                                           status->code ==
+                                               MR_NUMI_HUMAN_STAND_SUCCESS) {
+                                    status->code =
+                                        MR_NUMI_HUMAN_STAND_INVALID_DISPATCH;
+                                    status->failingIndex = MR_INVALID_INDEX;
+                                }
+                                const auto elapsed =
+                                    std::chrono::duration_cast<
+                                        std::chrono::nanoseconds>(
+                                            std::chrono::steady_clock::now() -
+                                            begin).count();
+                                if (probeStep < 8u)
+                                    std::fprintf(stderr,
+                                        "human_stand_free_handoff_cpu "
+                                        "step=%u elapsed_ns=%lld\n",
+                                        probeStep,
+                                        static_cast<long long>(elapsed));
+                                signaled.signaledValue = resume;
+                            }];
+                        [commandBuffer encodeSignalEvent:event value:ready];
+                        [commandBuffer encodeWaitForEvent:event value:resume];
+                        if (cpuShadowRequested) {
+                            id<MTLBuffer> finalVelocity = state_->standBuffers[
+                                kStandVelocityBuffer];
+                            id<MTLBuffer> finalVector = state_->standBuffers[
+                                kStandVectorBuffer];
+                            id<MTLBuffer> finalStatus = state_->standBuffers[
+                                kStandStatusBuffer];
+                            [commandBuffer addCompletedHandler:
+                                ^(id<MTLCommandBuffer> completed) {
+                                    if (completed.status !=
+                                            MTLCommandBufferStatusCompleted ||
+                                        shadowState->load(
+                                            std::memory_order_acquire) != 1u)
+                                        return;
+                                    const auto* gpuV = static_cast<const float*>(
+                                        finalVelocity.contents);
+                                    const auto* gpuVector = static_cast<const float*>(
+                                        finalVector.contents);
+                                    if (gpuV == nullptr || gpuVector == nullptr)
+                                        return;
+                                    const auto* gpuStatus = static_cast<const
+                                        MRNumiHumanStandStatusGPU*>(
+                                            finalStatus.contents);
+                                    if (gpuStatus == nullptr || gpuStatus->code !=
+                                        MR_NUMI_HUMAN_STAND_SUCCESS) return;
+                                    float velocityDelta = 0.0f;
+                                    float contactDelta = 0.0f;
+                                    float equalityDelta = 0.0f;
+                                    for (unsigned dof = 0u;
+                                         dof < detail::stand_cpu_pilot::kDofs;
+                                         ++dof)
+                                        velocityDelta = std::max(velocityDelta,
+                                            std::abs(gpuV[dof] -
+                                                shadowOutput->velocity[dof]));
+                                    for (unsigned item = 0u;
+                                         item < 3u * detail::stand_cpu_pilot::kContacts;
+                                         ++item)
+                                        contactDelta = std::max(contactDelta,
+                                            std::abs(gpuVector[
+                                                4u * detail::stand_cpu_pilot::kDofs +
+                                                item] -
+                                                shadowOutput->contactLambda[item]));
+                                    for (unsigned item = 0u;
+                                         item < detail::stand_cpu_pilot::kEqualities;
+                                         ++item)
+                                        equalityDelta = std::max(equalityDelta,
+                                            std::abs(gpuVector[
+                                                4u * detail::stand_cpu_pilot::kDofs +
+                                                3u * detail::stand_cpu_pilot::kContacts +
+                                                item] -
+                                                shadowOutput->equalityLambda[item]));
+                                    std::fprintf(stderr,
+                                        "human_stand_cpu_shadow_delta "
+                                        "step=%u velocity=%.9g contact=%.9g "
+                                        "equality=%.9g",
+                                        probeStep, velocityDelta,
+                                        contactDelta, equalityDelta);
+                                    const std::array<float, 8u> cpuWork{
+                                        shadowOutput->contactNormalWork,
+                                        shadowOutput->contactTangentialWork,
+                                        shadowOutput->equalityWork,
+                                        shadowOutput->limitWork,
+                                        shadowOutput->contactNormalAbsoluteWork,
+                                        shadowOutput->contactTangentialAbsoluteWork,
+                                        shadowOutput->equalityAbsoluteWork,
+                                        shadowOutput->limitAbsoluteWork,
+                                    };
+                                    const std::array<float, 8u> gpuWork{
+                                        gpuStatus->constraintImpulseWorkDiagnostics.x,
+                                        gpuStatus->constraintImpulseWorkDiagnostics.y,
+                                        gpuStatus->constraintImpulseWorkDiagnostics.z,
+                                        gpuStatus->constraintImpulseWorkDiagnostics.w,
+                                        gpuStatus->constraintImpulseAbsoluteWorkDiagnostics.x,
+                                        gpuStatus->constraintImpulseAbsoluteWorkDiagnostics.y,
+                                        gpuStatus->constraintImpulseAbsoluteWorkDiagnostics.z,
+                                        gpuStatus->constraintImpulseAbsoluteWorkDiagnostics.w,
+                                    };
+                                    float workDelta = 0.0f;
+                                    for (unsigned index = 0u; index < 8u;
+                                         ++index)
+                                        workDelta = std::max(workDelta,
+                                            std::abs((gpuWork[index] -
+                                                (*shadowWorkBefore)[index]) -
+                                                cpuWork[index]));
+                                    std::fprintf(stderr,
+                                        " work=%.9g\n", workDelta);
+                                }];
+                        }
+                    }
                     MRNumiHumanStandDispatchGPU phaseDispatch = standDispatch;
                     if (parallelMass) {
                         if (phase == 0u) {
@@ -10800,6 +11242,13 @@ MetalArticulatedOperatorContext::submit(
                             phaseDispatch.flags |= MR_NUMI_HUMAN_STAND_PREPARE_ONLY |
                                 MR_NUMI_HUMAN_STAND_MASS_READY |
                                 MR_NUMI_HUMAN_STAND_FACTOR_ONLY;
+                        } else if (freeSplit && phase == 6u) {
+                            phaseDispatch.flags |= MR_NUMI_HUMAN_STAND_FREE_ONLY;
+                        } else if (freeSplit && phase == 7u) {
+                            phaseDispatch.flags |= MR_NUMI_HUMAN_STAND_FREE_READY;
+                            if (cpuFinish)
+                                phaseDispatch.flags |=
+                                    MR_NUMI_HUMAN_STAND_CPU_FINISH_READY;
                         }
                     } else if (splitStand && phase == 0u) {
                         phaseDispatch.flags |= MR_NUMI_HUMAN_STAND_PREPARE_ONLY;
@@ -10811,6 +11260,7 @@ MetalArticulatedOperatorContext::submit(
                            phase == 3u ? "stand_equality_responses" :
                            phase == 4u ? "stand_equality_factor" :
                            phase == 5u ? "stand_projected_responses" :
+                           freeSplit && phase == 6u ? "stand_free_prelude" :
                            "stand_finish")
                         : (!splitStand ? "stand" :
                            (phase == 0u ? "stand_prepare" : "stand_finish"));
@@ -10833,7 +11283,9 @@ MetalArticulatedOperatorContext::submit(
                                 ? state_->standEqualityPipeline
                             : parallelMass && phase == 5u
                                 ? state_->standProjectedResponsePipeline
-                            : splitStand && phase == standPhaseCount - 1u
+                            : splitStand &&
+                                (phase == standPhaseCount - 1u ||
+                                 (freeSplit && phase == 6u))
                                 ? state_->standFinishPipeline
                                 : state_->standPipeline];
                     [standEncoder setBuffer:state_->standBuffers[kStandRootTranslationBuffer] offset:0u atIndex:21u];
@@ -10850,6 +11302,11 @@ MetalArticulatedOperatorContext::submit(
                                   kHumanMatterSourceDynamicsWitnessBuffer]
                             : state_->standBuffers[kStandPassiveJointBuffer]
                         offset:0u atIndex:25u];
+                    [standEncoder setBuffer:
+                        cpuFinish
+                            ? state_->standCpuFinishBuffer
+                            : state_->standBuffers[kStandVectorBuffer]
+                        offset:0u atIndex:26u];
                     [standEncoder setBuffer:state_->buffers[0u] offset:0u atIndex:0u];
                     [standEncoder setBuffer:state_->buffers[1u] offset:0u atIndex:1u];
                     [standEncoder setBuffer:state_->buffers[3u] offset:0u atIndex:2u];
@@ -10917,7 +11374,9 @@ MetalArticulatedOperatorContext::submit(
                                 static_cast<NSUInteger>(input.environmentCount),
                                 1u, 1u)
                             threadsPerThreadgroup:MTLSizeMake(
-                                splitStand && phase == standPhaseCount - 1u
+                                splitStand &&
+                                    (phase == standPhaseCount - 1u ||
+                                     (freeSplit && phase == 6u))
                                     ? kStandFinishThreadsPerThreadgroup
                                     : kStandThreadsPerThreadgroup,
                                 1u, 1u)];
