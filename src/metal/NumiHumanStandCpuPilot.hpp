@@ -10,7 +10,11 @@
 #include "metalrobo/numi_human_constraint_projection.h"
 #include "metalrobo/numi_human_friction.h"
 #include "metalrobo/numi_human_stand_cpu_finish_gpu.h"
+#include "metalrobo/compensated_translation_gpu.h"
 
+#ifndef ACCELERATE_NEW_LAPACK
+#define ACCELERATE_NEW_LAPACK
+#endif
 #include <Accelerate/Accelerate.h>
 
 #include <algorithm>
@@ -28,6 +32,9 @@ constexpr float kRegularization = 1.0e-7f;
 using Velocity = std::array<float, kDofs>;
 using MassFactor = std::array<float, kDofs * kDofs>;
 using EqualityResponses = std::array<float, kEqualities * kDofs>;
+constexpr unsigned kProjectedColumns = 3u * kContacts + kDofs;
+using ProjectedRawResponses = std::array<float, kProjectedColumns * kDofs>;
+using ProjectedActive = std::array<bool, kProjectedColumns>;
 
 // The equality right hand sides are independent after the shared mass
 // factor is ready. Accelerate solves all 51 rows against that one factor in
@@ -96,6 +103,80 @@ inline bool solveEqualityResponses(
                 kDofs, responses.data(), kDofs);
     for (float value : responses)
         if (!std::isfinite(value)) return false;
+    return true;
+}
+
+// Factor-only handoff variant of the contact and position-limit mass solves.
+// The Metal projected stage still owns the two ordered equality conditioning
+// passes, their failure codes, and all subsequent coupled impulses.
+inline bool solveProjectedRawResponses(
+    const MassFactor& factor, const MRNumiHumanStandDispatchGPU& dispatch,
+    const MRArticulationGPU& articulation, const MRDofPropertiesGPU* dofs,
+    const MRNumiHumanStandContactGPU* contacts,
+    const MRArticulatedPointWorldGPU* pointWorld,
+    const mr_float4* pointLow, const float* pointJacobian,
+    ProjectedRawResponses& responses, ProjectedActive& active,
+    unsigned* failingIndex = nullptr
+) {
+    if (dofs == nullptr || contacts == nullptr || pointWorld == nullptr ||
+        pointLow == nullptr || pointJacobian == nullptr ||
+        articulation.nv != kDofs ||
+        dispatch.supportContactCount != kContacts ||
+        dispatch.groundNormal.x != 0.0f ||
+        dispatch.groundNormal.y != 0.0f ||
+        dispatch.groundNormal.z != 1.0f ||
+        (dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) == 0u)
+        return false;
+    responses.fill(0.0f);
+    active.fill(false);
+    for (unsigned contact = 0u; contact < kContacts; ++contact) {
+        const auto& support = contacts[contact];
+        const unsigned point = support.pointQueryIndex;
+        if (point >= dispatch.pointWorldStride ||
+            (static_cast<std::uint64_t>(point) + 1u) * 3u * kDofs >
+                dispatch.pointJacobianStride) {
+            if (failingIndex) *failingIndex = contact;
+            return false;
+        }
+        const float gap = mrCompensatedPositionDifference(
+            pointWorld[point].position, pointLow[point],
+            dispatch.groundPointAndTimestep, mr_float4{}).z;
+        if (!std::isfinite(gap)) {
+            if (failingIndex) *failingIndex = contact;
+            return false;
+        }
+        if (gap > support.frictionSlopAndStabilization.y) continue;
+        for (unsigned axis = 0u; axis < 3u; ++axis) {
+            const unsigned column = 3u * contact + axis;
+            const unsigned coordinate = (axis + 2u) % 3u;
+            active[column] = true;
+            auto* rhs = responses.data() + column * kDofs;
+            const float* source = pointJacobian +
+                point * 3u * kDofs + coordinate * kDofs;
+            std::copy_n(source, kDofs, rhs);
+        }
+    }
+    for (unsigned dof = 0u; dof < kDofs; ++dof) {
+        if ((dofs[articulation.vOffset + dof].flags &
+             MR_DOF_FLAG_POSITION_LIMIT) == 0u) continue;
+        active[3u * kContacts + dof] = true;
+        responses[(3u * kContacts + dof) * kDofs + dof] = 1.0f;
+    }
+    cblas_strsm(CblasRowMajor, CblasRight, CblasLower, CblasTrans,
+                CblasNonUnit, kProjectedColumns, kDofs, 1.0f,
+                factor.data(), kDofs, responses.data(), kDofs);
+    cblas_strsm(CblasRowMajor, CblasRight, CblasLower, CblasNoTrans,
+                CblasNonUnit, kProjectedColumns, kDofs, 1.0f,
+                factor.data(), kDofs, responses.data(), kDofs);
+    for (unsigned column = 0u; column < kProjectedColumns; ++column) {
+        if (!active[column]) continue;
+        const float* row = responses.data() + column * kDofs;
+        for (unsigned dof = 0u; dof < kDofs; ++dof)
+            if (!std::isfinite(row[dof])) {
+                if (failingIndex) *failingIndex = column;
+                return false;
+            }
+    }
     return true;
 }
 

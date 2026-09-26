@@ -2083,15 +2083,18 @@ kernel void mr_numi_human_stand_projected_response_cooperative(
     }
     threadgroup_barrier(mem_flags::mem_threadgroup);
     if (responseActive == 0u) return;
+    const bool projectedRawReady =
+        (dispatch.flags & MR_NUMI_HUMAN_STAND_PROJECTED_RAW_READY) != 0u;
     for (uint dof = lane; dof < nv; dof += threadCount) {
-        rhs[dof] = positionIndex < contactColumns
-            ? pointJacobianAxis(pointJacobians, pointJacobianBase,
-                contacts[positionIndex / 3u].pointQueryIndex, nv, dof,
-                direction)
-            : (dof == positionIndex - contactColumns ? 1.0f : 0.0f);
+        rhs[dof] = projectedRawReady ? response[dof] :
+            positionIndex < contactColumns
+                ? pointJacobianAxis(pointJacobians, pointJacobianBase,
+                    contacts[positionIndex / 3u].pointQueryIndex, nv, dof,
+                    direction)
+                : (dof == positionIndex - contactColumns ? 1.0f : 0.0f);
     }
     threadgroup_barrier(mem_flags::mem_threadgroup);
-    if (!solveFactorCooperativeForward(
+    if (!projectedRawReady && !solveFactorCooperativeForward(
             factorScratch + environment * nv * nv,
             workspace, rhs, nv, lane, threadCount, &solveSucceeded)) {
         if (lane == 0u) publishParallelResponseFailure(status, column);

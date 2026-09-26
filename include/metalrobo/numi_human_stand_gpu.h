@@ -59,6 +59,9 @@ enum MRNumiHumanStandFlags {
     MR_NUMI_HUMAN_STAND_FREE_ONLY = 1u << 12u,
     MR_NUMI_HUMAN_STAND_FREE_READY = 1u << 13u,
     MR_NUMI_HUMAN_STAND_CPU_FINISH_READY = 1u << 14u,
+    // Internal same-command-buffer handoff: projected mass responses were
+    // solved against the current mass factor before this Metal dispatch.
+    MR_NUMI_HUMAN_STAND_PROJECTED_RAW_READY = 1u << 15u,
 };
 
 // One source-authored support witness. The point-query index addresses the

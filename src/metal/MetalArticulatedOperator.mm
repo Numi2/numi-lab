@@ -10843,6 +10843,11 @@ MetalArticulatedOperatorContext::submit(
                 const bool cpuEqualityRequested =
                     cpuEqualitySetting != nullptr &&
                     std::strcmp(cpuEqualitySetting, "1") == 0;
+                const char* cpuProjectedSetting =
+                    std::getenv("NUMI_HUMAN_STAND_CPU_PROJECTED_RAW");
+                const bool cpuProjectedRequested =
+                    cpuProjectedSetting != nullptr &&
+                    std::strcmp(cpuProjectedSetting, "1") == 0;
                 if (handoffProbeRequested && !freeSplit) {
                     return reject(
                         std::move(diagnostics),
@@ -10878,6 +10883,14 @@ MetalArticulatedOperatorContext::submit(
                         std::move(diagnostics),
                         MetalArticulatedOperatorHostStatus::invalidDimensions,
                         "stand CPU equality requires CPU factor and exclusive shadow or physical mode"
+                    );
+                }
+                if (cpuFinish && cpuProjectedRequested &&
+                    !cpuEqualityRequested) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::invalidDimensions,
+                        "stand CPU projected responses require physical CPU equality responses"
                     );
                 }
                 if (cpuFinish && cpuFactorShadowRequested &&
@@ -10972,6 +10985,15 @@ MetalArticulatedOperatorContext::submit(
                         id<MTLBuffer> responseBuffer = equalityMode
                             ? state_->standBuffers[kStandResponseBuffer]
                             : nil;
+                        id<MTLBuffer> dofBuffer = cpuProjectedRequested
+                            ? state_->buffers[3u] : nil;
+                        id<MTLBuffer> pointWorldBuffer = cpuProjectedRequested
+                            ? state_->buffers[9u] : nil;
+                        id<MTLBuffer> pointJacobianBuffer =
+                            cpuProjectedRequested ? state_->buffers[11u] : nil;
+                        id<MTLBuffer> pointLowBuffer = cpuProjectedRequested
+                            ? state_->standBuffers[kStandPointPositionLowBuffer]
+                            : nil;
                         if (factorBuffer == nil ||
                             factorBuffer.contents == nullptr ||
                             factorBuffer.length < sizeof(
@@ -10998,9 +11020,35 @@ MetalArticulatedOperatorContext::submit(
                               responseBuffer.contents == nullptr ||
                               responseBuffer.length <
                                   (3u * detail::stand_cpu_pilot::kContacts +
-                                   detail::stand_cpu_pilot::kEqualities) *
+                                   detail::stand_cpu_pilot::kEqualities +
+                                   (cpuProjectedRequested
+                                        ? detail::stand_cpu_pilot::kDofs : 0u)) *
                                       detail::stand_cpu_pilot::kDofs *
-                                      sizeof(float)))) {
+                                      sizeof(float))) ||
+                            (cpuProjectedRequested &&
+                             (dofBuffer == nil || dofBuffer.contents == nullptr ||
+                              dofBuffer.length <
+                                  (static_cast<NSUInteger>(articulation.vOffset) +
+                                   detail::stand_cpu_pilot::kDofs) *
+                                      sizeof(MRDofPropertiesGPU) ||
+                              pointWorldBuffer == nil ||
+                              pointWorldBuffer.contents == nullptr ||
+                              pointWorldBuffer.length <
+                                  static_cast<NSUInteger>(
+                                      standDispatch.pointWorldStride) *
+                                      sizeof(MRArticulatedPointWorldGPU) ||
+                              pointJacobianBuffer == nil ||
+                              pointJacobianBuffer.contents == nullptr ||
+                              pointJacobianBuffer.length <
+                                  static_cast<NSUInteger>(
+                                      standDispatch.pointJacobianStride) *
+                                      sizeof(float) ||
+                              pointLowBuffer == nil ||
+                              pointLowBuffer.contents == nullptr ||
+                              pointLowBuffer.length <
+                                  static_cast<NSUInteger>(
+                                      standDispatch.pointWorldStride) *
+                                      sizeof(mr_float4)))) {
                             return reject(
                                 std::move(diagnostics),
                                 MetalArticulatedOperatorHostStatus::metalBufferFailure,
@@ -11011,6 +11059,10 @@ MetalArticulatedOperatorContext::submit(
                             detail::stand_cpu_pilot::MassFactor>();
                         const auto equalityResponses = std::make_shared<
                             detail::stand_cpu_pilot::EqualityResponses>();
+                        const auto projectedResponses = std::make_shared<
+                            detail::stand_cpu_pilot::ProjectedRawResponses>();
+                        const auto projectedActive = std::make_shared<
+                            detail::stand_cpu_pilot::ProjectedActive>();
                         const auto shadowState =
                             std::make_shared<std::atomic<unsigned>>(0u);
                         const std::uint32_t probeStep = authoritativeStep;
@@ -11133,6 +11185,86 @@ MetalArticulatedOperatorContext::submit(
                                             cpuEqualityRequested ? 1u : 0u,
                                             equalitySolved ? 1u : 0u,
                                             static_cast<long long>(equalityNs));
+                                    }
+                                }
+                                if (factored && equalitySolved &&
+                                    cpuProjectedRequested) {
+                                    const auto projectedBegin =
+                                        std::chrono::steady_clock::now();
+                                    unsigned failingProjected =
+                                        MR_INVALID_INDEX;
+                                    const bool projectedSolved =
+                                        detail::stand_cpu_pilot::
+                                            solveProjectedRawResponses(
+                                                *shadowFactor,
+                                                factorDispatch,
+                                                factorArticulation,
+                                                static_cast<const
+                                                    MRDofPropertiesGPU*>(
+                                                        dofBuffer.contents),
+                                                static_cast<const
+                                                    MRNumiHumanStandContactGPU*>(
+                                                        contactBuffer.contents),
+                                                static_cast<const
+                                                    MRArticulatedPointWorldGPU*>(
+                                                        pointWorldBuffer.contents),
+                                                static_cast<const mr_float4*>(
+                                                    pointLowBuffer.contents),
+                                                static_cast<const float*>(
+                                                    pointJacobianBuffer.contents),
+                                                *projectedResponses,
+                                                *projectedActive,
+                                                &failingProjected);
+                                    if (projectedSolved) {
+                                        auto* destination =
+                                            static_cast<float*>(
+                                                responseBuffer.contents);
+                                        for (unsigned column = 0u;
+                                             column < detail::stand_cpu_pilot::
+                                                 kProjectedColumns;
+                                             ++column) {
+                                            if (!(*projectedActive)[column])
+                                                continue;
+                                            const unsigned destinationColumn =
+                                                column < 3u *
+                                                    detail::stand_cpu_pilot::
+                                                        kContacts
+                                                ? column
+                                                : column +
+                                                    detail::stand_cpu_pilot::
+                                                        kEqualities;
+                                            std::copy_n(
+                                                projectedResponses->data() +
+                                                    column *
+                                                        detail::stand_cpu_pilot::
+                                                            kDofs,
+                                                detail::stand_cpu_pilot::kDofs,
+                                                destination +
+                                                    destinationColumn *
+                                                        detail::stand_cpu_pilot::
+                                                            kDofs);
+                                        }
+                                    } else {
+                                        status->code =
+                                            MR_NUMI_HUMAN_STAND_INVALID_DISPATCH;
+                                        status->failingIndex =
+                                            failingProjected;
+                                    }
+                                    if (probeStep < 8u ||
+                                        probeStep % 1024u == 0u ||
+                                        !projectedSolved) {
+                                        const auto projectedNs =
+                                            std::chrono::duration_cast<
+                                                std::chrono::nanoseconds>(
+                                                std::chrono::steady_clock::now() -
+                                                projectedBegin).count();
+                                        std::fprintf(stderr,
+                                            "human_stand_cpu_projected "
+                                            "step=%u solved=%u "
+                                            "elapsed_ns=%lld\n",
+                                            probeStep,
+                                            projectedSolved ? 1u : 0u,
+                                            static_cast<long long>(projectedNs));
                                     }
                                 }
                                 if (physicalFactor && !factored && valid &&
@@ -11588,6 +11720,10 @@ MetalArticulatedOperatorContext::submit(
                             phaseDispatch.flags |= MR_NUMI_HUMAN_STAND_PREPARE_ONLY |
                                 MR_NUMI_HUMAN_STAND_MASS_READY |
                                 MR_NUMI_HUMAN_STAND_FACTOR_ONLY;
+                            if (phase == 5u && cpuProjectedRequested &&
+                                cpuFinish)
+                                phaseDispatch.flags |=
+                                    MR_NUMI_HUMAN_STAND_PROJECTED_RAW_READY;
                         } else if (freeSplit && phase == 6u) {
                             phaseDispatch.flags |= MR_NUMI_HUMAN_STAND_FREE_ONLY;
                         } else if (freeSplit && phase == 7u) {
