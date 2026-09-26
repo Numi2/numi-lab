@@ -11,6 +11,9 @@
 #include "NumiHumanStandCpuPilot.hpp"
 
 #include <dlfcn.h>
+#if defined(__aarch64__)
+#include <arm_neon.h>
+#endif
 
 #include <algorithm>
 #include <array>
@@ -32,6 +35,7 @@
 #include <string>
 #include <system_error>
 #include <utility>
+#include <vector>
 
 #ifndef METALROBO_DEFAULT_METALLIB
 #define METALROBO_DEFAULT_METALLIB ""
@@ -5708,6 +5712,30 @@ void copyOutput(
     }
 }
 
+// A float is finite exactly when its IEEE-754 exponent is not all ones.
+// Check the same predicate for every published value in wide contiguous
+// arrays, including NaNs and either infinity, before accepting the endpoint.
+bool allFiniteFloats(const std::vector<float>& values) {
+    const float* data = values.data();
+    std::size_t index = 0u;
+#if defined(__aarch64__)
+    const uint32x4_t exponentMask = vdupq_n_u32(0x7f800000u);
+    uint32x4_t invalid = vdupq_n_u32(0u);
+    for (; index + 15u < values.size(); index += 16u) {
+        for (unsigned block = 0u; block < 4u; ++block) {
+            const uint32x4_t bits = vreinterpretq_u32_f32(
+                vld1q_f32(data + index + 4u * block));
+            invalid = vorrq_u32(invalid, vceqq_u32(
+                vandq_u32(bits, exponentMask), exponentMask));
+        }
+    }
+    if (vmaxvq_u32(invalid) != 0u) return false;
+#endif
+    for (; index < values.size(); ++index)
+        if (!std::isfinite(data[index])) return false;
+    return true;
+}
+
 bool finitePayload(
     const MetalArticulatedOperatorResult& result
 ) {
@@ -5727,34 +5755,10 @@ bool finitePayload(
                 return finite(point.position);
             }
         ) &&
-        std::all_of(
-            result.diagnosticMassMatrix.begin(),
-            result.diagnosticMassMatrix.end(),
-            [](const float value) {
-                return std::isfinite(value);
-            }
-        ) &&
-        std::all_of(
-            result.pointJacobians.begin(),
-            result.pointJacobians.end(),
-            [](const float value) {
-                return std::isfinite(value);
-            }
-        ) &&
-        std::all_of(
-            result.generalizedImpulse.begin(),
-            result.generalizedImpulse.end(),
-            [](const float value) {
-                return std::isfinite(value);
-            }
-        ) &&
-        std::all_of(
-            result.deltaVelocity.begin(),
-            result.deltaVelocity.end(),
-            [](const float value) {
-                return std::isfinite(value);
-            }
-        ) &&
+        allFiniteFloats(result.diagnosticMassMatrix) &&
+        allFiniteFloats(result.pointJacobians) &&
+        allFiniteFloats(result.generalizedImpulse) &&
+        allFiniteFloats(result.deltaVelocity) &&
         std::all_of(
             result.millardResults.begin(),
             result.millardResults.end(),
@@ -5762,13 +5766,7 @@ bool finitePayload(
                 return finite(value.pathFiberTendonResidual);
             }
         ) &&
-        std::all_of(
-            result.millardGeneralizedForces.begin(),
-            result.millardGeneralizedForces.end(),
-            [](const float value) {
-                return std::isfinite(value);
-            }
-        ) &&
+        allFiniteFloats(result.millardGeneralizedForces) &&
         std::all_of(
             result.mujocoResults.begin(),
             result.mujocoResults.end(),
@@ -5784,28 +5782,10 @@ bool finitePayload(
                     value.excitationAndActivation.z >= 0.0f;
             }
         ) &&
-        std::all_of(
-            result.mujocoMuscleGeneralizedForces.begin(),
-            result.mujocoMuscleGeneralizedForces.end(),
-            [](const float value) {
-                return std::isfinite(value);
-            }
-        ) &&
-        std::all_of(
-            result.mujocoGeneralizedForces.begin(),
-            result.mujocoGeneralizedForces.end(),
-            [](const float value) {
-                return std::isfinite(value);
-            }
-        ) &&
-        std::all_of(
-            result.standQ.begin(), result.standQ.end(),
-            [](const float value) { return std::isfinite(value); }
-        ) &&
-        std::all_of(
-            result.standV.begin(), result.standV.end(),
-            [](const float value) { return std::isfinite(value); }
-        ) &&
+        allFiniteFloats(result.mujocoMuscleGeneralizedForces) &&
+        allFiniteFloats(result.mujocoGeneralizedForces) &&
+        allFiniteFloats(result.standQ) &&
+        allFiniteFloats(result.standV) &&
         std::all_of(
             result.standTendonTransfers.begin(),
             result.standTendonTransfers.end(),
@@ -5819,11 +5799,7 @@ bool finitePayload(
                     );
             }
         ) &&
-        std::all_of(
-            result.standTendonGeneralizedCorrections.begin(),
-            result.standTendonGeneralizedCorrections.end(),
-            [](const float value) { return std::isfinite(value); }
-        );
+        allFiniteFloats(result.standTendonGeneralizedCorrections);
 }
 
 } // namespace
