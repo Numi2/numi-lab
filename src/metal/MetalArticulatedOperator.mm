@@ -10823,6 +10823,16 @@ MetalArticulatedOperatorContext::submit(
                 const bool cpuFinishRequested =
                     cpuFinishSetting != nullptr &&
                     std::strcmp(cpuFinishSetting, "1") == 0;
+                const char* cpuFactorShadowSetting =
+                    std::getenv("NUMI_HUMAN_STAND_CPU_FACTOR_SHADOW");
+                const bool cpuFactorShadowRequested =
+                    cpuFactorShadowSetting != nullptr &&
+                    std::strcmp(cpuFactorShadowSetting, "1") == 0;
+                const char* cpuFactorSetting =
+                    std::getenv("NUMI_HUMAN_STAND_CPU_FACTOR");
+                const bool cpuFactorRequested =
+                    cpuFactorSetting != nullptr &&
+                    std::strcmp(cpuFactorSetting, "1") == 0;
                 if (handoffProbeRequested && !freeSplit) {
                     return reject(
                         std::move(diagnostics),
@@ -10850,6 +10860,14 @@ MetalArticulatedOperatorContext::submit(
                 // fails instead of silently changing solver authority.
                 const bool cpuFinish = cpuFinishRequested &&
                     input.stand.numanXTransactionProgram.valid();
+                if (cpuFinish && cpuFactorShadowRequested &&
+                    cpuFactorRequested) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::invalidDimensions,
+                        "stand CPU factor and its shadow mode are exclusive"
+                    );
+                }
                 if (cpuFinish &&
                     (articulation.nv != detail::stand_cpu_pilot::kDofs ||
                      standDispatch.supportContactCount !=
@@ -10889,6 +10907,203 @@ MetalArticulatedOperatorContext::submit(
                     (splitStand ? 2u : 1u);
                 for (std::uint32_t phase = 0u;
                      phase < standPhaseCount; ++phase) {
+                    if ((cpuFactorShadowRequested || cpuFactorRequested) &&
+                        cpuFinish && phase == 2u) {
+                        if (state_->standFreeHandoffEvent == nil) {
+                            state_->standFreeHandoffEvent =
+                                [state_->device newSharedEvent];
+                            dispatch_queue_t callbackQueue =
+                                dispatch_queue_create(
+                                    "numi.human.stand.factor-shadow",
+                                    DISPATCH_QUEUE_SERIAL);
+                            state_->standFreeHandoffListener =
+                                [[MTLSharedEventListener alloc]
+                                    initWithDispatchQueue:callbackQueue];
+                        }
+                        if (state_->standFreeHandoffEvent == nil ||
+                            state_->standFreeHandoffListener == nil ||
+                            state_->standFreeHandoffNextValue >
+                                UINT64_MAX - 2u) {
+                            return reject(
+                                std::move(diagnostics),
+                                MetalArticulatedOperatorHostStatus::metalCommandFailure,
+                                "failed to allocate stand CPU factor shadow event"
+                            );
+                        }
+                        const std::uint64_t ready =
+                            state_->standFreeHandoffNextValue + 1u;
+                        const std::uint64_t resume = ready + 1u;
+                        state_->standFreeHandoffNextValue = resume;
+                        id<MTLSharedEvent> event =
+                            state_->standFreeHandoffEvent;
+                        id<MTLBuffer> factorBuffer = state_->standBuffers[
+                            kStandFactorBuffer];
+                        id<MTLBuffer> standStatus = state_->standBuffers[
+                            kStandStatusBuffer];
+                        id<MTLBuffer> contactBuffer = state_->standBuffers[
+                            kStandContactsBuffer];
+                        if (factorBuffer == nil ||
+                            factorBuffer.contents == nullptr ||
+                            factorBuffer.length < sizeof(
+                                detail::stand_cpu_pilot::MassFactor) ||
+                            standStatus == nil ||
+                            standStatus.contents == nullptr ||
+                            (cpuFactorRequested &&
+                             (contactBuffer == nil ||
+                              contactBuffer.contents == nullptr ||
+                              contactBuffer.length <
+                                  detail::stand_cpu_pilot::kContacts *
+                                      sizeof(MRNumiHumanStandContactGPU)))) {
+                            return reject(
+                                std::move(diagnostics),
+                                MetalArticulatedOperatorHostStatus::metalBufferFailure,
+                                "stand CPU factor shadow requires shared buffers"
+                            );
+                        }
+                        const auto shadowFactor = std::make_shared<
+                            detail::stand_cpu_pilot::MassFactor>();
+                        const auto shadowState =
+                            std::make_shared<std::atomic<unsigned>>(0u);
+                        const std::uint32_t probeStep = authoritativeStep;
+                        const bool physicalFactor = cpuFactorRequested;
+                        const auto factorDispatch = standDispatch;
+                        const auto factorArticulation = articulation;
+                        [event notifyListener:
+                            state_->standFreeHandoffListener
+                            atValue:ready
+                            block:^(id<MTLSharedEvent> signaled,
+                                    std::uint64_t /*value*/) {
+                                const auto begin =
+                                    std::chrono::steady_clock::now();
+                                auto* status = static_cast<
+                                    MRNumiHumanStandStatusGPU*>(
+                                        standStatus.contents);
+                                const auto* mass = static_cast<const float*>(
+                                    factorBuffer.contents);
+                                const bool valid = status != nullptr &&
+                                    mass != nullptr &&
+                                    status->code ==
+                                        MR_NUMI_HUMAN_STAND_SUCCESS &&
+                                    (status->flags &
+                                     MR_NUMI_HUMAN_STAND_MASS_PREREQUISITES_ONLY)
+                                        != 0u;
+                                unsigned failingColumn = MR_INVALID_INDEX;
+                                bool factored = valid &&
+                                    detail::stand_cpu_pilot::factorMass(
+                                        mass, *shadowFactor,
+                                        &failingColumn);
+                                if (factored && physicalFactor) {
+                                    const auto* supports = static_cast<const
+                                        MRNumiHumanStandContactGPU*>(
+                                            contactBuffer.contents);
+                                    for (unsigned contact = 0u;
+                                         contact <
+                                             detail::stand_cpu_pilot::kContacts;
+                                         ++contact) {
+                                        const auto& support =
+                                            supports[contact];
+                                        const auto& friction = support.
+                                            frictionSlopAndStabilization;
+                                        if (support.bodyIndex <
+                                                factorArticulation.firstBody ||
+                                            support.bodyIndex >=
+                                                factorArticulation.firstBody +
+                                                factorArticulation.bodyCount ||
+                                            support.pointQueryIndex >=
+                                                factorDispatch.pointWorldStride ||
+                                            support.reserved0 != 0u ||
+                                            !std::isfinite(friction.x) ||
+                                            !std::isfinite(friction.y) ||
+                                            !std::isfinite(friction.z) ||
+                                            !std::isfinite(friction.w) ||
+                                            friction.x < 0.0f ||
+                                            friction.y < 0.0f ||
+                                            friction.z < 0.0f ||
+                                            friction.z > 1.0f ||
+                                            friction.w < 0.0f) {
+                                            status->code =
+                                                MR_NUMI_HUMAN_STAND_INVALID_DISPATCH;
+                                            status->failingIndex = contact;
+                                            factored = false;
+                                            break;
+                                        }
+                                    }
+                                    if (factored)
+                                        std::copy(shadowFactor->begin(),
+                                                  shadowFactor->end(),
+                                                  static_cast<float*>(
+                                                      factorBuffer.contents));
+                                }
+                                if (physicalFactor && !factored && valid &&
+                                    status->code ==
+                                        MR_NUMI_HUMAN_STAND_SUCCESS) {
+                                    status->code =
+                                        MR_NUMI_HUMAN_STAND_FACTORIZATION_FAILED;
+                                    status->failingIndex = failingColumn;
+                                } else if (physicalFactor && !valid &&
+                                           status != nullptr &&
+                                           status->code ==
+                                               MR_NUMI_HUMAN_STAND_SUCCESS) {
+                                    status->code =
+                                        MR_NUMI_HUMAN_STAND_INVALID_DISPATCH;
+                                    status->failingIndex = MR_INVALID_INDEX;
+                                }
+                                shadowState->store(factored ? 1u : 2u,
+                                                   std::memory_order_release);
+                                const auto elapsed =
+                                    std::chrono::duration_cast<
+                                        std::chrono::nanoseconds>(
+                                            std::chrono::steady_clock::now() -
+                                            begin).count();
+                                if (probeStep < 8u ||
+                                    probeStep % 1024u == 0u || !factored)
+                                    std::fprintf(stderr,
+                                        "human_stand_cpu_factor "
+                                        "step=%u physical=%u valid=%u factored=%u "
+                                        "elapsed_ns=%lld\n",
+                                        probeStep, physicalFactor ? 1u : 0u,
+                                        valid ? 1u : 0u,
+                                        factored ? 1u : 0u,
+                                        static_cast<long long>(elapsed));
+                                signaled.signaledValue = resume;
+                            }];
+                        [commandBuffer encodeSignalEvent:event value:ready];
+                        [commandBuffer encodeWaitForEvent:event value:resume];
+                        if (!physicalFactor) {
+                            [commandBuffer addCompletedHandler:
+                                ^(id<MTLCommandBuffer> completed) {
+                                    if (completed.status !=
+                                            MTLCommandBufferStatusCompleted ||
+                                        shadowState->load(
+                                            std::memory_order_acquire) != 1u)
+                                        return;
+                                    const auto* gpuFactor =
+                                        static_cast<const float*>(
+                                            factorBuffer.contents);
+                                    if (gpuFactor == nullptr) return;
+                                    float maxDelta = 0.0f;
+                                    for (unsigned row = 0u;
+                                         row < detail::stand_cpu_pilot::kDofs;
+                                         ++row)
+                                        for (unsigned column = 0u;
+                                             column <= row; ++column)
+                                            maxDelta = std::max(maxDelta,
+                                                std::abs(gpuFactor[
+                                                    row * detail::stand_cpu_pilot::kDofs
+                                                    + column] -
+                                                    (*shadowFactor)[
+                                                        row * detail::stand_cpu_pilot::kDofs
+                                                        + column]));
+                                    if (probeStep < 8u ||
+                                        probeStep % 1024u == 0u)
+                                        std::fprintf(stderr,
+                                            "human_stand_cpu_factor_delta "
+                                            "step=%u max_abs=%.9g\n",
+                                            probeStep, maxDelta);
+                                }];
+                        }
+                        if (physicalFactor) continue;
+                    }
                     if (handoffProbeRequested && phase == 7u) {
                         if (state_->standFreeHandoffEvent == nil) {
                             state_->standFreeHandoffEvent =

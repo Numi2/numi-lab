@@ -24,6 +24,47 @@ constexpr unsigned kEqualities = 51u;
 constexpr unsigned kSweeps = 64u;
 constexpr float kRegularization = 1.0e-7f;
 using Velocity = std::array<float, kDofs>;
+using MassFactor = std::array<float, kDofs * kDofs>;
+
+// Shadow the dependent 128-column Cholesky before changing its GPU owner.
+// Every row retains the Metal kernel's original increasing inner order.
+inline bool factorMass(const float* source, MassFactor& factor,
+                       unsigned* failingColumn = nullptr) {
+    if (source == nullptr) return false;
+    std::array<float, kDofs> rowScale{};
+    std::copy_n(source, factor.size(), factor.data());
+    for (unsigned row = 0u; row < kDofs; ++row)
+        for (unsigned column = 0u; column < kDofs; ++column)
+            rowScale[row] = std::max(rowScale[row],
+                std::abs(factor[row * kDofs + column]));
+    for (unsigned column = 0u; column < kDofs; ++column) {
+        float pivot = factor[column * kDofs + column];
+        for (unsigned inner = 0u; inner < column; ++inner)
+            pivot -= factor[column * kDofs + inner] *
+                factor[column * kDofs + inner];
+        if (!(pivot > std::max(1.0e-10f,
+                              rowScale[column] * 8.0f *
+                                  1.1920928955078125e-7f)) ||
+            !std::isfinite(pivot)) {
+            if (failingColumn) *failingColumn = column;
+            return false;
+        }
+        factor[column * kDofs + column] = std::sqrt(pivot);
+        for (unsigned row = column + 1u; row < kDofs; ++row) {
+            float value = factor[row * kDofs + column];
+            for (unsigned inner = 0u; inner < column; ++inner)
+                value -= factor[row * kDofs + inner] *
+                    factor[column * kDofs + inner];
+            factor[row * kDofs + column] =
+                value / factor[column * kDofs + column];
+            if (!std::isfinite(factor[row * kDofs + column])) {
+                if (failingColumn) *failingColumn = column;
+                return false;
+            }
+        }
+    }
+    return true;
+}
 
 struct Contact {
     float gap{}, mu{}, slop{}, stabilization{}, seedForce{};
