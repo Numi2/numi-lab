@@ -10920,6 +10920,18 @@ MetalArticulatedOperatorContext::submit(
                 const bool oneHandoffRequested =
                     oneHandoffSetting != nullptr &&
                     std::strcmp(oneHandoffSetting, "1") == 0;
+                const char* neonConditionSetting =
+                    std::getenv("NUMI_HUMAN_STAND_CPU_CONDITION_NEON");
+                const bool neonConditionRequested =
+                    neonConditionSetting != nullptr &&
+                    std::strcmp(neonConditionSetting, "1") == 0;
+                if (neonConditionRequested && !oneHandoffRequested) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::invalidDimensions,
+                        "NEON projected conditioning requires the single-Human CPU handoff"
+                    );
+                }
                 if (oneHandoffRequested &&
                     (!cpuFreeRequested || !cpuEqualityFactorRequested ||
                      !cpuProjectedRequested || !cpuFinishRequested ||
@@ -11582,7 +11594,8 @@ MetalArticulatedOperatorContext::submit(
                                                         conditionProjectedResponseColumn(
                                                             equalities, *active,
                                                             spatial, responses,
-                                                            column, &failed)) {
+                                                            column, &failed,
+                                                            neonConditionRequested)) {
                                                     workerFailures[worker] =
                                                         failed;
                                                     break;

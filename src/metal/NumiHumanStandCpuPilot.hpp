@@ -21,6 +21,9 @@
 #include <array>
 #include <cmath>
 #include <cstdint>
+#if defined(__aarch64__)
+#include <arm_neon.h>
+#endif
 
 namespace metalrobo::detail::stand_cpu_pilot {
 
@@ -267,7 +270,7 @@ inline bool conditionProjectedResponseColumn(
     const MRNumiHumanJointEqualityGPU* equalities,
     const ProjectedActive& active, float* spatialScratch,
     float* responseScratch, unsigned column,
-    unsigned* failingIndex = nullptr
+    unsigned* failingIndex = nullptr, bool neonCondition = false
 ) {
     if (equalities == nullptr || spatialScratch == nullptr ||
         responseScratch == nullptr || column >= kProjectedColumns) return false;
@@ -312,6 +315,27 @@ inline bool conditionProjectedResponseColumn(
             }
             for (unsigned row = 0u; row < kEqualities; ++row)
                 reaction[row] -= equalityRhs[row];
+#if defined(__aarch64__)
+            if (neonCondition) {
+                static_assert(kDofs % 4u == 0u);
+                for (unsigned dof = 0u; dof < kDofs; dof += 4u) {
+                    float32x4_t correction = vdupq_n_f32(0.0f);
+                    for (unsigned row = 0u; row < kEqualities; ++row) {
+                        const float* equalityResponse = responseScratch +
+                            (3u * kContacts + row) * kDofs + dof;
+                        correction = vfmaq_n_f32(correction,
+                            vld1q_f32(equalityResponse), equalityRhs[row]);
+                    }
+                    vst1q_f32(response + dof,
+                        vsubq_f32(vld1q_f32(response + dof), correction));
+                    for (unsigned lane = 0u; lane < 4u; ++lane)
+                        if (!std::isfinite(response[dof + lane])) {
+                            if (failingIndex) *failingIndex = column;
+                            return false;
+                        }
+                }
+            } else
+#endif
             for (unsigned dof = 0u; dof < kDofs; ++dof) {
                 float correction = 0.0f;
                 for (unsigned row = 0u; row < kEqualities; ++row) {
