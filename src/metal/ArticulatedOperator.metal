@@ -25,6 +25,13 @@ inline float3 operator-(MRKinematicPosition a, MRKinematicPosition b) {
     return mrCompensatedPositionDifference(a.high,a.low,b.high,b.low).xyz;
 }
 inline bool finite3(MRKinematicPosition value) { return all(isfinite(value.high)) && all(isfinite(value.low)); }
+struct MRArticulatedKinematicsCache {
+    uint valid;
+    MRKinematicPosition bodyPosition[MR_ARTICULATED_OPERATOR_KINEMATICS_MAX_BODIES];
+    float4 bodyRotation[MR_ARTICULATED_OPERATOR_KINEMATICS_MAX_BODIES];
+    MRKinematicPosition jointPosition[MR_ARTICULATED_OPERATOR_KINEMATICS_MAX_BODIES];
+    float4 jointAxis[MR_ARTICULATED_OPERATOR_KINEMATICS_MAX_BODIES];
+};
 #else
 using MRKinematicPosition = float3;
 inline MRKinematicPosition kinematicPosition(float3 v) { return v; }
@@ -745,12 +752,24 @@ inline bool validDispatch(
              MR_ARTICULATED_OPERATOR_IGNORE_FOREIGN_POINTS
 #if MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
              | MR_ARTICULATED_OPERATOR_COMPENSATED_TRANSLATION
+             | MR_ARTICULATED_OPERATOR_KINEMATICS_CACHE_PREPARE
+             | MR_ARTICULATED_OPERATOR_KINEMATICS_CACHE_CONSUME
 #endif
          )) != 0u ||
         ((dispatch.flags &
           MR_ARTICULATED_OPERATOR_IGNORE_FOREIGN_POINTS) != 0u &&
          (dispatch.flags &
           MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY) == 0u) ||
+#if MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
+        ((dispatch.flags &
+          (MR_ARTICULATED_OPERATOR_KINEMATICS_CACHE_PREPARE |
+           MR_ARTICULATED_OPERATOR_KINEMATICS_CACHE_CONSUME)) != 0u &&
+         ((dispatch.flags & MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY) == 0u ||
+          (dispatch.flags & MR_ARTICULATED_OPERATOR_COMPENSATED_TRANSLATION) == 0u ||
+          dispatch.environmentCount != 1u ||
+          (dispatch.flags & MR_ARTICULATED_OPERATOR_KINEMATICS_CACHE_PREPARE) != 0u &&
+          (dispatch.flags & MR_ARTICULATED_OPERATOR_KINEMATICS_CACHE_CONSUME) != 0u)) ||
+#endif
         ((dispatch.flags &
           MR_ARTICULATED_OPERATOR_WRITE_DIAGNOSTIC_MASS) != 0u &&
          (dispatch.flags &
@@ -1746,6 +1765,7 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
     device const MRCompensatedRootTranslationGPU* rootTranslations [[buffer(17)]],
     device float4* bodyPositionLow [[buffer(18)]],
     device float4* pointPositionLow [[buffer(19)]],
+    device uchar* kinematicsCacheBytes [[buffer(20)]],
 #endif
     threadgroup uchar* scratch [[threadgroup(0)]],
     uint3 workGroup [[threadgroup_position_in_grid]],
@@ -1756,6 +1776,11 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
     uint3 threadgroupSize [[threads_per_threadgroup]]
 ) {
     const uint environment = workGroup.x;
+#if MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
+    device MRArticulatedKinematicsCache* kinematicsCache =
+        reinterpret_cast<device MRArticulatedKinematicsCache*>(
+            kinematicsCacheBytes);
+#endif
     const uint tile = workGroup.y;
     const uint tileCount = groupCount.y;
     const uint threadsPerThreadgroup = threadgroupSize.x;
@@ -1884,6 +1909,14 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
     const bool pointJacobiansOnly =
         (dispatch.flags &
          MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY) != 0u;
+#if MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
+    const bool cachePrepare =
+        (dispatch.flags & MR_ARTICULATED_OPERATOR_KINEMATICS_CACHE_PREPARE) != 0u;
+    const bool cacheConsume =
+        (dispatch.flags & MR_ARTICULATED_OPERATOR_KINEMATICS_CACHE_CONSUME) != 0u;
+    if (cachePrepare && lane == 0u) kinematicsCache[environment].valid = 0u;
+    if (cachePrepare) threadgroup_barrier(mem_flags::mem_device);
+#endif
     threadgroup atomic_uint cooperativeKinematicsFailed;
     threadgroup uint cooperativeKinematicsMaximumDepth;
     if (lane == 0u) {
@@ -1923,7 +1956,28 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
         return;
     }
     if (pointJacobiansOnly) {
-        const bool kinematicsSucceeded = buildKinematicsCooperative(
+        bool kinematicsSucceeded = true;
+#if MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
+        if (cacheConsume) {
+            if (kinematicsCache[environment].valid != 1u) {
+                if (lane == 0u && tile == 0u) {
+                    setFailure(status, MR_ARTICULATED_OPERATOR_INVALID_DISPATCH,
+                               MR_INVALID_INDEX);
+                    statuses[environment] = status;
+                }
+                return;
+            }
+            for (uint body = lane; body < articulation.bodyCount;
+                 body += threadsPerThreadgroup) {
+                bodyPosition[body] = kinematicsCache[environment].bodyPosition[body];
+                bodyRotation[body] = kinematicsCache[environment].bodyRotation[body];
+                jointPosition[body] = kinematicsCache[environment].jointPosition[body];
+                jointAxis[body] = kinematicsCache[environment].jointAxis[body].xyz;
+            }
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+        } else
+#endif
+        kinematicsSucceeded = buildKinematicsCooperative(
             articulation, joints, functionPrograms, environmentQ,
             bodyPosition, bodyRotation, jointPosition, jointAxis, known,
             &cooperativeKinematicsFailed,
@@ -1936,6 +1990,23 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
             }
             return;
         }
+#if MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
+        if (cachePrepare) {
+            const uint root = articulation.rootBody - articulation.firstBody;
+            for (uint body = lane; body < articulation.bodyCount;
+                 body += threadsPerThreadgroup) {
+                kinematicsCache[environment].bodyPosition[body] = bodyPosition[body];
+                kinematicsCache[environment].bodyRotation[body] = bodyRotation[body];
+                kinematicsCache[environment].jointPosition[body] =
+                    body == root ? kinematicPosition(float3(0.0f)) : jointPosition[body];
+                kinematicsCache[environment].jointAxis[body] =
+                    body == root ? float4(0.0f) : float4(jointAxis[body], 0.0f);
+            }
+            threadgroup_barrier(mem_flags::mem_device);
+            if (lane == 0u) kinematicsCache[environment].valid = 1u;
+            return;
+        }
+#endif
         const uint pointBase = environment * dispatch.pointStride;
         for (uint point = lane; point < dispatch.pointCount;
              point += threadsPerThreadgroup) {

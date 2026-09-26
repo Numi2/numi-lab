@@ -484,6 +484,7 @@ struct MetalArticulatedOperatorContextState {
     __strong id<MTLLibrary> library = nil;
     __strong id<MTLComputePipelineState> pipeline = nil;
     __strong id<MTLComputePipelineState> compensatedPipeline = nil;
+    __strong id<MTLBuffer> kinematicsCache = nil;
     __strong id<MTLComputePipelineState> millardPipeline = nil;
     __strong id<MTLComputePipelineState> mujocoPipeline = nil;
     __strong id<MTLComputePipelineState> mujocoCompensatedPipeline = nil;
@@ -5536,6 +5537,9 @@ struct MetalBufferRegion {
     [kinematics setBuffer:(__bridge id<MTLBuffer>)query.candidateRootTranslation offset:0u atIndex:17u];
     [kinematics setBuffer:context.state->humanMatterBuffers[kHumanMatterCandidateBodyPositionLowBuffer] offset:0u atIndex:18u];
     [kinematics setBuffer:context.state->humanMatterBuffers[kHumanMatterCandidatePointPositionLowBuffer] offset:0u atIndex:19u];
+    [kinematics setBuffer:context.state->humanMatterBuffers[
+                              kHumanMatterCandidateBodyPoseBuffer]
+                     offset:0u atIndex:20u];
     for (NSUInteger index = 0u; index < 5u; ++index) {
         [kinematics setBuffer:context.state->buffers[index]
                        offset:0u atIndex:index];
@@ -9489,6 +9493,24 @@ MetalArticulatedOperatorContext::submit(
                 !input.stand.numanXHumanMatterProgram.valid() &&
                 horizonStepCount == 1u && input.environmentCount == 1u &&
                 state_->config.pointJacobiansOnly && pairedGeometry;
+            const char* kinematicsCacheSetting =
+                std::getenv("NUMI_HUMAN_KINEMATICS_CACHE");
+            // Reuse the shared pose cache for the qualified single-Human
+            // compensated Jacobian path unless explicitly disabled.
+            const bool shareKinematics = overlapGeometry &&
+                (kinematicsCacheSetting == nullptr ||
+                 std::strcmp(kinematicsCacheSetting, "1") == 0);
+            if (shareKinematics && state_->kinematicsCache == nil) {
+                // One single-Human cache holds at most 192 compensated body
+                // positions, rotations, joint anchors, and joint axes.
+                state_->kinematicsCache = [state_->device
+                    newBufferWithLength:32768u
+                                options:MTLResourceStorageModePrivate];
+                if (state_->kinematicsCache == nil)
+                    return reject(std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::metalBufferFailure,
+                        "failed to allocate articulated kinematics cache");
+            }
             if (overlapGeometry) {
                 if (state_->geometryQueue == nil)
                     state_->geometryQueue = [state_->device newCommandQueue];
@@ -10219,6 +10241,52 @@ MetalArticulatedOperatorContext::submit(
             }
             id<MTLCommandBuffer> kinematicsCommandBuffer = overlapGeometry
                 ? geometryCommandBuffer : commandBuffer;
+            id<MTLComputePipelineState> kinematicsPipeline = pairedGeometry
+                ? state_->compensatedPipeline : state_->pipeline;
+            const NSUInteger kinematicsThreads =
+                state_->config.pointJacobiansOnly
+                    ? std::min<NSUInteger>(
+                        8u * kinematicsPipeline.threadExecutionWidth,
+                        kinematicsPipeline.maxTotalThreadsPerThreadgroup)
+                    : kThreadsPerThreadgroup;
+            const NSUInteger kinematicsScratchBytes =
+                detail::articulatedOperatorThreadgroupBytes(
+                    articulation.bodyCount, articulation.nv,
+                    !state_->config.pointJacobiansOnly, pairedGeometry);
+            if (shareKinematics) {
+                id<MTLComputeCommandEncoder> prepare =
+                    humanTimedEncoder(kinematicsCommandBuffer, state_->device,
+                                      "kinematics_prepare", authoritativeStep);
+                if (prepare == nil) {
+                    return reject(std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::metalCommandFailure,
+                        "failed to create kinematics prepare encoder");
+                }
+                [prepare setComputePipelineState:kinematicsPipeline];
+                for (NSUInteger index = 0u; index < kRawBufferCount; ++index)
+                    [prepare setBuffer:state_->buffers[index]
+                                 offset:0u atIndex:index];
+                MRArticulatedOperatorDispatchGPU prepareDispatch =
+                    diagnostics.layout.dispatch;
+                prepareDispatch.flags |=
+                    MR_ARTICULATED_OPERATOR_KINEMATICS_CACHE_PREPARE;
+                [prepare setBytes:&prepareDispatch
+                           length:sizeof(prepareDispatch) atIndex:5u];
+                [prepare setBuffer:state_->standBuffers[kStandRootTranslationBuffer]
+                            offset:0u atIndex:17u];
+                [prepare setBuffer:state_->standBuffers[kStandBodyPositionLowBuffer]
+                            offset:0u atIndex:18u];
+                [prepare setBuffer:state_->standBuffers[kStandPointPositionLowBuffer]
+                            offset:0u atIndex:19u];
+                [prepare setBuffer:state_->kinematicsCache
+                            offset:0u atIndex:20u];
+                [prepare setThreadgroupMemoryLength:kinematicsScratchBytes
+                                            atIndex:0u];
+                [prepare dispatchThreadgroups:MTLSizeMake(1u, 1u, 1u)
+                        threadsPerThreadgroup:MTLSizeMake(
+                            kinematicsThreads, 1u, 1u)];
+                [prepare endEncoding];
+            }
             id<MTLComputeCommandEncoder> encoder =
                 humanTimedEncoder(kinematicsCommandBuffer, state_->device,
                                   "kinematics", authoritativeStep);
@@ -10230,8 +10298,6 @@ MetalArticulatedOperatorContext::submit(
                     "failed to create Metal compute encoder"
                 );
             }
-            id<MTLComputePipelineState> kinematicsPipeline = pairedGeometry
-                ? state_->compensatedPipeline : state_->pipeline;
             [encoder setComputePipelineState:kinematicsPipeline];
             for (NSUInteger index = 0u;
                  index < kRawBufferCount;
@@ -10245,23 +10311,24 @@ MetalArticulatedOperatorContext::submit(
                 [encoder setBuffer:state_->standBuffers[kStandRootTranslationBuffer] offset:0u atIndex:17u];
                 [encoder setBuffer:state_->standBuffers[kStandBodyPositionLowBuffer] offset:0u atIndex:18u];
                 [encoder setBuffer:state_->standBuffers[kStandPointPositionLowBuffer] offset:0u atIndex:19u];
+                [encoder setBuffer:shareKinematics
+                                       ? state_->kinematicsCache
+                                       : state_->buffers[8u]
+                             offset:0u atIndex:20u];
+                if (shareKinematics) {
+                    MRArticulatedOperatorDispatchGPU consumeDispatch =
+                        diagnostics.layout.dispatch;
+                    consumeDispatch.flags |=
+                        MR_ARTICULATED_OPERATOR_KINEMATICS_CACHE_CONSUME;
+                    [encoder setBytes:&consumeDispatch
+                               length:sizeof(consumeDispatch) atIndex:5u];
+                }
             }
             [encoder
                 setThreadgroupMemoryLength:
-                    detail::articulatedOperatorThreadgroupBytes(
-                        articulation.bodyCount,
-                        articulation.nv,
-                        !state_->config.pointJacobiansOnly,
-                        pairedGeometry
-                    )
+                    kinematicsScratchBytes
                 atIndex:0u];
             // Point Jacobians process independent points per SIMD group.
-            const NSUInteger kinematicsThreads =
-                state_->config.pointJacobiansOnly
-                    ? std::min<NSUInteger>(
-                        8u * kinematicsPipeline.threadExecutionWidth,
-                        kinematicsPipeline.maxTotalThreadsPerThreadgroup)
-                    : kThreadsPerThreadgroup;
             // Each tile recomputes its small body-state scratch, then owns a
             // disjoint subset of point Jacobians. One tile publishes shared
             // poses, generalized zeros, and the environment status.
@@ -12297,6 +12364,7 @@ MetalArticulatedOperatorContext::submit(
                     [refresh setBuffer:state_->standBuffers[kStandRootTranslationBuffer] offset:0u atIndex:17u];
                     [refresh setBuffer:state_->standBuffers[kStandBodyPositionLowBuffer] offset:0u atIndex:18u];
                     [refresh setBuffer:state_->standBuffers[kStandPointPositionLowBuffer] offset:0u atIndex:19u];
+                    [refresh setBuffer:state_->buffers[8u] offset:0u atIndex:20u];
                     [refresh setThreadgroupMemoryLength:detail::articulatedOperatorThreadgroupBytes(
                         articulation.bodyCount, articulation.nv, false, true) atIndex:0u];
                     [refresh dispatchThreadgroups:MTLSizeMake(input.environmentCount,1u,1u)

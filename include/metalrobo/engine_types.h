@@ -524,6 +524,10 @@ enum MRArticulatedOperatorFlags : mr_u32 {
     // list to be streamed through several block-diagonal articulations.
     MR_ARTICULATED_OPERATOR_IGNORE_FOREIGN_POINTS = 1u << 5u,
     MR_ARTICULATED_OPERATOR_COMPENSATED_TRANSLATION = 1u << 6u,
+    // Opt-in two-pass Jacobian path. The first pass stores validated
+    // articulated poses; the second reuses them across independent point tiles.
+    MR_ARTICULATED_OPERATOR_KINEMATICS_CACHE_PREPARE = 1u << 7u,
+    MR_ARTICULATED_OPERATOR_KINEMATICS_CACHE_CONSUME = 1u << 8u,
 };
 
 // One dispatch describes a batch of states for one immutable articulation.
