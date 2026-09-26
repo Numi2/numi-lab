@@ -10843,6 +10843,11 @@ MetalArticulatedOperatorContext::submit(
                 const bool cpuEqualityRequested =
                     cpuEqualitySetting != nullptr &&
                     std::strcmp(cpuEqualitySetting, "1") == 0;
+                const char* cpuEqualityFactorSetting =
+                    std::getenv("NUMI_HUMAN_STAND_CPU_EQUALITY_FACTOR");
+                const bool cpuEqualityFactorRequested =
+                    cpuEqualityFactorSetting != nullptr &&
+                    std::strcmp(cpuEqualityFactorSetting, "1") == 0;
                 const char* cpuProjectedSetting =
                     std::getenv("NUMI_HUMAN_STAND_CPU_PROJECTED_RAW");
                 const bool cpuProjectedRequested =
@@ -10892,6 +10897,17 @@ MetalArticulatedOperatorContext::submit(
                 const bool cpuFinish = cpuFinishRequested &&
                     input.stand.numanXTransactionProgram.valid();
                 const bool cpuFree = cpuFreeRequested && cpuFinish;
+                const bool cpuEqualityFactor =
+                    cpuEqualityFactorRequested && cpuFinish;
+                if (cpuEqualityFactor &&
+                    (!cpuFactorRequested || !cpuEqualityRequested ||
+                     input.environmentCount != 1u)) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::invalidDimensions,
+                        "CPU equality factor requires the single-Human CPU stand path"
+                    );
+                }
                 if (cpuFinish && (cpuEqualityRequested ||
                                   cpuEqualityShadowRequested) &&
                     (!cpuFactorRequested ||
@@ -11002,6 +11018,9 @@ MetalArticulatedOperatorContext::submit(
                         id<MTLBuffer> responseBuffer = equalityMode
                             ? state_->standBuffers[kStandResponseBuffer]
                             : nil;
+                        id<MTLBuffer> spatialBuffer = cpuEqualityFactor
+                            ? state_->standBuffers[kStandSpatialJacobianBuffer]
+                            : nil;
                         id<MTLBuffer> dofBuffer = cpuProjectedRequested
                             ? state_->buffers[3u] : nil;
                         id<MTLBuffer> pointWorldBuffer = cpuProjectedRequested
@@ -11048,6 +11067,21 @@ MetalArticulatedOperatorContext::submit(
                                         ? detail::stand_cpu_pilot::kDofs : 0u)) *
                                       detail::stand_cpu_pilot::kDofs *
                                       sizeof(float))) ||
+                            (cpuEqualityFactor &&
+                             (spatialBuffer == nil ||
+                              spatialBuffer.contents == nullptr ||
+                              spatialBuffer.length <
+                                  (2u + detail::stand_cpu_pilot::kEqualities) *
+                                      detail::stand_cpu_pilot::kDofs *
+                                      sizeof(float) ||
+                              responseBuffer.length <
+                                  ((3u * detail::stand_cpu_pilot::kContacts +
+                                    detail::stand_cpu_pilot::kEqualities +
+                                    detail::stand_cpu_pilot::kDofs) *
+                                       detail::stand_cpu_pilot::kDofs +
+                                   detail::stand_cpu_pilot::kEqualities *
+                                       (detail::stand_cpu_pilot::kEqualities +
+                                        2u)) * sizeof(float))) ||
                             (cpuProjectedRequested &&
                              (dofBuffer == nil || dofBuffer.contents == nullptr ||
                               dofBuffer.length <
@@ -11229,6 +11263,53 @@ MetalArticulatedOperatorContext::submit(
                                     }
                                 }
                                 if (factored && equalitySolved &&
+                                    cpuEqualityFactor &&
+                                    status->code ==
+                                        MR_NUMI_HUMAN_STAND_SUCCESS) {
+                                    const auto equalityFactorBegin =
+                                        std::chrono::steady_clock::now();
+                                    unsigned failingEquality =
+                                        MR_INVALID_INDEX;
+                                    const bool prepared =
+                                        detail::stand_cpu_pilot::
+                                            prepareEqualityFactor(
+                                                static_cast<const float*>(
+                                                    qBuffer.contents),
+                                                factorArticulation.nq,
+                                                factorDispatch.
+                                                    groundPointAndTimestep.w,
+                                                factorArticulation.bodyCount,
+                                                static_cast<const
+                                                    MRNumiHumanJointEqualityGPU*>(
+                                                        equalityBuffer.contents),
+                                                *equalityResponses,
+                                                static_cast<float*>(
+                                                    spatialBuffer.contents),
+                                                static_cast<float*>(
+                                                    responseBuffer.contents),
+                                                &failingEquality);
+                                    if (!prepared) {
+                                        status->code =
+                                            MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED;
+                                        status->failingIndex = failingEquality;
+                                    }
+                                    if (probeStep < 8u ||
+                                        probeStep % 1024u == 0u || !prepared) {
+                                        const auto elapsedNs =
+                                            std::chrono::duration_cast<
+                                                std::chrono::nanoseconds>(
+                                                std::chrono::steady_clock::now() -
+                                                equalityFactorBegin).count();
+                                        std::fprintf(stderr,
+                                            "human_stand_cpu_equality_factor "
+                                            "step=%u prepared=%u elapsed_ns=%lld\n",
+                                            probeStep, prepared ? 1u : 0u,
+                                            static_cast<long long>(elapsedNs));
+                                    }
+                                }
+                                if (factored && equalitySolved &&
+                                    status->code ==
+                                        MR_NUMI_HUMAN_STAND_SUCCESS &&
                                     cpuProjectedRequested) {
                                     const auto projectedBegin =
                                         std::chrono::steady_clock::now();
@@ -11449,6 +11530,7 @@ MetalArticulatedOperatorContext::submit(
                     }
                     if (cpuFinish && cpuFactorRequested &&
                         cpuEqualityRequested && phase == 3u) continue;
+                    if (cpuEqualityFactor && phase == 4u) continue;
                     if (cpuFree && phase == 6u) continue;
                     if (handoffProbeRequested && phase == 7u) {
                         if (state_->standFreeHandoffEvent == nil) {

@@ -106,6 +106,86 @@ inline bool solveEqualityResponses(
     return true;
 }
 
+// The accepted Human's equality response rows are already in the CPU mass
+// handoff. Assemble and factor the same 51 x 51 bilateral block that the
+// Metal equality-prepare pass would publish, preserving each contraction and
+// pivot's authored FP32 order. The subsequent projected-response and finish
+// kernels still consume the ordinary owner scratch layout.
+inline bool prepareEqualityFactor(
+    const float* q, unsigned nq, float timestep, unsigned bodyCount,
+    const MRNumiHumanJointEqualityGPU* equalities,
+    const EqualityResponses& responses, float* spatialScratch,
+    float* responseScratch, unsigned* failingIndex = nullptr
+) {
+    if (q == nullptr || equalities == nullptr || spatialScratch == nullptr ||
+        responseScratch == nullptr || !(timestep > 0.0f) ||
+        !std::isfinite(timestep)) return false;
+    constexpr unsigned responseColumns =
+        (3u * kContacts + kEqualities + kDofs) * kDofs;
+    float* matrix = responseScratch + responseColumns;
+    float* inverseScale = matrix + kEqualities * kEqualities;
+    float* pivots = inverseScale + kEqualities;
+    float* derivatives = spatialScratch;
+    float* targetVelocities = derivatives + kDofs;
+    float* responseByDof = targetVelocities + kDofs;
+    for (unsigned row = 0u; row < kEqualities; ++row) {
+        const auto& equality = equalities[row];
+        const bool fixed = equality.indices.z == MR_INVALID_INDEX &&
+            equality.indices.w == MR_INVALID_INDEX;
+        const bool coupled = equality.indices.z < nq &&
+            equality.indices.w < kDofs;
+        if (equality.indices.x >= nq || equality.indices.y >= kDofs ||
+            (!fixed && !coupled)) {
+            if (failingIndex) *failingIndex = row;
+            return false;
+        }
+        const float delta = fixed ? 0.0f :
+            q[equality.indices.z] - equality.referencesAndCoefficients0.y;
+        const float a0 = equality.referencesAndCoefficients0.z;
+        const float a1 = equality.referencesAndCoefficients0.w;
+        const float a2 = equality.coefficients1.x;
+        const float a3 = equality.coefficients1.y;
+        const float a4 = equality.coefficients1.z;
+        const float polynomial = std::fma(delta,
+            std::fma(delta,
+                std::fma(delta, std::fma(delta, a4, a3), a2), a1),
+            a0);
+        const float derivative = fixed ? 0.0f : a1 + delta *
+            (2.0f * a2 + delta * (3.0f * a3 + 4.0f * delta * a4));
+        const float target = equality.referencesAndCoefficients0.x + polynomial;
+        const float error = q[equality.indices.x] - target;
+        if (!std::isfinite(target) || !std::isfinite(derivative) ||
+            !std::isfinite(error)) {
+            if (failingIndex) *failingIndex = row;
+            return false;
+        }
+        derivatives[row] = derivative;
+        targetVelocities[row] = std::clamp(
+            -0.2f * error / timestep, -4.0f, 4.0f);
+        for (unsigned column = 0u; column < kEqualities; ++column) {
+            const float* response = responses.data() + column * kDofs;
+            float value = response[equality.indices.y];
+            if (!fixed)
+                value = std::fma(-derivative,
+                    response[equality.indices.w], value);
+            matrix[row * kEqualities + column] = value;
+        }
+    }
+    if (bodyCount * MR_NUMI_HUMAN_STAND_SPATIAL_SCRATCH_ROWS >=
+        2u + kEqualities) {
+        for (unsigned dof = 0u; dof < kDofs; ++dof)
+            for (unsigned row = 0u; row < kEqualities; ++row)
+                responseByDof[dof * kEqualities + row] =
+                    responses[row * kDofs + dof];
+    }
+    if (!mrNumiHumanBilateralFactor(
+            matrix, inverseScale, pivots, kEqualities)) {
+        if (failingIndex) *failingIndex = MR_INVALID_INDEX;
+        return false;
+    }
+    return true;
+}
+
 // Factor-only handoff variant of the contact and position-limit mass solves.
 // The Metal projected stage still owns the two ordered equality conditioning
 // passes, their failure codes, and all subsequent coupled impulses.
