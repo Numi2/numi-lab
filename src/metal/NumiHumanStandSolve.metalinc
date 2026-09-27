@@ -613,15 +613,20 @@
             // in the first sweep, before accessing an invalid point query.
             if (support.bodyIndex < articulation.firstBody ||
                 support.bodyIndex >= articulation.firstBody + bodyCount ||
-                support.pointQueryIndex >= dispatch.pointWorldStride)
+                support.pointQueryIndex >= dispatch.pointWorldStride) {
+                contactMatrices[entry] = 0.0f;
                 continue;
+            }
             const uint pointIndex = pointBase + support.pointQueryIndex;
             const float3 point = pointWorld[pointIndex].position.xyz;
             const float gap = dot(mrCompensatedPositionDifference(
                 float4(point, 0.0f), pointPositionLow[pointIndex],
                 dispatch.groundPointAndTimestep, float4(0.0f)).xyz,
                 normal);
-            if (gap > support.frictionSlopAndStabilization.y) continue;
+            if (gap > support.frictionSlopAndStabilization.y) {
+                contactMatrices[entry] = 0.0f;
+                continue;
+            }
             float value = row == column ? kResponseRegularization : 0.0f;
             device const float* response = responseScratch + responseBase +
                 (3u * contact + column) * nv;
@@ -634,6 +639,16 @@
         }
     }
     threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+    if (lane == 0u &&
+        (dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) != 0u) {
+        for (uint contact = 0u; contact < dispatch.supportContactCount;
+             ++contact) {
+            device const float* matrix = contactMatrices + 9u * contact;
+            cooperativeFrictionMetrics[contact] =
+                mrNumiHumanPrepareFrictionMetric(matrix[4u],
+                    0.5f * matrix[5u] + 0.5f * matrix[7u], matrix[8u]);
+        }
+    }
 #endif
     for (uint coupledSweep = 0u;
          coupledSweep < coupledSweepCount;
@@ -854,10 +869,16 @@
                             matrix[5u] * oldLambda.z - tangentialVelocityY;
                         const float rhsZ = matrix[7u] * oldLambda.y +
                             matrix[8u] * oldLambda.z - tangentialVelocityZ;
-                        const auto tangent = mrNumiHumanSolveFrictionDisk(
-                            matrix[4u], 0.5f * matrix[5u] + 0.5f * matrix[7u],
-                            matrix[8u], rhsY, rhsZ,
-                            support.frictionSlopAndStabilization.x * newLambda.x);
+                        const float radius =
+                            support.frictionSlopAndStabilization.x * newLambda.x;
+                        auto tangent = mrNumiHumanTryInteriorFrictionDisk(
+                            cooperativeFrictionMetrics[contact], rhsY, rhsZ,
+                            radius);
+                        if (!tangent.valid)
+                            tangent = mrNumiHumanSolveFrictionDisk(
+                                matrix[4u],
+                                0.5f * matrix[5u] + 0.5f * matrix[7u],
+                                matrix[8u], rhsY, rhsZ, radius);
                         if (!tangent.valid) {
                             fail(status, MR_NUMI_HUMAN_STAND_CONTACT_FAILED,
                                  contact);

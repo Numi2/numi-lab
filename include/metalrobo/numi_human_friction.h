@@ -12,6 +12,15 @@ struct MRNumiHumanFrictionImpulse {
     bool valid;
 };
 
+struct MRNumiHumanPreparedFrictionMetric {
+    float a;
+    float b;
+    float d;
+    float scale;
+    float determinant;
+    bool valid;
+};
+
 inline bool mrNumiHumanFrictionFinite(float value) {
 #if defined(__METAL_VERSION__)
     return metal::isfinite(value);
@@ -31,6 +40,43 @@ inline float mrNumiHumanFrictionNorm(float x, float y) {
 #else
     return scale * std::sqrt(sx * sx + sy * sy);
 #endif
+}
+
+// The contact response metric stays fixed during all coupled sweeps. Prepare
+// its normalization and determinant once; fall back to the general solver
+// whenever the unconstrained friction impulse reaches the disk boundary.
+inline MRNumiHumanPreparedFrictionMetric mrNumiHumanPrepareFrictionMetric(
+    float a, float b, float d
+) {
+    if (!mrNumiHumanFrictionFinite(a) || !mrNumiHumanFrictionFinite(b) ||
+        !mrNumiHumanFrictionFinite(d) || !(a > 0.0f) || !(d > 0.0f))
+        return {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, false};
+    const float scale = a > d ? a : d;
+    a /= scale; b /= scale; d /= scale;
+    const float determinant = mrNumiHumanFusedMultiplyAdd(a, d, -b * b);
+    return {a, b, d, scale, determinant, determinant > 0.0f};
+}
+
+inline MRNumiHumanFrictionImpulse mrNumiHumanTryInteriorFrictionDisk(
+    const MRNumiHumanPreparedFrictionMetric metric,
+    float rhsX, float rhsY, float radius
+) {
+    const MRNumiHumanFrictionImpulse unavailable{0.0f, 0.0f, false};
+    if (!metric.valid || !mrNumiHumanFrictionFinite(rhsX) ||
+        !mrNumiHumanFrictionFinite(rhsY) ||
+        !mrNumiHumanFrictionFinite(radius) || !(radius > 0.0f))
+        return unavailable;
+    const float gx = rhsX / metric.scale, gy = rhsY / metric.scale;
+    if (!mrNumiHumanFrictionFinite(gx) || !mrNumiHumanFrictionFinite(gy))
+        return unavailable;
+    const float x = mrNumiHumanFusedMultiplyAdd(
+        metric.d, gx, -metric.b * gy) / metric.determinant;
+    const float y = mrNumiHumanFusedMultiplyAdd(
+        metric.a, gy, -metric.b * gx) / metric.determinant;
+    if (!mrNumiHumanFrictionFinite(x) || !mrNumiHumanFrictionFinite(y) ||
+        mrNumiHumanFrictionNorm(x, y) > radius)
+        return unavailable;
+    return {x, y, true};
 }
 
 inline MRNumiHumanFrictionImpulse mrNumiHumanFrictionShiftedSolve(

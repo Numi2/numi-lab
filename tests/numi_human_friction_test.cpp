@@ -2,12 +2,15 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <cstring>
 #include <iostream>
 #include <limits>
 #include <stdexcept>
 
 namespace {
 std::size_t checks = 0;
+std::size_t preparedInteriorCases = 0;
+std::size_t preparedFallbackCases = 0;
 void require(bool value, const char* message) {
     ++checks;
     if (!value) throw std::runtime_error(message);
@@ -39,6 +42,16 @@ std::array<long double, 2> oracle(long double a, long double b, long double d,
 void exercise(float a,float b,float d,float rx,float ry,float r) {
     auto result=mrNumiHumanSolveFrictionDisk(a,b,d,rx,ry,r);
     require(result.valid,"SPD friction solve rejected valid inputs");
+    const auto prepared=mrNumiHumanPrepareFrictionMetric(a,b,d);
+    const auto interior=mrNumiHumanTryInteriorFrictionDisk(prepared,rx,ry,r);
+    if(interior.valid) {
+        ++preparedInteriorCases;
+        require(std::memcmp(&interior.x,&result.x,sizeof(float))==0 &&
+                std::memcmp(&interior.y,&result.y,sizeof(float))==0,
+                "prepared interior friction differs from the general solve");
+    } else {
+        ++preparedFallbackCases;
+    }
     const auto expected=oracle(a,b,d,rx,ry,r);
     const long double norm=std::hypot(result.x,result.y);
     const long double referenceNorm=std::hypot(expected[0],expected[1]);
@@ -89,6 +102,8 @@ int main() {
         require(!mrNumiHumanSolveFrictionDisk(1,2,1,1,1,1).valid,"indefinite metric accepted");
         require(!mrNumiHumanSolveFrictionDisk(1,1,1,1,1,1).valid,"singular metric accepted");
         require(!mrNumiHumanSolveFrictionDisk(1,0,1,1,1,-1).valid,"negative radius accepted");
+        require(preparedInteriorCases>0 && preparedFallbackCases>0,
+                "prepared friction did not cover interior and fallback cases");
         std::cout<<"Human friction metric: "<<checks<<" checks passed\n";
     } catch(const std::exception& error) { std::cerr<<error.what()<<'\n';return 1; }
 }
