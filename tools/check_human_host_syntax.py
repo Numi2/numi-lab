@@ -45,6 +45,13 @@ def main() -> int:
             if name != "NUMI_MATTER_METALLIB" and not Path(value).is_file():
                 raise SystemExit("Source material is missing: " + value)
             flags.append("-D" + name + "=" + json.dumps(value))
+        # The visual probe also resolves its Metal library from the CMake
+        # target definition. A syntax-only check needs that string macro even
+        # though it never opens the compiled library.
+        if 'METALROBO_METALLIB="${METALROBO_METALLIB}"' not in blocks[0]:
+            raise SystemExit("Human target no longer defines METALROBO_METALLIB")
+        flags.append("-DMETALROBO_METALLIB=" +
+                     json.dumps(str(Path(build) / "shaders/MetalRobo.metallib")))
         subprocess.run([*common, str(root / "src/metal/MetalArticulatedOperator.mm")], check=True)
         subprocess.run([*common, *flags, str(root / "apps/numilab_human_myosim_visual_probe.mm")], check=True)
     print("Human host syntax checks passed with eight CMake-owned definitions")

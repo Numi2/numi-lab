@@ -5478,7 +5478,10 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     const metalrobo::MetalArticulatedOperatorConfig config{
         .pointJacobiansOnly = true,
         .mujocoActivationTimestepSeconds = static_cast<float>(timestepSeconds),
-        .readStandConstraintDiagnostics = endpointEnergy,
+        .readStandConstraintDiagnostics = endpointEnergy || [] {
+            const char* requested = std::getenv("NUMI_HUMAN_FRICTION_DIAG");
+            return requested != nullptr && std::strcmp(requested, "1") == 0;
+        }(),
         .splitStandSolve = [] {
             const char* requested = std::getenv("NUMI_HUMAN_SPLIT_STAND");
             return requested != nullptr && std::strcmp(requested, "1") == 0;
@@ -6722,6 +6725,60 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 const auto& accepted = segmentResult.standStatuses.front();
                 const auto& acceptedQ = segmentResult.standQ;
                 const auto& acceptedV = segmentResult.standV;
+                require(segmentResult.bodyPoses.size() == model.bodies.size(),
+                        "accepted standing center of mass lacks source body poses");
+                double totalBodyMass = 0.0;
+                std::array<double, 3u> centerOfMass{};
+                for (std::size_t body = 0u; body < model.bodies.size(); ++body) {
+                    const double mass = model.bodies[body].massAndInverseMass.x;
+                    const auto& position = segmentResult.bodyPoses[body].position;
+                    require(std::isfinite(mass) && mass >= 0.0 &&
+                                std::isfinite(position.x) && std::isfinite(position.y) &&
+                                std::isfinite(position.z),
+                            "accepted standing center of mass has nonfinite source data");
+                    totalBodyMass += mass;
+                    centerOfMass[0] += mass * position.x;
+                    centerOfMass[1] += mass * position.y;
+                    centerOfMass[2] += mass * position.z;
+                }
+                require(totalBodyMass > 0.0,
+                        "accepted standing center of mass has zero source mass");
+                for (double& coordinate : centerOfMass) {
+                    coordinate /= totalBodyMass;
+                }
+                const bool haveFrictionWitness =
+                    !segmentResult.standContactImpulses.empty();
+                require(!haveFrictionWitness ||
+                            segmentResult.standContactImpulses.size() ==
+                                3u * horizonInput.stand.contacts.size(),
+                        "accepted standing friction witness has incomplete source contact impulses");
+                double maximumFrictionUtilization = 0.0;
+                double maximumTangentForce = 0.0;
+                std::uint32_t saturatedFrictionContacts = 0u;
+                for (std::size_t contact = 0u;
+                     haveFrictionWitness &&
+                     contact < horizonInput.stand.contacts.size(); ++contact) {
+                    const double normalImpulse = std::max(0.0,
+                        double(segmentResult.standContactImpulses[3u * contact]));
+                    const double tangentImpulse = std::hypot(
+                        double(segmentResult.standContactImpulses[3u * contact + 1u]),
+                        double(segmentResult.standContactImpulses[3u * contact + 2u]));
+                    const double friction = horizonInput.stand.contacts[contact]
+                        .frictionSlopAndStabilization.x;
+                    require(std::isfinite(normalImpulse) &&
+                                std::isfinite(tangentImpulse) &&
+                                std::isfinite(friction) && friction > 0.0,
+                            "accepted standing friction witness is nonfinite");
+                    maximumTangentForce = std::max(maximumTangentForce,
+                        tangentImpulse / timestepSeconds);
+                    if (normalImpulse > 1.0e-9) {
+                        const double utilization = tangentImpulse /
+                            (friction * normalImpulse);
+                        maximumFrictionUtilization = std::max(
+                            maximumFrictionUtilization, utilization);
+                        saturatedFrictionContacts += utilization >= 0.98;
+                    }
+                }
                 std::cout << std::setprecision(12)
                           << "human_standing_progress=accepted step="
                           << completedSteps + segmentSteps
@@ -6729,6 +6786,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                           << (completedSteps + segmentSteps) * timestepSeconds
                           << " root_xyz_m=[" << acceptedQ[0] << ','
                           << acceptedQ[1] << ',' << acceptedQ[2] << ']'
+                          << " center_of_mass_xyz_m=[" << centerOfMass[0] << ','
+                          << centerOfMass[1] << ',' << centerOfMass[2] << ']'
                           << " root_orientation_xyzw=[" << acceptedQ[3] << ','
                           << acceptedQ[4] << ',' << acceptedQ[5] << ',' << acceptedQ[6] << ']'
                           << " root_linear_velocity_xyz_m_s=[" << acceptedV[0] << ','
@@ -6742,6 +6801,14 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                           << accepted.contactAndAcceleration.z / timestepSeconds
                           << " penetration_m=" << accepted.contactAndAcceleration.y
                           << " contact_count=" << accepted.activeContactCount
+                          << " friction_witness="
+                          << (haveFrictionWitness ? "measured" : "unavailable")
+                          << " maximum_friction_utilization="
+                          << maximumFrictionUtilization
+                          << " saturated_friction_contacts="
+                          << saturatedFrictionContacts
+                          << " maximum_tangent_force_n="
+                          << maximumTangentForce
                           << " muscle_feedback_max_excitation_delta=" << maximumExcitationCorrection
                           << (standBrainController != nullptr
                                   ? " brain_muscle_excitation_min=" +

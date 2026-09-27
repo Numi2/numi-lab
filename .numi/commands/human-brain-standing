@@ -161,6 +161,15 @@ arguments=(
 )
 if [[ -n "${NUMI_HUMAN_BRAIN_PROGRAM:-}" ]]; then
     require_file "$NUMI_HUMAN_BRAIN_PROGRAM"
+    if [[ -z "${NUMI_HUMAN_BRAIN_JOINT_PATH_CALIBRATION:-}" ]]; then
+        NUMI_HUMAN_BRAIN_JOINT_PATH_CALIBRATION=$(python3 -c '
+import json, sys
+with open(sys.argv[1], encoding="utf-8") as source:
+    program = json.load(source)
+print("1" if program.get("jointPathFeedback") is not None else "0")
+' "$NUMI_HUMAN_BRAIN_PROGRAM")
+        export NUMI_HUMAN_BRAIN_JOINT_PATH_CALIBRATION
+    fi
     arguments+=(--stand-brain-program "$NUMI_HUMAN_BRAIN_PROGRAM")
 fi
 if [[ "$mechanics_only" == 1 ]]; then
@@ -227,10 +236,51 @@ fi
     printf 'lab_source_revision=%s\n' "$source_revision"
     printf 'geometry_overlap=%s\n' "$geometry_overlap"
     printf 'stand_solver_backend=%s\n' "$stand_backend"
+    printf 'joint_path_calibration=%s\n' "${NUMI_HUMAN_BRAIN_JOINT_PATH_CALIBRATION:-0}"
     printf 'command='
     printf '%q ' "$binary" "${arguments[@]}"
     printf '\n'
 } > "$output_directory/launch.manifest"
+
+# Keep the exact inputs that this receipt hashes. One content-addressed copy
+# serves every cohort member, and APFS clones avoid duplicating physical bytes.
+# A later rebuild may replace a build path but cannot replace this run's owner.
+artifact_root=${NUMI_HUMAN_BRAIN_ARTIFACT_STORE:-"$(dirname -- "$output_directory")/.native-artifact-store"}
+mkdir -p "$artifact_root"
+if (( steps >= 1000 )); then
+    available_kib=$(df -k "$artifact_root" | tail -n 1 | awk '{print $4}')
+    if (( available_kib < 10 * 1024 * 1024 )); then
+        printf 'Human Brain long run needs at least 10 GiB free before input retention\n' >&2
+        exit 1
+    fi
+fi
+while IFS= read -r manifest_input; do
+    read -r kind digest original <<< "$manifest_input"
+    case "$kind" in
+        binary|lab_library|brain_library|brain_resource|metal_library|rigid_source|muscle_source|support_contact_source|joint_equality_source|tendon_source|bodyparts3d_bone_source|bodyparts3d_muscle_surface_source|launcher|locomotor_program|lab_source_file=*) ;;
+        *) continue ;;
+    esac
+    retained="$artifact_root/$digest"
+    if [[ ! -f "$retained" ]]; then
+        temporary=$(mktemp -d "$artifact_root/.copy.XXXXXXXX")
+        if ! cp -c -p "$original" "$temporary/artifact"; then
+            cp -p "$original" "$temporary/artifact"
+        fi
+        actual=$(shasum -a 256 "$temporary/artifact" | awk '{print $1}')
+        if [[ "$actual" != "$digest" ]]; then
+            printf 'retained Human Brain input changed during capture: %s\n' "$original" >&2
+            exit 1
+        fi
+        ln "$temporary/artifact" "$retained" 2>/dev/null || true
+        rm -r "$temporary"
+    fi
+    actual=$(shasum -a 256 "$retained" | awk '{print $1}')
+    if [[ "$actual" != "$digest" ]]; then
+        printf 'retained Human Brain input hash mismatch: %s\n' "$retained" >&2
+        exit 1
+    fi
+    printf 'retained_artifact %s %s\n' "$digest" "$retained" >> "$output_directory/launch.manifest"
+done < <(sed -n '/^binary /,/^command=/p' "$output_directory/launch.manifest")
 
 # Static standing equilibrium is independent of the Brain seed and episode
 # length. Bind its cache to the exact native physics executable, input packs,

@@ -23,12 +23,22 @@ import time
 
 GIB = 1024**3
 PROGRESS = re.compile(r"^human_standing_progress=accepted step=(\d+)\b")
+SENSOR = re.compile(r"^human_brain_sensor_audit=accepted step=(\d+)\b")
 PROFILE = re.compile(r"^human_training_step_profile=accepted step=(\d+)\b")
 WITNESS = re.compile(r"^human_brain_joint_commit=accepted step=(\d+)\b")
 STAGE = re.compile(
     r"^human_execution_stage=(native_horizon_begin|native_horizon_end) "
     r"wall_elapsed_ms=([0-9.eE+-]+)"
 )
+
+
+def swap_used_mb() -> float:
+    result = subprocess.run(["sysctl", "vm.swapusage"], capture_output=True,
+                            text=True, check=True)
+    match = re.search(r"\bused = ([0-9]+(?:\.[0-9]+)?)M\b", result.stdout)
+    if match is None:
+        raise RuntimeError("macOS swap usage is unavailable")
+    return float(match.group(1))
 
 
 def sha256(path: Path) -> str:
@@ -39,9 +49,10 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def receipt(log: Path, steps: int, exit_code: int) -> dict:
-    progress, profiles, witnesses = [], [], []
+def receipt(log: Path, steps: int, exit_code: int, sensor_audit: bool) -> dict:
+    progress, profiles, witnesses, sensors = [], [], [], []
     physical_trace = hashlib.sha256()
+    sensor_trace = hashlib.sha256()
     joint_fingerprints = []
     witness_integrity = True
     physical_gpu_ms, brain_completion_ms = [], []
@@ -54,6 +65,9 @@ def receipt(log: Path, steps: int, exit_code: int) -> dict:
     failed = False
     with log.open(errors="replace") as source:
         for line in source:
+            if (match := SENSOR.match(line)):
+                sensors.append(int(match.group(1)))
+                sensor_trace.update(line.encode())
             if (match := PROGRESS.match(line)):
                 progress.append(int(match.group(1)))
                 physical_trace.update(line.encode())
@@ -104,6 +118,7 @@ def receipt(log: Path, steps: int, exit_code: int) -> dict:
     accepted = (
         exit_code == 0 and not failed and unassisted
         and progress == expected and profiles == expected
+        and (not sensor_audit or sensors == expected)
         and len(physical_gpu_ms) == steps and len(brain_completion_ms) == steps
         and min(physical_gpu_ms) > 0 and min(brain_completion_ms) > 0
         and witnesses == expected_witnesses
@@ -121,6 +136,7 @@ def receipt(log: Path, steps: int, exit_code: int) -> dict:
         "expectedJointCommitWitnessSteps": expected_witnesses,
         "jointWitnessIntegrity": witness_integrity,
         "physicalProgressSHA256": physical_trace.hexdigest(),
+        "sensorAuditSHA256": sensor_trace.hexdigest() if sensor_audit else None,
         "medianPhysicalGPUMilliseconds": (
             statistics.median(physical_gpu_ms) if physical_gpu_ms else None
         ),
@@ -156,27 +172,35 @@ def main() -> int:
     parser.add_argument("--same-seed", action="store_true",
                         help="Use one seed for a matched throughput benchmark")
     parser.add_argument("--sensor-audit", action="store_true")
+    parser.add_argument("--stand-backend", choices=("cpu-one-handoff", "gpu-stand"),
+                        default="cpu-one-handoff")
     parser.add_argument("--push-start-step", type=int)
     parser.add_argument("--push-duration-steps", type=int)
     parser.add_argument("--push-x-force-n", type=float, action="append", default=[],
                         help="One x-axis force per worker; repeat once per worker")
+    parser.add_argument("--push-y-force-n", type=float, action="append", default=[],
+                        help="One y-axis force per worker; repeat once per worker")
     parser.add_argument("--source-revision", default="unavailable")
     args = parser.parse_args()
     if not 1 <= args.steps <= 10000 or not 1 <= args.workers <= 16:
         parser.error("steps must be 1..10000 and workers must be 1..16")
     if args.seed < 0 or args.seed + args.workers > 2**32:
         parser.error("seed range exceeds UInt32")
-    push_requested = bool(args.push_x_force_n)
+    push_requested = bool(args.push_x_force_n or args.push_y_force_n)
     if push_requested != (args.push_start_step is not None):
         parser.error("push forces and push start step must be supplied together")
     if push_requested != (args.push_duration_steps is not None):
         parser.error("push forces and push duration must be supplied together")
     if push_requested and (
-        len(args.push_x_force_n) != args.workers
+        (args.push_x_force_n and len(args.push_x_force_n) != args.workers)
+        or (args.push_y_force_n and len(args.push_y_force_n) != args.workers)
         or args.push_start_step < 1
         or args.push_duration_steps < 1
         or args.push_start_step + args.push_duration_steps - 1 > args.steps
-        or not all(math.isfinite(force) for force in args.push_x_force_n)
+        or not all(math.isfinite(force) for force in
+                   args.push_x_force_n + args.push_y_force_n)
+        or not any(force != 0 for force in
+                   args.push_x_force_n + args.push_y_force_n)
     ):
         parser.error("push schedule needs one finite force per worker within the horizon")
     if args.output.exists():
@@ -199,7 +223,7 @@ def main() -> int:
     absent = [name for name, path in required.items() if not path.is_file()]
     if absent:
         parser.error("missing inputs: " + ", ".join(absent))
-    bundle = args.build_dir / "bin/NumiBrain_NumiBrainMetal.bundle"
+    bundle = args.brain_dylib.parent / "NumiBrain_NumiBrainMetal.bundle"
     resources = sorted(path for path in bundle.rglob("*") if path.is_file())
     if not resources:
         parser.error("Brain Metal resource bundle is missing")
@@ -210,8 +234,8 @@ def main() -> int:
             fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         except BlockingIOError:
             parser.error("another Human Brain training job owns this output root")
-        if shutil.disk_usage(output_parent).free < 5.5 * GIB:
-            parser.error("Data volume is below the 5.5 GiB training start floor")
+        if shutil.disk_usage(output_parent).free < 10 * GIB:
+            parser.error("Data volume is below the 10 GiB cohort start floor")
         args.output.mkdir()
         manifest = {
             "purpose": "native Brain/Human training throughput cohort",
@@ -220,11 +244,13 @@ def main() -> int:
             "workers": args.workers,
             "sameSeedBenchmark": args.same_seed,
             "sourceRevision": args.source_revision,
+            "standBackend": args.stand_backend,
             "seeds": [args.seed if args.same_seed else args.seed + i
                       for i in range(args.workers)],
             "push": ({"startStep": args.push_start_step,
                       "durationSteps": args.push_duration_steps,
-                      "xForceNewtons": args.push_x_force_n}
+                      "xForceNewtons": args.push_x_force_n or [0.0] * args.workers,
+                      "yForceNewtons": args.push_y_force_n or [0.0] * args.workers}
                      if push_requested else None),
             "artifactSHA256": {name: sha256(path) for name, path in required.items()},
             "brainBundleSHA256": {
@@ -256,6 +282,7 @@ def main() -> int:
             "NUMI_HUMAN_BRAIN_SENSOR_AUDIT": "1" if args.sensor_audit else "0",
             "NUMI_HUMAN_BRAIN_MECHANICS_ONLY": "1",
             "NUMI_HUMAN_BRAIN_JOINT_PATH_CALIBRATION": "1",
+            "NUMI_HUMAN_BRAIN_STAND_BACKEND": args.stand_backend,
             "NUMI_HUMAN_TRAINING_PROFILE": "1",
             "NUMI_HUMAN_EXECUTION_STAGES": "1",
             "NUMI_HUMAN_BRAIN_SOURCE_REVISION": args.source_revision,
@@ -265,6 +292,8 @@ def main() -> int:
         })
         running = []
         started = time.monotonic()
+        swap_before_mb = swap_used_mb()
+        maximum_swap_mb = swap_before_mb
         try:
             for index, seed in enumerate(manifest["seeds"]):
                 target = args.output / f"worker-{index:02d}"
@@ -273,8 +302,10 @@ def main() -> int:
                     env.update({
                         "NUMI_HUMAN_BRAIN_PUSH_START_STEP": str(args.push_start_step),
                         "NUMI_HUMAN_BRAIN_PUSH_DURATION_STEPS": str(args.push_duration_steps),
-                        "NUMI_HUMAN_BRAIN_PUSH_FORCE_X_N": str(args.push_x_force_n[index]),
-                        "NUMI_HUMAN_BRAIN_PUSH_FORCE_Y_N": "0",
+                        "NUMI_HUMAN_BRAIN_PUSH_FORCE_X_N": str(
+                            args.push_x_force_n[index] if args.push_x_force_n else 0),
+                        "NUMI_HUMAN_BRAIN_PUSH_FORCE_Y_N": str(
+                            args.push_y_force_n[index] if args.push_y_force_n else 0),
                         "NUMI_HUMAN_BRAIN_PUSH_FORCE_Z_N": "0",
                     })
                 stream = (args.output / f"worker-{index:02d}.launcher.log").open("wb")
@@ -286,7 +317,14 @@ def main() -> int:
             stop_reason = None
             peak_aggregate_rss_kib = 0
             while any(process.poll() is None for _, process, _, _ in running):
-                if shutil.disk_usage(output_parent).free < 5 * GIB:
+                maximum_swap_mb = max(maximum_swap_mb, swap_used_mb())
+                if maximum_swap_mb > swap_before_mb:
+                    stop_reason = "swap_growth"
+                    for _, process, _, _ in running:
+                        if process.poll() is None:
+                            os.killpg(process.pid, signal.SIGTERM)
+                    break
+                if shutil.disk_usage(output_parent).free < 6 * GIB:
                     stop_reason = "storage_floor"
                     for _, process, _, _ in running:
                         if process.poll() is None:
@@ -323,28 +361,40 @@ def main() -> int:
                     exit_code = process.wait()
                 stream.close()
                 log = target / "launch.log"
-                item = receipt(log, args.steps, exit_code) if log.is_file() else {
+                item = receipt(log, args.steps, exit_code, args.sensor_audit) if log.is_file() else {
                     "accepted": False, "exitCode": exit_code, "error": "native log missing"
                 }
                 item.update({"worker": index, "seed": manifest["seeds"][index]})
                 results.append(item)
             wall = time.monotonic() - started
-            all_accepted = stop_reason is None and all(item["accepted"] for item in results)
+            swap_after_mb = swap_used_mb()
+            maximum_swap_mb = max(maximum_swap_mb, swap_after_mb)
             unique_physical_traces = len({
                 item.get("physicalProgressSHA256") for item in results
                 if item.get("physicalProgressSHA256")
             })
+            all_accepted = (stop_reason is None and maximum_swap_mb <= swap_before_mb
+                            and all(item["accepted"] for item in results)
+                            and (args.same_seed or unique_physical_traces == args.workers))
             summary = {
                 "status": "ACCEPTED_NATIVE_COHORT" if all_accepted else "FAILED",
                 "resourceStopReason": stop_reason,
                 "results": results,
                 "aggregateAcceptedSteps": args.steps * args.workers if all_accepted else 0,
                 "uniquePhysicalTraceCount": unique_physical_traces,
+                "independentPhysicalTraces": unique_physical_traces == args.workers,
                 "wallSeconds": wall,
                 "acceptedStepsPerWallHour": (
                     args.steps * args.workers * 3600 / wall if all_accepted else 0
                 ),
+                "acceptedSimulatedSecondsPerWallHour": (
+                    args.steps * args.workers * 0.001 * 3600 / wall
+                    if all_accepted else 0
+                ),
                 "peakAggregateRSSKiB": peak_aggregate_rss_kib,
+                "swapUsedMBBefore": swap_before_mb,
+                "maximumSwapUsedMB": maximum_swap_mb,
+                "swapUsedMBAfter": swap_after_mb,
                 "freeBytesAfter": shutil.disk_usage(output_parent).free,
             }
             (args.output / "summary.json").write_text(
