@@ -19,6 +19,7 @@ import statistics
 import subprocess
 import sys
 import time
+from typing import Optional
 
 
 GIB = 1024**3
@@ -49,7 +50,8 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def receipt(log: Path, steps: int, exit_code: int, sensor_audit: bool) -> dict:
+def receipt(log: Path, steps: int, exit_code: int, sensor_audit: bool,
+            push_start_step: Optional[int] = None) -> dict:
     progress, profiles, witnesses, sensors = [], [], [], []
     physical_trace = hashlib.sha256()
     sensor_trace = hashlib.sha256()
@@ -60,7 +62,12 @@ def receipt(log: Path, steps: int, exit_code: int, sensor_audit: bool) -> dict:
     static_cache_status = None
     max_penetration = 0.0
     minimum_contacts = None
+    first_contact_loss_step = None
+    first_penetration_excess_step = None
     terminal_root_xyz = None
+    centers = {}
+    root_heights = {}
+    valid_center = True
     unassisted = True
     failed = False
     with log.open(errors="replace") as source:
@@ -69,8 +76,18 @@ def receipt(log: Path, steps: int, exit_code: int, sensor_audit: bool) -> dict:
                 sensors.append(int(match.group(1)))
                 sensor_trace.update(line.encode())
             if (match := PROGRESS.match(line)):
-                progress.append(int(match.group(1)))
+                step = int(match.group(1))
+                progress.append(step)
                 physical_trace.update(line.encode())
+                center = re.search(
+                    r"\bcenter_of_mass_xyz_m=\[([0-9.eE+-]+),([0-9.eE+-]+),([0-9.eE+-]+)\]",
+                    line)
+                if center:
+                    values = tuple(float(center.group(i)) for i in (1, 2, 3))
+                    valid_center &= all(math.isfinite(value) for value in values)
+                    centers[step] = values
+                else:
+                    valid_center = False
                 for name in ("root_assistance_force_n", "root_assistance_torque_nm"):
                     value = re.search(rf"\b{name}=([0-9.eE+-]+)", line)
                     unassisted &= value is not None and float(value.group(1)) == 0.0
@@ -81,11 +98,17 @@ def receipt(log: Path, steps: int, exit_code: int, sensor_audit: bool) -> dict:
                     line)
                 if position:
                     terminal_root_xyz = [float(position.group(i)) for i in (1, 2, 3)]
+                    root_heights[step] = terminal_root_xyz[2]
                 if penetration:
-                    max_penetration = max(max_penetration, float(penetration.group(1)))
+                    depth = float(penetration.group(1))
+                    max_penetration = max(max_penetration, depth)
+                    if depth > 5e-6 and first_penetration_excess_step is None:
+                        first_penetration_excess_step = step
                 if contacts:
                     count = int(contacts.group(1))
                     minimum_contacts = count if minimum_contacts is None else min(minimum_contacts, count)
+                    if count < 6 and first_contact_loss_step is None:
+                        first_contact_loss_step = step
             if (match := PROFILE.match(line)):
                 profiles.append(int(match.group(1)))
                 for field, values in (("physical_gpu_ms", physical_gpu_ms),
@@ -119,6 +142,8 @@ def receipt(log: Path, steps: int, exit_code: int, sensor_audit: bool) -> dict:
         exit_code == 0 and not failed and unassisted
         and progress == expected and profiles == expected
         and (not sensor_audit or sensors == expected)
+        and (push_start_step is None or
+             (valid_center and len(centers) == steps and len(root_heights) == steps))
         and len(physical_gpu_ms) == steps and len(brain_completion_ms) == steps
         and min(physical_gpu_ms) > 0 and min(brain_completion_ms) > 0
         and witnesses == expected_witnesses
@@ -126,6 +151,26 @@ def receipt(log: Path, steps: int, exit_code: int, sensor_audit: bool) -> dict:
         and set(stages) == {"native_horizon_begin", "native_horizon_end"}
         and stages.get("native_horizon_end", 0) > stages.get("native_horizon_begin", 0)
     )
+    recovery = None
+    if push_start_step is not None and valid_center and len(centers) == steps and steps >= 1500:
+        reference = centers[push_start_step]
+        final_steps = range(steps - 499, steps + 1)
+        final_drift = max(math.hypot(centers[step][0] - reference[0],
+                                     centers[step][1] - reference[1])
+                          for step in final_steps)
+        final_speed = max(math.hypot(centers[step][0] - centers[step - 1][0],
+                                     centers[step][1] - centers[step - 1][1]) / 0.001
+                          for step in final_steps)
+        root_drop = root_heights[push_start_step] - min(root_heights.values())
+        supported = (minimum_contacts is not None and minimum_contacts >= 6
+                     and max_penetration <= 5e-6 and root_drop <= 0.02)
+        recovery = {"supported": supported,
+                    "recovered": supported and final_drift <= 0.01 and final_speed <= 0.01,
+                    "peakFinalCOMDriftM": final_drift,
+                    "peakFinalCOMSpeedMPerS": final_speed,
+                    "maximumRootDropM": root_drop,
+                    "firstContactLossStep": first_contact_loss_step,
+                    "firstPenetrationExcessStep": first_penetration_excess_step}
     return {
         "accepted": accepted,
         "exitCode": exit_code,
@@ -147,6 +192,7 @@ def receipt(log: Path, steps: int, exit_code: int, sensor_audit: bool) -> dict:
         "minimumContacts": minimum_contacts,
         "terminalRootXYZMeters": terminal_root_xyz,
         "maximumPenetrationM": max_penetration,
+        "recoveryTask": recovery,
         "nativeHorizonSeconds": (
             (stages["native_horizon_end"] - stages["native_horizon_begin"]) / 1000
             if set(stages) == {"native_horizon_begin", "native_horizon_end"} else None
@@ -165,6 +211,8 @@ def main() -> int:
     parser.add_argument("--bones", type=Path, required=True)
     parser.add_argument("--muscle-surfaces", type=Path, required=True)
     parser.add_argument("--program", type=Path, required=True)
+    parser.add_argument("--worker-program", type=Path, action="append", default=[],
+                        help="Immutable motor program for each worker, in worker order")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--steps", type=int, required=True)
     parser.add_argument("--workers", type=int, required=True)
@@ -186,6 +234,9 @@ def main() -> int:
         parser.error("steps must be 1..10000 and workers must be 1..16")
     if args.seed < 0 or args.seed + args.workers > 2**32:
         parser.error("seed range exceeds UInt32")
+    if args.worker_program and len(args.worker_program) != args.workers:
+        parser.error("--worker-program requires one program per worker")
+    worker_programs = args.worker_program or [args.program] * args.workers
     push_requested = bool(args.push_x_force_n or args.push_y_force_n)
     if push_requested != (args.push_start_step is not None):
         parser.error("push forces and push start step must be supplied together")
@@ -221,6 +272,8 @@ def main() -> int:
         "muscleSurfaces": args.muscle_surfaces,
     }
     absent = [name for name, path in required.items() if not path.is_file()]
+    absent += [f"workerProgram[{index}]" for index, path in enumerate(worker_programs)
+               if not path.is_file()]
     if absent:
         parser.error("missing inputs: " + ", ".join(absent))
     bundle = args.brain_dylib.parent / "NumiBrain_NumiBrainMetal.bundle"
@@ -246,6 +299,8 @@ def main() -> int:
             "sensorAudit": args.sensor_audit,
             "sourceRevision": args.source_revision,
             "standBackend": args.stand_backend,
+            "workerPrograms": [{"path": str(path), "sha256": sha256(path)}
+                               for path in worker_programs],
             "seeds": [args.seed if args.same_seed else args.seed + i
                       for i in range(args.workers)],
             "push": ({"startStep": args.push_start_step,
@@ -260,7 +315,8 @@ def main() -> int:
         }
         static_cache_key = hashlib.sha256(json.dumps({
             "format": "numi-human-static-activation-cache-v1",
-            "artifacts": manifest["artifactSHA256"],
+            "artifacts": {name: digest for name, digest in
+                          manifest["artifactSHA256"].items() if name != "program"},
             "brainBundle": manifest["brainBundleSHA256"],
         }, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
         static_cache_path = output_parent / ".human-brain-static-cache" / (
@@ -278,7 +334,6 @@ def main() -> int:
             "NUMI_HUMAN_BRAIN_SOURCE_DIR": str(args.source_dir),
             "NUMI_HUMAN_BRAIN_BONES": str(args.bones),
             "NUMI_HUMAN_BRAIN_MUSCLE_SURFACES": str(args.muscle_surfaces),
-            "NUMI_HUMAN_BRAIN_PROGRAM": str(args.program),
             "NUMI_HUMAN_BRAIN_STEPS": str(args.steps),
             "NUMI_HUMAN_BRAIN_SENSOR_AUDIT": "1" if args.sensor_audit else "0",
             "NUMI_HUMAN_BRAIN_MECHANICS_ONLY": "1",
@@ -298,7 +353,8 @@ def main() -> int:
         try:
             for index, seed in enumerate(manifest["seeds"]):
                 target = args.output / f"worker-{index:02d}"
-                env = env_base | {"NUMI_HUMAN_BRAIN_SEED": str(seed)}
+                env = env_base | {"NUMI_HUMAN_BRAIN_SEED": str(seed),
+                                  "NUMI_HUMAN_BRAIN_PROGRAM": str(worker_programs[index])}
                 if push_requested:
                     env.update({
                         "NUMI_HUMAN_BRAIN_PUSH_START_STEP": str(args.push_start_step),
@@ -362,7 +418,8 @@ def main() -> int:
                     exit_code = process.wait()
                 stream.close()
                 log = target / "launch.log"
-                item = receipt(log, args.steps, exit_code, args.sensor_audit) if log.is_file() else {
+                item = receipt(log, args.steps, exit_code, args.sensor_audit,
+                               args.push_start_step) if log.is_file() else {
                     "accepted": False, "exitCode": exit_code, "error": "native log missing"
                 }
                 item.update({"worker": index, "seed": manifest["seeds"][index]})
@@ -384,6 +441,9 @@ def main() -> int:
                 "aggregateAcceptedSteps": args.steps * args.workers if all_accepted else 0,
                 "uniquePhysicalTraceCount": unique_physical_traces,
                 "independentPhysicalTraces": unique_physical_traces == args.workers,
+                "recoveredWorkerCount": sum(bool(item.get("recoveryTask") and
+                                                 item["recoveryTask"]["recovered"])
+                                            for item in results),
                 "wallSeconds": wall,
                 "acceptedStepsPerWallHour": (
                     args.steps * args.workers * 3600 / wall if all_accepted else 0
