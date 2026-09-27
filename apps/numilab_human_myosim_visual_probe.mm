@@ -6430,6 +6430,20 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         const bool brainSensorAudit = standBrainController != nullptr &&
             brainSensorAuditSetting != nullptr &&
             std::strcmp(brainSensorAuditSetting, "1") == 0;
+        const char* brainMotorAuditSetting =
+            std::getenv("NUMI_HUMAN_BRAIN_MOTOR_AUDIT_INTERVAL");
+        std::uint32_t brainMotorAuditInterval = 0u;
+        if (brainMotorAuditSetting != nullptr && brainMotorAuditSetting[0] != '\0') {
+            const char* end = brainMotorAuditSetting +
+                std::strlen(brainMotorAuditSetting);
+            const auto parsed = std::from_chars(brainMotorAuditSetting, end,
+                                                brainMotorAuditInterval);
+            require(parsed.ec == std::errc{} && parsed.ptr == end &&
+                        brainMotorAuditInterval <= 1000u,
+                    "NUMI_HUMAN_BRAIN_MOTOR_AUDIT_INTERVAL must be from 0 through 1000");
+        }
+        require(brainMotorAuditInterval == 0u || brainSensorAudit,
+                "Human Brain motor audit requires accepted sensor audit");
         const char* trainingProfileSetting =
             std::getenv("NUMI_HUMAN_TRAINING_PROFILE");
         require(trainingProfileSetting == nullptr ||
@@ -6574,6 +6588,57 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                                   << std::endl;
                     } catch (const std::exception& exception) {
                         std::cerr << "human_brain_sensor_audit=failed"
+                                  << " step=" << completedSteps + segmentSteps
+                                  << " reason=" << exception.what() << std::endl;
+                    }
+                }
+                if (brainMotorAuditInterval != 0u &&
+                    (completedSteps + segmentSteps) % brainMotorAuditInterval == 0u) {
+                    // The same accepted host result already supplies muscle
+                    // telemetry below. Keep this diagnostic after both owners
+                    // publish; it must never produce a candidate training row.
+                    try {
+                        const auto& brain = standBrainController->info();
+                        const auto step = completedSteps + segmentSteps;
+                        require(brain.committed_generation == step &&
+                                    brain.last_joint_commit_fingerprint != 0u &&
+                                    standBrainController->lastPhysicalStateFingerprint() != 0u &&
+                                    segmentResult.mujocoActivationStates.size() == 416u,
+                                "Human Brain motor audit lacks a joint commit or source muscles");
+                        std::ostringstream line;
+                        line.imbue(std::locale::classic());
+                        line << std::setprecision(std::numeric_limits<float>::max_digits10)
+                             << "human_brain_motor_audit=accepted"
+                             << " step=" << step
+                             << " brain_generation=" << brain.committed_generation
+                             << " physical_fingerprint="
+                             << standBrainController->lastPhysicalStateFingerprint()
+                             << " joint_commit_fingerprint="
+                             << brain.last_joint_commit_fingerprint
+                             << " locomotor_program_fingerprint="
+                             << brain.locomotor_program_fingerprint
+                             << " excitation=[";
+                        for (std::size_t index = 0u; index < 416u; ++index) {
+                            const float excitation = segmentResult.mujocoActivationStates[
+                                index].excitationAndActivation.x;
+                            require(std::isfinite(excitation) &&
+                                        excitation >= 0.0f && excitation <= 1.0f,
+                                    "Human Brain accepted muscle excitation is out of range");
+                            line << (index == 0u ? "" : ",") << excitation;
+                        }
+                        line << "] activation=[";
+                        for (std::size_t index = 0u; index < 416u; ++index) {
+                            const float activation = segmentResult.mujocoActivationStates[
+                                index].excitationAndActivation.y;
+                            require(std::isfinite(activation) &&
+                                        activation >= 0.0f && activation <= 1.0f,
+                                    "Human Brain accepted muscle activation is out of range");
+                            line << (index == 0u ? "" : ",") << activation;
+                        }
+                        line << ']';
+                        std::cout << line.str() << std::endl;
+                    } catch (const std::exception& exception) {
+                        std::cerr << "human_brain_motor_audit=failed"
                                   << " step=" << completedSteps + segmentSteps
                                   << " reason=" << exception.what() << std::endl;
                     }
