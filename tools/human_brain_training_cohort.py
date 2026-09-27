@@ -243,6 +243,7 @@ def main() -> int:
             "stepsPerWorker": args.steps,
             "workers": args.workers,
             "sameSeedBenchmark": args.same_seed,
+            "sensorAudit": args.sensor_audit,
             "sourceRevision": args.source_revision,
             "standBackend": args.stand_backend,
             "seeds": [args.seed if args.same_seed else args.seed + i
