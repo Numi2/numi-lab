@@ -2,7 +2,7 @@
 set -euo pipefail
 
 if [[ "${1:-}" == "--numi-describe" ]]; then
-    printf '%s\n' 'Run native Human standing with NumiBrain sensory and muscle participation, rendering the accepted BodyParts3D skeleton and muscle surfaces with source hashes. Defaults to 4 ms; set NUMI_HUMAN_BRAIN_STEPS for a longer run.'
+    printf '%s\n' 'Run native Human standing with NumiBrain sensory and muscle participation, rendering the accepted BodyParts3D skeleton and muscle surfaces with source hashes. Defaults to 4 ms; set NUMI_HUMAN_BRAIN_STEPS for a longer run. Set NUMI_HUMAN_BRAIN_STAND_BACKEND=cpu-one-handoff for the measured single-Human Accelerate stand path.'
     exit 0
 fi
 
@@ -34,6 +34,26 @@ if [[ ! "$steps" =~ ^[1-9][0-9]*$ ]] || (( ${#steps} > 5 )) || (( steps > 10000 
 fi
 sensor_audit=${NUMI_HUMAN_BRAIN_SENSOR_AUDIT:-0}
 geometry_overlap=${NUMI_HUMAN_OVERLAP_GEOMETRY:-1}
+stand_backend=${NUMI_HUMAN_BRAIN_STAND_BACKEND:-gpu-stand}
+if [[ -n "${NUMI_HUMAN_BRAIN_STAND_BACKEND:-}" &&
+      "$stand_backend" != gpu-stand && "$stand_backend" != cpu-one-handoff ]]; then
+    printf 'NUMI_HUMAN_BRAIN_STAND_BACKEND must be gpu-stand or cpu-one-handoff: %s\n' "$stand_backend" >&2
+    exit 2
+fi
+if [[ -z "${NUMI_HUMAN_BRAIN_STAND_BACKEND:-}" &&
+      "${NUMI_HUMAN_STAND_CPU_FINISH:-0}" == 1 ]]; then
+    # Preserve existing experimental CPU invocations without changing their
+    # flags, and label the source-bound manifest truthfully.
+    stand_backend=external-cpu-finish
+    if [[ "${NUMI_HUMAN_STAND_CPU_ONE_HANDOFF:-0}" == 1 ]]; then
+        stand_backend=external-cpu-one-handoff
+    fi
+fi
+if [[ "$stand_backend" == gpu-stand &&
+      "${NUMI_HUMAN_STAND_CPU_FINISH:-0}" == 1 ]]; then
+    printf 'gpu-stand conflicts with inherited CPU finish flags\n' >&2
+    exit 2
+fi
 if [[ "$geometry_overlap" != 0 && "$geometry_overlap" != 1 ]]; then
     printf 'NUMI_HUMAN_OVERLAP_GEOMETRY must be 0 or 1: %s\n' "$geometry_overlap" >&2
     exit 2
@@ -206,6 +226,7 @@ fi
     fi
     printf 'lab_source_revision=%s\n' "$source_revision"
     printf 'geometry_overlap=%s\n' "$geometry_overlap"
+    printf 'stand_solver_backend=%s\n' "$stand_backend"
     printf 'command='
     printf '%q ' "$binary" "${arguments[@]}"
     printf '\n'
@@ -243,6 +264,24 @@ fi
 printf 'numi_human_brain_run_directory=%s\n' "$output_directory"
 export NUMI_HUMAN_EXECUTION_STAGES=${NUMI_HUMAN_EXECUTION_STAGES:-1}
 export NUMI_HUMAN_OVERLAP_GEOMETRY="$geometry_overlap"
+if [[ "$stand_backend" == cpu-one-handoff ]]; then
+    # The native operator admits this path only for its exact single-Human,
+    # unassisted source shape. The CPU factor and ordered finish are one
+    # continuation of the same accepted Brain/physics transaction.
+    export NUMI_HUMAN_SPLIT_STAND=1
+    export NUMI_HUMAN_PARALLEL_MASS_ASSEMBLY=1
+    export NUMI_HUMAN_STAND_FREE_SPLIT=1
+    export NUMI_HUMAN_STAND_FREE_HANDOFF_PROBE=1
+    export NUMI_HUMAN_STAND_CPU_FINISH=1
+    export NUMI_HUMAN_STAND_CPU_FACTOR=1
+    export NUMI_HUMAN_STAND_CPU_EQUALITY=1
+    export NUMI_HUMAN_STAND_CPU_EQUALITY_FACTOR=1
+    export NUMI_HUMAN_STAND_CPU_PROJECTED_RAW=1
+    export NUMI_HUMAN_STAND_CPU_FREE=1
+    export NUMI_HUMAN_STAND_CPU_ONE_HANDOFF=1
+    export NUMI_HUMAN_STAND_CPU_CONDITION_NEON=1
+    export NUMI_HUMAN_STAND_CPU_ACCELERATE_FACTOR=1
+fi
 # macOS strips inherited DYLD variables while launching the bash shebang.
 # Bind the Lab dylib beside the selected binary inside this launcher so an
 # isolated build cannot silently execute the previous build's GPU runtime.
