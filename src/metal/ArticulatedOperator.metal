@@ -771,7 +771,6 @@ inline bool validDispatch(
            MR_ARTICULATED_OPERATOR_KINEMATICS_CACHE_CONSUME)) != 0u &&
          ((dispatch.flags & MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY) == 0u ||
           (dispatch.flags & MR_ARTICULATED_OPERATOR_COMPENSATED_TRANSLATION) == 0u ||
-          dispatch.environmentCount != 1u ||
           (dispatch.flags & MR_ARTICULATED_OPERATOR_KINEMATICS_CACHE_PREPARE) != 0u &&
           (dispatch.flags & MR_ARTICULATED_OPERATOR_KINEMATICS_CACHE_CONSUME) != 0u)) ||
 #endif

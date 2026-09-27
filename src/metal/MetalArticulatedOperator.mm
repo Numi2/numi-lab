@@ -9495,16 +9495,23 @@ MetalArticulatedOperatorContext::submit(
                 state_->config.pointJacobiansOnly && pairedGeometry;
             const char* kinematicsCacheSetting =
                 std::getenv("NUMI_HUMAN_KINEMATICS_CACHE");
-            // Reuse the shared pose cache for the qualified single-Human
-            // compensated Jacobian path unless explicitly disabled.
-            const bool shareKinematics = overlapGeometry &&
-                (kinematicsCacheSetting == nullptr ||
-                 std::strcmp(kinematicsCacheSetting, "1") == 0);
-            if (shareKinematics && state_->kinematicsCache == nil) {
-                // One single-Human cache holds at most 192 compensated body
-                // positions, rotations, joint anchors, and joint axes.
+            // The point tiles otherwise repeat model validation and body
+            // kinematics for every environment. Keep the established
+            // single-Human default and opt batched horizons in explicitly
+            // until their endpoint and physical gates are qualified.
+            const bool shareKinematics = pairedGeometry &&
+                state_->config.pointJacobiansOnly &&
+                ((overlapGeometry && kinematicsCacheSetting == nullptr) ||
+                 (kinematicsCacheSetting != nullptr &&
+                  std::strcmp(kinematicsCacheSetting, "1") == 0));
+            const NSUInteger kinematicsCacheBytes =
+                32768u * static_cast<NSUInteger>(input.environmentCount);
+            if (shareKinematics &&
+                (state_->kinematicsCache == nil ||
+                 state_->kinematicsCache.length < kinematicsCacheBytes)) {
+                // Each environment owns one independently validated cache.
                 state_->kinematicsCache = [state_->device
-                    newBufferWithLength:32768u
+                    newBufferWithLength:kinematicsCacheBytes
                                 options:MTLResourceStorageModePrivate];
                 if (state_->kinematicsCache == nil)
                     return reject(std::move(diagnostics),
@@ -10282,7 +10289,8 @@ MetalArticulatedOperatorContext::submit(
                             offset:0u atIndex:20u];
                 [prepare setThreadgroupMemoryLength:kinematicsScratchBytes
                                             atIndex:0u];
-                [prepare dispatchThreadgroups:MTLSizeMake(1u, 1u, 1u)
+                [prepare dispatchThreadgroups:MTLSizeMake(
+                            input.environmentCount, 1u, 1u)
                         threadsPerThreadgroup:MTLSizeMake(
                             kinematicsThreads, 1u, 1u)];
                 [prepare endEncoding];

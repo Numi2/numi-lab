@@ -5533,6 +5533,108 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 : mr_float4{0.0f, 0.0f, 0.0f, 0.0f},
         },
     };
+    // Exercise the native environment dimension on the prepared Human scene
+    // before adding Brain cohort ownership. This is a diagnostic pilot: the
+    // normal single-Human horizon below remains the published output path.
+    std::optional<metalrobo::MetalArticulatedOperatorResult> residentPilot;
+    std::size_t residentPilotCount = 0u;
+    if (const char* requested = std::getenv("NUMI_HUMAN_RESIDENT_PHYSICS_PILOT")) {
+        require(std::strcmp(requested, "2") == 0 ||
+                    std::strcmp(requested, "8") == 0 ||
+                    std::strcmp(requested, "16") == 0,
+                "resident physics pilot requires 2, 8, or 16 Humans");
+        require(!standBrainLibraryPath.has_value() && !enableRootAssistance &&
+                    !removeRootAssistance && !verifyDeterminism &&
+                    !capturePersistentStandTrace && !muscleFeedback.has_value() &&
+                    !endpointEnergy && continuumTransaction == nullptr &&
+                    additionalTendonLoadProgram == nullptr &&
+                    !mrNumiHumanTimedRootForceConfigured(timedRootForce),
+                "resident physics pilot requires unassisted source standing without another owner");
+        residentPilotCount = static_cast<std::size_t>(std::strtoul(requested, nullptr, 10));
+    }
+    std::vector<float> residentQ, residentV;
+    std::vector<MRCompensatedRootTranslationGPU> residentRoots;
+    std::vector<MRArticulatedPointImpulseGPU> residentPoints;
+    std::vector<MRMujocoMuscleStateGPU> residentStates;
+    if (residentPilotCount != 0u) {
+        const auto repeat = [residentPilotCount](auto& target, const auto& source) {
+            target.reserve(source.size() * residentPilotCount);
+            for (std::size_t environment = 0u; environment < residentPilotCount;
+                 ++environment)
+                target.insert(target.end(), source.begin(), source.end());
+        };
+        repeat(residentQ, q);
+        repeat(residentV, v);
+        repeat(residentRoots, initialRoots);
+        repeat(residentPoints, queries.points);
+        repeat(residentStates, states);
+        auto cohortInput = input;
+        cohortInput.environmentCount = residentPilotCount;
+        cohortInput.q = residentQ;
+        cohortInput.rootTranslations = residentRoots;
+        cohortInput.points = residentPoints;
+        cohortInput.mujoco.states = residentStates;
+        cohortInput.stand.v = residentV;
+        metalrobo::MetalArticulatedOperatorContext cohortContext(config);
+        metalrobo::MetalArticulatedOperatorResult cohortResult;
+        const auto begin = std::chrono::steady_clock::now();
+        const auto cohortDiagnostics = cohortContext.run(
+            model, cohortInput, cohortResult);
+        const double wallSeconds = std::chrono::duration<double>(
+            std::chrono::steady_clock::now() - begin).count();
+        require(cohortDiagnostics.succeeded() && cohortDiagnostics.published &&
+                    cohortDiagnostics.successfulEnvironmentCount == residentPilotCount &&
+                    cohortDiagnostics.failedEnvironmentCount == 0u &&
+                    cohortDiagnostics.completedStandSteps == stepCount &&
+                    cohortResult.standStatuses.size() == residentPilotCount &&
+                    cohortResult.standQ.size() == residentQ.size() &&
+                    cohortResult.standV.size() == residentV.size() &&
+                    cohortResult.mujocoActivationStates.size() == residentStates.size(),
+                "resident Human physics pilot did not publish every environment: " +
+                    cohortDiagnostics.message);
+        bool allPenetrationQualified = true;
+        for (std::size_t environment = 0u; environment < residentPilotCount;
+             ++environment) {
+            const auto& cohortStatus = cohortResult.standStatuses[environment];
+            allPenetrationQualified &=
+                cohortStatus.contactAndAcceleration.y < 1.0e-6f;
+            std::cout << std::setprecision(17)
+                      << "resident_physics_pilot_status"
+                      << " environment=" << environment
+                      << " code=" << cohortStatus.code
+                      << " completed_steps=" << cohortStatus.completedSteps
+                      << " sweeps=" << cohortStatus.contactIterations
+                      << " active_contacts=" << cohortStatus.activeContactCount
+                      << " peak_penetration_m="
+                      << cohortStatus.contactAndAcceleration.y
+                      << " root_assistance_force_n="
+                      << cohortStatus.factorAndAssistance.z
+                      << " root_assistance_torque_nm="
+                      << cohortStatus.factorAndAssistance.w << std::endl;
+            require(cohortStatus.code == MR_NUMI_HUMAN_STAND_SUCCESS &&
+                        cohortStatus.environment == environment &&
+                        cohortStatus.completedSteps == stepCount &&
+                        cohortStatus.contactIterations == contactIterationCount &&
+                        cohortStatus.activeContactCount >= 6u &&
+                        cohortStatus.factorAndAssistance.z == 0.0f &&
+                        cohortStatus.factorAndAssistance.w == 0.0f,
+                    "resident Human physics pilot failed solver, contact, or assistance checks");
+        }
+        std::cout << std::setprecision(17)
+                  << "resident_physics_pilot=completed"
+                  << " environments=" << residentPilotCount
+                  << " steps_per_environment=" << stepCount
+                  << " accepted_simulated_seconds="
+                  << residentPilotCount * stepCount * timestepSeconds
+                  << " wall_seconds_excluding_scene_setup=" << wallSeconds
+                  << " accepted_simulated_seconds_per_hour_excluding_setup="
+                  << residentPilotCount * stepCount * timestepSeconds * 3600.0 /
+                         wallSeconds
+                  << " penetration_under_1um="
+                  << (allPenetrationQualified ? "true" : "false")
+                  << " boundary=Human_physics_only_without_Brain\n";
+        residentPilot.emplace(std::move(cohortResult));
+    }
     std::unique_ptr<numi_human_brain::Controller> standBrainController;
     if (standBrainLibraryPath.has_value()) {
         require(!verifyDeterminism && !capturePersistentStandTrace &&
@@ -6804,6 +6906,34 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                       model.articulations.front().nv)),
         "persistent Human stand Metal horizon failed: " + diagnostics.message
     );
+    if (residentPilot.has_value()) {
+        const auto& cohort = *residentPilot;
+        require(metalResult.mujocoActivationStates.size() == states.size() &&
+                    cohort.standRootTranslations.size() == residentPilotCount,
+                "resident Human pilot comparison has incomplete accepted state");
+        for (std::size_t environment = 0u; environment < residentPilotCount;
+             ++environment) {
+            const auto same = [environment](const auto& cohortValues,
+                                            const auto& singleValues) {
+                using Value = typename std::decay_t<decltype(singleValues)>::value_type;
+                const auto offset = environment * singleValues.size();
+                return cohortValues.size() >= offset + singleValues.size() &&
+                    std::memcmp(cohortValues.data() + offset,
+                                singleValues.data(),
+                                singleValues.size() * sizeof(Value)) == 0;
+            };
+            require(same(cohort.standQ, metalResult.standQ) &&
+                        same(cohort.standV, metalResult.standV) &&
+                        same(cohort.mujocoActivationStates,
+                             metalResult.mujocoActivationStates) &&
+                        same(cohort.standRootTranslations,
+                             metalResult.standRootTranslations),
+                    "resident Human physics pilot differs from single-Human accepted state");
+        }
+        std::cout << "resident_physics_pilot_endpoint_vs_single=exact"
+                  << " environments=" << residentPilotCount
+                  << " reference=single_Human_accepted_endpoint\n";
+    }
     const MRNumiHumanStandStatusGPU& status = metalResult.standStatuses.front();
     require(status.code == MR_NUMI_HUMAN_STAND_SUCCESS &&
                 status.completedSteps == stepCount &&
