@@ -394,6 +394,7 @@ private:
         void* image = nullptr;
         decltype(&nb_human_standing_create_v1) create = nullptr;
         decltype(&nb_human_standing_encode_motor_v1) motor = nullptr;
+        decltype(&nb_human_standing_encode_motor_v2) motorV2 = nullptr;
         decltype(&nb_human_standing_encode_motor_decision_v1) motorDecision = nullptr;
         decltype(&nb_human_standing_encode_motor_decision_phased_v1) motorDecisionPhased = nullptr;
         decltype(&nb_human_standing_encode_motor_tissue_v1) motorTissue = nullptr;
@@ -417,6 +418,8 @@ private:
             try {
                 create = symbol<decltype(create)>("nb_human_standing_create_v1");
                 motor = symbol<decltype(motor)>("nb_human_standing_encode_motor_v1");
+                motorV2 = optionalSymbol<decltype(motorV2)>(
+                    "nb_human_standing_encode_motor_v2");
                 motorDecision = optionalSymbol<decltype(motorDecision)>(
                     "nb_human_standing_encode_motor_decision_v1");
                 motorDecisionPhased = optionalSymbol<decltype(motorDecisionPhased)>(
@@ -642,7 +645,16 @@ private:
                     owner.rootOpen_ = true;
                     std::array<char, 2048u> error{};
                     const char* phaseTiming = std::getenv("NUMI_HUMAN_BRAIN_PHASE_TIMING");
+                    const char* motorV2Setting = std::getenv("NUMI_HUMAN_BRAIN_MOTOR_V2");
+                    const bool useMotorV2 = motorV2Setting != nullptr &&
+                        std::strcmp(motorV2Setting, "1") == 0;
+                    if (useMotorV2 && owner.library_.motorV2 == nullptr) {
+                        owner.fail("NumiBrain motor v2 symbol is unavailable"); return false;
+                    }
                     if (phaseTiming != nullptr && std::strcmp(phaseTiming, "1") == 0) {
+                        if (useMotorV2) {
+                            owner.fail("NumiBrain motor v2 cannot use v1 phase timing"); return false;
+                        }
                         if (owner.library_.motorDecision == nullptr ||
                             owner.library_.motorTissue == nullptr) {
                             owner.fail("NumiBrain phase timing symbols are unavailable"); return false;
@@ -699,10 +711,15 @@ private:
                         id<MTLComputeCommandEncoder> encoder = timedEncoder(
                             command, owner.device_, "brain_motor", pass.stepIndex);
                         if (encoder == nil) { owner.fail("Human Brain motor encoder allocation failed"); return false; }
-                        const auto success = owner.library_.motor(owner.brain_.handle,
-                            (__bridge void*)encoder, pass.stepIndex, records.data(),
-                            static_cast<std::uint32_t>(records.size()),
-                            pass.mujocoStates, 416u, error.data(), error.size());
+                        const auto success = useMotorV2
+                            ? owner.library_.motorV2(owner.brain_.handle,
+                                (__bridge void*)encoder, pass.stepIndex, records.data(),
+                                static_cast<std::uint32_t>(records.size()),
+                                pass.mujocoStates, 416u, 0u, error.data(), error.size())
+                            : owner.library_.motor(owner.brain_.handle,
+                                (__bridge void*)encoder, pass.stepIndex, records.data(),
+                                static_cast<std::uint32_t>(records.size()),
+                                pass.mujocoStates, 416u, error.data(), error.size());
                         [encoder endEncoding];
                         if (success != 1u) {
                             owner.fail(error[0] == '\0' ? "NumiBrain motor encoding failed" : error.data());

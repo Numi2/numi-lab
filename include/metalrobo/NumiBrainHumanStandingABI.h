@@ -36,6 +36,11 @@ void* nb_human_standing_create_v1(void* device, const char* source_json,
 uint32_t nb_human_standing_encode_motor_v1(void* handle, void* encoder,
     uint32_t step_index, const NBHumanStandingReceptor* receptors, uint32_t receptor_count,
     void* muscle_states, uint32_t muscle_count, char* error, size_t error_capacity);
+/* V2 addresses one 416-state slice in an environment-major borrowed buffer. */
+uint32_t nb_human_standing_encode_motor_v2(void* handle, void* encoder,
+    uint32_t step_index, const NBHumanStandingReceptor* receptors, uint32_t receptor_count,
+    void* muscle_states, uint32_t muscle_count, size_t muscle_state_byte_offset,
+    char* error, size_t error_capacity);
 /* Optional stage split on the same native command buffer for GPU phase timing. */
 uint32_t nb_human_standing_encode_motor_decision_v1(void* handle, void* encoder,
     uint32_t step_index, const NBHumanStandingReceptor* receptors, uint32_t receptor_count,
