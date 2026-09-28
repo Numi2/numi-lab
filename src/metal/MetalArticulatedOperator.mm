@@ -108,8 +108,9 @@ id<MTLComputeCommandEncoder> humanTimedEncoder(
 // occupies slots 16..23 in the same command buffer. The MyoSim sidecar owns
 // slots 24..30 and consumes the same private pose/Jacobian output directly.
 constexpr std::size_t kRawBufferCount = 31u;
-constexpr std::size_t kStandBufferCount = 23u;
+constexpr std::size_t kStandBufferCount = 24u;
 constexpr std::size_t kStandPassiveJointBuffer = 22u;
+constexpr std::size_t kStandLimitEqualityResponseBuffer = 23u;
 constexpr std::size_t kStandRootTranslationBuffer = 18u;
 constexpr std::size_t kStandRootTranslationCheckpointBuffer = 19u;
 constexpr std::size_t kStandBodyPositionLowBuffer = 20u;
@@ -467,7 +468,15 @@ struct MetalArticulatedOperatorContextState {
     explicit MetalArticulatedOperatorContextState(
         MetalArticulatedOperatorConfig configured
     )
-        : config(std::move(configured)) {}
+        : config(std::move(configured)) {
+        // Resolve the experimental override once, before arena sizing or any
+        // owning submission. The typed configuration remains the API owner.
+        const char* equalityCache =
+            std::getenv("NUMI_HUMAN_STAND_CACHE_LIMIT_EQUALITY");
+        if (equalityCache != nullptr)
+            config.cacheStandLimitEqualityResponses =
+                std::strcmp(equalityCache, "1") == 0;
+    }
     ~MetalArticulatedOperatorContextState();
 
     MetalArticulatedOperatorConfig config;
@@ -499,6 +508,7 @@ struct MetalArticulatedOperatorContextState {
     __strong id<MTLComputePipelineState> standEqualityPipeline = nil;
     __strong id<MTLComputePipelineState> standProjectedResponsePipeline = nil;
     __strong id<MTLComputePipelineState> standFinishPipeline = nil;
+    __strong id<MTLComputePipelineState> standCachedFinishPipeline = nil;
     __strong id<MTLComputePipelineState> standCpuFinishPipeline = nil;
     __strong id<MTLSharedEvent> standFreeHandoffEvent = nil;
     __strong MTLSharedEventListener* standFreeHandoffListener = nil;
@@ -1814,9 +1824,22 @@ bool hasCompensatedGeometry(const MetalArticulatedOperatorLayout& layout) noexce
     return (layout.dispatch.flags & MR_ARTICULATED_OPERATOR_COMPENSATED_TRANSLATION) != 0u;
 }
 
+bool canCacheStandLimitEqualityResponses(
+    const MetalArticulatedOperatorConfig& config,
+    const MetalArticulatedOperatorInput& input,
+    std::uint32_t nv
+) noexcept {
+    return config.cacheStandLimitEqualityResponses && config.splitStandSolve &&
+        input.stand.enabled() && input.stand.enableContact &&
+        !input.stand.contacts.empty() && nv != 0u && nv <= 128u &&
+        !input.stand.jointEqualities.empty() &&
+        input.stand.jointEqualities.size() <= 64u;
+}
+
 bool buildRequirements(
     const EngineModel& model,
     const MetalArticulatedOperatorLayout& layout,
+    std::size_t cachedLimitEqualityElements,
     RequiredBuffers& requirements,
     std::size_t& totalAllocatedBytes
 ) {
@@ -2045,6 +2068,11 @@ bool buildRequirements(
             layout.standPassiveJointElements,
             requirements.standEntries[kStandPassiveJointBuffer]
         ) ||
+        !makeRequirement<float>(
+            "Numi Human fixed limit equality responses",
+            cachedLimitEqualityElements,
+            requirements.standEntries[kStandLimitEqualityResponseBuffer]
+        ) ||
         !makeRequirement<MRNumiHumanJointEqualityGPU>(
             "Numi Human joint equalities",
             layout.standJointEqualityElements,
@@ -2180,6 +2208,10 @@ bool buildRequirements(
         )) {
         return false;
     }
+
+    // The optional derived cache has no binding in the original specialization.
+    if (cachedLimitEqualityElements == 0u)
+        requirements.standEntries[kStandLimitEqualityResponseBuffer].allocationBytes = 0u;
 
     // Read-only paired geometry borrows only the root/body/point slots from the
     // private arena. Keep all physical Stand/checkpoint slots lazy, and preserve
@@ -2812,10 +2844,23 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
         );
     }
 
+    std::size_t cachedLimitEqualityElements = 0u;
+    if (canCacheStandLimitEqualityResponses(config, input, articulation.nv) &&
+        (!checkedMultiply(input.environmentCount, articulation.nv,
+                          cachedLimitEqualityElements) ||
+         !checkedMultiply(cachedLimitEqualityElements,
+                          layout.standJointEqualityElements,
+                          cachedLimitEqualityElements) ||
+         exceedsShaderAddressing(cachedLimitEqualityElements))) {
+        return reject(std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::arithmeticOverflow,
+            "limit equality cache exceeds the shader addressing contract");
+    }
     std::size_t totalAllocatedBytes = 0u;
     if (!buildRequirements(
             model,
             layout,
+            cachedLimitEqualityElements,
             requirements,
             totalAllocatedBytes
         )) {
@@ -3375,6 +3420,7 @@ MetalArticulatedOperatorDiagnostics initializeContext(
     id<MTLComputePipelineState> standEqualityPipeline = nil;
     id<MTLComputePipelineState> standProjectedResponsePipeline = nil;
     id<MTLComputePipelineState> standFinishPipeline = nil;
+    id<MTLComputePipelineState> standCachedFinishPipeline = nil;
     id<MTLComputePipelineState> standCpuFinishPipeline = nil;
     if (context.config.splitStandSolve) {
         id<MTLFunction> standMassFunction = [library
@@ -3437,6 +3483,9 @@ MetalArticulatedOperatorDiagnostics initializeContext(
         bool cpuFinishSpecialized = false;
         [finishConstants setConstantValue:&cpuFinishSpecialized
                                     type:MTLDataTypeBool atIndex:0u];
+        bool cacheLimitEqualitySpecialized = false;
+        [finishConstants setConstantValue:&cacheLimitEqualitySpecialized
+                                    type:MTLDataTypeBool atIndex:1u];
         error = nil;
         id<MTLFunction> standFinishFunction = [library
             newFunctionWithName:@"mr_numi_human_stand_finish"
@@ -3451,6 +3500,33 @@ MetalArticulatedOperatorDiagnostics initializeContext(
                 MetalArticulatedOperatorHostStatus::metalPipelineFailure,
                 "failed to create Numi Human stand completion pipeline: " +
                     describeError(error));
+        }
+        if (context.config.cacheStandLimitEqualityResponses) {
+            cacheLimitEqualitySpecialized = true;
+            [finishConstants setConstantValue:&cacheLimitEqualitySpecialized
+                                        type:MTLDataTypeBool atIndex:1u];
+            error = nil;
+            id<MTLFunction> cachedFinishFunction = [library
+                newFunctionWithName:@"mr_numi_human_stand_finish"
+                    constantValues:finishConstants error:&error];
+            standCachedFinishPipeline = cachedFinishFunction == nil ? nil :
+                [device newComputePipelineStateWithFunction:cachedFinishFunction
+                                                     error:&error];
+            if (standCachedFinishPipeline == nil) {
+                return reject(std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::metalPipelineFailure,
+                    "failed to create cached Human stand completion pipeline: " +
+                        describeError(error));
+            }
+            // The cooperative cache uses the measured SIMD32 shape. Other
+            // devices keep the original specialization and physical behavior.
+            if (standCachedFinishPipeline.threadExecutionWidth != 32u ||
+                standCachedFinishPipeline.maxTotalThreadsPerThreadgroup <
+                    kStandFinishThreadsPerThreadgroup)
+                standCachedFinishPipeline = nil;
+            cacheLimitEqualitySpecialized = false;
+            [finishConstants setConstantValue:&cacheLimitEqualitySpecialized
+                                        type:MTLDataTypeBool atIndex:1u];
         }
         cpuFinishSpecialized = true;
         [finishConstants setConstantValue:&cpuFinishSpecialized
@@ -3571,6 +3647,7 @@ MetalArticulatedOperatorDiagnostics initializeContext(
     context.standProjectedResponsePipeline =
         standProjectedResponsePipeline;
     context.standFinishPipeline = standFinishPipeline;
+    context.standCachedFinishPipeline = standCachedFinishPipeline;
     context.standCpuFinishPipeline = standCpuFinishPipeline;
     context.standReconcilePipeline = reconcilePipeline;
     id<MTLFunction> tendonCompensatedFunction = [library
@@ -12224,6 +12301,12 @@ MetalArticulatedOperatorContext::submit(
                     } else if (splitStand && phase == 0u) {
                         phaseDispatch.flags |= MR_NUMI_HUMAN_STAND_PREPARE_ONLY;
                     }
+                    const bool cachedFinish = !cpuFinish && splitStand &&
+                        phase == standPhaseCount - 1u &&
+                        (phaseDispatch.flags & MR_NUMI_HUMAN_STAND_FREE_ONLY) == 0u &&
+                        state_->standCachedFinishPipeline != nil &&
+                        canCacheStandLimitEqualityResponses(
+                            state_->config, input, articulation.nv);
                     const char* stageName = parallelMass
                         ? (phase == 0u ? "stand_prework" :
                            phase == 1u ? "stand_mass" :
@@ -12232,9 +12315,10 @@ MetalArticulatedOperatorContext::submit(
                            phase == 4u ? "stand_equality_factor" :
                            phase == 5u ? "stand_projected_responses" :
                            freeSplit && phase == 6u ? "stand_free_prelude" :
-                           "stand_finish")
+                           (cachedFinish ? "stand_finish_cached" : "stand_finish"))
                         : (!splitStand ? "stand" :
-                           (phase == 0u ? "stand_prepare" : "stand_finish"));
+                           (phase == 0u ? "stand_prepare" :
+                            cachedFinish ? "stand_finish_cached" : "stand_finish"));
                     id<MTLComputeCommandEncoder> standEncoder =
                         humanTimedEncoder(commandBuffer, state_->device,
                                           stageName, authoritativeStep);
@@ -12259,8 +12343,14 @@ MetalArticulatedOperatorContext::submit(
                                  (freeSplit && phase == 6u))
                                 ? (oneHandoff && phase == standPhaseCount - 1u
                                     ? state_->standCpuFinishPipeline
-                                    : state_->standFinishPipeline)
+                                    : cachedFinish
+                                        ? state_->standCachedFinishPipeline
+                                        : state_->standFinishPipeline)
                                 : state_->standPipeline];
+                    if (cachedFinish)
+                        [standEncoder setBuffer:
+                            state_->standBuffers[kStandLimitEqualityResponseBuffer]
+                            offset:0u atIndex:27u];
                     [standEncoder setBuffer:state_->standBuffers[kStandRootTranslationBuffer] offset:0u atIndex:21u];
                     [standEncoder setBuffer:state_->standBuffers[kStandBodyPositionLowBuffer] offset:0u atIndex:22u];
                     [standEncoder setBuffer:state_->standBuffers[kStandPointPositionLowBuffer] offset:0u atIndex:23u];

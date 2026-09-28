@@ -1794,6 +1794,10 @@ struct MetalArticulatedOperatorConfig {
     // dispatches of the same authoritative command buffer. Both phases use
     // the same physical owner and accepted-state transaction.
     bool splitStandSolve = false;
+    // Reuse each fixed source-limit equality response derivative across the
+    // ordered sweeps of one split GPU root. Unsupported shapes and scalar or
+    // CPU completion retain the original finish specialization.
+    bool cacheStandLimitEqualityResponses = false;
 };
 
 enum class MetalArticulatedOperatorHostStatus : std::uint32_t {

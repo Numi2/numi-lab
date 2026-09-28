@@ -26,6 +26,10 @@ constant uint kParallelLimitConditionFailure = 0x80000000u;
 // Specializing this path removes the unused GPU constraint solver from its
 // completion pipeline while the ordinary split stand keeps that solver.
 constant bool kCpuFinishSpecialized [[function_constant(0)]];
+constant bool kCachedLimitEqualityResponse [[function_constant(1)]];
+constant bool kUseCachedLimitEqualityResponse =
+    is_function_constant_defined(kCachedLimitEqualityResponse)
+        ? kCachedLimitEqualityResponse : false;
 
 // Forward substitution keeps each row's original increasing-column FMA
 // sequence. Completed blocks update independent future rows in parallel;
@@ -2309,6 +2313,7 @@ kernel void mr_numi_human_stand_finish(
     device const float* passiveJointProgram [[buffer(24)]],
     device float* sourceDynamicsWitness [[buffer(25)]],
     device const MRNumiHumanStandCpuFinishGPU* cpuFinishes [[buffer(26)]],
+    device float* cachedLimitEqualityResponse [[buffer(27)]],
     uint environment [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]],
     uint threadCount [[threads_per_threadgroup]],

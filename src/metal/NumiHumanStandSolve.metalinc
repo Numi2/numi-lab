@@ -787,9 +787,11 @@
              contact < dispatch.supportContactCount; ++contact) {
             if (cooperativeContactActive[contact] == 0u) continue;
             device const MRNumiHumanStandContactGPU& support = contacts[contact];
-            if (threadCount >= 3u * simdWidth) {
+            if (threadCount >= 3u * simdWidth && nv > simdWidth) {
                 // Give each contact axis a SIMD group. The previous path
                 // loaded all nv Jacobian entries on only three lanes.
+                // Small models retain their ordered scalar contraction;
+                // a SIMD reduction changes its cancellation order.
                 const uint axis = lane / simdWidth;
                 const uint simdLane = lane % simdWidth;
                 if (axis < 3u) {
@@ -1210,6 +1212,26 @@
         }
         if (threadCount >= simdWidth && nv <= 4u * simdWidth &&
             equalityCount <= 2u * simdWidth) {
+            if (kUseCachedLimitEqualityResponse && coupledSweep == 0u) {
+                // These responses and derivatives are fixed for this root.
+                // Each coefficient retains its original FP32 response FMA;
+                // no numerical value is reused across root generations.
+                const uint cacheBase = environment * nv * equalityCount;
+                for (uint entry = lane; entry < nv * equalityCount;
+                     entry += threadCount) {
+                    const uint dof = entry / equalityCount;
+                    const uint row = entry % equalityCount;
+                    device const auto& equality = jointEqualities[row];
+                    device const float* response = responseScratch +
+                        limitResponseBase + dof * nv;
+                    float value = response[equality.indices.y];
+                    if (equality.indices.w != MR_INVALID_INDEX)
+                        value = fma(-equalityDerivativeCache[row],
+                            response[equality.indices.w], value);
+                    cachedLimitEqualityResponse[cacheBase + entry] = value;
+                }
+                threadgroup_barrier(mem_flags::mem_device);
+            }
             // One SIMD group owns the ordered limit solve. Each lane holds up
             // to four disjoint DOF velocities in registers. Limit index and
             // register index now agree; the same lane previews and applies a
@@ -1367,10 +1389,16 @@
                             limitEqualityCorrections[
                                 dof * equalityCount + equality0];
                         const float before = equalityVelocity0;
-                        float responseEquality = response[equalityDof0];
-                        if (equalityOtherDof0 != MR_INVALID_INDEX)
-                            responseEquality = fma(-equalityDerivative0,
-                                response[equalityOtherDof0], responseEquality);
+                        float responseEquality;
+                        if (kUseCachedLimitEqualityResponse) {
+                            responseEquality = cachedLimitEqualityResponse[
+                                (environment * nv + dof) * equalityCount + equality0];
+                        } else {
+                            responseEquality = response[equalityDof0];
+                            if (equalityOtherDof0 != MR_INVALID_INDEX)
+                                responseEquality = fma(-equalityDerivative0,
+                                    response[equalityOtherDof0], responseEquality);
+                        }
                         equalityVelocity0 = fma(impulse, responseEquality,
                             equalityVelocity0);
                         equalityWorkContribution = fma(
@@ -1386,10 +1414,16 @@
                             limitEqualityCorrections[
                                 dof * equalityCount + equality1];
                         const float before = equalityVelocity1;
-                        float responseEquality = response[equalityDof1];
-                        if (equalityOtherDof1 != MR_INVALID_INDEX)
-                            responseEquality = fma(-equalityDerivative1,
-                                response[equalityOtherDof1], responseEquality);
+                        float responseEquality;
+                        if (kUseCachedLimitEqualityResponse) {
+                            responseEquality = cachedLimitEqualityResponse[
+                                (environment * nv + dof) * equalityCount + equality1];
+                        } else {
+                            responseEquality = response[equalityDof1];
+                            if (equalityOtherDof1 != MR_INVALID_INDEX)
+                                responseEquality = fma(-equalityDerivative1,
+                                    response[equalityOtherDof1], responseEquality);
+                        }
                         equalityVelocity1 = fma(impulse, responseEquality,
                             equalityVelocity1);
                         equalityWorkContribution = fma(

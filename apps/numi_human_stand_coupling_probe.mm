@@ -11,6 +11,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <cstdlib>
 #include <cstring>
 #include <iomanip>
 #include <iostream>
@@ -2193,6 +2194,103 @@ void checkCommonDurationRefinement() {
     }
 }
 
+void checkCachedEqualityResponseBatch() {
+    constexpr const char* kSetting = "NUMI_HUMAN_STAND_CACHE_LIMIT_EQUALITY";
+    const char* setting = std::getenv(kSetting);
+    struct RestoreSetting {
+        bool existed;
+        std::string value;
+        ~RestoreSetting() {
+            if (existed) setenv(kSetting, value.c_str(), 1);
+            else unsetenv(kSetting);
+        }
+    } restore{setting != nullptr, setting == nullptr ? "" : setting};
+    require(unsetenv(kSetting) == 0, "cannot isolate the typed cache configuration");
+
+    const Fixture fixture(kDefaultTimestepSeconds);
+    constexpr std::size_t kEnvironments = 2u;
+    const auto duplicate = []<typename T>(const std::vector<T>& source) {
+        std::vector<T> values = source;
+        values.insert(values.end(), source.begin(), source.end());
+        return values;
+    };
+    auto q = duplicate(fixture.q);
+    auto v = duplicate(fixture.v);
+    auto points = duplicate(fixture.points);
+    auto states = duplicate(fixture.gpuStates);
+    auto preload = duplicate(fixture.passivePreload);
+    // Distinct current configurations exercise separate response/derivative
+    // ranges while retaining the same authored equality and support model.
+    q[fixture.q.size() + kMasterQ] += 5.0e-6f;
+    q[fixture.q.size() + kDependentQ] += kEqualitySlope * 5.0e-6f;
+
+    MetalArticulatedOperatorInput input{};
+    input.articulationIndex = 0u;
+    input.environmentCount = kEnvironments;
+    input.pointCount = fixture.points.size();
+    input.q = q;
+    input.v = v;
+    input.points = points;
+    input.mujoco.muscles = fixture.gpuMuscles;
+    input.mujoco.states = states;
+    input.mujoco.sites = fixture.gpuSites;
+    input.mujoco.routeNodes = fixture.gpuRoutes;
+    input.mujoco.bodyJacobianPointOffset = 0u;
+    input.stand.v = v;
+    input.stand.preloadedGeneralizedForce = preload;
+    input.stand.contacts = fixture.contacts;
+    input.stand.jointEqualities = fixture.equalities;
+    input.stand.tendonBindings = fixture.tendonBindings;
+    input.stand.stepCount = 4u;
+    input.stand.contactIterationCount = 64u;
+    input.stand.enableContact = true;
+    input.stand.enableRootAssistance = false;
+    input.stand.groundPoint = f4();
+    input.stand.groundNormal = f4(0.0f, 1.0f, 0.0f, 0.0f);
+    input.stand.targetRootPosition = f4(fixture.q[0], fixture.q[1], fixture.q[2]);
+    input.stand.targetRootOrientation =
+        f4(fixture.q[3], fixture.q[4], fixture.q[5], fixture.q[6]);
+    input.stand.assistanceGains = f4();
+
+    MetalArticulatedOperatorConfig config{};
+    config.pointJacobiansOnly = true;
+    config.splitStandSolve = true;
+    config.mujocoActivationTimestepSeconds = fixture.timestepSeconds;
+    config.metallibPath = METALROBO_DEFAULT_METALLIB;
+    MetalArticulatedOperatorContext original(config);
+    MetalArticulatedOperatorResult a;
+    const auto da = original.run(fixture.model, input, a);
+    require(da.succeeded() && da.published && da.completedStandSteps == 4u,
+            "original batch failed: " + da.message);
+    config.cacheStandLimitEqualityResponses = true;
+    MetalArticulatedOperatorContext cached(config);
+    MetalArticulatedOperatorResult b;
+    const auto db = cached.run(fixture.model, input, b);
+    require(db.succeeded() && db.published && db.completedStandSteps == 4u,
+            "cached batch failed: " + db.message);
+    require(a.standStatuses.size() == kEnvironments &&
+            b.standStatuses.size() == kEnvironments,
+            "cached batch is missing environment statuses");
+    require(sameBytes(a.standQ, b.standQ) && sameBytes(a.standV, b.standV) &&
+            sameBytes(a.standStatuses, b.standStatuses) &&
+            sameBytes(a.mujocoActivationStates, b.mujocoActivationStates) &&
+            sameBytes(a.mujocoResults, b.mujocoResults) &&
+            sameBytes(a.standTendonTransfers, b.standTendonTransfers) &&
+            sameBytes(a.standTendonGeneralizedCorrections,
+                      b.standTendonGeneralizedCorrections),
+            "cached batch changed accepted state or environment isolation");
+    const auto scratchBytes = kEnvironments *
+        fixture.model.articulations[0].nv * fixture.equalities.size() * sizeof(float);
+    require(db.layout.totalAllocatedBytes == da.layout.totalAllocatedBytes + scratchBytes,
+            "cached batch workspace is missing from the arena budget");
+    for (const auto& status : b.standStatuses)
+        require(status.code == MR_NUMI_HUMAN_STAND_SUCCESS,
+                "cached batch published an invalid environment status");
+    std::cout << "cached_equality_response_batch=passed environments=2 roots=4"
+              << " sweeps=64 byte_identity=true scratch_bytes=" << scratchBytes
+              << " scope=minimal_owner_fixture full_human_throughput_claim=false\n";
+}
+
 } // namespace
 
 int main() {
@@ -2210,6 +2308,7 @@ int main() {
         checkContactAndReplay(fixture);
         checkFinalEqualityProjection();
         checkCommonDurationRefinement();
+        checkCachedEqualityResponseBatch();
         std::cout << "numi_human_stand_coupling_probe=passed "
                   << "scope=minimal_production_path "
                   << "standing_qualified=false "
