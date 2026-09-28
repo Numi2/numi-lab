@@ -1,0 +1,430 @@
+{
+  "utc": "2026-09-28T21:11:47.292058+00:00",
+  "scope": "read-only verification of complete full-feedback native traces and rejected early-root finish experiments",
+  "baseline_main_revision": "f570ca3a846b291771230ec990e9e206f0c0d3a7",
+  "program_sha256": "2615b7a1f8168038b98ae93314721235a3ad0fc544c47bf46b97aeefb4d9990a",
+  "baseline_pair": [
+    {
+      "label": "full-feedback-target-v9-a-10000",
+      "receipt_sha256": "e33a32dd445e89cf0cf188fae2b07952b28942691c9523d756a5fb47c40c5ea6",
+      "wall_seconds": 152.982522209,
+      "roots": 10000,
+      "witnesses": {
+        "human_standing_progress=accepted": {
+          "count": 10000,
+          "sha256": "9f273366f5be7f15074104d3e35ea5bdd6f4b1daa950ab6a4a85fa3a77840230"
+        },
+        "human_brain_sensor_audit=accepted": {
+          "count": 10000,
+          "sha256": "dea82d088111927c9e9ada6cbf8af71e060a42f27f4bf7ff3517155897154209"
+        },
+        "stand_terminal_state=": {
+          "count": 1,
+          "sha256": "f9d3b429c92254fb77a6400f451f610c381ac500cc640bbbc3f117001f567066"
+        }
+      },
+      "peak_child_rss_bytes": 314638336,
+      "swap_before": "vm.swapusage: total = 1024.00M  used = 149.19M  free = 874.81M  (encrypted)",
+      "swap_after": "vm.swapusage: total = 1024.00M  used = 149.19M  free = 874.81M  (encrypted)",
+      "instrumented": false,
+      "stage_samples": [],
+      "median_stage_ns_excluding_root0": null
+    },
+    {
+      "label": "full-feedback-target-v9-b-10000",
+      "receipt_sha256": "d69368ac18c39a288bf8b6352555d970ed804f19226dcd85ca12768c39fdcbb6",
+      "wall_seconds": 174.782947667,
+      "roots": 10000,
+      "witnesses": {
+        "human_standing_progress=accepted": {
+          "count": 10000,
+          "sha256": "9f273366f5be7f15074104d3e35ea5bdd6f4b1daa950ab6a4a85fa3a77840230"
+        },
+        "human_brain_sensor_audit=accepted": {
+          "count": 10000,
+          "sha256": "dea82d088111927c9e9ada6cbf8af71e060a42f27f4bf7ff3517155897154209"
+        },
+        "stand_terminal_state=": {
+          "count": 1,
+          "sha256": "f9d3b429c92254fb77a6400f451f610c381ac500cc640bbbc3f117001f567066"
+        }
+      },
+      "peak_child_rss_bytes": 313212928,
+      "swap_before": "vm.swapusage: total = 1024.00M  used = 149.19M  free = 874.81M  (encrypted)",
+      "swap_after": "vm.swapusage: total = 1024.00M  used = 149.19M  free = 874.81M  (encrypted)",
+      "instrumented": false,
+      "stage_samples": [],
+      "median_stage_ns_excluding_root0": null
+    }
+  ],
+  "baseline_pair_mean_wall_seconds": 163.882734938,
+  "mean_speedup_required_for_5_seconds": 32.7765469876,
+  "b_relative_to_a_percent": 14.250271954738025,
+  "exact_candidate_physical_receptor_terminal_replay": true,
+  "source_runtime_brain_program_identity_verified": true,
+  "finish_experiments": [
+    {
+      "label": "register-sweeps-mini-off-v2-profile-128",
+      "receipt_sha256": "9c1354f12ec629185eeb9a48cc602b2a9a92e70337d938c3a070ef663cb0475d",
+      "wall_seconds": 2.929283291,
+      "roots": 128,
+      "witnesses": {
+        "human_standing_progress=accepted": {
+          "count": 128,
+          "sha256": "11cc98e56555f5f53e270e086c54c59c9d7e09d5386b7011c184cdf26339ab4f"
+        },
+        "human_brain_sensor_audit=accepted": {
+          "count": 128,
+          "sha256": "0a3237be7d8e9fe50720c68974b2622fea343d415b684eeb220ac9f21d3d4c0b"
+        },
+        "stand_terminal_state=": {
+          "count": 1,
+          "sha256": "01c0d5cc3da5ec7522b8adbde27430cbdb13e0928f3966ed7bd147174578cdf1"
+        }
+      },
+      "peak_child_rss_bytes": 308789248,
+      "swap_before": "vm.swapusage: total = 1024.00M  used = 149.19M  free = 874.81M  (encrypted)",
+      "swap_after": "vm.swapusage: total = 1024.00M  used = 149.19M  free = 874.81M  (encrypted)",
+      "instrumented": true,
+      "stage_samples": [
+        [
+          0,
+          4182834
+        ],
+        [
+          1,
+          4176333
+        ],
+        [
+          2,
+          4123625
+        ],
+        [
+          3,
+          4192584
+        ],
+        [
+          4,
+          4056458
+        ],
+        [
+          5,
+          4208000
+        ],
+        [
+          6,
+          4222791
+        ],
+        [
+          7,
+          4171875
+        ]
+      ],
+      "median_stage_ns_excluding_root0": 4176333
+    },
+    {
+      "label": "register-sweeps-mini-on-v3-profile-128",
+      "receipt_sha256": "a124d3dc3652c15c759f5120de1392dbb09313848a8b207a1dad2810916a0e47",
+      "wall_seconds": 4.447584333,
+      "roots": 128,
+      "witnesses": {
+        "human_standing_progress=accepted": {
+          "count": 128,
+          "sha256": "11cc98e56555f5f53e270e086c54c59c9d7e09d5386b7011c184cdf26339ab4f"
+        },
+        "human_brain_sensor_audit=accepted": {
+          "count": 128,
+          "sha256": "0a3237be7d8e9fe50720c68974b2622fea343d415b684eeb220ac9f21d3d4c0b"
+        },
+        "stand_terminal_state=": {
+          "count": 1,
+          "sha256": "01c0d5cc3da5ec7522b8adbde27430cbdb13e0928f3966ed7bd147174578cdf1"
+        }
+      },
+      "peak_child_rss_bytes": 308936704,
+      "swap_before": "vm.swapusage: total = 1024.00M  used = 149.19M  free = 874.81M  (encrypted)",
+      "swap_after": "vm.swapusage: total = 1024.00M  used = 149.19M  free = 874.81M  (encrypted)",
+      "instrumented": true,
+      "stage_samples": [
+        [
+          0,
+          6746542
+        ],
+        [
+          1,
+          5712209
+        ],
+        [
+          2,
+          5524958
+        ],
+        [
+          3,
+          5618250
+        ],
+        [
+          4,
+          5397959
+        ],
+        [
+          5,
+          5631417
+        ],
+        [
+          6,
+          5657625
+        ],
+        [
+          7,
+          5592958
+        ]
+      ],
+      "median_stage_ns_excluding_root0": 5618250,
+      "median_ratio_to_retained_control": 1.3452591064936632,
+      "performance_disposition": "rejected; no full-horizon replacement claim"
+    },
+    {
+      "label": "register-sweeps-mini-on-v4-profile-128",
+      "receipt_sha256": "5541edf33eb3a55c0429033c98c7b9cf841e33754a94fbff257f5dde2f2f32d5",
+      "wall_seconds": 5.283675542,
+      "roots": 128,
+      "witnesses": {
+        "human_standing_progress=accepted": {
+          "count": 128,
+          "sha256": "11cc98e56555f5f53e270e086c54c59c9d7e09d5386b7011c184cdf26339ab4f"
+        },
+        "human_brain_sensor_audit=accepted": {
+          "count": 128,
+          "sha256": "0a3237be7d8e9fe50720c68974b2622fea343d415b684eeb220ac9f21d3d4c0b"
+        },
+        "stand_terminal_state=": {
+          "count": 1,
+          "sha256": "01c0d5cc3da5ec7522b8adbde27430cbdb13e0928f3966ed7bd147174578cdf1"
+        }
+      },
+      "peak_child_rss_bytes": 309723136,
+      "swap_before": "vm.swapusage: total = 1024.00M  used = 149.19M  free = 874.81M  (encrypted)",
+      "swap_after": "vm.swapusage: total = 1024.00M  used = 149.19M  free = 874.81M  (encrypted)",
+      "instrumented": true,
+      "stage_samples": [
+        [
+          0,
+          5978333
+        ],
+        [
+          1,
+          5922625
+        ],
+        [
+          2,
+          5735959
+        ],
+        [
+          3,
+          6063542
+        ],
+        [
+          4,
+          5761833
+        ],
+        [
+          5,
+          5969959
+        ],
+        [
+          6,
+          5989542
+        ],
+        [
+          7,
+          5905791
+        ]
+      ],
+      "median_stage_ns_excluding_root0": 5922625,
+      "median_ratio_to_retained_control": 1.4181400285848853,
+      "performance_disposition": "rejected; no full-horizon replacement claim"
+    }
+  ],
+  "profile_boundary": "timings sample roots0..7 only; 128 roots physically accepted, including pulse; no hardware cause established",
+  "target_met": false,
+  "physical_recovery_qualified": false,
+  "full_neural_checkpoint_identity_qualified": false,
+  "joint_failure_restore_qualified": false,
+  "energy_closure_qualified": false,
+  "script_sha256": "a80a2b7eb8bded3dd723dfbeb171e8c6b44679b8bdf9dd9ab0c14688dbb4d806",
+  "human_runtime_sha256": {
+    "bin/metalrobo_numi_human_stand_coupling_probe": "0e0440cb08694cad5e7159bfddcd31d08c942643c5032025f7d0fb52dfee423d",
+    "bin/metalrobo_numilab_human_myosim_visual_probe": "24212a4b338dbe6ee7c26e6c38551982bf68b8d8aeda25c187bd3048816a7a86",
+    "lib/libmetalrobo.dylib": "deb16db25aa08a2a997762fa9043ccb29778cd3b68b301f2cf38ddb02ea41221",
+    "shaders/MetalRobo.metallib": "08b748ecb892e5be0479633487f405f5695579e29577a61c7ce6cb7be168195e",
+    "matter/shaders/NumiMatter.metallib": "f98567ab2e2100af368a86938bb7623a68ce5581877c9a0ccaf574b886be57ef"
+  },
+  "brain_library_sha256": "dfa3b6cec6a5a65748233a2c3ab5b224deb401d9e969f46e89cce20e1056b650",
+  "brain_resource_sha256": {
+    "NumiBrain_NumiBrainMetal.bundle/AcceptedConsequence.metal": "fa12305bae69cf5af12dc1de0e817f92b5c8e3f47d7369bcfcc54177d6a8a3ad",
+    "NumiBrain_NumiBrainMetal.bundle/AcceptedPhysicsGate.metal": "f60ff4bada37e719a5fd8ea694f5ef6536843bdcc66be861366e241e4c78bb43",
+    "NumiBrain_NumiBrainMetal.bundle/AgentStateArena.metal": "3a6c300274ae7f48b740dc3267ba65ac3795941a751aa123f506c5fc784c76d8",
+    "NumiBrain_NumiBrainMetal.bundle/BorrowedBrainCopy.metal": "e054154ef7045e63f809b0837db436d3c3d30fb43ae8e3b1da28cc259acfec45",
+    "NumiBrain_NumiBrainMetal.bundle/BorrowedHumanMotor.metal": "adcfbd0e73799186fcbfadca5ea31aff55cfae1d2e392e94694b711f474dd0d6",
+    "NumiBrain_NumiBrainMetal.bundle/CognitiveState.metal": "db4f59722ed763293bd99d779c92c598d5426bb521e15a4ebb75cb5dd2b55659",
+    "NumiBrain_NumiBrainMetal.bundle/ConnectomeDecoder.metal": "6fc1798268fb77359d85ca9f76925948abb8fff67eef83b8decbf0042c1059ea",
+    "NumiBrain_NumiBrainMetal.bundle/ConnectomeRate.metal": "c4ba4a6e481ab512871285fb185c2d0580cf83e170ce33e15c7c1d17d31d370d",
+    "NumiBrain_NumiBrainMetal.bundle/DecisionState.metal": "1179e4b2c332550b1b0f7fb2375c567470bbe05ad485e722e21ce58930ca1f2d",
+    "NumiBrain_NumiBrainMetal.bundle/DevelopmentalState.metal": "06af03283d5f4ecdc077e44dd5903756e85a214a6601d49dddb14c569d630d1e",
+    "NumiBrain_NumiBrainMetal.bundle/GeneratedExecutableModelContract.metalh": "108540c213aed004172271e183cfc7c312695e0a08c8953f4d47707d73d6e1a0",
+    "NumiBrain_NumiBrainMetal.bundle/MemoryState.metal": "4c62f6e15b3b59a3cefe166100e456555d6e5f1d7d27382a44fc54d7edab4ccc",
+    "NumiBrain_NumiBrainMetal.bundle/MuscleLocomotor.metal": "f589d3243a8d21754b131e25f2e3cad0e10b33ea1b7bb04a3faa18a4f491a4a8",
+    "NumiBrain_NumiBrainMetal.bundle/NeuralTissue.metal": "4c41a09d661a3a5edb5827b3751d614b4f0bdfd9bbb12c2740bfdec6c991e061",
+    "NumiBrain_NumiBrainMetal.bundle/NumanXHumanMatterV4.metal": "b8d234b17710c25fc01654474337f3f0d41c86f94aafe0426b5ecb9604a23c5f",
+    "NumiBrain_NumiBrainMetal.bundle/NumanXMotorReady.metal": "63c463a1fc457210c8fce5e94eb6f69895ed52633bd3d446206307a8dde57491",
+    "NumiBrain_NumiBrainMetal.bundle/SensoryTransduction.metal": "e0766a43ddbdaf6e4d3021fc601e553826c85740dc54d9ed057813cfc728e626"
+  },
+  "bound_source_count": 871,
+  "target_input_sha256": {
+    "/Users/n/NumiHumanCurrent/myosim-fullbody-core-reference.nhrigid": "6328f7e84663c611c5498624d1386b00b2d5b0e162c4cc2967c7b1dc49ab0c44",
+    "/Users/n/NumiHumanCurrent/myosim-fullbody-muscle-reference.nhmyo": "9a988f19a6fd8e533cd0f2bf3192cb8535fb008ccd394ffbf1a4432d3db76a05",
+    "/Users/n/human-completion-20260907/input/bodyparts3d-myosim-major-bones.nhbones": "f9132393dfb259a80e2b2084ac5ff15f2bf988f7e073f7a961a7ddcfb9febc3c",
+    "/Users/n/NumiHumanCurrent/myosim-fullbody-support-contact.nhcnt": "4d54f8155cd83baaee7af536099824ac0da61e5d5e77544b42c6e5ce1b48c907",
+    "/Users/n/NumiHumanCurrent/myosim-fullbody-joint-equalities.nheq": "b97f755c769d0af16e02ab5deb9d85bd0cc921649197f71d308e98130ac69b6a",
+    "/Users/n/NumiHumanCurrent/numi-human-tendon-attachments.nhtendon": "a594194f510eb4aa990a8767f868f999a10b4fedb745c8665368a231ed39b555",
+    "/Users/n/human-completion-20260907/input/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue": "ed0c932fd09434bcee45248453e9b2ba0108f1582793fe8cb9eb43c97e377494",
+    "/Users/n/numi-brain-2to1-protective-hash-runtime-20260928/libNumiBrainHumanStanding.dylib": "dfa3b6cec6a5a65748233a2c3ab5b224deb401d9e969f46e89cce20e1056b650",
+    "/Users/n/NumiHumanBrainRuns/2to1-finish-20260928/full-feedback-target-program-v1.json": "2615b7a1f8168038b98ae93314721235a3ad0fc544c47bf46b97aeefb4d9990a"
+  },
+  "target_environment": {
+    "NUMI_HUMAN_BRAIN_BUILD_DIR": "/Users/n/NumiHumanBrainRuns/2to1-topology-20260928/sparse-operator-mini-runtime-v9",
+    "NUMI_HUMAN_BRAIN_DYLIB": "/Users/n/numi-brain-2to1-protective-hash-runtime-20260928/libNumiBrainHumanStanding.dylib",
+    "NUMI_HUMAN_BRAIN_PROGRAM": "/Users/n/NumiHumanBrainRuns/2to1-finish-20260928/full-feedback-target-program-v1.json",
+    "NUMI_HUMAN_BRAIN_STEPS": "10000",
+    "NUMI_HUMAN_BRAIN_SEED": "1314213193",
+    "NUMI_HUMAN_BRAIN_STAND_BACKEND": "gpu-stand",
+    "NUMI_HUMAN_BRAIN_JOINT_PATH_CALIBRATION": "1",
+    "NUMI_HUMAN_BRAIN_MECHANICS_ONLY": "1",
+    "NUMI_HUMAN_BRAIN_SENSOR_AUDIT": "1",
+    "NUMI_HUMAN_BRAIN_MOTOR_AUDIT_INTERVAL": "0",
+    "NUMI_ARTICULATED_KINEMATICS_TOPOLOGY_CACHE": "0",
+    "NUMI_ARTICULATED_KINEMATICS_LOCAL_MOTION": "0",
+    "NUMI_ARTICULATED_KINEMATICS_SPECIALIZED": "0",
+    "NUMI_HUMAN_STAND_PERSISTENT_SIMD": "0",
+    "NUMI_HUMAN_SPLIT_STAND": "1",
+    "NUMI_HUMAN_PARALLEL_MASS_ASSEMBLY": "1",
+    "NUMI_HUMAN_STAND_CPU_FINISH": "0",
+    "NUMI_HUMAN_STAND_CPU_FACTOR": "0",
+    "NUMI_HUMAN_STAND_CPU_EQUALITY": "0",
+    "NUMI_HUMAN_STAND_CPU_EQUALITY_FACTOR": "0",
+    "NUMI_HUMAN_STAND_CPU_PROJECTED_RAW": "0",
+    "NUMI_HUMAN_STAND_CPU_FREE": "0",
+    "NUMI_HUMAN_STAND_CPU_ONE_HANDOFF": "0",
+    "NUMI_HUMAN_STAND_FREE_SPLIT": "0",
+    "NUMI_HUMAN_STAND_FREE_HANDOFF_PROBE": "0",
+    "NUMI_BRAIN_PROTECTIVE_HASH_UNROLL": "8",
+    "NUMI_BRAIN_AFFECT_PARALLEL": "1",
+    "NUMI_BRAIN_CEREBELLAR_PARALLEL": "0",
+    "NUMI_BRAIN_READY_HASH_UNROLL": "16",
+    "NUMI_BRAIN_REGIONAL_PARALLEL_ROUTES": "1",
+    "NUMI_BRAIN_REGIONAL_GRID": "0",
+    "NUMI_BRAIN_REGIONAL_GRID_TIMESTAMPS": "4",
+    "NUMI_HUMAN_BRAIN_STATIC_CACHE_DIR": "/Users/n/NumiHumanBrainRuns/2to1-topology-20260928/persistent-simd-static-cache",
+    "NUMI_HUMAN_GPU_TIMING": "0",
+    "NUMI_HUMAN_GPU_TIMING_STAGE": "stand_finish_cached",
+    "NUMI_HUMAN_BRAIN_PHASE_TIMING": "0",
+    "NUMI_HUMAN_TRAINING_PROFILE": "0",
+    "DYLD_LIBRARY_PATH": "/Users/n/NumiHumanBrainRuns/2to1-topology-20260928/sparse-operator-mini-runtime-v9/lib",
+    "NUMI_HUMAN_STAND_CACHE_LIMIT_EQUALITY": "1",
+    "NUMI_HUMAN_EXECUTION_STAGES": "1",
+    "NUMI_HUMAN_STATIC_EQUILIBRIUM_CACHE_PATH": "/Users/n/NumiHumanBrainRuns/2to1-topology-20260928/persistent-simd-static-cache/95ec14e910f942d086156fe930e78504b86ea80912dbf9b2697156a3448be555.bin",
+    "NUMI_HUMAN_STATIC_EQUILIBRIUM_CACHE_KEY": "95ec14e910f942d086156fe930e78504b86ea80912dbf9b2697156a3448be555",
+    "NUMI_HUMAN_STAND_SPARSE_OPERATOR": "1"
+  },
+  "target_native_command": [
+    "/Users/n/NumiHumanBrainRuns/2to1-topology-20260928/sparse-operator-mini-runtime-v9/bin/metalrobo_numilab_human_myosim_visual_probe",
+    "/Users/n/NumiHumanCurrent/myosim-fullbody-core-reference.nhrigid",
+    "/Users/n/NumiHumanCurrent/myosim-fullbody-muscle-reference.nhmyo",
+    "/Users/n/human-completion-20260907/input/bodyparts3d-myosim-major-bones.nhbones",
+    "/Users/n/NumiHumanBrainRuns/2to1-finish-20260928/full-feedback-target-v9-a-10000/native-output",
+    "--persistent-metal-stand",
+    "--muscle-step-seconds",
+    "0.001",
+    "--muscle-step-count",
+    "10000",
+    "--persistent-source-passive-joint-tissue",
+    "--stand-contact-iterations",
+    "64",
+    "--support-contact-payload",
+    "/Users/n/NumiHumanCurrent/myosim-fullbody-support-contact.nhcnt",
+    "--joint-equality-payload",
+    "/Users/n/NumiHumanCurrent/myosim-fullbody-joint-equalities.nheq",
+    "--tendon-payload",
+    "/Users/n/NumiHumanCurrent/numi-human-tendon-attachments.nhtendon",
+    "--soft-tissue-payload",
+    "/Users/n/human-completion-20260907/input/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue",
+    "--dimension",
+    "512",
+    "--support-stance-dof",
+    "2",
+    "0.02",
+    "--support-stance-dof",
+    "108",
+    "0.1",
+    "--support-stance-dof",
+    "109",
+    "0.1",
+    "--support-stance-dof",
+    "110",
+    "0.1",
+    "--support-stance-dof",
+    "122",
+    "0.1",
+    "--support-stance-dof",
+    "123",
+    "0.1",
+    "--support-stance-dof",
+    "124",
+    "0.1",
+    "--support-stance-contact",
+    "2",
+    "--support-stance-contact",
+    "3",
+    "--support-stance-contact",
+    "4",
+    "--support-stance-contact",
+    "5",
+    "--support-stance-contact",
+    "6",
+    "--support-stance-contact",
+    "7",
+    "--stand-brain-library",
+    "/Users/n/numi-brain-2to1-protective-hash-runtime-20260928/libNumiBrainHumanStanding.dylib",
+    "--stand-brain-seed",
+    "1314213193",
+    "--stand-brain-program",
+    "/Users/n/NumiHumanBrainRuns/2to1-finish-20260928/full-feedback-target-program-v1.json",
+    "--mechanics-only",
+    "--stand-push",
+    "100",
+    "20",
+    "50",
+    "0",
+    "0"
+  ],
+  "initial_static_cache_sha256": "5eed7fc8b9a0850593a74c94546ede9048a656a25bdf144ddec1956040b98b9a",
+  "qualification_report_sha256": "4205798206600bdd00153e5837a6098b2e8575f1630d3fcc997f971c714ba5bd",
+  "baseline_binding_scope": "All tracked non-documentation/non-evidence files for the native CMake build. Book full tracked-tree manifest remains retained separately. The native launch binds external authored payloads separately.",
+  "v4_owner_checks": {
+    "register-sweeps-book-owner-on-v4.log": {
+      "sha256": "d79f0e764c509935274582089b9a8984a6d270d6c637fb71c096f5d14e66f0ce",
+      "minimal_owner_passed": true,
+      "full_human_qualified": false
+    },
+    "register-sweeps-mini-owner-on-v4.log": {
+      "sha256": "d79f0e764c509935274582089b9a8984a6d270d6c637fb71c096f5d14e66f0ce",
+      "minimal_owner_passed": true,
+      "full_human_qualified": false
+    }
+  },
+  "evidence_locations": {
+    "book": "/Users/home/NumiHumanBrainRuns/2to1-finish-20260928",
+    "mini": "/Users/n/NumiHumanBrainRuns/2to1-finish-20260928",
+    "book_mini_archive": "/Users/home/NumiHumanBrainRuns/2to1-finish-20260928/mini-evidence"
+  }
+}
