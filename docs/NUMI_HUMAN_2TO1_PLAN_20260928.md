@@ -79,6 +79,8 @@ This prototype has now executed. The v3 natural-DOF register representation and 
 
 The complete sparse counter run took 153.382876 seconds and exactly matched all v9 target physical, receptor and terminal witnesses, with zero assistance and unchanged swap. Samples at roots 0, 100, 1,000, 5,000 and 9,999 retained all 64 sweeps and reported 26,427--32,001 limit previews and 1,624--2,112 nonzero limit updates, versus 0--13 boundary-friction solves. A native Metal timeline also passed; the selected detailed counter profile was unsupported. These are operation counts, not instruction-cost attribution. Prioritize same-root limit preview/response traffic and measure a candidate before extending it. See [the counts and next experiment](NUMI_HUMAN_2TO1_ARCHITECTURE_SLICES_20260928.md#executed-finish-workload-counts).
 
+The first same-root preview-bound cache passed the 128-root native target and exact witnesses but gave no finish-stage improvement: 4.160083 ms off versus 4.304458 ms on for roots 1--7. It remains an isolated, retained performance experiment. The next bounded test reuses the existing factor arena only after its last solve for a same-root response-column cache, with measured distinct columns/hits and a full fallback for every uncached response. See [the rejected experiment and revised next slice](NUMI_HUMAN_2TO1_ARCHITECTURE_SLICES_20260928.md#rejected-preview-cache-and-the-next-solver-experiment).
+
 **First gate:** complete mechanics below 1 ms/root on accepted native Human states. Advance toward 100 us only after that gate. Factor-only gains cannot satisfy it.
 
 ## 2. Compile the complete Brain graph

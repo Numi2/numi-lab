@@ -1,0 +1,153 @@
+{
+  "scope": "same-binary opt-in limit preview bound cache, early-root timing plus full 128-root physical prefix; no ten-second latency claim",
+  "promoted": false,
+  "runs": {
+    "limit-preview-bounds-off-a-128": {
+      "bounds_cache_request": false,
+      "bounds_cache_pipeline_observed": false,
+      "wall_seconds": 5.407910917,
+      "child_real_seconds": 5.37,
+      "witnesses": {
+        "human_standing_progress=accepted": {
+          "count": 128,
+          "sha256": "11cc98e56555f5f53e270e086c54c59c9d7e09d5386b7011c184cdf26339ab4f",
+          "exact_to_selected_full_feedback_baseline": true
+        },
+        "human_brain_sensor_audit=accepted": {
+          "count": 128,
+          "sha256": "0a3237be7d8e9fe50720c68974b2622fea343d415b684eeb220ac9f21d3d4c0b",
+          "exact_to_selected_full_feedback_baseline": true
+        },
+        "stand_terminal_state=": {
+          "count": 1,
+          "sha256": "01c0d5cc3da5ec7522b8adbde27430cbdb13e0928f3966ed7bd147174578cdf1",
+          "exact_to_selected_full_feedback_baseline": true
+        }
+      },
+      "finish_gpu_samples": [
+        {
+          "root": 0,
+          "elapsed_ns": 5768667
+        },
+        {
+          "root": 1,
+          "elapsed_ns": 4160083
+        },
+        {
+          "root": 2,
+          "elapsed_ns": 4130792
+        },
+        {
+          "root": 3,
+          "elapsed_ns": 4177292
+        },
+        {
+          "root": 4,
+          "elapsed_ns": 4038791
+        },
+        {
+          "root": 5,
+          "elapsed_ns": 4188584
+        },
+        {
+          "root": 6,
+          "elapsed_ns": 4203958
+        },
+        {
+          "root": 7,
+          "elapsed_ns": 4154417
+        }
+      ],
+      "peak_child_rss_bytes": 308920320,
+      "swap_before": "vm.swapusage: total = 1024.00M  used = 149.19M  free = 874.81M  (encrypted)",
+      "swap_after": "vm.swapusage: total = 1024.00M  used = 149.19M  free = 874.81M  (encrypted)",
+      "receipt_sha256": "e2476c49bf48115a92458fb572448330b31c8a8ec7c7bc5736d63c7d89063090",
+      "finish_ms_median_excluding_root0": 4.160083
+    },
+    "limit-preview-bounds-on-a-128": {
+      "bounds_cache_request": true,
+      "bounds_cache_pipeline_observed": true,
+      "wall_seconds": 3.347917667,
+      "child_real_seconds": 3.33,
+      "witnesses": {
+        "human_standing_progress=accepted": {
+          "count": 128,
+          "sha256": "11cc98e56555f5f53e270e086c54c59c9d7e09d5386b7011c184cdf26339ab4f",
+          "exact_to_selected_full_feedback_baseline": true
+        },
+        "human_brain_sensor_audit=accepted": {
+          "count": 128,
+          "sha256": "0a3237be7d8e9fe50720c68974b2622fea343d415b684eeb220ac9f21d3d4c0b",
+          "exact_to_selected_full_feedback_baseline": true
+        },
+        "stand_terminal_state=": {
+          "count": 1,
+          "sha256": "01c0d5cc3da5ec7522b8adbde27430cbdb13e0928f3966ed7bd147174578cdf1",
+          "exact_to_selected_full_feedback_baseline": true
+        }
+      },
+      "finish_gpu_samples": [
+        {
+          "root": 0,
+          "elapsed_ns": 5150083
+        },
+        {
+          "root": 1,
+          "elapsed_ns": 4503542
+        },
+        {
+          "root": 2,
+          "elapsed_ns": 4225666
+        },
+        {
+          "root": 3,
+          "elapsed_ns": 4304458
+        },
+        {
+          "root": 4,
+          "elapsed_ns": 4152250
+        },
+        {
+          "root": 5,
+          "elapsed_ns": 4311917
+        },
+        {
+          "root": 6,
+          "elapsed_ns": 4333000
+        },
+        {
+          "root": 7,
+          "elapsed_ns": 4276916
+        }
+      ],
+      "peak_child_rss_bytes": 308002816,
+      "swap_before": "vm.swapusage: total = 1024.00M  used = 149.19M  free = 874.81M  (encrypted)",
+      "swap_after": "vm.swapusage: total = 1024.00M  used = 149.19M  free = 874.81M  (encrypted)",
+      "receipt_sha256": "6a120d875460a1523dca96fe30bc9371afcba0bed942ace0ccc075d1621943f8",
+      "finish_ms_median_excluding_root0": 4.304458
+    }
+  },
+  "stage_change_percent": 3.470483641792721,
+  "decision": "reject: no measured stage gain; on median slower in this early-root pair; the short-launch wall-time difference has not been causally isolated and does not qualify a throughput gain; retain sources and binaries outside main",
+  "source_base_revision": "f42e19e03544054dcef90ac4b2a0a5ca47059870",
+  "changed_source_sha256": {
+    "src/metal/MetalArticulatedOperator.mm": "eef08e5ad100aaf076e7bda5713c0a1f07731692663b511c82a83cdb1dfa93a2",
+    "src/metal/NumiHumanStand.metal": "1ba50901a50e3a8e68323db513341a2aca93e78863bdd257aacc664d73a05967",
+    "src/metal/NumiHumanStandSolve.metalinc": "ede7b3413169b083b1a6987577c8e2ba8a1df69cace91948197761b8d91505ff"
+  },
+  "runtime_sha256": {
+    "bin/metalrobo_numi_human_stand_coupling_probe": "6052aca6a857af63ff3e962576802c74fb8654da81c441ff89b1ca9294a9bb4f",
+    "bin/metalrobo_numilab_human_myosim_visual_probe": "9a44a62613731fb723a2028aa32a3b3d9910a30ea611f9e93ef1655a8ba6d75f",
+    "lib/libmetalrobo.dylib": "c79ea47a681d77db2cdb83a71de497741e2a4c17daecc1feff7f18ae4d90d1e4",
+    "shaders/MetalRobo.metallib": "09f3c89a0f1cfcd6fdb4275b8e342802d0bceae705f2b44c6b793b821815eea7",
+    "matter/shaders/NumiMatter.metallib": "f98567ab2e2100af368a86938bb7623a68ce5581877c9a0ccaf574b886be57ef"
+  },
+  "book_owner_qualification": {
+    "scope": "minimal native GPU owning contact/equality/limit paths and batch identity; not full-Human standing or throughput proof",
+    "exit_code": 0,
+    "wall_seconds": 4.469951332546771,
+    "cache_pipeline_observed": true,
+    "exe_sha256": "088040d74bd2c12d7be066f43500e57540d09d1ede15eb2ba8d5e7279a7aed0f",
+    "log_sha256": "4529eb71dcee72e25090219d999f8472d7bd423c49767e770cd0f043fe3716fc"
+  }
+}
