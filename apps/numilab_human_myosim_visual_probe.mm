@@ -250,7 +250,7 @@ constexpr std::uint32_t kDefaultFrameDimension = 640u;
 constexpr std::array<char, 8u> kBoneMagic{
     'N', 'H', 'B', 'O', 'N', 'E', 'S', '1',
 };
-constexpr std::uint32_t kBonePayloadAbi = 2u;
+constexpr std::uint32_t kBonePayloadAbi = 3u;
 constexpr std::array<char, 8u> kSoftTissueMagic{
     'N', 'H', 'T', 'I', 'S', 'S', '2', '\0',
 };
@@ -471,6 +471,12 @@ struct BoneRecord {
     float quaternionW = 1.0f;
     float uniformScale = 1.0f;
 };
+
+struct BoundBoneRecord {
+    BoneRecord bone;
+    std::uint32_t sourceRecordIndex = MR_INVALID_INDEX;
+};
+static_assert(sizeof(BoundBoneRecord) == 60u);
 
 struct BoneVertex {
     float positionX = 0.0f;
@@ -873,6 +879,7 @@ struct LoadedBones {
     std::vector<BoneRecord> records;
     std::vector<BoneVertex> vertices;
     std::vector<std::uint32_t> indices;
+    bool sourceOwnerBindingsVerified = false;
 };
 
 struct LoadedSoftTissues {
@@ -1233,6 +1240,7 @@ std::vector<T> readVector(
 struct LoadedRigid {
     RigidHeader header{};
     metalrobo::EngineModel model;
+    std::vector<std::uint32_t> sourceToCore;
 };
 
 LoadedRigid loadRigid(const std::filesystem::path& path) {
@@ -1270,10 +1278,15 @@ LoadedRigid loadRigid(const std::filesystem::path& path) {
     result.model.defaultV = readVector<float>(
         input, result.header.nv, "MyoSim default v"
     );
-    const auto sourceToCore = readVector<std::uint32_t>(
+    result.sourceToCore = readVector<std::uint32_t>(
         input, result.header.sourceBodyCount, "MyoSim source map"
     );
-    (void)sourceToCore;
+    std::vector<bool> sourceOwners(result.header.engineBodyCount, false);
+    for (const std::uint32_t bodyIndex : result.sourceToCore) {
+        require(bodyIndex < sourceOwners.size() && !sourceOwners[bodyIndex],
+                "MyoSim source map has an out-of-bounds or duplicate Core owner");
+        sourceOwners[bodyIndex] = true;
+    }
     const auto sourcePoses = readVector<SourcePoseRecord>(
         input, result.header.sourceBodyCount, "MyoSim source poses"
     );
@@ -1868,14 +1881,15 @@ LoadedJointEqualities loadJointEqualities(
 
 LoadedBones loadBones(
     const std::filesystem::path& path,
-    const RigidHeader& rigid
+    const LoadedRigid& reference
 ) {
+    const RigidHeader& rigid = reference.header;
     std::ifstream input(path, std::ios::binary);
     require(input.is_open(), "cannot open BodyParts3D bone payload " + path.string());
     LoadedBones result;
     readObject(input, result.header, "BodyParts3D bone header");
     require(result.header.magic == kBoneMagic &&
-                result.header.payloadAbi == kBonePayloadAbi &&
+                (result.header.payloadAbi == 2u || result.header.payloadAbi == kBonePayloadAbi) &&
                 result.header.reserved0 != 0u &&
                 result.header.sourceSha256 == rigid.sourceSha256 &&
                 result.header.boneCount > 0u &&
@@ -1886,9 +1900,30 @@ LoadedBones loadBones(
                 result.header.vertexCount <= 4'000'000u &&
                 result.header.indexCount <= 24'000'000u,
             "BodyParts3D bone payload/header disagreement");
-    result.records = readVector<BoneRecord>(
-        input, result.header.boneCount, "BodyParts3D bone records"
-    );
+    if (result.header.payloadAbi == kBonePayloadAbi) {
+        const auto records = readVector<BoundBoneRecord>(
+            input, result.header.boneCount, "BodyParts3D source-bound bone records"
+        );
+        result.records.reserve(records.size());
+        for (const BoundBoneRecord& record : records) {
+            require(record.sourceRecordIndex < reference.sourceToCore.size(),
+                    "BodyParts3D bone stable_id=" + std::to_string(record.bone.stableId) +
+                    " source_record_index=" + std::to_string(record.sourceRecordIndex) +
+                    " is outside the NHRIGID2 source map");
+            const std::uint32_t expectedOwner = reference.sourceToCore[record.sourceRecordIndex];
+            require(record.bone.bodyIndex == expectedOwner,
+                    "BodyParts3D bone stable_id=" + std::to_string(record.bone.stableId) +
+                    " source_record_index=" + std::to_string(record.sourceRecordIndex) +
+                    " owner mismatch: Core=" + std::to_string(record.bone.bodyIndex) +
+                    " NHRIGID2 requires Core=" + std::to_string(expectedOwner));
+            result.records.push_back(record.bone);
+        }
+        result.sourceOwnerBindingsVerified = true;
+    } else {
+        result.records = readVector<BoneRecord>(
+            input, result.header.boneCount, "BodyParts3D legacy bone records"
+        );
+    }
     result.vertices = readVector<BoneVertex>(
         input, result.header.vertexCount, "BodyParts3D bone vertices"
     );
@@ -20082,7 +20117,7 @@ int main(int argc, char** argv) {
                     "--soft-tissue-stable-id values must be unique");
             std::optional<LoadedBones> bonePayload;
             if (bodypartsBoneVisual) {
-                bonePayload.emplace(loadBones(positional[2], rigid.header));
+                bonePayload.emplace(loadBones(positional[2], rigid));
             }
             std::optional<metalrobo::NumiHumanKneePayload> openKneePayload;
             if (openKneePayloadPath.has_value()) {
@@ -22379,6 +22414,9 @@ int main(int argc, char** argv) {
                       << " prepared_link_visuals=" << renderedBodies
                       << " rendered_link_visuals=" << (mechanicsOnly ? 0u : renderedBodies)
                       << " bodyparts_bones=" << (bonePayload.has_value() ? bonePayload->records.size() : 0u)
+                      << " bone_payload_abi=" << (bonePayload.has_value() ? bonePayload->header.payloadAbi : 0u)
+                      << " bone_source_owner_bindings_verified="
+                      << (bonePayload.has_value() && bonePayload->sourceOwnerBindingsVerified ? "true" : "false")
                       << " requested_bone_bodies=" << requestedBoneBodyIndices.size()
                       << " requested_bone_stable_ids=" << requestedBoneStableIds.size()
                       << " bodyparts_soft_tissues=" << renderedSoftTissues
