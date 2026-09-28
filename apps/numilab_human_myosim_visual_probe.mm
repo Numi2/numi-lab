@@ -9499,6 +9499,105 @@ mr_float4 boneVertexNormalWorld(
     return normal;
 }
 
+void auditAxialBoneContinuity(
+    const LoadedBones& bones,
+    const std::span<const MRBodyStateGPU> bodies
+) {
+    // Existing NHBONES visual-skeleton stable IDs and the importer's 8 mm
+    // axial gate. Inspect emitted geometry at the actual Metal pose, including
+    // the opposed 2%/p90 patch used by the regional pose audits (1.25x gate).
+    // Legacy or partial payloads carry no whole-body anatomy qualification.
+    if (!bones.sourceOwnerBindingsVerified || bones.records.size() != 185u) {
+        std::cout << "axial_bone_continuity=unverified_legacy_or_partial_payload\n";
+        return;
+    }
+    struct Transition { const char* name; std::uint32_t first; std::uint32_t second; };
+    constexpr std::array<Transition, 21u> transitions{{
+        {"occiput_to_atlas", 33u, 70u},
+        {"cervical7_to_thoracic1", 185u, 169u},
+        {"thoracic1_to_thoracic2", 169u, 170u},
+        {"thoracic2_to_thoracic3", 170u, 171u},
+        {"thoracic3_to_thoracic4", 171u, 172u},
+        {"thoracic4_to_thoracic5", 172u, 173u},
+        {"thoracic5_to_thoracic6", 173u, 174u},
+        {"thoracic6_to_thoracic7", 174u, 175u},
+        {"thoracic7_to_thoracic8", 175u, 176u},
+        {"thoracic8_to_thoracic9", 176u, 177u},
+        {"thoracic9_to_thoracic10", 177u, 178u},
+        {"thoracic10_to_thoracic11", 178u, 179u},
+        {"thoracic11_to_thoracic12", 179u, 180u},
+        {"thoracic12_to_lumbar1", 180u, 164u},
+        {"lumbar1_to_lumbar2", 164u, 165u},
+        {"lumbar2_to_lumbar3", 165u, 166u},
+        {"lumbar3_to_lumbar4", 166u, 167u},
+        {"lumbar4_to_lumbar5", 167u, 168u},
+        {"lumbar5_to_sacrum", 168u, 1u},
+        {"sacrum_to_right_hip", 1u, 18u},
+        {"sacrum_to_left_hip", 1u, 19u},
+    }};
+    std::cout << "axial_bone_continuity=checking transition_count=21"
+        << " bone_source_owner_bindings_verified=true\n";
+    std::map<std::uint32_t, std::vector<mr_float4>> worldVertices;
+    const auto vertices = [&](const std::uint32_t stableId) -> const std::vector<mr_float4>& {
+        auto [entry, inserted] = worldVertices.try_emplace(stableId);
+        if (inserted) {
+            const auto bone = std::find_if(bones.records.begin(), bones.records.end(),
+                [stableId](const BoneRecord& record) { return record.stableId == stableId; });
+            require(bone != bones.records.end() && bone->bodyIndex < bodies.size(),
+                    "axial continuity has no bound bone stable_id=" + std::to_string(stableId));
+            entry->second.reserve(bone->vertexCount);
+            for (std::uint32_t i = 0u; i < bone->vertexCount; ++i) {
+                entry->second.push_back(boneVertexWorld(
+                    *bone, bones.vertices[bone->firstVertex + i], bodies[bone->bodyIndex]));
+            }
+        }
+        return entry->second;
+    };
+    const auto distances = [](const auto& first, const auto& second) {
+        std::vector<double> result(first.size(), std::numeric_limits<double>::infinity());
+        for (std::size_t i = 0u; i < first.size(); ++i) {
+            for (const auto& point : second) {
+                const double x = static_cast<double>(first[i].x) - point.x;
+                const double y = static_cast<double>(first[i].y) - point.y;
+                const double z = static_cast<double>(first[i].z) - point.z;
+                result[i] = std::min(result[i], x*x + y*y + z*z);
+            }
+        }
+        return result;
+    };
+    const auto patch = [](std::vector<double> values) {
+        const std::size_t count = std::min(values.size(), std::clamp(
+            static_cast<std::size_t>(std::nearbyint(0.02 * values.size())),
+            std::size_t{12u}, std::size_t{128u}));
+        require(count > 0u, "axial continuity has no interface vertices");
+        std::partial_sort(values.begin(), values.begin() + count, values.end());
+        const double address = 0.90 * (count - 1u);
+        const auto first = static_cast<std::size_t>(std::floor(address));
+        const auto second = static_cast<std::size_t>(std::ceil(address));
+        return std::sqrt(values[first] + (address - first) * (values[second] - values[first]));
+    };
+    for (const auto& transition : transitions) {
+        const auto& first = vertices(transition.first);
+        const auto& second = vertices(transition.second);
+        const auto forward = distances(first, second);
+        const auto reverse = distances(second, first);
+        const double gap = std::sqrt(*std::min_element(forward.begin(), forward.end()));
+        const double interface = std::max(patch(forward), patch(reverse));
+        const bool passed = gap <= 0.008 && interface <= 0.010;
+        std::ostringstream measurement;
+        measurement << std::setprecision(12)
+            << "axial_bone_interface=" << transition.name
+            << " first_stable_id=" << transition.first << " second_stable_id=" << transition.second
+            << " minimum_gap_m=" << gap << " allowed_gap_m=0.008"
+            << " patch_p90_m=" << interface << " allowed_patch_p90_m=0.010"
+            << " passed=" << (passed ? "true" : "false");
+        std::cout << measurement.str() << '\n';
+        require(passed, "executed axial continuity failed: " + measurement.str());
+    }
+    std::cout << "axial_bone_continuity=passed transition_count=21"
+        << " boundary=executed_rigid_bone_surface_proximity_not_disc_cartilage_contact_or_loaded_validation\n";
+}
+
 void projectSourceSiteEndpointsToBoneSurfaces(
     SourceRouteCentrelines& routes,
     const LoadedBones& bones,
@@ -21917,6 +22016,9 @@ int main(int argc, char** argv) {
             const std::vector<MRBodyStateGPU> bodies = visualBodyStates(
                 rigid.model, poseResult.bodyPoses
             );
+            if (bonePayload.has_value()) {
+                auditAxialBoneContinuity(*bonePayload, bodies);
+            }
             std::vector<MRBodyStateGPU> restBodies =
                 precomputedRestBodies.empty() ? bodies : precomputedRestBodies;
             if (precomputedRestBodies.empty() &&
