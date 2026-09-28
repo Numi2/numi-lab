@@ -112,7 +112,7 @@
         threadgroup_barrier(mem_flags::mem_threadgroup);
         const bool freeSolved = solveFactorCooperativeForward(
             factor, workspace, candidateV, nv, lane, threadCount,
-            &cooperativeFreeSolveSucceeded);
+            &cooperativeFreeSolveSucceeded, sparseGraph);
         if (lane == 0u) {
             if (!freeSolved) {
                 fail(status, MR_NUMI_HUMAN_STAND_FACTORIZATION_FAILED,
@@ -147,7 +147,7 @@
                 candidateV[dof];
         }
     }
-    if (!solveFactor(factor, workspace, candidateV, nv)) {
+    if (!solveFactor(factor, workspace, candidateV, nv, sparseGraph)) {
         fail(status, MR_NUMI_HUMAN_STAND_FACTORIZATION_FAILED, MR_INVALID_INDEX);
         return;
     }

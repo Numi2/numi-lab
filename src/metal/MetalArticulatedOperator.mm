@@ -108,7 +108,8 @@ id<MTLComputeCommandEncoder> humanTimedEncoder(
 // occupies slots 16..23 in the same command buffer. The MyoSim sidecar owns
 // slots 24..30 and consumes the same private pose/Jacobian output directly.
 constexpr std::size_t kRawBufferCount = 31u;
-constexpr std::size_t kStandBufferCount = 24u;
+constexpr std::size_t kStandBufferCount = 25u;
+constexpr std::size_t kStandSparseGraphBuffer = 24u;
 constexpr std::size_t kStandPassiveJointBuffer = 22u;
 constexpr std::size_t kStandLimitEqualityResponseBuffer = 23u;
 constexpr std::size_t kStandRootTranslationBuffer = 18u;
@@ -314,11 +315,26 @@ struct BufferRequirement {
     std::size_t allocationBytes = 0u;
 };
 
+struct StandSparseGraphCache {
+    std::mutex mutex;
+    std::vector<std::uint8_t> key;
+    std::vector<mr_u32> graph;
+    std::size_t builds = 0u;
+    std::size_t hits = 0u;
+    ~StandSparseGraphCache() {
+        if (builds != 0u)
+            std::fprintf(stderr,
+                "stand_sparse_graph_cache builds=%zu hits=%zu key_bytes=%zu graph_bytes=%zu\n",
+                builds, hits, key.size(), graph.size() * sizeof(mr_u32));
+    }
+};
+
 struct RequiredBuffers {
     std::array<BufferRequirement, kRawBufferCount> entries{};
     std::array<BufferRequirement, kStandBufferCount> standEntries{};
     std::array<BufferRequirement, kHumanMatterBufferCount>
         humanMatterEntries{};
+    std::vector<mr_u32> sparseStandGraph;
 };
 
 void appendSplitStandFingerprint(
@@ -476,10 +492,31 @@ struct MetalArticulatedOperatorContextState {
         if (equalityCache != nullptr)
             config.cacheStandLimitEqualityResponses =
                 std::strcmp(equalityCache, "1") == 0;
+        const char* sparseOperator =
+            std::getenv("NUMI_HUMAN_STAND_SPARSE_OPERATOR");
+        if (sparseOperator != nullptr)
+            config.sparseStandOperator =
+                std::strcmp(sparseOperator, "1") == 0;
+        const char* capturePath = std::getenv("NUMI_HUMAN_STAND_SPARSE_CAPTURE_PATH");
+        if (capturePath != nullptr) sparseCapturePath = capturePath;
+        const char* captureRoot = std::getenv("NUMI_HUMAN_STAND_SPARSE_CAPTURE_ROOT");
+        if (captureRoot != nullptr) {
+            char* end = nullptr;
+            const auto value = std::strtoul(captureRoot, &end, 10);
+            sparseCaptureRoot = end != captureRoot && *end == '\0' &&
+                value <= std::numeric_limits<std::uint32_t>::max()
+                    ? static_cast<std::uint32_t>(value)
+                    : MR_INVALID_INDEX;
+        }
     }
     ~MetalArticulatedOperatorContextState();
 
     MetalArticulatedOperatorConfig config;
+    StandSparseGraphCache standSparseGraphCache;
+    std::string sparseCapturePath;
+    std::uint32_t sparseCaptureRoot = 0u;
+    bool sparseCaptureEncoded = false;
+    __strong id<MTLBuffer> sparseCaptureBuffer = nil;
     mutable std::mutex mutex;
     bool initialized = false;
     bool inFlight = false;
@@ -503,6 +540,7 @@ struct MetalArticulatedOperatorContextState {
     __strong id<MTLComputePipelineState> mujocoReducePipeline = nil;
     __strong id<MTLComputePipelineState> mujocoActivationPipeline = nil;
     __strong id<MTLComputePipelineState> standPipeline = nil;
+    __strong id<MTLComputePipelineState> standFactorOnlyPipeline = nil;
     __strong id<MTLComputePipelineState> standMassPipeline = nil;
     __strong id<MTLComputePipelineState> standResponsePipeline = nil;
     __strong id<MTLComputePipelineState> standEqualityPipeline = nil;
@@ -1824,6 +1862,200 @@ bool hasCompensatedGeometry(const MetalArticulatedOperatorLayout& layout) noexce
     return (layout.dispatch.flags & MR_ARTICULATED_OPERATOR_COMPENSATED_TRANSLATION) != 0u;
 }
 
+// Cold authored graph, never inferred from a sampled Jacobian or a magnitude
+// threshold. A coordinate affects its joint's entire child subtree. All
+// coordinates sharing an affected body couple through inertia; passive K
+// contributes every authored off-diagonal edge. Reverse symbolic elimination
+// adds fill. The shader also checks every assembled entry against this graph.
+bool compileStandSparseGraph(
+    const EngineModel& model,
+    const MetalArticulatedOperatorInput& input,
+    std::vector<mr_u32>& graph,
+    std::string& reason
+) {
+    const auto& a = model.articulations[input.articulationIndex];
+    const std::uint32_t nv = a.nv;
+    if (nv == 0u || nv > 128u) {
+        reason = "sparse stand operator requires 1..128 authored coordinates";
+        return false;
+    }
+    std::vector<std::uint8_t> edges(std::size_t(nv) * nv, 0u);
+    const auto connect = [&](std::uint32_t r, std::uint32_t c) {
+        edges[std::size_t(r) * nv + c] = 1u;
+        edges[std::size_t(c) * nv + r] = 1u;
+    };
+    for (std::uint32_t body = a.firstBody;
+         body < a.firstBody + a.bodyCount; ++body) {
+        std::vector<std::uint32_t> ancestors;
+        std::uint32_t node = body;
+        while (node != MR_INVALID_INDEX) {
+            if (node < a.firstBody || node >= a.firstBody + a.bodyCount ||
+                ancestors.size() >= a.bodyCount) {
+                reason = "sparse stand body ancestry is invalid";
+                return false;
+            }
+            ancestors.push_back(node);
+            node = model.bodies[node].parentBody;
+        }
+        std::vector<std::uint32_t> affected;
+        for (std::uint32_t r = 0u; r < nv; ++r) {
+            const auto& d = model.dofs[a.vOffset + r];
+            if ((d.flags & MR_DOF_FLAG_ROOT) != 0u) {
+                affected.push_back(r);
+                continue;
+            }
+            if (d.jointIndex >= model.joints.size()) {
+                reason = "sparse stand coordinate lacks an authored joint";
+                return false;
+            }
+            const auto child = model.joints[d.jointIndex].childBody;
+            if (std::find(ancestors.begin(), ancestors.end(), child) !=
+                ancestors.end()) affected.push_back(r);
+        }
+        for (auto r : affected)
+            for (auto c : affected) connect(r, c);
+    }
+    const auto& passive = input.stand.passiveJointProgram;
+    if (!passive.empty()) {
+        if (passive.size() != std::size_t(nv) * (nv + 1u)) {
+            reason = "sparse stand passive program dimensions are invalid";
+            return false;
+        }
+        for (std::uint32_t r = 0u; r < nv; ++r)
+            for (std::uint32_t c = 0u; c < nv; ++c)
+                if (passive[std::size_t(r) * nv + c] != 0.0f)
+                    connect(r, c);
+    }
+    for (std::uint32_t r = 0u; r < nv; ++r) connect(r, r);
+    for (std::uint32_t reverse = 0u; reverse < nv; ++reverse) {
+        const std::uint32_t column = nv - 1u - reverse;
+        for (std::uint32_t r = 0u; r < column; ++r) {
+            if (!edges[std::size_t(r) * nv + column]) continue;
+            for (std::uint32_t c = 0u; c < r; ++c)
+                if (edges[std::size_t(c) * nv + column]) connect(r, c);
+        }
+    }
+    // Header: magic, nv, mask row words, mask offset, upper offsets/columns,
+    // lower offsets/columns. CSR upper columns descend; lower columns ascend.
+    graph.assign(16u, 0u);
+    graph[0] = 0x4e485347u;
+    graph[1] = nv;
+    graph[2] = (nv + 31u) / 32u;
+    graph[3] = static_cast<mr_u32>(graph.size());
+    graph.resize(graph.size() + std::size_t(nv) * graph[2], 0u);
+    for (std::uint32_t r = 0u; r < nv; ++r)
+        for (std::uint32_t c = 0u; c < nv; ++c)
+            if (edges[std::size_t(r) * nv + c])
+                graph[graph[3] + r * graph[2] + c / 32u] |=
+                    1u << (c % 32u);
+    for (std::uint32_t side = 0u; side < 2u; ++side) {
+        const auto slot = 4u + 2u * side;
+        const auto offsets = static_cast<mr_u32>(graph.size());
+        graph[slot] = offsets;
+        graph.resize(graph.size() + nv + 1u, 0u);
+        graph[slot + 1u] = static_cast<mr_u32>(graph.size());
+        const auto columns = graph[slot + 1u];
+        for (std::uint32_t r = 0u; r < nv; ++r) {
+            graph[offsets + r] = static_cast<mr_u32>(graph.size()) - columns;
+            if (side == 0u) {
+                for (std::uint32_t reverse = 0u; reverse < nv - r - 1u;
+                     ++reverse) {
+                    const auto c = nv - 1u - reverse;
+                    if (edges[std::size_t(r) * nv + c]) graph.push_back(c);
+                }
+            } else {
+                for (std::uint32_t c = 0u; c < r; ++c)
+                    if (edges[std::size_t(r) * nv + c]) graph.push_back(c);
+            }
+        }
+        graph[offsets + nv] = static_cast<mr_u32>(graph.size()) - columns;
+    }
+    // A factor column depends only on its higher connected columns. Columns
+    // in one level have no edge between them, so both factorization and the
+    // corresponding triangular substitution can execute independently.
+    std::vector<std::uint32_t> levels(nv, 0u);
+    std::uint32_t count = 1u;
+    for (std::uint32_t reverse = 0u; reverse < nv; ++reverse) {
+        const auto r = nv - 1u - reverse;
+        for (std::uint32_t c = r + 1u; c < nv; ++c)
+            if (edges[std::size_t(r) * nv + c])
+                levels[r] = std::max(levels[r], levels[c] + 1u);
+        count = std::max(count, levels[r] + 1u);
+    }
+    graph[8] = static_cast<mr_u32>(graph.size());
+    graph.resize(graph.size() + count + 1u, 0u);
+    graph[9] = static_cast<mr_u32>(graph.size());
+    graph[10] = count;
+    for (std::uint32_t level = 0u; level < count; ++level) {
+        graph[graph[8] + level] = static_cast<mr_u32>(graph.size()) - graph[9];
+        for (std::uint32_t reverse = 0u; reverse < nv; ++reverse) {
+            const auto r = nv - 1u - reverse;
+            if (levels[r] == level) graph.push_back(r);
+        }
+    }
+    graph[graph[8] + count] = nv;
+    graph[11] = static_cast<mr_u32>(graph.size());
+    graph.resize(graph.size() + count + 1u, 0u);
+    graph[12] = static_cast<mr_u32>(graph.size());
+    for (std::uint32_t level = 0u; level < count; ++level) {
+        graph[graph[11] + level] = static_cast<mr_u32>(graph.size()) - graph[12];
+        for (std::uint32_t j = graph[graph[8] + level];
+             j < graph[graph[8] + level + 1u]; ++j) {
+            const auto column = graph[graph[9] + j];
+            const auto begin = graph[graph[6] + column];
+            const auto end = graph[graph[6] + column + 1u];
+            for (auto rowIndex = begin; rowIndex < end; ++rowIndex) {
+                const auto row = graph[graph[7] + rowIndex];
+                graph.push_back((column << 16u) | row);
+            }
+        }
+    }
+    graph[graph[11] + count] = static_cast<mr_u32>(graph.size()) - graph[12];
+    graph[13] = graph[graph[11] + count];
+    return true;
+}
+
+bool cachedStandSparseGraph(
+    const EngineModel& model,
+    const MetalArticulatedOperatorInput& input,
+    StandSparseGraphCache* cache,
+    std::vector<mr_u32>& graph,
+    std::string& reason
+) {
+    if (cache == nullptr) return compileStandSparseGraph(model, input, graph, reason);
+    // Content identity, not pointer identity. The cold graph is invalidated
+    // by any authored model-record or passive-program change. Geometry q/v
+    // and current force/response coefficients are never cached here.
+    std::vector<std::uint8_t> key;
+    const auto append = [&](const void* data, std::size_t bytes) {
+        if (bytes == 0u) return;
+        const auto* begin = static_cast<const std::uint8_t*>(data);
+        key.insert(key.end(), begin, begin + bytes);
+    };
+    const auto appendSpan = [&](const auto& values) {
+        const std::size_t count = values.size();
+        append(&count, sizeof(count));
+        append(values.data(), count * sizeof(values[0]));
+    };
+    append(&input.articulationIndex, sizeof(input.articulationIndex));
+    appendSpan(model.articulations);
+    appendSpan(model.bodies);
+    appendSpan(model.joints);
+    appendSpan(model.dofs);
+    appendSpan(input.stand.passiveJointProgram);
+    const std::lock_guard lock(cache->mutex);
+    if (!cache->graph.empty() && cache->key == key) {
+        graph = cache->graph;
+        ++cache->hits;
+        return true;
+    }
+    if (!compileStandSparseGraph(model, input, graph, reason)) return false;
+    cache->graph = graph;
+    cache->key = std::move(key);
+    ++cache->builds;
+    return true;
+}
+
 bool canCacheStandLimitEqualityResponses(
     const MetalArticulatedOperatorConfig& config,
     const MetalArticulatedOperatorInput& input,
@@ -1840,6 +2072,7 @@ bool buildRequirements(
     const EngineModel& model,
     const MetalArticulatedOperatorLayout& layout,
     std::size_t cachedLimitEqualityElements,
+    std::size_t sparseGraphElements,
     RequiredBuffers& requirements,
     std::size_t& totalAllocatedBytes
 ) {
@@ -2073,6 +2306,11 @@ bool buildRequirements(
             cachedLimitEqualityElements,
             requirements.standEntries[kStandLimitEqualityResponseBuffer]
         ) ||
+        !makeRequirement<mr_u32>(
+            "Numi Human authored sparse operator graph",
+            sparseGraphElements,
+            requirements.standEntries[kStandSparseGraphBuffer]
+        ) ||
         !makeRequirement<MRNumiHumanJointEqualityGPU>(
             "Numi Human joint equalities",
             layout.standJointEqualityElements,
@@ -2212,6 +2450,8 @@ bool buildRequirements(
     // The optional derived cache has no binding in the original specialization.
     if (cachedLimitEqualityElements == 0u)
         requirements.standEntries[kStandLimitEqualityResponseBuffer].allocationBytes = 0u;
+    if (sparseGraphElements == 0u)
+        requirements.standEntries[kStandSparseGraphBuffer].allocationBytes = 0u;
 
     // Read-only paired geometry borrows only the root/body/point slots from the
     // private arena. Keep all physical Stand/checkpoint slots lazy, and preserve
@@ -2272,7 +2512,8 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
     const EngineModel& model,
     const MetalArticulatedOperatorInput& input,
     const MetalArticulatedOperatorConfig& config,
-    RequiredBuffers& requirements
+    RequiredBuffers& requirements,
+    StandSparseGraphCache* sparseGraphCache = nullptr
 ) {
     MetalArticulatedOperatorDiagnostics diagnostics{};
 
@@ -2856,11 +3097,34 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
             MetalArticulatedOperatorHostStatus::arithmeticOverflow,
             "limit equality cache exceeds the shader addressing contract");
     }
+    if (config.sparseStandOperator && input.stand.enabled()) {
+        for (const char* flag : {
+             "NUMI_HUMAN_STAND_CPU_FINISH", "NUMI_HUMAN_STAND_CPU_FACTOR",
+             "NUMI_HUMAN_STAND_CPU_FACTOR_SHADOW", "NUMI_HUMAN_STAND_CPU_FREE",
+             "NUMI_HUMAN_STAND_CPU_ONE_HANDOFF", "NUMI_HUMAN_STAND_CPU_SHADOW",
+             "NUMI_HUMAN_STAND_CPU_EQUALITY", "NUMI_HUMAN_STAND_CPU_EQUALITY_SHADOW",
+             "NUMI_HUMAN_STAND_CPU_EQUALITY_FACTOR",
+             "NUMI_HUMAN_STAND_CPU_PROJECTED_RAW"}) {
+            const char* value = std::getenv(flag);
+            if (value != nullptr && std::strcmp(value, "1") == 0)
+                return reject(std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::invalidDimensions,
+                    "sparse upper operator cannot use a CPU lower-factor path");
+        }
+        std::string graphReason;
+        if (!cachedStandSparseGraph(model, input, sparseGraphCache,
+                                     requirements.sparseStandGraph,
+                                     graphReason))
+            return reject(std::move(diagnostics),
+                MetalArticulatedOperatorHostStatus::unsupportedTopology,
+                std::move(graphReason));
+    }
     std::size_t totalAllocatedBytes = 0u;
     if (!buildRequirements(
             model,
             layout,
             cachedLimitEqualityElements,
+            requirements.sparseStandGraph.size(),
             requirements,
             totalAllocatedBytes
         )) {
@@ -3392,8 +3656,14 @@ MetalArticulatedOperatorDiagnostics initializeContext(
                 describeError(error)
         );
     }
+    MTLFunctionConstantValues* operatorConstants =
+        [[MTLFunctionConstantValues alloc] init];
+    bool sparseOperator = context.config.sparseStandOperator;
+    [operatorConstants setConstantValue:&sparseOperator
+                                   type:MTLDataTypeBool atIndex:2u];
     id<MTLFunction> standFunction = [library
-        newFunctionWithName:@"mr_numi_human_stand_step"];
+        newFunctionWithName:@"mr_numi_human_stand_step"
+            constantValues:operatorConstants error:&error];
     if (standFunction == nil) {
         return reject(
             std::move(diagnostics),
@@ -3414,6 +3684,26 @@ MetalArticulatedOperatorDiagnostics initializeContext(
             "failed to create Numi Human stand pipeline: " +
                 describeError(error)
         );
+    }
+    id<MTLComputePipelineState> standFactorOnlyPipeline = nil;
+    if (context.config.sparseStandOperator && context.config.splitStandSolve) {
+        bool factorOnly = true;
+        [operatorConstants setConstantValue:&factorOnly
+                                       type:MTLDataTypeBool atIndex:3u];
+        error = nil;
+        id<MTLFunction> factorFunction = [library
+            newFunctionWithName:@"mr_numi_human_stand_step"
+                constantValues:operatorConstants error:&error];
+        standFactorOnlyPipeline = factorFunction == nil ? nil :
+            [device newComputePipelineStateWithFunction:factorFunction error:&error];
+        if (standFactorOnlyPipeline == nil ||
+            standFactorOnlyPipeline.maxTotalThreadsPerThreadgroup < kStandThreadsPerThreadgroup)
+            return reject(std::move(diagnostics),
+                MetalArticulatedOperatorHostStatus::metalPipelineFailure,
+                "failed to create sparse factor-only pipeline: " + describeError(error));
+        factorOnly = false;
+        [operatorConstants setConstantValue:&factorOnly
+                                       type:MTLDataTypeBool atIndex:3u];
     }
     id<MTLComputePipelineState> standMassPipeline = nil;
     id<MTLComputePipelineState> standResponsePipeline = nil;
@@ -3438,7 +3728,8 @@ MetalArticulatedOperatorDiagnostics initializeContext(
                     describeError(error));
         }
         id<MTLFunction> standResponseFunction = [library
-            newFunctionWithName:@"mr_numi_human_stand_equality_response_cooperative"];
+            newFunctionWithName:@"mr_numi_human_stand_equality_response_cooperative"
+                constantValues:operatorConstants error:&error];
         error = nil;
         standResponsePipeline = standResponseFunction == nil
             ? nil : [device newComputePipelineStateWithFunction:
@@ -3465,7 +3756,8 @@ MetalArticulatedOperatorDiagnostics initializeContext(
         }
         id<MTLFunction> standProjectedResponseFunction = [library
             newFunctionWithName:
-                @"mr_numi_human_stand_projected_response_cooperative"];
+                @"mr_numi_human_stand_projected_response_cooperative"
+                constantValues:operatorConstants error:&error];
         error = nil;
         standProjectedResponsePipeline = standProjectedResponseFunction == nil
             ? nil : [device newComputePipelineStateWithFunction:
@@ -3480,6 +3772,8 @@ MetalArticulatedOperatorDiagnostics initializeContext(
         }
         MTLFunctionConstantValues* finishConstants =
             [[MTLFunctionConstantValues alloc] init];
+        [finishConstants setConstantValue:&sparseOperator
+                                    type:MTLDataTypeBool atIndex:2u];
         bool cpuFinishSpecialized = false;
         [finishConstants setConstantValue:&cpuFinishSpecialized
                                     type:MTLDataTypeBool atIndex:0u];
@@ -3528,6 +3822,9 @@ MetalArticulatedOperatorDiagnostics initializeContext(
             [finishConstants setConstantValue:&cacheLimitEqualitySpecialized
                                         type:MTLDataTypeBool atIndex:1u];
         }
+        bool cpuSparseOperator = false;
+        [finishConstants setConstantValue:&cpuSparseOperator
+                                    type:MTLDataTypeBool atIndex:2u];
         cpuFinishSpecialized = true;
         [finishConstants setConstantValue:&cpuFinishSpecialized
                                     type:MTLDataTypeBool atIndex:0u];
@@ -3641,6 +3938,7 @@ MetalArticulatedOperatorDiagnostics initializeContext(
     context.mujocoReducePipeline = mujocoReducePipeline;
     context.mujocoActivationPipeline = mujocoActivationPipeline;
     context.standPipeline = standPipeline;
+    context.standFactorOnlyPipeline = standFactorOnlyPipeline;
     context.standMassPipeline = standMassPipeline;
     context.standResponsePipeline = standResponsePipeline;
     context.standEqualityPipeline = standEqualityPipeline;
@@ -4404,6 +4702,10 @@ void uploadBatch(
                 requirements.standEntries[index].allocationBytes
             );
         }
+        copyToBuffer(context.standBuffers[kStandSparseGraphBuffer],
+            requirements.sparseStandGraph.empty() ? nullptr :
+                requirements.sparseStandGraph.data(),
+            requirements.standEntries[kStandSparseGraphBuffer]);
         // A split authoritative horizon starts a fresh command submission and
         // therefore a fresh status arena even when its global step is nonzero.
         // Match the shader's step-zero sentinel initialization here so
@@ -9134,7 +9436,8 @@ MetalArticulatedOperatorContext::submit(
             model,
             input,
             state_->config,
-            requirements
+            requirements,
+            &state_->standSparseGraphCache
         );
         if (!diagnostics.succeeded()) {
             return diagnostics;
@@ -10892,6 +11195,9 @@ MetalArticulatedOperatorContext::submit(
                 [predictor setBuffer:state_->humanMatterBuffers[
                     kHumanMatterSourceDynamicsWitnessBuffer] offset:0u atIndex:25u];
                 [predictor setComputePipelineState:state_->standPipeline];
+                if (state_->config.sparseStandOperator)
+                    [predictor setBuffer:state_->standBuffers[kStandSparseGraphBuffer]
+                        offset:0u atIndex:28u];
                 [predictor setBuffer:state_->buffers[0u] offset:0u atIndex:0u];
                 [predictor setBuffer:state_->buffers[1u] offset:0u atIndex:1u];
                 [predictor setBuffer:state_->buffers[3u] offset:0u atIndex:2u];
@@ -12307,6 +12613,30 @@ MetalArticulatedOperatorContext::submit(
                         state_->standCachedFinishPipeline != nil &&
                         canCacheStandLimitEqualityResponses(
                             state_->config, input, articulation.nv);
+                    const bool captureSparseRoot = state_->config.sparseStandOperator &&
+                        parallelMass && input.environmentCount == 1u &&
+                        authoritativeStep == state_->sparseCaptureRoot &&
+                        !state_->sparseCapturePath.empty();
+                    const NSUInteger sparseMatrixBytes =
+                        NSUInteger(articulation.nv) * articulation.nv * sizeof(float);
+                    const NSUInteger sparseResponseBytes =
+                        NSUInteger(articulation.nv) * standDispatch.jointEqualityCount * sizeof(float);
+                    const NSUInteger sparseQBytes = NSUInteger(articulation.nq) * sizeof(float);
+                    if (captureSparseRoot && phase == 2u && !state_->sparseCaptureEncoded) {
+                        state_->sparseCaptureBuffer = [state_->device
+                            newBufferWithLength:2u * sparseMatrixBytes + sparseResponseBytes + sparseQBytes
+                            options:MTLResourceStorageModeShared];
+                        id<MTLBlitCommandEncoder> capture = [commandBuffer blitCommandEncoder];
+                        if (state_->sparseCaptureBuffer == nil || capture == nil)
+                            return reject(std::move(diagnostics),
+                                MetalArticulatedOperatorHostStatus::metalBufferFailure,
+                                "failed to allocate native sparse operator diagnostic");
+                        [capture copyFromBuffer:state_->standBuffers[kStandFactorBuffer]
+                            sourceOffset:0u toBuffer:state_->sparseCaptureBuffer
+                            destinationOffset:0u size:sparseMatrixBytes];
+                        [capture endEncoding];
+                        state_->sparseCaptureEncoded = true;
+                    }
                     const char* stageName = parallelMass
                         ? (phase == 0u ? "stand_prework" :
                            phase == 1u ? "stand_mass" :
@@ -12330,6 +12660,9 @@ MetalArticulatedOperatorContext::submit(
                         );
                     }
                     [standEncoder setComputePipelineState:
+                        parallelMass && phase == 2u && state_->standFactorOnlyPipeline != nil
+                            ? state_->standFactorOnlyPipeline
+                            :
                         parallelMass && phase == 1u
                             ? state_->standMassPipeline
                             : parallelMass && phase == 3u
@@ -12347,6 +12680,10 @@ MetalArticulatedOperatorContext::submit(
                                         ? state_->standCachedFinishPipeline
                                         : state_->standFinishPipeline)
                                 : state_->standPipeline];
+                    if (state_->config.sparseStandOperator)
+                        [standEncoder setBuffer:
+                            state_->standBuffers[kStandSparseGraphBuffer]
+                            offset:0u atIndex:28u];
                     if (cachedFinish)
                         [standEncoder setBuffer:
                             state_->standBuffers[kStandLimitEqualityResponseBuffer]
@@ -12445,6 +12782,61 @@ MetalArticulatedOperatorContext::submit(
                                 1u, 1u)];
                     }
                     [standEncoder endEncoding];
+                    if (captureSparseRoot && state_->sparseCaptureBuffer != nil &&
+                        (phase == 2u || phase == 3u)) {
+                        id<MTLBlitCommandEncoder> capture = [commandBuffer blitCommandEncoder];
+                        if (capture == nil)
+                            return reject(std::move(diagnostics),
+                                MetalArticulatedOperatorHostStatus::metalCommandFailure,
+                                "failed to encode native sparse operator diagnostic");
+                        if (phase == 2u) {
+                            [capture copyFromBuffer:state_->standBuffers[kStandFactorBuffer]
+                                sourceOffset:0u toBuffer:state_->sparseCaptureBuffer
+                                destinationOffset:sparseMatrixBytes size:sparseMatrixBytes];
+                        } else {
+                            [capture copyFromBuffer:state_->standBuffers[kStandResponseBuffer]
+                                sourceOffset:3u * standDispatch.supportContactCount * articulation.nv * sizeof(float)
+                                toBuffer:state_->sparseCaptureBuffer
+                                destinationOffset:2u * sparseMatrixBytes size:sparseResponseBytes];
+                            [capture copyFromBuffer:state_->buffers[6u] sourceOffset:0u
+                                toBuffer:state_->sparseCaptureBuffer
+                                destinationOffset:2u * sparseMatrixBytes + sparseResponseBytes size:sparseQBytes];
+                        }
+                        [capture endEncoding];
+                        if (phase == 3u) {
+                            const std::string capturePath = state_->sparseCapturePath;
+                            id<MTLBuffer> captured = state_->sparseCaptureBuffer;
+                            const auto graph = std::make_shared<std::vector<mr_u32>>(
+                                requirements.sparseStandGraph);
+                            const auto equalities = std::make_shared<std::vector<MRNumiHumanJointEqualityGPU>>(
+                                input.stand.jointEqualities.begin(), input.stand.jointEqualities.end());
+                            const std::array<std::uint32_t, 8> header{
+                                0x4e535032u, 1u, articulation.nv, articulation.nq,
+                                standDispatch.jointEqualityCount, authoritativeStep,
+                                static_cast<std::uint32_t>(graph->size()),
+                                static_cast<std::uint32_t>(equalities->size() * sizeof(MRNumiHumanJointEqualityGPU))};
+                            [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> finished) {
+                                if (finished.status != MTLCommandBufferStatusCompleted) return;
+                                std::FILE* file = std::fopen(capturePath.c_str(), "wbx");
+                                if (file == nullptr) {
+                                    std::fprintf(stderr, "sparse_operator_capture=write_failed root=%u\n", header[5]);
+                                    return;
+                                }
+                                const bool written =
+                                    std::fwrite(header.data(), sizeof(header), 1u, file) == 1u &&
+                                    std::fwrite(graph->data(), graph->size() * sizeof(mr_u32), 1u, file) == 1u &&
+                                    std::fwrite(captured.contents, captured.length, 1u, file) == 1u &&
+                                    (equalities->empty() || std::fwrite(equalities->data(),
+                                        equalities->size() * sizeof(MRNumiHumanJointEqualityGPU), 1u, file) == 1u);
+                                const bool closed = std::fclose(file) == 0;
+                                std::fprintf(stderr, "sparse_operator_capture=%s root=%u nv=%u bytes=%lu\n",
+                                    written && closed ? "written" : "write_failed", header[5], header[2],
+                                    static_cast<unsigned long>(sizeof(header) + graph->size() * sizeof(mr_u32) +
+                                        captured.length + header[7]));
+                            }];
+                        }
+                    }
+
                 }
 
                 if (input.stand.numanXHumanMatterProgram.valid()) {

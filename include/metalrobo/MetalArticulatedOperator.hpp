@@ -1798,6 +1798,10 @@ struct MetalArticulatedOperatorConfig {
     // ordered sweeps of one split GPU root. Unsupported shapes and scalar or
     // CPU completion retain the original finish specialization.
     bool cacheStandLimitEqualityResponses = false;
+    // Compile a conservative authored effective-operator graph and factor
+    // leaves before ancestors. Experimental; numerical/physical admission is
+    // unchanged. CPU completion is incompatible with this upper factor.
+    bool sparseStandOperator = false;
 };
 
 enum class MetalArticulatedOperatorHostStatus : std::uint32_t {

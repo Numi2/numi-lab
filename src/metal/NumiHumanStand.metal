@@ -30,6 +30,14 @@ constant bool kCachedLimitEqualityResponse [[function_constant(1)]];
 constant bool kUseCachedLimitEqualityResponse =
     is_function_constant_defined(kCachedLimitEqualityResponse)
         ? kCachedLimitEqualityResponse : false;
+constant bool kSparseStandOperator [[function_constant(2)]];
+constant bool kUseSparseStandOperator =
+    is_function_constant_defined(kSparseStandOperator)
+        ? kSparseStandOperator : false;
+constant bool kStandFactorOnlySpecialized [[function_constant(3)]];
+constant bool kUseStandFactorOnlySpecialized =
+    is_function_constant_defined(kStandFactorOnlySpecialized)
+        ? kStandFactorOnlySpecialized : false;
 
 // Forward substitution keeps each row's original increasing-column FMA
 // sequence. Completed blocks update independent future rows in parallel;
@@ -324,8 +332,36 @@ inline bool solveFactor(
     device const float* factor,
     WorkspacePointer workspace,
     OutputPointer output,
-    const uint nv
+    const uint nv,
+    device const uint* sparseGraph
 ) {
+    if (kUseSparseStandOperator) {
+        device const uint* upperOffsets = sparseGraph + sparseGraph[4];
+        device const uint* upperColumns = sparseGraph + sparseGraph[5];
+        device const uint* lowerOffsets = sparseGraph + sparseGraph[6];
+        device const uint* lowerColumns = sparseGraph + sparseGraph[7];
+        for (uint reverse = 0u; reverse < nv; ++reverse) {
+            const uint row = nv - 1u - reverse;
+            float value = output[row];
+            for (uint i = upperOffsets[row]; i < upperOffsets[row + 1u]; ++i) {
+                const uint column = upperColumns[i];
+                value -= factor[row * nv + column] * workspace[column];
+            }
+            const float diagonal = factor[row * nv + row];
+            if (!(diagonal > 0.0f) || !isfinite(diagonal)) return false;
+            workspace[row] = value / diagonal;
+        }
+        for (uint row = 0u; row < nv; ++row) {
+            float value = workspace[row];
+            for (uint i = lowerOffsets[row]; i < lowerOffsets[row + 1u]; ++i) {
+                const uint column = lowerColumns[i];
+                value -= factor[column * nv + row] * output[column];
+            }
+            output[row] = value / factor[row * nv + row];
+            if (!isfinite(output[row])) return false;
+        }
+        return true;
+    }
     for (uint row = 0u; row < nv; ++row) {
         float value = output[row];
         for (uint column = 0u; column < row; ++column) {
@@ -358,7 +394,8 @@ inline bool solveFactorCooperativeForward(
     const uint nv,
     const uint lane,
     const uint threadCount,
-    threadgroup uint* succeeded
+    threadgroup uint* succeeded,
+    device const uint* sparseGraph
 ) {
     if (lane == 0u) *succeeded = 1u;
     for (uint row = lane; row < nv; row += threadCount)
@@ -366,6 +403,53 @@ inline bool solveFactorCooperativeForward(
     threadgroup_barrier(mem_flags::mem_threadgroup);
 
     constexpr uint blockSize = 4u;
+    if (kUseSparseStandOperator) {
+        device const uint* upperOffsets = sparseGraph + sparseGraph[4];
+        device const uint* upperColumns = sparseGraph + sparseGraph[5];
+        device const uint* lowerOffsets = sparseGraph + sparseGraph[6];
+        device const uint* lowerColumns = sparseGraph + sparseGraph[7];
+        device const uint* levelOffsets = sparseGraph + sparseGraph[8];
+        device const uint* levelColumns = sparseGraph + sparseGraph[9];
+        threadgroup atomic_uint* failed =
+            reinterpret_cast<threadgroup atomic_uint*>(succeeded);
+        for (uint level = 0u; level < sparseGraph[10]; ++level) {
+            for (uint j = levelOffsets[level] + lane;
+                 j < levelOffsets[level + 1u]; j += threadCount) {
+                const uint row = levelColumns[j];
+                float value = output[row];
+                for (uint i = upperOffsets[row]; i < upperOffsets[row + 1u]; ++i) {
+                    const uint column = upperColumns[i];
+                    value -= factor[row * nv + column] * workspace[column];
+                }
+                const float diagonal = factor[row * nv + row];
+                if (!(diagonal > 0.0f) || !isfinite(diagonal)) {
+                    atomic_store_explicit(failed, 0u, memory_order_relaxed);
+                } else {
+                    workspace[row] = value / diagonal;
+                }
+            }
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+            if (atomic_load_explicit(failed, memory_order_relaxed) == 0u) return false;
+        }
+        for (uint reverse = 0u; reverse < sparseGraph[10]; ++reverse) {
+            const uint level = sparseGraph[10] - 1u - reverse;
+            for (uint j = levelOffsets[level] + lane;
+                 j < levelOffsets[level + 1u]; j += threadCount) {
+                const uint row = levelColumns[j];
+                float value = workspace[row];
+                for (uint i = lowerOffsets[row]; i < lowerOffsets[row + 1u]; ++i) {
+                    const uint column = lowerColumns[i];
+                    value -= factor[column * nv + row] * output[column];
+                }
+                output[row] = value / factor[row * nv + row];
+                if (!isfinite(output[row]))
+                    atomic_store_explicit(failed, 0u, memory_order_relaxed);
+            }
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+            if (atomic_load_explicit(failed, memory_order_relaxed) == 0u) return false;
+        }
+        return true;
+    }
     for (uint begin = 0u; begin < nv; begin += blockSize) {
         const uint end = min(begin + blockSize, nv);
         if (lane == 0u) {
@@ -525,6 +609,7 @@ kernel void mr_numi_human_stand_step(
     device const float4* pointPositionLow [[buffer(23)]],
     device const float* passiveJointProgram [[buffer(24)]],
     device float* sourceDynamicsWitness [[buffer(25)]],
+    device const uint* sparseGraph [[buffer(28)]],
     uint environment [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]],
     uint threadCount [[threads_per_threadgroup]]
@@ -593,13 +678,30 @@ kernel void mr_numi_human_stand_step(
         (dispatch.flags & MR_NUMI_HUMAN_STAND_PREDICT_VELOCITY_ONLY) != 0u;
     const uint sourceDynamicsBase = environment * 3u * nv;
     const bool massPrerequisitesOnly =
+        !kUseStandFactorOnlySpecialized &&
         (dispatch.flags & MR_NUMI_HUMAN_STAND_MASS_PREREQUISITES_ONLY) != 0u;
     const bool massReady =
+        kUseStandFactorOnlySpecialized ||
         (dispatch.flags & MR_NUMI_HUMAN_STAND_MASS_READY) != 0u;
     const bool factorOnly =
+        kUseStandFactorOnlySpecialized ||
         (dispatch.flags & MR_NUMI_HUMAN_STAND_FACTOR_ONLY) != 0u;
     const bool responsesReady =
+        !kUseStandFactorOnlySpecialized &&
         (dispatch.flags & MR_NUMI_HUMAN_STAND_RESPONSES_READY) != 0u;
+
+    if (kUseStandFactorOnlySpecialized) {
+        constexpr uint expected = MR_NUMI_HUMAN_STAND_PREPARE_ONLY |
+            MR_NUMI_HUMAN_STAND_MASS_READY | MR_NUMI_HUMAN_STAND_FACTOR_ONLY;
+        constexpr uint phases = expected | MR_NUMI_HUMAN_STAND_RESPONSES_READY |
+            MR_NUMI_HUMAN_STAND_MASS_PREREQUISITES_ONLY |
+            MR_NUMI_HUMAN_STAND_PREDICT_VELOCITY_ONLY;
+        if ((dispatch.flags & phases) != expected) {
+            if (lane == 0u)
+                fail(status, MR_NUMI_HUMAN_STAND_INVALID_DISPATCH, MR_INVALID_INDEX);
+            return;
+        }
+    }
 
     if (massReady) {
         if (lane == 0u &&
@@ -1096,6 +1198,7 @@ kernel void mr_numi_human_stand_step(
 
     float minimumPivot = INFINITY;
     float maximumPivot = 0.0f;
+    threadgroup atomic_uint sparseGraphFailure;
     if (!responsesReady) {
     // Freeze each row's original pivot scale before any factor entry changes.
     // Column k has one dependent diagonal; every row below it is independent.
@@ -1107,6 +1210,87 @@ kernel void mr_numi_human_stand_step(
         massRowScale[row] = scale;
     }
     threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (kUseSparseStandOperator) {
+        if (lane == 0u) {
+            atomic_store_explicit(&sparseGraphFailure, MR_INVALID_INDEX,
+                                  memory_order_relaxed);
+            if (sparseGraph[0] != 0x4e485347u || sparseGraph[1] != nv ||
+                sparseGraph[2] != (nv + 31u) / 32u)
+                fail(status, MR_NUMI_HUMAN_STAND_FACTORIZATION_FAILED,
+                     MR_INVALID_INDEX);
+        }
+        threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+        if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
+        device const uint* mask = sparseGraph + sparseGraph[3];
+        device const uint* upperOffsets = sparseGraph + sparseGraph[4];
+        device const uint* upperColumns = sparseGraph + sparseGraph[5];
+        for (uint row = lane; row < nv; row += threadCount) {
+            for (uint column = 0u; column < nv; ++column) {
+                if ((mask[row * sparseGraph[2] + column / 32u] &
+                     (1u << (column % 32u))) == 0u &&
+                    factor[row * nv + column] != 0.0f)
+                    atomic_fetch_min_explicit(&sparseGraphFailure, row,
+                                              memory_order_relaxed);
+            }
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        if (lane == 0u && atomic_load_explicit(&sparseGraphFailure,
+                memory_order_relaxed) != MR_INVALID_INDEX)
+            fail(status, MR_NUMI_HUMAN_STAND_FACTORIZATION_FAILED,
+                 atomic_load_explicit(&sparseGraphFailure, memory_order_relaxed));
+        threadgroup_barrier(mem_flags::mem_device);
+        if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
+        device const uint* levelOffsets = sparseGraph + sparseGraph[8];
+        device const uint* levelColumns = sparseGraph + sparseGraph[9];
+        device const uint* entryOffsets = sparseGraph + sparseGraph[11];
+        device const uint* entries = sparseGraph + sparseGraph[12];
+        for (uint level = 0u; level < sparseGraph[10]; ++level) {
+            for (uint j = levelOffsets[level] + lane;
+                 j < levelOffsets[level + 1u]; j += threadCount) {
+                const uint column = levelColumns[j];
+                float value = factor[column * nv + column];
+                for (uint i = upperOffsets[column]; i < upperOffsets[column + 1u]; ++i) {
+                    const uint inner = upperColumns[i];
+                    value -= factor[column * nv + inner] * factor[column * nv + inner];
+                }
+                if (!(value > max(kPivotFloor,
+                        massRowScale[column] * 8.0f * 1.1920928955078125e-7f)) ||
+                    !isfinite(value)) {
+                    atomic_fetch_min_explicit(&sparseGraphFailure, column,
+                                              memory_order_relaxed);
+                } else {
+                    factor[column * nv + column] = sqrt(value);
+                }
+            }
+            threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+            const uint failed = atomic_load_explicit(&sparseGraphFailure, memory_order_relaxed);
+            if (failed != MR_INVALID_INDEX) {
+                if (lane == 0u)
+                    fail(status, MR_NUMI_HUMAN_STAND_FACTORIZATION_FAILED, failed);
+                return;
+            }
+            for (uint j = entryOffsets[level] + lane;
+                 j < entryOffsets[level + 1u]; j += threadCount) {
+                const uint column = entries[j] >> 16u;
+                const uint row = entries[j] & 0xffffu;
+                float value = factor[column * nv + row];
+                for (uint i = upperOffsets[column]; i < upperOffsets[column + 1u]; ++i) {
+                    const uint inner = upperColumns[i];
+                    if ((mask[row * sparseGraph[2] + inner / 32u] &
+                         (1u << (inner % 32u))) != 0u)
+                        value -= factor[row * nv + inner] * factor[column * nv + inner];
+                }
+                factor[row * nv + column] = value / factor[column * nv + column];
+            }
+            threadgroup_barrier(mem_flags::mem_device);
+        }
+        if (lane == 0u) {
+            for (uint column = 0u; column < nv; ++column) {
+                minimumPivot = min(minimumPivot, factor[column * nv + column]);
+                maximumPivot = max(maximumPivot, factor[column * nv + column]);
+            }
+        }
+    } else {
     for (uint column = 0u; column < nv; ++column) {
         if (lane == 0u) {
             float value = factor[column * nv + column];
@@ -1141,6 +1325,7 @@ kernel void mr_numi_human_stand_step(
                 value / factor[column * nv + column];
         }
         threadgroup_barrier(mem_flags::mem_device);
+    }
     }
     }
     // Every inverse-mass response has an independent RHS. Preserve each
@@ -1217,7 +1402,7 @@ kernel void mr_numi_human_stand_step(
                 for (uint index = 0u; index < nv; ++index) response[index] = 0.0f;
                 response[dof] = 1.0f;
             }
-            if (!solveFactor(factor, independentWorkspace, response, nv))
+            if (!solveFactor(factor, independentWorkspace, response, nv, sparseGraph))
                 atomic_fetch_min_explicit(&responseFailure, column, memory_order_relaxed);
         }
     }
@@ -1497,6 +1682,7 @@ kernel void mr_numi_human_stand_response_assemble(
     device MRNumiHumanStandStatusGPU* statuses [[buffer(17)]],
     device const MRNumiHumanJointEqualityGPU* jointEqualities [[buffer(20)]],
     device const float4* pointPositionLow [[buffer(23)]],
+    device const uint* sparseGraph [[buffer(28)]],
     uint2 position [[thread_position_in_grid]]
 ) {
     const uint environment = position.y;
@@ -1576,7 +1762,7 @@ kernel void mr_numi_human_stand_response_assemble(
     }
     float workspace[MR_NUMI_HUMAN_STAND_MAX_DOFS];
     if (!solveFactor(factorScratch + environment * nv * nv,
-                     workspace, response, nv)) {
+                     workspace, response, nv, sparseGraph)) {
         device atomic_uint* failure =
             reinterpret_cast<device atomic_uint*>(&status.failingIndex);
         atomic_fetch_min_explicit(failure, column, memory_order_relaxed);
@@ -1594,6 +1780,7 @@ kernel void mr_numi_human_stand_equality_response_cooperative(
     device float* responseScratch [[buffer(16)]],
     device MRNumiHumanStandStatusGPU* statuses [[buffer(17)]],
     device const MRNumiHumanJointEqualityGPU* jointEqualities [[buffer(20)]],
+    device const uint* sparseGraph [[buffer(28)]],
     uint3 group [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]],
     uint3 groupSize [[threads_per_threadgroup]]
@@ -1651,7 +1838,7 @@ kernel void mr_numi_human_stand_equality_response_cooperative(
     if (rhsValid == 0u) return;
     const bool solved = solveFactorCooperativeForward(
         factorScratch + environment * nv * nv, workspace, rhs,
-        nv, lane, threadCount, &solveSucceeded);
+        nv, lane, threadCount, &solveSucceeded, sparseGraph);
     if (!solved) {
         if (lane == 0u) {
             device atomic_uint* failure =
@@ -1799,6 +1986,7 @@ kernel void mr_numi_human_stand_projected_response_assemble(
     device MRNumiHumanStandStatusGPU* statuses [[buffer(17)]],
     device const MRNumiHumanJointEqualityGPU* jointEqualities [[buffer(20)]],
     device const float4* pointPositionLow [[buffer(23)]],
+    device const uint* sparseGraph [[buffer(28)]],
     uint2 position [[thread_position_in_grid]]
 ) {
     const uint environment = position.y;
@@ -1877,7 +2065,7 @@ kernel void mr_numi_human_stand_projected_response_assemble(
     }
     float workspace[MR_NUMI_HUMAN_STAND_MAX_DOFS];
     if (!solveFactor(factorScratch + environment * nv * nv,
-                     workspace, response, nv)) {
+                     workspace, response, nv, sparseGraph)) {
         publishParallelResponseFailure(status, column);
         return;
     }
@@ -2001,6 +2189,7 @@ kernel void mr_numi_human_stand_projected_response_cooperative(
     device MRNumiHumanStandStatusGPU* statuses [[buffer(17)]],
     device const MRNumiHumanJointEqualityGPU* jointEqualities [[buffer(20)]],
     device const float4* pointPositionLow [[buffer(23)]],
+    device const uint* sparseGraph [[buffer(28)]],
     uint3 group [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]],
     uint3 groupSize [[threads_per_threadgroup]]
@@ -2104,7 +2293,7 @@ kernel void mr_numi_human_stand_projected_response_cooperative(
     threadgroup_barrier(mem_flags::mem_threadgroup);
     if (!projectedRawReady && !solveFactorCooperativeForward(
             factorScratch + environment * nv * nv,
-            workspace, rhs, nv, lane, threadCount, &solveSucceeded)) {
+            workspace, rhs, nv, lane, threadCount, &solveSucceeded, sparseGraph)) {
         if (lane == 0u) publishParallelResponseFailure(status, column);
         return;
     }
@@ -2215,6 +2404,7 @@ kernel void mr_numi_human_stand_mass_assemble(
     device MRNumiHumanStandStatusGPU* statuses [[buffer(17)]],
     device const float* passiveJointProgram [[buffer(24)]],
     device float* sourceDynamicsWitness [[buffer(25)]],
+    device const uint* sparseGraph [[buffer(28)]],
     uint2 position [[thread_position_in_grid]]
 ) {
     const uint environment = position.y;
@@ -2314,6 +2504,7 @@ kernel void mr_numi_human_stand_finish(
     device float* sourceDynamicsWitness [[buffer(25)]],
     device const MRNumiHumanStandCpuFinishGPU* cpuFinishes [[buffer(26)]],
     device float* cachedLimitEqualityResponse [[buffer(27)]],
+    device const uint* sparseGraph [[buffer(28)]],
     uint environment [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]],
     uint threadCount [[threads_per_threadgroup]],
