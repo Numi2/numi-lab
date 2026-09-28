@@ -1,5 +1,7 @@
 # Numi Human: architecture work toward 2:1 execution
 
+Current execution order and the newly identified factor-arena lifetime guard: [2026-09-29 research and execution plan](NUMI_HUMAN_2TO1_EXECUTION_PLAN_20260929.md).
+
 2026-09-28. Research and implementation plan; five-second feasibility on the current M4 Pro remains unproven. See the [measured implementation history](NUMI_HUMAN_2TO1_PLAN_20260928.md).
 
 ## The decision

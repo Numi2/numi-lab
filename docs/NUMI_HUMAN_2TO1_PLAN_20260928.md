@@ -1,5 +1,7 @@
 # Numi Human and Brain: 10 simulated seconds in 5 wall seconds
 
+Current execution order and pause handoff: [2026-09-29 research and execution plan](NUMI_HUMAN_2TO1_EXECUTION_PLAN_20260929.md). This file retains the implementation history.
+
 2026-09-28. The target remains unachieved. Feasibility on this M4 Pro is not established. This plan preserves 10,000 one-millisecond physical roots, every scheduled neural update, all 64 ordered sweeps, all effective-operator/passive/tendon/muscle terms and native physical admission.
 
 ## Measured gap
