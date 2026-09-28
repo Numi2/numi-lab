@@ -38,6 +38,20 @@ constant bool kStandFactorOnlySpecialized [[function_constant(3)]];
 constant bool kUseStandFactorOnlySpecialized =
     is_function_constant_defined(kStandFactorOnlySpecialized)
         ? kStandFactorOnlySpecialized : false;
+// Read-only, opt-in work attribution. Ordinary finish specializations remove
+// every counter and its output argument; no physical state uses these values.
+constant bool kFinishWorkCounters [[function_constant(4)]];
+constant bool kUseFinishWorkCounters =
+    is_function_constant_defined(kFinishWorkCounters)
+        ? kFinishWorkCounters : false;
+struct MRStandFinishWorkCounters {
+    uint sweeps, contactDecisions, contactContractions;
+    uint normalChanges, tangentChanges, zeroContactChanges;
+    uint frictionInterior, frictionBoundary, frictionBoundaryIterations;
+    uint limitPreviews, limitPreviewBlocks, limitNonzero, limitSelectedZero;
+    uint contactResponseCoefficients, limitResponseCoefficients;
+    uint equalityResponseCoefficients;
+};
 
 // Forward substitution keeps each row's original increasing-column FMA
 // sequence. Completed blocks update independent future rows in parallel;
@@ -2505,6 +2519,7 @@ kernel void mr_numi_human_stand_finish(
     device const MRNumiHumanStandCpuFinishGPU* cpuFinishes [[buffer(26)]],
     device float* cachedLimitEqualityResponse [[buffer(27)]],
     device const uint* sparseGraph [[buffer(28)]],
+    device uint* finishWorkCounters [[buffer(29)]],
     uint environment [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]],
     uint threadCount [[threads_per_threadgroup]],
@@ -2670,8 +2685,28 @@ kernel void mr_numi_human_stand_finish(
     threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
     if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
 #define MR_NH_COOPERATIVE_FINISH 1
+    MRStandFinishWorkCounters finishCounts{};
 #include "NumiHumanStandSolve.metalinc"
 #undef MR_NH_COOPERATIVE_FINISH
+    if (kUseFinishWorkCounters && lane == 0u) {
+        const uint base = environment * 16u;
+        finishWorkCounters[base + 0u] = finishCounts.sweeps;
+        finishWorkCounters[base + 1u] = finishCounts.contactDecisions;
+        finishWorkCounters[base + 2u] = finishCounts.contactContractions;
+        finishWorkCounters[base + 3u] = finishCounts.normalChanges;
+        finishWorkCounters[base + 4u] = finishCounts.tangentChanges;
+        finishWorkCounters[base + 5u] = finishCounts.zeroContactChanges;
+        finishWorkCounters[base + 6u] = finishCounts.frictionInterior;
+        finishWorkCounters[base + 7u] = finishCounts.frictionBoundary;
+        finishWorkCounters[base + 8u] = finishCounts.frictionBoundaryIterations;
+        finishWorkCounters[base + 9u] = finishCounts.limitPreviews;
+        finishWorkCounters[base + 10u] = finishCounts.limitPreviewBlocks;
+        finishWorkCounters[base + 11u] = finishCounts.limitNonzero;
+        finishWorkCounters[base + 12u] = finishCounts.limitSelectedZero;
+        finishWorkCounters[base + 13u] = finishCounts.contactResponseCoefficients;
+        finishWorkCounters[base + 14u] = finishCounts.limitResponseCoefficients;
+        finishWorkCounters[base + 15u] = finishCounts.equalityResponseCoefficients;
+    }
 }
 
 // Ordinary stand/tendon accepted-step owner. Derived poses/routes/factors are

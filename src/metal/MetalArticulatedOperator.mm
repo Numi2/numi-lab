@@ -28,6 +28,7 @@
 #include <cstdlib>
 #include <iomanip>
 #include <sstream>
+#include <stdexcept>
 #include <limits>
 #include <memory>
 #include <mutex>
@@ -44,6 +45,29 @@
 namespace metalrobo {
 namespace {
 
+// Diagnostic schedules are immutable for an owning process/context. A short,
+// explicit list permits late-root attribution without profiling every root.
+std::vector<std::uint32_t> humanDiagnosticRoots(const char* name) {
+    const char* setting = std::getenv(name);
+    std::vector<std::uint32_t> roots;
+    if (setting == nullptr || setting[0] == '\0') return roots;
+    const char* cursor = setting;
+    while (*cursor != '\0') {
+        char* end = nullptr;
+        const auto value = std::strtoul(cursor, &end, 10);
+        if (end == cursor || (*end != '\0' && *end != ',') ||
+            value >= MR_INVALID_INDEX || roots.size() >= 128u ||
+            (*end == ',' && end[1] == '\0'))
+            throw std::invalid_argument(std::string(name) +
+                " requires at most 128 comma-separated root indices");
+        roots.push_back(static_cast<std::uint32_t>(value));
+        cursor = *end == ',' ? end + 1u : end;
+    }
+    std::sort(roots.begin(), roots.end());
+    roots.erase(std::unique(roots.begin(), roots.end()), roots.end());
+    return roots;
+}
+
 // Read-only timestamps. A focused stage samples its first eight physical
 // steps. The cycle option samples one stage per step so the GPU counter limit
 // cannot silently drop later encoders from an all-stage profile.
@@ -55,6 +79,10 @@ id<MTLComputeCommandEncoder> humanTimedEncoder(
     const char* selectedStage = std::getenv("NUMI_HUMAN_GPU_TIMING_STAGE");
     const bool cycle = selectedStage != nullptr &&
         std::strcmp(selectedStage, "cycle") == 0;
+    static const auto timingRoots =
+        humanDiagnosticRoots("NUMI_HUMAN_GPU_TIMING_ROOTS");
+    const bool sampledRoot = timingRoots.empty() ? step < 8u :
+        std::binary_search(timingRoots.begin(), timingRoots.end(), step);
     if (cycle) {
         static constexpr std::array<const char*, 14u> stages{
             "kinematics", "muscle_angular", "muscles", "active_force",
@@ -63,11 +91,12 @@ id<MTLComputeCommandEncoder> humanTimedEncoder(
             "stand_equality_responses", "stand_equality_factor",
             "stand_projected_responses", "stand_finish",
         };
-        if (step >= stages.size() * 8u)
+        if ((timingRoots.empty() && step >= stages.size() * 8u) ||
+            (!timingRoots.empty() && !sampledRoot))
             return [commandBuffer computeCommandEncoder];
         selectedStage = stages[step % stages.size()];
     }
-    if ((!cycle && step >= 8u) || requested == nullptr ||
+    if ((!cycle && !sampledRoot) || requested == nullptr ||
         std::strcmp(requested, "1") != 0 ||
         (selectedStage != nullptr && std::strcmp(selectedStage, stage) != 0) ||
         ![device supportsCounterSampling:MTLCounterSamplingPointAtStageBoundary])
@@ -508,6 +537,8 @@ struct MetalArticulatedOperatorContextState {
                     ? static_cast<std::uint32_t>(value)
                     : MR_INVALID_INDEX;
         }
+        finishCounterRoots =
+            humanDiagnosticRoots("NUMI_HUMAN_STAND_FINISH_COUNTER_ROOTS");
     }
     ~MetalArticulatedOperatorContextState();
 
@@ -517,6 +548,7 @@ struct MetalArticulatedOperatorContextState {
     std::uint32_t sparseCaptureRoot = 0u;
     bool sparseCaptureEncoded = false;
     __strong id<MTLBuffer> sparseCaptureBuffer = nil;
+    std::vector<std::uint32_t> finishCounterRoots;
     mutable std::mutex mutex;
     bool initialized = false;
     bool inFlight = false;
@@ -547,6 +579,8 @@ struct MetalArticulatedOperatorContextState {
     __strong id<MTLComputePipelineState> standProjectedResponsePipeline = nil;
     __strong id<MTLComputePipelineState> standFinishPipeline = nil;
     __strong id<MTLComputePipelineState> standCachedFinishPipeline = nil;
+    __strong id<MTLComputePipelineState> standFinishCounterPipeline = nil;
+    __strong id<MTLComputePipelineState> standCachedFinishCounterPipeline = nil;
     __strong id<MTLComputePipelineState> standCpuFinishPipeline = nil;
     __strong id<MTLSharedEvent> standFreeHandoffEvent = nil;
     __strong MTLSharedEventListener* standFreeHandoffListener = nil;
@@ -3711,6 +3745,8 @@ MetalArticulatedOperatorDiagnostics initializeContext(
     id<MTLComputePipelineState> standProjectedResponsePipeline = nil;
     id<MTLComputePipelineState> standFinishPipeline = nil;
     id<MTLComputePipelineState> standCachedFinishPipeline = nil;
+    id<MTLComputePipelineState> standFinishCounterPipeline = nil;
+    id<MTLComputePipelineState> standCachedFinishCounterPipeline = nil;
     id<MTLComputePipelineState> standCpuFinishPipeline = nil;
     if (context.config.splitStandSolve) {
         id<MTLFunction> standMassFunction = [library
@@ -3819,6 +3855,33 @@ MetalArticulatedOperatorDiagnostics initializeContext(
                     kStandFinishThreadsPerThreadgroup)
                 standCachedFinishPipeline = nil;
             cacheLimitEqualitySpecialized = false;
+            [finishConstants setConstantValue:&cacheLimitEqualitySpecialized
+                                        type:MTLDataTypeBool atIndex:1u];
+        }
+        if (!context.finishCounterRoots.empty()) {
+            bool workCounters = true;
+            [finishConstants setConstantValue:&workCounters
+                                        type:MTLDataTypeBool atIndex:4u];
+            for (bool cached : {false, true}) {
+                [finishConstants setConstantValue:&cached
+                                            type:MTLDataTypeBool atIndex:1u];
+                error = nil;
+                id<MTLFunction> function = [library
+                    newFunctionWithName:@"mr_numi_human_stand_finish"
+                        constantValues:finishConstants error:&error];
+                id<MTLComputePipelineState> pipeline = function == nil ? nil :
+                    [device newComputePipelineStateWithFunction:function error:&error];
+                if (pipeline == nil || pipeline.maxTotalThreadsPerThreadgroup <
+                        kStandFinishThreadsPerThreadgroup)
+                    return reject(std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::metalPipelineFailure,
+                        "failed to create read-only Human finish counters: " + describeError(error));
+                if (cached) standCachedFinishCounterPipeline = pipeline;
+                else standFinishCounterPipeline = pipeline;
+            }
+            workCounters = false;
+            [finishConstants setConstantValue:&workCounters
+                                        type:MTLDataTypeBool atIndex:4u];
             [finishConstants setConstantValue:&cacheLimitEqualitySpecialized
                                         type:MTLDataTypeBool atIndex:1u];
         }
@@ -3946,6 +4009,8 @@ MetalArticulatedOperatorDiagnostics initializeContext(
         standProjectedResponsePipeline;
     context.standFinishPipeline = standFinishPipeline;
     context.standCachedFinishPipeline = standCachedFinishPipeline;
+    context.standFinishCounterPipeline = standFinishCounterPipeline;
+    context.standCachedFinishCounterPipeline = standCachedFinishCounterPipeline;
     context.standCpuFinishPipeline = standCpuFinishPipeline;
     context.standReconcilePipeline = reconcilePipeline;
     id<MTLFunction> tendonCompensatedFunction = [library
@@ -12637,6 +12702,22 @@ MetalArticulatedOperatorContext::submit(
                         [capture endEncoding];
                         state_->sparseCaptureEncoded = true;
                     }
+                    const bool sampleFinishWork = splitStand && !cpuFinish &&
+                        !oneHandoff && phase == standPhaseCount - 1u &&
+                        std::binary_search(state_->finishCounterRoots.begin(),
+                            state_->finishCounterRoots.end(), authoritativeStep);
+                    id<MTLBuffer> finishWorkBuffer = nil;
+                    if (sampleFinishWork) {
+                        finishWorkBuffer = [state_->device newBufferWithLength:
+                            static_cast<NSUInteger>(input.environmentCount) *
+                                16u * sizeof(std::uint32_t)
+                            options:MTLResourceStorageModeShared];
+                        if (finishWorkBuffer == nil)
+                            return reject(std::move(diagnostics),
+                                MetalArticulatedOperatorHostStatus::metalBufferFailure,
+                                "failed to allocate read-only Human finish counters");
+                        std::memset(finishWorkBuffer.contents, 0, finishWorkBuffer.length);
+                    }
                     const char* stageName = parallelMass
                         ? (phase == 0u ? "stand_prework" :
                            phase == 1u ? "stand_mass" :
@@ -12660,6 +12741,10 @@ MetalArticulatedOperatorContext::submit(
                         );
                     }
                     [standEncoder setComputePipelineState:
+                        sampleFinishWork
+                            ? (cachedFinish ? state_->standCachedFinishCounterPipeline
+                                            : state_->standFinishCounterPipeline)
+                            :
                         parallelMass && phase == 2u && state_->standFactorOnlyPipeline != nil
                             ? state_->standFactorOnlyPipeline
                             :
@@ -12680,6 +12765,8 @@ MetalArticulatedOperatorContext::submit(
                                         ? state_->standCachedFinishPipeline
                                         : state_->standFinishPipeline)
                                 : state_->standPipeline];
+                    if (sampleFinishWork)
+                        [standEncoder setBuffer:finishWorkBuffer offset:0u atIndex:29u];
                     if (state_->config.sparseStandOperator)
                         [standEncoder setBuffer:
                             state_->standBuffers[kStandSparseGraphBuffer]
@@ -12782,6 +12869,33 @@ MetalArticulatedOperatorContext::submit(
                                 1u, 1u)];
                     }
                     [standEncoder endEncoding];
+                    if (sampleFinishWork) {
+                        const auto environments = input.environmentCount;
+                        const auto root = authoritativeStep;
+                        const auto nv = articulation.nv;
+                        const auto contacts = standDispatch.supportContactCount;
+                        const auto equalities = standDispatch.jointEqualityCount;
+                        [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> finished) {
+                            if (finished.status != MTLCommandBufferStatusCompleted) return;
+                            static constexpr std::array<const char*, 16u> names{
+                                "sweeps", "contact_decisions", "contact_axis_contractions",
+                                "normal_impulse_changes", "tangent_impulse_changes", "zero_contact_changes",
+                                "friction_interior", "friction_boundary", "friction_boundary_iterations",
+                                "limit_previews", "limit_preview_blocks", "limit_nonzero", "limit_selected_zero",
+                                "contact_response_coefficients", "limit_response_coefficients",
+                                "equality_response_coefficients"};
+                            const auto* values = static_cast<const std::uint32_t*>(finishWorkBuffer.contents);
+                            for (std::uint32_t environment = 0u; environment < environments; ++environment) {
+                                std::string line = "human_stand_finish_work root=" + std::to_string(root) +
+                                    " environment=" + std::to_string(environment) + " nv=" + std::to_string(nv) +
+                                    " contacts=" + std::to_string(contacts) + " equalities=" + std::to_string(equalities);
+                                for (std::size_t i = 0u; i < names.size(); ++i)
+                                    line += " " + std::string(names[i]) + "=" +
+                                        std::to_string(values[environment * names.size() + i]);
+                                std::fprintf(stderr, "%s\n", line.c_str());
+                            }
+                        }];
+                    }
                     if (captureSparseRoot && state_->sparseCaptureBuffer != nil &&
                         (phase == 2u || phase == 3u)) {
                         id<MTLBlitCommandEncoder> capture = [commandBuffer blitCommandEncoder];

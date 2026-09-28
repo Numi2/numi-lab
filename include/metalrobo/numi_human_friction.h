@@ -96,9 +96,16 @@ inline MRNumiHumanFrictionImpulse mrNumiHumanFrictionShiftedSolve(
     return {x, y, mrNumiHumanFrictionFinite(x) && mrNumiHumanFrictionFinite(y)};
 }
 
-inline MRNumiHumanFrictionImpulse mrNumiHumanSolveFrictionDisk(
-    float a, float b, float d, float rhsX, float rhsY, float radius
+template<bool CollectIterations>
+inline MRNumiHumanFrictionImpulse mrNumiHumanSolveFrictionDiskCore(
+    float a, float b, float d, float rhsX, float rhsY, float radius,
+#if defined(__METAL_VERSION__)
+    thread unsigned& boundaryIterations
+#else
+    unsigned& boundaryIterations
+#endif
 ) {
+    if constexpr (CollectIterations) boundaryIterations = 0u;
     const MRNumiHumanFrictionImpulse invalid{0.0f, 0.0f, false};
     if (!mrNumiHumanFrictionFinite(a) || !mrNumiHumanFrictionFinite(b) ||
         !mrNumiHumanFrictionFinite(d) || !mrNumiHumanFrictionFinite(rhsX) ||
@@ -124,6 +131,7 @@ inline MRNumiHumanFrictionImpulse mrNumiHumanSolveFrictionDisk(
     for (unsigned iteration = 0u; iteration < 40u; ++iteration) {
         const float middle = 0.5f * lower + 0.5f * upper;
         if (middle == lower || middle == upper) break;
+        if constexpr (CollectIterations) ++boundaryIterations;
         const auto candidate = mrNumiHumanFrictionShiftedSolve(a, b, d, gx, gy, middle);
         if (!candidate.valid || mrNumiHumanFrictionNorm(candidate.x, candidate.y) > radius) {
             lower = middle;
@@ -140,4 +148,24 @@ inline MRNumiHumanFrictionImpulse mrNumiHumanSolveFrictionDisk(
         accepted.y *= radius / norm;
     }
     return accepted;
+}
+
+inline MRNumiHumanFrictionImpulse mrNumiHumanSolveFrictionDisk(
+    float a, float b, float d, float rhsX, float rhsY, float radius
+) {
+    unsigned unusedIterations = 0u;
+    return mrNumiHumanSolveFrictionDiskCore<false>(
+        a, b, d, rhsX, rhsY, radius, unusedIterations);
+}
+
+inline MRNumiHumanFrictionImpulse mrNumiHumanSolveFrictionDiskCounted(
+    float a, float b, float d, float rhsX, float rhsY, float radius,
+#if defined(__METAL_VERSION__)
+    thread unsigned& boundaryIterations
+#else
+    unsigned& boundaryIterations
+#endif
+) {
+    return mrNumiHumanSolveFrictionDiskCore<true>(
+        a, b, d, rhsX, rhsY, radius, boundaryIterations);
 }

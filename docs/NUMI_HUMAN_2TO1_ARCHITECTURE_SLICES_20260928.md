@@ -38,6 +38,26 @@ The currently sampled 4.18-ms finish exceeds the entire final root allocation by
 
 Slices 1--3 can be developed independently by the team against the same frozen target. Integrate each measured gain separately. Use the Book for source work, native owner checks and preparation; reserve the Mini for one GPU timing child at a time. Single-run latency remains the acceptance metric for this objective.
 
+### Executed finish workload counts
+
+The opt-in counters and explicit timestamp root list completed the selected full-feedback 10,000-root run in **153.382876 s**. This is instrumented attribution, not a speedup. All physical, receptor and terminal witnesses exactly match the retained v9 target; assistance remained zero and swap stayed at 149.19 MiB. Peak child RSS was 315,654,144 bytes. The run binds source base `905f1a69` plus four counter changes; the later bone-admission update is outside that frozen executable.
+
+| Accepted root | Finish ms | Contact decisions | Limit previews | Nonzero limits | Boundary solves / iterations |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 0 | 5.972 | 384 | 30231 | 1926 | 0 / 0 |
+| 100 | 4.265 | 384 | 26427 | 1624 | 13 / 355 |
+| 1000 | 4.647 | 384 | 30200 | 2112 | 4 / 104 |
+| 5000 | 4.612 | 384 | 30659 | 2037 | 7 / 181 |
+| 9999 | 4.503 | 384 | 32001 | 2050 | 1 / 26 |
+
+Every physical sample reports 64 sweeps, 128 DOFs and 51 source equalities. Six of ten contact bindings are active: 384 decisions and 147,456 contact-response coefficient visits per sample. Nonzero limits visit 207,872--270,336 velocity-response and 82,824--107,712 equality-response coefficients. Boundary friction is uncommon in these samples; its elapsed contribution has not been isolated. Prioritize repeated limit previews/responses before a new boundary solver. The next bounded experiment caches same-root limit masses and bounds in the existing SIMD pass, retaining all authored decisions, updates and 64 sweeps. Require a measured stage gain before full-horizon timing.
+
+Two initialization dispatches also use root zero with no source equalities. They are retained as auxiliary samples and excluded from physical attribution. The prefix collector initially rejected this multiplicity after the native child accepted all 128 roots. Read-only qualification resolved the collector error without rerunning that accepted prefix.
+
+A separate 128-root Metal System Trace accepted and exactly matched all target witnesses: 7,183 GPU intervals, zero command-buffer error rows and one thermal-state interval. The requested detailed Metal GPU Counters capture also replayed exactly, but Instruments reported its selected profile unsupported. Occupancy, spills, instruction costs and the cause of the older 14.25% timing spread remain unmeasured. [Apple's profiling guidance](https://developer.apple.com/videos/play/tech-talks/111374/) supports measuring those quantities before asserting a hardware cause. See [the portable evidence receipt](evidence/numi-human-finish-counters-20260928.json).
+
+Diagnostic environment variables are `NUMI_HUMAN_STAND_FINISH_COUNTER_ROOTS` and `NUMI_HUMAN_GPU_TIMING_ROOTS`, each accepting at most 128 comma-separated roots. For the cached finish select `NUMI_HUMAN_GPU_TIMING=1` and `NUMI_HUMAN_GPU_TIMING_STAGE=stand_finish_cached`. Counter roots are disabled by default; without an explicit timing list, timestamps retain the existing early-root schedule.
+
 ### Slice 1: remove arithmetic repetition from the 64-sweep owner
 
 First measure the split between contact contractions, source-limit previews/responses, equality bookkeeping and friction-boundary work. The native friction helper currently permits up to 40 bisection iterations when the interior solution is outside its disk. This is a source-level opportunity; its frequency and time contribution have not been measured. If boundary work dominates, compare a safeguarded root solve that preserves the feasible endpoint and the native friction metric, with residual/error checks against the owning reference. Never substitute extra compliance for the boundary multiplier.
