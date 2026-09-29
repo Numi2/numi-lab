@@ -10441,6 +10441,37 @@ mr_float4 torsoAnatomyTangent(const TorsoAnatomyVertex& vertex) {
     return normalTangent({vertex.normalX, vertex.normalY, vertex.normalZ, 1.0f});
 }
 
+// Inspection receipt of the exact pose vector passed to the renderer. Geometry
+// remains in the hashed MRVPACK2; an independent source oracle can decode every
+// local vertex and reconstruct it using these native COM-centred poses.
+void writeTorsoAnatomyPoseSnapshot(
+    const LoadedTorsoAnatomy& anatomy,
+    const std::vector<MRBodyStateGPU>& bodies,
+    const std::filesystem::path& path
+) {
+    std::ofstream output(path);
+    require(output.is_open(), "cannot write torso anatomy pose snapshot");
+    output << std::setprecision(9)
+           << "{\"schema\":\"numi.human.native-torso-anatomy-pose-snapshot.v1\","
+           << "\"registration_fingerprint32\":" << anatomy.header.registrationFingerprint
+           << ",\"surface_count\":" << anatomy.records.size() << ",\"bodies\":[";
+    std::vector<std::uint32_t> owners;
+    for (const TorsoAnatomyRecord& surface : anatomy.records) {
+        if (std::find(owners.begin(), owners.end(), surface.bodyIndex) != owners.end()) continue;
+        require(surface.bodyIndex < bodies.size(), "torso anatomy pose owner is invalid");
+        if (!owners.empty()) output << ',';
+        owners.push_back(surface.bodyIndex);
+        const MRBodyStateGPU& body = bodies[surface.bodyIndex];
+        output << "{\"body_index\":" << surface.bodyIndex
+               << ",\"position_world_m\":[" << body.position.x << ',' << body.position.y << ',' << body.position.z
+               << "],\"orientation_world_xyzw\":[" << body.orientation.x << ',' << body.orientation.y << ','
+               << body.orientation.z << ',' << body.orientation.w << "]}";
+    }
+    output << "],\"boundary\":\"native renderer pose snapshot for source geometry verification; single-link visual binding, not organ mechanics or clinical anatomy\"}\n";
+    output.close();
+    require(!output.fail(), "could not complete torso anatomy pose snapshot");
+}
+
 GeometryRange appendTorsoAnatomyGeometry(
     metalrobo::VisualAssetPackV2& pack,
     const LoadedTorsoAnatomy& anatomy,
@@ -22593,6 +22624,12 @@ int main(int argc, char** argv) {
             if (!mechanicsOnly) {
                 require(metalrobo::writeVisualAssetPack(pack, packPath, &reason),
                         "could not write native Human visual pack: " + reason);
+                if (torsoAnatomyPayload.has_value()) {
+                    writeTorsoAnatomyPoseSnapshot(
+                        *torsoAnatomyPayload, bodies,
+                        outputDirectory / (stem + ".torso-anatomy-poses.json")
+                    );
+                }
             }
             const std::array references{
                 metalrobo::VisualAssetReferenceV3{
