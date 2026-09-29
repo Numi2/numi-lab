@@ -1309,7 +1309,6 @@ LoadedRigid loadRigid(const std::filesystem::path& path) {
     const auto sourcePoses = readVector<SourcePoseRecord>(
         input, result.header.sourceBodyCount, "MyoSim source poses", &identity
     );
-    (void)sourcePoses;
     require(input.peek() == std::char_traits<char>::eof(),
             "MyoSim rigid payload has trailing bytes");
     require(CC_SHA256_Final(result.payloadSha256.data(), &identity) == 1,
@@ -1321,6 +1320,85 @@ LoadedRigid loadRigid(const std::filesystem::path& path) {
             "MyoSim rigid world/header disagreement");
     std::string reason;
     require(result.model.valid(&reason), "MyoSim Core model invalid: " + reason);
+    // Source poses are witnesses, not the executing joint program. Join them
+    // to the owning kinematics before admitting bones, routes or calibration.
+    // Use the existing 1 um native rest-reconstruction admission; orientation
+    // is measured as displacement of a unit-length frame witness. Source
+    // registration's independent FP64 gates remain unchanged.
+    constexpr double kRestReconstructionToleranceMeters = 1.0e-6;
+    std::vector<double> q(result.model.defaultQ.begin(), result.model.defaultQ.end());
+    std::vector<double> v(result.model.defaultV.begin(), result.model.defaultV.end());
+    std::vector<metalrobo::ArticulatedBodyKinematics> poses(result.model.bodies.size());
+    require(metalrobo::computeArticulatedBodyKinematics(
+                result.model, 0u, q, v, poses).succeeded(),
+            "NHRIGID source rest-frame kinematics failed");
+    double maximumPositionResidual = 0.0, maximumOrientationWitnessResidual = 0.0;
+    for (std::size_t ordinal = 0u; ordinal < sourcePoses.size(); ++ordinal) {
+        const auto bodyIndex = result.sourceToCore[ordinal];
+        const auto& expected = sourcePoses[ordinal];
+        const auto& actual = poses[bodyIndex];
+        const auto check = [&](bool passed, const char* field, double measured,
+                               double allowed, const char* basis) {
+            if (passed) return;
+            std::ostringstream message;
+            message << std::setprecision(12)
+                << "NHRIGID source rest-frame binding failed: field=" << field
+                << " source_record_index=" << ordinal << " body_index=" << bodyIndex
+                << " inbound_joint_index=" << result.model.bodies[bodyIndex].inboundJoint
+                << " measured=" << measured << " allowed=" << allowed
+                << " tolerance_basis=" << basis
+                << " rigid_sha256=" << loadedKneeSHA256Hex(result.payloadSha256);
+            require(false, message.str());
+        };
+        const std::array<double, 3u> position{
+            expected.positionX, expected.positionY, expected.positionZ};
+        double positionSquared = 0.0;
+        for (std::size_t axis = 0u; axis < position.size(); ++axis) {
+            const auto delta = actual.centerOfMassPosition[axis] - position[axis];
+            positionSquared += delta * delta;
+        }
+        const auto positionResidual = std::sqrt(positionSquared);
+        check(std::isfinite(positionResidual) &&
+                  positionResidual <= kRestReconstructionToleranceMeters,
+              "source_COM_position_m", positionResidual, kRestReconstructionToleranceMeters,
+              "existing_native_rest_reconstruction_tolerance_m");
+        std::array<double, 4u> quaternion{
+            expected.quaternionX, expected.quaternionY, expected.quaternionZ, expected.quaternionW};
+        double normSquared = 0.0;
+        for (const auto value : quaternion) normSquared += value * value;
+        const auto norm = std::sqrt(normSquared);
+        constexpr float kSourceGeometryQuaternionNormTolerance = 2.0e-3f;
+        check(std::isfinite(norm) && norm > 0.0 &&
+                  std::abs(norm - 1.0) <= kSourceGeometryQuaternionNormTolerance,
+              "source_orientation_norm_error", std::abs(norm - 1.0), kSourceGeometryQuaternionNormTolerance,
+              "existing_native_geometry_quaternion_norm_admission");
+        double directSquared = 0.0, antipodalSquared = 0.0;
+        for (std::size_t axis = 0u; axis < quaternion.size(); ++axis) {
+            quaternion[axis] /= norm;
+            const auto direct = actual.orientation[axis] - quaternion[axis];
+            const auto antipodal = actual.orientation[axis] + quaternion[axis];
+            directSquared += direct * direct;
+            antipodalSquared += antipodal * antipodal;
+        }
+        // 2 sin(angle/2) gives the maximum displacement at a 1 m lever arm.
+        // The shortest quaternion chord avoids acos cancellation near zero.
+        const auto chordSquared = std::min(directSquared, antipodalSquared);
+        const auto witnessResidual = 2.0 * std::sqrt(
+            chordSquared * std::max(0.0, 1.0 - 0.25 * chordSquared));
+        check(std::isfinite(witnessResidual) &&
+                  witnessResidual <= kRestReconstructionToleranceMeters,
+              "source_orientation_unit_witness_m", witnessResidual, kRestReconstructionToleranceMeters,
+              "existing_native_rest_reconstruction_tolerance_on_1m_orientation_witness");
+        maximumPositionResidual = std::max(maximumPositionResidual, positionResidual);
+        maximumOrientationWitnessResidual = std::max(maximumOrientationWitnessResidual, witnessResidual);
+    }
+    std::cout << std::setprecision(12)
+        << "rigid_source_rest_frames=passed source_body_count=" << sourcePoses.size()
+        << " maximum_COM_position_residual_m=" << maximumPositionResidual
+        << " maximum_orientation_unit_witness_residual_m=" << maximumOrientationWitnessResidual
+        << " allowed_rest_reconstruction_residual_m=" << kRestReconstructionToleranceMeters
+        << " rigid_sha256=" << loadedKneeSHA256Hex(result.payloadSha256)
+        << " boundary=consumed_reference_frame_join_not_source_authentication_or_loaded_motion\n";
     return result;
 }
 
