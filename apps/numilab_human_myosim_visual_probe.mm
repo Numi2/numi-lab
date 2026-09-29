@@ -1746,6 +1746,13 @@ LoadedExtensorHood loadExtensorHood(
     return result;
 }
 
+void auditTendonBoneGeometry(
+    const LoadedRigid& rigid, const LoadedBones& bones,
+    const metalrobo::NumiHumanTendonPayload& payload,
+    const std::span<const metalrobo::MujocoMuscleSite> sourceSites,
+    const metalrobo::NumiHumanLoadedKneeDigest& tendonSHA256
+);
+
 void applyNumiHumanTendonPayload(
     const std::filesystem::path& path,
     const LoadedRigid& rigid,
@@ -1803,6 +1810,13 @@ void applyNumiHumanTendonPayload(
         std::string("cannot resolve NHTENDON visual program: ") +
             metalrobo::numiHumanTendonStatusName(diagnostics.status)
     );
+    if (payload.payloadAbi >= 2u) {
+        metalrobo::NumiHumanLoadedKneeDigest tendonSHA256{};
+        require(bytes.size() <= std::numeric_limits<CC_LONG>::max(),
+                "NHTENDON payload cannot be identified");
+        CC_SHA256(bytes.data(), static_cast<CC_LONG>(bytes.size()), tendonSHA256.data());
+        auditTendonBoneGeometry(rigid, *bones, payload, sourceSites, tendonSHA256);
+    }
     if (resolved.migratedEnvelopeBindingCount > 0u) {
         std::vector<double> referenceQ(
             rigid.model.defaultQ.begin(), rigid.model.defaultQ.end()
@@ -9538,10 +9552,13 @@ mr_float4 closestPointOnTriangle(
     }
 
     const float barycentricDenominator = edgeFirstSecond + edgeFirstThird + edgeSecondThird;
-    if (std::abs(barycentricDenominator) <= 1.0e-12f) return first;
-    const float denominator = 1.0f / barycentricDenominator;
-    const float secondWeight = edgeFirstThird * denominator;
-    const float thirdWeight = edgeFirstSecond * denominator;
+    // This denominator has units m^4. Valid small atlas faces can be below
+    // 1e-12 without being degenerate; replacing their interior projection by
+    // a vertex moved registered attachment witnesses by over a millimetre.
+    // Divide the numerators directly to avoid overflowing a tiny reciprocal.
+    if (!(barycentricDenominator > 0.0f) || !std::isfinite(barycentricDenominator)) return first;
+    const float secondWeight = edgeFirstThird / barycentricDenominator;
+    const float thirdWeight = edgeFirstSecond / barycentricDenominator;
     return addPoint(first, addPoint(scalePoint(firstToSecond, secondWeight), scalePoint(firstToThird, thirdWeight)));
 }
 
@@ -9582,6 +9599,156 @@ mr_float4 boneVertexNormalWorld(
     normal.z /= length;
     normal.w = 0.0f;
     return normal;
+}
+
+void auditTendonBoneGeometry(
+    const LoadedRigid& rigid, const LoadedBones& bones,
+    const metalrobo::NumiHumanTendonPayload& payload,
+    const std::span<const metalrobo::MujocoMuscleSite> sourceSites,
+    const metalrobo::NumiHumanLoadedKneeDigest& tendonSHA256
+) {
+    // Join the decoded attachment program to the geometry actually loaded,
+    // before calibration or installing any route-private sites. This uses
+    // the existing tendon resolver's 1 um point admission, not an anatomical
+    // surface-fit allowance. External pinned surfaces require their own join.
+    constexpr double kPointTolerance = 1.0e-6;
+    std::vector<double> q(rigid.model.defaultQ.begin(), rigid.model.defaultQ.end());
+    std::vector<double> v(rigid.model.defaultV.begin(), rigid.model.defaultV.end());
+    std::vector<metalrobo::ArticulatedBodyKinematics> reference(rigid.model.bodies.size());
+    require(metalrobo::computeArticulatedBodyKinematics(
+                rigid.model, 0u, q, v, reference).succeeded(),
+            "NHTENDON bone geometry reference kinematics failed");
+    std::vector<MRBodyStateGPU> rest(reference.size());
+    for (const auto& pose : reference) {
+        auto& body = rest[pose.bodyIndex];
+        body.position = {float(pose.centerOfMassPosition[0]),
+                         float(pose.centerOfMassPosition[1]),
+                         float(pose.centerOfMassPosition[2]), 1.0f};
+        body.orientation = {float(pose.orientation[0]), float(pose.orientation[1]),
+                            float(pose.orientation[2]), float(pose.orientation[3])};
+    }
+    const auto compatibleOwner = [&rigid](std::uint32_t owner, std::uint32_t carrier) {
+        if (owner == carrier) return true;
+        const auto& first = rigid.model.bodies[owner];
+        const auto& second = rigid.model.bodies[carrier];
+        if (first.parentBody != second.parentBody ||
+            first.inboundJoint >= rigid.model.joints.size() ||
+            second.inboundJoint >= rigid.model.joints.size()) return false;
+        const auto fixed = [](const MRJointDescriptorGPU& joint) {
+            return joint.jointType == MR_JOINT_FIXED && joint.nq == 0u && joint.nv == 0u;
+        };
+        return fixed(rigid.model.joints[first.inboundJoint]) &&
+               fixed(rigid.model.joints[second.inboundJoint]);
+    };
+    using Triangle = std::array<mr_float4, 3u>;
+    std::map<std::pair<std::uint32_t, std::uint32_t>, std::vector<Triangle>> cache;
+    const auto surface = [&bones, &rest, &cache](const BoneRecord& bone, std::uint32_t carrier)
+        -> const std::vector<Triangle>& {
+        const auto key = std::make_pair(bone.stableId, carrier);
+        if (const auto found = cache.find(key); found != cache.end()) return found->second;
+        auto& triangles = cache[key];
+        MRBodyStateGPU identity{};
+        identity.orientation = {0.0f, 0.0f, 0.0f, 1.0f};
+        const auto& frame = rest[carrier];
+        const mr_float4 inverse{-frame.orientation.x, -frame.orientation.y,
+                                -frame.orientation.z, frame.orientation.w};
+        for (std::uint32_t index = 0u; index < bone.indexCount; index += 3u) {
+            Triangle triangle{};
+            for (std::size_t corner = 0u; corner < 3u; ++corner) {
+                const auto& vertex = bones.vertices[bones.indices[bone.firstIndex + index + corner]];
+                triangle[corner] = bone.bodyIndex == carrier
+                    ? boneVertexWorld(bone, vertex, identity)
+                    : rotatePoint(inverse, subtractPoint(
+                        boneVertexWorld(bone, vertex, rest[bone.bodyIndex]), frame.position));
+            }
+            triangles.push_back(triangle);
+        }
+        return triangles;
+    };
+    const auto distance = [](mr_float4 first, mr_float4 second) {
+        const auto delta = subtractPoint(first, second);
+        return std::sqrt(double(delta.x) * delta.x + double(delta.y) * delta.y + double(delta.z) * delta.z);
+    };
+    const auto point = [](const std::array<double, 3u>& value) {
+        return mr_float4{float(value[0]), float(value[1]), float(value[2]), 0.0f};
+    };
+    std::uint32_t checked = 0u, external = 0u, fixedSibling = 0u;
+    double maximumNodeResidual = 0.0;
+    for (std::size_t index = 0u; index < payload.bindings.size(); ++index) {
+        const auto& binding = payload.bindings[index];
+        if (binding.mode == metalrobo::NumiHumanTendonAttachmentMode::sourceSitePoint) continue;
+        const auto& envelope = payload.envelopes[binding.triangleIndex];
+        if ((envelope.boneStableId & 0x80000000u) != 0u) { ++external; continue; }
+        const auto bone = std::find_if(bones.records.begin(), bones.records.end(),
+            [&envelope](const BoneRecord& record) { return record.stableId == envelope.boneStableId; });
+        require(bone != bones.records.end(), "NHTENDON registered bone stable ID is absent");
+        const auto check = [&](bool passed, const char* reason, double measured,
+                               double allowed, const char* basis, int node = -1) {
+            if (passed) return;
+            std::ostringstream message;
+            message << std::setprecision(12) << "NHTENDON bone geometry binding failed: reason=" << reason
+                << " binding_index=" << index << " muscle_index=" << binding.muscleIndex
+                << " endpoint_ordinal=" << binding.endpointOrdinal << " body_index=" << binding.bodyIndex
+                << " bone_stable_id=" << bone->stableId << " bone_body_index=" << bone->bodyIndex
+                << " source_triangle_index=" << envelope.sourceTriangleIndex << " node_index=" << node
+                << " measured=" << measured << " allowed=" << allowed << " tolerance_basis=" << basis
+                << " tendon_sha256=" << loadedKneeSHA256Hex(tendonSHA256)
+                << " bone_sha256=" << loadedKneeSHA256Hex(bones.payloadSha256)
+                << " rigid_sha256=" << loadedKneeSHA256Hex(rigid.payloadSha256);
+            require(false, message.str());
+        };
+        check(compatibleOwner(bone->bodyIndex, binding.bodyIndex), "owner_not_fixed_sibling",
+              bone->bodyIndex, binding.bodyIndex, "same_owner_or_consumed_fixed_siblings_without_DoFs");
+        fixedSibling += bone->bodyIndex != binding.bodyIndex;
+        const auto& triangles = surface(*bone, binding.bodyIndex);
+        check(envelope.sourceTriangleIndex < triangles.size(), "source_triangle_missing",
+              envelope.sourceTriangleIndex, triangles.size() - 1u, "consumed_NHBONES_triangle_count");
+        const auto& triangle = triangles[envelope.sourceTriangleIndex];
+        const auto source = point(sourceSites[binding.sourceSiteIndex].localPoint);
+        const auto nearest = closestPointOnTriangle(source, triangle[0], triangle[1], triangle[2]);
+        check(std::abs(distance(source, nearest) - envelope.surfaceDistance) <= kPointTolerance,
+              "source_surface_distance_mismatch_m", std::abs(distance(source, nearest) - envelope.surfaceDistance),
+              kPointTolerance, "existing_tendon_resolver_point_tolerance_m");
+        if (binding.mode == metalrobo::NumiHumanTendonAttachmentMode::registeredBoneMigratedDistributedEnvelope) {
+            const auto resolved = point(binding.resolvedLocalPoint);
+            check(distance(resolved, nearest) <= kPointTolerance,
+                  "migrated_point_differs_from_source_projection_m", distance(resolved, nearest), kPointTolerance,
+                  "existing_tendon_resolver_point_tolerance_m");
+        }
+        for (std::size_t node = 0u; node < envelope.localNodes.size(); ++node) {
+            const auto location = point(envelope.localNodes[node]);
+            double residual = std::numeric_limits<double>::infinity();
+            const auto inspect = [&](const BoneRecord& candidate) {
+                for (const auto& face : surface(candidate, binding.bodyIndex)) {
+                    residual = std::min(residual, distance(location,
+                        closestPointOnTriangle(location, face[0], face[1], face[2])));
+                }
+            };
+            inspect(*bone);
+            // Compact NHTENDON2/3 also admits multi-bone quadrature in one
+            // physical owner. Preserve it without inventing another body.
+            if (residual > kPointTolerance) {
+                for (const auto& candidate : bones.records) {
+                    if (candidate.stableId != bone->stableId &&
+                        compatibleOwner(candidate.bodyIndex, binding.bodyIndex)) inspect(candidate);
+                }
+            }
+            check(residual <= kPointTolerance, "node_off_consumed_surface_m", residual,
+                  kPointTolerance, "existing_tendon_resolver_point_tolerance_m", int(node));
+            maximumNodeResidual = std::max(maximumNodeResidual, residual);
+        }
+        ++checked;
+    }
+    std::cout << std::setprecision(12)
+        << "tendon_bone_geometry=checked_bodyparts_subset bodyparts_envelope_count=" << checked
+        << " fixed_sibling_envelope_count=" << fixedSibling
+        << " external_surface_unverified_count=" << external
+        << " maximum_node_residual_m=" << maximumNodeResidual
+        << " allowed_point_residual_m=" << kPointTolerance
+        << " tendon_sha256=" << loadedKneeSHA256Hex(tendonSHA256)
+        << " bone_sha256=" << loadedKneeSHA256Hex(bones.payloadSha256)
+        << " rigid_sha256=" << loadedKneeSHA256Hex(rigid.payloadSha256)
+        << " boundary=consumed_rest_surface_binding_not_loaded_or_clinical_qualification\n";
 }
 
 void auditAxialBoneContinuity(
