@@ -292,6 +292,7 @@ constexpr std::uint32_t kLegacySkinPayloadAbi = 1u;
 constexpr std::uint32_t kBoundaryLocalSkinPayloadAbi = 2u;
 constexpr std::uint32_t kSourceLocalSkinPayloadAbi = 3u;
 constexpr std::uint32_t kSkinPayloadAbi = 4u;
+constexpr std::uint32_t kFullWeightSkinPayloadAbi = 5u;
 constexpr std::array<char, 8u> kTorsoAnatomyMagic{
     'N', 'H', 'A', 'N', 'A', 'T', '1', '\0',
 };
@@ -918,6 +919,9 @@ struct LoadedSkin {
     std::vector<SkinBindingRecord> bindings;
     std::vector<SkinVertex> vertices;
     std::vector<std::uint32_t> indices;
+    // ABI 5 appends a complete vertex-major binding weight matrix. The four
+    // fields in SkinVertex remain diagnostics; no weights are truncated.
+    std::vector<float> fullWeights;
     bool usesBoundaryLocalWeights = false;
     bool usesSourceSurfaceLocalWeights = false;
     bool usesWorldRestNormals = false;
@@ -2649,7 +2653,8 @@ LoadedSkin loadSkin(
                 (result.header.payloadAbi == kLegacySkinPayloadAbi ||
                  result.header.payloadAbi == kBoundaryLocalSkinPayloadAbi ||
                  result.header.payloadAbi == kSourceLocalSkinPayloadAbi ||
-                 result.header.payloadAbi == kSkinPayloadAbi) &&
+                 result.header.payloadAbi == kSkinPayloadAbi ||
+                 result.header.payloadAbi == kFullWeightSkinPayloadAbi) &&
                 result.header.registrationFingerprint == expectedRegistrationFingerprint &&
                 result.header.sourceSha256 == rigid.sourceSha256 &&
                 result.header.bindingCount >= 4u && result.header.bindingCount <= 256u &&
@@ -2662,9 +2667,11 @@ LoadedSkin loadSkin(
         result.header.payloadAbi == kBoundaryLocalSkinPayloadAbi;
     result.usesSourceSurfaceLocalWeights =
         result.header.payloadAbi == kSourceLocalSkinPayloadAbi ||
-        result.header.payloadAbi == kSkinPayloadAbi;
+        result.header.payloadAbi == kSkinPayloadAbi ||
+        result.header.payloadAbi == kFullWeightSkinPayloadAbi;
     result.usesWorldRestNormals =
-        result.header.payloadAbi == kSkinPayloadAbi;
+        result.header.payloadAbi == kSkinPayloadAbi ||
+        result.header.payloadAbi == kFullWeightSkinPayloadAbi;
     result.bindings = readVector<SkinBindingRecord>(
         input, result.header.bindingCount, "BodyParts3D skinned-shell bindings"
     );
@@ -2674,6 +2681,30 @@ LoadedSkin loadSkin(
     result.indices = readVector<std::uint32_t>(
         input, result.header.indexCount, "BodyParts3D skinned-shell indices"
     );
+    if (result.header.payloadAbi == kFullWeightSkinPayloadAbi) {
+        const std::size_t count = static_cast<std::size_t>(result.header.vertexCount) *
+                                  result.header.bindingCount;
+        const std::uint64_t expectedBytes = sizeof(SkinHeader) +
+            sizeof(SkinBindingRecord) * result.header.bindingCount +
+            sizeof(SkinVertex) * result.header.vertexCount +
+            sizeof(std::uint32_t) * result.header.indexCount + sizeof(float) * count;
+        require(std::filesystem::file_size(path) == expectedBytes,
+                "BodyParts3D full-weight skinned-shell byte count differs");
+        result.fullWeights = readVector<float>(
+            input, count, "BodyParts3D skinned-shell full weights"
+        );
+        for (std::size_t point = 0u; point < result.header.vertexCount; ++point) {
+            float sum = 0.0f;
+            for (std::size_t binding = 0u; binding < result.header.bindingCount; ++binding) {
+                const float weight = result.fullWeights[point * result.header.bindingCount + binding];
+                require(std::isfinite(weight) && weight >= 0.0f && weight <= 1.0f,
+                        "BodyParts3D skinned-shell full weight is malformed");
+                sum += weight;
+            }
+            require(std::isfinite(sum) && std::abs(sum - 1.0f) <= 2.0e-3f,
+                    "BodyParts3D skinned-shell full weight partition is malformed");
+        }
+    }
     require(input.peek() == std::char_traits<char>::eof(),
             "BodyParts3D skinned-shell payload has trailing bytes");
     std::vector<bool> boundBodies(rigid.engineBodyCount, false);
@@ -10488,6 +10519,7 @@ void writeSkinPoseSnapshot(
            << "{\"schema\":\"numi.human.native-skin-pose-snapshot.v1\","
            << "\"registration_fingerprint32\":" << skin.header.registrationFingerprint
            << ",\"binding_count\":" << skin.bindings.size()
+           << ",\"payload_abi\":" << skin.header.payloadAbi
            << ",\"vertex_count\":" << skin.vertices.size() << ",\"bodies\":[";
     std::vector<std::uint32_t> owners;
     for (const SkinBindingRecord& binding : skin.bindings) {
@@ -10924,11 +10956,18 @@ GeometryRange appendTendonAttachmentCollarGeometry(
 mr_float4 skinVertexWorld(
     const LoadedSkin& skin,
     const SkinVertex& vertex,
+    const std::size_t vertexIndex,
     const std::span<const MRBodyStateGPU> bodies
 ) {
     mr_float4 position{0.0f, 0.0f, 0.0f, 1.0f};
-    for (std::size_t influence = 0u; influence < 4u; ++influence) {
-        const SkinBindingRecord& binding = skin.bindings[vertex.bindingIndex[influence]];
+    const bool full = !skin.fullWeights.empty();
+    const std::size_t count = full ? skin.bindings.size() : 4u;
+    for (std::size_t influence = 0u; influence < count; ++influence) {
+        const float weight = full ? skin.fullWeights[vertexIndex * count + influence]
+                                  : vertex.weight[influence];
+        const SkinBindingRecord& binding = skin.bindings[
+            full ? influence : vertex.bindingIndex[influence]
+        ];
         require(binding.bodyIndex < bodies.size(),
                 "BodyParts3D skinned-shell body binding exceeds the rendered pose");
         const mr_float4 local = addPoint(
@@ -10946,9 +10985,9 @@ mr_float4 skinVertexWorld(
             bodies[binding.bodyIndex].position,
             rotatePoint(bodies[binding.bodyIndex].orientation, local)
         );
-        position.x += vertex.weight[influence] * world.x;
-        position.y += vertex.weight[influence] * world.y;
-        position.z += vertex.weight[influence] * world.z;
+        position.x += weight * world.x;
+        position.y += weight * world.y;
+        position.z += weight * world.z;
     }
     return position;
 }
@@ -10956,6 +10995,7 @@ mr_float4 skinVertexWorld(
 mr_float4 skinVertexNormalWorld(
     const LoadedSkin& skin,
     const SkinVertex& vertex,
+    const std::size_t vertexIndex,
     const std::span<const MRBodyStateGPU> bodies,
     const std::span<const MRBodyStateGPU> restBodies
 ) {
@@ -10963,11 +11003,19 @@ mr_float4 skinVertexNormalWorld(
             "BodyParts3D skinned-shell rest pose does not match the rendered pose");
     mr_float4 normal{0.0f, 0.0f, 0.0f, 0.0f};
     std::size_t strongestInfluence = 0u;
-    for (std::size_t influence = 0u; influence < 4u; ++influence) {
-        if (vertex.weight[influence] > vertex.weight[strongestInfluence]) {
+    const bool full = !skin.fullWeights.empty();
+    const std::size_t count = full ? skin.bindings.size() : 4u;
+    float strongestWeight = full ? skin.fullWeights[vertexIndex * count] : vertex.weight[0];
+    for (std::size_t influence = 0u; influence < count; ++influence) {
+        const float weight = full ? skin.fullWeights[vertexIndex * count + influence]
+                                  : vertex.weight[influence];
+        if (weight > strongestWeight) {
             strongestInfluence = influence;
+            strongestWeight = weight;
         }
-        const SkinBindingRecord& binding = skin.bindings[vertex.bindingIndex[influence]];
+        const SkinBindingRecord& binding = skin.bindings[
+            full ? influence : vertex.bindingIndex[influence]
+        ];
         require(binding.bodyIndex < bodies.size(),
                 "BodyParts3D skinned-shell normal binding exceeds the rendered pose");
         const mr_float4 sourceNormal{
@@ -10994,9 +11042,9 @@ mr_float4 skinVertexNormalWorld(
                     sourceNormal
                 )
             );
-        normal.x += vertex.weight[influence] * world.x;
-        normal.y += vertex.weight[influence] * world.y;
-        normal.z += vertex.weight[influence] * world.z;
+        normal.x += weight * world.x;
+        normal.y += weight * world.y;
+        normal.z += weight * world.z;
     }
     const float length = std::sqrt(
         normal.x * normal.x + normal.y * normal.y + normal.z * normal.z
@@ -11006,12 +11054,12 @@ mr_float4 skinVertexNormalWorld(
         normal.y /= length;
         normal.z /= length;
     } else {
-        // A linear blend of four independently rotated normals can cancel at
+        // A linear blend of independently rotated normals can cancel at
         // a highly bent joint even though the highest-weight source influence
         // remains valid.  Preserve a finite geometric normal without changing
         // the shell position or pretending this is a continuum skin solve.
         const SkinBindingRecord& binding =
-            skin.bindings[vertex.bindingIndex[strongestInfluence]];
+            skin.bindings[full ? strongestInfluence : vertex.bindingIndex[strongestInfluence]];
         const mr_float4 sourceNormal{
             vertex.normalX, vertex.normalY, vertex.normalZ, 0.0f,
         };
@@ -11066,9 +11114,10 @@ GeometryRange appendSkinGeometry(
         -std::numeric_limits<float>::infinity(), 1.0f,
     };
     const std::uint32_t vertexBase = static_cast<std::uint32_t>(pack.vertices.size());
-    for (const SkinVertex& source : skin.vertices) {
-        const mr_float4 position = skinVertexWorld(skin, source, bodies);
-        const mr_float4 normal = skinVertexNormalWorld(skin, source, bodies, restBodies);
+    for (std::size_t point = 0u; point < skin.vertices.size(); ++point) {
+        const SkinVertex& source = skin.vertices[point];
+        const mr_float4 position = skinVertexWorld(skin, source, point, bodies);
+        const mr_float4 normal = skinVertexNormalWorld(skin, source, point, bodies, restBodies);
         pack.vertices.push_back({
             position,
             normal,
