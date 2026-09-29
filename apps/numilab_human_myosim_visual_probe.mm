@@ -9557,8 +9557,16 @@ void auditAxialBoneContinuity(
         return;
     }
     struct Transition { const char* name; std::uint32_t first; std::uint32_t second; };
-    constexpr std::array<Transition, 21u> transitions{{
+    constexpr std::array<Transition, 27u> transitions{{
         {"occiput_to_atlas", 33u, 70u},
+        // C1-C7 retain one existing source rigid body. Their individual
+        // payload transforms can still disconnect a compound member.
+        {"cervical1_to_cervical2", 70u, 71u},
+        {"cervical2_to_cervical3", 71u, 181u},
+        {"cervical3_to_cervical4", 181u, 182u},
+        {"cervical4_to_cervical5", 182u, 183u},
+        {"cervical5_to_cervical6", 183u, 184u},
+        {"cervical6_to_cervical7", 184u, 185u},
         {"cervical7_to_thoracic1", 185u, 169u},
         {"thoracic1_to_thoracic2", 169u, 170u},
         {"thoracic2_to_thoracic3", 170u, 171u},
@@ -9580,8 +9588,9 @@ void auditAxialBoneContinuity(
         {"sacrum_to_right_hip", 1u, 18u},
         {"sacrum_to_left_hip", 1u, 19u},
     }};
-    std::cout << "axial_bone_continuity=checking transition_count=21"
-        << " bone_source_owner_bindings_verified=true\n";
+    const std::string boneSHA256 = loadedKneeSHA256Hex(bones.payloadSha256);
+    std::cout << "axial_bone_continuity=checking transition_count=" << transitions.size()
+        << " bone_source_owner_bindings_verified=true bone_sha256=" << boneSHA256 << '\n';
     std::map<std::uint32_t, std::vector<mr_float4>> worldVertices;
     const auto vertices = [&](const std::uint32_t stableId) -> const std::vector<mr_float4>& {
         auto [entry, inserted] = worldVertices.try_emplace(stableId);
@@ -9637,9 +9646,10 @@ void auditAxialBoneContinuity(
             << " patch_p90_m=" << interface << " allowed_patch_p90_m=0.010"
             << " passed=" << (passed ? "true" : "false");
         std::cout << measurement.str() << '\n';
-        require(passed, "executed axial continuity failed: " + measurement.str());
+        require(passed, "executed axial continuity failed: " + measurement.str()
+            + " bone_sha256=" + boneSHA256);
     }
-    std::cout << "axial_bone_continuity=passed transition_count=21"
+    std::cout << "axial_bone_continuity=passed transition_count=" << transitions.size()
         << " boundary=executed_rigid_bone_surface_proximity_not_disc_cartilage_contact_or_loaded_validation\n";
 }
 
