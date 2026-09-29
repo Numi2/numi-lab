@@ -24,6 +24,7 @@ The accepted machine-readable receipt is
 metalrobo_numilab_human_myosim_visual_probe \
   myosim-fullbody-core-reference.nhrigid \
   myosim-fullbody-muscle-reference.nhmyo \
+  bodyparts3d-myosim-major-bones.nhbones \
   /tmp/unused-visual-output \
   --muscle-step-seconds 0.0001 \
   --muscle-step-count 2 \
@@ -40,6 +41,10 @@ metalrobo_numilab_human_myosim_visual_probe \
   --joint-equality-payload myosim-fullbody-joint-equalities.nheq \
   --bilateral-achilles-certificate
 ```
+
+Supply the exact bone payload recorded in the tendon payload. Native admission
+compares the consumed muscle and bone hashes before calibration or dynamics;
+recompile attachments after changing either input.
 
 The certificate exits before camera setup or rendering. It uses the source
 route `J^T` as the sole rigid-force authority and audits only the distributed

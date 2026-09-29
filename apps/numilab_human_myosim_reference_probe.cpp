@@ -23,6 +23,7 @@
 #include <iostream>
 #include <limits>
 #include <span>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -211,6 +212,7 @@ LoadedRigid loadRigid(const char* path) {
 
 struct LoadedMuscles {
     MuscleHeader header{};
+    std::array<std::uint8_t, 32u> payloadSha256{};
     std::vector<metalrobo::MujocoMuscleSite> sites;
     std::vector<metalrobo::MujocoWrapGeometry> wraps;
     std::vector<metalrobo::MujocoMuscleDefinition> muscles;
@@ -243,10 +245,21 @@ metalrobo::MujocoRouteNodeType routeType(const std::uint32_t value) {
     }
 }
 
+std::vector<std::byte> readBytes(const char* path);
+
 LoadedMuscles loadMuscles(const char* path, const RigidHeader& rigid) {
-    std::ifstream input(path, std::ios::binary);
-    require(input.is_open(), std::string("cannot open muscle payload ") + path);
+    const auto bytes = readBytes(path);
+    require(bytes.size() >= sizeof(MuscleHeader) &&
+                bytes.size() <= std::numeric_limits<CC_LONG>::max(),
+            "muscle payload cannot be identified");
+    // Decode and identify the same immutable byte array, before any tendon
+    // migration or architecture calibration changes the in-memory program.
+    std::istringstream input(std::string(
+        reinterpret_cast<const char*>(bytes.data()), bytes.size()), std::ios::binary);
     LoadedMuscles result;
+    require(CC_SHA256(bytes.data(), static_cast<CC_LONG>(bytes.size()),
+                result.payloadSha256.data()) != nullptr,
+            "cannot hash consumed muscle payload");
     readObject(input, result.header, "MyoSim muscle header");
     const bool legacy = result.header.magic == kLegacyMuscleMagic &&
         result.header.payloadAbi == kLegacyMuscleAbi &&
@@ -417,14 +430,14 @@ metalrobo::NumiHumanJointEqualityPayload loadJointEqualities(
 
 std::vector<std::byte> readBytes(const char* path) {
     std::ifstream input(path, std::ios::binary | std::ios::ate);
-    require(input.is_open(), std::string("cannot open tendon payload ") + path);
+    require(input.is_open(), std::string("cannot open payload ") + path);
     const std::streamsize size = input.tellg();
-    require(size >= 0, "cannot determine tendon payload size");
+    require(size >= 0, "cannot determine payload size");
     input.seekg(0, std::ios::beg);
     std::vector<std::byte> bytes(static_cast<std::size_t>(size));
     if (!bytes.empty()) {
         input.read(reinterpret_cast<char*>(bytes.data()), size);
-        require(input.good(), "truncated tendon payload");
+        require(input.good(), "truncated payload");
     }
     return bytes;
 }
@@ -1376,8 +1389,20 @@ void applyNumiHumanTendonPayload(
     const std::vector<std::byte> bytes = readBytes(path);
     metalrobo::NumiHumanTendonPayload payload;
     const auto decode = metalrobo::decodeNumiHumanTendonPayload(
-        bytes, rigid.header.sourceSha256, {}, payload
+        bytes, rigid.header.sourceSha256, muscles.payloadSha256, payload
     );
+    if (decode.status == metalrobo::NumiHumanTendonStatus::sourceMismatch &&
+        payload.musclePayloadSha256 != muscles.payloadSha256) {
+        const auto hex = [](const auto& digest) {
+            std::ostringstream output;
+            output << std::hex << std::setfill('0');
+            for (const auto byte : digest) output << std::setw(2) << unsigned(byte);
+            return output.str();
+        };
+        require(false, std::string("NHTENDON muscle payload identity mismatch: tendon=") + path +
+                " expected_sha256=" + hex(payload.musclePayloadSha256) +
+                " consumed_sha256=" + hex(muscles.payloadSha256));
+    }
     require(
         decode.succeeded(),
         std::string("NHTENDON decode failed: ") +
@@ -1633,11 +1658,18 @@ MetalArticulatedMetrics verifyMetalArticulatedReference(
         model, 0u, qReference, referenceVelocity, cpuPoints, cpuPointKinematics, cpuJacobians
     );
     require(cpuDiagnostics.succeeded(), "MyoSim CPU point/Jacobian reference failed before Metal parity");
+    // Use the same paired geometry path as native standing. Rounding body
+    // positions to world-space FP32 highs before subtracting muscle sites
+    // can fail the force gate even when coarse kinematic parity passes.
+    const std::array<MRCompensatedRootTranslationGPU, 1u> roots{
+        mrCompensatedTranslationFromProjection({q[0], q[1], q[2], 0.0f})
+    };
     const metalrobo::MetalArticulatedOperatorInput input{
         .articulationIndex = 0u,
         .environmentCount = 1u,
         .pointCount = gpuPoints.size(),
         .q = q,
+        .rootTranslations = roots,
         .v = velocity,
         .points = gpuPoints,
         .mujoco = {
@@ -1669,7 +1701,11 @@ MetalArticulatedMetrics verifyMetalArticulatedReference(
     );
     require(
         kinematicsResult.bodyPoses.size() == cpuBodies.size() &&
+            kinematicsResult.bodyPositionLow.size() == cpuBodies.size() &&
             kinematicsResult.pointWorld.size() == cpuPointKinematics.size() &&
+            kinematicsResult.pointPositionLow.size() == cpuPointKinematics.size() &&
+            kinematicsResult.rootTranslations.size() == roots.size() &&
+            std::memcmp(kinematicsResult.rootTranslations.data(), roots.data(), sizeof(roots)) == 0 &&
             kinematicsResult.pointJacobians.size() == cpuJacobians.size() &&
             kinematicsResult.mujocoResults.size() == muscles.muscles.size() &&
             kinematicsResult.mujocoActivationStates.size() ==
@@ -1809,7 +1845,8 @@ MetalArticulatedMetrics verifyMetalArticulatedReference(
         for (std::size_t axis = 0u; axis < 3u; ++axis) {
             metrics.maximumBodyPositionError = std::max(
                 metrics.maximumBodyPositionError,
-                std::abs(static_cast<double>((&gpuBody.position.x)[axis]) -
+                std::abs(static_cast<double>((&gpuBody.position.x)[axis]) +
+                         static_cast<double>((&kinematicsResult.bodyPositionLow[body].x)[axis]) -
                          cpuBodies[body].centerOfMassPosition[axis])
             );
         }
@@ -1834,7 +1871,8 @@ MetalArticulatedMetrics verifyMetalArticulatedReference(
         for (std::size_t axis = 0u; axis < 3u; ++axis) {
             metrics.maximumPointPositionError = std::max(
                 metrics.maximumPointPositionError,
-                std::abs(static_cast<double>((&gpuPoint.x)[axis]) -
+                std::abs(static_cast<double>((&gpuPoint.x)[axis]) +
+                         static_cast<double>((&kinematicsResult.pointPositionLow[point].x)[axis]) -
                          cpuPointKinematics[point].position[axis])
             );
         }
@@ -2453,6 +2491,7 @@ int run(
                              << muscles.maximumTendonReferencePathDelta
                              << " tendon_max_architecture_scale_change="
                              << muscles.maximumTendonArchitectureScaleChange
+                             << " tendon_geometry_identity_verified=false"
                              << " tendon_single_scatter_generalized_force_difference="
                              << maximumEndpointSingleScatterDifference
                              << " tendon_force_residual_n=" << maximumEnthesisForceResidual
@@ -2471,6 +2510,7 @@ int run(
                              << " mass_condition=" << massDiagnostics.estimatedMassMatrixCondition;
     if (runMetal) {
         output << " metal_stage=kinematics_jacobians_muscle_route_generalized_force"
+               << " metal_geometry=paired_high_low"
                << " metal_device=\"" << metal.deviceName << "\""
                << " metal_max_body_position_error_m=" << metal.maximumBodyPositionError
                << " metal_max_body_orientation_component_error="

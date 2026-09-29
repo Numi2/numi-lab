@@ -840,6 +840,7 @@ struct TorsoAnatomyVertex {
 
 struct LoadedMuscles {
     MuscleHeader header{};
+    metalrobo::NumiHumanLoadedKneeDigest payloadSha256{};
     std::vector<SiteRecord> sites;
     std::vector<WrapRecord> wraps;
     std::vector<RouteRecord> routes;
@@ -876,6 +877,7 @@ struct LoadedExtensorHood {
 
 struct LoadedBones {
     BoneHeader header{};
+    metalrobo::NumiHumanLoadedKneeDigest payloadSha256{};
     std::vector<BoneRecord> records;
     std::vector<BoneVertex> vertices;
     std::vector<std::uint32_t> indices;
@@ -1214,17 +1216,23 @@ metalrobo::MujocoRouteNodeType referenceWrapType(const std::uint32_t type) {
 }
 
 template <typename T>
-void readObject(std::istream& input, T& value, const char* description) {
+void readObject(std::istream& input, T& value, const char* description,
+                CC_SHA256_CTX* identity = nullptr) {
     static_assert(std::is_trivially_copyable_v<T>);
     input.read(reinterpret_cast<char*>(&value), sizeof(T));
     require(input.good(), std::string("truncated ") + description);
+    if (identity != nullptr) {
+        require(CC_SHA256_Update(identity, &value, sizeof(T)) == 1,
+                std::string("cannot hash consumed ") + description);
+    }
 }
 
 template <typename T>
 std::vector<T> readVector(
     std::istream& input,
     const std::size_t count,
-    const char* description
+    const char* description,
+    CC_SHA256_CTX* identity = nullptr
 ) {
     std::vector<T> result(count);
     if (!result.empty()) {
@@ -1233,6 +1241,13 @@ std::vector<T> readVector(
             static_cast<std::streamsize>(result.size() * sizeof(T))
         );
         require(input.good(), std::string("truncated ") + description);
+        if (identity != nullptr) {
+            const std::size_t bytes = result.size() * sizeof(T);
+            require(bytes <= std::numeric_limits<CC_LONG>::max() &&
+                        CC_SHA256_Update(identity, result.data(),
+                            static_cast<CC_LONG>(bytes)) == 1,
+                    std::string("cannot hash consumed ") + description);
+        }
     }
     return result;
 }
@@ -1310,7 +1325,9 @@ LoadedMuscles loadMuscles(
     std::ifstream input(path, std::ios::binary);
     require(input.is_open(), "cannot open MyoSim muscle payload " + path.string());
     LoadedMuscles result;
-    readObject(input, result.header, "MyoSim muscle header");
+    CC_SHA256_CTX identity{};
+    require(CC_SHA256_Init(&identity) == 1, "cannot initialize muscle payload hash");
+    readObject(input, result.header, "MyoSim muscle header", &identity);
     const bool legacy = result.header.magic == kLegacyMuscleMagic &&
         result.header.payloadAbi == kPayloadAbi &&
         result.header.reserved0 == 0u && result.header.reserved1 == 0u;
@@ -1323,18 +1340,20 @@ LoadedMuscles loadMuscles(
                 result.header.sourceSha256 == rigid.sourceSha256,
             "MyoSim muscle payload/header disagreement");
     result.sites = readVector<SiteRecord>(
-        input, result.header.siteCount, "MyoSim sites"
+        input, result.header.siteCount, "MyoSim sites", &identity
     );
-    result.wraps = readVector<WrapRecord>(input, result.header.wrapCount, "MyoSim wraps");
-    result.routes = readVector<RouteRecord>(input, result.header.routeNodeCount, "MyoSim routes");
-    result.muscles = readVector<MuscleRecord>(input, result.header.muscleCount, "MyoSim muscles");
+    result.wraps = readVector<WrapRecord>(input, result.header.wrapCount, "MyoSim wraps", &identity);
+    result.routes = readVector<RouteRecord>(input, result.header.routeNodeCount, "MyoSim routes", &identity);
+    result.muscles = readVector<MuscleRecord>(input, result.header.muscleCount, "MyoSim muscles", &identity);
     result.architectures = compliant
         ? readVector<MuscleArchitectureRecord>(
-            input, result.header.muscleCount, "MyoSim compliant architectures"
+            input, result.header.muscleCount, "MyoSim compliant architectures", &identity
         )
         : std::vector<MuscleArchitectureRecord>(result.header.muscleCount);
     require(input.peek() == std::char_traits<char>::eof(),
             "MyoSim muscle payload has trailing bytes");
+    require(CC_SHA256_Final(result.payloadSha256.data(), &identity) == 1,
+            "cannot finalize consumed muscle payload hash");
     for (const SiteRecord& site : result.sites) {
         require(site.bodyIndex < rigid.engineBodyCount,
                 "MyoSim site body index is out of bounds");
@@ -1724,7 +1743,8 @@ LoadedExtensorHood loadExtensorHood(
 void applyNumiHumanTendonPayload(
     const std::filesystem::path& path,
     const LoadedRigid& rigid,
-    LoadedMuscles& muscles
+    LoadedMuscles& muscles,
+    const LoadedBones* bones
 ) {
     std::ifstream input(path, std::ios::binary | std::ios::ate);
     require(input.is_open(), "cannot open NHTENDON payload " + path.string());
@@ -1738,13 +1758,34 @@ void applyNumiHumanTendonPayload(
     }
     metalrobo::NumiHumanTendonPayload payload;
     const auto decode = metalrobo::decodeNumiHumanTendonPayload(
-        bytes, rigid.header.sourceSha256, {}, payload
+        bytes, rigid.header.sourceSha256, muscles.payloadSha256, payload
     );
+    require(decode.status != metalrobo::NumiHumanTendonStatus::sourceMismatch ||
+                payload.musclePayloadSha256 == muscles.payloadSha256,
+            "NHTENDON muscle payload identity mismatch: tendon=" + path.string() +
+            " expected_sha256=" + loadedKneeSHA256Hex(payload.musclePayloadSha256) +
+            " consumed_sha256=" + loadedKneeSHA256Hex(muscles.payloadSha256));
     require(
         decode.succeeded() && payload.bodyCount == rigid.header.engineBodyCount,
         std::string("invalid NHTENDON visual program: ") +
             metalrobo::numiHumanTendonStatusName(decode.status)
     );
+    // Bind the bytes actually decoded above, before migration calibration or
+    // any force program is installed. A common source archive and unchanged
+    // registration fingerprint cannot identify the executing muscle or mesh.
+    if (payload.payloadAbi >= 2u) {
+        require(bones != nullptr,
+                "NHTENDON2/3 requires its compiled bone positional payload before calibration or dynamics: tendon=" +
+                path.string() + " expected_bone_sha256=" +
+                loadedKneeSHA256Hex(payload.bonePayloadSha256));
+        require(payload.bonePayloadSha256 == bones->payloadSha256,
+                "NHTENDON bone payload identity mismatch: tendon=" + path.string() +
+                " expected_sha256=" + loadedKneeSHA256Hex(payload.bonePayloadSha256) +
+                " consumed_sha256=" + loadedKneeSHA256Hex(bones->payloadSha256));
+        require(payload.boneCount == bones->records.size() &&
+                    payload.registrationFingerprint == bones->header.reserved0,
+                "NHTENDON bone registration dimensions or fingerprint differ from consumed NHBONES");
+    }
     const auto sourceSites = muscles.referenceSites;
     const auto sourceMuscles = muscles.referenceMuscles;
     metalrobo::NumiHumanTendonResolvedProgram resolved;
@@ -1887,7 +1928,9 @@ LoadedBones loadBones(
     std::ifstream input(path, std::ios::binary);
     require(input.is_open(), "cannot open BodyParts3D bone payload " + path.string());
     LoadedBones result;
-    readObject(input, result.header, "BodyParts3D bone header");
+    CC_SHA256_CTX identity{};
+    require(CC_SHA256_Init(&identity) == 1, "cannot initialize bone payload hash");
+    readObject(input, result.header, "BodyParts3D bone header", &identity);
     require(result.header.magic == kBoneMagic &&
                 (result.header.payloadAbi == 2u || result.header.payloadAbi == kBonePayloadAbi) &&
                 result.header.reserved0 != 0u &&
@@ -1902,7 +1945,7 @@ LoadedBones loadBones(
             "BodyParts3D bone payload/header disagreement");
     if (result.header.payloadAbi == kBonePayloadAbi) {
         const auto records = readVector<BoundBoneRecord>(
-            input, result.header.boneCount, "BodyParts3D source-bound bone records"
+            input, result.header.boneCount, "BodyParts3D source-bound bone records", &identity
         );
         result.records.reserve(records.size());
         for (const BoundBoneRecord& record : records) {
@@ -1921,17 +1964,19 @@ LoadedBones loadBones(
         result.sourceOwnerBindingsVerified = true;
     } else {
         result.records = readVector<BoneRecord>(
-            input, result.header.boneCount, "BodyParts3D legacy bone records"
+            input, result.header.boneCount, "BodyParts3D legacy bone records", &identity
         );
     }
     result.vertices = readVector<BoneVertex>(
-        input, result.header.vertexCount, "BodyParts3D bone vertices"
+        input, result.header.vertexCount, "BodyParts3D bone vertices", &identity
     );
     result.indices = readVector<std::uint32_t>(
-        input, result.header.indexCount, "BodyParts3D bone indices"
+        input, result.header.indexCount, "BodyParts3D bone indices", &identity
     );
     require(input.peek() == std::char_traits<char>::eof(),
             "BodyParts3D bone payload has trailing bytes");
+    require(CC_SHA256_Final(result.payloadSha256.data(), &identity) == 1,
+            "cannot finalize consumed bone payload hash");
     for (const BoneVertex& vertex : result.vertices) {
         const float normalLength = std::sqrt(
             vertex.normalX * vertex.normalX +
@@ -19870,11 +19915,16 @@ int main(int argc, char** argv) {
                     "--stand-push window must lie inside --muscle-step-count");
             const bool bodypartsBoneVisual = positional.size() == 4u;
             const LoadedRigid rigid = loadRigid(positional[0]);
+            std::optional<LoadedBones> bonePayload;
+            if (bodypartsBoneVisual) {
+                bonePayload.emplace(loadBones(positional[2], rigid));
+            }
             LoadedMuscles musclePayload = loadMuscles(positional[1], rigid.header);
             const bool compliantMusclePayload =
                 musclePayload.header.payloadAbi == kMusclePayloadAbi;
             if (tendonPayloadPath.has_value()) {
-                applyNumiHumanTendonPayload(*tendonPayloadPath, rigid, musclePayload);
+                applyNumiHumanTendonPayload(*tendonPayloadPath, rigid, musclePayload,
+                                           bonePayload ? &*bonePayload : nullptr);
                 std::cout << "tendon_payload=NHTENDON" << musclePayload.tendonPayload.payloadAbi
                           << " tendon_endpoints="
                           << musclePayload.tendonPointBindings + musclePayload.tendonTriangleBindings +
@@ -19888,6 +19938,13 @@ int main(int argc, char** argv) {
                           << musclePayload.maximumTendonReferencePathDelta
                           << " tendon_max_architecture_scale_change="
                           << musclePayload.maximumTendonArchitectureScaleChange
+                          << " tendon_muscle_payload_sha256="
+                          << loadedKneeSHA256Hex(musclePayload.payloadSha256)
+                          << " tendon_geometry_identity_verified="
+                          << (musclePayload.tendonPayload.payloadAbi >= 2u ? "true" : "false")
+                          << " tendon_bone_payload_sha256="
+                          << (musclePayload.tendonPayload.payloadAbi >= 2u
+                              ? loadedKneeSHA256Hex(bonePayload->payloadSha256) : "unavailable")
                           << "\n";
             }
             std::optional<LoadedExtensorHood> extensorHoodPayload;
@@ -20214,10 +20271,6 @@ int main(int argc, char** argv) {
             );
             require(duplicateSoftTissue == requestedSoftTissueStableIds.end(),
                     "--soft-tissue-stable-id values must be unique");
-            std::optional<LoadedBones> bonePayload;
-            if (bodypartsBoneVisual) {
-                bonePayload.emplace(loadBones(positional[2], rigid));
-            }
             std::optional<metalrobo::NumiHumanKneePayload> openKneePayload;
             if (openKneePayloadPath.has_value()) {
                 require(bodypartsBoneVisual,

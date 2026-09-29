@@ -62,7 +62,8 @@ cmake --build build --target metalrobo_numilab_human_myosim_visual_probe
 
 metalrobo_numilab_human_myosim_visual_probe \
   numilab-human/Docs/media/native-runtime-source-package-20260915/input/myosim-fullbody-core-reference.nhrigid \
-  numilab-human/Docs/media/native-runtime-source-package-20260915/input/myosim-fullbody-muscle-reference.nhmyo OUTPUT_DIRECTORY \
+  numilab-human/Docs/media/native-runtime-source-package-20260915/input/myosim-fullbody-muscle-reference.nhmyo \
+  MATCHED_NHBONES_PAYLOAD OUTPUT_DIRECTORY \
   --tendon-payload numilab-human/Docs/media/native-runtime-source-package-20260915/input/numi-human-tendon-attachments.nhtendon \
   --support-contact-payload numilab-human/Docs/media/native-runtime-source-package-20260915/input/myosim-fullbody-support-contact.nhcnt \
   --joint-equality-payload numilab-human/Docs/media/native-runtime-source-package-20260915/input/myosim-fullbody-joint-equalities.nheq \
@@ -71,6 +72,13 @@ metalrobo_numilab_human_myosim_visual_probe \
   --persistent-source-passive-joint-tissue --persistent-stand-trace \
   --stand-contact-iterations 64 --stand-deterministic-replay
 ```
+
+NHTENDON2/3 now requires the exact NHBONES payload recorded in its header; this
+source package does not include that bone file. Supply it separately, or
+recompile attachments against the chosen bone and muscle inputs with the
+existing Human compiler. Native admission hashes the bytes consumed by both
+loaders and rejects stale pairings before calibration or dynamics. Historical
+NHTENDON1 remains readable with `tendon_geometry_identity_verified=false`.
 
 The retained v3-v6 local evidence trace completes all 512 steps on an unassisted root,
 includes all 416 recruited muscle records, has zero penetration, and has a
