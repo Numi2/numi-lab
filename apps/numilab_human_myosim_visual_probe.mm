@@ -21331,7 +21331,13 @@ int main(int argc, char** argv) {
             std::vector<float> overriddenPoseQ;
             std::string projectedRangeFailure;
             std::span<const float> poseQ = rigid.model.defaultQ;
-            if (!requestedPoseCoordinates.empty()) {
+            // Static previews must use the same dependent-coordinate law as
+            // named poses. The raw source default can leave the patellar
+            // translation coordinates away from their equality references.
+            // Keep mechanics initialization and source rest witnesses intact.
+            const bool projectDefaultVisualPose = requestedPoseCoordinates.empty() &&
+                jointEqualityPayload.has_value() && !muscleStepSeconds.has_value();
+            if (!requestedPoseCoordinates.empty() || projectDefaultVisualPose) {
                 std::sort(requestedPoseCoordinates.begin(), requestedPoseCoordinates.end());
                 require(std::adjacent_find(
                             requestedPoseCoordinates.begin(), requestedPoseCoordinates.end(),
@@ -21366,7 +21372,7 @@ int main(int argc, char** argv) {
                         &maximumProjection
                     );
                 require(projectionDiagnostics.succeeded(),
-                        std::string("--pose-q equality projection failed: ") +
+                        std::string("visual pose equality projection failed: ") +
                             metalrobo::numiHumanJointEqualityStatusName(
                                 projectionDiagnostics.status
                             ));
@@ -21376,7 +21382,7 @@ int main(int argc, char** argv) {
                     std::back_inserter(overriddenPoseQ),
                     [](const double value) {
                         require(std::isfinite(value) && std::isfinite(static_cast<float>(value)),
-                                "--pose-q equality projection produced a nonfinite native coordinate");
+                                "visual pose equality projection produced a nonfinite native coordinate");
                         return static_cast<float>(value);
                     }
                 );
@@ -21423,6 +21429,11 @@ int main(int argc, char** argv) {
                 std::cout << "pose_q_override_count=" << requestedPoseCoordinates.size()
                           << " pose_q_equality_maximum_correction=" << maximumProjection
                           << "\n";
+                if (projectDefaultVisualPose) {
+                    std::cout << "presentation_pose=source_default_equality_projected"
+                              << " equality_count=" << jointEqualityPayload->payload.records.size()
+                              << " boundary=kinematic_preview_not_mechanics_initialization\n";
+                }
             }
             std::optional<PectoralisFasciaVisual> pectoralisFascia;
             std::optional<AnteriorThoraxMechanics> anteriorThoraxMechanics;
@@ -22840,6 +22851,10 @@ int main(int argc, char** argv) {
             if (!requestedPoseCoordinates.empty()) {
                 evidenceBoundary +=
                     "_with_explicit_kinematic_source_coordinate_override_and_exact_dependent_polynomial_projection_not_dynamics_or_loaded_contact_validation";
+            }
+            if (projectDefaultVisualPose) {
+                evidenceBoundary +=
+                    "_with_default_kinematic_source_equality_projection_not_mechanics_initialization";
             }
             if (muscleDrivenState.has_value() &&
                 muscleDrivenState->assistanceRemovalEvaluated) {
