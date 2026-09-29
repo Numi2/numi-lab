@@ -3426,6 +3426,7 @@ if(BUILD_TESTING)
     set_tests_properties(
         numi_human.stand_coupling_minimal
         PROPERTIES LABELS "numi-human;metal;mechanics;coupling"
+                   ENVIRONMENT "MTL_DEBUG_LAYER=1"
     )
 endif()
 

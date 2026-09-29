@@ -623,7 +623,7 @@ kernel void mr_numi_human_stand_step(
     device const float4* pointPositionLow [[buffer(23)]],
     device const float* passiveJointProgram [[buffer(24)]],
     device float* sourceDynamicsWitness [[buffer(25)]],
-    device const uint* sparseGraph [[buffer(28)]],
+    device const uint* sparseGraph [[buffer(28), function_constant(kUseSparseStandOperator)]],
     uint environment [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]],
     uint threadCount [[threads_per_threadgroup]]
@@ -1696,7 +1696,7 @@ kernel void mr_numi_human_stand_response_assemble(
     device MRNumiHumanStandStatusGPU* statuses [[buffer(17)]],
     device const MRNumiHumanJointEqualityGPU* jointEqualities [[buffer(20)]],
     device const float4* pointPositionLow [[buffer(23)]],
-    device const uint* sparseGraph [[buffer(28)]],
+    device const uint* sparseGraph [[buffer(28), function_constant(kUseSparseStandOperator)]],
     uint2 position [[thread_position_in_grid]]
 ) {
     const uint environment = position.y;
@@ -1794,7 +1794,7 @@ kernel void mr_numi_human_stand_equality_response_cooperative(
     device float* responseScratch [[buffer(16)]],
     device MRNumiHumanStandStatusGPU* statuses [[buffer(17)]],
     device const MRNumiHumanJointEqualityGPU* jointEqualities [[buffer(20)]],
-    device const uint* sparseGraph [[buffer(28)]],
+    device const uint* sparseGraph [[buffer(28), function_constant(kUseSparseStandOperator)]],
     uint3 group [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]],
     uint3 groupSize [[threads_per_threadgroup]]
@@ -2000,7 +2000,7 @@ kernel void mr_numi_human_stand_projected_response_assemble(
     device MRNumiHumanStandStatusGPU* statuses [[buffer(17)]],
     device const MRNumiHumanJointEqualityGPU* jointEqualities [[buffer(20)]],
     device const float4* pointPositionLow [[buffer(23)]],
-    device const uint* sparseGraph [[buffer(28)]],
+    device const uint* sparseGraph [[buffer(28), function_constant(kUseSparseStandOperator)]],
     uint2 position [[thread_position_in_grid]]
 ) {
     const uint environment = position.y;
@@ -2203,7 +2203,7 @@ kernel void mr_numi_human_stand_projected_response_cooperative(
     device MRNumiHumanStandStatusGPU* statuses [[buffer(17)]],
     device const MRNumiHumanJointEqualityGPU* jointEqualities [[buffer(20)]],
     device const float4* pointPositionLow [[buffer(23)]],
-    device const uint* sparseGraph [[buffer(28)]],
+    device const uint* sparseGraph [[buffer(28), function_constant(kUseSparseStandOperator)]],
     uint3 group [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]],
     uint3 groupSize [[threads_per_threadgroup]]
@@ -2418,7 +2418,7 @@ kernel void mr_numi_human_stand_mass_assemble(
     device MRNumiHumanStandStatusGPU* statuses [[buffer(17)]],
     device const float* passiveJointProgram [[buffer(24)]],
     device float* sourceDynamicsWitness [[buffer(25)]],
-    device const uint* sparseGraph [[buffer(28)]],
+    device const uint* sparseGraph [[buffer(28), function_constant(kUseSparseStandOperator)]],
     uint2 position [[thread_position_in_grid]]
 ) {
     const uint environment = position.y;
@@ -2517,8 +2517,8 @@ kernel void mr_numi_human_stand_finish(
     device const float* passiveJointProgram [[buffer(24)]],
     device float* sourceDynamicsWitness [[buffer(25)]],
     device const MRNumiHumanStandCpuFinishGPU* cpuFinishes [[buffer(26)]],
-    device float* cachedLimitEqualityResponse [[buffer(27)]],
-    device const uint* sparseGraph [[buffer(28)]],
+    device float* cachedLimitEqualityResponse [[buffer(27), function_constant(kUseCachedLimitEqualityResponse)]],
+    device const uint* sparseGraph [[buffer(28), function_constant(kUseSparseStandOperator)]],
     device uint* finishWorkCounters [[buffer(29)]],
     uint environment [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]],

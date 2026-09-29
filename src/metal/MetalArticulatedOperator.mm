@@ -3750,7 +3750,8 @@ MetalArticulatedOperatorDiagnostics initializeContext(
     id<MTLComputePipelineState> standCpuFinishPipeline = nil;
     if (context.config.splitStandSolve) {
         id<MTLFunction> standMassFunction = [library
-            newFunctionWithName:@"mr_numi_human_stand_mass_assemble"];
+            newFunctionWithName:@"mr_numi_human_stand_mass_assemble"
+                constantValues:operatorConstants error:&error];
         error = nil;
         standMassPipeline = standMassFunction == nil
             ? nil : [device newComputePipelineStateWithFunction:standMassFunction
@@ -11563,7 +11564,10 @@ MetalArticulatedOperatorContext::submit(
                         "stand CPU finish does not support the live Human shape"
                     );
                 }
-                if (cpuFinish) {
+                // The ordinary GPU finish also retains this typed argument
+                // in Metal reflection, even when its CPU branch is unused.
+                // Its scratch vector can be smaller than the payload ABI.
+                if (splitStand || cpuFinish) {
                     if (state_->standCpuFinishBuffer == nil)
                         state_->standCpuFinishBuffer =
                             [state_->device newBufferWithLength:
@@ -12790,7 +12794,7 @@ MetalArticulatedOperatorContext::submit(
                             : state_->standBuffers[kStandPassiveJointBuffer]
                         offset:0u atIndex:25u];
                     [standEncoder setBuffer:
-                        cpuFinish
+                        splitStand || cpuFinish
                             ? state_->standCpuFinishBuffer
                             : state_->standBuffers[kStandVectorBuffer]
                         offset:0u atIndex:26u];
