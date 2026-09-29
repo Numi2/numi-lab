@@ -5655,6 +5655,10 @@ add_executable(
     metalrobo_visual_reference_probe
     apps/visual_reference_probe.mm
 )
+target_compile_definitions(
+    metalrobo_visual_reference_probe
+    PRIVATE METALROBO_METALLIB="${METALROBO_METALLIB}"
+)
 target_link_libraries(
     metalrobo_visual_reference_probe
     PRIVATE

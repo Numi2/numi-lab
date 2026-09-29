@@ -9,6 +9,7 @@
 #include <chrono>
 #include <cmath>
 #include <cstdint>
+#include <cstring>
 #include <filesystem>
 #include <iostream>
 #include <stdexcept>
@@ -23,6 +24,111 @@ void require(const Result& result, const char* operation) {
         throw std::runtime_error(
             std::string{operation} + ": " + result.message
         );
+    }
+}
+
+void requireUnchangedWorld(
+    metalrobo::MetalWorldFamilyContext& worlds,
+    const metalrobo::WorldInstanceBatch& expected,
+    const char* operation
+) {
+    metalrobo::WorldInstanceBatch actual;
+    require(worlds.readback(actual), operation);
+    const auto unchanged = [](const auto& before, const auto& after) {
+        return before.size() == after.size() &&
+            (before.empty() || std::memcmp(
+                before.data(), after.data(),
+                before.size() * sizeof(before.front())
+            ) == 0);
+    };
+    if (actual.familyFingerprint != expected.familyFingerprint ||
+        !unchanged(expected.instances, actual.instances) ||
+        !unchanged(expected.assets, actual.assets) ||
+        !unchanged(expected.sensors, actual.sensors) ||
+        !unchanged(expected.appearances, actual.appearances) ||
+        !unchanged(expected.scenarioHeaders, actual.scenarioHeaders) ||
+        !unchanged(expected.scenarioValues, actual.scenarioValues)) {
+        throw std::runtime_error(
+            std::string{operation} + ": rendering modified sampled world state"
+        );
+    }
+}
+
+void checkRasterTileWorkspaceGuards(
+    id<MTLDevice> device,
+    id<MTLCommandQueue> queue
+) {
+    NSError* error = nil;
+    id<MTLLibrary> library = [device
+        newLibraryWithURL:[NSURL fileURLWithPath:@(METALROBO_METALLIB)]
+        error:&error];
+    id<MTLFunction> function = [library
+        newFunctionWithName:@"mr_hybrid_clear_tiles"];
+    id<MTLComputePipelineState> pipeline = [device
+        newComputePipelineStateWithFunction:function error:&error];
+    if (library == nil || function == nil || pipeline == nil) {
+        throw std::runtime_error("raster workspace guard pipeline unavailable");
+    }
+    constexpr std::uint32_t environmentCount = 2u;
+    constexpr std::uint32_t tileCount = environmentCount * 4u * 4u;
+    constexpr std::uint32_t guardCount = 4u;
+    constexpr std::uint32_t sentinel = 0x7b19a4e3u;
+    const std::array logicalCounts{
+        tileCount, environmentCount, tileCount, environmentCount,
+    };
+    id<MTLBuffer> buffers[4];
+    for (std::size_t buffer = 0u; buffer < logicalCounts.size(); ++buffer) {
+        buffers[buffer] = [device newBufferWithLength:
+            (logicalCounts[buffer] + guardCount) * sizeof(std::uint32_t)
+            options:MTLResourceStorageModeShared];
+        if (buffers[buffer] == nil) {
+            throw std::runtime_error("raster workspace guard allocation failed");
+        }
+    }
+    for (const bool rasterActive : {false, true}) {
+        for (std::size_t buffer = 0u; buffer < logicalCounts.size(); ++buffer) {
+            auto* values = static_cast<std::uint32_t*>(buffers[buffer].contents);
+            std::fill_n(values, logicalCounts[buffer] + guardCount, sentinel);
+        }
+        MRHybridRenderUniformsGPU uniforms{};
+        uniforms.counts.x = environmentCount;
+        uniforms.image = {64u, 64u, 4u, 4u};
+        uniforms.band = {0u, 64u, 0u, 0u};
+        // Source triangles remain present in both passes. The reference pass
+        // owns no raster workspace; the fast pass owns and clears its tiles.
+        uniforms.live.w = 12u;
+        uniforms.ray.w = rasterActive ? 1u : 0u;
+        id<MTLCommandBuffer> command = [queue commandBuffer];
+        id<MTLComputeCommandEncoder> encoder = [command computeCommandEncoder];
+        [encoder setComputePipelineState:pipeline];
+        [encoder setBuffer:buffers[0] offset:0u atIndex:0u];
+        [encoder setBuffer:buffers[1] offset:0u atIndex:1u];
+        [encoder setBytes:&uniforms length:sizeof(uniforms) atIndex:2u];
+        [encoder setBuffer:buffers[2] offset:0u atIndex:3u];
+        [encoder setBuffer:buffers[3] offset:0u atIndex:4u];
+        [encoder dispatchThreads:MTLSizeMake(tileCount, 1u, 1u)
+            threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
+        [encoder endEncoding];
+        [command commit];
+        [command waitUntilCompleted];
+        if (command.status != MTLCommandBufferStatusCompleted) {
+            throw std::runtime_error("raster workspace guard command failed");
+        }
+        for (std::size_t buffer = 0u; buffer < logicalCounts.size(); ++buffer) {
+            const auto* values = static_cast<const std::uint32_t*>(
+                buffers[buffer].contents
+            );
+            for (std::uint32_t index = 0u;
+                 index < logicalCounts[buffer] + guardCount; ++index) {
+                const bool cleared = index < logicalCounts[buffer] &&
+                    (buffer < 2u || rasterActive);
+                if (values[index] != (cleared ? 0u : sentinel)) {
+                    throw std::runtime_error(
+                        "tile clear modified an inactive raster workspace or guard"
+                    );
+                }
+            }
+        }
     }
 }
 
@@ -267,8 +373,11 @@ int main() {
                 worlds.sample(environmentCount, 29u),
                 "world sample"
             );
+            metalrobo::WorldInstanceBatch sampledWorld;
+            require(worlds.readback(sampledWorld), "sampled world baseline");
 
             metalrobo::MetalHybridRendererConfig config;
+            config.metallibPath = METALROBO_METALLIB;
             config.width = 96u;
             config.height = 72u;
             config.maximumReferenceFramesInFlight = 2u;
@@ -400,6 +509,7 @@ int main() {
                     "reference probe could not create a Metal queue"
                 );
             }
+            checkRasterTileWorkspaceGuards(device, queue);
             const auto referenceStart =
                 std::chrono::steady_clock::now();
             for (std::uint64_t frame = 1u; frame <= 2u; ++frame) {
@@ -437,6 +547,7 @@ int main() {
                     std::chrono::steady_clock::now() -
                     referenceStart
                 ).count() / 2.0;
+            requireUnchangedWorld(worlds, sampledWorld, "reference world integrity");
 
             metalrobo::HybridObservationBatch observations;
             require(renderer.readback(observations), "reference readback");
@@ -536,6 +647,7 @@ int main() {
                     std::chrono::steady_clock::now() -
                     fastStart
                 ).count() / 2.0;
+            requireUnchangedWorld(worlds, sampledWorld, "fast world integrity");
             metalrobo::HybridObservationBatch fastObservations;
             require(
                 fastRenderer.readback(fastObservations),
@@ -580,6 +692,8 @@ int main() {
                 << layout.accelerationStructureBytes
                 << " shadow_workspace_bytes="
                 << layout.shadowWorkspaceBytes
+                << " sampled_world_unchanged=true"
+                << " raster_workspace_guards=true"
                 << " semantic=" << observations.segmentation[pixel]
                 << " depth=" << observations.depth[pixel]
                 << " fast_bytes="

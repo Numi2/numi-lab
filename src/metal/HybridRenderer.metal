@@ -2036,7 +2036,9 @@ kernel void mr_hybrid_clear_tiles(
             0u,
             memory_order_relaxed
         );
-        if (uniforms.live.w != 0u) {
+        // ray.w is the active raster instance count. Reference passes retain
+        // source triangles in live.w but allocate no raster tile workspace.
+        if (uniforms.ray.w != 0u) {
             atomic_store_explicit(
                 meshTileCounts +
                     globalTileFromBandIndex(index, uniforms),
@@ -2051,7 +2053,7 @@ kernel void mr_hybrid_clear_tiles(
             0u,
             memory_order_relaxed
         );
-        if (uniforms.live.w != 0u) {
+        if (uniforms.ray.w != 0u) {
             atomic_store_explicit(
                 meshOverflowCounts + index,
                 0u,
@@ -2361,7 +2363,7 @@ kernel void mr_hybrid_clear_observations(
     const uint compactTileCount =
         uniforms.counts.x *
         bandTileCountPerEnvironment(uniforms);
-    if (uniforms.live.w != 0u &&
+    if (uniforms.ray.w != 0u &&
         compactPixel < compactTileCount) {
         atomic_store_explicit(
             meshTileCounts +
@@ -2370,7 +2372,7 @@ kernel void mr_hybrid_clear_observations(
             memory_order_relaxed
         );
     }
-    if (uniforms.live.w != 0u &&
+    if (uniforms.ray.w != 0u &&
         compactPixel < uniforms.counts.x) {
         atomic_store_explicit(
             meshOverflowCounts + compactPixel,
