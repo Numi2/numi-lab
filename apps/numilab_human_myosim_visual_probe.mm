@@ -10520,7 +10520,8 @@ void writeTorsoAnatomyPoseSnapshot(
     const LoadedTorsoAnatomy& anatomy,
     const std::vector<MRBodyStateGPU>& bodies,
     const std::filesystem::path& path,
-    const std::uint32_t layerMask
+    const std::uint32_t layerMask,
+    const std::span<const std::uint32_t> hiddenStableIds
 ) {
     std::ofstream output(path);
     require(output.is_open(), "cannot write torso anatomy pose snapshot");
@@ -10528,7 +10529,12 @@ void writeTorsoAnatomyPoseSnapshot(
            << "{\"schema\":\"numi.human.native-torso-anatomy-pose-snapshot.v1\","
            << "\"registration_fingerprint32\":" << anatomy.header.registrationFingerprint
            << ",\"surface_count\":" << anatomy.records.size()
-           << ",\"visible_layer_mask\":" << layerMask << ",\"bodies\":[";
+           << ",\"visible_layer_mask\":" << layerMask << ",\"hidden_anatomy_stable_ids\":[";
+    for (std::size_t i = 0u; i < hiddenStableIds.size(); ++i) {
+        if (i != 0u) output << ',';
+        output << hiddenStableIds[i];
+    }
+    output << "],\"bodies\":[";
     std::vector<std::uint32_t> owners;
     for (const TorsoAnatomyRecord& surface : anatomy.records) {
         if (std::find(owners.begin(), owners.end(), surface.bodyIndex) != owners.end()) continue;
@@ -18567,6 +18573,7 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     const LoadedSkin* skinPayload,
     const LoadedTorsoAnatomy* torsoAnatomyPayload,
     const std::uint32_t torsoAnatomyLayerMask,
+    const std::span<const std::uint32_t> hiddenAnatomyStableIds,
     const std::span<const MRBodyStateGPU> bodies,
     const std::span<const MRBodyStateGPU> restBodies,
     const PassiveFEMTissueVisual* passiveFEMTissue,
@@ -19086,7 +19093,8 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
                 {0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f},
                 surface.stableId
             );
-            if ((torsoAnatomyLayerMask & (1u << (surface.layer - 1u))) == 0u) {
+            if ((torsoAnatomyLayerMask & (1u << (surface.layer - 1u))) == 0u ||
+                std::binary_search(hiddenAnatomyStableIds.begin(), hiddenAnatomyStableIds.end(), surface.stableId)) {
                 pack.instances.back().binding.w = 0u;
             }
             ++renderedTorsoAnatomySurfaces;
@@ -19981,6 +19989,7 @@ int main(int argc, char** argv) {
             std::optional<std::filesystem::path> torsoAnatomyPayloadPath;
             std::uint32_t torsoAnatomyLayerMask = 255u;
             bool torsoAnatomyLayerMaskSpecified = false;
+            std::vector<std::uint32_t> hiddenAnatomyStableIds;
             std::optional<std::filesystem::path> supportContactPayloadPath;
             std::optional<std::filesystem::path> tendonPayloadPath;
             std::optional<std::filesystem::path> extensorHoodPayloadPath;
@@ -20297,6 +20306,14 @@ int main(int argc, char** argv) {
                     require(torsoAnatomyLayerMask > 0u && torsoAnatomyLayerMask <= 32767u,
                             "--torso-anatomy-layer-mask must be an integer from 1 through 32767");
                     torsoAnatomyLayerMaskSpecified = true;
+                } else if (argument == "--hidden-anatomy-stable-id") {
+                    require(index + 1 < argc, "--hidden-anatomy-stable-id requires one value");
+                    const std::uint32_t stableId = parseSourceRouteIndex(argv[++index]);
+                    require(stableId > 0u && stableId <= 1024u,
+                            "--hidden-anatomy-stable-id must be an integer from 1 through 1024");
+                    require(std::find(hiddenAnatomyStableIds.begin(), hiddenAnatomyStableIds.end(), stableId) ==
+                                hiddenAnatomyStableIds.end(), "duplicate hidden anatomy stable ID");
+                    hiddenAnatomyStableIds.push_back(stableId);
                 } else if (argument == "--torso-anatomy-payload") {
                     require(index + 1 < argc && !torsoAnatomyPayloadPath.has_value(),
                             "--torso-anatomy-payload requires one path and may be given only once");
@@ -20405,6 +20422,7 @@ int main(int argc, char** argv) {
                           << " [--open-knee-tissue-fem-snapshot <NHKFEM1-or-NHKFEM2>]"
                           << " [--skin-payload <NHSKIN1>]"
                           << " [--torso-anatomy-payload <NHANAT1>] [--torso-anatomy-layer-mask <1..32767>]"
+                          << " [--hidden-anatomy-stable-id <1..1024>]"
                           << " [--passive-fem-tissue-stable-id <1..N>]"
                           << " [--passive-fem-step-count <1..64>]"
                           << " [--passive-fem-metallib <NumiMatter.metallib>]"
@@ -20886,6 +20904,9 @@ int main(int argc, char** argv) {
             }
             require(!torsoAnatomyLayerMaskSpecified || torsoAnatomyPayloadPath.has_value(),
                     "--torso-anatomy-layer-mask requires --torso-anatomy-payload");
+            require(hiddenAnatomyStableIds.empty() || torsoAnatomyPayloadPath.has_value(),
+                    "--hidden-anatomy-stable-id requires --torso-anatomy-payload");
+            std::sort(hiddenAnatomyStableIds.begin(), hiddenAnatomyStableIds.end());
             std::optional<LoadedTorsoAnatomy> torsoAnatomyPayload;
             if (torsoAnatomyPayloadPath.has_value()) {
                 require(bodypartsBoneVisual,
@@ -20900,6 +20921,11 @@ int main(int argc, char** argv) {
                             (torsoAnatomyPayload->header.payloadAbi == 5u ? 32767u :
                              (torsoAnatomyPayload->header.payloadAbi == 4u ? 1023u : 255u)),
                         "torso anatomy layer mask exceeds the selected payload ABI");
+                for (const std::uint32_t stableId : hiddenAnatomyStableIds) {
+                    require(std::any_of(torsoAnatomyPayload->records.begin(), torsoAnatomyPayload->records.end(),
+                                       [stableId](const TorsoAnatomyRecord& surface) { return surface.stableId == stableId; }),
+                            "hidden anatomy stable ID is absent from the supplied payload");
+                }
             }
             require(requestedSoftTissueStableIds.empty() || softTissuePayload.has_value(),
                     "--soft-tissue-stable-id requires --soft-tissue-payload");
@@ -22744,6 +22770,7 @@ int main(int argc, char** argv) {
                 skinPayload.has_value() ? &*skinPayload : nullptr,
                 torsoAnatomyPayload.has_value() ? &*torsoAnatomyPayload : nullptr,
                 torsoAnatomyLayerMask,
+                hiddenAnatomyStableIds,
                 bodies, restBodies,
                 passiveFEMTissue.has_value() ? &*passiveFEMTissue : nullptr,
                 pectoralisFascia.has_value() ? &*pectoralisFascia : nullptr,
@@ -22844,7 +22871,8 @@ int main(int argc, char** argv) {
                 if (torsoAnatomyPayload.has_value()) {
                     writeTorsoAnatomyPoseSnapshot(
                         *torsoAnatomyPayload, bodies,
-                        outputDirectory / (stem + ".torso-anatomy-poses.json"), torsoAnatomyLayerMask
+                        outputDirectory / (stem + ".torso-anatomy-poses.json"), torsoAnatomyLayerMask,
+                        hiddenAnatomyStableIds
                     );
                 }
                 if (skinPayload.has_value()) {
@@ -23104,6 +23132,7 @@ int main(int argc, char** argv) {
                 };
                 std::uint32_t selectedLayers = 0u;
                 for (const TorsoAnatomyRecord& surface : torsoAnatomyPayload->records) {
+                    if (std::binary_search(hiddenAnatomyStableIds.begin(), hiddenAnatomyStableIds.end(), surface.stableId)) continue;
                     selectedLayers |= (1u << (surface.layer - 1u)) & torsoAnatomyLayerMask;
                 }
                 require(selectedLayers != 0u, "torso anatomy layer mask selects no source surfaces");
@@ -23290,6 +23319,7 @@ int main(int argc, char** argv) {
                       << renderedTendonAttachmentEnvelopes
                       << " bodyparts_skin_shells=" << renderedSkinShells
                       << " torso_anatomy_layer_mask=" << torsoAnatomyLayerMask
+                      << " hidden_anatomy_surface_count=" << hiddenAnatomyStableIds.size()
                       << " bodyparts_torso_anatomy_surfaces=" << renderedTorsoAnatomySurfaces
                       << " torso_anatomy_binding=" << (torsoAnatomyPayload.has_value()
                               ? "registered_single_link_kinematic_source_surfaces" : "none")
