@@ -10472,6 +10472,48 @@ void writeTorsoAnatomyPoseSnapshot(
     require(!output.fail(), "could not complete torso anatomy pose snapshot");
 }
 
+// Export the actual current and raw source-rest poses used by skin position
+// and normal blending. The surface remains in MRVPACK2; this is an inspection
+// witness, not an alternate pose or physics owner.
+void writeSkinPoseSnapshot(
+    const LoadedSkin& skin,
+    const std::vector<MRBodyStateGPU>& bodies,
+    const std::vector<MRBodyStateGPU>& restBodies,
+    const std::filesystem::path& path
+) {
+    require(bodies.size() == restBodies.size(), "skin snapshot rest pose size differs");
+    std::ofstream output(path);
+    require(output.is_open(), "cannot write skin pose snapshot");
+    output << std::setprecision(9)
+           << "{\"schema\":\"numi.human.native-skin-pose-snapshot.v1\","
+           << "\"registration_fingerprint32\":" << skin.header.registrationFingerprint
+           << ",\"binding_count\":" << skin.bindings.size()
+           << ",\"vertex_count\":" << skin.vertices.size() << ",\"bodies\":[";
+    std::vector<std::uint32_t> owners;
+    for (const SkinBindingRecord& binding : skin.bindings) {
+        require(binding.bodyIndex < bodies.size(), "skin snapshot owner is invalid");
+        require(std::find(owners.begin(), owners.end(), binding.bodyIndex) == owners.end(),
+                "skin snapshot contains duplicate owners");
+        if (!owners.empty()) output << ',';
+        owners.push_back(binding.bodyIndex);
+        const auto writePose = [&output](const MRBodyStateGPU& body) {
+            output << "{\"position_world_m\":[" << body.position.x << ','
+                   << body.position.y << ',' << body.position.z
+                   << "],\"orientation_world_xyzw\":[" << body.orientation.x << ','
+                   << body.orientation.y << ',' << body.orientation.z << ','
+                   << body.orientation.w << "]}";
+        };
+        output << "{\"body_index\":" << binding.bodyIndex << ",\"current\":";
+        writePose(bodies[binding.bodyIndex]);
+        output << ",\"rest\":";
+        writePose(restBodies[binding.bodyIndex]);
+        output << '}';
+    }
+    output << "],\"boundary\":\"actual native skin renderer current and source-rest COM poses; sampled visual blending, not tissue mechanics or clinical registration\"}\n";
+    output.close();
+    require(!output.fail(), "could not complete skin pose snapshot");
+}
+
 GeometryRange appendTorsoAnatomyGeometry(
     metalrobo::VisualAssetPackV2& pack,
     const LoadedTorsoAnatomy& anatomy,
@@ -22628,6 +22670,12 @@ int main(int argc, char** argv) {
                     writeTorsoAnatomyPoseSnapshot(
                         *torsoAnatomyPayload, bodies,
                         outputDirectory / (stem + ".torso-anatomy-poses.json")
+                    );
+                }
+                if (skinPayload.has_value()) {
+                    writeSkinPoseSnapshot(
+                        *skinPayload, bodies, restBodies,
+                        outputDirectory / (stem + ".skin-poses.json")
                     );
                 }
             }
