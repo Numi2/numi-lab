@@ -136,6 +136,8 @@ constexpr std::uint32_t kNerveSurfaceSemantic = 51012u;
 constexpr std::uint32_t kAirwaySurfaceSemantic = 51020u;
 constexpr std::uint32_t kPulmonaryArterySurfaceSemantic = 51021u;
 constexpr std::uint32_t kPulmonaryVeinSurfaceSemantic = 51022u;
+constexpr std::uint32_t kLungLobeSurfaceSemantic = 51023u;
+constexpr std::uint32_t kPleuraSurfaceSemantic = 51024u;
 constexpr std::uint32_t kTendonAttachmentEnvelopeSemantic = 51013u;
 constexpr std::uint32_t kPectoralisFasciaSemantic = 51014u;
 constexpr std::uint32_t kKneeCartilageSemantic = 51015u;
@@ -299,13 +301,15 @@ constexpr std::uint32_t kFullWeightSkinPayloadAbi = 5u;
 constexpr std::array<char, 8u> kTorsoAnatomyMagic{
     'N', 'H', 'A', 'N', 'A', 'T', '1', '\0',
 };
-constexpr std::uint32_t kTorsoAnatomyPayloadAbi = 2u;
+constexpr std::uint32_t kTorsoAnatomyPayloadAbi = 3u;
 constexpr std::uint32_t kTorsoAnatomyLayerOrgan = 1u;
 constexpr std::uint32_t kTorsoAnatomyLayerVessel = 2u;
 constexpr std::uint32_t kTorsoAnatomyLayerNerve = 3u;
 constexpr std::uint32_t kTorsoAnatomyLayerAirway = 4u;
 constexpr std::uint32_t kTorsoAnatomyLayerPulmonaryArtery = 5u;
 constexpr std::uint32_t kTorsoAnatomyLayerPulmonaryVein = 6u;
+constexpr std::uint32_t kTorsoAnatomyLayerLungLobe = 7u;
+constexpr std::uint32_t kTorsoAnatomyLayerPleura = 8u;
 
 #pragma pack(push, 1)
 struct RigidHeader {
@@ -2296,7 +2300,7 @@ LoadedTorsoAnatomy loadTorsoAnatomy(
     LoadedTorsoAnatomy result;
     readObject(input, result.header, "BodyParts3D torso anatomy header");
     require(result.header.magic == kTorsoAnatomyMagic &&
-                (result.header.payloadAbi == 1u || result.header.payloadAbi == kTorsoAnatomyPayloadAbi) &&
+                (result.header.payloadAbi >= 1u && result.header.payloadAbi <= kTorsoAnatomyPayloadAbi) &&
                 result.header.registrationFingerprint == expectedRegistrationFingerprint &&
                 result.header.sourceSha256 == rigid.sourceSha256 &&
                 result.header.surfaceCount > 0u && result.header.surfaceCount <=
@@ -2348,10 +2352,13 @@ LoadedTorsoAnatomy loadTorsoAnatomy(
                     (record.layer == kTorsoAnatomyLayerOrgan ||
                      record.layer == kTorsoAnatomyLayerVessel ||
                      record.layer == kTorsoAnatomyLayerNerve ||
-                     (result.header.payloadAbi == kTorsoAnatomyPayloadAbi &&
+                     (result.header.payloadAbi >= 2u &&
                       (record.layer == kTorsoAnatomyLayerAirway ||
                        record.layer == kTorsoAnatomyLayerPulmonaryArtery ||
-                       record.layer == kTorsoAnatomyLayerPulmonaryVein))),
+                       record.layer == kTorsoAnatomyLayerPulmonaryVein)) ||
+                     (result.header.payloadAbi == 3u &&
+                      (record.layer == kTorsoAnatomyLayerLungLobe ||
+                       record.layer == kTorsoAnatomyLayerPleura))),
                 "BodyParts3D torso anatomy record is malformed");
         stableIds[record.stableId] = true;
         for (std::uint32_t offset = 0u; offset < record.indexCount; ++offset) {
@@ -10489,14 +10496,16 @@ mr_float4 torsoAnatomyTangent(const TorsoAnatomyVertex& vertex) {
 void writeTorsoAnatomyPoseSnapshot(
     const LoadedTorsoAnatomy& anatomy,
     const std::vector<MRBodyStateGPU>& bodies,
-    const std::filesystem::path& path
+    const std::filesystem::path& path,
+    const std::uint32_t layerMask
 ) {
     std::ofstream output(path);
     require(output.is_open(), "cannot write torso anatomy pose snapshot");
     output << std::setprecision(9)
            << "{\"schema\":\"numi.human.native-torso-anatomy-pose-snapshot.v1\","
            << "\"registration_fingerprint32\":" << anatomy.header.registrationFingerprint
-           << ",\"surface_count\":" << anatomy.records.size() << ",\"bodies\":[";
+           << ",\"surface_count\":" << anatomy.records.size()
+           << ",\"visible_layer_mask\":" << layerMask << ",\"bodies\":[";
     std::vector<std::uint32_t> owners;
     for (const TorsoAnatomyRecord& surface : anatomy.records) {
         if (std::find(owners.begin(), owners.end(), surface.bodyIndex) != owners.end()) continue;
@@ -18534,6 +18543,7 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     const LoadedSoftTissues* softTissuePayload,
     const LoadedSkin* skinPayload,
     const LoadedTorsoAnatomy* torsoAnatomyPayload,
+    const std::uint32_t torsoAnatomyLayerMask,
     const std::span<const MRBodyStateGPU> bodies,
     const std::span<const MRBodyStateGPU> restBodies,
     const PassiveFEMTissueVisual* passiveFEMTissue,
@@ -18595,6 +18605,11 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     if (torsoAnatomyPayload != nullptr) {
         pack.preprocessingProvenance +=
             "/exact_bodyparts3d_selected_torso_organ_vessel_neural_and_bronchovascular_branch_surfaces_with_single_link_kinematic_binding";
+        if (torsoAnatomyPayload->header.payloadAbi == 3u) {
+            pack.license = "CC-BY-4.0 AND CC-BY-SA-4.0 AND Apache-2.0";
+            pack.sourceUri = "numi://bodyparts3d+zanatomy/NHBONES1+NHANAT1-ABI3+NHRIGID2+NHMYO1/articulated-thorax-view";
+            pack.preprocessingProvenance += "/source_authored_Z_Anatomy_five_lung_lobes_and_pleura_with_thorax_bone_similarity_registration_and_explicit_layer_visibility";
+        }
     }
     if (passiveFEMTissue != nullptr) {
         pack.preprocessingProvenance +=
@@ -18742,6 +18757,13 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     ));
     pack.materials.push_back(makeMaterial(
         {0.72f, 0.10f, 0.14f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, 0.48f, 0.035f
+    ));
+
+    pack.materials.push_back(makeMaterial(
+        {0.70f, 0.36f, 0.42f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, 0.62f, 0.02f
+    ));
+    pack.materials.push_back(makeMaterial(
+        {0.78f, 0.65f, 0.61f, 1.0f}, {0.0f, 0.0f, 0.0f, 0.0f}, 0.64f, 0.02f
     ));
 
     const auto appendInstance = [&pack](
@@ -18993,10 +19015,11 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     renderedTorsoAnatomySurfaces = 0u;
     if (torsoAnatomyPayload != nullptr) {
         for (const TorsoAnatomyRecord& surface : torsoAnatomyPayload->records) {
-            constexpr std::array<std::uint32_t, 6u> materials{7u, 8u, 9u, 16u, 17u, 18u};
-            constexpr std::array<std::uint32_t, 6u> semantics{
+            constexpr std::array<std::uint32_t, 8u> materials{7u, 8u, 9u, 16u, 17u, 18u, 19u, 20u};
+            constexpr std::array<std::uint32_t, 8u> semantics{
                 kOrganSurfaceSemantic, kVesselSurfaceSemantic, kNerveSurfaceSemantic,
-                kAirwaySurfaceSemantic, kPulmonaryArterySurfaceSemantic, kPulmonaryVeinSurfaceSemantic
+                kAirwaySurfaceSemantic, kPulmonaryArterySurfaceSemantic, kPulmonaryVeinSurfaceSemantic,
+                kLungLobeSurfaceSemantic, kPleuraSurfaceSemantic
             };
             appendInstance(
                 appendTorsoAnatomyGeometry(pack, *torsoAnatomyPayload, surface),
@@ -19005,6 +19028,9 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
                 {0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f},
                 surface.stableId
             );
+            if ((torsoAnatomyLayerMask & (1u << (surface.layer - 1u))) == 0u) {
+                pack.instances.back().binding.w = 0u;
+            }
             ++renderedTorsoAnatomySurfaces;
         }
     }
@@ -19895,6 +19921,8 @@ int main(int argc, char** argv) {
                 loadedKneeOwnershipManifestPath;
             std::optional<std::filesystem::path> skinPayloadPath;
             std::optional<std::filesystem::path> torsoAnatomyPayloadPath;
+            std::uint32_t torsoAnatomyLayerMask = 255u;
+            bool torsoAnatomyLayerMaskSpecified = false;
             std::optional<std::filesystem::path> supportContactPayloadPath;
             std::optional<std::filesystem::path> tendonPayloadPath;
             std::optional<std::filesystem::path> extensorHoodPayloadPath;
@@ -20204,6 +20232,13 @@ int main(int argc, char** argv) {
                     require(index + 1 < argc && !skinPayloadPath.has_value(),
                             "--skin-payload requires one path and may be given only once");
                     skinPayloadPath.emplace(argv[++index]);
+                } else if (argument == "--torso-anatomy-layer-mask") {
+                    require(index + 1 < argc && !torsoAnatomyLayerMaskSpecified,
+                            "--torso-anatomy-layer-mask requires one value and may be given only once");
+                    torsoAnatomyLayerMask = parseSourceRouteIndex(argv[++index]);
+                    require(torsoAnatomyLayerMask > 0u && torsoAnatomyLayerMask <= 255u,
+                            "--torso-anatomy-layer-mask must be an integer from 1 through 255");
+                    torsoAnatomyLayerMaskSpecified = true;
                 } else if (argument == "--torso-anatomy-payload") {
                     require(index + 1 < argc && !torsoAnatomyPayloadPath.has_value(),
                             "--torso-anatomy-payload requires one path and may be given only once");
@@ -20311,7 +20346,7 @@ int main(int argc, char** argv) {
                           << " [--loaded-knee-ownership-manifest <json>]"
                           << " [--open-knee-tissue-fem-snapshot <NHKFEM1-or-NHKFEM2>]"
                           << " [--skin-payload <NHSKIN1>]"
-                          << " [--torso-anatomy-payload <NHANAT1>]"
+                          << " [--torso-anatomy-payload <NHANAT1>] [--torso-anatomy-layer-mask <1..255>]"
                           << " [--passive-fem-tissue-stable-id <1..N>]"
                           << " [--passive-fem-step-count <1..64>]"
                           << " [--passive-fem-metallib <NumiMatter.metallib>]"
@@ -20791,6 +20826,8 @@ int main(int argc, char** argv) {
                     *skinPayloadPath, rigid.header, bonePayload->header.reserved0
                 ));
             }
+            require(!torsoAnatomyLayerMaskSpecified || torsoAnatomyPayloadPath.has_value(),
+                    "--torso-anatomy-layer-mask requires --torso-anatomy-payload");
             std::optional<LoadedTorsoAnatomy> torsoAnatomyPayload;
             if (torsoAnatomyPayloadPath.has_value()) {
                 require(bodypartsBoneVisual,
@@ -22641,6 +22678,7 @@ int main(int argc, char** argv) {
                 softTissuePayload.has_value() ? &*softTissuePayload : nullptr,
                 skinPayload.has_value() ? &*skinPayload : nullptr,
                 torsoAnatomyPayload.has_value() ? &*torsoAnatomyPayload : nullptr,
+                torsoAnatomyLayerMask,
                 bodies, restBodies,
                 passiveFEMTissue.has_value() ? &*passiveFEMTissue : nullptr,
                 pectoralisFascia.has_value() ? &*pectoralisFascia : nullptr,
@@ -22741,7 +22779,7 @@ int main(int argc, char** argv) {
                 if (torsoAnatomyPayload.has_value()) {
                     writeTorsoAnatomyPoseSnapshot(
                         *torsoAnatomyPayload, bodies,
-                        outputDirectory / (stem + ".torso-anatomy-poses.json")
+                        outputDirectory / (stem + ".torso-anatomy-poses.json"), torsoAnatomyLayerMask
                     );
                 }
                 if (skinPayload.has_value()) {
@@ -22783,6 +22821,8 @@ int main(int argc, char** argv) {
             bool anyAirwaySurfaceVisible = false;
             bool anyPulmonaryArterySurfaceVisible = false;
             bool anyPulmonaryVeinSurfaceVisible = false;
+            bool anyLungLobeSurfaceVisible = false;
+            bool anyPleuraSurfaceVisible = false;
             bool anyTendonAttachmentEnvelopeVisible = false;
             bool capturedRenderer = false;
             std::string rendererDeviceName;
@@ -22901,6 +22941,8 @@ int main(int argc, char** argv) {
                 const std::size_t airwaySurfacePixels = coverage(observation, kAirwaySurfaceSemantic);
                 const std::size_t pulmonaryArterySurfacePixels = coverage(observation, kPulmonaryArterySurfaceSemantic);
                 const std::size_t pulmonaryVeinSurfacePixels = coverage(observation, kPulmonaryVeinSurfaceSemantic);
+                const std::size_t lungLobeSurfacePixels = coverage(observation, kLungLobeSurfaceSemantic);
+                const std::size_t pleuraSurfacePixels = coverage(observation, kPleuraSurfaceSemantic);
                 const std::size_t kneeCartilagePixels = coverage(observation, kKneeCartilageSemantic);
                 const std::size_t kneeMeniscusPixels = coverage(observation, kKneeMeniscusSemantic);
                 const std::size_t kneeLigamentPixels = coverage(observation, kKneeLigamentSemantic);
@@ -22923,6 +22965,8 @@ int main(int argc, char** argv) {
                 anyAirwaySurfaceVisible = anyAirwaySurfaceVisible || airwaySurfacePixels > 0u;
                 anyPulmonaryArterySurfaceVisible = anyPulmonaryArterySurfaceVisible || pulmonaryArterySurfacePixels > 0u;
                 anyPulmonaryVeinSurfaceVisible = anyPulmonaryVeinSurfaceVisible || pulmonaryVeinSurfacePixels > 0u;
+                anyLungLobeSurfaceVisible = anyLungLobeSurfaceVisible || lungLobeSurfacePixels > 0u;
+                anyPleuraSurfaceVisible = anyPleuraSurfaceVisible || pleuraSurfacePixels > 0u;
                 anyRequestedRouteVisible = anyRequestedRouteVisible || routePixels > 0u;
                 anyTendonAttachmentEnvelopeVisible = anyTendonAttachmentEnvelopeVisible ||
                     tendonAttachmentEnvelopePixels > 0u;
@@ -22945,6 +22989,8 @@ int main(int argc, char** argv) {
                           << " airway_surface_pixels=" << airwaySurfacePixels
                           << " pulmonary_artery_surface_pixels=" << pulmonaryArterySurfacePixels
                           << " pulmonary_vein_surface_pixels=" << pulmonaryVeinSurfacePixels
+                          << " lung_lobe_surface_pixels=" << lungLobeSurfacePixels
+                          << " pleura_surface_pixels=" << pleuraSurfacePixels
                           << " knee_cartilage_pixels=" << kneeCartilagePixels
                           << " knee_meniscus_pixels=" << kneeMeniscusPixels
                           << " knee_ligament_pixels=" << kneeLigamentPixels
@@ -22954,18 +23000,26 @@ int main(int argc, char** argv) {
             }
             require(completeVisualCoverage,
                     "one or more native Human frames have no linked-body coverage");
-            require(!torsoAnatomyPayload.has_value() ||
-                        (anyOrganSurfaceVisible && anyVesselSurfaceVisible &&
-                         anyNerveSurfaceVisible),
-                    "native Human torso anatomy surfaces are completely occluded");
-            if (torsoAnatomyPayload.has_value()) {
-                const std::array<bool, 3u> visible{
-                    anyAirwaySurfaceVisible, anyPulmonaryArterySurfaceVisible, anyPulmonaryVeinSurfaceVisible
+            if (torsoAnatomyPayload.has_value() && !skinPayload.has_value()) {
+                const std::array<bool, 8u> visible{
+                    anyOrganSurfaceVisible, anyVesselSurfaceVisible, anyNerveSurfaceVisible,
+                    anyAirwaySurfaceVisible, anyPulmonaryArterySurfaceVisible,
+                    anyPulmonaryVeinSurfaceVisible, anyLungLobeSurfaceVisible, anyPleuraSurfaceVisible
                 };
+                std::uint32_t selectedLayers = 0u;
                 for (const TorsoAnatomyRecord& surface : torsoAnatomyPayload->records) {
-                    require(surface.layer < kTorsoAnatomyLayerAirway ||
-                                visible.at(surface.layer - kTorsoAnatomyLayerAirway),
-                            "native Human pulmonary branch layer is completely occluded");
+                    selectedLayers |= (1u << (surface.layer - 1u)) & torsoAnatomyLayerMask;
+                }
+                require(selectedLayers != 0u, "torso anatomy layer mask selects no source surfaces");
+                // Opaque outer tissue can occlude interior anatomy. Every mesh
+                // remains in the hashed packet; separate layer profiles inspect
+                // the branches, lobe surfaces and pleura without deleting data.
+                const std::uint32_t outerLayer = (selectedLayers & 128u) != 0u ? 8u :
+                    ((selectedLayers & 64u) != 0u ? 7u : 0u);
+                for (std::uint32_t layer = 1u; layer <= 8u; ++layer) {
+                    if ((selectedLayers & (1u << (layer - 1u))) == 0u ||
+                        (outerLayer != 0u && layer != outerLayer)) continue;
+                    require(visible.at(layer - 1u), "selected native Human anatomy layer is completely occluded");
                 }
             }
             require(!sourceRouteCentrelines || anyRequestedRouteVisible,
@@ -23057,6 +23111,10 @@ int main(int argc, char** argv) {
             if (torsoAnatomyPayload.has_value()) {
                 evidenceBoundary +=
                     "_with_selected_exact_bodyparts3d_organ_vessel_spinal_cord_and_bronchovascular_branch_surfaces_single_link_kinematic_visual_bindings_not_lung_parenchyma_organ_or_vessel_mechanics";
+                if (torsoAnatomyPayload->header.payloadAbi == 3u) {
+                    evidenceBoundary +=
+                        "_with_source_authored_zanatomy_lung_lobe_envelopes_and_pleura_atlas_bone_registration_and_explicit_layer_visibility_not_clinical_registration_respiratory_motion_or_pleural_mechanics";
+                }
             }
             if (passiveFEMTissue.has_value()) {
                 evidenceBoundary +=
@@ -23127,6 +23185,7 @@ int main(int argc, char** argv) {
                       << " bodyparts_tendon_attachment_envelopes="
                       << renderedTendonAttachmentEnvelopes
                       << " bodyparts_skin_shells=" << renderedSkinShells
+                      << " torso_anatomy_layer_mask=" << torsoAnatomyLayerMask
                       << " bodyparts_torso_anatomy_surfaces=" << renderedTorsoAnatomySurfaces
                       << " torso_anatomy_binding=" << (torsoAnatomyPayload.has_value()
                               ? "registered_single_link_kinematic_source_surfaces" : "none")
