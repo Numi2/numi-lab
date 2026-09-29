@@ -1999,11 +1999,23 @@ LoadedBones loadBones(
                 "BodyParts3D bone vertex is malformed");
     }
     std::vector<bool> stableIds(result.records.size() + 1u, false);
-    for (const BoneRecord& record : result.records) {
+    constexpr float kOrientationNormAdmissionTolerance = 2.0e-3f;
+    float maximumRawOrientationNormError = 0.0f;
+    for (BoneRecord& record : result.records) {
         const float orientationLength = std::sqrt(
             record.quaternionX * record.quaternionX + record.quaternionY * record.quaternionY +
             record.quaternionZ * record.quaternionZ + record.quaternionW * record.quaternionW
         );
+        std::ostringstream orientationFailure;
+        orientationFailure << std::setprecision(12)
+            << "BodyParts3D bone stable_id=" << record.stableId
+            << " body_index=" << record.bodyIndex
+            << " orientation_norm=" << orientationLength
+            << " allowed_absolute_norm_error=" << kOrientationNormAdmissionTolerance
+            << " bone_sha256=" << loadedKneeSHA256Hex(result.payloadSha256);
+        require(std::isfinite(orientationLength) &&
+                    std::abs(orientationLength - 1.0f) <= kOrientationNormAdmissionTolerance,
+                orientationFailure.str());
         require(record.bodyIndex < rigid.engineBodyCount && record.vertexCount > 0u &&
                     record.indexCount > 0u && record.indexCount % 3u == 0u &&
                     record.firstVertex <= result.vertices.size() &&
@@ -2013,10 +2025,22 @@ LoadedBones loadBones(
                     record.stableId > 0u && record.stableId < stableIds.size() &&
                     !stableIds[record.stableId] && std::isfinite(record.translationX) &&
                     std::isfinite(record.translationY) && std::isfinite(record.translationZ) &&
-                    std::isfinite(record.uniformScale) && record.uniformScale > 0.0f &&
-                    std::isfinite(orientationLength) &&
-                    std::abs(orientationLength - 1.0f) <= 2.0e-3f,
+                    std::isfinite(record.uniformScale) && record.uniformScale > 0.0f,
                 "BodyParts3D bone record is malformed");
+        maximumRawOrientationNormError = std::max(
+            maximumRawOrientationNormError, std::abs(orientationLength - 1.0f));
+        // A bone quaternion denotes orientation, as in the source reader and
+        // renderer. Canonicalize once before geometry/contact/attachment users
+        // call rotatePoint; raw near-unit values otherwise deform the surface.
+        const double inverseOrientationLength = 1.0 / std::sqrt(
+            double(record.quaternionX) * record.quaternionX +
+            double(record.quaternionY) * record.quaternionY +
+            double(record.quaternionZ) * record.quaternionZ +
+            double(record.quaternionW) * record.quaternionW);
+        record.quaternionX = float(record.quaternionX * inverseOrientationLength);
+        record.quaternionY = float(record.quaternionY * inverseOrientationLength);
+        record.quaternionZ = float(record.quaternionZ * inverseOrientationLength);
+        record.quaternionW = float(record.quaternionW * inverseOrientationLength);
         stableIds[record.stableId] = true;
         for (std::uint32_t offset = 0u; offset < record.indexCount; ++offset) {
             const std::uint32_t index = result.indices[record.firstIndex + offset];
@@ -2024,6 +2048,12 @@ LoadedBones loadBones(
                     "BodyParts3D bone index escapes its source mesh");
         }
     }
+    std::cout << std::setprecision(12)
+        << "bone_orientation_semantics=unit_normalized_once_at_load"
+        << " bone_count=" << result.records.size()
+        << " maximum_raw_norm_error=" << maximumRawOrientationNormError
+        << " norm_admission_tolerance=" << kOrientationNormAdmissionTolerance
+        << " bone_sha256=" << loadedKneeSHA256Hex(result.payloadSha256) << '\n';
     return result;
 }
 
