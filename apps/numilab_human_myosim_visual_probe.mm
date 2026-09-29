@@ -940,6 +940,7 @@ struct LoadedSupportContacts {
 
 struct LoadedJointEqualities {
     metalrobo::NumiHumanJointEqualityPayload payload;
+    metalrobo::NumiHumanLoadedKneeDigest payloadSha256{};
 };
 #pragma pack(pop)
 
@@ -1256,13 +1257,16 @@ struct LoadedRigid {
     RigidHeader header{};
     metalrobo::EngineModel model;
     std::vector<std::uint32_t> sourceToCore;
+    metalrobo::NumiHumanLoadedKneeDigest payloadSha256{};
 };
 
 LoadedRigid loadRigid(const std::filesystem::path& path) {
     std::ifstream input(path, std::ios::binary);
     require(input.is_open(), "cannot open MyoSim rigid payload " + path.string());
     LoadedRigid result;
-    readObject(input, result.header, "MyoSim rigid header");
+    CC_SHA256_CTX identity{};
+    require(CC_SHA256_Init(&identity) == 1, "cannot initialize rigid payload hash");
+    readObject(input, result.header, "MyoSim rigid header", &identity);
     require(result.header.magic == kRigidMagic, "rigid payload magic is not NHRIGID2");
     require(result.header.payloadAbi == kPayloadAbi, "unsupported MyoSim rigid ABI");
     require(result.header.engineAbi == MR_ENGINE_ABI_VERSION, "MyoSim rigid/Core ABI mismatch");
@@ -1274,27 +1278,27 @@ LoadedRigid loadRigid(const std::filesystem::path& path) {
                 result.header.nq == result.header.nv + 1u,
             "MyoSim rigid dimensions are malformed");
     result.model.name = "numilab_human_myosim_native_visual";
-    readObject(input, result.model.world, "MyoSim world");
+    readObject(input, result.model.world, "MyoSim world", &identity);
     MRArticulationGPU articulation{};
-    readObject(input, articulation, "MyoSim articulation");
+    readObject(input, articulation, "MyoSim articulation", &identity);
     result.model.articulations.push_back(articulation);
     result.model.bodies = readVector<MRBodyPropertiesGPU>(
-        input, result.header.engineBodyCount, "MyoSim bodies"
+        input, result.header.engineBodyCount, "MyoSim bodies", &identity
     );
     result.model.joints = readVector<MRJointDescriptorGPU>(
-        input, result.header.jointCount, "MyoSim joints"
+        input, result.header.jointCount, "MyoSim joints", &identity
     );
     result.model.dofs = readVector<MRDofPropertiesGPU>(
-        input, result.header.nv, "MyoSim DoFs"
+        input, result.header.nv, "MyoSim DoFs", &identity
     );
     result.model.defaultQ = readVector<float>(
-        input, result.header.nq, "MyoSim default q"
+        input, result.header.nq, "MyoSim default q", &identity
     );
     result.model.defaultV = readVector<float>(
-        input, result.header.nv, "MyoSim default v"
+        input, result.header.nv, "MyoSim default v", &identity
     );
     result.sourceToCore = readVector<std::uint32_t>(
-        input, result.header.sourceBodyCount, "MyoSim source map"
+        input, result.header.sourceBodyCount, "MyoSim source map", &identity
     );
     std::vector<bool> sourceOwners(result.header.engineBodyCount, false);
     for (const std::uint32_t bodyIndex : result.sourceToCore) {
@@ -1303,11 +1307,13 @@ LoadedRigid loadRigid(const std::filesystem::path& path) {
         sourceOwners[bodyIndex] = true;
     }
     const auto sourcePoses = readVector<SourcePoseRecord>(
-        input, result.header.sourceBodyCount, "MyoSim source poses"
+        input, result.header.sourceBodyCount, "MyoSim source poses", &identity
     );
     (void)sourcePoses;
     require(input.peek() == std::char_traits<char>::eof(),
             "MyoSim rigid payload has trailing bytes");
+    require(CC_SHA256_Final(result.payloadSha256.data(), &identity) == 1,
+            "cannot finalize rigid payload hash");
     require(result.model.world.bodyCount == result.header.engineBodyCount &&
                 articulation.rootType == MR_ROOT_FLOATING &&
                 articulation.bodyCount == result.header.engineBodyCount &&
@@ -1917,6 +1923,10 @@ LoadedJointEqualities loadJointEqualities(
         std::string("invalid NHEQ joint-equality payload: ") +
             metalrobo::numiHumanJointEqualityStatusName(diagnostics.status)
     );
+    require(bytes.size() <= std::numeric_limits<CC_LONG>::max() &&
+                CC_SHA256(bytes.data(), static_cast<CC_LONG>(bytes.size()),
+                          result.payloadSha256.data()) != nullptr,
+            "cannot hash NHEQ joint-equality payload");
     return result;
 }
 
@@ -21044,6 +21054,7 @@ int main(int argc, char** argv) {
             }
             std::optional<MuscleDrivenVisualState> muscleDrivenState;
             std::vector<float> overriddenPoseQ;
+            std::string projectedRangeFailure;
             std::span<const float> poseQ = rigid.model.defaultQ;
             if (!requestedPoseCoordinates.empty()) {
                 std::sort(requestedPoseCoordinates.begin(), requestedPoseCoordinates.end());
@@ -21088,9 +21099,52 @@ int main(int argc, char** argv) {
                 std::transform(
                     projected.begin(), projected.end(),
                     std::back_inserter(overriddenPoseQ),
-                    [](const double value) { return static_cast<float>(value); }
+                    [](const double value) {
+                        require(std::isfinite(value) && std::isfinite(static_cast<float>(value)),
+                                "--pose-q equality projection produced a nonfinite native coordinate");
+                        return static_cast<float>(value);
+                    }
                 );
                 poseQ = overriddenPoseQ;
+                std::size_t checkedRanges = 0u;
+                std::size_t failedRanges = 0u;
+                for (const auto& dof : rigid.model.dofs) {
+                    if ((dof.flags & MR_DOF_FLAG_POSITION_LIMIT) == 0u) {
+                        continue;
+                    }
+                    ++checkedRanges;
+                    const double value = static_cast<double>(poseQ[dof.qIndex]);
+                    const double lower = static_cast<double>(dof.limits.x);
+                    const double upper = static_cast<double>(dof.limits.y);
+                    const double violation = std::max({0.0, lower - value, value - upper});
+                    if (violation <= 1.0e-9) {
+                        continue;
+                    }
+                    ++failedRanges;
+                    std::ostringstream failure;
+                    failure << std::setprecision(12)
+                            << "q_index=" << dof.qIndex << " v_index=" << dof.vIndex
+                            << " core_joint_index=" << dof.jointIndex
+                            << " child_body_index=" << rigid.model.joints[dof.jointIndex].childBody
+                            << " projected_value=" << projected[dof.qIndex]
+                            << " native_fp32_value=" << value
+                            << " lower=" << lower << " upper=" << upper
+                            << " violation=" << violation << " allowed_violation=1e-9"
+                            << " unit=" << (rigid.model.joints[dof.jointIndex].jointType == MR_JOINT_PRISMATIC ? "m" : "rad")
+                            << " tolerance_basis=existing_native_pose_q_position_range_arithmetic_admission_1e-9";
+                    std::cout << "pose_joint_range=failed " << failure.str() << '\n';
+                    if (projectedRangeFailure.empty()) {
+                        projectedRangeFailure = failure.str();
+                    }
+                }
+                std::cout << "pose_joint_ranges=" << (failedRanges == 0u ? "passed" : "failed")
+                          << " enabled_range_count=" << checkedRanges
+                          << " failed_range_count=" << failedRanges
+                          << " rigid_sha256=" << loadedKneeSHA256Hex(rigid.payloadSha256)
+                          << " equality_sha256=" << loadedKneeSHA256Hex(jointEqualityPayload->payloadSha256)
+                          << " bone_sha256=" << (bonePayload.has_value()
+                              ? loadedKneeSHA256Hex(bonePayload->payloadSha256) : "unavailable")
+                          << " boundary=consumed_enabled_native_limits_after_NHEQ_projection_not_disabled_source_limits_or_loaded_motion\n";
                 std::cout << "pose_q_override_count=" << requestedPoseCoordinates.size()
                           << " pose_q_equality_maximum_correction=" << maximumProjection
                           << "\n";
@@ -22560,6 +22614,14 @@ int main(int argc, char** argv) {
                     ? "_with_four_exact_ligament_and_exact_patellar_tendon_surfaces_owned_by_an_accepted_NHKFEM2_three_body_attachment_reaction_snapshot_under_submicron_tibia_translation_not_loaded_flexion_quadriceps_tendon_source_transverse_isotropy_or_clinical_validation"
                     : "_with_four_exact_ligament_surfaces_owned_by_an_accepted_NHKFEM1_two_body_attachment_reaction_snapshot_under_submicron_tibia_translation_not_loaded_flexion_source_transverse_isotropy_or_clinical_validation";
             }
+            // Retain all executed geometry measurements and diagnostic views;
+            // visible geometry cannot admit an out-of-range physical pose.
+            require(projectedRangeFailure.empty(),
+                    "projected native position range failed: " + projectedRangeFailure +
+                    "; rigid_sha256=" + loadedKneeSHA256Hex(rigid.payloadSha256) +
+                    "; equality_sha256=" + (jointEqualityPayload.has_value()
+                        ? loadedKneeSHA256Hex(jointEqualityPayload->payloadSha256) : "unavailable") +
+                    "; diagnostic_views=" + outputDirectory.string());
             std::cout << std::setprecision(12)
                       << (mechanicsOnly
                               ? "myosim_articulated_mechanics=ok"
