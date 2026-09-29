@@ -10,6 +10,7 @@
 #include <cstring>
 #include <iomanip>
 #include <iostream>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -28,8 +29,11 @@ void require(bool condition, const std::string& message) {
     if (!condition) throw std::runtime_error(scenario+" "+message);
 }
 void near(double a, double b, double tolerance, const std::string& message) {
+    std::ostringstream detail;
+    detail<<std::setprecision(17)<<message<<": actual="<<a<<" expected="<<b
+          <<" violation="<<std::abs(a-b)<<" tolerance="<<tolerance;
     require(std::isfinite(a) && std::isfinite(b) && std::abs(a-b)<=tolerance,
-        message+": actual="+std::to_string(a)+" expected="+std::to_string(b));
+        detail.str());
 }
 mr_float4 f4(double x=0, double y=0, double z=0, double w=0) {
     return {float(x),float(y),float(z),float(w)};
@@ -148,24 +152,28 @@ struct GPU {
     }
     template<class T> id<MTLBuffer> object(const T& v) {return buffer(&v,sizeof(v));}
     template<class T> id<MTLBuffer> vector(const std::vector<T>& v) {return buffer(v.data(),v.size()*sizeof(T));}
-    void dispatch(const char* name,std::initializer_list<std::pair<unsigned,id<MTLBuffer>>> bindings,unsigned count) {
+    void dispatch(const char* name,std::initializer_list<std::pair<unsigned,id<MTLBuffer>>> bindings,unsigned count,bool cooperative=false) {
         NSError* error=nil;id<MTLFunction> fn=[library newFunctionWithName:[NSString stringWithUTF8String:name]];
         require(fn!=nil,std::string("production kernel ")+name);
         auto pipeline=[device newComputePipelineStateWithFunction:fn error:&error];require(pipeline!=nil,"pipeline");
         auto cb=[queue commandBuffer];auto enc=[cb computeCommandEncoder];[enc setComputePipelineState:pipeline];
         for(auto [slot,b]:bindings)[enc setBuffer:b offset:0 atIndex:slot];
-        [enc dispatchThreads:MTLSizeMake(count,1,1) threadsPerThreadgroup:MTLSizeMake(std::min<unsigned>(count,32),1,1)];[enc endEncoding];[cb commit];[cb waitUntilCompleted];
+        if(cooperative)[enc dispatchThreadgroups:MTLSizeMake(count,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+        else [enc dispatchThreads:MTLSizeMake(count,1,1) threadsPerThreadgroup:MTLSizeMake(std::min<unsigned>(count,32),1,1)];
+        [enc endEncoding];[cb commit];[cb waitUntilCompleted];
         require(cb.status==MTLCommandBufferStatusCompleted,std::string("kernel completed ")+name);
     }
 };
 struct RouteOutput {MRMujocoMuscleResultGPU result;std::array<float,dofs> force,suffix;};
 RouteOutput evaluateGPU(GPU& gpu,const Fixture& f,const Geometry& g,bool paired,
-                       const float timestepSeconds = .000025f) {
+                       const float timestepSeconds = .000025f,bool cached=false) {
     MRMujocoMuscleReferenceDispatchGPU d{};d.abiVersion=MR_MUJOCO_MUSCLE_REFERENCE_GPU_ABI_VERSION;
     d.muscleCount=1;d.siteCount=unsigned(f.sites.size());d.wrapCount=1;d.routeNodeCount=unsigned(f.routes.size());d.environmentCount=1;d.bodyPoseStride=bodies;d.dofCount=dofs;d.pointJacobianStride=jacobianCount;d.bodyJacobianPointStride=4;d.timestepSecondsAndReserved=f4(timestepSeconds);
     std::vector<float> velocity(f.velocity.begin(),f.velocity.end());
     auto pose=gpu.vector(g.poses),low=gpu.vector(g.low),jac=gpu.vector(g.jacobian),v=gpu.vector(velocity),db=gpu.object(d),muscle=gpu.object(f.muscle),state=gpu.object(f.muscleState),sites=gpu.vector(f.gpuSites),wraps=gpu.vector(f.gpuWraps),routes=gpu.vector(f.routes),result=gpu.buffer(nullptr,sizeof(MRMujocoMuscleResultGPU)),force=gpu.buffer(nullptr,dofs*sizeof(float));
-    gpu.dispatch(paired?"mr_mujoco_muscle_reference_compensated":"mr_mujoco_muscle_reference",{{7,v},{8,pose},{10,low},{11,jac},{23,force},{24,db},{25,muscle},{26,state},{27,sites},{28,wraps},{29,routes},{30,result}},1);
+    auto cache=gpu.buffer(nullptr,bodies*dofs*sizeof(mr_float4));
+    if(cached)gpu.dispatch("mr_mujoco_muscle_angular_jacobians",{{0,pose},{1,jac},{2,db},{3,cache}},bodies*dofs);
+    gpu.dispatch(cached?"mr_mujoco_muscle_reference_cached":paired?"mr_mujoco_muscle_reference_compensated":"mr_mujoco_muscle_reference",{{7,v},{8,pose},{10,low},{11,jac},{12,cache},{23,force},{24,db},{25,muscle},{26,state},{27,sites},{28,wraps},{29,routes},{30,result}},1,cached);
     MRMujocoMuscleRouteCutDispatchGPU cd{MR_MUJOCO_MUSCLE_ROUTE_CUT_GPU_ABI_VERSION,1,0,0};MRMujocoMuscleRouteCutGPU cut{0,1,0,0};
     auto suffix=gpu.buffer(nullptr,dofs*sizeof(float));
     gpu.dispatch(paired?"mr_mujoco_muscle_route_suffix_jacobian_compensated":"mr_mujoco_muscle_route_suffix_jacobian",{{0,pose},{1,jac},{2,db},{3,muscle},{4,sites},{5,wraps},{6,routes},{7,gpu.object(cd)},{8,gpu.object(cut)},{9,suffix},{10,low}},1);
@@ -257,6 +265,99 @@ void routeChecks(GPU& gpu) {
     }
     require(legacyDetected,"large-origin high-only negative control detects lost geometry");
     std::cout<<"route_max_length_error_m="<<maximumLengthError<<" route_max_J_error="<<maximumJacobianError<<" route_max_force_error_N="<<maximumForceError<<" origin_length_error_m="<<maximumOriginError<<'\n';
+}
+
+// ElbowBICBRD_ellipsoid_wrap at the accepted predecessor of source-only
+// standing step 1403. The preferred contacts are only 4.6 um apart. The old
+// FP32 line-parameter test rounded both parameters to 1, rejected this branch,
+// and added 7.86 mm of route length. Keep the FP64 source oracle unchanged.
+Fixture grazingWrapFixture(unsigned kind, double scale, bool oppositeSide,
+                           double rotation) {
+    Fixture f(kind);
+    for (auto& joint : f.model.joints) joint.parentAnchor = f4();
+    const V first{-.0031932638164820838, .09541563266872556, -.04110572};
+    const V second{.04183946949202132, -.13742918520150452, -.03495902};
+    const V side{.02406984, .02145681, -.06738374};
+    f.sites = {{0, first}, {1, first}, {2, second}, {0, side}};
+    f.sites[0].localPoint[0] -= .07;
+    for (unsigned i=0; i<f.sites.size(); ++i) {
+        const double x=f.sites[i].localPoint[0],y=f.sites[i].localPoint[1];
+        f.sites[i].localPoint[0]=std::cos(rotation)*x-std::sin(rotation)*y;
+        f.sites[i].localPoint[1]=std::sin(rotation)*x+std::cos(rotation)*y;
+        for (unsigned a=0; a<3; ++a) {
+            double value = f.sites[i].localPoint[a] * scale;
+            if (i==3 && oppositeSide) value=-value;
+            // Source inputs and the GPU program have the same FP32 payload.
+            f.sites[i].localPoint[a] = double(float(value));
+        }
+        const auto& p=f.sites[i].localPoint;
+        f.gpuSites[i].localPoint=f4(p[0],p[1],p[2]);
+    }
+    f.wraps[0].radius=double(float(.015*scale));
+    f.gpuWraps[0].radius=f4(f.wraps[0].radius);
+    f.definition.lengthRange={double(float(.1*scale)),double(float(.5*scale))};
+    f.muscle.lengthRangeAndAcceleration=f4(
+        f.definition.lengthRange[0],f.definition.lengthRange[1],1);
+    return f;
+}
+
+void grazingWrapChecks(GPU* gpu) {
+    double maximumLengthError=0, maximumJacobianError=0;
+    unsigned wrapped=0, straight=0;
+    for (unsigned kind : {3u,2u}) for (double scale : {1.,.5,2.})
+        for (double rotation : {0.,.7853981633974483,-.5235987755982988})
+        for (bool opposite : {false,true})
+            for (double offset : {0.,-2e-3,-2e-5,-2e-6,2e-6,2e-5,2e-3}) {
+                scenario="grazing kind="+std::to_string(kind)+
+                    " scale="+std::to_string(scale)+" opposite="+
+                    std::to_string(opposite)+" rotation="+std::to_string(rotation)+
+                    " q="+std::to_string(offset);
+                const auto f=grazingWrapFixture(kind,scale,opposite,rotation);
+                const auto oracle=f.oracle(offset);
+                const auto suffix=f.oracle(offset,true);
+                require(std::abs(oracle.actuatorForce)>.1,
+                        "grazing route carries nonzero source tension");
+                wrapped+=oracle.path.appliedWrapCount;
+                straight+=oracle.path.appliedWrapCount==0;
+                if (!gpu) continue;
+                const auto caseScenario=scenario;
+                for (unsigned mode : {0u,1u,2u}) for (double origin : {0.,4096.}) {
+                    // The high-only ABI cannot preserve geometry at 4096 m;
+                    // its explicit negative control remains in routeChecks.
+                    if(mode==0 && origin!=0)continue;
+                    scenario=caseScenario+" mode="+std::to_string(mode)+
+                        " origin="+std::to_string(origin);
+                    const auto out=evaluateGPU(*gpu,f,Geometry(f,origin,offset),
+                                               mode!=0,.000025f,mode==2);
+                    require(out.result.status==MR_MUJOCO_MUSCLE_REFERENCE_SUCCESS,
+                            "grazing source route status");
+                    require(out.result.appliedWrapCount==oracle.path.appliedWrapCount,
+                            "grazing source wrap selection");
+                    const double length=out.result.pathForceAndActivationDerivative.x;
+                    const double force=out.result.pathForceAndActivationDerivative.z;
+                    // Existing source-route tolerances, including near the
+                    // wrap switch; no discarded poses or enlarged gates.
+                    near(length,oracle.path.length,2e-7,"grazing route length FP64");
+                    near(force,oracle.actuatorForce,2e-4,"grazing force FP64");
+                    near(out.result.pathForceAndActivationDerivative.y,
+                         oracle.path.velocity,2e-6,"grazing route Jv FP64");
+                    maximumLengthError=std::max(maximumLengthError,
+                                               std::abs(length-oracle.path.length));
+                    for (unsigned d=0; d<dofs; ++d) {
+                        const double jacobian=out.force[d]/force;
+                        near(jacobian,oracle.path.lengthJacobian[d],1e-5,
+                             "grazing route Jacobian FP64");
+                        near(out.suffix[d],suffix.path.lengthJacobian[d],1e-5,
+                             "grazing suffix Jacobian FP64");
+                        maximumJacobianError=std::max(maximumJacobianError,
+                            std::abs(jacobian-oracle.path.lengthJacobian[d]));
+                    }
+                }
+            }
+    require(wrapped>0 && straight>0,"grazing controls exercise wrapped and straight paths");
+    std::cout<<"grazing_wrap_cases="<<(wrapped+straight)<<" wrapped="<<wrapped
+             <<" straight="<<straight<<" maximum_length_error_m="<<maximumLengthError
+             <<" maximum_J_error="<<maximumJacobianError<<'\n';
 }
 
 void compliantFiberChecks(GPU& gpu) {
@@ -532,9 +633,9 @@ void hoodChecks(GPU& gpu) {
 
 int main(int argc,char** argv) {
     @autoreleasepool {try {
-        std::cout<<std::setprecision(17);cpuChecks();HoodFixture hoodOracle;
+        std::cout<<std::setprecision(17);cpuChecks();grazingWrapChecks(nullptr);HoodFixture hoodOracle;
         if(argc==2 && std::string(argv[1])=="--cpu") {std::cout<<"source_route_precision_cpu PASS checks="<<checks<<'\n';return 0;}
-        require(argc==2,"usage: source-route-precision-check --cpu|metallib");GPU gpu(argv[1]);routeChecks(gpu);compliantFiberChecks(gpu);hoodChecks(gpu);
+        require(argc==2,"usage: source-route-precision-check --cpu|metallib");GPU gpu(argv[1]);routeChecks(gpu);grazingWrapChecks(&gpu);compliantFiberChecks(gpu);hoodChecks(gpu);
         std::cout<<"source_route_precision_metal PASS checks="<<checks<<'\n';return 0;
     }catch(const std::exception& e){std::cerr<<"source_route_precision FAIL "<<e.what()<<'\n';return 1;}}
 }

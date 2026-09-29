@@ -64,25 +64,37 @@ inline float3 matrixTransposeApply(
         wrap.rotationRow2.xyz * value.z;
 }
 
+inline float cross2(const float2 first, const float2 second) {
+    const float product = first.y * second.x;
+    return fma(first.x, second.y, -product) -
+        fma(first.y, second.x, -product);
+}
+
 inline bool segmentIntersects(
     const float2 firstA,
     const float2 secondA,
     const float2 firstB,
     const float2 secondB
 ) {
-    const float determinant =
-        (secondB.y - firstB.y) * (secondA.x - firstA.x) -
-        (secondB.x - firstB.x) * (secondA.y - firstA.y);
+    const float2 directionA = secondA - firstA;
+    const float2 directionB = secondB - firstB;
+    const float determinant = cross2(directionA, directionB);
     if (abs(determinant) < kMinimum) {
         return false;
     }
-    const float a = ((secondB.x - firstB.x) * (firstA.y - firstB.y) -
-                     (secondB.y - firstB.y) * (firstA.x - firstB.x)) /
-        determinant;
-    const float b = ((secondA.x - firstA.x) * (firstA.y - firstB.y) -
-                     (secondA.y - firstA.y) * (firstA.x - firstB.x)) /
-        determinant;
-    return a >= 0.0f && a <= 1.0f && b >= 0.0f && b <= 1.0f;
+    // Equivalent closed-segment orientation test. Near coincident tangent
+    // contacts, the old ratios can both round to exactly 1 even when their
+    // FP64 values exceed 1. Compute each contact-side area from the contact
+    // separation, rather than subtracting two almost equal large areas.
+    const float firstOnA = cross2(directionA, firstB - firstA);
+    const float secondOnA = cross2(directionA, secondB - secondA);
+    const float firstOnB = cross2(directionB, firstA - firstB);
+    const float secondOnB = cross2(directionB, secondA - secondB);
+    const bool spansA = (firstOnA >= 0.0f && secondOnA <= 0.0f) ||
+        (firstOnA <= 0.0f && secondOnA >= 0.0f);
+    const bool spansB = (firstOnB >= 0.0f && secondOnB <= 0.0f) ||
+        (firstOnB <= 0.0f && secondOnB >= 0.0f);
+    return spansA && spansB;
 }
 
 inline float circleLength(
@@ -91,10 +103,10 @@ inline float circleLength(
     const uint index,
     const float radius
 ) {
-    const float2 unitFirst = normalize(first);
-    const float2 unitSecond = normalize(second);
-    float angle = acos(clamp(dot(unitFirst, unitSecond), -1.0f, 1.0f));
-    const float determinant = first.y * second.x - first.x * second.y;
+    // atan2 retains small tangent arcs that acos(dot(normalize(...))) loses
+    // when the cosine rounds to 1. The source branch and arc remain intact.
+    const float determinant = -cross2(first, second);
+    float angle = atan2(abs(determinant), dot(first, second));
     if ((determinant > 0.0f && index != 0u) ||
         (determinant < 0.0f && index == 0u)) {
         angle = 2.0f * kPi - angle;
