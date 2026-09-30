@@ -1870,3 +1870,47 @@ values are `0cf94ebc74c07597a4717f0e010e06a3f34ef2b164ae3d2be0da669c349343f3`,
 and `46b05504b0a6042ed4b1d025782343ae894fb23750785516f8827425df3c60be` respectively. The two accepted step-4478 checkpoint
 SHA-256 values are `8838ebfdaa5617d0590a6d3adf62b5c378a1ceeea3b4b38e0102c2bb96086e13`
 and `ab0abb71706b33efcb9e21e915115ee91e71bdf54d4b12b125e9aa7770ccacef`.
+
+### One-Newton continuation and rigid-substep motion guard
+
+On a single rebuilt probe binary (SHA-256
+`6a7d627644419907500edecd0384df1b3b68ebe469f23571821faedf97523a2e`),
+the same step-4350 checkpoint and 1 mm/s command were advanced for two
+separate 4 ms control steps. The 64-rigid-substep, seven-Newton, 32/16
+contact baseline took 4,314.781 + 4,311.415 = **8,626.196 ms GPU**.
+One Newton pass and 12/6 contact iterations on the first step, followed
+by one Newton pass and 32/16 contact iterations on the second, took
+2,104.737 + 3,600.555 = **5,705.292 ms GPU**, a **1.51x selected-schedule
+gain**. Both paths passed their per-step grip, rod, contact-residual,
+46,080-tet, and connected-two-channel gates. The faster path's terminal
+normal residuals were 0.001468 and 0.000601 m/s; its step-4478 Matter
+checkpoint restored byte-exactly. Both paths still reported zero new tip
+impulse, tissue reaction, and tissue displacement, so this gain covers
+held-needle channel transit, not load-bearing penetration or a whole
+stitch. This is a retrospective schedule comparison; failed selection
+trials and process startup are excluded from GPU time.
+
+The probe now exposes `--robot-puncture-rigid-substeps` independently of
+the Matter cadence for bounded diagnostic trials. At the same 4 ms Matter
+step, reducing rigid substeps from 64 to 32 took 2,679.040 ms GPU but
+advanced the needle tip 40.216 um against 3.997 um planned. The previous
+100 um overshoot allowance incorrectly accepted this as a continuation.
+For puncture microsteps, the guard now caps advancement at twice planned
+advance plus 1 um; the 32-substep run is rejected, while the accepted
+64-substep speedup above still passes. This rules out the apparent
+substep speedup at this state. Four focused static-equilibrium, checkpoint,
+synthetic-puncture, and cadence-transition CTests passed after rebuilding.
+The 100x whole-stitch target remains open.
+
+The rebuilt full-baseline run logs have SHA-256
+`4d2f39ad746a48f5ba30617ce2da49f8e90818344bc26948ce322eb55ce918a6`
+and `d2020d50219f2522f79f6748a045cb317f28e4003858f556024c07366398c8ef`.
+The rebuilt selected-schedule logs have SHA-256
+`87aac20e2cd2d26f5d8a254978c4c06dd7cd33a8c6497c659e5d40444210538b`
+and `c43ca7156ac947320a22783af8da346c2b6e24dfe602f7ba029b52709aadf0ba`.
+Its final checkpoint and restore log are
+`ae7458de2988fd1a818d19f36b35e844c97572840a51ec6420ed95938ca9ce8c`
+and `ac08fc1eb0a1a8fd4c5749e366a5a1fcb41d9e4daf48c20c1e10a7341b122a0a`.
+The rejected 32-substep log is
+`build-skin-wound/skin-robot-second-channel-rigid32-strict4ms.log`
+(SHA-256 `790b8434f2dd266545010b259eb9fe735118d24a3c2d1a0809865d14c3d63b13`).

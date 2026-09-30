@@ -7122,6 +7122,8 @@ struct Arguments {
     std::uint32_t robotPunctureCadence =
         kRobotFirstBitePunctureMicrostepCadence;
     bool robotPunctureCadenceProvided = false;
+    std::uint32_t robotPunctureRigidSubsteps = 0u;
+    bool robotPunctureRigidSubstepsProvided = false;
     std::uint32_t robotPunctureGroupedSteps = 1u;
     bool robotPunctureGroupedStepsProvided = false;
     double robotPunctureSpeedMps =
@@ -7424,6 +7426,23 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             result.robotPunctureCadence =
                 static_cast<std::uint32_t>(parsed);
             result.robotPunctureCadenceProvided = true;
+        } else if (argument == "--robot-puncture-rigid-substeps") {
+            require(
+                !result.robotPunctureRigidSubstepsProvided &&
+                    index + 1 < argc,
+                "--robot-puncture-rigid-substeps requires exactly one count"
+            );
+            const std::string value{argv[++index]};
+            std::size_t consumed = 0u;
+            const unsigned long parsed = std::stoul(value, &consumed);
+            require(
+                consumed == value.size() && parsed >= 1u &&
+                    parsed <= 64u && (parsed & (parsed - 1u)) == 0u,
+                "robot puncture rigid substeps must be a power of two in [1, 64]"
+            );
+            result.robotPunctureRigidSubsteps =
+                static_cast<std::uint32_t>(parsed);
+            result.robotPunctureRigidSubstepsProvided = true;
         } else if (argument == "--robot-puncture-grouped-steps") {
             require(
                 !result.robotPunctureGroupedStepsProvided &&
@@ -8153,6 +8172,15 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
         !result.robotPunctureGroupedStepsProvided ||
             result.robotPunctureCadenceProvided,
         "grouped puncture step count requires a grouped puncture cadence"
+    );
+    require(
+        !result.robotPunctureRigidSubstepsProvided ||
+            (result.robotPunctureCadenceProvided &&
+             result.robotPunctureRigidSubsteps <=
+                 result.robotPunctureCadence &&
+             result.robotPunctureCadence %
+                 result.robotPunctureRigidSubsteps == 0u),
+        "rigid substep reduction requires a divisible grouped puncture cadence"
     );
     require(
         !result.robotPunctureSpeedProvided ||
@@ -17429,7 +17457,11 @@ int main(const int argc, const char* const argv[]) {
                         static_cast<double>(kPhysicsSubsteps)) *
                     robotApproachCadence
                 );
-                stepConfig.physicsSubsteps = robotApproachCadence;
+                stepConfig.physicsSubsteps =
+                    tissueRobotFirstBitePunctureMicrostepOnly &&
+                            options.robotPunctureRigidSubstepsProvided
+                        ? options.robotPunctureRigidSubsteps
+                        : robotApproachCadence;
                 const std::uint32_t robotApproachNewtonBudget =
                     (tissueRobotFirstBiteContactApproachOnly ||
                      robotContactProbe)
@@ -18134,7 +18166,10 @@ int main(const int argc, const char* const argv[]) {
                         actualAdvance >=
                             (tissueRobotFirstBitePunctureMicrostepOnly
                                 ? 1.0e-8 : 1.0e-6) &&
-                        actualAdvance <= plannedAdvance + 1.0e-4 &&
+                        actualAdvance <=
+                            (tissueRobotFirstBitePunctureMicrostepOnly
+                                ? plannedAdvance * 2.0 + 1.0e-6
+                                : plannedAdvance + 1.0e-4) &&
                         bilateral(contacts, 0u) &&
                         distributedInsertCoverage(contacts, 0u) &&
                         cleanNeedleInteraction(
