@@ -153,8 +153,8 @@ constexpr std::uint32_t kRobotFirstBitePunctureContinueSteps = 4u;
 constexpr double kRobotFirstBitePunctureMicrostepSpeedMps = 1.0e-3;
 // The pre-contact 12-step run reaches the same published MetalWorld state
 // with two Newton passes as with the cooked seven; one pass changes the
-// robot/thread state. Keep the shortcut behind a live contact-node clearance
-// guard, and use the full solver again for the needle/skin encounter.
+// robot/thread state and is opt-in only for the guarded 64x free approach.
+// Use the full solver again for the needle/skin encounter.
 constexpr std::uint32_t kRobotFirstBiteContinueNewtonBudget = 2u;
 constexpr double kRobotFirstBiteFreeSpaceMarginM = 2.0e-4;
 constexpr double kRobotFirstBiteDriveSpeedMps = 5.0e-3;
@@ -7011,6 +7011,7 @@ struct Arguments {
     std::string mode;
     bool syntheticSkin = false;
     bool robotContactBrake = false;
+    bool robotFastOneNewton = false;
     std::filesystem::path stateOutputDirectory;
     std::string resumeTissueCheckpointPhase;
     std::filesystem::path resumeTissueCheckpointPath;
@@ -7277,6 +7278,12 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
                 "--robot-contact-brake specified twice"
             );
             result.robotContactBrake = true;
+        } else if (argument == "--robot-fast-one-newton") {
+            require(
+                !result.robotFastOneNewton,
+                "--robot-fast-one-newton specified twice"
+            );
+            result.robotFastOneNewton = true;
         } else if (argument == "--state-output-dir") {
             require(
                 result.stateOutputDirectory.empty() && index + 1 < argc,
@@ -7927,6 +7934,13 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
              result.mode ==
                  "--tissue-robot-first-bite-contact-advance-only"),
         "robot contact braking requires the synthetic-skin contact advance"
+    );
+    require(
+        !result.robotFastOneNewton ||
+            (result.syntheticSkin &&
+             result.mode ==
+                 "--tissue-robot-first-bite-continue-fast-only"),
+        "one-Newton robot continuation requires the fast skin approach"
     );
     require(
         (result.mode != "--tissue-robot-first-bite-continue-only" &&
@@ -16862,18 +16876,19 @@ int main(const int argc, const char* const argv[]) {
                     robotApproachCadence
                 );
                 stepConfig.physicsSubsteps = robotApproachCadence;
+                const std::uint32_t robotApproachNewtonBudget =
+                    (tissueRobotFirstBiteContactApproachOnly ||
+                     robotContactProbe)
+                        ? NM_MIXED_NEWTON_ITERATIONS
+                        : (options.robotFastOneNewton
+                            ? 1u
+                            : kRobotFirstBiteContinueNewtonBudget);
                 require(
                     tissueRuntime.setNewtonIterationBudget(
-                        (tissueRobotFirstBiteContactApproachOnly ||
-                         robotContactProbe)
-                            ? NM_MIXED_NEWTON_ITERATIONS
-                            : kRobotFirstBiteContinueNewtonBudget
+                        robotApproachNewtonBudget
                     ) &&
                         tissueRuntime.newtonIterationBudget() ==
-                            ((tissueRobotFirstBiteContactApproachOnly ||
-                              robotContactProbe)
-                                ? NM_MIXED_NEWTON_ITERATIONS
-                                : kRobotFirstBiteContinueNewtonBudget),
+                            robotApproachNewtonBudget,
                     "resumed robot approach could not select its bounded Newton budget"
                 );
                 const MRBodyStateGPU& startNeedle =
@@ -17007,7 +17022,7 @@ int main(const int argc, const char* const argv[]) {
                         ? "robot contact probe requires its bounded prior skin state"
                         : (tissueRobotFirstBiteContactApproachOnly
                             ? "full-Newton robot approach can cross the tapered-tip contact guard"
-                            : "two-Newton robot continuation can carry the tapered tip into the skin contact band")
+                            : "robot free-space continuation can carry the tapered tip into the skin contact band")
                 );
                 const ArmTrajectory trajectory =
                     needleGraspArmTrajectory(
@@ -17267,6 +17282,7 @@ int main(const int argc, const char* const argv[]) {
                     << " entry_probe=" << robotContactProbe
                     << " steps=" << robotApproachSteps
                     << " contact_brake=" << options.robotContactBrake
+                    << " fast_one_newton=" << options.robotFastOneNewton
                     << " base_der_substeps="
                     << robotApproachSteps *
                         stepConfig.physicsSubsteps

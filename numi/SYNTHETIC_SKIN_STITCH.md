@@ -1168,3 +1168,50 @@ diagnostic logs have SHA-256 values
 and `13fec6706e197524f43d802edeb696d8013af1de4283f1a1ab8e70d92fa389c0`.
 The remaining failure calls for better rotational contact authority or
 contact-solver response, not an unverified clamp-force increase.
+
+### Guarded one-Newton robot free approach
+
+The opt-in `--robot-fast-one-newton` is accepted only with
+`--tissue-robot-first-bite-continue-fast-only --synthetic-skin`.
+It changes the first contact-free 64x robot continuation from two Matter
+Newton passes to one; the existing live tip-to-tissue clearance guard and
+all grasp, strand, tissue-certificate, and checkpoint checks remain in
+force. Near skin contact the option was rejected before advancing physics,
+and the full seven-pass solver was used for the subsequent guarded approach
+and entry. Its rejection log SHA-256 is
+`3d4c2f428a8c0c77e83ff6ef65f5edacb0cc56a02ef7718a258360893c11b9db`.
+
+From the same current-binary step-237 robot approach checkpoint, two
+one-Newton runs took 21,710.762 and 21,703.030 ms GPU for the same 24 ms
+of simulated motion. The final source-matched rebuild took 21,711.049 ms.
+All three produced byte-identical checkpoint TSVs (SHA-256
+`4e4e177c2c17da25599a3c4d5ed03c86c50d9656330c3d2633000ff2ca2e9b00`).
+The one-Newton checkpoint restored byte-exactly at step 621. A paired
+two-Newton run on the same build took 24,896.143 ms, while an earlier
+two-Newton run took 22,543.695 ms; the measured one-pass gain is thus
+about 0.84-3.19 s, or 1.04-1.15x for this segment, across these runs.
+The trajectories are distinct, not bitwise-equivalent: the one-Newton
+run's Matter maximum residual was 5.285e-7 versus 7.560e-7 in the earlier
+two-pass run, and its MetalWorld maximum normal residual was 0.002307
+versus 0.002289 m/s. Both runs retained all 46,080 tetrahedra, zero
+puncture channels, and qualified terminal grasp and rod checks. Neither
+maximum across steps meets a conservative 0.002 m/s per-step screen.
+
+From the one-Newton checkpoint, the normal two-Newton second 64x approach
+still passed grasp, rod, and Matter checks at 262.65 um final tip-to-node
+separation. The full seven-Newton guarded approach reached 150.62 um, and
+the full-solver entry reached 71.38 um with positive accepted tip impulse
+and 1.022e-8 Ns tissue reaction. This verifies an alternate contact-free
+prefix leading to live skin contact, not a qualified puncture, whole
+stitch, or 100x whole-path speedup. The first fast segment's source-bound
+logs, repeated run, paired two-pass run, and exact restore have SHA-256
+values `feda82bfcf5c8f2da3ba93cb2ef5a74d61e1c7d2bb34b7bc2f6d076f65be6a46`,
+`e435d8d01373c2b634a1b6e2fc257e6279d4fb603784d74ada83c6b43d7dab1b`,
+`d36ac541cd7d3ee7332ee525c324fde63de971d0659a9436e3962653adc4e1c3`,
+and `ab9ce31d566d637783fa6c4ce83b8cc8a0de81465d1a955e671009f608f24f39`.
+The final rebuilt run log has SHA-256
+`dcfc796b1ec4da990a22151002523c45c69cc6f2fd7cda5b878b93f3f7d008c6`.
+The next 64x, guarded approach, and entry logs have SHA-256 values
+`dd6a759bf846cfe3794e8cd5e9e9a229e971386e94681b3f00c145d9c13f281f`,
+`671311f1f3a0eb91790af038bde679d6fb3d01932db736e29aaec2110530f0f3`,
+and `50129346acf41be7a8ef2a8458438020547ba25d5d1d16d70198402ba30738db`.
