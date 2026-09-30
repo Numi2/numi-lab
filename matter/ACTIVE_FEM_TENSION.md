@@ -21,6 +21,13 @@ requires recooking the field.
 This path is for explicit **non-mixed** FEM. The existing mixed-FEM activation
 path adds a pressure constraint that does not reproduce the Rodero cardiac
 volumetric energy; a nonzero prescribed tension on a mixed element is rejected.
+An opt-in `ObjectSource::femFieldDrivenActiveTension` route now reads the
+accepted/candidate multiphysics activation field in that same non-mixed FEM
+transaction, computes cell tension as `maximumActiveTension` times the four-node
+mean activation, and adds its fibre stress and mechanical/activation tangent.
+It requires conductive, non-adaptive multiphysics FEM and cannot be combined
+with a borrowed `femActiveTensions` buffer. The passive material law is not
+replaced by the mixed pressure formulation.
 Every supplied tension must be finite, nonnegative and no greater than its
 cell material's `maximumActiveTension`. Wrong count or undersized Metal buffers
 fail on the host; invalid values on evaluated elements fail on the GPU and roll
@@ -87,3 +94,24 @@ timing, and case18 supplies no qualified stress-free reference, inertial
 density, physical supports, valve/port interpretation or measured cardiac-motion
 validation.
 This input is a source-bound mechanics ingress, not heartbeat qualification.
+
+The field-driven route has a separate native one-tetrahedron control. The probe
+uses the source Guccione passive law and a declared synthetic density, field
+transport, stimulus, frame, supports and tension scale. On the Apple M4, one
+100 µs electrical/mechanical step accepted with free-tip activation increasing
+from zero to `0.713394165`; its free-tip position differed from the otherwise
+identical field-only control by `1.5664845705e-6 m`. Fresh coupled runs replayed
+node and field buffers bitwise, and the host rejected competing prescribed
+active tension. An initial probe with default zero heat capacity and nonzero
+Joule coupling failed with `NM_STATUS_MULTIPHYSICS_FAILURE`; the accepted probe
+explicitly uses synthetic positive heat capacity and zero Joule fraction. These
+results establish transactional coupling of native fields and mechanics in one
+cell. They do not reproduce the source CARP electrical state or qualify a beat.
+
+```sh
+cmake --build Build/cardiac-active-native --target \
+  numi-matter-fem-field-active-tension-probe
+ctest --test-dir Build/cardiac-active-native -R \
+  'matter.runtime.fem_field_active_tension|matter.runtime.fem_active_tension' \
+  --output-on-failure
+```

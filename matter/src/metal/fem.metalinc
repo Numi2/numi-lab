@@ -1014,6 +1014,26 @@ kernel void nm_fem_internal_forces(
             fieldAverage.x, fieldAverage.z, activation
         );
     }
+    if ((object.flags & NM_OBJECT_FEM_FIELD_ACTIVE_TENSION) != 0u) {
+        float activation = 0.0f;
+        for (uint slot = 0u; slot < 4u; ++slot)
+            activation += fields[nodeBase + tetrahedron.nodes[slot]].secondary.x;
+        activation *= 0.25f;
+        const NMMixedMaterialGPU activeMaterial = femMixedMaterial(
+            object, tetrahedron, mixedMaterials[tetrahedron.identity.x]);
+        const float tension = activeMaterial.fibre.w * activation;
+        if (!isfinite(activation) || activation < 0.0f || activation > 1.0f ||
+            !prescribedFibreInputValid(tension, activeMaterial,
+                                       object, deformation)) {
+            recordFailure(statuses[environment], NM_STATUS_NONFINITE_INPUT,
+                          objectIndex, tetrahedronIndex,
+                          float4(activation, tension, 0.0f, 0.0f));
+            return;
+        }
+        if (tension > 0.0f)
+            stress += prescribedFibrePiola(
+                deformation, activeMaterial.fibre.xyz, tension);
+    }
     if (hasActiveTensions != 0u) {
         const float tension = activeTensions[global];
         const NMMixedMaterialGPU activeMaterial =
@@ -1374,6 +1394,43 @@ kernel void nm_fem_apply_operator_elements(
             const float3x3 activationCauchy = float3x3(
                 scale * m.x * m, scale * m.y * m, scale * m.z * m);
             tangent += activationCauchy * cofactor;
+        }
+    }
+    if ((object.flags & NM_OBJECT_FEM_FIELD_ACTIVE_TENSION) != 0u) {
+        const NMMixedMaterialGPU activeMaterial = femMixedMaterial(
+            object, tetrahedron, mixedMaterials[tetrahedron.identity.x]);
+        float activation = 0.0f;
+        float activationDirection = 0.0f;
+        const uint fieldBase = dispatch.environmentCount * dispatch.femNodeCount;
+        for (uint slot = 0u; slot < 4u; ++slot) {
+            const uint index = nodeBase + tetrahedron.nodes[slot];
+            activation += fields[index].secondary.x;
+            if ((microstep.flags & NM_MICROSTEP_FGMRES_OPERATOR) != 0u)
+                activationDirection += direction[fieldBase + index].w;
+        }
+        activation *= 0.25f;
+        activationDirection *= 0.25f;
+        const float tension = activeMaterial.fibre.w * activation;
+        if (!isfinite(activation) || activation < 0.0f || activation > 1.0f ||
+            !prescribedFibreInputValid(tension, activeMaterial,
+                                       object, deformation)) {
+            recordFailure(statuses[environment], NM_STATUS_NONFINITE_INPUT,
+                          objectIndex, tetrahedronIndex,
+                          float4(activation, tension, 0.0f, 0.0f));
+            return;
+        }
+        if (tension > 0.0f)
+            tangent += prescribedFibrePiolaTangent(
+                deformation, deformationDirection,
+                activeMaterial.fibre.xyz, tension);
+        if (activationDirection != 0.0f) {
+            const float3 fibre = normalize(activeMaterial.fibre.xyz);
+            const float3 m = normalize(deformation * fibre);
+            const float scale = activeMaterial.fibre.w *
+                activationDirection / max(dt, 1.0e-12f);
+            tangent += float3x3(
+                scale * m.x * m, scale * m.y * m,
+                scale * m.z * m) * cofactorMatrix(deformation);
         }
     }
     if (hasActiveTensions != 0u) {
@@ -2014,6 +2071,23 @@ inline float4 fusedFEMOperatorAtNode(
                 solver.globalization.w *
                     (direction[globalNode].w - averageQDirection);
             ++pressureElements;
+        }
+        if ((object.flags & NM_OBJECT_FEM_FIELD_ACTIVE_TENSION) != 0u) {
+            const NMMixedMaterialGPU activeMaterial = femMixedMaterial(
+                object, tetrahedron, mixedMaterials[tetrahedron.identity.x]);
+            float activation = 0.0f;
+            for (uint slot = 0u; slot < 4u; ++slot)
+                activation += fields[nodeBase + tetrahedron.nodes[slot]].secondary.x;
+            activation *= 0.25f;
+            const float tension = activeMaterial.fibre.w * activation;
+            elementValid = elementValid && isfinite(activation) &&
+                activation >= 0.0f && activation <= 1.0f &&
+                prescribedFibreInputValid(tension, activeMaterial,
+                                          object, deformation);
+            if (elementValid && tension > 0.0f)
+                tangent += prescribedFibrePiolaTangent(
+                    deformation, deformationDirection,
+                    activeMaterial.fibre.xyz, tension);
         }
         valid = valid && elementValid;
         derivativeForce += elementNodeValue(

@@ -46,7 +46,8 @@ constexpr std::uint32_t kKnownObjectFlags =
     NM_OBJECT_DISABLE_DEFORMABLE_CONTACT |
     NM_OBJECT_FEM_MATERIAL_FRAME |
     NM_OBJECT_FEM_REGIONAL_MATERIAL |
-    NM_OBJECT_FEM_REFERENCE_CONFIGURATION;
+    NM_OBJECT_FEM_REFERENCE_CONFIGURATION |
+    NM_OBJECT_FEM_FIELD_ACTIVE_TENSION;
 constexpr std::uint32_t kKnownRigidFlags =
     NM_RIGID_ARTICULATED |
     NM_RIGID_DYNAMIC |
@@ -1181,6 +1182,21 @@ private:
                     index,
                     "descriptor or solver contract is invalid"
                 );
+            }
+            if ((object.flags & NM_OBJECT_FEM_FIELD_ACTIVE_TENSION) != 0u &&
+                (object.representation != NM_REPRESENTATION_FEM ||
+                 (object.flags & (NM_OBJECT_MIXED_FEM |
+                     NM_OBJECT_FEM_REGIONAL_MATERIAL |
+                     NM_OBJECT_FEM_REFERENCE_CONFIGURATION |
+                     NM_OBJECT_ADAPTIVE |
+                     NM_OBJECT_MUTABLE_TOPOLOGY)) != 0u ||
+                 (object.flags & NM_OBJECT_MULTIPHYSICS) == 0u ||
+                 object.materialIndex >= world_.mixedMaterials.size() ||
+                 !(world_.mixedMaterials[object.materialIndex].fibre.w > 0.0f) ||
+                 !(world_.mixedMaterials[object.materialIndex].electrical.x > 0.0f) ||
+                 !(world_.mixedMaterials[object.materialIndex].electrical.z > 0.0f))) {
+                return failIndexed("continuum object", index,
+                    "field-driven active tension has invalid non-mixed electrical ownership");
             }
             if ((object.flags & NM_OBJECT_ADAPTIVE) != 0u) {
                 if (object.rigidBinding >= world_.contact.rigidProxies.size()) {

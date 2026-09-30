@@ -1041,6 +1041,17 @@ CompileResult compileWorld(
         const Representation representation = selectRepresentation(
             object, material, result.diagnostics
         );
+        if (object.femFieldDrivenActiveTension &&
+            (representation != Representation::fem || object.mixedFEM ||
+             !object.multiphysics.enabled || object.adaptive ||
+             object.automaticRepresentation || object.mutationPolicy.enabled ||
+             !(material.mixed.maximumActiveTension > 0.0) ||
+             !(material.mixed.electricalConductivity > 0.0) ||
+             !(material.mixed.activationOnRate > 0.0))) {
+            result.diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
+                "field-driven active tension requires conductive non-mixed multiphysics FEM"});
+            return result;
+        }
         const bool framed = !object.femMaterialFrameRotations.empty();
         const bool frameIdentity = std::ranges::any_of(
             object.femMaterialFrameSourceIdentity,
@@ -1151,6 +1162,8 @@ CompileResult compileWorld(
                 ? NM_OBJECT_MIXED_FEM : 0u) |
             (representation == Representation::fem && object.multiphysics.enabled
                 ? NM_OBJECT_MULTIPHYSICS : 0u) |
+            (representation == Representation::fem && object.femFieldDrivenActiveTension
+                ? NM_OBJECT_FEM_FIELD_ACTIVE_TENSION : 0u) |
             (representation == Representation::fem && object.mutationPolicy.enabled
                 ? NM_OBJECT_MUTABLE_TOPOLOGY : 0u) |
             (framed ? NM_OBJECT_FEM_MATERIAL_FRAME : 0u) |

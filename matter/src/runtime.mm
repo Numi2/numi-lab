@@ -3335,6 +3335,15 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 "borrowed FEM active-tension field must exactly cover every environment and cooked tetrahedron";
             return diagnostics;
         }
+        if (request.femActiveTensions != nullptr &&
+            std::any_of(state.objectLayout.begin(), state.objectLayout.end(),
+                [](const NMContinuumObjectGPU& object) {
+                    return (object.flags & NM_OBJECT_FEM_FIELD_ACTIVE_TENSION) != 0u;
+                })) {
+            diagnostics.message =
+                "field-driven FEM active stress and prescribed active tension cannot share one force owner";
+            return diagnostics;
+        }
         if ((request.femInitialElementForces == nullptr) !=
                 (request.femInitialElementForceCount == 0u) ||
             (request.femInitialElementForces != nullptr &&

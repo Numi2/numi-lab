@@ -178,6 +178,7 @@ enum NMObjectFlags : nm_u32 {
     NM_OBJECT_FEM_MATERIAL_FRAME = 1u << 9u,
     NM_OBJECT_FEM_REGIONAL_MATERIAL = 1u << 10u,
     NM_OBJECT_FEM_REFERENCE_CONFIGURATION = 1u << 11u,
+    NM_OBJECT_FEM_FIELD_ACTIVE_TENSION = 1u << 12u,
 };
 
 enum NMFieldBoundaryFlags : nm_u32 {

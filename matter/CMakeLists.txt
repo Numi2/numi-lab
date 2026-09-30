@@ -248,6 +248,23 @@ if(APPLE)
             LABELS "matter;human;cardiac;active" TIMEOUT 120)
     endif()
 
+    add_executable(numi-matter-fem-field-active-tension-probe
+        tools/fem_field_active_tension_probe.mm)
+    add_dependencies(numi-matter-fem-field-active-tension-probe numi_matter_shaders)
+    target_include_directories(numi-matter-fem-field-active-tension-probe
+        PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../include")
+    target_link_libraries(numi-matter-fem-field-active-tension-probe PRIVATE
+        numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_compile_definitions(numi-matter-fem-field-active-tension-probe PRIVATE
+        NUMI_MATTER_METALLIB=\"${NUMI_MATTER_METALLIB}\"
+        NUMI_MATTER_CARDIAC_MATERIAL=\"${CMAKE_CURRENT_SOURCE_DIR}/materials/rodero2021_ventricular_guccione_passive.nmatter\")
+    if(BUILD_TESTING)
+        add_test(NAME matter.runtime.fem_field_active_tension
+            COMMAND numi-matter-fem-field-active-tension-probe)
+        set_tests_properties(matter.runtime.fem_field_active_tension PROPERTIES
+            LABELS "matter;human;cardiac;active;electrical" TIMEOUT 120)
+    endif()
+
     add_executable(numi-matter-ventricular-source-step
         tools/ventricular_source_step.mm)
     add_dependencies(numi-matter-ventricular-source-step numi_matter_shaders)

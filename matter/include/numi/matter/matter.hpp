@@ -486,6 +486,10 @@ struct ObjectSource {
     // not proof of anatomical calibration.
     std::array<std::uint64_t, 4> femMaterialFrameSourceIdentity{};
     bool mixedFEM = true;
+    // Opt into activation-field-driven fibre stress while keeping the
+    // non-mixed passive law. Requires multiphysics and a conductive field;
+    // prescribed femActiveTensions cannot share this object's force owner.
+    bool femFieldDrivenActiveTension = false;
     FEMCapacitySource femCapacity;
     MultiphysicsSource multiphysics;
     std::vector<FieldBoundarySource> fieldBoundaries;
