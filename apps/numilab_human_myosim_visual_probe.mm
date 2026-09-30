@@ -3612,7 +3612,9 @@ void reportDeformableContactFailures(const numi::matter::RuntimeStateSnapshot& s
                   << " primitive_a=" << failure.primitivePair.x
                   << " primitive_b=" << failure.primitivePair.y
                   << " thickness=" << failure.parameters.x
-                  << " dt_a=" << failure.parameters.y << " dt_b=" << failure.parameters.z << "\n";
+                  << " dt_a=" << failure.parameters.y
+                  << " dt_b=" << failure.parameters.z
+                  << " solver_iteration=" << failure.parameters.w << "\n";
         for (unsigned side = 0u; side < 2u; ++side) {
             const auto& primitive = failure.primitives[side];
             std::cerr << "contact_primitive side=" << side << " object=" << primitive.nodesAndObject.w
@@ -4113,7 +4115,15 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         if (!failed.statuses.empty()) {
             const auto& status = failed.statuses.front();
             std::cerr << " matter_status=" << status.code
-                      << " matter_failing_index=" << status.failingIndex;
+                      << " matter_failing_index=" << status.failingIndex
+                      << " matter_object=" << status.objectIndex
+                      << " matter_completed_microsteps="
+                      << status.completedMicrosteps
+                      << " matter_diagnostics="
+                      << status.diagnostics.x << ","
+                      << status.diagnostics.y << ","
+                      << status.diagnostics.z << ","
+                      << status.diagnostics.w;
         }
         std::cerr << "\n";
         reportDeformableContactFailures(failed);

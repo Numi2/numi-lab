@@ -1734,6 +1734,7 @@ kernel void nm_contact_narrowphase_deformable(
     device const NMDeformableContactHistoryGPU* histories [[buffer(10)]],
     device NMDeformableContactGPU* contacts [[buffer(11)]],
     device NMMatterStatusGPU* statuses [[buffer(12)]],
+    constant float& contactPass [[buffer(13)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint capacity = dispatch.deformableContactCapacity;
@@ -1818,7 +1819,7 @@ kernel void nm_contact_narrowphase_deformable(
         recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
             left.nodesAndObject.w, slot,
             float4(float(candidate.identity.x),
-                   float(candidate.identity.y), -1.0f, 0.0f));
+                   float(candidate.identity.y), -1.0f, contactPass));
         return;
     }
     if (leftKind == NM_CONTINUUM_SURFACE_TRIANGLE &&
@@ -1830,7 +1831,7 @@ kernel void nm_contact_narrowphase_deformable(
         recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
             left.nodesAndObject.w, slot,
             float4(float(candidate.identity.x),
-                   float(candidate.identity.y), -2.0f, 0.0f));
+                   float(candidate.identity.y), -2.0f, contactPass));
         return;
     }
 

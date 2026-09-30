@@ -5564,6 +5564,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     "nm_contact_narrowphase_deformable",
                     environments * state.dispatch.deformableContactCapacity,
                     [&] {
+                        // Positive values identify the one-based nonlinear
+                        // candidate; -1 identifies final certification.
+                        const float contactPass = certify
+                            ? -1.0f : float(micro.solverIteration + 1u);
                         setDispatch();
                         [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
                         [encoder setBuffer:state.objects offset:0u atIndex:2u];
@@ -5577,6 +5581,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:deformableContactHistories offset:0u atIndex:10u];
                         [encoder setBuffer:state.deformableContacts offset:0u atIndex:11u];
                         [encoder setBuffer:state.statuses offset:0u atIndex:12u];
+                        [encoder setBytes:&contactPass length:sizeof(contactPass) atIndex:13u];
                     }
                 );
                 if (state.captureDiagnostics) {
