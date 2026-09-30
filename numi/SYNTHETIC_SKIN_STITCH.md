@@ -334,6 +334,32 @@ budget. The later performance checkpoint profiles the contact broadphase
 and measures one algorithmic improvement. No full robot-driven stitch or
 100x end-to-end speedup has been measured.
 
+The resumed six-step, 64x robot approach now reports the maximum MetalWorld
+required-contact count, normal velocity residual, and cone violation across
+every step. With the regenerated first-bite approach checkpoint (byte-exact
+restore, TSV SHA-256
+`80de3e32f766e99f3f39a4daee417fab38395cf265bf55dc6ebcb72fbd44472c`),
+the M4 ran a matched 16- versus 32-velocity-iteration comparison over the
+same 384 base substeps. The 16-iteration diagnostic took 39.516 s GPU versus
+62.576 s at 32 iterations, a 1.58x segment speedup, but the maximum normal
+residual rose from 0.002068 to 0.003482 m/s. Both exceed the existing
+0.002 m/s terminal contact-residual bound when applied conservatively to
+every step. Both retained all 46,080 tetrahedra and passed the grasp and rod
+checks with zero failed transactions, yet their saved needle/thread fields
+and tip travel differ. The lower-iteration trajectory is therefore an
+unqualified diagnostic, not a replacement checkpoint or a 100x result.
+The 16- and 32-iteration log SHA-256 values are
+`73ae91710802adc7ffc3b42c7dc5c7e5dbc38e9e30af5e5a78b176553962cb86`
+and `d612e6b15cdfef3315ad971c35af21a1fa5653f1b2023b8824818ea982b20cf5`;
+the executable and Matter metallib SHA-256 values are
+`03d74fa92f73af6e7ab8c8ca7f180c5f7e257bb3b7b0268738242a48cfe3c944`
+and `7d981a2606f7dbc5dcc723b388cbbec7c507ebc995592e6d98135606e5cb5b08`.
+Two body-membership cache variants in the Wave32 contact kernel preserved
+the post-entry probe result but did not improve its 1x or 16x GPU timing;
+both were reverted. The measured bottleneck remains the contact solve, so
+the next optimization needs to reduce work per validated contact iteration
+without relaxing residual or topology checks.
+
 The `--tissue-robot-first-bite-ik-only --synthetic-skin` geometry probe found
 a 250-step giver approach and 185-step 5 mm/s needle-orbit path at the
 original 10 um clearance. The entry

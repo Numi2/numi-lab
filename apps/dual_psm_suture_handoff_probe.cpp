@@ -17048,6 +17048,29 @@ int main(const int argc, const char* const argv[]) {
                             driven.diagnostics.message
                     );
                 }
+                require(
+                    driven.result.contactStatuses.size() ==
+                        robotApproachSteps,
+                    "robot first-bite continuation lost per-step contact certificates"
+                );
+                double maximumContactNormalResidual = 0.0;
+                double maximumContactConeViolation = 0.0;
+                std::uint32_t maximumRequiredConstraints = 0u;
+                for (const MRMetalWorldContactStatusGPU& contact :
+                     driven.result.contactStatuses) {
+                    maximumContactNormalResidual = std::max(
+                        maximumContactNormalResidual,
+                        static_cast<double>(contact.residuals.y)
+                    );
+                    maximumContactConeViolation = std::max(
+                        maximumContactConeViolation,
+                        static_cast<double>(contact.residuals.z)
+                    );
+                    maximumRequiredConstraints = std::max(
+                        maximumRequiredConstraints,
+                        contact.requiredConstraints
+                    );
+                }
                 const numi::matter::RuntimeStateSnapshot matter =
                     tissueRuntime.snapshot();
                 const NeedleTipCapsuleGeometry actualTip =
@@ -17221,6 +17244,12 @@ int main(const int argc, const char* const argv[]) {
                     << minimumDeterminant
                     << " matter_maximum_residual="
                     << maximumResidual
+                    << " metalworld_maximum_required_constraints="
+                    << maximumRequiredConstraints
+                    << " metalworld_maximum_normal_residual="
+                    << maximumContactNormalResidual
+                    << " metalworld_maximum_cone_violation="
+                    << maximumContactConeViolation
                     << " matter_newton_budget="
                     << tissueRuntime.newtonIterationBudget()
                     << " initial_tissue_node_separation_m="
