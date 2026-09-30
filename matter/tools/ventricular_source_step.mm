@@ -39,7 +39,7 @@ int main(int argc, char** argv) {
                 "cannot load full ventricular package: " + packageError);
         require(world.dispatch.environmentCount == 1u &&
                 world.fem.tetrahedra.size() == 1097534u &&
-                world.fem.nodes.size() == 218077u,
+                world.fem.nodes.size() == 218080u,
                 "unexpected full source ventricular cooked dimensions");
         const std::filesystem::path tensionPath = argv[2];
         const std::size_t bytes = world.fem.tetrahedra.size() * sizeof(float);
@@ -80,7 +80,7 @@ int main(int argc, char** argv) {
             require(initialized.encoded && runtime.valid(),
                     "runtime initialization: " + initialized.message);
             const auto before = runtime.snapshot();
-            require(before.available && before.femNodes.size() == 218077u,
+            require(before.available && before.femNodes.size() == 218080u,
                     "initial snapshot: " + before.message);
             id<MTLCommandBuffer> command = [queue commandBuffer];
             require(command != nil, "no borrowed Metal command buffer");
@@ -141,6 +141,7 @@ int main(int argc, char** argv) {
                         "\"zero_tension_input\":%s,"
                         "\"synthetic_density_kg_m3\":1050,"
                         "\"synthetic_fixed_nodes\":3,"
+                        "\"point_only_lv_rv_nodes_split\":3,"
                         "\"heartbeat_qualified\":false}\n",
                         [[device name] UTF8String], NM_MATTER_ABI_VERSION,
                         status.code, status.completedMicrosteps,
