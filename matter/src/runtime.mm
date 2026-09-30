@@ -1619,6 +1619,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_contact_scan_deformable_candidate_counts",
             "nm_contact_scatter_deformable_candidates",
             "nm_contact_narrowphase_deformable",
+            "nm_contact_validate_final_surface_pairs",
             "nm_contact_capture_deformable_failure",
             "nm_contact_compact_deformable",
             "nm_contact_scan_deformable_active_counts",
@@ -7791,6 +7792,117 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.femAccepted offset:0u atIndex:6u];
                 [encoder setBuffer:state.femCandidate offset:0u atIndex:7u];
             });
+            // FEM integration advances positions after the final Newton
+            // contact rebuild. Rebuild the swept surface pairs at that actual
+            // candidate and reject a strict crossing before any state can be
+            // published. This is a topology admission gate, not a second
+            // contact solve or a claim of calibrated cartilage pressure.
+            if (surfacePrimitiveTotal != 0u &&
+                state.dispatch.deformableContactCapacity != 0u) {
+                dispatchThreads("nm_contact_build_surface_primitives",
+                    surfacePrimitiveTotal, [&] {
+                        setDispatch();
+                        [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                        [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femCandidate offset:0u atIndex:4u];
+                        [encoder setBuffer:state.schedulers offset:0u atIndex:5u];
+                        [encoder setBuffer:state.gridNodes offset:0u atIndex:6u];
+                        [encoder setBuffer:state.mpmGrids offset:0u atIndex:7u];
+                        [encoder setBuffer:state.mpmNodeGenerations offset:0u atIndex:8u];
+                        [encoder setBuffer:state.adaptive offset:0u atIndex:9u];
+                        [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:10u];
+                        [encoder setBuffer:state.femNodeRanges offset:0u atIndex:11u];
+                        [encoder setBuffer:state.continuumSurfacePrimitives offset:0u atIndex:12u];
+                    });
+                dispatchGroups32("nm_contact_sort_surface_primitives",
+                    environments, [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.continuumSurfacePrimitives offset:0u atIndex:1u];
+                        [encoder setBuffer:state.femSurfaceSortKeysA offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femSurfaceSortKeysB offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femSurfaceSortIndicesA offset:0u atIndex:4u];
+                        [encoder setBuffer:state.femSurfaceSortIndicesB offset:0u atIndex:5u];
+                        [encoder setBuffer:state.femSurfaceActiveCounts offset:0u atIndex:6u];
+                    });
+                const std::uint32_t finalLeafCount =
+                    state.femSurfaceBVHLeafCount;
+                dispatchThreads("nm_contact_build_surface_bvh_leaves",
+                    environments * finalLeafCount, [&] {
+                        setDispatch();
+                        [encoder setBytes:&finalLeafCount length:sizeof(finalLeafCount) atIndex:1u];
+                        [encoder setBuffer:state.continuumSurfacePrimitives offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femSurfaceSortIndicesA offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femSurfaceActiveCounts offset:0u atIndex:4u];
+                        [encoder setBuffer:state.femSurfaceBVHBounds offset:0u atIndex:5u];
+                    });
+                for (std::uint32_t width = finalLeafCount / 2u;
+                     width != 0u; width /= 2u) {
+                    dispatchThreads("nm_contact_build_surface_bvh_level",
+                        environments * width, [&] {
+                            setDispatch();
+                            [encoder setBytes:&finalLeafCount length:sizeof(finalLeafCount) atIndex:1u];
+                            [encoder setBytes:&width length:sizeof(width) atIndex:2u];
+                            [encoder setBuffer:state.femSurfaceBVHBounds offset:0u atIndex:3u];
+                        });
+                }
+                const auto bindFinalSurfaceQuery = [&](id<MTLBuffer> counts) {
+                    setDispatch();
+                    [encoder setBytes:&finalLeafCount length:sizeof(finalLeafCount) atIndex:1u];
+                    [encoder setBuffer:state.continuumSurfacePrimitives offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femSurfaceSortIndicesA offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femSurfaceActiveCounts offset:0u atIndex:4u];
+                    [encoder setBuffer:state.femSurfaceBVHBounds offset:0u atIndex:5u];
+                    [encoder setBuffer:state.femTopologyNodesCandidate offset:0u atIndex:6u];
+                    [encoder setBuffer:state.objects offset:0u atIndex:7u];
+                    [encoder setBuffer:counts offset:0u atIndex:8u];
+                    [encoder setBuffer:state.deformableContactCandidates offset:0u atIndex:9u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:10u];
+                };
+                dispatchThreads("nm_contact_count_deformable_candidates",
+                    surfacePrimitiveTotal, [&] {
+                        bindFinalSurfaceQuery(state.femSurfaceSortKeysB);
+                    });
+                dispatchGroups32("nm_contact_scan_deformable_candidate_counts",
+                    environments, [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.femSurfaceActiveCounts offset:0u atIndex:1u];
+                        [encoder setBuffer:state.femSurfaceSortKeysB offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femSurfaceSortIndicesB offset:0u atIndex:3u];
+                        [encoder setBuffer:state.deformableContactCandidateCounts offset:0u atIndex:4u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:5u];
+                    });
+                dispatchThreads("nm_contact_scatter_deformable_candidates",
+                    surfacePrimitiveTotal, [&] {
+                        bindFinalSurfaceQuery(state.femSurfaceSortIndicesB);
+                    });
+                dispatchThreads("nm_contact_validate_final_surface_pairs",
+                    environments * state.dispatch.deformableContactCapacity,
+                    [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.femCandidate offset:0u atIndex:1u];
+                        [encoder setBuffer:state.gridNodes offset:0u atIndex:2u];
+                        [encoder setBuffer:state.continuumSurfacePrimitives offset:0u atIndex:3u];
+                        [encoder setBuffer:state.deformableContactCandidates offset:0u atIndex:4u];
+                        [encoder setBuffer:state.deformableContactCandidateCounts offset:0u atIndex:5u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:6u];
+                    });
+                if (state.captureDiagnostics) {
+                    dispatchThreads("nm_contact_capture_deformable_failure",
+                        environments, [&] {
+                            setDispatch();
+                            [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                            [encoder setBuffer:state.femCandidate offset:0u atIndex:2u];
+                            [encoder setBuffer:state.schedulers offset:0u atIndex:3u];
+                            [encoder setBuffer:state.gridNodes offset:0u atIndex:4u];
+                            [encoder setBuffer:state.continuumSurfacePrimitives offset:0u atIndex:5u];
+                            [encoder setBuffer:state.deformableContactCandidates offset:0u atIndex:6u];
+                            [encoder setBuffer:state.deformableContactCandidateCounts offset:0u atIndex:7u];
+                            [encoder setBuffer:state.statuses offset:0u atIndex:8u];
+                            [encoder setBuffer:state.deformableContactFailures offset:0u atIndex:9u];
+                        });
+                }
+            }
             dispatchThreads("nm_fem_validate", tetrahedronTotal, [&] {
                 setDispatch();
                 [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];

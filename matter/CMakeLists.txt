@@ -281,6 +281,17 @@ if(APPLE)
             PROPERTIES LABELS "matter;human;contact" TIMEOUT 120)
     endif()
 
+    add_executable(numi-matter-patellofemoral-full-surface-step
+        tools/patellofemoral_full_surface_step.mm)
+    add_dependencies(numi-matter-patellofemoral-full-surface-step numi_matter_shaders)
+    target_include_directories(numi-matter-patellofemoral-full-surface-step
+        PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../include")
+    target_link_libraries(numi-matter-patellofemoral-full-surface-step PRIVATE
+        numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_compile_definitions(numi-matter-patellofemoral-full-surface-step PRIVATE
+        NUMI_MATTER_METALLIB="${NUMI_MATTER_METALLIB}"
+        NUMI_MATTER_FIXTURE_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/materials/open_knee_cartilage_isotropic_preflight.nmatter")
+
     install(FILES "${NUMI_MATTER_METALLIB}" DESTINATION lib/numi-matter)
     install(TARGETS numi_matter_runtime ARCHIVE DESTINATION lib)
 endif()

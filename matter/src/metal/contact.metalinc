@@ -1483,6 +1483,39 @@ inline bool strictTriangleCrossing(
     return false;
 }
 
+// FP32 can make a short, real edge-through-face crossing look like an edge
+// endpoint lying almost on the opposite plane. Do not publish that unresolved
+// configuration as a certified nonintersection. A positive clearance larger
+// than this coordinate-relative roundoff remains admitted normally.
+inline bool nearPlaneInteriorVertex(
+    thread const float3* vertices,
+    thread const float3* triangle
+) {
+    const float3 a = triangle[0];
+    const float3 b = triangle[1];
+    const float3 c = triangle[2];
+    const float3 normal = cross(b - a, c - a);
+    const float area2 = dot(normal, normal);
+    if (!(area2 > kGeometryFloor * kGeometryFloor)) return false;
+    float scale = max(maximumAbsoluteCoordinate(a),
+        max(maximumAbsoluteCoordinate(b), maximumAbsoluteCoordinate(c)));
+    for (uint corner = 0u; corner < 3u; ++corner)
+        scale = max(scale, maximumAbsoluteCoordinate(vertices[corner]));
+    const float tolerance = 16.0f * kEpsilon *
+        sqrt(area2) * max(scale, 1.0e-12f);
+    const float edgeTolerance = 1.0e-4f * area2;
+    for (uint corner = 0u; corner < 3u; ++corner) {
+        const float side = dot(normal, vertices[corner] - a);
+        if (abs(side) > tolerance) continue;
+        const float3 point = vertices[corner] - normal * (side / area2);
+        if (dot(normal, cross(b - a, point - a)) > edgeTolerance &&
+            dot(normal, cross(c - b, point - b)) > edgeTolerance &&
+            dot(normal, cross(a - c, point - c)) > edgeTolerance)
+            return true;
+    }
+    return false;
+}
+
 // Direct production-CCD regression entry point. Nine float4 records per case:
 // kind/thickness, four start vertices, four finish vertices. Results are
 // hit, certified, time of impact, and separation. No alternate CCD path.
@@ -1571,6 +1604,69 @@ inline bool pointPointCCD(
     separation = distance;
     certified = finite3(normal) && isfinite(distance);
     return certified && distance <= effectiveThickness;
+}
+
+// Post-integration admission check. FEM positions are advanced after the final
+// Newton contact rebuild; test that actual candidate state before publication,
+// not only the pre-integration velocity trajectory used by narrowphase.
+kernel void nm_contact_validate_final_surface_pairs(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMFEMNodeStateGPU* femNodes [[buffer(1)]],
+    device const NMGridNodeStateGPU* gridNodes [[buffer(2)]],
+    device const NMContinuumSurfacePrimitiveGPU* primitives [[buffer(3)]],
+    device const NMDeformableContactCandidateGPU* candidates [[buffer(4)]],
+    device const uint* candidateCounts [[buffer(5)]],
+    device NMMatterStatusGPU* statuses [[buffer(6)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint capacity = dispatch.deformableContactCapacity;
+    if (capacity == 0u || global >= dispatch.environmentCount * capacity) return;
+    const uint environment = global / capacity;
+    const uint slot = global - environment * capacity;
+    if (slot >= candidateCounts[environment] ||
+        !environmentHealthy(statuses, environment)) return;
+    const NMDeformableContactCandidateGPU pair = candidates[global];
+    if ((pair.identity.w & NM_TOPOLOGY_ACTIVE) == 0u) return;
+    const uint primitiveCount = continuumSurfacePrimitiveCount(dispatch);
+    if (pair.identity.x >= primitiveCount ||
+        pair.identity.y >= primitiveCount) return;
+    const uint base = environment * primitiveCount;
+    const NMContinuumSurfacePrimitiveGPU left =
+        primitives[base + pair.identity.x];
+    const NMContinuumSurfacePrimitiveGPU right =
+        primitives[base + pair.identity.y];
+    if (left.identity.y != NM_CONTINUUM_SURFACE_TRIANGLE ||
+        right.identity.y != NM_CONTINUUM_SURFACE_TRIANGLE) return;
+    float3 points[6];
+    for (uint local = 0u; local < 6u; ++local) {
+        const NMContinuumSurfacePrimitiveGPU primitive =
+            local < 3u ? left : right;
+        const uint node = primitive.nodesAndObject[local % 3u];
+        if (node == NM_INVALID_INDEX) return;
+        if (node < dispatch.gridNodeCount) {
+            points[local] = gridNodes[
+                environment * dispatch.gridNodeCount + node
+            ].positionAndMass.xyz;
+        } else {
+            const uint femNode = node - dispatch.gridNodeCount;
+            if (femNode >= dispatch.femNodeCount) return;
+            points[local] = femNodes[
+                environment * dispatch.femNodeCount + femNode
+            ].positionAndMass.xyz;
+        }
+        if (!finite3(points[local])) return;
+    }
+    if (strictTriangleCrossing(points, points + 3u))
+        recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+            left.nodesAndObject.w, slot,
+            float4(float(pair.identity.x), float(pair.identity.y),
+                   -3.0f, 0.0f));
+    else if (nearPlaneInteriorVertex(points, points + 3u) ||
+             nearPlaneInteriorVertex(points + 3u, points))
+        recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+            left.nodesAndObject.w, slot,
+            float4(float(pair.identity.x), float(pair.identity.y),
+                   -4.0f, 0.0f));
 }
 
 kernel void nm_contact_capture_deformable_failure(
@@ -1723,6 +1819,18 @@ kernel void nm_contact_narrowphase_deformable(
             left.nodesAndObject.w, slot,
             float4(float(candidate.identity.x),
                    float(candidate.identity.y), -1.0f, 0.0f));
+        return;
+    }
+    if (leftKind == NM_CONTINUUM_SURFACE_TRIANGLE &&
+        rightKind == NM_CONTINUUM_SURFACE_TRIANGLE &&
+        strictTriangleCrossing(finish, finish + 3u)) {
+        // An initial gap is insufficient if the predicted candidate has
+        // already crossed. CCD's unsigned feature distance cannot certify
+        // the final topology after that event.
+        recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+            left.nodesAndObject.w, slot,
+            float4(float(candidate.identity.x),
+                   float(candidate.identity.y), -2.0f, 0.0f));
         return;
     }
 
