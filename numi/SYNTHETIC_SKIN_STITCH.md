@@ -512,6 +512,22 @@ boundary timestamp sampling was unavailable on this device. A larger gain
 needs stage attribution and an algorithmic change to candidate generation
 or the full-resolution solver, verified against the same physical gates.
 
+A subsequent memory-layout audit also found no qualifying gain. Gathering
+active primitives into sorted contiguous scratch before the pair sweep took
+1,129.682 ms GPU on the same 1x step; its log SHA-256 is
+`8d3de2fd9fd6630d63494409bf10a7f7369b750ed7bbfec363a36277e9fa6c51`.
+Hoisting repeated node-lineage reads out of the 3-by-3 adjacency comparison
+made the step slower at 1,333.008 ms GPU; its log SHA-256 is
+`6fe8ef5a6babca791e003a1555a8621766905f994df3719d89b6880f2796b608`.
+Both retained every published physical field, and both trials were removed.
+The accepted metallib and linked-library SHA-256 values were restored to
+`7d981a2606f7dbc5dcc723b388cbbec7c507ebc995592e6d98135606e5cb5b08`
+and `dafd704ac5a81a7437666632560913002495bd9c7fa0c0fc57723efc83bfb671`.
+These results reject sorted-record locality and manual lineage-load hoisting
+as useful changes on this skin step. The remaining route must change the
+amount of candidate work or the number and cost of full coupled passes,
+while preserving contact admission, rollback, and final residual checks.
+
 The stronger 75 um jaw-preload trial from robot contact step 1645 also
 remains unqualified. A 13 ms ramp at 1 mm/s preserved Matter's 46,080
 tets and zero failures but drifted 212 um at the needle seat. A 6 ms
