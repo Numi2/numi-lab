@@ -1309,7 +1309,9 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_contact_clear_samples",
             "nm_contact_build_surface_primitives",
             "nm_contact_sort_surface_primitives",
-            "nm_contact_build_deformable_candidates",
+            "nm_contact_count_deformable_candidates",
+            "nm_contact_prefix_deformable_candidates",
+            "nm_contact_scatter_deformable_candidates",
             "nm_contact_narrowphase_deformable",
             "nm_contact_compact_deformable",
             "nm_contact_scan_deformable_active_counts",
@@ -4507,20 +4509,48 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.femSurfaceActiveCounts offset:0u atIndex:6u];
                     }
                 );
-                dispatchGroups32(
-                    "nm_contact_build_deformable_candidates",
-                    environments,
+                // The eight-pass x sort ends in the A buffers. Reuse its B
+                // scratch buffers for deterministic per-left counts and
+                // offsets; the parallel scatter retains left/right order.
+                dispatchThreads(
+                    "nm_contact_count_deformable_candidates",
+                    surfacePrimitiveTotal,
                     [&] {
                         setDispatch();
                         [encoder setBuffer:state.continuumSurfacePrimitives offset:0u atIndex:1u];
                         [encoder setBuffer:state.femSurfaceSortIndicesA offset:0u atIndex:2u];
                         [encoder setBuffer:state.femSurfaceActiveCounts offset:0u atIndex:3u];
-                        [encoder setBuffer:state.deformableContactCandidates offset:0u atIndex:4u];
-                        [encoder setBuffer:state.deformableContactCandidateCounts offset:0u atIndex:5u];
-                        [encoder setBuffer:state.statuses offset:0u atIndex:6u];
+                        [encoder setBuffer:state.femSurfaceSortIndicesB offset:0u atIndex:4u];
                         [encoder setBuffer:state.femTopologyNodesCandidate
-                                     offset:0u atIndex:7u];
-                        [encoder setBuffer:state.objects offset:0u atIndex:8u];
+                                     offset:0u atIndex:5u];
+                        [encoder setBuffer:state.objects offset:0u atIndex:6u];
+                    }
+                );
+                dispatchGroups32(
+                    "nm_contact_prefix_deformable_candidates",
+                    environments,
+                    [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.femSurfaceActiveCounts offset:0u atIndex:1u];
+                        [encoder setBuffer:state.femSurfaceSortIndicesB offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femSurfaceSortKeysB offset:0u atIndex:3u];
+                        [encoder setBuffer:state.deformableContactCandidateCounts offset:0u atIndex:4u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:5u];
+                    }
+                );
+                dispatchThreads(
+                    "nm_contact_scatter_deformable_candidates",
+                    surfacePrimitiveTotal,
+                    [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.continuumSurfacePrimitives offset:0u atIndex:1u];
+                        [encoder setBuffer:state.femSurfaceSortIndicesA offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femSurfaceActiveCounts offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femSurfaceSortKeysB offset:0u atIndex:4u];
+                        [encoder setBuffer:state.deformableContactCandidates offset:0u atIndex:5u];
+                        [encoder setBuffer:state.femTopologyNodesCandidate
+                                     offset:0u atIndex:6u];
+                        [encoder setBuffer:state.objects offset:0u atIndex:7u];
                     }
                 );
                 dispatchThreads(

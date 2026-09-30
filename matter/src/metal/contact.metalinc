@@ -752,96 +752,136 @@ inline bool surfacePairEligible(
         dispatch, left, right, topologyNodes, environment);
 }
 
-kernel void nm_contact_build_deformable_candidates(
+kernel void nm_contact_count_deformable_candidates(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMContinuumSurfacePrimitiveGPU* primitives [[buffer(1)]],
     device const uint* sortedIndices [[buffer(2)]],
     device const uint* activeCounts [[buffer(3)]],
-    device NMDeformableContactCandidateGPU* candidates [[buffer(4)]],
-    device uint* candidateCounts [[buffer(5)]],
-    device NMMatterStatusGPU* statuses [[buffer(6)]],
-    device const NMFEMTopologyNodeGPU* topologyNodes [[buffer(7)]],
-    device const NMContinuumObjectGPU* objects [[buffer(8)]],
+    device uint* leftCounts [[buffer(4)]],
+    device const NMFEMTopologyNodeGPU* topologyNodes [[buffer(5)]],
+    device const NMContinuumObjectGPU* objects [[buffer(6)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint primitiveCount = continuumSurfacePrimitiveCount(dispatch);
+    if (primitiveCount == 0u ||
+        dispatch.deformableContactCapacity == 0u) return;
+    const uint environment = global / primitiveCount;
+    const uint leftOrder = global % primitiveCount;
+    if (environment >= dispatch.environmentCount ||
+        leftOrder >= activeCounts[environment]) return;
+    const uint primitiveBase = environment * primitiveCount;
+    const uint leftIndex = sortedIndices[primitiveBase + leftOrder];
+    uint count = 0u;
+    if (leftIndex < primitiveCount) {
+        const NMContinuumSurfacePrimitiveGPU left =
+            primitives[primitiveBase + leftIndex];
+        const uint activeCount = activeCounts[environment];
+        for (uint rightOrder = leftOrder + 1u;
+             rightOrder < activeCount; ++rightOrder) {
+            const uint rightIndex =
+                sortedIndices[primitiveBase + rightOrder];
+            if (rightIndex >= primitiveCount) continue;
+            const NMContinuumSurfacePrimitiveGPU right =
+                primitives[primitiveBase + rightIndex];
+            if (right.boundsMinimum.x > left.boundsMaximum.x) break;
+            if ((right.identity.w & NM_TOPOLOGY_ACTIVE) != 0u &&
+                surfaceAABBOverlap(left, right) &&
+                surfacePairEligible(
+                    dispatch, left, right, objects, topologyNodes,
+                    environment)) ++count;
+        }
+    }
+    leftCounts[primitiveBase + leftOrder] = count;
+}
+
+kernel void nm_contact_prefix_deformable_candidates(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const uint* activeCounts [[buffer(1)]],
+    device const uint* leftCounts [[buffer(2)]],
+    device uint* leftOffsets [[buffer(3)]],
+    device uint* candidateCounts [[buffer(4)]],
+    device NMMatterStatusGPU* statuses [[buffer(5)]],
     uint lane [[thread_index_in_threadgroup]],
     uint environment [[threadgroup_position_in_grid]]
 ) {
-    if (lane >= 32u || environment >= dispatch.environmentCount) return;
+    if (lane != 0u || environment >= dispatch.environmentCount) return;
     const uint primitiveCount = continuumSurfacePrimitiveCount(dispatch);
     const uint activeCount = activeCounts[environment];
     const uint capacity = dispatch.deformableContactCapacity;
-    if (primitiveCount == 0u || activeCount < 2u || capacity == 0u) {
-        if (lane == 0u) candidateCounts[environment] = 0u;
+    if (capacity == 0u || activeCount < 2u) {
+        candidateCounts[environment] = 0u;
         return;
     }
     const uint primitiveBase = environment * primitiveCount;
+    uint total = 0u;
+    bool overflow = false;
+    for (uint leftOrder = 0u; leftOrder < activeCount; ++leftOrder) {
+        leftOffsets[primitiveBase + leftOrder] = total;
+        const uint count = leftCounts[primitiveBase + leftOrder];
+        const uint remaining = capacity - total;
+        if (count > remaining) overflow = true;
+        total += min(count, remaining);
+    }
+    candidateCounts[environment] = total;
+    if (overflow)
+        recordFailure(
+            statuses[environment], NM_STATUS_CAPACITY_OVERFLOW,
+            NM_INVALID_INDEX, total,
+            float4(float(total), float(capacity),
+                   float(activeCount), 0.0f));
+}
+
+kernel void nm_contact_scatter_deformable_candidates(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMContinuumSurfacePrimitiveGPU* primitives [[buffer(1)]],
+    device const uint* sortedIndices [[buffer(2)]],
+    device const uint* activeCounts [[buffer(3)]],
+    device const uint* leftOffsets [[buffer(4)]],
+    device NMDeformableContactCandidateGPU* candidates [[buffer(5)]],
+    device const NMFEMTopologyNodeGPU* topologyNodes [[buffer(6)]],
+    device const NMContinuumObjectGPU* objects [[buffer(7)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint primitiveCount = continuumSurfacePrimitiveCount(dispatch);
+    if (primitiveCount == 0u) return;
+    const uint environment = global / primitiveCount;
+    const uint leftOrder = global % primitiveCount;
+    if (environment >= dispatch.environmentCount ||
+        activeCounts[environment] < 2u ||
+        leftOrder >= activeCounts[environment]) return;
+    const uint primitiveBase = environment * primitiveCount;
+    const uint capacity = dispatch.deformableContactCapacity;
+    if (capacity == 0u) return;
+    const uint offset = leftOffsets[primitiveBase + leftOrder];
+    if (offset >= capacity) return;
+    const uint leftIndex = sortedIndices[primitiveBase + leftOrder];
+    if (leftIndex >= primitiveCount) return;
+    const NMContinuumSurfacePrimitiveGPU left =
+        primitives[primitiveBase + leftIndex];
     const uint candidateBase = environment * capacity;
-    threadgroup uint outputCount;
-    threadgroup uint overflow;
-    if (lane == 0u) {
-        outputCount = 0u;
-        overflow = 0u;
-    }
-    threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
-    for (uint leftOrder = 0u; leftOrder + 1u < activeCount;
-         ++leftOrder) {
-        const uint leftIndex = sortedIndices[primitiveBase + leftOrder];
-        if (leftIndex >= primitiveCount) continue;
-        const NMContinuumSurfacePrimitiveGPU left =
-            primitives[primitiveBase + leftIndex];
-        for (uint firstRight = leftOrder + 1u;
-             firstRight < activeCount; firstRight += 32u) {
-            if (outputCount >= capacity) break;
-            const uint firstRightIndex =
-                sortedIndices[primitiveBase + firstRight];
-            if (firstRightIndex < primitiveCount &&
-                primitives[primitiveBase + firstRightIndex]
-                    .boundsMinimum.x > left.boundsMaximum.x) break;
-            const uint rightOrder = firstRight + lane;
-            bool selected = rightOrder < activeCount;
-            uint rightIndex = NM_INVALID_INDEX;
-            NMContinuumSurfacePrimitiveGPU right{};
-            if (selected) {
-                rightIndex = sortedIndices[primitiveBase + rightOrder];
-                selected = rightIndex < primitiveCount;
-            }
-            if (selected) {
-                right = primitives[primitiveBase + rightIndex];
-                selected =
-                    (right.identity.w & NM_TOPOLOGY_ACTIVE) != 0u &&
-                    surfaceAABBOverlap(left, right) &&
-                    surfacePairEligible(
-                        dispatch, left, right, objects, topologyNodes, environment);
-            }
-            const uint prefix = simd_prefix_exclusive_sum(
-                selected ? 1u : 0u);
-            const uint count = simd_sum(selected ? 1u : 0u);
-            if (selected && outputCount + prefix < capacity) {
-                NMDeformableContactCandidateGPU candidate{};
-                candidate.identity = {
-                    leftIndex, rightIndex, outputCount + prefix,
-                    NM_TOPOLOGY_ACTIVE,
-                };
-                candidates[candidateBase + outputCount + prefix] = candidate;
-            }
-            threadgroup_barrier(
-                mem_flags::mem_device | mem_flags::mem_threadgroup);
-            if (lane == 0u) {
-                if (count > capacity - outputCount) overflow = 1u;
-                outputCount = min(outputCount + count, capacity);
-            }
-            threadgroup_barrier(
-                mem_flags::mem_device | mem_flags::mem_threadgroup);
+    const uint activeCount = activeCounts[environment];
+    uint localCount = 0u;
+    for (uint rightOrder = leftOrder + 1u;
+         rightOrder < activeCount; ++rightOrder) {
+        const uint rightIndex = sortedIndices[primitiveBase + rightOrder];
+        if (rightIndex >= primitiveCount) continue;
+        const NMContinuumSurfacePrimitiveGPU right =
+            primitives[primitiveBase + rightIndex];
+        if (right.boundsMinimum.x > left.boundsMaximum.x) break;
+        if ((right.identity.w & NM_TOPOLOGY_ACTIVE) == 0u ||
+            !surfaceAABBOverlap(left, right) ||
+            !surfacePairEligible(
+                dispatch, left, right, objects, topologyNodes,
+                environment)) continue;
+        if (localCount < capacity - offset) {
+            NMDeformableContactCandidateGPU candidate{};
+            candidate.identity = {
+                leftIndex, rightIndex, offset + localCount,
+                NM_TOPOLOGY_ACTIVE,
+            };
+            candidates[candidateBase + offset + localCount] = candidate;
         }
-        if (outputCount >= capacity) break;
-    }
-    if (lane == 0u) {
-        candidateCounts[environment] = outputCount;
-        if (overflow != 0u)
-            recordFailure(
-                statuses[environment], NM_STATUS_CAPACITY_OVERFLOW,
-                NM_INVALID_INDEX, outputCount,
-                float4(float(outputCount), float(capacity),
-                       float(activeCount), 0.0f));
+        ++localCount;
     }
 }
 

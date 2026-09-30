@@ -395,9 +395,32 @@ e6510dcf37dd36867a3edd45cfa3aaf23494c9a1d7d0c9de97716d146f860e87;
 the executable and Matter metallib SHA-256 values are
 c394ed8b8a8f521c55ca38e0ae6db8feef448f77b4da0277c78c1e166a4e49d5
 and f594c387b3d34a000d8ab80e3049d76e5bea650901d4c4a9012fb7d1c3d8bf1a.
-This measured segment is still 57x slower than the 33.8 ms target implied
-by the requested 100x speedup from the original baseline. It is not a
-whole-stitch or robot-contact speedup measurement.
+That intermediate measured segment was still 57x slower than the 33.8 ms
+target implied by the requested 100x speedup from the original baseline.
+
+The next candidate keeps the x sweep and parallelizes candidate enumeration
+across left surfaces. It counts eligible pairs per surface, computes
+deterministic capacity-bounded offsets, then scatters in the x-sweep
+left/right order. The temporary sort buffers serve as count and offset
+scratch, so no new resident allocation is required. A 100-seed randomized
+check with 200 boxes per seed, signed coordinates, and five capacity cases
+matched the serial sweep's ordered pairs. The final unprofiled post-entry
+GPU times at 1x, 4x, and 16x were 1,132.357, 1,494.502, and 2,952.470 ms
+versus 3,375.995, 3,739.432, and 5,193.212 ms on the prior shader.
+That is 2.98x, 2.50x, and 1.76x on the three matched cadence modes.
+All published physical fields matched their respective prior runs,
+including the puncture channel, 46,080 active tets, zero removed mass,
+positive determinant, and zero failed steps. Six focused tests passed.
+The final log SHA-256 values, ordered by 1x/4x/16x, are
+849dbe70082ef23992324a889bc979040db759dd3afada44ba2ad7d3d05d0f45,
+bb0c3ab76026c8fcfc4fb84d775bcb1ea52045d92d237b1a6d1b689dbed75018,
+and 8c99e5a5f06a5feedc156c2a2b9c3b5575773fa0376f46ab647fd0b857b3b4bf.
+The linked library and shader SHA-256 values are
+dafd704ac5a81a7437666632560913002495bd9c7fa0c0fc57723efc83bfb671
+and 7d981a2606f7dbc5dcc723b388cbbec7c507ebc995592e6d98135606e5cb5b08.
+The final 1x segment is still about 33.5x slower than the 33.8 ms
+100x target. These timings do not establish whole-stitch or robot-contact
+speedup.
 
 The changed shader/program fingerprint correctly rejects the earlier
 robot tip-contact checkpoint. Its diagnostic restore log SHA-256 is
