@@ -212,6 +212,17 @@ void run(const numi::matter::CompiledWorld& world,
         const auto before = runtime.snapshot();
         require(before.available && before.femNodes.size() == 50991u,
                 "initial snapshot: " + before.message);
+        id<MTLBuffer> rawConstraintReactions = (__bridge id<MTLBuffer>)
+            runtime.femConstraintReactionBuffer();
+        const NSUInteger reactionBytes = static_cast<NSUInteger>(
+            world.fem.nodes.size() * sizeof(nm_float4));
+        id<MTLBuffer> reactionSnapshot = rawConstraintReactions == nil
+            ? nil
+            : [device newBufferWithLength:reactionBytes
+                options:MTLResourceStorageModeShared];
+        require(rawConstraintReactions != nil && reactionSnapshot != nil &&
+                rawConstraintReactions.length >= reactionBytes,
+                "FEM constraint-reaction readback is unavailable");
         id<MTLCommandBuffer> command = [queue commandBuffer];
         numi::matter::EncodeRequest request{};
         request.commandBuffer = (__bridge void*)command;
@@ -224,6 +235,12 @@ void run(const numi::matter::CompiledWorld& world,
         request.phase = numi::matter::EncodePhase::preDynamics;
         auto encoded = runtime.encode(request);
         require(encoded.encoded, "preDynamics: " + encoded.message);
+        id<MTLBlitCommandEncoder> blit = [command blitCommandEncoder];
+        require(blit != nil, "FEM reaction copy encoder is unavailable");
+        [blit copyFromBuffer:rawConstraintReactions sourceOffset:0u
+                  toBuffer:reactionSnapshot destinationOffset:0u
+                      size:reactionBytes];
+        [blit endEncoding];
         request.phase = numi::matter::EncodePhase::postCommit;
         encoded = runtime.encode(request);
         require(encoded.encoded, "postCommit: " + encoded.message);
@@ -245,6 +262,7 @@ void run(const numi::matter::CompiledWorld& world,
         double acceptedKineticEnergy = 0.0;
         double maximumFixedNodeMovement = 0.0;
         std::size_t movedFixedNodes = 0u;
+        std::array<double, 3> momentumChange{};
         for (std::size_t index = 0u; index < after.femNodes.size(); ++index) {
             const auto& a = before.femNodes[index];
             const auto& b = after.femNodes[index];
@@ -265,7 +283,19 @@ void run(const numi::matter::CompiledWorld& world,
             };
             initialKineticEnergy += kinetic(a);
             acceptedKineticEnergy += kinetic(b);
+            const auto& beforeVelocity = a.velocityAndInverseMass;
+            const auto& afterVelocity = b.velocityAndInverseMass;
+            for (std::uint32_t axis = 0u; axis < 3u; ++axis)
+                momentumChange[axis] += double(a.positionAndMass.w) *
+                    ((&afterVelocity.x)[axis] - (&beforeVelocity.x)[axis]);
         }
+        std::array<double, 3> fixedReaction{};
+        std::array<double, 3> fixedCentroid{};
+        std::array<double, 3> fixedMomentAboutOrigin{};
+        double fixedReactionL1 = 0.0;
+        double maximumFixedReaction = 0.0;
+        const auto* reactions = static_cast<const nm_float4*>(
+            reactionSnapshot.contents);
         for (const std::uint32_t index : ptcFixedNodes) {
             const auto& a = before.femNodes[index].positionAndMass;
             const auto& b = after.femNodes[index].positionAndMass;
@@ -276,7 +306,59 @@ void run(const numi::matter::CompiledWorld& world,
             maximumFixedNodeMovement = std::max(
                 maximumFixedNodeMovement, movement);
             movedFixedNodes += movement != 0.0;
+            fixedCentroid[0] += a.x;
+            fixedCentroid[1] += a.y;
+            fixedCentroid[2] += a.z;
+            if (after.statuses[0].code == NM_STATUS_SUCCESS) {
+                const nm_float4 reaction = reactions[index];
+                const double magnitude = std::sqrt(
+                    double(reaction.x) * reaction.x +
+                    double(reaction.y) * reaction.y +
+                    double(reaction.z) * reaction.z);
+                require(std::isfinite(magnitude),
+                        "accepted FEM bone-tie reaction is non-finite");
+                fixedReaction[0] += reaction.x;
+                fixedReaction[1] += reaction.y;
+                fixedReaction[2] += reaction.z;
+                fixedMomentAboutOrigin[0] +=
+                    double(a.y) * reaction.z - double(a.z) * reaction.y;
+                fixedMomentAboutOrigin[1] +=
+                    double(a.z) * reaction.x - double(a.x) * reaction.z;
+                fixedMomentAboutOrigin[2] +=
+                    double(a.x) * reaction.y - double(a.y) * reaction.x;
+                fixedReactionL1 += magnitude;
+                maximumFixedReaction = std::max(maximumFixedReaction, magnitude);
+            }
         }
+        if (!ptcFixedNodes.empty())
+            for (double& component : fixedCentroid)
+                component /= static_cast<double>(ptcFixedNodes.size());
+        const std::array<double, 3> fixedMoment{
+            fixedMomentAboutOrigin[0] -
+                (fixedCentroid[1] * fixedReaction[2] -
+                 fixedCentroid[2] * fixedReaction[1]),
+            fixedMomentAboutOrigin[1] -
+                (fixedCentroid[2] * fixedReaction[0] -
+                 fixedCentroid[0] * fixedReaction[2]),
+            fixedMomentAboutOrigin[2] -
+                (fixedCentroid[0] * fixedReaction[1] -
+                 fixedCentroid[1] * fixedReaction[0]),
+        };
+        const double fixedMomentMagnitude = std::sqrt(
+            fixedMoment[0] * fixedMoment[0] +
+            fixedMoment[1] * fixedMoment[1] +
+            fixedMoment[2] * fixedMoment[2]);
+        const double fixedReactionResultant = std::sqrt(
+            fixedReaction[0] * fixedReaction[0] +
+            fixedReaction[1] * fixedReaction[1] +
+            fixedReaction[2] * fixedReaction[2]);
+        const double momentumRateResidual = std::sqrt(
+            std::pow(momentumChange[0] / world.dispatch.gravityAndTimestep.w +
+                     fixedReaction[0], 2) +
+            std::pow(momentumChange[1] / world.dispatch.gravityAndTimestep.w +
+                     fixedReaction[1], 2) +
+            std::pow(momentumChange[2] / world.dispatch.gravityAndTimestep.w +
+                     fixedReaction[2], 2));
         require(output.good(), "accepted position write failed");
         std::size_t activeHistories = 0u;
         double barrierImpulseMagnitude = 0.0;
@@ -287,6 +369,21 @@ void run(const numi::matter::CompiledWorld& world,
                     double(history.normalAndBarrier.w));
             }
         const auto& status = after.statuses[0];
+        const std::string reactionPath =
+            std::string(outputPath) + ".reactions.f32le";
+        if (status.code == NM_STATUS_SUCCESS) {
+            std::ofstream reactionsOutput(reactionPath,
+                std::ios::binary | std::ios::trunc);
+            require(reactionsOutput.good(),
+                    "cannot create accepted FEM reaction stream");
+            reactionsOutput.write(
+                static_cast<const char*>(reactionSnapshot.contents),
+                static_cast<std::streamsize>(reactionBytes));
+            require(reactionsOutput.good(),
+                    "accepted FEM reaction stream write failed");
+        } else {
+            std::remove(reactionPath.c_str());
+        }
         std::printf("{\"device\":\"%s\",\"abi\":%u,\"side\":%u,"
                     "\"baseline\":%s,\"source_nodes\":%zu,\"source_tetrahedra\":%zu,"
                     "\"contact_slop_m\":%.9g,\"approach_speed_mps\":%.9g,"
@@ -294,6 +391,15 @@ void run(const numi::matter::CompiledWorld& world,
                     "\"ptc_fixed_node_count\":%zu,"
                     "\"ptc_fixed_nodes_moved\":%zu,"
                     "\"maximum_fixed_node_movement_m\":%.9g,"
+                    "\"fixed_tie_reaction_l1_n\":%.12g,"
+                    "\"fixed_tie_reaction_resultant_n\":%.12g,"
+                    "\"fixed_tie_reaction_max_node_n\":%.12g,"
+                    "\"fixed_tie_reaction_xyz_n\":[%.12g,%.12g,%.12g],"
+                    "\"fixed_tie_centroid_m\":[%.12g,%.12g,%.12g],"
+                    "\"fixed_tie_moment_about_centroid_nm\":[%.12g,%.12g,%.12g],"
+                    "\"fixed_tie_moment_magnitude_nm\":%.12g,"
+                    "\"momentum_reaction_residual_n\":%.12g,"
+                    "\"accepted_reaction_stream_bytes\":%zu,"
                     "\"surface_faces\":%zu,\"status_code\":%u,"
                     "\"completed_microsteps\":%u,\"failing_index\":%u,"
                     "\"active_deformable_histories\":%zu,"
@@ -308,6 +414,15 @@ void run(const numi::matter::CompiledWorld& world,
                     disableContact ? "true" : "false",
                     ptcFixedNodes.size(), movedFixedNodes,
                     maximumFixedNodeMovement,
+                    fixedReactionL1, fixedReactionResultant,
+                    maximumFixedReaction,
+                    fixedReaction[0], fixedReaction[1], fixedReaction[2],
+                    fixedCentroid[0], fixedCentroid[1], fixedCentroid[2],
+                    fixedMoment[0], fixedMoment[1], fixedMoment[2],
+                    fixedMomentMagnitude,
+                    momentumRateResidual,
+                    status.code == NM_STATUS_SUCCESS
+                        ? static_cast<std::size_t>(reactionBytes) : 0u,
                     world.fem.surfaceFaces.size(),
                     status.code, status.completedMicrosteps, status.failingIndex,
                     activeHistories, rolledBack ? "true" : "false",
