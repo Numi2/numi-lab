@@ -151,9 +151,11 @@ state in free space and lowers the 32x segment GPU time from 96.65 to 68.11 s.
 That is 2.13x simulated-time throughput versus the 16x continuation. One
 more guarded segment advanced the tip another 113.1 um and left its tapered
 capsule 0.264 mm from the modeled skin contact nodes. The shortcut refuses
-the next segment
-because it could enter the contact band. The 100x full-simulation target is
-still open.
+the next segment because it could enter the contact band. A full seven-pass
+bridge then advanced the tip another 113.8 um, leaving its tapered capsule
+0.1515 mm from those nodes with 8/6 jaw contacts, all 46,080 tetrahedra,
+zero puncture channels, and zero failed steps. The 100x full-simulation
+target is still open.
 Physical pickup, robot-driven bites, the knot, and unloaded wound retention
 also remain open. The checkpoint and performance receipts are in
 [`numi/SYNTHETIC_SKIN_STITCH.md`](numi/SYNTHETIC_SKIN_STITCH.md).

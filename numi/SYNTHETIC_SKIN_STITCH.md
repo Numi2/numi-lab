@@ -200,10 +200,43 @@ its TSV SHA-256 is
 The linked Matter snapshot SHA-256 is
 `2b0e41052eed983971dea2cc0da55adf3417cdf72d5482dd0b9fe15ba841acc6`.
 The next identical shortcut was rejected before physics because its planned
-sweep could enter the skin contact band. The current executable SHA-256 is
+sweep could enter the skin contact band. The free-space executable SHA-256 is
 `cc09c970d2aea6387b45c324a49d7aa5ffb0c852e8948ce078e36a402096edf5`.
-The next solver path must use full contact authority near the skin; none of
-these free-space results proves a robot-driven puncture.
+No free-space result proves a robot-driven puncture.
+
+`--tissue-robot-first-bite-contact-approach-only` restores the step-1005
+checkpoint, explicitly returns from the saved two-pass budget to the cooked
+seven Newton passes, and performs another bounded 32x/24 ms articulated
+approach. It passed: 113.78 um actual dynamic tip advance; tapered-tip
+contact-node separation 0.2640 to 0.1515 mm; 8/6 giver-jaw contacts, full
+15/15 insert masks, 0.614 um seat drift, 0.339 um swage error, 0.501 um
+maximum thread-edge error, all 46,080 tetrahedra, zero puncture channels,
+zero removed mass, positive determinant, 7.4556e-7 maximum Matter residual,
+and zero failed steps. GPU time was 97.081 s. Wall time was 178.47 s on this
+run; the larger wall/GPU gap is unassigned, so use GPU time only for the
+solver comparison. The v3 output checkpoint restores byte-exact at state
+step 1389. Its run log is
+`build-skin-wound/synthetic-skin-robot-contact-approach.log`, SHA-256
+`cbb8a401a770d1b1d7c31d5c5ba5a500580bea30d295d792b176efc07b152878`;
+the TSV SHA-256 is
+`f18bc4025bd23ba7702fa9a34a9e09d10f5b949d0218857148dafc4167e91796`;
+the linked Matter snapshot SHA-256 is
+`ffb2f600fec31f54d59caad22d0bea72978e67b512659ff2e167df152030aacc`.
+The executable SHA-256 is
+`c8152cc2131f10e3d8bd2f7c8ad04c6058bd5de788629094190939dc26867b91`.
+Repeating the pre-contact bridge from step 1389 is rejected before physics:
+its planned sweep could cross the 100 um contact guard. The next mode must
+measure actual needle/skin contact, deformation, reaction, and earned
+puncture topology at the full solver budget; this bridge only proves a loaded
+robot approach to the contact boundary.
+The native visual probe also accepted the step-1389 checkpoint's
+`synthetic_skin_wound` identity and live FEM snapshot, rendering 6,336 tissue
+triangles in `build-skin-wound/skin-robot-contact-visual/handoff-close.png`
+and `handoff-overview.png`. The overview PNG SHA-256 is
+`e1a11cc1bcafe5c607156658bf7f6c2fd7a8c99623efd61fa31c5b2078b76688`;
+the visual evidence JSON SHA-256 is
+`01b2821a79455b0ebd76f2ae07f520ff4c0be494f7977e45cca8525fa5eeaa6f`.
+This is a rendered pre-contact state, not a motion video or puncture proof.
 
 The `--tissue-robot-first-bite-ik-only --synthetic-skin` geometry probe found
 a 250-step giver approach and 185-step 5 mm/s needle-orbit path at the

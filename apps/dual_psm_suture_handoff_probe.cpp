@@ -7196,6 +7196,7 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             argument == "--tissue-robot-first-bite-grip-only" ||
             argument == "--tissue-robot-first-bite-drive-only" ||
             argument == "--tissue-robot-first-bite-continue-only" ||
+            argument == "--tissue-robot-first-bite-contact-approach-only" ||
             argument == "--tissue-receiver-state-bridge-only" ||
             argument == "--tissue-receiver-bridge-resume-only" ||
             argument == "--tissue-receiver-alignment-replay-only" ||
@@ -7867,6 +7868,7 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
         result.mode == "--tissue-checkpoint-restore-only" ||
         result.mode == "--tissue-checkpoint-hold-only" ||
         result.mode == "--tissue-robot-first-bite-continue-only" ||
+        result.mode == "--tissue-robot-first-bite-contact-approach-only" ||
         result.mode == "--tissue-receiver-bridge-resume-only" ||
         result.mode == "--tissue-suture-pull-stroke-only" ||
         result.mode == "--tissue-thread-target-only" ||
@@ -7882,7 +7884,8 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
         "tissue checkpoint mode requires exactly one v3 checkpoint"
     );
     require(
-        result.mode != "--tissue-robot-first-bite-continue-only" ||
+        (result.mode != "--tissue-robot-first-bite-continue-only" &&
+         result.mode != "--tissue-robot-first-bite-contact-approach-only") ||
             result.resumeTissueCheckpointPhase ==
                 "tissue-robot-first-bite-approach",
         "robot first-bite continuation requires its accepted approach checkpoint"
@@ -9322,6 +9325,9 @@ int main(const int argc, const char* const argv[]) {
             options.mode == "--tissue-checkpoint-hold-only";
         const bool tissueRobotFirstBiteContinueOnly =
             options.mode == "--tissue-robot-first-bite-continue-only";
+        const bool tissueRobotFirstBiteContactApproachOnly =
+            options.mode ==
+                "--tissue-robot-first-bite-contact-approach-only";
         const bool tissueReceiverBridgeResumeOnly =
             options.mode == "--tissue-receiver-bridge-resume-only";
         const bool tissueThreadTargetOnly =
@@ -9343,6 +9349,7 @@ int main(const int argc, const char* const argv[]) {
         const bool tissueCheckpointResume =
             tissueCheckpointRestoreOnly || tissueCheckpointHoldOnly ||
             tissueRobotFirstBiteContinueOnly ||
+            tissueRobotFirstBiteContactApproachOnly ||
             tissueReceiverBridgeResumeOnly ||
             tissueThreadTargetOnly || tissueThreadAcquisitionOnly ||
             tissueKnotFirstThrowPreflightOnly ||
@@ -16720,7 +16727,8 @@ int main(const int argc, const char* const argv[]) {
                 << " matter_maximum_residual=" << maximumResidual
                 << " authority_byte_exact=yes"
                 << " physics_advanced=no\n";
-            if (tissueRobotFirstBiteContinueOnly) {
+            if (tissueRobotFirstBiteContinueOnly ||
+                tissueRobotFirstBiteContactApproachOnly) {
                 require(
                     tissueRuntime.setCoupledTimestepMultiplier(
                         kRobotFirstBiteContinueMatterCadence
@@ -16736,10 +16744,14 @@ int main(const int argc, const char* const argv[]) {
                     kRobotFirstBiteContinueMatterCadence;
                 require(
                     tissueRuntime.setNewtonIterationBudget(
-                        kRobotFirstBiteContinueNewtonBudget
+                        tissueRobotFirstBiteContactApproachOnly
+                            ? NM_MIXED_NEWTON_ITERATIONS
+                            : kRobotFirstBiteContinueNewtonBudget
                     ) &&
                         tissueRuntime.newtonIterationBudget() ==
-                            kRobotFirstBiteContinueNewtonBudget,
+                            (tissueRobotFirstBiteContactApproachOnly
+                                ? NM_MIXED_NEWTON_ITERATIONS
+                                : kRobotFirstBiteContinueNewtonBudget),
                     "resumed robot approach could not select its bounded Newton budget"
                 );
                 const MRBodyStateGPU& startNeedle =
@@ -16827,8 +16839,12 @@ int main(const int argc, const char* const argv[]) {
                     std::isfinite(startTissueSeparation) &&
                         startTissueSeparation -
                             maximumPlannedCapsuleSweep >=
-                            kRobotFirstBiteFreeSpaceMarginM,
-                    "two-Newton robot continuation can carry the tapered tip into the skin contact band"
+                            (tissueRobotFirstBiteContactApproachOnly
+                                ? kRobotFirstBiteFreeSpaceMarginM * 0.5
+                                : kRobotFirstBiteFreeSpaceMarginM),
+                    tissueRobotFirstBiteContactApproachOnly
+                        ? "full-Newton robot approach can cross the tapered-tip contact guard"
+                        : "two-Newton robot continuation can carry the tapered tip into the skin contact band"
                 );
                 const ArmTrajectory trajectory =
                     needleGraspArmTrajectory(
