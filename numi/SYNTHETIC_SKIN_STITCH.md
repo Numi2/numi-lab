@@ -1215,3 +1215,22 @@ The next 64x, guarded approach, and entry logs have SHA-256 values
 `dd6a759bf846cfe3794e8cd5e9e9a229e971386e94681b3f00c145d9c13f281f`,
 `671311f1f3a0eb91790af038bde679d6fb3d01932db736e29aaec2110530f0f3`,
 and `50129346acf41be7a8ef2a8458438020547ba25d5d1d16d70198402ba30738db`.
+
+The next generalized-solver trial avoided rebuilding unused local Cholesky
+arrays and row right-hand sides during cached ordered sweeps. On the same
+16x/one-Newton post-entry step with eight velocity iterations, the baseline
+took 527.748 ms GPU, the two trial runs took 529.691 and 528.362 ms, and
+the restored shader took 533.694 ms. All reported non-timing physical
+fields matched, including 46,080 tetrahedra, needle advance, Matter
+residual, 143 constraints, and 0.001867 m/s terminal contact residual.
+There is no measured speed gain; the trial was removed. The restored
+`MetalRobo.metallib` SHA-256 is again
+`8059ec81644b9216d80f3a3461ce6738881ffd0fc3cb887951211773777fb199`.
+The baseline, two trial, and restored log SHA-256 values are
+`ad2bedcbed1ebe06b68a2f45897b597b12354605d85646896ddbd7a208383404`,
+`956e6f702766693a8eb1c4b8db90e395c6e83d1c3d9f6a7ab54f74d4c161c54c`,
+`84c219d4c9201d3bba9ac2d30f2225e02794a068f7f6962e962684d34944822b`,
+and `9cdecbf0ac3d95da3ac9ce9c8d7db0c72269cc436aaefc9cb3b5f6ddd7d6c124`.
+The remaining generalized-stage hypothesis is the ordered rod response
+update over the 128-node strand, not local array clearing; its cost still
+needs a bounded GPU measurement before an algorithmic rewrite.
