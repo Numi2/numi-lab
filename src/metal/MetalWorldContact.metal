@@ -11681,56 +11681,60 @@ kernel void mr_world_commit_contact_state(
     device MRManifoldHeaderGPU* destinationHeaders [[buffer(14)]],
     device MRManifoldPointGPU* destinationPoints [[buffer(15)]],
     device uint* destinationCounts [[buffer(16)]],
-    const uint environment [[thread_position_in_grid]]
+    const uint globalManifold [[thread_position_in_grid]]
 ) {
+    const uint workStride = max(dispatch.manifoldCapacity, 1u);
+    const uint environment =
+        globalManifold / workStride;
     if (environment >= dispatch.environmentCount) {
         return;
     }
+    const uint manifold =
+        globalManifold - environment * workStride;
     const bool publish =
         pass.physicsSubstep < worldDispatch.physicsSubsteps &&
         worldStatuses[environment].code == MR_STEP_SUCCESS;
-    const uint sceneBase =
-        environment * dispatch.sceneBodyStride;
-    const uint bodyBase =
-        environment * dispatch.bodyStateStride;
-    for (uint localScene = 0u;
-         localScene < dispatch.sceneBodyCount;
-         ++localScene) {
-        destinationScene[sceneBase + localScene] =
-            publish
-            ? candidateBodies[
-                  bodyBase + sceneBodyIndices[localScene]
-              ]
-            : checkpointScene[sceneBase + localScene];
+    if (manifold == 0u) {
+        const uint sceneBase =
+            environment * dispatch.sceneBodyStride;
+        const uint bodyBase =
+            environment * dispatch.bodyStateStride;
+        for (uint localScene = 0u;
+             localScene < dispatch.sceneBodyCount;
+             ++localScene) {
+            destinationScene[sceneBase + localScene] =
+                publish
+                ? candidateBodies[
+                      bodyBase + sceneBodyIndices[localScene]
+                  ]
+                : checkpointScene[sceneBase + localScene];
+        }
+        destinationCounts[environment] = publish
+            ? candidateCounts[environment]
+            : checkpointCounts[environment];
+    }
+    if (dispatch.manifoldCapacity == 0u) {
+        return;
     }
     const uint manifoldBase =
         environment * dispatch.manifoldStride;
     const uint pointBase =
         manifoldBase *
         MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY;
-    destinationCounts[environment] = publish
-        ? candidateCounts[environment]
-        : checkpointCounts[environment];
-    for (uint manifold = 0u;
-         manifold < dispatch.manifoldCapacity;
-         ++manifold) {
-        destinationHeaders[manifoldBase + manifold] =
-            publish
-            ? candidateHeaders[manifoldBase + manifold]
-            : checkpointHeaders[manifoldBase + manifold];
-        for (uint point = 0u;
-             point <
-                 MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY;
-             ++point) {
-            const uint index =
-                pointBase +
-                manifold *
-                    MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY +
-                point;
-            destinationPoints[index] = publish
-                ? candidatePoints[index]
-                : checkpointPoints[index];
-        }
+    destinationHeaders[manifoldBase + manifold] =
+        publish
+        ? candidateHeaders[manifoldBase + manifold]
+        : checkpointHeaders[manifoldBase + manifold];
+    for (uint point = 0u;
+         point < MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY;
+         ++point) {
+        const uint index =
+            pointBase +
+            manifold * MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY +
+            point;
+        destinationPoints[index] = publish
+            ? candidatePoints[index]
+            : checkpointPoints[index];
     }
 }
 

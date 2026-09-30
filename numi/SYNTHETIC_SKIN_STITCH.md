@@ -777,6 +777,47 @@ checkpoint; their log SHA-256 values are
 f19e715d8ee5a9fc77345d942aa2b49f7ec8660a0f386acbc3f77fb88f2c0229
 and 0cb969049397267ee58c6bda20d852f896a04f4dd028a41d5191246033b224bc.
 
+The next 100x optimization gate identified a serial transactional manifold
+copy in every MetalWorld contact microstep. Temporary stage-boundary Metal
+timestamp sampling of the first contact substep in three short submissions
+measured that encoder at 17.34-17.65 ms. The kernel previously used one GPU
+thread per environment to copy every manifold header and point in a loop.
+It now dispatches one thread per manifold; thread zero also copies the scene
+bodies and manifold count, and a zero-capacity manifold retains that copy.
+The hybrid-CCD and standard contact paths both use the new dispatch. The
+same sampled encoder fell to 0.083-0.086 ms. The profile instrumentation was
+removed after the measurement; retained logs are
+`build-skin-wound/contact-commit-profile-before.log` (SHA-256
+`db0f83ee6170e67a7cbff95bf84bbf485f8d3f85423fac59dd9fc21abf3a4e28`)
+and `build-skin-wound/contact-commit-profile-after.log` (SHA-256
+`2ac121f323cc2329435501f564e45aebcfff13532828a4493882e501c4872774`).
+
+With the full eight-sweep solve retained, the uninstrumented 16x/one-Newton
+post-entry probe took 945.588 ms GPU versus the preceding 1,213.087 ms:
+22.1% less time, or 1.283x speedup for that step. Reported tissue, needle,
+strand, contact, and Matter fields matched, including 46,080 tetrahedra,
+zero failed steps, and 0.001867 m/s normal residual below the 0.002 m/s
+gate. Four focused surgical CTests passed. Against the original 1x
+3,375.995 ms reference, this single-step simulated-time throughput is
+57.1x; the 100x target requires at most 540.159 ms for a 16x step.
+There were zero active Matter tissue contacts in this probe, and no complete
+robot-driven skin stitch has been timed or qualified at this setting.
+The final uninstrumented log is
+`build-skin-wound/contact-commit-final.log` (SHA-256
+`1c77a9b29173df426d319cfc4c84ac1d250a3ac7f6f3784affd2de21a6bd170b`).
+The final Metal library and shader SHA-256 values are
+`74091b497441b33c4fa56a38f615b9d4b19bcbba278fbee34f786372b640e458`
+and `5e6f2cef7ab0a4dad63ce6647f2d0517952ef5e989af47e2f48a273de34f0e61`.
+
+Reducing only the pre-contact generalized IR sweep to one, two, four, or
+six iterations was rejected. Those trials took 838.853, 856.905,
+886.804, and 913.313 ms GPU, but their respective normal residuals
+were 0.002014, 0.002032, 0.002035, and 0.002036 m/s, all above the
+0.002 m/s gate. The full eight-sweep solver remains authoritative. The
+remaining repeated pre-contact and canonical IR solves each consumed about
+10 ms per measured substep, while the final Matter substep has a separate
+large cost; these are the next measured optimization targets.
+
 Open work: physically approach and pick up the needle with the robot, drive
 it through the first skin lip with measured tissue reaction, qualify thread
 pull-through with this 1.5 mm wall, then the second lip bite, knot tightening,

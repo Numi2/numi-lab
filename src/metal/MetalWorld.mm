@@ -15157,7 +15157,11 @@ bool encodeHybridContactSubstep(
             },
             &pass,
             2u,
-            environmentCount
+            environmentCount *
+                std::max<std::size_t>(
+                    context.boundContactDispatch.manifoldCapacity,
+                    1u
+                )
         )) {
         return false;
     }
@@ -15997,7 +16001,11 @@ bool encodeContactSubstep(
             },
             &pass,
             2u,
-            environmentCount
+            environmentCount *
+                std::max<std::size_t>(
+                    context.boundContactDispatch.manifoldCapacity,
+                    1u
+                )
         )) {
         return false;
     }
