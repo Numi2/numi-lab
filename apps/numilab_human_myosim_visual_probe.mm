@@ -9030,6 +9030,55 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
         femLength(patellarTendonPatellaReaction);
     result.patellarTendonTibiaReactionResultantNewtons =
         femLength(patellarTendonTibiaReaction);
+    const mr_float4 ptlCombinedReaction = femAdd(
+        patellarTendonPatellaReaction, patellarTendonTibiaReaction);
+    // The PTL nodal loads use +terminal force on the patellar patch and
+    // -terminal force on the tibial patch. A fixed-node FEM reaction includes
+    // that external load as well as internal, contact, gravity, and inertial
+    // terms. Subtract the known active couple before diagnosing the remaining
+    // attachment load; the couple itself cancels in the combined reaction.
+    const mr_float4 ptlPatellaOtherReaction = femSubtract(
+        patellarTendonPatellaReaction, patellarTendonForceResultant);
+    const mr_float4 ptlTibiaOtherReaction = femAdd(
+        patellarTendonTibiaReaction, patellarTendonForceResultant);
+    std::cout << std::setprecision(9)
+              << "open_knee_ptl_force_accounting=diagnostic"
+              << " route_terminal_force_xyz_n="
+              << patellarTendonForceResultant.x << ","
+              << patellarTendonForceResultant.y << ","
+              << patellarTendonForceResultant.z
+              << " patella_anchor_reaction_xyz_n="
+              << patellarTendonPatellaReaction.x << ","
+              << patellarTendonPatellaReaction.y << ","
+              << patellarTendonPatellaReaction.z
+              << " tibia_anchor_reaction_xyz_n="
+              << patellarTendonTibiaReaction.x << ","
+              << patellarTendonTibiaReaction.y << ","
+              << patellarTendonTibiaReaction.z
+              << " combined_anchor_reaction_norm_n="
+              << femLength(ptlCombinedReaction)
+              << " patella_other_reaction_xyz_n="
+              << ptlPatellaOtherReaction.x << ","
+              << ptlPatellaOtherReaction.y << ","
+              << ptlPatellaOtherReaction.z
+              << " patella_other_reaction_norm_n="
+              << femLength(ptlPatellaOtherReaction)
+              << " tibia_other_reaction_xyz_n="
+              << ptlTibiaOtherReaction.x << ","
+              << ptlTibiaOtherReaction.y << ","
+              << ptlTibiaOtherReaction.z
+              << " tibia_other_reaction_norm_n="
+              << femLength(ptlTibiaOtherReaction)
+              << " quadriceps_applied_xyz_n="
+              << quadricepsAppliedForceResultant.x << ","
+              << quadricepsAppliedForceResultant.y << ","
+              << quadricepsAppliedForceResultant.z
+              << " qat_patella_anchor_reaction_xyz_n="
+              << quadricepsEnthesisReaction.x << ","
+              << quadricepsEnthesisReaction.y << ","
+              << quadricepsEnthesisReaction.z
+              << " boundary=other_reaction_includes_internal_contact_gravity_"
+                 "and_inertial_terms_not_a_passive_only_measure\n" << std::flush;
     const auto adapterDiagnostics = adapter.diagnostics();
     const double externalResultantRelativeError = std::abs(
         adapterDiagnostics.assembledExternalForceResultantNewtons -
