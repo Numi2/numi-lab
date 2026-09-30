@@ -56,7 +56,10 @@ The current compact-mesh probe binary SHA-256 is
 `ecd5a49555186ad1089717f2faedfbaaacbe6e3e1fb475ecb9d007f3b87e7b20`.
 A compact-mesh `--tissue-curved-pull-through-only --synthetic-skin` native run
 from that binary passed the through-wall passage gate with 1,278.393 s GPU
-time and state hash `0x15382e1005422770`. The earlier full-mesh passage used
+time and state hash `0x15382e1005422770`. The fixed passage-prefix log is
+`build-skin-wound/synthetic-skin-compact-passage.log` with SHA-256
+`f1b6ad275c159becf46a9fa2ca0fd620911203968b19aa72b9473fcbdcae6b0e`.
+The earlier full-mesh passage used
 2,149.479 s GPU time; these are single-run observations, not a general
 performance qualification. Maximum skin-node displacement in the compact
 passage was only `2.91038305e-11 m`; it establishes a resolved puncture tract,
