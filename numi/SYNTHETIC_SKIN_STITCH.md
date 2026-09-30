@@ -2125,3 +2125,68 @@ byte-exact restore logs have SHA-256
 `7db3b3712e76e67cd8b1a231d891def108e158b0aa326a5106b64ab79e63be34`,
 `9c765b22489ca9ded61414b5670fcd78029cbc394335502117bc911a3b85154d`,
 and `f0aaf785163d1d1636822df89c6fbc6897d2213835ffdf938eadd14c4adcc0fd`.
+
+### Smaller contact budget at the second-channel transit
+
+The same accepted step-4766 checkpoint was continued with the unchanged
+solver for two grouped 8 ms blocks at 16 rigid substeps per 4 ms, one
+Newton pass, and 12/6 contact iterations. Both blocks passed the robot
+grasp and rod gates, retained two connected physics-triggered channels
+and all 46,080 tets, had zero failed steps, and restored byte-exactly.
+Their maximum normal residuals were 0.001899 and 0.001888 m/s against
+the 0.002 m/s limit. GPU times were 1,345.585 and 1,367.397 ms, totaling
+**2,712.981 ms for 16 ms modeled time**. This is **2.86x faster** than
+the matched 7,761.625 ms full-budget continuation and 20.5% less GPU
+time than the previously selected 3,412.583 ms schedule. The tip advanced
+6.554 and 8.384 um in the respective blocks. At final state step 4830,
+it was 23.546 um inside the second channel; that channel still had zero
+authored FEM contact nodes. No new tip impulse, tissue reaction, or
+tissue displacement was measured. This is therefore an unloaded
+channel-transit result, not a load-bearing second bite or a 100x
+whole-stitch speedup.
+
+A third consecutive 8 ms block at 12/6 exceeded the residual limit
+(0.002205 m/s). Repeating that block from the same exact step-4830
+checkpoint at 16/8 passed with a 0.001324 m/s residual, qualified
+grasp and rod, two channels and 46,080 tets, and a byte-exact state-step
+4862 restore. It took 1,565.251 ms GPU and advanced the tip 7.883 um.
+The accepted three-block route totals 4,278.232 ms GPU over 24 ms
+modeled time. There is no matched 24 ms full-budget run, so no 24 ms
+speedup is inferred.
+
+Two bounded shader changes were rejected. Removing redundant-looking
+Wave32 body-membership tests preserved the local physics gates but was
+slower in two matched 4 ms pairs: 820.154/793.529 ms GPU versus
+779.217/749.085 ms for the unchanged shader. Doubling rod-row
+relaxation let 10/5 contact iterations pass the first grouped 8 ms
+(0.001191 m/s residual, 1,274.996 ms GPU), but the next 8 ms failed
+at 0.002772 m/s. The unchanged shader already failed the first 10/5
+block at 0.004099 m/s. The stronger relaxation also gave no speed
+advantage at 12/6. Both shader edits were removed, and the restored
+metallib/executable SHA-256 values are
+`a8e3386ae682f49e3b87f9324fa31918d26a2b732636e26536f78cf8a27bee33`
+and `52c9d2683bc379fc2a07bb6db316167e19962eafff9aadefd13ba259a7e76e0c`.
+
+The accepted 12/6 block logs have SHA-256
+`53613aec3f89e35ca931a5080a11041606129aebc3e438b1fe1eb578621e18fb`
+and `48e2508fe4e27728b55eaee1d1dd5fe30437a91683dbd24ba00c95dbe60f01bf`.
+The final 16 ms checkpoint/cache/restore are
+`233d1421f83b9c82853f66f1baa1fe1c3f995165d3821105cba16ac5bdb66148`,
+`b352da3cbefaecaca4c159d33327aba6dd0204ed3be131c653beeaef31eec9bd`,
+and `7da2a8121b8d5d73e8326d6fb7a15ae7f0bbf2cfdea7aa1856f1945417a86f37`.
+The accepted 16/8 third-block log and checkpoint/cache/restore are
+`cef188e51b420efdf538045f547a998c47ee8785c89b0a3f8ae26e6de8477047`,
+`00b73a6f300b4cb2941dfe4e045f58bc25b373f35d7f638b6732222ad0d73767`,
+`fe5c16fc64b5affdedacef4e30ab0c5a787c5079381c15156a6e997f315211f0`,
+and `bbcfbd9d0635db4c9acad7f9e3bfc13270c6795778666fc8cdd1a8009c4c23e6`.
+The rejected 12/6 third-block, relaxed 10/5 first/second block, and
+unchanged 10/5 first-block log SHA-256 values are
+`ab0ac9a545fee9957937cda9973a944cbb048bd9e68bc0a68113a03300a94568`,
+`3dfe6c518636334ece1d1caea153bb527299d5fc7e9c115c9f944b51ea1e8f58`,
+`60c1f95582882a881579a22ba6a25103d7f05b499963f4dc360e1ca933b120e6`,
+and `6aab102bbeb40acba8649e60c28f76d9d908f2b5477bfac1cb3b24e5016e2212`.
+The unchanged/candidate Wave32 membership timing-pair logs have SHA-256
+`0d88213205031c41bc773baaaea54a5e43972ec4ea3a4d2f7c6cbfee97cc2443` /
+`f20690e9954fececa201a12d9de7bfcd8fe94a0246b3cc1897df04c45c31455f`
+and `17647d6955bce27ca0ae85d5ad2d6355d62caea09b840a1527d78cf609c6673d` /
+`d6ee172c2a30c01f3701373395d280e2e9705a2cc89ca415eb2c8326a8648a80`.
