@@ -992,3 +992,44 @@ robot-contact output is preserved with the 11-test run in
 The narrow post-entry cadence throughput result therefore cannot be used
 as a performance claim for robot approach, load-bearing first bite,
 pull-through, opposing bite, or wound retention.
+
+### Current-binary robot continuation check
+
+The older retained step-1773 robot-contact checkpoints do not restore with
+the current device program: restore rejects their program fingerprint. A
+fresh current-binary 12-step robot drive produced the step-237
+`build-skin-wound/skin-robot-current-drive/tissue-robot-first-bite-approach.tsv`
+checkpoint (SHA-256
+`68f1c0805ad5ad1cfc913eaa70c11478f3cdc254e09ca268d2cce19be9d5ba4b`).
+Its exact restore passed with 46,080 active tetrahedra, zero puncture
+channels, and zero removed mass. The drive took 20,587.067 ms GPU; its log
+is `build-skin-wound/skin-robot-current-drive.log` (SHA-256
+`11a4650cf9b36e4a082c18865196a740ed0b010b36dc34af68ba2b996379a79b`).
+The restore log is `build-skin-wound/skin-robot-current-drive-restore.log`
+(SHA-256
+`1e0db3cbad1f57bf3e93bd3655e13b5b19bc49386af81361b311c54256256d22`).
+
+A 12-step, 384-base-substep continuation from that checkpoint retained the
+robot grasp and rod, advanced the needle tip 110.96 um, and ended 377.22 um
+from the nearest tissue node. It had no tissue contact or puncture. The
+MetalWorld normal residual peaked at 0.003875 m/s, above the 0.002 m/s
+terminal-contact threshold used elsewhere in the probe; the peak was step 0,
+with steps 2 and 3 also above that threshold.
+The terminal step's residual was 0.001337 m/s. The per-step diagnostic is
+`build-skin-wound/skin-robot-current-residual-steps.log` (SHA-256
+`c127eea6ace6392937692ddb9564120d475a2b8bbd47a251512c30db505f4156`).
+The diagnostic now prints the peak step and all per-control-step residuals
+on the existing robot approach result line. The continuation's 24,677.235 ms
+GPU time does not qualify as a 100x result.
+
+Doubling the velocity sweeps to 64 plus 16 cost 39,416.182 ms GPU and still
+peaked at 0.003590 m/s. A separate one-step checkpoint hold replayed
+byte-exactly, preserved all tetrahedra and zero puncture channels, and
+produced a step-253 checkpoint. Continuing from it moved the peak to step 2
+but left it at 0.003843 m/s, with 24,640.847 ms GPU time. The hold and
+follow-on logs are `build-skin-wound/skin-robot-current-held.log` (SHA-256
+`0d8461b9e192e8779625fb1abb518194d21c48d04ff280efd458adebc41c088e`)
+and `build-skin-wound/skin-robot-current-held-continue32.log` (SHA-256
+`679bd54727dc0a4770ba0f21b59028131c3c52a109ebb907a67f97f20b404feb`).
+Neither extra sweeps nor a single held step cures the early contact
+transient; do not promote either continuation checkpoint into the stitch.

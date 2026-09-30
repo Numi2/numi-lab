@@ -17056,12 +17056,21 @@ int main(const int argc, const char* const argv[]) {
                 double maximumContactNormalResidual = 0.0;
                 double maximumContactConeViolation = 0.0;
                 std::uint32_t maximumRequiredConstraints = 0u;
+                std::size_t maximumContactResidualStep = 0u;
+                std::ostringstream contactStepResiduals;
+                contactStepResiduals << std::setprecision(9);
+                std::size_t contactStepIndex = 0u;
                 for (const MRMetalWorldContactStatusGPU& contact :
                      driven.result.contactStatuses) {
-                    maximumContactNormalResidual = std::max(
-                        maximumContactNormalResidual,
-                        static_cast<double>(contact.residuals.y)
-                    );
+                    if (contactStepIndex != 0u) {
+                        contactStepResiduals << ',';
+                    }
+                    contactStepResiduals << contact.residuals.y;
+                    if (static_cast<double>(contact.residuals.y) >
+                        maximumContactNormalResidual) {
+                        maximumContactNormalResidual = contact.residuals.y;
+                        maximumContactResidualStep = contactStepIndex;
+                    }
                     maximumContactConeViolation = std::max(
                         maximumContactConeViolation,
                         static_cast<double>(contact.residuals.z)
@@ -17070,6 +17079,7 @@ int main(const int argc, const char* const argv[]) {
                         maximumRequiredConstraints,
                         contact.requiredConstraints
                     );
+                    ++contactStepIndex;
                 }
                 const numi::matter::RuntimeStateSnapshot matter =
                     tissueRuntime.snapshot();
@@ -17248,6 +17258,10 @@ int main(const int argc, const char* const argv[]) {
                     << maximumRequiredConstraints
                     << " metalworld_maximum_normal_residual="
                     << maximumContactNormalResidual
+                    << " metalworld_maximum_normal_residual_step="
+                    << maximumContactResidualStep
+                    << " metalworld_step_normal_residuals_mps="
+                    << contactStepResiduals.str()
                     << " metalworld_maximum_cone_violation="
                     << maximumContactConeViolation
                     << " matter_newton_budget="
