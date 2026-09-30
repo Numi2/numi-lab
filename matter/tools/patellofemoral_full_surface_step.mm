@@ -46,7 +46,28 @@ struct Input {
     std::vector<std::array<std::uint32_t, 4>> ptcTetrahedra;
     std::vector<std::array<double, 3>> fmcReference;
     std::vector<std::array<std::uint32_t, 4>> fmcTetrahedra;
+    std::vector<std::uint32_t> ptcFixedNodes;
 };
+
+std::vector<std::uint32_t> readFixedNodes(const char* path) {
+    std::ifstream stream(path, std::ios::binary | std::ios::ate);
+    require(stream.good(), "cannot open PTC fixed-node set");
+    const auto bytes = static_cast<std::streamoff>(stream.tellg());
+    require(bytes > 0 && bytes % sizeof(std::uint32_t) == 0 &&
+            bytes <= static_cast<std::streamoff>(26121u * sizeof(std::uint32_t)),
+            "PTC fixed-node set has invalid length");
+    stream.seekg(0);
+    std::vector<std::uint32_t> nodes(
+        static_cast<std::size_t>(bytes) / sizeof(std::uint32_t));
+    readExact(stream, nodes.data(), nodes.size(), "PTC fixed-node set");
+    require(nodes.front() < 26121u && nodes.back() < 26121u &&
+            std::adjacent_find(nodes.begin(), nodes.end(),
+                [](const std::uint32_t a, const std::uint32_t b) {
+                    return a >= b;
+                }) == nodes.end(),
+            "PTC fixed-node indices must be unique, sorted and in range");
+    return nodes;
+}
 
 std::vector<std::array<double, 3>> readPositions(
         std::ifstream& stream, std::uint32_t count) {
@@ -130,6 +151,7 @@ numi::matter::CompiledWorld cook(const Input& input, bool baseline,
             object.femNodes = baseline ? input.ptcReference : input.ptcCurrent;
             object.femReferenceNodes = input.ptcReference;
             object.femReferenceSourceIdentity = input.referenceIdentity;
+            object.femFixedNodes = input.ptcFixedNodes;
             const double length = std::sqrt(
                 input.translation[0] * input.translation[0] +
                 input.translation[1] * input.translation[1] +
@@ -164,7 +186,8 @@ numi::matter::CompiledWorld cook(const Input& input, bool baseline,
 void run(const numi::matter::CompiledWorld& world,
          const char* outputPath, bool baseline, std::uint32_t side,
          double contactSlop, double approachSpeed,
-         bool disableContact) {
+         bool disableContact,
+         const std::vector<std::uint32_t>& ptcFixedNodes) {
     @autoreleasepool {
         id<MTLDevice> device = MTLCreateSystemDefaultDevice();
         require(device != nil, "no Metal device");
@@ -220,6 +243,8 @@ void run(const numi::matter::CompiledWorld& world,
         double maximumMovement = 0.0;
         double initialKineticEnergy = 0.0;
         double acceptedKineticEnergy = 0.0;
+        double maximumFixedNodeMovement = 0.0;
+        std::size_t movedFixedNodes = 0u;
         for (std::size_t index = 0u; index < after.femNodes.size(); ++index) {
             const auto& a = before.femNodes[index];
             const auto& b = after.femNodes[index];
@@ -241,6 +266,17 @@ void run(const numi::matter::CompiledWorld& world,
             initialKineticEnergy += kinetic(a);
             acceptedKineticEnergy += kinetic(b);
         }
+        for (const std::uint32_t index : ptcFixedNodes) {
+            const auto& a = before.femNodes[index].positionAndMass;
+            const auto& b = after.femNodes[index].positionAndMass;
+            const double movement = std::sqrt(
+                std::pow(double(b.x) - a.x, 2) +
+                std::pow(double(b.y) - a.y, 2) +
+                std::pow(double(b.z) - a.z, 2));
+            maximumFixedNodeMovement = std::max(
+                maximumFixedNodeMovement, movement);
+            movedFixedNodes += movement != 0.0;
+        }
         require(output.good(), "accepted position write failed");
         std::size_t activeHistories = 0u;
         double barrierImpulseMagnitude = 0.0;
@@ -255,6 +291,9 @@ void run(const numi::matter::CompiledWorld& world,
                     "\"baseline\":%s,\"source_nodes\":%zu,\"source_tetrahedra\":%zu,"
                     "\"contact_slop_m\":%.9g,\"approach_speed_mps\":%.9g,"
                     "\"contact_disabled\":%s,"
+                    "\"ptc_fixed_node_count\":%zu,"
+                    "\"ptc_fixed_nodes_moved\":%zu,"
+                    "\"maximum_fixed_node_movement_m\":%.9g,"
                     "\"surface_faces\":%zu,\"status_code\":%u,"
                     "\"completed_microsteps\":%u,\"failing_index\":%u,"
                     "\"active_deformable_histories\":%zu,"
@@ -267,6 +306,8 @@ void run(const numi::matter::CompiledWorld& world,
                     baseline ? "true" : "false", world.fem.nodes.size(),
                     world.fem.tetrahedra.size(), contactSlop, approachSpeed,
                     disableContact ? "true" : "false",
+                    ptcFixedNodes.size(), movedFixedNodes,
+                    maximumFixedNodeMovement,
                     world.fem.surfaceFaces.size(),
                     status.code, status.completedMicrosteps, status.failingIndex,
                     activeHistories, rolledBack ? "true" : "false",
@@ -284,11 +325,13 @@ int main(int argc, char** argv) {
         require(argc >= 3,
                 "usage: probe source.nhcar accepted-positions.f32le "
                 "[--baseline] [--contact-slop-m value] "
-                "[--approach-speed-mps value] [--disable-contact]");
+                "[--approach-speed-mps value] [--disable-contact] "
+                "[--ptc-fixed-nodes sorted-indices.u32le]");
         bool baseline = false;
         bool disableContact = false;
         double contactSlop = 1.0e-5;
         double approachSpeed = 0.0;
+        const char* fixedNodePath = nullptr;
         for (int index = 3; index < argc; ++index) {
             const std::string option = argv[index];
             if (option == "--baseline")
@@ -299,6 +342,8 @@ int main(int argc, char** argv) {
                 contactSlop = std::strtod(argv[++index], nullptr);
             else if (option == "--approach-speed-mps" && index + 1 < argc)
                 approachSpeed = std::strtod(argv[++index], nullptr);
+            else if (option == "--ptc-fixed-nodes" && index + 1 < argc)
+                fixedNodePath = argv[++index];
             else
                 throw std::runtime_error("unknown native step option");
         }
@@ -306,11 +351,13 @@ int main(int argc, char** argv) {
                 contactSlop <= 1.0e-3, "invalid diagnostic contact slop");
         require(std::isfinite(approachSpeed) && approachSpeed >= 0.0 &&
                 approachSpeed <= 1.0, "invalid diagnostic approach speed");
-        const auto input = readInput(argv[1]);
+        auto input = readInput(argv[1]);
+        if (fixedNodePath != nullptr)
+            input.ptcFixedNodes = readFixedNodes(fixedNodePath);
         const auto world = cook(input, baseline, contactSlop, approachSpeed,
                                 disableContact);
         run(world, argv[2], baseline, input.side, contactSlop, approachSpeed,
-            disableContact);
+            disableContact, input.ptcFixedNodes);
         return 0;
     } catch (const std::exception& error) {
         std::fprintf(stderr, "patellofemoral full source step: %s\n", error.what());
