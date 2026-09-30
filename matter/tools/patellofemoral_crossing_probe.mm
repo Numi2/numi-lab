@@ -10,6 +10,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
+#include <optional>
 #include <stdexcept>
 #include <string>
 
@@ -84,7 +85,9 @@ numi::matter::CompiledWorld makeWorld(
     return std::move(cooked.world);
 }
 
-void run(const numi::matter::CompiledWorld& world) {
+enum class Expected { observe, crossingRejected, closeContactAccepted };
+
+void run(const numi::matter::CompiledWorld& world, Expected expected) {
     @autoreleasepool {
         id<MTLDevice> device = MTLCreateSystemDefaultDevice();
         require(device != nil, "no Metal device");
@@ -160,6 +163,15 @@ void run(const numi::matter::CompiledWorld& world) {
                         double(position.z));
         }
         std::printf("]}\n");
+        if (expected == Expected::crossingRejected)
+            require(status.code == NM_STATUS_CONTACT_FAILURE &&
+                    status.completedMicrosteps == 0u && rolledBack &&
+                    status.diagnostics.z == -1.0f,
+                    "initial crossing did not fail closed with exact rollback");
+        if (expected == Expected::closeContactAccepted)
+            require(status.code == NM_STATUS_SUCCESS &&
+                    status.completedMicrosteps == 1u && activeHistories > 0u,
+                    "close noncrossing contact did not accept");
     }
 }
 
@@ -167,16 +179,28 @@ void run(const numi::matter::CompiledWorld& world) {
 
 int main(int argc, char** argv) {
     try {
-        require(argc == 2 || argc == 5,
-                "usage: probe eight-node-fixture.txt [ptc-offset-x y z]");
+        require(argc == 2 || argc == 3 || argc == 5,
+                "usage: probe eight-node-fixture.txt "
+                "[ptc-offset-x y z | --expect-crossing-rejected | "
+                "--expect-close-contact]");
         const auto nodes = readCells(argv[1]);
         std::array<double, 3> offset{};
+        Expected expected = Expected::observe;
+        if (argc == 3) {
+            const std::string option = argv[2];
+            if (option == "--expect-crossing-rejected")
+                expected = Expected::crossingRejected;
+            else if (option == "--expect-close-contact")
+                expected = Expected::closeContactAccepted;
+            else
+                throw std::runtime_error("unknown expectation flag");
+        }
         if (argc == 5)
             for (int axis = 0; axis < 3; ++axis) {
                 offset[axis] = std::strtod(argv[2 + axis], nullptr);
                 require(std::isfinite(offset[axis]), "nonfinite offset");
             }
-        run(makeWorld(nodes, offset));
+        run(makeWorld(nodes, offset), expected);
         return 0;
     } catch (const std::exception& error) {
         std::fprintf(stderr, "patellofemoral crossing probe: %s\n", error.what());

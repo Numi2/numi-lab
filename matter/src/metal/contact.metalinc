@@ -1433,6 +1433,56 @@ inline bool edgeEdgeCCD(
     return false;
 }
 
+// An unsigned IPC distance barrier cannot untangle surfaces that already
+// intersect at the beginning of a step. Require a strict edge-through-face
+// crossing (away from both face and plane roundoff), so mere near-contact or
+// shared boundary points remain governed by the ordinary CCD path.
+inline bool strictEdgeThroughTriangle(
+    const float3 first,
+    const float3 second,
+    const float3 a,
+    const float3 b,
+    const float3 c
+) {
+    const float3 normal = cross(b - a, c - a);
+    const float area2 = dot(normal, normal);
+    if (!(area2 > kGeometryFloor * kGeometryFloor)) return false;
+    const float scale = max(max(maximumAbsoluteCoordinate(first),
+                                maximumAbsoluteCoordinate(second)),
+                            max(maximumAbsoluteCoordinate(a),
+                                max(maximumAbsoluteCoordinate(b),
+                                    maximumAbsoluteCoordinate(c))));
+    const float planeTolerance = 16.0f * kEpsilon *
+        sqrt(area2) * max(scale, 1.0e-12f);
+    const float firstSide = dot(normal, first - a);
+    const float secondSide = dot(normal, second - a);
+    if (!((firstSide > planeTolerance && secondSide < -planeTolerance) ||
+          (secondSide > planeTolerance && firstSide < -planeTolerance)))
+        return false;
+    const float fraction = firstSide / (firstSide - secondSide);
+    const float3 point = mix(first, second, fraction);
+    const float edgeTolerance = 1.0e-4f * area2;
+    return dot(normal, cross(b - a, point - a)) > edgeTolerance &&
+        dot(normal, cross(c - b, point - b)) > edgeTolerance &&
+        dot(normal, cross(a - c, point - c)) > edgeTolerance;
+}
+
+inline bool strictTriangleCrossing(
+    thread const float3* first,
+    thread const float3* second
+) {
+    for (uint edge = 0u; edge < 3u; ++edge) {
+        const uint next = (edge + 1u) % 3u;
+        if (strictEdgeThroughTriangle(
+                first[edge], first[next],
+                second[0], second[1], second[2]) ||
+            strictEdgeThroughTriangle(
+                second[edge], second[next],
+                first[0], first[1], first[2])) return true;
+    }
+    return false;
+}
+
 // Direct production-CCD regression entry point. Nine float4 records per case:
 // kind/thickness, four start vertices, four finish vertices. Results are
 // hit, certified, time of impact, and separation. No alternate CCD path.
@@ -1662,6 +1712,19 @@ kernel void nm_contact_narrowphase_deformable(
          (!nodeValid[1] || !nodeValid[2])) ||
         (rightKind == NM_CONTINUUM_SURFACE_TRIANGLE &&
          (!nodeValid[4] || !nodeValid[5]))) return;
+
+    if (leftKind == NM_CONTINUUM_SURFACE_TRIANGLE &&
+        rightKind == NM_CONTINUUM_SURFACE_TRIANGLE &&
+        strictTriangleCrossing(start, start + 3u)) {
+        // A proximity-only barrier could otherwise accept this topology as a
+        // valid contact step. Preserve the last accepted state and leave the
+        // geometric initialization to the owning source/import policy.
+        recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+            left.nodesAndObject.w, slot,
+            float4(float(candidate.identity.x),
+                   float(candidate.identity.y), -1.0f, 0.0f));
+        return;
+    }
 
     const float thickness = dispatch.numericalLimits.x;
     float bestTOI = INFINITY;

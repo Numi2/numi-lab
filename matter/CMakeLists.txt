@@ -261,6 +261,25 @@ if(APPLE)
     target_compile_definitions(numi-matter-patellofemoral-crossing-probe PRIVATE
         NUMI_MATTER_METALLIB="${NUMI_MATTER_METALLIB}"
         NUMI_MATTER_FIXTURE_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/materials/silicone.nmatter")
+    if(BUILD_TESTING)
+        add_test(NAME matter.runtime.open_knee_initial_crossing_rejected
+            COMMAND numi-matter-patellofemoral-crossing-probe
+                "${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/open_knee_left_crossing_cell.txt"
+                --expect-crossing-rejected)
+        add_test(NAME matter.runtime.open_knee_mirrored_crossing_rejected
+            COMMAND numi-matter-patellofemoral-crossing-probe
+                "${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/open_knee_right_crossing_cell.txt"
+                --expect-crossing-rejected)
+        add_test(NAME matter.runtime.fem_close_contact_accepted
+            COMMAND numi-matter-patellofemoral-crossing-probe
+                "${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/fem_close_contact_cells.txt"
+                --expect-close-contact)
+        set_tests_properties(
+            matter.runtime.open_knee_initial_crossing_rejected
+            matter.runtime.open_knee_mirrored_crossing_rejected
+            matter.runtime.fem_close_contact_accepted
+            PROPERTIES LABELS "matter;human;contact" TIMEOUT 120)
+    endif()
 
     install(FILES "${NUMI_MATTER_METALLIB}" DESTINATION lib/numi-matter)
     install(TARGETS numi_matter_runtime ARCHIVE DESTINATION lib)
