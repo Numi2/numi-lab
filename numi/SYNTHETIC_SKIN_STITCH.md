@@ -713,6 +713,45 @@ the Matter-linked library retains the accepted `dafd704a...` hash. The
 one-iteration shortcut is disqualified; the 16-iteration one-step result
 still needs full robot-contact and exact-replay qualification.
 
+An explicit iteration sweep on the rebuilt, on-chip-rod-workspace shader
+now prints GPU time and contact residual before enforcing that gate, so
+rejected settings retain timing evidence without being accepted. For the
+same 16x/one-Newton post-entry step, one iteration took 932.093 ms GPU but
+left 0.185153 m/s normal residual. Settings of four through seven
+iterations also failed the 0.002 m/s bound; at seven, the residual was
+0.002374 m/s and GPU time 1,174.770 ms. Eight iterations were the first
+tested setting that passed: 0.001867 m/s and 1,213.736 ms GPU, repeated at
+1,213.087 ms with the same physical fields. Sixteen and 32 iterations took
+1,535.874 and 2,176.486 ms and left 0.001267 and 0.000744 m/s residual.
+The eight-iteration step gives about 44.5x simulated-time throughput against
+the original 1x/3,375.995 ms reference, but this is one post-entry step with
+no active Matter tissue contact, not an accepted robot-contact or
+load-bearing stitch trajectory. It is a distinct state and has only
+0.000133 m/s margin below the terminal contact bound. Even the failing
+one-iteration step takes longer than the 540.159 ms per-16x-step target for
+100x throughput, so iteration cuts alone cannot meet that target in the
+current pipeline.
+
+Two temporary setup ablations were rejected. Replacing the nonrod relaxation
+row sum with `1/activeRodConstraintCount` damping produced the same eight-iteration
+fields and 1,213.057 ms GPU, so it offered no useful timing gain. Omitting
+the exact rod self-response from preconditioner construction took
+1,223.111 ms and worsened the eight-iteration residual to 0.003250 m/s.
+Both shader changes were reverted; the accepted MetalRobo metallib SHA-256
+is again `08531cb0270799f4e2826e27ce0e6fb9ba4eba1323344a9662a5ba382041295e`.
+The diagnostic probe executable SHA-256 is
+`0213685f9171a9a2cfe472a9bd2f7dc74b2fc81f16ad427f0f7f0c6b66bc84b5`.
+The one-, seven-, eight-, and repeated eight-iteration log SHA-256 values are
+`49e346f370c0bbec5acc5f79f7a1ae052c48e7df43ee0a72c5e0db1d3ccf4f51`,
+`efee4db19a7cfe82c1b62b07667decf6f3e677a63f2b502e83058452b9b8ddce`,
+`d00af45a3847405351d4c5c06c3ede9de850f47079c2731144af031472933f2f`,
+and `bbcc185ce586dfc83fec6953c2c0acd9173621b49ad9093de811bb856252feec`;
+the two ablation log SHA-256 values are
+`782c60fce716a251c9bdcd99d4b879d2b20a0507cb7ce4b7e8c0287f8552e1d5`
+and `58d6a637446774fc1b1a3b79c4ea913550d15bfeab4f39d08e9f9db8336db915`.
+The focused static-equilibrium, checkpoint-restore, synthetic-skin puncture,
+and live-cadence tests passed after the shader was restored.
+
 The stronger 75 um jaw-preload trial from robot contact step 1645 also
 remains unqualified. A 13 ms ramp at 1 mm/s preserved Matter's 46,080
 tets and zero failures but drifted 212 um at the needle seat. A 6 ms

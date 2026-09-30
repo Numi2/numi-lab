@@ -23968,6 +23968,24 @@ int main(const int argc, const char* const argv[]) {
                             1u,
                             "post-entry grouped tissue cadence"
                         );
+                    if (!cadence.result.contactStatuses.empty()) {
+                        const auto& candidate =
+                            cadence.result.contactStatuses.back();
+                        std::cout << std::setprecision(9)
+                            << "tissue_suture_cadence_solver_diagnostic"
+                            << " velocity_iterations="
+                            << options.velocityIterations
+                            << " final_velocity_iterations="
+                            << options.finalVelocityIterations
+                            << " contact_status=" << candidate.code
+                            << " required_constraints="
+                            << candidate.requiredConstraints
+                            << " normal_residual="
+                            << candidate.residuals.y
+                            << " gpu_ms="
+                            << cadence.diagnostics.gpuElapsedMilliseconds
+                            << '\n';
+                    }
                     const MRMetalWorldContactStatusGPU& cadenceContact =
                         requireTerminalResidual(
                             cadence.result,
