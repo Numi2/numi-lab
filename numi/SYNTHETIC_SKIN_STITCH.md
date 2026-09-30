@@ -983,3 +983,12 @@ the fast probe contains zero active Matter tissue contacts and does not
 execute a complete robot-driven first bite, second bite, or knot. The
 fresh 1x log is `build-skin-wound/generalized-parallel-rod-1x-baseline.log`
 (SHA-256 `ff9c12df76cf42af3a8565b59e09c3b44df7ed388ee391db803a48009ecc6ee4`).
+The retained robot first-bite drive CTest accepted 12 commanded steps and
+192 base DER substeps over 0.012 s of simulated time with zero failed steps,
+but took 20,538.506 ms GPU and had no active puncture channel. Its
+robot-contact output is preserved with the 11-test run in
+`build-skin-wound/generalized-denominator-ctest-11.log` (SHA-256
+`518a2b51e4da9d0f78bb021a4bb0af9bf910b762f931c2cd50fee4422bd64a1c`).
+The narrow post-entry cadence throughput result therefore cannot be used
+as a performance claim for robot approach, load-bearing first bite,
+pull-through, opposing bite, or wound retention.
