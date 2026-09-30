@@ -2068,3 +2068,60 @@ the rejected repeated 16/8, 24/12, and eight-substep logs are
 `c596251728b5f57cc8ecc55b22db238710d1d3633a15927e226477650e62298b`,
 `5f22a2122946c9b9c68b03bd96fbc7fa4e175168f04bc16137723d6929c3685c`,
 and `aec27c21c26e9c4c6ecc74c70ab73c55623f16e77b5f7a5df4b82c24ddbecc89`.
+
+### Current second-channel GPU attribution and timestep boundary
+
+An opt-in, temporary Metal stage-boundary timestamp pass on the accepted
+step-4766 checkpoint measured a 4 ms, 16-rigid-substep, one-Newton,
+16/8-contact continuation. Its 565 sampled encoders left the run at
+779.915 ms GPU with qualified grasp and rod, two connected channels,
+all 46,080 tets, and a 0.001414 m/s maximum normal residual. The 16
+Wave32 temporal-cone encoders used 243.289 ms in total (14.723 ms
+median); pre-contact and post-contact generalized encoders used 66.556
+and 52.599 ms. These three disjoint encoder families account for about
+46% of this one command buffer's GPU time. They do not attribute the
+remaining work or establish a load-bearing stitch speedup. A broader
+1,815-encoder sample perturbed the timing and its summed intervals
+exceeded the command-buffer duration, so it was not used as a cost
+decomposition. All timestamp hooks were removed after measurement. The
+broader trace-log SHA-256 is
+`7aee39d502e09c12cd907812d1541a15d26d5b12cdded07709d993549b26bd93`.
+
+A bounded Wave32 trial copied the one-rod factor into 14.8 KiB of
+threadgroup memory for reuse across contact iterations. It preserved
+every reported non-timing field, but two unprofiled runs took 770.252
+and 747.465 ms GPU versus 772.220 and 753.580 ms on the restored
+shader. The approximately 0.5% median difference was within this
+pair's timing variation and did not justify the extra threadgroup
+memory. The trial was reverted. The restored executable and MetalRobo
+metallib SHA-256 values are
+`52c9d2683bc379fc2a07bb6db316167e19962eafff9aadefd13ba259a7e76e0c`
+and `a8e3386ae682f49e3b87f9324fa31918d26a2b732636e26536f78cf8a27bee33`.
+A fresh uninstrumented run on those artifacts again passed all local
+physics gates with identical reported non-timing fields (log SHA-256
+`27656efa9603e4f892b1861f35096eef4a4d8e7407ceaa3ebb64febf3c0dbf3c`).
+
+Reducing to eight rigid substeps while retaining 32/16 contact
+iterations gave a 0.001129 m/s contact residual but failed the grasp
+angular-speed gate at 0.663 rad/s (limit 0.6 rad/s). Increasing to
+40/20 iterations passed at 0.001637 m/s residual, qualified grasp and
+rod, and restored byte-exactly. Yet its 4 ms step took 753.342 ms GPU
+and advanced the tip only 2.329 um, versus 3.003 um in the nearby
+accepted 16-substep/16/8 step at comparable GPU cost. Eight substeps
+therefore did not improve this path's throughput or tip progress; no
+longer eight-substep route was qualified. The original 16-substep
+schedule remains selected. Neither setting measured new tip impulse,
+tissue reaction, or displacement. The 100x whole-stitch target remains
+open; reducing Wave32 alone cannot close the measured gap.
+
+The focused stage-profile, factor-trial pair, restored-control pair,
+eight-substep 32/16 rejection, eight-substep 40/20 acceptance, and
+byte-exact restore logs have SHA-256
+`e5249fa6d50952530588108c026d00e564a15016134bf2869fce6ba638caf924`,
+`11cc46df5cd3772e659d226eec5d24b88fa57d998873226bbbb757c86abaab26` /
+`c0b1b0f44a06080c1e6ea150e02573b3295b91441cc4924449a9227427c230a8`,
+`e3f5bb179bc767bada0d6987ceda67a1a117a1508e23f0c42d6939b61c9b27f6` /
+`9da6e10244a8a5362981ac9fb0e77fea4a9b7392ded281dcde242e5129295277`,
+`7db3b3712e76e67cd8b1a231d891def108e158b0aa326a5106b64ab79e63be34`,
+`9c765b22489ca9ded61414b5670fcd78029cbc394335502117bc911a3b85154d`,
+and `f0aaf785163d1d1636822df89c6fbc6897d2213835ffdf938eadd14c4adcc0fd`.
