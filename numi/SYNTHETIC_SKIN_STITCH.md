@@ -330,9 +330,9 @@ the checkpoint TSV SHA-256 is
 The 100x target on this matched segment would require at most 0.681 s GPU
 from the accepted 68.113 s baseline. Further cadence increases are not an
 exact-state optimization, and the contact phase still needs its full solver
-budget. Per-stage GPU profiling and a solver/dispatch redesign are needed
-before a credible 100x attempt; neither has been measured here. No full
-robot-driven stitch or 100x end-to-end speedup has been measured.
+budget. The later performance checkpoint profiles the contact broadphase
+and measures one algorithmic improvement. No full robot-driven stitch or
+100x end-to-end speedup has been measured.
 
 The `--tissue-robot-first-bite-ik-only --synthetic-skin` geometry probe found
 a 250-step giver approach and 185-step 5 mm/s needle-orbit path at the
@@ -377,6 +377,44 @@ was disabled, so it does not attribute per-kernel costs. The benchmark log is
 `6af9f06ac1385c744ef7077a8a302a45f7a59398cefe0a3b4e71e09d48415429`;
 the executable SHA-256 is
 `30352b18ef5fe43b51be296f6181b2c377a9788662789251442b7370a73bfc38`.
+
+An encoder-boundary Metal timestamp probe on the M4 attributed about 372 ms
+per deformable-candidate build (five Newton passes plus the final certificate)
+in the original post-entry skin microstep. The old broadphase checked surface pairs
+quadratically in one SIMD group. Sorting by each surface's lower x bound
+lets the same AABB test stop once the next lower bound exceeds the left
+upper bound. A 100-seed, 200-box randomized negative/positive-coordinate
+check found the same overlapping pair sets as all-pairs enumeration. With
+the x sweep, candidate building took about 134 ms per build. The
+unprofiled 62.5 us native post-entry step fell from 3,375.995 to
+1,927.866 ms GPU, or 1.75x throughput; every published physical field
+matched the prior run, including one puncture channel, all 46,080 tets,
+zero mass loss, and zero failed steps. Six focused surgical, mixed-FEM,
+topology, cohesive, and puncture tests passed. The final run log SHA-256 is
+e6510dcf37dd36867a3edd45cfa3aaf23494c9a1d7d0c9de97716d146f860e87;
+the executable and Matter metallib SHA-256 values are
+c394ed8b8a8f521c55ca38e0ae6db8feef448f77b4da0277c78c1e166a4e49d5
+and f594c387b3d34a000d8ab80e3049d76e5bea650901d4c4a9012fb7d1c3d8bf1a.
+This measured segment is still 57x slower than the 33.8 ms target implied
+by the requested 100x speedup from the original baseline. It is not a
+whole-stitch or robot-contact speedup measurement.
+
+The changed shader/program fingerprint correctly rejects the earlier
+robot tip-contact checkpoint. Its diagnostic restore log SHA-256 is
+2434a35fafdb8c3dce0f48d574f7ddb6f8580f4e137fd060763045f295d2f5bf.
+Keep the original binary for the old accepted checkpoint lineage and
+regenerate a new lineage under this shader before resuming the robot bite;
+no old state was silently upgraded.
+
+The stronger 75 um jaw-preload trial from robot contact step 1645 also
+remains unqualified. A 13 ms ramp at 1 mm/s preserved Matter's 46,080
+tets and zero failures but drifted 212 um at the needle seat. A 6 ms
+partial ramp at 5 mm/s reduced seat drift to 28.9 um but produced
+20.0 mm/s contact-relative point speed and 2.11 rad/s angular slip,
+above the 2 mm/s and 0.6 rad/s grasp limits. Neither published a
+checkpoint; their log SHA-256 values are
+f19e715d8ee5a9fc77345d942aa2b49f7ec8660a0f386acbc3f77fb88f2c0229
+and 0cb969049397267ee58c6bda20d852f896a04f4dd028a41d5191246033b224bc.
 
 Open work: physically approach and pick up the needle with the robot, drive
 it through the first skin lip with measured tissue reaction, qualify thread

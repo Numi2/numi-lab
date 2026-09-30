@@ -172,6 +172,14 @@ full-simulation target, physical pickup, completed robot-driven bites, the
 knot, and unloaded wound retention also remain open. The evidence is in
 [`numi/SYNTHETIC_SKIN_STITCH.md`](numi/SYNTHETIC_SKIN_STITCH.md).
 
+The Matter deformable-contact broadphase now sorts surface bounds along x
+and stops its exact pair sweep after the remaining boxes cannot overlap.
+On the 46,080-tet post-entry skin microstep, GPU time fell from 3.376 to
+1.928 s (1.75x); all published physical fields matched the previous
+one-step run. This is a new shader/program lineage, so the earlier robot
+checkpoints still require their original binary. It does not establish a
+100x gain or a completed stitch.
+
 The dual-PSM surgical probe now drives the authored 26 mm half-circle needle
 about its actual 8.28 mm curvature centre at a 20 mm/s terminal speed. Matter
 admits entry from accepted tapered-tip contact, then extends a connected

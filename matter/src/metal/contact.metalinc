@@ -576,23 +576,6 @@ kernel void nm_contact_build_surface_primitives(
         maximumPoint + thickness, maximumTravel);
     primitives[global] = primitive;
 }
-inline uint surfaceMortonSpread(uint value) {
-    value &= 0x000003ffu;
-    value = (value | (value << 16u)) & 0x030000ffu;
-    value = (value | (value << 8u)) & 0x0300f00fu;
-    value = (value | (value << 4u)) & 0x030c30c3u;
-    value = (value | (value << 2u)) & 0x09249249u;
-    return value;
-}
-
-inline uint surfaceMortonKey(const float3 normalized) {
-    const uint3 quantized = uint3(clamp(
-        normalized * 1023.0f, float3(0.0f), float3(1023.0f)));
-    return surfaceMortonSpread(quantized.x) |
-        (surfaceMortonSpread(quantized.y) << 1u) |
-        (surfaceMortonSpread(quantized.z) << 2u);
-}
-
 kernel void nm_contact_sort_surface_primitives(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMContinuumSurfacePrimitiveGPU* primitives [[buffer(1)]],
@@ -611,26 +594,6 @@ kernel void nm_contact_sort_surface_primitives(
         return;
     }
     const uint primitiveBase = environment * primitiveCount;
-    float3 localMinimum = float3(INFINITY);
-    float3 localMaximum = float3(-INFINITY);
-    for (uint local = lane; local < primitiveCount; local += 32u) {
-        const NMContinuumSurfacePrimitiveGPU primitive =
-            primitives[primitiveBase + local];
-        if ((primitive.identity.w & NM_TOPOLOGY_ACTIVE) == 0u) continue;
-        const float3 centroid = 0.5f * (
-            primitive.boundsMinimum.xyz + primitive.boundsMaximum.xyz);
-        localMinimum = min(localMinimum, centroid);
-        localMaximum = max(localMaximum, centroid);
-    }
-    const float3 boundsMinimum = float3(
-        simd_min(localMinimum.x), simd_min(localMinimum.y),
-        simd_min(localMinimum.z));
-    const float3 boundsMaximum = float3(
-        simd_max(localMaximum.x), simd_max(localMaximum.y),
-        simd_max(localMaximum.z));
-    const float3 inverseExtent = 1.0f /
-        max(boundsMaximum - boundsMinimum, float3(1.0e-12f));
-
     threadgroup uint compactedCount;
     if (lane == 0u) compactedCount = 0u;
     threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
@@ -645,10 +608,13 @@ kernel void nm_contact_sort_surface_primitives(
         if (selected) {
             const NMContinuumSurfacePrimitiveGPU primitive =
                 primitives[primitiveBase + local];
-            const float3 centroid = 0.5f * (
-                primitive.boundsMinimum.xyz + primitive.boundsMaximum.xyz);
-            keysA[primitiveBase + output] = surfaceMortonKey(
-                (centroid - boundsMinimum) * inverseExtent);
+            // Sorting by the lower x bound makes a subsequent sweep exact:
+            // once the next lower bound exceeds the left upper bound, no
+            // later primitive can overlap this left primitive.
+            const uint bits = as_type<uint>(primitive.boundsMinimum.x);
+            keysA[primitiveBase + output] = bits ^
+                ((bits & 0x80000000u) != 0u
+                    ? 0xffffffffu : 0x80000000u);
             indicesA[primitiveBase + output] = local;
         }
         threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
@@ -825,6 +791,11 @@ kernel void nm_contact_build_deformable_candidates(
         for (uint firstRight = leftOrder + 1u;
              firstRight < activeCount; firstRight += 32u) {
             if (outputCount >= capacity) break;
+            const uint firstRightIndex =
+                sortedIndices[primitiveBase + firstRight];
+            if (firstRightIndex < primitiveCount &&
+                primitives[primitiveBase + firstRightIndex]
+                    .boundsMinimum.x > left.boundsMaximum.x) break;
             const uint rightOrder = firstRight + lane;
             bool selected = rightOrder < activeCount;
             uint rightIndex = NM_INVALID_INDEX;
