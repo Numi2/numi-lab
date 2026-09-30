@@ -301,6 +301,57 @@ inline float3x3 mixedFirstPiolaTangent(
     return result;
 }
 
+// A prescribed active Cauchy tension is an internal constitutive contribution.
+// Its input is fixed over the borrowed transaction, so the tangent differentiates
+// geometry only. This path leaves the full passive material stress intact.
+inline float3x3 prescribedFibrePiola(
+    const float3x3 deformation, const float3 referenceFibre,
+    const float tension
+) {
+    const float3 f = normalize(referenceFibre);
+    const float3 ff = deformation * f;
+    const float3 m = ff / length(ff);
+    const float3x3 sigma = float3x3(
+        tension * m.x * m, tension * m.y * m, tension * m.z * m);
+    return sigma * cofactorMatrix(deformation);
+}
+
+inline float3x3 prescribedFibrePiolaTangent(
+    const float3x3 deformation, const float3x3 direction,
+    const float3 referenceFibre, const float tension
+) {
+    const float3 f = normalize(referenceFibre);
+    const float3 ff = deformation * f;
+    const float3 dff = direction * f;
+    const float lengthF = length(ff);
+    const float3 m = ff / lengthF;
+    const float3 dm = (dff - m * dot(m, dff)) / lengthF;
+    const float3x3 sigma = float3x3(
+        tension * m.x * m, tension * m.y * m, tension * m.z * m);
+    const float3x3 dsigma = float3x3(
+        tension * (dm.x * m + m.x * dm),
+        tension * (dm.y * m + m.y * dm),
+        tension * (dm.z * m + m.z * dm));
+    return dsigma * cofactorMatrix(deformation) +
+        sigma * cofactorDirectional(deformation, direction);
+}
+
+inline bool prescribedFibreInputValid(
+    const float tension, const NMMixedMaterialGPU material,
+    const NMContinuumObjectGPU object, const float3x3 deformation
+) {
+    if (!isfinite(tension) || tension < 0.0f ||
+        !isfinite(material.fibre.w) || tension > material.fibre.w)
+        return false;
+    if (tension == 0.0f) return true;
+    if ((object.flags & NM_OBJECT_MIXED_FEM) != 0u ||
+        !all(isfinite(material.fibre.xyz)) ||
+        !(dot(material.fibre.xyz, material.fibre.xyz) > 0.0f))
+        return false;
+    const float3 ff = deformation * normalize(material.fibre.xyz);
+    return all(isfinite(ff)) && length(ff) > 1.0e-12f;
+}
+
 inline float learnedSoftplus(const float value, const float beta) {
     const float scaled = clamp(beta * value, -80.0f, 80.0f);
     return max(value, 0.0f) + log(1.0f + exp(-abs(scaled))) / beta;
@@ -872,6 +923,8 @@ kernel void nm_fem_internal_forces(
     device const NMLearnedMaterialGPU* learnedMaterials [[buffer(16)]],
     device const NMLearnedLayerGPU* learnedLayers [[buffer(17)]],
     device const float* learnedWeights [[buffer(18)]],
+    device const float* activeTensions [[buffer(19)]],
+    constant uint& hasActiveTensions [[buffer(20)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.tetrahedronCount;
@@ -960,6 +1013,22 @@ kernel void nm_fem_internal_forces(
             stress, deformation, femMixedMaterial(object, tetrahedron, mixedMaterials[object.materialIndex]),
             fieldAverage.x, fieldAverage.z, activation
         );
+    }
+    if (hasActiveTensions != 0u) {
+        const float tension = activeTensions[global];
+        const NMMixedMaterialGPU activeMaterial =
+            femMixedMaterial(object, tetrahedron,
+                             mixedMaterials[tetrahedron.identity.x]);
+        const float3 fibre = activeMaterial.fibre.xyz;
+        if (!prescribedFibreInputValid(tension, activeMaterial,
+                                       object, deformation)) {
+            recordFailure(statuses[environment], NM_STATUS_NONFINITE_INPUT,
+                          objectIndex, tetrahedronIndex,
+                          float4(tension, activeMaterial.fibre.w, 0.0f, 0.0f));
+            return;
+        }
+        if (tension > 0.0f)
+            stress += prescribedFibrePiola(deformation, fibre, tension);
     }
     if (!valid || maximumAbs(stress) > material.validity.z) {
         recordFailure(
@@ -1141,6 +1210,8 @@ kernel void nm_fem_apply_operator_elements(
     device const float* learnedWeights [[buffer(20)]],
     constant NMMixedSolverGPU& solver [[buffer(21)]],
     device const NMFGMRESStateGPU* fgmresStates [[buffer(22)]],
+    device const float* activeTensions [[buffer(23)]],
+    constant uint& hasActiveTensions [[buffer(24)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.tetrahedronCount;
@@ -1293,6 +1364,23 @@ kernel void nm_fem_apply_operator_elements(
                 scale * m.x * m, scale * m.y * m, scale * m.z * m);
             tangent += activationCauchy * cofactor;
         }
+    }
+    if (hasActiveTensions != 0u) {
+        const float tension = activeTensions[global];
+        const NMMixedMaterialGPU activeMaterial =
+            femMixedMaterial(object, tetrahedron,
+                             mixedMaterials[tetrahedron.identity.x]);
+        const float3 fibre = activeMaterial.fibre.xyz;
+        if (!prescribedFibreInputValid(tension, activeMaterial,
+                                       object, deformation)) {
+            recordFailure(statuses[environment], NM_STATUS_NONFINITE_INPUT,
+                          objectIndex, tetrahedronIndex,
+                          float4(tension, activeMaterial.fibre.w, 0.0f, 0.0f));
+            return;
+        }
+        if (tension > 0.0f)
+            tangent += prescribedFibrePiolaTangent(
+                deformation, deformationDirection, fibre, tension);
     }
     if (!valid) {
         recordFailure(

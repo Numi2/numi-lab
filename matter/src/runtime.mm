@@ -3322,6 +3322,17 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 "borrowed FEM external-force field must exactly cover every environment and cooked node";
             return diagnostics;
         }
+        const std::uint64_t requiredFEMActiveTensionCount =
+            static_cast<std::uint64_t>(state.dispatch.environmentCount) *
+            state.dispatch.tetrahedronCount;
+        if ((request.femActiveTensions == nullptr) !=
+                (request.femActiveTensionCount == 0u) ||
+            (request.femActiveTensions != nullptr &&
+             request.femActiveTensionCount != requiredFEMActiveTensionCount)) {
+            diagnostics.message =
+                "borrowed FEM active-tension field must exactly cover every environment and cooked tetrahedron";
+            return diagnostics;
+        }
         if ((request.femKinematicTargets == nullptr) !=
                 (request.femKinematicTargetCount == 0u) ||
             (request.femKinematicTargets != nullptr &&
@@ -3471,6 +3482,17 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 static_cast<NSUInteger>(request.femExternalForceCount) *
                     4u * sizeof(float)) {
             diagnostics.message = "borrowed FEM external-force Metal buffer is undersized";
+            return diagnostics;
+        }
+        id<MTLBuffer> femActiveTensions = request.femActiveTensions == nullptr
+            ? state.dummy
+            : (__bridge id<MTLBuffer>)request.femActiveTensions;
+        const std::uint32_t hasFEMActiveTensions =
+            request.femActiveTensions == nullptr ? 0u : 1u;
+        if (request.femActiveTensions != nullptr &&
+            femActiveTensions.length <
+                static_cast<NSUInteger>(request.femActiveTensionCount) * sizeof(float)) {
+            diagnostics.message = "borrowed FEM active-tension Metal buffer is undersized";
             return diagnostics;
         }
         const bool hasVascularCavities = state.vascularValue.layout.cavities.x != 0u;
@@ -6034,6 +6056,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.learnedMaterials offset:0u atIndex:16u];
                 [encoder setBuffer:state.learnedLayers offset:0u atIndex:17u];
                 [encoder setBuffer:state.learnedWeightsCandidate offset:0u atIndex:18u];
+                [encoder setBuffer:femActiveTensions offset:0u atIndex:19u];
+                [encoder setBytes:&hasFEMActiveTensions length:sizeof(hasFEMActiveTensions) atIndex:20u];
             });
             encodeCavityForces();
             dispatchThreads("nm_fem_build_mechanical_residual", femNodeTotal, [&] {
@@ -6640,6 +6664,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.learnedWeightsCandidate offset:0u atIndex:20u];
                     [encoder setBuffer:state.mixedSolver offset:0u atIndex:21u];
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:22u];
+                    [encoder setBuffer:femActiveTensions offset:0u atIndex:23u];
+                    [encoder setBytes:&hasFEMActiveTensions length:sizeof(hasFEMActiveTensions) atIndex:24u];
                 });
                 dispatchThreads("nm_fgmres_gather_nodes", femNodeTotal, [&] {
                     setDispatch();
@@ -7540,6 +7566,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.learnedMaterials offset:0u atIndex:16u];
                 [encoder setBuffer:state.learnedLayers offset:0u atIndex:17u];
                 [encoder setBuffer:state.learnedWeightsCandidate offset:0u atIndex:18u];
+                [encoder setBuffer:femActiveTensions offset:0u atIndex:19u];
+                [encoder setBytes:&hasFEMActiveTensions length:sizeof(hasFEMActiveTensions) atIndex:20u];
             });
             encodeCavityForces();
             dispatchThreads("nm_fem_build_mechanical_residual", femNodeTotal, [&] {
@@ -8266,7 +8294,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
         transactionPolicyFingerprint = mixFingerprint(
             transactionPolicyFingerprint,
             ownership->identificationGeneration);
-        const std::array<std::uint64_t, 30u> transactionPolicyValues{{
+        const std::array<std::uint64_t, 31u> transactionPolicyValues{{
             request.controlStep,
             request.physicsSubstep,
             request.physicsSubsteps,
@@ -8284,6 +8312,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
             request.learnedWeightRevision,
             request.expectedLearnedFingerprint,
             request.femExternalForceCount,
+            request.femActiveTensionCount,
             request.rigidContactConstraintStride,
             request.articulationRootBody,
             request.rigid.currentBodyCount,

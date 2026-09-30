@@ -606,7 +606,13 @@ CompileResult compileWorld(
             material.mixed.electricalConductivity < 0.0 ||
             material.mixed.activationDiffusivity < 0.0 ||
             material.mixed.activationOnRate < 0.0 ||
-            material.mixed.activationOffRate < 0.0) {
+            material.mixed.activationOffRate < 0.0 ||
+            material.mixed.maximumActiveTension < 0.0 ||
+            !std::isfinite(static_cast<float>(material.mixed.maximumActiveTension)) ||
+            (material.mixed.maximumActiveTension > 0.0 &&
+             !(std::hypot(material.mixed.fibreDirection[0],
+                          material.mixed.fibreDirection[1],
+                          material.mixed.fibreDirection[2]) > 0.0))) {
             result.diagnostics.push_back({
                 Diagnostic::Severity::error, 0u, 0u,
                 "material '" + material.name +

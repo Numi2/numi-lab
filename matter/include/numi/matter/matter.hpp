@@ -941,6 +941,12 @@ struct EncodeRequest {
     // Matter factors A0+J^T R^-1 J into separate root-local private storage.
     void* humanEqualitySourceEffectiveTangentFactor = nullptr;
     void* femExternalForces = nullptr; // id<MTLBuffer>, float4
+    // Optional environment-major active Cauchy tension, one float per cooked
+    // tetrahedron. Matter evaluates this inside the FEM stress and tangent;
+    // it is held immutable through the borrowed command-buffer transaction.
+    // Each value must be finite, nonnegative, and at most that cell material's
+    // maximumActiveTension. Nonzero values require an unmixed FEM element.
+    void* femActiveTensions = nullptr; // id<MTLBuffer>, float
     // Optional absolute world-space targets for cooked fixed FEM nodes. One
     // float4 covers every environment/node; w > 0 selects a target. Targets
     // are interpolated over internal microticks and participate in the same
@@ -965,6 +971,7 @@ struct EncodeRequest {
     std::uint32_t learnedWeightCount = 0u;
     std::uint32_t learnedWeightRevision = 0u;
     std::uint32_t femExternalForceCount = 0u;
+    std::uint32_t femActiveTensionCount = 0u;
     std::uint32_t femKinematicTargetCount = 0u;
     std::uint64_t expectedMutationFingerprint = 0u;
     std::uint64_t expectedLearnedFingerprint = 0u;
