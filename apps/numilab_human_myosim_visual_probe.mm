@@ -9041,6 +9041,97 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
         patellarTendonPatellaReaction, patellarTendonForceResultant);
     const mr_float4 ptlTibiaOtherReaction = femAdd(
         patellarTendonTibiaReaction, patellarTendonForceResultant);
+    std::array<std::array<double, 3u>, 2u> ptlInitialCentroids{};
+    std::array<std::array<double, 3u>, 2u> ptlAcceptedCentroids{};
+    std::array<std::uint32_t, 2u> ptlAnchorCounts{};
+    for (std::uint32_t local = 0u; local < ptlRegion.nodeCount; ++local) {
+        const std::uint32_t femNode = ptlRuntime->firstFEMNode + local;
+        const auto& anchor = nodeAnchors[femNode];
+        if ((anchor.flags & NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE) == 0u)
+            continue;
+        const std::uint32_t attachment = anchor.bodyIndex == patellaBodyIndex
+            ? 0u : anchor.bodyIndex == tibiaBodyIndex ? 1u : 2u;
+        require(attachment < 2u,
+                "live Open Knee PTL diagnostic found an unexpected anchor");
+        ++ptlAnchorCounts[attachment];
+        for (std::uint32_t axis = 0u; axis < 3u; ++axis) {
+            ptlInitialCentroids[attachment][axis] += initialPoints[femNode][axis];
+            ptlAcceptedCentroids[attachment][axis] += acceptedPoints[femNode][axis];
+        }
+    }
+    require(ptlAnchorCounts[0u] == ptlRuntime->anchorCounts[2u] &&
+                ptlAnchorCounts[1u] == ptlRuntime->anchorCounts[1u],
+            "live Open Knee PTL diagnostic anchor coverage drifted");
+    for (std::uint32_t attachment = 0u; attachment < 2u; ++attachment) {
+        for (std::uint32_t axis = 0u; axis < 3u; ++axis) {
+            ptlInitialCentroids[attachment][axis] /= ptlAnchorCounts[attachment];
+            ptlAcceptedCentroids[attachment][axis] /= ptlAnchorCounts[attachment];
+        }
+    }
+    const auto centroidDistance = [](
+        const std::array<std::array<double, 3u>, 2u>& centroids) {
+        double squared = 0.0;
+        for (std::uint32_t axis = 0u; axis < 3u; ++axis) {
+            const double delta = centroids[1u][axis] - centroids[0u][axis];
+            squared += delta * delta;
+        }
+        return std::sqrt(squared);
+    };
+    const double ptlInitialLength = centroidDistance(ptlInitialCentroids);
+    const double ptlAcceptedLength = centroidDistance(ptlAcceptedCentroids);
+    const auto ptlReducedFiber = std::find_if(
+        passiveLigaments.begin(), passiveLigaments.end(),
+        [patellaBodyIndex, tibiaBodyIndex](
+            const NMNumiHumanPassiveLigamentGPU& ligament) {
+            return ligament.firstBodyIndex == patellaBodyIndex &&
+                ligament.secondBodyIndex == tibiaBodyIndex;
+        });
+    require(ptlReducedFiber != passiveLigaments.end(),
+            "live Open Knee PTL reduced fiber diagnostic is unavailable");
+    numi::matter::NumiHumanPassiveLigamentFiberEvaluation ptlFiberEvaluation;
+    require(numi::matter::evaluateNumiHumanPassiveLigamentFiber(
+                *ptlReducedFiber, ptlAcceptedLength, ptlFiberEvaluation),
+            "live Open Knee PTL reduced fiber diagnostic failed");
+    double ptlMassKilograms = 0.0;
+    std::array<double, 3u> ptlMomentumRateNewtons{};
+    const double elapsedPTLSeconds = timestepSeconds * stepCount;
+    require(std::isfinite(elapsedPTLSeconds) && elapsedPTLSeconds > 0.0,
+            "live Open Knee PTL diagnostic elapsed time is invalid");
+    for (std::uint32_t local = 0u; local < ptlRegion.nodeCount; ++local) {
+        const std::uint32_t femNode = ptlRuntime->firstFEMNode + local;
+        const auto& initialNode = initial.femNodes[femNode];
+        const auto& acceptedNode = accepted.femNodes[femNode];
+        const double mass = initialNode.positionAndMass.w;
+        require(std::isfinite(mass) && mass >= 0.0,
+                "live Open Knee PTL diagnostic node mass is invalid");
+        ptlMassKilograms += mass;
+        ptlMomentumRateNewtons[0u] += mass *
+            (acceptedNode.velocityAndInverseMass.x -
+             initialNode.velocityAndInverseMass.x) / elapsedPTLSeconds;
+        ptlMomentumRateNewtons[1u] += mass *
+            (acceptedNode.velocityAndInverseMass.y -
+             initialNode.velocityAndInverseMass.y) / elapsedPTLSeconds;
+        ptlMomentumRateNewtons[2u] += mass *
+            (acceptedNode.velocityAndInverseMass.z -
+             initialNode.velocityAndInverseMass.z) / elapsedPTLSeconds;
+    }
+    require(ptlMassKilograms > 0.0,
+            "live Open Knee PTL diagnostic continuum mass is invalid");
+    // The copied reaction is the final-step reaction. It can be compared with
+    // the initial-to-accepted momentum change only for a one-step transaction.
+    double ptlMomentumClosureNormNewtons =
+        std::numeric_limits<double>::quiet_NaN();
+    if (stepCount == 1u) {
+        double squared = 0.0;
+        for (std::uint32_t axis = 0u; axis < 3u; ++axis) {
+            const double reaction = axis == 0u ? ptlCombinedReaction.x
+                : axis == 1u ? ptlCombinedReaction.y
+                : ptlCombinedReaction.z;
+            const double residual = ptlMomentumRateNewtons[axis] + reaction;
+            squared += residual * residual;
+        }
+        ptlMomentumClosureNormNewtons = std::sqrt(squared);
+    }
     std::cout << std::setprecision(9)
               << "open_knee_ptl_force_accounting=diagnostic"
               << " route_terminal_force_xyz_n="
@@ -9069,6 +9160,21 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
               << ptlTibiaOtherReaction.z
               << " tibia_other_reaction_norm_n="
               << femLength(ptlTibiaOtherReaction)
+              << " initial_anchor_centroid_length_m=" << ptlInitialLength
+              << " accepted_anchor_centroid_length_m=" << ptlAcceptedLength
+              << " anchor_centroid_extension_m="
+              << ptlAcceptedLength - ptlInitialLength
+              << " reduced_fiber_tension_n="
+              << ptlFiberEvaluation.tensionNewtons
+              << " continuum_mass_kg=" << ptlMassKilograms
+              << " continuum_momentum_rate_xyz_n="
+              << ptlMomentumRateNewtons[0u] << ","
+              << ptlMomentumRateNewtons[1u] << ","
+              << ptlMomentumRateNewtons[2u]
+              << " anchor_plus_momentum_rate_residual_n="
+              << ptlMomentumClosureNormNewtons
+              << " momentum_closure_scope="
+              << (stepCount == 1u ? "one_native_step" : "not_evaluated_multi_step")
               << " quadriceps_applied_xyz_n="
               << quadricepsAppliedForceResultant.x << ","
               << quadricepsAppliedForceResultant.y << ","
@@ -9077,8 +9183,8 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
               << quadricepsEnthesisReaction.x << ","
               << quadricepsEnthesisReaction.y << ","
               << quadricepsEnthesisReaction.z
-              << " boundary=other_reaction_includes_internal_contact_gravity_"
-                 "and_inertial_terms_not_a_passive_only_measure\n" << std::flush;
+              << " boundary=other_reaction_not_passive_only_momentum_closure_"
+                 "does_not_qualify_sustained_motion_or_energy\n" << std::flush;
     const auto adapterDiagnostics = adapter.diagnostics();
     const double externalResultantRelativeError = std::abs(
         adapterDiagnostics.assembledExternalForceResultantNewtons -
