@@ -15798,6 +15798,37 @@ int main(const int argc, const char* const argv[]) {
                     << world.defaultSceneBodies.at(0u)
                            .flagsAndIndices[0] << '\n';
             }
+            if (tissueRobotFirstBiteGripOnly) {
+                const NMRigidProxyGPU& tipProxy =
+                    tissueWorld.contact.rigidProxies.at(0u);
+                const NMRigidProxyGPU& shankProxy =
+                    tissueWorld.contact.rigidProxies.at(1u);
+                require(
+                    world.defaultSceneBodies.at(0u).flagsAndIndices[0] ==
+                            MR_MOTION_DYNAMIC &&
+                        world.defaultSceneBodies.at(0u)
+                                .linearVelocityAndInverseMass.w > 0.0f &&
+                        (tipProxy.flags & NM_RIGID_DYNAMIC) != 0u &&
+                        (shankProxy.flags & NM_RIGID_DYNAMIC) != 0u &&
+                        tipProxy.sceneBodyIndex == 0u &&
+                        shankProxy.sceneBodyIndex == 0u &&
+                        tipProxy.generalizedFreeBodyIndex !=
+                            NM_INVALID_INDEX &&
+                        tipProxy.generalizedFreeBodyIndex ==
+                            shankProxy.generalizedFreeBodyIndex &&
+                        tissueWorld.dispatch.rigidGeneralizedCapacity >= 6u,
+                    "first-bite grip did not compile a free needle into "
+                    "the Matter/MetalWorld interface"
+                );
+                std::cout << "robot_first_bite_matter_free_body=ok"
+                    << " generalized_index="
+                    << tipProxy.generalizedFreeBodyIndex
+                    << " generalized_capacity="
+                    << tissueWorld.dispatch.rigidGeneralizedCapacity
+                    << " needle_inverse_mass="
+                    << world.defaultSceneBodies.at(0u)
+                           .linearVelocityAndInverseMass.w << '\n';
+            }
             if (tissueOpposingBiteTopologyOnly) {
                 const TissueBiteSites biteSites = tissueBiteSites(
                     tissueCoupon
@@ -21992,11 +22023,35 @@ int main(const int argc, const char* const argv[]) {
                 );
                 const numi::matter::RuntimeStateSnapshot gripMatter =
                     tissueRuntime.snapshot();
+                std::uint32_t activeChannels = 0u;
                 std::uint32_t activeTetrahedra = 0u;
+                double removedMassKg = 0.0;
+                double minimumDeterminant =
+                    std::numeric_limits<double>::infinity();
+                bool certificatesAccepted =
+                    !gripMatter.solverCertificates.empty();
+                for (const NMPunctureChannelGPU& channel :
+                     gripMatter.punctureChannels) {
+                    activeChannels +=
+                        (channel.identity.w & NM_TOPOLOGY_ACTIVE) != 0u;
+                }
                 for (const NMTetrahedronGPU& tetrahedron :
                      gripMatter.femTopologyTetrahedra) {
                     activeTetrahedra +=
                         (tetrahedron.identity.w & NM_OBJECT_ACTIVE) != 0u;
+                }
+                for (const NMFEMTopologyStateGPU& topology :
+                     gripMatter.topologyStates) {
+                    removedMassKg += topology.accounting.y;
+                }
+                for (const NMSolverCertificateGPU& certificate :
+                     gripMatter.solverCertificates) {
+                    certificatesAccepted = certificatesAccepted &&
+                        certificate.validity.w > 0.5f;
+                    minimumDeterminant = std::min(
+                        minimumDeterminant,
+                        static_cast<double>(certificate.validity.x)
+                    );
                 }
                 const double needleDriftM = norm(
                     vector(coupled.result.finalSceneBodies.at(0u).position) -
@@ -22017,7 +22072,11 @@ int main(const int argc, const char* const argv[]) {
                     << " seat_drift_m=" << grip.seatDrift
                     << " relative_point_speed_mps="
                     << grip.relativePointSpeed
+                    << " active_puncture_channels=" << activeChannels
                     << " active_tetrahedra=" << activeTetrahedra
+                    << " removed_tissue_mass_kg=" << removedMassKg
+                    << " matter_minimum_determinant="
+                    << minimumDeterminant
                     << " hard_swage_root_error_m=" << swageErrorM
                     << " thread_maximum_edge_error_m="
                     << rod.maximumEdgeLengthError
@@ -22026,8 +22085,13 @@ int main(const int argc, const char* const argv[]) {
                     << contactSummary(gripContacts) << '\n';
                 require(
                     gripMatter.available &&
+                        activeChannels == 0u &&
                         activeTetrahedra ==
                             tissueCoupon.metadata.tetrahedronCount &&
+                        removedMassKg == 0.0 &&
+                        certificatesAccepted &&
+                        std::isfinite(minimumDeterminant) &&
+                        minimumDeterminant > 0.0 &&
                         bilateral(gripContacts, 0u) &&
                         distributedInsertCoverage(gripContacts, 0u) &&
                         cleanNeedleInteraction(
