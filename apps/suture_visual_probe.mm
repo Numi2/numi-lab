@@ -77,6 +77,7 @@ struct PickupState {
     std::vector<std::array<double, 3>> threadPositions;
     std::vector<std::array<double, 3>> threadVelocities;
     std::vector<std::array<double, 2>> threadTwists;
+    std::string tissueModelName;
     double tissueLength = 0.0;
     double tissueWidth = 0.0;
     double tissueThickness = 0.0;
@@ -572,11 +573,13 @@ PickupState readPickupState(const std::filesystem::path& path) {
                 "tissue incision gap"
             );
             require(
-                fields[1] == "porcine_jejunum_fung" &&
+                (fields[1] == "porcine_jejunum_fung" ||
+                 fields[1] == "synthetic_skin_wound") &&
                     length > 0.0 && width > 0.0 && thickness > 0.0 &&
                     incisionGap > 0.0,
                 "handoff tissue row is invalid"
             );
+            result.tissueModelName = fields[1];
             result.tissueLength = length;
             result.tissueWidth = width;
             result.tissueThickness = thickness;
@@ -1446,16 +1449,26 @@ metalrobo::DvrkSutureVisualScene makeHandoffVisualScene(
         .jawBBodyIndex = 17u,
         .needleBodyIndex = 18u,
     };
-    const numi::matter::PorcineJejunumFungSpec tissueSpec;
+    const numi::matter::PorcineJejunumFungSpec jejunumSpec;
+    const numi::matter::SyntheticSkinWoundSpec skinSpec;
+    const bool syntheticSkin =
+        state.tissueModelName == "synthetic_skin_wound";
     require(
-        std::abs(state.tissueLength - tissueSpec.lengthM.value) <= 1.0e-12 &&
-            std::abs(state.tissueWidth - tissueSpec.widthM.value) <=
-                1.0e-12 &&
-            std::abs(state.tissueThickness - tissueSpec.thicknessM.value) <=
-                1.0e-12 &&
+        std::abs(state.tissueLength -
+            (syntheticSkin ? skinSpec.lengthM :
+                jejunumSpec.lengthM.value)) <= 1.0e-12 &&
+            std::abs(state.tissueWidth -
+                (syntheticSkin ? skinSpec.widthM :
+                    jejunumSpec.widthM.value)) <= 1.0e-12 &&
+            std::abs(state.tissueThickness -
+                (syntheticSkin ? skinSpec.thicknessM :
+                    jejunumSpec.thicknessM.value)) <= 1.0e-12 &&
             std::abs(state.tissueIncisionGap -
-                     tissueSpec.incisionGapM.value) <= 1.0e-12,
-        "handoff replay tissue does not match the authored coupon"
+                (syntheticSkin ? skinSpec.incisionGapM :
+                    jejunumSpec.incisionGapM.value)) <= 1.0e-12 &&
+            (!syntheticSkin || state.matterSnapshot != nullptr),
+        "handoff replay tissue does not match the authored coupon or "
+        "lacks a live synthetic-skin snapshot"
     );
     const metalrobo::SurgicalNeutralZonePadSpec pad;
     result.hasSurgicalFieldGeometry = true;
@@ -1557,7 +1570,7 @@ metalrobo::DvrkSutureVisualScene makeHandoffVisualScene(
             kHandoffTissueCenterX,
             0.0,
             0.5 * pad.thicknessM.value +
-                0.5 * tissueSpec.thicknessM.value,
+                0.5 * jejunumSpec.thicknessM.value,
         };
     }
 
@@ -2010,7 +2023,7 @@ void writeEvidence(
               "topology; the reconstructed surface and fixed-end fixture "
               "markers remain presentation-only"
             : "accepted Apple Metal articulated/contact handoff plus DER "
-              "thread; the jejunal surface is generated from the calibrated "
+              "thread; the jejunal surface is generated from the authored "
               "FEM rest mesh and remains presentation-only"
         : pickup.medicallyMatchedSinglePickup
             ? "accepted deterministic CPU articulated/contact pickup plus "
@@ -2028,6 +2041,10 @@ void writeEvidence(
         << "  \"phase\": \""
         << (pickup.dualHandoff ? pickup.phase : "single-pickup")
         << "\",\n"
+        << "  \"tissue_model\": "
+        << (pickup.dualHandoff
+            ? "\"" + pickup.tissueModelName + "\""
+            : "null") << ",\n"
         << "  \"dual_instrument\": "
         << (pickup.dualHandoff ? "true" : "false") << ",\n"
         << "  \"matter_checkpoint\": "

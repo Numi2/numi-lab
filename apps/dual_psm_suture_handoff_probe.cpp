@@ -8751,16 +8751,17 @@ std::uint64_t loadHandoffState(
     return stateStep;
 }
 
-void writeHandoffStateArtifact(
+void writeHandoffStateArtifactWithMaterial(
     const std::filesystem::path& directory,
     const std::string_view phase,
     const std::uint64_t step,
     const metalrobo::HeterogeneousWorld& world,
     const metalrobo::BowelAnastomosisSutureSpec& suture,
     const metalrobo::MetalWorldResult& state,
-    const numi::matter::RuntimeStateSnapshot* matterSnapshot = nullptr,
-    const KnotContinuationCheckpoint* knotCheckpoint = nullptr,
-    const std::optional<std::uint32_t> stagingCompletedSteps = std::nullopt
+    const numi::matter::RuntimeStateSnapshot* matterSnapshot,
+    const KnotContinuationCheckpoint* knotCheckpoint,
+    const std::optional<std::uint32_t> stagingCompletedSteps,
+    const bool syntheticSkin
 ) {
     if (directory.empty()) {
         return;
@@ -8859,7 +8860,8 @@ void writeHandoffStateArtifact(
     std::ofstream output(temporary, std::ios::trunc);
     require(output.good(), "could not open handoff state artifact");
     const MRBodyStateGPU& needle = state.finalSceneBodies[0];
-    const numi::matter::PorcineJejunumFungSpec tissue;
+    const numi::matter::PorcineJejunumFungSpec jejunum;
+    const numi::matter::SyntheticSkinWoundSpec skin;
     output << std::setprecision(17)
         << "schema\t"
         << (matterSnapshot == nullptr
@@ -8894,9 +8896,14 @@ void writeHandoffStateArtifact(
         << "thread_model\t" << world.rods[0].model.radius << '\t'
         << state.finalRodNodes.size() << '\t'
         << suture.threadLengthM.value << '\n'
-        << "tissue_model\tporcine_jejunum_fung\t"
-        << tissue.lengthM.value << '\t' << tissue.widthM.value << '\t'
-        << tissue.thicknessM.value << '\t' << tissue.incisionGapM.value
+        << "tissue_model\t"
+        << (syntheticSkin ? "synthetic_skin_wound" : "porcine_jejunum_fung")
+        << '\t'
+        << (syntheticSkin ? skin.lengthM : jejunum.lengthM.value) << '\t'
+        << (syntheticSkin ? skin.widthM : jejunum.widthM.value) << '\t'
+        << (syntheticSkin ? skin.thicknessM : jejunum.thicknessM.value)
+        << '\t'
+        << (syntheticSkin ? skin.incisionGapM : jejunum.incisionGapM.value)
         << '\n';
     if (stagingCompletedSteps.has_value()) {
         output << "handoff_staging_completed_steps\t"
@@ -9250,6 +9257,31 @@ PhaseResult initializePhaseChunkedUnchecked(
 int main(const int argc, const char* const argv[]) {
     try {
         Arguments options = parseArguments(argc, argv);
+        const auto writeHandoffStateArtifact = [&] (
+            const std::filesystem::path& directory,
+            const std::string_view phase,
+            const std::uint64_t step,
+            const metalrobo::HeterogeneousWorld& world,
+            const metalrobo::BowelAnastomosisSutureSpec& suture,
+            const metalrobo::MetalWorldResult& state,
+            const numi::matter::RuntimeStateSnapshot* matterSnapshot = nullptr,
+            const KnotContinuationCheckpoint* knotCheckpoint = nullptr,
+            const std::optional<std::uint32_t> stagingCompletedSteps =
+                std::nullopt
+        ) {
+            writeHandoffStateArtifactWithMaterial(
+                directory,
+                phase,
+                step,
+                world,
+                suture,
+                state,
+                matterSnapshot,
+                knotCheckpoint,
+                stagingCompletedSteps,
+                options.syntheticSkin
+            );
+        };
         const bool geometryOnly = options.mode == "--geometry-only";
         const bool longSettle = options.mode == "--long-settle";
         const bool settleOnly = longSettle ||

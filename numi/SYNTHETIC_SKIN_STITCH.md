@@ -94,6 +94,16 @@ all FEM tetrahedra, zero removed mass, and a qualified swage/DER strand. This
 mode compiles and its CPU preflight passes, but its native Metal test has not
 run while the pull-through process owns the GPU. Current probe binary SHA-256:
 `e35b24f39a40eea9691f34a8a62215be821e59a2cd54ed79627abaf497346d9e`.
+Checkpoint publication now writes the actual `synthetic_skin_wound` material
+identity and 30 x 24 x 1.5 mm specimen dimensions when `--synthetic-skin` is
+selected; the visual probe accepts that identity only with a live v3 Matter
+snapshot and verifies the dimensions before building a surface. Both targets
+build, but no skin checkpoint has yet been rendered. Current handoff and
+visual-probe binary SHA-256 values are
+`22acd0b40cf42c03195af9a69ca841de000bca94383a7f820cb2f33ea64a907d`
+and
+`969e16939cb8697c65ee909d2dd0a1c9c13f375cf3552a5513412ac55edc080b`.
+The visual evidence manifest now carries the verified tissue-model identity.
 
 The `--tissue-robot-first-bite-ik-only --synthetic-skin` geometry probe found
 a 250-step giver approach and 185-step 5 mm/s needle-orbit path. The entry
