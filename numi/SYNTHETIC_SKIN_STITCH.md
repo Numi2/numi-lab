@@ -1308,3 +1308,45 @@ The curved-passage CTest was also stopped after 99 seconds without a result,
 before the pull-through CTest started; neither is qualified by this pass.
 The earlier single-pass assembly trial overlapped an independent Human GPU
 run, so its 546-549 ms observations are not used for performance selection.
+
+The guarded one-Newton free-space option was next applied to a **second**
+64x/24 ms robot-held approach from the byte-exact step-621 checkpoint,
+using the current shader above. The live 376.0 um tip-to-node clearance
+minus the planned 120.0 um capsule sweep exceeded its 200 um guard. The
+one-pass segment took 21,336.410 ms GPU versus 22,138.597 ms for a
+current-build two-pass run from the same checkpoint, a 1.038x segment
+throughput gain. Both passed terminal grasp and rod checks, retained all
+46,080 tetrahedra, had zero failed steps and no puncture channels, and
+ended at 262.650 um clearance. Their trajectories are distinct: Matter's
+maximum residual was 4.753e-7 versus 7.315e-7, and MetalWorld's maximum
+normal residual was 0.002301 versus 0.002302 m/s. Both peak contact
+residuals remain above the conservative 0.002 m/s per-step screen, so this
+is not a qualified robot-contact speedup. The one-pass log and checkpoint
+TSV SHA-256 values are
+`5a7b49b71677962e93618f49ad94f70de777c58c97dd1a59fc0483d1b24c3ce8`
+and `1d31d451b1bb01cf984f6d6bec90dd149d38e35c4f9841d34bb4a9f160a8fb25`;
+the paired two-pass values are
+`05588e088fe4ce1bd7f9945060ca874f6309e3dded256fb8a5980e3a5c7185ee`
+and `365464c679830cb2c09181a1c05f4461adabb733197271ddda87d8651d4b8e19`.
+
+The one-pass step-1005 checkpoint restored byte-exactly (restore log
+SHA-256 `d738a4697a99a642fa12cd5d6e628114097819243e83138e08fd6e250fed8325`).
+Normal full-Newton guarded approach and entry then advanced the robot-held needle to 150.617
+and 71.357 um clearance. Entry produced one positive accepted tip impulse
+of 1.021e-8 Ns and 1.023e-8 Ns measured tissue reaction, with accepted
+grasp and rod, all tetrahedra, and zero failed steps. The step-1645 contact
+checkpoint also restored byte-exactly. The guarded approach and entry took
+30,599.504 and 28,389.122 ms GPU; their maximum MetalWorld residuals were
+0.004474 and 0.003385 m/s, still above the per-step screen. The continuation
+logs and final checkpoint TSV have SHA-256 values
+`5bb6acaae919f13d3a9545369007ed77488c39d8561f9bdf21b2901358c981b8`,
+`922eb903f224d224b94c34d19ee4ef29e05cb012bc01c391718e9c5e73d4661d`,
+and `cd3204562385a963fbee3440589965203f288a4ff624d274e2345a509a33c02f`.
+The contact restore log SHA-256 is
+`328038ee6dd8152bef054337b26244e43375e9bc94e843d784a8b9dc07dc936a`.
+A proposed third one-Newton free-space segment from step 1005 was rejected
+before physics because its planned tip sweep could enter the skin contact
+band (log SHA-256
+`ad4501cd6060d8d34a8faac908e14b4471616c81248e85d0b6c5c3e83de82ca7`).
+This extends a source-bound robot-held approach to live contact; it does
+not establish a qualified puncture, complete stitch, or 100x whole-path gain.
