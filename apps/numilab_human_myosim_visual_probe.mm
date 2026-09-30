@@ -3269,6 +3269,7 @@ struct CompiledStandActivation {
     std::vector<double> generalizedAccelerationResidual;
     std::vector<double> muscleTendonForce;
     std::vector<double> passiveMuscleTendonForce;
+    std::vector<double> drivenMuscleTendonForce;
     std::vector<double> supportNormalForce;
     std::uint32_t activeMuscleCount = 0u;
     std::uint32_t activationSweeps = 0u;
@@ -3507,6 +3508,8 @@ CompiledStandActivation compileStaticStandActivation(
     result.muscleTendonForce = std::move(compiled.muscleTendonForce);
     result.passiveMuscleTendonForce =
         std::move(compiled.passiveMuscleTendonForce);
+    result.drivenMuscleTendonForce =
+        std::move(compiled.drivenMuscleTendonForce);
     result.supportNormalForce = std::move(compiled.supportNormalForce);
     result.searchTrace = std::move(compiled.searchTrace);
     result.activeMuscleCount = diagnostics.activeMuscleCount;
@@ -7713,9 +7716,9 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
     const metalrobo::NumiHumanKneePayload& knee,
     const LoadedMuscles& muscles,
     MuscleDrivenVisualState& driven,
-    const metalrobo::EngineModel& model,
+    const metalrobo::EngineModel& sourceModel,
     const LoadedSupportContacts& supportContacts,
-    const LoadedJointEqualities& jointEqualities,
+    const LoadedJointEqualities& sourceJointEqualities,
     const double timestepSeconds,
     const std::uint32_t stepCount,
     const double activation,
@@ -7724,14 +7727,79 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
     const bool applySelectedActivationIncrement,
     const bool enableRootAssistance,
     const bool removeRootAssistance,
-    const std::filesystem::path& matterMetallib
+    const std::filesystem::path& matterMetallib,
+    const bool unprescribedPatellaDiagnostic
 ) {
     require(stepCount >= 1u && stepCount <= MR_NUMI_HUMAN_STAND_MAX_STEPS,
             "live Open Knee tissues require a valid Human horizon");
-    GroundAlignedSupport aligned =
-        makeGroundAlignedSupport(model, supportContacts);
     const std::uint32_t kneeQIndex =
         knee.side == metalrobo::NumiHumanKneeSide::left ? 120u : 106u;
+    const std::array<std::uint32_t, 3u> patellaQIndices =
+        knee.side == metalrobo::NumiHumanKneeSide::left
+        ? std::array<std::uint32_t, 3u>{126u, 127u, 128u}
+        : std::array<std::uint32_t, 3u>{112u, 113u, 114u};
+    metalrobo::EngineModel releasedModel;
+    LoadedJointEqualities releasedEqualities;
+    if (unprescribedPatellaDiagnostic) {
+        // Open Knee FEBio leaves patellar cylindrical-joint rotation and
+        // translation unprescribed. The MyoSim whole-body source instead
+        // imposes three knee-angle polynomials. Release exactly those three
+        // equalities for this bounded mechanical diagnostic, and seed their
+        // coordinates at the source-projected neutral pose. No new source
+        // trajectory or clinical patellar law is inferred here.
+        releasedModel = sourceModel;
+        releasedEqualities = sourceJointEqualities;
+        std::vector<double> neutralQ(
+            sourceModel.defaultQ.begin(), sourceModel.defaultQ.end());
+        double maximumSourceProjection = 0.0;
+        const auto sourceProjection =
+            metalrobo::projectNumiHumanJointEqualities(
+                sourceJointEqualities.payload.records, neutralQ,
+                &maximumSourceProjection);
+        require(sourceProjection.succeeded() &&
+                    std::isfinite(maximumSourceProjection),
+                "unprescribed patella source-neutral projection failed");
+        std::array<std::uint32_t, 3u> removedCounts{};
+        std::erase_if(releasedEqualities.payload.records,
+            [&](const MRNumiHumanJointEqualityGPU& equality) {
+                const auto found = std::find(
+                    patellaQIndices.begin(), patellaQIndices.end(),
+                    equality.indices.x);
+                if (found == patellaQIndices.end()) return false;
+                require(equality.indices.z == kneeQIndex &&
+                            equality.indices.y != MR_INVALID_INDEX &&
+                            equality.indices.w != MR_INVALID_INDEX,
+                        "unprescribed patella equality owner drifted");
+                ++removedCounts[static_cast<std::size_t>(
+                    std::distance(patellaQIndices.begin(), found))];
+                return true;
+            });
+        require(std::all_of(removedCounts.begin(), removedCounts.end(),
+                    [](const std::uint32_t count) { return count == 1u; }),
+                "unprescribed patella must release exactly three source equalities");
+        for (const std::uint32_t qIndex : patellaQIndices) {
+            require(qIndex < neutralQ.size() &&
+                        qIndex < releasedModel.defaultQ.size(),
+                    "unprescribed patella coordinate is unavailable");
+            releasedModel.defaultQ[qIndex] =
+                static_cast<float>(neutralQ[qIndex]);
+        }
+        std::cout << "open_knee_patella_motion=unprescribed_diagnostic"
+                  << " released_equalities=3"
+                  << " initial_q=";
+        for (const auto qIndex : patellaQIndices)
+            std::cout << (qIndex == patellaQIndices.front() ? "" : ",")
+                      << releasedModel.defaultQ[qIndex];
+        std::cout << " boundary=Open_Knee_free_patella_constraints_not_yet_"
+                     "fully_lowered_or_qualified\n" << std::flush;
+    }
+    const metalrobo::EngineModel& model =
+        unprescribedPatellaDiagnostic ? releasedModel : sourceModel;
+    const LoadedJointEqualities& jointEqualities =
+        unprescribedPatellaDiagnostic
+        ? releasedEqualities : sourceJointEqualities;
+    GroundAlignedSupport aligned =
+        makeGroundAlignedSupport(model, supportContacts);
     require(std::isfinite(qualificationFlexionRadians) &&
                 qualificationFlexionRadians >= 0.0 &&
                 qualificationFlexionRadians <= 1.6,
@@ -13830,6 +13898,7 @@ int main(int argc, char** argv) {
             std::optional<std::filesystem::path> openKneeLigamentFEMPath;
             std::optional<double> openKneeFlexionRadians;
             bool openKneeLiveTissueFEM = false;
+            bool openKneeUnprescribedPatellaDiagnostic = false;
             bool openKneeSustainedCertificate = false;
             std::optional<std::filesystem::path> skinPayloadPath;
             std::optional<std::filesystem::path> torsoAnatomyPayloadPath;
@@ -14010,6 +14079,10 @@ int main(int argc, char** argv) {
                     require(!openKneeLiveTissueFEM,
                             "--open-knee-live-tissue-fem may be given only once");
                     openKneeLiveTissueFEM = true;
+                } else if (argument == "--open-knee-unprescribed-patella-diagnostic") {
+                    require(!openKneeUnprescribedPatellaDiagnostic,
+                            "--open-knee-unprescribed-patella-diagnostic may be given only once");
+                    openKneeUnprescribedPatellaDiagnostic = true;
                 } else if (argument == "--open-knee-sustained-certificate") {
                     require(!openKneeSustainedCertificate,
                             "--open-knee-sustained-certificate may be given only once");
@@ -14121,6 +14194,7 @@ int main(int argc, char** argv) {
                           << " [--soft-tissue-payload <NHTISS2-or-NHTISS3-or-NHTISS4>]"
                           << " [--open-knee-payload <NHKNEE1>]"
                           << " [--open-knee-live-tissue-fem]"
+                          << " [--open-knee-unprescribed-patella-diagnostic]"
                           << " [--open-knee-sustained-certificate]"
                           << " [--open-knee-flexion-rad <0..1.6>]"
                           << " [--open-knee-tissue-fem-snapshot <NHKFEM1-or-NHKFEM2>]"
@@ -14678,6 +14752,9 @@ int main(int argc, char** argv) {
                     "--open-knee-live-tissue-fem cannot share the single continuum slot with NHKFEM1/2, pectoralis fascia, or anterior thorax");
             require(!openKneeFlexionRadians.has_value() || openKneeLiveTissueFEM,
                     "--open-knee-flexion-rad requires --open-knee-live-tissue-fem");
+            require(!openKneeUnprescribedPatellaDiagnostic ||
+                        openKneeLiveTissueFEM,
+                    "--open-knee-unprescribed-patella-diagnostic requires live Open Knee tissue mechanics");
             require(!openKneeSustainedCertificate ||
                         (openKneeLiveTissueFEM && muscleStepCount.has_value() &&
                          *muscleStepCount >= 8u),
@@ -15389,7 +15466,8 @@ int main(int argc, char** argv) {
                         selectedSourceMuscleActivations,
                         selectedTendonControl, standRootAssistance,
                         standRemoveAssistance,
-                        passiveFEMMetallibPath.value_or(NUMI_MATTER_METALLIB)
+                        passiveFEMMetallibPath.value_or(NUMI_MATTER_METALLIB),
+                        openKneeUnprescribedPatellaDiagnostic
                     ));
                     muscleDrivenState.emplace(std::move(coupledDriven));
                     std::cout
