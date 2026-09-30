@@ -28,11 +28,16 @@ void require(bool condition, const std::string& message) {
 
 int main(int argc, char** argv) {
     try {
-        require((argc == 4 || argc == 5) &&
-                (argc == 4 || std::string(argv[4]) == "--zero"),
+        require(argc == 4 ||
+                (argc == 5 && std::string(argv[4]) == "--zero") ||
+                (argc == 6 && std::string(argv[4]) == "--capture-elements") ||
+                (argc == 7 && std::string(argv[4]) == "--zero" &&
+                 std::string(argv[5]) == "--capture-elements"),
                 "usage: ventricular-source-step cooked.nmpkg "
-                "cooked-tension.f32le accepted-nodes.bin [--zero]");
-        const bool zeroInput = argc == 5;
+                "cooked-tension.f32le accepted-nodes.bin [--zero] "
+                "[--capture-elements initial-elements.bin]");
+        const bool zeroInput = argc >= 5 && std::string(argv[4]) == "--zero";
+        const bool capture = argc >= 6;
         numi::matter::CompiledWorld world;
         std::string packageError;
         require(numi::matter::readPackage(argv[1], world, nullptr, &packageError),
@@ -60,6 +65,11 @@ int main(int argc, char** argv) {
             id<MTLBuffer> tensionBuffer = [device
                 newBufferWithBytes:tensions.data() length:bytes
                 options:MTLResourceStorageModeShared];
+            const std::size_t elementBytes = world.fem.tetrahedra.size() *
+                sizeof(NMFEMElementVectorGPU);
+            id<MTLBuffer> initialElements = capture ? [device
+                newBufferWithLength:elementBytes
+                options:MTLResourceStorageModeShared] : nil;
             MRMetalWorldStatusGPU worldStatus{};
             worldStatus.code = MR_STEP_SUCCESS;
             id<MTLBuffer> statusBuffer = [device
@@ -67,6 +77,8 @@ int main(int argc, char** argv) {
                 options:MTLResourceStorageModeShared];
             require(queue != nil && tensionBuffer != nil && statusBuffer != nil,
                     "Metal queue or borrowed buffer allocation failed");
+            require(!capture || initialElements != nil,
+                    "initial element-force buffer allocation failed");
 
             numi::matter::Runtime runtime;
             const auto initialized = runtime.initialize(world, {
@@ -90,6 +102,11 @@ int main(int argc, char** argv) {
             request.femActiveTensions = (__bridge void*)tensionBuffer;
             request.femActiveTensionCount =
                 static_cast<std::uint32_t>(tensions.size());
+            if (capture) {
+                request.femInitialElementForces = (__bridge void*)initialElements;
+                request.femInitialElementForceCount =
+                    static_cast<std::uint32_t>(world.fem.tetrahedra.size());
+            }
             request.controlStep = 0u;
             request.physicsSubstep = 0u;
             request.physicsSubsteps = 1u;
@@ -98,6 +115,8 @@ int main(int argc, char** argv) {
             request.phase = numi::matter::EncodePhase::preDynamics;
             auto encoded = runtime.encode(request);
             require(encoded.encoded, "preDynamics: " + encoded.message);
+            request.femInitialElementForces = nullptr;
+            request.femInitialElementForceCount = 0u;
             request.phase = numi::matter::EncodePhase::postCommit;
             encoded = runtime.encode(request);
             require(encoded.encoded, "postCommit: " + encoded.message);
@@ -107,6 +126,14 @@ int main(int argc, char** argv) {
                     "native Metal command did not complete: " +
                     std::string(command.error == nil ? "unknown" :
                         [[command.error localizedDescription] UTF8String]));
+            if (capture) {
+                std::ofstream captured(argv[argc-1],
+                    std::ios::binary | std::ios::trunc);
+                require(captured.good(), "cannot create initial element-force output");
+                captured.write(static_cast<const char*>(initialElements.contents),
+                    static_cast<std::streamsize>(elementBytes));
+                require(captured.good(), "cannot write initial element-force output");
+            }
             const auto after = runtime.snapshot();
             require(after.available && after.femNodes.size() == before.femNodes.size() &&
                     after.statuses.size() == 1u,
@@ -142,12 +169,14 @@ int main(int argc, char** argv) {
                         "\"synthetic_density_kg_m3\":1050,"
                         "\"synthetic_fixed_nodes\":3,"
                         "\"point_only_lv_rv_nodes_split\":3,"
+                        "\"initial_element_force_capture\":%s,"
                         "\"heartbeat_qualified\":false}\n",
                         [[device name] UTF8String], NM_MATTER_ABI_VERSION,
                         status.code, status.completedMicrosteps,
                         status.fgmresIterations, status.failingIndex,
                         moved, maximumDisplacement, accepted ? 1u : 0u,
-                        zeroInput ? "true" : "false");
+                        zeroInput ? "true" : "false",
+                        capture ? "true" : "false");
             return accepted ? 0 : 2;
         }
     } catch (const std::exception& error) {

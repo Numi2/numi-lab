@@ -1043,6 +1043,17 @@ kernel void nm_fem_internal_forces(
     elementForces[global] = tetrahedronForce(tetrahedron, stress);
 }
 
+// Opt-in, completion-boundary diagnostic. Copy the first constitutive
+// assembly before Newton reuses its private element-force arena.
+kernel void nm_fem_capture_initial_element_forces(
+    device const NMFEMElementVectorGPU* source [[buffer(0)]],
+    device NMFEMElementVectorGPU* destination [[buffer(1)]],
+    constant uint& count [[buffer(2)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global < count) destination[global] = source[global];
+}
+
 kernel void nm_fem_build_mechanical_residual(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMicrostepGPU& microstep [[buffer(1)]],

@@ -39,7 +39,7 @@ its derived fibre frame and a source candidate tension of `89809.78125 Pa` at
 relative to zero input was `1.39437375e-7 m`. The source-cell test likewise
 uses synthetic inertial density and three fixed nodes.
 
-`numi-matter-ventricular-source-cook` consumed the complete case18 source
+The historical merged-node `numi-matter-ventricular-source-cook` consumed the complete case18 source
 arrays, all 1,470,083 derived material frames and the 100 ms candidate tension
 field. It retained the 1,097,534 label-1/2 ventricular tetrahedra and 218,077
 shared source nodes in one non-mixed FEM object. Every source tension mapped
@@ -51,6 +51,20 @@ position difference of `4.88670199885e-7 m`. This is a bounded ventricular
 mechanics ingress. The other 372,549 source tetrahedra are absent from this
 cook, and the fixture has no chamber pressure, valve or port boundary, blood
 flow, unloaded reference or calibrated support.
+
+The corrected ventricular cook separates three LV/RV source nodes that meet
+only at a point, yielding 218,080 mechanical nodes. The source-step tool can
+now request `EncodeRequest::femInitialElementForces`, an optional borrowed
+output that copies the first Newton assembly's element forces before its
+private scratch arena is reused. It is a diagnostic copy, not a second force
+path. On the Apple M4, the active-minus-zero initial assembly from all
+1,097,534 ventricular elements agrees with the independent 100 ms source
+residual to a maximum `4.61e-7 N` per nodal component and `5.37e-6` relative
+L2. Active and replay captures are byte-identical, and the accepted active
+and zero node states match the pre-capture baseline hashes. The Float32 native
+assembly and Float64 source reference account for the measured difference.
+The Human `CARDIAC_RUNTIME_FORCE_PARITY_20260930.md` receipt records exact
+source and binary hashes and the synthetic-fixture boundary.
 
 Build and run the focused owner tests:
 

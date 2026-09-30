@@ -1518,6 +1518,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_mpm_p2g",
             "nm_mpm_compact_active_nodes",
             "nm_fem_internal_forces",
+            "nm_fem_capture_initial_element_forces",
             "nm_fem_build_mechanical_residual",
             "nm_fem_apply_solution",
             "nm_fem_select_backtracking",
@@ -3334,6 +3335,15 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 "borrowed FEM active-tension field must exactly cover every environment and cooked tetrahedron";
             return diagnostics;
         }
+        if ((request.femInitialElementForces == nullptr) !=
+                (request.femInitialElementForceCount == 0u) ||
+            (request.femInitialElementForces != nullptr &&
+             (request.femInitialElementForceCount != requiredFEMActiveTensionCount ||
+              request.phase != EncodePhase::preDynamics))) {
+            diagnostics.message =
+                "borrowed initial FEM element-force output must cover every cooked tetrahedron in pre-dynamics";
+            return diagnostics;
+        }
         if ((request.femKinematicTargets == nullptr) !=
                 (request.femKinematicTargetCount == 0u) ||
             (request.femKinematicTargets != nullptr &&
@@ -3494,6 +3504,17 @@ RuntimeDiagnostics Runtime::encodeImpl(
             femActiveTensions.length <
                 static_cast<NSUInteger>(request.femActiveTensionCount) * sizeof(float)) {
             diagnostics.message = "borrowed FEM active-tension Metal buffer is undersized";
+            return diagnostics;
+        }
+        id<MTLBuffer> femInitialElementForces =
+            request.femInitialElementForces == nullptr ? state.dummy :
+            (__bridge id<MTLBuffer>)request.femInitialElementForces;
+        if (request.femInitialElementForces != nullptr &&
+            femInitialElementForces.length <
+                static_cast<NSUInteger>(request.femInitialElementForceCount) *
+                    sizeof(NMFEMElementVectorGPU)) {
+            diagnostics.message =
+                "borrowed initial FEM element-force Metal buffer is undersized";
             return diagnostics;
         }
         const bool hasVascularCavities = state.vascularValue.layout.cavities.x != 0u;
@@ -6060,6 +6081,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:femActiveTensions offset:0u atIndex:19u];
                 [encoder setBytes:&hasFEMActiveTensions length:sizeof(hasFEMActiveTensions) atIndex:20u];
             });
+            if (request.femInitialElementForces != nullptr &&
+                nonlinearIteration == 0u) {
+                const auto count = request.femInitialElementForceCount;
+                dispatchThreads("nm_fem_capture_initial_element_forces",
+                    tetrahedronTotal, [&] {
+                    [encoder setBuffer:state.elementForces offset:0u atIndex:0u];
+                    [encoder setBuffer:femInitialElementForces offset:0u atIndex:1u];
+                    [encoder setBytes:&count length:sizeof(count) atIndex:2u];
+                });
+            }
             encodeCavityForces();
             dispatchThreads("nm_fem_build_mechanical_residual", femNodeTotal, [&] {
                 const std::uint32_t preserveSolution = 0u;
