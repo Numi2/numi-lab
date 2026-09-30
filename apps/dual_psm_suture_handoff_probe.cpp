@@ -6207,8 +6207,11 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
         spec.circumferentialCells = 6u;
         spec.throughThicknessCells = 1u;
     } else if (sutureContactSegmentCount != 0u) {
-        spec.longitudinalCells = 34u;
-        spec.circumferentialCells = 40u;
+        // The thicker synthetic wall needs eight layers. Fewer in-plane cells
+        // keep the native passage tractable; the graded local-spacing gate
+        // below still rejects any mesh that misses the live contact band.
+        spec.longitudinalCells = syntheticSkin ? 30u : 34u;
+        spec.circumferentialCells = syntheticSkin ? 32u : 40u;
         spec.throughThicknessCells = syntheticSkin ? 8u : 5u;
     }
     spec.fixLongitudinalEnds = true;
@@ -6386,7 +6389,9 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
         require(
             std::isfinite(maximumLocalSpacing) &&
                 maximumLocalSpacing < strandActivationReach,
-            "operative tissue mesh does not resolve the live strand contact band"
+            "operative tissue mesh does not resolve the live strand contact "
+            "band: spacing=" + std::to_string(maximumLocalSpacing) +
+                " reach=" + std::to_string(strandActivationReach)
         );
         coupon.metadata.minimumRestTetrahedronVolumeM3 =
             minimumTetrahedronVolume;
@@ -30526,7 +30531,7 @@ int main(const int argc, const char* const argv[]) {
                             << minimumStrandContactChannelDistanceM
                             << " chunk_gpu_ms="
                             << passage.diagnostics.gpuElapsedMilliseconds
-                            << '\n';
+                            << '\n' << std::flush;
                         const double strandContactChannelEnvelopeM =
                             expectedChannelRadiusM +
                             world.rods[0].model.radius +

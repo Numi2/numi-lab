@@ -125,9 +125,15 @@ cmake --build build-skin-wound --target metalrobo_dual_psm_suture_handoff_probe
 ```
 
 The synthetic skin checks have passed contact coupling, tapered-tip puncture,
-channel advancement, opposing-bite contact topology, and live suture entry.
-The long curved passage, second bite, thread pull-through, robot-driven knot,
-and unloaded wound retention have not yet been qualified for this material.
+channel advancement, opposing-bite contact topology, live suture entry, and
+curved through-wall passage. The 34 x 40 x 8 baseline passage reached 0.200 mm
+clearance beyond the deformed distal surface in 372 Matter groups with all
+65,280 tetrahedra, 12 connected puncture channels, zero removed mass, and
+zero failed steps. The current 30 x 32 x 8 operative mesh keeps the local
+strand-contact spacing below 0.2 mm and has passed the shorter entry and
+cadence checks; its long passage is still a separate gate. The needle orbit
+was prescribed. Thread pull-through, robot-driven bites, the knot, and
+unloaded wound retention have not yet been qualified for this material.
 
 The dual-PSM surgical probe now drives the authored 26 mm half-circle needle
 about its actual 8.28 mm curvature centre at a 20 mm/s terminal speed. Matter

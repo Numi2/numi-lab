@@ -20,26 +20,44 @@ Native M4 probe results from the build in `build-skin-wound`:
 | channel advancement | one accepted channel, 200 um signed needle advance, zero failed steps |
 | opposing-bite topology | 65,280 tetrahedra, 836 contact nodes, both bite targets resolved; no GPU dispatch in this mode |
 | live suture entry | four accepted contacts, one channel, thread root error 0.139 um, zero failed steps |
+| curved through-wall passage | 372 Matter groups / 1,489 DER substeps, 1.836 mm tip advance, 0.200 mm deformed distal clearance, 12 connected channels, all 65,280 tetrahedra retained, zero failed steps |
 
-The focused CTest coupon and tapered-puncture cases pass. The existing
-porcine-jejunum coupling mode also passes after this change. Binary SHA-256:
+That long passage used the 34 x 40 x 8 baseline mesh. A 30 x 32 x 8 operative
+mesh now retains the 1.5 mm wall and 0.6 mm wound gap while reducing the
+tetrahedra to 46,080. Its local graded spacings are 0.144, 0.188, and
+0.188 mm, all within the 0.2 mm strand activation reach. The compact mesh
+passed topology, live suture entry, and grouped cadence checks; its entry
+GPU time was 3.816 s versus 6.055 s for the baseline, and one grouped
+cadence step took 3.739 s versus 5.608 s. These short matched timings do not
+establish an end-to-end passage speedup or long-horizon correctness.
+
+Four focused synthetic-skin CTests pass on the current build. The existing
+porcine-jejunum coupling mode also passed after the initial skin integration.
+The completed baseline passage binary SHA-256 was:
 `1ff94c23cd21735ee3fad3975dd0a7c39ea01dc5890926683842c93b9da03bb2`.
 Synthetic material SHA-256:
 `379945f593f12396b44c7148026f0250344a86278e01b7b26cb5f6d823a51e35`.
 
-A native `--tissue-suture-passage-only --synthetic-skin` run started from that
-binary and is logged at `build-skin-wound/synthetic-skin-passage.log`. Check the
-actual process and log before restarting it; the probe buffers progress until
-its GPU chunk returns. The separate `--tissue-curved-passage-only` mode fails
+A native `--tissue-suture-passage-only --synthetic-skin` run from that binary
+completed successfully and is logged at
+`build-skin-wound/synthetic-skin-passage.log`. Passage GPU time was 2,149.479 s;
+its final accepted state hash was `0xf615a90f42e6990` and the log SHA-256 is
+`620948112583777901597435fec7dc38ffbf498270c2c8da83b83920404ceee7`.
+The separate
+`--tissue-curved-passage-only` mode fails
 at the post-entry cadence switch for both skin and jejunum because it omits
 the rod-contact capability required by that switch. The suture-contact
 cadence mode passes at multiplier 4. Source now also measures the center lip
 gap after knot loading and requires a reduction for the skin variant. The
 rebuilt topology test passes and measures nine central lip pairs at 0.6 mm;
 the knot-loaded gap gate itself still awaits a complete native sequence.
-The rebuilt binary's SHA-256 is
-`903de3529b78adab1256c7b1300bdfc1a3e4a5d746f5a2a2bc00e128e3dc01f7`;
-the already running passage process still owns the earlier binary inode.
+The current compact-mesh probe binary SHA-256 is
+`ecd5a49555186ad1089717f2faedfbaaacbe6e3e1fb475ecb9d007f3b87e7b20`.
+A compact-mesh `--tissue-curved-pull-through-only --synthetic-skin` native run
+has been started from that binary, with output at
+`build-skin-wound/synthetic-skin-pull-through.log`. Inspect the live process
+and log before launching another Metal run; the early passage must finish
+before thread pull-through begins.
 
 The `--tissue-robot-first-bite-ik-only --synthetic-skin` geometry probe found
 a 250-step giver approach and 185-step 5 mm/s needle-orbit path. The entry
@@ -48,8 +66,8 @@ velocity ratios are 0.454 and 0.746 of their limits. This proves reachable
 command geometry only. Contact, load transfer, tissue forces, and arm-driven
 puncture still require a native run with a dynamic needle.
 
-Open work: qualify the long curved passage and pull-through with this 1.5 mm
-wall, then the second lip bite, robot-driven manipulation, knot tightening,
+Open work: qualify thread pull-through with this 1.5 mm wall, then the second
+lip bite, robot-driven manipulation, knot tightening,
 gripper release, and measured unloaded wound-gap retention. Existing
 jejunal checkpoints must not be reused as skin evidence; generate fresh
 skin checkpoints and compare their material/world fingerprints. Capture
