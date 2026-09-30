@@ -528,6 +528,48 @@ as useful changes on this skin step. The remaining route must change the
 amount of candidate work or the number and cost of full coupled passes,
 while preserving contact admission, rollback, and final residual checks.
 
+The next bounded attribution used the post-entry 1x step, which has zero
+active deformable self-contact rows. Temporarily clearing the surface count
+after the normal sort, after compaction but before radix sorting, and before
+surface construction produced 1,122.485, 1,088.637, and 1,070.387 ms GPU,
+respectively. All three retained the published physical fields. These are
+single-run diagnostic ablations, not valid general contact implementations:
+they place roughly 60 ms of this 1.13 s step in the surface/contact path and
+show that more broadphase work cannot deliver 100x here. The diagnostic log
+SHA-256 values, in the same order, are
+`df7de681dbac8d084b853800619667f57610d1403fc5613f1dec601887a8c30b`,
+`f985c425d8feb91c65da825ccbcdef9d13da42720e039d4ef77e7e8965944dd7`,
+and `2bc1d7ea954c4cc15ebb6e6573687c5346d987f2beef45d8abefb22ca60121e0`.
+All ablation code was removed; the restored metallib and library hashes match
+the accepted values above. GPU dispatch-boundary counters were unsupported
+on this M4, and the available Metal System Trace reported no shader intervals.
+
+An opt-in `--tissue-suture-cadence-16x-one-newton-only --synthetic-skin`
+probe reduces the post-entry step from five Newton passes to one while
+retaining the required ten-column FGMRES cycle and the 16x cadence. On the
+same rebuilt executable, the 1x/five-Newton reference took 1,135.494 ms
+for 62.5 us, the 16x/five-Newton reference took 2,956.622 ms for 1 ms,
+and the 16x/one-Newton probe took 2,324.739 ms for 1 ms. The latter is
+145.296 ms per base-equivalent step: 7.81x the measured simulated-time
+throughput of this 1x reference and 23.24x that of the original 3,375.995 ms
+1x run. It is still 4.30x slower than the 33.760 ms base-equivalent target
+for 100x over that original run. The one-Newton probe passed the one-step
+tract, tet-count, determinant, swage, strand, and zero-failed-step checks;
+its maximum residual was 2.508e-6 versus 2.425e-6 in the matched
+16x/five-Newton run. The altered residual means this is a distinct
+experimental trajectory, not an exact-state optimization. There was no
+active tissue contact in the post-entry step, and no robot-driven stitch or
+load-bearing pull-through was tested under this reduced budget.
+
+The opt-in probe log SHA-256 is
+`0f1995b25fbc904002b24de31d6876033e134580bd1532d31e448c6dd6a68450`;
+the matched 1x and 16x reference log SHA-256 values are
+`9d012188f84fbed6c726b701e7cc315f86e56db0fd9e164bae99315b65345560`
+and `e056cab23ccc7ac07659c2bff798d397d9dc9d9f15e829ce06224e92c93773ff`.
+The executable SHA-256 is
+`b731ebd51eb3aa4b314b4c32caf49fcd73f8cbf6c4e146bd7532b7f62a07c0a0`.
+The default solver budget and accepted shader lineage are unchanged.
+
 The stronger 75 um jaw-preload trial from robot contact step 1645 also
 remains unqualified. A 13 ms ramp at 1 mm/s preserved Matter's 46,080
 tets and zero failures but drifted 212 um at the needle seat. A 6 ms

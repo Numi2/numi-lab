@@ -7204,6 +7204,7 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             argument == "--tissue-suture-entry-only" ||
             argument == "--tissue-suture-cadence-baseline-only" ||
             argument == "--tissue-suture-cadence-fast-only" ||
+            argument == "--tissue-suture-cadence-16x-one-newton-only" ||
             argument == "--tissue-suture-cadence-only" ||
             argument == "--tissue-suture-passage-only" ||
             argument == "--tissue-curved-passage-only" ||
@@ -9445,12 +9446,15 @@ int main(const int argc, const char* const argv[]) {
             options.mode == "--tissue-suture-cadence-baseline-only";
         const bool tissueSutureCadenceFastOnly =
             options.mode == "--tissue-suture-cadence-fast-only";
+        const bool tissueSutureCadenceOneNewtonOnly =
+            options.mode == "--tissue-suture-cadence-16x-one-newton-only";
         const bool tissueSuturePassageOnly =
             options.mode == "--tissue-suture-passage-only";
         const bool tissueSutureEntryContactOnly =
             tissueSutureEntryOnly || tissueSutureCadenceOnly ||
             tissueSutureCadenceBaselineOnly ||
-            tissueSutureCadenceFastOnly;
+            tissueSutureCadenceFastOnly ||
+            tissueSutureCadenceOneNewtonOnly;
         const bool tissueCurvedPullThroughOnly =
             options.mode == "--tissue-curved-pull-through-only";
         const bool tissueRobotFirstBiteGripOnly =
@@ -23896,17 +23900,27 @@ int main(const int argc, const char* const argv[]) {
                 }
                 if (tissueSutureCadenceOnly ||
                     tissueSutureCadenceBaselineOnly ||
-                    tissueSutureCadenceFastOnly) {
+                    tissueSutureCadenceFastOnly ||
+                    tissueSutureCadenceOneNewtonOnly) {
                     const std::uint32_t cadenceMultiplier =
                         tissueSutureCadenceBaselineOnly
                             ? 1u
-                            : (tissueSutureCadenceFastOnly
+                            : (tissueSutureCadenceFastOnly ||
+                                tissueSutureCadenceOneNewtonOnly
                                 ? kSuturePullMatterRateMultiplier
                                 : kSuturePassageMatterRateMultiplier);
                     selectCoupledCadence(
                         cadenceMultiplier,
                         "post-entry passage"
                     );
+                    if (tissueSutureCadenceOneNewtonOnly) {
+                        require(
+                            tissueRuntime.setNewtonIterationBudget(1u) &&
+                                tissueRuntime.newtonIterationBudget() == 1u &&
+                                tissueRuntime.fgmresIterationBudget() == 10u,
+                            "one-Newton cadence budget rejected"
+                        );
+                    }
                     const std::vector<float> cadenceEfforts =
                         interpolateTargets(
                             world.model,
