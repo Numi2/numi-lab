@@ -1820,3 +1820,53 @@ Neither accepted step reported a new tip impulse, tissue reaction, or tissue
 displacement. This is a native finite-tract extension, not through-wall
 passage or a load-bearing performance qualification. The growth step took
 2,134.205 ms GPU for 1 ms modeled time; 100x whole-stitch speed remains open.
+
+### Second-channel continuation: accepted contact budget and its boundary
+
+Starting from the exact step-4350, two-channel checkpoint above, a matched
+4 ms, cadence-64, 1 mm/s continuation with seven Matter Newton passes and
+the full 32/16 rigid-contact iterations passed at 4,370.834 ms GPU. Changing
+only the rigid-contact iterations to 12/6 passed at 2,841.675 ms GPU,
+**1.54x faster for this one step**. Both runs retained a qualified robot
+grasp and rod, two connected physics-triggered channels, all 46,080 tets,
+zero failed steps, and maximum normal residuals of 0.000572 and 0.001468
+m/s respectively. The 12/6 checkpoint at step 4414 restored byte-exactly.
+Neither step reported new tip impulse, tissue reaction, or displacement.
+
+The cheaper budget is not valid for an unguarded continuation. The next
+4 ms step from its step-4414 checkpoint, again at 12/6, lost the grasp when
+tip contact appeared: seat drift reached 121.299 um and normal residual
+0.181469 m/s. The probe rejected that state. Repeating that same step with
+32/16 passed at 4,341.611 ms GPU, qualified grasp and rod, two connected
+channels, all tets, and 0.000615 m/s normal residual. Its step-4478
+checkpoint restored byte-exactly. An 8/4 first-step trial failed the grasp
+and 0.002 m/s residual screens; a grouped 8 ms first-step trial using one
+Matter Newton pass and 12/6 contact iterations lost the grasp. Both
+checkpoints were transient and are not continuation evidence.
+
+For a same-start, same-commanded-8-ms comparison, two full-budget 4 ms
+steps from step 4350 took 4,370.834 + 4,349.271 = 8,720.105 ms GPU.
+The accepted 12/6 then 32/16 schedule took 2,841.675 + 4,341.611 =
+7,183.286 ms GPU, a **1.21x selected-schedule gain**. Both trajectories
+ended at step 4478 with the robot grasp and rod qualified, two connected
+channels, all tets, and zero failed steps; both final checkpoints restored
+byte-exactly. The schedules lead to numerically different valid states,
+so this is a matched-command performance comparison, not identical-state
+replay. The selection was retrospective: failed trial GPU time is excluded
+and this does not establish an automatic safe schedule or a wall-clock
+speedup for online search. The second segment still has zero authored FEM
+contact nodes in its volume at step 4478, and neither accepted route
+reported new tissue reaction. Through-wall passage, thread pull-through,
+opposing bite, knot, and a 100x whole-stitch improvement remain open.
+
+The retained logs are `build-skin-wound/skin-robot-second-channel-{full4ms,
+12x6-4ms,8x4-4ms,fast8ms,12x6-next4ms,full-next4ms,
+full-next4ms-baseline}.log`; accepted checkpoints and restore logs live in
+the corresponding directories. The reduced first-step, rejected reduced
+next-step, accepted full next-step, and full baseline next-step log SHA-256
+values are `0cf94ebc74c07597a4717f0e010e06a3f34ef2b164ae3d2be0da669c349343f3`,
+`c87dca5523e54cfd5efed3c1045a3e7f65e5f6ff87e3361ff9f39fa882d4785e`,
+`b24945152e2b479b2bdc4e2cab5da570d336d7fe100c3e877d7af31ec352b1de`,
+and `46b05504b0a6042ed4b1d025782343ae894fb23750785516f8827425df3c60be` respectively. The two accepted step-4478 checkpoint
+SHA-256 values are `8838ebfdaa5617d0590a6d3adf62b5c378a1ceeea3b4b38e0102c2bb96086e13`
+and `ab0abb71706b33efcb9e21e915115ee91e71bdf54d4b12b125e9aa7770ccacef`.
