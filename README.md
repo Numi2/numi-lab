@@ -137,8 +137,11 @@ it was stopped before claiming pull-through. Short matched cadence probes of
 the compact skin world passed at 1x, 4x, and 16x, giving 3.61x and 10.40x
 simulated-time throughput for the grouped cases on those one-step probes.
 The candidate pull schedule uses 4x near contact at 80 mm/s and 16x after
-slowing to 20 mm/s, but live pull contact remains unqualified. Robot-driven
-bites, the knot, and unloaded wound retention also remain open.
+slowing to 20 mm/s, but live pull contact remains unqualified. A dynamic
+needle now passes a bounded bilateral PSM grip and a 12 ms articulated
+free-space approach, with 25.6 um measured tip advance and no tissue
+puncture. Physical pickup, robot-driven bites, the knot, and unloaded wound
+retention also remain open.
 
 The dual-PSM surgical probe now drives the authored 26 mm half-circle needle
 about its actual 8.28 mm curvature centre at a 20 mm/s terminal speed. Matter

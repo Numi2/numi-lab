@@ -128,9 +128,13 @@ constexpr double kCurvedPassageExitClearanceM = 1.0e-4;
 constexpr double kCurvedPassageMaximumExtensionM = 5.0e-4;
 constexpr std::uint32_t kCurvedPassageChunkSteps = 32u;
 constexpr std::uint32_t kCurvedPassageContactSegmentCount = 2u;
-constexpr std::uint32_t kRobotFirstBiteDriveProbeSteps = 48u;
-constexpr std::uint32_t kRobotFirstBiteDriveRampSteps = 16u;
+constexpr std::uint32_t kRobotFirstBiteDriveProbeSteps = 12u;
+constexpr std::uint32_t kRobotFirstBiteDriveRampSteps = 4u;
+constexpr std::uint32_t kRobotFirstBiteDriveMatterCadence = 16u;
 constexpr double kRobotFirstBiteDriveSpeedMps = 5.0e-3;
+// Keep the free needle outside the skin contact band while its giver settles.
+// The robot must subsequently cover this extra approach before claiming a bite.
+constexpr double kRobotFirstBiteGripStandOffM = 5.0e-4;
 // Two 1.97 mm DER capsules are sufficient for one edge in each of the two
 // 0.82 mm puncture tracts. Phase-boundary material selection uses both slots as
 // overlap while only one tract is occupied, then sparsely owns one edge per
@@ -15809,9 +15813,11 @@ int main(const int argc, const char* const argv[]) {
             tissueWorld = compileNeedleSutureTissueWorld(
                 world,
                 needleForPlacement,
-                tissuePunctureOnly
-                    ? kPunctureInitialClearanceM
-                    : (tissueRestOnly ? 1.5e-4 : 5.0e-5),
+                tissueRobotFirstBiteLive
+                    ? kRobotFirstBiteGripStandOffM
+                    : (tissuePunctureOnly
+                        ? kPunctureInitialClearanceM
+                        : (tissueRestOnly ? 1.5e-4 : 5.0e-5)),
                 tissuePunctureOnly,
                 (tissueCurvedPassageOnly || tissueSutureEntryContactOnly)
                     ? kCurvedPassageContactSegmentCount
@@ -15895,7 +15901,9 @@ int main(const int argc, const char* const argv[]) {
                         world.defaultSceneBodies.at(0u),
                         biteSites,
                         biteSites.opposingDistalSurface,
-                        kPunctureInitialClearanceM
+                        tissueRobotFirstBiteLive
+                            ? kRobotFirstBiteGripStandOffM
+                            : kPunctureInitialClearanceM
                     );
                 const NeedleTipCapsuleGeometry opposingTip =
                     needleTipCapsuleGeometry(
@@ -15982,7 +15990,11 @@ int main(const int argc, const char* const argv[]) {
                     const double requiredTipAdvanceM =
                         tissueCoupon.thicknessM +
                         2.0 * (entryTip.radiusM +
-                               kCurvedPassageExitClearanceM);
+                               kCurvedPassageExitClearanceM) +
+                        (tissueRobotFirstBiteLive
+                            ? kRobotFirstBiteGripStandOffM -
+                                kPunctureInitialClearanceM
+                            : 0.0);
                     require(
                         requiredTipAdvanceM > 0.0 &&
                             requiredTipAdvanceM <
@@ -16089,8 +16101,9 @@ int main(const int argc, const char* const argv[]) {
                             closeJawCoordinate
                         );
                     const double driveProbeTimestepSeconds =
-                        kControlTimestep /
-                        static_cast<double>(kPhysicsSubsteps);
+                        (kControlTimestep /
+                            static_cast<double>(kPhysicsSubsteps)) *
+                        kRobotFirstBiteDriveMatterCadence;
                     double driveProbeAngleRad = 0.0;
                     std::vector<MRBodyStateGPU> driveProbeTargets;
                     driveProbeTargets.reserve(
@@ -16319,6 +16332,10 @@ int main(const int argc, const char* const argv[]) {
                         << terminalOrientationErrorRad
                         << " planned_tip_advance_m="
                         << plannedTipAdvanceM
+                        << " staged_needle_clearance_m="
+                        << (tissueRobotFirstBiteLive
+                            ? kRobotFirstBiteGripStandOffM
+                            : kPunctureInitialClearanceM)
                         << " planned_distal_clearance_m="
                         << plannedDistalClearanceM
                         << " minimum_approach_jaw_tissue_clearance_m="
@@ -21967,7 +21984,7 @@ int main(const int argc, const char* const argv[]) {
                 efforts,
                 1u
             );
-            const PhaseResult coupled = initializePhaseUnchecked(
+            PhaseResult coupled = initializePhaseUnchecked(
                 context,
                 compiled,
                 world,
@@ -22108,7 +22125,74 @@ int main(const int argc, const char* const argv[]) {
                 }
                 throw std::runtime_error(failure);
             }
+            std::uint32_t robotGripSettleSteps = 0u;
             if (tissueRobotFirstBiteLive) {
+                constexpr std::uint32_t kRobotGripSettleCadence = 4u;
+                require(
+                    tissueRuntime.setCoupledTimestepMultiplier(
+                        kRobotGripSettleCadence
+                    ),
+                    "free-space robot grip could not select grouped Matter cadence"
+                );
+                stepConfig.timestepSeconds = static_cast<float>(
+                    (kControlTimestep /
+                        static_cast<double>(kPhysicsSubsteps)) *
+                    kRobotGripSettleCadence
+                );
+                stepConfig.physicsSubsteps = kRobotGripSettleCadence;
+                const GraspReference resetGripReference = graspReference(
+                    world,
+                    needleForPlacement,
+                    world.model.defaultQ,
+                    world.model.defaultV,
+                    world.defaultSceneBodies.at(0u),
+                    0u,
+                    kGiverNeedleShape
+                );
+                constexpr std::uint32_t kMaximumRobotGripSettleSteps = 12u;
+                while (robotGripSettleSteps <
+                       kMaximumRobotGripSettleSteps) {
+                    const ContactCounts settleContacts = contactCounts(
+                        world,
+                        coupled.result,
+                        needleForPlacement.metadata,
+                        kNeedleFirstShape
+                    );
+                    const GraspKinematics settleGrip = graspKinematics(
+                        world,
+                        needleForPlacement,
+                        coupled.result,
+                        0u,
+                        kGiverNeedleShape,
+                        resetGripReference
+                    );
+                    std::cout << std::setprecision(9)
+                        << "robot_first_bite_grip_settle"
+                        << " steps=" << robotGripSettleSteps
+                        << " jaw_contacts="
+                        << settleContacts.jawContacts[0][0] << '/'
+                        << settleContacts.jawContacts[0][1]
+                        << " seat_drift_m=" << settleGrip.seatDrift
+                        << " relative_point_speed_mps="
+                        << settleGrip.relativePointSpeed
+                        << " relative_angular_speed_radps="
+                        << settleGrip.relativeAngularSpeed << '\n';
+                    if (bilateral(settleContacts, 0u) &&
+                        distributedInsertCoverage(settleContacts, 0u) &&
+                        qualifiedDrivenGrasp(settleGrip)) {
+                        break;
+                    }
+                    coupled = continuePhase(
+                        context,
+                        compiled,
+                        stepConfig,
+                        resident,
+                        efforts,
+                        1u,
+                        "dynamic first-bite giver grip settle"
+                    );
+                    ++robotGripSettleSteps;
+                }
                 const ContactCounts gripContacts = contactCounts(
                     world,
                     coupled.result,
@@ -22191,6 +22275,11 @@ int main(const int argc, const char* const argv[]) {
                     << " seat_drift_m=" << grip.seatDrift
                     << " relative_point_speed_mps="
                     << grip.relativePointSpeed
+                    << " relative_angular_speed_radps="
+                    << grip.relativeAngularSpeed
+                    << " grip_settle_steps=" << robotGripSettleSteps
+                    << " grip_settle_base_der_substeps="
+                    << robotGripSettleSteps * kRobotGripSettleCadence
                     << " active_puncture_channels=" << activeChannels
                     << " active_tetrahedra=" << activeTetrahedra
                     << " removed_tissue_mass_kg=" << removedMassKg
@@ -22223,13 +22312,37 @@ int main(const int argc, const char* const argv[]) {
                     "grasp on the free needle"
                 );
                 std::cout << "robot_first_bite_dynamic_grip=ok\n";
+                writeHandoffStateArtifact(
+                    options.stateOutputDirectory,
+                    "tissue-robot-first-bite-grip",
+                    1u + robotGripSettleSteps *
+                        kRobotGripSettleCadence,
+                    world,
+                    sutureSpec,
+                    coupled.result,
+                    &gripMatter
+                );
                 if (tissueRobotFirstBiteGripOnly) {
                     return 0;
                 }
 
-                // Exercise a short robot-commanded entrance with the needle
-                // free. The grasped PSM receives only articulated efforts;
-                // no scene-body trajectory is submitted to MetalWorld.
+                require(
+                    tissueRuntime.setCoupledTimestepMultiplier(
+                        kRobotFirstBiteDriveMatterCadence
+                    ),
+                    "free-space robot first-bite approach could not select grouped Matter cadence"
+                );
+                stepConfig.timestepSeconds = static_cast<float>(
+                    (kControlTimestep /
+                        static_cast<double>(kPhysicsSubsteps)) *
+                    kRobotFirstBiteDriveMatterCadence
+                );
+                stepConfig.physicsSubsteps =
+                    kRobotFirstBiteDriveMatterCadence;
+
+                // Exercise a short robot-commanded free-space approach with
+                // the needle free. The grasped PSM receives only articulated
+                // efforts; no scene-body trajectory is submitted to MetalWorld.
                 const MRBodyStateGPU& driveStartNeedle =
                     coupled.result.finalSceneBodies.at(0u);
                 const CurvedNeedleOrbit driveOrbit = curvedNeedleOrbit(
@@ -22276,6 +22389,20 @@ int main(const int argc, const char* const argv[]) {
                     0u,
                     kGiverNeedleShape
                 );
+                const std::vector<double> acceptedGiverQ = armLocalQ(
+                    world.model,
+                    0u,
+                    coupled.result.finalQ
+                );
+                const double acceptedJawCoordinate = 0.5 * (
+                    acceptedGiverQ[7] - acceptedGiverQ[6]
+                );
+                require(
+                    std::isfinite(acceptedJawCoordinate) &&
+                        std::abs(acceptedJawCoordinate -
+                                 closeJawCoordinate) <= 1.0e-3,
+                    "accepted giver jaw differs from its loaded grip setting"
+                );
                 const ArmTrajectory driveTrajectory =
                     needleGraspArmTrajectory(
                         world.model,
@@ -22287,9 +22414,25 @@ int main(const int argc, const char* const argv[]) {
                         kGiverNeedleShape,
                         acceptedGripReference,
                         driveNeedleTargets,
-                        closeJawCoordinate,
+                        acceptedJawCoordinate,
                         static_cast<double>(stepConfig.timestepSeconds)
                     );
+                std::cout << std::setprecision(9)
+                    << "robot_first_bite_dynamic_drive_preflight"
+                    << " maximum_velocity_ratio="
+                    << driveTrajectory.maximumVelocityRatio
+                    << " accepted_jaw_coordinate="
+                    << acceptedJawCoordinate
+                    << " nominal_jaw_coordinate="
+                    << closeJawCoordinate
+                    << " limiting_dof="
+                    << driveTrajectory.maximumVelocityDof
+                    << " limiting_step="
+                    << driveTrajectory.maximumVelocityStep
+                    << " maximum_velocity="
+                    << driveTrajectory.maximumVelocity
+                    << " limiting_velocity="
+                    << driveTrajectory.limitingVelocity << '\n';
                 require(
                     driveTrajectory.maximumVelocityRatio <=
                         kMaximumCommandVelocityRatio,
@@ -22381,6 +22524,12 @@ int main(const int argc, const char* const argv[]) {
                 std::cout << std::setprecision(9)
                     << "robot_first_bite_dynamic_drive_candidate"
                     << " steps=" << kRobotFirstBiteDriveProbeSteps
+                    << " base_der_substeps="
+                    << kRobotFirstBiteDriveProbeSteps *
+                        kRobotFirstBiteDriveMatterCadence
+                    << " simulated_time_s="
+                    << kRobotFirstBiteDriveProbeSteps *
+                        stepConfig.timestepSeconds
                     << " commanded_orbit_angle_rad="
                     << commandedAngleRad
                     << " maximum_velocity_ratio="
@@ -22428,6 +22577,7 @@ int main(const int argc, const char* const argv[]) {
                         qualifiedDrivenGrasp(drivenGrasp) &&
                         drivenTetrahedra ==
                             tissueCoupon.metadata.tetrahedronCount &&
+                        drivenChannels == 0u &&
                         drivenRemovedMassKg == 0.0 &&
                         drivenCertificatesAccepted &&
                         std::isfinite(drivenMinimumDeterminant) &&
@@ -22436,9 +22586,21 @@ int main(const int argc, const char* const argv[]) {
                         drivenSwageErrorM <
                             kMaximumSwageAttachmentError,
                     "free needle did not follow the articulated first-bite "
-                    "entrance under accepted tissue and thread coupling"
+                    "approach under accepted tissue and thread coupling"
                 );
                 std::cout << "robot_first_bite_dynamic_drive=ok\n";
+                writeHandoffStateArtifact(
+                    options.stateOutputDirectory,
+                    "tissue-robot-first-bite-approach",
+                    1u + robotGripSettleSteps *
+                        kRobotGripSettleCadence +
+                        kRobotFirstBiteDriveProbeSteps *
+                            kRobotFirstBiteDriveMatterCadence,
+                    world,
+                    sutureSpec,
+                    driven.result,
+                    &drivenMatter
+                );
                 return 0;
             }
             const numi::matter::RuntimeStateSnapshot snapshot =

@@ -263,7 +263,7 @@ bool isAcceptedDualHandoffVisualPhase(const std::string_view phase) {
     // Every entry is a transactionally published q/v + rigid + DER snapshot.
     // Keep this finite so an arbitrary or partially written phase cannot be
     // presented as operative evidence merely because its array widths match.
-    static constexpr std::array<std::string_view, 44u> phases{
+    static constexpr std::array<std::string_view, 46u> phases{
         "giver-closed",
         "giver-lift",
         "giver-handoff-stage",
@@ -285,6 +285,8 @@ bool isAcceptedDualHandoffVisualPhase(const std::string_view phase) {
         "receiver-extraction-retraction-settled",
         "receiver-extraction-retracted",
         "tissue-rest",
+        "tissue-robot-first-bite-grip",
+        "tissue-robot-first-bite-approach",
         "tissue-receiver-bridge-start",
         "tissue-receiver-dynamic-bridge",
         "tissue-receiver-alignment-motion",
@@ -315,6 +317,11 @@ bool isAcceptedDualHandoffVisualPhase(const std::string_view phase) {
 bool isPostHandoffOperativeVisualPhase(const std::string_view phase) {
     return phase.starts_with("receiver-extraction-") ||
         phase.starts_with("tissue-");
+}
+
+bool isStagedRobotVisualPhase(const std::string_view phase) {
+    return phase == "tissue-robot-first-bite-grip" ||
+        phase == "tissue-robot-first-bite-approach";
 }
 
 PickupState readPickupState(const std::filesystem::path& path) {
@@ -1316,7 +1323,9 @@ metalrobo::WorldTemplate makeWorldTemplate(
     metalrobo::SensorSpec overview = close;
     overview.id = "pickup_overview_rgbd";
     overview.intrinsics = state.dualHandoff
-        ? mr_float4{2000.0f, 2000.0f, 640.0f, 480.0f}
+        ? (isStagedRobotVisualPhase(state.phase)
+            ? mr_float4{2500.0f, 2500.0f, 640.0f, 480.0f}
+            : mr_float4{2000.0f, 2000.0f, 640.0f, 480.0f})
         : state.medicallyMatchedSinglePickup
             ? mr_float4{1700.0f, 1700.0f, 640.0f, 480.0f}
             : mr_float4{1030.0f, 1030.0f, 640.0f, 480.0f};
@@ -2370,14 +2379,23 @@ int main(const int argumentCount, char* argv[]) {
                 pickup.dualHandoff ? "handoff-close" : "pickup-close",
                 pickup.dualHandoff ? "handoff-overview" : "pickup-overview",
             };
+            const bool stagedRobotVisual =
+                isStagedRobotVisualPhase(pickup.phase);
             const std::array<std::array<std::size_t, 7u>, 2u>
                 minimumCoverage = pickup.dualHandoff
-                    ? std::array<std::array<std::size_t, 7u>, 2u>{{
-                          {{15000u, 15000u, 1200u, 1000u, 5000u, 500u,
-                            100000u}},
-                          {{2500u, 2500u, 250u, 400u, 1000u, 200u,
-                            100000u}},
-                      }}
+                    ? stagedRobotVisual
+                        ? std::array<std::array<std::size_t, 7u>, 2u>{{
+                              {{15000u, 0u, 800u, 1000u, 5000u, 500u,
+                                100000u}},
+                              {{2500u, 0u, 250u, 400u, 1000u, 200u,
+                                100000u}},
+                          }}
+                        : std::array<std::array<std::size_t, 7u>, 2u>{{
+                              {{15000u, 15000u, 1200u, 1000u, 5000u, 500u,
+                                100000u}},
+                              {{2500u, 2500u, 250u, 400u, 1000u, 200u,
+                                100000u}},
+                          }}
                     : std::array<std::array<std::size_t, 7u>, 2u>{{
                           {{30000u, 0u, 1800u, 1000u,
                             pickup.medicallyMatchedSinglePickup ? 5000u : 0u,
@@ -2425,6 +2443,21 @@ int main(const int argumentCount, char* argv[]) {
             for (std::uint32_t camera = 0u;
                  camera < names.size();
                  ++camera) {
+                std::cout
+                    << "suture_visual_coverage_candidate"
+                    << " view=" << names[camera]
+                    << " instrument="
+                    << viewMetrics[camera].instrumentPixels
+                    << " receiver_instrument="
+                    << viewMetrics[camera].receiverInstrumentPixels
+                    << " needle=" << viewMetrics[camera].needlePixels
+                    << " thread=" << viewMetrics[camera].threadPixels
+                    << " field=" << viewMetrics[camera].fieldPixels
+                    << " tissue=" << viewMetrics[camera].tissuePixels
+                    << " fixture="
+                    << viewMetrics[camera].tissueFixturePixels
+                    << " valid=" << viewMetrics[camera].validPixels
+                    << '\n';
                 const std::size_t requiredTissuePixels =
                     pickup.dualHandoff &&
                         pickup.matterSnapshot == nullptr && camera == 0u
@@ -2433,12 +2466,9 @@ int main(const int argumentCount, char* argv[]) {
                 require(
                     viewMetrics[camera].instrumentPixels >=
                             minimumCoverage[camera][0u] &&
-                        (
-                            !pickup.dualHandoff ||
-                            viewMetrics[camera]
-                                    .receiverInstrumentPixels >=
-                                minimumCoverage[camera][1u]
-                        ) &&
+                        viewMetrics[camera]
+                                .receiverInstrumentPixels >=
+                            minimumCoverage[camera][1u] &&
                         viewMetrics[camera].needlePixels >=
                             minimumCoverage[camera][2u] &&
                         viewMetrics[camera].threadPixels >=

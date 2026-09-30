@@ -75,51 +75,72 @@ The run's executable retains the SHA-256 above. A later rebuild had SHA-256
 it adds live center-wound-gap mean and maximum measurements to pull-through
 progress and final output. Those fields are absent from the stopped run, and
 this rebuild alone is not pull-through qualification.
-The first grip-probe rebuild, which also gates authored-surface clearance along the
-giver approach and first bite, has SHA-256
-`d7639e6f81e18c01b8f4b2e092892a444a3bbd27536ad774f2ca42a7edd187fb`.
-It adds `--tissue-robot-first-bite-grip-only --synthetic-skin`: a one-transaction
-dynamic-needle, closed-giver grasp probe with bilateral contact, insert
-coverage, swage, rod, and Matter gates. It compiles and its independent
-geometry tests pass. After the long pull stopped, the native grip mode reached
-a free dynamic needle and bilateral 8/8 jaw contacts with full 15/15 insert
-patch masks. It failed its loaded-grasp gate: 25.33 um seat drift was within
-the 100 um bound, but needle/jaw relative point speed was 0.4053 m/s against
-the 0.002 m/s bound. This is contact evidence, not a qualified grasp or bite.
-The latest rebuild, which additionally rejects premature puncture or tissue
-mass loss at grip reset, has SHA-256
-`18f7be3f39eeee80fae72006c3b184b9a33e31e434f570cc05133c384c515d85`.
-The subsequent `--tissue-robot-first-bite-drive-only --synthetic-skin` mode
-holds that dynamic grip and sends 48 articulated effort commands over the
-first 3 ms of the needle orbit, without a kinematic scene-body target. Its
-matching CPU trajectory preflight passes: planned tip advance is 12.646 um,
-and the limiting joint velocity is 0.750 of its bound. It will require live
-bilateral needle contact, positive actual tip advance, accepted Matter state,
-all FEM tetrahedra, zero removed mass, and a qualified swage/DER strand. This
-mode compiles and its CPU preflight passes, but its native Metal test has not
-run because the initial grip gate fails. The earlier probe binary SHA-256 was:
-`e35b24f39a40eea9691f34a8a62215be821e59a2cd54ed79627abaf497346d9e`.
+The original dynamic-needle grip reset hit both jaws but started only 10 um
+from the skin and struck a premature puncture channel while relative motion
+remained unqualified. The revised live mode stages the skin 0.5 mm from the
+needle and includes that approach distance in its planned 235-step bite.
+It holds the closed giver through 11 grouped Matter steps / 44 base DER
+substeps. `--tissue-robot-first-bite-grip-only --synthetic-skin` now passes:
+8/6 jaw contacts, complete 15/15 insert masks, 89.63 um seat drift against a
+100 um limit, 1.249 mm/s relative point speed against 2 mm/s, and 0.524
+rad/s relative angular speed against 0.6 rad/s. The accepted state has zero
+puncture channels, all 46,080 tetrahedra, zero removed tissue mass, minimum
+determinant 0.999999821, 4.449 um swage error, and 1.367 um maximum thread
+edge error. The gripper is reset closed at the needle; no physical approach
+or pickup has yet been demonstrated.
+
+`--tissue-robot-first-bite-drive-only --synthetic-skin` now passes a further
+12 grouped Matter steps / 192 base DER substeps / 12 ms using articulated
+efforts and no kinematic needle target. The planned free-space tip advance is
+52.45 um; the measured dynamic tip advance is 25.64 um. Final jaw contact is
+8/6 with full 15/15 insert masks, 0.344 um seat drift, 0.0379 mm/s relative
+point speed, zero puncture channels, all 46,080 tetrahedra, zero removed mass,
+minimum determinant 0.999999821, 0.927 um swage error, 0.545 um thread-edge
+error, and zero failed steps. Drive GPU time was 72.324 s. This proves a short
+robot-driven free-space approach with an accepted grasp, not a through-wall
+bite. The stable native test log is
+`build-skin-wound/synthetic-skin-robot-approach.log`, SHA-256
+`0ed74e6cef1d4a0a4b6d4af1ec08267c1556cce1397659e830c02e90b79d36a1`;
+the executable SHA-256 is
+`8da12e63bfe71135267cbd97bad5bd49438f078bf9cef481a00ed91965a58ad3`.
+The same accepted run published both grip and approach checkpoints under
+`build-skin-wound/skin-robot-checkpoints/`. The approach TSV has SHA-256
+`800117ee5da4ff211d91a3c36191169a6cfdd223323fb8f33a5a30953ac5a060`;
+its 30,316,752-byte live Matter snapshot has SHA-256
+`f74e4fbf58262625e40a75a69c63fc632bc9f3a4423fefb1d05bab7308a98acc`.
+The visual probe accepted that snapshot as `synthetic_skin_wound` and rendered
+`build-skin-wound/skin-robot-visual/handoff-close.png` plus
+`handoff-overview.png` at 1280 x 960. It reported 6,336 tissue triangles
+from verified live FEM geometry; the overview PNG SHA-256 is
+`a9397b38a9de6fe8143ad8420dcdb0f2e5e35080cc3c416fe48102f283dcb853`.
+The current evidence JSON SHA-256 is
+`8ba15009b9fbf9b972905d3eda469696e2b1888955f524d119e751b0725fd280`.
+This is one rendered approach state, not a motion video or completed stitch.
 Checkpoint publication now writes the actual `synthetic_skin_wound` material
 identity and 30 x 24 x 1.5 mm specimen dimensions when `--synthetic-skin` is
 selected; the visual probe accepts that identity only with a live v3 Matter
-snapshot and verifies the dimensions before building a surface. Both targets
-build, but no skin checkpoint has yet been rendered. Earlier handoff and
-current visual-probe binary SHA-256 values were
+snapshot and verifies the dimensions before building a surface. The accepted
+approach checkpoint above now exercises that path. Earlier handoff and
+visual-probe binary SHA-256 values were
 `22acd0b40cf42c03195af9a69ca841de000bca94383a7f820cb2f33ea64a907d`
 and
 `969e16939cb8697c65ee909d2dd0a1c9c13f375cf3552a5513412ac55edc080b`.
-The visual evidence manifest now carries the verified tissue-model identity.
+The current renderer binary SHA-256 is
+`30fe482ee15d36ca0cd3710feb71a52e5fffaa93d5258d89e1e54ffee0532432`.
+Its visual evidence JSON carries the verified tissue-model identity.
 
 The `--tissue-robot-first-bite-ik-only --synthetic-skin` geometry probe found
-a 250-step giver approach and 185-step 5 mm/s needle-orbit path. The entry
+a 250-step giver approach and 185-step 5 mm/s needle-orbit path at the
+original 10 um clearance. The entry
 jaw midpoint is 0.164 um from its needle seat; peak approach and bite joint
 velocity ratios are 0.454 and 0.746 of their limits. An authored-surface
 envelope scan of the 250 approach and 185 bite samples found at least 0.900
 and 2.257 mm needle-driver clearance from the skin respectively, with no
 unsafe sample. The planned tip travels 1.817 mm and clears the authored distal
 surface by 0.181 mm. This proves reachable,
-collision-free command geometry only. Contact, load transfer, tissue forces,
-and arm-driven puncture still require a native run with a dynamic needle.
+collision-free command geometry only. The live 0.5 mm staging clearance
+extends the planned orbit to 235 steps and retains 0.175 mm planned distal
+clearance; its through-wall physical result is still untested.
 
 ## Performance checkpoint
 
@@ -152,8 +173,9 @@ was disabled, so it does not attribute per-kernel costs. The benchmark log is
 the executable SHA-256 is
 `30352b18ef5fe43b51be296f6181b2c377a9788662789251442b7370a73bfc38`.
 
-Open work: qualify thread pull-through with this 1.5 mm wall, then the second
-lip bite, robot-driven manipulation, knot tightening,
+Open work: physically approach and pick up the needle with the robot, drive
+it through the first skin lip with measured tissue reaction, qualify thread
+pull-through with this 1.5 mm wall, then the second lip bite, knot tightening,
 gripper release, and measured unloaded wound-gap retention. Existing
 jejunal checkpoints must not be reused as skin evidence; generate fresh
 skin checkpoints and compare their material/world fingerprints. Capture
