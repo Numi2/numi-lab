@@ -760,6 +760,17 @@ struct CompileResult {
     const WorldSource& source,
     const CompileOptions& options = {}
 );
+// Convert environment-major authored FEM tetrahedron scalars, concatenated in
+// WorldSource object order, into the compiled FEM arena. This checks every
+// source/cooked element identity and writes zero into dormant capacity slots.
+// Re-cook after topology mutation; the result belongs to the initial world.
+[[nodiscard]] bool cookFEMActiveTensions(
+    const WorldSource& source,
+    const CompiledWorld& cooked,
+    std::span<const float> sourceTensions,
+    std::vector<float>& cookedTensions,
+    std::string* error = nullptr
+);
 [[nodiscard]] std::string emitSpecializedMetal(
     std::span<const ConstitutiveProgram> programs
 );

@@ -20,6 +20,7 @@ set(
     src/language_impl.cpp
     src/constitutive_impl.cpp
     src/compiler_impl.cpp
+    src/fem_active_tension_cook.cpp
     src/vascular_impl.cpp
     src/fingerprint_impl.cpp
     src/validation_impl.cpp
@@ -79,6 +80,30 @@ if(BUILD_TESTING)
     add_test(NAME matter.compiler.fem_material_frame COMMAND numi-matter-fem-material-frame-compiler-check)
     set_tests_properties(matter.compiler.fem_material_frame PROPERTIES LABELS "matter;material;human" TIMEOUT 60)
 endif()
+
+add_executable(numi-matter-fem-active-tension-cook-check
+    tools/fem_active_tension_cook_check.cpp)
+target_link_libraries(numi-matter-fem-active-tension-cook-check
+    PRIVATE numi_matter_compiler)
+target_compile_options(numi-matter-fem-active-tension-cook-check
+    PRIVATE -Wall -Wextra -Wpedantic -Werror)
+target_compile_definitions(numi-matter-fem-active-tension-cook-check
+    PRIVATE NUMI_MATTER_CARDIAC_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/materials/rodero2021_ventricular_guccione_passive.nmatter")
+if(BUILD_TESTING)
+    add_test(NAME matter.compiler.fem_active_tension_cook
+        COMMAND numi-matter-fem-active-tension-cook-check)
+    set_tests_properties(matter.compiler.fem_active_tension_cook
+        PROPERTIES LABELS "matter;compiler;human;cardiac;active" TIMEOUT 60)
+endif()
+
+add_executable(numi-matter-ventricular-source-cook
+    tools/ventricular_source_cook.cpp)
+target_link_libraries(numi-matter-ventricular-source-cook
+    PRIVATE numi_matter_compiler)
+target_compile_options(numi-matter-ventricular-source-cook
+    PRIVATE -Wall -Wextra -Wpedantic -Werror)
+target_compile_definitions(numi-matter-ventricular-source-cook
+    PRIVATE NUMI_MATTER_CARDIAC_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/materials/rodero2021_ventricular_guccione_passive.nmatter")
 
 add_executable(numi-matter-stateful-check tools/stateful_check.cpp)
 target_link_libraries(numi-matter-stateful-check PRIVATE numi_matter_compiler)
@@ -215,6 +240,16 @@ if(APPLE)
         set_tests_properties(matter.runtime.fem_active_tension PROPERTIES
             LABELS "matter;human;cardiac;active" TIMEOUT 120)
     endif()
+
+    add_executable(numi-matter-ventricular-source-step
+        tools/ventricular_source_step.mm)
+    add_dependencies(numi-matter-ventricular-source-step numi_matter_shaders)
+    target_include_directories(numi-matter-ventricular-source-step
+        PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../include")
+    target_link_libraries(numi-matter-ventricular-source-step PRIVATE
+        numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_compile_definitions(numi-matter-ventricular-source-step PRIVATE
+        NUMI_MATTER_METALLIB="${NUMI_MATTER_METALLIB}")
 
     install(FILES "${NUMI_MATTER_METALLIB}" DESTINATION lib/numi-matter)
     install(TARGETS numi_matter_runtime ARCHIVE DESTINATION lib)
