@@ -200,11 +200,11 @@
       "id": 16,
       "category": "suite-missing-runtime",
       "should_activate": true,
-      "prompt": "The Numi Lab plugin is installed, so run numivivo from ChatGPT on my Mac.",
+      "prompt": "The Numi Lab plugin is installed in this Codex environment, so run numivivo on my Mac.",
       "expected_output": "Checks actual execution access and the sibling binary before making any runtime claim.",
       "files": [],
       "expectations": [
-        "Does not claim plugin installation installs NumiVivo or provides a hosted connector",
+        "Does not claim plugin installation installs NumiVivo or grants this environment access to the Mac",
         "Uses available local or connected execution only",
         "Reports a missing runtime or access boundary precisely"
       ]
@@ -262,13 +262,13 @@
     },
     {
       "id": 21,
-      "category": "skills-only-web",
+      "category": "remote-codex-access",
       "should_activate": true,
-      "prompt": "I installed the Numi Lab plugin in ChatGPT on the web. Start a Numi Human standing run on my Mac.",
-      "expected_output": "Explains the missing local execution connection and gives a useful local workflow without claiming the web plugin can control the Mac.",
+      "prompt": "I installed the Numi Lab plugin in Codex cloud. Start a Numi Human standing run on my Mac.",
+      "expected_output": "Checks the selected host and gives a useful local workflow if the cloud environment cannot reach the Mac.",
       "files": [],
       "expectations": [
-        "Does not claim the skills-only plugin provides Mac access",
+        "Does not claim the plugin grants a remote Codex environment Mac access",
         "Uses available files or connected tools only",
         "States the single local access step needed to execute"
       ]
@@ -284,6 +284,19 @@
         "Uses the owning numivivo help rather than inventing a numi vivo command",
         "Checks prepared inputs and existing artifacts before launch",
         "Reports backend, accepted steps, numerical checks and artifact identity without inferring a reaction rate"
+      ]
+    },
+    {
+      "id": 23,
+      "category": "direct-sibling-routing",
+      "should_activate": true,
+      "prompt": "Run NumiVivo MD on my prepared system; the numi context command is hanging in another checkout.",
+      "expected_output": "Goes directly to the NumiVivo owner and its help, checks the prepared inputs and existing artifacts, and does not wait for repeated suite context scans.",
+      "files": [],
+      "expectations": [
+        "Does not retry numi context for a named sibling workflow",
+        "Uses numivivo command help or owning source to resolve syntax",
+        "Reports exact execution and numerical evidence or a specific missing-runtime blocker"
       ]
     }
   ]

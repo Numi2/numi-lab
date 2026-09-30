@@ -1,7 +1,7 @@
 {
   "name": "numi-lab",
-  "version": "0.1.1+codex.20260930011009",
-  "description": "Guide Apple-native research workflows across the Numi Lab suite using each installed runtime and its own evidence.",
+  "version": "0.1.1+codex.20260930032141",
+  "description": "Guide Codex through native research workflows across the Apple Silicon Numi Lab suite.",
   "author": {
     "name": "Numi Lab"
   },
@@ -24,8 +24,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Numi Lab",
-    "shortDescription": "Explore the Numi Lab suite",
-    "longDescription": "Discover and run Apple-native research workflows across NumiVivo chemistry and molecular dynamics, NumiTissue, NumiBrain and NumanX, Numi Human biomechanics, Matter and NumiSolver physics, robotics, BirdFlow, and Numi Automata. The plugin routes your goal to the installed owner, checks inputs and existing artifacts, and reports measured results with their evidence limits. Local execution requires the relevant runtime and access to your Mac; installing this skills-only plugin does not install suite tools or connect ChatGPT on the web to your computer.",
+    "shortDescription": "Run Numi on Apple silicon",
+    "longDescription": "Use Codex to discover, operate, and improve Apple-native research workflows across NumiVivo, NumiTissue, NumiBrain and NumanX, Numi Human, Matter and NumiSolver, robotics, BirdFlow, and Numi Automata. Codex routes the task to its owning tool, checks live capabilities and existing artifacts, and reports measured outcomes with their evidence limits. The plugin supplies instructions; each runtime must be installed separately and accessible in the selected local environment.",
     "developerName": "Numi Lab",
     "category": "Developer Tools",
     "capabilities": [
@@ -37,9 +37,9 @@
       "Diagnose failures and preserve provenance"
     ],
     "defaultPrompt": [
-      "Show the Numi tools available on this Mac and what I can run next.",
-      "Prepare a NumiVivo MD run from my existing system and verify its output.",
-      "Evaluate a Numi robot policy on held-out rollouts and report the physical outcomes."
+      "Check this Mac\u2019s Numi Lab setup and show which native workflows are ready.",
+      "Use my prepared NumiVivo system for an MD run and inspect its evidence.",
+      "Evaluate my Numi robot policy on held-out rollouts and compare physical outcomes."
     ],
     "brandColor": "#7C5CFF",
     "composerIcon": "./assets/icon.png",

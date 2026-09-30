@@ -18,9 +18,11 @@ Read only the section needed for the user's task.
 
 ## Discovery and execution
 
-1. Start with `numi context --paths` and, when readiness matters, `numi doctor`.
-   These cover the selected Lab installation; a successful doctor does not
-   establish that NumiVivo, NumiTissue, or other sibling packages are installed.
+1. For the Lab dispatcher or an unknown owner, start with `numi context --paths`
+   and, when readiness matters, `numi doctor`. For a named sibling tool, start
+   with that owner's executable or source and use context only if a Numi
+   overlay or cross-suite integration matters. A successful doctor does not
+   establish that NumiVivo, NumiTissue, or other siblings are installed.
 2. Resolve a sibling from explicit user paths, the active workspace, existing
    configuration, integration lockfiles, or `command -v`. Verify its repository
    remote, revision, dirty paths, package manifest, and owning documentation.

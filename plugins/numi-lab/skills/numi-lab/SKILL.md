@@ -1,6 +1,6 @@
 ---
 name: numi-lab
-description: Use when a user wants to discover, run, inspect, or improve their Numi Lab research workflows on Apple silicon, including NumiVivo chemistry and MD, NumiTissue, NumiBrain and NumanX, Numi Human biomechanics, Matter and NumiSolver, robotics, BirdFlow, or Numi Automata. Do not use for generic science explanations or unrelated runtimes.
+description: Use when a user wants Codex to discover, run, inspect, or improve Numi Lab workflows or this plugin on Apple silicon, including NumiVivo chemistry and MD, NumiTissue, NumiBrain and NumanX, Numi Human biomechanics, Matter and NumiSolver, robotics, BirdFlow, or Numi Automata. Do not use for generic science explanations or unrelated runtimes.
 ---
 
 # Numi Lab
@@ -10,10 +10,9 @@ laboratory. Route intent across the whole suite without forcing molecular,
 cellular, neural, or embodied work into a robot-training schema. Use the owning
 runtime and its native tools; do not invent a second planner or simulator.
 
-This plugin supplies local skill guidance, not a hosted ChatGPT connector or a
-remote execution service. Use connected tools or local execution actually
-available in the session. Never claim that installing this skill installs the
-sibling runtimes or grants ChatGPT access to a Mac.
+This Codex plugin supplies local workflow guidance, not the sibling runtimes.
+Use the tools and execution access actually available in the current Codex
+environment; a remote or cloud thread may not have access to the user's Mac.
 
 ## First response
 
@@ -31,11 +30,13 @@ user can verify. Load only the selected workflow. Keep the answer readable:
 ## Start from live truth
 
 1. Run `numi doctor` when machine or installation readiness matters.
-2. Run `numi context --paths` before choosing a workflow. It is the current
-   source for dispatcher capabilities, overlays, paths, revision, and extension
-   points; separately discover sibling tools through the suite reference below.
-   Resolve Numi source and owner documentation relative to its reported
-   `Runtime root`; resolve user overlays relative to its reported `Workspace`.
+2. For a `numi` dispatcher task or an unknown owner, run `numi context --paths`
+   to discover capabilities, overlays, paths, revision, and extension points.
+   Resolve Numi source relative to its `Runtime root` and user overlays relative
+   to its `Workspace`. For a request that names a sibling such as `numivivo` or
+   `numitissue`, inspect that owner and its help directly; run Numi context only
+   if an overlay or cross-suite integration is relevant. Bound discovery: if
+   context stalls, inspect the selected owner instead of retrying it.
 3. Run `numi robots list` or `numi robots inspect ROBOT_ID` before configuring
    a robot; skip robot discovery for non-robot workflows. Use its authored
    capabilities and semantic roles rather than assuming G1 joints, humanoid
@@ -104,3 +105,12 @@ execution, [native-execution.md](references/native-execution.md) for Apple-nativ
 runtime architecture or source changes, and [evidence.md](references/evidence.md)
 for completion, provenance, and hardware-arming rules. These references extend
 the routing map; they are not prerequisites for an unrelated domain.
+
+## Codex plugin upkeep
+
+When the task is to update this plugin, compare the repository source, the
+configured marketplace path, the installed cache, and the live CLI before
+editing. Change the owning plugin source, validate the skill and manifest,
+update the cachebuster, reinstall through its marketplace, and confirm the
+loaded source and version. A new Codex thread is needed to exercise the new
+skill snapshot. Preserve unrelated changes in the source checkout.
