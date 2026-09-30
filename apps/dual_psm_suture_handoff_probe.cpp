@@ -15980,6 +15980,33 @@ int main(const int argc, const char* const argv[]) {
                             biteTargets,
                             closeJawCoordinate
                         );
+                    Vec3 thicknessAxis = vector(
+                        tissueCoupon.metadata.thicknessAxis
+                    );
+                    thicknessAxis = thicknessAxis *
+                        (1.0 / norm(thicknessAxis));
+                    double authoredBottomProjection =
+                        std::numeric_limits<double>::infinity();
+                    for (const auto& authoredPosition :
+                         tissueCoupon.object.femNodes) {
+                        authoredBottomProjection = std::min(
+                            authoredBottomProjection,
+                            dot(vector(authoredPosition), thicknessAxis)
+                        );
+                    }
+                    const NeedleTipCapsuleGeometry terminalTip =
+                        needleTipCapsuleGeometry(
+                            needleForPlacement,
+                            biteTargets.back()
+                        );
+                    const double plannedTipAdvanceM = dot(
+                        terminalTip.worldTip - entryTip.worldTip,
+                        entryTip.approachDirection
+                    );
+                    const double plannedDistalClearanceM =
+                        authoredBottomProjection -
+                        dot(terminalTip.worldTip, thicknessAxis) -
+                        terminalTip.radiusM;
                     const GraspFrameTarget terminalTarget =
                         graspFrameTarget(
                             needleForPlacement,
@@ -16007,6 +16034,106 @@ int main(const int argc, const char* const argv[]) {
                             terminalFrame, terminalTarget.frame
                         )
                     );
+                    std::vector<metalrobo::SurgicalThreadTargetPoint>
+                        authoredSurfaceNodes;
+                    authoredSurfaceNodes.reserve(tissueWorld.fem.nodes.size());
+                    for (const NMFEMNodeStateGPU& node :
+                         tissueWorld.fem.nodes) {
+                        authoredSurfaceNodes.push_back(targetingPoint(
+                            vector(node.positionAndMass)
+                        ));
+                    }
+                    std::vector<metalrobo::SurgicalThreadSurfaceTriangle>
+                        authoredSurfaceTriangles;
+                    authoredSurfaceTriangles.reserve(
+                        tissueWorld.fem.surfaceFaces.size()
+                    );
+                    for (const NMFEMSurfaceFaceGPU& face :
+                         tissueWorld.fem.surfaceFaces) {
+                        if (face.adjacency.y != NM_INVALID_INDEX ||
+                            (face.adjacency.w & NM_TOPOLOGY_ACTIVE) == 0u) {
+                            continue;
+                        }
+                        const NMTetrahedronGPU& tetrahedron =
+                            tissueWorld.fem.tetrahedra.at(face.adjacency.x);
+                        const std::array<std::uint32_t, 4u> nodes{
+                            tetrahedron.nodes.x,
+                            tetrahedron.nodes.y,
+                            tetrahedron.nodes.z,
+                            tetrahedron.nodes.w,
+                        };
+                        metalrobo::SurgicalThreadSurfaceTriangle triangle{};
+                        std::size_t destination = 0u;
+                        for (std::uint32_t corner = 0u; corner < 4u;
+                             ++corner) {
+                            if (corner != face.sides.x) {
+                                triangle[destination++] = nodes[corner];
+                            }
+                        }
+                        authoredSurfaceTriangles.push_back(triangle);
+                    }
+                    double minimumApproachJawTissueClearanceM =
+                        std::numeric_limits<double>::infinity();
+                    double minimumBiteJawTissueClearanceM =
+                        std::numeric_limits<double>::infinity();
+                    std::uint32_t firstUnsafeApproachJawSample =
+                        MR_INVALID_INDEX;
+                    std::uint32_t firstUnsafeBiteJawSample =
+                        MR_INVALID_INDEX;
+                    const auto scanJawTissueClearance = [&] (
+                        const ArmTrajectory& trajectory,
+                        const std::uint32_t steps,
+                        double& minimumClearanceM,
+                        std::uint32_t& firstUnsafeSample
+                    ) {
+                        for (std::uint32_t step = 0u; step < steps;
+                             ++step) {
+                            const std::span<const float> q{
+                                trajectory.desiredQ.data() +
+                                    static_cast<std::size_t>(step) *
+                                        world.model.world.nq,
+                                world.model.world.nq,
+                            };
+                            const JawGeometry jaw = worldJawGeometry(
+                                world.model, 0u, q, world.model.defaultV
+                            );
+                            const auto clearance = metalrobo::
+                                evaluateSurgicalThreadJawSurfaceClearance(
+                                    targetingPoint(jaw.midpoint),
+                                    targetingPoint(jaw.railDirection),
+                                    jawMetadata.largeNeedleDriverJawLength,
+                                    0.5 * jawMetadata.instrumentDiameter,
+                                    authoredSurfaceNodes,
+                                    authoredSurfaceTriangles
+                                );
+                            require(
+                                clearance.succeeded(),
+                                "first-bite jaw/tissue clearance is invalid"
+                            );
+                            minimumClearanceM = std::min(
+                                minimumClearanceM,
+                                clearance.minimumEnvelopeClearanceM
+                            );
+                            if (clearance.minimumEnvelopeClearanceM <
+                                kOpposingDriveJawTissueClearanceM) {
+                                firstUnsafeSample = std::min(
+                                    firstUnsafeSample, step
+                                );
+                            }
+                        }
+                    };
+                    scanJawTissueClearance(
+                        gripApproach,
+                        kGripApproachSteps,
+                        minimumApproachJawTissueClearanceM,
+                        firstUnsafeApproachJawSample
+                    );
+                    scanJawTissueClearance(
+                        biteTrajectory,
+                        biteSteps,
+                        minimumBiteJawTissueClearanceM,
+                        firstUnsafeBiteJawSample
+                    );
                     std::cout << std::setprecision(9)
                         << "robot_first_bite_ik_candidate"
                         << " steps=" << biteSteps
@@ -16022,6 +16149,18 @@ int main(const int argc, const char* const argv[]) {
                         << terminalPositionErrorM
                         << " terminal_orientation_error_rad="
                         << terminalOrientationErrorRad
+                        << " planned_tip_advance_m="
+                        << plannedTipAdvanceM
+                        << " planned_distal_clearance_m="
+                        << plannedDistalClearanceM
+                        << " minimum_approach_jaw_tissue_clearance_m="
+                        << minimumApproachJawTissueClearanceM
+                        << " minimum_bite_jaw_tissue_clearance_m="
+                        << minimumBiteJawTissueClearanceM
+                        << " first_unsafe_approach_jaw_sample="
+                        << firstUnsafeApproachJawSample
+                        << " first_unsafe_bite_jaw_sample="
+                        << firstUnsafeBiteJawSample
                         << " gpu_dispatched=no"
                         << " grasp_load_qualified=no\n";
                     require(
@@ -16034,9 +16173,18 @@ int main(const int argc, const char* const argv[]) {
                             terminalPositionErrorM <=
                                 kReceiverBridgeIKPositionToleranceM &&
                             terminalOrientationErrorRad <=
-                                kReceiverBridgeIKOrientationToleranceRad,
+                                kReceiverBridgeIKOrientationToleranceRad &&
+                            plannedTipAdvanceM >=
+                                tissueCoupon.thicknessM +
+                                    kCurvedPassageExitClearanceM &&
+                            plannedDistalClearanceM >=
+                                kCurvedPassageExitClearanceM &&
+                            (!options.syntheticSkin ||
+                             (firstUnsafeApproachJawSample ==
+                                  MR_INVALID_INDEX &&
+                              firstUnsafeBiteJawSample == MR_INVALID_INDEX)),
                         "robot first-bite jaw path exceeds joint velocity "
-                        "or terminal frame limits"
+                        "or terminal frame or tissue-clearance limits"
                     );
                     std::cout << "robot_first_bite_ik=ok\n";
                 }

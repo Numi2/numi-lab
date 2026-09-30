@@ -63,13 +63,20 @@ The run's executable retains the SHA-256 above. A later rebuild has SHA-256
 it adds live center-wound-gap mean and maximum measurements to pull-through
 progress and final output. Those new fields will not appear in the already
 running process, and this rebuild alone is not pull-through qualification.
+The current rebuild, which also gates authored-surface clearance along the
+giver approach and first bite, has SHA-256
+`67d6c0f0aadf8884d584359d23d01b01b3c52ea78e0962ace156fcd071f31631`.
 
 The `--tissue-robot-first-bite-ik-only --synthetic-skin` geometry probe found
 a 250-step giver approach and 185-step 5 mm/s needle-orbit path. The entry
 jaw midpoint is 0.164 um from its needle seat; peak approach and bite joint
-velocity ratios are 0.454 and 0.746 of their limits. This proves reachable
-command geometry only. Contact, load transfer, tissue forces, and arm-driven
-puncture still require a native run with a dynamic needle.
+velocity ratios are 0.454 and 0.746 of their limits. An authored-surface
+envelope scan of the 250 approach and 185 bite samples found at least 0.900
+and 2.257 mm needle-driver clearance from the skin respectively, with no
+unsafe sample. The planned tip travels 1.817 mm and clears the authored distal
+surface by 0.181 mm. This proves reachable,
+collision-free command geometry only. Contact, load transfer, tissue forces,
+and arm-driven puncture still require a native run with a dynamic needle.
 
 Open work: qualify thread pull-through with this 1.5 mm wall, then the second
 lip bite, robot-driven manipulation, knot tightening,
