@@ -161,6 +161,12 @@ constexpr double kSutureLoadBearingPullSpeedMps =
 // still below the 100 um contact band. This removes redundant full-coupon
 // Newton solves without skipping a strand/tissue contact band.
 constexpr std::uint32_t kSuturePullMatterRateMultiplier = 16u;
+// Pulling at 80 mm/s moves the strand 20 um in four base substeps. After
+// deceleration, sixteen substeps at 20 mm/s have the same 20 um advance.
+// Both stay below the 100 um contact band and 25 um swage position allowance.
+// The full pull still needs a live contact/reaction qualification.
+constexpr std::uint32_t kSuturePullContactMatterRateMultiplier = 4u;
+constexpr std::uint32_t kSuturePullLoadedMatterRateMultiplier = 16u;
 // On the returning half of the needle orbit, restore one Matter transaction
 // per 16 kHz DER substep. The strand then advances 5 um at 80 mm/s, one
 // twentieth of the 100 um contact band and one seventieth of the tract radius.
@@ -7167,6 +7173,8 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             argument == "--tissue-puncture-only" ||
             argument == "--tissue-puncture-advance-only" ||
             argument == "--tissue-suture-entry-only" ||
+            argument == "--tissue-suture-cadence-baseline-only" ||
+            argument == "--tissue-suture-cadence-fast-only" ||
             argument == "--tissue-suture-cadence-only" ||
             argument == "--tissue-suture-passage-only" ||
             argument == "--tissue-curved-passage-only" ||
@@ -9335,10 +9343,16 @@ int main(const int argc, const char* const argv[]) {
             options.mode == "--tissue-suture-entry-only";
         const bool tissueSutureCadenceOnly =
             options.mode == "--tissue-suture-cadence-only";
+        const bool tissueSutureCadenceBaselineOnly =
+            options.mode == "--tissue-suture-cadence-baseline-only";
+        const bool tissueSutureCadenceFastOnly =
+            options.mode == "--tissue-suture-cadence-fast-only";
         const bool tissueSuturePassageOnly =
             options.mode == "--tissue-suture-passage-only";
         const bool tissueSutureEntryContactOnly =
-            tissueSutureEntryOnly || tissueSutureCadenceOnly;
+            tissueSutureEntryOnly || tissueSutureCadenceOnly ||
+            tissueSutureCadenceBaselineOnly ||
+            tissueSutureCadenceFastOnly;
         const bool tissueCurvedPullThroughOnly =
             options.mode == "--tissue-curved-pull-through-only";
         const bool tissueRobotFirstBiteGripOnly =
@@ -15809,7 +15823,8 @@ int main(const int argc, const char* const argv[]) {
                 options.syntheticSkin,
                 tissueCoupon
             );
-            if (tissueReceiverLiveSequence) {
+            if (tissueReceiverLiveSequence &&
+                !tissueRobotFirstBiteLive) {
                 const NMRigidProxyGPU& tipProxy =
                     tissueWorld.contact.rigidProxies.at(0u);
                 const NMRigidProxyGPU& shankProxy =
@@ -23095,9 +23110,17 @@ int main(const int argc, const char* const argv[]) {
                         << coupled.diagnostics.failedStepCount << '\n';
                     return 0;
                 }
-                if (tissueSutureCadenceOnly) {
+                if (tissueSutureCadenceOnly ||
+                    tissueSutureCadenceBaselineOnly ||
+                    tissueSutureCadenceFastOnly) {
+                    const std::uint32_t cadenceMultiplier =
+                        tissueSutureCadenceBaselineOnly
+                            ? 1u
+                            : (tissueSutureCadenceFastOnly
+                                ? kSuturePullMatterRateMultiplier
+                                : kSuturePassageMatterRateMultiplier);
                     selectCoupledCadence(
-                        kSuturePassageMatterRateMultiplier,
+                        cadenceMultiplier,
                         "post-entry passage"
                     );
                     const std::vector<float> cadenceEfforts =
@@ -23221,7 +23244,7 @@ int main(const int argc, const char* const argv[]) {
                     std::cout << std::setprecision(9)
                         << "tissue_suture_cadence_transition=ok"
                         << " multiplier="
-                        << kSuturePassageMatterRateMultiplier
+                        << cadenceMultiplier
                         << " grouped_timestep_s="
                         << stepConfig.timestepSeconds
                         << " needle_tip_advance_m=" << cadenceTipAdvanceM
@@ -30911,7 +30934,7 @@ int main(const int argc, const char* const argv[]) {
                             certifiedNodeDistalClearanceM >=
                                 -kSuturePullContactCadenceClearanceM) {
                             selectPullKinematics(
-                                kSutureContactMatterRateMultiplier,
+                                kSuturePullContactMatterRateMultiplier,
                                 kSuturePullThroughSpeedMps,
                                 "contact-active distal pull-through"
                             );
@@ -30937,7 +30960,7 @@ int main(const int argc, const char* const argv[]) {
                             certifiedNodeDistalClearanceM >=
                                 kSuturePullDecelerationClearanceM) {
                             selectPullKinematics(
-                                kSutureContactMatterRateMultiplier,
+                                kSuturePullLoadedMatterRateMultiplier,
                                 kSutureLoadBearingPullSpeedMps,
                                 "load-bearing distal pull-through"
                             );

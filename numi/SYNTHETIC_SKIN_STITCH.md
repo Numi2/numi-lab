@@ -63,24 +63,29 @@ The earlier full-mesh passage used
 2,149.479 s GPU time; these are single-run observations, not a general
 performance qualification. Maximum skin-node displacement in the compact
 passage was only `2.91038305e-11 m`; it establishes a resolved puncture tract,
-not a visibly deforming or cinched wound. The same process is now in thread
-pull-through,
-with output at `build-skin-wound/synthetic-skin-pull-through.log`. Inspect the
-live process and log before launching another Metal run. Its first two pull
-chunks had no strand contact and therefore do not qualify pull-through.
-The run's executable retains the SHA-256 above. A later rebuild has SHA-256
+not a visibly deforming or cinched wound. The subsequent thread pull was
+stopped after 5,040 base DER substeps and 480 Matter steps, at orbit angle
+3.26982416 rad and thread-root distal clearance -0.620692481 mm. It had zero
+sampled strand contacts and zero strand reaction, so pull-through remains
+unqualified. The partial log is
+`build-skin-wound/synthetic-skin-pull-through.log`, SHA-256
+`e1a0629d4606a1d172fd04026a4fb5b588826e646365c5bca3baee633b95350d`.
+The run's executable retains the SHA-256 above. A later rebuild had SHA-256
 `1993cf25e00ff2c683c6a7ea8d2db36375d5646d7c68f0f027c41ac06748c76c`;
 it adds live center-wound-gap mean and maximum measurements to pull-through
-progress and final output. Those new fields will not appear in the already
-running process, and this rebuild alone is not pull-through qualification.
+progress and final output. Those fields are absent from the stopped run, and
+this rebuild alone is not pull-through qualification.
 The first grip-probe rebuild, which also gates authored-surface clearance along the
 giver approach and first bite, has SHA-256
 `d7639e6f81e18c01b8f4b2e092892a444a3bbd27536ad774f2ca42a7edd187fb`.
 It adds `--tissue-robot-first-bite-grip-only --synthetic-skin`: a one-transaction
 dynamic-needle, closed-giver grasp probe with bilateral contact, insert
 coverage, swage, rod, and Matter gates. It compiles and its independent
-geometry tests pass, but the native grip mode has not run while the pull-
-through process owns the GPU. It does not yet drive the full bite.
+geometry tests pass. After the long pull stopped, the native grip mode reached
+a free dynamic needle and bilateral 8/8 jaw contacts with full 15/15 insert
+patch masks. It failed its loaded-grasp gate: 25.33 um seat drift was within
+the 100 um bound, but needle/jaw relative point speed was 0.4053 m/s against
+the 0.002 m/s bound. This is contact evidence, not a qualified grasp or bite.
 The latest rebuild, which additionally rejects premature puncture or tissue
 mass loss at grip reset, has SHA-256
 `18f7be3f39eeee80fae72006c3b184b9a33e31e434f570cc05133c384c515d85`.
@@ -92,14 +97,14 @@ and the limiting joint velocity is 0.750 of its bound. It will require live
 bilateral needle contact, positive actual tip advance, accepted Matter state,
 all FEM tetrahedra, zero removed mass, and a qualified swage/DER strand. This
 mode compiles and its CPU preflight passes, but its native Metal test has not
-run while the pull-through process owns the GPU. Current probe binary SHA-256:
+run because the initial grip gate fails. The earlier probe binary SHA-256 was:
 `e35b24f39a40eea9691f34a8a62215be821e59a2cd54ed79627abaf497346d9e`.
 Checkpoint publication now writes the actual `synthetic_skin_wound` material
 identity and 30 x 24 x 1.5 mm specimen dimensions when `--synthetic-skin` is
 selected; the visual probe accepts that identity only with a live v3 Matter
 snapshot and verifies the dimensions before building a surface. Both targets
-build, but no skin checkpoint has yet been rendered. Current handoff and
-visual-probe binary SHA-256 values are
+build, but no skin checkpoint has yet been rendered. Earlier handoff and
+current visual-probe binary SHA-256 values were
 `22acd0b40cf42c03195af9a69ca841de000bca94383a7f820cb2f33ea64a907d`
 and
 `969e16939cb8697c65ee909d2dd0a1c9c13f375cf3552a5513412ac55edc080b`.
@@ -115,6 +120,37 @@ unsafe sample. The planned tip travels 1.817 mm and clears the authored distal
 surface by 0.181 mm. This proves reachable,
 collision-free command geometry only. Contact, load transfer, tissue forces,
 and arm-driven puncture still require a native run with a dynamic needle.
+
+## Performance checkpoint
+
+The stopped pull used the original 1x Matter cadence near the tract and took
+about 24 s of GPU time for each eight 5 um microsteps. To bound a faster
+schedule, `--tissue-suture-cadence-baseline-only`,
+`--tissue-suture-cadence-only`, and
+`--tissue-suture-cadence-fast-only` now run a matched post-entry one-step
+probe at 1x, 4x, and 16x from the same authored reset. On the M4 the grouped
+GPU times were 3,375.995, 3,739.432, and 5,193.212 ms for 62.5, 250, and
+1,000 us of simulated time. That is 3.61x and 10.40x simulated-time
+throughput relative to 1x. All three probes retained 46,080 tetrahedra, the
+one accepted puncture channel, zero removed tissue mass, positive minimum
+determinant, and zero failed steps. The strand did not contact tissue in the
+post-entry benchmark step, so these timings do not qualify grouped
+load-bearing pull-through or whole-stitch performance.
+
+The candidate pull schedule now uses 16x away from contact at 80 mm/s, 4x
+near contact at 80 mm/s, and 16x after slowing to 20 mm/s. Both contact
+settings advance 20 um per Matter transaction, below the authored 100 um
+contact band and 25 um swage positional allowance. The setting compiles;
+the complete strand-contact and reaction gates still need native validation.
+The 100x target is unmet. Reaching it for the same full-resolution 46,080-tet
+coupled problem would require roughly 33.8 ms per base-equivalent step versus
+the observed 3.38 s. The Metal System Trace at
+`/tmp/numi-skin-entry.trace` captured one entry step, but shader timeline
+was disabled, so it does not attribute per-kernel costs. The benchmark log is
+`build-skin-wound/synthetic-skin-cadence-benchmark.log`, SHA-256
+`6af9f06ac1385c744ef7077a8a302a45f7a59398cefe0a3b4e71e09d48415429`;
+the executable SHA-256 is
+`30352b18ef5fe43b51be296f6181b2c377a9788662789251442b7370a73bfc38`.
 
 Open work: qualify thread pull-through with this 1.5 mm wall, then the second
 lip bite, robot-driven manipulation, knot tightening,

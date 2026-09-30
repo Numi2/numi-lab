@@ -131,9 +131,14 @@ strand-contact spacing below 0.2 mm. Its native through-wall passage reached
 0.200 mm clearance beyond the deformed distal surface in 372 Matter groups
 with all 46,080 tetrahedra, 12 connected puncture channels, zero removed mass,
 and zero failed steps. The earlier 34 x 40 x 8 baseline also passed with
-65,280 tetrahedra. The needle orbit was prescribed. Thread pull-through is
-still running; robot-driven bites, the knot, and unloaded wound retention
-have not yet been qualified for this material.
+65,280 tetrahedra. The needle orbit was prescribed. A bounded thread pull
+reached 5,040 base DER substeps but had no measured strand contact or reaction;
+it was stopped before claiming pull-through. Short matched cadence probes of
+the compact skin world passed at 1x, 4x, and 16x, giving 3.61x and 10.40x
+simulated-time throughput for the grouped cases on those one-step probes.
+The candidate pull schedule uses 4x near contact at 80 mm/s and 16x after
+slowing to 20 mm/s, but live pull contact remains unqualified. Robot-driven
+bites, the knot, and unloaded wound retention also remain open.
 
 The dual-PSM surgical probe now drives the authored 26 mm half-circle needle
 about its actual 8.28 mm curvature centre at a 20 mm/s terminal speed. Matter
