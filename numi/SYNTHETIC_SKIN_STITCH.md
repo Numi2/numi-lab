@@ -1275,3 +1275,36 @@ original 1x/3,375.995 ms reference for this state; it is not a 100x
 whole-stitch result. Further Wave32 work needs a measured change to its
 factorized rod response or repeated contact update, with the ordered
 impulses and residual certificate retained.
+
+The Wave32 factorized-rod impulse path now stops its preliminary island
+participation scan at the first valid rod contact. Tile construction writes
+local constraint indices in ascending order, so that contact is already the
+minimum failure key; the subsequent scan-ordered impulse assembly, factor
+solve, and residual evaluation are unchanged. Four short post-entry runs
+with this change took 527.799, 531.390, 533.355, and 531.776 ms GPU;
+four nearby restored-source runs took 538.781, 537.659, 539.172, and
+538.727 ms. The medians are 531.583 versus 538.754 ms, a 1.35% gain for
+this grouped step. All eight runs reported identical non-timing fields,
+including all 46,080 tetrahedra, the puncture channel, zero failed steps,
+143 MetalWorld constraints, and 0.001867 m/s terminal normal residual.
+The candidate metallib SHA-256 is
+`a8e3386ae682f49e3b87f9324fa31918d26a2b732636e26536f78cf8a27bee33`.
+The four candidate log SHA-256 values are
+`6ad890b667aab1b845a04b837c59ea2e30df5e3f75cd122ce394ec541071d721`,
+`a39783c84d51b0aefe6f1042d1661535422b9a00262cedfb13c46d1c318b223f`,
+`b697bdc87187c54fa2eae182d53f0e1be8fdea7dfb5d08d42b250ea7eeb8151f`,
+and `13d16054e4a49f9bce593d70309be96d063a3fe02b47cfdfb6f71a439551bb97`;
+the four restored logs have SHA-256 values
+`b94b750f007c0b8bb9c1a8210521c5cbf9ff67ebb24408ed16799910f9c21`,
+`8983fdf3d1b33248a297020d261588d9ea32138b1c19056da98feff256e871a9`,
+`f9c7cc5120fb1f978ef27e50741bbbe22c78ae6ee986cac0a2c44b52a4233e7e`,
+and `74cb5f3bd927e195843d983a4a39b2ae5dc8f9c51dde17076ca9971ecf0fcd13`.
+The three focused tissue-entry, opposing-bite-topology, and cadence CTests
+passed (log SHA-256
+`fea44682a2b20146b5923ed15462be278b9c0d72cbb559925be5afe71908b000`).
+A separate default handoff CTest was stopped after two minutes without a
+result; it does not qualify this change for the full handoff or whole stitch.
+The curved-passage CTest was also stopped after 99 seconds without a result,
+before the pull-through CTest started; neither is qualified by this pass.
+The earlier single-pass assembly trial overlapped an independent Human GPU
+run, so its 546-549 ms observations are not used for performance selection.

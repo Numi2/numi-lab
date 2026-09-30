@@ -7571,6 +7571,13 @@ inline bool applyFactorizedRodIslandImpulse(
                     firstRodConstraint,
                     localConstraint
                 );
+                // Tile indices are written in ascending local-constraint
+                // order. The first valid contact is the failure key, so a
+                // full island scan cannot change this minimum.
+                break;
+            }
+            if (participates) {
+                break;
             }
         }
         if (!participates) {
