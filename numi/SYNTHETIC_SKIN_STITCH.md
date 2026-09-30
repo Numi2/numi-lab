@@ -1481,3 +1481,91 @@ archive rejection logs have SHA-256 values
 and `cd4cde005c6502e570d0c1d810205a775e91dbca679fda2c3624de7023db130c`.
 The accepted puncture checkpoint SHA-256 is
 `513f41761ef3cd42fd9c62a0b8f6542a4e9987a57abd3e281674ce0ddb6e9faf`.
+
+### Warm robot puncture continuation and grouped cadence
+
+The accepted step-1870 puncture now writes its own compact rigid-contact
+sidecar, so a subsequent process can restore the same jaw manifolds. A
+four-microstep continuation from that checkpoint retained 4/6 warm-started
+jaw contacts, the accepted puncture channel, all 46,080 tetrahedra, zero
+removed mass, zero failed steps, a qualified grasp and rod, and a maximum
+0.001118 m/s MetalWorld normal residual. It advanced the held tip another
+0.1283 um over 0.25 ms of modeled time at 3,748.626 ms GPU. No new tip
+contact or tissue impulse occurred during those four steps, and the needle
+remained 18.431 um from the closest tissue node; this is sustained early
+puncture-state control, not passage through the skin. Its step-1874 Matter
+checkpoint restored byte-exactly. The accepted puncture sidecar, four-step
+continuation log, checkpoint, and restore log SHA-256 values are
+`e48012d195acc63cf2e48ad4f9d62128c2bef5a49f7c05300bf29d558909ca02`,
+`c608157928a7125b537a85c54a541c88931af421adb8ddfadaea2605e143ec77`,
+`04c3b7817ea5370295c99e8950c40462cfc6d65ec2c4d724762901f76313a14c`,
+and `62cfa0f22f4bfa707f8871129574389525e3caa0c8b73fe46cc48e34906b7391`.
+
+On that same starting checkpoint, 16+8 contact sweeps reduced GPU time to
+3,663.473 ms (2.3 percent) while retaining the grasp and a 0.001685 m/s
+maximum normal residual below the 0.002 m/s screen. An 8+4 trial took
+3,557.612 ms but its 0.002505 m/s residual failed that screen. The probe
+now classifies a puncture with a failed residual screen as a transient even
+when its jaw-kinematics gate passes; the 8+4 checkpoint must not be treated
+as qualified. The two trial log SHA-256 values are
+`8ecbe28619f68f899f5cda84a129b082104ed02b591db7a094809b96cde161f9`
+and `0546956fc0b7c29c056ae97468349241ae4cde019a363acad8f1282abcbdee5a`.
+
+An opt-in `--robot-puncture-cadence` groups 2, 4, 8, or 16 base microsteps
+into one full-Newton coupled control step, restricted to an accepted
+puncture checkpoint with its exact rigid-contact sidecar. From step 1870,
+the grouped-4 trial covered the same 0.25 ms as the four separate base
+steps at 1,143.572 ms GPU, a 3.28x paired throughput gain. It retained the
+same 4/6 jaw contacts, qualified grasp and rod, one channel, 46,080 tets,
+zero failed steps, and a 0.000458 m/s maximum normal residual. Tip advance
+was 0.1266 um versus 0.1283 um in the four-step reference. The grouped-8
+trial covered 0.5 ms at 1,332.906 ms GPU, retaining the same physical gates
+and a 0.000452 m/s maximum normal residual. Its step-1878 Matter checkpoint
+restored byte-exactly. These are two bounded continuations, not a measured
+100x full stitch. Their run-log SHA-256 values are
+`58f5e45c1bc04848671eca90d2701e824d35efdb8f2c4a15ff8ea3d2623ee6f8`
+and `160cf4966eb4f31134ff74cc9e193afac1a44d31e5a68305acb40bf975d84bee`;
+the grouped-8 checkpoint and restore-log values are
+`fd3575cf5e6ac569e6ca8c36accc813d8ff8261b3198ff7f2265483a534a788f`
+and `3069e45bb9b726899543a295258c2e3dbd4c64fd12e25301276af600c39490c5`.
+
+The grouped-8 continuation also passed with an opt-in one-Newton Matter
+budget. On the same checkpoint and 0.5 ms horizon, GPU time fell from
+1,332.906 to 676.968 ms (1.97x), while the 4/6 warm jaw contacts,
+qualified grasp and rod, one active puncture channel, all 46,080 tets,
+zero failed steps, and 0.000452 m/s maximum contact residual remained.
+The Matter maximum residual was 2.328e-6 versus 1.626e-6 with seven
+Newton passes; both were accepted by the live solver, and the resulting
+step-1878 checkpoint restored byte-exactly. The tip advanced 0.2732 um,
+but there was no new tip impulse or tissue reaction in this continuation.
+This run and the four-base-microstep reference imply about 11.1x
+simulated-time throughput for this short post-puncture segment, with a
+different numerical trajectory and twice the modeled horizon. It is not
+a full-stitch speedup or evidence of passage through the skin. The run,
+checkpoint, and restore-log SHA-256 values are
+`73985f080f1dd25fd9017f3696fe8c3dd25e268839fc661d85300db490399d41`,
+`c5aacc99195dcb017456e44ab8edaf942add5817d6aea27fcc52f93a47153319`,
+and `5846a2dfb783dd3c12d78503a2fa15a1552b8a57d46560f3d4f023e919b5b86d`.
+
+At grouped cadence 16, the same step-1870 starting state advanced 1 ms.
+Seven Newton passes took 1,745.470 ms GPU; the opt-in single pass took
+1,099.454 ms GPU (1.59x faster). Both retained one active channel, all
+46,080 tets, zero removed mass and failed steps, a qualified robot grasp
+and rod, and a 0.000417 m/s maximum normal residual. The one-pass step
+advanced the tip 0.7839 um to 17.314 um modeled node clearance, with no
+new tip impulse or reaction. Its Matter residual was 2.329e-6 versus
+1.627e-6 with seven passes; its step-1886 checkpoint restored byte-exactly.
+Compared with four separate base microsteps, the one-pass grouped-16
+setting has about 13.6x simulated-time throughput for this **early**
+post-puncture state. It has not been tested at the next load-bearing skin
+contact or over a complete stitch. The one-pass run, checkpoint, restore,
+and seven-pass paired-run SHA-256 values are
+`ae54404af1c552f13e536c66a70d272a49d509d0ddfa3802af0c9e1bf44f1f2d`,
+`362b2493b852c010ea37d42cdaa69a86133f9fb6ec8237af4929f9a68a058433`,
+`75d08f1321e86efad2cbace395c49aedf9322e83924a5447fc4b8d551570e33c`,
+and `7fd0ba1b63b39669ceccf2833ab482a427a3a4460eacdf27584a63951f207287`.
+The next performance gate is a source-matched continuation from step 1886
+into renewed tip loading, with cadence reduced when the contact and tissue
+certificates require it. The present 13.6x segment result cannot be
+extrapolated across penetration, thread pull-through, the opposing bite,
+or wound closure; those stages still need executed trajectories and timings.

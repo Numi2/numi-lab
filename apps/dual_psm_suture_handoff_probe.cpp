@@ -151,6 +151,7 @@ constexpr std::uint32_t kRobotFirstBitePunctureMicrostepCadence = 1u;
 constexpr std::uint32_t kRobotFirstBitePunctureEntrySteps = 1u;
 constexpr std::uint32_t kRobotFirstBitePunctureContinueSteps = 4u;
 constexpr double kRobotFirstBitePunctureMicrostepSpeedMps = 1.0e-3;
+constexpr double kRobotFirstBitePunctureNormalResidualLimitMps = 2.0e-3;
 // The pre-contact 12-step run reaches the same published MetalWorld state
 // with two Newton passes as with the cooked seven; one pass changes the
 // robot/thread state and is opt-in only for the guarded 64x free approach.
@@ -7117,6 +7118,10 @@ struct Arguments {
     bool syntheticSkin = false;
     bool robotContactBrake = false;
     bool robotFastOneNewton = false;
+    bool robotPunctureOneNewton = false;
+    std::uint32_t robotPunctureCadence =
+        kRobotFirstBitePunctureMicrostepCadence;
+    bool robotPunctureCadenceProvided = false;
     std::filesystem::path stateOutputDirectory;
     std::filesystem::path resumeRigidContactCachePath;
     std::string resumeTissueCheckpointPhase;
@@ -7390,6 +7395,29 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
                 "--robot-fast-one-newton specified twice"
             );
             result.robotFastOneNewton = true;
+        } else if (argument == "--robot-puncture-one-newton") {
+            require(
+                !result.robotPunctureOneNewton,
+                "--robot-puncture-one-newton specified twice"
+            );
+            result.robotPunctureOneNewton = true;
+        } else if (argument == "--robot-puncture-cadence") {
+            require(
+                !result.robotPunctureCadenceProvided && index + 1 < argc,
+                "--robot-puncture-cadence requires exactly one multiplier"
+            );
+            const std::string value{argv[++index]};
+            std::size_t consumed = 0u;
+            const unsigned long parsed = std::stoul(value, &consumed);
+            require(
+                consumed == value.size() &&
+                    (parsed == 2u || parsed == 4u ||
+                     parsed == 8u || parsed == 16u),
+                "robot puncture cadence must be 2, 4, 8, or 16"
+            );
+            result.robotPunctureCadence =
+                static_cast<std::uint32_t>(parsed);
+            result.robotPunctureCadenceProvided = true;
         } else if (argument == "--state-output-dir") {
             require(
                 result.stateOutputDirectory.empty() && index + 1 < argc,
@@ -8060,9 +8088,28 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             (result.syntheticSkin &&
              result.mode ==
                  "--tissue-robot-first-bite-puncture-microstep-only" &&
-             result.resumeTissueCheckpointPhase ==
-                 "tissue-robot-first-bite-contact"),
+             (result.resumeTissueCheckpointPhase ==
+                  "tissue-robot-first-bite-contact" ||
+              result.resumeTissueCheckpointPhase ==
+                  "tissue-robot-first-bite-puncture-transient" ||
+              result.resumeTissueCheckpointPhase ==
+                  "tissue-robot-first-bite-puncture")),
         "rigid contact cache resume requires the synthetic-skin puncture microstep"
+    );
+    require(
+        !result.robotPunctureCadenceProvided ||
+            (result.syntheticSkin &&
+             result.mode ==
+                 "--tissue-robot-first-bite-puncture-microstep-only" &&
+             result.resumeTissueCheckpointPhase ==
+                 "tissue-robot-first-bite-puncture" &&
+             !result.resumeRigidContactCachePath.empty()),
+        "grouped robot puncture requires an accepted puncture checkpoint and its rigid contact cache"
+    );
+    require(
+        !result.robotPunctureOneNewton ||
+            result.robotPunctureCadenceProvided,
+        "one-Newton puncture requires a grouped accepted puncture continuation"
     );
     require(
         (result.mode != "--tissue-robot-first-bite-continue-only" &&
@@ -8084,8 +8131,10 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             result.resumeTissueCheckpointPhase ==
                 "tissue-robot-first-bite-contact" ||
             result.resumeTissueCheckpointPhase ==
-                "tissue-robot-first-bite-puncture-transient",
-        "robot microstep puncture requires tip-contact or transient puncture checkpoint"
+                "tissue-robot-first-bite-puncture-transient" ||
+            result.resumeTissueCheckpointPhase ==
+                "tissue-robot-first-bite-puncture",
+        "robot microstep puncture requires tip-contact or puncture checkpoint"
     );
     require(
         result.mode != "--tissue-receiver-bridge-resume-only" ||
@@ -17208,12 +17257,14 @@ int main(const int argc, const char* const argv[]) {
                         : kRobotFirstBiteContactAdvanceSteps;
                 } else if (tissueRobotFirstBitePunctureMicrostepOnly) {
                     robotApproachCadence =
-                        kRobotFirstBitePunctureMicrostepCadence;
+                        options.robotPunctureCadence;
                     robotApproachSteps =
-                        options.resumeTissueCheckpointPhase ==
-                            "tissue-robot-first-bite-puncture-transient"
-                        ? kRobotFirstBitePunctureContinueSteps
-                        : kRobotFirstBitePunctureEntrySteps;
+                        options.robotPunctureCadenceProvided
+                        ? 1u
+                        : (options.resumeTissueCheckpointPhase ==
+                            "tissue-robot-first-bite-contact"
+                            ? kRobotFirstBitePunctureEntrySteps
+                            : kRobotFirstBitePunctureContinueSteps);
                 }
                 require(
                     tissueRuntime.setCoupledTimestepMultiplier(
@@ -17230,7 +17281,8 @@ int main(const int argc, const char* const argv[]) {
                 const std::uint32_t robotApproachNewtonBudget =
                     (tissueRobotFirstBiteContactApproachOnly ||
                      robotContactProbe)
-                        ? NM_MIXED_NEWTON_ITERATIONS
+                        ? (options.robotPunctureOneNewton
+                            ? 1u : NM_MIXED_NEWTON_ITERATIONS)
                         : (options.robotFastOneNewton
                             ? 1u
                             : kRobotFirstBiteContinueNewtonBudget);
@@ -17490,8 +17542,12 @@ int main(const int argc, const char* const argv[]) {
                         contactStepResiduals << ',';
                     }
                     contactStepResiduals << contact.residuals.y;
-                    if (static_cast<double>(contact.residuals.y) >
-                        maximumContactNormalResidual) {
+                    if (!std::isfinite(contact.residuals.y)) {
+                        maximumContactNormalResidual =
+                            std::numeric_limits<double>::infinity();
+                        maximumContactResidualStep = contactStepIndex;
+                    } else if (static_cast<double>(contact.residuals.y) >
+                               maximumContactNormalResidual) {
                         maximumContactNormalResidual = contact.residuals.y;
                         maximumContactResidualStep = contactStepIndex;
                     }
@@ -17656,6 +17712,8 @@ int main(const int argc, const char* const argv[]) {
                     << " steps=" << robotApproachSteps
                     << " contact_brake=" << options.robotContactBrake
                     << " fast_one_newton=" << options.robotFastOneNewton
+                    << " puncture_one_newton="
+                    << options.robotPunctureOneNewton
                     << " base_der_substeps="
                     << robotApproachSteps *
                         stepConfig.physicsSubsteps
@@ -17752,9 +17810,13 @@ int main(const int argc, const char* const argv[]) {
                     )
                     << '\n';
                 const bool terminalGrasp = qualifiedDrivenGrasp(grip);
+                const bool qualifiedPunctureContact =
+                    std::isfinite(maximumContactNormalResidual) &&
+                    maximumContactNormalResidual <=
+                        kRobotFirstBitePunctureNormalResidualLimitMps;
                 const bool transientPuncture =
                     robotContactProbe && channels > 0u &&
-                    !terminalGrasp &&
+                    (!terminalGrasp || !qualifiedPunctureContact) &&
                     grip.seatDrift <= kMaximumQualifiedGraspSeatDrift &&
                     std::isfinite(grip.relativePointSpeed) &&
                     std::isfinite(grip.relativeAngularSpeed);
@@ -17807,30 +17869,31 @@ int main(const int argc, const char* const argv[]) {
                             tissueWorld.mixedSolver.residualTolerances.x,
                     "resumed robot approach lost its grip, thread, or skin authority"
                 );
+                const std::string_view acceptedPhase =
+                    robotContactProbe
+                    ? (channels == 0u
+                        ? "tissue-robot-first-bite-contact"
+                        : (transientPuncture
+                            ? "tissue-robot-first-bite-puncture-transient"
+                            : "tissue-robot-first-bite-puncture"))
+                    : "tissue-robot-first-bite-approach";
+                const std::uint64_t acceptedStateStep =
+                    resumedTissueCheckpointStep +
+                    robotApproachSteps * stepConfig.physicsSubsteps;
                 writeHandoffStateArtifact(
                     options.stateOutputDirectory,
-                    robotContactProbe
-                        ? (channels == 0u
-                            ? "tissue-robot-first-bite-contact"
-                            : (transientPuncture
-                                ? "tissue-robot-first-bite-puncture-transient"
-                                : "tissue-robot-first-bite-puncture"))
-                        : "tissue-robot-first-bite-approach",
-                    resumedTissueCheckpointStep +
-                        robotApproachSteps *
-                            stepConfig.physicsSubsteps,
+                    acceptedPhase,
+                    acceptedStateStep,
                     world,
                     sutureSpec,
                     driven.result,
                     &matter
                 );
-                if (options.robotContactBrake && channels == 0u) {
+                if (robotContactProbe) {
                     writeRigidContactCacheArchive(
                         options.stateOutputDirectory,
-                        "tissue-robot-first-bite-contact",
-                        resumedTissueCheckpointStep +
-                            robotApproachSteps *
-                                stepConfig.physicsSubsteps,
+                        acceptedPhase,
+                        acceptedStateStep,
                         driven.result
                     );
                 }
@@ -17838,8 +17901,11 @@ int main(const int argc, const char* const argv[]) {
                     ? (channels == 0u
                         ? "robot_first_bite_entry_contact=ok\n"
                         : (transientPuncture
-                            ? "robot_first_bite_puncture_transient=accepted_physics_unqualified_grasp\n"
-                            : "robot_first_bite_entry_puncture=ok\n"))
+                            ? "robot_first_bite_puncture_transient=accepted_physics_unqualified_contact_or_grasp\n"
+                            : (options.resumeTissueCheckpointPhase ==
+                                   "tissue-robot-first-bite-contact"
+                                ? "robot_first_bite_entry_puncture=ok\n"
+                                : "robot_first_bite_puncture_continuation=ok\n")))
                     : "robot_first_bite_resumed_approach=ok\n");
                 return 0;
             }
