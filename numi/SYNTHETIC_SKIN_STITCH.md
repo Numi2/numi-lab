@@ -598,6 +598,42 @@ and `5ac95a760fbdeb14071a9e8844a90bae74af1949464dfb8fc2a2bc50d188b9ff`.
 The restored library and executable SHA-256 values match the preceding
 accepted `dafd704a...` and `b731ebd5...` binaries.
 
+The M4 supports Metal timestamp counters at compute-stage boundaries, even
+though it does not support dispatch-boundary counters. A temporary native
+counter probe read shared samples after completion and split the 16x,
+one-Newton post-entry step by encoded MetalWorld substep stage. For the first
+15 substeps, median GPU times were 0.390 ms before the rod, 3.631 ms in
+the rod stage, 116.928 ms in the contact stage, and 0.417 ms after contact.
+The final substep measured 338.455 ms before the rod, including the coupled
+Matter work, and 160.414 ms in contact, including its 16 extra final solver
+iterations. The instrumented total was 2,330.238 ms versus 2,324.739 ms
+for the earlier uninstrumented run, a 0.24% difference. Its log SHA-256 is
+`418c497373e8544224bd21ae984f4e766206a45e578cdb4f34b18dd0cf174427`.
+
+A post-entry-only diagnostic then reduced MetalWorld's 32 velocity iterations
+plus 16 final iterations to 16 plus zero, and to one plus zero. The same
+one-step native checks passed at 1,592.598 and 943.778 ms GPU; median
+contact-stage time across the first 15 substeps fell to 73.667 and
+33.050 ms. The one-iteration result is 58.986 ms per base-equivalent step,
+or 57.2x simulated-time throughput against the original 3,375.995 ms 1x
+run, still 1.75x slower than its 100x target. These diagnostics changed
+the swage and strand fields and tested only one post-entry step; they do
+not qualify the robot grip, load-bearing contact, whole stitch, or a 100x
+end-to-end improvement. The 16- and one-iteration log SHA-256 values are
+`b9204745c21808bf7507fe6464b724283df1c8ee36c066321f6a28c79d646c2f`
+and `c4078aba976e143c2f1d8912f617851af6673d21c09d94b9c91316ef2558d434`.
+
+The scene reserves 61,296 contact constraints, 20 island-work slots, and
+1,917 tile-work slots. Suppressing the distributed spill branch in one
+diagnostic run did not improve total GPU time; an exact-zero impulse-delta
+early exit in the Wave32 loop also gave no measurable gain. Both trial
+changes and all counter instrumentation were removed. The accepted linked
+library and executable SHA-256 values were restored to
+`dafd704ac5a81a7437666632560913002495bd9c7fa0c0fc57723efc83bfb671`
+and `b731ebd51eb3aa4b314b4c32caf49fcd73f8cbf6c4e146bd7532b7f62a07c0a0`.
+The next solver change needs to reduce the cost per Wave32 iteration while
+retaining its final contact residual and rollback gates.
+
 The stronger 75 um jaw-preload trial from robot contact step 1645 also
 remains unqualified. A 13 ms ramp at 1 mm/s preserved Matter's 46,080
 tets and zero failures but drifted 212 um at the needle seat. A 6 ms
