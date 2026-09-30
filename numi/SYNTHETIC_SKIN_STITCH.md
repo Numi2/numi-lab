@@ -1898,7 +1898,7 @@ advanced the needle tip 40.216 um against 3.997 um planned. The previous
 For puncture microsteps, the guard now caps advancement at twice planned
 advance plus 1 um; the 32-substep run is rejected, while the accepted
 64-substep speedup above still passes. This rules out the apparent
-substep speedup at this state. Four focused static-equilibrium, checkpoint,
+*unscaled-cache* substep speedup at this state. Four focused static-equilibrium, checkpoint,
 synthetic-puncture, and cadence-transition CTests passed after rebuilding.
 The 100x whole-stitch target remains open.
 
@@ -1914,3 +1914,61 @@ and `ac08fc1eb0a1a8fd4c5749e366a5a1fcb41d9e4daf48c20c1e10a7341b122a0a`.
 The rejected 32-substep log is
 `build-skin-wound/skin-robot-second-channel-rigid32-strict4ms.log`
 (SHA-256 `790b8434f2dd266545010b259eb9fe735118d24a3c2d1a0809865d14c3d63b13`).
+
+### Timestep-aware contact-cache continuation
+
+The rejected 32-rigid-substep run resumed contact impulses produced at
+62.5 us per rigid substep, then applied them at 125 us per substep.
+Discarding the warm start made the tip jump 92.260 um and lost the grasp.
+Scaling the cached normal, tangential, and rolling impulses by the ratio
+of new to old rigid timestep restored the commanded motion and qualified
+grasp. The cache archive now records this rigid timestep multiplier in a
+hashed `NUMIMF03` header; legacy `NUMIMF02` archives remain readable as
+multiplier one. Transitioning from multiplier one to two scales impulses
+by two; continuing at two leaves them unchanged; returning to one scales
+them by one half. A copy with only its multiplier altered was rejected by
+the archive content hash before advancing physics.
+
+On one rebuilt binary (SHA-256
+`52c9d2683bc379fc2a07bb6db316167e19962eafff9aadefd13ba259a7e76e0c`),
+a matched **single-submission 8 ms** test from the exact step-4350
+checkpoint took 8,592.792 ms GPU at 64 rigid substeps per 4 ms, seven
+Matter Newton passes, and 32/16 contact iterations. With 32 rigid
+substeps per 4 ms, one Newton pass, and 12/6 contact iterations, it took
+2,313.979 ms GPU: **3.71x faster** on this accepted held-needle segment.
+Both preserved the robot grasp and rod, two connected physics-triggered
+channels, all 46,080 tets, zero failed steps, and byte-exact final
+checkpoint restore. The faster path's maximum contact normal residual
+was 0.001770 m/s, below the 0.002 m/s screen; its needle tip advanced
+9.928 um versus 7.994 um planned. Both paths reported zero new tip impulse,
+tissue reaction, and displacement. This is an unloaded channel-transit
+comparison, not a load-bearing puncture or whole-stitch speedup.
+
+The same 12/6 fast setting failed the next 8 ms block with a 0.004275 m/s
+peak contact residual; its exit-zero transient checkpoint is not accepted.
+Even 32/16 iterations missed at 0.002295 m/s on the first 4 ms step.
+Raising the contact budget to 64/32 for that step passed at 0.000932 m/s;
+the following 4 ms step passed at 32/16 and 0.000613 m/s. The resulting
+**16 ms accepted continuation** has two connected channels, all tets,
+qualified grasp and rod, and a byte-exact step-4478 restore. Its total
+GPU time from step 4350 is 2,313.979 + 3,137.991 + 1,932.728 =
+7,384.698 ms. This longer route has no source-matched 16 ms full-budget
+comparison and no new tissue reaction, so no 16 ms speedup or through-wall
+claim follows. A 16-rigid-substep single step also passed its terminal
+screen but ended beyond the next puncture step's skin-entry band; it is
+not a validated continuing schedule. Four focused CTests passed on the
+MF03 binary. The 100x whole-stitch target remains open.
+
+The paired 8 ms baseline and fast logs have SHA-256
+`23944ed6e5f538e2f5e016b4d1beeb4b83281329b9986e8fc83d65ee2e9183b9`
+and `89d6df509e7219e359814e9a76d50fce1bcf96827af9370c0d3c4ebb55ae5e47`.
+The fast 8 ms checkpoint and restore log are
+`f8b09838d9bd7b06d9521e585205abd06ba8665e07b3a7f36dd6e062fe4e188c`
+and `147611cda5a5a5af4e65c0f8ae94876748babc0012218f1290580172cb3acdee`.
+The rejected second fast block, accepted 64/32 step, and accepted next
+32/16 step logs are `090ce23ee22a119998003e2faf535655b033f07138e9f94eaf46d543a11f88fe`,
+`dd5745d499d098056eeb11af79c11781ce00f0c65313350b170617fa0fc1525d`,
+and `6c70bf4df5e7d1263736ec3cca92bb006824d210a008000bd3497c20196c0d2d`.
+The final step-4478 checkpoint and restore log are
+`5f8d90668478be39075f2c02ba5803b7ece1b0eb78be811ccd01fb7b0a187a88`
+and `e4b09ce68ff4f3dd1b6499966b2423a1d824c73bca2018212eaf2670b97dc04e`.

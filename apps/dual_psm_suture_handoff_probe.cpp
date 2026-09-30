@@ -9327,14 +9327,16 @@ struct RigidContactCacheArchive {
     std::vector<MRManifoldHeaderGPU> headers;
     std::vector<MRManifoldPointGPU> points;
     std::vector<std::uint32_t> counts;
+    std::uint32_t rigidTimestepMultiplier = 1u;
 };
 
 struct RigidContactCacheArchiveHeader {
-    std::array<char, 8u> magic{'N', 'U', 'M', 'I', 'M', 'F', '0', '2'};
+    std::array<char, 8u> magic{'N', 'U', 'M', 'I', 'M', 'F', '0', '3'};
     std::uint32_t headerBytes = sizeof(RigidContactCacheArchiveHeader);
     std::uint32_t manifoldHeaderBytes = sizeof(MRManifoldHeaderGPU);
     std::uint32_t manifoldPointBytes = sizeof(MRManifoldPointGPU);
-    std::uint32_t reserved = 0u;
+    // Zero was reserved in MF02. MF03 hashes the rigid substep time scale.
+    std::uint32_t rigidTimestepMultiplier = 1u;
     std::uint64_t checkpointContentHash = 0u;
     std::uint64_t stateStep = 0u;
     std::uint64_t headerCount = 0u;
@@ -9365,7 +9367,8 @@ std::uint64_t handoffCheckpointContentHash(
 std::uint64_t rigidContactCacheHash(
     const RigidContactCacheArchive& archive,
     const std::uint64_t checkpointContentHash,
-    const std::uint64_t stateStep
+    const std::uint64_t stateStep,
+    const std::uint32_t rigidTimestepMultiplier = 0u
 ) {
     require(
         archive.counts.size() == 1u &&
@@ -9394,6 +9397,12 @@ std::uint64_t rigidContactCacheHash(
         activeCount * MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY *
             sizeof(MRManifoldPointGPU)
     );
+    if (rigidTimestepMultiplier != 0u) {
+        appendStateHash(
+            hash, &rigidTimestepMultiplier,
+            sizeof(rigidTimestepMultiplier)
+        );
+    }
     return hash;
 }
 
@@ -9401,7 +9410,8 @@ void writeRigidContactCacheArchive(
     const std::filesystem::path& directory,
     const std::string_view phase,
     const std::uint64_t stateStep,
-    const metalrobo::MetalWorldResult& result
+    const metalrobo::MetalWorldResult& result,
+    const std::uint32_t rigidTimestepMultiplier
 ) {
     if (directory.empty()) {
         return;
@@ -9410,6 +9420,7 @@ void writeRigidContactCacheArchive(
         .headers = result.contactEvidence.manifoldHeaders,
         .points = result.contactEvidence.manifoldPoints,
         .counts = result.contactEvidence.manifoldCounts,
+        .rigidTimestepMultiplier = rigidTimestepMultiplier,
     };
     require(
         !archive.counts.empty() &&
@@ -9424,6 +9435,14 @@ void writeRigidContactCacheArchive(
         "rigid contact cache evidence is incomplete"
     );
     RigidContactCacheArchiveHeader header;
+    require(
+        rigidTimestepMultiplier >= 1u &&
+            rigidTimestepMultiplier <= 64u &&
+            (rigidTimestepMultiplier &
+             (rigidTimestepMultiplier - 1u)) == 0u,
+        "rigid contact cache has invalid timestep multiplier"
+    );
+    header.rigidTimestepMultiplier = rigidTimestepMultiplier;
     header.checkpointContentHash = handoffCheckpointContentHash(
         directory / (std::string{phase} + ".tsv")
     );
@@ -9433,7 +9452,8 @@ void writeRigidContactCacheArchive(
     header.countCount = archive.counts.size();
     header.activeManifoldCount = archive.counts[0u];
     header.contentHash = rigidContactCacheHash(
-        archive, header.checkpointContentHash, stateStep
+        archive, header.checkpointContentHash, stateStep,
+        rigidTimestepMultiplier
     );
     const std::filesystem::path path = directory /
         (std::string{phase} + "-rigid-contact-cache.bin");
@@ -9465,6 +9485,8 @@ void writeRigidContactCacheArchive(
     std::cout << "rigid_contact_cache_archive=ok"
         << " path=" << path.string()
         << " manifolds=" << archive.counts[0u]
+        << " rigid_timestep_multiplier="
+        << rigidTimestepMultiplier
         << " content_hash=" << header.contentHash << '\n';
 }
 
@@ -9485,14 +9507,23 @@ RigidContactCacheArchive readRigidContactCacheArchive(
     input.seekg(0);
     RigidContactCacheArchiveHeader header;
     input.read(reinterpret_cast<char*>(&header), sizeof(header));
+    const std::array<char, 8u> legacyMagic{
+        'N', 'U', 'M', 'I', 'M', 'F', '0', '2'
+    };
+    const bool legacy = header.magic == legacyMagic;
     require(
         input.good() &&
-            header.magic ==
-                RigidContactCacheArchiveHeader{}.magic &&
+            (legacy || header.magic ==
+                RigidContactCacheArchiveHeader{}.magic) &&
             header.headerBytes == sizeof(header) &&
             header.manifoldHeaderBytes == sizeof(MRManifoldHeaderGPU) &&
             header.manifoldPointBytes == sizeof(MRManifoldPointGPU) &&
-            header.reserved == 0u &&
+            (legacy
+                ? header.rigidTimestepMultiplier == 0u
+                : header.rigidTimestepMultiplier >= 1u &&
+                    header.rigidTimestepMultiplier <= 64u &&
+                    (header.rigidTimestepMultiplier &
+                     (header.rigidTimestepMultiplier - 1u)) == 0u) &&
             header.checkpointContentHash ==
                 handoffCheckpointContentHash(checkpointPath) &&
             header.stateStep == stateStep &&
@@ -9515,6 +9546,8 @@ RigidContactCacheArchive readRigidContactCacheArchive(
         "rigid contact cache archive does not match the checkpoint or ABI"
     );
     RigidContactCacheArchive archive;
+    archive.rigidTimestepMultiplier = legacy
+        ? 1u : header.rigidTimestepMultiplier;
     archive.headers.resize(header.headerCount);
     archive.points.resize(header.pointCount);
     archive.counts.resize(header.countCount);
@@ -9536,12 +9569,15 @@ RigidContactCacheArchive readRigidContactCacheArchive(
         input.good() &&
             archive.counts[0u] == header.activeManifoldCount &&
             rigidContactCacheHash(
-                archive, header.checkpointContentHash, stateStep
+                archive, header.checkpointContentHash, stateStep,
+                legacy ? 0u : header.rigidTimestepMultiplier
             ) == header.contentHash,
         "rigid contact cache archive content hash is mismatched"
     );
     std::cout << "rigid_contact_cache_restore=ok"
         << " manifolds=" << archive.counts[0u]
+        << " rigid_timestep_multiplier="
+        << archive.rigidTimestepMultiplier
         << " content_hash=" << header.contentHash << '\n';
     return archive;
 }
@@ -17680,6 +17716,36 @@ int main(const int argc, const char* const argv[]) {
                         options.resumeTissueCheckpointPath,
                         resumedTissueCheckpointStep
                     );
+                    const std::uint32_t rigidTimestepMultiplier =
+                        robotApproachCadence /
+                        stepConfig.physicsSubsteps;
+                    if (initialContactCache->rigidTimestepMultiplier !=
+                        rigidTimestepMultiplier) {
+                        const float impulseScale =
+                            static_cast<float>(rigidTimestepMultiplier) /
+                            static_cast<float>(initialContactCache->
+                                rigidTimestepMultiplier);
+                        const std::size_t activePoints =
+                            static_cast<std::size_t>(
+                                initialContactCache->counts.at(0u)) *
+                            MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY;
+                        for (std::size_t index = 0u;
+                             index < activePoints; ++index) {
+                            MRManifoldPointGPU& point =
+                                initialContactCache->points[index];
+                            point.impulses.x *= impulseScale;
+                            point.impulses.y *= impulseScale;
+                            point.impulses.z *= impulseScale;
+                            point.impulses.w *= impulseScale;
+                        }
+                        std::cout << "rigid_contact_cache_impulse_scale="
+                            << impulseScale
+                            << " source_multiplier="
+                            << initialContactCache->
+                                rigidTimestepMultiplier
+                            << " target_multiplier="
+                            << rigidTimestepMultiplier << '\n';
+                    }
                 }
                 metalrobo::MetalWorldContext context;
                 metalrobo::MetalWorldResidentState resident;
@@ -18236,7 +18302,9 @@ int main(const int argc, const char* const argv[]) {
                         options.stateOutputDirectory,
                         acceptedPhase,
                         acceptedStateStep,
-                        driven.result
+                        driven.result,
+                        robotApproachCadence /
+                            stepConfig.physicsSubsteps
                     );
                 }
                 std::cout << (robotContactProbe
