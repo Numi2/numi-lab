@@ -7170,6 +7170,7 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             argument == "--tissue-curved-pull-through-only" ||
             argument == "--tissue-opposing-bite-topology-only" ||
             argument == "--tissue-robot-first-bite-ik-only" ||
+            argument == "--tissue-robot-first-bite-grip-only" ||
             argument == "--tissue-receiver-state-bridge-only" ||
             argument == "--tissue-receiver-bridge-resume-only" ||
             argument == "--tissue-receiver-alignment-replay-only" ||
@@ -9304,9 +9305,12 @@ int main(const int argc, const char* const argv[]) {
             tissueSutureEntryOnly || tissueSutureCadenceOnly;
         const bool tissueCurvedPullThroughOnly =
             options.mode == "--tissue-curved-pull-through-only";
+        const bool tissueRobotFirstBiteGripOnly =
+            options.mode == "--tissue-robot-first-bite-grip-only";
         const bool tissueOpposingBiteTopologyOnly =
             options.mode == "--tissue-opposing-bite-topology-only" ||
-            options.mode == "--tissue-robot-first-bite-ik-only";
+            options.mode == "--tissue-robot-first-bite-ik-only" ||
+            tissueRobotFirstBiteGripOnly;
         const bool tissueReceiverStateBridgeOnly =
             options.mode == "--tissue-receiver-state-bridge-only";
         const bool tissueReceiverAlignmentReplayOnly =
@@ -9354,6 +9358,7 @@ int main(const int argc, const char* const argv[]) {
         const bool tissueSutureContactOnly =
             tissueSutureEntryContactOnly || tissueSuturePassageOnly ||
             tissueCurvedPullThroughOnly ||
+            tissueRobotFirstBiteGripOnly ||
             tissueReceiverLiveSequence;
         const bool receiverFrameIkOnly =
             options.mode == "--receiver-frame-ik-only";
@@ -15594,8 +15599,9 @@ int main(const int argc, const char* const argv[]) {
                         : kPunctureApproachSpeedMps)
                 : Vec3{};
             Vec3 initialNeedleAngularVelocity{};
-            if (tissuePunctureAdvanceOnly || tissueCurvedPassageOnly ||
-                tissueSutureEntryContactOnly) {
+            if ((tissuePunctureAdvanceOnly || tissueCurvedPassageOnly ||
+                 tissueSutureEntryContactOnly) &&
+                !tissueRobotFirstBiteGripOnly) {
                 require(
                     world.sceneBodyIndices[0] < world.model.bodies.size(),
                     "needle scene body has no compiled model owner"
@@ -15625,8 +15631,19 @@ int main(const int argc, const char* const argv[]) {
                     world.defaultSceneBodies[0],
                     *tissueNeedleOrbit,
                     0.0,
-                    tissueNeedleAngularSpeedRadPerS
+                    tissueRobotFirstBiteGripOnly
+                        ? 0.0 : tissueNeedleAngularSpeedRadPerS
                 );
+                if (tissueRobotFirstBiteGripOnly) {
+                    MRBodyStateGPU& freeNeedle =
+                        world.defaultSceneBodies[0];
+                    freeNeedle.linearVelocityAndInverseMass.w =
+                        authoredDynamicNeedleProperties.massAndInverseMass.y;
+                    updateNeedleInverseInertia(
+                        authoredDynamicNeedleProperties,
+                        freeNeedle
+                    );
+                }
                 initialNeedleVelocity = vector(
                     world.defaultSceneBodies[0]
                         .linearVelocityAndInverseMass
@@ -15644,18 +15661,20 @@ int main(const int argc, const char* const argv[]) {
                     drivenTip.worldTip -
                         vector(world.defaultSceneBodies[0].position)
                 );
-                require(
-                    std::abs(
-                        norm(terminalVelocity) -
-                        kCurvedPassageSpeedMps
-                    ) <= 2.0e-5 &&
-                        dot(
-                            terminalVelocity,
-                            drivenTip.approachDirection
-                        ) > 0.999 * norm(terminalVelocity) *
-                            norm(drivenTip.approachDirection),
-                    "curved needle orbit does not preserve terminal entry speed"
-                );
+                if (!tissueRobotFirstBiteGripOnly) {
+                    require(
+                        std::abs(
+                            norm(terminalVelocity) -
+                            kCurvedPassageSpeedMps
+                        ) <= 2.0e-5 &&
+                            dot(
+                                terminalVelocity,
+                                drivenTip.approachDirection
+                            ) > 0.999 * norm(terminalVelocity) *
+                                norm(drivenTip.approachDirection),
+                        "curved needle orbit does not preserve terminal entry speed"
+                    );
+                }
             }
             world.defaultSceneBodies[0].linearVelocityAndInverseMass.x =
                 static_cast<float>(initialNeedleVelocity.x);
@@ -15744,7 +15763,8 @@ int main(const int argc, const char* const argv[]) {
                     : 1u,
                 tissueSutureContactOnly
                     ? kSutureMatterContactSegmentCount : 0u,
-                tissueReceiverLiveSequence,
+                tissueReceiverLiveSequence ||
+                    tissueRobotFirstBiteGripOnly,
                 options.syntheticSkin,
                 tissueCoupon
             );
@@ -15861,7 +15881,8 @@ int main(const int argc, const char* const argv[]) {
                         "synthetic skin wound lost its authored open gap"
                     );
                 }
-                if (options.mode == "--tissue-robot-first-bite-ik-only") {
+                if (options.mode == "--tissue-robot-first-bite-ik-only" ||
+                    tissueRobotFirstBiteGripOnly) {
                     const MRBodyStateGPU& entryNeedle =
                         world.defaultSceneBodies.at(0u);
                     const CurvedNeedleOrbit biteOrbit = curvedNeedleOrbit(
@@ -16187,6 +16208,19 @@ int main(const int argc, const char* const argv[]) {
                         "or terminal frame or tissue-clearance limits"
                     );
                     std::cout << "robot_first_bite_ik=ok\n";
+                    if (tissueRobotFirstBiteGripOnly) {
+                        require(
+                            world.defaultSceneBodies.at(0u)
+                                    .flagsAndIndices[0] ==
+                                    MR_MOTION_DYNAMIC &&
+                                world.defaultSceneBodies.at(0u)
+                                    .linearVelocityAndInverseMass.w > 0.0f,
+                            "first-bite grip probe lost its free needle"
+                        );
+                        world.model.defaultQ = biteBeginQ;
+                        world.fingerprint =
+                            metalrobo::heterogeneousWorldFingerprint(world);
+                    }
                 }
                 std::cout << "tissue_opposing_bite_topology=ok"
                     << " contact_nodes="
@@ -16219,7 +16253,9 @@ int main(const int argc, const char* const argv[]) {
                     << " opposing_direction_probe_advance_m="
                     << opposingTipAdvanceM
                     << " gpu_dispatched=no\n";
-                return 0;
+                if (!tissueRobotFirstBiteGripOnly) {
+                    return 0;
+                }
             }
             const auto initialized = tissueRuntime.initialize(
                 tissueWorld,
@@ -16365,7 +16401,8 @@ int main(const int argc, const char* const argv[]) {
                       metalrobo::
                           MetalWorldDevicePhysicsCouplesRodNodes) != 0u) &&
                     (tissuePunctureAdvanceOnly ||
-                     tissueCurvedPassageOnly ||
+                     (tissueCurvedPassageOnly &&
+                      !tissueRobotFirstBiteGripOnly) ||
                      tissueSutureEntryContactOnly ||
                      (stepConfig.devicePhysicsProgram.flags &
                       metalrobo::
@@ -21920,6 +21957,90 @@ int main(const int argc, const char* const argv[]) {
                     }
                 }
                 throw std::runtime_error(failure);
+            }
+            if (tissueRobotFirstBiteGripOnly) {
+                const ContactCounts gripContacts = contactCounts(
+                    world,
+                    coupled.result,
+                    needleForPlacement.metadata,
+                    kNeedleFirstShape
+                );
+                const GraspReference gripReference = graspReference(
+                    world,
+                    needleForPlacement,
+                    world.model.defaultQ,
+                    world.model.defaultV,
+                    world.defaultSceneBodies.at(0u),
+                    0u,
+                    kGiverNeedleShape
+                );
+                const GraspKinematics grip = graspKinematics(
+                    world,
+                    needleForPlacement,
+                    coupled.result,
+                    0u,
+                    kGiverNeedleShape,
+                    gripReference
+                );
+                const RodStateMetrics rod = rodStateMetrics(
+                    world,
+                    coupled.result
+                );
+                const double swageErrorM = swageAttachmentError(
+                    world,
+                    coupled.result
+                );
+                const numi::matter::RuntimeStateSnapshot gripMatter =
+                    tissueRuntime.snapshot();
+                std::uint32_t activeTetrahedra = 0u;
+                for (const NMTetrahedronGPU& tetrahedron :
+                     gripMatter.femTopologyTetrahedra) {
+                    activeTetrahedra +=
+                        (tetrahedron.identity.w & NM_OBJECT_ACTIVE) != 0u;
+                }
+                const double needleDriftM = norm(
+                    vector(coupled.result.finalSceneBodies.at(0u).position) -
+                    vector(world.defaultSceneBodies.at(0u).position)
+                );
+                std::cout << std::setprecision(9)
+                    << "robot_first_bite_dynamic_grip_candidate"
+                    << " giver_jaw_contacts="
+                    << gripContacts.jawContacts[0][0] << '/'
+                    << gripContacts.jawContacts[0][1]
+                    << " giver_insert_patch_masks="
+                    << gripContacts.jawInsertPatchMasks[0][0] << '/'
+                    << gripContacts.jawInsertPatchMasks[0][1]
+                    << " receiver_jaw_contacts="
+                    << gripContacts.jawContacts[1][0] << '/'
+                    << gripContacts.jawContacts[1][1]
+                    << " needle_drift_m=" << needleDriftM
+                    << " seat_drift_m=" << grip.seatDrift
+                    << " relative_point_speed_mps="
+                    << grip.relativePointSpeed
+                    << " active_tetrahedra=" << activeTetrahedra
+                    << " hard_swage_root_error_m=" << swageErrorM
+                    << " thread_maximum_edge_error_m="
+                    << rod.maximumEdgeLengthError
+                    << " gpu_ms="
+                    << coupled.diagnostics.gpuElapsedMilliseconds
+                    << contactSummary(gripContacts) << '\n';
+                require(
+                    gripMatter.available &&
+                        activeTetrahedra ==
+                            tissueCoupon.metadata.tetrahedronCount &&
+                        bilateral(gripContacts, 0u) &&
+                        distributedInsertCoverage(gripContacts, 0u) &&
+                        cleanNeedleInteraction(
+                            gripContacts, true, false
+                        ) &&
+                        qualifiedDrivenGrasp(grip) &&
+                        qualifiedTransitionRod(rod) &&
+                        swageErrorM < kMaximumSwageAttachmentError,
+                    "dynamic first-bite reset did not seat a loaded giver "
+                    "grasp on the free needle"
+                );
+                std::cout << "robot_first_bite_dynamic_grip=ok\n";
+                return 0;
             }
             const numi::matter::RuntimeStateSnapshot snapshot =
                 tissueRuntime.snapshot();

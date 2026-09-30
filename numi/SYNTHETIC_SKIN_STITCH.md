@@ -21,6 +21,7 @@ Native M4 probe results from the build in `build-skin-wound`:
 | opposing-bite topology | 65,280 tetrahedra, 836 contact nodes, both bite targets resolved; no GPU dispatch in this mode |
 | live suture entry | four accepted contacts, one channel, thread root error 0.139 um, zero failed steps |
 | curved through-wall passage | 372 Matter groups / 1,489 DER substeps, 1.836 mm tip advance, 0.200 mm deformed distal clearance, 12 connected channels, all 65,280 tetrahedra retained, zero failed steps |
+| compact-mesh curved passage | 372 Matter groups / 1,489 DER substeps, 0.200 mm deformed distal clearance, 12 connected channels, all 46,080 tetrahedra retained, zero removed mass, zero failed steps |
 
 That long passage used the 34 x 40 x 8 baseline mesh. A 30 x 32 x 8 operative
 mesh now retains the 1.5 mm wall and 0.6 mm wound gap while reducing the
@@ -54,10 +55,16 @@ the knot-loaded gap gate itself still awaits a complete native sequence.
 The current compact-mesh probe binary SHA-256 is
 `ecd5a49555186ad1089717f2faedfbaaacbe6e3e1fb475ecb9d007f3b87e7b20`.
 A compact-mesh `--tissue-curved-pull-through-only --synthetic-skin` native run
-has been started from that binary, with output at
-`build-skin-wound/synthetic-skin-pull-through.log`. Inspect the live process
-and log before launching another Metal run; the early passage must finish
-before thread pull-through begins.
+from that binary passed the through-wall passage gate with 1,278.393 s GPU
+time and state hash `0x15382e1005422770`. The earlier full-mesh passage used
+2,149.479 s GPU time; these are single-run observations, not a general
+performance qualification. Maximum skin-node displacement in the compact
+passage was only `2.91038305e-11 m`; it establishes a resolved puncture tract,
+not a visibly deforming or cinched wound. The same process is now in thread
+pull-through,
+with output at `build-skin-wound/synthetic-skin-pull-through.log`. Inspect the
+live process and log before launching another Metal run. Its first two pull
+chunks had no strand contact and therefore do not qualify pull-through.
 The run's executable retains the SHA-256 above. A later rebuild has SHA-256
 `1993cf25e00ff2c683c6a7ea8d2db36375d5646d7c68f0f027c41ac06748c76c`;
 it adds live center-wound-gap mean and maximum measurements to pull-through
@@ -65,7 +72,12 @@ progress and final output. Those new fields will not appear in the already
 running process, and this rebuild alone is not pull-through qualification.
 The current rebuild, which also gates authored-surface clearance along the
 giver approach and first bite, has SHA-256
-`67d6c0f0aadf8884d584359d23d01b01b3c52ea78e0962ace156fcd071f31631`.
+`d7639e6f81e18c01b8f4b2e092892a444a3bbd27536ad774f2ca42a7edd187fb`.
+It adds `--tissue-robot-first-bite-grip-only --synthetic-skin`: a one-transaction
+dynamic-needle, closed-giver grasp probe with bilateral contact, insert
+coverage, swage, rod, and Matter gates. It compiles and its independent
+geometry tests pass, but the native grip mode has not run while the pull-
+through process owns the GPU. It does not yet drive the full bite.
 
 The `--tissue-robot-first-bite-ik-only --synthetic-skin` geometry probe found
 a 250-step giver approach and 185-step 5 mm/s needle-orbit path. The entry
