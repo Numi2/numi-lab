@@ -1972,3 +1972,41 @@ and `6c70bf4df5e7d1263736ec3cca92bb006824d210a008000bd3497c20196c0d2d`.
 The final step-4478 checkpoint and restore log are
 `5f8d90668478be39075f2c02ba5803b7ece1b0eb78be811ccd01fb7b0a187a88`
 and `e4b09ce68ff4f3dd1b6499966b2423a1d824c73bca2018212eaf2670b97dc04e`.
+
+### Guarded transit into the second channel
+
+The MF03 checkpoint chain continued from step 4478 through 4510, 4542,
+and 4574 with three accepted 4 ms, 32-rigid-substep, one-Newton,
+32/16-contact steps. At step 4574 the tip was 3.987 um from the first
+channel's distal end and 6.776 um before the second channel's proximal
+end. Two full-budget 4 ms steps then crossed those boundaries: at step
+4702 the tip was 1.011 um inside the second channel. Another accepted
+4 ms, 32-rigid-substep, one-Newton, 12/6-contact step reached step 4734,
+with the tip 4.785 um inside. Every step retained a qualified grasp and
+rod, both connected channels, all 46,080 tets, zero failed steps, and a
+normal residual below 0.002 m/s; each published checkpoint restored
+byte-exactly. The nine submissions from step 4350 through 4734 advanced
+40 ms of modeled time in 23,038.042 ms GPU. This is an accepted selected
+route, **not** a matched 40 ms speedup measurement or an automatic
+scheduler. It is still about 576 GPU milliseconds per modeled millisecond.
+
+At the new second-channel interior state step 4702, a matched 4 ms
+full-budget continuation took 4,323.404 ms GPU. The accepted fast
+continuation took 1,177.197 ms GPU, a **3.67x local gain** with the same
+1 mm/s command. The faster step's 0.001636 m/s normal residual passed its
+screen; the full step reached 0.000914 m/s. Neither produced new tip
+impulse, tissue reaction, or tissue displacement. The second channel
+still contained zero authored FEM contact nodes at the fast step-4734
+restore. This verifies transit into an existing physics-triggered segment,
+not load-bearing advancement, through-wall passage, or 100x whole-stitch
+performance.
+
+The two full-budget frontier/entry logs have SHA-256
+`41c1b9a26af0b2b959d80f71794597e7da0d42529091cd2eaca5858e96b0eaf9`
+and `4e0626d4df8ef0e8ca195f8cba889994b0ba50a075f9abc59fcdf45f5122ae4c`.
+The matched second-channel fast/full logs are
+`98b5b55eb50ce20b185aa217ecc5f283091664c9f852fa5be68bc189dd0a5016`
+and `4a2cdfe68574b7c24cb83cbee1c60950afcb31fcce4b7918c41dbdd21523fde2`.
+The final fast checkpoint and restore log are
+`03f9011d824756cceb3a74db152d3eb0d4d9446e8ca569d1e75fedf88e91922d`
+and `7607fba5aba5fcf17a5904eb28112678b071d7e0f1f30b5c5be69ecd2169be46`.
