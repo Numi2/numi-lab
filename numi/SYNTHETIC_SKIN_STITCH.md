@@ -1689,3 +1689,31 @@ from real time or a measured 100x whole-stitch speedup. Cadence grouping
 alone is unlikely to close that gap; further gains require profiling and
 reducing the work of each FEM/contact substep without losing the load-bearing
 physics gates.
+
+### Native substep trace and contact-iteration trial
+
+An Xcode Metal System Trace of a source-matched 1 ms, cadence-16,
+2 mm/s continuation from step 2382 recorded 1,085.642 ms GPU. The exported
+GPU intervals account for about 1,083.172 ms. One combined MetalWorld/Matter
+substep encoder took 264.505 ms; most other substep encoders took about
+51.8-52.4 ms. The trace had Shader Timeline disabled, so these are encoder
+durations, **not** measured per-kernel or per-solver-stage timings. The
+accepted run retained 7/6 jaw contacts, qualified grasp and rod, one
+channel, and all 46,080 tetrahedra. Its log SHA-256 is
+`0d3153e60552606258b7f15a5193f930af04dc6e52a212f8176fcc31cc0aa783`;
+the retained trace is
+`build-skin-wound/skin-robot-profile-cadence16.trace`.
+
+The probe already exposes the coupled rigid-contact iteration counts. On a
+matched 8 ms continuation from step 2382 at cadence 16, speed 2 mm/s, and
+one Matter Newton pass, reducing the temporal-cone budget from 32/16 to
+16/8 iterations reduced GPU time from 8,441.346 to 5,944.478 ms (1.42x).
+The candidate retained the qualified grasp and rod, one active channel,
+all tetrahedra, zero failed steps, and a 0.000791 m/s maximum normal
+residual, but jaw contacts changed from 6/6 to 4/6. It produced no new tip
+impulse or tissue reaction, and its step-2510 checkpoint restored
+byte-exactly. This is a **no-new-load segment result**, not a puncture or
+whole-stitch qualification. Its run, checkpoint, and restore-log SHA-256
+values are `7a8455c678c6ce167ba8b3b510941b38f8b32a60dc24a0923af334ad8aa655e4`,
+`46f5880ec4f40ae3c7a59ab30937e0943319793babcc71921a3120bf5bb0b48b`,
+and `4e3a237dd03356ba9d11cff41e98d514af995492ec759f57d55157216678da2f`.
