@@ -380,9 +380,12 @@ inline float ipcFeatureMollifierDifferential(
     const float firstNorm2 = dot(first, first);
     const float secondNorm2 = dot(second, second);
     const float scale = firstNorm2 * secondNorm2;
-    if (!(scale > kGeometryFloor)) return 0.0f;
+    // Edge-length products have length^4 units; kGeometryFloor has length^2.
+    const float fourthOrderFloor = kGeometryFloor * kGeometryFloor;
+    if (!(scale > fourthOrderFloor)) return 0.0f;
     constexpr float relativeThreshold = 1.0e-3f;
-    const float threshold = max(relativeThreshold * scale, kGeometryFloor);
+    const float threshold = max(relativeThreshold * scale,
+                                fourthOrderFloor);
     const float inner = dot(first, second);
     const float measure = max(scale - inner * inner, 0.0f);
     const float ratio = clamp(measure / threshold, 0.0f, 1.0f);
@@ -397,17 +400,14 @@ inline float ipcFeatureMollifierDifferential(
         (firstNorm2 * second - inner * first);
     float3 ratioFirst;
     float3 ratioSecond;
-    if (relativeThreshold * scale >= kGeometryFloor) {
+    if (relativeThreshold * scale >= fourthOrderFloor) {
         const float3 scaleFirst = 2.0f * secondNorm2 * first;
         const float3 scaleSecond = 2.0f * firstNorm2 * second;
-        const float inverseThreshold2 = 1.0f /
-            max(threshold * threshold, kGeometryFloor * kGeometryFloor);
-        ratioFirst = relativeThreshold *
-            (measureFirst * scale - measure * scaleFirst) *
-            inverseThreshold2;
-        ratioSecond = relativeThreshold *
-            (measureSecond * scale - measure * scaleSecond) *
-            inverseThreshold2;
+        const float relativeMeasure = measure / scale;
+        ratioFirst = (measureFirst - relativeMeasure * scaleFirst) /
+            threshold;
+        ratioSecond = (measureSecond - relativeMeasure * scaleSecond) /
+            threshold;
     } else {
         ratioFirst = measureFirst / threshold;
         ratioSecond = measureSecond / threshold;
@@ -1155,7 +1155,8 @@ inline float3 closestPointOnTriangle(
         barycentric = float3(0.0f, 1.0f - w, w);
         return b + w * (c - b);
     }
-    const float denominator = max(va + vb + vc, kGeometryFloor);
+    const float denominator = max(
+        va + vb + vc, kGeometryFloor * kGeometryFloor);
     const float v = vb / denominator;
     const float w = vc / denominator;
     barycentric = float3(1.0f - v - w, v, w);
@@ -1191,7 +1192,10 @@ inline void closestPointsOnSegments(
         } else {
             const float b = dot(dP, dQ);
             const float denominator = a * e - b * b;
-            s = denominator > kGeometryFloor
+            const float parallelThreshold = max(
+                16.0f * kEpsilon * a * e,
+                kGeometryFloor * kGeometryFloor);
+            s = denominator > parallelThreshold
                 ? clamp((b * f - c * e) / denominator, 0.0f, 1.0f)
                 : 0.0f;
             t = (b * s + f) / e;
@@ -1372,7 +1376,9 @@ inline bool edgeEdgeCCD(
     const float speedBound = max(length(p01 - p00), length(p11 - p10)) +
         max(length(q01 - q00), length(q11 - q10));
     float time = 0.0f;
-    for (uint iteration = 0u; iteration < 16u; ++iteration) {
+    // Near-grazing tissue edges can need more than 16 conservative steps
+    // before the certified clearance is reached.
+    for (uint iteration = 0u; iteration < 32u; ++iteration) {
         const float3 p0 = mix(p00, p01, time);
         const float3 p1 = mix(p10, p11, time);
         const float3 q0 = mix(q00, q01, time);
@@ -1682,8 +1688,9 @@ kernel void nm_contact_capture_deformable_failure(
     device NMDeformableContactFailureGPU* failures [[buffer(9)]],
     uint environment [[thread_position_in_grid]]
 ) {
-    if (environment >= dispatch.environmentCount || failures[environment].attempt.x != 0u)
-        return;
+    // A later nonlinear pass can fail on a different pair. Keep the witness
+    // aligned with the status that actually rejects the transaction.
+    if (environment >= dispatch.environmentCount) return;
     const NMMatterStatusGPU status = statuses[environment];
     if (status.code != NM_STATUS_CONTACT_FAILURE ||
         status.failingIndex >= candidateCounts[environment] ||
@@ -3938,9 +3945,12 @@ kernel void nm_contact_limit_deformable_line_search(
         }
         if (hit) bound = min(bound, clamp(0.9f * toi, 0.0f, 1.0f));
 
+        // The barrier activation distance is not an intersection boundary.
+        // CCD already certifies this feature against collisionThickness; use
+        // that same clearance for the auxiliary planar fraction bound.
         const float gap = dot(
             contact.normalAndTOI.xyz, weightedPosition) -
-            dispatch.numericalLimits.x;
+            collisionThickness;
         const float directionalGap = dot(
             contact.normalAndTOI.xyz, weightedDirection);
         if (gap > 0.0f && directionalGap < 0.0f)
