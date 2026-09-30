@@ -862,3 +862,31 @@ a 100x whole-stitch speedup or robot-driven stitch qualification. The
 remaining single-step gap is at least 244 ms; repeated MetalWorld contact
 solves dominate the remaining time and require a separate bounded profile
 that preserves the terminal residual gate.
+
+The next bounded contact-solver change reuses each fixed generalized
+articulation response `M^-1 J^T` across the eight ordered sweeps of a
+single solve. It stores the response in that authored constraint's three
+existing response-column slots; the Cholesky factorization and row Jacobian
+are unchanged during the solve, while each sweep still reads the updated
+velocity and applies impulses in canonical order. Both pre-contact and
+post-contact generalized solves recompute their first-column response, so
+the cache has no cross-solve lifetime. A cross-solve reuse trial saved only
+about 6 ms and was removed; a rod-slot prefix trial saved no time and was
+removed.
+
+The final uninstrumented 16x/one-Newton post-entry step took 636.552 ms GPU,
+versus 784.488 ms before response reuse and 945.588 ms before both changes.
+That is about 84.9x simulated-time throughput against the original 1x/
+3,375.995 ms reference. The 100x threshold remains 540.159 ms, about
+96.4 ms lower than this run. The reported 46,080 tetrahedra, zero failed
+steps, needle and thread geometry, Matter residual, 143 MetalWorld
+constraints, and 0.001867 m/s terminal normal residual matched the
+pre-cache run. Five compiler/surgical CTests and four further coupling,
+robot-grip, tissue-entry, and topology CTests passed. The final log is
+`build-skin-wound/generalized-response-cache-final.log` (SHA-256
+`9a65e56e3af09e1803d821afd2707d3f1799888183f1b2b10d9c11ac8cd68b62`).
+The MetalWorld metallib SHA-256 is
+`ba4f62d64c6b4c232b2ba8b39e8c10f268c506a5c3055febf7ed4f4546283406`.
+This is still a single post-entry step with zero active Matter tissue
+contacts; no full robot-driven stitch, load-bearing contact timing, or
+100x end-to-end performance is qualified by it.

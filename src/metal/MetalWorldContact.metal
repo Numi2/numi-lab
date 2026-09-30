@@ -9338,6 +9338,7 @@ kernel void mr_world_solve_generalized_constraints(
     device const MRRodFactorCacheGPU* rodFactorCaches [[buffer(12)]],
     device float* rodOperatorArena [[buffer(13)]],
     device MRRodEdgeStateGPU* candidateRodEdges [[buffer(14)]],
+    device float* responseColumns [[buffer(15)]],
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount ||
@@ -9358,6 +9359,8 @@ kernel void mr_world_solve_generalized_constraints(
     const uint velocityBase = environment * dispatch.nv;
     const uint factorBase =
         environment * dispatch.factorStride;
+    const uint responseBase = environment *
+        (dispatch.constraintStride * 3u * dispatch.nv);
     const uint bodyBase =
         environment * dispatch.bodyStateStride;
     const uint rodNodeBase =
@@ -9835,21 +9838,34 @@ kernel void mr_world_solve_generalized_constraints(
                         return;
                     }
                 }
-                if (hasArticulation &&
-                    !solveCholesky(
-                        factors,
-                        factorBase,
-                        dispatch.nv,
-                        rightHandSide,
-                        intermediate,
-                        solution
-                    )) {
-                    status.code =
-                        MR_STEP_FACTORIZATION_FAILED;
-                    status.firstFailingConstraint =
-                        localConstraint;
-                    statuses[environment] = status;
-                    return;
+                if (hasArticulation) {
+                    const uint columnBase = responseBase +
+                        (localConstraint * 3u + localRow) * dispatch.nv;
+                    if (iteration == 0u) {
+                        if (!solveCholesky(
+                                factors,
+                                factorBase,
+                                dispatch.nv,
+                                rightHandSide,
+                                intermediate,
+                                solution
+                            )) {
+                            status.code = MR_STEP_FACTORIZATION_FAILED;
+                            status.firstFailingConstraint = localConstraint;
+                            statuses[environment] = status;
+                            return;
+                        }
+                        // The factor and authored row Jacobian are fixed for
+                        // this substep. Ordered PGS still reads each updated
+                        // velocity; only M^-1 J^T is reused across sweeps.
+                        for (uint dof = 0u; dof < dispatch.nv; ++dof) {
+                            responseColumns[columnBase + dof] = solution[dof];
+                        }
+                    } else {
+                        for (uint dof = 0u; dof < dispatch.nv; ++dof) {
+                            solution[dof] = responseColumns[columnBase + dof];
+                        }
+                    }
                 }
                 if (hasRod && iteration == 0u) {
                     if (!solveRodTranslationFactorDevice(
