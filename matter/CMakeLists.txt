@@ -251,6 +251,17 @@ if(APPLE)
     target_compile_definitions(numi-matter-ventricular-source-step PRIVATE
         NUMI_MATTER_METALLIB="${NUMI_MATTER_METALLIB}")
 
+    add_executable(numi-matter-patellofemoral-crossing-probe
+        tools/patellofemoral_crossing_probe.mm)
+    add_dependencies(numi-matter-patellofemoral-crossing-probe numi_matter_shaders)
+    target_include_directories(numi-matter-patellofemoral-crossing-probe
+        PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../include")
+    target_link_libraries(numi-matter-patellofemoral-crossing-probe PRIVATE
+        numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_compile_definitions(numi-matter-patellofemoral-crossing-probe PRIVATE
+        NUMI_MATTER_METALLIB="${NUMI_MATTER_METALLIB}"
+        NUMI_MATTER_FIXTURE_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/materials/silicone.nmatter")
+
     install(FILES "${NUMI_MATTER_METALLIB}" DESTINATION lib/numi-matter)
     install(TARGETS numi_matter_runtime ARCHIVE DESTINATION lib)
 endif()
