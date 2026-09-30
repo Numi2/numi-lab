@@ -138,6 +138,11 @@ constexpr std::uint32_t kRobotFirstBiteEntryMatterCadence = 16u;
 constexpr std::uint32_t kRobotFirstBiteContactAdvanceCadence = 16u;
 constexpr std::uint32_t kRobotFirstBiteEntryProbeSteps = 16u;
 constexpr std::uint32_t kRobotFirstBiteContactAdvanceSteps = 8u;
+// A bounded opt-in approach slows the carried needle before the puncture
+// microstep. Fourteen 1 ms targets at 5-to-1 mm/s plan a 42 um capsule sweep
+// from the accepted 72 um contact checkpoint; the normal contact probe keeps
+// its original eight constant-speed targets.
+constexpr std::uint32_t kRobotFirstBiteContactBrakeSteps = 14u;
 // At the tip-contact boundary, a 1 ms or 0.5 ms grouped solve skips past
 // Matter's 5 um collision floor. A single 62.5 us group can earn the channel;
 // keep that native result as a transient checkpoint until the gripper also
@@ -7005,6 +7010,7 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
 struct Arguments {
     std::string mode;
     bool syntheticSkin = false;
+    bool robotContactBrake = false;
     std::filesystem::path stateOutputDirectory;
     std::string resumeTissueCheckpointPhase;
     std::filesystem::path resumeTissueCheckpointPath;
@@ -7265,6 +7271,12 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
         } else if (argument == "--synthetic-skin") {
             require(!result.syntheticSkin, "--synthetic-skin specified twice");
             result.syntheticSkin = true;
+        } else if (argument == "--robot-contact-brake") {
+            require(
+                !result.robotContactBrake,
+                "--robot-contact-brake specified twice"
+            );
+            result.robotContactBrake = true;
         } else if (argument == "--state-output-dir") {
             require(
                 result.stateOutputDirectory.empty() && index + 1 < argc,
@@ -7908,6 +7920,13 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
         tissueCheckpointMode ==
             !result.resumeTissueCheckpointPath.empty(),
         "tissue checkpoint mode requires exactly one v3 checkpoint"
+    );
+    require(
+        !result.robotContactBrake ||
+            (result.syntheticSkin &&
+             result.mode ==
+                 "--tissue-robot-first-bite-contact-advance-only"),
+        "robot contact braking requires the synthetic-skin contact advance"
     );
     require(
         (result.mode != "--tissue-robot-first-bite-continue-only" &&
@@ -16819,7 +16838,9 @@ int main(const int argc, const char* const argv[]) {
                 } else if (tissueRobotFirstBiteContactAdvanceOnly) {
                     robotApproachCadence =
                         kRobotFirstBiteContactAdvanceCadence;
-                    robotApproachSteps = kRobotFirstBiteContactAdvanceSteps;
+                    robotApproachSteps = options.robotContactBrake
+                        ? kRobotFirstBiteContactBrakeSteps
+                        : kRobotFirstBiteContactAdvanceSteps;
                 } else if (tissueRobotFirstBitePunctureMicrostepOnly) {
                     robotApproachCadence =
                         kRobotFirstBitePunctureMicrostepCadence;
@@ -16914,9 +16935,30 @@ int main(const int argc, const char* const argv[]) {
                     orbit.centerlineRadiusM;
                 std::vector<MRBodyStateGPU> needleTargets;
                 needleTargets.reserve(robotApproachSteps);
+                double accumulatedOrbitAngle = 0.0;
                 for (std::uint32_t step = 0u;
                      step < robotApproachSteps;
                      ++step) {
+                    if (options.robotContactBrake) {
+                        const double fraction =
+                            static_cast<double>(step) /
+                            static_cast<double>(robotApproachSteps - 1u);
+                        const double speedMps =
+                            kRobotFirstBiteDriveSpeedMps +
+                            (kRobotFirstBitePunctureMicrostepSpeedMps -
+                             kRobotFirstBiteDriveSpeedMps) * fraction;
+                        const double stepAngularSpeed =
+                            speedMps / orbit.centerlineRadiusM;
+                        accumulatedOrbitAngle +=
+                            stepAngularSpeed * stepConfig.timestepSeconds;
+                        needleTargets.push_back(curvedNeedleTarget(
+                            startNeedle,
+                            orbit,
+                            accumulatedOrbitAngle,
+                            stepAngularSpeed
+                        ));
+                        continue;
+                    }
                     needleTargets.push_back(curvedNeedleTarget(
                         startNeedle,
                         orbit,
@@ -16938,6 +16980,12 @@ int main(const int argc, const char* const argv[]) {
                         norm(targetTip.worldBase - startTip.worldBase),
                     });
                 }
+                require(
+                    !options.robotContactBrake ||
+                        startTissueSeparation - maximumPlannedCapsuleSweep >
+                            2.0e-5,
+                    "robot contact brake must stop before the puncture band"
+                );
                 require(
                     std::isfinite(startTissueSeparation) &&
                         (robotContactProbe
@@ -17218,6 +17266,7 @@ int main(const int argc, const char* const argv[]) {
                     << "robot_first_bite_resumed_approach_candidate"
                     << " entry_probe=" << robotContactProbe
                     << " steps=" << robotApproachSteps
+                    << " contact_brake=" << options.robotContactBrake
                     << " base_der_substeps="
                     << robotApproachSteps *
                         stepConfig.physicsSubsteps

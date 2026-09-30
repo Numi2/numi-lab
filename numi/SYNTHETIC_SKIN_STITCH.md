@@ -1103,3 +1103,43 @@ The 64-sweep, 128-sweep, and rejected hold logs have SHA-256 values
 `e602240bcee77aab1d85d071e057001ca4ea988a3d6b471e809407e9e0743508`,
 `2ead8d3ec51cc59fd13c721c4cd2caa5d23405a76c9a38e4a21f3208c7d529ec`,
 and `a084b313b882a8e2c468c19084dc93aa3bbdf7a7a34efef3f55e5c9d186eac1e`.
+
+### Robot contact braking trial
+
+An opt-in `--robot-contact-brake` for the synthetic-skin contact-advance
+mode now uses fourteen robot-driven 1 ms waypoints. It ramps the needle
+orbit target from 5 to 1 mm/s and requires the planned capsule sweep to
+stop at least 20 um before the nearest tissue node. The original eight-step
+constant-speed contact advance is unchanged. From the same step-1645 entry
+checkpoint, the final brake advanced the tip 53.23 um and ended at 19.03 um
+separation, close to the original 21.76 um. Its needle point speed fell
+from the original contact advance's 4.934 mm/s to 0.709 mm/s, about 7.0x
+lower. The bilateral grasp, strand, and 46,080-tet checks passed, with
+7.982e-8 Ns measured tissue reaction and zero puncture channels. Its last
+contact residual was 0.000519 m/s, though the maximum across its fourteen
+steps was 0.003594 m/s. The 14 ms motion cost 28,550.816 ms GPU; this is
+a physical-control diagnostic, not a performance speedup.
+
+The braked contact checkpoint restored byte-exactly at state step 1869.
+Its TSV SHA-256 is
+`4b605822a49b3ea7330461cc1ecb0d97dab72533b8479f63352fe567ae3fedf2`;
+the native run and restore logs have SHA-256 values
+`66e71fb0d3751fe8fbae8dbcb384183bead0fdaa8a8fe29d084207ad09854aa7`
+and `8e4196168afedc2f452ed34d89e561009e5b871cbf35600126bc298845c3c9e2`.
+The three focused robot IK, grip, and drive CTests passed after this code
+change.
+
+One 62.5 us puncture microstep from the braked checkpoint again earned
+one channel and retained all tetrahedra. Point slip fell from 2.466 to
+0.985 mm/s, below the 2 mm/s grasp bound, but angular slip remained
+1.440 rad/s against the 0.6 rad/s bound. Its normal residual was 0.005933
+m/s. This step-1870 transient checkpoint passed byte-exact restore; its
+TSV SHA-256 is
+`b2a0777cc528cfddb990ba45db7c993ed116dada8b314a5a48c681a99d6b0a1e`.
+The microstep and restore logs have SHA-256 values
+`84856fb01798837af05b2c9bd5393625ca65c7a60a172534ec64dcd2be70cdb7`
+and `2dc8fedd24cd868c66631b953b0b693ed70272c1ebf8d3b3f8cb35aca1e99881`.
+The lower entry speed reduces translational slip but does not qualify a
+robot-held puncture or the rest of the stitch. The next physical change
+must retain the needle's orientation under the puncture impulse without
+weakening the measured contact and topology checks.
