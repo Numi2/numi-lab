@@ -2010,3 +2010,61 @@ and `4a2cdfe68574b7c24cb83cbee1c60950afcb31fcce4b7918c41dbdd21523fde2`.
 The final fast checkpoint and restore log are
 `03f9011d824756cceb3a74db152d3eb0d4d9446e8ca569d1e75fedf88e91922d`
 and `7607fba5aba5fcf17a5904eb28112678b071d7e0f1f30b5c5be69ecd2169be46`.
+
+### Matched 16 ms second-channel transit schedule
+
+One further 4 ms step from the accepted step-4734 checkpoint used 32 rigid
+substeps, one Matter Newton pass, and 32/16 contact iterations. It passed
+with 8/6 jaw contacts, a 0.000678 m/s maximum normal residual, two
+connected channels, all 46,080 tetrahedra, and a byte-exact step-4766
+restore. Its GPU time was 1,940.641 ms; the tip was 8.753 um inside the
+second channel's proximal end, with zero authored FEM contact nodes in
+that channel. An 8 ms 12/6 trial from step 4734 and a 4 ms 12/6 trial
+from step 4766 missed the 0.002 m/s residual bound (0.002695 and
+0.002179 m/s respectively). Their exit-zero transient checkpoints were
+not promoted.
+
+From that same accepted step-4766 state, the matched 16 ms baseline used
+32 rigid substeps per 4 ms, one Newton pass, and 32/16 contact
+iterations throughout. Its first two 4 ms steps took 1,991.931 and
+1,972.586 ms GPU; the next grouped 8 ms took 3,797.108 ms. The total
+was **7,761.625 ms GPU**. A selected schedule used 16 rigid substeps
+per 4 ms, 16/8 contact iterations for the first grouped 8 ms, and
+26/13 contact iterations for the next grouped 8 ms. Those submissions
+took 1,516.404 and 1,896.179 ms GPU, totaling **3,412.583 ms**, or
+**2.27x faster** over the matched modeled interval. The reduced first
+block passed with a 0.001414 m/s maximum normal residual. Repeating its
+16/8 contact budget in the next block missed at 0.002967 m/s, and
+24/12 still missed at 0.002535 m/s; 26/13 passed at 0.001141 m/s.
+An eight-rigid-substep trial failed the grasp and residual gates and moved
+the tip backward. These rejected paths are not performance results.
+
+Both 16 ms paths retained a qualified robot grasp and rod, two connected
+physics-triggered channels, all 46,080 tets, and zero failed steps. The
+selected path's final step-4830 checkpoint and the baseline's step-4894
+checkpoint restored byte-exactly. Their tips ended 23.225 and 22.606 um
+inside the second channel, respectively; both still had zero authored FEM
+contact nodes there and reported zero new tip impulse, tissue reaction,
+or tissue displacement. The different rigid substep counts make the
+state-step numbers different despite the same 16 ms modeled horizon.
+This is a guarded, unloaded channel-transit gain, not a 100x whole-stitch
+speedup or a load-bearing second bite.
+
+The accepted step-4766 run/checkpoint/cache/restore SHA-256 values are
+`273b7a56d0a300ea02e3acdff330bb4a65fa6b634df397cd9d8579dad4d83b2b`,
+`187c8224bf0cfafe23a47f2234cd2453b75ba93b984bbb4bd397a8fcf688deea`,
+`f61aac7ba5436284c2284a896d1821361c21f96160096c6869b162b905d74cf9`,
+and `cfab210d0bb0bffbc27294a4606e4b3a8f01c7d9ca75e749bc5d7017466ba2a8`.
+The selected first/second block logs have SHA-256
+`e4317b214735819880592083224a7ef05d0de1a45a08fae8340e6f3d4ddf3bb0`
+and `4bd1c73d5895e69806f4b9804e4718a3601101874e2daf5af9e8073a55694cf4`.
+The selected final checkpoint/cache/restore values are
+`17cbf005262ed349d593c8d5b9bc592b324d00e5a8899c920ad5dd5e8429ae97`,
+`d459b5e5805bf1d0a6f1996ecd7ed55a6153e455d00bda3a8b8f84dfb978f853`,
+and `cc0fd7d8425b41b42337993b7ca80d8c1127ab5c8b778dde3aa026b70ae1eef3`.
+The baseline final-block log is
+`91f734ed055c0337598bae015e9f666010ccbfe7cc750eca258b1196c24a6e6d`;
+the rejected repeated 16/8, 24/12, and eight-substep logs are
+`c596251728b5f57cc8ecc55b22db238710d1d3633a15927e226477650e62298b`,
+`5f22a2122946c9b9c68b03bd96fbc7fa4e175168f04bc16137723d6929c3685c`,
+and `aec27c21c26e9c4c6ecc74c70ab73c55623f16e77b5f7a5df4b82c24ddbecc89`.
