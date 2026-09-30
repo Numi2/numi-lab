@@ -7124,6 +7124,9 @@ struct Arguments {
     bool robotPunctureCadenceProvided = false;
     std::uint32_t robotPunctureGroupedSteps = 1u;
     bool robotPunctureGroupedStepsProvided = false;
+    double robotPunctureSpeedMps =
+        kRobotFirstBitePunctureMicrostepSpeedMps;
+    bool robotPunctureSpeedProvided = false;
     std::filesystem::path stateOutputDirectory;
     std::filesystem::path resumeRigidContactCachePath;
     std::string resumeTissueCheckpointPhase;
@@ -7414,8 +7417,9 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             require(
                 consumed == value.size() &&
                     (parsed == 2u || parsed == 4u ||
-                     parsed == 8u || parsed == 16u),
-                "robot puncture cadence must be 2, 4, 8, or 16"
+                     parsed == 8u || parsed == 16u ||
+                     parsed == 32u || parsed == 64u),
+                "robot puncture cadence must be 2, 4, 8, 16, 32, or 64"
             );
             result.robotPunctureCadence =
                 static_cast<std::uint32_t>(parsed);
@@ -7437,6 +7441,21 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             result.robotPunctureGroupedSteps =
                 static_cast<std::uint32_t>(parsed);
             result.robotPunctureGroupedStepsProvided = true;
+        } else if (argument == "--robot-puncture-speed-mmps") {
+            require(
+                !result.robotPunctureSpeedProvided && index + 1 < argc,
+                "--robot-puncture-speed-mmps requires exactly one speed"
+            );
+            const std::string value{argv[++index]};
+            std::size_t consumed = 0u;
+            const double parsed = std::stod(value, &consumed);
+            require(
+                consumed == value.size() && std::isfinite(parsed) &&
+                    parsed >= 1.0 && parsed <= 5.0,
+                "robot puncture speed must be in [1, 5] mm/s"
+            );
+            result.robotPunctureSpeedMps = parsed * 1.0e-3;
+            result.robotPunctureSpeedProvided = true;
         } else if (argument == "--state-output-dir") {
             require(
                 result.stateOutputDirectory.empty() && index + 1 < argc,
@@ -8134,6 +8153,11 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
         !result.robotPunctureGroupedStepsProvided ||
             result.robotPunctureCadenceProvided,
         "grouped puncture step count requires a grouped puncture cadence"
+    );
+    require(
+        !result.robotPunctureSpeedProvided ||
+            result.robotPunctureCadenceProvided,
+        "puncture speed override requires a grouped accepted puncture continuation"
     );
     require(
         (result.mode != "--tissue-robot-first-bite-continue-only" &&
@@ -17252,6 +17276,55 @@ int main(const int argc, const char* const argv[]) {
                 << " matter_maximum_residual=" << maximumResidual
                 << " authority_byte_exact=yes"
                 << " physics_advanced=no\n";
+            if (resumeRobotFirstBiteCheckpoint && activeChannels > 0u) {
+                const NeedleTipCapsuleGeometry tip =
+                    needleTipCapsuleGeometry(
+                        needleForPlacement,
+                        world.defaultSceneBodies.at(0u)
+                    );
+                for (const NMPunctureChannelGPU& channel :
+                     restored.punctureChannels) {
+                    if ((channel.identity.w & NM_TOPOLOGY_ACTIVE) == 0u) {
+                        continue;
+                    }
+                    const Vec3 axis = vector(channel.axisAndHalfLength);
+                    const double axisLength = norm(axis);
+                    require(
+                        axisLength > 1.0e-12 &&
+                            channel.originAndRadius.w > 0.0f &&
+                            channel.axisAndHalfLength.w > 0.0f,
+                        "restored puncture channel has invalid geometry"
+                    );
+                    const Vec3 unitAxis = axis * (1.0 / axisLength);
+                    const Vec3 relative =
+                        tip.worldTip - vector(channel.originAndRadius);
+                    const double tipAxial = dot(relative, unitAxis);
+                    const double tipRadial = norm(
+                        relative - unitAxis * tipAxial
+                    );
+                    std::cout << std::setprecision(9)
+                        << "robot_puncture_channel_geometry"
+                        << " source_proxy="
+                        << (channel.identity.y & 0x7fffffffu)
+                        << " physics_triggered="
+                        << ((channel.identity.y & 0x80000000u) != 0u)
+                        << " radius_m="
+                        << channel.originAndRadius.w
+                        << " half_length_m="
+                        << channel.axisAndHalfLength.w
+                        << " axis_alignment="
+                        << dot(tip.approachDirection, unitAxis)
+                        << " tip_axial_m=" << tipAxial
+                        << " tip_radial_m=" << tipRadial
+                        << " tip_to_proximal_axial_m="
+                        << tipAxial + channel.axisAndHalfLength.w
+                        << " tip_to_distal_axial_m="
+                        << channel.axisAndHalfLength.w - tipAxial
+                        << " contact_exemption_padding_m="
+                        << 0.25 * channel.originAndRadius.w
+                        << '\n';
+                }
+            }
             if (tissueRobotFirstBiteContinueOnly ||
                 tissueRobotFirstBiteContinueFastOnly ||
                 tissueRobotFirstBiteContactApproachOnly ||
@@ -17372,7 +17445,7 @@ int main(const int argc, const char* const argv[]) {
                 );
                 const double angularSpeed =
                     (tissueRobotFirstBitePunctureMicrostepOnly
-                        ? kRobotFirstBitePunctureMicrostepSpeedMps
+                        ? options.robotPunctureSpeedMps
                         : kRobotFirstBiteDriveSpeedMps) /
                     orbit.centerlineRadiusM;
                 std::vector<MRBodyStateGPU> needleTargets;
@@ -17738,6 +17811,8 @@ int main(const int argc, const char* const argv[]) {
                     << " fast_one_newton=" << options.robotFastOneNewton
                     << " puncture_one_newton="
                     << options.robotPunctureOneNewton
+                    << " puncture_speed_mps="
+                    << options.robotPunctureSpeedMps
                     << " base_der_substeps="
                     << robotApproachSteps *
                         stepConfig.physicsSubsteps

@@ -1616,3 +1616,76 @@ and `8e649b0cb6877ebc57464c37edd4c982ef5a8ba32718cb2d183525b9cc0a4ec4`.
 The final checkpoint and restore log SHA-256 values are
 `45d05c176e921f9696bb78bf445274b1c335726dcd7787b6d4a690bc0ae220a8`
 and `9af1b876b4d1c3837fa894e9b9d8f8049c0e1a7da03a9c436d1c7b59932e973e`.
+
+### Channel geometry and bounded faster needle motion
+
+A read-only `robot_puncture_channel_geometry` line now accompanies exact
+puncture-checkpoint restore. At accepted step 1870, the physics-triggered
+channel had a 350 um radius and 63 um half-length; the needle tip was
+62.985 um before its proximal end and 188.985 um from its distal end. At
+step 2302, the tip was still 42.764 um before the proximal end and
+168.764 um from the distal end. The contact shader admits the matching
+needle proxy when its node sweep lies within the finite channel plus
+87.5 um of axial padding (`0.25 * radius`). Together, the restored geometry
+and shader rule explain why the decreasing nearest-node separation did not
+produce renewed tip load; this is a source-based inference, not a measured
+through-wall passage. The two restore-log SHA-256 values are
+`061df8f63380e25d83465ee837f6e14cf56c0d7983a67a09fdb1f4c51b36fec3`
+and `e3ba275218a1cf12b3076eff9a133efac56097c8bb47f48f531e4e096e9ee4a4`.
+
+An opt-in `--robot-puncture-speed-mmps` accepts 1-5 mm/s only for a
+grouped continuation from an accepted puncture checkpoint and its rigid
+contact cache. The default remains 1 mm/s. This changes the commanded
+physical needle motion; it is **not** a compute-speed optimization. Starting
+from the same step-2302 checkpoint, a one-millisecond 2 mm/s pilot passed
+with 0.395 um actual forward tip advance. The 5 mm/s pilot was rejected:
+its tip moved 0.867 um backward despite 4.996 um planned forward motion.
+The pilot-log SHA-256 values are
+`c4150f6e1b0036bbec10ba07eba3e3deeda5ae71cc6827120b870cad325ad3fa`
+and `db8aab284eb990cc2cf77a818ba88c37bcc01dcf1b765aac88a2df1e8cb536a9`.
+
+From the accepted 2 mm/s pilot, a four-millisecond group advanced the
+tip 5.887 um, and an eight-millisecond group advanced it 13.619 um. Both
+retained the qualified grasp and rod, one active channel, all 46,080
+tetrahedra, zero failed steps, and normal residuals below 0.002 m/s.
+Neither produced a new tip impulse, tissue reaction, or tissue
+displacement. The latter run reached step 2510, cost 8,441.346 ms GPU for
+8 ms modeled time, and had -2.491 um nearest-node separation. A negative
+nearest-node separation inside the channel exemption is not itself a
+collision or tissue passage. The step-2510 checkpoint restored byte-exactly;
+the needle tip remained 22.825 um before the channel's proximal end and
+148.825 um from its distal end. The four- and eight-millisecond run-log
+SHA-256 values are
+`3965e4db28c032d8c58087e35d71a2376efd955de312bad365f2409704f2ddf7`
+and `526d2c09de2939fade0c28ebf8c6791c47da73eb6ccacc0872210e276aff59a2`.
+The final checkpoint and restore-log SHA-256 values are
+`37d2b8cc81c71875671fa2b298052060756c04de4efc1a3cadc816c49777a03a`
+and `89b4a38e85066fddb0cc3914af13a6b4096ba66482ea672482fb80988887efbd`.
+The cadence-16 held-needle segment is roughly 1.05 s GPU per modeled
+millisecond. Renewed tip loading at the distal frontier, through-wall
+passage, thread pull-through, opposing bite, and knot remain open execution
+gates.
+
+The grouped cadence option now also permits 32 and 64 base substeps per
+submission, within MetalWorld's 64-substep supported limit. A cadence-128
+diagnostic stopped before physics advanced because it exceeded that limit;
+its log SHA-256 is
+`f3e12da088297f493a228fda470f04d5664bff6533f37c4ddd86c67c1dd7f5b5`.
+For a matched eight-millisecond continuation from step 2382 at 2 mm/s and
+one Newton iteration, cadence 16 with eight submissions took 8,441.346 ms
+GPU; cadence 64 with two submissions took 7,142.716 ms GPU (1.18x faster).
+The cadence-64 result retained a qualified grasp and rod, one active channel,
+all 46,080 tetrahedra, zero failed steps, and a 0.000809 m/s maximum normal
+residual. Its tip advanced 13.181 um versus 13.619 um with cadence 16.
+Neither run reported new tip impulse, tissue reaction, or displacement;
+neither proves another load-bearing puncture event. The cadence-64 step-2510
+checkpoint restored byte-exactly, with the tip still 149.261 um from the
+channel's distal end. Its run, checkpoint, and restore-log SHA-256 values
+are `13a0aacaab9456e1a0fe232439e926b4783f13a0fdc7c3cd20c40ff77e21b4fa`,
+`eb5766a944e2a2f2b17ce9d6a6750868033416cf0ffc0bf9506e263776707f0b`,
+and `8661090ac52dfb3af67ddc49f250edf2a7f080b01a2d86e159d518899d4048af`.
+At 0.893 s GPU per modeled millisecond, this accepted segment remains far
+from real time or a measured 100x whole-stitch speedup. Cadence grouping
+alone is unlikely to close that gap; further gains require profiling and
+reducing the work of each FEM/contact substep without losing the load-bearing
+physics gates.
