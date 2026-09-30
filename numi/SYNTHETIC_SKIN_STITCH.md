@@ -752,6 +752,21 @@ and `58d6a637446774fc1b1a3b79c4ea913550d15bfeab4f39d08e9f9db8336db915`.
 The focused static-equilibrium, checkpoint-restore, synthetic-skin puncture,
 and live-cadence tests passed after the shader was restored.
 
+The contact-capacity hypothesis was also checked. The default heterogeneous
+world reserves 61,296 constraint blocks while this post-entry step uses 143.
+An opt-in 512-block request was rejected by the heterogeneous compiler's
+topology-envelope minimum. A temporary operational-capacity compiler
+diagnostic then allowed that request, retaining device overflow checks and
+the same eight-iteration probe. It produced the same reported contact,
+tissue, needle, and strand fields, but took 1,226.105 ms GPU versus
+1,214.993 ms with the default capacity. Both the CLI override and compiler
+change were reverted; the original executable and shader hashes were
+restored. The default, rejected-request, and operational-capacity trial log
+SHA-256 values are
+`542ece320d38a1b8afd30e6e4caf5e84938694f5fd25ac3bee43f1002bc0db53`,
+`b7b4a8d067d6df2df0986afa2e57e63f5898d4e47ceb63c875a7bc83cf4660a2`,
+and `f0edae35d223b5a90acbb06eb8ffecbfd2bfdf437b18f7c5a12abb7784f17be2`.
+
 The stronger 75 um jaw-preload trial from robot contact step 1645 also
 remains unqualified. A 13 ms ramp at 1 mm/s preserved Matter's 46,080
 tets and zero failures but drifted 212 um at the needle seat. A 6 ms
