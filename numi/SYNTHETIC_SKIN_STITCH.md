@@ -1245,3 +1245,33 @@ changed. The diagnostic log SHA-256 is
 The ablation was removed and the accepted metallib hash above restored.
 The next attribution must time the ordered rod stage without changing its
 impulses or downstream state.
+
+A fresh, temporary Metal stage-boundary timestamp pass on the accepted
+shader measured all 18 encoded pre-contact generalized, Wave32, and
+post-contact generalized solves in the same 16x/one-Newton post-entry
+probe. Their median encoder times were 2.312, 7.198, and 1.582 ms,
+respectively; across the 18 encodes, Wave32 used 132.360 ms and the two
+generalized stages together used 71.824 ms. The instrumented grouped step
+took 535.668 ms GPU and retained every reported physical field, including
+the 0.001867 m/s terminal normal residual. These are stage-boundary GPU
+times, not a decomposition of individual Wave32 functions or a full-stitch
+performance measure. The retained profile log SHA-256 is
+`23a2e64a8f60e99405d961f487b1596bafa2e13eb149a19a472feaeebf744abc`.
+
+A Wave32 trial cached each scene body's static island-membership decision
+for the first 64 bodies across velocity sweeps, with the original scan for
+higher indices. It preserved all reported physical fields but increased
+median Wave32 encoder time to 8.056 ms and grouped GPU time to 548.541 ms.
+The trial and timestamp hooks were removed. Two uninstrumented runs on the
+restored source took 534.969 and 533.337 ms GPU, retained all 46,080
+tetrahedra and the same residual, and restored the accepted metallib
+SHA-256 `8059ec81644b9216d80f3a3461ce6738881ffd0fc3cb887951211773777fb199`.
+The trial and two restored log SHA-256 values are
+`502782784103f4fbbc2ed247bd569afc3f1f925aaeda0fecafa8ba64ef9d6449`,
+`dda7d411be09db0897cf0f7e50b71101ad197778f4c13aff1ad30dd6b2a8e592`,
+and `90542e6e33ab4d92162aecf7caf7c99801fa4eba9b42e85e19bc363a93b70ae8`.
+The 533.337 ms step is 101.3x simulated-time throughput against the
+original 1x/3,375.995 ms reference for this state; it is not a 100x
+whole-stitch result. Further Wave32 work needs a measured change to its
+factorized rod response or repeated contact update, with the ordered
+impulses and residual certificate retained.
