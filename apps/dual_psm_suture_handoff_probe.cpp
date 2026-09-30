@@ -5165,6 +5165,7 @@ struct JawNeedleWrench {
     std::array<double, 2u> tangentialImpulse{};
     std::array<double, 2u> torsionalImpulseCapacity{};
     std::array<std::uint32_t, 2u> contacts{};
+    std::array<std::uint32_t, 2u> warmStartedContacts{};
 };
 
 JawNeedleWrench jawNeedleWrench(
@@ -5256,6 +5257,8 @@ JawNeedleWrench jawNeedleWrench(
                 static_cast<double>(contact.friction.w) *
                 static_cast<double>(contact.impulses.x);
             ++wrench.contacts[jaw];
+            wrench.warmStartedContacts[jaw] +=
+                (contact.flags & MR_CONSTRAINT_FLAG_WARM_STARTED) != 0u;
         }
     }
     return wrench;
@@ -7115,6 +7118,7 @@ struct Arguments {
     bool robotContactBrake = false;
     bool robotFastOneNewton = false;
     std::filesystem::path stateOutputDirectory;
+    std::filesystem::path resumeRigidContactCachePath;
     std::string resumeTissueCheckpointPhase;
     std::filesystem::path resumeTissueCheckpointPath;
     std::filesystem::path resumeTissueReceiverDynamicBridgePath;
@@ -7392,6 +7396,13 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
                 "--state-output-dir requires exactly one path"
             );
             result.stateOutputDirectory = argv[++index];
+        } else if (argument == "--resume-rigid-contact-cache") {
+            require(
+                result.resumeRigidContactCachePath.empty() &&
+                    index + 1 < argc,
+                "--resume-rigid-contact-cache requires exactly one path"
+            );
+            result.resumeRigidContactCachePath = argv[++index];
         } else if (argument == "--resume-tissue-checkpoint") {
             require(
                 result.resumeTissueCheckpointPath.empty() &&
@@ -8043,6 +8054,15 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
              result.mode ==
                  "--tissue-robot-first-bite-continue-fast-only"),
         "one-Newton robot continuation requires the fast skin approach"
+    );
+    require(
+        result.resumeRigidContactCachePath.empty() ||
+            (result.syntheticSkin &&
+             result.mode ==
+                 "--tissue-robot-first-bite-puncture-microstep-only" &&
+             result.resumeTissueCheckpointPhase ==
+                 "tissue-robot-first-bite-contact"),
+        "rigid contact cache resume requires the synthetic-skin puncture microstep"
     );
     require(
         (result.mode != "--tissue-robot-first-bite-continue-only" &&
@@ -9178,6 +9198,229 @@ void writeHandoffStateArtifactWithMaterial(
     }
 }
 
+struct RigidContactCacheArchive {
+    std::vector<MRManifoldHeaderGPU> headers;
+    std::vector<MRManifoldPointGPU> points;
+    std::vector<std::uint32_t> counts;
+};
+
+struct RigidContactCacheArchiveHeader {
+    std::array<char, 8u> magic{'N', 'U', 'M', 'I', 'M', 'F', '0', '2'};
+    std::uint32_t headerBytes = sizeof(RigidContactCacheArchiveHeader);
+    std::uint32_t manifoldHeaderBytes = sizeof(MRManifoldHeaderGPU);
+    std::uint32_t manifoldPointBytes = sizeof(MRManifoldPointGPU);
+    std::uint32_t reserved = 0u;
+    std::uint64_t checkpointContentHash = 0u;
+    std::uint64_t stateStep = 0u;
+    std::uint64_t headerCount = 0u;
+    std::uint64_t pointCount = 0u;
+    std::uint64_t countCount = 0u;
+    std::uint64_t activeManifoldCount = 0u;
+    std::uint64_t contentHash = 0u;
+};
+
+std::uint64_t handoffCheckpointContentHash(
+    const std::filesystem::path& path
+) {
+    std::ifstream input(path, std::ios::binary);
+    require(input.good(), "could not hash handoff checkpoint");
+    std::uint64_t hash = 1469598103934665603ull;
+    std::array<char, 4096u> bytes{};
+    while (input.read(bytes.data(), bytes.size()) ||
+           input.gcount() != 0) {
+        appendStateHash(
+            hash, bytes.data(),
+            static_cast<std::size_t>(input.gcount())
+        );
+    }
+    require(input.eof(), "could not finish hashing handoff checkpoint");
+    return hash;
+}
+
+std::uint64_t rigidContactCacheHash(
+    const RigidContactCacheArchive& archive,
+    const std::uint64_t checkpointContentHash,
+    const std::uint64_t stateStep
+) {
+    require(
+        archive.counts.size() == 1u &&
+            archive.counts[0u] <= archive.headers.size() &&
+            archive.points.size() == archive.headers.size() *
+                MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY,
+        "rigid contact cache has invalid active capacity"
+    );
+    std::uint64_t hash = 1469598103934665603ull;
+    appendStateHash(
+        hash, &checkpointContentHash, sizeof(checkpointContentHash)
+    );
+    appendStateHash(hash, &stateStep, sizeof(stateStep));
+    const std::uint64_t headerCapacity = archive.headers.size();
+    const std::uint64_t pointCapacity = archive.points.size();
+    const std::uint64_t activeCount = archive.counts[0u];
+    appendStateHash(hash, &headerCapacity, sizeof(headerCapacity));
+    appendStateHash(hash, &pointCapacity, sizeof(pointCapacity));
+    appendStateHash(hash, &activeCount, sizeof(activeCount));
+    appendStateHash(
+        hash, archive.headers.data(),
+        activeCount * sizeof(MRManifoldHeaderGPU)
+    );
+    appendStateHash(
+        hash, archive.points.data(),
+        activeCount * MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY *
+            sizeof(MRManifoldPointGPU)
+    );
+    return hash;
+}
+
+void writeRigidContactCacheArchive(
+    const std::filesystem::path& directory,
+    const std::string_view phase,
+    const std::uint64_t stateStep,
+    const metalrobo::MetalWorldResult& result
+) {
+    if (directory.empty()) {
+        return;
+    }
+    RigidContactCacheArchive archive{
+        .headers = result.contactEvidence.manifoldHeaders,
+        .points = result.contactEvidence.manifoldPoints,
+        .counts = result.contactEvidence.manifoldCounts,
+    };
+    require(
+        !archive.counts.empty() &&
+            archive.headers.size() ==
+                result.layout.manifoldHeaderElements &&
+            archive.points.size() ==
+                result.layout.manifoldPointElements &&
+            archive.counts.size() == 1u &&
+            archive.counts.size() ==
+                result.layout.dispatch.environmentCount &&
+            archive.counts[0u] <= archive.headers.size(),
+        "rigid contact cache evidence is incomplete"
+    );
+    RigidContactCacheArchiveHeader header;
+    header.checkpointContentHash = handoffCheckpointContentHash(
+        directory / (std::string{phase} + ".tsv")
+    );
+    header.stateStep = stateStep;
+    header.headerCount = archive.headers.size();
+    header.pointCount = archive.points.size();
+    header.countCount = archive.counts.size();
+    header.activeManifoldCount = archive.counts[0u];
+    header.contentHash = rigidContactCacheHash(
+        archive, header.checkpointContentHash, stateStep
+    );
+    const std::filesystem::path path = directory /
+        (std::string{phase} + "-rigid-contact-cache.bin");
+    const std::filesystem::path temporary =
+        std::filesystem::path(path.string() + ".tmp");
+    std::ofstream output(temporary, std::ios::binary | std::ios::trunc);
+    require(output.good(), "could not create rigid contact cache archive");
+    output.write(reinterpret_cast<const char*>(&header), sizeof(header));
+    output.write(
+        reinterpret_cast<const char*>(archive.headers.data()),
+        header.activeManifoldCount * sizeof(MRManifoldHeaderGPU)
+    );
+    output.write(
+        reinterpret_cast<const char*>(archive.points.data()),
+        header.activeManifoldCount *
+            MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY *
+            sizeof(MRManifoldPointGPU)
+    );
+    output.write(
+        reinterpret_cast<const char*>(archive.counts.data()),
+        archive.counts.size() * sizeof(std::uint32_t)
+    );
+    output.close();
+    require(output.good(), "could not write rigid contact cache archive");
+    require(
+        std::rename(temporary.c_str(), path.c_str()) == 0,
+        "could not publish rigid contact cache archive"
+    );
+    std::cout << "rigid_contact_cache_archive=ok"
+        << " path=" << path.string()
+        << " manifolds=" << archive.counts[0u]
+        << " content_hash=" << header.contentHash << '\n';
+}
+
+RigidContactCacheArchive readRigidContactCacheArchive(
+    const std::filesystem::path& path,
+    const std::filesystem::path& checkpointPath,
+    const std::uint64_t stateStep
+) {
+    std::ifstream input(path, std::ios::binary | std::ios::ate);
+    require(input.good(), "could not open rigid contact cache archive");
+    const std::uintmax_t fileBytes =
+        static_cast<std::uintmax_t>(input.tellg());
+    require(
+        fileBytes >= sizeof(RigidContactCacheArchiveHeader) &&
+            fileBytes <= 64u * 1024u * 1024u,
+        "rigid contact cache archive has invalid length"
+    );
+    input.seekg(0);
+    RigidContactCacheArchiveHeader header;
+    input.read(reinterpret_cast<char*>(&header), sizeof(header));
+    require(
+        input.good() &&
+            header.magic ==
+                RigidContactCacheArchiveHeader{}.magic &&
+            header.headerBytes == sizeof(header) &&
+            header.manifoldHeaderBytes == sizeof(MRManifoldHeaderGPU) &&
+            header.manifoldPointBytes == sizeof(MRManifoldPointGPU) &&
+            header.reserved == 0u &&
+            header.checkpointContentHash ==
+                handoffCheckpointContentHash(checkpointPath) &&
+            header.stateStep == stateStep &&
+            header.countCount == 1u &&
+            header.headerCount != 0u &&
+            header.headerCount <= 64u * 1024u * 1024u /
+                (sizeof(MRManifoldHeaderGPU) +
+                 MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY *
+                     sizeof(MRManifoldPointGPU)) &&
+            header.pointCount == header.headerCount *
+                MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY &&
+            header.activeManifoldCount <= header.headerCount &&
+            sizeof(header) +
+                header.activeManifoldCount *
+                    sizeof(MRManifoldHeaderGPU) +
+                header.activeManifoldCount *
+                    MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY *
+                    sizeof(MRManifoldPointGPU) +
+                header.countCount * sizeof(std::uint32_t) == fileBytes,
+        "rigid contact cache archive does not match the checkpoint or ABI"
+    );
+    RigidContactCacheArchive archive;
+    archive.headers.resize(header.headerCount);
+    archive.points.resize(header.pointCount);
+    archive.counts.resize(header.countCount);
+    input.read(
+        reinterpret_cast<char*>(archive.headers.data()),
+        header.activeManifoldCount * sizeof(MRManifoldHeaderGPU)
+    );
+    input.read(
+        reinterpret_cast<char*>(archive.points.data()),
+        header.activeManifoldCount *
+            MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY *
+            sizeof(MRManifoldPointGPU)
+    );
+    input.read(
+        reinterpret_cast<char*>(archive.counts.data()),
+        archive.counts.size() * sizeof(std::uint32_t)
+    );
+    require(
+        input.good() &&
+            archive.counts[0u] == header.activeManifoldCount &&
+            rigidContactCacheHash(
+                archive, header.checkpointContentHash, stateStep
+            ) == header.contentHash,
+        "rigid contact cache archive content hash is mismatched"
+    );
+    std::cout << "rigid_contact_cache_restore=ok"
+        << " manifolds=" << archive.counts[0u]
+        << " content_hash=" << header.contentHash << '\n';
+    return archive;
+}
+
 PhaseResult initializePhase(
     metalrobo::MetalWorldContext& context,
     const metalrobo::CompiledWorld& compiled,
@@ -9224,9 +9467,10 @@ PhaseResult initializePhaseUnchecked(
     const metalrobo::MetalWorldStepConfig& config,
     metalrobo::MetalWorldResidentState& resident,
     const std::vector<float>& efforts,
-    const std::uint32_t steps
+    const std::uint32_t steps,
+    const RigidContactCacheArchive* initialContactCache = nullptr
 ) {
-    const metalrobo::MetalWorldBatch batch{
+    metalrobo::MetalWorldBatch batch{
         .environmentCount = 1u,
         .controlStepCount = steps,
         .initialQ = world.model.defaultQ,
@@ -9234,6 +9478,11 @@ PhaseResult initializePhaseUnchecked(
         .efforts = efforts,
         .initialSceneBodies = world.defaultSceneBodies,
     };
+    if (initialContactCache != nullptr) {
+        batch.initialManifoldHeaders = initialContactCache->headers;
+        batch.initialManifoldPoints = initialContactCache->points;
+        batch.initialManifoldCounts = initialContactCache->counts;
+    }
     metalrobo::MetalWorldSubmission submission;
     const auto submitted = context.initializeResidentState(
         compiled,
@@ -17145,6 +17394,14 @@ int main(const int argc, const char* const argv[]) {
                         kMaximumCommandVelocityRatio,
                     "resumed robot approach exceeds PSM joint velocity limits"
                 );
+                std::optional<RigidContactCacheArchive> initialContactCache;
+                if (!options.resumeRigidContactCachePath.empty()) {
+                    initialContactCache = readRigidContactCacheArchive(
+                        options.resumeRigidContactCachePath,
+                        options.resumeTissueCheckpointPath,
+                        resumedTissueCheckpointStep
+                    );
+                }
                 metalrobo::MetalWorldContext context;
                 metalrobo::MetalWorldResidentState resident;
                 const PhaseResult driven =
@@ -17157,7 +17414,9 @@ int main(const int argc, const char* const argv[]) {
                             stepConfig,
                             resident,
                             trajectory.efforts,
-                            robotApproachSteps
+                            robotApproachSteps,
+                            initialContactCache
+                                ? &*initialContactCache : nullptr
                         )
                         : initializePhase(
                             context,
@@ -17465,6 +17724,13 @@ int main(const int argc, const char* const argv[]) {
                     << "robot_first_bite_jaw_wrench"
                     << " contacts=" << jawWrench.contacts[0u]
                     << '/' << jawWrench.contacts[1u]
+                    << " warm_started_contacts="
+                    << jawWrench.warmStartedContacts[0u] << '/'
+                    << jawWrench.warmStartedContacts[1u]
+                    << " retained_manifolds="
+                    << (driven.result.contactEvidence.manifoldCounts.empty()
+                        ? 0u
+                        : driven.result.contactEvidence.manifoldCounts[0u])
                     << " normal_impulse_ns="
                     << jawWrench.normalImpulse[0u] << '/'
                     << jawWrench.normalImpulse[1u]
@@ -17558,6 +17824,16 @@ int main(const int argc, const char* const argv[]) {
                     driven.result,
                     &matter
                 );
+                if (options.robotContactBrake && channels == 0u) {
+                    writeRigidContactCacheArchive(
+                        options.stateOutputDirectory,
+                        "tissue-robot-first-bite-contact",
+                        resumedTissueCheckpointStep +
+                            robotApproachSteps *
+                                stepConfig.physicsSubsteps,
+                        driven.result
+                    );
+                }
                 std::cout << (robotContactProbe
                     ? (channels == 0u
                         ? "robot_first_bite_entry_contact=ok\n"

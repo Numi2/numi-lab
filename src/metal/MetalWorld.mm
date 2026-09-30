@@ -4959,6 +4959,83 @@ MetalWorldDiagnostics validateAndBuildLayout(
             "packed element count"
         );
     }
+    const bool initialManifoldsProvided =
+        !batch.initialManifoldHeaders.empty() ||
+        !batch.initialManifoldPoints.empty() ||
+        !batch.initialManifoldCounts.empty();
+    if (initialManifoldsProvided &&
+        (!contactMode || residentContinuation ||
+         batch.initialManifoldHeaders.size() !=
+             layout.manifoldHeaderElements ||
+         batch.initialManifoldPoints.size() !=
+             layout.manifoldPointElements ||
+         batch.initialManifoldCounts.size() !=
+             batch.environmentCount)) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::invalidDimensions,
+            "initial contact manifolds require a complete capacity-packed cold submission"
+        );
+    }
+    if (initialManifoldsProvided) {
+        const std::size_t capacity =
+            layout.contactDispatch.manifoldCapacity;
+        for (std::size_t environment = 0u;
+             environment < batch.environmentCount;
+             ++environment) {
+            const std::uint32_t count =
+                batch.initialManifoldCounts[environment];
+            if (count > capacity) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalWorldHostStatus::invalidDimensions,
+                    "initial contact manifold count exceeds compiled capacity"
+                );
+            }
+            for (std::size_t index = 0u; index < count; ++index) {
+                const MRManifoldHeaderGPU& header =
+                    batch.initialManifoldHeaders[
+                        environment * capacity + index
+                    ];
+                if (header.pairAndCount[0] != environment ||
+                    header.pairAndCount[1] >=
+                        world.model().shapes.size() ||
+                    header.pairAndCount[2] >=
+                        world.model().shapes.size() ||
+                    header.pairAndCount[3] == 0u ||
+                    header.pairAndCount[3] >
+                        MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY ||
+                    !finite(header.normalAndAge) ||
+                    !finite(header.tangentAndMetric)) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalWorldHostStatus::invalidDimensions,
+                        "initial contact manifold header is invalid"
+                    );
+                }
+                const std::size_t pointBase =
+                    (environment * capacity + index) *
+                    MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY;
+                for (std::size_t pointIndex = 0u;
+                     pointIndex < header.pairAndCount[3];
+                     ++pointIndex) {
+                    const MRManifoldPointGPU& point =
+                        batch.initialManifoldPoints[
+                            pointBase + pointIndex
+                        ];
+                    if (!finite(point.localAnchorA) ||
+                        !finite(point.localAnchorB) ||
+                        !finite(point.impulses)) {
+                        return reject(
+                            std::move(diagnostics),
+                            MetalWorldHostStatus::invalidDimensions,
+                            "initial contact manifold point is invalid"
+                        );
+                    }
+                }
+            }
+        }
+    }
     if (!contactMode &&
         (!batch.initialSceneBodies.empty() ||
          !batch.resetSceneBodies.empty() ||
@@ -7077,6 +7154,9 @@ bool privatePersistentInputBuffer(const std::size_t index) {
     case kResetV:
     case kResetSceneBodies:
     case kSceneBodiesA:
+    case kManifoldHeadersA:
+    case kManifoldPointsA:
+    case kManifoldCountsA:
     case kResetRodNodes:
     case kResetRodEdges:
     case kRodNodesA:
@@ -8953,6 +9033,29 @@ void uploadBatch(
             requirements.entries[kSceneBodiesA],
             stateUpload
         );
+        if (!batch.initialManifoldCounts.empty()) {
+            stagePrivateBuffer(
+                context,
+                kManifoldHeadersA,
+                batch.initialManifoldHeaders.data(),
+                requirements.entries[kManifoldHeadersA],
+                stateUpload
+            );
+            stagePrivateBuffer(
+                context,
+                kManifoldPointsA,
+                batch.initialManifoldPoints.data(),
+                requirements.entries[kManifoldPointsA],
+                stateUpload
+            );
+            stagePrivateBuffer(
+                context,
+                kManifoldCountsA,
+                batch.initialManifoldCounts.data(),
+                requirements.entries[kManifoldCountsA],
+                stateUpload
+            );
+        }
         if (!nativeTask) {
             stagePrivateBuffer(
                 context,
@@ -9278,7 +9381,8 @@ bool encodeResidentStateInitialization(
     const RequiredBuffers& requirements,
     const bool contactMode,
     const bool hasRods,
-    const bool nativeTask
+    const bool nativeTask,
+    const bool initialManifoldsProvided
 ) {
     if (nativeTask) {
         const MRTaskEvidenceStateGPU initialEvidence{
@@ -9319,9 +9423,11 @@ bool encodeResidentStateInitialization(
     clear(kStateVB);
     if (contactMode) {
         clear(kSceneBodiesB);
-        clear(kManifoldHeadersA);
-        clear(kManifoldPointsA);
-        clear(kManifoldCountsA);
+        if (!initialManifoldsProvided) {
+            clear(kManifoldHeadersA);
+            clear(kManifoldPointsA);
+            clear(kManifoldCountsA);
+        }
         clear(kManifoldHeadersB);
         clear(kManifoldPointsB);
         clear(kManifoldCountsB);
@@ -20110,7 +20216,8 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                     requirements,
                     contactMode,
                     world.rodCount() != 0u,
-                    nativeTask
+                    nativeTask,
+                    !batch.initialManifoldCounts.empty()
                 )) {
                 return reject(
                     std::move(diagnostics),

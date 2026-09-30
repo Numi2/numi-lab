@@ -1431,3 +1431,53 @@ checkpoint TSV, and restore log SHA-256 values are
 `7a166f47f0ae422c25d3b00c1c9bc545b11c42e516f581a6e72ef1cca452766`,
 and `01d53bbaa06591a0f5c4cec9e7490f8dd2da4bf957a02258525ab5fa30994dce`.
 These are one-step convergence diagnostics, not a faster whole-stitch result.
+
+### Restored rigid-contact state at the first skin puncture
+
+The step-1869 braked checkpoint stored the Matter, rod, scene-body, and
+articulation states but discarded MetalWorld's persistent rigid-contact
+manifolds. The next process therefore started its jaw/needle contact solve
+cold. `MetalWorldBatch` can now accept a complete, capacity-packed initial
+manifold cache for a non-resident contact submission; it validates the active
+headers and points before upload. The synthetic-skin probe writes a versioned
+sidecar alongside the accepted braked checkpoint, bound to the exact TSV
+contents and step, and can restore it for the one-step puncture replay. The
+sidecar stores only 16 active manifolds and expands into zero-initialized GPU
+capacity on read: 5,204 bytes versus the prototype's 4,914,956 bytes. A
+one-byte mutation was rejected by the content-hash check before advancing
+physics.
+
+The new brake pass reproduced the same step-1869 TSV byte for byte (SHA-256
+`72d6a7e852ee21ab76bef3f479607da77348697e8632add886364c656fda8b55`).
+Its compact cache SHA-256 is
+`3f5772902434d40544fd2192a21f2154ad1982ba2c174cfdd3880633999d0e9b`.
+With the same binary and checkpoint, the paired 62.5 us puncture results
+were:
+
+| Initial rigid contacts | Warm jaw contacts | Angular slip (rad/s) | Point slip (m/s) | Max normal residual (m/s) | GPU (ms) |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Cold | 0/0 | 1.446157 | 0.001003959 | 0.005921038 | 1437.874 |
+| Restored cache | 4/6 | 0.089184 | 0.000073354 | 0.000943873 | 1447.136 |
+
+The warm run passed the existing 0.6 rad/s angular-grasp and 0.002 m/s
+normal-residual screens, maintained both jaw contacts, and earned one
+puncture channel with 1.2785e-6 Ns accepted tip impulse and 1.2785e-6 Ns
+tissue reaction. All 46,080 tetrahedra remained active, with zero removed
+mass and zero failed steps. Its step-1870 Matter checkpoint restored
+byte-exactly. The accepted tip advance was only 0.01599 um in this single
+microstep, so this qualifies a bounded robot-held puncture step, not a
+complete bite, pull-through, or knot. The cold replay remained a physically
+accepted but unqualified grasp transient. Warm GPU time was 0.6 percent
+higher on this pair, so the requested **100x whole-stitch runtime improvement
+is not demonstrated**; the sidecar size reduction is a storage improvement,
+not a runtime speedup.
+
+The brake, warm puncture, cold paired replay, exact restore, and corrupted
+archive rejection logs have SHA-256 values
+`a481401b657dba63a6a02f917d1532473a6a13a3aa57c45ff5b3aebfef5fb74d`,
+`723e0a308f978bbad6aa90dd94ed88a3e22fcb3779f8f328f875e89a2332bef9`,
+`74d9d6001a5e159aa14d3fb93e8d8486e67720064f4bd789248f207c691ac2c1`,
+`10e0133baa27278cc69095ed776c0d714adf3698e6f4e01b7cd86a2d84760c0f`,
+and `cd4cde005c6502e570d0c1d810205a775e91dbca679fda2c3624de7023db130c`.
+The accepted puncture checkpoint SHA-256 is
+`513f41761ef3cd42fd9c62a0b8f6542a4e9987a57abd3e281674ce0ddb6e9faf`.

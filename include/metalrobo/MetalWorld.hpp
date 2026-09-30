@@ -271,6 +271,12 @@ struct MetalWorldBatch {
     // initial pose/velocity for every non-articulated dynamic, static, or
     // kinematic body. Articulation-owned body states are generated on-device.
     std::span<const MRBodyStateGPU> initialSceneBodies{};
+    // Optional final accepted contact cache from a matching compiled world.
+    // All three spans must be supplied together with full environment-major
+    // capacity packing. Without them, a new submission starts cold.
+    std::span<const MRManifoldHeaderGPU> initialManifoldHeaders{};
+    std::span<const MRManifoldPointGPU> initialManifoldPoints{};
+    std::span<const std::uint32_t> initialManifoldCounts{};
     // Optional reset state with the same packing as initialSceneBodies.
     std::span<const MRBodyStateGPU> resetSceneBodies{};
     // Optional packed [control step][environment][compiled scene body].
