@@ -360,6 +360,29 @@ both were reverted. The measured bottleneck remains the contact solve, so
 the next optimization needs to reduce work per validated contact iteration
 without relaxing residual or topology checks.
 
+The Wave32 rod impulse update now assembles and solves in cohort-private
+threadgroup memory while retaining the same device-resident factor, contact
+order, 32-iteration schedule, and terminal residual. The matched six-step
+moving-gripper probe took 48.855, 48.850, and 48.854 s GPU, versus
+62.576 s before the change: about 1.28x faster for the same 24 ms interval.
+Every reported physical field matched. More decisively, its saved first-bite
+checkpoint TSV and 30 MB Matter snapshot were byte-identical to the prior
+run (SHA-256 `eba8613a1dc9d645ddd3784725727abc7141731ae7dc706ac9fa6d5b7609fae2`
+and `ea00a176ecfb6f3854d58a2f484147561937f6d31e93e736b36919a98745e9cd`).
+The post-entry 16x/one-Newton step took 2.220 s GPU in two runs, versus
+about 2.329 s with device-memory scratch, and retained its puncture channel,
+all 46,080 tetrahedra, and 0.000868 m/s MetalWorld contact residual.
+Four focused surgical tests passed. The robot trial log SHA-256 values are
+`ebe214aa6eae22b85f25a22837c623509e4ff464240d9908a0be2632b3b392e8`,
+`4fd92323d122f55dc06f2651a3cd4c5c8b2a8991c7539ba41b0a7b8d06081c42`,
+and `16154bf092ca5fa1d25729c97f11af500e60bae05c9c78e72cae17a7114c89ab`;
+the MetalRobo metallib SHA-256 is
+`08531cb0270799f4e2826e27ce0e6fb9ba4eba1323344a9662a5ba382041295e`.
+This is an exact-state performance gain on one robot-approach interval. Its
+maximum contact residual remains 0.002068 m/s, above the conservative
+per-step 0.002 m/s bound, and neither a complete stitch nor 100x
+end-to-end speedup has been established.
+
 The `--tissue-robot-first-bite-ik-only --synthetic-skin` geometry probe found
 a 250-step giver approach and 185-step 5 mm/s needle-orbit path at the
 original 10 um clearance. The entry

@@ -7483,10 +7483,11 @@ inline float typedNormalCrossContactResponse(
 
 // Applies one island's complete rod generalized impulse through the retained
 // implicit DER factor. A connected rod is represented by exactly one dynamic
-// node and therefore has one island owner; lane zero of that packet cohort can
-// safely reuse the rod's private workspace without atomics. The band solve is
-// matrix-free with respect to contacts and replaces the former diagonal
-// inverse-mass approximation in the authoritative velocity update.
+// node and therefore has one island owner. Lane zero of each packet cohort
+// assembles and solves in its own threadgroup workspace; the immutable factor
+// remains in the device arena. The band solve is matrix-free with respect to
+// contacts and replaces the former diagonal inverse-mass approximation in
+// the authoritative velocity update.
 inline bool applyFactorizedRodIslandImpulse(
     device const MRMetalWorldContactDispatchGPU& dispatch,
     constant MRMetalWorldPassGPU& pass,
@@ -7507,6 +7508,7 @@ inline bool applyFactorizedRodIslandImpulse(
     device const uint* constraintWitnessIndices,
     device const MRRodFactorCacheGPU* rodFactorCaches,
     device float* rodOperatorArena,
+    threadgroup float* rodScratch,
     thread uint& firstFailingConstraint
 ) {
     const uint factorStride = rodFactorElementStride(dispatch);
@@ -7519,8 +7521,6 @@ inline bool applyFactorizedRodIslandImpulse(
     }
     const uint environmentArenaBase =
         environment * dispatch.operatorVelocityCapacity;
-    const uint workspaceBase =
-        environmentArenaBase + 2u * factorStride;
     const uint expectedGeneration =
         pass.physicsSubstep +
         pass.controlStep * max(dispatch.rodCount, 1u);
@@ -7598,6 +7598,7 @@ inline bool applyFactorizedRodIslandImpulse(
             cache.code == MR_ROD_GPU_SUCCESS &&
             (cache.flags & MR_ROD_FACTOR_CACHE_VALID) != 0u &&
             nodeCount != 0u &&
+            nodeCount <= MR_ROD_GPU_MAX_NODES &&
             edgeCount + 1u == nodeCount &&
             nodeBase + nodeCount <= dispatch.rodNodeCount &&
             edgeBase + edgeCount <= dispatch.rodEdgeCount &&
@@ -7611,12 +7612,8 @@ inline bool applyFactorizedRodIslandImpulse(
             return false;
         }
 
-        const uint translationWorkspace =
-            workspaceBase + 3u * nodeBase;
-        const uint twistWorkspace =
-            workspaceBase +
-            3u * dispatch.rodNodeCount +
-            edgeBase;
+        const uint translationWorkspace = 0u;
+        const uint twistWorkspace = 3u * MR_ROD_GPU_MAX_NODES;
         // A contact only touches its edge's two translational nodes and one
         // twist coordinate. Assemble that sparse generalized impulse by
         // walking the scan-ordered constraints once, rather than walking all
@@ -7626,20 +7623,20 @@ inline bool applyFactorizedRodIslandImpulse(
         for (uint localNode = 0u;
              localNode < nodeCount;
              ++localNode) {
-            rodOperatorArena[
+            rodScratch[
                 translationWorkspace + 3u * localNode + 0u
             ] = 0.0f;
-            rodOperatorArena[
+            rodScratch[
                 translationWorkspace + 3u * localNode + 1u
             ] = 0.0f;
-            rodOperatorArena[
+            rodScratch[
                 translationWorkspace + 3u * localNode + 2u
             ] = 0.0f;
         }
         for (uint localEdge = 0u;
              localEdge < edgeCount;
              ++localEdge) {
-            rodOperatorArena[twistWorkspace + localEdge] = 0.0f;
+            rodScratch[twistWorkspace + localEdge] = 0.0f;
         }
         for (uint localTile = 0u;
              localTile < work.tileCount;
@@ -7704,26 +7701,26 @@ inline bool applyFactorizedRodIslandImpulse(
                     collider.nodeB,
                     -worldImpulse
                 );
-                rodOperatorArena[
+                rodScratch[
                     translationWorkspace + 3u * localNodeA + 0u
                 ] += forceA.x;
-                rodOperatorArena[
+                rodScratch[
                     translationWorkspace + 3u * localNodeA + 1u
                 ] += forceA.y;
-                rodOperatorArena[
+                rodScratch[
                     translationWorkspace + 3u * localNodeA + 2u
                 ] += forceA.z;
-                rodOperatorArena[
+                rodScratch[
                     translationWorkspace + 3u * localNodeB + 0u
                 ] += forceB.x;
-                rodOperatorArena[
+                rodScratch[
                     translationWorkspace + 3u * localNodeB + 1u
                 ] += forceB.y;
-                rodOperatorArena[
+                rodScratch[
                     translationWorkspace + 3u * localNodeB + 2u
                 ] += forceB.z;
                 const uint localEdge = collider.edgeIndex - edgeBase;
-                rodOperatorArena[twistWorkspace + localEdge] +=
+                rodScratch[twistWorkspace + localEdge] +=
                     rodTwistImpulseTorque(
                         collider,
                         witness,
@@ -7734,21 +7731,21 @@ inline bool applyFactorizedRodIslandImpulse(
             }
         }
 
-        bool valid = solveRodTranslationFactorDevice(
+        bool valid = solveRodTranslationFactor(
             rodOperatorArena,
             cache.firstBlock,
             3u * nodeCount,
-            rodOperatorArena,
+            rodScratch,
             translationWorkspace
         );
         if (valid) {
-            valid = solveRodTwistFactorDevice(
+            valid = solveRodTwistFactor(
                 rodOperatorArena,
                 cache.firstBlock +
                     MR_ROD_FACTOR_TRANSLATION_FLOATS_PER_NODE *
                         nodeCount,
                 edgeCount,
-                rodOperatorArena,
+                rodScratch,
                 twistWorkspace
             );
         }
@@ -7764,15 +7761,15 @@ inline bool applyFactorizedRodIslandImpulse(
              ++localNode) {
             const uint nodeIndex = nodeBase + localNode;
             const float3 velocityDelta = float3(
-                rodOperatorArena[
+                rodScratch[
                     translationWorkspace +
                     3u * localNode + 0u
                 ],
-                rodOperatorArena[
+                rodScratch[
                     translationWorkspace +
                     3u * localNode + 1u
                 ],
-                rodOperatorArena[
+                rodScratch[
                     translationWorkspace +
                     3u * localNode + 2u
                 ]
@@ -7790,7 +7787,7 @@ inline bool applyFactorizedRodIslandImpulse(
              localEdge < edgeCount;
              ++localEdge) {
             const float twistDelta =
-                rodOperatorArena[twistWorkspace + localEdge];
+                rodScratch[twistWorkspace + localEdge];
             if (!isfinite(twistDelta)) {
                 firstFailingConstraint = min(
                     firstFailingConstraint,
@@ -7843,7 +7840,8 @@ inline void mrWorldWave32SolvePacket(
     const uint lane,
     threadgroup uint* failureCodes,
     threadgroup uint* failureConstraints,
-    threadgroup uint* sharedFailure
+    threadgroup uint* sharedFailure,
+    threadgroup float* rodScratch
 ) {
     const MRWorkQueueHeaderGPU workHeader =
         workHeaders[MR_WORLD_WORK_SOLVER];
@@ -8510,6 +8508,8 @@ inline void mrWorldWave32SolvePacket(
             constraintWitnessIndices,
             rodFactorCaches,
             rodOperatorArena,
+            rodScratch + cohortIndex *
+                (4u * MR_ROD_GPU_MAX_NODES - 1u),
             localFailureConstraint
         )) {
         localFailure = MR_STEP_FACTORIZATION_FAILED;
@@ -8839,6 +8839,8 @@ inline void mrWorldWave32SolvePacket(
                 constraintWitnessIndices,
                 rodFactorCaches,
                 rodOperatorArena,
+                rodScratch + cohortIndex *
+                    (4u * MR_ROD_GPU_MAX_NODES - 1u),
                 localFailureConstraint
             )) {
             localFailure = MR_STEP_FACTORIZATION_FAILED;
@@ -9049,6 +9051,9 @@ kernel void mr_world_wave32_solve(
         MR_WAVE32_CONTACTS_PER_TILE
     ];
     threadgroup uint sharedFailure[4u];
+    threadgroup float rodScratch[
+        4u * (4u * MR_ROD_GPU_MAX_NODES - 1u)
+    ];
     mrWorldWave32SolvePacket(
         dispatch,
         factors,
@@ -9084,7 +9089,8 @@ kernel void mr_world_wave32_solve(
         lane,
         failureCodes,
         failureConstraints,
-        sharedFailure
+        sharedFailure,
+        rodScratch
     );
 }
 
@@ -9134,6 +9140,9 @@ kernel void mr_world_wave32_solve_persistent(
         MR_WAVE32_CONTACTS_PER_TILE
     ];
     threadgroup uint sharedFailure[4u];
+    threadgroup float rodScratch[
+        4u * (4u * MR_ROD_GPU_MAX_NODES - 1u)
+    ];
     device MRWorkQueueHeaderGPU& header =
         workHeaders[MR_WORLD_WORK_SOLVER];
     device atomic_uint* cursor =
@@ -9211,7 +9220,8 @@ kernel void mr_world_wave32_solve_persistent(
                 lane,
                 failureCodes,
                 failureConstraints,
-                sharedFailure
+                sharedFailure,
+                rodScratch
             );
             threadgroup_barrier(
                 mem_flags::mem_device |
