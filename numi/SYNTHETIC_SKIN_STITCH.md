@@ -486,6 +486,32 @@ rad/s angular slip exceed the 2 mm/s and 0.6 rad/s grasp gates. It remains
 `tissue-robot-first-bite-puncture-transient`. These bounded timings establish
 neither a 100x speedup nor a completed robot-driven stitch.
 
+A further one-step performance audit tested narrower broadphase changes and
+then reverted all of them. A diagnostic readback on the post-entry 1x skin
+step measured 33,944 deformable candidate pairs, zero active self-contact
+rows, and 368,640 reserved candidate slots in one environment. The original
+shader took 1,132.357 ms GPU on the matched step; the rebuilt original shader
+later took 1,142.222 ms, showing the scale of single-run variation. A
+parallel surface compaction trial took 1,130.238 ms; a two-bit stable radix
+sort took 1,127.909 ms. Capping active-row compaction at candidate count took
+1,118.304 ms. Adding candidate-count indirect narrowphase dispatch took
+1,113.391 ms. Caching the first 16 eligible right surfaces per left in
+otherwise unused sort scratch took 1,109.459 ms. Every trial retained the
+published puncture channel, 46,080 tetrahedra, zero removed mass, positive
+determinant, residual, thread bounds, and zero failed steps. The cumulative
+candidate-bound result was only about 2% faster in this single-run comparison,
+far below the 100x request. Its log SHA-256 is
+`55ed3d37506ac13a936ae35cbdea49d2b99f4fa99bc3883f15ce6d0f11efa08f`;
+the diagnostic candidate-count log SHA-256 is
+`01591947fa05de49cdbe29ccc88e2f7c01da1c84f78b6a50d6cc0927e88295f4`.
+The tested trial code was removed, and the restored metallib and linked
+library hashes match the preceding accepted shader lineage. This bounds the
+benefit of trimming unused capacity on this step. It does not distinguish
+the first candidate sweep from the remaining coupled solver work; dispatch
+boundary timestamp sampling was unavailable on this device. A larger gain
+needs stage attribution and an algorithmic change to candidate generation
+or the full-resolution solver, verified against the same physical gates.
+
 The stronger 75 um jaw-preload trial from robot contact step 1645 also
 remains unqualified. A 13 ms ramp at 1 mm/s preserved Matter's 46,080
 tets and zero failures but drifted 212 um at the needle seat. A 6 ms
