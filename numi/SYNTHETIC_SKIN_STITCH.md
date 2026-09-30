@@ -1564,8 +1564,55 @@ and seven-pass paired-run SHA-256 values are
 `362b2493b852c010ea37d42cdaa69a86133f9fb6ec8237af4929f9a68a058433`,
 `75d08f1321e86efad2cbace395c49aedf9322e83924a5447fc4b8d551570e33c`,
 and `7fd0ba1b63b39669ceccf2833ab482a427a3a4460eacdf27584a63951f207287`.
-The next performance gate is a source-matched continuation from step 1886
-into renewed tip loading, with cadence reduced when the contact and tissue
-certificates require it. The present 13.6x segment result cannot be
+The next performance gate was a source-matched continuation from step 1886
+toward renewed tip loading; the executed result is recorded below. The
+13.6x segment result cannot be
 extrapolated across penetration, thread pull-through, the opposing bite,
 or wound closure; those stages still need executed trajectories and timings.
+
+### Continued held needle toward the skin-node contact band
+
+An opt-in `--robot-puncture-grouped-steps` (1-8 control steps) now permits
+bounded multi-millisecond continuation from an accepted puncture checkpoint
+with its exact rigid-contact sidecar. The first four-step, 4 ms run from
+step 1886 preserved the grasp, 46,080 tetrahedra, one channel, zero failed
+steps, and a 0.000434 m/s maximum normal residual, but the probe rejected
+the checkpoint because there was **zero new tissue displacement**. That
+condition is required when opening a channel; an already accepted channel
+can persist during motion with no newly measured tissue load.
+The guard now accepts this precise no-new-load case only if the restored
+active channel count persists. The pre-fix diagnostic log SHA-256 is
+`eba0fbf85da540ead80600665dadc0fc33d75cc10aa8599b2ccc633a4cdb9419`.
+
+The source-matched replay passed and produced a step-1950 checkpoint. Four
+further 4 ms, one-Newton, cadence-16 continuations reached 20 ms after
+step 1886. All five runs retained the grasp, rod, active channel, tetrahedra,
+zero removed mass, and zero failed steps. Their final modeled needle-to-node
+clearance was 5.571 um, down from 17.314 um at step 1886. Each 4 ms group
+took about 4.20 s GPU. Two one-millisecond seven-Newton steps then reached
+5.059 and 5.078 um clearance. A subsequent four-millisecond one-Newton
+group reached 3.208 um at step 2302; its checkpoint restored byte-exactly.
+Across these 26 ms, the eight submissions took 28.698 s GPU in total. Their
+maximum reported normal residual was 0.000509 m/s, below the 0.002 m/s
+screen. The initial short four-base-microstep reference cost 3.749 s for
+0.25 ms; its state and horizon differ, so it is not a matched 26 ms speedup
+denominator. No continuation reported a **new** tip impulse, tissue
+reaction, or tissue displacement. The channel remained active, but this
+does not demonstrate further tissue penetration, through-wall passage,
+thread pull-through, or a 100x whole-stitch result. The next physics step
+must inspect channel/needle geometry and renewed load before treating the
+sub-5-um node clearance as tissue engagement.
+
+The five accepted 4 ms logs have SHA-256 values
+`d367d0a446014ab75ee65256cb09da7764ba47e3ded99a861b1c7ea513be730f`,
+`f222a16f5ce0336b7c8cf166fe12e3c47a91f5962f396351d1ed26c0febfffbd`,
+`926b741c640208e8aa217215391ac0f41f65cc7b71874f8c2b3aa221aa760cf5`,
+`690ed5454966af835c2e73804174bfcaf8313d4c5093f2cab0fd1597b54c831a`,
+and `650fbe286823e51d77394e1d4c69fc1b27a7eb806ac498910380d6d26b26b487`.
+The two seven-Newton and final one-Newton logs have SHA-256 values
+`9856f084a71ac3c2be1f93d5ed22bcf591961abae7a468bb5940ae3f2e913201`,
+`4cba2b9af3537d401fe5541dee27bb1ab5b51c11987792cd3f7c1dba40ddcc57`,
+and `8e649b0cb6877ebc57464c37edd4c982ef5a8ba32718cb2d183525b9cc0a4ec4`.
+The final checkpoint and restore log SHA-256 values are
+`45d05c176e921f9696bb78bf445274b1c335726dcd7787b6d4a690bc0ae220a8`
+and `9af1b876b4d1c3837fa894e9b9d8f8049c0e1a7da03a9c436d1c7b59932e973e`.

@@ -7122,6 +7122,8 @@ struct Arguments {
     std::uint32_t robotPunctureCadence =
         kRobotFirstBitePunctureMicrostepCadence;
     bool robotPunctureCadenceProvided = false;
+    std::uint32_t robotPunctureGroupedSteps = 1u;
+    bool robotPunctureGroupedStepsProvided = false;
     std::filesystem::path stateOutputDirectory;
     std::filesystem::path resumeRigidContactCachePath;
     std::string resumeTissueCheckpointPhase;
@@ -7418,6 +7420,23 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             result.robotPunctureCadence =
                 static_cast<std::uint32_t>(parsed);
             result.robotPunctureCadenceProvided = true;
+        } else if (argument == "--robot-puncture-grouped-steps") {
+            require(
+                !result.robotPunctureGroupedStepsProvided &&
+                    index + 1 < argc,
+                "--robot-puncture-grouped-steps requires exactly one count"
+            );
+            const std::string value{argv[++index]};
+            std::size_t consumed = 0u;
+            const unsigned long parsed = std::stoul(value, &consumed);
+            require(
+                consumed == value.size() && parsed >= 1u &&
+                    parsed <= 8u,
+                "robot puncture grouped steps must be in [1, 8]"
+            );
+            result.robotPunctureGroupedSteps =
+                static_cast<std::uint32_t>(parsed);
+            result.robotPunctureGroupedStepsProvided = true;
         } else if (argument == "--state-output-dir") {
             require(
                 result.stateOutputDirectory.empty() && index + 1 < argc,
@@ -8110,6 +8129,11 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
         !result.robotPunctureOneNewton ||
             result.robotPunctureCadenceProvided,
         "one-Newton puncture requires a grouped accepted puncture continuation"
+    );
+    require(
+        !result.robotPunctureGroupedStepsProvided ||
+            result.robotPunctureCadenceProvided,
+        "grouped puncture step count requires a grouped puncture cadence"
     );
     require(
         (result.mode != "--tissue-robot-first-bite-continue-only" &&
@@ -17260,7 +17284,7 @@ int main(const int argc, const char* const argv[]) {
                         options.robotPunctureCadence;
                     robotApproachSteps =
                         options.robotPunctureCadenceProvided
-                        ? 1u
+                        ? options.robotPunctureGroupedSteps
                         : (options.resumeTissueCheckpointPhase ==
                             "tissue-robot-first-bite-contact"
                             ? kRobotFirstBitePunctureEntrySteps
@@ -17852,7 +17876,12 @@ int main(const int argc, const char* const argv[]) {
                                 punctureTipNormalImpulse > 0.0 &&
                                 punctureTipAcceptedImpulse > 0.0 &&
                                 tissueReactionImpulse > 0.0)) &&
-                                maximumTissueDisplacement > 0.0 &&
+                                // Opening a channel requires live tissue
+                                // motion. A restored channel may persist
+                                // without newly measured tissue motion.
+                                (maximumTissueDisplacement > 0.0 ||
+                                 (activeChannels > 0u &&
+                                  channels == activeChannels)) &&
                                 channels <= 1u &&
                                 channelGeometryValid
                             : channels == 0u &&
