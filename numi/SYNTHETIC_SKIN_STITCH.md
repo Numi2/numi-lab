@@ -73,7 +73,7 @@ The run's executable retains the SHA-256 above. A later rebuild has SHA-256
 it adds live center-wound-gap mean and maximum measurements to pull-through
 progress and final output. Those new fields will not appear in the already
 running process, and this rebuild alone is not pull-through qualification.
-The current rebuild, which also gates authored-surface clearance along the
+The first grip-probe rebuild, which also gates authored-surface clearance along the
 giver approach and first bite, has SHA-256
 `d7639e6f81e18c01b8f4b2e092892a444a3bbd27536ad774f2ca42a7edd187fb`.
 It adds `--tissue-robot-first-bite-grip-only --synthetic-skin`: a one-transaction
@@ -81,6 +81,9 @@ dynamic-needle, closed-giver grasp probe with bilateral contact, insert
 coverage, swage, rod, and Matter gates. It compiles and its independent
 geometry tests pass, but the native grip mode has not run while the pull-
 through process owns the GPU. It does not yet drive the full bite.
+The latest rebuild, which additionally rejects premature puncture or tissue
+mass loss at grip reset, has SHA-256
+`18f7be3f39eeee80fae72006c3b184b9a33e31e434f570cc05133c384c515d85`.
 
 The `--tissue-robot-first-bite-ik-only --synthetic-skin` geometry probe found
 a 250-step giver approach and 185-step 5 mm/s needle-orbit path. The entry
