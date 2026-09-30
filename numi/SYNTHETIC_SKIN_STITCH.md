@@ -1234,3 +1234,14 @@ and `9cdecbf0ac3d95da3ac9ce9c8d7db0c72269cc436aaefc9cb3b5f6ddd7d6c124`.
 The remaining generalized-stage hypothesis is the ordered rod response
 update over the 128-node strand, not local array clearing; its cost still
 needs a bounded GPU measurement before an algorithmic rewrite.
+
+A deliberately invalid rod-update ablation did not isolate that cost:
+omitting the per-row rod velocity update changed the trajectory, raised
+the normal residual to 0.041837 m/s, and was rejected by the live
+0.002 m/s gate. Its 2,101.449 ms GPU time cannot be compared as an
+isolated rod-kernel saving because the coupled state and downstream work
+changed. The diagnostic log SHA-256 is
+`00f4a52a4560ae00a4361f640a8607874ff0c2f6797ea71b554638020caaf439`.
+The ablation was removed and the accepted metallib hash above restored.
+The next attribution must time the ordered rod stage without changing its
+impulses or downstream state.
