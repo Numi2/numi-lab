@@ -105,6 +105,13 @@ target_compile_options(numi-matter-ventricular-source-cook
 target_compile_definitions(numi-matter-ventricular-source-cook
     PRIVATE NUMI_MATTER_CARDIAC_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/materials/rodero2021_ventricular_guccione_passive.nmatter")
 
+add_executable(numi-matter-ventricular-source-topology-check
+    tools/ventricular_source_topology_check.cpp)
+target_link_libraries(numi-matter-ventricular-source-topology-check
+    PRIVATE numi_matter_compiler)
+target_compile_options(numi-matter-ventricular-source-topology-check
+    PRIVATE -Wall -Wextra -Wpedantic -Werror)
+
 add_executable(numi-matter-stateful-check tools/stateful_check.cpp)
 target_link_libraries(numi-matter-stateful-check PRIVATE numi_matter_compiler)
 target_compile_definitions(
