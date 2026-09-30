@@ -225,10 +225,10 @@ the linked Matter snapshot SHA-256 is
 The executable SHA-256 is
 `c8152cc2131f10e3d8bd2f7c8ad04c6058bd5de788629094190939dc26867b91`.
 Repeating the pre-contact bridge from step 1389 is rejected before physics:
-its planned sweep could cross the 100 um contact guard. The next mode must
-measure actual needle/skin contact, deformation, reaction, and earned
-puncture topology at the full solver budget; this bridge only proves a loaded
-robot approach to the contact boundary.
+its planned sweep could cross the 100 um contact guard. The next bounded modes
+measure actual needle/skin contact, deformation, and reaction at the full
+solver budget; this bridge alone proves a loaded robot approach to the
+contact boundary.
 The native visual probe also accepted the step-1389 checkpoint's
 `synthetic_skin_wound` identity and live FEM snapshot, rendering 6,336 tissue
 triangles in `build-skin-wound/skin-robot-contact-visual/handoff-close.png`
@@ -237,6 +237,63 @@ and `handoff-overview.png`. The overview PNG SHA-256 is
 the visual evidence JSON SHA-256 is
 `01b2821a79455b0ebd76f2ae07f520ff4c0be494f7977e45cca8525fa5eeaa6f`.
 This is a rendered pre-contact state, not a motion video or puncture proof.
+
+`--tissue-robot-first-bite-entry-only` restored the step-1389 checkpoint and
+advanced the robot-held dynamic needle through 16 full-seven-Newton Matter
+groups. The tip moved 82.01 um, reducing the minimum modeled tip-to-skin-node
+distance from 151.51 to 71.82 um. One tapered-tip Matter contact carried an
+accepted 1.014e-8 N s normal impulse; the tissue reaction was 1.014e-8 N s
+and the largest FEM-node displacement was 0.466 nm. All 46,080 tetrahedra
+remained active, with zero removed mass, zero puncture channels, minimum
+determinant 0.999997377, maximum residual 1.020e-6, and zero failed steps.
+GPU time was 101.181 s for 16 ms of simulated motion. The state at step 1645
+passed byte-exact v3 restore. The log SHA-256 is
+`c476285348dad3bd7b156653a12a5de9f5b601df7d09345c7add87a5a07481f1`;
+the checkpoint TSV SHA-256 is
+`02fba6e790c89e409b9d30e0f0ef7161ad8f6949c53e483a86af965ac0bb89e0`.
+The visual probe rendered its live 6,336-triangle FEM surface in
+`build-skin-wound/skin-robot-entry-visual/handoff-close.png`, SHA-256
+`1b5b1a7a914a6c2aae80e45519b3a4b0734cc9f24ef95e6137b21985de84f743`.
+This is still a single still image, not a stitch video.
+
+`--tissue-robot-first-bite-contact-advance-only` then restored step 1645
+and passed an eight-group, 16x, seven-Newton continuation. The tip advanced
+another 50.47 um to a 21.44 um modeled skin-node distance. Its one accepted
+tip contact carried 6.992e-8 N s and tissue reaction 7.032e-8 N s; the
+largest FEM-node displacement was 2.675 nm. All 46,080 tetrahedra remained,
+zero channels and zero removed mass, minimum determinant 0.999983966,
+maximum residual 2.913e-6, and zero failed steps. GPU time was 53.873 s for
+8 ms of simulated motion. The step-1773 state passed byte-exact restore.
+The log SHA-256 is
+`c7a18e6df595002a4df112042b73d5e998da0b318b1c77a42263fa3a5d61588d`;
+the TSV SHA-256 is
+`186b72c0232e2fadcedfe3b288e1dfcadc2767c2b1e1a544e41d44a5bf76968c`.
+The native puncture impulse gate is 5e-7 N s; this prefix did not earn a
+puncture channel. A longer continuation from step 1645, and a short 8x
+continuation from step 1773, both rolled back at the unchanged Matter contact
+feasibility gate (`NM_STATUS_CONTACT_FAILURE`, code 6). Increasing the Newton
+budget to nine did not repair that failure. The safe last accepted state is
+step 1773, not an attempted crossing beyond it.
+
+For the 100x performance request, an opt-in
+`--tissue-robot-first-bite-continue-fast-only` groups the same 24 ms
+pre-contact interval into six 64x Matter steps instead of twelve 32x steps.
+The named fast mode reproduced its first trial's checkpoint byte for byte
+and passed byte-exact restore. Its GPU time was 58.031 s versus 68.113 s
+for the 32x/two-Newton path, a 1.17x
+improvement for this segment. It advanced the tip 112.00 um versus 111.12 um
+and changed saved robot and thread fields, so it is a distinct experimental
+trajectory, not an exact-state replacement for the 32x contact-checkpoint
+lineage. The verified fast-mode log SHA-256 is
+`010cd0dc83a7df418698abb19f7be10f26db210822f0a22d670774a877cbd580`;
+the checkpoint TSV SHA-256 is
+`f0dcaf19034d516cb98b859287a5ee17b8e6e76ca7975e2844fd73bf073883ba`.
+The 100x target on this matched segment would require at most 0.681 s GPU
+from the accepted 68.113 s baseline. Further cadence increases are not an
+exact-state optimization, and the contact phase still needs its full solver
+budget. Per-stage GPU profiling and a solver/dispatch redesign are needed
+before a credible 100x attempt; neither has been measured here. No full
+robot-driven stitch or 100x end-to-end speedup has been measured.
 
 The `--tissue-robot-first-bite-ik-only --synthetic-skin` geometry probe found
 a 250-step giver approach and 185-step 5 mm/s needle-orbit path at the

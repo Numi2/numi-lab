@@ -132,6 +132,12 @@ constexpr std::uint32_t kRobotFirstBiteDriveProbeSteps = 12u;
 constexpr std::uint32_t kRobotFirstBiteDriveRampSteps = 4u;
 constexpr std::uint32_t kRobotFirstBiteDriveMatterCadence = 16u;
 constexpr std::uint32_t kRobotFirstBiteContinueMatterCadence = 32u;
+constexpr std::uint32_t kRobotFirstBiteContinueFastMatterCadence = 64u;
+constexpr std::uint32_t kRobotFirstBiteContinueFastProbeSteps = 6u;
+constexpr std::uint32_t kRobotFirstBiteEntryMatterCadence = 16u;
+constexpr std::uint32_t kRobotFirstBiteContactAdvanceCadence = 16u;
+constexpr std::uint32_t kRobotFirstBiteEntryProbeSteps = 16u;
+constexpr std::uint32_t kRobotFirstBiteContactAdvanceSteps = 8u;
 // The pre-contact 12-step run reaches the same published MetalWorld state
 // with two Newton passes as with the cooked seven; one pass changes the
 // robot/thread state. Keep the shortcut behind a live contact-node clearance
@@ -7150,6 +7156,8 @@ void requireKnotCheckpointProtocolContract(
 
 bool isLiveTissueCheckpointPhase(const std::string_view phase) {
     return phase == "tissue-robot-first-bite-approach" ||
+        phase == "tissue-robot-first-bite-contact" ||
+        phase == "tissue-robot-first-bite-puncture" ||
         phase == "tissue-receiver-bridge-start" ||
         phase == "tissue-receiver-dynamic-bridge" ||
         phase == "tissue-receiver-cadence-proof" ||
@@ -7196,7 +7204,10 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             argument == "--tissue-robot-first-bite-grip-only" ||
             argument == "--tissue-robot-first-bite-drive-only" ||
             argument == "--tissue-robot-first-bite-continue-only" ||
+            argument == "--tissue-robot-first-bite-continue-fast-only" ||
             argument == "--tissue-robot-first-bite-contact-approach-only" ||
+            argument == "--tissue-robot-first-bite-entry-only" ||
+            argument == "--tissue-robot-first-bite-contact-advance-only" ||
             argument == "--tissue-receiver-state-bridge-only" ||
             argument == "--tissue-receiver-bridge-resume-only" ||
             argument == "--tissue-receiver-alignment-replay-only" ||
@@ -7868,7 +7879,10 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
         result.mode == "--tissue-checkpoint-restore-only" ||
         result.mode == "--tissue-checkpoint-hold-only" ||
         result.mode == "--tissue-robot-first-bite-continue-only" ||
+        result.mode == "--tissue-robot-first-bite-continue-fast-only" ||
         result.mode == "--tissue-robot-first-bite-contact-approach-only" ||
+        result.mode == "--tissue-robot-first-bite-entry-only" ||
+        result.mode == "--tissue-robot-first-bite-contact-advance-only" ||
         result.mode == "--tissue-receiver-bridge-resume-only" ||
         result.mode == "--tissue-suture-pull-stroke-only" ||
         result.mode == "--tissue-thread-target-only" ||
@@ -7885,10 +7899,18 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
     );
     require(
         (result.mode != "--tissue-robot-first-bite-continue-only" &&
-         result.mode != "--tissue-robot-first-bite-contact-approach-only") ||
+         result.mode != "--tissue-robot-first-bite-continue-fast-only" &&
+         result.mode != "--tissue-robot-first-bite-contact-approach-only" &&
+         result.mode != "--tissue-robot-first-bite-entry-only") ||
             result.resumeTissueCheckpointPhase ==
                 "tissue-robot-first-bite-approach",
         "robot first-bite continuation requires its accepted approach checkpoint"
+    );
+    require(
+        result.mode != "--tissue-robot-first-bite-contact-advance-only" ||
+            result.resumeTissueCheckpointPhase ==
+                "tissue-robot-first-bite-contact",
+        "robot contact advance requires its accepted tip-contact checkpoint"
     );
     require(
         result.mode != "--tissue-receiver-bridge-resume-only" ||
@@ -9325,9 +9347,16 @@ int main(const int argc, const char* const argv[]) {
             options.mode == "--tissue-checkpoint-hold-only";
         const bool tissueRobotFirstBiteContinueOnly =
             options.mode == "--tissue-robot-first-bite-continue-only";
+        const bool tissueRobotFirstBiteContinueFastOnly =
+            options.mode == "--tissue-robot-first-bite-continue-fast-only";
         const bool tissueRobotFirstBiteContactApproachOnly =
             options.mode ==
                 "--tissue-robot-first-bite-contact-approach-only";
+        const bool tissueRobotFirstBiteEntryOnly =
+            options.mode == "--tissue-robot-first-bite-entry-only";
+        const bool tissueRobotFirstBiteContactAdvanceOnly =
+            options.mode ==
+                "--tissue-robot-first-bite-contact-advance-only";
         const bool tissueReceiverBridgeResumeOnly =
             options.mode == "--tissue-receiver-bridge-resume-only";
         const bool tissueThreadTargetOnly =
@@ -9349,7 +9378,10 @@ int main(const int argc, const char* const argv[]) {
         const bool tissueCheckpointResume =
             tissueCheckpointRestoreOnly || tissueCheckpointHoldOnly ||
             tissueRobotFirstBiteContinueOnly ||
+            tissueRobotFirstBiteContinueFastOnly ||
             tissueRobotFirstBiteContactApproachOnly ||
+            tissueRobotFirstBiteEntryOnly ||
+            tissueRobotFirstBiteContactAdvanceOnly ||
             tissueReceiverBridgeResumeOnly ||
             tissueThreadTargetOnly || tissueThreadAcquisitionOnly ||
             tissueKnotFirstThrowPreflightOnly ||
@@ -9366,10 +9398,17 @@ int main(const int argc, const char* const argv[]) {
             isLiveTissueCheckpointPhase(
                 options.resumeTissueCheckpointPhase
             );
-        const bool resumeRobotFirstBiteApproach =
+        const bool resumeRobotFirstBitePrePuncture =
             tissueCheckpointResume &&
-            options.resumeTissueCheckpointPhase ==
-                "tissue-robot-first-bite-approach";
+            (options.resumeTissueCheckpointPhase ==
+                 "tissue-robot-first-bite-approach" ||
+             options.resumeTissueCheckpointPhase ==
+                 "tissue-robot-first-bite-contact");
+        const bool resumeRobotFirstBiteCheckpoint =
+            resumeRobotFirstBitePrePuncture ||
+            (tissueCheckpointResume &&
+             options.resumeTissueCheckpointPhase ==
+                 "tissue-robot-first-bite-puncture");
         const bool tissueRestOnly =
             options.mode == "--tissue-rest-only" ||
             resumeTissueRestCheckpoint;
@@ -9397,7 +9436,7 @@ int main(const int argc, const char* const argv[]) {
             tissueRobotFirstBiteGripOnly ||
             tissueRobotFirstBiteDriveOnly;
         const bool tissueRobotFirstBiteConfiguration =
-            tissueRobotFirstBiteLive || resumeRobotFirstBiteApproach;
+            tissueRobotFirstBiteLive || resumeRobotFirstBiteCheckpoint;
         const bool tissueOpposingBiteTopologyOnly =
             options.mode == "--tissue-opposing-bite-topology-only" ||
             options.mode == "--tissue-robot-first-bite-ik-only" ||
@@ -16674,7 +16713,7 @@ int main(const int argc, const char* const argv[]) {
                     minimumDeterminant > 0.0 &&
                     std::isfinite(maximumResidual) &&
                     (resumeLiveTissueCheckpoint &&
-                     !resumeRobotFirstBiteApproach
+                     !resumeRobotFirstBitePrePuncture
                         ? activeChannels > 0u
                         : activeChannels == 0u) &&
                     compiled.defaultRodNodes().size() ==
@@ -16728,30 +16767,57 @@ int main(const int argc, const char* const argv[]) {
                 << " authority_byte_exact=yes"
                 << " physics_advanced=no\n";
             if (tissueRobotFirstBiteContinueOnly ||
-                tissueRobotFirstBiteContactApproachOnly) {
+                tissueRobotFirstBiteContinueFastOnly ||
+                tissueRobotFirstBiteContactApproachOnly ||
+                tissueRobotFirstBiteEntryOnly ||
+                tissueRobotFirstBiteContactAdvanceOnly) {
+                const bool robotContactProbe =
+                    tissueRobotFirstBiteEntryOnly ||
+                    tissueRobotFirstBiteContactAdvanceOnly;
+                const std::uint32_t robotApproachCadence =
+                    tissueRobotFirstBiteContactAdvanceOnly
+                        ? kRobotFirstBiteContactAdvanceCadence
+                        : (tissueRobotFirstBiteEntryOnly
+                            ? kRobotFirstBiteEntryMatterCadence
+                            : (tissueRobotFirstBiteContinueFastOnly
+                                ? kRobotFirstBiteContinueFastMatterCadence
+                                : kRobotFirstBiteContinueMatterCadence));
+                const std::uint32_t robotApproachSteps =
+                    tissueRobotFirstBiteContactAdvanceOnly
+                        ? kRobotFirstBiteContactAdvanceSteps
+                        : (tissueRobotFirstBiteEntryOnly
+                            ? kRobotFirstBiteEntryProbeSteps
+                            : (tissueRobotFirstBiteContinueFastOnly
+                                ? kRobotFirstBiteContinueFastProbeSteps
+                                : kRobotFirstBiteDriveProbeSteps));
                 require(
                     tissueRuntime.setCoupledTimestepMultiplier(
-                        kRobotFirstBiteContinueMatterCadence
+                        robotApproachCadence
                     ),
                     "resumed robot approach could not select grouped Matter cadence"
                 );
                 stepConfig.timestepSeconds = static_cast<float>(
                     (kControlTimestep /
                         static_cast<double>(kPhysicsSubsteps)) *
-                    kRobotFirstBiteContinueMatterCadence
+                    robotApproachCadence
                 );
-                stepConfig.physicsSubsteps =
-                    kRobotFirstBiteContinueMatterCadence;
+                stepConfig.physicsSubsteps = robotApproachCadence;
                 require(
                     tissueRuntime.setNewtonIterationBudget(
-                        tissueRobotFirstBiteContactApproachOnly
+                        tissueRobotFirstBiteContactAdvanceOnly
                             ? NM_MIXED_NEWTON_ITERATIONS
-                            : kRobotFirstBiteContinueNewtonBudget
+                            : ((tissueRobotFirstBiteContactApproachOnly ||
+                                robotContactProbe)
+                                ? NM_MIXED_NEWTON_ITERATIONS
+                                : kRobotFirstBiteContinueNewtonBudget)
                     ) &&
                         tissueRuntime.newtonIterationBudget() ==
-                            (tissueRobotFirstBiteContactApproachOnly
+                            (tissueRobotFirstBiteContactAdvanceOnly
                                 ? NM_MIXED_NEWTON_ITERATIONS
-                                : kRobotFirstBiteContinueNewtonBudget),
+                                : ((tissueRobotFirstBiteContactApproachOnly ||
+                                    robotContactProbe)
+                                    ? NM_MIXED_NEWTON_ITERATIONS
+                                    : kRobotFirstBiteContinueNewtonBudget)),
                     "resumed robot approach could not select its bounded Newton budget"
                 );
                 const MRBodyStateGPU& startNeedle =
@@ -16810,9 +16876,9 @@ int main(const int argc, const char* const argv[]) {
                     kRobotFirstBiteDriveSpeedMps /
                     orbit.centerlineRadiusM;
                 std::vector<MRBodyStateGPU> needleTargets;
-                needleTargets.reserve(kRobotFirstBiteDriveProbeSteps);
+                needleTargets.reserve(robotApproachSteps);
                 for (std::uint32_t step = 0u;
-                     step < kRobotFirstBiteDriveProbeSteps;
+                     step < robotApproachSteps;
                      ++step) {
                     needleTargets.push_back(curvedNeedleTarget(
                         startNeedle,
@@ -16837,14 +16903,26 @@ int main(const int argc, const char* const argv[]) {
                 }
                 require(
                     std::isfinite(startTissueSeparation) &&
-                        startTissueSeparation -
-                            maximumPlannedCapsuleSweep >=
-                            (tissueRobotFirstBiteContactApproachOnly
-                                ? kRobotFirstBiteFreeSpaceMarginM * 0.5
-                                : kRobotFirstBiteFreeSpaceMarginM),
-                    tissueRobotFirstBiteContactApproachOnly
-                        ? "full-Newton robot approach can cross the tapered-tip contact guard"
-                        : "two-Newton robot continuation can carry the tapered tip into the skin contact band"
+                        (robotContactProbe
+                            ? startTissueSeparation > 0.0 &&
+                                startTissueSeparation <
+                                    (tissueRobotFirstBiteEntryOnly
+                                        ? kRobotFirstBiteFreeSpaceMarginM
+                                        : kRobotFirstBiteFreeSpaceMarginM *
+                                            0.5) &&
+                                (!tissueRobotFirstBiteEntryOnly ||
+                                 startTissueSeparation >
+                                     kRobotFirstBiteFreeSpaceMarginM * 0.5)
+                            : startTissueSeparation -
+                                  maximumPlannedCapsuleSweep >=
+                                  (tissueRobotFirstBiteContactApproachOnly
+                                      ? kRobotFirstBiteFreeSpaceMarginM * 0.5
+                                      : kRobotFirstBiteFreeSpaceMarginM)),
+                    robotContactProbe
+                        ? "robot contact probe requires its bounded prior skin state"
+                        : (tissueRobotFirstBiteContactApproachOnly
+                            ? "full-Newton robot approach can cross the tapered-tip contact guard"
+                            : "two-Newton robot continuation can carry the tapered tip into the skin contact band")
                 );
                 const ArmTrajectory trajectory =
                     needleGraspArmTrajectory(
@@ -16867,15 +16945,56 @@ int main(const int argc, const char* const argv[]) {
                 );
                 metalrobo::MetalWorldContext context;
                 metalrobo::MetalWorldResidentState resident;
-                const PhaseResult driven = initializePhase(
-                    context,
-                    compiled,
-                    world,
-                    stepConfig,
-                    resident,
-                    trajectory.efforts,
-                    kRobotFirstBiteDriveProbeSteps
-                );
+                const PhaseResult driven =
+                    tissueRobotFirstBiteContactAdvanceOnly
+                        ? initializePhaseUnchecked(
+                            context,
+                            compiled,
+                            world,
+                            stepConfig,
+                            resident,
+                            trajectory.efforts,
+                            robotApproachSteps
+                        )
+                        : initializePhase(
+                            context,
+                            compiled,
+                            world,
+                            stepConfig,
+                            resident,
+                            trajectory.efforts,
+                            robotApproachSteps
+                        );
+                if (!driven.diagnostics.succeeded() ||
+                    driven.diagnostics.failedStepCount != 0u) {
+                    const numi::matter::RuntimeStateSnapshot failedMatter =
+                        tissueRuntime.snapshot();
+                    for (const NMMatterStatusGPU& status :
+                         failedMatter.statuses) {
+                        std::cout << std::setprecision(9)
+                            << "robot_first_bite_matter_failure"
+                            << " code=" << status.code
+                            << " object=" << status.objectIndex
+                            << " failing_index=" << status.failingIndex
+                            << " completed_microsteps="
+                            << status.completedMicrosteps
+                            << " fgmres_iterations="
+                            << status.fgmresIterations
+                            << " contact_count=" << status.contactCount
+                            << " minimum_determinant="
+                            << status.diagnostics.x
+                            << " maximum_stress="
+                            << status.diagnostics.y
+                            << " residual=" << status.diagnostics.z
+                            << " correction=" << status.diagnostics.w
+                            << '\n';
+                    }
+                    require(
+                        false,
+                        "robot first-bite contact transaction rolled back: " +
+                            driven.diagnostics.message
+                    );
+                }
                 const numi::matter::RuntimeStateSnapshot matter =
                     tissueRuntime.snapshot();
                 const NeedleTipCapsuleGeometry actualTip =
@@ -16918,7 +17037,56 @@ int main(const int argc, const char* const argv[]) {
                 const double swageError = swageAttachmentError(
                     world, driven.result
                 );
+                std::uint32_t punctureTipContacts = 0u;
+                double punctureTipNormalImpulse = 0.0;
+                double punctureTipAcceptedImpulse = 0.0;
+                for (std::size_t index = 0u;
+                     index < matter.contactSamples.size();
+                     ++index) {
+                    const NMContactSampleGPU& sample =
+                        matter.contactSamples[index];
+                    if ((sample.identity.w & NM_CONTACT_VALID) == 0u ||
+                        sample.identity.y >=
+                            tissueWorld.contact.rigidProxies.size() ||
+                        (tissueWorld.contact.rigidProxies[
+                            sample.identity.y].flags &
+                         NM_RIGID_PUNCTURE_TIP) == 0u) {
+                        continue;
+                    }
+                    ++punctureTipContacts;
+                    punctureTipNormalImpulse +=
+                        sample.impulseAndNormal.w;
+                    if (index < matter.contactHistories.size()) {
+                        punctureTipAcceptedImpulse +=
+                            matter.contactHistories[index].w;
+                    }
+                }
+                double maximumTissueDisplacement = 0.0;
+                require(
+                    matter.femNodes.size() >=
+                        tissueCoupon.metadata.nodeCount &&
+                        restored.femNodes.size() >=
+                            tissueCoupon.metadata.nodeCount,
+                    "robot entry lost live or restored skin nodes"
+                );
+                for (std::uint32_t node = 0u;
+                     node < tissueCoupon.metadata.nodeCount;
+                     ++node) {
+                    maximumTissueDisplacement = std::max(
+                        maximumTissueDisplacement,
+                        norm(vector(matter.femNodes[node]
+                                        .positionAndMass) -
+                             vector(restored.femNodes[node]
+                                        .positionAndMass))
+                    );
+                }
+                const double tissueReactionImpulse =
+                    matter.reactions.empty()
+                        ? 0.0
+                        : norm(vector(matter.reactions[0]
+                            .impulseAndCount));
                 std::uint32_t channels = 0u;
+                bool channelGeometryValid = true;
                 std::uint32_t tetrahedra = 0u;
                 double removedMass = 0.0;
                 double minimumDeterminant =
@@ -16928,8 +17096,13 @@ int main(const int argc, const char* const argv[]) {
                     !matter.solverCertificates.empty();
                 for (const NMPunctureChannelGPU& channel :
                      matter.punctureChannels) {
-                    channels +=
-                        (channel.identity.w & NM_TOPOLOGY_ACTIVE) != 0u;
+                    if ((channel.identity.w & NM_TOPOLOGY_ACTIVE) == 0u) {
+                        continue;
+                    }
+                    ++channels;
+                    channelGeometryValid = channelGeometryValid &&
+                        channel.originAndRadius.w > 0.0f &&
+                        channel.axisAndHalfLength.w > 0.0f;
                 }
                 for (const NMTetrahedronGPU& tetrahedron :
                      matter.femTopologyTetrahedra) {
@@ -16957,9 +17130,10 @@ int main(const int argc, const char* const argv[]) {
                 }
                 std::cout << std::setprecision(9)
                     << "robot_first_bite_resumed_approach_candidate"
-                    << " steps=" << kRobotFirstBiteDriveProbeSteps
+                    << " entry_probe=" << robotContactProbe
+                    << " steps=" << robotApproachSteps
                     << " base_der_substeps="
-                    << kRobotFirstBiteDriveProbeSteps *
+                    << robotApproachSteps *
                         stepConfig.physicsSubsteps
                     << " planned_tip_advance_m=" << plannedAdvance
                     << " actual_tip_advance_m=" << actualAdvance
@@ -16972,6 +17146,16 @@ int main(const int argc, const char* const argv[]) {
                     << " relative_point_speed_mps="
                     << grip.relativePointSpeed
                     << " active_puncture_channels=" << channels
+                    << " puncture_tip_contacts="
+                    << punctureTipContacts
+                    << " puncture_tip_impulse_ns="
+                    << punctureTipNormalImpulse
+                    << " puncture_tip_accepted_impulse_ns="
+                    << punctureTipAcceptedImpulse
+                    << " tissue_reaction_impulse_ns="
+                    << tissueReactionImpulse
+                    << " maximum_tissue_displacement_m="
+                    << maximumTissueDisplacement
                     << " active_tetrahedra=" << tetrahedra
                     << " removed_tissue_mass_kg=" << removedMass
                     << " matter_minimum_determinant="
@@ -17010,9 +17194,17 @@ int main(const int argc, const char* const argv[]) {
                         qualifiedDrivenGrasp(grip) &&
                         qualifiedTransitionRod(rod) &&
                         swageError < kMaximumSwageAttachmentError &&
-                        channels == 0u &&
-                        finalTissueSeparation >=
-                            kRobotFirstBiteFreeSpaceMarginM * 0.5 &&
+                        (robotContactProbe
+                            ? punctureTipContacts > 0u &&
+                                punctureTipNormalImpulse > 0.0 &&
+                                punctureTipAcceptedImpulse > 0.0 &&
+                                tissueReactionImpulse > 0.0 &&
+                                maximumTissueDisplacement > 0.0 &&
+                                channels <= 1u &&
+                                channelGeometryValid
+                            : channels == 0u &&
+                                finalTissueSeparation >=
+                                    kRobotFirstBiteFreeSpaceMarginM * 0.5) &&
                         tetrahedra ==
                             tissueCoupon.metadata.tetrahedronCount &&
                         removedMass == 0.0 &&
@@ -17026,16 +17218,24 @@ int main(const int argc, const char* const argv[]) {
                 );
                 writeHandoffStateArtifact(
                     options.stateOutputDirectory,
-                    "tissue-robot-first-bite-approach",
+                    robotContactProbe
+                        ? (channels == 0u
+                            ? "tissue-robot-first-bite-contact"
+                            : "tissue-robot-first-bite-puncture")
+                        : "tissue-robot-first-bite-approach",
                     resumedTissueCheckpointStep +
-                        kRobotFirstBiteDriveProbeSteps *
+                        robotApproachSteps *
                             stepConfig.physicsSubsteps,
                     world,
                     sutureSpec,
                     driven.result,
                     &matter
                 );
-                std::cout << "robot_first_bite_resumed_approach=ok\n";
+                std::cout << (robotContactProbe
+                    ? (channels == 0u
+                        ? "robot_first_bite_entry_contact=ok\n"
+                        : "robot_first_bite_entry_puncture=ok\n")
+                    : "robot_first_bite_resumed_approach=ok\n");
                 return 0;
             }
             if (tissueSuturePullStrokeOnly) {
@@ -22120,7 +22320,7 @@ int main(const int argc, const char* const argv[]) {
                     maximumTissueIncrementM <=
                         kMaximumReceiverBridgeTissueIncrementM &&
                     (resumeLiveTissueCheckpoint &&
-                     !resumeRobotFirstBiteApproach
+                     !resumeRobotFirstBitePrePuncture
                         ? continuedChannels > 0u
                         : continuedChannels == 0u) &&
                     continuedSwageErrorM <

@@ -263,7 +263,7 @@ bool isAcceptedDualHandoffVisualPhase(const std::string_view phase) {
     // Every entry is a transactionally published q/v + rigid + DER snapshot.
     // Keep this finite so an arbitrary or partially written phase cannot be
     // presented as operative evidence merely because its array widths match.
-    static constexpr std::array<std::string_view, 46u> phases{
+    static constexpr std::array<std::string_view, 48u> phases{
         "giver-closed",
         "giver-lift",
         "giver-handoff-stage",
@@ -287,6 +287,8 @@ bool isAcceptedDualHandoffVisualPhase(const std::string_view phase) {
         "tissue-rest",
         "tissue-robot-first-bite-grip",
         "tissue-robot-first-bite-approach",
+        "tissue-robot-first-bite-contact",
+        "tissue-robot-first-bite-puncture",
         "tissue-receiver-bridge-start",
         "tissue-receiver-dynamic-bridge",
         "tissue-receiver-alignment-motion",
@@ -321,7 +323,9 @@ bool isPostHandoffOperativeVisualPhase(const std::string_view phase) {
 
 bool isStagedRobotVisualPhase(const std::string_view phase) {
     return phase == "tissue-robot-first-bite-grip" ||
-        phase == "tissue-robot-first-bite-approach";
+        phase == "tissue-robot-first-bite-approach" ||
+        phase == "tissue-robot-first-bite-contact" ||
+        phase == "tissue-robot-first-bite-puncture";
 }
 
 PickupState readPickupState(const std::filesystem::path& path) {
@@ -824,6 +828,21 @@ PickupState readPickupState(const std::filesystem::path& path) {
             "Matter visual snapshot failed archive identity validation: " +
                 archive.message
         );
+        if (result.phase == "tissue-robot-first-bite-contact" ||
+            result.phase == "tissue-robot-first-bite-puncture") {
+            const std::size_t activeChannels = std::ranges::count_if(
+                snapshot->punctureChannels,
+                [](const NMPunctureChannelGPU& channel) {
+                    return (channel.identity.w & NM_TOPOLOGY_ACTIVE) != 0u;
+                }
+            );
+            require(
+                result.phase == "tissue-robot-first-bite-contact"
+                    ? activeChannels == 0u
+                    : activeChannels > 0u,
+                "robot first-bite visual phase disagrees with live puncture topology"
+            );
+        }
         result.matterSnapshot = std::move(snapshot);
     }
     return result;
@@ -1430,18 +1449,20 @@ metalrobo::DvrkSutureVisualScene makeHandoffVisualScene(
     if (!state.dualHandoff) {
         if (state.medicallyMatchedSinglePickup) {
             std::array<double, 3> center{};
-            double maximumThreadZ =
-                -std::numeric_limits<double>::infinity();
+            double minimumThreadZ =
+                std::numeric_limits<double>::infinity();
             for (const auto& point : state.threadPositions) {
                 center[0u] += point[0u];
                 center[1u] += point[1u];
-                maximumThreadZ = std::max(maximumThreadZ, point[2u]);
+                minimumThreadZ = std::min(minimumThreadZ, point[2u]);
             }
             const double inverseCount =
                 1.0 / static_cast<double>(state.threadPositions.size());
             center[0u] *= inverseCount;
             center[1u] *= inverseCount;
-            center[2u] = maximumThreadZ + 0.006;
+            // The free tail can extend far above the pickup. Keep the
+            // presentation field behind the local practice tissue instead.
+            center[2u] = minimumThreadZ - 0.006;
             result.hasSurgicalFieldGeometry = true;
             result.surgicalFieldCenterM = center;
             result.surgicalFieldHalfExtentM = {0.115, 0.085, 0.0025};
