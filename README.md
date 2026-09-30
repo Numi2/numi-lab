@@ -109,6 +109,26 @@ commit, wait, or CPU counter read.
 
 ## Curved surgical-needle tissue passage
 
+An opt-in synthetic skin wound now uses the same Matter needle, thread, and
+two-lip incision pipeline. Its authored 30 x 24 x 1.5 mm FEM coupon has a
+16 mm incision and a 0.6 mm open gap. The homogeneous neo-Hookean parameters
+in `matter/materials/synthetic_skin_wound.nmatter` are simulator choices, not
+measured skin properties or clinical validation. Run a bounded native check on
+Apple silicon with:
+
+```sh
+cmake --build build-skin-wound --target metalrobo_dual_psm_suture_handoff_probe
+./build-skin-wound/bin/metalrobo_dual_psm_suture_handoff_probe \
+  --tissue-puncture-only --synthetic-skin
+./build-skin-wound/bin/metalrobo_dual_psm_suture_handoff_probe \
+  --tissue-suture-entry-only --synthetic-skin
+```
+
+The synthetic skin checks have passed contact coupling, tapered-tip puncture,
+channel advancement, opposing-bite contact topology, and live suture entry.
+The long curved passage, second bite, thread pull-through, robot-driven knot,
+and unloaded wound retention have not yet been qualified for this material.
+
 The dual-PSM surgical probe now drives the authored 26 mm half-circle needle
 about its actual 8.28 mm curvature centre at a 20 mm/s terminal speed. Matter
 admits entry from accepted tapered-tip contact, then extends a connected

@@ -41,6 +41,10 @@
 #define NUMI_JEJUNUM_MATERIAL ""
 #endif
 
+#ifndef NUMI_SYNTHETIC_SKIN_MATERIAL
+#define NUMI_SYNTHETIC_SKIN_MATERIAL ""
+#endif
+
 #ifndef NUMI_MATTER_METALLIB
 #define NUMI_MATTER_METALLIB ""
 #endif
@@ -1466,6 +1470,13 @@ double threadInsertContactLength(
     return contactLength;
 }
 
+struct TissueClosureCoupon {
+    numi::matter::ObjectSource object;
+    numi::matter::PorcineJejunumClosureMetadata metadata;
+    double densityKgPerM3 = 0.0;
+    double thicknessM = 0.0;
+};
+
 struct TissueBiteSites {
     Vec3 frameOrigin{};
     Vec3 longitudinalAxis{};
@@ -1480,8 +1491,84 @@ struct TissueBiteSites {
     double halfTurnSurfaceErrorM = std::numeric_limits<double>::infinity();
 };
 
+struct IncisionGapMetrics {
+    double centerMeanM = 0.0;
+    double centerMaximumM = 0.0;
+    double overallMeanM = 0.0;
+    std::uint32_t centerPairCount = 0u;
+};
+
+IncisionGapMetrics incisionGapMetrics(
+    const TissueClosureCoupon& coupon,
+    const std::span<const NMFEMNodeStateGPU> liveNodes = {}
+) {
+    require(
+        !coupon.metadata.incisionLipNodePairs.empty() &&
+            (liveNodes.empty() ||
+             liveNodes.size() >= coupon.object.femNodes.size()),
+        "incision gap requires matching authored or live lip nodes"
+    );
+    Vec3 longitudinalAxis = vector(coupon.metadata.longitudinalAxis);
+    const double axisLength = norm(longitudinalAxis);
+    require(axisLength > 1.0e-12, "incision longitudinal axis is invalid");
+    longitudinalAxis = longitudinalAxis * (1.0 / axisLength);
+    const auto authoredPosition = [&coupon](const std::uint32_t node) {
+        require(node < coupon.object.femNodes.size(),
+                "incision lip node exceeds the authored tissue");
+        return vector(coupon.object.femNodes[node]);
+    };
+    const auto position = [&](const std::uint32_t node) {
+        const Vec3 authored = authoredPosition(node);
+        return liveNodes.empty()
+            ? authored : vector(liveNodes[node].positionAndMass);
+    };
+    double minimumLongitudinal = std::numeric_limits<double>::infinity();
+    double maximumLongitudinal = -minimumLongitudinal;
+    for (const auto& pair : coupon.metadata.incisionLipNodePairs) {
+        const double longitudinal = dot(
+            authoredPosition(pair[0]), longitudinalAxis
+        );
+        minimumLongitudinal = std::min(minimumLongitudinal, longitudinal);
+        maximumLongitudinal = std::max(maximumLongitudinal, longitudinal);
+    }
+    const double centerLongitudinal =
+        0.5 * (minimumLongitudinal + maximumLongitudinal);
+    double nearestCenterDistance = std::numeric_limits<double>::infinity();
+    for (const auto& pair : coupon.metadata.incisionLipNodePairs) {
+        nearestCenterDistance = std::min(
+            nearestCenterDistance,
+            std::abs(dot(authoredPosition(pair[0]), longitudinalAxis) -
+                     centerLongitudinal)
+        );
+    }
+    IncisionGapMetrics metrics;
+    for (const auto& pair : coupon.metadata.incisionLipNodePairs) {
+        const double gap = norm(position(pair[1]) - position(pair[0]));
+        require(std::isfinite(gap), "incision lip gap is nonfinite");
+        metrics.overallMeanM += gap;
+        const double centerDistance = std::abs(
+            dot(authoredPosition(pair[0]), longitudinalAxis) -
+            centerLongitudinal
+        );
+        if (centerDistance <= nearestCenterDistance + 1.0e-8) {
+            metrics.centerMeanM += gap;
+            metrics.centerMaximumM = std::max(
+                metrics.centerMaximumM, gap
+            );
+            ++metrics.centerPairCount;
+        }
+    }
+    require(metrics.centerPairCount > 0u,
+            "incision has no center lip pair");
+    metrics.centerMeanM /= static_cast<double>(metrics.centerPairCount);
+    metrics.overallMeanM /= static_cast<double>(
+        coupon.metadata.incisionLipNodePairs.size()
+    );
+    return metrics;
+}
+
 TissueBiteSites tissueBiteSites(
-    const numi::matter::PorcineJejunumClosureCoupon& coupon,
+    const TissueClosureCoupon& coupon,
     const std::span<const NMFEMNodeStateGPU> liveNodes = {}
 ) {
     require(
@@ -6058,7 +6145,8 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
     const std::uint32_t punctureContactSegmentCount,
     const std::uint32_t sutureContactSegmentCount,
     const bool freeNeedleCapability,
-    numi::matter::PorcineJejunumClosureCoupon& coupon
+    const bool syntheticSkin,
+    TissueClosureCoupon& coupon
 ) {
     require(
         world.sceneBodyIndices.size() >= 1u &&
@@ -6068,15 +6156,23 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
             world.rods[0].tangentBindings.size() == 1u,
         "tissue coupling requires the live needle-swage-thread topology"
     );
-    auto parsed = numi::matter::parseMatterFile(NUMI_JEJUNUM_MATERIAL);
+    auto parsed = numi::matter::parseMatterFile(
+        syntheticSkin ? NUMI_SYNTHETIC_SKIN_MATERIAL : NUMI_JEJUNUM_MATERIAL
+    );
     require(
         parsed.succeeded(),
-        "porcine jejunum material parse failed: " +
+        "surgical tissue material parse failed: " +
             matterCompileErrors(parsed.diagnostics)
     );
+    require(
+        parsed.material.name ==
+            (syntheticSkin ? "synthetic_skin_wound" : "porcine_jejunum_fung"),
+        "surgical tissue material identity mismatch"
+    );
 
-    // Retain the source-sized 30 x 24 x 0.82 mm porcine coupon and 16 mm
-    // enterotomy. The contact-only swage regression uses the smallest
+    // Retain the source-sized porcine coupon by default; the synthetic-skin
+    // option authors a 1.5 mm wall with the same 16 mm incision. The
+    // contact-only swage regression uses the smallest
     // qualified 6x6x1 transaction mesh. A puncture uses the production
     // 18x16x2 wall so entry crosses a through-thickness volume rather than the
     // former single-layer contact surrogate. Pull-through increases this to a
@@ -6084,6 +6180,21 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
     // resolve both the 0.126 mm terminal taper and the 0.20 mm strand/contact
     // band without shrinking the specimen.
     numi::matter::PorcineJejunumFungSpec spec;
+    if (syntheticSkin) {
+        const numi::matter::SyntheticSkinWoundSpec skin;
+        spec.lengthM = {skin.lengthM, numi::matter::JejunalValueBasis::researchDefault};
+        spec.widthM = {skin.widthM, numi::matter::JejunalValueBasis::researchDefault};
+        spec.thicknessM = {skin.thicknessM, numi::matter::JejunalValueBasis::researchDefault};
+        spec.incisionLengthM = {skin.incisionLengthM, numi::matter::JejunalValueBasis::researchDefault};
+        spec.incisionGapM = {skin.incisionGapM, numi::matter::JejunalValueBasis::researchDefault};
+        spec.densityKgPerM3 = {
+            skin.densityKgPerM3,
+            numi::matter::JejunalValueBasis::researchDefault
+        };
+        spec.longitudinalCells = skin.longitudinalCells;
+        spec.circumferentialCells = skin.transverseCells;
+        spec.throughThicknessCells = skin.throughThicknessCells;
+    }
     if (!punctureTip) {
         // Six cells per in-plane axis is the smallest topology qualified by
         // the owning surgical-tissue replay. A 4x4 mixed element block leaves
@@ -6094,27 +6205,45 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
     } else if (sutureContactSegmentCount != 0u) {
         spec.longitudinalCells = 34u;
         spec.circumferentialCells = 40u;
-        spec.throughThicknessCells = 5u;
+        spec.throughThicknessCells = syntheticSkin ? 8u : 5u;
     }
     spec.fixLongitudinalEnds = true;
     std::string materialError;
-    require(
-        numi::matter::configurePorcineJejunumFungMaterial(
-            parsed.material,
-            spec,
-            &materialError
-        ),
-        materialError
-    );
-    coupon = numi::matter::makePorcineJejunumClosureCoupon(0u, spec);
+    if (!syntheticSkin) {
+        require(
+            numi::matter::configurePorcineJejunumFungMaterial(
+                parsed.material, spec, &materialError
+            ),
+            materialError
+        );
+        auto mesh = numi::matter::makePorcineJejunumClosureCoupon(0u, spec);
+        coupon.object = std::move(mesh.object);
+        coupon.metadata = std::move(mesh.metadata);
+    } else {
+        numi::matter::SyntheticSkinWoundSpec skin;
+        skin.lengthM = spec.lengthM.value;
+        skin.widthM = spec.widthM.value;
+        skin.thicknessM = spec.thicknessM.value;
+        skin.incisionLengthM = spec.incisionLengthM.value;
+        skin.incisionGapM = spec.incisionGapM.value;
+        skin.densityKgPerM3 = spec.densityKgPerM3.value;
+        skin.longitudinalCells = spec.longitudinalCells;
+        skin.transverseCells = spec.circumferentialCells;
+        skin.throughThicknessCells = spec.throughThicknessCells;
+        skin.fixLongitudinalEnds = spec.fixLongitudinalEnds;
+        auto mesh = numi::matter::makeSyntheticSkinWoundCoupon(0u, skin);
+        coupon.object = std::move(mesh.object);
+        coupon.metadata = std::move(mesh.metadata);
+    }
+    coupon.densityKgPerM3 = spec.densityKgPerM3.value;
+    coupon.thicknessM = spec.thicknessM.value;
     if (sutureContactSegmentCount != 0u) {
         // This is a deterministic operative-field discretization, not a change
         // to specimen geometry or material calibration. Piecewise monotone
         // quadratic maps keep the coupon boundary, 16 mm incision endpoints,
         // 0.60 mm lip gap and 3 mm bite fixed while redistributing existing
-        // degrees of freedom toward the strand. Five through-thickness cells
-        // resolve the sourced 0.82 mm wall at 164 um, strictly inside the
-        // 200 um strand/contact activation reach.
+        // degrees of freedom toward the strand. Each wall is divided finely
+        // enough to resolve the 200 um strand/contact activation reach.
         constexpr double kLongitudinalGrade = 0.999;
         constexpr double kLowerCircumferentialGrade = 0.80;
         constexpr double kUpperCircumferentialGrade = 0.999;
@@ -6516,6 +6645,12 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
         );
     }
     std::cout << std::setprecision(9)
+        << "tissue_material="
+        << (syntheticSkin ? "synthetic_skin_wound" : "porcine_jejunum_fung")
+        << " tissue_material_basis="
+        << (syntheticSkin ? "authored_research_default"
+                          : "porcine_jejunum_source_coefficients")
+        << ' '
         << "tissue_contact_region="
         << (punctureTip ? "tapered_tip" : "swage")
         << " tissue_authored_minimum_separation_m="
@@ -6826,6 +6961,7 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
 
 struct Arguments {
     std::string mode;
+    bool syntheticSkin = false;
     std::filesystem::path stateOutputDirectory;
     std::string resumeTissueCheckpointPhase;
     std::filesystem::path resumeTissueCheckpointPath;
@@ -7067,6 +7203,9 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             argument == "--stage-only") {
             require(result.mode.empty(), "only one diagnostic mode is allowed");
             result.mode = argument;
+        } else if (argument == "--synthetic-skin") {
+            require(!result.syntheticSkin, "--synthetic-skin specified twice");
+            result.syntheticSkin = true;
         } else if (argument == "--state-output-dir") {
             require(
                 result.stateOutputDirectory.empty() && index + 1 < argc,
@@ -10919,8 +11058,7 @@ int main(const int argc, const char* const argv[]) {
                 "opposing-bite geometry world composition failed: " +
                     opposingGeometryComposed.message
             );
-            numi::matter::PorcineJejunumClosureCoupon
-                opposingGeometryCoupon;
+            TissueClosureCoupon opposingGeometryCoupon;
             const numi::matter::CompiledWorld opposingGeometryMatter =
                 compileNeedleSutureTissueWorld(
                     opposingGeometryWorld,
@@ -10930,6 +11068,7 @@ int main(const int argc, const char* const argv[]) {
                     kCurvedPassageContactSegmentCount,
                     kSutureMatterContactSegmentCount,
                     true,
+                    options.syntheticSkin,
                     opposingGeometryCoupon
                 );
             require(
@@ -15426,7 +15565,7 @@ int main(const int argc, const char* const argv[]) {
 
         numi::matter::Runtime tissueRuntime;
         numi::matter::CompiledWorld tissueWorld;
-        numi::matter::PorcineJejunumClosureCoupon tissueCoupon;
+        TissueClosureCoupon tissueCoupon;
         std::optional<CurvedNeedleOrbit> tissueNeedleOrbit;
         double tissueNeedleAngularSpeedRadPerS = 0.0;
         numi::matter::RuntimeStateSnapshot resumedTissueCheckpoint;
@@ -15595,6 +15734,7 @@ int main(const int argc, const char* const argv[]) {
                 tissueSutureContactOnly
                     ? kSutureMatterContactSegmentCount : 0u,
                 tissueReceiverLiveSequence,
+                options.syntheticSkin,
                 tissueCoupon
             );
             if (tissueReceiverLiveSequence) {
@@ -15699,6 +15839,17 @@ int main(const int argc, const char* const argv[]) {
                         minimumPairsPerContactNode > 0u,
                     "opposing-bite field contains an unpaired contact node"
                 );
+                const IncisionGapMetrics authoredWoundGap =
+                    incisionGapMetrics(tissueCoupon);
+                if (options.syntheticSkin) {
+                    require(
+                        std::abs(authoredWoundGap.centerMeanM - 6.0e-4) <=
+                            1.0e-9 &&
+                            authoredWoundGap.centerMaximumM <= 6.0e-4 +
+                                1.0e-9,
+                        "synthetic skin wound lost its authored open gap"
+                    );
+                }
                 std::cout << "tissue_opposing_bite_topology=ok"
                     << " contact_nodes="
                     << tissueCoupon.object.femContactNodes.size()
@@ -15711,6 +15862,10 @@ int main(const int argc, const char* const argv[]) {
                     << tissueWorld.dispatch.rigidProxyCount
                     << " tetrahedra="
                     << tissueCoupon.metadata.tetrahedronCount
+                    << " authored_center_wound_gap_m="
+                    << authoredWoundGap.centerMeanM
+                    << " center_wound_pair_count="
+                    << authoredWoundGap.centerPairCount
                     << " first_proximal_node="
                     << biteSites.firstProximalNode
                     << " opposing_distal_node="
@@ -18299,6 +18454,19 @@ int main(const int argc, const char* const argv[]) {
                     finalMatter,
                     outputThrowPhase + " checkpoint"
                 );
+                const IncisionGapMetrics authoredWoundGap =
+                    incisionGapMetrics(tissueCoupon);
+                const IncisionGapMetrics retainedWoundGap =
+                    incisionGapMetrics(tissueCoupon, finalMatter.femNodes);
+                if (options.syntheticSkin && tissueKnotRetentionOnly) {
+                    require(
+                        retainedWoundGap.centerMaximumM <= 2.0e-4 &&
+                            retainedWoundGap.centerMeanM <=
+                                0.5 * authoredWoundGap.centerMeanM,
+                        "synthetic skin knot load did not close the "
+                        "central wound lips"
+                    );
+                }
                 const std::uint64_t outputStateStep =
                     resumedTissueCheckpointStep +
                     static_cast<std::uint64_t>(
@@ -18420,6 +18588,16 @@ int main(const int argc, const char* const argv[]) {
                     << terminalStandingRetentionLoadN
                     << " terminal_swage_retention_load_n="
                     << terminalSwageRetentionLoadN
+                    << " authored_center_wound_gap_m="
+                    << authoredWoundGap.centerMeanM
+                    << " retained_center_wound_gap_m="
+                    << retainedWoundGap.centerMeanM
+                    << " retained_center_max_wound_gap_m="
+                    << retainedWoundGap.centerMaximumM
+                    << " retained_mean_wound_gap_m="
+                    << retainedWoundGap.overallMeanM
+                    << " center_wound_pair_count="
+                    << retainedWoundGap.centerPairCount
                     << " active_puncture_channels="
                     << terminalMetrics.matter.activeChannels
                     << " active_tetrahedra="
@@ -21713,7 +21891,7 @@ int main(const int argc, const char* const argv[]) {
                 ? needleForPlacement.spec.crossSectionRadiusM.value
                 : initialTip.radiusM;
             const double analyticChannelTractMassKg =
-                tissueCoupon.spec.densityKgPerM3.value *
+                tissueCoupon.densityKgPerM3 *
                 std::numbers::pi * expectedChannelRadiusM *
                 expectedChannelRadiusM * expectedEntryTractLengthM;
             const double removedToChannelTractMassRatio =
@@ -22277,7 +22455,7 @@ int main(const int argc, const char* const argv[]) {
                         std::isfinite(authoredWallThicknessM) &&
                             std::abs(
                                 authoredWallThicknessM -
-                                tissueCoupon.spec.thicknessM.value
+                                tissueCoupon.thicknessM
                             ) <= 2.0e-7,
                         "curved passage wall thickness changed during cooking"
                     );
@@ -22408,7 +22586,7 @@ int main(const int argc, const char* const argv[]) {
                             )
                             << " chunk_gpu_ms="
                             << passage.diagnostics.gpuElapsedMilliseconds
-                            << '\n';
+                            << '\n' << std::flush;
                         if (completedPassageSteps < minimumPassageSteps) {
                             continue;
                         }

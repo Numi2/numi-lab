@@ -124,6 +124,29 @@ struct PorcineJejunumClosureCoupon {
     PorcineJejunumClosureMetadata metadata;
 };
 
+// A deliberately uncalibrated, homogeneous skin-like research specimen. The
+// geometric incision uses the same tetrahedral construction as the jejunal
+// coupon, but its material is supplied independently by the caller. These
+// values are scene authoring choices, not human-skin measurements.
+struct SyntheticSkinWoundSpec {
+    double lengthM = 0.030;
+    double widthM = 0.024;
+    double thicknessM = 0.0015;
+    double incisionLengthM = 0.016;
+    double incisionGapM = 0.0006;
+    double densityKgPerM3 = 1050.0;
+    std::uint32_t longitudinalCells = 18u;
+    std::uint32_t transverseCells = 16u;
+    std::uint32_t throughThicknessCells = 3u;
+    bool fixLongitudinalEnds = true;
+};
+
+struct SyntheticSkinWoundCoupon {
+    ObjectSource object;
+    SyntheticSkinWoundSpec spec;
+    PorcineJejunumClosureMetadata metadata;
+};
+
 // Applies the source coefficients and explicit 3-D regularization settings to
 // a parsed porcine_jejunum_fung material. Publication is transactional.
 [[nodiscard]] bool configurePorcineJejunumFungMaterial(
@@ -150,6 +173,14 @@ evaluatePorcineJejunumFungResponse(
 makePorcineJejunumClosureCoupon(
     std::uint32_t materialIndex,
     const PorcineJejunumFungSpec& spec = {}
+);
+
+// Authors two mechanically separate wound lips with a finite initial gap.
+// The supplied material index must refer to a skin-specific research material;
+// this function does not fit or certify that material, puncture, or a stitch.
+[[nodiscard]] SyntheticSkinWoundCoupon makeSyntheticSkinWoundCoupon(
+    std::uint32_t materialIndex,
+    const SyntheticSkinWoundSpec& spec = {}
 );
 
 } // namespace numi::matter

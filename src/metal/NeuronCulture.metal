@@ -446,6 +446,9 @@ kernel void mr_neuron_culture_visualize(
     device const int* electrodeMap [[buffer(11)]],
     texture2d<float, access::write> output [[texture(0)]],
     uint2 pixel [[thread_position_in_grid]]) {
+    // Buffer 2 is retained by the visualization ABI. Electrode locations are
+    // already rasterized into electrodeMap for this kernel.
+    (void)electrodes;
     if (pixel.x >= p.width || pixel.y >= p.height) return;
     const float2 uv = (float2(pixel) + 0.5f) / float2(p.width, p.height);
     float3 color = float3(0.015f, 0.02f, 0.03f);

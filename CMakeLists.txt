@@ -2516,7 +2516,40 @@ set_target_properties(
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
 )
 
+add_executable(
+    metalrobo_synthetic_skin_wound_probe
+    apps/synthetic_skin_wound_probe.cpp
+)
+target_compile_definitions(
+    metalrobo_synthetic_skin_wound_probe
+    PRIVATE
+        NUMI_SYNTHETIC_SKIN_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/synthetic_skin_wound.nmatter"
+)
+target_compile_options(
+    metalrobo_synthetic_skin_wound_probe
+    PRIVATE -Wall -Wextra -Wpedantic -Werror
+)
+target_link_libraries(
+    metalrobo_synthetic_skin_wound_probe PRIVATE numi_matter_compiler
+)
+set_target_properties(
+    metalrobo_synthetic_skin_wound_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
+
 if(BUILD_TESTING)
+    add_test(
+        NAME metalrobo.surgical.synthetic_skin_wound_coupon
+        COMMAND $<TARGET_FILE:metalrobo_synthetic_skin_wound_probe>
+    )
+    set_tests_properties(
+        metalrobo.surgical.synthetic_skin_wound_coupon
+        PROPERTIES
+            LABELS "metalrobo;matter;surgical;geometry"
+            TIMEOUT 180
+    )
     add_executable(
         metalrobo_numi_human_fem_prestress_stage_test
         tests/numi_human_fem_prestress_stage_test.cpp
@@ -3707,6 +3740,7 @@ target_compile_definitions(
     metalrobo_dual_psm_suture_handoff_probe
     PRIVATE
         NUMI_JEJUNUM_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/porcine_jejunum_fung.nmatter"
+        NUMI_SYNTHETIC_SKIN_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/matter/materials/synthetic_skin_wound.nmatter"
         NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
 )
 target_link_libraries(
@@ -3921,6 +3955,32 @@ if(BUILD_TESTING)
         PROPERTIES
             LABELS "metalrobo;matter;surgical;physics;metal"
             TIMEOUT 1800
+    )
+    add_test(
+        NAME metalrobo.surgical.synthetic_skin_tapered_puncture
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --tissue-puncture-only
+            --synthetic-skin
+    )
+    set_tests_properties(
+        metalrobo.surgical.synthetic_skin_tapered_puncture
+        PROPERTIES
+            LABELS "metalrobo;matter;surgical;physics;metal;synthetic"
+            TIMEOUT 900
+    )
+    add_test(
+        NAME metalrobo.surgical.synthetic_skin_opposing_bite_topology
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --tissue-opposing-bite-topology-only
+            --synthetic-skin
+    )
+    set_tests_properties(
+        metalrobo.surgical.synthetic_skin_opposing_bite_topology
+        PROPERTIES
+            LABELS "metalrobo;matter;surgical;geometry;synthetic"
+            TIMEOUT 180
     )
     add_test(
         NAME metalrobo.surgical.puncture_channel_advancement

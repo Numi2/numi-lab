@@ -497,4 +497,44 @@ PorcineJejunumClosureCoupon makePorcineJejunumClosureCoupon(
     return result;
 }
 
+SyntheticSkinWoundCoupon makeSyntheticSkinWoundCoupon(
+    const std::uint32_t materialIndex,
+    const SyntheticSkinWoundSpec& spec
+) {
+    // The established incision mesher is geometric. Its jejunal response law
+    // is configured separately and is never copied into this skin specimen.
+    PorcineJejunumFungSpec geometry;
+    geometry.lengthM = {spec.lengthM, JejunalValueBasis::researchDefault};
+    geometry.widthM = {spec.widthM, JejunalValueBasis::researchDefault};
+    geometry.thicknessM = {
+        spec.thicknessM, JejunalValueBasis::researchDefault
+    };
+    geometry.incisionLengthM = {
+        spec.incisionLengthM, JejunalValueBasis::researchDefault
+    };
+    geometry.incisionGapM = {
+        spec.incisionGapM, JejunalValueBasis::researchDefault
+    };
+    geometry.densityKgPerM3 = {
+        spec.densityKgPerM3, JejunalValueBasis::researchDefault
+    };
+    geometry.longitudinalCells = spec.longitudinalCells;
+    geometry.circumferentialCells = spec.transverseCells;
+    geometry.throughThicknessCells = spec.throughThicknessCells;
+    geometry.fixLongitudinalEnds = spec.fixLongitudinalEnds;
+    PorcineJejunumClosureCoupon mesh =
+        makePorcineJejunumClosureCoupon(materialIndex, geometry);
+
+    SyntheticSkinWoundCoupon result;
+    result.object = std::move(mesh.object);
+    result.spec = spec;
+    result.metadata = std::move(mesh.metadata);
+    result.object.name = "synthetic_skin_wound_coupon";
+    result.metadata.fidelityBoundary =
+        "Homogeneous synthetic skin-like material and authored incision "
+        "geometry; no measured human-skin fit, layered histology, puncture "
+        "force calibration, tear threshold, or clinical claim.";
+    return result;
+}
+
 } // namespace numi::matter
