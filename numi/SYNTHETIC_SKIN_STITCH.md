@@ -383,6 +383,15 @@ maximum contact residual remains 0.002068 m/s, above the conservative
 per-step 0.002 m/s bound, and neither a complete stitch nor 100x
 end-to-end speedup has been established.
 
+A follow-on single-rod packet trial copied the immutable factor into
+threadgroup memory as well. It preserved the one-step physical fields but
+changed the 1x GPU time from 1,123.130 to 1,122.724 ms and the 16x time from
+2,220.523 to 2,217.097 ms. That gain is too small to justify the extra
+shared-memory occupancy, so the factor cache was reverted; the validated
+cohort-private impulse workspace remains. The trial log SHA-256 values are
+`14649739434ca545ced835736d1584606df9e8e1d1854a79804273b7148014c4`
+and `9302b28441f37a9ede0387b5c84a3bbea66869be2d582e5b1b66b4cd28ae9228`.
+
 The `--tissue-robot-first-bite-ik-only --synthetic-skin` geometry probe found
 a 250-step giver approach and 185-step 5 mm/s needle-orbit path at the
 original 10 um clearance. The entry
