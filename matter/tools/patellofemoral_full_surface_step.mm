@@ -285,9 +285,13 @@ void run(const numi::matter::CompiledWorld& world,
             acceptedKineticEnergy += kinetic(b);
             const auto& beforeVelocity = a.velocityAndInverseMass;
             const auto& afterVelocity = b.velocityAndInverseMass;
+            const std::array<double, 3> beforeVelocityXYZ{
+                beforeVelocity.x, beforeVelocity.y, beforeVelocity.z};
+            const std::array<double, 3> afterVelocityXYZ{
+                afterVelocity.x, afterVelocity.y, afterVelocity.z};
             for (std::uint32_t axis = 0u; axis < 3u; ++axis)
                 momentumChange[axis] += double(a.positionAndMass.w) *
-                    ((&afterVelocity.x)[axis] - (&beforeVelocity.x)[axis]);
+                    (afterVelocityXYZ[axis] - beforeVelocityXYZ[axis]);
         }
         std::array<double, 3> fixedReaction{};
         std::array<double, 3> fixedCentroid{};
