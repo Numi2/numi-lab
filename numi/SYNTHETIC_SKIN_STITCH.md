@@ -573,7 +573,8 @@ The default solver budget and accepted shader lineage are unchanged.
 One more diagnostic varied the FGMRES column budget after the accepted entry,
 using a temporary runtime that allowed a partial restart cycle. At 16x with
 one Newton pass, budgets of five, three, and one columns passed the same
-contact-free post-entry one-step gates at 2,266.200, 2,215.667, and
+post-entry one-step tissue gates with zero active Matter contact samples at
+2,266.200, 2,215.667, and
 2,167.439 ms GPU. Their maximum residuals were 2.409e-6, 1.740e-6, and
 1.721e-6, respectively, compared with 2,324.739 ms and 2.508e-6 for
 the retained ten-column probe. The apparent residual improvement is a
@@ -611,15 +612,17 @@ for the earlier uninstrumented run, a 0.24% difference. Its log SHA-256 is
 `418c497373e8544224bd21ae984f4e766206a45e578cdb4f34b18dd0cf174427`.
 
 A post-entry-only diagnostic then reduced MetalWorld's 32 velocity iterations
-plus 16 final iterations to 16 plus zero, and to one plus zero. The same
-one-step native checks passed at 1,592.598 and 943.778 ms GPU; median
+plus 16 final iterations to 16 plus zero, and to one plus zero. The earlier
+incomplete one-step checks passed at 1,592.598 and 943.778 ms GPU; median
 contact-stage time across the first 15 substeps fell to 73.667 and
 33.050 ms. The one-iteration result is 58.986 ms per base-equivalent step,
 or 57.2x simulated-time throughput against the original 3,375.995 ms 1x
-run, still 1.75x slower than its 100x target. These diagnostics changed
-the swage and strand fields and tested only one post-entry step; they do
-not qualify the robot grip, load-bearing contact, whole stitch, or a 100x
-end-to-end improvement. The 16- and one-iteration log SHA-256 values are
+run, still 1.75x slower than its 100x target. This one-iteration timing
+fails the terminal contact residual gate described below and is not a valid
+physical speedup. These diagnostics changed the swage and strand fields and
+tested only one post-entry step; they do not qualify the robot grip,
+load-bearing contact, whole stitch, or a 100x end-to-end improvement. The
+16- and one-iteration log SHA-256 values are
 `b9204745c21808bf7507fe6464b724283df1c8ee36c066321f6a28c79d646c2f`
 and `c4078aba976e143c2f1d8912f617851af6673d21c09d94b9c91316ef2558d434`.
 
@@ -633,6 +636,24 @@ library and executable SHA-256 values were restored to
 and `b731ebd51eb3aa4b314b4c32caf49fcd73f8cbf6c4e146bd7532b7f62a07c0a0`.
 The next solver change needs to reduce the cost per Wave32 iteration while
 retaining its final contact residual and rollback gates.
+
+The native contact-status readback resolved the missing gate. This step has
+143 active MetalWorld constraints despite zero active Matter contact samples.
+At 48 contact iterations the terminal normal residual is 0.000868 m/s; at
+16 iterations it is 0.001341 m/s, below the existing 0.002 m/s terminal
+bound. One iteration leaves 0.193026 m/s and fails that bound by 96.5x.
+The cadence probe now calls `requireTerminalResidual` and prints the contact
+status, required constraint count, solver iterations, impulse delta, normal
+residual, cone violation, and factor residual. Native 1x, 4x, 16x, and
+16x/one-Newton modes all passed the added gate. A temporary one-iteration
+negative control was rejected with `code=0 iterations=1
+residuals=[0.000000,0.193026,0.000000,0.000000]`; its log SHA-256 is
+`237a0fe389c6db098e6385c8ac3c0ca6d531c8ab27a77ded1bd75c777f78ddc8`.
+The final probe executable SHA-256 is
+`7a51915cf02c97dfcac1fb3356be3cff0e9558724a9f9a64384b62dba887e6be`;
+the Matter-linked library retains the accepted `dafd704a...` hash. The
+one-iteration shortcut is disqualified; the 16-iteration one-step result
+still needs full robot-contact and exact-replay qualification.
 
 The stronger 75 um jaw-preload trial from robot contact step 1645 also
 remains unqualified. A 13 ms ramp at 1 mm/s preserved Matter's 46,080

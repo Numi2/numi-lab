@@ -23939,6 +23939,11 @@ int main(const int argc, const char* const argv[]) {
                             1u,
                             "post-entry grouped tissue cadence"
                         );
+                    const MRMetalWorldContactStatusGPU& cadenceContact =
+                        requireTerminalResidual(
+                            cadence.result,
+                            "post-entry grouped tissue cadence"
+                        );
                     const numi::matter::RuntimeStateSnapshot cadenceSnapshot =
                         tissueRuntime.snapshot();
                     require(
@@ -24059,6 +24064,20 @@ int main(const int argc, const char* const argv[]) {
                         << cadenceMinimumDeterminant
                         << " matter_maximum_residual="
                         << cadenceMaximumResidual
+                        << " metalworld_contact_status="
+                        << cadenceContact.code
+                        << " metalworld_required_constraints="
+                        << cadenceContact.requiredConstraints
+                        << " metalworld_solver_iterations="
+                        << cadenceContact.solverIterations
+                        << " metalworld_impulse_delta="
+                        << cadenceContact.residuals.x
+                        << " metalworld_normal_residual="
+                        << cadenceContact.residuals.y
+                        << " metalworld_cone_violation="
+                        << cadenceContact.residuals.z
+                        << " metalworld_factor_residual="
+                        << cadenceContact.residuals.w
                         << " hard_swage_root_error_m="
                         << cadenceSwageErrorM
                         << " thread_maximum_edge_error_m="
