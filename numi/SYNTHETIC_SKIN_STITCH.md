@@ -84,6 +84,16 @@ through process owns the GPU. It does not yet drive the full bite.
 The latest rebuild, which additionally rejects premature puncture or tissue
 mass loss at grip reset, has SHA-256
 `18f7be3f39eeee80fae72006c3b184b9a33e31e434f570cc05133c384c515d85`.
+The subsequent `--tissue-robot-first-bite-drive-only --synthetic-skin` mode
+holds that dynamic grip and sends 48 articulated effort commands over the
+first 3 ms of the needle orbit, without a kinematic scene-body target. Its
+matching CPU trajectory preflight passes: planned tip advance is 12.646 um,
+and the limiting joint velocity is 0.750 of its bound. It will require live
+bilateral needle contact, positive actual tip advance, accepted Matter state,
+all FEM tetrahedra, zero removed mass, and a qualified swage/DER strand. This
+mode compiles and its CPU preflight passes, but its native Metal test has not
+run while the pull-through process owns the GPU. Current probe binary SHA-256:
+`e35b24f39a40eea9691f34a8a62215be821e59a2cd54ed79627abaf497346d9e`.
 
 The `--tissue-robot-first-bite-ik-only --synthetic-skin` geometry probe found
 a 250-step giver approach and 185-step 5 mm/s needle-orbit path. The entry

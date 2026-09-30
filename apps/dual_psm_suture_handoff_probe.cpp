@@ -128,6 +128,9 @@ constexpr double kCurvedPassageExitClearanceM = 1.0e-4;
 constexpr double kCurvedPassageMaximumExtensionM = 5.0e-4;
 constexpr std::uint32_t kCurvedPassageChunkSteps = 32u;
 constexpr std::uint32_t kCurvedPassageContactSegmentCount = 2u;
+constexpr std::uint32_t kRobotFirstBiteDriveProbeSteps = 48u;
+constexpr std::uint32_t kRobotFirstBiteDriveRampSteps = 16u;
+constexpr double kRobotFirstBiteDriveSpeedMps = 5.0e-3;
 // Two 1.97 mm DER capsules are sufficient for one edge in each of the two
 // 0.82 mm puncture tracts. Phase-boundary material selection uses both slots as
 // overlap while only one tract is occupied, then sparsely owns one edge per
@@ -7171,6 +7174,7 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             argument == "--tissue-opposing-bite-topology-only" ||
             argument == "--tissue-robot-first-bite-ik-only" ||
             argument == "--tissue-robot-first-bite-grip-only" ||
+            argument == "--tissue-robot-first-bite-drive-only" ||
             argument == "--tissue-receiver-state-bridge-only" ||
             argument == "--tissue-receiver-bridge-resume-only" ||
             argument == "--tissue-receiver-alignment-replay-only" ||
@@ -9307,10 +9311,15 @@ int main(const int argc, const char* const argv[]) {
             options.mode == "--tissue-curved-pull-through-only";
         const bool tissueRobotFirstBiteGripOnly =
             options.mode == "--tissue-robot-first-bite-grip-only";
+        const bool tissueRobotFirstBiteDriveOnly =
+            options.mode == "--tissue-robot-first-bite-drive-only";
+        const bool tissueRobotFirstBiteLive =
+            tissueRobotFirstBiteGripOnly ||
+            tissueRobotFirstBiteDriveOnly;
         const bool tissueOpposingBiteTopologyOnly =
             options.mode == "--tissue-opposing-bite-topology-only" ||
             options.mode == "--tissue-robot-first-bite-ik-only" ||
-            tissueRobotFirstBiteGripOnly;
+            tissueRobotFirstBiteLive;
         const bool tissueReceiverStateBridgeOnly =
             options.mode == "--tissue-receiver-state-bridge-only";
         const bool tissueReceiverAlignmentReplayOnly =
@@ -9358,7 +9367,7 @@ int main(const int argc, const char* const argv[]) {
         const bool tissueSutureContactOnly =
             tissueSutureEntryContactOnly || tissueSuturePassageOnly ||
             tissueCurvedPullThroughOnly ||
-            tissueRobotFirstBiteGripOnly ||
+            tissueRobotFirstBiteLive ||
             tissueReceiverLiveSequence;
         const bool receiverFrameIkOnly =
             options.mode == "--receiver-frame-ik-only";
@@ -15601,7 +15610,7 @@ int main(const int argc, const char* const argv[]) {
             Vec3 initialNeedleAngularVelocity{};
             if ((tissuePunctureAdvanceOnly || tissueCurvedPassageOnly ||
                  tissueSutureEntryContactOnly) &&
-                !tissueRobotFirstBiteGripOnly) {
+                !tissueRobotFirstBiteLive) {
                 require(
                     world.sceneBodyIndices[0] < world.model.bodies.size(),
                     "needle scene body has no compiled model owner"
@@ -15631,10 +15640,10 @@ int main(const int argc, const char* const argv[]) {
                     world.defaultSceneBodies[0],
                     *tissueNeedleOrbit,
                     0.0,
-                    tissueRobotFirstBiteGripOnly
+                    tissueRobotFirstBiteLive
                         ? 0.0 : tissueNeedleAngularSpeedRadPerS
                 );
-                if (tissueRobotFirstBiteGripOnly) {
+                if (tissueRobotFirstBiteLive) {
                     MRBodyStateGPU& freeNeedle =
                         world.defaultSceneBodies[0];
                     freeNeedle.linearVelocityAndInverseMass.w =
@@ -15661,7 +15670,7 @@ int main(const int argc, const char* const argv[]) {
                     drivenTip.worldTip -
                         vector(world.defaultSceneBodies[0].position)
                 );
-                if (!tissueRobotFirstBiteGripOnly) {
+                if (!tissueRobotFirstBiteLive) {
                     require(
                         std::abs(
                             norm(terminalVelocity) -
@@ -15764,7 +15773,7 @@ int main(const int argc, const char* const argv[]) {
                 tissueSutureContactOnly
                     ? kSutureMatterContactSegmentCount : 0u,
                 tissueReceiverLiveSequence ||
-                    tissueRobotFirstBiteGripOnly,
+                    tissueRobotFirstBiteLive,
                 options.syntheticSkin,
                 tissueCoupon
             );
@@ -15798,7 +15807,7 @@ int main(const int argc, const char* const argv[]) {
                     << world.defaultSceneBodies.at(0u)
                            .flagsAndIndices[0] << '\n';
             }
-            if (tissueRobotFirstBiteGripOnly) {
+            if (tissueRobotFirstBiteLive) {
                 const NMRigidProxyGPU& tipProxy =
                     tissueWorld.contact.rigidProxies.at(0u);
                 const NMRigidProxyGPU& shankProxy =
@@ -15913,7 +15922,7 @@ int main(const int argc, const char* const argv[]) {
                     );
                 }
                 if (options.mode == "--tissue-robot-first-bite-ik-only" ||
-                    tissueRobotFirstBiteGripOnly) {
+                    tissueRobotFirstBiteLive) {
                     const MRBodyStateGPU& entryNeedle =
                         world.defaultSceneBodies.at(0u);
                     const CurvedNeedleOrbit biteOrbit = curvedNeedleOrbit(
@@ -16032,6 +16041,60 @@ int main(const int argc, const char* const argv[]) {
                             biteTargets,
                             closeJawCoordinate
                         );
+                    const double driveProbeTimestepSeconds =
+                        kControlTimestep /
+                        static_cast<double>(kPhysicsSubsteps);
+                    double driveProbeAngleRad = 0.0;
+                    std::vector<MRBodyStateGPU> driveProbeTargets;
+                    driveProbeTargets.reserve(
+                        kRobotFirstBiteDriveProbeSteps
+                    );
+                    for (std::uint32_t step = 0u;
+                         step < kRobotFirstBiteDriveProbeSteps;
+                         ++step) {
+                        const double speedMps =
+                            kRobotFirstBiteDriveSpeedMps *
+                            std::min(
+                                1.0,
+                                static_cast<double>(step + 1u) /
+                                    static_cast<double>(
+                                        kRobotFirstBiteDriveRampSteps
+                                    )
+                            );
+                        const double angularSpeedRadPerS =
+                            speedMps / biteOrbit.centerlineRadiusM;
+                        driveProbeAngleRad += angularSpeedRadPerS *
+                            driveProbeTimestepSeconds;
+                        driveProbeTargets.push_back(curvedNeedleTarget(
+                            entryNeedle,
+                            biteOrbit,
+                            driveProbeAngleRad,
+                            angularSpeedRadPerS
+                        ));
+                    }
+                    const ArmTrajectory driveProbeTrajectory =
+                        needleGraspArmTrajectory(
+                            world.model,
+                            psm,
+                            0u,
+                            config.surgical.robots.leftBase,
+                            biteBeginQ,
+                            needleForPlacement,
+                            kGiverNeedleShape,
+                            giverReference,
+                            driveProbeTargets,
+                            closeJawCoordinate,
+                            driveProbeTimestepSeconds
+                        );
+                    const NeedleTipCapsuleGeometry driveProbeTip =
+                        needleTipCapsuleGeometry(
+                            needleForPlacement,
+                            driveProbeTargets.back()
+                        );
+                    const double driveProbeTipAdvanceM = dot(
+                        driveProbeTip.worldTip - entryTip.worldTip,
+                        entryTip.approachDirection
+                    );
                     Vec3 thicknessAxis = vector(
                         tissueCoupon.metadata.thicknessAxis
                     );
@@ -16197,6 +16260,12 @@ int main(const int argc, const char* const argv[]) {
                         << " entry_seat_error_m=" << entrySeatErrorM
                         << " maximum_velocity_ratio="
                         << biteTrajectory.maximumVelocityRatio
+                        << " drive_probe_microsteps="
+                        << kRobotFirstBiteDriveProbeSteps
+                        << " drive_probe_maximum_velocity_ratio="
+                        << driveProbeTrajectory.maximumVelocityRatio
+                        << " drive_probe_planned_tip_advance_m="
+                        << driveProbeTipAdvanceM
                         << " terminal_position_error_m="
                         << terminalPositionErrorM
                         << " terminal_orientation_error_rad="
@@ -16222,6 +16291,9 @@ int main(const int argc, const char* const argv[]) {
                                 kReceiverBridgeIKPositionToleranceM &&
                             biteTrajectory.maximumVelocityRatio <=
                             kMaximumCommandVelocityRatio &&
+                            driveProbeTrajectory.maximumVelocityRatio <=
+                                kMaximumCommandVelocityRatio &&
+                            driveProbeTipAdvanceM > 1.0e-5 &&
                             terminalPositionErrorM <=
                                 kReceiverBridgeIKPositionToleranceM &&
                             terminalOrientationErrorRad <=
@@ -16239,7 +16311,7 @@ int main(const int argc, const char* const argv[]) {
                         "or terminal frame or tissue-clearance limits"
                     );
                     std::cout << "robot_first_bite_ik=ok\n";
-                    if (tissueRobotFirstBiteGripOnly) {
+                    if (tissueRobotFirstBiteLive) {
                         require(
                             world.defaultSceneBodies.at(0u)
                                     .flagsAndIndices[0] ==
@@ -16284,7 +16356,7 @@ int main(const int argc, const char* const argv[]) {
                     << " opposing_direction_probe_advance_m="
                     << opposingTipAdvanceM
                     << " gpu_dispatched=no\n";
-                if (!tissueRobotFirstBiteGripOnly) {
+                if (!tissueRobotFirstBiteLive) {
                     return 0;
                 }
             }
@@ -16433,7 +16505,7 @@ int main(const int argc, const char* const argv[]) {
                           MetalWorldDevicePhysicsCouplesRodNodes) != 0u) &&
                     (tissuePunctureAdvanceOnly ||
                      (tissueCurvedPassageOnly &&
-                      !tissueRobotFirstBiteGripOnly) ||
+                      !tissueRobotFirstBiteLive) ||
                      tissueSutureEntryContactOnly ||
                      (stepConfig.devicePhysicsProgram.flags &
                       metalrobo::
@@ -21989,7 +22061,7 @@ int main(const int argc, const char* const argv[]) {
                 }
                 throw std::runtime_error(failure);
             }
-            if (tissueRobotFirstBiteGripOnly) {
+            if (tissueRobotFirstBiteLive) {
                 const ContactCounts gripContacts = contactCounts(
                     world,
                     coupled.result,
@@ -22104,6 +22176,222 @@ int main(const int argc, const char* const argv[]) {
                     "grasp on the free needle"
                 );
                 std::cout << "robot_first_bite_dynamic_grip=ok\n";
+                if (tissueRobotFirstBiteGripOnly) {
+                    return 0;
+                }
+
+                // Exercise a short robot-commanded entrance with the needle
+                // free. The grasped PSM receives only articulated efforts;
+                // no scene-body trajectory is submitted to MetalWorld.
+                const MRBodyStateGPU& driveStartNeedle =
+                    coupled.result.finalSceneBodies.at(0u);
+                const CurvedNeedleOrbit driveOrbit = curvedNeedleOrbit(
+                    needleForPlacement,
+                    driveStartNeedle
+                );
+                const NeedleTipCapsuleGeometry driveStartTip =
+                    needleTipCapsuleGeometry(
+                        needleForPlacement,
+                        driveStartNeedle
+                    );
+                double commandedAngleRad = 0.0;
+                std::vector<MRBodyStateGPU> driveNeedleTargets;
+                driveNeedleTargets.reserve(
+                    kRobotFirstBiteDriveProbeSteps
+                );
+                for (std::uint32_t step = 0u;
+                     step < kRobotFirstBiteDriveProbeSteps;
+                     ++step) {
+                    const double speedMps =
+                        kRobotFirstBiteDriveSpeedMps *
+                        std::min(
+                            1.0,
+                            static_cast<double>(step + 1u) /
+                                static_cast<double>(
+                                    kRobotFirstBiteDriveRampSteps
+                                )
+                        );
+                    const double angularSpeedRadPerS =
+                        speedMps / driveOrbit.centerlineRadiusM;
+                    commandedAngleRad += angularSpeedRadPerS *
+                        static_cast<double>(stepConfig.timestepSeconds);
+                    driveNeedleTargets.push_back(curvedNeedleTarget(
+                        driveStartNeedle,
+                        driveOrbit,
+                        commandedAngleRad,
+                        angularSpeedRadPerS
+                    ));
+                }
+                const GraspReference acceptedGripReference = graspReference(
+                    world,
+                    needleForPlacement,
+                    coupled.result,
+                    0u,
+                    kGiverNeedleShape
+                );
+                const ArmTrajectory driveTrajectory =
+                    needleGraspArmTrajectory(
+                        world.model,
+                        psm,
+                        0u,
+                        config.surgical.robots.leftBase,
+                        coupled.result.finalQ,
+                        needleForPlacement,
+                        kGiverNeedleShape,
+                        acceptedGripReference,
+                        driveNeedleTargets,
+                        closeJawCoordinate,
+                        static_cast<double>(stepConfig.timestepSeconds)
+                    );
+                require(
+                    driveTrajectory.maximumVelocityRatio <=
+                        kMaximumCommandVelocityRatio,
+                    "dynamic first-bite effort path exceeds PSM joint "
+                    "velocity limits"
+                );
+                const PhaseResult driven = continuePhase(
+                    context,
+                    compiled,
+                    stepConfig,
+                    resident,
+                    driveTrajectory.efforts,
+                    kRobotFirstBiteDriveProbeSteps,
+                    "robot-commanded first-bite entrance"
+                );
+                const numi::matter::RuntimeStateSnapshot drivenMatter =
+                    tissueRuntime.snapshot();
+                const NeedleTipCapsuleGeometry actualDrivenTip =
+                    needleTipCapsuleGeometry(
+                        needleForPlacement,
+                        driven.result.finalSceneBodies.at(0u)
+                    );
+                const NeedleTipCapsuleGeometry plannedDrivenTip =
+                    needleTipCapsuleGeometry(
+                        needleForPlacement,
+                        driveNeedleTargets.back()
+                    );
+                const double actualTipAdvanceM = dot(
+                    actualDrivenTip.worldTip - driveStartTip.worldTip,
+                    driveStartTip.approachDirection
+                );
+                const double plannedTipAdvanceM = dot(
+                    plannedDrivenTip.worldTip - driveStartTip.worldTip,
+                    driveStartTip.approachDirection
+                );
+                const ContactCounts drivenContacts = contactCounts(
+                    world,
+                    driven.result,
+                    needleForPlacement.metadata,
+                    kNeedleFirstShape
+                );
+                const GraspKinematics drivenGrasp = graspKinematics(
+                    world,
+                    needleForPlacement,
+                    driven.result,
+                    0u,
+                    kGiverNeedleShape,
+                    acceptedGripReference
+                );
+                const RodStateMetrics drivenRod = rodStateMetrics(
+                    world,
+                    driven.result
+                );
+                const double drivenSwageErrorM = swageAttachmentError(
+                    world,
+                    driven.result
+                );
+                std::uint32_t drivenChannels = 0u;
+                std::uint32_t drivenTetrahedra = 0u;
+                double drivenRemovedMassKg = 0.0;
+                double drivenMinimumDeterminant =
+                    std::numeric_limits<double>::infinity();
+                bool drivenCertificatesAccepted =
+                    !drivenMatter.solverCertificates.empty();
+                for (const NMPunctureChannelGPU& channel :
+                     drivenMatter.punctureChannels) {
+                    drivenChannels +=
+                        (channel.identity.w & NM_TOPOLOGY_ACTIVE) != 0u;
+                }
+                for (const NMTetrahedronGPU& tetrahedron :
+                     drivenMatter.femTopologyTetrahedra) {
+                    drivenTetrahedra +=
+                        (tetrahedron.identity.w & NM_OBJECT_ACTIVE) != 0u;
+                }
+                for (const NMFEMTopologyStateGPU& topology :
+                     drivenMatter.topologyStates) {
+                    drivenRemovedMassKg += topology.accounting.y;
+                }
+                for (const NMSolverCertificateGPU& certificate :
+                     drivenMatter.solverCertificates) {
+                    drivenCertificatesAccepted =
+                        drivenCertificatesAccepted &&
+                        certificate.validity.w > 0.5f;
+                    drivenMinimumDeterminant = std::min(
+                        drivenMinimumDeterminant,
+                        static_cast<double>(certificate.validity.x)
+                    );
+                }
+                std::cout << std::setprecision(9)
+                    << "robot_first_bite_dynamic_drive_candidate"
+                    << " steps=" << kRobotFirstBiteDriveProbeSteps
+                    << " commanded_orbit_angle_rad="
+                    << commandedAngleRad
+                    << " maximum_velocity_ratio="
+                    << driveTrajectory.maximumVelocityRatio
+                    << " planned_tip_advance_m=" << plannedTipAdvanceM
+                    << " actual_tip_advance_m=" << actualTipAdvanceM
+                    << " giver_jaw_contacts="
+                    << drivenContacts.jawContacts[0][0] << '/'
+                    << drivenContacts.jawContacts[0][1]
+                    << " seat_drift_m=" << drivenGrasp.seatDrift
+                    << " relative_point_speed_mps="
+                    << drivenGrasp.relativePointSpeed
+                    << " active_puncture_channels=" << drivenChannels
+                    << " active_tetrahedra=" << drivenTetrahedra
+                    << " removed_tissue_mass_kg="
+                    << drivenRemovedMassKg
+                    << " matter_minimum_determinant="
+                    << drivenMinimumDeterminant
+                    << " hard_swage_root_error_m="
+                    << drivenSwageErrorM
+                    << " thread_maximum_edge_error_m="
+                    << drivenRod.maximumEdgeLengthError
+                    << " gpu_ms="
+                    << driven.diagnostics.gpuElapsedMilliseconds
+                    << " failed_steps="
+                    << driven.diagnostics.failedStepCount
+                    << contactSummary(drivenContacts) << '\n';
+                require(
+                    driven.diagnostics.succeeded() &&
+                        driven.diagnostics.failedStepCount == 0u &&
+                        drivenMatter.available &&
+                        driven.result.finalSceneBodies.at(0u)
+                                .flagsAndIndices[0] == MR_MOTION_DYNAMIC &&
+                        plannedTipAdvanceM > 1.0e-5 &&
+                        actualTipAdvanceM >= 1.0e-6 &&
+                        actualTipAdvanceM <=
+                            plannedTipAdvanceM + 1.0e-4 &&
+                        bilateral(drivenContacts, 0u) &&
+                        distributedInsertCoverage(
+                            drivenContacts, 0u
+                        ) &&
+                        cleanNeedleInteraction(
+                            drivenContacts, true, false
+                        ) &&
+                        qualifiedDrivenGrasp(drivenGrasp) &&
+                        drivenTetrahedra ==
+                            tissueCoupon.metadata.tetrahedronCount &&
+                        drivenRemovedMassKg == 0.0 &&
+                        drivenCertificatesAccepted &&
+                        std::isfinite(drivenMinimumDeterminant) &&
+                        drivenMinimumDeterminant > 0.0 &&
+                        qualifiedTransitionRod(drivenRod) &&
+                        drivenSwageErrorM <
+                            kMaximumSwageAttachmentError,
+                    "free needle did not follow the articulated first-bite "
+                    "entrance under accepted tissue and thread coupling"
+                );
+                std::cout << "robot_first_bite_dynamic_drive=ok\n";
                 return 0;
             }
             const numi::matter::RuntimeStateSnapshot snapshot =
