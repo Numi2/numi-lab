@@ -272,8 +272,47 @@ The native puncture impulse gate is 5e-7 N s; this prefix did not earn a
 puncture channel. A longer continuation from step 1645, and a short 8x
 continuation from step 1773, both rolled back at the unchanged Matter contact
 feasibility gate (`NM_STATUS_CONTACT_FAILURE`, code 6). Increasing the Newton
-budget to nine did not repair that failure. The safe last accepted state is
-step 1773, not an attempted crossing beyond it.
+budget to nine did not repair that failure. Step 1773 is the last accepted
+contact state that also satisfies the terminal grasp-speed limits.
+
+The separate `--tissue-robot-first-bite-puncture-microstep-only` mode restores
+step 1773, uses one 62.5 us Matter/DER group with the full seven-Newton
+budget, and drives the PSM along the needle orbit at a 1 mm/s target speed.
+The prior contact pair (skin node 8570, tapered-tip proxy 0) was 21.87 um
+apart and had 3.63 mm/s inward admission velocity. The native microstep
+created one connected puncture channel with 1.138e-6 N s accepted tip impulse
+against the authored 5e-7 N s gate, 1.138e-6 N s tissue reaction, all 46,080
+tetrahedra active, zero removed mass, minimum determinant 0.999984324,
+maximum residual 2.588e-6, and zero failed steps. It was **not** a qualified
+robot grip endpoint: the 0.149 um seat drift was small, but relative point
+speed 2.455 mm/s exceeded the 2 mm/s limit and relative angular speed
+1.439 rad/s exceeded the 0.6 rad/s limit. The phase is explicitly
+`tissue-robot-first-bite-puncture-transient`, not a completed bite. Its
+step-1774 checkpoint passed byte-exact restore. The log SHA-256 is
+`493b5de3f8815bbef1aa16edb402e5e4231ee6a44711ca1a2b46e1de970ca370`;
+the TSV SHA-256 is
+`1dba07020b808babea41aa560bbbb527f99021c2e68267c38a7a8acad9d3d54c`.
+The final rebuilt probe reproduced that TSV byte for byte; its executable
+SHA-256 is
+`c394ed8b8a8f521c55ca38e0ae6db8feef448f77b4da0277c78c1e166a4e49d5`.
+
+The same mode resumed that exact transient state for four further 1x
+microsteps. It retained one active channel, all tetrahedra, zero removed
+mass, and zero failed steps through step 1778, which also restored byte
+exactly. Relative point speed fell to 0.364 mm/s but angular slip rose to
+3.230 rad/s; the terminal grasp gate remains unmet. The final sampled tip
+contact and reaction were zero, so these four steps prove channel retention,
+not a second puncture impulse. The continuation log SHA-256 is
+`b9a7bda61aa7965942e77ac33eb22f2604ba2837434e2f47bdd9cbc69a50f415`;
+the TSV SHA-256 is
+`3b83ab70d2f790ca5eb610f5935a984b119de119c51e6157f374bad25d4daa8a`.
+A four-microstep zero-command diagnostic from step 1778 still advanced the
+dynamic tip 11.77 um under its carried momentum, with angular slip near
+2.99 rad/s. It failed the acceptance gate and published no checkpoint; its
+diagnostic log SHA-256 is
+`8c5c0de56f02c0b7f83bca8e1677b782873c168d85d76e303f22c2d7a5830f15`.
+Robot grip and braking must control that momentum before this transient
+channel can become a qualified robot-driven bite.
 
 For the 100x performance request, an opt-in
 `--tissue-robot-first-bite-continue-fast-only` groups the same 24 ms

@@ -158,8 +158,13 @@ zero puncture channels, and zero failed steps. Two further bounded native
 steps reached actual tapered-tip contact with accepted Matter impulse and skin
 reaction. The robot-driven tip advanced to 21.44 um from the nearest modeled
 skin contact node; all 46,080 tetrahedra remained active with zero puncture
-channels and zero failed steps. The next attempted crossing rolled back at
-Matter's contact feasibility gate, so robot-driven puncture remains open.
+channels and zero failed steps. A grouped crossing rolled back at Matter's
+5 um contact floor. A separate 62.5 us microstep then earned one actual
+tapered-tip puncture channel with 1.138e-6 N s accepted impulse and kept all
+46,080 tetrahedra. This is a resumable **transient** state: puncture impact
+exceeded the gripper's relative point and angular speed limits, and four
+further microsteps did not restore angular grip quality. A completed
+robot-driven bite remains open.
 An opt-in 64x pre-contact throughput trial covered the same 24 ms in 58.02 s
 GPU versus 68.11 s at 32x, a 1.17x gain with a changed saved trajectory.
 The 32x exact-state path remains the contact checkpoint lineage. The 100x
