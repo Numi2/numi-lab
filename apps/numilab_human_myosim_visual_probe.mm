@@ -1,5 +1,6 @@
 #include "metalrobo/NumiHumanSupport.hpp"
 #import <CoreGraphics/CoreGraphics.h>
+#import <CommonCrypto/CommonDigest.h>
 #import <ImageIO/ImageIO.h>
 #import <Metal/Metal.h>
 
@@ -7728,10 +7729,15 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
     const bool enableRootAssistance,
     const bool removeRootAssistance,
     const std::filesystem::path& matterMetallib,
-    const bool unprescribedPatellaDiagnostic
+    const bool unprescribedPatellaDiagnostic,
+    const bool cruciateInitializationDiagnostic
 ) {
     require(stepCount >= 1u && stepCount <= MR_NUMI_HUMAN_STAND_MAX_STEPS,
             "live Open Knee tissues require a valid Human horizon");
+    require(!cruciateInitializationDiagnostic ||
+                (knee.side == metalrobo::NumiHumanKneeSide::left &&
+                 qualificationFlexionRadians <= 1.0e-4),
+            "cruciate initialization diagnostic is source-audited only for neutral left knee");
     const std::uint32_t kneeQIndex =
         knee.side == metalrobo::NumiHumanKneeSide::left ? 120u : 106u;
     const std::array<std::uint32_t, 3u> patellaQIndices =
@@ -8014,6 +8020,13 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
         setMatterMaterialParameter(material, "tension_smoothing", 1.0e-4);
         setMatterMaterialParameter(
             material, "numerical_viscosity", 25.0);
+        if (cruciateInitializationDiagnostic && region.name == "ACL") {
+            // A distinct source rest state is immutable during this bounded
+            // transaction; the exact FEBio-derived parameter values above
+            // are fixed, not identification candidates.
+            for (auto& parameter : material.parameters)
+                parameter.identifiable = false;
+        }
         const std::uint32_t materialIndex =
             static_cast<std::uint32_t>(worldSource.materials.size());
         worldSource.materials.push_back(std::move(material));
@@ -8136,13 +8149,74 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
         initialMapMaximumJacobian = std::max(
             initialMapMaximumJacobian,
             continuumDiagnostics.maximumJacobian);
+        std::uint32_t cruciateShiftedNodes = 0u;
+        if (cruciateInitializationDiagnostic && region.name == "ACL") {
+            // The pinned source has 84 strict PCL/ACL contact-face crossings.
+            // This bounded, opt-in initial-state candidate moves free ACL
+            // nodes locally while keeping exact source rest coordinates as
+            // the material reference and all rigid attachments fixed.
+            // It is diagnostic until native contact and energy close.
+            object.femReferenceNodes = regionReferenceNodes;
+            CC_SHA256_CTX referenceHash;
+            CC_SHA256_Init(&referenceHash);
+            constexpr char kReferenceContract[] =
+                "NHACL-source-reference-plus-local-init-v1";
+            CC_SHA256_Update(&referenceHash, kReferenceContract,
+                             sizeof(kReferenceContract) - 1u);
+            CC_SHA256_Update(&referenceHash, knee.geometrySha256.data(),
+                             knee.geometrySha256.size());
+            CC_SHA256_Update(&referenceHash, knee.feBioCustomSha256.data(),
+                             knee.feBioCustomSha256.size());
+            for (const auto& point : regionReferenceNodes) {
+                for (const double coordinate : point) {
+                    const float exactSourceCoordinate =
+                        static_cast<float>(coordinate);
+                    CC_SHA256_Update(&referenceHash, &exactSourceCoordinate,
+                                     sizeof(exactSourceCoordinate));
+                }
+            }
+            std::array<std::uint8_t, CC_SHA256_DIGEST_LENGTH> digest{};
+            CC_SHA256_Final(digest.data(), &referenceHash);
+            std::memcpy(object.femReferenceSourceIdentity.data(),
+                        digest.data(), digest.size());
+        }
         for (std::uint32_t local = 0u; local < region.nodeCount; ++local) {
             const auto& mapped = continuumMap.targetWorldPoints[local];
             object.femNodes[local] = mapped;
+            if (cruciateInitializationDiagnostic && region.name == "ACL" &&
+                regionAnchorBodies[local] ==
+                    metalrobo::NUMI_HUMAN_CONTINUUM_INVALID_INDEX) {
+                constexpr std::array<double, 3u> kCrossingCenter{
+                    0.05168572, 0.15708857, 0.50562678};
+                constexpr double kPlateauRadius = 0.003;
+                constexpr double kOuterRadius = 0.008;
+                constexpr double kShift = 0.0005;
+                const auto& source = regionReferenceNodes[local];
+                const double dx = source[0u] - kCrossingCenter[0u];
+                const double dy = source[1u] - kCrossingCenter[1u];
+                const double dz = source[2u] - kCrossingCenter[2u];
+                const double radius = std::sqrt(dx * dx + dy * dy + dz * dz);
+                const double u = std::clamp(
+                    (radius - kPlateauRadius) /
+                        (kOuterRadius - kPlateauRadius), 0.0, 1.0);
+                const double weight = 1.0 - u * u * (3.0 - 2.0 * u);
+                object.femNodes[local][0u] += kShift * weight;
+                cruciateShiftedNodes += weight > 0.0;
+            }
             initialWorldNodes[runtimeRegion.firstFEMNode + local] = {
-                static_cast<float>(mapped[0u]),
-                static_cast<float>(mapped[1u]),
-                static_cast<float>(mapped[2u]), 1.0f};
+                static_cast<float>(object.femNodes[local][0u]),
+                static_cast<float>(object.femNodes[local][1u]),
+                static_cast<float>(object.femNodes[local][2u]), 1.0f};
+        }
+        if (cruciateInitializationDiagnostic && region.name == "ACL") {
+            require(cruciateShiftedNodes == 4448u,
+                    "source ACL initialization patch coverage drifted");
+            std::cout << "open_knee_cruciate_initialization=diagnostic"
+                      << " acl_shifted_free_nodes=" << cruciateShiftedNodes
+                      << " maximum_shift_m=0.0005"
+                      << " reference=exact_source_restWorld"
+                      << " boundary=unqualified_contact_and_energy\n"
+                      << std::flush;
         }
         const bool exactBoundaryOwnership = region.name == "PTL"
             ? runtimeRegion.anchorCounts[1u] > 0u &&
@@ -9190,6 +9264,28 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
                 transaction.rollbackVerified && transaction.replayVerified,
             "live Open Knee accepted mechanics failed physical gates: displacement_m=" +
                 std::to_string(result.maximumDisplacementMeters) +
+                " assembled_force_gate=" +
+                std::to_string(assembledForceVerified) +
+                " qat_enthesis_gate=" +
+                std::to_string(enthesisForceTransferVerified) +
+                " ptl_transfer_gate=" +
+                std::to_string(patellarTendonForceTransferVerified) +
+                " articular_contact_gate=" +
+                std::to_string(articularContactVerified) +
+                " passive_ligament_gate=" +
+                std::to_string(passiveLigamentVerified) +
+                " body_reaction_gate=" +
+                std::to_string(completeBodyReactions) +
+                " ptl_force_n=" +
+                std::to_string(result.patellarTendonForceResultantNewtons) +
+                " ptl_patella_reaction_n=" +
+                std::to_string(result.patellarTendonPatellaReactionResultantNewtons) +
+                " ptl_tibia_reaction_n=" +
+                std::to_string(result.patellarTendonTibiaReactionResultantNewtons) +
+                " articular_min_closed_samples=" +
+                std::to_string(adapterDiagnostics.articularTrajectoryMinimumClosedSampleCount) +
+                " articular_min_normal_force_n=" +
+                std::to_string(adapterDiagnostics.articularTrajectoryMinimumNormalForceNewtons) +
                 " minimum_J=" + std::to_string(result.minimumDeterminant) +
                 " maximum_J=" + std::to_string(result.maximumDeterminant) +
                 " femur_reaction_l1_n=" +
@@ -13899,6 +13995,7 @@ int main(int argc, char** argv) {
             std::optional<double> openKneeFlexionRadians;
             bool openKneeLiveTissueFEM = false;
             bool openKneeUnprescribedPatellaDiagnostic = false;
+            bool openKneeCruciateInitializationDiagnostic = false;
             bool openKneeSustainedCertificate = false;
             std::optional<std::filesystem::path> skinPayloadPath;
             std::optional<std::filesystem::path> torsoAnatomyPayloadPath;
@@ -14083,6 +14180,10 @@ int main(int argc, char** argv) {
                     require(!openKneeUnprescribedPatellaDiagnostic,
                             "--open-knee-unprescribed-patella-diagnostic may be given only once");
                     openKneeUnprescribedPatellaDiagnostic = true;
+                } else if (argument == "--open-knee-cruciate-initialization-diagnostic") {
+                    require(!openKneeCruciateInitializationDiagnostic,
+                            "--open-knee-cruciate-initialization-diagnostic may be given only once");
+                    openKneeCruciateInitializationDiagnostic = true;
                 } else if (argument == "--open-knee-sustained-certificate") {
                     require(!openKneeSustainedCertificate,
                             "--open-knee-sustained-certificate may be given only once");
@@ -14195,6 +14296,7 @@ int main(int argc, char** argv) {
                           << " [--open-knee-payload <NHKNEE1>]"
                           << " [--open-knee-live-tissue-fem]"
                           << " [--open-knee-unprescribed-patella-diagnostic]"
+                          << " [--open-knee-cruciate-initialization-diagnostic]"
                           << " [--open-knee-sustained-certificate]"
                           << " [--open-knee-flexion-rad <0..1.6>]"
                           << " [--open-knee-tissue-fem-snapshot <NHKFEM1-or-NHKFEM2>]"
@@ -14755,10 +14857,17 @@ int main(int argc, char** argv) {
             require(!openKneeUnprescribedPatellaDiagnostic ||
                         openKneeLiveTissueFEM,
                     "--open-knee-unprescribed-patella-diagnostic requires live Open Knee tissue mechanics");
+            require(!openKneeCruciateInitializationDiagnostic ||
+                        openKneeLiveTissueFEM,
+                    "--open-knee-cruciate-initialization-diagnostic requires live Open Knee tissue mechanics");
             require(!openKneeSustainedCertificate ||
                         (openKneeLiveTissueFEM && muscleStepCount.has_value() &&
                          *muscleStepCount >= 8u),
                     "--open-knee-sustained-certificate requires live Open Knee mechanics and at least eight Human steps");
+            require(!openKneeSustainedCertificate ||
+                        (!openKneeUnprescribedPatellaDiagnostic &&
+                         !openKneeCruciateInitializationDiagnostic),
+                    "Open Knee diagnostic motion and initialization cannot qualify a sustained certificate");
             require(!persistentMetalStand ||
                         (muscleStepSeconds.has_value() &&
                          supportContactPayload.has_value() &&
@@ -15467,7 +15576,8 @@ int main(int argc, char** argv) {
                         selectedTendonControl, standRootAssistance,
                         standRemoveAssistance,
                         passiveFEMMetallibPath.value_or(NUMI_MATTER_METALLIB),
-                        openKneeUnprescribedPatellaDiagnostic
+                        openKneeUnprescribedPatellaDiagnostic,
+                        openKneeCruciateInitializationDiagnostic
                     ));
                     muscleDrivenState.emplace(std::move(coupledDriven));
                     std::cout
