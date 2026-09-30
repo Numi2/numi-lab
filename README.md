@@ -140,8 +140,15 @@ The candidate pull schedule uses 4x near contact at 80 mm/s and 16x after
 slowing to 20 mm/s, but live pull contact remains unqualified. A dynamic
 needle now passes a bounded bilateral PSM grip and a 12 ms articulated
 free-space approach, with 25.6 um measured tip advance and no tissue
-puncture. Physical pickup, robot-driven bites, the knot, and unloaded wound
-retention also remain open.
+puncture. Its accepted v3 skin checkpoint now restores byte-for-byte and
+continues with articulated effort. A matched 32x-cadence continuation from
+that checkpoint advanced the dynamic tip another 111.1 um over 24 ms, kept
+6/6 giver-jaw contacts, and preserved all 46,080 tetrahedra with no puncture
+channel or failed step. It delivered 1.50x simulated-time throughput versus
+the accepted 16x continuation; the 100x full-simulation target is still open.
+Physical pickup, robot-driven bites, the knot, and unloaded wound retention
+also remain open. The checkpoint and performance receipts are in
+[`numi/SYNTHETIC_SKIN_STITCH.md`](numi/SYNTHETIC_SKIN_STITCH.md).
 
 The dual-PSM surgical probe now drives the authored 26 mm half-circle needle
 about its actual 8.28 mm curvature centre at a 20 mm/s terminal speed. Matter

@@ -129,6 +129,45 @@ The current renderer binary SHA-256 is
 `30fe482ee15d36ca0cd3710feb71a52e5fffaa93d5258d89e1e54ffee0532432`.
 Its visual evidence JSON carries the verified tissue-model identity.
 
+The accepted robot approach is now a resumable v3 checkpoint. This command
+restores its complete Matter snapshot and MetalWorld reset state, then checks
+the zero-channel pre-puncture skin invariants without advancing physics:
+
+```sh
+./build-skin-wound/bin/metalrobo_dual_psm_suture_handoff_probe \
+  --tissue-checkpoint-restore-only --synthetic-skin \
+  --resume-tissue-checkpoint tissue-robot-first-bite-approach \
+  build-skin-wound/skin-robot-checkpoints/tissue-robot-first-bite-approach.tsv
+```
+
+It passed byte-exact Matter authority, all 46,080 tetrahedra, zero puncture
+channels, zero removed mass, and positive minimum determinant in 0.65 s wall
+time. The new `--tissue-robot-first-bite-continue-only` mode starts from that
+checkpoint and drives the giver's joints without prescribing needle motion.
+Its 16x diagnostic run advanced the dynamic needle tip 59.91 um during 12 ms
+of simulated time, with 6/6 giver-jaw contacts, zero puncture channels, all
+46,080 tetrahedra, zero removed mass, and zero failed steps. GPU time was
+72.490 s; the log is `build-skin-wound/synthetic-skin-robot-continue.log`,
+SHA-256 `0f6ad3bdcdcf2095eded0a1ee3fa35da38a539164e310cf52fdda0bfe75be79c`.
+At 32x cadence from the **same input checkpoint**, 12 Matter groups / 384
+base DER substeps represented 24 ms, with 119.87 um planned and 111.12 um
+measured tip advance. It retained 6/6 jaw contacts, 3.02 um seat drift,
+0.299 um swage error, 0.428 um maximum thread-edge error, zero puncture
+channels, all 46,080 tetrahedra, zero removed mass, positive minimum
+determinant, and zero failed steps. GPU time was 96.648 s, or 1.50x the 16x
+run's simulated-time throughput. Wall time was 98.15 s. The log is
+`build-skin-wound/synthetic-skin-robot-continue-32.log`, SHA-256
+`47023ead087fc1fb94215c0622fd6d1a3cf2025cf1b6d3344178761c5e75a429`;
+the executable SHA-256 is
+`6d97bbd1c9b784e47560d229935dca81b3b0b039f3f4a60f97961b7d51f5be9d`.
+Its output checkpoint is
+`build-skin-wound/skin-robot-continue-32/tissue-robot-first-bite-approach.tsv`,
+SHA-256 `4af105b63c7243fb4a536ed68a25e404ade3de0a9763b0496a3ce8ff19f163cc`;
+the linked Matter snapshot has SHA-256
+`1c100ab468f52978e5485923abd983f12566064fd9d7215d69431e9da0433278`.
+That newer checkpoint also passed byte-exact restore at state step 621. This
+is still free-space approach, not needle entry or a completed stitch.
+
 The `--tissue-robot-first-bite-ik-only --synthetic-skin` geometry probe found
 a 250-step giver approach and 185-step 5 mm/s needle-orbit path at the
 original 10 um clearance. The entry
