@@ -246,6 +246,45 @@
         "Does not double-apply the reference or use candidate actions as repair labels",
         "Does not claim an untrained compiler produces a learned move"
       ]
+    },
+    {
+      "id": 20,
+      "category": "first-use-ux",
+      "should_activate": true,
+      "prompt": "I just installed Numi Lab. Show me what I can actually run on this Mac and suggest one useful first workflow.",
+      "expected_output": "Reports discovered tools and readiness separately, then one concrete next workflow without overwhelming catalog output.",
+      "files": [],
+      "expectations": [
+        "Checks execution access before claiming an installed runtime",
+        "Separates source availability, installed command, and verified execution",
+        "Presents a concise domain summary and a specific next action"
+      ]
+    },
+    {
+      "id": 21,
+      "category": "skills-only-web",
+      "should_activate": true,
+      "prompt": "I installed the Numi Lab plugin in ChatGPT on the web. Start a Numi Human standing run on my Mac.",
+      "expected_output": "Explains the missing local execution connection and gives a useful local workflow without claiming the web plugin can control the Mac.",
+      "files": [],
+      "expectations": [
+        "Does not claim the skills-only plugin provides Mac access",
+        "Uses available files or connected tools only",
+        "States the single local access step needed to execute"
+      ]
+    },
+    {
+      "id": 22,
+      "category": "local-workflow",
+      "should_activate": true,
+      "prompt": "Prepare a NumiVivo MD run from my existing system and verify what it produced.",
+      "expected_output": "Discovers the native owner, checks preparation and restart inputs, executes only if available, and reports accepted trajectory evidence.",
+      "files": [],
+      "expectations": [
+        "Uses the owning numivivo help rather than inventing a numi vivo command",
+        "Checks prepared inputs and existing artifacts before launch",
+        "Reports backend, accepted steps, numerical checks and artifact identity without inferring a reaction rate"
+      ]
     }
   ]
 }

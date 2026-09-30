@@ -210,7 +210,8 @@ A quick functional run cannot substitute for the full promotion matrix.
 The viewer represents synthetic networks, not living tissue or physical MEA
 measurements. NumanX embodiment requires its authoritative assets.
 
-For engine architecture, load the main skill's owner documentation map.
+For engine architecture, load [native-execution.md](native-execution.md) and
+the selected owner's documentation map.
 The standalone `Numi2/numi-solver` repository owns the extracted Temporal Cone
 Metal solver and pointer-free GPU ABI. Read its `README.md` and owning source
 for solver-specific development and probes; it does not contain the Lab's robot

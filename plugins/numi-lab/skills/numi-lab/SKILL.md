@@ -1,6 +1,6 @@
 ---
 name: numi-lab
-description: Configure, operate, inspect, simulate, profile, train, evaluate, or extend the Numi Lab suite on Apple silicon. Use for NumiVivo molecular dynamics, chemistry and reaction workflows; NumiTissue cellular and neural tissue; NumiBrain and NumanX embodied intelligence; Numi Human/MyoSim biomechanics; Matter and NumiSolver physics; neural cultures, robotics, BirdFlow and Numi Automata; or the numi CLI and suite integration. Do not use for unrelated runtimes or generic science explanations.
+description: Use when a user wants to discover, run, inspect, or improve their Numi Lab research workflows on Apple silicon, including NumiVivo chemistry and MD, NumiTissue, NumiBrain and NumanX, Numi Human biomechanics, Matter and NumiSolver, robotics, BirdFlow, or Numi Automata. Do not use for generic science explanations or unrelated runtimes.
 ---
 
 # Numi Lab
@@ -14,6 +14,19 @@ This plugin supplies local skill guidance, not a hosted ChatGPT connector or a
 remote execution service. Use connected tools or local execution actually
 available in the session. Never claim that installing this skill installs the
 sibling runtimes or grants ChatGPT access to a Mac.
+
+## First response
+
+Translate the user's goal into the nearest owning tool below. If local execution
+is available, inspect that owner's installed command and existing artifacts,
+then act. If it is unavailable, say what can be established from supplied files
+and name the single local setup or access step needed. Do not make the user
+choose a CLI command or supply a path that live discovery can find.
+
+For common tasks, use [local-workflows.md](references/local-workflows.md). It
+gives a short path from intent to preflight, native execution, and a result the
+user can verify. Load only the selected workflow. Keep the answer readable:
+**what ran or was found; measured result; evidence and limits; next action**.
 
 ## Start from live truth
 
@@ -84,193 +97,10 @@ coupling. Missing integration belongs in the lowest owning layer, with an
 explicit qualification boundary; do not silently replace it with host loops,
 synthetic observations, or duplicated force/rate authority.
 
-## Human standing and embodied execution
+## Deeper guidance
 
-When the user asks for Human to stand, move, or function as a complete body,
-start the existing native whole-body run as soon as its inputs and device are
-resolved. Bound discovery; a stalled `numi context` is a reason to inspect the
-owner directly, not to repeat inventory. Verify the current source and binary
-because installed overlays and retained builds can belong to different revisions.
-
-Work against the first observed physical failure in that run. Prioritize
-muscle activation and fibre/tendon dynamics, skeletal articulation, joint
-constraints, gravity and unilateral foot contact. Keep one accepted physical
-state, and bind visualization and control to that state. Never substitute a
-robot demonstrator, static anatomy image, separate Brain simulation, hidden
-root wrench, direct joint torque, or artificial pose lock for muscle-driven
-Human standing. Explicit assistance is a diagnostic with its own label.
-
-Use short execution prefixes to locate a failure, then extend the corrected
-run toward at least 10 simulated seconds of unassisted loaded standing. Report
-accepted simulated time separately from wall time, muscle/tendon and support
-loads, falls or rejected steps, and the limiting failure. A 1:1 anatomical
-claim needs separate source and calibration evidence; a standing result alone
-does not establish it. If throughput prevents useful-duration execution,
-profile and repair the dominant native path while retaining physical checks.
-
-For sustained runs, `numi human stand ... --execute` omits mandatory replay
-and retained per-step traces while preserving native physical admission.
-`--muscle-feedback <length-gain> <velocity-gain-seconds>` observes committed
-fibre state; `--muscle-path-feedback` observes accepted joint q/v through a
-fixed source-path calibration. Both are explicit experimental excitation
-controllers. Compare them with the same excitation-only baseline and do not
-present them as an integrated NumiBrain run.
-
-For the source whole-body standing scene, explicitly request
-`--execute --steps 10000 --timestep 0.001 --muscle-path-feedback 10 1` and
-supply the matching bone and muscle-surface payloads. The wrapper retains
-64 contact iterations and the current-state source passive joint law.
-The command's default short horizon is not a ten-second standing run;
-judge the requested horizon from the actual accepted trajectory and outcome.
-
-For the integrated Brain/Human path, run the published
-`.numi/commands/human-brain-standing` on the Apple-native owner with the
-matching Brain dynamic library. Its launcher defaults to four one-millisecond
-steps and accepts an explicit longer horizon up to ten simulated seconds; it
-renders the accepted skeleton and muscle surfaces. Check its run
-manifest, `human_brain_joint_commit`, and `human_standing_progress` records.
-The original default Brain program relayed source-prepared tonic excitation
-after the first receptor frame, with zero excitation on step one because the
-initial receptor validity was empty. The updated native source seeds only
-initial path length and velocity from the prepared MyoSim result; remeasure
-the first motor command on the named binary before claiming that fix executes.
-The original short reproducible integration is not sustained
-Brain-controlled standing or evidence of recovery from a perturbation. For
-that claim, run a source-bound feedback program and compare matched
-controller-on/off
-physical trajectories under the same timed push before extending to at least
-10 simulated seconds without root assistance.
-
-For a short energy diagnosis, add `--endpoint-energy` to `--execute`.
-It reports mass/inertia kinetic energy and available work at accepted native
-endpoints. Keep solver-iterate correction work separate; missing source-limit,
-projection and internal muscle energy terms do not establish energy closure.
-
-Run only checks needed to validate the change and its actual physical outcome.
-Do not turn a standing request into broad library tests, new evidence schemas,
-ownership abstractions, documentation campaigns, or repeated millisecond-only
-qualification. Finish with the runnable scene and measured outcome, or the
-specific unresolved execution blocker and retained run, never test counts as
-the standing result.
-
-## Apple Silicon execution model
-
-For the Lab robotics/embodiment path, preserve this Apple-native ownership
-model. Sibling runtimes retain their own contracts: NumiVivo precision-sensitive
-chemistry can legitimately run native FP64 on CPU; reference solvers and Python
-authoring tools must be identified as such. Do not force every suite tool into
-CompiledRun, MLX, or GPU execution:
-
-- The native `CompiledRun` boundary composes `RobotPack`, `ScenePack`,
-  `SensorPack`, `TaskPack`, `RealityPack`, optional `TeacherPack`, exact
-  `PolicyPack`, and `RunProfile` into stable indices, fixed-capacity tables,
-  and fingerprints. A new robot is authored mechanics, semantic roles and
-  capability data, not a new shader or host execution mode.
-- A robot brain is a `PolicyPack` permanently bound to exact world, task,
-  observation, and action fingerprints. Legacy v3 packs are migration inputs;
-  newly published v4 packs must not be dimension-only or silently rebound.
-- Teachers such as ARDY, GR00T, or demonstrations propose learning evidence.
-  They never bypass Metal gravity, collision, contact, sensing, resets, or
-  time and never become an alternate physics path.
-- Metal owns persistent physics, contact, terrain, task operators, sensing,
-  rendering, policy inference, simulator state, and counter-based randomness.
-  Keep the control loop device-resident and free of per-environment host loops,
-  per-step string lookup, and unnecessary readback.
-- Swift owns rollout length, chunking, the asynchronous submission/wait
-  boundary, timeouts, atomic resets, policy revision, and error publication. It
-  reuses bounded rollout storage rather than accumulating per-chunk copies.
-- MLX owns batch learning only. It consumes compact memory-mapped rollout
-  artifacts and publishes the next fingerprinted `PolicyPack`; it does not own
-  physics, simulator state, or rollout scheduling.
-- Apple unified memory is shared capacity, not permission to duplicate data.
-  Account for retained native heaps, transient private arenas, MLX active and
-  cached allocations, publication buffers, and the device's recommended
-  working set. Prefer borrowed buffers, fused encoders, and explicit lifetime
-  boundaries.
-- One environment control step is a transaction. Accepted state publishes;
-  failed state rolls back with typed status while healthy environments
-  continue. Chunk size and scheduling must not change random streams or replay.
-- GPU submission is asynchronous. A ticket wait is the explicit host
-  publication boundary; rendering or sensing callbacks may encode against
-  borrowed buffers but must not independently commit, wait, or retain them.
-
-Do not infer hardware execution from an Apple Silicon build, a CPU probe, or a
-simulator result. Report the actual device, runtime path, memory behavior, GPU
-status, and physical or replay evidence produced by the run.
-
-## Infrastructure routing
-
-Load only the owner documentation needed for the request from the runtime root,
-then trace its live code path:
-
-- CLI discovery, overlays, generated evidence, and installation:
-  `docs/NUMI_CLI.md`.
-- Robot, task, policy, artifact, or compiler architecture: `docs/WORLD_ENGINE.md`.
-- Metal execution, submissions, private heaps, unified-memory scale, and native
-  training: `docs/METAL_WORLD.md`.
-- Rendering, RGB-D, device observations, and zero-readback perception:
-  `docs/VISUAL_PLATFORM.md`.
-- FP32/FP64 parity, contact correctness, transactionality, and solver evidence:
-  `docs/NUMERICS.md`.
-- Solver discovery, profiles, compatibility, and external overlays:
-  `docs/NUMI_SOLVERS.md`.
-- Tactile geometry, contact fields, and sensor bridge work:
-  `docs/TACTILE_GEOMETRY_BRIDGE.md`.
-- Foundation action proposers: `docs/FOUNDATION_POLICIES.md`.
-- Motion-imagination providers and physical realization:
-  `docs/MOTION_PROVIDERS.md`.
-- PX4 X500 source, flight control, and evidence boundaries: `docs/PX4_X500.md`.
-
-For cross-layer changes, preserve the ownership boundary: C++ compiles and
-validates the world, Metal executes the hot loop, Swift schedules bounded
-rollouts, and MLX learns from published batches. Change the lowest owning
-layer that can express the requested capability.
-
-## Freedom model
-
-Use the smallest sufficient level, without asking the user to translate intent
-into implementation details:
-
-- Configure user or workspace preferences and profiles.
-- Extend the lab with executable commands under `.numi/commands`.
-- Modify the Numi source when physics, sensing, learning, or task behavior must
-  change. New robots are mechanics plus authored packs plus a policy contract,
-  not hard-coded CLI branches.
-
-Workspace commands and instructions belong to the user. Preserve them during
-runtime updates. Prefer transparent files and executable capabilities that a
-future Codex model can inspect and improve.
-
-## Completion contract
-
-For discovery commands, return the relevant version, resolved path, status, and
-output or typed failure. For commands that execute or produce artifacts, return
-the exact runtime revision and worktree state, arguments, artifact directory,
-relevant runtime and artifact hashes, stdout/stderr or typed failure, and the
-actual device/runtime used. For simulation, training, evaluation, and profiling,
-also return failed environment steps, throughput, retained and peak memory,
-replay/fingerprint evidence, available traces or counters, and task-specific
-physical outcomes. State when a requested profiler gate or physical outcome was
-unavailable. A build, test, reward, liveness check, or timeline-only trace is not
-physical or detailed GPU performance proof.
-
-Before a long Metal, training, evaluation, or profiling run, inspect active
-workloads and existing artifacts. Do not duplicate a live run or contend for a
-dedicated GPU; use isolated build/worktree paths and checkpointed execution
-when the workload warrants them.
-
-Retain every physically valid candidate and its measured outcome. Changing the
-configured production policy is an explicit evidence-backed selection, not a
-binary verdict that erases partial progress.
-
-For molecular and tissue results, also preserve model/parameter provenance,
-units, numerical tolerances, conservation and convergence evidence, uncertainty,
-and the exact observable. Electronic energies, activation free energies, rates,
-occupancy, cellular response, and organism outcomes are separate claims.
-Synthetic culture, tissue, and artificial-life simulations do not establish
-biological calibration or clinical validity.
-
-Simulator evidence is not hardware evidence. Simulation, authoring, and local
-training may be autonomous. Before real hardware can move, stop and obtain the
-owner approval required by the configured arming policy, and verify limits and
-an emergency stop; never infer that authority from approval to simulate.
+Load [human-standing.md](references/human-standing.md) for whole-body Human
+execution, [native-execution.md](references/native-execution.md) for Apple-native
+runtime architecture or source changes, and [evidence.md](references/evidence.md)
+for completion, provenance, and hardware-arming rules. These references extend
+the routing map; they are not prerequisites for an unrelated domain.
