@@ -1717,3 +1717,35 @@ whole-stitch qualification. Its run, checkpoint, and restore-log SHA-256
 values are `7a8455c678c6ce167ba8b3b510941b38f8b32a60dc24a0923af334ad8aa655e4`,
 `46f5880ec4f40ae3c7a59ab30937e0943319793babcc71921a3120bf5bb0b48b`,
 and `4e3a237dd03356ba9d11cff41e98d514af995492ec759f57d55157216678da2f`.
+
+The next lower 8/4 iteration budget took 4,750.555 ms GPU, but its
+maximum normal residual reached 0.002208 m/s, above the 0.002 m/s screen.
+The probe therefore archived only a **transient, unqualified** checkpoint;
+the process exit status alone must not be read as an accepted puncture
+continuation. Its run-log SHA-256 is
+`d6211d78890a47d84d15add42e17e993aef4b788f3830c43a16d4690f52344c5`.
+The intermediate 12/6 budget passed at 5,418.047 ms GPU (1.56x versus the
+matched 32/16 baseline), with 4/6 jaw contacts, qualified grasp and rod,
+one channel, all tetrahedra, zero failed steps, and a 0.001139 m/s maximum
+normal residual. Its accepted checkpoint restored byte-exactly. The run,
+checkpoint, and restore-log SHA-256 values are
+`bfa994c0f8812e987788464278b72b9aa2948dba61f482bbaf64518f75772400`,
+`f81de730c8539f73830ebd9cce9045c0dfb2cf3c0ac65c49482cc838acee3357`,
+and `cdf447ab0b5190096e3ab0ad325e0ff7ee8f85e18508b6104205cc8c9dd5b44d`.
+
+Combining the accepted 12/6 budget with cadence 64 on the same step-2382
+start and 8 ms horizon took 4,204.425 ms GPU, versus 8,441.346 ms for
+cadence 16 and 32/16 iterations: a measured 2.01x gain on this segment.
+It retained 8/6 jaw contacts, qualified grasp and rod, one active channel,
+all 46,080 tetrahedra, zero failed steps, and a 0.000818 m/s maximum normal
+residual. The tip advanced 13.832 um with no newly measured tip impulse,
+tissue reaction, or displacement. Its step-2510 checkpoint restored
+byte-exactly, still 148.608 um from the channel's distal end. The run,
+checkpoint, and restore-log SHA-256 values are
+`61dcedc39f5100e95dc0b6f02d407c44649a35ed0924120091aaac9ca794cb4f`,
+`7352c923a7d474f26581bedd53e1e60412fb4838c7cbb242914d7732109cb24f`,
+and `c06af20a65d8c192cf13bc24ce0481dd7ff2378c14d7c9311362760994689067`.
+This accepted result is still limited to an unloaded channel transit, and
+it is far short of a 100x whole-stitch speedup. The next performance work
+needs measured kernel-level attribution and load-bearing penetration,
+thread, opposing-bite, and knot runs before promoting an iteration budget.
