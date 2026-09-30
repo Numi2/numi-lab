@@ -570,6 +570,34 @@ The executable SHA-256 is
 `b731ebd51eb3aa4b314b4c32caf49fcd73f8cbf6c4e146bd7532b7f62a07c0a0`.
 The default solver budget and accepted shader lineage are unchanged.
 
+One more diagnostic varied the FGMRES column budget after the accepted entry,
+using a temporary runtime that allowed a partial restart cycle. At 16x with
+one Newton pass, budgets of five, three, and one columns passed the same
+contact-free post-entry one-step gates at 2,266.200, 2,215.667, and
+2,167.439 ms GPU. Their maximum residuals were 2.409e-6, 1.740e-6, and
+1.721e-6, respectively, compared with 2,324.739 ms and 2.508e-6 for
+the retained ten-column probe. The apparent residual improvement is a
+different accepted trajectory, not proof that fewer columns generalize to
+load-bearing contact. Removing nine of ten columns saved only 6.8% of the
+single-step GPU time, so the partial-cycle runtime and test hooks were
+reverted. The diagnostic log SHA-256 values, in five/three/one order, are
+`27ace68bd67b5516d506da33e269856f18ca0a8dbd01679bfa65e640877e068e`,
+`44ac2191de215c57a7232529d21e8f87cf25271c918c09508f201316f7de818d`,
+and `7ce9309d514da3a0fd9f3bd876b072add9410bd9446cd5b94963ba59316f1d29`.
+
+At the same one-Newton/ten-column budget, diagnostic 1x, 4x, and 16x
+steps took 501.612, 864.805, and 2,322.959 ms GPU. The differences are
+about 121 ms for each additional encoded physics substep over both spans.
+That repeated coupled-substep work, rather than FGMRES column count or
+empty self-contact broadphase, is the next performance attribution target.
+These grouped steps advance different simulated intervals; the slope is a
+diagnostic estimate, not a whole-stitch speed claim. Their log SHA-256 values
+are `57bdb2be36703b52a1be2d7d3e22b216cb4f691faf2076728cd2f1daf9ed3bc9`,
+`db99b223ae6dca08d5790efe41e480c8dd5a1cefeafe1fd292216e613208e586`,
+and `5ac95a760fbdeb14071a9e8844a90bae74af1949464dfb8fc2a2bc50d188b9ff`.
+The restored library and executable SHA-256 values match the preceding
+accepted `dafd704a...` and `b731ebd5...` binaries.
+
 The stronger 75 um jaw-preload trial from robot contact step 1645 also
 remains unqualified. A 13 ms ramp at 1 mm/s preserved Matter's 46,080
 tets and zero failures but drifted 212 um at the needle seat. A 6 ms
