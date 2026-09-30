@@ -1290,6 +1290,57 @@ kernel void nm_numi_human_audit_fem_anchor_reactions(
     audits[environment] = audit;
 }
 
+// The PTL is a separate FEM continuum. Record its attachment reaction on the
+// borrowed command buffer, then accumulate impulse only after Human accepts
+// the step. The step-count guard prevents replay from counting an accepted
+// impulse twice while allowing a rejected attempt to be retried.
+kernel void nm_numi_human_audit_ptl_attachment_reaction(
+    constant uint& anchorCount [[buffer(0)]],
+    device const uint* anchorIndices [[buffer(1)]],
+    device const float4* constraintReactions [[buffer(2)]],
+    device float4* provisional [[buffer(3)]],
+    uint threadIndex [[thread_position_in_grid]]
+) {
+    if (threadIndex != 0u) return;
+    float3 reaction = float3(0.0f);
+    for (uint anchor = 0u; anchor < anchorCount; ++anchor) {
+        const float3 value = constraintReactions[anchorIndices[anchor]].xyz;
+        if (!finite3(value)) {
+            provisional[0u] = float4(NAN);
+            return;
+        }
+        reaction += value;
+    }
+    provisional[0u] = float4(reaction, length(reaction));
+}
+
+kernel void nm_numi_human_commit_ptl_attachment_impulse(
+    constant uint& stepIndex [[buffer(0)]],
+    constant float& timestepSeconds [[buffer(1)]],
+    device const MRNumiHumanStandStatusGPU* standStatuses [[buffer(2)]],
+    device const float4* provisional [[buffer(3)]],
+    device float4* acceptedImpulse [[buffer(4)]],
+    device float* acceptedImpulseL1 [[buffer(5)]],
+    uint threadIndex [[thread_position_in_grid]]
+) {
+    if (threadIndex != 0u) return;
+    const MRNumiHumanStandStatusGPU status = standStatuses[0u];
+    if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS ||
+        status.environment != 0u ||
+        status.completedSteps != stepIndex + 1u ||
+        acceptedImpulse[0u].w != float(stepIndex)) return;
+    const float3 reaction = provisional[0u].xyz;
+    if (!finite3(reaction) || !isfinite(timestepSeconds) ||
+        timestepSeconds <= 0.0f) {
+        acceptedImpulse[0u] = float4(NAN);
+        return;
+    }
+    acceptedImpulse[0u] = float4(
+        acceptedImpulse[0u].xyz + reaction * timestepSeconds,
+        float(stepIndex + 1u));
+    acceptedImpulseL1[0u] += provisional[0u].w * timestepSeconds;
+}
+
 kernel void nm_numi_human_commit_fem_anchor_reaction_audit(
     constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
     device const MRNumiHumanStandStatusGPU* standStatuses [[buffer(1)]],

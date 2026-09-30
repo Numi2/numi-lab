@@ -2799,6 +2799,14 @@ struct FEMReactionSnapshotProgram {
     __strong id<MTLBuffer> source = nil;
     __strong id<MTLBuffer> snapshot = nil;
     NSUInteger byteCount = 0u;
+    __strong id<MTLBuffer> ptlAnchorIndices = nil;
+    __strong id<MTLBuffer> ptlProvisionalReaction = nil;
+    __strong id<MTLBuffer> ptlAcceptedImpulse = nil;
+    __strong id<MTLBuffer> ptlAcceptedImpulseL1 = nil;
+    __strong id<MTLComputePipelineState> ptlReactionPipeline = nil;
+    __strong id<MTLComputePipelineState> ptlImpulsePipeline = nil;
+    std::uint32_t ptlAnchorCount = 0u;
+    float timestepSeconds = 0.0f;
 };
 
 bool encodeFEMReactionSnapshotPreDynamics(
@@ -2809,6 +2817,10 @@ bool encodeFEMReactionSnapshotPreDynamics(
     if (program == nullptr || !program->delegate.valid() ||
         pass.commandBuffer == nullptr || program->source == nil ||
         program->snapshot == nil || program->byteCount == 0u ||
+        program->ptlAnchorIndices == nil ||
+        program->ptlProvisionalReaction == nil ||
+        program->ptlReactionPipeline == nil ||
+        program->ptlAnchorCount == 0u ||
         !program->delegate.encodePreDynamics(
             program->delegate.context, pass)) {
         return false;
@@ -2821,6 +2833,17 @@ bool encodeFEMReactionSnapshotPreDynamics(
                 toBuffer:program->snapshot destinationOffset:0u
                     size:program->byteCount];
     [blit endEncoding];
+    id<MTLComputeCommandEncoder> encoder = [command computeCommandEncoder];
+    if (encoder == nil) return false;
+    [encoder setComputePipelineState:program->ptlReactionPipeline];
+    [encoder setBytes:&program->ptlAnchorCount
+              length:sizeof(program->ptlAnchorCount) atIndex:0u];
+    [encoder setBuffer:program->ptlAnchorIndices offset:0u atIndex:1u];
+    [encoder setBuffer:program->source offset:0u atIndex:2u];
+    [encoder setBuffer:program->ptlProvisionalReaction offset:0u atIndex:3u];
+    [encoder dispatchThreads:MTLSizeMake(1u, 1u, 1u)
+        threadsPerThreadgroup:MTLSizeMake(1u, 1u, 1u)];
+    [encoder endEncoding];
     return true;
 }
 
@@ -2829,9 +2852,31 @@ bool encodeFEMReactionSnapshotPostValidation(
     const metalrobo::MetalNumiHumanTendonLoadPass& pass
 ) {
     auto* program = static_cast<FEMReactionSnapshotProgram*>(opaque);
-    return program != nullptr && program->delegate.valid() &&
-        program->delegate.encodePostValidation(
-            program->delegate.context, pass);
+    if (program == nullptr || !program->delegate.valid() ||
+        pass.commandBuffer == nullptr || pass.standStatuses == nullptr ||
+        program->ptlAcceptedImpulse == nil ||
+        program->ptlAcceptedImpulseL1 == nil ||
+        program->ptlProvisionalReaction == nil ||
+        program->ptlImpulsePipeline == nil ||
+        !program->delegate.encodePostValidation(
+            program->delegate.context, pass)) return false;
+    id<MTLCommandBuffer> command =
+        (__bridge id<MTLCommandBuffer>)pass.commandBuffer;
+    id<MTLBuffer> standStatuses = (__bridge id<MTLBuffer>)pass.standStatuses;
+    id<MTLComputeCommandEncoder> encoder = [command computeCommandEncoder];
+    if (encoder == nil) return false;
+    [encoder setComputePipelineState:program->ptlImpulsePipeline];
+    [encoder setBytes:&pass.stepIndex length:sizeof(pass.stepIndex) atIndex:0u];
+    [encoder setBytes:&program->timestepSeconds
+              length:sizeof(program->timestepSeconds) atIndex:1u];
+    [encoder setBuffer:standStatuses offset:0u atIndex:2u];
+    [encoder setBuffer:program->ptlProvisionalReaction offset:0u atIndex:3u];
+    [encoder setBuffer:program->ptlAcceptedImpulse offset:0u atIndex:4u];
+    [encoder setBuffer:program->ptlAcceptedImpulseL1 offset:0u atIndex:5u];
+    [encoder dispatchThreads:MTLSizeMake(1u, 1u, 1u)
+        threadsPerThreadgroup:MTLSizeMake(1u, 1u, 1u)];
+    [encoder endEncoding];
+    return true;
 }
 
 void abortFEMReactionSnapshot(
@@ -2848,7 +2893,16 @@ metalrobo::MetalNumiHumanTendonLoadProgram femReactionSnapshotProgram(
     FEMReactionSnapshotProgram& snapshot
 ) {
     require(snapshot.delegate.valid() && snapshot.source != nil &&
-                snapshot.snapshot != nil && snapshot.byteCount > 0u,
+                snapshot.snapshot != nil && snapshot.byteCount > 0u &&
+                snapshot.ptlAnchorIndices != nil &&
+                snapshot.ptlProvisionalReaction != nil &&
+                snapshot.ptlAcceptedImpulse != nil &&
+                snapshot.ptlAcceptedImpulseL1 != nil &&
+                snapshot.ptlReactionPipeline != nil &&
+                snapshot.ptlImpulsePipeline != nil &&
+                snapshot.ptlAnchorCount > 0u &&
+                std::isfinite(snapshot.timestepSeconds) &&
+                snapshot.timestepSeconds > 0.0f,
             "FEM reaction snapshot program is incomplete");
     return {
         .context = &snapshot,
@@ -8734,24 +8788,108 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
             options:MTLResourceStorageModeShared];
     require(reactionBuffer != nil && reactionSnapshot != nil,
             "live Open Knee pre-dynamics reaction snapshot is unavailable");
+    std::vector<std::uint32_t> ptlAnchorIndices;
+    for (std::uint32_t local = 0u; local < ptlRegion.nodeCount; ++local) {
+        const std::uint32_t femNode = ptlRuntime->firstFEMNode + local;
+        if ((nodeAnchors[femNode].flags &
+             NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE) != 0u)
+            ptlAnchorIndices.push_back(femNode);
+    }
+    require(ptlAnchorIndices.size() ==
+                ptlRuntime->anchorCounts[1u] +
+                    ptlRuntime->anchorCounts[2u],
+            "live Open Knee PTL impulse anchor coverage drifted");
+    id<MTLDevice> ptlDevice = reactionBuffer.device;
+    id<MTLBuffer> ptlAnchorIndexBuffer = [ptlDevice
+        newBufferWithBytes:ptlAnchorIndices.data()
+                 length:ptlAnchorIndices.size() * sizeof(std::uint32_t)
+                options:MTLResourceStorageModeShared];
+    id<MTLBuffer> ptlProvisionalReaction = [ptlDevice
+        newBufferWithLength:sizeof(nm_float4)
+                 options:MTLResourceStorageModePrivate];
+    id<MTLBuffer> ptlAcceptedImpulse = [ptlDevice
+        newBufferWithLength:sizeof(nm_float4)
+                 options:MTLResourceStorageModeShared];
+    id<MTLBuffer> ptlAcceptedImpulseL1 = [ptlDevice
+        newBufferWithLength:sizeof(float)
+                 options:MTLResourceStorageModeShared];
+    require(ptlAnchorIndexBuffer != nil && ptlProvisionalReaction != nil &&
+                ptlAcceptedImpulse != nil && ptlAcceptedImpulseL1 != nil,
+            "live Open Knee PTL impulse buffers are unavailable");
+    std::memset(ptlAcceptedImpulse.contents, 0, sizeof(nm_float4));
+    std::memset(ptlAcceptedImpulseL1.contents, 0, sizeof(float));
+    NSError* ptlPipelineError = nil;
+    NSString* ptlMetallibPath = [NSString
+        stringWithUTF8String:matterMetallib.string().c_str()];
+    id<MTLLibrary> ptlLibrary = ptlMetallibPath == nil ? nil : [ptlDevice
+        newLibraryWithURL:[NSURL fileURLWithPath:ptlMetallibPath]
+                   error:&ptlPipelineError];
+    require(ptlLibrary != nil,
+            "live Open Knee PTL impulse metallib is unavailable");
+    const auto ptlPipeline = [&](const char* name) {
+        const std::string qualified =
+            std::string("numi_matter_metal::") + name;
+        id<MTLFunction> function = [ptlLibrary newFunctionWithName:[NSString
+            stringWithUTF8String:qualified.c_str()]];
+        require(function != nil,
+                std::string("live Open Knee PTL impulse function missing: ") +
+                    name);
+        NSError* error = nil;
+        id<MTLComputePipelineState> pipeline = [ptlDevice
+            newComputePipelineStateWithFunction:function error:&error];
+        require(pipeline != nil,
+                std::string("live Open Knee PTL impulse pipeline failed: ") +
+                    name);
+        return pipeline;
+    };
+    id<MTLComputePipelineState> ptlReactionPipeline = ptlPipeline(
+        "nm_numi_human_audit_ptl_attachment_reaction");
+    id<MTLComputePipelineState> ptlImpulsePipeline = ptlPipeline(
+        "nm_numi_human_commit_ptl_attachment_impulse");
     FEMReactionSnapshotProgram reactionProgram{
         .delegate = adapter.program(),
         .source = reactionBuffer,
         .snapshot = reactionSnapshot,
         .byteCount = reactionBytes,
+        .ptlAnchorIndices = ptlAnchorIndexBuffer,
+        .ptlProvisionalReaction = ptlProvisionalReaction,
+        .ptlAcceptedImpulse = ptlAcceptedImpulse,
+        .ptlAcceptedImpulseL1 = ptlAcceptedImpulseL1,
+        .ptlReactionPipeline = ptlReactionPipeline,
+        .ptlImpulsePipeline = ptlImpulsePipeline,
+        .ptlAnchorCount = static_cast<std::uint32_t>(ptlAnchorIndices.size()),
+        .timestepSeconds = static_cast<float>(timestepSeconds),
     };
     HumanTendonContinuumTransaction transaction{
         .program = femReactionSnapshotProgram(reactionProgram),
         .runtime = &runtime,
         .initial = initial,
     };
-    driven = integratePersistentMetalHumanState(
-        model, muscles, supportContacts, jointEqualities, timestepSeconds,
-        stepCount, activation, selectedSourceMuscleIndices,
-        applySelectedActivationIncrement, enableRootAssistance,
-        removeRootAssistance, true, &transaction,
-        std::pair<std::uint32_t, double>{
-            kneeQIndex, qualificationFlexionRadians}, false);
+    try {
+        driven = integratePersistentMetalHumanState(
+            model, muscles, supportContacts, jointEqualities, timestepSeconds,
+            stepCount, activation, selectedSourceMuscleIndices,
+            applySelectedActivationIncrement, enableRootAssistance,
+            removeRootAssistance, true, &transaction,
+            std::pair<std::uint32_t, double>{
+                kneeQIndex, qualificationFlexionRadians}, false);
+    } catch (...) {
+        const auto* impulse =
+            static_cast<const nm_float4*>(ptlAcceptedImpulse.contents);
+        const auto* impulseL1 =
+            static_cast<const float*>(ptlAcceptedImpulseL1.contents);
+        if (impulse != nullptr && impulseL1 != nullptr) {
+            std::cerr << std::setprecision(9)
+                      << "open_knee_ptl_partial_impulse=diagnostic"
+                      << " accepted_steps=" << impulse[0u].w
+                      << " reaction_impulse_xyz_ns="
+                      << impulse[0u].x << "," << impulse[0u].y << ","
+                      << impulse[0u].z
+                      << " reaction_impulse_l1_ns=" << impulseL1[0u]
+                      << " boundary=no_accepted_terminal_state_after_failure\n";
+        }
+        throw;
+    }
     driven.tendonContinuumPassiveReactionOnly = false;
     const auto accepted = transaction.accepted;
     require(accepted.available && accepted.femNodes.size() == totalNodes &&
@@ -9132,6 +9270,42 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
         }
         ptlMomentumClosureNormNewtons = std::sqrt(squared);
     }
+    const auto* ptlAcceptedImpulseValue =
+        static_cast<const nm_float4*>(ptlAcceptedImpulse.contents);
+    require(ptlAcceptedImpulseValue != nullptr &&
+                std::isfinite(ptlAcceptedImpulseValue[0u].x) &&
+                std::isfinite(ptlAcceptedImpulseValue[0u].y) &&
+                std::isfinite(ptlAcceptedImpulseValue[0u].z) &&
+                ptlAcceptedImpulseValue[0u].w ==
+                    static_cast<float>(driven.stepCount),
+            "live Open Knee PTL accepted impulse audit is incomplete");
+    const auto* ptlAcceptedImpulseL1Value =
+        static_cast<const float*>(ptlAcceptedImpulseL1.contents);
+    require(ptlAcceptedImpulseL1Value != nullptr &&
+                std::isfinite(ptlAcceptedImpulseL1Value[0u]) &&
+                ptlAcceptedImpulseL1Value[0u] > 0.0f,
+            "live Open Knee PTL accepted impulse L1 audit is incomplete");
+    double ptlImpulseClosureSquared = 0.0;
+    double ptlImpulseSquared = 0.0;
+    for (std::uint32_t axis = 0u; axis < 3u; ++axis) {
+        const double impulse = axis == 0u ? ptlAcceptedImpulseValue[0u].x
+            : axis == 1u ? ptlAcceptedImpulseValue[0u].y
+            : ptlAcceptedImpulseValue[0u].z;
+        const double residual = impulse +
+            ptlMomentumRateNewtons[axis] * elapsedPTLSeconds;
+        ptlImpulseClosureSquared += residual * residual;
+        ptlImpulseSquared += impulse * impulse;
+    }
+    const double ptlImpulseClosureNewtonsSeconds =
+        std::sqrt(ptlImpulseClosureSquared);
+    const double ptlImpulseResultantNewtonsSeconds =
+        std::sqrt(ptlImpulseSquared);
+    const double ptlImpulseClosureRelativeError =
+        ptlImpulseClosureNewtonsSeconds /
+            std::max(1.0e-12, ptlImpulseResultantNewtonsSeconds);
+    const double ptlImpulseClosureRelativeToL1 =
+        ptlImpulseClosureNewtonsSeconds /
+            ptlAcceptedImpulseL1Value[0u];
     std::cout << std::setprecision(9)
               << "open_knee_ptl_force_accounting=diagnostic"
               << " route_terminal_force_xyz_n="
@@ -9175,6 +9349,22 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
               << ptlMomentumClosureNormNewtons
               << " momentum_closure_scope="
               << (stepCount == 1u ? "one_native_step" : "not_evaluated_multi_step")
+              << " accepted_reaction_impulse_xyz_ns="
+              << ptlAcceptedImpulseValue[0u].x << ","
+              << ptlAcceptedImpulseValue[0u].y << ","
+              << ptlAcceptedImpulseValue[0u].z
+              << " accepted_reaction_impulse_steps="
+              << ptlAcceptedImpulseValue[0u].w
+              << " accepted_reaction_impulse_norm_ns="
+              << ptlImpulseResultantNewtonsSeconds
+              << " accepted_reaction_impulse_l1_ns="
+              << ptlAcceptedImpulseL1Value[0u]
+              << " impulse_plus_momentum_residual_ns="
+              << ptlImpulseClosureNewtonsSeconds
+              << " impulse_plus_momentum_relative_error="
+              << ptlImpulseClosureRelativeError
+              << " impulse_plus_momentum_relative_to_l1="
+              << ptlImpulseClosureRelativeToL1
               << " quadriceps_applied_xyz_n="
               << quadricepsAppliedForceResultant.x << ","
               << quadricepsAppliedForceResultant.y << ","
@@ -9183,8 +9373,8 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
               << quadricepsEnthesisReaction.x << ","
               << quadricepsEnthesisReaction.y << ","
               << quadricepsEnthesisReaction.z
-              << " boundary=other_reaction_not_passive_only_momentum_closure_"
-                 "does_not_qualify_sustained_motion_or_energy\n" << std::flush;
+              << " boundary=accepted_trajectory_impulse_diagnostic_does_not_"
+                 "qualify_contact_energy_or_anatomy\n" << std::flush;
     const auto adapterDiagnostics = adapter.diagnostics();
     const double externalResultantRelativeError = std::abs(
         adapterDiagnostics.assembledExternalForceResultantNewtons -
@@ -9239,11 +9429,21 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
     const double ptlTibiaReactionRelativeError =
         ptlTibiaReactionAbsoluteError / std::max(
             1.0, result.patellarTendonForceResultantNewtons);
+    // The active PTL couple has zero net external force. Total enthesis
+    // reactions include acceleration of the 4.4 g continuum, so their
+    // magnitudes cannot be equated to the direct active patch load. Require
+    // the exact assembled load and accepted-trajectory impulse balance
+    // instead. This is one physical transfer gate, not contact or anatomy
+    // qualification.
+    constexpr double kPTLImpulseRelativeTolerance = 0.02;
     const bool patellarTendonForceTransferVerified =
-        std::isfinite(ptlPatellaReactionAbsoluteError) &&
-        ptlPatellaReactionAbsoluteError <= passiveReactionAllowanceNewtons &&
-        std::isfinite(ptlTibiaReactionAbsoluteError) &&
-        ptlTibiaReactionAbsoluteError <= passiveReactionAllowanceNewtons;
+        assembledForceVerified &&
+        std::isfinite(result.patellarTendonPatellaReactionResultantNewtons) &&
+        result.patellarTendonPatellaReactionResultantNewtons > 0.0 &&
+        std::isfinite(result.patellarTendonTibiaReactionResultantNewtons) &&
+        result.patellarTendonTibiaReactionResultantNewtons > 0.0 &&
+        std::isfinite(ptlImpulseClosureRelativeToL1) &&
+        ptlImpulseClosureRelativeToL1 <= kPTLImpulseRelativeTolerance;
     result.assembledExternalForceL1Newtons =
         adapterDiagnostics.assembledExternalForceL1Newtons;
     result.assembledExternalForceResultantNewtons =
@@ -9425,6 +9625,10 @@ LoadedOpenKneeLigamentFEM runLiveOpenKneeTissueFEM(
                 std::to_string(enthesisForceTransferVerified) +
                 " ptl_transfer_gate=" +
                 std::to_string(patellarTendonForceTransferVerified) +
+                " ptl_impulse_relative_to_l1=" +
+                std::to_string(ptlImpulseClosureRelativeToL1) +
+                " ptl_impulse_relative_tolerance=" +
+                std::to_string(kPTLImpulseRelativeTolerance) +
                 " articular_contact_gate=" +
                 std::to_string(articularContactVerified) +
                 " passive_ligament_gate=" +
@@ -15737,6 +15941,10 @@ int main(int argc, char** argv) {
                     muscleDrivenState.emplace(std::move(coupledDriven));
                     std::cout
                         << "open_knee_live_tissue_fem=accepted"
+                        << " qualification_scope="
+                        << (openKneeCruciateInitializationDiagnostic
+                                ? "unqualified_local_acl_initialization"
+                                : "bounded_native_tissue_execution")
                         << " side="
                         << (openKneePayload->side ==
                                 metalrobo::NumiHumanKneeSide::left
