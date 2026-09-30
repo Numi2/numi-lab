@@ -1148,22 +1148,59 @@ kernel void nm_fem_apply_operator_elements(
     bool valid = true;
     float3x3 analytic;
     float3x3 tangent;
-    evaluateAlgorithmicStressTangent(
-        material,
-        programs,
-        instructions,
-        environmentParameters + environment * dispatch.parameterCount,
-        internalState,
-        deformation,
-        deformationDirection,
-        deformationRate,
-        rateDirection,
-        dt,
-        material.bulk.y,
-        analytic,
-        tangent,
-        valid
-    );
+    if ((material.flags & NM_MATERIAL_CANONICAL_NEO_HOOKEAN) != 0u &&
+        material.stateCount == 0u &&
+        material.viscousTangentProgramOffset == NM_INVALID_INDEX) {
+        device const float* parameters = environmentParameters +
+            environment * dispatch.parameterCount +
+            material.parameterOffset;
+        const float mu = parameters[1u];
+        const float lambda = parameters[2u];
+        const float j = determinant(deformation);
+        if (j > 0.0f && isfinite(j)) {
+            const float3x3 inverseTranspose =
+                cofactorMatrix(deformation) / j;
+            const float logJ = log(j);
+            const float traceDirection =
+                dot(inverseTranspose[0], deformationDirection[0]) +
+                dot(inverseTranspose[1], deformationDirection[1]) +
+                dot(inverseTranspose[2], deformationDirection[2]);
+            analytic = mu * (deformation - inverseTranspose) +
+                lambda * logJ * inverseTranspose;
+            tangent = mu * deformationDirection +
+                lambda * traceDirection * inverseTranspose +
+                (mu - lambda * logJ) *
+                inverseTranspose * transpose(deformationDirection) *
+                inverseTranspose;
+            valid = all(isfinite(analytic[0])) &&
+                all(isfinite(analytic[1])) &&
+                all(isfinite(analytic[2])) &&
+                all(isfinite(tangent[0])) &&
+                all(isfinite(tangent[1])) &&
+                all(isfinite(tangent[2]));
+        } else {
+            valid = false;
+            analytic = float3x3(0.0f);
+            tangent = float3x3(0.0f);
+        }
+    } else {
+        evaluateAlgorithmicStressTangent(
+            material,
+            programs,
+            instructions,
+            environmentParameters + environment * dispatch.parameterCount,
+            internalState,
+            deformation,
+            deformationDirection,
+            deformationRate,
+            rateDirection,
+            dt,
+            material.bulk.y,
+            analytic,
+            tangent,
+            valid
+        );
+    }
     if (material.constitutiveKind == NM_CONSTITUTIVE_POLYCONVEX_ICNN) {
         bool found = false;
         for (uint networkIndex = 0u;

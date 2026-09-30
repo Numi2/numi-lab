@@ -1,4 +1,5 @@
 #include "numi/matter/matter.hpp"
+#include "numi/matter/detail.hpp"
 
 #include <algorithm>
 #include <array>
@@ -393,6 +394,54 @@ void verifyAdaptiveLayout() {
     );
 }
 
+void verifyCanonicalNeoHookeanSelection() {
+    constexpr std::string_view canonicalSource = R"(material check {
+        parameter density : kg/m^3 = 1050 in [900, 1200];
+        parameter mu : kPa = 25 in [1, 500] log;
+        parameter lambda : kPa = 250 in [10, 5000] log;
+        model neo_hookean;
+        energy = neo_hookean(mu, lambda);
+        valid = J() - 0.20;
+        supports fem;
+    })";
+    const auto canonical = numi::matter::parseMatter(canonicalSource);
+    require(canonical.succeeded(), "canonical Neo-Hookean material did not parse");
+    require(canonical.material.canonicalNeoHookeanEnergy,
+            "parser missed the exact Neo-Hookean expression");
+    const auto specialized = numi::matter::detail::compileConstitutive(
+        canonical.material, NM_EXPRESSION_STACK_CAPACITY);
+    require(specialized.succeeded() &&
+            (specialized.program.gpu.flags &
+             NM_MATERIAL_CANONICAL_NEO_HOOKEAN) != 0u,
+            "compiler missed the exact Neo-Hookean specialization");
+
+    auto programmatic = canonical.material;
+    programmatic.canonicalNeoHookeanEnergy = false;
+    const auto generic = numi::matter::detail::compileConstitutive(
+        programmatic, NM_EXPRESSION_STACK_CAPACITY);
+    require(generic.succeeded() &&
+            (generic.program.gpu.flags &
+             NM_MATERIAL_CANONICAL_NEO_HOOKEAN) == 0u,
+            "programmatically constructed material bypassed source qualification");
+
+    std::string altered(canonicalSource);
+    const std::string exact = "energy = neo_hookean(mu, lambda);";
+    const auto at = altered.find(exact);
+    require(at != std::string::npos, "canonical test source changed");
+    altered.replace(at, exact.size(),
+                    "energy = neo_hookean(mu, lambda) + neo_hookean(mu, lambda);");
+    const auto noncanonical = numi::matter::parseMatter(altered);
+    require(noncanonical.succeeded() &&
+            !noncanonical.material.canonicalNeoHookeanEnergy,
+            "parser accepted an altered Neo-Hookean expression as canonical");
+    const auto fallback = numi::matter::detail::compileConstitutive(
+        noncanonical.material, NM_EXPRESSION_STACK_CAPACITY);
+    require(fallback.succeeded() &&
+            (fallback.program.gpu.flags &
+             NM_MATERIAL_CANONICAL_NEO_HOOKEAN) == 0u,
+            "altered Neo-Hookean expression bypassed generic bytecode");
+}
+
 [[nodiscard]] numi::matter::CompiledWorld compileStatefulWorld() {
     const auto parsed = numi::matter::parseMatterFile(
         NUMI_MATTER_STATEFUL_MATERIAL
@@ -770,6 +819,7 @@ void verifyLearnedMaterialRoundTrip() {
 
 int main() {
     try {
+        verifyCanonicalNeoHookeanSelection();
         verifyAdaptiveLayout();
         verifyLearnedMaterialRoundTrip();
         const auto world = compileStatefulWorld();

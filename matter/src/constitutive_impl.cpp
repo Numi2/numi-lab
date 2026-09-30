@@ -1112,6 +1112,14 @@ ConstitutiveCompileResult compileConstitutive(
     const auto hardening = parameterIndex(material, "hardening");
     const auto frictionAngle = parameterIndex(material, "friction_angle");
     const auto cohesion = parameterIndex(material, "cohesion");
+    if (material.hint == ConstitutiveHint::neoHookean &&
+        material.canonicalNeoHookeanEnergy &&
+        material.parameters.size() == 3u &&
+        mu == 1u && lambda == 2u &&
+        material.internalState.empty() &&
+        material.dissipationRoot == NM_INVALID_INDEX) {
+        gpu.flags |= NM_MATERIAL_CANONICAL_NEO_HOOKEAN;
+    }
     const auto parameterDefault = [&](
         const std::optional<std::uint32_t> index,
         const double fallback = 0.0

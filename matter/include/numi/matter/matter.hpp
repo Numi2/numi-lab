@@ -215,6 +215,10 @@ struct MaterialProgram {
     std::vector<InternalState> internalState;
     ExpressionGraph expressions;
     std::uint32_t energyRoot = NM_INVALID_INDEX;
+    // True only when the parser saw the exact neo_hookean(mu, lambda)
+    // energy expression. Programmatic material construction defaults to the
+    // generic bytecode path.
+    bool canonicalNeoHookeanEnergy = false;
     std::uint32_t dissipationRoot = NM_INVALID_INDEX;
     std::uint32_t validityRoot = NM_INVALID_INDEX;
     // One next-state expression per internal state. Missing entries are

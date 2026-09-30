@@ -827,3 +827,38 @@ skin checkpoints and compare their material/world fingerprints. Capture
 gap, thread tension, needle reaction, tissue strain, contact, work/energy,
 and exact replay before claiming a complete interrupted stitch. No skin
 calibration or clinical validity is established.
+
+The next bounded performance pass profiled the final 16x Matter substep and
+found repeated FEM constitutive bytecode evaluation in its FGMRES operator:
+the first 46,080-element operator kernel took about 21.5 ms of a roughly
+22 ms column operator. For the exact authored `neo_hookean(mu, lambda)`
+energy, the compiler now records a source-qualified flag and the FEM
+operator evaluates analytic stress and tangent with the live environment's
+mu/lambda parameters. Other expressions, programmatic materials, stateful
+materials, and dissipative materials retain generic bytecode evaluation.
+The profiled first element kernel fell to about 0.096 ms. Temporary timing
+instrumentation was removed; the stage logs are retained in
+`build-skin-wound/matter-stage-before.log` and
+`build-skin-wound/matter-stage-canonical-neo.log`.
+
+The uninstrumented 16x/one-Newton post-entry step took 784.488 ms GPU,
+versus 945.588 ms before this change. This is 17.0% less time for that step,
+or about 68.9x simulated-time throughput against the original 1x/3,375.995
+ms reference. The 100x threshold remains 540.159 ms per 16x step. The
+step retained 46,080 active tetrahedra, zero failed steps, needle advance
+19.965 um, 143 MetalWorld constraints, and 0.001867 m/s terminal normal
+residual below its 0.002 m/s gate. The Matter maximum residual changed from
+2.508e-6 to 1.835e-6 and FGMRES used six rather than seven columns, so
+this is a numerically distinct run, not byte-exact replay. The exact-source,
+programmatic-fallback, and altered-expression compiler checks passed,
+along with static-equilibrium, checkpoint-restore, synthetic-puncture, and
+cadence-transition CTests. The run log is
+`build-skin-wound/canonical-neo-16x-one-newton.log` (SHA-256
+`5bc93c8710e36e3c5b10e25c87a979e341fa3df71a3b75edfa36d51a83fd51dc`).
+The Matter metallib SHA-256 is
+`c0a0de242251f677dc6db658627c48fa19421b0a0dddf476d48e42159e94`.
+This timing contains no active Matter tissue contacts and does not establish
+a 100x whole-stitch speedup or robot-driven stitch qualification. The
+remaining single-step gap is at least 244 ms; repeated MetalWorld contact
+solves dominate the remaining time and require a separate bounded profile
+that preserves the terminal residual gate.

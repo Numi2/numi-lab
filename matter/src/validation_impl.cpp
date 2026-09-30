@@ -31,7 +31,8 @@ constexpr std::uint32_t kKnownMatterFlags =
 constexpr std::uint32_t kKnownMaterialFlags =
     NM_MATERIAL_HAS_STATE |
     NM_MATERIAL_HAS_DISSIPATION |
-    NM_MATERIAL_HAS_IMPLICIT_STATE;
+    NM_MATERIAL_HAS_IMPLICIT_STATE |
+    NM_MATERIAL_CANONICAL_NEO_HOOKEAN;
 constexpr std::uint32_t kKnownObjectFlags =
     NM_OBJECT_ACTIVE |
     NM_OBJECT_TWO_WAY_COUPLED |
@@ -705,6 +706,15 @@ private:
                 (material.flags & NM_MATERIAL_HAS_DISSIPATION) != 0u;
             const bool hasImplicit =
                 (material.flags & NM_MATERIAL_HAS_IMPLICIT_STATE) != 0u;
+            if ((material.flags & NM_MATERIAL_CANONICAL_NEO_HOOKEAN) != 0u &&
+                (material.constitutiveKind != NM_CONSTITUTIVE_NEO_HOOKEAN ||
+                 material.parameterCount != 3u || hasState ||
+                 hasDissipation || hasImplicit)) {
+                return failIndexed(
+                    "material", index,
+                    "canonical Neo-Hookean specialization contract is invalid"
+                );
+            }
             for (std::uint32_t state = 0u; state < material.stateCount; ++state) {
                 if (((material.stateTransferMask >> (2u * state)) & 3u) == 3u) {
                     return failIndexed("material", index,

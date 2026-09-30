@@ -24005,6 +24005,7 @@ int main(const int argc, const char* const argv[]) {
                     double cadenceMinimumDeterminant =
                         std::numeric_limits<double>::infinity();
                     double cadenceMaximumResidual = 0.0;
+                    std::uint32_t cadenceFGMRESIterations = 0u;
                     bool cadenceCertificatesAccepted = true;
                     bool cadenceChannelGaugeAccepted = false;
                     for (const NMPunctureChannelGPU& channel :
@@ -24050,6 +24051,13 @@ int main(const int argc, const char* const argv[]) {
                             static_cast<double>(certificate.nonlinear.z),
                             static_cast<double>(certificate.nonlinear.w),
                         });
+                    }
+                    for (const NMMatterStatusGPU& status :
+                         cadenceSnapshot.statuses) {
+                        cadenceFGMRESIterations = std::max(
+                            cadenceFGMRESIterations,
+                            status.fgmresIterations
+                        );
                     }
                     const NeedleTipCapsuleGeometry cadenceTip =
                         needleTipCapsuleGeometry(
@@ -24111,6 +24119,8 @@ int main(const int argc, const char* const argv[]) {
                         << cadenceMinimumDeterminant
                         << " matter_maximum_residual="
                         << cadenceMaximumResidual
+                        << " matter_fgmres_iterations="
+                        << cadenceFGMRESIterations
                         << " metalworld_contact_status="
                         << cadenceContact.code
                         << " metalworld_required_constraints="

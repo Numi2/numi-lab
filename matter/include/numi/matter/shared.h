@@ -138,6 +138,9 @@ enum NMMaterialFlags : nm_u32 {
     NM_MATERIAL_HAS_STATE = 1u << 0u,
     NM_MATERIAL_HAS_DISSIPATION = 1u << 1u,
     NM_MATERIAL_HAS_IMPLICIT_STATE = 1u << 2u,
+    // Exact authored neo_hookean(mu, lambda), with mu/lambda at parameter
+    // slots 1/2 and no internal or dissipative state.
+    NM_MATERIAL_CANONICAL_NEO_HOOKEAN = 1u << 3u,
 };
 
 enum NMMaterialProjectionKind : nm_u32 {

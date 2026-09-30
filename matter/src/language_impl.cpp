@@ -942,7 +942,18 @@ private:
         const std::string_view label
     ) {
         expect(TokenKind::equal, "'=' after " + std::string(label));
+        const std::size_t expressionBegin = offset_;
         root = expression(material);
+        if (label == "energy") {
+            material.canonicalNeoHookeanEnergy =
+                offset_ == expressionBegin + 6u &&
+                tokens_[expressionBegin + 0u].text == "neo_hookean" &&
+                tokens_[expressionBegin + 1u].kind == TokenKind::leftParen &&
+                tokens_[expressionBegin + 2u].text == "mu" &&
+                tokens_[expressionBegin + 3u].kind == TokenKind::comma &&
+                tokens_[expressionBegin + 4u].text == "lambda" &&
+                tokens_[expressionBegin + 5u].kind == TokenKind::rightParen;
+        }
         expect(TokenKind::semicolon, "';' after " + std::string(label));
         if (root != NM_INVALID_INDEX &&
             material.expressions.nodes[root].dimension != expectedDimension) {
