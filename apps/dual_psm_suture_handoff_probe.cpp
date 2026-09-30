@@ -132,6 +132,12 @@ constexpr std::uint32_t kRobotFirstBiteDriveProbeSteps = 12u;
 constexpr std::uint32_t kRobotFirstBiteDriveRampSteps = 4u;
 constexpr std::uint32_t kRobotFirstBiteDriveMatterCadence = 16u;
 constexpr std::uint32_t kRobotFirstBiteContinueMatterCadence = 32u;
+// The pre-contact 12-step run reaches the same published MetalWorld state
+// with two Newton passes as with the cooked seven; one pass changes the
+// robot/thread state. Keep the shortcut behind a live contact-node clearance
+// guard, and use the full solver again for the needle/skin encounter.
+constexpr std::uint32_t kRobotFirstBiteContinueNewtonBudget = 2u;
+constexpr double kRobotFirstBiteFreeSpaceMarginM = 2.0e-4;
 constexpr double kRobotFirstBiteDriveSpeedMps = 5.0e-3;
 // Keep the free needle outside the skin contact band while its giver settles.
 // The robot must subsequently cover this extra approach before claiming a bite.
@@ -16728,6 +16734,14 @@ int main(const int argc, const char* const argv[]) {
                 );
                 stepConfig.physicsSubsteps =
                     kRobotFirstBiteContinueMatterCadence;
+                require(
+                    tissueRuntime.setNewtonIterationBudget(
+                        kRobotFirstBiteContinueNewtonBudget
+                    ) &&
+                        tissueRuntime.newtonIterationBudget() ==
+                            kRobotFirstBiteContinueNewtonBudget,
+                    "resumed robot approach could not select its bounded Newton budget"
+                );
                 const MRBodyStateGPU& startNeedle =
                     world.defaultSceneBodies.at(0u);
                 const CurvedNeedleOrbit orbit = curvedNeedleOrbit(
@@ -16739,6 +16753,32 @@ int main(const int argc, const char* const argv[]) {
                         needleForPlacement,
                         startNeedle
                     );
+                const auto minimumTissueNodeSeparation = [&] (
+                    const numi::matter::RuntimeStateSnapshot& snapshot,
+                    const NeedleTipCapsuleGeometry& tip
+                ) {
+                    double minimum =
+                        std::numeric_limits<double>::infinity();
+                    for (const std::uint32_t node :
+                         tissueCoupon.object.femContactNodes) {
+                        require(
+                            node < snapshot.femNodes.size(),
+                            "robot approach lost a live skin contact node"
+                        );
+                        minimum = std::min(
+                            minimum,
+                            pointSegmentDistance(
+                                vector(snapshot.femNodes[node]
+                                    .positionAndMass),
+                                tip.worldTip,
+                                tip.worldBase
+                            ) - tip.radiusM
+                        );
+                    }
+                    return minimum;
+                };
+                const double startTissueSeparation =
+                    minimumTissueNodeSeparation(restored, startTip);
                 const GraspReference gripReference = graspReference(
                     world,
                     needleForPlacement,
@@ -16771,6 +16811,25 @@ int main(const int argc, const char* const argv[]) {
                         angularSpeed
                     ));
                 }
+                double maximumPlannedCapsuleSweep = 0.0;
+                for (const MRBodyStateGPU& target : needleTargets) {
+                    const NeedleTipCapsuleGeometry targetTip =
+                        needleTipCapsuleGeometry(
+                            needleForPlacement, target
+                        );
+                    maximumPlannedCapsuleSweep = std::max({
+                        maximumPlannedCapsuleSweep,
+                        norm(targetTip.worldTip - startTip.worldTip),
+                        norm(targetTip.worldBase - startTip.worldBase),
+                    });
+                }
+                require(
+                    std::isfinite(startTissueSeparation) &&
+                        startTissueSeparation -
+                            maximumPlannedCapsuleSweep >=
+                            kRobotFirstBiteFreeSpaceMarginM,
+                    "two-Newton robot continuation can carry the tapered tip into the skin contact band"
+                );
                 const ArmTrajectory trajectory =
                     needleGraspArmTrajectory(
                         world.model,
@@ -16808,6 +16867,8 @@ int main(const int argc, const char* const argv[]) {
                         needleForPlacement,
                         driven.result.finalSceneBodies.at(0u)
                     );
+                const double finalTissueSeparation =
+                    minimumTissueNodeSeparation(matter, actualTip);
                 const NeedleTipCapsuleGeometry plannedTip =
                     needleTipCapsuleGeometry(
                         needleForPlacement,
@@ -16846,6 +16907,7 @@ int main(const int argc, const char* const argv[]) {
                 double removedMass = 0.0;
                 double minimumDeterminant =
                     std::numeric_limits<double>::infinity();
+                double maximumResidual = 0.0;
                 bool certificatesAccepted =
                     !matter.solverCertificates.empty();
                 for (const NMPunctureChannelGPU& channel :
@@ -16870,6 +16932,12 @@ int main(const int argc, const char* const argv[]) {
                         minimumDeterminant,
                         static_cast<double>(certificate.validity.x)
                     );
+                    maximumResidual = std::max({
+                        maximumResidual,
+                        static_cast<double>(certificate.nonlinear.x),
+                        static_cast<double>(certificate.nonlinear.z),
+                        static_cast<double>(certificate.nonlinear.w),
+                    });
                 }
                 std::cout << std::setprecision(9)
                     << "robot_first_bite_resumed_approach_candidate"
@@ -16892,6 +16960,16 @@ int main(const int argc, const char* const argv[]) {
                     << " removed_tissue_mass_kg=" << removedMass
                     << " matter_minimum_determinant="
                     << minimumDeterminant
+                    << " matter_maximum_residual="
+                    << maximumResidual
+                    << " matter_newton_budget="
+                    << tissueRuntime.newtonIterationBudget()
+                    << " initial_tissue_node_separation_m="
+                    << startTissueSeparation
+                    << " final_tissue_node_separation_m="
+                    << finalTissueSeparation
+                    << " maximum_planned_capsule_sweep_m="
+                    << maximumPlannedCapsuleSweep
                     << " hard_swage_root_error_m=" << swageError
                     << " thread_maximum_edge_error_m="
                     << rod.maximumEdgeLengthError
@@ -16917,12 +16995,17 @@ int main(const int argc, const char* const argv[]) {
                         qualifiedTransitionRod(rod) &&
                         swageError < kMaximumSwageAttachmentError &&
                         channels == 0u &&
+                        finalTissueSeparation >=
+                            kRobotFirstBiteFreeSpaceMarginM * 0.5 &&
                         tetrahedra ==
                             tissueCoupon.metadata.tetrahedronCount &&
                         removedMass == 0.0 &&
                         certificatesAccepted &&
                         std::isfinite(minimumDeterminant) &&
-                        minimumDeterminant > 0.0,
+                        minimumDeterminant > 0.0 &&
+                        std::isfinite(maximumResidual) &&
+                        maximumResidual <=
+                            tissueWorld.mixedSolver.residualTolerances.x,
                     "resumed robot approach lost its grip, thread, or skin authority"
                 );
                 writeHandoffStateArtifact(

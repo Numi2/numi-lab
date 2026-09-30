@@ -145,7 +145,15 @@ continues with articulated effort. A matched 32x-cadence continuation from
 that checkpoint advanced the dynamic tip another 111.1 um over 24 ms, kept
 6/6 giver-jaw contacts, and preserved all 46,080 tetrahedra with no puncture
 channel or failed step. It delivered 1.50x simulated-time throughput versus
-the accepted 16x continuation; the 100x full-simulation target is still open.
+the accepted 16x continuation with the original seven-pass solver. A guarded
+two-pass Newton budget reproduces the seven-pass robot/thread checkpoint
+state in free space and lowers the 32x segment GPU time from 96.65 to 68.11 s.
+That is 2.13x simulated-time throughput versus the 16x continuation. One
+more guarded segment advanced the tip another 113.1 um and left its tapered
+capsule 0.264 mm from the modeled skin contact nodes. The shortcut refuses
+the next segment
+because it could enter the contact band. The 100x full-simulation target is
+still open.
 Physical pickup, robot-driven bites, the knot, and unloaded wound retention
 also remain open. The checkpoint and performance receipts are in
 [`numi/SYNTHETIC_SKIN_STITCH.md`](numi/SYNTHETIC_SKIN_STITCH.md).

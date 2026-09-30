@@ -168,6 +168,43 @@ the linked Matter snapshot has SHA-256
 That newer checkpoint also passed byte-exact restore at state step 621. This
 is still free-space approach, not needle entry or a completed stitch.
 
+A phase-local two-Newton trial at the same 32x cadence reproduced every
+MetalWorld checkpoint TSV field from the cooked seven-Newton run except the
+Matter archive reference. Its Matter residual was 7.8104e-7 against the
+unchanged 5e-4 bound, and GPU time fell from 96.648 to 68.113 s for the same
+24 ms and 111.12 um dynamic tip advance: a 1.42x gain on that matched
+segment, or 2.13x simulated-time throughput relative to the earlier 16x
+continuation. The trial log is
+`build-skin-wound/synthetic-skin-robot-continue-32-newton2.log`, SHA-256
+`1eb68446926aa2bcf30576293b5a5181aca59dc3add7bb980442c7a34d176463`.
+One Newton pass also met broad physical bounds and took 60.992 s GPU but
+changed the saved robot and thread state; it was rejected for this exact-state
+free-space shortcut. Reducing the FGMRES budget from 32 to 16 with two Newton
+passes reproduced the state but took 67.800 s GPU, only 0.313 s less than the
+two-pass default. The production free-space continuation therefore retains
+the cooked FGMRES budget and selects two Newton passes only if the live
+tapered-tip contact-node separation exceeds the maximum planned capsule
+sweep by at least 0.2 mm. No residual, contact, or topology threshold was
+relaxed.
+
+From the two-pass checkpoint at state step 621, another guarded 32x segment
+passed and advanced the dynamic tip 113.09 um. The modeled minimum
+tapered-tip-to-skin contact-node separation fell from 0.3768 to 0.2640 mm, while
+8/6 giver-jaw contacts, all 46,080 tetrahedra, zero puncture channels, zero
+removed mass, and zero failed steps remained intact. GPU time was 68.130 s.
+The resulting v3 checkpoint passed byte-exact restore at state step 1005.
+Its run log is `build-skin-wound/synthetic-skin-robot-continue-next.log`,
+SHA-256 `c216f5e8beeb8e05d7950f60c6676d61d9a9c3e8d2f98ad24fc42dd891abf9e4`;
+its TSV SHA-256 is
+`327a055f0e514291efe19206ff86891cfcb566b249fc02ddd188bca9b00116bb`.
+The linked Matter snapshot SHA-256 is
+`2b0e41052eed983971dea2cc0da55adf3417cdf72d5482dd0b9fe15ba841acc6`.
+The next identical shortcut was rejected before physics because its planned
+sweep could enter the skin contact band. The current executable SHA-256 is
+`cc09c970d2aea6387b45c324a49d7aa5ffb0c852e8948ce078e36a402096edf5`.
+The next solver path must use full contact authority near the skin; none of
+these free-space results proves a robot-driven puncture.
+
 The `--tissue-robot-first-bite-ik-only --synthetic-skin` geometry probe found
 a 250-step giver approach and 185-step 5 mm/s needle-orbit path at the
 original 10 um clearance. The entry
