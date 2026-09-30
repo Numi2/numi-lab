@@ -1749,3 +1749,74 @@ This accepted result is still limited to an unloaded channel transit, and
 it is far short of a 100x whole-stitch speedup. The next performance work
 needs measured kernel-level attribution and load-bearing penetration,
 thread, opposing-bite, and knot runs before promoting an iteration budget.
+
+### Contact-node admission and finite channel-chain guard
+
+The contact shader checks the **continuum node** and its predicted position
+against the union of same-needle finite channels. Tip position alone is not
+the admission test. A read-only audit of the accepted step-2510 checkpoint
+found 11 of 638 wound-field contact nodes currently inside its sole channel.
+The closest modeled node to the tip capsule (node 8570, -0.853 um capsule
+separation) is among them. The checkpoint restored byte-exactly; this audit
+does not reproduce the shader's predicted-position test or establish a new
+contact event. Its log SHA-256 is
+`8e95f8f04e5d58682eac263f09756f0cebe6b2f8011466b8ba1440ab8209ec16`.
+
+The robot probe's earlier `channels <= 1` guard would reject any native
+extension of the initial finite tract. The continuation guard now allows
+additional segments only when the original active segments remain byte
+identical, every segment keeps the physics-triggered tip source, and every
+new segment connects downstream through a finite, forward-aligned channel
+chain. New-segment count is bounded by the executed physics substeps; the
+entry transaction still admits only its first segment. A restored existing
+chain may grow without claiming newly measured tissue displacement. The
+executed extension and its limits are recorded below.
+
+### Robot-held extension of the first finite channel
+
+The accepted step-2510 checkpoint had a -0.853 um nearest-node capsule
+separation, with that node currently admitted by the channel. The probe's
+old positive-start-separation preflight rejected any continuation from that
+state before physics. The amended preflight permits this exact restored,
+currently admitted overlap for puncture continuation only; first entry and
+free-space approach still require positive clearance. A 24 ms, cadence-64,
+12/6-iteration continuation passed from step 2510 to step 2894, advancing
+the held tip 41.599 um with qualified grasp and rod, one channel, all
+46,080 tetrahedra, and a 0.001813 m/s maximum normal residual. The
+checkpoint restored byte-exactly. The run and checkpoint SHA-256 values
+are `369cf6baf168f95ef372d4d22ccbee2ec909df48396bc4f97`
+and `f52f93e629f277a8d9881e74648ebedc16bf1c064a9e6f826fd9d73173dd5afd`.
+
+Larger commanded groups were not sustainable near the first channel
+frontier. From step 2510, a 32 ms fast group reached 6.635 mm/s maximum
+normal residual and 194 um jaw-seat drift; from step 2894, a 16 ms fast
+group reached 2.041 mm/s and 191 um drift. Neither was accepted. A later
+4 ms step that first created a second channel under full solver budgets
+also lost the grasp (177 um drift); its chain geometry was valid, but its
+checkpoint was rejected. These diagnostic run-log SHA-256 values are
+`003ec138915b03be88966e664f93776ebd253d9769340c3e5019833f1900e3a7`,
+`6f80fb9773031fe52692888d594476de3ac395fefc83ffa0428a46e45a73bd37`,
+and `7a7907e2e7e85f9de1bf0f1223d3be94bd635e1163cdeec75daa836399c5431e`.
+
+The accepted control boundary used separate 1 ms, cadence-16 steps at
+1 mm/s with 32/16 contact iterations and seven Matter Newton passes. At
+step 4334 the robot-held tip triggered **one new connected channel segment**:
+8/7 jaw contacts, 0.137 um seat drift, qualified grasp and rod, two active
+physics-triggered segments from tip proxy 0, all 46,080 tetrahedra,
+zero failed steps, and a 0.000578 m/s maximum normal residual. The new
+segment passed the unchanged-source, forward-connected chain guard. Its
+Matter checkpoint restored byte-exactly. One further accepted 1 ms step
+reached step 4350 with both segments intact and a 0.000984 m/s maximum
+normal residual; that checkpoint also restored byte-exactly. The growth
+run/checkpoint/restore SHA-256 values are
+`5a70429b2fc68eb813c3193ae6aad0991e7cc3db2012269aa2cc846f3db153ea`,
+`0adb6f8a08247d9cc938fb0d9b838bf8e21b7d89b4fa80265d7bbfbf7e4f1321`,
+and `8face8704091cd1d1a16682322ce49cf5b45e6098bad86609781b2acdae185cc`.
+The post-growth run/checkpoint/restore values are
+`3d61abbeaf5ae9e8fa2444815e8046508b5612a0adaac174bda092bc3a7782d9`,
+`b29cf09676d9defa9d05f66584d71173477c837a8c6134e23b21179d3bc4b59c`,
+and `f029df4f0165eaf6c1d25d71afdbd12edb245a37354073f88c93f70e307bfb84`.
+Neither accepted step reported a new tip impulse, tissue reaction, or tissue
+displacement. This is a native finite-tract extension, not through-wall
+passage or a load-bearing performance qualification. The growth step took
+2,134.205 ms GPU for 1 ms modeled time; 100x whole-stitch speed remains open.

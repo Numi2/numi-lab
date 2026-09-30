@@ -17302,6 +17302,49 @@ int main(const int argc, const char* const argv[]) {
                     const double tipRadial = norm(
                         relative - unitAxis * tipAxial
                     );
+                    std::uint32_t admittedContactNodes = 0u;
+                    std::uint32_t nearestContactNode = NM_INVALID_INDEX;
+                    double nearestContactSeparation =
+                        std::numeric_limits<double>::infinity();
+                    bool nearestContactNodeAdmitted = false;
+                    double nearestContactNodeAxial = 0.0;
+                    double nearestContactNodeRadial = 0.0;
+                    const double axialLimit =
+                        channel.axisAndHalfLength.w +
+                        0.25 * channel.originAndRadius.w;
+                    const double radialLimit =
+                        1.25 * channel.originAndRadius.w;
+                    for (const std::uint32_t nodeIndex :
+                         tissueCoupon.object.femContactNodes) {
+                        require(
+                            nodeIndex < restored.femNodes.size(),
+                            "restored channel contact node is outside FEM state"
+                        );
+                        const Vec3 node = vector(
+                            restored.femNodes[nodeIndex].positionAndMass
+                        );
+                        const Vec3 nodeRelative =
+                            node - vector(channel.originAndRadius);
+                        const double nodeAxial =
+                            dot(nodeRelative, unitAxis);
+                        const double nodeRadial = norm(
+                            nodeRelative - unitAxis * nodeAxial
+                        );
+                        const bool admitted =
+                            std::abs(nodeAxial) <= axialLimit &&
+                            nodeRadial <= radialLimit;
+                        admittedContactNodes += admitted;
+                        const double separation = pointSegmentDistance(
+                            node, tip.worldTip, tip.worldBase
+                        ) - tip.radiusM;
+                        if (separation < nearestContactSeparation) {
+                            nearestContactSeparation = separation;
+                            nearestContactNode = nodeIndex;
+                            nearestContactNodeAdmitted = admitted;
+                            nearestContactNodeAxial = nodeAxial;
+                            nearestContactNodeRadial = nodeRadial;
+                        }
+                    }
                     std::cout << std::setprecision(9)
                         << "robot_puncture_channel_geometry"
                         << " source_proxy="
@@ -17322,6 +17365,18 @@ int main(const int argc, const char* const argv[]) {
                         << channel.axisAndHalfLength.w - tipAxial
                         << " contact_exemption_padding_m="
                         << 0.25 * channel.originAndRadius.w
+                        << " current_admitted_contact_nodes="
+                        << admittedContactNodes
+                        << " nearest_contact_node="
+                        << nearestContactNode
+                        << " nearest_contact_separation_m="
+                        << nearestContactSeparation
+                        << " nearest_contact_node_current_admitted="
+                        << nearestContactNodeAdmitted
+                        << " nearest_contact_node_axial_m="
+                        << nearestContactNodeAxial
+                        << " nearest_contact_node_radial_m="
+                        << nearestContactNodeRadial
                         << '\n';
                 }
             }
@@ -17408,26 +17463,65 @@ int main(const int argc, const char* const argv[]) {
                 ) {
                     double minimum =
                         std::numeric_limits<double>::infinity();
+                    std::uint32_t nearestNode = NM_INVALID_INDEX;
                     for (const std::uint32_t node :
                          tissueCoupon.object.femContactNodes) {
                         require(
                             node < snapshot.femNodes.size(),
                             "robot approach lost a live skin contact node"
                         );
-                        minimum = std::min(
-                            minimum,
-                            pointSegmentDistance(
-                                vector(snapshot.femNodes[node]
-                                    .positionAndMass),
-                                tip.worldTip,
-                                tip.worldBase
-                            ) - tip.radiusM
-                        );
+                        const double separation = pointSegmentDistance(
+                            vector(snapshot.femNodes[node]
+                                .positionAndMass),
+                            tip.worldTip,
+                            tip.worldBase
+                        ) - tip.radiusM;
+                        if (separation < minimum) {
+                            minimum = separation;
+                            nearestNode = node;
+                        }
                     }
-                    return minimum;
+                    return std::pair{minimum, nearestNode};
                 };
-                const double startTissueSeparation =
+                const auto [startTissueSeparation, nearestStartNode] =
                     minimumTissueNodeSeparation(restored, startTip);
+                bool nearestStartNodeInChannel = false;
+                if (activeChannels > 0u &&
+                    nearestStartNode < restored.femNodes.size()) {
+                    const Vec3 point = vector(
+                        restored.femNodes[nearestStartNode].positionAndMass
+                    );
+                    for (const NMPunctureChannelGPU& channel :
+                         restored.punctureChannels) {
+                        if ((channel.identity.w & NM_TOPOLOGY_ACTIVE) == 0u ||
+                            (channel.identity.y & 0x80000000u) == 0u ||
+                            (channel.identity.y & 0x7fffffffu) != 0u ||
+                            !(channel.originAndRadius.w > 0.0f) ||
+                            !(channel.axisAndHalfLength.w > 0.0f)) {
+                            continue;
+                        }
+                        const Vec3 axis =
+                            vector(channel.axisAndHalfLength);
+                        if (!(norm(axis) > 1.0e-12)) {
+                            continue;
+                        }
+                        const Vec3 unitAxis = axis * (1.0 / norm(axis));
+                        const Vec3 relative =
+                            point - vector(channel.originAndRadius);
+                        const double axial = dot(relative, unitAxis);
+                        const double radial = norm(
+                            relative - unitAxis * axial
+                        );
+                        const double padding =
+                            0.25 * channel.originAndRadius.w;
+                        nearestStartNodeInChannel =
+                            nearestStartNodeInChannel ||
+                            (std::abs(axial) <=
+                                 channel.axisAndHalfLength.w + padding &&
+                             radial <=
+                                 channel.originAndRadius.w + padding);
+                    }
+                }
                 const GraspReference gripReference = graspReference(
                     world,
                     needleForPlacement,
@@ -17504,12 +17598,16 @@ int main(const int argc, const char* const argv[]) {
                 require(
                     std::isfinite(startTissueSeparation) &&
                         (robotContactProbe
-                            ? startTissueSeparation > 0.0 &&
-                                startTissueSeparation <
-                                    (tissueRobotFirstBiteEntryOnly
-                                        ? kRobotFirstBiteFreeSpaceMarginM
-                                        : kRobotFirstBiteFreeSpaceMarginM *
-                                            0.5) &&
+                            ? ((startTissueSeparation > 0.0 &&
+                                  startTissueSeparation <
+                                      (tissueRobotFirstBiteEntryOnly
+                                          ? kRobotFirstBiteFreeSpaceMarginM
+                                          : kRobotFirstBiteFreeSpaceMarginM *
+                                              0.5)) ||
+                               (tissueRobotFirstBitePunctureMicrostepOnly &&
+                                activeChannels > 0u &&
+                                startTissueSeparation <= 0.0 &&
+                                nearestStartNodeInChannel)) &&
                                 (!tissueRobotFirstBiteEntryOnly ||
                                  startTissueSeparation >
                                      kRobotFirstBiteFreeSpaceMarginM * 0.5)
@@ -17666,7 +17764,7 @@ int main(const int argc, const char* const argv[]) {
                         driven.result.finalSceneBodies.at(0u)
                     );
                 const double finalTissueSeparation =
-                    minimumTissueNodeSeparation(matter, actualTip);
+                    minimumTissueNodeSeparation(matter, actualTip).first;
                 const NeedleTipCapsuleGeometry plannedTip =
                     needleTipCapsuleGeometry(
                         needleForPlacement,
@@ -17762,6 +17860,13 @@ int main(const int argc, const char* const argv[]) {
                             .impulseAndCount));
                 std::uint32_t channels = 0u;
                 bool channelGeometryValid = true;
+                bool channelChainValid =
+                    matter.punctureChannels.size() ==
+                        restored.punctureChannels.size();
+                std::vector<std::size_t> activeChannelIndices;
+                std::vector<std::size_t> connectedChannelIndices;
+                std::uint32_t channelObject = NM_INVALID_INDEX;
+                std::uint32_t channelSource = NM_INVALID_INDEX;
                 std::uint32_t tetrahedra = 0u;
                 double removedMass = 0.0;
                 double minimumDeterminant =
@@ -17769,15 +17874,101 @@ int main(const int argc, const char* const argv[]) {
                 double maximumResidual = 0.0;
                 bool certificatesAccepted =
                     !matter.solverCertificates.empty();
-                for (const NMPunctureChannelGPU& channel :
-                     matter.punctureChannels) {
+                for (std::size_t index = 0u;
+                     index < matter.punctureChannels.size(); ++index) {
+                    const NMPunctureChannelGPU& channel =
+                        matter.punctureChannels[index];
                     if ((channel.identity.w & NM_TOPOLOGY_ACTIVE) == 0u) {
+                        if (index < restored.punctureChannels.size() &&
+                            (restored.punctureChannels[index].identity.w &
+                             NM_TOPOLOGY_ACTIVE) != 0u) {
+                            channelChainValid = false;
+                        }
                         continue;
                     }
                     ++channels;
                     channelGeometryValid = channelGeometryValid &&
+                        std::isfinite(channel.originAndRadius.x) &&
+                        std::isfinite(channel.originAndRadius.y) &&
+                        std::isfinite(channel.originAndRadius.z) &&
+                        std::isfinite(channel.originAndRadius.w) &&
                         channel.originAndRadius.w > 0.0f &&
-                        channel.axisAndHalfLength.w > 0.0f;
+                        std::isfinite(channel.axisAndHalfLength.x) &&
+                        std::isfinite(channel.axisAndHalfLength.y) &&
+                        std::isfinite(channel.axisAndHalfLength.z) &&
+                        std::isfinite(channel.axisAndHalfLength.w) &&
+                        channel.axisAndHalfLength.w > 0.0f &&
+                        norm(vector(channel.axisAndHalfLength)) > 1.0e-12;
+                    if (channelObject == NM_INVALID_INDEX) {
+                        channelObject = channel.identity.x;
+                        channelSource = channel.identity.y;
+                    }
+                    channelChainValid = channelChainValid &&
+                        channel.identity.x == channelObject &&
+                        channel.identity.y == channelSource &&
+                        (channel.identity.y & 0x80000000u) != 0u &&
+                        (channel.identity.y & 0x7fffffffu) == 0u;
+                    activeChannelIndices.push_back(index);
+                    if (index < restored.punctureChannels.size() &&
+                        (restored.punctureChannels[index].identity.w &
+                         NM_TOPOLOGY_ACTIVE) != 0u) {
+                        channelChainValid = channelChainValid &&
+                            std::memcmp(
+                                &channel,
+                                &restored.punctureChannels[index],
+                                sizeof(channel)
+                            ) == 0;
+                        connectedChannelIndices.push_back(index);
+                    }
+                }
+                if (channelGeometryValid && channelChainValid &&
+                    activeChannels > 0u) {
+                    for (std::size_t cursor = 0u;
+                         cursor < connectedChannelIndices.size(); ++cursor) {
+                        const NMPunctureChannelGPU& parent =
+                            matter.punctureChannels[
+                                connectedChannelIndices[cursor]];
+                        const Vec3 parentAxis =
+                            vector(parent.axisAndHalfLength) *
+                            (1.0 / norm(vector(parent.axisAndHalfLength)));
+                        const Vec3 distal =
+                            vector(parent.originAndRadius) +
+                            parentAxis * parent.axisAndHalfLength.w;
+                        for (const std::size_t index :
+                             activeChannelIndices) {
+                            if (std::find(
+                                    connectedChannelIndices.begin(),
+                                    connectedChannelIndices.end(),
+                                    index
+                                ) != connectedChannelIndices.end()) {
+                                continue;
+                            }
+                            const NMPunctureChannelGPU& candidate =
+                                matter.punctureChannels[index];
+                            const Vec3 candidateAxis =
+                                vector(candidate.axisAndHalfLength) *
+                                (1.0 / norm(
+                                    vector(candidate.axisAndHalfLength)
+                                ));
+                            const Vec3 proximal =
+                                vector(candidate.originAndRadius) -
+                                candidateAxis *
+                                    candidate.axisAndHalfLength.w;
+                            const double joinTolerance = 0.25 * std::min(
+                                static_cast<double>(
+                                    parent.originAndRadius.w),
+                                static_cast<double>(
+                                    candidate.originAndRadius.w)
+                            );
+                            if (norm(proximal - distal) <= joinTolerance &&
+                                dot(parentAxis, candidateAxis) >= 0.5) {
+                                connectedChannelIndices.push_back(index);
+                            }
+                        }
+                    }
+                    channelChainValid =
+                        connectedChannelIndices.size() ==
+                            activeChannelIndices.size();
                 }
                 for (const NMTetrahedronGPU& tetrahedron :
                      matter.femTopologyTetrahedra) {
@@ -17835,6 +18026,11 @@ int main(const int argc, const char* const argv[]) {
                     << " qualified_grasp=" << qualifiedDrivenGrasp(grip)
                     << " qualified_rod=" << qualifiedTransitionRod(rod)
                     << " active_puncture_channels=" << channels
+                    << " new_puncture_channels="
+                    << (channels >= activeChannels
+                        ? channels - activeChannels : 0u)
+                    << " channel_chain_valid="
+                    << channelChainValid
                     << " puncture_tip_contacts="
                     << punctureTipContacts
                     << " puncture_tip_impulse_ns="
@@ -17865,6 +18061,8 @@ int main(const int argc, const char* const argv[]) {
                     << tissueRuntime.newtonIterationBudget()
                     << " initial_tissue_node_separation_m="
                     << startTissueSeparation
+                    << " nearest_start_node_current_channel_admitted="
+                    << nearestStartNodeInChannel
                     << " final_tissue_node_separation_m="
                     << finalTissueSeparation
                     << " maximum_planned_capsule_sweep_m="
@@ -17956,9 +18154,14 @@ int main(const int argc, const char* const argv[]) {
                                 // without newly measured tissue motion.
                                 (maximumTissueDisplacement > 0.0 ||
                                  (activeChannels > 0u &&
-                                  channels == activeChannels)) &&
-                                channels <= 1u &&
-                                channelGeometryValid
+                                  channelChainValid)) &&
+                                (activeChannels == 0u
+                                    ? channels == 1u
+                                    : channels >= activeChannels &&
+                                      channels <= activeChannels +
+                                          robotApproachSteps *
+                                              stepConfig.physicsSubsteps) &&
+                                channelGeometryValid && channelChainValid
                             : channels == 0u &&
                                 finalTissueSeparation >=
                                     kRobotFirstBiteFreeSpaceMarginM * 0.5) &&
