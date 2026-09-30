@@ -890,3 +890,41 @@ The MetalWorld metallib SHA-256 is
 This is still a single post-entry step with zero active Matter tissue
 contacts; no full robot-driven stitch, load-bearing contact timing, or
 100x end-to-end performance is qualified by it.
+
+A shared Metal stage-boundary timestamp pass on the same 16x/one-Newton
+step isolated the next solver cost without changing the reported physical
+fields. Across the 16 measured contact substeps, the pre-contact generalized
+IR solve used 88.653 ms, the post-contact generalized solve used 88.320 ms,
+and the Wave32 temporal cone solve used 115.475 ms. Their medians per
+substep were 5.534, 5.511, and 7.195 ms respectively. Together these
+stages account for 292.448 ms of the 636.264 ms instrumented step. The
+case contains 20 authored blocks, 28 articulation velocity coordinates,
+and 128 rod nodes; 14 blocks have only generalized endpoints and six
+include rod attachments. The M4 supports these timestamps at compute-stage
+boundaries, not individual dispatch boundaries. Profiling hooks were removed
+after capture. The retained shared-stage and Wave32 logs are
+`build-skin-wound/metalworld-shared-counter-profile.log` (SHA-256
+`ac4cf4d929738b6260ddcf1f612914de36fe8e68165367eefb405469b4154840`)
+and `build-skin-wound/metalworld-wave-profile.log` (SHA-256
+`64f6efd1cbb4b254ba6b7f30f363b0568fb9fe75cf103f90e4fe2008ab8915de`).
+
+Three isolated shortcuts were rejected. Skipping generalized response updates
+only for exactly zero impulse deltas took 633.187 ms; specializing the 14
+pure generalized rows took 635.608 ms. Both preserved the reported physics
+but were within the run-to-run timing spread of the 636.552 ms reference,
+so neither was retained. Cutting only the post-contact generalized solve
+to one sweep reduced the step to 607.476 ms but left a 0.293471 m/s
+terminal normal residual, far above the 0.002 m/s acceptance bound. Its
+failure proves that post-contact ordered sweeps are still required for this
+state. All trial code was removed. The respective trial log SHA-256 values
+are `517eaf48f5b75b87ef69461bf86db3fcb8a7e2cf5a80b74b798a7aea83253a0d`,
+`ed24a2ed08681842ef10441e086ed07a9c593d330a4658005124b5c585645533`,
+and `ee60a5d1666761fe94c99785336d1baf826e0bc51c258f673f7933d16e1650b5`.
+The 100x target remains open: the next implementation must reduce the cost
+of valid ordered rod/contact response work, not remove required sweeps.
+After restoring the accepted shader and host code, the uninstrumented
+post-entry step passed at 631.779 ms GPU with the same reported physical
+fields and 0.001867 m/s normal residual. Five focused static-equilibrium,
+checkpoint, synthetic-puncture, cadence, and compiler CTests passed. The
+restored run is `build-skin-wound/generalized-profile-restored-final.log`
+(SHA-256 `85bb7f4d715104a75aa0ec52ad8dd2ee2656c4ad0c185c5ae330542448dae830`).
