@@ -1350,3 +1350,36 @@ band (log SHA-256
 `ad4501cd6060d8d34a8faac908e14b4471616c81248e85d0b6c5c3e83de82ca7`).
 This extends a source-bound robot-held approach to live contact; it does
 not establish a qualified puncture, complete stitch, or 100x whole-path gain.
+
+The step-1645 contact checkpoint above was continued with the guarded
+14-step/224-DER-substep brake. The robot-held tip advanced 53.242 um to
+18.722 um skin-node clearance at 0.704 mm/s needle speed. Terminal jaw
+contacts were 4/6, seat drift was 0.542 um, point slip was 0.00837 mm/s,
+and angular slip was 0.03293 rad/s. The grasp and rod checks passed; the
+tip had positive accepted impulse (7.989e-8 Ns), tissue reaction was
+8.047e-8 Ns, all 46,080 tetrahedra remained active, and no puncture
+channel opened. GPU time was 25,713.051 ms. The maximum MetalWorld normal
+residual was 0.003267 m/s, above the conservative 0.002 m/s screen. The
+step-1869 checkpoint restored byte-exactly. The brake log and checkpoint
+SHA-256 values are
+`20bc8cc6dea26a27ada235e598bad45d95823197e8291ec3c28e0beee8c92802`
+and `72d6a7e852ee21ab76bef3f479607da77348697e8632add886364c656fda8b55`.
+
+One subsequent 62.5 us puncture microstep created one accepted channel
+with 1.279e-6 Ns accepted tip impulse and 1.279e-6 Ns tissue reaction,
+without a failed step, tetrahedron loss, or rod-check failure. It took
+1,455.984 ms GPU. Point slip was 1.004 mm/s, under the 2 mm/s grasp
+bound, but angular slip rose to 1.446 rad/s, above the 0.6 rad/s bound;
+1.041 rad/s of that motion was about the needle tangent. Both jaws still
+touched the handling region (8/7 contacts), but maximum jaw-friction
+utilization was 0.999986. The maximum MetalWorld normal residual was
+0.005921 m/s, also above the 0.002 m/s screen. This is a physically
+accepted **transient**, not a qualified robot-held first bite. Its
+step-1870 checkpoint restored byte-exactly. The microstep log, checkpoint,
+and restore log SHA-256 values are
+`c505dab2572762f3fd8e1651750e907b4cacd0b38c661f9f270406cc0a54e9ec`,
+`0786d7c58e0d39659ebfc500d3dc5d26044859b6169a167a2b913a616967ea05`,
+and `01d53bbaa06591a0f5c4cec9e7490f8dd2da4bf957a02258525ab5fa30994dce`.
+This second, one-Newton-derived lineage reproduces the earlier rotational
+failure after braking; increasing free-space cadence has not qualified
+puncture or 100x whole-stitch performance.
