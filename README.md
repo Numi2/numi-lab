@@ -179,7 +179,11 @@ then retain pair order. On the 46,080-tet post-entry skin microstep, GPU
 time fell from 3.376 to 1.132 s (2.98x); all published physical fields
 matched the previous one-step run. This is a new shader/program lineage,
 so the earlier robot checkpoints still require their original binary.
-It does not establish a 100x gain or a completed stitch.
+A new robot checkpoint lineage under the optimized shader now restores
+byte-exact from first grasp through the transient puncture. Matched robot
+phases ran 1.22x to 2.35x faster on the GPU, while preserving the published
+physics fields. The puncture still exceeds the gripper's relative-speed
+gates. Neither a 100x gain nor a completed stitch has been established.
 
 The dual-PSM surgical probe now drives the authored 26 mm half-circle needle
 about its actual 8.28 mm curvature centre at a 20 mm/s terminal speed. Matter

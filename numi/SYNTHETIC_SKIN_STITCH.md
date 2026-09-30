@@ -426,8 +426,65 @@ The changed shader/program fingerprint correctly rejects the earlier
 robot tip-contact checkpoint. Its diagnostic restore log SHA-256 is
 2434a35fafdb8c3dce0f48d574f7ddb6f8580f4e137fd060763045f295d2f5bf.
 Keep the original binary for the old accepted checkpoint lineage and
-regenerate a new lineage under this shader before resuming the robot bite;
-no old state was silently upgraded.
+do not silently upgrade its checkpoints.
+
+The robot lineage was regenerated from the authored reset under the faster
+shader. Each accepted checkpoint was resumed with its matching program
+fingerprint. The initial approach and terminal puncture checkpoints both
+passed byte-exact restore. The bounded phases retained the previously
+published robot, tissue, contact, and solver fields, including 46,080 active
+tetrahedra, zero removed mass, and zero failed steps. Single-run GPU times
+for matched phases were:
+
+| Phase | Earlier GPU s | New GPU s | Speedup |
+| --- | ---: | ---: | ---: |
+| First robot drive | 72.324 | 36.472 | 1.98x |
+| Free approach, step 237 to 621 | 68.113 | 55.997 | 1.22x |
+| Free approach, step 621 to 1005 | 68.130 | 54.529 | 1.25x |
+| Full-solver approach, step 1005 to 1389 | 97.081 | 60.738 | 1.60x |
+| First tip contact, step 1389 to 1645 | 101.181 | 53.013 | 1.91x |
+| Contact advance, step 1645 to 1773 | 53.873 | 29.913 | 1.80x |
+| One puncture microstep, step 1773 to 1774 | 5.240 | 2.232 | 2.35x |
+
+The seven phase GPU times sum to 465.942 s earlier and 292.894 s now,
+or 1.59x for this bounded robot trajectory. This sum omits setup,
+checkpoint I/O, and later stitch phases; it is not an end-to-end stitch
+benchmark.
+
+The new logs in table order are `skin-robot-parallel-drive.log`,
+`skin-robot-parallel-continue-1.log`, `skin-robot-parallel-continue-2.log`,
+`skin-robot-parallel-contact-approach.log`, `skin-robot-parallel-entry.log`,
+`skin-robot-parallel-contact-advance.log`, and
+`skin-robot-parallel-puncture.log`, all in `build-skin-wound/`. Their SHA-256
+values in order are
+`4b72d2fef8570b4976fbada4e5f4f4967f77e3f87881d5bc6ea7aba39b4a17c1`,
+`df409cb1ea8533a149961010fa9662132cd94ef06dfd3c732e5b03b5e8979b3e`,
+`9a5a48a3a9494aa3b76b9b584ec6a592987d6691fa02ee81e7ba5b802030d93d`,
+`b7609e52e891f0c07f4788bfea7f2a09836135ef5eb444d768da1d50cd9496b8`,
+`fcf35f2bc6371697931a5a2b251408848e2fc610cb5487cd5395664c77c05a8f`,
+`316632d286461ab0facec1fc19a77675275934ff5c18b0289d53297dedd2fbab`,
+and `ee259c2031864740cc874dc17fb9059ec3b538137a598d55b60789957547d839`.
+The new step-1774 checkpoint TSV and linked Matter snapshot SHA-256 values
+are `4dbb7408e85bd415a1138a506f4cd3ae124e42c89c053eb5e0a47ce90300a94a`
+and `575069f55dc6647269e640fc520dffc4e28c83f6039c3cdd979097e383db1b7d`.
+The checkpoint can be verified without advancing physics:
+
+```sh
+./build-skin-wound/bin/metalrobo_dual_psm_suture_handoff_probe \
+  --tissue-checkpoint-restore-only --synthetic-skin \
+  --resume-tissue-checkpoint tissue-robot-first-bite-puncture-transient \
+  build-skin-wound/skin-robot-parallel-puncture/tissue-robot-first-bite-puncture-transient.tsv
+```
+
+The executable, linked library, and Matter metallib SHA-256 values are
+`c394ed8b8a8f521c55ca38e0ae6db8feef448f77b4da0277c78c1e166a4e49d5`,
+`dafd704ac5a81a7437666632560913002495bd9c7fa0c0fc57723efc83bfb671`,
+and `7d981a2606f7dbc5dcc723b388cbbec7c507ebc995592e6d98135606e5cb5b08`.
+The new puncture checkpoint again has one connected channel and 1.138e-6
+N s accepted tip impulse, but 2.455 mm/s relative point speed and 1.439
+rad/s angular slip exceed the 2 mm/s and 0.6 rad/s grasp gates. It remains
+`tissue-robot-first-bite-puncture-transient`. These bounded timings establish
+neither a 100x speedup nor a completed robot-driven stitch.
 
 The stronger 75 um jaw-preload trial from robot contact step 1645 also
 remains unqualified. A 13 ms ramp at 1 mm/s preserved Matter's 46,080
