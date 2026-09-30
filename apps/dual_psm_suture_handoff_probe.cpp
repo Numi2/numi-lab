@@ -30248,6 +30248,10 @@ int main(const int argc, const char* const argv[]) {
                     std::uint32_t pullLoadBearingMatterSteps = 0u;
                     constexpr std::uint32_t kPullChunkSteps = 8u;
                     numi::matter::RuntimeStateSnapshot pullSnapshot;
+                    IncisionGapMetrics pullWoundGap = incisionGapMetrics(
+                        tissueCoupon,
+                        passageSnapshot.femNodes
+                    );
                     while (currentPullAngleRad < maximumPullAngleRad) {
                         if (!contactCadenceSelected &&
                             currentPullAngleRad > 0.5 * std::numbers::pi &&
@@ -30385,6 +30389,10 @@ int main(const int argc, const char* const argv[]) {
                                     kSutureMatterContactSegmentCount <=
                                     pullSnapshot.rigidStates.size(),
                             "pull-through did not publish coupled tissue/strand state"
+                        );
+                        pullWoundGap = incisionGapMetrics(
+                            tissueCoupon,
+                            pullSnapshot.femNodes
                         );
                         double currentBottomProjection =
                             std::numeric_limits<double>::infinity();
@@ -30527,6 +30535,10 @@ int main(const int argc, const char* const argv[]) {
                             << sampledStrandContacts
                             << " sampled_strand_reaction_impulse_ns="
                             << sampledStrandReactionImpulseNs
+                            << " center_wound_gap_mean_m="
+                            << pullWoundGap.centerMeanM
+                            << " center_wound_gap_maximum_m="
+                            << pullWoundGap.centerMaximumM
                             << " minimum_contact_channel_distance_m="
                             << minimumStrandContactChannelDistanceM
                             << " chunk_gpu_ms="
@@ -30687,6 +30699,10 @@ int main(const int argc, const char* const argv[]) {
                         << pullRemovedMassKg
                         << " maximum_tissue_displacement_m="
                         << pullMaximumTissueDisplacementM
+                        << " center_wound_gap_mean_m="
+                        << pullWoundGap.centerMeanM
+                        << " center_wound_gap_maximum_m="
+                        << pullWoundGap.centerMaximumM
                         << " matter_minimum_determinant="
                         << pullMinimumDeterminant
                         << " matter_maximum_residual="
