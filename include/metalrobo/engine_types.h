@@ -750,6 +750,13 @@ typedef struct MR_ALIGN16 MRMetalWorldPassGPU {
     mr_u32 reserved1;
 } MRMetalWorldPassGPU;
 
+// reserved1 values used only by the generalized ConstraintIR solve. They are
+// distinct from the Wave32 distributed-pass modes carried by the same record.
+enum MRMetalWorldGeneralizedPassMode : mr_u32 {
+    MR_WORLD_GENERALIZED_REUSE_BOTH_RESPONSES = 0x200u,
+    MR_WORLD_GENERALIZED_REUSE_ROD_RESPONSE = 0x201u,
+};
+
 // One record is reused while a control step executes, then copied to the
 // public status stream. SuccessfulSubsteps counts committed state updates.
 typedef struct MR_ALIGN16 MRMetalWorldStatusGPU {

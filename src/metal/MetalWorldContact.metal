@@ -9322,6 +9322,275 @@ kernel void mr_world_reduce_wave32_status(
 // articulation factor and canonical ConstraintIR stream. Contact/rod blocks
 // are handled by Wave32; this pass closes limits/equalities/gears/tendons
 // without routing through the compatibility multi-articulation solver.
+// Each authored rod attachment owns a disjoint response slot in the retained
+// arena. Construct its factor response before the ordered PGS sweep so the
+// independent band solves can execute across GPU threads. The ordered solver
+// still owns all velocity reads, impulses, residuals, and validation.
+kernel void mr_world_prepare_generalized_rod_responses(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const MRConstraintIRBlockGPU* blocks [[buffer(1)]],
+    device const MRConstraintIREndpointGPU* endpoints [[buffer(2)]],
+    device const MREvaluatedConstraintIRRowGPU* evaluatedRows [[buffer(3)]],
+    device const MRMetalWorldContactStatusGPU* statuses [[buffer(4)]],
+    constant MRMetalWorldPassGPU& pass [[buffer(5)]],
+    device const MRRodFactorCacheGPU* rodFactorCaches [[buffer(6)]],
+    device float* rodOperatorArena [[buffer(7)]],
+    const uint threadIndex [[thread_position_in_grid]]
+) {
+    if (dispatch.authoredConstraintCount == 0u) {
+        return;
+    }
+    const uint environment =
+        threadIndex / dispatch.authoredConstraintCount;
+    const uint localConstraint =
+        threadIndex % dispatch.authoredConstraintCount;
+    if (environment >= dispatch.environmentCount ||
+        statuses[environment].code != MR_STEP_SUCCESS ||
+        localConstraint >= statuses[environment].requiredConstraints) {
+        return;
+    }
+    const uint constraintBase =
+        environment * dispatch.constraintStride;
+    const uint endpointBase =
+        2u * environment * dispatch.constraintStride;
+    const MRConstraintIRBlockGPU block =
+        blocks[constraintBase + localConstraint];
+    if ((block.flags & MR_CONSTRAINT_IR_BLOCK_GENERALIZED) == 0u ||
+        (block.flags & MR_CONSTRAINT_IR_BLOCK_DISABLED) != 0u ||
+        block.dimension != 1u ||
+        (block.flags & (MR_CONSTRAINT_IR_BLOCK_ROD_ATTACHMENT |
+                        MR_CONSTRAINT_IR_BLOCK_ROD_TWIST_ATTACHMENT)) == 0u) {
+        return;
+    }
+    const float3 direction = evaluatedRows[
+        environment * dispatch.rowStride + block.rowOffset
+    ].direction.xyz;
+    const uint factorStride = rodFactorElementStride(dispatch);
+    const uint environmentArenaBase =
+        environment * dispatch.operatorVelocityCapacity;
+    const uint responseCacheBase = environmentArenaBase +
+        2u * factorStride + 3u * dispatch.rodNodeCount +
+        dispatch.rodEdgeCount;
+    const uint expectedGeneration = pass.physicsSubstep +
+        pass.controlStep * max(dispatch.rodCount, 1u);
+
+    if ((block.flags & MR_CONSTRAINT_IR_BLOCK_ROD_ATTACHMENT) != 0u) {
+        uint attachmentSlot = 0u;
+        for (uint prior = 0u; prior < localConstraint; ++prior) {
+            attachmentSlot +=
+                (blocks[constraintBase + prior].flags &
+                 MR_CONSTRAINT_IR_BLOCK_ROD_ATTACHMENT) != 0u;
+        }
+        uint rodOwner = MR_INVALID_INDEX;
+        MRRodFactorCacheGPU selected = {};
+        for (uint e = 0u; e < block.endpointCount; ++e) {
+            const MRConstraintIREndpointGPU endpoint = endpoints[
+                endpointBase + block.endpointOffset + e
+            ];
+            if (endpoint.role == MR_CONSTRAINT_IR_ENDPOINT_WORLD ||
+                endpoint.jacobianKind !=
+                MR_CONSTRAINT_IR_JACOBIAN_ROD_NODE) {
+                continue;
+            }
+            bool found = false;
+            for (uint rod = 0u; rod < dispatch.rodCount; ++rod) {
+                const MRRodFactorCacheGPU candidate = rodFactorCaches[
+                    environment * dispatch.rodCount + rod
+                ];
+                if (endpoint.objectIndex >= candidate.velocityOffset &&
+                    endpoint.objectIndex < candidate.velocityOffset +
+                        candidate.velocityCount) {
+                    if (rodOwner != MR_INVALID_INDEX && rodOwner != rod) {
+                        return;
+                    }
+                    rodOwner = rod;
+                    selected = candidate;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                return;
+            }
+        }
+        if (rodOwner != MR_INVALID_INDEX) {
+            const uint responseBase = responseCacheBase +
+                attachmentSlot * (3u * dispatch.rodNodeCount) +
+                3u * selected.velocityOffset;
+            const uint responseEnd = responseBase +
+                3u * selected.velocityCount;
+            const uint factorEnd = selected.firstBlock +
+                MR_ROD_FACTOR_TRANSLATION_FLOATS_PER_NODE *
+                    selected.velocityCount +
+                MR_ROD_FACTOR_TWIST_FLOATS_PER_EDGE *
+                    selected.blockWidth;
+            if (selected.environment != environment ||
+                selected.rodIndex != rodOwner ||
+                selected.generation != expectedGeneration ||
+                selected.code != MR_ROD_GPU_SUCCESS ||
+                (selected.flags & MR_ROD_FACTOR_CACHE_VALID) == 0u ||
+                selected.velocityCount == 0u ||
+                selected.blockWidth + 1u != selected.velocityCount ||
+                selected.velocityOffset + selected.velocityCount >
+                    dispatch.rodNodeCount ||
+                selected.blockCount + selected.blockWidth >
+                    dispatch.rodEdgeCount ||
+                selected.firstBlock < environmentArenaBase ||
+                factorEnd > environmentArenaBase + factorStride ||
+                dispatch.operatorVelocityCapacity <
+                    2u * factorStride +
+                        3u * dispatch.rodNodeCount +
+                        dispatch.rodEdgeCount ||
+                responseEnd > environmentArenaBase +
+                    dispatch.operatorVelocityCapacity) {
+                return;
+            }
+            for (uint c = 0u; c < 3u * selected.velocityCount; ++c) {
+                rodOperatorArena[responseBase + c] = 0.0f;
+            }
+            for (uint e = 0u; e < block.endpointCount; ++e) {
+                const MRConstraintIREndpointGPU endpoint = endpoints[
+                    endpointBase + block.endpointOffset + e
+                ];
+                if (endpoint.role == MR_CONSTRAINT_IR_ENDPOINT_WORLD ||
+                    endpoint.jacobianKind !=
+                    MR_CONSTRAINT_IR_JACOBIAN_ROD_NODE ||
+                    (endpoint.flags & MR_CONSTRAINT_IR_ENDPOINT_ROW_MASK) != 0u) {
+                    continue;
+                }
+                const uint localNode =
+                    endpoint.objectIndex - selected.velocityOffset;
+                const float sign = endpoint.role ==
+                    MR_CONSTRAINT_IR_ENDPOINT_A ? -1.0f : 1.0f;
+                rodOperatorArena[responseBase + 3u * localNode + 0u] +=
+                    sign * direction.x;
+                rodOperatorArena[responseBase + 3u * localNode + 1u] +=
+                    sign * direction.y;
+                rodOperatorArena[responseBase + 3u * localNode + 2u] +=
+                    sign * direction.z;
+            }
+            if (!solveRodTranslationFactorDevice(
+                    rodOperatorArena, selected.firstBlock,
+                    3u * selected.velocityCount,
+                    rodOperatorArena, responseBase)) {
+                for (uint c = 0u; c < 3u * selected.velocityCount; ++c) {
+                    rodOperatorArena[responseBase + c] = NAN;
+                }
+            }
+        }
+    }
+
+    if ((block.flags & MR_CONSTRAINT_IR_BLOCK_ROD_TWIST_ATTACHMENT) != 0u) {
+        uint translationAttachmentCount = 0u;
+        uint twistAttachmentSlot = 0u;
+        for (uint authored = 0u;
+             authored < dispatch.authoredConstraintCount; ++authored) {
+            const uint flags = blocks[constraintBase + authored].flags;
+            translationAttachmentCount +=
+                (flags & MR_CONSTRAINT_IR_BLOCK_ROD_ATTACHMENT) != 0u;
+            if (authored < localConstraint) {
+                twistAttachmentSlot +=
+                    (flags & MR_CONSTRAINT_IR_BLOCK_ROD_TWIST_ATTACHMENT) != 0u;
+            }
+        }
+        uint rodOwner = MR_INVALID_INDEX;
+        MRRodFactorCacheGPU selected = {};
+        for (uint e = 0u; e < block.endpointCount; ++e) {
+            const MRConstraintIREndpointGPU endpoint = endpoints[
+                endpointBase + block.endpointOffset + e
+            ];
+            if (endpoint.role == MR_CONSTRAINT_IR_ENDPOINT_WORLD ||
+                endpoint.jacobianKind !=
+                MR_CONSTRAINT_IR_JACOBIAN_ROD_EDGE) {
+                continue;
+            }
+            bool found = false;
+            for (uint rod = 0u; rod < dispatch.rodCount; ++rod) {
+                const MRRodFactorCacheGPU candidate = rodFactorCaches[
+                    environment * dispatch.rodCount + rod
+                ];
+                if (candidate.rodIndex == endpoint.objectIndex &&
+                    endpoint.linkIndex >= candidate.blockCount &&
+                    endpoint.linkIndex < candidate.blockCount +
+                        candidate.blockWidth) {
+                    if (rodOwner != MR_INVALID_INDEX && rodOwner != rod) {
+                        return;
+                    }
+                    rodOwner = rod;
+                    selected = candidate;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                return;
+            }
+        }
+        if (rodOwner != MR_INVALID_INDEX) {
+            const uint responseBase = responseCacheBase +
+                translationAttachmentCount *
+                    (3u * dispatch.rodNodeCount) +
+                twistAttachmentSlot * dispatch.rodEdgeCount +
+                selected.blockCount;
+            const uint responseEnd = responseBase +
+                selected.blockWidth;
+            const uint factorEnd = selected.firstBlock +
+                MR_ROD_FACTOR_TRANSLATION_FLOATS_PER_NODE *
+                    selected.velocityCount +
+                MR_ROD_FACTOR_TWIST_FLOATS_PER_EDGE *
+                    selected.blockWidth;
+            if (selected.environment != environment ||
+                selected.rodIndex != rodOwner ||
+                selected.generation != expectedGeneration ||
+                selected.code != MR_ROD_GPU_SUCCESS ||
+                (selected.flags & MR_ROD_FACTOR_CACHE_VALID) == 0u ||
+                selected.blockWidth + 1u != selected.velocityCount ||
+                selected.blockCount + selected.blockWidth >
+                    dispatch.rodEdgeCount ||
+                selected.firstBlock < environmentArenaBase ||
+                factorEnd > environmentArenaBase + factorStride ||
+                dispatch.operatorVelocityCapacity <
+                    2u * factorStride +
+                        3u * dispatch.rodNodeCount +
+                        dispatch.rodEdgeCount ||
+                responseEnd > environmentArenaBase +
+                    dispatch.operatorVelocityCapacity) {
+                return;
+            }
+            for (uint edge = 0u; edge < selected.blockWidth; ++edge) {
+                rodOperatorArena[responseBase + edge] = 0.0f;
+            }
+            for (uint e = 0u; e < block.endpointCount; ++e) {
+                const MRConstraintIREndpointGPU endpoint = endpoints[
+                    endpointBase + block.endpointOffset + e
+                ];
+                if (endpoint.role == MR_CONSTRAINT_IR_ENDPOINT_WORLD ||
+                    endpoint.jacobianKind !=
+                    MR_CONSTRAINT_IR_JACOBIAN_ROD_EDGE ||
+                    (endpoint.flags & MR_CONSTRAINT_IR_ENDPOINT_ROW_MASK) != 0u) {
+                    continue;
+                }
+                const uint localEdge =
+                    endpoint.linkIndex - selected.blockCount;
+                const float sign = endpoint.role ==
+                    MR_CONSTRAINT_IR_ENDPOINT_A ? -1.0f : 1.0f;
+                rodOperatorArena[responseBase + localEdge] += sign;
+            }
+            if (!solveRodTwistFactorDevice(
+                    rodOperatorArena,
+                    selected.firstBlock +
+                        MR_ROD_FACTOR_TRANSLATION_FLOATS_PER_NODE *
+                            selected.velocityCount,
+                    selected.blockWidth,
+                    rodOperatorArena, responseBase)) {
+                for (uint edge = 0u; edge < selected.blockWidth; ++edge) {
+                    rodOperatorArena[responseBase + edge] = NAN;
+                }
+            }
+        }
+    }
+}
+
 kernel void mr_world_solve_generalized_constraints(
     device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
     device const float* factors [[buffer(1)]],
@@ -9374,6 +9643,11 @@ kernel void mr_world_solve_generalized_constraints(
     float intermediate[MR_ARTICULATED_ABA_MAX_DOFS];
     float solution[MR_ARTICULATED_ABA_MAX_DOFS];
     float maximumResidual = 0.0f;
+    const bool reuseRodResponse =
+        pass.reserved1 == MR_WORLD_GENERALIZED_REUSE_BOTH_RESPONSES ||
+        pass.reserved1 == MR_WORLD_GENERALIZED_REUSE_ROD_RESPONSE;
+    const bool reuseArticulationResponse =
+        pass.reserved1 == MR_WORLD_GENERALIZED_REUSE_BOTH_RESPONSES;
     const uint iterations = max(
         dispatch.velocityIterations +
             (pass.reserved0 != 0u
@@ -9411,9 +9685,26 @@ kernel void mr_world_solve_generalized_constraints(
                  MR_CONSTRAINT_IR_BLOCK_DISABLED) != 0u) {
                 continue;
             }
+            // A block with fewer than three rows owns one unused response
+            // column. Its first floats retain the fixed effective mass of
+            // each row until the next substep refreshes the factor and IR.
+            const bool cacheDenominator =
+                block.dimension < 3u &&
+                dispatch.nv >= block.dimension &&
+                (pass.reserved1 ==
+                     MR_WORLD_GENERALIZED_REUSE_ROD_RESPONSE ||
+                 pass.reserved1 ==
+                     MR_WORLD_GENERALIZED_REUSE_BOTH_RESPONSES);
+            const uint denominatorBase = responseBase +
+                (localConstraint * 3u + block.dimension) * dispatch.nv;
             for (uint localRow = 0u;
                  localRow < block.dimension;
                  ++localRow) {
+                const bool useCachedDenominator =
+                    cacheDenominator &&
+                    (iteration != 0u ||
+                     pass.reserved1 ==
+                         MR_WORLD_GENERALIZED_REUSE_BOTH_RESPONSES);
                 for (uint dof = 0u;
                      dof < dispatch.nv;
                      ++dof) {
@@ -9431,11 +9722,9 @@ kernel void mr_world_solve_generalized_constraints(
                 bool hasArticulation = false;
                 bool hasRod = false;
                 MRRodFactorCacheGPU rodCache = {};
-                uint rodTranslationWorkspace = 0u;
                 uint rodResponseBase = 0u;
                 bool hasRodTwist = false;
                 MRRodFactorCacheGPU rodTwistCache = {};
-                uint rodTwistWorkspace = 0u;
                 uint rodTwistResponseBase = 0u;
                 for (uint endpointIndex = 0u;
                      endpointIndex < block.endpointCount;
@@ -9595,17 +9884,15 @@ kernel void mr_world_solve_generalized_constraints(
                         if (!hasRod) {
                             hasRod = true;
                             rodCache = selected;
-                            rodTranslationWorkspace =
-                                environmentArenaBase + 2u * factorStride +
-                                3u * selected.velocityOffset;
                             rodResponseBase = selectedResponseBase;
-                            if (iteration == 0u) {
+                            if (iteration == 0u &&
+                                !reuseRodResponse) {
                                 for (uint coordinate = 0u;
                                      coordinate <
                                          3u * selected.velocityCount;
                                      ++coordinate) {
                                     rodOperatorArena[
-                                        rodTranslationWorkspace + coordinate
+                                        rodResponseBase + coordinate
                                     ] = 0.0f;
                                 }
                             }
@@ -9613,17 +9900,18 @@ kernel void mr_world_solve_generalized_constraints(
                         const uint localNode =
                             endpoint.objectIndex -
                             rodCache.velocityOffset;
-                        if (iteration == 0u) {
+                        if (iteration == 0u &&
+                            !reuseRodResponse) {
                             rodOperatorArena[
-                                rodTranslationWorkspace +
+                                rodResponseBase +
                                 3u * localNode + 0u
                             ] += sign * direction.x;
                             rodOperatorArena[
-                                rodTranslationWorkspace +
+                                rodResponseBase +
                                 3u * localNode + 1u
                             ] += sign * direction.y;
                             rodOperatorArena[
-                                rodTranslationWorkspace +
+                                rodResponseBase +
                                 3u * localNode + 2u
                             ] += sign * direction.z;
                         }
@@ -9744,19 +10032,15 @@ kernel void mr_world_solve_generalized_constraints(
                         if (!hasRodTwist) {
                             hasRodTwist = true;
                             rodTwistCache = selected;
-                            rodTwistWorkspace =
-                                environmentArenaBase +
-                                2u * factorStride +
-                                3u * dispatch.rodNodeCount +
-                                selected.blockCount;
                             rodTwistResponseBase =
                                 selectedResponseBase;
-                            if (iteration == 0u) {
+                            if (iteration == 0u &&
+                                !reuseRodResponse) {
                                 for (uint edge = 0u;
                                      edge < selected.blockWidth;
                                      ++edge) {
                                     rodOperatorArena[
-                                        rodTwistWorkspace + edge
+                                        rodTwistResponseBase + edge
                                     ] = 0.0f;
                                 }
                             }
@@ -9764,9 +10048,10 @@ kernel void mr_world_solve_generalized_constraints(
                         const uint localEdge =
                             endpoint.linkIndex -
                             rodTwistCache.blockCount;
-                        if (iteration == 0u) {
+                        if (iteration == 0u &&
+                            !reuseRodResponse) {
                             rodOperatorArena[
-                                rodTwistWorkspace + localEdge
+                                rodTwistResponseBase + localEdge
                             ] += sign;
                         }
                     } else if (
@@ -9781,28 +10066,30 @@ kernel void mr_world_solve_generalized_constraints(
                             statuses[environment] = status;
                             return;
                         }
-                        device const MRBodyStateGPU& body =
-                            candidateBodies[
-                                bodyBase + endpoint.objectIndex
-                            ];
-                        const float3 point =
-                            body.position.xyz +
-                            multiply(
-                                rotationMatrix(
-                                    body.orientation
-                                ),
-                                endpoint.anchor.xyz
+                        if (!useCachedDenominator) {
+                            device const MRBodyStateGPU& body =
+                                candidateBodies[
+                                    bodyBase + endpoint.objectIndex
+                                ];
+                            const float3 point =
+                                body.position.xyz +
+                                multiply(
+                                    rotationMatrix(
+                                        body.orientation
+                                    ),
+                                    endpoint.anchor.xyz
+                                );
+                            const float3 endpointImpulse =
+                                sign * direction;
+                            response += dot(
+                                endpointImpulse,
+                                scenePointResponse(
+                                    body,
+                                    point,
+                                    endpointImpulse
+                                )
                             );
-                        const float3 endpointImpulse =
-                            sign * direction;
-                        response += dot(
-                            endpointImpulse,
-                            scenePointResponse(
-                                body,
-                                point,
-                                endpointImpulse
-                            )
-                        );
+                        }
                     } else if (
                         endpoint.jacobianKind ==
                             MR_CONSTRAINT_IR_JACOBIAN_ANGULAR &&
@@ -9817,19 +10104,21 @@ kernel void mr_world_solve_generalized_constraints(
                             statuses[environment] = status;
                             return;
                         }
-                        device const MRBodyStateGPU& body =
-                            candidateBodies[
-                                bodyBase + endpoint.objectIndex
-                            ];
-                        const float3 angularImpulse =
-                            sign * direction;
-                        response += dot(
-                            angularImpulse,
-                            multiply(
-                                stateInverseInertia(body),
-                                angularImpulse
-                            )
-                        );
+                        if (!useCachedDenominator) {
+                            device const MRBodyStateGPU& body =
+                                candidateBodies[
+                                    bodyBase + endpoint.objectIndex
+                                ];
+                            const float3 angularImpulse =
+                                sign * direction;
+                            response += dot(
+                                angularImpulse,
+                                multiply(
+                                    stateInverseInertia(body),
+                                    angularImpulse
+                                )
+                            );
+                        }
                     } else {
                         status.code = MR_STEP_UNSUPPORTED;
                         status.firstFailingConstraint =
@@ -9841,7 +10130,8 @@ kernel void mr_world_solve_generalized_constraints(
                 if (hasArticulation) {
                     const uint columnBase = responseBase +
                         (localConstraint * 3u + localRow) * dispatch.nv;
-                    if (iteration == 0u) {
+                    if (iteration == 0u &&
+                        !reuseArticulationResponse) {
                         if (!solveCholesky(
                                 factors,
                                 factorBase,
@@ -9867,13 +10157,14 @@ kernel void mr_world_solve_generalized_constraints(
                         }
                     }
                 }
-                if (hasRod && iteration == 0u) {
+                if (hasRod && iteration == 0u &&
+                    !reuseRodResponse) {
                     if (!solveRodTranslationFactorDevice(
                             rodOperatorArena,
                             rodCache.firstBlock,
                             3u * rodCache.velocityCount,
                             rodOperatorArena,
-                            rodTranslationWorkspace
+                            rodResponseBase
                         )) {
                         status.code =
                             MR_STEP_FACTORIZATION_FAILED;
@@ -9882,16 +10173,9 @@ kernel void mr_world_solve_generalized_constraints(
                         statuses[environment] = status;
                         return;
                     }
-                    for (uint coordinate = 0u;
-                         coordinate < 3u * rodCache.velocityCount;
-                         ++coordinate) {
-                        rodOperatorArena[rodResponseBase + coordinate] =
-                            rodOperatorArena[
-                                rodTranslationWorkspace + coordinate
-                            ];
-                    }
                 }
-                if (hasRodTwist && iteration == 0u) {
+                if (hasRodTwist && iteration == 0u &&
+                    !reuseRodResponse) {
                     if (!solveRodTwistFactorDevice(
                             rodOperatorArena,
                             rodTwistCache.firstBlock +
@@ -9899,7 +10183,7 @@ kernel void mr_world_solve_generalized_constraints(
                                     rodTwistCache.velocityCount,
                             rodTwistCache.blockWidth,
                             rodOperatorArena,
-                            rodTwistWorkspace
+                            rodTwistResponseBase
                         )) {
                         status.code =
                             MR_STEP_FACTORIZATION_FAILED;
@@ -9908,26 +10192,19 @@ kernel void mr_world_solve_generalized_constraints(
                         statuses[environment] = status;
                         return;
                     }
-                    for (uint edge = 0u;
-                         edge < rodTwistCache.blockWidth;
-                         ++edge) {
-                        rodOperatorArena[
-                            rodTwistResponseBase + edge
-                        ] = rodOperatorArena[
-                            rodTwistWorkspace + edge
-                        ];
+                }
+                if (!useCachedDenominator) {
+                    for (uint dof = 0u;
+                         dof < dispatch.nv;
+                         ++dof) {
+                        response = fma(
+                            rightHandSide[dof],
+                            solution[dof],
+                            response
+                        );
                     }
                 }
-                for (uint dof = 0u;
-                     dof < dispatch.nv;
-                     ++dof) {
-                    response = fma(
-                        rightHandSide[dof],
-                        solution[dof],
-                        response
-                    );
-                }
-                if (hasRod) {
+                if (hasRod && !useCachedDenominator) {
                     for (uint endpointIndex = 0u;
                          endpointIndex < block.endpointCount;
                          ++endpointIndex) {
@@ -9972,7 +10249,7 @@ kernel void mr_world_solve_generalized_constraints(
                         );
                     }
                 }
-                if (hasRodTwist) {
+                if (hasRodTwist && !useCachedDenominator) {
                     for (uint endpointIndex = 0u;
                          endpointIndex < block.endpointCount;
                          ++endpointIndex) {
@@ -10001,6 +10278,13 @@ kernel void mr_world_solve_generalized_constraints(
                             rodTwistResponseBase + localEdge
                         ];
                     }
+                }
+                if (useCachedDenominator) {
+                    response = responseColumns[
+                        denominatorBase + localRow
+                    ];
+                } else if (cacheDenominator) {
+                    responseColumns[denominatorBase + localRow] = response;
                 }
                 // This is a true projected Gauss-Seidel sweep: every row
                 // must observe velocities updated by all preceding rows and

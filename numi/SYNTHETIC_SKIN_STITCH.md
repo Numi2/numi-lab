@@ -928,3 +928,58 @@ fields and 0.001867 m/s normal residual. Five focused static-equilibrium,
 checkpoint, synthetic-puncture, cadence, and compiler CTests passed. The
 restored run is `build-skin-wound/generalized-profile-restored-final.log`
 (SHA-256 `85bb7f4d715104a75aa0ec52ad8dd2ee2656c4ad0c185c5ae330542448dae830`).
+
+The next accepted solver change keeps all eight ordered generalized and
+Wave32 sweeps. The pre-contact solve now writes its factorized rod response
+directly into the per-attachment retained arena slot; the post-contact
+solve reuses that fixed rod and articulation response from the same
+substep. The rod factor and authored row Jacobians remain unchanged between
+the two solves, while relative velocities, impulses, and the final residual
+are still evaluated against the updated state. A separate GPU kernel then
+prepares the six independent rod attachment responses in parallel before
+the pre-contact ordered sweep. Each attachment owns a disjoint arena slot;
+invalid factors remain rejected by the serial solver's existing checks.
+
+On the 16x/one-Newton synthetic-skin post-entry step, the intermediate
+cross-solve rod reuse took 588.127 ms GPU, in-place response construction
+took 579.866 ms, and cross-solve articulation reuse took 569.006 ms. The
+parallel rod preparation reached 537.256 ms, with three subsequent repeats
+at 536.133, 535.260, and 535.252 ms. After tightening the parallel
+kernel's factor and endpoint bounds checks, that uninstrumented step
+took 535.650 ms GPU. Its 23 reported non-timing fields match the restored
+631.779 ms run exactly: 46,080 active tetrahedra, zero failed steps,
+143 MetalWorld constraints, 19.965 um needle advance, Matter residual
+1.83548e-6, and 0.001867 m/s terminal normal residual below the 0.002 m/s
+gate. The intermediate run log is
+`build-skin-wound/generalized-parallel-rod-qualified.log` (SHA-256
+`6180d5503c8032ce903934c59872437dd2bea32754b52f97e9aee9bd1dcf7d72`),
+and that intermediate MetalWorld metallib SHA-256 is
+`f5453092afc48410bd8a8282f37795f3f69c4c4a5dcb44441b17f7dbe60c5408`.
+
+The final solver also retains each row's effective-mass denominator in its
+unused response-column slot across the ordered sweeps and pre/post pair.
+The row's relative velocity, projected impulse, and residual still use the
+latest candidate state. The denominator-cache trial took 534.294 ms GPU;
+three repeats took 531.715, 530.833, and 531.778 ms. All 23 reported
+non-timing fields again matched the restored reference, including the
+0.001867 m/s terminal contact residual. The retained final repeat log is
+`build-skin-wound/generalized-denominator-repeat-3.log` (SHA-256
+`cc46debef620a12e638aaaef8d5c08e5fbdb28871d70cdb082b9843a959a2d6f`),
+and its MetalWorld metallib SHA-256 is
+`8059ec81644b9216d80f3a3461ce6738881ffd0fc3cb887951211773777fb199`.
+Eleven focused surgical, robot-grip/drive, checkpoint, topology, cadence,
+and Matter compiler CTests passed on this solver version.
+The final source-matched rebuild passed the same native step at 531.363 ms;
+`build-skin-wound/generalized-denominator-final-built.log` has SHA-256
+`39ae8e932d1cb7ab345eea2e5cd43ab9f9d13d17c55b0cd98e4249eb02bf78ff`.
+
+The final fast step is 101.6x simulated-time throughput against the
+original 1x/3,375.995 ms baseline for this post-entry state; the stated
+100x threshold was 540.159 ms per 16x step. A fresh 1x step on the
+optimized build took 669.419 ms with the default 32 plus 16 contact sweeps,
+so the fast setting is about 20.1x throughput relative to today's 1x
+setting. These comparisons do not establish a 100x full-stitch speedup:
+the fast probe contains zero active Matter tissue contacts and does not
+execute a complete robot-driven first bite, second bite, or knot. The
+fresh 1x log is `build-skin-wound/generalized-parallel-rod-1x-baseline.log`
+(SHA-256 `ff9c12df76cf42af3a8565b59e09c3b44df7ed388ee391db803a48009ecc6ee4`).

@@ -548,6 +548,8 @@ struct MetalWorldContextState {
         authoredIRSeedPipeline = nil;
     __strong id<MTLComputePipelineState>
         generalizedConstraintSolvePipeline = nil;
+    __strong id<MTLComputePipelineState>
+        generalizedRodResponsePipeline = nil;
     __strong id<MTLHeap> immutableHeap = nil;
     __strong id<MTLHeap> persistentHeap = nil;
     __strong id<MTLHeap> transientHeap = nil;
@@ -5650,7 +5652,8 @@ MetalWorldDiagnostics ensureGeneralizedConstraintPipeline(
     MetalWorldDiagnostics diagnostics
 ) {
     if (diagnostics.layout.contactDispatch.authoredConstraintCount == 0u ||
-        context.generalizedConstraintSolvePipeline != nil) {
+        (context.generalizedConstraintSolvePipeline != nil &&
+         context.generalizedRodResponsePipeline != nil)) {
         return diagnostics;
     }
     NSError* error = nil;
@@ -5677,8 +5680,26 @@ MetalWorldDiagnostics ensureGeneralizedConstraintPipeline(
             "device cannot execute the generalized-constraint kernel geometry"
         );
     }
+    id<MTLComputePipelineState> rodResponsePipeline = makePipeline(
+        context.device,
+        context.library,
+        @"mr_world_prepare_generalized_rod_responses",
+        &error
+    );
+    if (rodResponsePipeline == nil ||
+        rodResponsePipeline.maxTotalThreadsPerThreadgroup == 0u ||
+        rodResponsePipeline.staticThreadgroupMemoryLength >
+            context.device.maxThreadgroupMemoryLength) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::metalPipelineFailure,
+            "failed to create generalized rod-response pipeline: " +
+                describeError(error)
+        );
+    }
     context.generalizedConstraintSolvePipeline = pipeline;
-    ++context.stats.pipelineCreationCount;
+    context.generalizedRodResponsePipeline = rodResponsePipeline;
+    context.stats.pipelineCreationCount += 2u;
     return diagnostics;
 }
 
@@ -6841,6 +6862,7 @@ MetalWorldDiagnostics initializeContext(
     context.rodContactCommitPipeline = nil;
     context.authoredIRSeedPipeline = authoredIRSeed;
     context.generalizedConstraintSolvePipeline = nil;
+    context.generalizedRodResponsePipeline = nil;
     context.stats.queriedThreadExecutionWidth =
         static_cast<std::uint32_t>(
             pairNarrowphase.threadExecutionWidth
@@ -15463,6 +15485,16 @@ bool encodeContactSubstep(
 ) {
     MRMetalWorldPassGPU solverPass = pass;
     solverPass.reserved0 = finalPhysicsSubstep ? 1u : 0u;
+    MRMetalWorldPassGPU preGeneralizedPass = solverPass;
+    if (context.boundContactDispatch.rodCount != 0u) {
+        preGeneralizedPass.reserved1 =
+            MR_WORLD_GENERALIZED_REUSE_ROD_RESPONSE;
+    }
+    MRMetalWorldPassGPU postGeneralizedPass = solverPass;
+    if (context.boundContactDispatch.rodCount != 0u) {
+        postGeneralizedPass.reserved1 =
+            MR_WORLD_GENERALIZED_REUSE_BOTH_RESPONSES;
+    }
     const mr_u32 eventPass = 0u;
     const mr_u32 stateNotIntegrated = 0u;
     const mr_u32 fullMicrostepMode =
@@ -15767,6 +15799,30 @@ bool encodeContactSubstep(
             sizeof(MRIndirectDispatchArgumentsGPU)
         ) ||
         (
+            context.boundContactDispatch.rodCount != 0u &&
+            context.boundContactDispatch.authoredConstraintCount != 0u &&
+            !useQuality &&
+            !encodeContactThreadKernel(
+                context,
+                commandBuffer,
+                context.generalizedRodResponsePipeline,
+                @"MetalWorld parallel authored rod responses",
+                {
+                    {0u, kContactDispatch},
+                    {1u, kIRBlocks},
+                    {2u, kIREndpoints},
+                    {3u, kEvaluatedRows},
+                    {4u, kContactStatuses},
+                    {6u, kRodFactorCaches},
+                    {7u, kOperatorVelocityArena},
+                },
+                &solverPass,
+                5u,
+                environmentCount *
+                    context.boundContactDispatch.authoredConstraintCount
+            )
+        ) ||
+        (
             context.boundContactDispatch.authoredConstraintCount != 0u &&
             !useQuality &&
             !encodeContactThreadKernel(
@@ -15791,7 +15847,7 @@ bool encodeContactSubstep(
                     {14u, candidateRodEdges},
                     {15u, kResponseColumns},
                 },
-                &solverPass,
+                &preGeneralizedPass,
                 8u,
                 environmentCount
             )
@@ -15880,7 +15936,7 @@ bool encodeContactSubstep(
                     {14u, candidateRodEdges},
                     {15u, kResponseColumns},
                 },
-                &solverPass,
+                &postGeneralizedPass,
                 8u,
                 environmentCount
             )
