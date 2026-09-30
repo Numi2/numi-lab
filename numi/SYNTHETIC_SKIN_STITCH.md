@@ -58,6 +58,11 @@ has been started from that binary, with output at
 `build-skin-wound/synthetic-skin-pull-through.log`. Inspect the live process
 and log before launching another Metal run; the early passage must finish
 before thread pull-through begins.
+The run's executable retains the SHA-256 above. A later rebuild has SHA-256
+`1993cf25e00ff2c683c6a7ea8d2db36375d5646d7c68f0f027c41ac06748c76c`;
+it adds live center-wound-gap mean and maximum measurements to pull-through
+progress and final output. Those new fields will not appear in the already
+running process, and this rebuild alone is not pull-through qualification.
 
 The `--tissue-robot-first-bite-ik-only --synthetic-skin` geometry probe found
 a 250-step giver approach and 185-step 5 mm/s needle-orbit path. The entry
