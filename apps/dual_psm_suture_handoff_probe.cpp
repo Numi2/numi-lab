@@ -2412,7 +2412,11 @@ JawGeometry worldJawGeometry(
             bodies,
             {}
         );
-    require(diagnostics.succeeded(), "world PSM jaw kinematics failed");
+    require(diagnostics.succeeded(),
+            "world PSM jaw kinematics failed: status=" +
+                std::to_string(static_cast<std::uint32_t>(
+                    diagnostics.status
+                )));
     const std::uint32_t firstShape =
         metalrobo::kSurgicalPSMShapeCount * arm;
     JawGeometry result;
@@ -7160,6 +7164,7 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
             argument == "--tissue-curved-passage-only" ||
             argument == "--tissue-curved-pull-through-only" ||
             argument == "--tissue-opposing-bite-topology-only" ||
+            argument == "--tissue-robot-first-bite-ik-only" ||
             argument == "--tissue-receiver-state-bridge-only" ||
             argument == "--tissue-receiver-bridge-resume-only" ||
             argument == "--tissue-receiver-alignment-replay-only" ||
@@ -9295,7 +9300,8 @@ int main(const int argc, const char* const argv[]) {
         const bool tissueCurvedPullThroughOnly =
             options.mode == "--tissue-curved-pull-through-only";
         const bool tissueOpposingBiteTopologyOnly =
-            options.mode == "--tissue-opposing-bite-topology-only";
+            options.mode == "--tissue-opposing-bite-topology-only" ||
+            options.mode == "--tissue-robot-first-bite-ik-only";
         const bool tissueReceiverStateBridgeOnly =
             options.mode == "--tissue-receiver-state-bridge-only";
         const bool tissueReceiverAlignmentReplayOnly =
@@ -15849,6 +15855,185 @@ int main(const int argc, const char* const argv[]) {
                                 1.0e-9,
                         "synthetic skin wound lost its authored open gap"
                     );
+                }
+                if (options.mode == "--tissue-robot-first-bite-ik-only") {
+                    const MRBodyStateGPU& entryNeedle =
+                        world.defaultSceneBodies.at(0u);
+                    const CurvedNeedleOrbit biteOrbit = curvedNeedleOrbit(
+                        needleForPlacement, entryNeedle
+                    );
+                    const NeedleTipCapsuleGeometry entryTip =
+                        needleTipCapsuleGeometry(
+                            needleForPlacement, entryNeedle
+                        );
+                    const double requiredTipAdvanceM =
+                        tissueCoupon.thicknessM +
+                        2.0 * (entryTip.radiusM +
+                               kCurvedPassageExitClearanceM);
+                    require(
+                        requiredTipAdvanceM > 0.0 &&
+                            requiredTipAdvanceM <
+                                0.5 * biteOrbit.centerlineRadiusM,
+                        "robot first-bite orbit exceeds the needle envelope"
+                    );
+                    const double biteAngleRad = std::asin(
+                        requiredTipAdvanceM /
+                        biteOrbit.centerlineRadiusM
+                    );
+                    constexpr double kRobotFirstBiteSpeedMps = 5.0e-3;
+                    const std::uint32_t biteSteps =
+                        static_cast<std::uint32_t>(std::ceil(
+                            biteAngleRad * biteOrbit.centerlineRadiusM /
+                            (kRobotFirstBiteSpeedMps * kControlTimestep)
+                        ));
+                    require(biteSteps > 1u && biteSteps < 1000u,
+                            "robot first-bite trajectory length is invalid");
+                    const JawGeometry initialJaw = worldJawGeometry(
+                        world.model, 0u, world.model.defaultQ,
+                        world.model.defaultV
+                    );
+                    const Vec3 gripPoint = needleShapeWorldCenter(
+                        needleForPlacement,
+                        kGiverNeedleShape,
+                        entryNeedle
+                    );
+                    Vec3 gripRail = needleShapeWorldTangent(
+                        needleForPlacement,
+                        kGiverNeedleShape,
+                        entryNeedle
+                    );
+                    if (dot(gripRail, initialJaw.railDirection) < 0.0) {
+                        gripRail = gripRail * -1.0;
+                    }
+                    const OrthonormalJawFrame gripFrame =
+                        orthonormalJawFrame(
+                            gripRail,
+                            initialJaw.separationDirection,
+                            "first-bite giver grip frame"
+                        );
+                    constexpr std::uint32_t kGripApproachSteps = 250u;
+                    const ArmTrajectory gripApproach = frameArmTrajectory(
+                        world.model,
+                        psm,
+                        0u,
+                        config.surgical.robots.leftBase,
+                        world.model.defaultQ,
+                        initialJaw.midpoint,
+                        gripPoint,
+                        gripFrame.rail,
+                        gripFrame.separation,
+                        armLocalQ(
+                            world.model, 0u, world.model.defaultQ
+                        )[7],
+                        closeJawCoordinate,
+                        kGripApproachSteps,
+                        kControlTimestep,
+                        kReceiverBridgeIKPositionToleranceM,
+                        kReceiverBridgeIKOrientationToleranceRad
+                    );
+                    const std::vector<float>& biteBeginQ =
+                        gripApproach.finalTarget;
+                    const GraspReference giverReference = graspReference(
+                        world,
+                        needleForPlacement,
+                        biteBeginQ,
+                        world.model.defaultV,
+                        entryNeedle,
+                        0u,
+                        kGiverNeedleShape
+                    );
+                    const JawGeometry entryJaw = worldJawGeometry(
+                        world.model, 0u, biteBeginQ,
+                        world.model.defaultV
+                    );
+                    const double entrySeatErrorM =
+                        norm(entryJaw.midpoint - gripPoint);
+                    std::vector<MRBodyStateGPU> biteTargets;
+                    biteTargets.reserve(biteSteps);
+                    for (std::uint32_t step = 0u;
+                         step < biteSteps; ++step) {
+                        biteTargets.push_back(curvedNeedleTarget(
+                            entryNeedle,
+                            biteOrbit,
+                            biteAngleRad *
+                                static_cast<double>(step + 1u) /
+                                static_cast<double>(biteSteps),
+                            kRobotFirstBiteSpeedMps /
+                                biteOrbit.centerlineRadiusM
+                        ));
+                    }
+                    const ArmTrajectory biteTrajectory =
+                        needleGraspArmTrajectory(
+                            world.model,
+                            psm,
+                            0u,
+                            config.surgical.robots.leftBase,
+                            biteBeginQ,
+                            needleForPlacement,
+                            kGiverNeedleShape,
+                            giverReference,
+                            biteTargets,
+                            closeJawCoordinate
+                        );
+                    const GraspFrameTarget terminalTarget =
+                        graspFrameTarget(
+                            needleForPlacement,
+                            biteTargets.back(),
+                            kGiverNeedleShape,
+                            giverReference
+                        );
+                    const JawGeometry terminalJaw = worldJawGeometry(
+                        world.model,
+                        0u,
+                        biteTrajectory.finalTarget,
+                        world.model.defaultV
+                    );
+                    const OrthonormalJawFrame terminalFrame =
+                        orthonormalJawFrame(
+                            terminalJaw.railDirection,
+                            terminalJaw.separationDirection,
+                            "first-bite robot terminal frame"
+                        );
+                    const double terminalPositionErrorM = norm(
+                        terminalJaw.midpoint - terminalTarget.midpoint
+                    );
+                    const double terminalOrientationErrorRad = norm(
+                        jawFrameOrientationError(
+                            terminalFrame, terminalTarget.frame
+                        )
+                    );
+                    std::cout << std::setprecision(9)
+                        << "robot_first_bite_ik_candidate"
+                        << " steps=" << biteSteps
+                        << " angle_rad=" << biteAngleRad
+                        << " bite_speed_mps=" << kRobotFirstBiteSpeedMps
+                        << " grip_approach_steps=" << kGripApproachSteps
+                        << " grip_approach_velocity_ratio="
+                        << gripApproach.maximumVelocityRatio
+                        << " entry_seat_error_m=" << entrySeatErrorM
+                        << " maximum_velocity_ratio="
+                        << biteTrajectory.maximumVelocityRatio
+                        << " terminal_position_error_m="
+                        << terminalPositionErrorM
+                        << " terminal_orientation_error_rad="
+                        << terminalOrientationErrorRad
+                        << " gpu_dispatched=no"
+                        << " grasp_load_qualified=no\n";
+                    require(
+                        gripApproach.maximumVelocityRatio <=
+                            kMaximumCommandVelocityRatio &&
+                            entrySeatErrorM <=
+                                kReceiverBridgeIKPositionToleranceM &&
+                            biteTrajectory.maximumVelocityRatio <=
+                            kMaximumCommandVelocityRatio &&
+                            terminalPositionErrorM <=
+                                kReceiverBridgeIKPositionToleranceM &&
+                            terminalOrientationErrorRad <=
+                                kReceiverBridgeIKOrientationToleranceRad,
+                        "robot first-bite jaw path exceeds joint velocity "
+                        "or terminal frame limits"
+                    );
+                    std::cout << "robot_first_bite_ik=ok\n";
                 }
                 std::cout << "tissue_opposing_bite_topology=ok"
                     << " contact_nodes="

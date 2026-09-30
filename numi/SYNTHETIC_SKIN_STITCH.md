@@ -38,8 +38,15 @@ gap after knot loading and requires a reduction for the skin variant. The
 rebuilt topology test passes and measures nine central lip pairs at 0.6 mm;
 the knot-loaded gap gate itself still awaits a complete native sequence.
 The rebuilt binary's SHA-256 is
-`3f95fe12bef730b6e1e2ed35f017b92213df7c1432d136ebdaca038213eb659c`;
+`903de3529b78adab1256c7b1300bdfc1a3e4a5d746f5a2a2bc00e128e3dc01f7`;
 the already running passage process still owns the earlier binary inode.
+
+The `--tissue-robot-first-bite-ik-only --synthetic-skin` geometry probe found
+a 250-step giver approach and 185-step 5 mm/s needle-orbit path. The entry
+jaw midpoint is 0.164 um from its needle seat; peak approach and bite joint
+velocity ratios are 0.454 and 0.746 of their limits. This proves reachable
+command geometry only. Contact, load transfer, tissue forces, and arm-driven
+puncture still require a native run with a dynamic needle.
 
 Open work: qualify the long curved passage and pull-through with this 1.5 mm
 wall, then the second lip bite, robot-driven manipulation, knot tightening,

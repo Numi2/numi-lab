@@ -3983,6 +3983,19 @@ if(BUILD_TESTING)
             TIMEOUT 180
     )
     add_test(
+        NAME metalrobo.surgical.synthetic_skin_robot_first_bite_ik
+        COMMAND
+            $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+            --tissue-robot-first-bite-ik-only
+            --synthetic-skin
+    )
+    set_tests_properties(
+        metalrobo.surgical.synthetic_skin_robot_first_bite_ik
+        PROPERTIES
+            LABELS "metalrobo;matter;surgical;geometry;robot;synthetic"
+            TIMEOUT 180
+    )
+    add_test(
         NAME metalrobo.surgical.puncture_channel_advancement
         COMMAND
             $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
