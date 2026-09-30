@@ -1143,3 +1143,28 @@ The lower entry speed reduces translational slip but does not qualify a
 robot-held puncture or the rest of the stitch. The next physical change
 must retain the needle's orientation under the puncture impulse without
 weakening the measured contact and topology checks.
+
+A paired grip diagnostic now prints relative needle-tangent spin alongside
+total relative angular speed on robot continuation results. On the same
+native puncture microstep, the original constant-speed checkpoint had
+1.221 rad/s tangent spin within 1.441 rad/s total relative angular motion.
+The braked checkpoint had 1.030 rad/s tangent spin within 1.440 rad/s total.
+The implied components perpendicular to the needle tangent are about
+0.766 and 1.007 rad/s, respectively. Slowing translation reduced point
+slip but traded some tangent spin for tilt; it did not reduce total
+orientation loss. The two diagnostic logs have SHA-256 values
+`db2694dfb05e5aaeedf1672dc56cea39c6693c3f965e24f277b31653ebc210c2`
+and `11e07743234ec3f6e7d416b338ce795f868896e5000df72a408036c716b523fd`.
+
+Two IK-compensated jaw-preload experiments from the same step-1645 contact
+checkpoint were rejected. Ramping the calibrated rail engagement from
+60 to 75 um over the fourteen braking steps gave full 8/8 jaw contacts,
+but moved the needle seat 220 um, above the 100 um grasp bound, and had
+a 0.0473 m/s maximum contact residual. Even a 60-to-65 um ramp moved the
+seat 202 um and peaked at 0.1842 m/s residual. Neither produced an
+accepted checkpoint, and all preload-control code was removed. Their
+diagnostic logs have SHA-256 values
+`04aa92f6119ee431d5c84772a74d33eae0babc890440508fe8f01f3e2c5a71a6`
+and `13fec6706e197524f43d802edeb696d8013af1de4283f1a1ab8e70d92fa389c0`.
+The remaining failure calls for better rotational contact authority or
+contact-solver response, not an unverified clamp-force increase.

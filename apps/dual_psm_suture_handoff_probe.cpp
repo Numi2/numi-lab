@@ -17282,6 +17282,8 @@ int main(const int argc, const char* const argv[]) {
                     << grip.relativePointSpeed
                     << " relative_angular_speed_radps="
                     << grip.relativeAngularSpeed
+                    << " relative_needle_tangent_spin_radps="
+                    << grip.relativeNeedleTangentSpin
                     << " jaw_point_speed_mps=" << grip.jawPointSpeed
                     << " needle_point_speed_mps=" << grip.needlePointSpeed
                     << " qualified_grasp=" << qualifiedDrivenGrasp(grip)
