@@ -1383,3 +1383,51 @@ and `01d53bbaa06591a0f5c4cec9e7490f8dd2da4bf957a02258525ab5fa30994dce`.
 This second, one-Newton-derived lineage reproduces the earlier rotational
 failure after braking; increasing free-space cadence has not qualified
 puncture or 100x whole-stitch performance.
+
+The puncture replay now reports each giver jaw's solved impulse and torque
+about the needle handling-segment tangent. At the unchanged 32+16 contact
+sweeps, the jaws carried 5.362e-5/5.380e-5 Ns normal impulse and
+1.925e-5/2.255e-5 Ns tangential impulse. Their tangent-axis torque impulses
+opposed one another at -5.520e-9/+6.559e-9 Nms, leaving +1.039e-9 Nms
+net. The authored materials have zero torsional impulse capacity; this
+diagnostic describes the final solved contact wrench, not the entire
+puncture-time torque history. Its diagnostic replay log SHA-256 is
+`8f6699bcddd8459379cf26a6e700068dd74b5b78f00f1546e8a6a7c48acfe3e0`.
+
+Two **diagnostic-only** material pilots were rejected. A 0.20 mm effective
+torsional contact length, equal to the authored insert radius, created
+finite torsional capacity but left all reported motion and contact fields
+identical to baseline (log SHA-256
+`dd66cfb92b858ce7c8554e37c8a0d5613cd7c4bb8e9b9237f2a55a0517ab5157`).
+Increasing effective insert/needle static and dynamic friction by 50 percent
+raised angular slip to 10.983 rad/s, point slip to 56.694 mm/s, and normal
+residual to 0.047749 m/s (log SHA-256
+`d2b9d9ce0a181f8eccb89df4cf9d10e260ffb7ad446ac05301c0527abc95d319`).
+Neither pilot wrote a checkpoint, and both material changes were removed.
+
+Increasing the existing MetalWorld contact sweeps improved convergence on
+the same restored step without changing the material:
+
+| Velocity + final sweeps | Angular slip (rad/s) | Normal residual (m/s) | GPU (ms) |
+| --- | ---: | ---: | ---: |
+| 32 + 16 | 1.446 | 0.005921 | 1,448.289 |
+| 64 + 32 | 1.216 | 0.000413 | 1,500.206 |
+| 128 + 64 | 0.877 | 0.000160 | 1,619.558 |
+| 128 + 128 | 0.735 | 0.000133 | 1,691.112 |
+
+The 128+128 mode is the current MetalWorld sweep limit. It passes the
+0.002 m/s contact-residual screen but still fails the 0.6 rad/s rotational
+grasp gate and uses 17 percent more GPU time for this microstep. All four
+runs retained one puncture channel, all 46,080 tetrahedra, zero removed
+mass, and zero failed steps. The 64+32 and 128+64 replay log SHA-256
+values are
+`43bc0b5f23d18d728f97b4af3a115c3bfc71cd4d4a18312e1c3ffc6237e6767f`,
+and `1691d174779866dcc763eb8056466d4ff175c556dd32d214d537370aedc0d304`.
+After removal of the diagnostic material pilots, the source-matched
+128+128 replay reproduced the same physical fields and wrote a step-1870
+transient checkpoint that restored byte-exactly. Its replay log,
+checkpoint TSV, and restore log SHA-256 values are
+`249bab95620099abeef2420f5a67bbb62d467400055642611a16a160cf902348`,
+`7a166f47f0ae422c25d3b00c1c9bc545b11c42e516f581a6e72ef1cca452766`,
+and `01d53bbaa06591a0f5c4cec9e7490f8dd2da4bf957a02258525ab5fa30994dce`.
+These are one-step convergence diagnostics, not a faster whole-stitch result.

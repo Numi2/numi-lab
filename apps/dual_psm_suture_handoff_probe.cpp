@@ -5159,6 +5159,108 @@ ContactCounts contactCounts(
     return counts;
 }
 
+struct JawNeedleWrench {
+    std::array<Vec3, 2u> torqueOnNeedle{};
+    std::array<double, 2u> normalImpulse{};
+    std::array<double, 2u> tangentialImpulse{};
+    std::array<double, 2u> torsionalImpulseCapacity{};
+    std::array<std::uint32_t, 2u> contacts{};
+};
+
+JawNeedleWrench jawNeedleWrench(
+    const metalrobo::HeterogeneousWorld& world,
+    const metalrobo::MetalWorldResult& result,
+    const metalrobo::CurvedSutureNeedleAsset& needle,
+    const std::uint32_t arm,
+    const std::uint32_t needleShape
+) {
+    JawNeedleWrench wrench;
+    if (result.contactStatuses.empty() ||
+        result.finalSceneBodies.empty()) {
+        return wrench;
+    }
+    const std::uint32_t needleBody = world.sceneBodyIndices.at(0u);
+    const std::array<std::uint32_t, 2u> jawBodies{
+        world.model.articulations.at(arm).firstBody + 7u,
+        world.model.articulations.at(arm).firstBody + 8u,
+    };
+    const Vec3 handlingCenter = needleShapeWorldCenter(
+        needle, needleShape, result.finalSceneBodies[0u]
+    );
+    const std::size_t required = std::min({
+        static_cast<std::size_t>(
+            result.contactStatuses.back().requiredConstraints
+        ),
+        result.contactEvidence.blocks.size(),
+        result.contactEvidence.contacts.size(),
+        result.contactEvidence.contactMetadata.size(),
+    });
+    for (std::size_t index = 0u; index < required; ++index) {
+        const auto& block = result.contactEvidence.blocks[index];
+        if ((block.flags & (MR_CONSTRAINT_IR_BLOCK_GENERALIZED |
+                            MR_CONSTRAINT_IR_BLOCK_ROD_ENDPOINT)) != 0u ||
+            block.endpointCount != 2u) {
+            continue;
+        }
+        const MRContactConstraintGPU& contact =
+            result.contactEvidence.contacts[index];
+        if (!(contact.impulses.x > 1.0e-10f)) {
+            continue;
+        }
+        const auto& metadata =
+            result.contactEvidence.contactMetadata[index];
+        for (std::uint32_t jaw = 0u; jaw < jawBodies.size(); ++jaw) {
+            const std::uint32_t jawBody = jawBodies[jaw];
+            if (!((contact.bodyA == jawBody &&
+                   contact.bodyB == needleBody) ||
+                  (contact.bodyB == jawBody &&
+                   contact.bodyA == needleBody))) {
+                continue;
+            }
+            const std::uint32_t robotCollider =
+                contact.bodyA == jawBody
+                    ? metadata.colliderA : metadata.colliderB;
+            const std::uint32_t localRobotCollider =
+                robotCollider -
+                arm * metalrobo::kSurgicalPSMShapeCount;
+            const auto& insertColliders =
+                jaw == 0u ? kJawATeeth : kJawBTeeth;
+            if (std::ranges::find(
+                    insertColliders, localRobotCollider
+                ) == insertColliders.end()) {
+                continue;
+            }
+            const Vec3 normal = vector(contact.normal);
+            const Vec3 tangent = vector(contact.tangent);
+            const Vec3 tangentV = cross(normal, tangent);
+            const double sign =
+                contact.bodyB == needleBody ? 1.0 : -1.0;
+            const Vec3 impulse = (
+                normal * static_cast<double>(contact.impulses.x) +
+                tangent * static_cast<double>(contact.impulses.y) +
+                tangentV * static_cast<double>(contact.impulses.z)
+            ) * sign;
+            const Vec3 torque =
+                cross(vector(contact.pointAndSeparation) -
+                          handlingCenter, impulse) +
+                normal * (sign *
+                    static_cast<double>(contact.impulses.w));
+            wrench.torqueOnNeedle[jaw] =
+                wrench.torqueOnNeedle[jaw] + torque;
+            wrench.normalImpulse[jaw] += contact.impulses.x;
+            wrench.tangentialImpulse[jaw] += std::hypot(
+                static_cast<double>(contact.impulses.y),
+                static_cast<double>(contact.impulses.z)
+            );
+            wrench.torsionalImpulseCapacity[jaw] +=
+                static_cast<double>(contact.friction.w) *
+                static_cast<double>(contact.impulses.x);
+            ++wrench.contacts[jaw];
+        }
+    }
+    return wrench;
+}
+
 struct ThreadGraspContactCounts {
     std::array<std::uint32_t, 2u> jawContacts{};
     std::array<std::uint32_t, 2u> jawPatchMasks{};
@@ -17180,6 +17282,18 @@ int main(const int argc, const char* const argv[]) {
                     kGiverNeedleShape,
                     gripReference
                 );
+                const JawNeedleWrench jawWrench = jawNeedleWrench(
+                    world,
+                    driven.result,
+                    needleForPlacement,
+                    0u,
+                    kGiverNeedleShape
+                );
+                const Vec3 handlingTangent = needleShapeWorldTangent(
+                    needleForPlacement,
+                    kGiverNeedleShape,
+                    driven.result.finalSceneBodies.at(0u)
+                );
                 const RodStateMetrics rod = rodStateMetrics(
                     world, driven.result
                 );
@@ -17347,6 +17461,30 @@ int main(const int argc, const char* const argv[]) {
                     << " failed_steps="
                     << driven.diagnostics.failedStepCount
                     << contactSummary(contacts) << '\n';
+                std::cout
+                    << "robot_first_bite_jaw_wrench"
+                    << " contacts=" << jawWrench.contacts[0u]
+                    << '/' << jawWrench.contacts[1u]
+                    << " normal_impulse_ns="
+                    << jawWrench.normalImpulse[0u] << '/'
+                    << jawWrench.normalImpulse[1u]
+                    << " tangential_impulse_ns="
+                    << jawWrench.tangentialImpulse[0u] << '/'
+                    << jawWrench.tangentialImpulse[1u]
+                    << " torsional_capacity_nms="
+                    << jawWrench.torsionalImpulseCapacity[0u] << '/'
+                    << jawWrench.torsionalImpulseCapacity[1u]
+                    << " needle_tangent_torque_impulse_nms="
+                    << dot(jawWrench.torqueOnNeedle[0u], handlingTangent)
+                    << '/'
+                    << dot(jawWrench.torqueOnNeedle[1u], handlingTangent)
+                    << " net_needle_tangent_torque_impulse_nms="
+                    << dot(
+                        jawWrench.torqueOnNeedle[0u] +
+                            jawWrench.torqueOnNeedle[1u],
+                        handlingTangent
+                    )
+                    << '\n';
                 const bool terminalGrasp = qualifiedDrivenGrasp(grip);
                 const bool transientPuncture =
                     robotContactProbe && channels > 0u &&
