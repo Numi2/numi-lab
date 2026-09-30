@@ -1033,3 +1033,73 @@ and `build-skin-wound/skin-robot-current-held-continue32.log` (SHA-256
 `679bd54727dc0a4770ba0f21b59028131c3c52a109ebb907a67f97f20b404feb`).
 Neither extra sweeps nor a single held step cures the early contact
 transient; do not promote either continuation checkpoint into the stitch.
+
+### Fresh robot-to-skin contact and puncture timing
+
+Using the current device program and the step-237 checkpoint above, a fresh
+robot-held sequence reached skin contact and then one transient puncture.
+Every resumed phase reported byte-exact checkpoint restore and zero failed
+transactions. The measured GPU times below exclude scene setup, file I/O,
+and the initial drive's 1,099.540 ms grip-settle GPU time.
+
+| Phase | Simulated interval | GPU time | Final tip-to-node separation | Tissue result |
+| --- | ---: | ---: | ---: | --- |
+| Initial robot drive | 12 ms | 20,587.067 ms | 485.63 um | no contact |
+| First 64x approach | 24 ms | 22,543.695 ms | 375.98 um | no contact |
+| Second 64x approach | 24 ms | 22,609.168 ms | 262.82 um | no contact |
+| Full-Newton guarded approach | 24 ms | 31,038.832 ms | 150.78 um | no contact |
+| Full-Newton entry | 16 ms | 28,737.594 ms | 71.57 um | 1.055e-8 Ns tissue reaction |
+| Contact advance | 8 ms | 14,944.283 ms | 21.76 um | 7.009e-8 Ns tissue reaction |
+| Single puncture microstep | 62.5 us | 1,456.255 ms | 20.64 um | one transient channel, 1.124e-6 Ns reaction |
+
+The seven phase timings total 141,916.894 ms GPU for 108.0625 ms of
+simulated motion, without an exact matched old-binary baseline for this
+whole sequence. They therefore establish neither a 100x whole-robot
+speedup nor real-time operation. The fast 64x first approach saved only
+about 2.13 s against the current 32x 24 ms continuation, and its first
+two control-step normal residuals were 0.002267 and 0.002289 m/s, above
+the 0.002 m/s terminal-contact threshold used elsewhere. The later contact
+advance ended at 0.002969 m/s. A successful command exit alone is not a
+qualified contact state.
+
+At the entry checkpoint (`build-skin-wound/skin-robot-current-entry/`
+`tissue-robot-first-bite-contact.tsv`, SHA-256
+`85f7e25d29ba5df308221cd5f0a2344bcc6a9382cabf02ac8ed45783966b2522`),
+the robot grasp and strand checks passed, 46,080 tetrahedra remained active,
+and the tip and tissue impulses were positive. The entry checkpoint restored
+byte-exactly at state step 1645; the resulting contact-advance checkpoint at
+step 1773 has TSV SHA-256
+`6a972adff440ab67f229343bb54811493b1a5035f58c5eecdbacbb57d5ce5029`.
+The single microstep from state step 1773 earned one puncture channel, but
+point slip was 2.466 mm/s against the 2 mm/s grasp limit and angular slip
+was 1.441 rad/s against 0.6 rad/s. Its MetalWorld normal residual was
+0.006427 m/s. The step-1774 transient TSV has SHA-256
+`81d86ad1c5a617a2fb38a72ebc21cffdb7aca49a4bfe7a1e2af7778fdcb0d42b`;
+its byte-exact restore passed with one active channel and all 46,080
+tetrahedra (`build-skin-wound/skin-robot-current-puncture-restore.log`,
+SHA-256 `42eb55fa88050dd81f3a61fcc1c7d7563b936a4df4180051cd9294a7bc7b02dd`).
+The state remains a transient puncture checkpoint, not a robot-driven bite
+eligible for pull-through.
+
+Raising that single step to 64 velocity sweeps lowered point slip to
+0.518 mm/s but left angular slip at 1.031 rad/s and residual at 0.003886
+m/s. At the maximum permitted 128 sweeps, angular slip was still 0.767
+rad/s, residual 0.003237 m/s, and one jaw's insert coverage fell to
+patch mask 5 from 15. A one-step held-contact attempt from state step
+1773 rolled back at its last substep and published no checkpoint. A
+checkpoint-velocity feedforward trial preserved the puncture but did not
+improve slip, residual, or the matched approach timing; its code was
+reverted. These tests point to controlled braking and robust jaw contact
+as the next physical blocker, alongside the measured coupled-solver cost.
+
+Retained log SHA-256 values, in phase order after the initial drive, are
+`e692350f3c4877de91f8399b4d6c1108e452a672a58c0e4130f9b45a761eac58`,
+`392090284660206bf9a4f3a6f1382b45a2b9f156e25d2208f37a92ed06dde4fa`,
+`3881d16e92b022ac06d26f73b3d5e60793291e63c3761b1d2cf2022644fd5ee2`,
+`9801a63dccc24d0def433b92971899eb38e9b761a248e2a275d6b90d0782d2a1`,
+`3afd663e7bebb58daafca59c90424560525a1c778ba94645cc291ae074542931`,
+and `3ef76719b4a4d1158365e4982328feb924cb007ee4ab2cb16485cdc861cb2622`.
+The 64-sweep, 128-sweep, and rejected hold logs have SHA-256 values
+`e602240bcee77aab1d85d071e057001ca4ea988a3d6b471e809407e9e0743508`,
+`2ead8d3ec51cc59fd13c721c4cd2caa5d23405a76c9a38e4a21f3208c7d529ec`,
+and `a084b313b882a8e2c468c19084dc93aa3bbdf7a7a34efef3f55e5c9d186eac1e`.
