@@ -1,0 +1,39 @@
+{
+  "schema": "numi.matter.open-knee-source-material-check.v1",
+  "base_revision": "fac41f55c68af622b8b06214adb7c0b876faeeb7",
+  "device": "Apple M4",
+  "native_source_equilibrium_qualified": false,
+  "original_febio_solver_comparison_performed": false,
+  "comparison": "independent analytical tensor Cauchy stress and energy; source fibre quadrature; FP64 derivatives and actual Metal scalar interpreter",
+  "tests_passed": 4,
+  "metal_scalar_checks": 13824,
+  "maximum_metal_tensor_relative_error": 7.0947e-06,
+  "maximum_metal_component_scaled_error": 0.000917732,
+  "tensor_relative_error_limit": 1e-05,
+  "legacy_scalar_scaled_error_limit": 0.0003,
+  "tensor_norm_reason": "component cancellation near zero is reported separately; tensor Frobenius norm assesses 3x3 stress and tangent separately",
+  "tissue_parameter_sets": [
+    "ACL",
+    "PCL",
+    "MCL",
+    "LCL",
+    "PTL",
+    "QAT",
+    "MNS-L",
+    "MNS-M",
+    "shared cartilage"
+  ],
+  "source_default_numerical_viscosity_Pa_s": 0,
+  "runtime_energy_accounting": "not implemented by this compiler-only energy exposure",
+  "source_sha256": {
+    "matter/include/numi/matter/matter.hpp": "600b95e35cab163d8293d368518f2d2f4b766b927c3f40e44d0e918ab0a6eac1",
+    "matter/src/constitutive_impl.cpp": "1250d3b4e8f219547973d2b28f9dd6200634ee7f09bc41babd67357968fc58c0",
+    "matter/materials/open_knee_ligament_febio_exp_linear.nmatter": "6f2880d1d3322b38e181b092b170ea17bf8f15ec8095bc19fde57e7f52205e8a",
+    "matter/tools/fiber_exp_linear_check.mm": "1428ba17799b4515836521655d46682c38f96cdd54a280b74506ed66d2159623",
+    "matter/tools/fiber_exp_linear_check.metal": "5d12c04fde84f49b7abb4491b8988ac4a8ab956f744f49e6af3ba76c51e12efd",
+    "matter/include/numi/matter/fiber_exp_linear.h": "26ca19f47c8ece392409fe233708cc87d96b31eb010359cb987b1eed38dee49c",
+    "matter/src/metal/common.metalinc": "d6000c6319ea991870053b0348029e451cae1dcf7dcb5f55fe5224e298a50847"
+  },
+  "binary_sha256": "899f5a9e25056563ef22af2e23a6216622c3b924346cf64dc9eb7cfc0f4c4603",
+  "metallib_sha256": "ed29a9406679c1b3bc9fc692b030997efb5743006b6666199811a46bbe06e7a6"
+}

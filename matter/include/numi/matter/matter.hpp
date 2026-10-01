@@ -252,6 +252,10 @@ struct ScalarBytecode {
 
 struct ConstitutiveProgram {
     MaterialProgram material;
+    // Authored stored energy, including reference-state/prestrain energy.
+    // Available for source-law validation; runtime energy accounting must
+    // explicitly pack/evaluate it rather than infer energy from stress norms.
+    ScalarBytecode energy;
     std::array<ScalarBytecode, 9> stress;
     std::array<ScalarBytecode, 9> tangentVector;
     std::array<ScalarBytecode, 9> viscousStress;

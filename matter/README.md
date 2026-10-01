@@ -428,3 +428,20 @@ Open Knee tissues. It is selected explicitly by the knee probe
 qualify prestress equilibrium. `numi-matter-fiber-check` checks FP64 source
 energy/stress/tangent and the actual Metal scalar interpreter; `--cpu-only`
 never creates a Metal device.
+
+The source material now defaults to zero numerical viscosity. A diagnostic
+that requires viscosity must supply it explicitly; the existing live hybrid
+still supplies 25 Pa s. The constitutive compiler exposes the authored stored
+energy bytecode as well as stress and tangent, retaining energy from prestrain.
+This does not yet add assembled runtime energy accounting.
+
+The source check covers all six tendon/ligament parameter sets, both menisci,
+and the shared cartilage law (with continuum fibre contribution zero for
+cartilage). Independent tensor Cauchy-stress and energy calculations check
+oblique fibres, isochoric transverse prestrain, shear and volumetric response;
+finite differences check the complete first-Piola tangent. These are analytical
+source-law checks, not a FEBio 2.9.1 executable comparison or knee equilibrium.
+New tensor cases use a 1e-5 Frobenius relative-error gate for each stress or
+directional-tangent tensor and also report component errors near cancellation.
+The original scalar gates are unchanged. Retained native results are in
+[`docs/media/open-knee-source-material-20261001`](../docs/media/open-knee-source-material-20261001/receipt.json).
