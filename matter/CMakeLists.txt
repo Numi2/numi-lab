@@ -522,3 +522,29 @@ if(APPLE)
             PROPERTIES LABELS "matter;human;vascular" TIMEOUT 180)
     endif()
 endif()
+
+# Source cylindrical-joint residual and exact directional linearization.
+if(APPLE)
+    set(NUMI_JOINT_CHECK_METALLIB "${CMAKE_CURRENT_BINARY_DIR}/shaders/source_joint_check.metallib")
+    add_custom_command(OUTPUT "${NUMI_JOINT_CHECK_METALLIB}"
+        COMMAND "${CMAKE_COMMAND}" -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/shaders"
+        COMMAND xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${CMAKE_CURRENT_SOURCE_DIR}/tools/source_joint_check.metal"
+            -o "${CMAKE_CURRENT_BINARY_DIR}/shaders/source_joint_check.air"
+        COMMAND xcrun -sdk macosx metallib "${CMAKE_CURRENT_BINARY_DIR}/shaders/source_joint_check.air"
+            -o "${NUMI_JOINT_CHECK_METALLIB}"
+        DEPENDS tools/source_joint_check.metal include/numi/matter/source_cylindrical_joint.h VERBATIM)
+    add_custom_target(numi_joint_check_shaders DEPENDS "${NUMI_JOINT_CHECK_METALLIB}")
+    add_executable(numi-matter-source-joint-check tools/source_joint_check.mm)
+    add_dependencies(numi-matter-source-joint-check numi_joint_check_shaders)
+    target_include_directories(numi-matter-source-joint-check PRIVATE include)
+    target_link_libraries(numi-matter-source-joint-check PRIVATE "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_compile_definitions(numi-matter-source-joint-check PRIVATE NUMI_JOINT_CHECK_METALLIB="${NUMI_JOINT_CHECK_METALLIB}")
+    target_compile_options(numi-matter-source-joint-check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    if(BUILD_TESTING)
+        add_test(NAME matter.compiler.source_joint COMMAND numi-matter-source-joint-check --cpu-only)
+        add_test(NAME matter.metal.source_joint COMMAND numi-matter-source-joint-check)
+        set_tests_properties(matter.compiler.source_joint matter.metal.source_joint PROPERTIES LABELS "matter;constraint;human" TIMEOUT 60)
+    endif()
+endif()

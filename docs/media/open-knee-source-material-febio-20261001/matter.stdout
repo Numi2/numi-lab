@@ -1,0 +1,56 @@
+device=Apple M4
+primitive=ACL metal_scalar_checks=24 maximum_component_scaled_error=2.68857e-06
+tissue=ACL source_fp64=passed metal_scalar_checks=486 maximum_component_scaled_error=1.19269e-05
+tensor=ACL independent_cauchy_oracle=passed metal_scalar_checks=486 maximum_component_scaled_error=6.85659e-06 maximum_tensor_relative_error=5.8711e-06
+stored_energy=ACL metal_scalar_checks=27 maximum_component_scaled_error=2.96644e-05
+tensor=ACL independent_cauchy_oracle=passed metal_scalar_checks=486 maximum_component_scaled_error=0.000149042 maximum_tensor_relative_error=5.85567e-06
+stored_energy=ACL metal_scalar_checks=27 maximum_component_scaled_error=1.41924e-06
+primitive=PCL metal_scalar_checks=24 maximum_component_scaled_error=5.18713e-06
+tissue=PCL source_fp64=passed metal_scalar_checks=486 maximum_component_scaled_error=3.35476e-06
+tensor=PCL independent_cauchy_oracle=passed metal_scalar_checks=486 maximum_component_scaled_error=6.19443e-06 maximum_tensor_relative_error=5.76112e-06
+stored_energy=PCL metal_scalar_checks=27 maximum_component_scaled_error=1.3786e-05
+tensor=PCL independent_cauchy_oracle=passed metal_scalar_checks=486 maximum_component_scaled_error=1.31256e-05 maximum_tensor_relative_error=5.76112e-06
+stored_energy=PCL metal_scalar_checks=27 maximum_component_scaled_error=1.46889e-06
+primitive=MCL metal_scalar_checks=24 maximum_component_scaled_error=1.01537e-06
+tissue=MCL source_fp64=passed metal_scalar_checks=486 maximum_component_scaled_error=1.6161e-06
+tensor=MCL independent_cauchy_oracle=passed metal_scalar_checks=486 maximum_component_scaled_error=1.04027e-05 maximum_tensor_relative_error=5.70715e-06
+stored_energy=MCL metal_scalar_checks=27 maximum_component_scaled_error=6.15779e-06
+tensor=MCL independent_cauchy_oracle=passed metal_scalar_checks=486 maximum_component_scaled_error=8.3712e-05 maximum_tensor_relative_error=7.0947e-06
+stored_energy=MCL metal_scalar_checks=27 maximum_component_scaled_error=8.85117e-07
+primitive=LCL metal_scalar_checks=24 maximum_component_scaled_error=1.01537e-06
+tissue=LCL source_fp64=passed metal_scalar_checks=486 maximum_component_scaled_error=2.66553e-06
+tensor=LCL independent_cauchy_oracle=passed metal_scalar_checks=486 maximum_component_scaled_error=8.93373e-06 maximum_tensor_relative_error=5.60096e-06
+stored_energy=LCL metal_scalar_checks=27 maximum_component_scaled_error=2.53609e-06
+tensor=LCL independent_cauchy_oracle=passed metal_scalar_checks=486 maximum_component_scaled_error=0.000917732 maximum_tensor_relative_error=5.59942e-06
+stored_energy=LCL metal_scalar_checks=27 maximum_component_scaled_error=4.57887e-06
+primitive=PTL metal_scalar_checks=24 maximum_component_scaled_error=1.60841e-06
+tissue=PTL source_fp64=passed metal_scalar_checks=486 maximum_component_scaled_error=7.05396e-06
+tensor=PTL independent_cauchy_oracle=passed metal_scalar_checks=486 maximum_component_scaled_error=6.17424e-06 maximum_tensor_relative_error=5.75596e-06
+stored_energy=PTL metal_scalar_checks=27 maximum_component_scaled_error=1.1893e-05
+tensor=PTL independent_cauchy_oracle=passed metal_scalar_checks=486 maximum_component_scaled_error=1.16784e-05 maximum_tensor_relative_error=5.75596e-06
+stored_energy=PTL metal_scalar_checks=27 maximum_component_scaled_error=1.24164e-06
+primitive=QAT metal_scalar_checks=24 maximum_component_scaled_error=1.60841e-06
+tissue=QAT source_fp64=passed metal_scalar_checks=486 maximum_component_scaled_error=7.05396e-06
+tensor=QAT independent_cauchy_oracle=passed metal_scalar_checks=486 maximum_component_scaled_error=6.17424e-06 maximum_tensor_relative_error=5.75596e-06
+stored_energy=QAT metal_scalar_checks=27 maximum_component_scaled_error=1.1893e-05
+tensor=QAT independent_cauchy_oracle=passed metal_scalar_checks=486 maximum_component_scaled_error=1.16784e-05 maximum_tensor_relative_error=5.75596e-06
+stored_energy=QAT metal_scalar_checks=27 maximum_component_scaled_error=1.24164e-06
+primitive=MNS-L metal_scalar_checks=24 maximum_component_scaled_error=2.18917e-06
+tissue=MNS-L source_fp64=passed metal_scalar_checks=486 maximum_component_scaled_error=1.16163e-05
+tensor=MNS-L independent_cauchy_oracle=passed metal_scalar_checks=486 maximum_component_scaled_error=8.49371e-06 maximum_tensor_relative_error=6.2294e-06
+stored_energy=MNS-L metal_scalar_checks=27 maximum_component_scaled_error=5.88683e-06
+tensor=MNS-L independent_cauchy_oracle=passed metal_scalar_checks=486 maximum_component_scaled_error=0.00021671 maximum_tensor_relative_error=6.2294e-06
+stored_energy=MNS-L metal_scalar_checks=27 maximum_component_scaled_error=3.85283e-06
+primitive=MNS-M metal_scalar_checks=24 maximum_component_scaled_error=2.18917e-06
+tissue=MNS-M source_fp64=passed metal_scalar_checks=486 maximum_component_scaled_error=1.16163e-05
+tensor=MNS-M independent_cauchy_oracle=passed metal_scalar_checks=486 maximum_component_scaled_error=8.49371e-06 maximum_tensor_relative_error=6.2294e-06
+stored_energy=MNS-M metal_scalar_checks=27 maximum_component_scaled_error=5.88683e-06
+tensor=MNS-M independent_cauchy_oracle=passed metal_scalar_checks=486 maximum_component_scaled_error=0.00021671 maximum_tensor_relative_error=6.2294e-06
+stored_energy=MNS-M metal_scalar_checks=27 maximum_component_scaled_error=3.85283e-06
+primitive=cartilage metal_scalar_checks=24 maximum_component_scaled_error=2.68857e-06
+tissue=cartilage source_fp64=passed metal_scalar_checks=486 maximum_component_scaled_error=5.46629e-07
+tensor=cartilage independent_cauchy_oracle=passed metal_scalar_checks=486 maximum_component_scaled_error=6.92218e-06 maximum_tensor_relative_error=5.94579e-06
+stored_energy=cartilage metal_scalar_checks=27 maximum_component_scaled_error=1.77833e-06
+tensor=cartilage independent_cauchy_oracle=passed metal_scalar_checks=486 maximum_component_scaled_error=6.92218e-06 maximum_tensor_relative_error=5.94579e-06
+stored_energy=cartilage metal_scalar_checks=27 maximum_component_scaled_error=1.77833e-06
+fiber_exp_linear=passed continuum_equilibrium=unqualified calibration=not_performed

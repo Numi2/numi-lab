@@ -5,6 +5,8 @@
 #include <array>
 #include <cmath>
 #include <cstring>
+#include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <limits>
 #include <stdexcept>
@@ -203,7 +205,14 @@ void gpuCheck(id<MTLDevice> device,id<MTLComputePipelineState> pipeline,
 int main(int argc,char** argv) {
  @autoreleasepool {try {
     const bool cpuOnly=argc==2&&std::string(argv[1])=="--cpu-only";
-    require(argc==1||cpuOnly,"usage: fiber check [--cpu-only]");
+    const bool exportReference=argc==4&&std::string(argv[1])=="--reference-export";
+    require(argc==1||cpuOnly||exportReference,"usage: fiber check [--cpu-only | --reference-export INPUT OUTPUT]");
+    std::ofstream referenceInputs,referenceOutputs;
+    if(exportReference){
+        referenceInputs.open(argv[2]);referenceOutputs.open(argv[3]);
+        require(referenceInputs.good()&&referenceOutputs.good(),"reference export open failed");
+        referenceInputs<<std::setprecision(17);referenceOutputs<<std::setprecision(17);
+    }
     id<MTLDevice> device=nil;id<MTLComputePipelineState> pipeline=nil;
     if(!cpuOnly){
         device=MTLCreateSystemDefaultDevice();NSError* error=nil;
@@ -318,9 +327,17 @@ int main(int argc,char** argv) {
                 require(std::abs(energy-expectedEnergy)<3e-6*std::max(1e4,std::abs(expectedEnergy)),
                         std::string(t.name)+" full stored energy differs from tensor source oracle");
                 const Matrix upper=sourcePiola(t,plus,axis),lower=sourcePiola(t,minus,axis);
+                if(exportReference){
+                    for(double v:{t.c1,t.bulk,t.c3,t.c4,t.c5,t.limit,t.stretch,t.fiberScale})referenceInputs<<v<<' ';
+                    for(double v:axis)referenceInputs<<v<<' ';
+                    for(double v:f)referenceInputs<<v<<' ';
+                    for(double v:df)referenceInputs<<v<<' ';
+                    referenceInputs<<'\n';
+                }
                 for(unsigned row=0;row<9;++row){
                     const double p=evaluate(compiled.program.stress[row],material,f,{});
                     const double h=evaluate(compiled.program.tangentVector[row],material,f,df);
+                    if(exportReference)referenceOutputs<<p<<' '<<h<<' ';
                     const double tangent=(upper[row]-lower[row])/2e-6;
                     require(std::abs(p-expected[row])<3e-6*std::max(1e6,std::abs(expected[row])),
                             std::string(t.name)+" tensor source stress mismatch");
@@ -329,6 +346,7 @@ int main(int argc,char** argv) {
                     require(evaluate(compiled.program.viscousStress[row],material,f,df)==0,
                             "source baseline introduces numerical dissipation");
                 }
+                if(exportReference)referenceOutputs<<'\n';
                 std::array<float,18> values{};for(unsigned i=0;i<9;++i){values[i]=f[i];values[9+i]=df[i];}
                 tensorRows.push_back(values);
             }
@@ -345,6 +363,7 @@ int main(int argc,char** argv) {
     bool valid=true;
     (void)numi_matter_fiber::evaluate<double>(1.01,1.,300.,1.,1.25,0,valid);
     require(!valid,"out-of-certificate exponent accepted");
+    if(exportReference){referenceInputs.flush();referenceOutputs.flush();require(referenceInputs.good()&&referenceOutputs.good(),"reference export write failed");}
     std::cout<<"fiber_exp_linear=passed continuum_equilibrium=unqualified calibration=not_performed\n";
     return 0;
  }catch(const std::exception& e){std::cerr<<"fiber_exp_linear=failed "<<e.what()<<"\n";return 1;}}
