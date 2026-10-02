@@ -81,6 +81,9 @@ inline src::Input<float> sourceJointInput(
     return input;
 }
 
+// This follows the authored scalar load curve only. FEBio's prestrain
+// constraint also updates a spatial element history (G[k+1] = G[k] F_c);
+// a converged source preload cannot be certified from this parameter alone.
 kernel void nm_source_apply_prestrain(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMBridgeDispatchGPU& bridge [[buffer(1)]],

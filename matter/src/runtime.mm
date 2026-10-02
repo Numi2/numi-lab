@@ -4206,7 +4206,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
         }
         if (state.sourceSlidingPairCount != 0u) {
             diagnostics.message =
-                "source sliding-elastic contact has coupled traction/tangent and transactional facet history, but full-knee contact certification and source checkpoint validation are incomplete";
+                "source knee has coupled sliding traction/tangent, but full-knee contact certification, elementwise prestrain update, and source checkpoint validation are incomplete";
             return diagnostics;
         }
 
