@@ -40,8 +40,27 @@
     "relative_residual": 0.011674,
     "completed_microsteps": 0
   },
-  "seven_by_ten_step": "interrupted when another GPU run began; no convergence result",
   "production_source_contact_admission": "fail_closed_restored_and_rebuilt",
-  "qualification": "no accepted Matter preload or flexion state; no accepted contact pressure, reaction wrench, displacement or prestrain comparison",
-  "reproduce": "export_open_knee_checkpoint_seed.py -> open_knee_fiber_field_check --source-artifacts with checkpoint seed and checkpoint element forces -> compare_open_knee_checkpoint_stress.py --source-rigid-ties"
+  "qualification": "no accepted Matter preload or flexion state; larger solver budget still rejected, so no accepted contact pressure, reaction wrench, displacement or prestrain comparison",
+  "reproduce": "export_open_knee_checkpoint_seed.py -> open_knee_fiber_field_check --source-artifacts with checkpoint seed and checkpoint element forces -> compare_open_knee_checkpoint_stress.py --source-rigid-ties",
+  "bounded_coupled_steps": [
+    {
+      "newton_budget": 7,
+      "fgmres_budget": 10,
+      "accepted": false,
+      "relative_residual": 0.00146919,
+      "completed_microsteps": 0,
+      "stdout_file": "precision-repair-rejected-7x10-20261002.stdout",
+      "stdout_sha256": "9fd7652d3a5859f0d7cd263de25271fcae53ee6bedc1d807668448211550bd1c"
+    },
+    {
+      "newton_budget": 14,
+      "fgmres_budget": 20,
+      "accepted": false,
+      "relative_residual": 0.00128078,
+      "completed_microsteps": 0,
+      "stdout_file": "precision-repair-rejected-14x20-20261002.stdout",
+      "stdout_sha256": "9d88f248c0585219a018051bec41f83a15230c9cecb6a03dbbe6b214c558e4fc"
+    }
+  ]
 }
