@@ -1413,6 +1413,9 @@ struct RuntimeStateSnapshot {
     // Readback after a rejected root is diagnostic and never restore authority.
     std::vector<nm_float4> diagnosticGeneralizedResidual;
     std::vector<nm_float4> diagnosticSourceContactNodeForces;
+    // Last assembled source tie impulses before a rejected root masks scratch.
+    // Diagnostic only; never restore authority or an accepted reaction.
+    std::vector<nm_float4> diagnosticSourceTieImpulses;
     std::vector<NMDeformableContactFailureGPU> deformableContactFailures;
     std::vector<nm_float4> contactHistories;
     // Accepted source sliding-elastic master facets and Gauss-point projections.

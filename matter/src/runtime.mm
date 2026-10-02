@@ -985,6 +985,7 @@ struct Runtime::State {
     id<MTLBuffer> sourceFEMSpringNodes = nil;
     id<MTLBuffer> sourceFEMSpringIncidence = nil;
     id<MTLBuffer> sourceTieResidualImpulses = nil;
+    id<MTLBuffer> sourceTieDiagnosticImpulses = nil;
     id<MTLBuffer> sourceTieOperator = nil;
     std::uint32_t sourceJointCount = 0u;
     std::uint32_t sourceSpringCount = 0u;
@@ -3330,6 +3331,9 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->sourceTieResidualImpulses = privateScratch<nm_float4>(
             candidate->device, multiplied(sourceTies.size()), valid,
             candidate->residentBytes);
+        candidate->sourceTieDiagnosticImpulses = privateScratch<nm_float4>(
+            candidate->device, multiplied(sourceTies.size()), valid,
+            candidate->residentBytes);
         candidate->sourceTieOperator = privateScratch<nm_float4>(
             candidate->device, multiplied(sourceTies.size()), valid,
             candidate->residentBytes);
@@ -5223,6 +5227,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.femDirection offset:0u atIndex:5u];
                 [encoder setBuffer:state.sourceTieResidualImpulses offset:0u atIndex:6u];
                 [encoder setBuffer:state.statuses offset:0u atIndex:7u];
+                [encoder setBuffer:state.sourceTieDiagnosticImpulses offset:0u atIndex:8u];
             });
         };
         const auto scatterSourceRigidTieResidual = [&]() {
@@ -10143,6 +10148,7 @@ bool Runtime::encodeAcceptedStateProof(
             state.sourceFEMSpringNodes,
             state.sourceFEMSpringIncidence,
             state.sourceTieResidualImpulses,
+            state.sourceTieDiagnosticImpulses,
             state.sourceTieOperator,
             state.humanEqualityLinearization,
             state.humanEqualityFactor,
@@ -10946,6 +10952,7 @@ bool Runtime::applyPreparedStateImpl(
             state.sourceFEMSpringNodes,
             state.sourceFEMSpringIncidence,
             state.sourceTieResidualImpulses,
+            state.sourceTieDiagnosticImpulses,
             state.sourceTieOperator,
             state.humanEqualityLinearization,
             state.humanEqualityFactor,
@@ -13043,6 +13050,15 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
             dimensionsValid = false;
             diagnostics.message = "Matter snapshot carries source contact diagnostics without source contact";
         }
+        if (state.sourceTieCount != 0u)
+            exactArena(snapshot.diagnosticSourceTieImpulses,
+                state.sourceTieDiagnosticImpulses,
+                "diagnostic-source-tie-impulses");
+        else if (!snapshot.diagnosticSourceTieImpulses.empty()) {
+            dimensionsValid = false;
+            diagnostics.message =
+                "Matter snapshot carries source tie diagnostics without source ties";
+        }
     } else if (!snapshot.contactSamples.empty()) {
         dimensionsValid = false;
         diagnostics.message =
@@ -13055,6 +13071,10 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
         dimensionsValid = false;
         diagnostics.message =
             "Matter snapshot carries source contact diagnostics for a non-diagnostic runtime";
+    } else if (!snapshot.diagnosticSourceTieImpulses.empty()) {
+        dimensionsValid = false;
+        diagnostics.message =
+            "Matter snapshot carries source tie diagnostics for a non-diagnostic runtime";
     }
     if (!dimensionsValid) {
         return diagnostics;
@@ -13888,6 +13908,9 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         id<MTLBuffer> diagnosticSourceContactForces =
             state_->captureDiagnostics && state_->sourceContactNodeCount != 0u
                 ? copy(state_->sourceContactNodeForces) : nil;
+        id<MTLBuffer> diagnosticSourceTieImpulses =
+            state_->captureDiagnostics && state_->sourceTieCount != 0u
+                ? copy(state_->sourceTieDiagnosticImpulses) : nil;
         id<MTLBuffer> identification =
             copy(state_->identificationDistributions);
         id<MTLBuffer> environmentParameters =
@@ -13915,6 +13938,9 @@ RuntimeStateSnapshot Runtime::snapshot() const {
             (state_->captureDiagnostics &&
              state_->sourceContactNodeCount != 0u &&
              diagnosticSourceContactForces == nil) ||
+            (state_->captureDiagnostics &&
+             state_->sourceTieCount != 0u &&
+             diagnosticSourceTieImpulses == nil) ||
             identification == nil || environmentParameters == nil) {
             snapshot.message = "failed to allocate Matter diagnostic readback";
             return snapshot;
@@ -13981,6 +14007,9 @@ RuntimeStateSnapshot Runtime::snapshot() const {
             if (state_->sourceContactNodeCount != 0u)
                 encodeCopy(state_->sourceContactNodeForces,
                            diagnosticSourceContactForces);
+            if (state_->sourceTieCount != 0u)
+                encodeCopy(state_->sourceTieDiagnosticImpulses,
+                           diagnosticSourceTieImpulses);
         }
         encodeCopy(state_->identificationDistributions, identification);
         encodeCopy(state_->environmentParameters, environmentParameters);
@@ -14071,6 +14100,9 @@ RuntimeStateSnapshot Runtime::snapshot() const {
             state_->sourceContactNodeCount != 0u)
             read(diagnosticSourceContactForces,
                 snapshot.diagnosticSourceContactNodeForces);
+        if (state_->captureDiagnostics && state_->sourceTieCount != 0u)
+            read(diagnosticSourceTieImpulses,
+                snapshot.diagnosticSourceTieImpulses);
         if (state_->sourceContactProjectionCount != 0u)
             read(sourceContactHistory, snapshot.sourceContactHistory);
         const std::size_t logicalHumanSupportCount =

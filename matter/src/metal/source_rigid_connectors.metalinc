@@ -1402,12 +1402,14 @@ kernel void nm_source_fem_rigid_tie_capture_residual(
     device float4* direction [[buffer(5)]],
     device float4* impulses [[buffer(6)]],
     device NMMatterStatusGPU* statuses [[buffer(7)]],
+    device float4* diagnosticImpulses [[buffer(8)]],
     uint global [[thread_position_in_grid]]
 ) {
     if (global >= dispatch.environmentCount * tieCount || tieCount == 0u) return;
     const uint environment = global / tieCount;
     const uint row = global - environment * tieCount;
     impulses[global] = float4(0.0f);
+    diagnosticImpulses[global] = float4(0.0f);
     if (!environmentHealthy(statuses, environment)) return;
     const NMSourceFEMRigidTieGPU tie = ties[row];
     if (tie.identity.x >= dispatch.femNodeCount) return;
@@ -1419,6 +1421,7 @@ kernel void nm_source_fem_rigid_tie_capture_residual(
         return;
     }
     impulses[global] = float4(impulse, 0.0f);
+    diagnosticImpulses[global] = float4(impulse, 0.0f);
     residual[node].xyz = float3(0.0f);
     preconditioned[node].xyz = float3(0.0f);
     direction[node].xyz = float3(0.0f);

@@ -14,7 +14,7 @@
     "plot_mesh_source_coordinate_match": "all 248236 nodes bitwise equal after float32 conversion in source geometry order",
     "seeded_tissue_nodes": 194729,
     "seeded_rigid_bodies": 9,
-    "maximum_rigid_fit_rms_mm": 9.376383e-9,
+    "maximum_rigid_fit_rms_mm": 9.376383e-09,
     "interpretation": "imported FEBio current configuration, not a Matter prediction"
   },
   "diagnostic_scope": {
@@ -35,8 +35,16 @@
       "worst_rigid_dof": 8,
       "worst_rigid_impulse_ns": -0.0794188,
       "worst_rigid_owner": "FMB translation z",
-      "rigid_contact_force_on_FMB_n": [0.0, 0.0, 0.0],
-      "summed_cylindrical_joint_force_on_FMB_n": [0.00101863, 0.00412911, -0.000905942],
+      "rigid_contact_force_on_FMB_n": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "summed_cylindrical_joint_force_on_FMB_n": [
+        0.00101863,
+        0.00412911,
+        -0.000905942
+      ],
       "continuum_tie_residual": "remaining dominant contribution; not yet matched to FEBio element stress and tie reactions"
     },
     {
@@ -67,9 +75,38 @@
   "production_check": {
     "valid_source_bound_seed": "accepted by importer, then rejected by source-contact admission guard before state mutation",
     "corrupted_seed_deck_hash": "rejected by importer before solve",
-    "source_regression_tests": "13 passed",
+    "source_regression_tests": "13 passed after restoring production contact admission guard",
     "accepted_source_preload_or_flexion_state": false,
     "field_comparison_against_xplt": "not performed; requires an accepted Matter state"
   },
-  "next_blocker": "resolve full continuum/tie residual against archived tissue stress and attachment reactions, then certify initial sliding contact and converge the complete preload before comparing fields"
+  "next_blocker": "reconcile continuum/inertia/tie force at the archived checkpoint and certify source sliding contact; then converge and accept the complete preload before comparing predicted Matter fields to XPLT",
+  "full_system_tie_attribution": {
+    "status": "rejected_root_diagnostic_not_accepted_reaction",
+    "source_checkpoint": 1,
+    "source_continuation_time": 0.05,
+    "matter_timestep_seconds": 0.016666666666666666,
+    "femoral_rigid_body_material_id": 4,
+    "mcl_source_material_id": 10,
+    "mcl_femoral_tied_nodes": 808,
+    "source_fem_springs_incident_on_these_nodes": 0,
+    "source_mcl_contact_surface_nodes_also_femorally_tied": 118,
+    "measured_contact_force_on_mcl_femoral_tied_nodes_n": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "mcl_to_femur_tie_impulse_ns": [
+      0.05156,
+      0.0405024,
+      -0.101217
+    ],
+    "all_tissues_to_femur_tie_impulse_ns": [
+      -0.00226078,
+      0.0349997,
+      -0.0796935
+    ],
+    "femur_generalized_z_residual_ns": -0.0794188,
+    "interpretation": "The measured MCL femoral tie impulse is not a direct discrete-spring or measured contact force at these nodes. Continuum, inertia, and attachment state remain to be reconciled with FEBio before this rejected root can be called equivalent.",
+    "source_stress_force_comparison": "not qualified: archived stress-to-nodal-force reconstruction needs verified FEBio component convention, source mapping, and discrete time-state accounting before quantitative attribution"
+  }
 }

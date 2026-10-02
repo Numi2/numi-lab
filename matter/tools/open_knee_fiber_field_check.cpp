@@ -1548,6 +1548,12 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                     std::vector<double> contactResidualDot(source.objects.size());
                     std::vector<std::array<double, 3u>> rigidContactForces(
                         rigidGraph.bodies.size());
+                    std::vector<std::array<double, 3u>> tiedContactForces(
+                        source.objects.size() * rigidGraph.bodies.size());
+                    std::vector<std::uint32_t> tieBodyByFEM(
+                        compiled.world.dispatch.femNodeCount, UINT32_MAX);
+                    for (const auto& tie : runtimeTies)
+                        tieBodyByFEM[tie.identity.x] = tie.identity.y;
                     for (std::size_t slot = 0u;
                          slot < runtimeContactNodes.size(); ++slot) {
                         const auto& node = runtimeContactNodes[slot];
@@ -1566,6 +1572,14 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                             compiled.world.fem.nodeRanges[fem].objectIndex;
                         const auto& force =
                             state.diagnosticSourceContactNodeForces[slot];
+                        if (tieBodyByFEM[fem] != UINT32_MAX) {
+                            auto& tied = tiedContactForces[
+                                object * rigidGraph.bodies.size() +
+                                tieBodyByFEM[fem]];
+                            tied[0u] += force.x;
+                            tied[1u] += force.y;
+                            tied[2u] += force.z;
+                        }
                         const auto& residual =
                             state.diagnosticGeneralizedResidual[fem];
                         const double dt = runtime.timestepSeconds();
@@ -1594,6 +1608,69 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                                       << rigidGraph.bodies[body].materialId
                                       << " newton=" << force[0u] << ','
                                       << force[1u] << ',' << force[2u] << '\n';
+                        }
+                    if (checkpointSeedPath != nullptr)
+                        for (std::size_t object = 0u;
+                             object < source.objects.size(); ++object)
+                            for (std::size_t body = 0u;
+                                 body < rigidGraph.bodies.size(); ++body) {
+                                const auto& force = tiedContactForces[
+                                    object * rigidGraph.bodies.size() + body];
+                                if (std::abs(force[0u]) + std::abs(force[1u]) +
+                                    std::abs(force[2u]) <= 1.0e-8) continue;
+                                std::cout << "checkpoint_tied_contact_force object="
+                                          << object << " name="
+                                          << source.objects[object].name
+                                          << " body_material="
+                                          << rigidGraph.bodies[body].materialId
+                                          << " newton=" << force[0u] << ','
+                                          << force[1u] << ',' << force[2u] << '\n';
+                            }
+                }
+                if (!accepted && checkpointSeedPath != nullptr &&
+                    state.diagnosticSourceTieImpulses.size() == runtimeTies.size()) {
+                    std::vector<std::array<double, 3u>> byObject(source.objects.size());
+                    std::vector<std::array<double, 3u>> byBody(rigidGraph.bodies.size());
+                    std::vector<std::array<double, 3u>> byObjectBody(
+                        source.objects.size() * rigidGraph.bodies.size());
+                    for (std::size_t row = 0u; row < runtimeTies.size(); ++row) {
+                        const auto& tie = runtimeTies[row];
+                        const auto& impulse = state.diagnosticSourceTieImpulses[row];
+                        for (auto* sum : {&byObject[tie.identity.z],
+                                          &byBody[tie.identity.y],
+                                          &byObjectBody[tie.identity.z *
+                                              rigidGraph.bodies.size() + tie.identity.y]}) {
+                            (*sum)[0u] += impulse.x;
+                            (*sum)[1u] += impulse.y;
+                            (*sum)[2u] += impulse.z;
+                        }
+                    }
+                    for (std::size_t object = 0u; object < byObject.size(); ++object) {
+                        const auto& sum = byObject[object];
+                        std::cout << "checkpoint_tie_object object=" << object
+                                  << " name=" << source.objects[object].name
+                                  << " impulse=" << sum[0u] << ','
+                                  << sum[1u] << ',' << sum[2u] << '\n';
+                    }
+                    for (std::size_t body = 0u; body < byBody.size(); ++body) {
+                        const auto& sum = byBody[body];
+                        std::cout << "checkpoint_tie_body body=" << body
+                                  << " material=" << rigidGraph.bodies[body].materialId
+                                  << " impulse=" << sum[0u] << ','
+                                  << sum[1u] << ',' << sum[2u] << '\n';
+                    }
+                    for (std::size_t object = 0u; object < byObject.size(); ++object)
+                        for (std::size_t body = 0u; body < byBody.size(); ++body) {
+                            const auto& sum = byObjectBody[
+                                object * byBody.size() + body];
+                            if (std::abs(sum[0u]) + std::abs(sum[1u]) +
+                                std::abs(sum[2u]) <= 1.0e-8) continue;
+                            std::cout << "checkpoint_tie_path object=" << object
+                                      << " name=" << source.objects[object].name
+                                      << " body_material="
+                                      << rigidGraph.bodies[body].materialId
+                                      << " impulse=" << sum[0u] << ','
+                                      << sum[1u] << ',' << sum[2u] << '\n';
                         }
                 }
                 return accepted ? 0 : 2;
