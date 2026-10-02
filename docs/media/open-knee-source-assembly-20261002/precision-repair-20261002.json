@@ -61,6 +61,17 @@
       "completed_microsteps": 0,
       "stdout_file": "precision-repair-rejected-14x20-20261002.stdout",
       "stdout_sha256": "9d88f248c0585219a018051bec41f83a15230c9cecb6a03dbbe6b214c558e4fc"
+    },
+    {
+      "newton_budget": 14,
+      "fgmres_budget": 20,
+      "fgmres_restart": 16,
+      "accepted": false,
+      "relative_residual": 0.00173551,
+      "completed_microsteps": 0,
+      "stdout_file": "precision-repair-rejected-14x20-restart16-20261002.stdout",
+      "stdout_sha256": "a815f63e0acc299d7d58acd3e32460fbb95327420f2070bf4a21686baba3c226",
+      "comparison": "same iteration budgets with the 16-vector maximum restart; worse residual than the earlier 10-vector restart"
     }
   ]
 }
