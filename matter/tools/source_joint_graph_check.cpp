@@ -480,8 +480,21 @@ void checkPinnedRetinacularSpringCurve() {
                 std::abs(force.storedEnergy - 0.00625) < 1.0e-12,
             "pinned retinacular force, tangent or energy changed");
     b.position.x = 0.0111;
-    require(!evaluateRigidSpring(spring, a, b, direction, force, tangent),
-            "unqualified retinacular curve extrapolation was admitted");
+    require(evaluateRigidSpring(spring, a, b, direction, force, tangent) &&
+                std::abs(force.forceA.x - 50.0) < 1.0e-10 &&
+                std::abs(tangent.forceA.x) < 1.0e-8 &&
+                std::abs(force.storedEnergy - 0.030) < 1.0e-12,
+            "retinacular constant endpoint extension is not preserved");
+    b.position.x = 0.011;
+    require(evaluateRigidSpring(spring, a, b, direction, force, tangent) &&
+                std::abs(force.forceA.x - 50.0) < 1.0e-10 &&
+                std::abs(tangent.forceA.x - 25000.0) < 1.0e-7,
+            "retinacular knot derivative differs from FEBio centered curve difference");
+    b.position.x = 0.0085;
+    require(evaluateRigidSpring(spring, a, b, direction, force, tangent) &&
+                force.forceA.x == 0.0 && tangent.forceA.x == 0.0 &&
+                force.storedEnergy == 0.0,
+            "retinacular constant compression extension is not preserved");
 }
 void setBodyB(Graph& graph, std::size_t jointIndex, double rotation, double translation = 0.0) {
     const auto& joint = graph.joints[jointIndex];

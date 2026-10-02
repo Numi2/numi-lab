@@ -4,13 +4,13 @@
       "source sliding-elastic Gauss-point contact is bound geometrically but has no live projection update, penalty traction, consistent tangent or contact-history execution in Matter Newton",
       "prestrain and initial-contact preparation not solved",
       "prescribed rigid and source loading continuation not executed",
-      "four retinacular nonlinear springs are bounded by their recorded knots; reference extrapolation remains unqualified",
       "the 402 MCL-meniscus discrete springs are included in the coupled program but the full source case has not been stepped",
       "no Matter accepted state or XPLT field comparison"
     ],
     "status": "rejected"
   },
   "archived_febio_reference": {
+    "active_quadriceps_load": "absent; the source QAT force text is an XML comment",
     "analysis": "static",
     "archived_log_completed_steps": 140,
     "final_state": 140,
@@ -23,7 +23,7 @@
     "time_semantics": "quasistatic_continuation_parameter"
   },
   "coupled_base": "5bf85aed50cf9af1d55445ac38b2a2bc71b1dcfe",
-  "human_revision": "f2d233aa0a1ef2a77d6f6d1d1834f76e0460e60f",
+  "human_revision": "549e7d92c2c56602065c1b4e49458ce7c461e611",
   "machine": "arm64",
   "matter_parent_revision": "4d9ae9e4",
   "runtime": {
@@ -45,10 +45,11 @@
     "source_cylindrical_joints": "6",
     "source_discrete_fem": "included_in_newton_program_not_stepped",
     "source_discrete_fem_edges": "402",
-    "source_discrete_rigid": "bounded_piecewise_in_newton_program_not_stepped",
+    "source_discrete_rigid": "source_constant_extended_curve_in_newton_program_not_stepped",
     "source_discrete_rigid_edges": "4",
     "source_equivalence": "rejected",
     "source_initialization": "not_solved",
+    "source_loading": "prescribed_flexion_and_prestrain_only; no active quadriceps force",
     "source_material_groups": "12",
     "source_nodes": "194729",
     "source_prestrain": "unit_at_initial_state_target_not_continued",
@@ -98,7 +99,7 @@
     }
   },
   "source_contact_initial_support": "contact-initial-face-support.json",
-  "stdout_sha256": "3098dfdd017fead6d3e9da6e03347ff7bcae0d325499dbcb70aa27da5fa14e6e",
+  "stdout_sha256": "e6ab1ec5574be396727ac94cfb0368f24ec6c3f1a8865a5de63a33be4a290fd9",
   "verification": [
     "coupled static regression passes with a free rigid body, spring, joint, tissue tie and free FEM node",
     "tenfold change in numerical inverse mass changes accepted static correction by less than 0.02 percent in focused regression",
@@ -108,6 +109,7 @@
     "all 18 source contact pairs and 345070 authored faces bind to source tissue or rigid owners",
     "all 406 source discrete edges bind to exact tissue or rigid owners: 402 MCL-meniscus and four patellar retinacular edges",
     "the 402 FEM-FEM springs enter the same static residual and FGMRES tangent as the source continua and rigid ties",
-    "a separate two-continuum static regression accepts a correction in which a spring moves the second continuum; this is not source knee validation"
+    "a separate two-continuum static regression accepts a correction in which a spring moves the second continuum; this is not source knee validation",
+    "retinacular source curves use FEBio default constant endpoint extension and centered-difference tangent; the full case has not been stepped"
   ]
 }

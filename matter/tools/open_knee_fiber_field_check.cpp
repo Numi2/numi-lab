@@ -957,7 +957,7 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                       : "not_assembled")
                   << " source_discrete_rigid="
                   << (sourceDiscretePath != nullptr
-                      ? "bounded_piecewise_in_newton_program_not_stepped"
+                      ? "source_constant_extended_curve_in_newton_program_not_stepped"
                       : "not_assembled")
                   << " coupled_runtime_program=" <<
                      (runtimeProgramInitialized ? "initialized" : "not_requested")

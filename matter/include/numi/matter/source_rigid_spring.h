@@ -22,8 +22,8 @@ template<class T> struct RigidSpring {
     T stiffness{};
     T freeLength{};
     // Pinned MPFL/LPFL curve: zero force in compression, linear in tension
-    // between its recorded -1, 0, +1 mm knots. Reject extrapolation until
-    // the reference solver's out-of-range behavior is independently matched.
+    // between its recorded -1, 0, +1 mm knots. FEBio's default load-curve
+    // extension holds the endpoint force constant outside that interval.
     bool sourcePiecewise = false;
     T sourceKnotExtent{};
 };
@@ -69,25 +69,44 @@ template<class T> inline bool evaluateRigidSpring(
         ? sqrt(dot(initialGap, initialGap)) : spring.freeLength;
     if (!isfinite(length) || !isfinite(restLength)) return false;
     const T extension = length - restLength;
-    if (spring.sourcePiecewise &&
-        (extension < -spring.sourceKnotExtent ||
-         extension > spring.sourceKnotExtent)) return false;
-    const T localStiffness = spring.sourcePiecewise && extension < T(0)
-        ? T(0) : spring.stiffness;
+    T forceMagnitude = spring.stiffness * extension;
+    T localStiffness = spring.stiffness;
+    T storedEnergy = T(0.5) * spring.stiffness * extension * extension;
+    if (spring.sourcePiecewise) {
+        const auto curveForce = [&](const T x) {
+            return spring.stiffness *
+                (x <= T(0) ? T(0) :
+                 (x >= spring.sourceKnotExtent ? spring.sourceKnotExtent : x));
+        };
+        forceMagnitude = curveForce(extension);
+        // FEDataLoadCurve::Deriv uses a centered difference over 0.1% of
+        // the full curve domain. This includes the half-slope at each knot.
+        const T halfWidth = T(0.002) * spring.sourceKnotExtent;
+        localStiffness =
+            (curveForce(extension + halfWidth) -
+             curveForce(extension - halfWidth)) / (T(2) * halfWidth);
+        const T loaded = extension <= T(0) ? T(0) :
+            (extension >= spring.sourceKnotExtent
+                ? spring.sourceKnotExtent : extension);
+        storedEnergy = T(0.5) * spring.stiffness * loaded * loaded;
+        if (extension > spring.sourceKnotExtent)
+            storedEnergy += spring.stiffness * spring.sourceKnotExtent *
+                (extension - spring.sourceKnotExtent);
+    }
 
     V<T> forceA{}, derivativeForceA{};
     if (length > T(1.0e-12)) {
         const V<T> axis = gap * (T(1) / length);
-        forceA = axis * (localStiffness * extension);
+        forceA = axis * forceMagnitude;
         const V<T> anchorVelocityA = direction.linearA +
             cross(direction.angularA, armA);
         const V<T> anchorVelocityB = direction.linearB +
             cross(direction.angularB, armB);
         const V<T> gapVelocity = anchorVelocityB - anchorVelocityA;
         const T lengthVelocity = dot(axis, gapVelocity);
-        derivativeForceA = gapVelocity *
-                (localStiffness * extension / length) +
-            axis * (localStiffness * lengthVelocity * restLength / length);
+        derivativeForceA = gapVelocity * (forceMagnitude / length) +
+            axis * ((localStiffness - forceMagnitude / length) *
+                    lengthVelocity);
     } else {
         // At the source zero-free-length rest configuration the spring law is
         // smooth: force=k*gap, with tangent kI. A nonzero free length at a
@@ -109,7 +128,7 @@ template<class T> inline bool evaluateRigidSpring(
         cross(armB, derivativeForceA * T(-1));
     RigidSpringOutput<T> out{
         forceA, momentA, forceA * T(-1), momentB,
-        T(0.5) * localStiffness * extension * extension};
+        storedEnergy};
     RigidSpringOutput<T> tangent{
         derivativeForceA, derivativeMomentA,
         derivativeForceA * T(-1), derivativeMomentB, T(0)};
