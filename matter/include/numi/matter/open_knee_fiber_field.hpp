@@ -37,8 +37,8 @@ struct SourceTetrahedronRecord {
     std::array<std::uint32_t, 4> sourceNodeIds{};
 };
 
-struct SourceMeniscusMesh {
-    // The pinned source assigns 12 to MNS-L and 13 to MNS-M.
+struct SourceVolumeMesh {
+    // FEBio source material ID assigned to this named tet4 set.
     std::uint32_t sourceMaterialId = 0u;
     std::vector<SourceNodeRecord> nodes;
     std::vector<SourceTetrahedronRecord> tetrahedra;
@@ -60,51 +60,51 @@ inline double readF64LE(std::span<const std::uint8_t> bytes,
     return std::bit_cast<double>(bits);
 }
 
-inline bool decodeSourceMeniscusMeshes(
+inline bool decodeSourceVolumeMeshes(
     std::span<const std::uint8_t> bytes,
-    std::vector<SourceMeniscusMesh>& result,
+    std::vector<SourceVolumeMesh>& result,
     std::string& error
 ) {
     constexpr std::size_t headerStride = 20u;
     constexpr std::size_t nodeStride = 28u;
     constexpr std::size_t tetrahedronStride = 20u;
-    std::vector<SourceMeniscusMesh> candidate;
+    std::vector<SourceVolumeMesh> candidate;
     std::unordered_set<std::uint32_t> materialIds;
     std::size_t offset = 0u;
     while (offset < bytes.size()) {
         if (bytes.size() - offset < headerStride) {
-            error = "source meniscus mesh has a truncated group header";
+            error = "source volume mesh has a truncated group header";
             return false;
         }
         if (bytes[offset] != 'N' || bytes[offset + 1u] != 'O' ||
-            bytes[offset + 2u] != 'K' || bytes[offset + 3u] != 'M') {
-            error = "source meniscus mesh has an invalid group magic";
+            bytes[offset + 2u] != 'K' || bytes[offset + 3u] != 'T') {
+            error = "source volume mesh has an invalid group magic";
             return false;
         }
         const std::uint32_t version = readU32LE(bytes, offset + 4u);
         const std::uint32_t materialId = readU32LE(bytes, offset + 8u);
         const std::uint32_t nodeCount = readU32LE(bytes, offset + 12u);
         const std::uint32_t tetrahedronCount = readU32LE(bytes, offset + 16u);
-        if (version != 1u || (materialId != 12u && materialId != 13u) ||
+        if (version != 1u || materialId < 5u || materialId > 16u ||
             nodeCount == 0u || tetrahedronCount == 0u ||
             !materialIds.insert(materialId).second) {
-            error = "source meniscus mesh has an unsupported or duplicate group identity";
+            error = "source volume mesh has an unsupported or duplicate group identity";
             return false;
         }
         offset += headerStride;
         const std::size_t remaining = bytes.size() - offset;
         if (std::size_t(nodeCount) > remaining / nodeStride) {
-            error = "source meniscus mesh node table exceeds sidecar bounds";
+            error = "source volume mesh node table exceeds sidecar bounds";
             return false;
         }
         const std::size_t nodeBytes = std::size_t(nodeCount) * nodeStride;
         if (std::size_t(tetrahedronCount) >
             (remaining - nodeBytes) / tetrahedronStride) {
-            error = "source meniscus mesh tetrahedron table exceeds sidecar bounds";
+            error = "source volume mesh tetrahedron table exceeds sidecar bounds";
             return false;
         }
 
-        SourceMeniscusMesh mesh;
+        SourceVolumeMesh mesh;
         mesh.sourceMaterialId = materialId;
         mesh.nodes.reserve(nodeCount);
         mesh.tetrahedra.reserve(tetrahedronCount);
@@ -121,7 +121,7 @@ inline bool decodeSourceMeniscusMeshes(
                 !std::isfinite(node.coordinates[0]) ||
                 !std::isfinite(node.coordinates[1]) ||
                 !std::isfinite(node.coordinates[2])) {
-                error = "source meniscus mesh has invalid or duplicate nodes";
+                error = "source volume mesh has invalid or duplicate nodes";
                 return false;
             }
             mesh.nodes.push_back(node);
@@ -141,7 +141,7 @@ inline bool decodeSourceMeniscusMeshes(
                     [&nodeIds](std::uint32_t nodeId) {
                         return !nodeIds.contains(nodeId);
                     })) {
-                error = "source meniscus mesh has invalid element order or node references";
+                error = "source volume mesh has invalid element order or node references";
                 return false;
             }
             previousElementId = tet.sourceId;
@@ -150,9 +150,15 @@ inline bool decodeSourceMeniscusMeshes(
         offset += std::size_t(tetrahedronCount) * tetrahedronStride;
         candidate.push_back(std::move(mesh));
     }
-    if (candidate.size() != 2u || materialIds.size() != 2u) {
-        error = "source meniscus mesh must contain both source material groups 12 and 13";
+    if (candidate.empty()) {
+        error = "source volume mesh has no tetrahedral groups";
         return false;
+    }
+    for (std::size_t index = 1u; index < candidate.size(); ++index) {
+        if (candidate[index - 1u].sourceMaterialId >= candidate[index].sourceMaterialId) {
+            error = "source volume mesh groups are not in increasing material order";
+            return false;
+        }
     }
     result.swap(candidate);
     error.clear();
@@ -279,6 +285,39 @@ inline bool attachElementFiberFrames(
     frames.reserve(records.size());
     for (const ElementFiberRecord& record : records)
         frames.push_back(frameFromSourceFiber(record.sourceVector));
+    object.femMaterialFrameRotations.swap(frames);
+    object.femMaterialFrameSourceIdentity = sourceIdentity;
+    error.clear();
+    return true;
+}
+
+inline bool attachUniformElementFiberFrames(
+    numi::matter::ObjectSource& object,
+    const std::array<double, 3>& sourceVector,
+    const std::array<std::uint64_t, 4>& sourceIdentity,
+    std::string& error
+) {
+    if (object.tetrahedra.empty()) {
+        error = "uniform source fiber requires a nonempty FEM tetrahedron owner";
+        return false;
+    }
+    if (!object.femMaterialFrameRotations.empty() ||
+        std::ranges::any_of(object.femMaterialFrameSourceIdentity,
+                            [](std::uint64_t word) { return word != 0u; }) ||
+        std::ranges::none_of(sourceIdentity,
+                             [](std::uint64_t word) { return word != 0u; })) {
+        error = "uniform source fiber frames require an empty owner and complete identity";
+        return false;
+    }
+    const double length = std::hypot(sourceVector[0], sourceVector[1], sourceVector[2]);
+    if (!std::isfinite(sourceVector[0]) || !std::isfinite(sourceVector[1]) ||
+        !std::isfinite(sourceVector[2]) || !std::isfinite(length) ||
+        !(length > 1.0e-12)) {
+        error = "uniform source fiber direction is nonfinite or degenerate";
+        return false;
+    }
+    const auto frame = frameFromSourceFiber(sourceVector);
+    std::vector<std::array<double, 4>> frames(object.tetrahedra.size(), frame);
     object.femMaterialFrameRotations.swap(frames);
     object.femMaterialFrameSourceIdentity = sourceIdentity;
     error.clear();

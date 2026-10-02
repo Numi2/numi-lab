@@ -371,7 +371,8 @@ target_include_directories(numi-matter-open-knee-fiber-field-check PRIVATE inclu
 target_link_libraries(numi-matter-open-knee-fiber-field-check PRIVATE numi_matter_compiler)
 target_compile_definitions(numi-matter-open-knee-fiber-field-check PRIVATE
     NUMI_OPEN_KNEE_SOURCE_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/materials/open_knee_ligament_febio_exp_linear.nmatter"
-    NUMI_OPEN_KNEE_SOURCE_MENISCUS_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/materials/open_knee_meniscus_source_febio_exp_linear.nmatter")
+    NUMI_OPEN_KNEE_SOURCE_MENISCUS_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/materials/open_knee_meniscus_source_febio_exp_linear.nmatter"
+    NUMI_OPEN_KNEE_SOURCE_CARTILAGE_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/materials/open_knee_cartilage_isotropic_preflight.nmatter")
 target_compile_options(numi-matter-open-knee-fiber-field-check
     PRIVATE -Wall -Wextra -Wpedantic -Werror)
 if(BUILD_TESTING)
