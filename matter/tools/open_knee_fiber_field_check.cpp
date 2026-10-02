@@ -753,6 +753,10 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
         std::vector<NMSourceFEMRigidTieGPU> runtimeTies;
         std::vector<NMSourceFEMSpringGPU> runtimeFEMSprings;
         std::vector<NMSourcePrestrainGPU> runtimePrestrain;
+        std::vector<NMSourceContactNodeGPU> runtimeContactNodes;
+        std::vector<NMSourceContactFaceGPU> runtimeContactFaces;
+        std::vector<NMSourceContactSurfaceGPU> runtimeContactSurfaces;
+        std::vector<NMSourceSlidingPairGPU> runtimeSlidingPairs;
         bool runtimeProgramInitialized = false;
         std::size_t runtimeResidentBytes = 0u;
         if (rigidGraphPath != nullptr) {
@@ -771,6 +775,104 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                         static_cast<float>(sourcePoint[1] * scale),
                         static_cast<float>(sourcePoint[2] * scale), 0.0f};
             };
+            if (sourceContactPath != nullptr) {
+                std::unordered_map<std::uint32_t, const SourceRigidContactNode*>
+                    rigidNodeById;
+                rigidNodeById.reserve(sourceContact.rigidNodes.size());
+                for (const auto& node : sourceContact.rigidNodes)
+                    require(rigidNodeById.emplace(node.sourceNodeId, &node).second,
+                            "source rigid contact node ID repeats");
+                std::unordered_map<std::uint32_t, std::uint32_t> contactNodeSlot;
+                contactNodeSlot.reserve(sourceNodeLocations.size() +
+                                        sourceContact.rigidNodes.size());
+                runtimeContactFaces.reserve(sourceContact.faces.size());
+                runtimeContactSurfaces.reserve(sourceContact.surfaces.size());
+                for (std::uint32_t surfaceIndex = 0u;
+                     surfaceIndex < sourceContact.surfaces.size(); ++surfaceIndex) {
+                    const auto& surface = sourceContact.surfaces[surfaceIndex];
+                    const bool rigid = std::ranges::any_of(rigidGraph.bodies,
+                        [&](const auto& body) {
+                            return body.materialId == surface.materialId;
+                        });
+                    std::uint32_t owner = 0u;
+                    if (rigid) owner = bodyIndex(surface.materialId);
+                    else {
+                        const auto found = std::ranges::find_if(specs,
+                            [&](const auto& spec) {
+                                return spec.materialId == surface.materialId;
+                            });
+                        require(found != specs.end(),
+                                "source contact has no cooked tissue owner");
+                        owner = static_cast<std::uint32_t>(found - specs.begin());
+                    }
+                    runtimeContactSurfaces.push_back({
+                        {surface.firstFace, surface.faceCount, owner,
+                         rigid ? 1u : 0u}});
+                    for (std::uint32_t faceIndex = surface.firstFace;
+                         faceIndex < surface.firstFace + surface.faceCount;
+                         ++faceIndex) {
+                        const auto& face = sourceContact.faces[faceIndex];
+                        NMSourceContactFaceGPU row{};
+                        row.identity = {surfaceIndex, face.sourceFaceId,
+                                        surface.materialId, 0u};
+                        for (std::size_t vertex = 0u; vertex < 3u; ++vertex) {
+                            const std::uint32_t id = face.sourceNodes[vertex];
+                            auto [slot, inserted] = contactNodeSlot.emplace(
+                                id, static_cast<std::uint32_t>(runtimeContactNodes.size()));
+                            if (inserted) {
+                                NMSourceContactNodeGPU node{};
+                                if (rigid) {
+                                    const auto found = rigidNodeById.find(id);
+                                    require(found != rigidNodeById.end() &&
+                                            found->second->materialId == surface.materialId,
+                                            "source rigid face node changes owner");
+                                    const auto& center = rigidGraph.bodies[owner].centerOfMass;
+                                    std::array<double, 3> local{};
+                                    for (std::size_t axis = 0u; axis < 3u; ++axis)
+                                        local[axis] = found->second->sourcePosition[axis] -
+                                                      center[axis];
+                                    node.identity = {owner, 1u, id, 0u};
+                                    node.localPoint = point(local, 0.001);
+                                } else {
+                                    const auto found = sourceNodeLocations.find(id);
+                                    require(found != sourceNodeLocations.end() &&
+                                            found->second.object == owner,
+                                            "source tissue face node changes owner");
+                                    node.identity = {found->second.cookedNode,
+                                                     0u, id, 0u};
+                                }
+                                runtimeContactNodes.push_back(node);
+                            }
+                            if (vertex == 0u) row.nodes.x = slot->second;
+                            else if (vertex == 1u) row.nodes.y = slot->second;
+                            else row.nodes.z = slot->second;
+                        }
+                        runtimeContactFaces.push_back(row);
+                    }
+                }
+                runtimeSlidingPairs.reserve(sourceContact.pairs.size());
+                for (const auto& pair : sourceContact.pairs) {
+                    require(pair.parameters[0] == 0.0 &&
+                            pair.parameters[4] == 1.0 &&
+                            pair.parameters[5] == 1.0 &&
+                            pair.parameters[6] == 0.0 &&
+                            pair.parameters[11] == 0.0,
+                            "source sliding contact enforcement changed");
+                    NMSourceSlidingPairGPU row{};
+                    row.identity = {pair.master, pair.slave, 1u, 0u};
+                    row.normal = {
+                        static_cast<float>(pair.parameters[3]),
+                        static_cast<float>(pair.parameters[2] * 0.001),
+                        static_cast<float>(pair.parameters[7]),
+                        static_cast<float>(pair.parameters[8] *
+                            sourceKneeBoundingBoxRadius * 0.001)};
+                    runtimeSlidingPairs.push_back(row);
+                }
+                require(runtimeContactFaces.size() == 345070u &&
+                            runtimeContactSurfaces.size() == 36u &&
+                            runtimeSlidingPairs.size() == 18u,
+                        "source contact runtime topology is incomplete");
+            }
             runtimeTies.reserve(sourceTies.rows.size());
             for (const auto& tie : sourceTies.rows) {
                 const auto location = sourceNodeLocations.find(tie.sourceNodeId);
@@ -955,6 +1057,10 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
             configuration.sourceFEMRigidTies = runtimeTies;
             configuration.sourceFEMSprings = runtimeFEMSprings;
             configuration.sourcePrestrain = runtimePrestrain;
+            configuration.sourceContactNodes = runtimeContactNodes;
+            configuration.sourceContactFaces = runtimeContactFaces;
+            configuration.sourceContactSurfaces = runtimeContactSurfaces;
+            configuration.sourceSlidingPairs = runtimeSlidingPairs;
             configuration.sourceRigidConnectorFingerprint = programFingerprint;
             numi::matter::Runtime runtime;
             const auto initialized = runtime.initialize(compiled.world, configuration);
@@ -1021,6 +1127,9 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                      (runtimeProgramInitialized ? "initialized" : "not_requested")
                   << " runtime_resident_bytes=" << runtimeResidentBytes
                   << " source_contact_faces=" << sourceContact.faces.size()
+                  << " source_contact_runtime_nodes=" << runtimeContactNodes.size()
+                  << " source_contact_runtime_faces=" << runtimeContactFaces.size()
+                  << " source_contact_runtime_pairs=" << runtimeSlidingPairs.size()
                   << " source_contact_initial_gauss_points="
                   << initialContactProjection.quadraturePoints
                   << " source_contact_initial_active_gauss_points="
@@ -1046,7 +1155,7 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                   << sourceContact.rigidNodes.size()
                   << " source_contact="
                   << (sourceContactPath != nullptr
-                      ? "initial_sliding_elastic_gauss_bound_not_enforced"
+                      ? "moving_face_topology_bound_no_traction_or_tangent"
                       : "not_assembled")
                   << " source_analysis="
                   << (rigidGraphPath != nullptr

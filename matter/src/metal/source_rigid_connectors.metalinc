@@ -97,6 +97,77 @@ kernel void nm_source_apply_prestrain(
     parameters[environment * dispatch.parameterCount + row.identity.x] =
         row.stretch.x + alpha * (row.stretch.y - row.stretch.x);
 }
+
+// Materialize the exact authored source face mesh at the current coupled
+// Newton candidate. This is geometric input for the sliding-elastic law;
+// it does not exert contact force or mark a candidate as equilibrated.
+kernel void nm_source_contact_materialize_nodes(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& nodeCount [[buffer(1)]],
+    device const NMSourceContactNodeGPU* nodes [[buffer(2)]],
+    device const NMFEMNodeStateGPU* fem [[buffer(3)]],
+    device const NMRigidProxyGPU* proxies [[buffer(4)]],
+    device const NMRigidStateGPU* bodies [[buffer(5)]],
+    device float4* positions [[buffer(6)]],
+    device NMMatterStatusGPU* statuses [[buffer(7)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (nodeCount == 0u || global >= dispatch.environmentCount * nodeCount)
+        return;
+    const uint environment = global / nodeCount;
+    if (!environmentHealthy(statuses, environment)) return;
+    const NMSourceContactNodeGPU node = nodes[global - environment * nodeCount];
+    float3 position{};
+    if (node.identity.y == 0u) {
+        position = fem[environment * dispatch.femNodeCount +
+                       node.identity.x].positionAndMass.xyz;
+    } else {
+        const NMRigidStateGPU body =
+            bodies[environment * dispatch.rigidProxyCount + node.identity.x];
+        const src::BodyState<float> state =
+            sourceBody(body, proxies[node.identity.x]);
+        const src::V<float> point = state.position +
+            src::rotate(state.rotation, sourceVec(node.localPoint));
+        position = float3(point.x, point.y, point.z);
+    }
+    if (!all(isfinite(position))) {
+        recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+            NM_INVALID_INDEX, node.identity.z,
+            float4(position, 0.0f));
+        return;
+    }
+    positions[global] = float4(position, 0.0f);
+}
+
+kernel void nm_source_contact_materialize_faces(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& nodeCount [[buffer(1)]],
+    constant uint& faceCount [[buffer(2)]],
+    device const NMSourceContactFaceGPU* faces [[buffer(3)]],
+    device const float4* positions [[buffer(4)]],
+    device float4* geometry [[buffer(5)]],
+    device NMMatterStatusGPU* statuses [[buffer(6)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (faceCount == 0u || global >= dispatch.environmentCount * faceCount)
+        return;
+    const uint environment = global / faceCount;
+    if (!environmentHealthy(statuses, environment)) return;
+    const NMSourceContactFaceGPU face = faces[global - environment * faceCount];
+    const uint base = environment * nodeCount;
+    const float3 a = positions[base + face.nodes.x].xyz;
+    const float3 b = positions[base + face.nodes.y].xyz;
+    const float3 c = positions[base + face.nodes.z].xyz;
+    const float3 areaVector = cross(b - a, c - a);
+    const float jacobian = length(areaVector);
+    if (!(jacobian > 0.0f) || !isfinite(jacobian)) {
+        recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+            NM_INVALID_INDEX, face.identity.y,
+            float4(jacobian, 0.0f, 0.0f, 0.0f));
+        return;
+    }
+    geometry[global] = float4(areaVector / jacobian, jacobian);
+}
 inline src::RigidSpring<float> sourceSpringInput(
     const NMSourceRigidSpringGPU row
 ) {

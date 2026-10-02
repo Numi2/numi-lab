@@ -617,6 +617,11 @@ if(APPLE)
                 --source-continuation 1.1)
         set_tests_properties(matter.metal.source_prestrain_flexion_continuation
             PROPERTIES LABELS "matter;constraint;coupled;open_knee" TIMEOUT 120)
+        add_test(NAME matter.metal.source_contact_geometry_fail_closed
+            COMMAND numi-matter-source-rigid-coupled-check --quasistatic
+                --with-source-contact-geometry)
+        set_tests_properties(matter.metal.source_contact_geometry_fail_closed
+            PROPERTIES LABELS "matter;constraint;coupled;open_knee" TIMEOUT 120)
         find_package(Python3 COMPONENTS Interpreter QUIET)
         if(Python3_Interpreter_FOUND)
             add_test(NAME matter.metal.source_quasistatic_coupled

@@ -284,6 +284,18 @@ const char kImageAnchor = 0;
     hash = mixFingerprint(hash, detail::hashBytes(
         configuration.sourcePrestrain.data(),
         configuration.sourcePrestrain.size_bytes()));
+    hash = mixFingerprint(hash, detail::hashBytes(
+        configuration.sourceContactNodes.data(),
+        configuration.sourceContactNodes.size_bytes()));
+    hash = mixFingerprint(hash, detail::hashBytes(
+        configuration.sourceContactFaces.data(),
+        configuration.sourceContactFaces.size_bytes()));
+    hash = mixFingerprint(hash, detail::hashBytes(
+        configuration.sourceContactSurfaces.data(),
+        configuration.sourceContactSurfaces.size_bytes()));
+    hash = mixFingerprint(hash, detail::hashBytes(
+        configuration.sourceSlidingPairs.data(),
+        configuration.sourceSlidingPairs.size_bytes()));
     hash = mixFingerprint(hash, configuration.sourceRigidConnectorFingerprint);
     hash = mixFingerprint(hash, detail::hashBytes(
         configuration.humanSupportContacts.data(),
@@ -947,6 +959,12 @@ struct Runtime::State {
     id<MTLBuffer> sourceFEMSprings = nil;
     id<MTLBuffer> sourcePrestrain = nil;
     id<MTLBuffer> sourceMaterialParameters = nil;
+    id<MTLBuffer> sourceContactNodes = nil;
+    id<MTLBuffer> sourceContactFaces = nil;
+    id<MTLBuffer> sourceContactSurfaces = nil;
+    id<MTLBuffer> sourceSlidingPairs = nil;
+    id<MTLBuffer> sourceContactPositions = nil;
+    id<MTLBuffer> sourceContactFaceGeometry = nil;
     id<MTLBuffer> sourceFEMSpringNodes = nil;
     id<MTLBuffer> sourceFEMSpringIncidence = nil;
     id<MTLBuffer> sourceTieResidualImpulses = nil;
@@ -956,6 +974,10 @@ struct Runtime::State {
     std::uint32_t sourceTieCount = 0u;
     std::uint32_t sourceFEMSpringCount = 0u;
     std::uint32_t sourcePrestrainCount = 0u;
+    std::uint32_t sourceContactNodeCount = 0u;
+    std::uint32_t sourceContactFaceCount = 0u;
+    std::uint32_t sourceContactSurfaceCount = 0u;
+    std::uint32_t sourceSlidingPairCount = 0u;
     std::uint32_t sourceFEMSpringNodeCount = 0u;
     std::uint32_t sourceMaximumFreeIndex = NM_INVALID_INDEX;
     id<MTLBuffer> humanLimitLinearization = nil;
@@ -1368,10 +1390,16 @@ RuntimeDiagnostics Runtime::initialize(
         const auto sourceTies = configuration.sourceFEMRigidTies;
         const auto sourceFEMSprings = configuration.sourceFEMSprings;
         const auto sourcePrestrain = configuration.sourcePrestrain;
+        const auto sourceContactNodes = configuration.sourceContactNodes;
+        const auto sourceContactFaces = configuration.sourceContactFaces;
+        const auto sourceContactSurfaces = configuration.sourceContactSurfaces;
+        const auto sourceSlidingPairs = configuration.sourceSlidingPairs;
         const bool hasSourceConnectors =
             !sourceJoints.empty() || !sourceSprings.empty() ||
             !sourceTies.empty() || !sourceFEMSprings.empty() ||
-            !sourcePrestrain.empty();
+            !sourcePrestrain.empty() || !sourceContactNodes.empty() ||
+            !sourceContactFaces.empty() || !sourceContactSurfaces.empty() ||
+            !sourceSlidingPairs.empty();
         const auto finite4 = [](const nm_float4 v) {
             return std::isfinite(v.x) && std::isfinite(v.y) &&
                 std::isfinite(v.z) && std::isfinite(v.w);
@@ -1398,6 +1426,10 @@ RuntimeDiagnostics Runtime::initialize(
             sourceTies.size() > std::numeric_limits<std::uint32_t>::max() ||
             sourceFEMSprings.size() > std::numeric_limits<std::uint32_t>::max() ||
             sourcePrestrain.size() > std::numeric_limits<std::uint32_t>::max() ||
+            sourceContactNodes.size() > std::numeric_limits<std::uint32_t>::max() ||
+            sourceContactFaces.size() > std::numeric_limits<std::uint32_t>::max() ||
+            sourceContactSurfaces.size() > std::numeric_limits<std::uint32_t>::max() ||
+            sourceSlidingPairs.size() > std::numeric_limits<std::uint32_t>::max() ||
             hasSourceConnectors !=
                 (configuration.sourceRigidConnectorFingerprint != 0u) ||
             (hasSourceConnectors && world.dispatch.maximumRateExponent != 0u)) {
@@ -1467,6 +1499,87 @@ RuntimeDiagnostics Runtime::initialize(
                 diagnostics.message = "source prescribed flexion needs its prestrain schedule";
                 return diagnostics;
             }
+        if ((!sourceContactNodes.empty() || !sourceContactFaces.empty() ||
+             !sourceContactSurfaces.empty() || !sourceSlidingPairs.empty()) &&
+            (sourceContactNodes.empty() || sourceContactFaces.empty() ||
+             sourceContactSurfaces.empty() || sourceSlidingPairs.empty())) {
+            diagnostics.message = "source sliding contact program is incomplete";
+            return diagnostics;
+        }
+        std::set<std::uint32_t> sourceContactNodeIds;
+        for (const auto& row : sourceContactNodes) {
+            const bool fem = row.identity.y == 0u;
+            if (row.identity.y > 1u || row.identity.z == 0u ||
+                row.identity.w != 0u || !finite4(row.localPoint) ||
+                row.localPoint.w != 0.0f ||
+                (fem && (row.identity.x >= world.fem.nodes.size() ||
+                         row.localPoint.x != 0.0f ||
+                         row.localPoint.y != 0.0f ||
+                         row.localPoint.z != 0.0f)) ||
+                (!fem && row.identity.x >= world.contact.rigidProxies.size()) ||
+                !sourceContactNodeIds.insert(row.identity.z).second) {
+                diagnostics.message = "invalid source sliding contact node";
+                return diagnostics;
+            }
+        }
+        std::uint32_t nextSourceContactFace = 0u;
+        for (const auto& row : sourceContactSurfaces) {
+            if (row.identity.x != nextSourceContactFace || row.identity.y == 0u ||
+                row.identity.y > sourceContactFaces.size() - nextSourceContactFace ||
+                row.identity.w > 1u ||
+                (row.identity.w == 0u && row.identity.z >= world.objects.size()) ||
+                (row.identity.w == 1u &&
+                 row.identity.z >= world.contact.rigidProxies.size())) {
+                diagnostics.message = "invalid source sliding contact surface";
+                return diagnostics;
+            }
+            nextSourceContactFace += row.identity.y;
+        }
+        if (nextSourceContactFace != sourceContactFaces.size()) {
+            diagnostics.message = "source sliding contact surfaces do not cover faces";
+            return diagnostics;
+        }
+        for (std::uint32_t surface = 0u; surface < sourceContactSurfaces.size(); ++surface) {
+            const auto& owner = sourceContactSurfaces[surface];
+            for (std::uint32_t face = owner.identity.x;
+                 face < owner.identity.x + owner.identity.y; ++face) {
+                const auto& row = sourceContactFaces[face];
+                if (row.identity.x != surface || row.identity.y == 0u ||
+                    row.identity.z == 0u || row.identity.w != 0u ||
+                    row.nodes.w != 0u ||
+                    row.nodes.x >= sourceContactNodes.size() ||
+                    row.nodes.y >= sourceContactNodes.size() ||
+                    row.nodes.z >= sourceContactNodes.size() ||
+                    row.nodes.x == row.nodes.y || row.nodes.x == row.nodes.z ||
+                    row.nodes.y == row.nodes.z) {
+                    diagnostics.message = "invalid source sliding contact face";
+                    return diagnostics;
+                }
+                for (const auto node : {row.nodes.x, row.nodes.y, row.nodes.z}) {
+                    const auto& point = sourceContactNodes[node];
+                    if (point.identity.y != owner.identity.w ||
+                        (owner.identity.w == 1u &&
+                         point.identity.x != owner.identity.z) ||
+                        (owner.identity.w == 0u &&
+                         world.fem.nodeRanges[point.identity.x].objectIndex !=
+                             owner.identity.z)) {
+                        diagnostics.message = "source sliding face changes owner";
+                        return diagnostics;
+                    }
+                }
+            }
+        }
+        for (const auto& row : sourceSlidingPairs) {
+            if (row.identity.x >= sourceContactSurfaces.size() ||
+                row.identity.y >= sourceContactSurfaces.size() ||
+                row.identity.x == row.identity.y || row.identity.z != 1u ||
+                row.identity.w != 0u || !finite4(row.normal) ||
+                !(row.normal.x > 0.0f) || row.normal.y < 0.0f ||
+                row.normal.z < 0.0f || !(row.normal.w > 0.0f)) {
+                diagnostics.message = "invalid source sliding contact pair";
+                return diagnostics;
+            }
+        }
         candidate->sourceJointCount =
             static_cast<std::uint32_t>(sourceJoints.size());
         candidate->sourceSpringCount =
@@ -1477,6 +1590,14 @@ RuntimeDiagnostics Runtime::initialize(
             static_cast<std::uint32_t>(sourceFEMSprings.size());
         candidate->sourcePrestrainCount =
             static_cast<std::uint32_t>(sourcePrestrain.size());
+        candidate->sourceContactNodeCount =
+            static_cast<std::uint32_t>(sourceContactNodes.size());
+        candidate->sourceContactFaceCount =
+            static_cast<std::uint32_t>(sourceContactFaces.size());
+        candidate->sourceContactSurfaceCount =
+            static_cast<std::uint32_t>(sourceContactSurfaces.size());
+        candidate->sourceSlidingPairCount =
+            static_cast<std::uint32_t>(sourceSlidingPairs.size());
         std::vector<std::pair<std::uint32_t, std::uint32_t>> springIncidence;
         springIncidence.reserve(sourceFEMSprings.size() * 2u);
         for (std::uint32_t spring = 0u; spring < sourceFEMSprings.size(); ++spring) {
@@ -1603,6 +1724,22 @@ RuntimeDiagnostics Runtime::initialize(
                 candidate->sourcePhysicsFingerprint,
                 detail::hashBytes(sourcePrestrain.data(),
                                   sourcePrestrain.size_bytes()));
+            candidate->sourcePhysicsFingerprint = mixFingerprint(
+                candidate->sourcePhysicsFingerprint,
+                detail::hashBytes(sourceContactNodes.data(),
+                                  sourceContactNodes.size_bytes()));
+            candidate->sourcePhysicsFingerprint = mixFingerprint(
+                candidate->sourcePhysicsFingerprint,
+                detail::hashBytes(sourceContactFaces.data(),
+                                  sourceContactFaces.size_bytes()));
+            candidate->sourcePhysicsFingerprint = mixFingerprint(
+                candidate->sourcePhysicsFingerprint,
+                detail::hashBytes(sourceContactSurfaces.data(),
+                                  sourceContactSurfaces.size_bytes()));
+            candidate->sourcePhysicsFingerprint = mixFingerprint(
+                candidate->sourcePhysicsFingerprint,
+                detail::hashBytes(sourceSlidingPairs.data(),
+                                  sourceSlidingPairs.size_bytes()));
         }
         std::filesystem::path metallib = configuration.metallib;
         if (metallib.empty()) {
@@ -1828,6 +1965,8 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_source_rigid_connector_residual",
             "nm_source_rigid_connector_operator",
             "nm_source_apply_prestrain",
+            "nm_source_contact_materialize_nodes",
+            "nm_source_contact_materialize_faces",
             "nm_source_fem_rigid_tie_drive",
             "nm_source_fem_rigid_tie_capture_residual",
             "nm_source_fem_rigid_tie_scatter_residual",
@@ -2589,6 +2728,24 @@ RuntimeDiagnostics Runtime::initialize(
             sourceFEMSprings, valid, candidate->residentBytes);
         candidate->sourcePrestrain = uploads.one(
             sourcePrestrain, valid, candidate->residentBytes);
+        candidate->sourceContactNodes = uploads.one(
+            sourceContactNodes, valid, candidate->residentBytes);
+        candidate->sourceContactFaces = uploads.one(
+            sourceContactFaces, valid, candidate->residentBytes);
+        candidate->sourceContactSurfaces = uploads.one(
+            sourceContactSurfaces, valid, candidate->residentBytes);
+        candidate->sourceSlidingPairs = uploads.one(
+            sourceSlidingPairs, valid, candidate->residentBytes);
+        if (!sourceContactNodes.empty()) {
+            candidate->sourceContactPositions = privateScratch<nm_float4>(
+                candidate->device,
+                environments * sourceContactNodes.size(),
+                valid, candidate->residentBytes);
+            candidate->sourceContactFaceGeometry = privateScratch<nm_float4>(
+                candidate->device,
+                environments * sourceContactFaces.size(),
+                valid, candidate->residentBytes);
+        }
         candidate->sourceFEMSpringNodes = uploads.one(
             std::span<const NMSourceFEMSpringNodeGPU>(sourceSpringNodes),
             valid, candidate->residentBytes);
@@ -3808,6 +3965,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
             diagnostics.message = "source continuation time or identification request is invalid";
             return diagnostics;
         }
+        if (state.sourceSlidingPairCount != 0u) {
+            diagnostics.message =
+                "source sliding-elastic contact has candidate geometry but no coupled traction and tangent";
+            return diagnostics;
+        }
 
         std::uint64_t vascularTimestepTicks = 0u;
         if (state.vascularValue.layout.ranges.z != 0u) {
@@ -4505,7 +4667,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
             return true;
         };
         const auto driveSourceRigidTies = [&]() {
-            if (state.sourceTieCount == 0u) return;
+            if (state.sourceTieCount == 0u &&
+                state.sourceSlidingPairCount == 0u) return;
             dispatchThreads("nm_project_primal_free_rigid_candidate",
                 proxyTotal, [&] {
                 setDispatch();
@@ -4517,6 +4680,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.rigidStates offset:0u atIndex:6u];
                 [encoder setBuffer:state.statuses offset:0u atIndex:7u];
             });
+            if (state.sourceTieCount == 0u) return;
             dispatchThreads("nm_source_fem_rigid_tie_drive",
                 sourceTieTotal, [&] {
                 setDispatch();
@@ -4528,6 +4692,33 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.femCandidate offset:0u atIndex:6u];
                 [encoder setBuffer:state.statuses offset:0u atIndex:7u];
             });
+        };
+        const auto materializeSourceContactGeometry = [&]() {
+            if (state.sourceSlidingPairCount == 0u) return;
+            dispatchThreads("nm_source_contact_materialize_nodes",
+                environments * state.sourceContactNodeCount, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.sourceContactNodeCount
+                        length:sizeof(state.sourceContactNodeCount) atIndex:1u];
+                    [encoder setBuffer:state.sourceContactNodes offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
+                    [encoder setBuffer:state.rigidProxies offset:0u atIndex:4u];
+                    [encoder setBuffer:state.rigidStates offset:0u atIndex:5u];
+                    [encoder setBuffer:state.sourceContactPositions offset:0u atIndex:6u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:7u];
+                });
+            dispatchThreads("nm_source_contact_materialize_faces",
+                environments * state.sourceContactFaceCount, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.sourceContactNodeCount
+                        length:sizeof(state.sourceContactNodeCount) atIndex:1u];
+                    [encoder setBytes:&state.sourceContactFaceCount
+                        length:sizeof(state.sourceContactFaceCount) atIndex:2u];
+                    [encoder setBuffer:state.sourceContactFaces offset:0u atIndex:3u];
+                    [encoder setBuffer:state.sourceContactPositions offset:0u atIndex:4u];
+                    [encoder setBuffer:state.sourceContactFaceGeometry offset:0u atIndex:5u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:6u];
+                });
         };
         const auto captureFEMHumanAttachmentResidual = [&]() {
             dispatchThreads(
@@ -6491,6 +6682,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 return diagnostics;
             }
             driveSourceRigidTies();
+            materializeSourceContactGeometry();
             // Reassemble the backward-Euler field residual at this Newton
             // candidate. These kernels no longer iterate or publish a field
             // solution; they provide the field residual and block diagonal to
@@ -8115,6 +8307,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 return diagnostics;
             }
             driveSourceRigidTies();
+            materializeSourceContactGeometry();
             dispatchThreads("nm_mixed_prepare_residual", femNodeTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.objects offset:0u atIndex:1u];
@@ -9374,6 +9567,12 @@ bool Runtime::encodeAcceptedStateProof(
             state.sourceFEMSprings,
             state.sourcePrestrain,
             state.sourceMaterialParameters,
+            state.sourceContactNodes,
+            state.sourceContactFaces,
+            state.sourceContactSurfaces,
+            state.sourceSlidingPairs,
+            state.sourceContactPositions,
+            state.sourceContactFaceGeometry,
             state.sourceFEMSpringNodes,
             state.sourceFEMSpringIncidence,
             state.sourceTieResidualImpulses,
@@ -10163,6 +10362,12 @@ bool Runtime::applyPreparedStateImpl(
             state.sourceFEMSprings,
             state.sourcePrestrain,
             state.sourceMaterialParameters,
+            state.sourceContactNodes,
+            state.sourceContactFaces,
+            state.sourceContactSurfaces,
+            state.sourceSlidingPairs,
+            state.sourceContactPositions,
+            state.sourceContactFaceGeometry,
             state.sourceFEMSpringNodes,
             state.sourceFEMSpringIncidence,
             state.sourceTieResidualImpulses,

@@ -855,6 +855,10 @@ struct RuntimeConfiguration {
     std::span<const NMSourceFEMRigidTieGPU> sourceFEMRigidTies{};
     std::span<const NMSourceFEMSpringGPU> sourceFEMSprings{};
     std::span<const NMSourcePrestrainGPU> sourcePrestrain{};
+    std::span<const NMSourceContactNodeGPU> sourceContactNodes{};
+    std::span<const NMSourceContactFaceGPU> sourceContactFaces{};
+    std::span<const NMSourceContactSurfaceGPU> sourceContactSurfaces{};
+    std::span<const NMSourceSlidingPairGPU> sourceSlidingPairs{};
     std::uint64_t sourceRigidConnectorFingerprint = 0u;
     // Generic legacy callbacks may explicitly retain projected-only geometry.
     // A configured compensated Human owner must opt in; all candidate services,

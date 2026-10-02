@@ -57,6 +57,26 @@ typedef struct NM_ALIGN16 NMSourcePrestrainGPU {
     nm_float4 stretch; // at source t=0, at t=1, reserved, reserved
 } NMSourcePrestrainGPU;
 
+// Complete source sliding-elastic contact geometry, in source face order.
+// Source contact nodes address either a cooked FEM node (kind 0) or a rigid
+// proxy with a body-COM-relative point (kind 1). Faces address contact-node
+// slots; surfaces and pairs retain the exact two-pass source topology.
+typedef struct NM_ALIGN16 NMSourceContactNodeGPU {
+    nm_uint4 identity; // owner index, kind, source node ID, reserved
+    nm_float4 localPoint; // rigid body-COM-relative point; zero for FEM
+} NMSourceContactNodeGPU;
+typedef struct NM_ALIGN16 NMSourceContactFaceGPU {
+    nm_uint4 identity; // surface, source face ID, owner material ID, reserved
+    nm_uint4 nodes; // three source-contact node slots, reserved
+} NMSourceContactFaceGPU;
+typedef struct NM_ALIGN16 NMSourceContactSurfaceGPU {
+    nm_uint4 identity; // first face, face count, owner index, owner kind
+} NMSourceContactSurfaceGPU;
+typedef struct NM_ALIGN16 NMSourceSlidingPairGPU {
+    nm_uint4 identity; // master surface, slave surface, two pass, reserved
+    nm_float4 normal; // penalty multiplier, gap tolerance in m, search tolerance, radius in m
+} NMSourceSlidingPairGPU;
+
 #ifdef __cplusplus
 static_assert(sizeof(NMSourceCylindricalJointGPU) == 144);
 static_assert(sizeof(NMSourceRigidSpringGPU) == 96);
@@ -64,4 +84,8 @@ static_assert(sizeof(NMSourceFEMRigidTieGPU) == 32);
 static_assert(sizeof(NMSourceFEMSpringGPU) == 64);
 static_assert(sizeof(NMSourceFEMSpringNodeGPU) == 16);
 static_assert(sizeof(NMSourcePrestrainGPU) == 32);
+static_assert(sizeof(NMSourceContactNodeGPU) == 32);
+static_assert(sizeof(NMSourceContactFaceGPU) == 32);
+static_assert(sizeof(NMSourceContactSurfaceGPU) == 16);
+static_assert(sizeof(NMSourceSlidingPairGPU) == 32);
 #endif

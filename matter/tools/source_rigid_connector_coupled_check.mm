@@ -5,7 +5,9 @@
 #include "metalrobo/engine_types.h"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
+#include <cstring>
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -33,6 +35,7 @@ int main(int argc, char** argv) {
             bool withTie = true;
             bool withFEMSpring = false;
             bool quasiStatic = false;
+            bool sourceContactGeometry = false;
             bool sourceContinuation = false;
             float sourceTime = 0.0f;
             float numericalInverseMass = 1.0f;
@@ -41,6 +44,8 @@ int main(int argc, char** argv) {
                 if (option == "--no-tie") withTie = false;
                 else if (option == "--with-fem-spring") withFEMSpring = true;
                 else if (option == "--quasistatic") quasiStatic = true;
+                else if (option == "--with-source-contact-geometry")
+                    sourceContactGeometry = true;
                 else if (option == "--source-continuation") {
                     require(++argument < argc,
                         "source continuation requires a time");
@@ -153,6 +158,26 @@ int main(int argc, char** argv) {
             tie.localPoint = {0.0f, 0.0f, 0.0f, 0.0f};
             NMSourceFEMSpringGPU femSpring{};
             NMSourcePrestrainGPU prestrain{};
+            std::array<NMSourceContactNodeGPU, 6> contactNodes{};
+            std::array<NMSourceContactFaceGPU, 2> contactFaces{};
+            std::array<NMSourceContactSurfaceGPU, 2> contactSurfaces{};
+            NMSourceSlidingPairGPU contactPair{};
+            if (sourceContactGeometry) {
+                for (std::uint32_t i = 0u; i < 3u; ++i) {
+                    contactNodes[i].identity = {i + 1u, 0u, i + 1u, 0u};
+                    contactNodes[i + 3u].identity = {1u, 1u, i + 4u, 0u};
+                }
+                contactNodes[4].localPoint = {0.0f, 0.01f, 0.0f, 0.0f};
+                contactNodes[5].localPoint = {0.0f, 0.0f, 0.01f, 0.0f};
+                contactFaces[0].identity = {0u, 1u, 5u, 0u};
+                contactFaces[0].nodes = {0u, 1u, 2u, 0u};
+                contactFaces[1].identity = {1u, 2u, 20u, 0u};
+                contactFaces[1].nodes = {3u, 4u, 5u, 0u};
+                contactSurfaces[0].identity = {0u, 1u, 0u, 0u};
+                contactSurfaces[1].identity = {1u, 1u, 1u, 1u};
+                contactPair.identity = {1u, 0u, 1u, 0u};
+                contactPair.normal = {0.1f, 0.01f, 0.01f, 0.001f};
+            }
             if (sourceContinuation) {
                 const auto& parameters = source.materials[0].parameters;
                 const auto found = std::find_if(parameters.begin(), parameters.end(),
@@ -186,6 +211,12 @@ int main(int argc, char** argv) {
                 configuration.sourceFEMSprings = {&femSpring, 1u};
             if (sourceContinuation)
                 configuration.sourcePrestrain = {&prestrain, 1u};
+            if (sourceContactGeometry) {
+                configuration.sourceContactNodes = contactNodes;
+                configuration.sourceContactFaces = contactFaces;
+                configuration.sourceContactSurfaces = contactSurfaces;
+                configuration.sourceSlidingPairs = {&contactPair, 1u};
+            }
             configuration.sourceRigidConnectorFingerprint =
                 0x4e4d53434f4e4e31ull;
             Runtime runtime;
@@ -238,7 +269,26 @@ int main(int argc, char** argv) {
             request.sourceContinuationTime = sourceTime;
             request.runAdaptiveTransfer = false;
             request.phase = EncodePhase::preDynamics;
+            const auto beforeContact = sourceContactGeometry
+                ? runtime.snapshot() : RuntimeStateSnapshot{};
             auto encoded = runtime.encode(request);
+            if (sourceContactGeometry) {
+                require(!encoded.encoded &&
+                    encoded.message.find("no coupled traction and tangent") !=
+                        std::string::npos,
+                    "source geometry-only contact admitted an unforced root");
+                const auto afterContact = runtime.snapshot();
+                require(beforeContact.available && afterContact.available &&
+                    beforeContact.femNodes.size() == afterContact.femNodes.size() &&
+                    std::memcmp(beforeContact.femNodes.data(),
+                                afterContact.femNodes.data(),
+                                beforeContact.femNodes.size() *
+                                    sizeof(NMFEMNodeStateGPU)) == 0,
+                    "source contact admission rejection changed accepted FEM state");
+                std::cout << "source_contact_geometry=bound_pre_dynamics_rejected"
+                          << " source_knee_equivalence=unqualified\n";
+                return 0;
+            }
             require(encoded.encoded, "source connector preDynamics: " +
                 encoded.message);
             request.phase = EncodePhase::postCommit;
