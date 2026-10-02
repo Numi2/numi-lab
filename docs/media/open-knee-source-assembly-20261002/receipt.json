@@ -38,7 +38,7 @@
     "source_contact_initial_active_gauss_points": "8478",
     "source_contact_initial_gauss_points": "1035210",
     "source_contact_initial_max_gap_mm": "0.436078",
-    "source_contact_projection_basis": "FEBio 2.9 sliding-elastic integration-point normal-ray path; public 2.9.0 implementation reference",
+    "source_contact_projection_basis": "FEBio 2.9 sliding-elastic integration-point normal-ray path in FESlidingElasticInterface; public 2.9.0 implementation reference",
     "source_contact_rigid_vertices": "17676",
     "source_contact_search_radius_mm": "0.900163",
     "source_cylindrical_joints": "6",

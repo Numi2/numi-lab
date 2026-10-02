@@ -15,7 +15,7 @@
   "search": "opposing-normal ray at FE_TRI3G3 points; positive gap within 0.005 times source mesh bounding-box largest dimension",
   "search_radius_mm": 0.900163,
   "source_contact_type": "sliding-elastic",
-  "source_implementation_reference": "FEBio 2.9.0 d61e8fd FESlidingInterfaceBW; archived run reports FEBio 2.9.1",
+  "source_implementation_reference": "FEBio 2.9.0 d61e8fd FESlidingElasticInterface; archived run reports FEBio 2.9.1",
   "source_mesh_largest_dimension_mm": 180.03255462646484,
   "status": "diagnostic_not_equilibrium",
   "surfaces": [

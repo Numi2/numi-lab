@@ -2,7 +2,7 @@
 
 // Initial contact binding for the complete pinned Open Knee case. The source
 // deck specifies "sliding-elastic": FEBio 2.9 registers that name to
-// FESlidingInterfaceBW, which projects three triangle integration points
+// FESlidingElasticInterface, which projects three triangle integration points
 // along the SLAVE face normal. It does not use the nearest-master-vertex
 // algorithm of "sliding-node-on-facet". These rows identify active initial
 // quadrature points only; the live Newton contact law and segment updates
