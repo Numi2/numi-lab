@@ -183,21 +183,26 @@ def main() -> None:
 
     tissue_indices = np.concatenate([group_indices[name] for name in TISSUES])
     positions = (current[tissue_indices] * 0.001).astype("<f4")
+    # Preserve the archived displacement independently of the rounded world
+    # position. Tiny source tetrahedra lose stress-significant edge bits when
+    # a current position is stored as one absolute float32 metre coordinate.
+    tissue_displacements_mm = displacement[tissue_indices].astype("<f4")
     if len(positions) != 194729 or not np.isfinite(positions).all():
         raise ValueError("source tissue position payload is invalid")
-    output = bytearray(b"NOKSEED2")
-    output += struct.pack("<IIIId", 2, len(positions), len(poses),
+    output = bytearray(b"NOKSEED3")
+    output += struct.pack("<IIIId", 3, len(positions), len(poses),
                           metadata["state_index"], metadata["continuation_time"])
     output += bytes.fromhex(baseline["source_deck_sha256"])
     output += bytes.fromhex(baseline["source_geometry_sha256"])
     output += bytes.fromhex(archive_hash)
     output += positions.tobytes()
+    output += tissue_displacements_mm.tobytes()
     for material_id, center, quaternion in poses:
         output += struct.pack("<I3f4f", material_id, *center, *quaternion)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_bytes(output)
     manifest = {
-        "schema": "numi.matter.open-knee-archived-checkpoint-seed.v2",
+        "schema": "numi.matter.open-knee-archived-checkpoint-seed.v3",
         "status": "diagnostic_initial_state_not_equilibrium",
         "state_index": metadata["state_index"],
         "continuation_time": metadata["continuation_time"],
@@ -209,6 +214,7 @@ def main() -> None:
         "seed_sha256": hashlib.sha256(output).hexdigest(),
         "rigid_fit_rms_mm": pose_rms,
         "tissue_node_count": len(positions),
+        "tissue_displacement_units": "mm_float32_original_xplt",
         "rigid_body_count": len(poses),
     }
     args.output.with_suffix(args.output.suffix + ".json").write_text(

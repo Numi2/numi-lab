@@ -928,6 +928,14 @@ typedef struct NM_ALIGN16 NMFEMNodeStateGPU {
     nm_float4 velocityAndInverseMass;
     nm_float4 restAndFixed;
     nm_float4 deltaVelocity;
+    // Low part of the current world position for an authored separate FEM
+    // reference. Ordinary FEM keeps this canonical zero. It is accepted and
+    // rolled back with the node state, never inferred from a new stress-free
+    // mesh after source continuation.
+    nm_float4 positionLow;
+    // Low part of the immutable authored reference. Used only when the FEM
+    // object has a separate source-bound reference configuration.
+    nm_float4 referenceLow;
 } NMFEMNodeStateGPU;
 
 typedef struct NM_ALIGN16 NMTetrahedronGPU {

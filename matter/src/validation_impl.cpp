@@ -73,7 +73,7 @@ constexpr std::uint32_t kKnownRigidFlags =
         multiplier * std::numeric_limits<float>::epsilon() * scale;
 }
 
-// Reconstruct the executable reference from the same serialized FP32 node
+// Reconstruct the executable reference from the serialized high/low node
 // coordinates. This is layout admission, not a relaxation or physical solve.
 [[nodiscard]] bool validReferenceCell(
     const NMTetrahedronGPU& t,
@@ -85,9 +85,13 @@ constexpr std::uint32_t kKnownRigidFlags =
     const auto edges = [&](bool reference) {
         Matrix m{};
         const auto p0 = reference ? nodes[indices[0]].restAndFixed : nodes[indices[0]].positionAndMass;
+        const auto l0 = reference ? nodes[indices[0]].referenceLow : nodes[indices[0]].positionLow;
         for (unsigned c=0;c<3;++c) {
             const auto p = reference ? nodes[indices[c+1]].restAndFixed : nodes[indices[c+1]].positionAndMass;
-            m[c]=double(p.x)-p0.x;m[3+c]=double(p.y)-p0.y;m[6+c]=double(p.z)-p0.z;
+            const auto l = reference ? nodes[indices[c+1]].referenceLow : nodes[indices[c+1]].positionLow;
+            m[c]=(double(p.x)-p0.x)+(double(l.x)-l0.x);
+            m[3+c]=(double(p.y)-p0.y)+(double(l.y)-l0.y);
+            m[6+c]=(double(p.z)-p0.z)+(double(l.z)-l0.z);
         }
         return m;
     };
@@ -104,9 +108,38 @@ constexpr std::uint32_t kKnownRigidFlags =
         (m[3]*m[7]-m[4]*m[6])*r,(m[1]*m[6]-m[0]*m[7])*r,(m[0]*m[4]-m[1]*m[3])*r};
     const std::array<float,9> actual{t.inverseRestRow0.x,t.inverseRestRow0.y,t.inverseRestRow0.z,
         t.inverseRestRow1.x,t.inverseRestRow1.y,t.inverseRestRow1.z,t.inverseRestRow2.x,t.inverseRestRow2.y,t.inverseRestRow2.z};
-    for (unsigned i=0;i<9;++i) if (!std::isfinite(expected[i]) || actual[i]!=static_cast<float>(expected[i])) return false;
+    bool splitReference = false;
+    for (const nm_u32 index : indices) {
+        const auto low = nodes[index].referenceLow;
+        splitReference = splitReference || low.x != 0.0f || low.y != 0.0f || low.z != 0.0f;
+    }
+    if (splitReference) {
+        // The stored inverse is rounded once from the authored double Dm. A
+        // high/low reconstruction differs from that Dm by a few low-part
+        // ulps, so component-wise bit equality is too strict (especially
+        // for cofactors near zero). Check the executable matrix product with
+        // a bound proportional to the actual multiply magnitudes instead.
+        constexpr double tolerance = 8.0 * std::numeric_limits<float>::epsilon();
+        for (unsigned row=0;row<3;++row) for (unsigned col=0;col<3;++col) {
+            double product=0.0, magnitude=0.0;
+            for (unsigned k=0;k<3;++k) {
+                const double term=m[3*row+k]*double(actual[3*k+col]);
+                product+=term;
+                magnitude+=std::abs(term);
+            }
+            if (!std::isfinite(product) ||
+                std::abs(product-double(row==col)) > tolerance*magnitude+1e-12) return false;
+        }
+    } else {
+        for (unsigned i=0;i<9;++i) if (!std::isfinite(expected[i]) || actual[i]!=static_cast<float>(expected[i])) return false;
+    }
+    const float expectedVolume=static_cast<float>(d/6);
+    const bool volumeAgrees = splitReference ?
+        std::abs(double(t.inverseRestRow0.w)-expectedVolume) <=
+            2.0*std::numeric_limits<float>::epsilon()*std::abs(double(expectedVolume)) :
+        t.inverseRestRow0.w==expectedVolume;
     return detail::femReferenceDeterminantInterval(t,nodes.data()).strictlyAdmitted(material.validity) &&
-        t.inverseRestRow0.w==static_cast<float>(d/6) && t.inverseRestRow1.w==0.0f && t.inverseRestRow2.w==0.0f;
+        volumeAgrees && t.inverseRestRow1.w==0.0f && t.inverseRestRow2.w==0.0f;
 }
 
 [[nodiscard]] bool rangeWithin(
@@ -1328,6 +1361,17 @@ private:
                         !finite4(node.velocityAndInverseMass) ||
                         !finite4(node.restAndFixed) ||
                         !finite4(node.deltaVelocity) ||
+                        !finite4(node.positionLow) ||
+                        !finite4(node.referenceLow) ||
+                        node.positionLow.w != 0.0f ||
+                        node.referenceLow.w != 0.0f ||
+                        (!referenced &&
+                         (node.positionLow.x != 0.0f ||
+                          node.positionLow.y != 0.0f ||
+                          node.positionLow.z != 0.0f ||
+                          node.referenceLow.x != 0.0f ||
+                          node.referenceLow.y != 0.0f ||
+                          node.referenceLow.z != 0.0f)) ||
                         node.positionAndMass.w < 0.0f ||
                         node.velocityAndInverseMass.w < 0.0f ||
                         (node.positionAndMass.w > 0.0f &&

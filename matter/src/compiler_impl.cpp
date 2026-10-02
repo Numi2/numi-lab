@@ -1659,6 +1659,12 @@ CompileResult compileWorld(
                     attachmentByNode[sourceNodeIndex];
                 NMFEMNodeStateGPU node{};
                 node.positionAndMass = f4(sourceNode[0], sourceNode[1], sourceNode[2], 0.0);
+                if (referenced) {
+                    node.positionLow = f4(
+                        sourceNode[0] - double(node.positionAndMass.x),
+                        sourceNode[1] - double(node.positionAndMass.y),
+                        sourceNode[2] - double(node.positionAndMass.z), 0.0);
+                }
                 node.velocityAndInverseMass = f4(
                     fixed ? 0.0 : object.femInitialVelocity[0],
                     fixed ? 0.0 : object.femInitialVelocity[1],
@@ -1670,6 +1676,12 @@ CompileResult compileWorld(
                     referenceNode[0], referenceNode[1], referenceNode[2],
                     attachment != nullptr ? 2.0 : (fixed ? 1.0 : 0.0)
                 );
+                if (referenced) {
+                    node.referenceLow = f4(
+                        referenceNode[0] - double(node.restAndFixed.x),
+                        referenceNode[1] - double(node.restAndFixed.y),
+                        referenceNode[2] - double(node.restAndFixed.z), 0.0);
+                }
                 if (attachment != nullptr) {
                     NMFEMHumanAttachmentGPU cooked{};
                     cooked.identity = {
@@ -1822,9 +1834,14 @@ CompileResult compileWorld(
             const double rho = density(material);
             std::vector<double> localMass(nodeCapacity, 0.0);
             const auto cookedNodePosition = [&](const std::uint32_t local) {
+                // A separate authored reference is evaluated from its source
+                // doubles. Referenced FEM carries the low part of current
+                // positions into Metal, so rounding Dm to absolute float32
+                // coordinates would reintroduce the knee-scale stress error.
+                if (referenced) return object.femReferenceNodes[local];
                 const auto& node = world.fem.nodes[
                     static_cast<std::size_t>(descriptor.stateOffset) + local];
-                const nm_float4 position = referenced ? node.restAndFixed : node.positionAndMass;
+                const nm_float4 position = node.positionAndMass;
                 return Vec3{
                     static_cast<double>(position.x),
                     static_cast<double>(position.y),
@@ -1844,11 +1861,9 @@ CompileResult compileWorld(
                     });
                     continue;
                 }
-                // Rest geometry must be formed from the exact FP32 node
-                // coordinates consumed by Metal.  Building Dm^-1 from the
-                // pre-cook doubles while positions are rounded independently
-                // gives a translated millimetre-scale mesh a non-identity
-                // deformation at frame zero and manufactures pressure/stress.
+                // Ordinary FEM preserves its exact legacy FP32 rest operator.
+                // Authored-reference FEM uses source doubles plus a split
+                // current position; both halves are needed at tiny tet scale.
                 const Vec3 x0 = cookedNodePosition(sourceTet.nodes[0]);
                 const Vec3 x1 = cookedNodePosition(sourceTet.nodes[1]);
                 const Vec3 x2 = cookedNodePosition(sourceTet.nodes[2]);

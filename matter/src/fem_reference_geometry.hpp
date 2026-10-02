@@ -48,34 +48,60 @@ struct FEMReferenceDeterminantInterval {
     const std::array<nm_u32,4> ids{t.nodes.x,t.nodes.y,t.nodes.z,t.nodes.w};
     const std::array<float,9> inverse{t.inverseRestRow0.x,t.inverseRestRow0.y,t.inverseRestRow0.z,
         t.inverseRestRow1.x,t.inverseRestRow1.y,t.inverseRestRow1.z,t.inverseRestRow2.x,t.inverseRestRow2.y,t.inverseRestRow2.z};
-    std::array<double,9> ds{},f{},error{};
+    std::array<double,9> ds{},edgeError{},f{},error{};
     std::array<float,9> ds32{},f32{};
     const auto normalOrZero = [](float v) {
         return std::isfinite(v) && (v == 0.0f || std::abs(v) >= std::numeric_limits<float>::min());
     };
     const auto p0=nodes[base+ids[0]].positionAndMass;
+    const auto l0=nodes[base+ids[0]].positionLow;
     // Input FTZ can amplify a subnormal inverse or coordinate through a
     // normal-sized product. This bounded admission mode rejects such inputs;
     // generated intermediate underflow is covered by eta below.
-    bool safe=normalOrZero(p0.x)&&normalOrZero(p0.y)&&normalOrZero(p0.z);
+    bool safe=normalOrZero(p0.x)&&normalOrZero(p0.y)&&normalOrZero(p0.z)&&
+        normalOrZero(l0.x)&&normalOrZero(l0.y)&&normalOrZero(l0.z);
+    bool compensated = l0.x != 0.0f || l0.y != 0.0f || l0.z != 0.0f;
+    const auto splitEdge = [&](float high, float baseHigh, float low, float baseLow,
+                               unsigned index) {
+        const double highDifference=double(high)-baseHigh;
+        const double lowDifference=double(low)-baseLow;
+        ds[index]=highDifference+lowDifference;
+        // Metal performs two FP32 subtractions and one addition. Bound each
+        // rounded operation against its exact operands, including a case
+        // where the two parts almost cancel and the final edge is tiny.
+        edgeError[index]=u*(1.0+u)*
+            (std::abs(highDifference)+std::abs(lowDifference))+
+            u*std::abs(ds[index])+3.0*eta;
+    };
     for (unsigned c=0;c<3;++c) {
         const auto p=nodes[base+ids[c+1]].positionAndMass;
-        safe=safe&&normalOrZero(p.x)&&normalOrZero(p.y)&&normalOrZero(p.z);
-        ds[c]=double(p.x)-p0.x;ds[3+c]=double(p.y)-p0.y;ds[6+c]=double(p.z)-p0.z;
-        ds32[c]=p.x-p0.x;ds32[3+c]=p.y-p0.y;ds32[6+c]=p.z-p0.z;
+        const auto l=nodes[base+ids[c+1]].positionLow;
+        safe=safe&&normalOrZero(p.x)&&normalOrZero(p.y)&&normalOrZero(p.z)&&
+            normalOrZero(l.x)&&normalOrZero(l.y)&&normalOrZero(l.z);
+        compensated=compensated||l.x!=0.0f||l.y!=0.0f||l.z!=0.0f;
+        splitEdge(p.x,p0.x,l.x,l0.x,c);
+        splitEdge(p.y,p0.y,l.y,l0.y,3+c);
+        splitEdge(p.z,p0.z,l.z,l0.z,6+c);
+        ds32[c]=(p.x-p0.x)+(l.x-l0.x);
+        ds32[3+c]=(p.y-p0.y)+(l.y-l0.y);
+        ds32[6+c]=(p.z-p0.z)+(l.z-l0.z);
     }
     for (double value:ds) safe=safe&&std::isfinite(value)&&std::abs(value)<=maximum;
     for (float value:inverse) safe=safe&&normalOrZero(value);
     for (unsigned r=0;r<3;++r) for (unsigned c=0;c<3;++c) {
-        double magnitude=0.0, inverseMagnitude=0.0;
+        double magnitude=0.0, inverseMagnitude=0.0, edgeContribution=0.0;
         for (unsigned k=0;k<3;++k) {
             const double product=ds[3*r+k]*double(inverse[3*k+c]);
             f[3*r+c]+=product;magnitude+=std::abs(product);inverseMagnitude+=std::abs(double(inverse[3*k+c]));
+            edgeContribution+=edgeError[3*r+k]*std::abs(double(inverse[3*k+c]));
         }
-        // Each term has one coordinate subtraction and one product, followed
-        // by at most two additions. gamma6 bounds all fused/nonfused orders
-        // and FP64 center evaluation; the eta terms cover underflow.
-        error[3*r+c]=gamma6*magnitude+(1.0+gamma6)*eta*(inverseMagnitude+8.0);
+        // Legacy high-only FEM retains its original bound. In split mode,
+        // include coordinate-rounding error explicitly before the product
+        // and reduction bound; a multiplier on |Ds| alone is insufficient
+        // when high and low differences nearly cancel.
+        error[3*r+c]=gamma6*magnitude+
+            (compensated ? (1.0+gamma6)*edgeContribution : 0.0)+
+            (1.0+gamma6)*eta*(inverseMagnitude+8.0);
         safe=safe&&magnitude+error[3*r+c]<=maximum;
         const float a=ds32[3*r]*inverse[c],b=ds32[3*r+1]*inverse[3+c],d=ds32[3*r+2]*inverse[6+c];
         f32[3*r+c]=(a+b)+d;

@@ -394,7 +394,8 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                          std::uint32_t newtonBudget = 7u,
                          std::uint32_t fgmresBudget = 10u,
                          const char* checkpointSeedPath = nullptr,
-                         const char* elementForceOutputPath = nullptr) {
+                         const char* elementForceOutputPath = nullptr,
+                         bool cookOnly = false) {
     try {
         require(elementForceOutputPath == nullptr || checkpointSeedPath != nullptr,
                 "element force readback needs a source checkpoint seed");
@@ -413,6 +414,7 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                 fgmresBudget > 0u && fgmresBudget <= 512u,
                 "source numerical iteration budgets are invalid");
         std::vector<std::array<float, 3u>> checkpointPositions;
+        std::vector<std::array<float, 3u>> checkpointDisplacementsMM;
         struct CheckpointBodyPose {
             std::uint32_t materialId;
             std::array<float, 3u> center;
@@ -426,8 +428,15 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
             require(solveTime >= 0.0, "checkpoint seed requires source solve");
             const auto bytes = readBinaryBytes(checkpointSeedPath);
             constexpr std::size_t headerBytes = 128u;
-            require(bytes.size() == headerBytes + 194729u * 12u + 9u * 32u &&
-                    std::memcmp(bytes.data(), "NOKSEED2", 8u) == 0,
+            require(bytes.size() >= 8u,
+                    "source checkpoint seed is shorter than its magic");
+            const bool preciseSeed =
+                std::memcmp(bytes.data(), "NOKSEED3", 8u) == 0;
+            const bool legacySeed =
+                std::memcmp(bytes.data(), "NOKSEED2", 8u) == 0;
+            require((preciseSeed || legacySeed) &&
+                    bytes.size() == headerBytes + 194729u * 12u *
+                        (preciseSeed ? 2u : 1u) + 9u * 32u,
                     "source checkpoint seed has invalid size or magic");
             std::uint32_t version = 0u, count = 0u, bodies = 0u, stateIndex = 0u;
             double checkpointTime = 0.0;
@@ -439,7 +448,8 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
             std::memcpy(checkpointDeck.data(), bytes.data() + 32u, 32u);
             std::memcpy(checkpointGeometry.data(), bytes.data() + 64u, 32u);
             std::memcpy(checkpointArchive.data(), bytes.data() + 96u, 32u);
-            require(version == 2u && count == 194729u && bodies == 9u &&
+            require(version == (preciseSeed ? 3u : 2u) &&
+                    count == 194729u && bodies == 9u &&
                     stateIndex > 0u && std::isfinite(checkpointTime) &&
                     std::abs(checkpointTime - solveTime) < 1.0e-6,
                     "source checkpoint seed has invalid header");
@@ -447,6 +457,17 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
             std::memcpy(checkpointPositions.data(), bytes.data() + headerBytes,
                         count * 12u);
             std::size_t cursor = headerBytes + count * 12u;
+            if (preciseSeed) {
+                checkpointDisplacementsMM.resize(count);
+                std::memcpy(checkpointDisplacementsMM.data(),
+                            bytes.data() + cursor, count * 12u);
+                cursor += count * 12u;
+                require(std::ranges::all_of(checkpointDisplacementsMM,
+                            [](const auto& displacement) {
+                                return std::ranges::all_of(displacement,
+                                    [](float value) { return std::isfinite(value); });
+                            }), "source checkpoint has nonfinite tissue displacement");
+            }
             for (std::size_t body = 0u; body < 9u; ++body) {
                 CheckpointBodyPose row{};
                 std::memcpy(&row.materialId, bytes.data() + cursor, 4u);
@@ -705,7 +726,21 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                     0x0e4461a539b18e67ull, 0x08f1f4817b5601bfull};
                 for (std::size_t local = 0u; local < object.femNodes.size(); ++local) {
                     const auto& current = checkpointPositions[globalNodeBase + local];
-                    object.femNodes[local] = {current[0u], current[1u], current[2u]};
+                    if (checkpointDisplacementsMM.empty())
+                        object.femNodes[local] = {current[0u], current[1u], current[2u]};
+                    else {
+                        const auto& displacement =
+                            checkpointDisplacementsMM[globalNodeBase + local];
+                        const auto& reference = mesh.nodes[local].coordinates;
+                        for (std::size_t axis = 0u; axis < 3u; ++axis) {
+                            const double precise =
+                                (reference[axis] + double(displacement[axis])) * 0.001;
+                            require(std::abs(precise - double(current[axis])) <
+                                        2.0e-8,
+                                    "source checkpoint position and displacement disagree");
+                            object.femNodes[local][axis] = precise;
+                        }
+                    }
                 }
             }
             object.tetrahedra.reserve(mesh.tetrahedra.size());
@@ -1336,6 +1371,7 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
             require(programFingerprint != 0u,
                     "source rigid program has invalid fingerprint");
 #ifdef __APPLE__
+            if (!cookOnly) {
             numi::matter::RuntimeConfiguration configuration;
             configuration.metallib = NUMI_MATTER_METALLIB;
             configuration.adaptiveTransfer = false;
@@ -1800,8 +1836,10 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                 }
                 return accepted ? 0 : 2;
             }
+            }
 #else
-            throw std::runtime_error("whole source Matter runtime requires Apple Metal");
+            if (!cookOnly)
+                throw std::runtime_error("whole source Matter runtime requires Apple Metal");
 #endif
         }
         double minimumRestVolume = std::numeric_limits<double>::infinity();
@@ -1935,6 +1973,16 @@ int main(int argc, char** argv) {
                 static_cast<std::uint32_t>(std::stoul(argv[11])),
                 static_cast<std::uint32_t>(std::stoul(argv[12])), argv[14],
                 argv[16]);
+        if (argc == 16 && std::string(argv[1]) == "--source-artifacts" &&
+            std::string(argv[8]) == "--solve-source-time" &&
+            std::string(argv[10]) == "--solver-budget" &&
+            std::string(argv[13]) == "--checkpoint-seed" &&
+            std::string(argv[15]) == "--cook-only")
+            return checkSourceArtifacts(argv[2], argv[3], argv[4], argv[5],
+                argv[6], argv[7], std::stod(argv[9]),
+                static_cast<std::uint32_t>(std::stoul(argv[11])),
+                static_cast<std::uint32_t>(std::stoul(argv[12])), argv[14],
+                nullptr, true);
         if (argc == 15 && std::string(argv[1]) == "--source-artifacts" &&
             std::string(argv[8]) == "--solve-source-time" &&
             std::string(argv[10]) == "--solver-budget" &&
@@ -1964,12 +2012,17 @@ int main(int argc, char** argv) {
         if (argc == 8 && std::string(argv[1]) == "--source-artifacts")
             return checkSourceArtifacts(argv[2], argv[3], argv[4], argv[5],
                                         argv[6], argv[7]);
+        if (argc == 9 && std::string(argv[1]) == "--source-artifacts" &&
+            std::string(argv[8]) == "--cook-only")
+            return checkSourceArtifacts(argv[2], argv[3], argv[4], argv[5],
+                                        argv[6], argv[7], -1.0, 7u, 10u,
+                                        nullptr, nullptr, true);
         if (argc == 6 && std::string(argv[1]) == "--source-artifacts")
             return checkSourceArtifacts(argv[2], argv[3], argv[4], argv[5]);
         if (argc == 3 && std::string(argv[1]) == "--source-sidecar")
             return checkSourceSidecar(argv[2]);
         require(argc == 1, "usage: open knee fiber field check [--source-sidecar PATH] "
-                           "[--source-artifacts FIBER_PATH SOURCE_VOLUME_MESH_PATH [SOURCE_RIGID_TIES_PATH [SOURCE_RIGID_GRAPH_PATH [SOURCE_CONTACT_PATH [SOURCE_DISCRETE_PATH]]]] [--solve-source-time TIME [--solver-budget NEWTON FGMRES [--checkpoint-seed PATH [--checkpoint-element-forces PATH]]]]]");
+                           "[--source-artifacts FIBER_PATH SOURCE_VOLUME_MESH_PATH [SOURCE_RIGID_TIES_PATH [SOURCE_RIGID_GRAPH_PATH [SOURCE_CONTACT_PATH [SOURCE_DISCRETE_PATH]]]] [--cook-only | --solve-source-time TIME [--solver-budget NEWTON FGMRES [--checkpoint-seed PATH [--checkpoint-element-forces PATH]]]]]");
         const std::array<double, 3> medial0{-0.27206761041769667,
                                              1.1419075817929256,
                                              0.08613731458137508};

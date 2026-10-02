@@ -1,6 +1,7 @@
 #include "numi/matter/source_rigid_connector_gpu.h"
 #include "numi/matter/source_cylindrical_joint.h"
 #include "numi/matter/source_rigid_spring.h"
+#include "metalrobo/compensated_translation_gpu.h"
 
 namespace numi_matter_metal {
 namespace src = numi_matter_joint;
@@ -1352,6 +1353,9 @@ kernel void nm_source_fem_rigid_tie_drive(
     device const NMFEMNodeStateGPU* accepted [[buffer(5)]],
     device NMFEMNodeStateGPU* candidate [[buffer(6)]],
     device NMMatterStatusGPU* statuses [[buffer(7)]],
+    device const NMContinuumObjectGPU* objects [[buffer(8)]],
+    device const MRBodyStateGPU* acceptedBodies [[buffer(9)]],
+    constant NMBridgeDispatchGPU& bridge [[buffer(10)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * tieCount;
@@ -1362,7 +1366,8 @@ kernel void nm_source_fem_rigid_tie_drive(
     const NMSourceFEMRigidTieGPU tie = ties[row];
     const uint node = tie.identity.x;
     const uint proxyIndex = tie.identity.y;
-    if (node >= dispatch.femNodeCount || proxyIndex >= dispatch.rigidProxyCount) {
+    if (node >= dispatch.femNodeCount || proxyIndex >= dispatch.rigidProxyCount ||
+        tie.identity.z >= dispatch.objectCount) {
         recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
             tie.identity.z, row, float4(float(node), float(proxyIndex), 0.0f, 0.0f));
         return;
@@ -1375,6 +1380,13 @@ kernel void nm_source_fem_rigid_tie_drive(
         return;
     }
     const NMRigidProxyGPU proxy = proxies[proxyIndex];
+    if (proxy.bodyIndex >= bridge.currentBodyCount ||
+        bridge.currentBodyStride < bridge.currentBodyCount) {
+        recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+            tie.identity.z, row, float4(float(proxy.bodyIndex),
+                float(bridge.currentBodyCount), 0.0f, 0.0f));
+        return;
+    }
     const NMRigidStateGPU rigid =
         bodies[environment * dispatch.rigidProxyCount + proxyIndex];
     const src::V<float> arm = sourceTieArm(tie, rigid, proxy);
@@ -1390,7 +1402,38 @@ kernel void nm_source_fem_rigid_tie_drive(
         return;
     }
     NMFEMNodeStateGPU next = candidate[nodeGlobal];
-    next.positionAndMass.xyz = position;
+    if ((objects[tie.identity.z].flags & NM_OBJECT_FEM_REFERENCE_CONFIGURATION) != 0u) {
+        // At an imported source checkpoint, the accepted tied node contains
+        // more edge precision than an absolute FP32 rigid transform can
+        // reproduce. Apply only the rigid increment to that accepted high/low
+        // position. The derivative with respect to the candidate rigid pose
+        // remains the same tie Jacobian used by the coupled Newton operator.
+        const MRBodyStateGPU acceptedBody = acceptedBodies[
+            environment * bridge.currentBodyStride + proxy.bodyIndex];
+        const src::V<float> acceptedArm = src::rotate(
+            sourceQuat(quaternionNormalize(acceptedBody.orientation)),
+            sourceVec(tie.localPoint));
+        const float3 delta =
+            (rigid.bodyCenter.xyz - acceptedBody.position.xyz) +
+            (armWorld - float3(acceptedArm.x, acceptedArm.y, acceptedArm.z));
+        if (!finite3(delta)) {
+            recordFailure(statuses[environment], NM_STATUS_NONFINITE_RESULT,
+                tie.identity.z, row, float4(delta, 0.0f));
+            return;
+        }
+        for (uint axis = 0u; axis < 3u; ++axis) {
+            const MRCompensatedScalar value = mrCompensatedAdd(
+                {accepted[nodeGlobal].positionAndMass[axis],
+                 accepted[nodeGlobal].positionLow[axis]},
+                {delta[axis], 0.0f});
+            next.positionAndMass[axis] = value.high;
+            next.positionLow[axis] = value.low;
+        }
+        next.positionLow.w = 0.0f;
+    } else {
+        next.positionAndMass.xyz = position;
+        next.positionLow = float4(0.0f);
+    }
     next.velocityAndInverseMass.xyz = velocity;
     next.deltaVelocity.xyz =
         velocity - accepted[nodeGlobal].velocityAndInverseMass.xyz;

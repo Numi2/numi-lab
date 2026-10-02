@@ -802,6 +802,7 @@ struct Runtime::State {
     std::vector<std::pair<std::uint32_t, std::uint32_t>> femRegionalBaseExponentLayout;
     std::vector<std::array<float, 2>> femRegionalMassLayout;
     std::vector<nm_float4> femRegionalRestLayout;
+    std::vector<nm_float4> femRegionalReferenceLowLayout;
     std::vector<std::pair<std::uint32_t, nm_float4>> femReferenceDeterminantLimits;
     std::vector<std::pair<std::uint32_t, nm_float4>> femReferenceCenterLayout;
     std::vector<std::pair<std::uint32_t, float>> femRegionalFixedParameterLayout;
@@ -1143,9 +1144,11 @@ RuntimeDiagnostics Runtime::initialize(
                 })) {
             candidate->femRegionalMassLayout.reserve(world.fem.nodes.size());
             candidate->femRegionalRestLayout.reserve(world.fem.nodes.size());
+            candidate->femRegionalReferenceLowLayout.reserve(world.fem.nodes.size());
             for (const auto& node : world.fem.nodes) {
                 candidate->femRegionalMassLayout.push_back({node.positionAndMass.w, node.velocityAndInverseMass.w});
                 candidate->femRegionalRestLayout.push_back(node.restAndFixed);
+                candidate->femRegionalReferenceLowLayout.push_back(node.referenceLow);
             }
             std::set<std::uint32_t> regionalMaterials;
             for (const auto& object : world.objects) {
@@ -4930,6 +4933,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.femAccepted offset:0u atIndex:5u];
                 [encoder setBuffer:state.femCandidate offset:0u atIndex:6u];
                 [encoder setBuffer:state.statuses offset:0u atIndex:7u];
+                [encoder setBuffer:state.objects offset:0u atIndex:8u];
+                [encoder setBuffer:currentBodies offset:0u atIndex:9u];
+                [encoder setBytes:&bridge length:sizeof(bridge) atIndex:10u];
             });
         };
         const auto materializeSourceContactGeometry = [&]() {
@@ -13141,7 +13147,8 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
 
     if (!state.femRegionalMassLayout.empty()) {
         if (state.femRegionalMassLayout.size() != state.dispatch.femNodeCount ||
-            state.femRegionalRestLayout.size() != state.dispatch.femNodeCount) {
+            state.femRegionalRestLayout.size() != state.dispatch.femNodeCount ||
+            state.femRegionalReferenceLowLayout.size() != state.dispatch.femNodeCount) {
             diagnostics.message = "Matter immutable regional mass layout changed";
             return diagnostics;
         }
@@ -13151,9 +13158,21 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
                 for (std::size_t local = 0u; local < object.stateCount; ++local) {
                     const auto nodeIndex = object.stateOffset + local;
                     const auto& node = snapshot.femNodes[environment * state.dispatch.femNodeCount + nodeIndex];
+                    const auto& low = node.positionLow;
+                    if (!std::isfinite(low.x) || !std::isfinite(low.y) ||
+                        !std::isfinite(low.z) || !std::isfinite(low.w) ||
+                        low.w != 0.0f ||
+                        ((object.flags & NM_OBJECT_FEM_REFERENCE_CONFIGURATION) == 0u &&
+                         (low.x != 0.0f || low.y != 0.0f || low.z != 0.0f))) {
+                        diagnostics.message = "Matter snapshot changed FEM position precision state";
+                        return diagnostics;
+                    }
                     const std::array<float, 2> observed{node.positionAndMass.w, node.velocityAndInverseMass.w};
                     if (std::memcmp(observed.data(), state.femRegionalMassLayout[nodeIndex].data(), sizeof(observed)) != 0 ||
-                        std::memcmp(&node.restAndFixed, &state.femRegionalRestLayout[nodeIndex], sizeof(node.restAndFixed)) != 0) {
+                        std::memcmp(&node.restAndFixed, &state.femRegionalRestLayout[nodeIndex], sizeof(node.restAndFixed)) != 0 ||
+                        std::memcmp(&node.referenceLow,
+                            &state.femRegionalReferenceLowLayout[nodeIndex],
+                            sizeof(node.referenceLow)) != 0) {
                         diagnostics.message = "Matter snapshot changed immutable authored FEM mass or rest constraint";
                         return diagnostics;
                     }

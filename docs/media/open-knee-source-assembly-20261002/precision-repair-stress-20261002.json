@@ -1,0 +1,137 @@
+{
+  "status": "rejected_root_diagnostic_only",
+  "hashes": [
+    "39b86f2f55853c74968f36a8d6c67eaed94639a3d42b558bb17787e2af8ffdba",
+    "de0ab6ec1de1a421187027beca0153b9b5768af14f90d19802c794e72cc10fb4",
+    "1d7e4c571a6f7a561b7f8d4ecba0b5f90117c8848fca04b1bc9f6c7336918d90"
+  ],
+  "force_dump_variant": "split_position_incremental_tie_candidate",
+  "source_rigid_ties_sha256": "cb06f3e1d566ac5d551c17daea6bb222e74c0c84ac33111e02f9e5f0f5d83221",
+  "stress_component_order": "xx yy zz xy yz xz",
+  "tissues": [
+    {
+      "material": 5,
+      "domain": 1,
+      "elements": 69410,
+      "xplt_rms_mpa": 0.0005191052060267563,
+      "matter_first_assembly_difference_rms_mpa": 1.966101912445089e-05,
+      "elements_touching_rigid_tie": 4287,
+      "tied_difference_rms_mpa": 1.9686502548305756e-05,
+      "untied_difference_rms_mpa": 1.9659340410245798e-05
+    },
+    {
+      "material": 6,
+      "domain": 2,
+      "elements": 200079,
+      "xplt_rms_mpa": 0.0035601333237618104,
+      "matter_first_assembly_difference_rms_mpa": 6.3846676288920315e-06,
+      "elements_touching_rigid_tie": 28847,
+      "tied_difference_rms_mpa": 6.566126714484076e-06,
+      "untied_difference_rms_mpa": 6.353587636586451e-06
+    },
+    {
+      "material": 7,
+      "domain": 3,
+      "elements": 14379,
+      "xplt_rms_mpa": 0.06856100105749695,
+      "matter_first_assembly_difference_rms_mpa": 2.3869035443252572e-05,
+      "elements_touching_rigid_tie": 1418,
+      "tied_difference_rms_mpa": 2.408250036907833e-05,
+      "untied_difference_rms_mpa": 2.3845565314383182e-05
+    },
+    {
+      "material": 8,
+      "domain": 4,
+      "elements": 121105,
+      "xplt_rms_mpa": 0.0006612792556977579,
+      "matter_first_assembly_difference_rms_mpa": 6.670232978270549e-06,
+      "elements_touching_rigid_tie": 23801,
+      "tied_difference_rms_mpa": 6.735608086179745e-06,
+      "untied_difference_rms_mpa": 6.654144162494515e-06
+    },
+    {
+      "material": 9,
+      "domain": 6,
+      "elements": 72552,
+      "xplt_rms_mpa": 0.04410042841203302,
+      "matter_first_assembly_difference_rms_mpa": 1.0976045156352278e-05,
+      "elements_touching_rigid_tie": 6531,
+      "tied_difference_rms_mpa": 1.1215677844581008e-05,
+      "untied_difference_rms_mpa": 1.0952054967726901e-05
+    },
+    {
+      "material": 10,
+      "domain": 8,
+      "elements": 62712,
+      "xplt_rms_mpa": 0.04847033085630612,
+      "matter_first_assembly_difference_rms_mpa": 5.9405624693531006e-05,
+      "elements_touching_rigid_tie": 3978,
+      "tied_difference_rms_mpa": 6.0600939537087774e-05,
+      "untied_difference_rms_mpa": 5.932379627366205e-05,
+      "double_source_law_difference_rms_mpa": 6.375519906742058e-06,
+      "float32_coordinate_difference_rms_mpa": 0.0030916240031718754
+    },
+    {
+      "material": 11,
+      "domain": 9,
+      "elements": 35616,
+      "xplt_rms_mpa": 0.004010019559421722,
+      "matter_first_assembly_difference_rms_mpa": 1.677819058333356e-05,
+      "elements_touching_rigid_tie": 5210,
+      "tied_difference_rms_mpa": 1.6904010730533764e-05,
+      "untied_difference_rms_mpa": 1.6756536773994587e-05
+    },
+    {
+      "material": 12,
+      "domain": 10,
+      "elements": 44953,
+      "xplt_rms_mpa": 0.003474413691346992,
+      "matter_first_assembly_difference_rms_mpa": 8.74024392828273e-06,
+      "elements_touching_rigid_tie": 903,
+      "tied_difference_rms_mpa": 8.4231341599856e-06,
+      "untied_difference_rms_mpa": 8.746624244322152e-06
+    },
+    {
+      "material": 13,
+      "domain": 11,
+      "elements": 51009,
+      "xplt_rms_mpa": 0.01455999955476528,
+      "matter_first_assembly_difference_rms_mpa": 8.727433253365883e-06,
+      "elements_touching_rigid_tie": 654,
+      "tied_difference_rms_mpa": 8.067685423300161e-06,
+      "untied_difference_rms_mpa": 8.735674153861992e-06
+    },
+    {
+      "material": 14,
+      "domain": 12,
+      "elements": 9773,
+      "xplt_rms_mpa": 0.08924367854090906,
+      "matter_first_assembly_difference_rms_mpa": 7.092759032026265e-05,
+      "elements_touching_rigid_tie": 208,
+      "tied_difference_rms_mpa": 7.265649708583993e-05,
+      "untied_difference_rms_mpa": 7.088952516558405e-05,
+      "double_source_law_difference_rms_mpa": 5.833511997852882e-06,
+      "float32_coordinate_difference_rms_mpa": 0.003105197128289085
+    },
+    {
+      "material": 15,
+      "domain": 13,
+      "elements": 75627,
+      "xplt_rms_mpa": 0.005029632795149938,
+      "matter_first_assembly_difference_rms_mpa": 6.598245842561241e-06,
+      "elements_touching_rigid_tie": 25094,
+      "tied_difference_rms_mpa": 6.708645755550102e-06,
+      "untied_difference_rms_mpa": 6.5427305636092285e-06
+    },
+    {
+      "material": 16,
+      "domain": 16,
+      "elements": 87072,
+      "xplt_rms_mpa": 0.0028417942680030125,
+      "matter_first_assembly_difference_rms_mpa": 7.78737946171744e-06,
+      "elements_touching_rigid_tie": 60415,
+      "tied_difference_rms_mpa": 7.902594841397608e-06,
+      "untied_difference_rms_mpa": 7.519725839190014e-06
+    }
+  ]
+}
