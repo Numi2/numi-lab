@@ -1,0 +1,175 @@
+checkpoint_initial_mcl_femoral_continuum_force_n=-0.209555,0.172632,-0.714397
+source_step=rejected source_time=0.05 newton_budget=14 fgmres_budget=20 matter_status=10 failing_object=9 failing_index=4294967295 completed_microsteps=0 fgmres_iterations=20 diagnostic0=0.0010327 diagnostic1=1.57223e-05 residual=0 correction=0 worst_object=0 maximum_object_residual=0.0010327 minimum_jacobian=0.987668 max_fem_displacement_m=0.000338057 source_contact_history=1035210 source_equivalence=unqualified
+checkpoint_rigid_body index=0 material=1 center_m=0.00401774,0.0462779,0.00361437 quaternion=0.000716022,0.00105284,-0.00181432,0.999998
+checkpoint_rigid_body index=1 material=2 center_m=2.13163e-17,1.06581e-17,-1.42109e-17 quaternion=-5.71475e-17,-1.54976e-17,-1.30938e-17,1
+checkpoint_rigid_body index=2 material=3 center_m=-0.0044315,-0.0072205,-0.0249345 quaternion=-6.91206e-17,1.78818e-17,-1.73536e-17,1
+checkpoint_rigid_body index=3 material=4 center_m=-0.000880283,-0.00679647,0.000166238 quaternion=9.86238e-05,0.000631277,-0.000931808,0.999999
+checkpoint_rigid_body index=4 material=17 center_m=-0.0044315,-0.0072205,-0.0249349 quaternion=2.09857e-06,-3.17154e-07,-0.00093181,1
+checkpoint_rigid_body index=5 material=18 center_m=-0.00104244,-0.00677181,0.000166448 quaternion=9.96731e-05,0.000631119,-0.000931807,0.999999
+checkpoint_rigid_body index=6 material=19 center_m=0.00401855,0.0462778,0.0037001 quaternion=0.000723428,0.0010522,-0.000932433,0.999999
+checkpoint_rigid_body index=7 material=20 center_m=-0.00101053,-0.00677666,0.000166406 quaternion=0.000647284,0.000548359,-0.000932162,0.999999
+checkpoint_rigid_body index=8 material=21 center_m=0.0013789,0.0379265,0.0901749 quaternion=0.000237675,0.00120951,-0.00184625,0.999998
+source_certificate object=0 residual=0.0010327 correction=1.57223e-05 volume=0 pressure=0 minimum_jacobian=0.999956 contact_gap=0 transport=0,0,0,0
+source_certificate object=1 residual=0.0010327 correction=1.57223e-05 volume=0 pressure=0 minimum_jacobian=0.99724 contact_gap=0 transport=0,0,0,0
+source_certificate object=2 residual=0.0010327 correction=1.57223e-05 volume=0 pressure=0 minimum_jacobian=0.994741 contact_gap=0 transport=0,0,0,0
+source_certificate object=3 residual=0.0010327 correction=1.57223e-05 volume=0 pressure=0 minimum_jacobian=0.998798 contact_gap=0 transport=0,0,0,0
+source_certificate object=4 residual=0.0010327 correction=1.57223e-05 volume=0 pressure=0 minimum_jacobian=0.987668 contact_gap=0 transport=0,0,0,0
+source_certificate object=5 residual=0.0010327 correction=1.57223e-05 volume=0 pressure=0 minimum_jacobian=0.998804 contact_gap=0 transport=0,0,0,0
+source_certificate object=6 residual=0.0010327 correction=1.57223e-05 volume=0 pressure=0 minimum_jacobian=0.99954 contact_gap=0 transport=0,0,0,0
+source_certificate object=7 residual=0.0010327 correction=1.57223e-05 volume=0 pressure=0 minimum_jacobian=0.999137 contact_gap=0 transport=0,0,0,0
+source_certificate object=8 residual=0.0010327 correction=1.57223e-05 volume=0 pressure=0 minimum_jacobian=0.995024 contact_gap=0 transport=0,0,0,0
+source_certificate object=9 residual=0.0010327 correction=1.57223e-05 volume=0 pressure=0 minimum_jacobian=0.997427 contact_gap=0 transport=0,0,0,0
+source_certificate object=10 residual=0.0010327 correction=1.57223e-05 volume=0 pressure=0 minimum_jacobian=0.998349 contact_gap=0 transport=0,0,0,0
+source_certificate object=11 residual=0.0010327 correction=1.57223e-05 volume=0 pressure=0 minimum_jacobian=0.997917 contact_gap=0 transport=0,0,0,0
+checkpoint_candidate_contact surface=1 name=ACL_@_FMB_ContactFaces active_faces=0 active_gauss=0 pressure_area_integral_n=0 max_pressure_pa=0 max_gap_m=0
+checkpoint_candidate_contact surface=2 name=ACL_@_PCL_ContactFaces active_faces=30 active_gauss=71 pressure_area_integral_n=0.947027 max_pressure_pa=861830 max_gap_m=0.000106673
+checkpoint_candidate_contact surface=3 name=ACL_@_TBB_ContactFaces active_faces=0 active_gauss=0 pressure_area_integral_n=0 max_pressure_pa=0 max_gap_m=0
+checkpoint_candidate_contact surface=4 name=FMB_@_ACL_ContactFaces active_faces=0 active_gauss=0 pressure_area_integral_n=0 max_pressure_pa=0 max_gap_m=0
+checkpoint_candidate_contact surface=5 name=FMB_@_LCL_ContactFaces active_faces=0 active_gauss=0 pressure_area_integral_n=0 max_pressure_pa=0 max_gap_m=0
+checkpoint_candidate_contact surface=6 name=FMB_@_MCL_ContactFaces active_faces=0 active_gauss=0 pressure_area_integral_n=0 max_pressure_pa=0 max_gap_m=0
+checkpoint_candidate_contact surface=7 name=FMB_@_PCL_ContactFaces active_faces=0 active_gauss=0 pressure_area_integral_n=0 max_pressure_pa=0 max_gap_m=0
+checkpoint_candidate_contact surface=8 name=FMB_@_QAT_ContactFaces active_faces=0 active_gauss=0 pressure_area_integral_n=0 max_pressure_pa=0 max_gap_m=0
+checkpoint_candidate_contact surface=9 name=FMC_@_MNS-L_ContactFaces active_faces=4 active_gauss=4 pressure_area_integral_n=0.00731679 max_pressure_pa=46025.4 max_gap_m=9.38069e-06
+checkpoint_candidate_contact surface=10 name=FMC_@_MNS-M_ContactFaces active_faces=15 active_gauss=21 pressure_area_integral_n=0.134151 max_pressure_pa=382485 max_gap_m=3.0459e-05
+checkpoint_candidate_contact surface=11 name=FMC_@_PTC_ContactFaces active_faces=7 active_gauss=10 pressure_area_integral_n=0.0100791 max_pressure_pa=34280.5 max_gap_m=1.39243e-05
+checkpoint_candidate_contact surface=12 name=FMC_@_QAT_ContactFaces active_faces=0 active_gauss=0 pressure_area_integral_n=0 max_pressure_pa=0 max_gap_m=0
+checkpoint_candidate_contact surface=13 name=FMC_@_TBC-L_ContactFaces active_faces=17 active_gauss=36 pressure_area_integral_n=0.0580942 max_pressure_pa=58492.9 max_gap_m=1.4579e-05
+checkpoint_candidate_contact surface=14 name=FMC_@_TBC-M_ContactFaces active_faces=36 active_gauss=85 pressure_area_integral_n=0.109672 max_pressure_pa=31775.3 max_gap_m=7.10191e-06
+checkpoint_candidate_contact surface=15 name=LCL_@_FMB_ContactFaces active_faces=0 active_gauss=0 pressure_area_integral_n=0 max_pressure_pa=0 max_gap_m=0
+checkpoint_candidate_contact surface=16 name=MCL_@_FMB_ContactFaces active_faces=0 active_gauss=0 pressure_area_integral_n=0 max_pressure_pa=0 max_gap_m=0
+checkpoint_candidate_contact surface=17 name=MCL_@_TBB_ContactFaces active_faces=27 active_gauss=55 pressure_area_integral_n=0.143395 max_pressure_pa=190117 max_gap_m=3.04957e-05
+checkpoint_candidate_contact surface=18 name=MNS-L_@_FMC_ContactFaces active_faces=6 active_gauss=6 pressure_area_integral_n=0.0175365 max_pressure_pa=98701.6 max_gap_m=7.61299e-06
+checkpoint_candidate_contact surface=19 name=MNS-L_@_TBC-L_ContactFaces active_faces=13 active_gauss=18 pressure_area_integral_n=0.0353346 max_pressure_pa=137428 max_gap_m=6.16747e-06
+checkpoint_candidate_contact surface=20 name=MNS-M_@_FMC_ContactFaces active_faces=22 active_gauss=40 pressure_area_integral_n=0.270679 max_pressure_pa=512791 max_gap_m=3.66648e-05
+checkpoint_candidate_contact surface=21 name=MNS-M_@_PCL_ContactFaces active_faces=11 active_gauss=21 pressure_area_integral_n=0.280334 max_pressure_pa=601251 max_gap_m=4.64116e-05
+checkpoint_candidate_contact surface=22 name=MNS-M_@_TBC-M_ContactFaces active_faces=72 active_gauss=131 pressure_area_integral_n=0.343634 max_pressure_pa=164372 max_gap_m=1.20278e-05
+checkpoint_candidate_contact surface=23 name=PCL_@_ACL_ContactFaces active_faces=24 active_gauss=53 pressure_area_integral_n=1.23548 max_pressure_pa=992295 max_gap_m=0.000103718
+checkpoint_candidate_contact surface=24 name=PCL_@_FMB_ContactFaces active_faces=0 active_gauss=0 pressure_area_integral_n=0 max_pressure_pa=0 max_gap_m=0
+checkpoint_candidate_contact surface=25 name=PCL_@_MNS-M_ContactFaces active_faces=10 active_gauss=19 pressure_area_integral_n=0.263053 max_pressure_pa=639498 max_gap_m=4.38688e-05
+checkpoint_candidate_contact surface=26 name=PCL_@_TBB_ContactFaces active_faces=0 active_gauss=0 pressure_area_integral_n=0 max_pressure_pa=0 max_gap_m=0
+checkpoint_candidate_contact surface=27 name=PTC_@_FMC_ContactFaces active_faces=15 active_gauss=25 pressure_area_integral_n=0.0470076 max_pressure_pa=208921 max_gap_m=1.69265e-05
+checkpoint_candidate_contact surface=28 name=QAT_@_FMB_ContactFaces active_faces=0 active_gauss=0 pressure_area_integral_n=0 max_pressure_pa=0 max_gap_m=0
+checkpoint_candidate_contact surface=29 name=QAT_@_FMC_ContactFaces active_faces=0 active_gauss=0 pressure_area_integral_n=0 max_pressure_pa=0 max_gap_m=0
+checkpoint_candidate_contact surface=30 name=TBB_@_ACL_ContactFaces active_faces=0 active_gauss=0 pressure_area_integral_n=0 max_pressure_pa=0 max_gap_m=0
+checkpoint_candidate_contact surface=31 name=TBB_@_MCL_ContactFaces active_faces=8 active_gauss=16 pressure_area_integral_n=0 max_pressure_pa=0 max_gap_m=2.9843e-05
+checkpoint_candidate_contact surface=32 name=TBB_@_PCL_ContactFaces active_faces=0 active_gauss=0 pressure_area_integral_n=0 max_pressure_pa=0 max_gap_m=0
+checkpoint_candidate_contact surface=33 name=TBC-L_@_FMC_ContactFaces active_faces=62 active_gauss=153 pressure_area_integral_n=0.261006 max_pressure_pa=221531 max_gap_m=1.50283e-05
+checkpoint_candidate_contact surface=34 name=TBC-L_@_MNS-L_ContactFaces active_faces=26 active_gauss=44 pressure_area_integral_n=0.0299786 max_pressure_pa=108876 max_gap_m=7.61074e-06
+checkpoint_candidate_contact surface=35 name=TBC-M_@_FMC_ContactFaces active_faces=109 active_gauss=265 pressure_area_integral_n=0.309311 max_pressure_pa=128565 max_gap_m=8.59705e-06
+checkpoint_candidate_contact surface=36 name=TBC-M_@_MNS-M_ContactFaces active_faces=103 active_gauss=208 pressure_area_integral_n=0.233416 max_pressure_pa=121210 max_gap_m=1.29486e-05
+source_residual_block object=0 name=OpenKnee_QAT l2=2.62978e-05 maximum=1.19544e-06 worst_node=13713
+source_residual_block object=1 name=OpenKnee_TBC-L l2=6.74424e-06 maximum=1.44902e-06 worst_node=51377
+source_residual_block object=2 name=OpenKnee_PCL l2=1.15922e-05 maximum=2.10082e-06 worst_node=59318
+source_residual_block object=3 name=OpenKnee_PTC l2=7.16245e-06 maximum=3.0183e-07 worst_node=76844
+source_residual_block object=4 name=OpenKnee_ACL l2=6.36062e-06 maximum=8.24017e-07 worst_node=89343
+source_residual_block object=5 name=OpenKnee_MCL l2=0.000555835 maximum=8.33117e-05 worst_node=109994
+source_residual_block object=6 name=OpenKnee_PTL l2=2.0465e-05 maximum=1.36828e-06 worst_node=125932
+source_residual_block object=7 name=OpenKnee_MNS-L l2=1.16611e-05 maximum=3.61207e-06 worst_node=136098
+source_residual_block object=8 name=OpenKnee_MNS-M l2=0.000662918 maximum=0.000218278 worst_node=140549
+source_residual_block object=9 name=OpenKnee_LCL l2=2.05674e-05 maximum=1.60891e-06 worst_node=151396
+source_residual_block object=10 name=OpenKnee_TBC-M l2=1.21261e-05 maximum=1.68663e-06 worst_node=162281
+source_residual_block object=11 name=OpenKnee_FMC l2=3.73736e-05 maximum=1.01043e-05 worst_node=187360
+source_residual_block name=rigid l2=0.000560863 maximum=0.000311025 worst_dof=6
+checkpoint_rigid_residual dof=0 impulse=3.81777e-05
+checkpoint_rigid_residual dof=1 impulse=-0.000148713
+checkpoint_rigid_residual dof=2 impulse=2.56578e-05
+checkpoint_rigid_residual dof=3 impulse=-2.18037e-07
+checkpoint_rigid_residual dof=4 impulse=-2.85595e-08
+checkpoint_rigid_residual dof=5 impulse=-2.60561e-08
+checkpoint_rigid_residual dof=6 impulse=-0.000311025
+checkpoint_rigid_residual dof=7 impulse=6.81236e-05
+checkpoint_rigid_residual dof=8 impulse=7.05491e-05
+checkpoint_rigid_residual dof=9 impulse=1.5904e-05
+checkpoint_rigid_residual dof=10 impulse=3.03465e-06
+checkpoint_rigid_residual dof=11 impulse=1.95493e-06
+checkpoint_rigid_residual dof=12 impulse=-4.62704e-05
+checkpoint_rigid_residual dof=13 impulse=7.5244e-06
+checkpoint_rigid_residual dof=14 impulse=0.000101628
+checkpoint_rigid_residual dof=15 impulse=-4.25597e-06
+checkpoint_rigid_residual dof=16 impulse=-4.26317e-07
+checkpoint_rigid_residual dof=17 impulse=2.55694e-07
+checkpoint_rigid_residual dof=18 impulse=4.87338e-05
+checkpoint_rigid_residual dof=19 impulse=3.09228e-05
+checkpoint_rigid_residual dof=20 impulse=-0.000100236
+checkpoint_rigid_residual dof=21 impulse=-1.00894e-05
+checkpoint_rigid_residual dof=22 impulse=-1.66518e-06
+checkpoint_rigid_residual dof=23 impulse=-1.87567e-07
+checkpoint_rigid_residual dof=24 impulse=-0.000237397
+checkpoint_rigid_residual dof=25 impulse=0.000244206
+checkpoint_rigid_residual dof=26 impulse=-1.8243e-05
+checkpoint_rigid_residual dof=27 impulse=1.14103e-06
+checkpoint_rigid_residual dof=28 impulse=5.46721e-07
+checkpoint_rigid_residual dof=29 impulse=-1.0631e-05
+checkpoint_rigid_residual dof=30 impulse=0.000199141
+checkpoint_rigid_residual dof=31 impulse=-3.34997e-05
+checkpoint_rigid_residual dof=32 impulse=1.75277e-05
+checkpoint_rigid_residual dof=33 impulse=1.2619e-08
+checkpoint_rigid_residual dof=34 impulse=5.61764e-08
+checkpoint_rigid_residual dof=35 impulse=5.275e-08
+checkpoint_rigid_residual dof=36 impulse=-2.48365e-07
+checkpoint_rigid_residual dof=37 impulse=7.20764e-07
+checkpoint_rigid_residual dof=38 impulse=-1.26081e-05
+checkpoint_rigid_residual dof=39 impulse=1.04974e-09
+checkpoint_rigid_residual dof=40 impulse=8.8401e-09
+checkpoint_rigid_residual dof=41 impulse=-4.93752e-12
+source_contact_block object=0 name=OpenKnee_QAT contact_impulse_l2=0 contact_residual_dot=0
+source_contact_block object=1 name=OpenKnee_TBC-L contact_impulse_l2=0.00118106 contact_residual_dot=2.30122e-10
+source_contact_block object=2 name=OpenKnee_PCL contact_impulse_l2=0.0128613 contact_residual_dot=5.46213e-09
+source_contact_block object=3 name=OpenKnee_PTC contact_impulse_l2=0.000415023 contact_residual_dot=2.41831e-11
+source_contact_block object=4 name=OpenKnee_ACL contact_impulse_l2=0.0108727 contact_residual_dot=3.93037e-09
+source_contact_block object=5 name=OpenKnee_MCL contact_impulse_l2=0.000806516 contact_residual_dot=1.57037e-10
+source_contact_block object=6 name=OpenKnee_PTL contact_impulse_l2=0 contact_residual_dot=0
+source_contact_block object=7 name=OpenKnee_MNS-L contact_impulse_l2=0.000537741 contact_residual_dot=1.02787e-09
+source_contact_block object=8 name=OpenKnee_MNS-M contact_impulse_l2=0.00503163 contact_residual_dot=1.99547e-08
+source_contact_block object=9 name=OpenKnee_LCL contact_impulse_l2=0 contact_residual_dot=0
+source_contact_block object=10 name=OpenKnee_TBC-M contact_impulse_l2=0.0018887 contact_residual_dot=2.05804e-09
+source_contact_block object=11 name=OpenKnee_FMC contact_impulse_l2=0.00365926 contact_residual_dot=5.43458e-10
+checkpoint_rigid_contact_force body=0 material=1 newton=0,0,0
+checkpoint_rigid_contact_force body=1 material=2 newton=0,0,0
+checkpoint_rigid_contact_force body=2 material=3 newton=-0.131325,0.0197103,0.0540187
+checkpoint_rigid_contact_force body=3 material=4 newton=0,0,0
+checkpoint_rigid_contact_force body=4 material=17 newton=0,0,0
+checkpoint_rigid_contact_force body=5 material=18 newton=0,0,0
+checkpoint_rigid_contact_force body=6 material=19 newton=0,0,0
+checkpoint_rigid_contact_force body=7 material=20 newton=0,0,0
+checkpoint_rigid_contact_force body=8 material=21 newton=0,0,0
+checkpoint_tied_contact_force object=11 name=OpenKnee_FMC body_material=4 newton=-0.00460511,0.00109686,0.00795505
+checkpoint_tie_object object=0 name=OpenKnee_QAT impulse=-5.50236e-08,2.386e-05,1.64373e-05
+checkpoint_tie_object object=1 name=OpenKnee_TBC-L impulse=0.00203191,-0.0011695,-0.00575075
+checkpoint_tie_object object=2 name=OpenKnee_PCL impulse=0.0283976,-0.00184697,0.0201342
+checkpoint_tie_object object=3 name=OpenKnee_PTC impulse=0.000314849,0.000881825,0.000259921
+checkpoint_tie_object object=4 name=OpenKnee_ACL impulse=-0.0326655,-0.00347657,-0.0142388
+checkpoint_tie_object object=5 name=OpenKnee_MCL impulse=0.00305123,0.00224291,5.02484e-05
+checkpoint_tie_object object=6 name=OpenKnee_PTL impulse=1.56229e-06,-2.09235e-05,5.21718e-06
+checkpoint_tie_object object=7 name=OpenKnee_MNS-L impulse=0.000275471,0.000355119,0.0005254
+checkpoint_tie_object object=8 name=OpenKnee_MNS-M impulse=0.00803706,0.0027609,-0.00352328
+checkpoint_tie_object object=9 name=OpenKnee_LCL impulse=-4.40582e-06,-3.36564e-07,-9.416e-08
+checkpoint_tie_object object=10 name=OpenKnee_TBC-M impulse=-0.00222052,0.000609049,-0.0163006
+checkpoint_tie_object object=11 name=OpenKnee_FMC impulse=-0.00540344,-0.000522705,0.0176888
+checkpoint_tie_body body=0 material=1 impulse=-0.000227952,0.000833416,0.000256837
+checkpoint_tie_body body=1 material=2 impulse=0.0015206,0.0010835,0.0065215
+checkpoint_tie_body body=2 material=3 impulse=0.000604048,-0.00141588,-0.00773903
+checkpoint_tie_body body=3 material=4 impulse=1.51186e-05,-0.000601156,-0.000111821
+checkpoint_tie_body body=4 material=17 impulse=0,0,0
+checkpoint_tie_body body=5 material=18 impulse=0,0,0
+checkpoint_tie_body body=6 material=19 impulse=0,0,0
+checkpoint_tie_body body=7 material=20 impulse=0,0,0
+checkpoint_tie_body body=8 material=21 impulse=-9.60565e-05,-6.32239e-05,-6.07513e-05
+checkpoint_tie_path object=0 name=OpenKnee_QAT body_material=1 impulse=9.60014e-05,8.70839e-05,7.71886e-05
+checkpoint_tie_path object=0 name=OpenKnee_QAT body_material=21 impulse=-9.60565e-05,-6.32239e-05,-6.07513e-05
+checkpoint_tie_path object=1 name=OpenKnee_TBC-L body_material=3 impulse=0.00203191,-0.0011695,-0.00575075
+checkpoint_tie_path object=2 name=OpenKnee_PCL body_material=3 impulse=0.000116422,-5.71449e-05,0.00761503
+checkpoint_tie_path object=2 name=OpenKnee_PCL body_material=4 impulse=0.0282812,-0.00178983,0.0125192
+checkpoint_tie_path object=3 name=OpenKnee_PTC body_material=1 impulse=0.000314849,0.000881825,0.000259921
+checkpoint_tie_path object=4 name=OpenKnee_ACL body_material=3 impulse=-0.0149775,-0.00332915,-0.00232869
+checkpoint_tie_path object=4 name=OpenKnee_ACL body_material=4 impulse=-0.017688,-0.000147414,-0.0119101
+checkpoint_tie_path object=5 name=OpenKnee_MCL body_material=3 impulse=0.00670083,-0.000699715,0.0119384
+checkpoint_tie_path object=5 name=OpenKnee_MCL body_material=4 impulse=-0.0036496,0.00294263,-0.0118881
+checkpoint_tie_path object=6 name=OpenKnee_PTL body_material=1 impulse=-0.000638803,-0.000135493,-8.02733e-05
+checkpoint_tie_path object=6 name=OpenKnee_PTL body_material=3 impulse=0.000640365,0.000114569,8.54905e-05
+checkpoint_tie_path object=7 name=OpenKnee_MNS-L body_material=3 impulse=0.000275471,0.000355119,0.0005254
+checkpoint_tie_path object=8 name=OpenKnee_MNS-M body_material=3 impulse=0.00803706,0.0027609,-0.00352328
+checkpoint_tie_path object=9 name=OpenKnee_LCL body_material=2 impulse=0.0015206,0.0010835,0.0065215
+checkpoint_tie_path object=9 name=OpenKnee_LCL body_material=4 impulse=-0.00152501,-0.00108383,-0.00652159
+checkpoint_tie_path object=10 name=OpenKnee_TBC-M body_material=3 impulse=-0.00222052,0.000609049,-0.0163006
+checkpoint_tie_path object=11 name=OpenKnee_FMC body_material=4 impulse=-0.00540344,-0.000522705,0.0176888
