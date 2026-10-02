@@ -1,7 +1,7 @@
 {
   "admission": {
     "reasons": [
-      "all source contact nodes, faces, surfaces and pairs bind to the Newton geometry path, but live two-pass projection, automatic-penalty traction and a consistent tangent are absent; preDynamics refuses this incomplete source-contact program before changing accepted state",
+      "all source contact geometry and per-face automatic-penalty inputs are bound, but live two-pass projection, traction, consistent tangent and contact history are absent; preDynamics refuses this incomplete source-contact program before changing accepted state",
       "source prestrain and flexion continuation are staged in the coupled Newton program, but full-knee initial-contact preparation and equilibrium have not been solved",
       "the 402 MCL-meniscus discrete springs are included in the coupled program but the full source case has not been stepped",
       "no Matter accepted full-knee state or XPLT field comparison"
@@ -30,7 +30,7 @@
     "coupled_runtime_program": "initialized",
     "open_knee_source_volume_mesh": "passed",
     "rest_volume_range_m3": "2.37034e-14,1.26209e-09",
-    "runtime_resident_bytes": "4498847752",
+    "runtime_resident_bytes": "4504368872",
     "source_analysis": "quasistatic_inertia_excluded",
     "source_contact": "moving_face_topology_bound_no_traction_or_tangent",
     "source_contact_faces": "345070",
@@ -62,7 +62,9 @@
     "source_contact_runtime_nodes": "76062",
     "source_contact_runtime_faces": "345070",
     "source_contact_runtime_pairs": "18",
-    "source_contact_backing_tissue_faces": "302274"
+    "source_contact_backing_tissue_faces": "302274",
+    "source_contact_auto_penalty_range_n_per_mm3": "17.0969,10323",
+    "source_contact_auto_penalty_basis": "identity-state inverse normal compliance times reference face area divided by backing tet volume; source penalty multiplier remains separate"
   },
   "schema": "numi.matter.open-knee-source-assembly.v1",
   "source_artifacts": {
@@ -104,7 +106,7 @@
     }
   },
   "source_contact_initial_support": "contact-initial-face-support.json",
-  "stdout_sha256": "32dbd32dd5ade18c6b97defe369d45d7b75c25d9ee8c0395a6e9702b3da05556",
+  "stdout_sha256": "671a6475d47731e516de3ac5226bb85ffa7a535d309ebab9663f477714934021",
   "verification": [
     "coupled static regression passes with a free rigid body, spring, joint, tissue tie and free FEM node",
     "tenfold change in numerical inverse mass changes accepted static correction by less than 0.02 percent in focused regression",
@@ -120,6 +122,7 @@
     "small coupled regression accepts source time 0.5 prestrain and time 1.1 flexion, and rejects mismatched post-commit source time; this does not qualify the full knee",
     "all 345070 source contact faces and 76062 unique tissue or rigid nodes are bound to the coupled runtime; moving-face materialization is wired to Newton reassembly and certification, but source-contact execution is fail-closed until traction and tangent are implemented",
     "a coupled admission regression rejects source contact at preDynamics and confirms its accepted FEM state is unchanged",
-    "all 302274 tissue contact faces resolve to exactly one backing source tetrahedron, with zero missing or ambiguous owners; rigid faces retain no elastic backing tetrahedron"
+    "all 302274 tissue contact faces resolve to exactly one backing source tetrahedron, with zero missing or ambiguous owners; rigid faces retain no elastic backing tetrahedron",
+    "all 302274 deformable contact faces have finite positive source-form automatic-penalty inputs; the 42796 rigid faces have no elastic backing penalty; no FEBio 2.9.1 pressure field agreement or accepted Matter state is claimed"
   ]
 }

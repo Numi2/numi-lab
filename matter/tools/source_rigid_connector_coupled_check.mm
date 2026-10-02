@@ -171,6 +171,8 @@ int main(int argc, char** argv) {
                 contactNodes[5].localPoint = {0.0f, 0.0f, 0.01f, 0.0f};
                 contactFaces[0].identity = {0u, 1u, 5u, 0u};
                 contactFaces[0].nodes = {0u, 1u, 2u, 0u};
+                contactFaces[0].autoPenalty = {1.0e9f, 5.0e-5f,
+                                               1.0e-7f, 2.0e6f};
                 contactFaces[1].identity = {1u, 2u, 20u, NM_INVALID_INDEX};
                 contactFaces[1].nodes = {3u, 4u, 5u, 0u};
                 contactSurfaces[0].identity = {0u, 1u, 0u, 0u};

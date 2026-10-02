@@ -68,6 +68,7 @@ typedef struct NM_ALIGN16 NMSourceContactNodeGPU {
 typedef struct NM_ALIGN16 NMSourceContactFaceGPU {
     nm_uint4 identity; // surface, source face ID, owner material ID, backing cooked tet or INVALID for rigid
     nm_uint4 nodes; // three source-contact node slots, reserved
+    nm_float4 autoPenalty; // Eeff*A/V N/m^3, reference area m^2, reference volume m^3, Eeff Pa; zero for rigid
 } NMSourceContactFaceGPU;
 typedef struct NM_ALIGN16 NMSourceContactSurfaceGPU {
     nm_uint4 identity; // first face, face count, owner index, owner kind
@@ -85,7 +86,7 @@ static_assert(sizeof(NMSourceFEMSpringGPU) == 64);
 static_assert(sizeof(NMSourceFEMSpringNodeGPU) == 16);
 static_assert(sizeof(NMSourcePrestrainGPU) == 32);
 static_assert(sizeof(NMSourceContactNodeGPU) == 32);
-static_assert(sizeof(NMSourceContactFaceGPU) == 32);
+static_assert(sizeof(NMSourceContactFaceGPU) == 48);
 static_assert(sizeof(NMSourceContactSurfaceGPU) == 16);
 static_assert(sizeof(NMSourceSlidingPairGPU) == 32);
 #endif

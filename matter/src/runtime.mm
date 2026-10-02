@@ -1564,6 +1564,25 @@ RuntimeDiagnostics Runtime::initialize(
                     diagnostics.message = "source sliding face has no backing element";
                     return diagnostics;
                 }
+                if (!finite4(row.autoPenalty) ||
+                    (owner.identity.w == 0u &&
+                     (!(row.autoPenalty.x > 0.0f) ||
+                      !(row.autoPenalty.y > 0.0f) ||
+                      !(row.autoPenalty.z > 0.0f) ||
+                      !(row.autoPenalty.w > 0.0f) ||
+                      std::abs(double(row.autoPenalty.x) -
+                               double(row.autoPenalty.w) *
+                               double(row.autoPenalty.y) /
+                               double(row.autoPenalty.z)) >
+                          1.0e-5 * double(row.autoPenalty.x))) ||
+                    (owner.identity.w == 1u &&
+                     (row.autoPenalty.x != 0.0f ||
+                      row.autoPenalty.y != 0.0f ||
+                      row.autoPenalty.z != 0.0f ||
+                      row.autoPenalty.w != 0.0f))) {
+                    diagnostics.message = "source sliding face has invalid automatic penalty";
+                    return diagnostics;
+                }
                 for (const auto node : {row.nodes.x, row.nodes.y, row.nodes.z}) {
                     const auto& point = sourceContactNodes[node];
                     if (point.identity.y != owner.identity.w ||

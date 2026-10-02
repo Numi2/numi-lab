@@ -767,6 +767,8 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
         std::vector<NMSourceContactSurfaceGPU> runtimeContactSurfaces;
         std::vector<NMSourceSlidingPairGPU> runtimeSlidingPairs;
         std::size_t sourceContactBackingFaces = 0u;
+        double minimumSourceAutoPenalty = std::numeric_limits<double>::infinity();
+        double maximumSourceAutoPenalty = 0.0;
         bool runtimeProgramInitialized = false;
         std::size_t runtimeResidentBytes = 0u;
         if (rigidGraphPath != nullptr) {
@@ -882,8 +884,12 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                 constexpr std::array<std::array<std::uint32_t, 3>, 4> tetFaces{{
                     {0u, 1u, 2u}, {0u, 1u, 3u},
                     {0u, 2u, 3u}, {1u, 2u, 3u}}};
-                for (const auto& mesh : meshes)
-                    for (const auto& tet : mesh.tetrahedra) {
+                for (std::size_t group = 0u; group < meshes.size(); ++group) {
+                    const auto& mesh = meshes[group];
+                    const auto& spec = specs[group];
+                    for (std::size_t localTet = 0u;
+                         localTet < mesh.tetrahedra.size(); ++localTet) {
+                        const auto& tet = mesh.tetrahedra[localTet];
                         for (const auto& local : tetFaces) {
                             const auto key = sourceFaceKey({
                                 tet.sourceNodeIds[local[0]],
@@ -897,11 +903,87 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                                     continue;
                                 if (face.identity.w != NM_INVALID_INDEX)
                                     ++ambiguousFaces;
-                                else face.identity.w = globalTet;
+                                else {
+                                    face.identity.w = globalTet;
+                                    const auto& faceNodes = sourceContact.faces[
+                                        found->second].sourceNodes;
+                                    const SourcePoint a = sourceNodeLocations.at(
+                                        faceNodes[0]).sourcePosition;
+                                    const SourcePoint b = sourceNodeLocations.at(
+                                        faceNodes[1]).sourcePosition;
+                                    const SourcePoint c = sourceNodeLocations.at(
+                                        faceNodes[2]).sourcePosition;
+                                    const SourcePoint areaVector = cross(
+                                        subtract(b, a), subtract(c, a));
+                                    const double area2 = length(areaVector);
+                                    const double area = 0.5 * area2;
+                                    require(area2 > 0.0 && std::isfinite(area2),
+                                            "source automatic penalty has degenerate face");
+                                    const SourcePoint normal = scale(areaVector,
+                                        1.0 / area2);
+                                    const SourcePoint t0 = sourceNodeLocations.at(
+                                        tet.sourceNodeIds[0]).sourcePosition;
+                                    const SourcePoint t1 = sourceNodeLocations.at(
+                                        tet.sourceNodeIds[1]).sourcePosition;
+                                    const SourcePoint t2 = sourceNodeLocations.at(
+                                        tet.sourceNodeIds[2]).sourcePosition;
+                                    const SourcePoint t3 = sourceNodeLocations.at(
+                                        tet.sourceNodeIds[3]).sourcePosition;
+                                    const double volume = std::abs(dot(
+                                        subtract(t1, t0), cross(
+                                            subtract(t2, t0),
+                                            subtract(t3, t0)))) / 6.0;
+                                    require(area > 0.0 && volume > 0.0 &&
+                                                std::isfinite(area) &&
+                                                std::isfinite(volume),
+                                            "source automatic penalty has invalid face geometry");
+                                    // FEBio 2.9 AutoPenalty uses the inverse
+                                    // identity-state elastic tangent contracted
+                                    // twice with the reference face normal.
+                                    // c2=0 and initial in-situ stretch=1 at
+                                    // activation. The uncoupled fibre tangent
+                                    // uses its tensile-side derivative at 1.
+                                    const double h = spec.ligament || spec.meniscus
+                                        ? spec.c3 * spec.c4 : 0.0;
+                                    double anisotropy = 0.0;
+                                    if (h > 0.0) {
+                                        const auto& frames = source.objects[group]
+                                            .femMaterialFrameRotations;
+                                        require(localTet < frames.size(),
+                                                "source backing tet lacks its fibre frame");
+                                        const auto fiber = rotateMaterialX(
+                                            frames[localTet]);
+                                        const double cosine = dot(normal, fiber);
+                                        const double deviatoric =
+                                            cosine * cosine - 1.0 / 3.0;
+                                        anisotropy = h * std::pow(
+                                            deviatoric / (4.0 * spec.c1), 2.0) /
+                                            (1.0 + h / (6.0 * spec.c1));
+                                    }
+                                    const double compliance =
+                                        1.0 / (6.0 * spec.c1) +
+                                        1.0 / (9.0 * spec.bulk) - anisotropy;
+                                    require(compliance > 0.0 &&
+                                                std::isfinite(compliance),
+                                            "source automatic penalty has singular compliance");
+                                    const double effectiveModulus =
+                                        1.0 / compliance; // MPa
+                                    const double penalty =
+                                        effectiveModulus * 1.0e9 * area / volume;
+                                    face.autoPenalty = {
+                                        static_cast<float>(penalty),
+                                        static_cast<float>(area * 1.0e-6),
+                                        static_cast<float>(volume * 1.0e-9),
+                                        static_cast<float>(effectiveModulus * 1.0e6)};
+                                    require(std::isfinite(face.autoPenalty.x) &&
+                                                face.autoPenalty.x > 0.0f,
+                                            "source automatic penalty exceeds runtime precision");
+                                }
                             }
                         }
                         ++globalTet;
                     }
+                }
                 const auto missingFaces = std::count_if(
                     runtimeContactFaces.begin(), runtimeContactFaces.end(),
                     [&](const auto& face) {
@@ -916,6 +998,14 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                         std::to_string(missingFaces) + " missing, " +
                         std::to_string(ambiguousFaces) + " ambiguous");
                 sourceContactBackingFaces = tissueFaceCount;
+                for (const auto& face : runtimeContactFaces) {
+                    if (face.identity.w == NM_INVALID_INDEX) continue;
+                    const double sourceUnits = face.autoPenalty.x * 1.0e-9;
+                    minimumSourceAutoPenalty = std::min(
+                        minimumSourceAutoPenalty, sourceUnits);
+                    maximumSourceAutoPenalty = std::max(
+                        maximumSourceAutoPenalty, sourceUnits);
+                }
                 runtimeSlidingPairs.reserve(sourceContact.pairs.size());
                 for (const auto& pair : sourceContact.pairs) {
                     require(pair.parameters[0] == 0.0 &&
@@ -1198,6 +1288,9 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                   << " source_contact_runtime_pairs=" << runtimeSlidingPairs.size()
                   << " source_contact_backing_tissue_faces="
                   << sourceContactBackingFaces
+                  << " source_contact_auto_penalty_range_n_per_mm3="
+                  << minimumSourceAutoPenalty << ','
+                  << maximumSourceAutoPenalty
                   << " source_contact_initial_gauss_points="
                   << initialContactProjection.quadraturePoints
                   << " source_contact_initial_active_gauss_points="
