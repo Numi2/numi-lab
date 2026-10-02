@@ -48,10 +48,20 @@ typedef struct NM_ALIGN16 NMSourceFEMSpringNodeGPU {
     nm_uint4 identity; // cooked node, first incidence, incidence count, reserved
 } NMSourceFEMSpringNodeGPU;
 
+// Source prestrain is an externally prescribed material parameter during one
+// implicit root. The first interval ramps from initial to preload; the second
+// holds that preload while prescribed flexion advances. The parameter offset
+// addresses the cooked environment-local material overlay, never its defaults.
+typedef struct NM_ALIGN16 NMSourcePrestrainGPU {
+    nm_uint4 identity; // global parameter offset, cooked material, source curve ID, reserved
+    nm_float4 stretch; // at source t=0, at t=1, reserved, reserved
+} NMSourcePrestrainGPU;
+
 #ifdef __cplusplus
 static_assert(sizeof(NMSourceCylindricalJointGPU) == 144);
 static_assert(sizeof(NMSourceRigidSpringGPU) == 96);
 static_assert(sizeof(NMSourceFEMRigidTieGPU) == 32);
 static_assert(sizeof(NMSourceFEMSpringGPU) == 64);
 static_assert(sizeof(NMSourceFEMSpringNodeGPU) == 16);
+static_assert(sizeof(NMSourcePrestrainGPU) == 32);
 #endif

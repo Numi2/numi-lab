@@ -854,6 +854,7 @@ struct RuntimeConfiguration {
     std::span<const NMSourceRigidSpringGPU> sourceRigidSprings{};
     std::span<const NMSourceFEMRigidTieGPU> sourceFEMRigidTies{};
     std::span<const NMSourceFEMSpringGPU> sourceFEMSprings{};
+    std::span<const NMSourcePrestrainGPU> sourcePrestrain{};
     std::uint64_t sourceRigidConnectorFingerprint = 0u;
     // Generic legacy callbacks may explicitly retain projected-only geometry.
     // A configured compensated Human owner must opt in; all candidate services,
@@ -1030,6 +1031,12 @@ struct EncodeRequest {
     std::uint64_t seed = 0u;
     // Per-call frame duration. Zero selects the cooked package duration.
     float timestepSeconds = 0.0f;
+    // FEBio source loading parameter for the current externally owned root.
+    // The caller must replay this prescribed input with the same accepted
+    // state. It is sampled by source joints and material prestrain in the
+    // same Newton assembly; a rejected root never writes the accepted
+    // environment-parameter overlay.
+    float sourceContinuationTime = 0.0f;
     bool runIdentification = false;
     bool runAdaptiveTransfer = false;
     // Opt in at preDynamics when this transaction will use the later-CB

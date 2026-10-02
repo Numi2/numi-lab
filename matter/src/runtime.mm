@@ -281,6 +281,9 @@ const char kImageAnchor = 0;
     hash = mixFingerprint(hash, detail::hashBytes(
         configuration.sourceFEMSprings.data(),
         configuration.sourceFEMSprings.size_bytes()));
+    hash = mixFingerprint(hash, detail::hashBytes(
+        configuration.sourcePrestrain.data(),
+        configuration.sourcePrestrain.size_bytes()));
     hash = mixFingerprint(hash, configuration.sourceRigidConnectorFingerprint);
     hash = mixFingerprint(hash, detail::hashBytes(
         configuration.humanSupportContacts.data(),
@@ -579,6 +582,7 @@ struct Runtime::State {
         bool preDynamicsOpen = false;
         std::uint32_t controlStep = 0u;
         std::uint32_t physicsSubstep = 0u;
+        float sourceContinuationTime = 0.0f;
         std::uint32_t identificationGeneration = 0u;
         std::uint32_t identificationCheckpoint = 0u;
         bool identificationAdvanced = false;
@@ -941,6 +945,8 @@ struct Runtime::State {
     id<MTLBuffer> sourceRigidSprings = nil;
     id<MTLBuffer> sourceFEMRigidTies = nil;
     id<MTLBuffer> sourceFEMSprings = nil;
+    id<MTLBuffer> sourcePrestrain = nil;
+    id<MTLBuffer> sourceMaterialParameters = nil;
     id<MTLBuffer> sourceFEMSpringNodes = nil;
     id<MTLBuffer> sourceFEMSpringIncidence = nil;
     id<MTLBuffer> sourceTieResidualImpulses = nil;
@@ -949,6 +955,7 @@ struct Runtime::State {
     std::uint32_t sourceSpringCount = 0u;
     std::uint32_t sourceTieCount = 0u;
     std::uint32_t sourceFEMSpringCount = 0u;
+    std::uint32_t sourcePrestrainCount = 0u;
     std::uint32_t sourceFEMSpringNodeCount = 0u;
     std::uint32_t sourceMaximumFreeIndex = NM_INVALID_INDEX;
     id<MTLBuffer> humanLimitLinearization = nil;
@@ -1360,9 +1367,11 @@ RuntimeDiagnostics Runtime::initialize(
         const auto sourceSprings = configuration.sourceRigidSprings;
         const auto sourceTies = configuration.sourceFEMRigidTies;
         const auto sourceFEMSprings = configuration.sourceFEMSprings;
+        const auto sourcePrestrain = configuration.sourcePrestrain;
         const bool hasSourceConnectors =
             !sourceJoints.empty() || !sourceSprings.empty() ||
-            !sourceTies.empty() || !sourceFEMSprings.empty();
+            !sourceTies.empty() || !sourceFEMSprings.empty() ||
+            !sourcePrestrain.empty();
         const auto finite4 = [](const nm_float4 v) {
             return std::isfinite(v.x) && std::isfinite(v.y) &&
                 std::isfinite(v.z) && std::isfinite(v.w);
@@ -1388,6 +1397,7 @@ RuntimeDiagnostics Runtime::initialize(
             sourceSprings.size() > std::numeric_limits<std::uint32_t>::max() ||
             sourceTies.size() > std::numeric_limits<std::uint32_t>::max() ||
             sourceFEMSprings.size() > std::numeric_limits<std::uint32_t>::max() ||
+            sourcePrestrain.size() > std::numeric_limits<std::uint32_t>::max() ||
             hasSourceConnectors !=
                 (configuration.sourceRigidConnectorFingerprint != 0u) ||
             (hasSourceConnectors && world.dispatch.maximumRateExponent != 0u)) {
@@ -1405,7 +1415,10 @@ RuntimeDiagnostics Runtime::initialize(
                 !finite4(row.axial) || std::abs(axis2 - 1.0f) > 1.0e-5f ||
                 !(row.parameters.x > 0.0f) || !(row.parameters.y > 0.0f) ||
                 (row.indices.z != 0u && row.axial.x != 0.0f) ||
-                (row.indices.w != 0u && row.axial.y != 0.0f)) {
+                (row.indices.w != 0u && row.axial.y != 0.0f) ||
+                (row.axial.z != 0.0f && row.axial.z != 1.0f) ||
+                row.axial.w != 0.0f ||
+                (row.axial.z == 1.0f && row.indices.w == 0u)) {
                 diagnostics.message = "invalid source cylindrical joint row";
                 return diagnostics;
             }
@@ -1424,6 +1437,36 @@ RuntimeDiagnostics Runtime::initialize(
                 return diagnostics;
             }
         }
+        std::set<std::uint32_t> sourcePrestrainParameters;
+        for (const auto& row : sourcePrestrain) {
+            if (row.identity.x >= world.parameters.size() ||
+                row.identity.y >= world.materials.size() ||
+                row.identity.z < 1u || row.identity.z > 6u ||
+                row.identity.w != 0u || !finite4(row.stretch) ||
+                row.stretch.x != 1.0f || row.stretch.y < 1.0f ||
+                row.stretch.y > 1.2f || row.stretch.z != 0.0f ||
+                row.stretch.w != 0.0f ||
+                !sourcePrestrainParameters.insert(row.identity.x).second) {
+                diagnostics.message = "invalid source prestrain schedule row";
+                return diagnostics;
+            }
+            const auto& material = world.materials[row.identity.y];
+            if (row.identity.x < material.parameterOffset ||
+                row.identity.x >= material.parameterOffset + material.parameterCount ||
+                world.parameters[row.identity.x].valueAndBounds.x != 1.0f) {
+                diagnostics.message = "source prestrain does not address a unit material parameter";
+                return diagnostics;
+            }
+        }
+        if (!sourcePrestrain.empty() && configuration.automaticIdentification) {
+            diagnostics.message = "source prestrain continuation does not permit material identification";
+            return diagnostics;
+        }
+        for (const auto& row : sourceJoints)
+            if (row.axial.z == 1.0f && sourcePrestrain.empty()) {
+                diagnostics.message = "source prescribed flexion needs its prestrain schedule";
+                return diagnostics;
+            }
         candidate->sourceJointCount =
             static_cast<std::uint32_t>(sourceJoints.size());
         candidate->sourceSpringCount =
@@ -1432,6 +1475,8 @@ RuntimeDiagnostics Runtime::initialize(
             static_cast<std::uint32_t>(sourceTies.size());
         candidate->sourceFEMSpringCount =
             static_cast<std::uint32_t>(sourceFEMSprings.size());
+        candidate->sourcePrestrainCount =
+            static_cast<std::uint32_t>(sourcePrestrain.size());
         std::vector<std::pair<std::uint32_t, std::uint32_t>> springIncidence;
         springIncidence.reserve(sourceFEMSprings.size() * 2u);
         for (std::uint32_t spring = 0u; spring < sourceFEMSprings.size(); ++spring) {
@@ -1554,6 +1599,10 @@ RuntimeDiagnostics Runtime::initialize(
                 candidate->sourcePhysicsFingerprint,
                 detail::hashBytes(sourceFEMSprings.data(),
                                   sourceFEMSprings.size_bytes()));
+            candidate->sourcePhysicsFingerprint = mixFingerprint(
+                candidate->sourcePhysicsFingerprint,
+                detail::hashBytes(sourcePrestrain.data(),
+                                  sourcePrestrain.size_bytes()));
         }
         std::filesystem::path metallib = configuration.metallib;
         if (metallib.empty()) {
@@ -1778,6 +1827,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_contact_accumulate_rigid_residual",
             "nm_source_rigid_connector_residual",
             "nm_source_rigid_connector_operator",
+            "nm_source_apply_prestrain",
             "nm_source_fem_rigid_tie_drive",
             "nm_source_fem_rigid_tie_capture_residual",
             "nm_source_fem_rigid_tie_scatter_residual",
@@ -2332,6 +2382,11 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->environmentParameters = uploads.repeated(
             std::span<const float>(defaultParameters),
             environments, valid, candidate->residentBytes);
+        if (!sourcePrestrain.empty())
+            candidate->sourceMaterialParameters = privateScratch<float>(
+                candidate->device,
+                environments * world.dispatch.parameterCount,
+                valid, candidate->residentBytes);
         candidate->environmentParametersPreparedCheckpoint = uploads.repeated(
             std::span<const float>(defaultParameters),
             environments, valid, candidate->residentBytes);
@@ -2532,6 +2587,8 @@ RuntimeDiagnostics Runtime::initialize(
             sourceTies, valid, candidate->residentBytes);
         candidate->sourceFEMSprings = uploads.one(
             sourceFEMSprings, valid, candidate->residentBytes);
+        candidate->sourcePrestrain = uploads.one(
+            sourcePrestrain, valid, candidate->residentBytes);
         candidate->sourceFEMSpringNodes = uploads.one(
             std::span<const NMSourceFEMSpringNodeGPU>(sourceSpringNodes),
             valid, candidate->residentBytes);
@@ -3740,6 +3797,17 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 "Matter runtime timestep differs from the active coupled cadence";
             return diagnostics;
         }
+        if (!std::isfinite(request.sourceContinuationTime) ||
+            (state.sourcePrestrainCount != 0u &&
+             (request.sourceContinuationTime < 0.0f ||
+              request.sourceContinuationTime > 2.0f ||
+              request.runIdentification ||
+              request.resetMaskStepStride != 0u)) ||
+            (state.sourcePrestrainCount == 0u &&
+             request.sourceContinuationTime != 0.0f)) {
+            diagnostics.message = "source continuation time or identification request is invalid";
+            return diagnostics;
+        }
 
         std::uint64_t vascularTimestepTicks = 0u;
         if (state.vascularValue.layout.ranges.z != 0u) {
@@ -3864,6 +3932,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
              ownership->physicsSubstep != request.physicsSubstep)) {
             diagnostics.message =
                 "Matter post-commit pass does not match its pre-dynamics transaction";
+            return diagnostics;
+        }
+        if (request.phase == EncodePhase::postCommit &&
+            request.sourceContinuationTime != ownership->sourceContinuationTime) {
+            diagnostics.message =
+                "Matter post-commit source time differs from its pre-dynamics target";
             return diagnostics;
         }
         if (retainPreparedState && !ownership->preparedStateRequested) {
@@ -4088,6 +4162,23 @@ RuntimeDiagnostics Runtime::encodeImpl(
             }
         }
 
+        if (request.phase == EncodePhase::preDynamics &&
+            state.sourcePrestrainCount != 0u) {
+            id<MTLBlitCommandEncoder> sourceParametersBlit =
+                [commandBuffer blitCommandEncoder];
+            if (sourceParametersBlit == nil ||
+                state.sourceMaterialParameters == nil ||
+                state.sourceMaterialParameters.length <
+                    state.environmentParameters.length) {
+                diagnostics.message = "source continuation parameter scratch is unavailable";
+                return diagnostics;
+            }
+            [sourceParametersBlit copyFromBuffer:state.environmentParameters
+                sourceOffset:0u toBuffer:state.sourceMaterialParameters
+                destinationOffset:0u size:state.environmentParameters.length];
+            [sourceParametersBlit endEncoding];
+        }
+
         id<MTLComputeCommandEncoder> encoder =
             [commandBuffer computeCommandEncoder];
         if (encoder == nil) {
@@ -4143,9 +4234,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
         bridge.time = {
             1.0f / frameTimestep,
             frameTimestep,
-            0.0f,
+            request.sourceContinuationTime,
             0.0f,
         };
+        const id<MTLBuffer> materialParameters =
+            state.sourcePrestrainCount != 0u ?
+                state.sourceMaterialParameters : state.environmentParameters;
         const std::uint32_t coupledArticulatedNv =
             state.requiresCoupledCandidate ? request.rigid.vStride : 0u;
         state.humanEqualityDispatch.time.x = frameTimestep;
@@ -4290,6 +4384,17 @@ RuntimeDiagnostics Runtime::encodeImpl(
             environments * state.dispatch.femHumanAttachmentCount;
         const NSUInteger sourceTieTotal =
             environments * state.sourceTieCount;
+        if (request.phase == EncodePhase::preDynamics &&
+            state.sourcePrestrainCount != 0u)
+            dispatchThreads("nm_source_apply_prestrain",
+                environments * state.sourcePrestrainCount, [&] {
+                    setDispatch();
+                    [encoder setBytes:&bridge length:sizeof(bridge) atIndex:1u];
+                    [encoder setBytes:&state.sourcePrestrainCount
+                        length:sizeof(state.sourcePrestrainCount) atIndex:2u];
+                    [encoder setBuffer:state.sourcePrestrain offset:0u atIndex:3u];
+                    [encoder setBuffer:materialParameters offset:0u atIndex:4u];
+                });
         const NSUInteger deformableContactHistoryTotal =
             environments * state.dispatch.deformableContactCapacity;
         const NSUInteger humanSupportTotal = environments *
@@ -5639,7 +5744,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.materials offset:0u atIndex:3u];
                         [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
                         [encoder setBuffer:state.instructions offset:0u atIndex:5u];
-                        [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
+                        [encoder setBuffer:materialParameters offset:0u atIndex:6u];
                         [encoder setBuffer:state.particleAccepted offset:0u atIndex:7u];
                         [encoder setBuffer:state.particleMaterialStateAccepted offset:0u atIndex:8u];
                         [encoder setBuffer:state.gridNodes offset:0u atIndex:9u];
@@ -6448,7 +6553,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.materials offset:0u atIndex:3u];
                 [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
                 [encoder setBuffer:state.instructions offset:0u atIndex:5u];
-                [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
+                [encoder setBuffer:materialParameters offset:0u atIndex:6u];
                 [encoder setBuffer:state.femCandidate offset:0u atIndex:7u];
                 [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:8u];
                 [encoder setBuffer:state.femMaterialStateAccepted offset:0u atIndex:9u];
@@ -6629,7 +6734,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.materials offset:0u atIndex:3u];
                         [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
                         [encoder setBuffer:state.instructions offset:0u atIndex:5u];
-                        [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
+                        [encoder setBuffer:materialParameters offset:0u atIndex:6u];
                         [encoder setBuffer:state.particleAccepted offset:0u atIndex:7u];
                         [encoder setBuffer:state.particleMaterialStateAccepted offset:0u atIndex:8u];
                         [encoder setBuffer:state.gridNodes offset:0u atIndex:9u];
@@ -7095,7 +7200,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.materials offset:0u atIndex:3u];
                     [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
                     [encoder setBuffer:state.instructions offset:0u atIndex:5u];
-                    [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
+                    [encoder setBuffer:materialParameters offset:0u atIndex:6u];
                     [encoder setBuffer:state.femCandidate offset:0u atIndex:7u];
                     [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:8u];
                     [encoder setBuffer:state.femMaterialStateAccepted offset:0u atIndex:9u];
@@ -7244,7 +7349,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             [encoder setBuffer:state.materials offset:0u atIndex:3u];
                             [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
                             [encoder setBuffer:state.instructions offset:0u atIndex:5u];
-                            [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
+                            [encoder setBuffer:materialParameters offset:0u atIndex:6u];
                             [encoder setBuffer:state.particleAccepted offset:0u atIndex:7u];
                             [encoder setBuffer:state.particleMaterialStateAccepted offset:0u atIndex:8u];
                             [encoder setBuffer:state.gridNodes offset:0u atIndex:9u];
@@ -7752,7 +7857,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.materials offset:0u atIndex:4u];
                     [encoder setBuffer:state.scalarPrograms offset:0u atIndex:5u];
                     [encoder setBuffer:state.instructions offset:0u atIndex:6u];
-                    [encoder setBuffer:state.environmentParameters offset:0u atIndex:7u];
+                    [encoder setBuffer:materialParameters offset:0u atIndex:7u];
                     [encoder setBuffer:state.particleAccepted offset:0u atIndex:8u];
                     [encoder setBuffer:state.particleMaterialStateAccepted offset:0u atIndex:9u];
                     [encoder setBuffer:state.gridNodes offset:0u atIndex:10u];
@@ -8065,7 +8170,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.materials offset:0u atIndex:3u];
                 [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
                 [encoder setBuffer:state.instructions offset:0u atIndex:5u];
-                [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
+                [encoder setBuffer:materialParameters offset:0u atIndex:6u];
                 [encoder setBuffer:state.femCandidate offset:0u atIndex:7u];
                 [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:8u];
                 [encoder setBuffer:state.femMaterialStateAccepted offset:0u atIndex:9u];
@@ -8237,7 +8342,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.materials offset:0u atIndex:3u];
                         [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
                         [encoder setBuffer:state.instructions offset:0u atIndex:5u];
-                        [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
+                        [encoder setBuffer:materialParameters offset:0u atIndex:6u];
                         [encoder setBuffer:state.particleAccepted offset:0u atIndex:7u];
                         [encoder setBuffer:state.particleMaterialStateAccepted offset:0u atIndex:8u];
                         [encoder setBuffer:state.gridNodes offset:0u atIndex:9u];
@@ -8300,7 +8405,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.materials offset:0u atIndex:3u];
                 [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
                 [encoder setBuffer:state.instructions offset:0u atIndex:5u];
-                [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
+                [encoder setBuffer:materialParameters offset:0u atIndex:6u];
                 [encoder setBuffer:state.particleAccepted offset:0u atIndex:7u];
                 [encoder setBuffer:state.particleCandidate offset:0u atIndex:8u];
                 [encoder setBuffer:state.particleMaterialStateAccepted offset:0u atIndex:9u];
@@ -8440,7 +8545,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.materials offset:0u atIndex:3u];
                 [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
                 [encoder setBuffer:state.instructions offset:0u atIndex:5u];
-                [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
+                [encoder setBuffer:materialParameters offset:0u atIndex:6u];
                 [encoder setBuffer:state.femCandidate offset:0u atIndex:7u];
                 [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:8u];
                 [encoder setBuffer:state.schedulers offset:0u atIndex:9u];
@@ -8945,7 +9050,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
         transactionPolicyFingerprint = mixFingerprint(
             transactionPolicyFingerprint,
             ownership->identificationGeneration);
-        const std::array<std::uint64_t, 31u> transactionPolicyValues{{
+        const std::array<std::uint64_t, 32u> transactionPolicyValues{{
             request.controlStep,
             request.physicsSubstep,
             request.physicsSubsteps,
@@ -8953,6 +9058,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
             request.seed,
             std::bit_cast<std::uint32_t>(request.timestepSeconds),
             std::bit_cast<std::uint32_t>(frameTimestep),
+            std::bit_cast<std::uint32_t>(request.sourceContinuationTime),
             request.runIdentification ? 1u : 0u,
             request.runAdaptiveTransfer ? 1u : 0u,
             request.resetMaskStepStride,
@@ -8990,6 +9096,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
             transactionPolicyFingerprint = 14695981039346656037ull;
         }
         ownership->preDynamicsOpen = true;
+        ownership->sourceContinuationTime = request.sourceContinuationTime;
         ownership->dispositionIdentity = {};
         ownership->disposition = PreparedStateDisposition::unknown;
         ownership->acceptedStateProofEncoded = false;
@@ -9265,6 +9372,8 @@ bool Runtime::encodeAcceptedStateProof(
             state.sourceRigidSprings,
             state.sourceFEMRigidTies,
             state.sourceFEMSprings,
+            state.sourcePrestrain,
+            state.sourceMaterialParameters,
             state.sourceFEMSpringNodes,
             state.sourceFEMSpringIncidence,
             state.sourceTieResidualImpulses,
@@ -10052,6 +10161,8 @@ bool Runtime::applyPreparedStateImpl(
             state.sourceRigidSprings,
             state.sourceFEMRigidTies,
             state.sourceFEMSprings,
+            state.sourcePrestrain,
+            state.sourceMaterialParameters,
             state.sourceFEMSpringNodes,
             state.sourceFEMSpringIncidence,
             state.sourceTieResidualImpulses,

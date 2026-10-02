@@ -4,6 +4,7 @@
 #include "numi/matter/matter.hpp"
 #include "metalrobo/engine_types.h"
 
+#include <algorithm>
 #include <cmath>
 #include <iostream>
 #include <stdexcept>
@@ -14,6 +15,9 @@
 #endif
 #ifndef NUMI_MATTER_FIXTURE_MATERIAL
 #define NUMI_MATTER_FIXTURE_MATERIAL ""
+#endif
+#ifndef NUMI_MATTER_SOURCE_PRESTRAIN_MATERIAL
+#define NUMI_MATTER_SOURCE_PRESTRAIN_MATERIAL ""
 #endif
 
 namespace {
@@ -29,12 +33,20 @@ int main(int argc, char** argv) {
             bool withTie = true;
             bool withFEMSpring = false;
             bool quasiStatic = false;
+            bool sourceContinuation = false;
+            float sourceTime = 0.0f;
             float numericalInverseMass = 1.0f;
             for (int argument = 1; argument < argc; ++argument) {
                 const std::string option = argv[argument];
                 if (option == "--no-tie") withTie = false;
                 else if (option == "--with-fem-spring") withFEMSpring = true;
                 else if (option == "--quasistatic") quasiStatic = true;
+                else if (option == "--source-continuation") {
+                    require(++argument < argc,
+                        "source continuation requires a time");
+                    sourceContinuation = true;
+                    sourceTime = std::stof(argv[argument]);
+                }
                 else if (option == "--numerical-inverse-mass") {
                     require(++argument < argc,
                         "numerical inverse mass requires a value");
@@ -47,8 +59,18 @@ int main(int argc, char** argv) {
                 "numerical inverse mass must be positive and finite");
             require(!withFEMSpring || quasiStatic,
                     "cross-tissue source spring check requires static mechanics");
-            auto material = parseMatterFile(NUMI_MATTER_FIXTURE_MATERIAL);
+            require(!sourceContinuation ||
+                (quasiStatic && std::isfinite(sourceTime) &&
+                 sourceTime >= 0.0f && sourceTime <= 2.0f),
+                "source continuation check requires bounded static time");
+            auto material = parseMatterFile(sourceContinuation
+                ? NUMI_MATTER_SOURCE_PRESTRAIN_MATERIAL
+                : NUMI_MATTER_FIXTURE_MATERIAL);
             require(material.succeeded(), "source connector runtime material did not parse");
+            if (sourceContinuation)
+                for (auto& parameter : material.material.parameters)
+                    if (parameter.name == "initial_stretch")
+                        parameter.defaultValue = 1.0;
             WorldSource source;
             source.frameTimestep = 1.0e-3;
             source.gravity = {0.0, 0.0, 0.0};
@@ -114,6 +136,11 @@ int main(int argc, char** argv) {
             joint.origin = {0.01f, 0.0f, 0.0f, 0.0f};
             joint.axis = {1.0f, 0.0f, 0.0f, 0.0f};
             joint.parameters = {10000.0f, 3000000.0f, 0.0f, 0.0f};
+            if (sourceContinuation) {
+                joint.indices.w = 1u;
+                joint.parameters.w = -0.2f;
+                joint.axial.z = 1.0f;
+            }
             NMSourceRigidSpringGPU spring{};
             spring.indices = {0u, 1u, 0u, 0u};
             spring.referenceA = joint.referenceA;
@@ -125,6 +152,21 @@ int main(int argc, char** argv) {
             tie.identity = {0u, 0u, 0u, 1u};
             tie.localPoint = {0.0f, 0.0f, 0.0f, 0.0f};
             NMSourceFEMSpringGPU femSpring{};
+            NMSourcePrestrainGPU prestrain{};
+            if (sourceContinuation) {
+                const auto& parameters = source.materials[0].parameters;
+                const auto found = std::find_if(parameters.begin(), parameters.end(),
+                    [](const auto& parameter) {
+                        return parameter.name == "initial_stretch";
+                    });
+                require(found != parameters.end(),
+                    "source continuation material has no stretch parameter");
+                prestrain.identity = {
+                    cooked.world.materials[0].parameterOffset +
+                        static_cast<std::uint32_t>(found - parameters.begin()),
+                    0u, 3u, 0u};
+                prestrain.stretch = {1.0f, 1.016f, 0.0f, 0.0f};
+            }
             if (withFEMSpring) {
                 femSpring.identity = {3u, 7u, 1u, 0u};
                 femSpring.referenceA = {0.002f, 0.001f, 0.01f, 0.0f};
@@ -142,6 +184,8 @@ int main(int argc, char** argv) {
             if (withTie) configuration.sourceFEMRigidTies = {&tie, 1u};
             if (withFEMSpring)
                 configuration.sourceFEMSprings = {&femSpring, 1u};
+            if (sourceContinuation)
+                configuration.sourcePrestrain = {&prestrain, 1u};
             configuration.sourceRigidConnectorFingerprint =
                 0x4e4d53434f4e4e31ull;
             Runtime runtime;
@@ -191,12 +235,21 @@ int main(int argc, char** argv) {
             request.rigid.bodyWrenchCount = 2u;
             request.rigid.bodyWrenchStride = 2u;
             request.timestepSeconds = runtime.timestepSeconds();
+            request.sourceContinuationTime = sourceTime;
             request.runAdaptiveTransfer = false;
             request.phase = EncodePhase::preDynamics;
             auto encoded = runtime.encode(request);
             require(encoded.encoded, "source connector preDynamics: " +
                 encoded.message);
             request.phase = EncodePhase::postCommit;
+            if (sourceContinuation) {
+                request.sourceContinuationTime = sourceTime + 0.01f;
+                const auto mismatched = runtime.encode(request);
+                require(!mismatched.encoded &&
+                    mismatched.message.find("source time differs") != std::string::npos,
+                    "source transaction admitted a changed post-commit target");
+                request.sourceContinuationTime = sourceTime;
+            }
             encoded = runtime.encode(request);
             require(encoded.encoded, "source connector postCommit: " +
                 encoded.message);
@@ -216,6 +269,10 @@ int main(int argc, char** argv) {
                 (quasiStatic || (v[0] < 0.0f && v[1] < 0.0f)),
                 "source spring/joint did not restore the displaced free body: " +
                 std::to_string(v[0]) + ", " + std::to_string(v[1]));
+            if (sourceContinuation && sourceTime > 1.0f)
+                require(std::abs(1.0e-3f * v[3] -
+                            0.2f * std::min(sourceTime - 1.0f, 1.0f)) < 1.0e-4f,
+                    "prescribed flexion did not enter the accepted coupled correction");
             const auto& tied = state.femNodes[0];
             if (withTie) require(std::abs(tied.positionAndMass.x -
                         (bodies[0].position.x + 1.0e-3f * v[0])) < 2.0e-6f &&
@@ -232,12 +289,14 @@ int main(int argc, char** argv) {
             std::cout << "source_connector_coupled=accepted"
                       << " free_increment_x=" << 1.0e-3f * v[0]
                       << " free_increment_y=" << 1.0e-3f * v[1]
+                      << " free_angular_increment_x=" << 1.0e-3f * v[3]
                       << " tied_node_x=" << tied.positionAndMass.x
                       << " free_node_z=" << state.femNodes[3].positionAndMass.z
                       << " source_tie=" << (withTie ? "on" : "off")
                       << " fem_spring=" << (withFEMSpring ? "on" : "off")
                       << " quasistatic=" << (quasiStatic ? "on" : "off")
                       << " numerical_inverse_mass=" << numericalInverseMass
+                      << " source_time=" << sourceTime
                       << " source_knee_equivalence=unqualified\n";
             return 0;
         } catch (const std::exception& error) {

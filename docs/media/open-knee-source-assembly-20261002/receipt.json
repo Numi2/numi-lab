@@ -2,10 +2,9 @@
   "admission": {
     "reasons": [
       "source sliding-elastic Gauss-point contact is bound geometrically but has no live projection update, penalty traction, consistent tangent or contact-history execution in Matter Newton",
-      "prestrain and initial-contact preparation not solved",
-      "prescribed rigid and source loading continuation not executed",
+      "source prestrain and flexion continuation are staged in the coupled Newton program, but full-knee initial-contact preparation and equilibrium have not been solved",
       "the 402 MCL-meniscus discrete springs are included in the coupled program but the full source case has not been stepped",
-      "no Matter accepted state or XPLT field comparison"
+      "no Matter accepted full-knee state or XPLT field comparison"
     ],
     "status": "rejected"
   },
@@ -31,7 +30,7 @@
     "coupled_runtime_program": "initialized",
     "open_knee_source_volume_mesh": "passed",
     "rest_volume_range_m3": "2.37034e-14,1.26209e-09",
-    "runtime_resident_bytes": "4478631608",
+    "runtime_resident_bytes": "4478632264",
     "source_analysis": "quasistatic_inertia_excluded",
     "source_contact": "initial_sliding_elastic_gauss_bound_not_enforced",
     "source_contact_faces": "345070",
@@ -52,12 +51,14 @@
     "source_loading": "prescribed_flexion_and_prestrain_only; no active quadriceps force",
     "source_material_groups": "12",
     "source_nodes": "194729",
-    "source_prestrain": "unit_at_initial_state_target_not_continued",
+    "source_prestrain": "curve_schedule_in_newton_program_not_stepped",
     "source_rigid_bodies": "9",
     "source_rigid_springs": "1",
     "source_rigid_tie_nodes": "29427",
     "source_tetrahedra": "844287",
-    "source_unit_scale": "mm_to_m_assumed"
+    "source_unit_scale": "mm_to_m_assumed",
+    "source_prestrain_curves": "6",
+    "source_flexion": "curve9_in_rigid_newton_program_not_stepped"
   },
   "schema": "numi.matter.open-knee-source-assembly.v1",
   "source_artifacts": {
@@ -99,7 +100,7 @@
     }
   },
   "source_contact_initial_support": "contact-initial-face-support.json",
-  "stdout_sha256": "e6ab1ec5574be396727ac94cfb0368f24ec6c3f1a8865a5de63a33be4a290fd9",
+  "stdout_sha256": "74fccd938b5b5bdbc8fb980b455fbc8ca2a2afbb2e0f30df0b9b83ad226ee75a",
   "verification": [
     "coupled static regression passes with a free rigid body, spring, joint, tissue tie and free FEM node",
     "tenfold change in numerical inverse mass changes accepted static correction by less than 0.02 percent in focused regression",
@@ -110,6 +111,8 @@
     "all 406 source discrete edges bind to exact tissue or rigid owners: 402 MCL-meniscus and four patellar retinacular edges",
     "the 402 FEM-FEM springs enter the same static residual and FGMRES tangent as the source continua and rigid ties",
     "a separate two-continuum static regression accepts a correction in which a spring moves the second continuum; this is not source knee validation",
-    "retinacular source curves use FEBio default constant endpoint extension and centered-difference tangent; the full case has not been stepped"
+    "retinacular source curves use FEBio default constant endpoint extension and centered-difference tangent; the full case has not been stepped",
+    "source curves 1-6 and 9 are staged in the same coupled Newton material and rigid-joint program; the full knee has not been stepped",
+    "small coupled regression accepts source time 0.5 prestrain and time 1.1 flexion, and rejects mismatched post-commit source time; this does not qualify the full knee"
   ]
 }

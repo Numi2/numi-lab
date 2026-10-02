@@ -598,7 +598,8 @@ if(APPLE)
         numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
     target_compile_definitions(numi-matter-source-rigid-coupled-check PRIVATE
         NUMI_MATTER_METALLIB="${NUMI_MATTER_METALLIB}"
-        NUMI_MATTER_FIXTURE_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/materials/silicone.nmatter")
+        NUMI_MATTER_FIXTURE_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/materials/silicone.nmatter"
+        NUMI_MATTER_SOURCE_PRESTRAIN_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/materials/open_knee_ligament_febio_exp_linear.nmatter")
     target_compile_options(numi-matter-source-rigid-coupled-check PRIVATE
         -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
     if(BUILD_TESTING)
@@ -611,6 +612,11 @@ if(APPLE)
                 --with-fem-spring)
         set_tests_properties(matter.metal.source_fem_discrete_coupled PROPERTIES
             LABELS "matter;constraint;coupled;open_knee" TIMEOUT 120)
+        add_test(NAME matter.metal.source_prestrain_flexion_continuation
+            COMMAND numi-matter-source-rigid-coupled-check --quasistatic
+                --source-continuation 1.1)
+        set_tests_properties(matter.metal.source_prestrain_flexion_continuation
+            PROPERTIES LABELS "matter;constraint;coupled;open_knee" TIMEOUT 120)
         find_package(Python3 COMPONENTS Interpreter QUIET)
         if(Python3_Interpreter_FOUND)
             add_test(NAME matter.metal.source_quasistatic_coupled

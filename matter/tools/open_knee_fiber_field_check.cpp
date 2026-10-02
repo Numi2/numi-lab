@@ -752,6 +752,7 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
         std::vector<NMSourceRigidSpringGPU> runtimeSprings;
         std::vector<NMSourceFEMRigidTieGPU> runtimeTies;
         std::vector<NMSourceFEMSpringGPU> runtimeFEMSprings;
+        std::vector<NMSourcePrestrainGPU> runtimePrestrain;
         bool runtimeProgramInitialized = false;
         std::size_t runtimeResidentBytes = 0u;
         if (rigidGraphPath != nullptr) {
@@ -800,6 +801,18 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                         sampleSourceLoadCurve(rigidGraph, joint.rotationCurve,
                             0.0, rotationCurve),
                         "source joint has no initial load-curve value");
+                if (joint.rotationCurve != -1) {
+                    const auto curve = std::ranges::find_if(rigidGraph.curves,
+                        [&](const auto& value) {
+                            return value.id == static_cast<std::uint32_t>(
+                                joint.rotationCurve);
+                        });
+                    require(joint.rotationCurve == 9 &&
+                            curve != rigidGraph.curves.end() &&
+                            curve->points == std::vector<std::array<double, 2>>{{
+                                {0.0, 0.0}, {1.0, 0.0}, {2.0, 1.0}}},
+                            "source flexion curve is not the supported authored ramp");
+                }
                 NMSourceCylindricalJointGPU row{};
                 row.indices = {a, b, joint.prescribedTranslation ? 1u : 0u,
                                joint.prescribedRotation ? 1u : 0u};
@@ -814,8 +827,51 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                                   static_cast<float>(joint.translation *
                                       translationCurve * 0.001),
                                   static_cast<float>(joint.rotation *
-                                      rotationCurve)};
+                                      (sourceDiscretePath != nullptr ?
+                                          1.0 : rotationCurve))};
+                row.axial.z = sourceDiscretePath != nullptr &&
+                    joint.rotationCurve == 9 ? 1.0f : 0.0f;
                 runtimeJoints.push_back(row);
+            }
+            if (sourceDiscretePath != nullptr) {
+                constexpr std::array<std::pair<std::uint32_t, double>, 6>
+                    sourcePrestrainTargets{{
+                        {5u, 1.0}, {7u, 1.0}, {9u, 1.016},
+                        {10u, 1.034}, {11u, 1.0}, {14u, 1.027}}};
+                constexpr std::array<std::uint32_t, 6> curveIds{
+                    1u, 2u, 3u, 4u, 5u, 6u};
+                for (std::size_t i = 0u; i < sourcePrestrainTargets.size(); ++i) {
+                    const auto [materialId, target] = sourcePrestrainTargets[i];
+                    const auto spec = std::ranges::find_if(specs,
+                        [&](const auto& value) {
+                            return value.materialId == materialId;
+                        });
+                    require(spec != specs.end() && spec->ligament,
+                            "source prestrain material has no continuum");
+                    const auto material = static_cast<std::size_t>(spec - specs.begin());
+                    const auto& curve = sourceDiscrete.curves[curveIds[i] - 1u];
+                    require(curve.id == curveIds[i] &&
+                            curve.points == std::vector<std::array<double, 2>>{{
+                                {0.0, 1.0}, {1.0, target}, {2.0, target}}},
+                            "source prestrain continuation curve changed");
+                    const auto& parameters = source.materials[material].parameters;
+                    const auto parameter = std::ranges::find_if(parameters,
+                        [](const auto& value) {
+                            return value.name == "initial_stretch";
+                        });
+                    require(parameter != parameters.end(),
+                            "source continuum lacks prestrain parameter");
+                    const auto global = compiled.world.materials[material].parameterOffset +
+                        static_cast<std::uint32_t>(parameter - parameters.begin());
+                    require(global < compiled.world.parameters.size() &&
+                            compiled.world.parameters[global].valueAndBounds.x == 1.0f,
+                            "source prestrain parameter cook changed");
+                    NMSourcePrestrainGPU row{};
+                    row.identity = {global, static_cast<std::uint32_t>(material),
+                                    curveIds[i], 0u};
+                    row.stretch = {1.0f, static_cast<float>(target), 0.0f, 0.0f};
+                    runtimePrestrain.push_back(row);
+                }
             }
             runtimeSprings.reserve(rigidGraph.springs.size());
             for (const auto& spring : rigidGraph.springs) {
@@ -898,6 +954,7 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
             configuration.sourceRigidSprings = runtimeSprings;
             configuration.sourceFEMRigidTies = runtimeTies;
             configuration.sourceFEMSprings = runtimeFEMSprings;
+            configuration.sourcePrestrain = runtimePrestrain;
             configuration.sourceRigidConnectorFingerprint = programFingerprint;
             numi::matter::Runtime runtime;
             const auto initialized = runtime.initialize(compiled.world, configuration);
@@ -950,6 +1007,7 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                   << " source_cylindrical_joints=" << rigidGraph.joints.size()
                   << " source_rigid_springs=" << rigidGraph.springs.size()
                   << " source_discrete_rigid_edges=" << boundDiscreteRigidEdges
+                  << " source_prestrain_curves=" << runtimePrestrain.size()
                   << " source_discrete_fem_edges=" << boundDiscreteFEMEdges
                   << " source_discrete_fem="
                   << (sourceDiscretePath != nullptr
@@ -995,8 +1053,14 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                       ? "quasistatic_inertia_excluded" : "unqualified")
                   << " source_prestrain="
                   << (rigidGraphPath != nullptr
-                      ? "unit_at_initial_state_target_not_continued"
+                      ? (sourceDiscretePath != nullptr
+                          ? "curve_schedule_in_newton_program_not_stepped"
+                          : "unit_at_initial_state_target_not_continued")
                       : "target_without_continuation")
+                  << " source_flexion="
+                  << (sourceDiscretePath != nullptr
+                      ? "curve9_in_rigid_newton_program_not_stepped"
+                      : "not_continued")
                   << " source_initialization=not_solved "
                      "source_equivalence=rejected "
                      "source_unit_scale=mm_to_m_assumed rest_volume_range_m3="
