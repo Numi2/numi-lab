@@ -2,6 +2,7 @@
 #include "metal/mpm.metalinc"
 #include "metal/fem.metalinc"
 #include "metal/fgmres.metalinc"
+#include "metal/source_rigid_connectors.metalinc"
 #include "metal/vascular.metalinc"
 #include "metal/human_equality.metalinc"
 #include "metal/human_limits.metalinc"

@@ -270,6 +270,13 @@ const char kImageAnchor = 0;
         sizeof(configuration.humanLimitDispatch)));
     hash = mixFingerprint(hash, configuration.humanLimitSourceFingerprint);
     hash = mixFingerprint(hash, detail::hashBytes(
+        configuration.sourceCylindricalJoints.data(),
+        configuration.sourceCylindricalJoints.size_bytes()));
+    hash = mixFingerprint(hash, detail::hashBytes(
+        configuration.sourceRigidSprings.data(),
+        configuration.sourceRigidSprings.size_bytes()));
+    hash = mixFingerprint(hash, configuration.sourceRigidConnectorFingerprint);
+    hash = mixFingerprint(hash, detail::hashBytes(
         configuration.humanSupportContacts.data(),
         configuration.humanSupportContacts.size_bytes()));
     hash = mixFingerprint(hash, detail::hashBytes(
@@ -924,6 +931,11 @@ struct Runtime::State {
     id<MTLBuffer> humanEqualityFactor = nil;
     NMHumanEqualityDispatchGPU humanEqualityDispatch{};
     id<MTLBuffer> humanLimitRows = nil;
+    id<MTLBuffer> sourceCylindricalJoints = nil;
+    id<MTLBuffer> sourceRigidSprings = nil;
+    std::uint32_t sourceJointCount = 0u;
+    std::uint32_t sourceSpringCount = 0u;
+    std::uint32_t sourceMaximumFreeIndex = NM_INVALID_INDEX;
     id<MTLBuffer> humanLimitLinearization = nil;
     id<MTLBuffer> humanLimitTangent = nil;
     NMHumanLimitDispatchGPU humanLimitDispatch{};
@@ -1329,6 +1341,93 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->sourcePhysicsFingerprint = mixFingerprint(
                 candidate->sourcePhysicsFingerprint, supportFingerprint);
         }
+        const auto sourceJoints = configuration.sourceCylindricalJoints;
+        const auto sourceSprings = configuration.sourceRigidSprings;
+        const bool hasSourceConnectors =
+            !sourceJoints.empty() || !sourceSprings.empty();
+        const auto finite4 = [](const nm_float4 v) {
+            return std::isfinite(v.x) && std::isfinite(v.y) &&
+                std::isfinite(v.z) && std::isfinite(v.w);
+        };
+        const auto validSourcePair = [&](const nm_uint4 indices) {
+            if (indices.x >= world.contact.rigidProxies.size() ||
+                indices.y >= world.contact.rigidProxies.size() ||
+                indices.x == indices.y) return false;
+            const auto& a = world.contact.rigidProxies[indices.x];
+            const auto& b = world.contact.rigidProxies[indices.y];
+            if (a.bodyIndex == b.bodyIndex ||
+                ((a.flags | b.flags) & NM_RIGID_ARTICULATED) != 0u) return false;
+            for (const auto* proxy : {&a, &b}) {
+                if ((proxy->flags & NM_RIGID_DYNAMIC) != 0u &&
+                    (proxy->generalizedFreeBodyIndex == NM_INVALID_INDEX ||
+                     std::uint64_t(candidate->dispatch.rigidGeneralizedCapacity) <
+                         6ull * (std::uint64_t(proxy->generalizedFreeBodyIndex) + 1ull)))
+                    return false;
+            }
+            return true;
+        };
+        if (sourceJoints.size() > std::numeric_limits<std::uint32_t>::max() ||
+            sourceSprings.size() > std::numeric_limits<std::uint32_t>::max() ||
+            hasSourceConnectors !=
+                (configuration.sourceRigidConnectorFingerprint != 0u) ||
+            (hasSourceConnectors && world.dispatch.maximumRateExponent != 0u)) {
+            diagnostics.message = "invalid source rigid connector program header";
+            return diagnostics;
+        }
+        for (const auto& row : sourceJoints) {
+            const float axis2 = row.axis.x * row.axis.x +
+                row.axis.y * row.axis.y + row.axis.z * row.axis.z;
+            if (!validSourcePair(row.indices) || row.indices.z > 1u ||
+                row.indices.w > 1u || !finite4(row.referenceA) ||
+                !finite4(row.referenceB) || !finite4(row.origin) ||
+                !finite4(row.axis) || !finite4(row.forceMultiplier) ||
+                !finite4(row.momentMultiplier) || !finite4(row.parameters) ||
+                !finite4(row.axial) || std::abs(axis2 - 1.0f) > 1.0e-5f ||
+                !(row.parameters.x > 0.0f) || !(row.parameters.y > 0.0f) ||
+                (row.indices.z != 0u && row.axial.x != 0.0f) ||
+                (row.indices.w != 0u && row.axial.y != 0.0f)) {
+                diagnostics.message = "invalid source cylindrical joint row";
+                return diagnostics;
+            }
+        }
+        for (const auto& row : sourceSprings) {
+            if (!validSourcePair(row.indices) || row.indices.z != 0u ||
+                row.indices.w != 0u || !finite4(row.referenceA) ||
+                !finite4(row.referenceB) || !finite4(row.insertionA) ||
+                !finite4(row.insertionB) || !finite4(row.parameters) ||
+                !(row.parameters.x > 0.0f) || row.parameters.y < 0.0f) {
+                diagnostics.message = "invalid source rigid spring row";
+                return diagnostics;
+            }
+        }
+        candidate->sourceJointCount =
+            static_cast<std::uint32_t>(sourceJoints.size());
+        candidate->sourceSpringCount =
+            static_cast<std::uint32_t>(sourceSprings.size());
+        const auto retainFreeIndex = [&](const nm_uint4 indices) {
+            for (const auto proxyIndex : {indices.x, indices.y}) {
+                const auto& proxy = world.contact.rigidProxies[proxyIndex];
+                if ((proxy.flags & NM_RIGID_DYNAMIC) != 0u &&
+                    (candidate->sourceMaximumFreeIndex == NM_INVALID_INDEX ||
+                     proxy.generalizedFreeBodyIndex >
+                         candidate->sourceMaximumFreeIndex))
+                    candidate->sourceMaximumFreeIndex =
+                        proxy.generalizedFreeBodyIndex;
+            }
+        };
+        for (const auto& row : sourceJoints) retainFreeIndex(row.indices);
+        for (const auto& row : sourceSprings) retainFreeIndex(row.indices);
+        if (hasSourceConnectors) {
+            candidate->sourcePhysicsFingerprint = mixFingerprint(
+                candidate->sourcePhysicsFingerprint,
+                configuration.sourceRigidConnectorFingerprint);
+            candidate->sourcePhysicsFingerprint = mixFingerprint(
+                candidate->sourcePhysicsFingerprint,
+                detail::hashBytes(sourceJoints.data(), sourceJoints.size_bytes()));
+            candidate->sourcePhysicsFingerprint = mixFingerprint(
+                candidate->sourcePhysicsFingerprint,
+                detail::hashBytes(sourceSprings.data(), sourceSprings.size_bytes()));
+        }
         std::filesystem::path metallib = configuration.metallib;
         if (metallib.empty()) {
             metallib = defaultMetallib();
@@ -1550,6 +1649,8 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_apply_free_rigid",
             "nm_fgmres_apply_primal_rigid_contacts",
             "nm_contact_accumulate_rigid_residual",
+            "nm_source_rigid_connector_residual",
+            "nm_source_rigid_connector_operator",
             "nm_contact_subtract_rigid_inertia_residual",
             "nm_human_equality_factor",
             "nm_human_equality_precondition",
@@ -2286,6 +2387,10 @@ RuntimeDiagnostics Runtime::initialize(
             environments, valid, candidate->residentBytes);
         candidate->humanEqualityRows = uploads.one(equalities, valid, candidate->residentBytes);
         candidate->humanLimitRows = uploads.one(limits, valid, candidate->residentBytes);
+        candidate->sourceCylindricalJoints = uploads.one(
+            sourceJoints, valid, candidate->residentBytes);
+        candidate->sourceRigidSprings = uploads.one(
+            sourceSprings, valid, candidate->residentBytes);
         candidate->humanSupportContacts = uploads.one(
             supportContacts, valid, candidate->residentBytes);
         // Candidate point queries use an environment-major stream, including
@@ -3287,6 +3392,15 @@ RuntimeDiagnostics Runtime::encodeImpl(
                    state.requiredCandidateBodyCount)))) {
             diagnostics.message =
                 "articulated Matter IPC requires a compatible primal coupled-candidate service plus exact q/v and candidate-body capacity";
+            return diagnostics;
+        }
+        if (state.sourceMaximumFreeIndex != NM_INVALID_INDEX &&
+            std::uint64_t(state.requiresCoupledCandidate
+                ? request.rigid.vStride : 0u) +
+                    6ull * (std::uint64_t(state.sourceMaximumFreeIndex) + 1ull) >
+                state.dispatch.rigidGeneralizedCapacity) {
+            diagnostics.message =
+                "source rigid connector free-body mapping exceeds the coupled candidate";
             return diagnostics;
         }
         if (state.requiresSceneBodies &&
@@ -6180,6 +6294,22 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.coupledPointJacobians
                              offset:0u atIndex:4u];
             });
+            if (state.sourceJointCount + state.sourceSpringCount != 0u) {
+                dispatchThreads("nm_source_rigid_connector_residual",
+                    rigidGeneralizedTotalForResidual, [&] {
+                    setDispatch();
+                    [encoder setBytes:&bridge length:sizeof(bridge) atIndex:1u];
+                    [encoder setBytes:&coupledArticulatedNv length:sizeof(coupledArticulatedNv) atIndex:2u];
+                    [encoder setBytes:&state.sourceJointCount length:sizeof(state.sourceJointCount) atIndex:3u];
+                    [encoder setBytes:&state.sourceSpringCount length:sizeof(state.sourceSpringCount) atIndex:4u];
+                    [encoder setBuffer:state.sourceCylindricalJoints offset:0u atIndex:5u];
+                    [encoder setBuffer:state.sourceRigidSprings offset:0u atIndex:6u];
+                    [encoder setBuffer:state.rigidProxies offset:0u atIndex:7u];
+                    [encoder setBuffer:state.rigidStates offset:0u atIndex:8u];
+                    [encoder setBuffer:state.femResidual offset:0u atIndex:9u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:10u];
+                });
+            }
             dispatchThreads("nm_human_support_accumulate_rigid_residual",
                 rigidGeneralizedTotalForResidual, [&] {
                 setDispatch();
@@ -6952,6 +7082,24 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.coupledPointJacobians
                                  offset:0u atIndex:6u];
                 });
+                if (state.sourceJointCount + state.sourceSpringCount != 0u) {
+                    dispatchThreads("nm_source_rigid_connector_operator",
+                        rigidGeneralizedTotal, [&] {
+                        setDispatch();
+                        [encoder setBytes:&bridge length:sizeof(bridge) atIndex:1u];
+                        [encoder setBytes:&coupledArticulatedNv length:sizeof(coupledArticulatedNv) atIndex:2u];
+                        [encoder setBytes:&state.sourceJointCount length:sizeof(state.sourceJointCount) atIndex:3u];
+                        [encoder setBytes:&state.sourceSpringCount length:sizeof(state.sourceSpringCount) atIndex:4u];
+                        [encoder setBuffer:state.sourceCylindricalJoints offset:0u atIndex:5u];
+                        [encoder setBuffer:state.sourceRigidSprings offset:0u atIndex:6u];
+                        [encoder setBuffer:state.rigidProxies offset:0u atIndex:7u];
+                        [encoder setBuffer:state.rigidStates offset:0u atIndex:8u];
+                        [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:9u];
+                        [encoder setBuffer:state.femOperatorValue offset:0u atIndex:10u];
+                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:11u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:12u];
+                    });
+                }
                 dispatchThreads("nm_fgmres_apply_human_support",
                     rigidGeneralizedTotal, [&] {
                     setDispatch();
@@ -7684,9 +7832,25 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                length:sizeof(coupledArticulatedNv) atIndex:1u];
                     bindPrimalContactArguments(2u);
                     [encoder setBuffer:state.femResidual offset:0u atIndex:3u];
-                    [encoder setBuffer:state.coupledPointJacobians
-                                 offset:0u atIndex:4u];
+                [encoder setBuffer:state.coupledPointJacobians
+                             offset:0u atIndex:4u];
+            });
+            if (state.sourceJointCount + state.sourceSpringCount != 0u) {
+                dispatchThreads("nm_source_rigid_connector_residual",
+                    rigidGeneralizedTotalForResidual, [&] {
+                    setDispatch();
+                    [encoder setBytes:&bridge length:sizeof(bridge) atIndex:1u];
+                    [encoder setBytes:&coupledArticulatedNv length:sizeof(coupledArticulatedNv) atIndex:2u];
+                    [encoder setBytes:&state.sourceJointCount length:sizeof(state.sourceJointCount) atIndex:3u];
+                    [encoder setBytes:&state.sourceSpringCount length:sizeof(state.sourceSpringCount) atIndex:4u];
+                    [encoder setBuffer:state.sourceCylindricalJoints offset:0u atIndex:5u];
+                    [encoder setBuffer:state.sourceRigidSprings offset:0u atIndex:6u];
+                    [encoder setBuffer:state.rigidProxies offset:0u atIndex:7u];
+                    [encoder setBuffer:state.rigidStates offset:0u atIndex:8u];
+                    [encoder setBuffer:state.femResidual offset:0u atIndex:9u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:10u];
                 });
+            }
             dispatchThreads("nm_human_support_accumulate_rigid_residual",
                 rigidGeneralizedTotalForResidual, [&] {
                 setDispatch();
@@ -8767,6 +8931,8 @@ bool Runtime::encodeAcceptedStateProof(
             state.humanSupportConsequencesCandidate,
             state.humanSupportConsequencesCheckpoint,
             state.humanEqualityRows,
+            state.sourceCylindricalJoints,
+            state.sourceRigidSprings,
             state.humanEqualityLinearization,
             state.humanEqualityFactor,
             state.humanLimitRows,
@@ -9546,6 +9712,8 @@ bool Runtime::applyPreparedStateImpl(
             state.humanSupportConsequencesCandidate,
             state.humanSupportConsequencesCheckpoint,
             state.humanEqualityRows,
+            state.sourceCylindricalJoints,
+            state.sourceRigidSprings,
             state.humanEqualityLinearization,
             state.humanEqualityFactor,
             state.humanLimitRows,

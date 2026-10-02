@@ -1,0 +1,243 @@
+#include "numi/matter/source_rigid_connector_gpu.h"
+#include "numi/matter/source_cylindrical_joint.h"
+#include "numi/matter/source_rigid_spring.h"
+
+namespace numi_matter_metal {
+namespace src = numi_matter_joint;
+
+inline src::V<float> sourceVec(const float4 value) {
+    return {value.x, value.y, value.z};
+}
+inline src::Q<float> sourceQuat(const float4 value) {
+    return {value.x, value.y, value.z, value.w};
+}
+inline src::BodyState<float> sourceBody(
+    const NMRigidStateGPU state, const NMRigidProxyGPU proxy
+) {
+    const src::Q<float> orientation = src::multiply(
+        sourceQuat(state.orientation),
+        src::conjugate(sourceQuat(
+            quaternionNormalize(proxy.localOrientation))));
+    return {sourceVec(state.bodyCenter), orientation};
+}
+inline src::V<float> sourceDirection(
+    const NMMatterDispatchGPU dispatch, const NMRigidProxyGPU proxy,
+    const NMRigidStateGPU body, const uint environment, const uint articulatedNv,
+    device const float4* direction, const uint offset
+) {
+    if ((proxy.flags & NM_RIGID_DYNAMIC) == 0u ||
+        !(body.linearVelocityAndInverseMass.w > 0.0f) ||
+        proxy.generalizedFreeBodyIndex == NM_INVALID_INDEX) return {};
+    const uint first = articulatedNv + 6u * proxy.generalizedFreeBodyIndex + offset;
+    return {
+        direction[fgmresRigidIndex(dispatch, environment, first + 0u)].x,
+        direction[fgmresRigidIndex(dispatch, environment, first + 1u)].x,
+        direction[fgmresRigidIndex(dispatch, environment, first + 2u)].x
+    };
+}
+inline float sourceWrenchComponent(
+    const uint dof, const uint articulatedNv, const NMRigidProxyGPU proxy,
+    const NMRigidStateGPU body, const src::V<float> force, const src::V<float> moment
+) {
+    if ((proxy.flags & NM_RIGID_DYNAMIC) == 0u ||
+        !(body.linearVelocityAndInverseMass.w > 0.0f) ||
+        proxy.generalizedFreeBodyIndex == NM_INVALID_INDEX) return 0.0f;
+    const uint first = articulatedNv + 6u * proxy.generalizedFreeBodyIndex;
+    if (dof < first || dof >= first + 6u) return 0.0f;
+    const uint component = dof - first;
+    if (component == 0u) return force.x;
+    if (component == 1u) return force.y;
+    if (component == 2u) return force.z;
+    if (component == 3u) return moment.x;
+    if (component == 4u) return moment.y;
+    return moment.z;
+}
+inline src::Input<float> sourceJointInput(
+    const NMSourceCylindricalJointGPU row,
+    const NMRigidStateGPU bodyA, const NMRigidStateGPU bodyB,
+    const NMRigidProxyGPU proxyA, const NMRigidProxyGPU proxyB
+) {
+    src::Input<float> input{};
+    input.referenceA = sourceVec(row.referenceA);
+    input.referenceB = sourceVec(row.referenceB);
+    input.positionA = sourceVec(bodyA.bodyCenter);
+    input.positionB = sourceVec(bodyB.bodyCenter);
+    input.origin = sourceVec(row.origin);
+    input.axis = sourceVec(row.axis);
+    input.rotationA = sourceBody(bodyA, proxyA).rotation;
+    input.rotationB = sourceBody(bodyB, proxyB).rotation;
+    input.forceMultiplier = sourceVec(row.forceMultiplier);
+    input.momentMultiplier = sourceVec(row.momentMultiplier);
+    input.forcePenalty = row.parameters.x;
+    input.momentPenalty = row.parameters.y;
+    input.translation = row.parameters.z;
+    input.rotation = row.parameters.w;
+    input.axialForce = row.axial.x;
+    input.axialMoment = row.axial.y;
+    input.prescribedTranslation = row.indices.z;
+    input.prescribedRotation = row.indices.w;
+    return input;
+}
+inline src::RigidSpring<float> sourceSpringInput(
+    const NMSourceRigidSpringGPU row
+) {
+    src::RigidSpring<float> spring{};
+    spring.referenceA = sourceVec(row.referenceA);
+    spring.referenceB = sourceVec(row.referenceB);
+    spring.insertionA = sourceVec(row.insertionA);
+    spring.insertionB = sourceVec(row.insertionB);
+    spring.stiffness = row.parameters.x;
+    spring.freeLength = row.parameters.y;
+    return spring;
+}
+
+// Each rigid row assembles its own connector impulse. This writes the same
+// rigid residual as FEM/contact, after candidate geometry is materialized.
+kernel void nm_source_rigid_connector_residual(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMBridgeDispatchGPU& bridge [[buffer(1)]],
+    constant uint& articulatedNv [[buffer(2)]],
+    constant uint& jointCount [[buffer(3)]],
+    constant uint& springCount [[buffer(4)]],
+    device const NMSourceCylindricalJointGPU* joints [[buffer(5)]],
+    device const NMSourceRigidSpringGPU* springs [[buffer(6)]],
+    device const NMRigidProxyGPU* proxies [[buffer(7)]],
+    device const NMRigidStateGPU* states [[buffer(8)]],
+    device float4* residual [[buffer(9)]],
+    device NMMatterStatusGPU* statuses [[buffer(10)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.rigidGeneralizedCapacity;
+    if (global >= total || dispatch.rigidGeneralizedCapacity == 0u) return;
+    const uint environment = global / dispatch.rigidGeneralizedCapacity;
+    const uint dof = global - environment * dispatch.rigidGeneralizedCapacity;
+    if (dof < articulatedNv || !environmentHealthy(statuses, environment)) return;
+    float value = 0.0f;
+    for (uint j = 0u; j < jointCount; ++j) {
+        const NMSourceCylindricalJointGPU row = joints[j];
+        const NMRigidProxyGPU proxyA = proxies[row.indices.x];
+        const NMRigidProxyGPU proxyB = proxies[row.indices.y];
+        const uint base = environment * dispatch.rigidProxyCount;
+        const src::Input<float> input = sourceJointInput(
+            row, states[base + row.indices.x], states[base + row.indices.y],
+            proxyA, proxyB);
+        src::Output<float> wrench{}, unused{};
+        if (!src::evaluate(input, src::Direction<float>{}, wrench, unused)) {
+            recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+                NM_INVALID_INDEX, j, float4(float(j), 0.0f, 0.0f, 0.0f));
+            return;
+        }
+        value += sourceWrenchComponent(dof, articulatedNv, proxyA,
+            states[base + row.indices.x],
+            wrench.forceA, wrench.momentA);
+        value += sourceWrenchComponent(dof, articulatedNv, proxyB,
+            states[base + row.indices.y],
+            wrench.forceB, wrench.momentB);
+    }
+    for (uint s = 0u; s < springCount; ++s) {
+        const NMSourceRigidSpringGPU row = springs[s];
+        const NMRigidProxyGPU proxyA = proxies[row.indices.x];
+        const NMRigidProxyGPU proxyB = proxies[row.indices.y];
+        const uint base = environment * dispatch.rigidProxyCount;
+        src::RigidSpringOutput<float> wrench{}, unused{};
+        if (!src::evaluateRigidSpring(sourceSpringInput(row),
+                sourceBody(states[base + row.indices.x], proxyA),
+                sourceBody(states[base + row.indices.y], proxyB),
+                {}, wrench, unused)) {
+            recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+                NM_INVALID_INDEX, s, float4(float(s), 1.0f, 0.0f, 0.0f));
+            return;
+        }
+        value += sourceWrenchComponent(dof, articulatedNv, proxyA,
+            states[base + row.indices.x],
+            wrench.forceA, wrench.momentA);
+        value += sourceWrenchComponent(dof, articulatedNv, proxyB,
+            states[base + row.indices.y],
+            wrench.forceB, wrench.momentB);
+    }
+    residual[fgmresRigidBase(dispatch) + global].x += bridge.time.y * value;
+}
+
+// FGMRES applies -dR/d(delta-v); candidate body translation and world
+// rotation both advance by dt*delta-v, so connector curvature scales dt^2.
+kernel void nm_source_rigid_connector_operator(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMBridgeDispatchGPU& bridge [[buffer(1)]],
+    constant uint& articulatedNv [[buffer(2)]],
+    constant uint& jointCount [[buffer(3)]],
+    constant uint& springCount [[buffer(4)]],
+    device const NMSourceCylindricalJointGPU* joints [[buffer(5)]],
+    device const NMSourceRigidSpringGPU* springs [[buffer(6)]],
+    device const NMRigidProxyGPU* proxies [[buffer(7)]],
+    device const NMRigidStateGPU* states [[buffer(8)]],
+    device const float4* direction [[buffer(9)]],
+    device float4* work [[buffer(10)]],
+    device const NMFGMRESStateGPU* solver [[buffer(11)]],
+    device NMMatterStatusGPU* statuses [[buffer(12)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.rigidGeneralizedCapacity;
+    if (global >= total || dispatch.rigidGeneralizedCapacity == 0u) return;
+    const uint environment = global / dispatch.rigidGeneralizedCapacity;
+    const uint dof = global - environment * dispatch.rigidGeneralizedCapacity;
+    if (dof < articulatedNv || solver[environment].diagnostics.z > 0.5f ||
+        !environmentHealthy(statuses, environment)) return;
+    float value = 0.0f;
+    for (uint j = 0u; j < jointCount; ++j) {
+        const NMSourceCylindricalJointGPU row = joints[j];
+        const NMRigidProxyGPU proxyA = proxies[row.indices.x];
+        const NMRigidProxyGPU proxyB = proxies[row.indices.y];
+        const uint base = environment * dispatch.rigidProxyCount;
+        const src::Input<float> input = sourceJointInput(
+            row, states[base + row.indices.x], states[base + row.indices.y],
+            proxyA, proxyB);
+        src::Direction<float> perturbation{
+            sourceDirection(dispatch, proxyA, states[base + row.indices.x], environment, articulatedNv, direction, 0u),
+            sourceDirection(dispatch, proxyA, states[base + row.indices.x], environment, articulatedNv, direction, 3u),
+            sourceDirection(dispatch, proxyB, states[base + row.indices.y], environment, articulatedNv, direction, 0u),
+            sourceDirection(dispatch, proxyB, states[base + row.indices.y], environment, articulatedNv, direction, 3u)
+        };
+        src::Output<float> unused{}, derivative{};
+        if (!src::evaluate(input, perturbation, unused, derivative)) {
+            recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+                NM_INVALID_INDEX, j, float4(float(j), 2.0f, 0.0f, 0.0f));
+            return;
+        }
+        value += sourceWrenchComponent(dof, articulatedNv, proxyA,
+            states[base + row.indices.x],
+            derivative.forceA, derivative.momentA);
+        value += sourceWrenchComponent(dof, articulatedNv, proxyB,
+            states[base + row.indices.y],
+            derivative.forceB, derivative.momentB);
+    }
+    for (uint s = 0u; s < springCount; ++s) {
+        const NMSourceRigidSpringGPU row = springs[s];
+        const NMRigidProxyGPU proxyA = proxies[row.indices.x];
+        const NMRigidProxyGPU proxyB = proxies[row.indices.y];
+        const uint base = environment * dispatch.rigidProxyCount;
+        src::RigidSpringDirection<float> perturbation{
+            sourceDirection(dispatch, proxyA, states[base + row.indices.x], environment, articulatedNv, direction, 0u),
+            sourceDirection(dispatch, proxyA, states[base + row.indices.x], environment, articulatedNv, direction, 3u),
+            sourceDirection(dispatch, proxyB, states[base + row.indices.y], environment, articulatedNv, direction, 0u),
+            sourceDirection(dispatch, proxyB, states[base + row.indices.y], environment, articulatedNv, direction, 3u)
+        };
+        src::RigidSpringOutput<float> unused{}, derivative{};
+        if (!src::evaluateRigidSpring(sourceSpringInput(row),
+                sourceBody(states[base + row.indices.x], proxyA),
+                sourceBody(states[base + row.indices.y], proxyB),
+                perturbation, unused, derivative)) {
+            recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+                NM_INVALID_INDEX, s, float4(float(s), 3.0f, 0.0f, 0.0f));
+            return;
+        }
+        value += sourceWrenchComponent(dof, articulatedNv, proxyA,
+            states[base + row.indices.x],
+            derivative.forceA, derivative.momentA);
+        value += sourceWrenchComponent(dof, articulatedNv, proxyB,
+            states[base + row.indices.y],
+            derivative.forceB, derivative.momentB);
+    }
+    work[fgmresRigidBase(dispatch) + global].x -=
+        bridge.time.y * bridge.time.y * value;
+}
+} // namespace numi_matter_metal

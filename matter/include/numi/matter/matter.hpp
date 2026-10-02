@@ -1,6 +1,7 @@
 #pragma once
 
 #include "numi/matter/shared.h"
+#include "numi/matter/source_rigid_connector_gpu.h"
 #include "numi/matter/human_equality_gpu.h"
 #include "numi/matter/human_limits_gpu.h"
 #include "numi/matter/accepted_state_proof_gpu.h"
@@ -837,6 +838,12 @@ struct RuntimeConfiguration {
     std::span<const NMHumanJointLimitGPU> humanJointLimits{};
     NMHumanLimitDispatchGPU humanLimitDispatch{};
     std::uint64_t humanLimitSourceFingerprint = 0u;
+    // Source-authored rigid connectors participate in the same FEM/contact
+    // Newton residual and FGMRES tangent. Each row names one proxy for each
+    // source body. A nonempty program requires an immutable source identity.
+    std::span<const NMSourceCylindricalJointGPU> sourceCylindricalJoints{};
+    std::span<const NMSourceRigidSpringGPU> sourceRigidSprings{};
+    std::uint64_t sourceRigidConnectorFingerprint = 0u;
     // Generic legacy callbacks may explicitly retain projected-only geometry.
     // A configured compensated Human owner must opt in; all candidate services,
     // support initial poses and accepted-state proofs then carry the full pair.

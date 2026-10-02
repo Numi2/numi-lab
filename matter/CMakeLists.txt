@@ -163,6 +163,7 @@ if(APPLE)
             src/metal/mpm.metalinc
             src/metal/fem.metalinc
             src/metal/fgmres.metalinc
+            src/metal/source_rigid_connectors.metalinc
             src/metal/vascular.metalinc
             src/metal/human_equality.metalinc
             src/metal/human_limits.metalinc
@@ -176,6 +177,9 @@ if(APPLE)
             include/numi/matter/accepted_state_proof_gpu.h
             include/numi/matter/shared.h
             include/numi/matter/fiber_exp_linear.h
+            include/numi/matter/source_rigid_connector_gpu.h
+            include/numi/matter/source_cylindrical_joint.h
+            include/numi/matter/source_rigid_spring.h
             include/numi/matter/human_equality_gpu.h
             include/numi/matter/human_limits_gpu.h
             "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/engine_types.h"
@@ -570,14 +574,29 @@ if(APPLE)
 
     # Assemble the pinned Open Knee rigid cylindrical-joint graph through the
     # same residual/tangent operator used by the source single-joint check.
-    # This is graph-kinematics evidence only; tissues, spring, contacts and
-    # prestrain remain separate unsupported source constructs.
+    # This is graph-kinematics evidence only. The native coupled connector
+    # path has its own regression; full tissue ties, sliding contact,
+    # prestrain and source load continuation remain unassembled.
     add_executable(numi-matter-source-joint-graph-check tools/source_joint_graph_check.cpp)
     target_include_directories(numi-matter-source-joint-graph-check PRIVATE include)
     target_compile_definitions(numi-matter-source-joint-graph-check PRIVATE
         NUMI_OPEN_KNEE_SOURCE_GRAPH_PROGRAM="${CMAKE_SOURCE_DIR}/../docs/media/open-knee-source-graph-20261002/source-rigid-graph.bin")
     target_compile_options(numi-matter-source-joint-graph-check PRIVATE -Wall -Wextra -Wpedantic -Werror)
+    add_executable(numi-matter-source-rigid-coupled-check
+        tools/source_rigid_connector_coupled_check.mm)
+    target_include_directories(numi-matter-source-rigid-coupled-check PRIVATE include ../include)
+    target_link_libraries(numi-matter-source-rigid-coupled-check PRIVATE
+        numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_compile_definitions(numi-matter-source-rigid-coupled-check PRIVATE
+        NUMI_MATTER_METALLIB="${NUMI_MATTER_METALLIB}"
+        NUMI_MATTER_FIXTURE_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/materials/silicone.nmatter")
+    target_compile_options(numi-matter-source-rigid-coupled-check PRIVATE
+        -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
     if(BUILD_TESTING)
+        add_test(NAME matter.metal.source_rigid_coupled COMMAND
+            numi-matter-source-rigid-coupled-check)
+        set_tests_properties(matter.metal.source_rigid_coupled PROPERTIES
+            LABELS "matter;constraint;coupled" TIMEOUT 120)
         add_test(NAME matter.compiler.source_joint_graph COMMAND
             numi-matter-source-joint-graph-check --source-program
             "${CMAKE_SOURCE_DIR}/../docs/media/open-knee-source-graph-20261002/source-rigid-graph.bin")
