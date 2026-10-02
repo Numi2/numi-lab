@@ -27,11 +27,13 @@ int main(int argc, char** argv) {
         try {
             using namespace numi::matter;
             bool withTie = true;
+            bool withFEMSpring = false;
             bool quasiStatic = false;
             float numericalInverseMass = 1.0f;
             for (int argument = 1; argument < argc; ++argument) {
                 const std::string option = argv[argument];
                 if (option == "--no-tie") withTie = false;
+                else if (option == "--with-fem-spring") withFEMSpring = true;
                 else if (option == "--quasistatic") quasiStatic = true;
                 else if (option == "--numerical-inverse-mass") {
                     require(++argument < argc,
@@ -43,6 +45,8 @@ int main(int argc, char** argv) {
             require(std::isfinite(numericalInverseMass) &&
                 numericalInverseMass > 0.0f,
                 "numerical inverse mass must be positive and finite");
+            require(!withFEMSpring || quasiStatic,
+                    "cross-tissue source spring check requires static mechanics");
             auto material = parseMatterFile(NUMI_MATTER_FIXTURE_MATERIAL);
             require(material.succeeded(), "source connector runtime material did not parse");
             WorldSource source;
@@ -86,6 +90,13 @@ int main(int argc, char** argv) {
                 : std::vector<std::uint32_t>{0u, 1u, 2u, 3u};
             tendon.tetrahedra = {{{0u, 1u, 2u, 3u}}};
             source.objects.push_back(std::move(tendon));
+            if (withFEMSpring) {
+                ObjectSource meniscus = source.objects.front();
+                meniscus.name = "source_spring_coupled_second_continuum";
+                for (auto& node : meniscus.femNodes) node[0] += 0.03;
+                meniscus.femFixedNodes = {0u, 1u, 2u};
+                source.objects.push_back(std::move(meniscus));
+            }
             auto cooked = compileWorld(source, {
                 .maximumRateExponent = 0u, .emitSpecializedMetal = false});
             std::string errors;
@@ -113,6 +124,13 @@ int main(int argc, char** argv) {
             NMSourceFEMRigidTieGPU tie{};
             tie.identity = {0u, 0u, 0u, 1u};
             tie.localPoint = {0.0f, 0.0f, 0.0f, 0.0f};
+            NMSourceFEMSpringGPU femSpring{};
+            if (withFEMSpring) {
+                femSpring.identity = {3u, 7u, 1u, 0u};
+                femSpring.referenceA = {0.002f, 0.001f, 0.01f, 0.0f};
+                femSpring.referenceB = {0.032f, 0.001f, 0.01f, 0.0f};
+                femSpring.parameters = {1.0e4f, 0.0f, 0.0f, 0.0f};
+            }
 
             RuntimeConfiguration configuration;
             configuration.metallib = NUMI_MATTER_METALLIB;
@@ -122,6 +140,8 @@ int main(int argc, char** argv) {
             configuration.sourceCylindricalJoints = {&joint, 1u};
             configuration.sourceRigidSprings = {&spring, 1u};
             if (withTie) configuration.sourceFEMRigidTies = {&tie, 1u};
+            if (withFEMSpring)
+                configuration.sourceFEMSprings = {&femSpring, 1u};
             configuration.sourceRigidConnectorFingerprint =
                 0x4e4d53434f4e4e31ull;
             Runtime runtime;
@@ -188,7 +208,7 @@ int main(int argc, char** argv) {
             require(state.available && state.statuses.size() == 1u &&
                 state.statuses[0].code == NM_STATUS_SUCCESS &&
                 state.rigidGeneralizedCandidate.size() == 6u &&
-                state.femNodes.size() == 4u &&
+                state.femNodes.size() == (withFEMSpring ? 8u : 4u) &&
                 state.femNodes[0].restAndFixed.w == (withTie ? 3.0f : 1.0f),
                 "source connector runtime did not accept the coupled candidate");
             const auto& v = state.rigidGeneralizedCandidate;
@@ -204,12 +224,18 @@ int main(int argc, char** argv) {
                     std::abs(tied.velocityAndInverseMass.x - v[0]) < 2.0e-5f &&
                     std::abs(tied.velocityAndInverseMass.y - v[1]) < 2.0e-5f,
                 "source FEM tie did not follow the same accepted rigid correction");
+            if (withFEMSpring)
+                require(std::isfinite(state.femNodes[7].positionAndMass.x) &&
+                        std::abs(state.femNodes[7].positionAndMass.x - 0.032f) >
+                            1.0e-10f,
+                        "cross-tissue spring did not move its second continuum");
             std::cout << "source_connector_coupled=accepted"
                       << " free_increment_x=" << 1.0e-3f * v[0]
                       << " free_increment_y=" << 1.0e-3f * v[1]
                       << " tied_node_x=" << tied.positionAndMass.x
                       << " free_node_z=" << state.femNodes[3].positionAndMass.z
                       << " source_tie=" << (withTie ? "on" : "off")
+                      << " fem_spring=" << (withFEMSpring ? "on" : "off")
                       << " quasistatic=" << (quasiStatic ? "on" : "off")
                       << " numerical_inverse_mass=" << numericalInverseMass
                       << " source_knee_equivalence=unqualified\n";

@@ -1,6 +1,7 @@
 #include "numi/matter/open_knee_fiber_field.hpp"
 #include "numi/matter/open_knee_source_graph.hpp"
 #include "numi/matter/open_knee_source_contact.hpp"
+#include "numi/matter/open_knee_source_discrete.hpp"
 #include "numi/matter/open_knee_source_rigid_ties.hpp"
 #include "numi/matter/compiler.hpp"
 
@@ -371,12 +372,16 @@ const std::array<SourceTissueProgram, 12>& sourceTissuePrograms() {
 int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                          const char* rigidTiesPath = nullptr,
                          const char* rigidGraphPath = nullptr,
-                         const char* sourceContactPath = nullptr) {
+                         const char* sourceContactPath = nullptr,
+                         const char* sourceDiscretePath = nullptr) {
     try {
         require(rigidGraphPath == nullptr || rigidTiesPath != nullptr,
                 "source rigid graph requires the complete rigid-tie program");
         require(sourceContactPath == nullptr || rigidGraphPath != nullptr,
                 "source contact requires the full tissue and rigid graph");
+        require(sourceDiscretePath == nullptr ||
+                    (sourceContactPath != nullptr && rigidGraphPath != nullptr),
+                "source discrete edges require the full source assembly");
         const std::vector<std::uint8_t> fiberBytes = readBinaryBytes(fiberPath);
         const std::vector<std::uint8_t> meshBytes = readBinaryBytes(meshPath);
         std::vector<SourceVolumeMesh> meshes;
@@ -424,6 +429,25 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                     digestHex(sourceContact.geometryBinarySHA256) ==
                         "97c5e7b1c09eb47193bca0b7d2a515088b40938da45fe7aa8c8fc7bb7dd54368",
                     "source contact and rigid graph bind different archives");
+        }
+        SourceDiscreteProgram sourceDiscrete;
+        std::vector<std::uint8_t> discreteBytes;
+        if (sourceDiscretePath != nullptr) {
+            discreteBytes = readBinaryBytes(sourceDiscretePath);
+            require(decodeSourceDiscreteProgram(discreteBytes, sourceDiscrete, error),
+                    error);
+            require(sourceDiscrete.deckSHA256 == rigidGraph.deckSHA256 &&
+                    sourceDiscrete.geometrySHA256 == rigidGraph.geometrySHA256 &&
+                    sourceDiscrete.geometryBinarySHA256 ==
+                        sourceContact.geometryBinarySHA256,
+                    "source discrete program binds different source files");
+            for (const auto& graphCurve : rigidGraph.curves) {
+                const auto found = std::ranges::find_if(sourceDiscrete.curves,
+                    [&](const auto& curve) { return curve.id == graphCurve.id; });
+                require(found != sourceDiscrete.curves.end() &&
+                            found->points == graphCurve.points,
+                        "source discrete and rigid graph load curves differ");
+            }
         }
         std::unordered_map<std::uint32_t, SourceRigidTieRecord> tieBySourceNode;
         tieBySourceNode.reserve(sourceTies.rows.size());
@@ -498,7 +522,13 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
             setMaterialParameter(material, "c1", spec.c1 * 1.0e6);
             setMaterialParameter(material, "bulk", spec.bulk * 1.0e6);
             if (spec.ligament || spec.meniscus) {
-                setMaterialParameter(material, "initial_stretch", spec.initialStretch);
+                // The retained FEBio preload curves start every ligament at
+                // unit stretch. ACL/MCL/LCL reach spec.initialStretch only
+                // after the first continuation interval; baking the target
+                // into the t=0 material silently changes the source problem.
+                setMaterialParameter(material, "initial_stretch",
+                    rigidGraphPath != nullptr && spec.ligament
+                        ? 1.0 : spec.initialStretch);
                 setMaterialParameter(material, "c3", spec.c3 * 1.0e6);
                 setMaterialParameter(material, "c4", spec.c4);
                 setMaterialParameter(material, "c5", spec.c5 * 1.0e6);
@@ -581,8 +611,49 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
         }
         require(expectedTetrahedra == 844287u,
                 "source total tetrahedron count drifted from the pinned source");
+        if (rigidGraphPath != nullptr)
+            for (std::size_t group = 0u; group < specs.size(); ++group)
+                if (specs[group].ligament)
+                    require(materialParameter(source.materials[group],
+                                "initial_stretch") == 1.0,
+                            "source preload starts with final ligament prestrain");
         require(tieBySourceNode.empty(),
                 "source rigid-tie node is absent from all source tissue volumes");
+        std::size_t boundDiscreteFEMEdges = 0u;
+        std::size_t boundDiscreteRigidEdges = 0u;
+        if (sourceDiscretePath != nullptr) {
+            const auto rigidBody = [&](std::uint32_t id) {
+                return std::ranges::any_of(rigidGraph.bodies,
+                    [id](const auto& body) { return body.materialId == id; });
+            };
+            for (std::size_t edgeIndex = 0u;
+                 edgeIndex < sourceDiscrete.edges.size(); ++edgeIndex) {
+                const auto& edge = sourceDiscrete.edges[edgeIndex];
+                const bool rigid = edgeIndex < 4u;
+                const auto bind = [&](std::uint32_t id, std::uint32_t owner,
+                                      const std::array<double, 3>& point) {
+                    if (rigid) {
+                        require(rigidBody(owner),
+                                "source patellar discrete edge has no rigid owner");
+                    } else {
+                        const auto found = sourceNodeLocations.find(id);
+                        require(found != sourceNodeLocations.end() &&
+                                specs[found->second.object].materialId == owner &&
+                                found->second.sourcePosition == point,
+                                "source MCL-meniscus discrete edge has no exact FEM node");
+                    }
+                };
+                bind(edge.nodeA, edge.ownerA, edge.pointA);
+                bind(edge.nodeB, edge.ownerB, edge.pointB);
+                require(edge.ownerA != edge.ownerB,
+                        "source discrete edge connects one material to itself");
+                if (rigid) ++boundDiscreteRigidEdges;
+                else ++boundDiscreteFEMEdges;
+            }
+            require(boundDiscreteRigidEdges == 4u &&
+                        boundDiscreteFEMEdges == 402u,
+                    "source discrete endpoint binding is incomplete");
+        }
         if (sourceContactPath != nullptr) {
             std::unordered_map<std::uint32_t, std::uint32_t> rigidNodeOwner;
             rigidNodeOwner.reserve(sourceContact.rigidNodes.size());
@@ -661,6 +732,7 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
         std::vector<NMSourceCylindricalJointGPU> runtimeJoints;
         std::vector<NMSourceRigidSpringGPU> runtimeSprings;
         std::vector<NMSourceFEMRigidTieGPU> runtimeTies;
+        std::vector<NMSourceFEMSpringGPU> runtimeFEMSprings;
         bool runtimeProgramInitialized = false;
         std::size_t runtimeResidentBytes = 0u;
         if (rigidGraphPath != nullptr) {
@@ -741,8 +813,58 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                                   0.0f, 0.0f};
                 runtimeSprings.push_back(row);
             }
+            if (sourceDiscretePath != nullptr) {
+                for (std::size_t index = 0u; index < 4u; ++index) {
+                    const auto& edge = sourceDiscrete.edges[index];
+                    const auto& set = sourceDiscrete.sets[index / 2u];
+                    const auto& curve = sourceDiscrete.curves[set.curveId - 1u];
+                    require(curve.points.size() == 3u &&
+                            curve.points[0][0] == -1.0 &&
+                            curve.points[1][0] == 0.0 &&
+                            curve.points[2][0] == 1.0 &&
+                            curve.points[0][1] == 0.0 &&
+                            curve.points[1][1] == 0.0 &&
+                            curve.points[2][1] == (index < 2u ? 50.0 : 8.0),
+                            "source patellar spring curve is not the pinned piecewise law");
+                    const auto a = bodyIndex(edge.ownerA);
+                    const auto b = bodyIndex(edge.ownerB);
+                    NMSourceRigidSpringGPU row{};
+                    row.indices = {a, b, 0u, 0u};
+                    row.referenceA = point(rigidGraph.bodies[a].centerOfMass, 0.001);
+                    row.referenceB = point(rigidGraph.bodies[b].centerOfMass, 0.001);
+                    row.insertionA = point(edge.pointA, 0.001);
+                    row.insertionB = point(edge.pointB, 0.001);
+                    row.parameters = {static_cast<float>(
+                        set.scale * (curve.points[2][1] - curve.points[1][1]) * 1000.0),
+                        0.0f, 1.0f, 0.001f};
+                    runtimeSprings.push_back(row);
+                }
+                runtimeFEMSprings.reserve(boundDiscreteFEMEdges);
+                const auto& set = sourceDiscrete.sets[2];
+                for (std::size_t index = 4u;
+                     index < sourceDiscrete.edges.size(); ++index) {
+                    const auto& edge = sourceDiscrete.edges[index];
+                    const auto a = sourceNodeLocations.find(edge.nodeA);
+                    const auto b = sourceNodeLocations.find(edge.nodeB);
+                    require(a != sourceNodeLocations.end() &&
+                            b != sourceNodeLocations.end(),
+                            "source FEM spring lost its cooked node");
+                    NMSourceFEMSpringGPU row{};
+                    row.identity = {a->second.cookedNode, b->second.cookedNode,
+                                    static_cast<std::uint32_t>(index + 1u), 0u};
+                    row.referenceA = point(edge.pointA, 0.001);
+                    row.referenceB = point(edge.pointB, 0.001);
+                    // Source E is force per source length. Both endpoints
+                    // remain in the native FEM displacement solve.
+                    row.parameters = {static_cast<float>(set.stiffness * 1000.0),
+                                      0.0f, 0.0f, 0.0f};
+                    runtimeFEMSprings.push_back(row);
+                }
+                require(runtimeFEMSprings.size() == 402u,
+                        "source FEM spring lowering is incomplete");
+            }
             std::uint64_t programFingerprint = 14695981039346656037ull;
-            for (const auto* bytes : {&tieBytes, &graphBytes})
+            for (const auto* bytes : {&tieBytes, &graphBytes, &discreteBytes})
                 for (const auto byte : *bytes)
                     programFingerprint = (programFingerprint ^ byte) *
                         1099511628211ull;
@@ -756,6 +878,7 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
             configuration.sourceCylindricalJoints = runtimeJoints;
             configuration.sourceRigidSprings = runtimeSprings;
             configuration.sourceFEMRigidTies = runtimeTies;
+            configuration.sourceFEMSprings = runtimeFEMSprings;
             configuration.sourceRigidConnectorFingerprint = programFingerprint;
             numi::matter::Runtime runtime;
             const auto initialized = runtime.initialize(compiled.world, configuration);
@@ -807,6 +930,16 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                   << " source_rigid_bodies=" << rigidGraph.bodies.size()
                   << " source_cylindrical_joints=" << rigidGraph.joints.size()
                   << " source_rigid_springs=" << rigidGraph.springs.size()
+                  << " source_discrete_rigid_edges=" << boundDiscreteRigidEdges
+                  << " source_discrete_fem_edges=" << boundDiscreteFEMEdges
+                  << " source_discrete_fem="
+                  << (sourceDiscretePath != nullptr
+                      ? "included_in_newton_program_not_stepped"
+                      : "not_assembled")
+                  << " source_discrete_rigid="
+                  << (sourceDiscretePath != nullptr
+                      ? "bounded_piecewise_in_newton_program_not_stepped"
+                      : "not_assembled")
                   << " coupled_runtime_program=" <<
                      (runtimeProgramInitialized ? "initialized" : "not_requested")
                   << " runtime_resident_bytes=" << runtimeResidentBytes
@@ -819,6 +952,10 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                   << " source_analysis="
                   << (rigidGraphPath != nullptr
                       ? "quasistatic_inertia_excluded" : "unqualified")
+                  << " source_prestrain="
+                  << (rigidGraphPath != nullptr
+                      ? "unit_at_initial_state_target_not_continued"
+                      : "target_without_continuation")
                   << " source_initialization=not_solved "
                      "source_equivalence=rejected "
                      "source_unit_scale=mm_to_m_assumed rest_volume_range_m3="
@@ -839,12 +976,15 @@ int main(int argc, char** argv) {
         if (argc == 7 && std::string(argv[1]) == "--source-artifacts")
             return checkSourceArtifacts(argv[2], argv[3], argv[4], argv[5],
                                         argv[6]);
+        if (argc == 8 && std::string(argv[1]) == "--source-artifacts")
+            return checkSourceArtifacts(argv[2], argv[3], argv[4], argv[5],
+                                        argv[6], argv[7]);
         if (argc == 6 && std::string(argv[1]) == "--source-artifacts")
             return checkSourceArtifacts(argv[2], argv[3], argv[4], argv[5]);
         if (argc == 3 && std::string(argv[1]) == "--source-sidecar")
             return checkSourceSidecar(argv[2]);
         require(argc == 1, "usage: open knee fiber field check [--source-sidecar PATH] "
-                           "[--source-artifacts FIBER_PATH SOURCE_VOLUME_MESH_PATH [SOURCE_RIGID_TIES_PATH [SOURCE_RIGID_GRAPH_PATH [SOURCE_CONTACT_PATH]]]]");
+                           "[--source-artifacts FIBER_PATH SOURCE_VOLUME_MESH_PATH [SOURCE_RIGID_TIES_PATH [SOURCE_RIGID_GRAPH_PATH [SOURCE_CONTACT_PATH [SOURCE_DISCRETE_PATH]]]]]");
         const std::array<double, 3> medial0{-0.27206761041769667,
                                              1.1419075817929256,
                                              0.08613731458137508};

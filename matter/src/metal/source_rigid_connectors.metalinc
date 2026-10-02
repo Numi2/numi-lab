@@ -88,7 +88,107 @@ inline src::RigidSpring<float> sourceSpringInput(
     spring.insertionB = sourceVec(row.insertionB);
     spring.stiffness = row.parameters.x;
     spring.freeLength = row.parameters.y;
+    spring.sourcePiecewise = row.parameters.z > 0.5f;
+    spring.sourceKnotExtent = row.parameters.w;
     return spring;
+}
+
+// The source MCL-meniscus discrete set is assembled by unique FEM node.
+// Sorted incidences avoid atomic accumulation and preserve the same residual
+// and Jacobian in the coupled Newton solve, including rigid-tied endpoints.
+kernel void nm_source_fem_spring_residual(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMBridgeDispatchGPU& bridge [[buffer(1)]],
+    constant uint& nodeCount [[buffer(2)]],
+    device const NMSourceFEMSpringNodeGPU* nodes [[buffer(3)]],
+    device const uint* incidence [[buffer(4)]],
+    device const NMSourceFEMSpringGPU* springs [[buffer(5)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(6)]],
+    device float4* residual [[buffer(7)]],
+    device float4* reactions [[buffer(8)]],
+    device NMMatterStatusGPU* statuses [[buffer(9)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= dispatch.environmentCount * nodeCount || nodeCount == 0u)
+        return;
+    const uint environment = global / nodeCount;
+    if (!environmentHealthy(statuses, environment)) return;
+    const NMSourceFEMSpringNodeGPU row = nodes[global - environment * nodeCount];
+    const uint node = environment * dispatch.femNodeCount + row.identity.x;
+    float3 force = float3(0.0f);
+    for (uint i = 0u; i < row.identity.z; ++i) {
+        const uint encoded = incidence[row.identity.y + i];
+        const NMSourceFEMSpringGPU spring = springs[encoded / 2u];
+        const uint a = environment * dispatch.femNodeCount + spring.identity.x;
+        const uint b = environment * dispatch.femNodeCount + spring.identity.y;
+        const float3 gap = candidate[b].positionAndMass.xyz -
+            candidate[a].positionAndMass.xyz;
+        const float3 restGap = spring.referenceB.xyz - spring.referenceA.xyz;
+        const float distance = length(gap);
+        const float restLength = length(restGap);
+        if (!isfinite(distance) || !(distance > 1.0e-12f) ||
+            !isfinite(restLength) || !(restLength > 1.0e-12f)) {
+            recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+                NM_INVALID_INDEX, spring.identity.z,
+                float4(distance, restLength, 0.0f, 0.0f));
+            return;
+        }
+        const float3 onA = spring.parameters.x *
+            (distance - restLength) * gap / distance;
+        force += (encoded & 1u) == 0u ? onA : -onA;
+    }
+    if (femStaticConstraint(candidate[node].restAndFixed.w))
+        reactions[node].xyz += force;
+    else
+        residual[node].xyz += bridge.time.y * force;
+}
+
+kernel void nm_source_fem_spring_operator(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMBridgeDispatchGPU& bridge [[buffer(1)]],
+    constant uint& nodeCount [[buffer(2)]],
+    device const NMSourceFEMSpringNodeGPU* nodes [[buffer(3)]],
+    device const uint* incidence [[buffer(4)]],
+    device const NMSourceFEMSpringGPU* springs [[buffer(5)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(6)]],
+    device const float4* direction [[buffer(7)]],
+    device float4* work [[buffer(8)]],
+    device NMMatterStatusGPU* statuses [[buffer(9)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= dispatch.environmentCount * nodeCount || nodeCount == 0u)
+        return;
+    const uint environment = global / nodeCount;
+    if (!environmentHealthy(statuses, environment)) return;
+    const NMSourceFEMSpringNodeGPU row = nodes[global - environment * nodeCount];
+    const uint node = environment * dispatch.femNodeCount + row.identity.x;
+    if (femStaticConstraint(candidate[node].restAndFixed.w)) return;
+    float3 derivative = float3(0.0f);
+    for (uint i = 0u; i < row.identity.z; ++i) {
+        const uint encoded = incidence[row.identity.y + i];
+        const NMSourceFEMSpringGPU spring = springs[encoded / 2u];
+        const uint a = environment * dispatch.femNodeCount + spring.identity.x;
+        const uint b = environment * dispatch.femNodeCount + spring.identity.y;
+        const float3 gap = candidate[b].positionAndMass.xyz -
+            candidate[a].positionAndMass.xyz;
+        const float3 restGap = spring.referenceB.xyz - spring.referenceA.xyz;
+        const float distance = length(gap);
+        const float restLength = length(restGap);
+        if (!isfinite(distance) || !(distance > 1.0e-12f) ||
+            !isfinite(restLength) || !(restLength > 1.0e-12f)) {
+            recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+                NM_INVALID_INDEX, spring.identity.z,
+                float4(distance, restLength, 1.0f, 0.0f));
+            return;
+        }
+        const float3 axis = gap / distance;
+        const float3 delta = direction[b].xyz - direction[a].xyz;
+        const float3 onA = spring.parameters.x *
+            ((1.0f - restLength / distance) * delta +
+             (restLength / distance) * axis * dot(axis, delta));
+        derivative += (encoded & 1u) == 0u ? onA : -onA;
+    }
+    work[node].xyz -= bridge.time.y * bridge.time.y * derivative;
 }
 
 // Each rigid row assembles its own connector impulse. This writes the same

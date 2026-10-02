@@ -21,6 +21,11 @@ template<class T> struct RigidSpring {
     V<T> referenceA, referenceB, insertionA, insertionB;
     T stiffness{};
     T freeLength{};
+    // Pinned MPFL/LPFL curve: zero force in compression, linear in tension
+    // between its recorded -1, 0, +1 mm knots. Reject extrapolation until
+    // the reference solver's out-of-range behavior is independently matched.
+    bool sourcePiecewise = false;
+    T sourceKnotExtent{};
 };
 
 template<class T> struct RigidSpringDirection {
@@ -44,6 +49,9 @@ template<class T> inline bool evaluateRigidSpring(
         !finite(spring.insertionA) || !finite(spring.insertionB) ||
         !isfinite(spring.stiffness) || spring.stiffness <= T(0) ||
         !isfinite(spring.freeLength) || spring.freeLength < T(0) ||
+        (spring.sourcePiecewise &&
+            (!isfinite(spring.sourceKnotExtent) ||
+             !(spring.sourceKnotExtent > T(0)))) ||
         !finite(direction.linearA) || !finite(direction.angularA) ||
         !finite(direction.linearB) || !finite(direction.angularB)) return false;
     const V<T> armA = rotate(bodyA.rotation,
@@ -60,12 +68,17 @@ template<class T> inline bool evaluateRigidSpring(
     const T restLength = spring.freeLength == T(0)
         ? sqrt(dot(initialGap, initialGap)) : spring.freeLength;
     if (!isfinite(length) || !isfinite(restLength)) return false;
+    const T extension = length - restLength;
+    if (spring.sourcePiecewise &&
+        (extension < -spring.sourceKnotExtent ||
+         extension > spring.sourceKnotExtent)) return false;
+    const T localStiffness = spring.sourcePiecewise && extension < T(0)
+        ? T(0) : spring.stiffness;
 
     V<T> forceA{}, derivativeForceA{};
     if (length > T(1.0e-12)) {
         const V<T> axis = gap * (T(1) / length);
-        const T extension = length - restLength;
-        forceA = axis * (spring.stiffness * extension);
+        forceA = axis * (localStiffness * extension);
         const V<T> anchorVelocityA = direction.linearA +
             cross(direction.angularA, armA);
         const V<T> anchorVelocityB = direction.linearB +
@@ -73,8 +86,8 @@ template<class T> inline bool evaluateRigidSpring(
         const V<T> gapVelocity = anchorVelocityB - anchorVelocityA;
         const T lengthVelocity = dot(axis, gapVelocity);
         derivativeForceA = gapVelocity *
-                (spring.stiffness * extension / length) +
-            axis * (spring.stiffness * lengthVelocity * restLength / length);
+                (localStiffness * extension / length) +
+            axis * (localStiffness * lengthVelocity * restLength / length);
     } else {
         // At the source zero-free-length rest configuration the spring law is
         // smooth: force=k*gap, with tangent kI. A nonzero free length at a
@@ -84,7 +97,7 @@ template<class T> inline bool evaluateRigidSpring(
             cross(direction.angularA, armA);
         const V<T> anchorVelocityB = direction.linearB +
             cross(direction.angularB, armB);
-        derivativeForceA = (anchorVelocityB - anchorVelocityA) * spring.stiffness;
+        derivativeForceA = (anchorVelocityB - anchorVelocityA) * localStiffness;
     }
     const V<T> derivativeArmA = cross(direction.angularA, armA);
     const V<T> derivativeArmB = cross(direction.angularB, armB);
@@ -94,10 +107,9 @@ template<class T> inline bool evaluateRigidSpring(
         cross(armA, derivativeForceA);
     const V<T> derivativeMomentB = cross(derivativeArmB, forceA * T(-1)) +
         cross(armB, derivativeForceA * T(-1));
-    const T extension = length - restLength;
     RigidSpringOutput<T> out{
         forceA, momentA, forceA * T(-1), momentB,
-        T(0.5) * spring.stiffness * extension * extension};
+        T(0.5) * localStiffness * extension * extension};
     RigidSpringOutput<T> tangent{
         derivativeForceA, derivativeMomentA,
         derivativeForceA * T(-1), derivativeMomentB, T(0)};

@@ -454,6 +454,35 @@ SpringCheck checkRigidSpringOperator() {
             "rejected source rigid spring mutated caller output");
     return check;
 }
+
+void checkPinnedRetinacularSpringCurve() {
+    RigidSpring<double> spring{};
+    spring.referenceA = {0.0, 0.0, 0.0};
+    spring.referenceB = {0.01, 0.0, 0.0};
+    spring.insertionA = spring.referenceA;
+    spring.insertionB = spring.referenceB;
+    spring.stiffness = 50000.0; // 50 N per source mm
+    spring.sourcePiecewise = true;
+    spring.sourceKnotExtent = 0.001;
+    BodyState<double> a{{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0, 1.0}};
+    BodyState<double> b{{0.0095, 0.0, 0.0}, {0.0, 0.0, 0.0, 1.0}};
+    RigidSpringOutput<double> force{}, tangent{};
+    RigidSpringDirection<double> direction{};
+    direction.linearB = {1.0, 0.0, 0.0};
+    require(evaluateRigidSpring(spring, a, b, direction, force, tangent) &&
+                force.storedEnergy == 0.0 && force.forceA.x == 0.0 &&
+                tangent.forceA.x == 0.0,
+            "pinned retinacular spring transmits compression");
+    b.position.x = 0.0105;
+    require(evaluateRigidSpring(spring, a, b, direction, force, tangent) &&
+                std::abs(force.forceA.x - 25.0) < 1.0e-10 &&
+                std::abs(tangent.forceA.x - 50000.0) < 1.0e-8 &&
+                std::abs(force.storedEnergy - 0.00625) < 1.0e-12,
+            "pinned retinacular force, tangent or energy changed");
+    b.position.x = 0.0111;
+    require(!evaluateRigidSpring(spring, a, b, direction, force, tangent),
+            "unqualified retinacular curve extrapolation was admitted");
+}
 void setBodyB(Graph& graph, std::size_t jointIndex, double rotation, double translation = 0.0) {
     const auto& joint = graph.joints[jointIndex];
     const auto& p = joint.source;
@@ -617,6 +646,7 @@ int main(int argc, char** argv) {
             ? argv[2] : NUMI_OPEN_KNEE_SOURCE_GRAPH_PROGRAM;
         loadSourceProgram(programPath);
         const SpringCheck sourceSpring = checkRigidSpringOperator();
+        checkPinnedRetinacularSpringCurve();
         Graph neutral = sourceGraph();
         Result neutralResult{};
         require(evaluateGraph(neutral, neutralResult), "neutral source graph rejected");

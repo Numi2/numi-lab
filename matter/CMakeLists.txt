@@ -606,6 +606,11 @@ if(APPLE)
             numi-matter-source-rigid-coupled-check)
         set_tests_properties(matter.metal.source_rigid_coupled PROPERTIES
             LABELS "matter;constraint;coupled" TIMEOUT 120)
+        add_test(NAME matter.metal.source_fem_discrete_coupled COMMAND
+            numi-matter-source-rigid-coupled-check --quasistatic
+                --with-fem-spring)
+        set_tests_properties(matter.metal.source_fem_discrete_coupled PROPERTIES
+            LABELS "matter;constraint;coupled;open_knee" TIMEOUT 120)
         find_package(Python3 COMPONENTS Interpreter QUIET)
         if(Python3_Interpreter_FOUND)
             add_test(NAME matter.metal.source_quasistatic_coupled

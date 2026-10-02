@@ -34,8 +34,24 @@ typedef struct NM_ALIGN16 NMSourceFEMRigidTieGPU {
     nm_float4 localPoint; // body-COM-relative material point, w = 0
 } NMSourceFEMRigidTieGPU;
 
+// One source discrete linear spring between two cooked FEM nodes. The pinned
+// MCL-to-medial-meniscus set uses 402 such edges. Coordinates are SI reference
+// points and stiffness is N/m; zero free length means initial separation.
+typedef struct NM_ALIGN16 NMSourceFEMSpringGPU {
+    nm_uint4 identity; // node A, node B, source edge ID, reserved
+    nm_float4 referenceA;
+    nm_float4 referenceB;
+    nm_float4 parameters; // stiffness, free length, reserved, reserved
+} NMSourceFEMSpringGPU;
+
+typedef struct NM_ALIGN16 NMSourceFEMSpringNodeGPU {
+    nm_uint4 identity; // cooked node, first incidence, incidence count, reserved
+} NMSourceFEMSpringNodeGPU;
+
 #ifdef __cplusplus
 static_assert(sizeof(NMSourceCylindricalJointGPU) == 144);
 static_assert(sizeof(NMSourceRigidSpringGPU) == 96);
 static_assert(sizeof(NMSourceFEMRigidTieGPU) == 32);
+static_assert(sizeof(NMSourceFEMSpringGPU) == 64);
+static_assert(sizeof(NMSourceFEMSpringNodeGPU) == 16);
 #endif

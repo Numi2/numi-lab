@@ -4,7 +4,8 @@
       "source sliding-elastic faces and parameters are bound but not enforced in Matter Newton",
       "prestrain and initial-contact preparation not solved",
       "prescribed rigid and source loading continuation not executed",
-      "source static analysis is assembled without inertial rows, but no source equilibrium has been accepted",
+      "four retinacular nonlinear springs are bounded by their recorded knots; reference extrapolation remains unqualified",
+      "the 402 MCL-meniscus discrete springs are included in the coupled program but the full source case has not been stepped",
       "no Matter accepted state or XPLT field comparison"
     ],
     "status": "rejected"
@@ -22,24 +23,29 @@
     "time_semantics": "quasistatic_continuation_parameter"
   },
   "coupled_base": "5bf85aed50cf9af1d55445ac38b2a2bc71b1dcfe",
-  "human_revision": "abe6a81d11853ee1fe0da237fcbb4ca6ecd175c6",
+  "human_revision": "f2d233aa0a1ef2a77d6f6d1d1834f76e0460e60f",
   "machine": "arm64",
-  "matter_parent_revision": "a8e0d8be60fbef642ec098fd2cd579514f3de743",
+  "matter_parent_revision": "4d9ae9e4",
   "runtime": {
     "cooked_frames": "360404",
     "coupled_runtime_program": "initialized",
     "open_knee_source_volume_mesh": "passed",
     "rest_volume_range_m3": "2.37034e-14,1.26209e-09",
-    "runtime_resident_bytes": "4478593048",
+    "runtime_resident_bytes": "4478631608",
     "source_analysis": "quasistatic_inertia_excluded",
     "source_contact": "authored_faces_bound_not_enforced",
     "source_contact_faces": "345070",
     "source_contact_rigid_vertices": "17676",
     "source_cylindrical_joints": "6",
+    "source_discrete_fem": "included_in_newton_program_not_stepped",
+    "source_discrete_fem_edges": "402",
+    "source_discrete_rigid": "bounded_piecewise_in_newton_program_not_stepped",
+    "source_discrete_rigid_edges": "4",
     "source_equivalence": "rejected",
     "source_initialization": "not_solved",
     "source_material_groups": "12",
     "source_nodes": "194729",
+    "source_prestrain": "unit_at_initial_state_target_not_continued",
     "source_rigid_bodies": "9",
     "source_rigid_springs": "1",
     "source_rigid_tie_nodes": "29427",
@@ -51,6 +57,10 @@
     "source_deck": {
       "bytes": 8666471,
       "sha256": "00b6efb53ad7e7330296cbb9569d358d48ed60819e22732e6149db6fb98a158a"
+    },
+    "source_discrete_springs": {
+      "bytes": 26812,
+      "sha256": "332521897ae3116f7467f9bf8f81a0ab3942e11cf4ee734078b576cc51908be3"
     },
     "source_log": {
       "bytes": 1472687,
@@ -81,13 +91,16 @@
       "sha256": "c370ae9f94e9faee2d7060bf2a6819e03be1312e82ca79bd2e9cebf8b34398de"
     }
   },
-  "stdout_sha256": "06f534f5e80286fca63d45e006be2a264d1616230420f71b7d1d7fe39e1e5eab",
+  "stdout_sha256": "3098dfdd017fead6d3e9da6e03347ff7bcae0d325499dbcb70aa27da5fa14e6e",
   "verification": [
     "coupled static regression passes with a free rigid body, spring, joint, tissue tie and free FEM node",
     "tenfold change in numerical inverse mass changes accepted static correction by less than 0.02 percent in focused regression",
     "full source cook marks all twelve FEM tissues and all seven free rigid bodies as quasi-static",
     "all 12 source tissue groups compiled",
     "one Metal Runtime initialized with source rigid connector program",
-    "all 18 source contact pairs and 345070 authored faces bind to source tissue or rigid owners"
+    "all 18 source contact pairs and 345070 authored faces bind to source tissue or rigid owners",
+    "all 406 source discrete edges bind to exact tissue or rigid owners: 402 MCL-meniscus and four patellar retinacular edges",
+    "the 402 FEM-FEM springs enter the same static residual and FGMRES tangent as the source continua and rigid ties",
+    "a separate two-continuum static regression accepts a correction in which a spring moves the second continuum; this is not source knee validation"
   ]
 }

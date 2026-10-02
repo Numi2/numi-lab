@@ -278,6 +278,9 @@ const char kImageAnchor = 0;
     hash = mixFingerprint(hash, detail::hashBytes(
         configuration.sourceFEMRigidTies.data(),
         configuration.sourceFEMRigidTies.size_bytes()));
+    hash = mixFingerprint(hash, detail::hashBytes(
+        configuration.sourceFEMSprings.data(),
+        configuration.sourceFEMSprings.size_bytes()));
     hash = mixFingerprint(hash, configuration.sourceRigidConnectorFingerprint);
     hash = mixFingerprint(hash, detail::hashBytes(
         configuration.humanSupportContacts.data(),
@@ -937,11 +940,16 @@ struct Runtime::State {
     id<MTLBuffer> sourceCylindricalJoints = nil;
     id<MTLBuffer> sourceRigidSprings = nil;
     id<MTLBuffer> sourceFEMRigidTies = nil;
+    id<MTLBuffer> sourceFEMSprings = nil;
+    id<MTLBuffer> sourceFEMSpringNodes = nil;
+    id<MTLBuffer> sourceFEMSpringIncidence = nil;
     id<MTLBuffer> sourceTieResidualImpulses = nil;
     id<MTLBuffer> sourceTieOperator = nil;
     std::uint32_t sourceJointCount = 0u;
     std::uint32_t sourceSpringCount = 0u;
     std::uint32_t sourceTieCount = 0u;
+    std::uint32_t sourceFEMSpringCount = 0u;
+    std::uint32_t sourceFEMSpringNodeCount = 0u;
     std::uint32_t sourceMaximumFreeIndex = NM_INVALID_INDEX;
     id<MTLBuffer> humanLimitLinearization = nil;
     id<MTLBuffer> humanLimitTangent = nil;
@@ -1351,9 +1359,10 @@ RuntimeDiagnostics Runtime::initialize(
         const auto sourceJoints = configuration.sourceCylindricalJoints;
         const auto sourceSprings = configuration.sourceRigidSprings;
         const auto sourceTies = configuration.sourceFEMRigidTies;
+        const auto sourceFEMSprings = configuration.sourceFEMSprings;
         const bool hasSourceConnectors =
             !sourceJoints.empty() || !sourceSprings.empty() ||
-            !sourceTies.empty();
+            !sourceTies.empty() || !sourceFEMSprings.empty();
         const auto finite4 = [](const nm_float4 v) {
             return std::isfinite(v.x) && std::isfinite(v.y) &&
                 std::isfinite(v.z) && std::isfinite(v.w);
@@ -1378,6 +1387,7 @@ RuntimeDiagnostics Runtime::initialize(
         if (sourceJoints.size() > std::numeric_limits<std::uint32_t>::max() ||
             sourceSprings.size() > std::numeric_limits<std::uint32_t>::max() ||
             sourceTies.size() > std::numeric_limits<std::uint32_t>::max() ||
+            sourceFEMSprings.size() > std::numeric_limits<std::uint32_t>::max() ||
             hasSourceConnectors !=
                 (configuration.sourceRigidConnectorFingerprint != 0u) ||
             (hasSourceConnectors && world.dispatch.maximumRateExponent != 0u)) {
@@ -1405,7 +1415,11 @@ RuntimeDiagnostics Runtime::initialize(
                 row.indices.w != 0u || !finite4(row.referenceA) ||
                 !finite4(row.referenceB) || !finite4(row.insertionA) ||
                 !finite4(row.insertionB) || !finite4(row.parameters) ||
-                !(row.parameters.x > 0.0f) || row.parameters.y < 0.0f) {
+                !(row.parameters.x > 0.0f) || row.parameters.y < 0.0f ||
+                (row.parameters.z != 0.0f && row.parameters.z != 1.0f) ||
+                (row.parameters.z == 0.0f && row.parameters.w != 0.0f) ||
+                (row.parameters.z == 1.0f &&
+                 !(row.parameters.w > 0.0f))) {
                 diagnostics.message = "invalid source rigid spring row";
                 return diagnostics;
             }
@@ -1416,6 +1430,57 @@ RuntimeDiagnostics Runtime::initialize(
             static_cast<std::uint32_t>(sourceSprings.size());
         candidate->sourceTieCount =
             static_cast<std::uint32_t>(sourceTies.size());
+        candidate->sourceFEMSpringCount =
+            static_cast<std::uint32_t>(sourceFEMSprings.size());
+        std::vector<std::pair<std::uint32_t, std::uint32_t>> springIncidence;
+        springIncidence.reserve(sourceFEMSprings.size() * 2u);
+        for (std::uint32_t spring = 0u; spring < sourceFEMSprings.size(); ++spring) {
+            const auto& row = sourceFEMSprings[spring];
+            if (row.identity.x >= world.fem.nodes.size() ||
+                row.identity.y >= world.fem.nodes.size() ||
+                row.identity.x == row.identity.y || row.identity.z == 0u ||
+                row.identity.w != 0u || !finite4(row.referenceA) ||
+                !finite4(row.referenceB) || !finite4(row.parameters) ||
+                row.referenceA.w != 0.0f || row.referenceB.w != 0.0f ||
+                !(row.parameters.x > 0.0f) || row.parameters.y != 0.0f ||
+                row.parameters.z != 0.0f || row.parameters.w != 0.0f ||
+                world.fem.nodeRanges[row.identity.x].objectIndex == NM_INVALID_INDEX ||
+                world.fem.nodeRanges[row.identity.y].objectIndex == NM_INVALID_INDEX ||
+                world.fem.nodeRanges[row.identity.x].objectIndex ==
+                    world.fem.nodeRanges[row.identity.y].objectIndex) {
+                diagnostics.message = "invalid source FEM spring row";
+                return diagnostics;
+            }
+            for (const auto [node, endpoint] :
+                 {std::pair{row.identity.x, 0u}, std::pair{row.identity.y, 1u}}) {
+                const auto& rest = world.fem.nodes[node].restAndFixed;
+                const auto& point = endpoint == 0u ? row.referenceA : row.referenceB;
+                if (std::abs(rest.x - point.x) > 2.0e-6f ||
+                    std::abs(rest.y - point.y) > 2.0e-6f ||
+                    std::abs(rest.z - point.z) > 2.0e-6f) {
+                    diagnostics.message = "source FEM spring reference point differs from cooked node";
+                    return diagnostics;
+                }
+                springIncidence.emplace_back(node, 2u * spring + endpoint);
+            }
+        }
+        std::sort(springIncidence.begin(), springIncidence.end());
+        std::vector<NMSourceFEMSpringNodeGPU> sourceSpringNodes;
+        std::vector<std::uint32_t> sourceSpringIncidence;
+        for (const auto& [node, incidence] : springIncidence) {
+            if (sourceSpringNodes.empty() ||
+                sourceSpringNodes.back().identity.x != node) {
+                NMSourceFEMSpringNodeGPU row{};
+                row.identity = {node,
+                    static_cast<std::uint32_t>(sourceSpringIncidence.size()),
+                    0u, 0u};
+                sourceSpringNodes.push_back(row);
+            }
+            sourceSpringIncidence.push_back(incidence);
+            ++sourceSpringNodes.back().identity.z;
+        }
+        candidate->sourceFEMSpringNodeCount =
+            static_cast<std::uint32_t>(sourceSpringNodes.size());
         std::vector<NMFEMNodeStateGPU> sourceInitialFEMNodes(
             world.fem.nodes.begin(), world.fem.nodes.end());
         std::vector<bool> claimedTieNode(world.fem.nodes.size(), false);
@@ -1485,6 +1550,10 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->sourcePhysicsFingerprint = mixFingerprint(
                 candidate->sourcePhysicsFingerprint,
                 detail::hashBytes(sourceTies.data(), sourceTies.size_bytes()));
+            candidate->sourcePhysicsFingerprint = mixFingerprint(
+                candidate->sourcePhysicsFingerprint,
+                detail::hashBytes(sourceFEMSprings.data(),
+                                  sourceFEMSprings.size_bytes()));
         }
         std::filesystem::path metallib = configuration.metallib;
         if (metallib.empty()) {
@@ -1717,6 +1786,8 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_source_fem_rigid_tie_scatter_operator",
             "nm_source_fem_rigid_tie_eliminate_direction",
             "nm_source_fem_rigid_tie_mask",
+            "nm_source_fem_spring_residual",
+            "nm_source_fem_spring_operator",
             "nm_contact_subtract_rigid_inertia_residual",
             "nm_human_equality_factor",
             "nm_human_equality_precondition",
@@ -2459,6 +2530,14 @@ RuntimeDiagnostics Runtime::initialize(
             sourceSprings, valid, candidate->residentBytes);
         candidate->sourceFEMRigidTies = uploads.one(
             sourceTies, valid, candidate->residentBytes);
+        candidate->sourceFEMSprings = uploads.one(
+            sourceFEMSprings, valid, candidate->residentBytes);
+        candidate->sourceFEMSpringNodes = uploads.one(
+            std::span<const NMSourceFEMSpringNodeGPU>(sourceSpringNodes),
+            valid, candidate->residentBytes);
+        candidate->sourceFEMSpringIncidence = uploads.one(
+            std::span<const std::uint32_t>(sourceSpringIncidence),
+            valid, candidate->residentBytes);
         candidate->humanSupportContacts = uploads.one(
             supportContacts, valid, candidate->residentBytes);
         // Candidate point queries use an environment-major stream, including
@@ -4374,6 +4453,42 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:11u];
                 }
             );
+        };
+        const auto assembleSourceFEMSpringResidual = [&]() {
+            if (state.sourceFEMSpringNodeCount == 0u) return;
+            dispatchThreads("nm_source_fem_spring_residual",
+                environments * state.sourceFEMSpringNodeCount, [&] {
+                setDispatch();
+                [encoder setBytes:&bridge length:sizeof(bridge) atIndex:1u];
+                [encoder setBytes:&state.sourceFEMSpringNodeCount
+                           length:sizeof(state.sourceFEMSpringNodeCount) atIndex:2u];
+                [encoder setBuffer:state.sourceFEMSpringNodes offset:0u atIndex:3u];
+                [encoder setBuffer:state.sourceFEMSpringIncidence offset:0u atIndex:4u];
+                [encoder setBuffer:state.sourceFEMSprings offset:0u atIndex:5u];
+                [encoder setBuffer:state.femCandidate offset:0u atIndex:6u];
+                [encoder setBuffer:state.femResidual offset:0u atIndex:7u];
+                [encoder setBuffer:state.femConstraintReactions offset:0u atIndex:8u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:9u];
+            });
+        };
+        const auto assembleSourceFEMSpringOperator =
+            [&](NSUInteger directionOffset) {
+            if (state.sourceFEMSpringNodeCount == 0u) return;
+            dispatchThreads("nm_source_fem_spring_operator",
+                environments * state.sourceFEMSpringNodeCount, [&] {
+                setDispatch();
+                [encoder setBytes:&bridge length:sizeof(bridge) atIndex:1u];
+                [encoder setBytes:&state.sourceFEMSpringNodeCount
+                           length:sizeof(state.sourceFEMSpringNodeCount) atIndex:2u];
+                [encoder setBuffer:state.sourceFEMSpringNodes offset:0u atIndex:3u];
+                [encoder setBuffer:state.sourceFEMSpringIncidence offset:0u atIndex:4u];
+                [encoder setBuffer:state.sourceFEMSprings offset:0u atIndex:5u];
+                [encoder setBuffer:state.femCandidate offset:0u atIndex:6u];
+                [encoder setBuffer:state.fgmresPreconditionedBasis
+                             offset:directionOffset atIndex:7u];
+                [encoder setBuffer:state.femOperatorValue offset:0u atIndex:8u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:9u];
+            });
         };
         const auto captureSourceRigidTieResidual = [&]() {
             if (state.sourceTieCount == 0u) return;
@@ -6390,6 +6505,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.femConstraintReactions
                             offset:0u atIndex:23u];
             });
+            assembleSourceFEMSpringResidual();
             dispatchThreads("nm_fgmres_clear_rigid_residual",
                 rigidGeneralizedTotalForResidual, [&] {
                 setDispatch();
@@ -7019,6 +7135,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.coupledPointJacobians
                                  offset:0u atIndex:15u];
                 });
+                assembleSourceFEMSpringOperator(columnOffset);
                 // Include cavity traction before attachment capture, so the
                 // existing scatter applies its single work-conjugate J^T.
                 if (hasVascularCavities) {
@@ -7995,6 +8112,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.femConstraintReactions
                             offset:0u atIndex:23u];
             });
+            assembleSourceFEMSpringResidual();
             if (!encodeCoupledPrimalContact(
                     true,
                     state.contactHistoriesCandidate,
@@ -9146,6 +9264,9 @@ bool Runtime::encodeAcceptedStateProof(
             state.sourceCylindricalJoints,
             state.sourceRigidSprings,
             state.sourceFEMRigidTies,
+            state.sourceFEMSprings,
+            state.sourceFEMSpringNodes,
+            state.sourceFEMSpringIncidence,
             state.sourceTieResidualImpulses,
             state.sourceTieOperator,
             state.humanEqualityLinearization,
@@ -9930,6 +10051,9 @@ bool Runtime::applyPreparedStateImpl(
             state.sourceCylindricalJoints,
             state.sourceRigidSprings,
             state.sourceFEMRigidTies,
+            state.sourceFEMSprings,
+            state.sourceFEMSpringNodes,
+            state.sourceFEMSpringIncidence,
             state.sourceTieResidualImpulses,
             state.sourceTieOperator,
             state.humanEqualityLinearization,
