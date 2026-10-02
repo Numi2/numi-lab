@@ -113,11 +113,11 @@ void setBodyA(Graph& graph, std::size_t jointIndex, double rotation, double tran
     const V<double> axisA = rotate(a.rotation, p.axis);
     a.position = pointB - axisA * translation - rotate(a.rotation, p.origin - p.referenceA);
 }
-void makeFlexionPose(Graph& graph) {
-    // The source flexion curve reaches -1.57 rad. The 30 degree checkpoint is
-    // a kinematic operator test only; the source deck's separate rigid spring,
-    // tissue, contact, and prestrain equations are intentionally not implied.
-    graph.joints[0].source.rotation = -0.523598775598298873;
+void makeFlexionPose(Graph& graph, double flexionRadians) {
+    // The source flexion curve reaches -1.57 rad. The sampled angles are
+    // kinematic operator checks only; the source deck's rigid spring, tissue,
+    // contact, and prestrain equations are intentionally not implied.
+    graph.joints[0].source.rotation = -flexionRadians;
     setBodyA(graph, 1, 0.0);                   // TBB (3) anchors TFTO (17)
     setBodyA(graph, 2, 0.0);                   // TFTO (17) anchors TFFO (18)
     setBodyA(graph, 0, graph.joints[0].source.rotation); // source flexion
@@ -250,20 +250,39 @@ int main() {
         const double neutralTangentError = checkTangent(neutral);
         require(neutralTangentError < 5.0e-5, "neutral graph tangent failed finite differences");
 
-        Graph flexed = sourceGraph();
-        makeFlexionPose(flexed);
-        Result flexedResult{};
-        require(evaluateGraph(flexed, flexedResult), "30-degree source graph rejected");
-        double flexedResidual = 0.0;
-        for (double value : flexedResult.residual) flexedResidual = std::max(flexedResidual, std::abs(value));
-        require(flexedResidual < 2.0e-7, "source cylinders do not admit the 30-degree flexion pose");
-        const double flexedPowerError = checkVirtualWork(flexed, flexedResult);
-        require(flexedPowerError < 5.0e-15, "flexed graph wrench pullback violates virtual work");
-        const double flexedTangentError = checkTangent(flexed);
-        require(flexedTangentError < 5.0e-5, "flexed graph tangent failed finite differences");
+        struct FlexionCheck {
+            double degrees;
+            double residual = 0.0;
+            double powerError = 0.0;
+            double tangentError = 0.0;
+            unsigned rank = 0u;
+        };
+        std::array<FlexionCheck, 3> flexionChecks{{
+            {30.0}, {60.0}, {90.0},
+        }};
+        for (FlexionCheck& check : flexionChecks) {
+            Graph flexed = sourceGraph();
+            makeFlexionPose(flexed, check.degrees * std::acos(-1.0) / 180.0);
+            Result flexedResult{};
+            require(evaluateGraph(flexed, flexedResult),
+                    std::to_string(static_cast<unsigned>(check.degrees)) +
+                        "-degree source graph rejected");
+            for (double value : flexedResult.residual)
+                check.residual = std::max(check.residual, std::abs(value));
+            require(check.residual < 2.0e-7,
+                    "source cylinders do not admit the requested flexion pose");
+            check.powerError = checkVirtualWork(flexed, flexedResult);
+            require(check.powerError < 5.0e-15,
+                    "flexed graph wrench pullback violates virtual work");
+            check.tangentError = checkTangent(flexed);
+            require(check.tangentError < 5.0e-5,
+                    "flexed graph tangent failed finite differences");
+            check.rank = patellaConstraintRank(flexed);
+            require(check.rank == 12u,
+                    "patella source graph changed its six relative freedoms");
+        }
         const unsigned neutralRank = patellaConstraintRank(neutral);
-        const unsigned flexedRank = patellaConstraintRank(flexed);
-        require(neutralRank == 12 && flexedRank == 12,
+        require(neutralRank == 12u,
                 "patella source graph does not preserve its six relative freedoms");
         Graph invalid = neutral;
         invalid.joints[0].bodyA = invalid.bodies.size();
@@ -276,14 +295,18 @@ int main() {
                   << " source_geometry_sha256=" << kSourceGeometrySHA256
                   << " source_bodies=9 source_cylindrical_joints=6 "
                   << "neutral_residual=" << neutralResidual
-                  << " flexed_residual=" << flexedResidual
                   << " neutral_tangent_error=" << neutralTangentError
-                  << " flexed_tangent_error=" << flexedTangentError
                   << " neutral_virtual_work_error=" << neutralPowerError
-                  << " flexed_virtual_work_error=" << flexedPowerError
                   << " invalid_graph_rejected=1"
-                  << " patella_constraint_rank_neutral=" << neutralRank
-                  << " patella_constraint_rank_30deg=" << flexedRank << '\n';
+                  << " patella_constraint_rank_neutral=" << neutralRank;
+        for (const FlexionCheck& check : flexionChecks) {
+            std::cout << " flexion_" << static_cast<unsigned>(check.degrees)
+                      << "deg_residual=" << check.residual
+                      << "_tangent_error=" << check.tangentError
+                      << "_virtual_work_error=" << check.powerError
+                      << "_patella_rank=" << check.rank;
+        }
+        std::cout << '\n';
         return 0;
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';
