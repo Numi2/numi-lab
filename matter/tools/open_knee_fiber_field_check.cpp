@@ -16,6 +16,7 @@
 #include <bit>
 #include <cmath>
 #include <cstdint>
+#include <cstring>
 #include <iostream>
 #include <fstream>
 #include <iterator>
@@ -391,7 +392,8 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                          const char* sourceDiscretePath = nullptr,
                          double solveTime = -1.0,
                          std::uint32_t newtonBudget = 7u,
-                         std::uint32_t fgmresBudget = 10u) {
+                         std::uint32_t fgmresBudget = 10u,
+                         const char* checkpointSeedPath = nullptr) {
     try {
         require(rigidGraphPath == nullptr || rigidTiesPath != nullptr,
                 "source rigid graph requires the complete rigid-tie program");
@@ -407,6 +409,55 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
         require(newtonBudget > 0u && newtonBudget <= 64u &&
                 fgmresBudget > 0u && fgmresBudget <= 512u,
                 "source numerical iteration budgets are invalid");
+        std::vector<std::array<float, 3u>> checkpointPositions;
+        struct CheckpointBodyPose {
+            std::uint32_t materialId;
+            std::array<float, 3u> center;
+            std::array<float, 4u> orientation;
+        };
+        std::vector<CheckpointBodyPose> checkpointBodies;
+        std::array<std::uint8_t, 32u> checkpointDeck{};
+        std::array<std::uint8_t, 32u> checkpointGeometry{};
+        std::array<std::uint8_t, 32u> checkpointArchive{};
+        if (checkpointSeedPath != nullptr) {
+            require(solveTime >= 0.0, "checkpoint seed requires source solve");
+            const auto bytes = readBinaryBytes(checkpointSeedPath);
+            constexpr std::size_t headerBytes = 128u;
+            require(bytes.size() == headerBytes + 194729u * 12u + 9u * 32u &&
+                    std::memcmp(bytes.data(), "NOKSEED2", 8u) == 0,
+                    "source checkpoint seed has invalid size or magic");
+            std::uint32_t version = 0u, count = 0u, bodies = 0u, stateIndex = 0u;
+            double checkpointTime = 0.0;
+            std::memcpy(&version, bytes.data() + 8u, 4u);
+            std::memcpy(&count, bytes.data() + 12u, 4u);
+            std::memcpy(&bodies, bytes.data() + 16u, 4u);
+            std::memcpy(&stateIndex, bytes.data() + 20u, 4u);
+            std::memcpy(&checkpointTime, bytes.data() + 24u, 8u);
+            std::memcpy(checkpointDeck.data(), bytes.data() + 32u, 32u);
+            std::memcpy(checkpointGeometry.data(), bytes.data() + 64u, 32u);
+            std::memcpy(checkpointArchive.data(), bytes.data() + 96u, 32u);
+            require(version == 2u && count == 194729u && bodies == 9u &&
+                    stateIndex > 0u && std::isfinite(checkpointTime) &&
+                    std::abs(checkpointTime - solveTime) < 1.0e-6,
+                    "source checkpoint seed has invalid header");
+            checkpointPositions.resize(count);
+            std::memcpy(checkpointPositions.data(), bytes.data() + headerBytes,
+                        count * 12u);
+            std::size_t cursor = headerBytes + count * 12u;
+            for (std::size_t body = 0u; body < 9u; ++body) {
+                CheckpointBodyPose row{};
+                std::memcpy(&row.materialId, bytes.data() + cursor, 4u);
+                std::memcpy(row.center.data(), bytes.data() + cursor + 4u, 12u);
+                std::memcpy(row.orientation.data(), bytes.data() + cursor + 16u, 16u);
+                checkpointBodies.push_back(row);
+                cursor += 32u;
+            }
+            require(std::ranges::all_of(checkpointPositions,
+                        [](const auto& position) {
+                            return std::ranges::all_of(position,
+                                [](float value) { return std::isfinite(value); });
+                        }), "source checkpoint has nonfinite tissue positions");
+        }
         const std::vector<std::uint8_t> fiberBytes = readBinaryBytes(fiberPath);
         const std::vector<std::uint8_t> meshBytes = readBinaryBytes(meshPath);
         std::vector<SourceVolumeMesh> meshes;
@@ -432,6 +483,12 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                     digestHex(sourceTies.geometrySHA256) ==
                         "4155db1d0d7b87ffb2c668102d2495870e4461a539b18e6708f1f4817b5601bf",
                     "source rigid-tie program is bound to different source files");
+            if (checkpointSeedPath != nullptr)
+                require(checkpointDeck == sourceTies.deckSHA256 &&
+                            checkpointGeometry == sourceTies.geometrySHA256 &&
+                            digestHex(checkpointArchive) ==
+                                "c370ae9f94e9faee2d7060bf2a6819e03be1312e82ca79bd2e9cebf8b34398de",
+                        "source checkpoint does not match pinned deck, geometry, or XPLT");
         }
         SourceRigidGraphProgram rigidGraph;
         std::vector<std::uint8_t> graphBytes;
@@ -441,6 +498,26 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
             require(rigidGraph.deckSHA256 == sourceTies.deckSHA256 &&
                     rigidGraph.geometrySHA256 == sourceTies.geometrySHA256,
                     "source rigid graph and tissue ties bind different archives");
+            if (checkpointSeedPath != nullptr) {
+                require(checkpointBodies.size() == rigidGraph.bodies.size(),
+                        "source checkpoint rigid body count differs from graph");
+                for (const auto& body : rigidGraph.bodies) {
+                    const auto count = std::ranges::count_if(checkpointBodies,
+                        [&](const auto& row) {
+                            return row.materialId == body.materialId;
+                        });
+                    require(count == 1u,
+                            "source checkpoint is missing or duplicates a rigid body");
+                }
+                for (const auto& body : checkpointBodies) {
+                    const double q2 = std::inner_product(body.orientation.begin(),
+                        body.orientation.end(), body.orientation.begin(), 0.0);
+                    require(std::ranges::all_of(body.center,
+                                [](float x) { return std::isfinite(x); }) &&
+                            std::isfinite(q2) && std::abs(q2 - 1.0) < 1.0e-4,
+                            "source checkpoint rigid pose is invalid");
+                }
+            }
         }
         SourceSlidingContactProgram sourceContact;
         if (sourceContactPath != nullptr) {
@@ -572,6 +649,12 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
             if (spec.ligament || spec.meniscus)
                 require(materialParameter(material, "numerical_viscosity") == 0.0,
                         "source elastic material unexpectedly enables numerical viscosity");
+            // The archived FEBio deck fixes these coefficients. The generic
+            // template advertises them for later calibration, but this source
+            // experiment has no identification distributions.
+            if (rigidGraphPath != nullptr)
+                for (auto& parameter : material.parameters)
+                    parameter.identifiable = false;
             source.materials.push_back(std::move(material));
 
             numi::matter::ObjectSource object;
@@ -606,6 +689,16 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                             "source rigid-tie tissue differs from volume ownership");
                     object.femFixedNodes.push_back(local);
                     tieBySourceNode.erase(tie);
+                }
+            }
+            if (!checkpointPositions.empty()) {
+                object.femReferenceNodes = object.femNodes;
+                object.femReferenceSourceIdentity = {
+                    0x4155db1d0d7b87ffull, 0xb2c668102d249587ull,
+                    0x0e4461a539b18e67ull, 0x08f1f4817b5601bfull};
+                for (std::size_t local = 0u; local < object.femNodes.size(); ++local) {
+                    const auto& current = checkpointPositions[globalNodeBase + local];
+                    object.femNodes[local] = {current[0u], current[1u], current[2u]};
                 }
             }
             object.tetrahedra.reserve(mesh.tetrahedra.size());
@@ -752,6 +845,10 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
         const numi::matter::CompileResult compiled = numi::matter::compileWorld(
             source, {.maximumRateExponent = 0, .emitSpecializedMetal = false}
         );
+        if (!compiled.succeeded() && checkpointSeedPath != nullptr)
+            for (const auto& diagnostic : compiled.diagnostics)
+                std::cerr << "checkpoint_seed_cook_diagnostic="
+                          << diagnostic.message << '\n';
         require(compiled.succeeded(), "full Open Knee source-volume Matter cook failed");
         require(compiled.world.fem.tetrahedra.size() == expectedTetrahedra,
                 "Matter cook changed the source tissue tetrahedron total");
@@ -1260,6 +1357,14 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                                      static_cast<float>(center[1] * 0.001),
                                      static_cast<float>(center[2] * 0.001), 0.0f};
                     body.orientation = {0.0f, 0.0f, 0.0f, 1.0f};
+                    for (const auto& checkpoint : checkpointBodies)
+                        if (checkpoint.materialId == rigidGraph.bodies[index].materialId) {
+                            body.position = {checkpoint.center[0u], checkpoint.center[1u],
+                                             checkpoint.center[2u], 0.0f};
+                            body.orientation = {checkpoint.orientation[0u],
+                                checkpoint.orientation[1u], checkpoint.orientation[2u],
+                                checkpoint.orientation[3u]};
+                        }
                     const bool free = source.rigidProxies[index].dynamic;
                     body.linearVelocityAndInverseMass.w = free ? 1.0f : 0.0f;
                     body.flagsAndIndices[0] = free ? MR_MOTION_DYNAMIC : MR_MOTION_STATIC;
@@ -1357,6 +1462,17 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                           << " max_fem_displacement_m=" << maximumDisplacement
                           << " source_contact_history=" << state.sourceContactHistory.size()
                           << " source_equivalence=unqualified\n";
+                if (checkpointSeedPath != nullptr)
+                    for (std::size_t body = 0u; body < state.rigidStates.size(); ++body) {
+                        const auto& rigid = state.rigidStates[body];
+                        std::cout << "checkpoint_rigid_body index=" << body
+                                  << " material=" << rigidGraph.bodies[body].materialId
+                                  << " center_m=" << rigid.bodyCenter.x << ','
+                                  << rigid.bodyCenter.y << ',' << rigid.bodyCenter.z
+                                  << " quaternion=" << rigid.orientation.x << ','
+                                  << rigid.orientation.y << ',' << rigid.orientation.z
+                                  << ',' << rigid.orientation.w << '\n';
+                    }
                 if (!accepted)
                     for (std::size_t object = 0u;
                          object < state.solverCertificates.size(); ++object) {
@@ -1416,6 +1532,13 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                               << " l2=" << std::sqrt(rigidSquared)
                               << " maximum=" << rigidMaximum
                               << " worst_dof=" << worstDof << '\n';
+                    if (checkpointSeedPath != nullptr)
+                        for (std::size_t dof = 0u;
+                             dof < compiled.world.dispatch.rigidGeneralizedCapacity;
+                             ++dof)
+                            std::cout << "checkpoint_rigid_residual dof=" << dof
+                                      << " impulse=" << residual[rigidBase + dof].x
+                                      << '\n';
                 }
                 if (!accepted &&
                     state.diagnosticSourceContactNodeForces.size() ==
@@ -1423,9 +1546,20 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                     !state.diagnosticGeneralizedResidual.empty()) {
                     std::vector<double> contactImpulseSquared(source.objects.size());
                     std::vector<double> contactResidualDot(source.objects.size());
+                    std::vector<std::array<double, 3u>> rigidContactForces(
+                        rigidGraph.bodies.size());
                     for (std::size_t slot = 0u;
                          slot < runtimeContactNodes.size(); ++slot) {
                         const auto& node = runtimeContactNodes[slot];
+                        if (node.identity.y == 1u) {
+                            const auto& force =
+                                state.diagnosticSourceContactNodeForces[slot];
+                            auto& sum = rigidContactForces[node.identity.x];
+                            sum[0u] += force.x;
+                            sum[1u] += force.y;
+                            sum[2u] += force.z;
+                            continue;
+                        }
                         if (node.identity.y != 0u) continue;
                         const std::uint32_t fem = node.identity.x;
                         const std::uint32_t object =
@@ -1451,6 +1585,16 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                                   << std::sqrt(contactImpulseSquared[object])
                                   << " contact_residual_dot="
                                   << contactResidualDot[object] << '\n';
+                    if (checkpointSeedPath != nullptr)
+                        for (std::size_t body = 0u;
+                             body < rigidContactForces.size(); ++body) {
+                            const auto& force = rigidContactForces[body];
+                            std::cout << "checkpoint_rigid_contact_force body="
+                                      << body << " material="
+                                      << rigidGraph.bodies[body].materialId
+                                      << " newton=" << force[0u] << ','
+                                      << force[1u] << ',' << force[2u] << '\n';
+                        }
                 }
                 return accepted ? 0 : 2;
             }
@@ -1579,6 +1723,14 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
 
 int main(int argc, char** argv) {
     try {
+        if (argc == 15 && std::string(argv[1]) == "--source-artifacts" &&
+            std::string(argv[8]) == "--solve-source-time" &&
+            std::string(argv[10]) == "--solver-budget" &&
+            std::string(argv[13]) == "--checkpoint-seed")
+            return checkSourceArtifacts(argv[2], argv[3], argv[4], argv[5],
+                argv[6], argv[7], std::stod(argv[9]),
+                static_cast<std::uint32_t>(std::stoul(argv[11])),
+                static_cast<std::uint32_t>(std::stoul(argv[12])), argv[14]);
         if (argc == 13 && std::string(argv[1]) == "--source-artifacts" &&
             std::string(argv[8]) == "--solve-source-time" &&
             std::string(argv[10]) == "--solver-budget")
