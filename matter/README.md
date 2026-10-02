@@ -445,3 +445,28 @@ New tensor cases use a 1e-5 Frobenius relative-error gate for each stress or
 directional-tangent tensor and also report component errors near cancellation.
 The original scalar gates are unchanged. Retained native results are in
 [`docs/media/open-knee-source-material-20261001`](../docs/media/open-knee-source-material-20261001/receipt.json).
+
+### Source cylindrical-joint graph assembly
+
+`source_cylindrical_joint_graph.h` assembles the source connector residuals,
+body wrenches, generalized residual, and exact directional tangent for a fixed
+rigid graph. It uses the existing Matter connector equation and an explicitly
+supplied per-body spatial motion map; an articulated caller must include the
+motion-map geometric-stiffness term in its own linearization. This is a solve
+operator, not a second integrator or a replacement for the coupled runtime.
+
+`numi-matter-source-joint-graph-check` instantiates all nine rigid-body IDs and
+six cylindrical joints from the pinned FEBio 2.9.1 mechanical descriptor and
+the archived source geometry identity. At neutral and a source-consistent
+30-degree flexion configuration, the six-joint graph residuals are below
+2e-9 in source units. Its patellar three-joint subgraph has constraint rank
+12 at both configurations, leaving six relative rigid freedoms after the six
+global rigid-body modes are removed. The assembled graph tangent agrees with
+central differences to 2.8e-5 under the test's absolute-scaled metric.
+
+This check intentionally excludes the source rigid spring, deformable tissues,
+rigid ties, prestrain, contact, load-step solve, and their reactions. It does
+not assemble the operator into Matter's GPU runtime or establish source-knee
+equilibrium. The source graph now has an executable connector assembly, while
+the complete source problem remains unqualified. Retained output and source
+identity are in [`docs/media/open-knee-source-graph-20261002`](../docs/media/open-knee-source-graph-20261002/receipt.json).

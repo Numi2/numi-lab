@@ -547,4 +547,17 @@ if(APPLE)
         add_test(NAME matter.metal.source_joint COMMAND numi-matter-source-joint-check)
         set_tests_properties(matter.compiler.source_joint matter.metal.source_joint PROPERTIES LABELS "matter;constraint;human" TIMEOUT 60)
     endif()
+
+    # Assemble the pinned Open Knee rigid cylindrical-joint graph through the
+    # same residual/tangent operator used by the source single-joint check.
+    # This is graph-kinematics evidence only; tissues, spring, contacts and
+    # prestrain remain separate unsupported source constructs.
+    add_executable(numi-matter-source-joint-graph-check tools/source_joint_graph_check.cpp)
+    target_include_directories(numi-matter-source-joint-graph-check PRIVATE include)
+    target_compile_options(numi-matter-source-joint-graph-check PRIVATE -Wall -Wextra -Wpedantic -Werror)
+    if(BUILD_TESTING)
+        add_test(NAME matter.compiler.source_joint_graph COMMAND numi-matter-source-joint-graph-check)
+        set_tests_properties(matter.compiler.source_joint_graph
+            PROPERTIES LABELS "matter;constraint;human;open_knee" TIMEOUT 60)
+    endif()
 endif()
