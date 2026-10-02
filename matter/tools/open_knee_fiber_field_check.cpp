@@ -613,7 +613,8 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
         source.gravity = {0.0, 0.0, 0.0};
         if (solveTime >= 0.0) {
             source.mixedSolver.newtonIterations = newtonBudget;
-            source.mixedSolver.fgmresRestart = std::min(10u, fgmresBudget);
+            source.mixedSolver.fgmresRestart = std::min(
+                NM_MIXED_FGMRES_RESTART, fgmresBudget);
             source.mixedSolver.fgmresIterations = fgmresBudget;
             source.mixedSolver.relativeResidual = 1.0e-5;
         }
