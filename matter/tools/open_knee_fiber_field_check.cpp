@@ -1322,7 +1322,7 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                   << sourceContact.rigidNodes.size()
                   << " source_contact="
                   << (sourceContactPath != nullptr
-                      ? "candidate_bvh_projection_wired_not_executed_no_traction_or_tangent"
+                      ? "candidate_bvh_projection_traction_wired_not_executed_no_tangent_or_history"
                       : "not_assembled")
                   << " source_analysis="
                   << (rigidGraphPath != nullptr

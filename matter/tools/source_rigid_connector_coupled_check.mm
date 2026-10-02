@@ -48,12 +48,19 @@ void checkMovingSourceProjection(id<MTLDevice> device,
     auto materialize = pipeline(@"nm_source_contact_materialize_faces");
     auto refit = pipeline(@"nm_source_contact_refit_bvh");
     auto project = pipeline(@"nm_source_contact_project_pass");
+    auto clearIncidence = pipeline(@"nm_source_contact_clear_incidence");
+    auto countIncidence = pipeline(@"nm_source_contact_count_incidence");
+    auto scanIncidence = pipeline(@"nm_source_contact_scan_incidence");
+    auto scatterIncidence = pipeline(@"nm_source_contact_scatter_incidence");
+    auto sortIncidence = pipeline(@"nm_source_contact_sort_incidence");
+    auto gatherForces = pipeline(@"nm_source_contact_gather_forces");
     NMMatterDispatchGPU dispatch{};
     dispatch.environmentCount = 1u;
     const std::uint32_t nodeCount = 9u, faceCount = 3u,
                         bvhCount = 4u, projectionCount = 3u;
     const std::array<NMSourceContactFaceGPU, 3u> faces{{
-        {{0u, 1u, 1u, 0u}, {0u, 1u, 2u, 0u}, {}},
+        {{0u, 1u, 1u, 0u}, {0u, 1u, 2u, 0u},
+         {1.0e9f, 5.0e-5f, 1.0e-7f, 2.0e6f}},
         {{1u, 2u, 2u, NM_INVALID_INDEX}, {3u, 4u, 5u, 0u}, {}},
         {{1u, 3u, 2u, NM_INVALID_INDEX}, {6u, 7u, 8u, 0u}, {}}
     }};
@@ -91,6 +98,20 @@ void checkMovingSourceProjection(id<MTLDevice> device,
     std::array<NMSourceContactProjectionGPU, 3u> emptyProjections{};
     id<MTLBuffer> projections = make(emptyProjections.data(),
                                      sizeof(emptyProjections));
+    std::array<std::uint32_t, 9u> emptyCounts{};
+    id<MTLBuffer> counts = make(emptyCounts.data(), sizeof(emptyCounts));
+    id<MTLBuffer> cursors = make(emptyCounts.data(), sizeof(emptyCounts));
+    std::array<NMIncidenceRangeGPU, 9u> emptyRanges{};
+    id<MTLBuffer> ranges = make(emptyRanges.data(), sizeof(emptyRanges));
+    std::array<std::uint32_t, 18u> emptyIncidence{};
+    id<MTLBuffer> incidence = make(emptyIncidence.data(),
+                                   sizeof(emptyIncidence));
+    std::array<nm_float4, 9u> emptyForces{};
+    id<MTLBuffer> forces = make(emptyForces.data(), sizeof(emptyForces));
+    NMSourceSlidingPairGPU pair{};
+    pair.identity = {1u, 0u, 1u, 0u};
+    pair.normal = {0.1f, 0.0f, 0.01f, 0.001f};
+    id<MTLBuffer> pairs = make(&pair, sizeof(pair));
     NMMatterStatusGPU emptyStatus{};
     id<MTLBuffer> status = make(&emptyStatus, sizeof(emptyStatus));
     const std::array<std::array<std::uint32_t, 2u>, 2u> levels{{
@@ -152,6 +173,58 @@ void checkMovingSourceProjection(id<MTLDevice> device,
         [encoder setBuffer:projections offset:0u atIndex:11u];
         [encoder setBuffer:status offset:0u atIndex:12u];
         dispatchKernel(project, projectionCount);
+        [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+        [encoder setBytes:&nodeCount length:sizeof(nodeCount) atIndex:1u];
+        [encoder setBuffer:counts offset:0u atIndex:2u];
+        [encoder setBuffer:cursors offset:0u atIndex:3u];
+        [encoder setBuffer:forces offset:0u atIndex:4u];
+        dispatchKernel(clearIncidence, nodeCount);
+        [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+        [encoder setBytes:&nodeCount length:sizeof(nodeCount) atIndex:1u];
+        [encoder setBytes:&projectionCount length:sizeof(projectionCount)
+            atIndex:2u];
+        [encoder setBuffer:projections offset:0u atIndex:3u];
+        [encoder setBuffer:faceBuffer offset:0u atIndex:4u];
+        [encoder setBuffer:counts offset:0u atIndex:5u];
+        [encoder setBuffer:status offset:0u atIndex:6u];
+        dispatchKernel(countIncidence, projectionCount);
+        [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+        [encoder setBytes:&nodeCount length:sizeof(nodeCount) atIndex:1u];
+        [encoder setBytes:&projectionCount length:sizeof(projectionCount)
+            atIndex:2u];
+        [encoder setBuffer:counts offset:0u atIndex:3u];
+        [encoder setBuffer:ranges offset:0u atIndex:4u];
+        [encoder setBuffer:status offset:0u atIndex:5u];
+        dispatchKernel(scanIncidence, 1u);
+        [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+        [encoder setBytes:&nodeCount length:sizeof(nodeCount) atIndex:1u];
+        [encoder setBytes:&projectionCount length:sizeof(projectionCount)
+            atIndex:2u];
+        [encoder setBuffer:projections offset:0u atIndex:3u];
+        [encoder setBuffer:faceBuffer offset:0u atIndex:4u];
+        [encoder setBuffer:ranges offset:0u atIndex:5u];
+        [encoder setBuffer:cursors offset:0u atIndex:6u];
+        [encoder setBuffer:incidence offset:0u atIndex:7u];
+        [encoder setBuffer:status offset:0u atIndex:8u];
+        dispatchKernel(scatterIncidence, projectionCount);
+        [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+        [encoder setBytes:&nodeCount length:sizeof(nodeCount) atIndex:1u];
+        [encoder setBuffer:ranges offset:0u atIndex:2u];
+        [encoder setBuffer:incidence offset:0u atIndex:3u];
+        [encoder setBuffer:status offset:0u atIndex:4u];
+        dispatchKernel(sortIncidence, nodeCount);
+        [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+        [encoder setBytes:&nodeCount length:sizeof(nodeCount) atIndex:1u];
+        [encoder setBytes:&projectionCount length:sizeof(projectionCount)
+            atIndex:2u];
+        [encoder setBuffer:projections offset:0u atIndex:3u];
+        [encoder setBuffer:faceBuffer offset:0u atIndex:4u];
+        [encoder setBuffer:pairs offset:0u atIndex:5u];
+        [encoder setBuffer:ranges offset:0u atIndex:6u];
+        [encoder setBuffer:incidence offset:0u atIndex:7u];
+        [encoder setBuffer:forces offset:0u atIndex:8u];
+        [encoder setBuffer:status offset:0u atIndex:9u];
+        dispatchKernel(gatherForces, nodeCount);
         [encoder endEncoding];
         [command commit];
         [command waitUntilCompleted];
@@ -169,6 +242,37 @@ void checkMovingSourceProjection(id<MTLDevice> device,
             } else require(rows[point].identity.x == NM_INVALID_INDEX,
                            "source projection reused stale moving-face bounds");
         }
+        const auto* force = static_cast<const nm_float4*>(forces.contents);
+        float slaveZ = 0.0f, masterZ = 0.0f, netX = 0.0f,
+              netY = 0.0f, netZ = 0.0f, momentX = 0.0f,
+              momentY = 0.0f, momentZ = 0.0f;
+        const auto* points = static_cast<const nm_float4*>(positions.contents);
+        for (std::uint32_t node = 0u; node < nodeCount; ++node) {
+            if (node < 3u) slaveZ += force[node].z;
+            else masterZ += force[node].z;
+            netX += force[node].x;
+            netY += force[node].y;
+            netZ += force[node].z;
+            momentX += points[node].y * force[node].z -
+                       points[node].z * force[node].y;
+            momentY += points[node].z * force[node].x -
+                       points[node].x * force[node].z;
+            momentZ += points[node].x * force[node].y -
+                       points[node].y * force[node].x;
+        }
+        if (phase == 0u)
+            require(std::abs(slaveZ - 1.0f) < 1.0e-4f &&
+                    std::abs(masterZ + 1.0f) < 1.0e-4f &&
+                    std::abs(netX) < 1.0e-5f &&
+                    std::abs(netY) < 1.0e-5f &&
+                    std::abs(netZ) < 1.0e-5f &&
+                    std::abs(momentX) < 1.0e-6f &&
+                    std::abs(momentY) < 1.0e-6f &&
+                    std::abs(momentZ) < 1.0e-6f,
+                    "source contact Gauss force failed two-surface balance");
+        else require(std::abs(slaveZ) < 1.0e-6f &&
+                     std::abs(masterZ) < 1.0e-6f,
+                     "source contact force persisted after separation");
     }
 }
 }
@@ -421,7 +525,7 @@ int main(int argc, char** argv) {
             auto encoded = runtime.encode(request);
             if (sourceContactGeometry) {
                 require(!encoded.encoded &&
-                    encoded.message.find("no coupled traction and tangent") !=
+                    encoded.message.find("no coupled tangent and contact history") !=
                         std::string::npos,
                     "source geometry-only contact admitted an unforced root");
                 const auto afterContact = runtime.snapshot();

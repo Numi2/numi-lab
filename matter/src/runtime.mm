@@ -969,6 +969,11 @@ struct Runtime::State {
     id<MTLBuffer> sourceContactBVHBounds = nil;
     id<MTLBuffer> sourceContactBVHRoots = nil;
     id<MTLBuffer> sourceContactProjections = nil;
+    id<MTLBuffer> sourceContactIncidenceCounts = nil;
+    id<MTLBuffer> sourceContactIncidenceCursors = nil;
+    id<MTLBuffer> sourceContactIncidenceRanges = nil;
+    id<MTLBuffer> sourceContactIncidence = nil;
+    id<MTLBuffer> sourceContactNodeForces = nil;
     std::vector<std::pair<std::uint32_t, std::uint32_t>> sourceContactBVHLevels;
     std::vector<NMSourceContactPassGPU> sourceContactPasses;
     std::uint32_t sourceContactBVHNodeCount = 0u;
@@ -1516,6 +1521,7 @@ RuntimeDiagnostics Runtime::initialize(
             return diagnostics;
         }
         std::set<std::uint32_t> sourceContactNodeIds;
+        std::set<std::uint32_t> sourceContactFEMNodeIds;
         for (const auto& row : sourceContactNodes) {
             const bool fem = row.identity.y == 0u;
             if (row.identity.y > 1u || row.identity.z == 0u ||
@@ -1526,7 +1532,8 @@ RuntimeDiagnostics Runtime::initialize(
                          row.localPoint.y != 0.0f ||
                          row.localPoint.z != 0.0f)) ||
                 (!fem && row.identity.x >= world.contact.rigidProxies.size()) ||
-                !sourceContactNodeIds.insert(row.identity.z).second) {
+                !sourceContactNodeIds.insert(row.identity.z).second ||
+                (fem && !sourceContactFEMNodeIds.insert(row.identity.x).second)) {
                 diagnostics.message = "invalid source sliding contact node";
                 return diagnostics;
             }
@@ -2127,6 +2134,14 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_source_contact_materialize_faces",
             "nm_source_contact_refit_bvh",
             "nm_source_contact_project_pass",
+            "nm_source_contact_clear_incidence",
+            "nm_source_contact_count_incidence",
+            "nm_source_contact_scan_incidence",
+            "nm_source_contact_scatter_incidence",
+            "nm_source_contact_sort_incidence",
+            "nm_source_contact_gather_forces",
+            "nm_source_contact_fem_residual",
+            "nm_source_contact_rigid_residual",
             "nm_source_fem_rigid_tie_drive",
             "nm_source_fem_rigid_tie_capture_residual",
             "nm_source_fem_rigid_tie_scatter_residual",
@@ -2918,6 +2933,26 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->sourceContactProjections =
                 privateScratch<NMSourceContactProjectionGPU>(candidate->device,
                     environments * candidate->sourceContactProjectionCount,
+                    valid, candidate->residentBytes);
+            candidate->sourceContactIncidenceCounts =
+                privateScratch<std::uint32_t>(candidate->device,
+                    environments * sourceContactNodes.size(),
+                    valid, candidate->residentBytes);
+            candidate->sourceContactIncidenceCursors =
+                privateScratch<std::uint32_t>(candidate->device,
+                    environments * sourceContactNodes.size(),
+                    valid, candidate->residentBytes);
+            candidate->sourceContactIncidenceRanges =
+                privateScratch<NMIncidenceRangeGPU>(candidate->device,
+                    environments * sourceContactNodes.size(),
+                    valid, candidate->residentBytes);
+            candidate->sourceContactIncidence =
+                privateScratch<std::uint32_t>(candidate->device,
+                    environments * 6u * candidate->sourceContactProjectionCount,
+                    valid, candidate->residentBytes);
+            candidate->sourceContactNodeForces =
+                privateScratch<nm_float4>(candidate->device,
+                    environments * sourceContactNodes.size(),
                     valid, candidate->residentBytes);
         }
         candidate->sourceFEMSpringNodes = uploads.one(
@@ -4141,7 +4176,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
         }
         if (state.sourceSlidingPairCount != 0u) {
             diagnostics.message =
-                "source sliding-elastic contact has candidate geometry but no coupled traction and tangent";
+                "source sliding-elastic contact has candidate projection and normal traction but no coupled tangent and contact history";
             return diagnostics;
         }
 
@@ -4945,6 +4980,142 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.statuses offset:0u atIndex:12u];
                     });
             }
+            const NSUInteger contactNodeTotal =
+                environments * state.sourceContactNodeCount;
+            const NSUInteger contactPointTotal =
+                environments * state.sourceContactProjectionCount;
+            dispatchThreads("nm_source_contact_clear_incidence",
+                contactNodeTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.sourceContactNodeCount
+                        length:sizeof(state.sourceContactNodeCount) atIndex:1u];
+                    [encoder setBuffer:state.sourceContactIncidenceCounts
+                        offset:0u atIndex:2u];
+                    [encoder setBuffer:state.sourceContactIncidenceCursors
+                        offset:0u atIndex:3u];
+                    [encoder setBuffer:state.sourceContactNodeForces
+                        offset:0u atIndex:4u];
+                });
+            dispatchThreads("nm_source_contact_count_incidence",
+                contactPointTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.sourceContactNodeCount
+                        length:sizeof(state.sourceContactNodeCount) atIndex:1u];
+                    [encoder setBytes:&state.sourceContactProjectionCount
+                        length:sizeof(state.sourceContactProjectionCount) atIndex:2u];
+                    [encoder setBuffer:state.sourceContactProjections
+                        offset:0u atIndex:3u];
+                    [encoder setBuffer:state.sourceContactFaces
+                        offset:0u atIndex:4u];
+                    [encoder setBuffer:state.sourceContactIncidenceCounts
+                        offset:0u atIndex:5u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:6u];
+                });
+            dispatchThreads("nm_source_contact_scan_incidence",
+                environments, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.sourceContactNodeCount
+                        length:sizeof(state.sourceContactNodeCount) atIndex:1u];
+                    [encoder setBytes:&state.sourceContactProjectionCount
+                        length:sizeof(state.sourceContactProjectionCount) atIndex:2u];
+                    [encoder setBuffer:state.sourceContactIncidenceCounts
+                        offset:0u atIndex:3u];
+                    [encoder setBuffer:state.sourceContactIncidenceRanges
+                        offset:0u atIndex:4u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:5u];
+                });
+            dispatchThreads("nm_source_contact_scatter_incidence",
+                contactPointTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.sourceContactNodeCount
+                        length:sizeof(state.sourceContactNodeCount) atIndex:1u];
+                    [encoder setBytes:&state.sourceContactProjectionCount
+                        length:sizeof(state.sourceContactProjectionCount) atIndex:2u];
+                    [encoder setBuffer:state.sourceContactProjections
+                        offset:0u atIndex:3u];
+                    [encoder setBuffer:state.sourceContactFaces
+                        offset:0u atIndex:4u];
+                    [encoder setBuffer:state.sourceContactIncidenceRanges
+                        offset:0u atIndex:5u];
+                    [encoder setBuffer:state.sourceContactIncidenceCursors
+                        offset:0u atIndex:6u];
+                    [encoder setBuffer:state.sourceContactIncidence
+                        offset:0u atIndex:7u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:8u];
+                });
+            dispatchThreads("nm_source_contact_sort_incidence",
+                contactNodeTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.sourceContactNodeCount
+                        length:sizeof(state.sourceContactNodeCount) atIndex:1u];
+                    [encoder setBuffer:state.sourceContactIncidenceRanges
+                        offset:0u atIndex:2u];
+                    [encoder setBuffer:state.sourceContactIncidence
+                        offset:0u atIndex:3u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:4u];
+                });
+            dispatchThreads("nm_source_contact_gather_forces",
+                contactNodeTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.sourceContactNodeCount
+                        length:sizeof(state.sourceContactNodeCount) atIndex:1u];
+                    [encoder setBytes:&state.sourceContactProjectionCount
+                        length:sizeof(state.sourceContactProjectionCount) atIndex:2u];
+                    [encoder setBuffer:state.sourceContactProjections
+                        offset:0u atIndex:3u];
+                    [encoder setBuffer:state.sourceContactFaces
+                        offset:0u atIndex:4u];
+                    [encoder setBuffer:state.sourceSlidingPairs
+                        offset:0u atIndex:5u];
+                    [encoder setBuffer:state.sourceContactIncidenceRanges
+                        offset:0u atIndex:6u];
+                    [encoder setBuffer:state.sourceContactIncidence
+                        offset:0u atIndex:7u];
+                    [encoder setBuffer:state.sourceContactNodeForces
+                        offset:0u atIndex:8u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:9u];
+                });
+        };
+        const auto assembleSourceContactFEMResidual = [&]() {
+            if (state.sourceSlidingPairCount == 0u) return;
+            dispatchThreads("nm_source_contact_fem_residual",
+                environments * state.sourceContactNodeCount, [&] {
+                    setDispatch();
+                    [encoder setBytes:&bridge length:sizeof(bridge) atIndex:1u];
+                    [encoder setBytes:&state.sourceContactNodeCount
+                        length:sizeof(state.sourceContactNodeCount) atIndex:2u];
+                    [encoder setBuffer:state.sourceContactNodes
+                        offset:0u atIndex:3u];
+                    [encoder setBuffer:state.sourceContactNodeForces
+                        offset:0u atIndex:4u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:5u];
+                    [encoder setBuffer:state.femResidual offset:0u atIndex:6u];
+                    [encoder setBuffer:state.femConstraintReactions
+                        offset:0u atIndex:7u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:8u];
+                });
+        };
+        const auto assembleSourceContactRigidResidual = [&]() {
+            if (state.sourceSlidingPairCount == 0u) return;
+            dispatchThreads("nm_source_contact_rigid_residual",
+                environments * state.dispatch.rigidGeneralizedCapacity, [&] {
+                    setDispatch();
+                    [encoder setBytes:&bridge length:sizeof(bridge) atIndex:1u];
+                    [encoder setBytes:&coupledArticulatedNv
+                        length:sizeof(coupledArticulatedNv) atIndex:2u];
+                    [encoder setBytes:&state.sourceContactNodeCount
+                        length:sizeof(state.sourceContactNodeCount) atIndex:3u];
+                    [encoder setBuffer:state.sourceContactNodes
+                        offset:0u atIndex:4u];
+                    [encoder setBuffer:state.sourceContactPositions
+                        offset:0u atIndex:5u];
+                    [encoder setBuffer:state.sourceContactNodeForces
+                        offset:0u atIndex:6u];
+                    [encoder setBuffer:state.rigidProxies offset:0u atIndex:7u];
+                    [encoder setBuffer:state.rigidStates offset:0u atIndex:8u];
+                    [encoder setBuffer:state.femResidual offset:0u atIndex:9u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:10u];
+                });
         };
         const auto captureFEMHumanAttachmentResidual = [&]() {
             dispatchThreads(
@@ -7029,6 +7200,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             offset:0u atIndex:23u];
             });
             assembleSourceFEMSpringResidual();
+            assembleSourceContactFEMResidual();
             dispatchThreads("nm_fgmres_clear_rigid_residual",
                 rigidGeneralizedTotalForResidual, [&] {
                 setDispatch();
@@ -7074,6 +7246,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.coupledPointJacobians
                              offset:0u atIndex:4u];
             });
+            assembleSourceContactRigidResidual();
             if (state.sourceJointCount + state.sourceSpringCount != 0u) {
                 dispatchThreads("nm_source_rigid_connector_residual",
                     rigidGeneralizedTotalForResidual, [&] {
@@ -8637,6 +8810,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             offset:0u atIndex:23u];
             });
             assembleSourceFEMSpringResidual();
+            assembleSourceContactFEMResidual();
             if (!encodeCoupledPrimalContact(
                     true,
                     state.contactHistoriesCandidate,
@@ -8679,6 +8853,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.coupledPointJacobians
                              offset:0u atIndex:4u];
             });
+            assembleSourceContactRigidResidual();
             if (state.sourceJointCount + state.sourceSpringCount != 0u) {
                 dispatchThreads("nm_source_rigid_connector_residual",
                     rigidGeneralizedTotalForResidual, [&] {

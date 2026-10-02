@@ -94,7 +94,7 @@ typedef struct NM_ALIGN16 NMSourceContactPassGPU {
     nm_float4 parameters; // penalty scale, gap tolerance m, bary tolerance, search radius m
 } NMSourceContactPassGPU;
 typedef struct NM_ALIGN16 NMSourceContactProjectionGPU {
-    nm_uint4 identity; // master face or INVALID, slave face, pair, pass
+    nm_uint4 identity; // master face or INVALID, slave face, pair, pass*4+Gauss point
     nm_float4 barycentricGap; // master barycentric xyz, positive penetration gap m
     nm_float4 normalArea; // slave normal xyz, integration area m^2
 } NMSourceContactProjectionGPU;
