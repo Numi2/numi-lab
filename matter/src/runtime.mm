@@ -1545,7 +1545,7 @@ RuntimeDiagnostics Runtime::initialize(
                  face < owner.identity.x + owner.identity.y; ++face) {
                 const auto& row = sourceContactFaces[face];
                 if (row.identity.x != surface || row.identity.y == 0u ||
-                    row.identity.z == 0u || row.identity.w != 0u ||
+                    row.identity.z == 0u ||
                     row.nodes.w != 0u ||
                     row.nodes.x >= sourceContactNodes.size() ||
                     row.nodes.y >= sourceContactNodes.size() ||
@@ -1553,6 +1553,15 @@ RuntimeDiagnostics Runtime::initialize(
                     row.nodes.x == row.nodes.y || row.nodes.x == row.nodes.z ||
                     row.nodes.y == row.nodes.z) {
                     diagnostics.message = "invalid source sliding contact face";
+                    return diagnostics;
+                }
+                if ((owner.identity.w == 0u &&
+                     (row.identity.w >= world.fem.tetrahedra.size() ||
+                      world.fem.tetrahedra[row.identity.w].identity.y !=
+                          owner.identity.z)) ||
+                    (owner.identity.w == 1u &&
+                     row.identity.w != NM_INVALID_INDEX)) {
+                    diagnostics.message = "source sliding face has no backing element";
                     return diagnostics;
                 }
                 for (const auto node : {row.nodes.x, row.nodes.y, row.nodes.z}) {

@@ -7,6 +7,7 @@
 #include "numi/matter/compiler.hpp"
 
 #include <array>
+#include <algorithm>
 #include <bit>
 #include <cmath>
 #include <cstdint>
@@ -27,6 +28,14 @@ using namespace numi_matter_open_knee;
 
 void require(bool condition, const std::string& message) {
     if (!condition) throw std::runtime_error(message);
+}
+
+std::uint64_t sourceFaceKey(std::array<std::uint32_t, 3> nodes) {
+    std::ranges::sort(nodes);
+    require(nodes[2] < (1u << 21u),
+            "source contact node exceeds reversible face-key range");
+    return (std::uint64_t(nodes[0]) << 42u) |
+           (std::uint64_t(nodes[1]) << 21u) | nodes[2];
 }
 
 double materialParameter(
@@ -757,6 +766,7 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
         std::vector<NMSourceContactFaceGPU> runtimeContactFaces;
         std::vector<NMSourceContactSurfaceGPU> runtimeContactSurfaces;
         std::vector<NMSourceSlidingPairGPU> runtimeSlidingPairs;
+        std::size_t sourceContactBackingFaces = 0u;
         bool runtimeProgramInitialized = false;
         std::size_t runtimeResidentBytes = 0u;
         if (rigidGraphPath != nullptr) {
@@ -814,7 +824,7 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                         const auto& face = sourceContact.faces[faceIndex];
                         NMSourceContactFaceGPU row{};
                         row.identity = {surfaceIndex, face.sourceFaceId,
-                                        surface.materialId, 0u};
+                                        surface.materialId, NM_INVALID_INDEX};
                         for (std::size_t vertex = 0u; vertex < 3u; ++vertex) {
                             const std::uint32_t id = face.sourceNodes[vertex];
                             auto [slot, inserted] = contactNodeSlot.emplace(
@@ -850,6 +860,62 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                         runtimeContactFaces.push_back(row);
                     }
                 }
+                // FEBio's automatic penalty reads the elastic tangent and
+                // volume of the element behind each slave face. Bind that
+                // exact owner now; a face with zero or multiple matching
+                // source tetrahedra cannot silently receive a default law.
+                std::unordered_multimap<std::uint64_t, std::uint32_t>
+                    requestedFaces;
+                requestedFaces.reserve(runtimeContactFaces.size());
+                std::size_t tissueFaceCount = 0u;
+                for (std::uint32_t face = 0u;
+                     face < runtimeContactFaces.size(); ++face) {
+                    const auto& row = runtimeContactFaces[face];
+                    if (runtimeContactSurfaces[row.identity.x].identity.w != 0u)
+                        continue;
+                    requestedFaces.emplace(sourceFaceKey(
+                        sourceContact.faces[face].sourceNodes), face);
+                    ++tissueFaceCount;
+                }
+                std::size_t ambiguousFaces = 0u;
+                std::uint32_t globalTet = 0u;
+                constexpr std::array<std::array<std::uint32_t, 3>, 4> tetFaces{{
+                    {0u, 1u, 2u}, {0u, 1u, 3u},
+                    {0u, 2u, 3u}, {1u, 2u, 3u}}};
+                for (const auto& mesh : meshes)
+                    for (const auto& tet : mesh.tetrahedra) {
+                        for (const auto& local : tetFaces) {
+                            const auto key = sourceFaceKey({
+                                tet.sourceNodeIds[local[0]],
+                                tet.sourceNodeIds[local[1]],
+                                tet.sourceNodeIds[local[2]]});
+                            const auto matches = requestedFaces.equal_range(key);
+                            for (auto found = matches.first;
+                                 found != matches.second; ++found) {
+                                auto& face = runtimeContactFaces[found->second];
+                                if (face.identity.z != mesh.sourceMaterialId)
+                                    continue;
+                                if (face.identity.w != NM_INVALID_INDEX)
+                                    ++ambiguousFaces;
+                                else face.identity.w = globalTet;
+                            }
+                        }
+                        ++globalTet;
+                    }
+                const auto missingFaces = std::count_if(
+                    runtimeContactFaces.begin(), runtimeContactFaces.end(),
+                    [&](const auto& face) {
+                        return runtimeContactSurfaces[face.identity.x]
+                                   .identity.w == 0u &&
+                               face.identity.w == NM_INVALID_INDEX;
+                    });
+                require(globalTet == compiled.world.fem.tetrahedra.size() &&
+                            ambiguousFaces == 0u && missingFaces == 0u,
+                        "source contact backing elements are missing or ambiguous: " +
+                        std::to_string(tissueFaceCount) + " tissue faces, " +
+                        std::to_string(missingFaces) + " missing, " +
+                        std::to_string(ambiguousFaces) + " ambiguous");
+                sourceContactBackingFaces = tissueFaceCount;
                 runtimeSlidingPairs.reserve(sourceContact.pairs.size());
                 for (const auto& pair : sourceContact.pairs) {
                     require(pair.parameters[0] == 0.0 &&
@@ -1130,6 +1196,8 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                   << " source_contact_runtime_nodes=" << runtimeContactNodes.size()
                   << " source_contact_runtime_faces=" << runtimeContactFaces.size()
                   << " source_contact_runtime_pairs=" << runtimeSlidingPairs.size()
+                  << " source_contact_backing_tissue_faces="
+                  << sourceContactBackingFaces
                   << " source_contact_initial_gauss_points="
                   << initialContactProjection.quadraturePoints
                   << " source_contact_initial_active_gauss_points="

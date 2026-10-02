@@ -66,7 +66,7 @@ typedef struct NM_ALIGN16 NMSourceContactNodeGPU {
     nm_float4 localPoint; // rigid body-COM-relative point; zero for FEM
 } NMSourceContactNodeGPU;
 typedef struct NM_ALIGN16 NMSourceContactFaceGPU {
-    nm_uint4 identity; // surface, source face ID, owner material ID, reserved
+    nm_uint4 identity; // surface, source face ID, owner material ID, backing cooked tet or INVALID for rigid
     nm_uint4 nodes; // three source-contact node slots, reserved
 } NMSourceContactFaceGPU;
 typedef struct NM_ALIGN16 NMSourceContactSurfaceGPU {

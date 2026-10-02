@@ -61,7 +61,8 @@
     "source_flexion": "curve9_in_rigid_newton_program_not_stepped",
     "source_contact_runtime_nodes": "76062",
     "source_contact_runtime_faces": "345070",
-    "source_contact_runtime_pairs": "18"
+    "source_contact_runtime_pairs": "18",
+    "source_contact_backing_tissue_faces": "302274"
   },
   "schema": "numi.matter.open-knee-source-assembly.v1",
   "source_artifacts": {
@@ -103,7 +104,7 @@
     }
   },
   "source_contact_initial_support": "contact-initial-face-support.json",
-  "stdout_sha256": "e4d2a811e6912a0ca9b0045ae08bf212dbe2bfab7a30af6484793208b6571b3a",
+  "stdout_sha256": "32dbd32dd5ade18c6b97defe369d45d7b75c25d9ee8c0395a6e9702b3da05556",
   "verification": [
     "coupled static regression passes with a free rigid body, spring, joint, tissue tie and free FEM node",
     "tenfold change in numerical inverse mass changes accepted static correction by less than 0.02 percent in focused regression",
@@ -118,6 +119,7 @@
     "source curves 1-6 and 9 are staged in the same coupled Newton material and rigid-joint program; the full knee has not been stepped",
     "small coupled regression accepts source time 0.5 prestrain and time 1.1 flexion, and rejects mismatched post-commit source time; this does not qualify the full knee",
     "all 345070 source contact faces and 76062 unique tissue or rigid nodes are bound to the coupled runtime; moving-face materialization is wired to Newton reassembly and certification, but source-contact execution is fail-closed until traction and tangent are implemented",
-    "a coupled admission regression rejects source contact at preDynamics and confirms its accepted FEM state is unchanged"
+    "a coupled admission regression rejects source contact at preDynamics and confirms its accepted FEM state is unchanged",
+    "all 302274 tissue contact faces resolve to exactly one backing source tetrahedron, with zero missing or ambiguous owners; rigid faces retain no elastic backing tetrahedron"
   ]
 }
