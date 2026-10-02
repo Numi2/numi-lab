@@ -23,7 +23,7 @@ constexpr const char* kExpectedSourceDeckSHA256 =
 constexpr const char* kExpectedSourceGeometrySHA256 =
     "4155db1d0d7b87ffb2c668102d2495870e4461a539b18e6708f1f4817b5601bf";
 constexpr const char* kExpectedSourceGraphProgramSHA256 =
-    "e2285453812182f9a525bd3b6f1b32aaae77a52bf7f865563d483ed0b4e7b792";
+    "cc0abaaa9165976f2df5c134b963247205a732092b96c51f9369d48526dde794";
 struct JointRecord {
     unsigned idA, idB;
     V<double> origin, axis;
@@ -37,6 +37,12 @@ struct BoundaryRecord {
     std::array<double, 6> value{};
     std::array<std::int32_t, 6> curve{};
 };
+struct SpringRecord {
+    unsigned idA = 0, idB = 0;
+    V<double> insertionA{}, insertionB{};
+    double stiffness = 0.0;
+    double freeLength = 0.0;
+};
 struct LoadCurveRecord {
     std::uint32_t id = 0;
     std::uint32_t interpolation = 0;
@@ -47,6 +53,7 @@ struct SourceProgram {
     std::array<unsigned, 9> bodyIds{};
     std::array<V<double>, 9> referenceCOM{};
     std::array<JointRecord, 6> joints{};
+    std::array<SpringRecord, 1> springs{};
     std::array<BoundaryRecord, 2> boundaries{};
     std::vector<LoadCurveRecord> curves;
     std::string deckSHA256;
@@ -123,15 +130,17 @@ void loadSourceProgram(const std::string& path) {
                 kExpectedSourceGraphProgramSHA256,
             "Human source rigid graph program artifact hash changed");
     ProgramReader reader(bytes);
-    require(reader.string(8) == std::string("NHRGPH2\0", 8),
+    require(reader.string(8) == std::string("NHRGPH3\0", 8),
             "unsupported Human source rigid graph magic");
     const std::uint32_t version = reader.u32();
     const std::uint32_t bodyCount = reader.u32();
     const std::uint32_t jointCount = reader.u32();
+    const std::uint32_t springCount = reader.u32();
     const std::uint32_t boundaryCount = reader.u32();
     const std::uint32_t curveCount = reader.u32();
-    require(version == 2 && bodyCount == 9 && jointCount == 6 && boundaryCount == 2 &&
-                curveCount == 1,
+    require(version == 3 && bodyCount == 9 && jointCount == 6 &&
+                springCount == kSourceProgram.springs.size() &&
+                boundaryCount == 2 && curveCount == 1,
             "Human source rigid graph program has unsupported counts or version");
     kSourceProgram.deckSHA256 = hexDigest(reader.string(32));
     kSourceProgram.geometrySHA256 = hexDigest(reader.string(32));
@@ -159,6 +168,22 @@ void loadSourceProgram(const std::string& path) {
                 "Human source cylindrical joint has an invalid prescribed flag");
         joint.prescribedTranslation = prescribedTranslation != 0;
         joint.prescribedRotation = prescribedRotation != 0;
+    }
+    for (SpringRecord& spring : kSourceProgram.springs) {
+        spring.idA = reader.u32(); spring.idB = reader.u32();
+        spring.insertionA = {reader.f64(), reader.f64(), reader.f64()};
+        spring.insertionB = {reader.f64(), reader.f64(), reader.f64()};
+        spring.stiffness = reader.f64(); spring.freeLength = reader.f64();
+        reader.skip(32); // source rigid-spring XML SHA-256
+        require(std::find(kSourceProgram.bodyIds.begin(), kSourceProgram.bodyIds.end(),
+                           spring.idA) != kSourceProgram.bodyIds.end() &&
+                    std::find(kSourceProgram.bodyIds.begin(), kSourceProgram.bodyIds.end(),
+                              spring.idB) != kSourceProgram.bodyIds.end() &&
+                    spring.idA != spring.idB &&
+                    finite(spring.insertionA) && finite(spring.insertionB) &&
+                    std::isfinite(spring.stiffness) && spring.stiffness > 0.0 &&
+                    std::isfinite(spring.freeLength) && spring.freeLength >= 0.0,
+                "Human source rigid spring is invalid");
     }
     for (BoundaryRecord& boundary : kSourceProgram.boundaries) {
         boundary.bodyId = reader.u32();
@@ -200,6 +225,13 @@ void loadSourceProgram(const std::string& path) {
                 kSourceProgram.joints[0].rotationCurve == 9 &&
                 std::abs(kSourceProgram.joints[0].rotation + 1.57) < 1.0e-12,
             "source flexion coordinate is not the compiled prescribed joint");
+    require(kSourceProgram.springs[0].idA == 21u &&
+                kSourceProgram.springs[0].idB == 4u &&
+                kSourceProgram.springs[0].insertionA.x == 1.0835532632546936 &&
+                kSourceProgram.springs[0].insertionB.x == 1.0835532632546936 &&
+                kSourceProgram.springs[0].stiffness == 0.1 &&
+                kSourceProgram.springs[0].freeLength == 0.0,
+            "source rigid spring parameters or body references changed");
     require(kSourceProgram.curves[0].id == 9 && kSourceProgram.curves[0].interpolation == 1 &&
                 kSourceProgram.curves[0].times == std::vector<double>{0.0, 1.0, 2.0} &&
                 kSourceProgram.curves[0].values == std::vector<double>{0.0, 0.0, 1.0},
@@ -300,6 +332,127 @@ Graph sourceGraph() {
         }
     }
     return graph;
+}
+using SpringGraph = GraphInput<double, 9, 0, 54, 1>;
+using SpringResult = GraphOutput<double, 9, 0, 54, 1>;
+SpringGraph sourceSpringGraph() {
+    SpringGraph graph{};
+    for (std::size_t body = 0; body < kSourceProgram.referenceCOM.size(); ++body) {
+        graph.bodies[body] = {kSourceProgram.referenceCOM[body], {0, 0, 0, 1}};
+        const std::size_t base = body * 6;
+        graph.motion[base + 0][body].linear.x = 1.0;
+        graph.motion[base + 1][body].linear.y = 1.0;
+        graph.motion[base + 2][body].linear.z = 1.0;
+        graph.motion[base + 3][body].angular.x = 1.0;
+        graph.motion[base + 4][body].angular.y = 1.0;
+        graph.motion[base + 5][body].angular.z = 1.0;
+    }
+    const SpringRecord& source = kSourceProgram.springs[0];
+    RigidSpring<double>& spring = graph.springs[0];
+    spring.bodyA = indexOf(source.idA);
+    spring.bodyB = indexOf(source.idB);
+    spring.referenceA = kSourceProgram.referenceCOM[spring.bodyA];
+    spring.referenceB = kSourceProgram.referenceCOM[spring.bodyB];
+    spring.insertionA = source.insertionA;
+    spring.insertionB = source.insertionB;
+    spring.stiffness = source.stiffness;
+    spring.freeLength = source.freeLength;
+    return graph;
+}
+void perturb(SpringGraph& graph, std::size_t dof, double amount) {
+    for (std::size_t body = 0; body < graph.bodies.size(); ++body) {
+        const BodyMotion<double>& motion = graph.motion[dof][body];
+        graph.bodies[body].position = graph.bodies[body].position + motion.linear * amount;
+        graph.bodies[body].rotation = multiply(
+            exponential(motion.angular * amount), graph.bodies[body].rotation);
+    }
+}
+struct SpringCheck {
+    double equilibriumEnergy = 0.0;
+    double tangentError = 0.0;
+    double forceClosure = 0.0;
+    double momentClosure = 0.0;
+    double energyGradientError = 0.0;
+};
+SpringCheck checkRigidSpringOperator() {
+    SpringGraph rest = sourceSpringGraph();
+    SpringResult restResult{};
+    require(evaluateGraph(rest, restResult), "source rigid spring rejected its reference state");
+    require(restResult.rigidSpringStoredEnergy < 1.0e-24,
+            "zero-free-length source spring did not use its initial insertion separation");
+
+    SpringGraph graph = rest;
+    const std::size_t bodyA = graph.springs[0].bodyA;
+    const std::size_t bodyB = graph.springs[0].bodyB;
+    graph.bodies[bodyB].position = graph.bodies[bodyB].position +
+        V<double>{0.035, -0.021, 0.047};
+    graph.bodies[bodyA].rotation = exponential(V<double>{0.013, -0.009, 0.006});
+    graph.bodies[bodyB].rotation = exponential(V<double>{-0.008, 0.017, 0.011});
+    SpringResult base{};
+    require(evaluateGraph(graph, base), "deformed source rigid spring was rejected");
+    SpringCheck check{};
+    check.equilibriumEnergy = base.rigidSpringStoredEnergy;
+    require(check.equilibriumEnergy > 0.0,
+            "deformed source rigid spring did not store energy");
+
+    V<double> resultantForce{}, resultantMoment{};
+    for (std::size_t body = 0; body < graph.bodies.size(); ++body) {
+        const BodyWrench<double>& wrench = base.bodyWrenches[body];
+        resultantForce = resultantForce + wrench.force;
+        resultantMoment = resultantMoment + wrench.moment +
+            cross(graph.bodies[body].position, wrench.force);
+    }
+    check.forceClosure = sqrt(dot(resultantForce, resultantForce));
+    check.momentClosure = sqrt(dot(resultantMoment, resultantMoment));
+    require(check.forceClosure < 1.0e-13 && check.momentClosure < 1.0e-13,
+            "source rigid spring failed wrench closure");
+
+    constexpr double h = 1.0e-6;
+    for (std::size_t column = 0; column < 54; ++column) {
+        SpringGraph plus = graph, minus = graph;
+        perturb(plus, column, h);
+        perturb(minus, column, -h);
+        SpringResult a{}, b{};
+        require(evaluateGraph(plus, a) && evaluateGraph(minus, b),
+                "source rigid spring tangent perturbation was rejected");
+        for (std::size_t row = 0; row < 54; ++row) {
+            const double fd = (a.residual[row] - b.residual[row]) / (2.0 * h);
+            const double expected = base.tangent[row * 54 + column];
+            check.tangentError = std::max(check.tangentError,
+                std::abs(fd - expected) /
+                    std::max({1.0, std::abs(fd), std::abs(expected)}));
+        }
+    }
+    require(check.tangentError < 2.0e-8,
+            "source rigid spring tangent failed finite differences");
+
+    SpringGraph plus = graph, minus = graph;
+    double internalPower = 0.0;
+    for (std::size_t dof = 0; dof < 54; ++dof) {
+        const double rate = std::sin(0.31 * static_cast<double>(dof + 1));
+        perturb(plus, dof, h * rate);
+        perturb(minus, dof, -h * rate);
+        internalPower += base.residual[dof] * rate;
+    }
+    SpringResult plusResult{}, minusResult{};
+    require(evaluateGraph(plus, plusResult) && evaluateGraph(minus, minusResult),
+            "source rigid spring energy perturbation was rejected");
+    const double energyRate =
+        (plusResult.rigidSpringStoredEnergy - minusResult.rigidSpringStoredEnergy) /
+        (2.0 * h);
+    check.energyGradientError = std::abs(energyRate + internalPower) /
+        std::max({1.0, std::abs(energyRate), std::abs(internalPower)});
+    require(check.energyGradientError < 2.0e-8,
+            "source rigid spring energy is inconsistent with its wrench");
+    SpringGraph invalid = rest;
+    invalid.springs[0].bodyB = invalid.bodies.size();
+    SpringResult preserved{};
+    preserved.rigidSpringStoredEnergy = 123.0;
+    require(!evaluateGraph(invalid, preserved),
+            "invalid source rigid spring reference was admitted");
+    require(preserved.rigidSpringStoredEnergy == 123.0,
+            "rejected source rigid spring mutated caller output");
+    return check;
 }
 void setBodyB(Graph& graph, std::size_t jointIndex, double rotation, double translation = 0.0) {
     const auto& joint = graph.joints[jointIndex];
@@ -463,6 +616,7 @@ int main(int argc, char** argv) {
         const std::string programPath = argc == 3
             ? argv[2] : NUMI_OPEN_KNEE_SOURCE_GRAPH_PROGRAM;
         loadSourceProgram(programPath);
+        const SpringCheck sourceSpring = checkRigidSpringOperator();
         Graph neutral = sourceGraph();
         Result neutralResult{};
         require(evaluateGraph(neutral, neutralResult), "neutral source graph rejected");
@@ -521,6 +675,13 @@ int main(int argc, char** argv) {
                   << " source_geometry_sha256=" << kSourceProgram.geometrySHA256
                   << " source_graph_program=" << programPath
                   << " source_bodies=9 source_cylindrical_joints=6 "
+                  << " source_rigid_spring_operator=accepted"
+                  << " rigid_spring_energy=" << sourceSpring.equilibriumEnergy
+                  << " rigid_spring_tangent_error=" << sourceSpring.tangentError
+                  << " rigid_spring_force_closure=" << sourceSpring.forceClosure
+                  << " rigid_spring_moment_closure=" << sourceSpring.momentClosure
+                  << " rigid_spring_energy_gradient_error="
+                  << sourceSpring.energyGradientError << " "
                   << "neutral_residual=" << neutralResidual
                   << " neutral_tangent_error=" << neutralTangentError
                   << " neutral_virtual_work_error=" << neutralPowerError

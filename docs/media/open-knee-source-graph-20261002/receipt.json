@@ -2,27 +2,28 @@
   "artifact_sha256": {
     "connector_metallib": "4c9f4be98d6a7d14e4ddd3e8413f598c0b7f6447b594dec746958c4193120b90",
     "connector_probe_binary": "9a2fe245ddf720885d34126e1b9e1fffb06c57148c0258cc7afb9bf2831c7b47",
-    "graph_probe_binary": "ef7a1a06aa3a916bc1a821a9dd8dfa725510b7cabb2edee5334c7934371d58bc",
-    "graph_probe_output": "22b0279d55d8137571ef65997987a6f6d6017e017752597e2aec47d1d37db13a",
+    "graph_probe_binary": "a4408df8454e933ec27178dc96dbee317c11ecab5c7dc639865c13cf48a3575f",
+    "graph_probe_output": "788b6cb966819eee5d8214c064b748b472d65e228abde43a319eef1ab7c72ea6",
     "matter/CMakeLists.txt": "56062974f862e9af68ac2dbb414ae53bbc3c18a215af44f61d277ced28eda460",
-    "matter/include/numi/matter/source_cylindrical_joint_graph.h": "216588e82f0f89391bcd445e9bb3798d315cfedd8bfd894c3b93f22a5dc84cd6",
-    "matter/tools/source_joint_graph_check.cpp": "3086b54e679541afbd2de2fe7610c413a87885a7c86bb5ffa75f875940771f7a",
-    "source-rigid-graph.bin": "e2285453812182f9a525bd3b6f1b32aaae77a52bf7f865563d483ed0b4e7b792"
+    "matter/include/numi/matter/source_cylindrical_joint_graph.h": "3ba7b4a9fdca857fac28495d35212ec8287ce0289c0f954f70daa67d4092f319",
+    "matter/tools/source_joint_graph_check.cpp": "5d236b0f7d35030c8658ffd27b739cc1357a0c88cc8f03b1ba53790bc1f6e622",
+    "source-rigid-graph.bin": "cc0abaaa9165976f2df5c134b963247205a732092b96c51f9369d48526dde794"
   },
   "base_revision": "69a49910d9ef4a52df0eea04f9b87017104df5cb",
   "execution": {
-    "cmake": "4.0.1",
-    "compiler": "Apple clang 21.0.0",
-    "device": "Apple M4",
+    "compile_command": "clang++ -std=c++20 -O2 -Wall -Wextra -Werror; direct compile of source_joint_graph_check.cpp",
+    "compiler": "Apple clang 21.0.0.21000099",
+    "ctest_note": "The repository-wide CMake configure was blocked by an unrelated missing metalrobo_numanx_fullbody_bridge_probe target; the focused graph check was compiled and run directly.",
+    "device": "Apple M4 CPU",
     "graph_probe_output": "source-joint-graph-check.txt",
     "os": "macOS 26.6",
+    "run_command": "numi-matter-source-joint-graph-check",
     "tests": [
-      "matter.compiler.source_joint",
-      "matter.metal.source_joint",
-      "matter.compiler.source_joint_graph"
+      "source_joint_graph_check_direct_compile",
+      "source_joint_graph_check_execution"
     ],
     "tests_failed": 0,
-    "tests_passed": 3
+    "tests_passed": 2
   },
   "matter_gpu_runtime_integration": false,
   "metrics": {
@@ -40,6 +41,13 @@
     "patella_constraint_rank_source_endpoint": 12,
     "patella_constraint_rank_thirty_degrees": 12,
     "patella_relative_rigid_freedoms_after_global_modes": 6,
+    "rigid_spring_energy_gradient_relative_error": 3.78265e-10,
+    "rigid_spring_energy_source_units": 0.0896002,
+    "rigid_spring_force_closure_source_units": 0.0,
+    "rigid_spring_invalid_reference_rejected_without_mutating_output": true,
+    "rigid_spring_moment_closure_source_units": 4.44089e-16,
+    "rigid_spring_operator_validated_separately": true,
+    "rigid_spring_tangent_central_difference_scaled_error": 2.50833e-09,
     "sixty_degree_generalized_residual_max": 4.13461e-10,
     "sixty_degree_tangent_central_difference_scaled_error": 3.28887e-05,
     "sixty_degree_virtual_work_relative_error": 1.03398e-25,
@@ -55,24 +63,25 @@
     "thirty_degree_tangent_central_difference_scaled_error": 2.72557e-05,
     "thirty_degree_virtual_work_relative_error": 3.10193e-25
   },
-  "schema": "numi.matter.open-knee-source-joint-graph.v2",
-  "scope": "Matter now loads and authenticates the rigid bodies, cylindrical joints, prescribed coordinates, and referenced linear load curve exported by Human from the pinned Open Knee deck. It checks residual, tangent, virtual work, and patellar kinematic rank at neutral, 30, 60, and the source endpoint (89.954 degrees). Poses are operator checks only; no tissue, spring, contact, or prestrain solve.",
+  "schema": "numi.matter.open-knee-source-joint-graph.v3",
+  "scope": "The authenticated Human source rigid program carries the source bodies, six cylindrical joints, the rigid spring, prescribed boundaries, and referenced load curve. The cylindrical connector graph is checked at neutral, 30, 60, and the source flexion endpoint. The spring operator is validated separately for tangent, energy-gradient, and wrench closure. These are operator checks; none is assembled with the full deformable/contact knee or into Matter GPU runtime.",
   "source": {
     "archived_geometry_sha256": "4155db1d0d7b87ffb2c668102d2495870e4461a539b18e6708f1f4817b5601bf",
     "archived_solver_version": "FEBio 2.9.1",
     "febio_deck_sha256": "00b6efb53ad7e7330296cbb9569d358d48ed60819e22732e6149db6fb98a158a",
     "human_compiled_rigid_graph_program": {
-      "bytes": 1764,
+      "bytes": 1872,
       "compiled_load_curve_ids": [
         9
       ],
+      "compiled_rigid_springs": 1,
       "coordinate_unit": "source_deck_coordinate_unit_unresolved",
-      "human_source_mechanics_sha256": "4cbf980556ce3480804a67a4028a6ea1ea3fa31917115384675fb3484436bfe2",
-      "human_source_receipt_sha256": "7ea91f439dd09bb8e58ba4fedbde7544c635bbe1d97bcb888df276bd53b1bad8",
+      "human_source_mechanics_sha256": "c0a59470a27e92bcad9786f5ccfe0c4727ab7ecdd92b4ca05ead14368b21565f",
+      "human_source_receipt_sha256": "7a40b27bf1acd93a1902a7eb5ae7e1a681ad34448d7d0d96953cdb7bda70e238",
       "human_source_reference_baseline_sha256": "e8aa8771e80fc2a479ae80d38ee742272c50ac4fd54fffbb959cf2ebddbbb5e6",
       "native_source_execution": "not_performed",
-      "schema": "numi.human.open-knee-rigid-graph-program-f64.v2",
-      "sha256": "e2285453812182f9a525bd3b6f1b32aaae77a52bf7f865563d483ed0b4e7b792"
+      "schema": "numi.human.open-knee-rigid-graph-program-f64.v3",
+      "sha256": "cc0abaaa9165976f2df5c134b963247205a732092b96c51f9369d48526dde794"
     },
     "source_coordinate_units": "millimetres and radians"
   },
@@ -80,7 +89,7 @@
   "source_knee_equilibrium_qualified": false,
   "status": "passed_human_compiled_source_graph_operator_only",
   "unsupported_source_constructs": [
-    "rigid spring",
+    "rigid spring operator is validated separately and is not assembled with the source cylindrical graph",
     "deformable tissue material and continuum response",
     "rigid ties to tissue nodes",
     "prestrain initialization",

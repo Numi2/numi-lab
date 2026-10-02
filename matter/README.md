@@ -455,18 +455,21 @@ supplied per-body spatial motion map; an articulated caller must include the
 motion-map geometric-stiffness term in its own linearization. This is a solve
 operator, not a second integrator or a replacement for the coupled runtime.
 
-`numi-matter-source-joint-graph-check` instantiates all nine rigid-body IDs and
-six cylindrical joints from the pinned FEBio 2.9.1 mechanical descriptor and
-the archived source geometry identity. At neutral and a source-consistent
-30-degree flexion configuration, the six-joint graph residuals are below
-2e-9 in source units. Its patellar three-joint subgraph has constraint rank
-12 at both configurations, leaving six relative rigid freedoms after the six
-global rigid-body modes are removed. The assembled graph tangent agrees with
-central differences to 2.8e-5 under the test's absolute-scaled metric.
+`numi-matter-source-joint-graph-check` authenticates the Human rigid program,
+which now includes all nine rigid-body IDs, six cylindrical joints, the source
+rigid spring, prescribed boundaries, and referenced load curve. It checks the
+six-joint graph at neutral, 30, 60, and the source endpoint (89.954 degrees).
+The patellar three-joint subgraph has constraint rank 12 at each pose, leaving
+six relative rigid freedoms after the six global rigid-body modes are removed.
+The graph tangent agrees with central differences to 4.8e-5 under the test's
+absolute-scaled metric.
 
-This check intentionally excludes the source rigid spring, deformable tissues,
-rigid ties, prestrain, contact, load-step solve, and their reactions. It does
-not assemble the operator into Matter's GPU runtime or establish source-knee
-equilibrium. The source graph now has an executable connector assembly, while
-the complete source problem remains unqualified. Retained output and source
-identity are in [`docs/media/open-knee-source-graph-20261002`](../docs/media/open-knee-source-graph-20261002/receipt.json).
+The source spring is checked separately at its reference state and a deformed
+state. Its analytical directional tangent agrees with central differences to
+2.6e-9; the source-unit wrench closes, and the stored-energy gradient agrees
+with the spring wrench to 3.8e-10. The spring operator is not assembled into the
+cylindrical graph check. Deformable tissues, rigid ties, prestrain, contact,
+load-step equilibrium, and tissue reactions remain unexecuted. Neither operator
+is assembled into Matter's GPU runtime, so these checks do not establish
+source-knee equilibrium. Retained output and source identity are in
+[`docs/media/open-knee-source-graph-20261002`](../docs/media/open-knee-source-graph-20261002/receipt.json).
