@@ -1,0 +1,61 @@
+// Source-directed Open Knee(s) oks003 meniscus material IDs 12 and 13.
+// Geometry_custom.feb assigns MNS-L to 12 and MNS-M to 13. Both source
+// materials have identical parameters, c2=0, and no prestrain wrapper.
+// Fiber directions are supplied per tetrahedron by MeshData and cooked into
+// Matter's material-frame field. Density converts 1e-9 source units to 1000
+// kg/m^3 only under the tonne-mm-second convention; the FEBio deck does not
+// declare units, so that conversion remains unqualified. This file does not
+// provide source geometry.
+material open_knee_meniscus_source_febio_exp_linear_v1 {
+    parameter density : kg/m^3 = 1000 in [900, 1200];
+    parameter c1 : MPa = 4.61 in [0.001, 20] log identifiable;
+    parameter c3 : MPa = 0.1197 in [0.0001, 5] log identifiable;
+    parameter c4 : one = 150 in [1, 300] log identifiable;
+    parameter c5 : MPa = 400 in [0.001, 2000] log identifiable;
+    parameter lambda_max : one = 1.019 in [1.001, 1.2];
+    parameter fiber_scale : one = 1 in [0, 1];
+    parameter bulk : MPa = 92.16 in [20, 1200] log identifiable;
+    parameter initial_stretch : one = 1 in [1, 1.20];
+    parameter fiber_x : one = 1 in [-1, 1];
+    parameter fiber_y : one = 0 in [-1, 1];
+    parameter fiber_z : one = 0 in [-1, 1];
+    parameter numerical_viscosity : Pa*s = 0 in [0, 500];
+
+    model generic;
+    energy = c1 * (
+        exp((-2.0 / 3.0) * log(J())) * (
+            I1() / initial_stretch +
+            (pow(initial_stretch, 2) - 1 / initial_stretch) * (
+                pow(F(0, 0)*fiber_x + F(0, 1)*fiber_y + F(0, 2)*fiber_z, 2) +
+                pow(F(1, 0)*fiber_x + F(1, 1)*fiber_y + F(1, 2)*fiber_z, 2) +
+                pow(F(2, 0)*fiber_x + F(2, 1)*fiber_y + F(2, 2)*fiber_z, 2)
+            )
+        ) - 3
+    ) + 0.5 * bulk * pow(log(J()), 2) + fiber_scale * fiber_exp_linear(
+        initial_stretch * exp((-1.0 / 3.0) * log(J())) * sqrt(
+            pow(F(0, 0)*fiber_x + F(0, 1)*fiber_y + F(0, 2)*fiber_z, 2) +
+            pow(F(1, 0)*fiber_x + F(1, 1)*fiber_y + F(1, 2)*fiber_z, 2) +
+            pow(F(2, 0)*fiber_x + F(2, 1)*fiber_y + F(2, 2)*fiber_z, 2)
+        ), c3, c4, c5, lambda_max
+    );
+    dissipation = 0.5 * numerical_viscosity * (
+        pow(Fdot(0, 0), 2) + pow(Fdot(1, 1), 2) + pow(Fdot(2, 2), 2) +
+        0.5 * pow(Fdot(0, 1) + Fdot(1, 0), 2) +
+        0.5 * pow(Fdot(0, 2) + Fdot(2, 0), 2) +
+        0.5 * pow(Fdot(1, 2) + Fdot(2, 1), 2)
+    );
+    valid = J() - 0.50;
+    supports fem;
+    interface {
+        static_friction = 0.05;
+        dynamic_friction = 0.03;
+        restitution = 0.0;
+        adhesion = 0.0;
+    }
+    limits {
+        minimum_J = 0.50;
+        maximum_J = 1.75;
+        maximum_stress = 5e8;
+        maximum_energy_density = 2e8;
+    }
+}
