@@ -1411,6 +1411,8 @@ struct RuntimeStateSnapshot {
     std::vector<NMContactSampleGPU> contactSamples;
     std::vector<NMDeformableContactFailureGPU> deformableContactFailures;
     std::vector<nm_float4> contactHistories;
+    // Accepted source sliding-elastic master facets and Gauss-point projections.
+    std::vector<NMSourceContactProjectionGPU> sourceContactHistory;
     // Accepted NHCNT Coulomb history and the matching sensor-facing support
     // consequence. Both are continuation authority, not diagnostics.
     std::vector<nm_float4> humanSupportHistories;

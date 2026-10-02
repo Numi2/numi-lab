@@ -969,11 +969,14 @@ struct Runtime::State {
     id<MTLBuffer> sourceContactBVHBounds = nil;
     id<MTLBuffer> sourceContactBVHRoots = nil;
     id<MTLBuffer> sourceContactProjections = nil;
+    id<MTLBuffer> sourceContactHistoryAccepted = nil;
+    id<MTLBuffer> sourceContactHistoryCheckpoint = nil;
     id<MTLBuffer> sourceContactIncidenceCounts = nil;
     id<MTLBuffer> sourceContactIncidenceCursors = nil;
     id<MTLBuffer> sourceContactIncidenceRanges = nil;
     id<MTLBuffer> sourceContactIncidence = nil;
     id<MTLBuffer> sourceContactNodeForces = nil;
+    id<MTLBuffer> sourceContactNodeDerivatives = nil;
     std::vector<std::pair<std::uint32_t, std::uint32_t>> sourceContactBVHLevels;
     std::vector<NMSourceContactPassGPU> sourceContactPasses;
     std::uint32_t sourceContactBVHNodeCount = 0u;
@@ -2134,14 +2137,20 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_source_contact_materialize_faces",
             "nm_source_contact_refit_bvh",
             "nm_source_contact_project_pass",
+            "nm_source_contact_checkpoint_history",
+            "nm_source_contact_commit_history",
+            "nm_source_contact_rollback_history",
             "nm_source_contact_clear_incidence",
             "nm_source_contact_count_incidence",
             "nm_source_contact_scan_incidence",
             "nm_source_contact_scatter_incidence",
             "nm_source_contact_sort_incidence",
             "nm_source_contact_gather_forces",
+            "nm_source_contact_gather_operator",
             "nm_source_contact_fem_residual",
+            "nm_source_contact_fem_operator",
             "nm_source_contact_rigid_residual",
+            "nm_source_contact_rigid_operator",
             "nm_source_fem_rigid_tie_drive",
             "nm_source_fem_rigid_tie_capture_residual",
             "nm_source_fem_rigid_tie_scatter_residual",
@@ -2934,6 +2943,17 @@ RuntimeDiagnostics Runtime::initialize(
                 privateScratch<NMSourceContactProjectionGPU>(candidate->device,
                     environments * candidate->sourceContactProjectionCount,
                     valid, candidate->residentBytes);
+            std::vector<NMSourceContactProjectionGPU> emptyContactHistory(
+                candidate->sourceContactProjectionCount);
+            for (auto& row : emptyContactHistory)
+                row.identity.x = NM_INVALID_INDEX;
+            candidate->sourceContactHistoryAccepted = uploads.repeated(
+                std::span<const NMSourceContactProjectionGPU>(emptyContactHistory),
+                environments, valid, candidate->residentBytes);
+            candidate->sourceContactHistoryCheckpoint =
+                privateScratch<NMSourceContactProjectionGPU>(candidate->device,
+                    environments * candidate->sourceContactProjectionCount,
+                    valid, candidate->residentBytes);
             candidate->sourceContactIncidenceCounts =
                 privateScratch<std::uint32_t>(candidate->device,
                     environments * sourceContactNodes.size(),
@@ -2951,6 +2971,10 @@ RuntimeDiagnostics Runtime::initialize(
                     environments * 6u * candidate->sourceContactProjectionCount,
                     valid, candidate->residentBytes);
             candidate->sourceContactNodeForces =
+                privateScratch<nm_float4>(candidate->device,
+                    environments * sourceContactNodes.size(),
+                    valid, candidate->residentBytes);
+            candidate->sourceContactNodeDerivatives =
                 privateScratch<nm_float4>(candidate->device,
                     environments * sourceContactNodes.size(),
                     valid, candidate->residentBytes);
@@ -4176,7 +4200,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
         }
         if (state.sourceSlidingPairCount != 0u) {
             diagnostics.message =
-                "source sliding-elastic contact has candidate projection and normal traction but no coupled tangent and contact history";
+                "source sliding-elastic contact has coupled traction/tangent and transactional facet history, but full-knee contact certification and source checkpoint validation are incomplete";
             return diagnostics;
         }
 
@@ -4977,7 +5001,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             offset:0u atIndex:10u];
                         [encoder setBuffer:state.sourceContactProjections
                             offset:0u atIndex:11u];
-                        [encoder setBuffer:state.statuses offset:0u atIndex:12u];
+                        [encoder setBuffer:state.sourceContactHistoryAccepted
+                            offset:0u atIndex:12u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:13u];
                     });
             }
             const NSUInteger contactNodeTotal =
@@ -5372,6 +5398,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.contactHistoriesAccepted offset:0u atIndex:2u];
                 [encoder setBuffer:state.contactHistoriesCheckpoint offset:0u atIndex:3u];
             });
+            if (state.sourceContactProjectionCount != 0u)
+                dispatchThreads("nm_source_contact_rollback_history",
+                    environments * state.sourceContactProjectionCount, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.sourceContactProjectionCount
+                        length:sizeof(state.sourceContactProjectionCount) atIndex:1u];
+                    [encoder setBuffer:state.sourceContactHistoryCheckpoint offset:0u atIndex:2u];
+                    [encoder setBuffer:state.sourceContactHistoryAccepted offset:0u atIndex:3u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:4u];
+                });
             dispatchThreads("nm_human_support_rollback", humanSupportTotal, [&] {
                 setDispatch();
                 [encoder setBytes:&state.humanSupportDispatch.contactCount
@@ -5853,6 +5889,15 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.contactHistoriesCandidate offset:0u atIndex:2u];
                 [encoder setBuffer:state.contactHistoriesCheckpoint offset:0u atIndex:3u];
             });
+            if (state.sourceContactProjectionCount != 0u)
+                dispatchThreads("nm_source_contact_checkpoint_history",
+                    environments * state.sourceContactProjectionCount, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.sourceContactProjectionCount
+                        length:sizeof(state.sourceContactProjectionCount) atIndex:1u];
+                    [encoder setBuffer:state.sourceContactHistoryAccepted offset:0u atIndex:2u];
+                    [encoder setBuffer:state.sourceContactHistoryCheckpoint offset:0u atIndex:3u];
+                });
             dispatchThreads(
                 "nm_contact_checkpoint_deformable_contact_histories",
                 deformableContactHistoryTotal,
@@ -7832,6 +7877,39 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:15u];
                 });
                 assembleSourceFEMSpringOperator(columnOffset);
+                if (state.sourceContactProjectionCount != 0u) {
+                    dispatchThreads("nm_source_contact_gather_operator",
+                        environments * state.sourceContactNodeCount, [&] {
+                        setDispatch();
+                        [encoder setBytes:&coupledArticulatedNv length:sizeof(coupledArticulatedNv) atIndex:1u];
+                        [encoder setBytes:&state.sourceContactNodeCount length:sizeof(state.sourceContactNodeCount) atIndex:2u];
+                        [encoder setBytes:&state.sourceContactProjectionCount length:sizeof(state.sourceContactProjectionCount) atIndex:3u];
+                        [encoder setBuffer:state.sourceContactNodes offset:0u atIndex:4u];
+                        [encoder setBuffer:state.sourceContactProjections offset:0u atIndex:5u];
+                        [encoder setBuffer:state.sourceContactFaces offset:0u atIndex:6u];
+                        [encoder setBuffer:state.sourceSlidingPairs offset:0u atIndex:7u];
+                        [encoder setBuffer:state.sourceContactIncidenceRanges offset:0u atIndex:8u];
+                        [encoder setBuffer:state.sourceContactIncidence offset:0u atIndex:9u];
+                        [encoder setBuffer:state.sourceContactPositions offset:0u atIndex:10u];
+                        [encoder setBuffer:state.rigidProxies offset:0u atIndex:11u];
+                        [encoder setBuffer:state.rigidStates offset:0u atIndex:12u];
+                        [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:13u];
+                        [encoder setBuffer:state.sourceContactNodeDerivatives offset:0u atIndex:14u];
+                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:15u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:16u];
+                    });
+                    dispatchThreads("nm_source_contact_fem_operator",
+                        environments * state.sourceContactNodeCount, [&] {
+                        setDispatch();
+                        [encoder setBytes:&bridge length:sizeof(bridge) atIndex:1u];
+                        [encoder setBytes:&state.sourceContactNodeCount length:sizeof(state.sourceContactNodeCount) atIndex:2u];
+                        [encoder setBuffer:state.sourceContactNodes offset:0u atIndex:3u];
+                        [encoder setBuffer:state.sourceContactNodeDerivatives offset:0u atIndex:4u];
+                        [encoder setBuffer:state.femCandidate offset:0u atIndex:5u];
+                        [encoder setBuffer:state.femOperatorValue offset:0u atIndex:6u];
+                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:7u];
+                    });
+                }
                 // Include cavity traction before attachment capture, so the
                 // existing scatter applies its single work-conjugate J^T.
                 if (hasVascularCavities) {
@@ -8076,6 +8154,25 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.femOperatorValue offset:0u atIndex:10u];
                         [encoder setBuffer:state.fgmresStates offset:0u atIndex:11u];
                         [encoder setBuffer:state.statuses offset:0u atIndex:12u];
+                    });
+                }
+                if (state.sourceContactProjectionCount != 0u) {
+                    dispatchThreads("nm_source_contact_rigid_operator",
+                        rigidGeneralizedTotal, [&] {
+                        setDispatch();
+                        [encoder setBytes:&bridge length:sizeof(bridge) atIndex:1u];
+                        [encoder setBytes:&coupledArticulatedNv length:sizeof(coupledArticulatedNv) atIndex:2u];
+                        [encoder setBytes:&state.sourceContactNodeCount length:sizeof(state.sourceContactNodeCount) atIndex:3u];
+                        [encoder setBuffer:state.sourceContactNodes offset:0u atIndex:4u];
+                        [encoder setBuffer:state.sourceContactPositions offset:0u atIndex:5u];
+                        [encoder setBuffer:state.sourceContactNodeForces offset:0u atIndex:6u];
+                        [encoder setBuffer:state.sourceContactNodeDerivatives offset:0u atIndex:7u];
+                        [encoder setBuffer:state.rigidProxies offset:0u atIndex:8u];
+                        [encoder setBuffer:state.rigidStates offset:0u atIndex:9u];
+                        [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:10u];
+                        [encoder setBuffer:state.femOperatorValue offset:0u atIndex:11u];
+                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:12u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:13u];
                     });
                 }
                 dispatchThreads("nm_fgmres_apply_human_support",
@@ -9335,6 +9432,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.contactHistoriesAccepted offset:0u atIndex:2u];
                 [encoder setBuffer:state.contactHistoriesCandidate offset:0u atIndex:3u];
             });
+            if (state.sourceContactProjectionCount != 0u)
+                dispatchThreads("nm_source_contact_commit_history",
+                    environments * state.sourceContactProjectionCount, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.sourceContactProjectionCount
+                        length:sizeof(state.sourceContactProjectionCount) atIndex:1u];
+                    [encoder setBuffer:state.sourceContactProjections offset:0u atIndex:2u];
+                    [encoder setBuffer:state.sourceContactHistoryAccepted offset:0u atIndex:3u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:4u];
+                });
             dispatchThreads("nm_human_support_commit", humanSupportTotal, [&] {
                 setDispatch();
                 [encoder setBytes:&state.humanSupportDispatch.contactCount
@@ -9461,6 +9568,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
             [encoder setBuffer:state.contactHistoriesAccepted offset:0u atIndex:2u];
             [encoder setBuffer:state.contactHistoriesCheckpoint offset:0u atIndex:3u];
         });
+        if (state.sourceContactProjectionCount != 0u)
+            dispatchThreads("nm_source_contact_rollback_history",
+                environments * state.sourceContactProjectionCount, [&] {
+                setDispatch();
+                [encoder setBytes:&state.sourceContactProjectionCount
+                    length:sizeof(state.sourceContactProjectionCount) atIndex:1u];
+                [encoder setBuffer:state.sourceContactHistoryCheckpoint offset:0u atIndex:2u];
+                [encoder setBuffer:state.sourceContactHistoryAccepted offset:0u atIndex:3u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:4u];
+            });
         dispatchThreads("nm_human_support_rollback", humanSupportTotal, [&] {
             setDispatch();
             [encoder setBytes:&state.humanSupportDispatch.contactCount
@@ -9955,6 +10072,8 @@ bool Runtime::encodeAcceptedStateProof(
             state.learnedRevisionCheckpoint,
             state.contactHistoriesAccepted,
             state.contactHistoriesCheckpoint,
+            state.sourceContactHistoryAccepted,
+            state.sourceContactHistoryCheckpoint,
             state.humanSupportHistoriesAccepted,
             state.humanSupportHistoriesCandidate,
             state.humanSupportHistoriesCheckpoint,
@@ -10116,7 +10235,7 @@ bool Runtime::encodeAcceptedStateProof(
         const std::uint64_t femMaterialScalars =
             static_cast<std::uint64_t>(state.dispatch.tetrahedronCount) *
             state.dispatch.materialStateStride;
-        const std::array<ProofArena, 31u> arenas{{
+        std::vector<ProofArena> arenas{
             {pass.rootTranslation, detail::AcceptedStateProofSource::humanRootTranslation,
              detail::kAcceptedStateProofTargetHuman, 0u,
              sizeof(MRCompensatedRootTranslationGPU), 0u},
@@ -10275,7 +10394,13 @@ bool Runtime::encodeAcceptedStateProof(
              detail::kAcceptedStateProofTargetMatter, 0u,
              perEnvironmentBytes(
                  state.femNodeRangeStride, sizeof(NMIncidenceRangeGPU)), 0u},
-        }};
+        };
+        if (state.sourceContactProjectionCount != 0u)
+            arenas.push_back({owned(state.sourceContactHistoryAccepted),
+                detail::AcceptedStateProofSource::matterSourceContactHistory,
+                detail::kAcceptedStateProofTargetMatter, 0u,
+                perEnvironmentBytes(state.sourceContactProjectionCount,
+                    sizeof(NMSourceContactProjectionGPU)), 0u});
         for (const ProofArena& arena : arenas) {
             __unsafe_unretained id<MTLBuffer> source =
                 (__bridge id<MTLBuffer>)arena.buffer;
@@ -10750,6 +10875,8 @@ bool Runtime::applyPreparedStateImpl(
             state.learnedRevisionCheckpoint,
             state.contactHistoriesAccepted,
             state.contactHistoriesCheckpoint,
+            state.sourceContactHistoryAccepted,
+            state.sourceContactHistoryCheckpoint,
             state.humanSupportHistoriesAccepted,
             state.humanSupportHistoriesCandidate,
             state.humanSupportHistoriesCheckpoint,
@@ -11102,6 +11229,17 @@ bool Runtime::applyPreparedStateImpl(
                 [encoder setBuffer:state.contactHistoriesAccepted offset:0u atIndex:2u];
                 [encoder setBuffer:state.contactHistoriesCheckpoint offset:0u atIndex:3u];
             });
+        if (state.sourceContactProjectionCount != 0u)
+            encoded = encoded && runtimeDispatch(
+                "nm_source_contact_rollback_history",
+                static_cast<NSUInteger>(state.dispatch.environmentCount) *
+                    state.sourceContactProjectionCount, [&] {
+                    [encoder setBytes:&state.sourceContactProjectionCount
+                        length:sizeof(state.sourceContactProjectionCount) atIndex:1u];
+                    [encoder setBuffer:state.sourceContactHistoryCheckpoint offset:0u atIndex:2u];
+                    [encoder setBuffer:state.sourceContactHistoryAccepted offset:0u atIndex:3u];
+                    [encoder setBuffer:state.preparedStateRestoreStatuses offset:0u atIndex:4u];
+                });
         encoded = encoded && runtimeDispatch(
             "nm_human_support_rollback", humanSupportTotal, [&] {
                 [encoder setBytes:&state.humanSupportDispatch.contactCount
@@ -12826,6 +12964,13 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
         state.coupledGeneralizedCandidate, "rigid-generalized-candidate");
     boundedArena(snapshot.contactHistories,
         state.contactHistoriesAccepted, "contact-history");
+    if (state.sourceContactProjectionCount != 0u)
+        exactArena(snapshot.sourceContactHistory,
+            state.sourceContactHistoryAccepted, "source-contact-history");
+    else if (!snapshot.sourceContactHistory.empty()) {
+        dimensionsValid = false;
+        diagnostics.message = "Matter snapshot has source contact history without a source contact program";
+    }
     boundedArena(snapshot.humanSupportHistories,
         state.humanSupportHistoriesAccepted, "Human-support-history");
     boundedArena(snapshot.humanSupportConsequences,
@@ -13374,6 +13519,10 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
             snapshot.contactHistories,
             "contact-history"
         );
+        id<MTLBuffer> sourceContactHistory =
+            state.sourceContactProjectionCount != 0u
+                ? stage(snapshot.sourceContactHistory,
+                    "source-contact-history") : nil;
         id<MTLBuffer> humanSupportHistories = stage(
             snapshot.humanSupportHistories,
             "Human-support-history"
@@ -13494,6 +13643,10 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
         mirror(contactHistories, state.contactHistoriesAccepted,
             state.contactHistoriesCandidate,
             state.contactHistoriesCheckpoint);
+        if (state.sourceContactProjectionCount != 0u) {
+            copy(sourceContactHistory, state.sourceContactHistoryAccepted);
+            copy(sourceContactHistory, state.sourceContactHistoryCheckpoint);
+        }
         mirror(humanSupportHistories,
             state.humanSupportHistoriesAccepted,
             state.humanSupportHistoriesCandidate,
@@ -13648,6 +13801,9 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         id<MTLBuffer> topologyStates = copy(state_->topologyStatesAccepted);
         id<MTLBuffer> contactHistories =
             copy(state_->contactHistoriesAccepted);
+        id<MTLBuffer> sourceContactHistory =
+            state_->sourceContactProjectionCount != 0u
+                ? copy(state_->sourceContactHistoryAccepted) : nil;
         id<MTLBuffer> humanSupportHistories =
             copy(state_->humanSupportHistoriesAccepted);
         id<MTLBuffer> humanSupportConsequences =
@@ -13676,6 +13832,8 @@ RuntimeStateSnapshot Runtime::snapshot() const {
             topologyNodes == nil || topologyTetrahedra == nil ||
             cohesiveFaces == nil || punctureChannels == nil ||
             topologyStates == nil || contactHistories == nil ||
+            (state_->sourceContactProjectionCount != 0u &&
+             sourceContactHistory == nil) ||
             humanSupportHistories == nil ||
             humanSupportConsequences == nil ||
             deformableContactHistories == nil ||
@@ -13726,6 +13884,9 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         encodeCopy(state_->punctureChannelsAccepted, punctureChannels);
         encodeCopy(state_->topologyStatesAccepted, topologyStates);
         encodeCopy(state_->contactHistoriesAccepted, contactHistories);
+        if (state_->sourceContactProjectionCount != 0u)
+            encodeCopy(state_->sourceContactHistoryAccepted,
+                       sourceContactHistory);
         encodeCopy(
             state_->humanSupportHistoriesAccepted,
             humanSupportHistories);
@@ -13825,6 +13986,8 @@ RuntimeStateSnapshot Runtime::snapshot() const {
             state_->dispatch.contactPairCount;
         readCount(contactHistories, snapshot.contactHistories,
                   logicalContactCount);
+        if (state_->sourceContactProjectionCount != 0u)
+            read(sourceContactHistory, snapshot.sourceContactHistory);
         const std::size_t logicalHumanSupportCount =
             static_cast<std::size_t>(state_->dispatch.environmentCount) *
             state_->humanSupportDispatch.contactCount;

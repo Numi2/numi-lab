@@ -1,0 +1,34 @@
+{
+  "schema": "numi.matter.open-knee-source-preload-attempt.v1",
+  "date": "2026-10-02",
+  "source_program": "archived OKS003 FEBio 2.9.1 deck, complete cooked tissue/rigid/contact/discrete program",
+  "matter_parent_revision": "0a06227f",
+  "coupled_base": "5bf85aed50cf9af1d55445ac38b2a2bc71b1dcfe",
+  "assembly_stdout": "preload-assembly.stdout",
+  "assembly_stdout_sha256": "09286ab6e05aad62c3c92f981b468db1f205767a95ba8a8829a58508a0e9a19f",
+  "continuation_time": 0.05,
+  "diagnostic_mode": "the source-contact admission guard was lifted only in the isolated worktree for this run, then restored",
+  "default_budget_result": {
+    "accepted": false,
+    "matter_status": 10,
+    "status_name": "NM_STATUS_NONLINEAR_SOLVER_FAILURE",
+    "failing_object": 9,
+    "failing_index": 4294967295,
+    "fgmres_iterations": 10,
+    "completed_microsteps": 0,
+    "accepted_fem_displacement_m": 0,
+    "source_contact_history_rows": 1035210
+  },
+  "higher_budget_result": {
+    "newton_iteration_budget": 16,
+    "fgmres_iteration_budget": 32,
+    "outcome": "terminated after 5 minutes 15 seconds without a completed root",
+    "accepted_checkpoint": false
+  },
+  "qualification": "rejected",
+  "open_items": [
+    "obtain an accepted source preload/flexion root with contact certification and bounded solve cost",
+    "compare Matter rigid poses, reaction wrenches, contact pressure/gap, tissue stress/prestrain and displacement at retained FEBio XPLT checkpoints",
+    "verify complete transaction replay and numerical refinement before whole-body integration"
+  ]
+}

@@ -5,6 +5,11 @@
 #include "numi/matter/open_knee_source_projection.hpp"
 #include "numi/matter/open_knee_source_rigid_ties.hpp"
 #include "numi/matter/compiler.hpp"
+#ifdef __APPLE__
+#import <Foundation/Foundation.h>
+#import <Metal/Metal.h>
+#include "metalrobo/engine_types.h"
+#endif
 
 #include <array>
 #include <algorithm>
@@ -383,7 +388,8 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                          const char* rigidTiesPath = nullptr,
                          const char* rigidGraphPath = nullptr,
                          const char* sourceContactPath = nullptr,
-                         const char* sourceDiscretePath = nullptr) {
+                         const char* sourceDiscretePath = nullptr,
+                         double solveTime = -1.0) {
     try {
         require(rigidGraphPath == nullptr || rigidTiesPath != nullptr,
                 "source rigid graph requires the complete rigid-tie program");
@@ -392,6 +398,10 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
         require(sourceDiscretePath == nullptr ||
                     (sourceContactPath != nullptr && rigidGraphPath != nullptr),
                 "source discrete edges require the full source assembly");
+        require(solveTime < 0.0 || (sourceDiscretePath != nullptr &&
+                    std::isfinite(solveTime) && solveTime >= 0.0 &&
+                    solveTime <= 2.0),
+                "source solve requires the complete program and a valid continuation time");
         const std::vector<std::uint8_t> fiberBytes = readBinaryBytes(fiberPath);
         const std::vector<std::uint8_t> meshBytes = readBinaryBytes(meshPath);
         std::vector<SourceVolumeMesh> meshes;
@@ -492,6 +502,11 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
 
         numi::matter::WorldSource source;
         source.gravity = {0.0, 0.0, 0.0};
+        if (solveTime >= 0.0) {
+            source.mixedSolver.newtonIterations = 16u;
+            source.mixedSolver.fgmresIterations = 32u;
+            source.mixedSolver.relativeResidual = 1.0e-5;
+        }
         struct SourceNodeLocation {
             std::uint32_t cookedNode = 0u, object = 0u;
             std::array<double, 3> sourcePosition{};
@@ -1225,6 +1240,116 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                         initialized.message);
             runtimeProgramInitialized = true;
             runtimeResidentBytes = initialized.residentBytes;
+            if (solveTime >= 0.0) {
+                id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+                require(device != nil, "source step requires Metal device");
+                id<MTLCommandQueue> queue = [device newCommandQueue];
+                require(queue != nil, "source step requires Metal queue");
+                std::vector<MRBodyStateGPU> bodies(rigidGraph.bodies.size());
+                for (std::size_t index = 0u; index < bodies.size(); ++index) {
+                    auto& body = bodies[index];
+                    const auto& center = rigidGraph.bodies[index].centerOfMass;
+                    body.position = {static_cast<float>(center[0] * 0.001),
+                                     static_cast<float>(center[1] * 0.001),
+                                     static_cast<float>(center[2] * 0.001), 0.0f};
+                    body.orientation = {0.0f, 0.0f, 0.0f, 1.0f};
+                    const bool free = source.rigidProxies[index].dynamic;
+                    body.linearVelocityAndInverseMass.w = free ? 1.0f : 0.0f;
+                    body.flagsAndIndices[0] = free ? MR_MOTION_DYNAMIC : MR_MOTION_STATIC;
+                    body.inverseInertiaWorldRow0 = {free ? 1.0f : 0.0f, 0.0f, 0.0f, 0.0f};
+                    body.inverseInertiaWorldRow1 = {0.0f, free ? 1.0f : 0.0f, 0.0f, 0.0f};
+                    body.inverseInertiaWorldRow2 = {0.0f, 0.0f, free ? 1.0f : 0.0f, 0.0f};
+                }
+                MRMetalWorldStatusGPU worldStatus{};
+                worldStatus.code = MR_STEP_SUCCESS;
+                id<MTLBuffer> current = [device newBufferWithBytes:bodies.data()
+                    length:bodies.size() * sizeof(MRBodyStateGPU)
+                    options:MTLResourceStorageModeShared];
+                id<MTLBuffer> scene = [device newBufferWithBytes:bodies.data()
+                    length:bodies.size() * sizeof(MRBodyStateGPU)
+                    options:MTLResourceStorageModeShared];
+                id<MTLBuffer> wrenches = [device newBufferWithLength:
+                    bodies.size() * sizeof(MRABABodyWrenchGPU)
+                    options:MTLResourceStorageModeShared];
+                id<MTLBuffer> statuses = [device newBufferWithBytes:&worldStatus
+                    length:sizeof(worldStatus)
+                    options:MTLResourceStorageModeShared];
+                require(current != nil && scene != nil && wrenches != nil &&
+                    statuses != nil, "source step Metal arenas unavailable");
+                id<MTLCommandBuffer> command = [queue commandBuffer];
+                numi::matter::EncodeRequest request{};
+                request.commandBuffer = (__bridge void*)command;
+                request.environmentStatuses = (__bridge void*)statuses;
+                request.rigid.currentBodies = (__bridge void*)current;
+                request.rigid.currentBodyCount = static_cast<std::uint32_t>(bodies.size());
+                request.rigid.currentBodyStride = request.rigid.currentBodyCount;
+                request.rigid.sceneBodies = (__bridge void*)scene;
+                request.rigid.sceneBodyCount = request.rigid.currentBodyCount;
+                request.rigid.sceneStride = request.rigid.currentBodyCount;
+                request.rigid.bodyWrenches = (__bridge void*)wrenches;
+                request.rigid.bodyWrenchCount = request.rigid.currentBodyCount;
+                request.rigid.bodyWrenchStride = request.rigid.currentBodyCount;
+                request.timestepSeconds = runtime.timestepSeconds();
+                request.sourceContinuationTime = static_cast<float>(solveTime);
+                request.phase = numi::matter::EncodePhase::preDynamics;
+                auto encoded = runtime.encode(request);
+                if (!encoded.encoded) {
+                    std::cout << "source_step=not_encoded reason=" << encoded.message
+                              << " source_equivalence=rejected\n";
+                    return 2;
+                }
+                request.phase = numi::matter::EncodePhase::postCommit;
+                encoded = runtime.encode(request);
+                require(encoded.encoded, "source step postCommit: " + encoded.message);
+                [command commit];
+                [command waitUntilCompleted];
+                require(command.status == MTLCommandBufferStatusCompleted,
+                        "source step command failed");
+                const auto state = runtime.snapshot();
+                require(state.available && !state.statuses.empty(),
+                        "source step state readback unavailable");
+                double maximumDisplacement = 0.0;
+                for (std::size_t node = 0u; node < state.femNodes.size(); ++node) {
+                    const auto& actual = state.femNodes[node].positionAndMass;
+                    const auto& rest = compiled.world.fem.nodes[node].restAndFixed;
+                    const double dx = actual.x - rest.x, dy = actual.y - rest.y,
+                                 dz = actual.z - rest.z;
+                    maximumDisplacement = std::max(maximumDisplacement,
+                        std::sqrt(dx*dx + dy*dy + dz*dz));
+                }
+                const bool accepted = state.statuses[0u].code == NM_STATUS_SUCCESS;
+                double maximumResidual = 0.0;
+                double minimumJacobian = std::numeric_limits<double>::infinity();
+                std::size_t worstObject = 0u;
+                for (std::size_t object = 0u;
+                     object < state.solverCertificates.size(); ++object) {
+                    const auto& certificate = state.solverCertificates[object];
+                    if (certificate.nonlinear.x > maximumResidual) {
+                        maximumResidual = certificate.nonlinear.x;
+                        worstObject = object;
+                    }
+                    minimumJacobian = std::min(minimumJacobian,
+                        static_cast<double>(certificate.validity.x));
+                }
+                std::cout << "source_step=" << (accepted ? "accepted" : "rejected")
+                          << " source_time=" << solveTime
+                          << " matter_status=" << state.statuses[0u].code
+                          << " failing_object=" << state.statuses[0u].objectIndex
+                          << " failing_index=" << state.statuses[0u].failingIndex
+                          << " completed_microsteps=" << state.statuses[0u].completedMicrosteps
+                          << " fgmres_iterations=" << state.statuses[0u].fgmresIterations
+                          << " diagnostic0=" << state.statuses[0u].diagnostics.x
+                          << " diagnostic1=" << state.statuses[0u].diagnostics.y
+                          << " residual=" << state.statuses[0u].diagnostics.z
+                          << " correction=" << state.statuses[0u].diagnostics.w
+                          << " worst_object=" << worstObject
+                          << " maximum_object_residual=" << maximumResidual
+                          << " minimum_jacobian=" << minimumJacobian
+                          << " max_fem_displacement_m=" << maximumDisplacement
+                          << " source_contact_history=" << state.sourceContactHistory.size()
+                          << " source_equivalence=unqualified\n";
+                return accepted ? 0 : 2;
+            }
 #else
             throw std::runtime_error("whole source Matter runtime requires Apple Metal");
 #endif
@@ -1322,7 +1447,7 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                   << sourceContact.rigidNodes.size()
                   << " source_contact="
                   << (sourceContactPath != nullptr
-                      ? "candidate_bvh_projection_traction_wired_not_executed_no_tangent_or_history"
+                      ? "candidate_bvh_traction_tangent_history_staged_fail_closed"
                       : "not_assembled")
                   << " source_analysis="
                   << (rigidGraphPath != nullptr
@@ -1350,6 +1475,10 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
 
 int main(int argc, char** argv) {
     try {
+        if (argc == 10 && std::string(argv[1]) == "--source-artifacts" &&
+            std::string(argv[8]) == "--solve-source-time")
+            return checkSourceArtifacts(argv[2], argv[3], argv[4], argv[5],
+                argv[6], argv[7], std::stod(argv[9]));
         if (argc == 4 && std::string(argv[1]) == "--source-artifacts")
             return checkSourceArtifacts(argv[2], argv[3]);
         if (argc == 5 && std::string(argv[1]) == "--source-artifacts")
@@ -1365,7 +1494,7 @@ int main(int argc, char** argv) {
         if (argc == 3 && std::string(argv[1]) == "--source-sidecar")
             return checkSourceSidecar(argv[2]);
         require(argc == 1, "usage: open knee fiber field check [--source-sidecar PATH] "
-                           "[--source-artifacts FIBER_PATH SOURCE_VOLUME_MESH_PATH [SOURCE_RIGID_TIES_PATH [SOURCE_RIGID_GRAPH_PATH [SOURCE_CONTACT_PATH [SOURCE_DISCRETE_PATH]]]]]");
+                           "[--source-artifacts FIBER_PATH SOURCE_VOLUME_MESH_PATH [SOURCE_RIGID_TIES_PATH [SOURCE_RIGID_GRAPH_PATH [SOURCE_CONTACT_PATH [SOURCE_DISCRETE_PATH]]]] [--solve-source-time TIME]]");
         const std::array<double, 3> medial0{-0.27206761041769667,
                                              1.1419075817929256,
                                              0.08613731458137508};

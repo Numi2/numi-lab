@@ -367,13 +367,15 @@ if(APPLE)
 endif()
 
 # Exact ElementData fibre-vector ingestion and the pinned whole-source assembly
-# mode. The latter binds all tissue volumes, rigid frames, joints, spring and
-# ties into one Matter runtime program. Contact/prestrain/load continuation
-# remain an explicit source-equivalence admission failure.
+# mode. The latter binds all tissue volumes, rigid frames, joints, springs,
+# ties, prestrain curves, and sliding contact into one Matter runtime program.
+# Full-knee contact certification still rejects source-equivalence admission.
 add_executable(numi-matter-open-knee-fiber-field-check
     tools/open_knee_fiber_field_check.cpp)
-target_include_directories(numi-matter-open-knee-fiber-field-check PRIVATE include)
+target_include_directories(numi-matter-open-knee-fiber-field-check PRIVATE include ../include)
 if(APPLE)
+    set_source_files_properties(tools/open_knee_fiber_field_check.cpp
+        PROPERTIES LANGUAGE OBJCXX)
     target_link_libraries(numi-matter-open-knee-fiber-field-check PRIVATE
         numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
     target_compile_definitions(numi-matter-open-knee-fiber-field-check PRIVATE

@@ -43,6 +43,7 @@ enum class AcceptedStateProofSource : std::uint32_t {
     matterHumanSupportConsequences = 0x2019u,
     matterVascularState = 0x201au,
     matterVascularClock = 0x201bu,
+    matterSourceContactHistory = 0x201cu,
 };
 
 struct alignas(16) AcceptedStateProofBeginGPU {

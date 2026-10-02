@@ -54,10 +54,12 @@ void checkMovingSourceProjection(id<MTLDevice> device,
     auto scatterIncidence = pipeline(@"nm_source_contact_scatter_incidence");
     auto sortIncidence = pipeline(@"nm_source_contact_sort_incidence");
     auto gatherForces = pipeline(@"nm_source_contact_gather_forces");
+    auto gatherOperator = pipeline(@"nm_source_contact_gather_operator");
     NMMatterDispatchGPU dispatch{};
     dispatch.environmentCount = 1u;
     const std::uint32_t nodeCount = 9u, faceCount = 3u,
                         bvhCount = 4u, projectionCount = 3u;
+    dispatch.femNodeCount = nodeCount;
     const std::array<NMSourceContactFaceGPU, 3u> faces{{
         {{0u, 1u, 1u, 0u}, {0u, 1u, 2u, 0u},
          {1.0e9f, 5.0e-5f, 1.0e-7f, 2.0e6f}},
@@ -98,6 +100,9 @@ void checkMovingSourceProjection(id<MTLDevice> device,
     std::array<NMSourceContactProjectionGPU, 3u> emptyProjections{};
     id<MTLBuffer> projections = make(emptyProjections.data(),
                                      sizeof(emptyProjections));
+    for (auto& row : emptyProjections) row.identity.x = NM_INVALID_INDEX;
+    id<MTLBuffer> acceptedHistory = make(emptyProjections.data(),
+                                         sizeof(emptyProjections));
     std::array<std::uint32_t, 9u> emptyCounts{};
     id<MTLBuffer> counts = make(emptyCounts.data(), sizeof(emptyCounts));
     id<MTLBuffer> cursors = make(emptyCounts.data(), sizeof(emptyCounts));
@@ -108,6 +113,21 @@ void checkMovingSourceProjection(id<MTLDevice> device,
                                    sizeof(emptyIncidence));
     std::array<nm_float4, 9u> emptyForces{};
     id<MTLBuffer> forces = make(emptyForces.data(), sizeof(emptyForces));
+    id<MTLBuffer> derivatives = make(emptyForces.data(), sizeof(emptyForces));
+    std::array<nm_float4, 9u> perturbation{};
+    for (std::uint32_t node = 0u; node < 3u; ++node)
+        perturbation[node].z = 1.0f;
+    id<MTLBuffer> direction = make(perturbation.data(), sizeof(perturbation));
+    std::array<NMSourceContactNodeGPU, 9u> contactNodes{};
+    for (std::uint32_t node = 0u; node < nodeCount; ++node)
+        contactNodes[node].identity = {node, 0u, node, 0u};
+    id<MTLBuffer> nodeBuffer = make(contactNodes.data(), sizeof(contactNodes));
+    NMRigidProxyGPU unusedProxy{};
+    NMRigidStateGPU unusedBody{};
+    id<MTLBuffer> proxies = make(&unusedProxy, sizeof(unusedProxy));
+    id<MTLBuffer> bodies = make(&unusedBody, sizeof(unusedBody));
+    NMFGMRESStateGPU solverState{};
+    id<MTLBuffer> solver = make(&solverState, sizeof(solverState));
     NMSourceSlidingPairGPU pair{};
     pair.identity = {1u, 0u, 1u, 0u};
     pair.normal = {0.1f, 0.0f, 0.01f, 0.001f};
@@ -171,7 +191,8 @@ void checkMovingSourceProjection(id<MTLDevice> device,
         [encoder setBuffer:positions offset:0u atIndex:9u];
         [encoder setBuffer:geometry offset:0u atIndex:10u];
         [encoder setBuffer:projections offset:0u atIndex:11u];
-        [encoder setBuffer:status offset:0u atIndex:12u];
+        [encoder setBuffer:acceptedHistory offset:0u atIndex:12u];
+        [encoder setBuffer:status offset:0u atIndex:13u];
         dispatchKernel(project, projectionCount);
         [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
         [encoder setBytes:&nodeCount length:sizeof(nodeCount) atIndex:1u];
@@ -225,6 +246,27 @@ void checkMovingSourceProjection(id<MTLDevice> device,
         [encoder setBuffer:forces offset:0u atIndex:8u];
         [encoder setBuffer:status offset:0u atIndex:9u];
         dispatchKernel(gatherForces, nodeCount);
+        if (phase == 0u) {
+            const std::uint32_t articulatedNv = 0u;
+            [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+            [encoder setBytes:&articulatedNv length:sizeof(articulatedNv) atIndex:1u];
+            [encoder setBytes:&nodeCount length:sizeof(nodeCount) atIndex:2u];
+            [encoder setBytes:&projectionCount length:sizeof(projectionCount) atIndex:3u];
+            [encoder setBuffer:nodeBuffer offset:0u atIndex:4u];
+            [encoder setBuffer:projections offset:0u atIndex:5u];
+            [encoder setBuffer:faceBuffer offset:0u atIndex:6u];
+            [encoder setBuffer:pairs offset:0u atIndex:7u];
+            [encoder setBuffer:ranges offset:0u atIndex:8u];
+            [encoder setBuffer:incidence offset:0u atIndex:9u];
+            [encoder setBuffer:positions offset:0u atIndex:10u];
+            [encoder setBuffer:proxies offset:0u atIndex:11u];
+            [encoder setBuffer:bodies offset:0u atIndex:12u];
+            [encoder setBuffer:direction offset:0u atIndex:13u];
+            [encoder setBuffer:derivatives offset:0u atIndex:14u];
+            [encoder setBuffer:solver offset:0u atIndex:15u];
+            [encoder setBuffer:status offset:0u atIndex:16u];
+            dispatchKernel(gatherOperator, nodeCount);
+        }
         [encoder endEncoding];
         [command commit];
         [command waitUntilCompleted];
@@ -273,6 +315,20 @@ void checkMovingSourceProjection(id<MTLDevice> device,
         else require(std::abs(slaveZ) < 1.0e-6f &&
                      std::abs(masterZ) < 1.0e-6f,
                      "source contact force persisted after separation");
+        if (phase == 0u) {
+            const auto* tangent = static_cast<const nm_float4*>(
+                derivatives.contents);
+            float slaveDerivative = 0.0f, masterDerivative = 0.0f;
+            for (std::uint32_t node = 0u; node < 3u; ++node)
+                slaveDerivative += tangent[node].z;
+            for (std::uint32_t node = 3u; node < 6u; ++node)
+                masterDerivative += tangent[node].z;
+            require(std::abs(slaveDerivative + 5000.0f) < 1.0f &&
+                    std::abs(masterDerivative - 5000.0f) < 1.0f,
+                    "source sliding traction derivative did not follow gap motion");
+            std::memcpy(acceptedHistory.contents, projections.contents,
+                        sizeof(emptyProjections));
+        }
     }
 }
 }
@@ -525,7 +581,7 @@ int main(int argc, char** argv) {
             auto encoded = runtime.encode(request);
             if (sourceContactGeometry) {
                 require(!encoded.encoded &&
-                    encoded.message.find("no coupled tangent and contact history") !=
+                    encoded.message.find("full-knee contact certification") !=
                         std::string::npos,
                     "source geometry-only contact admitted an unforced root");
                 const auto afterContact = runtime.snapshot();
@@ -534,8 +590,17 @@ int main(int argc, char** argv) {
                     std::memcmp(beforeContact.femNodes.data(),
                                 afterContact.femNodes.data(),
                                 beforeContact.femNodes.size() *
-                                    sizeof(NMFEMNodeStateGPU)) == 0,
-                    "source contact admission rejection changed accepted FEM state");
+                                    sizeof(NMFEMNodeStateGPU)) == 0 &&
+                    beforeContact.sourceContactHistory.size() == 6u &&
+                    std::memcmp(beforeContact.sourceContactHistory.data(),
+                                afterContact.sourceContactHistory.data(),
+                                beforeContact.sourceContactHistory.size() *
+                                    sizeof(NMSourceContactProjectionGPU)) == 0,
+                    "source contact admission rejection changed accepted state");
+                const auto restored = runtime.restore(beforeContact);
+                require(restored.encoded,
+                    "source contact history snapshot did not restore: " +
+                    restored.message);
                 checkMovingSourceProjection(device, queue);
                 std::cout << "source_contact_geometry=bound_pre_dynamics_rejected"
                           << " source_knee_equivalence=unqualified\n";
