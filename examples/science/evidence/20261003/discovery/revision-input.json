@@ -1,0 +1,20 @@
+{
+  "decision": "revise",
+  "model": {
+    "version": "stdp-mean-v2",
+    "statement": "The short unconditioned synthetic protocol has a small mean plastic-weight effect with seed-dependent sign; model the effect by the measured mean and between-seed variation instead of a uniformly positive lower bound.",
+    "mean_effect": 7.634276666666773e-05,
+    "between_seed_sample_sd": 8.28338395580158e-05,
+    "predicted_effect_range": [
+      -0.00017215875200737965,
+      0.0003248442853407151
+    ],
+    "prediction_rule": "For a new three-seed mean, use discovery mean plus or minus three discovery sample SDs as a falsifiable heuristic; this is not a confidence interval."
+  },
+  "reason": "All paired validity gates passed. Mean 0.00007634276666666773 fell below preregistered 0.0001. Seed 2203 decreased, so the uniformly positive approximation is unsupported. Replace that assumption with a small effect plus seed variation.",
+  "evidence": [
+    "601e6d9f3db4dc54637e72964c3ff4c0d77c175c6a9de95d78d3c7cec5b8761e"
+  ],
+  "next_test": "Use untouched seeds 2301,2302,2303, identical 12-window native protocol and STDP-off controls; fix the heuristic interval before observing outcomes.",
+  "limitations": "A small deterministic synthetic protocol from unconditioned weights. No biological calibration, learning advantage, full Potter reproduction, population confidence interval, or hardware evidence. Prebuilt binary identity is retained; source-to-binary reproducibility is not established here. The revised interval is estimated from three seeds and is a heuristic, not calibrated probabilistic uncertainty."
+}

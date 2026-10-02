@@ -1,0 +1,221 @@
+{
+  "payload": {
+    "artifacts": {
+      "/Applications/Xcode.app/Contents/Developer/usr/bin/python3": "fb49353c025e39b9253567759fc80f20ed0f6e8b0d0bc6c5fddb47dc235ce22a",
+      "/Users/home/numi-lab-plugin-suite-20260907/examples/science/neuron_weight_instrument.py": "8c6d9697129eadb9d4d71464265a8b6ec65d77a8f70b05c972fbc9fef308e9db",
+      "/Users/home/numi-lab-plugin-suite-20260907/python/metalrobo/science.py": "d5c8a47265c19345a165f5f93dfc5f74ba9b95575135b2425ffe1354553b7172",
+      "/Users/home/numi-science-evidence-20261003/confirmation/model-v2.json": "6698cabff5082336b075c35986be90dc6b3d9881db65fc67893e2e77d41ba3e2",
+      "/Users/home/numi-science-evidence-20261003/discovery/calibration.json": "3978b0085b993b07f2d7eb80740baf0fbc80d49bd7bfeb6909c598dbbb955ad1",
+      "/Users/home/numi-science-evidence-20261003/native-main/NumiNeuron.metallib": "e7243f197f9312ff28abefc6ffe5b17b3f52916175b445e65e026f760e42665a",
+      "/Users/home/numi-science-evidence-20261003/native-main/build-receipt.json": "1f23c88053f0361805c83b8688f31a2e281ee9d7b23079288bbec829ce630634",
+      "/Users/home/numi-science-evidence-20261003/native-main/metalrobo_neuron_culture_probe": "fa362e92f42eac9d1a7001260c01bc9e0ebd22eba28c3accc5c3b9d3e6e36b06"
+    },
+    "host": {
+      "machine": "arm64",
+      "node": "Ts-MacBook-Air.local",
+      "platform": "macOS-26.6-arm64-arm-64bit-Mach-O"
+    },
+    "parent": {
+      "revision_sha256": "3e770c3427445fa5c737b2a427f4aaa7e4f916f6fc447a85e02b4e23738d29a0",
+      "study": "/Users/home/numi-science-evidence-20261003/discovery/study"
+    },
+    "plan": {
+      "artifacts": [
+        "/Users/home/numi-lab-plugin-suite-20260907/examples/science/neuron_weight_instrument.py",
+        "/Users/home/numi-science-evidence-20261003/discovery/calibration.json",
+        "/Users/home/numi-science-evidence-20261003/native-main/metalrobo_neuron_culture_probe",
+        "/Users/home/numi-science-evidence-20261003/native-main/NumiNeuron.metallib",
+        "/Users/home/numi-science-evidence-20261003/native-main/build-receipt.json",
+        "/Users/home/numi-science-evidence-20261003/confirmation/model-v2.json"
+      ],
+      "backend": "Apple Metal synthetic LIF/STDP, prebuilt runtime bound by artifact hashes",
+      "design": {
+        "allocation": "Declared seed order; control first for even pair indices, treatment first for odd; run serially",
+        "controls": "Paired seed, topology, initial state, sensory mapping 0, current scales, quick horizon; off arm must preserve 0.05 mean weight",
+        "experimental_unit": "One independently seeded synthetic culture; ticks are not independent replicates",
+        "intervention": "STDP enabled versus stdp-off; all other native protocol options identical"
+      },
+      "evidence_level": "simulation",
+      "hypothesis": "The new three-seed mean lies inside the fixed empirical range from model v2.",
+      "instrument": {
+        "calibration": "/Users/home/numi-science-evidence-20261003/discovery/calibration.json",
+        "description": "Native weight observable plus calibrated JSON reader and frozen-weight control check"
+      },
+      "limitations": "A small deterministic synthetic protocol from unconditioned weights. No biological calibration, learning advantage, full Potter reproduction, population confidence interval, or hardware evidence. Prebuilt binary identity is retained; source-to-binary reproducibility is not established here. The revised interval is estimated from three seeds and is a heuristic, not calibrated probabilistic uncertainty. Seeds 2301-2303 are held out from the discovery fit.",
+      "model": {
+        "between_seed_sample_sd": 8.28338395580158e-05,
+        "mean_effect": 7.634276666666773e-05,
+        "predicted_effect_range": [
+          -0.00017215875200737965,
+          0.0003248442853407151
+        ],
+        "prediction_rule": "For a new three-seed mean, use discovery mean plus or minus three discovery sample SDs as a falsifiable heuristic; this is not a confidence interval.",
+        "statement": "The short unconditioned synthetic protocol has a small mean plastic-weight effect with seed-dependent sign; model the effect by the measured mean and between-seed variation instead of a uniformly positive lower bound.",
+        "version": "stdp-mean-v2"
+      },
+      "observable": {
+        "name": "mean_plastic_weight",
+        "path": [
+          "mean_plastic_weight"
+        ],
+        "unit": "authored weight units"
+      },
+      "owner": "Numi Lab native neuron culture",
+      "paired_equal": [
+        [
+          "network_seed"
+        ],
+        [
+          "culture_fingerprint"
+        ],
+        [
+          "starting_state_fingerprint"
+        ],
+        [
+          "synaptic_current_scale"
+        ],
+        [
+          "stimulation_current"
+        ],
+        [
+          "windows"
+        ]
+      ],
+      "prediction": {
+        "estimand": "paired_difference_mean",
+        "maximum": 0.0003248442853407151,
+        "minimum": -0.00017215875200737965
+      },
+      "question": "Does STDP increase mean plastic weight over the native quick synthetic-culture protocol?",
+      "repository": "/Users/home/numi-lab-plugin-suite-20260907",
+      "schema": "numi.science.plan.v1",
+      "trials": [
+        {
+          "argv": [
+            "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+            "/Users/home/numi-lab-plugin-suite-20260907/examples/science/neuron_weight_instrument.py",
+            "--binary",
+            "/Users/home/numi-science-evidence-20261003/native-main/metalrobo_neuron_culture_probe",
+            "--seed",
+            "2301",
+            "--ablation",
+            "stdp-off"
+          ],
+          "arm": "control",
+          "env": {},
+          "id": "seed-2301-control",
+          "pair": "2301",
+          "timeout_seconds": 300
+        },
+        {
+          "argv": [
+            "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+            "/Users/home/numi-lab-plugin-suite-20260907/examples/science/neuron_weight_instrument.py",
+            "--binary",
+            "/Users/home/numi-science-evidence-20261003/native-main/metalrobo_neuron_culture_probe",
+            "--seed",
+            "2301",
+            "--ablation",
+            "none"
+          ],
+          "arm": "treatment",
+          "env": {},
+          "id": "seed-2301-treatment",
+          "pair": "2301",
+          "timeout_seconds": 300
+        },
+        {
+          "argv": [
+            "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+            "/Users/home/numi-lab-plugin-suite-20260907/examples/science/neuron_weight_instrument.py",
+            "--binary",
+            "/Users/home/numi-science-evidence-20261003/native-main/metalrobo_neuron_culture_probe",
+            "--seed",
+            "2302",
+            "--ablation",
+            "none"
+          ],
+          "arm": "treatment",
+          "env": {},
+          "id": "seed-2302-treatment",
+          "pair": "2302",
+          "timeout_seconds": 300
+        },
+        {
+          "argv": [
+            "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+            "/Users/home/numi-lab-plugin-suite-20260907/examples/science/neuron_weight_instrument.py",
+            "--binary",
+            "/Users/home/numi-science-evidence-20261003/native-main/metalrobo_neuron_culture_probe",
+            "--seed",
+            "2302",
+            "--ablation",
+            "stdp-off"
+          ],
+          "arm": "control",
+          "env": {},
+          "id": "seed-2302-control",
+          "pair": "2302",
+          "timeout_seconds": 300
+        },
+        {
+          "argv": [
+            "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+            "/Users/home/numi-lab-plugin-suite-20260907/examples/science/neuron_weight_instrument.py",
+            "--binary",
+            "/Users/home/numi-science-evidence-20261003/native-main/metalrobo_neuron_culture_probe",
+            "--seed",
+            "2303",
+            "--ablation",
+            "stdp-off"
+          ],
+          "arm": "control",
+          "env": {},
+          "id": "seed-2303-control",
+          "pair": "2303",
+          "timeout_seconds": 300
+        },
+        {
+          "argv": [
+            "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+            "/Users/home/numi-lab-plugin-suite-20260907/examples/science/neuron_weight_instrument.py",
+            "--binary",
+            "/Users/home/numi-science-evidence-20261003/native-main/metalrobo_neuron_culture_probe",
+            "--seed",
+            "2303",
+            "--ablation",
+            "none"
+          ],
+          "arm": "treatment",
+          "env": {},
+          "id": "seed-2303-treatment",
+          "pair": "2303",
+          "timeout_seconds": 300
+        }
+      ],
+      "validity": [
+        {
+          "equals": "numi.science.neuron-weight.v1",
+          "path": [
+            "schema"
+          ]
+        },
+        {
+          "equals": true,
+          "path": [
+            "simulation_only"
+          ]
+        }
+      ]
+    },
+    "registered_at": "2026-10-02T23:04:11.370846+00:00",
+    "schema": "numi.science.registration.v1",
+    "source": {
+      "diff_sha256": "34ca24cf0f7e474b4cb74b01fbc5688d6b9e64c1098050efa35f83f3e140f0b4",
+      "repository": "/Users/home/numi-lab-plugin-suite-20260907",
+      "revision": "92e12e897dd769751feeb29e808479cba2fbdcf5",
+      "status": "M CMakeLists.txt\n M README.md\n M docs/NUMI_CLI.md\n M plugins/numi-lab/.codex-plugin/plugin.json\n M plugins/numi-lab/README.md\n M plugins/numi-lab/skills/numi-lab/SKILL.md\n M plugins/numi-lab/skills/numi-lab/evals/evals.json\n M plugins/numi-lab/skills/numi-lab/references/local-workflows.md\n M tests/numi_skill_contract_test.py\n?? docs/SCIENTIFIC_WORKFLOW.md\n?? examples/science/\n?? numi/commands/science\n?? plugins/numi-lab/skills/numi-lab/references/scientific-workflow.md\n?? python/metalrobo/science.py\n?? tests/numi_science_test.py"
+    }
+  },
+  "sha256": "44c9d3e754a6f53602cc31e407cd12b704f4e9a91485378fbc90b59be6f80096"
+}

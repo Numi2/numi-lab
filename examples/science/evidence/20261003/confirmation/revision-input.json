@@ -1,0 +1,29 @@
+{
+  "decision": "retain",
+  "model": {
+    "version": "stdp-mean-v2-checked",
+    "statement": "The short unconditioned synthetic protocol has a small mean plastic-weight effect with seed-dependent sign; model the effect by the measured mean and between-seed variation instead of a uniformly positive lower bound.",
+    "mean_effect": 7.634276666666773e-05,
+    "between_seed_sample_sd": 8.28338395580158e-05,
+    "predicted_effect_range": [
+      -0.00017215875200737965,
+      0.0003248442853407151
+    ],
+    "prediction_rule": "For a new three-seed mean, use discovery mean plus or minus three discovery sample SDs as a falsifiable heuristic; this is not a confidence interval.",
+    "validation": {
+      "seeds": [
+        2301,
+        2302,
+        2303
+      ],
+      "analysis_sha256": "77eb09474f7e61c4c023bb2dc7143d9537885c3419aeb19976718dde01534a42",
+      "parameter_change": false
+    }
+  },
+  "reason": "The three untouched paired cultures produced mean difference 0.00015689636666667053 inside the preregistered v2 heuristic interval. Retain the numerical parameters with validation scoped to this exact quick synthetic protocol.",
+  "evidence": [
+    "77eb09474f7e61c4c023bb2dc7143d9537885c3419aeb19976718dde01534a42"
+  ],
+  "next_test": "For a claim beyond the quick protocol, preregister a larger independent seed set and a full-size culture/horizon comparison. Do not infer biological learning or population coverage from this check.",
+  "limitations": "A small deterministic synthetic protocol from unconditioned weights. No biological calibration, learning advantage, full Potter reproduction, population confidence interval, or hardware evidence. Prebuilt binary identity is retained; source-to-binary reproducibility is not established here. The revised interval is estimated from three seeds and is a heuristic, not calibrated probabilistic uncertainty. Seeds 2301-2303 are held out from the discovery fit."
+}

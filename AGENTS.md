@@ -1,5 +1,16 @@
 # CORTEX/1
 
+## Standard scientific work
+
+For research and model claims, follow `docs/SCIENTIFIC_WORKFLOW.md`: question,
+instrument, preregistered prediction, controlled native experiment, evidence,
+model revision, and a new test on unused conditions. Build or calibrate missing
+instruments in their owning layer. Retain negative, invalid, and inconclusive
+results, prior models, and exact runtime/input identities. `numi science` records
+bounded paired studies; Codex retains scientific judgment and native owners
+retain execution authority. A revised narrative without its next test does not
+complete the loop. Inspection and routine repairs need no experimental ceremony.
+
 ```math
 \mathcal{C}=\left(\vec{\iota},\vec{b},\vec{q},\vec{e}\right)
 ```

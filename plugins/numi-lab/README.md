@@ -4,6 +4,13 @@ Numi Lab is the local Codex guide to the Apple-native research suite. It helps
 Codex discover the owning tool for a task, run supported workflows in a local
 environment, and report what the retained evidence actually establishes.
 
+Research follows a standard scientific loop: build or calibrate an instrument,
+make a quantitative prediction, run a preregistered controlled experiment,
+compare all observations, revise the model, and test its next prediction.
+See [the scientific workflow](skills/numi-lab/references/scientific-workflow.md).
+The native `numi science` notebook retains this lineage while the owning
+runtime executes each trial. The plugin itself remains instructions and assets.
+
 ## Start here
 
 Try one of these requests:
@@ -11,6 +18,7 @@ Try one of these requests:
 - “Show the Numi tools available on this Mac and what I can run next.”
 - “Prepare a NumiVivo MD run from my existing system and verify its output.”
 - “Evaluate a Numi robot policy on held-out rollouts and report the physical outcomes.”
+- “Test this Numi hypothesis, build the missing measurement tool, and revise the model from the results.”
 
 The skill includes local starting paths for suite discovery, prepared molecular
 dynamics, tissue campaign compilation, Human standing diagnostics, robot policy

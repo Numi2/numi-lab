@@ -6,6 +6,12 @@ continuum. The `coupled` branch has one GPU-resident nonlinear authority rather
 than sequenced deformable, pressure, transport, contact, and rigid-response
 solvers.
 
+Scientific work follows the standard **question → instrument → prediction →
+controlled experiment → evidence → model revision → new prediction** loop.
+Codex builds and calibrates instruments, seals testable predictions through
+`numi science`, runs native controlled trials, and tests revised models on fresh
+observations. See [the scientific workflow](docs/SCIENTIFIC_WORKFLOW.md).
+
 ## Transactional neuron-culture learning inside physics
 
 Numi Lab now includes a synthetic neuron-culture research platform: deterministic delayed

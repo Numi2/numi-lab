@@ -3223,6 +3223,13 @@ if(BUILD_TESTING)
     find_program(_metalrobo_stdlib_python NAMES python3)
     if(_metalrobo_stdlib_python)
         add_test(
+            NAME metalrobo.science.notebook
+            COMMAND "${_metalrobo_stdlib_python}"
+                "${CMAKE_CURRENT_SOURCE_DIR}/tests/numi_science_test.py" -v
+        )
+        set_tests_properties(metalrobo.science.notebook
+            PROPERTIES LABELS "metalrobo;cli;science" TIMEOUT 120)
+        add_test(
             NAME metalrobo.skill.contract
             COMMAND
                 "${_metalrobo_stdlib_python}"
@@ -5851,6 +5858,7 @@ install(
         numi/commands/neurons
         numi/commands/robots
         numi/commands/solvers
+        numi/commands/science
     DESTINATION libexec/numi
 )
 install(

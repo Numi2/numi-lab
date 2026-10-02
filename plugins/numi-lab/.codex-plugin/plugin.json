@@ -1,6 +1,6 @@
 {
   "name": "numi-lab",
-  "version": "0.1.1+codex.20260930032141",
+  "version": "0.1.1+codex.20261002230609",
   "description": "Guide Codex through native research workflows across the Apple Silicon Numi Lab suite.",
   "author": {
     "name": "Numi Lab"
@@ -25,11 +25,12 @@
   "interface": {
     "displayName": "Numi Lab",
     "shortDescription": "Run Numi on Apple silicon",
-    "longDescription": "Use Codex to discover, operate, and improve Apple-native research workflows across NumiVivo, NumiTissue, NumiBrain and NumanX, Numi Human, Matter and NumiSolver, robotics, BirdFlow, and Numi Automata. Codex routes the task to its owning tool, checks live capabilities and existing artifacts, and reports measured outcomes with their evidence limits. The plugin supplies instructions; each runtime must be installed separately and accessible in the selected local environment.",
+    "longDescription": "Use Codex to discover, operate, and improve Apple-native research workflows across NumiVivo, NumiTissue, NumiBrain and NumanX, Numi Human, Matter and NumiSolver, robotics, BirdFlow, and Numi Automata. Codex routes the task to its owning tool, checks live capabilities and existing artifacts, and reports measured outcomes with their evidence limits. The plugin supplies instructions; each runtime must be installed separately and accessible in the selected local environment. Research follows a standard instrument, prediction, controlled experiment, evidence, and model-revision loop, including a fresh test of revised predictions.",
     "developerName": "Numi Lab",
     "category": "Developer Tools",
     "capabilities": [
       "Discover installed Numi tools and workflows",
+      "Build instruments, test predictions, and revise models from evidence",
       "Prepare molecular and tissue studies",
       "Inspect embodied brain and Human mechanics",
       "Configure physics and solver profiles",
@@ -39,7 +40,7 @@
     "defaultPrompt": [
       "Check this Mac\u2019s Numi Lab setup and show which native workflows are ready.",
       "Use my prepared NumiVivo system for an MD run and inspect its evidence.",
-      "Evaluate my Numi robot policy on held-out rollouts and compare physical outcomes."
+      "Test a Numi hypothesis with controlled experiments and revise the model from the evidence."
     ],
     "brandColor": "#7C5CFF",
     "composerIcon": "./assets/icon.png",

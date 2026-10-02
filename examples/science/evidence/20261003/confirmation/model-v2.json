@@ -1,0 +1,11 @@
+{
+  "version": "stdp-mean-v2",
+  "statement": "The short unconditioned synthetic protocol has a small mean plastic-weight effect with seed-dependent sign; model the effect by the measured mean and between-seed variation instead of a uniformly positive lower bound.",
+  "mean_effect": 7.634276666666773e-05,
+  "between_seed_sample_sd": 8.28338395580158e-05,
+  "predicted_effect_range": [
+    -0.00017215875200737965,
+    0.0003248442853407151
+  ],
+  "prediction_rule": "For a new three-seed mean, use discovery mean plus or minus three discovery sample SDs as a falsifiable heuristic; this is not a confidence interval."
+}

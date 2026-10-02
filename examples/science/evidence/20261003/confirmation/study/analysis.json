@@ -1,0 +1,83 @@
+{
+  "payload": {
+    "evidence_level": "simulation",
+    "issues": [],
+    "limitations": "A small deterministic synthetic protocol from unconditioned weights. No biological calibration, learning advantage, full Potter reproduction, population confidence interval, or hardware evidence. Prebuilt binary identity is retained; source-to-binary reproducibility is not established here. The revised interval is estimated from three seeds and is a heuristic, not calibrated probabilistic uncertainty. Seeds 2301-2303 are held out from the discovery fit.",
+    "mean_difference": 0.00015689636666667053,
+    "observed_spread": {
+      "maximum": 0.000203235000000003,
+      "minimum": 0.00012771730000000342,
+      "sample_sd": 4.057793488416191e-05
+    },
+    "paired_differences": [
+      {
+        "pair": "2301",
+        "treatment_minus_control": 0.00013973680000000516
+      },
+      {
+        "pair": "2302",
+        "treatment_minus_control": 0.00012771730000000342
+      },
+      {
+        "pair": "2303",
+        "treatment_minus_control": 0.000203235000000003
+      }
+    ],
+    "registration_sha256": "44c9d3e754a6f53602cc31e407cd12b704f4e9a91485378fbc90b59be6f80096",
+    "schema": "numi.science.analysis.v1",
+    "trials": [
+      {
+        "arm": "control",
+        "id": "seed-2301-control",
+        "pair": "2301",
+        "receipt_sha256": "b5bde16bc3fdee486e33ee831b95b9c832b91b6813c23dc83e52dcf54294ca7b",
+        "status": "valid",
+        "value": 0.0500000007
+      },
+      {
+        "arm": "treatment",
+        "id": "seed-2301-treatment",
+        "pair": "2301",
+        "receipt_sha256": "07df74a2748c87c0a189751497edab7584fa3c43ee40f680ee572ae5f2e546e1",
+        "status": "valid",
+        "value": 0.0501397375
+      },
+      {
+        "arm": "treatment",
+        "id": "seed-2302-treatment",
+        "pair": "2302",
+        "receipt_sha256": "a30dedd5331887abc97b86eabb63a565cc3d2999b7e626644c6b791d8057e932",
+        "status": "valid",
+        "value": 0.050127718
+      },
+      {
+        "arm": "control",
+        "id": "seed-2302-control",
+        "pair": "2302",
+        "receipt_sha256": "974a5697b4ceb20e1c5d61137dc439d6deca917341eb714d2816d743df0542f1",
+        "status": "valid",
+        "value": 0.0500000007
+      },
+      {
+        "arm": "control",
+        "id": "seed-2303-control",
+        "pair": "2303",
+        "receipt_sha256": "f396ab962049b509e2500c8d6ff20f4863eb2fd3e6a936bc05dd5ac4e5b3cbaf",
+        "status": "valid",
+        "value": 0.0500000007
+      },
+      {
+        "arm": "treatment",
+        "id": "seed-2303-treatment",
+        "pair": "2303",
+        "receipt_sha256": "207c126e57a94db5b63cd09ccc13d495a1a93dfffa970bae7d829dba1233f56c",
+        "status": "valid",
+        "value": 0.0502032357
+      }
+    ],
+    "uncertainty": "Descriptive variation across declared pairs, not a confidence interval or population inference.",
+    "unit": "authored weight units",
+    "verdict": "supported"
+  },
+  "sha256": "77eb09474f7e61c4c023bb2dc7143d9537885c3419aeb19976718dde01534a42"
+}

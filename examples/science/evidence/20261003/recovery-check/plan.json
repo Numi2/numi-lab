@@ -1,0 +1,118 @@
+{
+  "schema": "numi.science.plan.v1",
+  "question": "Can the instrument reject a known missing metric in the older installed binary?",
+  "hypothesis": "The old binary lacks the mean-weight field; the trial must be invalid, not zero.",
+  "owner": "Numi Lab native neuron culture",
+  "repository": "/Users/home/Documents/emergentnumilife/MetalRobo",
+  "backend": "Apple Metal synthetic LIF/STDP, prebuilt runtime bound by artifact hashes",
+  "evidence_level": "simulation",
+  "model": {
+    "version": "stdp-mean-v1",
+    "statement": "Net potentiation dominates over the quick synthetic protocol: enabling STDP raises mean plastic weight by 0.0001 to 0.01 relative to frozen weights.",
+    "predicted_effect_range": [
+      0.0001,
+      0.01
+    ]
+  },
+  "instrument": {
+    "description": "Native weight observable plus calibrated JSON reader and frozen-weight control check",
+    "calibration": "/Users/home/numi-science-evidence-20261003/recovery-check/calibration.json"
+  },
+  "artifacts": [
+    "/Users/home/numi-lab-plugin-suite-20260907/examples/science/neuron_weight_instrument.py",
+    "/Users/home/numi-science-evidence-20261003/recovery-check/calibration.json",
+    "/Users/home/numi-science-evidence-20261003/recovery-check/model-v1.json",
+    "/Users/home/Documents/emergentnumilife/MetalRobo/build/bin/metalrobo_neuron_culture_probe",
+    "/Users/home/Documents/emergentnumilife/MetalRobo/build/lib/libmetalrobo.dylib",
+    "/Users/home/Documents/emergentnumilife/MetalRobo/build/shaders/NumiNeuron.metallib"
+  ],
+  "design": {
+    "intervention": "STDP enabled versus stdp-off; all other native protocol options identical",
+    "controls": "Paired seed, topology, initial state, sensory mapping 0, current scales, quick horizon; off arm must preserve 0.05 mean weight",
+    "experimental_unit": "One independently seeded synthetic culture; ticks are not independent replicates",
+    "allocation": "Declared seed order; control first for even pair indices, treatment first for odd; run serially"
+  },
+  "observable": {
+    "name": "mean_plastic_weight",
+    "unit": "authored weight units",
+    "path": [
+      "mean_plastic_weight"
+    ]
+  },
+  "prediction": {
+    "estimand": "paired_difference_mean",
+    "minimum": 0.0001,
+    "maximum": 0.01
+  },
+  "validity": [
+    {
+      "path": [
+        "schema"
+      ],
+      "equals": "numi.science.neuron-weight.v1"
+    },
+    {
+      "path": [
+        "simulation_only"
+      ],
+      "equals": true
+    }
+  ],
+  "paired_equal": [
+    [
+      "network_seed"
+    ],
+    [
+      "culture_fingerprint"
+    ],
+    [
+      "starting_state_fingerprint"
+    ],
+    [
+      "synaptic_current_scale"
+    ],
+    [
+      "stimulation_current"
+    ],
+    [
+      "windows"
+    ]
+  ],
+  "trials": [
+    {
+      "id": "seed-2101-control",
+      "pair": "2101",
+      "arm": "control",
+      "argv": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "/Users/home/numi-lab-plugin-suite-20260907/examples/science/neuron_weight_instrument.py",
+        "--binary",
+        "/Users/home/Documents/emergentnumilife/MetalRobo/build/bin/metalrobo_neuron_culture_probe",
+        "--seed",
+        "2101",
+        "--ablation",
+        "stdp-off"
+      ],
+      "env": {},
+      "timeout_seconds": 300
+    },
+    {
+      "id": "seed-2101-treatment",
+      "pair": "2101",
+      "arm": "treatment",
+      "argv": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "/Users/home/numi-lab-plugin-suite-20260907/examples/science/neuron_weight_instrument.py",
+        "--binary",
+        "/Users/home/Documents/emergentnumilife/MetalRobo/build/bin/metalrobo_neuron_culture_probe",
+        "--seed",
+        "2101",
+        "--ablation",
+        "none"
+      ],
+      "env": {},
+      "timeout_seconds": 300
+    }
+  ],
+  "limitations": "Known-failure recovery check, not novel scientific data. Original early trial files were removed by sparse-checkout expansion; this separately timestamped record does not reconstruct or replace them."
+}

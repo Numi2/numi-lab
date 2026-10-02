@@ -1,0 +1,16 @@
+{
+  "payload": {
+    "elapsed_seconds": 0.43757045827805996,
+    "ended_at": "2026-10-02T23:04:12.517457+00:00",
+    "failure": null,
+    "files": {
+      "native.json": "8500235e322dc049232955c1042294cd5034ffcd7e829b9a4ca321384b12c81b",
+      "native.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout.json": "58df99cf6aefb9e3103d3d3c0b455bdd66ffa4b3f0238873badd9fcb44ba01b5"
+    },
+    "returncode": 0,
+    "started_sha256": "c8bfe9f5c81e5ea729a16617b29f1bdd942741baad919eb75d1f179d176fc218"
+  },
+  "sha256": "07df74a2748c87c0a189751497edab7584fa3c43ee40f680ee572ae5f2e546e1"
+}

@@ -1,0 +1,8 @@
+{
+  "version": "stdp-mean-v1",
+  "statement": "Net potentiation dominates over the quick synthetic protocol: enabling STDP raises mean plastic weight by 0.0001 to 0.01 relative to frozen weights.",
+  "predicted_effect_range": [
+    0.0001,
+    0.01
+  ]
+}

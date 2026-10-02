@@ -1,0 +1,1 @@
+{"ablation": 0, "culture_fingerprint": 13596423578926461989, "mean_plastic_weight": 0.0499921585, "network_seed": 2203, "schema": "numi.science.neuron-weight.v1", "simulation_only": true, "starting_state_fingerprint": 11227386075965575561, "stimulation_current": 20000, "synaptic_current_scale": 175000, "windows": 12}

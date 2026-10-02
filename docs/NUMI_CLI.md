@@ -107,6 +107,12 @@ or physical MEA hardware. See [Synthetic neuron-culture twin](NEURON_CULTURE.md)
 
 ## User-owned overlays
 
+Scientific research uses `numi science` to preregister predictions, run declared
+owner trials, retain raw observations, and link model revisions to evidence.
+See [the standard scientific workflow](SCIENTIFIC_WORKFLOW.md). This capability
+is a notebook over native commands; Codex retains research judgment and every
+runtime retains its own execution authority.
+
 Codex may create commands, instructions, profiles, robots, tasks, evaluators,
 or other transparent files beneath `.numi`. The core does not parse a global
 robotics schema and does not reject configuration owned by a capability.

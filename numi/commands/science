@@ -1,0 +1,10 @@
+#!/bin/sh
+set -eu
+if [ "${1:-}" = "--numi-describe" ]; then
+    printf '%s\n' 'Preregister controlled studies, retain native observations, and revise models from evidence.'
+    exit 0
+fi
+root=${NUMI_LAB_ROOT:?Run this capability through numi.}
+tool="$root/python/metalrobo/science.py"
+[ -f "$tool" ] || tool="$root/share/numi/python/metalrobo/science.py"
+exec python3 "$tool" "$@"

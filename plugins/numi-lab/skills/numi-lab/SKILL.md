@@ -14,6 +14,24 @@ This Codex plugin supplies local workflow guidance, not the sibling runtimes.
 Use the tools and execution access actually available in the current Codex
 environment; a remote or cloud thread may not have access to the user's Mac.
 
+## Scientific work is a closed loop
+
+For research, model fitting, capability claims, or mechanism comparisons, use
+[scientific-workflow.md](references/scientific-workflow.md) as the standard:
+**question → instrument → prediction → controlled experiment → evidence → model
+revision → new prediction**. Codex authors and improves the instruments and
+models; native owners execute the experiment. Read the reference before the
+first research trial. Inspection and routine repairs need no study ceremony.
+
+Preregister quantitative predictions, controls, experimental units, validity
+checks, analysis, and a bounded stopping rule before seeing the trial results.
+Use `numi science --help` when discovered for a transparent notebook over the
+owner executable. Keep exploratory observations separate from confirmation;
+record negative and inconclusive results. A model revision must cite the actual
+comparison, preserve the previous model, and lead to a new test on unused
+conditions. Do not claim the loop is complete at a build, successful command,
+report, or revised narrative without testing the revised prediction.
+
 ## First response
 
 Translate the user's goal into the nearest owning tool below. If local execution

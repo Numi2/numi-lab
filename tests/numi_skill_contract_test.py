@@ -21,20 +21,25 @@ class SkillContractTests(unittest.TestCase):
         self.assertEqual(manifest["name"], "numi-lab")
         self.assertEqual(manifest["skills"], "./skills/")
         self.assertEqual(len(manifest["interface"]["defaultPrompt"]), 3)
-        self.assertIn(
-            "which tools are available",
-            manifest["interface"]["defaultPrompt"][0],
-        )
+        self.assertIn("native workflows", manifest["interface"]["defaultPrompt"][0])
         self.assertIn("name: numi-lab", skill)
         self.assertIn("numi doctor", skill)
         self.assertIn("numi context", skill)
         self.assertIn("Ask only when live discovery cannot resolve", skill)
-        self.assertIn("For discovery commands", skill)
-        self.assertIn("Before real hardware can move", skill)
+        references = SKILL.parent / "references"
+        self.assertIn("For discovery commands", (references / "evidence.md").read_text())
+        self.assertIn("Before real hardware can move", (references / "evidence.md").read_text())
         self.assertIn("give the next safe recovery command", skill)
         self.assertIn("numi solvers list", skill)
         self.assertIn("--implementations", skill)
-        self.assertIn("docs/NUMI_SOLVERS.md", skill)
+        self.assertIn("docs/NUMI_SOLVERS.md", (references / "native-execution.md").read_text())
+        self.assertIn("scientific-workflow.md", skill)
+        science = (references / "scientific-workflow.md").read_text()
+        self.assertIn("Preregister", science)
+        self.assertIn("numi science register", science)
+        self.assertIn("numi science revise", science)
+        self.assertIn("unused seeds", science)
+        self.assertIn("inconclusive", science)
         self.assertIn("suite-tools.md", skill)
         self.assertIn("NumiVivo", skill)
         self.assertIn("NumiBrain", skill)
@@ -56,6 +61,12 @@ class SkillContractTests(unittest.TestCase):
                 "edge-evidence",
                 "edge-failure-recovery",
                 "solver-configuration",
+                "scientific-loop",
+                "scientific-negative",
+                "scientific-instrument-failure",
+                "scientific-holdout",
+                "scientific-scope",
+                "scientific-complex-design",
             }.issubset(categories)
         )
         self.assertEqual(len({case["id"] for case in cases}), len(cases))

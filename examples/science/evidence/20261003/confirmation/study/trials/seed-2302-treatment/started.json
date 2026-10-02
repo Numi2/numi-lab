@@ -1,0 +1,42 @@
+{
+  "payload": {
+    "argv": [
+      "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+      "/Users/home/numi-lab-plugin-suite-20260907/examples/science/neuron_weight_instrument.py",
+      "--binary",
+      "/Users/home/numi-science-evidence-20261003/native-main/metalrobo_neuron_culture_probe",
+      "--seed",
+      "2302",
+      "--ablation",
+      "none"
+    ],
+    "cwd": "/Users/home/numi-science-evidence-20261003/confirmation/study/trials/seed-2302-treatment/output",
+    "environment": {
+      "HOME": "/Users/home",
+      "PATH": "/bin:/usr/bin",
+      "TMPDIR": "/var/folders/t9/k15zzp692dl6xfhzqr26qvkr0000gn/T"
+    },
+    "host": "Ts-MacBook-Air.local",
+    "registration_sha256": "44c9d3e754a6f53602cc31e407cd12b704f4e9a91485378fbc90b59be6f80096",
+    "runner_pid": 84512,
+    "started_at": "2026-10-02T23:04:12.579480+00:00",
+    "trial": {
+      "argv": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "/Users/home/numi-lab-plugin-suite-20260907/examples/science/neuron_weight_instrument.py",
+        "--binary",
+        "/Users/home/numi-science-evidence-20261003/native-main/metalrobo_neuron_culture_probe",
+        "--seed",
+        "2302",
+        "--ablation",
+        "none"
+      ],
+      "arm": "treatment",
+      "env": {},
+      "id": "seed-2302-treatment",
+      "pair": "2302",
+      "timeout_seconds": 300
+    }
+  },
+  "sha256": "4356b702f14cf23b7d8fdd54eea0a768e30647574b616772e63c68570b68e8e1"
+}

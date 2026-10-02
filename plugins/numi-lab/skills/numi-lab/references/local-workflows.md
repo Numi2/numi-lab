@@ -6,6 +6,10 @@ is qualified. Select one workflow, read its owner's live help, and use the
 owner's own command and artifact contract. Do not turn these into a fixed task
 catalog or a general shell-command launcher.
 
+For research questions within any workflow below, apply
+[the standard scientific loop](scientific-workflow.md). These domain recipes
+select the owner; the scientific loop determines how to make and revise claims.
+
 ## 1. Find what this Mac can do
 
 - **Discover:** `command -v numi`, then `numi doctor` if readiness matters and

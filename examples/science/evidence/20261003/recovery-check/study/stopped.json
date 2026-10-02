@@ -1,0 +1,11 @@
+{
+  "payload": {
+    "reason": "Known missing mean_plastic_weight metric reproduced; further trials would repeat an instrument fault.",
+    "receipts": {
+      "seed-2101-control": "59341f2a14e75ccf65d50509a09c226e4ebb8eb122bb79a22c47b8aa61381912"
+    },
+    "registration_sha256": "e89363f21f8995a5dff3b65dedc16892faa402b3ddc4d45d98074586ba522081",
+    "stopped_at": "2026-10-02T23:04:58.297276+00:00"
+  },
+  "sha256": "8c0b233eafd7f3ad1a7e5b87349b3b9efd465ec10b03e95f5e6ed5b05eded7bd"
+}

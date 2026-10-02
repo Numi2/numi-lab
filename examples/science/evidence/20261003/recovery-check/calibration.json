@@ -1,0 +1,19 @@
+{
+  "absolute_error": 0.0,
+  "known_input": {
+    "ablation": 0,
+    "culture_fingerprint": 123,
+    "mean_plastic_weight": 0.0625,
+    "network_seed": 42,
+    "schema": "numi.neuron-culture.potter-switch.v1",
+    "simulation_only": true,
+    "starting_state_fingerprint": 456,
+    "stimulation_current": 20000,
+    "synaptic_current_scale": 175000,
+    "windows": 8
+  },
+  "measured_weight": 0.0625,
+  "rejected_invalid_inputs": 5,
+  "schema": "numi.science.instrument-calibration.v1",
+  "scope": "JSON extraction and authored numerical bounds; not biological or sensor calibration"
+}

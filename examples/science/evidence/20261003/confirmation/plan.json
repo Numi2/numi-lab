@@ -1,0 +1,189 @@
+{
+  "schema": "numi.science.plan.v1",
+  "question": "Does STDP increase mean plastic weight over the native quick synthetic-culture protocol?",
+  "hypothesis": "The new three-seed mean lies inside the fixed empirical range from model v2.",
+  "owner": "Numi Lab native neuron culture",
+  "repository": "/Users/home/numi-lab-plugin-suite-20260907",
+  "backend": "Apple Metal synthetic LIF/STDP, prebuilt runtime bound by artifact hashes",
+  "evidence_level": "simulation",
+  "model": {
+    "version": "stdp-mean-v2",
+    "statement": "The short unconditioned synthetic protocol has a small mean plastic-weight effect with seed-dependent sign; model the effect by the measured mean and between-seed variation instead of a uniformly positive lower bound.",
+    "mean_effect": 7.634276666666773e-05,
+    "between_seed_sample_sd": 8.28338395580158e-05,
+    "predicted_effect_range": [
+      -0.00017215875200737965,
+      0.0003248442853407151
+    ],
+    "prediction_rule": "For a new three-seed mean, use discovery mean plus or minus three discovery sample SDs as a falsifiable heuristic; this is not a confidence interval."
+  },
+  "instrument": {
+    "description": "Native weight observable plus calibrated JSON reader and frozen-weight control check",
+    "calibration": "/Users/home/numi-science-evidence-20261003/discovery/calibration.json"
+  },
+  "artifacts": [
+    "/Users/home/numi-lab-plugin-suite-20260907/examples/science/neuron_weight_instrument.py",
+    "/Users/home/numi-science-evidence-20261003/discovery/calibration.json",
+    "/Users/home/numi-science-evidence-20261003/native-main/metalrobo_neuron_culture_probe",
+    "/Users/home/numi-science-evidence-20261003/native-main/NumiNeuron.metallib",
+    "/Users/home/numi-science-evidence-20261003/native-main/build-receipt.json",
+    "/Users/home/numi-science-evidence-20261003/confirmation/model-v2.json"
+  ],
+  "design": {
+    "intervention": "STDP enabled versus stdp-off; all other native protocol options identical",
+    "controls": "Paired seed, topology, initial state, sensory mapping 0, current scales, quick horizon; off arm must preserve 0.05 mean weight",
+    "experimental_unit": "One independently seeded synthetic culture; ticks are not independent replicates",
+    "allocation": "Declared seed order; control first for even pair indices, treatment first for odd; run serially"
+  },
+  "observable": {
+    "name": "mean_plastic_weight",
+    "unit": "authored weight units",
+    "path": [
+      "mean_plastic_weight"
+    ]
+  },
+  "prediction": {
+    "estimand": "paired_difference_mean",
+    "minimum": -0.00017215875200737965,
+    "maximum": 0.0003248442853407151
+  },
+  "validity": [
+    {
+      "path": [
+        "schema"
+      ],
+      "equals": "numi.science.neuron-weight.v1"
+    },
+    {
+      "path": [
+        "simulation_only"
+      ],
+      "equals": true
+    }
+  ],
+  "paired_equal": [
+    [
+      "network_seed"
+    ],
+    [
+      "culture_fingerprint"
+    ],
+    [
+      "starting_state_fingerprint"
+    ],
+    [
+      "synaptic_current_scale"
+    ],
+    [
+      "stimulation_current"
+    ],
+    [
+      "windows"
+    ]
+  ],
+  "trials": [
+    {
+      "id": "seed-2301-control",
+      "pair": "2301",
+      "arm": "control",
+      "argv": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "/Users/home/numi-lab-plugin-suite-20260907/examples/science/neuron_weight_instrument.py",
+        "--binary",
+        "/Users/home/numi-science-evidence-20261003/native-main/metalrobo_neuron_culture_probe",
+        "--seed",
+        "2301",
+        "--ablation",
+        "stdp-off"
+      ],
+      "env": {},
+      "timeout_seconds": 300
+    },
+    {
+      "id": "seed-2301-treatment",
+      "pair": "2301",
+      "arm": "treatment",
+      "argv": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "/Users/home/numi-lab-plugin-suite-20260907/examples/science/neuron_weight_instrument.py",
+        "--binary",
+        "/Users/home/numi-science-evidence-20261003/native-main/metalrobo_neuron_culture_probe",
+        "--seed",
+        "2301",
+        "--ablation",
+        "none"
+      ],
+      "env": {},
+      "timeout_seconds": 300
+    },
+    {
+      "id": "seed-2302-treatment",
+      "pair": "2302",
+      "arm": "treatment",
+      "argv": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "/Users/home/numi-lab-plugin-suite-20260907/examples/science/neuron_weight_instrument.py",
+        "--binary",
+        "/Users/home/numi-science-evidence-20261003/native-main/metalrobo_neuron_culture_probe",
+        "--seed",
+        "2302",
+        "--ablation",
+        "none"
+      ],
+      "env": {},
+      "timeout_seconds": 300
+    },
+    {
+      "id": "seed-2302-control",
+      "pair": "2302",
+      "arm": "control",
+      "argv": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "/Users/home/numi-lab-plugin-suite-20260907/examples/science/neuron_weight_instrument.py",
+        "--binary",
+        "/Users/home/numi-science-evidence-20261003/native-main/metalrobo_neuron_culture_probe",
+        "--seed",
+        "2302",
+        "--ablation",
+        "stdp-off"
+      ],
+      "env": {},
+      "timeout_seconds": 300
+    },
+    {
+      "id": "seed-2303-control",
+      "pair": "2303",
+      "arm": "control",
+      "argv": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "/Users/home/numi-lab-plugin-suite-20260907/examples/science/neuron_weight_instrument.py",
+        "--binary",
+        "/Users/home/numi-science-evidence-20261003/native-main/metalrobo_neuron_culture_probe",
+        "--seed",
+        "2303",
+        "--ablation",
+        "stdp-off"
+      ],
+      "env": {},
+      "timeout_seconds": 300
+    },
+    {
+      "id": "seed-2303-treatment",
+      "pair": "2303",
+      "arm": "treatment",
+      "argv": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "/Users/home/numi-lab-plugin-suite-20260907/examples/science/neuron_weight_instrument.py",
+        "--binary",
+        "/Users/home/numi-science-evidence-20261003/native-main/metalrobo_neuron_culture_probe",
+        "--seed",
+        "2303",
+        "--ablation",
+        "none"
+      ],
+      "env": {},
+      "timeout_seconds": 300
+    }
+  ],
+  "limitations": "A small deterministic synthetic protocol from unconditioned weights. No biological calibration, learning advantage, full Potter reproduction, population confidence interval, or hardware evidence. Prebuilt binary identity is retained; source-to-binary reproducibility is not established here. The revised interval is estimated from three seeds and is a heuristic, not calibrated probabilistic uncertainty. Seeds 2301-2303 are held out from the discovery fit."
+}

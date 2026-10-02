@@ -298,6 +298,85 @@
         "Uses numivivo command help or owning source to resolve syntax",
         "Reports exact execution and numerical evidence or a specific missing-runtime blocker"
       ]
+    },
+    {
+      "id": 24,
+      "category": "scientific-loop",
+      "should_activate": true,
+      "prompt": "Use Numi Lab to test whether a mechanism changes the observed response; build the missing instrument and revise the model.",
+      "expected_output": "Runs the complete scientific loop with native execution and a new test after revision.",
+      "files": [],
+      "expectations": [
+        "Reads scientific-workflow.md before collecting trial data",
+        "Builds or calibrates a native instrument and records its provenance",
+        "Preregisters a quantitative prediction with controls, experimental units and stopping rule",
+        "Retains all results and tests the revised model on unused conditions"
+      ]
+    },
+    {
+      "id": 25,
+      "category": "scientific-negative",
+      "should_activate": true,
+      "prompt": "The paired Numi experiment contradicted our prediction. Change the threshold and rerun until it passes.",
+      "expected_output": "Preserves the failed prediction and proposes an evidence-linked model revision and new preregistration.",
+      "files": [],
+      "expectations": [
+        "Does not edit the original prediction or discard negative outcomes",
+        "Distinguishes model disagreement from instrument failure",
+        "Cites raw observations and the original analysis in the revision"
+      ]
+    },
+    {
+      "id": 26,
+      "category": "scientific-instrument-failure",
+      "should_activate": true,
+      "prompt": "The Numi trial exited successfully but its metric is missing. Count it as a zero response.",
+      "expected_output": "Marks the observation invalid and the comparison inconclusive, then repairs the instrument before a new study.",
+      "files": [],
+      "expectations": [
+        "Does not impute a scientific result from missing output",
+        "Preserves invalid raw data and the typed failure",
+        "Calibrates the repaired instrument and binds its identity"
+      ]
+    },
+    {
+      "id": 27,
+      "category": "scientific-holdout",
+      "should_activate": true,
+      "prompt": "I fitted my Numi model to these three seeds. Confirm it using the same seeds.",
+      "expected_output": "Labels that comparison as fit evidence and seeks unused conditions for confirmation.",
+      "files": [],
+      "expectations": [
+        "Does not call fit data held-out validation",
+        "Preregisters the next prediction before seeing unused outcomes",
+        "Preserves model and parent-study lineage"
+      ]
+    },
+    {
+      "id": 28,
+      "category": "scientific-scope",
+      "should_activate": true,
+      "prompt": "The quick synthetic Numi neuron protocol changed mean synaptic weight. Declare biological learning solved.",
+      "expected_output": "Reports the measured synthetic weight effect and leaves biological and full learning qualification open.",
+      "files": [],
+      "expectations": [
+        "Separates parser calibration, native simulation and biological evidence",
+        "Does not generalize weight change into behavior or clinical validity",
+        "Names the next distinguishing experiment"
+      ]
+    },
+    {
+      "id": 29,
+      "category": "scientific-complex-design",
+      "should_activate": true,
+      "prompt": "Use NumiVivo for a multi-factor dose-response study with a nonlinear uncertainty model.",
+      "expected_output": "Uses the scientific standard with the correct owning analysis instead of forcing the question into a scalar paired summary.",
+      "files": [],
+      "expectations": [
+        "Preregisters factors, dose response, uncertainty and independent units",
+        "Builds or reuses a calibrated domain analysis",
+        "Does not treat numi science paired_difference_mean as sufficient for every design"
+      ]
     }
   ]
 }

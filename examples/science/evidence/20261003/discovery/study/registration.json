@@ -1,0 +1,215 @@
+{
+  "payload": {
+    "artifacts": {
+      "/Applications/Xcode.app/Contents/Developer/usr/bin/python3": "fb49353c025e39b9253567759fc80f20ed0f6e8b0d0bc6c5fddb47dc235ce22a",
+      "/Users/home/numi-lab-plugin-suite-20260907/examples/science/neuron_weight_instrument.py": "8c6d9697129eadb9d4d71464265a8b6ec65d77a8f70b05c972fbc9fef308e9db",
+      "/Users/home/numi-lab-plugin-suite-20260907/python/metalrobo/science.py": "d5c8a47265c19345a165f5f93dfc5f74ba9b95575135b2425ffe1354553b7172",
+      "/Users/home/numi-science-evidence-20261003/discovery/calibration.json": "3978b0085b993b07f2d7eb80740baf0fbc80d49bd7bfeb6909c598dbbb955ad1",
+      "/Users/home/numi-science-evidence-20261003/discovery/model-v1.json": "ebfad5b2248eab374cbe3591d6a189cd43bf6f572a4cdc52d514b5f6aadd380a",
+      "/Users/home/numi-science-evidence-20261003/native-main/NumiNeuron.metallib": "e7243f197f9312ff28abefc6ffe5b17b3f52916175b445e65e026f760e42665a",
+      "/Users/home/numi-science-evidence-20261003/native-main/build-receipt.json": "1f23c88053f0361805c83b8688f31a2e281ee9d7b23079288bbec829ce630634",
+      "/Users/home/numi-science-evidence-20261003/native-main/metalrobo_neuron_culture_probe": "fa362e92f42eac9d1a7001260c01bc9e0ebd22eba28c3accc5c3b9d3e6e36b06"
+    },
+    "host": {
+      "machine": "arm64",
+      "node": "Ts-MacBook-Air.local",
+      "platform": "macOS-26.6-arm64-arm-64bit-Mach-O"
+    },
+    "parent": null,
+    "plan": {
+      "artifacts": [
+        "/Users/home/numi-lab-plugin-suite-20260907/examples/science/neuron_weight_instrument.py",
+        "/Users/home/numi-science-evidence-20261003/discovery/calibration.json",
+        "/Users/home/numi-science-evidence-20261003/discovery/model-v1.json",
+        "/Users/home/numi-science-evidence-20261003/native-main/metalrobo_neuron_culture_probe",
+        "/Users/home/numi-science-evidence-20261003/native-main/NumiNeuron.metallib",
+        "/Users/home/numi-science-evidence-20261003/native-main/build-receipt.json"
+      ],
+      "backend": "Apple Metal synthetic LIF/STDP, prebuilt runtime bound by artifact hashes",
+      "design": {
+        "allocation": "Declared seed order; control first for even pair indices, treatment first for odd; run serially",
+        "controls": "Paired seed, topology, initial state, sensory mapping 0, current scales, quick horizon; off arm must preserve 0.05 mean weight",
+        "experimental_unit": "One independently seeded synthetic culture; ticks are not independent replicates",
+        "intervention": "STDP enabled versus stdp-off; all other native protocol options identical"
+      },
+      "evidence_level": "simulation",
+      "hypothesis": "Net potentiation produces a positive paired shift of at least 0.0001 authored weight units.",
+      "instrument": {
+        "calibration": "/Users/home/numi-science-evidence-20261003/discovery/calibration.json",
+        "description": "Native weight observable plus calibrated JSON reader and frozen-weight control check"
+      },
+      "limitations": "A small deterministic synthetic protocol from unconditioned weights. No biological calibration, learning advantage, full Potter reproduction, population confidence interval, or hardware evidence. Prebuilt binary identity is retained; source-to-binary reproducibility is not established here.",
+      "model": {
+        "predicted_effect_range": [
+          0.0001,
+          0.01
+        ],
+        "statement": "Net potentiation dominates over the quick synthetic protocol: enabling STDP raises mean plastic weight by 0.0001 to 0.01 relative to frozen weights.",
+        "version": "stdp-mean-v1"
+      },
+      "observable": {
+        "name": "mean_plastic_weight",
+        "path": [
+          "mean_plastic_weight"
+        ],
+        "unit": "authored weight units"
+      },
+      "owner": "Numi Lab native neuron culture",
+      "paired_equal": [
+        [
+          "network_seed"
+        ],
+        [
+          "culture_fingerprint"
+        ],
+        [
+          "starting_state_fingerprint"
+        ],
+        [
+          "synaptic_current_scale"
+        ],
+        [
+          "stimulation_current"
+        ],
+        [
+          "windows"
+        ]
+      ],
+      "prediction": {
+        "estimand": "paired_difference_mean",
+        "maximum": 0.01,
+        "minimum": 0.0001
+      },
+      "question": "Does STDP increase mean plastic weight over the native quick synthetic-culture protocol?",
+      "repository": "/Users/home/numi-lab-plugin-suite-20260907",
+      "schema": "numi.science.plan.v1",
+      "trials": [
+        {
+          "argv": [
+            "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+            "/Users/home/numi-lab-plugin-suite-20260907/examples/science/neuron_weight_instrument.py",
+            "--binary",
+            "/Users/home/numi-science-evidence-20261003/native-main/metalrobo_neuron_culture_probe",
+            "--seed",
+            "2201",
+            "--ablation",
+            "stdp-off"
+          ],
+          "arm": "control",
+          "env": {},
+          "id": "seed-2201-control",
+          "pair": "2201",
+          "timeout_seconds": 300
+        },
+        {
+          "argv": [
+            "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+            "/Users/home/numi-lab-plugin-suite-20260907/examples/science/neuron_weight_instrument.py",
+            "--binary",
+            "/Users/home/numi-science-evidence-20261003/native-main/metalrobo_neuron_culture_probe",
+            "--seed",
+            "2201",
+            "--ablation",
+            "none"
+          ],
+          "arm": "treatment",
+          "env": {},
+          "id": "seed-2201-treatment",
+          "pair": "2201",
+          "timeout_seconds": 300
+        },
+        {
+          "argv": [
+            "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+            "/Users/home/numi-lab-plugin-suite-20260907/examples/science/neuron_weight_instrument.py",
+            "--binary",
+            "/Users/home/numi-science-evidence-20261003/native-main/metalrobo_neuron_culture_probe",
+            "--seed",
+            "2202",
+            "--ablation",
+            "none"
+          ],
+          "arm": "treatment",
+          "env": {},
+          "id": "seed-2202-treatment",
+          "pair": "2202",
+          "timeout_seconds": 300
+        },
+        {
+          "argv": [
+            "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+            "/Users/home/numi-lab-plugin-suite-20260907/examples/science/neuron_weight_instrument.py",
+            "--binary",
+            "/Users/home/numi-science-evidence-20261003/native-main/metalrobo_neuron_culture_probe",
+            "--seed",
+            "2202",
+            "--ablation",
+            "stdp-off"
+          ],
+          "arm": "control",
+          "env": {},
+          "id": "seed-2202-control",
+          "pair": "2202",
+          "timeout_seconds": 300
+        },
+        {
+          "argv": [
+            "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+            "/Users/home/numi-lab-plugin-suite-20260907/examples/science/neuron_weight_instrument.py",
+            "--binary",
+            "/Users/home/numi-science-evidence-20261003/native-main/metalrobo_neuron_culture_probe",
+            "--seed",
+            "2203",
+            "--ablation",
+            "stdp-off"
+          ],
+          "arm": "control",
+          "env": {},
+          "id": "seed-2203-control",
+          "pair": "2203",
+          "timeout_seconds": 300
+        },
+        {
+          "argv": [
+            "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+            "/Users/home/numi-lab-plugin-suite-20260907/examples/science/neuron_weight_instrument.py",
+            "--binary",
+            "/Users/home/numi-science-evidence-20261003/native-main/metalrobo_neuron_culture_probe",
+            "--seed",
+            "2203",
+            "--ablation",
+            "none"
+          ],
+          "arm": "treatment",
+          "env": {},
+          "id": "seed-2203-treatment",
+          "pair": "2203",
+          "timeout_seconds": 300
+        }
+      ],
+      "validity": [
+        {
+          "equals": "numi.science.neuron-weight.v1",
+          "path": [
+            "schema"
+          ]
+        },
+        {
+          "equals": true,
+          "path": [
+            "simulation_only"
+          ]
+        }
+      ]
+    },
+    "registered_at": "2026-10-02T23:02:36.241954+00:00",
+    "schema": "numi.science.registration.v1",
+    "source": {
+      "diff_sha256": "34ca24cf0f7e474b4cb74b01fbc5688d6b9e64c1098050efa35f83f3e140f0b4",
+      "repository": "/Users/home/numi-lab-plugin-suite-20260907",
+      "revision": "92e12e897dd769751feeb29e808479cba2fbdcf5",
+      "status": "M CMakeLists.txt\n M README.md\n M docs/NUMI_CLI.md\n M plugins/numi-lab/.codex-plugin/plugin.json\n M plugins/numi-lab/README.md\n M plugins/numi-lab/skills/numi-lab/SKILL.md\n M plugins/numi-lab/skills/numi-lab/evals/evals.json\n M plugins/numi-lab/skills/numi-lab/references/local-workflows.md\n M tests/numi_skill_contract_test.py\n?? docs/SCIENTIFIC_WORKFLOW.md\n?? examples/science/\n?? numi/commands/science\n?? plugins/numi-lab/skills/numi-lab/references/scientific-workflow.md\n?? python/metalrobo/science.py\n?? tests/numi_science_test.py"
+    }
+  },
+  "sha256": "96efc2aad18d7a4e2585eb19da6528052aea6f087f65d981a84c41456df14b8b"
+}

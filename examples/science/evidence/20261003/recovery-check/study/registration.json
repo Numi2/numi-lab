@@ -1,0 +1,147 @@
+{
+  "payload": {
+    "artifacts": {
+      "/Applications/Xcode.app/Contents/Developer/usr/bin/python3": "fb49353c025e39b9253567759fc80f20ed0f6e8b0d0bc6c5fddb47dc235ce22a",
+      "/Users/home/Documents/emergentnumilife/MetalRobo/build/bin/metalrobo_neuron_culture_probe": "65602ef2a7f7bdf704f6013bda5d10c8348adeb629db987fabd528b9022be51e",
+      "/Users/home/Documents/emergentnumilife/MetalRobo/build/lib/libmetalrobo.dylib": "f6ab2c4b5d726613bf5d5988b6b09258c089871a034c30d13a9fff872ad0a1cd",
+      "/Users/home/Documents/emergentnumilife/MetalRobo/build/shaders/NumiNeuron.metallib": "5aaf02304c0b386f10c04f38316af677ac06dd2c7c077c4446525ab4e0632cd3",
+      "/Users/home/numi-lab-plugin-suite-20260907/examples/science/neuron_weight_instrument.py": "8c6d9697129eadb9d4d71464265a8b6ec65d77a8f70b05c972fbc9fef308e9db",
+      "/Users/home/numi-lab-plugin-suite-20260907/python/metalrobo/science.py": "d5c8a47265c19345a165f5f93dfc5f74ba9b95575135b2425ffe1354553b7172",
+      "/Users/home/numi-science-evidence-20261003/recovery-check/calibration.json": "3978b0085b993b07f2d7eb80740baf0fbc80d49bd7bfeb6909c598dbbb955ad1",
+      "/Users/home/numi-science-evidence-20261003/recovery-check/model-v1.json": "ebfad5b2248eab374cbe3591d6a189cd43bf6f572a4cdc52d514b5f6aadd380a"
+    },
+    "host": {
+      "machine": "arm64",
+      "node": "Ts-MacBook-Air.local",
+      "platform": "macOS-26.6-arm64-arm-64bit-Mach-O"
+    },
+    "parent": null,
+    "plan": {
+      "artifacts": [
+        "/Users/home/numi-lab-plugin-suite-20260907/examples/science/neuron_weight_instrument.py",
+        "/Users/home/numi-science-evidence-20261003/recovery-check/calibration.json",
+        "/Users/home/numi-science-evidence-20261003/recovery-check/model-v1.json",
+        "/Users/home/Documents/emergentnumilife/MetalRobo/build/bin/metalrobo_neuron_culture_probe",
+        "/Users/home/Documents/emergentnumilife/MetalRobo/build/lib/libmetalrobo.dylib",
+        "/Users/home/Documents/emergentnumilife/MetalRobo/build/shaders/NumiNeuron.metallib"
+      ],
+      "backend": "Apple Metal synthetic LIF/STDP, prebuilt runtime bound by artifact hashes",
+      "design": {
+        "allocation": "Declared seed order; control first for even pair indices, treatment first for odd; run serially",
+        "controls": "Paired seed, topology, initial state, sensory mapping 0, current scales, quick horizon; off arm must preserve 0.05 mean weight",
+        "experimental_unit": "One independently seeded synthetic culture; ticks are not independent replicates",
+        "intervention": "STDP enabled versus stdp-off; all other native protocol options identical"
+      },
+      "evidence_level": "simulation",
+      "hypothesis": "The old binary lacks the mean-weight field; the trial must be invalid, not zero.",
+      "instrument": {
+        "calibration": "/Users/home/numi-science-evidence-20261003/recovery-check/calibration.json",
+        "description": "Native weight observable plus calibrated JSON reader and frozen-weight control check"
+      },
+      "limitations": "Known-failure recovery check, not novel scientific data. Original early trial files were removed by sparse-checkout expansion; this separately timestamped record does not reconstruct or replace them.",
+      "model": {
+        "predicted_effect_range": [
+          0.0001,
+          0.01
+        ],
+        "statement": "Net potentiation dominates over the quick synthetic protocol: enabling STDP raises mean plastic weight by 0.0001 to 0.01 relative to frozen weights.",
+        "version": "stdp-mean-v1"
+      },
+      "observable": {
+        "name": "mean_plastic_weight",
+        "path": [
+          "mean_plastic_weight"
+        ],
+        "unit": "authored weight units"
+      },
+      "owner": "Numi Lab native neuron culture",
+      "paired_equal": [
+        [
+          "network_seed"
+        ],
+        [
+          "culture_fingerprint"
+        ],
+        [
+          "starting_state_fingerprint"
+        ],
+        [
+          "synaptic_current_scale"
+        ],
+        [
+          "stimulation_current"
+        ],
+        [
+          "windows"
+        ]
+      ],
+      "prediction": {
+        "estimand": "paired_difference_mean",
+        "maximum": 0.01,
+        "minimum": 0.0001
+      },
+      "question": "Can the instrument reject a known missing metric in the older installed binary?",
+      "repository": "/Users/home/Documents/emergentnumilife/MetalRobo",
+      "schema": "numi.science.plan.v1",
+      "trials": [
+        {
+          "argv": [
+            "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+            "/Users/home/numi-lab-plugin-suite-20260907/examples/science/neuron_weight_instrument.py",
+            "--binary",
+            "/Users/home/Documents/emergentnumilife/MetalRobo/build/bin/metalrobo_neuron_culture_probe",
+            "--seed",
+            "2101",
+            "--ablation",
+            "stdp-off"
+          ],
+          "arm": "control",
+          "env": {},
+          "id": "seed-2101-control",
+          "pair": "2101",
+          "timeout_seconds": 300
+        },
+        {
+          "argv": [
+            "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+            "/Users/home/numi-lab-plugin-suite-20260907/examples/science/neuron_weight_instrument.py",
+            "--binary",
+            "/Users/home/Documents/emergentnumilife/MetalRobo/build/bin/metalrobo_neuron_culture_probe",
+            "--seed",
+            "2101",
+            "--ablation",
+            "none"
+          ],
+          "arm": "treatment",
+          "env": {},
+          "id": "seed-2101-treatment",
+          "pair": "2101",
+          "timeout_seconds": 300
+        }
+      ],
+      "validity": [
+        {
+          "equals": "numi.science.neuron-weight.v1",
+          "path": [
+            "schema"
+          ]
+        },
+        {
+          "equals": true,
+          "path": [
+            "simulation_only"
+          ]
+        }
+      ]
+    },
+    "registered_at": "2026-10-02T23:04:55.082932+00:00",
+    "schema": "numi.science.registration.v1",
+    "source": {
+      "diff_sha256": "c855d6b777c8b33f808e9e2eb34d0e82f7134044094094ed710521ee14a4879e",
+      "repository": "/Users/home/Documents/emergentnumilife/MetalRobo",
+      "revision": "298e5f8565d1cea297c705572493c8d29934d76e",
+      "status": "M plugins/numi-lab/.codex-plugin/plugin.json\n D plugins/numi-lab/assets/screenshot-franka.png\n D plugins/numi-lab/assets/screenshot-g1.png\n D plugins/numi-lab/assets/screenshot-sensors.png\n M plugins/numi-lab/skills/numi-lab/SKILL.md\n M plugins/numi-lab/skills/numi-lab/evals/evals.json\n?? plugins/numi-lab/README.md\n?? plugins/numi-lab/skills/numi-lab/references/"
+    }
+  },
+  "sha256": "e89363f21f8995a5dff3b65dedc16892faa402b3ddc4d45d98074586ba522081"
+}

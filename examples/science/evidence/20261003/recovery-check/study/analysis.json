@@ -1,0 +1,35 @@
+{
+  "payload": {
+    "evidence_level": "simulation",
+    "issues": [
+      "seed-2101-control: invalid",
+      "seed-2101-treatment: missing"
+    ],
+    "limitations": "Known-failure recovery check, not novel scientific data. Original early trial files were removed by sparse-checkout expansion; this separately timestamped record does not reconstruct or replace them.",
+    "mean_difference": null,
+    "observed_spread": null,
+    "paired_differences": [],
+    "registration_sha256": "e89363f21f8995a5dff3b65dedc16892faa402b3ddc4d45d98074586ba522081",
+    "schema": "numi.science.analysis.v1",
+    "trials": [
+      {
+        "arm": "control",
+        "id": "seed-2101-control",
+        "pair": "2101",
+        "reason": "native execution failed: process_exit_1",
+        "receipt_sha256": "59341f2a14e75ccf65d50509a09c226e4ebb8eb122bb79a22c47b8aa61381912",
+        "status": "invalid"
+      },
+      {
+        "arm": "treatment",
+        "id": "seed-2101-treatment",
+        "pair": "2101",
+        "status": "missing"
+      }
+    ],
+    "uncertainty": "Descriptive variation across declared pairs, not a confidence interval or population inference.",
+    "unit": "authored weight units",
+    "verdict": "inconclusive"
+  },
+  "sha256": "ba1ec2d8f2eacc839c7dd0cf6323b312903990a3026e869ccde7642226c8e2c3"
+}

@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/Users/home/numi-lab-plugin-suite-20260907/examples/science/neuron_weight_instrument.py", line 73, in <module>
+    main()
+  File "/Users/home/numi-lab-plugin-suite-20260907/examples/science/neuron_weight_instrument.py", line 64, in main
+    result = measure(raw)
+  File "/Users/home/numi-lab-plugin-suite-20260907/examples/science/neuron_weight_instrument.py", line 13, in measure
+    value = raw["mean_plastic_weight"]
+KeyError: 'mean_plastic_weight'
