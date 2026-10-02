@@ -5,6 +5,7 @@
 #include "metalrobo/engine_types.h"
 
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <cstdio>
 #include <cstring>
@@ -99,8 +100,13 @@ int main(int argc, char** argv) {
             id<MTLBuffer> statusBuffer = [device
                 newBufferWithBytes:&worldStatus length:sizeof(worldStatus)
                 options:MTLResourceStorageModeShared];
+            id<MTLBuffer> tensionBuffer = [device
+                newBufferWithLength:frameBytes
+                options:MTLResourceStorageModeShared];
             require(queue != nil && statusBuffer != nil,
                     "Metal queue or borrowed buffer allocation failed");
+            require(tensionBuffer != nil,
+                    "active-tension Metal buffer allocation failed");
             require(!capture || initialElements != nil,
                     "initial element-force buffer allocation failed");
 
@@ -127,13 +133,17 @@ int main(int argc, char** argv) {
             fgmresIterations.reserve(sequenceCount);
             failingIndices.reserve(sequenceCount);
             numi::matter::RuntimeStateSnapshot after;
+            id<MTLBuffer> matterStatusBuffer =
+                (__bridge id<MTLBuffer>)runtime.statusBuffer();
+            const auto* matterStatuses = static_cast<const NMMatterStatusGPU*>(
+                matterStatusBuffer.contents);
+            require(matterStatusBuffer != nil && matterStatuses != nullptr,
+                    "Matter status buffer is unavailable");
+            const auto runStarted = std::chrono::steady_clock::now();
             for (std::size_t step = 0u; step < sequenceCount; ++step) {
-                id<MTLBuffer> tensionBuffer = [device
-                    newBufferWithBytes:tensions.data() +
-                        step * world.fem.tetrahedra.size()
-                    length:frameBytes options:MTLResourceStorageModeShared];
-                require(tensionBuffer != nil,
-                        "active-tension Metal buffer allocation failed");
+                std::memcpy(tensionBuffer.contents,
+                    tensions.data() + step * world.fem.tetrahedra.size(),
+                    frameBytes);
                 auto* stepStatus = static_cast<MRMetalWorldStatusGPU*>(
                     statusBuffer.contents);
                 *stepStatus = {};
@@ -183,13 +193,7 @@ int main(int argc, char** argv) {
                     require(captured.good(),
                             "cannot write initial element-force output");
                 }
-                after = runtime.snapshot();
-                require(after.available &&
-                        after.femNodes.size() == before.femNodes.size() &&
-                        after.statuses.size() == 1u,
-                        "completion snapshot step " + std::to_string(step) +
-                        ": " + after.message);
-                const auto& stepResult = after.statuses[0];
+                const auto& stepResult = matterStatuses[0];
                 statusCodes.push_back(stepResult.code);
                 completedMicrosteps.push_back(stepResult.completedMicrosteps);
                 fgmresIterations.push_back(stepResult.fgmresIterations);
@@ -198,6 +202,9 @@ int main(int argc, char** argv) {
                         "native step " + std::to_string(step) +
                         " returned status " + std::to_string(stepResult.code));
             }
+            const double wallSeconds = std::chrono::duration<double>(
+                std::chrono::steady_clock::now() - runStarted).count();
+            after = runtime.snapshot();
             require(after.available && after.femNodes.size() == before.femNodes.size(),
                     "final snapshot: " + after.message);
             std::ofstream acceptedNodes(argv[3],
@@ -226,7 +233,7 @@ int main(int argc, char** argv) {
                             "\"status_code\":%u,\"completed_microsteps\":%u,"
                             "\"fgmres_iterations\":%u,\"failing_index\":%u,"
                             "\"moved_nodes\":%zu,\"maximum_displacement_m\":%.12g,"
-                            "\"accepted_native_steps\":%u,"
+                            "\"accepted_native_steps\":%u,\"wall_seconds\":%.9g,"
                             "\"zero_tension_input\":%s,"
                             "\"synthetic_density_kg_m3\":1050,"
                             "\"synthetic_fixed_nodes\":3,"
@@ -236,7 +243,7 @@ int main(int argc, char** argv) {
                             [[device name] UTF8String], NM_MATTER_ABI_VERSION,
                             status.code, status.completedMicrosteps,
                             status.fgmresIterations, status.failingIndex,
-                            moved, maximumDisplacement, 1u,
+                            moved, maximumDisplacement, 1u, wallSeconds,
                             zeroInput ? "true" : "false",
                             capture ? "true" : "false");
             } else {
@@ -266,6 +273,7 @@ int main(int argc, char** argv) {
                 std::printf("],\"moved_nodes\":%zu,"
                             "\"maximum_displacement_m\":%.12g,"
                             "\"accepted_duration_s\":%.12g,"
+                            "\"wall_seconds\":%.9g,"
                             "\"zero_tension_input\":%s,"
                             "\"synthetic_density_kg_m3\":1050,"
                             "\"synthetic_fixed_nodes\":3,"
@@ -273,6 +281,7 @@ int main(int argc, char** argv) {
                             "\"heartbeat_qualified\":false}\n",
                             moved, maximumDisplacement,
                             runtime.timestepSeconds() * sequenceCount,
+                            wallSeconds,
                             zeroInput ? "true" : "false");
             }
             return 0;

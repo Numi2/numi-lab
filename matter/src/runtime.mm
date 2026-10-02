@@ -12653,6 +12653,10 @@ void* Runtime::femAcceptedNodeBuffer() const noexcept {
     return state_ ? (__bridge void*)state_->femAccepted : nullptr;
 }
 
+void* Runtime::vascularAcceptedStateBuffer() const noexcept {
+    return state_ ? (__bridge void*)state_->vascularAccepted : nullptr;
+}
+
 void* Runtime::parameterBuffer() const noexcept {
     return state_ ? (__bridge void*)state_->environmentParameters : nullptr;
 }

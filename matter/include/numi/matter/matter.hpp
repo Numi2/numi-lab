@@ -1560,6 +1560,9 @@ public:
     // runtime retains ownership; callers must neither mutate nor retain it
     // beyond the initialized runtime lifetime.
     [[nodiscard]] void* femAcceptedNodeBuffer() const noexcept;
+    // Borrowed accepted hydraulic state for same-command-buffer consumers.
+    // The layout is the compiled VascularLayout, repeated per environment.
+    [[nodiscard]] void* vascularAcceptedStateBuffer() const noexcept;
     [[nodiscard]] void* parameterBuffer() const noexcept;
     [[nodiscard]] void* identificationLossBuffer() const noexcept;
 
