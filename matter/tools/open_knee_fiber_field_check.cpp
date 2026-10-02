@@ -2,6 +2,7 @@
 #include "numi/matter/open_knee_source_graph.hpp"
 #include "numi/matter/open_knee_source_contact.hpp"
 #include "numi/matter/open_knee_source_discrete.hpp"
+#include "numi/matter/open_knee_source_projection.hpp"
 #include "numi/matter/open_knee_source_rigid_ties.hpp"
 #include "numi/matter/compiler.hpp"
 
@@ -619,6 +620,24 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                             "source preload starts with final ligament prestrain");
         require(tieBySourceNode.empty(),
                 "source rigid-tie node is absent from all source tissue volumes");
+        SourceContactProjectionSummary initialContactProjection;
+        if (sourceContactPath != nullptr) {
+            std::unordered_map<std::uint32_t, SourcePoint> sourcePositions;
+            sourcePositions.reserve(sourceNodeLocations.size() +
+                                    sourceContact.rigidNodes.size());
+            for (const auto& [id, node] : sourceNodeLocations)
+                require(sourcePositions.emplace(id, node.sourcePosition).second,
+                        "source tissue contact node position is ambiguous");
+            for (const auto& node : sourceContact.rigidNodes)
+                require(sourcePositions.emplace(node.sourceNodeId,
+                                                node.sourcePosition).second,
+                        "source rigid contact node overlaps a tissue node");
+            require(bindSourceInitialContactProjections(sourceContact,
+                        sourcePositions, initialContactProjection, error), error);
+            require(!initialContactProjection.rows.empty() &&
+                        initialContactProjection.projected > 0u,
+                    "source contact initial projection has no bound nodes");
+        }
         std::size_t boundDiscreteFEMEdges = 0u;
         std::size_t boundDiscreteRigidEdges = 0u;
         if (sourceDiscretePath != nullptr) {
@@ -944,6 +963,14 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                      (runtimeProgramInitialized ? "initialized" : "not_requested")
                   << " runtime_resident_bytes=" << runtimeResidentBytes
                   << " source_contact_faces=" << sourceContact.faces.size()
+                  << " source_contact_initial_projected_nodes="
+                  << initialContactProjection.projected
+                  << " source_contact_initial_second_ring_nodes="
+                  << initialContactProjection.projectedSecondRing
+                  << " source_contact_initial_penetrating_nodes="
+                  << initialContactProjection.penetrating
+                  << " source_contact_initial_unresolved_nodes="
+                  << initialContactProjection.unresolved
                   << " source_contact_rigid_vertices="
                   << sourceContact.rigidNodes.size()
                   << " source_contact="

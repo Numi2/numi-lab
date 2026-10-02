@@ -1,7 +1,7 @@
 {
   "admission": {
     "reasons": [
-      "source sliding-elastic faces and parameters are bound but not enforced in Matter Newton",
+      "source sliding-elastic surfaces have initial nearest-vertex and second-ring face projections, but edge/node fallback, auto-penalty, Newton contact forces and sliding updates are not enforced",
       "prestrain and initial-contact preparation not solved",
       "prescribed rigid and source loading continuation not executed",
       "four retinacular nonlinear springs are bounded by their recorded knots; reference extrapolation remains unqualified",
@@ -35,6 +35,11 @@
     "source_analysis": "quasistatic_inertia_excluded",
     "source_contact": "authored_faces_bound_not_enforced",
     "source_contact_faces": "345070",
+    "source_contact_initial_penetrating_nodes": "1455",
+    "source_contact_initial_projected_nodes": "49241",
+    "source_contact_initial_second_ring_nodes": "2203",
+    "source_contact_initial_unresolved_nodes": "129994",
+    "source_contact_projection_basis": "public FEBio 2.9.0 source d61e8fd; pinned archive reports 2.9.1, exact revision not yet matched",
     "source_contact_rigid_vertices": "17676",
     "source_cylindrical_joints": "6",
     "source_discrete_fem": "included_in_newton_program_not_stepped",
