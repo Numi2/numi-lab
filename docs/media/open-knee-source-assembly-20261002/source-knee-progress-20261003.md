@@ -2,6 +2,8 @@
 
 The complete source program remains assembled in the existing Matter runtime: 12 tissue volumes, 9 rigid bodies, 6 source cylindrical joints, the rigid spring, 29,427 source tissue ties, 406 discrete springs, 18 sliding-contact pairs, and the source prestrain/flexion curves. The runtime's sliding-contact admission guard remains fail-closed.
 
+The current CPU cook-only run confirms those inputs compile, but reports the discrete spring curves and prestrain/flexion schedule as `not_stepped`, initialization as `not_solved`, and source equivalence as rejected. This is why an assembled program is not yet the requested source continuation.
+
 ## Matched XPLT state-1 comparisons
 
 The reference is retained FEBio 2.9.1 XPLT state 1 at continuation time 0.05. Matter values below come from first assembly at the imported source pose or from a rejected Newton candidate. They are not Matter-predicted accepted states.
