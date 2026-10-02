@@ -395,10 +395,13 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                          std::uint32_t fgmresBudget = 10u,
                          const char* checkpointSeedPath = nullptr,
                          const char* elementForceOutputPath = nullptr,
-                         bool cookOnly = false) {
+                         bool cookOnly = false,
+                         const char* contactFieldsOutputPath = nullptr) {
     try {
         require(elementForceOutputPath == nullptr || checkpointSeedPath != nullptr,
                 "element force readback needs a source checkpoint seed");
+        require(contactFieldsOutputPath == nullptr || checkpointSeedPath != nullptr,
+                "contact field readback needs a source checkpoint seed");
         require(rigidGraphPath == nullptr || rigidTiesPath != nullptr,
                 "source rigid graph requires the complete rigid-tie program");
         require(sourceContactPath == nullptr || rigidGraphPath != nullptr,
@@ -1527,6 +1530,69 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                 const auto state = runtime.snapshot();
                 require(state.available && !state.statuses.empty(),
                         "source step state readback unavailable");
+                if (contactFieldsOutputPath != nullptr) {
+                    require(state.diagnosticSourceContactProjections.size() ==
+                                3u * sourceContact.faces.size(),
+                            "source contact candidate field readback unavailable");
+                    std::vector<std::array<float, 4u>> fields(
+                        sourceContact.faces.size());
+                    std::vector<std::array<float, 3u>> ownGaussPressure(
+                        sourceContact.faces.size());
+                    for (const auto& row : state.diagnosticSourceContactProjections) {
+                        if (row.identity.x == NM_INVALID_INDEX ||
+                            row.barycentricGap.w <= 0.0f) continue;
+                        require(row.identity.y < fields.size() &&
+                                    row.identity.z < runtimeSlidingPairs.size(),
+                                "source contact candidate field identity is invalid");
+                        const float pressurePa =
+                            runtimeSlidingPairs[row.identity.z].normal.x *
+                            runtimeContactFaces[row.identity.y].autoPenalty.x *
+                            row.barycentricGap.w;
+                        const std::uint32_t integration = row.identity.w % 4u;
+                        require(integration < 3u,
+                                "source contact candidate integration index is invalid");
+                        ownGaussPressure[row.identity.y][integration] = pressurePa;
+                        auto& face = fields[row.identity.y];
+                        face[0u] += pressurePa * (1.0e-6f / 3.0f); // MPa
+                        face[1u] += row.barycentricGap.w * (1000.0f / 3.0f); // mm
+                        face[2u] += 1.0f;
+                    }
+                    // FEBio 2.9.0 FESlidingInterfaceBW::UpdateContactPressures
+                    // (d61e8fd) adds the opposite pass to plotted pressure,
+                    // projected from master Gauss values
+                    // to its nodes and evaluated at this hit. The residual
+                    // still assembles each pass once; this fourth channel
+                    // reproduces the source output field, not another force.
+                    for (const auto& row : state.diagnosticSourceContactProjections) {
+                        if (row.identity.x == NM_INVALID_INDEX ||
+                            row.barycentricGap.w <= 0.0f) continue;
+                        require(row.identity.x < ownGaussPressure.size(),
+                                "source contact candidate master face is invalid");
+                        const auto& master = ownGaussPressure[row.identity.x];
+                        const double sum = double(master[0u]) + master[1u] + master[2u];
+                        const auto b = row.barycentricGap;
+                        const double projected = 2.0 *
+                            (double(b.x)*master[0u] + double(b.y)*master[1u] +
+                             double(b.z)*master[2u]) - sum / 3.0;
+                        const std::uint32_t integration = row.identity.w % 4u;
+                        const double combined = ownGaussPressure[row.identity.y][integration] +
+                            std::max(projected, 0.0);
+                        fields[row.identity.y][3u] +=
+                            static_cast<float>(combined * (1.0e-6 / 3.0));
+                    }
+                    std::ofstream output(contactFieldsOutputPath,
+                        std::ios::binary | std::ios::trunc);
+                    require(output.good(), "source contact field output could not open");
+                    constexpr char magic[8] = {'N','O','K','C','F','D','2',0};
+                    const std::uint32_t version = 2u;
+                    const std::uint32_t count = static_cast<std::uint32_t>(fields.size());
+                    output.write(magic, sizeof(magic));
+                    output.write(reinterpret_cast<const char*>(&version), sizeof(version));
+                    output.write(reinterpret_cast<const char*>(&count), sizeof(count));
+                    output.write(reinterpret_cast<const char*>(fields.data()),
+                        fields.size() * sizeof(fields.front()));
+                    require(output.good(), "source contact field output failed");
+                }
                 double maximumDisplacement = 0.0;
                 for (std::size_t node = 0u; node < state.femNodes.size(); ++node) {
                     const auto& actual = state.femNodes[node].positionAndMass;
@@ -1973,6 +2039,16 @@ int main(int argc, char** argv) {
                 static_cast<std::uint32_t>(std::stoul(argv[11])),
                 static_cast<std::uint32_t>(std::stoul(argv[12])), argv[14],
                 argv[16]);
+        if (argc == 17 && std::string(argv[1]) == "--source-artifacts" &&
+            std::string(argv[8]) == "--solve-source-time" &&
+            std::string(argv[10]) == "--solver-budget" &&
+            std::string(argv[13]) == "--checkpoint-seed" &&
+            std::string(argv[15]) == "--checkpoint-contact-fields")
+            return checkSourceArtifacts(argv[2], argv[3], argv[4], argv[5],
+                argv[6], argv[7], std::stod(argv[9]),
+                static_cast<std::uint32_t>(std::stoul(argv[11])),
+                static_cast<std::uint32_t>(std::stoul(argv[12])), argv[14],
+                nullptr, false, argv[16]);
         if (argc == 16 && std::string(argv[1]) == "--source-artifacts" &&
             std::string(argv[8]) == "--solve-source-time" &&
             std::string(argv[10]) == "--solver-budget" &&
@@ -2022,7 +2098,7 @@ int main(int argc, char** argv) {
         if (argc == 3 && std::string(argv[1]) == "--source-sidecar")
             return checkSourceSidecar(argv[2]);
         require(argc == 1, "usage: open knee fiber field check [--source-sidecar PATH] "
-                           "[--source-artifacts FIBER_PATH SOURCE_VOLUME_MESH_PATH [SOURCE_RIGID_TIES_PATH [SOURCE_RIGID_GRAPH_PATH [SOURCE_CONTACT_PATH [SOURCE_DISCRETE_PATH]]]] [--cook-only | --solve-source-time TIME [--solver-budget NEWTON FGMRES [--checkpoint-seed PATH [--checkpoint-element-forces PATH]]]]]");
+                           "[--source-artifacts FIBER_PATH SOURCE_VOLUME_MESH_PATH [SOURCE_RIGID_TIES_PATH [SOURCE_RIGID_GRAPH_PATH [SOURCE_CONTACT_PATH [SOURCE_DISCRETE_PATH]]]] [--cook-only | --solve-source-time TIME [--solver-budget NEWTON FGMRES [--checkpoint-seed PATH [--checkpoint-element-forces PATH | --checkpoint-contact-fields PATH | --cook-only]]]]]");
         const std::array<double, 3> medial0{-0.27206761041769667,
                                              1.1419075817929256,
                                              0.08613731458137508};
