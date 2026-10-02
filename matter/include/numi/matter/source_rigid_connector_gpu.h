@@ -26,7 +26,16 @@ typedef struct NM_ALIGN16 NMSourceRigidSpringGPU {
     nm_float4 parameters; // stiffness, free length, reserved, reserved
 } NMSourceRigidSpringGPU;
 
+// A source FEBio rigid tie owns one cooked, otherwise statically fixed FEM
+// node. The runtime promotes that node to a moving eliminated coordinate and
+// maps its complete residual and tangent to the named rigid proxy.
+typedef struct NM_ALIGN16 NMSourceFEMRigidTieGPU {
+    nm_uint4 identity; // cooked FEM node, rigid proxy, cooked object, stable source ID
+    nm_float4 localPoint; // body-COM-relative material point, w = 0
+} NMSourceFEMRigidTieGPU;
+
 #ifdef __cplusplus
 static_assert(sizeof(NMSourceCylindricalJointGPU) == 144);
 static_assert(sizeof(NMSourceRigidSpringGPU) == 96);
+static_assert(sizeof(NMSourceFEMRigidTieGPU) == 32);
 #endif

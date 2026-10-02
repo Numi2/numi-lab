@@ -275,6 +275,9 @@ const char kImageAnchor = 0;
     hash = mixFingerprint(hash, detail::hashBytes(
         configuration.sourceRigidSprings.data(),
         configuration.sourceRigidSprings.size_bytes()));
+    hash = mixFingerprint(hash, detail::hashBytes(
+        configuration.sourceFEMRigidTies.data(),
+        configuration.sourceFEMRigidTies.size_bytes()));
     hash = mixFingerprint(hash, configuration.sourceRigidConnectorFingerprint);
     hash = mixFingerprint(hash, detail::hashBytes(
         configuration.humanSupportContacts.data(),
@@ -933,8 +936,12 @@ struct Runtime::State {
     id<MTLBuffer> humanLimitRows = nil;
     id<MTLBuffer> sourceCylindricalJoints = nil;
     id<MTLBuffer> sourceRigidSprings = nil;
+    id<MTLBuffer> sourceFEMRigidTies = nil;
+    id<MTLBuffer> sourceTieResidualImpulses = nil;
+    id<MTLBuffer> sourceTieOperator = nil;
     std::uint32_t sourceJointCount = 0u;
     std::uint32_t sourceSpringCount = 0u;
+    std::uint32_t sourceTieCount = 0u;
     std::uint32_t sourceMaximumFreeIndex = NM_INVALID_INDEX;
     id<MTLBuffer> humanLimitLinearization = nil;
     id<MTLBuffer> humanLimitTangent = nil;
@@ -1343,8 +1350,10 @@ RuntimeDiagnostics Runtime::initialize(
         }
         const auto sourceJoints = configuration.sourceCylindricalJoints;
         const auto sourceSprings = configuration.sourceRigidSprings;
+        const auto sourceTies = configuration.sourceFEMRigidTies;
         const bool hasSourceConnectors =
-            !sourceJoints.empty() || !sourceSprings.empty();
+            !sourceJoints.empty() || !sourceSprings.empty() ||
+            !sourceTies.empty();
         const auto finite4 = [](const nm_float4 v) {
             return std::isfinite(v.x) && std::isfinite(v.y) &&
                 std::isfinite(v.z) && std::isfinite(v.w);
@@ -1368,6 +1377,7 @@ RuntimeDiagnostics Runtime::initialize(
         };
         if (sourceJoints.size() > std::numeric_limits<std::uint32_t>::max() ||
             sourceSprings.size() > std::numeric_limits<std::uint32_t>::max() ||
+            sourceTies.size() > std::numeric_limits<std::uint32_t>::max() ||
             hasSourceConnectors !=
                 (configuration.sourceRigidConnectorFingerprint != 0u) ||
             (hasSourceConnectors && world.dispatch.maximumRateExponent != 0u)) {
@@ -1404,6 +1414,51 @@ RuntimeDiagnostics Runtime::initialize(
             static_cast<std::uint32_t>(sourceJoints.size());
         candidate->sourceSpringCount =
             static_cast<std::uint32_t>(sourceSprings.size());
+        candidate->sourceTieCount =
+            static_cast<std::uint32_t>(sourceTies.size());
+        std::vector<NMFEMNodeStateGPU> sourceInitialFEMNodes(
+            world.fem.nodes.begin(), world.fem.nodes.end());
+        std::vector<bool> claimedTieNode(world.fem.nodes.size(), false);
+        std::set<std::uint32_t> claimedTieId;
+        for (const auto& tie : sourceTies) {
+            const auto node = tie.identity.x;
+            const auto proxyIndex = tie.identity.y;
+            const auto object = tie.identity.z;
+            const auto stableId = tie.identity.w;
+            if (node >= world.fem.nodes.size() ||
+                proxyIndex >= world.contact.rigidProxies.size() ||
+                object >= world.objects.size() ||
+                world.fem.nodeRanges[node].objectIndex != object ||
+                world.objects[object].representation != NM_REPRESENTATION_FEM ||
+                (world.objects[object].flags & NM_OBJECT_MUTABLE_TOPOLOGY) != 0u ||
+                world.fem.nodes[node].restAndFixed.w != 1.0f ||
+                !(world.fem.nodes[node].positionAndMass.w > 0.0f) ||
+                claimedTieNode[node] || stableId == 0u ||
+                stableId == NM_INVALID_INDEX ||
+                !claimedTieId.insert(stableId).second ||
+                !finite4(tie.localPoint) || tie.localPoint.w != 0.0f ||
+                world.contact.rigidProxies[proxyIndex].bodyIndex == NM_INVALID_INDEX ||
+                (world.contact.rigidProxies[proxyIndex].flags &
+                    NM_RIGID_ARTICULATED) != 0u) {
+                diagnostics.message = "invalid source FEM rigid-tie node or body";
+                return diagnostics;
+            }
+            claimedTieNode[node] = true;
+            sourceInitialFEMNodes[node].restAndFixed.w = 3.0f;
+            sourceInitialFEMNodes[node].velocityAndInverseMass.w =
+                1.0f / sourceInitialFEMNodes[node].positionAndMass.w;
+            if (!candidate->femRegionalMassLayout.empty()) {
+                candidate->femRegionalMassLayout[node][1] =
+                    sourceInitialFEMNodes[node].velocityAndInverseMass.w;
+                candidate->femRegionalRestLayout[node].w = 3.0f;
+            }
+            const auto& proxy = world.contact.rigidProxies[proxyIndex];
+            if ((proxy.flags & NM_RIGID_DYNAMIC) != 0u &&
+                (candidate->sourceMaximumFreeIndex == NM_INVALID_INDEX ||
+                 proxy.generalizedFreeBodyIndex > candidate->sourceMaximumFreeIndex))
+                candidate->sourceMaximumFreeIndex =
+                    proxy.generalizedFreeBodyIndex;
+        }
         const auto retainFreeIndex = [&](const nm_uint4 indices) {
             for (const auto proxyIndex : {indices.x, indices.y}) {
                 const auto& proxy = world.contact.rigidProxies[proxyIndex];
@@ -1427,6 +1482,9 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->sourcePhysicsFingerprint = mixFingerprint(
                 candidate->sourcePhysicsFingerprint,
                 detail::hashBytes(sourceSprings.data(), sourceSprings.size_bytes()));
+            candidate->sourcePhysicsFingerprint = mixFingerprint(
+                candidate->sourcePhysicsFingerprint,
+                detail::hashBytes(sourceTies.data(), sourceTies.size_bytes()));
         }
         std::filesystem::path metallib = configuration.metallib;
         if (metallib.empty()) {
@@ -1651,6 +1709,14 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_contact_accumulate_rigid_residual",
             "nm_source_rigid_connector_residual",
             "nm_source_rigid_connector_operator",
+            "nm_source_fem_rigid_tie_drive",
+            "nm_source_fem_rigid_tie_capture_residual",
+            "nm_source_fem_rigid_tie_scatter_residual",
+            "nm_source_fem_rigid_tie_map_direction",
+            "nm_source_fem_rigid_tie_capture_operator",
+            "nm_source_fem_rigid_tie_scatter_operator",
+            "nm_source_fem_rigid_tie_eliminate_direction",
+            "nm_source_fem_rigid_tie_mask",
             "nm_contact_subtract_rigid_inertia_residual",
             "nm_human_equality_factor",
             "nm_human_equality_precondition",
@@ -2205,7 +2271,7 @@ RuntimeDiagnostics Runtime::initialize(
             std::span<const float>(particleMaterialStateDefaults),
             environments, valid, candidate->residentBytes);
         candidate->femDefaults = uploads.repeated(
-            std::span<const NMFEMNodeStateGPU>(world.fem.nodes),
+            std::span<const NMFEMNodeStateGPU>(sourceInitialFEMNodes),
             environments, valid, candidate->residentBytes);
         candidate->femMaterialStateDefaults = uploads.repeated(
             std::span<const float>(femMaterialStateDefaults),
@@ -2238,13 +2304,13 @@ RuntimeDiagnostics Runtime::initialize(
             std::span<const NMGridNodeStateGPU>(world.mpm.nodes),
             environments, valid, candidate->residentBytes);
         candidate->femAccepted = uploads.repeated(
-            std::span<const NMFEMNodeStateGPU>(world.fem.nodes),
+            std::span<const NMFEMNodeStateGPU>(sourceInitialFEMNodes),
             environments, valid, candidate->residentBytes);
         candidate->femCandidate = uploads.repeated(
-            std::span<const NMFEMNodeStateGPU>(world.fem.nodes),
+            std::span<const NMFEMNodeStateGPU>(sourceInitialFEMNodes),
             environments, valid, candidate->residentBytes);
         candidate->femCheckpoint = uploads.repeated(
-            std::span<const NMFEMNodeStateGPU>(world.fem.nodes),
+            std::span<const NMFEMNodeStateGPU>(sourceInitialFEMNodes),
             environments, valid, candidate->residentBytes);
         candidate->femTetrahedraAccepted = uploads.repeated(
             std::span<const NMTetrahedronGPU>(world.fem.tetrahedra),
@@ -2391,6 +2457,8 @@ RuntimeDiagnostics Runtime::initialize(
             sourceJoints, valid, candidate->residentBytes);
         candidate->sourceRigidSprings = uploads.one(
             sourceSprings, valid, candidate->residentBytes);
+        candidate->sourceFEMRigidTies = uploads.one(
+            sourceTies, valid, candidate->residentBytes);
         candidate->humanSupportContacts = uploads.one(
             supportContacts, valid, candidate->residentBytes);
         // Candidate point queries use an environment-major stream, including
@@ -2731,6 +2799,12 @@ RuntimeDiagnostics Runtime::initialize(
                 valid,
                 candidate->residentBytes
             );
+        candidate->sourceTieResidualImpulses = privateScratch<nm_float4>(
+            candidate->device, multiplied(sourceTies.size()), valid,
+            candidate->residentBytes);
+        candidate->sourceTieOperator = privateScratch<nm_float4>(
+            candidate->device, multiplied(sourceTies.size()), valid,
+            candidate->residentBytes);
         candidate->coupledInverseStatuses =
             privateScratch<MRInverseMassStatusGPU>(
                 candidate->device,
@@ -4135,6 +4209,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
             environments * state.dispatch.contactPairCount;
         const NSUInteger femHumanAttachmentTotal =
             environments * state.dispatch.femHumanAttachmentCount;
+        const NSUInteger sourceTieTotal =
+            environments * state.sourceTieCount;
         const NSUInteger deformableContactHistoryTotal =
             environments * state.dispatch.deformableContactCapacity;
         const NSUInteger humanSupportTotal = environments *
@@ -4244,6 +4320,31 @@ RuntimeDiagnostics Runtime::encodeImpl(
             );
             return true;
         };
+        const auto driveSourceRigidTies = [&]() {
+            if (state.sourceTieCount == 0u) return;
+            dispatchThreads("nm_project_primal_free_rigid_candidate",
+                proxyTotal, [&] {
+                setDispatch();
+                [encoder setBytes:&bridge length:sizeof(bridge) atIndex:1u];
+                [encoder setBytes:&coupledArticulatedNv length:sizeof(coupledArticulatedNv) atIndex:2u];
+                [encoder setBuffer:state.rigidProxies offset:0u atIndex:3u];
+                [encoder setBuffer:currentBodies offset:0u atIndex:4u];
+                [encoder setBuffer:state.coupledGeneralizedCandidate offset:0u atIndex:5u];
+                [encoder setBuffer:state.rigidStates offset:0u atIndex:6u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:7u];
+            });
+            dispatchThreads("nm_source_fem_rigid_tie_drive",
+                sourceTieTotal, [&] {
+                setDispatch();
+                [encoder setBytes:&state.sourceTieCount length:sizeof(state.sourceTieCount) atIndex:1u];
+                [encoder setBuffer:state.sourceFEMRigidTies offset:0u atIndex:2u];
+                [encoder setBuffer:state.rigidProxies offset:0u atIndex:3u];
+                [encoder setBuffer:state.rigidStates offset:0u atIndex:4u];
+                [encoder setBuffer:state.femAccepted offset:0u atIndex:5u];
+                [encoder setBuffer:state.femCandidate offset:0u atIndex:6u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:7u];
+            });
+        };
         const auto captureFEMHumanAttachmentResidual = [&]() {
             dispatchThreads(
                 "nm_fem_human_attachment_capture_residual",
@@ -4273,6 +4374,35 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:11u];
                 }
             );
+        };
+        const auto captureSourceRigidTieResidual = [&]() {
+            if (state.sourceTieCount == 0u) return;
+            dispatchThreads("nm_source_fem_rigid_tie_capture_residual",
+                sourceTieTotal, [&] {
+                setDispatch();
+                [encoder setBytes:&state.sourceTieCount length:sizeof(state.sourceTieCount) atIndex:1u];
+                [encoder setBuffer:state.sourceFEMRigidTies offset:0u atIndex:2u];
+                [encoder setBuffer:state.femResidual offset:0u atIndex:3u];
+                [encoder setBuffer:state.femPreconditioned offset:0u atIndex:4u];
+                [encoder setBuffer:state.femDirection offset:0u atIndex:5u];
+                [encoder setBuffer:state.sourceTieResidualImpulses offset:0u atIndex:6u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:7u];
+            });
+        };
+        const auto scatterSourceRigidTieResidual = [&]() {
+            if (state.sourceTieCount == 0u) return;
+            dispatchThreads("nm_source_fem_rigid_tie_scatter_residual",
+                environments * state.dispatch.rigidGeneralizedCapacity, [&] {
+                setDispatch();
+                [encoder setBytes:&coupledArticulatedNv length:sizeof(coupledArticulatedNv) atIndex:1u];
+                [encoder setBytes:&state.sourceTieCount length:sizeof(state.sourceTieCount) atIndex:2u];
+                [encoder setBuffer:state.sourceFEMRigidTies offset:0u atIndex:3u];
+                [encoder setBuffer:state.rigidProxies offset:0u atIndex:4u];
+                [encoder setBuffer:state.rigidStates offset:0u atIndex:5u];
+                [encoder setBuffer:state.sourceTieResidualImpulses offset:0u atIndex:6u];
+                [encoder setBuffer:state.femResidual offset:0u atIndex:7u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:8u];
+            });
         };
         const auto scatterFEMHumanAttachmentResidual = [&]() {
             dispatchThreads(
@@ -4612,6 +4742,15 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:3u];
                 }
             );
+            if (state.sourceTieCount != 0u) {
+                dispatchThreads("nm_source_fem_rigid_tie_mask",
+                    sourceTieTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.sourceTieCount length:sizeof(state.sourceTieCount) atIndex:1u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:2u];
+                    [encoder setBuffer:state.sourceTieResidualImpulses offset:0u atIndex:3u];
+                });
+            }
 
             [encoder endEncoding];
             ownership->preDynamicsOpen = false;
@@ -6131,6 +6270,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 ownership->preDynamicsOpen = false;
                 return diagnostics;
             }
+            driveSourceRigidTies();
             // Reassemble the backward-Euler field residual at this Newton
             // candidate. These kernels no longer iterate or publish a field
             // solution; they provide the field residual and block diagonal to
@@ -6272,6 +6412,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 return diagnostics;
             }
             captureFEMHumanAttachmentResidual();
+            captureSourceRigidTieResidual();
             dispatchThreads("nm_contact_subtract_rigid_inertia_residual",
                 rigidGeneralizedTotalForResidual, [&] {
                 setDispatch();
@@ -6310,6 +6451,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.statuses offset:0u atIndex:10u];
                 });
             }
+            scatterSourceRigidTieResidual();
             dispatchThreads("nm_human_support_accumulate_rigid_residual",
                 rigidGeneralizedTotalForResidual, [&] {
                 setDispatch();
@@ -6817,6 +6959,19 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:5u];
                     }
                 );
+                if (state.sourceTieCount != 0u) {
+                    dispatchThreads("nm_source_fem_rigid_tie_map_direction",
+                        sourceTieTotal, [&] {
+                        setDispatch();
+                        [encoder setBytes:&coupledArticulatedNv length:sizeof(coupledArticulatedNv) atIndex:1u];
+                        [encoder setBytes:&state.sourceTieCount length:sizeof(state.sourceTieCount) atIndex:2u];
+                        [encoder setBuffer:state.sourceFEMRigidTies offset:0u atIndex:3u];
+                        [encoder setBuffer:state.rigidProxies offset:0u atIndex:4u];
+                        [encoder setBuffer:state.rigidStates offset:0u atIndex:5u];
+                        [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:6u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:7u];
+                    });
+                }
                 dispatchThreads("nm_fem_apply_operator_elements", tetrahedronTotal, [&] {
                     setDispatch();
                     [encoder setBytes:&operatorMicro length:sizeof(operatorMicro) atIndex:1u];
@@ -6899,6 +7054,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:3u];
                     }
                 );
+                if (state.sourceTieCount != 0u) {
+                    dispatchThreads("nm_source_fem_rigid_tie_capture_operator",
+                        sourceTieTotal, [&] {
+                        setDispatch();
+                        [encoder setBytes:&state.sourceTieCount length:sizeof(state.sourceTieCount) atIndex:1u];
+                        [encoder setBuffer:state.sourceFEMRigidTies offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femOperatorValue offset:0u atIndex:3u];
+                        [encoder setBuffer:state.sourceTieOperator offset:0u atIndex:4u];
+                    });
+                }
                 const NSUInteger fieldVectorOffset =
                     columnOffset + femNodeTotal * sizeof(nm_float4);
                 const NSUInteger fieldWorkOffset =
@@ -7176,6 +7341,19 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:5u];
                     }
                 );
+                if (state.sourceTieCount != 0u) {
+                    dispatchThreads("nm_source_fem_rigid_tie_scatter_operator",
+                        rigidGeneralizedTotal, [&] {
+                        setDispatch();
+                        [encoder setBytes:&coupledArticulatedNv length:sizeof(coupledArticulatedNv) atIndex:1u];
+                        [encoder setBytes:&state.sourceTieCount length:sizeof(state.sourceTieCount) atIndex:2u];
+                        [encoder setBuffer:state.sourceFEMRigidTies offset:0u atIndex:3u];
+                        [encoder setBuffer:state.rigidProxies offset:0u atIndex:4u];
+                        [encoder setBuffer:state.rigidStates offset:0u atIndex:5u];
+                        [encoder setBuffer:state.sourceTieOperator offset:0u atIndex:6u];
+                        [encoder setBuffer:state.femOperatorValue offset:0u atIndex:7u];
+                    });
+                }
                 dispatchThreads(
                     "nm_fem_human_attachment_eliminate_direction",
                     femHumanAttachmentTotal,
@@ -7187,6 +7365,15 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:columnOffset atIndex:2u];
                     }
                 );
+                if (state.sourceTieCount != 0u) {
+                    dispatchThreads("nm_source_fem_rigid_tie_eliminate_direction",
+                        sourceTieTotal, [&] {
+                        setDispatch();
+                        [encoder setBytes:&state.sourceTieCount length:sizeof(state.sourceTieCount) atIndex:1u];
+                        [encoder setBuffer:state.sourceFEMRigidTies offset:0u atIndex:2u];
+                        [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:3u];
+                    });
+                }
                 dispatchGroups32(
                     "nm_fgmres_orthogonalize_and_finish_column",
                     environments,
@@ -7405,6 +7592,19 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:5u];
                 }
             );
+            if (state.sourceTieCount != 0u) {
+                dispatchThreads("nm_source_fem_rigid_tie_map_direction",
+                    sourceTieTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&coupledArticulatedNv length:sizeof(coupledArticulatedNv) atIndex:1u];
+                    [encoder setBytes:&state.sourceTieCount length:sizeof(state.sourceTieCount) atIndex:2u];
+                    [encoder setBuffer:state.sourceFEMRigidTies offset:0u atIndex:3u];
+                    [encoder setBuffer:state.rigidProxies offset:0u atIndex:4u];
+                    [encoder setBuffer:state.rigidStates offset:0u atIndex:5u];
+                    [encoder setBuffer:state.femSolution offset:0u atIndex:6u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:7u];
+                });
+            }
 
             micro.solverIteration = nonlinearIteration;
             dispatchThreads("nm_fem_select_backtracking", objectTotal, [&] {
@@ -7692,6 +7892,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 ownership->preDynamicsOpen = false;
                 return diagnostics;
             }
+            driveSourceRigidTies();
             dispatchThreads("nm_mixed_prepare_residual", femNodeTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.objects offset:0u atIndex:1u];
@@ -7804,6 +8005,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 return diagnostics;
             }
             captureFEMHumanAttachmentResidual();
+            captureSourceRigidTieResidual();
             // Candidate contact materialization also refreshes articulated
             // mass action. Rebuild the shared rigid rows after that final
             // contact pass so certification observes the accepted rigid,
@@ -7851,6 +8053,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.statuses offset:0u atIndex:10u];
                 });
             }
+            scatterSourceRigidTieResidual();
             dispatchThreads("nm_human_support_accumulate_rigid_residual",
                 rigidGeneralizedTotalForResidual, [&] {
                 setDispatch();
@@ -8201,6 +8404,15 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:3u];
                 }
             );
+            if (state.sourceTieCount != 0u) {
+                dispatchThreads("nm_source_fem_rigid_tie_mask",
+                    sourceTieTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.sourceTieCount length:sizeof(state.sourceTieCount) atIndex:1u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:2u];
+                    [encoder setBuffer:state.sourceTieResidualImpulses offset:0u atIndex:3u];
+                });
+            }
             if (state.requiresCoupledCandidate) {
                 [encoder endEncoding];
                 const CoupledCandidateQuery publishQuery{
@@ -8933,6 +9145,9 @@ bool Runtime::encodeAcceptedStateProof(
             state.humanEqualityRows,
             state.sourceCylindricalJoints,
             state.sourceRigidSprings,
+            state.sourceFEMRigidTies,
+            state.sourceTieResidualImpulses,
+            state.sourceTieOperator,
             state.humanEqualityLinearization,
             state.humanEqualityFactor,
             state.humanLimitRows,
@@ -9714,6 +9929,9 @@ bool Runtime::applyPreparedStateImpl(
             state.humanEqualityRows,
             state.sourceCylindricalJoints,
             state.sourceRigidSprings,
+            state.sourceFEMRigidTies,
+            state.sourceTieResidualImpulses,
+            state.sourceTieOperator,
             state.humanEqualityLinearization,
             state.humanEqualityFactor,
             state.humanLimitRows,
