@@ -1,7 +1,7 @@
 {
   "admission": {
     "reasons": [
-      "source sliding-elastic contact not assembled or enforced",
+      "source sliding-elastic faces and parameters are bound but not enforced in Matter Newton",
       "prestrain and initial-contact preparation not solved",
       "prescribed rigid and source loading continuation not executed",
       "rigid physical mass and inertia state not supplied to runtime",
@@ -19,16 +19,18 @@
     "preload_checkpoint_time": 1.0
   },
   "coupled_base": "5bf85aed50cf9af1d55445ac38b2a2bc71b1dcfe",
-  "human_revision": "a7541a3d11f4890726f1d01a50c16b5a4ffee5e6",
+  "human_revision": "abe6a81d11853ee1fe0da237fcbb4ca6ecd175c6",
   "machine": "arm64",
-  "matter_revision": "a6584f67b29e290e22e16255341a00bb518d29c6",
+  "matter_revision": "5596b499c11be6b4b41423d2ea986cc858cb64cb",
   "runtime": {
     "cooked_frames": "360404",
     "coupled_runtime_program": "initialized",
     "open_knee_source_volume_mesh": "passed",
     "rest_volume_range_m3": "2.37034e-14,1.26209e-09",
     "runtime_resident_bytes": "4478593048",
-    "source_contact": "not_assembled",
+    "source_contact": "authored_faces_bound_not_enforced",
+    "source_contact_faces": "345070",
+    "source_contact_rigid_vertices": "17676",
     "source_cylindrical_joints": "6",
     "source_equivalence": "rejected",
     "source_initialization": "not_solved",
@@ -62,6 +64,10 @@
       "bytes": 470920,
       "sha256": "cb06f3e1d566ac5d551c17daea6bb222e74c0c84ac33111e02f9e5f0f5d83221"
     },
+    "source_sliding_contact": {
+      "bytes": 6092668,
+      "sha256": "f0d72ed6fdb7fced00a4656e53876791ffd7c995e803bceec7238d6fc4695181"
+    },
     "source_volume_mesh": {
       "bytes": 22338392,
       "sha256": "39b86f2f55853c74968f36a8d6c67eaed94639a3d42b558bb17787e2af8ffdba"
@@ -71,10 +77,11 @@
       "sha256": "c370ae9f94e9faee2d7060bf2a6819e03be1312e82ca79bd2e9cebf8b34398de"
     }
   },
-  "stdout_sha256": "e634a5d70941c4ada63b04848fe0227ab46568d41447197859dd774e60b1d91c",
+  "stdout_sha256": "c4852c7a7bf6cc4f29f501bedbb06991c2dabc946acbbb9599b946d4700ce183",
   "verification": [
     "six focused Matter CTests pass",
     "all 12 source tissue groups compiled",
-    "one Metal Runtime initialized with source rigid connector program"
+    "one Metal Runtime initialized with source rigid connector program",
+    "all 18 source contact pairs and 345070 authored faces bind to source tissue or rigid owners"
   ]
 }
