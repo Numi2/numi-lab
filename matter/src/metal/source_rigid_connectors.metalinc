@@ -771,6 +771,65 @@ kernel void nm_source_contact_gather_operator(
     nodeDerivative[global] = float4(derivative, 0.0f);
 }
 
+// Lump the positive normal part of the authored sliding-contact tangent into
+// the FEM velocity preconditioner. The full, geometry-dependent tangent is
+// still applied by nm_source_contact_gather_operator; this only scales its
+// difficult normal rows in FGMRES. Source FEM contact nodes are unique by
+// configuration validation, so each thread owns one inverse-diagonal entry.
+kernel void nm_source_contact_precondition_fem(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& nodeCount [[buffer(1)]],
+    constant uint& projectionCount [[buffer(2)]],
+    constant float& timestep [[buffer(3)]],
+    device const NMSourceContactNodeGPU* nodes [[buffer(4)]],
+    device const NMSourceContactProjectionGPU* projections [[buffer(5)]],
+    device const NMSourceContactFaceGPU* faces [[buffer(6)]],
+    device const NMSourceSlidingPairGPU* pairs [[buffer(7)]],
+    device const NMIncidenceRangeGPU* ranges [[buffer(8)]],
+    device const uint* incidence [[buffer(9)]],
+    device float4* inverseDiagonal [[buffer(10)]],
+    device NMMatterStatusGPU* statuses [[buffer(11)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (nodeCount == 0u || global >= dispatch.environmentCount * nodeCount)
+        return;
+    const uint environment = global / nodeCount;
+    if (!environmentHealthy(statuses, environment)) return;
+    const NMSourceContactNodeGPU node = nodes[global - environment * nodeCount];
+    if (node.identity.y != 0u) return;
+    const uint fem = environment * dispatch.femNodeCount + node.identity.x;
+    const float3 inverse = inverseDiagonal[fem].xyz;
+    if (all(inverse <= float3(0.0f))) return;
+    const NMIncidenceRangeGPU range = ranges[global];
+    float3 normalStiffness = float3(0.0f);
+    for (uint item = 0u; item < range.count; ++item) {
+        const uint encoded = incidence[range.first + item];
+        const uint slot = encoded / 6u;
+        const uint corner = encoded % 6u;
+        if (slot >= projectionCount) continue;
+        const NMSourceContactProjectionGPU row =
+            projections[environment * projectionCount + slot];
+        if (!sourceContactLoadedProjection(row, faces)) continue;
+        const NMSourceContactFaceGPU slave = faces[row.identity.y];
+        const float weight = corner < 3u
+            ? ((row.identity.w % 4u) == corner ? 2.0f / 3.0f : 1.0f / 6.0f)
+            : row.barycentricGap[corner - 3u];
+        const float stiffness = timestep * timestep *
+            pairs[row.identity.z].normal.x * slave.autoPenalty.x *
+            row.normalArea.w * weight * weight;
+        const float3 normal = row.normalArea.xyz;
+        normalStiffness += stiffness * normal * normal;
+    }
+    if (!all(isfinite(normalStiffness))) {
+        recordFailure(statuses[environment], NM_STATUS_NONFINITE_RESULT,
+            NM_INVALID_INDEX, fem, float4(normalStiffness, 0.0f));
+        return;
+    }
+    const float3 diagonal = 1.0f / max(inverse, float3(1.0e-30f));
+    inverseDiagonal[fem].xyz = select(float3(0.0f),
+        1.0f / (diagonal + normalStiffness), inverse > float3(0.0f));
+}
+
 kernel void nm_source_contact_fem_operator(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMBridgeDispatchGPU& bridge [[buffer(1)]],
@@ -914,6 +973,114 @@ inline src::RigidSpring<float> sourceSpringInput(
     spring.sourcePiecewise = row.parameters.z > 0.5f;
     spring.sourceKnotExtent = row.parameters.w;
     return spring;
+}
+
+// The source static joints can be orders of magnitude stiffer than the
+// numerical inverse masses carried by the free rigid bodies. Use the actual
+// current connector tangent's positive diagonal to scale those rigid rows.
+// The full coupled connector action remains in the FGMRES operator.
+kernel void nm_source_rigid_precondition(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMBridgeDispatchGPU& bridge [[buffer(1)]],
+    constant uint& articulatedNv [[buffer(2)]],
+    constant uint& jointCount [[buffer(3)]],
+    constant uint& springCount [[buffer(4)]],
+    device const NMSourceCylindricalJointGPU* joints [[buffer(5)]],
+    device const NMSourceRigidSpringGPU* springs [[buffer(6)]],
+    device const NMRigidProxyGPU* proxies [[buffer(7)]],
+    device const NMRigidStateGPU* bodies [[buffer(8)]],
+    device const float4* basis [[buffer(9)]],
+    device float4* preconditioned [[buffer(10)]],
+    device const NMFGMRESStateGPU* solver [[buffer(11)]],
+    device NMMatterStatusGPU* statuses [[buffer(12)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount *
+        dispatch.rigidGeneralizedCapacity;
+    if (global >= total || dispatch.rigidGeneralizedCapacity == 0u) return;
+    const uint environment = global / dispatch.rigidGeneralizedCapacity;
+    const uint dof = global - environment * dispatch.rigidGeneralizedCapacity;
+    if (dof < articulatedNv || solver[environment].diagnostics.z > 0.5f ||
+        !environmentHealthy(statuses, environment)) return;
+    const uint freeIndex = (dof - articulatedNv) / 6u;
+    const uint component = (dof - articulatedNv) % 6u;
+    uint owner = NM_INVALID_INDEX;
+    for (uint proxy = 0u; proxy < dispatch.rigidProxyCount; ++proxy)
+        if (proxies[proxy].generalizedFreeBodyIndex == freeIndex &&
+            (proxies[proxy].flags & NM_RIGID_DYNAMIC) != 0u) {
+            owner = proxy;
+            break;
+        }
+    if (owner == NM_INVALID_INDEX ||
+        (proxies[owner].flags & NM_RIGID_SOURCE_QUASISTATIC) == 0u) return;
+    const src::V<float> axis{component == 0u || component == 3u ? 1.0f : 0.0f,
+                             component == 1u || component == 4u ? 1.0f : 0.0f,
+                             component == 2u || component == 5u ? 1.0f : 0.0f};
+    const uint bodyBase = environment * dispatch.rigidProxyCount;
+    float diagonal = 0.0f;
+    for (uint j = 0u; j < jointCount; ++j) {
+        const NMSourceCylindricalJointGPU row = joints[j];
+        if (row.indices.x != owner && row.indices.y != owner) continue;
+        const src::Input<float> input = sourceJointInput(row,
+            bodies[bodyBase + row.indices.x],
+            bodies[bodyBase + row.indices.y],
+            proxies[row.indices.x], proxies[row.indices.y], bridge.time.z);
+        src::Direction<float> direction{};
+        if (row.indices.x == owner) {
+            if (component < 3u) direction.positionA = axis;
+            else direction.rotationA = axis;
+        } else {
+            if (component < 3u) direction.positionB = axis;
+            else direction.rotationB = axis;
+        }
+        src::Output<float> unused{}, derivative{};
+        if (!src::evaluate(input, direction, unused, derivative)) {
+            recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+                NM_INVALID_INDEX, j, float4(float(j), 3.0f, 0.0f, 0.0f));
+            return;
+        }
+        const bool a = row.indices.x == owner;
+        diagonal -= sourceWrenchComponent(dof, articulatedNv, proxies[owner],
+            bodies[bodyBase + owner],
+            a ? derivative.forceA : derivative.forceB,
+            a ? derivative.momentA : derivative.momentB);
+    }
+    for (uint s = 0u; s < springCount; ++s) {
+        const NMSourceRigidSpringGPU row = springs[s];
+        if (row.indices.x != owner && row.indices.y != owner) continue;
+        src::RigidSpringDirection<float> direction{};
+        if (row.indices.x == owner) {
+            if (component < 3u) direction.linearA = axis;
+            else direction.angularA = axis;
+        } else {
+            if (component < 3u) direction.linearB = axis;
+            else direction.angularB = axis;
+        }
+        src::RigidSpringOutput<float> unused{}, derivative{};
+        if (!src::evaluateRigidSpring(sourceSpringInput(row),
+                sourceBody(bodies[bodyBase + row.indices.x],
+                    proxies[row.indices.x]),
+                sourceBody(bodies[bodyBase + row.indices.y],
+                    proxies[row.indices.y]),
+                direction, unused, derivative)) {
+            recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+                NM_INVALID_INDEX, s, float4(float(s), 3.0f, 0.0f, 0.0f));
+            return;
+        }
+        const bool a = row.indices.x == owner;
+        diagonal -= sourceWrenchComponent(dof, articulatedNv, proxies[owner],
+            bodies[bodyBase + owner],
+            a ? derivative.forceA : derivative.forceB,
+            a ? derivative.momentA : derivative.momentB);
+    }
+    if (!isfinite(diagonal)) {
+        recordFailure(statuses[environment], NM_STATUS_NONFINITE_RESULT,
+            NM_INVALID_INDEX, dof, float4(diagonal, 0.0f, 0.0f, 0.0f));
+        return;
+    }
+    const uint index = fgmresRigidBase(dispatch) + global;
+    preconditioned[index].x = basis[index].x /
+        max(1.0f, bridge.time.y * bridge.time.y * max(diagonal, 0.0f));
 }
 
 // The source MCL-meniscus discrete set is assembled by unique FEM node.

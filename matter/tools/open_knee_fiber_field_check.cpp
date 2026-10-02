@@ -389,7 +389,9 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                          const char* rigidGraphPath = nullptr,
                          const char* sourceContactPath = nullptr,
                          const char* sourceDiscretePath = nullptr,
-                         double solveTime = -1.0) {
+                         double solveTime = -1.0,
+                         std::uint32_t newtonBudget = 7u,
+                         std::uint32_t fgmresBudget = 10u) {
     try {
         require(rigidGraphPath == nullptr || rigidTiesPath != nullptr,
                 "source rigid graph requires the complete rigid-tie program");
@@ -402,6 +404,9 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                     std::isfinite(solveTime) && solveTime >= 0.0 &&
                     solveTime <= 2.0),
                 "source solve requires the complete program and a valid continuation time");
+        require(newtonBudget > 0u && newtonBudget <= 64u &&
+                fgmresBudget > 0u && fgmresBudget <= 512u,
+                "source numerical iteration budgets are invalid");
         const std::vector<std::uint8_t> fiberBytes = readBinaryBytes(fiberPath);
         const std::vector<std::uint8_t> meshBytes = readBinaryBytes(meshPath);
         std::vector<SourceVolumeMesh> meshes;
@@ -503,8 +508,9 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
         numi::matter::WorldSource source;
         source.gravity = {0.0, 0.0, 0.0};
         if (solveTime >= 0.0) {
-            source.mixedSolver.newtonIterations = 16u;
-            source.mixedSolver.fgmresIterations = 32u;
+            source.mixedSolver.newtonIterations = newtonBudget;
+            source.mixedSolver.fgmresRestart = std::min(10u, fgmresBudget);
+            source.mixedSolver.fgmresIterations = fgmresBudget;
             source.mixedSolver.relativeResidual = 1.0e-5;
         }
         struct SourceNodeLocation {
@@ -1223,6 +1229,7 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
             configuration.metallib = NUMI_MATTER_METALLIB;
             configuration.adaptiveTransfer = false;
             configuration.captureEvents = false;
+            configuration.captureDiagnostics = solveTime >= 0.0;
             configuration.sourceCylindricalJoints = runtimeJoints;
             configuration.sourceRigidSprings = runtimeSprings;
             configuration.sourceFEMRigidTies = runtimeTies;
@@ -1333,6 +1340,8 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                 }
                 std::cout << "source_step=" << (accepted ? "accepted" : "rejected")
                           << " source_time=" << solveTime
+                          << " newton_budget=" << newtonBudget
+                          << " fgmres_budget=" << fgmresBudget
                           << " matter_status=" << state.statuses[0u].code
                           << " failing_object=" << state.statuses[0u].objectIndex
                           << " failing_index=" << state.statuses[0u].failingIndex
@@ -1348,6 +1357,101 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                           << " max_fem_displacement_m=" << maximumDisplacement
                           << " source_contact_history=" << state.sourceContactHistory.size()
                           << " source_equivalence=unqualified\n";
+                if (!accepted)
+                    for (std::size_t object = 0u;
+                         object < state.solverCertificates.size(); ++object) {
+                        const auto& certificate = state.solverCertificates[object];
+                        std::cout << "source_certificate object=" << object
+                                  << " residual=" << certificate.nonlinear.x
+                                  << " correction=" << certificate.nonlinear.y
+                                  << " volume=" << certificate.nonlinear.z
+                                  << " pressure=" << certificate.nonlinear.w
+                                  << " minimum_jacobian=" << certificate.validity.x
+                                  << " contact_gap=" << certificate.contact.y
+                                  << " transport=" << certificate.transport.x << ','
+                                  << certificate.transport.y << ','
+                                  << certificate.transport.z << ','
+                                  << certificate.transport.w << '\n';
+                    }
+                if (!accepted && !state.diagnosticGeneralizedResidual.empty()) {
+                    const auto& residual = state.diagnosticGeneralizedResidual;
+                    for (std::size_t object = 0u;
+                         object < compiled.world.objects.size(); ++object) {
+                        const auto& layout = compiled.world.objects[object];
+                        double squared = 0.0, maximum = 0.0;
+                        std::uint32_t worstNode = 0u;
+                        for (std::uint32_t local = 0u;
+                             local < layout.stateCount; ++local) {
+                            const std::uint32_t node = layout.stateOffset + local;
+                            const auto& row = residual[node];
+                            const double magnitude = std::sqrt(double(row.x)*row.x +
+                                double(row.y)*row.y + double(row.z)*row.z);
+                            squared += magnitude*magnitude;
+                            if (magnitude > maximum) {
+                                maximum = magnitude;
+                                worstNode = node;
+                            }
+                        }
+                        std::cout << "source_residual_block object=" << object
+                                  << " name=" << source.objects[object].name
+                                  << " l2=" << std::sqrt(squared)
+                                  << " maximum=" << maximum
+                                  << " worst_node=" << worstNode << '\n';
+                    }
+                    const std::size_t rigidBase =
+                        2u * compiled.world.dispatch.femNodeCount +
+                        compiled.world.dispatch.mpmActiveNodeCapacity;
+                    double rigidSquared = 0.0, rigidMaximum = 0.0;
+                    std::size_t worstDof = 0u;
+                    for (std::size_t dof = 0u;
+                         dof < compiled.world.dispatch.rigidGeneralizedCapacity; ++dof) {
+                        const double magnitude = std::abs(residual[rigidBase + dof].x);
+                        rigidSquared += magnitude*magnitude;
+                        if (magnitude > rigidMaximum) {
+                            rigidMaximum = magnitude;
+                            worstDof = dof;
+                        }
+                    }
+                    std::cout << "source_residual_block name=rigid"
+                              << " l2=" << std::sqrt(rigidSquared)
+                              << " maximum=" << rigidMaximum
+                              << " worst_dof=" << worstDof << '\n';
+                }
+                if (!accepted &&
+                    state.diagnosticSourceContactNodeForces.size() ==
+                        runtimeContactNodes.size() &&
+                    !state.diagnosticGeneralizedResidual.empty()) {
+                    std::vector<double> contactImpulseSquared(source.objects.size());
+                    std::vector<double> contactResidualDot(source.objects.size());
+                    for (std::size_t slot = 0u;
+                         slot < runtimeContactNodes.size(); ++slot) {
+                        const auto& node = runtimeContactNodes[slot];
+                        if (node.identity.y != 0u) continue;
+                        const std::uint32_t fem = node.identity.x;
+                        const std::uint32_t object =
+                            compiled.world.fem.nodeRanges[fem].objectIndex;
+                        const auto& force =
+                            state.diagnosticSourceContactNodeForces[slot];
+                        const auto& residual =
+                            state.diagnosticGeneralizedResidual[fem];
+                        const double dt = runtime.timestepSeconds();
+                        contactImpulseSquared[object] += dt*dt *
+                            (double(force.x)*force.x + double(force.y)*force.y +
+                             double(force.z)*force.z);
+                        contactResidualDot[object] += dt *
+                            (double(force.x)*residual.x +
+                             double(force.y)*residual.y +
+                             double(force.z)*residual.z);
+                    }
+                    for (std::size_t object = 0u;
+                         object < source.objects.size(); ++object)
+                        std::cout << "source_contact_block object=" << object
+                                  << " name=" << source.objects[object].name
+                                  << " contact_impulse_l2="
+                                  << std::sqrt(contactImpulseSquared[object])
+                                  << " contact_residual_dot="
+                                  << contactResidualDot[object] << '\n';
+                }
                 return accepted ? 0 : 2;
             }
 #else
@@ -1475,6 +1579,13 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
 
 int main(int argc, char** argv) {
     try {
+        if (argc == 13 && std::string(argv[1]) == "--source-artifacts" &&
+            std::string(argv[8]) == "--solve-source-time" &&
+            std::string(argv[10]) == "--solver-budget")
+            return checkSourceArtifacts(argv[2], argv[3], argv[4], argv[5],
+                argv[6], argv[7], std::stod(argv[9]),
+                static_cast<std::uint32_t>(std::stoul(argv[11])),
+                static_cast<std::uint32_t>(std::stoul(argv[12])));
         if (argc == 10 && std::string(argv[1]) == "--source-artifacts" &&
             std::string(argv[8]) == "--solve-source-time")
             return checkSourceArtifacts(argv[2], argv[3], argv[4], argv[5],
@@ -1494,7 +1605,7 @@ int main(int argc, char** argv) {
         if (argc == 3 && std::string(argv[1]) == "--source-sidecar")
             return checkSourceSidecar(argv[2]);
         require(argc == 1, "usage: open knee fiber field check [--source-sidecar PATH] "
-                           "[--source-artifacts FIBER_PATH SOURCE_VOLUME_MESH_PATH [SOURCE_RIGID_TIES_PATH [SOURCE_RIGID_GRAPH_PATH [SOURCE_CONTACT_PATH [SOURCE_DISCRETE_PATH]]]] [--solve-source-time TIME]]");
+                           "[--source-artifacts FIBER_PATH SOURCE_VOLUME_MESH_PATH [SOURCE_RIGID_TIES_PATH [SOURCE_RIGID_GRAPH_PATH [SOURCE_CONTACT_PATH [SOURCE_DISCRETE_PATH]]]] [--solve-source-time TIME [--solver-budget NEWTON FGMRES]]]");
         const std::array<double, 3> medial0{-0.27206761041769667,
                                              1.1419075817929256,
                                              0.08613731458137508};

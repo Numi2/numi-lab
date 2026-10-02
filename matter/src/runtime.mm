@@ -2113,6 +2113,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fem_human_attachment_mask_reactions",
             "nm_fgmres_measure_correction",
             "nm_fgmres_build_preconditioner",
+            "nm_source_contact_precondition_fem",
             "nm_fgmres_precondition",
             "nm_fgmres_precondition_patches",
             "nm_fgmres_precondition_coarse",
@@ -2132,6 +2133,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_contact_accumulate_rigid_residual",
             "nm_source_rigid_connector_residual",
             "nm_source_rigid_connector_operator",
+            "nm_source_rigid_precondition",
             "nm_source_apply_prestrain",
             "nm_source_contact_materialize_nodes",
             "nm_source_contact_materialize_faces",
@@ -7490,6 +7492,26 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.femPreconditioned offset:0u atIndex:9u];
                 bindPrimalContactArguments(10u);
             });
+            if (state.sourceSlidingPairCount != 0u) {
+                dispatchThreads("nm_source_contact_precondition_fem",
+                    environments * state.sourceContactNodeCount, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.sourceContactNodeCount
+                        length:sizeof(state.sourceContactNodeCount) atIndex:1u];
+                    [encoder setBytes:&state.sourceContactProjectionCount
+                        length:sizeof(state.sourceContactProjectionCount) atIndex:2u];
+                    [encoder setBytes:&bridge.time.y length:sizeof(bridge.time.y)
+                        atIndex:3u];
+                    [encoder setBuffer:state.sourceContactNodes offset:0u atIndex:4u];
+                    [encoder setBuffer:state.sourceContactProjections offset:0u atIndex:5u];
+                    [encoder setBuffer:state.sourceContactFaces offset:0u atIndex:6u];
+                    [encoder setBuffer:state.sourceSlidingPairs offset:0u atIndex:7u];
+                    [encoder setBuffer:state.sourceContactIncidenceRanges offset:0u atIndex:8u];
+                    [encoder setBuffer:state.sourceContactIncidence offset:0u atIndex:9u];
+                    [encoder setBuffer:state.femPreconditioned offset:0u atIndex:10u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:11u];
+                });
+            }
             for (std::uint32_t column = 0u; column < columnsThisCycle; ++column) {
                 const NSUInteger columnOffset = vectorBytes * column;
                 dispatchThreads("nm_fgmres_precondition", femNodeTotal, [&] {
@@ -7797,6 +7819,31 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     bindPrimalContactArguments(4u);
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:5u];
                 });
+                if (state.sourceJointCount + state.sourceSpringCount != 0u) {
+                    dispatchThreads("nm_source_rigid_precondition",
+                        rigidGeneralizedTotal, [&] {
+                        setDispatch();
+                        [encoder setBytes:&bridge length:sizeof(bridge) atIndex:1u];
+                        [encoder setBytes:&coupledArticulatedNv
+                            length:sizeof(coupledArticulatedNv) atIndex:2u];
+                        [encoder setBytes:&state.sourceJointCount
+                            length:sizeof(state.sourceJointCount) atIndex:3u];
+                        [encoder setBytes:&state.sourceSpringCount
+                            length:sizeof(state.sourceSpringCount) atIndex:4u];
+                        [encoder setBuffer:state.sourceCylindricalJoints
+                            offset:0u atIndex:5u];
+                        [encoder setBuffer:state.sourceRigidSprings
+                            offset:0u atIndex:6u];
+                        [encoder setBuffer:state.rigidProxies offset:0u atIndex:7u];
+                        [encoder setBuffer:state.rigidStates offset:0u atIndex:8u];
+                        [encoder setBuffer:state.fgmresBasis
+                            offset:columnOffset atIndex:9u];
+                        [encoder setBuffer:state.fgmresPreconditionedBasis
+                            offset:columnOffset atIndex:10u];
+                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:11u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:12u];
+                    });
+                }
                 dispatchThreads(
                     "nm_fem_human_attachment_map_direction",
                     femHumanAttachmentTotal,
@@ -12986,10 +13033,28 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
             state.contactSamples,
             "contact-sample"
         );
+        exactArena(snapshot.diagnosticGeneralizedResidual,
+            state.femResidual, "diagnostic-generalized-residual");
+        if (state.sourceContactNodeCount != 0u)
+            exactArena(snapshot.diagnosticSourceContactNodeForces,
+                state.sourceContactNodeForces,
+                "diagnostic-source-contact-forces");
+        else if (!snapshot.diagnosticSourceContactNodeForces.empty()) {
+            dimensionsValid = false;
+            diagnostics.message = "Matter snapshot carries source contact diagnostics without source contact";
+        }
     } else if (!snapshot.contactSamples.empty()) {
         dimensionsValid = false;
         diagnostics.message =
             "Matter snapshot carries diagnostics for a non-diagnostic runtime";
+    } else if (!snapshot.diagnosticGeneralizedResidual.empty()) {
+        dimensionsValid = false;
+        diagnostics.message =
+            "Matter snapshot carries residual diagnostics for a non-diagnostic runtime";
+    } else if (!snapshot.diagnosticSourceContactNodeForces.empty()) {
+        dimensionsValid = false;
+        diagnostics.message =
+            "Matter snapshot carries source contact diagnostics for a non-diagnostic runtime";
     }
     if (!dimensionsValid) {
         return diagnostics;
@@ -13817,6 +13882,12 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         id<MTLBuffer> contactSamples = state_->captureDiagnostics
             ? copy(state_->contactSamples)
             : nil;
+        id<MTLBuffer> diagnosticResidual = state_->captureDiagnostics
+            ? copy(state_->femResidual)
+            : nil;
+        id<MTLBuffer> diagnosticSourceContactForces =
+            state_->captureDiagnostics && state_->sourceContactNodeCount != 0u
+                ? copy(state_->sourceContactNodeForces) : nil;
         id<MTLBuffer> identification =
             copy(state_->identificationDistributions);
         id<MTLBuffer> environmentParameters =
@@ -13840,6 +13911,10 @@ RuntimeStateSnapshot Runtime::snapshot() const {
             adaptive == nil || schedulers == nil || reactions == nil ||
             rigidStates == nil ||
             (state_->captureDiagnostics && contactSamples == nil) ||
+            (state_->captureDiagnostics && diagnosticResidual == nil) ||
+            (state_->captureDiagnostics &&
+             state_->sourceContactNodeCount != 0u &&
+             diagnosticSourceContactForces == nil) ||
             identification == nil || environmentParameters == nil) {
             snapshot.message = "failed to allocate Matter diagnostic readback";
             return snapshot;
@@ -13902,6 +13977,10 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         encodeCopy(state_->rigidStates, rigidStates);
         if (state_->captureDiagnostics) {
             encodeCopy(state_->contactSamples, contactSamples);
+            encodeCopy(state_->femResidual, diagnosticResidual);
+            if (state_->sourceContactNodeCount != 0u)
+                encodeCopy(state_->sourceContactNodeForces,
+                           diagnosticSourceContactForces);
         }
         encodeCopy(state_->identificationDistributions, identification);
         encodeCopy(state_->environmentParameters, environmentParameters);
@@ -13986,6 +14065,12 @@ RuntimeStateSnapshot Runtime::snapshot() const {
             state_->dispatch.contactPairCount;
         readCount(contactHistories, snapshot.contactHistories,
                   logicalContactCount);
+        if (state_->captureDiagnostics)
+            read(diagnosticResidual, snapshot.diagnosticGeneralizedResidual);
+        if (state_->captureDiagnostics &&
+            state_->sourceContactNodeCount != 0u)
+            read(diagnosticSourceContactForces,
+                snapshot.diagnosticSourceContactNodeForces);
         if (state_->sourceContactProjectionCount != 0u)
             read(sourceContactHistory, snapshot.sourceContactHistory);
         const std::size_t logicalHumanSupportCount =

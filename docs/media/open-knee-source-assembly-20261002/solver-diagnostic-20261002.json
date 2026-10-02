@@ -1,0 +1,87 @@
+{
+  "schema": "numi.matter.open-knee-source-full-program-solver-diagnostic.v1",
+  "source": "archived OKS003 FEBio 2.9.1 deck and retained XPLT; exact artifact hashes in receipt.json",
+  "coupled_base": "5bf85aed50cf9af1d55445ac38b2a2bc71b1dcfe",
+  "qualification": "rejected_no_accepted_matter_preload_or_flexion_state",
+  "diagnostic_execution": "The source-contact admission guard was temporarily bypassed in the isolated worktree for these runs and restored before build/test/publication. The 1e-6 contact-penalty run also temporarily changed the source law and is a causal diagnostic only.",
+  "runs": [
+    {
+      "stdout": "preload-baseline-7x10.stdout",
+      "stdout_sha256": "b2fd25351124f180ffcc50228c905f128b5c3630b981f28a32cdab5cb0ce9086",
+      "continuation_time": 0.05,
+      "contact_penalty_scale": 1.0,
+      "preconditioner": "prior source tangent with no new diagonal",
+      "accepted": false,
+      "status": 10,
+      "relative_residual": 0.174711,
+      "minimum_element_jacobian": 0.997827,
+      "completed_microsteps": 0
+    },
+    {
+      "stdout": "preload-contact-diagonal-7x10.stdout",
+      "stdout_sha256": "691d839493d3a14aea3ced0817e6b83bafc1b11b595311359be286006ff220c9",
+      "continuation_time": 0.05,
+      "contact_penalty_scale": 1.0,
+      "preconditioner": "contact normal diagonal",
+      "accepted": false,
+      "status": 10,
+      "relative_residual": 0.174574,
+      "minimum_element_jacobian": 0.997827,
+      "completed_microsteps": 0
+    },
+    {
+      "stdout": "preload-connector-diagonal-7x10.stdout",
+      "stdout_sha256": "8a61ddd5ca09e9c25ad6068f1be5ad24210bbfca6803e43c1ec345d120d9d802",
+      "continuation_time": 0.05,
+      "contact_penalty_scale": 1.0,
+      "preconditioner": "contact and exact connector positive diagonals",
+      "accepted": false,
+      "status": 10,
+      "relative_residual": 0.128834,
+      "minimum_element_jacobian": 0.97101,
+      "completed_microsteps": 0
+    },
+    {
+      "stdout": "preload-contact-reduced-diagnostic-7x10.stdout",
+      "stdout_sha256": "ad46e58ed8e5144ab02eacb2cd567e840217d8658485319fe2e4913756e17b5a",
+      "continuation_time": 0.05,
+      "contact_penalty_scale": 1e-06,
+      "preconditioner": "contact normal diagonal with altered source penalty",
+      "accepted": false,
+      "status": 10,
+      "relative_residual": 0.0144227,
+      "minimum_element_jacobian": 0.998146,
+      "completed_microsteps": 0
+    },
+    {
+      "stdout": "preload-timezero-connector-diagonal-7x10.stdout",
+      "stdout_sha256": "25c06d390aa3c9da1ab76d2d0d7377be1a7bce6f6eba2d41212b32ba61a2a785",
+      "continuation_time": 0.0,
+      "contact_penalty_scale": 1.0,
+      "preconditioner": "contact and exact connector positive diagonals",
+      "accepted": false,
+      "status": 10,
+      "relative_residual": 0.120405,
+      "minimum_element_jacobian": 0.96856,
+      "completed_microsteps": 0
+    }
+  ],
+  "additional_budget_probe": {
+    "continuation_time": 0.05,
+    "newton_budget": 16,
+    "fgmres_budget": 20,
+    "outcome": "interrupted after approximately five minutes without an accepted checkpoint",
+    "accepted": false
+  },
+  "interpretation": [
+    "At the original source penalty and the same 7x10 budget, adding source contact and rigid connector diagonal scaling lowered the rejected relative residual from 0.174711 to 0.128834; it did not produce an accepted state.",
+    "The contact-reduced diagnostic lowered the rejected relative residual to 0.0144227; contact explains most but not all of the initial imbalance. Rigid coordinates and prestrained MCL/LCL still have nonzero residual.",
+    "The rejected candidate kept valid element orientation (minimum Jacobian 0.97101 with connector scaling), but no accepted displacement, reaction wrench, pressure/gap, stress, or prestrain field exists for Matter-XPLT comparison.",
+    "Archived FEBio XPLT state 0 has zero displacement and stress and nonzero contact pressure at initial intersections; it is not an equilibrated Matter preload. The first accepted archived continuation checkpoint is 0.05."
+  ],
+  "checks": {
+    "source_targeted_ctest": "11 passed, 0 failed",
+    "source_contact_admission": "fail_closed_restored"
+  },
+  "next_acceptance": "Solve the complete source contact/prestrain/rigid/tissue initialization with the original penalty and source continuation, then compare the accepted Matter fields to retained XPLT state 1 and later checkpoints."
+}

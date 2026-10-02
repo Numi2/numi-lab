@@ -1409,6 +1409,10 @@ struct RuntimeStateSnapshot {
     // Completion-boundary primal-contact diagnostics, populated only when
     // RuntimeConfiguration::captureDiagnostics is enabled.
     std::vector<NMContactSampleGPU> contactSamples;
+    // Last assembled coupled KKT residual, only with captureDiagnostics.
+    // Readback after a rejected root is diagnostic and never restore authority.
+    std::vector<nm_float4> diagnosticGeneralizedResidual;
+    std::vector<nm_float4> diagnosticSourceContactNodeForces;
     std::vector<NMDeformableContactFailureGPU> deformableContactFailures;
     std::vector<nm_float4> contactHistories;
     // Accepted source sliding-elastic master facets and Gauss-point projections.
