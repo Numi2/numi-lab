@@ -67,8 +67,9 @@
         9
       ],
       "coordinate_unit": "source_deck_coordinate_unit_unresolved",
-      "human_source_mechanics_sha256": "f58f697e300ad6797a475959aaf0478bb1a709dc497e3b6828d1c361204eeb4c",
-      "human_source_receipt_sha256": "e78158627f2254479d32c1e28c0fdddce7a16d6cc794ae767cf5a7581113b12d",
+      "human_source_mechanics_sha256": "4cbf980556ce3480804a67a4028a6ea1ea3fa31917115384675fb3484436bfe2",
+      "human_source_receipt_sha256": "7ea91f439dd09bb8e58ba4fedbde7544c635bbe1d97bcb888df276bd53b1bad8",
+      "human_source_reference_baseline_sha256": "e8aa8771e80fc2a479ae80d38ee742272c50ac4fd54fffbb959cf2ebddbbb5e6",
       "native_source_execution": "not_performed",
       "schema": "numi.human.open-knee-rigid-graph-program-f64.v2",
       "sha256": "e2285453812182f9a525bd3b6f1b32aaae77a52bf7f865563d483ed0b4e7b792"
