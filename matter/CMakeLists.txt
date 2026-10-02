@@ -574,9 +574,13 @@ if(APPLE)
     # prestrain remain separate unsupported source constructs.
     add_executable(numi-matter-source-joint-graph-check tools/source_joint_graph_check.cpp)
     target_include_directories(numi-matter-source-joint-graph-check PRIVATE include)
+    target_compile_definitions(numi-matter-source-joint-graph-check PRIVATE
+        NUMI_OPEN_KNEE_SOURCE_GRAPH_PROGRAM="${CMAKE_SOURCE_DIR}/../docs/media/open-knee-source-graph-20261002/source-rigid-graph.bin")
     target_compile_options(numi-matter-source-joint-graph-check PRIVATE -Wall -Wextra -Wpedantic -Werror)
     if(BUILD_TESTING)
-        add_test(NAME matter.compiler.source_joint_graph COMMAND numi-matter-source-joint-graph-check)
+        add_test(NAME matter.compiler.source_joint_graph COMMAND
+            numi-matter-source-joint-graph-check --source-program
+            "${CMAKE_SOURCE_DIR}/../docs/media/open-knee-source-graph-20261002/source-rigid-graph.bin")
         set_tests_properties(matter.compiler.source_joint_graph
             PROPERTIES LABELS "matter;constraint;human;open_knee" TIMEOUT 60)
     endif()

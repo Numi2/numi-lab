@@ -1,60 +1,83 @@
 {
-  "schema": "numi.matter.open-knee-source-joint-graph.v1",
-  "status": "passed_graph_operator_only",
-  "source_equivalence": false,
-  "matter_gpu_runtime_integration": false,
-  "source_knee_equilibrium_qualified": false,
-  "scope": "nine-body/six-cylindrical-joint residual, wrench pullback, tangent, and patellar kinematic-rank checks at neutral and 30, 60, and 90 degrees; no tissue or contact solve",
-  "base_revision": "7dceb7d53dea0ee6fe6f8a484d993af1b1abb6aa",
-  "source": {
-    "febio_deck_sha256": "00b6efb53ad7e7330296cbb9569d358d48ed60819e22732e6149db6fb98a158a",
-    "archived_geometry_sha256": "4155db1d0d7b87ffb2c668102d2495870e4461a539b18e6708f1f4817b5601bf",
-    "archived_solver_version": "FEBio 2.9.1",
-    "source_coordinate_units": "millimetres and radians"
+  "artifact_sha256": {
+    "connector_metallib": "4c9f4be98d6a7d14e4ddd3e8413f598c0b7f6447b594dec746958c4193120b90",
+    "connector_probe_binary": "9a2fe245ddf720885d34126e1b9e1fffb06c57148c0258cc7afb9bf2831c7b47",
+    "graph_probe_binary": "ef7a1a06aa3a916bc1a821a9dd8dfa725510b7cabb2edee5334c7934371d58bc",
+    "graph_probe_output": "22b0279d55d8137571ef65997987a6f6d6017e017752597e2aec47d1d37db13a",
+    "matter/CMakeLists.txt": "56062974f862e9af68ac2dbb414ae53bbc3c18a215af44f61d277ced28eda460",
+    "matter/include/numi/matter/source_cylindrical_joint_graph.h": "216588e82f0f89391bcd445e9bb3798d315cfedd8bfd894c3b93f22a5dc84cd6",
+    "matter/tools/source_joint_graph_check.cpp": "3086b54e679541afbd2de2fe7610c413a87885a7c86bb5ffa75f875940771f7a",
+    "source-rigid-graph.bin": "e2285453812182f9a525bd3b6f1b32aaae77a52bf7f865563d483ed0b4e7b792"
   },
+  "base_revision": "69a49910d9ef4a52df0eea04f9b87017104df5cb",
   "execution": {
-    "device": "Apple M4",
-    "os": "macOS 26.6",
-    "compiler": "Apple clang 21.0.0",
     "cmake": "4.0.1",
+    "compiler": "Apple clang 21.0.0",
+    "device": "Apple M4",
+    "graph_probe_output": "source-joint-graph-check.txt",
+    "os": "macOS 26.6",
     "tests": [
       "matter.compiler.source_joint",
       "matter.metal.source_joint",
       "matter.compiler.source_joint_graph"
     ],
-    "tests_passed": 3,
     "tests_failed": 0,
-    "graph_probe_output": "source-joint-graph-check.txt"
+    "tests_passed": 3
   },
+  "matter_gpu_runtime_integration": false,
   "metrics": {
-    "source_bodies": 9,
     "cylindrical_joints": 6,
-    "neutral_generalized_residual_max": 2.07366e-10,
-    "thirty_degree_generalized_residual_max": 1.37778e-09,
-    "neutral_tangent_central_difference_scaled_error": 3.72113e-06,
-    "thirty_degree_tangent_central_difference_scaled_error": 2.72558e-05,
-    "neutral_virtual_work_relative_error": 6.46235e-27,
-    "thirty_degree_virtual_work_relative_error": 0.0,
     "invalid_graph_rejected_without_mutating_output": true,
+    "neutral_generalized_residual_max": 2.07366e-10,
+    "neutral_tangent_central_difference_scaled_error": 3.72113e-06,
+    "neutral_virtual_work_relative_error": 3.23117e-26,
+    "ninety_degree_generalized_residual_max": 6.41417e-10,
+    "ninety_degree_tangent_central_difference_scaled_error": 2.17001e-05,
+    "ninety_degree_virtual_work_relative_error": 1.03398e-25,
     "patella_constraint_rank_neutral": 12,
+    "patella_constraint_rank_ninety_degrees": 12,
+    "patella_constraint_rank_sixty_degrees": 12,
+    "patella_constraint_rank_source_endpoint": 12,
     "patella_constraint_rank_thirty_degrees": 12,
     "patella_relative_rigid_freedoms_after_global_modes": 6,
     "sixty_degree_generalized_residual_max": 4.13461e-10,
-    "ninety_degree_generalized_residual_max": 6.41417e-10,
     "sixty_degree_tangent_central_difference_scaled_error": 3.28887e-05,
-    "ninety_degree_tangent_central_difference_scaled_error": 2.17001e-05,
     "sixty_degree_virtual_work_relative_error": 1.03398e-25,
-    "ninety_degree_virtual_work_relative_error": 1.03398e-25,
-    "patella_constraint_rank_sixty_degrees": 12,
-    "patella_constraint_rank_ninety_degrees": 12
+    "source_bodies": 9,
+    "source_endpoint_generalized_residual_max": 3.35378e-10,
+    "source_endpoint_rotation_degrees": 89.9544,
+    "source_endpoint_rotation_rad": -1.57,
+    "source_endpoint_tangent_central_difference_scaled_error": 4.71977e-05,
+    "source_endpoint_virtual_work_relative_error": 0.0,
+    "source_program_mutation_rejected_by_sha256": true,
+    "source_program_truncation_rejected": true,
+    "thirty_degree_generalized_residual_max": 1.28876e-09,
+    "thirty_degree_tangent_central_difference_scaled_error": 2.72557e-05,
+    "thirty_degree_virtual_work_relative_error": 3.10193e-25
   },
-  "artifact_sha256": {
-    "matter/tools/source_joint_graph_check.cpp": "b066235103a8047df6bf9a92dca2f82fc0ae83622fdd15a9eaedd703c1543f50",
-    "matter/include/numi/matter/source_cylindrical_joint_graph.h": "216588e82f0f89391bcd445e9bb3798d315cfedd8bfd894c3b93f22a5dc84cd6",
-    "graph_probe_binary": "88c0823f1fba447704a180b77debd7d27847e0b6c29184d90a3ff32bba0dd8b2",
-    "connector_probe_binary": "9a2fe245ddf720885d34126e1b9e1fffb06c57148c0258cc7afb9bf2831c7b47",
-    "connector_metallib": "4c9f4be98d6a7d14e4ddd3e8413f598c0b7f6447b594dec746958c4193120b90"
+  "schema": "numi.matter.open-knee-source-joint-graph.v2",
+  "scope": "Matter now loads and authenticates the rigid bodies, cylindrical joints, prescribed coordinates, and referenced linear load curve exported by Human from the pinned Open Knee deck. It checks residual, tangent, virtual work, and patellar kinematic rank at neutral, 30, 60, and the source endpoint (89.954 degrees). Poses are operator checks only; no tissue, spring, contact, or prestrain solve.",
+  "source": {
+    "archived_geometry_sha256": "4155db1d0d7b87ffb2c668102d2495870e4461a539b18e6708f1f4817b5601bf",
+    "archived_solver_version": "FEBio 2.9.1",
+    "febio_deck_sha256": "00b6efb53ad7e7330296cbb9569d358d48ed60819e22732e6149db6fb98a158a",
+    "human_compiled_rigid_graph_program": {
+      "bytes": 1764,
+      "compiled_load_curve_ids": [
+        9
+      ],
+      "coordinate_unit": "source_deck_coordinate_unit_unresolved",
+      "human_source_mechanics_sha256": "f58f697e300ad6797a475959aaf0478bb1a709dc497e3b6828d1c361204eeb4c",
+      "human_source_receipt_sha256": "e78158627f2254479d32c1e28c0fdddce7a16d6cc794ae767cf5a7581113b12d",
+      "native_source_execution": "not_performed",
+      "schema": "numi.human.open-knee-rigid-graph-program-f64.v2",
+      "sha256": "e2285453812182f9a525bd3b6f1b32aaae77a52bf7f865563d483ed0b4e7b792"
+    },
+    "source_coordinate_units": "millimetres and radians"
   },
+  "source_equivalence": false,
+  "source_knee_equilibrium_qualified": false,
+  "status": "passed_human_compiled_source_graph_operator_only",
   "unsupported_source_constructs": [
     "rigid spring",
     "deformable tissue material and continuum response",
@@ -62,6 +85,8 @@
     "prestrain initialization",
     "sliding contact",
     "reference load-step equilibrium",
-    "native Matter GPU runtime assembly"
+    "native Matter GPU runtime assembly",
+    "load history beyond the sampled prescribed flexion coordinate",
+    "source coordinate-unit conversion and rigid-body inertia"
   ]
 }
