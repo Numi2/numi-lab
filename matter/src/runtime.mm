@@ -965,6 +965,15 @@ struct Runtime::State {
     id<MTLBuffer> sourceSlidingPairs = nil;
     id<MTLBuffer> sourceContactPositions = nil;
     id<MTLBuffer> sourceContactFaceGeometry = nil;
+    id<MTLBuffer> sourceContactBVHNodes = nil;
+    id<MTLBuffer> sourceContactBVHBounds = nil;
+    id<MTLBuffer> sourceContactBVHRoots = nil;
+    id<MTLBuffer> sourceContactProjections = nil;
+    std::vector<std::pair<std::uint32_t, std::uint32_t>> sourceContactBVHLevels;
+    std::vector<NMSourceContactPassGPU> sourceContactPasses;
+    std::uint32_t sourceContactBVHNodeCount = 0u;
+    std::uint32_t sourceContactProjectionCount = 0u;
+    float sourceContactMaximumSearchTolerance = 0.0f;
     id<MTLBuffer> sourceFEMSpringNodes = nil;
     id<MTLBuffer> sourceFEMSpringIncidence = nil;
     id<MTLBuffer> sourceTieResidualImpulses = nil;
@@ -1608,6 +1617,127 @@ RuntimeDiagnostics Runtime::initialize(
                 return diagnostics;
             }
         }
+        std::vector<NMSourceContactBVHNodeGPU> sourceContactBVHNodes;
+        std::vector<std::uint32_t> sourceContactBVHRoots;
+        if (!sourceContactSurfaces.empty()) {
+            struct SourceContactTreeNode {
+                std::uint32_t left = NM_INVALID_INDEX;
+                std::uint32_t right = NM_INVALID_INDEX;
+                std::uint32_t face = NM_INVALID_INDEX;
+                std::uint32_t surface = NM_INVALID_INDEX;
+                std::uint32_t height = 0u;
+            };
+            std::vector<SourceContactTreeNode> temporary;
+            temporary.reserve(sourceContactFaces.size() * 2u);
+            std::vector<std::uint32_t> faceOrder(sourceContactFaces.size());
+            std::iota(faceOrder.begin(), faceOrder.end(), 0u);
+            std::vector<std::array<float, 3u>> centroids;
+            centroids.reserve(sourceContactFaces.size());
+            for (const auto& face : sourceContactFaces) {
+                std::array<float, 3u> center{};
+                for (const auto slot : {face.nodes.x, face.nodes.y, face.nodes.z}) {
+                    const auto& node = sourceContactNodes[slot];
+                    const nm_float4 point = node.identity.y == 0u
+                        ? world.fem.nodes[node.identity.x].restAndFixed
+                        : node.localPoint;
+                    center[0u] += point.x / 3.0f;
+                    center[1u] += point.y / 3.0f;
+                    center[2u] += point.z / 3.0f;
+                }
+                centroids.push_back(center);
+            }
+            sourceContactBVHRoots.reserve(sourceContactSurfaces.size());
+            const auto build = [&](auto&& self, const std::uint32_t first,
+                                   const std::uint32_t last,
+                                   const std::uint32_t surface) -> std::uint32_t {
+                if (last - first == 1u) {
+                    const auto index = static_cast<std::uint32_t>(temporary.size());
+                    temporary.push_back({NM_INVALID_INDEX, NM_INVALID_INDEX,
+                                         faceOrder[first], surface, 0u});
+                    return index;
+                }
+                std::array<float, 3u> minimum = centroids[faceOrder[first]];
+                std::array<float, 3u> maximum = minimum;
+                for (std::uint32_t item = first + 1u; item < last; ++item)
+                    for (std::uint32_t axis = 0u; axis < 3u; ++axis) {
+                        const float value = centroids[faceOrder[item]][axis];
+                        minimum[axis] = std::min(minimum[axis], value);
+                        maximum[axis] = std::max(maximum[axis], value);
+                    }
+                std::uint32_t axis = 0u;
+                for (std::uint32_t candidate = 1u; candidate < 3u; ++candidate)
+                    if (maximum[candidate] - minimum[candidate] >
+                        maximum[axis] - minimum[axis]) axis = candidate;
+                const auto middle = first + (last - first) / 2u;
+                std::nth_element(faceOrder.begin() + first,
+                    faceOrder.begin() + middle, faceOrder.begin() + last,
+                    [&](const auto a, const auto b) {
+                        return centroids[a][axis] < centroids[b][axis] ||
+                            (centroids[a][axis] == centroids[b][axis] && a < b);
+                    });
+                const auto left = self(self, first, middle, surface);
+                const auto right = self(self, middle, last, surface);
+                const auto index = static_cast<std::uint32_t>(temporary.size());
+                temporary.push_back({left, right, NM_INVALID_INDEX, surface,
+                    1u + std::max(temporary[left].height,
+                                  temporary[right].height)});
+                return index;
+            };
+            for (std::uint32_t surface = 0u;
+                 surface < sourceContactSurfaces.size(); ++surface) {
+                const auto& row = sourceContactSurfaces[surface];
+                sourceContactBVHRoots.push_back(build(build, row.identity.x,
+                    row.identity.x + row.identity.y, surface));
+            }
+            std::vector<std::uint32_t> order(temporary.size());
+            std::iota(order.begin(), order.end(), 0u);
+            std::stable_sort(order.begin(), order.end(),
+                [&](const auto a, const auto b) {
+                    return temporary[a].height < temporary[b].height;
+                });
+            std::vector<std::uint32_t> remap(temporary.size());
+            for (std::uint32_t index = 0u; index < order.size(); ++index)
+                remap[order[index]] = index;
+            for (auto& root : sourceContactBVHRoots) root = remap[root];
+            sourceContactBVHNodes.reserve(temporary.size());
+            for (std::uint32_t index = 0u; index < order.size(); ++index) {
+                const auto& node = temporary[order[index]];
+                sourceContactBVHNodes.push_back({{
+                    node.left == NM_INVALID_INDEX ? NM_INVALID_INDEX : remap[node.left],
+                    node.right == NM_INVALID_INDEX ? NM_INVALID_INDEX : remap[node.right],
+                    node.face, node.surface}});
+                if (candidate->sourceContactBVHLevels.empty() ||
+                    temporary[order[index]].height !=
+                        temporary[order[index - 1u]].height)
+                    candidate->sourceContactBVHLevels.emplace_back(index, 0u);
+                ++candidate->sourceContactBVHLevels.back().second;
+            }
+            std::uint32_t projectionFirst = 0u;
+            for (std::uint32_t pair = 0u; pair < sourceSlidingPairs.size(); ++pair) {
+                const auto& authored = sourceSlidingPairs[pair];
+                candidate->sourceContactMaximumSearchTolerance = std::max(
+                    candidate->sourceContactMaximumSearchTolerance,
+                    authored.normal.z);
+                for (std::uint32_t pass = 0u; pass < 2u; ++pass) {
+                    const auto slave = pass == 0u ? authored.identity.y :
+                                                    authored.identity.x;
+                    const auto master = pass == 0u ? authored.identity.x :
+                                                     authored.identity.y;
+                    const auto& surface = sourceContactSurfaces[slave];
+                    NMSourceContactPassGPU row{};
+                    row.identity = {pair, pass, surface.identity.x,
+                                    surface.identity.y};
+                    row.master = {sourceContactBVHRoots[master], master,
+                                  projectionFirst, 0u};
+                    row.parameters = authored.normal;
+                    candidate->sourceContactPasses.push_back(row);
+                    projectionFirst += 3u * surface.identity.y;
+                }
+            }
+            candidate->sourceContactBVHNodeCount =
+                static_cast<std::uint32_t>(sourceContactBVHNodes.size());
+            candidate->sourceContactProjectionCount = projectionFirst;
+        }
         candidate->sourceJointCount =
             static_cast<std::uint32_t>(sourceJoints.size());
         candidate->sourceSpringCount =
@@ -1995,6 +2125,8 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_source_apply_prestrain",
             "nm_source_contact_materialize_nodes",
             "nm_source_contact_materialize_faces",
+            "nm_source_contact_refit_bvh",
+            "nm_source_contact_project_pass",
             "nm_source_fem_rigid_tie_drive",
             "nm_source_fem_rigid_tie_capture_residual",
             "nm_source_fem_rigid_tie_scatter_residual",
@@ -2764,6 +2896,12 @@ RuntimeDiagnostics Runtime::initialize(
             sourceContactSurfaces, valid, candidate->residentBytes);
         candidate->sourceSlidingPairs = uploads.one(
             sourceSlidingPairs, valid, candidate->residentBytes);
+        candidate->sourceContactBVHNodes = uploads.one(
+            std::span<const NMSourceContactBVHNodeGPU>(sourceContactBVHNodes),
+            valid, candidate->residentBytes);
+        candidate->sourceContactBVHRoots = uploads.one(
+            std::span<const std::uint32_t>(sourceContactBVHRoots),
+            valid, candidate->residentBytes);
         if (!sourceContactNodes.empty()) {
             candidate->sourceContactPositions = privateScratch<nm_float4>(
                 candidate->device,
@@ -2773,6 +2911,14 @@ RuntimeDiagnostics Runtime::initialize(
                 candidate->device,
                 environments * sourceContactFaces.size(),
                 valid, candidate->residentBytes);
+            candidate->sourceContactBVHBounds =
+                privateScratch<NMSourceContactBVHBoundsGPU>(candidate->device,
+                    environments * sourceContactBVHNodes.size(),
+                    valid, candidate->residentBytes);
+            candidate->sourceContactProjections =
+                privateScratch<NMSourceContactProjectionGPU>(candidate->device,
+                    environments * candidate->sourceContactProjectionCount,
+                    valid, candidate->residentBytes);
         }
         candidate->sourceFEMSpringNodes = uploads.one(
             std::span<const NMSourceFEMSpringNodeGPU>(sourceSpringNodes),
@@ -4747,6 +4893,58 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.sourceContactFaceGeometry offset:0u atIndex:5u];
                     [encoder setBuffer:state.statuses offset:0u atIndex:6u];
                 });
+            for (const auto [first, count] : state.sourceContactBVHLevels) {
+                const std::array<std::uint32_t, 2u> level{first, count};
+                dispatchThreads("nm_source_contact_refit_bvh",
+                    environments * count, [&] {
+                        setDispatch();
+                        [encoder setBytes:&state.sourceContactBVHNodeCount
+                            length:sizeof(state.sourceContactBVHNodeCount) atIndex:1u];
+                        [encoder setBytes:level.data() length:sizeof(level) atIndex:2u];
+                        [encoder setBytes:&state.sourceContactNodeCount
+                            length:sizeof(state.sourceContactNodeCount) atIndex:3u];
+                        [encoder setBytes:&state.sourceContactMaximumSearchTolerance
+                            length:sizeof(state.sourceContactMaximumSearchTolerance)
+                            atIndex:4u];
+                        [encoder setBuffer:state.sourceContactBVHNodes
+                            offset:0u atIndex:5u];
+                        [encoder setBuffer:state.sourceContactFaces
+                            offset:0u atIndex:6u];
+                        [encoder setBuffer:state.sourceContactPositions
+                            offset:0u atIndex:7u];
+                        [encoder setBuffer:state.sourceContactBVHBounds
+                            offset:0u atIndex:8u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:9u];
+                    });
+            }
+            for (const auto& pass : state.sourceContactPasses) {
+                dispatchThreads("nm_source_contact_project_pass",
+                    environments * 3u * pass.identity.w, [&] {
+                        setDispatch();
+                        [encoder setBytes:&state.sourceContactNodeCount
+                            length:sizeof(state.sourceContactNodeCount) atIndex:1u];
+                        [encoder setBytes:&state.sourceContactBVHNodeCount
+                            length:sizeof(state.sourceContactBVHNodeCount) atIndex:2u];
+                        [encoder setBytes:&state.sourceContactFaceCount
+                            length:sizeof(state.sourceContactFaceCount) atIndex:3u];
+                        [encoder setBytes:&state.sourceContactProjectionCount
+                            length:sizeof(state.sourceContactProjectionCount) atIndex:4u];
+                        [encoder setBytes:&pass length:sizeof(pass) atIndex:5u];
+                        [encoder setBuffer:state.sourceContactBVHNodes
+                            offset:0u atIndex:6u];
+                        [encoder setBuffer:state.sourceContactBVHBounds
+                            offset:0u atIndex:7u];
+                        [encoder setBuffer:state.sourceContactFaces
+                            offset:0u atIndex:8u];
+                        [encoder setBuffer:state.sourceContactPositions
+                            offset:0u atIndex:9u];
+                        [encoder setBuffer:state.sourceContactFaceGeometry
+                            offset:0u atIndex:10u];
+                        [encoder setBuffer:state.sourceContactProjections
+                            offset:0u atIndex:11u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:12u];
+                    });
+            }
         };
         const auto captureFEMHumanAttachmentResidual = [&]() {
             dispatchThreads(

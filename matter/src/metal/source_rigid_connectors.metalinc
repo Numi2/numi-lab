@@ -168,6 +168,172 @@ kernel void nm_source_contact_materialize_faces(
     }
     geometry[global] = float4(areaVector / jacobian, jacobian);
 }
+
+kernel void nm_source_contact_refit_bvh(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& bvhCount [[buffer(1)]],
+    constant uint2& level [[buffer(2)]],
+    constant uint& positionCount [[buffer(3)]],
+    constant float& tolerance [[buffer(4)]],
+    device const NMSourceContactBVHNodeGPU* nodes [[buffer(5)]],
+    device const NMSourceContactFaceGPU* faces [[buffer(6)]],
+    device const float4* positions [[buffer(7)]],
+    device NMSourceContactBVHBoundsGPU* bounds [[buffer(8)]],
+    device NMMatterStatusGPU* statuses [[buffer(9)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (level.y == 0u || global >= dispatch.environmentCount * level.y)
+        return;
+    const uint environment = global / level.y;
+    if (!environmentHealthy(statuses, environment)) return;
+    const uint index = level.x + global - environment * level.y;
+    const NMSourceContactBVHNodeGPU node = nodes[index];
+    const uint base = environment * bvhCount;
+    float3 lower{}, upper{};
+    if (node.identity.z != NM_INVALID_INDEX) {
+        const NMSourceContactFaceGPU face = faces[node.identity.z];
+        const uint positionBase = environment * positionCount;
+        const float3 a = positions[positionBase + face.nodes.x].xyz;
+        const float3 b = positions[positionBase + face.nodes.y].xyz;
+        const float3 c = positions[positionBase + face.nodes.z].xyz;
+        const float longest = max(length(b - a),
+                                  max(length(c - b), length(a - c)));
+        const float expansion = max(1.0e-9f, 2.0f * tolerance * longest);
+        lower = min(a, min(b, c)) - expansion;
+        upper = max(a, max(b, c)) + expansion;
+    } else {
+        const NMSourceContactBVHBoundsGPU left =
+            bounds[base + node.identity.x];
+        const NMSourceContactBVHBoundsGPU right =
+            bounds[base + node.identity.y];
+        lower = min(left.lower.xyz, right.lower.xyz);
+        upper = max(left.upper.xyz, right.upper.xyz);
+    }
+    if (!all(isfinite(lower)) || !all(isfinite(upper)) ||
+        any(lower > upper)) {
+        recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+            NM_INVALID_INDEX, index, float4(lower, 0.0f));
+        return;
+    }
+    bounds[base + index].lower = float4(lower, 0.0f);
+    bounds[base + index].upper = float4(upper, 0.0f);
+}
+
+inline bool sourceContactSegmentBox(
+    const float3 origin, const float3 displacement,
+    const NMSourceContactBVHBoundsGPU box
+) {
+    float first = 0.0f, last = 1.0f;
+    for (uint axis = 0u; axis < 3u; ++axis) {
+        if (abs(displacement[axis]) < 1.0e-15f) {
+            if (origin[axis] < box.lower[axis] ||
+                origin[axis] > box.upper[axis]) return false;
+            continue;
+        }
+        const float inverse = 1.0f / displacement[axis];
+        const float a = (box.lower[axis] - origin[axis]) * inverse;
+        const float b = (box.upper[axis] - origin[axis]) * inverse;
+        first = max(first, min(a, b));
+        last = min(last, max(a, b));
+        if (last < first) return false;
+    }
+    return true;
+}
+
+kernel void nm_source_contact_project_pass(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& nodeCount [[buffer(1)]],
+    constant uint& bvhCount [[buffer(2)]],
+    constant uint& faceCount [[buffer(3)]],
+    constant uint& projectionCount [[buffer(4)]],
+    constant NMSourceContactPassGPU& pass [[buffer(5)]],
+    device const NMSourceContactBVHNodeGPU* hierarchy [[buffer(6)]],
+    device const NMSourceContactBVHBoundsGPU* bounds [[buffer(7)]],
+    device const NMSourceContactFaceGPU* faces [[buffer(8)]],
+    device const float4* positions [[buffer(9)]],
+    device const float4* faceGeometry [[buffer(10)]],
+    device NMSourceContactProjectionGPU* projections [[buffer(11)]],
+    device NMMatterStatusGPU* statuses [[buffer(12)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint passPoints = 3u * pass.identity.w;
+    if (passPoints == 0u || global >= dispatch.environmentCount * passPoints)
+        return;
+    const uint environment = global / passPoints;
+    if (!environmentHealthy(statuses, environment)) return;
+    const uint local = global - environment * passPoints;
+    const uint slaveFace = pass.identity.z + local / 3u;
+    const uint integration = local % 3u;
+    const uint faceBase = environment * faceCount;
+    const uint positionBase = environment * nodeCount;
+    const NMSourceContactFaceGPU slave = faces[slaveFace];
+    const float3 a = positions[positionBase + slave.nodes.x].xyz;
+    const float3 b = positions[positionBase + slave.nodes.y].xyz;
+    const float3 c = positions[positionBase + slave.nodes.z].xyz;
+    const float3 normal = faceGeometry[faceBase + slaveFace].xyz;
+    const float area = faceGeometry[faceBase + slaveFace].w / 6.0f;
+    const float3 origin = (a + b + c +
+        3.0f * (integration == 0u ? a : (integration == 1u ? b : c))) / 6.0f;
+    NMSourceContactProjectionGPU result{};
+    result.identity = {NM_INVALID_INDEX, slaveFace, pass.identity.x,
+                       pass.identity.y};
+    result.normalArea = float4(normal, area);
+    float bestRay = 0.0f;
+    const float3 displacement = -pass.parameters.w * normal;
+    uint stack[64];
+    uint size = 1u;
+    stack[0] = pass.master.x;
+    while (size != 0u) {
+        const uint index = stack[--size];
+        if (index >= bvhCount) {
+            recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+                NM_INVALID_INDEX, index, float4(0.0f));
+            return;
+        }
+        if (!sourceContactSegmentBox(origin, displacement,
+                bounds[environment * bvhCount + index])) continue;
+        const NMSourceContactBVHNodeGPU node = hierarchy[index];
+        if (node.identity.z == NM_INVALID_INDEX) {
+            if (size > 62u) {
+                recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+                    NM_INVALID_INDEX, index, float4(float(size)));
+                return;
+            }
+            stack[size++] = node.identity.x;
+            stack[size++] = node.identity.y;
+            continue;
+        }
+        const NMSourceContactFaceGPU master = faces[node.identity.z];
+        const float3 ma = positions[positionBase + master.nodes.x].xyz;
+        const float3 mb = positions[positionBase + master.nodes.y].xyz;
+        const float3 mc = positions[positionBase + master.nodes.z].xyz;
+        const float3 masterNormal =
+            faceGeometry[faceBase + node.identity.z].xyz;
+        const float opposing = dot(normal, masterNormal);
+        if (!(opposing < 0.0f)) continue;
+        const float ray = dot(masterNormal, ma - origin) / opposing;
+        if (!(ray > -pass.parameters.w && ray < 0.0f)) continue;
+        const float3 hit = origin + ray * normal;
+        const float3 e0 = mb - ma, e1 = mc - ma, relative = hit - ma;
+        const float aa = dot(e0, e0), ab = dot(e0, e1), bb = dot(e1, e1);
+        const float determinant = aa * bb - ab * ab;
+        if (!(determinant > 0.0f)) continue;
+        const float r = (bb * dot(relative, e0) -
+                         ab * dot(relative, e1)) / determinant;
+        const float s = (aa * dot(relative, e1) -
+                         ab * dot(relative, e0)) / determinant;
+        if (r < -pass.parameters.z || s < -pass.parameters.z ||
+            r + s > 1.0f + pass.parameters.z) continue;
+        if (result.identity.x == NM_INVALID_INDEX || ray < bestRay ||
+            (ray == bestRay && node.identity.z < result.identity.x)) {
+            bestRay = ray;
+            result.identity.x = node.identity.z;
+            result.barycentricGap = float4(1.0f - r - s, r, s, -ray);
+        }
+    }
+    projections[environment * projectionCount +
+                pass.master.z + local] = result;
+}
 inline src::RigidSpring<float> sourceSpringInput(
     const NMSourceRigidSpringGPU row
 ) {

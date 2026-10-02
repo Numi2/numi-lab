@@ -26,6 +26,151 @@ namespace {
 void require(bool value, const std::string& message) {
     if (!value) throw std::runtime_error(message);
 }
+
+// Exercise the production candidate refit/projection kernels after the
+// fail-closed runtime admission check. This does not admit a knee root.
+void checkMovingSourceProjection(id<MTLDevice> device,
+                                 id<MTLCommandQueue> queue) {
+    NSError* error = nil;
+    id<MTLLibrary> library = [device newLibraryWithURL:
+        [NSURL fileURLWithPath:
+            [NSString stringWithUTF8String:NUMI_MATTER_METALLIB]] error:&error];
+    require(library != nil, "source projection metallib unavailable");
+    const auto pipeline = [&](NSString* name) {
+        id<MTLFunction> function = [library newFunctionWithName:
+            [@"numi_matter_metal::" stringByAppendingString:name]];
+        require(function != nil, "source projection kernel unavailable");
+        id<MTLComputePipelineState> state =
+            [device newComputePipelineStateWithFunction:function error:&error];
+        require(state != nil, "source projection pipeline unavailable");
+        return state;
+    };
+    auto materialize = pipeline(@"nm_source_contact_materialize_faces");
+    auto refit = pipeline(@"nm_source_contact_refit_bvh");
+    auto project = pipeline(@"nm_source_contact_project_pass");
+    NMMatterDispatchGPU dispatch{};
+    dispatch.environmentCount = 1u;
+    const std::uint32_t nodeCount = 9u, faceCount = 3u,
+                        bvhCount = 4u, projectionCount = 3u;
+    const std::array<NMSourceContactFaceGPU, 3u> faces{{
+        {{0u, 1u, 1u, 0u}, {0u, 1u, 2u, 0u}, {}},
+        {{1u, 2u, 2u, NM_INVALID_INDEX}, {3u, 4u, 5u, 0u}, {}},
+        {{1u, 3u, 2u, NM_INVALID_INDEX}, {6u, 7u, 8u, 0u}, {}}
+    }};
+    const std::array<NMSourceContactBVHNodeGPU, 4u> hierarchy{{
+        {{NM_INVALID_INDEX, NM_INVALID_INDEX, 0u, 0u}},
+        {{NM_INVALID_INDEX, NM_INVALID_INDEX, 1u, 1u}},
+        {{NM_INVALID_INDEX, NM_INVALID_INDEX, 2u, 1u}},
+        {{1u, 2u, NM_INVALID_INDEX, 1u}}
+    }};
+    const std::array<nm_float4, 9u> initialPositions{{
+        {0.0f, 0.0f, 0.0f, 0.0f},
+        {0.0f, 0.01f, 0.0f, 0.0f},
+        {0.01f, 0.0f, 0.0f, 0.0f},
+        {0.0f, 0.0f, 0.0002f, 0.0f},
+        {0.01f, 0.0f, 0.0002f, 0.0f},
+        {0.0f, 0.01f, 0.0002f, 0.0f},
+        {0.1f, 0.0f, 0.0002f, 0.0f},
+        {0.11f, 0.0f, 0.0002f, 0.0f},
+        {0.1f, 0.01f, 0.0002f, 0.0f}
+    }};
+    const auto make = [&](const void* data, const NSUInteger bytes) {
+        id<MTLBuffer> buffer = [device newBufferWithBytes:data length:bytes
+            options:MTLResourceStorageModeShared];
+        require(buffer != nil, "source projection buffer unavailable");
+        return buffer;
+    };
+    id<MTLBuffer> faceBuffer = make(faces.data(), sizeof(faces));
+    id<MTLBuffer> treeBuffer = make(hierarchy.data(), sizeof(hierarchy));
+    id<MTLBuffer> positions = make(initialPositions.data(),
+                                  sizeof(initialPositions));
+    std::array<nm_float4, 3u> emptyGeometry{};
+    id<MTLBuffer> geometry = make(emptyGeometry.data(), sizeof(emptyGeometry));
+    std::array<NMSourceContactBVHBoundsGPU, 4u> emptyBounds{};
+    id<MTLBuffer> bounds = make(emptyBounds.data(), sizeof(emptyBounds));
+    std::array<NMSourceContactProjectionGPU, 3u> emptyProjections{};
+    id<MTLBuffer> projections = make(emptyProjections.data(),
+                                     sizeof(emptyProjections));
+    NMMatterStatusGPU emptyStatus{};
+    id<MTLBuffer> status = make(&emptyStatus, sizeof(emptyStatus));
+    const std::array<std::array<std::uint32_t, 2u>, 2u> levels{{
+        {{0u, 3u}}, {{3u, 1u}}
+    }};
+    const float tolerance = 0.01f;
+    NMSourceContactPassGPU pass{};
+    pass.identity = {0u, 0u, 0u, 1u};
+    pass.master = {3u, 1u, 0u, 0u};
+    pass.parameters = {0.1f, 0.0f, tolerance, 0.001f};
+    for (std::uint32_t phase = 0u; phase < 2u; ++phase) {
+        if (phase == 1u)
+            for (std::uint32_t node = 3u; node < 6u; ++node)
+                static_cast<nm_float4*>(positions.contents)[node].z += 0.002f;
+        id<MTLCommandBuffer> command = [queue commandBuffer];
+        id<MTLComputeCommandEncoder> encoder = [command computeCommandEncoder];
+        const auto dispatchKernel = [&](id<MTLComputePipelineState> state,
+                                        const std::uint32_t count) {
+            [encoder setComputePipelineState:state];
+            [encoder dispatchThreads:MTLSizeMake(count, 1u, 1u)
+                threadsPerThreadgroup:MTLSizeMake(
+                    std::min<std::uint32_t>(count,
+                        static_cast<std::uint32_t>(state.maxTotalThreadsPerThreadgroup)),
+                    1u, 1u)];
+        };
+        [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+        [encoder setBytes:&nodeCount length:sizeof(nodeCount) atIndex:1u];
+        [encoder setBytes:&faceCount length:sizeof(faceCount) atIndex:2u];
+        [encoder setBuffer:faceBuffer offset:0u atIndex:3u];
+        [encoder setBuffer:positions offset:0u atIndex:4u];
+        [encoder setBuffer:geometry offset:0u atIndex:5u];
+        [encoder setBuffer:status offset:0u atIndex:6u];
+        dispatchKernel(materialize, faceCount);
+        for (const auto& level : levels) {
+            [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+            [encoder setBytes:&bvhCount length:sizeof(bvhCount) atIndex:1u];
+            [encoder setBytes:level.data() length:sizeof(level) atIndex:2u];
+            [encoder setBytes:&nodeCount length:sizeof(nodeCount) atIndex:3u];
+            [encoder setBytes:&tolerance length:sizeof(tolerance) atIndex:4u];
+            [encoder setBuffer:treeBuffer offset:0u atIndex:5u];
+            [encoder setBuffer:faceBuffer offset:0u atIndex:6u];
+            [encoder setBuffer:positions offset:0u atIndex:7u];
+            [encoder setBuffer:bounds offset:0u atIndex:8u];
+            [encoder setBuffer:status offset:0u atIndex:9u];
+            dispatchKernel(refit, level[1u]);
+        }
+        [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+        [encoder setBytes:&nodeCount length:sizeof(nodeCount) atIndex:1u];
+        [encoder setBytes:&bvhCount length:sizeof(bvhCount) atIndex:2u];
+        [encoder setBytes:&faceCount length:sizeof(faceCount) atIndex:3u];
+        [encoder setBytes:&projectionCount length:sizeof(projectionCount)
+            atIndex:4u];
+        [encoder setBytes:&pass length:sizeof(pass) atIndex:5u];
+        [encoder setBuffer:treeBuffer offset:0u atIndex:6u];
+        [encoder setBuffer:bounds offset:0u atIndex:7u];
+        [encoder setBuffer:faceBuffer offset:0u atIndex:8u];
+        [encoder setBuffer:positions offset:0u atIndex:9u];
+        [encoder setBuffer:geometry offset:0u atIndex:10u];
+        [encoder setBuffer:projections offset:0u atIndex:11u];
+        [encoder setBuffer:status offset:0u atIndex:12u];
+        dispatchKernel(project, projectionCount);
+        [encoder endEncoding];
+        [command commit];
+        [command waitUntilCompleted];
+        require(command.status == MTLCommandBufferStatusCompleted &&
+                static_cast<NMMatterStatusGPU*>(status.contents)->code == 0u,
+                "source projection GPU dispatch failed");
+        const auto* rows = static_cast<const NMSourceContactProjectionGPU*>(
+            projections.contents);
+        for (std::uint32_t point = 0u; point < projectionCount; ++point) {
+            if (phase == 0u) {
+                require(rows[point].identity.x == 1u &&
+                        std::abs(rows[point].barycentricGap.w - 0.0002f) <
+                            1.0e-6f,
+                        "source projection missed penetrating Gauss point");
+            } else require(rows[point].identity.x == NM_INVALID_INDEX,
+                           "source projection reused stale moving-face bounds");
+        }
+    }
+}
 }
 
 int main(int argc, char** argv) {
@@ -287,6 +432,7 @@ int main(int argc, char** argv) {
                                 beforeContact.femNodes.size() *
                                     sizeof(NMFEMNodeStateGPU)) == 0,
                     "source contact admission rejection changed accepted FEM state");
+                checkMovingSourceProjection(device, queue);
                 std::cout << "source_contact_geometry=bound_pre_dynamics_rejected"
                           << " source_knee_equivalence=unqualified\n";
                 return 0;

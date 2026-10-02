@@ -1,7 +1,7 @@
 {
   "admission": {
     "reasons": [
-      "all source contact geometry and per-face automatic-penalty inputs are bound, but live two-pass projection, traction, consistent tangent and contact history are absent; preDynamics refuses this incomplete source-contact program before changing accepted state",
+      "all source contact geometry and per-face automatic-penalty inputs are bound; candidate BVH refit and two-pass projection are wired but not executed because traction, consistent tangent and contact history are absent; preDynamics refuses this incomplete source-contact program before changing accepted state",
       "source prestrain and flexion continuation are staged in the coupled Newton program, but full-knee initial-contact preparation and equilibrium have not been solved",
       "the 402 MCL-meniscus discrete springs are included in the coupled program but the full source case has not been stepped",
       "no Matter accepted full-knee state or XPLT field comparison"
@@ -30,9 +30,9 @@
     "coupled_runtime_program": "initialized",
     "open_knee_source_volume_mesh": "passed",
     "rest_volume_range_m3": "2.37034e-14,1.26209e-09",
-    "runtime_resident_bytes": "4504368872",
+    "runtime_resident_bytes": "4587184088",
     "source_analysis": "quasistatic_inertia_excluded",
-    "source_contact": "moving_face_topology_bound_no_traction_or_tangent",
+    "source_contact": "candidate_bvh_projection_wired_not_executed_no_traction_or_tangent",
     "source_contact_faces": "345070",
     "source_contact_initial_active_faces": "3325",
     "source_contact_initial_active_gauss_points": "8478",
@@ -62,6 +62,8 @@
     "source_contact_runtime_nodes": "76062",
     "source_contact_runtime_faces": "345070",
     "source_contact_runtime_pairs": "18",
+    "source_contact_runtime_bvh_nodes": "690104",
+    "source_contact_runtime_projection_slots": "1035210",
     "source_contact_backing_tissue_faces": "302274",
     "source_contact_auto_penalty_range_n_per_mm3": "17.0969,10323",
     "source_contact_auto_penalty_basis": "identity-state inverse normal compliance times reference face area divided by backing tet volume; source penalty multiplier remains separate"
@@ -106,7 +108,7 @@
     }
   },
   "source_contact_initial_support": "contact-initial-face-support.json",
-  "stdout_sha256": "671a6475d47731e516de3ac5226bb85ffa7a535d309ebab9663f477714934021",
+  "stdout_sha256": "6c92fe2305b383f92c90dea9083f2dadc92c4384e51f8b49d78c8fe66ff52d4f",
   "verification": [
     "coupled static regression passes with a free rigid body, spring, joint, tissue tie and free FEM node",
     "tenfold change in numerical inverse mass changes accepted static correction by less than 0.02 percent in focused regression",
@@ -123,6 +125,8 @@
     "all 345070 source contact faces and 76062 unique tissue or rigid nodes are bound to the coupled runtime; moving-face materialization is wired to Newton reassembly and certification, but source-contact execution is fail-closed until traction and tangent are implemented",
     "a coupled admission regression rejects source contact at preDynamics and confirms its accepted FEM state is unchanged",
     "all 302274 tissue contact faces resolve to exactly one backing source tetrahedron, with zero missing or ambiguous owners; rigid faces retain no elastic backing tetrahedron",
-    "all 302274 deformable contact faces have finite positive source-form automatic-penalty inputs; the 42796 rigid faces have no elastic backing penalty; no FEBio 2.9.1 pressure field agreement or accepted Matter state is claimed"
+    "all 302274 deformable contact faces have finite positive source-form automatic-penalty inputs; the 42796 rigid faces have no elastic backing penalty; no FEBio 2.9.1 pressure field agreement or accepted Matter state is claimed",
+    "the full source runtime builds 690104 spatial BVH nodes and reserves 1035210 two-pass Gauss-point projection slots; refit and projection shaders compile and are wired at both Newton reassembly and certification, but admission still rejects before they execute",
+    "a small Metal regression executes the production refit and projection kernels with an internal BVH node: a penetrating Gauss point projects, then moving its master face outside the search radius clears the projection; this does not qualify full-knee contact"
   ]
 }

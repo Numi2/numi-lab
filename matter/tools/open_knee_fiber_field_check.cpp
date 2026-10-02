@@ -1286,6 +1286,12 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                   << " source_contact_runtime_nodes=" << runtimeContactNodes.size()
                   << " source_contact_runtime_faces=" << runtimeContactFaces.size()
                   << " source_contact_runtime_pairs=" << runtimeSlidingPairs.size()
+                  << " source_contact_runtime_bvh_nodes="
+                  << (runtimeContactFaces.empty() ? 0u :
+                      2u * runtimeContactFaces.size() -
+                          runtimeContactSurfaces.size())
+                  << " source_contact_runtime_projection_slots="
+                  << 3u * runtimeContactFaces.size()
                   << " source_contact_backing_tissue_faces="
                   << sourceContactBackingFaces
                   << " source_contact_auto_penalty_range_n_per_mm3="
@@ -1316,7 +1322,7 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                   << sourceContact.rigidNodes.size()
                   << " source_contact="
                   << (sourceContactPath != nullptr
-                      ? "moving_face_topology_bound_no_traction_or_tangent"
+                      ? "candidate_bvh_projection_wired_not_executed_no_traction_or_tangent"
                       : "not_assembled")
                   << " source_analysis="
                   << (rigidGraphPath != nullptr

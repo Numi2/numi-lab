@@ -78,6 +78,27 @@ typedef struct NM_ALIGN16 NMSourceSlidingPairGPU {
     nm_float4 normal; // penalty multiplier, gap tolerance in m, search tolerance, radius in m
 } NMSourceSlidingPairGPU;
 
+// Runtime-built balanced hierarchy over each authored contact surface. The
+// topology is immutable, but every bound is refitted from the current Newton
+// candidate before either sliding pass is projected.
+typedef struct NM_ALIGN16 NMSourceContactBVHNodeGPU {
+    nm_uint4 identity; // left, right, face or INVALID, surface
+} NMSourceContactBVHNodeGPU;
+typedef struct NM_ALIGN16 NMSourceContactBVHBoundsGPU {
+    nm_float4 lower;
+    nm_float4 upper;
+} NMSourceContactBVHBoundsGPU;
+typedef struct NM_ALIGN16 NMSourceContactPassGPU {
+    nm_uint4 identity; // pair, pass, slave first face, slave face count
+    nm_uint4 master; // master root, master surface, first projection slot, reserved
+    nm_float4 parameters; // penalty scale, gap tolerance m, bary tolerance, search radius m
+} NMSourceContactPassGPU;
+typedef struct NM_ALIGN16 NMSourceContactProjectionGPU {
+    nm_uint4 identity; // master face or INVALID, slave face, pair, pass
+    nm_float4 barycentricGap; // master barycentric xyz, positive penetration gap m
+    nm_float4 normalArea; // slave normal xyz, integration area m^2
+} NMSourceContactProjectionGPU;
+
 #ifdef __cplusplus
 static_assert(sizeof(NMSourceCylindricalJointGPU) == 144);
 static_assert(sizeof(NMSourceRigidSpringGPU) == 96);
@@ -89,4 +110,8 @@ static_assert(sizeof(NMSourceContactNodeGPU) == 32);
 static_assert(sizeof(NMSourceContactFaceGPU) == 48);
 static_assert(sizeof(NMSourceContactSurfaceGPU) == 16);
 static_assert(sizeof(NMSourceSlidingPairGPU) == 32);
+static_assert(sizeof(NMSourceContactBVHNodeGPU) == 16);
+static_assert(sizeof(NMSourceContactBVHBoundsGPU) == 32);
+static_assert(sizeof(NMSourceContactPassGPU) == 48);
+static_assert(sizeof(NMSourceContactProjectionGPU) == 48);
 #endif
