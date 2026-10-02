@@ -383,6 +383,9 @@ struct RigidProxySource {
     bool dynamic = false;
     bool punctureTip = false;
     bool punctureDilator = false;
+    // A body frame for joint/tie mechanics without an invented collision
+    // shape. Contact must come from separately authored source surfaces.
+    bool frameOnly = false;
     // Live MetalWorld DER capsule. When enabled, body/scene bindings and local
     // capsule endpoints are ignored; strandNodeA/B address the global
     // environment-local rod-node arena and radiusOrOffset remains physical.

@@ -40,8 +40,8 @@ int main(int argc, char** argv) {
             moving.shape = NM_RIGID_SPHERE;
             moving.bodyIndex = 0u;
             moving.sceneBodyIndex = 0u;
-            moving.radiusOrOffset = 0.001;
-            moving.localCenter = {0.0, 0.0, -0.1};
+            moving.radiusOrOffset = 0.0;
+            moving.frameOnly = true;
             moving.dynamic = true;
             RigidProxySource anchor = moving;
             anchor.bodyIndex = 1u;
@@ -70,6 +70,8 @@ int main(int argc, char** argv) {
             require(cooked.succeeded(), "source connector world cook: " + errors);
             require(cooked.world.dispatch.rigidGeneralizedCapacity == 6u,
                 "source connector free-body capacity changed");
+            require(cooked.world.contact.pairs.empty(),
+                "source frame-only bodies created invented contact geometry");
 
             NMSourceCylindricalJointGPU joint{};
             joint.indices = {0u, 1u, 0u, 0u};

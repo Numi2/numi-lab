@@ -53,7 +53,8 @@ constexpr std::uint32_t kKnownRigidFlags =
     NM_RIGID_DYNAMIC |
     NM_RIGID_PUNCTURE_TIP |
     NM_RIGID_SUTURE_STRAND |
-    NM_RIGID_PUNCTURE_DILATOR;
+    NM_RIGID_PUNCTURE_DILATOR |
+    NM_RIGID_FRAME_ONLY;
 
 [[nodiscard]] bool finite4(const nm_float4 value) noexcept {
     return std::isfinite(value.x) && std::isfinite(value.y) &&
@@ -1607,6 +1608,8 @@ private:
                 (proxy.flags & NM_RIGID_SUTURE_STRAND) != 0u;
             const bool punctureDilator =
                 (proxy.flags & NM_RIGID_PUNCTURE_DILATOR) != 0u;
+            const bool frameOnly =
+                (proxy.flags & NM_RIGID_FRAME_ONLY) != 0u;
             const float capsuleDx =
                 proxy.localExtent.x - proxy.localCenterAndRadius.x;
             const float capsuleDy =
@@ -1637,6 +1640,17 @@ private:
                     (proxy.bodyIndex == NM_INVALID_INDEX ||
                      (proxy.shapeKind != NM_RIGID_CAPSULE &&
                       proxy.shapeKind != NM_RIGID_ARC))) ||
+                (frameOnly &&
+                    (strand || punctureTip || punctureDilator ||
+                     proxy.bodyIndex == NM_INVALID_INDEX ||
+                     proxy.shapeKind != NM_RIGID_SPHERE ||
+                     proxy.localCenterAndRadius.x != 0.0f ||
+                     proxy.localCenterAndRadius.y != 0.0f ||
+                     proxy.localCenterAndRadius.z != 0.0f ||
+                     proxy.localCenterAndRadius.w != 0.0f ||
+                     proxy.localExtent.x != 0.0f ||
+                     proxy.localExtent.y != 0.0f ||
+                     proxy.localExtent.z != 0.0f)) ||
                 (punctureTip &&
                     (proxy.shapeKind != NM_RIGID_CAPSULE ||
                      proxy.bodyIndex == NM_INVALID_INDEX ||
@@ -1691,7 +1705,7 @@ private:
                         "plane normal is degenerate"
                     );
                 }
-            } else if (!(proxy.localCenterAndRadius.w > 0.0f)) {
+            } else if (!frameOnly && !(proxy.localCenterAndRadius.w > 0.0f)) {
                 return failIndexed(
                     "rigid proxy",
                     index,
@@ -1774,6 +1788,8 @@ private:
                 unifiedOwners[pair.continuumNode] != pair.objectIndex ||
                 world_.contact.rigidProxies[pair.rigidProxy].materialIndex !=
                     pair.materialInterface ||
+                (world_.contact.rigidProxies[pair.rigidProxy].flags &
+                    NM_RIGID_FRAME_ONLY) != 0u ||
                 world_.contact.rigidProxies[pair.rigidProxy]
                         .adaptiveObjectIndex == pair.objectIndex) {
                 return failIndexed(
@@ -1897,6 +1913,7 @@ private:
                     world_.contact.rigidProxies[object.rigidBinding];
                 if ((proxy.flags & NM_RIGID_DYNAMIC) == 0u ||
                     (proxy.flags & NM_RIGID_ARTICULATED) != 0u ||
+                    (proxy.flags & NM_RIGID_FRAME_ONLY) != 0u ||
                     proxy.adaptiveObjectIndex != index) {
                     return failIndexed(
                         "continuum object",

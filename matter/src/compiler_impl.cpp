@@ -926,7 +926,13 @@ CompileResult compileWorld(
              (proxy.bodyIndex == NM_INVALID_INDEX ||
               (proxy.shape != NM_RIGID_CAPSULE &&
                proxy.shape != NM_RIGID_ARC) ||
-              !(proxy.radiusOrOffset > 0.0)))) {
+              !(proxy.radiusOrOffset > 0.0))) ||
+            (proxy.frameOnly &&
+             (strand || proxy.punctureTip || proxy.punctureDilator ||
+              proxy.bodyIndex == NM_INVALID_INDEX ||
+              proxy.shape != NM_RIGID_SPHERE || proxy.radiusOrOffset != 0.0 ||
+              proxy.localCenter != std::array<double, 3>{} ||
+              proxy.localExtent != std::array<double, 3>{}))) {
             result.diagnostics.push_back({
                 Diagnostic::Severity::error, 0u, 0u,
                 "rigid proxy contains invalid geometry or material binding",
@@ -944,7 +950,8 @@ CompileResult compileWorld(
             (proxy.dynamic ? NM_RIGID_DYNAMIC : 0u) |
             (proxy.punctureTip ? NM_RIGID_PUNCTURE_TIP : 0u) |
             (strand ? NM_RIGID_SUTURE_STRAND : 0u) |
-            (proxy.punctureDilator ? NM_RIGID_PUNCTURE_DILATOR : 0u);
+            (proxy.punctureDilator ? NM_RIGID_PUNCTURE_DILATOR : 0u) |
+            (proxy.frameOnly ? NM_RIGID_FRAME_ONLY : 0u);
         cooked.adaptiveObjectIndex = NM_INVALID_INDEX;
         cooked.generalizedFreeBodyIndex = NM_INVALID_INDEX;
         if (proxy.dynamic) {
@@ -2326,6 +2333,8 @@ CompileResult compileWorld(
         for (std::size_t proxySize = 0u;
              proxySize < world.contact.rigidProxies.size();
              ++proxySize) {
+            if ((world.contact.rigidProxies[proxySize].flags &
+                 NM_RIGID_FRAME_ONLY) != 0u) continue;
             const std::uint32_t proxy = static_cast<std::uint32_t>(proxySize);
             const std::uint32_t objectIndex = unifiedNodeObjects[nodeSize];
             // Every proxy on an adaptive fallback body represents the same

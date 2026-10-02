@@ -366,13 +366,22 @@ if(APPLE)
     endif()
 endif()
 
-# Exact ElementData fiber-vector ingestion into Matter's existing per-element
-# FEM material-frame field. This validates source inputs and basis mapping only;
-# it does not assemble a source knee or claim full mechanics equivalence.
+# Exact ElementData fibre-vector ingestion and the pinned whole-source assembly
+# mode. The latter binds all tissue volumes, rigid frames, joints, spring and
+# ties into one Matter runtime program. Contact/prestrain/load continuation
+# remain an explicit source-equivalence admission failure.
 add_executable(numi-matter-open-knee-fiber-field-check
     tools/open_knee_fiber_field_check.cpp)
 target_include_directories(numi-matter-open-knee-fiber-field-check PRIVATE include)
-target_link_libraries(numi-matter-open-knee-fiber-field-check PRIVATE numi_matter_compiler)
+if(APPLE)
+    target_link_libraries(numi-matter-open-knee-fiber-field-check PRIVATE
+        numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_compile_definitions(numi-matter-open-knee-fiber-field-check PRIVATE
+        NUMI_MATTER_METALLIB="${NUMI_MATTER_METALLIB}")
+else()
+    target_link_libraries(numi-matter-open-knee-fiber-field-check PRIVATE
+        numi_matter_compiler)
+endif()
 target_compile_definitions(numi-matter-open-knee-fiber-field-check PRIVATE
     NUMI_OPEN_KNEE_SOURCE_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/materials/open_knee_ligament_febio_exp_linear.nmatter"
     NUMI_OPEN_KNEE_SOURCE_MENISCUS_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/materials/open_knee_meniscus_source_febio_exp_linear.nmatter"

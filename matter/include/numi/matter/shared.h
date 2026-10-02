@@ -257,6 +257,9 @@ enum NMRigidBindingFlags : nm_u32 {
     // the sharp tip admits fracture. Only an explicitly flagged capsule or
     // circular arc on the same body may dilate that tract.
     NM_RIGID_PUNCTURE_DILATOR = 1u << 4u,
+    // Body-backed frame for joints and tissue ties; it creates no generic
+    // continuum-rigid proxy contact pairs.
+    NM_RIGID_FRAME_ONLY = 1u << 5u,
 };
 
 enum NMResetFlags : nm_u32 {

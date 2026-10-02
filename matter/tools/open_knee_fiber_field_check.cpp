@@ -1,4 +1,6 @@
 #include "numi/matter/open_knee_fiber_field.hpp"
+#include "numi/matter/open_knee_source_graph.hpp"
+#include "numi/matter/open_knee_source_rigid_ties.hpp"
 #include "numi/matter/compiler.hpp"
 
 #include <array>
@@ -365,13 +367,52 @@ const std::array<SourceTissueProgram, 12>& sourceTissuePrograms() {
     return programs;
 }
 
-int checkSourceArtifacts(const char* fiberPath, const char* meshPath) {
+int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
+                         const char* rigidTiesPath = nullptr,
+                         const char* rigidGraphPath = nullptr) {
     try {
+        require(rigidGraphPath == nullptr || rigidTiesPath != nullptr,
+                "source rigid graph requires the complete rigid-tie program");
         const std::vector<std::uint8_t> fiberBytes = readBinaryBytes(fiberPath);
         const std::vector<std::uint8_t> meshBytes = readBinaryBytes(meshPath);
         std::vector<SourceVolumeMesh> meshes;
         std::string error;
         require(decodeSourceVolumeMeshes(meshBytes, meshes, error), error);
+        SourceRigidTieProgram sourceTies;
+        std::vector<std::uint8_t> tieBytes;
+        if (rigidTiesPath != nullptr) {
+            tieBytes = readBinaryBytes(rigidTiesPath);
+            require(decodeSourceRigidTieProgram(tieBytes, sourceTies, error), error);
+            const auto digestHex = [](const std::array<std::uint8_t, 32>& digest) {
+                constexpr char digits[] = "0123456789abcdef";
+                std::string result;
+                result.reserve(64u);
+                for (const auto byte : digest) {
+                    result.push_back(digits[byte >> 4u]);
+                    result.push_back(digits[byte & 15u]);
+                }
+                return result;
+            };
+            require(digestHex(sourceTies.deckSHA256) ==
+                        "00b6efb53ad7e7330296cbb9569d358d48ed60819e22732e6149db6fb98a158a" &&
+                    digestHex(sourceTies.geometrySHA256) ==
+                        "4155db1d0d7b87ffb2c668102d2495870e4461a539b18e6708f1f4817b5601bf",
+                    "source rigid-tie program is bound to different source files");
+        }
+        SourceRigidGraphProgram rigidGraph;
+        std::vector<std::uint8_t> graphBytes;
+        if (rigidGraphPath != nullptr) {
+            graphBytes = readBinaryBytes(rigidGraphPath);
+            require(decodeSourceRigidGraphProgram(graphBytes, rigidGraph, error), error);
+            require(rigidGraph.deckSHA256 == sourceTies.deckSHA256 &&
+                    rigidGraph.geometrySHA256 == sourceTies.geometrySHA256,
+                    "source rigid graph and tissue ties bind different archives");
+        }
+        std::unordered_map<std::uint32_t, SourceRigidTieRecord> tieBySourceNode;
+        tieBySourceNode.reserve(sourceTies.rows.size());
+        for (const auto& tie : sourceTies.rows)
+            require(tieBySourceNode.emplace(tie.sourceNodeId, tie).second,
+                    "source rigid-tie node was bound twice");
         const auto& specs = sourceTissuePrograms();
         require(meshes.size() == specs.size(),
                 "source volume input must contain all 12 source tissue programs");
@@ -400,6 +441,23 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath) {
 
         numi::matter::WorldSource source;
         source.gravity = {0.0, 0.0, 0.0};
+        struct SourceNodeLocation {
+            std::uint32_t cookedNode = 0u, object = 0u;
+            std::array<double, 3> sourcePosition{};
+        };
+        std::unordered_map<std::uint32_t, SourceNodeLocation> sourceNodeLocations;
+        if (rigidGraphPath != nullptr) sourceNodeLocations.reserve(194729u);
+        std::uint32_t globalNodeBase = 0u;
+        for (std::size_t index = 0u; index < rigidGraph.bodies.size(); ++index) {
+            const auto& body = rigidGraph.bodies[index];
+            numi::matter::RigidProxySource proxy;
+            proxy.shape = NM_RIGID_SPHERE;
+            proxy.frameOnly = true;
+            proxy.bodyIndex = static_cast<std::uint32_t>(index);
+            proxy.dynamic = body.materialId != 2u && body.materialId != 3u;
+            if (proxy.dynamic) proxy.sceneBodyIndex = proxy.bodyIndex;
+            source.rigidProxies.push_back(proxy);
+        }
         std::uint64_t expectedTetrahedra = 0u;
         for (std::size_t group = 0u; group < meshes.size(); ++group) {
             const SourceVolumeMesh& mesh = meshes[group];
@@ -455,6 +513,18 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath) {
                     node.coordinates[1] * 0.001,
                     node.coordinates[2] * 0.001,
                 });
+                if (rigidGraphPath != nullptr)
+                    require(sourceNodeLocations.emplace(node.sourceId,
+                        SourceNodeLocation{globalNodeBase + local,
+                            static_cast<std::uint32_t>(group), node.coordinates}).second,
+                        "source volume node ID appears in two tissue groups");
+                if (const auto tie = tieBySourceNode.find(node.sourceId);
+                    tie != tieBySourceNode.end()) {
+                    require(tie->second.sourceMaterialId == spec.materialId,
+                            "source rigid-tie tissue differs from volume ownership");
+                    object.femFixedNodes.push_back(local);
+                    tieBySourceNode.erase(tie);
+                }
             }
             object.tetrahedra.reserve(mesh.tetrahedra.size());
             for (const SourceTetrahedronRecord& sourceTet : mesh.tetrahedra) {
@@ -485,10 +555,13 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath) {
                         error);
             }
             expectedTetrahedra += mesh.tetrahedra.size();
+            globalNodeBase += static_cast<std::uint32_t>(mesh.nodes.size());
             source.objects.push_back(std::move(object));
         }
         require(expectedTetrahedra == 844287u,
                 "source total tetrahedron count drifted from the pinned source");
+        require(tieBySourceNode.empty(),
+                "source rigid-tie node is absent from all source tissue volumes");
 
         const numi::matter::CompileResult compiled = numi::matter::compileWorld(
             source, {.maximumRateExponent = 0, .emitSpecializedMetal = false}
@@ -496,6 +569,129 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath) {
         require(compiled.succeeded(), "full Open Knee source-volume Matter cook failed");
         require(compiled.world.fem.tetrahedra.size() == expectedTetrahedra,
                 "Matter cook changed the source tissue tetrahedron total");
+        if (rigidGraphPath != nullptr) {
+            require(compiled.world.contact.rigidProxies.size() == 9u &&
+                    compiled.world.dispatch.rigidGeneralizedCapacity == 42u &&
+                    compiled.world.contact.pairs.empty(),
+                    "source rigid frames created contact or changed free-body ownership");
+        }
+        if (rigidTiesPath != nullptr) {
+            const auto fixedCount = std::count_if(
+                compiled.world.fem.nodes.begin(), compiled.world.fem.nodes.end(),
+                [](const auto& node) { return node.restAndFixed.w == 1.0f; });
+            require(static_cast<std::size_t>(fixedCount) == sourceTies.rows.size(),
+                    "Matter cook changed source rigid-tie node ownership");
+        }
+        std::vector<NMSourceCylindricalJointGPU> runtimeJoints;
+        std::vector<NMSourceRigidSpringGPU> runtimeSprings;
+        std::vector<NMSourceFEMRigidTieGPU> runtimeTies;
+        bool runtimeProgramInitialized = false;
+        std::size_t runtimeResidentBytes = 0u;
+        if (rigidGraphPath != nullptr) {
+            const auto bodyIndex = [&](const std::uint32_t materialId) {
+                const auto found = std::ranges::find_if(rigidGraph.bodies,
+                    [materialId](const auto& body) {
+                        return body.materialId == materialId;
+                    });
+                require(found != rigidGraph.bodies.end(),
+                        "source tie or connector references no rigid body");
+                return static_cast<std::uint32_t>(found - rigidGraph.bodies.begin());
+            };
+            const auto point = [](const std::array<double, 3>& sourcePoint,
+                                  const double scale) -> nm_float4 {
+                return {static_cast<float>(sourcePoint[0] * scale),
+                        static_cast<float>(sourcePoint[1] * scale),
+                        static_cast<float>(sourcePoint[2] * scale), 0.0f};
+            };
+            runtimeTies.reserve(sourceTies.rows.size());
+            for (const auto& tie : sourceTies.rows) {
+                const auto location = sourceNodeLocations.find(tie.sourceNodeId);
+                require(location != sourceNodeLocations.end() &&
+                        compiled.world.fem.nodeRanges[location->second.cookedNode]
+                            .objectIndex == location->second.object &&
+                        compiled.world.fem.nodes[location->second.cookedNode]
+                            .restAndFixed.w == 1.0f,
+                        "source tie does not address its cooked FEM node");
+                const std::uint32_t proxy = bodyIndex(tie.rigidBodyMaterialId);
+                const auto& center = rigidGraph.bodies[proxy].centerOfMass;
+                std::array<double, 3> local{};
+                for (std::size_t axis = 0u; axis < 3u; ++axis)
+                    local[axis] = location->second.sourcePosition[axis] - center[axis];
+                NMSourceFEMRigidTieGPU row{};
+                row.identity = {location->second.cookedNode, proxy,
+                                location->second.object, tie.sourceNodeId};
+                row.localPoint = point(local, 0.001);
+                runtimeTies.push_back(row);
+            }
+            runtimeJoints.reserve(rigidGraph.joints.size());
+            for (const auto& joint : rigidGraph.joints) {
+                const std::uint32_t a = bodyIndex(joint.bodyA);
+                const std::uint32_t b = bodyIndex(joint.bodyB);
+                double translationCurve = 1.0, rotationCurve = 1.0;
+                require(sampleSourceLoadCurve(rigidGraph, joint.translationCurve,
+                            0.0, translationCurve) &&
+                        sampleSourceLoadCurve(rigidGraph, joint.rotationCurve,
+                            0.0, rotationCurve),
+                        "source joint has no initial load-curve value");
+                NMSourceCylindricalJointGPU row{};
+                row.indices = {a, b, joint.prescribedTranslation ? 1u : 0u,
+                               joint.prescribedRotation ? 1u : 0u};
+                row.referenceA = point(rigidGraph.bodies[a].centerOfMass, 0.001);
+                row.referenceB = point(rigidGraph.bodies[b].centerOfMass, 0.001);
+                row.origin = point(joint.origin, 0.001);
+                row.axis = point(joint.axis, 1.0);
+                // The pinned deck has no units declaration. This is the
+                // explicit tonne-mm-second to SI hypothesis, not admission.
+                row.parameters = {static_cast<float>(joint.forcePenalty * 1000.0),
+                                  static_cast<float>(joint.momentPenalty * 0.001),
+                                  static_cast<float>(joint.translation *
+                                      translationCurve * 0.001),
+                                  static_cast<float>(joint.rotation *
+                                      rotationCurve)};
+                runtimeJoints.push_back(row);
+            }
+            runtimeSprings.reserve(rigidGraph.springs.size());
+            for (const auto& spring : rigidGraph.springs) {
+                const std::uint32_t a = bodyIndex(spring.bodyA);
+                const std::uint32_t b = bodyIndex(spring.bodyB);
+                NMSourceRigidSpringGPU row{};
+                row.indices = {a, b, 0u, 0u};
+                row.referenceA = point(rigidGraph.bodies[a].centerOfMass, 0.001);
+                row.referenceB = point(rigidGraph.bodies[b].centerOfMass, 0.001);
+                row.insertionA = point(spring.insertionA, 0.001);
+                row.insertionB = point(spring.insertionB, 0.001);
+                row.parameters = {static_cast<float>(spring.stiffness * 1000.0),
+                                  static_cast<float>(spring.freeLength * 0.001),
+                                  0.0f, 0.0f};
+                runtimeSprings.push_back(row);
+            }
+            std::uint64_t programFingerprint = 14695981039346656037ull;
+            for (const auto* bytes : {&tieBytes, &graphBytes})
+                for (const auto byte : *bytes)
+                    programFingerprint = (programFingerprint ^ byte) *
+                        1099511628211ull;
+            require(programFingerprint != 0u,
+                    "source rigid program has invalid fingerprint");
+#ifdef __APPLE__
+            numi::matter::RuntimeConfiguration configuration;
+            configuration.metallib = NUMI_MATTER_METALLIB;
+            configuration.adaptiveTransfer = false;
+            configuration.captureEvents = false;
+            configuration.sourceCylindricalJoints = runtimeJoints;
+            configuration.sourceRigidSprings = runtimeSprings;
+            configuration.sourceFEMRigidTies = runtimeTies;
+            configuration.sourceRigidConnectorFingerprint = programFingerprint;
+            numi::matter::Runtime runtime;
+            const auto initialized = runtime.initialize(compiled.world, configuration);
+            require(initialized.encoded && runtime.valid(),
+                    "whole source tissue/rigid Matter program initialization: " +
+                        initialized.message);
+            runtimeProgramInitialized = true;
+            runtimeResidentBytes = initialized.residentBytes;
+#else
+            throw std::runtime_error("whole source Matter runtime requires Apple Metal");
+#endif
+        }
         double minimumRestVolume = std::numeric_limits<double>::infinity();
         double maximumRestVolume = 0.0;
         for (const auto& tet : compiled.world.fem.tetrahedra) {
@@ -531,7 +727,15 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath) {
                              return total + object.femNodes.size();
                          }) << " source_tetrahedra=" << expectedTetrahedra
                   << " cooked_frames=" << cookedFrames
+                  << " source_rigid_tie_nodes=" << sourceTies.rows.size()
+                  << " source_rigid_bodies=" << rigidGraph.bodies.size()
+                  << " source_cylindrical_joints=" << rigidGraph.joints.size()
+                  << " source_rigid_springs=" << rigidGraph.springs.size()
+                  << " coupled_runtime_program=" <<
+                     (runtimeProgramInitialized ? "initialized" : "not_requested")
+                  << " runtime_resident_bytes=" << runtimeResidentBytes
                   << " source_contact=not_assembled source_initialization=not_solved "
+                     "source_equivalence=rejected "
                      "source_unit_scale=mm_to_m_assumed rest_volume_range_m3="
                   << minimumRestVolume << ',' << maximumRestVolume << '\n';
         return 0;
@@ -545,10 +749,14 @@ int main(int argc, char** argv) {
     try {
         if (argc == 4 && std::string(argv[1]) == "--source-artifacts")
             return checkSourceArtifacts(argv[2], argv[3]);
+        if (argc == 5 && std::string(argv[1]) == "--source-artifacts")
+            return checkSourceArtifacts(argv[2], argv[3], argv[4]);
+        if (argc == 6 && std::string(argv[1]) == "--source-artifacts")
+            return checkSourceArtifacts(argv[2], argv[3], argv[4], argv[5]);
         if (argc == 3 && std::string(argv[1]) == "--source-sidecar")
             return checkSourceSidecar(argv[2]);
         require(argc == 1, "usage: open knee fiber field check [--source-sidecar PATH] "
-                           "[--source-artifacts FIBER_PATH SOURCE_VOLUME_MESH_PATH]");
+                           "[--source-artifacts FIBER_PATH SOURCE_VOLUME_MESH_PATH [SOURCE_RIGID_TIES_PATH [SOURCE_RIGID_GRAPH_PATH]]]");
         const std::array<double, 3> medial0{-0.27206761041769667,
                                              1.1419075817929256,
                                              0.08613731458137508};
