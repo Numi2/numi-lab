@@ -48,6 +48,15 @@
       "minimum_tissue_jacobian": 0.987585
     },
     {
+      "newton_budget": 14,
+      "fgmres_budget": 10,
+      "accepted_steps": 0,
+      "relative_residual": 0.0148737,
+      "rigid_residual_l2_impulse_ns": 0.00619787,
+      "minimum_tissue_jacobian": 0.987581,
+      "interpretation": "additional Newton corrections nearly stagnate at the same Krylov budget"
+    },
+    {
       "newton_budget": 20,
       "fgmres_budget": 40,
       "accepted_steps": null,
