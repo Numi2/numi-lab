@@ -64,6 +64,18 @@
       "relative_residual": 0.120405,
       "minimum_element_jacobian": 0.96856,
       "completed_microsteps": 0
+    },
+    {
+      "stdout": "preload-both-diagonals-contact-reduced-7x10.stdout",
+      "stdout_sha256": "1e4e4ef85ec8fa1587552adb3c33d0c3ada6266dde532e61d4c753657531fd32",
+      "continuation_time": 0.05,
+      "contact_penalty_scale": 1e-06,
+      "preconditioner": "contact and exact connector positive diagonals with altered source penalty",
+      "accepted": false,
+      "status": 10,
+      "relative_residual": 0.0148516,
+      "minimum_element_jacobian": 0.999151,
+      "completed_microsteps": 0
     }
   ],
   "additional_budget_probe": {
@@ -77,7 +89,8 @@
     "At the original source penalty and the same 7x10 budget, adding source contact and rigid connector diagonal scaling lowered the rejected relative residual from 0.174711 to 0.128834; it did not produce an accepted state.",
     "The contact-reduced diagnostic lowered the rejected relative residual to 0.0144227; contact explains most but not all of the initial imbalance. Rigid coordinates and prestrained MCL/LCL still have nonzero residual.",
     "The rejected candidate kept valid element orientation (minimum Jacobian 0.97101 with connector scaling), but no accepted displacement, reaction wrench, pressure/gap, stress, or prestrain field exists for Matter-XPLT comparison.",
-    "Archived FEBio XPLT state 0 has zero displacement and stress and nonzero contact pressure at initial intersections; it is not an equilibrated Matter preload. The first accepted archived continuation checkpoint is 0.05."
+    "Archived FEBio XPLT state 0 has zero displacement and stress and nonzero contact pressure at initial intersections; it is not an equilibrated Matter preload. The first accepted archived continuation checkpoint is 0.05.",
+    "With the connector diagonal also enabled, the 1e-6 contact-penalty diagnostic still rejected at 0.0148516; simply ramping contact is not yet a solution to the coupled static initialization."
   ],
   "checks": {
     "source_targeted_ctest": "11 passed, 0 failed",
