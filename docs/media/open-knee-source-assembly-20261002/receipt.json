@@ -1,7 +1,7 @@
 {
   "admission": {
     "reasons": [
-      "source sliding-elastic surfaces have initial nearest-vertex and second-ring face projections, but edge/node fallback, auto-penalty, Newton contact forces and sliding updates are not enforced",
+      "source sliding-elastic Gauss-point contact is bound geometrically but has no live projection update, penalty traction, consistent tangent or contact-history execution in Matter Newton",
       "prestrain and initial-contact preparation not solved",
       "prescribed rigid and source loading continuation not executed",
       "four retinacular nonlinear springs are bounded by their recorded knots; reference extrapolation remains unqualified",
@@ -33,14 +33,15 @@
     "rest_volume_range_m3": "2.37034e-14,1.26209e-09",
     "runtime_resident_bytes": "4478631608",
     "source_analysis": "quasistatic_inertia_excluded",
-    "source_contact": "authored_faces_bound_not_enforced",
+    "source_contact": "initial_sliding_elastic_gauss_bound_not_enforced",
     "source_contact_faces": "345070",
-    "source_contact_initial_penetrating_nodes": "1455",
-    "source_contact_initial_projected_nodes": "49241",
-    "source_contact_initial_second_ring_nodes": "2203",
-    "source_contact_initial_unresolved_nodes": "129994",
-    "source_contact_projection_basis": "public FEBio 2.9.0 source d61e8fd; pinned archive reports 2.9.1, exact revision not yet matched",
+    "source_contact_initial_active_faces": "3325",
+    "source_contact_initial_active_gauss_points": "8478",
+    "source_contact_initial_gauss_points": "1035210",
+    "source_contact_initial_max_gap_mm": "0.436078",
+    "source_contact_projection_basis": "FEBio 2.9 sliding-elastic integration-point normal-ray path; public 2.9.0 implementation reference",
     "source_contact_rigid_vertices": "17676",
+    "source_contact_search_radius_mm": "0.900163",
     "source_cylindrical_joints": "6",
     "source_discrete_fem": "included_in_newton_program_not_stepped",
     "source_discrete_fem_edges": "402",
@@ -96,6 +97,7 @@
       "sha256": "c370ae9f94e9faee2d7060bf2a6819e03be1312e82ca79bd2e9cebf8b34398de"
     }
   },
+  "source_contact_initial_support": "contact-initial-face-support.json",
   "stdout_sha256": "3098dfdd017fead6d3e9da6e03347ff7bcae0d325499dbcb70aa27da5fa14e6e",
   "verification": [
     "coupled static regression passes with a free rigid body, spring, joint, tissue tie and free FEM node",

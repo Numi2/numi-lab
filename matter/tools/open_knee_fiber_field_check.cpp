@@ -634,9 +634,9 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                         "source rigid contact node overlaps a tissue node");
             require(bindSourceInitialContactProjections(sourceContact,
                         sourcePositions, initialContactProjection, error), error);
-            require(!initialContactProjection.rows.empty() &&
-                        initialContactProjection.projected > 0u,
-                    "source contact initial projection has no bound nodes");
+            require(!initialContactProjection.activeRows.empty() &&
+                        initialContactProjection.activePoints > 0u,
+                    "source sliding-elastic initial projection has no active quadrature");
         }
         std::size_t boundDiscreteFEMEdges = 0u;
         std::size_t boundDiscreteRigidEdges = 0u;
@@ -963,19 +963,33 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                      (runtimeProgramInitialized ? "initialized" : "not_requested")
                   << " runtime_resident_bytes=" << runtimeResidentBytes
                   << " source_contact_faces=" << sourceContact.faces.size()
-                  << " source_contact_initial_projected_nodes="
-                  << initialContactProjection.projected
-                  << " source_contact_initial_second_ring_nodes="
-                  << initialContactProjection.projectedSecondRing
-                  << " source_contact_initial_penetrating_nodes="
-                  << initialContactProjection.penetrating
-                  << " source_contact_initial_unresolved_nodes="
-                  << initialContactProjection.unresolved
+                  << " source_contact_initial_gauss_points="
+                  << initialContactProjection.quadraturePoints
+                  << " source_contact_initial_active_gauss_points="
+                  << initialContactProjection.activePoints
+                  << " source_contact_initial_active_faces="
+                  << std::accumulate(
+                        initialContactProjection.activeFacesBySurface.begin(),
+                        initialContactProjection.activeFacesBySurface.end(),
+                        std::uint64_t{0})
+                  << " source_contact_initial_active_faces_by_surface=";
+        for (std::size_t surface = 0u;
+             surface < initialContactProjection.activeFacesBySurface.size();
+             ++surface) {
+            if (surface != 0u) std::cout << ',';
+            std::cout << initialContactProjection.activeFacesBySurface[surface];
+        }
+        std::cout
+                  << " source_contact_initial_max_gap_mm="
+                  << initialContactProjection.maximumGap
+                  << " source_contact_search_radius_mm="
+                  << initialContactProjection.searchRadius
                   << " source_contact_rigid_vertices="
                   << sourceContact.rigidNodes.size()
                   << " source_contact="
                   << (sourceContactPath != nullptr
-                      ? "authored_faces_bound_not_enforced" : "not_assembled")
+                      ? "initial_sliding_elastic_gauss_bound_not_enforced"
+                      : "not_assembled")
                   << " source_analysis="
                   << (rigidGraphPath != nullptr
                       ? "quasistatic_inertia_excluded" : "unqualified")
