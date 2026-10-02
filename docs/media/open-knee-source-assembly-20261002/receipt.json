@@ -4,30 +4,34 @@
       "source sliding-elastic faces and parameters are bound but not enforced in Matter Newton",
       "prestrain and initial-contact preparation not solved",
       "prescribed rigid and source loading continuation not executed",
-      "rigid physical mass and inertia state not supplied to runtime",
+      "source static analysis is assembled without inertial rows, but no source equilibrium has been accepted",
       "no Matter accepted state or XPLT field comparison"
     ],
     "status": "rejected"
   },
   "archived_febio_reference": {
+    "analysis": "static",
     "archived_log_completed_steps": 140,
     "final_state": 140,
     "final_time": 2.0,
     "first_time": 0.0,
     "plot_states": 141,
     "preload_checkpoint_state": 20,
-    "preload_checkpoint_time": 1.0
+    "preload_checkpoint_time": 1.0,
+    "rigid_mass_inertia": "all_nine_zero_in_archived_log",
+    "time_semantics": "quasistatic_continuation_parameter"
   },
   "coupled_base": "5bf85aed50cf9af1d55445ac38b2a2bc71b1dcfe",
   "human_revision": "abe6a81d11853ee1fe0da237fcbb4ca6ecd175c6",
   "machine": "arm64",
-  "matter_revision": "5596b499c11be6b4b41423d2ea986cc858cb64cb",
+  "matter_parent_revision": "a8e0d8be60fbef642ec098fd2cd579514f3de743",
   "runtime": {
     "cooked_frames": "360404",
     "coupled_runtime_program": "initialized",
     "open_knee_source_volume_mesh": "passed",
     "rest_volume_range_m3": "2.37034e-14,1.26209e-09",
     "runtime_resident_bytes": "4478593048",
+    "source_analysis": "quasistatic_inertia_excluded",
     "source_contact": "authored_faces_bound_not_enforced",
     "source_contact_faces": "345070",
     "source_contact_rigid_vertices": "17676",
@@ -77,9 +81,11 @@
       "sha256": "c370ae9f94e9faee2d7060bf2a6819e03be1312e82ca79bd2e9cebf8b34398de"
     }
   },
-  "stdout_sha256": "c4852c7a7bf6cc4f29f501bedbb06991c2dabc946acbbb9599b946d4700ce183",
+  "stdout_sha256": "06f534f5e80286fca63d45e006be2a264d1616230420f71b7d1d7fe39e1e5eab",
   "verification": [
-    "six focused Matter CTests pass",
+    "coupled static regression passes with a free rigid body, spring, joint, tissue tie and free FEM node",
+    "tenfold change in numerical inverse mass changes accepted static correction by less than 0.02 percent in focused regression",
+    "full source cook marks all twelve FEM tissues and all seven free rigid bodies as quasi-static",
     "all 12 source tissue groups compiled",
     "one Metal Runtime initialized with source rigid connector program",
     "all 18 source contact pairs and 345070 authored faces bind to source tissue or rigid owners"

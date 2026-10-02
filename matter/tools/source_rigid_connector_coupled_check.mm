@@ -26,15 +26,33 @@ int main(int argc, char** argv) {
     @autoreleasepool {
         try {
             using namespace numi::matter;
-            const bool withTie = argc == 1;
-            require(withTie || (argc == 2 && std::string(argv[1]) == "--no-tie"),
-                "unsupported source connector test argument");
+            bool withTie = true;
+            bool quasiStatic = false;
+            float numericalInverseMass = 1.0f;
+            for (int argument = 1; argument < argc; ++argument) {
+                const std::string option = argv[argument];
+                if (option == "--no-tie") withTie = false;
+                else if (option == "--quasistatic") quasiStatic = true;
+                else if (option == "--numerical-inverse-mass") {
+                    require(++argument < argc,
+                        "numerical inverse mass requires a value");
+                    numericalInverseMass = std::stof(argv[argument]);
+                } else require(false,
+                    "unsupported source connector test argument: " + option);
+            }
+            require(std::isfinite(numericalInverseMass) &&
+                numericalInverseMass > 0.0f,
+                "numerical inverse mass must be positive and finite");
             auto material = parseMatterFile(NUMI_MATTER_FIXTURE_MATERIAL);
             require(material.succeeded(), "source connector runtime material did not parse");
             WorldSource source;
             source.frameTimestep = 1.0e-3;
             source.gravity = {0.0, 0.0, 0.0};
-            source.mixedSolver.newtonIterations = 8u;
+            source.mixedSolver.newtonIterations = quasiStatic ? 20u : 8u;
+            if (quasiStatic) {
+                source.mixedSolver.relativeResidual = 1.0e-6;
+                source.mixedSolver.fgmresIterations = 128u;
+            }
             source.materials.push_back(std::move(material.material));
             RigidProxySource moving;
             moving.shape = NM_RIGID_SPHERE;
@@ -43,10 +61,12 @@ int main(int argc, char** argv) {
             moving.radiusOrOffset = 0.0;
             moving.frameOnly = true;
             moving.dynamic = true;
+            moving.quasiStatic = quasiStatic;
             RigidProxySource anchor = moving;
             anchor.bodyIndex = 1u;
             anchor.sceneBodyIndex = NM_INVALID_INDEX;
             anchor.dynamic = false;
+            anchor.quasiStatic = false;
             source.rigidProxies = {moving, anchor};
             ObjectSource tendon;
             tendon.name = "source_rigid_tied_continuum";
@@ -55,12 +75,15 @@ int main(int argc, char** argv) {
             tendon.mixedFEM = false;
             tendon.deformableContact = false;
             tendon.deformableSelfContact = false;
+            tendon.quasiStatic = quasiStatic;
             tendon.characteristicLength = 0.01;
             tendon.femNodes = {{0.002, 0.001, 0.0},
                                {0.012, 0.001, 0.0},
                                {0.002, 0.011, 0.0},
                                {0.002, 0.001, 0.01}};
-            tendon.femFixedNodes = {0u, 1u, 2u, 3u};
+            tendon.femFixedNodes = quasiStatic
+                ? std::vector<std::uint32_t>{0u, 1u, 2u}
+                : std::vector<std::uint32_t>{0u, 1u, 2u, 3u};
             tendon.tetrahedra = {{{0u, 1u, 2u, 3u}}};
             source.objects.push_back(std::move(tendon));
             auto cooked = compileWorld(source, {
@@ -117,7 +140,7 @@ int main(int argc, char** argv) {
                 body.inverseInertiaWorldRow2 = {0.0f, 0.0f, 1.0f, 0.0f};
             }
             bodies[0].position = {0.002f, 0.001f, 0.0f, 0.0f};
-            bodies[0].linearVelocityAndInverseMass.w = 1.0f;
+            bodies[0].linearVelocityAndInverseMass.w = numericalInverseMass;
             bodies[0].flagsAndIndices[0] = MR_MOTION_DYNAMIC;
             bodies[1].position = {0.02f, 0.0f, 0.0f, 0.0f};
             bodies[1].flagsAndIndices[0] = MR_MOTION_STATIC;
@@ -170,8 +193,9 @@ int main(int argc, char** argv) {
                 "source connector runtime did not accept the coupled candidate");
             const auto& v = state.rigidGeneralizedCandidate;
             require(std::isfinite(v[0]) && std::isfinite(v[1]) &&
-                v[0] < 0.0f && v[1] < 0.0f,
-                "source spring/joint did not restore the displaced free body");
+                (quasiStatic || (v[0] < 0.0f && v[1] < 0.0f)),
+                "source spring/joint did not restore the displaced free body: " +
+                std::to_string(v[0]) + ", " + std::to_string(v[1]));
             const auto& tied = state.femNodes[0];
             if (withTie) require(std::abs(tied.positionAndMass.x -
                         (bodies[0].position.x + 1.0e-3f * v[0])) < 2.0e-6f &&
@@ -181,10 +205,13 @@ int main(int argc, char** argv) {
                     std::abs(tied.velocityAndInverseMass.y - v[1]) < 2.0e-5f,
                 "source FEM tie did not follow the same accepted rigid correction");
             std::cout << "source_connector_coupled=accepted"
-                      << " free_velocity_x=" << v[0]
-                      << " free_velocity_y=" << v[1]
+                      << " free_increment_x=" << 1.0e-3f * v[0]
+                      << " free_increment_y=" << 1.0e-3f * v[1]
                       << " tied_node_x=" << tied.positionAndMass.x
+                      << " free_node_z=" << state.femNodes[3].positionAndMass.z
                       << " source_tie=" << (withTie ? "on" : "off")
+                      << " quasistatic=" << (quasiStatic ? "on" : "off")
+                      << " numerical_inverse_mass=" << numericalInverseMass
                       << " source_knee_equivalence=unqualified\n";
             return 0;
         } catch (const std::exception& error) {

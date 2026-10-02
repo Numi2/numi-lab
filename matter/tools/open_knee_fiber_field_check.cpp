@@ -472,6 +472,7 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
             proxy.frameOnly = true;
             proxy.bodyIndex = static_cast<std::uint32_t>(index);
             proxy.dynamic = body.materialId != 2u && body.materialId != 3u;
+            proxy.quasiStatic = proxy.dynamic;
             if (proxy.dynamic) proxy.sceneBodyIndex = proxy.bodyIndex;
             source.rigidProxies.push_back(proxy);
         }
@@ -489,8 +490,10 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                 ? ligamentTemplate.material
                 : (spec.meniscus ? meniscusTemplate.material : cartilageTemplate.material);
             material.name = std::string("open_knee_source_") + spec.name;
-            // FEBio leaves coordinate units undeclared. These density and
-            // length conversions are explicit tonne-mm-second assumptions.
+            // FEBio leaves coordinate units undeclared. Length and stiffness
+            // use the explicit tonne-mm-second to SI hypothesis. The source
+            // step is static with zero rigid masses; positive FEM density is
+            // numerical bookkeeping and is omitted from static residuals.
             setMaterialParameter(material, "density", 1000.0);
             setMaterialParameter(material, "c1", spec.c1 * 1.0e6);
             setMaterialParameter(material, "bulk", spec.bulk * 1.0e6);
@@ -516,6 +519,7 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
             object.representation = numi::matter::Representation::fem;
             object.deformableContact = false;
             object.deformableSelfContact = false;
+            object.quasiStatic = rigidGraphPath != nullptr;
             object.mixedFEM = false;
             object.characteristicLength = 0.001;
             object.femNodes.reserve(mesh.nodes.size());
@@ -636,6 +640,16 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                     compiled.world.dispatch.rigidGeneralizedCapacity == 42u &&
                     compiled.world.contact.pairs.empty(),
                     "source rigid frames created contact or changed free-body ownership");
+            require(std::ranges::all_of(compiled.world.objects,
+                        [](const auto& object) {
+                            return (object.flags & NM_OBJECT_FEM_QUASISTATIC) != 0u;
+                        }) &&
+                    std::ranges::all_of(compiled.world.contact.rigidProxies,
+                        [](const auto& proxy) {
+                            return (proxy.flags & NM_RIGID_DYNAMIC) == 0u ||
+                                (proxy.flags & NM_RIGID_SOURCE_QUASISTATIC) != 0u;
+                        }),
+                    "source static analysis was cooked with inertial unknowns");
         }
         if (rigidTiesPath != nullptr) {
             const auto fixedCount = std::count_if(
@@ -802,6 +816,9 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                   << " source_contact="
                   << (sourceContactPath != nullptr
                       ? "authored_faces_bound_not_enforced" : "not_assembled")
+                  << " source_analysis="
+                  << (rigidGraphPath != nullptr
+                      ? "quasistatic_inertia_excluded" : "unqualified")
                   << " source_initialization=not_solved "
                      "source_equivalence=rejected "
                      "source_unit_scale=mm_to_m_assumed rest_volume_range_m3="

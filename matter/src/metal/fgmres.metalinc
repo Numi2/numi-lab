@@ -1062,7 +1062,8 @@ kernel void nm_fgmres_build_preconditioner(
         stiffness += dt * dt * tetrahedron.inverseRestRow0.w * bulk *
             gradientScale;
     }
-    const float mass = max(candidate[global].positionAndMass.w, 0.0f);
+    const float mass = (object.flags & NM_OBJECT_FEM_QUASISTATIC) != 0u
+        ? 0.0f : max(candidate[global].positionAndMass.w, 0.0f);
     const bool fixedVelocity = candidate[global].restAndFixed.w > 0.5f;
     const float baseVelocityInverse = fixedVelocity ? 0.0f : 1.0f / max(
         mass + max(stiffness, 0.0f), solver.regularization.x);
@@ -1199,6 +1200,7 @@ kernel void nm_fgmres_apply_free_rigid(
     if (states[environment].diagnostics.z > 0.5f ||
         (proxy.flags & NM_RIGID_DYNAMIC) == 0u ||
         (proxy.flags & NM_RIGID_ARTICULATED) != 0u) return;
+    if ((proxy.flags & NM_RIGID_SOURCE_QUASISTATIC) != 0u) return;
     const NMRigidStateGPU rigid = contact.rigidStates[
         environment * dispatch.rigidProxyCount + proxyIndex];
     if (component < 3u) {
@@ -1308,6 +1310,7 @@ kernel void nm_contact_subtract_rigid_inertia_residual(
         if (proxyIndex < dispatch.rigidProxyCount) {
             const NMRigidProxyGPU proxy = contact.rigidProxies[proxyIndex];
             if ((proxy.flags & NM_RIGID_DYNAMIC) != 0u &&
+                (proxy.flags & NM_RIGID_SOURCE_QUASISTATIC) == 0u &&
                 (proxy.flags & NM_RIGID_ARTICULATED) == 0u) {
                 const NMRigidStateGPU rigid = contact.rigidStates[
                     environment * dispatch.rigidProxyCount + proxyIndex];
@@ -1740,7 +1743,9 @@ kernel void nm_fgmres_gather_nodes(
         femStaticConstraint(candidate[global].restAndFixed.w);
     work[global] = float4(
         fixedVelocity ? float3(0.0f) :
-            candidate[global].positionAndMass.w * direction[global].xyz -
+            ((object.flags & NM_OBJECT_FEM_QUASISTATIC) != 0u
+                ? 0.0f : candidate[global].positionAndMass.w) *
+                direction[global].xyz -
                 dt * dt * derivativeForce,
         activeElements > 0u
             ? pressureOperator / float(activeElements) : 0.0f);

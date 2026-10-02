@@ -386,6 +386,9 @@ struct RigidProxySource {
     // A body frame for joint/tie mechanics without an invented collision
     // shape. Contact must come from separately authored source surfaces.
     bool frameOnly = false;
+    // Valid only for a free frame: omit physical inertia in Matter's rigid
+    // Newton row while retaining numerical inverse mass for preconditioning.
+    bool quasiStatic = false;
     // Live MetalWorld DER capsule. When enabled, body/scene bindings and local
     // capsule endpoints are ignored; strandNodeA/B address the global
     // environment-local rod-node arena and radiusOrOffset remains physical.
@@ -425,6 +428,9 @@ struct ObjectSource {
     // Thin solids may opt out of same-object deformable contact while still
     // participating in contact with other continuum and rigid objects.
     bool deformableSelfContact = true;
+    // Source static continuation uses displacement equilibrium. Density still
+    // defines reference mass and any gravity load, but not acceleration.
+    bool quasiStatic = false;
     std::uint32_t rigidBinding = NM_INVALID_INDEX;
     double characteristicLength = 0.01;
     // MPM uses a fixed-capacity Eulerian background grid. These bounds are

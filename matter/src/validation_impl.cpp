@@ -47,14 +47,16 @@ constexpr std::uint32_t kKnownObjectFlags =
     NM_OBJECT_FEM_MATERIAL_FRAME |
     NM_OBJECT_FEM_REGIONAL_MATERIAL |
     NM_OBJECT_FEM_REFERENCE_CONFIGURATION |
-    NM_OBJECT_FEM_FIELD_ACTIVE_TENSION;
+    NM_OBJECT_FEM_FIELD_ACTIVE_TENSION |
+    NM_OBJECT_FEM_QUASISTATIC;
 constexpr std::uint32_t kKnownRigidFlags =
     NM_RIGID_ARTICULATED |
     NM_RIGID_DYNAMIC |
     NM_RIGID_PUNCTURE_TIP |
     NM_RIGID_SUTURE_STRAND |
     NM_RIGID_PUNCTURE_DILATOR |
-    NM_RIGID_FRAME_ONLY;
+    NM_RIGID_FRAME_ONLY |
+    NM_RIGID_SOURCE_QUASISTATIC;
 
 [[nodiscard]] bool finite4(const nm_float4 value) noexcept {
     return std::isfinite(value.x) && std::isfinite(value.y) &&
@@ -1199,6 +1201,14 @@ private:
                 return failIndexed("continuum object", index,
                     "field-driven active tension has invalid non-mixed electrical ownership");
             }
+            if ((object.flags & NM_OBJECT_FEM_QUASISTATIC) != 0u &&
+                (object.representation != NM_REPRESENTATION_FEM ||
+                 (object.flags & (NM_OBJECT_MIXED_FEM |
+                     NM_OBJECT_MULTIPHYSICS | NM_OBJECT_ADAPTIVE |
+                     NM_OBJECT_MUTABLE_TOPOLOGY)) != 0u)) {
+                return failIndexed("continuum object", index,
+                    "quasi-static FEM ownership is invalid");
+            }
             if ((object.flags & NM_OBJECT_ADAPTIVE) != 0u) {
                 if (object.rigidBinding >= world_.contact.rigidProxies.size()) {
                     return failIndexed(
@@ -1610,6 +1620,8 @@ private:
                 (proxy.flags & NM_RIGID_PUNCTURE_DILATOR) != 0u;
             const bool frameOnly =
                 (proxy.flags & NM_RIGID_FRAME_ONLY) != 0u;
+            const bool quasiStatic =
+                (proxy.flags & NM_RIGID_SOURCE_QUASISTATIC) != 0u;
             const float capsuleDx =
                 proxy.localExtent.x - proxy.localCenterAndRadius.x;
             const float capsuleDy =
@@ -1628,6 +1640,7 @@ private:
                 proxy.materialIndex >= world_.materials.size() ||
                 (proxy.flags & ~kKnownRigidFlags) != 0u ||
                 (articulated && dynamic) ||
+                (quasiStatic && (!frameOnly || !dynamic)) ||
                 (strand &&
                     (articulated || dynamic || punctureTip ||
                      punctureDilator ||

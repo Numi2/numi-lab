@@ -179,6 +179,9 @@ enum NMObjectFlags : nm_u32 {
     NM_OBJECT_FEM_REGIONAL_MATERIAL = 1u << 10u,
     NM_OBJECT_FEM_REFERENCE_CONFIGURATION = 1u << 11u,
     NM_OBJECT_FEM_FIELD_ACTIVE_TENSION = 1u << 12u,
+    // Opt-in static equilibrium: keep density/reference mass for provenance
+    // and body loads, but omit nodal inertial residual and tangent.
+    NM_OBJECT_FEM_QUASISTATIC = 1u << 13u,
 };
 
 enum NMFieldBoundaryFlags : nm_u32 {
@@ -260,6 +263,9 @@ enum NMRigidBindingFlags : nm_u32 {
     // Body-backed frame for joints and tissue ties; it creates no generic
     // continuum-rigid proxy contact pairs.
     NM_RIGID_FRAME_ONLY = 1u << 5u,
+    // Free source frame whose converged equations omit physical inertia.
+    // A positive numerical inverse mass may still precondition its KKT row.
+    NM_RIGID_SOURCE_QUASISTATIC = 1u << 6u,
 };
 
 enum NMResetFlags : nm_u32 {

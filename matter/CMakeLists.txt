@@ -606,6 +606,15 @@ if(APPLE)
             numi-matter-source-rigid-coupled-check)
         set_tests_properties(matter.metal.source_rigid_coupled PROPERTIES
             LABELS "matter;constraint;coupled" TIMEOUT 120)
+        find_package(Python3 COMPONENTS Interpreter QUIET)
+        if(Python3_Interpreter_FOUND)
+            add_test(NAME matter.metal.source_quasistatic_coupled
+                COMMAND "${Python3_EXECUTABLE}"
+                    "${CMAKE_CURRENT_SOURCE_DIR}/tools/check_source_quasistatic_mass.py"
+                    "$<TARGET_FILE:numi-matter-source-rigid-coupled-check>")
+            set_tests_properties(matter.metal.source_quasistatic_coupled
+                PROPERTIES LABELS "matter;constraint;coupled;open_knee" TIMEOUT 120)
+        endif()
         add_test(NAME matter.compiler.source_joint_graph COMMAND
             numi-matter-source-joint-graph-check --source-program
             "${CMAKE_SOURCE_DIR}/../docs/media/open-knee-source-graph-20261002/source-rigid-graph.bin")

@@ -1144,7 +1144,10 @@ kernel void nm_fem_build_mechanical_residual(
         );
     }
     const float dt = objectTimestep(dispatch, scheduler);
-    const float3 momentumCorrection = node.positionAndMass.w *
+    const bool quasiStatic =
+        (object.flags & NM_OBJECT_FEM_QUASISTATIC) != 0u;
+    const float3 momentumCorrection = quasiStatic ? float3(0.0f) :
+        node.positionAndMass.w *
         (current.velocityAndInverseMass.xyz -
          node.velocityAndInverseMass.xyz);
     const bool fixedVelocity = femStaticConstraint(node.restAndFixed.w) ||
@@ -2098,7 +2101,8 @@ inline float4 fusedFEMOperatorAtNode(
         dispatch, schedulers[environment * dispatch.objectCount + objectIndex]
     );
     return float4(
-        candidate[globalNode].positionAndMass.w *
+        ((object.flags & NM_OBJECT_FEM_QUASISTATIC) != 0u
+            ? 0.0f : candidate[globalNode].positionAndMass.w) *
                 direction[globalNode].xyz -
             dt * dt * derivativeForce - dt * pressureForce,
         pressureElements > 0u

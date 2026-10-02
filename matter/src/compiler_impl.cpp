@@ -932,7 +932,8 @@ CompileResult compileWorld(
               proxy.bodyIndex == NM_INVALID_INDEX ||
               proxy.shape != NM_RIGID_SPHERE || proxy.radiusOrOffset != 0.0 ||
               proxy.localCenter != std::array<double, 3>{} ||
-              proxy.localExtent != std::array<double, 3>{}))) {
+              proxy.localExtent != std::array<double, 3>{})) ||
+            (proxy.quasiStatic && (!proxy.frameOnly || !proxy.dynamic))) {
             result.diagnostics.push_back({
                 Diagnostic::Severity::error, 0u, 0u,
                 "rigid proxy contains invalid geometry or material binding",
@@ -951,7 +952,8 @@ CompileResult compileWorld(
             (proxy.punctureTip ? NM_RIGID_PUNCTURE_TIP : 0u) |
             (strand ? NM_RIGID_SUTURE_STRAND : 0u) |
             (proxy.punctureDilator ? NM_RIGID_PUNCTURE_DILATOR : 0u) |
-            (proxy.frameOnly ? NM_RIGID_FRAME_ONLY : 0u);
+            (proxy.frameOnly ? NM_RIGID_FRAME_ONLY : 0u) |
+            (proxy.quasiStatic ? NM_RIGID_SOURCE_QUASISTATIC : 0u);
         cooked.adaptiveObjectIndex = NM_INVALID_INDEX;
         cooked.generalizedFreeBodyIndex = NM_INVALID_INDEX;
         if (proxy.dynamic) {
@@ -1048,6 +1050,14 @@ CompileResult compileWorld(
         const Representation representation = selectRepresentation(
             object, material, result.diagnostics
         );
+        if (object.quasiStatic &&
+            (representation != Representation::fem || object.mixedFEM ||
+             object.adaptive || object.automaticRepresentation ||
+             object.multiphysics.enabled || object.mutationPolicy.enabled)) {
+            result.diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
+                "quasi-static source equilibrium requires immutable non-mixed FEM"});
+            return result;
+        }
         if (object.femFieldDrivenActiveTension &&
             (representation != Representation::fem || object.mixedFEM ||
              !object.multiphysics.enabled || object.adaptive ||
@@ -1175,7 +1185,8 @@ CompileResult compileWorld(
                 ? NM_OBJECT_MUTABLE_TOPOLOGY : 0u) |
             (framed ? NM_OBJECT_FEM_MATERIAL_FRAME : 0u) |
             (regional ? NM_OBJECT_FEM_REGIONAL_MATERIAL : 0u) |
-            (referenced ? NM_OBJECT_FEM_REFERENCE_CONFIGURATION : 0u);
+            (referenced ? NM_OBJECT_FEM_REFERENCE_CONFIGURATION : 0u) |
+            (object.quasiStatic ? NM_OBJECT_FEM_QUASISTATIC : 0u);
         std::copy(object.femMaterialFrameSourceIdentity.begin(),
             object.femMaterialFrameSourceIdentity.end(), descriptor.materialFrameSourceIdentity);
         std::copy(object.femMaterialSourceIdentity.begin(),
