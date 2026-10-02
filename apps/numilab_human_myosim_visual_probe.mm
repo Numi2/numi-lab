@@ -193,7 +193,8 @@ constexpr std::uint32_t kDefaultFrameDimension = 640u;
 constexpr std::array<char, 8u> kBoneMagic{
     'N', 'H', 'B', 'O', 'N', 'E', 'S', '1',
 };
-constexpr std::uint32_t kBonePayloadAbi = 2u;
+constexpr std::uint32_t kLegacyBonePayloadAbi = 2u;
+constexpr std::uint32_t kBonePayloadAbi = 3u;
 constexpr std::array<char, 8u> kSoftTissueMagic{
     'N', 'H', 'T', 'I', 'S', 'S', '2', '\0',
 };
@@ -441,6 +442,24 @@ struct BoneRecord {
     float quaternionZ = 0.0f;
     float quaternionW = 1.0f;
     float uniformScale = 1.0f;
+};
+
+struct BoneRecordABI3 {
+    std::uint32_t bodyIndex = MR_INVALID_INDEX;
+    std::uint32_t firstVertex = 0u;
+    std::uint32_t vertexCount = 0u;
+    std::uint32_t firstIndex = 0u;
+    std::uint32_t indexCount = 0u;
+    std::uint32_t stableId = 0u;
+    float translationX = 0.0f;
+    float translationY = 0.0f;
+    float translationZ = 0.0f;
+    float quaternionX = 0.0f;
+    float quaternionY = 0.0f;
+    float quaternionZ = 0.0f;
+    float quaternionW = 1.0f;
+    float uniformScale = 1.0f;
+    std::uint32_t sourceRecordIndex = MR_INVALID_INDEX;
 };
 
 struct BoneVertex {
@@ -844,6 +863,7 @@ struct LoadedBones {
     std::vector<BoneRecord> records;
     std::vector<BoneVertex> vertices;
     std::vector<std::uint32_t> indices;
+    bool sourceOwnerBindingsVerified = false;
 };
 
 struct LoadedSoftTissues {
@@ -919,6 +939,7 @@ static_assert(sizeof(SupportContactHeader) == 84u);
 static_assert(sizeof(SupportContactRecord) == 48u);
 static_assert(sizeof(BoneHeader) == 60u);
 static_assert(sizeof(BoneRecord) == 56u);
+static_assert(sizeof(BoneRecordABI3) == 60u);
 static_assert(sizeof(BoneVertex) == 24u);
 static_assert(sizeof(SoftTissueHeader) == 60u);
 static_assert(sizeof(RouteSoftTissueHeader) == 64u);
@@ -998,6 +1019,7 @@ std::vector<T> readVector(
 struct LoadedRigid {
     RigidHeader header{};
     metalrobo::EngineModel model;
+    std::vector<std::uint32_t> sourceToCore;
 };
 
 LoadedRigid loadRigid(const std::filesystem::path& path) {
@@ -1035,10 +1057,9 @@ LoadedRigid loadRigid(const std::filesystem::path& path) {
     result.model.defaultV = readVector<float>(
         input, result.header.nv, "MyoSim default v"
     );
-    const auto sourceToCore = readVector<std::uint32_t>(
+    result.sourceToCore = readVector<std::uint32_t>(
         input, result.header.sourceBodyCount, "MyoSim source map"
     );
-    (void)sourceToCore;
     const auto sourcePoses = readVector<SourcePoseRecord>(
         input, result.header.sourceBodyCount, "MyoSim source poses"
     );
@@ -1681,16 +1702,17 @@ LoadedJointEqualities loadJointEqualities(
 
 LoadedBones loadBones(
     const std::filesystem::path& path,
-    const RigidHeader& rigid
+    const LoadedRigid& rigid
 ) {
     std::ifstream input(path, std::ios::binary);
     require(input.is_open(), "cannot open BodyParts3D bone payload " + path.string());
     LoadedBones result;
     readObject(input, result.header, "BodyParts3D bone header");
-    require(result.header.magic == kBoneMagic &&
-                result.header.payloadAbi == kBonePayloadAbi &&
+    const bool legacy = result.header.payloadAbi == kLegacyBonePayloadAbi;
+    const bool sourceBound = result.header.payloadAbi == kBonePayloadAbi;
+    require(result.header.magic == kBoneMagic && (legacy || sourceBound) &&
                 result.header.reserved0 != 0u &&
-                result.header.sourceSha256 == rigid.sourceSha256 &&
+                result.header.sourceSha256 == rigid.header.sourceSha256 &&
                 result.header.boneCount > 0u &&
                 result.header.vertexCount > 0u &&
                 result.header.indexCount > 0u &&
@@ -1699,9 +1721,39 @@ LoadedBones loadBones(
                 result.header.vertexCount <= 4'000'000u &&
                 result.header.indexCount <= 24'000'000u,
             "BodyParts3D bone payload/header disagreement");
-    result.records = readVector<BoneRecord>(
-        input, result.header.boneCount, "BodyParts3D bone records"
-    );
+    if (legacy) {
+        result.records = readVector<BoneRecord>(
+            input, result.header.boneCount, "BodyParts3D ABI 2 bone records"
+        );
+    } else {
+        const auto sourceBoundRecords = readVector<BoneRecordABI3>(
+            input, result.header.boneCount, "BodyParts3D ABI 3 bone records"
+        );
+        result.records.reserve(sourceBoundRecords.size());
+        for (const BoneRecordABI3& sourceRecord : sourceBoundRecords) {
+            require(sourceRecord.sourceRecordIndex < rigid.sourceToCore.size() &&
+                        rigid.sourceToCore[sourceRecord.sourceRecordIndex] ==
+                            sourceRecord.bodyIndex,
+                    "BodyParts3D ABI 3 source owner does not match the NHRIGID2 source map");
+            result.records.push_back({
+                sourceRecord.bodyIndex,
+                sourceRecord.firstVertex,
+                sourceRecord.vertexCount,
+                sourceRecord.firstIndex,
+                sourceRecord.indexCount,
+                sourceRecord.stableId,
+                sourceRecord.translationX,
+                sourceRecord.translationY,
+                sourceRecord.translationZ,
+                sourceRecord.quaternionX,
+                sourceRecord.quaternionY,
+                sourceRecord.quaternionZ,
+                sourceRecord.quaternionW,
+                sourceRecord.uniformScale,
+            });
+        }
+        result.sourceOwnerBindingsVerified = true;
+    }
     result.vertices = readVector<BoneVertex>(
         input, result.header.vertexCount, "BodyParts3D bone vertices"
     );
@@ -1727,7 +1779,7 @@ LoadedBones loadBones(
             record.quaternionX * record.quaternionX + record.quaternionY * record.quaternionY +
             record.quaternionZ * record.quaternionZ + record.quaternionW * record.quaternionW
         );
-        require(record.bodyIndex < rigid.engineBodyCount && record.vertexCount > 0u &&
+        require(record.bodyIndex < rigid.header.engineBodyCount && record.vertexCount > 0u &&
                     record.indexCount > 0u && record.indexCount % 3u == 0u &&
                     record.firstVertex <= result.vertices.size() &&
                     record.vertexCount <= result.vertices.size() - record.firstVertex &&
@@ -14288,7 +14340,10 @@ int main(int argc, char** argv) {
                     "--soft-tissue-stable-id values must be unique");
             std::optional<LoadedBones> bonePayload;
             if (bodypartsBoneVisual) {
-                bonePayload.emplace(loadBones(positional[2], rigid.header));
+                bonePayload.emplace(loadBones(positional[2], rigid));
+                std::cout << "bone_source_owner_bindings_verified="
+                          << (bonePayload->sourceOwnerBindingsVerified ? "true" : "false")
+                          << '\n';
             }
             std::optional<metalrobo::NumiHumanKneePayload> openKneePayload;
             if (openKneePayloadPath.has_value()) {
