@@ -1,0 +1,22 @@
+{
+  "status": "passed_operator_checks",
+  "scope": "source connector directional derivatives, six-coordinate wrench pullback, CPU/Metal agreement; no rigid graph/runtime qualification",
+  "matter_binary_sha256": "9a2fe245ddf720885d34126e1b9e1fffb06c57148c0258cc7afb9bf2831c7b47",
+  "source_sha256": {
+    "matter/include/numi/matter/source_cylindrical_joint.h": "d48bd8ea98f22919d9d7ee9481bbb9b77635fe6c36bc9c2e64c7ae4fdde3eaec",
+    "matter/tools/source_joint_check.mm": "d0b709b77f11e2d16d501071a11016e81416807030b1aaedc4d54f32250d37bf"
+  },
+  "checks": {
+    "directional_derivative_components": 2016,
+    "maximum_directional_relative_error": 3.30856e-7,
+    "six_coordinate_virtual_work_cases": 96,
+    "maximum_scaled_virtual_work_mismatch": 2.71914e-15,
+    "virtual_work_gate": 5e-15,
+    "metal_rows": 195,
+    "maximum_scaled_cpu_metal_error": 2.13333e-7,
+    "cpu_metal_gate": 2e-5,
+    "metal_device": "Apple M4"
+  },
+  "output": "operator-check.stdout",
+  "output_sha256": "841ad7d1087edd28268200ae7091eee66e8f9de3db8d7112e6d4af39df2ed850"
+}

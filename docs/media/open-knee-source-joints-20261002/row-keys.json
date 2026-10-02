@@ -1,0 +1,4202 @@
+[
+  {
+    "step": 1,
+    "time": 0.05,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 1,
+    "time": 0.05,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 1,
+    "time": 0.05,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 1,
+    "time": 0.05,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 1,
+    "time": 0.05,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 1,
+    "time": 0.05,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 2,
+    "time": 0.1,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 2,
+    "time": 0.1,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 2,
+    "time": 0.1,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 2,
+    "time": 0.1,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 2,
+    "time": 0.1,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 2,
+    "time": 0.1,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 3,
+    "time": 0.15,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 3,
+    "time": 0.15,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 3,
+    "time": 0.15,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 3,
+    "time": 0.15,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 3,
+    "time": 0.15,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 3,
+    "time": 0.15,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 4,
+    "time": 0.2,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 4,
+    "time": 0.2,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 4,
+    "time": 0.2,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 4,
+    "time": 0.2,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 4,
+    "time": 0.2,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 4,
+    "time": 0.2,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 5,
+    "time": 0.25,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 5,
+    "time": 0.25,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 5,
+    "time": 0.25,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 5,
+    "time": 0.25,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 5,
+    "time": 0.25,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 5,
+    "time": 0.25,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 6,
+    "time": 0.3,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 6,
+    "time": 0.3,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 6,
+    "time": 0.3,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 6,
+    "time": 0.3,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 6,
+    "time": 0.3,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 6,
+    "time": 0.3,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 7,
+    "time": 0.35,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 7,
+    "time": 0.35,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 7,
+    "time": 0.35,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 7,
+    "time": 0.35,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 7,
+    "time": 0.35,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 7,
+    "time": 0.35,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 8,
+    "time": 0.4,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 8,
+    "time": 0.4,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 8,
+    "time": 0.4,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 8,
+    "time": 0.4,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 8,
+    "time": 0.4,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 8,
+    "time": 0.4,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 9,
+    "time": 0.45,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 9,
+    "time": 0.45,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 9,
+    "time": 0.45,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 9,
+    "time": 0.45,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 9,
+    "time": 0.45,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 9,
+    "time": 0.45,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 10,
+    "time": 0.5,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 10,
+    "time": 0.5,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 10,
+    "time": 0.5,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 10,
+    "time": 0.5,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 10,
+    "time": 0.5,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 10,
+    "time": 0.5,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 11,
+    "time": 0.55,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 11,
+    "time": 0.55,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 11,
+    "time": 0.55,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 11,
+    "time": 0.55,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 11,
+    "time": 0.55,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 11,
+    "time": 0.55,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 12,
+    "time": 0.6,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 12,
+    "time": 0.6,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 12,
+    "time": 0.6,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 12,
+    "time": 0.6,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 12,
+    "time": 0.6,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 12,
+    "time": 0.6,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 13,
+    "time": 0.65,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 13,
+    "time": 0.65,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 13,
+    "time": 0.65,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 13,
+    "time": 0.65,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 13,
+    "time": 0.65,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 13,
+    "time": 0.65,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 14,
+    "time": 0.7,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 14,
+    "time": 0.7,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 14,
+    "time": 0.7,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 14,
+    "time": 0.7,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 14,
+    "time": 0.7,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 14,
+    "time": 0.7,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 15,
+    "time": 0.75,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 15,
+    "time": 0.75,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 15,
+    "time": 0.75,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 15,
+    "time": 0.75,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 15,
+    "time": 0.75,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 15,
+    "time": 0.75,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 16,
+    "time": 0.8,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 16,
+    "time": 0.8,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 16,
+    "time": 0.8,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 16,
+    "time": 0.8,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 16,
+    "time": 0.8,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 16,
+    "time": 0.8,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 17,
+    "time": 0.85,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 17,
+    "time": 0.85,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 17,
+    "time": 0.85,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 17,
+    "time": 0.85,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 17,
+    "time": 0.85,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 17,
+    "time": 0.85,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 18,
+    "time": 0.9,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 18,
+    "time": 0.9,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 18,
+    "time": 0.9,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 18,
+    "time": 0.9,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 18,
+    "time": 0.9,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 18,
+    "time": 0.9,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 19,
+    "time": 0.95,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 19,
+    "time": 0.95,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 19,
+    "time": 0.95,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 19,
+    "time": 0.95,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 19,
+    "time": 0.95,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 19,
+    "time": 0.95,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 20,
+    "time": 1.0,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 20,
+    "time": 1.0,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 20,
+    "time": 1.0,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 20,
+    "time": 1.0,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 20,
+    "time": 1.0,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 20,
+    "time": 1.0,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 21,
+    "time": 1.00625,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 21,
+    "time": 1.00625,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 21,
+    "time": 1.00625,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 21,
+    "time": 1.00625,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 21,
+    "time": 1.00625,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 21,
+    "time": 1.00625,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 22,
+    "time": 1.01375,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 22,
+    "time": 1.01375,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 22,
+    "time": 1.01375,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 22,
+    "time": 1.01375,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 22,
+    "time": 1.01375,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 22,
+    "time": 1.01375,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 23,
+    "time": 1.02175,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 23,
+    "time": 1.02175,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 23,
+    "time": 1.02175,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 23,
+    "time": 1.02175,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 23,
+    "time": 1.02175,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 23,
+    "time": 1.02175,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 24,
+    "time": 1.02995,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 24,
+    "time": 1.02995,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 24,
+    "time": 1.02995,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 24,
+    "time": 1.02995,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 24,
+    "time": 1.02995,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 24,
+    "time": 1.02995,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 25,
+    "time": 1.03823,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 25,
+    "time": 1.03823,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 25,
+    "time": 1.03823,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 25,
+    "time": 1.03823,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 25,
+    "time": 1.03823,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 25,
+    "time": 1.03823,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 26,
+    "time": 1.046542,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 26,
+    "time": 1.046542,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 26,
+    "time": 1.046542,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 26,
+    "time": 1.046542,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 26,
+    "time": 1.046542,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 26,
+    "time": 1.046542,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 27,
+    "time": 1.0548668,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 27,
+    "time": 1.0548668,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 27,
+    "time": 1.0548668,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 27,
+    "time": 1.0548668,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 27,
+    "time": 1.0548668,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 27,
+    "time": 1.0548668,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 28,
+    "time": 1.06319672,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 28,
+    "time": 1.06319672,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 28,
+    "time": 1.06319672,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 28,
+    "time": 1.06319672,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 28,
+    "time": 1.06319672,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 28,
+    "time": 1.06319672,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 29,
+    "time": 1.07152869,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 29,
+    "time": 1.07152869,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 29,
+    "time": 1.07152869,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 29,
+    "time": 1.07152869,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 29,
+    "time": 1.07152869,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 29,
+    "time": 1.07152869,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 30,
+    "time": 1.07986148,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 30,
+    "time": 1.07986148,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 30,
+    "time": 1.07986148,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 30,
+    "time": 1.07986148,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 30,
+    "time": 1.07986148,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 30,
+    "time": 1.07986148,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 31,
+    "time": 1.08819459,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 31,
+    "time": 1.08819459,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 31,
+    "time": 1.08819459,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 31,
+    "time": 1.08819459,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 31,
+    "time": 1.08819459,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 31,
+    "time": 1.08819459,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 32,
+    "time": 1.09652784,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 32,
+    "time": 1.09652784,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 32,
+    "time": 1.09652784,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 32,
+    "time": 1.09652784,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 32,
+    "time": 1.09652784,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 32,
+    "time": 1.09652784,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 33,
+    "time": 1.10486113,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 33,
+    "time": 1.10486113,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 33,
+    "time": 1.10486113,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 33,
+    "time": 1.10486113,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 33,
+    "time": 1.10486113,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 33,
+    "time": 1.10486113,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 34,
+    "time": 1.11319445,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 34,
+    "time": 1.11319445,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 34,
+    "time": 1.11319445,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 34,
+    "time": 1.11319445,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 34,
+    "time": 1.11319445,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 34,
+    "time": 1.11319445,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 35,
+    "time": 1.12152778,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 35,
+    "time": 1.12152778,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 35,
+    "time": 1.12152778,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 35,
+    "time": 1.12152778,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 35,
+    "time": 1.12152778,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 35,
+    "time": 1.12152778,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 36,
+    "time": 1.12986111,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 36,
+    "time": 1.12986111,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 36,
+    "time": 1.12986111,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 36,
+    "time": 1.12986111,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 36,
+    "time": 1.12986111,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 36,
+    "time": 1.12986111,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 37,
+    "time": 1.13819445,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 37,
+    "time": 1.13819445,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 37,
+    "time": 1.13819445,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 37,
+    "time": 1.13819445,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 37,
+    "time": 1.13819445,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 37,
+    "time": 1.13819445,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 38,
+    "time": 1.14652778,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 38,
+    "time": 1.14652778,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 38,
+    "time": 1.14652778,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 38,
+    "time": 1.14652778,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 38,
+    "time": 1.14652778,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 38,
+    "time": 1.14652778,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 39,
+    "time": 1.15486111,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 39,
+    "time": 1.15486111,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 39,
+    "time": 1.15486111,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 39,
+    "time": 1.15486111,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 39,
+    "time": 1.15486111,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 39,
+    "time": 1.15486111,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 40,
+    "time": 1.16319444,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 40,
+    "time": 1.16319444,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 40,
+    "time": 1.16319444,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 40,
+    "time": 1.16319444,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 40,
+    "time": 1.16319444,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 40,
+    "time": 1.16319444,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 41,
+    "time": 1.17152778,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 41,
+    "time": 1.17152778,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 41,
+    "time": 1.17152778,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 41,
+    "time": 1.17152778,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 41,
+    "time": 1.17152778,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 41,
+    "time": 1.17152778,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 42,
+    "time": 1.17986111,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 42,
+    "time": 1.17986111,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 42,
+    "time": 1.17986111,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 42,
+    "time": 1.17986111,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 42,
+    "time": 1.17986111,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 42,
+    "time": 1.17986111,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 43,
+    "time": 1.18819444,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 43,
+    "time": 1.18819444,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 43,
+    "time": 1.18819444,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 43,
+    "time": 1.18819444,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 43,
+    "time": 1.18819444,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 43,
+    "time": 1.18819444,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 44,
+    "time": 1.19652778,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 44,
+    "time": 1.19652778,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 44,
+    "time": 1.19652778,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 44,
+    "time": 1.19652778,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 44,
+    "time": 1.19652778,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 44,
+    "time": 1.19652778,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 45,
+    "time": 1.20486111,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 45,
+    "time": 1.20486111,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 45,
+    "time": 1.20486111,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 45,
+    "time": 1.20486111,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 45,
+    "time": 1.20486111,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 45,
+    "time": 1.20486111,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 46,
+    "time": 1.21319444,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 46,
+    "time": 1.21319444,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 46,
+    "time": 1.21319444,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 46,
+    "time": 1.21319444,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 46,
+    "time": 1.21319444,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 46,
+    "time": 1.21319444,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 47,
+    "time": 1.22152778,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 47,
+    "time": 1.22152778,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 47,
+    "time": 1.22152778,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 47,
+    "time": 1.22152778,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 47,
+    "time": 1.22152778,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 47,
+    "time": 1.22152778,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 48,
+    "time": 1.22986111,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 48,
+    "time": 1.22986111,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 48,
+    "time": 1.22986111,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 48,
+    "time": 1.22986111,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 48,
+    "time": 1.22986111,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 48,
+    "time": 1.22986111,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 49,
+    "time": 1.23819444,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 49,
+    "time": 1.23819444,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 49,
+    "time": 1.23819444,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 49,
+    "time": 1.23819444,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 49,
+    "time": 1.23819444,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 49,
+    "time": 1.23819444,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 50,
+    "time": 1.24652778,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 50,
+    "time": 1.24652778,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 50,
+    "time": 1.24652778,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 50,
+    "time": 1.24652778,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 50,
+    "time": 1.24652778,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 50,
+    "time": 1.24652778,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 51,
+    "time": 1.25486111,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 51,
+    "time": 1.25486111,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 51,
+    "time": 1.25486111,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 51,
+    "time": 1.25486111,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 51,
+    "time": 1.25486111,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 51,
+    "time": 1.25486111,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 52,
+    "time": 1.26319444,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 52,
+    "time": 1.26319444,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 52,
+    "time": 1.26319444,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 52,
+    "time": 1.26319444,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 52,
+    "time": 1.26319444,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 52,
+    "time": 1.26319444,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 53,
+    "time": 1.27152778,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 53,
+    "time": 1.27152778,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 53,
+    "time": 1.27152778,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 53,
+    "time": 1.27152778,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 53,
+    "time": 1.27152778,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 53,
+    "time": 1.27152778,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 54,
+    "time": 1.27986111,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 54,
+    "time": 1.27986111,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 54,
+    "time": 1.27986111,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 54,
+    "time": 1.27986111,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 54,
+    "time": 1.27986111,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 54,
+    "time": 1.27986111,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 55,
+    "time": 1.28819444,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 55,
+    "time": 1.28819444,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 55,
+    "time": 1.28819444,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 55,
+    "time": 1.28819444,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 55,
+    "time": 1.28819444,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 55,
+    "time": 1.28819444,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 56,
+    "time": 1.29652778,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 56,
+    "time": 1.29652778,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 56,
+    "time": 1.29652778,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 56,
+    "time": 1.29652778,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 56,
+    "time": 1.29652778,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 56,
+    "time": 1.29652778,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 57,
+    "time": 1.30486111,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 57,
+    "time": 1.30486111,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 57,
+    "time": 1.30486111,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 57,
+    "time": 1.30486111,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 57,
+    "time": 1.30486111,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 57,
+    "time": 1.30486111,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 58,
+    "time": 1.31319444,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 58,
+    "time": 1.31319444,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 58,
+    "time": 1.31319444,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 58,
+    "time": 1.31319444,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 58,
+    "time": 1.31319444,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 58,
+    "time": 1.31319444,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 59,
+    "time": 1.32152778,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 59,
+    "time": 1.32152778,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 59,
+    "time": 1.32152778,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 59,
+    "time": 1.32152778,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 59,
+    "time": 1.32152778,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 59,
+    "time": 1.32152778,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 60,
+    "time": 1.32986111,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 60,
+    "time": 1.32986111,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 60,
+    "time": 1.32986111,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 60,
+    "time": 1.32986111,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 60,
+    "time": 1.32986111,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 60,
+    "time": 1.32986111,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 61,
+    "time": 1.33819444,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 61,
+    "time": 1.33819444,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 61,
+    "time": 1.33819444,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 61,
+    "time": 1.33819444,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 61,
+    "time": 1.33819444,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 61,
+    "time": 1.33819444,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 62,
+    "time": 1.34652778,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 62,
+    "time": 1.34652778,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 62,
+    "time": 1.34652778,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 62,
+    "time": 1.34652778,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 62,
+    "time": 1.34652778,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 62,
+    "time": 1.34652778,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 63,
+    "time": 1.35486111,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 63,
+    "time": 1.35486111,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 63,
+    "time": 1.35486111,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 63,
+    "time": 1.35486111,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 63,
+    "time": 1.35486111,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 63,
+    "time": 1.35486111,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 64,
+    "time": 1.36319444,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 64,
+    "time": 1.36319444,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 64,
+    "time": 1.36319444,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 64,
+    "time": 1.36319444,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 64,
+    "time": 1.36319444,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 64,
+    "time": 1.36319444,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 65,
+    "time": 1.37152778,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 65,
+    "time": 1.37152778,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 65,
+    "time": 1.37152778,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 65,
+    "time": 1.37152778,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 65,
+    "time": 1.37152778,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 65,
+    "time": 1.37152778,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 66,
+    "time": 1.37986111,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 66,
+    "time": 1.37986111,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 66,
+    "time": 1.37986111,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 66,
+    "time": 1.37986111,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 66,
+    "time": 1.37986111,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 66,
+    "time": 1.37986111,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 67,
+    "time": 1.38819444,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 67,
+    "time": 1.38819444,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 67,
+    "time": 1.38819444,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 67,
+    "time": 1.38819444,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 67,
+    "time": 1.38819444,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 67,
+    "time": 1.38819444,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 68,
+    "time": 1.39652778,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 68,
+    "time": 1.39652778,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 68,
+    "time": 1.39652778,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 68,
+    "time": 1.39652778,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 68,
+    "time": 1.39652778,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 68,
+    "time": 1.39652778,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 69,
+    "time": 1.40486111,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 69,
+    "time": 1.40486111,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 69,
+    "time": 1.40486111,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 69,
+    "time": 1.40486111,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 69,
+    "time": 1.40486111,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 69,
+    "time": 1.40486111,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 70,
+    "time": 1.41319444,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 70,
+    "time": 1.41319444,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 70,
+    "time": 1.41319444,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 70,
+    "time": 1.41319444,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 70,
+    "time": 1.41319444,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 70,
+    "time": 1.41319444,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 71,
+    "time": 1.42152778,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 71,
+    "time": 1.42152778,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 71,
+    "time": 1.42152778,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 71,
+    "time": 1.42152778,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 71,
+    "time": 1.42152778,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 71,
+    "time": 1.42152778,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 72,
+    "time": 1.42986111,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 72,
+    "time": 1.42986111,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 72,
+    "time": 1.42986111,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 72,
+    "time": 1.42986111,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 72,
+    "time": 1.42986111,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 72,
+    "time": 1.42986111,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 73,
+    "time": 1.43819444,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 73,
+    "time": 1.43819444,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 73,
+    "time": 1.43819444,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 73,
+    "time": 1.43819444,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 73,
+    "time": 1.43819444,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 73,
+    "time": 1.43819444,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 74,
+    "time": 1.44652778,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 74,
+    "time": 1.44652778,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 74,
+    "time": 1.44652778,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 74,
+    "time": 1.44652778,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 74,
+    "time": 1.44652778,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 74,
+    "time": 1.44652778,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 75,
+    "time": 1.45486111,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 75,
+    "time": 1.45486111,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 75,
+    "time": 1.45486111,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 75,
+    "time": 1.45486111,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 75,
+    "time": 1.45486111,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 75,
+    "time": 1.45486111,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 76,
+    "time": 1.46319444,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 76,
+    "time": 1.46319444,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 76,
+    "time": 1.46319444,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 76,
+    "time": 1.46319444,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 76,
+    "time": 1.46319444,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 76,
+    "time": 1.46319444,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 77,
+    "time": 1.47152778,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 77,
+    "time": 1.47152778,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 77,
+    "time": 1.47152778,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 77,
+    "time": 1.47152778,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 77,
+    "time": 1.47152778,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 77,
+    "time": 1.47152778,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 78,
+    "time": 1.47986111,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 78,
+    "time": 1.47986111,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 78,
+    "time": 1.47986111,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 78,
+    "time": 1.47986111,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 78,
+    "time": 1.47986111,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 78,
+    "time": 1.47986111,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 79,
+    "time": 1.48819444,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 79,
+    "time": 1.48819444,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 79,
+    "time": 1.48819444,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 79,
+    "time": 1.48819444,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 79,
+    "time": 1.48819444,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 79,
+    "time": 1.48819444,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 80,
+    "time": 1.49652778,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 80,
+    "time": 1.49652778,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 80,
+    "time": 1.49652778,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 80,
+    "time": 1.49652778,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 80,
+    "time": 1.49652778,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 80,
+    "time": 1.49652778,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 81,
+    "time": 1.50486111,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 81,
+    "time": 1.50486111,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 81,
+    "time": 1.50486111,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 81,
+    "time": 1.50486111,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 81,
+    "time": 1.50486111,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 81,
+    "time": 1.50486111,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 82,
+    "time": 1.51319444,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 82,
+    "time": 1.51319444,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 82,
+    "time": 1.51319444,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 82,
+    "time": 1.51319444,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 82,
+    "time": 1.51319444,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 82,
+    "time": 1.51319444,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 83,
+    "time": 1.52152778,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 83,
+    "time": 1.52152778,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 83,
+    "time": 1.52152778,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 83,
+    "time": 1.52152778,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 83,
+    "time": 1.52152778,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 83,
+    "time": 1.52152778,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 84,
+    "time": 1.52986111,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 84,
+    "time": 1.52986111,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 84,
+    "time": 1.52986111,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 84,
+    "time": 1.52986111,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 84,
+    "time": 1.52986111,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 84,
+    "time": 1.52986111,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 85,
+    "time": 1.53819444,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 85,
+    "time": 1.53819444,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 85,
+    "time": 1.53819444,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 85,
+    "time": 1.53819444,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 85,
+    "time": 1.53819444,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 85,
+    "time": 1.53819444,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 86,
+    "time": 1.54652778,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 86,
+    "time": 1.54652778,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 86,
+    "time": 1.54652778,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 86,
+    "time": 1.54652778,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 86,
+    "time": 1.54652778,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 86,
+    "time": 1.54652778,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 87,
+    "time": 1.55486111,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 87,
+    "time": 1.55486111,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 87,
+    "time": 1.55486111,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 87,
+    "time": 1.55486111,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 87,
+    "time": 1.55486111,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 87,
+    "time": 1.55486111,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 88,
+    "time": 1.56319444,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 88,
+    "time": 1.56319444,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 88,
+    "time": 1.56319444,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 88,
+    "time": 1.56319444,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 88,
+    "time": 1.56319444,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 88,
+    "time": 1.56319444,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 89,
+    "time": 1.57152778,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 89,
+    "time": 1.57152778,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 89,
+    "time": 1.57152778,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 89,
+    "time": 1.57152778,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 89,
+    "time": 1.57152778,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 89,
+    "time": 1.57152778,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 90,
+    "time": 1.57986111,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 90,
+    "time": 1.57986111,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 90,
+    "time": 1.57986111,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 90,
+    "time": 1.57986111,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 90,
+    "time": 1.57986111,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 90,
+    "time": 1.57986111,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 91,
+    "time": 1.58819444,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 91,
+    "time": 1.58819444,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 91,
+    "time": 1.58819444,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 91,
+    "time": 1.58819444,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 91,
+    "time": 1.58819444,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 91,
+    "time": 1.58819444,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 92,
+    "time": 1.59652778,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 92,
+    "time": 1.59652778,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 92,
+    "time": 1.59652778,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 92,
+    "time": 1.59652778,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 92,
+    "time": 1.59652778,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 92,
+    "time": 1.59652778,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 93,
+    "time": 1.60486111,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 93,
+    "time": 1.60486111,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 93,
+    "time": 1.60486111,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 93,
+    "time": 1.60486111,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 93,
+    "time": 1.60486111,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 93,
+    "time": 1.60486111,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 94,
+    "time": 1.61319444,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 94,
+    "time": 1.61319444,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 94,
+    "time": 1.61319444,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 94,
+    "time": 1.61319444,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 94,
+    "time": 1.61319444,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 94,
+    "time": 1.61319444,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 95,
+    "time": 1.62152778,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 95,
+    "time": 1.62152778,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 95,
+    "time": 1.62152778,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 95,
+    "time": 1.62152778,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 95,
+    "time": 1.62152778,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 95,
+    "time": 1.62152778,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 96,
+    "time": 1.62986111,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 96,
+    "time": 1.62986111,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 96,
+    "time": 1.62986111,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 96,
+    "time": 1.62986111,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 96,
+    "time": 1.62986111,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 96,
+    "time": 1.62986111,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 97,
+    "time": 1.63819444,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 97,
+    "time": 1.63819444,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 97,
+    "time": 1.63819444,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 97,
+    "time": 1.63819444,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 97,
+    "time": 1.63819444,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 97,
+    "time": 1.63819444,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 98,
+    "time": 1.64652778,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 98,
+    "time": 1.64652778,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 98,
+    "time": 1.64652778,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 98,
+    "time": 1.64652778,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 98,
+    "time": 1.64652778,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 98,
+    "time": 1.64652778,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 99,
+    "time": 1.65486111,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 99,
+    "time": 1.65486111,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 99,
+    "time": 1.65486111,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 99,
+    "time": 1.65486111,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 99,
+    "time": 1.65486111,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 99,
+    "time": 1.65486111,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 100,
+    "time": 1.66319444,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 100,
+    "time": 1.66319444,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 100,
+    "time": 1.66319444,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 100,
+    "time": 1.66319444,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 100,
+    "time": 1.66319444,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 100,
+    "time": 1.66319444,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 101,
+    "time": 1.67152778,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 101,
+    "time": 1.67152778,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 101,
+    "time": 1.67152778,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 101,
+    "time": 1.67152778,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 101,
+    "time": 1.67152778,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 101,
+    "time": 1.67152778,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 102,
+    "time": 1.67986111,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 102,
+    "time": 1.67986111,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 102,
+    "time": 1.67986111,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 102,
+    "time": 1.67986111,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 102,
+    "time": 1.67986111,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 102,
+    "time": 1.67986111,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 103,
+    "time": 1.68819444,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 103,
+    "time": 1.68819444,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 103,
+    "time": 1.68819444,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 103,
+    "time": 1.68819444,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 103,
+    "time": 1.68819444,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 103,
+    "time": 1.68819444,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 104,
+    "time": 1.69652778,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 104,
+    "time": 1.69652778,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 104,
+    "time": 1.69652778,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 104,
+    "time": 1.69652778,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 104,
+    "time": 1.69652778,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 104,
+    "time": 1.69652778,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 105,
+    "time": 1.70486111,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 105,
+    "time": 1.70486111,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 105,
+    "time": 1.70486111,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 105,
+    "time": 1.70486111,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 105,
+    "time": 1.70486111,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 105,
+    "time": 1.70486111,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 106,
+    "time": 1.71319444,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 106,
+    "time": 1.71319444,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 106,
+    "time": 1.71319444,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 106,
+    "time": 1.71319444,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 106,
+    "time": 1.71319444,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 106,
+    "time": 1.71319444,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 107,
+    "time": 1.72152778,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 107,
+    "time": 1.72152778,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 107,
+    "time": 1.72152778,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 107,
+    "time": 1.72152778,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 107,
+    "time": 1.72152778,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 107,
+    "time": 1.72152778,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 108,
+    "time": 1.72986111,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 108,
+    "time": 1.72986111,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 108,
+    "time": 1.72986111,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 108,
+    "time": 1.72986111,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 108,
+    "time": 1.72986111,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 108,
+    "time": 1.72986111,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 109,
+    "time": 1.73819444,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 109,
+    "time": 1.73819444,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 109,
+    "time": 1.73819444,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 109,
+    "time": 1.73819444,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 109,
+    "time": 1.73819444,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 109,
+    "time": 1.73819444,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 110,
+    "time": 1.74652778,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 110,
+    "time": 1.74652778,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 110,
+    "time": 1.74652778,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 110,
+    "time": 1.74652778,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 110,
+    "time": 1.74652778,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 110,
+    "time": 1.74652778,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 111,
+    "time": 1.75486111,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 111,
+    "time": 1.75486111,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 111,
+    "time": 1.75486111,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 111,
+    "time": 1.75486111,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 111,
+    "time": 1.75486111,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 111,
+    "time": 1.75486111,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 112,
+    "time": 1.76319444,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 112,
+    "time": 1.76319444,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 112,
+    "time": 1.76319444,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 112,
+    "time": 1.76319444,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 112,
+    "time": 1.76319444,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 112,
+    "time": 1.76319444,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 113,
+    "time": 1.77152778,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 113,
+    "time": 1.77152778,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 113,
+    "time": 1.77152778,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 113,
+    "time": 1.77152778,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 113,
+    "time": 1.77152778,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 113,
+    "time": 1.77152778,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 114,
+    "time": 1.77986111,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 114,
+    "time": 1.77986111,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 114,
+    "time": 1.77986111,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 114,
+    "time": 1.77986111,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 114,
+    "time": 1.77986111,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 114,
+    "time": 1.77986111,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 115,
+    "time": 1.78819444,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 115,
+    "time": 1.78819444,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 115,
+    "time": 1.78819444,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 115,
+    "time": 1.78819444,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 115,
+    "time": 1.78819444,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 115,
+    "time": 1.78819444,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 116,
+    "time": 1.79652778,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 116,
+    "time": 1.79652778,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 116,
+    "time": 1.79652778,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 116,
+    "time": 1.79652778,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 116,
+    "time": 1.79652778,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 116,
+    "time": 1.79652778,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 117,
+    "time": 1.80486111,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 117,
+    "time": 1.80486111,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 117,
+    "time": 1.80486111,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 117,
+    "time": 1.80486111,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 117,
+    "time": 1.80486111,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 117,
+    "time": 1.80486111,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 118,
+    "time": 1.81319444,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 118,
+    "time": 1.81319444,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 118,
+    "time": 1.81319444,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 118,
+    "time": 1.81319444,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 118,
+    "time": 1.81319444,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 118,
+    "time": 1.81319444,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 119,
+    "time": 1.82152778,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 119,
+    "time": 1.82152778,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 119,
+    "time": 1.82152778,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 119,
+    "time": 1.82152778,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 119,
+    "time": 1.82152778,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 119,
+    "time": 1.82152778,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 120,
+    "time": 1.82569444,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 120,
+    "time": 1.82569444,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 120,
+    "time": 1.82569444,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 120,
+    "time": 1.82569444,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 120,
+    "time": 1.82569444,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 120,
+    "time": 1.82569444,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 121,
+    "time": 1.83902778,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 121,
+    "time": 1.83902778,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 121,
+    "time": 1.83902778,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 121,
+    "time": 1.83902778,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 121,
+    "time": 1.83902778,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 121,
+    "time": 1.83902778,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 122,
+    "time": 1.84936111,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 122,
+    "time": 1.84936111,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 122,
+    "time": 1.84936111,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 122,
+    "time": 1.84936111,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 122,
+    "time": 1.84936111,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 122,
+    "time": 1.84936111,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 123,
+    "time": 1.85849444,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 123,
+    "time": 1.85849444,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 123,
+    "time": 1.85849444,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 123,
+    "time": 1.85849444,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 123,
+    "time": 1.85849444,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 123,
+    "time": 1.85849444,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 124,
+    "time": 1.86714778,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 124,
+    "time": 1.86714778,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 124,
+    "time": 1.86714778,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 124,
+    "time": 1.86714778,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 124,
+    "time": 1.86714778,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 124,
+    "time": 1.86714778,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 125,
+    "time": 1.87560911,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 125,
+    "time": 1.87560911,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 125,
+    "time": 1.87560911,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 125,
+    "time": 1.87560911,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 125,
+    "time": 1.87560911,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 125,
+    "time": 1.87560911,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 126,
+    "time": 1.88399364,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 126,
+    "time": 1.88399364,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 126,
+    "time": 1.88399364,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 126,
+    "time": 1.88399364,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 126,
+    "time": 1.88399364,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 126,
+    "time": 1.88399364,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 127,
+    "time": 1.89234746,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 127,
+    "time": 1.89234746,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 127,
+    "time": 1.89234746,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 127,
+    "time": 1.89234746,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 127,
+    "time": 1.89234746,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 127,
+    "time": 1.89234746,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 128,
+    "time": 1.90068898,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 128,
+    "time": 1.90068898,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 128,
+    "time": 1.90068898,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 128,
+    "time": 1.90068898,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 128,
+    "time": 1.90068898,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 128,
+    "time": 1.90068898,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 129,
+    "time": 1.90902559,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 129,
+    "time": 1.90902559,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 129,
+    "time": 1.90902559,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 129,
+    "time": 1.90902559,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 129,
+    "time": 1.90902559,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 129,
+    "time": 1.90902559,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 130,
+    "time": 1.91736024,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 130,
+    "time": 1.91736024,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 130,
+    "time": 1.91736024,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 130,
+    "time": 1.91736024,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 130,
+    "time": 1.91736024,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 130,
+    "time": 1.91736024,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 131,
+    "time": 1.92569409,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 131,
+    "time": 1.92569409,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 131,
+    "time": 1.92569409,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 131,
+    "time": 1.92569409,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 131,
+    "time": 1.92569409,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 131,
+    "time": 1.92569409,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 132,
+    "time": 1.93402764,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 132,
+    "time": 1.93402764,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 132,
+    "time": 1.93402764,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 132,
+    "time": 1.93402764,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 132,
+    "time": 1.93402764,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 132,
+    "time": 1.93402764,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 133,
+    "time": 1.94236106,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 133,
+    "time": 1.94236106,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 133,
+    "time": 1.94236106,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 133,
+    "time": 1.94236106,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 133,
+    "time": 1.94236106,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 133,
+    "time": 1.94236106,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 134,
+    "time": 1.95069442,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 134,
+    "time": 1.95069442,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 134,
+    "time": 1.95069442,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 134,
+    "time": 1.95069442,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 134,
+    "time": 1.95069442,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 134,
+    "time": 1.95069442,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 135,
+    "time": 1.95902777,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 135,
+    "time": 1.95902777,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 135,
+    "time": 1.95902777,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 135,
+    "time": 1.95902777,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 135,
+    "time": 1.95902777,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 135,
+    "time": 1.95902777,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 136,
+    "time": 1.96736111,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 136,
+    "time": 1.96736111,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 136,
+    "time": 1.96736111,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 136,
+    "time": 1.96736111,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 136,
+    "time": 1.96736111,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 136,
+    "time": 1.96736111,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 137,
+    "time": 1.97569444,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 137,
+    "time": 1.97569444,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 137,
+    "time": 1.97569444,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 137,
+    "time": 1.97569444,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 137,
+    "time": 1.97569444,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 137,
+    "time": 1.97569444,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 138,
+    "time": 1.98402778,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 138,
+    "time": 1.98402778,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 138,
+    "time": 1.98402778,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 138,
+    "time": 1.98402778,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 138,
+    "time": 1.98402778,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 138,
+    "time": 1.98402778,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 139,
+    "time": 1.99201389,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 139,
+    "time": 1.99201389,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 139,
+    "time": 1.99201389,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 139,
+    "time": 1.99201389,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 139,
+    "time": 1.99201389,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 139,
+    "time": 1.99201389,
+    "joint": "Patellar_Lateral_Rotation"
+  },
+  {
+    "step": 140,
+    "time": 2.0,
+    "joint": "Extension_Flexion"
+  },
+  {
+    "step": 140,
+    "time": 2.0,
+    "joint": "External_Internal"
+  },
+  {
+    "step": 140,
+    "time": 2.0,
+    "joint": "Abduction_Adduction"
+  },
+  {
+    "step": 140,
+    "time": 2.0,
+    "joint": "Patellar_Extension_Flexion"
+  },
+  {
+    "step": 140,
+    "time": 2.0,
+    "joint": "Patellar_Lateral_Tilt"
+  },
+  {
+    "step": 140,
+    "time": 2.0,
+    "joint": "Patellar_Lateral_Rotation"
+  }
+]

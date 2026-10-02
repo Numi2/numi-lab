@@ -15,7 +15,9 @@ joint origin, both body frames, explicit multipliers and attachment lever arms.
 The operator API provides a full body-motion-Jacobian pullback per generalized
 column, so the force and connector couple map through the same spatial motion
 Jacobian used for candidate movement. Runtime assembly must consume this
-pullback; attachment-point forces alone omit angular work.
+pullback; attachment-point forces alone omit angular work. Its six-coordinate
+virtual-work check compares `fᵀ J q̇` with `(Jᵀ f)ᵀ q̇` directly. FEBio's
+penalty residual is not treated as the gradient of an assumed spring energy.
 Inputs are immutable and all history belongs to the caller. Unsupported/singular
 states reject execution. This operator is ready for coupled residual/Jacobian
 assembly; it does not yet execute the full source graph or load continuation.
@@ -25,9 +27,10 @@ cylinder or releasing three MyoSim coordinates would not execute these equations
 The quaternion logarithm retains the source branch but uses atan2 near zero;
 its analytic derivative includes changes in axes and moment arms.
 
-Evidence: [receipt](media/open-knee-source-joints-20261001/receipt.json),
-[source graph](media/open-knee-source-joints-20261001/source-rigid-graph.json),
-[CPU/Metal output](media/open-knee-source-joints-20261001/matter.stdout).
+Evidence: [equation-comparison receipt](media/open-knee-source-joints-20261002/receipt.json),
+[operator-check receipt](media/open-knee-source-joints-20261002/operator-check-receipt.json),
+[source graph](media/open-knee-source-joints-20261002/source-rigid-graph.json),
+[CPU/Metal operator checks](media/open-knee-source-joints-20261002/operator-check.stdout).
 
 - Six connectors at 140 archived configurations: 840 paired equation evaluations
   against compiled public FEBio 2.9.0, not the archived 2.9.1 binary.
@@ -35,9 +38,10 @@ Evidence: [receipt](media/open-knee-source-joints-20261001/receipt.json),
   within fixed 1e-8 N / 1e-3 N mm gates. The original acos implementation loses
   precision near zero rotation; the difference is retained.
 - 2,016 finite-difference derivative components: maximum relative error 3.309e-7.
+- 96 six-coordinate wrench pullbacks: maximum scaled virtual-work mismatch 2.719e-15.
 - Free axial motion and axial rotation, invalid-input rejection, and 96 mm/metre
   conversions preserve forces and rescale moments consistently.
-- 1,035 Metal rows: maximum scaled float CPU/Metal error 2.580e-7.
+- 195 Metal operator rows: maximum scaled float CPU/Metal error 2.133e-7.
 
 Archived log poses are rounded. Both operators receive identical normalized
 poses; these recomputed reactions are not presented as reproductions of the

@@ -1,0 +1,39 @@
+{
+  "status": "passed_equations_only",
+  "scope": "connector equation comparison at archived poses; no knee equilibrium qualification",
+  "source_equivalence": false,
+  "rigid_graph_execution": false,
+  "rows": 840,
+  "identities": {
+    "source_deck": {
+      "file": "/Users/home/numilab-human/Build/open-knee-reference-20261001/doi-archive/FeBio_custom.feb",
+      "sha256": "00b6efb53ad7e7330296cbb9569d358d48ed60819e22732e6149db6fb98a158a"
+    },
+    "archived_log": {
+      "file": "/Users/home/numilab-human/Build/open-knee-reference-20261001/doi-archive/FeBio_custom.log",
+      "sha256": "d47631c09ce7fc93154c7d6c84caa299aab03709abe9ab7d2a41a60a1b78e426"
+    },
+    "matter_binary": {
+      "file": "/Users/home/numi-open-knee-source-20261001/build-open-knee-source/numi-matter-source-joint-check",
+      "sha256": "9a2fe245ddf720885d34126e1b9e1fffb06c57148c0258cc7afb9bf2831c7b47"
+    },
+    "febio_oracle": {
+      "file": "/Users/home/numilab-human/Build/open-knee-reference-20261001/reproducible-public-build/febio-build/febio-joint-oracle",
+      "sha256": "cf45cd997fd264e2ad8270559500c7b3cab9e7e718171e961490e939756ca3f3"
+    },
+    "inputs": {
+      "file": "/Users/home/numi-open-knee-source-20261001/docs/media/open-knee-source-joints-20261002/inputs.txt",
+      "sha256": "bfa63f15e59bae6601c173d3459d94a31db67abeba1f034d09a7ac7c30b03952"
+    }
+  },
+  "archived_version": "2.9.1",
+  "oracle_version": "public FEBio 2.9.0, not original 2.9.1 executable",
+  "input_normalization": "unit quaternions and axes; no geometry shifts",
+  "missing_axial_force_moment": "zero defaults confirmed in pinned public 2.9.0 constructor",
+  "maximum_absolute_force_error_N": 1.451575526445481e-10,
+  "maximum_absolute_moment_error_N_mm": 0.00017713784287920475,
+  "gates": {
+    "force_N": 1e-08,
+    "moment_N_mm": 0.001
+  }
+}

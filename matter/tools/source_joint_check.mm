@@ -99,7 +99,7 @@ int main(int argc,char** argv) { @autoreleasepool { try {
     bool rows=argc==4&&std::string(argv[1])=="--source-rows";
     require(argc==1||cpu||rows,"usage: source-joint-check [--cpu-only | --source-rows INPUT OUTPUT]");
     std::vector<Input<double>> inputs;std::vector<Direction<double>> directions;
-    double worst=0;
+    double worst=0,worstVirtualWork=0;
     for(unsigned i=0;i<96;++i) {
         Input<double> a{};a.referenceA={-1,2,4};a.referenceB={3,-2,1};a.origin={2,3,5};a.axis={.36,-.48,.8};
         a.rotationA=exponential(V<double>{.001*i,-.003*i,.002*i});
@@ -118,6 +118,45 @@ int main(int argc,char** argv) { @autoreleasepool { try {
             double fd=(x[j]-y[j])/2e-6,e=std::abs(fd-z[j])/std::max(1.0,std::abs(z[j]));
             worst=std::max(worst,e);require(e<2e-6,"joint tangent differs from central difference");
         }
+        // Pull the complete source wrench (including both body couples) back
+        // through a six-column generalized motion map. Check
+        // f^T J qdot == (J^T f)^T qdot without imposing a conservative-energy
+        // assumption on FEBio's penalty residual.
+        auto pullbackInput=a;pullbackInput.forceMultiplier={};pullbackInput.momentMultiplier={};
+        pullbackInput.axialForce=pullbackInput.axialMoment=0;
+        Output<double> wrench{},wrenchTangent{};
+        require(evaluate(pullbackInput,Direction<double>{},wrench,wrenchTangent),"wrench state rejected");
+        std::array<MotionColumn<double>,6> columns{};
+        std::array<double,6> rates{};
+        for(unsigned c=0;c<columns.size();++c) {
+            const double s=double(c+1)/7.0;
+            columns[c]={{d.positionA.x*s,d.positionA.y*(1-s),d.positionA.z*s},
+                        {d.rotationA.x*(1-s),d.rotationA.y*s,d.rotationA.z*(1-s)},
+                        {d.positionB.x*(1-s),d.positionB.y*s,d.positionB.z*(1-s)},
+                        {d.rotationB.x*s,d.rotationB.y*(1-s),d.rotationB.z*s}};
+            rates[c]=double(int(c%3)-1)*.37+s;
+        }
+        MotionColumn<double> combined{};double pulledPower=0,powerScale=0;
+        for(unsigned c=0;c<columns.size();++c) {
+            combined.linearA=combined.linearA+columns[c].linearA*rates[c];
+            combined.angularA=combined.angularA+columns[c].angularA*rates[c];
+            combined.linearB=combined.linearB+columns[c].linearB*rates[c];
+            combined.angularB=combined.angularB+columns[c].angularB*rates[c];
+            const double coordinatePower=generalizedForce(wrench,columns[c])*rates[c];
+            pulledPower+=coordinatePower;powerScale+=std::abs(coordinatePower);
+        }
+        const double directPower=wrench.forceA.x*combined.linearA.x+
+            wrench.forceA.y*combined.linearA.y+wrench.forceA.z*combined.linearA.z+
+            wrench.momentA.x*combined.angularA.x+wrench.momentA.y*combined.angularA.y+
+            wrench.momentA.z*combined.angularA.z+wrench.forceB.x*combined.linearB.x+
+            wrench.forceB.y*combined.linearB.y+wrench.forceB.z*combined.linearB.z+
+            wrench.momentB.x*combined.angularB.x+wrench.momentB.y*combined.angularB.y+
+            wrench.momentB.z*combined.angularB.z;
+        const double virtualWorkError=std::abs(pulledPower-directPower)/
+            std::max(1.0,powerScale);
+        require(std::isfinite(virtualWorkError)&&virtualWorkError<5e-15,
+                "source joint wrench pullback violates virtual-work identity");
+        worstVirtualWork=std::max(worstVirtualWork,virtualWorkError);
         inputs.push_back(a);directions.push_back(d);
     }
     auto free=inputs[0];free.positionA=free.referenceA;free.rotationA={};free.rotationB=exponential(free.axis*1.1);
@@ -163,7 +202,8 @@ int main(int argc,char** argv) { @autoreleasepool { try {
         }
         in>>std::ws;require(in.eof(),"extra source rows");require(bool(out),"source write failed");
     }
-    std::cout<<"cpu_directional_checks=2016 max_relative_error="<<worst<<"\n";
+    std::cout<<"cpu_directional_checks=2016 max_relative_error="<<worst
+             <<" virtual_work_checks=96 max_relative_error="<<worstVirtualWork<<"\n";
     if(!cpu)gpu(inputs,directions);
     return 0;
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;} } }
