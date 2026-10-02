@@ -1,7 +1,7 @@
 {
   "admission": {
     "reasons": [
-      "all source contact geometry and per-face automatic-penalty inputs are bound; candidate BVH refit, two-pass projection and normal traction assembly are wired but not executed because a coupled tangent and contact history are absent; preDynamics refuses this incomplete source-contact program before changing accepted state",
+      "the full source contact geometry, two-pass traction, coupled tangent and rollback history are assembled; source-contact admission remains fail-closed because no full-knee accepted contact/prestrain state or XPLT field validation exists",
       "source prestrain and flexion continuation are staged in the coupled Newton program, but full-knee initial-contact preparation and equilibrium have not been solved",
       "the 402 MCL-meniscus discrete springs are included in the coupled program but the full source case has not been stepped",
       "no Matter accepted full-knee state or XPLT field comparison"
@@ -32,7 +32,7 @@
     "rest_volume_range_m3": "2.37034e-14,1.26209e-09",
     "runtime_resident_bytes": "4615071608",
     "source_analysis": "quasistatic_inertia_excluded",
-    "source_contact": "candidate_bvh_projection_traction_wired_not_executed_no_tangent_or_history",
+    "source_contact": "coupled_bvh_projection_traction_tangent_history_diagnostic_only_production_fail_closed",
     "source_contact_faces": "345070",
     "source_contact_initial_active_faces": "3325",
     "source_contact_initial_active_gauss_points": "8478",
@@ -124,12 +124,13 @@
     "retinacular source curves use FEBio default constant endpoint extension and centered-difference tangent; the full case has not been stepped",
     "source curves 1-6 and 9 are staged in the same coupled Newton material and rigid-joint program; the full knee has not been stepped",
     "small coupled regression accepts source time 0.5 prestrain and time 1.1 flexion, and rejects mismatched post-commit source time; this does not qualify the full knee",
-    "all 345070 source contact faces and 76062 unique tissue or rigid nodes are bound to the coupled runtime; moving-face projection and normal traction are wired to Newton reassembly and certification, but source-contact execution is fail-closed until tangent and history are implemented",
+    "all 345070 source contact faces and 76062 unique tissue or rigid nodes are bound to the coupled runtime; moving-face projection, normal traction, its tangent and rollback history enter the same Newton solve, but production source-contact admission remains fail-closed pending full-knee validation",
     "a coupled admission regression rejects source contact at preDynamics and confirms its accepted FEM state is unchanged",
     "all 302274 tissue contact faces resolve to exactly one backing source tetrahedron, with zero missing or ambiguous owners; rigid faces retain no elastic backing tetrahedron",
     "all 302274 deformable contact faces have finite positive source-form automatic-penalty inputs; the 42796 rigid faces have no elastic backing penalty; no FEBio 2.9.1 pressure field agreement or accepted Matter state is claimed",
-    "the full source runtime builds 690104 spatial BVH nodes and reserves 1035210 two-pass Gauss-point projection slots; refit and projection shaders compile and are wired at both Newton reassembly and certification, but admission still rejects before they execute",
+    "the full source runtime builds 690104 spatial BVH nodes and reserves 1035210 two-pass Gauss-point projection slots; local diagnostic full-knee solves exercised refit and projection with the admission guard temporarily bypassed, then restored before publication",
     "a small Metal regression executes the production refit, projection and deterministic force-incidence kernels with an internal BVH node: a penetrating triangle transfers 1 N with vector and angular balance, then moving its master face outside the search radius clears projection and force; this does not qualify full-knee contact",
-    "the complete source runtime allocates deterministic dynamic incidence for tissue and rigid contact force transfer; authored fixed FEM nodes receive reaction force, while free/tied FEM and rigid generalized rows receive current-candidate contact impulse; these full-knee kernels are not yet executed"
+    "the complete source runtime allocates deterministic dynamic incidence for tissue and rigid contact force transfer; authored fixed FEM nodes receive reaction force, while free/tied FEM and rigid generalized rows receive current-candidate contact impulse; full-knee diagnostic roots execute these kernels but remain rejected",
+    "full-tissue state-1 diagnostic stress comparison identifies float32 absolute-coordinate quantization as the dominant MCL/LCL discrepancy: double source-law differences are about 6e-6 MPa RMS, while rounded-coordinate and Matter differences are about 0.0031 MPa RMS; no Matter state was accepted"
   ]
 }

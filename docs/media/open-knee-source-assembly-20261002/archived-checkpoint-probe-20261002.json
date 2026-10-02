@@ -208,5 +208,20 @@
     "first_assembly_element_force_dump_sha256": "83c7c8e28db0ff172443212d4d693327dcb5a7be36c838d6c157d51d2cbcc654",
     "first_assembly_element_force_dump_size_bytes": 54034368,
     "full_system_residual_reduction_at_1x1": 7.067200570907505
+  },
+  "full_tissue_precision_probe": {
+    "receipt": "full-tissue-precision-probe-20261002.json",
+    "method": "Hash-bound first-assembly element forces from the complete coupled knee are converted to Cauchy stress and compared to all twelve archived XPLT tissue domains at state 1. For MCL/LCL the pinned source constitutive law is also evaluated with original double coordinates and with the same float32 metre coordinate rounding used by Matter.",
+    "mcl_difference_rms_mpa": {
+      "matter": 0.003129935662413936,
+      "double_source_law": 0.000006375519906742058,
+      "float32_coordinates": 0.003091624003171876
+    },
+    "lcl_difference_rms_mpa": {
+      "matter": 0.0031075973614581682,
+      "double_source_law": 0.000005833511997852882,
+      "float32_coordinates": 0.0031051971282890856
+    },
+    "interpretation": "The source law reproduces the archived MCL/LCL stresses with double coordinates. Rounding reference and current absolute positions to float32 metres reproduces almost the entire Matter discrepancy. Precision of FEM deformation input must be repaired within the coupled state before source-equivalent preload acceptance; extra Newton iterations cannot remove this stress error. These are imported-pose diagnostics, not an accepted Matter state."
   }
 }

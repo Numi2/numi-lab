@@ -1413,6 +1413,9 @@ struct RuntimeStateSnapshot {
     // Readback after a rejected root is diagnostic and never restore authority.
     std::vector<nm_float4> diagnosticGeneralizedResidual;
     std::vector<nm_float4> diagnosticSourceContactNodeForces;
+    // Last coupled candidate projections. Diagnostic only; rejected roots
+    // never promote these rows to accepted contact history.
+    std::vector<NMSourceContactProjectionGPU> diagnosticSourceContactProjections;
     // Last assembled source tie impulses before a rejected root masks scratch.
     // Diagnostic only; never restore authority or an accepted reaction.
     std::vector<nm_float4> diagnosticSourceTieImpulses;

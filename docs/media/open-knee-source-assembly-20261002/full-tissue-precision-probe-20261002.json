@@ -1,0 +1,99 @@
+{
+  "status": "rejected_root_diagnostic_only",
+  "hashes": [
+    "39b86f2f55853c74968f36a8d6c67eaed94639a3d42b558bb17787e2af8ffdba",
+    "de0ab6ec1de1a421187027beca0153b9b5768af14f90d19802c794e72cc10fb4",
+    "83c7c8e28db0ff172443212d4d693327dcb5a7be36c838d6c157d51d2cbcc654"
+  ],
+  "stress_component_order": "xx yy zz xy yz xz",
+  "tissues": [
+    {
+      "material": 5,
+      "domain": 1,
+      "elements": 69410,
+      "xplt_rms_mpa": 0.0005191052060267564,
+      "matter_first_assembly_difference_rms_mpa": 0.0005478214631201149
+    },
+    {
+      "material": 6,
+      "domain": 2,
+      "elements": 200079,
+      "xplt_rms_mpa": 0.0035601333237618095,
+      "matter_first_assembly_difference_rms_mpa": 0.000346400785451144
+    },
+    {
+      "material": 7,
+      "domain": 3,
+      "elements": 14379,
+      "xplt_rms_mpa": 0.06856100105749695,
+      "matter_first_assembly_difference_rms_mpa": 0.0003344046369907657
+    },
+    {
+      "material": 8,
+      "domain": 4,
+      "elements": 121105,
+      "xplt_rms_mpa": 0.0006612792556977579,
+      "matter_first_assembly_difference_rms_mpa": 0.00029659772753604915
+    },
+    {
+      "material": 9,
+      "domain": 6,
+      "elements": 72552,
+      "xplt_rms_mpa": 0.04410042841203302,
+      "matter_first_assembly_difference_rms_mpa": 0.00019903543517002615
+    },
+    {
+      "material": 10,
+      "domain": 8,
+      "elements": 62712,
+      "xplt_rms_mpa": 0.048470330856306115,
+      "matter_first_assembly_difference_rms_mpa": 0.003129935662413936,
+      "double_source_law_difference_rms_mpa": 6.375519906742058e-06,
+      "float32_coordinate_difference_rms_mpa": 0.003091624003171876
+    },
+    {
+      "material": 11,
+      "domain": 9,
+      "elements": 35616,
+      "xplt_rms_mpa": 0.004010019559421722,
+      "matter_first_assembly_difference_rms_mpa": 0.0005298612082208462
+    },
+    {
+      "material": 12,
+      "domain": 10,
+      "elements": 44953,
+      "xplt_rms_mpa": 0.003474413691346992,
+      "matter_first_assembly_difference_rms_mpa": 0.00022651178671553412
+    },
+    {
+      "material": 13,
+      "domain": 11,
+      "elements": 51009,
+      "xplt_rms_mpa": 0.014559999554765278,
+      "matter_first_assembly_difference_rms_mpa": 0.00021721603151790946
+    },
+    {
+      "material": 14,
+      "domain": 12,
+      "elements": 9773,
+      "xplt_rms_mpa": 0.08924367854090906,
+      "matter_first_assembly_difference_rms_mpa": 0.0031075973614581682,
+      "double_source_law_difference_rms_mpa": 5.833511997852882e-06,
+      "float32_coordinate_difference_rms_mpa": 0.0031051971282890856
+    },
+    {
+      "material": 15,
+      "domain": 13,
+      "elements": 75627,
+      "xplt_rms_mpa": 0.005029632795149938,
+      "matter_first_assembly_difference_rms_mpa": 0.00030693676471453237
+    },
+    {
+      "material": 16,
+      "domain": 16,
+      "elements": 87072,
+      "xplt_rms_mpa": 0.002841794268003012,
+      "matter_first_assembly_difference_rms_mpa": 0.00037363226898879726
+    }
+  ]
+}

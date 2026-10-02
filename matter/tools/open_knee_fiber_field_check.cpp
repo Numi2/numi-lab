@@ -1560,6 +1560,60 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                                   << certificate.transport.z << ','
                                   << certificate.transport.w << '\n';
                     }
+                if (!accepted && checkpointSeedPath != nullptr &&
+                    state.diagnosticSourceContactProjections.size() ==
+                        3u * 345070u) {
+                    struct ContactFieldSummary {
+                        std::uint32_t activePoints = 0u;
+                        std::uint32_t activeFaces = 0u;
+                        double pressureIntegral = 0.0;
+                        double area = 0.0;
+                        double maximumPressure = 0.0;
+                        double maximumGap = 0.0;
+                    };
+                    std::vector<ContactFieldSummary> summaries(
+                        sourceContact.surfaces.size());
+                    std::vector<std::uint32_t> lastFace(
+                        sourceContact.surfaces.size(), UINT32_MAX);
+                    for (const auto& row :
+                         state.diagnosticSourceContactProjections) {
+                        if (row.identity.x == NM_INVALID_INDEX ||
+                            row.barycentricGap.w <= 0.0f) continue;
+                        const auto face = row.identity.y;
+                        const auto surface = runtimeContactFaces[face].identity.x;
+                        const auto pressure =
+                            runtimeSlidingPairs[row.identity.z].normal.x *
+                            runtimeContactFaces[face].autoPenalty.x *
+                            row.barycentricGap.w;
+                        auto& summary = summaries[surface];
+                        ++summary.activePoints;
+                        if (lastFace[surface] != face) {
+                            ++summary.activeFaces;
+                            lastFace[surface] = face;
+                        }
+                        summary.area += row.normalArea.w;
+                        summary.pressureIntegral += pressure * row.normalArea.w;
+                        summary.maximumPressure = std::max(
+                            summary.maximumPressure, double(pressure));
+                        summary.maximumGap = std::max(summary.maximumGap,
+                            double(row.barycentricGap.w));
+                    }
+                    for (std::size_t surface = 0u;
+                         surface < summaries.size(); ++surface) {
+                        const auto& summary = summaries[surface];
+                        std::cout << "checkpoint_candidate_contact surface="
+                                  << surface + 1u << " name="
+                                  << sourceContact.surfaces[surface].name
+                                  << " active_faces=" << summary.activeFaces
+                                  << " active_gauss=" << summary.activePoints
+                                  << " pressure_area_integral_n="
+                                  << summary.pressureIntegral
+                                  << " max_pressure_pa="
+                                  << summary.maximumPressure
+                                  << " max_gap_m=" << summary.maximumGap
+                                  << '\n';
+                    }
+                }
                 if (!accepted && !state.diagnosticGeneralizedResidual.empty()) {
                     const auto& residual = state.diagnosticGeneralizedResidual;
                     for (std::size_t object = 0u;

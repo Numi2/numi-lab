@@ -13908,6 +13908,9 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         id<MTLBuffer> diagnosticSourceContactForces =
             state_->captureDiagnostics && state_->sourceContactNodeCount != 0u
                 ? copy(state_->sourceContactNodeForces) : nil;
+        id<MTLBuffer> diagnosticSourceContactProjections =
+            state_->captureDiagnostics && state_->sourceContactProjectionCount != 0u
+                ? copy(state_->sourceContactProjections) : nil;
         id<MTLBuffer> diagnosticSourceTieImpulses =
             state_->captureDiagnostics && state_->sourceTieCount != 0u
                 ? copy(state_->sourceTieDiagnosticImpulses) : nil;
@@ -13936,8 +13939,11 @@ RuntimeStateSnapshot Runtime::snapshot() const {
             (state_->captureDiagnostics && contactSamples == nil) ||
             (state_->captureDiagnostics && diagnosticResidual == nil) ||
             (state_->captureDiagnostics &&
-             state_->sourceContactNodeCount != 0u &&
+            state_->sourceContactNodeCount != 0u &&
              diagnosticSourceContactForces == nil) ||
+            (state_->captureDiagnostics &&
+             state_->sourceContactProjectionCount != 0u &&
+             diagnosticSourceContactProjections == nil) ||
             (state_->captureDiagnostics &&
              state_->sourceTieCount != 0u &&
              diagnosticSourceTieImpulses == nil) ||
@@ -14007,6 +14013,9 @@ RuntimeStateSnapshot Runtime::snapshot() const {
             if (state_->sourceContactNodeCount != 0u)
                 encodeCopy(state_->sourceContactNodeForces,
                            diagnosticSourceContactForces);
+            if (state_->sourceContactProjectionCount != 0u)
+                encodeCopy(state_->sourceContactProjections,
+                           diagnosticSourceContactProjections);
             if (state_->sourceTieCount != 0u)
                 encodeCopy(state_->sourceTieDiagnosticImpulses,
                            diagnosticSourceTieImpulses);
@@ -14100,6 +14109,10 @@ RuntimeStateSnapshot Runtime::snapshot() const {
             state_->sourceContactNodeCount != 0u)
             read(diagnosticSourceContactForces,
                 snapshot.diagnosticSourceContactNodeForces);
+        if (state_->captureDiagnostics &&
+            state_->sourceContactProjectionCount != 0u)
+            read(diagnosticSourceContactProjections,
+                snapshot.diagnosticSourceContactProjections);
         if (state_->captureDiagnostics && state_->sourceTieCount != 0u)
             read(diagnosticSourceTieImpulses,
                 snapshot.diagnosticSourceTieImpulses);
