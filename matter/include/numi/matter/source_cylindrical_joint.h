@@ -61,6 +61,21 @@ template<class T> struct Output {
     V<T> forceA,momentA,forceB,momentB,gap,angularGap,connectorMoment;
 };
 template<class T> struct Direction { V<T> positionA,rotationA,positionB,rotationB; };
+// One generalized-coordinate Jacobian column, expressed as world spatial
+// linear/angular velocity for each source body. The same mapping must be used
+// for candidate kinematics and for mapping connector wrenches into the global
+// residual; using a separate muscle route or a point-only Jacobian drops the
+// connector couple and violates virtual work.
+template<class T> struct MotionColumn {
+    V<T> linearA,angularA,linearB,angularB;
+};
+template<class T> inline T generalizedForce(Output<T> wrench,MotionColumn<T> motion) {
+    return dot(wrench.forceA,motion.linearA)+dot(wrench.momentA,motion.angularA)+
+           dot(wrench.forceB,motion.linearB)+dot(wrench.momentB,motion.angularB);
+}
+template<class T> inline T generalizedTangent(Output<T> derivative,MotionColumn<T> motion) {
+    return generalizedForce(derivative,motion);
+}
 
 template<class T> inline bool valid(Input<T> a) {
     T na=norm2(a.rotationA),nb=norm2(a.rotationB),ns=dot(a.axis,a.axis);

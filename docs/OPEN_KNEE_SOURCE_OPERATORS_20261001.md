@@ -12,6 +12,10 @@ and its eight-microsecond regression remain unchanged.
 directional derivative for the source quasi-static (alpha=1) equations. It keeps
 finite force/moment penalties, free/prescribed translation and rotation, reference
 joint origin, both body frames, explicit multipliers and attachment lever arms.
+The operator API provides a full body-motion-Jacobian pullback per generalized
+column, so the force and connector couple map through the same spatial motion
+Jacobian used for candidate movement. Runtime assembly must consume this
+pullback; attachment-point forces alone omit angular work.
 Inputs are immutable and all history belongs to the caller. Unsupported/singular
 states reject execution. This operator is ready for coupled residual/Jacobian
 assembly; it does not yet execute the full source graph or load continuation.
