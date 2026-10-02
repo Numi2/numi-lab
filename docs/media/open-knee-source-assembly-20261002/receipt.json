@@ -1,0 +1,80 @@
+{
+  "admission": {
+    "reasons": [
+      "source sliding-elastic contact not assembled or enforced",
+      "prestrain and initial-contact preparation not solved",
+      "prescribed rigid and source loading continuation not executed",
+      "rigid physical mass and inertia state not supplied to runtime",
+      "no Matter accepted state or XPLT field comparison"
+    ],
+    "status": "rejected"
+  },
+  "archived_febio_reference": {
+    "archived_log_completed_steps": 140,
+    "final_state": 140,
+    "final_time": 2.0,
+    "first_time": 0.0,
+    "plot_states": 141,
+    "preload_checkpoint_state": 20,
+    "preload_checkpoint_time": 1.0
+  },
+  "coupled_base": "5bf85aed50cf9af1d55445ac38b2a2bc71b1dcfe",
+  "human_revision": "a7541a3d11f4890726f1d01a50c16b5a4ffee5e6",
+  "machine": "arm64",
+  "matter_revision": "a6584f67b29e290e22e16255341a00bb518d29c6",
+  "runtime": {
+    "cooked_frames": "360404",
+    "coupled_runtime_program": "initialized",
+    "open_knee_source_volume_mesh": "passed",
+    "rest_volume_range_m3": "2.37034e-14,1.26209e-09",
+    "runtime_resident_bytes": "4478593048",
+    "source_contact": "not_assembled",
+    "source_cylindrical_joints": "6",
+    "source_equivalence": "rejected",
+    "source_initialization": "not_solved",
+    "source_material_groups": "12",
+    "source_nodes": "194729",
+    "source_rigid_bodies": "9",
+    "source_rigid_springs": "1",
+    "source_rigid_tie_nodes": "29427",
+    "source_tetrahedra": "844287",
+    "source_unit_scale": "mm_to_m_assumed"
+  },
+  "schema": "numi.matter.open-knee-source-assembly.v1",
+  "source_artifacts": {
+    "source_deck": {
+      "bytes": 8666471,
+      "sha256": "00b6efb53ad7e7330296cbb9569d358d48ed60819e22732e6149db6fb98a158a"
+    },
+    "source_log": {
+      "bytes": 1472687,
+      "sha256": "d47631c09ce7fc93154c7d6c84caa299aab03709abe9ab7d2a41a60a1b78e426"
+    },
+    "source_meshdata": {
+      "bytes": 2686936,
+      "sha256": "f3802520c712f3c939934d53e0e4de9ce6e6c275287ede3279bbdc3b3abf63c8"
+    },
+    "source_rigid_graph": {
+      "bytes": 1872,
+      "sha256": "cc0abaaa9165976f2df5c134b963247205a732092b96c51f9369d48526dde794"
+    },
+    "source_rigid_ties": {
+      "bytes": 470920,
+      "sha256": "cb06f3e1d566ac5d551c17daea6bb222e74c0c84ac33111e02f9e5f0f5d83221"
+    },
+    "source_volume_mesh": {
+      "bytes": 22338392,
+      "sha256": "39b86f2f55853c74968f36a8d6c67eaed94639a3d42b558bb17787e2af8ffdba"
+    },
+    "source_xplt": {
+      "bytes": 5345476723,
+      "sha256": "c370ae9f94e9faee2d7060bf2a6819e03be1312e82ca79bd2e9cebf8b34398de"
+    }
+  },
+  "stdout_sha256": "e634a5d70941c4ada63b04848fe0227ab46568d41447197859dd774e60b1d91c",
+  "verification": [
+    "six focused Matter CTests pass",
+    "all 12 source tissue groups compiled",
+    "one Metal Runtime initialized with source rigid connector program"
+  ]
+}
