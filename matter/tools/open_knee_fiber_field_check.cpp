@@ -1,5 +1,6 @@
 #include "numi/matter/open_knee_fiber_field.hpp"
 #include "numi/matter/open_knee_source_graph.hpp"
+#include "numi/matter/open_knee_source_contact.hpp"
 #include "numi/matter/open_knee_source_rigid_ties.hpp"
 #include "numi/matter/compiler.hpp"
 
@@ -369,30 +370,33 @@ const std::array<SourceTissueProgram, 12>& sourceTissuePrograms() {
 
 int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                          const char* rigidTiesPath = nullptr,
-                         const char* rigidGraphPath = nullptr) {
+                         const char* rigidGraphPath = nullptr,
+                         const char* sourceContactPath = nullptr) {
     try {
         require(rigidGraphPath == nullptr || rigidTiesPath != nullptr,
                 "source rigid graph requires the complete rigid-tie program");
+        require(sourceContactPath == nullptr || rigidGraphPath != nullptr,
+                "source contact requires the full tissue and rigid graph");
         const std::vector<std::uint8_t> fiberBytes = readBinaryBytes(fiberPath);
         const std::vector<std::uint8_t> meshBytes = readBinaryBytes(meshPath);
         std::vector<SourceVolumeMesh> meshes;
         std::string error;
         require(decodeSourceVolumeMeshes(meshBytes, meshes, error), error);
+        const auto digestHex = [](const std::array<std::uint8_t, 32>& digest) {
+            constexpr char digits[] = "0123456789abcdef";
+            std::string result;
+            result.reserve(64u);
+            for (const auto byte : digest) {
+                result.push_back(digits[byte >> 4u]);
+                result.push_back(digits[byte & 15u]);
+            }
+            return result;
+        };
         SourceRigidTieProgram sourceTies;
         std::vector<std::uint8_t> tieBytes;
         if (rigidTiesPath != nullptr) {
             tieBytes = readBinaryBytes(rigidTiesPath);
             require(decodeSourceRigidTieProgram(tieBytes, sourceTies, error), error);
-            const auto digestHex = [](const std::array<std::uint8_t, 32>& digest) {
-                constexpr char digits[] = "0123456789abcdef";
-                std::string result;
-                result.reserve(64u);
-                for (const auto byte : digest) {
-                    result.push_back(digits[byte >> 4u]);
-                    result.push_back(digits[byte & 15u]);
-                }
-                return result;
-            };
             require(digestHex(sourceTies.deckSHA256) ==
                         "00b6efb53ad7e7330296cbb9569d358d48ed60819e22732e6149db6fb98a158a" &&
                     digestHex(sourceTies.geometrySHA256) ==
@@ -407,6 +411,19 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
             require(rigidGraph.deckSHA256 == sourceTies.deckSHA256 &&
                     rigidGraph.geometrySHA256 == sourceTies.geometrySHA256,
                     "source rigid graph and tissue ties bind different archives");
+        }
+        SourceSlidingContactProgram sourceContact;
+        if (sourceContactPath != nullptr) {
+            const auto bytes = readBinaryBytes(sourceContactPath);
+            require(decodeSourceSlidingContactProgram(bytes, sourceContact, error),
+                    error);
+            require(sourceContact.deckSHA256 == rigidGraph.deckSHA256 &&
+                    sourceContact.geometrySHA256 == rigidGraph.geometrySHA256 &&
+                    digestHex(sourceContact.volumeMeshSHA256) ==
+                        "39b86f2f55853c74968f36a8d6c67eaed94639a3d42b558bb17787e2af8ffdba" &&
+                    digestHex(sourceContact.geometryBinarySHA256) ==
+                        "97c5e7b1c09eb47193bca0b7d2a515088b40938da45fe7aa8c8fc7bb7dd54368",
+                    "source contact and rigid graph bind different archives");
         }
         std::unordered_map<std::uint32_t, SourceRigidTieRecord> tieBySourceNode;
         tieBySourceNode.reserve(sourceTies.rows.size());
@@ -562,6 +579,51 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                 "source total tetrahedron count drifted from the pinned source");
         require(tieBySourceNode.empty(),
                 "source rigid-tie node is absent from all source tissue volumes");
+        if (sourceContactPath != nullptr) {
+            std::unordered_map<std::uint32_t, std::uint32_t> rigidNodeOwner;
+            rigidNodeOwner.reserve(sourceContact.rigidNodes.size());
+            for (const auto& node : sourceContact.rigidNodes) {
+                const bool knownBody = std::ranges::any_of(rigidGraph.bodies,
+                    [&](const auto& body) {
+                        return body.materialId == node.materialId;
+                    });
+                require(knownBody &&
+                        rigidNodeOwner.emplace(node.sourceNodeId,
+                                               node.materialId).second,
+                        "source contact rigid vertex has no unique source body");
+            }
+            for (const auto& surface : sourceContact.surfaces) {
+                const auto owner = std::ranges::find_if(specs,
+                    [&](const auto& spec) {
+                        return spec.materialId == surface.materialId;
+                    });
+                const bool rigidOwner = std::ranges::any_of(rigidGraph.bodies,
+                    [&](const auto& body) {
+                        return body.materialId == surface.materialId;
+                    });
+                require(owner != specs.end() || rigidOwner,
+                        "source contact surface has no tissue or rigid owner");
+                for (std::size_t faceIndex = surface.firstFace;
+                     faceIndex < std::size_t(surface.firstFace) +
+                         surface.faceCount; ++faceIndex) {
+                    const auto& face = sourceContact.faces[faceIndex];
+                    for (const auto nodeId : face.sourceNodes) {
+                        if (rigidOwner) {
+                            require(rigidNodeOwner.contains(nodeId) &&
+                                    rigidNodeOwner.at(nodeId) ==
+                                        surface.materialId,
+                                    "source contact rigid face has wrong vertex owner");
+                        } else {
+                            const auto node = sourceNodeLocations.find(nodeId);
+                            require(node != sourceNodeLocations.end() &&
+                                    node->second.object ==
+                                        std::size_t(owner - specs.begin()),
+                                    "source contact tissue face has wrong cooked FEM owner");
+                        }
+                    }
+                }
+            }
+        }
 
         const numi::matter::CompileResult compiled = numi::matter::compileWorld(
             source, {.maximumRateExponent = 0, .emitSpecializedMetal = false}
@@ -734,7 +796,13 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                   << " coupled_runtime_program=" <<
                      (runtimeProgramInitialized ? "initialized" : "not_requested")
                   << " runtime_resident_bytes=" << runtimeResidentBytes
-                  << " source_contact=not_assembled source_initialization=not_solved "
+                  << " source_contact_faces=" << sourceContact.faces.size()
+                  << " source_contact_rigid_vertices="
+                  << sourceContact.rigidNodes.size()
+                  << " source_contact="
+                  << (sourceContactPath != nullptr
+                      ? "authored_faces_bound_not_enforced" : "not_assembled")
+                  << " source_initialization=not_solved "
                      "source_equivalence=rejected "
                      "source_unit_scale=mm_to_m_assumed rest_volume_range_m3="
                   << minimumRestVolume << ',' << maximumRestVolume << '\n';
@@ -751,12 +819,15 @@ int main(int argc, char** argv) {
             return checkSourceArtifacts(argv[2], argv[3]);
         if (argc == 5 && std::string(argv[1]) == "--source-artifacts")
             return checkSourceArtifacts(argv[2], argv[3], argv[4]);
+        if (argc == 7 && std::string(argv[1]) == "--source-artifacts")
+            return checkSourceArtifacts(argv[2], argv[3], argv[4], argv[5],
+                                        argv[6]);
         if (argc == 6 && std::string(argv[1]) == "--source-artifacts")
             return checkSourceArtifacts(argv[2], argv[3], argv[4], argv[5]);
         if (argc == 3 && std::string(argv[1]) == "--source-sidecar")
             return checkSourceSidecar(argv[2]);
         require(argc == 1, "usage: open knee fiber field check [--source-sidecar PATH] "
-                           "[--source-artifacts FIBER_PATH SOURCE_VOLUME_MESH_PATH [SOURCE_RIGID_TIES_PATH [SOURCE_RIGID_GRAPH_PATH]]]");
+                           "[--source-artifacts FIBER_PATH SOURCE_VOLUME_MESH_PATH [SOURCE_RIGID_TIES_PATH [SOURCE_RIGID_GRAPH_PATH [SOURCE_CONTACT_PATH]]]]");
         const std::array<double, 3> medial0{-0.27206761041769667,
                                              1.1419075817929256,
                                              0.08613731458137508};
