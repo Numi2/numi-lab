@@ -23,7 +23,8 @@
     "solver_timestep_seconds": 0.0166666667,
     "source_contact_pairs": 18,
     "source_tissue_groups": 12,
-    "source_rigid_bodies": 9
+    "source_rigid_bodies": 9,
+    "pre_fix_probes_superseded_by_fiber_frame_correction": true
   },
   "bounded_probes": [
     {
@@ -73,15 +74,15 @@
     }
   ],
   "production_check": {
-    "valid_source_bound_seed": "accepted by importer, then rejected by source-contact admission guard before state mutation",
+    "valid_source_bound_seed": "accepted by importer, then rejected by source-contact admission guard before state mutation after fiber-frame correction",
     "corrupted_seed_deck_hash": "rejected by importer before solve",
-    "source_regression_tests": "13 passed after restoring production contact admission guard",
+    "source_regression_tests": "13 passed after fiber-frame correction and production contact guard restoration",
     "accepted_source_preload_or_flexion_state": false,
-    "field_comparison_against_xplt": "not performed; requires an accepted Matter state"
+    "field_comparison_against_xplt": "first-assembly MCL stress diagnostic performed at imported FEBio configuration; comparison of accepted Matter-predicted fields is not performed because no Matter state is accepted"
   },
-  "next_blocker": "implement the source prestrain update as a spatial element history, reconcile continuum/tie force at the archived checkpoint, and certify source sliding contact; then converge and accept the complete preload before comparing predicted Matter fields to XPLT",
+  "next_blocker": "converge the corrected full source assembly under certified sliding contact, reconcile remaining whole-system residual and stress differences, then compare an accepted Matter preload/flexion state field by field against XPLT",
   "full_system_tie_attribution": {
-    "status": "rejected_root_diagnostic_not_accepted_reaction",
+    "status": "superseded_rejected_root_diagnostic_before_fiber_frame_correction",
     "source_checkpoint": 1,
     "source_continuation_time": 0.05,
     "matter_timestep_seconds": 0.016666666666666666,
@@ -106,26 +107,106 @@
       -0.0796935
     ],
     "femur_generalized_z_residual_ns": -0.0794188,
-    "interpretation": "The measured MCL femoral tie impulse is not a direct discrete-spring or measured contact force at these nodes. Continuum, inertia, and attachment state remain to be reconciled with FEBio before this rejected root can be called equivalent.",
-    "source_stress_force_comparison": "Exploratory MCL stress-to-tied-node integration from archived XPLT gives [-0.20969, 0.17266, -0.71442] N using current tetrahedral volume and assumed Voigt order (xx,yy,zz,xy,yz,xz); this is not yet a qualified reaction comparison because stress-field conventions and source tie-reaction accounting require verification."
+    "interpretation": "This large pre-fix tie impulse was driven by a twice-rotated source fiber direction in the Matter continuum. The corrected full-system diagnostic is recorded separately below; neither is an accepted reaction.",
+    "source_stress_force_comparison": "Source stress-derived MCL femoral force at the archived configuration is [-0.20969, 0.17266, -0.71442] N under verified source tet order and xx yy zz xy yz xz component order. The pre-fix Matter continuum disagreed; see corrected fiber frame probe."
   },
   "archived_prestrain_field_check": {
     "source_xplt_checkpoint": 1,
-    "field": "prestrain stretch",
-    "mcl_element_count": 62712,
-    "mcl_source_tetrahedron_connectivity_order_match": 62712,
-    "mcl_source_tetrahedron_connectivity_different": 0,
-    "mcl_minimum": 0.9961254001,
-    "mcl_maximum": 1.009163022,
-    "mcl_mean": 1.0009819269,
-    "native_current_representation": "one material-level scalar set by the source load curve at continuation time 0.05",
-    "native_mcl_curve_scalar_at_0_05": 1.0017,
+    "source_plot_field": "prestrain stretch",
+    "plot_quantity": "fiber stretch of total deformation F * Fp, not the stored prestrain gradient alone",
+    "source_tetrahedron_connectivity_order_match": {
+      "MCL": 62712,
+      "different": 0
+    },
+    "calculation": "for each tet4, compute F from immutable source Geometry and archived nodal displacement, then lambda_pred = source_curve(time=0.05) * norm(F * source_unit_fiber); compare to XPLT element_06",
+    "source_curve_values_at_0_05": {
+      "QAT": 1.0,
+      "PCL": 1.0,
+      "ACL": 1.0008,
+      "MCL": 1.0017,
+      "PTL": 1.0,
+      "LCL": 1.00135
+    },
+    "mean_absolute_error_by_tissue": {
+      "QAT": 2.1052969698e-08,
+      "PCL": 2.4109740798e-08,
+      "ACL": 2.5888006194e-08,
+      "MCL": 2.9689678196e-08,
+      "PTL": 2.2196074417e-08,
+      "LCL": 2.9449527174e-08
+    },
+    "maximum_absolute_error_by_tissue": {
+      "QAT": 6.6123593268e-08,
+      "PCL": 7.456479989e-08,
+      "ACL": 7.3442549597e-08,
+      "MCL": 7.5647796471e-08,
+      "PTL": 6.6030428014e-08,
+      "LCL": 7.5758286089e-08
+    },
+    "mcl_xplt_field_range": [
+      0.9961254001,
+      1.009163022
+    ],
     "source_deck_prestrain_constraint": {
       "update": 1,
       "tolerance": 0.03,
       "min_iters": 0,
       "max_iters": 0
     },
-    "implication": "Archived FEBio state contains an element-varying prestrain stretch. The current uniform-scalar material parameter does not reproduce this retained state or its source prestrain update procedure. A per-element history and matched continuation are required before source equivalence can be claimed."
+    "source_log": "reports augmentation #1 and max-norm evaluations at time 0.05; no second prestrain augmentation is shown for that increment",
+    "interpretation": "The first archived XPLT fiber-stretch field is explained by a uniform scalar generator plus spatial deformation. This scalar field cannot by itself prove or disprove a full-tensor prestrain correction. The prior claim that spatial variation proved an unimplemented elementwise history was false and is withdrawn. Later increments and FEBio 2.9.1 correction semantics still require verification."
+  },
+  "corrected_fiber_frame_probe": {
+    "status": "rejected_root_diagnostic_only",
+    "cause": "The source ligament vector was passed as an energy parameter after the same source vector had already defined the FEM material frame. The energy therefore used a twice-rotated fiber direction.",
+    "correction": "Pass local unit +X as the energy fiber parameter when an authored element material frame maps local +X to the source vector.",
+    "source_checkpoint_state": 1,
+    "mcl_femoral_first_assembly_force_n_before": [
+      5.9086003,
+      1.4262761,
+      -6.596297
+    ],
+    "mcl_femoral_first_assembly_force_n_after": [
+      -0.321874,
+      0.219702,
+      -0.708776
+    ],
+    "mcl_femoral_force_from_archived_stress_n": [
+      -0.20969176,
+      0.17265807,
+      -0.71442106
+    ],
+    "stress_comparison": {
+      "mcl_elements": 62712,
+      "source_cauchy_rms_mpa": 0.0484703309,
+      "matter_cauchy_difference_rms_before_mpa": 0.0275247643,
+      "matter_cauchy_difference_rms_after_mpa": 0.0031299355,
+      "method": "Capture full Matter first-Newton element forces at the imported XPLT configuration, reconstruct Cauchy stress using immutable source tet4 geometry and the current deformation, compare with archived XPLT stress in xx yy zz xy yz xz order."
+    },
+    "bounded_solves": [
+      {
+        "newton_budget": 1,
+        "fgmres_budget": 1,
+        "accepted_steps": 0,
+        "relative_residual": 0.0126115
+      },
+      {
+        "newton_budget": 7,
+        "fgmres_budget": 10,
+        "accepted_steps": 0,
+        "relative_residual": 0.00609426
+      },
+      {
+        "newton_budget": 14,
+        "fgmres_budget": 20,
+        "accepted_steps": 0,
+        "relative_residual": 0.00640132,
+        "note": "more expensive budget did not improve on the 7x10 residual"
+      }
+    ],
+    "qualification": "No corrected native state accepted; element comparison is at an imported FEBio configuration, not a Matter prediction.",
+    "first_assembly_element_force_dump_sha256": "83c7c8e28db0ff172443212d4d693327dcb5a7be36c838d6c157d51d2cbcc654",
+    "first_assembly_element_force_dump_size_bytes": 54034368,
+    "full_system_residual_reduction_at_1x1": 7.067200570907505
   }
 }

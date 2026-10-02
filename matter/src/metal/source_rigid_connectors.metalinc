@@ -81,9 +81,10 @@ inline src::Input<float> sourceJointInput(
     return input;
 }
 
-// This follows the authored scalar load curve only. FEBio's prestrain
-// constraint also updates a spatial element history (G[k+1] = G[k] F_c);
-// a converged source preload cannot be certified from this parameter alone.
+// This follows the authored scalar load curve. The pinned deck also declares
+// a prestrain constraint with max_iters=0. Its retained first XPLT checkpoint
+// matches the uniform initial gradient's fiber stretch; later source
+// states still require comparison before this is called a complete preload.
 kernel void nm_source_apply_prestrain(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMBridgeDispatchGPU& bridge [[buffer(1)]],

@@ -393,8 +393,11 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                          double solveTime = -1.0,
                          std::uint32_t newtonBudget = 7u,
                          std::uint32_t fgmresBudget = 10u,
-                         const char* checkpointSeedPath = nullptr) {
+                         const char* checkpointSeedPath = nullptr,
+                         const char* elementForceOutputPath = nullptr) {
     try {
+        require(elementForceOutputPath == nullptr || checkpointSeedPath != nullptr,
+                "element force readback needs a source checkpoint seed");
         require(rigidGraphPath == nullptr || rigidTiesPath != nullptr,
                 "source rigid graph requires the complete rigid-tie program");
         require(sourceContactPath == nullptr || rigidGraphPath != nullptr,
@@ -642,9 +645,13 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                 setMaterialParameter(material, "c5", spec.c5 * 1.0e6);
                 setMaterialParameter(material, "lambda_max", spec.lambdaMax);
                 setMaterialParameter(material, "fiber_scale", 1.0);
-                setMaterialParameter(material, "fiber_x", spec.fiber[0]);
-                setMaterialParameter(material, "fiber_y", spec.fiber[1]);
-                setMaterialParameter(material, "fiber_z", spec.fiber[2]);
+                // Each ligament and meniscus element has a material frame
+                // whose local +X is the authored source fibre. The generic
+                // energy receives F in that frame; supplying the source-world
+                // fibre here would rotate its direction a second time.
+                setMaterialParameter(material, "fiber_x", 1.0);
+                setMaterialParameter(material, "fiber_y", 0.0);
+                setMaterialParameter(material, "fiber_z", 0.0);
             }
             if (spec.ligament || spec.meniscus)
                 require(materialParameter(material, "numerical_viscosity") == 0.0,
@@ -729,6 +736,13 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                             object, spec.fiber, identityFromHex(spec.materialSha256), error),
                         error);
             }
+            if (spec.ligament || spec.meniscus)
+                require(materialParameter(source.materials[group], "fiber_x") == 1.0 &&
+                            materialParameter(source.materials[group], "fiber_y") == 0.0 &&
+                            materialParameter(source.materials[group], "fiber_z") == 0.0 &&
+                            object.femMaterialFrameRotations.size() ==
+                                object.tetrahedra.size(),
+                        "source fibre was not expressed in its cooked local frame");
             expectedTetrahedra += mesh.tetrahedra.size();
             globalNodeBase += static_cast<std::uint32_t>(mesh.nodes.size());
             source.objects.push_back(std::move(object));
@@ -1383,11 +1397,18 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                 id<MTLBuffer> wrenches = [device newBufferWithLength:
                     bodies.size() * sizeof(MRABABodyWrenchGPU)
                     options:MTLResourceStorageModeShared];
+                id<MTLBuffer> initialElementForces = elementForceOutputPath == nullptr
+                    ? nil : [device newBufferWithLength:
+                        std::size_t(compiled.world.dispatch.tetrahedronCount) *
+                            sizeof(NMFEMElementVectorGPU)
+                        options:MTLResourceStorageModeShared];
                 id<MTLBuffer> statuses = [device newBufferWithBytes:&worldStatus
                     length:sizeof(worldStatus)
                     options:MTLResourceStorageModeShared];
                 require(current != nil && scene != nil && wrenches != nil &&
-                    statuses != nil, "source step Metal arenas unavailable");
+                    statuses != nil &&
+                    (elementForceOutputPath == nullptr || initialElementForces != nil),
+                    "source step Metal arenas unavailable");
                 id<MTLCommandBuffer> command = [queue commandBuffer];
                 numi::matter::EncodeRequest request{};
                 request.commandBuffer = (__bridge void*)command;
@@ -1401,6 +1422,12 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                 request.rigid.bodyWrenches = (__bridge void*)wrenches;
                 request.rigid.bodyWrenchCount = request.rigid.currentBodyCount;
                 request.rigid.bodyWrenchStride = request.rigid.currentBodyCount;
+                if (initialElementForces != nil) {
+                    request.femInitialElementForces =
+                        (__bridge void*)initialElementForces;
+                    request.femInitialElementForceCount =
+                        compiled.world.dispatch.tetrahedronCount;
+                }
                 request.timestepSeconds = runtime.timestepSeconds();
                 request.sourceContinuationTime = static_cast<float>(solveTime);
                 request.phase = numi::matter::EncodePhase::preDynamics;
@@ -1411,12 +1438,56 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                     return 2;
                 }
                 request.phase = numi::matter::EncodePhase::postCommit;
+                request.femInitialElementForces = nullptr;
+                request.femInitialElementForceCount = 0u;
                 encoded = runtime.encode(request);
                 require(encoded.encoded, "source step postCommit: " + encoded.message);
                 [command commit];
                 [command waitUntilCompleted];
                 require(command.status == MTLCommandBufferStatusCompleted,
                         "source step command failed");
+                if (initialElementForces != nil) {
+                    const auto* forces = static_cast<const NMFEMElementVectorGPU*>(
+                        initialElementForces.contents);
+                    if (elementForceOutputPath != nullptr) {
+                        std::ofstream output(elementForceOutputPath,
+                                             std::ios::binary | std::ios::trunc);
+                        require(output.good(), "cannot open checkpoint element force output");
+                        output.write(reinterpret_cast<const char*>(forces),
+                            std::streamsize(initialElementForces.length));
+                        require(output.good(), "cannot write checkpoint element force output");
+                    }
+                    std::vector<bool> mclFemoralTie(
+                        compiled.world.dispatch.femNodeCount, false);
+                    for (const auto& tie : runtimeTies)
+                        if (tie.identity.z == 5u &&
+                            rigidGraph.bodies[tie.identity.y].materialId == 4u)
+                            mclFemoralTie[tie.identity.x] = true;
+                    const auto& mcl = compiled.world.objects[5u];
+                    std::array<double, 3u> total{};
+                    for (std::uint32_t local = 0u; local < mcl.elementCount;
+                         ++local) {
+                        const std::uint32_t element = mcl.elementOffset + local;
+                        const auto& tet = compiled.world.fem.tetrahedra[element];
+                        const auto& force = forces[element];
+                        for (std::uint32_t slot = 0u; slot < 4u; ++slot) {
+                            const std::uint32_t localNode = slot == 0u ?
+                                tet.nodes.x : slot == 1u ? tet.nodes.y :
+                                slot == 2u ? tet.nodes.z : tet.nodes.w;
+                            const std::uint32_t node = localNode;
+                            if (!mclFemoralTie[node]) continue;
+                            const auto& value = slot == 0u ? force.node0 :
+                                slot == 1u ? force.node1 :
+                                slot == 2u ? force.node2 : force.node3;
+                            total[0u] += value.x;
+                            total[1u] += value.y;
+                            total[2u] += value.z;
+                        }
+                    }
+                    std::cout << "checkpoint_initial_mcl_femoral_continuum_force_n="
+                              << total[0u] << ',' << total[1u] << ','
+                              << total[2u] << '\n';
+                }
                 const auto state = runtime.snapshot();
                 require(state.available && !state.statuses.empty(),
                         "source step state readback unavailable");
@@ -1800,6 +1871,16 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
 
 int main(int argc, char** argv) {
     try {
+        if (argc == 17 && std::string(argv[1]) == "--source-artifacts" &&
+            std::string(argv[8]) == "--solve-source-time" &&
+            std::string(argv[10]) == "--solver-budget" &&
+            std::string(argv[13]) == "--checkpoint-seed" &&
+            std::string(argv[15]) == "--checkpoint-element-forces")
+            return checkSourceArtifacts(argv[2], argv[3], argv[4], argv[5],
+                argv[6], argv[7], std::stod(argv[9]),
+                static_cast<std::uint32_t>(std::stoul(argv[11])),
+                static_cast<std::uint32_t>(std::stoul(argv[12])), argv[14],
+                argv[16]);
         if (argc == 15 && std::string(argv[1]) == "--source-artifacts" &&
             std::string(argv[8]) == "--solve-source-time" &&
             std::string(argv[10]) == "--solver-budget" &&
@@ -1834,7 +1915,7 @@ int main(int argc, char** argv) {
         if (argc == 3 && std::string(argv[1]) == "--source-sidecar")
             return checkSourceSidecar(argv[2]);
         require(argc == 1, "usage: open knee fiber field check [--source-sidecar PATH] "
-                           "[--source-artifacts FIBER_PATH SOURCE_VOLUME_MESH_PATH [SOURCE_RIGID_TIES_PATH [SOURCE_RIGID_GRAPH_PATH [SOURCE_CONTACT_PATH [SOURCE_DISCRETE_PATH]]]] [--solve-source-time TIME [--solver-budget NEWTON FGMRES]]]");
+                           "[--source-artifacts FIBER_PATH SOURCE_VOLUME_MESH_PATH [SOURCE_RIGID_TIES_PATH [SOURCE_RIGID_GRAPH_PATH [SOURCE_CONTACT_PATH [SOURCE_DISCRETE_PATH]]]] [--solve-source-time TIME [--solver-budget NEWTON FGMRES [--checkpoint-seed PATH [--checkpoint-element-forces PATH]]]]]");
         const std::array<double, 3> medial0{-0.27206761041769667,
                                              1.1419075817929256,
                                              0.08613731458137508};
