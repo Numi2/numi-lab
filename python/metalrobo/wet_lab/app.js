@@ -109,6 +109,8 @@ function selection() {
 }
 function setCatalog(c) {
   catalog = c;
+  if (c.family === "learned-spatial-response") { window.learnedLab.mount(c,catalogs).catch(e => status(e.message,true)); return; }
+  window.learnedLab.unmount();
   current = null;
   selected = null;
   t = 0;
@@ -149,7 +151,7 @@ function setCatalog(c) {
       ? "Registered tracer pulses and native compartment fields."
       : "One measured condition and observation time.";
   $("design-note").textContent = molecular()
-    ? "Two mice train the native model. Mouse 3 is held out. Regions and cells are subsamples, not extra biological replicates."
+    ? "Legacy source-file split. Current reconciliation identifies four animals, including a pooled chip. The original record is preserved; regions and cells are not biological replicates."
     : "Repeated runs are deterministic replays, not biological replicates.";
   $("model-info").textContent = molecular()
     ? "Native context ridge, fixed α=1. All common measured genes enter scoring. Regional aggregate prediction; no cell-specific or mechanistic claim."
@@ -1141,8 +1143,8 @@ $("dialog-close").onclick = () => $("dialog").close();
     catalogs = await api("assays");
     catalogs.sort(
       (a, b) =>
-        (b.family === "molecular-perturbation") -
-        (a.family === "molecular-perturbation"),
+        ({"learned-spatial-response":2,"molecular-perturbation":1}[b.family] || 0) -
+        ({"learned-spatial-response":2,"molecular-perturbation":1}[a.family] || 0),
     );
     for (const c of catalogs) option("assay", c.id, c.title);
     setCatalog(catalogs[0]);

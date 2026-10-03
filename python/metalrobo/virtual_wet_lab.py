@@ -69,7 +69,7 @@ def main():
             parsed = urlsplit(self.path); path = parsed.path
             try:
                 if path == '/': return self.respond(200, html, 'text/html')
-                if path in ('/app.js','/tissue_index.js','/style.css'):
+                if path in ('/app.js','/tissue_index.js','/learned.js','/style.css'):
                     return self.respond(200, (Path(__file__).parent / 'wet_lab' / path[1:]).read_text(), 'text/javascript' if path.endswith('.js') else 'text/css')
                 if path == '/favicon.ico': return self.respond(204, '')
                 if self.headers.get('X-Wet-Lab-Token') != token:
@@ -139,6 +139,12 @@ def main():
                     root=args.workspace/identifier
                     if root.is_symlink() or not root.is_dir(): raise ValueError('Campaign not found')
                     return self.respond(200,(reveal if self.path.endswith('reveal') else verify)(root,runtime))
+                if self.path in ('/api/specimen','/api/spatial-feature'):
+                    config=configs[body['assayID']]; adapter=owner.adapter_for_config(config)
+                    if adapter.family!='learned-spatial-response': raise ValueError('Spatial response assay required')
+                    if self.path=='/api/specimen': return self.respond(200,adapter.geometry(config,body['specimen']))
+                    run=self.run_path(body['id']) if body.get('id') else None
+                    return self.respond(200,adapter.feature(config,body['specimen'],body['gene'],run))
                 if self.path == '/api/predict':
                     config = configs[body['assayID']]; adapter = owner.adapter_for_config(config)
                     run = adapter.predict(config, runtime, args.workspace, body['selection'])

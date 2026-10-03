@@ -1,0 +1,32 @@
+{
+  "biologicalValidation": false,
+  "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+  "canvasCount": 4,
+  "format": "numilab-spatial-browser-performance/v1",
+  "fullGeometryIndexed": true,
+  "hardwareConcurrency": 10,
+  "lod": "2048-square full-specimen raster, all source cells available to spatial picking",
+  "p95": {
+    "drawScriptMs": 0.5,
+    "panFrameMs": 16.70000000001164,
+    "spatialPickMs": 0,
+    "warmFeatureSwitchMs": 0.7999992370605469
+  },
+  "passed": true,
+  "samples": {
+    "feature": 40,
+    "pan": 89,
+    "pick": 500
+  },
+  "sourceCells": 123921,
+  "sourceSHA256": "cd6c9d3c84b4c8fed3f0fdd40dbaf4a806e0b2b371074f7875342461a89019be",
+  "targets": {
+    "panFrameMs": 33.4,
+    "spatialPickMs": 20,
+    "warmFeatureSwitchMs": 100
+  },
+  "viewport": [
+    1280,
+    800
+  ]
+}

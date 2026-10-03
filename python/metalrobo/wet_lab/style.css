@@ -609,3 +609,32 @@ pre {
     font-size: 21px;
   }
 }
+/* Linked spatial investigation reuses the experiment workspace's visual system. */
+[hidden] { display:none !important; }
+#learned-root { max-width:1800px; padding:30px 28px; margin:auto; }
+.investigation-toolbar { display:flex; align-items:end; gap:18px; padding:16px; flex-wrap:wrap; }
+.investigation-toolbar label { display:grid; gap:6px; font-size:12px; }
+.investigation-toolbar select,.investigation-toolbar input { min-width:150px; }
+.arm-designer { display:flex; align-items:center; gap:18px; flex-wrap:wrap; padding:18px 0; }
+#learned-targets { display:flex; flex-wrap:wrap; gap:10px; }
+.target-choice { display:flex; align-items:center; gap:5px; font-size:13px; border:1px solid #b4c5b5; border-radius:20px; padding:6px 10px; }
+.target-choice input { width:auto; margin:0; }
+.comparison-canvases { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+.comparison-canvases section { overflow:hidden; }
+.comparison-canvases .row { padding:10px 14px; min-height:52px; flex-wrap:wrap; }
+.comparison-canvases h3 { margin:0; font-size:14px; }
+.comparison-canvases canvas { display:block; width:100%; height:300px; touch-action:none; cursor:crosshair; }
+.field-evidence { font-size:10px; padding:4px 7px; background:#eff1dd; border:0; }
+.reveal-strip { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; padding:20px 0; }
+.investigation-bottom { display:grid; grid-template-columns:minmax(0,2fr) minmax(260px,1fr); gap:16px; }
+.investigation-bottom>.panel { padding:20px; min-width:0; }
+#learned-plots { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:12px; }
+.response-card { display:grid; text-align:left; background:#f4f4e9; border:1px solid #cbd4bd; padding:12px; }
+.response-card svg { width:100%; background:#14352e; border-radius:6px; margin:8px 0; }
+.response-card.selected { border-color:#577f63; box-shadow:0 0 0 2px #aac5a080; }
+.diagnostic { border-left:3px solid #be9657; padding-left:10px; font-size:12px; }
+#learned-failures { overflow:auto; }
+#learned-failures table { width:100%; font-size:12px; border-collapse:collapse; }
+#learned-failures td,#learned-failures th { padding:8px; text-align:left; border-bottom:1px solid #d7ddce; }
+#learned-root.working button,#learned-root.working input,#learned-root.working select { pointer-events:none; opacity:.7; }
+@media(max-width:760px) { #learned-root {padding:18px 12px;} .comparison-canvases,.investigation-bottom {grid-template-columns:1fr;} .investigation-toolbar {gap:10px;} .comparison-canvases canvas {height:260px;} .mast h1 {font-size:28px;} }

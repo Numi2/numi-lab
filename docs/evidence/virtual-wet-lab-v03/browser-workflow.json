@@ -1,0 +1,23 @@
+{
+  "arms": 6,
+  "biologicalPromotion": false,
+  "commonControlReference": true,
+  "computedFailureDiagnostics": true,
+  "directAndNeighborSelectable": true,
+  "format": "numilab-spatial-browser-workflow/v1",
+  "nativeReplay": true,
+  "observationsHiddenBeforeReveal": true,
+  "run": "adf2b11b6e4c4f1ab7a8a3d65c6773db",
+  "selectedInterventions": [
+    "Cfap410",
+    "Fasn",
+    "Gfap"
+  ],
+  "signedResidualsCorrect": true,
+  "sourceCells": 39862,
+  "status": "passed",
+  "viewport": [
+    1280,
+    633
+  ]
+}
