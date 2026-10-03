@@ -2,7 +2,9 @@
 
 `numi wet-lab` opens an experiment workspace inside NumiLab. NumiVivo owns
 source preparation, native prediction and verification; NumiLab supplies the
-local interface. The first adapter is a paired-donor RNA-response assay.
+local interface. The shared `WetLabExperimentAdapter` boundary supports both
+paired-donor RNA response and spatial tissue transport. Each adapter owns its
+units, model, observation contract, comparison and evidence status.
 
 Choose a measured specimen, freeze a prediction, reveal held-out treated
 measurements, inspect every baseline and gene, and replay the retained record.
@@ -26,7 +28,10 @@ numi wet-lab \
 ```
 
 Open `http://127.0.0.1:8768`. `--port 0` selects an available port;
-`--catalog` prints supported specimens without starting the server.
+`--catalog` prints the list of assay catalogs without starting the server.
+Repeat `--assay` to register a spatial assay alongside RNA; the selector and
+experiment history dispatch through each record's versioned adapter.
+A spatial-only workspace does not require `--binary`.
 `NUMIVIVO_ROOT`, `NUMIVIVO_BINARY` and `NUMI_PYTHON` can configure owner paths.
 There is no queue, service account, network binding or second prediction engine.
 The single-user server binds only loopback and validates host, origin and a
@@ -71,9 +76,41 @@ control and replicate semantics, owner prediction command, sealed prediction,
 independent observed endpoint, comparison and replay verifier. Do not reinterpret
 RNA as phenotype or reuse RNA RMSE for unrelated measurements.
 
-Molecular target engagement should route to NumiVivo's engagement owner and
-compare a measured occupancy/kinetic endpoint. Spatial tissue experiments need
-the cell/tissue owner plus supported transport/mechanical coupling and a measured
-spatial endpoint. Neither family is runnable through this first workspace.
-NumiBrain/NumiHuman context is optional and belongs only to assays that require
-it. A cancer workspace should reuse these owners and records.
+## Spatial tissue transport v1
+
+Build `numi-matter-wet-lab` from the standalone `matter` CMake project and use
+NumiVivo's `Tools/VirtualWetLab/prepare_spatial.py` to register an authored mesh,
+material, transport/cell plan and native runtime identities. NumiVivo's
+`Tools/VirtualWetLab/SPATIAL.md` contains complete build, registration, observation
+and acceptance instructions. Add its prepared `assay.json` with another `--assay`.
+
+The Matter exporter runs the existing native FEM runtime and publishes geometry
+only after accepted steps. NumiVivo then constructs extracellular regions and
+explicit cell compartments, diffuses a declared tracer across shared faces and
+exchanges it through hypothetical passive membranes. Spatial pulse fields and
+sample times are registered before execution; the matched control gets no pulses.
+The current bridge transfers one frozen accepted geometry. Mechanics and transport
+have separate clocks; this is not simultaneous or two-way biological coupling.
+
+The compact UI exposes the registered specimen/protocol, control, prediction,
+observation reveal, sampling-time selector, compartment field projection and
+per-compartment values. Every arm/time enters scoring. Each record retains native
+geometry, full fields, amounts, injected-amount ledger, hashes and transition
+statuses; replay reconstructs both native owners. No-observation records keep
+reveal unavailable. Measured and numerical-reference comparisons stay distinct;
+neither automatically marks the tissue biology validated.
+
+The shipped 12-cell/12-region example is an authored deformable scaffold using a
+synthetic material, with two pulses and five sample times. Nine acceptance cases
+passed, including ablations, independent matrix-exponential comparison, integrity
+rejection and RNA legacy replay. Baseline maximum field error was 3.416e-6 mol/m3;
+halving the time step reduced it to 7.954e-7. This is evidence about the conservative
+discrete graph and software integration. Nonorthogonal continuum diffusion,
+biological calibration, cell growth/function and mechanical feedback remain open.
+The receipt is in NumiVivo's `Tools/VirtualWetLab/evidence/2026-10-03-spatial`.
+
+Molecular target engagement should become a separate adapter that compares a
+measured occupancy/kinetic endpoint. A future compound → molecular → cellular →
+spatial chain must retain evidence for each transition instead of inheriting a
+single validity flag. NumiBrain/NumiHuman context remains optional and belongs
+only to assays that require it. A cancer workspace should reuse these owners.

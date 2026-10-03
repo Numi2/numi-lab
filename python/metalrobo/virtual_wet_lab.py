@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """NumiLab workspace for source-backed NumiVivo assays (local, single user)."""
 import argparse
-import importlib.util
 import json
 import os
 from pathlib import Path
@@ -9,7 +8,7 @@ import re
 import secrets
 import sys
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from urllib.parse import urlsplit
+from urllib.parse import urlsplit, parse_qs
 
 
 def main():
@@ -17,18 +16,24 @@ def main():
     parser.add_argument('--vivo-root', type=Path, default=os.environ.get('NUMIVIVO_ROOT'),
                         help='NumiVivo checkout containing Tools/VirtualWetLab')
     parser.add_argument('--binary', type=Path, default=os.environ.get('NUMIVIVO_BINARY'), help='Native numivivo executable')
-    parser.add_argument('--assay', type=Path, required=True, help='Prepared source-bound assay.json')
+    parser.add_argument('--assay', type=Path, action='append', required=True, help='Prepared assay.json; repeat for another adapter')
     parser.add_argument('--workspace', type=Path, default=Path.cwd() / '.numi/virtual-wet-lab')
     parser.add_argument('--port', type=int, default=8768)
     parser.add_argument('--catalog', action='store_true', help='Print eligible specimens and exit')
     args = parser.parse_args()
-    if not args.vivo_root or not args.binary:
-        parser.error('Set --vivo-root and --binary (or NUMIVIVO_ROOT and NUMIVIVO_BINARY)')
-    spec = importlib.util.spec_from_file_location('vivo_wetlab', args.vivo_root / 'Tools/VirtualWetLab/wetlab.py')
-    owner = importlib.util.module_from_spec(spec); spec.loader.exec_module(owner)
-    catalog = owner.catalog(args.assay)
+    if not args.vivo_root:
+        parser.error('Set --vivo-root (or NUMIVIVO_ROOT)')
+    sys.path.insert(0, str(args.vivo_root / 'Tools/VirtualWetLab'))
+    import adapters as owner
+    runtime = {'binary': args.binary}
+    configs = {owner.rna.read(p)['id']: p for p in args.assay}
+    if len(configs) != len(args.assay): parser.error('Duplicate assay IDs')
+    if not args.binary and any(owner.adapter_for_config(p).family == 'cell-response' for p in args.assay):
+        parser.error('RNA assays require --binary (or NUMIVIVO_BINARY)')
+    def catalog_for(config): return owner.adapter_for_config(config).catalog(config)
+    catalog = catalog_for(args.assay[0])
     if args.catalog:
-        print(json.dumps(catalog, indent=2)); return
+        print(json.dumps([catalog_for(p) for p in args.assay], indent=2)); return
     args.workspace = args.workspace.resolve(); args.workspace.mkdir(parents=True, exist_ok=True)
     token = secrets.token_urlsafe(32)
     html = (Path(__file__).parent / 'wet_lab/index.html').read_text().replace('__TOKEN__', token)
@@ -56,26 +61,30 @@ def main():
 
         def do_GET(self):
             if not self.valid_host(): return self.respond(403, {'error': 'Use the local workspace URL'})
-            path = urlsplit(self.path).path
+            parsed = urlsplit(self.path); path = parsed.path
             try:
                 if path == '/': return self.respond(200, html, 'text/html')
                 if path == '/favicon.ico': return self.respond(204, '')
                 if self.headers.get('X-Wet-Lab-Token') != token:
                     return self.respond(403, {'error': 'Workspace token required'})
-                if path == '/api/catalog': return self.respond(200, owner.catalog(args.assay))
+                if path == '/api/assays': return self.respond(200, [catalog_for(p) for p in args.assay])
+                if path == '/api/catalog':
+                    assay_id = parse_qs(parsed.query).get('assay', [catalog['id']])[0]
+                    return self.respond(200, catalog_for(configs[assay_id]))
                 if path == '/api/experiments':
                     rows = []
                     for folder in sorted(args.workspace.iterdir(), key=lambda p: p.name):
                         if folder.is_dir() and re.fullmatch('[0-9a-f]{32}', folder.name):
                             try:
-                                reg = owner.check_seal(folder)
-                                rows.append({'id': folder.name, 'donor': reg['donor'], 'createdAt': reg['createdAt'],
+                                adapter = owner.adapter_for_run(folder)
+                                details = adapter.summary(folder); reg = details['registration']
+                                rows.append({'id': folder.name, 'donor': reg.get('donor', reg.get('specimen')), 'family': adapter.family, 'assayID': reg['assay']['id'], 'createdAt': reg['createdAt'],
                                              'revealed': (folder / 'comparison.json').exists(), 'status': 'sealed'})
                             except Exception as error:
                                 rows.append({'id': folder.name, 'status': 'failed or invalid', 'error': str(error)})
                     return self.respond(200, rows)
                 if path.startswith('/api/experiments/'):
-                    return self.respond(200, owner.summary(self.run_path(path.split('/')[-1])))
+                    return self.respond(200, owner.adapter_for_run(self.run_path(path.split('/')[-1])).summary(self.run_path(path.split('/')[-1])))
                 self.respond(404, {'error': 'Unknown route'})
             except Exception as error:
                 self.respond(400, {'error': str(error)})
@@ -91,15 +100,16 @@ def main():
                 if not 0 < length <= 8192: raise ValueError('Invalid request size')
                 body = json.loads(self.rfile.read(length))
                 if self.path == '/api/predict':
-                    run = owner.predict(args.assay, args.binary, args.workspace,
-                                        body['donor'], body['hours'], body['intervention'])
-                    return self.respond(201, owner.summary(run))
+                    config = configs[body['assayID']]; adapter = owner.adapter_for_config(config)
+                    run = adapter.predict(config, runtime, args.workspace, body['selection'])
+                    return self.respond(201, adapter.summary(run))
                 if self.path in ('/api/reveal', '/api/verify'):
                     run = self.run_path(body['id'])
+                    adapter = owner.adapter_for_run(run)
                     if self.path == '/api/reveal':
-                        owner.reveal(run, args.binary)
-                        return self.respond(200, owner.summary(run))
-                    return self.respond(200, owner.verify(run, args.binary))
+                        adapter.reveal(run, runtime)
+                        return self.respond(200, adapter.summary(run))
+                    return self.respond(200, adapter.verify(run, runtime))
                 self.respond(404, {'error': 'Unknown route'})
             except Exception as error:
                 self.respond(400, {'error': str(error)})
