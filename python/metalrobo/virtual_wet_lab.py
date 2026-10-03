@@ -69,7 +69,7 @@ def main():
             parsed = urlsplit(self.path); path = parsed.path
             try:
                 if path == '/': return self.respond(200, html, 'text/html')
-                if path in ('/app.js','/style.css'):
+                if path in ('/app.js','/tissue_index.js','/style.css'):
                     return self.respond(200, (Path(__file__).parent / 'wet_lab' / path[1:]).read_text(), 'text/javascript' if path.endswith('.js') else 'text/css')
                 if path == '/favicon.ico': return self.respond(204, '')
                 if self.headers.get('X-Wet-Lab-Token') != token:

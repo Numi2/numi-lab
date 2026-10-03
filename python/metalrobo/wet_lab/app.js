@@ -13,6 +13,8 @@ let catalogs = [],
   camera = { scale: 1, x: 0, y: 0 },
   points = [],
   playback = null;
+let tissueIndex = null, indexedSpecimen = null, indexedSpatial = null;
+let regionalIndex = new Map(), observedIndex = new Map(), geneIndex = new Map();
 const molecular = () => catalog?.family === "molecular-perturbation";
 const spatial = () => catalog?.family === "spatial-tissue";
 async function api(path, body) {
@@ -221,31 +223,16 @@ function renderRegions() {
 function specimen() {
   return current?.design || catalog?.design;
 }
-function featureIndex() {
-  return (
-    current?.featureIDs ||
-    specimen()?.measurements[0]?.featureIDs ||
-    []
-  ).indexOf($("feature").value);
-}
-function regionResult(id) {
-  return current?.regionalPredictions?.find((r) => r.regionID === id);
-}
-function regionObservation(id) {
-  return current?.comparison?.regions?.find((r) => r.regionID === id);
-}
+function featureIndex() { return geneIndex.get($("feature").value) ?? -1; }
+function regionResult(id) { return regionalIndex.get(id); }
+function regionObservation(id) { return observedIndex.get(id); }
 function estimate(r, method = "contextRidge") {
   return r?.estimates.find((e) => e.baseline === method);
 }
 function measurementValue(entity) {
-  const m = specimen()?.measurements[0];
-  if (!m) return null;
-  const row = m.entityIDs.indexOf(entity.id),
-    j = m.featureIDs.indexOf($("feature").value);
-  if (row < 0 || j < 0) return null;
-  for (let k = m.rowOffsets[row]; k < m.rowOffsets[row + 1]; k++)
-    if (m.featureIndices[k] === j) return m.values[k];
-  return m.absentValue === "zero" ? 0 : null;
+  const i = tissueIndex?.byID.get(entity.id);
+  const v = i === undefined ? NaN : tissueIndex.feature($("feature").value)[i];
+  return Number.isFinite(v) ? v : null;
 }
 function valueAt(p, mode = view) {
   if ($("overlay").value === "uncertainty" && !molecular()) return null;
@@ -313,15 +300,16 @@ function buildPoints() {
     }));
   return [];
 }
-function bounds() {
-  const xs = points.map((p) => p.xy[0]),
-    ys = points.map((p) => p.xy[1]);
-  return {
-    xmin: Math.min(...xs),
-    ymin: Math.min(...ys),
-    dx: Math.max(1e-12, Math.max(...xs) - Math.min(...xs)),
-    dy: Math.max(1e-12, Math.max(...ys) - Math.min(...ys)),
-  };
+function bounds() { return tissueIndex.bounds; }
+function refreshIndices() {
+  const source = specimen(), fields = current?.spatial;
+  if (source !== indexedSpecimen || fields !== indexedSpatial || !tissueIndex) {
+    points = buildPoints(); tissueIndex = new TissueIndex(points, source?.measurements[0]);
+    indexedSpecimen = source; indexedSpatial = fields;
+  }
+  regionalIndex = new Map((current?.regionalPredictions || []).map(r => [r.regionID,r]));
+  observedIndex = new Map((current?.comparison?.regions || []).map(r => [r.regionID,r]));
+  geneIndex = new Map((current?.featureIDs || source?.measurements[0]?.featureIDs || []).map((g,i) => [g,i]));
 }
 function coordinates(p, w, h, b) {
   const scale = Math.min((w - 70) / b.dx, (h - 75) / b.dy) * camera.scale;
@@ -343,7 +331,7 @@ function draw() {
   ctx.scale(dpr, dpr);
   ctx.fillStyle = "#102c29";
   ctx.fillRect(0, 0, w, h);
-  points = buildPoints();
+  refreshIndices();
   $("empty-canvas").classList.toggle(
     "hidden",
     points.length > 0 || (!molecular() && !spatial() && current),
@@ -364,7 +352,10 @@ function draw() {
   }
   const b = bounds(),
     values = points.map((p) => valueAt(p)).filter((v) => v != null),
-    max = Math.max(1e-9, ...values.map(Math.abs));
+    comparisonScale = TissueIndex.sharedScale(
+      ["before", "predicted", "observed"].map(mode => points.map(p => valueAt(p, mode) ?? NaN)),
+      [points.map(p => valueAt(p, "error") ?? NaN)]),
+    max = view === "error" ? comparisonScale.residual : comparisonScale.max;
   for (const p of points) {
     const [x, y] = coordinates(p, w, h, b);
     p.screen = [x, y];
@@ -415,7 +406,9 @@ function draw() {
   ctx.fillStyle = "#b6cec0";
   ctx.fillText(
     values.length
-      ? `0 → ${max.toPrecision(3)}${view === "error" ? " · signed residual" : ""}`
+      ? view === "error"
+        ? `−${max.toPrecision(3)} ← 0 → +${max.toPrecision(3)} · predicted − observed`
+        : `${comparisonScale.min.toPrecision(3)} → ${max.toPrecision(3)} · shared comparison scale`
       : "No supported values in this layer",
     16,
     h - 34,
@@ -797,14 +790,12 @@ $("tissue").onpointerup = (e) => {
   const moved = Math.hypot(e.offsetX - drag.x, e.offsetY - drag.y);
   drag = null;
   if (moved > 4) return;
-  const p = points
-    .filter((p) => p.screen)
-    .map((p) => ({
-      p,
-      d: Math.hypot(e.offsetX - p.screen[0], e.offsetY - p.screen[1]),
-    }))
-    .sort((a, b) => a.d - b.d)[0];
-  if (!p || p.d > 24) return;
+  const rect = $("tissue").getBoundingClientRect(), b = bounds();
+  const scale = Math.min((rect.width - 70) / b.dx, (rect.height - 75) / b.dy) * camera.scale;
+  const picked = tissueIndex.pick((e.offsetX - rect.width / 2 - camera.x) / scale + b.xmin + b.dx / 2,
+    (e.offsetY - rect.height / 2 - camera.y) / scale + b.ymin + b.dy / 2, 24 / scale);
+  if (!picked) return;
+  const p = {p:picked};
   if (painting && molecular()) {
     const id = p.p.parentID;
     if (!catalog.specimens[0].regions.some((r) => r.id === id)) {
