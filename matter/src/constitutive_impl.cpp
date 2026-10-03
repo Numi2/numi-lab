@@ -1044,6 +1044,8 @@ ConstitutiveCompileResult compileConstitutive(
         result.program.material.expressions,
         maximumStack
     );
+    result.program.energy = compiler.compile(
+        result.program.material.energyRoot, result.diagnostics);
     for (std::uint32_t component = 0u; component < 9u; ++component) {
         result.program.stress[component] = compiler.compile(
             stressRoots[component],
@@ -1209,6 +1211,8 @@ ConstitutiveCompileResult compileConstitutive(
     }
 
     std::uint64_t fingerprint = hashString(material.name, material.fingerprint);
+    fingerprint = hashBytes(result.program.energy.instructions.data(),
+        result.program.energy.instructions.size() * sizeof(NMExpressionInstructionGPU), fingerprint);
     for (const auto& bytecode : result.program.stress) {
         fingerprint = hashBytes(bytecode.instructions.data(),
             bytecode.instructions.size() * sizeof(NMExpressionInstructionGPU), fingerprint);

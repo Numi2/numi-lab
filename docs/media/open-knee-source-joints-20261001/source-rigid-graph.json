@@ -1,0 +1,87 @@
+{
+  "bodies": {
+    "1": [
+      3.8855000000000004,
+      46.3435,
+      3.6414999999999997
+    ],
+    "2": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "3": [
+      -4.4315,
+      -7.2204999999999995,
+      -24.9345
+    ],
+    "4": [
+      -1.036,
+      -6.717,
+      0.171
+    ],
+    "17": [
+      -4.4315,
+      -7.2204999999999995,
+      -24.9345
+    ],
+    "18": [
+      -1.036,
+      -6.717,
+      0.171
+    ],
+    "19": [
+      3.8855000000000004,
+      46.3435,
+      3.6414999999999997
+    ],
+    "20": [
+      -1.036,
+      -6.717,
+      0.171
+    ],
+    "21": [
+      1.0835532632546936,
+      38.06618835977137,
+      90.2025146484375
+    ]
+  },
+  "cylindrical_joints": [
+    {
+      "name": "Extension_Flexion",
+      "body_a": 4,
+      "body_b": 18,
+      "authored_xml": "<constraint type=\"rigid cylindrical joint\" name=\"Extension_Flexion\">\n        <tolerance>0</tolerance>\n        <gaptol>0.01</gaptol>\n        <angtol>0.0001</angtol>\n        <force_penalty>10000.0</force_penalty>\n        <moment_penalty>3000000.0</moment_penalty>\n        <body_a>4</body_a>\n        <body_b>18</body_b>\n        <minaug>0</minaug>\n        <maxaug>0</maxaug>\n        <joint_origin>-1.036,-6.717,0.171</joint_origin>\n        <joint_axis>0.9889108468842679,-0.1485103932882822,0.0</joint_axis>\n        <prescribed_rotation>1</prescribed_rotation>\n        <rotation lc=\"9\">-1.57</rotation>\n        <prescribed_translation>0</prescribed_translation>\n        <translation>0</translation>\n      </constraint>\n      "
+    },
+    {
+      "name": "External_Internal",
+      "body_a": 17,
+      "body_b": 3,
+      "authored_xml": "<constraint type=\"rigid cylindrical joint\" name=\"External_Internal\">\n        <tolerance>0</tolerance>\n        <gaptol>0.01</gaptol>\n        <angtol>0.0001</angtol>\n        <force_penalty>10000.0</force_penalty>\n        <moment_penalty>3000000.0</moment_penalty>\n        <body_a>17</body_a>\n        <body_b>3</body_b>\n        <minaug>0</minaug>\n        <maxaug>0</maxaug>\n        <joint_origin>-4.4315,-7.2204999999999995,-24.9345</joint_origin>\n        <joint_axis>0.0,0.0,1.0</joint_axis>\n        <prescribed_rotation>0</prescribed_rotation>\n        <rotation>0</rotation>\n        <prescribed_translation>0</prescribed_translation>\n        <translation>0</translation>\n      </constraint>\n      "
+    },
+    {
+      "name": "Abduction_Adduction",
+      "body_a": 18,
+      "body_b": 17,
+      "authored_xml": "<constraint type=\"rigid cylindrical joint\" name=\"Abduction_Adduction\">\n        <tolerance>0</tolerance>\n        <gaptol>0.01</gaptol>\n        <angtol>0.0001</angtol>\n        <force_penalty>10000.0</force_penalty>\n        <moment_penalty>3000000.0</moment_penalty>\n        <body_a>18</body_a>\n        <body_b>17</body_b>\n        <minaug>0</minaug>\n        <maxaug>0</maxaug>\n        <joint_origin>-4.282665311721631,-6.229429716148487,0.171</joint_origin>\n        <joint_axis>0.1485103932882822,0.9889108468842679,-0.0</joint_axis>\n        <prescribed_rotation>0</prescribed_rotation>\n        <rotation>0</rotation>\n        <prescribed_translation>0</prescribed_translation>\n        <translation>0</translation>\n      </constraint>\n      "
+    },
+    {
+      "name": "Patellar_Extension_Flexion",
+      "body_a": 4,
+      "body_b": 20,
+      "authored_xml": "<constraint type=\"rigid cylindrical joint\" name=\"Patellar_Extension_Flexion\">\n        <tolerance>0</tolerance>\n        <gaptol>0.01</gaptol>\n        <angtol>0.0001</angtol>\n        <force_penalty>10000.0</force_penalty>\n        <moment_penalty>3000000.0</moment_penalty>\n        <body_a>4</body_a>\n        <body_b>20</body_b>\n        <minaug>0</minaug>\n        <maxaug>0</maxaug>\n        <joint_origin>-1.036,-6.717,0.171</joint_origin>\n        <joint_axis>0.9889108468842679,-0.1485103932882822,0.0</joint_axis>\n        <prescribed_rotation>0</prescribed_rotation>\n        <rotation>0</rotation>\n        <prescribed_translation>0</prescribed_translation>\n        <translation>0</translation>\n      </constraint>\n      "
+    },
+    {
+      "name": "Patellar_Lateral_Tilt",
+      "body_a": 19,
+      "body_b": 1,
+      "authored_xml": "<constraint type=\"rigid cylindrical joint\" name=\"Patellar_Lateral_Tilt\">\n        <tolerance>0</tolerance>\n        <gaptol>0.01</gaptol>\n        <angtol>0.0001</angtol>\n        <force_penalty>10000.0</force_penalty>\n        <moment_penalty>3000000.0</moment_penalty>\n        <body_a>19</body_a>\n        <body_b>1</body_b>\n        <minaug>0</minaug>\n        <maxaug>0</maxaug>\n        <joint_origin>3.8855000000000004,46.3435,3.6414999999999997</joint_origin>\n        <joint_axis>0.007345507674492785,0.0,0.9999730213945794</joint_axis>\n        <prescribed_rotation>0</prescribed_rotation>\n        <rotation>0</rotation>\n        <prescribed_translation>0</prescribed_translation>\n        <translation>0</translation>\n      </constraint>\n      "
+    },
+    {
+      "name": "Patellar_Lateral_Rotation",
+      "body_a": 20,
+      "body_b": 19,
+      "authored_xml": "<constraint type=\"rigid cylindrical joint\" name=\"Patellar_Lateral_Rotation\">\n        <tolerance>0</tolerance>\n        <gaptol>0.01</gaptol>\n        <angtol>0.0001</angtol>\n        <force_penalty>10000.0</force_penalty>\n        <moment_penalty>3000000.0</moment_penalty>\n        <body_a>20</body_a>\n        <body_b>19</body_b>\n        <minaug>0</minaug>\n        <maxaug>0</maxaug>\n        <joint_origin>-4.041046061001632,-6.265715059830884,0.171</joint_origin>\n        <joint_axis>0.1485103049177992,0.9889102584370404,-0.0010909130158267598</joint_axis>\n        <prescribed_rotation>0</prescribed_rotation>\n        <rotation>0</rotation>\n        <prescribed_translation>0</prescribed_translation>\n        <translation>0</translation>\n      </constraint>\n      "
+    }
+  ]
+}

@@ -163,6 +163,7 @@ if(APPLE)
             src/metal/mpm.metalinc
             src/metal/fem.metalinc
             src/metal/fgmres.metalinc
+            src/metal/source_rigid_connectors.metalinc
             src/metal/vascular.metalinc
             src/metal/human_equality.metalinc
             src/metal/human_limits.metalinc
@@ -176,6 +177,9 @@ if(APPLE)
             include/numi/matter/accepted_state_proof_gpu.h
             include/numi/matter/shared.h
             include/numi/matter/fiber_exp_linear.h
+            include/numi/matter/source_rigid_connector_gpu.h
+            include/numi/matter/source_cylindrical_joint.h
+            include/numi/matter/source_rigid_spring.h
             include/numi/matter/human_equality_gpu.h
             include/numi/matter/human_limits_gpu.h
             "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/engine_types.h"
@@ -362,6 +366,37 @@ if(APPLE)
     endif()
 endif()
 
+# Exact ElementData fibre-vector ingestion and the pinned whole-source assembly
+# mode. The latter binds all tissue volumes, rigid frames, joints, springs,
+# ties, prestrain curves, and sliding contact into one Matter runtime program.
+# Full-knee contact certification still rejects source-equivalence admission.
+add_executable(numi-matter-open-knee-fiber-field-check
+    tools/open_knee_fiber_field_check.cpp)
+target_include_directories(numi-matter-open-knee-fiber-field-check PRIVATE include ../include)
+if(APPLE)
+    set_source_files_properties(tools/open_knee_fiber_field_check.cpp
+        PROPERTIES LANGUAGE OBJCXX)
+    target_link_libraries(numi-matter-open-knee-fiber-field-check PRIVATE
+        numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_compile_definitions(numi-matter-open-knee-fiber-field-check PRIVATE
+        NUMI_MATTER_METALLIB="${NUMI_MATTER_METALLIB}")
+else()
+    target_link_libraries(numi-matter-open-knee-fiber-field-check PRIVATE
+        numi_matter_compiler)
+endif()
+target_compile_definitions(numi-matter-open-knee-fiber-field-check PRIVATE
+    NUMI_OPEN_KNEE_SOURCE_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/materials/open_knee_ligament_febio_exp_linear.nmatter"
+    NUMI_OPEN_KNEE_SOURCE_MENISCUS_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/materials/open_knee_meniscus_source_febio_exp_linear.nmatter"
+    NUMI_OPEN_KNEE_SOURCE_CARTILAGE_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/materials/open_knee_cartilage_isotropic_preflight.nmatter")
+target_compile_options(numi-matter-open-knee-fiber-field-check
+    PRIVATE -Wall -Wextra -Wpedantic -Werror)
+if(BUILD_TESTING)
+    add_test(NAME matter.compiler.open_knee_fiber_field
+        COMMAND numi-matter-open-knee-fiber-field-check)
+    set_tests_properties(matter.compiler.open_knee_fiber_field
+        PROPERTIES LABELS "matter;material;human;open_knee" TIMEOUT 60)
+endif()
+
 # HumanPack physiology uses the existing Matter package/runtime authority.
 add_executable(numi-matter-vascular-compiler-check tools/vascular_compiler_check.cpp)
 target_link_libraries(numi-matter-vascular-compiler-check PRIVATE numi_matter_compiler)
@@ -520,5 +555,88 @@ if(APPLE)
         add_test(NAME matter.metal.directional_valve COMMAND numi-matter-directional-valve-check)
         set_tests_properties(matter.compiler.directional_valve matter.metal.directional_valve
             PROPERTIES LABELS "matter;human;vascular" TIMEOUT 180)
+    endif()
+endif()
+
+# Source cylindrical-joint residual and exact directional linearization.
+if(APPLE)
+    set(NUMI_JOINT_CHECK_METALLIB "${CMAKE_CURRENT_BINARY_DIR}/shaders/source_joint_check.metallib")
+    add_custom_command(OUTPUT "${NUMI_JOINT_CHECK_METALLIB}"
+        COMMAND "${CMAKE_COMMAND}" -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/shaders"
+        COMMAND xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${CMAKE_CURRENT_SOURCE_DIR}/tools/source_joint_check.metal"
+            -o "${CMAKE_CURRENT_BINARY_DIR}/shaders/source_joint_check.air"
+        COMMAND xcrun -sdk macosx metallib "${CMAKE_CURRENT_BINARY_DIR}/shaders/source_joint_check.air"
+            -o "${NUMI_JOINT_CHECK_METALLIB}"
+        DEPENDS tools/source_joint_check.metal include/numi/matter/source_cylindrical_joint.h VERBATIM)
+    add_custom_target(numi_joint_check_shaders DEPENDS "${NUMI_JOINT_CHECK_METALLIB}")
+    add_executable(numi-matter-source-joint-check tools/source_joint_check.mm)
+    add_dependencies(numi-matter-source-joint-check numi_joint_check_shaders)
+    target_include_directories(numi-matter-source-joint-check PRIVATE include)
+    target_link_libraries(numi-matter-source-joint-check PRIVATE "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_compile_definitions(numi-matter-source-joint-check PRIVATE NUMI_JOINT_CHECK_METALLIB="${NUMI_JOINT_CHECK_METALLIB}")
+    target_compile_options(numi-matter-source-joint-check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    if(BUILD_TESTING)
+        add_test(NAME matter.compiler.source_joint COMMAND numi-matter-source-joint-check --cpu-only)
+        add_test(NAME matter.metal.source_joint COMMAND numi-matter-source-joint-check)
+        set_tests_properties(matter.compiler.source_joint matter.metal.source_joint PROPERTIES LABELS "matter;constraint;human" TIMEOUT 60)
+    endif()
+
+    # Assemble the pinned Open Knee rigid cylindrical-joint graph through the
+    # same residual/tangent operator used by the source single-joint check.
+    # This is graph-kinematics evidence only. The native coupled connector
+    # path has its own regression; full tissue ties, sliding contact,
+    # prestrain and source load continuation remain unassembled.
+    add_executable(numi-matter-source-joint-graph-check tools/source_joint_graph_check.cpp)
+    target_include_directories(numi-matter-source-joint-graph-check PRIVATE include)
+    target_compile_definitions(numi-matter-source-joint-graph-check PRIVATE
+        NUMI_OPEN_KNEE_SOURCE_GRAPH_PROGRAM="${CMAKE_SOURCE_DIR}/../docs/media/open-knee-source-graph-20261002/source-rigid-graph.bin")
+    target_compile_options(numi-matter-source-joint-graph-check PRIVATE -Wall -Wextra -Wpedantic -Werror)
+    add_executable(numi-matter-source-rigid-coupled-check
+        tools/source_rigid_connector_coupled_check.mm)
+    target_include_directories(numi-matter-source-rigid-coupled-check PRIVATE include ../include)
+    target_link_libraries(numi-matter-source-rigid-coupled-check PRIVATE
+        numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_compile_definitions(numi-matter-source-rigid-coupled-check PRIVATE
+        NUMI_MATTER_METALLIB="${NUMI_MATTER_METALLIB}"
+        NUMI_MATTER_FIXTURE_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/materials/silicone.nmatter"
+        NUMI_MATTER_SOURCE_PRESTRAIN_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/materials/open_knee_ligament_febio_exp_linear.nmatter")
+    target_compile_options(numi-matter-source-rigid-coupled-check PRIVATE
+        -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    if(BUILD_TESTING)
+        add_test(NAME matter.metal.source_rigid_coupled COMMAND
+            numi-matter-source-rigid-coupled-check)
+        set_tests_properties(matter.metal.source_rigid_coupled PROPERTIES
+            LABELS "matter;constraint;coupled" TIMEOUT 120)
+        add_test(NAME matter.metal.source_fem_discrete_coupled COMMAND
+            numi-matter-source-rigid-coupled-check --quasistatic
+                --with-fem-spring)
+        set_tests_properties(matter.metal.source_fem_discrete_coupled PROPERTIES
+            LABELS "matter;constraint;coupled;open_knee" TIMEOUT 120)
+        add_test(NAME matter.metal.source_prestrain_flexion_continuation
+            COMMAND numi-matter-source-rigid-coupled-check --quasistatic
+                --source-continuation 1.1)
+        set_tests_properties(matter.metal.source_prestrain_flexion_continuation
+            PROPERTIES LABELS "matter;constraint;coupled;open_knee" TIMEOUT 120)
+        add_test(NAME matter.metal.source_contact_geometry_fail_closed
+            COMMAND numi-matter-source-rigid-coupled-check --quasistatic
+                --with-source-contact-geometry)
+        set_tests_properties(matter.metal.source_contact_geometry_fail_closed
+            PROPERTIES LABELS "matter;constraint;coupled;open_knee" TIMEOUT 120)
+        find_package(Python3 COMPONENTS Interpreter QUIET)
+        if(Python3_Interpreter_FOUND)
+            add_test(NAME matter.metal.source_quasistatic_coupled
+                COMMAND "${Python3_EXECUTABLE}"
+                    "${CMAKE_CURRENT_SOURCE_DIR}/tools/check_source_quasistatic_mass.py"
+                    "$<TARGET_FILE:numi-matter-source-rigid-coupled-check>")
+            set_tests_properties(matter.metal.source_quasistatic_coupled
+                PROPERTIES LABELS "matter;constraint;coupled;open_knee" TIMEOUT 120)
+        endif()
+        add_test(NAME matter.compiler.source_joint_graph COMMAND
+            numi-matter-source-joint-graph-check --source-program
+            "${CMAKE_SOURCE_DIR}/../docs/media/open-knee-source-graph-20261002/source-rigid-graph.bin")
+        set_tests_properties(matter.compiler.source_joint_graph
+            PROPERTIES LABELS "matter;constraint;human;open_knee" TIMEOUT 60)
     endif()
 endif()

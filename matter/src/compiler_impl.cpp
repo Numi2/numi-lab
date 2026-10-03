@@ -926,7 +926,14 @@ CompileResult compileWorld(
              (proxy.bodyIndex == NM_INVALID_INDEX ||
               (proxy.shape != NM_RIGID_CAPSULE &&
                proxy.shape != NM_RIGID_ARC) ||
-              !(proxy.radiusOrOffset > 0.0)))) {
+              !(proxy.radiusOrOffset > 0.0))) ||
+            (proxy.frameOnly &&
+             (strand || proxy.punctureTip || proxy.punctureDilator ||
+              proxy.bodyIndex == NM_INVALID_INDEX ||
+              proxy.shape != NM_RIGID_SPHERE || proxy.radiusOrOffset != 0.0 ||
+              proxy.localCenter != std::array<double, 3>{} ||
+              proxy.localExtent != std::array<double, 3>{})) ||
+            (proxy.quasiStatic && (!proxy.frameOnly || !proxy.dynamic))) {
             result.diagnostics.push_back({
                 Diagnostic::Severity::error, 0u, 0u,
                 "rigid proxy contains invalid geometry or material binding",
@@ -944,7 +951,9 @@ CompileResult compileWorld(
             (proxy.dynamic ? NM_RIGID_DYNAMIC : 0u) |
             (proxy.punctureTip ? NM_RIGID_PUNCTURE_TIP : 0u) |
             (strand ? NM_RIGID_SUTURE_STRAND : 0u) |
-            (proxy.punctureDilator ? NM_RIGID_PUNCTURE_DILATOR : 0u);
+            (proxy.punctureDilator ? NM_RIGID_PUNCTURE_DILATOR : 0u) |
+            (proxy.frameOnly ? NM_RIGID_FRAME_ONLY : 0u) |
+            (proxy.quasiStatic ? NM_RIGID_SOURCE_QUASISTATIC : 0u);
         cooked.adaptiveObjectIndex = NM_INVALID_INDEX;
         cooked.generalizedFreeBodyIndex = NM_INVALID_INDEX;
         if (proxy.dynamic) {
@@ -1041,6 +1050,14 @@ CompileResult compileWorld(
         const Representation representation = selectRepresentation(
             object, material, result.diagnostics
         );
+        if (object.quasiStatic &&
+            (representation != Representation::fem || object.mixedFEM ||
+             object.adaptive || object.automaticRepresentation ||
+             object.multiphysics.enabled || object.mutationPolicy.enabled)) {
+            result.diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
+                "quasi-static source equilibrium requires immutable non-mixed FEM"});
+            return result;
+        }
         if (object.femFieldDrivenActiveTension &&
             (representation != Representation::fem || object.mixedFEM ||
              !object.multiphysics.enabled || object.adaptive ||
@@ -1168,7 +1185,8 @@ CompileResult compileWorld(
                 ? NM_OBJECT_MUTABLE_TOPOLOGY : 0u) |
             (framed ? NM_OBJECT_FEM_MATERIAL_FRAME : 0u) |
             (regional ? NM_OBJECT_FEM_REGIONAL_MATERIAL : 0u) |
-            (referenced ? NM_OBJECT_FEM_REFERENCE_CONFIGURATION : 0u);
+            (referenced ? NM_OBJECT_FEM_REFERENCE_CONFIGURATION : 0u) |
+            (object.quasiStatic ? NM_OBJECT_FEM_QUASISTATIC : 0u);
         std::copy(object.femMaterialFrameSourceIdentity.begin(),
             object.femMaterialFrameSourceIdentity.end(), descriptor.materialFrameSourceIdentity);
         std::copy(object.femMaterialSourceIdentity.begin(),
@@ -1641,6 +1659,12 @@ CompileResult compileWorld(
                     attachmentByNode[sourceNodeIndex];
                 NMFEMNodeStateGPU node{};
                 node.positionAndMass = f4(sourceNode[0], sourceNode[1], sourceNode[2], 0.0);
+                if (referenced) {
+                    node.positionLow = f4(
+                        sourceNode[0] - double(node.positionAndMass.x),
+                        sourceNode[1] - double(node.positionAndMass.y),
+                        sourceNode[2] - double(node.positionAndMass.z), 0.0);
+                }
                 node.velocityAndInverseMass = f4(
                     fixed ? 0.0 : object.femInitialVelocity[0],
                     fixed ? 0.0 : object.femInitialVelocity[1],
@@ -1652,6 +1676,12 @@ CompileResult compileWorld(
                     referenceNode[0], referenceNode[1], referenceNode[2],
                     attachment != nullptr ? 2.0 : (fixed ? 1.0 : 0.0)
                 );
+                if (referenced) {
+                    node.referenceLow = f4(
+                        referenceNode[0] - double(node.restAndFixed.x),
+                        referenceNode[1] - double(node.restAndFixed.y),
+                        referenceNode[2] - double(node.restAndFixed.z), 0.0);
+                }
                 if (attachment != nullptr) {
                     NMFEMHumanAttachmentGPU cooked{};
                     cooked.identity = {
@@ -1804,9 +1834,14 @@ CompileResult compileWorld(
             const double rho = density(material);
             std::vector<double> localMass(nodeCapacity, 0.0);
             const auto cookedNodePosition = [&](const std::uint32_t local) {
+                // A separate authored reference is evaluated from its source
+                // doubles. Referenced FEM carries the low part of current
+                // positions into Metal, so rounding Dm to absolute float32
+                // coordinates would reintroduce the knee-scale stress error.
+                if (referenced) return object.femReferenceNodes[local];
                 const auto& node = world.fem.nodes[
                     static_cast<std::size_t>(descriptor.stateOffset) + local];
-                const nm_float4 position = referenced ? node.restAndFixed : node.positionAndMass;
+                const nm_float4 position = node.positionAndMass;
                 return Vec3{
                     static_cast<double>(position.x),
                     static_cast<double>(position.y),
@@ -1826,11 +1861,9 @@ CompileResult compileWorld(
                     });
                     continue;
                 }
-                // Rest geometry must be formed from the exact FP32 node
-                // coordinates consumed by Metal.  Building Dm^-1 from the
-                // pre-cook doubles while positions are rounded independently
-                // gives a translated millimetre-scale mesh a non-identity
-                // deformation at frame zero and manufactures pressure/stress.
+                // Ordinary FEM preserves its exact legacy FP32 rest operator.
+                // Authored-reference FEM uses source doubles plus a split
+                // current position; both halves are needed at tiny tet scale.
                 const Vec3 x0 = cookedNodePosition(sourceTet.nodes[0]);
                 const Vec3 x1 = cookedNodePosition(sourceTet.nodes[1]);
                 const Vec3 x2 = cookedNodePosition(sourceTet.nodes[2]);
@@ -2326,6 +2359,8 @@ CompileResult compileWorld(
         for (std::size_t proxySize = 0u;
              proxySize < world.contact.rigidProxies.size();
              ++proxySize) {
+            if ((world.contact.rigidProxies[proxySize].flags &
+                 NM_RIGID_FRAME_ONLY) != 0u) continue;
             const std::uint32_t proxy = static_cast<std::uint32_t>(proxySize);
             const std::uint32_t objectIndex = unifiedNodeObjects[nodeSize];
             // Every proxy on an adaptive fallback body represents the same

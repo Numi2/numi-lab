@@ -1,0 +1,13 @@
+source_step=rejected source_time=0.05 newton_budget=7 fgmres_budget=10 matter_status=10 failing_object=9 failing_index=4294967295 completed_microsteps=0 fgmres_iterations=10 diagnostic0=0.174711 diagnostic1=5.72073e-06 residual=0 correction=0 worst_object=0 maximum_object_residual=0.174711 minimum_jacobian=0.997827 max_fem_displacement_m=0 source_contact_history=1035210 source_equivalence=unqualified
+source_certificate object=0 residual=0.174711 correction=5.72073e-06 volume=0 pressure=0 minimum_jacobian=0.99996 contact_gap=0 transport=0,0,0,0
+source_certificate object=1 residual=0.174711 correction=5.72073e-06 volume=0 pressure=0 minimum_jacobian=0.998728 contact_gap=0 transport=0,0,0,0
+source_certificate object=2 residual=0.174711 correction=5.72073e-06 volume=0 pressure=0 minimum_jacobian=0.999221 contact_gap=0 transport=0,0,0,0
+source_certificate object=3 residual=0.174711 correction=5.72073e-06 volume=0 pressure=0 minimum_jacobian=0.999975 contact_gap=0 transport=0,0,0,0
+source_certificate object=4 residual=0.174711 correction=5.72073e-06 volume=0 pressure=0 minimum_jacobian=0.999203 contact_gap=0 transport=0,0,0,0
+source_certificate object=5 residual=0.174711 correction=5.72073e-06 volume=0 pressure=0 minimum_jacobian=0.999778 contact_gap=0 transport=0,0,0,0
+source_certificate object=6 residual=0.174711 correction=5.72073e-06 volume=0 pressure=0 minimum_jacobian=0.99997 contact_gap=0 transport=0,0,0,0
+source_certificate object=7 residual=0.174711 correction=5.72073e-06 volume=0 pressure=0 minimum_jacobian=0.99981 contact_gap=0 transport=0,0,0,0
+source_certificate object=8 residual=0.174711 correction=5.72073e-06 volume=0 pressure=0 minimum_jacobian=0.999413 contact_gap=0 transport=0,0,0,0
+source_certificate object=9 residual=0.174711 correction=5.72073e-06 volume=0 pressure=0 minimum_jacobian=0.999959 contact_gap=0 transport=0,0,0,0
+source_certificate object=10 residual=0.174711 correction=5.72073e-06 volume=0 pressure=0 minimum_jacobian=0.998677 contact_gap=0 transport=0,0,0,0
+source_certificate object=11 residual=0.174711 correction=5.72073e-06 volume=0 pressure=0 minimum_jacobian=0.997827 contact_gap=0 transport=0,0,0,0

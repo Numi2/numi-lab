@@ -1,0 +1,179 @@
+Start testing: Oct 01 06:46 CEST
+----------------------------------------------------------
+2/27 Testing: matter.compiler.fem_material_frame
+2/27 Test: matter.compiler.fem_material_frame
+Command: "/Users/home/numi-open-knee-source-20261001/build-open-knee-source/numi-matter-fem-material-frame-compiler-check"
+Directory: /Users/home/numi-open-knee-source-20261001/build-open-knee-source
+"matter.compiler.fem_material_frame" start time: Oct 01 06:46 CEST
+Output:
+----------------------------------------------------------
+denied_source=missing identity diagnostic=material-local FEM frames require exact tetrahedron count and nonzero source identity; 
+denied_source=identity without frames diagnostic=material-local FEM frames require exact tetrahedron count and nonzero source identity; 
+denied_source=count mismatch diagnostic=material-local FEM frames require exact tetrahedron count and nonzero source identity; 
+denied_source=zero quaternion diagnostic=material-local FEM frame rotation must be finite and unit length; 
+denied_source=nonunit quaternion diagnostic=material-local FEM frame rotation must be finite and unit length; 
+denied_source=NaN quaternion diagnostic=material-local FEM frame rotation must be finite and unit length; 
+denied_source=infinite quaternion diagnostic=material-local FEM frame rotation must be finite and unit length; 
+denied_source=non-FEM representation diagnostic=material-local FEM frames require exact tetrahedron count and nonzero source identity; 
+denied_source=adaptive frame object diagnostic=authored FEM material fields require an immutable world until field transfer is supported; 
+denied_source=mutable frame object diagnostic=authored FEM material fields require an immutable world until field transfer is supported; 
+denied_source=authored mutation command diagnostic=authored FEM material fields require an immutable world until field transfer is supported; 
+denied_source=adaptive neighboring object diagnostic=authored FEM material fields require an immutable world until field transfer is supported; 
+denied_source=mutable neighboring object diagnostic=authored FEM material fields require an immutable world until field transfer is supported; 
+denied_cooked=nonunit frame diagnostic=FEM tetrahedron 0: material frame is nonunit or noncanonical for its owning object
+denied_cooked=NaN frame diagnostic=FEM tetrahedron 0: material frame is nonunit or noncanonical for its owning object
+denied_cooked=identity without flag diagnostic=continuum object 0: material frame identity or representation is invalid
+denied_cooked=flag without identity diagnostic=continuum object 0: material frame identity or representation is invalid
+denied_cooked=invented legacy frame diagnostic=FEM tetrahedron 0: material frame is nonunit or noncanonical for its owning object
+denied_cooked=cooked adaptive world diagnostic=Matter dispatch feature flags disagree with cooked programs
+PASS fem_material_frame_compiler checks=34 physical_steps=0 abi=35
+<end of output>
+Test time =   0.53 sec
+----------------------------------------------------------
+Test Passed.
+"matter.compiler.fem_material_frame" end time: Oct 01 06:46 CEST
+"matter.compiler.fem_material_frame" time elapsed: 00:00:00
+----------------------------------------------------------
+
+4/27 Testing: matter.compiler.stateful_roundtrip
+4/27 Test: matter.compiler.stateful_roundtrip
+Command: "/Users/home/numi-open-knee-source-20261001/build-open-knee-source/numi-matter-stateful-check"
+Directory: /Users/home/numi-open-knee-source-20261001/build-open-knee-source
+"matter.compiler.stateful_roundtrip" start time: Oct 01 06:46 CEST
+Output:
+----------------------------------------------------------
+{"schema":"numi.matter.stateful-compiler.v1","fingerprint":134545261010179940,"state_stride":2,"particles":2,"tetrahedra":1}
+<end of output>
+Test time =   0.36 sec
+----------------------------------------------------------
+Test Passed.
+"matter.compiler.stateful_roundtrip" end time: Oct 01 06:46 CEST
+"matter.compiler.stateful_roundtrip" time elapsed: 00:00:00
+----------------------------------------------------------
+
+10/27 Testing: matter.compiler.source_fiber
+10/27 Test: matter.compiler.source_fiber
+Command: "/Users/home/numi-open-knee-source-20261001/build-open-knee-source/numi-matter-fiber-check" "--cpu-only"
+Directory: /Users/home/numi-open-knee-source-20261001/build-open-knee-source
+"matter.compiler.source_fiber" start time: Oct 01 06:46 CEST
+Output:
+----------------------------------------------------------
+tissue=ACL source_fp64=passed
+tensor=ACL independent_cauchy_oracle=passed
+tensor=ACL independent_cauchy_oracle=passed
+tissue=PCL source_fp64=passed
+tensor=PCL independent_cauchy_oracle=passed
+tensor=PCL independent_cauchy_oracle=passed
+tissue=MCL source_fp64=passed
+tensor=MCL independent_cauchy_oracle=passed
+tensor=MCL independent_cauchy_oracle=passed
+tissue=LCL source_fp64=passed
+tensor=LCL independent_cauchy_oracle=passed
+tensor=LCL independent_cauchy_oracle=passed
+tissue=PTL source_fp64=passed
+tensor=PTL independent_cauchy_oracle=passed
+tensor=PTL independent_cauchy_oracle=passed
+tissue=QAT source_fp64=passed
+tensor=QAT independent_cauchy_oracle=passed
+tensor=QAT independent_cauchy_oracle=passed
+tissue=MNS-L source_fp64=passed
+tensor=MNS-L independent_cauchy_oracle=passed
+tensor=MNS-L independent_cauchy_oracle=passed
+tissue=MNS-M source_fp64=passed
+tensor=MNS-M independent_cauchy_oracle=passed
+tensor=MNS-M independent_cauchy_oracle=passed
+tissue=cartilage source_fp64=passed
+tensor=cartilage independent_cauchy_oracle=passed
+tensor=cartilage independent_cauchy_oracle=passed
+fiber_exp_linear=passed continuum_equilibrium=unqualified calibration=not_performed
+<end of output>
+Test time =   0.42 sec
+----------------------------------------------------------
+Test Passed.
+"matter.compiler.source_fiber" end time: Oct 01 06:46 CEST
+"matter.compiler.source_fiber" time elapsed: 00:00:00
+----------------------------------------------------------
+
+11/27 Testing: matter.metal.source_fiber
+11/27 Test: matter.metal.source_fiber
+Command: "/Users/home/numi-open-knee-source-20261001/build-open-knee-source/numi-matter-fiber-check"
+Directory: /Users/home/numi-open-knee-source-20261001/build-open-knee-source
+"matter.metal.source_fiber" start time: Oct 01 06:46 CEST
+Output:
+----------------------------------------------------------
+device=Apple M4
+primitive=ACL metal_scalar_checks=24 maximum_component_scaled_error=2.68857e-06
+tissue=ACL source_fp64=passed metal_scalar_checks=486 maximum_component_scaled_error=1.19269e-05
+tensor=ACL independent_cauchy_oracle=passed metal_scalar_checks=486 maximum_component_scaled_error=6.85659e-06 maximum_tensor_relative_error=5.8711e-06
+stored_energy=ACL metal_scalar_checks=27 maximum_component_scaled_error=2.96644e-05
+tensor=ACL independent_cauchy_oracle=passed metal_scalar_checks=486 maximum_component_scaled_error=0.000149042 maximum_tensor_relative_error=5.85567e-06
+stored_energy=ACL metal_scalar_checks=27 maximum_component_scaled_error=1.41924e-06
+primitive=PCL metal_scalar_checks=24 maximum_component_scaled_error=5.18713e-06
+tissue=PCL source_fp64=passed metal_scalar_checks=486 maximum_component_scaled_error=3.35476e-06
+tensor=PCL independent_cauchy_oracle=passed metal_scalar_checks=486 maximum_component_scaled_error=6.19443e-06 maximum_tensor_relative_error=5.76112e-06
+stored_energy=PCL metal_scalar_checks=27 maximum_component_scaled_error=1.3786e-05
+tensor=PCL independent_cauchy_oracle=passed metal_scalar_checks=486 maximum_component_scaled_error=1.31256e-05 maximum_tensor_relative_error=5.76112e-06
+stored_energy=PCL metal_scalar_checks=27 maximum_component_scaled_error=1.46889e-06
+primitive=MCL metal_scalar_checks=24 maximum_component_scaled_error=1.01537e-06
+tissue=MCL source_fp64=passed metal_scalar_checks=486 maximum_component_scaled_error=1.6161e-06
+tensor=MCL independent_cauchy_oracle=passed metal_scalar_checks=486 maximum_component_scaled_error=1.04027e-05 maximum_tensor_relative_error=5.70715e-06
+stored_energy=MCL metal_scalar_checks=27 maximum_component_scaled_error=6.15779e-06
+tensor=MCL independent_cauchy_oracle=passed metal_scalar_checks=486 maximum_component_scaled_error=8.3712e-05 maximum_tensor_relative_error=7.0947e-06
+stored_energy=MCL metal_scalar_checks=27 maximum_component_scaled_error=8.85117e-07
+primitive=LCL metal_scalar_checks=24 maximum_component_scaled_error=1.01537e-06
+tissue=LCL source_fp64=passed metal_scalar_checks=486 maximum_component_scaled_error=2.66553e-06
+tensor=LCL independent_cauchy_oracle=passed metal_scalar_checks=486 maximum_component_scaled_error=8.93373e-06 maximum_tensor_relative_error=5.60096e-06
+stored_energy=LCL metal_scalar_checks=27 maximum_component_scaled_error=2.53609e-06
+tensor=LCL independent_cauchy_oracle=passed metal_scalar_checks=486 maximum_component_scaled_error=0.000917732 maximum_tensor_relative_error=5.59942e-06
+stored_energy=LCL metal_scalar_checks=27 maximum_component_scaled_error=4.57887e-06
+primitive=PTL metal_scalar_checks=24 maximum_component_scaled_error=1.60841e-06
+tissue=PTL source_fp64=passed metal_scalar_checks=486 maximum_component_scaled_error=7.05396e-06
+tensor=PTL independent_cauchy_oracle=passed metal_scalar_checks=486 maximum_component_scaled_error=6.17424e-06 maximum_tensor_relative_error=5.75596e-06
+stored_energy=PTL metal_scalar_checks=27 maximum_component_scaled_error=1.1893e-05
+tensor=PTL independent_cauchy_oracle=passed metal_scalar_checks=486 maximum_component_scaled_error=1.16784e-05 maximum_tensor_relative_error=5.75596e-06
+stored_energy=PTL metal_scalar_checks=27 maximum_component_scaled_error=1.24164e-06
+primitive=QAT metal_scalar_checks=24 maximum_component_scaled_error=1.60841e-06
+tissue=QAT source_fp64=passed metal_scalar_checks=486 maximum_component_scaled_error=7.05396e-06
+tensor=QAT independent_cauchy_oracle=passed metal_scalar_checks=486 maximum_component_scaled_error=6.17424e-06 maximum_tensor_relative_error=5.75596e-06
+stored_energy=QAT metal_scalar_checks=27 maximum_component_scaled_error=1.1893e-05
+tensor=QAT independent_cauchy_oracle=passed metal_scalar_checks=486 maximum_component_scaled_error=1.16784e-05 maximum_tensor_relative_error=5.75596e-06
+stored_energy=QAT metal_scalar_checks=27 maximum_component_scaled_error=1.24164e-06
+primitive=MNS-L metal_scalar_checks=24 maximum_component_scaled_error=2.18917e-06
+tissue=MNS-L source_fp64=passed metal_scalar_checks=486 maximum_component_scaled_error=1.16163e-05
+tensor=MNS-L independent_cauchy_oracle=passed metal_scalar_checks=486 maximum_component_scaled_error=8.49371e-06 maximum_tensor_relative_error=6.2294e-06
+stored_energy=MNS-L metal_scalar_checks=27 maximum_component_scaled_error=5.88683e-06
+tensor=MNS-L independent_cauchy_oracle=passed metal_scalar_checks=486 maximum_component_scaled_error=0.00021671 maximum_tensor_relative_error=6.2294e-06
+stored_energy=MNS-L metal_scalar_checks=27 maximum_component_scaled_error=3.85283e-06
+primitive=MNS-M metal_scalar_checks=24 maximum_component_scaled_error=2.18917e-06
+tissue=MNS-M source_fp64=passed metal_scalar_checks=486 maximum_component_scaled_error=1.16163e-05
+tensor=MNS-M independent_cauchy_oracle=passed metal_scalar_checks=486 maximum_component_scaled_error=8.49371e-06 maximum_tensor_relative_error=6.2294e-06
+stored_energy=MNS-M metal_scalar_checks=27 maximum_component_scaled_error=5.88683e-06
+tensor=MNS-M independent_cauchy_oracle=passed metal_scalar_checks=486 maximum_component_scaled_error=0.00021671 maximum_tensor_relative_error=6.2294e-06
+stored_energy=MNS-M metal_scalar_checks=27 maximum_component_scaled_error=3.85283e-06
+primitive=cartilage metal_scalar_checks=24 maximum_component_scaled_error=2.68857e-06
+tissue=cartilage source_fp64=passed metal_scalar_checks=486 maximum_component_scaled_error=5.46629e-07
+tensor=cartilage independent_cauchy_oracle=passed metal_scalar_checks=486 maximum_component_scaled_error=6.92218e-06 maximum_tensor_relative_error=5.94579e-06
+stored_energy=cartilage metal_scalar_checks=27 maximum_component_scaled_error=1.77833e-06
+tensor=cartilage independent_cauchy_oracle=passed metal_scalar_checks=486 maximum_component_scaled_error=6.92218e-06 maximum_tensor_relative_error=5.94579e-06
+stored_energy=cartilage metal_scalar_checks=27 maximum_component_scaled_error=1.77833e-06
+fiber_exp_linear=passed continuum_equilibrium=unqualified calibration=not_performed
+<end of output>
+Test time =   0.68 sec
+----------------------------------------------------------
+Test Passed.
+"matter.metal.source_fiber" end time: Oct 01 06:46 CEST
+"matter.metal.source_fiber" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Oct 01 06:46 CEST
+
+compiler =   0.36 sec*proc
+
+human =   1.63 sec*proc
+
+material =   1.63 sec*proc
+
+matter =   1.99 sec*proc
+
+stateful =   0.36 sec*proc
+

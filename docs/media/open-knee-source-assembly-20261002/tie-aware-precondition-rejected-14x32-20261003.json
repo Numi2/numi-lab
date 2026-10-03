@@ -1,0 +1,44 @@
+{
+  "schema": "numi.matter.open-knee-tie-aware-precondition-diagnostic.v1",
+  "status": "rejected_no_accepted_matter_checkpoint",
+  "base_revision": "e91a20b55bb8fa421c6eb85121ac452292fd4112",
+  "change_under_measurement": "Rigid Jacobi preconditioning adds an approximate dt-squared continuum diagonal condensed through source FEM-to-rigid tie Jacobians. The coupled mechanics operator is unchanged.",
+  "source_checkpoint": "retained FEBio 2.9.1 XPLT state 1 at continuation time 0.05; imported pose, not a Matter prediction",
+  "source_seed_sha256": "699908b6e8152dd3e4c4072cee1e63e6dddffeccb28191dd05207f11dc9bd619",
+  "baseline_contact_force_sha256": "1d7e4c571a6f7a561b7f8d4ecba0b5f90117c8848fca04b1bc9f6c7336918d90",
+  "diagnostic_execution": "The source-contact admission guard was bypassed only in this isolated diagnostic build, then restored and rebuilt fail-closed. No contact or checkpoint qualification is claimed.",
+  "budgets": {
+    "newton": 14,
+    "fgmres": 32,
+    "fgmres_restart": 10
+  },
+  "result": {
+    "accepted": false,
+    "matter_status": 10,
+    "failing_object": 9,
+    "completed_microsteps": 0,
+    "fgmres_iterations": 32,
+    "relative_residual": 0.00099345,
+    "relative_correction": 0.00000319463,
+    "minimum_element_jacobian": 0.987668,
+    "maximum_fem_displacement_m": 0.000338057,
+    "rigid_residual_l2": 0.000563831,
+    "mcl_residual_l2": 0.000530459,
+    "mns_m_residual_l2": 0.000615399
+  },
+  "matched_tie_preconditioner_14x20": {
+    "stdout": "tie-aware-precondition-rejected-14x20-20261003.stdout",
+    "stdout_sha256": "ee416241d16106190e0b3e6d1d0807ed6486799b68e077c6f3c2d3e7435dee77",
+    "relative_residual": 0.000923607,
+    "relative_correction": 0.0000151411,
+    "rigid_residual_l2": 0.00043479,
+    "mcl_residual_l2": 0.00052419,
+    "mns_m_residual_l2": 0.000619319
+  },
+  "stdout": {
+    "file": "tie-aware-precondition-rejected-14x32-20261003.stdout",
+    "sha256": "04ecf841b91ae211a966a0cc3093a1422ec6d6f255fdcbe71cd85950f551548b"
+  },
+  "interpretation": "The extra 12 Krylov iterations lowered the relative correction but did not lower the final relative residual or rigid residual. FGMRES-budget growth alone did not produce an accepted source root.",
+  "qualification": "No accepted Matter preload/flexion state or accepted-field comparison to XPLT."
+}

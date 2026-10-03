@@ -1,0 +1,1612 @@
+#include "numi/matter/source_rigid_connector_gpu.h"
+#include "numi/matter/source_cylindrical_joint.h"
+#include "numi/matter/source_rigid_spring.h"
+#include "metalrobo/compensated_translation_gpu.h"
+
+namespace numi_matter_metal {
+namespace src = numi_matter_joint;
+
+inline src::V<float> sourceVec(const float4 value) {
+    return {value.x, value.y, value.z};
+}
+inline src::Q<float> sourceQuat(const float4 value) {
+    return {value.x, value.y, value.z, value.w};
+}
+inline src::BodyState<float> sourceBody(
+    const NMRigidStateGPU state, const NMRigidProxyGPU proxy
+) {
+    const src::Q<float> orientation = src::multiply(
+        sourceQuat(state.orientation),
+        src::conjugate(sourceQuat(
+            quaternionNormalize(proxy.localOrientation))));
+    return {sourceVec(state.bodyCenter), orientation};
+}
+inline src::V<float> sourceDirection(
+    const NMMatterDispatchGPU dispatch, const NMRigidProxyGPU proxy,
+    const NMRigidStateGPU body, const uint environment, const uint articulatedNv,
+    device const float4* direction, const uint offset
+) {
+    if ((proxy.flags & NM_RIGID_DYNAMIC) == 0u ||
+        !(body.linearVelocityAndInverseMass.w > 0.0f) ||
+        proxy.generalizedFreeBodyIndex == NM_INVALID_INDEX) return {};
+    const uint first = articulatedNv + 6u * proxy.generalizedFreeBodyIndex + offset;
+    return {
+        direction[fgmresRigidIndex(dispatch, environment, first + 0u)].x,
+        direction[fgmresRigidIndex(dispatch, environment, first + 1u)].x,
+        direction[fgmresRigidIndex(dispatch, environment, first + 2u)].x
+    };
+}
+inline float sourceWrenchComponent(
+    const uint dof, const uint articulatedNv, const NMRigidProxyGPU proxy,
+    const NMRigidStateGPU body, const src::V<float> force, const src::V<float> moment
+) {
+    if ((proxy.flags & NM_RIGID_DYNAMIC) == 0u ||
+        !(body.linearVelocityAndInverseMass.w > 0.0f) ||
+        proxy.generalizedFreeBodyIndex == NM_INVALID_INDEX) return 0.0f;
+    const uint first = articulatedNv + 6u * proxy.generalizedFreeBodyIndex;
+    if (dof < first || dof >= first + 6u) return 0.0f;
+    const uint component = dof - first;
+    if (component == 0u) return force.x;
+    if (component == 1u) return force.y;
+    if (component == 2u) return force.z;
+    if (component == 3u) return moment.x;
+    if (component == 4u) return moment.y;
+    return moment.z;
+}
+inline src::Input<float> sourceJointInput(
+    const NMSourceCylindricalJointGPU row,
+    const NMRigidStateGPU bodyA, const NMRigidStateGPU bodyB,
+    const NMRigidProxyGPU proxyA, const NMRigidProxyGPU proxyB,
+    const float sourceTime
+) {
+    src::Input<float> input{};
+    input.referenceA = sourceVec(row.referenceA);
+    input.referenceB = sourceVec(row.referenceB);
+    input.positionA = sourceVec(bodyA.bodyCenter);
+    input.positionB = sourceVec(bodyB.bodyCenter);
+    input.origin = sourceVec(row.origin);
+    input.axis = sourceVec(row.axis);
+    input.rotationA = sourceBody(bodyA, proxyA).rotation;
+    input.rotationB = sourceBody(bodyB, proxyB).rotation;
+    input.forceMultiplier = sourceVec(row.forceMultiplier);
+    input.momentMultiplier = sourceVec(row.momentMultiplier);
+    input.forcePenalty = row.parameters.x;
+    input.momentPenalty = row.parameters.y;
+    input.translation = row.parameters.z;
+    input.rotation = row.parameters.w *
+        (row.axial.z > 0.5f ? clamp(sourceTime - 1.0f, 0.0f, 1.0f) : 1.0f);
+    input.axialForce = row.axial.x;
+    input.axialMoment = row.axial.y;
+    input.prescribedTranslation = row.indices.z;
+    input.prescribedRotation = row.indices.w;
+    return input;
+}
+
+// This follows the authored scalar load curve. The pinned deck also declares
+// a prestrain constraint with max_iters=0. Its retained first XPLT checkpoint
+// matches the uniform initial gradient's fiber stretch; later source
+// states still require comparison before this is called a complete preload.
+kernel void nm_source_apply_prestrain(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMBridgeDispatchGPU& bridge [[buffer(1)]],
+    constant uint& rowCount [[buffer(2)]],
+    device const NMSourcePrestrainGPU* rows [[buffer(3)]],
+    device float* parameters [[buffer(4)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (rowCount == 0u || global >= dispatch.environmentCount * rowCount)
+        return;
+    const uint environment = global / rowCount;
+    const NMSourcePrestrainGPU row = rows[global - environment * rowCount];
+    const float alpha = clamp(bridge.time.z, 0.0f, 1.0f);
+    parameters[environment * dispatch.parameterCount + row.identity.x] =
+        row.stretch.x + alpha * (row.stretch.y - row.stretch.x);
+}
+
+// Materialize the exact authored source face mesh at the current coupled
+// Newton candidate. This is geometric input for the sliding-elastic law;
+// it does not exert contact force or mark a candidate as equilibrated.
+kernel void nm_source_contact_materialize_nodes(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& nodeCount [[buffer(1)]],
+    device const NMSourceContactNodeGPU* nodes [[buffer(2)]],
+    device const NMFEMNodeStateGPU* fem [[buffer(3)]],
+    device const NMRigidProxyGPU* proxies [[buffer(4)]],
+    device const NMRigidStateGPU* bodies [[buffer(5)]],
+    device float4* positions [[buffer(6)]],
+    device NMMatterStatusGPU* statuses [[buffer(7)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (nodeCount == 0u || global >= dispatch.environmentCount * nodeCount)
+        return;
+    const uint environment = global / nodeCount;
+    if (!environmentHealthy(statuses, environment)) return;
+    const NMSourceContactNodeGPU node = nodes[global - environment * nodeCount];
+    float3 position{};
+    if (node.identity.y == 0u) {
+        position = fem[environment * dispatch.femNodeCount +
+                       node.identity.x].positionAndMass.xyz;
+    } else {
+        const NMRigidStateGPU body =
+            bodies[environment * dispatch.rigidProxyCount + node.identity.x];
+        const src::BodyState<float> state =
+            sourceBody(body, proxies[node.identity.x]);
+        const src::V<float> point = state.position +
+            src::rotate(state.rotation, sourceVec(node.localPoint));
+        position = float3(point.x, point.y, point.z);
+    }
+    if (!all(isfinite(position))) {
+        recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+            NM_INVALID_INDEX, node.identity.z,
+            float4(position, 0.0f));
+        return;
+    }
+    positions[global] = float4(position, 0.0f);
+}
+
+kernel void nm_source_contact_materialize_faces(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& nodeCount [[buffer(1)]],
+    constant uint& faceCount [[buffer(2)]],
+    device const NMSourceContactFaceGPU* faces [[buffer(3)]],
+    device const float4* positions [[buffer(4)]],
+    device float4* geometry [[buffer(5)]],
+    device NMMatterStatusGPU* statuses [[buffer(6)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (faceCount == 0u || global >= dispatch.environmentCount * faceCount)
+        return;
+    const uint environment = global / faceCount;
+    if (!environmentHealthy(statuses, environment)) return;
+    const NMSourceContactFaceGPU face = faces[global - environment * faceCount];
+    const uint base = environment * nodeCount;
+    const float3 a = positions[base + face.nodes.x].xyz;
+    const float3 b = positions[base + face.nodes.y].xyz;
+    const float3 c = positions[base + face.nodes.z].xyz;
+    const float3 areaVector = cross(b - a, c - a);
+    const float jacobian = length(areaVector);
+    if (!(jacobian > 0.0f) || !isfinite(jacobian)) {
+        recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+            NM_INVALID_INDEX, face.identity.y,
+            float4(jacobian, 0.0f, 0.0f, 0.0f));
+        return;
+    }
+    geometry[global] = float4(areaVector / jacobian, jacobian);
+}
+
+kernel void nm_source_contact_refit_bvh(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& bvhCount [[buffer(1)]],
+    constant uint2& level [[buffer(2)]],
+    constant uint& positionCount [[buffer(3)]],
+    constant float& tolerance [[buffer(4)]],
+    device const NMSourceContactBVHNodeGPU* nodes [[buffer(5)]],
+    device const NMSourceContactFaceGPU* faces [[buffer(6)]],
+    device const float4* positions [[buffer(7)]],
+    device NMSourceContactBVHBoundsGPU* bounds [[buffer(8)]],
+    device NMMatterStatusGPU* statuses [[buffer(9)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (level.y == 0u || global >= dispatch.environmentCount * level.y)
+        return;
+    const uint environment = global / level.y;
+    if (!environmentHealthy(statuses, environment)) return;
+    const uint index = level.x + global - environment * level.y;
+    const NMSourceContactBVHNodeGPU node = nodes[index];
+    const uint base = environment * bvhCount;
+    float3 lower{}, upper{};
+    if (node.identity.z != NM_INVALID_INDEX) {
+        const NMSourceContactFaceGPU face = faces[node.identity.z];
+        const uint positionBase = environment * positionCount;
+        const float3 a = positions[positionBase + face.nodes.x].xyz;
+        const float3 b = positions[positionBase + face.nodes.y].xyz;
+        const float3 c = positions[positionBase + face.nodes.z].xyz;
+        const float longest = max(length(b - a),
+                                  max(length(c - b), length(a - c)));
+        const float expansion = max(1.0e-9f, 2.0f * tolerance * longest);
+        lower = min(a, min(b, c)) - expansion;
+        upper = max(a, max(b, c)) + expansion;
+    } else {
+        const NMSourceContactBVHBoundsGPU left =
+            bounds[base + node.identity.x];
+        const NMSourceContactBVHBoundsGPU right =
+            bounds[base + node.identity.y];
+        lower = min(left.lower.xyz, right.lower.xyz);
+        upper = max(left.upper.xyz, right.upper.xyz);
+    }
+    if (!all(isfinite(lower)) || !all(isfinite(upper)) ||
+        any(lower > upper)) {
+        recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+            NM_INVALID_INDEX, index, float4(lower, 0.0f));
+        return;
+    }
+    bounds[base + index].lower = float4(lower, 0.0f);
+    bounds[base + index].upper = float4(upper, 0.0f);
+}
+
+inline bool sourceContactSegmentBox(
+    const float3 origin, const float3 displacement,
+    const NMSourceContactBVHBoundsGPU box
+) {
+    float first = 0.0f, last = 1.0f;
+    for (uint axis = 0u; axis < 3u; ++axis) {
+        if (abs(displacement[axis]) < 1.0e-15f) {
+            if (origin[axis] < box.lower[axis] ||
+                origin[axis] > box.upper[axis]) return false;
+            continue;
+        }
+        const float inverse = 1.0f / displacement[axis];
+        const float a = (box.lower[axis] - origin[axis]) * inverse;
+        const float b = (box.upper[axis] - origin[axis]) * inverse;
+        first = max(first, min(a, b));
+        last = min(last, max(a, b));
+        if (last < first) return false;
+    }
+    return true;
+}
+
+kernel void nm_source_contact_project_pass(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& nodeCount [[buffer(1)]],
+    constant uint& bvhCount [[buffer(2)]],
+    constant uint& faceCount [[buffer(3)]],
+    constant uint& projectionCount [[buffer(4)]],
+    constant NMSourceContactPassGPU& pass [[buffer(5)]],
+    device const NMSourceContactBVHNodeGPU* hierarchy [[buffer(6)]],
+    device const NMSourceContactBVHBoundsGPU* bounds [[buffer(7)]],
+    device const NMSourceContactFaceGPU* faces [[buffer(8)]],
+    device const float4* positions [[buffer(9)]],
+    device const float4* faceGeometry [[buffer(10)]],
+    device NMSourceContactProjectionGPU* projections [[buffer(11)]],
+    device const NMSourceContactProjectionGPU* acceptedHistory [[buffer(12)]],
+    device NMMatterStatusGPU* statuses [[buffer(13)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint passPoints = 3u * pass.identity.w;
+    if (passPoints == 0u || global >= dispatch.environmentCount * passPoints)
+        return;
+    const uint environment = global / passPoints;
+    if (!environmentHealthy(statuses, environment)) return;
+    const uint local = global - environment * passPoints;
+    const uint slaveFace = pass.identity.z + local / 3u;
+    const uint integration = local % 3u;
+    const uint faceBase = environment * faceCount;
+    const uint positionBase = environment * nodeCount;
+    const NMSourceContactFaceGPU slave = faces[slaveFace];
+    const float3 a = positions[positionBase + slave.nodes.x].xyz;
+    const float3 b = positions[positionBase + slave.nodes.y].xyz;
+    const float3 c = positions[positionBase + slave.nodes.z].xyz;
+    const float3 normal = faceGeometry[faceBase + slaveFace].xyz;
+    const float area = faceGeometry[faceBase + slaveFace].w / 6.0f;
+    const float3 origin = (a + b + c +
+        3.0f * (integration == 0u ? a : (integration == 1u ? b : c))) / 6.0f;
+    NMSourceContactProjectionGPU result{};
+    result.identity = {NM_INVALID_INDEX, slaveFace, pass.identity.x,
+                       4u * pass.identity.y + integration};
+    result.normalArea = float4(normal, area);
+    float bestRay = 0.0f;
+    const uint projectionSlot = environment * projectionCount +
+        pass.master.z + local;
+    const uint previousFace = acceptedHistory[projectionSlot].identity.x;
+    if (previousFace < faceCount &&
+        faces[previousFace].identity.x == pass.master.y) {
+        const NMSourceContactFaceGPU master = faces[previousFace];
+        const float3 ma = positions[positionBase + master.nodes.x].xyz;
+        const float3 mb = positions[positionBase + master.nodes.y].xyz;
+        const float3 mc = positions[positionBase + master.nodes.z].xyz;
+        const float3 masterNormal =
+            faceGeometry[faceBase + previousFace].xyz;
+        const float opposing = dot(normal, masterNormal);
+        if (opposing < 0.0f) {
+            const float ray = dot(masterNormal, ma - origin) / opposing;
+            if (ray > -pass.parameters.w && ray < 0.0f) {
+                const float3 hit = origin + ray * normal;
+                const float3 e0 = mb - ma, e1 = mc - ma;
+                const float3 relative = hit - ma;
+                const float aa = dot(e0, e0), ab = dot(e0, e1);
+                const float bb = dot(e1, e1);
+                const float determinant = aa * bb - ab * ab;
+                if (determinant > 0.0f) {
+                    const float r = (bb * dot(relative, e0) -
+                                     ab * dot(relative, e1)) / determinant;
+                    const float s = (aa * dot(relative, e1) -
+                                     ab * dot(relative, e0)) / determinant;
+                    if (r >= -pass.parameters.z && s >= -pass.parameters.z &&
+                        r + s <= 1.0f + pass.parameters.z) {
+                        result.identity.x = previousFace;
+                        result.barycentricGap = float4(1.0f-r-s, r, s, -ray);
+                        projections[projectionSlot] = result;
+                        return;
+                    }
+                }
+            }
+        }
+    }
+    const float3 displacement = -pass.parameters.w * normal;
+    uint stack[64];
+    uint size = 1u;
+    stack[0] = pass.master.x;
+    while (size != 0u) {
+        const uint index = stack[--size];
+        if (index >= bvhCount) {
+            recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+                NM_INVALID_INDEX, index, float4(0.0f));
+            return;
+        }
+        if (!sourceContactSegmentBox(origin, displacement,
+                bounds[environment * bvhCount + index])) continue;
+        const NMSourceContactBVHNodeGPU node = hierarchy[index];
+        if (node.identity.z == NM_INVALID_INDEX) {
+            if (size > 62u) {
+                recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+                    NM_INVALID_INDEX, index, float4(float(size)));
+                return;
+            }
+            stack[size++] = node.identity.x;
+            stack[size++] = node.identity.y;
+            continue;
+        }
+        const NMSourceContactFaceGPU master = faces[node.identity.z];
+        const float3 ma = positions[positionBase + master.nodes.x].xyz;
+        const float3 mb = positions[positionBase + master.nodes.y].xyz;
+        const float3 mc = positions[positionBase + master.nodes.z].xyz;
+        const float3 masterNormal =
+            faceGeometry[faceBase + node.identity.z].xyz;
+        const float opposing = dot(normal, masterNormal);
+        if (!(opposing < 0.0f)) continue;
+        const float ray = dot(masterNormal, ma - origin) / opposing;
+        if (!(ray > -pass.parameters.w && ray < 0.0f)) continue;
+        const float3 hit = origin + ray * normal;
+        const float3 e0 = mb - ma, e1 = mc - ma, relative = hit - ma;
+        const float aa = dot(e0, e0), ab = dot(e0, e1), bb = dot(e1, e1);
+        const float determinant = aa * bb - ab * ab;
+        if (!(determinant > 0.0f)) continue;
+        const float r = (bb * dot(relative, e0) -
+                         ab * dot(relative, e1)) / determinant;
+        const float s = (aa * dot(relative, e1) -
+                         ab * dot(relative, e0)) / determinant;
+        if (r < -pass.parameters.z || s < -pass.parameters.z ||
+            r + s > 1.0f + pass.parameters.z) continue;
+        if (result.identity.x == NM_INVALID_INDEX || ray < bestRay ||
+            (ray == bestRay && node.identity.z < result.identity.x)) {
+            bestRay = ray;
+            result.identity.x = node.identity.z;
+            result.barycentricGap = float4(1.0f - r - s, r, s, -ray);
+        }
+    }
+    projections[projectionSlot] = result;
+}
+
+kernel void nm_source_contact_checkpoint_history(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& projectionCount [[buffer(1)]],
+    device const NMSourceContactProjectionGPU* accepted [[buffer(2)]],
+    device NMSourceContactProjectionGPU* checkpoint [[buffer(3)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global < dispatch.environmentCount * projectionCount)
+        checkpoint[global] = accepted[global];
+}
+
+kernel void nm_source_contact_commit_history(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& projectionCount [[buffer(1)]],
+    device const NMSourceContactProjectionGPU* candidate [[buffer(2)]],
+    device NMSourceContactProjectionGPU* accepted [[buffer(3)]],
+    device const NMMatterStatusGPU* statuses [[buffer(4)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= dispatch.environmentCount * projectionCount) return;
+    const uint environment = global / projectionCount;
+    if (environmentHealthy(statuses, environment))
+        accepted[global] = candidate[global];
+}
+
+kernel void nm_source_contact_rollback_history(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& projectionCount [[buffer(1)]],
+    device const NMSourceContactProjectionGPU* checkpoint [[buffer(2)]],
+    device NMSourceContactProjectionGPU* accepted [[buffer(3)]],
+    device const NMMatterStatusGPU* statuses [[buffer(4)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= dispatch.environmentCount * projectionCount) return;
+    const uint environment = global / projectionCount;
+    if (!environmentHealthy(statuses, environment))
+        accepted[global] = checkpoint[global];
+}
+
+kernel void nm_source_contact_clear_incidence(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& nodeCount [[buffer(1)]],
+    device uint* counts [[buffer(2)]],
+    device uint* cursors [[buffer(3)]],
+    device float4* forces [[buffer(4)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= dispatch.environmentCount * nodeCount) return;
+    counts[global] = 0u;
+    cursors[global] = 0u;
+    forces[global] = float4(0.0f);
+}
+
+inline bool sourceContactLoadedProjection(
+    const NMSourceContactProjectionGPU row,
+    device const NMSourceContactFaceGPU* faces
+) {
+    return row.identity.x != NM_INVALID_INDEX &&
+        row.barycentricGap.w > 0.0f &&
+        faces[row.identity.y].autoPenalty.x > 0.0f;
+}
+
+kernel void nm_source_contact_count_incidence(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& nodeCount [[buffer(1)]],
+    constant uint& projectionCount [[buffer(2)]],
+    device const NMSourceContactProjectionGPU* projections [[buffer(3)]],
+    device const NMSourceContactFaceGPU* faces [[buffer(4)]],
+    device uint* counts [[buffer(5)]],
+    device NMMatterStatusGPU* statuses [[buffer(6)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= dispatch.environmentCount * projectionCount) return;
+    const uint environment = global / projectionCount;
+    if (!environmentHealthy(statuses, environment)) return;
+    const NMSourceContactProjectionGPU row = projections[global];
+    if (!sourceContactLoadedProjection(row, faces)) return;
+    const NMSourceContactFaceGPU slave = faces[row.identity.y];
+    const NMSourceContactFaceGPU master = faces[row.identity.x];
+    for (uint corner = 0u; corner < 6u; ++corner) {
+        const uint node = corner < 3u ? slave.nodes[corner] :
+                                         master.nodes[corner - 3u];
+        if (node >= nodeCount) {
+            recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+                NM_INVALID_INDEX, node, float4(float(global)));
+            return;
+        }
+        device atomic_uint* count = reinterpret_cast<device atomic_uint*>(
+            &counts[environment * nodeCount + node]);
+        atomic_fetch_add_explicit(count, 1u, memory_order_relaxed);
+    }
+}
+
+kernel void nm_source_contact_scan_incidence(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& nodeCount [[buffer(1)]],
+    constant uint& projectionCount [[buffer(2)]],
+    device const uint* counts [[buffer(3)]],
+    device NMIncidenceRangeGPU* ranges [[buffer(4)]],
+    device NMMatterStatusGPU* statuses [[buffer(5)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount ||
+        !environmentHealthy(statuses, environment)) return;
+    const uint base = environment * nodeCount;
+    const uint capacity = 6u * projectionCount;
+    uint cursor = environment * capacity;
+    for (uint node = 0u; node < nodeCount; ++node) {
+        const uint count = counts[base + node];
+        ranges[base + node] = {cursor, count, NM_INVALID_INDEX, 0u};
+        if (count > capacity - (cursor - environment * capacity)) {
+            recordFailure(statuses[environment], NM_STATUS_CAPACITY_OVERFLOW,
+                NM_INVALID_INDEX, node,
+                float4(float(count), float(capacity), 0.0f, 0.0f));
+            return;
+        }
+        cursor += count;
+    }
+}
+
+kernel void nm_source_contact_scatter_incidence(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& nodeCount [[buffer(1)]],
+    constant uint& projectionCount [[buffer(2)]],
+    device const NMSourceContactProjectionGPU* projections [[buffer(3)]],
+    device const NMSourceContactFaceGPU* faces [[buffer(4)]],
+    device const NMIncidenceRangeGPU* ranges [[buffer(5)]],
+    device uint* cursors [[buffer(6)]],
+    device uint* incidence [[buffer(7)]],
+    device NMMatterStatusGPU* statuses [[buffer(8)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= dispatch.environmentCount * projectionCount) return;
+    const uint environment = global / projectionCount;
+    if (!environmentHealthy(statuses, environment)) return;
+    const uint slot = global - environment * projectionCount;
+    const NMSourceContactProjectionGPU row = projections[global];
+    if (!sourceContactLoadedProjection(row, faces)) return;
+    const NMSourceContactFaceGPU slave = faces[row.identity.y];
+    const NMSourceContactFaceGPU master = faces[row.identity.x];
+    for (uint corner = 0u; corner < 6u; ++corner) {
+        const uint node = corner < 3u ? slave.nodes[corner] :
+                                         master.nodes[corner - 3u];
+        const uint nodeGlobal = environment * nodeCount + node;
+        device atomic_uint* cursor = reinterpret_cast<device atomic_uint*>(
+            &cursors[nodeGlobal]);
+        const uint local = atomic_fetch_add_explicit(
+            cursor, 1u, memory_order_relaxed);
+        const NMIncidenceRangeGPU range = ranges[nodeGlobal];
+        if (local >= range.count) {
+            recordFailure(statuses[environment], NM_STATUS_CAPACITY_OVERFLOW,
+                NM_INVALID_INDEX, node, float4(float(local), float(range.count),
+                                              0.0f, 0.0f));
+            return;
+        }
+        incidence[range.first + local] = 6u * slot + corner;
+    }
+}
+
+inline void sourceContactSiftIncidence(
+    device uint* values, const uint first, uint root, const uint count
+) {
+    while (root * 2u + 1u < count) {
+        uint child = root * 2u + 1u;
+        if (child + 1u < count &&
+            values[first + child] < values[first + child + 1u]) ++child;
+        if (values[first + root] >= values[first + child]) break;
+        const uint swap = values[first + root];
+        values[first + root] = values[first + child];
+        values[first + child] = swap;
+        root = child;
+    }
+}
+
+kernel void nm_source_contact_sort_incidence(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& nodeCount [[buffer(1)]],
+    device const NMIncidenceRangeGPU* ranges [[buffer(2)]],
+    device uint* incidence [[buffer(3)]],
+    device NMMatterStatusGPU* statuses [[buffer(4)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= dispatch.environmentCount * nodeCount) return;
+    const uint environment = global / nodeCount;
+    if (!environmentHealthy(statuses, environment)) return;
+    const NMIncidenceRangeGPU range = ranges[global];
+    for (uint start = range.count / 2u; start > 0u; --start)
+        sourceContactSiftIncidence(incidence, range.first, start - 1u,
+                                   range.count);
+    for (uint end = range.count; end > 1u; --end) {
+        const uint swap = incidence[range.first];
+        incidence[range.first] = incidence[range.first + end - 1u];
+        incidence[range.first + end - 1u] = swap;
+        sourceContactSiftIncidence(incidence, range.first, 0u, end - 1u);
+    }
+}
+
+kernel void nm_source_contact_gather_forces(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& nodeCount [[buffer(1)]],
+    constant uint& projectionCount [[buffer(2)]],
+    device const NMSourceContactProjectionGPU* projections [[buffer(3)]],
+    device const NMSourceContactFaceGPU* faces [[buffer(4)]],
+    device const NMSourceSlidingPairGPU* pairs [[buffer(5)]],
+    device const NMIncidenceRangeGPU* ranges [[buffer(6)]],
+    device const uint* incidence [[buffer(7)]],
+    device float4* nodeForces [[buffer(8)]],
+    device NMMatterStatusGPU* statuses [[buffer(9)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= dispatch.environmentCount * nodeCount) return;
+    const uint environment = global / nodeCount;
+    if (!environmentHealthy(statuses, environment)) return;
+    const NMIncidenceRangeGPU range = ranges[global];
+    float3 force = float3(0.0f);
+    for (uint item = 0u; item < range.count; ++item) {
+        const uint encoded = incidence[range.first + item];
+        const uint slot = encoded / 6u;
+        const uint corner = encoded % 6u;
+        if (slot >= projectionCount) {
+            recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+                NM_INVALID_INDEX, slot, float4(float(encoded)));
+            return;
+        }
+        const NMSourceContactProjectionGPU row =
+            projections[environment * projectionCount + slot];
+        const NMSourceContactFaceGPU slave = faces[row.identity.y];
+        const float pressure = pairs[row.identity.z].normal.x *
+            slave.autoPenalty.x * row.barycentricGap.w;
+        const float weight = corner < 3u
+            ? ((row.identity.w % 4u) == corner ? 2.0f / 3.0f : 1.0f / 6.0f)
+            : row.barycentricGap[corner - 3u];
+        const float direction = corner < 3u ? -1.0f : 1.0f;
+        force += direction * weight * pressure * row.normalArea.w *
+                 row.normalArea.xyz;
+    }
+    if (!all(isfinite(force))) {
+        recordFailure(statuses[environment], NM_STATUS_NONFINITE_RESULT,
+            NM_INVALID_INDEX, global, float4(force, 0.0f));
+        return;
+    }
+    nodeForces[global] = float4(force, 0.0f);
+}
+
+// Differentiate the force actually assembled above at a fixed active master
+// facet. The facet choice is a semismooth active-set decision; all geometry,
+// including both normals, the ray intersection and the master barycentrics,
+// still moves with the FGMRES direction.
+inline float3 sourceContactNodeDirection(
+    const NMMatterDispatchGPU dispatch, const uint articulatedNv,
+    const uint environment, const uint nodeIndex,
+    device const NMSourceContactNodeGPU* nodes,
+    device const float4* positions,
+    device const NMRigidProxyGPU* proxies,
+    device const NMRigidStateGPU* bodies,
+    device const float4* direction, const uint nodeCount
+) {
+    const NMSourceContactNodeGPU node = nodes[nodeIndex];
+    if (node.identity.y == 0u)
+        return direction[environment * dispatch.femNodeCount +
+                         node.identity.x].xyz;
+    const uint rigid = node.identity.x;
+    const NMRigidProxyGPU proxy = proxies[rigid];
+    const NMRigidStateGPU body =
+        bodies[environment * dispatch.rigidProxyCount + rigid];
+    const src::V<float> linear = sourceDirection(dispatch, proxy, body,
+        environment, articulatedNv, direction, 0u);
+    const src::V<float> angular = sourceDirection(dispatch, proxy, body,
+        environment, articulatedNv, direction, 3u);
+    const float3 arm = positions[environment * nodeCount + nodeIndex].xyz -
+                       body.bodyCenter.xyz;
+    return float3(linear.x, linear.y, linear.z) +
+        cross(float3(angular.x, angular.y, angular.z), arm);
+}
+
+inline float3 sourceContactDirectionalForce(
+    const NMMatterDispatchGPU dispatch, const uint articulatedNv,
+    const uint environment, const uint nodeCount, const uint corner,
+    const NMSourceContactProjectionGPU row,
+    device const NMSourceContactNodeGPU* nodes,
+    device const NMSourceContactFaceGPU* faces,
+    device const NMSourceSlidingPairGPU* pairs,
+    device const float4* positions,
+    device const NMRigidProxyGPU* proxies,
+    device const NMRigidStateGPU* bodies,
+    device const float4* direction
+) {
+    const NMSourceContactFaceGPU slave = faces[row.identity.y];
+    const NMSourceContactFaceGPU master = faces[row.identity.x];
+    float3 p[6], v[6];
+    for (uint i = 0u; i < 6u; ++i) {
+        const uint node = i < 3u ? slave.nodes[i] : master.nodes[i - 3u];
+        p[i] = positions[environment * nodeCount + node].xyz;
+        v[i] = sourceContactNodeDirection(dispatch, articulatedNv,
+            environment, node, nodes, positions, proxies, bodies,
+            direction, nodeCount);
+    }
+    const float3 se0 = p[1] - p[0], se1 = p[2] - p[0];
+    const float3 dse0 = v[1] - v[0], dse1 = v[2] - v[0];
+    const float3 sn = cross(se0, se1);
+    const float3 dsn = cross(dse0, se1) + cross(se0, dse1);
+    const float jacobian = length(sn);
+    const float3 normal = sn / jacobian;
+    const float dJacobian = dot(normal, dsn);
+    const float3 dNormal = (dsn - normal * dJacobian) / jacobian;
+
+    const float3 me0 = p[4] - p[3], me1 = p[5] - p[3];
+    const float3 dme0 = v[4] - v[3], dme1 = v[5] - v[3];
+    const float3 mnArea = cross(me0, me1);
+    const float3 dMnArea = cross(dme0, me1) + cross(me0, dme1);
+    const float masterJacobian = length(mnArea);
+    const float3 masterNormal = mnArea / masterJacobian;
+    const float3 dMasterNormal = (dMnArea - masterNormal *
+        dot(masterNormal, dMnArea)) / masterJacobian;
+    const uint integration = row.identity.w % 4u;
+    const float3 origin = (p[0] + p[1] + p[2] +
+        3.0f * p[integration]) / 6.0f;
+    const float3 dOrigin = (v[0] + v[1] + v[2] +
+        3.0f * v[integration]) / 6.0f;
+    const float denominator = dot(masterNormal, normal);
+    const float numerator = dot(masterNormal, p[3] - origin);
+    const float ray = numerator / denominator;
+    const float dNumerator = dot(dMasterNormal, p[3] - origin) +
+        dot(masterNormal, v[3] - dOrigin);
+    const float dDenominator = dot(dMasterNormal, normal) +
+        dot(masterNormal, dNormal);
+    const float dRay = (dNumerator - ray * dDenominator) / denominator;
+    const float3 dHit = dOrigin + dRay * normal + ray * dNormal;
+
+    const float r = row.barycentricGap.y, s = row.barycentricGap.z;
+    const float3 dRelative = dHit - v[3] - r * dme0 - s * dme1;
+    const float aa = dot(me0, me0), ab = dot(me0, me1);
+    const float bb = dot(me1, me1);
+    const float determinant = aa * bb - ab * ab;
+    const float dr = (bb * dot(dRelative, me0) -
+                      ab * dot(dRelative, me1)) / determinant;
+    const float ds = (aa * dot(dRelative, me1) -
+                      ab * dot(dRelative, me0)) / determinant;
+    const float weight = corner < 3u
+        ? (integration == corner ? 2.0f / 3.0f : 1.0f / 6.0f)
+        : row.barycentricGap[corner - 3u];
+    const float dWeight = corner < 3u ? 0.0f :
+        (corner == 3u ? -dr - ds : (corner == 4u ? dr : ds));
+    const float gap = row.barycentricGap.w;
+    const float dGap = -dRay;
+    const float scale = (corner < 3u ? -1.0f : 1.0f) *
+        pairs[row.identity.z].normal.x * slave.autoPenalty.x / 6.0f;
+    return scale * ((dWeight * gap * jacobian +
+        weight * dGap * jacobian + weight * gap * dJacobian) * normal +
+        weight * gap * jacobian * dNormal);
+}
+
+kernel void nm_source_contact_gather_operator(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& articulatedNv [[buffer(1)]],
+    constant uint& nodeCount [[buffer(2)]],
+    constant uint& projectionCount [[buffer(3)]],
+    device const NMSourceContactNodeGPU* nodes [[buffer(4)]],
+    device const NMSourceContactProjectionGPU* projections [[buffer(5)]],
+    device const NMSourceContactFaceGPU* faces [[buffer(6)]],
+    device const NMSourceSlidingPairGPU* pairs [[buffer(7)]],
+    device const NMIncidenceRangeGPU* ranges [[buffer(8)]],
+    device const uint* incidence [[buffer(9)]],
+    device const float4* positions [[buffer(10)]],
+    device const NMRigidProxyGPU* proxies [[buffer(11)]],
+    device const NMRigidStateGPU* bodies [[buffer(12)]],
+    device const float4* direction [[buffer(13)]],
+    device float4* nodeDerivative [[buffer(14)]],
+    device const NMFGMRESStateGPU* solver [[buffer(15)]],
+    device NMMatterStatusGPU* statuses [[buffer(16)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= dispatch.environmentCount * nodeCount) return;
+    const uint environment = global / nodeCount;
+    if (solver[environment].diagnostics.z > 0.5f ||
+        !environmentHealthy(statuses, environment)) return;
+    const NMIncidenceRangeGPU range = ranges[global];
+    float3 derivative = float3(0.0f);
+    for (uint item = 0u; item < range.count; ++item) {
+        const uint encoded = incidence[range.first + item];
+        const uint slot = encoded / 6u;
+        if (slot >= projectionCount) {
+            recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+                NM_INVALID_INDEX, slot, float4(float(encoded)));
+            return;
+        }
+        derivative += sourceContactDirectionalForce(dispatch, articulatedNv,
+            environment, nodeCount, encoded % 6u,
+            projections[environment * projectionCount + slot], nodes,
+            faces, pairs, positions, proxies, bodies, direction);
+    }
+    if (!all(isfinite(derivative))) {
+        recordFailure(statuses[environment], NM_STATUS_NONFINITE_RESULT,
+            NM_INVALID_INDEX, global, float4(derivative, 0.0f));
+        return;
+    }
+    nodeDerivative[global] = float4(derivative, 0.0f);
+}
+
+// Lump the positive normal part of the authored sliding-contact tangent into
+// the FEM velocity preconditioner. The full, geometry-dependent tangent is
+// still applied by nm_source_contact_gather_operator; this only scales its
+// difficult normal rows in FGMRES. Source FEM contact nodes are unique by
+// configuration validation, so each thread owns one inverse-diagonal entry.
+kernel void nm_source_contact_precondition_fem(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& nodeCount [[buffer(1)]],
+    constant uint& projectionCount [[buffer(2)]],
+    constant float& timestep [[buffer(3)]],
+    device const NMSourceContactNodeGPU* nodes [[buffer(4)]],
+    device const NMSourceContactProjectionGPU* projections [[buffer(5)]],
+    device const NMSourceContactFaceGPU* faces [[buffer(6)]],
+    device const NMSourceSlidingPairGPU* pairs [[buffer(7)]],
+    device const NMIncidenceRangeGPU* ranges [[buffer(8)]],
+    device const uint* incidence [[buffer(9)]],
+    device float4* inverseDiagonal [[buffer(10)]],
+    device NMMatterStatusGPU* statuses [[buffer(11)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (nodeCount == 0u || global >= dispatch.environmentCount * nodeCount)
+        return;
+    const uint environment = global / nodeCount;
+    if (!environmentHealthy(statuses, environment)) return;
+    const NMSourceContactNodeGPU node = nodes[global - environment * nodeCount];
+    if (node.identity.y != 0u) return;
+    const uint fem = environment * dispatch.femNodeCount + node.identity.x;
+    const float3 inverse = inverseDiagonal[fem].xyz;
+    if (all(inverse <= float3(0.0f))) return;
+    const NMIncidenceRangeGPU range = ranges[global];
+    float3 normalStiffness = float3(0.0f);
+    for (uint item = 0u; item < range.count; ++item) {
+        const uint encoded = incidence[range.first + item];
+        const uint slot = encoded / 6u;
+        const uint corner = encoded % 6u;
+        if (slot >= projectionCount) continue;
+        const NMSourceContactProjectionGPU row =
+            projections[environment * projectionCount + slot];
+        if (!sourceContactLoadedProjection(row, faces)) continue;
+        const NMSourceContactFaceGPU slave = faces[row.identity.y];
+        const float weight = corner < 3u
+            ? ((row.identity.w % 4u) == corner ? 2.0f / 3.0f : 1.0f / 6.0f)
+            : row.barycentricGap[corner - 3u];
+        const float stiffness = timestep * timestep *
+            pairs[row.identity.z].normal.x * slave.autoPenalty.x *
+            row.normalArea.w * weight * weight;
+        const float3 normal = row.normalArea.xyz;
+        normalStiffness += stiffness * normal * normal;
+    }
+    if (!all(isfinite(normalStiffness))) {
+        recordFailure(statuses[environment], NM_STATUS_NONFINITE_RESULT,
+            NM_INVALID_INDEX, fem, float4(normalStiffness, 0.0f));
+        return;
+    }
+    const float3 diagonal = 1.0f / max(inverse, float3(1.0e-30f));
+    inverseDiagonal[fem].xyz = select(float3(0.0f),
+        1.0f / (diagonal + normalStiffness), inverse > float3(0.0f));
+}
+
+kernel void nm_source_contact_fem_operator(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMBridgeDispatchGPU& bridge [[buffer(1)]],
+    constant uint& nodeCount [[buffer(2)]],
+    device const NMSourceContactNodeGPU* nodes [[buffer(3)]],
+    device const float4* derivative [[buffer(4)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(5)]],
+    device float4* work [[buffer(6)]],
+    device const NMFGMRESStateGPU* solver [[buffer(7)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= dispatch.environmentCount * nodeCount) return;
+    const uint environment = global / nodeCount;
+    if (solver[environment].diagnostics.z > 0.5f) return;
+    const NMSourceContactNodeGPU node = nodes[global - environment * nodeCount];
+    if (node.identity.y != 0u) return;
+    const uint fem = environment * dispatch.femNodeCount + node.identity.x;
+    if (!femStaticConstraint(candidate[fem].restAndFixed.w))
+        work[fem].xyz -= bridge.time.y * bridge.time.y * derivative[global].xyz;
+}
+
+kernel void nm_source_contact_fem_residual(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMBridgeDispatchGPU& bridge [[buffer(1)]],
+    constant uint& nodeCount [[buffer(2)]],
+    device const NMSourceContactNodeGPU* nodes [[buffer(3)]],
+    device const float4* nodeForces [[buffer(4)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(5)]],
+    device float4* residual [[buffer(6)]],
+    device float4* reactions [[buffer(7)]],
+    device NMMatterStatusGPU* statuses [[buffer(8)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= dispatch.environmentCount * nodeCount) return;
+    const uint environment = global / nodeCount;
+    if (!environmentHealthy(statuses, environment)) return;
+    const NMSourceContactNodeGPU row = nodes[global - environment * nodeCount];
+    if (row.identity.y != 0u) return;
+    const uint node = environment * dispatch.femNodeCount + row.identity.x;
+    if (femStaticConstraint(candidate[node].restAndFixed.w))
+        reactions[node].xyz += nodeForces[global].xyz;
+    else
+        residual[node].xyz += bridge.time.y * nodeForces[global].xyz;
+}
+
+kernel void nm_source_contact_rigid_residual(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMBridgeDispatchGPU& bridge [[buffer(1)]],
+    constant uint& articulatedNv [[buffer(2)]],
+    constant uint& nodeCount [[buffer(3)]],
+    device const NMSourceContactNodeGPU* nodes [[buffer(4)]],
+    device const float4* positions [[buffer(5)]],
+    device const float4* nodeForces [[buffer(6)]],
+    device const NMRigidProxyGPU* proxies [[buffer(7)]],
+    device const NMRigidStateGPU* bodies [[buffer(8)]],
+    device float4* residual [[buffer(9)]],
+    device NMMatterStatusGPU* statuses [[buffer(10)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.rigidGeneralizedCapacity;
+    if (global >= total || dispatch.rigidGeneralizedCapacity == 0u) return;
+    const uint environment = global / dispatch.rigidGeneralizedCapacity;
+    const uint dof = global - environment * dispatch.rigidGeneralizedCapacity;
+    if (dof < articulatedNv || !environmentHealthy(statuses, environment)) return;
+    float value = 0.0f;
+    for (uint slot = 0u; slot < nodeCount; ++slot) {
+        const NMSourceContactNodeGPU node = nodes[slot];
+        if (node.identity.y != 1u) continue;
+        const uint proxyIndex = node.identity.x;
+        const NMRigidProxyGPU proxy = proxies[proxyIndex];
+        const NMRigidStateGPU body =
+            bodies[environment * dispatch.rigidProxyCount + proxyIndex];
+        const float3 applied =
+            nodeForces[environment * nodeCount + slot].xyz;
+        const float3 arm = positions[environment * nodeCount + slot].xyz -
+                           body.bodyCenter.xyz;
+        const float3 moment = cross(arm, applied);
+        value += sourceWrenchComponent(dof, articulatedNv, proxy, body,
+            {applied.x, applied.y, applied.z},
+            {moment.x, moment.y, moment.z});
+    }
+    residual[fgmresRigidBase(dispatch) + global].x += bridge.time.y * value;
+}
+
+kernel void nm_source_contact_rigid_operator(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMBridgeDispatchGPU& bridge [[buffer(1)]],
+    constant uint& articulatedNv [[buffer(2)]],
+    constant uint& nodeCount [[buffer(3)]],
+    device const NMSourceContactNodeGPU* nodes [[buffer(4)]],
+    device const float4* positions [[buffer(5)]],
+    device const float4* nodeForces [[buffer(6)]],
+    device const float4* nodeDerivative [[buffer(7)]],
+    device const NMRigidProxyGPU* proxies [[buffer(8)]],
+    device const NMRigidStateGPU* bodies [[buffer(9)]],
+    device const float4* direction [[buffer(10)]],
+    device float4* work [[buffer(11)]],
+    device const NMFGMRESStateGPU* solver [[buffer(12)]],
+    device NMMatterStatusGPU* statuses [[buffer(13)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.rigidGeneralizedCapacity;
+    if (global >= total || dispatch.rigidGeneralizedCapacity == 0u) return;
+    const uint environment = global / dispatch.rigidGeneralizedCapacity;
+    const uint dof = global - environment * dispatch.rigidGeneralizedCapacity;
+    if (dof < articulatedNv || solver[environment].diagnostics.z > 0.5f ||
+        !environmentHealthy(statuses, environment)) return;
+    float value = 0.0f;
+    for (uint slot = 0u; slot < nodeCount; ++slot) {
+        const NMSourceContactNodeGPU node = nodes[slot];
+        if (node.identity.y != 1u) continue;
+        const uint proxyIndex = node.identity.x;
+        const NMRigidProxyGPU proxy = proxies[proxyIndex];
+        const NMRigidStateGPU body =
+            bodies[environment * dispatch.rigidProxyCount + proxyIndex];
+        const float3 force = nodeForces[environment * nodeCount + slot].xyz;
+        const float3 dForce = nodeDerivative[environment * nodeCount + slot].xyz;
+        const float3 arm = positions[environment * nodeCount + slot].xyz -
+                           body.bodyCenter.xyz;
+        const src::V<float> angular = sourceDirection(dispatch, proxy, body,
+            environment, articulatedNv, direction, 3u);
+        const float3 dArm = cross(float3(angular.x, angular.y, angular.z), arm);
+        const float3 dMoment = cross(dArm, force) + cross(arm, dForce);
+        value += sourceWrenchComponent(dof, articulatedNv, proxy, body,
+            {dForce.x, dForce.y, dForce.z},
+            {dMoment.x, dMoment.y, dMoment.z});
+    }
+    work[fgmresRigidBase(dispatch) + global].x -=
+        bridge.time.y * bridge.time.y * value;
+}
+inline src::RigidSpring<float> sourceSpringInput(
+    const NMSourceRigidSpringGPU row
+) {
+    src::RigidSpring<float> spring{};
+    spring.referenceA = sourceVec(row.referenceA);
+    spring.referenceB = sourceVec(row.referenceB);
+    spring.insertionA = sourceVec(row.insertionA);
+    spring.insertionB = sourceVec(row.insertionB);
+    spring.stiffness = row.parameters.x;
+    spring.freeLength = row.parameters.y;
+    spring.sourcePiecewise = row.parameters.z > 0.5f;
+    spring.sourceKnotExtent = row.parameters.w;
+    return spring;
+}
+
+// The source static joints can be orders of magnitude stiffer than the
+// numerical inverse masses carried by the free rigid bodies. Use the actual
+// current connector tangent's positive diagonal to scale those rigid rows.
+// The full coupled connector action remains in the FGMRES operator.
+kernel void nm_source_rigid_precondition(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMBridgeDispatchGPU& bridge [[buffer(1)]],
+    constant uint& articulatedNv [[buffer(2)]],
+    constant uint& jointCount [[buffer(3)]],
+    constant uint& springCount [[buffer(4)]],
+    device const NMSourceCylindricalJointGPU* joints [[buffer(5)]],
+    device const NMSourceRigidSpringGPU* springs [[buffer(6)]],
+    device const NMRigidProxyGPU* proxies [[buffer(7)]],
+    device const NMRigidStateGPU* bodies [[buffer(8)]],
+    device const float4* basis [[buffer(9)]],
+    device float4* preconditioned [[buffer(10)]],
+    device const NMFGMRESStateGPU* solver [[buffer(11)]],
+    device NMMatterStatusGPU* statuses [[buffer(12)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount *
+        dispatch.rigidGeneralizedCapacity;
+    if (global >= total || dispatch.rigidGeneralizedCapacity == 0u) return;
+    const uint environment = global / dispatch.rigidGeneralizedCapacity;
+    const uint dof = global - environment * dispatch.rigidGeneralizedCapacity;
+    if (dof < articulatedNv || solver[environment].diagnostics.z > 0.5f ||
+        !environmentHealthy(statuses, environment)) return;
+    const uint freeIndex = (dof - articulatedNv) / 6u;
+    const uint component = (dof - articulatedNv) % 6u;
+    uint owner = NM_INVALID_INDEX;
+    for (uint proxy = 0u; proxy < dispatch.rigidProxyCount; ++proxy)
+        if (proxies[proxy].generalizedFreeBodyIndex == freeIndex &&
+            (proxies[proxy].flags & NM_RIGID_DYNAMIC) != 0u) {
+            owner = proxy;
+            break;
+        }
+    if (owner == NM_INVALID_INDEX ||
+        (proxies[owner].flags & NM_RIGID_SOURCE_QUASISTATIC) == 0u) return;
+    const src::V<float> axis{component == 0u || component == 3u ? 1.0f : 0.0f,
+                             component == 1u || component == 4u ? 1.0f : 0.0f,
+                             component == 2u || component == 5u ? 1.0f : 0.0f};
+    const uint bodyBase = environment * dispatch.rigidProxyCount;
+    float diagonal = 0.0f;
+    for (uint j = 0u; j < jointCount; ++j) {
+        const NMSourceCylindricalJointGPU row = joints[j];
+        if (row.indices.x != owner && row.indices.y != owner) continue;
+        const src::Input<float> input = sourceJointInput(row,
+            bodies[bodyBase + row.indices.x],
+            bodies[bodyBase + row.indices.y],
+            proxies[row.indices.x], proxies[row.indices.y], bridge.time.z);
+        src::Direction<float> direction{};
+        if (row.indices.x == owner) {
+            if (component < 3u) direction.positionA = axis;
+            else direction.rotationA = axis;
+        } else {
+            if (component < 3u) direction.positionB = axis;
+            else direction.rotationB = axis;
+        }
+        src::Output<float> unused{}, derivative{};
+        if (!src::evaluate(input, direction, unused, derivative)) {
+            recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+                NM_INVALID_INDEX, j, float4(float(j), 3.0f, 0.0f, 0.0f));
+            return;
+        }
+        const bool a = row.indices.x == owner;
+        diagonal -= sourceWrenchComponent(dof, articulatedNv, proxies[owner],
+            bodies[bodyBase + owner],
+            a ? derivative.forceA : derivative.forceB,
+            a ? derivative.momentA : derivative.momentB);
+    }
+    for (uint s = 0u; s < springCount; ++s) {
+        const NMSourceRigidSpringGPU row = springs[s];
+        if (row.indices.x != owner && row.indices.y != owner) continue;
+        src::RigidSpringDirection<float> direction{};
+        if (row.indices.x == owner) {
+            if (component < 3u) direction.linearA = axis;
+            else direction.angularA = axis;
+        } else {
+            if (component < 3u) direction.linearB = axis;
+            else direction.angularB = axis;
+        }
+        src::RigidSpringOutput<float> unused{}, derivative{};
+        if (!src::evaluateRigidSpring(sourceSpringInput(row),
+                sourceBody(bodies[bodyBase + row.indices.x],
+                    proxies[row.indices.x]),
+                sourceBody(bodies[bodyBase + row.indices.y],
+                    proxies[row.indices.y]),
+                direction, unused, derivative)) {
+            recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+                NM_INVALID_INDEX, s, float4(float(s), 3.0f, 0.0f, 0.0f));
+            return;
+        }
+        const bool a = row.indices.x == owner;
+        diagonal -= sourceWrenchComponent(dof, articulatedNv, proxies[owner],
+            bodies[bodyBase + owner],
+            a ? derivative.forceA : derivative.forceB,
+            a ? derivative.momentA : derivative.momentB);
+    }
+    if (!isfinite(diagonal)) {
+        recordFailure(statuses[environment], NM_STATUS_NONFINITE_RESULT,
+            NM_INVALID_INDEX, dof, float4(diagonal, 0.0f, 0.0f, 0.0f));
+        return;
+    }
+    const uint index = fgmresRigidBase(dispatch) + global;
+    preconditioned[index].x = basis[index].x /
+        max(1.0f, bridge.time.y * bridge.time.y * max(diagonal, 0.0f));
+}
+
+// The source MCL-meniscus discrete set is assembled by unique FEM node.
+// Sorted incidences avoid atomic accumulation and preserve the same residual
+// and Jacobian in the coupled Newton solve, including rigid-tied endpoints.
+kernel void nm_source_fem_spring_residual(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMBridgeDispatchGPU& bridge [[buffer(1)]],
+    constant uint& nodeCount [[buffer(2)]],
+    device const NMSourceFEMSpringNodeGPU* nodes [[buffer(3)]],
+    device const uint* incidence [[buffer(4)]],
+    device const NMSourceFEMSpringGPU* springs [[buffer(5)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(6)]],
+    device float4* residual [[buffer(7)]],
+    device float4* reactions [[buffer(8)]],
+    device NMMatterStatusGPU* statuses [[buffer(9)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= dispatch.environmentCount * nodeCount || nodeCount == 0u)
+        return;
+    const uint environment = global / nodeCount;
+    if (!environmentHealthy(statuses, environment)) return;
+    const NMSourceFEMSpringNodeGPU row = nodes[global - environment * nodeCount];
+    const uint node = environment * dispatch.femNodeCount + row.identity.x;
+    float3 force = float3(0.0f);
+    for (uint i = 0u; i < row.identity.z; ++i) {
+        const uint encoded = incidence[row.identity.y + i];
+        const NMSourceFEMSpringGPU spring = springs[encoded / 2u];
+        const uint a = environment * dispatch.femNodeCount + spring.identity.x;
+        const uint b = environment * dispatch.femNodeCount + spring.identity.y;
+        const float3 gap = candidate[b].positionAndMass.xyz -
+            candidate[a].positionAndMass.xyz;
+        const float3 restGap = spring.referenceB.xyz - spring.referenceA.xyz;
+        const float distance = length(gap);
+        const float restLength = length(restGap);
+        if (!isfinite(distance) || !(distance > 1.0e-12f) ||
+            !isfinite(restLength) || !(restLength > 1.0e-12f)) {
+            recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+                NM_INVALID_INDEX, spring.identity.z,
+                float4(distance, restLength, 0.0f, 0.0f));
+            return;
+        }
+        const float3 onA = spring.parameters.x *
+            (distance - restLength) * gap / distance;
+        force += (encoded & 1u) == 0u ? onA : -onA;
+    }
+    if (femStaticConstraint(candidate[node].restAndFixed.w))
+        reactions[node].xyz += force;
+    else
+        residual[node].xyz += bridge.time.y * force;
+}
+
+kernel void nm_source_fem_spring_operator(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMBridgeDispatchGPU& bridge [[buffer(1)]],
+    constant uint& nodeCount [[buffer(2)]],
+    device const NMSourceFEMSpringNodeGPU* nodes [[buffer(3)]],
+    device const uint* incidence [[buffer(4)]],
+    device const NMSourceFEMSpringGPU* springs [[buffer(5)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(6)]],
+    device const float4* direction [[buffer(7)]],
+    device float4* work [[buffer(8)]],
+    device NMMatterStatusGPU* statuses [[buffer(9)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= dispatch.environmentCount * nodeCount || nodeCount == 0u)
+        return;
+    const uint environment = global / nodeCount;
+    if (!environmentHealthy(statuses, environment)) return;
+    const NMSourceFEMSpringNodeGPU row = nodes[global - environment * nodeCount];
+    const uint node = environment * dispatch.femNodeCount + row.identity.x;
+    if (femStaticConstraint(candidate[node].restAndFixed.w)) return;
+    float3 derivative = float3(0.0f);
+    for (uint i = 0u; i < row.identity.z; ++i) {
+        const uint encoded = incidence[row.identity.y + i];
+        const NMSourceFEMSpringGPU spring = springs[encoded / 2u];
+        const uint a = environment * dispatch.femNodeCount + spring.identity.x;
+        const uint b = environment * dispatch.femNodeCount + spring.identity.y;
+        const float3 gap = candidate[b].positionAndMass.xyz -
+            candidate[a].positionAndMass.xyz;
+        const float3 restGap = spring.referenceB.xyz - spring.referenceA.xyz;
+        const float distance = length(gap);
+        const float restLength = length(restGap);
+        if (!isfinite(distance) || !(distance > 1.0e-12f) ||
+            !isfinite(restLength) || !(restLength > 1.0e-12f)) {
+            recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+                NM_INVALID_INDEX, spring.identity.z,
+                float4(distance, restLength, 1.0f, 0.0f));
+            return;
+        }
+        const float3 axis = gap / distance;
+        const float3 delta = direction[b].xyz - direction[a].xyz;
+        const float3 onA = spring.parameters.x *
+            ((1.0f - restLength / distance) * delta +
+             (restLength / distance) * axis * dot(axis, delta));
+        derivative += (encoded & 1u) == 0u ? onA : -onA;
+    }
+    work[node].xyz -= bridge.time.y * bridge.time.y * derivative;
+}
+
+// Each rigid row assembles its own connector impulse. This writes the same
+// rigid residual as FEM/contact, after candidate geometry is materialized.
+kernel void nm_source_rigid_connector_residual(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMBridgeDispatchGPU& bridge [[buffer(1)]],
+    constant uint& articulatedNv [[buffer(2)]],
+    constant uint& jointCount [[buffer(3)]],
+    constant uint& springCount [[buffer(4)]],
+    device const NMSourceCylindricalJointGPU* joints [[buffer(5)]],
+    device const NMSourceRigidSpringGPU* springs [[buffer(6)]],
+    device const NMRigidProxyGPU* proxies [[buffer(7)]],
+    device const NMRigidStateGPU* states [[buffer(8)]],
+    device float4* residual [[buffer(9)]],
+    device NMMatterStatusGPU* statuses [[buffer(10)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.rigidGeneralizedCapacity;
+    if (global >= total || dispatch.rigidGeneralizedCapacity == 0u) return;
+    const uint environment = global / dispatch.rigidGeneralizedCapacity;
+    const uint dof = global - environment * dispatch.rigidGeneralizedCapacity;
+    if (dof < articulatedNv || !environmentHealthy(statuses, environment)) return;
+    float value = 0.0f;
+    for (uint j = 0u; j < jointCount; ++j) {
+        const NMSourceCylindricalJointGPU row = joints[j];
+        const NMRigidProxyGPU proxyA = proxies[row.indices.x];
+        const NMRigidProxyGPU proxyB = proxies[row.indices.y];
+        const uint base = environment * dispatch.rigidProxyCount;
+        const src::Input<float> input = sourceJointInput(
+            row, states[base + row.indices.x], states[base + row.indices.y],
+            proxyA, proxyB, bridge.time.z);
+        src::Output<float> wrench{}, unused{};
+        if (!src::evaluate(input, src::Direction<float>{}, wrench, unused)) {
+            recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+                NM_INVALID_INDEX, j, float4(float(j), 0.0f, 0.0f, 0.0f));
+            return;
+        }
+        value += sourceWrenchComponent(dof, articulatedNv, proxyA,
+            states[base + row.indices.x],
+            wrench.forceA, wrench.momentA);
+        value += sourceWrenchComponent(dof, articulatedNv, proxyB,
+            states[base + row.indices.y],
+            wrench.forceB, wrench.momentB);
+    }
+    for (uint s = 0u; s < springCount; ++s) {
+        const NMSourceRigidSpringGPU row = springs[s];
+        const NMRigidProxyGPU proxyA = proxies[row.indices.x];
+        const NMRigidProxyGPU proxyB = proxies[row.indices.y];
+        const uint base = environment * dispatch.rigidProxyCount;
+        src::RigidSpringOutput<float> wrench{}, unused{};
+        if (!src::evaluateRigidSpring(sourceSpringInput(row),
+                sourceBody(states[base + row.indices.x], proxyA),
+                sourceBody(states[base + row.indices.y], proxyB),
+                {}, wrench, unused)) {
+            recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+                NM_INVALID_INDEX, s, float4(float(s), 1.0f, 0.0f, 0.0f));
+            return;
+        }
+        value += sourceWrenchComponent(dof, articulatedNv, proxyA,
+            states[base + row.indices.x],
+            wrench.forceA, wrench.momentA);
+        value += sourceWrenchComponent(dof, articulatedNv, proxyB,
+            states[base + row.indices.y],
+            wrench.forceB, wrench.momentB);
+    }
+    residual[fgmresRigidBase(dispatch) + global].x += bridge.time.y * value;
+}
+
+// FGMRES applies -dR/d(delta-v); candidate body translation and world
+// rotation both advance by dt*delta-v, so connector curvature scales dt^2.
+kernel void nm_source_rigid_connector_operator(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMBridgeDispatchGPU& bridge [[buffer(1)]],
+    constant uint& articulatedNv [[buffer(2)]],
+    constant uint& jointCount [[buffer(3)]],
+    constant uint& springCount [[buffer(4)]],
+    device const NMSourceCylindricalJointGPU* joints [[buffer(5)]],
+    device const NMSourceRigidSpringGPU* springs [[buffer(6)]],
+    device const NMRigidProxyGPU* proxies [[buffer(7)]],
+    device const NMRigidStateGPU* states [[buffer(8)]],
+    device const float4* direction [[buffer(9)]],
+    device float4* work [[buffer(10)]],
+    device const NMFGMRESStateGPU* solver [[buffer(11)]],
+    device NMMatterStatusGPU* statuses [[buffer(12)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.rigidGeneralizedCapacity;
+    if (global >= total || dispatch.rigidGeneralizedCapacity == 0u) return;
+    const uint environment = global / dispatch.rigidGeneralizedCapacity;
+    const uint dof = global - environment * dispatch.rigidGeneralizedCapacity;
+    if (dof < articulatedNv || solver[environment].diagnostics.z > 0.5f ||
+        !environmentHealthy(statuses, environment)) return;
+    float value = 0.0f;
+    for (uint j = 0u; j < jointCount; ++j) {
+        const NMSourceCylindricalJointGPU row = joints[j];
+        const NMRigidProxyGPU proxyA = proxies[row.indices.x];
+        const NMRigidProxyGPU proxyB = proxies[row.indices.y];
+        const uint base = environment * dispatch.rigidProxyCount;
+        const src::Input<float> input = sourceJointInput(
+            row, states[base + row.indices.x], states[base + row.indices.y],
+            proxyA, proxyB, bridge.time.z);
+        src::Direction<float> perturbation{
+            sourceDirection(dispatch, proxyA, states[base + row.indices.x], environment, articulatedNv, direction, 0u),
+            sourceDirection(dispatch, proxyA, states[base + row.indices.x], environment, articulatedNv, direction, 3u),
+            sourceDirection(dispatch, proxyB, states[base + row.indices.y], environment, articulatedNv, direction, 0u),
+            sourceDirection(dispatch, proxyB, states[base + row.indices.y], environment, articulatedNv, direction, 3u)
+        };
+        src::Output<float> unused{}, derivative{};
+        if (!src::evaluate(input, perturbation, unused, derivative)) {
+            recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+                NM_INVALID_INDEX, j, float4(float(j), 2.0f, 0.0f, 0.0f));
+            return;
+        }
+        value += sourceWrenchComponent(dof, articulatedNv, proxyA,
+            states[base + row.indices.x],
+            derivative.forceA, derivative.momentA);
+        value += sourceWrenchComponent(dof, articulatedNv, proxyB,
+            states[base + row.indices.y],
+            derivative.forceB, derivative.momentB);
+    }
+    for (uint s = 0u; s < springCount; ++s) {
+        const NMSourceRigidSpringGPU row = springs[s];
+        const NMRigidProxyGPU proxyA = proxies[row.indices.x];
+        const NMRigidProxyGPU proxyB = proxies[row.indices.y];
+        const uint base = environment * dispatch.rigidProxyCount;
+        src::RigidSpringDirection<float> perturbation{
+            sourceDirection(dispatch, proxyA, states[base + row.indices.x], environment, articulatedNv, direction, 0u),
+            sourceDirection(dispatch, proxyA, states[base + row.indices.x], environment, articulatedNv, direction, 3u),
+            sourceDirection(dispatch, proxyB, states[base + row.indices.y], environment, articulatedNv, direction, 0u),
+            sourceDirection(dispatch, proxyB, states[base + row.indices.y], environment, articulatedNv, direction, 3u)
+        };
+        src::RigidSpringOutput<float> unused{}, derivative{};
+        if (!src::evaluateRigidSpring(sourceSpringInput(row),
+                sourceBody(states[base + row.indices.x], proxyA),
+                sourceBody(states[base + row.indices.y], proxyB),
+                perturbation, unused, derivative)) {
+            recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+                NM_INVALID_INDEX, s, float4(float(s), 3.0f, 0.0f, 0.0f));
+            return;
+        }
+        value += sourceWrenchComponent(dof, articulatedNv, proxyA,
+            states[base + row.indices.x],
+            derivative.forceA, derivative.momentA);
+        value += sourceWrenchComponent(dof, articulatedNv, proxyB,
+            states[base + row.indices.y],
+            derivative.forceB, derivative.momentB);
+    }
+    work[fgmresRigidBase(dispatch) + global].x -=
+        bridge.time.y * bridge.time.y * value;
+}
+
+inline src::V<float> sourceTieArm(
+    const NMSourceFEMRigidTieGPU tie, const NMRigidStateGPU body,
+    const NMRigidProxyGPU proxy
+) {
+    return src::rotate(sourceBody(body, proxy).rotation,
+        sourceVec(tie.localPoint));
+}
+
+kernel void nm_source_fem_rigid_tie_drive(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& tieCount [[buffer(1)]],
+    device const NMSourceFEMRigidTieGPU* ties [[buffer(2)]],
+    device const NMRigidProxyGPU* proxies [[buffer(3)]],
+    device const NMRigidStateGPU* bodies [[buffer(4)]],
+    device const NMFEMNodeStateGPU* accepted [[buffer(5)]],
+    device NMFEMNodeStateGPU* candidate [[buffer(6)]],
+    device NMMatterStatusGPU* statuses [[buffer(7)]],
+    device const NMContinuumObjectGPU* objects [[buffer(8)]],
+    device const MRBodyStateGPU* acceptedBodies [[buffer(9)]],
+    constant NMBridgeDispatchGPU& bridge [[buffer(10)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * tieCount;
+    if (global >= total || tieCount == 0u) return;
+    const uint environment = global / tieCount;
+    const uint row = global - environment * tieCount;
+    if (!environmentHealthy(statuses, environment)) return;
+    const NMSourceFEMRigidTieGPU tie = ties[row];
+    const uint node = tie.identity.x;
+    const uint proxyIndex = tie.identity.y;
+    if (node >= dispatch.femNodeCount || proxyIndex >= dispatch.rigidProxyCount ||
+        tie.identity.z >= dispatch.objectCount) {
+        recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+            tie.identity.z, row, float4(float(node), float(proxyIndex), 0.0f, 0.0f));
+        return;
+    }
+    const uint nodeGlobal = environment * dispatch.femNodeCount + node;
+    if (accepted[nodeGlobal].restAndFixed.w != 3.0f) {
+        recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+            tie.identity.z, row,
+            float4(float(node), accepted[nodeGlobal].restAndFixed.w, 0.0f, 0.0f));
+        return;
+    }
+    const NMRigidProxyGPU proxy = proxies[proxyIndex];
+    if (proxy.bodyIndex >= bridge.currentBodyCount ||
+        bridge.currentBodyStride < bridge.currentBodyCount) {
+        recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+            tie.identity.z, row, float4(float(proxy.bodyIndex),
+                float(bridge.currentBodyCount), 0.0f, 0.0f));
+        return;
+    }
+    const NMRigidStateGPU rigid =
+        bodies[environment * dispatch.rigidProxyCount + proxyIndex];
+    const src::V<float> arm = sourceTieArm(tie, rigid, proxy);
+    const float3 armWorld = float3(arm.x, arm.y, arm.z);
+    const float3 position = rigid.bodyCenter.xyz + armWorld;
+    const float3 angular = rigid.angularVelocity.xyz;
+    const float3 centerVelocity = rigid.linearVelocityAndInverseMass.xyz -
+        cross(angular, rigid.centerAndRadius.xyz - rigid.bodyCenter.xyz);
+    const float3 velocity = centerVelocity + cross(angular, armWorld);
+    if (!finite3(position) || !finite3(velocity)) {
+        recordFailure(statuses[environment], NM_STATUS_NONFINITE_RESULT,
+            tie.identity.z, row, float4(position, length(velocity)));
+        return;
+    }
+    NMFEMNodeStateGPU next = candidate[nodeGlobal];
+    if ((objects[tie.identity.z].flags & NM_OBJECT_FEM_REFERENCE_CONFIGURATION) != 0u) {
+        // At an imported source checkpoint, the accepted tied node contains
+        // more edge precision than an absolute FP32 rigid transform can
+        // reproduce. Apply only the rigid increment to that accepted high/low
+        // position. The derivative with respect to the candidate rigid pose
+        // remains the same tie Jacobian used by the coupled Newton operator.
+        const MRBodyStateGPU acceptedBody = acceptedBodies[
+            environment * bridge.currentBodyStride + proxy.bodyIndex];
+        const src::V<float> acceptedArm = src::rotate(
+            sourceQuat(quaternionNormalize(acceptedBody.orientation)),
+            sourceVec(tie.localPoint));
+        const float3 delta =
+            (rigid.bodyCenter.xyz - acceptedBody.position.xyz) +
+            (armWorld - float3(acceptedArm.x, acceptedArm.y, acceptedArm.z));
+        if (!finite3(delta)) {
+            recordFailure(statuses[environment], NM_STATUS_NONFINITE_RESULT,
+                tie.identity.z, row, float4(delta, 0.0f));
+            return;
+        }
+        for (uint axis = 0u; axis < 3u; ++axis) {
+            const MRCompensatedScalar value = mrCompensatedAdd(
+                {accepted[nodeGlobal].positionAndMass[axis],
+                 accepted[nodeGlobal].positionLow[axis]},
+                {delta[axis], 0.0f});
+            next.positionAndMass[axis] = value.high;
+            next.positionLow[axis] = value.low;
+        }
+        next.positionLow.w = 0.0f;
+    } else {
+        next.positionAndMass.xyz = position;
+        next.positionLow = float4(0.0f);
+    }
+    next.velocityAndInverseMass.xyz = velocity;
+    next.deltaVelocity.xyz =
+        velocity - accepted[nodeGlobal].velocityAndInverseMass.xyz;
+    candidate[nodeGlobal] = next;
+}
+
+kernel void nm_source_fem_rigid_tie_capture_residual(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& tieCount [[buffer(1)]],
+    device const NMSourceFEMRigidTieGPU* ties [[buffer(2)]],
+    device float4* residual [[buffer(3)]],
+    device float4* preconditioned [[buffer(4)]],
+    device float4* direction [[buffer(5)]],
+    device float4* impulses [[buffer(6)]],
+    device NMMatterStatusGPU* statuses [[buffer(7)]],
+    device float4* diagnosticImpulses [[buffer(8)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= dispatch.environmentCount * tieCount || tieCount == 0u) return;
+    const uint environment = global / tieCount;
+    const uint row = global - environment * tieCount;
+    impulses[global] = float4(0.0f);
+    diagnosticImpulses[global] = float4(0.0f);
+    if (!environmentHealthy(statuses, environment)) return;
+    const NMSourceFEMRigidTieGPU tie = ties[row];
+    if (tie.identity.x >= dispatch.femNodeCount) return;
+    const uint node = environment * dispatch.femNodeCount + tie.identity.x;
+    const float3 impulse = residual[node].xyz;
+    if (!finite3(impulse)) {
+        recordFailure(statuses[environment], NM_STATUS_NONFINITE_RESULT,
+            tie.identity.z, row, float4(impulse, 0.0f));
+        return;
+    }
+    impulses[global] = float4(impulse, 0.0f);
+    diagnosticImpulses[global] = float4(impulse, 0.0f);
+    residual[node].xyz = float3(0.0f);
+    preconditioned[node].xyz = float3(0.0f);
+    direction[node].xyz = float3(0.0f);
+}
+
+kernel void nm_source_fem_rigid_tie_scatter_residual(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& articulatedNv [[buffer(1)]],
+    constant uint& tieCount [[buffer(2)]],
+    device const NMSourceFEMRigidTieGPU* ties [[buffer(3)]],
+    device const NMRigidProxyGPU* proxies [[buffer(4)]],
+    device const NMRigidStateGPU* bodies [[buffer(5)]],
+    device const float4* impulses [[buffer(6)]],
+    device float4* residual [[buffer(7)]],
+    device NMMatterStatusGPU* statuses [[buffer(8)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.rigidGeneralizedCapacity;
+    if (global >= total || tieCount == 0u) return;
+    const uint environment = global / dispatch.rigidGeneralizedCapacity;
+    const uint dof = global - environment * dispatch.rigidGeneralizedCapacity;
+    if (dof < articulatedNv || !environmentHealthy(statuses, environment)) return;
+    float value = 0.0f;
+    for (uint row = 0u; row < tieCount; ++row) {
+        const NMSourceFEMRigidTieGPU tie = ties[row];
+        const NMRigidProxyGPU proxy = proxies[tie.identity.y];
+        const NMRigidStateGPU body =
+            bodies[environment * dispatch.rigidProxyCount + tie.identity.y];
+        const src::V<float> force = sourceVec(
+            impulses[environment * tieCount + row]);
+        const src::V<float> moment = src::cross(
+            sourceTieArm(tie, body, proxy), force);
+        value += sourceWrenchComponent(dof, articulatedNv, proxy, body,
+            force, moment);
+    }
+    residual[fgmresRigidBase(dispatch) + global].x += value;
+}
+
+kernel void nm_source_fem_rigid_tie_map_direction(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& articulatedNv [[buffer(1)]],
+    constant uint& tieCount [[buffer(2)]],
+    device const NMSourceFEMRigidTieGPU* ties [[buffer(3)]],
+    device const NMRigidProxyGPU* proxies [[buffer(4)]],
+    device const NMRigidStateGPU* bodies [[buffer(5)]],
+    device float4* vector [[buffer(6)]],
+    device const NMMatterStatusGPU* statuses [[buffer(7)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= dispatch.environmentCount * tieCount || tieCount == 0u) return;
+    const uint environment = global / tieCount;
+    if (!environmentHealthy(statuses, environment)) return;
+    const uint row = global - environment * tieCount;
+    const NMSourceFEMRigidTieGPU tie = ties[row];
+    const NMRigidProxyGPU proxy = proxies[tie.identity.y];
+    const NMRigidStateGPU body =
+        bodies[environment * dispatch.rigidProxyCount + tie.identity.y];
+    const src::V<float> linear = sourceDirection(
+        dispatch, proxy, body, environment, articulatedNv, vector, 0u);
+    const src::V<float> angular = sourceDirection(
+        dispatch, proxy, body, environment, articulatedNv, vector, 3u);
+    const src::V<float> motion = linear +
+        src::cross(angular, sourceTieArm(tie, body, proxy));
+    vector[environment * dispatch.femNodeCount + tie.identity.x].xyz =
+        float3(motion.x, motion.y, motion.z);
+}
+
+kernel void nm_source_fem_rigid_tie_capture_operator(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& tieCount [[buffer(1)]],
+    device const NMSourceFEMRigidTieGPU* ties [[buffer(2)]],
+    device float4* work [[buffer(3)]],
+    device float4* tieOperator [[buffer(4)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= dispatch.environmentCount * tieCount || tieCount == 0u) return;
+    const uint environment = global / tieCount;
+    const uint row = global - environment * tieCount;
+    const uint node = environment * dispatch.femNodeCount + ties[row].identity.x;
+    tieOperator[global] = float4(work[node].xyz, 0.0f);
+    work[node].xyz = float3(0.0f);
+}
+
+kernel void nm_source_fem_rigid_tie_scatter_operator(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& articulatedNv [[buffer(1)]],
+    constant uint& tieCount [[buffer(2)]],
+    device const NMSourceFEMRigidTieGPU* ties [[buffer(3)]],
+    device const NMRigidProxyGPU* proxies [[buffer(4)]],
+    device const NMRigidStateGPU* bodies [[buffer(5)]],
+    device const float4* tieOperator [[buffer(6)]],
+    device float4* work [[buffer(7)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.rigidGeneralizedCapacity;
+    if (global >= total || tieCount == 0u) return;
+    const uint environment = global / dispatch.rigidGeneralizedCapacity;
+    const uint dof = global - environment * dispatch.rigidGeneralizedCapacity;
+    if (dof < articulatedNv) return;
+    float value = 0.0f;
+    for (uint row = 0u; row < tieCount; ++row) {
+        const NMSourceFEMRigidTieGPU tie = ties[row];
+        const NMRigidProxyGPU proxy = proxies[tie.identity.y];
+        const NMRigidStateGPU body =
+            bodies[environment * dispatch.rigidProxyCount + tie.identity.y];
+        const src::V<float> force = sourceVec(
+            tieOperator[environment * tieCount + row]);
+        const src::V<float> moment = src::cross(
+            sourceTieArm(tie, body, proxy), force);
+        value += sourceWrenchComponent(dof, articulatedNv, proxy, body,
+            force, moment);
+    }
+    work[fgmresRigidBase(dispatch) + global].x += value;
+}
+
+kernel void nm_source_fem_rigid_tie_eliminate_direction(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& tieCount [[buffer(1)]],
+    device const NMSourceFEMRigidTieGPU* ties [[buffer(2)]],
+    device float4* vector [[buffer(3)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= dispatch.environmentCount * tieCount || tieCount == 0u) return;
+    const uint environment = global / tieCount;
+    const uint row = global - environment * tieCount;
+    vector[environment * dispatch.femNodeCount +
+        ties[row].identity.x].xyz = float3(0.0f);
+}
+
+kernel void nm_source_fem_rigid_tie_mask(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& tieCount [[buffer(1)]],
+    device const NMMatterStatusGPU* statuses [[buffer(2)]],
+    device float4* impulses [[buffer(3)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= dispatch.environmentCount * tieCount || tieCount == 0u) return;
+    if (!environmentHealthy(statuses, global / tieCount))
+        impulses[global] = float4(0.0f);
+}
+} // namespace numi_matter_metal

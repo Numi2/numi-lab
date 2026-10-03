@@ -1,0 +1,249 @@
+{
+  "active_face_count": 3325,
+  "active_gauss_points": 8478,
+  "archived_nonzero_pressure_face_count": 3326,
+  "archived_xplt_continuation_time": 0.0,
+  "archived_xplt_sha256": "c370ae9f94e9faee2d7060bf2a6819e03be1312e82ca79bd2e9cebf8b34398de",
+  "archived_xplt_state_index": 0,
+  "gauss_points": 1035210,
+  "limitations": [
+    "No Matter contact traction or tangent was evaluated.",
+    "The one archived positive-pressure face has three geometrically separated Gauss-point rays in the frozen source coordinates.",
+    "The public 2.9.0 source is an implementation reference, not proof of byte-identical 2.9.1 behavior."
+  ],
+  "schema": "numi.matter.open-knee-source-initial-contact-support.v1",
+  "search": "opposing-normal ray at FE_TRI3G3 points; positive gap within 0.005 times source mesh bounding-box largest dimension",
+  "search_radius_mm": 0.900163,
+  "source_contact_type": "sliding-elastic",
+  "source_implementation_reference": "FEBio 2.9.0 d61e8fd FESlidingElasticInterface; archived run reports FEBio 2.9.1",
+  "source_mesh_largest_dimension_mm": 180.03255462646484,
+  "status": "diagnostic_not_equilibrium",
+  "surfaces": [
+    {
+      "archived_xplt_nonzero_pressure_faces": 0,
+      "bound_initial_faces": 0,
+      "difference": 0,
+      "name": "FMB_@_QAT_ContactFaces"
+    },
+    {
+      "archived_xplt_nonzero_pressure_faces": 0,
+      "bound_initial_faces": 0,
+      "difference": 0,
+      "name": "QAT_@_FMB_ContactFaces"
+    },
+    {
+      "archived_xplt_nonzero_pressure_faces": 0,
+      "bound_initial_faces": 0,
+      "difference": 0,
+      "name": "QAT_@_FMC_ContactFaces"
+    },
+    {
+      "archived_xplt_nonzero_pressure_faces": 0,
+      "bound_initial_faces": 0,
+      "difference": 0,
+      "name": "FMC_@_QAT_ContactFaces"
+    },
+    {
+      "archived_xplt_nonzero_pressure_faces": 1,
+      "bound_initial_faces": 1,
+      "difference": 0,
+      "name": "FMC_@_TBC-L_ContactFaces"
+    },
+    {
+      "archived_xplt_nonzero_pressure_faces": 4,
+      "bound_initial_faces": 4,
+      "difference": 0,
+      "name": "TBC-L_@_FMC_ContactFaces"
+    },
+    {
+      "archived_xplt_nonzero_pressure_faces": 155,
+      "bound_initial_faces": 155,
+      "difference": 0,
+      "name": "MNS-L_@_TBC-L_ContactFaces"
+    },
+    {
+      "archived_xplt_nonzero_pressure_faces": 328,
+      "bound_initial_faces": 328,
+      "difference": 0,
+      "name": "TBC-L_@_MNS-L_ContactFaces"
+    },
+    {
+      "archived_xplt_nonzero_pressure_faces": 0,
+      "bound_initial_faces": 0,
+      "difference": 0,
+      "name": "TBB_@_PCL_ContactFaces"
+    },
+    {
+      "archived_xplt_nonzero_pressure_faces": 0,
+      "bound_initial_faces": 0,
+      "difference": 0,
+      "name": "PCL_@_TBB_ContactFaces"
+    },
+    {
+      "archived_xplt_nonzero_pressure_faces": 0,
+      "bound_initial_faces": 0,
+      "difference": 0,
+      "name": "FMB_@_PCL_ContactFaces"
+    },
+    {
+      "archived_xplt_nonzero_pressure_faces": 0,
+      "bound_initial_faces": 0,
+      "difference": 0,
+      "name": "PCL_@_FMB_ContactFaces"
+    },
+    {
+      "archived_xplt_nonzero_pressure_faces": 37,
+      "bound_initial_faces": 37,
+      "difference": 0,
+      "name": "MNS-M_@_PCL_ContactFaces"
+    },
+    {
+      "archived_xplt_nonzero_pressure_faces": 35,
+      "bound_initial_faces": 35,
+      "difference": 0,
+      "name": "PCL_@_MNS-M_ContactFaces"
+    },
+    {
+      "archived_xplt_nonzero_pressure_faces": 83,
+      "bound_initial_faces": 83,
+      "difference": 0,
+      "name": "ACL_@_PCL_ContactFaces"
+    },
+    {
+      "archived_xplt_nonzero_pressure_faces": 63,
+      "bound_initial_faces": 63,
+      "difference": 0,
+      "name": "PCL_@_ACL_ContactFaces"
+    },
+    {
+      "archived_xplt_nonzero_pressure_faces": 2,
+      "bound_initial_faces": 2,
+      "difference": 0,
+      "name": "FMC_@_PTC_ContactFaces"
+    },
+    {
+      "archived_xplt_nonzero_pressure_faces": 6,
+      "bound_initial_faces": 6,
+      "difference": 0,
+      "name": "PTC_@_FMC_ContactFaces"
+    },
+    {
+      "archived_xplt_nonzero_pressure_faces": 0,
+      "bound_initial_faces": 0,
+      "difference": 0,
+      "name": "TBB_@_ACL_ContactFaces"
+    },
+    {
+      "archived_xplt_nonzero_pressure_faces": 0,
+      "bound_initial_faces": 0,
+      "difference": 0,
+      "name": "ACL_@_TBB_ContactFaces"
+    },
+    {
+      "archived_xplt_nonzero_pressure_faces": 0,
+      "bound_initial_faces": 0,
+      "difference": 0,
+      "name": "FMB_@_ACL_ContactFaces"
+    },
+    {
+      "archived_xplt_nonzero_pressure_faces": 0,
+      "bound_initial_faces": 0,
+      "difference": 0,
+      "name": "ACL_@_FMB_ContactFaces"
+    },
+    {
+      "archived_xplt_nonzero_pressure_faces": 20,
+      "bound_initial_faces": 19,
+      "difference": -1,
+      "name": "TBB_@_MCL_ContactFaces"
+    },
+    {
+      "archived_xplt_nonzero_pressure_faces": 45,
+      "bound_initial_faces": 45,
+      "difference": 0,
+      "name": "MCL_@_TBB_ContactFaces"
+    },
+    {
+      "archived_xplt_nonzero_pressure_faces": 0,
+      "bound_initial_faces": 0,
+      "difference": 0,
+      "name": "FMB_@_MCL_ContactFaces"
+    },
+    {
+      "archived_xplt_nonzero_pressure_faces": 0,
+      "bound_initial_faces": 0,
+      "difference": 0,
+      "name": "MCL_@_FMB_ContactFaces"
+    },
+    {
+      "archived_xplt_nonzero_pressure_faces": 0,
+      "bound_initial_faces": 0,
+      "difference": 0,
+      "name": "FMC_@_MNS-L_ContactFaces"
+    },
+    {
+      "archived_xplt_nonzero_pressure_faces": 0,
+      "bound_initial_faces": 0,
+      "difference": 0,
+      "name": "MNS-L_@_FMC_ContactFaces"
+    },
+    {
+      "archived_xplt_nonzero_pressure_faces": 1149,
+      "bound_initial_faces": 1149,
+      "difference": 0,
+      "name": "TBC-M_@_MNS-M_ContactFaces"
+    },
+    {
+      "archived_xplt_nonzero_pressure_faces": 801,
+      "bound_initial_faces": 801,
+      "difference": 0,
+      "name": "MNS-M_@_TBC-M_ContactFaces"
+    },
+    {
+      "archived_xplt_nonzero_pressure_faces": 0,
+      "bound_initial_faces": 0,
+      "difference": 0,
+      "name": "FMC_@_MNS-M_ContactFaces"
+    },
+    {
+      "archived_xplt_nonzero_pressure_faces": 0,
+      "bound_initial_faces": 0,
+      "difference": 0,
+      "name": "MNS-M_@_FMC_ContactFaces"
+    },
+    {
+      "archived_xplt_nonzero_pressure_faces": 0,
+      "bound_initial_faces": 0,
+      "difference": 0,
+      "name": "FMB_@_LCL_ContactFaces"
+    },
+    {
+      "archived_xplt_nonzero_pressure_faces": 0,
+      "bound_initial_faces": 0,
+      "difference": 0,
+      "name": "LCL_@_FMB_ContactFaces"
+    },
+    {
+      "archived_xplt_nonzero_pressure_faces": 150,
+      "bound_initial_faces": 150,
+      "difference": 0,
+      "name": "FMC_@_TBC-M_ContactFaces"
+    },
+    {
+      "archived_xplt_nonzero_pressure_faces": 447,
+      "bound_initial_faces": 447,
+      "difference": 0,
+      "name": "TBC-M_@_FMC_ContactFaces"
+    }
+  ],
+  "unresolved_face": {
+    "archived_pressure_MPa": 0.0015267212875187397,
+    "geometric_ray_separation_mm_at_three_gauss_points": [
+      0.015655422170443755,
+      0.007535540294937045,
+      0.05040983374839608
+    ],
+    "surface": "TBB_@_MCL_ContactFaces",
+    "zero_based_face_index": 1634
+  }
+}

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "numi/matter/shared.h"
+#include "numi/matter/source_rigid_connector_gpu.h"
 #include "numi/matter/human_equality_gpu.h"
 #include "numi/matter/human_limits_gpu.h"
 #include "numi/matter/accepted_state_proof_gpu.h"
@@ -252,6 +253,10 @@ struct ScalarBytecode {
 
 struct ConstitutiveProgram {
     MaterialProgram material;
+    // Authored stored energy, including reference-state/prestrain energy.
+    // Available for source-law validation; runtime energy accounting must
+    // explicitly pack/evaluate it rather than infer energy from stress norms.
+    ScalarBytecode energy;
     std::array<ScalarBytecode, 9> stress;
     std::array<ScalarBytecode, 9> tangentVector;
     std::array<ScalarBytecode, 9> viscousStress;
@@ -378,6 +383,12 @@ struct RigidProxySource {
     bool dynamic = false;
     bool punctureTip = false;
     bool punctureDilator = false;
+    // A body frame for joint/tie mechanics without an invented collision
+    // shape. Contact must come from separately authored source surfaces.
+    bool frameOnly = false;
+    // Valid only for a free frame: omit physical inertia in Matter's rigid
+    // Newton row while retaining numerical inverse mass for preconditioning.
+    bool quasiStatic = false;
     // Live MetalWorld DER capsule. When enabled, body/scene bindings and local
     // capsule endpoints are ignored; strandNodeA/B address the global
     // environment-local rod-node arena and radiusOrOffset remains physical.
@@ -417,6 +428,9 @@ struct ObjectSource {
     // Thin solids may opt out of same-object deformable contact while still
     // participating in contact with other continuum and rigid objects.
     bool deformableSelfContact = true;
+    // Source static continuation uses displacement equilibrium. Density still
+    // defines reference mass and any gravity load, but not acceleration.
+    bool quasiStatic = false;
     std::uint32_t rigidBinding = NM_INVALID_INDEX;
     double characteristicLength = 0.01;
     // MPM uses a fixed-capacity Eulerian background grid. These bounds are
@@ -833,6 +847,19 @@ struct RuntimeConfiguration {
     std::span<const NMHumanJointLimitGPU> humanJointLimits{};
     NMHumanLimitDispatchGPU humanLimitDispatch{};
     std::uint64_t humanLimitSourceFingerprint = 0u;
+    // Source-authored rigid connectors participate in the same FEM/contact
+    // Newton residual and FGMRES tangent. Each row names one proxy for each
+    // source body. A nonempty program requires an immutable source identity.
+    std::span<const NMSourceCylindricalJointGPU> sourceCylindricalJoints{};
+    std::span<const NMSourceRigidSpringGPU> sourceRigidSprings{};
+    std::span<const NMSourceFEMRigidTieGPU> sourceFEMRigidTies{};
+    std::span<const NMSourceFEMSpringGPU> sourceFEMSprings{};
+    std::span<const NMSourcePrestrainGPU> sourcePrestrain{};
+    std::span<const NMSourceContactNodeGPU> sourceContactNodes{};
+    std::span<const NMSourceContactFaceGPU> sourceContactFaces{};
+    std::span<const NMSourceContactSurfaceGPU> sourceContactSurfaces{};
+    std::span<const NMSourceSlidingPairGPU> sourceSlidingPairs{};
+    std::uint64_t sourceRigidConnectorFingerprint = 0u;
     // Generic legacy callbacks may explicitly retain projected-only geometry.
     // A configured compensated Human owner must opt in; all candidate services,
     // support initial poses and accepted-state proofs then carry the full pair.
@@ -1008,6 +1035,12 @@ struct EncodeRequest {
     std::uint64_t seed = 0u;
     // Per-call frame duration. Zero selects the cooked package duration.
     float timestepSeconds = 0.0f;
+    // FEBio source loading parameter for the current externally owned root.
+    // The caller must replay this prescribed input with the same accepted
+    // state. It is sampled by source joints and material prestrain in the
+    // same Newton assembly; a rejected root never writes the accepted
+    // environment-parameter overlay.
+    float sourceContinuationTime = 0.0f;
     bool runIdentification = false;
     bool runAdaptiveTransfer = false;
     // Opt in at preDynamics when this transaction will use the later-CB
@@ -1376,8 +1409,20 @@ struct RuntimeStateSnapshot {
     // Completion-boundary primal-contact diagnostics, populated only when
     // RuntimeConfiguration::captureDiagnostics is enabled.
     std::vector<NMContactSampleGPU> contactSamples;
+    // Last assembled coupled KKT residual, only with captureDiagnostics.
+    // Readback after a rejected root is diagnostic and never restore authority.
+    std::vector<nm_float4> diagnosticGeneralizedResidual;
+    std::vector<nm_float4> diagnosticSourceContactNodeForces;
+    // Last coupled candidate projections. Diagnostic only; rejected roots
+    // never promote these rows to accepted contact history.
+    std::vector<NMSourceContactProjectionGPU> diagnosticSourceContactProjections;
+    // Last assembled source tie impulses before a rejected root masks scratch.
+    // Diagnostic only; never restore authority or an accepted reaction.
+    std::vector<nm_float4> diagnosticSourceTieImpulses;
     std::vector<NMDeformableContactFailureGPU> deformableContactFailures;
     std::vector<nm_float4> contactHistories;
+    // Accepted source sliding-elastic master facets and Gauss-point projections.
+    std::vector<NMSourceContactProjectionGPU> sourceContactHistory;
     // Accepted NHCNT Coulomb history and the matching sensor-facing support
     // consequence. Both are continuation authority, not diagnostics.
     std::vector<nm_float4> humanSupportHistories;

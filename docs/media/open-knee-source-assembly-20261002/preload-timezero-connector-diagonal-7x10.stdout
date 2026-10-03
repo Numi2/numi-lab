@@ -1,0 +1,38 @@
+source_step=rejected source_time=0 newton_budget=7 fgmres_budget=10 matter_status=10 failing_object=9 failing_index=4294967295 completed_microsteps=0 fgmres_iterations=10 diagnostic0=0.120405 diagnostic1=0.000669449 residual=0 correction=0 worst_object=0 maximum_object_residual=0.120405 minimum_jacobian=0.96856 max_fem_displacement_m=0 source_contact_history=1035210 source_equivalence=unqualified
+source_certificate object=0 residual=0.120405 correction=0.000669449 volume=0 pressure=0 minimum_jacobian=0.999952 contact_gap=0 transport=0,0,0,0
+source_certificate object=1 residual=0.120405 correction=0.000669449 volume=0 pressure=0 minimum_jacobian=0.985053 contact_gap=0 transport=0,0,0,0
+source_certificate object=2 residual=0.120405 correction=0.000669449 volume=0 pressure=0 minimum_jacobian=0.982381 contact_gap=0 transport=0,0,0,0
+source_certificate object=3 residual=0.120405 correction=0.000669449 volume=0 pressure=0 minimum_jacobian=0.99969 contact_gap=0 transport=0,0,0,0
+source_certificate object=4 residual=0.120405 correction=0.000669449 volume=0 pressure=0 minimum_jacobian=0.96856 contact_gap=0 transport=0,0,0,0
+source_certificate object=5 residual=0.120405 correction=0.000669449 volume=0 pressure=0 minimum_jacobian=0.999617 contact_gap=0 transport=0,0,0,0
+source_certificate object=6 residual=0.120405 correction=0.000669449 volume=0 pressure=0 minimum_jacobian=0.999896 contact_gap=0 transport=0,0,0,0
+source_certificate object=7 residual=0.120405 correction=0.000669449 volume=0 pressure=0 minimum_jacobian=0.992241 contact_gap=0 transport=0,0,0,0
+source_certificate object=8 residual=0.120405 correction=0.000669449 volume=0 pressure=0 minimum_jacobian=0.975623 contact_gap=0 transport=0,0,0,0
+source_certificate object=9 residual=0.120405 correction=0.000669449 volume=0 pressure=0 minimum_jacobian=0.999749 contact_gap=0 transport=0,0,0,0
+source_certificate object=10 residual=0.120405 correction=0.000669449 volume=0 pressure=0 minimum_jacobian=0.983347 contact_gap=0 transport=0,0,0,0
+source_certificate object=11 residual=0.120405 correction=0.000669449 volume=0 pressure=0 minimum_jacobian=0.997707 contact_gap=0 transport=0,0,0,0
+source_residual_block object=0 name=OpenKnee_QAT l2=0.000640603 maximum=0.000101313 worst_node=14085
+source_residual_block object=1 name=OpenKnee_TBC-L l2=0.00862074 maximum=0.00154049 worst_node=50973
+source_residual_block object=2 name=OpenKnee_PCL l2=0.0826007 maximum=0.0327628 worst_node=58797
+source_residual_block object=3 name=OpenKnee_PTC l2=0.000657063 maximum=5.10368e-05 worst_node=81131
+source_residual_block object=4 name=OpenKnee_ACL l2=0.0632012 maximum=0.0185925 worst_node=97657
+source_residual_block object=5 name=OpenKnee_MCL l2=0.00373057 maximum=0.000707925 worst_node=114205
+source_residual_block object=6 name=OpenKnee_PTL l2=0.00137989 maximum=0.000255385 worst_node=125951
+source_residual_block object=7 name=OpenKnee_MNS-L l2=0.013792 maximum=0.00333269 worst_node=131027
+source_residual_block object=8 name=OpenKnee_MNS-M l2=0.0511063 maximum=0.0193775 worst_node=146056
+source_residual_block object=9 name=OpenKnee_LCL l2=0.000965639 maximum=0.000555307 worst_node=151777
+source_residual_block object=10 name=OpenKnee_TBC-M l2=0.0242796 maximum=0.00226156 worst_node=164414
+source_residual_block object=11 name=OpenKnee_FMC l2=0.0062407 maximum=0.00165983 worst_node=179501
+source_residual_block name=rigid l2=0.012555 maximum=0.00672776 worst_dof=14
+source_contact_block object=0 name=OpenKnee_QAT contact_impulse_l2=0 contact_residual_dot=0
+source_contact_block object=1 name=OpenKnee_TBC-L contact_impulse_l2=0.0134946 contact_residual_dot=4.58529e-05
+source_contact_block object=2 name=OpenKnee_PCL contact_impulse_l2=0.100652 contact_residual_dot=0.00375836
+source_contact_block object=3 name=OpenKnee_PTC contact_impulse_l2=0.000182231 contact_residual_dot=6.10896e-09
+source_contact_block object=4 name=OpenKnee_ACL contact_impulse_l2=0.0770048 contact_residual_dot=0.00288748
+source_contact_block object=5 name=OpenKnee_MCL contact_impulse_l2=0.00257384 contact_residual_dot=2.77946e-06
+source_contact_block object=6 name=OpenKnee_PTL contact_impulse_l2=0 contact_residual_dot=0
+source_contact_block object=7 name=OpenKnee_MNS-L contact_impulse_l2=0.0194609 contact_residual_dot=0.000171138
+source_contact_block object=8 name=OpenKnee_MNS-M contact_impulse_l2=0.0673057 contact_residual_dot=0.00198187
+source_contact_block object=9 name=OpenKnee_LCL contact_impulse_l2=0 contact_residual_dot=0
+source_contact_block object=10 name=OpenKnee_TBC-M contact_impulse_l2=0.0403722 contact_residual_dot=0.000372395
+source_contact_block object=11 name=OpenKnee_FMC contact_impulse_l2=0.00999863 contact_residual_dot=3.68505e-05

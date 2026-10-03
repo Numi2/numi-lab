@@ -1,0 +1,78 @@
+{
+  "status": "passed_constitutive_equations_only",
+  "source_equivalence": false,
+  "assembled_equilibrium": false,
+  "legacy_energy_output_equivalence": false,
+  "oracle_version": "public FEBio 3.0.0, not archived 2.9.1",
+  "scope": "compiled constitutive stress and directional tangent at identical deformations",
+  "stress_measure": "first Piola P=J sigma F^-T, Pa",
+  "tangent_measure": "dP[dF]=J (c:sym(dF F^-1)+(dF F^-1) sigma) F^-T",
+  "normalization": "Frobenius norm / max(1e6 Pa, reference Frobenius norm)",
+  "gates": {
+    "stress": 1e-10,
+    "directional_tangent": 1e-10
+  },
+  "unmodified_mechanics_file_count": 866,
+  "unmodified_mechanics_manifest_sha256": "c16140461dd6cb4ba9b75999f42ccbc254bc13afed416b3e01a7ca6525b6213c",
+  "identities": {
+    "matter_binary": {
+      "file": "/Users/home/numi-open-knee-source-20261001/build-open-knee-source/numi-matter-fiber-check",
+      "sha256": "8d0cd8420dde75942c868e965a480e34b5a87c2fbae58ce3aa8305cd9dac3f02"
+    },
+    "febio_oracle": {
+      "file": "/Users/home/numilab-human/Build/open-knee-reference-20261001/reproducible-febio3-build/febio-build/febio-material-oracle",
+      "sha256": "5a08f826eb6e878f5a2c1418e8e0aa67b6aef85452e8f40a277ef597b520fc2d"
+    },
+    "oracle_source": {
+      "file": "/Users/home/numilab-human/tools/open_knee_reference/febio_material_oracle.cpp",
+      "sha256": "013d2d8b073b0f0e279b274e99b33078be4235d2ad2c6151b7e3d3f80079ee8a"
+    },
+    "comparison_recipe": {
+      "file": "/Users/home/numilab-human/tools/open_knee_reference/compare_source_materials.py",
+      "sha256": "a62e355706596ade8fd8f7f2bca9afff48e2eec9e5ff44d8c5ef8ae7733cbe10"
+    },
+    "reference_build_receipt": {
+      "file": "/Users/home/numilab-human/Build/open-knee-reference-20261001/reproducible-febio3-build/build-receipt.json",
+      "sha256": "bd1910457a9fb275ee5f87c1b989830f25e85baee548395b5d2712eae23f2003"
+    }
+  },
+  "commands": [
+    [
+      "/Users/home/numi-open-knee-source-20261001/build-open-knee-source/numi-matter-fiber-check",
+      "--reference-export",
+      "/Users/home/numilab-human/Build/open-knee-reference-20261001/source-material-comparison-final/inputs.txt",
+      "/Users/home/numilab-human/Build/open-knee-reference-20261001/source-material-comparison-final/matter.txt"
+    ],
+    [
+      "/Users/home/numilab-human/Build/open-knee-reference-20261001/reproducible-febio3-build/febio-build/febio-material-oracle",
+      "/Users/home/numilab-human/Build/open-knee-reference-20261001/source-material-comparison-final/inputs.txt",
+      "/Users/home/numilab-human/Build/open-knee-reference-20261001/source-material-comparison-final/febio.txt"
+    ]
+  ],
+  "maximum_stress_error": 2.9534490312340034e-15,
+  "maximum_directional_tangent_error": 9.253673916838521e-15,
+  "rows": 486,
+  "tissues": [
+    "ACL",
+    "PCL",
+    "MCL",
+    "LCL",
+    "PTL",
+    "QAT",
+    "MNS-L",
+    "MNS-M",
+    "cartilage"
+  ],
+  "artifact_sha256": {
+    "inputs.txt": "5ec46fbdffa3b29e5eed310727d0985b01fd56de3d62ef0e24a63e30b212a5e0",
+    "febio.txt": "96bf200fa8b1e368e26d0214a1f83be3d66f61a14b4ea483c86b6e2bebf581b2",
+    "febio.stdout": "cbeb15d0fee667a686a032a41cc4f15c1549e345b5a70f953fa3f0ae9dbaf0a7",
+    "matter.stdout": "c2ea4151afe09551c2cd51b9c7ee559c498cd4a937d78c71c88727727a9b814e",
+    "matter.txt": "6cd700dcf825a5b4e63a5a87f5ebe007e9655bc67d32831486651c5c397f0e34"
+  },
+  "matter_source_sha256": {
+    "matter/tools/fiber_exp_linear_check.mm": "0493eb9ca6b4f7f5b6543f966ab128b27fbeecede8e663c60e91c3e36a073eff",
+    "matter/include/numi/matter/fiber_exp_linear.h": "26ca19f47c8ece392409fe233708cc87d96b31eb010359cb987b1eed38dee49c",
+    "matter/materials/open_knee_ligament_febio_exp_linear.nmatter": "6f2880d1d3322b38e181b092b170ea17bf8f15ec8095bc19fde57e7f52205e8a"
+  }
+}

@@ -1,0 +1,2 @@
+cpu_directional_checks=2016 max_relative_error=3.30856e-07 virtual_work_checks=96 max_relative_error=2.71914e-15
+metal_rows=195 max_scaled_error=2.13333e-07 device=Apple M4

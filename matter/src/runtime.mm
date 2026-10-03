@@ -270,6 +270,34 @@ const char kImageAnchor = 0;
         sizeof(configuration.humanLimitDispatch)));
     hash = mixFingerprint(hash, configuration.humanLimitSourceFingerprint);
     hash = mixFingerprint(hash, detail::hashBytes(
+        configuration.sourceCylindricalJoints.data(),
+        configuration.sourceCylindricalJoints.size_bytes()));
+    hash = mixFingerprint(hash, detail::hashBytes(
+        configuration.sourceRigidSprings.data(),
+        configuration.sourceRigidSprings.size_bytes()));
+    hash = mixFingerprint(hash, detail::hashBytes(
+        configuration.sourceFEMRigidTies.data(),
+        configuration.sourceFEMRigidTies.size_bytes()));
+    hash = mixFingerprint(hash, detail::hashBytes(
+        configuration.sourceFEMSprings.data(),
+        configuration.sourceFEMSprings.size_bytes()));
+    hash = mixFingerprint(hash, detail::hashBytes(
+        configuration.sourcePrestrain.data(),
+        configuration.sourcePrestrain.size_bytes()));
+    hash = mixFingerprint(hash, detail::hashBytes(
+        configuration.sourceContactNodes.data(),
+        configuration.sourceContactNodes.size_bytes()));
+    hash = mixFingerprint(hash, detail::hashBytes(
+        configuration.sourceContactFaces.data(),
+        configuration.sourceContactFaces.size_bytes()));
+    hash = mixFingerprint(hash, detail::hashBytes(
+        configuration.sourceContactSurfaces.data(),
+        configuration.sourceContactSurfaces.size_bytes()));
+    hash = mixFingerprint(hash, detail::hashBytes(
+        configuration.sourceSlidingPairs.data(),
+        configuration.sourceSlidingPairs.size_bytes()));
+    hash = mixFingerprint(hash, configuration.sourceRigidConnectorFingerprint);
+    hash = mixFingerprint(hash, detail::hashBytes(
         configuration.humanSupportContacts.data(),
         configuration.humanSupportContacts.size_bytes()));
     hash = mixFingerprint(hash, detail::hashBytes(
@@ -566,6 +594,7 @@ struct Runtime::State {
         bool preDynamicsOpen = false;
         std::uint32_t controlStep = 0u;
         std::uint32_t physicsSubstep = 0u;
+        float sourceContinuationTime = 0.0f;
         std::uint32_t identificationGeneration = 0u;
         std::uint32_t identificationCheckpoint = 0u;
         bool identificationAdvanced = false;
@@ -773,6 +802,7 @@ struct Runtime::State {
     std::vector<std::pair<std::uint32_t, std::uint32_t>> femRegionalBaseExponentLayout;
     std::vector<std::array<float, 2>> femRegionalMassLayout;
     std::vector<nm_float4> femRegionalRestLayout;
+    std::vector<nm_float4> femRegionalReferenceLowLayout;
     std::vector<std::pair<std::uint32_t, nm_float4>> femReferenceDeterminantLimits;
     std::vector<std::pair<std::uint32_t, nm_float4>> femReferenceCenterLayout;
     std::vector<std::pair<std::uint32_t, float>> femRegionalFixedParameterLayout;
@@ -924,6 +954,51 @@ struct Runtime::State {
     id<MTLBuffer> humanEqualityFactor = nil;
     NMHumanEqualityDispatchGPU humanEqualityDispatch{};
     id<MTLBuffer> humanLimitRows = nil;
+    id<MTLBuffer> sourceCylindricalJoints = nil;
+    id<MTLBuffer> sourceRigidSprings = nil;
+    id<MTLBuffer> sourceFEMRigidTies = nil;
+    id<MTLBuffer> sourceFEMSprings = nil;
+    id<MTLBuffer> sourcePrestrain = nil;
+    id<MTLBuffer> sourceMaterialParameters = nil;
+    id<MTLBuffer> sourceContactNodes = nil;
+    id<MTLBuffer> sourceContactFaces = nil;
+    id<MTLBuffer> sourceContactSurfaces = nil;
+    id<MTLBuffer> sourceSlidingPairs = nil;
+    id<MTLBuffer> sourceContactPositions = nil;
+    id<MTLBuffer> sourceContactFaceGeometry = nil;
+    id<MTLBuffer> sourceContactBVHNodes = nil;
+    id<MTLBuffer> sourceContactBVHBounds = nil;
+    id<MTLBuffer> sourceContactBVHRoots = nil;
+    id<MTLBuffer> sourceContactProjections = nil;
+    id<MTLBuffer> sourceContactHistoryAccepted = nil;
+    id<MTLBuffer> sourceContactHistoryCheckpoint = nil;
+    id<MTLBuffer> sourceContactIncidenceCounts = nil;
+    id<MTLBuffer> sourceContactIncidenceCursors = nil;
+    id<MTLBuffer> sourceContactIncidenceRanges = nil;
+    id<MTLBuffer> sourceContactIncidence = nil;
+    id<MTLBuffer> sourceContactNodeForces = nil;
+    id<MTLBuffer> sourceContactNodeDerivatives = nil;
+    std::vector<std::pair<std::uint32_t, std::uint32_t>> sourceContactBVHLevels;
+    std::vector<NMSourceContactPassGPU> sourceContactPasses;
+    std::uint32_t sourceContactBVHNodeCount = 0u;
+    std::uint32_t sourceContactProjectionCount = 0u;
+    float sourceContactMaximumSearchTolerance = 0.0f;
+    id<MTLBuffer> sourceFEMSpringNodes = nil;
+    id<MTLBuffer> sourceFEMSpringIncidence = nil;
+    id<MTLBuffer> sourceTieResidualImpulses = nil;
+    id<MTLBuffer> sourceTieDiagnosticImpulses = nil;
+    id<MTLBuffer> sourceTieOperator = nil;
+    std::uint32_t sourceJointCount = 0u;
+    std::uint32_t sourceSpringCount = 0u;
+    std::uint32_t sourceTieCount = 0u;
+    std::uint32_t sourceFEMSpringCount = 0u;
+    std::uint32_t sourcePrestrainCount = 0u;
+    std::uint32_t sourceContactNodeCount = 0u;
+    std::uint32_t sourceContactFaceCount = 0u;
+    std::uint32_t sourceContactSurfaceCount = 0u;
+    std::uint32_t sourceSlidingPairCount = 0u;
+    std::uint32_t sourceFEMSpringNodeCount = 0u;
+    std::uint32_t sourceMaximumFreeIndex = NM_INVALID_INDEX;
     id<MTLBuffer> humanLimitLinearization = nil;
     id<MTLBuffer> humanLimitTangent = nil;
     NMHumanLimitDispatchGPU humanLimitDispatch{};
@@ -1069,9 +1144,11 @@ RuntimeDiagnostics Runtime::initialize(
                 })) {
             candidate->femRegionalMassLayout.reserve(world.fem.nodes.size());
             candidate->femRegionalRestLayout.reserve(world.fem.nodes.size());
+            candidate->femRegionalReferenceLowLayout.reserve(world.fem.nodes.size());
             for (const auto& node : world.fem.nodes) {
                 candidate->femRegionalMassLayout.push_back({node.positionAndMass.w, node.velocityAndInverseMass.w});
                 candidate->femRegionalRestLayout.push_back(node.restAndFixed);
+                candidate->femRegionalReferenceLowLayout.push_back(node.referenceLow);
             }
             std::set<std::uint32_t> regionalMaterials;
             for (const auto& object : world.objects) {
@@ -1329,6 +1406,513 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->sourcePhysicsFingerprint = mixFingerprint(
                 candidate->sourcePhysicsFingerprint, supportFingerprint);
         }
+        const auto sourceJoints = configuration.sourceCylindricalJoints;
+        const auto sourceSprings = configuration.sourceRigidSprings;
+        const auto sourceTies = configuration.sourceFEMRigidTies;
+        const auto sourceFEMSprings = configuration.sourceFEMSprings;
+        const auto sourcePrestrain = configuration.sourcePrestrain;
+        const auto sourceContactNodes = configuration.sourceContactNodes;
+        const auto sourceContactFaces = configuration.sourceContactFaces;
+        const auto sourceContactSurfaces = configuration.sourceContactSurfaces;
+        const auto sourceSlidingPairs = configuration.sourceSlidingPairs;
+        const bool hasSourceConnectors =
+            !sourceJoints.empty() || !sourceSprings.empty() ||
+            !sourceTies.empty() || !sourceFEMSprings.empty() ||
+            !sourcePrestrain.empty() || !sourceContactNodes.empty() ||
+            !sourceContactFaces.empty() || !sourceContactSurfaces.empty() ||
+            !sourceSlidingPairs.empty();
+        const auto finite4 = [](const nm_float4 v) {
+            return std::isfinite(v.x) && std::isfinite(v.y) &&
+                std::isfinite(v.z) && std::isfinite(v.w);
+        };
+        const auto validSourcePair = [&](const nm_uint4 indices) {
+            if (indices.x >= world.contact.rigidProxies.size() ||
+                indices.y >= world.contact.rigidProxies.size() ||
+                indices.x == indices.y) return false;
+            const auto& a = world.contact.rigidProxies[indices.x];
+            const auto& b = world.contact.rigidProxies[indices.y];
+            if (a.bodyIndex == b.bodyIndex ||
+                ((a.flags | b.flags) & NM_RIGID_ARTICULATED) != 0u) return false;
+            for (const auto* proxy : {&a, &b}) {
+                if ((proxy->flags & NM_RIGID_DYNAMIC) != 0u &&
+                    (proxy->generalizedFreeBodyIndex == NM_INVALID_INDEX ||
+                     std::uint64_t(candidate->dispatch.rigidGeneralizedCapacity) <
+                         6ull * (std::uint64_t(proxy->generalizedFreeBodyIndex) + 1ull)))
+                    return false;
+            }
+            return true;
+        };
+        if (sourceJoints.size() > std::numeric_limits<std::uint32_t>::max() ||
+            sourceSprings.size() > std::numeric_limits<std::uint32_t>::max() ||
+            sourceTies.size() > std::numeric_limits<std::uint32_t>::max() ||
+            sourceFEMSprings.size() > std::numeric_limits<std::uint32_t>::max() ||
+            sourcePrestrain.size() > std::numeric_limits<std::uint32_t>::max() ||
+            sourceContactNodes.size() > std::numeric_limits<std::uint32_t>::max() ||
+            sourceContactFaces.size() > std::numeric_limits<std::uint32_t>::max() ||
+            sourceContactSurfaces.size() > std::numeric_limits<std::uint32_t>::max() ||
+            sourceSlidingPairs.size() > std::numeric_limits<std::uint32_t>::max() ||
+            hasSourceConnectors !=
+                (configuration.sourceRigidConnectorFingerprint != 0u) ||
+            (hasSourceConnectors && world.dispatch.maximumRateExponent != 0u)) {
+            diagnostics.message = "invalid source rigid connector program header";
+            return diagnostics;
+        }
+        for (const auto& row : sourceJoints) {
+            const float axis2 = row.axis.x * row.axis.x +
+                row.axis.y * row.axis.y + row.axis.z * row.axis.z;
+            if (!validSourcePair(row.indices) || row.indices.z > 1u ||
+                row.indices.w > 1u || !finite4(row.referenceA) ||
+                !finite4(row.referenceB) || !finite4(row.origin) ||
+                !finite4(row.axis) || !finite4(row.forceMultiplier) ||
+                !finite4(row.momentMultiplier) || !finite4(row.parameters) ||
+                !finite4(row.axial) || std::abs(axis2 - 1.0f) > 1.0e-5f ||
+                !(row.parameters.x > 0.0f) || !(row.parameters.y > 0.0f) ||
+                (row.indices.z != 0u && row.axial.x != 0.0f) ||
+                (row.indices.w != 0u && row.axial.y != 0.0f) ||
+                (row.axial.z != 0.0f && row.axial.z != 1.0f) ||
+                row.axial.w != 0.0f ||
+                (row.axial.z == 1.0f && row.indices.w == 0u)) {
+                diagnostics.message = "invalid source cylindrical joint row";
+                return diagnostics;
+            }
+        }
+        for (const auto& row : sourceSprings) {
+            if (!validSourcePair(row.indices) || row.indices.z != 0u ||
+                row.indices.w != 0u || !finite4(row.referenceA) ||
+                !finite4(row.referenceB) || !finite4(row.insertionA) ||
+                !finite4(row.insertionB) || !finite4(row.parameters) ||
+                !(row.parameters.x > 0.0f) || row.parameters.y < 0.0f ||
+                (row.parameters.z != 0.0f && row.parameters.z != 1.0f) ||
+                (row.parameters.z == 0.0f && row.parameters.w != 0.0f) ||
+                (row.parameters.z == 1.0f &&
+                 !(row.parameters.w > 0.0f))) {
+                diagnostics.message = "invalid source rigid spring row";
+                return diagnostics;
+            }
+        }
+        std::set<std::uint32_t> sourcePrestrainParameters;
+        for (const auto& row : sourcePrestrain) {
+            if (row.identity.x >= world.parameters.size() ||
+                row.identity.y >= world.materials.size() ||
+                row.identity.z < 1u || row.identity.z > 6u ||
+                row.identity.w != 0u || !finite4(row.stretch) ||
+                row.stretch.x != 1.0f || row.stretch.y < 1.0f ||
+                row.stretch.y > 1.2f || row.stretch.z != 0.0f ||
+                row.stretch.w != 0.0f ||
+                !sourcePrestrainParameters.insert(row.identity.x).second) {
+                diagnostics.message = "invalid source prestrain schedule row";
+                return diagnostics;
+            }
+            const auto& material = world.materials[row.identity.y];
+            if (row.identity.x < material.parameterOffset ||
+                row.identity.x >= material.parameterOffset + material.parameterCount ||
+                world.parameters[row.identity.x].valueAndBounds.x != 1.0f) {
+                diagnostics.message = "source prestrain does not address a unit material parameter";
+                return diagnostics;
+            }
+        }
+        if (!sourcePrestrain.empty() && configuration.automaticIdentification) {
+            diagnostics.message = "source prestrain continuation does not permit material identification";
+            return diagnostics;
+        }
+        for (const auto& row : sourceJoints)
+            if (row.axial.z == 1.0f && sourcePrestrain.empty()) {
+                diagnostics.message = "source prescribed flexion needs its prestrain schedule";
+                return diagnostics;
+            }
+        if ((!sourceContactNodes.empty() || !sourceContactFaces.empty() ||
+             !sourceContactSurfaces.empty() || !sourceSlidingPairs.empty()) &&
+            (sourceContactNodes.empty() || sourceContactFaces.empty() ||
+             sourceContactSurfaces.empty() || sourceSlidingPairs.empty())) {
+            diagnostics.message = "source sliding contact program is incomplete";
+            return diagnostics;
+        }
+        std::set<std::uint32_t> sourceContactNodeIds;
+        std::set<std::uint32_t> sourceContactFEMNodeIds;
+        for (const auto& row : sourceContactNodes) {
+            const bool fem = row.identity.y == 0u;
+            if (row.identity.y > 1u || row.identity.z == 0u ||
+                row.identity.w != 0u || !finite4(row.localPoint) ||
+                row.localPoint.w != 0.0f ||
+                (fem && (row.identity.x >= world.fem.nodes.size() ||
+                         row.localPoint.x != 0.0f ||
+                         row.localPoint.y != 0.0f ||
+                         row.localPoint.z != 0.0f)) ||
+                (!fem && row.identity.x >= world.contact.rigidProxies.size()) ||
+                !sourceContactNodeIds.insert(row.identity.z).second ||
+                (fem && !sourceContactFEMNodeIds.insert(row.identity.x).second)) {
+                diagnostics.message = "invalid source sliding contact node";
+                return diagnostics;
+            }
+        }
+        std::uint32_t nextSourceContactFace = 0u;
+        for (const auto& row : sourceContactSurfaces) {
+            if (row.identity.x != nextSourceContactFace || row.identity.y == 0u ||
+                row.identity.y > sourceContactFaces.size() - nextSourceContactFace ||
+                row.identity.w > 1u ||
+                (row.identity.w == 0u && row.identity.z >= world.objects.size()) ||
+                (row.identity.w == 1u &&
+                 row.identity.z >= world.contact.rigidProxies.size())) {
+                diagnostics.message = "invalid source sliding contact surface";
+                return diagnostics;
+            }
+            nextSourceContactFace += row.identity.y;
+        }
+        if (nextSourceContactFace != sourceContactFaces.size()) {
+            diagnostics.message = "source sliding contact surfaces do not cover faces";
+            return diagnostics;
+        }
+        for (std::uint32_t surface = 0u; surface < sourceContactSurfaces.size(); ++surface) {
+            const auto& owner = sourceContactSurfaces[surface];
+            for (std::uint32_t face = owner.identity.x;
+                 face < owner.identity.x + owner.identity.y; ++face) {
+                const auto& row = sourceContactFaces[face];
+                if (row.identity.x != surface || row.identity.y == 0u ||
+                    row.identity.z == 0u ||
+                    row.nodes.w != 0u ||
+                    row.nodes.x >= sourceContactNodes.size() ||
+                    row.nodes.y >= sourceContactNodes.size() ||
+                    row.nodes.z >= sourceContactNodes.size() ||
+                    row.nodes.x == row.nodes.y || row.nodes.x == row.nodes.z ||
+                    row.nodes.y == row.nodes.z) {
+                    diagnostics.message = "invalid source sliding contact face";
+                    return diagnostics;
+                }
+                if ((owner.identity.w == 0u &&
+                     (row.identity.w >= world.fem.tetrahedra.size() ||
+                      world.fem.tetrahedra[row.identity.w].identity.y !=
+                          owner.identity.z)) ||
+                    (owner.identity.w == 1u &&
+                     row.identity.w != NM_INVALID_INDEX)) {
+                    diagnostics.message = "source sliding face has no backing element";
+                    return diagnostics;
+                }
+                if (!finite4(row.autoPenalty) ||
+                    (owner.identity.w == 0u &&
+                     (!(row.autoPenalty.x > 0.0f) ||
+                      !(row.autoPenalty.y > 0.0f) ||
+                      !(row.autoPenalty.z > 0.0f) ||
+                      !(row.autoPenalty.w > 0.0f) ||
+                      std::abs(double(row.autoPenalty.x) -
+                               double(row.autoPenalty.w) *
+                               double(row.autoPenalty.y) /
+                               double(row.autoPenalty.z)) >
+                          1.0e-5 * double(row.autoPenalty.x))) ||
+                    (owner.identity.w == 1u &&
+                     (row.autoPenalty.x != 0.0f ||
+                      row.autoPenalty.y != 0.0f ||
+                      row.autoPenalty.z != 0.0f ||
+                      row.autoPenalty.w != 0.0f))) {
+                    diagnostics.message = "source sliding face has invalid automatic penalty";
+                    return diagnostics;
+                }
+                for (const auto node : {row.nodes.x, row.nodes.y, row.nodes.z}) {
+                    const auto& point = sourceContactNodes[node];
+                    if (point.identity.y != owner.identity.w ||
+                        (owner.identity.w == 1u &&
+                         point.identity.x != owner.identity.z) ||
+                        (owner.identity.w == 0u &&
+                         world.fem.nodeRanges[point.identity.x].objectIndex !=
+                             owner.identity.z)) {
+                        diagnostics.message = "source sliding face changes owner";
+                        return diagnostics;
+                    }
+                }
+            }
+        }
+        for (const auto& row : sourceSlidingPairs) {
+            if (row.identity.x >= sourceContactSurfaces.size() ||
+                row.identity.y >= sourceContactSurfaces.size() ||
+                row.identity.x == row.identity.y || row.identity.z != 1u ||
+                row.identity.w != 0u || !finite4(row.normal) ||
+                !(row.normal.x > 0.0f) || row.normal.y < 0.0f ||
+                row.normal.z < 0.0f || !(row.normal.w > 0.0f)) {
+                diagnostics.message = "invalid source sliding contact pair";
+                return diagnostics;
+            }
+        }
+        std::vector<NMSourceContactBVHNodeGPU> sourceContactBVHNodes;
+        std::vector<std::uint32_t> sourceContactBVHRoots;
+        if (!sourceContactSurfaces.empty()) {
+            struct SourceContactTreeNode {
+                std::uint32_t left = NM_INVALID_INDEX;
+                std::uint32_t right = NM_INVALID_INDEX;
+                std::uint32_t face = NM_INVALID_INDEX;
+                std::uint32_t surface = NM_INVALID_INDEX;
+                std::uint32_t height = 0u;
+            };
+            std::vector<SourceContactTreeNode> temporary;
+            temporary.reserve(sourceContactFaces.size() * 2u);
+            std::vector<std::uint32_t> faceOrder(sourceContactFaces.size());
+            std::iota(faceOrder.begin(), faceOrder.end(), 0u);
+            std::vector<std::array<float, 3u>> centroids;
+            centroids.reserve(sourceContactFaces.size());
+            for (const auto& face : sourceContactFaces) {
+                std::array<float, 3u> center{};
+                for (const auto slot : {face.nodes.x, face.nodes.y, face.nodes.z}) {
+                    const auto& node = sourceContactNodes[slot];
+                    const nm_float4 point = node.identity.y == 0u
+                        ? world.fem.nodes[node.identity.x].restAndFixed
+                        : node.localPoint;
+                    center[0u] += point.x / 3.0f;
+                    center[1u] += point.y / 3.0f;
+                    center[2u] += point.z / 3.0f;
+                }
+                centroids.push_back(center);
+            }
+            sourceContactBVHRoots.reserve(sourceContactSurfaces.size());
+            const auto build = [&](auto&& self, const std::uint32_t first,
+                                   const std::uint32_t last,
+                                   const std::uint32_t surface) -> std::uint32_t {
+                if (last - first == 1u) {
+                    const auto index = static_cast<std::uint32_t>(temporary.size());
+                    temporary.push_back({NM_INVALID_INDEX, NM_INVALID_INDEX,
+                                         faceOrder[first], surface, 0u});
+                    return index;
+                }
+                std::array<float, 3u> minimum = centroids[faceOrder[first]];
+                std::array<float, 3u> maximum = minimum;
+                for (std::uint32_t item = first + 1u; item < last; ++item)
+                    for (std::uint32_t axis = 0u; axis < 3u; ++axis) {
+                        const float value = centroids[faceOrder[item]][axis];
+                        minimum[axis] = std::min(minimum[axis], value);
+                        maximum[axis] = std::max(maximum[axis], value);
+                    }
+                std::uint32_t axis = 0u;
+                for (std::uint32_t candidate = 1u; candidate < 3u; ++candidate)
+                    if (maximum[candidate] - minimum[candidate] >
+                        maximum[axis] - minimum[axis]) axis = candidate;
+                const auto middle = first + (last - first) / 2u;
+                std::nth_element(faceOrder.begin() + first,
+                    faceOrder.begin() + middle, faceOrder.begin() + last,
+                    [&](const auto a, const auto b) {
+                        return centroids[a][axis] < centroids[b][axis] ||
+                            (centroids[a][axis] == centroids[b][axis] && a < b);
+                    });
+                const auto left = self(self, first, middle, surface);
+                const auto right = self(self, middle, last, surface);
+                const auto index = static_cast<std::uint32_t>(temporary.size());
+                temporary.push_back({left, right, NM_INVALID_INDEX, surface,
+                    1u + std::max(temporary[left].height,
+                                  temporary[right].height)});
+                return index;
+            };
+            for (std::uint32_t surface = 0u;
+                 surface < sourceContactSurfaces.size(); ++surface) {
+                const auto& row = sourceContactSurfaces[surface];
+                sourceContactBVHRoots.push_back(build(build, row.identity.x,
+                    row.identity.x + row.identity.y, surface));
+            }
+            std::vector<std::uint32_t> order(temporary.size());
+            std::iota(order.begin(), order.end(), 0u);
+            std::stable_sort(order.begin(), order.end(),
+                [&](const auto a, const auto b) {
+                    return temporary[a].height < temporary[b].height;
+                });
+            std::vector<std::uint32_t> remap(temporary.size());
+            for (std::uint32_t index = 0u; index < order.size(); ++index)
+                remap[order[index]] = index;
+            for (auto& root : sourceContactBVHRoots) root = remap[root];
+            sourceContactBVHNodes.reserve(temporary.size());
+            for (std::uint32_t index = 0u; index < order.size(); ++index) {
+                const auto& node = temporary[order[index]];
+                sourceContactBVHNodes.push_back({{
+                    node.left == NM_INVALID_INDEX ? NM_INVALID_INDEX : remap[node.left],
+                    node.right == NM_INVALID_INDEX ? NM_INVALID_INDEX : remap[node.right],
+                    node.face, node.surface}});
+                if (candidate->sourceContactBVHLevels.empty() ||
+                    temporary[order[index]].height !=
+                        temporary[order[index - 1u]].height)
+                    candidate->sourceContactBVHLevels.emplace_back(index, 0u);
+                ++candidate->sourceContactBVHLevels.back().second;
+            }
+            std::uint32_t projectionFirst = 0u;
+            for (std::uint32_t pair = 0u; pair < sourceSlidingPairs.size(); ++pair) {
+                const auto& authored = sourceSlidingPairs[pair];
+                candidate->sourceContactMaximumSearchTolerance = std::max(
+                    candidate->sourceContactMaximumSearchTolerance,
+                    authored.normal.z);
+                for (std::uint32_t pass = 0u; pass < 2u; ++pass) {
+                    const auto slave = pass == 0u ? authored.identity.y :
+                                                    authored.identity.x;
+                    const auto master = pass == 0u ? authored.identity.x :
+                                                     authored.identity.y;
+                    const auto& surface = sourceContactSurfaces[slave];
+                    NMSourceContactPassGPU row{};
+                    row.identity = {pair, pass, surface.identity.x,
+                                    surface.identity.y};
+                    row.master = {sourceContactBVHRoots[master], master,
+                                  projectionFirst, 0u};
+                    row.parameters = authored.normal;
+                    candidate->sourceContactPasses.push_back(row);
+                    projectionFirst += 3u * surface.identity.y;
+                }
+            }
+            candidate->sourceContactBVHNodeCount =
+                static_cast<std::uint32_t>(sourceContactBVHNodes.size());
+            candidate->sourceContactProjectionCount = projectionFirst;
+        }
+        candidate->sourceJointCount =
+            static_cast<std::uint32_t>(sourceJoints.size());
+        candidate->sourceSpringCount =
+            static_cast<std::uint32_t>(sourceSprings.size());
+        candidate->sourceTieCount =
+            static_cast<std::uint32_t>(sourceTies.size());
+        candidate->sourceFEMSpringCount =
+            static_cast<std::uint32_t>(sourceFEMSprings.size());
+        candidate->sourcePrestrainCount =
+            static_cast<std::uint32_t>(sourcePrestrain.size());
+        candidate->sourceContactNodeCount =
+            static_cast<std::uint32_t>(sourceContactNodes.size());
+        candidate->sourceContactFaceCount =
+            static_cast<std::uint32_t>(sourceContactFaces.size());
+        candidate->sourceContactSurfaceCount =
+            static_cast<std::uint32_t>(sourceContactSurfaces.size());
+        candidate->sourceSlidingPairCount =
+            static_cast<std::uint32_t>(sourceSlidingPairs.size());
+        std::vector<std::pair<std::uint32_t, std::uint32_t>> springIncidence;
+        springIncidence.reserve(sourceFEMSprings.size() * 2u);
+        for (std::uint32_t spring = 0u; spring < sourceFEMSprings.size(); ++spring) {
+            const auto& row = sourceFEMSprings[spring];
+            if (row.identity.x >= world.fem.nodes.size() ||
+                row.identity.y >= world.fem.nodes.size() ||
+                row.identity.x == row.identity.y || row.identity.z == 0u ||
+                row.identity.w != 0u || !finite4(row.referenceA) ||
+                !finite4(row.referenceB) || !finite4(row.parameters) ||
+                row.referenceA.w != 0.0f || row.referenceB.w != 0.0f ||
+                !(row.parameters.x > 0.0f) || row.parameters.y != 0.0f ||
+                row.parameters.z != 0.0f || row.parameters.w != 0.0f ||
+                world.fem.nodeRanges[row.identity.x].objectIndex == NM_INVALID_INDEX ||
+                world.fem.nodeRanges[row.identity.y].objectIndex == NM_INVALID_INDEX ||
+                world.fem.nodeRanges[row.identity.x].objectIndex ==
+                    world.fem.nodeRanges[row.identity.y].objectIndex) {
+                diagnostics.message = "invalid source FEM spring row";
+                return diagnostics;
+            }
+            for (const auto [node, endpoint] :
+                 {std::pair{row.identity.x, 0u}, std::pair{row.identity.y, 1u}}) {
+                const auto& rest = world.fem.nodes[node].restAndFixed;
+                const auto& point = endpoint == 0u ? row.referenceA : row.referenceB;
+                if (std::abs(rest.x - point.x) > 2.0e-6f ||
+                    std::abs(rest.y - point.y) > 2.0e-6f ||
+                    std::abs(rest.z - point.z) > 2.0e-6f) {
+                    diagnostics.message = "source FEM spring reference point differs from cooked node";
+                    return diagnostics;
+                }
+                springIncidence.emplace_back(node, 2u * spring + endpoint);
+            }
+        }
+        std::sort(springIncidence.begin(), springIncidence.end());
+        std::vector<NMSourceFEMSpringNodeGPU> sourceSpringNodes;
+        std::vector<std::uint32_t> sourceSpringIncidence;
+        for (const auto& [node, incidence] : springIncidence) {
+            if (sourceSpringNodes.empty() ||
+                sourceSpringNodes.back().identity.x != node) {
+                NMSourceFEMSpringNodeGPU row{};
+                row.identity = {node,
+                    static_cast<std::uint32_t>(sourceSpringIncidence.size()),
+                    0u, 0u};
+                sourceSpringNodes.push_back(row);
+            }
+            sourceSpringIncidence.push_back(incidence);
+            ++sourceSpringNodes.back().identity.z;
+        }
+        candidate->sourceFEMSpringNodeCount =
+            static_cast<std::uint32_t>(sourceSpringNodes.size());
+        std::vector<NMFEMNodeStateGPU> sourceInitialFEMNodes(
+            world.fem.nodes.begin(), world.fem.nodes.end());
+        std::vector<bool> claimedTieNode(world.fem.nodes.size(), false);
+        std::set<std::uint32_t> claimedTieId;
+        for (const auto& tie : sourceTies) {
+            const auto node = tie.identity.x;
+            const auto proxyIndex = tie.identity.y;
+            const auto object = tie.identity.z;
+            const auto stableId = tie.identity.w;
+            if (node >= world.fem.nodes.size() ||
+                proxyIndex >= world.contact.rigidProxies.size() ||
+                object >= world.objects.size() ||
+                world.fem.nodeRanges[node].objectIndex != object ||
+                world.objects[object].representation != NM_REPRESENTATION_FEM ||
+                (world.objects[object].flags & NM_OBJECT_MUTABLE_TOPOLOGY) != 0u ||
+                world.fem.nodes[node].restAndFixed.w != 1.0f ||
+                !(world.fem.nodes[node].positionAndMass.w > 0.0f) ||
+                claimedTieNode[node] || stableId == 0u ||
+                stableId == NM_INVALID_INDEX ||
+                !claimedTieId.insert(stableId).second ||
+                !finite4(tie.localPoint) || tie.localPoint.w != 0.0f ||
+                world.contact.rigidProxies[proxyIndex].bodyIndex == NM_INVALID_INDEX ||
+                (world.contact.rigidProxies[proxyIndex].flags &
+                    NM_RIGID_ARTICULATED) != 0u) {
+                diagnostics.message = "invalid source FEM rigid-tie node or body";
+                return diagnostics;
+            }
+            claimedTieNode[node] = true;
+            sourceInitialFEMNodes[node].restAndFixed.w = 3.0f;
+            sourceInitialFEMNodes[node].velocityAndInverseMass.w =
+                1.0f / sourceInitialFEMNodes[node].positionAndMass.w;
+            if (!candidate->femRegionalMassLayout.empty()) {
+                candidate->femRegionalMassLayout[node][1] =
+                    sourceInitialFEMNodes[node].velocityAndInverseMass.w;
+                candidate->femRegionalRestLayout[node].w = 3.0f;
+            }
+            const auto& proxy = world.contact.rigidProxies[proxyIndex];
+            if ((proxy.flags & NM_RIGID_DYNAMIC) != 0u &&
+                (candidate->sourceMaximumFreeIndex == NM_INVALID_INDEX ||
+                 proxy.generalizedFreeBodyIndex > candidate->sourceMaximumFreeIndex))
+                candidate->sourceMaximumFreeIndex =
+                    proxy.generalizedFreeBodyIndex;
+        }
+        const auto retainFreeIndex = [&](const nm_uint4 indices) {
+            for (const auto proxyIndex : {indices.x, indices.y}) {
+                const auto& proxy = world.contact.rigidProxies[proxyIndex];
+                if ((proxy.flags & NM_RIGID_DYNAMIC) != 0u &&
+                    (candidate->sourceMaximumFreeIndex == NM_INVALID_INDEX ||
+                     proxy.generalizedFreeBodyIndex >
+                         candidate->sourceMaximumFreeIndex))
+                    candidate->sourceMaximumFreeIndex =
+                        proxy.generalizedFreeBodyIndex;
+            }
+        };
+        for (const auto& row : sourceJoints) retainFreeIndex(row.indices);
+        for (const auto& row : sourceSprings) retainFreeIndex(row.indices);
+        if (hasSourceConnectors) {
+            candidate->sourcePhysicsFingerprint = mixFingerprint(
+                candidate->sourcePhysicsFingerprint,
+                configuration.sourceRigidConnectorFingerprint);
+            candidate->sourcePhysicsFingerprint = mixFingerprint(
+                candidate->sourcePhysicsFingerprint,
+                detail::hashBytes(sourceJoints.data(), sourceJoints.size_bytes()));
+            candidate->sourcePhysicsFingerprint = mixFingerprint(
+                candidate->sourcePhysicsFingerprint,
+                detail::hashBytes(sourceSprings.data(), sourceSprings.size_bytes()));
+            candidate->sourcePhysicsFingerprint = mixFingerprint(
+                candidate->sourcePhysicsFingerprint,
+                detail::hashBytes(sourceTies.data(), sourceTies.size_bytes()));
+            candidate->sourcePhysicsFingerprint = mixFingerprint(
+                candidate->sourcePhysicsFingerprint,
+                detail::hashBytes(sourceFEMSprings.data(),
+                                  sourceFEMSprings.size_bytes()));
+            candidate->sourcePhysicsFingerprint = mixFingerprint(
+                candidate->sourcePhysicsFingerprint,
+                detail::hashBytes(sourcePrestrain.data(),
+                                  sourcePrestrain.size_bytes()));
+            candidate->sourcePhysicsFingerprint = mixFingerprint(
+                candidate->sourcePhysicsFingerprint,
+                detail::hashBytes(sourceContactNodes.data(),
+                                  sourceContactNodes.size_bytes()));
+            candidate->sourcePhysicsFingerprint = mixFingerprint(
+                candidate->sourcePhysicsFingerprint,
+                detail::hashBytes(sourceContactFaces.data(),
+                                  sourceContactFaces.size_bytes()));
+            candidate->sourcePhysicsFingerprint = mixFingerprint(
+                candidate->sourcePhysicsFingerprint,
+                detail::hashBytes(sourceContactSurfaces.data(),
+                                  sourceContactSurfaces.size_bytes()));
+            candidate->sourcePhysicsFingerprint = mixFingerprint(
+                candidate->sourcePhysicsFingerprint,
+                detail::hashBytes(sourceSlidingPairs.data(),
+                                  sourceSlidingPairs.size_bytes()));
+        }
         std::filesystem::path metallib = configuration.metallib;
         if (metallib.empty()) {
             metallib = defaultMetallib();
@@ -1533,6 +2117,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fem_human_attachment_mask_reactions",
             "nm_fgmres_measure_correction",
             "nm_fgmres_build_preconditioner",
+            "nm_source_contact_precondition_fem",
             "nm_fgmres_precondition",
             "nm_fgmres_precondition_patches",
             "nm_fgmres_precondition_coarse",
@@ -1550,6 +2135,38 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_apply_free_rigid",
             "nm_fgmres_apply_primal_rigid_contacts",
             "nm_contact_accumulate_rigid_residual",
+            "nm_source_rigid_connector_residual",
+            "nm_source_rigid_connector_operator",
+            "nm_source_rigid_precondition",
+            "nm_source_apply_prestrain",
+            "nm_source_contact_materialize_nodes",
+            "nm_source_contact_materialize_faces",
+            "nm_source_contact_refit_bvh",
+            "nm_source_contact_project_pass",
+            "nm_source_contact_checkpoint_history",
+            "nm_source_contact_commit_history",
+            "nm_source_contact_rollback_history",
+            "nm_source_contact_clear_incidence",
+            "nm_source_contact_count_incidence",
+            "nm_source_contact_scan_incidence",
+            "nm_source_contact_scatter_incidence",
+            "nm_source_contact_sort_incidence",
+            "nm_source_contact_gather_forces",
+            "nm_source_contact_gather_operator",
+            "nm_source_contact_fem_residual",
+            "nm_source_contact_fem_operator",
+            "nm_source_contact_rigid_residual",
+            "nm_source_contact_rigid_operator",
+            "nm_source_fem_rigid_tie_drive",
+            "nm_source_fem_rigid_tie_capture_residual",
+            "nm_source_fem_rigid_tie_scatter_residual",
+            "nm_source_fem_rigid_tie_map_direction",
+            "nm_source_fem_rigid_tie_capture_operator",
+            "nm_source_fem_rigid_tie_scatter_operator",
+            "nm_source_fem_rigid_tie_eliminate_direction",
+            "nm_source_fem_rigid_tie_mask",
+            "nm_source_fem_spring_residual",
+            "nm_source_fem_spring_operator",
             "nm_contact_subtract_rigid_inertia_residual",
             "nm_human_equality_factor",
             "nm_human_equality_precondition",
@@ -2094,6 +2711,11 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->environmentParameters = uploads.repeated(
             std::span<const float>(defaultParameters),
             environments, valid, candidate->residentBytes);
+        if (!sourcePrestrain.empty())
+            candidate->sourceMaterialParameters = privateScratch<float>(
+                candidate->device,
+                environments * world.dispatch.parameterCount,
+                valid, candidate->residentBytes);
         candidate->environmentParametersPreparedCheckpoint = uploads.repeated(
             std::span<const float>(defaultParameters),
             environments, valid, candidate->residentBytes);
@@ -2104,7 +2726,7 @@ RuntimeDiagnostics Runtime::initialize(
             std::span<const float>(particleMaterialStateDefaults),
             environments, valid, candidate->residentBytes);
         candidate->femDefaults = uploads.repeated(
-            std::span<const NMFEMNodeStateGPU>(world.fem.nodes),
+            std::span<const NMFEMNodeStateGPU>(sourceInitialFEMNodes),
             environments, valid, candidate->residentBytes);
         candidate->femMaterialStateDefaults = uploads.repeated(
             std::span<const float>(femMaterialStateDefaults),
@@ -2137,13 +2759,13 @@ RuntimeDiagnostics Runtime::initialize(
             std::span<const NMGridNodeStateGPU>(world.mpm.nodes),
             environments, valid, candidate->residentBytes);
         candidate->femAccepted = uploads.repeated(
-            std::span<const NMFEMNodeStateGPU>(world.fem.nodes),
+            std::span<const NMFEMNodeStateGPU>(sourceInitialFEMNodes),
             environments, valid, candidate->residentBytes);
         candidate->femCandidate = uploads.repeated(
-            std::span<const NMFEMNodeStateGPU>(world.fem.nodes),
+            std::span<const NMFEMNodeStateGPU>(sourceInitialFEMNodes),
             environments, valid, candidate->residentBytes);
         candidate->femCheckpoint = uploads.repeated(
-            std::span<const NMFEMNodeStateGPU>(world.fem.nodes),
+            std::span<const NMFEMNodeStateGPU>(sourceInitialFEMNodes),
             environments, valid, candidate->residentBytes);
         candidate->femTetrahedraAccepted = uploads.repeated(
             std::span<const NMTetrahedronGPU>(world.fem.tetrahedra),
@@ -2286,6 +2908,89 @@ RuntimeDiagnostics Runtime::initialize(
             environments, valid, candidate->residentBytes);
         candidate->humanEqualityRows = uploads.one(equalities, valid, candidate->residentBytes);
         candidate->humanLimitRows = uploads.one(limits, valid, candidate->residentBytes);
+        candidate->sourceCylindricalJoints = uploads.one(
+            sourceJoints, valid, candidate->residentBytes);
+        candidate->sourceRigidSprings = uploads.one(
+            sourceSprings, valid, candidate->residentBytes);
+        candidate->sourceFEMRigidTies = uploads.one(
+            sourceTies, valid, candidate->residentBytes);
+        candidate->sourceFEMSprings = uploads.one(
+            sourceFEMSprings, valid, candidate->residentBytes);
+        candidate->sourcePrestrain = uploads.one(
+            sourcePrestrain, valid, candidate->residentBytes);
+        candidate->sourceContactNodes = uploads.one(
+            sourceContactNodes, valid, candidate->residentBytes);
+        candidate->sourceContactFaces = uploads.one(
+            sourceContactFaces, valid, candidate->residentBytes);
+        candidate->sourceContactSurfaces = uploads.one(
+            sourceContactSurfaces, valid, candidate->residentBytes);
+        candidate->sourceSlidingPairs = uploads.one(
+            sourceSlidingPairs, valid, candidate->residentBytes);
+        candidate->sourceContactBVHNodes = uploads.one(
+            std::span<const NMSourceContactBVHNodeGPU>(sourceContactBVHNodes),
+            valid, candidate->residentBytes);
+        candidate->sourceContactBVHRoots = uploads.one(
+            std::span<const std::uint32_t>(sourceContactBVHRoots),
+            valid, candidate->residentBytes);
+        if (!sourceContactNodes.empty()) {
+            candidate->sourceContactPositions = privateScratch<nm_float4>(
+                candidate->device,
+                environments * sourceContactNodes.size(),
+                valid, candidate->residentBytes);
+            candidate->sourceContactFaceGeometry = privateScratch<nm_float4>(
+                candidate->device,
+                environments * sourceContactFaces.size(),
+                valid, candidate->residentBytes);
+            candidate->sourceContactBVHBounds =
+                privateScratch<NMSourceContactBVHBoundsGPU>(candidate->device,
+                    environments * sourceContactBVHNodes.size(),
+                    valid, candidate->residentBytes);
+            candidate->sourceContactProjections =
+                privateScratch<NMSourceContactProjectionGPU>(candidate->device,
+                    environments * candidate->sourceContactProjectionCount,
+                    valid, candidate->residentBytes);
+            std::vector<NMSourceContactProjectionGPU> emptyContactHistory(
+                candidate->sourceContactProjectionCount);
+            for (auto& row : emptyContactHistory)
+                row.identity.x = NM_INVALID_INDEX;
+            candidate->sourceContactHistoryAccepted = uploads.repeated(
+                std::span<const NMSourceContactProjectionGPU>(emptyContactHistory),
+                environments, valid, candidate->residentBytes);
+            candidate->sourceContactHistoryCheckpoint =
+                privateScratch<NMSourceContactProjectionGPU>(candidate->device,
+                    environments * candidate->sourceContactProjectionCount,
+                    valid, candidate->residentBytes);
+            candidate->sourceContactIncidenceCounts =
+                privateScratch<std::uint32_t>(candidate->device,
+                    environments * sourceContactNodes.size(),
+                    valid, candidate->residentBytes);
+            candidate->sourceContactIncidenceCursors =
+                privateScratch<std::uint32_t>(candidate->device,
+                    environments * sourceContactNodes.size(),
+                    valid, candidate->residentBytes);
+            candidate->sourceContactIncidenceRanges =
+                privateScratch<NMIncidenceRangeGPU>(candidate->device,
+                    environments * sourceContactNodes.size(),
+                    valid, candidate->residentBytes);
+            candidate->sourceContactIncidence =
+                privateScratch<std::uint32_t>(candidate->device,
+                    environments * 6u * candidate->sourceContactProjectionCount,
+                    valid, candidate->residentBytes);
+            candidate->sourceContactNodeForces =
+                privateScratch<nm_float4>(candidate->device,
+                    environments * sourceContactNodes.size(),
+                    valid, candidate->residentBytes);
+            candidate->sourceContactNodeDerivatives =
+                privateScratch<nm_float4>(candidate->device,
+                    environments * sourceContactNodes.size(),
+                    valid, candidate->residentBytes);
+        }
+        candidate->sourceFEMSpringNodes = uploads.one(
+            std::span<const NMSourceFEMSpringNodeGPU>(sourceSpringNodes),
+            valid, candidate->residentBytes);
+        candidate->sourceFEMSpringIncidence = uploads.one(
+            std::span<const std::uint32_t>(sourceSpringIncidence),
+            valid, candidate->residentBytes);
         candidate->humanSupportContacts = uploads.one(
             supportContacts, valid, candidate->residentBytes);
         // Candidate point queries use an environment-major stream, including
@@ -2626,6 +3331,15 @@ RuntimeDiagnostics Runtime::initialize(
                 valid,
                 candidate->residentBytes
             );
+        candidate->sourceTieResidualImpulses = privateScratch<nm_float4>(
+            candidate->device, multiplied(sourceTies.size()), valid,
+            candidate->residentBytes);
+        candidate->sourceTieDiagnosticImpulses = privateScratch<nm_float4>(
+            candidate->device, multiplied(sourceTies.size()), valid,
+            candidate->residentBytes);
+        candidate->sourceTieOperator = privateScratch<nm_float4>(
+            candidate->device, multiplied(sourceTies.size()), valid,
+            candidate->residentBytes);
         candidate->coupledInverseStatuses =
             privateScratch<MRInverseMassStatusGPU>(
                 candidate->device,
@@ -3289,6 +4003,15 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 "articulated Matter IPC requires a compatible primal coupled-candidate service plus exact q/v and candidate-body capacity";
             return diagnostics;
         }
+        if (state.sourceMaximumFreeIndex != NM_INVALID_INDEX &&
+            std::uint64_t(state.requiresCoupledCandidate
+                ? request.rigid.vStride : 0u) +
+                    6ull * (std::uint64_t(state.sourceMaximumFreeIndex) + 1ull) >
+                state.dispatch.rigidGeneralizedCapacity) {
+            diagnostics.message =
+                "source rigid connector free-body mapping exceeds the coupled candidate";
+            return diagnostics;
+        }
         if (state.requiresSceneBodies &&
             request.rigid.sceneBodies == nullptr) {
             diagnostics.message =
@@ -3473,6 +4196,22 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 "Matter runtime timestep differs from the active coupled cadence";
             return diagnostics;
         }
+        if (!std::isfinite(request.sourceContinuationTime) ||
+            (state.sourcePrestrainCount != 0u &&
+             (request.sourceContinuationTime < 0.0f ||
+              request.sourceContinuationTime > 2.0f ||
+              request.runIdentification ||
+              request.resetMaskStepStride != 0u)) ||
+            (state.sourcePrestrainCount == 0u &&
+             request.sourceContinuationTime != 0.0f)) {
+            diagnostics.message = "source continuation time or identification request is invalid";
+            return diagnostics;
+        }
+        if (state.sourceSlidingPairCount != 0u) {
+            diagnostics.message =
+                "source knee has coupled sliding traction/tangent, but full-knee contact certification and source checkpoint validation are incomplete";
+            return diagnostics;
+        }
 
         std::uint64_t vascularTimestepTicks = 0u;
         if (state.vascularValue.layout.ranges.z != 0u) {
@@ -3597,6 +4336,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
              ownership->physicsSubstep != request.physicsSubstep)) {
             diagnostics.message =
                 "Matter post-commit pass does not match its pre-dynamics transaction";
+            return diagnostics;
+        }
+        if (request.phase == EncodePhase::postCommit &&
+            request.sourceContinuationTime != ownership->sourceContinuationTime) {
+            diagnostics.message =
+                "Matter post-commit source time differs from its pre-dynamics target";
             return diagnostics;
         }
         if (retainPreparedState && !ownership->preparedStateRequested) {
@@ -3821,6 +4566,23 @@ RuntimeDiagnostics Runtime::encodeImpl(
             }
         }
 
+        if (request.phase == EncodePhase::preDynamics &&
+            state.sourcePrestrainCount != 0u) {
+            id<MTLBlitCommandEncoder> sourceParametersBlit =
+                [commandBuffer blitCommandEncoder];
+            if (sourceParametersBlit == nil ||
+                state.sourceMaterialParameters == nil ||
+                state.sourceMaterialParameters.length <
+                    state.environmentParameters.length) {
+                diagnostics.message = "source continuation parameter scratch is unavailable";
+                return diagnostics;
+            }
+            [sourceParametersBlit copyFromBuffer:state.environmentParameters
+                sourceOffset:0u toBuffer:state.sourceMaterialParameters
+                destinationOffset:0u size:state.environmentParameters.length];
+            [sourceParametersBlit endEncoding];
+        }
+
         id<MTLComputeCommandEncoder> encoder =
             [commandBuffer computeCommandEncoder];
         if (encoder == nil) {
@@ -3876,9 +4638,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
         bridge.time = {
             1.0f / frameTimestep,
             frameTimestep,
-            0.0f,
+            request.sourceContinuationTime,
             0.0f,
         };
+        const id<MTLBuffer> materialParameters =
+            state.sourcePrestrainCount != 0u ?
+                state.sourceMaterialParameters : state.environmentParameters;
         const std::uint32_t coupledArticulatedNv =
             state.requiresCoupledCandidate ? request.rigid.vStride : 0u;
         state.humanEqualityDispatch.time.x = frameTimestep;
@@ -4021,6 +4786,19 @@ RuntimeDiagnostics Runtime::encodeImpl(
             environments * state.dispatch.contactPairCount;
         const NSUInteger femHumanAttachmentTotal =
             environments * state.dispatch.femHumanAttachmentCount;
+        const NSUInteger sourceTieTotal =
+            environments * state.sourceTieCount;
+        if (request.phase == EncodePhase::preDynamics &&
+            state.sourcePrestrainCount != 0u)
+            dispatchThreads("nm_source_apply_prestrain",
+                environments * state.sourcePrestrainCount, [&] {
+                    setDispatch();
+                    [encoder setBytes:&bridge length:sizeof(bridge) atIndex:1u];
+                    [encoder setBytes:&state.sourcePrestrainCount
+                        length:sizeof(state.sourcePrestrainCount) atIndex:2u];
+                    [encoder setBuffer:state.sourcePrestrain offset:0u atIndex:3u];
+                    [encoder setBuffer:materialParameters offset:0u atIndex:4u];
+                });
         const NSUInteger deformableContactHistoryTotal =
             environments * state.dispatch.deformableContactCapacity;
         const NSUInteger humanSupportTotal = environments *
@@ -4130,6 +4908,253 @@ RuntimeDiagnostics Runtime::encodeImpl(
             );
             return true;
         };
+        const auto driveSourceRigidTies = [&]() {
+            if (state.sourceTieCount == 0u &&
+                state.sourceSlidingPairCount == 0u) return;
+            dispatchThreads("nm_project_primal_free_rigid_candidate",
+                proxyTotal, [&] {
+                setDispatch();
+                [encoder setBytes:&bridge length:sizeof(bridge) atIndex:1u];
+                [encoder setBytes:&coupledArticulatedNv length:sizeof(coupledArticulatedNv) atIndex:2u];
+                [encoder setBuffer:state.rigidProxies offset:0u atIndex:3u];
+                [encoder setBuffer:currentBodies offset:0u atIndex:4u];
+                [encoder setBuffer:state.coupledGeneralizedCandidate offset:0u atIndex:5u];
+                [encoder setBuffer:state.rigidStates offset:0u atIndex:6u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:7u];
+            });
+            if (state.sourceTieCount == 0u) return;
+            dispatchThreads("nm_source_fem_rigid_tie_drive",
+                sourceTieTotal, [&] {
+                setDispatch();
+                [encoder setBytes:&state.sourceTieCount length:sizeof(state.sourceTieCount) atIndex:1u];
+                [encoder setBuffer:state.sourceFEMRigidTies offset:0u atIndex:2u];
+                [encoder setBuffer:state.rigidProxies offset:0u atIndex:3u];
+                [encoder setBuffer:state.rigidStates offset:0u atIndex:4u];
+                [encoder setBuffer:state.femAccepted offset:0u atIndex:5u];
+                [encoder setBuffer:state.femCandidate offset:0u atIndex:6u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:7u];
+                [encoder setBuffer:state.objects offset:0u atIndex:8u];
+                [encoder setBuffer:currentBodies offset:0u atIndex:9u];
+                [encoder setBytes:&bridge length:sizeof(bridge) atIndex:10u];
+            });
+        };
+        const auto materializeSourceContactGeometry = [&]() {
+            if (state.sourceSlidingPairCount == 0u) return;
+            dispatchThreads("nm_source_contact_materialize_nodes",
+                environments * state.sourceContactNodeCount, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.sourceContactNodeCount
+                        length:sizeof(state.sourceContactNodeCount) atIndex:1u];
+                    [encoder setBuffer:state.sourceContactNodes offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
+                    [encoder setBuffer:state.rigidProxies offset:0u atIndex:4u];
+                    [encoder setBuffer:state.rigidStates offset:0u atIndex:5u];
+                    [encoder setBuffer:state.sourceContactPositions offset:0u atIndex:6u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:7u];
+                });
+            dispatchThreads("nm_source_contact_materialize_faces",
+                environments * state.sourceContactFaceCount, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.sourceContactNodeCount
+                        length:sizeof(state.sourceContactNodeCount) atIndex:1u];
+                    [encoder setBytes:&state.sourceContactFaceCount
+                        length:sizeof(state.sourceContactFaceCount) atIndex:2u];
+                    [encoder setBuffer:state.sourceContactFaces offset:0u atIndex:3u];
+                    [encoder setBuffer:state.sourceContactPositions offset:0u atIndex:4u];
+                    [encoder setBuffer:state.sourceContactFaceGeometry offset:0u atIndex:5u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:6u];
+                });
+            for (const auto [first, count] : state.sourceContactBVHLevels) {
+                const std::array<std::uint32_t, 2u> level{first, count};
+                dispatchThreads("nm_source_contact_refit_bvh",
+                    environments * count, [&] {
+                        setDispatch();
+                        [encoder setBytes:&state.sourceContactBVHNodeCount
+                            length:sizeof(state.sourceContactBVHNodeCount) atIndex:1u];
+                        [encoder setBytes:level.data() length:sizeof(level) atIndex:2u];
+                        [encoder setBytes:&state.sourceContactNodeCount
+                            length:sizeof(state.sourceContactNodeCount) atIndex:3u];
+                        [encoder setBytes:&state.sourceContactMaximumSearchTolerance
+                            length:sizeof(state.sourceContactMaximumSearchTolerance)
+                            atIndex:4u];
+                        [encoder setBuffer:state.sourceContactBVHNodes
+                            offset:0u atIndex:5u];
+                        [encoder setBuffer:state.sourceContactFaces
+                            offset:0u atIndex:6u];
+                        [encoder setBuffer:state.sourceContactPositions
+                            offset:0u atIndex:7u];
+                        [encoder setBuffer:state.sourceContactBVHBounds
+                            offset:0u atIndex:8u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:9u];
+                    });
+            }
+            for (const auto& pass : state.sourceContactPasses) {
+                dispatchThreads("nm_source_contact_project_pass",
+                    environments * 3u * pass.identity.w, [&] {
+                        setDispatch();
+                        [encoder setBytes:&state.sourceContactNodeCount
+                            length:sizeof(state.sourceContactNodeCount) atIndex:1u];
+                        [encoder setBytes:&state.sourceContactBVHNodeCount
+                            length:sizeof(state.sourceContactBVHNodeCount) atIndex:2u];
+                        [encoder setBytes:&state.sourceContactFaceCount
+                            length:sizeof(state.sourceContactFaceCount) atIndex:3u];
+                        [encoder setBytes:&state.sourceContactProjectionCount
+                            length:sizeof(state.sourceContactProjectionCount) atIndex:4u];
+                        [encoder setBytes:&pass length:sizeof(pass) atIndex:5u];
+                        [encoder setBuffer:state.sourceContactBVHNodes
+                            offset:0u atIndex:6u];
+                        [encoder setBuffer:state.sourceContactBVHBounds
+                            offset:0u atIndex:7u];
+                        [encoder setBuffer:state.sourceContactFaces
+                            offset:0u atIndex:8u];
+                        [encoder setBuffer:state.sourceContactPositions
+                            offset:0u atIndex:9u];
+                        [encoder setBuffer:state.sourceContactFaceGeometry
+                            offset:0u atIndex:10u];
+                        [encoder setBuffer:state.sourceContactProjections
+                            offset:0u atIndex:11u];
+                        [encoder setBuffer:state.sourceContactHistoryAccepted
+                            offset:0u atIndex:12u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:13u];
+                    });
+            }
+            const NSUInteger contactNodeTotal =
+                environments * state.sourceContactNodeCount;
+            const NSUInteger contactPointTotal =
+                environments * state.sourceContactProjectionCount;
+            dispatchThreads("nm_source_contact_clear_incidence",
+                contactNodeTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.sourceContactNodeCount
+                        length:sizeof(state.sourceContactNodeCount) atIndex:1u];
+                    [encoder setBuffer:state.sourceContactIncidenceCounts
+                        offset:0u atIndex:2u];
+                    [encoder setBuffer:state.sourceContactIncidenceCursors
+                        offset:0u atIndex:3u];
+                    [encoder setBuffer:state.sourceContactNodeForces
+                        offset:0u atIndex:4u];
+                });
+            dispatchThreads("nm_source_contact_count_incidence",
+                contactPointTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.sourceContactNodeCount
+                        length:sizeof(state.sourceContactNodeCount) atIndex:1u];
+                    [encoder setBytes:&state.sourceContactProjectionCount
+                        length:sizeof(state.sourceContactProjectionCount) atIndex:2u];
+                    [encoder setBuffer:state.sourceContactProjections
+                        offset:0u atIndex:3u];
+                    [encoder setBuffer:state.sourceContactFaces
+                        offset:0u atIndex:4u];
+                    [encoder setBuffer:state.sourceContactIncidenceCounts
+                        offset:0u atIndex:5u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:6u];
+                });
+            dispatchThreads("nm_source_contact_scan_incidence",
+                environments, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.sourceContactNodeCount
+                        length:sizeof(state.sourceContactNodeCount) atIndex:1u];
+                    [encoder setBytes:&state.sourceContactProjectionCount
+                        length:sizeof(state.sourceContactProjectionCount) atIndex:2u];
+                    [encoder setBuffer:state.sourceContactIncidenceCounts
+                        offset:0u atIndex:3u];
+                    [encoder setBuffer:state.sourceContactIncidenceRanges
+                        offset:0u atIndex:4u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:5u];
+                });
+            dispatchThreads("nm_source_contact_scatter_incidence",
+                contactPointTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.sourceContactNodeCount
+                        length:sizeof(state.sourceContactNodeCount) atIndex:1u];
+                    [encoder setBytes:&state.sourceContactProjectionCount
+                        length:sizeof(state.sourceContactProjectionCount) atIndex:2u];
+                    [encoder setBuffer:state.sourceContactProjections
+                        offset:0u atIndex:3u];
+                    [encoder setBuffer:state.sourceContactFaces
+                        offset:0u atIndex:4u];
+                    [encoder setBuffer:state.sourceContactIncidenceRanges
+                        offset:0u atIndex:5u];
+                    [encoder setBuffer:state.sourceContactIncidenceCursors
+                        offset:0u atIndex:6u];
+                    [encoder setBuffer:state.sourceContactIncidence
+                        offset:0u atIndex:7u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:8u];
+                });
+            dispatchThreads("nm_source_contact_sort_incidence",
+                contactNodeTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.sourceContactNodeCount
+                        length:sizeof(state.sourceContactNodeCount) atIndex:1u];
+                    [encoder setBuffer:state.sourceContactIncidenceRanges
+                        offset:0u atIndex:2u];
+                    [encoder setBuffer:state.sourceContactIncidence
+                        offset:0u atIndex:3u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:4u];
+                });
+            dispatchThreads("nm_source_contact_gather_forces",
+                contactNodeTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.sourceContactNodeCount
+                        length:sizeof(state.sourceContactNodeCount) atIndex:1u];
+                    [encoder setBytes:&state.sourceContactProjectionCount
+                        length:sizeof(state.sourceContactProjectionCount) atIndex:2u];
+                    [encoder setBuffer:state.sourceContactProjections
+                        offset:0u atIndex:3u];
+                    [encoder setBuffer:state.sourceContactFaces
+                        offset:0u atIndex:4u];
+                    [encoder setBuffer:state.sourceSlidingPairs
+                        offset:0u atIndex:5u];
+                    [encoder setBuffer:state.sourceContactIncidenceRanges
+                        offset:0u atIndex:6u];
+                    [encoder setBuffer:state.sourceContactIncidence
+                        offset:0u atIndex:7u];
+                    [encoder setBuffer:state.sourceContactNodeForces
+                        offset:0u atIndex:8u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:9u];
+                });
+        };
+        const auto assembleSourceContactFEMResidual = [&]() {
+            if (state.sourceSlidingPairCount == 0u) return;
+            dispatchThreads("nm_source_contact_fem_residual",
+                environments * state.sourceContactNodeCount, [&] {
+                    setDispatch();
+                    [encoder setBytes:&bridge length:sizeof(bridge) atIndex:1u];
+                    [encoder setBytes:&state.sourceContactNodeCount
+                        length:sizeof(state.sourceContactNodeCount) atIndex:2u];
+                    [encoder setBuffer:state.sourceContactNodes
+                        offset:0u atIndex:3u];
+                    [encoder setBuffer:state.sourceContactNodeForces
+                        offset:0u atIndex:4u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:5u];
+                    [encoder setBuffer:state.femResidual offset:0u atIndex:6u];
+                    [encoder setBuffer:state.femConstraintReactions
+                        offset:0u atIndex:7u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:8u];
+                });
+        };
+        const auto assembleSourceContactRigidResidual = [&]() {
+            if (state.sourceSlidingPairCount == 0u) return;
+            dispatchThreads("nm_source_contact_rigid_residual",
+                environments * state.dispatch.rigidGeneralizedCapacity, [&] {
+                    setDispatch();
+                    [encoder setBytes:&bridge length:sizeof(bridge) atIndex:1u];
+                    [encoder setBytes:&coupledArticulatedNv
+                        length:sizeof(coupledArticulatedNv) atIndex:2u];
+                    [encoder setBytes:&state.sourceContactNodeCount
+                        length:sizeof(state.sourceContactNodeCount) atIndex:3u];
+                    [encoder setBuffer:state.sourceContactNodes
+                        offset:0u atIndex:4u];
+                    [encoder setBuffer:state.sourceContactPositions
+                        offset:0u atIndex:5u];
+                    [encoder setBuffer:state.sourceContactNodeForces
+                        offset:0u atIndex:6u];
+                    [encoder setBuffer:state.rigidProxies offset:0u atIndex:7u];
+                    [encoder setBuffer:state.rigidStates offset:0u atIndex:8u];
+                    [encoder setBuffer:state.femResidual offset:0u atIndex:9u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:10u];
+                });
+        };
         const auto captureFEMHumanAttachmentResidual = [&]() {
             dispatchThreads(
                 "nm_fem_human_attachment_capture_residual",
@@ -4159,6 +5184,72 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:11u];
                 }
             );
+        };
+        const auto assembleSourceFEMSpringResidual = [&]() {
+            if (state.sourceFEMSpringNodeCount == 0u) return;
+            dispatchThreads("nm_source_fem_spring_residual",
+                environments * state.sourceFEMSpringNodeCount, [&] {
+                setDispatch();
+                [encoder setBytes:&bridge length:sizeof(bridge) atIndex:1u];
+                [encoder setBytes:&state.sourceFEMSpringNodeCount
+                           length:sizeof(state.sourceFEMSpringNodeCount) atIndex:2u];
+                [encoder setBuffer:state.sourceFEMSpringNodes offset:0u atIndex:3u];
+                [encoder setBuffer:state.sourceFEMSpringIncidence offset:0u atIndex:4u];
+                [encoder setBuffer:state.sourceFEMSprings offset:0u atIndex:5u];
+                [encoder setBuffer:state.femCandidate offset:0u atIndex:6u];
+                [encoder setBuffer:state.femResidual offset:0u atIndex:7u];
+                [encoder setBuffer:state.femConstraintReactions offset:0u atIndex:8u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:9u];
+            });
+        };
+        const auto assembleSourceFEMSpringOperator =
+            [&](NSUInteger directionOffset) {
+            if (state.sourceFEMSpringNodeCount == 0u) return;
+            dispatchThreads("nm_source_fem_spring_operator",
+                environments * state.sourceFEMSpringNodeCount, [&] {
+                setDispatch();
+                [encoder setBytes:&bridge length:sizeof(bridge) atIndex:1u];
+                [encoder setBytes:&state.sourceFEMSpringNodeCount
+                           length:sizeof(state.sourceFEMSpringNodeCount) atIndex:2u];
+                [encoder setBuffer:state.sourceFEMSpringNodes offset:0u atIndex:3u];
+                [encoder setBuffer:state.sourceFEMSpringIncidence offset:0u atIndex:4u];
+                [encoder setBuffer:state.sourceFEMSprings offset:0u atIndex:5u];
+                [encoder setBuffer:state.femCandidate offset:0u atIndex:6u];
+                [encoder setBuffer:state.fgmresPreconditionedBasis
+                             offset:directionOffset atIndex:7u];
+                [encoder setBuffer:state.femOperatorValue offset:0u atIndex:8u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:9u];
+            });
+        };
+        const auto captureSourceRigidTieResidual = [&]() {
+            if (state.sourceTieCount == 0u) return;
+            dispatchThreads("nm_source_fem_rigid_tie_capture_residual",
+                sourceTieTotal, [&] {
+                setDispatch();
+                [encoder setBytes:&state.sourceTieCount length:sizeof(state.sourceTieCount) atIndex:1u];
+                [encoder setBuffer:state.sourceFEMRigidTies offset:0u atIndex:2u];
+                [encoder setBuffer:state.femResidual offset:0u atIndex:3u];
+                [encoder setBuffer:state.femPreconditioned offset:0u atIndex:4u];
+                [encoder setBuffer:state.femDirection offset:0u atIndex:5u];
+                [encoder setBuffer:state.sourceTieResidualImpulses offset:0u atIndex:6u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:7u];
+                [encoder setBuffer:state.sourceTieDiagnosticImpulses offset:0u atIndex:8u];
+            });
+        };
+        const auto scatterSourceRigidTieResidual = [&]() {
+            if (state.sourceTieCount == 0u) return;
+            dispatchThreads("nm_source_fem_rigid_tie_scatter_residual",
+                environments * state.dispatch.rigidGeneralizedCapacity, [&] {
+                setDispatch();
+                [encoder setBytes:&coupledArticulatedNv length:sizeof(coupledArticulatedNv) atIndex:1u];
+                [encoder setBytes:&state.sourceTieCount length:sizeof(state.sourceTieCount) atIndex:2u];
+                [encoder setBuffer:state.sourceFEMRigidTies offset:0u atIndex:3u];
+                [encoder setBuffer:state.rigidProxies offset:0u atIndex:4u];
+                [encoder setBuffer:state.rigidStates offset:0u atIndex:5u];
+                [encoder setBuffer:state.sourceTieResidualImpulses offset:0u atIndex:6u];
+                [encoder setBuffer:state.femResidual offset:0u atIndex:7u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:8u];
+            });
         };
         const auto scatterFEMHumanAttachmentResidual = [&]() {
             dispatchThreads(
@@ -4320,6 +5411,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.contactHistoriesAccepted offset:0u atIndex:2u];
                 [encoder setBuffer:state.contactHistoriesCheckpoint offset:0u atIndex:3u];
             });
+            if (state.sourceContactProjectionCount != 0u)
+                dispatchThreads("nm_source_contact_rollback_history",
+                    environments * state.sourceContactProjectionCount, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.sourceContactProjectionCount
+                        length:sizeof(state.sourceContactProjectionCount) atIndex:1u];
+                    [encoder setBuffer:state.sourceContactHistoryCheckpoint offset:0u atIndex:2u];
+                    [encoder setBuffer:state.sourceContactHistoryAccepted offset:0u atIndex:3u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:4u];
+                });
             dispatchThreads("nm_human_support_rollback", humanSupportTotal, [&] {
                 setDispatch();
                 [encoder setBytes:&state.humanSupportDispatch.contactCount
@@ -4498,6 +5599,15 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:3u];
                 }
             );
+            if (state.sourceTieCount != 0u) {
+                dispatchThreads("nm_source_fem_rigid_tie_mask",
+                    sourceTieTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.sourceTieCount length:sizeof(state.sourceTieCount) atIndex:1u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:2u];
+                    [encoder setBuffer:state.sourceTieResidualImpulses offset:0u atIndex:3u];
+                });
+            }
 
             [encoder endEncoding];
             ownership->preDynamicsOpen = false;
@@ -4792,6 +5902,15 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.contactHistoriesCandidate offset:0u atIndex:2u];
                 [encoder setBuffer:state.contactHistoriesCheckpoint offset:0u atIndex:3u];
             });
+            if (state.sourceContactProjectionCount != 0u)
+                dispatchThreads("nm_source_contact_checkpoint_history",
+                    environments * state.sourceContactProjectionCount, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.sourceContactProjectionCount
+                        length:sizeof(state.sourceContactProjectionCount) atIndex:1u];
+                    [encoder setBuffer:state.sourceContactHistoryAccepted offset:0u atIndex:2u];
+                    [encoder setBuffer:state.sourceContactHistoryCheckpoint offset:0u atIndex:3u];
+                });
             dispatchThreads(
                 "nm_contact_checkpoint_deformable_contact_histories",
                 deformableContactHistoryTotal,
@@ -5271,7 +6390,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.materials offset:0u atIndex:3u];
                         [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
                         [encoder setBuffer:state.instructions offset:0u atIndex:5u];
-                        [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
+                        [encoder setBuffer:materialParameters offset:0u atIndex:6u];
                         [encoder setBuffer:state.particleAccepted offset:0u atIndex:7u];
                         [encoder setBuffer:state.particleMaterialStateAccepted offset:0u atIndex:8u];
                         [encoder setBuffer:state.gridNodes offset:0u atIndex:9u];
@@ -6017,6 +7136,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 ownership->preDynamicsOpen = false;
                 return diagnostics;
             }
+            driveSourceRigidTies();
+            materializeSourceContactGeometry();
             // Reassemble the backward-Euler field residual at this Newton
             // candidate. These kernels no longer iterate or publish a field
             // solution; they provide the field residual and block diagonal to
@@ -6079,7 +7200,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.materials offset:0u atIndex:3u];
                 [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
                 [encoder setBuffer:state.instructions offset:0u atIndex:5u];
-                [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
+                [encoder setBuffer:materialParameters offset:0u atIndex:6u];
                 [encoder setBuffer:state.femCandidate offset:0u atIndex:7u];
                 [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:8u];
                 [encoder setBuffer:state.femMaterialStateAccepted offset:0u atIndex:9u];
@@ -6136,6 +7257,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.femConstraintReactions
                             offset:0u atIndex:23u];
             });
+            assembleSourceFEMSpringResidual();
+            assembleSourceContactFEMResidual();
             dispatchThreads("nm_fgmres_clear_rigid_residual",
                 rigidGeneralizedTotalForResidual, [&] {
                 setDispatch();
@@ -6158,6 +7281,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 return diagnostics;
             }
             captureFEMHumanAttachmentResidual();
+            captureSourceRigidTieResidual();
             dispatchThreads("nm_contact_subtract_rigid_inertia_residual",
                 rigidGeneralizedTotalForResidual, [&] {
                 setDispatch();
@@ -6180,6 +7304,24 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.coupledPointJacobians
                              offset:0u atIndex:4u];
             });
+            assembleSourceContactRigidResidual();
+            if (state.sourceJointCount + state.sourceSpringCount != 0u) {
+                dispatchThreads("nm_source_rigid_connector_residual",
+                    rigidGeneralizedTotalForResidual, [&] {
+                    setDispatch();
+                    [encoder setBytes:&bridge length:sizeof(bridge) atIndex:1u];
+                    [encoder setBytes:&coupledArticulatedNv length:sizeof(coupledArticulatedNv) atIndex:2u];
+                    [encoder setBytes:&state.sourceJointCount length:sizeof(state.sourceJointCount) atIndex:3u];
+                    [encoder setBytes:&state.sourceSpringCount length:sizeof(state.sourceSpringCount) atIndex:4u];
+                    [encoder setBuffer:state.sourceCylindricalJoints offset:0u atIndex:5u];
+                    [encoder setBuffer:state.sourceRigidSprings offset:0u atIndex:6u];
+                    [encoder setBuffer:state.rigidProxies offset:0u atIndex:7u];
+                    [encoder setBuffer:state.rigidStates offset:0u atIndex:8u];
+                    [encoder setBuffer:state.femResidual offset:0u atIndex:9u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:10u];
+                });
+            }
+            scatterSourceRigidTieResidual();
             dispatchThreads("nm_human_support_accumulate_rigid_residual",
                 rigidGeneralizedTotalForResidual, [&] {
                 setDispatch();
@@ -6241,7 +7383,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.materials offset:0u atIndex:3u];
                         [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
                         [encoder setBuffer:state.instructions offset:0u atIndex:5u];
-                        [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
+                        [encoder setBuffer:materialParameters offset:0u atIndex:6u];
                         [encoder setBuffer:state.particleAccepted offset:0u atIndex:7u];
                         [encoder setBuffer:state.particleMaterialStateAccepted offset:0u atIndex:8u];
                         [encoder setBuffer:state.gridNodes offset:0u atIndex:9u];
@@ -6361,6 +7503,26 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.femPreconditioned offset:0u atIndex:9u];
                 bindPrimalContactArguments(10u);
             });
+            if (state.sourceSlidingPairCount != 0u) {
+                dispatchThreads("nm_source_contact_precondition_fem",
+                    environments * state.sourceContactNodeCount, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.sourceContactNodeCount
+                        length:sizeof(state.sourceContactNodeCount) atIndex:1u];
+                    [encoder setBytes:&state.sourceContactProjectionCount
+                        length:sizeof(state.sourceContactProjectionCount) atIndex:2u];
+                    [encoder setBytes:&bridge.time.y length:sizeof(bridge.time.y)
+                        atIndex:3u];
+                    [encoder setBuffer:state.sourceContactNodes offset:0u atIndex:4u];
+                    [encoder setBuffer:state.sourceContactProjections offset:0u atIndex:5u];
+                    [encoder setBuffer:state.sourceContactFaces offset:0u atIndex:6u];
+                    [encoder setBuffer:state.sourceSlidingPairs offset:0u atIndex:7u];
+                    [encoder setBuffer:state.sourceContactIncidenceRanges offset:0u atIndex:8u];
+                    [encoder setBuffer:state.sourceContactIncidence offset:0u atIndex:9u];
+                    [encoder setBuffer:state.femPreconditioned offset:0u atIndex:10u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:11u];
+                });
+            }
             for (std::uint32_t column = 0u; column < columnsThisCycle; ++column) {
                 const NSUInteger columnOffset = vectorBytes * column;
                 dispatchThreads("nm_fgmres_precondition", femNodeTotal, [&] {
@@ -6668,6 +7830,31 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     bindPrimalContactArguments(4u);
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:5u];
                 });
+                if (state.sourceJointCount + state.sourceSpringCount != 0u) {
+                    dispatchThreads("nm_source_rigid_precondition",
+                        rigidGeneralizedTotal, [&] {
+                        setDispatch();
+                        [encoder setBytes:&bridge length:sizeof(bridge) atIndex:1u];
+                        [encoder setBytes:&coupledArticulatedNv
+                            length:sizeof(coupledArticulatedNv) atIndex:2u];
+                        [encoder setBytes:&state.sourceJointCount
+                            length:sizeof(state.sourceJointCount) atIndex:3u];
+                        [encoder setBytes:&state.sourceSpringCount
+                            length:sizeof(state.sourceSpringCount) atIndex:4u];
+                        [encoder setBuffer:state.sourceCylindricalJoints
+                            offset:0u atIndex:5u];
+                        [encoder setBuffer:state.sourceRigidSprings
+                            offset:0u atIndex:6u];
+                        [encoder setBuffer:state.rigidProxies offset:0u atIndex:7u];
+                        [encoder setBuffer:state.rigidStates offset:0u atIndex:8u];
+                        [encoder setBuffer:state.fgmresBasis
+                            offset:columnOffset atIndex:9u];
+                        [encoder setBuffer:state.fgmresPreconditionedBasis
+                            offset:columnOffset atIndex:10u];
+                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:11u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:12u];
+                    });
+                }
                 dispatchThreads(
                     "nm_fem_human_attachment_map_direction",
                     femHumanAttachmentTotal,
@@ -6687,6 +7874,19 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:5u];
                     }
                 );
+                if (state.sourceTieCount != 0u) {
+                    dispatchThreads("nm_source_fem_rigid_tie_map_direction",
+                        sourceTieTotal, [&] {
+                        setDispatch();
+                        [encoder setBytes:&coupledArticulatedNv length:sizeof(coupledArticulatedNv) atIndex:1u];
+                        [encoder setBytes:&state.sourceTieCount length:sizeof(state.sourceTieCount) atIndex:2u];
+                        [encoder setBuffer:state.sourceFEMRigidTies offset:0u atIndex:3u];
+                        [encoder setBuffer:state.rigidProxies offset:0u atIndex:4u];
+                        [encoder setBuffer:state.rigidStates offset:0u atIndex:5u];
+                        [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:6u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:7u];
+                    });
+                }
                 dispatchThreads("nm_fem_apply_operator_elements", tetrahedronTotal, [&] {
                     setDispatch();
                     [encoder setBytes:&operatorMicro length:sizeof(operatorMicro) atIndex:1u];
@@ -6694,7 +7894,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.materials offset:0u atIndex:3u];
                     [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
                     [encoder setBuffer:state.instructions offset:0u atIndex:5u];
-                    [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
+                    [encoder setBuffer:materialParameters offset:0u atIndex:6u];
                     [encoder setBuffer:state.femCandidate offset:0u atIndex:7u];
                     [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:8u];
                     [encoder setBuffer:state.femMaterialStateAccepted offset:0u atIndex:9u];
@@ -6734,6 +7934,40 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.coupledPointJacobians
                                  offset:0u atIndex:15u];
                 });
+                assembleSourceFEMSpringOperator(columnOffset);
+                if (state.sourceContactProjectionCount != 0u) {
+                    dispatchThreads("nm_source_contact_gather_operator",
+                        environments * state.sourceContactNodeCount, [&] {
+                        setDispatch();
+                        [encoder setBytes:&coupledArticulatedNv length:sizeof(coupledArticulatedNv) atIndex:1u];
+                        [encoder setBytes:&state.sourceContactNodeCount length:sizeof(state.sourceContactNodeCount) atIndex:2u];
+                        [encoder setBytes:&state.sourceContactProjectionCount length:sizeof(state.sourceContactProjectionCount) atIndex:3u];
+                        [encoder setBuffer:state.sourceContactNodes offset:0u atIndex:4u];
+                        [encoder setBuffer:state.sourceContactProjections offset:0u atIndex:5u];
+                        [encoder setBuffer:state.sourceContactFaces offset:0u atIndex:6u];
+                        [encoder setBuffer:state.sourceSlidingPairs offset:0u atIndex:7u];
+                        [encoder setBuffer:state.sourceContactIncidenceRanges offset:0u atIndex:8u];
+                        [encoder setBuffer:state.sourceContactIncidence offset:0u atIndex:9u];
+                        [encoder setBuffer:state.sourceContactPositions offset:0u atIndex:10u];
+                        [encoder setBuffer:state.rigidProxies offset:0u atIndex:11u];
+                        [encoder setBuffer:state.rigidStates offset:0u atIndex:12u];
+                        [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:13u];
+                        [encoder setBuffer:state.sourceContactNodeDerivatives offset:0u atIndex:14u];
+                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:15u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:16u];
+                    });
+                    dispatchThreads("nm_source_contact_fem_operator",
+                        environments * state.sourceContactNodeCount, [&] {
+                        setDispatch();
+                        [encoder setBytes:&bridge length:sizeof(bridge) atIndex:1u];
+                        [encoder setBytes:&state.sourceContactNodeCount length:sizeof(state.sourceContactNodeCount) atIndex:2u];
+                        [encoder setBuffer:state.sourceContactNodes offset:0u atIndex:3u];
+                        [encoder setBuffer:state.sourceContactNodeDerivatives offset:0u atIndex:4u];
+                        [encoder setBuffer:state.femCandidate offset:0u atIndex:5u];
+                        [encoder setBuffer:state.femOperatorValue offset:0u atIndex:6u];
+                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:7u];
+                    });
+                }
                 // Include cavity traction before attachment capture, so the
                 // existing scatter applies its single work-conjugate J^T.
                 if (hasVascularCavities) {
@@ -6769,6 +8003,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:3u];
                     }
                 );
+                if (state.sourceTieCount != 0u) {
+                    dispatchThreads("nm_source_fem_rigid_tie_capture_operator",
+                        sourceTieTotal, [&] {
+                        setDispatch();
+                        [encoder setBytes:&state.sourceTieCount length:sizeof(state.sourceTieCount) atIndex:1u];
+                        [encoder setBuffer:state.sourceFEMRigidTies offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femOperatorValue offset:0u atIndex:3u];
+                        [encoder setBuffer:state.sourceTieOperator offset:0u atIndex:4u];
+                    });
+                }
                 const NSUInteger fieldVectorOffset =
                     columnOffset + femNodeTotal * sizeof(nm_float4);
                 const NSUInteger fieldWorkOffset =
@@ -6832,7 +8076,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             [encoder setBuffer:state.materials offset:0u atIndex:3u];
                             [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
                             [encoder setBuffer:state.instructions offset:0u atIndex:5u];
-                            [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
+                            [encoder setBuffer:materialParameters offset:0u atIndex:6u];
                             [encoder setBuffer:state.particleAccepted offset:0u atIndex:7u];
                             [encoder setBuffer:state.particleMaterialStateAccepted offset:0u atIndex:8u];
                             [encoder setBuffer:state.gridNodes offset:0u atIndex:9u];
@@ -6952,6 +8196,43 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.coupledPointJacobians
                                  offset:0u atIndex:6u];
                 });
+                if (state.sourceJointCount + state.sourceSpringCount != 0u) {
+                    dispatchThreads("nm_source_rigid_connector_operator",
+                        rigidGeneralizedTotal, [&] {
+                        setDispatch();
+                        [encoder setBytes:&bridge length:sizeof(bridge) atIndex:1u];
+                        [encoder setBytes:&coupledArticulatedNv length:sizeof(coupledArticulatedNv) atIndex:2u];
+                        [encoder setBytes:&state.sourceJointCount length:sizeof(state.sourceJointCount) atIndex:3u];
+                        [encoder setBytes:&state.sourceSpringCount length:sizeof(state.sourceSpringCount) atIndex:4u];
+                        [encoder setBuffer:state.sourceCylindricalJoints offset:0u atIndex:5u];
+                        [encoder setBuffer:state.sourceRigidSprings offset:0u atIndex:6u];
+                        [encoder setBuffer:state.rigidProxies offset:0u atIndex:7u];
+                        [encoder setBuffer:state.rigidStates offset:0u atIndex:8u];
+                        [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:9u];
+                        [encoder setBuffer:state.femOperatorValue offset:0u atIndex:10u];
+                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:11u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:12u];
+                    });
+                }
+                if (state.sourceContactProjectionCount != 0u) {
+                    dispatchThreads("nm_source_contact_rigid_operator",
+                        rigidGeneralizedTotal, [&] {
+                        setDispatch();
+                        [encoder setBytes:&bridge length:sizeof(bridge) atIndex:1u];
+                        [encoder setBytes:&coupledArticulatedNv length:sizeof(coupledArticulatedNv) atIndex:2u];
+                        [encoder setBytes:&state.sourceContactNodeCount length:sizeof(state.sourceContactNodeCount) atIndex:3u];
+                        [encoder setBuffer:state.sourceContactNodes offset:0u atIndex:4u];
+                        [encoder setBuffer:state.sourceContactPositions offset:0u atIndex:5u];
+                        [encoder setBuffer:state.sourceContactNodeForces offset:0u atIndex:6u];
+                        [encoder setBuffer:state.sourceContactNodeDerivatives offset:0u atIndex:7u];
+                        [encoder setBuffer:state.rigidProxies offset:0u atIndex:8u];
+                        [encoder setBuffer:state.rigidStates offset:0u atIndex:9u];
+                        [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:10u];
+                        [encoder setBuffer:state.femOperatorValue offset:0u atIndex:11u];
+                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:12u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:13u];
+                    });
+                }
                 dispatchThreads("nm_fgmres_apply_human_support",
                     rigidGeneralizedTotal, [&] {
                     setDispatch();
@@ -7028,6 +8309,19 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:5u];
                     }
                 );
+                if (state.sourceTieCount != 0u) {
+                    dispatchThreads("nm_source_fem_rigid_tie_scatter_operator",
+                        rigidGeneralizedTotal, [&] {
+                        setDispatch();
+                        [encoder setBytes:&coupledArticulatedNv length:sizeof(coupledArticulatedNv) atIndex:1u];
+                        [encoder setBytes:&state.sourceTieCount length:sizeof(state.sourceTieCount) atIndex:2u];
+                        [encoder setBuffer:state.sourceFEMRigidTies offset:0u atIndex:3u];
+                        [encoder setBuffer:state.rigidProxies offset:0u atIndex:4u];
+                        [encoder setBuffer:state.rigidStates offset:0u atIndex:5u];
+                        [encoder setBuffer:state.sourceTieOperator offset:0u atIndex:6u];
+                        [encoder setBuffer:state.femOperatorValue offset:0u atIndex:7u];
+                    });
+                }
                 dispatchThreads(
                     "nm_fem_human_attachment_eliminate_direction",
                     femHumanAttachmentTotal,
@@ -7039,6 +8333,15 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:columnOffset atIndex:2u];
                     }
                 );
+                if (state.sourceTieCount != 0u) {
+                    dispatchThreads("nm_source_fem_rigid_tie_eliminate_direction",
+                        sourceTieTotal, [&] {
+                        setDispatch();
+                        [encoder setBytes:&state.sourceTieCount length:sizeof(state.sourceTieCount) atIndex:1u];
+                        [encoder setBuffer:state.sourceFEMRigidTies offset:0u atIndex:2u];
+                        [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:3u];
+                    });
+                }
                 dispatchGroups32(
                     "nm_fgmres_orthogonalize_and_finish_column",
                     environments,
@@ -7257,6 +8560,19 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:5u];
                 }
             );
+            if (state.sourceTieCount != 0u) {
+                dispatchThreads("nm_source_fem_rigid_tie_map_direction",
+                    sourceTieTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&coupledArticulatedNv length:sizeof(coupledArticulatedNv) atIndex:1u];
+                    [encoder setBytes:&state.sourceTieCount length:sizeof(state.sourceTieCount) atIndex:2u];
+                    [encoder setBuffer:state.sourceFEMRigidTies offset:0u atIndex:3u];
+                    [encoder setBuffer:state.rigidProxies offset:0u atIndex:4u];
+                    [encoder setBuffer:state.rigidStates offset:0u atIndex:5u];
+                    [encoder setBuffer:state.femSolution offset:0u atIndex:6u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:7u];
+                });
+            }
 
             micro.solverIteration = nonlinearIteration;
             dispatchThreads("nm_fem_select_backtracking", objectTotal, [&] {
@@ -7287,7 +8603,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.materials offset:0u atIndex:4u];
                     [encoder setBuffer:state.scalarPrograms offset:0u atIndex:5u];
                     [encoder setBuffer:state.instructions offset:0u atIndex:6u];
-                    [encoder setBuffer:state.environmentParameters offset:0u atIndex:7u];
+                    [encoder setBuffer:materialParameters offset:0u atIndex:7u];
                     [encoder setBuffer:state.particleAccepted offset:0u atIndex:8u];
                     [encoder setBuffer:state.particleMaterialStateAccepted offset:0u atIndex:9u];
                     [encoder setBuffer:state.gridNodes offset:0u atIndex:10u];
@@ -7544,6 +8860,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 ownership->preDynamicsOpen = false;
                 return diagnostics;
             }
+            driveSourceRigidTies();
+            materializeSourceContactGeometry();
             dispatchThreads("nm_mixed_prepare_residual", femNodeTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.objects offset:0u atIndex:1u];
@@ -7599,7 +8917,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.materials offset:0u atIndex:3u];
                 [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
                 [encoder setBuffer:state.instructions offset:0u atIndex:5u];
-                [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
+                [encoder setBuffer:materialParameters offset:0u atIndex:6u];
                 [encoder setBuffer:state.femCandidate offset:0u atIndex:7u];
                 [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:8u];
                 [encoder setBuffer:state.femMaterialStateAccepted offset:0u atIndex:9u];
@@ -7646,6 +8964,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.femConstraintReactions
                             offset:0u atIndex:23u];
             });
+            assembleSourceFEMSpringResidual();
+            assembleSourceContactFEMResidual();
             if (!encodeCoupledPrimalContact(
                     true,
                     state.contactHistoriesCandidate,
@@ -7656,6 +8976,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 return diagnostics;
             }
             captureFEMHumanAttachmentResidual();
+            captureSourceRigidTieResidual();
             // Candidate contact materialization also refreshes articulated
             // mass action. Rebuild the shared rigid rows after that final
             // contact pass so certification observes the accepted rigid,
@@ -7684,9 +9005,27 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                length:sizeof(coupledArticulatedNv) atIndex:1u];
                     bindPrimalContactArguments(2u);
                     [encoder setBuffer:state.femResidual offset:0u atIndex:3u];
-                    [encoder setBuffer:state.coupledPointJacobians
-                                 offset:0u atIndex:4u];
+                [encoder setBuffer:state.coupledPointJacobians
+                             offset:0u atIndex:4u];
+            });
+            assembleSourceContactRigidResidual();
+            if (state.sourceJointCount + state.sourceSpringCount != 0u) {
+                dispatchThreads("nm_source_rigid_connector_residual",
+                    rigidGeneralizedTotalForResidual, [&] {
+                    setDispatch();
+                    [encoder setBytes:&bridge length:sizeof(bridge) atIndex:1u];
+                    [encoder setBytes:&coupledArticulatedNv length:sizeof(coupledArticulatedNv) atIndex:2u];
+                    [encoder setBytes:&state.sourceJointCount length:sizeof(state.sourceJointCount) atIndex:3u];
+                    [encoder setBytes:&state.sourceSpringCount length:sizeof(state.sourceSpringCount) atIndex:4u];
+                    [encoder setBuffer:state.sourceCylindricalJoints offset:0u atIndex:5u];
+                    [encoder setBuffer:state.sourceRigidSprings offset:0u atIndex:6u];
+                    [encoder setBuffer:state.rigidProxies offset:0u atIndex:7u];
+                    [encoder setBuffer:state.rigidStates offset:0u atIndex:8u];
+                    [encoder setBuffer:state.femResidual offset:0u atIndex:9u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:10u];
                 });
+            }
+            scatterSourceRigidTieResidual();
             dispatchThreads("nm_human_support_accumulate_rigid_residual",
                 rigidGeneralizedTotalForResidual, [&] {
                 setDispatch();
@@ -7752,7 +9091,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.materials offset:0u atIndex:3u];
                         [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
                         [encoder setBuffer:state.instructions offset:0u atIndex:5u];
-                        [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
+                        [encoder setBuffer:materialParameters offset:0u atIndex:6u];
                         [encoder setBuffer:state.particleAccepted offset:0u atIndex:7u];
                         [encoder setBuffer:state.particleMaterialStateAccepted offset:0u atIndex:8u];
                         [encoder setBuffer:state.gridNodes offset:0u atIndex:9u];
@@ -7815,7 +9154,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.materials offset:0u atIndex:3u];
                 [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
                 [encoder setBuffer:state.instructions offset:0u atIndex:5u];
-                [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
+                [encoder setBuffer:materialParameters offset:0u atIndex:6u];
                 [encoder setBuffer:state.particleAccepted offset:0u atIndex:7u];
                 [encoder setBuffer:state.particleCandidate offset:0u atIndex:8u];
                 [encoder setBuffer:state.particleMaterialStateAccepted offset:0u atIndex:9u];
@@ -7955,7 +9294,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.materials offset:0u atIndex:3u];
                 [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
                 [encoder setBuffer:state.instructions offset:0u atIndex:5u];
-                [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
+                [encoder setBuffer:materialParameters offset:0u atIndex:6u];
                 [encoder setBuffer:state.femCandidate offset:0u atIndex:7u];
                 [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:8u];
                 [encoder setBuffer:state.schedulers offset:0u atIndex:9u];
@@ -8037,6 +9376,15 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:3u];
                 }
             );
+            if (state.sourceTieCount != 0u) {
+                dispatchThreads("nm_source_fem_rigid_tie_mask",
+                    sourceTieTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.sourceTieCount length:sizeof(state.sourceTieCount) atIndex:1u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:2u];
+                    [encoder setBuffer:state.sourceTieResidualImpulses offset:0u atIndex:3u];
+                });
+            }
             if (state.requiresCoupledCandidate) {
                 [encoder endEncoding];
                 const CoupledCandidateQuery publishQuery{
@@ -8142,6 +9490,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.contactHistoriesAccepted offset:0u atIndex:2u];
                 [encoder setBuffer:state.contactHistoriesCandidate offset:0u atIndex:3u];
             });
+            if (state.sourceContactProjectionCount != 0u)
+                dispatchThreads("nm_source_contact_commit_history",
+                    environments * state.sourceContactProjectionCount, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.sourceContactProjectionCount
+                        length:sizeof(state.sourceContactProjectionCount) atIndex:1u];
+                    [encoder setBuffer:state.sourceContactProjections offset:0u atIndex:2u];
+                    [encoder setBuffer:state.sourceContactHistoryAccepted offset:0u atIndex:3u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:4u];
+                });
             dispatchThreads("nm_human_support_commit", humanSupportTotal, [&] {
                 setDispatch();
                 [encoder setBytes:&state.humanSupportDispatch.contactCount
@@ -8268,6 +9626,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
             [encoder setBuffer:state.contactHistoriesAccepted offset:0u atIndex:2u];
             [encoder setBuffer:state.contactHistoriesCheckpoint offset:0u atIndex:3u];
         });
+        if (state.sourceContactProjectionCount != 0u)
+            dispatchThreads("nm_source_contact_rollback_history",
+                environments * state.sourceContactProjectionCount, [&] {
+                setDispatch();
+                [encoder setBytes:&state.sourceContactProjectionCount
+                    length:sizeof(state.sourceContactProjectionCount) atIndex:1u];
+                [encoder setBuffer:state.sourceContactHistoryCheckpoint offset:0u atIndex:2u];
+                [encoder setBuffer:state.sourceContactHistoryAccepted offset:0u atIndex:3u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:4u];
+            });
         dispatchThreads("nm_human_support_rollback", humanSupportTotal, [&] {
             setDispatch();
             [encoder setBytes:&state.humanSupportDispatch.contactCount
@@ -8451,7 +9819,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
         transactionPolicyFingerprint = mixFingerprint(
             transactionPolicyFingerprint,
             ownership->identificationGeneration);
-        const std::array<std::uint64_t, 31u> transactionPolicyValues{{
+        const std::array<std::uint64_t, 32u> transactionPolicyValues{{
             request.controlStep,
             request.physicsSubstep,
             request.physicsSubsteps,
@@ -8459,6 +9827,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
             request.seed,
             std::bit_cast<std::uint32_t>(request.timestepSeconds),
             std::bit_cast<std::uint32_t>(frameTimestep),
+            std::bit_cast<std::uint32_t>(request.sourceContinuationTime),
             request.runIdentification ? 1u : 0u,
             request.runAdaptiveTransfer ? 1u : 0u,
             request.resetMaskStepStride,
@@ -8496,6 +9865,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
             transactionPolicyFingerprint = 14695981039346656037ull;
         }
         ownership->preDynamicsOpen = true;
+        ownership->sourceContinuationTime = request.sourceContinuationTime;
         ownership->dispositionIdentity = {};
         ownership->disposition = PreparedStateDisposition::unknown;
         ownership->acceptedStateProofEncoded = false;
@@ -8760,6 +10130,8 @@ bool Runtime::encodeAcceptedStateProof(
             state.learnedRevisionCheckpoint,
             state.contactHistoriesAccepted,
             state.contactHistoriesCheckpoint,
+            state.sourceContactHistoryAccepted,
+            state.sourceContactHistoryCheckpoint,
             state.humanSupportHistoriesAccepted,
             state.humanSupportHistoriesCandidate,
             state.humanSupportHistoriesCheckpoint,
@@ -8767,6 +10139,23 @@ bool Runtime::encodeAcceptedStateProof(
             state.humanSupportConsequencesCandidate,
             state.humanSupportConsequencesCheckpoint,
             state.humanEqualityRows,
+            state.sourceCylindricalJoints,
+            state.sourceRigidSprings,
+            state.sourceFEMRigidTies,
+            state.sourceFEMSprings,
+            state.sourcePrestrain,
+            state.sourceMaterialParameters,
+            state.sourceContactNodes,
+            state.sourceContactFaces,
+            state.sourceContactSurfaces,
+            state.sourceSlidingPairs,
+            state.sourceContactPositions,
+            state.sourceContactFaceGeometry,
+            state.sourceFEMSpringNodes,
+            state.sourceFEMSpringIncidence,
+            state.sourceTieResidualImpulses,
+            state.sourceTieDiagnosticImpulses,
+            state.sourceTieOperator,
             state.humanEqualityLinearization,
             state.humanEqualityFactor,
             state.humanLimitRows,
@@ -8905,7 +10294,7 @@ bool Runtime::encodeAcceptedStateProof(
         const std::uint64_t femMaterialScalars =
             static_cast<std::uint64_t>(state.dispatch.tetrahedronCount) *
             state.dispatch.materialStateStride;
-        const std::array<ProofArena, 31u> arenas{{
+        std::vector<ProofArena> arenas{
             {pass.rootTranslation, detail::AcceptedStateProofSource::humanRootTranslation,
              detail::kAcceptedStateProofTargetHuman, 0u,
              sizeof(MRCompensatedRootTranslationGPU), 0u},
@@ -9064,7 +10453,13 @@ bool Runtime::encodeAcceptedStateProof(
              detail::kAcceptedStateProofTargetMatter, 0u,
              perEnvironmentBytes(
                  state.femNodeRangeStride, sizeof(NMIncidenceRangeGPU)), 0u},
-        }};
+        };
+        if (state.sourceContactProjectionCount != 0u)
+            arenas.push_back({owned(state.sourceContactHistoryAccepted),
+                detail::AcceptedStateProofSource::matterSourceContactHistory,
+                detail::kAcceptedStateProofTargetMatter, 0u,
+                perEnvironmentBytes(state.sourceContactProjectionCount,
+                    sizeof(NMSourceContactProjectionGPU)), 0u});
         for (const ProofArena& arena : arenas) {
             __unsafe_unretained id<MTLBuffer> source =
                 (__bridge id<MTLBuffer>)arena.buffer;
@@ -9539,6 +10934,8 @@ bool Runtime::applyPreparedStateImpl(
             state.learnedRevisionCheckpoint,
             state.contactHistoriesAccepted,
             state.contactHistoriesCheckpoint,
+            state.sourceContactHistoryAccepted,
+            state.sourceContactHistoryCheckpoint,
             state.humanSupportHistoriesAccepted,
             state.humanSupportHistoriesCandidate,
             state.humanSupportHistoriesCheckpoint,
@@ -9546,6 +10943,23 @@ bool Runtime::applyPreparedStateImpl(
             state.humanSupportConsequencesCandidate,
             state.humanSupportConsequencesCheckpoint,
             state.humanEqualityRows,
+            state.sourceCylindricalJoints,
+            state.sourceRigidSprings,
+            state.sourceFEMRigidTies,
+            state.sourceFEMSprings,
+            state.sourcePrestrain,
+            state.sourceMaterialParameters,
+            state.sourceContactNodes,
+            state.sourceContactFaces,
+            state.sourceContactSurfaces,
+            state.sourceSlidingPairs,
+            state.sourceContactPositions,
+            state.sourceContactFaceGeometry,
+            state.sourceFEMSpringNodes,
+            state.sourceFEMSpringIncidence,
+            state.sourceTieResidualImpulses,
+            state.sourceTieDiagnosticImpulses,
+            state.sourceTieOperator,
             state.humanEqualityLinearization,
             state.humanEqualityFactor,
             state.humanLimitRows,
@@ -9875,6 +11289,17 @@ bool Runtime::applyPreparedStateImpl(
                 [encoder setBuffer:state.contactHistoriesAccepted offset:0u atIndex:2u];
                 [encoder setBuffer:state.contactHistoriesCheckpoint offset:0u atIndex:3u];
             });
+        if (state.sourceContactProjectionCount != 0u)
+            encoded = encoded && runtimeDispatch(
+                "nm_source_contact_rollback_history",
+                static_cast<NSUInteger>(state.dispatch.environmentCount) *
+                    state.sourceContactProjectionCount, [&] {
+                    [encoder setBytes:&state.sourceContactProjectionCount
+                        length:sizeof(state.sourceContactProjectionCount) atIndex:1u];
+                    [encoder setBuffer:state.sourceContactHistoryCheckpoint offset:0u atIndex:2u];
+                    [encoder setBuffer:state.sourceContactHistoryAccepted offset:0u atIndex:3u];
+                    [encoder setBuffer:state.preparedStateRestoreStatuses offset:0u atIndex:4u];
+                });
         encoded = encoded && runtimeDispatch(
             "nm_human_support_rollback", humanSupportTotal, [&] {
                 [encoder setBytes:&state.humanSupportDispatch.contactCount
@@ -11599,6 +13024,13 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
         state.coupledGeneralizedCandidate, "rigid-generalized-candidate");
     boundedArena(snapshot.contactHistories,
         state.contactHistoriesAccepted, "contact-history");
+    if (state.sourceContactProjectionCount != 0u)
+        exactArena(snapshot.sourceContactHistory,
+            state.sourceContactHistoryAccepted, "source-contact-history");
+    else if (!snapshot.sourceContactHistory.empty()) {
+        dimensionsValid = false;
+        diagnostics.message = "Matter snapshot has source contact history without a source contact program";
+    }
     boundedArena(snapshot.humanSupportHistories,
         state.humanSupportHistoriesAccepted, "Human-support-history");
     boundedArena(snapshot.humanSupportConsequences,
@@ -11614,10 +13046,41 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
             state.contactSamples,
             "contact-sample"
         );
+        exactArena(snapshot.diagnosticGeneralizedResidual,
+            state.femResidual, "diagnostic-generalized-residual");
+        if (state.sourceContactNodeCount != 0u)
+            exactArena(snapshot.diagnosticSourceContactNodeForces,
+                state.sourceContactNodeForces,
+                "diagnostic-source-contact-forces");
+        else if (!snapshot.diagnosticSourceContactNodeForces.empty()) {
+            dimensionsValid = false;
+            diagnostics.message = "Matter snapshot carries source contact diagnostics without source contact";
+        }
+        if (state.sourceTieCount != 0u)
+            exactArena(snapshot.diagnosticSourceTieImpulses,
+                state.sourceTieDiagnosticImpulses,
+                "diagnostic-source-tie-impulses");
+        else if (!snapshot.diagnosticSourceTieImpulses.empty()) {
+            dimensionsValid = false;
+            diagnostics.message =
+                "Matter snapshot carries source tie diagnostics without source ties";
+        }
     } else if (!snapshot.contactSamples.empty()) {
         dimensionsValid = false;
         diagnostics.message =
             "Matter snapshot carries diagnostics for a non-diagnostic runtime";
+    } else if (!snapshot.diagnosticGeneralizedResidual.empty()) {
+        dimensionsValid = false;
+        diagnostics.message =
+            "Matter snapshot carries residual diagnostics for a non-diagnostic runtime";
+    } else if (!snapshot.diagnosticSourceContactNodeForces.empty()) {
+        dimensionsValid = false;
+        diagnostics.message =
+            "Matter snapshot carries source contact diagnostics for a non-diagnostic runtime";
+    } else if (!snapshot.diagnosticSourceTieImpulses.empty()) {
+        dimensionsValid = false;
+        diagnostics.message =
+            "Matter snapshot carries source tie diagnostics for a non-diagnostic runtime";
     }
     if (!dimensionsValid) {
         return diagnostics;
@@ -11684,7 +13147,8 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
 
     if (!state.femRegionalMassLayout.empty()) {
         if (state.femRegionalMassLayout.size() != state.dispatch.femNodeCount ||
-            state.femRegionalRestLayout.size() != state.dispatch.femNodeCount) {
+            state.femRegionalRestLayout.size() != state.dispatch.femNodeCount ||
+            state.femRegionalReferenceLowLayout.size() != state.dispatch.femNodeCount) {
             diagnostics.message = "Matter immutable regional mass layout changed";
             return diagnostics;
         }
@@ -11694,9 +13158,21 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
                 for (std::size_t local = 0u; local < object.stateCount; ++local) {
                     const auto nodeIndex = object.stateOffset + local;
                     const auto& node = snapshot.femNodes[environment * state.dispatch.femNodeCount + nodeIndex];
+                    const auto& low = node.positionLow;
+                    if (!std::isfinite(low.x) || !std::isfinite(low.y) ||
+                        !std::isfinite(low.z) || !std::isfinite(low.w) ||
+                        low.w != 0.0f ||
+                        ((object.flags & NM_OBJECT_FEM_REFERENCE_CONFIGURATION) == 0u &&
+                         (low.x != 0.0f || low.y != 0.0f || low.z != 0.0f))) {
+                        diagnostics.message = "Matter snapshot changed FEM position precision state";
+                        return diagnostics;
+                    }
                     const std::array<float, 2> observed{node.positionAndMass.w, node.velocityAndInverseMass.w};
                     if (std::memcmp(observed.data(), state.femRegionalMassLayout[nodeIndex].data(), sizeof(observed)) != 0 ||
-                        std::memcmp(&node.restAndFixed, &state.femRegionalRestLayout[nodeIndex], sizeof(node.restAndFixed)) != 0) {
+                        std::memcmp(&node.restAndFixed, &state.femRegionalRestLayout[nodeIndex], sizeof(node.restAndFixed)) != 0 ||
+                        std::memcmp(&node.referenceLow,
+                            &state.femRegionalReferenceLowLayout[nodeIndex],
+                            sizeof(node.referenceLow)) != 0) {
                         diagnostics.message = "Matter snapshot changed immutable authored FEM mass or rest constraint";
                         return diagnostics;
                     }
@@ -12147,6 +13623,10 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
             snapshot.contactHistories,
             "contact-history"
         );
+        id<MTLBuffer> sourceContactHistory =
+            state.sourceContactProjectionCount != 0u
+                ? stage(snapshot.sourceContactHistory,
+                    "source-contact-history") : nil;
         id<MTLBuffer> humanSupportHistories = stage(
             snapshot.humanSupportHistories,
             "Human-support-history"
@@ -12267,6 +13747,10 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
         mirror(contactHistories, state.contactHistoriesAccepted,
             state.contactHistoriesCandidate,
             state.contactHistoriesCheckpoint);
+        if (state.sourceContactProjectionCount != 0u) {
+            copy(sourceContactHistory, state.sourceContactHistoryAccepted);
+            copy(sourceContactHistory, state.sourceContactHistoryCheckpoint);
+        }
         mirror(humanSupportHistories,
             state.humanSupportHistoriesAccepted,
             state.humanSupportHistoriesCandidate,
@@ -12421,6 +13905,9 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         id<MTLBuffer> topologyStates = copy(state_->topologyStatesAccepted);
         id<MTLBuffer> contactHistories =
             copy(state_->contactHistoriesAccepted);
+        id<MTLBuffer> sourceContactHistory =
+            state_->sourceContactProjectionCount != 0u
+                ? copy(state_->sourceContactHistoryAccepted) : nil;
         id<MTLBuffer> humanSupportHistories =
             copy(state_->humanSupportHistoriesAccepted);
         id<MTLBuffer> humanSupportConsequences =
@@ -12434,6 +13921,18 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         id<MTLBuffer> contactSamples = state_->captureDiagnostics
             ? copy(state_->contactSamples)
             : nil;
+        id<MTLBuffer> diagnosticResidual = state_->captureDiagnostics
+            ? copy(state_->femResidual)
+            : nil;
+        id<MTLBuffer> diagnosticSourceContactForces =
+            state_->captureDiagnostics && state_->sourceContactNodeCount != 0u
+                ? copy(state_->sourceContactNodeForces) : nil;
+        id<MTLBuffer> diagnosticSourceContactProjections =
+            state_->captureDiagnostics && state_->sourceContactProjectionCount != 0u
+                ? copy(state_->sourceContactProjections) : nil;
+        id<MTLBuffer> diagnosticSourceTieImpulses =
+            state_->captureDiagnostics && state_->sourceTieCount != 0u
+                ? copy(state_->sourceTieDiagnosticImpulses) : nil;
         id<MTLBuffer> identification =
             copy(state_->identificationDistributions);
         id<MTLBuffer> environmentParameters =
@@ -12449,12 +13948,24 @@ RuntimeStateSnapshot Runtime::snapshot() const {
             topologyNodes == nil || topologyTetrahedra == nil ||
             cohesiveFaces == nil || punctureChannels == nil ||
             topologyStates == nil || contactHistories == nil ||
+            (state_->sourceContactProjectionCount != 0u &&
+             sourceContactHistory == nil) ||
             humanSupportHistories == nil ||
             humanSupportConsequences == nil ||
             deformableContactHistories == nil ||
             adaptive == nil || schedulers == nil || reactions == nil ||
             rigidStates == nil ||
             (state_->captureDiagnostics && contactSamples == nil) ||
+            (state_->captureDiagnostics && diagnosticResidual == nil) ||
+            (state_->captureDiagnostics &&
+            state_->sourceContactNodeCount != 0u &&
+             diagnosticSourceContactForces == nil) ||
+            (state_->captureDiagnostics &&
+             state_->sourceContactProjectionCount != 0u &&
+             diagnosticSourceContactProjections == nil) ||
+            (state_->captureDiagnostics &&
+             state_->sourceTieCount != 0u &&
+             diagnosticSourceTieImpulses == nil) ||
             identification == nil || environmentParameters == nil) {
             snapshot.message = "failed to allocate Matter diagnostic readback";
             return snapshot;
@@ -12499,6 +14010,9 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         encodeCopy(state_->punctureChannelsAccepted, punctureChannels);
         encodeCopy(state_->topologyStatesAccepted, topologyStates);
         encodeCopy(state_->contactHistoriesAccepted, contactHistories);
+        if (state_->sourceContactProjectionCount != 0u)
+            encodeCopy(state_->sourceContactHistoryAccepted,
+                       sourceContactHistory);
         encodeCopy(
             state_->humanSupportHistoriesAccepted,
             humanSupportHistories);
@@ -12514,6 +14028,16 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         encodeCopy(state_->rigidStates, rigidStates);
         if (state_->captureDiagnostics) {
             encodeCopy(state_->contactSamples, contactSamples);
+            encodeCopy(state_->femResidual, diagnosticResidual);
+            if (state_->sourceContactNodeCount != 0u)
+                encodeCopy(state_->sourceContactNodeForces,
+                           diagnosticSourceContactForces);
+            if (state_->sourceContactProjectionCount != 0u)
+                encodeCopy(state_->sourceContactProjections,
+                           diagnosticSourceContactProjections);
+            if (state_->sourceTieCount != 0u)
+                encodeCopy(state_->sourceTieDiagnosticImpulses,
+                           diagnosticSourceTieImpulses);
         }
         encodeCopy(state_->identificationDistributions, identification);
         encodeCopy(state_->environmentParameters, environmentParameters);
@@ -12598,6 +14122,21 @@ RuntimeStateSnapshot Runtime::snapshot() const {
             state_->dispatch.contactPairCount;
         readCount(contactHistories, snapshot.contactHistories,
                   logicalContactCount);
+        if (state_->captureDiagnostics)
+            read(diagnosticResidual, snapshot.diagnosticGeneralizedResidual);
+        if (state_->captureDiagnostics &&
+            state_->sourceContactNodeCount != 0u)
+            read(diagnosticSourceContactForces,
+                snapshot.diagnosticSourceContactNodeForces);
+        if (state_->captureDiagnostics &&
+            state_->sourceContactProjectionCount != 0u)
+            read(diagnosticSourceContactProjections,
+                snapshot.diagnosticSourceContactProjections);
+        if (state_->captureDiagnostics && state_->sourceTieCount != 0u)
+            read(diagnosticSourceTieImpulses,
+                snapshot.diagnosticSourceTieImpulses);
+        if (state_->sourceContactProjectionCount != 0u)
+            read(sourceContactHistory, snapshot.sourceContactHistory);
         const std::size_t logicalHumanSupportCount =
             static_cast<std::size_t>(state_->dispatch.environmentCount) *
             state_->humanSupportDispatch.contactCount;

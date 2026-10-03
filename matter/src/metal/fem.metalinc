@@ -138,16 +138,43 @@ inline NMMixedMaterialGPU femMixedMaterial(const NMContinuumObjectGPU object,
     return result;
 }
 
+inline float3 femPreciseEdge(const NMFEMNodeStateGPU end,
+                             const NMFEMNodeStateGPU start) {
+    // Subtract the nearby high parts before adding their low residuals. A
+    // direct high+low world position would round away the low part again.
+    return (end.positionAndMass.xyz - start.positionAndMass.xyz) +
+           (end.positionLow.xyz - start.positionLow.xyz);
+}
+
+inline void femAdvancePosition(thread NMFEMNodeStateGPU& next,
+                               const NMFEMNodeStateGPU accepted,
+                               const float3 delta, const bool precise) {
+    if (!precise) {
+        next.positionAndMass.xyz = accepted.positionAndMass.xyz + delta;
+        next.positionLow = float4(0.0f);
+        return;
+    }
+    for (uint axis = 0u; axis < 3u; ++axis) {
+        const MRCompensatedScalar value = mrCompensatedAdd(
+            {accepted.positionAndMass[axis], accepted.positionLow[axis]},
+            {delta[axis], 0.0f});
+        next.positionAndMass[axis] = value.high;
+        next.positionLow[axis] = value.low;
+    }
+    next.positionLow.w = 0.0f;
+}
+
 inline float3x3 tetrahedronDeformation(
     const NMTetrahedronGPU tetrahedron,
     device const NMFEMNodeStateGPU* nodes,
     const uint nodeBase
 ) {
-    const float3 x0 = nodes[nodeBase + tetrahedron.nodes.x].positionAndMass.xyz;
-    const float3 x1 = nodes[nodeBase + tetrahedron.nodes.y].positionAndMass.xyz;
-    const float3 x2 = nodes[nodeBase + tetrahedron.nodes.z].positionAndMass.xyz;
-    const float3 x3 = nodes[nodeBase + tetrahedron.nodes.w].positionAndMass.xyz;
-    const float3x3 ds = float3x3(x1 - x0, x2 - x0, x3 - x0);
+    const NMFEMNodeStateGPU x0 = nodes[nodeBase + tetrahedron.nodes.x];
+    const NMFEMNodeStateGPU x1 = nodes[nodeBase + tetrahedron.nodes.y];
+    const NMFEMNodeStateGPU x2 = nodes[nodeBase + tetrahedron.nodes.z];
+    const NMFEMNodeStateGPU x3 = nodes[nodeBase + tetrahedron.nodes.w];
+    const float3x3 ds = float3x3(femPreciseEdge(x1, x0),
+        femPreciseEdge(x2, x0), femPreciseEdge(x3, x0));
     const float3x3 inverseRest = matrixFromRows(
         tetrahedron.inverseRestRow0,
         tetrahedron.inverseRestRow1,
@@ -768,6 +795,7 @@ kernel void nm_fem_apply_kinematic_targets(
     }
     NMFEMNodeStateGPU next = candidate[global];
     next.positionAndMass.xyz = previous.positionAndMass.xyz + displacement;
+    next.positionLow = float4(0.0f);
     next.velocityAndInverseMass.xyz = velocity;
     next.deltaVelocity.xyz = velocity - previous.velocityAndInverseMass.xyz;
     candidate[global] = next;
@@ -896,6 +924,7 @@ kernel void nm_fem_human_attachment_drive_candidate(
 
     NMFEMNodeStateGPU next = candidate[nodeGlobal];
     next.positionAndMass.xyz = position;
+    next.positionLow = float4(0.0f);
     next.velocityAndInverseMass.xyz = velocity;
     next.deltaVelocity.xyz =
         velocity - accepted[nodeGlobal].velocityAndInverseMass.xyz;
@@ -1144,7 +1173,10 @@ kernel void nm_fem_build_mechanical_residual(
         );
     }
     const float dt = objectTimestep(dispatch, scheduler);
-    const float3 momentumCorrection = node.positionAndMass.w *
+    const bool quasiStatic =
+        (object.flags & NM_OBJECT_FEM_QUASISTATIC) != 0u;
+    const float3 momentumCorrection = quasiStatic ? float3(0.0f) :
+        node.positionAndMass.w *
         (current.velocityAndInverseMass.xyz -
          node.velocityAndInverseMass.xyz);
     const bool fixedVelocity = femStaticConstraint(node.restAndFixed.w) ||
@@ -1546,9 +1578,10 @@ kernel void nm_fem_apply_solution(
                     alpha * solution[global].xyz;
                 next.deltaVelocity.xyz = next.velocityAndInverseMass.xyz -
                     accepted[global].velocityAndInverseMass.xyz;
-                next.positionAndMass.xyz = accepted[global].positionAndMass.xyz +
+                femAdvancePosition(next, accepted[global],
                     objectTimestep(dispatch, scheduler) *
-                    next.velocityAndInverseMass.xyz;
+                        next.velocityAndInverseMass.xyz,
+                    (object.flags & NM_OBJECT_FEM_REFERENCE_CONFIGURATION) != 0u);
             }
             if ((object.flags & NM_OBJECT_MIXED_FEM) != 0u &&
                 object.materialIndex < dispatch.mixedMaterialCount) {
@@ -1611,13 +1644,17 @@ kernel void nm_fem_select_backtracking(
             if (tetrahedron.identity.y != objectIndex ||
                 (tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
             const uint nodeBase = environment * dispatch.femNodeCount;
-            float3 x[4];
+            float3 x[4], low[4];
             for (uint slot = 0u; slot < 4u; ++slot) {
                 const uint index = nodeBase + tetrahedron.nodes[slot];
                 const float3 velocity =
                     candidate[index].velocityAndInverseMass.xyz +
                     alpha * correction[index].xyz;
-                x[slot] = accepted[index].positionAndMass.xyz + dt * velocity;
+                NMFEMNodeStateGPU trial = accepted[index];
+                femAdvancePosition(trial, accepted[index], dt * velocity,
+                    (object.flags & NM_OBJECT_FEM_REFERENCE_CONFIGURATION) != 0u);
+                x[slot] = trial.positionAndMass.xyz;
+                low[slot] = trial.positionLow.xyz;
             }
             const float3x3 inverseRest = matrixFromRows(
                 tetrahedron.inverseRestRow0,
@@ -1625,7 +1662,9 @@ kernel void nm_fem_select_backtracking(
                 tetrahedron.inverseRestRow2
             );
             const float3x3 deformation = float3x3(
-                x[1] - x[0], x[2] - x[0], x[3] - x[0]
+                (x[1] - x[0]) + (low[1] - low[0]),
+                (x[2] - x[0]) + (low[2] - low[0]),
+                (x[3] - x[0]) + (low[3] - low[0])
             ) * inverseRest;
             const float determinantValue = determinant(deformation);
             const float currentDeterminant = determinant(
@@ -1758,10 +1797,12 @@ kernel void nm_fem_integrate(
     if (object.representation == NM_REPRESENTATION_FEM &&
         objectDue(object, scheduler, adaptiveState, microstep) &&
         candidate[global].restAndFixed.w <= 0.5f) {
-        candidate[global].positionAndMass.xyz =
-            accepted[global].positionAndMass.xyz +
+        NMFEMNodeStateGPU next = candidate[global];
+        femAdvancePosition(next, accepted[global],
             objectTimestep(dispatch, scheduler) *
-            candidate[global].velocityAndInverseMass.xyz;
+                candidate[global].velocityAndInverseMass.xyz,
+            (object.flags & NM_OBJECT_FEM_REFERENCE_CONFIGURATION) != 0u);
+        candidate[global] = next;
     }
 }
 
@@ -2098,7 +2139,8 @@ inline float4 fusedFEMOperatorAtNode(
         dispatch, schedulers[environment * dispatch.objectCount + objectIndex]
     );
     return float4(
-        candidate[globalNode].positionAndMass.w *
+        ((object.flags & NM_OBJECT_FEM_QUASISTATIC) != 0u
+            ? 0.0f : candidate[globalNode].positionAndMass.w) *
                 direction[globalNode].xyz -
             dt * dt * derivativeForce - dt * pressureForce,
         pressureElements > 0u

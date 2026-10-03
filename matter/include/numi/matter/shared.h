@@ -179,6 +179,9 @@ enum NMObjectFlags : nm_u32 {
     NM_OBJECT_FEM_REGIONAL_MATERIAL = 1u << 10u,
     NM_OBJECT_FEM_REFERENCE_CONFIGURATION = 1u << 11u,
     NM_OBJECT_FEM_FIELD_ACTIVE_TENSION = 1u << 12u,
+    // Opt-in static equilibrium: keep density/reference mass for provenance
+    // and body loads, but omit nodal inertial residual and tangent.
+    NM_OBJECT_FEM_QUASISTATIC = 1u << 13u,
 };
 
 enum NMFieldBoundaryFlags : nm_u32 {
@@ -257,6 +260,12 @@ enum NMRigidBindingFlags : nm_u32 {
     // the sharp tip admits fracture. Only an explicitly flagged capsule or
     // circular arc on the same body may dilate that tract.
     NM_RIGID_PUNCTURE_DILATOR = 1u << 4u,
+    // Body-backed frame for joints and tissue ties; it creates no generic
+    // continuum-rigid proxy contact pairs.
+    NM_RIGID_FRAME_ONLY = 1u << 5u,
+    // Free source frame whose converged equations omit physical inertia.
+    // A positive numerical inverse mass may still precondition its KKT row.
+    NM_RIGID_SOURCE_QUASISTATIC = 1u << 6u,
 };
 
 enum NMResetFlags : nm_u32 {
@@ -919,6 +928,14 @@ typedef struct NM_ALIGN16 NMFEMNodeStateGPU {
     nm_float4 velocityAndInverseMass;
     nm_float4 restAndFixed;
     nm_float4 deltaVelocity;
+    // Low part of the current world position for an authored separate FEM
+    // reference. Ordinary FEM keeps this canonical zero. It is accepted and
+    // rolled back with the node state, never inferred from a new stress-free
+    // mesh after source continuation.
+    nm_float4 positionLow;
+    // Low part of the immutable authored reference. Used only when the FEM
+    // object has a separate source-bound reference configuration.
+    nm_float4 referenceLow;
 } NMFEMNodeStateGPU;
 
 typedef struct NM_ALIGN16 NMTetrahedronGPU {

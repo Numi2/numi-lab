@@ -1,0 +1,77 @@
+{
+  "schema": "numi.matter.open-knee-full-assembly-precision-repair.v1",
+  "status": "rejected_root_diagnostic_only",
+  "source_checkpoint": "retained FEBio 2.9.1 XPLT state 1 at continuation time 0.05; imported pose, not a Matter prediction",
+  "source_checkpoint_npz_sha256": "de0ab6ec1de1a421187027beca0153b9b5768af14f90d19802c794e72cc10fb4",
+  "source_volume_mesh_sha256": "39b86f2f55853c74968f36a8d6c67eaed94639a3d42b558bb17787e2af8ffdba",
+  "source_rigid_ties_sha256": "cb06f3e1d566ac5d551c17daea6bb222e74c0c84ac33111e02f9e5f0f5d83221",
+  "checkpoint_seed_v3_sha256": "699908b6e8152dd3e4c4072cee1e63e6dddffeccb28191dd05207f11dc9bd619",
+  "first_assembly_element_forces_sha256": "1d7e4c571a6f7a561b7f8d4ecba0b5f90117c8848fca04b1bc9f6c7336918d90",
+  "comparison_file": "precision-repair-stress-20261002.json",
+  "comparison_sha256": "719b0883a64919b483d00d617b7d4c53ffd1e373bdeb15bc780492209c5d0667",
+  "diagnostic_stdout_file": "precision-repair-rejected-root-20261002.stdout",
+  "diagnostic_stdout_sha256": "d472cff09dfcbaa76bc65b938ca006a03476ac33669d7a811c7642f6104718b5",
+  "precision_representation": "referenced FEM stores high/low current and immutable reference positions; tied nodes follow rigid increments from accepted high/low positions",
+  "baseline_difference_rms_mpa": {
+    "10": 0.003129935662413936,
+    "14": 0.0031075973614581682
+  },
+  "candidate_difference_rms_mpa": {
+    "10": {
+      "elements": 62712,
+      "matter_first_assembly_difference_rms_mpa": 5.9405624693531006e-05,
+      "elements_touching_rigid_tie": 3978,
+      "tied_difference_rms_mpa": 6.0600939537087774e-05,
+      "untied_difference_rms_mpa": 5.932379627366205e-05
+    },
+    "14": {
+      "elements": 9773,
+      "matter_first_assembly_difference_rms_mpa": 7.092759032026265e-05,
+      "elements_touching_rigid_tie": 208,
+      "tied_difference_rms_mpa": 7.265649708583993e-05,
+      "untied_difference_rms_mpa": 7.088952516558405e-05
+    }
+  },
+  "diagnostic_step": {
+    "newton_budget": 1,
+    "fgmres_budget": 1,
+    "accepted": false,
+    "matter_status": 10,
+    "relative_residual": 0.011674,
+    "completed_microsteps": 0
+  },
+  "production_source_contact_admission": "fail_closed_restored_and_rebuilt",
+  "qualification": "no accepted Matter preload or flexion state; larger solver budget still rejected, so no accepted contact pressure, reaction wrench, displacement or prestrain comparison",
+  "reproduce": "export_open_knee_checkpoint_seed.py -> open_knee_fiber_field_check --source-artifacts with checkpoint seed and checkpoint element forces -> compare_open_knee_checkpoint_stress.py --source-rigid-ties",
+  "bounded_coupled_steps": [
+    {
+      "newton_budget": 7,
+      "fgmres_budget": 10,
+      "accepted": false,
+      "relative_residual": 0.00146919,
+      "completed_microsteps": 0,
+      "stdout_file": "precision-repair-rejected-7x10-20261002.stdout",
+      "stdout_sha256": "9fd7652d3a5859f0d7cd263de25271fcae53ee6bedc1d807668448211550bd1c"
+    },
+    {
+      "newton_budget": 14,
+      "fgmres_budget": 20,
+      "accepted": false,
+      "relative_residual": 0.00128078,
+      "completed_microsteps": 0,
+      "stdout_file": "precision-repair-rejected-14x20-20261002.stdout",
+      "stdout_sha256": "9d88f248c0585219a018051bec41f83a15230c9cecb6a03dbbe6b214c558e4fc"
+    },
+    {
+      "newton_budget": 14,
+      "fgmres_budget": 20,
+      "fgmres_restart": 16,
+      "accepted": false,
+      "relative_residual": 0.00173551,
+      "completed_microsteps": 0,
+      "stdout_file": "precision-repair-rejected-14x20-restart16-20261002.stdout",
+      "stdout_sha256": "a815f63e0acc299d7d58acd3e32460fbb95327420f2070bf4a21686baba3c226",
+      "comparison": "same iteration budgets with the 16-vector maximum restart; worse residual than the earlier 10-vector restart"
+    }
+  ]
+}

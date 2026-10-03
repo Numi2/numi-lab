@@ -1,0 +1,34 @@
+{
+  "schema": "numi.matter.open-knee-solver-diagnostic.v1",
+  "status": "rejected_no_accepted_matter_checkpoint",
+  "base_revision": "e91a20b55bb8fa421c6eb85121ac452292fd4112",
+  "source_checkpoint": "retained FEBio 2.9.1 XPLT state 1 at continuation time 0.05; imported pose, not a Matter prediction",
+  "budgets": {
+    "newton": 14,
+    "fgmres": 20,
+    "fgmres_restart": 10
+  },
+  "result": {
+    "accepted": false,
+    "matter_status": 10,
+    "completed_microsteps": 0,
+    "fgmres_iterations": 20,
+    "relative_residual": 0.0010327,
+    "relative_correction": 0.0000157223,
+    "minimum_element_jacobian": 0.987668,
+    "maximum_fem_displacement_m": 0.000338057,
+    "rigid_residual_l2": 0.000560863,
+    "mcl_residual_l2": 0.000555835,
+    "mns_m_residual_l2": 0.000662918
+  },
+  "comparison": {
+    "tie_aware_diagonal_relative_residual": 0.000923607,
+    "tie_aware_diagonal_rigid_residual_l2": 0.00043479,
+    "interpretation": "The transient dense six-coordinate rigid-tie block preconditioner was worse than the measured tie-aware diagonal and produced no accepted step. Its source changes were removed; the output is retained as a rejected experiment only."
+  },
+  "stdout": {
+    "file": "dense-tie-block-precondition-rejected-14x20-20261003.stdout",
+    "sha256": "0a5b85a9d0a1a01a244aef6b6ea9c2d2499bad85084d65e74aaa77299ffd5424"
+  },
+  "qualification": "No source-equivalent preload/flexion state or accepted Matter-to-XPLT field comparison was obtained."
+}

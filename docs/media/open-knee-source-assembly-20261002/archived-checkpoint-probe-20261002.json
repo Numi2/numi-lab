@@ -1,0 +1,227 @@
+{
+  "schema": "numi.matter.open-knee-archived-checkpoint-probe.v1",
+  "status": "rejected_diagnostic_only",
+  "source_equivalence": "not_established",
+  "checkpoint": {
+    "archive_state": 1,
+    "source_continuation_time": 0.05,
+    "source_continuation_time_is_physical_seconds": false,
+    "source_deck_sha256": "00b6efb53ad7e7330296cbb9569d358d48ed60819e22732e6149db6fb98a158a",
+    "source_geometry_sha256": "4155db1d0d7b87ffb2c668102d2495870e4461a539b18e6708f1f4817b5601bf",
+    "archived_xplt_sha256": "c370ae9f94e9faee2d7060bf2a6819e03be1312e82ca79bd2e9cebf8b34398de",
+    "exported_checkpoint_sha256": "de0ab6ec1de1a421187027beca0153b9b5768af14f90d19802c794e72cc10fb4",
+    "seed_v2_sha256": "31c1d0bbe2dfa7fae446e4aad235c59fa2cc666a0331690a6fde61331b861fd7",
+    "plot_mesh_source_coordinate_match": "all 248236 nodes bitwise equal after float32 conversion in source geometry order",
+    "seeded_tissue_nodes": 194729,
+    "seeded_rigid_bodies": 9,
+    "maximum_rigid_fit_rms_mm": 9.376383e-09,
+    "interpretation": "imported FEBio current configuration, not a Matter prediction"
+  },
+  "diagnostic_scope": {
+    "runtime_contact_admission_guard": "temporarily bypassed in uncommitted local build solely to read the full coupled residual; restored before publication",
+    "committed_runtime_contact_admission": "fail_closed",
+    "solver_timestep_seconds": 0.0166666667,
+    "source_contact_pairs": 18,
+    "source_tissue_groups": 12,
+    "source_rigid_bodies": 9,
+    "pre_fix_probes_superseded_by_fiber_frame_correction": true
+  },
+  "bounded_probes": [
+    {
+      "newton_budget": 1,
+      "fgmres_budget": 1,
+      "accepted_steps": 0,
+      "relative_residual": 0.089128,
+      "rigid_residual_l2_impulse_ns": 0.0876495,
+      "worst_rigid_dof": 8,
+      "worst_rigid_impulse_ns": -0.0794188,
+      "worst_rigid_owner": "FMB translation z",
+      "rigid_contact_force_on_FMB_n": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "summed_cylindrical_joint_force_on_FMB_n": [
+        0.00101863,
+        0.00412911,
+        -0.000905942
+      ],
+      "continuum_tie_residual": "remaining dominant contribution; not yet matched to FEBio element stress and tie reactions"
+    },
+    {
+      "newton_budget": 7,
+      "fgmres_budget": 10,
+      "accepted_steps": 0,
+      "relative_residual": 0.0151582,
+      "rigid_residual_l2_impulse_ns": 0.00621698,
+      "minimum_tissue_jacobian": 0.987585
+    },
+    {
+      "newton_budget": 14,
+      "fgmres_budget": 10,
+      "accepted_steps": 0,
+      "relative_residual": 0.0148737,
+      "rigid_residual_l2_impulse_ns": 0.00619787,
+      "minimum_tissue_jacobian": 0.987581,
+      "interpretation": "additional Newton corrections nearly stagnate at the same Krylov budget"
+    },
+    {
+      "newton_budget": 20,
+      "fgmres_budget": 40,
+      "accepted_steps": null,
+      "result": "terminated after 8 minutes without a completed solve or diagnostic output",
+      "qualification": "none"
+    }
+  ],
+  "production_check": {
+    "valid_source_bound_seed": "accepted by importer, then rejected by source-contact admission guard before state mutation after fiber-frame correction",
+    "corrupted_seed_deck_hash": "rejected by importer before solve",
+    "source_regression_tests": "13 passed after fiber-frame correction and production contact guard restoration",
+    "accepted_source_preload_or_flexion_state": false,
+    "field_comparison_against_xplt": "first-assembly MCL stress diagnostic performed at imported FEBio configuration; comparison of accepted Matter-predicted fields is not performed because no Matter state is accepted"
+  },
+  "next_blocker": "converge the corrected full source assembly under certified sliding contact, reconcile remaining whole-system residual and stress differences, then compare an accepted Matter preload/flexion state field by field against XPLT",
+  "full_system_tie_attribution": {
+    "status": "superseded_rejected_root_diagnostic_before_fiber_frame_correction",
+    "source_checkpoint": 1,
+    "source_continuation_time": 0.05,
+    "matter_timestep_seconds": 0.016666666666666666,
+    "femoral_rigid_body_material_id": 4,
+    "mcl_source_material_id": 10,
+    "mcl_femoral_tied_nodes": 808,
+    "source_fem_springs_incident_on_these_nodes": 0,
+    "source_mcl_contact_surface_nodes_also_femorally_tied": 118,
+    "measured_contact_force_on_mcl_femoral_tied_nodes_n": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "mcl_to_femur_tie_impulse_ns": [
+      0.05156,
+      0.0405024,
+      -0.101217
+    ],
+    "all_tissues_to_femur_tie_impulse_ns": [
+      -0.00226078,
+      0.0349997,
+      -0.0796935
+    ],
+    "femur_generalized_z_residual_ns": -0.0794188,
+    "interpretation": "This large pre-fix tie impulse was driven by a twice-rotated source fiber direction in the Matter continuum. The corrected full-system diagnostic is recorded separately below; neither is an accepted reaction.",
+    "source_stress_force_comparison": "Source stress-derived MCL femoral force at the archived configuration is [-0.20969, 0.17266, -0.71442] N under verified source tet order and xx yy zz xy yz xz component order. The pre-fix Matter continuum disagreed; see corrected fiber frame probe."
+  },
+  "archived_prestrain_field_check": {
+    "source_xplt_checkpoint": 1,
+    "source_plot_field": "prestrain stretch",
+    "plot_quantity": "fiber stretch of total deformation F * Fp, not the stored prestrain gradient alone",
+    "source_tetrahedron_connectivity_order_match": {
+      "MCL": 62712,
+      "different": 0
+    },
+    "calculation": "for each tet4, compute F from immutable source Geometry and archived nodal displacement, then lambda_pred = source_curve(time=0.05) * norm(F * source_unit_fiber); compare to XPLT element_06",
+    "source_curve_values_at_0_05": {
+      "QAT": 1.0,
+      "PCL": 1.0,
+      "ACL": 1.0008,
+      "MCL": 1.0017,
+      "PTL": 1.0,
+      "LCL": 1.00135
+    },
+    "mean_absolute_error_by_tissue": {
+      "QAT": 2.1052969698e-08,
+      "PCL": 2.4109740798e-08,
+      "ACL": 2.5888006194e-08,
+      "MCL": 2.9689678196e-08,
+      "PTL": 2.2196074417e-08,
+      "LCL": 2.9449527174e-08
+    },
+    "maximum_absolute_error_by_tissue": {
+      "QAT": 6.6123593268e-08,
+      "PCL": 7.456479989e-08,
+      "ACL": 7.3442549597e-08,
+      "MCL": 7.5647796471e-08,
+      "PTL": 6.6030428014e-08,
+      "LCL": 7.5758286089e-08
+    },
+    "mcl_xplt_field_range": [
+      0.9961254001,
+      1.009163022
+    ],
+    "source_deck_prestrain_constraint": {
+      "update": 1,
+      "tolerance": 0.03,
+      "min_iters": 0,
+      "max_iters": 0
+    },
+    "source_log": "reports augmentation #1 and max-norm evaluations at time 0.05; no second prestrain augmentation is shown for that increment",
+    "interpretation": "The first archived XPLT fiber-stretch field is explained by a uniform scalar generator plus spatial deformation. This scalar field cannot by itself prove or disprove a full-tensor prestrain correction. The prior claim that spatial variation proved an unimplemented elementwise history was false and is withdrawn. Later increments and FEBio 2.9.1 correction semantics still require verification."
+  },
+  "corrected_fiber_frame_probe": {
+    "status": "rejected_root_diagnostic_only",
+    "cause": "The source ligament vector was passed as an energy parameter after the same source vector had already defined the FEM material frame. The energy therefore used a twice-rotated fiber direction.",
+    "correction": "Pass local unit +X as the energy fiber parameter when an authored element material frame maps local +X to the source vector.",
+    "source_checkpoint_state": 1,
+    "mcl_femoral_first_assembly_force_n_before": [
+      5.9086003,
+      1.4262761,
+      -6.596297
+    ],
+    "mcl_femoral_first_assembly_force_n_after": [
+      -0.321874,
+      0.219702,
+      -0.708776
+    ],
+    "mcl_femoral_force_from_archived_stress_n": [
+      -0.20969176,
+      0.17265807,
+      -0.71442106
+    ],
+    "stress_comparison": {
+      "mcl_elements": 62712,
+      "source_cauchy_rms_mpa": 0.0484703309,
+      "matter_cauchy_difference_rms_before_mpa": 0.0275247643,
+      "matter_cauchy_difference_rms_after_mpa": 0.0031299355,
+      "method": "Capture full Matter first-Newton element forces at the imported XPLT configuration, reconstruct Cauchy stress using immutable source tet4 geometry and the current deformation, compare with archived XPLT stress in xx yy zz xy yz xz order."
+    },
+    "bounded_solves": [
+      {
+        "newton_budget": 1,
+        "fgmres_budget": 1,
+        "accepted_steps": 0,
+        "relative_residual": 0.0126115
+      },
+      {
+        "newton_budget": 7,
+        "fgmres_budget": 10,
+        "accepted_steps": 0,
+        "relative_residual": 0.00609426
+      },
+      {
+        "newton_budget": 14,
+        "fgmres_budget": 20,
+        "accepted_steps": 0,
+        "relative_residual": 0.00640132,
+        "note": "more expensive budget did not improve on the 7x10 residual"
+      }
+    ],
+    "qualification": "No corrected native state accepted; element comparison is at an imported FEBio configuration, not a Matter prediction.",
+    "first_assembly_element_force_dump_sha256": "83c7c8e28db0ff172443212d4d693327dcb5a7be36c838d6c157d51d2cbcc654",
+    "first_assembly_element_force_dump_size_bytes": 54034368,
+    "full_system_residual_reduction_at_1x1": 7.067200570907505
+  },
+  "full_tissue_precision_probe": {
+    "receipt": "full-tissue-precision-probe-20261002.json",
+    "method": "Hash-bound first-assembly element forces from the complete coupled knee are converted to Cauchy stress and compared to all twelve archived XPLT tissue domains at state 1. For MCL/LCL the pinned source constitutive law is also evaluated with original double coordinates and with the same float32 metre coordinate rounding used by Matter.",
+    "mcl_difference_rms_mpa": {
+      "matter": 0.003129935662413936,
+      "double_source_law": 0.000006375519906742058,
+      "float32_coordinates": 0.003091624003171876
+    },
+    "lcl_difference_rms_mpa": {
+      "matter": 0.0031075973614581682,
+      "double_source_law": 0.000005833511997852882,
+      "float32_coordinates": 0.0031051971282890856
+    },
+    "interpretation": "The source law reproduces the archived MCL/LCL stresses with double coordinates. Rounding reference and current absolute positions to float32 metres reproduces almost the entire Matter discrepancy. Precision of FEM deformation input must be repaired within the coupled state before source-equivalent preload acceptance; extra Newton iterations cannot remove this stress error. These are imported-pose diagnostics, not an accepted Matter state."
+  }
+}

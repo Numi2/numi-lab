@@ -18,7 +18,8 @@ material open_knee_ligament_febio_exp_linear_v1 {
     parameter fiber_x : one = 1 in [-1, 1];
     parameter fiber_y : one = 0 in [-1, 1];
     parameter fiber_z : one = 0 in [-1, 1];
-    parameter numerical_viscosity : Pa*s = 25 in [0.1, 500] log;
+    // The authored source is elastic. Diagnostic viscosity must be opted into.
+    parameter numerical_viscosity : Pa*s = 0 in [0, 500];
 
     model generic;
     energy = c1 * (

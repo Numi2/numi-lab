@@ -428,3 +428,48 @@ Open Knee tissues. It is selected explicitly by the knee probe
 qualify prestress equilibrium. `numi-matter-fiber-check` checks FP64 source
 energy/stress/tangent and the actual Metal scalar interpreter; `--cpu-only`
 never creates a Metal device.
+
+The source material now defaults to zero numerical viscosity. A diagnostic
+that requires viscosity must supply it explicitly; the existing live hybrid
+still supplies 25 Pa s. The constitutive compiler exposes the authored stored
+energy bytecode as well as stress and tangent, retaining energy from prestrain.
+This does not yet add assembled runtime energy accounting.
+
+The source check covers all six tendon/ligament parameter sets, both menisci,
+and the shared cartilage law (with continuum fibre contribution zero for
+cartilage). Independent tensor Cauchy-stress and energy calculations check
+oblique fibres, isochoric transverse prestrain, shear and volumetric response;
+finite differences check the complete first-Piola tangent. These are analytical
+source-law checks, not a FEBio 2.9.1 executable comparison or knee equilibrium.
+New tensor cases use a 1e-5 Frobenius relative-error gate for each stress or
+directional-tangent tensor and also report component errors near cancellation.
+The original scalar gates are unchanged. Retained native results are in
+[`docs/media/open-knee-source-material-20261001`](../docs/media/open-knee-source-material-20261001/receipt.json).
+
+### Source cylindrical-joint graph assembly
+
+`source_cylindrical_joint_graph.h` assembles the source connector residuals,
+body wrenches, generalized residual, and exact directional tangent for a fixed
+rigid graph. It uses the existing Matter connector equation and an explicitly
+supplied per-body spatial motion map; an articulated caller must include the
+motion-map geometric-stiffness term in its own linearization. This is a solve
+operator, not a second integrator or a replacement for the coupled runtime.
+
+`numi-matter-source-joint-graph-check` authenticates the Human rigid program,
+which now includes all nine rigid-body IDs, six cylindrical joints, the source
+rigid spring, prescribed boundaries, and referenced load curve. It checks the
+six-joint graph at neutral, 30, 60, and the source endpoint (89.954 degrees).
+The patellar three-joint subgraph has constraint rank 12 at each pose, leaving
+six relative rigid freedoms after the six global rigid-body modes are removed.
+The graph tangent agrees with central differences to 4.8e-5 under the test's
+absolute-scaled metric.
+
+The source spring is checked separately at its reference state and a deformed
+state. Its analytical directional tangent agrees with central differences to
+2.6e-9; the source-unit wrench closes, and the stored-energy gradient agrees
+with the spring wrench to 3.8e-10. The spring operator is not assembled into the
+cylindrical graph check. Deformable tissues, rigid ties, prestrain, contact,
+load-step equilibrium, and tissue reactions remain unexecuted. Neither operator
+is assembled into Matter's GPU runtime, so these checks do not establish
+source-knee equilibrium. Retained output and source identity are in
+[`docs/media/open-knee-source-graph-20261002`](../docs/media/open-knee-source-graph-20261002/receipt.json).
