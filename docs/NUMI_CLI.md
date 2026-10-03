@@ -211,3 +211,10 @@ python3 scripts/validate_plugin.py \
 The initial repository plugin is distribution-ready source, not a personal
 marketplace installation. Release packaging can install or register it without
 coupling the runtime to a particular Codex version.
+
+### Virtual Wet Lab
+
+`numi wet-lab` serves the local NumiLab experiment workspace backed by NumiVivo.
+It supports source-bound specimen selection, native RNA-response prediction,
+held-out comparison and reproducible records. See [VIRTUAL_WET_LAB.md](VIRTUAL_WET_LAB.md)
+for preparation, launch, evidence and the qualified adapter boundary.

@@ -5859,6 +5859,7 @@ install(
         numi/commands/robots
         numi/commands/solvers
         numi/commands/science
+        numi/commands/wet-lab
     DESTINATION libexec/numi
 )
 install(
@@ -5887,7 +5888,8 @@ install(
         PATTERN "*.py"
         PATTERN "py.typed"
 )
-install(FILES docs/SCIENTIFIC_WORKFLOW.md DESTINATION share/numi/docs)
+install(FILES docs/SCIENTIFIC_WORKFLOW.md docs/VIRTUAL_WET_LAB.md DESTINATION share/numi/docs)
+install(FILES python/metalrobo/wet_lab/index.html DESTINATION share/numi/python/metalrobo/wet_lab)
 install(
     DIRECTORY examples/science
     DESTINATION share/numi/examples

@@ -1,0 +1,10 @@
+#!/bin/sh
+set -eu
+if [ "${1:-}" = "--numi-describe" ]; then
+  echo 'Design, predict, reveal held-out RNA measurements, and replay Virtual Wet Lab experiments through NumiVivo.'
+  exit 0
+fi
+root=${NUMI_LAB_ROOT:?Run through numi}
+tool="$root/python/metalrobo/virtual_wet_lab.py"
+[ -f "$tool" ] || tool="$root/share/numi/python/metalrobo/virtual_wet_lab.py"
+exec "${NUMI_PYTHON:-python3}" "$tool" "$@"
