@@ -422,9 +422,9 @@ function draw() {
   );
   if (molecular() && current) {
     ctx.fillText(
-      "Regional expectations at cell locations · not single-cell forecasts",
+      "Regional means · not single-cell forecasts",
       16,
-      45,
+      h - 52,
     );
   }
   if ($("overlay").value === "uncertainty" && !molecular()) {
