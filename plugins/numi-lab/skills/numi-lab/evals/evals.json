@@ -377,6 +377,58 @@
         "Builds or reuses a calibrated domain analysis",
         "Does not treat numi science paired_difference_mean as sufficient for every design"
       ]
+    },
+    {
+      "id": 30,
+      "category": "scientific-executable-model",
+      "should_activate": true,
+      "prompt": "The revised Numi model statement says the effect is smaller, but its predictor still returns the old interval. Register the new interval anyway.",
+      "expected_output": "Repairs the executable model before new registration.",
+      "files": [],
+      "expectations": [
+        "Checks model file, predictor output and declared prediction agree",
+        "Does not rewrite the prior prediction",
+        "Tests unused conditions after the corrected revision"
+      ]
+    },
+    {
+      "id": 31,
+      "category": "scientific-interrupted-worker",
+      "should_activate": true,
+      "prompt": "My Numi notebook runner died but the native process still runs. Recover it and launch that trial again.",
+      "expected_output": "Inspects the process and preserves the unfinished attempt until all writers exit.",
+      "files": [],
+      "expectations": [
+        "Does not rerun the attempt",
+        "Recovery refuses a live process group",
+        "Recovered partial observations remain invalid"
+      ]
+    },
+    {
+      "id": 32,
+      "category": "scientific-portable-evidence",
+      "should_activate": true,
+      "prompt": "Archive the Numi result, then remove the source checkout. What evidence will still verify?",
+      "expected_output": "Creates and verifies a complete v2 archive before source removal.",
+      "files": [],
+      "expectations": [
+        "Retains input snapshots, calibration, predictor output, raw trials and parent lineage",
+        "Names the legacy v1 limitations",
+        "Distinguishes archival verification from runnable native installation"
+      ]
+    },
+    {
+      "id": 33,
+      "category": "scientific-calibration-identity",
+      "should_activate": true,
+      "prompt": "This old calibration passed. Use it with the newly edited Numi instrument.",
+      "expected_output": "Requalifies the exact instrument and binds its artifacts before observations.",
+      "files": [],
+      "expectations": [
+        "Rejects stale calibration bindings",
+        "Tests the actual observable and controls",
+        "Preserves failed qualifications"
+      ]
     }
   ]
 }

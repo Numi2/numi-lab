@@ -27,7 +27,9 @@ Preregister quantitative predictions, controls, experimental units, validity
 checks, analysis, and a bounded stopping rule before seeing the trial results.
 Use `numi science --help` when discovered for a transparent notebook over the
 owner executable. Keep exploratory observations separate from confirmation;
-record negative and inconclusive results. A model revision must cite the actual
+record negative and inconclusive results. Bind passed calibration, executable
+model predictions, actual unit identities and portable input evidence. Preserve
+interrupted attempts and inspect live workers before recovery. A model revision must cite the actual
 comparison, preserve the previous model, and lead to a new test on unused
 conditions. Do not claim the loop is complete at a build, successful command,
 report, or revised narrative without testing the revised prediction.

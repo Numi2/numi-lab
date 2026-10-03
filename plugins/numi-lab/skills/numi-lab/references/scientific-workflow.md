@@ -49,8 +49,11 @@ or randomize order when drift or analyst choice could affect the outcome.
 Controls must test the mechanism, not simply provide another successful run.
 
 For a bounded scalar paired study, inspect `numi science --help` and the runtime's
-`docs/SCIENTIFIC_WORKFLOW.md`. Author the plan using the documented JSON format,
-then `numi science register PLAN STUDY`. This seals the prediction and artifacts
+`docs/SCIENTIFIC_WORKFLOW.md` (installed: `share/numi/docs`; help reports the path). Author the plan using the documented JSON format,
+using v2 with an executable predictor, exact model file, passed calibration
+bindings, observed unit identities, and exploration/confirmation/replication
+purpose. Then `numi science register PLAN STUDY`. This snapshots inputs, executes
+the model to check the prediction, and seals the prediction and artifacts
 before `numi science run STUDY` executes the next declared trial. The notebook
 is a recorder over owner executables, with no scheduler, hosted queue, or model
 that decides what the researcher should do.
@@ -63,12 +66,19 @@ if the notebook capability is unavailable; never silently skip the loop.
 
 ## 4. Run the controlled experiment
 
-Use isolated outputs and the exact registered inputs. Verify runtime/device,
+Keep durable evidence outside ignored source-checkout directories. Use isolated
+outputs and the exact registered inputs. Verify runtime/device,
 active workload ownership, resource budget, and the declared safety boundary.
 Invoke the native owner; do not add a competing per-step host simulation.
 Run every declared arm and retain logs, accepted/rejected counts, failures,
 timeouts, seeds, environment, and raw measurements. Do not retry an unfinished
 trial merely because observation timed out; inspect its live handle first.
+`numi science status STUDY` identifies unfinished attempts. `recover STUDY --reason
+...` only closes an interrupted attempt as invalid after its original runner and
+native process group have exited. Missing identity or lost evidence requires
+preserving the notebook and an amended preregistration. Never delete a trial to
+make it runnable. `archive STUDY NEW_DIRECTORY` copies and verifies completed
+portable evidence, including inputs and parent snapshots.
 
 Do not silently change thresholds, exclude a failed arm, increase the sample
 budget until a claim passes, or treat uncalibrated output as a valid observation.
@@ -92,12 +102,19 @@ failure, model disagreement, insufficient power, and an unidentifiable design.
 
 Record the prior model, cited analysis hashes, retain/revise/reject/inconclusive
 decision, exact parameter/structure/assumption change, rationale, remaining
-limits, and the next distinguishing prediction. If the model is executable,
-change and hash its owning implementation/parameters as well as its statement.
+limits, and the next distinguishing prediction. Change and hash the executable
+model implementation/parameters as well as its statement; the v2 recorder runs
+its predictor before registration. Retain every exposed experimental unit in
+the model's training history. A retained or inconclusive model cannot silently
+change scientific parameters.
 Do not rename a failed model and preserve its unsupported behavior.
 
 `numi science revise STUDY REVISION` retains the previous model. Register the
-follow-up with `--parent STUDY`; it must use that revised model. Freeze the next
+follow-up with `--parent STUDY`; it must use that revised model. Declare
+`purpose: confirmation` to enforce unused recorded units across parent snapshots
+and training history. Renaming a pair is not a new experimental unit. Reusing
+conditions must be labelled replication. Old v1 notebooks retain their historical
+weaker guarantees and cannot be used as enforced v2 parents. Freeze the next
 prediction before running unused seeds, conditions, or held-out data. Do not
 call fit data independent validation. Continue until the requested scientific
 question is resolved at its stated scope, or retain the precise unmet condition.

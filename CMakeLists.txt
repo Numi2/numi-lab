@@ -5887,6 +5887,13 @@ install(
         PATTERN "*.py"
         PATTERN "py.typed"
 )
+install(FILES docs/SCIENTIFIC_WORKFLOW.md DESTINATION share/numi/docs)
+install(
+    DIRECTORY examples/science
+    DESTINATION share/numi/examples
+    PATTERN "__pycache__" EXCLUDE
+    PATTERN "evidence" EXCLUDE
+)
 install(DIRECTORY include/ DESTINATION include)
 install(
     FILES

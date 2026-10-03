@@ -1,0 +1,207 @@
+{
+  "schema": "numi.science.workflow-gap-audit.v1",
+  "scope": "Local scientific notebook and bounded native synthetic weight study",
+  "baseline": [
+    {
+      "gap": "missing-calibration",
+      "reproduced": true,
+      "observed": "registered nonexistent calibration"
+    },
+    {
+      "gap": "deleted-trial-rerun",
+      "reproduced": true,
+      "observed": "deleted completed trial accepted and executed again"
+    },
+    {
+      "gap": "reused-holdout",
+      "reproduced": true,
+      "observed": "follow-up accepted exact same pair and seed as fitted parent"
+    },
+    {
+      "gap": "parent-not-verified",
+      "reproduced": true,
+      "observed": "child verifies despite corrupted parent revision"
+    },
+    {
+      "gap": "unrecorded-output-error",
+      "reproduced": true,
+      "observed": "completed process with symlink output has no terminal receipt"
+    }
+  ],
+  "software_tests": {
+    "science_notebook": 36,
+    "plugin_contract": 9,
+    "cli_context": 15,
+    "shell_cli": "passed",
+    "python_versions": [
+      "3.10.12",
+      "3.14.6"
+    ],
+    "result": "passed",
+    "evidence_level": "software"
+  },
+  "native_qualification": {
+    "device": "Apple M4",
+    "checks": [
+      "cpu_metal_parity",
+      "transactional_reject",
+      "bitwise_cpu_replay",
+      "known_value_extraction",
+      "10_invalid_input_rejections",
+      "frozen_weight_control"
+    ],
+    "scope": "Synthetic protocol, not biological calibration"
+  },
+  "studies": [
+    {
+      "name": "discovery",
+      "registration_sha256": "afb611c8f8a9204efad829b92589abeabdc1cb261c64c805f92a720b9b9dfb47",
+      "analysis_sha256": "170502dc70cea204c2c74f4da3f8172229029d8a3ac252afcbbfea510de50a97",
+      "revision_sha256": "b93f97377cbf6365717817c5484f3b80669c2ccc68a45adfff6797c8a85419b7",
+      "units": [
+        {
+          "seed": 3201
+        },
+        {
+          "seed": 3202
+        },
+        {
+          "seed": 3203
+        }
+      ],
+      "prediction": {
+        "estimand": "paired_difference_mean",
+        "maximum": 0.01,
+        "minimum": 9.99999999999994e-05
+      },
+      "verdict": "contradicted",
+      "mean_difference": -1.229189999999806e-05,
+      "observed_spread": {
+        "maximum": 1.8292400000001485e-05,
+        "minimum": -6.557629999999481e-05,
+        "sample_sd": 4.631371951085067e-05
+      },
+      "paired_differences": [
+        {
+          "pair": "3201",
+          "treatment_minus_control": -6.557629999999481e-05
+        },
+        {
+          "pair": "3202",
+          "treatment_minus_control": 1.0408199999999146e-05
+        },
+        {
+          "pair": "3203",
+          "treatment_minus_control": 1.8292400000001485e-05
+        }
+      ],
+      "issues": [],
+      "model": "stdp-effect-v1",
+      "decision": "revise"
+    },
+    {
+      "name": "confirmation",
+      "registration_sha256": "93e55522c76be50d21b0d06c048f0507dcee39d57c864dcfd7aeda38a9aa4d95",
+      "analysis_sha256": "cce2353e29fe3a2283f87235e9d3a58bc3600778e5144007580dfd80ee7a9cbb",
+      "revision_sha256": "ab79699e3ee199a256a097d8beb3ce395464ed44778cf14a52891c88740a7f76",
+      "units": [
+        {
+          "seed": 3301
+        },
+        {
+          "seed": 3302
+        },
+        {
+          "seed": 3303
+        }
+      ],
+      "prediction": {
+        "estimand": "paired_difference_mean",
+        "maximum": 0.00012664925853255395,
+        "minimum": -0.00015123305853255006
+      },
+      "verdict": "contradicted",
+      "mean_difference": 0.0001558314333333343,
+      "observed_spread": {
+        "maximum": 0.0002891062,
+        "minimum": 5.311930000000131e-05,
+        "sample_sd": 0.00012092563896917455
+      },
+      "paired_differences": [
+        {
+          "pair": "3301",
+          "treatment_minus_control": 0.00012526880000000157
+        },
+        {
+          "pair": "3302",
+          "treatment_minus_control": 0.0002891062
+        },
+        {
+          "pair": "3303",
+          "treatment_minus_control": 5.311930000000131e-05
+        }
+      ],
+      "issues": [],
+      "model": "stdp-effect-v1.fit",
+      "decision": "revise"
+    },
+    {
+      "name": "final-confirmation",
+      "registration_sha256": "f064193b19938812719d6c0a1a7b6930540f477423342dae4ec3c5e3d13eecec",
+      "analysis_sha256": "3ce412f55ea6c1ba8f96aabf2576bf3cedec7c9b2a19a7ebdd36d528611f06f3",
+      "revision_sha256": "746604d671840ac637606219f514799c32bae1b65f34afcffaa92136d9215b7c",
+      "units": [
+        {
+          "seed": 3401
+        },
+        {
+          "seed": 3402
+        },
+        {
+          "seed": 3403
+        }
+      ],
+      "prediction": {
+        "estimand": "paired_difference_mean",
+        "maximum": 0.000518608350240858,
+        "minimum": -0.00020694548357418934
+      },
+      "verdict": "supported",
+      "mean_difference": 8.823733333333574e-05,
+      "observed_spread": {
+        "maximum": 0.00012527050000000345,
+        "minimum": 3.98633000000051e-05,
+        "sample_sd": 4.3818476645396966e-05
+      },
+      "paired_differences": [
+        {
+          "pair": "3401",
+          "treatment_minus_control": 3.98633000000051e-05
+        },
+        {
+          "pair": "3402",
+          "treatment_minus_control": 0.00012527050000000345
+        },
+        {
+          "pair": "3403",
+          "treatment_minus_control": 9.957819999999867e-05
+        }
+      ],
+      "issues": [],
+      "model": "stdp-effect-v1.fit.fit",
+      "decision": "retain"
+    }
+  ],
+  "archive": {
+    "file": "20261003-v2.tar.gz",
+    "sha256": "3027bee108310859aef272d2008b4b291d17575aa669c0f8827e3f8747cb7132",
+    "bytes": 1910675
+  },
+  "limitations": [
+    "Local integrity, not an external signature or timestamp.",
+    "Observed units are declared identities; actual scientific independence requires domain judgment.",
+    "Two initial hypotheses were contradicted. The final supported interval is a heuristic, not a confidence interval or population coverage guarantee.",
+    "No physical or biological learning qualification.",
+    "Already registered v1 studies retain their original execution guarantees."
+  ]
+}

@@ -5,6 +5,6 @@ if [ "${1:-}" = "--numi-describe" ]; then
     exit 0
 fi
 root=${NUMI_LAB_ROOT:?Run this capability through numi.}
-tool="$root/python/metalrobo/science.py"
-[ -f "$tool" ] || tool="$root/share/numi/python/metalrobo/science.py"
+tool="$root/python/metalrobo/science_notebook.py"
+[ -f "$tool" ] || tool="$root/share/numi/python/metalrobo/science_notebook.py"
 exec python3 "$tool" "$@"

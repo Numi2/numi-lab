@@ -10,9 +10,58 @@ Read [the workflow and command contract](../../docs/SCIENTIFIC_WORKFLOW.md).
 binary and retains its build receipt. `neuron_weight_instrument.py` validates and
 extracts the native mean plastic weight, retains raw owner output and verifies
 that STDP-off preserves the authored 0.05 control. `prepare_neuron_study.py`
-calibrates the reader and authors the prediction and paired trials.
+qualifies the exact native binary and reader before authoring paired trials.
+`weight_effect_model.py` generates predictions from JSON parameters, fits revisions
+to verified observations, and records retained parameters after an independent test.
+New studies use v2; the v1 records below remain historical evidence.
 
-## Retained execution, 2026-10-03 Europe/Oslo
+## Workflow integrity audit and fresh v2 execution
+
+The v2 runner closes five reproduced failures: nonexistent calibration accepted,
+lost trial directories silently rerunnable, reused training seeds accepted as
+confirmation, parent evidence left unverified, and symlink output preventing a
+terminal receipt. It also binds executable model predictions, snapshots inputs
+and parents, handles interrupted process groups, and preserves the existing v1
+runner for already registered work. The software regression suite exercises
+these failures, archive relocation, executable fitting and v1 continuation.
+
+The [audit and measured results](evidence/20261003-v2-summary.json) retain the
+baseline reproductions and exact new record hashes. The complete portable v2
+notebook is [20261003-v2.tar.gz](evidence/20261003-v2.tar.gz), including native raw
+observations, calibration, input snapshots, model files and both parent studies.
+The summary binds the archive SHA-256. Extract into a new directory and verify:
+
+```sh
+tar -xzf examples/science/evidence/20261003-v2.tar.gz -C /path/to/new/archive
+numi science verify /path/to/new/archive/final-confirmation
+```
+
+Evidence archives are in the source repository; installed example packages omit
+them. Their [published source location](https://github.com/Numi2/numi-lab/tree/main/examples/science/evidence)
+is the same as this directory.
+
+| V2 study | Frozen predicted mean interval | Observed mean | Result |
+| --- | --- | --- | --- |
+| Discovery, seeds 3201–3203 | [0.0001, 0.01] | -0.00001229190 | Contradicted |
+| First confirmation, seeds 3301–3303 | [-0.0001512331, 0.0001266493] | 0.00015583143 | Contradicted |
+| Final confirmation, seeds 3401–3403 | [-0.0002069455, 0.0005186084] | 0.00008823733 | Supported at this scope |
+
+All 18 registered native trials completed on Apple M4 with matched controls and
+12 windows. Separate calibration seeds 3200, 3300 and 3400 passed the frozen
+0.05-weight control; native parity, replay and transaction qualification passed
+before each study. No test seed was reused across the three batches.
+
+Each revision executed the same explicit fit rule: mean ± three sample SDs of
+the immediately preceding valid batch. Prior exposed units remained in the model
+history even though the fit used the current batch. Each new prediction was
+executed and sealed before unused observations. The first fitted interval failed,
+revealing that three discovery seeds understated later variation. A second
+revision survived one final batch; its parameters were retained unchanged.
+Both contradictions remain in the archive. This small adaptive sequence is a
+workflow demonstration and descriptive synthetic result, not calibrated
+population coverage, a significance claim, or proof of biological learning.
+
+## Historical v1 execution, 2026-10-03 Europe/Oslo
 
 The complete compact records are in [evidence/20261003](evidence/20261003).
 Local timestamps in the records are UTC on October 2. The focused owner build
