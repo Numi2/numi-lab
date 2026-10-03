@@ -398,6 +398,9 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                          bool cookOnly = false,
                          const char* contactFieldsOutputPath = nullptr) {
     try {
+        constexpr double sourceContinuationIncrement = 0.05;
+        constexpr double sourceTimeTolerance = 1.0e-6;
+        double checkpointSourceTime = -1.0;
         require(elementForceOutputPath == nullptr || checkpointSeedPath != nullptr,
                 "element force readback needs a source checkpoint seed");
         require(contactFieldsOutputPath == nullptr || checkpointSeedPath != nullptr,
@@ -413,6 +416,12 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                     std::isfinite(solveTime) && solveTime >= 0.0 &&
                     solveTime <= 2.0),
                 "source solve requires the complete program and a valid continuation time");
+        if (solveTime >= 0.0) {
+            const double tick = solveTime / sourceContinuationIncrement;
+            require(std::abs(tick - std::round(tick)) <
+                        sourceTimeTolerance / sourceContinuationIncrement,
+                    "source continuation target must lie on the FEBio 0.05-time grid");
+        }
         require(newtonBudget > 0u && newtonBudget <= 64u &&
                 fgmresBudget > 0u && fgmresBudget <= 512u,
                 "source numerical iteration budgets are invalid");
@@ -451,11 +460,17 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
             std::memcpy(checkpointDeck.data(), bytes.data() + 32u, 32u);
             std::memcpy(checkpointGeometry.data(), bytes.data() + 64u, 32u);
             std::memcpy(checkpointArchive.data(), bytes.data() + 96u, 32u);
+            const double checkpointTick = checkpointTime /
+                sourceContinuationIncrement;
             require(version == (preciseSeed ? 3u : 2u) &&
                     count == 194729u && bodies == 9u &&
                     stateIndex > 0u && std::isfinite(checkpointTime) &&
-                    std::abs(checkpointTime - solveTime) < 1.0e-6,
+                    checkpointTime >= 0.0 && checkpointTime <= solveTime +
+                        sourceTimeTolerance &&
+                    std::abs(checkpointTick - std::round(checkpointTick)) <
+                        sourceTimeTolerance / sourceContinuationIncrement,
                     "source checkpoint seed has invalid header");
+            checkpointSourceTime = checkpointTime;
             checkpointPositions.resize(count);
             std::memcpy(checkpointPositions.data(), bytes.data() + headerBytes,
                         count * 12u);
@@ -484,6 +499,39 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                             return std::ranges::all_of(position,
                                 [](float value) { return std::isfinite(value); });
                         }), "source checkpoint has nonfinite tissue positions");
+        }
+        if (elementForceOutputPath != nullptr || contactFieldsOutputPath != nullptr)
+            require(checkpointSourceTime >= 0.0 &&
+                        std::abs(checkpointSourceTime - solveTime) <
+                            sourceTimeTolerance,
+                    "checkpoint field readback requires target time to equal the imported checkpoint time");
+        std::vector<std::pair<std::uint32_t, double>> sourceContinuationRoots;
+        if (solveTime >= 0.0) {
+            const auto targetTick = static_cast<std::uint32_t>(std::llround(
+                solveTime / sourceContinuationIncrement));
+            const auto initialTick = checkpointSourceTime >= 0.0
+                ? static_cast<std::uint32_t>(std::llround(
+                    checkpointSourceTime / sourceContinuationIncrement))
+                : 0u;
+            require(targetTick >= initialTick,
+                    "source target precedes the imported checkpoint");
+            if (checkpointSourceTime >= 0.0) {
+                // Re-evaluate the imported source state at its own continuation
+                // parameter first. This restores the time-dependent material
+                // overlay before advancing to the next source increment.
+                sourceContinuationRoots.emplace_back(
+                    initialTick, double(initialTick) *
+                        sourceContinuationIncrement);
+            }
+            for (std::uint32_t tick = std::max(
+                     initialTick + (checkpointSourceTime >= 0.0 ? 1u : 0u), 1u);
+                 tick <= targetTick; ++tick)
+                sourceContinuationRoots.emplace_back(
+                    tick, double(tick) * sourceContinuationIncrement);
+            if (targetTick == 0u && sourceContinuationRoots.empty())
+                sourceContinuationRoots.emplace_back(0u, 0.0);
+            require(!sourceContinuationRoots.empty(),
+                    "source continuation schedule is empty");
         }
         const std::vector<std::uint8_t> fiberBytes = readBinaryBytes(fiberPath);
         const std::vector<std::uint8_t> meshBytes = readBinaryBytes(meshPath);
@@ -1367,10 +1415,11 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                         "source FEM spring lowering is incomplete");
             }
             std::uint64_t programFingerprint = 14695981039346656037ull;
-            for (const auto* bytes : {&tieBytes, &graphBytes, &discreteBytes})
+            for (const auto* bytes : {&tieBytes, &graphBytes, &discreteBytes}) {
                 for (const auto byte : *bytes)
                     programFingerprint = (programFingerprint ^ byte) *
                         1099511628211ull;
+            }
             require(programFingerprint != 0u,
                     "source rigid program has invalid fingerprint");
 #ifdef __APPLE__
@@ -1448,9 +1497,7 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                     statuses != nil &&
                     (elementForceOutputPath == nullptr || initialElementForces != nil),
                     "source step Metal arenas unavailable");
-                id<MTLCommandBuffer> command = [queue commandBuffer];
                 numi::matter::EncodeRequest request{};
-                request.commandBuffer = (__bridge void*)command;
                 request.environmentStatuses = (__bridge void*)statuses;
                 request.rigid.currentBodies = (__bridge void*)current;
                 request.rigid.currentBodyCount = static_cast<std::uint32_t>(bodies.size());
@@ -1468,68 +1515,171 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                         compiled.world.dispatch.tetrahedronCount;
                 }
                 request.timestepSeconds = runtime.timestepSeconds();
-                request.sourceContinuationTime = static_cast<float>(solveTime);
-                request.phase = numi::matter::EncodePhase::preDynamics;
-                auto encoded = runtime.encode(request);
-                if (!encoded.encoded) {
-                    std::cout << "source_step=not_encoded reason=" << encoded.message
-                              << " source_equivalence=rejected\n";
-                    return 2;
-                }
-                request.phase = numi::matter::EncodePhase::postCommit;
-                request.femInitialElementForces = nullptr;
-                request.femInitialElementForceCount = 0u;
-                encoded = runtime.encode(request);
-                require(encoded.encoded, "source step postCommit: " + encoded.message);
-                [command commit];
-                [command waitUntilCompleted];
-                require(command.status == MTLCommandBufferStatusCompleted,
-                        "source step command failed");
-                if (initialElementForces != nil) {
-                    const auto* forces = static_cast<const NMFEMElementVectorGPU*>(
-                        initialElementForces.contents);
-                    if (elementForceOutputPath != nullptr) {
-                        std::ofstream output(elementForceOutputPath,
-                                             std::ios::binary | std::ios::trunc);
-                        require(output.good(), "cannot open checkpoint element force output");
-                        output.write(reinterpret_cast<const char*>(forces),
-                            std::streamsize(initialElementForces.length));
-                        require(output.good(), "cannot write checkpoint element force output");
+                numi::matter::RuntimeStateSnapshot state;
+                bool reachedRequestedTime = true;
+                double lastAttemptedSourceTime = -1.0;
+                for (std::size_t rootOrdinal = 0u;
+                     rootOrdinal < sourceContinuationRoots.size();
+                     ++rootOrdinal) {
+                    const auto [sourceTick, sourceTime] =
+                        sourceContinuationRoots[rootOrdinal];
+                    lastAttemptedSourceTime = sourceTime;
+                    worldStatus = {};
+                    worldStatus.code = MR_STEP_SUCCESS;
+                    std::memcpy(statuses.contents, &worldStatus,
+                                sizeof(worldStatus));
+                    id<MTLCommandBuffer> command = [queue commandBuffer];
+                    require(command != nil,
+                            "source continuation command buffer unavailable");
+                    request.commandBuffer = (__bridge void*)command;
+                    request.controlStep = sourceTick;
+                    request.physicsSubstep = 0u;
+                    request.sourceContinuationTime =
+                        static_cast<float>(sourceTime);
+                    request.phase = numi::matter::EncodePhase::preDynamics;
+                    if (initialElementForces != nil) {
+                        request.femInitialElementForces =
+                            (__bridge void*)initialElementForces;
+                        request.femInitialElementForceCount =
+                            compiled.world.dispatch.tetrahedronCount;
                     }
-                    std::vector<bool> mclFemoralTie(
-                        compiled.world.dispatch.femNodeCount, false);
-                    for (const auto& tie : runtimeTies)
-                        if (tie.identity.z == 5u &&
-                            rigidGraph.bodies[tie.identity.y].materialId == 4u)
-                            mclFemoralTie[tie.identity.x] = true;
-                    const auto& mcl = compiled.world.objects[5u];
-                    std::array<double, 3u> total{};
-                    for (std::uint32_t local = 0u; local < mcl.elementCount;
-                         ++local) {
-                        const std::uint32_t element = mcl.elementOffset + local;
-                        const auto& tet = compiled.world.fem.tetrahedra[element];
-                        const auto& force = forces[element];
-                        for (std::uint32_t slot = 0u; slot < 4u; ++slot) {
-                            const std::uint32_t localNode = slot == 0u ?
-                                tet.nodes.x : slot == 1u ? tet.nodes.y :
-                                slot == 2u ? tet.nodes.z : tet.nodes.w;
-                            const std::uint32_t node = localNode;
-                            if (!mclFemoralTie[node]) continue;
-                            const auto& value = slot == 0u ? force.node0 :
-                                slot == 1u ? force.node1 :
-                                slot == 2u ? force.node2 : force.node3;
-                            total[0u] += value.x;
-                            total[1u] += value.y;
-                            total[2u] += value.z;
+                    auto encoded = runtime.encode(request);
+                    if (!encoded.encoded) {
+                        std::cout << "source_step=not_encoded source_time="
+                                  << sourceTime << " reason=" << encoded.message
+                                  << " source_equivalence=rejected\n";
+                        return 2;
+                    }
+                    request.phase = numi::matter::EncodePhase::postCommit;
+                    request.femInitialElementForces = nullptr;
+                    request.femInitialElementForceCount = 0u;
+                    encoded = runtime.encode(request);
+                    if (!encoded.encoded) {
+                        runtime.cancel((__bridge void*)command);
+                        std::cout << "source_step=not_encoded source_time="
+                                  << sourceTime << " reason=" << encoded.message
+                                  << " source_equivalence=rejected\n";
+                        return 2;
+                    }
+                    [command commit];
+                    [command waitUntilCompleted];
+                    require(command.status == MTLCommandBufferStatusCompleted,
+                            "source continuation command failed");
+                    state = runtime.snapshot();
+                    require(state.available && !state.statuses.empty(),
+                            "source continuation state readback unavailable");
+                    const bool rootAccepted =
+                        state.statuses[0u].code == NM_STATUS_SUCCESS;
+                    std::cout << "source_continuation_increment="
+                              << (rootAccepted ? "accepted" : "rejected")
+                              << " control_step=" << sourceTick
+                              << " source_time=" << sourceTime
+                              << " matter_status=" << state.statuses[0u].code
+                              << " failing_object="
+                              << state.statuses[0u].objectIndex
+                              << " failing_index="
+                              << state.statuses[0u].failingIndex
+                              << " residual="
+                              << state.statuses[0u].diagnostics.z
+                              << " correction="
+                              << state.statuses[0u].diagnostics.w << '\n';
+                    if (initialElementForces != nil && rootOrdinal == 0u) {
+                        const auto* forces =
+                            static_cast<const NMFEMElementVectorGPU*>(
+                                initialElementForces.contents);
+                        if (elementForceOutputPath != nullptr) {
+                            std::ofstream output(elementForceOutputPath,
+                                std::ios::binary | std::ios::trunc);
+                            require(output.good(),
+                                    "cannot open checkpoint element force output");
+                            output.write(reinterpret_cast<const char*>(forces),
+                                std::streamsize(initialElementForces.length));
+                            require(output.good(),
+                                    "cannot write checkpoint element force output");
                         }
+                        std::vector<bool> mclFemoralTie(
+                            compiled.world.dispatch.femNodeCount, false);
+                        for (const auto& tie : runtimeTies)
+                            if (tie.identity.z == 5u &&
+                                rigidGraph.bodies[tie.identity.y].materialId == 4u)
+                                mclFemoralTie[tie.identity.x] = true;
+                        const auto& mcl = compiled.world.objects[5u];
+                        std::array<double, 3u> total{};
+                        for (std::uint32_t local = 0u;
+                             local < mcl.elementCount; ++local) {
+                            const std::uint32_t element = mcl.elementOffset + local;
+                            const auto& tet = compiled.world.fem.tetrahedra[element];
+                            const auto& force = forces[element];
+                            for (std::uint32_t slot = 0u; slot < 4u; ++slot) {
+                                const std::uint32_t localNode = slot == 0u ?
+                                    tet.nodes.x : slot == 1u ? tet.nodes.y :
+                                    slot == 2u ? tet.nodes.z : tet.nodes.w;
+                                if (!mclFemoralTie[localNode]) continue;
+                                const auto& value = slot == 0u ? force.node0 :
+                                    slot == 1u ? force.node1 :
+                                    slot == 2u ? force.node2 : force.node3;
+                                total[0u] += value.x;
+                                total[1u] += value.y;
+                                total[2u] += value.z;
+                            }
+                        }
+                        std::cout << "source_first_assembly_time=" << sourceTime
+                                  << " source_first_assembly_mcl_femoral_continuum_force_n="
+                                  << total[0u] << ',' << total[1u] << ','
+                                  << total[2u] << '\n';
                     }
-                    std::cout << "checkpoint_initial_mcl_femoral_continuum_force_n="
-                              << total[0u] << ',' << total[1u] << ','
-                              << total[2u] << '\n';
+                    if (!rootAccepted) {
+                        reachedRequestedTime = false;
+                        break;
+                    }
+                    if (rootOrdinal + 1u < sourceContinuationRoots.size()) {
+                        require(state.rigidStates.size() == bodies.size(),
+                                "accepted source root lacks rigid pose readback");
+                        for (std::size_t bodyIndex = 0u;
+                             bodyIndex < bodies.size(); ++bodyIndex) {
+                            auto& body = bodies[bodyIndex];
+                            const auto& pose = state.rigidStates[bodyIndex];
+                            const std::array<float, 3u> center{
+                                pose.bodyCenter.x, pose.bodyCenter.y,
+                                pose.bodyCenter.z};
+                            const std::array<float, 4u> orientation{
+                                pose.orientation.x, pose.orientation.y,
+                                pose.orientation.z, pose.orientation.w};
+                            const double quaternionNorm = std::sqrt(
+                                double(orientation[0u]) * orientation[0u] +
+                                double(orientation[1u]) * orientation[1u] +
+                                double(orientation[2u]) * orientation[2u] +
+                                double(orientation[3u]) * orientation[3u]);
+                            require(std::ranges::all_of(center,
+                                        [](float value) {
+                                            return std::isfinite(value);
+                                        }) &&
+                                    std::ranges::all_of(orientation,
+                                        [](float value) {
+                                            return std::isfinite(value);
+                                        }) &&
+                                    quaternionNorm > 0.9 &&
+                                    quaternionNorm < 1.1,
+                                    "accepted source root returned an invalid rigid pose");
+                            body.position = {pose.bodyCenter.x, pose.bodyCenter.y,
+                                              pose.bodyCenter.z,
+                                              body.position.w};
+                            body.orientation = {
+                                static_cast<float>(orientation[0u] / quaternionNorm),
+                                static_cast<float>(orientation[1u] / quaternionNorm),
+                                static_cast<float>(orientation[2u] / quaternionNorm),
+                                static_cast<float>(orientation[3u] / quaternionNorm)};
+                            body.linearVelocityAndInverseMass.x = 0.0f;
+                            body.linearVelocityAndInverseMass.y = 0.0f;
+                            body.linearVelocityAndInverseMass.z = 0.0f;
+                            body.angularVelocity = {0.0f, 0.0f, 0.0f, 0.0f};
+                        }
+                        std::memcpy(current.contents, bodies.data(),
+                                    bodies.size() * sizeof(MRBodyStateGPU));
+                        std::memcpy(scene.contents, bodies.data(),
+                                    bodies.size() * sizeof(MRBodyStateGPU));
+                    }
                 }
-                const auto state = runtime.snapshot();
-                require(state.available && !state.statuses.empty(),
-                        "source step state readback unavailable");
                 if (contactFieldsOutputPath != nullptr) {
                     require(state.diagnosticSourceContactProjections.size() ==
                                 3u * sourceContact.faces.size(),
@@ -1593,6 +1743,8 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                         fields.size() * sizeof(fields.front()));
                     require(output.good(), "source contact field output failed");
                 }
+                require(state.available && !state.statuses.empty(),
+                        "source continuation produced no completion state");
                 double maximumDisplacement = 0.0;
                 for (std::size_t node = 0u; node < state.femNodes.size(); ++node) {
                     const auto& actual = state.femNodes[node].positionAndMass;
@@ -1602,7 +1754,10 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                     maximumDisplacement = std::max(maximumDisplacement,
                         std::sqrt(dx*dx + dy*dy + dz*dz));
                 }
-                const bool accepted = state.statuses[0u].code == NM_STATUS_SUCCESS;
+                const bool accepted = reachedRequestedTime &&
+                    state.statuses[0u].code == NM_STATUS_SUCCESS &&
+                    std::abs(lastAttemptedSourceTime - solveTime) <
+                        sourceTimeTolerance;
                 double maximumResidual = 0.0;
                 double minimumJacobian = std::numeric_limits<double>::infinity();
                 std::size_t worstObject = 0u;
@@ -1617,7 +1772,12 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                         static_cast<double>(certificate.validity.x));
                 }
                 std::cout << "source_step=" << (accepted ? "accepted" : "rejected")
-                          << " source_time=" << solveTime
+                          << " source_time=" << lastAttemptedSourceTime
+                          << " source_target_time=" << solveTime
+                          << " source_continuation_roots="
+                          << sourceContinuationRoots.size()
+                          << " source_target_reached="
+                          << (reachedRequestedTime ? "true" : "false")
                           << " newton_budget=" << newtonBudget
                           << " fgmres_budget=" << fgmresBudget
                           << " matter_status=" << state.statuses[0u].code
@@ -1635,10 +1795,9 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                           << " max_fem_displacement_m=" << maximumDisplacement
                           << " source_contact_history=" << state.sourceContactHistory.size()
                           << " source_equivalence=unqualified\n";
-                if (checkpointSeedPath != nullptr)
-                    for (std::size_t body = 0u; body < state.rigidStates.size(); ++body) {
+                for (std::size_t body = 0u; body < state.rigidStates.size(); ++body) {
                         const auto& rigid = state.rigidStates[body];
-                        std::cout << "checkpoint_rigid_body index=" << body
+                        std::cout << "source_rigid_body index=" << body
                                   << " material=" << rigidGraph.bodies[body].materialId
                                   << " center_m=" << rigid.bodyCenter.x << ','
                                   << rigid.bodyCenter.y << ',' << rigid.bodyCenter.z
@@ -1958,6 +2117,12 @@ int checkSourceArtifacts(const char* fiberPath, const char* meshPath,
                   << (sourceDiscretePath != nullptr
                       ? "source_constant_extended_curve_in_newton_program_not_stepped"
                       : "not_assembled")
+                  << " source_continuation_plan_roots="
+                  << sourceContinuationRoots.size()
+                  << " source_continuation_plan_first_time="
+                  << (sourceContinuationRoots.empty()
+                      ? -1.0 : sourceContinuationRoots.front().second)
+                  << " source_continuation_plan_target=" << solveTime
                   << " coupled_runtime_program=" <<
                      (runtimeProgramInitialized ? "initialized" : "not_requested")
                   << " runtime_resident_bytes=" << runtimeResidentBytes

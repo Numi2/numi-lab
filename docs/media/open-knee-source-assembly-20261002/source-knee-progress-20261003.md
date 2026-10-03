@@ -21,3 +21,9 @@ A full-restart diagnostic was interrupted when another Metal workload became act
 ## Current qualification
 
 No accepted Matter preload or flexion state exists. Therefore accepted-state rigid poses, reaction wrenches, contact pressure/gap, tissue stress/prestrain, and displacement have not been compared with XPLT. The passing compiler tests and imported-pose field comparisons do not close that gate. The next required result remains an accepted coupled source root under the certified source contact path, followed by checkpoint-by-checkpoint field comparison and continuation.
+
+## Source-time continuation wiring
+
+The full-knee check now builds a 0.05-grid continuation from its imported FEBio seed through the requested checkpoint. It re-evaluates the seed's own source time first so the source prestrain overlay is present before advancing, then carries accepted rigid poses into each following quasi-static root while Matter retains its accepted tissue and contact-history state. Each increment stops the sequence on rejection, and the final report distinguishes the last attempted time from the requested target.
+
+A cook-only run from the retained state-1 seed at time 0.05 to time 1.0 reports 20 planned roots, beginning at 0.05 and ending at 1.0. This confirms the schedule against the retained source step size; it is not a solver run. The production sliding-contact guard still prevents dispatch until contact and checkpoint initialization are qualified, so there is still no accepted Matter preload/flexion state or accepted-state XPLT comparison.
