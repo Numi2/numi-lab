@@ -2,8 +2,8 @@
 
 `numi wet-lab` opens an experiment workspace inside NumiLab. NumiVivo owns
 source preparation, native prediction and verification; NumiLab supplies the
-local interface. The shared `WetLabExperimentAdapter` boundary supports both
-paired-donor RNA response and spatial tissue transport. Each adapter owns its
+local interface. The shared `WetLabExperimentAdapter` boundary supports paired-donor RNA response, spatial tissue transport and real spatial
+gene perturbation. Each adapter owns its
 units, model, observation contract, comparison and evidence status.
 
 Choose a measured specimen, freeze a prediction, reveal held-out treated
@@ -29,7 +29,7 @@ numi wet-lab \
 
 Open `http://127.0.0.1:8768`. `--port 0` selects an available port;
 `--catalog` prints the list of assay catalogs without starting the server.
-Repeat `--assay` to register a spatial assay alongside RNA; the selector and
+Repeat `--assay` to register molecular/spatial assays alongside RNA; the selector and
 experiment history dispatch through each record's versioned adapter.
 A spatial-only workspace does not require `--binary`.
 `NUMIVIVO_ROOT`, `NUMIVIVO_BINARY` and `NUMI_PYTHON` can configure owner paths.
@@ -109,8 +109,69 @@ discrete graph and software integration. Nonorthogonal continuum diffusion,
 biological calibration, cell growth/function and mechanical feedback remain open.
 The receipt is in NumiVivo's `Tools/VirtualWetLab/evidence/2026-10-03-spatial`.
 
-Molecular target engagement should become a separate adapter that compares a
-measured occupancy/kinetic endpoint. A future compound → molecular → cellular →
+Molecular target engagement still requires its own measured occupancy/kinetic
+endpoint. The v0.2 gene-perturbation adapter below does not infer that mechanism. A future compound → molecular → cellular →
 spatial chain must retain evidence for each transition instead of inheriting a
 single validity flag. NumiBrain/NumiHuman context remains optional and belongs
 only to assays that require it. A cancer workspace should reuse these owners.
+
+
+## v0.2: an experiment-centred tissue workspace
+
+Prepare NumiVivo's pinned GSE274447 assay with
+`Tools/VirtualWetLab/prepare_spatial_perturb.py` and add its `assay.json` to the
+same command. Full source, preparation, native checks and replay instructions are
+in NumiVivo's `Tools/VirtualWetLab/V02.md`. No external UI frameworks or model
+services are required. CMake installs the HTML, JavaScript and stylesheet together.
+
+The main canvas uses measured cell centroids and source coordinates. Select a
+cell to inspect its endpoint RNA, matched control reference, predicted regional
+RNA, residual and nearby cells. Spatial proximity is shown without claiming a
+biological interaction. Regional means plotted at cell locations are labelled as
+regional expectations, never single-cell forecasts. A source geometry subset
+provides context; only the admitted guide/control cells carry assay measurements.
+
+Use Control / Predicted / Observed / Error to inspect the same readout. The gene
+search, linked plots, residual map and failure-gene list stay synchronized.
+“Select intervention” selects supported regions directly on the specimen; it
+does not fabricate a new measured perturbation distribution. Unavailable regions
+explain their admission failure. Pan and zoom preserve source coordinates.
+
+The timeline scrubs only registered sample times. The real Clu experiment has
+one destructive endpoint, so it does not animate a fictitious trajectory. The
+synthetic transport adapter retains its five native times and compartment fields.
+The old eight-donor assay remains available as an RNA regression.
+
+“Compare with reality” verifies the seal before revealing held-out observations.
+Comparison retains all-gene baseline RMSE, gene errors, region failures and
+explicitly unavailable calibration. For the current held-out mouse the primary
+criterion was **contradicted**: context ridge RMSE 1.877694 versus no-change
+1.848305. One region with four controls and 18 target cells qualifies; regions
+and deterministic repeats are not independent biological replicates.
+
+Every view offers evidence/provenance inspection. The six evidence states are
+MEASURED, SIMULATED — VALIDATED DOMAIN, SIMULATED — OUT OF DISTRIBUTION,
+MODEL INFERENCE, HYPOTHESIS and UNAVAILABLE. Source, runtime hashes, transitions,
+assumptions, holdout state, uncertainty and replay-directory identity are exposed.
+No current v0.2 biological output is promoted to validated-domain status.
+
+The command bar supports exact gene names, `gene Clu`, `knockout Clu`,
+`region region-1-0`, `predict`, `compare` and `replay`. Unsupported targets,
+concentrations and arbitrary durations fail explicitly. This is a bounded typed
+compiler, not an unrestricted natural-language biology simulator. Templates save
+supported selections; history retains immutable experiments. Compare experiments
+shows two independent records and matched gene/region readouts without pooling
+replicates or units.
+
+Advanced Protocol & model exposes the typed transition plan and ExperimentCampaign.
+A campaign preregisters a hypothesis, supported selection matrix, simulation
+repeats and fixed success criterion. Every arm is sealed before any reveal;
+failures remain records. This dataset supports one target, endpoint and region,
+so dose/time sweeps remain unavailable. The next-region suggestion is model
+disagreement, not calibrated information gain. Qualification exposes the Arc
+2026 contract, whose official artifacts, scorer and zero-shot result remain open.
+
+Browser acceptance covers the real prediction/reveal/replay loop, provenance,
+selection, failure views, templates, campaign controls, legacy assay display and
+narrow layouts. The native source/prediction oracle, campaign and legacy replay
+receipts live in NumiVivo's `Tools/VirtualWetLab/evidence/2026-10-03-v02`.

@@ -5889,7 +5889,7 @@ install(
         PATTERN "py.typed"
 )
 install(FILES docs/SCIENTIFIC_WORKFLOW.md docs/VIRTUAL_WET_LAB.md DESTINATION share/numi/docs)
-install(FILES python/metalrobo/wet_lab/index.html DESTINATION share/numi/python/metalrobo/wet_lab)
+install(FILES python/metalrobo/wet_lab/index.html python/metalrobo/wet_lab/app.js python/metalrobo/wet_lab/style.css DESTINATION share/numi/python/metalrobo/wet_lab)
 install(
     DIRECTORY examples/science
     DESTINATION share/numi/examples

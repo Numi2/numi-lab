@@ -1,0 +1,32 @@
+{
+  "unsealedObservationHidden": true,
+  "pointerCellInspection": true,
+  "unsupportedCommandRejected": true,
+  "templateRoundTrip": true,
+  "run": "62bd7e1df01840c5aaf5d73d54fc68bf",
+  "nativePredictionSealed": true,
+  "revealRetainsFailure": true,
+  "uiExactReplay": true,
+  "evidenceInspection": true,
+  "linkedGeneResidualView": true,
+  "armComparison": true,
+  "campaignLifecycle": true,
+  "legacySpatialTimeAndEvidence": true,
+  "legacyRNAReadout": true,
+  "noHorizontalOverflow": [
+    1280,
+    390,
+    320
+  ],
+  "browserErrors": {
+    "errors": []
+  },
+  "inspectorClearsOnRecordChange": true,
+  "revealedCellAndRegionalReadoutsPresent": true,
+  "mobileCanvasFirst": true,
+  "finalAssetSHA256": {
+    "index.html": "556c63902f4fe00fd67fb70382699566e43315f4a57e26add303699e76442b86",
+    "app.js": "00dc9b29d34a5d6ff795d30e004e944caa251d55068b3f997f3348f729cd73b9",
+    "style.css": "59d74b942f7cce334b0ef48525fd3b88a376c888156327400e3ccbe9ddd61022"
+  }
+}
