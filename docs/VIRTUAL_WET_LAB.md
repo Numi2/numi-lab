@@ -213,3 +213,5 @@ Safari qualification is **blocked**, not passed: its remote-automation setting i
 disabled and native UI access failed. Hardware/browser generalization and the full
 software release gate remain unqualified. Evidence is under
 [`docs/evidence/virtual-wet-lab-v04`](evidence/virtual-wet-lab-v04/README.md).
+
+The [verified development package](https://github.com/Numi2/numiVivo/releases/tag/virtual-wet-lab-v0.4-development) contains nine replayed native candidates. The installed launcher now includes intervention design and receiver inspection while retaining the RNA, Clu, learned-spatial and transport assays and their existing records.
