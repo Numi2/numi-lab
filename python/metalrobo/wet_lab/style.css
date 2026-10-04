@@ -704,3 +704,19 @@ pre {
 .shared-visual-grid .shared-workspace {min-width:0;overflow-x:hidden;overflow-wrap:anywhere;}
 .shared-workspace button,.shared-workspace input {max-width:100%;white-space:normal;}
 .shared-workspace label {min-width:0;}
+/* Bounded measured-cell readouts; dot spacing is visual, not tissue geometry. */
+.measured-cohort-tools {padding:16px;margin:12px 0;}
+.measured-control-row {display:flex;gap:20px;flex-wrap:wrap;align-items:end;}
+.measured-control-row label {display:grid;gap:6px;min-width:200px;}
+.measured-interventions {display:flex;gap:8px;flex-wrap:wrap;max-height:240px;overflow:auto;}
+.measured-target {display:grid;text-align:left;gap:5px;min-width:150px;max-width:230px;font-size:12px;}
+.measured-target[aria-pressed=true] {border:2px solid #2d7664;background:#e8f3ec;}
+.measured-page-controls {display:flex;gap:8px;margin:12px 0;}
+.measured-distribution svg {width:100%;height:auto;max-height:200px;margin:12px 0;}
+.measured-distribution svg text {fill:#375b51;font-size:13px;}
+.measured-distribution svg line {stroke:#d5dfd9;stroke-width:1;}
+.measured-distribution svg circle {fill:#63845f;opacity:.65;}
+.measured-distribution svg circle.observed {fill:#2d827b;}
+.measured-distribution table {width:100%;border-collapse:collapse;}
+.measured-distribution td {padding:7px;border-bottom:1px solid #d7e0d8;text-align:left;}
+#population-predict:disabled {opacity:.55;cursor:not-allowed;}

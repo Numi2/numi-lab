@@ -178,3 +178,52 @@ history does not authorize revealing a different experiment.
 
 External dependencies are listed and verified; this is not a claim that arbitrary
 legacy assays are self-contained.
+
+## Explore an admitted measured cohort before a model is available
+
+Check the assay capabilities. A measured cellular cohort advertises
+`measuredExploration: true` and `prediction: false`; it opens in the existing
+population workspace with prediction disabled. Registering a compatible model is
+required before inference. Never substitute a frozen cellular or spatial model
+merely because that other model can execute.
+
+The dataset preview shows source populations, conditions, intervention support and
+control/outcome counts. Search interventions through bounded metadata pages. Gene
+catalogs may contain only an initial page: absence from that page does not establish
+that a gene is unmeasured. The gene autocomplete requests the owning dataset's
+bounded feature search, and the owner validates explicitly typed genes against the
+full source axis.
+
+Select an intervention and gene to load at most 128 measured values per group on
+one cell page. The plots show source-qualified cells on an expression-value axis;
+vertical spacing is only for visibility. They are neither spatial positions nor
+simulated trajectories. Owner-computed means remain distinct from the displayed
+bounded page. More cells or pages do not become independent biological replicates.
+
+Choose raw counts or the explicitly labeled `log1p(count / retained-panel cell total ×
+10,000)` readout. This transformation is supplied by NumiVivo, not recomputed by the
+browser, and is distinct from the older frozen model's log1p(CPM) values. Missing
+features and inaccessible observations remain unavailable, including for reserved
+targets whose metadata and counts are discoverable. Exploration never authorizes
+observation reveal, objective ranking or prediction. Researcher usability remains
+explicitly pending.
+
+### Bounded measured reads from the same selection
+
+Use `numi wet-lab catalog` to discover measured datasets as well as executable
+models. `capabilities.prediction: false` is a dataset awaiting a compatible
+model, not a request to substitute the spatial regression. Select the exact
+specimen, population and condition with the normal revision-checked `select`.
+
+`numi wet-lab readout --kind interventions --limit 32` lists that population's
+accessible and reserved coverage. `numi wet-lab readout --kind features --search
+GENE --limit 50` searches beyond the initial bounded catalog feature page.
+`numi wet-lab readout --gene GENE --target TARGET --normalization raw_counts
+--limit 64` reads a bounded page from the acknowledged shared selection. Use
+`--normalization log1p_10000` only when requesting that explicit transformation;
+its denominator is the retained source panel, not a claim of complete RNA.
+
+Reads neither authorize reveal nor create predictions. Reserved outcomes stay
+closed even when controls are accessible. Feature absence is not measured zero.
+A source GEM group is a technical capture; unknown biological units remain
+unknown. No researcher usability qualification is implied by automated tests.

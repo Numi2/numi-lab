@@ -86,7 +86,8 @@ def export(identifier):
  folder=HOME/'snapshots'/safe_id(identifier);verify(folder);out=HOME/'exports';out.mkdir(parents=True,exist_ok=True);archive=out/(identifier+'.tar.gz')
  if not archive.exists():
   temp=archive.with_suffix('.partial')
-  with tarfile.open(temp,'w:gz') as tar:tar.add(folder,arcname=identifier)
+  # Fast lossless compression keeps large measured-data exports practical.
+  with tarfile.open(temp,'w:gz',compresslevel=1) as tar:tar.add(folder,arcname=identifier)
   os.replace(temp,archive)
  return {'id':identifier,'archive':str(archive),'sha256':digest(archive)}
 

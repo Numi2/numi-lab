@@ -1,0 +1,333 @@
+{
+  "format": "numilab-real-cohort-browser-qualification/v1",
+  "status": "passed",
+  "scope": "Actual admitted data browser engineering; no biological promotion or researcher usability claim",
+  "url": "http://127.0.0.1:8776",
+  "browser": "Headless Chrome via Playwright, fresh browser context; OS/disk cache not cleared",
+  "timings": {
+    "metadataReadyMs": 2964.705458,
+    "firstUsableCohortMs": 3248.1497080000004,
+    "firstGeneRead": {
+      "completedMs": 3201.675667,
+      "assayID": "replogle-nadig-engineering-256",
+      "kind": "gene",
+      "gene": "NOC2L",
+      "target": "AARS",
+      "normalization": "raw_counts",
+      "limit": 128,
+      "offset": 0,
+      "bytes": 6987
+    }
+  },
+  "initialCohortCatalog": {
+    "featureCount": 128,
+    "featuresTotal": 11905,
+    "populations": 4,
+    "NOC2LInInitialPage": false
+  },
+  "populationIDs": {
+    "hepg2": "nadig-hepg2|HepG2",
+    "rpe1": "replogle-rpe1|RPE1"
+  },
+  "raw": {
+    "population": "nadig-hepg2|HepG2",
+    "gene": "NOC2L",
+    "units": "raw UMI counts",
+    "target": "AARS",
+    "values": [
+      {
+        "control": 128,
+        "observed": 22,
+        "controlCells": 512,
+        "outcomeCells": 32,
+        "evidence": "MEASURED"
+      }
+    ]
+  },
+  "normalized": {
+    "units": "log1p(count / retained-panel cell total × 10000)",
+    "gene": "NOC2L",
+    "target": "AARS"
+  },
+  "reserved": {
+    "population": "replogle-rpe1|RPE1",
+    "model": "replogle-nadig-engineering-256",
+    "access": {
+      "status": "development-open-only",
+      "reservedResponsesReturned": false
+    },
+    "arms": [
+      {
+        "target": "AARS",
+        "observed": null,
+        "observedValues": 0,
+        "evidence": "UNAVAILABLE"
+      }
+    ]
+  },
+  "finalPopulation": "nadig-hepg2|HepG2",
+  "predictionBlocked": true,
+  "noFallback": true,
+  "noPredictOrRevealRequested": true,
+  "pageErrors": [],
+  "network": [
+    {
+      "path": "/api/assays",
+      "status": 200,
+      "bytes": 681063,
+      "completedMs": 308.9544999999998,
+      "requestDurationMs": 195.1265840000001
+    },
+    {
+      "path": "/api/shared",
+      "status": 200,
+      "bytes": 1051323,
+      "completedMs": 2230.623083,
+      "requestDurationMs": 1938.6852920000006
+    },
+    {
+      "path": "/api/shared",
+      "status": 200,
+      "bytes": 1051323,
+      "completedMs": 2474.675125,
+      "requestDurationMs": 262.3351249999996
+    },
+    {
+      "path": "/api/readout",
+      "status": 200,
+      "bytes": 590,
+      "completedMs": 2673.453417,
+      "requestDurationMs": 37.09625000000051,
+      "query": {
+        "assayID": "replogle-nadig-engineering-256",
+        "kind": "features",
+        "limit": 50,
+        "offset": 0
+      },
+      "items": 1,
+      "values": [],
+      "access": {
+        "status": "development-open-only",
+        "reservedResponsesReturned": false
+      },
+      "responseBodyReadMs": 3.8459579999998823
+    },
+    {
+      "path": "/api/shared",
+      "status": 200,
+      "bytes": 1051323,
+      "completedMs": 2752.2129579999996,
+      "requestDurationMs": 297.8251250000003
+    },
+    {
+      "path": "/api/readout",
+      "status": 200,
+      "bytes": 15121,
+      "completedMs": 2756.671167,
+      "requestDurationMs": 30.244708000000173,
+      "query": {
+        "assayID": "replogle-nadig-engineering-256",
+        "kind": "interventions",
+        "limit": 32,
+        "offset": 0
+      },
+      "items": 32,
+      "values": [],
+      "access": {
+        "status": "development-open-only",
+        "reservedResponsesReturned": false
+      },
+      "responseBodyReadMs": 3.418499999999767
+    },
+    {
+      "path": "/api/readout",
+      "status": 200,
+      "bytes": 6987,
+      "completedMs": 3201.675667,
+      "requestDurationMs": 445.40049999999974,
+      "query": {
+        "assayID": "replogle-nadig-engineering-256",
+        "kind": "gene",
+        "gene": "NOC2L",
+        "target": "AARS",
+        "normalization": "raw_counts",
+        "limit": 128,
+        "offset": 0
+      },
+      "arms": 1,
+      "values": [
+        {
+          "target": "AARS",
+          "control": 128,
+          "observed": 22,
+          "observedUnavailable": false
+        }
+      ],
+      "access": {
+        "status": "development-open-only",
+        "reservedResponsesReturned": false
+      },
+      "responseBodyReadMs": 4.936166000000412
+    },
+    {
+      "path": "/api/readout",
+      "status": 200,
+      "bytes": 590,
+      "completedMs": 3460.4534579999995,
+      "requestDurationMs": 12.520917000000736,
+      "query": {
+        "assayID": "replogle-nadig-engineering-256",
+        "kind": "features",
+        "limit": 50,
+        "offset": 0
+      },
+      "items": 1,
+      "values": [],
+      "access": {
+        "status": "development-open-only",
+        "reservedResponsesReturned": false
+      },
+      "responseBodyReadMs": 0.955417000000125
+    },
+    {
+      "path": "/api/shared",
+      "status": 200,
+      "bytes": 1042199,
+      "completedMs": 3776.889708,
+      "requestDurationMs": 262.542958
+    },
+    {
+      "error": "Error: response.body: Protocol error (Network.getResponseBody): No data found for resource with given identifier\nResponse body is not available for a response that was navigated away from. Read response.body() before triggering any navigation.",
+      "path": "/api/readout"
+    },
+    {
+      "path": "/api/readout",
+      "status": 200,
+      "bytes": 9121,
+      "completedMs": 3779.188458,
+      "requestDurationMs": 21.072417000000314,
+      "query": {
+        "assayID": "replogle-nadig-engineering-256",
+        "kind": "gene",
+        "gene": "NOC2L",
+        "target": "AARS",
+        "normalization": "log1p_10000",
+        "limit": 128,
+        "offset": 0
+      },
+      "arms": 1,
+      "values": [
+        {
+          "target": "AARS",
+          "control": 128,
+          "observed": 22,
+          "observedUnavailable": false
+        }
+      ],
+      "access": {
+        "status": "development-open-only",
+        "reservedResponsesReturned": false
+      },
+      "responseBodyReadMs": 1.1077500000001237
+    },
+    {
+      "path": "/api/shared",
+      "status": 200,
+      "bytes": 1055394,
+      "completedMs": 4146.815583,
+      "requestDurationMs": 249.45516699999916
+    },
+    {
+      "path": "/api/readout",
+      "status": 200,
+      "bytes": 15163,
+      "completedMs": 4158.855207999999,
+      "requestDurationMs": 33.73712500000056,
+      "query": {
+        "assayID": "replogle-nadig-engineering-256",
+        "kind": "interventions",
+        "limit": 32,
+        "offset": 0
+      },
+      "items": 32,
+      "values": [],
+      "access": {
+        "status": "development-open-only",
+        "reservedResponsesReturned": false
+      },
+      "responseBodyReadMs": 6.935583000000406
+    },
+    {
+      "path": "/api/readout",
+      "status": 200,
+      "bytes": 7953,
+      "completedMs": 4667.900625,
+      "requestDurationMs": 514.4869159999998,
+      "query": {
+        "assayID": "replogle-nadig-engineering-256",
+        "kind": "gene",
+        "gene": "NOC2L",
+        "target": "AARS",
+        "normalization": "log1p_10000",
+        "limit": 128,
+        "offset": 0
+      },
+      "arms": 1,
+      "values": [
+        {
+          "target": "AARS",
+          "control": 128,
+          "observed": 0,
+          "observedUnavailable": true
+        }
+      ],
+      "access": {
+        "status": "development-open-only",
+        "reservedResponsesReturned": false
+      },
+      "responseBodyReadMs": 1.865208000000166
+    },
+    {
+      "path": "/api/shared",
+      "status": 200,
+      "bytes": 1064643,
+      "completedMs": 5005.5350419999995,
+      "requestDurationMs": 278.1739580000003
+    },
+    {
+      "path": "/api/shared",
+      "status": 200,
+      "bytes": 1042405,
+      "completedMs": 5220.926583,
+      "requestDurationMs": 418.93258400000013
+    },
+    {
+      "path": "/api/readout",
+      "status": 200,
+      "bytes": 15121,
+      "completedMs": 5235.691333000001,
+      "requestDurationMs": 23.389584000000468,
+      "query": {
+        "assayID": "replogle-nadig-engineering-256",
+        "kind": "interventions",
+        "limit": 32,
+        "offset": 0
+      },
+      "items": 32,
+      "values": [],
+      "access": {
+        "status": "development-open-only",
+        "reservedResponsesReturned": false
+      },
+      "responseBodyReadMs": 1.4269159999994372
+    }
+  ],
+  "requestBounds": {
+    "maxGeneValuesPerGroup": 128,
+    "maxFeatureMetadata": 50,
+    "maxInterventionMetadata": 32
+  },
+  "researcherUsability": "explicitly pending",
+  "Safari": "not tested",
+  "physicalTouch": "not tested"
+}

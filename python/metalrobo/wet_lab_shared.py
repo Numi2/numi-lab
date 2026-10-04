@@ -33,6 +33,7 @@ class SharedWorkspace:
         with self.lock():
             state=read(self.path)
             state['models']=self.models()
+            state['datasets']=self.datasets()
             return self.enrich(state)
     @staticmethod
     def selection(sel,targets=None,genes=None):
@@ -48,6 +49,10 @@ class SharedWorkspace:
             d['decisionSupport']=laboratory.population_support(self.config['assays'][d['selection']['assayID']],self.selection(d['selection']),d['genes'])
             d['modelDifference']=model_difference(d)
         return state
+    def datasets(self):
+        if not self.config['assays']:return []
+        import laboratory
+        return [{'id':identifier,'title':read(path)['title'],'capabilities':laboratory.capabilities(Path(path))} for identifier,path in self.config['assays'].items() if laboratory.capabilities(Path(path)).get('measuredExploration')]
     def models(self):
         if not self.config['assays']:return []
         import laboratory
@@ -153,6 +158,8 @@ class SharedWorkspace:
                     except (ValueError,KeyError,StopIteration) as error:
                         axis['reason']=str(error) or 'Specimen or population incompatible'
                         if condition not in {c['id'] for c in cap['conditions']}:axis['corrections']=[{'conditionID':c['id']} for c in cap['conditions']]
+                        elif not cap['prediction']:
+                            axis['corrections']=[{'registerCompatibleModel':True,'requiredSpecimen':sel['specimenID'],'requiredPopulation':sel['populationID'],'requiredCondition':condition,'retainIntent':True}]
                         elif any(not g['eligible'] for g in axis.get('coverage',{}).get('genes',[])):axis['corrections']=[{'removeUnsupportedGenes':[g['gene'] for g in axis['coverage']['genes'] if not g['eligible']],'requiresObjectiveEdit':True}]
                         else:
                             support=laboratory.population_support(Path(path),complete,d['genes']);unsupported=[t for t in d['targets'] if not any(c['target']==t and c['role']=='direct' and c['canExecute'] for c in support['candidates'])]

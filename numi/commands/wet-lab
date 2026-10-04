@@ -8,6 +8,6 @@ root=${NUMI_LAB_ROOT:?Run through numi}
 tool="$root/python/metalrobo/virtual_wet_lab.py"
 [ -f "$tool" ] || tool="$root/share/numi/python/metalrobo/virtual_wet_lab.py"
 case "${1:-}" in
-  context|catalog|select|propose|edit|undo|revise|seal|reveal|replay|cancel|recover|history|snapshot|export|restore|open) tool="$(dirname "$tool")/wet_lab_cli.py" ;;
+  context|catalog|readout|select|propose|edit|undo|revise|seal|reveal|replay|cancel|recover|history|snapshot|export|restore|open) tool="$(dirname "$tool")/wet_lab_cli.py" ;;
 esac
 exec "${NUMI_PYTHON:-python3}" "$tool" "$@"
