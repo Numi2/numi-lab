@@ -87,9 +87,9 @@ def main():
                     rows = []
                     if args.design_campaign:
                         for folder in sorted(args.workspace.glob('campaign-*')):
-                            if folder.is_symlink() or not re.fullmatch('campaign-[0-9a-f]{32}', folder.name): continue
+                            if folder.is_symlink() or not re.fullmatch('campaign-[0-9a-f]{32}', folder.name) or not (folder/'registration.json').is_file(): continue
                             reg = owner.rna.read(folder/'registration.json')
-                            if Path(reg['campaign']).resolve() != args.design_campaign.resolve(): continue
+                            if reg.get('kind') != 'intervention-design' or Path(reg['campaign']).resolve() != args.design_campaign.resolve(): continue
                             rows.append({'id': folder.name, 'createdAt': reg['createdAt'],
                                          'selection': reg['selection'], 'revealed': (folder/'comparison.json').exists()})
                     return self.respond(200, rows)
