@@ -1,4 +1,4 @@
-# Virtual Wet Lab: shared tissue investigation
+# Virtual Wet Lab: shared cellular and tissue experiments
 
 Use the existing `numi wet-lab` workspace and NumiVivo owners. This is a local,
 shared experiment surface, not a separate assistant, simulator, or hosted queue.
@@ -6,12 +6,12 @@ shared experiment surface, not a separate assistant, simulator, or hosted queue.
 1. Read `numi wet-lab context`. The active workspace is discovered automatically;
    do not ask for assay paths or JSON. If it is unavailable, start `numi wet-lab`
    in a persistent local terminal, then open its printed local URL. The user
-   selects a population on the tissue. Context returns explicit assay, specimen,
+   selects a population in the admitted cellular dataset or tissue. Context returns explicit assay, specimen,
    population, experiment identifiers and a workspace revision.
 2. Turn the user's molecular goal into the exact gene list they requested. Use
    `numi wet-lab propose --revision REV --genes GENE ... --targets TARGET ...
    --title 'Exact molecular objective'`. Supported targets and measurement
-   coverage appear on the editable card in the same canvas workspace. An absent
+   coverage appear on the editable card in the same biological workspace. An absent
    marker is UNAVAILABLE, not zero. A predicted quantity is MODEL INFERENCE.
    Never silently replace an unsupported objective with a subset. Register a new
    objective explicitly if the user requests that change.
@@ -102,3 +102,79 @@ spatial or independent biological validation, and did not replace the registered
 spatial model. Do not describe 69/81 training groups as unseen genes, or one stimulated
 Jurkat validation capture as validation across all studies. Keep researcher usability
 explicitly pending per the user's instruction.
+
+
+## Cellular experiments through the same shared cards
+
+Discover the registered assay's `presentation`, populations, conditions and readouts
+in `context`. Cellular assays use a population view; tissue assays keep their spatial
+canvas. Geometry is optional. Do not invent cell positions or cell-level distributions
+for a model that only provides population moments. A frozen cellular artifact is
+explicitly identified on the card; there is no substitution with a spatial model.
+
+Select the dataset, population, supported condition and gene in the shared workspace,
+then use the same `propose → edit → seal → authorized reveal → replay` operations.
+A condition name on a card is not support: read the owner qualification before sealing.
+The exact objective, feature axis, reference population, condition and model must be
+registered before native inference starts. Unknown conditions remain blocked requests.
+
+“Explore accessible measurements” requests only observations the owner already permits.
+It does not authorize a reveal. “Predict a response” previews or executes the registered
+model, with its observation boundary unchanged. Gene requests are bounded and the
+browser does not receive the full expression matrix. Changing population, model,
+condition or access state invalidates the corresponding view; obsolete responses must
+not overwrite a newer selection. The interface displays owner-computed utility and
+residuals rather than implementing its own scientific score.
+
+Read a fresh `context` before each agent action. A rejected stale edit is not accepted
+optimistically: retain the current human edit, inspect it, and revise only in accordance
+with the user's intent. Cards are editable before execution; sealed experiments remain
+immutable, with changes expressed as new revisions. During execution, inspect progress,
+cancel if requested, and recover only after the original operation has stopped. A
+restored operation must be inspected as interrupted rather than resumed automatically.
+
+A cellular end-to-end software demonstration is not a claim of transferable biology.
+The first registered cellular model reuses retained native weights and does not establish
+a benefit from population input. Multi-cell versus mean-input learning, heterogeneous
+source ingestion and independent evaluation each require their own executed evidence.
+Safari, physical touch and uncoached researcher usability remain separately qualified;
+the researcher usability session is explicitly pending.
+
+
+## Portable cellular experiments and restoration
+
+Use `numi wet-lab catalog` (or `catalog --assay ID`) to discover admitted assays,
+features and supported populations without supplying paths. For a cellular assay,
+select the exact source/context with `select --assay ID --specimen ID
+--population ID --condition ID --revision REV`. Condition is an execution input;
+an arbitrary condition label is rejected. Use the same proposal/edit/seal/reveal/replay
+operations as tissue experiments. Objectives are preregistered before native inference.
+The first frozen cellular artifact exposes population means from already-exposed
+technical development data; individual-cell distributions are unavailable.
+
+Use the existing CLI's named operations, discovered through `numi wet-lab --help`:
+
+1. Read `context` and retain its revision. Finish or cancel live operations and
+   confirm they have stopped; a snapshot rejects changing worker output.
+2. Run `numi wet-lab snapshot --revision REV`. Keep the returned snapshot ID and
+   inspect its verified dependency list. A declared external dependency is not
+   bundled evidence.
+3. Run `numi wet-lab export --id SNAPSHOT_ID` to create the verified archive.
+4. Stop the original test service before the restoration acceptance test. Run
+   `numi wet-lab restore --id SNAPSHOT_ID --name RESTORED_NAME`, then
+   `numi wet-lab open --name RESTORED_NAME --port PORT` in a persistent terminal.
+   These identifiers are discovered outputs; do not ask the user to author paths
+   or edit records.
+5. Join with a fresh Codex session and read `context`. Inspect the preserved
+   drafts, model bindings, authorization history and interrupted operations.
+   Replay a retained prediction. Recover a stopped operation only after reviewing
+   its current status; restore never restarts it automatically.
+
+Restore verifies the manifest and uses a separate artifact location map. Never
+rewrite sealed records to replace old absolute paths. Session credentials are
+excluded from the export and issued afresh by the restored service. An old browser
+session must reload to obtain the new credentials; a prior reveal authorization
+history does not authorize revealing a different experiment.
+
+External dependencies are listed and verified; this is not a claim that arbitrary
+legacy assays are self-contained.

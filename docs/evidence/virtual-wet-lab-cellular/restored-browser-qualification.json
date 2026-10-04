@@ -1,0 +1,38 @@
+{
+  "format": "numilab-restored-visual-qualification/v1",
+  "date": "2026-10-04",
+  "url": "http://127.0.0.1:8772",
+  "session": "Fresh browser reload acquired restored service credentials",
+  "browser": "Playwright-controlled Chromium on local Mac; not uncoached human usability",
+  "finalWorkspaceRevision": 51,
+  "originalRevealedRecord": {
+    "id": "35a22351d1e748748ca9ec16cb4f0475",
+    "visibleStage": "REVEALED OBSERVATION",
+    "model": "cellular-coarse-target0-v04",
+    "population": "GSE90546|K562",
+    "gene": "FOS",
+    "targets": ["DDIT3", "SPI1"],
+    "observed": [2.9709904193878174, 2.2764339447021484],
+    "residual": [-2.958567913621664, -2.259668029844761],
+    "matchedBaselineVisible": true
+  },
+  "recoveryRecord": {
+    "id": "3c17bc2511a94c539558b9278c7a6eb5",
+    "draftID": "b607378421af4745a1ea8de638ec0048",
+    "visibleStage": "SEALED PREDICTION",
+    "status": "sealed",
+    "revealed": false,
+    "targets": ["DDIT3", "SPI1"],
+    "observed": [null, null],
+    "residual": [null, null],
+    "revealInvoked": false
+  },
+  "actions": ["Reload restored URL", "Inspect recovered sealed prediction", "Open synchronized values", "Open original revealed card", "Inspect failed objective gene evidence"],
+  "mutations": "Inspection selection only; no draft edits, model edits, seal or reveal",
+  "sourceChanges": false,
+  "screenshots": ["restored-recovery-sealed.png", "restored-visual-qualification.png"],
+  "snapshots": ["restored-initial.yml", "restored-recovery-prediction.yml", "restored-revealed-card.yml", "restored-visual-qualification.yml"],
+  "Safari": "not qualified",
+  "physicalTouch": "not qualified",
+  "researcherUsability": "explicitly pending"
+}

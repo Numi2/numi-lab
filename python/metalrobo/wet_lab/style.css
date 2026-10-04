@@ -681,3 +681,26 @@ pre {
 
 .candidate-tray button {touch-action:none;cursor:grab;}
 .candidate-tray button:active {cursor:grabbing;}
+
+/* Dissociated cellular assays share proposal state, with no invented geometry. */
+#population-root { padding: 28px; }
+#population-root .population-presentation { display:block; min-height:380px; }
+#population-root.single-specimen .population-presentation > section { display:block; }
+.population-values { width:100%; table-layout:fixed; }
+.population-values th,.population-values td { padding:12px 8px; overflow-wrap:anywhere; vertical-align:top; }
+.population-values .active-population-arm { outline:1px solid #879e71; }
+.population-bar { background:#d9e2da; height:8px; margin-top:8px; border-radius:4px; overflow:hidden; }
+.population-bar i { display:block; height:100%; background:#7b9460; }
+.population-bar i.predicted { background:#b38f43; }
+.population-bar i.observed { background:#36705c; }
+.population-bar i.negative { background:#378194; }
+.population-bar i.positive { background:#b36536; }
+.population-mode { display:flex; gap:8px; margin:12px 0; }
+@media(max-width:700px){#population-root{padding:14px}.population-values{font-size:12px}.population-values th,.population-values td{padding:8px 3px}}
+#population-root {max-width:1800px;margin:auto;}
+#population-root .shared-visual-grid {grid-template-columns:minmax(0,1fr) 350px;}
+#population-readout {padding:20px;overflow:auto;}
+@media(max-width:900px){#population-root .shared-visual-grid{grid-template-columns:1fr;}}
+.shared-visual-grid .shared-workspace {min-width:0;overflow-x:hidden;overflow-wrap:anywhere;}
+.shared-workspace button,.shared-workspace input {max-width:100%;white-space:normal;}
+.shared-workspace label {min-width:0;}

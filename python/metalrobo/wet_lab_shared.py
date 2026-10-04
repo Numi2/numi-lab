@@ -34,26 +34,32 @@ class SharedWorkspace:
             state=read(self.path)
             state['models']=self.models()
             return self.enrich(state)
+    @staticmethod
+    def selection(sel,targets=None,genes=None):
+        return {'specimen':sel['specimenID'],'population':sel['populationID'],'condition':sel.get('conditionID','measured-endpoint'),'targets':targets or [],'objective':{'genes':genes or [sel.get('gene') or 'Clu'],'preserveGenes':[],'penalty':0}}
     def enrich(self,state):
         if not self.config.get('vivoRoot'):return state
-        from investigation import population_support,model_difference
+        import laboratory
+        from investigation import model_difference
         sel=state.get('selection')
         if sel and sel['assayID'] in self.config['assays']:
-            state['selectionSupport']=population_support(self.config['assays'][sel['assayID']],{'specimen':sel['specimenID'],'population':sel['populationID']},[sel.get('gene') or 'Clu'])
+            state['selectionSupport']=laboratory.population_support(self.config['assays'][sel['assayID']],self.selection(sel),[sel.get('gene') or 'Clu'])
         for d in state['drafts']:
-            d['decisionSupport']=population_support(self.config['assays'][d['selection']['assayID']],{'specimen':d['selection']['specimenID'],'population':d['selection']['populationID']},d['genes'])
+            d['decisionSupport']=laboratory.population_support(self.config['assays'][d['selection']['assayID']],self.selection(d['selection']),d['genes'])
             d['modelDifference']=model_difference(d)
         return state
     def models(self):
+        if not self.config['assays']:return []
+        import laboratory
         result=[]
         for identifier,path in self.config['assays'].items():
-            a=read(path)
-            if a.get('family')!='learned-spatial-response':continue
+            a=read(path);cap=laboratory.capabilities(Path(path))
+            if not cap['prediction']:continue
             result.append({'id':identifier,'version':a.get('modelVersion',identifier),'title':a['title'],
               'evidence':a.get('evidence','MODEL INFERENCE'),'biologicalPromotion':False,
-              'conditions':a.get('conditions',[{'id':'measured-endpoint','title':'Source study measured endpoint'}]),
-              'specimens':[{k:v for k,v in x.items() if k not in ('source','sourceSHA256')} for x in a['specimens']],
-              'populations':a['populations'],'featureCount':len(read(Path(path).parent/'features.json'))})
+              'presentation':cap['presentation'],'conditions':cap['conditions'],
+              'specimens':[{k:v for k,v in x.items() if k not in ('source','sourceSHA256')} for x in cap['specimens']],
+              'populations':cap['populations'],'featureCount':len(cap.get('features',[]))})
         return result
     def event(self,s,event):
         s['revision']+=1;s['history'].append({'time':time.time(),'revision':s['revision'],**event});write(self.path,s)
@@ -66,12 +72,16 @@ class SharedWorkspace:
                 sel=b['selection'];config=self.config['assays'].get(sel['assayID'])
                 if not config:raise ValueError('Unknown assay')
                 import laboratory
-                cat=laboratory.adapter_for_config(Path(config)).catalog(Path(config))
+                cat=laboratory.catalog(Path(config))
                 if sel['specimenID'] not in {v['id'] for v in cat.get('specimens',[])} or sel['populationID'] not in {v['id'] for v in cat.get('populations',[])}:raise ValueError('Unknown specimen or population')
+                conditions={c['id'] for c in cat['conditions']}
+                if sel.get('conditionID','measured-endpoint') not in conditions:raise ValueError('Unsupported condition')
+                pop=next(v for v in cat['populations'] if v['id']==sel['populationID'])
+                if pop.get('specimenID',sel['specimenID'])!=sel['specimenID'] or pop.get('conditionID',sel.get('conditionID','measured-endpoint'))!=sel.get('conditionID','measured-endpoint'):raise ValueError('Population does not match specimen and condition')
                 s['selection']=sel
             elif action=='propose':
-                if not s['selection']:raise ValueError('Select a tissue population first')
-                draft={'id':uuid.uuid4().hex,'status':'draft','selection':copy.deepcopy(s['selection']),'genes':b['genes'],'targets':b.get('targets',[]),'title':b.get('title','Reduce selected RNA program'),'undo':[],'parent':b.get('parent'),'modelIDs':b.get('modelIDs',[s['selection']['assayID']]),'conditionIDs':b.get('conditionIDs',['measured-endpoint'])}
+                if not s['selection']:raise ValueError('Select a biological population first')
+                draft={'id':uuid.uuid4().hex,'status':'draft','selection':copy.deepcopy(s['selection']),'genes':b['genes'],'targets':b.get('targets',[]),'title':b.get('title','Reduce selected RNA program'),'undo':[],'parent':b.get('parent'),'modelIDs':b.get('modelIDs',[s['selection']['assayID']]),'conditionIDs':b.get('conditionIDs',[s['selection'].get('conditionID','measured-endpoint')])}
                 self.qualify(draft);s['drafts'].append(draft)
             else:
                 draft=next((d for d in s['drafts'] if d['id']==b.get('id')),None)
@@ -119,46 +129,37 @@ class SharedWorkspace:
             self.event(s,{'action':action,'draftID':draft['id'] if draft else None,'actor':b.get('actor','human')});s['models']=self.models();return self.enrich(s)
     def qualify(self,d):
         if not isinstance(d['genes'],list) or not 1<=len(d['genes'])<=64 or any(not isinstance(g,str) or not g.strip() or g!=g.strip() for g in d['genes']):raise ValueError('Objective must contain 1 to 64 explicit gene symbols')
-        from objective_inspection import inspect
         import laboratory
-        sel=d['selection'];config=Path(self.config['assays'][sel['assayID']]);cat=laboratory.adapter_for_config(config).catalog(config);targets={x['target'] for x in cat['targets']}
-        if not isinstance(d['targets'],list) or len(d['targets'])!=len(set(d['targets'])) :raise ValueError('Unsupported or repeated intervention')
         from wetlab import sha
-        d['supportedTargets']=sorted(targets)
-        modelIDs=d.get('modelIDs',[sel['assayID']]);conditionIDs=d.get('conditionIDs',['measured-endpoint'])
+        sel=d['selection'];config=Path(self.config['assays'][sel['assayID']]);cat=laboratory.catalog(config)
+        if not isinstance(d['targets'],list) or len(d['targets'])!=len(set(d['targets'])):raise ValueError('Distinct intervention list required')
+        d['supportedTargets']=sorted({x['target'] for x in laboratory.population_support(config,self.selection(sel),d['genes'])['candidates'] if x['canExecute']})
+        modelIDs=d.get('modelIDs',[sel['assayID']]);conditionIDs=d.get('conditionIDs',[sel.get('conditionID','measured-endpoint')])
         if not isinstance(modelIDs,list) or not 1<=len(modelIDs)<=4 or len(set(modelIDs))!=len(modelIDs):raise ValueError('Select one to four distinct model versions')
-        if not isinstance(conditionIDs,list) or not 1<=len(conditionIDs)<=4 or len(set(conditionIDs))!=len(conditionIDs):raise ValueError('Select one to four distinct supported conditions')
-        d['axes']=[];reference=read(config)
+        if not isinstance(conditionIDs,list) or not 1<=len(conditionIDs)<=4 or len(set(conditionIDs))!=len(conditionIDs):raise ValueError('Select one to four distinct conditions')
+        d['axes']=[]
         for mid in modelIDs:
             for condition in conditionIDs:
-                axis={'modelID':mid,'conditionID':condition,'canExecute':False,'corrections':[]}
-                path=self.config['assays'].get(mid)
-                if not path:
-                    axis.update(reason='Model is not registered in this laboratory',corrections=[{'modelID':x['id']} for x in self.models()])
+                axis={'modelID':mid,'conditionID':condition,'canExecute':False,'corrections':[]};path=self.config['assays'].get(mid)
+                if not path:axis.update(reason='Model not registered',corrections=[{'modelID':m['id']} for m in self.models()])
                 else:
-                    artifact=read(path);specimen=next((x for x in artifact.get('specimens',[]) if x['id']==sel['specimenID']),None)
-                    conditions=artifact.get('conditions',[{'id':'measured-endpoint'}]);supported={x['id'] for x in conditions}
-                    populations={x['id'] for x in artifact.get('populations',[])}
-                    if condition not in supported:axis.update(reason='Condition has no registered matched-control/model support',corrections=[{'conditionID':x} for x in sorted(supported)])
-                    elif not specimen or not specimen.get('inferenceSupported',False):axis.update(reason='Model cannot predict this specimen; inspectable geometry is not inference support',corrections=[{'specimenID':x['id']} for x in artifact.get('specimens',[]) if x.get('inferenceSupported')])
-                    elif sel['populationID'] not in populations:axis.update(reason='Population absent from model reference',corrections=[{'populationID':x} for x in sorted(populations)])
-                    elif artifact.get('family')!='learned-spatial-response':axis.update(reason='Model does not support this tissue response contract')
-                    elif specimen['sourceSHA256']!=next(x for x in reference['specimens'] if x['id']==sel['specimenID'])['sourceSHA256']:axis.update(reason='Specimen identity differs between models')
-                    elif not set(d['targets'])<={x['target'] for x in artifact['targets']}:axis.update(reason='Requested intervention has no model support; intent retained',corrections=[{'removeUnsupportedTargets':sorted(set(d['targets'])-{x['target'] for x in artifact['targets']}),'requiresCandidateEdit':True}])
-                    else:
-                        coverage=inspect(Path(path),{'specimen':sel['specimenID'],'population':sel['populationID']},d['genes'])
-                        axis.update(canExecute=coverage['canExecute'],coverage=coverage,reason='Supported experimental inference' if coverage['canExecute'] else 'Objective contains unmeasured or unsupported model features',
-                          binding={'assaySHA256':sha(path),'modelVersion':artifact.get('modelVersion',mid),'runtimeSHA256':artifact['runtime']['sha256'],'weights':{k:v['sha256'] for k,v in artifact['models'].items()},'specimenSHA256':specimen['sourceSHA256'],'populationID':sel['populationID'],'conditionID':condition,'evidence':'MODEL INFERENCE','biologicalPromotion':False})
-                        if not coverage['canExecute']:axis['corrections']=[{'removeUnsupportedGenes':[g['gene'] for g in coverage['genes'] if not g['eligible']],'requiresObjectiveEdit':True}]
-                        if self.config.get('vivoRoot') and coverage['canExecute']:
-                            from investigation import population_support
-                            support=population_support(path,{'specimen':sel['specimenID'],'population':sel['populationID']},d['genes'])
-                            unsupported=[t for t in d['targets'] if not any(c['target']==t and c['role']=='direct' and c['canExecute'] for c in support['candidates'])]
-                            axis['populationSupport']=support
-                            if unsupported:axis.update(canExecute=False,reason='No matched outcome/reference support for these interventions in the selected population',corrections=[{'removeUnsupportedTargets':unsupported,'requiresCandidateEdit':True}])
-
+                    complete=self.selection({**sel,'conditionID':condition},d['targets'],d['genes']);cap=laboratory.capabilities(Path(path))
+                    try:
+                        coverage=laboratory.inspect_objective(Path(path),complete,complete['objective']);axis['coverage']=coverage
+                        laboratory.validate_selection(Path(path),complete)
+                        artifact=read(path);reference=read(config);specimen=next(x for x in artifact['specimens'] if x['id']==sel['specimenID']);original=next(x for x in reference['specimens'] if x['id']==sel['specimenID'])
+                        if specimen['sourceSHA256']!=original['sourceSHA256']:raise ValueError('Specimen source differs between model versions')
+                        axis.update(canExecute=coverage['canExecute'],reason='Supported experimental inference',selection=complete,populationSupport=laboratory.population_support(Path(path),complete,d['genes']),binding={'assaySHA256':sha(path),'modelVersion':artifact.get('modelVersion',mid),'runtimeSHA256':artifact['runtime']['sha256'],'weights':{k:v['sha256'] for k,v in artifact['models'].items()},'featureAxisSHA256':sha(Path(path).parent/'features.json'),'specimenSHA256':specimen['sourceSHA256'],'populationID':sel['populationID'],'conditionID':condition,'scoringOwnerSHA256':sha(laboratory.scoring_owner(path)),'evidence':'MODEL INFERENCE','biologicalPromotion':False})
+                    except (ValueError,KeyError,StopIteration) as error:
+                        axis['reason']=str(error) or 'Specimen or population incompatible'
+                        if condition not in {c['id'] for c in cap['conditions']}:axis['corrections']=[{'conditionID':c['id']} for c in cap['conditions']]
+                        elif any(not g['eligible'] for g in axis.get('coverage',{}).get('genes',[])):axis['corrections']=[{'removeUnsupportedGenes':[g['gene'] for g in axis['coverage']['genes'] if not g['eligible']],'requiresObjectiveEdit':True}]
+                        else:
+                            support=laboratory.population_support(Path(path),complete,d['genes']);unsupported=[t for t in d['targets'] if not any(c['target']==t and c['role']=='direct' and c['canExecute'] for c in support['candidates'])]
+                            axis['corrections']=[{'removeUnsupportedTargets':unsupported,'requiresCandidateEdit':True}] if unsupported else [{'reviewSupportedPopulations':cap['populations'],'reviewSupportedTargets':cap['targets'],'retainIntent':True}]
                 d['axes'].append(axis)
-        d['coverage']=inspect(config,{'specimen':sel['specimenID'],'population':sel['populationID']},d['genes'])
+        try:d['coverage']=laboratory.inspect_objective(config,self.selection(sel,d['targets'],d['genes']),{'genes':d['genes'],'preserveGenes':[],'penalty':0})
+        except (ValueError,KeyError,StopIteration):d['coverage']={'genes':[],'candidateEffects':[]}
         d['coverage']['canExecute']=all(x['canExecute'] for x in d['axes'])
         d['coverage']['executionReason']='; '.join(x['reason'] for x in d['axes'] if not x['canExecute'])
     def alive(self,op):
@@ -195,12 +196,14 @@ def worker(root,job):
             verification=None
             sel={**d['selection'],'assayID':mid,'conditionID':condition};run=Path(root)/(prior['record'] if prior else d['record']) if prior or d.get('record') else None
             if op['action']=='seal':
-                run=owner.predict(Path(config['assays'][sel['assayID']]),runtime,Path(root),{'specimen':sel['specimenID'],'population':sel['populationID'],'targets':d['targets']})
-                # Bind the exact molecular objective before any reveal. Existing owner seal stays immutable.
-                from wetlab import sha
-                import objective_inspection
-                write(run/'objective-registration.json',{'genes':d['genes'],'selection':sel,'comparisonAxes':axes,'modelBinding':axis.get('binding'),'coverage':d['coverage'],'draftID':d['id'],'objectiveOwnerSHA256':sha(objective_inspection.__file__),'predictionSealSHA256':sha(run/'seal.json')})
-                write(run/'objective-seal.json',{'objectiveSHA256':sha(run/'objective-registration.json')})
+                complete=store.selection(sel,d['targets'],d['genes'])
+                # The preregistration is written and fsynced before native execution.
+                prereg=store.folder/(op['id']+'-'+str(len(axisResults))+'-preregistration.json')
+                registration={'format':'numilab-objective-preregistration/v2','genes':d['genes'],'selection':sel,'validatedSelection':complete,'comparisonAxes':axes,'modelBinding':axis.get('binding'),'coverage':d['coverage'],'draftID':d['id'],'objectiveOwnerSHA256':sha(laboratory.scoring_owner(assay))}
+                write(prereg,registration);complete['preregistration']={'sha256':sha(prereg),'name':prereg.name}
+                run=laboratory.predict(assay,runtime,Path(root),complete)
+                write(run/'objective-registration.json',registration)
+                write(run/'objective-seal.json',{'objectiveSHA256':sha(run/'objective-registration.json'),'predictionSealSHA256':sha(run/'seal.json')})
             elif op['action']=='reveal':
                 from wetlab import sha
                 if sha(run/'objective-registration.json')!=read(run/'objective-seal.json')['objectiveSHA256']:raise ValueError('Objective registration changed')
@@ -208,14 +211,12 @@ def worker(root,job):
             elif op['action']=='replay':verification=owner.verify(run,runtime)
             if (run/'objective-registration.json').exists():
                 from wetlab import sha
-                import objective_inspection
                 objective=read(run/'objective-registration.json')
                 if sha(run/'objective-registration.json')!=read(run/'objective-seal.json')['objectiveSHA256']:raise ValueError('Objective seal changed')
-                if objective.get('objectiveOwnerSHA256') and objective['objectiveOwnerSHA256']!=sha(objective_inspection.__file__):raise ValueError('Objective owner changed; use retained owner or create a new record')
+                if objective.get('objectiveOwnerSHA256') and objective['objectiveOwnerSHA256']!=sha(laboratory.scoring_owner(assay)):raise ValueError('Objective owner changed; use retained owner or create a new record')
             result=owner.summary(run)
             if verification is not None:result['verification']=verification
-            from objective_inspection import evaluate
-            result['objectiveEvaluation']=evaluate(assay,run,d['genes'])
+            result['objectiveEvaluation']=laboratory.evaluate_objective(assay,run,{'genes':d['genes'],'preserveGenes':[],'penalty':0})
             objective_path=run/('objective-evaluation.json' if result['revealed'] else 'objective-prediction.json')
             if objective_path.exists():
                 if read(objective_path)!=result['objectiveEvaluation']:raise ValueError('Objective replay changed')

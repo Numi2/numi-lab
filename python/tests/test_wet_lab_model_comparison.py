@@ -11,7 +11,19 @@ class ComparisonTests(unittest.TestCase):
   for model in ('old','corrected'):
    folder=self.root/model;folder.mkdir();write(folder/'features.json',['A'])
    a={'family':'learned-spatial-response','id':model,'title':model,'runtime':{'sha256':model},'models':{'neighborhood':{'sha256':model}},'targets':[{'target':'T'}],'populations':[{'id':'P'}],'specimens':[{'id':'S','sourceSHA256':'same-specimen','inferenceSupported':True}],'conditions':[{'id':'measured-endpoint'}]};write(folder/'assay.json',a);paths[model]=str(folder/'assay.json')
-  self.modules=patch.dict(sys.modules,{'laboratory':types.SimpleNamespace(adapter_for_config=lambda p:types.SimpleNamespace(catalog=lambda p:json.loads(p.read_text()))),'objective_inspection':types.SimpleNamespace(inspect=lambda p,s,g:{'canExecute':all(x=='A' for x in g),'genes':[{'gene':x,'eligible':x=='A'} for x in g]}),'wetlab':types.SimpleNamespace(sha=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest())});self.modules.start()
+  def catalog(p):return json.loads(Path(p).read_text())
+  def support(*args):
+   if self.store.config.get('vivoRoot'):
+    from investigation import population_support
+    return population_support(*args)
+   return {'candidates':[{'target':'T','role':'direct','canExecute':True}]}
+  def inspect(p,s,o):return {'canExecute':all(x=='A' for x in o['genes']),'genes':[{'gene':x,'eligible':x=='A'} for x in o['genes']]}
+  def validate(p,s):
+   if s['condition']!='measured-endpoint':raise ValueError('Unsupported condition')
+   if not inspect(p,s,s['objective'])['canExecute']:raise ValueError('Unsupported genes')
+   if any(t!='T' for t in s['targets']) or not all(c['canExecute'] for c in support(p,s,s['objective']['genes'])['candidates']):raise ValueError('Unsupported population or target')
+   return s
+  self.modules=patch.dict(sys.modules,{'laboratory':types.SimpleNamespace(catalog=catalog,capabilities=lambda p:{**catalog(p),'prediction':True,'presentation':'tissue'},inspect_objective=inspect,validate_selection=validate,population_support=support,scoring_owner=lambda p:Path(__file__)),'wetlab':types.SimpleNamespace(sha=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest())});self.modules.start()
   self.store=SharedWorkspace(self.root,{'assays':paths});s=self.store.state();s['selection']={'assayID':'corrected','specimenID':'S','populationID':'P'};write(self.store.path,s)
  def tearDown(self):self.modules.stop();self.tmp.cleanup()
  def act(self,action,**kw):return self.store.mutate({'action':action,'expectedRevision':self.store.state()['revision'],**kw})

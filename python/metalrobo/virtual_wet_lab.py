@@ -17,7 +17,7 @@ def main():
                         help='NumiVivo checkout containing Tools/VirtualWetLab')
     parser.add_argument('--binary', type=Path, default=os.environ.get('NUMIVIVO_BINARY'), help='Native numivivo executable')
     parser.add_argument('--assay', type=Path, action='append', required=True, help='Prepared assay.json; repeat for another adapter')
-    parser.add_argument('--workspace', type=Path, default=Path.cwd() / '.numi/virtual-wet-lab')
+    parser.add_argument('--workspace', type=Path, default=Path.home() / '.numi/laboratories/default/workspace')
     parser.add_argument('--port', type=int, default=8768)
     parser.add_argument('--catalog', action='store_true', help='Print eligible specimens and exit')
     parser.add_argument('--design-campaign', type=Path, help='Sealed NumiVivo target-aware intervention campaign')
@@ -32,7 +32,7 @@ def main():
     if len(configs) != len(args.assay): parser.error('Duplicate assay IDs')
     if not args.binary and any(owner.adapter_for_config(p).family == 'cell-response' for p in args.assay):
         parser.error('RNA assays require --binary (or NUMIVIVO_BINARY)')
-    def catalog_for(config): return owner.adapter_for_config(config).catalog(config)
+    def catalog_for(config): return owner.catalog(config)
     def present(adapter, run):
         result=adapter.summary(run)
         if adapter.family=='spatial-tissue' and result['revealed']:
@@ -74,7 +74,7 @@ def main():
             parsed = urlsplit(self.path); path = parsed.path
             try:
                 if path == '/': return self.respond(200, html, 'text/html')
-                if path in ('/app.js','/tissue_index.js','/learned.js','/design.js','/shared.js','/style.css'):
+                if path in ('/app.js','/tissue_index.js','/learned.js','/design.js','/shared.js','/population.js','/style.css'):
                     return self.respond(200, (Path(__file__).parent / 'wet_lab' / path[1:]).read_text(), 'text/javascript' if path.endswith('.js') else 'text/css')
                 if path == '/favicon.ico': return self.respond(204, '')
                 if self.headers.get('X-Wet-Lab-Token') != token:
@@ -128,6 +128,9 @@ def main():
             except Exception as error:
                 self.respond(400, {'error': str(error)})
 
+        def locked_owner(self,operation,*arguments):
+            with shared.lock():return operation(*arguments)
+
         def do_POST(self):
             if not self.valid_host() or self.headers.get('X-Wet-Lab-Token') != token:
                 return self.respond(403, {'error': 'Workspace token required'})
@@ -139,6 +142,18 @@ def main():
                 if not 0 < length <= 65536: raise ValueError('Invalid request size')
                 body = json.loads(self.rfile.read(length))
                 if self.path == '/api/shared': return self.respond(200, shared.mutate(body))
+                if self.path == '/api/snapshot':
+                    from wet_lab_snapshot import snapshot
+                    return self.respond(201,snapshot(shared,body['expectedRevision']))
+                if self.path == '/api/export':
+                    from wet_lab_snapshot import export
+                    return self.respond(200,export(body['id']))
+                if self.path == '/api/readout':
+                    config=configs[body['assayID']];record=self.run_path(body['id']) if body.get('id') else None
+                    if record and owner.rna.read(record/'registration.json')['assay']['id']!=body['assayID']:raise ValueError('Record belongs to a different assay')
+                    sel=body.get('selection') or shared.state()['selection']
+                    selection=SharedWorkspace.selection(sel) if 'specimenID' in sel else sel
+                    return self.respond(200,owner.readout(config,record,body['query'],selection))
                 if self.path == '/api/receivers':
                     if not args.receiving_campaign:raise ValueError('Receiver experiment unavailable')
                     from receiving_inspection import inspect
@@ -148,12 +163,12 @@ def main():
                     import intervention_design as design
                     action=self.path.rsplit('/',1)[-1]
                     if action=='preview': return self.respond(200,design.preview(args.design_campaign,body['selection']))
-                    if action=='seal': return self.respond(201,design.seal(args.design_campaign,args.workspace,body['selection']))
+                    if action=='seal': return self.respond(201,self.locked_owner(design.seal,args.design_campaign,args.workspace,body['selection']))
                     identifier=body.get('id','')
                     if not re.fullmatch('campaign-[0-9a-f]{32}',identifier): raise ValueError('Invalid design campaign')
                     root=args.workspace/identifier
                     if root.is_symlink() or not root.is_dir(): raise ValueError('Campaign not found')
-                    if action=='reveal': return self.respond(200,design.reveal(root))
+                    if action=='reveal': return self.respond(200,self.locked_owner(design.reveal,root))
                     if action=='verify': return self.respond(200,design.verify(root))
                     if action=='open':
                         design.check(root)
@@ -177,7 +192,7 @@ def main():
                     return self.respond(200,propose_next(owner.adapter_for_run(run).summary(run)))
                 if self.path == '/api/campaign':
                     from experiment_campaign import register_and_predict
-                    root=register_and_predict(configs[body['assayID']],runtime,args.workspace,body['request'])
+                    root=self.locked_owner(register_and_predict,configs[body['assayID']],runtime,args.workspace,body['request'])
                     return self.respond(201,{'id':root.name,'registration':owner.rna.read(root/'registration.json'),'seal':owner.rna.read(root/'prediction-seal.json')})
                 if self.path in ('/api/campaign/reveal','/api/campaign/verify'):
                     from experiment_campaign import reveal,verify
@@ -185,7 +200,7 @@ def main():
                     if not re.fullmatch('campaign-[0-9a-f]{32}',identifier): raise ValueError('Invalid campaign')
                     root=args.workspace/identifier
                     if root.is_symlink() or not root.is_dir(): raise ValueError('Campaign not found')
-                    return self.respond(200,(reveal if self.path.endswith('reveal') else verify)(root,runtime))
+                    return self.respond(200,self.locked_owner(reveal if self.path.endswith('reveal') else verify,root,runtime))
                 if self.path in ('/api/specimen','/api/spatial-feature'):
                     config=configs[body['assayID']]; adapter=owner.adapter_for_config(config)
                     if adapter.family!='learned-spatial-response': raise ValueError('Spatial response assay required')
@@ -197,13 +212,13 @@ def main():
                     return self.respond(200,gene_evidence(configs[body['assayID']],self.run_path(body['id']),body['gene'],body['target'],body['role']))
                 if self.path == '/api/predict':
                     config = configs[body['assayID']]; adapter = owner.adapter_for_config(config)
-                    run = adapter.predict(config, runtime, args.workspace, body['selection'])
+                    run = self.locked_owner(adapter.predict,config, runtime, args.workspace, body['selection'])
                     return self.respond(201, present(adapter,run))
                 if self.path in ('/api/reveal', '/api/verify'):
                     run = self.run_path(body['id'])
                     adapter = owner.adapter_for_run(run)
                     if self.path == '/api/reveal':
-                        adapter.reveal(run, runtime)
+                        self.locked_owner(adapter.reveal,run, runtime)
                         return self.respond(200, present(adapter,run))
                     return self.respond(200, adapter.verify(run, runtime))
                 self.respond(404, {'error': 'Unknown route'})

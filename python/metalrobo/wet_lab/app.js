@@ -107,9 +107,11 @@ function selection() {
     intervention: $("intervention").value,
   };
 }
-function setCatalog(c) {
+async function setCatalog(c) {
   catalog = c;
-  if (c.family === "learned-spatial-response") { window.learnedLab.mount(c,catalogs).catch(e => status(e.message,true)); return; }
+  if (c.presentation === "population") { window.learnedLab.unmount(); await window.populationLab.mount(c,catalogs); return; }
+  window.populationLab?.unmount();
+  if (c.family === "learned-spatial-response") { await window.learnedLab.mount(c,catalogs); return; }
   window.learnedLab.unmount();
   current = null;
   selected = null;
@@ -1143,12 +1145,13 @@ $("dialog-close").onclick = () => $("dialog").close();
     catalogs = await api("assays");
     catalogs.sort(
       (a, b) =>
-        ({"learned-spatial-response":2,"molecular-perturbation":1}[b.family] || 0) -
-        ({"learned-spatial-response":2,"molecular-perturbation":1}[a.family] || 0),
+        (b.presentation === "population" ? 3 : ({"learned-spatial-response":2,"molecular-perturbation":1}[b.family] || 0)) -
+        (a.presentation === "population" ? 3 : ({"learned-spatial-response":2,"molecular-perturbation":1}[a.family] || 0)),
     );
     for (const c of catalogs) option("assay", c.id, c.title);
-    setCatalog(catalogs[0]);
-    status("Select a supported intervention region, then seal a prediction.");
+    const shared = await api("shared");
+    await setCatalog(catalogs.find(c=>c.id===shared.selection?.assayID) || catalogs[0]);
+    status("Select a supported population, define an objective, then seal a prediction.");
   } catch (e) {
     status(e.message, true);
     $("predict").disabled = true;
@@ -1221,3 +1224,7 @@ $("campaign-open").onclick = () => {
     });
   modal("ExperimentCampaign", root);
 };
+
+window.setCatalog = setCatalog;
+window.wetLabRenderer = () => catalog?.presentation === "population" ? window.populationLab : window.learnedLab;
+window.activateLabModel = async id => { const c=catalogs.find(x=>x.id===id) || await api("catalog?assay="+encodeURIComponent(id)); if ((c.presentation === "population") !== (catalog?.presentation === "population")) await setCatalog(c); return window.wetLabRenderer(); };

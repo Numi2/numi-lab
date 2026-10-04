@@ -1,0 +1,70 @@
+{
+  "format": "numilab-cellular-ui-engineering/v1",
+  "date": "2026-10-04",
+  "browser": "Playwright-controlled Chromium on the local Mac",
+  "scope": "Browser engineering interactions; not physical pointer/touch qualification or uncoached researcher usability",
+  "assay": "cellular-coarse-target0-v04",
+  "checks": {
+    "populationSelectionUsesSourceSpecimenAndCondition": true,
+    "boundedGenePreviewFromActualOwner": true,
+    "unsupportedGeneIntentRetainedAndSealDisabled": true,
+    "ownerProvidedCorrectionButtonApplied": true,
+    "draftGenesAndCandidatesPersistedAfterReload": true,
+    "freshCodexProposalVisibleInBrowser": true,
+    "browserKeyboardEditAccepted": true,
+    "revealedExactArtifactDisplayed": true,
+    "failedObjectiveGeneEvidenceInspected": true
+  },
+  "freshSessionEdit": {
+    "draftID": "69e92507f1144c1d84b97873a2292b34",
+    "acceptedWorkspaceRevision": 12,
+    "genesBefore": [
+      "FOS",
+      "JUN"
+    ],
+    "genesAfter": [
+      "FOS",
+      "JUNB"
+    ],
+    "targetsPreserved": [
+      "DDIT3",
+      "SPI1"
+    ],
+    "interactions": [
+      "click textbox",
+      "Meta+A",
+      "keyboard type FOS, JUNB",
+      "Tab"
+    ],
+    "statusAfterEdit": "draft",
+    "sealedOrRevealedByUiAgent": false
+  },
+  "evidence": [
+    "draft-comparison.yml",
+    "unsupported-correction.yml",
+    "corrected-reloaded.yml",
+    "fresh-codex-before-human-edit.yml",
+    "fresh-codex-human-edited.yml",
+    "fresh-codex-human-edited.png",
+    "revealed-card-open.yml",
+    "revealed-gene-evidence.yml",
+    "revealed-gene-evidence.png"
+  ],
+  "consoleScope": "No application JavaScript errors during initial real interactions. Expected connection-refused and stale-session 403 messages occurred while the parent intentionally restarted the service; reload obtained fresh credentials.",
+  "researcherUsability": "explicitly pending",
+  "physicalTouch": "not qualified",
+  "Safari": "not qualified",
+  "nativeSealedPredictionRevealReplay": "Parent owner workflow completed; browser inspected retained revealed record 35a22351d1e748748ca9ec16cb4f0475 without invoking reveal",
+  "revealedInspection": {
+    "record": "35a22351d1e748748ca9ec16cb4f0475",
+    "gene": "FOS",
+    "target": "DDIT3",
+    "model": "cellular-coarse-target0-v04",
+    "displayedPredicted": 0.0124,
+    "displayedObserved": 2.971,
+    "displayedResidual": -2.9586,
+    "scope": "Rounded displayed values; authoritative values remain in owner record",
+    "mechanismClaim": false,
+    "biologicalPromotion": false
+  }
+}
