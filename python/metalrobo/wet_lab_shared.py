@@ -131,7 +131,7 @@ class SharedWorkspace:
                     if self.alive(op):os.killpg(op['pid'],signal.SIGTERM)
                     op['status']='cancelled';op['progress']='Cancelled; partial artifacts retained. Recovery starts a new operation after process exit.';draft['status']='interrupted' if not draft.get('record') else 'sealed'
                 else:raise ValueError('Unsupported workspace action')
-            self.event(s,{'action':action,'draftID':draft['id'] if draft else None,'actor':b.get('actor','human')});s['models']=self.models();return self.enrich(s)
+            self.event(s,{'action':action,'draftID':draft['id'] if draft else None,'actor':b.get('actor','human')});s['models']=self.models();s['datasets']=self.datasets();return self.enrich(s)
     def qualify(self,d):
         if not isinstance(d['genes'],list) or not 1<=len(d['genes'])<=64 or any(not isinstance(g,str) or not g.strip() or g!=g.strip() for g in d['genes']):raise ValueError('Objective must contain 1 to 64 explicit gene symbols')
         import laboratory

@@ -1,0 +1,13 @@
+{
+  "status": "passed",
+  "snapshotID": "d726da331dea4744bfbe81e9551c3274",
+  "manifestSHA256": "6564ea807981a77c85411d79b6ad986c9503d746b55701e258b862e291bf1c38",
+  "archiveSHA256": "c94a9f8946a0bb72b9ff2b21d610d4b258326bc8240d13a0c7ad95a3e9f5b3b2",
+  "filesVerified": 530,
+  "latestLaboratoryOwnersIncluded": true,
+  "credentialsExcluded": true,
+  "verificationSeconds": 6.923504500649869,
+  "archiveBytes": 1099314186,
+  "exportSeconds": 48.79192725010216,
+  "exportScope": "Local current data/archive; not a controlled compression benchmark"
+}

@@ -1,10 +1,10 @@
 {
-  "sharedStateTests": 7,
+  "sharedStateTests": 8,
   "modelComparisonTests": 6,
   "snapshotTests": 4,
   "syntheticBrowserChecks": 12,
   "allPassed": true,
-  "repairs": "Empty-assay metadata discovery now avoids loading the scientific owner; source-bound production discovery unchanged. Snapshot/export CLI timeout extended to 30 minutes after real archive exceeded 120 seconds.",
+  "repairs": "Empty-assay metadata discovery now avoids loading the scientific owner; source-bound production discovery unchanged. Snapshot/export CLI timeout extended to 30 minutes after real archive exceeded 120 seconds. Mutation acknowledgements retain measured capabilities; actual card assertions added after visual review.",
   "researcherUsability": "pending",
   "Safari": "not tested",
   "physicalTouch": "not tested"

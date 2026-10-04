@@ -11,6 +11,12 @@ class SharedTests(unittest.TestCase):
   s=self.store.state();s['selection']={'assayID':'a','specimenID':'s','populationID':'p'};write(self.store.path,s)
  def tearDown(self):self.tmp.cleanup()
  def act(self,action,**kw):return self.store.mutate({'action':action,'expectedRevision':self.store.state()['revision'],**kw})
+ def test_mutation_retains_measured_dataset_capabilities(self):
+  capability={'id':'cohort','capabilities':{'presentation':'population','prediction':False,'measuredExploration':True}}
+  self.store.datasets=lambda:[capability]
+  before=self.store.state();after=self.act('propose',genes=['A'],targets=['T'])
+  self.assertEqual(after['datasets'],before['datasets'])
+  self.assertFalse(after['datasets'][0]['capabilities']['prediction'])
  def test_stale_edits_and_undo(self):
   s=self.act('propose',genes=['A'],targets=['T']);i=s['drafts'][0]['id'];self.act('edit',id=i,genes=['B'])
   with self.assertRaises(Conflict):self.store.mutate({'action':'edit','id':i,'genes':['C'],'expectedRevision':1})

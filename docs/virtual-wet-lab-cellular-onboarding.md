@@ -56,7 +56,7 @@ No model substitution, inference, sealing or reveal occurred in that session.
 NumiVivo verified all three four-source composite corpora and reconstructed 64
 sampled original-source rows exactly from native counts. Access tests check
 reserved rows, actual cross-panel missing genes, tiles, invalid conditions,
-prediction blocking and deterministic metadata-only sampling. Seventeen shared-state, model-comparison
+prediction blocking and deterministic metadata-only sampling. Eighteen shared-state, model-comparison
 and snapshot tests pass. Twelve synthetic browser checks and the actual-cohort
 Chrome workflow pass, including obsolete-response cancellation. Real testing
 found and fixed a stale readout during population changes and misleading units
@@ -101,3 +101,22 @@ The real restored-data browser flow passed after that presentation correction.
 
 See [retained qualification evidence](evidence/cellular-onboarding/) and the
 [NumiVivo source-bound cohort contract](https://github.com/Numi2/numiVivo/blob/main/Tools/VirtualWetLab/CELLULAR_COHORT.md).
+
+Visual review then found an acknowledgement-specific defect: selection mutations
+returned models but omitted measured dataset capabilities, causing the retained
+proposal to show preview/spatial labels until a later revision. Mutation replies
+now carry the same capabilities as reads. A state-transition regression and an
+actual-cohort browser assertion check that the retained card stays an
+**UNEXECUTED PROPOSAL**, with a proposed RNA program and no spatial/CPM claim
+after population changes. The earlier browser checks had not covered this card.
+
+The final snapshot is `d726da331dea4744bfbe81e9551c3274` (revision 80), with
+all 530 archived files verified against its manifest, including
+the corrected laboratory owners. Export took 48.79 seconds
+on this Mac; this is a scoped execution measurement, not a controlled benchmark.
+Archive SHA-256: `c94a9f8946a0bb72b9ff2b21d610d4b258326bc8240d13a0c7ad95a3e9f5b3b2`. The archive is retained under
+`~/.numi/laboratories/exports/`. Restore by snapshot ID through `numi wet-lab
+restore --id ID --name NAME`, then `numi wet-lab open --name NAME`.
+The earlier complete archive-only restore and fresh-session replay above remain
+the operational restoration evidence; the final archive additionally has
+streamed per-file verification and the latest source identities.
