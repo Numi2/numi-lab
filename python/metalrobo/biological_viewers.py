@@ -187,7 +187,7 @@ def installed_status():
     return [{**v, "installed": installed.get(v["pluginID"], {}).get("installed", False),
              "enabled": installed.get(v["pluginID"], {}).get("enabled", False),
              "version": installed.get(v["pluginID"], {}).get("version"),
-             "toolAvailability": "Check current conversation tools; new installs need a fresh session"} for v in catalog()]
+             "toolAvailability": "Check current conversation tools; a fresh session may be needed after installation"} for v in catalog()]
 
 
 def main(argv=None):

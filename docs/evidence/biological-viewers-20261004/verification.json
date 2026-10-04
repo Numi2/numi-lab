@@ -1,0 +1,49 @@
+{
+  "schema": "numi.viewer-integration-verification.v1",
+  "date": "2026-10-04",
+  "scope": "software integration; no biological qualification",
+  "plugins": {
+    "structure-viewer": "0.1.90",
+    "sequence-viewer": "0.1.43",
+    "slide-viewer": "0.1.65"
+  },
+  "authorVerified": "OpenAI",
+  "pluginInstallation": "installed and enabled",
+  "openingSchemaCombinationsPassed": 6,
+  "focusedTestsPassed": 7,
+  "skillContractTestsPassed": 9,
+  "cliDiscoveryAndOverrides": "passed",
+  "browserPanel": {
+    "loaded": true,
+    "selectedGene": "NOC2L",
+    "choices": 3,
+    "copyRequestAcknowledged": true,
+    "consoleErrors": 0
+  },
+  "isolatedRoundTrip": {
+    "softwareIntegration": true,
+    "viewerRendered": false,
+    "beforeRevision": 2,
+    "afterRevision": 3,
+    "staleReturnRejected": true,
+    "draftsAndOperationsUnchanged": true
+  },
+  "liveUpgrade": {
+    "revisionBefore": 80,
+    "revisionAfter": 80,
+    "selectionCardsOperationsHistoryPreserved": true
+  },
+  "nativeViewerSessions": {
+    "structure": "created; awaiting mount",
+    "sequence": "created; awaiting mount",
+    "slide": "created; awaiting mount"
+  },
+  "nativeRenderingVerified": false,
+  "fixtureProvenance": {
+    "scope": "Synthetic NumiVivo reader integration fixture; not biological evidence",
+    "repositoryRevision": "bafff6dd164c449eb6cae4b92f0131dfa438c539",
+    "sourcePath": "Tools/Omics/Benchmarks/HIRISA/evidence/2026-09-10-native/reader-checks/dense/original.h5ad",
+    "bytes": 59712,
+    "sha256": "5a62965c37383aff9c0f03f8ce74b48c3831d521fcef76c3e7ac3ac183f654b8"
+  }
+}

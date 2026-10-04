@@ -26,8 +26,8 @@ cell identity or image registration.
 `numi view catalog` describes supported primary files and identity contracts.
 `numi view status` checks installed/enabled versions. Install requested companions
 with `codex plugin add structure-viewer@openai-curated-remote --json` and the
-corresponding `sequence-viewer` and `slide-viewer` IDs. A fresh Codex session loads
-new companion tools.
+corresponding `sequence-viewer` and `slide-viewer` IDs. Check current tool availability after installation; a fresh Codex session
+loads companions when the running conversation has not refreshed them.
 
 ## Source-bound handoff
 
@@ -92,8 +92,12 @@ file for `numi view` commands. The normal active laboratory remains selected.
 - Browser inspection verified the new panel, current selection, three viewer
   choices and successful copy-request feedback with no browser console errors.
 
-Native mounted-viewer rendering/control remains a separate fresh-session check:
-the companion tools were installed after this conversation started. These results
+The installed tools subsequently became callable in the same conversation. All
+three real opening calls created native sessions: a synthetic structure fixture,
+a synthetic DNA fixture and NumiVivo's retained 4-by-3 HIRISA AnnData reader
+fixture. The last has PCA coordinates but no spatial coordinates, so no tissue
+image or cell position is implied. All three cards reported awaiting mount; native
+rendering/control remains pending until the host mounts those cards. These results
 establish Numi integration behavior, not scientific or uncoached usability
 qualification. Cross-view biological mappings and whole-assay native analyses
 are only available where their owning tools provide actual evidence.

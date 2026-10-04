@@ -16,7 +16,8 @@ start a browser server merely to open molecular/sequence/slide files.
 Read the selected installed viewer's skill, then use its current tool schema.
 `numi view catalog` lists format/identity contracts. `numi view status` checks
 actual installations; installed is not the same as enabled, callable or rendered.
-Newly installed plugins need a fresh Codex conversation before their tools load.
+Check current conversation tools after installation; if they have not loaded,
+start a fresh Codex conversation.
 If the user requested installation, install the exact companions with `codex
 plugin add PLUGIN_ID --json`. They remain separately versioned OpenAI plugins;
 Numi does not copy their renderer assets or host a second MCP server.
