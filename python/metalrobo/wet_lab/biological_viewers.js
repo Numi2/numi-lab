@@ -1,6 +1,6 @@
 "use strict";
 // Native viewers live in Codex. This surface carries intent and the existing
-// biological selection, without copying assay matrices or revealing observations.
+// biological selection, with bounded owner-admitted exports and no raw-assay access.
 (() => {
   const element = (tag, text) => {
     const node = document.createElement(tag);
@@ -40,9 +40,36 @@
         const inspect = element("button", "Copy " + viewer.kind + " inspection request");
         const feedback = element("p");
         feedback.setAttribute("role", "status");
+        let prepared = null;
+        if (viewer.kind === "slide" && context.selectedCellExport?.available) {
+          const prepare = element("button", "Prepare selected cells for Slide Viewer");
+          prepare.onclick = async () => {
+            prepare.disabled = true;
+            feedback.textContent = "Preparing the accessible cell page from NumiVivo…";
+            try {
+              const response = await fetch("/api/viewers/selected", {method: "POST",
+                headers: {"X-Wet-Lab-Token": window.WET_LAB_TOKEN, "Content-Type": "application/json"},
+                body: JSON.stringify({expectedRevision: context.revision, limit: 128, offset: 0})});
+              const result = await response.json();
+              if (!response.ok) throw Error(result.error || "Cell export unavailable");
+              if (request !== epoch || !dialog.open) return;
+              prepared = result;
+              inspect.textContent = "Copy prepared cell inspection request";
+              feedback.textContent = `Prepared ${result.coverage.exportedCells} accessible cells for ${selected.gene}. ` +
+                "This is one measured gene and a bounded page, with no invented tissue positions. Copy the request to open it in Codex.";
+            } catch (error) {
+              if (request === epoch) feedback.textContent = "Could not prepare cells: " + error.message;
+            } finally { prepare.disabled = false; }
+          };
+          section.append(prepare, element("p", context.selectedCellExport.scope));
+        }
         inspect.onclick = async () => {
           // The request is context, not a source association, executable code or access grant.
-          const prompt = `Use Numi and the ${viewer.name} to inspect the current biological selection. ` +
+          const prompt = prepared
+            ? `Use Numi to verify the viewer handoff at ${JSON.stringify(prepared.handoffPath)} and open its authorized cell artifact with Slide Viewer. ` +
+              `Keep its exact source and selection: ${JSON.stringify(selected)} at revision ${prepared.revision}. ` +
+              "This is an owner-authorized bounded page of one measured gene. Preserve original cell IDs, raw UMI counts and access provenance; do not infer spatial coordinates or full-assay coverage. Check native readiness and retain the same viewer session."
+            : `Use Numi and the ${viewer.name} to inspect the current biological selection. ` +
             `Read numi view context first; the requested Wet Lab revision is ${context.revision}. ` +
             `Selection: ${JSON.stringify(selected)}. Resolve an authorized ${viewer.kind} artifact from its Numi owner, ` +
             "preserve the source identity and verify its association with this selection. " +

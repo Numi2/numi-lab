@@ -45,5 +45,41 @@
     "sourcePath": "Tools/Omics/Benchmarks/HIRISA/evidence/2026-09-10-native/reader-checks/dense/original.h5ad",
     "bytes": 59712,
     "sha256": "5a62965c37383aff9c0f03f8ce74b48c3831d521fcef76c3e7ac3ac183f654b8"
+  },
+  "selectedExport": {
+    "testsPassed": 3,
+    "ownerEnvironmentSerializationTest": "passed",
+    "realOwnerComparison": {
+      "shape": [
+        150,
+        1
+      ],
+      "gene": "NOC2L",
+      "target": "AARS",
+      "exactCellIDsAndCounts": true,
+      "spatialCoordinates": false,
+      "revisionBefore": 3,
+      "revisionAfter": 3
+    },
+    "browserPrepareAndCopy": "passed",
+    "consoleErrors": 0,
+    "nativeRenderingVerified": false,
+    "live": {
+      "revision": 80,
+      "allSharedStatePreserved": true,
+      "exactCellIDsAndCounts": true,
+      "staleHTTPConflict": 409,
+      "sourceSHA256": "6e2a361f0db61ecf2a42390ce2837bcb441f1cdb98bd2cfb87c2aa777d09a6a7",
+      "shape": [
+        150,
+        1
+      ]
+    },
+    "nativeOpening": {
+      "source": "actual live NumiVivo bounded readout export",
+      "authorized": true,
+      "viewerState": "awaiting-viewer",
+      "viewerReady": false
+    }
   }
 }

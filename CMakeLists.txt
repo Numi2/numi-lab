@@ -3227,6 +3227,11 @@ if(BUILD_TESTING)
                 "${CMAKE_CURRENT_SOURCE_DIR}/tests/numi_biological_viewers_test.py" -v)
         set_tests_properties(metalrobo.viewers.handoff
             PROPERTIES LABELS "metalrobo;cli;viewers" TIMEOUT 120)
+        add_test(NAME metalrobo.viewers.selected-export
+            COMMAND "${_metalrobo_stdlib_python}"
+                "${CMAKE_CURRENT_SOURCE_DIR}/tests/numi_viewer_export_test.py" -v)
+        set_tests_properties(metalrobo.viewers.selected-export
+            PROPERTIES LABELS "metalrobo;cli;viewers" TIMEOUT 120)
         add_test(
             NAME metalrobo.science.notebook
             COMMAND "${_metalrobo_stdlib_python}"

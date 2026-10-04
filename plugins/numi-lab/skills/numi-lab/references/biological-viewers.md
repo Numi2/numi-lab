@@ -69,6 +69,16 @@ view/export containing only accessible data. If no safe artifact exists, keep
 the existing bounded Wet Lab readout and explain the unavailable viewer route.
 Preparing, viewing or returning a selection never authorizes measurement reveal.
 
+For an admitted measured cellular cohort, prefer `numi view selected --revision
+REV` to prepare the current gene/intervention directly. It uses only the owner's
+accessible bounded readout, preserving original cell IDs and raw UMI counts in a
+one-gene AnnData page, with dataset/access fingerprints and explicit coverage.
+Use the returned handoff and verify it before calling Slide Viewer. Never describe
+this page as the full assay or infer spatial positions. `--limit` (1–128 per
+group) and `--offset` choose a page; source access remains the owner's decision.
+The Wet Lab offers the same operation as **Prepare selected cells for Slide
+Viewer**. Unsupported assay families remain on their existing owner workflow.
+
 On a user-requested return of an inspected gene to the lab, read current viewer
 context, resolve its exact gene identifier against the owner's feature axis, then
 run `numi view return HANDOFF --gene GENE --revision REV`. This verifies source

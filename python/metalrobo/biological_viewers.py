@@ -196,6 +196,10 @@ def main(argv=None):
     sub.add_parser("catalog", help="Discover viewers and source/identity contracts")
     sub.add_parser("status", help="Check actual companion plugin installations")
     sub.add_parser("context", help="Inspect the current Wet Lab selection without reading observations")
+    selected = sub.add_parser("selected", help="Prepare an owner-authorized bounded cell page for Slide Viewer")
+    selected.add_argument("--revision", type=int, required=True)
+    selected.add_argument("--limit", type=int, default=128)
+    selected.add_argument("--offset", type=int, default=0)
     prepare_parser = sub.add_parser("prepare", help="Prepare an exact native-viewer opening; does not open or reveal")
     prepare_parser.add_argument("source", type=Path)
     prepare_parser.add_argument("--owner", default="NumiVivo")
@@ -218,6 +222,10 @@ def main(argv=None):
         elif a.action == "status": result = installed_status()
         elif a.action == "context":
             c = active_workspace(); result = workspace_request(c, "/api/viewers")
+        elif a.action == "selected":
+            c = active_workspace()
+            result = workspace_request(c, "/api/viewers/selected", {
+                "expectedRevision": a.revision, "limit": a.limit, "offset": a.offset})
         elif a.action == "prepare":
             context = None
             if a.wet_lab:

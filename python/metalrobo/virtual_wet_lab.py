@@ -84,7 +84,14 @@ def main():
                 if path == '/api/shared': return self.respond(200, shared.state())
                 if path == '/api/viewers':
                     from biological_viewers import public_context
-                    return self.respond(200, public_context(shared.state(), args.workspace))
+                    state = shared.state()
+                    result = public_context(state, args.workspace)
+                    selected = state.get('selection')
+                    capability = owner.capabilities(configs[selected['assayID']]) if selected else {}
+                    result['selectedCellExport'] = {'available': bool(selected and selected.get('gene') and selected.get('target')
+                        and capability.get('measuredExploration') is True and capability.get('prediction') is False),
+                        'scope': 'One measured gene, at most 128 accessible cells per group; no spatial coordinates or reserved outcomes'}
+                    return self.respond(200, result)
                 if path == '/api/templates':
                     folder=args.workspace/'templates'
                     return self.respond(200, [owner.rna.read(p) for p in sorted(folder.glob('*.json'))] if folder.exists() else [])
@@ -146,6 +153,10 @@ def main():
                 length = int(self.headers.get('Content-Length', '0'))
                 if not 0 < length <= 65536: raise ValueError('Invalid request size')
                 body = json.loads(self.rfile.read(length))
+                if self.path == '/api/viewers/selected':
+                    from wet_lab_viewer_export import export_selected
+                    return self.respond(201, export_selected(shared, owner, body['expectedRevision'],
+                        limit=body.get('limit', 128), offset=body.get('offset', 0)))
                 if self.path == '/api/shared': return self.respond(200, shared.mutate(body))
                 if self.path == '/api/snapshot':
                     from wet_lab_snapshot import snapshot

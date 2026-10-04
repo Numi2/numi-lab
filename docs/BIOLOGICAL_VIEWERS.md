@@ -23,6 +23,30 @@ open an app or embed another viewer. Numi resolves source association before
 opening. A gene symbol alone cannot establish species, isoform, residue mapping,
 cell identity or image registration.
 
+For an admitted measured cellular cohort, **Prepare selected cells for Slide
+Viewer** creates an actual AnnData source from the current gene/intervention.
+It exports at most 128 accessible cells per group, preserving original cell IDs
+and owner-supplied raw UMI counts. It neither opens the raw assay nor creates
+spatial coordinates. The copied request then names the verified artifact rather
+than asking Codex to find an unspecified source. Unsupported assay families
+retain their normal owner workflow.
+
+The same path-free operation is available to Codex:
+
+```sh
+numi view context
+numi view selected --revision REV
+```
+
+The result includes a retained handoff, dataset/access fingerprints and explicit
+page coverage. Optional `--limit` (1–128) and `--offset` select a bounded page.
+The existing owner admits observations before serialization; reserved responses,
+absent/ambiguous genes, identity mismatches and stale revisions fail explicitly.
+No preprocessing, means, predictions or new scientific quantities are computed.
+The service's existing h5py/NumPy environment writes the interchange file; these
+packages are not required by the `numi view` client. Output uses a new private
+directory published only after the artifact, provenance and handoff are ready.
+
 `numi view catalog` describes supported primary files and identity contracts.
 `numi view status` checks installed/enabled versions. Install requested companions
 with `codex plugin add structure-viewer@openai-curated-remote --json` and the
@@ -91,6 +115,11 @@ file for `numi view` commands. The normal active laboratory remains selected.
   evidence or an asserted mapping to the selected gene.
 - Browser inspection verified the new panel, current selection, three viewer
   choices and successful copy-request feedback with no browser console errors.
+- Three additional tests verify selected-cell admission, identity handling and
+  AnnData serialization in the owner's h5py environment. A real NOC2L/AARS cohort
+  export contained 150 cells and one gene: every cell ID and raw count matched the
+  owner readout, with no spatial coordinates and unchanged workspace revision.
+  The browser prepared this artifact and copied its exact handoff successfully.
 
 The installed tools subsequently became callable in the same conversation. All
 three real opening calls created native sessions: a synthetic structure fixture,
