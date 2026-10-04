@@ -1,0 +1,5 @@
+device=Apple M4 world_fingerprint=11218263775426672239 timestep_s=0.0010000000475
+accepted=2000 time_s=2.00000009499 PaCO2=39.9147720337
+accepted=4000 time_s=4.00000018999 PaCO2=39.5410461426
+accepted=6000 time_s=6.00000028498 PaCO2=39.303730011
+accepted_steps=6000 simulated_s=6.00000028498 wall_s=86.455820459 gpu_s=58.5867226319 real_time_factor=0.0693996107275 Brain_control=1 no_anatomy_or_resting_claim=true

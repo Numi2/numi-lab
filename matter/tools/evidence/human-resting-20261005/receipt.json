@@ -1,0 +1,51 @@
+{
+  "scope": "native coupled physiology smoke and transaction regression, not completed resting human",
+  "lab_base_revision": "63092643d0284133e6a5b1216015861b1ae03a02",
+  "brain_revision": "484f6b1d3cc90a9888977aaac5e7f54a881bb336",
+  "platform": "macOS-26.6-arm64-arm-64bit-Mach-O",
+  "device": "Apple M4, MacBook Air, 24 GB unified memory",
+  "world_fingerprint": "11218263775426672239",
+  "command": [
+    "numi-human-resting",
+    "matter/tools/fixtures/cvsim21.native.v3.json",
+    "matter/examples/resting-reference-respiration.json",
+    "trace.csv",
+    "--steps",
+    "6000",
+    "--dt",
+    "0.001"
+  ],
+  "build_command": [
+    "cmake",
+    "--build",
+    "/Users/home/numi-human-resting-build-20261005",
+    "--target",
+    "numi-human-resting",
+    "-j",
+    "4"
+  ],
+  "sha256": {
+    "/Users/home/numi-human-resting-lab-20261005/matter/include/numi/matter/matter.hpp": "b5355551e52f659989bce7e662c1e2bc3c6e782404be15785cda8de0f49b6b9f",
+    "/Users/home/numi-human-resting-lab-20261005/matter/src/runtime.mm": "39572ad036a608db01425016679e50b8307b593b19efd49062d8c1673ddceab6",
+    "/Users/home/numi-human-resting-lab-20261005/matter/include/numi/matter/human_respiration.h": "64f404d8696495fdff029f74d752a2d5cd005cdbd58861150b9c005fa9954e96",
+    "/Users/home/numi-human-resting-lab-20261005/matter/src/human_respiration.metal": "a772533551c44a48972c13e0af63446a64fb37e63e9f0ecf0071fcb2b2692bf5",
+    "/Users/home/numi-human-resting-lab-20261005/matter/tools/human_respiration_parameters.hpp": "2c1864e2ec4f487d5719d722c0341dc38f20c17aac07e934e8494f2c1043bd45",
+    "/Users/home/numi-human-resting-lab-20261005/matter/tools/human_resting.mm": "df7f5fba90afc1c14d3dc0c094c753b759be7b130ee186db6b17b716081c84de",
+    "/Users/home/numi-human-resting-lab-20261005/matter/examples/resting-reference-respiration.json": "27100bf8941fcd623bba1ea87474f6fe6a4b1ab4f89b3e6ec0df5e4f8d9551f3",
+    "/Users/home/numi-human-resting-lab-20261005/matter/tools/fixtures/cvsim21.native.v3.json": "eeb6ebc5dad5cb413587038532ac5badc3d3e8aa419cca111604239e7f692818",
+    "/Users/home/numi-human-resting-lab-20261005/src/metal/MujocoMuscleReference.metal": "a6828c6d9907ae6768a72074c855ad06ce2da4e206909e6b1d65e7b8023b8173",
+    "/Users/home/numi-brain/Sources/NumiBrainABI/include/NumiBrainRespiratoryChemoreflexV1.h": "0d7ac6e2b8438cbd0b4cb9fdc5c169585421dd8542ac071d47c3002401892248",
+    "/Users/home/numi-brain/Sources/NumiBrainMetal/Shaders/RespiratoryChemoreflexV1.metal": "495d3b51dc679ecf20c69e6c6f095d7d3c59d731216093c6ce790c0d0a6357cc",
+    "/Users/home/numi-human-resting-build-20261005/numi-human-resting": "4e04fa4d0f344a855c81f6f6ff0272f710a714c537e501ddb1e6570e16899663",
+    "/Users/home/numi-human-resting-build-20261005/shaders/NumiMatter.metallib": "7ae53da935501a399f08bebc16577db3e15351fc1be257bde83e388ebc7de01f",
+    "/Users/home/numi-human-resting-build-20261005/shaders/HumanRespiration.metallib": "3cff931f4da57bd9d329c551fab9558ef1f5fdbfdb8b58ee8a325169e055b436"
+  },
+  "transaction_001": "failed: extension completion placed after unreachable postCommit return; retained unchanged",
+  "transaction_002": "passed: rejection preserves all physical/controller arrays and circulation clock; accepted replay bitwise",
+  "limitations": [
+    "Six seconds only; no five-minute or resting whole-body claim",
+    "No anatomical attachment of the new respiratory aggregates or vascular chambers yet",
+    "No supported posture, live scene, baseline/intervention comparison or physiological qualification in this record",
+    "Gas content reductions and source parameters declared in reference JSON"
+  ]
+}

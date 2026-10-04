@@ -218,6 +218,40 @@ if(APPLE)
         STATIC
         $<TARGET_OBJECTS:numi_matter_runtime_objects>
     )
+    set(NUMI_HUMAN_RESPIRATION_METALLIB "${NUMI_MATTER_SHADER_DIR}/HumanRespiration.metallib")
+    set(NUMI_BRAIN_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../numi-brain" CACHE PATH "NumiBrain source for the accepted respiratory chemoreflex")
+    add_custom_command(
+        OUTPUT "${NUMI_HUMAN_RESPIRATION_METALLIB}"
+        COMMAND xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/../include"
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/../src/metal"
+            -I "${NUMI_BRAIN_ROOT}/Sources/NumiBrainABI/include"
+            -I "${NUMI_BRAIN_ROOT}/Sources/NumiBrainMetal/Shaders"
+            -c "${CMAKE_CURRENT_SOURCE_DIR}/src/human_respiration.metal"
+            -o "${NUMI_MATTER_SHADER_DIR}/HumanRespiration.air"
+        COMMAND xcrun -sdk macosx metallib
+            "${NUMI_MATTER_SHADER_DIR}/HumanRespiration.air"
+            -o "${NUMI_HUMAN_RESPIRATION_METALLIB}"
+        DEPENDS src/human_respiration.metal include/numi/matter/human_respiration.h
+            include/numi/matter/shared.h ../src/metal/MujocoMuscleReference.metal
+            ../include/metalrobo/mujoco_muscle_gpu.h
+            "${NUMI_BRAIN_ROOT}/Sources/NumiBrainABI/include/NumiBrainRespiratoryChemoreflexV1.h"
+            "${NUMI_BRAIN_ROOT}/Sources/NumiBrainMetal/Shaders/RespiratoryChemoreflexV1.metal"
+        VERBATIM
+    )
+    add_custom_target(numi_human_respiration_shaders DEPENDS "${NUMI_HUMAN_RESPIRATION_METALLIB}")
+    # Explicit cross-suite target: ordinary Matter builds do not require a
+    # sibling Brain checkout. Launchers select and bind NUMI_BRAIN_ROOT.
+    add_executable(numi-human-resting EXCLUDE_FROM_ALL tools/human_resting.mm)
+    add_dependencies(numi-human-resting numi_human_respiration_shaders)
+    target_include_directories(numi-human-resting PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../include")
+    target_include_directories(numi-human-resting PRIVATE "${NUMI_BRAIN_ROOT}/Sources/NumiBrainABI/include")
+    target_compile_options(numi-human-resting PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
+    target_compile_definitions(numi-human-resting PRIVATE
+        NUMI_MATTER_METALLIB="${NUMI_MATTER_METALLIB}"
+        NUMI_HUMAN_RESPIRATION_METALLIB="${NUMI_HUMAN_RESPIRATION_METALLIB}")
+    target_link_libraries(numi-human-resting PRIVATE numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
     target_include_directories(
         numi_matter_runtime
         PUBLIC

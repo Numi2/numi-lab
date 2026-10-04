@@ -4001,6 +4001,25 @@ RuntimeDiagnostics Runtime::encodeImpl(
             return diagnostics;
         }
         State& state = *state_;
+        const bool hasAcceptedStepExtension =
+            request.encodeAcceptedStepExtension != nullptr;
+        if (hasAcceptedStepExtension !=
+            (request.acceptedStepExtensionContext != nullptr)) {
+            diagnostics.message =
+                "accepted-step extension requires both callback and context";
+            return diagnostics;
+        }
+        if (hasAcceptedStepExtension &&
+            state.vascularValue.layout.ranges.z == 0u) {
+            diagnostics.message =
+                "accepted-step extension requires an initialized vascular network";
+            return diagnostics;
+        }
+        if (hasAcceptedStepExtension && retainPreparedState) {
+            diagnostics.message =
+                "accepted-step extension does not support prepared-state publication transactions";
+            return diagnostics;
+        }
         if (request.phase != EncodePhase::preDynamics &&
             request.phase != EncodePhase::postCommit) {
             diagnostics.message = "unknown Matter encode phase";
@@ -4795,6 +4814,76 @@ RuntimeDiagnostics Runtime::encodeImpl(
             [encoder setBytes:&state.fgmresLayout
                        length:sizeof(state.fgmresLayout) atIndex:30u];
         };
+        const std::uint32_t microtickCount =
+            1u << state.dispatch.maximumRateExponent;
+        const auto invokeAcceptedStepExtension = [&] (
+            AcceptedStepExtensionPhase phase,
+            const std::uint32_t microtick
+        ) {
+            if (!hasAcceptedStepExtension) return true;
+            AcceptedStepExtensionView view{};
+            view.commandBuffer = request.commandBuffer;
+            view.matterStatuses = (__bridge void*)state.statuses;
+            view.vascularAccepted = (__bridge void*)state.vascularAccepted;
+            view.vascularCandidate = (__bridge void*)state.vascularCandidate;
+            view.vascularCheckpoint = (__bridge void*)state.vascularCheckpoint;
+            view.vascularUnknowns = (__bridge void*)state.vascularUnknowns;
+            view.vascularCompartments = (__bridge void*)state.vascularCompartments;
+            view.vascularElastance = (__bridge void*)state.vascularElastance;
+            view.vascularConnections = (__bridge void*)state.vascularConnections;
+            view.vascularTissues = (__bridge void*)state.vascularTissues;
+            view.vascularExchanges = (__bridge void*)state.vascularExchanges;
+            view.vascularCavities = (__bridge void*)state.vascularCavities;
+            view.vascularCompartmentCavity =
+                (__bridge void*)state.vascularCompartmentCavity;
+            view.vascularClockAccepted =
+                (__bridge void*)state.vascularClockAccepted;
+            view.vascularClockCandidate =
+                (__bridge void*)state.vascularClockCandidate;
+            view.vascularClockCheckpoint =
+                (__bridge void*)state.vascularClockCheckpoint;
+            view.vascularLayout = state.vascularValue.layout;
+            view.environmentCount = state.dispatch.environmentCount;
+            view.vascularStateStride = state.vascularValue.layout.ranges.z;
+            view.compartmentCount = state.vascularValue.layout.counts.x;
+            view.connectionCount = state.vascularValue.layout.counts.y;
+            view.tissueCount = state.vascularValue.layout.counts.w;
+            view.exchangeCount = state.vascularValue.layout.ranges.x;
+            view.cavityCount = state.vascularValue.layout.cavities.x;
+            view.controlStep = request.controlStep;
+            view.physicsSubstep = request.physicsSubstep;
+            view.physicsSubsteps = request.physicsSubsteps;
+            view.microtick = microtick;
+            view.microtickCount = microtickCount;
+            view.vascularClockQuantumExponent = std::bit_cast<std::int32_t>(
+                state.vascularValue.layout.clock.x);
+            view.matterPhase = request.phase;
+            view.vascularTimestepTicks = vascularTimestepTicks;
+            view.frameTimestepSeconds = frameTimestep;
+            view.microstepTimestepSeconds = frameTimestep /
+                static_cast<float>(microtickCount);
+
+            [encoder endEncoding];
+            encoder = nil;
+            if (!request.encodeAcceptedStepExtension(
+                    request.acceptedStepExtensionContext, phase, view)) {
+                ownership->preDynamicsOpen = false;
+                diagnostics.message =
+                    "accepted-step extension failed to encode its device transaction";
+                return false;
+            }
+            encoder = [commandBuffer computeCommandEncoder];
+            if (encoder == nil) {
+                ownership->preDynamicsOpen = false;
+                diagnostics.message =
+                    "failed to resume Matter after accepted-step extension";
+                return false;
+            }
+            [encoder setLabel:request.phase == EncodePhase::preDynamics
+                ? @"Numi Matter physiological continuation"
+                : @"Numi Matter post-commit physiological continuation"];
+            return true;
+        };
         const NSUInteger environments = state.dispatch.environmentCount;
         const NSUInteger objects = state.dispatch.objectCount;
         const NSUInteger particleTotal =
@@ -5296,6 +5385,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 }
             );
 
+            if (request.physicsSubstep + 1u == request.physicsSubsteps &&
+                !invokeAcceptedStepExtension(
+                    AcceptedStepExtensionPhase::frameComplete,
+                    microtickCount - 1u)) {
+                return diagnostics;
+            }
+
             [encoder endEncoding];
             ownership->preDynamicsOpen = false;
             if (retainPreparedState) {
@@ -5642,6 +5738,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 });
             }
         }
+        if (firstPrePass && request.phase == EncodePhase::preDynamics &&
+            !invokeAcceptedStepExtension(
+                AcceptedStepExtensionPhase::frameBegin, 0u)) {
+            return diagnostics;
+        }
         dispatchThreads("nm_project_rigid_states", proxyTotal, [&] {
             setDispatch();
             [encoder setBytes:&bridge length:sizeof(bridge) atIndex:1u];
@@ -5652,8 +5753,6 @@ RuntimeDiagnostics Runtime::encodeImpl(
             [encoder setBuffer:rodInverseMasses offset:0u atIndex:6u];
         });
 
-        const std::uint32_t microtickCount =
-            1u << state.dispatch.maximumRateExponent;
         // Immutable FEM worlds retain their cooked nodal masses and incidence.
         // Explicit commands still enter the transaction owner for validation;
         // their presence must never be hidden by the capability fast path.
@@ -8887,6 +8986,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:3u];
                 }
             );
+            if (request.phase == EncodePhase::preDynamics &&
+                !invokeAcceptedStepExtension(
+                    AcceptedStepExtensionPhase::candidateReady, microtick)) {
+                return diagnostics;
+            }
             if (state.requiresCoupledCandidate) {
                 [encoder endEncoding];
                 const CoupledCandidateQuery publishQuery{
@@ -9035,6 +9139,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 setDispatch();
                 [encoder setBuffer:state.statuses offset:0u atIndex:1u];
             });
+            if (request.phase == EncodePhase::preDynamics &&
+                !invokeAcceptedStepExtension(
+                    AcceptedStepExtensionPhase::microstepComplete, microtick)) {
+                return diagnostics;
+            }
         }
 
         dispatchThreads("nm_topology_commit", topologyTransactionalTotal, [&] {

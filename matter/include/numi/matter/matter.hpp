@@ -895,6 +895,66 @@ enum class EncodePhase : std::uint32_t {
     postCommit = 1u,
 };
 
+// Optional same-command-buffer extension point for physiological owners that
+// must advance atomically with Matter's accepted physical state. Buffer fields
+// in the view are borrowed id<MTLBuffer>s; the callback may encode Metal work
+// into commandBuffer but must not commit, wait, read back, retain, or change a
+// resource's ownership. frameBegin follows the control-step checkpoint,
+// candidateReady follows physical candidate certification but precedes Matter
+// commit, microstepComplete follows each accepted inner-step candidate, and
+// frameComplete follows postCommit rollback/status reconciliation. Invalid
+// physical candidates should write the matching NMMatterStatusGPU failure so
+// all Matter owners take their normal rollback.
+enum class AcceptedStepExtensionPhase : std::uint32_t {
+    frameBegin = 0u,
+    candidateReady = 1u,
+    microstepComplete = 2u,
+    frameComplete = 3u,
+};
+
+struct AcceptedStepExtensionView {
+    void* commandBuffer = nullptr; // borrowed id<MTLCommandBuffer>
+    void* matterStatuses = nullptr; // borrowed id<MTLBuffer>, NMMatterStatusGPU[environmentCount]
+    void* vascularAccepted = nullptr; // borrowed id<MTLBuffer>, float4[environmentCount * vascularStateStride]
+    void* vascularCandidate = nullptr;
+    void* vascularCheckpoint = nullptr;
+    void* vascularUnknowns = nullptr; // NMVascularUnknownGPU[vascularStateStride]
+    void* vascularCompartments = nullptr; // NMVascularCompartmentGPU[compartmentCount]
+    void* vascularElastance = nullptr; // float[environmentCount * compartmentCount], exact prepared pressure-law coefficients
+    void* vascularConnections = nullptr; // NMVascularConnectionGPU[connectionCount]
+    void* vascularTissues = nullptr; // NMVascularTissueGPU[tissueCount]
+    void* vascularExchanges = nullptr; // NMVascularExchangeGPU[exchangeCount]
+    void* vascularCavities = nullptr; // NMVascularCavityGPU[cavityCount]
+    void* vascularCompartmentCavity = nullptr; // uint32_t[compartmentCount]
+    void* vascularClockAccepted = nullptr; // NMVascularClockGPU[environmentCount]
+    void* vascularClockCandidate = nullptr;
+    void* vascularClockCheckpoint = nullptr;
+    NMVascularLayoutGPU vascularLayout{};
+    std::uint32_t environmentCount = 0u;
+    std::uint32_t vascularStateStride = 0u;
+    std::uint32_t compartmentCount = 0u;
+    std::uint32_t connectionCount = 0u;
+    std::uint32_t tissueCount = 0u;
+    std::uint32_t exchangeCount = 0u;
+    std::uint32_t cavityCount = 0u;
+    std::uint32_t controlStep = 0u;
+    std::uint32_t physicsSubstep = 0u;
+    std::uint32_t physicsSubsteps = 0u;
+    std::uint32_t microtick = 0u;
+    std::uint32_t microtickCount = 0u;
+    std::int32_t vascularClockQuantumExponent = 0;
+    EncodePhase matterPhase = EncodePhase::preDynamics;
+    std::uint64_t vascularTimestepTicks = 0u;
+    float frameTimestepSeconds = 0.0f;
+    float microstepTimestepSeconds = 0.0f;
+};
+
+using EncodeAcceptedStepExtension = bool (*) (
+    void* context,
+    AcceptedStepExtensionPhase phase,
+    const AcceptedStepExtensionView& view
+);
+
 enum class CoupledCandidateOperation : std::uint32_t {
     candidateKinematics = 0u,
     massAction = 1u,
@@ -1025,6 +1085,15 @@ struct EncodeRequest {
     // transactions because their external control/body authority is not yet
     // covered by the joint device rollback contract.
     bool enablePreparedState = false;
+    // Optional transaction-scoped physiological coupling. Matter invokes this
+    // callback at frameBegin, candidateReady, microstepComplete, and
+    // frameComplete while encoding the same borrowed command buffer. The view
+    // exposes Matter's accepted/candidate/checkpoint circulation and status;
+    // callback-owned device state must publish only when frameComplete sees
+    // NM_STATUS_SUCCESS and restore its own checkpoint for a rejected frame.
+    // This remains opt-in and is appended to preserve existing field offsets.
+    void* acceptedStepExtensionContext = nullptr;
+    EncodeAcceptedStepExtension encodeAcceptedStepExtension = nullptr;
 };
 
 // Borrowed, device-only accepted-state proof surface. This is intentionally
