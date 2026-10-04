@@ -27,6 +27,14 @@ class SharedTests(unittest.TestCase):
  def test_recovery_refuses_live_worker(self):
   s=self.act('propose',genes=['A'],targets=['T']);i=s['drafts'][0]['id'];s['drafts'][0].update(status='interrupted',operation='op');s['operations']=[{'id':'op','status':'interrupted','action':'seal'}];write(self.store.path,s);self.store.alive=lambda op:True
   with self.assertRaisesRegex(ValueError,'still running'):self.act('recover',id=i)
+ def test_model_condition_edits_undo_and_staleness(self):
+  s=self.act('propose',genes=['A'],targets=['T'],modelIDs=['old','new'],conditionIDs=['endpoint']);i=s['drafts'][0]['id'];revision=s['revision']
+  self.act('edit',id=i,modelIDs=['new'],conditionIDs=['unsupported'])
+  with self.assertRaises(Conflict):self.store.mutate({'action':'seal','id':i,'expectedRevision':revision})
+  card=self.act('undo',id=i)['drafts'][0];self.assertEqual(card['modelIDs'],['old','new']);self.assertEqual(card['conditionIDs'],['endpoint'])
+ def test_revised_comparison_drops_old_axis_results(self):
+  s=self.act('propose',genes=['A'],targets=['T']);i=s['drafts'][0]['id'];s['drafts'][0].update(status='sealed',record='r',axisResults=[{'record':'r'}]);write(self.store.path,s)
+  s=self.act('revise',id=i);self.assertNotIn('axisResults',s['drafts'][1]);self.assertEqual(s['drafts'][0]['axisResults'],[{'record':'r'}])
  def test_restart_retains_draft(self):
   s=self.act('propose',genes=['A'],targets=['T']);other=SharedWorkspace(self.tmp.name,{'assays':{}});self.assertEqual(other.state(),s)
 

@@ -45,3 +45,29 @@ shared experiment surface, not a separate assistant, simulator, or hosted queue.
 
 Draft edits support undo. Operation progress and experiment history survive
 browser reload. A fresh Codex session reads the same state without file paths.
+
+## Compare exact model versions and supported conditions
+
+`context` now lists registered models, compatible specimens/populations and
+supported conditions. Select explicit identifiers from that response; never
+substitute v0.3 when a corrected model cannot run. The v0.3 assay remains a named
+regression. Cards bind the assay, runtime, weights, specimen and population.
+
+Author the objective once with `propose --models MODEL_ID ... --conditions
+CONDITION_ID ... --genes GENE ... --targets TARGET ... --revision REV`.
+Use `edit --id ID --models ... --conditions ... --revision REV` to change the same
+comparison. Model and condition edits participate in undo and stale-write checks.
+All selected model/condition arms are sealed before a separate authorized reveal.
+Read each axis's `canExecute`, `reason`, `corrections`, `coverage` and `binding`.
+A blocked condition is not a zero response. Only apply a supported correction
+consistent with the user's intent; changing objective genes is an explicit edit.
+
+The current spatial source supports its measured endpoint only. It has no
+qualified tunicamycin/thapsigargin/DMSO tissue conditions or spatial-preservation
+objective. Those cellular conditions must not be relabeled as tissue inputs.
+The corrected spatial model is exposed development, not biological promotion.
+Model switching retains the candidate, gene, camera and shared comparison scale.
+`axisResults` holds the exact record and objective evaluation for each selected
+model/condition. Report numerical ranking changes separately from evidence of a
+reliable winner. Inspect gene residuals and no-change/matched baselines after an
+authorized reveal; replay every axis using its retained native runtime.
