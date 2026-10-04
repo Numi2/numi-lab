@@ -98,7 +98,7 @@ def main():
                                          'selection': reg['selection'], 'revealed': (folder/'comparison.json').exists()})
                     return self.respond(200, rows)
                 if path == '/api/receivers':
-                    if not args.receiving_campaign:return self.respond(200,{'available':False})
+                    if not args.receiving_campaign or not (args.receiving_campaign/'artifact-seal.json').exists():return self.respond(200,{'available':False,'reason':'No completed registered receiver model; preservation remains unsupported'})
                     from receiving_inspection import inspect
                     return self.respond(200,{'available':True,**inspect(args.receiving_campaign)})
                 if path == '/api/qualification':
