@@ -643,3 +643,41 @@ pre {
 .shared-workspace{border-top:3px solid #277e70}.shared-card{border:1px solid #b8ccc5;border-radius:14px;padding:18px;margin:16px 0;background:#fff}.shared-card input{width:min(100%,480px)}.shared-card button{margin:4px}.comparison-drop{padding:18px;border:2px dashed #6b9f91;border-radius:10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:12px 0}.comparison-drop span{font-size:12px;color:#587168}.candidate-tray{display:flex;flex-wrap:wrap}.shared-card h3{margin-top:0}
 .shared-visual-grid{display:grid;grid-template-columns:minmax(320px,0.8fr) minmax(0,2fr);gap:18px;align-items:start}.shared-visual-grid .shared-workspace{max-height:760px;overflow:auto;margin:0}.shared-visual-grid .comparison-canvases{min-width:0}.shared-visual-grid .shared-workspace h2{font-size:23px}.shared-visual-grid .shared-card{padding:12px}.shared-visual-grid .comparison-canvases canvas{height:280px}@media(max-width:900px){.shared-visual-grid{grid-template-columns:1fr}.shared-visual-grid .shared-workspace{max-height:440px}}
 .model-condition-comparison{display:grid;gap:6px;padding:10px;background:#edf4f0;border-radius:10px;font-size:12px}.model-condition-comparison label{display:flex;align-items:center;gap:8px}.shared-card .model-condition-comparison input[type=checkbox]{width:auto;min-width:0;margin:0}.model-condition-comparison p{margin:4px 0}.model-condition-comparison button{font-size:12px}
+/* The specimen is the primary workspace; comparisons are opened deliberately. */
+#learned-root .shared-visual-grid {display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:20px;align-items:start;}
+.specimen-column {min-width:0;position:sticky;top:12px;}
+#learned-root.single-specimen .comparison-canvases {display:block;}
+#learned-root.single-specimen .comparison-canvases>.panel {display:none;}
+#learned-root.single-specimen[data-layer="control"] .comparison-canvases>.panel:nth-child(1),
+#learned-root.single-specimen[data-layer="predicted"] .comparison-canvases>.panel:nth-child(2),
+#learned-root.single-specimen[data-layer="observed"] .comparison-canvases>.panel:nth-child(3),
+#learned-root.single-specimen[data-layer="residual"] .comparison-canvases>.panel:nth-child(4) {display:block;}
+#learned-root.single-specimen .comparison-canvases canvas {height:clamp(380px,58vh,780px);width:100%;touch-action:none;}
+.comparison-canvases canvas {touch-action:none;outline-offset:-4px;}
+.comparison-canvases canvas:focus-visible {outline:3px solid #f2d787;}
+.specimen-view-controls {display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px;}
+.specimen-view-controls [aria-pressed="true"] {background:#234d40;color:#fff;}
+.shared-workspace {max-height:80vh;overflow:auto;overscroll-behavior:contain;}
+.shared-workspace h2 {font-size:21px;margin:8px 0;}
+.shared-workspace .shared-card {padding:8px 0;margin:0;border:0;box-shadow:none;}
+.proposal {border-top:1px solid var(--line);padding:14px 0;}
+.proposal>summary {font-weight:650;cursor:pointer;}
+.shared-workspace label {display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.shared-workspace input[type="checkbox"] {width:auto;}
+.stage-badge {display:inline-block;padding:4px 8px;background:#e8e3c5;font-size:10px;letter-spacing:1px;margin:8px 0;}
+.support-summary {font-weight:600;}
+.candidate-support {border-bottom:1px solid var(--line);padding:5px 0;}
+.candidate-support p {margin:2px 0;}
+.candidate-name {font-weight:650;padding-left:0;}
+.effect-link,.inspect-model,.failure-link {display:block;width:100%;text-align:left;margin:4px 0;}
+.inspect-model {background:#e3ece6;}
+.failure-link,.blocked-intent {background:#f4e7dc;border-left:3px solid #a66537;padding:10px;}
+.rank-difference {padding:6px 0;border-bottom:1px solid var(--line);}
+.decision-evidence {margin-top:14px;}
+.decision-evidence table {width:100%;}
+.decision-evidence th,.decision-evidence td {text-align:left;padding:6px;}
+.shared-workspace .comparison-drop {min-height:0;}
+@media(max-width:900px){#learned-root .shared-visual-grid {grid-template-columns:1fr;}.specimen-column {position:static;}.shared-workspace {max-height:none;}#learned-root.single-specimen .comparison-canvases canvas {height:55vh;min-height:340px;}.investigation-toolbar {grid-template-columns:repeat(2,minmax(0,1fr));}}
+
+.candidate-tray button {touch-action:none;cursor:grab;}
+.candidate-tray button:active {cursor:grabbing;}

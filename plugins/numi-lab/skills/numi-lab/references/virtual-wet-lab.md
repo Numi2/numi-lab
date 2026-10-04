@@ -71,3 +71,34 @@ Model switching retains the candidate, gene, camera and shared comparison scale.
 model/condition. Report numerical ranking changes separately from evidence of a
 reliable winner. Inspect gene residuals and no-change/matched baselines after an
 authorized reveal; replay every axis using its retained native runtime.
+
+## Decision support in the specimen workspace
+
+The default is one large specimen view. Use “Compare synchronized views” when
+control, prediction, observation and signed residuals need to be inspected together.
+The canvas supports pointer pan/pick, arrow-key pan, plus/minus zoom, zero reset
+and Enter to inspect its center. Touch drag/pinch handlers exist; physical touch
+qualification is still pending, as is an uncoached researcher session. Neither
+browser automation nor model agreement is a usability/confidence qualification.
+
+`context` includes `selectionSupport` and each card's `decisionSupport`. Inspect
+selected-population and candidate-specific reference/outcome counts, barcode-negative
+exposure uncertainty, source-bound units, target overlap and projected population
+support before describing any numerical recommendation. Specimen totals are not
+local controls. The observed Gfap arm in the retained neuron demonstration has one
+cell, no qualified recommendation, and no fitted training-ranking comparator.
+
+Coverage updates after draft edits. Unknown genes and interventions remain in the
+request with blocked execution and an explicit correction. Never silently remove
+them. Correction buttons create ordinary revision-checked edits, covered by undo.
+Model differences on sealed cards decompose objective utility into gene contributions
+and retain the same specimen, candidate, gene and scales. These are numerical
+attributions, not mechanisms. Clicking “Inspect failed objective” exposes measured
+values and model/no-change/matched-baseline residuals without rebuilding the comparison.
+
+The experimental v0.4 baseline is frozen. The subsequent ESM2 experiment separates
+held-target and held-context technical development folds; it does not establish
+spatial or independent biological validation, and did not replace the registered
+spatial model. Do not describe 69/81 training groups as unseen genes, or one stimulated
+Jurkat validation capture as validation across all studies. Keep researcher usability
+explicitly pending per the user's instruction.

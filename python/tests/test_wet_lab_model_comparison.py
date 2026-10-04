@@ -29,4 +29,19 @@ class ComparisonTests(unittest.TestCase):
  def test_unsupported_marker_requires_explicit_objective_revision(self):
   d=self.act('propose',genes=['A','missing'],targets=['T'])['drafts'][0];self.assertFalse(d['coverage']['canExecute']);self.assertEqual(d['genes'],['A','missing']);self.assertTrue(d['axes'][0]['corrections'][0]['requiresObjectiveEdit'])
 
+ def test_unknown_target_intent_retained_until_explicit_edit(self):
+  d=self.act('propose',genes=['A'],targets=['T','unknown'])['drafts'][0]
+  self.assertEqual(d['targets'],['T','unknown']);self.assertFalse(d['coverage']['canExecute'])
+  with self.assertRaises(ValueError):self.act('seal',id=d['id'])
+  fixed=self.act('edit',id=d['id'],targets=['T'])['drafts'][0]
+  self.assertTrue(fixed['coverage']['canExecute']);self.assertEqual(fixed['undo'][-1]['targets'],['T','unknown'])
+
+ def test_registered_target_without_population_support_is_blocked(self):
+  self.store.config['vivoRoot']='native-owner'
+  support={'candidates':[{'target':'T','role':'direct','canExecute':False}]}
+  with patch.dict(sys.modules,{'investigation':types.SimpleNamespace(population_support=lambda *args:support,model_difference=lambda d:{'available':False})}):
+   d=self.act('propose',genes=['A'],targets=['T'])['drafts'][0]
+   self.assertFalse(d['coverage']['canExecute']);self.assertEqual(d['axes'][0]['corrections'][0]['removeUnsupportedTargets'],['T'])
+   with self.assertRaises(ValueError):self.act('seal',id=d['id'])
+
 if __name__=='__main__':unittest.main()

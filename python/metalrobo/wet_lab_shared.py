@@ -33,7 +33,17 @@ class SharedWorkspace:
         with self.lock():
             state=read(self.path)
             state['models']=self.models()
-            return state
+            return self.enrich(state)
+    def enrich(self,state):
+        if not self.config.get('vivoRoot'):return state
+        from investigation import population_support,model_difference
+        sel=state.get('selection')
+        if sel and sel['assayID'] in self.config['assays']:
+            state['selectionSupport']=population_support(self.config['assays'][sel['assayID']],{'specimen':sel['specimenID'],'population':sel['populationID']},[sel.get('gene') or 'Clu'])
+        for d in state['drafts']:
+            d['decisionSupport']=population_support(self.config['assays'][d['selection']['assayID']],{'specimen':d['selection']['specimenID'],'population':d['selection']['populationID']},d['genes'])
+            d['modelDifference']=model_difference(d)
+        return state
     def models(self):
         result=[]
         for identifier,path in self.config['assays'].items():
@@ -106,13 +116,13 @@ class SharedWorkspace:
                     if self.alive(op):os.killpg(op['pid'],signal.SIGTERM)
                     op['status']='cancelled';op['progress']='Cancelled; partial artifacts retained. Recovery starts a new operation after process exit.';draft['status']='interrupted' if not draft.get('record') else 'sealed'
                 else:raise ValueError('Unsupported workspace action')
-            self.event(s,{'action':action,'draftID':draft['id'] if draft else None,'actor':b.get('actor','human')});s['models']=self.models();return s
+            self.event(s,{'action':action,'draftID':draft['id'] if draft else None,'actor':b.get('actor','human')});s['models']=self.models();return self.enrich(s)
     def qualify(self,d):
         if not isinstance(d['genes'],list) or not 1<=len(d['genes'])<=64 or any(not isinstance(g,str) or not g.strip() or g!=g.strip() for g in d['genes']):raise ValueError('Objective must contain 1 to 64 explicit gene symbols')
         from objective_inspection import inspect
         import laboratory
         sel=d['selection'];config=Path(self.config['assays'][sel['assayID']]);cat=laboratory.adapter_for_config(config).catalog(config);targets={x['target'] for x in cat['targets']}
-        if not isinstance(d['targets'],list) or len(d['targets'])!=len(set(d['targets'])) or not set(d['targets'])<=targets:raise ValueError('Unsupported or repeated intervention')
+        if not isinstance(d['targets'],list) or len(d['targets'])!=len(set(d['targets'])) :raise ValueError('Unsupported or repeated intervention')
         from wetlab import sha
         d['supportedTargets']=sorted(targets)
         modelIDs=d.get('modelIDs',[sel['assayID']]);conditionIDs=d.get('conditionIDs',['measured-endpoint'])
@@ -134,12 +144,19 @@ class SharedWorkspace:
                     elif sel['populationID'] not in populations:axis.update(reason='Population absent from model reference',corrections=[{'populationID':x} for x in sorted(populations)])
                     elif artifact.get('family')!='learned-spatial-response':axis.update(reason='Model does not support this tissue response contract')
                     elif specimen['sourceSHA256']!=next(x for x in reference['specimens'] if x['id']==sel['specimenID'])['sourceSHA256']:axis.update(reason='Specimen identity differs between models')
-                    elif not set(d['targets'])<={x['target'] for x in artifact['targets']}:axis.update(reason='Intervention absent from model support',corrections=[{'target':x['target']} for x in artifact['targets']])
+                    elif not set(d['targets'])<={x['target'] for x in artifact['targets']}:axis.update(reason='Requested intervention has no model support; intent retained',corrections=[{'removeUnsupportedTargets':sorted(set(d['targets'])-{x['target'] for x in artifact['targets']}),'requiresCandidateEdit':True}])
                     else:
                         coverage=inspect(Path(path),{'specimen':sel['specimenID'],'population':sel['populationID']},d['genes'])
                         axis.update(canExecute=coverage['canExecute'],coverage=coverage,reason='Supported experimental inference' if coverage['canExecute'] else 'Objective contains unmeasured or unsupported model features',
                           binding={'assaySHA256':sha(path),'modelVersion':artifact.get('modelVersion',mid),'runtimeSHA256':artifact['runtime']['sha256'],'weights':{k:v['sha256'] for k,v in artifact['models'].items()},'specimenSHA256':specimen['sourceSHA256'],'populationID':sel['populationID'],'conditionID':condition,'evidence':'MODEL INFERENCE','biologicalPromotion':False})
                         if not coverage['canExecute']:axis['corrections']=[{'removeUnsupportedGenes':[g['gene'] for g in coverage['genes'] if not g['eligible']],'requiresObjectiveEdit':True}]
+                        if self.config.get('vivoRoot') and coverage['canExecute']:
+                            from investigation import population_support
+                            support=population_support(path,{'specimen':sel['specimenID'],'population':sel['populationID']},d['genes'])
+                            unsupported=[t for t in d['targets'] if not any(c['target']==t and c['role']=='direct' and c['canExecute'] for c in support['candidates'])]
+                            axis['populationSupport']=support
+                            if unsupported:axis.update(canExecute=False,reason='No matched outcome/reference support for these interventions in the selected population',corrections=[{'removeUnsupportedTargets':unsupported,'requiresCandidateEdit':True}])
+
                 d['axes'].append(axis)
         d['coverage']=inspect(config,{'specimen':sel['specimenID'],'population':sel['populationID']},d['genes'])
         d['coverage']['canExecute']=all(x['canExecute'] for x in d['axes'])

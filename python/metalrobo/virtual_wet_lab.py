@@ -192,6 +192,9 @@ def main():
                     if self.path=='/api/specimen': return self.respond(200,adapter.geometry(config,body['specimen']))
                     run=self.run_path(body['id']) if body.get('id') else None
                     return self.respond(200,adapter.feature(config,body['specimen'],body['gene'],run))
+                if self.path == '/api/gene-evidence':
+                    from investigation import gene_evidence
+                    return self.respond(200,gene_evidence(configs[body['assayID']],self.run_path(body['id']),body['gene'],body['target'],body['role']))
                 if self.path == '/api/predict':
                     config = configs[body['assayID']]; adapter = owner.adapter_for_config(config)
                     run = adapter.predict(config, runtime, args.workspace, body['selection'])
