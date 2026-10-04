@@ -1,0 +1,10 @@
+#!/bin/sh
+set -eu
+if [ "${1:-}" = "--numi-describe" ]; then
+  echo 'Inspect Numi structures, sequences and tissue with OpenAI biological viewers and shared selection provenance.'
+  exit 0
+fi
+root=${NUMI_LAB_ROOT:?Run through numi}
+tool="$root/python/metalrobo/biological_viewers.py"
+[ -f "$tool" ] || tool="$root/share/numi/python/metalrobo/biological_viewers.py"
+exec "${NUMI_PYTHON:-python3}" "$tool" "$@"

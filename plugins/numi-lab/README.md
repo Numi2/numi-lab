@@ -45,6 +45,19 @@ measured outcome, and remaining evidence limits. A compiled study is not an
 executed study; simulation is not hardware evidence; an electronic energy is
 not a reaction rate.
 
+## Biological inspection
+
+Numi integrates OpenAI's `structure-viewer`, `sequence-viewer` and `slide-viewer`
+companions through the native Codex viewer tools. `numi view status` checks their
+installation; `numi view prepare` creates a source-hashed handoff, and `numi view
+verify` checks it before opening. The Wet Lab's **Inspect biology** action carries
+its selection into the Numi conversation. `numi view return` applies an explicitly
+resolved gene through the existing shared-selection revision check.
+
+See [biological viewers](skills/numi-lab/references/biological-viewers.md) for the
+complete workflow and identity/observation boundaries. Companions are installed
+separately and load in a fresh session; preparing a handoff is not rendering.
+
 ## Maintain the plugin
 
 The compatibility manifest is [plugin.json](.codex-plugin/plugin.json). The

@@ -43,6 +43,12 @@ Read only the section needed for the user's task.
 
 ## NumiVivo: molecular science and programmable biology
 
+For inspecting owner results, use [biological-viewers.md](biological-viewers.md):
+the structure, sequence and slide plugins are the shared Numi inspection surface.
+`numi view prepare` binds an exported source to the right native viewer; `numi
+view context` preserves the current Wet Lab selection. Native NumiVivo tools
+continue to own preparation, numerical results and observation access.
+
 Owner: `Numi2/numiVivo`. Product: `numivivo` from
 `Sources/NumiVivoCLI`; native libraries and shaders remain in this package.
 Start with `README.md`, `Documentation/CAPABILITIES.md`,

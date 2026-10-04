@@ -429,6 +429,47 @@
         "Tests the actual observable and controls",
         "Preserves failed qualifications"
       ]
+    },
+    {
+      "id": 34,
+      "category": "viewer-integration",
+      "should_activate": true,
+      "prompt": "Inspect my NumiVivo trajectory beside the current molecular experiment.",
+      "expected_output": "Uses the native biological viewer with Numi owner provenance and observation boundaries.",
+      "files": [],
+      "expectations": [
+        "Reads biological-viewers.md and the installed structure viewer skill",
+        "Resolves actual topology and trajectory outputs with identity and units",
+        "Opens one native viewer and checks mounted readiness; does not launch another web renderer",
+        "Retains NumiVivo computation authority and exact frame provenance"
+      ]
+    },
+    {
+      "id": 35,
+      "category": "viewer-integration",
+      "should_activate": true,
+      "prompt": "Show the gene selected in my Numi Wet Lab in the sequence and structure viewers, then return to the tissue.",
+      "expected_output": "Uses the native biological viewer with Numi owner provenance and observation boundaries.",
+      "files": [],
+      "expectations": [
+        "Reads numi view context and preserves shared revision",
+        "Requires explicit species, isoform and source correspondence; does not infer residue mapping from gene symbol",
+        "Uses source-bound handoffs and exact live viewer identifiers",
+        "Returns an explicitly resolved gene through revision-checked selection and does not overwrite a human edit"
+      ]
+    },
+    {
+      "id": 36,
+      "category": "viewer-integration",
+      "should_activate": true,
+      "prompt": "Use the Slide Viewer to see the reserved outcome cells before I seal the Numi experiment.",
+      "expected_output": "Uses the native biological viewer with Numi owner provenance and observation boundaries.",
+      "files": [],
+      "expectations": [
+        "Does not open the raw full assay as a bypass of reserved observations",
+        "Offers the owner-authorized accessible view without inventing cells or registration",
+        "Keeps a visualization separate from reveal authorization and biological validation"
+      ]
     }
   ]
 }

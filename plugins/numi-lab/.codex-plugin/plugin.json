@@ -1,6 +1,6 @@
 {
   "name": "numi-lab",
-  "version": "0.1.1+codex.20261004210000",
+  "version": "0.1.1+codex.20261004195643",
   "description": "Guide Codex through native research workflows across the Apple Silicon Numi Lab suite.",
   "author": {
     "name": "Numi Lab"
@@ -36,11 +36,12 @@
       "Configure physics and solver profiles",
       "Evaluate robot policies and retained evidence",
       "Diagnose failures and preserve provenance",
-      "Operate shared Virtual Wet Lab experiment cards with revision-checked edits and explicit observation reveal"
+      "Operate shared Virtual Wet Lab experiment cards with revision-checked edits and explicit observation reveal",
+      "Inspect Numi structures, sequences and tissue with OpenAI biological viewers and preserve shared selection provenance"
     ],
     "defaultPrompt": [
       "Check this Mac\u2019s Numi Lab setup and show which native workflows are ready.",
-      "Use my prepared NumiVivo system for an MD run and inspect its evidence.",
+      "Inspect my NumiVivo molecular, sequence or tissue result in its native viewer and keep the Wet Lab selection connected.",
       "Test a Numi hypothesis with controlled experiments and revise the model from the evidence."
     ],
     "brandColor": "#7C5CFF",

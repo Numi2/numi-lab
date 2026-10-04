@@ -19,6 +19,8 @@ def main():
     parser.add_argument('--assay', type=Path, action='append', required=True, help='Prepared assay.json; repeat for another adapter')
     parser.add_argument('--workspace', type=Path, default=Path.home() / '.numi/laboratories/default/workspace')
     parser.add_argument('--port', type=int, default=8768)
+    parser.add_argument('--connection-file', type=Path, default=Path.home()/'.numi/wet-lab-active.json',
+                        help='Local discovery record; choose a separate file for an isolated preview')
     parser.add_argument('--catalog', action='store_true', help='Print eligible specimens and exit')
     parser.add_argument('--design-campaign', type=Path, help='Sealed NumiVivo target-aware intervention campaign')
     parser.add_argument('--receiving-campaign', type=Path, help='Qualified explicit-receiver development artifacts')
@@ -74,12 +76,15 @@ def main():
             parsed = urlsplit(self.path); path = parsed.path
             try:
                 if path == '/': return self.respond(200, html, 'text/html')
-                if path in ('/app.js','/tissue_index.js','/learned.js','/design.js','/shared.js','/population.js','/style.css'):
+                if path in ('/app.js','/tissue_index.js','/learned.js','/design.js','/shared.js','/population.js','/biological_viewers.js','/style.css'):
                     return self.respond(200, (Path(__file__).parent / 'wet_lab' / path[1:]).read_text(), 'text/javascript' if path.endswith('.js') else 'text/css')
                 if path == '/favicon.ico': return self.respond(204, '')
                 if self.headers.get('X-Wet-Lab-Token') != token:
                     return self.respond(403, {'error': 'Workspace token required'})
                 if path == '/api/shared': return self.respond(200, shared.state())
+                if path == '/api/viewers':
+                    from biological_viewers import public_context
+                    return self.respond(200, public_context(shared.state(), args.workspace))
                 if path == '/api/templates':
                     folder=args.workspace/'templates'
                     return self.respond(200, [owner.rna.read(p) for p in sorted(folder.glob('*.json'))] if folder.exists() else [])
@@ -228,7 +233,7 @@ def main():
                 self.respond(400, {'error': str(error)})
 
     server = ThreadingHTTPServer(('127.0.0.1', args.port), Handler)
-    active = Path.home()/'.numi/wet-lab-active.json'
+    active = args.connection_file
     active.parent.mkdir(exist_ok=True)
     shared_write(active, {'url': 'http://127.0.0.1:'+str(server.server_port), 'token': token, 'pid': os.getpid()})
     active.chmod(0o600)

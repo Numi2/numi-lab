@@ -3222,6 +3222,11 @@ if(BUILD_TESTING)
 
     find_program(_metalrobo_stdlib_python NAMES python3)
     if(_metalrobo_stdlib_python)
+        add_test(NAME metalrobo.viewers.handoff
+            COMMAND "${_metalrobo_stdlib_python}"
+                "${CMAKE_CURRENT_SOURCE_DIR}/tests/numi_biological_viewers_test.py" -v)
+        set_tests_properties(metalrobo.viewers.handoff
+            PROPERTIES LABELS "metalrobo;cli;viewers" TIMEOUT 120)
         add_test(
             NAME metalrobo.science.notebook
             COMMAND "${_metalrobo_stdlib_python}"
@@ -5860,6 +5865,7 @@ install(
         numi/commands/solvers
         numi/commands/science
         numi/commands/wet-lab
+        numi/commands/view
     DESTINATION libexec/numi
 )
 install(
@@ -5888,8 +5894,10 @@ install(
         PATTERN "*.py"
         PATTERN "py.typed"
 )
-install(FILES docs/SCIENTIFIC_WORKFLOW.md docs/VIRTUAL_WET_LAB.md DESTINATION share/numi/docs)
-install(FILES python/metalrobo/wet_lab/index.html python/metalrobo/wet_lab/app.js python/metalrobo/wet_lab/style.css DESTINATION share/numi/python/metalrobo/wet_lab)
+install(FILES docs/SCIENTIFIC_WORKFLOW.md docs/VIRTUAL_WET_LAB.md docs/BIOLOGICAL_VIEWERS.md DESTINATION share/numi/docs)
+install(DIRECTORY python/metalrobo/wet_lab/ DESTINATION share/numi/python/metalrobo/wet_lab
+    FILES_MATCHING PATTERN "*.html" PATTERN "*.js" PATTERN "*.css"
+    PATTERN "qualification" EXCLUDE)
 install(
     DIRECTORY examples/science
     DESTINATION share/numi/examples

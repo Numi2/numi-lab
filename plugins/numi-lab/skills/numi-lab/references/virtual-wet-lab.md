@@ -1,5 +1,11 @@
 # Virtual Wet Lab: shared cellular and tissue experiments
 
+The **Inspect biology** action hands the current selection to Codex's native
+structure, sequence or slide viewer. See [biological-viewers.md](biological-viewers.md)
+for `numi view context`, source-bound preparation and revision-checked return.
+An inspection keeps the owner's observation gate; it must not expose a reserved
+whole assay through its raw H5AD file.
+
 Use the existing `numi wet-lab` workspace and NumiVivo owners. This is a local,
 shared experiment surface, not a separate assistant, simulator, or hosted queue.
 

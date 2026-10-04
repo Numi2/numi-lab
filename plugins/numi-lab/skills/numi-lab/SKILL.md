@@ -41,6 +41,16 @@ prediction or measurement reveal, read [virtual-wet-lab.md](references/virtual-w
 Use `numi wet-lab context` to join the existing shared canvas and revision-checked
 experiment cards. Never reveal observations during candidate inspection.
 
+## Biological viewers in the Numi workflow
+
+For visual inspection of Numi structures/MD, sequences/alignments, microscopy or
+AnnData, use [biological-viewers.md](references/biological-viewers.md). Route the
+owner's actual artifact into OpenAI's Molecular Structure, Biological Sequence &
+Alignment, or Slide Viewer. Keep one viewer session, source provenance and exact
+biological identities across follow-up. `numi view` prepares verified native-tool
+handoffs and carries the shared Wet Lab selection in both directions. Viewing
+never bypasses observation access or establishes scientific qualification.
+
 ## First response
 
 Translate the user's goal into the nearest owning tool below. If local execution
