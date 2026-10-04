@@ -1,0 +1,20 @@
+{
+  "scope": "Final development increment on actual Mac; process-cold startup, OS file cache not cleared; not cross-hardware qualification",
+  "hardware": "Mac16,12",
+  "memoryBytes": 25769803776,
+  "targets": {
+    "workspaceReadyMs": 10000,
+    "largeSpecimenImportMs": 10000,
+    "campaignPreviewMs": 1000,
+    "campaignSealMs": 1500,
+    "nativeReplayMs": 5000,
+    "pickP95Ms": 16,
+    "drawP95Ms": 34
+  },
+  "requiredBrowsers": [
+    "Chromium",
+    "Safari"
+  ],
+  "Safari": "blocked: remote automation disabled; user question pending",
+  "requiredRecovery": "interruption after durable observation snapshot; no source re-extraction on recovery"
+}

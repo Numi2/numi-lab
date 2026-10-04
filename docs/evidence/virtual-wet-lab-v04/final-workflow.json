@@ -1,0 +1,35 @@
+{
+  "record": "campaign-82e8e6f1fe2845718acc868c2c07d3c6",
+  "resources": [
+    {
+      "duration": 45.40000057220459,
+      "name": "http://127.0.0.1:64256/api/design/preview"
+    },
+    {
+      "duration": 151.89999961853027,
+      "name": "http://127.0.0.1:64256/api/design/seal"
+    },
+    {
+      "duration": 5583.60000038147,
+      "name": "http://127.0.0.1:64256/api/design/reveal"
+    },
+    {
+      "duration": 728.7999992370605,
+      "name": "http://127.0.0.1:64256/api/design/verify"
+    }
+  ],
+  "score": {
+    "bestObservedEligible": "EGR2",
+    "gainOverNoIntervention": -0.003139417851343751,
+    "gainOverRandom": -0.00564766037028416,
+    "gainOverTrainingMean": -0.023048926377668977,
+    "randomExpectedUtility": 0.0025082425189404084,
+    "regret": 0.025570066878572103,
+    "reliableWinner": false,
+    "selected": "EGR1",
+    "selectedObservedUtility": -0.003139417851343751,
+    "trainingMeanSelected": "ZAP70",
+    "uncertainty": "UNQUALIFIED: descriptive cohort result; no independent-unit interval"
+  },
+  "status": "verified · native distribution tensors replay bit-exactly."
+}

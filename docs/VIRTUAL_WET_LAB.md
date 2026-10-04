@@ -175,3 +175,41 @@ Browser acceptance covers the real prediction/reveal/replay loop, provenance,
 selection, failure views, templates, campaign controls, legacy assay display and
 narrow layouts. The native source/prediction oracle, campaign and legacy replay
 receipts live in NumiVivo's `Tools/VirtualWetLab/evidence/2026-10-03-v02`.
+
+
+## Intervention design development toward v0.4
+
+The existing workspace accepts `--design-campaign` pointing to a sealed NumiVivo
+multi-study campaign and `--receiving-campaign` pointing to explicit receiver
+experiments. Define an RNA program, compare all supported interventions including
+no intervention, seal the objective and candidates, reveal measurements, and
+score the choice. Saved objective comparisons can be reopened in the same view.
+Candidate plots and computed diagnostics share the experiment record.
+
+The tissue canvas additionally inspects separate target/receiving-type response
+distributions, with their own control-reference context, measured cells, model
+errors and source evidence. Raw counts and normalized inference remain distinct.
+This receiver corpus is permanently exposed development data. Unresolved section
+identities prohibit a verified spatial-edge model. Dissociated studies have no
+spatial preservation readout, so preservation objectives remain disabled.
+
+The full requested v0.4 milestone is **not complete**. Biological promotion is
+not earned: target-aware neural intervention choices did not beat the stronger
+training ranking on the newly reserved cross-assay cohort. The frozen v0.3 State
+comparison remains PerturbMean, not State Transition. See NumiVivo's
+`Tools/VirtualWetLab/V04.md` and `evidence/v04` for executed campaigns, all ablations,
+source metadata, sparse-program detection, underfitting diagnostics, replay and
+remaining scientific gates. The UI does not supply biological models.
+
+Local Chromium qualification on the actual Apple Mac16,12 (24 GB) measured
+2.532 seconds to a ready workspace in a fresh server process and 7.055 seconds
+to import 123,921 measured cells. The filesystem cache was not cleared. Candidate
+preview/seal/replay requests took 45/152/729 ms; observation reveal took 5.584 s.
+Cached picking/drawing timing is retained separately, not substituted for loading.
+The 390-pixel viewport has no horizontal document overflow. Observation-snapshot
+interruption recovery, native replay, and v0.2/v0.3 regression pass.
+
+Safari qualification is **blocked**, not passed: its remote-automation setting is
+disabled and native UI access failed. Hardware/browser generalization and the full
+software release gate remain unqualified. Evidence is under
+[`docs/evidence/virtual-wet-lab-v04`](evidence/virtual-wet-lab-v04/README.md).

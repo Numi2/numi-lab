@@ -1,0 +1,33 @@
+{
+  "performance": {
+    "specimenCells": 123921,
+    "timings": {
+      "draw": [
+        2.6999998092651367,
+        0.10000038146972656,
+        0.19999980926513672,
+        0.19999980926513672,
+        0.19999980926513672,
+        0.3000001907348633,
+        0.8000001907348633
+      ],
+      "feature": [
+        48.19999980926514,
+        42.60000038146973
+      ],
+      "import": [
+        {
+          "cells": 39862,
+          "ms": 2168
+        },
+        {
+          "cells": 123921,
+          "ms": 7055
+        }
+      ],
+      "pick": []
+    }
+  },
+  "receiver": "",
+  "status": "Training pool: large-specimen inspection; held-out prediction is unavailable here."
+}

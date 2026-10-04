@@ -1,0 +1,10 @@
+{
+  "cells": 39862,
+  "disabled": {
+    "population": true,
+    "preservation": true,
+    "role": true
+  },
+  "inspection": "Receiving population evidence92 measured cells; 18 contributing reference cells; annotation confidence 0.575; reference coverage 1.000.Cell-to-section identity is unresolved. Associations are original chip-coordinate hypotheses, not verified biological edges.Inspect source and model evidence",
+  "plot": "CLU · receiver · receiving neuronFOS: reference 0.000, predicted 0.015, observed 0.066, residual -0.051 log1p(CPM).Green: own control reference. Gold: predicted mean ± 1.96 cell standard deviations, uncalibrated. Blue: measured receiving cells. No population-mean or biological confidence interval."
+}

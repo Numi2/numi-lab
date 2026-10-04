@@ -1,0 +1,6 @@
+{
+  "cells": 123921,
+  "drawP95Ms": 0.40000057220458984,
+  "pickP95Ms": 0.09999942779541016,
+  "scope": "cached instrumented picking and drawing; full import measured separately"
+}

@@ -1,0 +1,73 @@
+{
+  "agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+  "performance": {
+    "specimenCells": 39862,
+    "timings": {
+      "draw": [
+        2.6999998092651367,
+        0.10000038146972656,
+        0.19999980926513672,
+        0.19999980926513672
+      ],
+      "feature": [
+        48.19999980926514
+      ],
+      "import": [
+        {
+          "cells": 39862,
+          "ms": 2168
+        }
+      ],
+      "pick": []
+    }
+  },
+  "ready": [
+    2532
+  ],
+  "resources": [
+    {
+      "duration": 5.199999809265137,
+      "name": "http://127.0.0.1:64256/style.css"
+    },
+    {
+      "duration": 6.5,
+      "name": "http://127.0.0.1:64256/tissue_index.js"
+    },
+    {
+      "duration": 9.5,
+      "name": "http://127.0.0.1:64256/design.js"
+    },
+    {
+      "duration": 10.200000762939451,
+      "name": "http://127.0.0.1:64256/learned.js"
+    },
+    {
+      "duration": 11.300000190734863,
+      "name": "http://127.0.0.1:64256/app.js"
+    },
+    {
+      "duration": 79.80000019073486,
+      "name": "http://127.0.0.1:64256/api/assays"
+    },
+    {
+      "duration": 57.60000038146973,
+      "name": "http://127.0.0.1:64256/favicon.ico"
+    },
+    {
+      "duration": 2079.6000003814697,
+      "name": "http://127.0.0.1:64256/api/specimen"
+    },
+    {
+      "duration": 44.5,
+      "name": "http://127.0.0.1:64256/api/spatial-feature"
+    },
+    {
+      "duration": 88,
+      "name": "http://127.0.0.1:64256/api/receivers"
+    },
+    {
+      "duration": 120,
+      "name": "http://127.0.0.1:64256/api/design"
+    }
+  ]
+}

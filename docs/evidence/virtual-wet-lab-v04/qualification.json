@@ -1,0 +1,23 @@
+{
+  "scope": "development increment only",
+  "Chromium": "passed qualified local paths",
+  "Safari": "BLOCKED: remote automation disabled; no run",
+  "fullV04Milestone": false,
+  "biologicalPromotion": false,
+  "checks": [
+    "fresh process workspace ready",
+    "123921-cell geometry import",
+    "objective preview and sealed campaign",
+    "revealed selection scored against baselines",
+    "native replay from browser",
+    "saved comparison restored",
+    "own receiving-population reference and measured distribution",
+    "390px no document overflow"
+  ],
+  "limits": [
+    "filesystem cache not cleared",
+    "single actual Mac16,12",
+    "no spatial preservation campaign",
+    "no verified spatial-edge ablation"
+  ]
+}

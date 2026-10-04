@@ -21,6 +21,7 @@ def main():
     parser.add_argument('--port', type=int, default=8768)
     parser.add_argument('--catalog', action='store_true', help='Print eligible specimens and exit')
     parser.add_argument('--design-campaign', type=Path, help='Sealed NumiVivo target-aware intervention campaign')
+    parser.add_argument('--receiving-campaign', type=Path, help='Qualified explicit-receiver development artifacts')
     args = parser.parse_args()
     if not args.vivo_root:
         parser.error('Set --vivo-root (or NUMIVIVO_ROOT)')
@@ -82,6 +83,20 @@ def main():
                     if not args.design_campaign: return self.respond(200, {'available': False})
                     import intervention_design
                     return self.respond(200, {'available': True, **intervention_design.catalog(args.design_campaign)})
+                if path == '/api/design/history':
+                    rows = []
+                    if args.design_campaign:
+                        for folder in sorted(args.workspace.glob('campaign-*')):
+                            if folder.is_symlink() or not re.fullmatch('campaign-[0-9a-f]{32}', folder.name): continue
+                            reg = owner.rna.read(folder/'registration.json')
+                            if Path(reg['campaign']).resolve() != args.design_campaign.resolve(): continue
+                            rows.append({'id': folder.name, 'createdAt': reg['createdAt'],
+                                         'selection': reg['selection'], 'revealed': (folder/'comparison.json').exists()})
+                    return self.respond(200, rows)
+                if path == '/api/receivers':
+                    if not args.receiving_campaign:return self.respond(200,{'available':False})
+                    from receiving_inspection import inspect
+                    return self.respond(200,{'available':True,**inspect(args.receiving_campaign)})
                 if path == '/api/qualification':
                     from qualification import ARC_2026
                     return self.respond(200, ARC_2026)
@@ -117,6 +132,10 @@ def main():
                 length = int(self.headers.get('Content-Length', '0'))
                 if not 0 < length <= 65536: raise ValueError('Invalid request size')
                 body = json.loads(self.rfile.read(length))
+                if self.path == '/api/receivers':
+                    if not args.receiving_campaign:raise ValueError('Receiver experiment unavailable')
+                    from receiving_inspection import inspect
+                    return self.respond(200,inspect(args.receiving_campaign,body['gene'],body['group']))
                 if self.path.startswith('/api/design/'):
                     if not args.design_campaign: raise ValueError('No qualified design campaign is installed')
                     import intervention_design as design
