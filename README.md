@@ -613,3 +613,17 @@ Current Apple M4 qualification covers compiler/package invariants and live
 Metal contact, multiphysics, sparse-MPM, articulated-coupling, and reference
 render paths. These checks establish the recorded workloads; they are not a
 blanket hardware or performance claim.
+
+## Latest synthetic wound-lip traction video
+
+[![Seven accepted states from the synthetic skin-wound traction simulation](https://numi-lab-research.vercel.app/media/synthetic-skin-traction-trace-guided-20261004-7step-poster.png)](https://numi-lab-research.vercel.app/media/synthetic-skin-traction-trace-guided-20261004-7step.mp4)
+
+This remains the best accepted medical-deformable clip: seven saved states
+from a 60-step synthetic wound-lip load protocol. A subsequent full-horizon
+zero-force control completed, but the paired loaded run stopped at the eighth
+step with a nonlinear-solver failure. The paired study is inconclusive; it
+does not demonstrate a completed stitch, needle or thread passage, robot
+execution, calibrated skin, or clinical behavior. The full-horizon control
+processed 60 ms of simulation in 316.2 s wall time, so no whole-simulation
+100x speedup is established. See the [source-bound result and retained Mac
+mini evidence paths](numi/SYNTHETIC_SKIN_TRACTION_FULL_HORIZON_RESULT_20261004.md).
