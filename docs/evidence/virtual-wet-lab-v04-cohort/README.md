@@ -82,3 +82,5 @@ new demonstration uses its own workspace; it does not claim recovery of the lost
 older live history. The new demonstration's cancellation/restart history is intact.
 
 Training and spatial-development results: [NumiVivo report](https://github.com/Numi2/numiVivo/blob/main/Tools/VirtualWetLab/evidence/v04-cohort/RESULTS.md).
+
+[Download the qualified native/evidence bundle](https://github.com/Numi2/numiVivo/releases/tag/virtual-wet-lab-v0.4-cohort). The extracted archive verified all 921 file hashes and replayed both models, three variants each, bit-exactly from relocated paths. [Archive receipt](release-artifact.json).
