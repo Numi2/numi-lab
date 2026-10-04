@@ -80,7 +80,7 @@ window.learnedLab = (() => {
     if(!legacyHistory){legacyHistory=document.getElementById('history-open').onclick;legacyQualification=document.getElementById('benchmark-open').onclick;}
     document.getElementById('history-open').onclick=()=>el('saved').click();
     document.getElementById('benchmark-open').onclick=()=>action(async()=>evidence({spatial:c.limits,biologicalPromotion:false,arc:await request('qualification')}));
-    new ResizeObserver(draw).observe(el('root'));await loadGeometry();
+    new ResizeObserver(draw).observe(el('root'));await loadGeometry();if(window.interventionDesign)await window.interventionDesign.mount(el('root'));
   }
   return {mount,unmount:()=>{if(legacyHistory){document.getElementById('history-open').onclick=legacyHistory;document.getElementById('benchmark-open').onclick=legacyQualification;}if(el('root'))el('root').hidden=true;document.querySelector('main').hidden=false;},performance:()=>({specimenCells:index?.points.length,timings}),draw,loadField,pickAt:(x,y,r)=>index.pick(x,y,r),get state(){return {run,field,geometry,population,activeTarget,role,camera};}};
 })();

@@ -20,6 +20,7 @@ def main():
     parser.add_argument('--workspace', type=Path, default=Path.cwd() / '.numi/virtual-wet-lab')
     parser.add_argument('--port', type=int, default=8768)
     parser.add_argument('--catalog', action='store_true', help='Print eligible specimens and exit')
+    parser.add_argument('--design-campaign', type=Path, help='Sealed NumiVivo target-aware intervention campaign')
     args = parser.parse_args()
     if not args.vivo_root:
         parser.error('Set --vivo-root (or NUMIVIVO_ROOT)')
@@ -69,7 +70,7 @@ def main():
             parsed = urlsplit(self.path); path = parsed.path
             try:
                 if path == '/': return self.respond(200, html, 'text/html')
-                if path in ('/app.js','/tissue_index.js','/learned.js','/style.css'):
+                if path in ('/app.js','/tissue_index.js','/learned.js','/design.js','/style.css'):
                     return self.respond(200, (Path(__file__).parent / 'wet_lab' / path[1:]).read_text(), 'text/javascript' if path.endswith('.js') else 'text/css')
                 if path == '/favicon.ico': return self.respond(204, '')
                 if self.headers.get('X-Wet-Lab-Token') != token:
@@ -77,6 +78,10 @@ def main():
                 if path == '/api/templates':
                     folder=args.workspace/'templates'
                     return self.respond(200, [owner.rna.read(p) for p in sorted(folder.glob('*.json'))] if folder.exists() else [])
+                if path == '/api/design':
+                    if not args.design_campaign: return self.respond(200, {'available': False})
+                    import intervention_design
+                    return self.respond(200, {'available': True, **intervention_design.catalog(args.design_campaign)})
                 if path == '/api/qualification':
                     from qualification import ARC_2026
                     return self.respond(200, ARC_2026)
@@ -112,6 +117,22 @@ def main():
                 length = int(self.headers.get('Content-Length', '0'))
                 if not 0 < length <= 65536: raise ValueError('Invalid request size')
                 body = json.loads(self.rfile.read(length))
+                if self.path.startswith('/api/design/'):
+                    if not args.design_campaign: raise ValueError('No qualified design campaign is installed')
+                    import intervention_design as design
+                    action=self.path.rsplit('/',1)[-1]
+                    if action=='preview': return self.respond(200,design.preview(args.design_campaign,body['selection']))
+                    if action=='seal': return self.respond(201,design.seal(args.design_campaign,args.workspace,body['selection']))
+                    identifier=body.get('id','')
+                    if not re.fullmatch('campaign-[0-9a-f]{32}',identifier): raise ValueError('Invalid design campaign')
+                    root=args.workspace/identifier
+                    if root.is_symlink() or not root.is_dir(): raise ValueError('Campaign not found')
+                    if action=='reveal': return self.respond(200,design.reveal(root))
+                    if action=='verify': return self.respond(200,design.verify(root))
+                    if action=='open':
+                        design.check(root)
+                        return self.respond(200,{'id':identifier,'prediction':owner.rna.read(root/'prediction.json'),'revealed':(root/'comparison.json').exists(),'comparison':owner.rna.read(root/'comparison.json') if (root/'comparison.json').exists() else None})
+                    raise ValueError('Unknown design action')
                 if self.path == '/api/templates':
                     if set(body) != {'name','assayID','selection'} or not isinstance(body['name'],str) or not 1<=len(body['name'])<=100: raise ValueError('Template name and typed selection required')
                     config=configs[body['assayID']]; adapter=owner.adapter_for_config(config)
