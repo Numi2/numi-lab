@@ -1,0 +1,30 @@
+{
+  "selection": {
+    "assayID": "spatial-response-v03",
+    "specimenID": "chip2",
+    "populationID": "neuron|0",
+    "experimentID": null,
+    "gene": "Clu",
+    "responseRole": "direct",
+    "cellID": null
+  },
+  "performance": {
+    "specimenCells": 123921,
+    "timings": {
+      "import": [
+        {
+          "cells": 123921,
+          "ms": 7848.10000038147
+        }
+      ],
+      "feature": [
+        43.89999961853027
+      ],
+      "draw": [
+        2,
+        0.8999996185302734
+      ],
+      "pick": []
+    }
+  }
+}

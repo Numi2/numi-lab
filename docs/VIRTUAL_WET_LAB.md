@@ -215,3 +215,19 @@ software release gate remain unqualified. Evidence is under
 [`docs/evidence/virtual-wet-lab-v04`](evidence/virtual-wet-lab-v04/README.md).
 
 The [verified development package](https://github.com/Numi2/numiVivo/releases/tag/virtual-wet-lab-v0.4-development) contains nine replayed native candidates. The installed launcher now includes intervention design and receiver inspection while retaining the RNA, Clu, learned-spatial and transport assays and their existing records.
+
+## Shared Codex workflow (v0.4 recovery)
+
+The installed NumiLab plugin has a dedicated
+[Wet Lab workflow](../plugins/numi-lab/skills/numi-lab/references/virtual-wet-lab.md).
+Select a population, then use `numi wet-lab context` and a typed `propose` command.
+Cards, human edits, persistent candidate comparisons and Codex actions share the
+same revision-checked state beside the tissue canvas. Read context before each
+write; stale writes fail rather than overwrite a human edit. Seal and execute
+asynchronously, cancel/recover stopped operations, explicitly authorize reveal,
+and follow residuals to the relevant gene and population. Sealed experiments are
+immutable; use `revise`, not undo, to change their intent.
+
+See [executed qualification](evidence/virtual-wet-lab-v04-recovery/README.md).
+Training-fit qualification, reserved cellular results and spatial validation are
+separate. The original spatial model is retained as an experimental regression.

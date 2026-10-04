@@ -1,0 +1,337 @@
+{
+  "revision": 21,
+  "selection": {
+    "assayID": "spatial-response-v03",
+    "specimenID": "chip1",
+    "populationID": "neuron|0",
+    "experimentID": null
+  },
+  "genes": [
+    "Gfap",
+    "Clu"
+  ],
+  "targets": [
+    "Clu",
+    "Fasn",
+    "Gfap"
+  ],
+  "id": "a792229522a74d49b2c0ed7d268ed659",
+  "record": "b731e3bc6449455098a628bc912060e0",
+  "status": "revealed",
+  "verification": {
+    "status": "verified",
+    "run": "b731e3bc6449455098a628bc912060e0",
+    "nativeReplay": {
+      "neighborhood": "bit-exact mean and variance tensors",
+      "no-neighborhood": "bit-exact mean and variance tensors",
+      "shuffled-neighborhood": "bit-exact mean and variance tensors"
+    },
+    "biologicalPromotion": false
+  },
+  "objectiveEvaluation": {
+    "objectiveGenes": [
+      "Gfap",
+      "Clu"
+    ],
+    "arms": [
+      {
+        "target": "Clu",
+        "role": "direct",
+        "population": "neuron|0",
+        "predictedUtility": 0.004017621278762817,
+        "observedUtility": 0.6681384411183824,
+        "genes": [
+          {
+            "gene": "Gfap",
+            "control": 0.4397602081298828,
+            "predicted": 0.3835145831108093,
+            "observed": 0.0,
+            "residual": 0.3835145831108093
+          },
+          {
+            "gene": "Clu",
+            "control": 2.2224602699279785,
+            "predicted": 2.2706706523895264,
+            "observed": 1.3259435958210966,
+            "residual": 0.9447270565684298
+          }
+        ]
+      },
+      {
+        "target": "Clu",
+        "role": "neighbor",
+        "population": "neuron|0",
+        "predictedUtility": 0.005399435758590698,
+        "observedUtility": -0.06962752751414114,
+        "genes": [
+          {
+            "gene": "Gfap",
+            "control": 0.4397602081298828,
+            "predicted": 0.38365060091018677,
+            "observed": 0.7288161077361619,
+            "residual": -0.34516550682597513
+          },
+          {
+            "gene": "Clu",
+            "control": 2.2224602699279785,
+            "predicted": 2.267771005630493,
+            "observed": 2.0726594253499817,
+            "residual": 0.19511158028051145
+          }
+        ]
+      },
+      {
+        "target": "Fasn",
+        "role": "direct",
+        "population": "neuron|0",
+        "predictedUtility": 0.061555415391922,
+        "observedUtility": -1.0250862973015917,
+        "genes": [
+          {
+            "gene": "Gfap",
+            "control": 0.4397602081298828,
+            "predicted": 0.49028390645980835,
+            "observed": 0.0,
+            "residual": 0.49028390645980835
+          },
+          {
+            "gene": "Clu",
+            "control": 2.2224602699279785,
+            "predicted": 2.048825740814209,
+            "observed": 4.712393072661045,
+            "residual": -2.663567331846836
+          }
+        ]
+      },
+      {
+        "target": "Fasn",
+        "role": "neighbor",
+        "population": "neuron|0",
+        "predictedUtility": 0.06213432550430298,
+        "observedUtility": -0.23470119321241695,
+        "genes": [
+          {
+            "gene": "Gfap",
+            "control": 0.4397602081298828,
+            "predicted": 0.4907912015914917,
+            "observed": 0.1748697813563623,
+            "residual": 0.31592142023512937
+          },
+          {
+            "gene": "Clu",
+            "control": 2.2224602699279785,
+            "predicted": 2.0471606254577637,
+            "observed": 2.956753083126333,
+            "residual": -0.9095924576685692
+          }
+        ]
+      },
+      {
+        "target": "Gfap",
+        "role": "direct",
+        "population": "neuron|0",
+        "predictedUtility": -0.023614346981048584,
+        "observedUtility": 1.3311102390289307,
+        "genes": [
+          {
+            "gene": "Gfap",
+            "control": 0.4397602081298828,
+            "predicted": 0.5305925607681274,
+            "observed": 0.0,
+            "residual": 0.5305925607681274
+          },
+          {
+            "gene": "Clu",
+            "control": 2.2224602699279785,
+            "predicted": 2.178856611251831,
+            "observed": 0.0,
+            "residual": 2.178856611251831
+          }
+        ]
+      },
+      {
+        "target": "Gfap",
+        "role": "neighbor",
+        "population": "neuron|0",
+        "predictedUtility": -0.022424310445785522,
+        "observedUtility": -0.8570413805915432,
+        "genes": [
+          {
+            "gene": "Gfap",
+            "control": 0.4397602081298828,
+            "predicted": 0.530479371547699,
+            "observed": 1.7831821460089474,
+            "residual": -1.2527027744612484
+          },
+          {
+            "gene": "Clu",
+            "control": 2.2224602699279785,
+            "predicted": 2.1765897274017334,
+            "observed": 2.5931210932320004,
+            "residual": -0.41653136583026695
+          }
+        ]
+      }
+    ],
+    "numericalChoice": "Fasn",
+    "scores": {
+      "selected": "Fasn",
+      "selectedObservedUtility": -1.0250862973015917,
+      "bestObservedEligible": "Gfap",
+      "regret": 2.3561965363305224,
+      "randomExpectedUtility": 0.24354059571143033,
+      "gainOverRandom": -1.268626893013022,
+      "trainingMeanSelected": "Clu",
+      "gainOverNoIntervention": -1.0250862973015917,
+      "uncertainty": "UNQUALIFIED: descriptive cohort result; no independent-unit interval",
+      "reliableWinner": false,
+      "trainingMeanRanking": "UNAVAILABLE in this spatial card; zero-change ranking is not a fitted training baseline"
+    },
+    "reliableWinner": false,
+    "scope": "Exposed spatial development; one mouse and inadequate isolated controls; no independent biological confidence",
+    "preservation": "UNAVAILABLE"
+  },
+  "history": [
+    {
+      "time": 1791079263.930014,
+      "revision": 1,
+      "action": "selection",
+      "draftID": null,
+      "actor": "human"
+    },
+    {
+      "time": 1791079346.469868,
+      "revision": 2,
+      "action": "propose",
+      "draftID": "628e78c9fc0f4224a9f11d4fd4c66bec",
+      "actor": "codex"
+    },
+    {
+      "time": 1791079366.754994,
+      "revision": 3,
+      "action": "seal",
+      "draftID": "628e78c9fc0f4224a9f11d4fd4c66bec",
+      "actor": "codex"
+    },
+    {
+      "time": 1791079369.133983,
+      "revision": 4,
+      "action": "seal-completed",
+      "draftID": "628e78c9fc0f4224a9f11d4fd4c66bec"
+    },
+    {
+      "time": 1791079615.3993611,
+      "revision": 5,
+      "action": "propose",
+      "draftID": "a792229522a74d49b2c0ed7d268ed659",
+      "actor": "codex"
+    },
+    {
+      "time": 1791079736.018792,
+      "revision": 6,
+      "action": "edit",
+      "draftID": "a792229522a74d49b2c0ed7d268ed659",
+      "actor": "human"
+    },
+    {
+      "time": 1791079816.5851772,
+      "revision": 7,
+      "action": "seal",
+      "draftID": "a792229522a74d49b2c0ed7d268ed659",
+      "actor": "codex"
+    },
+    {
+      "time": 1791079819.481486,
+      "revision": 8,
+      "action": "seal-completed",
+      "draftID": "a792229522a74d49b2c0ed7d268ed659"
+    },
+    {
+      "time": 1791079933.6013298,
+      "revision": 9,
+      "action": "reveal",
+      "draftID": "a792229522a74d49b2c0ed7d268ed659",
+      "actor": "codex"
+    },
+    {
+      "time": 1791079935.6424,
+      "revision": 10,
+      "action": "reveal-completed",
+      "draftID": "a792229522a74d49b2c0ed7d268ed659"
+    },
+    {
+      "time": 1791079955.4560452,
+      "revision": 11,
+      "action": "replay",
+      "draftID": "a792229522a74d49b2c0ed7d268ed659",
+      "actor": "codex"
+    },
+    {
+      "time": 1791079957.5655308,
+      "revision": 12,
+      "action": "replay-completed",
+      "draftID": "a792229522a74d49b2c0ed7d268ed659"
+    },
+    {
+      "time": 1791080073.211987,
+      "revision": 13,
+      "action": "replay",
+      "draftID": "a792229522a74d49b2c0ed7d268ed659",
+      "actor": "codex"
+    },
+    {
+      "time": 1791080075.1930492,
+      "revision": 14,
+      "action": "replay-completed",
+      "draftID": "a792229522a74d49b2c0ed7d268ed659"
+    },
+    {
+      "time": 1791080135.181325,
+      "revision": 15,
+      "action": "revise",
+      "draftID": "d72f5dd3cb8b4895b33ec8a7a19e742a",
+      "actor": "codex"
+    },
+    {
+      "time": 1791080135.301291,
+      "revision": 16,
+      "action": "seal",
+      "draftID": "d72f5dd3cb8b4895b33ec8a7a19e742a",
+      "actor": "codex"
+    },
+    {
+      "time": 1791080135.36203,
+      "revision": 17,
+      "action": "cancel",
+      "draftID": "d72f5dd3cb8b4895b33ec8a7a19e742a",
+      "actor": "codex"
+    },
+    {
+      "time": 1791080135.878763,
+      "revision": 18,
+      "action": "seal",
+      "draftID": "d72f5dd3cb8b4895b33ec8a7a19e742a",
+      "actor": "codex"
+    },
+    {
+      "time": 1791080138.7772522,
+      "revision": 19,
+      "action": "seal-completed",
+      "draftID": "d72f5dd3cb8b4895b33ec8a7a19e742a"
+    },
+    {
+      "time": 1791080251.071485,
+      "revision": 20,
+      "action": "selection",
+      "draftID": null,
+      "actor": "human"
+    },
+    {
+      "time": 1791080468.2355928,
+      "revision": 21,
+      "action": "selection",
+      "draftID": null,
+      "actor": "human"
+    }
+  ]
+}

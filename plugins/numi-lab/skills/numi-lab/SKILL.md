@@ -34,6 +34,13 @@ comparison, preserve the previous model, and lead to a new test on unused
 conditions. Do not claim the loop is complete at a build, successful command,
 report, or revised narrative without testing the revised prediction.
 
+## Virtual Wet Lab
+
+For tissue selection, molecular objectives, intervention comparison, sealed
+prediction or measurement reveal, read [virtual-wet-lab.md](references/virtual-wet-lab.md).
+Use `numi wet-lab context` to join the existing shared canvas and revision-checked
+experiment cards. Never reveal observations during candidate inspection.
+
 ## First response
 
 Translate the user's goal into the nearest owning tool below. If local execution

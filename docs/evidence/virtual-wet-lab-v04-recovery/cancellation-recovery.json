@@ -1,0 +1,152 @@
+{
+  "qualified": true,
+  "card": "d72f5dd3cb8b4895b33ec8a7a19e742a",
+  "operations": [
+    {
+      "id": "98498dc66f4547d480440ba2a15cf0bd",
+      "action": "seal",
+      "draftID": "d72f5dd3cb8b4895b33ec8a7a19e742a",
+      "status": "cancelled",
+      "startedAt": 1791080135.296706,
+      "progress": "Cancelled; partial artifacts retained. Recovery starts a new operation after process exit.",
+      "pid": 49068
+    },
+    {
+      "id": "32c52caaff6a4a38b85f89a13f1c1cd8",
+      "action": "seal",
+      "draftID": "d72f5dd3cb8b4895b33ec8a7a19e742a",
+      "status": "completed",
+      "startedAt": 1791080135.874908,
+      "progress": "seal completed",
+      "pid": 49101,
+      "finishedAt": 1791080138.777247
+    }
+  ],
+  "commands": [
+    {
+      "command": [
+        "numi",
+        "wet-lab",
+        "context"
+      ],
+      "seconds": 0.05858633294701576,
+      "exit": 0
+    },
+    {
+      "command": [
+        "numi",
+        "wet-lab",
+        "revise",
+        "--revision",
+        "14",
+        "--id",
+        "a792229522a74d49b2c0ed7d268ed659"
+      ],
+      "seconds": 0.1144360825419426,
+      "exit": 0
+    },
+    {
+      "command": [
+        "numi",
+        "wet-lab",
+        "seal",
+        "--revision",
+        "15",
+        "--id",
+        "d72f5dd3cb8b4895b33ec8a7a19e742a"
+      ],
+      "seconds": 0.12003670819103718,
+      "exit": 0
+    },
+    {
+      "command": [
+        "numi",
+        "wet-lab",
+        "cancel",
+        "--revision",
+        "16",
+        "--id",
+        "d72f5dd3cb8b4895b33ec8a7a19e742a"
+      ],
+      "seconds": 0.060859791934490204,
+      "exit": 0
+    },
+    {
+      "command": [
+        "numi",
+        "wet-lab",
+        "context"
+      ],
+      "seconds": 0.0815458744764328,
+      "exit": 0
+    },
+    {
+      "command": [
+        "numi",
+        "wet-lab",
+        "recover",
+        "--revision",
+        "17",
+        "--id",
+        "d72f5dd3cb8b4895b33ec8a7a19e742a"
+      ],
+      "seconds": 0.12685750052332878,
+      "exit": 0
+    },
+    {
+      "command": [
+        "numi",
+        "wet-lab",
+        "context"
+      ],
+      "seconds": 0.05736299976706505,
+      "exit": 0
+    },
+    {
+      "command": [
+        "numi",
+        "wet-lab",
+        "context"
+      ],
+      "seconds": 0.05683800019323826,
+      "exit": 0
+    },
+    {
+      "command": [
+        "numi",
+        "wet-lab",
+        "context"
+      ],
+      "seconds": 0.05938612576574087,
+      "exit": 0
+    },
+    {
+      "command": [
+        "numi",
+        "wet-lab",
+        "context"
+      ],
+      "seconds": 0.05447437521070242,
+      "exit": 0
+    },
+    {
+      "command": [
+        "numi",
+        "wet-lab",
+        "context"
+      ],
+      "seconds": 0.05629016552120447,
+      "exit": 0
+    },
+    {
+      "command": [
+        "numi",
+        "wet-lab",
+        "context"
+      ],
+      "seconds": 0.08327091671526432,
+      "exit": 0
+    }
+  ],
+  "noObservationReveal": true
+}

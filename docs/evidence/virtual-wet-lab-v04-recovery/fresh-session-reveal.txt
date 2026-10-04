@@ -1,0 +1,22 @@
+Revealed only card **`a792229522a74d49b2c0ed7d268ed659`** and completed its replay at revision **12**. Retained record: **`b731e3bc6449455098a628bc912060e0`**.
+
+The preserved objective is reduction of mean log1p(CPM) across exactly **Gfap and Clu** in `chip1 / neuron|0`. Positive utility means reduction.
+
+| Intervention | Direct predicted → observed | Neighbor predicted → observed | Outcome cells, direct / neighbor |
+|---|---:|---:|---:|
+| Clu | +0.0040 → +0.6681 | +0.0054 → −0.0696 | 10 / 130 |
+| Fasn | +0.0616 → −1.0251 | +0.0621 → −0.2347 | 3 / 39 |
+| Gfap | −0.0236 → +1.3311 | −0.0224 → −0.8570 | 1 / 11 |
+
+**The model’s Fasn choice failed the observed combined objective.** Gene-level inspection explains the discrepancy:
+
+- **Fasn direct:** Clu was predicted at **2.049**, observed at **4.712**, versus control **2.222**. This increase outweighed observed Gfap reduction to zero.
+- **Clu direct:** Clu was predicted to increase slightly to **2.271**, but observed at **1.326**; Gfap was **0**, versus predicted **0.384**.
+- **Gfap direct:** both genes were observed at zero, but this is **one cell**, insufficient to establish a reliable winner.
+- **Gfap neighbors:** observed Gfap was **1.783**, versus predicted **0.530**, contributing to the large negative utility.
+
+Baseline diagnostics weaken the model claim: **no-change had lower whole-gene RMSE in five of six arms**. For Gfap direct, no-neighborhood slightly outperformed the neighborhood model (**1.27915 versus 1.27924**). Fasn’s observed utility was **1.2686 below random expected utility**, with descriptive regret **2.3562**. A fitted training-mean ranking is explicitly unavailable; the reported `trainingMeanSelected` field does not establish that baseline. PerturbMean is not the learned State Transition comparator.
+
+Coverage remains limited: 66 objective-reference cells, detection in 15 for Gfap and 25 for Clu; only **four isolated controls** against a required five, one biological unit, and uncalibrated uncertainty. Spatial preservation is unavailable.
+
+The shared replay operation reports **completed**; context/history expose no separate exact-match verdict or checksum, so byte-for-byte equality is not independently verified here. This remains **exposed spatial development evidence**. No other observation cohort or new reserved-data evaluation was opened, and no source or JSON was edited.

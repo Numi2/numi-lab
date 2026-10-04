@@ -94,3 +94,10 @@ select the owner; the scientific loop determines how to make and revise claims.
 - **Verify:** report the family, exact implementation, target, profile path,
   fingerprint, and stale status. Configuration is not physical or performance
   qualification.
+
+## Virtual Wet Lab
+
+Select a tissue population, define an exact RNA objective with Codex, edit shared
+experiment cards, compare interventions, seal, explicitly authorize reveal and
+inspect discrepancies. Follow [virtual-wet-lab.md](virtual-wet-lab.md); begin with
+`numi wet-lab context`. No manual assay paths or JSON authoring.

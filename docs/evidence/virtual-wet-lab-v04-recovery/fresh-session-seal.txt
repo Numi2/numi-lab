@@ -1,0 +1,18 @@
+Completed at workspace revision **8**, preserving the human’s exact objective: reduce mean log1p(CPM) across **Gfap and Clu** in `chip1 / neuron|0`.
+
+Card: `a792229522a74d49b2c0ed7d268ed659`
+Retained record: `b731e3bc6449455098a628bc912060e0`
+
+All three selected interventions were supported and executed:
+
+| Intervention | Predicted utility: direct | Neighbor |
+|---|---:|---:|
+| Clu | +0.00402 | +0.00540 |
+| Fasn | +0.06156 | +0.06213 |
+| Gfap | −0.02361 | −0.02242 |
+
+Positive utility indicates reduction of the combined objective. **Fasn is the numerical model choice**, although it predicts increased Gfap alongside decreased Clu; this is not a reliable biological winner.
+
+Coverage: both objective genes eligible across 66 reference cells; Gfap detected in 15, Clu in 25. Spatial preservation remains unavailable; evidence is development-only with inadequate isolated controls.
+
+The card is **sealed**, execution **completed**, and measurements remain **unrevealed**.

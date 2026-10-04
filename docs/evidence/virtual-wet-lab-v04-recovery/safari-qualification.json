@@ -1,0 +1,11 @@
+{
+  "statusCode": 500,
+  "response": {
+    "value": {
+      "error": "session not created",
+      "message": "Could not create a session: You must enable 'Allow remote automation' in the Developer section of Safari Settings to control Safari via WebDriver.",
+      "stacktrace": ""
+    }
+  },
+  "scope": "authorized actual Apple hardware local WebDriver attempt; no setting changed"
+}

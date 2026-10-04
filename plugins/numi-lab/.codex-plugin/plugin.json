@@ -1,6 +1,6 @@
 {
   "name": "numi-lab",
-  "version": "0.1.1+codex.20261003010716",
+  "version": "0.1.1+codex.20261004041500",
   "description": "Guide Codex through native research workflows across the Apple Silicon Numi Lab suite.",
   "author": {
     "name": "Numi Lab"
@@ -35,7 +35,8 @@
       "Inspect embodied brain and Human mechanics",
       "Configure physics and solver profiles",
       "Evaluate robot policies and retained evidence",
-      "Diagnose failures and preserve provenance"
+      "Diagnose failures and preserve provenance",
+      "Operate shared Virtual Wet Lab experiment cards with revision-checked edits and explicit observation reveal"
     ],
     "defaultPrompt": [
       "Check this Mac\u2019s Numi Lab setup and show which native workflows are ready.",

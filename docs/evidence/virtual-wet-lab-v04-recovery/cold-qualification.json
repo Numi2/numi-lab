@@ -1,0 +1,32 @@
+{
+  "secondsToListening": 3.0542440423741937,
+  "secondsToCanvasAndSharedState": 5.8765855841338634,
+  "targetSeconds": 15,
+  "browser": "new Chromium session; actual Mac16,12; cold service and browser context; warm OS file cache",
+  "measurement": {
+    "ready": true,
+    "performance": {
+      "specimenCells": 39862,
+      "timings": {
+        "import": [
+          {
+            "cells": 39862,
+            "ms": 1969.2000007629395
+          }
+        ],
+        "feature": [
+          50.20000076293945
+        ],
+        "draw": [
+          6.90000057220459,
+          0.19999980926513672,
+          0.19999980926513672,
+          0.10000038146972656,
+          0.39999961853027344
+        ],
+        "pick": []
+      }
+    }
+  },
+  "passed": true
+}

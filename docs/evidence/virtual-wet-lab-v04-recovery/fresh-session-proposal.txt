@@ -1,0 +1,8 @@
+Created editable card **`a792229522a74d49b2c0ed7d268ed659`** at workspace revision **5** using the installed plugin’s shared commands.
+
+- Selection: `chip1` → `neuron|0`.
+- Objective: reduce **Gfap**, comparing **Clu, Fasn and Gfap** targets.
+- Coverage: all three targets supported; Gfap eligible, with 66 reference cells and detection in 15.
+- Development-only: population annotation uncertain; spatial preservation unsupported.
+
+Verified the card remains a **draft**. No sealing, measurement reveal, source edits, manual assay paths, or manually written JSON.

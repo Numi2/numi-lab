@@ -1,0 +1,9 @@
+**Yes.** Current shared context, revision **23**, explicitly reports `status: verified` for record `b731e3bc6449455098a628bc912060e0`.
+
+All three native models verified **bit-exact mean and variance tensors**:
+
+- `neighborhood`
+- `no-neighborhood`
+- `shuffled-neighborhood`
+
+This resolves the earlier verification uncertainty. `biologicalPromotion` remains **false**. Only context was read; no drafts changed, executions started, or additional measurements revealed.

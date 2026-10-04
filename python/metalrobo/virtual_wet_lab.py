@@ -7,7 +7,7 @@ from pathlib import Path
 import re
 import secrets
 import sys
-from http.server import BaseHTTPRequestHandler, HTTPServer
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlsplit, parse_qs
 
 
@@ -42,6 +42,9 @@ def main():
     if args.catalog:
         print(json.dumps([catalog_for(p) for p in args.assay], indent=2)); return
     args.workspace = args.workspace.resolve(); args.workspace.mkdir(parents=True, exist_ok=True)
+    from wet_lab_shared import SharedWorkspace, Conflict, write as shared_write
+    shared = SharedWorkspace(args.workspace, {'vivoRoot': str(args.vivo_root.resolve()), 'binary': str(args.binary) if args.binary else None, 'assays': {k: str(v.resolve()) for k,v in configs.items()}})
+    shared.reconcile()
     token = secrets.token_urlsafe(32)
     html = (Path(__file__).parent / 'wet_lab/index.html').read_text().replace('__TOKEN__', token)
 
@@ -71,11 +74,12 @@ def main():
             parsed = urlsplit(self.path); path = parsed.path
             try:
                 if path == '/': return self.respond(200, html, 'text/html')
-                if path in ('/app.js','/tissue_index.js','/learned.js','/design.js','/style.css'):
+                if path in ('/app.js','/tissue_index.js','/learned.js','/design.js','/shared.js','/style.css'):
                     return self.respond(200, (Path(__file__).parent / 'wet_lab' / path[1:]).read_text(), 'text/javascript' if path.endswith('.js') else 'text/css')
                 if path == '/favicon.ico': return self.respond(204, '')
                 if self.headers.get('X-Wet-Lab-Token') != token:
                     return self.respond(403, {'error': 'Workspace token required'})
+                if path == '/api/shared': return self.respond(200, shared.state())
                 if path == '/api/templates':
                     folder=args.workspace/'templates'
                     return self.respond(200, [owner.rna.read(p) for p in sorted(folder.glob('*.json'))] if folder.exists() else [])
@@ -119,6 +123,8 @@ def main():
                 if path.startswith('/api/experiments/'):
                     return self.respond(200, present(owner.adapter_for_run(self.run_path(path.split('/')[-1])),self.run_path(path.split('/')[-1])))
                 self.respond(404, {'error': 'Unknown route'})
+            except Conflict as error:
+                self.respond(409, {'error': str(error), 'revision': shared.state()['revision']})
             except Exception as error:
                 self.respond(400, {'error': str(error)})
 
@@ -132,6 +138,7 @@ def main():
                 length = int(self.headers.get('Content-Length', '0'))
                 if not 0 < length <= 65536: raise ValueError('Invalid request size')
                 body = json.loads(self.rfile.read(length))
+                if self.path == '/api/shared': return self.respond(200, shared.mutate(body))
                 if self.path == '/api/receivers':
                     if not args.receiving_campaign:raise ValueError('Receiver experiment unavailable')
                     from receiving_inspection import inspect
@@ -197,10 +204,16 @@ def main():
                         return self.respond(200, present(adapter,run))
                     return self.respond(200, adapter.verify(run, runtime))
                 self.respond(404, {'error': 'Unknown route'})
+            except Conflict as error:
+                self.respond(409, {'error': str(error), 'revision': shared.state()['revision']})
             except Exception as error:
                 self.respond(400, {'error': str(error)})
 
-    server = HTTPServer(('127.0.0.1', args.port), Handler)
+    server = ThreadingHTTPServer(('127.0.0.1', args.port), Handler)
+    active = Path.home()/'.numi/wet-lab-active.json'
+    active.parent.mkdir(exist_ok=True)
+    shared_write(active, {'url': 'http://127.0.0.1:'+str(server.server_port), 'token': token, 'pid': os.getpid()})
+    active.chmod(0o600)
     print('Virtual Wet Lab: http://127.0.0.1:' + str(server.server_port), flush=True)
     print('Experiment records: ' + str(args.workspace), flush=True)
     try: server.serve_forever()
