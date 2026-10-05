@@ -329,13 +329,66 @@ struct NumiHumanRestingAnatomy {
                 "passive visceral binding has an unsupported model or attribution");
             NSArray* values=passive[@"stable_ids"];
             require([values isKindOfClass:NSArray.class],"passive visceral binding lacks source identities");
+            NSDictionary* liverIdentity=bindings[@"liver_surface_identity"];
+            const bool eightPatchLiver=liverIdentity!=nil;
+            if(eightPatchLiver) {
+                // This is the only supported reduced liver representation:
+                // eight named display patches partition one closed aggregate
+                // exterior. They do not define eight independent solids or
+                // segment volumes, and source ID 22 is a retired alias for 21.
+                const std::string representation="single_closed_aggregate_partitioned_into_eight_passive_exterior_patches_v1";
+                NSArray* liverIDs=[liverIdentity isKindOfClass:NSDictionary.class]?liverIdentity[@"stable_ids"]:nil;
+                NSDictionary* aliases=[liverIdentity isKindOfClass:NSDictionary.class]?liverIdentity[@"retired_source_aliases"]:nil;
+                require([liverIdentity isKindOfClass:NSDictionary.class]&&liverIdentity.count==5&&
+                    [liverIdentity[@"representation"] isKindOfClass:NSString.class]&&
+                    std::string([liverIdentity[@"representation"] UTF8String])==representation&&
+                    [liverIDs isKindOfClass:NSArray.class]&&liverIDs.count==8&&
+                    [aliases isKindOfClass:NSDictionary.class]&&aliases.count==1&&
+                    [aliases[@"22"] isKindOfClass:NSNumber.class]&&[aliases[@"22"] doubleValue]==21&&
+                    [aliases[@"22"] unsignedIntValue]==21&&
+                    [liverIdentity[@"internal_segment_boundaries"] isEqual:@NO]&&
+                    [liverIdentity[@"segment_volumes_defined"] isEqual:@NO],
+                    "unsupported or incomplete eight-patch liver identity declaration");
+                std::set<unsigned> declaredLiverIDs;
+                for(unsigned i=0;i<8;++i) {
+                    id value=liverIDs[i];
+                    require([value isKindOfClass:NSNumber.class]&&[value doubleValue]==[value unsignedIntValue]&&
+                        [value unsignedIntValue]==14+i&&declaredLiverIDs.insert([value unsignedIntValue]).second,
+                        "eight-patch liver IDs must be the ordered exterior display patches 14 through 21");
+                }
+                NSDictionary* liverSourceMap=[provenance isKindOfClass:NSDictionary.class]?provenance[@"source_id_map"]:nil;
+                require([liverSourceMap isKindOfClass:NSDictionary.class]&&liverSourceMap[@"22"]==nil,
+                    "retired liver source ID 22 must not remain a rendered source-map record");
+                const std::string patchRole="one open surface patch of a single closed aggregate shell; no independent segment volume";
+                const std::string patchInterpretation="inferred display identity; no internal segment partition or segment volume";
+                for(unsigned idValue:declaredLiverIDs) {
+                    NSString* key=[NSString stringWithFormat:@"%u",idValue];
+                    NSDictionary* source=[liverSourceMap[key] isKindOfClass:NSDictionary.class]?liverSourceMap[key]:nil;
+                    NSDictionary* owner=[source[@"source_owner_metadata"] isKindOfClass:NSDictionary.class]?
+                        source[@"source_owner_metadata"]:nil;
+                    NSDictionary* repair=[source[@"repair"] isKindOfClass:NSDictionary.class]?source[@"repair"]:nil;
+                    const auto& patch=surface(idValue);
+                    require(source&&patch.bodyIndex==gpu.bodyAndFlags.x&&patch.layer==1&&
+                        [source[@"body_index"] isKindOfClass:NSNumber.class]&&[source[@"body_index"] unsignedIntValue]==20&&
+                        [source[@"layer"] isKindOfClass:NSNumber.class]&&[source[@"layer"] unsignedIntValue]==1&&
+                        [owner[@"source_atlas"] isEqual:@"Z-Anatomy"]&&
+                        [owner[@"geometry_role"] isKindOfClass:NSString.class]&&
+                        std::string([owner[@"geometry_role"] UTF8String])==patchRole&&
+                        [repair[@"interpretation"] isKindOfClass:NSString.class]&&
+                        std::string([repair[@"interpretation"] UTF8String])==patchInterpretation&&
+                        [repair[@"patch_face_count"] isKindOfClass:NSNumber.class]&&
+                        [repair[@"patch_face_count"] unsignedIntValue]>0,
+                        "eight-patch liver source map is not bound to the registered aggregate exterior");
+                }
+            }
             for(id value in values) {
                 require([value isKindOfClass:NSNumber.class]&&[value doubleValue]==[value unsignedIntValue],
                     "invalid passive visceral source identity");
                 require(passiveViscera.insert([value unsignedIntValue]).second,
                     "duplicate passive visceral source identity");
             }
-            std::set<unsigned> expected{2,3,4,5,13,14,15,16,17,18,19,20,21,22};
+            std::set<unsigned> expected{2,3,4,5,13,14,15,16,17,18,19,20,21};
+            if(!eightPatchLiver)expected.insert(22);
             for(unsigned id=398;id<=463;++id)expected.insert(id);
             require(passiveViscera==expected,"passive visceral source identity set differs from the reference assembly");
             id lower=passive[@"pelvic_body_index"];
@@ -343,7 +396,8 @@ struct NumiHumanRestingAnatomy {
                 [lower unsignedIntValue]!=gpu.bodyAndFlags.x,"passive visceral pelvic anchor is invalid");
             passivePelvicBody=[lower unsignedIntValue];
             float anchorMinimum=INFINITY,pelvicMaximum=-INFINITY;
-            const std::set<unsigned> anchors{2,3,4,5,13,14,15,16,17,18,19,20,21,22,461};
+            std::set<unsigned> anchors{2,3,4,5,13,14,15,16,17,18,19,20,21,461};
+            if(!eightPatchLiver)anchors.insert(22);
             for(unsigned id:passiveViscera) {
                 const auto& s=surface(id); // All shared interfaces use the same source coordinate frame.
                 for(unsigned i=s.firstVertex;i<s.firstVertex+s.vertexCount;++i) {
