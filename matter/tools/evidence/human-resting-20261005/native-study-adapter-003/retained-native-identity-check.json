@@ -1,0 +1,21 @@
+{
+  "simulated_s": 6.000000284984708,
+  "wall_s": 62.993097334,
+  "real_time_factor": 0.0952485357748278,
+  "accepted_steps": 3000,
+  "device": "Apple M4 Pro",
+  "world_fingerprint": "6434571789366693551",
+  "vascular_dense45": true,
+  "brain_control": true,
+  "body_source_fingerprint": "3705673603603728776",
+  "coupled_program_fingerprint": "13078968599514780490",
+  "whole_body_anatomy_qualified": false,
+  "root_assistance_observed": false,
+  "maximum_contact_penetration_m": 0.000120462682389,
+  "sha256": {
+    "resting_intervention_study.py": "e70508fe8f7ecc31ead8125f8b70303270725b6bd90da671c9138ef23f1aae0b",
+    "test_resting_intervention_study.py": "0d2b30f3f8b5ae4bcbf7763f17c0537ca7d42899beb7a3ec1c5a186f88ff56c9",
+    "/Users/n/numi-human-resting-evidence-20261005/native-dt2-6s-002/run.log": "9882299b0cc0f7bcb118c40ac6bb6a127f0ed9ab7a5336658a37d8d8a0752835",
+    "/Users/n/numi-human-resting-evidence-20261005/native-dt2-6s-002/resting-coupled.csv": "c447c6bd3eeecd7000ca57c191a03f80963f08615b0e1cc7fa1544dbc70785eb"
+  }
+}

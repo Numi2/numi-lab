@@ -89,12 +89,16 @@ class NativeSceneBindingTests(unittest.TestCase):
     def test_incomplete_and_assisted_native_logs_are_rejected(self):
         log = ('runtime=Numi Matter runtime initialized with eligible dense45 vascular solve '
                'device=Apple M4 Pro world_fingerprint=123 timestep_s=.001\n'
+               'resting_body_source_fingerprint=456 coupled_program_fingerprint=789\n'
                'stand_terminal_state={"step_count":32,"root_assistance":false,"q":[0],"v":[0]}\n'
                'resting_integrated_body=completed simulated_s=.032 wall_s=1 real_time_factor=.032 '
                'physiology_body_clock=matched root_assistance=false presentation_qualification=pending\n')
         result = native_scene_summary(log)
         self.assertEqual(result['accepted_steps'], 32)
         self.assertEqual(result['world_fingerprint'], '123')
+        self.assertEqual(result['coupled_program_fingerprint'], '789')
+        with self.assertRaisesRegex(ValueError, 'program identity'):
+            native_scene_summary(log.replace('coupled_program_fingerprint=789', 'missing_program=789'))
         with self.assertRaisesRegex(ValueError, 'complete'):
             native_scene_summary(log.replace('physiology_body_clock=matched', 'physiology_body_clock=failed'))
         with self.assertRaisesRegex(ValueError, 'root assistance'):

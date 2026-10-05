@@ -460,10 +460,13 @@ def native_scene_summary(log: str) -> dict[str, Any]:
     terminal = next((line for line in reversed(log.splitlines()) if line.startswith("stand_terminal_state=")), "")
     summary = next((line for line in reversed(log.splitlines()) if line.startswith("resting_integrated_body=completed")), "")
     device = re.search(r"\bdevice=(.*?)\s+world_fingerprint=([0-9]+)", runtime)
+    program = re.search(r"resting_body_source_fingerprint=([0-9]+) coupled_program_fingerprint=([0-9]+)", log)
     if device is None or "eligible dense45 vascular solve" not in runtime or not device[1].startswith("Apple "):
         raise ValueError("native scene did not report the physical Apple GPU/Dense45 owner")
     if not terminal or "physiology_body_clock=matched root_assistance=false" not in summary:
         raise ValueError("native scene did not complete a shared-clock unassisted body trajectory")
+    if program is None or min(int(program[1]), int(program[2])) == 0:
+        raise ValueError("native scene did not report its coupled body/controller program identity")
     state = json.loads(terminal.split("=", 1)[1])
     if state.get("root_assistance") is not False or not state.get("step_count", 0) > 0:
         raise ValueError("native body terminal state has invalid step count or root assistance")
@@ -475,6 +478,7 @@ def native_scene_summary(log: str) -> dict[str, Any]:
         raise ValueError("native execution timing must be positive")
     return {**values, "accepted_steps": state["step_count"], "device": device[1],
             "world_fingerprint": device[2], "vascular_dense45": True, "brain_control": True,
+            "body_source_fingerprint": program[1], "coupled_program_fingerprint": program[2],
             "whole_body_anatomy_qualified": False}
 
 
@@ -532,10 +536,12 @@ def execute_native_scene_arm(args: argparse.Namespace) -> dict[str, Any]:
     native = native_scene_summary(log)
     if native["device"] != args.device or native["accepted_steps"] != args.steps:
         raise ValueError("native scene device or accepted step count differs from registration")
-    # The intervention is part of each root program's identity. Match each
-    # declared arm independently; pair equality applies to the common assets.
+    # The vascular world is common to both arms; the delivered intervention is
+    # part of the coupled body/controller program identity. Bind both owners.
     if native["world_fingerprint"] != args.world_fingerprint:
         raise ValueError("native scene world differs from this arm's preregistered identity")
+    if native["coupled_program_fingerprint"] != args.program_fingerprint:
+        raise ValueError("native body/controller program differs from this arm's preregistered identity")
     result = observation(args, output / "resting-coupled.csv", native, log)
     movie, surfaces = output / "native-viewer.mov", output / "resting-surface-audit.csv"
     if not movie.is_file() or movie.stat().st_size == 0 or not surfaces.is_file():
@@ -543,6 +549,8 @@ def execute_native_scene_arm(args: argparse.Namespace) -> dict[str, Any]:
     result.update(native_body_trace_consistency(output / "resting-coupled.csv", args.steps, args.dt))
     result.update(native_whole_body_executed=True,
                   common_asset_identity=digest_json(bindings),
+                  body_source_fingerprint=native["body_source_fingerprint"],
+                  coupled_program_fingerprint=native["coupled_program_fingerprint"],
                   recording_sha256=sha256_file(movie), surface_trace_sha256=sha256_file(surfaces),
                   reference_invocation_sha256=sha256_file(invocation_path))
     write_json(output / "intervention-observation.json", result)
@@ -746,6 +754,8 @@ def main() -> int:
     native_run.add_argument("--invocation", required=True)
     native_run.add_argument("--unit-id", required=True)
     native_run.add_argument("--world-fingerprint", required=True, help="expected fingerprint for this specific arm")
+    native_run.add_argument("--program-fingerprint", required=True,
+                            help="expected coupled body/controller program fingerprint, including this arm's intervention")
     native_run.add_argument("--device", default="Apple M4 Pro")
     native_run.add_argument("--steps", type=int, required=True)
     native_run.add_argument("--dt", type=float, required=True)
