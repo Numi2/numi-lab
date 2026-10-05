@@ -1,0 +1,173 @@
+{
+  "schema": "post-motion-heart-skin-diagnostic.v1",
+  "classification": "post-motion captured-geometry diagnostic; not static-source registration or native clearance qualification",
+  "created_utc": "2026-10-05T11:12:06.686928+00:00",
+  "runtime": {
+    "python": "3.13.13 | packaged by conda-forge | (main, Apr  8 2026, 02:29:07) [Clang 19.1.7 ]",
+    "platform": "macOS-26.6-arm64-arm-64bit-Mach-O"
+  },
+  "inputs": {
+    "accepted_step": 639,
+    "accepted_time_s": 1.2780000607017428,
+    "accepted_root_fingerprint": 12627525330103726311,
+    "accepted_transaction_fingerprint": 12627525330103726311,
+    "pack": "/Users/n/numi-human-resting-evidence-20261005/cardiac-wall-native-cycle-001/accepted-geometry/step-639.mrvpack",
+    "pack_sha256": "e1420d7ce960754e930f8e03c33f67c60dfdcc67c6c5cbeb7501e51eb5e44a20",
+    "receipt": "/Users/n/numi-human-resting-evidence-20261005/cardiac-wall-native-cycle-001/accepted-geometry/step-639.receipt.json",
+    "receipt_sha256": "ca1c46a0dc284110a3c416fafc9e0e52d64b3fb53235757960494e8f5141ff27",
+    "captured_vertex_buffer_sha256": "3296d17ba9c6717b18fb40f6145eaeec0797d87f4a685487f292fab71b3f288e",
+    "predicate_source": "/Users/n/numilab-human/src/numilab_human/cardiac_cavity_intersections.py",
+    "predicate_sha256": "8b138882161c78312cb9b5aa46f49795092eb9b67ed9f705dc354787cb0a635b",
+    "driver_source": "/tmp/accepted-mrvpack-audit-test-001/accepted_mrvpack_surface_audit.py",
+    "driver_sha256": "652e02f31adb4b5b5f27cdaae98f2833e331d583037b3bf8a7df0cda1ace82cc"
+  },
+  "pair": {
+    "wall_surface": {
+      "semantic": 51010,
+      "stable_id": 23
+    },
+    "skin_surface": {
+      "semantic": 51007,
+      "stable_id": 1
+    }
+  },
+  "runs": [
+    {
+      "name": "unchanged",
+      "argv": [
+        "/Users/n/numi-human-prep-venv-20261005/bin/python",
+        "/tmp/accepted-mrvpack-audit-test-001/accepted_mrvpack_surface_audit.py",
+        "/Users/n/numi-human-resting-evidence-20261005/cardiac-wall-native-cycle-001/accepted-geometry/step-639.mrvpack",
+        "/Users/n/numilab-human/src/numilab_human/cardiac_cavity_intersections.py",
+        "--step",
+        "639",
+        "--receipt",
+        "/Users/n/numi-human-resting-evidence-20261005/cardiac-wall-native-cycle-001/accepted-geometry/step-639.receipt.json",
+        "--pairs",
+        "51010:23-51007:1",
+        "--stop-after-first"
+      ],
+      "transform_applied_to": [
+        51010,
+        23
+      ],
+      "transform": {
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "translation_m": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "Traceback (most recent call last):\n  File \"/tmp/accepted-mrvpack-audit-test-001/accepted_mrvpack_surface_audit.py\", line 224, in make_records\n    return predicates._records(vertices, local_faces)\n           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/n/numilab-human/src/numilab_human/cardiac_cavity_intersections.py\", line 119, in _records\n    require(any(_cross(_sub(tri[1], tri[0]), _sub(tri[2], tri[0]))), \"exactly degenerate triangle\")\n    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/n/numilab-human/src/numilab_human/cardiac_cavity_intersections.py\", line 29, in require\n    raise HumanImportError(\"cardiac cavity intersections: \" + message)\n_accepted_mrvpack_predicate_894f7c1e32c9ce5d.model.ImportError: cardiac cavity intersections: exactly degenerate triangle\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/tmp/accepted-mrvpack-audit-test-001/accepted_mrvpack_surface_audit.py\", line 451, in <module>\n    main()\n    ~~~~^^\n  File \"/tmp/accepted-mrvpack-audit-test-001/accepted_mrvpack_surface_audit.py\", line 402, in main\n    cache = {key: make_records(exact_surfaces[key], scale, surfaces[key][\"faces\"], predicates)\n                  ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/accepted-mrvpack-audit-test-001/accepted_mrvpack_surface_audit.py\", line 238, in make_records\n    raise ValueError(f\"exact predicate rejected zero-area triangle rows {zero_area[:32]}\"\n                     f\" (total {len(zero_area)}); no faces were omitted\") from error\nValueError: exact predicate rejected zero-area triangle rows [47276, 47409] (total 2); no faces were omitted",
+      "pair_test_completed": false,
+      "error_summary": "ValueError: exact predicate rejected zero-area triangle rows [47276, 47409] (total 2); no faces were omitted"
+    },
+    {
+      "name": "global-0.96xz-caudal-1mm",
+      "argv": [
+        "/Users/n/numi-human-prep-venv-20261005/bin/python",
+        "/tmp/accepted-mrvpack-audit-test-001/accepted_mrvpack_surface_audit.py",
+        "/Users/n/numi-human-resting-evidence-20261005/cardiac-wall-native-cycle-001/accepted-geometry/step-639.mrvpack",
+        "/Users/n/numilab-human/src/numilab_human/cardiac_cavity_intersections.py",
+        "--step",
+        "639",
+        "--receipt",
+        "/Users/n/numi-human-resting-evidence-20261005/cardiac-wall-native-cycle-001/accepted-geometry/step-639.receipt.json",
+        "--pairs",
+        "51010:23-51007:1",
+        "--stop-after-first",
+        "--first-scale",
+        "0.96,1,0.96",
+        "--first-translate",
+        "0,-0.001,0"
+      ],
+      "transform_applied_to": [
+        51010,
+        23
+      ],
+      "transform": {
+        "scale": [
+          0.96,
+          1.0,
+          0.96
+        ],
+        "translation_m": [
+          0.0,
+          -0.001,
+          0.0
+        ]
+      },
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "Traceback (most recent call last):\n  File \"/tmp/accepted-mrvpack-audit-test-001/accepted_mrvpack_surface_audit.py\", line 224, in make_records\n    return predicates._records(vertices, local_faces)\n           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/n/numilab-human/src/numilab_human/cardiac_cavity_intersections.py\", line 119, in _records\n    require(any(_cross(_sub(tri[1], tri[0]), _sub(tri[2], tri[0]))), \"exactly degenerate triangle\")\n    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/n/numilab-human/src/numilab_human/cardiac_cavity_intersections.py\", line 29, in require\n    raise HumanImportError(\"cardiac cavity intersections: \" + message)\n_accepted_mrvpack_predicate_894f7c1e32c9ce5d.model.ImportError: cardiac cavity intersections: exactly degenerate triangle\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/tmp/accepted-mrvpack-audit-test-001/accepted_mrvpack_surface_audit.py\", line 451, in <module>\n    main()\n    ~~~~^^\n  File \"/tmp/accepted-mrvpack-audit-test-001/accepted_mrvpack_surface_audit.py\", line 402, in main\n    cache = {key: make_records(exact_surfaces[key], scale, surfaces[key][\"faces\"], predicates)\n                  ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/accepted-mrvpack-audit-test-001/accepted_mrvpack_surface_audit.py\", line 238, in make_records\n    raise ValueError(f\"exact predicate rejected zero-area triangle rows {zero_area[:32]}\"\n                     f\" (total {len(zero_area)}); no faces were omitted\") from error\nValueError: exact predicate rejected zero-area triangle rows [47276, 47409] (total 2); no faces were omitted",
+      "pair_test_completed": false,
+      "error_summary": "ValueError: exact predicate rejected zero-area triangle rows [47276, 47409] (total 2); no faces were omitted"
+    }
+  ],
+  "finding": "The exact predicate rejected wall stable ID 23 because it contains zero-area triangle rows. No wall-versus-skin intersection test completed; this is not a no-intersection result.",
+  "limitations": [
+    "The input is the accepted, already-deformed step-639 MRVPACK and its matching receipt.",
+    "The affine case transforms the captured wall in global coordinates after motion; it is a sensitivity diagnostic only.",
+    "These are direct wall-ID-23-versus-skin-ID-1 attempts, not respiratory-surface-versus-wall or respiratory-surface-versus-skin clearance tests.",
+    "No faces were removed or exempted; the exact predicate failure is retained."
+  ],
+  "zero_area_faces": [
+    {
+      "row": 47276,
+      "vertex_indices": [
+        847665,
+        847667,
+        847670
+      ],
+      "positions_m": [
+        [
+          0.03303375840187073,
+          -0.48139631748199463,
+          0.17360453307628632
+        ],
+        [
+          0.03303375840187073,
+          -0.48139631748199463,
+          0.17360453307628632
+        ],
+        [
+          0.033033765852451324,
+          -0.48139631748199463,
+          0.1736045777797699
+        ]
+      ]
+    },
+    {
+      "row": 47409,
+      "vertex_indices": [
+        847473,
+        847667,
+        847665
+      ],
+      "positions_m": [
+        [
+          0.03346874564886093,
+          -0.4814039170742035,
+          0.17315392196178436
+        ],
+        [
+          0.03303375840187073,
+          -0.48139631748199463,
+          0.17360453307628632
+        ],
+        [
+          0.03303375840187073,
+          -0.48139631748199463,
+          0.17360453307628632
+        ]
+      ]
+    }
+  ]
+}
