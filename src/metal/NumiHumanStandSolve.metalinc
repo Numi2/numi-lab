@@ -1239,7 +1239,7 @@
             if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
         }
         if (threadCount >= simdWidth && nv <= 4u * simdWidth &&
-            equalityCount <= 2u * simdWidth) {
+            equalityCount <= 3u * simdWidth) {
             if (kUseCachedLimitEqualityResponse && coupledSweep == 0u) {
                 // These responses and derivatives are fixed for this root.
                 // Each coefficient retains its original FP32 response FMA;
@@ -1281,14 +1281,19 @@
                 float velocity3 = dof3 < nv ? candidateV[dof3] : 0.0f;
                 const uint equality0 = simdLane;
                 const uint equality1 = simdLane + simdWidth;
+                const uint equality2 = simdLane + 2u * simdWidth;
                 uint equalityDof0 = MR_INVALID_INDEX;
                 uint equalityOtherDof0 = MR_INVALID_INDEX;
                 uint equalityDof1 = MR_INVALID_INDEX;
                 uint equalityOtherDof1 = MR_INVALID_INDEX;
+                uint equalityDof2 = MR_INVALID_INDEX;
+                uint equalityOtherDof2 = MR_INVALID_INDEX;
                 float equalityDerivative0 = 0.0f;
                 float equalityDerivative1 = 0.0f;
+                float equalityDerivative2 = 0.0f;
                 float equalityVelocity0 = 0.0f;
                 float equalityVelocity1 = 0.0f;
+                float equalityVelocity2 = 0.0f;
                 // Each SIMD lane alone owns these equality rows throughout
                 // the ordered limit pass. Keep their multipliers in FP32
                 // registers and publish once before the next contact sweep.
@@ -1296,6 +1301,8 @@
                     ? equalityLambdas[equality0] : 0.0f;
                 float equalityLambda1 = equality1 < equalityCount
                     ? equalityLambdas[equality1] : 0.0f;
+                float equalityLambda2 = equality2 < equalityCount
+                    ? equalityLambdas[equality2] : 0.0f;
                 if (equality0 < equalityCount) {
                     device const auto& equality = jointEqualities[equality0];
                     equalityDof0 = equality.indices.y;
@@ -1315,6 +1322,16 @@
                     if (equalityOtherDof1 != MR_INVALID_INDEX)
                         equalityVelocity1 = fma(-equalityDerivative1,
                             candidateV[equalityOtherDof1], equalityVelocity1);
+                }
+                if (equality2 < equalityCount) {
+                    device const auto& equality = jointEqualities[equality2];
+                    equalityDof2 = equality.indices.y;
+                    equalityOtherDof2 = equality.indices.w;
+                    equalityDerivative2 = equalityDerivativeCache[equality2];
+                    equalityVelocity2 = candidateV[equalityDof2];
+                    if (equalityOtherDof2 != MR_INVALID_INDEX)
+                        equalityVelocity2 = fma(-equalityDerivative2,
+                            candidateV[equalityOtherDof2], equalityVelocity2);
                 }
                 // A zero projected increment leaves every later row's input
                 // unchanged. Find the next nonzero row across SIMD lanes,
@@ -1475,6 +1492,31 @@
                             equalityWorkContribution);
                         equalityLambda1 += equalityImpulse;
                     }
+                    if (equality2 < equalityCount) {
+                        const float equalityImpulse = impulse *
+                            limitEqualityCorrections[
+                                dof * equalityCount + equality2];
+                        const float before = equalityVelocity2;
+                        float responseEquality;
+                        if (kUseCachedLimitEqualityResponse) {
+                            responseEquality = cachedLimitEqualityResponse[
+                                (environment * nv + dof) * equalityCount + equality2];
+                        } else {
+                            responseEquality = response[equalityDof2];
+                            if (equalityOtherDof2 != MR_INVALID_INDEX)
+                                responseEquality = fma(-equalityDerivative2,
+                                    response[equalityOtherDof2], responseEquality);
+                        }
+                        equalityVelocity2 = fma(impulse, responseEquality,
+                            equalityVelocity2);
+                        equalityWorkContribution = fma(
+                            0.5f * equalityImpulse, before,
+                            equalityWorkContribution);
+                        equalityWorkContribution = fma(
+                            0.5f * equalityImpulse, equalityVelocity2,
+                            equalityWorkContribution);
+                        equalityLambda2 += equalityImpulse;
+                    }
                     const float equalityWorkIncrement =
                         simd_sum(equalityWorkContribution);
                     const float halfImpulse = 0.5f * impulse;
@@ -1514,6 +1556,8 @@
                     equalityLambdas[equality0] = equalityLambda0;
                 if (equality1 < equalityCount)
                     equalityLambdas[equality1] = equalityLambda1;
+                if (equality2 < equalityCount)
+                    equalityLambdas[equality2] = equalityLambda2;
             }
         } else {
         for (uint limit = 0u; limit < cooperativeLimitCount; ++limit) {

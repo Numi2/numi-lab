@@ -1,0 +1,255 @@
+{
+  "scope": "Existing ordered source-limit GPU lane extension,91-row6s and51-row32-step native regression. Bit-for-bit same retained traces,geometry and terminalq/v; no final anatomy or realtime claim.",
+  "retained_files": [
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/build-limit-lanes-023.py",
+      "source_sha256": "ffc2a03b49b3bf5dfca11b01f2e52735d97416700568b3de81cda7225b3184db",
+      "retained": "build-limit-lanes-023.py",
+      "retained_sha256": "ffc2a03b49b3bf5dfca11b01f2e52735d97416700568b3de81cda7225b3184db"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/limit-lanes-build-023-invocation.json",
+      "source_sha256": "69b7a8af49f21bb528460168c0e0df15c77593abbbd2f523e60b693ed55e227c",
+      "retained": "limit-lanes-build-023-invocation.json",
+      "retained_sha256": "69b7a8af49f21bb528460168c0e0df15c77593abbbd2f523e60b693ed55e227c"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/limit-lanes-build-023-result.json",
+      "source_sha256": "37ce501064622350593527d5d1d213caa372f1c09bcae474dfbcb9e5e322e376",
+      "retained": "limit-lanes-build-023-result.json",
+      "retained_sha256": "37ce501064622350593527d5d1d213caa372f1c09bcae474dfbcb9e5e322e376"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/limit-lanes-build-023.log",
+      "source_sha256": "90ae1633812b5bfb9a30cac9d22a05cd647c97a138a5ddd8c8bbe6ee2428deea",
+      "retained": "limit-lanes-build-023.log",
+      "retained_sha256": "90ae1633812b5bfb9a30cac9d22a05cd647c97a138a5ddd8c8bbe6ee2428deea"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/run-resting-limit-lanes-profile-045.py",
+      "source_sha256": "4d8b1039e4776fa6667ca43c3fb45c5e10a062dd3fb813adab5e277a7680dfe9",
+      "retained": "run-resting-limit-lanes-profile-045.py",
+      "retained_sha256": "4d8b1039e4776fa6667ca43c3fb45c5e10a062dd3fb813adab5e277a7680dfe9"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/run-resting-limit-lanes-046.py",
+      "source_sha256": "ec3e44c388d49b1d0bf622948c4a1e7d36d17a148704769f5225544731e37dd9",
+      "retained": "run-resting-limit-lanes-046.py",
+      "retained_sha256": "ec3e44c388d49b1d0bf622948c4a1e7d36d17a148704769f5225544731e37dd9"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/run-resting-source51-limit-lanes-047.py",
+      "source_sha256": "c18258f26d8b1f65627c7bcb7d56e551c314e3bd376dd0e3a0162a4cfbf9e9cb",
+      "retained": "run-resting-source51-limit-lanes-047.py",
+      "retained_sha256": "c18258f26d8b1f65627c7bcb7d56e551c314e3bd376dd0e3a0162a4cfbf9e9cb"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/compare-limit-lanes-046.py",
+      "source_sha256": "ee2bc6fd1998b3e4e809258434ab470d8dce711794755ff436467ad73ed5acc3",
+      "retained": "compare-limit-lanes-046.py",
+      "retained_sha256": "ee2bc6fd1998b3e4e809258434ab470d8dce711794755ff436467ad73ed5acc3"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/limit-lanes-comparison-046.json",
+      "source_sha256": "d685bbbef1a11d116e85d565d9893da29ccb2db791fa25dfff28d4cb9aa19f4d",
+      "retained": "limit-lanes-comparison-046.json",
+      "retained_sha256": "d685bbbef1a11d116e85d565d9893da29ccb2db791fa25dfff28d4cb9aa19f4d"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/compare-limit-lanes-default-047.py",
+      "source_sha256": "c3fbb3a8b09c7c8a8719ab39e97f9daf53443aabee0f69d54ce9e137121d7419",
+      "retained": "compare-limit-lanes-default-047.py",
+      "retained_sha256": "c3fbb3a8b09c7c8a8719ab39e97f9daf53443aabee0f69d54ce9e137121d7419"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/limit-lanes-default-comparison-047.json",
+      "source_sha256": "af99cf056f763f2544907a086cb0aabc63783d037eb03155eb3fff47d9dc47dd",
+      "retained": "limit-lanes-default-comparison-047.json",
+      "retained_sha256": "af99cf056f763f2544907a086cb0aabc63783d037eb03155eb3fff47d9dc47dd"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-limit-lanes-profile-045/execution.json",
+      "source_sha256": "70db3dad9dc602808f389e2db7900cca0dab49487491c8ad2448c7af300c62f5",
+      "retained": "rigid-digits-limit-lanes-profile-045/execution.json",
+      "retained_sha256": "70db3dad9dc602808f389e2db7900cca0dab49487491c8ad2448c7af300c62f5"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-limit-lanes-profile-045/invocation.json",
+      "source_sha256": "d6d59e46f60732ad78414c52b213fec393d194a5c39f6e27b4f8f4c8ab1034c2",
+      "retained": "rigid-digits-limit-lanes-profile-045/invocation.json",
+      "retained_sha256": "d6d59e46f60732ad78414c52b213fec393d194a5c39f6e27b4f8f4c8ab1034c2"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-limit-lanes-profile-045/native.log",
+      "source_sha256": "88e55f6a9a427dba350726a845ea930517e6a9702267035bf6b7558bb43f2de9",
+      "retained": "rigid-digits-limit-lanes-profile-045/native.log",
+      "retained_sha256": "88e55f6a9a427dba350726a845ea930517e6a9702267035bf6b7558bb43f2de9"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-limit-lanes-profile-045/resting-coupled.csv",
+      "source_sha256": "8e57ee1536b92f74cf31d8747127d36160ead66f2d6c458a7094c48e54ebcdee",
+      "retained": "rigid-digits-limit-lanes-profile-045/resting-coupled.csv",
+      "retained_sha256": "8e57ee1536b92f74cf31d8747127d36160ead66f2d6c458a7094c48e54ebcdee"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-limit-lanes-profile-045/resting-surface-audit.csv",
+      "source_sha256": "f0caf00c3dff5e340059d44478b7c24461ca89ad7b8a4d498f2916bd11344fcb",
+      "retained": "rigid-digits-limit-lanes-profile-045/resting-surface-audit.csv",
+      "retained_sha256": "f0caf00c3dff5e340059d44478b7c24461ca89ad7b8a4d498f2916bd11344fcb"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-limit-lanes-profile-045/source.diff",
+      "source_sha256": "9760b17a9d6592eca410b806154923a3bd3ecd51a100a63bfa260bd1b7c427f6",
+      "retained": "rigid-digits-limit-lanes-profile-045/source.diff.gz",
+      "retained_sha256": "b2edabc5999be76712dd5a80c3d426397e93f2bf042ff986f3f519a29ad87981"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-limit-lanes-native-046/accepted-geometry/step-2783.receipt.json",
+      "source_sha256": "505d9243afcfd10a92d35eff3e615830e1f88d737ac1d9f2bfecbf813ecedf24",
+      "retained": "rigid-digits-limit-lanes-native-046/accepted-geometry/step-2783.receipt.json",
+      "retained_sha256": "505d9243afcfd10a92d35eff3e615830e1f88d737ac1d9f2bfecbf813ecedf24"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-limit-lanes-native-046/accepted-geometry/step-2999.receipt.json",
+      "source_sha256": "da125aee3ac5395bc1c3bdc84561b68dc0cc55748627ddd209fb58f4ab2f1f95",
+      "retained": "rigid-digits-limit-lanes-native-046/accepted-geometry/step-2999.receipt.json",
+      "retained_sha256": "da125aee3ac5395bc1c3bdc84561b68dc0cc55748627ddd209fb58f4ab2f1f95"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-limit-lanes-native-046/accepted-geometry/step-639.receipt.json",
+      "source_sha256": "d48b30088bd70f1db6f50c72c516e9c0b44d6a49a1fb83a761859fa7aa692b90",
+      "retained": "rigid-digits-limit-lanes-native-046/accepted-geometry/step-639.receipt.json",
+      "retained_sha256": "d48b30088bd70f1db6f50c72c516e9c0b44d6a49a1fb83a761859fa7aa692b90"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-limit-lanes-native-046/execution.json",
+      "source_sha256": "aad2860b337175212e6186b3765225034e2dbe3b16943ec1696a761bd1f85882",
+      "retained": "rigid-digits-limit-lanes-native-046/execution.json",
+      "retained_sha256": "aad2860b337175212e6186b3765225034e2dbe3b16943ec1696a761bd1f85882"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-limit-lanes-native-046/invocation.json",
+      "source_sha256": "bdbfab4aad99fcf7317cfebaacdf9a923c49199068b7b31d52eb3189bb798d6e",
+      "retained": "rigid-digits-limit-lanes-native-046/invocation.json",
+      "retained_sha256": "bdbfab4aad99fcf7317cfebaacdf9a923c49199068b7b31d52eb3189bb798d6e"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-limit-lanes-native-046/native.log",
+      "source_sha256": "02c9157a8b0f22349b9d11e1f753da12abf70f7390e4797672d08ffde22d2232",
+      "retained": "rigid-digits-limit-lanes-native-046/native.log",
+      "retained_sha256": "02c9157a8b0f22349b9d11e1f753da12abf70f7390e4797672d08ffde22d2232"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-limit-lanes-native-046/resting-coupled.csv",
+      "source_sha256": "279ead3d8f7dceaf82dbfadb2c758a41a0baa6bc8319ab74c7b493c50c853ced",
+      "retained": "rigid-digits-limit-lanes-native-046/resting-coupled.csv",
+      "retained_sha256": "279ead3d8f7dceaf82dbfadb2c758a41a0baa6bc8319ab74c7b493c50c853ced"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-limit-lanes-native-046/resting-surface-audit.csv",
+      "source_sha256": "7a368494603654198f4d857bdea7dd31a1c8a2e63dbc95110928c7d704df4da7",
+      "retained": "rigid-digits-limit-lanes-native-046/resting-surface-audit.csv",
+      "retained_sha256": "7a368494603654198f4d857bdea7dd31a1c8a2e63dbc95110928c7d704df4da7"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-limit-lanes-native-046/source.diff",
+      "source_sha256": "9760b17a9d6592eca410b806154923a3bd3ecd51a100a63bfa260bd1b7c427f6",
+      "retained": "rigid-digits-limit-lanes-native-046/source.diff.gz",
+      "retained_sha256": "b2edabc5999be76712dd5a80c3d426397e93f2bf042ff986f3f519a29ad87981"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source51-limit-lanes-profile-047/accepted-geometry/step-31.receipt.json",
+      "source_sha256": "eea78017be6524dd3e73532a491d6a6c7904cd97f560a744e3cb3058e311022e",
+      "retained": "source51-limit-lanes-profile-047/accepted-geometry/step-31.receipt.json",
+      "retained_sha256": "eea78017be6524dd3e73532a491d6a6c7904cd97f560a744e3cb3058e311022e"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source51-limit-lanes-profile-047/execution.json",
+      "source_sha256": "c3255c7437754692678551a89db116ba79884dd284e19afb09c8ff9203136c75",
+      "retained": "source51-limit-lanes-profile-047/execution.json",
+      "retained_sha256": "c3255c7437754692678551a89db116ba79884dd284e19afb09c8ff9203136c75"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source51-limit-lanes-profile-047/invocation.json",
+      "source_sha256": "d6ad7f7634cc38fc8ddbd5d44d7753cfa48cfda02117e8179c2e5d2c4cb72c5a",
+      "retained": "source51-limit-lanes-profile-047/invocation.json",
+      "retained_sha256": "d6ad7f7634cc38fc8ddbd5d44d7753cfa48cfda02117e8179c2e5d2c4cb72c5a"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source51-limit-lanes-profile-047/native.log",
+      "source_sha256": "f57ce9ff6c69e00763652a868708b97bc69b3763649b3cd9d48c698bc0ab2545",
+      "retained": "source51-limit-lanes-profile-047/native.log",
+      "retained_sha256": "f57ce9ff6c69e00763652a868708b97bc69b3763649b3cd9d48c698bc0ab2545"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source51-limit-lanes-profile-047/resting-coupled.csv",
+      "source_sha256": "c334489f2e3ade88b4e0c6203db71ee0efe246d6ea4a8cfb06228ceb272b0472",
+      "retained": "source51-limit-lanes-profile-047/resting-coupled.csv",
+      "retained_sha256": "c334489f2e3ade88b4e0c6203db71ee0efe246d6ea4a8cfb06228ceb272b0472"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source51-limit-lanes-profile-047/resting-surface-audit.csv",
+      "source_sha256": "04045ac90ce3f529a08ab1f4dadfd830f7099909e646636b4ded3908768bf061",
+      "retained": "source51-limit-lanes-profile-047/resting-surface-audit.csv",
+      "retained_sha256": "04045ac90ce3f529a08ab1f4dadfd830f7099909e646636b4ded3908768bf061"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source51-limit-lanes-profile-047/source.diff",
+      "source_sha256": "9760b17a9d6592eca410b806154923a3bd3ecd51a100a63bfa260bd1b7c427f6",
+      "retained": "source51-limit-lanes-profile-047/source.diff.gz",
+      "retained_sha256": "b2edabc5999be76712dd5a80c3d426397e93f2bf042ff986f3f519a29ad87981"
+    }
+  ],
+  "large_artifacts_retained_on_macmini": [
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-limit-lanes-profile-045/native-viewer.mov",
+      "sha256": "63d0ef583d93d62efec13a47e787fbbf0bc33bbe9d72f3865292dd62e892c9a7",
+      "size": 45926
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-limit-lanes-profile-045/resting-human.mrvpack",
+      "sha256": "4f969193b7e66385b5a06d9d55a3ea966d156821e76558b16d4a785cdaddd6a7",
+      "size": 214589440
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-limit-lanes-native-046/accepted-geometry/step-2783.mrvpack",
+      "sha256": "ca9197c0753d6a9ed06e007ae02264f6270dae924a7ffaa7c9929cf87fa223bc",
+      "size": 214589440
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-limit-lanes-native-046/accepted-geometry/step-2999.mrvpack",
+      "sha256": "a860ce25de462e09c49312142463a0b3765c4fd306dcaf1f464c34bd0b16aaf4",
+      "size": 214589440
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-limit-lanes-native-046/accepted-geometry/step-639.mrvpack",
+      "sha256": "5ff53b3461068415633841e13cbba9687777fbe06da1b22a8d44204a93f64a4f",
+      "size": 214589440
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-limit-lanes-native-046/native-viewer.mov",
+      "sha256": "1f0e31d49e550ab3a28859531e03f9b67bf786d7be818fd89ef9822ee5306c91",
+      "size": 711699
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-limit-lanes-native-046/resting-human.mrvpack",
+      "sha256": "4f969193b7e66385b5a06d9d55a3ea966d156821e76558b16d4a785cdaddd6a7",
+      "size": 214589440
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/source51-limit-lanes-profile-047/accepted-geometry/step-31.mrvpack",
+      "sha256": "15a2ecb044724930bbd63a9d897d426d436cd88c5fc9b4eae6ac77bd941ea30a",
+      "size": 214589440
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/source51-limit-lanes-profile-047/native-viewer.mov",
+      "sha256": "2b1cc6139982bdf2d42c8e2f574b5fa3871c0dcf4826beac50a13246d949a81b",
+      "size": 43052
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/source51-limit-lanes-profile-047/resting-human.mrvpack",
+      "sha256": "4f969193b7e66385b5a06d9d55a3ea966d156821e76558b16d4a785cdaddd6a7",
+      "size": 214589440
+    }
+  ]
+}

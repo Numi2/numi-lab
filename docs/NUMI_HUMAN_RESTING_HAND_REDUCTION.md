@@ -93,3 +93,12 @@ no meaningful measured difference and was not adopted. Exact evidence and
 both successful and failed trials are retained in `projected-equality-044`.
 The long-duration, complete breathing-cycle and cardiac anatomical gates
 remain open; these solver results do not qualify them.
+
+The ordered source-limit solve subsequently extends each SIMD lane's existing
+equality ownership from two rows to three, covering the 91-row resting block.
+It retains the original limit order, per-DOF FMAs and existing buffers. Against
+source022, the six-second run preserves both traces, initial and three accepted
+geometry packs, and terminal q/v bit for bit. Measured GPU time falls 22.34%,
+with 69.164 wall seconds (0.08675 times real time). The original 51-row run is
+also bit-for-bit unchanged; its short timing difference is not a claimed gain.
+See `limit-lanes-047` for exact compiled identities and retained evidence.
