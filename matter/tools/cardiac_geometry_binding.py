@@ -27,6 +27,11 @@ RECORD = struct.Struct("<8I")
 VERTEX = struct.Struct("<6f")
 U32 = struct.Struct("<I")
 RA_ID, RV_ID, LA_ID, LV_ID = 318, 319, 320, 321
+CARDIAC_MOTION_MODEL = "source_centroid_radial_freewall_v2"
+RA_RV_TAPER_DEGREES = 20.0
+RA_CENTER_OFFSET_M = 0.008
+LEFT_ATRIUM_CENTER_OFFSET_M = 0.012
+LEFT_VENTRICLE_CENTER_OFFSET_M = 0.015
 
 
 def require(condition: bool, message: str) -> None:
@@ -177,7 +182,8 @@ class TriangleIndex:
 def phase_rows(path: Path, phase_selection: str = "representative-cycle"):
     with path.open(newline="") as stream:
         rows = list(csv.DictReader(stream))
-    required = {"time_s", "step", "q_ra", "q_rv", "q_la", "q_lv"}
+    required = {"time_s", "step", "q_ra", "q_rv", "q_la", "q_lv",
+                "ra_target_ml", "rv_target_ml", "la_target_ml", "lv_target_ml"}
     require(len(rows) >= 8 and required.issubset(rows[0]),
             "cardiac phase trace needs at least eight accepted rows with time, step and four q values")
     q_names = ("q_ra", "q_rv", "q_la", "q_lv")
@@ -185,7 +191,10 @@ def phase_rows(path: Path, phase_selection: str = "representative-cycle"):
         row["time_s"] = float(row["time_s"])
         row["step"] = int(float(row["step"]))
         row["q"] = np.asarray([float(row[key]) for key in q_names], dtype=np.float32)
-        require(np.isfinite(row["time_s"]) and np.all(np.isfinite(row["q"])),
+        volume_names = ("ra_target_ml", "rv_target_ml", "la_target_ml", "lv_target_ml")
+        row["target_volume_m3"] = np.asarray([float(row[key]) for key in volume_names], dtype=np.float32) * np.float32(1e-6)
+        require(np.isfinite(row["time_s"]) and np.all(np.isfinite(row["q"])) and
+                np.all(np.isfinite(row["target_volume_m3"])) and np.all(row["target_volume_m3"] > 0),
                 "cardiac phase trace has nonfinite accepted coordinates")
     if phase_selection == "initial-and-lv-max":
         selected = {0, int(np.argmax([row["q"][3] for row in rows]))}
@@ -199,7 +208,7 @@ def phase_rows(path: Path, phase_selection: str = "representative-cycle"):
     return rows, [rows[i] for i in sorted(selected)]
 
 
-def exact_large_surface_audits(surfaces, predicates):
+def exact_large_surface_audits(surfaces, predicates, *, stop_after_first_unqualified=False):
     """Apply NumiLab's exact predicates to passive meshes just over its public size cap.
 
     The retained exact auditor limits public inputs to 20,000 vertices. One
@@ -212,47 +221,84 @@ def exact_large_surface_audits(surfaces, predicates):
     for surface in surfaces:
         name = surface["source_id"]
         quotient = surface["exact_coordinate_quotient"]
-        vertices = quotient["vertices_m"]
-        faces = [[int(i) for i in face] for face in quotient["triangles"]]
+        raw_vertices = np.asarray(quotient["vertices_m"], dtype=np.float32)
+        raw_faces = np.asarray(quotient["triangles"], dtype=np.int64)
+        raw_topology = predicates.analyze_topology(raw_vertices.astype(float).tolist(), raw_faces.astype(int).tolist())
+        exact_ids, exact_vertices = {}, []
+        source_to_exact = []
+        for point in raw_vertices:
+            key = tuple(float(value) for value in point)
+            if key not in exact_ids:
+                exact_ids[key] = len(exact_vertices)
+                exact_vertices.append(point.copy())
+            source_to_exact.append(exact_ids[key])
+        exact_faces = np.asarray([[source_to_exact[int(i)] for i in face] for face in raw_faces], dtype=np.int64)
+        used = sorted(set(int(i) for i in exact_faces.reshape(-1)))
+        compact = {old: new for new, old in enumerate(used)}
+        vertices = np.asarray([exact_vertices[i] for i in used], dtype=np.float32).astype(float).tolist()
+        faces = [[compact[int(i)] for i in face] for face in exact_faces]
         topology = predicates.analyze_topology(vertices, faces)
-        require(topology["closed_oriented_manifold_candidate"] and not topology["unused_vertex_ids"] and
-                topology["face_component_count"] == 1,
-                f"passive-heart or cavity mesh {name} is not one closed oriented surface")
+        if int(name) in (RA_ID, RV_ID, LA_ID, LV_ID):
+            require(topology["closed_oriented_manifold_candidate"] and topology["face_component_count"] == 1,
+                    f"deformed cardiac cavity {name} lost closed connected topology after exact coordinate quotient")
         rational = [tuple(Fraction.from_float(float(x)) for x in point) for point in vertices]
         for point in rational:
             for coordinate in point:
                 denominator = max(denominator, coordinate.denominator)
         vertices_by_id[name], faces_by_id[name] = vertices, faces
-        rational_by_id[name], topology_by_id[name] = rational, topology
+        rational_by_id[name], topology_by_id[name] = rational, {
+            "raw": raw_topology,
+            "exact_coordinate_quotient": topology,
+            "exact_duplicate_vertex_count": len(raw_vertices) - len(exact_vertices),
+            "unused_source_vertex_count": len(raw_vertices) - len(set(int(i) for i in raw_faces.reshape(-1))),
+        }
 
     records_by_id = {}
+    collision_face_counts = {}
     for name in sorted(vertices_by_id):
         integer = [tuple(x.numerator * (denominator // x.denominator) for x in point)
                    for point in rational_by_id[name]]
-        records_by_id[name] = predicates._records(integer, faces_by_id[name])
+        collision_faces = []
+        degenerate_count = 0
+        for face in faces_by_id[name]:
+            a, b, c = (integer[int(index)] for index in face)
+            if any(predicates._cross(predicates._sub(b, a), predicates._sub(c, a))):
+                collision_faces.append(face)
+            else:
+                degenerate_count += 1
+        require(int(name) not in (RA_ID, RV_ID, LA_ID, LV_ID) or degenerate_count == 0,
+                f"deformed cardiac cavity {name} contains an exact degenerate triangle")
+        collision_face_counts[name] = {"tested_nonzero_area_face_count": len(collision_faces),
+                                       "excluded_exact_zero_area_face_count": degenerate_count}
+        records_by_id[name] = predicates._records(integer, collision_faces)
 
     surface_reports = {}
-    for name in sorted(records_by_id):
-        if int(name) not in (1, 23, 24):
-            continue
-        report = predicates._audit_pair(records_by_id[name], records_by_id[name], same_surface=True)
-        surface_reports[name] = {"closed_connected_oriented": True,
-                                 "self_intersection_triangle_pair_count": report["count"],
-                                 "aabb_candidate_pairs": report["aabb_candidate_pairs"]}
-        require(report["count"] == 0,
-                f"passive-heart surface {name} self-intersects in an accepted cardiac phase")
-
     pair_reports = []
     names = sorted(records_by_id)
     for offset, first in enumerate(names):
         for second in names[offset + 1:]:
             if int(first) not in (1, 23, 24) and int(second) not in (1, 23, 24):
                 continue
-            report = predicates._audit_pair(records_by_id[first], records_by_id[second], same_surface=False)
+            report = predicates._audit_pair(
+                records_by_id[first], records_by_id[second], same_surface=False,
+                stop_after_first_intersection=stop_after_first_unqualified)
             row = {"first": int(first), "second": int(second), "intersection_triangle_pair_count": report["count"],
                    "aabb_candidate_pairs": report["aabb_candidate_pairs"]}
+            if report.get("audit_complete") is False:
+                row.update({"relation": "intersecting_unclassified",
+                            "intersection_count_is_lower_bound": True,
+                            "triangle_pair_witnesses": report["triangle_pairs"]})
+                pair_reports.append(row)
+                return surface_reports, pair_reports, False
+            first_closed = topology_by_id[first]["exact_coordinate_quotient"]["closed_oriented_manifold_candidate"] and \
+                topology_by_id[first]["exact_coordinate_quotient"]["face_component_count"] == 1
+            second_closed = topology_by_id[second]["exact_coordinate_quotient"]["closed_oriented_manifold_candidate"] and \
+                topology_by_id[second]["exact_coordinate_quotient"]["face_component_count"] == 1
             if report["count"]:
                 row["relation"] = "intersecting_unclassified"
+            elif not first_closed or not second_closed:
+                row["relation"] = "nonintersecting_passive_surface_with_unclosed_source_topology"
+                row["containment"] = "unavailable_for_open_or_disconnected_or_nonmanifold_source_surface"
             else:
                 a = [tuple(x.numerator * (denominator // x.denominator) for x in point)
                      for point in rational_by_id[first]]
@@ -276,7 +322,38 @@ def exact_large_surface_audits(surfaces, predicates):
                 else:
                     row["relation"] = "nested_surface_without_registered_anatomical_interface"
             pair_reports.append(row)
-    return surface_reports, pair_reports
+            if stop_after_first_unqualified and row["relation"] not in (
+                    "disjoint", "expected_cavity_enclosed_by_passive_outer_heart",
+                    "expected_ventricular_cavity_enclosed_by_passive_ventricular_wall",
+                    "nonintersecting_passive_surface_with_unclosed_source_topology"):
+                return surface_reports, pair_reports, False
+
+    # A single unqualified wall pair is already sufficient to reject the
+    # passive-wall gate. Check these pairs before the more expensive per-wall
+    # self audits in fail-fast source admission; if every pair is qualified,
+    # continue with all self audits before reporting a pass.
+    for name in sorted(records_by_id):
+        if int(name) not in (1, 23, 24):
+            continue
+        report = predicates._audit_pair(
+            records_by_id[name], records_by_id[name], same_surface=True,
+            stop_after_first_intersection=stop_after_first_unqualified)
+        topology = topology_by_id[name]
+        quotient_topology = topology["exact_coordinate_quotient"]
+        surface_reports[name] = {"raw_topology": topology["raw"],
+                                 "exact_coordinate_quotient_topology": quotient_topology,
+                                 "exact_duplicate_vertex_count": topology["exact_duplicate_vertex_count"],
+                                 "unused_source_vertex_count": topology["unused_source_vertex_count"],
+                                 **collision_face_counts[name],
+                                 "closed_connected_oriented": quotient_topology["closed_oriented_manifold_candidate"] and
+                                     quotient_topology["face_component_count"] == 1,
+                                 "self_intersection_triangle_pair_count": report["count"],
+                                 "self_intersection_audit_complete": report.get("audit_complete", True),
+                                 "self_intersection_count_is_lower_bound": report.get("count_is_lower_bound", False),
+                                 "aabb_candidate_pairs": report["aabb_candidate_pairs"]}
+        if stop_after_first_unqualified and not report.get("audit_complete", True):
+            return surface_reports, pair_reports, False
+    return surface_reports, pair_reports, True
 
 
 def audit_dynamic_phases(records, vertices, indices, rows, samples, interface_points,
@@ -286,6 +363,23 @@ def audit_dynamic_phases(records, vertices, indices, rows, samples, interface_po
     points = [row[0].astype(np.float32) for row in source]
     faces = [row[1] for row in source]
     centers = [closed_centroid(p, f) for p, f in zip(points, faces, strict=True)]
+
+    def shifted_center(chamber, from_chamber, away_from_chamber, distance):
+        direction = (centers[from_chamber].astype(np.float64) -
+                     centers[away_from_chamber].astype(np.float64))
+        length = float(np.linalg.norm(direction))
+        require(np.isfinite(length) and length > 1e-9, "cardiac registration offset has an undefined direction")
+        centers[chamber] = (centers[chamber].astype(np.float64) + direction * (distance / length)).astype(np.float32)
+
+    shifted_center(0, 0, 1, RA_CENTER_OFFSET_M)
+    left_direction = centers[2].astype(np.float64) - centers[3].astype(np.float64)
+    left_length = float(np.linalg.norm(left_direction))
+    require(np.isfinite(left_length) and left_length > 1e-9, "left cardiac registration offset has an undefined direction")
+    centers[2] = (centers[2].astype(np.float64) + left_direction *
+                  (LEFT_ATRIUM_CENTER_OFFSET_M / left_length)).astype(np.float32)
+    centers[3] = (centers[3].astype(np.float64) + left_direction *
+                  (LEFT_VENTRICLE_CENTER_OFFSET_M / left_length)).astype(np.float32)
+
     indices_by_chamber = [TriangleIndex(p, f) for p, f in zip(points, faces, strict=True)]
     weights = []
     seam_points = np.unique(interface_points.astype(np.float32), axis=0).astype(np.float64)
@@ -295,11 +389,29 @@ def audit_dynamic_phases(records, vertices, indices, rows, samples, interface_po
             weight = np.ones(len(p), dtype=np.float32)
         else:
             radial = p - centers[chamber]
-            radial /= np.linalg.norm(radial, axis=1)[:, None]
+            require(np.all(np.isfinite(radial)),
+                    f"chamber {ids[chamber]} has nonfinite source radial vectors")
+            radial_length = np.linalg.norm(radial, axis=1)
+            require(np.all(np.isfinite(radial_length)),
+                    f"chamber {ids[chamber]} has nonfinite source radial lengths")
+            radial = np.divide(radial, radial_length[:, None], out=np.zeros_like(radial),
+                                where=radial_length[:, None] > 0.0)
             seam = seam_points - centers[chamber]
-            seam /= np.linalg.norm(seam, axis=1)[:, None]
-            nearest_direction_cosine = np.clip(radial @ seam.T, -1.0, 1.0).max(axis=1)
-            interface_cosine = np.cos(np.radians(2.0))
+            require(np.all(np.isfinite(seam)),
+                    f"chamber {ids[chamber]} has nonfinite RA/RV seam vectors")
+            seam_length = np.linalg.norm(seam, axis=1)
+            require(np.all(np.isfinite(seam_length)),
+                    f"chamber {ids[chamber]} has nonfinite RA/RV seam lengths")
+            seam = seam[seam_length > 0.0] / seam_length[seam_length > 0.0, None]
+            require(len(seam) > 0, f"chamber {ids[chamber]} has no directed RA/RV seam samples")
+            radial64 = radial.astype(np.float64)
+            directional_cosines = (radial64[:, None, 0] * seam[None, :, 0] +
+                                   radial64[:, None, 1] * seam[None, :, 1] +
+                                   radial64[:, None, 2] * seam[None, :, 2])
+            require(np.all(np.isfinite(directional_cosines)),
+                    f"chamber {ids[chamber]} has nonfinite RA/RV seam direction cosines")
+            nearest_direction_cosine = np.clip(directional_cosines, -1.0, 1.0).max(axis=1)
+            interface_cosine = np.cos(np.radians(RA_RV_TAPER_DEGREES))
             t = np.clip((1.0 - nearest_direction_cosine) / (1.0 - interface_cosine), 0.0, 1.0)
             weight = (t * t * (3.0 - 2.0 * t)).astype(np.float32)
             for vertex, point in enumerate(p):
@@ -307,37 +419,107 @@ def audit_dynamic_phases(records, vertices, indices, rows, samples, interface_po
                     weight[vertex] = 0.0
         weights.append(weight)
 
+    # Match the native load-time cubic: evaluate the candidate's own source
+    # surface and free-wall weights at q = 0, 1, -1, 2, then cast its four
+    # coefficients to FP32 before solving the same accepted hydraulic target.
+    polynomials = []
+    for chamber in range(4):
+        center = centers[chamber].astype(np.float64)
+
+        def volume_at(q):
+            scale = 1.0 + float(q) * weights[chamber].astype(np.float64)
+            mapped = center + scale[:, None] * (points[chamber].astype(np.float64) - center)
+            tri = mapped[faces[chamber]] - center
+            volume = np.einsum("ij,ij->i", tri[:, 0],
+                               np.cross(tri[:, 1], tri[:, 2])).sum(dtype=np.float64) / 6.0
+            return abs(float(volume))
+
+        f0, f1, fm1, f2 = (volume_at(q) for q in (0.0, 1.0, -1.0, 2.0))
+        a2 = (f1 + fm1 - 2.0 * f0) / 2.0
+        s1 = (f1 - fm1) / 2.0
+        a3 = (f2 - f0 - 4.0 * a2 - 2.0 * s1) / 6.0
+        a1 = s1 - a3
+        coefficient = np.asarray((f0, a1, a2, a3), dtype=np.float32)
+        require(np.all(np.isfinite(coefficient)) and coefficient[0] > 0,
+                f"candidate chamber {ids[chamber]} has invalid native volume coefficients")
+        polynomials.append(coefficient)
+
+    def solve_native_q(chamber, target):
+        coefficient = polynomials[chamber]
+
+        def value(q):
+            return np.float32(np.float32(np.float32(np.float32(coefficient[3] * q + coefficient[2]) * q +
+                                   coefficient[1]) * q + coefficient[0]))
+
+        low, high = np.float32(-.999), np.float32(1.0)
+        require(value(low) <= target <= value(high),
+                f"candidate chamber {ids[chamber]} does not cover accepted volume {float(target)} m3")
+        for _ in range(28):
+            middle = np.float32(.5) * np.float32(low + high)
+            if value(middle) < target:
+                low = middle
+            else:
+                high = middle
+        return np.float32(.5) * np.float32(low + high)
+
     wall_ids = (1, 23, 24)
     wall_source = [surface_arrays(records, vertices, indices, stable_id, expected_layer=1)[1:]
                    for stable_id in wall_ids]
     wall_points = [row[0].astype(np.float32) for row in wall_source]
     wall_faces = [row[1] for row in wall_source]
-    wall_binding = []
-    for points_for_wall in wall_points:
-        binding = []
-        for point in points_for_wall:
-            nearest = None
-            chamber = -1
-            for index, candidate in enumerate(indices_by_chamber):
-                result = candidate.nearest(point.astype(np.float64))
-                if nearest is None or result[0] < nearest[0]:
-                    nearest, chamber = result, index
-            distance = float(np.sqrt(nearest[0]))
-            t = np.clip((distance - 0.040) / (0.080 - 0.040), 0.0, 1.0)
-            falloff = 1.0 - t * t * (3.0 - 2.0 * t)
-            face_ids = nearest[2]
-            freewall = float(np.dot(nearest[3], weights[chamber][face_ids]))
-            delta = (nearest[1] - centers[chamber]).astype(np.float32)
-            binding.append((chamber, delta, np.float32(falloff * freewall)))
-        wall_binding.append(binding)
+    def build_wall_binding():
+        wall_binding = []
+        for points_for_wall in wall_points:
+            binding = []
+            for point in points_for_wall:
+                nearest = None
+                chamber = -1
+                for index, candidate in enumerate(indices_by_chamber):
+                    result = candidate.nearest(point.astype(np.float64))
+                    if nearest is None or result[0] < nearest[0]:
+                        nearest, chamber = result, index
+                distance = float(np.sqrt(nearest[0]))
+                t = np.clip((distance - 0.040) / (0.080 - 0.040), 0.0, 1.0)
+                falloff = 1.0 - t * t * (3.0 - 2.0 * t)
+                face_ids = nearest[2]
+                freewall = float(np.dot(nearest[3], weights[chamber][face_ids]))
+                delta = (nearest[1] - centers[chamber]).astype(np.float32)
+                binding.append((chamber, delta, np.float32(falloff * freewall)))
+            wall_binding.append(binding)
+        return wall_binding
+
+    source_surfaces = [{"source_id": str(stable_id), "exact_coordinate_quotient": {
+        "vertices_m": points[c].astype(np.float64).tolist(), "triangles": faces[c].tolist()}}
+        for c, stable_id in enumerate(ids)]
+    source_surfaces.extend({"source_id": str(stable_id), "exact_coordinate_quotient": {
+        "vertices_m": wall_points[i].astype(np.float64).tolist(), "triangles": wall_faces[i].tolist()}}
+        for i, stable_id in enumerate(wall_ids))
+    source_wall_surface_reports, source_wall_pair_reports, source_wall_audit_complete = (
+        exact_large_surface_audits(source_surfaces, predicates, stop_after_first_unqualified=True))
+    source_wall_relations = [pair for pair in source_wall_pair_reports
+                             if int(pair["first"]) in wall_ids or int(pair["second"]) in wall_ids]
+    source_unqualified_pairs = [[pair["first"], pair["second"]] for pair in source_wall_relations
+        if pair["relation"] not in ("disjoint", "expected_cavity_enclosed_by_passive_outer_heart",
+                                     "expected_ventricular_cavity_enclosed_by_passive_ventricular_wall",
+                                     "nonintersecting_passive_surface_with_unclosed_source_topology")]
+    source_wall_gate = "fail" if not source_wall_audit_complete or source_unqualified_pairs or any(
+        report["self_intersection_triangle_pair_count"] for report in source_wall_surface_reports.values()) else "pass"
+    # A failed source-state wall gate already makes every full wall-envelope
+    # claim fail closed. Avoid constructing expensive nearest-cavity bindings
+    # for tens of thousands of wall vertices when those bindings cannot admit
+    # a passing wall result; the four cavity phase audit remains independent.
+    wall_binding = build_wall_binding() if source_wall_gate == "pass" else None
 
     interface = interface_points[interface_faces].astype(np.float64).tolist()
     results = []
     for row in samples:
+        native_q = row["q"].copy()
+        q = np.asarray([solve_native_q(chamber, row["target_volume_m3"][chamber])
+                        for chamber in range(4)], dtype=np.float32)
         deformed = []
         for chamber in range(4):
-            q = np.float32(row["q"][chamber])
-            scale = np.float32(1.0) + q * weights[chamber]
+            chamber_q = q[chamber]
+            scale = np.float32(1.0) + chamber_q * weights[chamber]
             mapped = centers[chamber] + scale[:, None] * (points[chamber] - centers[chamber])
             # The registered RA/RV cut is an exact shared interface. Its
             # zero-weight map is mathematically the identity; evaluate that
@@ -350,15 +532,16 @@ def audit_dynamic_phases(records, vertices, indices, rows, samples, interface_po
             "vertices_m": deformed[c].astype(np.float64).tolist(), "triangles": faces[c].tolist()}}
             for c, stable_id in enumerate(ids)]
         deformed_walls = []
-        for wall_index, stable_id in enumerate(wall_ids):
-            mapped = wall_points[wall_index].copy()
-            for vertex, (chamber, delta, weight) in enumerate(wall_binding[wall_index]):
-                mapped[vertex] += delta * np.float32(row["q"][chamber]) * weight
-            mapped = mapped.astype(np.float32)
-            deformed_walls.append(mapped)
-            surfaces.append({"source_id": str(stable_id), "exact_coordinate_quotient": {
-                "vertices_m": mapped.astype(np.float64).tolist(),
-                "triangles": wall_faces[wall_index].tolist()}})
+        if wall_binding is not None:
+            for wall_index, stable_id in enumerate(wall_ids):
+                mapped = wall_points[wall_index].copy()
+                for vertex, (chamber, delta, weight) in enumerate(wall_binding[wall_index]):
+                    mapped[vertex] += delta * q[chamber] * weight
+                mapped = mapped.astype(np.float32)
+                deformed_walls.append(mapped)
+                surfaces.append({"source_id": str(stable_id), "exact_coordinate_quotient": {
+                    "vertices_m": mapped.astype(np.float64).tolist(),
+                    "triangles": wall_faces[wall_index].tolist()}})
         audit = predicates.audit_cavity_intersections({"chambers": surfaces[:4]})
         if not audit["all_surfaces_embedded"]:
             detail = ";".join(f"{name}:embedded={report['embedded_closed_surface']}:pairs={report['count']}:"
@@ -393,22 +576,51 @@ def audit_dynamic_phases(records, vertices, indices, rows, samples, interface_po
                         {pair["first"], pair["second"]} != {str(RA_ID), str(RV_ID)}]
         require(all(pair["disjoint_closed_domains"] for pair in cavity_pairs),
                 f"non-RA/RV chamber overlap during accepted frame {row['step']}")
-        wall_surface_reports, wall_pair_reports = exact_large_surface_audits(surfaces, predicates)
-        wall_relations = [pair for pair in wall_pair_reports
-                          if int(pair["first"]) in wall_ids or int(pair["second"]) in wall_ids]
-        unqualified_wall_pairs = [[pair["first"], pair["second"]] for pair in wall_relations
-            if pair["relation"] not in ("disjoint", "expected_cavity_enclosed_by_passive_outer_heart",
-                                         "expected_ventricular_cavity_enclosed_by_passive_ventricular_wall")]
-        require(not unqualified_wall_pairs,
-                f"passive outer-heart/cavity surfaces intersect or nest without a registered interface at frame {row['step']}: {unqualified_wall_pairs}")
+        if wall_binding is not None:
+            wall_surface_reports, wall_pair_reports, wall_audit_complete = exact_large_surface_audits(
+                surfaces, predicates)
+            wall_relations = [pair for pair in wall_pair_reports
+                              if int(pair["first"]) in wall_ids or int(pair["second"]) in wall_ids]
+            unqualified_wall_pairs = [[pair["first"], pair["second"]] for pair in wall_relations
+                if pair["relation"] not in ("disjoint", "expected_cavity_enclosed_by_passive_outer_heart",
+                                             "expected_ventricular_cavity_enclosed_by_passive_ventricular_wall",
+                                             "nonintersecting_passive_surface_with_unclosed_source_topology")]
+            wall_gate = "fail" if not wall_audit_complete or unqualified_wall_pairs or any(
+                report["self_intersection_triangle_pair_count"] for report in wall_surface_reports.values()) else "pass"
+            wall_check_status = "audited_complete" if wall_audit_complete else "audit_incomplete"
+        else:
+            wall_surface_reports, wall_relations = {}, []
+            unqualified_wall_pairs = source_unqualified_pairs
+            wall_gate = "fail"
+            wall_check_status = "not_run_source_q0_gate_failed"
+        candidate_volume_m3 = np.asarray([
+            ((np.float64(polynomials[c][3]) * float(q[c]) + polynomials[c][2]) * float(q[c]) +
+             polynomials[c][1]) * float(q[c]) + polynomials[c][0] for c in range(4)], dtype=np.float64)
+        target_volume_m3 = row["target_volume_m3"].astype(np.float64)
         results.append({"step": row["step"], "time_s": row["time_s"],
-            "q": [float(x) for x in row["q"]],
+            "native_q": [float(x) for x in native_q],
+            "q": [float(x) for x in q],
+            "target_volume_ml": (target_volume_m3 * 1e6).tolist(),
+            "candidate_volume_ml": (candidate_volume_m3 * 1e6).tolist(),
+            "relative_volume_error": ((candidate_volume_m3 - target_volume_m3) / target_volume_m3).tolist(),
             "embedded_chambers": [str(x) for x in ids],
             "RA_RV_shared_interface": interface_audit,
             "other_cavity_pair_audits": cavity_pairs,
             "passive_outer_heart_self_audits": wall_surface_reports,
-            "passive_outer_heart_relations": wall_relations})
-    return results
+            "passive_outer_heart_relations": wall_relations,
+            "passive_outer_heart_unqualified_pairs": unqualified_wall_pairs,
+            "passive_outer_heart_gate": wall_gate,
+            "passive_outer_heart_phase_check_status": wall_check_status})
+    phase_wall_gate = "fail" if any(row["passive_outer_heart_gate"] == "fail" for row in results) else "pass"
+    passive_wall_gate = "fail" if source_wall_gate == "fail" or phase_wall_gate == "fail" else "pass"
+    return {"four_chamber_gate": "pass", "passive_outer_heart_gate": passive_wall_gate,
+            "overall_geometry_gate": "pass" if passive_wall_gate == "pass" else "unqualified",
+            "source_q0_passive_outer_heart_gate": source_wall_gate,
+            "source_q0_passive_outer_heart_audit_complete": source_wall_audit_complete,
+            "source_q0_passive_outer_heart_self_audits": source_wall_surface_reports,
+            "source_q0_passive_outer_heart_relations": source_wall_relations,
+            "source_q0_passive_outer_heart_unqualified_pairs": source_unqualified_pairs,
+            "phases": results}
 
 
 def signed_volume(points: np.ndarray, faces: np.ndarray) -> float:
@@ -616,8 +828,19 @@ def compile_binding(input_path: Path, receipt_path: Path, output_path: Path, out
             {"stable_id": 24, "source_member": "FJ2438", "fma_id": "FMA7088",
              "source_sha256": source_map["24"]["source_sha256"]},
         ],
-        "cavity_motion": "source-centroid radial dilation; RA/RV use a 2-degree cosine taper in direction from exactly shared RA/RV interface vertices, LA/LV use unit free-wall weights; positive radius and exact accepted-phase embedding are required",
-        "passive_outer_heart_motion": "presentation-only closest-cavity-surface displacement driven by the corresponding accepted CVSim chamber q; no myocardium constitutive mechanics",
+        "cavity_motion": "source-centroid radial free-wall dilation using the explicit inferred registration parameters below; positive radius and exact accepted-phase embedding are required",
+        "cavity_motion_parameters": {
+            "model": CARDIAC_MOTION_MODEL,
+            "ra_rv_taper_degrees": RA_RV_TAPER_DEGREES,
+            "ra_center_offset_m": RA_CENTER_OFFSET_M,
+            "ra_center_offset_direction": "unit(source_RA_centroid - source_RV_centroid)",
+            "left_center_offsets_m": [LEFT_ATRIUM_CENTER_OFFSET_M, LEFT_VENTRICLE_CENTER_OFFSET_M],
+            "left_center_offset_direction": "unit(source_LA_centroid - source_LV_centroid)",
+            "ra_rv_shared_interface_weight": 0.0,
+            "left_chamber_freewall_weight": 1.0,
+            "parameter_status": "inferred_reference_registration_not_measured_subject_geometry",
+        },
+        "passive_outer_heart_motion": "presentation-only closest-cavity-surface displacement driven by the corresponding accepted CVSim chamber q; exact-coordinate-quotiented source surfaces are audited for self/cavity intersections; no myocardium constitutive mechanics or enclosure claim is inferred from open source boundaries",
         "ownership_choice": "right atrium retains the exact source overlap; right ventricle retains its source-exclusive region and a reversed copy of the RA shared boundary",
         "source_overlap_triangle_pair_count": construction["source_intersecting_triangle_pair_count"],
         "source_overlap_volume_ml": shared_volume * 1e6,
@@ -694,14 +917,23 @@ def compile_binding(input_path: Path, receipt_path: Path, output_path: Path, out
         output_receipt_data["provenance"]["cardiac_geometry_binding"]["accepted_cycle_geometry_audit"] = {
             "accepted_trace_sha256": hashlib.sha256(phase_trace.read_bytes()).hexdigest(),
             "accepted_trace_row_count": len(source_rows),
-            "phase_sample_count": len(phase_audits),
+            "phase_sample_count": len(phase_audits["phases"]),
             "phase_selection": phase_selection,
             "sampling": ("initial accepted state and observed LV q maximum" if phase_selection == "initial-and-lv-max"
                          else "eight time-spaced accepted frames plus observed per-chamber q minima and maxima"),
-            "q_mapping": "same source-centroid radial dilation and 2-degree cosine direction taper from the exact shared RA/RV interface as the native presentation map; LA/LV use unit free-wall weights",
+            "q_mapping": "native FP32 cubic and 28-iteration bisection reconstructed from same-frame accepted chamber volume columns; geometry uses the receipt-bound inferred 20-degree/8mm/12mm/15mm source-centroid map",
             "dynamic_surface_source": "emitted FP32 NHANAT5 cavity vertices and faces",
             "predicate": "NumiLab exact cavity embeddedness, pair intersection and RA/RV shared-interface certificate",
-            "phases": phase_audits,
+            "four_chamber_gate": phase_audits["four_chamber_gate"],
+            "passive_outer_heart_gate": phase_audits["passive_outer_heart_gate"],
+            "source_q0_passive_outer_heart_gate": phase_audits["source_q0_passive_outer_heart_gate"],
+            "overall_geometry_gate": phase_audits["overall_geometry_gate"],
+            "source_q0_passive_outer_heart_audit_complete": phase_audits[
+                "source_q0_passive_outer_heart_audit_complete"],
+            "source_q0_passive_outer_heart_self_audits": phase_audits["source_q0_passive_outer_heart_self_audits"],
+            "source_q0_passive_outer_heart_relations": phase_audits["source_q0_passive_outer_heart_relations"],
+            "source_q0_passive_outer_heart_unqualified_pairs": phase_audits["source_q0_passive_outer_heart_unqualified_pairs"],
+            "phases": phase_audits["phases"],
         }
 
     output_receipt.write_text(json.dumps(output_receipt_data, sort_keys=True, separators=(",", ":")) + "\n")
@@ -721,7 +953,8 @@ def compile_binding(input_path: Path, receipt_path: Path, output_path: Path, out
         "right_ventricle_volume_before_ml": original_rv_volume * 1e6,
         "right_ventricle_volume_after_ml": new_rv_volume * 1e6,
         "four_cavity_embeddedness_audit": pair_audit,
-        "accepted_cycle_phase_count": len(phase_audits) if phase_audits is not None else 0,
+        "accepted_cycle_phase_count": len(phase_audits["phases"]) if phase_audits is not None else 0,
+        "accepted_cycle_outer_wall_gate": phase_audits["passive_outer_heart_gate"] if phase_audits is not None else "not_audited",
     }
 
 

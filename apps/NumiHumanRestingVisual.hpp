@@ -279,7 +279,8 @@ public:
                 require(instance.geometry.y==1,"functional anatomy audit requires one contiguous source surface");
                 const auto& p=pack.primitives.at(instance.geometry.x);
                 audits.push_back({{p.geometry.x,p.geometry.y,deformation,chamber},
-                    {functional.enclosedVolumes.at(instance.identity.w),0,0,0}});
+                    {functional.enclosedVolumes.at(instance.identity.w),
+                     deformation==1?functional.respiratorySweptAreas.at(instance.identity.w):0,0,0}});
             }
             const SoftTissueRecord* tissue=nullptr;
             if(tissues&&(instance.identity.x==kMuscleSurfaceSemantic||instance.identity.x==kTendonSurfaceSemantic)) {
@@ -351,6 +352,12 @@ public:
                 p=addPoint(p,scalePoint(point,w.positionAndWeight.w));n=addPoint(n,scalePoint(normal,w.positionAndWeight.w));
             }
             p.w=1;pack.vertices[v].position=p;
+            if(maps[v].deformationKind==1||maps[v].deformationKind==3||maps[v].deformationKind==4) {
+                const auto local=rotatePoint(inverseRotation(initialThorax.orientation),subtractPoint(p,initialThorax.position));
+                const auto& axis=functional.gpu.superiorAxisAndHeight;
+                const auto b=functional.respiratoryBasis.evaluate({local.x,local.y,local.z},{axis.x,axis.y,axis.z});
+                maps[v].respiratoryBasis={float(b[0]),float(b[1]),float(b[2]),float(b[3])};
+            }
             if(maps[v].deformationKind==3) {
                 const auto& torso=initialBodies.at(functional.gpu.bodyAndFlags.x);
                 const auto local=rotatePoint(inverseRotation(torso.orientation),subtractPoint(p,torso.position));
@@ -363,7 +370,7 @@ public:
                     posteriorSkin=std::min(posteriorSkin,ap);anteriorSkin=std::max(anteriorSkin,ap);
                 }
             }
-            if(maps[v].deformationKind==7||maps[v].deformationKind==4) {
+            if(maps[v].deformationKind==7) {
                 const auto local=rotatePoint(inverseRotation(initialThorax.orientation),subtractPoint(p,initialThorax.position));
                 std::array<std::pair<float,unsigned>,24> distance;
                 for(unsigned r=0;r<24;++r) {
@@ -389,7 +396,7 @@ public:
             "registered skin has no usable anterior/posterior thorax extent");
         // Supine reduction: the dorsal support strip stays with its contact
         // owner. The chest expands toward the anterior surface; all five lung
-        // lobes still share a single volume-preserving-interface affine map.
+        // lobes, pleura and diaphragm share the same basal motion field.
         anatomyGPU.lungAnchorAndVolume=addPoint(anatomyGPU.lungAnchorAndVolume,
             scalePoint(anatomyGPU.anteriorAxis,posteriorSkin-dotPoint(anatomyGPU.lungAnchorAndVolume,anatomyGPU.anteriorAxis)));
         anatomyGPU.lungAnchorAndVolume.w=functional.gpu.lungAnchorAndVolume.w;

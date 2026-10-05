@@ -18,6 +18,30 @@ struct NumiHumanRestingAnatomy {
     std::map<unsigned,unsigned> ribs;
     std::array<unsigned,4> cavities{};
     std::map<unsigned,float> enclosedVolumes;
+    std::map<unsigned,float> respiratorySweptAreas;
+    struct RespiratoryBasis {
+        double start=0,span=0;
+        std::array<double,4> rim{};
+        std::array<std::array<double,4>,2> crura{};
+        std::array<double,2> rimTransition{},cruralTransition{};
+        // xyz are the source-space gradient; w is the scalar basal weight.
+        std::array<double,4> evaluate(const std::array<double,3>& p,const std::array<double,3>& axis) const {
+            const auto ellipse=[&](const auto& e,const auto& transition,bool inward) {
+                const double x=(p[0]-e[0])/e[2],z=(p[2]-e[1])/e[3],r=std::sqrt(x*x+z*z);
+                const double t=std::clamp((r-transition[0])/transition[1],0.0,1.0);
+                const double s=t*t*(3-2*t),d=6*t*(1-t)/transition[1]*(inward?-1:1);
+                return std::array<double,3>{r>0?d*x/(e[2]*r):0,r>0?d*z/(e[3]*r):0,inward?1-s:s};
+            };
+            const auto r=ellipse(rim,rimTransition,true),a=ellipse(crura[0],cruralTransition,false),
+                b=ellipse(crura[1],cruralTransition,false);
+            const double w=r[2]*a[2]*b[2];
+            const double wx=r[0]*a[2]*b[2]+r[2]*a[0]*b[2]+r[2]*a[2]*b[0];
+            const double wz=r[1]*a[2]*b[2]+r[2]*a[1]*b[2]+r[2]*a[2]*b[1];
+            const double height=p[0]*axis[0]+p[1]*axis[1]+p[2]*axis[2];
+            const double t=std::clamp((height-start)/span,0.0,1.0),g=1-t*t*(3-2*t),dg=-6*t*(1-t)/span;
+            return {g*wx+w*dg*axis[0],w*dg*axis[1],g*wz+w*dg*axis[2],g*w};
+        }
+    } respiratoryBasis;
     std::map<unsigned,std::vector<float>> cardiacFreewallWeights;
     struct CardiacWallBinding { unsigned chamber=0;mr_float4 displacementAndWeight{}; };
     std::map<unsigned,std::vector<CardiacWallBinding>> cardiacWallBindings;
@@ -25,6 +49,30 @@ struct NumiHumanRestingAnatomy {
     struct ClosedSurface { double volume=0;mr_float4 centroid{}; };
     static double smoothstep(double low,double high,double value) {
         const double t=std::clamp((value-low)/(high-low),0.0,1.0);return t*t*(3-2*t);
+    }
+    static double basalSweptArea(const LoadedTorsoAnatomy& anatomy,const TorsoAnatomyRecord& s,
+        mr_float4 superior,const RespiratoryBasis& basis) {
+        // Every vertex displacement is parallel to the superior axis. Hence
+        // the closed triangular-mesh volume is exactly linear in displacement;
+        // all quadratic/cubic determinant terms have parallel columns.
+        const auto& first=anatomy.vertices.at(s.firstVertex);
+        const std::array<double,3> origin{first.positionX,first.positionY,first.positionZ};
+        const std::array<double,3> axis{superior.x,superior.y,superior.z};
+        const auto determinant=[](const auto& a,const auto& b,const auto& c) {
+            return a[0]*(b[1]*c[2]-b[2]*c[1])+a[1]*(b[2]*c[0]-b[0]*c[2])+a[2]*(b[0]*c[1]-b[1]*c[0]);
+        };
+        double area=0;
+        for(unsigned i=s.firstIndex;i<s.firstIndex+s.indexCount;i+=3) {
+            std::array<std::array<double,3>,3> x,delta;
+            for(unsigned j=0;j<3;++j) {
+                const auto& v=anatomy.vertices.at(anatomy.indices.at(i+j));
+                x[j]={v.positionX,v.positionY,v.positionZ};
+                const double weight=basis.evaluate(x[j],axis)[3];
+                for(unsigned k=0;k<3;++k){delta[j][k]=-axis[k]*weight;x[j][k]-=origin[k];}
+            }
+            area+=(determinant(delta[0],x[1],x[2])+determinant(x[0],delta[1],x[2])+determinant(x[0],x[1],delta[2]))/6;
+        }
+        return area;
     }
 
     struct TriangleIndex {
@@ -267,6 +315,58 @@ struct NumiHumanRestingAnatomy {
         gpu.muscleAreas={physiology.geometry.z,physiology.geometry.w,0,0};
         require(totalVolume>physiology.lung.x&&top-inferior>.1f,
             "registered lung envelope cannot contain reference FRC; declared anatomy calibration is required");
+        NSDictionary* respiratoryBinding=bindings[@"respiratory_geometry_binding"];
+        require([respiratoryBinding isKindOfClass:NSDictionary.class]&&
+            [respiratoryBinding[@"lung_motion_model"] isEqual:@"basal_superior_sweep_v1"],
+            "resting anatomy requires the source-bound basal respiratory motion basis");
+        const auto respiratoryNumber=[&](NSString* key) {
+            id value=respiratoryBinding[key];
+            require([value isKindOfClass:NSNumber.class]&&std::isfinite([value doubleValue]),
+                "invalid respiratory geometry parameter: "+std::string(key.UTF8String));
+            return [value doubleValue];
+        };
+        const double blendStart=respiratoryNumber(@"basal_blend_start_m");
+        const double blendSpan=respiratoryNumber(@"basal_blend_span_m");
+        const double declaredArea=respiratoryNumber(@"diaphragm_effective_area_m2");
+        const auto parameterArray=[&](id values,auto& output) {
+            require([values isKindOfClass:NSArray.class]&&[values count]==output.size(),
+                "respiratory footprint parameter has wrong shape");
+            for(unsigned i=0;i<output.size();++i) {
+                id value=[values objectAtIndex:i];
+                require([value isKindOfClass:NSNumber.class]&&std::isfinite([value doubleValue]),
+                    "respiratory footprint parameter is not finite");
+                output[i]=[value doubleValue];
+            }
+        };
+        respiratoryBasis.start=blendStart;respiratoryBasis.span=blendSpan;
+        parameterArray(respiratoryBinding[@"footprint_rim_ellipse_m"],respiratoryBasis.rim);
+        parameterArray(respiratoryBinding[@"footprint_rim_transition"],respiratoryBasis.rimTransition);
+        parameterArray(respiratoryBinding[@"footprint_crural_transition"],respiratoryBasis.cruralTransition);
+        id crura=respiratoryBinding[@"footprint_crural_ellipses_m"];
+        require([crura isKindOfClass:NSArray.class]&&[crura count]==2,
+            "respiratory footprint requires both source crural regions");
+        for(unsigned i=0;i<2;++i)parameterArray([crura objectAtIndex:i],respiratoryBasis.crura[i]);
+        require(respiratoryBasis.rim[2]>0&&respiratoryBasis.rim[3]>0&&
+            respiratoryBasis.crura[0][2]>0&&respiratoryBasis.crura[0][3]>0&&
+            respiratoryBasis.crura[1][2]>0&&respiratoryBasis.crura[1][3]>0&&
+            respiratoryBasis.rimTransition[0]>=0&&respiratoryBasis.rimTransition[1]>0&&
+            respiratoryBasis.cruralTransition[0]>=0&&respiratoryBasis.cruralTransition[1]>0&&
+            [respiratoryBinding[@"parameter_status"] isEqual:@"inferred_reference_registration_not_measured_subject_geometry"],
+            "respiratory attachment footprint is invalid or lacks inferred-reference attribution");
+        require(blendSpan>0&&blendStart>=inferior&&blendStart+blendSpan<=top,
+            "basal respiratory blend is outside the registered lung envelope");
+        double sweptArea=0;
+        for(unsigned id:lungs) {
+            const double area=basalSweptArea(anatomy,surface(id),superior,respiratoryBasis);
+            require(std::isfinite(area)&&area>0,"respiratory basis does not expand a registered lobe");
+            respiratorySweptAreas[id]=float(area);sweptArea+=area;
+        }
+        require(sweptArea>0&&std::isfinite(sweptArea)&&
+            std::abs(declaredArea/sweptArea-1)<1e-6&&std::abs(double(physiology.geometry.z)/sweptArea-1)<1e-6,
+            "respiratory muscle area differs from the declared source-derived swept-volume basis");
+        gpu.lungBasalBlend={float(blendStart),float(blendSpan),float(sweptArea),0};
+        std::cout<<"resting_lung_motion=basal_superior_sweep_v1 blend_start_m="<<blendStart
+            <<" blend_span_m="<<blendSpan<<" effective_area_m2="<<sweptArea<<"\n";
         for(unsigned id:pleura)require(surface(id).layer==8,"functional pleural binding has wrong layer");
         float diaphragmLow=INFINITY,diaphragmHigh=-INFINITY;
         for(unsigned id:diaphragm) {
@@ -295,14 +395,60 @@ struct NumiHumanRestingAnatomy {
             [cardiacBinding[@"method"] isEqualToString:@"exact_source_face_arrangement_with_RA_priority"],
             "unsupported cardiac cavity ownership convention");
 
+        NSDictionary* motionParameters=cardiacBinding[@"cavity_motion_parameters"];
+        NSArray* leftOffsets=[motionParameters isKindOfClass:NSDictionary.class]?motionParameters[@"left_center_offsets_m"]:nil;
+        NSNumber* taper=[motionParameters isKindOfClass:NSDictionary.class]?motionParameters[@"ra_rv_taper_degrees"]:nil;
+        NSNumber* raOffset=[motionParameters isKindOfClass:NSDictionary.class]?motionParameters[@"ra_center_offset_m"]:nil;
+        NSNumber* interfaceWeight=[motionParameters isKindOfClass:NSDictionary.class]?motionParameters[@"ra_rv_shared_interface_weight"]:nil;
+        NSNumber* leftWeight=[motionParameters isKindOfClass:NSDictionary.class]?motionParameters[@"left_chamber_freewall_weight"]:nil;
+        NSString* motionModel=[motionParameters isKindOfClass:NSDictionary.class]?motionParameters[@"model"]:nil;
+        NSString* raDirection=[motionParameters isKindOfClass:NSDictionary.class]?motionParameters[@"ra_center_offset_direction"]:nil;
+        NSString* leftDirection=[motionParameters isKindOfClass:NSDictionary.class]?motionParameters[@"left_center_offset_direction"]:nil;
+        NSString* parameterStatus=[motionParameters isKindOfClass:NSDictionary.class]?motionParameters[@"parameter_status"]:nil;
+        require([motionModel isKindOfClass:NSString.class]&&[motionModel isEqualToString:@"source_centroid_radial_freewall_v2"]&&
+            [taper isKindOfClass:NSNumber.class]&&std::abs(taper.doubleValue-20.0)<1e-9&&
+            [raOffset isKindOfClass:NSNumber.class]&&std::abs(raOffset.doubleValue-.008)<1e-9&&
+            [leftOffsets isKindOfClass:NSArray.class]&&leftOffsets.count==2&&
+            [leftOffsets[0] isKindOfClass:NSNumber.class]&&[leftOffsets[1] isKindOfClass:NSNumber.class]&&
+            std::abs([leftOffsets[0] doubleValue]-.012)<1e-9&&std::abs([leftOffsets[1] doubleValue]-.015)<1e-9&&
+            [raDirection isKindOfClass:NSString.class]&&[raDirection isEqualToString:@"unit(source_RA_centroid - source_RV_centroid)"]&&
+            [leftDirection isKindOfClass:NSString.class]&&[leftDirection isEqualToString:@"unit(source_LA_centroid - source_LV_centroid)"]&&
+            [interfaceWeight isKindOfClass:NSNumber.class]&&interfaceWeight.doubleValue==0.0&&
+            [leftWeight isKindOfClass:NSNumber.class]&&leftWeight.doubleValue==1.0&&
+            [parameterStatus isKindOfClass:NSString.class]&&
+                [parameterStatus isEqualToString:@"inferred_reference_registration_not_measured_subject_geometry"],
+            "cardiac geometry receipt does not bind the admitted inferred motion map");
+        const double motionTaperDegrees=taper.doubleValue;
+        const double raCenterOffset=raOffset.doubleValue;
+        const std::array<double,2> leftCenterOffsets{{[leftOffsets[0] doubleValue],[leftOffsets[1] doubleValue]}};
+
+        const auto centerDifference=[&](unsigned first,unsigned second) {
+            const auto& a=gpu.chamberCenterAndVolume[first];const auto& b=gpu.chamberCenterAndVolume[second];
+            return std::array<double,3>{double(a.x)-b.x,double(a.y)-b.y,double(a.z)-b.z};
+        };
+        const auto offsetCenter=[&](unsigned chamber,const std::array<double,3>& direction,double distance) {
+            const double length=std::sqrt(direction[0]*direction[0]+direction[1]*direction[1]+direction[2]*direction[2]);
+            require(std::isfinite(length)&&length>1e-9,"cardiac inferred center offset direction is undefined");
+            auto& center=gpu.chamberCenterAndVolume[chamber];
+            center.x=float(double(center.x)+direction[0]*(distance/length));
+            center.y=float(double(center.y)+direction[1]*(distance/length));
+            center.z=float(double(center.z)+direction[2]*(distance/length));
+        };
+        offsetCenter(0,centerDifference(0,1),raCenterOffset);
+        const auto leftOffsetDirection=centerDifference(2,3);
+        offsetCenter(2,leftOffsetDirection,leftCenterOffsets[0]);
+        offsetCenter(3,leftOffsetDirection,leftCenterOffsets[1]);
+
         // Preserve chamber interfaces while deforming the free wall. The
         // registered RA-priority arrangement emits identical FP32 vertices
-        // on both sides of its inferred source-overlap cut. The RA/RV field
-        // depends only on each vertex's radial direction from that chamber's
-        // source centroid, with the exact shared-interface directions fixed
-        // and a 2 degree cosine taper. LA/LV have no shared cut and use unit
-        // free-wall weights. The positive radial scale preserves ray order;
-        // exact cycle geometry remains the admission authority.
+        // on both sides of its inferred source-overlap cut. This receipt's
+        // inferred reference registration offsets the RA origin 8 mm away
+        // from the RV source centroid and both left origins 12/15 mm along
+        // the source LA-minus-LV direction. These are geometry parameters,
+        // not measured subject landmarks. The RA/RV field uses a 20 degree
+        // cosine taper and pins exact shared-interface vertices; LA/LV keep
+        // unit free-wall weights. Positive radial scale and exact accepted-
+        // cycle geometry remain the admission authority.
         std::array<const TorsoAnatomyRecord*,4> cavityRecords{};
         std::array<std::unique_ptr<TriangleIndex>,4> cavityIndex;
         for(unsigned c=0;c<4;++c){
@@ -329,7 +475,7 @@ struct NumiHumanRestingAnatomy {
                 sharedInterfaceDirections[c].push_back(TriangleIndex::scale(direction,1.0/length));
             }
         }
-        const double interfaceCosine=std::cos(2.0*std::acos(-1.0)/180.0);
+        const double interfaceCosine=std::cos(motionTaperDegrees*std::acos(-1.0)/180.0);
         for(unsigned c=0;c<4;++c) {
             const auto& s=*cavityRecords[c];auto& weights=cardiacFreewallWeights[cavities[c]];weights.resize(s.vertexCount);
             if(c>=2)std::fill(weights.begin(),weights.end(),1.0f);

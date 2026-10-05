@@ -1,0 +1,5 @@
+{
+  "device": "Hardware:\n\n    Hardware Overview:\n\n      Model Name: Mac mini\n      Model Identifier: Mac16,11\n      Model Number: MCX44DH/A\n      Chip: Apple M4 Pro\n      Total Number of Cores: 12 (8 Performance and 4 Efficiency)\n      Memory: 24 GB\n      System Firmware Version: 18000.161.9\n      OS Loader Version: 18000.161.9\n      Activation Lock Status: Disabled\n",
+  "os": "ProductName:\t\tmacOS\nProductVersion:\t\t26.6\nBuildVersion:\t\t25G72\n",
+  "qualification": "Short engineering native runs and source-footprint sensitivities; known unresolved cardiac-wall and abdominal-organ interfaces prevent final anatomical acceptance."
+}

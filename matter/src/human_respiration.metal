@@ -82,42 +82,40 @@ kernel void nm_human_resting_skin(
                 const float3 radial=m.deformationWeight.xyz*rsqrt(radialSquared);
                 normal+=radial*dot(normal,radial)*(1.0f/scale-1.0f);
             }
-        } else if(m.deformationKind==5||m.deformationKind==7||m.deformationKind==4) {
+        } else if(m.deformationKind==5||m.deformationKind==7) {
             const float excursion=state.motion.y/anatomy.muscleAreas.y;
             const float4 rotation=restingRibRotation(anatomy,m.chamberIndex,excursion);
             float3 mapped=restingRibPoint(anatomy,m.chamberIndex,rotation,local);
             float3 mappedNormal=restingRotate(rotation,normal);
-            if(m.deformationKind==7||m.deformationKind==4) {
+            if(m.deformationKind==7) {
                 const uint other=uint(m.deformationWeight.y);
                 const float4 otherRotation=restingRibRotation(anatomy,other,excursion);
                 mapped=mix(mapped,restingRibPoint(anatomy,other,otherRotation,local),m.deformationWeight.z);
                 mappedNormal=mix(mappedNormal,restingRotate(otherRotation,normal),m.deformationWeight.z);
-            }
-            if(m.deformationKind==4) {
-                const float3 superior=anatomy.superiorAxisAndHeight.xyz;
-                const float span=anatomy.diaphragmHeight.y-anatomy.diaphragmHeight.x;
-                const float dome=clamp((dot(local,superior)-anatomy.diaphragmHeight.x)/span,0.0f,1.0f);
-                const float displacement=state.motion.x/anatomy.muscleAreas.x;
-                mapped=mix(mapped,local,dome)-superior*(displacement*dome);
-                const float3 along=dot(normal,superior)*superior;
-                mappedNormal=normal-along+along/(1-displacement/span);
             }
             local=mapped;normal=mappedNormal;
         } else if(m.deformationKind==6) {
             local+=anatomy.anteriorAxis.xyz*(state.motion.y/anatomy.muscleAreas.y);
         } else {
             const float3 axis=anatomy.superiorAxisAndHeight.xyz;
-            const float height=anatomy.superiorAxisAndHeight.w;
-            const float axial=1.0f+state.motion.x/(anatomy.muscleAreas.x*height);
-            const float determinant=1.0f+(state.motion.x+state.motion.y)/anatomy.lungAnchorAndVolume.w;
-            const float radial=sqrt(determinant/axial);
+            const float basalWeight=m.respiratoryBasis.w;
+            const float3 gradient=m.respiratoryBasis.xyz;
+            const float displacement=state.motion.x/anatomy.lungBasalBlend.z;
+            // This common superior-only field contributes exactly qD to the
+            // five closed lobe volumes. Radial expansion contributes only qR.
+            // Shared fissure vertices use the same map and remain shared.
+            const float afterDiaphragm=anatomy.lungAnchorAndVolume.w+state.motion.x;
+            const float radial=sqrt((afterDiaphragm+state.motion.y)/afterDiaphragm);
             const float3 offset=local-anatomy.lungAnchorAndVolume.xyz;
             const float3 along=dot(offset,axis)*axis,across=offset-along;
-            const float weight=m.deformationKind==1?1.0f:m.deformationWeight.x;
-            const float3 mapped=anatomy.lungAnchorAndVolume.xyz+axial*along+radial*across;
+            const float weight=m.deformationKind==3?m.deformationWeight.x:1.0f;
+            const float3 mapped=local-axis*(displacement*basalWeight)+(radial-1.0f)*across;
             local=mix(local,mapped,weight);
             const float3 normalAlong=dot(normal,axis)*axis;
-            normal=normalAlong/mix(1.0f,axial,weight)+(normal-normalAlong)/mix(1.0f,radial,weight);
+            const float axialJacobian=1.0f-weight*displacement*dot(gradient,axis);
+            normal=normalAlong/axialJacobian+
+                (normal-normalAlong+weight*displacement*dot(normal,axis)/axialJacobian*
+                 (gradient-dot(gradient,axis)*axis))/mix(1.0f,radial,weight);
         }
         p=body.position.xyz+restingRotate(body.orientation,local);
         n=restingRotate(body.orientation,normal);
@@ -160,8 +158,10 @@ kernel void nm_human_resting_audit_volumes(
         const float next=volume+y;compensation=(next-volume)-y;volume=next;
     }
     const auto state=respiration[0];
+    const float afterDiaphragm=anatomy.lungAnchorAndVolume.w+state.motion.x;
     const float expected=owner.z==2?state.chamberVolumes[owner.w]:
-        surface.reference.x*(1+(state.motion.x+state.motion.y)/anatomy.lungAnchorAndVolume.w);
+        (surface.reference.x+surface.reference.y*state.motion.x/anatomy.lungBasalBlend.z)*
+        (1+state.motion.y/afterDiaphragm);
     const float relative=abs(abs(volume)-expected)/expected;
     result[i]=float4(abs(volume),expected,relative,!isfinite(relative)||relative>2.e-4f?1.0f:0.0f);
 }

@@ -1,0 +1,122 @@
+{
+  "qualification": "reference attachment footprint sensitivity on original lung node set; final seam-refined geometry requires exact area recomputation; known static tissue interfaces remain unqualified",
+  "cases": {
+    "reference": {
+      "native": {
+        "simulated_s": 12.000000569969416,
+        "wall_s": 113.92461325,
+        "real_time_factor": 0.10533281814734988,
+        "accepted_steps": 6000,
+        "device": "Apple M4 Pro",
+        "world_fingerprint": "6434571789366693551",
+        "vascular_dense45": true,
+        "brain_control": true,
+        "body_source_fingerprint": "16817231104120952967",
+        "coupled_program_fingerprint": "8234892460119569896",
+        "whole_body_anatomy_qualified": false
+      },
+      "surface_trace": {
+        "displayed_accepted_frames": 189,
+        "minimum_full_skin_bed_gap_m": -0.000110551714897,
+        "maximum_rendered_functional_volume_relative_error": 1.09402515136e-06,
+        "displayed_state_lag_steps": 1,
+        "whole_body_interfaces_qualified": false
+      },
+      "footprint_area_m2": 0.019892110440066953,
+      "complete_breaths": {
+        "available": true,
+        "complete_breath_count": 1,
+        "method": "accepted_gpu_event_ledger",
+        "window_s": [
+          5.01800023834,
+          10.1800004835
+        ],
+        "events_between_retained_samples": 0,
+        "inspiratory_minute_ventilation_L_min": 6.2689079602275335,
+        "respiratory_rate_per_min": 11.623401230222191
+      },
+      "last_reported_tidal_ml": 539.335189387,
+      "final_PaO2_mmhg": 102.152954102,
+      "final_PaCO2_mmhg": 39.0287437439,
+      "peak_diaphragm_displacement_mm": 19.7776635865428
+    },
+    "narrow_footprint": {
+      "native": {
+        "simulated_s": 12.000000569969416,
+        "wall_s": 115.059867,
+        "real_time_factor": 0.1042935376413169,
+        "accepted_steps": 6000,
+        "device": "Apple M4 Pro",
+        "world_fingerprint": "6434571789366693551",
+        "vascular_dense45": true,
+        "brain_control": true,
+        "body_source_fingerprint": "18270668357966571199",
+        "coupled_program_fingerprint": "4920566307197347381",
+        "whole_body_anatomy_qualified": false
+      },
+      "surface_trace": {
+        "displayed_accepted_frames": 189,
+        "minimum_full_skin_bed_gap_m": -0.000110551714897,
+        "maximum_rendered_functional_volume_relative_error": 1.03316597233e-06,
+        "displayed_state_lag_steps": 1,
+        "whole_body_interfaces_qualified": false
+      },
+      "footprint_area_m2": 0.0177834195409856,
+      "complete_breaths": {
+        "available": true,
+        "complete_breath_count": 1,
+        "method": "accepted_gpu_event_ledger",
+        "window_s": [
+          5.01800023834,
+          10.1720004831
+        ],
+        "events_between_retained_samples": 0,
+        "inspiratory_minute_ventilation_L_min": 6.148190453789078,
+        "respiratory_rate_per_min": 11.641442986154525
+      },
+      "last_reported_tidal_ml": 528.129749,
+      "final_PaO2_mmhg": 101.989463806,
+      "final_PaCO2_mmhg": 39.1082687378,
+      "peak_diaphragm_displacement_mm": 21.227011236787067
+    },
+    "wide_footprint": {
+      "native": {
+        "simulated_s": 12.000000569969416,
+        "wall_s": 114.591382666,
+        "real_time_factor": 0.10471992126097186,
+        "accepted_steps": 6000,
+        "device": "Apple M4 Pro",
+        "world_fingerprint": "6434571789366693551",
+        "vascular_dense45": true,
+        "brain_control": true,
+        "body_source_fingerprint": "11264293163930119249",
+        "coupled_program_fingerprint": "4893259213073593268",
+        "whole_body_anatomy_qualified": false
+      },
+      "surface_trace": {
+        "displayed_accepted_frames": 189,
+        "minimum_full_skin_bed_gap_m": -0.000110551714897,
+        "maximum_rendered_functional_volume_relative_error": 1.21006939935e-06,
+        "displayed_state_lag_steps": 1,
+        "whole_body_interfaces_qualified": false
+      },
+      "footprint_area_m2": 0.020605141426020893,
+      "complete_breaths": {
+        "available": true,
+        "complete_breath_count": 1,
+        "method": "accepted_gpu_event_ledger",
+        "window_s": [
+          5.01800023834,
+          10.1820004836
+        ],
+        "events_between_retained_samples": 0,
+        "inspiratory_minute_ventilation_L_min": 6.300278698670342,
+        "respiratory_rate_per_min": 11.618899525629107
+      },
+      "last_reported_tidal_ml": 542.244175449,
+      "final_PaO2_mmhg": 102.194450378,
+      "final_PaCO2_mmhg": 39.0083961487,
+      "peak_diaphragm_displacement_mm": 19.30055469814841
+    }
+  }
+}
