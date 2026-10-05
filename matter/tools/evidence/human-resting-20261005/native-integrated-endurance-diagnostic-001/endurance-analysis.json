@@ -1,0 +1,246 @@
+{
+  "qualification": "integrated native endurance diagnostic; known diaphragm and myocardial wall interface defects remain unqualified",
+  "initialization_excluded_s": 10,
+  "observation_s": 310.0000151991844,
+  "native": {
+    "simulated_s": 320.0000151991844,
+    "wall_s": 3098.482929334,
+    "real_time_factor": 0.10327635249162612,
+    "accepted_steps": 160000,
+    "device": "Apple M4 Pro",
+    "world_fingerprint": "6434571789366693551",
+    "vascular_dense45": true,
+    "brain_control": true,
+    "body_source_fingerprint": "3948599545760792881",
+    "coupled_program_fingerprint": "6963354009060099692",
+    "whole_body_anatomy_qualified": false
+  },
+  "body_trace": {
+    "root_assistance_observed": false,
+    "maximum_contact_penetration_m": 0.000120462682389
+  },
+  "surface_trace": {
+    "displayed_accepted_frames": 5001,
+    "minimum_full_skin_bed_gap_m": -0.000110551714897,
+    "maximum_rendered_functional_volume_relative_error": 1.41997952596e-06,
+    "displayed_state_lag_steps": 1,
+    "whole_body_interfaces_qualified": false
+  },
+  "all_post_initialization": {
+    "mean_PaCO2_mmhg": 39.57675850344667,
+    "mean_PaO2_mmhg": 100.27124820089418,
+    "mean_SaO2": 0.9723849645114819,
+    "mean_lung_volume_ml": 2655.918418354142,
+    "inspiratory_minute_ventilation_L_min": 5.958913919696308,
+    "breaths_at_window_start": 1.0,
+    "breaths_at_window_end": 58.0,
+    "mean_tidal_volume_ml": 540.4886253286863,
+    "complete_fill_ejection_cycles_at_end": 373.0,
+    "last_LV_stroke_volume_ml": 70.0394448359,
+    "max_abs_blood_error_ml": 0.0996515154839,
+    "max_abs_O2_balance_error_STPD_ml": 0.000232830643654,
+    "max_abs_CO2_balance_error_STPD_ml": 0.000465661287308,
+    "accepted_samples": 4843.0
+  },
+  "late_complete_breaths": {
+    "available": true,
+    "complete_breath_count": 4,
+    "method": "accepted_gpu_event_ledger",
+    "window_s": [
+      293.454013938,
+      314.712014948
+    ],
+    "events_between_retained_samples": 0,
+    "inspiratory_minute_ventilation_L_min": 6.138549640044449,
+    "respiratory_rate_per_min": 11.289866807659925
+  },
+  "late_reference_comparison": {
+    "window_s": [
+      290,
+      320
+    ],
+    "accepted_sample_interval_s": [
+      290.048013777,
+      319.936015196
+    ],
+    "general_adult_resting_reference_comparisons": {
+      "mean_PaCO2_mmhg": {
+        "measured": 39.76393916464145,
+        "reference_bounds": [
+          35.0,
+          45.0
+        ],
+        "lower_bound_inclusive": true,
+        "within_reference_bounds": true,
+        "source": "https://aacn.s3-us-west-2.amazonaws.com/Courses/ecco/course-resources/resources/common-resources/Normal_Ranges.pdf",
+        "measurement_method": "mean of retained accepted samples"
+      },
+      "mean_PaO2_mmhg": {
+        "measured": 99.57070614741261,
+        "reference_bounds": [
+          80.0,
+          100.0
+        ],
+        "lower_bound_inclusive": true,
+        "within_reference_bounds": true,
+        "source": "https://aacn.s3-us-west-2.amazonaws.com/Courses/ecco/course-resources/resources/common-resources/Normal_Ranges.pdf",
+        "measurement_method": "mean of retained accepted samples"
+      },
+      "mean_aortic_pressure_mmhg": {
+        "measured": 89.10107740620599,
+        "reference_bounds": [
+          70.0,
+          105.0
+        ],
+        "lower_bound_inclusive": true,
+        "within_reference_bounds": true,
+        "source": "https://aacn.s3-us-west-2.amazonaws.com/Courses/ecco/course-resources/resources/common-resources/Normal_Ranges.pdf",
+        "measurement_method": "mean of retained accepted samples"
+      },
+      "mean_pulmonary_artery_pressure_mmhg": {
+        "measured": 14.759923174497862,
+        "reference_bounds": [
+          15.0,
+          20.0
+        ],
+        "lower_bound_inclusive": true,
+        "within_reference_bounds": false,
+        "source": "https://aacn.s3-us-west-2.amazonaws.com/Courses/ecco/course-resources/resources/common-resources/Normal_Ranges.pdf",
+        "measurement_method": "mean of retained accepted samples"
+      },
+      "mean_last_complete_LV_stroke_ml": {
+        "measured": 70.03726029176816,
+        "reference_bounds": [
+          50.0,
+          100.0
+        ],
+        "lower_bound_inclusive": true,
+        "within_reference_bounds": true,
+        "source": "https://aacn.s3-us-west-2.amazonaws.com/Courses/ecco/course-resources/resources/common-resources/Normal_Ranges.pdf",
+        "measurement_method": "mean of retained accepted samples"
+      },
+      "mean_SaO2_percent": {
+        "measured": 97.19046563164572,
+        "reference_bounds": [
+          95.0,
+          null
+        ],
+        "lower_bound_inclusive": false,
+        "within_reference_bounds": true,
+        "source": "https://aacn.s3-us-west-2.amazonaws.com/Courses/ecco/course-resources/resources/common-resources/Normal_Ranges.pdf",
+        "measurement_method": "mean of retained accepted samples"
+      },
+      "aortic_output_L_min": {
+        "measured": 4.8208953536921,
+        "reference_bounds": [
+          4.0,
+          8.0
+        ],
+        "lower_bound_inclusive": true,
+        "within_reference_bounds": true,
+        "source": "https://aacn.s3-us-west-2.amazonaws.com/Courses/ecco/course-resources/resources/common-resources/Normal_Ranges.pdf",
+        "measurement_method": "accepted cumulative forward flow difference / actual sample interval"
+      },
+      "pulmonary_output_L_min": {
+        "measured": 4.841491142663406,
+        "reference_bounds": [
+          4.0,
+          8.0
+        ],
+        "lower_bound_inclusive": true,
+        "within_reference_bounds": true,
+        "source": "https://aacn.s3-us-west-2.amazonaws.com/Courses/ecco/course-resources/resources/common-resources/Normal_Ranges.pdf",
+        "measurement_method": "accepted cumulative forward flow difference / actual sample interval"
+      },
+      "complete_heartbeat_rate_per_min": {
+        "measured": 69.90131246973611,
+        "reference_bounds": [
+          60.0,
+          100.0
+        ],
+        "lower_bound_inclusive": true,
+        "within_reference_bounds": true,
+        "source": "https://medlineplus.gov/ency/article/002341.htm",
+        "measurement_method": "accepted complete-cycle count between first/last retained cycle transitions; timing limited by retained cadence"
+      },
+      "complete_breath_rate_per_min": {
+        "measured": 11.289866807659925,
+        "reference_bounds": [
+          12.0,
+          18.0
+        ],
+        "lower_bound_inclusive": true,
+        "within_reference_bounds": false,
+        "source": "https://medlineplus.gov/ency/article/002341.htm",
+        "measurement_method": "accepted_gpu_event_ledger"
+      }
+    },
+    "supine_male_cohort_context": {
+      "source": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7253877/",
+      "source_location": "Table 2, men, supine",
+      "values": {
+        "tidal_volume_L": {
+          "measured": 0.5436719844959851,
+          "mean": 0.58,
+          "sd": 0.28
+        },
+        "minute_ventilation_L_min": {
+          "measured": 6.138549640044449,
+          "mean": 8.32,
+          "sd": 2.78
+        },
+        "breaths_per_min": {
+          "measured": 11.289866807659925,
+          "mean": 16.15,
+          "sd": 4.72
+        }
+      },
+      "scope": "Published cohort mean/SD, not normal bounds or a clinical gate. OEP chest-wall tidal volume is a related measurement, not identical to model airway volume."
+    },
+    "limitations": "General reference intervals depend on age, altitude and measurement method. Comparisons describe model outputs; they do not establish anatomical validity, numerical conservation, population generalization or clinical validation. Missing complete-cycle rates remain unavailable."
+  },
+  "final_trace": {
+    "time_s": 320.000015199,
+    "lung_volume_ml": 2500.0013411,
+    "airflow_ml_s": -6.21153128932e-06,
+    "PaO2_mmhg": 99.7354049683,
+    "PaCO2_mmhg": 39.6891899109,
+    "SaO2": 0.972026407719,
+    "oxygen_balance_error_stpd_ml": 0.000232830643654,
+    "co2_balance_error_stpd_ml": 0.000465661287308,
+    "breaths": 58.0,
+    "tidal_ml": 543.703557923,
+    "lv_mmhg": 108.154484345,
+    "rv_mmhg": 23.1849728142,
+    "aorta_mmhg": 105.421183784,
+    "pulmonary_artery_mmhg": 21.3245124636,
+    "lv_ml": 78.2498609624,
+    "rv_ml": 95.2757909545,
+    "blood_ml": 5150.09835362,
+    "blood_error_ml": 0.0996515154839,
+    "aortic_ejected_ml": 26183.2661927,
+    "pulmonary_ejected_ml": 26175.7913977,
+    "complete_filling_ejection_cycles": 373.0,
+    "last_lv_stroke_ml": 70.0394448359,
+    "inspired_volume_accum_ml": 31907.1258061,
+    "last_inspiration_step": 157356.0,
+    "last_inspiration_time_s": 314.712014948,
+    "last_inspiration_volume_accum_ml": 31363.3460217,
+    "last_complete_breath_inspired_ml": 543.7033833
+  },
+  "profile": {
+    "command_buffers": 5000,
+    "gpu_s": 2950.5199874583564,
+    "command_s": 2953.379911675,
+    "host_copy_s": 0.058484283,
+    "full_state_readbacks": 1.0
+  },
+  "sha256": {
+    "resting-coupled.csv": "63f3c448b9e40558625cdf96252eefcb0e04769ce64a4df7a95094e07cc83d49",
+    "resting-surface-audit.csv": "dcd6b55c77e44d68ce5d5a464ea43f13b61e21d7e9a88c66d394770d8fe121e4",
+    "native-viewer.mov": "a3072466a1aa389d5673f310240056e32b1b7a5b7f15a9b3f3c8a30483a04d74",
+    "run.log": "7f4e06a33779c6b7aa93d6f049a50d05b1fe152ff51f1ecf17c212e63b66d0d2",
+    "invocation.json": "87406b121545c48d9cdea0dfbe3a592d0fd4403f55f631bdd20f5a97d4eae549",
+    "source.diff": "0f74f989e261641ef23ce9fe48fc8f9282650ec813c3d015102152c1d1170aa9"
+  }
+}

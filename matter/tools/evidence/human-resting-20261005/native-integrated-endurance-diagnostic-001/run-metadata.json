@@ -1,0 +1,28 @@
+{
+  "exit_code": 0,
+  "wrapper_wall_s": 3101.1046997923404,
+  "runtime_inputs_unchanged": true,
+  "runtime_sha256_after": {
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/current-bone-registration-b1b410ad/bodyparts3d-myosim-major-bones.nhbones": "7d94e2f28ac6cea30c6c11a79919077acc40281636eb20b11b50b50aebd3ec49",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-joint-equalities.nheq": "0e3c593792a8c4ccd619f1999f6685b68e6ff0fd5ae5f6f0bca66b594a0e9b88",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-muscle-reference.nhmyo": "e5bb8a8168706bb3b23cf42b1d849659569ba2e6027bcc85729c3110fdbb8c4b",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/output/current-anatomy-20261005/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue": "9340447e7874366033f544ee8e56e9c09bdf4efecf52b0fa3b16d7b4d5489c33",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/output/skin-boundaries-001/bodyparts3d-myosim-skinned-shell.nhskin": "1de6422eed1a681fb5f37df1e5355c0474016634c342516753a1058c4d0f4334",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/output/supine-skin-boundaries-001/myosim-fullbody-resting-bed-support.nhcnt": "04704109e30d6b0de1620d349a0e610860cb665e9e35406e3a7685abd95695c6",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/output/tendon-current-source-owner-nhtendon2/numi-human-tendon-attachments.nhtendon": "52819336540a36621b60bd03b5084bd1d300ed2971673cfd0ccdb7eecfcb52b5",
+    "/Users/n/numi-human-resting-evidence-20261005/cardiac-geometry-binding-006/resting-anatomy-receipt.json": "46cffa5ac93c53512588697f9dc114ad965032673f8a34b1a8ff099b80673015",
+    "/Users/n/numi-human-resting-evidence-20261005/cardiac-geometry-binding-006/resting-thorax.nhanatomy": "9ec1c6cc617b0fba86f45eb005472e8ca8a7f984d2797b8710a55d5ecbe593e6",
+    "/Users/n/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json": "43ff6b49daf1d42cf9e88d85d8577f70e112dfcc3756ec43954e544a3e4bc0dc",
+    "/Users/n/numi-human-resting-integration-20261005/numi-lab/matter/examples/resting-reference-respiration.json": "27100bf8941fcd623bba1ea87474f6fe6a4b1ab4f89b3e6ec0df5e4f8d9551f3",
+    "/Users/n/numi-human-resting-cardiac-build-001/CMakeCache.txt": "5b2aa74bf2d625508325870fb2e7193a820d70baa15a6d34b48e5e965a951dd9",
+    "/Users/n/numi-human-resting-cardiac-build-001/bin/numi-human-native": "9cbdfc443b659f73304206f704162c43d82b2bd4adb333c0a23e198729b8fbe0",
+    "/Users/n/numi-human-resting-cardiac-build-001/compile_commands.json": "c6f64317d957f93c1b67c914e3d2ce95308b397bce49dac2123096996dc9ae81",
+    "/Users/n/numi-human-resting-cardiac-build-001/lib/libmetalrobo.dylib": "4443803d35e030a6712c0aa6951e898444df4b4ff4951d1040cfd9642cfcac26",
+    "/Users/n/numi-human-resting-cardiac-build-001/matter/shaders/HumanRespiration.metallib": "d85c37bc4fd5afddec9031e0ef4cff0bb45479f498b72b9a24fe895dd2c4b090",
+    "/Users/n/numi-human-resting-cardiac-build-001/matter/shaders/NumiMatter.metallib": "84abd9838ba425b4b35875a936aa2a9f221d2fead18e8f482f9a2102d63b3a8c",
+    "/Users/n/numi-human-resting-cardiac-build-001/matter/shaders/NumiMatterPhysicalStateDigest.metallib": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68",
+    "/Users/n/numi-human-resting-cardiac-build-001/shaders/MetalRobo.metallib": "e3f913bfe406008a6fc691289b738653c5a180eb80d1f5c82bd7750e0079e23e"
+  },
+  "completed_utc": "2026-10-05T08:07:55.540272+00:00"
+}

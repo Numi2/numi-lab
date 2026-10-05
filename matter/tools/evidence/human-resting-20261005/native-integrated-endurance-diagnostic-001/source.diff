@@ -1,0 +1,774 @@
+diff --git a/apps/NumiHumanRestingAnatomy.hpp b/apps/NumiHumanRestingAnatomy.hpp
+index a9fe419..ea30350 100644
+--- a/apps/NumiHumanRestingAnatomy.hpp
++++ b/apps/NumiHumanRestingAnatomy.hpp
+@@ -295,14 +295,60 @@ struct NumiHumanRestingAnatomy {
+             [cardiacBinding[@"method"] isEqualToString:@"exact_source_face_arrangement_with_RA_priority"],
+             "unsupported cardiac cavity ownership convention");
+ 
++        NSDictionary* motionParameters=cardiacBinding[@"cavity_motion_parameters"];
++        NSArray* leftOffsets=[motionParameters isKindOfClass:NSDictionary.class]?motionParameters[@"left_center_offsets_m"]:nil;
++        NSNumber* taper=[motionParameters isKindOfClass:NSDictionary.class]?motionParameters[@"ra_rv_taper_degrees"]:nil;
++        NSNumber* raOffset=[motionParameters isKindOfClass:NSDictionary.class]?motionParameters[@"ra_center_offset_m"]:nil;
++        NSNumber* interfaceWeight=[motionParameters isKindOfClass:NSDictionary.class]?motionParameters[@"ra_rv_shared_interface_weight"]:nil;
++        NSNumber* leftWeight=[motionParameters isKindOfClass:NSDictionary.class]?motionParameters[@"left_chamber_freewall_weight"]:nil;
++        NSString* motionModel=[motionParameters isKindOfClass:NSDictionary.class]?motionParameters[@"model"]:nil;
++        NSString* raDirection=[motionParameters isKindOfClass:NSDictionary.class]?motionParameters[@"ra_center_offset_direction"]:nil;
++        NSString* leftDirection=[motionParameters isKindOfClass:NSDictionary.class]?motionParameters[@"left_center_offset_direction"]:nil;
++        NSString* parameterStatus=[motionParameters isKindOfClass:NSDictionary.class]?motionParameters[@"parameter_status"]:nil;
++        require([motionModel isKindOfClass:NSString.class]&&[motionModel isEqualToString:@"source_centroid_radial_freewall_v2"]&&
++            [taper isKindOfClass:NSNumber.class]&&std::abs(taper.doubleValue-20.0)<1e-9&&
++            [raOffset isKindOfClass:NSNumber.class]&&std::abs(raOffset.doubleValue-.008)<1e-9&&
++            [leftOffsets isKindOfClass:NSArray.class]&&leftOffsets.count==2&&
++            [leftOffsets[0] isKindOfClass:NSNumber.class]&&[leftOffsets[1] isKindOfClass:NSNumber.class]&&
++            std::abs([leftOffsets[0] doubleValue]-.012)<1e-9&&std::abs([leftOffsets[1] doubleValue]-.015)<1e-9&&
++            [raDirection isKindOfClass:NSString.class]&&[raDirection isEqualToString:@"unit(source_RA_centroid - source_RV_centroid)"]&&
++            [leftDirection isKindOfClass:NSString.class]&&[leftDirection isEqualToString:@"unit(source_LA_centroid - source_LV_centroid)"]&&
++            [interfaceWeight isKindOfClass:NSNumber.class]&&interfaceWeight.doubleValue==0.0&&
++            [leftWeight isKindOfClass:NSNumber.class]&&leftWeight.doubleValue==1.0&&
++            [parameterStatus isKindOfClass:NSString.class]&&
++                [parameterStatus isEqualToString:@"inferred_reference_registration_not_measured_subject_geometry"],
++            "cardiac geometry receipt does not bind the admitted inferred motion map");
++        const double motionTaperDegrees=taper.doubleValue;
++        const double raCenterOffset=raOffset.doubleValue;
++        const std::array<double,2> leftCenterOffsets{{[leftOffsets[0] doubleValue],[leftOffsets[1] doubleValue]}};
++
++        const auto centerDifference=[&](unsigned first,unsigned second) {
++            const auto& a=gpu.chamberCenterAndVolume[first];const auto& b=gpu.chamberCenterAndVolume[second];
++            return std::array<double,3>{double(a.x)-b.x,double(a.y)-b.y,double(a.z)-b.z};
++        };
++        const auto offsetCenter=[&](unsigned chamber,const std::array<double,3>& direction,double distance) {
++            const double length=std::sqrt(direction[0]*direction[0]+direction[1]*direction[1]+direction[2]*direction[2]);
++            require(std::isfinite(length)&&length>1e-9,"cardiac inferred center offset direction is undefined");
++            auto& center=gpu.chamberCenterAndVolume[chamber];
++            center.x=float(double(center.x)+direction[0]*(distance/length));
++            center.y=float(double(center.y)+direction[1]*(distance/length));
++            center.z=float(double(center.z)+direction[2]*(distance/length));
++        };
++        offsetCenter(0,centerDifference(0,1),raCenterOffset);
++        const auto leftOffsetDirection=centerDifference(2,3);
++        offsetCenter(2,leftOffsetDirection,leftCenterOffsets[0]);
++        offsetCenter(3,leftOffsetDirection,leftCenterOffsets[1]);
++
+         // Preserve chamber interfaces while deforming the free wall. The
+         // registered RA-priority arrangement emits identical FP32 vertices
+-        // on both sides of its inferred source-overlap cut. The RA/RV field
+-        // depends only on each vertex's radial direction from that chamber's
+-        // source centroid, with the exact shared-interface directions fixed
+-        // and a 2 degree cosine taper. LA/LV have no shared cut and use unit
+-        // free-wall weights. The positive radial scale preserves ray order;
+-        // exact cycle geometry remains the admission authority.
++        // on both sides of its inferred source-overlap cut. This receipt's
++        // inferred reference registration offsets the RA origin 8 mm away
++        // from the RV source centroid and both left origins 12/15 mm along
++        // the source LA-minus-LV direction. These are geometry parameters,
++        // not measured subject landmarks. The RA/RV field uses a 20 degree
++        // cosine taper and pins exact shared-interface vertices; LA/LV keep
++        // unit free-wall weights. Positive radial scale and exact accepted-
++        // cycle geometry remain the admission authority.
+         std::array<const TorsoAnatomyRecord*,4> cavityRecords{};
+         std::array<std::unique_ptr<TriangleIndex>,4> cavityIndex;
+         for(unsigned c=0;c<4;++c){
+@@ -329,7 +375,7 @@ struct NumiHumanRestingAnatomy {
+                 sharedInterfaceDirections[c].push_back(TriangleIndex::scale(direction,1.0/length));
+             }
+         }
+-        const double interfaceCosine=std::cos(2.0*std::acos(-1.0)/180.0);
++        const double interfaceCosine=std::cos(motionTaperDegrees*std::acos(-1.0)/180.0);
+         for(unsigned c=0;c<4;++c) {
+             const auto& s=*cavityRecords[c];auto& weights=cardiacFreewallWeights[cavities[c]];weights.resize(s.vertexCount);
+             if(c>=2)std::fill(weights.begin(),weights.end(),1.0f);
+diff --git a/apps/NumiHumanRestingVisual.hpp b/apps/NumiHumanRestingVisual.hpp
+index 9e7fe73..38aaa3e 100644
+--- a/apps/NumiHumanRestingVisual.hpp
++++ b/apps/NumiHumanRestingVisual.hpp
+@@ -1,6 +1,10 @@
+ #pragma once
+ #include "NumiHumanRestingAnatomy.hpp"
+ #include "NumiHumanRestingSupportGeometry.hpp"
++#include <charconv>
++#include <filesystem>
++#include <set>
++#include <string_view>
+ // Included after the existing Human source loaders and visual-pack compiler.
+ // It adds a persistent presentation consumer, not another dynamics owner.
+ class NumiHumanRestingVisual {
+@@ -10,22 +14,129 @@ class NumiHumanRestingVisual {
+     metalrobo::MetalWorldFamilyContext worlds;
+     id<MTLBuffer> mapping, influences, anatomyParameters, surfaceAudits, volumeResults, instanceLayers, cardiacQ;
+     id<MTLComputePipelineState> skinPipeline, layerPipeline, volumePipeline, skinAuditPipeline, cardiacQPipeline;
++    id<MTLComputePipelineState> vertexCapturePipeline=nil;
++    id<MTLBuffer> vertexCaptureBuffer=nil;
+     id<MTLCommandQueue> queue;
+     NumiHumanRestingWindow* window=nil;
+     unsigned dimension,layer=0;
+     bool complete=false;
+     unsigned auditCount=0;
+     double wallOrigin=0;
++    std::filesystem::path initialPackPath, acceptedGeometryDirectory;
++    std::string initialPackContentHash, initialPackFileSHA256;
++    std::set<unsigned> requestedGeometrySteps, completedGeometrySteps;
++    bool captureThisFrame=false, captureKernelEncoded=false;
++    unsigned captureStep=0,captureCamera=0,captureLayer=0;
++    std::uint64_t captureRootFingerprint=0,captureTransactionFingerprint=0,captureTimestampMicroseconds=0;
+     std::ofstream surfaceTrace;
+     static mr_float4 inverseRotation(mr_float4 q){return {-q.x,-q.y,-q.z,q.w};}
++    static std::set<unsigned> geometryExportStepsFromEnvironment() {
++        const char* requested=std::getenv("NUMI_HUMAN_RESTING_EXPORT_MRV_STEPS");
++        if(!requested||!*requested)return {};
++        std::set<unsigned> steps;std::string_view remaining(requested);
++        while(!remaining.empty()) {
++            const auto separator=remaining.find(',');const auto token=remaining.substr(0,separator);
++            require(!token.empty(),"accepted geometry step selection contains an empty value");
++            unsigned step=0;const auto parsed=std::from_chars(token.data(),token.data()+token.size(),step);
++            require(parsed.ec==std::errc{}&&parsed.ptr==token.data()+token.size(),
++                "accepted geometry steps must be comma-separated unsigned physical step IDs");
++            require(steps.insert(step).second,"accepted geometry step selection contains a duplicate");
++            require(steps.size()<=8,"accepted geometry export is limited to eight explicitly selected frames");
++            if(separator==std::string_view::npos)break;
++            require(separator+1<remaining.size(),"accepted geometry step selection ends with an empty value");
++            remaining.remove_prefix(separator+1);
++        }
++        return steps;
++    }
++    void exportAcceptedGeometry(unsigned step,double time,std::uint64_t root,std::uint64_t transaction,
++                                std::uint64_t timestamp) {
++        require(vertexCaptureBuffer&&vertexCaptureBuffer.contents,"accepted geometry staging buffer is unavailable");
++        metalrobo::VisualAssetPackV2 pack;std::string error;
++        require(metalrobo::readVisualAssetPack(initialPackPath,pack,&error),error);
++        require(pack.contentHash==initialPackContentHash&&pack.vertices.size()==renderer->layout().meshVertexCount,
++            "accepted geometry base pack differs from the compiled renderer topology");
++        const std::size_t vertexBytes=pack.vertices.size()*sizeof(MRVisualVertexGPUV2);
++        require(vertexCaptureBuffer.length>=vertexBytes,"accepted geometry staging buffer is undersized");
++        std::memcpy(pack.vertices.data(),vertexCaptureBuffer.contents,vertexBytes);
++        for(const auto& vertex:pack.vertices)require(
++            std::isfinite(vertex.position.x)&&std::isfinite(vertex.position.y)&&std::isfinite(vertex.position.z)&&
++            std::isfinite(vertex.normalAndTangentSign.x)&&std::isfinite(vertex.normalAndTangentSign.y)&&
++            std::isfinite(vertex.normalAndTangentSign.z)&&std::isfinite(vertex.tangent.x)&&
++            std::isfinite(vertex.tangent.y)&&std::isfinite(vertex.tangent.z),
++            "accepted geometry copy contains non-finite rendered vertices");
++        for(auto& primitive:pack.primitives) {
++            require(primitive.geometry.x<=pack.indices.size()&&
++                primitive.geometry.y<=pack.indices.size()-primitive.geometry.x,
++                "accepted geometry primitive index span is invalid");
++            mr_float4 lo{INFINITY,INFINITY,INFINITY,1},hi{-INFINITY,-INFINITY,-INFINITY,1};
++            for(unsigned j=primitive.geometry.x;j<primitive.geometry.x+primitive.geometry.y;++j) {
++                const unsigned index=pack.indices[j];require(index<pack.vertices.size(),
++                    "accepted geometry pack has an out-of-range vertex index");
++                const auto p=pack.vertices[index].position;
++                lo.x=std::min(lo.x,p.x);lo.y=std::min(lo.y,p.y);lo.z=std::min(lo.z,p.z);
++                hi.x=std::max(hi.x,p.x);hi.y=std::max(hi.y,p.y);hi.z=std::max(hi.z,p.z);
++            }
++            primitive.boundsMinimum=lo;primitive.boundsMaximum=hi;
++        }
++        std::ostringstream rootHexStream;rootHexStream<<"0x"<<std::hex<<std::setw(16)<<std::setfill('0')<<root;
++        const auto rootHex=rootHexStream.str();
++        pack.preprocessingProvenance+="/accepted_native_render_step_"+std::to_string(step)+"_root_"+rootHex;
++        pack.contentHash=metalrobo::computeVisualAssetPackContentHash(pack);
++        std::filesystem::create_directories(acceptedGeometryDirectory);
++        const auto packPath=acceptedGeometryDirectory/("step-"+std::to_string(step)+".mrvpack");
++        const auto receiptPath=acceptedGeometryDirectory/("step-"+std::to_string(step)+".receipt.json");
++        require(!std::filesystem::exists(packPath)&&!std::filesystem::exists(receiptPath),
++            "refusing to overwrite accepted geometry evidence");
++        require(metalrobo::writeVisualAssetPack(pack,packPath,&error),error);
++        const auto packSHA=loadedKneeSHA256Hex(loadedKneeFileSHA256(packPath));
++        const auto vertexSHA=loadedKneeSHA256Hex(loadedKneeSHA256(vertexCaptureBuffer.contents,vertexBytes));
++        const auto bodySHA=loadedKneeSHA256Hex(loadedKneeSHA256(coupled.presentationBodies.contents,
++            coupled.presentationBodies.length));
++        const auto respirationSHA=loadedKneeSHA256Hex(loadedKneeSHA256(coupled.presentationRespiration.contents,
++            coupled.presentationRespiration.length));
++        NSError* jsonError=nil;
++        NSDictionary* receipt=@{
++            @"schema":@"numi.human.accepted-render-geometry.v1",
++            @"accepted_step":@(step),@"accepted_time_s":@(time),
++            @"accepted_root_fingerprint":@(root),@"accepted_root_fingerprint_hex":loadedKneeNSString(rootHex),
++            @"accepted_transaction_fingerprint":@(transaction),
++            @"accepted_timestamp_microseconds":@(timestamp),
++            @"camera_index":@(captureCamera),@"anatomy_layer_index":@(captureLayer),
++            @"accepted_body_state_sha256":loadedKneeNSString(bodySHA),
++            @"accepted_respiration_state_sha256":loadedKneeNSString(respirationSHA),
++            @"captured_vertex_buffer_sha256":loadedKneeNSString(vertexSHA),
++            @"base_pack_content_hash":loadedKneeNSString(initialPackContentHash),
++            @"base_pack_file_sha256":loadedKneeNSString(initialPackFileSHA256),
++            @"pack_content_hash":loadedKneeNSString(pack.contentHash),@"pack_file_sha256":loadedKneeNSString(packSHA),
++            @"source_pack_path":loadedKneeNSString(initialPackPath.string()),
++            @"accepted_pack_path":loadedKneeNSString(packPath.string()),
++            @"vertex_count":@(pack.vertices.size()),@"index_count":@(pack.indices.size()),
++            @"primitive_count":@(pack.primitives.size()),@"instance_count":@(pack.instances.size()),
++            @"position_normal_tangent_source":@"accepted-state renderer mesh buffer copied on the same Metal command buffer"
++        };
++        NSData* json=[NSJSONSerialization dataWithJSONObject:receipt
++            options:NSJSONWritingPrettyPrinted|NSJSONWritingSortedKeys error:&jsonError];
++        require(json!=nil,"accepted geometry receipt JSON serialization failed");
++        require([json writeToURL:[NSURL fileURLWithPath:loadedKneeNSString(receiptPath.string())]
++            options:NSDataWritingAtomic error:&jsonError],"accepted geometry receipt write failed");
++        completedGeometrySteps.insert(step);
++        const auto receiptSHA=loadedKneeSHA256Hex(loadedKneeFileSHA256(receiptPath));
++        std::cout<<"accepted_geometry_export="<<packPath.string()<<" receipt="<<receiptPath.string()
++            <<" accepted_root="<<rootHex
++            <<" pack_sha256="<<packSHA<<" receipt_sha256="<<receiptSHA<<"\n";
++    }
+ public:
+     NumiHumanRestingVisual(NumiHumanRestingCoupling& owner,metalrobo::VisualAssetPackV2 pack,
+         const metalrobo::EngineModel& model,const LoadedSkin& skin,const LoadedSoftTissues* tissues,
+         const std::vector<MRBodyStateGPU>& initialBodies,const std::vector<MRBodyStateGPU>& restBodies,
+         const LoadedSupportContacts& support,const NumiHumanRestingAnatomy& functional,
+         const std::filesystem::path& output,unsigned size,const std::string& movie,bool presentWindow=true):
+-        coupled(owner),dimension(size),surfaceTrace(output/"resting-surface-audit.csv") {
++        coupled(owner),dimension(size),acceptedGeometryDirectory(output/"accepted-geometry"),
++        surfaceTrace(output/"resting-surface-audit.csv") {
+         require(surfaceTrace.good(),"resting surface audit output unavailable");
++        requestedGeometrySteps=geometryExportStepsFromEnvironment();
++        require(requestedGeometrySteps.empty()||presentWindow,
++            "accepted MRVPack export requires the native viewer path");
+         surfaceTrace<<"time_s,step,min_skin_bed_gap_m,vertices_below_1mm,nonfinite_skin_vertices,max_functional_volume_relative_error,q_ra,q_rv,q_la,q_lv,ra_target_ml,rv_target_ml,la_target_ml,lv_target_ml,diaphragm_swept_ml,rib_swept_ml,lung_target_ml\n";
+         require(initialBodies.size()*sizeof(MRBodyStateGPU)==coupled.presentationBodies.length,
+             "initial native frame does not match the body owner");
+@@ -298,6 +409,8 @@ public:
+         pack.contentHash=metalrobo::computeVisualAssetPackContentHash(pack);
+         const auto packPath=output/"resting-human.mrvpack";std::string error;
+         require(metalrobo::writeVisualAssetPack(pack,packPath,&error),error);
++        initialPackPath=packPath;initialPackContentHash=pack.contentHash;
++        initialPackFileSHA256=loadedKneeSHA256Hex(loadedKneeFileSHA256(packPath));
+         const float distance=framing.distance;
+         const auto c=framing.center;
+         const auto& thorax=initialBodies.at(functional.gpu.bodyAndFlags.x);
+@@ -379,7 +492,14 @@ public:
+         layerPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_layers"] error:&e];
+         volumePipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_audit_volumes"] error:&e];
+         skinAuditPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_audit_skin"] error:&e];
++        if(!requestedGeometrySteps.empty()) {
++            vertexCapturePipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_capture_vertices"] error:&e];
++            vertexCaptureBuffer=[device newBufferWithLength:maps.size()*sizeof(MRVisualVertexGPUV2) options:MTLResourceStorageModeShared];
++            vertexCaptureBuffer.label=@"Numi Human selected accepted render vertices";
++        }
+         require(mapping&&influences&&anatomyParameters&&surfaceAudits&&volumeResults&&instanceLayers&&cardiacQ&&skinPipeline&&cardiacQPipeline&&layerPipeline&&volumePipeline&&skinAuditPipeline,"resting GPU anatomy setup failed");
++        require(requestedGeometrySteps.empty()||(vertexCapturePipeline&&vertexCaptureBuffer),
++            "selected accepted geometry capture resources could not be created");
+         if(!presentWindow)return;
+         [NSApplication sharedApplication];[NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];[NSApp finishLaunching];
+         window=[[NumiHumanRestingWindow alloc] initWithAdvance:[this](unsigned camera,unsigned selectedLayer){return render(camera,selectedLayer);}
+@@ -411,18 +531,38 @@ public:
+         e.setBuffer(e.context,(__bridge void*)self.volumeResults,0,3);e.dispatchThreads(e.context,256,256);
+         e.setPipeline(e.context,(__bridge void*)self.layerPipeline);e.setBytes(e.context,&d,sizeof(d),0);
+         e.setBuffer(e.context,lease.meshInstances,0,1);e.setBuffer(e.context,(__bridge void*)self.instanceLayers,0,2);
+-        e.dispatchThreads(e.context,lease.meshInstanceCount,64);return true;
++        e.dispatchThreads(e.context,lease.meshInstanceCount,64);
++        if(self.captureThisFrame) {
++            if(!self.vertexCapturePipeline||!self.vertexCaptureBuffer||
++               lease.acceptedStateBuffer!=(__bridge void*)self.coupled.presentationRespiration||
++               lease.acceptedRootFingerprint!=self.captureRootFingerprint||
++               lease.acceptedTransactionFingerprint!=self.captureTransactionFingerprint||
++               lease.acceptedTimestampMicroseconds!=self.captureTimestampMicroseconds)return false;
++            const unsigned count=lease.meshVertexCount;
++            e.setPipeline(e.context,(__bridge void*)self.vertexCapturePipeline);
++            e.setBuffer(e.context,lease.meshVertices,0,0);
++            e.setBuffer(e.context,(__bridge void*)self.vertexCaptureBuffer,0,1);
++            e.setBytes(e.context,&count,sizeof(count),2);
++            e.dispatchThreads(e.context,count,64);self.captureKernelEncoded=true;
++        }
++        return true;
+     }
+     NumiHumanRestingFrame render(unsigned camera,unsigned selectedLayer) {
+         layer=selectedLayer;
+         const auto& p=*static_cast<const NMHumanRespirationState*>(coupled.presentationRespiration.contents);
+         const double time=p.status.x*double(coupled.physiology.runtime.timestepSeconds());
++        captureStep=p.status.x;captureCamera=camera;captureLayer=selectedLayer;
++        captureThisFrame=requestedGeometrySteps.contains(captureStep)&&
++            !completedGeometrySteps.contains(captureStep);captureKernelEncoded=false;
+         metalrobo::HybridDeviceStateBatch state;
+         state.currentBodyStates=(__bridge void*)coupled.presentationBodies;state.environmentCount=1;
+         state.bodyCount=unsigned(coupled.presentationBodies.length/sizeof(MRBodyStateGPU));state.frameIndex=p.status.x;
+         state.sensorSequence=p.status.x;state.captureTimestampSeconds=time;
+         state.acceptedRootFingerprint=coupled.brain.root(p.status.x);state.acceptedTransactionFingerprint=state.acceptedRootFingerprint;
+         state.acceptedTimestampMicroseconds=std::llround(time*1e6);
++        captureRootFingerprint=state.acceptedRootFingerprint;
++        captureTransactionFingerprint=state.acceptedTransactionFingerprint;
++        captureTimestampMicroseconds=state.acceptedTimestampMicroseconds;
+         const auto layout=renderer->layout();metalrobo::MetalHybridMeshDeformationRequest request;
+         request.context=this;request.encode=&deform;request.acceptedStateIsCommitted=true;
+         request.acceptedStateBuffer=(__bridge void*)coupled.presentationRespiration;request.acceptedStateByteCount=coupled.presentationRespiration.length;
+@@ -434,6 +574,12 @@ public:
+         auto cb=[queue commandBuffer];auto enc=[cb computeCommandEncoder];
+         auto result=renderer->encode(worlds,state,camera,(__bridge void*)enc);require(result.succeeded(),result.message);
+         [enc endEncoding];[cb commit];[cb waitUntilCompleted];require(cb.status==MTLCommandBufferStatusCompleted,"resting native renderer failed");
++        if(captureThisFrame) {
++            require(captureKernelEncoded,"selected accepted step did not encode its geometry snapshot");
++            exportAcceptedGeometry(captureStep,time,captureRootFingerprint,captureTransactionFingerprint,
++                captureTimestampMicroseconds);
++            captureThisFrame=false;
++        }
+         const auto* volumes=static_cast<const mr_float4*>(volumeResults.contents);
+         const auto* cardiacCoordinates=static_cast<const float*>(cardiacQ.contents);
+         float maxRelativeError=0;for(unsigned i=0;i<auditCount;++i)maxRelativeError=std::max(maxRelativeError,volumes[i].z);
+@@ -454,7 +600,11 @@ public:
+             <<"Mixed-source reference anatomy; passive structures remain inspection geometry.";
+         return {(__bridge id<MTLBuffer>)renderer->nativeBuffer(metalrobo::MetalHybridRendererBuffer::rgb),dimension,dimension,metrics.str(),time,complete};
+     }
+-    void present(bool finished=false){complete=finished;[window renderFrameNow];}
++    void present(bool finished=false){
++        complete=finished;[window renderFrameNow];
++        if(finished)for(unsigned step:requestedGeometrySteps)require(completedGeometrySteps.contains(step),
++            "requested accepted geometry step was not presented: "+std::to_string(step));
++    }
+     metalrobo::MetalNumiHumanSupportGeometryProgram supportProgram(){return skinSupport->program();}
+     ~NumiHumanRestingVisual(){[window finishRecording];}
+ };
+diff --git a/matter/include/numi/matter/human_respiration.h b/matter/include/numi/matter/human_respiration.h
+index 56e5cc1..c798a46 100644
+--- a/matter/include/numi/matter/human_respiration.h
++++ b/matter/include/numi/matter/human_respiration.h
+@@ -73,6 +73,14 @@ typedef struct NM_ALIGN16 NMHumanRespirationState {
+     // Compensated accepted-step ledgers separate global continuity residual,
+     // rounded physical volume delta, and endpoint summation rounding.
+     NMHumanBloodBalanceLedger bloodBalance;
++    // Accepted inspiration event step, prior event step, interval steps,
++    // reserved. Events use accepted airflow with 0.001 ml/s hysteresis;
++    // near-zero round-off sign chatter is not an additional breath.
++    nm_uint4 breathTiming;
++    // Last event cumulative inspiration, cumulative Kahan compensation,
++    // last complete event-interval inspiration, last event compensation (m3).
++    // Observer bookkeeping only; these fields do not drive physiology.
++    nm_float4 breathAccounting;
+ } NMHumanRespirationState;
+ 
+ typedef struct NM_ALIGN16 NMHumanRespirationDispatch {
+diff --git a/matter/src/human_respiration.metal b/matter/src/human_respiration.metal
+index 78f19de..5246945 100644
+--- a/matter/src/human_respiration.metal
++++ b/matter/src/human_respiration.metal
+@@ -518,13 +518,28 @@ kernel void nm_human_respiration_exchange(
+     if(any(abs(balance)>5.e-5f*n.gasBudget.xy)) n.status.w=7;
+     n.breath.x=max(n.breath.x,n.mechanics.x);
+     n.breath.y=min(n.breath.y,n.mechanics.x);
+-    const uint inspiration=n.mechanics.w>0;
++    const float inspiredAdjusted=dt*max(0.0f,n.mechanics.w)-n.breathAccounting.y;
++    const float inspiredNext=n.breath.w+inspiredAdjusted;
++    n.breathAccounting.y=(inspiredNext-n.breath.w)-inspiredAdjusted;
++    n.breath.w=inspiredNext;
++    // Breath observation only: a 0.001 ml/s Schmitt threshold excludes
++    // round-off sign chatter near zero flow (observed below 0.00001 ml/s).
++    // This does not clip airflow or alter mechanics, gas transport or control.
++    constexpr float breathFlowHysteresisM3PerS=1.e-9f;
++    const uint inspiration=n.mechanics.w>breathFlowHysteresisM3PerS ? 1u :
++        (n.mechanics.w < -breathFlowHysteresisM3PerS ? 0u : n.status.z);
+     if(inspiration&&!n.status.z && n.status.x>0) {
+         n.breath.z=n.breath.x-n.breath.y;
+         n.breath.xy=float2(n.mechanics.x);
++        n.breathTiming.y=n.breathTiming.x;
++        n.breathTiming.x=n.status.x+1u;
++        n.breathTiming.z=n.breathTiming.x-n.breathTiming.y;
++        n.breathAccounting.z=(n.breath.w-n.breathAccounting.x)-
++            (n.breathAccounting.y-n.breathAccounting.w);
++        n.breathAccounting.x=n.breath.w;
++        n.breathAccounting.w=n.breathAccounting.y;
+         ++n.status.y;
+     }
+-    n.breath.w+=dt*max(0.0f,n.mechanics.w);
+     n.status.z=inspiration;
+     ++n.status.x;
+     if(!all(isfinite(n.observation))||!all(isfinite(n.alveolarGas))||
+@@ -543,3 +558,14 @@ kernel void nm_human_respiration_resolve(
+     if(env<d.environmentCount && statuses[env].code==NM_STATUS_SUCCESS && !candidate[env].status.w)
+         accepted[env]=candidate[env];
+ }
++
++// Selected accepted-render snapshots only. The caller allocates the shared
++// destination only when explicit physical step IDs were requested, then
++// dispatches this after deformation on the same command buffer.
++kernel void nm_human_resting_capture_vertices(
++    device const MRVisualVertexGPUV2* source [[buffer(0)]],
++    device MRVisualVertexGPUV2* destination [[buffer(1)]],
++    constant uint& vertexCount [[buffer(2)]],
++    uint i [[thread_position_in_grid]]) {
++    if(i<vertexCount)destination[i]=source[i];
++}
+diff --git a/matter/tools/cardiac_geometry_binding.py b/matter/tools/cardiac_geometry_binding.py
+index 574e1a1..141eeb8 100644
+--- a/matter/tools/cardiac_geometry_binding.py
++++ b/matter/tools/cardiac_geometry_binding.py
+@@ -27,6 +27,11 @@ RECORD = struct.Struct("<8I")
+ VERTEX = struct.Struct("<6f")
+ U32 = struct.Struct("<I")
+ RA_ID, RV_ID, LA_ID, LV_ID = 318, 319, 320, 321
++CARDIAC_MOTION_MODEL = "source_centroid_radial_freewall_v2"
++RA_RV_TAPER_DEGREES = 20.0
++RA_CENTER_OFFSET_M = 0.008
++LEFT_ATRIUM_CENTER_OFFSET_M = 0.012
++LEFT_VENTRICLE_CENTER_OFFSET_M = 0.015
+ 
+ 
+ def require(condition: bool, message: str) -> None:
+@@ -177,7 +182,8 @@ class TriangleIndex:
+ def phase_rows(path: Path, phase_selection: str = "representative-cycle"):
+     with path.open(newline="") as stream:
+         rows = list(csv.DictReader(stream))
+-    required = {"time_s", "step", "q_ra", "q_rv", "q_la", "q_lv"}
++    required = {"time_s", "step", "q_ra", "q_rv", "q_la", "q_lv",
++                "ra_target_ml", "rv_target_ml", "la_target_ml", "lv_target_ml"}
+     require(len(rows) >= 8 and required.issubset(rows[0]),
+             "cardiac phase trace needs at least eight accepted rows with time, step and four q values")
+     q_names = ("q_ra", "q_rv", "q_la", "q_lv")
+@@ -185,7 +191,10 @@ def phase_rows(path: Path, phase_selection: str = "representative-cycle"):
+         row["time_s"] = float(row["time_s"])
+         row["step"] = int(float(row["step"]))
+         row["q"] = np.asarray([float(row[key]) for key in q_names], dtype=np.float32)
+-        require(np.isfinite(row["time_s"]) and np.all(np.isfinite(row["q"])),
++        volume_names = ("ra_target_ml", "rv_target_ml", "la_target_ml", "lv_target_ml")
++        row["target_volume_m3"] = np.asarray([float(row[key]) for key in volume_names], dtype=np.float32) * np.float32(1e-6)
++        require(np.isfinite(row["time_s"]) and np.all(np.isfinite(row["q"])) and
++                np.all(np.isfinite(row["target_volume_m3"])) and np.all(row["target_volume_m3"] > 0),
+                 "cardiac phase trace has nonfinite accepted coordinates")
+     if phase_selection == "initial-and-lv-max":
+         selected = {0, int(np.argmax([row["q"][3] for row in rows]))}
+@@ -212,35 +221,73 @@ def exact_large_surface_audits(surfaces, predicates):
+     for surface in surfaces:
+         name = surface["source_id"]
+         quotient = surface["exact_coordinate_quotient"]
+-        vertices = quotient["vertices_m"]
+-        faces = [[int(i) for i in face] for face in quotient["triangles"]]
++        raw_vertices = np.asarray(quotient["vertices_m"], dtype=np.float32)
++        raw_faces = np.asarray(quotient["triangles"], dtype=np.int64)
++        raw_topology = predicates.analyze_topology(raw_vertices.astype(float).tolist(), raw_faces.astype(int).tolist())
++        exact_ids, exact_vertices = {}, []
++        source_to_exact = []
++        for point in raw_vertices:
++            key = tuple(float(value) for value in point)
++            if key not in exact_ids:
++                exact_ids[key] = len(exact_vertices)
++                exact_vertices.append(point.copy())
++            source_to_exact.append(exact_ids[key])
++        exact_faces = np.asarray([[source_to_exact[int(i)] for i in face] for face in raw_faces], dtype=np.int64)
++        used = sorted(set(int(i) for i in exact_faces.reshape(-1)))
++        compact = {old: new for new, old in enumerate(used)}
++        vertices = np.asarray([exact_vertices[i] for i in used], dtype=np.float32).astype(float).tolist()
++        faces = [[compact[int(i)] for i in face] for face in exact_faces]
+         topology = predicates.analyze_topology(vertices, faces)
+-        require(topology["closed_oriented_manifold_candidate"] and not topology["unused_vertex_ids"] and
+-                topology["face_component_count"] == 1,
+-                f"passive-heart or cavity mesh {name} is not one closed oriented surface")
++        if int(name) in (RA_ID, RV_ID, LA_ID, LV_ID):
++            require(topology["closed_oriented_manifold_candidate"] and topology["face_component_count"] == 1,
++                    f"deformed cardiac cavity {name} lost closed connected topology after exact coordinate quotient")
+         rational = [tuple(Fraction.from_float(float(x)) for x in point) for point in vertices]
+         for point in rational:
+             for coordinate in point:
+                 denominator = max(denominator, coordinate.denominator)
+         vertices_by_id[name], faces_by_id[name] = vertices, faces
+-        rational_by_id[name], topology_by_id[name] = rational, topology
++        rational_by_id[name], topology_by_id[name] = rational, {
++            "raw": raw_topology,
++            "exact_coordinate_quotient": topology,
++            "exact_duplicate_vertex_count": len(raw_vertices) - len(exact_vertices),
++            "unused_source_vertex_count": len(raw_vertices) - len(set(int(i) for i in raw_faces.reshape(-1))),
++        }
+ 
+     records_by_id = {}
++    collision_face_counts = {}
+     for name in sorted(vertices_by_id):
+         integer = [tuple(x.numerator * (denominator // x.denominator) for x in point)
+                    for point in rational_by_id[name]]
+-        records_by_id[name] = predicates._records(integer, faces_by_id[name])
++        collision_faces = []
++        degenerate_count = 0
++        for face in faces_by_id[name]:
++            a, b, c = (integer[int(index)] for index in face)
++            if any(predicates._cross(predicates._sub(b, a), predicates._sub(c, a))):
++                collision_faces.append(face)
++            else:
++                degenerate_count += 1
++        require(int(name) not in (RA_ID, RV_ID, LA_ID, LV_ID) or degenerate_count == 0,
++                f"deformed cardiac cavity {name} contains an exact degenerate triangle")
++        collision_face_counts[name] = {"tested_nonzero_area_face_count": len(collision_faces),
++                                       "excluded_exact_zero_area_face_count": degenerate_count}
++        records_by_id[name] = predicates._records(integer, collision_faces)
+ 
+     surface_reports = {}
+     for name in sorted(records_by_id):
+         if int(name) not in (1, 23, 24):
+             continue
+         report = predicates._audit_pair(records_by_id[name], records_by_id[name], same_surface=True)
+-        surface_reports[name] = {"closed_connected_oriented": True,
++        topology = topology_by_id[name]
++        quotient_topology = topology["exact_coordinate_quotient"]
++        surface_reports[name] = {"raw_topology": topology["raw"],
++                                 "exact_coordinate_quotient_topology": quotient_topology,
++                                 "exact_duplicate_vertex_count": topology["exact_duplicate_vertex_count"],
++                                 "unused_source_vertex_count": topology["unused_source_vertex_count"],
++                                 **collision_face_counts[name],
++                                 "closed_connected_oriented": quotient_topology["closed_oriented_manifold_candidate"] and
++                                     quotient_topology["face_component_count"] == 1,
+                                  "self_intersection_triangle_pair_count": report["count"],
+                                  "aabb_candidate_pairs": report["aabb_candidate_pairs"]}
+-        require(report["count"] == 0,
+-                f"passive-heart surface {name} self-intersects in an accepted cardiac phase")
+ 
+     pair_reports = []
+     names = sorted(records_by_id)
+@@ -251,8 +298,15 @@ def exact_large_surface_audits(surfaces, predicates):
+             report = predicates._audit_pair(records_by_id[first], records_by_id[second], same_surface=False)
+             row = {"first": int(first), "second": int(second), "intersection_triangle_pair_count": report["count"],
+                    "aabb_candidate_pairs": report["aabb_candidate_pairs"]}
++            first_closed = topology_by_id[first]["exact_coordinate_quotient"]["closed_oriented_manifold_candidate"] and \
++                topology_by_id[first]["exact_coordinate_quotient"]["face_component_count"] == 1
++            second_closed = topology_by_id[second]["exact_coordinate_quotient"]["closed_oriented_manifold_candidate"] and \
++                topology_by_id[second]["exact_coordinate_quotient"]["face_component_count"] == 1
+             if report["count"]:
+                 row["relation"] = "intersecting_unclassified"
++            elif not first_closed or not second_closed:
++                row["relation"] = "nonintersecting_passive_surface_with_unclosed_source_topology"
++                row["containment"] = "unavailable_for_open_or_disconnected_or_nonmanifold_source_surface"
+             else:
+                 a = [tuple(x.numerator * (denominator // x.denominator) for x in point)
+                      for point in rational_by_id[first]]
+@@ -286,6 +340,23 @@ def audit_dynamic_phases(records, vertices, indices, rows, samples, interface_po
+     points = [row[0].astype(np.float32) for row in source]
+     faces = [row[1] for row in source]
+     centers = [closed_centroid(p, f) for p, f in zip(points, faces, strict=True)]
++
++    def shifted_center(chamber, from_chamber, away_from_chamber, distance):
++        direction = (centers[from_chamber].astype(np.float64) -
++                     centers[away_from_chamber].astype(np.float64))
++        length = float(np.linalg.norm(direction))
++        require(np.isfinite(length) and length > 1e-9, "cardiac registration offset has an undefined direction")
++        centers[chamber] = (centers[chamber].astype(np.float64) + direction * (distance / length)).astype(np.float32)
++
++    shifted_center(0, 0, 1, RA_CENTER_OFFSET_M)
++    left_direction = centers[2].astype(np.float64) - centers[3].astype(np.float64)
++    left_length = float(np.linalg.norm(left_direction))
++    require(np.isfinite(left_length) and left_length > 1e-9, "left cardiac registration offset has an undefined direction")
++    centers[2] = (centers[2].astype(np.float64) + left_direction *
++                  (LEFT_ATRIUM_CENTER_OFFSET_M / left_length)).astype(np.float32)
++    centers[3] = (centers[3].astype(np.float64) + left_direction *
++                  (LEFT_VENTRICLE_CENTER_OFFSET_M / left_length)).astype(np.float32)
++
+     indices_by_chamber = [TriangleIndex(p, f) for p, f in zip(points, faces, strict=True)]
+     weights = []
+     seam_points = np.unique(interface_points.astype(np.float32), axis=0).astype(np.float64)
+@@ -299,7 +370,7 @@ def audit_dynamic_phases(records, vertices, indices, rows, samples, interface_po
+             seam = seam_points - centers[chamber]
+             seam /= np.linalg.norm(seam, axis=1)[:, None]
+             nearest_direction_cosine = np.clip(radial @ seam.T, -1.0, 1.0).max(axis=1)
+-            interface_cosine = np.cos(np.radians(2.0))
++            interface_cosine = np.cos(np.radians(RA_RV_TAPER_DEGREES))
+             t = np.clip((1.0 - nearest_direction_cosine) / (1.0 - interface_cosine), 0.0, 1.0)
+             weight = (t * t * (3.0 - 2.0 * t)).astype(np.float32)
+             for vertex, point in enumerate(p):
+@@ -307,6 +378,49 @@ def audit_dynamic_phases(records, vertices, indices, rows, samples, interface_po
+                     weight[vertex] = 0.0
+         weights.append(weight)
+ 
++    # Match the native load-time cubic: evaluate the candidate's own source
++    # surface and free-wall weights at q = 0, 1, -1, 2, then cast its four
++    # coefficients to FP32 before solving the same accepted hydraulic target.
++    polynomials = []
++    for chamber in range(4):
++        center = centers[chamber].astype(np.float64)
++
++        def volume_at(q):
++            scale = 1.0 + float(q) * weights[chamber].astype(np.float64)
++            mapped = center + scale[:, None] * (points[chamber].astype(np.float64) - center)
++            tri = mapped[faces[chamber]] - center
++            volume = np.einsum("ij,ij->i", tri[:, 0],
++                               np.cross(tri[:, 1], tri[:, 2])).sum(dtype=np.float64) / 6.0
++            return abs(float(volume))
++
++        f0, f1, fm1, f2 = (volume_at(q) for q in (0.0, 1.0, -1.0, 2.0))
++        a2 = (f1 + fm1 - 2.0 * f0) / 2.0
++        s1 = (f1 - fm1) / 2.0
++        a3 = (f2 - f0 - 4.0 * a2 - 2.0 * s1) / 6.0
++        a1 = s1 - a3
++        coefficient = np.asarray((f0, a1, a2, a3), dtype=np.float32)
++        require(np.all(np.isfinite(coefficient)) and coefficient[0] > 0,
++                f"candidate chamber {ids[chamber]} has invalid native volume coefficients")
++        polynomials.append(coefficient)
++
++    def solve_native_q(chamber, target):
++        coefficient = polynomials[chamber]
++
++        def value(q):
++            return np.float32(np.float32(np.float32(np.float32(coefficient[3] * q + coefficient[2]) * q +
++                                   coefficient[1]) * q + coefficient[0]))
++
++        low, high = np.float32(-.999), np.float32(1.0)
++        require(value(low) <= target <= value(high),
++                f"candidate chamber {ids[chamber]} does not cover accepted volume {float(target)} m3")
++        for _ in range(28):
++            middle = np.float32(.5) * np.float32(low + high)
++            if value(middle) < target:
++                low = middle
++            else:
++                high = middle
++        return np.float32(.5) * np.float32(low + high)
++
+     wall_ids = (1, 23, 24)
+     wall_source = [surface_arrays(records, vertices, indices, stable_id, expected_layer=1)[1:]
+                    for stable_id in wall_ids]
+@@ -331,13 +445,32 @@ def audit_dynamic_phases(records, vertices, indices, rows, samples, interface_po
+             binding.append((chamber, delta, np.float32(falloff * freewall)))
+         wall_binding.append(binding)
+ 
++    source_surfaces = [{"source_id": str(stable_id), "exact_coordinate_quotient": {
++        "vertices_m": points[c].astype(np.float64).tolist(), "triangles": faces[c].tolist()}}
++        for c, stable_id in enumerate(ids)]
++    source_surfaces.extend({"source_id": str(stable_id), "exact_coordinate_quotient": {
++        "vertices_m": wall_points[i].astype(np.float64).tolist(), "triangles": wall_faces[i].tolist()}}
++        for i, stable_id in enumerate(wall_ids))
++    source_wall_surface_reports, source_wall_pair_reports = exact_large_surface_audits(source_surfaces, predicates)
++    source_wall_relations = [pair for pair in source_wall_pair_reports
++                             if int(pair["first"]) in wall_ids or int(pair["second"]) in wall_ids]
++    source_unqualified_pairs = [[pair["first"], pair["second"]] for pair in source_wall_relations
++        if pair["relation"] not in ("disjoint", "expected_cavity_enclosed_by_passive_outer_heart",
++                                     "expected_ventricular_cavity_enclosed_by_passive_ventricular_wall",
++                                     "nonintersecting_passive_surface_with_unclosed_source_topology")]
++    source_wall_gate = "fail" if source_unqualified_pairs or any(
++        report["self_intersection_triangle_pair_count"] for report in source_wall_surface_reports.values()) else "pass"
++
+     interface = interface_points[interface_faces].astype(np.float64).tolist()
+     results = []
+     for row in samples:
++        native_q = row["q"].copy()
++        q = np.asarray([solve_native_q(chamber, row["target_volume_m3"][chamber])
++                        for chamber in range(4)], dtype=np.float32)
+         deformed = []
+         for chamber in range(4):
+-            q = np.float32(row["q"][chamber])
+-            scale = np.float32(1.0) + q * weights[chamber]
++            chamber_q = q[chamber]
++            scale = np.float32(1.0) + chamber_q * weights[chamber]
+             mapped = centers[chamber] + scale[:, None] * (points[chamber] - centers[chamber])
+             # The registered RA/RV cut is an exact shared interface. Its
+             # zero-weight map is mathematically the identity; evaluate that
+@@ -353,7 +486,7 @@ def audit_dynamic_phases(records, vertices, indices, rows, samples, interface_po
+         for wall_index, stable_id in enumerate(wall_ids):
+             mapped = wall_points[wall_index].copy()
+             for vertex, (chamber, delta, weight) in enumerate(wall_binding[wall_index]):
+-                mapped[vertex] += delta * np.float32(row["q"][chamber]) * weight
++                mapped[vertex] += delta * q[chamber] * weight
+             mapped = mapped.astype(np.float32)
+             deformed_walls.append(mapped)
+             surfaces.append({"source_id": str(stable_id), "exact_coordinate_quotient": {
+@@ -398,17 +531,36 @@ def audit_dynamic_phases(records, vertices, indices, rows, samples, interface_po
+                           if int(pair["first"]) in wall_ids or int(pair["second"]) in wall_ids]
+         unqualified_wall_pairs = [[pair["first"], pair["second"]] for pair in wall_relations
+             if pair["relation"] not in ("disjoint", "expected_cavity_enclosed_by_passive_outer_heart",
+-                                         "expected_ventricular_cavity_enclosed_by_passive_ventricular_wall")]
+-        require(not unqualified_wall_pairs,
+-                f"passive outer-heart/cavity surfaces intersect or nest without a registered interface at frame {row['step']}: {unqualified_wall_pairs}")
++                                         "expected_ventricular_cavity_enclosed_by_passive_ventricular_wall",
++                                         "nonintersecting_passive_surface_with_unclosed_source_topology")]
++        wall_gate = "fail" if unqualified_wall_pairs or any(
++            report["self_intersection_triangle_pair_count"] for report in wall_surface_reports.values()) else "pass"
++        candidate_volume_m3 = np.asarray([
++            ((np.float64(polynomials[c][3]) * float(q[c]) + polynomials[c][2]) * float(q[c]) +
++             polynomials[c][1]) * float(q[c]) + polynomials[c][0] for c in range(4)], dtype=np.float64)
++        target_volume_m3 = row["target_volume_m3"].astype(np.float64)
+         results.append({"step": row["step"], "time_s": row["time_s"],
+-            "q": [float(x) for x in row["q"]],
++            "native_q": [float(x) for x in native_q],
++            "q": [float(x) for x in q],
++            "target_volume_ml": (target_volume_m3 * 1e6).tolist(),
++            "candidate_volume_ml": (candidate_volume_m3 * 1e6).tolist(),
++            "relative_volume_error": ((candidate_volume_m3 - target_volume_m3) / target_volume_m3).tolist(),
+             "embedded_chambers": [str(x) for x in ids],
+             "RA_RV_shared_interface": interface_audit,
+             "other_cavity_pair_audits": cavity_pairs,
+             "passive_outer_heart_self_audits": wall_surface_reports,
+-            "passive_outer_heart_relations": wall_relations})
+-    return results
++            "passive_outer_heart_relations": wall_relations,
++            "passive_outer_heart_unqualified_pairs": unqualified_wall_pairs,
++            "passive_outer_heart_gate": wall_gate})
++    phase_wall_gate = "fail" if any(row["passive_outer_heart_gate"] == "fail" for row in results) else "pass"
++    passive_wall_gate = "fail" if source_wall_gate == "fail" or phase_wall_gate == "fail" else "pass"
++    return {"four_chamber_gate": "pass", "passive_outer_heart_gate": passive_wall_gate,
++            "overall_geometry_gate": "pass" if passive_wall_gate == "pass" else "unqualified",
++            "source_q0_passive_outer_heart_gate": source_wall_gate,
++            "source_q0_passive_outer_heart_self_audits": source_wall_surface_reports,
++            "source_q0_passive_outer_heart_relations": source_wall_relations,
++            "source_q0_passive_outer_heart_unqualified_pairs": source_unqualified_pairs,
++            "phases": results}
+ 
+ 
+ def signed_volume(points: np.ndarray, faces: np.ndarray) -> float:
+@@ -616,8 +768,19 @@ def compile_binding(input_path: Path, receipt_path: Path, output_path: Path, out
+             {"stable_id": 24, "source_member": "FJ2438", "fma_id": "FMA7088",
+              "source_sha256": source_map["24"]["source_sha256"]},
+         ],
+-        "cavity_motion": "source-centroid radial dilation; RA/RV use a 2-degree cosine taper in direction from exactly shared RA/RV interface vertices, LA/LV use unit free-wall weights; positive radius and exact accepted-phase embedding are required",
+-        "passive_outer_heart_motion": "presentation-only closest-cavity-surface displacement driven by the corresponding accepted CVSim chamber q; no myocardium constitutive mechanics",
++        "cavity_motion": "source-centroid radial free-wall dilation using the explicit inferred registration parameters below; positive radius and exact accepted-phase embedding are required",
++        "cavity_motion_parameters": {
++            "model": CARDIAC_MOTION_MODEL,
++            "ra_rv_taper_degrees": RA_RV_TAPER_DEGREES,
++            "ra_center_offset_m": RA_CENTER_OFFSET_M,
++            "ra_center_offset_direction": "unit(source_RA_centroid - source_RV_centroid)",
++            "left_center_offsets_m": [LEFT_ATRIUM_CENTER_OFFSET_M, LEFT_VENTRICLE_CENTER_OFFSET_M],
++            "left_center_offset_direction": "unit(source_LA_centroid - source_LV_centroid)",
++            "ra_rv_shared_interface_weight": 0.0,
++            "left_chamber_freewall_weight": 1.0,
++            "parameter_status": "inferred_reference_registration_not_measured_subject_geometry",
++        },
++        "passive_outer_heart_motion": "presentation-only closest-cavity-surface displacement driven by the corresponding accepted CVSim chamber q; exact-coordinate-quotiented source surfaces are audited for self/cavity intersections; no myocardium constitutive mechanics or enclosure claim is inferred from open source boundaries",
+         "ownership_choice": "right atrium retains the exact source overlap; right ventricle retains its source-exclusive region and a reversed copy of the RA shared boundary",
+         "source_overlap_triangle_pair_count": construction["source_intersecting_triangle_pair_count"],
+         "source_overlap_volume_ml": shared_volume * 1e6,
+@@ -694,14 +857,21 @@ def compile_binding(input_path: Path, receipt_path: Path, output_path: Path, out
+         output_receipt_data["provenance"]["cardiac_geometry_binding"]["accepted_cycle_geometry_audit"] = {
+             "accepted_trace_sha256": hashlib.sha256(phase_trace.read_bytes()).hexdigest(),
+             "accepted_trace_row_count": len(source_rows),
+-            "phase_sample_count": len(phase_audits),
++            "phase_sample_count": len(phase_audits["phases"]),
+             "phase_selection": phase_selection,
+             "sampling": ("initial accepted state and observed LV q maximum" if phase_selection == "initial-and-lv-max"
+                          else "eight time-spaced accepted frames plus observed per-chamber q minima and maxima"),
+-            "q_mapping": "same source-centroid radial dilation and 2-degree cosine direction taper from the exact shared RA/RV interface as the native presentation map; LA/LV use unit free-wall weights",
++            "q_mapping": "native FP32 cubic and 28-iteration bisection reconstructed from same-frame accepted chamber volume columns; geometry uses the receipt-bound inferred 20-degree/8mm/12mm/15mm source-centroid map",
+             "dynamic_surface_source": "emitted FP32 NHANAT5 cavity vertices and faces",
+             "predicate": "NumiLab exact cavity embeddedness, pair intersection and RA/RV shared-interface certificate",
+-            "phases": phase_audits,
++            "four_chamber_gate": phase_audits["four_chamber_gate"],
++            "passive_outer_heart_gate": phase_audits["passive_outer_heart_gate"],
++            "source_q0_passive_outer_heart_gate": phase_audits["source_q0_passive_outer_heart_gate"],
++            "overall_geometry_gate": phase_audits["overall_geometry_gate"],
++            "source_q0_passive_outer_heart_self_audits": phase_audits["source_q0_passive_outer_heart_self_audits"],
++            "source_q0_passive_outer_heart_relations": phase_audits["source_q0_passive_outer_heart_relations"],
++            "source_q0_passive_outer_heart_unqualified_pairs": phase_audits["source_q0_passive_outer_heart_unqualified_pairs"],
++            "phases": phase_audits["phases"],
+         }
+ 
+     output_receipt.write_text(json.dumps(output_receipt_data, sort_keys=True, separators=(",", ":")) + "\n")
+@@ -721,7 +891,8 @@ def compile_binding(input_path: Path, receipt_path: Path, output_path: Path, out
+         "right_ventricle_volume_before_ml": original_rv_volume * 1e6,
+         "right_ventricle_volume_after_ml": new_rv_volume * 1e6,
+         "four_cavity_embeddedness_audit": pair_audit,
+-        "accepted_cycle_phase_count": len(phase_audits) if phase_audits is not None else 0,
++        "accepted_cycle_phase_count": len(phase_audits["phases"]) if phase_audits is not None else 0,
++        "accepted_cycle_outer_wall_gate": phase_audits["passive_outer_heart_gate"] if phase_audits is not None else "not_audited",
+     }
+ 
+ 
+diff --git a/matter/tools/human_resting_runtime.hpp b/matter/tools/human_resting_runtime.hpp
+index ccee77d..337fd53 100644
+--- a/matter/tools/human_resting_runtime.hpp
++++ b/matter/tools/human_resting_runtime.hpp
+@@ -239,6 +239,7 @@ struct RestingRun {
+ };
+ inline void writeRespirationTraceHeader(std::ostream& trace) {
+     trace<<"time_s,lung_volume_ml,airflow_ml_s,alveolar_pa,pleural_pa,diaphragm_mm,rib_mm,PaO2_mmhg,PaCO2_mmhg,SaO2,oxygen_balance_error_stpd_ml,co2_balance_error_stpd_ml,breaths,tidal_ml,lv_mmhg,rv_mmhg,aorta_mmhg,pulmonary_artery_mmhg,lv_ml,rv_ml,blood_ml,blood_error_ml,aortic_ejected_ml,pulmonary_ejected_ml,complete_filling_ejection_cycles,last_lv_stroke_ml,right_atrium_ml,left_atrium_ml,blood_continuity_residual_accum_ml,blood_physical_delta_accum_ml,blood_residual_minus_physical_ml,blood_endpoint_minus_physical_ml";
++    trace<<",inspired_volume_accum_ml,last_inspiration_step,last_inspiration_time_s,last_inspiration_volume_accum_ml,last_complete_breath_inspired_ml";
+ }
+ inline void writeRespirationTraceSample(std::ostream& trace,const NMHumanRespirationState& s,
+     const NMHumanRespirationParameters& parameters) {
+@@ -255,6 +256,10 @@ inline void writeRespirationTraceSample(std::ostream& trace,const NMHumanRespira
+     const double endpoint=double(s.circulation.x)-double(0.00515f);
+     trace<<continuity*1e6<<','<<physical*1e6<<','
+          <<(continuity-physical)*1e6<<','
+-         <<(endpoint-physical)*1e6;
++         <<(endpoint-physical)*1e6<<','
++         <<(double(s.breath.w)-double(s.breathAccounting.y))*1e6<<','
++         <<s.breathTiming.x<<','<<double(s.breathTiming.x)*parameters.environment.w<<','
++         <<(double(s.breathAccounting.x)-double(s.breathAccounting.w))*1e6<<','
++         <<s.breathAccounting.z*1e6;
+ }
+ } // namespace numi::human

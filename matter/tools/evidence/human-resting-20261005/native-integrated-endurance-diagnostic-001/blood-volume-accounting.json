@@ -1,0 +1,13 @@
+{
+  "method": "accepted GPU compensated sum of normalized continuity terms and rounded physical volume deltas; endpoint reduction reported separately",
+  "final": {
+    "blood_ml": 5150.09835362,
+    "blood_error_ml": 0.0996515154839,
+    "blood_continuity_residual_accum_ml": 0.0984611533139,
+    "blood_physical_delta_accum_ml": 0.098480086308,
+    "blood_residual_minus_physical_ml": -1.89329940614e-05,
+    "blood_endpoint_minus_physical_ml": -0.00022555468604
+  },
+  "maximum_absolute_residual_minus_physical_ml": 0.000158164037423,
+  "maximum_absolute_endpoint_minus_physical_ml": 0.00171257852344
+}
