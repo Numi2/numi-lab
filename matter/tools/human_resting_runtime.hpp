@@ -239,6 +239,7 @@ struct RestingRun {
 };
 inline void writeRespirationTraceHeader(std::ostream& trace) {
     trace<<"time_s,lung_volume_ml,airflow_ml_s,alveolar_pa,pleural_pa,diaphragm_mm,rib_mm,PaO2_mmhg,PaCO2_mmhg,SaO2,oxygen_balance_error_stpd_ml,co2_balance_error_stpd_ml,breaths,tidal_ml,lv_mmhg,rv_mmhg,aorta_mmhg,pulmonary_artery_mmhg,lv_ml,rv_ml,blood_ml,blood_error_ml,aortic_ejected_ml,pulmonary_ejected_ml,complete_filling_ejection_cycles,last_lv_stroke_ml,right_atrium_ml,left_atrium_ml,blood_continuity_residual_accum_ml,blood_physical_delta_accum_ml,blood_residual_minus_physical_ml,blood_endpoint_minus_physical_ml";
+    trace<<",inspired_volume_accum_ml,last_inspiration_step,last_inspiration_time_s,last_inspiration_volume_accum_ml,last_complete_breath_inspired_ml";
 }
 inline void writeRespirationTraceSample(std::ostream& trace,const NMHumanRespirationState& s,
     const NMHumanRespirationParameters& parameters) {
@@ -255,6 +256,10 @@ inline void writeRespirationTraceSample(std::ostream& trace,const NMHumanRespira
     const double endpoint=double(s.circulation.x)-double(0.00515f);
     trace<<continuity*1e6<<','<<physical*1e6<<','
          <<(continuity-physical)*1e6<<','
-         <<(endpoint-physical)*1e6;
+         <<(endpoint-physical)*1e6<<','
+         <<(double(s.breath.w)-double(s.breathAccounting.y))*1e6<<','
+         <<s.breathTiming.x<<','<<double(s.breathTiming.x)*parameters.environment.w<<','
+         <<(double(s.breathAccounting.x)-double(s.breathAccounting.w))*1e6<<','
+         <<s.breathAccounting.z*1e6;
 }
 } // namespace numi::human

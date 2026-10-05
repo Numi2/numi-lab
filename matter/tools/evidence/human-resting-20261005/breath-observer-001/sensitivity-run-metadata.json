@@ -1,0 +1,14 @@
+{
+  "exit_code": 0,
+  "wall_s": 34.74121674988419,
+  "runtime_inputs_unchanged": true,
+  "after": {
+    "/Users/n/numi-human-resting-candidate-build-001/matter/numi-human-resting": "262ecae5db80e827feed4bd80ffcfb62fcc07ed43653bec434a8f41cae43406e",
+    "/Users/n/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json": "43ff6b49daf1d42cf9e88d85d8577f70e112dfcc3756ec43954e544a3e4bc0dc",
+    "/Users/n/numi-human-resting-evidence-20261005/respiratory-reference-sensitivity-001/lung-compliance-0p8.parameters.json": "e128f1a127de9c799262427352e9d120799e477f3ee75799f45b985d47588c8a",
+    "/Users/n/numi-human-resting-candidate-build-001/matter/shaders/NumiMatterPhysicalStateDigest.metallib": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68",
+    "/Users/n/numi-human-resting-candidate-build-001/matter/shaders/NumiMatter.metallib": "84abd9838ba425b4b35875a936aa2a9f221d2fead18e8f482f9a2102d63b3a8c",
+    "/Users/n/numi-human-resting-candidate-build-001/matter/shaders/HumanRespiration.metallib": "d85c37bc4fd5afddec9031e0ef4cff0bb45479f498b72b9a24fe895dd2c4b090",
+    "/Users/n/numi-human-resting-candidate-build-001/lib/libmetalrobo.dylib": "7857bfb72def4d93d6863976a8eafb739ced8b5ad993f2c1e389b8ce3c5d17dd"
+  }
+}

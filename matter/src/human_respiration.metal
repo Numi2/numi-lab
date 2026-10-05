@@ -518,13 +518,28 @@ kernel void nm_human_respiration_exchange(
     if(any(abs(balance)>5.e-5f*n.gasBudget.xy)) n.status.w=7;
     n.breath.x=max(n.breath.x,n.mechanics.x);
     n.breath.y=min(n.breath.y,n.mechanics.x);
-    const uint inspiration=n.mechanics.w>0;
+    const float inspiredAdjusted=dt*max(0.0f,n.mechanics.w)-n.breathAccounting.y;
+    const float inspiredNext=n.breath.w+inspiredAdjusted;
+    n.breathAccounting.y=(inspiredNext-n.breath.w)-inspiredAdjusted;
+    n.breath.w=inspiredNext;
+    // Breath observation only: a 0.001 ml/s Schmitt threshold excludes
+    // round-off sign chatter near zero flow (observed below 0.00001 ml/s).
+    // This does not clip airflow or alter mechanics, gas transport or control.
+    constexpr float breathFlowHysteresisM3PerS=1.e-9f;
+    const uint inspiration=n.mechanics.w>breathFlowHysteresisM3PerS ? 1u :
+        (n.mechanics.w < -breathFlowHysteresisM3PerS ? 0u : n.status.z);
     if(inspiration&&!n.status.z && n.status.x>0) {
         n.breath.z=n.breath.x-n.breath.y;
         n.breath.xy=float2(n.mechanics.x);
+        n.breathTiming.y=n.breathTiming.x;
+        n.breathTiming.x=n.status.x+1u;
+        n.breathTiming.z=n.breathTiming.x-n.breathTiming.y;
+        n.breathAccounting.z=(n.breath.w-n.breathAccounting.x)-
+            (n.breathAccounting.y-n.breathAccounting.w);
+        n.breathAccounting.x=n.breath.w;
+        n.breathAccounting.w=n.breathAccounting.y;
         ++n.status.y;
     }
-    n.breath.w+=dt*max(0.0f,n.mechanics.w);
     n.status.z=inspiration;
     ++n.status.x;
     if(!all(isfinite(n.observation))||!all(isfinite(n.alveolarGas))||

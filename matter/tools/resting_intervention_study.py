@@ -32,6 +32,11 @@ TRACE_COLUMNS = (
     "complete_filling_ejection_cycles", "last_lv_stroke_ml",
 )
 
+BREATH_LEDGER_COLUMNS = (
+    "inspired_volume_accum_ml", "last_inspiration_step", "last_inspiration_time_s",
+    "last_inspiration_volume_accum_ml", "last_complete_breath_inspired_ml",
+)
+
 SOURCE_INPUTS = (
     "matter/CMakeLists.txt",
     "matter/src/matter_kernels.metal",
@@ -114,11 +119,15 @@ def read_trace(path: Path) -> list[dict[str, float]]:
         if reader.fieldnames is None or not set(TRACE_COLUMNS).issubset(reader.fieldnames):
             missing = sorted(set(TRACE_COLUMNS) - set(reader.fieldnames or ()))
             raise ValueError(f"native trace is missing required columns: {missing}")
+        ledger_columns = set(BREATH_LEDGER_COLUMNS).intersection(reader.fieldnames)
+        if ledger_columns and ledger_columns != set(BREATH_LEDGER_COLUMNS):
+            raise ValueError("native trace contains an incomplete accepted breath ledger")
+        columns = TRACE_COLUMNS + (BREATH_LEDGER_COLUMNS if ledger_columns else ())
         rows: list[dict[str, float]] = []
         previous = -math.inf
         for line_number, raw in enumerate(reader, start=2):
             row = {column: finite_float(raw[column], f"{column} line {line_number}")
-                   for column in TRACE_COLUMNS}
+                   for column in columns}
             if row["time_s"] <= previous:
                 raise ValueError(f"native trace time is not strictly increasing at line {line_number}")
             previous = row["time_s"]
@@ -173,10 +182,50 @@ def inspiratory_l_min(rows: list[dict[str, float]], start_s: float, end_s: float
 def complete_breath_metrics(rows: list[dict[str, float]], start_s: float, end_s: float) -> dict[str, Any]:
     """Use accepted breath transitions to exclude partial breaths at window edges.
 
-    The owner increments `breaths` at the start of inspiration. Interpolate that
-    crossing within the retained accepted-flow samples; never infer a prescribed
-    respiratory frequency or use the controller's requested ventilation.
+    The owner increments `breaths` at a resolved start of inspiration and retains
+    its accepted-step event time and inspired volume. Legacy traces fall back to
+    interpolation when retained airflow samples resolve every crossing. Neither
+    path infers prescribed frequency or uses requested ventilation.
     """
+    if rows and all(key in rows[0] for key in BREATH_LEDGER_COLUMNS):
+        # The GPU records event roots and cumulative inspiration before the
+        # accepted-state gate. A whole positive-flow excursion can occur
+        # between two retained display samples; the event ledger preserves
+        # its count and volume without inventing a flow crossing from those
+        # coarse endpoints. The GPU observer uses explicit flow hysteresis to
+        # exclude numerical sign chatter; no breath is removed by this analysis.
+        boundaries: list[tuple[float, float, float]] = []
+        previous_count = -1.0
+        previous_time = previous_volume = 0.0
+        previous_sample_time = -math.inf
+        for row in rows:
+            count, step = row["breaths"], row["last_inspiration_step"]
+            time, volume = row["last_inspiration_time_s"], row["last_inspiration_volume_accum_ml"]
+            if (count < 0 or count != int(count) or step < 0 or step != int(step) or
+                    time < 0 or time > row["time_s"] + 1e-7 or volume < 0 or
+                    volume > row["inspired_volume_accum_ml"] + 1e-6 or
+                    count < previous_count or (count == 0 and (step != 0 or time != 0 or volume != 0))):
+                raise ValueError("invalid accepted breath event ledger")
+            if count == previous_count and (time != previous_time or volume != previous_volume):
+                raise ValueError("accepted breath event changed without a counter transition")
+            if count > previous_count and count > 0:
+                if step == 0 or time <= previous_sample_time or volume < previous_volume:
+                    raise ValueError("accepted breath event ledger did not advance with its source step")
+                if start_s <= time <= end_s:
+                    boundaries.append((count, time, volume))
+            previous_count, previous_time, previous_volume = count, time, volume
+            previous_sample_time = row["time_s"]
+        if len(boundaries) < 2:
+            return {"available": False, "complete_breath_count": 0,
+                    "method": "accepted_gpu_event_ledger",
+                    "reason": "fewer than two accepted inspiratory boundaries inside the analysis window"}
+        first, last = boundaries[0], boundaries[-1]
+        cycles, seconds = int(last[0] - first[0]), last[1] - first[1]
+        return {"available": True, "complete_breath_count": cycles,
+                "method": "accepted_gpu_event_ledger", "window_s": [first[1], last[1]],
+                "events_between_retained_samples": cycles - (len(boundaries) - 1),
+                "inspiratory_minute_ventilation_L_min": (last[2] - first[2]) * 60 / (1000 * seconds),
+                "respiratory_rate_per_min": 60 * cycles / seconds}
     boundaries: list[float] = []
     for left, right in zip(rows, rows[1:]):
         change = right["breaths"] - left["breaths"]

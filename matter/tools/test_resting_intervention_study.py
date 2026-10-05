@@ -63,6 +63,28 @@ class AcceptedBreathWindowTests(unittest.TestCase):
         self.assertEqual(positive_linear_area(2, -2, 4), 2)
         self.assertEqual(positive_linear_area(-2, -1, 4), 0)
 
+    def test_gpu_event_ledger_resolves_events_missed_by_sampled_flow(self):
+        # Coarse samples are all expiratory; positive excursions happened
+        # between them. The second retained event skips an additional event.
+        rows = []
+        for count, sample_time, event_time, volume in (
+                (0, 0.0, 0.0, 0.0), (1, 5.2, 5.0, 500.0),
+                (3, 15.2, 15.0, 1500.0), (4, 20.2, 20.0, 2000.0)):
+            rows.append({"time_s": sample_time, "airflow_ml_s": -10.0, "breaths": count,
+                         "last_inspiration_step": event_time * 500,
+                         "last_inspiration_time_s": event_time,
+                         "last_inspiration_volume_accum_ml": volume,
+                         "inspired_volume_accum_ml": volume,
+                         "last_complete_breath_inspired_ml": 500.0})
+        measured = complete_breath_metrics(rows, 1, 21)
+        self.assertEqual(measured["complete_breath_count"], 3)
+        self.assertEqual(measured["events_between_retained_samples"], 1)
+        self.assertEqual(measured["respiratory_rate_per_min"], 12)
+        self.assertEqual(measured["inspiratory_minute_ventilation_L_min"], 6)
+        rows[2]["last_inspiration_time_s"] = 25.0
+        with self.assertRaisesRegex(ValueError, "invalid accepted breath event ledger"):
+            complete_breath_metrics(rows, 1, 21)
+
 
 class NativeSceneBindingTests(unittest.TestCase):
     def invocation(self):

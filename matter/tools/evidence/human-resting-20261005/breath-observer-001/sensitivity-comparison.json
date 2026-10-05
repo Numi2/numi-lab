@@ -1,0 +1,76 @@
+{
+  "metric": {
+    "available": true,
+    "complete_breath_count": 1,
+    "method": "accepted_gpu_event_ledger",
+    "window_s": [
+      5.01600023825,
+      10.1500004821
+    ],
+    "events_between_retained_samples": 0,
+    "inspiratory_minute_ventilation_L_min": 5.922705612927198,
+    "respiratory_rate_per_min": 11.686793367778622
+  },
+  "raw_sign_metric": {
+    "available": true,
+    "complete_breath_count": 3,
+    "method": "accepted_gpu_event_ledger",
+    "window_s": [
+      4.8740002315,
+      10.1500004821
+    ],
+    "events_between_retained_samples": 0,
+    "inspiratory_minute_ventilation_L_min": 5.763300955617283,
+    "respiratory_rate_per_min": 34.11675349703214
+  },
+  "same_row_count": true,
+  "non_observer_columns": [
+    "PaCO2_mmhg",
+    "PaO2_mmhg",
+    "SaO2",
+    "airflow_ml_s",
+    "alveolar_pa",
+    "aorta_mmhg",
+    "aortic_ejected_ml",
+    "blood_continuity_residual_accum_ml",
+    "blood_endpoint_minus_physical_ml",
+    "blood_error_ml",
+    "blood_ml",
+    "blood_physical_delta_accum_ml",
+    "blood_residual_minus_physical_ml",
+    "co2_balance_error_stpd_ml",
+    "complete_filling_ejection_cycles",
+    "diaphragm_mm",
+    "last_lv_stroke_ml",
+    "left_atrium_ml",
+    "lung_volume_ml",
+    "lv_ml",
+    "lv_mmhg",
+    "oxygen_balance_error_stpd_ml",
+    "pleural_pa",
+    "pulmonary_artery_mmhg",
+    "pulmonary_ejected_ml",
+    "rib_mm",
+    "right_atrium_ml",
+    "rv_ml",
+    "rv_mmhg",
+    "time_s"
+  ],
+  "changed_non_observer_values": [],
+  "observed_events": [
+    {
+      "time_s": "5.02400023863",
+      "breaths": "1",
+      "tidal_ml": "509.491190314",
+      "last_inspiration_time_s": "5.01600023825",
+      "last_complete_breath_inspired_ml": "509.491597768"
+    },
+    {
+      "time_s": "10.1760004833",
+      "breaths": "2",
+      "tidal_ml": "506.786163896",
+      "last_inspiration_time_s": "10.1500004821",
+      "last_complete_breath_inspired_ml": "506.786222104"
+    }
+  ]
+}

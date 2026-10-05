@@ -73,6 +73,14 @@ typedef struct NM_ALIGN16 NMHumanRespirationState {
     // Compensated accepted-step ledgers separate global continuity residual,
     // rounded physical volume delta, and endpoint summation rounding.
     NMHumanBloodBalanceLedger bloodBalance;
+    // Accepted inspiration event step, prior event step, interval steps,
+    // reserved. Events use accepted airflow with 0.001 ml/s hysteresis;
+    // near-zero round-off sign chatter is not an additional breath.
+    nm_uint4 breathTiming;
+    // Last event cumulative inspiration, cumulative Kahan compensation,
+    // last complete event-interval inspiration, last event compensation (m3).
+    // Observer bookkeeping only; these fields do not drive physiology.
+    nm_float4 breathAccounting;
 } NMHumanRespirationState;
 
 typedef struct NM_ALIGN16 NMHumanRespirationDispatch {
