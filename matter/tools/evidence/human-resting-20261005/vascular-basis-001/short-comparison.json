@@ -1,0 +1,61 @@
+{
+  "same_terminal_body_state": true,
+  "same_trace_bytes": {
+    "resting-coupled.csv": true,
+    "resting-surface-audit.csv": true
+  },
+  "stage_samples": [
+    [
+      "matter_pre",
+      "100",
+      "4375"
+    ],
+    [
+      "brain_advance",
+      "100",
+      "10292"
+    ],
+    [
+      "respiratory_mechanics",
+      "100",
+      "60209"
+    ],
+    [
+      "matter_after_frame_begin",
+      "100",
+      "5648959"
+    ],
+    [
+      "respiratory_gas_exchange",
+      "100",
+      "46625"
+    ],
+    [
+      "matter_after_candidate_ready",
+      "100",
+      "6292"
+    ],
+    [
+      "matter_after_microstep",
+      "100",
+      "6375"
+    ],
+    [
+      "matter_post",
+      "100",
+      "6292"
+    ],
+    [
+      "brain_resolve",
+      "100",
+      "2667"
+    ],
+    [
+      "respiratory_resolve",
+      "100",
+      "3583"
+    ]
+  ],
+  "control_log_sha256": "7a7bc0abbbbd41504f0b9f5fa720e96307d11e9cfe65c97b5a671a3df720ffaf",
+  "candidate_log_sha256": "c58a067565fdf922b0177bd31e9c285aef9ef9c670cb22999d5bfebef76d9337"
+}

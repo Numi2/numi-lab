@@ -33,6 +33,14 @@ inline float2 vascularPressureTangent(const NMVascularCompartmentGPU node, float
 inline float vascularPressure(const NMVascularCompartmentGPU node, float volume, float elastance) {
     return vascularPressureTangent(node, volume, elastance).x;
 }
+// Read the ordinary device direction, or one implicit unit vector while
+// assembling a dense vascular-only Jacobian through the same evaluator.
+inline float vascularDirection(device const float4* direction, uint base,
+    uint row, uint basisColumn) {
+    return basisColumn == NM_INVALID_INDEX ? direction[base + row].x :
+        (row == basisColumn ? 1.0f : 0.0f);
+}
+
 // Return absolute pressure and its physical directional derivative. A
 // deforming cavity has an independent pressure row, never lumped compliance.
 inline float2 vascularNodePressure(uint nodeIndex, uint stateBase, uint coefficientBase,
@@ -41,11 +49,11 @@ inline float2 vascularNodePressure(uint nodeIndex, uint stateBase, uint coeffici
     device const NMVascularCompartmentGPU* compartments,
     device const NMVascularCavityGPU* cavities, device const uint* compartmentCavity,
     device const float4* candidate, device const float4* direction,
-    device const float* elastance) {
+    device const float* elastance, uint basisColumn = NM_INVALID_INDEX) {
     const bool cavity = compartments[nodeIndex].identity.w == 5u;
     const uint row = cavity ? cavities[compartmentCavity[nodeIndex]].identity.w : nodeIndex;
     const float dv = derivative || trialAlpha != 0.0f ?
-        direction[directionBase + row].x * unknowns[row].initialAndScaling.y : 0.0f;
+        vascularDirection(direction, directionBase, row, basisColumn) * unknowns[row].initialAndScaling.y : 0.0f;
     const float value = vascularPhysical(candidate, unknowns, stateBase, row) + trialAlpha * dv;
     if (cavity) return float2(value, derivative ? dv : 0.0f);
     const float2 pressure = vascularPressureTangent(compartments[nodeIndex], value, elastance[coefficientBase + nodeIndex]);
@@ -707,10 +715,11 @@ inline float2 vascularEquation(
     device const uint* workingSet, bool useWorkingSet,
     device const NMVascularCavityGPU* cavities, device const NMVascularCavityFaceGPU* cavityFaces,
     device const uint* compartmentCavity, device const NMFEMNodeStateGPU* femCandidate,
-    device const NMFEMNodeStateGPU* femAccepted, uint nodeBase, float femTrialAlpha) {
+    device const NMFEMNodeStateGPU* femAccepted, uint nodeBase, float femTrialAlpha,
+    uint basisColumn = NM_INVALID_INDEX) {
     const float scale = unknowns[local].initialAndScaling.y;
     const float value = vascularPhysical(candidate, unknowns, stateBase, local);
-    const float delta = derivative ? direction[directionBase + local].x * scale : 0.0f;
+    const float delta = derivative ? vascularDirection(direction, directionBase, local, basisColumn) * scale : 0.0f;
     float equation = scale * (candidate[stateBase + local].x - accepted[stateBase + local].x);
     float tangent = delta;
     if (local < graph.offsets.y) {
@@ -721,7 +730,7 @@ inline float2 vascularEquation(
             const uint flowRow = graph.offsets.y + edge;
             if (vascularConstrained(graph, stateBase, edge, workingSet, useWorkingSet)) continue;
             equation += dt * sign * vascularPhysical(candidate, unknowns, stateBase, flowRow);
-            if (derivative) tangent += dt * sign * direction[directionBase + flowRow].x *
+            if (derivative) tangent += dt * sign * vascularDirection(direction, directionBase, flowRow, basisColumn) *
                 unknowns[flowRow].initialAndScaling.y;
         }
     } else if (local < graph.offsets.z) {
@@ -732,9 +741,9 @@ inline float2 vascularEquation(
         const uint b = edge.identity.z;
         const uint coefficientBase = (stateBase / graph.ranges.z) * graph.counts.x;
         const float2 pa = vascularNodePressure(a, stateBase, coefficientBase, directionBase, derivative, 0.0f,
-            unknowns, compartments, cavities, compartmentCavity, candidate, direction, elastance);
+            unknowns, compartments, cavities, compartmentCavity, candidate, direction, elastance, basisColumn);
         const float2 pb = vascularNodePressure(b, stateBase, coefficientBase, directionBase, derivative, 0.0f,
-            unknowns, compartments, cavities, compartmentCavity, candidate, direction, elastance);
+            unknowns, compartments, cavities, compartmentCavity, candidate, direction, elastance, basisColumn);
         const float dp = vascularDrivingPressure(edge, pa.x, pb.x);
         // At the Starling floor tie use the fixed downstream-pressure branch.
         const float downstreamDerivative = edge.identity.w == 3u && pb.x <= edge.physical.w ? 0.0f : pb.y;
@@ -788,9 +797,9 @@ inline float2 vascularEquation(
                 const float sign = edge.identity.y == reservoir ? 1.0f : -1.0f;
                 equation += dt * sign * flow * concentration;
                 if (derivative) {
-                    const float dq = direction[directionBase + flowRow].x * unknowns[flowRow].initialAndScaling.y;
-                    const float dm = direction[directionBase + donorRow].x * unknowns[donorRow].initialAndScaling.y;
-                    const float dv = direction[directionBase + donor].x * unknowns[donor].initialAndScaling.y;
+                    const float dq = vascularDirection(direction, directionBase, flowRow, basisColumn) * unknowns[flowRow].initialAndScaling.y;
+                    const float dm = vascularDirection(direction, directionBase, donorRow, basisColumn) * unknowns[donorRow].initialAndScaling.y;
+                    const float dv = vascularDirection(direction, directionBase, donor, basisColumn) * unknowns[donor].initialAndScaling.y;
                     tangent += dt * sign * (dq * concentration + flow * (dm - concentration * dv) / volume);
                 }
             }
@@ -813,9 +822,9 @@ inline float2 vascularEquation(
             const float tissueConcentration = vascularConcentration(tissueMass, partitionVolume);
             equation += dt * sign * exchange.physical.x * (bloodConcentration - tissueConcentration);
             if (derivative) {
-                const float dm = direction[directionBase + bloodRow].x * unknowns[bloodRow].initialAndScaling.y;
-                const float dv = direction[directionBase + node].x * unknowns[node].initialAndScaling.y;
-                const float mt = direction[directionBase + tissueRow].x * unknowns[tissueRow].initialAndScaling.y;
+                const float dm = vascularDirection(direction, directionBase, bloodRow, basisColumn) * unknowns[bloodRow].initialAndScaling.y;
+                const float dv = vascularDirection(direction, directionBase, node, basisColumn) * unknowns[node].initialAndScaling.y;
+                const float mt = vascularDirection(direction, directionBase, tissueRow, basisColumn) * unknowns[tissueRow].initialAndScaling.y;
                 tangent += dt * sign * exchange.physical.x *
                     ((dm - bloodConcentration * dv) / bloodVolume - mt / partitionVolume);
             }
@@ -827,7 +836,7 @@ inline float2 vascularEquation(
         const float2 geometry = vascularCavityVolume(cavity, cavityFaces, femAccepted, femCandidate,
             direction, nodeBase, dt, derivative, femTrialAlpha);
         equation = vascularPhysical(candidate, unknowns, stateBase, volumeRow) - geometry.x;
-        tangent = derivative ? direction[directionBase + volumeRow].x *
+        tangent = derivative ? vascularDirection(direction, directionBase, volumeRow, basisColumn) *
             unknowns[volumeRow].initialAndScaling.y - geometry.y : 0.0f;
     }
     return float2(equation, tangent) / unknowns[local].initialAndScaling.z;
@@ -970,38 +979,34 @@ kernel void nm_vascular_dense_solve(
     if (lane == 0u)
         atomic_store_explicit(&failed, 0u, memory_order_relaxed);
     threadgroup_barrier(mem_flags::mem_threadgroup);
-    for (uint column = 0u; column < unknownCount; ++column) {
-        // The existing JVP reads one shared device vector. Sweep one-hot
-        // normalized directions through it, evaluating all 45 residual rows
-        // in parallel for each column.
-        for (uint local = lane; local < unknownCount; local += 32u)
-            direction[directionBase + local] = float4(
-                local == column ? 1.0f : 0.0f, 0.0f, 0.0f, 0.0f);
-        threadgroup_barrier(mem_flags::mem_device);
-        for (uint row = lane; row < unknownCount; row += 32u) {
-            const bool constrainedFlow = row >= graph.offsets.y &&
-                row < graph.offsets.z && useWorkingSet != 0u &&
-                workingSet[base + row] != 0u;
-            const float tangent = constrainedFlow ? 0.0f : vascularEquation(
-                graph, microstep.time.x, row, base, directionBase, true,
-                unknowns, compartments, connections, tissues, exchanges,
-                connectionIncidence, connectionRanges, bloodExchangeIncidence,
-                bloodExchangeRanges, tissueExchangeIncidence,
-                tissueExchangeRanges, accepted, candidate, direction, elastance,
-                workingSet, useWorkingSet != 0u, cavities, cavityFaces,
-                compartmentCavity, femCandidate, femAccepted,
-                environment * dispatch.femNodeCount, 0.0f).y;
-            if (!isfinite(tangent)) {
-                recordFailure(statuses[environment],
-                    NM_STATUS_LINEAR_SOLVER_FAILURE, NM_INVALID_INDEX,
-                    row, float4(tangent, float(column), 0.0f, 0.0f));
-                atomic_store_explicit(&failed, 1u,
-                    memory_order_relaxed);
-            }
-            matrix[row * augmentedWidth + column] = tangent;
+    // A basis column is a constant direction accessor into the same JVP.
+    // Every matrix entry is independent: no scratch device vector or 90
+    // device-memory barriers are needed to represent the 45 unit vectors.
+    for (uint entry = lane; entry < unknownCount * unknownCount; entry += 32u) {
+        const uint row = entry / unknownCount;
+        const uint column = entry - row * unknownCount;
+        const bool constrainedFlow = row >= graph.offsets.y &&
+            row < graph.offsets.z && useWorkingSet != 0u &&
+            workingSet[base + row] != 0u;
+        const float tangent = constrainedFlow ? 0.0f : vascularEquation(
+            graph, microstep.time.x, row, base, directionBase, true,
+            unknowns, compartments, connections, tissues, exchanges,
+            connectionIncidence, connectionRanges, bloodExchangeIncidence,
+            bloodExchangeRanges, tissueExchangeIncidence,
+            tissueExchangeRanges, accepted, candidate, direction, elastance,
+            workingSet, useWorkingSet != 0u, cavities, cavityFaces,
+            compartmentCavity, femCandidate, femAccepted,
+            environment * dispatch.femNodeCount, 0.0f, column).y;
+        if (!isfinite(tangent)) {
+            recordFailure(statuses[environment],
+                NM_STATUS_LINEAR_SOLVER_FAILURE, NM_INVALID_INDEX,
+                row, float4(tangent, float(column), 0.0f, 0.0f));
+            atomic_store_explicit(&failed, 1u,
+                memory_order_relaxed);
         }
-        threadgroup_barrier(mem_flags::mem_threadgroup | mem_flags::mem_device);
+        matrix[row * augmentedWidth + column] = tangent;
     }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
 
     for (uint row = lane; row < unknownCount; row += 32u) {
         const bool constrainedFlow = row >= graph.offsets.y &&

@@ -1,0 +1,10 @@
+vascular_case=resistive_exchange result=pass accepted_steps=16 environments=2 fp64_normalized_max=1.493713651e-07 relative_conservation_max=3.249442659e-08 replay=bitwise isolated_rollback=pass invalid_restore=denied isolated_reset=pass fem_region=none
+vascular_case=reverse_flow result=pass accepted_steps=16 environments=2 fp64_normalized_max=1.626981574e-07 relative_conservation_max=2.524757247e-09 replay=bitwise isolated_rollback=pass invalid_restore=denied isolated_reset=pass fem_region=none
+vascular_case=inertial_flow result=pass accepted_steps=16 environments=2 fp64_normalized_max=2.396975109e-07 relative_conservation_max=8.304050404e-08 replay=bitwise isolated_rollback=pass invalid_restore=denied isolated_reset=pass fem_region=none
+vascular_case=fem_region result=pass accepted_steps=16 environments=2 fp64_normalized_max=1.493713651e-07 relative_conservation_max=3.249442659e-08 replay=bitwise isolated_rollback=pass invalid_restore=denied isolated_reset=pass fem_region=bound_identity_only
+vascular_case=valve_closing_species_exchange result=pass accepted_steps=16 environments=2 fp64_normalized_max=1.536787995e-07 relative_conservation_max=7.663766129e-08 replay=bitwise isolated_rollback=pass invalid_restore=denied isolated_reset=pass fem_region=none
+vascular_case=valve_opening_species_exchange result=pass accepted_steps=16 environments=2 fp64_normalized_max=5.51953589e-07 relative_conservation_max=2.727756507e-08 replay=bitwise isolated_rollback=pass invalid_restore=denied isolated_reset=pass fem_region=none
+vascular_branched=pass compartments=3 edges=3 species=2 tissues=2 exchanges=3 relative_conservation_max=6.370246415e-08 replay=bitwise
+vascular_refinement=pass equal_duration_s=0.16 errors_m3=4.54144036e-09,2.296729443e-09,1.15518129e-09
+vascular_clock_lifecycle=pass exact_dt_ticks=703687426048 carry=exact huge_snapshot=pass overflow_rollback=pass malformed_arity=denied timestep_override=denied
+vascular_native_qualification=pass runtime_input=nmatterpack biological_calibration=unqualified

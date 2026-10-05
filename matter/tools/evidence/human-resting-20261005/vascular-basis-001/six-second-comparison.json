@@ -1,0 +1,21 @@
+{
+  "same_terminal_body_state": true,
+  "same_trace_bytes": {
+    "resting-coupled.csv": true,
+    "resting-surface-audit.csv": true
+  },
+  "control": {
+    "simulated_s": 6.000000284984708,
+    "wall_s": 63.1487495,
+    "real_time_factor": 0.0950137624654738,
+    "gpu_total_s": 56.51517145615
+  },
+  "candidate": {
+    "simulated_s": 6.000000284984708,
+    "wall_s": 58.692497625,
+    "real_time_factor": 0.1022277212212045,
+    "gpu_total_s": 52.681855127211
+  },
+  "control_log_sha256": "6cb322d58f629f1c924c2a97d02170dda79a6e781f0fac15d4c880195547a491",
+  "candidate_log_sha256": "7d252ee558016fb752361967ae7da53c604417f42abbf753e619f5bd0203a7d1"
+}
