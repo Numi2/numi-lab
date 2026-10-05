@@ -1,0 +1,91 @@
+diff --git a/apps/NumiHumanRestingVisual.hpp b/apps/NumiHumanRestingVisual.hpp
+index 0fcf6e9..1a57844 100644
+--- a/apps/NumiHumanRestingVisual.hpp
++++ b/apps/NumiHumanRestingVisual.hpp
+@@ -24,12 +24,19 @@ class NumiHumanRestingVisual {
+     double wallOrigin=0;
+     std::filesystem::path initialPackPath, acceptedGeometryDirectory;
+     std::string initialPackContentHash, initialPackFileSHA256;
++    NSDictionary* initialAnatomicalRegistration=nil;
++    std::set<unsigned> registrationBodyIndices;
+     std::set<unsigned> requestedGeometrySteps, completedGeometrySteps;
+     bool captureThisFrame=false, captureKernelEncoded=false;
+     unsigned captureStep=0,captureCamera=0,captureLayer=0;
+     std::uint64_t captureRootFingerprint=0,captureTransactionFingerprint=0,captureTimestampMicroseconds=0;
+     std::ofstream surfaceTrace;
+     static mr_float4 inverseRotation(mr_float4 q){return {-q.x,-q.y,-q.z,q.w};}
++    static NSDictionary* bodyPose(unsigned index,const MRBodyStateGPU& body) {
++        return @{@"body_index":@(index),
++            @"position_m":@[@(body.position.x),@(body.position.y),@(body.position.z)],
++            @"quaternion_xyzw":@[@(body.orientation.x),@(body.orientation.y),@(body.orientation.z),@(body.orientation.w)]};
++    }
+     static std::set<unsigned> geometryExportStepsFromEnvironment() {
+         const char* requested=std::getenv("NUMI_HUMAN_RESTING_EXPORT_MRV_STEPS");
+         if(!requested||!*requested)return {};
+@@ -94,6 +101,13 @@ class NumiHumanRestingVisual {
+             coupled.presentationBodies.length));
+         const auto respirationSHA=loadedKneeSHA256Hex(loadedKneeSHA256(coupled.presentationRespiration.contents,
+             coupled.presentationRespiration.length));
++        // Opt-in geometry capture already hashes these completed presentation
++        // buffers. Expose the few anatomical registration poses from the same
++        // bytes, so offline interface audits need no fitted body transforms.
++        NSMutableArray* registeredPoses=[NSMutableArray array];
++        const auto* presentedBodies=static_cast<const MRBodyStateGPU*>(coupled.presentationBodies.contents);
++        for(unsigned index:registrationBodyIndices)
++            [registeredPoses addObject:bodyPose(index,presentedBodies[index])];
+         NSError* jsonError=nil;
+         NSDictionary* receipt=@{
+             @"schema":@"numi.human.accepted-render-geometry.v1",
+@@ -103,6 +117,8 @@ class NumiHumanRestingVisual {
+             @"accepted_timestamp_microseconds":@(timestamp),
+             @"camera_index":@(captureCamera),@"anatomy_layer_index":@(captureLayer),
+             @"accepted_body_state_sha256":loadedKneeNSString(bodySHA),
++            @"accepted_registered_body_poses":registeredPoses,
++            @"initial_anatomical_registration":initialAnatomicalRegistration?initialAnatomicalRegistration:@{},
+             @"accepted_respiration_state_sha256":loadedKneeNSString(respirationSHA),
+             @"captured_vertex_buffer_sha256":loadedKneeNSString(vertexSHA),
+             @"base_pack_content_hash":loadedKneeNSString(initialPackContentHash),
+@@ -195,6 +211,43 @@ public:
+             }
+             return rotatePoint(inverseRotation(initialThorax.orientation),subtractPoint(point,initialThorax.position));
+         };
++        // Source-registration evidence is computed once at load. These bounds
++        // and poses describe the authoritative neutral native assembly; they
++        // neither change attachment ownership nor advance a simulation state.
++        const std::set<unsigned> upperVisceralAnchors{2,3,4,5,13,14,15,16,17,18,19,20,21,22,461};
++        const std::set<unsigned> pelvicVisceralAnchors{462,463};
++        NSMutableArray* registrationRows=[NSMutableArray array];
++        registrationBodyIndices.insert(anatomyGPU.bodyAndFlags.x);
++        for(const auto& instance:pack.instances)if(instance.identity.x==kOrganSurfaceSemantic&&
++            (upperVisceralAnchors.contains(instance.identity.w)||pelvicVisceralAnchors.contains(instance.identity.w))) {
++            require(instance.binding.z==MR_VISUAL_BINDING_ARTICULATED_LINK&&instance.binding.y<initialBodies.size(),
++                "passive source anatomy lacks an initial native body transform");
++            registrationBodyIndices.insert(instance.binding.y);
++            mr_float4 lo{INFINITY,INFINITY,INFINITY,0},hi{-INFINITY,-INFINITY,-INFINITY,0};
++            for(unsigned p=instance.geometry.x;p<instance.geometry.x+instance.geometry.y;++p) {
++                const auto& primitive=pack.primitives.at(p);
++                for(unsigned j=primitive.geometry.x;j<primitive.geometry.x+primitive.geometry.y;++j) {
++                    const auto v=torsoLocal(instance,pack.vertices.at(pack.indices.at(j)).position);
++                    lo.x=std::min(lo.x,v.x);lo.y=std::min(lo.y,v.y);lo.z=std::min(lo.z,v.z);
++                    hi.x=std::max(hi.x,v.x);hi.y=std::max(hi.y,v.y);hi.z=std::max(hi.z,v.z);
++                }
++            }
++            [registrationRows addObject:@{@"stable_id":@(instance.identity.w),@"semantic":@(instance.identity.x),
++                @"source_body_index":@(instance.binding.y),
++                @"role":upperVisceralAnchors.contains(instance.identity.w)?@"upper_visceral_anchor":@"pelvic_anchor",
++                @"torso_local_min_m":@[@(lo.x),@(lo.y),@(lo.z)],
++                @"torso_local_max_m":@[@(hi.x),@(hi.y),@(hi.z)]}];
++        }
++        NSMutableArray* initialPoses=[NSMutableArray array];
++        for(unsigned index:registrationBodyIndices)[initialPoses addObject:bodyPose(index,initialBodies.at(index))];
++        initialAnatomicalRegistration=@{@"torso_body_index":@(anatomyGPU.bodyAndFlags.x),
++            @"coordinate_source":@"source pack transformed by native initialBodies before physical stepping",
++            @"body_poses":initialPoses,@"surfaces":registrationRows};
++        NSData* registrationJSON=[NSJSONSerialization dataWithJSONObject:initialAnatomicalRegistration
++            options:NSJSONWritingSortedKeys error:nil];
++        require(registrationJSON!=nil,"initial anatomical registration serialization failed");
++        std::cout<<"resting_initial_anatomical_registration="
++            <<[[[NSString alloc] initWithData:registrationJSON encoding:NSUTF8StringEncoding] UTF8String]<<"\n";
+         // Each registered rib keeps its own rigid geometry and a hinge near
+         // its posterior source attachment. The single mechanical rib-volume
+         // coordinate sets anterior excursion through the declared area.

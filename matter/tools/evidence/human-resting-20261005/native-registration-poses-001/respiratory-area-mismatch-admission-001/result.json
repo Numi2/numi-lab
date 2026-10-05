@@ -1,0 +1,7 @@
+{
+  "exit_code": 1,
+  "wall_s": 0.48780658282339573,
+  "expected_rejection": true,
+  "no_physical_steps_started": true,
+  "qualified_anatomy": false
+}

@@ -1,0 +1,12 @@
+{
+  "coupled_csv_first_32_step_row_exactly_unchanged": true,
+  "initial_receipt_poses_equal_step_zero": true,
+  "captured_pose_body_indices": [
+    7,
+    20,
+    128
+  ],
+  "step31_accepted_time_s": 0.06200000294484198,
+  "new_gpu_state_or_readback": false,
+  "scope": "Registration metadata extension only; geometry unchanged and known interface defects persist"
+}

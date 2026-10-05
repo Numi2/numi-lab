@@ -1,0 +1,29 @@
+{
+  "exit_code": 0,
+  "wrapper_wall_s": 9.634275834076107,
+  "runtime_inputs_unchanged": true,
+  "runtime_sha256_after": {
+    "/Users/n/numi-human-resting-registration-build-004/bin/numi-human-native": "2922f6c3979b753ec3b59ab02b49a6d918ef14c2cf5c3f4c28b7a55fdffe3824",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-muscle-reference.nhmyo": "e5bb8a8168706bb3b23cf42b1d849659569ba2e6027bcc85729c3110fdbb8c4b",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/current-bone-registration-b1b410ad/bodyparts3d-myosim-major-bones.nhbones": "7d94e2f28ac6cea30c6c11a79919077acc40281636eb20b11b50b50aebd3ec49",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/output/supine-skin-boundaries-001/myosim-fullbody-resting-bed-support.nhcnt": "04704109e30d6b0de1620d349a0e610860cb665e9e35406e3a7685abd95695c6",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-joint-equalities.nheq": "0e3c593792a8c4ccd619f1999f6685b68e6ff0fd5ae5f6f0bca66b594a0e9b88",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/output/tendon-current-source-owner-nhtendon2/numi-human-tendon-attachments.nhtendon": "52819336540a36621b60bd03b5084bd1d300ed2971673cfd0ccdb7eecfcb52b5",
+    "/Users/n/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json": "43ff6b49daf1d42cf9e88d85d8577f70e112dfcc3756ec43954e544a3e4bc0dc",
+    "/Users/n/numi-human-resting-evidence-20261005/diaphragm-common-map-inputs-001/source-bound-respiration.json": "35ebf1cf87ba5e0a1208ebb3535e0f656bfcc1195835d51f9489f696a7ae7f1d",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/output/skin-boundaries-001/bodyparts3d-myosim-skinned-shell.nhskin": "1de6422eed1a681fb5f37df1e5355c0474016634c342516753a1058c4d0f4334",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/output/current-anatomy-20261005/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue": "9340447e7874366033f544ee8e56e9c09bdf4efecf52b0fa3b16d7b4d5489c33",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/output/diaphragm-cardiac-binding-001/resting-thorax.nhanatomy": "cd64c91eaaa768e809b3b9f22cff6551de3cb14f5dc63ac56a9d794f755b0f52",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/output/diaphragm-cardiac-binding-001/resting-anatomy-receipt.json": "c09cc9cc0a6a3449abd954725c11a65f21cb8bcfbf35adc946d1d65c67c38096",
+    "/Users/n/numi-human-resting-registration-build-004/lib/libmetalrobo.dylib": "534ccea531fe047a65850e53cdc10c77b4cd74726ef92526467ed49ef11873d0",
+    "/Users/n/numi-human-resting-registration-build-004/shaders/MetalRobo.metallib": "e3f913bfe406008a6fc691289b738653c5a180eb80d1f5c82bd7750e0079e23e",
+    "/Users/n/numi-human-resting-registration-build-004/shaders/MetalRoboHyperPolicy.metallib": "f227836841015b40467a20c47a9fa38cf44eb8e1132cad1de4e65fa79c55d309",
+    "/Users/n/numi-human-resting-registration-build-004/shaders/NumiNeuron.metallib": "4ccbb796a6bfd5bdb18f7d37c8e18e0d767c9489d16047c523c97f679da33f1d",
+    "/Users/n/numi-human-resting-registration-build-004/matter/shaders/HumanRespiration.metallib": "50d937c40897e04e1d58f8509263776c8a0f1be1309d4c1d09a473c9376e31ea",
+    "/Users/n/numi-human-resting-registration-build-004/matter/shaders/NumiMatter.metallib": "84abd9838ba425b4b35875a936aa2a9f221d2fead18e8f482f9a2102d63b3a8c",
+    "/Users/n/numi-human-resting-registration-build-004/matter/shaders/NumiMatterPhysicalStateDigest.metallib": "3d5db8b11fe561def3f0f4aa73c1a4d8d1828e746f0a7f737d8a31725deb2d68",
+    "/Users/n/numi-human-resting-registration-build-004/CMakeCache.txt": "f3582758525ccde22e389eed9dae106ecf3d088cb582c62fd5a726342137a85d"
+  },
+  "completed_utc": "2026-10-05T09:11:43.647085+00:00"
+}
