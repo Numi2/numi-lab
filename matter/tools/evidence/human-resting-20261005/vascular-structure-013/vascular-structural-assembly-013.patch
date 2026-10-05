@@ -1,0 +1,64 @@
+diff --git a/matter/src/metal/vascular.metalinc b/matter/src/metal/vascular.metalinc
+index 08adc71..7780ab5 100644
+--- a/matter/src/metal/vascular.metalinc
++++ b/matter/src/metal/vascular.metalinc
+@@ -992,16 +992,32 @@ kernel void nm_vascular_dense_solve(
+             value, elastance[environment * graph.counts.x + lane]);
+     }
+     threadgroup_barrier(mem_flags::mem_threadgroup);
+-    // A basis column is a constant direction accessor into the same JVP.
+-    // Every matrix entry is independent: no scratch device vector or 90
+-    // device-memory barriers are needed to represent the 45 unit vectors.
++    // Initialize structural zeros, then ask the ordinary JVP for every
++    // potentially nonzero entry. In this validated vascular-only graph a
++    // continuity row depends on its volume and incident edge flows; an edge
++    // row depends on its flow and its two endpoint volumes. Constitutive,
++    // valve, working-set and normalization arithmetic remains in the JVP.
+     for (uint entry = lane; entry < unknownCount * unknownCount; entry += 32u) {
+         const uint row = entry / unknownCount;
+         const uint column = entry - row * unknownCount;
++        matrix[row * augmentedWidth + column] = 0.0f;
++    }
++    threadgroup_barrier(mem_flags::mem_threadgroup);
++    for (uint row = lane; row < unknownCount; row += 32u) {
+         const bool constrainedFlow = row >= graph.offsets.y &&
+             row < graph.offsets.z && useWorkingSet != 0u &&
+             workingSet[base + row] != 0u;
+-        const float tangent = constrainedFlow ? 0.0f : vascularEquation(
++        if (constrainedFlow) continue;
++        const bool volumeRow = row < graph.offsets.y;
++        const NMVascularRangeGPU incidence = volumeRow ?
++            connectionRanges[row] : NMVascularRangeGPU{0u, 0u};
++        const uint columns = volumeRow ? 1u + incidence.count : 3u;
++        for (uint slot = 0u; slot < columns; ++slot) {
++            const uint column = slot == 0u ? row : (volumeRow ?
++                graph.offsets.y + connectionIncidence[incidence.first + slot - 1u] :
++                (slot == 1u ? connections[row - graph.offsets.y].identity.y :
++                    connections[row - graph.offsets.y].identity.z));
++            const float tangent = vascularEquation(
+             graph, microstep.time.x, row, base, directionBase, true,
+             unknowns, compartments, connections, tissues, exchanges,
+             connectionIncidence, connectionRanges, bloodExchangeIncidence,
+@@ -1010,14 +1026,15 @@ kernel void nm_vascular_dense_solve(
+             workingSet, useWorkingSet != 0u, cavities, cavityFaces,
+             compartmentCavity, femCandidate, femAccepted,
+             environment * dispatch.femNodeCount, 0.0f, column, preparedPressure).y;
+-        if (!isfinite(tangent)) {
+-            recordFailure(statuses[environment],
+-                NM_STATUS_LINEAR_SOLVER_FAILURE, NM_INVALID_INDEX,
+-                row, float4(tangent, float(column), 0.0f, 0.0f));
+-            atomic_store_explicit(&failed, 1u,
+-                memory_order_relaxed);
++            if (!isfinite(tangent)) {
++                recordFailure(statuses[environment],
++                    NM_STATUS_LINEAR_SOLVER_FAILURE, NM_INVALID_INDEX,
++                    row, float4(tangent, float(column), 0.0f, 0.0f));
++                atomic_store_explicit(&failed, 1u,
++                    memory_order_relaxed);
++            }
++            matrix[row * augmentedWidth + column] = tangent;
+         }
+-        matrix[row * augmentedWidth + column] = tangent;
+     }
+     threadgroup_barrier(mem_flags::mem_threadgroup);
+ 

@@ -1,0 +1,134 @@
+{
+  "scope": "Two native6s A/B pairs in opposite execution order on one M4 Pro, with independent CPU preparation. Local performance comparison, not hardware-general benchmark, anatomical acceptance or clinical validation.",
+  "analysis_script_sha256": "5a6accf52d15f8629779323e76c99bc5b043f9e1e500b453fa484cdef366aefd",
+  "order": [
+    "vascular-structure-control-native-013",
+    "vascular-structure-candidate-native-013",
+    "vascular-structure-candidate-repeat-native-013",
+    "vascular-structure-control-repeat-native-013"
+  ],
+  "equal_outputs": {
+    "vascular-structure-control-native-013": {
+      "resting-human.mrvpack": {
+        "identical_to_first_control": true,
+        "sha256": "4f969193b7e66385b5a06d9d55a3ea966d156821e76558b16d4a785cdaddd6a7"
+      },
+      "resting-surface-audit.csv": {
+        "identical_to_first_control": true,
+        "sha256": "ae7df7a485a563d29464574a546864bea47abe326dc2eda4440746a9f25f2faa"
+      },
+      "resting-coupled.csv": {
+        "identical_to_first_control": true,
+        "sha256": "ca65c98056682bae62e7a63f6f913191524b0c718760efaf97bf53e934f0a179"
+      },
+      "accepted-geometry/step-639.mrvpack": {
+        "identical_to_first_control": true,
+        "sha256": "8f51d7b07bcbd930cd6e8d4d235de9b15818e90f2b2a1e3822571617620db4c4"
+      },
+      "accepted-geometry/step-2783.mrvpack": {
+        "identical_to_first_control": true,
+        "sha256": "8e71d6f13c1e4b14b01283f2ed0a41a046c9a4757baec2e61e6c0ce744a44730"
+      }
+    },
+    "vascular-structure-candidate-native-013": {
+      "resting-human.mrvpack": {
+        "identical_to_first_control": true,
+        "sha256": "4f969193b7e66385b5a06d9d55a3ea966d156821e76558b16d4a785cdaddd6a7"
+      },
+      "resting-surface-audit.csv": {
+        "identical_to_first_control": true,
+        "sha256": "ae7df7a485a563d29464574a546864bea47abe326dc2eda4440746a9f25f2faa"
+      },
+      "resting-coupled.csv": {
+        "identical_to_first_control": true,
+        "sha256": "ca65c98056682bae62e7a63f6f913191524b0c718760efaf97bf53e934f0a179"
+      },
+      "accepted-geometry/step-639.mrvpack": {
+        "identical_to_first_control": true,
+        "sha256": "8f51d7b07bcbd930cd6e8d4d235de9b15818e90f2b2a1e3822571617620db4c4"
+      },
+      "accepted-geometry/step-2783.mrvpack": {
+        "identical_to_first_control": true,
+        "sha256": "8e71d6f13c1e4b14b01283f2ed0a41a046c9a4757baec2e61e6c0ce744a44730"
+      }
+    },
+    "vascular-structure-candidate-repeat-native-013": {
+      "resting-human.mrvpack": {
+        "identical_to_first_control": true,
+        "sha256": "4f969193b7e66385b5a06d9d55a3ea966d156821e76558b16d4a785cdaddd6a7"
+      },
+      "resting-surface-audit.csv": {
+        "identical_to_first_control": true,
+        "sha256": "ae7df7a485a563d29464574a546864bea47abe326dc2eda4440746a9f25f2faa"
+      },
+      "resting-coupled.csv": {
+        "identical_to_first_control": true,
+        "sha256": "ca65c98056682bae62e7a63f6f913191524b0c718760efaf97bf53e934f0a179"
+      }
+    },
+    "vascular-structure-control-repeat-native-013": {
+      "resting-human.mrvpack": {
+        "identical_to_first_control": true,
+        "sha256": "4f969193b7e66385b5a06d9d55a3ea966d156821e76558b16d4a785cdaddd6a7"
+      },
+      "resting-surface-audit.csv": {
+        "identical_to_first_control": true,
+        "sha256": "ae7df7a485a563d29464574a546864bea47abe326dc2eda4440746a9f25f2faa"
+      },
+      "resting-coupled.csv": {
+        "identical_to_first_control": true,
+        "sha256": "ca65c98056682bae62e7a63f6f913191524b0c718760efaf97bf53e934f0a179"
+      }
+    }
+  },
+  "timing": {
+    "vascular-structure-control-native-013": {
+      "gpu_samples": 94,
+      "gpu_seconds": 52.838257582854,
+      "simulated_seconds": 6.000000284984708,
+      "native_wall_seconds": 63.337969709,
+      "real_time_factor": 0.094729911813579,
+      "wrapper_wall_seconds": 66.47348287515342,
+      "invocation_sha256": "19fdb504e9b56773ce9296b492f3a05c10a9bc6c601d5c01055a8f64e1c474e9"
+    },
+    "vascular-structure-candidate-native-013": {
+      "gpu_samples": 94,
+      "gpu_seconds": 51.389141167514,
+      "simulated_seconds": 6.000000284984708,
+      "native_wall_seconds": 61.823077208,
+      "real_time_factor": 0.09705114264691274,
+      "wrapper_wall_seconds": 65.80344658344984,
+      "invocation_sha256": "b88964283f747db83fe489ee365d380f55a7bf191fe53a6f8275d0f08aa2902d"
+    },
+    "vascular-structure-candidate-repeat-native-013": {
+      "gpu_samples": 94,
+      "gpu_seconds": 51.10489100218,
+      "simulated_seconds": 6.000000284984708,
+      "native_wall_seconds": 59.819200416,
+      "real_time_factor": 0.10030224816211138,
+      "wrapper_wall_seconds": 62.79694120772183,
+      "invocation_sha256": "3abda3d6c6d77bd149421f3a821be3672c8b1ea7f07aa1b91c4c3bba5b3987b5"
+    },
+    "vascular-structure-control-repeat-native-013": {
+      "gpu_samples": 94,
+      "gpu_seconds": 52.853170995599996,
+      "simulated_seconds": 6.000000284984708,
+      "native_wall_seconds": 61.596842917,
+      "real_time_factor": 0.09740759429942762,
+      "wrapper_wall_seconds": 64.60138550028205,
+      "invocation_sha256": "ea6a996bb47f502d20ab619753861910ea6398843fcade3d5f7e908b92427e0a"
+    }
+  },
+  "mean_control_gpu_seconds": 52.845714289227,
+  "mean_candidate_gpu_seconds": 51.247016084847,
+  "mean_gpu_time_reduction_percent": 3.025218271495493,
+  "same_owner_jvp": true,
+  "same_45_row_partial_pivot_solve": true,
+  "physical_laws_tolerances_and_state_unchanged": true,
+  "validation": {
+    "vascular_log_sha256": "017aaff7eedf60b96724cb2a0c765eab3282f637cb3b21263ab2a35c2b9ad4ac",
+    "transaction_log_sha256": "c950db47dbb8a830e346cf3634af3db95b878c81b52dc89b7915dc557bfd0cde",
+    "transaction": "coupled rejection bitwise unchanged including circulation clock and Brain history; accepted replay bitwise"
+  },
+  "source_patch_sha256": "ca3c73e579a407cdbe7cda312798c99899397847f10b935aba669c79eb029921"
+}
