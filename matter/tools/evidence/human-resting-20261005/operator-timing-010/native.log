@@ -1,0 +1,212 @@
+rigid_source_rest_frames=passed source_body_count=103 maximum_COM_position_residual_m=6.26739049493e-08 maximum_orientation_unit_witness_residual_m=1.05692510994e-07 allowed_rest_reconstruction_residual_m=1e-06 rigid_sha256=2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4 boundary=consumed_reference_frame_join_not_source_authentication_or_loaded_motion
+resting_mass_calibration source_composite_kg=97.1319506911 declared_reference_kg=72 executed_kg=71.9999993989 uniform_mass_inertia_scale=0.741259694099 measured_person=false additional_organ_or_blood_mass_kg=0
+bone_orientation_semantics=unit_normalized_once_at_load bone_count=185 maximum_raw_norm_error=5.96046447754e-08 norm_admission_tolerance=0.00200000009499 bone_sha256=7d94e2f28ac6cea30c6c11a79919077acc40281636eb20b11b50b50aebd3ec49
+tendon_bone_geometry=checked_bodyparts_subset bodyparts_envelope_count=160 fixed_sibling_envelope_count=0 external_surface_unverified_count=0 maximum_node_residual_m=2.77883934062e-07 allowed_point_residual_m=1e-06 tendon_sha256=52819336540a36621b60bd03b5084bd1d300ed2971673cfd0ccdb7eecfcb52b5 bone_sha256=7d94e2f28ac6cea30c6c11a79919077acc40281636eb20b11b50b50aebd3ec49 rigid_sha256=2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4 boundary=consumed_rest_surface_binding_not_loaded_or_clinical_qualification
+tendon_payload=NHTENDON2 tendon_endpoints=832 tendon_point_bindings=672 tendon_triangle_bindings=0 tendon_envelope_bindings=160 tendon_migrated_envelope_bindings=0 tendon_max_reference_path_delta_m=0 tendon_max_architecture_scale_change=0 tendon_muscle_payload_sha256=e5bb8a8168706bb3b23cf42b1d849659569ba2e6027bcc85729c3110fdbb8c4b tendon_geometry_identity_verified=true tendon_bone_payload_sha256=7d94e2f28ac6cea30c6c11a79919077acc40281636eb20b11b50b50aebd3ec49
+joint_equality_payload=NHEQ1 joint_equalities=51
+pose_joint_ranges=passed enabled_range_count=118 failed_range_count=0 rigid_sha256=2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4 equality_sha256=0e3c593792a8c4ccd619f1999f6685b68e6ff0fd5ae5f6f0bca66b594a0e9b88 bone_sha256=7d94e2f28ac6cea30c6c11a79919077acc40281636eb20b11b50b50aebd3ec49 boundary=consumed_enabled_native_limits_after_NHEQ_projection_not_disabled_source_limits_or_loaded_motion
+pose_q_override_count=0 root_pose_override=1 pose_q_equality_maximum_correction=0.0105060003698
+runtime=Numi Matter runtime initialized with eligible dense45 vascular solve device=Apple M4 Pro world_fingerprint=6434571789366693551 timestep_s=0.00200000009499
+resting_body_source_fingerprint=4239144087961668832 coupled_program_fingerprint=12067436715041705397
+resting_passive_viscera=shared_torso_pelvis_field source_surfaces=80 caudal_m=-0.397011578083 cranial_m=-0.259147137403 upper_body=20 lower_body=128 independent_forces=false independent_mass=false organ_physiology=false
+resting_lung_motion=basal_superior_sweep_v1 blend_start_m=-0.052405 blend_span_m=0.06 effective_area_m2=0.0193752665191
+resting_initial_anatomical_registration={"body_poses":[{"body_index":20,"position_m":[-0.025000007823109627,-0.44271242618560791,0.096546053886413574],"quaternion_xyzw":[0.0061705871485173702,-0.70707988739013672,-0.0061705652624368668,0.70707988739013672]},{"body_index":128,"position_m":[-0.025055751204490662,-0.83042281866073608,0.11920696496963501],"quaternion_xyzw":[0.0058914260007441044,-0.70680069923400879,-0.005886733066290617,0.7073637843132019]}],"coordinate_source":"source pack transformed by native initialBodies before physical stepping","surfaces":[{"role":"upper_visceral_anchor","semantic":51010,"source_body_index":20,"stable_id":2,"torso_local_max_m":[0.1489698737859726,-0.06762242317199707,0.029034055769443512],"torso_local_min_m":[0.035220548510551453,-0.18552298843860626,-0.10646510124206543]},{"role":"upper_visceral_anchor","semantic":51010,"source_body_index":20,"stable_id":3,"torso_local_max_m":[0.10061360895633698,-0.14701209962368011,0.048131499439477921],"torso_local_min_m":[0.049258694052696228,-0.22131331264972687,-0.073365472257137299]},{"role":"upper_visceral_anchor","semantic":51010,"source_body_index":20,"stable_id":4,"torso_local_max_m":[0.065826825797557831,-0.15392428636550903,0.088104061782360077],"torso_local_min_m":[0.018313027918338776,-0.25914710760116577,0.030521268025040627]},{"role":"upper_visceral_anchor","semantic":51010,"source_body_index":20,"stable_id":5,"torso_local_max_m":[0.054068014025688171,-0.1345781683921814,-0.033227771520614624],"torso_local_min_m":[0.013165432959794998,-0.24133054912090302,-0.091208852827548981]},{"role":"upper_visceral_anchor","semantic":51010,"source_body_index":20,"stable_id":13,"torso_local_max_m":[0.095457650721073151,-0.10293921083211899,-0.056195467710494995],"torso_local_min_m":[-0.00033182650804519653,-0.17370373010635376,-0.11487260460853577]},{"role":"upper_visceral_anchor","semantic":51010,"source_body_index":20,"stable_id":14,"torso_local_max_m":[0.094544753432273865,-0.055873673409223557,0.033946555107831955],"torso_local_min_m":[0.058444060385227203,-0.13125307857990265,-0.011481210589408875]},{"role":"upper_visceral_anchor","semantic":51010,"source_body_index":20,"stable_id":15,"torso_local_max_m":[0.15468204021453857,-0.051299087703227997,-0.0026821792125701904],"torso_local_min_m":[0.045374639332294464,-0.10517608374357224,-0.095222979784011841]},{"role":"upper_visceral_anchor","semantic":51010,"source_body_index":20,"stable_id":16,"torso_local_max_m":[0.15707412362098694,-0.071360647678375244,0.0014663934707641602],"torso_local_min_m":[0.07356831431388855,-0.138477623462677,-0.074144557118415833]},{"role":"upper_visceral_anchor","semantic":51010,"source_body_index":20,"stable_id":17,"torso_local_max_m":[0.15518583357334137,-0.04497130960226059,0.046523258090019226],"torso_local_min_m":[0.074793577194213867,-0.16443367302417755,-0.011679999530315399]},{"role":"upper_visceral_anchor","semantic":51010,"source_body_index":20,"stable_id":18,"torso_local_max_m":[0.15332278609275818,-0.10873293876647949,0.10524313896894455],"torso_local_min_m":[0.06183064728975296,-0.17893320322036743,0.026367701590061188]},{"role":"upper_visceral_anchor","semantic":51010,"source_body_index":20,"stable_id":19,"torso_local_max_m":[0.11932293325662613,-0.11438564956188202,0.11530916392803192],"torso_local_min_m":[-0.0020214840769767761,-0.19753372669219971,0.021444413810968399]},{"role":"upper_visceral_anchor","semantic":51010,"source_body_index":20,"stable_id":20,"torso_local_max_m":[0.11958994716405869,-0.11408335715532303,0.11550363898277283],"torso_local_min_m":[-0.0022704675793647766,-0.19755388796329498,0.021117139607667923]},{"role":"upper_visceral_anchor","semantic":51010,"source_body_index":20,"stable_id":21,"torso_local_max_m":[0.10608795285224915,-0.049535799771547318,0.11580190062522888],"torso_local_min_m":[-0.0032210424542427063,-0.13487040996551514,0.020207773894071579]},{"role":"upper_visceral_anchor","semantic":51010,"source_body_index":20,"stable_id":22,"torso_local_max_m":[0.15336306393146515,-0.041172627359628677,0.11002320796251297],"torso_local_min_m":[0.02455456554889679,-0.11670317500829697,0.017514020204544067]},{"role":"upper_visceral_anchor","semantic":51010,"source_body_index":20,"stable_id":461,"torso_local_max_m":[0.13303953409194946,-0.13353027403354645,0.063625447452068329],"torso_local_min_m":[0.084262087941169739,-0.17424784600734711,0.026906765997409821]},{"role":"pelvic_anchor","semantic":51010,"source_body_index":20,"stable_id":462,"torso_local_max_m":[0.08233652263879776,-0.39701157808303833,0.034268602728843689],"torso_local_min_m":[0.010075983591377735,-0.43757495284080505,-0.033010013401508331]},{"role":"pelvic_anchor","semantic":51010,"source_body_index":20,"stable_id":463,"torso_local_max_m":[0.050315443426370621,-0.4348473846912384,0.01782398484647274],"torso_local_min_m":[0.018116317689418793,-0.4553583562374115,-0.016720972955226898]}],"torso_body_index":20}
+resting_support_geometry=full_registered_skin vertices=54949 regions=32 full_binding_count=86 region_sizes=[6907,1222,2796,2044,1525,1394,710,777,1891,1262,810,832,890,483,1328,1266,835,700,870,3097,4320,2043,1882,579,1199,1219,962,632,868,3302,4308,1996] force_owner=ex2026-10-05 15:36:46.945 numi-human-native[16385:15926437] +[NSXPCSharedListener endpointForReply:withListenerName:replyErrorCode:]: an error occurred while attempting to obtain endpoint for listener 'ClientCallsAuxiliary': Connection interrupted
+2026-10-05 15:36:47.011 numi-human-native[16385:15926437] Human native framebuffer output: recording; window drawable unavailable
+isting_metal_stand partition=source_rest_voronoi
+human_execution_stage=static_equilibrium_begin wall_elapsed_ms=0 stage_step=0
+compiled_support_geometry=admissible compiled_support_min_gap_m=-1.38777878078e-17 compiled_support_gap_tolerance_m=1e-06 compiled_support_activation_distance_m=0.002 compiled_support_separated_witnesses=31 compiled_support_max_separated_force_n=0 compiled_support_rejected_pose_candidates=0
+human_execution_stage=static_equilibrium_end wall_elapsed_ms=3596.993459 stage_step=0
+human_execution_stage=fiber_equilibrium_begin wall_elapsed_ms=3597.054334 stage_step=0
+human_execution_stage=fiber_equilibrium_end wall_elapsed_ms=3626.972084 stage_step=2
+human_execution_stage=initial_force_checks_begin wall_elapsed_ms=3626.986917 stage_step=0
+human_stand_finish_work root=0 environment=0 nv=128 contacts=32 equalities=0 sweeps=16 contact_decisions=0 contact_axis_contractions=0 normal_impulse_changes=0 tangent_impulse_changes=0 zero_contact_changes=0 friction_interior=0 friction_boundary=0 friction_boundary_iterations=0 limit_previews=0 limit_preview_blocks=0 limit_nonzero=0 limit_selected_zero=0 contact_response_coefficients=0 limit_response_coefficients=0 equality_response_coefficients=0
+human_stand_finish_work root=0 environment=0 nv=128 contacts=32 equalities=0 sweeps=16 contact_decisions=0 contact_axis_contractions=0 normal_impulse_changes=0 tangent_impulse_changes=0 zero_contact_changes=0 friction_interior=0 friction_boundary=0 friction_boundary_iterations=0 limit_previews=0 limit_preview_blocks=0 limit_nonzero=0 limit_selected_zero=0 contact_response_coefficients=0 limit_response_coefficients=0 equality_response_coefficients=0
+human_stand_solver_path=split_candidate
+human_execution_stage=initial_force_checks_end wall_elapsed_ms=4677.435417 stage_step=0
+human_execution_stage=native_horizon_begin wall_elapsed_ms=4677.444875 stage_step=0
+human_stand_finish_work root=0 environment=0 nv=128 contacts=32 equalities=51 sweeps=16 contact_decisions=64 contact_axis_contractions=192 normal_impulse_changes=32 tangent_impulse_changes=64 zero_contact_changes=32 friction_interior=15 friction_boundary=17 friction_boundary_iterations=431 limit_previews=9011 limit_preview_blocks=670 limit_nonzero=622 limit_selected_zero=0 contact_response_coefficients=24576 limit_response_coefficients=79616 equality_response_coefficients=31722
+human_gpu_stage=kinematics step=1 elapsed_ns=1594250
+human_stand_finish_work root=0 environment=0 nv=128 contacts=32 equalities=51 sweeps=16 contact_decisions=64 contact_axis_contractions=192 normal_impulse_changes=32 tangent_impulse_changes=64 zero_contact_changes=32 friction_interior=15 friction_boundary=17 friction_boundary_iterations=431 limit_previews=9011 limit_preview_blocks=670 limit_nonzero=622 limit_selected_zero=0 contact_response_coefficients=24576 limit_response_coefficients=79616 equality_response_coefficients=31722
+human_gpu_stage=kinematics step=1 elapsed_ns=1601959
+human_gpu_stage=kinematics step=1 elapsed_ns=1601791
+resting_integrated_rejection=pass rejected_after_accepted_predecessor=true body_q_v_root_myo_unchanged=true circulation_and_clock_unchanged=true respiration_brain_history_unchanged=true retry_matches_uninterrupted_replay=true same_command_buffer_reject=pass accepted_prefix=2 rejected_step=2 inert_suffix=1
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=4803.555459 stage_step=0
+human_borrowed_callback=transaction_begin step=15 encoded=1 host_encode_ns=83 gpu_envelope_sampling=unavailable
+human_borrowed_callback=tendon_pre_dynamics step=15 encoded=1 host_encode_ns=0 gpu_envelope_sampling=unavailable
+human_borrowed_callback=transaction_pre_dynamics step=15 encoded=1 host_encode_ns=160791 gpu_envelope_sampling=unavailable
+human_borrowed_callback=support_geometry_pre_dynamics step=15 encoded=1 host_encode_ns=18292 gpu_envelope_sampling=unavailable
+human_borrowed_callback=transaction_post_dynamics step=15 encoded=1 host_encode_ns=8125 gpu_envelope_sampling=unavailable
+human_borrowed_callback=tendon_post_validation step=15 encoded=1 host_encode_ns=9459 gpu_envelope_sampling=unavailable
+human_borrowed_callback=transaction_begin step=31 encoded=1 host_encode_ns=83 gpu_envelope_sampling=unavailable
+human_borrowed_callback=tendon_pre_dynamics step=31 encoded=1 host_encode_ns=42 gpu_envelope_sampling=unavailable
+human_borrowed_callback=transaction_pre_dynamics step=31 encoded=1 host_encode_ns=181084 gpu_envelope_sampling=unavailable
+human_borrowed_callback=support_geometry_pre_dynamics step=31 encoded=1 host_encode_ns=18667 gpu_envelope_sampling=unavailable
+human_borrowed_callback=transaction_post_dynamics step=31 encoded=1 host_encode_ns=7917 gpu_envelope_sampling=unavailable
+human_borrowed_callback=tendon_post_validation step=31 encoded=1 host_encode_ns=9792 gpu_envelope_sampling=unavailable
+human_stand_finish_work root=0 environment=0 nv=128 contacts=32 equalities=51 sweeps=16 contact_decisions=64 contact_axis_contractions=192 normal_impulse_changes=32 tangent_impulse_changes=64 zero_contact_changes=32 friction_interior=15 friction_boundary=17 friction_boundary_iterations=431 limit_previews=9011 limit_preview_blocks=670 limit_nonzero=622 limit_selected_zero=0 contact_response_coefficients=24576 limit_response_coefficients=79616 equality_response_coefficients=31722
+human_gpu_stage=kinematics step=1 elapsed_ns=1568291
+human_gpu_stage=muscle_angular step=2 elapsed_ns=5792
+human_gpu_stage=muscles step=3 elapsed_ns=485000
+human_gpu_stage=active_force step=4 elapsed_ns=13875
+human_gpu_stage=force_reduce step=5 elapsed_ns=48375
+human_gpu_stage=tendon_transfer step=6 elapsed_ns=80417
+human_gpu_stage=activation step=7 elapsed_ns=3042
+human_gpu_stage=stand_prework step=8 elapsed_ns=437750
+human_gpu_stage=stand_mass step=9 elapsed_ns=52959
+human_gpu_stage=stand_factor step=10 elapsed_ns=947167
+human_gpu_stage=stand_equality_responses step=11 elapsed_ns=504791
+human_gpu_stage=stand_equality_factor step=12 elapsed_ns=326208
+human_gpu_stage=stand_projected_responses step=13 elapsed_ns=898000
+human_gpu_stage=stand_finish step=14 elapsed_ns=2989875
+human_gpu_stage=kinematics step=17 elapsed_ns=1566583
+human_gpu_stage=muscle_angular step=18 elapsed_ns=6209
+human_gpu_stage=muscles step=19 elapsed_ns=481833
+human_gpu_stage=active_force step=20 elapsed_ns=13792
+human_gpu_stage=force_reduce step=21 elapsed_ns=48333
+human_gpu_stage=tendon_transfer step=22 elapsed_ns=79750
+human_gpu_stage=activation step=23 elapsed_ns=3292
+human_gpu_stage=stand_prework step=24 elapsed_ns=441750
+human_gpu_stage=stand_mass step=25 elapsed_ns=52916
+human_gpu_stage=stand_factor step=26 elapsed_ns=944625
+human_gpu_stage=stand_equality_responses step=27 elapsed_ns=504833
+human_gpu_stage=stand_equality_factor step=28 elapsed_ns=326667
+human_gpu_stage=stand_projected_responses step=29 elapsed_ns=897959
+human_gpu_stage=stand_finish step=30 elapsed_ns=3522583
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=5349.990292 stage_step=32
+resting_native_profile step=32 command_ms=537.78275 gpu_ms=537.10537497 host_copy_ms=0.005208 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=5401.119917 stage_step=32
+human_borrowed_callback=transaction_begin step=47 encoded=1 host_encode_ns=42 gpu_envelope_sampling=unavailable
+human_borrowed_callback=tendon_pre_dynamics step=47 encoded=1 host_encode_ns=42 gpu_envelope_sampling=unavailable
+human_borrowed_callback=transaction_pre_dynamics step=47 encoded=1 host_encode_ns=95417 gpu_envelope_sampling=unavailable
+human_borrowed_callback=support_geometry_pre_dynamics step=47 encoded=1 host_encode_ns=7333 gpu_envelope_sampling=unavailable
+human_borrowed_callback=transaction_post_dynamics step=47 encoded=1 host_encode_ns=6083 gpu_envelope_sampling=unavailable
+human_borrowed_callback=tendon_post_validation step=47 encoded=1 host_encode_ns=2917 gpu_envelope_sampling=unavailable
+human_borrowed_callback=transaction_begin step=63 encoded=1 host_encode_ns=42 gpu_envelope_sampling=unavailable
+human_borrowed_callback=tendon_pre_dynamics step=63 encoded=1 host_encode_ns=42 gpu_envelope_sampling=unavailable
+human_borrowed_callback=transaction_pre_dynamics step=63 encoded=1 host_encode_ns=95708 gpu_envelope_sampling=unavailable
+human_borrowed_callback=support_geometry_pre_dynamics step=63 encoded=1 host_encode_ns=6250 gpu_envelope_sampling=unavailable
+human_borrowed_callback=transaction_post_dynamics step=63 encoded=1 host_encode_ns=6625 gpu_envelope_sampling=unavailable
+human_borrowed_callback=tendon_post_validation step=63 encoded=1 host_encode_ns=2666 gpu_envelope_sampling=unavailable
+human_gpu_stage=kinematics step=33 elapsed_ns=1570958
+human_gpu_stage=muscle_angular step=34 elapsed_ns=6125
+human_gpu_stage=muscles step=35 elapsed_ns=482208
+human_gpu_stage=active_force step=36 elapsed_ns=13917
+human_gpu_stage=force_reduce step=37 elapsed_ns=48166
+human_gpu_stage=tendon_transfer step=38 elapsed_ns=80000
+human_gpu_stage=activation step=39 elapsed_ns=3334
+human_gpu_stage=stand_prework step=40 elapsed_ns=437000
+human_gpu_stage=stand_mass step=41 elapsed_ns=52500
+human_gpu_stage=stand_factor step=42 elapsed_ns=943375
+human_gpu_stage=stand_equality_responses step=43 elapsed_ns=504875
+human_gpu_stage=stand_equality_factor step=44 elapsed_ns=326500
+human_gpu_stage=stand_projected_responses step=45 elapsed_ns=899333
+human_gpu_stage=stand_finish step=46 elapsed_ns=3105667
+human_gpu_stage=kinematics step=49 elapsed_ns=1571208
+human_gpu_stage=muscle_angular step=50 elapsed_ns=6000
+human_gpu_stage=muscles step=51 elapsed_ns=477750
+human_gpu_stage=active_force step=52 elapsed_ns=13750
+human_gpu_stage=force_reduce step=53 elapsed_ns=48250
+human_gpu_stage=tendon_transfer step=54 elapsed_ns=79417
+human_gpu_stage=activation step=55 elapsed_ns=3292
+human_gpu_stage=stand_prework step=56 elapsed_ns=437208
+human_gpu_stage=stand_mass step=57 elapsed_ns=53125
+human_gpu_stage=stand_factor step=58 elapsed_ns=945125
+human_gpu_stage=stand_equality_responses step=59 elapsed_ns=504875
+human_gpu_stage=stand_equality_factor step=60 elapsed_ns=326125
+human_gpu_stage=stand_projected_responses step=61 elapsed_ns=898833
+human_gpu_stage=stand_finish step=62 elapsed_ns=3217000
+human_stand_finish_work root=63 environment=0 nv=128 contacts=32 equalities=51 sweeps=16 contact_decisions=112 contact_axis_contractions=336 normal_impulse_changes=63 tangent_impulse_changes=126 zero_contact_changes=49 friction_interior=31 friction_boundary=32 friction_boundary_iterations=764 limit_previews=8803 limit_preview_blocks=631 limit_nonzero=583 limit_selected_zero=0 contact_response_coefficients=43008 limit_response_coefficients=74624 equality_response_coefficients=29733
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=5949.755875 stage_step=64
+resting_native_profile step=64 command_ms=543.62275 gpu_ms=543.008625507 host_copy_ms=0.005292 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=5999.219792 stage_step=64
+human_borrowed_callback=transaction_begin step=79 encoded=1 host_encode_ns=0 gpu_envelope_sampling=unavailable
+human_borrowed_callback=tendon_pre_dynamics step=79 encoded=1 host_encode_ns=0 gpu_envelope_sampling=unavailable
+human_borrowed_callback=transaction_pre_dynamics step=79 encoded=1 host_encode_ns=101708 gpu_envelope_sampling=unavailable
+human_borrowed_callback=support_geometry_pre_dynamics step=79 encoded=1 host_encode_ns=7250 gpu_envelope_sampling=unavailable
+human_borrowed_callback=transaction_post_dynamics step=79 encoded=1 host_encode_ns=7042 gpu_envelope_sampling=unavailable
+human_borrowed_callback=tendon_post_validation step=79 encoded=1 host_encode_ns=3000 gpu_envelope_sampling=unavailable
+human_borrowed_callback=transaction_begin step=95 encoded=1 host_encode_ns=42 gpu_envelope_sampling=unavailable
+human_borrowed_callback=tendon_pre_dynamics step=95 encoded=1 host_encode_ns=41 gpu_envelope_sampling=unavailable
+human_borrowed_callback=transaction_pre_dynamics step=95 encoded=1 host_encode_ns=102083 gpu_envelope_sampling=unavailable
+human_borrowed_callback=support_geometry_pre_dynamics step=95 encoded=1 host_encode_ns=7125 gpu_envelope_sampling=unavailable
+human_borrowed_callback=transaction_post_dynamics step=95 encoded=1 host_encode_ns=7125 gpu_envelope_sampling=unavailable
+human_borrowed_callback=tendon_post_validation step=95 encoded=1 host_encode_ns=3000 gpu_envelope_sampling=unavailable
+human_gpu_stage=kinematics step=65 elapsed_ns=1559917
+human_gpu_stage=muscle_angular step=66 elapsed_ns=5917
+human_gpu_stage=muscles step=67 elapsed_ns=482292
+human_gpu_stage=active_force step=68 elapsed_ns=13875
+human_gpu_stage=force_reduce step=69 elapsed_ns=48416
+human_gpu_stage=tendon_transfer step=70 elapsed_ns=80458
+human_gpu_stage=activation step=71 elapsed_ns=3167
+human_gpu_stage=stand_prework step=72 elapsed_ns=443167
+human_gpu_stage=stand_mass step=73 elapsed_ns=52959
+human_gpu_stage=stand_factor step=74 elapsed_ns=945833
+human_gpu_stage=stand_equality_responses step=75 elapsed_ns=504875
+human_gpu_stage=stand_equality_factor step=76 elapsed_ns=326250
+human_gpu_stage=stand_projected_responses step=77 elapsed_ns=901125
+human_gpu_stage=stand_finish step=78 elapsed_ns=4028041
+human_gpu_stage=kinematics step=81 elapsed_ns=1567333
+human_gpu_stage=muscle_angular step=82 elapsed_ns=6000
+human_gpu_stage=muscles step=83 elapsed_ns=481500
+human_gpu_stage=active_force step=84 elapsed_ns=13916
+human_gpu_stage=force_reduce step=85 elapsed_ns=48291
+human_gpu_stage=tendon_transfer step=86 elapsed_ns=80708
+human_gpu_stage=activation step=87 elapsed_ns=3208
+human_gpu_stage=stand_prework step=88 elapsed_ns=444250
+human_gpu_stage=stand_mass step=89 elapsed_ns=52416
+human_gpu_stage=stand_factor step=90 elapsed_ns=944541
+human_gpu_stage=stand_equality_responses step=91 elapsed_ns=505125
+human_gpu_stage=stand_equality_factor step=92 elapsed_ns=326125
+human_gpu_stage=stand_projected_responses step=93 elapsed_ns=901833
+human_gpu_stage=stand_finish step=94 elapsed_ns=4252083
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=6568.560959 stage_step=96
+resting_native_profile step=96 command_ms=564.412958 gpu_ms=563.764833845 host_copy_ms=0.007167 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=6616.166875 stage_step=96
+human_borrowed_callback=transaction_begin step=111 encoded=1 host_encode_ns=83 gpu_envelope_sampling=unavailable
+human_borrowed_callback=tendon_pre_dynamics step=111 encoded=1 host_encode_ns=42 gpu_envelope_sampling=unavailable
+human_borrowed_callback=transaction_pre_dynamics step=111 encoded=1 host_encode_ns=102542 gpu_envelope_sampling=unavailable
+human_borrowed_callback=support_geometry_pre_dynamics step=111 encoded=1 host_encode_ns=6875 gpu_envelope_sampling=unavailable
+human_borrowed_callback=transaction_post_dynamics step=111 encoded=1 host_encode_ns=6875 gpu_envelope_sampling=unavailable
+human_borrowed_callback=tendon_post_validation step=111 encoded=1 host_encode_ns=3166 gpu_envelope_sampling=unavailable
+human_borrowed_callback=transaction_begin step=127 encoded=1 host_encode_ns=42 gpu_envelope_sampling=unavailable
+human_borrowed_callback=tendon_pre_dynamics step=127 encoded=1 host_encode_ns=0 gpu_envelope_sampling=unavailable
+human_borrowed_callback=transaction_pre_dynamics step=127 encoded=1 host_encode_ns=101542 gpu_envelope_sampling=unavailable
+human_borrowed_callback=support_geometry_pre_dynamics step=127 encoded=1 host_encode_ns=6791 gpu_envelope_sampling=unavailable
+human_borrowed_callback=transaction_post_dynamics step=127 encoded=1 host_encode_ns=7667 gpu_envelope_sampling=unavailable
+human_borrowed_callback=tendon_post_validation step=127 encoded=1 host_encode_ns=3041 gpu_envelope_sampling=unavailable
+human_gpu_stage=kinematics step=97 elapsed_ns=1567917
+human_gpu_stage=muscle_angular step=98 elapsed_ns=5917
+human_gpu_stage=muscles step=99 elapsed_ns=479000
+human_gpu_stage=active_force step=100 elapsed_ns=13833
+human_gpu_stage=force_reduce step=101 elapsed_ns=48333
+human_gpu_stage=tendon_transfer step=102 elapsed_ns=80584
+human_gpu_stage=activation step=103 elapsed_ns=3167
+human_gpu_stage=stand_prework step=104 elapsed_ns=441542
+human_gpu_stage=stand_mass step=105 elapsed_ns=52959
+human_gpu_stage=stand_factor step=106 elapsed_ns=945542
+human_gpu_stage=stand_equality_responses step=107 elapsed_ns=504417
+human_gpu_stage=stand_equality_factor step=108 elapsed_ns=326166
+human_gpu_stage=stand_projected_responses step=109 elapsed_ns=901125
+human_gpu_stage=stand_finish step=110 elapsed_ns=3916208
+human_gpu_stage=kinematics step=113 elapsed_ns=1565166
+human_gpu_stage=muscle_angular step=114 elapsed_ns=6084
+human_gpu_stage=muscles step=115 elapsed_ns=476417
+human_gpu_stage=active_force step=116 elapsed_ns=14000
+human_gpu_stage=force_reduce step=117 elapsed_ns=48417
+human_gpu_stage=tendon_transfer step=118 elapsed_ns=80583
+human_gpu_stage=activation step=119 elapsed_ns=3084
+human_gpu_stage=stand_prework step=120 elapsed_ns=441833
+human_gpu_stage=stand_mass step=121 elapsed_ns=52834
+human_gpu_stage=stand_factor step=122 elapsed_ns=943792
+human_gpu_stage=stand_equality_responses step=123 elapsed_ns=504458
+human_gpu_stage=stand_equality_factor step=124 elapsed_ns=326417
+human_gpu_stage=stand_projected_responses step=125 elapsed_ns=901292
+human_gpu_stage=stand_finish step=126 elapsed_ns=4203083
+human_stand_finish_work root=127 environment=0 nv=128 contacts=32 equalities=51 sweeps=16 contact_decisions=208 contact_axis_contractions=624 normal_impulse_changes=80 tangent_impulse_changes=160 zero_contact_changes=128 friction_interior=20 friction_boundary=60 friction_boundary_iterations=1508 limit_previews=8979 limit_preview_blocks=646 limit_nonzero=584 limit_selected_zero=0 contact_response_coefficients=79872 limit_response_coefficients=74752 equality_response_coefficients=29784
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=7189.298334 stage_step=128
+resting_native_profile step=128 command_ms=568.058458 gpu_ms=567.442250438 host_copy_ms=0.047459 full_state_readback=1
+human_standing_progress=accepted step=128 simulated_seconds=0.256 root_xyz_m=[-0.0483746379614,0.200501203537,0.0876035988331] center_of_mass_xyz_m=[-0.0250502412658,-0.756197368131,0.106385641416] root_orientation_xyzw=[-0.706090450287,0.000294276222121,-0.00163267890457,0.708119690418] root_linear_velocity_xyz_m_s=[-0.0178792905062,0.000199675690965,0.0640944316983] max_generalized_acceleration=103.76222229 root_linear_speed_m_s=0.0665417543661 support_force_n=714.166462421 penetration_m=3.98036127081e-06 contact_count=13 friction_witness=unavailable maximum_friction_utilization=0 saturated_friction_contacts=0 maximum_tangent_force_n=0 muscle_feedback_max_excitation_delta=0 root_assistance_force_n=0 root_assistance_torque_nm=0
+human_execution_stage=native_horizon_end wall_elapsed_ms=7249.842334 stage_step=128
+stand_terminal_state={"schema":"numi.human.legacy-stand-terminal.v1","step_count":128,"timestep_seconds":0.002,"root_assistance":false,"initial_q":[-0.05000000074505806,0.20000000298023224,0.10715460777282715,-0.70090925693511963,0,0,0.71325045824050903,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7.6925396608196195e-11,9.537330214470785e-08,0,-1.4732499664660281e-08,1.0893900004305124e-08,0,0,0,0,0,0.010506000369787216,0,0,0,-7.6925396608196195e-11,9.537330214470785e-08,0,-1.4732499664660281e-08,-1.0893900004305124e-08,0,0,0,0,0,0.010506000369787216],"initial_v":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"q":[-0.048374637961387634,0.2005012035369873,0.087603598833084106,-0.70609045028686523,0.00029427622212097049,-0.0016326789045706391,0.70811969041824341,-0.010761892423033714,-0.001248297980055213,0.0053617497906088829,0,0,-0.0069188205525279045,-0.0019909502007067204,-0.0002260667533846572,0.00020256692369002849,-0.0021954260300844908,-0.00030620748293586075,0.00020256692369002849,-0.0024859972763806581,-0.00031219932134263217,0.00016680403496138752,-0.0027442825958132744,-0.00023468001745641232,0.0001549009612062946,-8.9747920206662002e-10,3.8013064918018813e-10,-3.8013064918018813e-10,8.9747920206662002e-10,-1.8172098548152604e-10,1.4686022398180398e-09,6.6012934007986246e-10,-6.6012934007986246e-10,-1.4686022398180398e-09,1.8172098548152604e-10,-0.0025948591064661741,3.708591655993132e-09,0.0025948591064661741,-0.042944569140672684,-9.004156448222389e-11,0.004151554312556982,-0.034861564636230469,0.0015735694905743003,-0.016318146139383316,-0.0055933808907866478,-0.0023266859352588654,-0.0062028635293245316,-4.3221902501500153e-07,-0.005906195379793644,-8.7424410821768106e-08,1.764031143380862e-10,-3.8975861116341548e-07,-0.0058479299768805504,-8.043299715154717e-08,9.447512910876199e-11,-4.5771648693460065e-09,-0.0066251256503164768,-7.7087108252271719e-08,6.8250356755061858e-11,-5.7435596545474255e-07,-0.0047302884049713612,-1.0029485508766811e-07,-1.4536665204900601e-09,1.4845683793396347e-08,-6.2879443873953278e-09,6.2879443873953278e-09,-1.4845683793396347e-08,3.0059441602503512e-09,-2.429293743944072e-08,-1.0919553261601322e-08,1.0919553261601322e-08,2.429293743944072e-08,-3.0059441602503512e-09,0.0030431700870394707,-6.134580132766132e-08,-0.0030431700870394707,-0.12720748782157898,-5.1325308447758289e-08,-0.0348675437271595,-0.09079325944185257,-0.0014395153848454356,-0.044229183346033096,-0.049879696220159531,-0.016716448590159416,-0.01775527186691761,1.1731005542969797e-05,-0.0093711595982313156,-4.9201065621673479e-07,3.3514818698066051e-10,-8.1160317222384037e-07,-0.0085329785943031311,-6.3590687204850838e-07,4.6212911969378823e-11,0.0030988911166787148,-0.0098603041842579842,-3.5112297069872511e-08,6.260748863784471e-11,-1.1128519190606312e-06,-0.012424081563949585,-2.7867275775861344e-07,-7.7179190816067944e-10,-0.050668172538280487,0.00037932736449874938,-0.19522036612033844,-1.4121293023805492e-09,9.4580926202070259e-08,-2.5325306296508643e-07,-3.4764816803090071e-08,-8.2682859670057951e-08,-0.0072794621810317039,-0.0018061754526570439,0.012360554188489914,1.2354875345010896e-08,3.8035552485382595e-09,0.010505993850529194,-0.054160729050636292,-0.012614528648555279,-0.34219679236412048,-5.3521870962969231e-11,9.5360846330549975e-08,-3.9803880191868757e-09,-1.5047348256302939e-08,-9.4231502600905515e-09,-0.0071008959785103798,-0.0015709316357970238,0.0099828345701098442,1.9418203156540415e-10,5.9780652650331945e-11,0.010506000369787216],"v":[-0.017879290506243706,0.00019967569096479565,0.064094431698322296,0.084125302731990814,0.012058837339282036,0.0090112397447228432,0.024682760238647461,-0.031547825783491135,0.013757878914475441,0,0,0.015868546441197395,0.0045663109049201012,-0.0057133110240101814,0.00051977270049974322,0.0050352830439805984,-0.0077386815100908279,0.00051977270049974322,0.005701717920601368,-0.0078901108354330063,0.00042800762457773089,0.0062941038049757481,-0.0059309909120202065,0.00039746513357385993,4.9695920267822657e-08,-2.1048892406838604e-08,2.1048892406838604e-08,-4.9695920267822657e-08,1.0062397137744483e-08,-8.1320600031631329e-08,-3.6553199578293061e-08,3.6553199578293061e-08,8.1320600031631329e-08,-1.0062397137744483e-08,-0.018429039046168327,-2.0535505029783963e-07,0.018429039046168327,-0.15834896266460419,-7.1891683717240085e-08,0.017315588891506195,-0.13460841774940491,-0.0071768811903893948,-0.066738247871398926,-0.016970887780189514,-0.0096472213044762611,-0.023902921006083488,-1.1387738823032123e-06,-0.022124985232949257,-2.185629313089521e-07,-1.1045079517657541e-08,-9.7167730928049423e-07,-0.02223815955221653,-2.1475871392340196e-07,-6.4270571087376993e-09,-1.0815323321367032e-06,-0.025614850223064423,-2.3172749763489264e-07,-4.2381187448370383e-09,-1.1335315548421931e-06,-0.016248196363449097,-1.9393280581425643e-07,-1.6679668757291211e-09,9.8766591349885857e-08,-4.1832958430632061e-08,4.1832958430632061e-08,-9.8766591349885857e-08,1.999819509990175e-08,-1.6161806115633226e-07,-7.2646507476292754e-08,7.2646507476292754e-08,1.6161806115633226e-07,-1.999819509990175e-08,0.020372673869132996,-4.0812642509990837e-07,-0.020372673869132996,-0.4455890953540802,-3.4967553119713557e-07,-0.18066936731338501,-0.32703903317451477,-0.10682997107505798,-0.16356463730335236,-0.23385818302631378,-0.081565693020820618,-0.081065990030765533,-2.4504426619387232e-05,-0.04843565821647644,-7.8907085310220282e-08,-3.0090717473285622e-08,-4.507621270022355e-06,-0.049809403717517853,-1.0330912800782244e-06,-5.783295176087222e-09,0.033621326088905334,-0.061370693147182465,-1.4924022906370737e-08,-1.0225376989581036e-08,-1.4750659147466649e-06,-0.063615590333938599,-3.4606483723109704e-07,-2.1618200563011669e-09,0.10569756478071213,-0.1517273336648941,-1.0404572486877441,-6.0328071427306895e-09,-3.2102591696059335e-09,-1.0260381486659753e-06,-8.1159633680272236e-08,-3.7912016637164925e-07,-0.33142617344856262,0.10447780042886734,0.0911603644490242,5.0054964617629594e-08,1.540984406744883e-08,-2.5406928116922245e-08,0.096851162612438202,-0.24030151963233948,-1.4969388246536255,-1.1644532560417531e-10,6.196444746198182e-11,1.9804604178830232e-08,1.5665441166490268e-09,-7.317781491877895e-09,-0.046568050980567932,-0.02538907527923584,0.028638781979680061,-9.6616170619512332e-10,-2.9744140483956016e-10,4.9039194927047447e-10]}
+resting_integrated_body=completed simulated_s=0.25600001215934753 wall_s=7.2504896670000001 real_time_factor=0.03530796179525781 physiology_body_clock=matched root_assistance=false presentation_qualification=pending

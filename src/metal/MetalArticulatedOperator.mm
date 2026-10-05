@@ -71,34 +71,143 @@ std::vector<std::uint32_t> humanDiagnosticRoots(const char* name) {
 // Read-only timestamps. A focused stage samples its first eight physical
 // steps. The cycle option samples one stage per step so the GPU counter limit
 // cannot silently drop later encoders from an all-stage profile.
-id<MTLComputeCommandEncoder> humanTimedEncoder(
-    id<MTLCommandBuffer> commandBuffer, id<MTLDevice> device,
-    const char* stage, std::uint32_t step
-) {
+static constexpr std::array<const char*, 16u> kHumanCycleTimingStages{
+    "kinematics_prepare", "kinematics", "muscle_angular", "muscles",
+    "active_force", "force_reduce", "tendon_transfer", "activation",
+    "stand_prework", "stand_mass", "stand_factor",
+    "stand_equality_responses", "stand_equality_factor",
+    "stand_projected_responses", "stand_finish", "borrowed_callback",
+};
+
+constexpr bool humanCycleScheduleCoversEightRootsPerStage() {
+    std::array<std::uint8_t, kHumanCycleTimingStages.size()> counts{};
+    for (std::size_t step = 0u;
+         step < kHumanCycleTimingStages.size() * 8u; ++step)
+        ++counts[step % kHumanCycleTimingStages.size()];
+    for (const std::uint8_t count : counts)
+        if (count != 8u) return false;
+    return true;
+}
+static_assert(humanCycleScheduleCoversEightRootsPerStage());
+
+bool humanTimingSelected(const char* stage, std::uint32_t step) {
     const char* requested = std::getenv("NUMI_HUMAN_GPU_TIMING");
+    if (requested == nullptr || std::strcmp(requested, "1") != 0) return false;
     const char* selectedStage = std::getenv("NUMI_HUMAN_GPU_TIMING_STAGE");
     const bool cycle = selectedStage != nullptr &&
         std::strcmp(selectedStage, "cycle") == 0;
     static const auto timingRoots =
         humanDiagnosticRoots("NUMI_HUMAN_GPU_TIMING_ROOTS");
+    if (cycle) {
+        const bool sampledCycleRoot = timingRoots.empty()
+            ? step < kHumanCycleTimingStages.size() * 8u
+            : std::binary_search(timingRoots.begin(), timingRoots.end(), step);
+        if (!sampledCycleRoot) return false;
+        return std::strcmp(kHumanCycleTimingStages[
+            step % kHumanCycleTimingStages.size()], stage) == 0;
+    }
     const bool sampledRoot = timingRoots.empty() ? step < 8u :
         std::binary_search(timingRoots.begin(), timingRoots.end(), step);
-    if (cycle) {
-        static constexpr std::array<const char*, 14u> stages{
-            "kinematics", "muscle_angular", "muscles", "active_force",
-            "force_reduce", "tendon_transfer", "activation",
-            "stand_prework", "stand_mass", "stand_factor",
-            "stand_equality_responses", "stand_equality_factor",
-            "stand_projected_responses", "stand_finish",
-        };
-        if ((timingRoots.empty() && step >= stages.size() * 8u) ||
-            (!timingRoots.empty() && !sampledRoot))
-            return [commandBuffer computeCommandEncoder];
-        selectedStage = stages[step % stages.size()];
+    if (!sampledRoot) return false;
+    return selectedStage == nullptr || std::strcmp(selectedStage, stage) == 0;
+}
+
+struct HumanBorrowedCallbackTiming {
+    bool selected = false;
+    __strong id<MTLCounterSampleBuffer> samples = nil;
+    std::string label;
+    std::uint32_t step = 0u;
+    std::chrono::steady_clock::time_point hostBegin{};
+};
+
+HumanBorrowedCallbackTiming humanBeginBorrowedCallbackTiming(
+    id<MTLCommandBuffer> commandBuffer, id<MTLDevice> device,
+    std::uint32_t step, const char* label
+) {
+    HumanBorrowedCallbackTiming timing{};
+    timing.selected = humanTimingSelected("borrowed_callback", step);
+    if (!timing.selected) return timing;
+    timing.label = label == nullptr ? "unnamed" : label;
+    timing.step = step;
+    if (![device supportsCounterSampling:MTLCounterSamplingPointAtBlitBoundary]) {
+        timing.hostBegin = std::chrono::steady_clock::now();
+        return timing;
     }
-    if ((!cycle && !sampledRoot) || requested == nullptr ||
-        std::strcmp(requested, "1") != 0 ||
-        (selectedStage != nullptr && std::strcmp(selectedStage, stage) != 0) ||
+    for (id<MTLCounterSet> set in device.counterSets) {
+        if (![set.name isEqualToString:MTLCommonCounterSetTimestamp]) continue;
+        MTLCounterSampleBufferDescriptor* descriptor =
+            [MTLCounterSampleBufferDescriptor new];
+        descriptor.counterSet = set;
+        descriptor.storageMode = MTLStorageModeShared;
+        descriptor.sampleCount = 2u;
+        timing.samples = [device newCounterSampleBufferWithDescriptor:descriptor
+                                                               error:nil];
+        break;
+    }
+    if (timing.samples == nil) {
+        timing.hostBegin = std::chrono::steady_clock::now();
+        return timing;
+    }
+    id<MTLBlitCommandEncoder> marker = [commandBuffer blitCommandEncoder];
+    if (marker == nil) {
+        timing.samples = nil;
+        timing.hostBegin = std::chrono::steady_clock::now();
+        return timing;
+    }
+    [marker sampleCountersInBuffer:timing.samples atSampleIndex:0u withBarrier:YES];
+    [marker endEncoding];
+    timing.hostBegin = std::chrono::steady_clock::now();
+    return timing;
+}
+
+void humanFinishBorrowedCallbackTiming(
+    HumanBorrowedCallbackTiming timing,
+    id<MTLCommandBuffer> commandBuffer, bool encoded
+) {
+    if (!timing.selected) return;
+    const auto hostElapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(
+        std::chrono::steady_clock::now() - timing.hostBegin).count();
+    if (timing.samples != nil) {
+        id<MTLBlitCommandEncoder> marker = [commandBuffer blitCommandEncoder];
+        if (marker != nil) {
+            [marker sampleCountersInBuffer:timing.samples atSampleIndex:1u
+                               withBarrier:YES];
+            [marker endEncoding];
+            const auto label = timing.label;
+            const auto step = timing.step;
+            const auto hostNs = static_cast<unsigned long long>(hostElapsed);
+            const auto success = encoded ? 1u : 0u;
+            id<MTLCounterSampleBuffer> samples = timing.samples;
+            [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+                NSData* data = [samples resolveCounterRange:NSMakeRange(0u, 2u)];
+                if (completed.status != MTLCommandBufferStatusCompleted ||
+                    data.length != 2u * sizeof(MTLCounterResultTimestamp)) return;
+                const auto* values =
+                    static_cast<const MTLCounterResultTimestamp*>(data.bytes);
+                if (values[0].timestamp == 0u ||
+                    values[1].timestamp < values[0].timestamp ||
+                    values[0].timestamp == MTLCounterErrorValue ||
+                    values[1].timestamp == MTLCounterErrorValue) return;
+                std::fprintf(stderr,
+                    "human_borrowed_callback=%s step=%u encoded=%u host_encode_ns=%llu gpu_envelope_ns=%llu\n",
+                    label.c_str(), step, success, hostNs,
+                    static_cast<unsigned long long>(
+                        values[1].timestamp - values[0].timestamp));
+            }];
+            return;
+        }
+    }
+    std::fprintf(stderr,
+        "human_borrowed_callback=%s step=%u encoded=%u host_encode_ns=%llu gpu_envelope_sampling=unavailable\n",
+        timing.label.c_str(), timing.step, encoded ? 1u : 0u,
+        static_cast<unsigned long long>(hostElapsed));
+}
+
+id<MTLComputeCommandEncoder> humanTimedEncoder(
+    id<MTLCommandBuffer> commandBuffer, id<MTLDevice> device,
+    const char* stage, std::uint32_t step
+) {
+    if (!humanTimingSelected(stage, step) ||
         ![device supportsCounterSampling:MTLCounterSamplingPointAtStageBoundary])
         return [commandBuffer computeCommandEncoder];
     id<MTLCounterSampleBuffer> timing = nil;
@@ -10493,7 +10602,17 @@ MetalArticulatedOperatorContext::submit(
                 if (!numanXTransactionAbort.armed) {
                     numanXTransactionAbort.armed = true;
                 }
-                return program.encode(program.context, pass);
+                const char* phaseName =
+                    phase == MetalNumanXTransactionPhase::beginStep ? "transaction_begin" :
+                    phase == MetalNumanXTransactionPhase::preDynamics ? "transaction_pre_dynamics" :
+                    phase == MetalNumanXTransactionPhase::postDynamics ? "transaction_post_dynamics" :
+                    "transaction_other";
+                auto callbackTiming = humanBeginBorrowedCallbackTiming(
+                    commandBuffer, state_->device, stepIndex, phaseName);
+                const bool encoded = program.encode(program.context, pass);
+                humanFinishBorrowedCallbackTiming(std::move(callbackTiming),
+                    commandBuffer, encoded);
+                return encoded;
             };
             const auto makeHumanMatterDispatch = [&]() {
                 const MetalArticulatedOperatorLayout& layout =
@@ -10707,6 +10826,7 @@ MetalArticulatedOperatorContext::submit(
                 pass.slotGeneration = program.slotGeneration;
                 return pass;
             };
+            std::uint32_t diagnosticStepIndex = input.stand.stepIndexOffset;
             const auto encodeHumanMatterPhase = [&] (
                 const MetalNumanXHumanMatterPhase phase
             ) -> bool {
@@ -10724,7 +10844,17 @@ MetalArticulatedOperatorContext::submit(
                 }
                 const MetalNumanXHumanMatterPass pass =
                     makeHumanMatterPass(phase);
-                return program.encode(program.context, pass);
+                const char* phaseName =
+                    phase == MetalNumanXHumanMatterPhase::beginStep ? "matter_begin_step" :
+                    phase == MetalNumanXHumanMatterPhase::preDynamics ? "matter_pre_dynamics" :
+                    phase == MetalNumanXHumanMatterPhase::postDynamics ? "matter_post_dynamics" :
+                    "matter_other";
+                auto callbackTiming = humanBeginBorrowedCallbackTiming(
+                    commandBuffer, state_->device, diagnosticStepIndex, phaseName);
+                const bool encoded = program.encode(program.context, pass);
+                humanFinishBorrowedCallbackTiming(std::move(callbackTiming),
+                    commandBuffer, encoded);
+                return encoded;
             };
             // Optional first-root readback isolates the first divergent physical
             // buffer. It never supplies forces or accepted-state authority.
@@ -10734,6 +10864,7 @@ MetalArticulatedOperatorContext::submit(
                  horizonStep < horizonStepCount; ++horizonStep) {
             const std::uint32_t authoritativeStep =
                 input.stand.stepIndexOffset + horizonStep;
+            diagnosticStepIndex = authoritativeStep;
             // The permanent NumanX root owns its own wider prepare/apply
             // protocol. Ordinary stand/tendon horizons retain their accepted
             // physical bytes here, before excitation or contact state changes.
@@ -11404,10 +11535,15 @@ MetalArticulatedOperatorContext::submit(
                         tendonLoadAbort.armed = true;
                         const MetalNumiHumanTendonLoadPass pass =
                             tendonLoadPass();
-                        if (!input.stand.tendonLoadProgram.encodePreDynamics(
-                                input.stand.tendonLoadProgram.context,
-                                pass
-                            )) {
+                        auto callbackTiming = humanBeginBorrowedCallbackTiming(
+                            commandBuffer, state_->device, authoritativeStep,
+                            "tendon_pre_dynamics");
+                        const bool encoded =
+                            input.stand.tendonLoadProgram.encodePreDynamics(
+                                input.stand.tendonLoadProgram.context, pass);
+                        humanFinishBorrowedCallbackTiming(std::move(callbackTiming),
+                            commandBuffer, encoded);
+                        if (!encoded) {
                             return reject(
                                 std::move(diagnostics),
                                 MetalArticulatedOperatorHostStatus::metalCommandFailure,
@@ -11647,8 +11783,15 @@ MetalArticulatedOperatorContext::submit(
                 pass.groundPoint = input.stand.groundPoint;
                 pass.groundNormal = input.stand.groundNormal;
                 supportGeometryAbort.armed = true;
-                if (!input.stand.supportGeometryProgram.encodePreDynamics(
-                        input.stand.supportGeometryProgram.context, pass)) {
+                auto callbackTiming = humanBeginBorrowedCallbackTiming(
+                    commandBuffer, state_->device, authoritativeStep,
+                    "support_geometry_pre_dynamics");
+                const bool encoded =
+                    input.stand.supportGeometryProgram.encodePreDynamics(
+                        input.stand.supportGeometryProgram.context, pass);
+                humanFinishBorrowedCallbackTiming(std::move(callbackTiming),
+                    commandBuffer, encoded);
+                if (!encoded) {
                     return reject(
                         std::move(diagnostics),
                         MetalArticulatedOperatorHostStatus::externalProgramFailure,
@@ -13368,10 +13511,15 @@ MetalArticulatedOperatorContext::submit(
                     const MetalNumiHumanTendonLoadPass pass =
                         tendonLoadPass();
                     tendonLoadAbort.armed = true;
-                    if (!input.stand.tendonLoadProgram.encodePostValidation(
-                            input.stand.tendonLoadProgram.context,
-                            pass
-                        )) {
+                    auto callbackTiming = humanBeginBorrowedCallbackTiming(
+                        commandBuffer, state_->device, authoritativeStep,
+                        "tendon_post_validation");
+                    const bool encoded =
+                        input.stand.tendonLoadProgram.encodePostValidation(
+                            input.stand.tendonLoadProgram.context, pass);
+                    humanFinishBorrowedCallbackTiming(std::move(callbackTiming),
+                        commandBuffer, encoded);
+                    if (!encoded) {
                         return reject(
                             std::move(diagnostics),
                             MetalArticulatedOperatorHostStatus::metalCommandFailure,
