@@ -57,8 +57,9 @@ struct MRStandFinishWorkCounters {
 // sequence. Completed blocks update independent future rows in parallel;
 // lane zero resolves dependencies within each block and performs the original
 // ordered backward substitution. All lanes enter every barrier together.
+template<typename FactorPointer>
 inline bool mrNumiHumanBilateralSolveCooperative(
-    threadgroup const float* factor,
+    FactorPointer factor,
     device const float* inverseScale,
     device const float* pivots,
     threadgroup float* rhs,
@@ -68,7 +69,7 @@ inline bool mrNumiHumanBilateralSolveCooperative(
     threadgroup uint* succeeded
 ) {
     if (lane == 0u) {
-        *succeeded = n != 0u && n <= kCachedEqualityCapacity ? 1u : 0u;
+        *succeeded = n != 0u && n <= MR_NUMI_HUMAN_STAND_MAX_DOFS ? 1u : 0u;
         for (uint i = 0u; i < n && *succeeded != 0u; ++i) {
             if (!(inverseScale[i] > 0.0f) ||
                 !isfinite(inverseScale[i])) {
@@ -150,6 +151,9 @@ inline bool mrNumiHumanBilateralSolveCooperative(
 
 // The pivot search and each row's arithmetic stay in their original order.
 // Independent scaling, swaps, and elimination rows run across one SIMD group.
+// Blocks beyond the 16 KiB cache use the existing device factor allocation.
+// Only independent rows are parallelized; pivot and FMA ordering are unchanged.
+template<bool deviceWorkspace, typename FactorPointer>
 inline bool mrNumiHumanBilateralFactorCooperative(
     device float* matrix,
     device float* inverseScale,
@@ -157,18 +161,22 @@ inline bool mrNumiHumanBilateralFactorCooperative(
     const uint n,
     const uint lane,
     const uint threadCount,
-    threadgroup float* factorCache,
+    FactorPointer factorCache,
     threadgroup float* scaleCache,
     threadgroup float* pivotCache,
     threadgroup atomic_uint* failure,
     threadgroup uint* selectedPivot
 ) {
+    constexpr mem_flags workspaceFence = deviceWorkspace
+        ? mem_flags::mem_device | mem_flags::mem_threadgroup
+        : mem_flags::mem_threadgroup;
     if (lane == 0u)
         atomic_store_explicit(failure, MR_INVALID_INDEX,
                               memory_order_relaxed);
-    for (uint index = lane; index < n * n; index += threadCount)
-        factorCache[index] = matrix[index];
-    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (!deviceWorkspace)
+        for (uint index = lane; index < n * n; index += threadCount)
+            factorCache[index] = matrix[index];
+    threadgroup_barrier(workspaceFence);
 
     for (uint i = lane; i < n; i += threadCount) {
         const float diagonal = factorCache[i * n + i];
@@ -180,7 +188,7 @@ inline bool mrNumiHumanBilateralFactorCooperative(
         if (!isfinite(scaleCache[i]))
             atomic_fetch_min_explicit(failure, i, memory_order_relaxed);
     }
-    threadgroup_barrier(mem_flags::mem_threadgroup);
+    threadgroup_barrier(workspaceFence);
     if (atomic_load_explicit(failure, memory_order_relaxed) !=
         MR_INVALID_INDEX) return false;
 
@@ -193,7 +201,7 @@ inline bool mrNumiHumanBilateralFactorCooperative(
             atomic_fetch_min_explicit(failure, index,
                                       memory_order_relaxed);
     }
-    threadgroup_barrier(mem_flags::mem_threadgroup);
+    threadgroup_barrier(workspaceFence);
     if (atomic_load_explicit(failure, memory_order_relaxed) !=
         MR_INVALID_INDEX) return false;
 
@@ -214,7 +222,7 @@ inline bool mrNumiHumanBilateralFactorCooperative(
                 *selectedPivot = pivot;
             }
         }
-        threadgroup_barrier(mem_flags::mem_threadgroup);
+        threadgroup_barrier(workspaceFence);
         if (atomic_load_explicit(failure, memory_order_relaxed) !=
             MR_INVALID_INDEX) return false;
 
@@ -226,7 +234,7 @@ inline bool mrNumiHumanBilateralFactorCooperative(
                 factorCache[*selectedPivot * n + j] = value;
             }
         }
-        threadgroup_barrier(mem_flags::mem_threadgroup);
+        threadgroup_barrier(workspaceFence);
         for (uint i = k + 1u + lane; i < n; i += threadCount) {
             factorCache[i * n + k] /= factorCache[k * n + k];
             if (!isfinite(factorCache[i * n + k])) {
@@ -243,13 +251,14 @@ inline bool mrNumiHumanBilateralFactorCooperative(
                                               memory_order_relaxed);
             }
         }
-        threadgroup_barrier(mem_flags::mem_threadgroup);
+        threadgroup_barrier(workspaceFence);
         if (atomic_load_explicit(failure, memory_order_relaxed) !=
             MR_INVALID_INDEX) return false;
     }
 
-    for (uint index = lane; index < n * n; index += threadCount)
-        matrix[index] = factorCache[index];
+    if (!deviceWorkspace)
+        for (uint index = lane; index < n * n; index += threadCount)
+            matrix[index] = factorCache[index];
     for (uint index = lane; index < n; index += threadCount) {
         inverseScale[index] = scaleCache[index];
         pivots[index] = pivotCache[index];
@@ -1911,8 +1920,8 @@ kernel void mr_numi_human_stand_equality_prepare(
     device float* equalityPivots = equalityScale + equalityCount;
     threadgroup float factorCache[
         kCachedEqualityCapacity * kCachedEqualityCapacity];
-    threadgroup float scaleCache[kCachedEqualityCapacity];
-    threadgroup float pivotCache[kCachedEqualityCapacity];
+    threadgroup float scaleCache[MR_NUMI_HUMAN_STAND_MAX_DOFS];
+    threadgroup float pivotCache[MR_NUMI_HUMAN_STAND_MAX_DOFS];
     threadgroup atomic_uint factorFailure;
     threadgroup uint selectedPivot;
     const uint bodyCount = articulation.bodyCount;
@@ -1967,9 +1976,18 @@ kernel void mr_numi_human_stand_equality_prepare(
     }
     threadgroup_barrier(mem_flags::mem_device);
     if (equalityCount <= kCachedEqualityCapacity) {
-        if (!mrNumiHumanBilateralFactorCooperative(
+        if (!mrNumiHumanBilateralFactorCooperative<false>(
                 equalityFactor, equalityScale, equalityPivots,
                 equalityCount, lane, threadCount, factorCache,
+                scaleCache, pivotCache, &factorFailure, &selectedPivot) &&
+            lane == 0u) {
+            fail(status, MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED,
+                 MR_INVALID_INDEX);
+        }
+    } else if (equalityCount <= MR_NUMI_HUMAN_STAND_MAX_DOFS) {
+        if (!mrNumiHumanBilateralFactorCooperative<true>(
+                equalityFactor, equalityScale, equalityPivots,
+                equalityCount, lane, threadCount, equalityFactor,
                 scaleCache, pivotCache, &factorFailure, &selectedPivot) &&
             lane == 0u) {
             fail(status, MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED,

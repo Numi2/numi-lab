@@ -58,3 +58,14 @@ anatomical baseline. The known lung/rib and cardiac-wall defects also remain.
 Exact launch/source hashes, traces, recording identities, full-skin results
 and the failed first audit wrapper are retained under
 `matter/tools/evidence/human-resting-20261005/hand-native-032`.
+
+The subsequent existing-solver optimization keeps larger equality factors in
+their existing device buffer while parallelizing independent elimination and
+forward-substitution rows. Pivot selection and each row's FMA order remain
+unchanged; the 64-row threadgroup cache remains in use for smaller blocks.
+The paired six-second native result is bit-for-bit identical for both traces,
+the initial and three accepted geometry packs, and terminal body state.
+Total measured GPU time fell 39.53%; wall time was 119.966 s (0.05001 times
+real time). A 32-step control/candidate check also preserved the original
+51-row configuration exactly. This is a local comparison with concurrent CPU
+asset preparation, not a general benchmark. See `equality-cooperative-039`.

@@ -428,10 +428,11 @@
                     equalityFactorStorage, equalityScale, equalityPivots,
                     equalityRhs, equalityCount, lane, threadCount,
                     &cooperativeEqualitySucceeded);
-            } else if (lane == 0u) {
-                solved = mrNumiHumanBilateralSolve(equalityFactor,
-                    equalityScale, equalityPivots, equalityRhs,
-                    equalityCount);
+            } else {
+                solved = mrNumiHumanBilateralSolveCooperative(
+                    equalityFactor, equalityScale, equalityPivots,
+                    equalityRhs, equalityCount, lane, threadCount,
+                    &cooperativeEqualitySucceeded);
             }
             if (lane == 0u) {
                 if (!solved) {

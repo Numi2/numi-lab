@@ -1,0 +1,634 @@
+{
+  "scope": "Measured native integrated91-row equality optimization, source51 regression; same physical equations and FMA order, GPU resident. Single6s control/candidate comparison with CPU preparation contention, not general performance or whole-body anatomy qualification.",
+  "retained_files": [
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/equality-cooperative-build-019-invocation.json",
+      "source_sha256": "a1f8d0447dada0ee537735cccedc12af5b22170d094e89555344f80e82c37059",
+      "retained": "equality-cooperative-build-019-invocation.json",
+      "retained_sha256": "a1f8d0447dada0ee537735cccedc12af5b22170d094e89555344f80e82c37059"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/equality-cooperative-build-019-result.json",
+      "source_sha256": "e1bb657a9a98fee41094fcb945d7f66cd6260692d5f4cbd4e9f9bdde8d459a34",
+      "retained": "equality-cooperative-build-019-result.json",
+      "retained_sha256": "e1bb657a9a98fee41094fcb945d7f66cd6260692d5f4cbd4e9f9bdde8d459a34"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/equality-cooperative-build-019.log",
+      "source_sha256": "6b3b815f41fa2ebc7a86eea2b28a18874f305d25f732ad9019b52dd717672f19",
+      "retained": "equality-cooperative-build-019.log",
+      "retained_sha256": "6b3b815f41fa2ebc7a86eea2b28a18874f305d25f732ad9019b52dd717672f19"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/build-equality-finish-020.py",
+      "source_sha256": "a6e9ec301e4cd68124e40c690be798be6f10814ac62beb63b0a4615f480d8499",
+      "retained": "build-equality-finish-020.py",
+      "retained_sha256": "a6e9ec301e4cd68124e40c690be798be6f10814ac62beb63b0a4615f480d8499"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/equality-finish-build-020-invocation.json",
+      "source_sha256": "4c50cd54716abf6711de0bca9949c537f92b8e2ee7928d402bad953fe35cbb0f",
+      "retained": "equality-finish-build-020-invocation.json",
+      "retained_sha256": "4c50cd54716abf6711de0bca9949c537f92b8e2ee7928d402bad953fe35cbb0f"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/equality-finish-build-020-result.json",
+      "source_sha256": "8d74a1236939410fbcfb46d4319cb1018b5b3bbed6c04dcd8e2a2d453e5b1374",
+      "retained": "equality-finish-build-020-result.json",
+      "retained_sha256": "8d74a1236939410fbcfb46d4319cb1018b5b3bbed6c04dcd8e2a2d453e5b1374"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/equality-finish-build-020.log",
+      "source_sha256": "4e7b86979d3bc49df10443222bf132a35933d9b735037318aab1f097a3f43286",
+      "retained": "equality-finish-build-020.log",
+      "retained_sha256": "4e7b86979d3bc49df10443222bf132a35933d9b735037318aab1f097a3f43286"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/compare-equality-cooperative-035.py",
+      "source_sha256": "a9d0f54a9aea0d6abde45bfc28671d1e4c4e1a950323c66bff17bd3b6eecf19c",
+      "retained": "compare-equality-cooperative-035.py",
+      "retained_sha256": "a9d0f54a9aea0d6abde45bfc28671d1e4c4e1a950323c66bff17bd3b6eecf19c"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/compare-equality-finish-037.py",
+      "source_sha256": "d58ec0fbccf8357a35af5d02ae9699af6fbfb91d5c41070cc3bd48c38813b7ec",
+      "retained": "compare-equality-finish-037.py",
+      "retained_sha256": "d58ec0fbccf8357a35af5d02ae9699af6fbfb91d5c41070cc3bd48c38813b7ec"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/compare-equality-default-039.py",
+      "source_sha256": "4f45a1f07cf20d21f7c10fd40d6a868eb6e5ede11d9f47ea9226fa36bc4e3bc8",
+      "retained": "compare-equality-default-039.py",
+      "retained_sha256": "4f45a1f07cf20d21f7c10fd40d6a868eb6e5ede11d9f47ea9226fa36bc4e3bc8"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/equality-cooperative-comparison-035.json",
+      "source_sha256": "cd113160d4cfc75ead6fe3b644d5b33bc1e29c61b82453e90c2eda56ed6b3e30",
+      "retained": "equality-cooperative-comparison-035.json",
+      "retained_sha256": "cd113160d4cfc75ead6fe3b644d5b33bc1e29c61b82453e90c2eda56ed6b3e30"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/equality-finish-comparison-037.json",
+      "source_sha256": "f9bc7ee70665717095aca39b32f90646006e5e0484efc52b6011d5a1a55b8a29",
+      "retained": "equality-finish-comparison-037.json",
+      "retained_sha256": "f9bc7ee70665717095aca39b32f90646006e5e0484efc52b6011d5a1a55b8a29"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/equality-default-comparison-039.json",
+      "source_sha256": "a0dbad773eeae82d8ff0bf969783058b48aa8c8e47f94ac61f55a661e7335b5b",
+      "retained": "equality-default-comparison-039.json",
+      "retained_sha256": "a0dbad773eeae82d8ff0bf969783058b48aa8c8e47f94ac61f55a661e7335b5b"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/run-resting-equality-profile-034.py",
+      "source_sha256": "556265789d83385f81dee9e457cdee8da7f730433e75e8f7172f1a373924a56a",
+      "retained": "run-resting-equality-profile-034.py",
+      "retained_sha256": "556265789d83385f81dee9e457cdee8da7f730433e75e8f7172f1a373924a56a"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/run-resting-equality-035.py",
+      "source_sha256": "0cc1a4dccbfbbf28d71131eb7737e2a01a5f12264a1114e5b9fba5817a3ce7bd",
+      "retained": "run-resting-equality-035.py",
+      "retained_sha256": "0cc1a4dccbfbbf28d71131eb7737e2a01a5f12264a1114e5b9fba5817a3ce7bd"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/run-resting-equality-finish-profile-036.py",
+      "source_sha256": "351df860b7097d6b819f9459250a7876f43b78720c79f79fa64e20db45d7a1c8",
+      "retained": "run-resting-equality-finish-profile-036.py",
+      "retained_sha256": "351df860b7097d6b819f9459250a7876f43b78720c79f79fa64e20db45d7a1c8"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/run-resting-equality-finish-037.py",
+      "source_sha256": "40e737c4d6852839ef76ec59abb8e8e2b4aa730272651f661db7524c524016a3",
+      "retained": "run-resting-equality-finish-037.py",
+      "retained_sha256": "40e737c4d6852839ef76ec59abb8e8e2b4aa730272651f661db7524c524016a3"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/run-resting-default-control-038.py",
+      "source_sha256": "664d1e9c883dbeca2d522ecb41c8857cf277c73315359f69cfd26487de02a07f",
+      "retained": "run-resting-default-control-038.py",
+      "retained_sha256": "664d1e9c883dbeca2d522ecb41c8857cf277c73315359f69cfd26487de02a07f"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/run-resting-default-candidate-039.py",
+      "source_sha256": "14d826b913c0a410b7bc89df12b1b8b33f6fb8162dd42a55928aad711bfc1bf3",
+      "retained": "run-resting-default-candidate-039.py",
+      "retained_sha256": "14d826b913c0a410b7bc89df12b1b8b33f6fb8162dd42a55928aad711bfc1bf3"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-equality-profile-034/invocation.json",
+      "source_sha256": "a45c4926032e19fde6cf4d3d461d3054b0a7d7f82f8f28be0686e45f701a9d64",
+      "retained": "rigid-digits-equality-profile-034/invocation.json",
+      "retained_sha256": "a45c4926032e19fde6cf4d3d461d3054b0a7d7f82f8f28be0686e45f701a9d64"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-equality-profile-034/execution.json",
+      "source_sha256": "a3b663ee30238438f729333a461c178f6ef9677a280fffb09196180671af1317",
+      "retained": "rigid-digits-equality-profile-034/execution.json",
+      "retained_sha256": "a3b663ee30238438f729333a461c178f6ef9677a280fffb09196180671af1317"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-equality-profile-034/source.diff",
+      "source_sha256": "2beae54a506eb0542bba061b88ba7bb1b97cea2843e344ca62ebeeb2db6df4dc",
+      "retained": "rigid-digits-equality-profile-034/source.diff.gz",
+      "retained_sha256": "4acc57edc5a557ba2a2ecad9f9a5a28bf1846dd5fe7efec935fdaec0566c4c1f"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-equality-profile-034/native.log",
+      "source_sha256": "c72938a4c1bec1ef4abd942e41f54f446fde211f3ff3b2406729281b13c87de0",
+      "retained": "rigid-digits-equality-profile-034/native.log",
+      "retained_sha256": "c72938a4c1bec1ef4abd942e41f54f446fde211f3ff3b2406729281b13c87de0"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-equality-profile-034/resting-coupled.csv",
+      "source_sha256": "1e0414ce3daed9928e3428396070251fa006f15007f2ee77b7f78674300c66dc",
+      "retained": "rigid-digits-equality-profile-034/resting-coupled.csv",
+      "retained_sha256": "1e0414ce3daed9928e3428396070251fa006f15007f2ee77b7f78674300c66dc"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-equality-profile-034/resting-surface-audit.csv",
+      "source_sha256": "a1bb5df010cdfcdd247ffd8a680a8fe1fb12877cab9a86331533a155c8e307e5",
+      "retained": "rigid-digits-equality-profile-034/resting-surface-audit.csv",
+      "retained_sha256": "a1bb5df010cdfcdd247ffd8a680a8fe1fb12877cab9a86331533a155c8e307e5"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-equality-profile-034/accepted-geometry/step-31.receipt.json",
+      "source_sha256": "bb681848844ab4de64c538db72bc7096b537cee56f5373e65fc33af62926b27e",
+      "retained": "rigid-digits-equality-profile-034/accepted-geometry/step-31.receipt.json",
+      "retained_sha256": "bb681848844ab4de64c538db72bc7096b537cee56f5373e65fc33af62926b27e"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-equality-native-035/invocation.json",
+      "source_sha256": "9f0f46e642a7d67cfe2420201a7dd57a14f73e6a547fe397924e5fb7017ef45c",
+      "retained": "rigid-digits-equality-native-035/invocation.json",
+      "retained_sha256": "9f0f46e642a7d67cfe2420201a7dd57a14f73e6a547fe397924e5fb7017ef45c"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-equality-native-035/execution.json",
+      "source_sha256": "5c817876660dd9f8466fe8f078abfee9e9100c1b2fd21737372e627734cd172c",
+      "retained": "rigid-digits-equality-native-035/execution.json",
+      "retained_sha256": "5c817876660dd9f8466fe8f078abfee9e9100c1b2fd21737372e627734cd172c"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-equality-native-035/source.diff",
+      "source_sha256": "2beae54a506eb0542bba061b88ba7bb1b97cea2843e344ca62ebeeb2db6df4dc",
+      "retained": "rigid-digits-equality-native-035/source.diff.gz",
+      "retained_sha256": "4acc57edc5a557ba2a2ecad9f9a5a28bf1846dd5fe7efec935fdaec0566c4c1f"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-equality-native-035/native.log",
+      "source_sha256": "212dda64351b71f53778c63c995fb5758ee9654c5a902a5501a198c2d384e343",
+      "retained": "rigid-digits-equality-native-035/native.log",
+      "retained_sha256": "212dda64351b71f53778c63c995fb5758ee9654c5a902a5501a198c2d384e343"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-equality-native-035/resting-coupled.csv",
+      "source_sha256": "b7718b7b76f87e49c56f72276d41cb2a80dca7054fb0633cf967e09cd51a51d4",
+      "retained": "rigid-digits-equality-native-035/resting-coupled.csv.gz",
+      "retained_sha256": "f97b8b1a92681eeb2da002c3ac3e267711e43b0c9aa31447244cfb49f7f5a6fb"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-equality-native-035/resting-surface-audit.csv",
+      "source_sha256": "fc5b8bf6db23ec0edc769165c0b27c6a7b4071230725059398328e16e41e1093",
+      "retained": "rigid-digits-equality-native-035/resting-surface-audit.csv",
+      "retained_sha256": "fc5b8bf6db23ec0edc769165c0b27c6a7b4071230725059398328e16e41e1093"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-equality-native-035/accepted-geometry/step-2783.receipt.json",
+      "source_sha256": "ef9a58cf51f0fd47e90047137701308c8df784be8e8de2e52cf7e8e72d50d358",
+      "retained": "rigid-digits-equality-native-035/accepted-geometry/step-2783.receipt.json",
+      "retained_sha256": "ef9a58cf51f0fd47e90047137701308c8df784be8e8de2e52cf7e8e72d50d358"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-equality-native-035/accepted-geometry/step-2999.receipt.json",
+      "source_sha256": "7280c06fa8db164b0240a5ec45701e8cb7262643f5e1cf459f2e8e17f02c5682",
+      "retained": "rigid-digits-equality-native-035/accepted-geometry/step-2999.receipt.json",
+      "retained_sha256": "7280c06fa8db164b0240a5ec45701e8cb7262643f5e1cf459f2e8e17f02c5682"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-equality-native-035/accepted-geometry/step-639.receipt.json",
+      "source_sha256": "bae5a6fe08f7814f5f99346fe1a0654e1c90c99c27c6a0b620d16994776fcb10",
+      "retained": "rigid-digits-equality-native-035/accepted-geometry/step-639.receipt.json",
+      "retained_sha256": "bae5a6fe08f7814f5f99346fe1a0654e1c90c99c27c6a0b620d16994776fcb10"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-equality-finish-profile-036/invocation.json",
+      "source_sha256": "a57ebd90d4d16ac19e1157233c2236c96b527d8985a88e43afce5da64607890c",
+      "retained": "rigid-digits-equality-finish-profile-036/invocation.json",
+      "retained_sha256": "a57ebd90d4d16ac19e1157233c2236c96b527d8985a88e43afce5da64607890c"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-equality-finish-profile-036/execution.json",
+      "source_sha256": "40b5464e30265522fb9b8c3f9afd922c7ccf21e1ac3501a5439c2e773d19fb7b",
+      "retained": "rigid-digits-equality-finish-profile-036/execution.json",
+      "retained_sha256": "40b5464e30265522fb9b8c3f9afd922c7ccf21e1ac3501a5439c2e773d19fb7b"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-equality-finish-profile-036/source.diff",
+      "source_sha256": "4ffa79a1f4d7bb2d5096d9e8dbcb27bdb37e1cd87d987ccdbc2e0ea18ed285af",
+      "retained": "rigid-digits-equality-finish-profile-036/source.diff.gz",
+      "retained_sha256": "1593847f8ee264df23e64174c4ce25494bcfa3cde626a4869b284867ea4f682c"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-equality-finish-profile-036/native.log",
+      "source_sha256": "75e6be1b528fd9100a081c2e41a9f98b54fe3ee2c8ba35164411b78129ebe3d3",
+      "retained": "rigid-digits-equality-finish-profile-036/native.log",
+      "retained_sha256": "75e6be1b528fd9100a081c2e41a9f98b54fe3ee2c8ba35164411b78129ebe3d3"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-equality-finish-profile-036/resting-coupled.csv",
+      "source_sha256": "1e0414ce3daed9928e3428396070251fa006f15007f2ee77b7f78674300c66dc",
+      "retained": "rigid-digits-equality-finish-profile-036/resting-coupled.csv",
+      "retained_sha256": "1e0414ce3daed9928e3428396070251fa006f15007f2ee77b7f78674300c66dc"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-equality-finish-profile-036/resting-surface-audit.csv",
+      "source_sha256": "a1bb5df010cdfcdd247ffd8a680a8fe1fb12877cab9a86331533a155c8e307e5",
+      "retained": "rigid-digits-equality-finish-profile-036/resting-surface-audit.csv",
+      "retained_sha256": "a1bb5df010cdfcdd247ffd8a680a8fe1fb12877cab9a86331533a155c8e307e5"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-equality-finish-profile-036/accepted-geometry/step-31.receipt.json",
+      "source_sha256": "0b5a8807802509c8ec2366a8d7292ba138a46e6dd015de04c896881ff6853b25",
+      "retained": "rigid-digits-equality-finish-profile-036/accepted-geometry/step-31.receipt.json",
+      "retained_sha256": "0b5a8807802509c8ec2366a8d7292ba138a46e6dd015de04c896881ff6853b25"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-equality-finish-native-037/invocation.json",
+      "source_sha256": "d0fba2b32b8c340abe7668449d1f44eea00c116322109ecc0a0e6664e3ef2b37",
+      "retained": "rigid-digits-equality-finish-native-037/invocation.json",
+      "retained_sha256": "d0fba2b32b8c340abe7668449d1f44eea00c116322109ecc0a0e6664e3ef2b37"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-equality-finish-native-037/execution.json",
+      "source_sha256": "2ce966d246eec38f741b7316892bd8b2e5a00b04817a2e63a97527916112f53e",
+      "retained": "rigid-digits-equality-finish-native-037/execution.json",
+      "retained_sha256": "2ce966d246eec38f741b7316892bd8b2e5a00b04817a2e63a97527916112f53e"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-equality-finish-native-037/source.diff",
+      "source_sha256": "4ffa79a1f4d7bb2d5096d9e8dbcb27bdb37e1cd87d987ccdbc2e0ea18ed285af",
+      "retained": "rigid-digits-equality-finish-native-037/source.diff.gz",
+      "retained_sha256": "1593847f8ee264df23e64174c4ce25494bcfa3cde626a4869b284867ea4f682c"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-equality-finish-native-037/native.log",
+      "source_sha256": "3471fae60490dd0c2ede94e344e2609ad305399bacba8de75785caf38cc382ce",
+      "retained": "rigid-digits-equality-finish-native-037/native.log",
+      "retained_sha256": "3471fae60490dd0c2ede94e344e2609ad305399bacba8de75785caf38cc382ce"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-equality-finish-native-037/resting-coupled.csv",
+      "source_sha256": "b7718b7b76f87e49c56f72276d41cb2a80dca7054fb0633cf967e09cd51a51d4",
+      "retained": "rigid-digits-equality-finish-native-037/resting-coupled.csv.gz",
+      "retained_sha256": "f97b8b1a92681eeb2da002c3ac3e267711e43b0c9aa31447244cfb49f7f5a6fb"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-equality-finish-native-037/resting-surface-audit.csv",
+      "source_sha256": "fc5b8bf6db23ec0edc769165c0b27c6a7b4071230725059398328e16e41e1093",
+      "retained": "rigid-digits-equality-finish-native-037/resting-surface-audit.csv",
+      "retained_sha256": "fc5b8bf6db23ec0edc769165c0b27c6a7b4071230725059398328e16e41e1093"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-equality-finish-native-037/accepted-geometry/step-2783.receipt.json",
+      "source_sha256": "66aaff376567754fd4cc9fb9638d96357961ab3ca2e9d4989f345a40633427ae",
+      "retained": "rigid-digits-equality-finish-native-037/accepted-geometry/step-2783.receipt.json",
+      "retained_sha256": "66aaff376567754fd4cc9fb9638d96357961ab3ca2e9d4989f345a40633427ae"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-equality-finish-native-037/accepted-geometry/step-2999.receipt.json",
+      "source_sha256": "656a18280e5a3c825d6e2359bc0cfc5a69ec5d4bbbaf0a2b988de3c66038da7b",
+      "retained": "rigid-digits-equality-finish-native-037/accepted-geometry/step-2999.receipt.json",
+      "retained_sha256": "656a18280e5a3c825d6e2359bc0cfc5a69ec5d4bbbaf0a2b988de3c66038da7b"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-equality-finish-native-037/accepted-geometry/step-639.receipt.json",
+      "source_sha256": "519e383a4a82bd7e6ef355333b6a7869a02ff49579f095ef4f8c5f4233f2f29e",
+      "retained": "rigid-digits-equality-finish-native-037/accepted-geometry/step-639.receipt.json",
+      "retained_sha256": "519e383a4a82bd7e6ef355333b6a7869a02ff49579f095ef4f8c5f4233f2f29e"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source51-control-profile-038/invocation.json",
+      "source_sha256": "c4996c423111724c731af37ac42978d573cfa405eead0c768f635ffcae55f661",
+      "retained": "source51-control-profile-038/invocation.json",
+      "retained_sha256": "c4996c423111724c731af37ac42978d573cfa405eead0c768f635ffcae55f661"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source51-control-profile-038/execution.json",
+      "source_sha256": "398b558b09dd6a43cb2629775b5da9bdaeace57e6336551563fa733563f0b2b1",
+      "retained": "source51-control-profile-038/execution.json",
+      "retained_sha256": "398b558b09dd6a43cb2629775b5da9bdaeace57e6336551563fa733563f0b2b1"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source51-control-profile-038/source.diff",
+      "source_sha256": "e9ffe666b6b28fc58fc2c3ef36d8f3bbffc0009ac7d673a83a4ca24fc6440a82",
+      "retained": "source51-control-profile-038/source.diff.gz",
+      "retained_sha256": "678eaaed1488ca3e7ed92c3f80f0b4f72efeaf0eb3c80dcba82338f43c8f7d9c"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source51-control-profile-038/native.log",
+      "source_sha256": "fe260893e7ac6391c545b5f57e374f8cc4479fc382df552d1939494db4d7077e",
+      "retained": "source51-control-profile-038/native.log",
+      "retained_sha256": "fe260893e7ac6391c545b5f57e374f8cc4479fc382df552d1939494db4d7077e"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source51-control-profile-038/resting-coupled.csv",
+      "source_sha256": "c334489f2e3ade88b4e0c6203db71ee0efe246d6ea4a8cfb06228ceb272b0472",
+      "retained": "source51-control-profile-038/resting-coupled.csv",
+      "retained_sha256": "c334489f2e3ade88b4e0c6203db71ee0efe246d6ea4a8cfb06228ceb272b0472"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source51-control-profile-038/resting-surface-audit.csv",
+      "source_sha256": "04045ac90ce3f529a08ab1f4dadfd830f7099909e646636b4ded3908768bf061",
+      "retained": "source51-control-profile-038/resting-surface-audit.csv",
+      "retained_sha256": "04045ac90ce3f529a08ab1f4dadfd830f7099909e646636b4ded3908768bf061"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source51-control-profile-038/accepted-geometry/step-31.receipt.json",
+      "source_sha256": "2aa3c1dbd5b0a6555e26f8b7b18038e33974e50cc9eb560ba69447c0a02cbb6a",
+      "retained": "source51-control-profile-038/accepted-geometry/step-31.receipt.json",
+      "retained_sha256": "2aa3c1dbd5b0a6555e26f8b7b18038e33974e50cc9eb560ba69447c0a02cbb6a"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source51-candidate-profile-039/invocation.json",
+      "source_sha256": "dbab1242705ff9ce2301b36fbd59fd5657ff293cb55d68a6ca85adf7e24f1fec",
+      "retained": "source51-candidate-profile-039/invocation.json",
+      "retained_sha256": "dbab1242705ff9ce2301b36fbd59fd5657ff293cb55d68a6ca85adf7e24f1fec"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source51-candidate-profile-039/execution.json",
+      "source_sha256": "35787a46ed19187da71442d6c836f3b0e596e307af1bcfa0deaa4747df3e9277",
+      "retained": "source51-candidate-profile-039/execution.json",
+      "retained_sha256": "35787a46ed19187da71442d6c836f3b0e596e307af1bcfa0deaa4747df3e9277"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source51-candidate-profile-039/source.diff",
+      "source_sha256": "4ffa79a1f4d7bb2d5096d9e8dbcb27bdb37e1cd87d987ccdbc2e0ea18ed285af",
+      "retained": "source51-candidate-profile-039/source.diff.gz",
+      "retained_sha256": "1593847f8ee264df23e64174c4ce25494bcfa3cde626a4869b284867ea4f682c"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source51-candidate-profile-039/native.log",
+      "source_sha256": "566b01d052d551ef1655e4f9d3d3faff6524d7e43ada198f04c967441bd12196",
+      "retained": "source51-candidate-profile-039/native.log",
+      "retained_sha256": "566b01d052d551ef1655e4f9d3d3faff6524d7e43ada198f04c967441bd12196"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source51-candidate-profile-039/resting-coupled.csv",
+      "source_sha256": "c334489f2e3ade88b4e0c6203db71ee0efe246d6ea4a8cfb06228ceb272b0472",
+      "retained": "source51-candidate-profile-039/resting-coupled.csv",
+      "retained_sha256": "c334489f2e3ade88b4e0c6203db71ee0efe246d6ea4a8cfb06228ceb272b0472"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source51-candidate-profile-039/resting-surface-audit.csv",
+      "source_sha256": "04045ac90ce3f529a08ab1f4dadfd830f7099909e646636b4ded3908768bf061",
+      "retained": "source51-candidate-profile-039/resting-surface-audit.csv",
+      "retained_sha256": "04045ac90ce3f529a08ab1f4dadfd830f7099909e646636b4ded3908768bf061"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source51-candidate-profile-039/accepted-geometry/step-31.receipt.json",
+      "source_sha256": "0c09934f8abb4cc95c43e6318e2db53111db5d4d9b82aa03f4940fa342e5e917",
+      "retained": "source51-candidate-profile-039/accepted-geometry/step-31.receipt.json",
+      "retained_sha256": "0c09934f8abb4cc95c43e6318e2db53111db5d4d9b82aa03f4940fa342e5e917"
+    }
+  ],
+  "stage_profiles": {
+    "rigid-digits-equality-profile-034": {
+      "kinematics": {
+        "samples": 5,
+        "mean_ms": 1.5951
+      },
+      "muscle_angular": {
+        "samples": 2,
+        "mean_ms": 0.008417
+      },
+      "muscles": {
+        "samples": 2,
+        "mean_ms": 0.485854
+      },
+      "active_force": {
+        "samples": 2,
+        "mean_ms": 0.017145999999999998
+      },
+      "force_reduce": {
+        "samples": 2,
+        "mean_ms": 0.049874999999999996
+      },
+      "tendon_transfer": {
+        "samples": 2,
+        "mean_ms": 0.0819375
+      },
+      "activation": {
+        "samples": 2,
+        "mean_ms": 0.006167
+      },
+      "stand_prework": {
+        "samples": 2,
+        "mean_ms": 0.825458
+      },
+      "stand_mass": {
+        "samples": 2,
+        "mean_ms": 0.05408399999999999
+      },
+      "stand_factor": {
+        "samples": 2,
+        "mean_ms": 0.9467289999999999
+      },
+      "stand_equality_responses": {
+        "samples": 2,
+        "mean_ms": 0.5086249999999999
+      },
+      "stand_equality_factor": {
+        "samples": 2,
+        "mean_ms": 1.137729
+      },
+      "stand_projected_responses": {
+        "samples": 2,
+        "mean_ms": 1.6091039999999999
+      },
+      "stand_finish": {
+        "samples": 2,
+        "mean_ms": 24.528479499999996
+      }
+    },
+    "rigid-digits-equality-finish-profile-036": {
+      "kinematics": {
+        "samples": 5,
+        "mean_ms": 1.5930916
+      },
+      "muscle_angular": {
+        "samples": 2,
+        "mean_ms": 0.0057085
+      },
+      "muscles": {
+        "samples": 2,
+        "mean_ms": 0.48464599999999997
+      },
+      "active_force": {
+        "samples": 2,
+        "mean_ms": 0.0139995
+      },
+      "force_reduce": {
+        "samples": 2,
+        "mean_ms": 0.0482085
+      },
+      "tendon_transfer": {
+        "samples": 2,
+        "mean_ms": 0.080375
+      },
+      "activation": {
+        "samples": 2,
+        "mean_ms": 0.0031875
+      },
+      "stand_prework": {
+        "samples": 2,
+        "mean_ms": 0.8254375
+      },
+      "stand_mass": {
+        "samples": 2,
+        "mean_ms": 0.052938
+      },
+      "stand_factor": {
+        "samples": 2,
+        "mean_ms": 0.9443334999999999
+      },
+      "stand_equality_responses": {
+        "samples": 2,
+        "mean_ms": 0.5057499999999999
+      },
+      "stand_equality_factor": {
+        "samples": 2,
+        "mean_ms": 1.135687
+      },
+      "stand_projected_responses": {
+        "samples": 2,
+        "mean_ms": 1.6062919999999998
+      },
+      "stand_finish": {
+        "samples": 2,
+        "mean_ms": 18.5739795
+      }
+    },
+    "source51-control-profile-038": {
+      "kinematics": {
+        "samples": 5,
+        "mean_ms": 1.584925
+      },
+      "muscle_angular": {
+        "samples": 2,
+        "mean_ms": 0.0057715
+      },
+      "muscles": {
+        "samples": 2,
+        "mean_ms": 0.4871875
+      },
+      "active_force": {
+        "samples": 2,
+        "mean_ms": 0.013937499999999999
+      },
+      "force_reduce": {
+        "samples": 2,
+        "mean_ms": 0.048416999999999995
+      },
+      "tendon_transfer": {
+        "samples": 2,
+        "mean_ms": 0.0801665
+      },
+      "activation": {
+        "samples": 2,
+        "mean_ms": 0.003333
+      },
+      "stand_prework": {
+        "samples": 2,
+        "mean_ms": 0.43577049999999995
+      },
+      "stand_mass": {
+        "samples": 2,
+        "mean_ms": 0.052896
+      },
+      "stand_factor": {
+        "samples": 2,
+        "mean_ms": 0.941646
+      },
+      "stand_equality_responses": {
+        "samples": 2,
+        "mean_ms": 0.5043335
+      },
+      "stand_equality_factor": {
+        "samples": 2,
+        "mean_ms": 0.32658299999999996
+      },
+      "stand_projected_responses": {
+        "samples": 2,
+        "mean_ms": 0.8989375
+      },
+      "stand_finish": {
+        "samples": 2,
+        "mean_ms": 3.257125
+      }
+    },
+    "source51-candidate-profile-039": {
+      "kinematics": {
+        "samples": 5,
+        "mean_ms": 1.5849917999999998
+      },
+      "muscle_angular": {
+        "samples": 2,
+        "mean_ms": 0.0058125
+      },
+      "muscles": {
+        "samples": 2,
+        "mean_ms": 0.4901875
+      },
+      "active_force": {
+        "samples": 2,
+        "mean_ms": 0.013874999999999998
+      },
+      "force_reduce": {
+        "samples": 2,
+        "mean_ms": 0.048374999999999994
+      },
+      "tendon_transfer": {
+        "samples": 2,
+        "mean_ms": 0.08068800000000001
+      },
+      "activation": {
+        "samples": 2,
+        "mean_ms": 0.0032505
+      },
+      "stand_prework": {
+        "samples": 2,
+        "mean_ms": 0.4396875
+      },
+      "stand_mass": {
+        "samples": 2,
+        "mean_ms": 0.0526875
+      },
+      "stand_factor": {
+        "samples": 2,
+        "mean_ms": 0.944271
+      },
+      "stand_equality_responses": {
+        "samples": 2,
+        "mean_ms": 0.504625
+      },
+      "stand_equality_factor": {
+        "samples": 2,
+        "mean_ms": 0.3263125
+      },
+      "stand_projected_responses": {
+        "samples": 2,
+        "mean_ms": 0.900229
+      },
+      "stand_finish": {
+        "samples": 2,
+        "mean_ms": 3.229333
+      }
+    }
+  },
+  "control_evidence": "../hand-native-032/rigid-digits-native-032",
+  "published_code_files": [
+    "src/metal/NumiHumanStand.metal",
+    "src/metal/NumiHumanStandSolve.metalinc"
+  ]
+}
