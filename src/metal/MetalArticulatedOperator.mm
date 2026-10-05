@@ -632,14 +632,21 @@ struct MetalArticulatedOperatorContextState {
     std::uint32_t publishedStandStep = 0u;
     bool controllerCompletionConsumed = false;
     bool controllerCompletionFailed = false;
+    // A dispatched legacy continuation cannot recover its exact preceding
+    // accepted state after command failure. Fail closed on this context.
+    bool legacyResidentTerminalFailure = false;
     std::atomic<bool> geometryFailureQuarantine{false};
 
     struct PublishedResidentState {
         bool active = false;
+        bool legacyAcceptedStand = false;
         const EngineModel* model = nullptr;
         std::uint64_t transactionFingerprint = 0u;
         std::uint64_t physicsGeneration = 0u;
         std::uint64_t acceptedTokenFingerprint = 0u;
+        // A legacy no-Matter root binds to the byte-exact immutable Stand /
+        // MyoSim program boundary captured by splitStandBoundaryCache.
+        std::uint64_t legacyProgramFingerprint = 0u;
         // Stable adapter/owner program identity. HumanIO's program fingerprint
         // is transaction-scoped and is retained below only as provenance for
         // the root that produced this resident state.
@@ -654,7 +661,10 @@ struct MetalArticulatedOperatorContextState {
         std::uint32_t qStride = 0u;
         std::uint32_t velocityStride = 0u;
         std::uint32_t mujocoStateStride = 0u;
+        std::uint32_t legacyCompletedStepCount = 0u;
+        std::uint32_t legacyAuthoritativeStepCount = 0u;
     } publishedResident{};
+    std::uint64_t residentStateGenerationCounter = 0u;
     struct HumanMatterPreparedRuntimeState {
         bool active = false;
         bool firstSubmissionReleased = false;
@@ -833,6 +843,12 @@ struct MetalArticulatedOperatorSubmissionState {
     std::size_t standTendonEnvelopeBindingCount = 0u;
     std::size_t standContactCount = 0u;
     std::size_t standJointEqualityCount = 0u;
+    bool publishAcceptedResidentState = false;
+    bool collectFullResultToHost = true;
+    bool reusedLegacyResidentState = false;
+    bool consumesSplitStandPredecessor = false;
+    std::uint32_t previousResidentCompletedStepCount = 0u;
+    std::uint64_t residentProgramFingerprint = 0u;
     bool ownsInFlight = false;
 };
 
@@ -847,6 +863,27 @@ struct MetalNumanXHumanMatterPreparedState {
 } // namespace detail
 
 namespace {
+
+struct LegacyResidentContinuationFailureGuard {
+    std::shared_ptr<detail::MetalArticulatedOperatorContextState> context;
+    bool armed = false;
+    bool released = false;
+
+    void release() noexcept { released = true; }
+
+    ~LegacyResidentContinuationFailureGuard() noexcept {
+        if (!armed || released || context == nullptr) return;
+        try {
+            const std::lock_guard lock(context->mutex);
+            context->legacyResidentTerminalFailure = true;
+            if (context->publishedResident.legacyAcceptedStand)
+                context->publishedResident.active = false;
+        } catch (...) {
+            // Fail closed whenever the owner lock remains available; the
+            // already-consumed continuation cannot be retried as a reset.
+        }
+    }
+};
 
 struct HumanMatterPhysicalCompletionInvocation {
     MetalNumanXHumanMatterPhysicalCompletion completion = nullptr;
@@ -1405,6 +1442,7 @@ bool validMujocoReference(
     const std::size_t environmentCount,
     const std::size_t pointCount,
     const MetalMujocoMuscleReferenceInput& mujoco,
+    const bool allowResidentState,
     std::string& reason
 ) {
     if (!mujoco.enabled()) {
@@ -1434,7 +1472,8 @@ bool validMujocoReference(
             environmentCount,
             mujoco.muscles.size(),
             expectedStateCount
-        ) || mujoco.states.size() != expectedStateCount) {
+        ) || (mujoco.states.size() != expectedStateCount &&
+              !(allowResidentState && mujoco.states.empty()))) {
         reason = "MyoSim state stream is not environment-major";
         return false;
     }
@@ -1618,7 +1657,8 @@ bool validNumiHumanStand(
     std::size_t expectedVelocityCount = 0u;
     if (!checkedMultiply(input.environmentCount, articulation.nv,
                          expectedVelocityCount) ||
-        stand.v.size() != expectedVelocityCount ||
+        (stand.v.size() != expectedVelocityCount &&
+         !(input.residentContinuation.configured() && stand.v.empty())) ||
         !std::all_of(stand.v.begin(), stand.v.end(), [](const float value) {
             return std::isfinite(value);
         })) {
@@ -2759,6 +2799,39 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
             "derived GPU element-count overflow"
         );
     }
+    const bool residentContinuationRequested =
+        input.residentContinuation.configured();
+    const bool matterResidentContinuation =
+        input.stand.numanXHumanMatterProgram.configured();
+    if ((residentContinuationRequested &&
+         (!input.residentContinuation.valid() ||
+          (!input.publishAcceptedResidentState &&
+           !matterResidentContinuation) ||
+          !input.stand.enabled() ||
+          (input.publishAcceptedResidentState &&
+           input.environmentCount != 1u))) ||
+        (input.publishAcceptedResidentState &&
+         (!input.stand.enabled() ||
+          input.environmentCount != 1u ||
+          input.stand.numanXHumanMatterProgram.configured())) ||
+        (!input.collectFullResultToHost &&
+         !input.publishAcceptedResidentState)) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::invalidDimensions,
+            "resident-state mode requires an opted-in non-Matter Stand root"
+        );
+    }
+    if (residentContinuationRequested &&
+        (!input.q.empty() || !input.v.empty() ||
+         !input.rootTranslations.empty() || !input.stand.v.empty() ||
+         !input.mujoco.states.empty())) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::invalidDimensions,
+            "resident continuation must not supply a host reset image"
+        );
+    }
     layout.statusElements = input.environmentCount;
     if (!input.rootTranslations.empty()) {
         if (articulation.rootType != MR_ROOT_FLOATING || articulation.nq < 7u ||
@@ -2809,6 +2882,18 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
     if (input.mujoco.enabled()) {
         layout.mujocoMuscleElements = input.mujoco.muscles.size();
         layout.mujocoStateElements = input.mujoco.states.size();
+        if (residentContinuationRequested && input.mujoco.states.empty() &&
+            !checkedMultiply(
+                input.environmentCount,
+                layout.mujocoMuscleElements,
+                layout.mujocoStateElements
+            )) {
+            return reject(
+                std::move(diagnostics),
+                MetalArticulatedOperatorHostStatus::arithmeticOverflow,
+                "resident MyoSim state element count overflow"
+            );
+        }
         layout.mujocoSiteElements = input.mujoco.sites.size();
         layout.mujocoWrapElements = input.mujoco.wraps.size();
         layout.mujocoRouteNodeElements = input.mujoco.routeNodes.size();
@@ -2838,6 +2923,9 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
     }
     if (input.stand.enabled()) {
         layout.standVelocityElements = input.stand.v.size();
+        if (residentContinuationRequested && input.stand.v.empty()) {
+            layout.standVelocityElements = layout.generalizedElements;
+        }
         layout.standContactElements = input.stand.contacts.size();
         layout.standPassiveJointElements = input.stand.passiveJointProgram.size();
         layout.standJointEqualityElements =
@@ -3310,7 +3398,8 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
     layout.totalAllocatedBytes = totalAllocatedBytes;
     diagnostics.layout = layout;
 
-    if (input.q.size() != layout.qElements ||
+    if ((input.q.size() != layout.qElements &&
+         !(residentContinuationRequested && input.q.empty())) ||
         input.points.size() != layout.pointElements) {
         return reject(
             std::move(diagnostics),
@@ -3334,7 +3423,7 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
             "optional MyoSim velocity span contains a non-finite value"
         );
     }
-    if (!validQ(
+    if (!residentContinuationRequested && !validQ(
             articulation,
             input.environmentCount,
             input.q
@@ -3372,6 +3461,7 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
             input.environmentCount,
             input.pointCount,
             input.mujoco,
+            input.residentContinuation.configured(),
             mujocoReason
         )) {
         return reject(
@@ -4786,6 +4876,7 @@ void uploadBatch(
                 MRNumiHumanStandStatusGPU status{};
                 status.code = MR_NUMI_HUMAN_STAND_SUCCESS;
                 status.environment = static_cast<mr_u32>(environment);
+                status.completedSteps = input.stand.stepIndexOffset;
                 status.failingIndex = MR_INVALID_INDEX;
                 status.jointEqualityCounts.w = MR_INVALID_INDEX;
                 status.constraintImpulseOwners = {
@@ -8711,6 +8802,8 @@ MetalArticulatedOperatorSubmission::wait(
     std::unique_ptr<
         detail::MetalArticulatedOperatorSubmissionState
     > pending = std::move(state_);
+    LegacyResidentContinuationFailureGuard continuationFailureGuard{
+        pending->context, pending->reusedLegacyResidentState, false};
     MetalArticulatedOperatorDiagnostics diagnostics =
         pending->diagnostics;
     try {
@@ -8762,109 +8855,86 @@ MetalArticulatedOperatorSubmission::wait(
             const MetalArticulatedOperatorLayout& layout =
                 diagnostics.layout;
             staged.layout = layout;
-            staged.bodyPoses.resize(layout.bodyPoseElements);
-            staged.pointWorld.resize(layout.pointWorldElements);
-            staged.diagnosticMassMatrix.resize(
-                layout.massMatrixElements
-            );
-            staged.pointJacobians.resize(
-                layout.pointJacobianElements
-            );
-            staged.generalizedImpulse.resize(
-                layout.generalizedElements
-            );
-            staged.deltaVelocity.resize(
-                layout.generalizedElements
-            );
             staged.statuses.resize(layout.statusElements);
-            staged.millardResults.resize(layout.millardResultElements);
-            staged.millardGeneralizedForces.resize(
-                layout.millardGeneralizedForceElements
-            );
             staged.mujocoResults.resize(layout.mujocoResultElements);
-            staged.mujocoActivationStates.resize(
-                layout.mujocoStateElements
-            );
-            staged.mujocoMuscleGeneralizedForces.resize(
-                layout.mujocoMuscleGeneralizedForceElements
-            );
-            staged.mujocoGeneralizedForces.resize(
-                layout.mujocoGeneralizedForceElements
-            );
-            if (hasCompensatedGeometry(layout)) {
-                staged.rootTranslations.resize(layout.statusElements);
-                staged.bodyPositionLow.resize(layout.bodyPoseElements);
-                staged.pointPositionLow.resize(layout.pointWorldElements);
+            if (pending->collectFullResultToHost) {
+                staged.bodyPoses.resize(layout.bodyPoseElements);
+                staged.pointWorld.resize(layout.pointWorldElements);
+                staged.diagnosticMassMatrix.resize(layout.massMatrixElements);
+                staged.pointJacobians.resize(layout.pointJacobianElements);
+                staged.generalizedImpulse.resize(layout.generalizedElements);
+                staged.deltaVelocity.resize(layout.generalizedElements);
+                staged.millardResults.resize(layout.millardResultElements);
+                staged.millardGeneralizedForces.resize(
+                    layout.millardGeneralizedForceElements);
+                staged.mujocoActivationStates.resize(layout.mujocoStateElements);
+                staged.mujocoMuscleGeneralizedForces.resize(
+                    layout.mujocoMuscleGeneralizedForceElements);
+                staged.mujocoGeneralizedForces.resize(
+                    layout.mujocoGeneralizedForceElements);
+                if (hasCompensatedGeometry(layout)) {
+                    staged.rootTranslations.resize(layout.statusElements);
+                    staged.bodyPositionLow.resize(layout.bodyPoseElements);
+                    staged.pointPositionLow.resize(layout.pointWorldElements);
+                }
             }
             if (pending->hasStandHorizon) {
-                staged.standQ.resize(layout.qElements);
-                staged.standRootTranslations.resize(layout.standStatusElements);
-                staged.standV.resize(layout.standVelocityElements);
                 staged.standStatuses.resize(layout.standStatusElements);
                 staged.standTendonTransfers.resize(
                     layout.standTendonTransferElements
                 );
-                staged.standTendonGeneralizedCorrections.resize(
-                    layout.standTendonCorrectionElements
-                );
+                if (pending->collectFullResultToHost) {
+                    staged.standQ.resize(layout.qElements);
+                    staged.standRootTranslations.resize(
+                        layout.standStatusElements);
+                    staged.standV.resize(layout.standVelocityElements);
+                    staged.standTendonGeneralizedCorrections.resize(
+                        layout.standTendonCorrectionElements);
+                }
             }
 
             const auto& buffers = pending->context->buffers;
-            copyOutput(staged.bodyPoses, buffers[8]);
-            copyOutput(staged.pointWorld, buffers[9]);
-            copyOutput(
-                staged.diagnosticMassMatrix,
-                buffers[10]
-            );
-            copyOutput(staged.pointJacobians, buffers[11]);
-            copyOutput(
-                staged.generalizedImpulse,
-                buffers[12]
-            );
-            copyOutput(staged.deltaVelocity, buffers[13]);
             copyOutput(staged.statuses, buffers[14]);
-            copyOutput(
-                staged.millardResults,
-                buffers[kMillardResultsBuffer]
-            );
-            copyOutput(
-                staged.millardGeneralizedForces,
-                buffers[kMillardForcesBuffer]
-            );
             copyOutput(
                 staged.mujocoResults,
                 buffers[kMujocoResultsBuffer]
             );
-            copyOutput(
-                staged.mujocoActivationStates,
-                buffers[kMujocoStatesBuffer]
-            );
-            copyOutput(
-                staged.mujocoMuscleGeneralizedForces,
-                buffers[kMillardForcesBuffer]
-            );
-            if (!staged.mujocoGeneralizedForces.empty()) {
-                const auto* source = static_cast<const float*>(
-                    buffers[kMillardForcesBuffer].contents
-                ) + layout.mujocoMuscleGeneralizedForceElements;
-                std::copy_n(
-                    source,
-                    staged.mujocoGeneralizedForces.size(),
-                    staged.mujocoGeneralizedForces.begin()
-                );
-            }
-            if (hasCompensatedGeometry(layout)) {
-                copyOutput(staged.rootTranslations, pending->context->standBuffers[kStandRootTranslationBuffer]);
-                copyOutput(staged.bodyPositionLow, pending->context->standBuffers[kStandBodyPositionLowBuffer]);
-                copyOutput(staged.pointPositionLow, pending->context->standBuffers[kStandPointPositionLowBuffer]);
+            if (pending->collectFullResultToHost) {
+                copyOutput(staged.bodyPoses, buffers[8]);
+                copyOutput(staged.pointWorld, buffers[9]);
+                copyOutput(staged.diagnosticMassMatrix, buffers[10]);
+                copyOutput(staged.pointJacobians, buffers[11]);
+                copyOutput(staged.generalizedImpulse, buffers[12]);
+                copyOutput(staged.deltaVelocity, buffers[13]);
+                copyOutput(staged.millardResults,
+                           buffers[kMillardResultsBuffer]);
+                copyOutput(staged.millardGeneralizedForces,
+                           buffers[kMillardForcesBuffer]);
+                copyOutput(staged.mujocoActivationStates,
+                           buffers[kMujocoStatesBuffer]);
+                copyOutput(staged.mujocoMuscleGeneralizedForces,
+                           buffers[kMillardForcesBuffer]);
+                if (!staged.mujocoGeneralizedForces.empty()) {
+                    const auto* source = static_cast<const float*>(
+                        buffers[kMillardForcesBuffer].contents) +
+                        layout.mujocoMuscleGeneralizedForceElements;
+                    std::copy_n(source,
+                        staged.mujocoGeneralizedForces.size(),
+                        staged.mujocoGeneralizedForces.begin());
+                }
+                if (hasCompensatedGeometry(layout)) {
+                    copyOutput(staged.rootTranslations,
+                        pending->context->standBuffers[
+                            kStandRootTranslationBuffer]);
+                    copyOutput(staged.bodyPositionLow,
+                        pending->context->standBuffers[
+                            kStandBodyPositionLowBuffer]);
+                    copyOutput(staged.pointPositionLow,
+                        pending->context->standBuffers[
+                            kStandPointPositionLowBuffer]);
+                }
             }
             if (pending->hasStandHorizon) {
-                copyOutput(staged.standQ, buffers[6u]);
-                copyOutput(staged.standRootTranslations, pending->context->standBuffers[kStandRootTranslationBuffer]);
-                copyOutput(
-                    staged.standV,
-                    pending->context->standBuffers[kStandVelocityBuffer]
-                );
                 copyOutput(
                     staged.standStatuses,
                     pending->context->standBuffers[kStandStatusBuffer]
@@ -8875,18 +8945,35 @@ MetalArticulatedOperatorSubmission::wait(
                         kStandTendonTransfersBuffer
                     ]
                 );
-                copyOutput(
-                    staged.standTendonGeneralizedCorrections,
-                    pending->context->standBuffers[
-                        kStandTendonCorrectionsBuffer
-                    ]
-                );
+                if (pending->collectFullResultToHost) {
+                    copyOutput(staged.standQ, buffers[6u]);
+                    copyOutput(staged.standRootTranslations,
+                        pending->context->standBuffers[
+                            kStandRootTranslationBuffer]);
+                    copyOutput(staged.standV,
+                        pending->context->standBuffers[
+                            kStandVelocityBuffer]);
+                    copyOutput(staged.standTendonGeneralizedCorrections,
+                        pending->context->standBuffers[
+                            kStandTendonCorrectionsBuffer]);
+                }
             }
             diagnostics.hostCopyMilliseconds =
                 std::chrono::duration<double, std::milli>(
                     std::chrono::steady_clock::now() - end
                 ).count();
         }
+
+        const bool legacyContinuationRollbackProven =
+            pending->reusedLegacyResidentState &&
+            staged.standStatuses.size() == 1u &&
+            staged.standStatuses.front().environment == 0u &&
+            staged.standStatuses.front().code !=
+                MR_NUMI_HUMAN_STAND_SUCCESS &&
+            staged.standStatuses.front().completedSteps ==
+                pending->previousResidentCompletedStepCount;
+        if (legacyContinuationRollbackProven)
+            continuationFailureGuard.release();
 
         for (std::size_t environment = 0u;
              environment < staged.statuses.size();
@@ -9182,6 +9269,25 @@ MetalArticulatedOperatorSubmission::wait(
             }
         }
         if (diagnostics.failedEnvironmentCount == 0u &&
+            pending->consumesSplitStandPredecessor) {
+            const std::lock_guard lock(pending->context->mutex);
+            auto& splitStand = pending->context->splitStandHorizon;
+            if (!splitStand.active || splitStand.model != pending->model ||
+                splitStand.boundaryFingerprint !=
+                    pending->standBoundaryFingerprint ||
+                splitStand.completedStepCount !=
+                    pending->previousResidentCompletedStepCount) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::internalFailure,
+                    "accepted Stand segment lost its exact split predecessor"
+                );
+            }
+            // Consume only after the candidate passes all native checks.
+            // Rejected physical steps retain the previous root for retry.
+            splitStand = {};
+        }
+        if (diagnostics.failedEnvironmentCount == 0u &&
             pending->hasStandHorizon &&
             pending->standAuthoritativeStepCount != 0u &&
             pending->standCompletedStepCount <
@@ -9211,7 +9317,8 @@ MetalArticulatedOperatorSubmission::wait(
             splitStand.mujocoStateBytes =
                 diagnostics.layout.mujocoStateBytes;
             splitStand.rootTranslationBytes =
-                staged.standRootTranslations.size() *
+                static_cast<std::size_t>(
+                    diagnostics.layout.standStatusElements) *
                 sizeof(MRCompensatedRootTranslationGPU);
         }
 
@@ -9221,6 +9328,63 @@ MetalArticulatedOperatorSubmission::wait(
             pending->context->publishedStandProgram = diagnostics.numanXProgramFingerprint;
             pending->context->publishedStandStep = diagnostics.completedStandSteps;
             pending->context->controllerCompletionConsumed = false;
+        }
+        if (pending->publishAcceptedResidentState &&
+            diagnostics.failedEnvironmentCount == 0u) {
+            std::lock_guard lock(pending->context->mutex);
+            if (pending->residentProgramFingerprint == 0u ||
+                pending->context->residentStateGenerationCounter ==
+                    std::numeric_limits<std::uint64_t>::max() ||
+                diagnostics.layout.standStatusElements != 1u ||
+                diagnostics.layout.qBytes == 0u ||
+                diagnostics.layout.standVelocityBytes == 0u ||
+                diagnostics.layout.mujocoStateBytes == 0u ||
+                pending->context->buffers[6u] == nil ||
+                pending->context->buffers[kMujocoStatesBuffer] == nil ||
+                pending->context->standBuffers[kStandVelocityBuffer] == nil ||
+                pending->context->standBuffers[
+                    kStandRootTranslationBuffer] == nil) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::internalFailure,
+                    "accepted legacy resident root has an invalid identity or arena"
+                );
+            }
+            const std::uint64_t generation =
+                ++pending->context->residentStateGenerationCounter;
+            auto& resident = pending->context->publishedResident;
+            resident = {};
+            resident.active = true;
+            resident.legacyAcceptedStand = true;
+            resident.model = pending->model;
+            resident.transactionFingerprint =
+                pending->residentProgramFingerprint;
+            resident.physicsGeneration = generation;
+            resident.legacyProgramFingerprint =
+                pending->residentProgramFingerprint;
+            resident.tokenFamily =
+                MetalNumanXHumanMatterTokenFamily::legacyMicrosecondsV1;
+            resident.qBytes = diagnostics.layout.qBytes;
+            resident.velocityBytes =
+                diagnostics.layout.standVelocityBytes;
+            resident.mujocoStateBytes = diagnostics.layout.mujocoStateBytes;
+            resident.environmentCount =
+                diagnostics.layout.standStatusElements;
+            resident.qStride =
+                static_cast<std::uint32_t>(pending->articulation.nq);
+            resident.velocityStride =
+                static_cast<std::uint32_t>(pending->articulation.nv);
+            resident.mujocoStateStride =
+                static_cast<std::uint32_t>(
+                    diagnostics.layout.mujocoStateElements /
+                    diagnostics.layout.standStatusElements);
+            resident.legacyCompletedStepCount =
+                pending->standCompletedStepCount;
+            resident.legacyAuthoritativeStepCount =
+                pending->standAuthoritativeStepCount;
+            diagnostics.residentStateTransactionFingerprint =
+                resident.transactionFingerprint;
+            diagnostics.residentStateGeneration = generation;
         }
         result = std::move(staged);
         diagnostics.published = true;
@@ -9235,6 +9399,7 @@ MetalArticulatedOperatorSubmission::wait(
         diagnostics.status =
             MetalArticulatedOperatorHostStatus::success;
         diagnostics.message.clear();
+        continuationFailureGuard.release();
         return diagnostics;
     } catch (const std::bad_alloc&) {
         return reject(
@@ -9357,7 +9522,12 @@ bool MetalArticulatedOperatorContext::flushPhysicalStateObserver(
         if (!state_->initialized || state_->queue == nil || state_->inFlight ||
             state_->humanMatterPrepared.active || !resident.active) {
             error = "physical-state owner observer requires a quiescent "
-                    "released accepted root";
+                    "released accepted Human root (initialized=" +
+                std::to_string(state_->initialized) + ", queue=" +
+                std::to_string(state_->queue != nil) + ", inFlight=" +
+                std::to_string(state_->inFlight) + ", prepared=" +
+                std::to_string(state_->humanMatterPrepared.active) +
+                ", resident=" + std::to_string(resident.active) + ")";
             return false;
         }
 
@@ -9527,6 +9697,13 @@ MetalArticulatedOperatorContext::submit(
                 "operator context already has an in-flight batch"
             );
         }
+        if (state_->legacyResidentTerminalFailure) {
+            return reject(
+                std::move(diagnostics),
+                MetalArticulatedOperatorHostStatus::metalCommandFailure,
+                "a dispatched legacy resident continuation failed; this context is terminal"
+            );
+        }
 
         const auto& continuation = input.residentContinuation;
         if (continuation.configured() && !continuation.valid()) {
@@ -9538,9 +9715,69 @@ MetalArticulatedOperatorContext::submit(
         }
         const bool reusePublishedResidentState =
             state_->publishedResident.active;
+        const bool hasExplicitAuthoritativeHorizon =
+            input.stand.enabled() &&
+            input.stand.authoritativeStepCount != 0u;
+        const std::uint64_t residentProgramFingerprint =
+            input.stand.enabled()
+                ? splitStandBoundaryFingerprint(
+                      state_->splitStandBoundaryCache, input)
+                : 0u;
+        const std::uint64_t standBoundaryFingerprint =
+            hasExplicitAuthoritativeHorizon
+                ? residentProgramFingerprint
+                : 0u;
         if (reusePublishedResidentState) {
             const auto& resident = state_->publishedResident;
             const auto& program = input.stand.numanXHumanMatterProgram;
+            if (resident.legacyAcceptedStand) {
+                const bool continuationNamesResidentRoot =
+                    continuation.validLegacy() &&
+                    continuation.previousTransactionFingerprint ==
+                        resident.transactionFingerprint &&
+                    continuation.previousPhysicsGeneration ==
+                        resident.physicsGeneration;
+                const bool exactNextStep =
+                    input.stand.stepIndexOffset ==
+                        resident.legacyCompletedStepCount &&
+                    input.stand.authoritativeStepCount ==
+                        resident.legacyAuthoritativeStepCount;
+                const bool stateArenaValid =
+                    continuationNamesResidentRoot &&
+                    input.publishAcceptedResidentState &&
+                    !program.configured() &&
+                    resident.model == &model &&
+                    resident.legacyProgramFingerprint != 0u &&
+                    resident.legacyProgramFingerprint ==
+                        residentProgramFingerprint &&
+                    resident.transactionFingerprint ==
+                        residentProgramFingerprint &&
+                    exactNextStep &&
+                    resident.environmentCount == input.environmentCount &&
+                    resident.qBytes == requirements.entries[6u].logicalBytes &&
+                    resident.velocityBytes == requirements.standEntries[
+                        kStandVelocityBuffer].logicalBytes &&
+                    resident.mujocoStateBytes == requirements.entries[
+                        kMujocoStatesBuffer].logicalBytes &&
+                    state_->buffers[6u] != nil &&
+                    state_->buffers[kMujocoStatesBuffer] != nil &&
+                    state_->standBuffers[kStandVelocityBuffer] != nil &&
+                    state_->standBuffers[kStandRootTranslationBuffer] != nil &&
+                    state_->capacities[6u] >= requirements.entries[6u].allocationBytes &&
+                    state_->capacities[kMujocoStatesBuffer] >=
+                        requirements.entries[kMujocoStatesBuffer].allocationBytes &&
+                    state_->standCapacities[kStandVelocityBuffer] >=
+                        requirements.standEntries[kStandVelocityBuffer].allocationBytes &&
+                    state_->standCapacities[kStandRootTranslationBuffer] >=
+                        requirements.standEntries[kStandRootTranslationBuffer].allocationBytes;
+                if (!stateArenaValid) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::invalidDimensions,
+                        "legacy resident continuation does not name the immediate accepted Stand state"
+                    );
+                }
+            } else {
             const bool exactResident =
                 resident.tokenFamily ==
                 MetalNumanXHumanMatterTokenFamily::exactNanosecondsV2;
@@ -9609,6 +9846,7 @@ MetalArticulatedOperatorContext::submit(
                     "published Human state"
                 );
             }
+            }
         } else if (continuation.configured()) {
             return reject(
                 std::move(diagnostics),
@@ -9617,17 +9855,10 @@ MetalArticulatedOperatorContext::submit(
             );
         }
 
-        const bool hasExplicitAuthoritativeHorizon =
-            input.stand.enabled() &&
-            input.stand.authoritativeStepCount != 0u;
         const bool isSplitStandSubmission =
             hasExplicitAuthoritativeHorizon &&
             (input.stand.stepIndexOffset != 0u ||
              input.stand.stepCount < input.stand.authoritativeStepCount);
-        const std::uint64_t standBoundaryFingerprint =
-            hasExplicitAuthoritativeHorizon
-            ? splitStandBoundaryFingerprint(state_->splitStandBoundaryCache, input)
-            : 0u;
         auto& splitStand = state_->splitStandHorizon;
         if (splitStand.active && input.stand.stepIndexOffset == 0u) {
             return reject(
@@ -9660,7 +9891,8 @@ MetalArticulatedOperatorContext::submit(
                 state_->standBuffers[kStandVelocityBuffer] != nil &&
                 state_->buffers[kMujocoStatesBuffer] != nil &&
                 state_->standBuffers[kStandRootTranslationBuffer] != nil &&
-                input.rootTranslations.size() == input.environmentCount &&
+                (reusePublishedResidentState ||
+                 input.rootTranslations.size() == input.environmentCount) &&
                 state_->capacities[6u] >= splitStand.qBytes &&
                 state_->standCapacities[kStandVelocityBuffer] >=
                     splitStand.velocityBytes &&
@@ -9669,21 +9901,22 @@ MetalArticulatedOperatorContext::submit(
                 state_->standCapacities[kStandRootTranslationBuffer] >=
                     splitStand.rootTranslationBytes;
             const bool predecessorStateMatches = predecessorBuffersValid &&
-                std::memcmp(
-                    state_->buffers[6u].contents,
-                    input.q.data(), splitStand.qBytes) == 0 &&
-                std::memcmp(
-                    state_->standBuffers[kStandVelocityBuffer].contents,
-                    input.stand.v.data(), splitStand.velocityBytes) == 0 &&
-                std::memcmp(
-                    state_->buffers[kMujocoStatesBuffer].contents,
-                    input.mujoco.states.data(),
-                    splitStand.mujocoStateBytes) == 0 &&
-                std::memcmp(
-                    state_->standBuffers[
-                        kStandRootTranslationBuffer].contents,
-                    input.rootTranslations.data(),
-                    splitStand.rootTranslationBytes) == 0;
+                (reusePublishedResidentState ||
+                 (std::memcmp(
+                      state_->buffers[6u].contents,
+                      input.q.data(), splitStand.qBytes) == 0 &&
+                  std::memcmp(
+                      state_->standBuffers[kStandVelocityBuffer].contents,
+                      input.stand.v.data(), splitStand.velocityBytes) == 0 &&
+                  std::memcmp(
+                      state_->buffers[kMujocoStatesBuffer].contents,
+                      input.mujoco.states.data(),
+                      splitStand.mujocoStateBytes) == 0 &&
+                  std::memcmp(
+                      state_->standBuffers[
+                          kStandRootTranslationBuffer].contents,
+                      input.rootTranslations.data(),
+                      splitStand.rootTranslationBytes) == 0));
             if (!predecessorStateMatches) {
                 return reject(
                     std::move(diagnostics),
@@ -9692,10 +9925,9 @@ MetalArticulatedOperatorContext::submit(
                     "the exact preceding context state and boundary"
                 );
             }
-            // Consume the predecessor before any upload or encoding. Only a
-            // completely validated and published segment may mint the next
-            // context-bound continuation state.
-            splitStand = {};
+            // Keep the accepted predecessor published until this command is
+            // accepted. If the device rejects the attempted segment, the
+            // reconciled prior root and exact boundary remain retryable.
         }
 
         @autoreleasepool {
@@ -13170,6 +13402,22 @@ MetalArticulatedOperatorContext::submit(
             pending->standAuthoritativeStepCount =
                 input.stand.authoritativeStepCount;
             pending->standBoundaryFingerprint = standBoundaryFingerprint;
+            pending->publishAcceptedResidentState =
+                input.publishAcceptedResidentState;
+            pending->collectFullResultToHost =
+                input.collectFullResultToHost;
+            pending->reusedLegacyResidentState =
+                reusePublishedResidentState &&
+                state_->publishedResident.legacyAcceptedStand;
+            pending->consumesSplitStandPredecessor =
+                input.stand.enabled() &&
+                input.stand.stepIndexOffset != 0u;
+            pending->previousResidentCompletedStepCount =
+                input.stand.stepIndexOffset;
+            pending->residentProgramFingerprint =
+                input.publishAcceptedResidentState
+                    ? residentProgramFingerprint
+                    : 0u;
             pending->standTendonBindingCount =
                 input.stand.tendonBindings.size();
             pending->standTendonEnvelopeBindingCount =

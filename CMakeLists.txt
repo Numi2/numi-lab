@@ -6219,3 +6219,34 @@ if(BUILD_TESTING)
     target_compile_features(metalrobo_numi_human_bilateral_test PRIVATE cxx_std_20)
     add_test(NAME numi_human_bilateral COMMAND metalrobo_numi_human_bilateral_test)
 endif()
+
+add_executable(
+    numi_human_resting_mesh_deformation_probe
+    apps/human_resting_mesh_deformation_probe.mm
+)
+target_compile_definitions(
+    numi_human_resting_mesh_deformation_probe
+    PRIVATE METALROBO_METALLIB="${METALROBO_METALLIB}"
+)
+target_compile_options(
+    numi_human_resting_mesh_deformation_probe
+    PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror
+)
+target_link_libraries(
+    numi_human_resting_mesh_deformation_probe
+    PRIVATE metalrobo "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}"
+)
+add_test(
+    NAME numi_human_resting_mesh_deformation
+    COMMAND numi_human_resting_mesh_deformation_probe
+)
+set_tests_properties(
+    numi_human_resting_mesh_deformation
+    PROPERTIES LABELS "numi;human;renderer;metal" TIMEOUT 90
+)
+set_target_properties(
+    numi_human_resting_mesh_deformation_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)

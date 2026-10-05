@@ -790,6 +790,335 @@ void checkSplitAuthoritativeHorizon(const Fixture& fixture) {
                  "fresh_offset=rejected mutated_boundary=rejected\n";
 }
 
+struct ResidentStateSnapshot {
+    std::vector<MRCompensatedRootTranslationGPU> roots;
+    std::vector<float> q;
+    std::vector<float> v;
+    std::vector<MRMujocoMuscleStateGPU> muscles;
+};
+
+struct ResidentStateObserver {
+    __strong id<MTLBuffer> roots = nil;
+    __strong id<MTLBuffer> q = nil;
+    __strong id<MTLBuffer> v = nil;
+    __strong id<MTLBuffer> muscles = nil;
+    std::uint64_t expectedTransaction = 0u;
+    std::uint64_t expectedGeneration = 0u;
+    std::size_t rootCount = 0u;
+    std::size_t qCount = 0u;
+    std::size_t vCount = 0u;
+    std::size_t muscleCount = 0u;
+    bool encoded = false;
+};
+
+bool encodeResidentStateSnapshot(
+    void* opaque,
+    const metalrobo::MetalArticulatedOperatorPhysicalStateObserverPass& pass
+) noexcept {
+    auto* observer = static_cast<ResidentStateObserver*>(opaque);
+    if (observer == nullptr || pass.abiVersion !=
+            metalrobo::kMetalArticulatedOperatorPhysicalStateObserverABIVersion ||
+        pass.environmentCount != 1u || pass.transactionFingerprint !=
+            observer->expectedTransaction || pass.physicsGeneration !=
+            observer->expectedGeneration || pass.rootTranslationElementCount !=
+            observer->rootCount || pass.qElementCount != observer->qCount ||
+        pass.vElementCount != observer->vCount ||
+        pass.mujocoStateElementCount != observer->muscleCount ||
+        pass.rootTranslations == nullptr || pass.q == nullptr || pass.v == nullptr ||
+        pass.mujocoStates == nullptr || observer->roots == nil || observer->q == nil ||
+        observer->v == nil || observer->muscles == nil || pass.commandBuffer == nullptr) {
+        return false;
+    }
+    id<MTLCommandBuffer> command =
+        (__bridge id<MTLCommandBuffer>)pass.commandBuffer;
+    id<MTLBlitCommandEncoder> blit = [command blitCommandEncoder];
+    if (blit == nil) return false;
+    [blit copyFromBuffer:(__bridge id<MTLBuffer>)pass.rootTranslations
+            sourceOffset:0u toBuffer:observer->roots destinationOffset:0u
+                    size:observer->rootCount * sizeof(MRCompensatedRootTranslationGPU)];
+    [blit copyFromBuffer:(__bridge id<MTLBuffer>)pass.q sourceOffset:0u
+                toBuffer:observer->q destinationOffset:0u
+                    size:observer->qCount * sizeof(float)];
+    [blit copyFromBuffer:(__bridge id<MTLBuffer>)pass.v sourceOffset:0u
+                toBuffer:observer->v destinationOffset:0u
+                    size:observer->vCount * sizeof(float)];
+    [blit copyFromBuffer:(__bridge id<MTLBuffer>)pass.mujocoStates
+            sourceOffset:0u toBuffer:observer->muscles destinationOffset:0u
+                    size:observer->muscleCount * sizeof(MRMujocoMuscleStateGPU)];
+    [blit endEncoding];
+    observer->encoded = true;
+    return true;
+}
+
+struct ResidentFailureInjector {
+    __strong id<MTLBuffer> failureStatus = nil;
+    bool rejectNextPostDynamics = false;
+    bool encodedRejection = false;
+    std::uint32_t abortCount = 0u;
+};
+
+bool encodeResidentFailure(
+    void* opaque,
+    const metalrobo::MetalNumanXTransactionPass& pass
+) noexcept {
+    auto* injector = static_cast<ResidentFailureInjector*>(opaque);
+    if (injector == nullptr) return false;
+    if (!injector->rejectNextPostDynamics ||
+        pass.phase != metalrobo::MetalNumanXTransactionPhase::postDynamics) {
+        return true;
+    }
+    if ((pass.accessFlags &
+            metalrobo::MetalNumanXTransactionWriteStandFailure) == 0u ||
+        pass.commandBuffer == nullptr || pass.standStatuses == nullptr ||
+        injector->failureStatus == nil || pass.environmentCount != 1u) {
+        return false;
+    }
+    id<MTLCommandBuffer> command =
+        (__bridge id<MTLCommandBuffer>)pass.commandBuffer;
+    id<MTLBlitCommandEncoder> blit = [command blitCommandEncoder];
+    if (blit == nil) return false;
+    [blit copyFromBuffer:injector->failureStatus sourceOffset:0u
+                toBuffer:(__bridge id<MTLBuffer>)pass.standStatuses
+          destinationOffset:0u size:sizeof(MRNumiHumanStandStatusGPU)];
+    [blit endEncoding];
+    injector->rejectNextPostDynamics = false;
+    injector->encodedRejection = true;
+    return true;
+}
+
+void abortResidentFailure(void* opaque, void*) noexcept {
+    auto* injector = static_cast<ResidentFailureInjector*>(opaque);
+    if (injector != nullptr) ++injector->abortCount;
+}
+
+[[nodiscard]] ResidentStateSnapshot readResidentStateSnapshot(
+    ResidentStateObserver& observer
+) {
+    require(observer.encoded, "resident observer did not encode a snapshot");
+    ResidentStateSnapshot snapshot{};
+    snapshot.roots.resize(observer.rootCount);
+    snapshot.q.resize(observer.qCount);
+    snapshot.v.resize(observer.vCount);
+    snapshot.muscles.resize(observer.muscleCount);
+    std::memcpy(snapshot.roots.data(), observer.roots.contents,
+                snapshot.roots.size() * sizeof(snapshot.roots.front()));
+    std::memcpy(snapshot.q.data(), observer.q.contents,
+                snapshot.q.size() * sizeof(float));
+    std::memcpy(snapshot.v.data(), observer.v.contents,
+                snapshot.v.size() * sizeof(float));
+    std::memcpy(snapshot.muscles.data(), observer.muscles.contents,
+                snapshot.muscles.size() * sizeof(snapshot.muscles.front()));
+    return snapshot;
+}
+
+[[nodiscard]] ResidentStateSnapshot observeResidentState(
+    MetalArticulatedOperatorContext& context,
+    ResidentStateObserver& observer,
+    const std::uint64_t transaction,
+    const std::uint64_t generation
+) {
+    observer.expectedTransaction = transaction;
+    observer.expectedGeneration = generation;
+    observer.encoded = false;
+    std::string error;
+    require(context.flushPhysicalStateObserver(
+                &observer, &encodeResidentStateSnapshot, error),
+            "accepted resident-state observation failed: " + error);
+    return readResidentStateSnapshot(observer);
+}
+
+void checkAcceptedLegacyResidentContinuation(const Fixture& fixture) {
+    MetalArticulatedOperatorConfig configuration{};
+    configuration.pointJacobiansOnly = true;
+    configuration.mujocoActivationTimestepSeconds = fixture.timestepSeconds;
+    configuration.metallibPath = METALROBO_DEFAULT_METALLIB;
+    MetalArticulatedOperatorContext context(configuration);
+
+    id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+    require(device != nil, "resident continuation probe has no Metal device");
+    ResidentFailureInjector injector{};
+    MRNumiHumanStandStatusGPU forcedFailure{};
+    forcedFailure.code = MR_NUMI_HUMAN_STAND_EXTERNAL_PHYSICS_FAILED;
+    forcedFailure.environment = 0u;
+    forcedFailure.completedSteps = 2u;
+    forcedFailure.failingIndex = MR_INVALID_INDEX;
+    injector.failureStatus = [device newBufferWithBytes:&forcedFailure
+        length:sizeof(forcedFailure) options:MTLResourceStorageModeShared];
+    require(injector.failureStatus != nil,
+            "resident rejection status buffer allocation failed");
+
+    ResidentStateObserver observer{};
+    observer.rootCount = 1u;
+    observer.qCount = fixture.q.size();
+    observer.vCount = fixture.v.size();
+    observer.muscleCount = fixture.gpuStates.size();
+    observer.roots = [device newBufferWithLength:
+        observer.rootCount * sizeof(MRCompensatedRootTranslationGPU)
+        options:MTLResourceStorageModeShared];
+    observer.q = [device newBufferWithLength:
+        observer.qCount * sizeof(float) options:MTLResourceStorageModeShared];
+    observer.v = [device newBufferWithLength:
+        observer.vCount * sizeof(float) options:MTLResourceStorageModeShared];
+    observer.muscles = [device newBufferWithLength:
+        observer.muscleCount * sizeof(MRMujocoMuscleStateGPU)
+        options:MTLResourceStorageModeShared];
+    require(observer.roots != nil && observer.q != nil && observer.v != nil &&
+                observer.muscles != nil,
+            "resident observer buffers could not be allocated");
+
+    MetalArticulatedOperatorInput input{};
+    input.articulationIndex = 0u;
+    input.environmentCount = 1u;
+    input.pointCount = fixture.points.size();
+    input.q = fixture.q;
+    input.v = fixture.v;
+    input.points = fixture.points;
+    input.mujoco.muscles = fixture.gpuMuscles;
+    input.mujoco.states = fixture.gpuStates;
+    input.mujoco.sites = fixture.gpuSites;
+    input.mujoco.routeNodes = fixture.gpuRoutes;
+    input.mujoco.bodyJacobianPointOffset = 0u;
+    input.stand.v = fixture.v;
+    input.stand.preloadedGeneralizedForce = fixture.passivePreload;
+    input.stand.jointEqualities = fixture.equalities;
+    input.stand.tendonBindings = fixture.tendonBindings;
+    input.stand.stepCount = 1u;
+    input.stand.authoritativeStepCount = 3u;
+    input.stand.contactIterationCount = 16u;
+    input.stand.enableContact = false;
+    input.stand.enableRootAssistance = false;
+    input.stand.groundNormal = f4(0.0f, 1.0f, 0.0f, 0.0f);
+    input.stand.targetRootPosition = f4(
+        fixture.q[0u], fixture.q[1u], fixture.q[2u], 0.0f);
+    input.stand.targetRootOrientation = f4(
+        fixture.q[3u], fixture.q[4u], fixture.q[5u], fixture.q[6u]);
+    input.stand.numanXTransactionProgram = {
+        .context = &injector,
+        .encode = &encodeResidentFailure,
+        .abort = &abortResidentFailure,
+        .fingerprint = 0x5245534944454e54ull,
+    };
+    input.publishAcceptedResidentState = true;
+    input.collectFullResultToHost = true;
+
+    MetalArticulatedOperatorResult initialResult;
+    const auto initialDiagnostics = context.run(
+        fixture.model, input, initialResult);
+    require(initialDiagnostics.succeeded() && initialDiagnostics.published &&
+                initialDiagnostics.residentStateTransactionFingerprint != 0u &&
+                initialDiagnostics.residentStateGeneration == 1u &&
+                initialResult.standStatuses.size() == 1u &&
+                initialResult.standQ.size() == fixture.q.size() &&
+                initialResult.standV.size() == fixture.v.size() &&
+                initialResult.mujocoActivationStates.size() ==
+                    fixture.gpuStates.size(),
+            "first legacy accepted root did not publish complete state");
+    const auto acceptedTransaction =
+        initialDiagnostics.residentStateTransactionFingerprint;
+    const auto acceptedGeneration = initialDiagnostics.residentStateGeneration;
+    const ResidentStateSnapshot accepted = observeResidentState(
+        context, observer, acceptedTransaction, acceptedGeneration);
+    require(sameBytes(accepted.q, initialResult.standQ) &&
+                sameBytes(accepted.v, initialResult.standV) &&
+                sameBytes(accepted.muscles,
+                          initialResult.mujocoActivationStates) &&
+                sameBytes(accepted.roots,
+                          initialResult.standRootTranslations),
+            "resident observer bytes differ from the accepted full result");
+
+    input.residentContinuation.previousTransactionFingerprint =
+        acceptedTransaction;
+    input.residentContinuation.previousPhysicsGeneration =
+        acceptedGeneration + 1u;
+    input.stand.stepIndexOffset = 1u;
+    input.q = {};
+    input.v = {};
+    input.rootTranslations = {};
+    input.stand.v = {};
+    input.mujoco.states = {};
+    input.collectFullResultToHost = false;
+    MetalArticulatedOperatorResult staleSentinel;
+    staleSentinel.standQ = {-91.0f};
+    const auto stale = context.run(fixture.model, input, staleSentinel);
+    require(!stale.succeeded() && !stale.dispatched && !stale.published &&
+                staleSentinel.standQ == std::vector<float>{-91.0f},
+            "stale resident generation dispatched or mutated its result");
+    input.residentContinuation.previousPhysicsGeneration = acceptedGeneration;
+
+    MetalArticulatedOperatorInput resetAttempt = input;
+    resetAttempt.q = fixture.q;
+    resetAttempt.stand.v = fixture.v;
+    resetAttempt.mujoco.states = fixture.gpuStates;
+    MetalArticulatedOperatorResult resetSentinel;
+    resetSentinel.standQ = {-92.0f};
+    const auto reset = context.run(fixture.model, resetAttempt, resetSentinel);
+    require(!reset.succeeded() && !reset.dispatched && !reset.published &&
+                resetSentinel.standQ == std::vector<float>{-92.0f},
+            "resident continuation admitted a host state reset");
+
+    injector.rejectNextPostDynamics = true;
+    MetalArticulatedOperatorResult rejectedSentinel;
+    rejectedSentinel.standQ = {-93.0f};
+    const auto rejected = context.run(fixture.model, input, rejectedSentinel);
+    require(!rejected.succeeded() && rejected.dispatched && !rejected.published &&
+                injector.encodedRejection &&
+                rejected.firstStandGPUStatusCode ==
+                    MR_NUMI_HUMAN_STAND_EXTERNAL_PHYSICS_FAILED &&
+                rejectedSentinel.standQ == std::vector<float>{-93.0f},
+            "post-dynamics transaction rejection did not fail the physical step");
+    const ResidentStateSnapshot afterRejectedStep = observeResidentState(
+        context, observer, acceptedTransaction, acceptedGeneration);
+    require(sameBytes(afterRejectedStep.q, accepted.q) &&
+                sameBytes(afterRejectedStep.v, accepted.v) &&
+                sameBytes(afterRejectedStep.muscles, accepted.muscles) &&
+                sameBytes(afterRejectedStep.roots, accepted.roots),
+            "rejected resident continuation changed the prior accepted root");
+
+    MetalArticulatedOperatorResult compactRetry;
+    const auto retryDiagnostics = context.run(
+        fixture.model, input, compactRetry);
+    require(retryDiagnostics.succeeded() && retryDiagnostics.published &&
+                retryDiagnostics.residentStateTransactionFingerprint ==
+                    acceptedTransaction &&
+                retryDiagnostics.residentStateGeneration == 2u &&
+                compactRetry.standQ.empty() && compactRetry.standV.empty() &&
+                compactRetry.mujocoActivationStates.empty() &&
+                compactRetry.standStatuses.size() == 1u,
+            "accepted retry did not advance a compact resident generation");
+    const ResidentStateSnapshot secondAccepted = observeResidentState(
+        context, observer, acceptedTransaction, 2u);
+
+    input.residentContinuation.previousPhysicsGeneration = 2u;
+    input.stand.stepIndexOffset = 2u;
+    input.collectFullResultToHost = true;
+    MetalArticulatedOperatorResult finalResult;
+    const auto finalDiagnostics = context.run(
+        fixture.model, input, finalResult);
+    require(finalDiagnostics.succeeded() && finalDiagnostics.published &&
+                finalDiagnostics.residentStateGeneration == 3u &&
+                finalResult.standQ.size() == fixture.q.size() &&
+                finalResult.standV.size() == fixture.v.size() &&
+                finalResult.mujocoActivationStates.size() ==
+                    fixture.gpuStates.size(),
+            "final resident segment did not support explicit full collection");
+    const ResidentStateSnapshot finalObserved = observeResidentState(
+        context, observer, acceptedTransaction, 3u);
+    require(sameBytes(finalObserved.q, finalResult.standQ) &&
+                sameBytes(finalObserved.v, finalResult.standV) &&
+                sameBytes(finalObserved.muscles,
+                          finalResult.mujocoActivationStates) &&
+                sameBytes(finalObserved.roots,
+                          finalResult.standRootTranslations),
+            "final full result differs from the exact accepted GPU root");
+    require(!sameBytes(secondAccepted.q, finalObserved.q) &&
+                context.stats().residentContinuationSubmissionCount == 3u &&
+                injector.abortCount == 0u,
+            "resident generations or rejected-step retry chronology is wrong");
+    std::cout << "accepted_legacy_resident_continuation=pass "
+                 "compact_intermediate=true post_dynamics_reject_rollback=true "
+                 "retry_same_predecessor=true final_full_collection=true\n";
+}
+
 [[nodiscard]] std::vector<double> freeReferenceAcceleration(
     const Fixture& fixture
 ) {
@@ -2299,6 +2628,7 @@ int main() {
         const Fixture fixture(kDefaultTimestepSeconds);
         checkOneStepReference(fixture);
         checkSplitAuthoritativeHorizon(fixture);
+        checkAcceptedLegacyResidentContinuation(fixture);
         checkSimultaneousTriadReference();
         checkSimultaneousTriadTimestepReference();
         checkSimultaneousTriadFinestTimestepIterationConvergence();

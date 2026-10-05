@@ -1690,14 +1690,13 @@ struct MetalNumiHumanStandInput {
     }
 };
 
-// Exact authorization to advance the device-resident state published by the
-// preceding NumanX Human/Matter root. A valid continuation never supplies a
-// host copy of q, v, or MyoSim state: those three streams remain in the
-// context-owned Metal arena and are consumed in place. The owner records this
-// identity only after a canonical accepted root has crossed the joint
-// publication fence. Once resident state exists, an implicit host reset is
-// rejected; callers must either present the exact preceding identity or use a
-// fresh context.
+// Exact authorization to advance device-resident q/v/MyoSim state published
+// by the preceding accepted Human root. Matter roots additionally bind their
+// accepted token and HumanIO program. Legacy Stand roots bind the exact
+// immutable input-program fingerprint and accepted generation. A valid
+// continuation never supplies host copies of q, v, or MyoSim state; those
+// streams remain in the context-owned Metal arena. Once resident state exists,
+// an implicit host reset is rejected.
 struct MetalArticulatedOperatorResidentStateContinuation {
     std::uint64_t previousTransactionFingerprint = 0u;
     std::uint64_t previousPhysicsGeneration = 0u;
@@ -1762,6 +1761,18 @@ struct MetalArticulatedOperatorInput {
     MetalMujocoMuscleReferenceInput mujoco{};
     MetalNumiHumanStandInput stand{};
     MetalArticulatedOperatorResidentStateContinuation residentContinuation{};
+    // Opt in to an accepted legacy Stand root without a NumanX Human/Matter
+    // ACK owner. The context fingerprints the immutable source/program
+    // boundary and publishes a new generation only after the full native
+    // status/result gate succeeds. Continuations must name that immediately
+    // preceding generation and leave q, rootTranslations, v, and MyoSim states
+    // empty so the exact accepted device buffers are consumed in place.
+    bool publishAcceptedResidentState = false;
+    // Keep default full typed output collection. A false value is admitted
+    // only with accepted-resident publication and returns the compact
+    // articulated/Stand status records while q/v/MyoSim and derived arrays
+    // remain device-resident for MetalArticulatedOperatorPhysicalStateObserver.
+    bool collectFullResultToHost = true;
 };
 
 struct MetalArticulatedOperatorConfig {
@@ -2025,6 +2036,10 @@ struct MetalArticulatedOperatorDiagnostics {
     std::uint64_t numanXProgramFingerprint = 0u;
     std::uintptr_t commandBufferIdentity = 0u;
     double elapsedMilliseconds = 0.0;
+    // Present when an opted-in legacy accepted root was published. These
+    // values are the only authorization for the next resident continuation.
+    std::uint64_t residentStateTransactionFingerprint = 0u;
+    std::uint64_t residentStateGeneration = 0u;
     // Optional timings for a completed submission. GPU time excludes queue
     // scheduling and host copies; a zero value means Metal did not report it.
     double gpuMilliseconds = 0.0;
@@ -2178,8 +2193,8 @@ public:
         bool (*encode)(void*,void*) noexcept, std::string& error);
 
     // Encodes one read-only observation on the owner queue and waits for its
-    // completion. This succeeds only after an accepted Human/Matter root has
-    // been published and all transaction ownership has been released.
+    // completion. This succeeds only after a released accepted Human root
+    // (Matter-owned or opted-in legacy Stand) has been published.
     [[nodiscard]] bool flushPhysicalStateObserver(
         void* context,
         MetalArticulatedOperatorEncodePhysicalStateObserver encode,

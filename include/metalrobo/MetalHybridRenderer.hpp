@@ -19,6 +19,8 @@ namespace detail {
 struct MetalHybridRendererState;
 } // namespace detail
 
+struct MetalHybridMeshDeformationRequest;
+
 struct MetalHybridRendererConfig {
     std::string metallibPath;
     std::uint32_t width = 160u;
@@ -149,6 +151,14 @@ struct HybridDeviceStateBatch {
     MRVisualFrameSource source = MR_VISUAL_SOURCE_SIMULATION;
     double captureTimestampSeconds = 0.0;
     double frameAgeSeconds = 0.0;
+    // Optional identity of the committed physical root represented by the
+    // device buffers. Required when mesh deformation is requested.
+    std::uint64_t acceptedRootFingerprint = 0u;
+    std::uint64_t acceptedTransactionFingerprint = 0u;
+    std::uint64_t acceptedTimestampMicroseconds = 0u;
+    // Optional, call-scoped device deformation. The renderer never retains
+    // this pointer or any resource reachable through it.
+    const MetalHybridMeshDeformationRequest* meshDeformation = nullptr;
 };
 
 struct HybridDeviceObservationBuffers {
@@ -212,6 +222,60 @@ struct MetalHybridComputeEncoderCallbacks {
             dispatchThreads != nullptr &&
             dispatchThreadgroups != nullptr;
     }
+};
+
+// Borrowed, call-scoped view of the compiled mesh and accepted physiology
+// source. The callback may write only vertex position/normal fields and
+// MRVisualInstanceGPUV2::binding.w visibility flags. All topology pointers
+// are read-only. No pointer may outlive the callback invocation.
+struct MetalHybridMeshDeformationLease {
+    void* metalDevice = nullptr;
+    const MetalHybridComputeEncoderCallbacks* encoder = nullptr;
+    void* meshVertices = nullptr;
+    void* meshInstances = nullptr;
+    void* meshIndices = nullptr;
+    void* meshTriangles = nullptr;
+    void* meshPrimitives = nullptr;
+    void* acceptedStateBuffer = nullptr;
+    std::size_t acceptedStateOffset = 0u;
+    std::size_t acceptedStateByteCount = 0u;
+    std::uint64_t acceptedRootFingerprint = 0u;
+    std::uint64_t acceptedTransactionFingerprint = 0u;
+    std::uint64_t acceptedTimestampMicroseconds = 0u;
+    std::uint32_t environmentCount = 0u;
+    std::uint32_t meshVertexCount = 0u;
+    std::uint32_t meshIndexCount = 0u;
+    std::uint32_t meshTriangleCount = 0u;
+    std::uint32_t meshPrimitiveCount = 0u;
+    std::uint32_t meshInstanceCount = 0u;
+};
+
+using MetalHybridMeshDeformationEncoder = bool (*)(
+    void* context,
+    const MetalHybridMeshDeformationLease& lease
+);
+
+// Supply this request for exactly one live encode call. The accepted state
+// buffer is borrowed read-only and must identify the accepted physical root
+// that the scene is presenting. Expected counts bind the deformation map to
+// the compiled topology. The renderer validates all ranges/device/counts,
+// then rebuilds existing mesh cluster bounds on the same command encoder.
+struct MetalHybridMeshDeformationRequest {
+    MetalHybridMeshDeformationEncoder encode = nullptr;
+    void* context = nullptr;
+    bool acceptedStateIsCommitted = false;
+    void* acceptedStateBuffer = nullptr;
+    std::size_t acceptedStateOffset = 0u;
+    std::size_t acceptedStateByteCount = 0u;
+    std::uint64_t acceptedRootFingerprint = 0u;
+    std::uint64_t acceptedTransactionFingerprint = 0u;
+    std::uint64_t acceptedTimestampMicroseconds = 0u;
+    std::uint32_t expectedEnvironmentCount = 1u;
+    std::uint32_t expectedMeshVertexCount = 0u;
+    std::uint32_t expectedMeshIndexCount = 0u;
+    std::uint32_t expectedMeshTriangleCount = 0u;
+    std::uint32_t expectedMeshPrimitiveCount = 0u;
+    std::uint32_t expectedMeshInstanceCount = 0u;
 };
 
 enum class MetalHybridRendererBuffer : std::uint32_t {

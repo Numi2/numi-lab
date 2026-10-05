@@ -2726,12 +2726,112 @@ struct EncodePassOptions {
     const HybridDeviceObservationBuffers* outputs = nullptr;
 };
 
+void borrowedNativeEncoderSetLabel(void* context, const char* label) {
+    id<MTLComputeCommandEncoder> encoder =
+        (__bridge id<MTLComputeCommandEncoder>)context;
+    encoder.label = @(label);
+}
+
+void borrowedNativeEncoderUseHeap(void* context, void* heap) {
+    id<MTLComputeCommandEncoder> encoder =
+        (__bridge id<MTLComputeCommandEncoder>)context;
+    [encoder useHeap:(__bridge id<MTLHeap>)heap];
+}
+
+void borrowedNativeEncoderSetPipeline(void* context, void* pipeline) {
+    id<MTLComputeCommandEncoder> encoder =
+        (__bridge id<MTLComputeCommandEncoder>)context;
+    [encoder setComputePipelineState:
+        (__bridge id<MTLComputePipelineState>)pipeline];
+}
+
+void borrowedNativeEncoderSetBuffer(
+    void* context,
+    void* buffer,
+    const std::size_t offset,
+    const std::uint32_t index
+) {
+    id<MTLComputeCommandEncoder> encoder =
+        (__bridge id<MTLComputeCommandEncoder>)context;
+    [encoder setBuffer:(__bridge id<MTLBuffer>)buffer
+        offset:static_cast<NSUInteger>(offset)
+        atIndex:static_cast<NSUInteger>(index)];
+}
+
+void borrowedNativeEncoderSetBytes(
+    void* context,
+    const void* bytes,
+    const std::size_t length,
+    const std::uint32_t index
+) {
+    id<MTLComputeCommandEncoder> encoder =
+        (__bridge id<MTLComputeCommandEncoder>)context;
+    [encoder setBytes:bytes
+        length:length
+        atIndex:static_cast<NSUInteger>(index)];
+}
+
+void borrowedNativeEncoderDispatchThreads(
+    void* context,
+    const std::size_t threadCount,
+    const std::size_t threadsPerThreadgroup
+) {
+    id<MTLComputeCommandEncoder> encoder =
+        (__bridge id<MTLComputeCommandEncoder>)context;
+    [encoder dispatchThreads:MTLSizeMake(threadCount, 1u, 1u)
+        threadsPerThreadgroup:MTLSizeMake(
+            threadsPerThreadgroup, 1u, 1u
+        )];
+}
+
+void borrowedNativeEncoderDispatchThreadgroups(
+    void* context,
+    const std::size_t threadgroupCount,
+    const std::size_t threadsPerThreadgroup
+) {
+    id<MTLComputeCommandEncoder> encoder =
+        (__bridge id<MTLComputeCommandEncoder>)context;
+    [encoder dispatchThreadgroups:MTLSizeMake(threadgroupCount, 1u, 1u)
+        threadsPerThreadgroup:MTLSizeMake(
+            threadsPerThreadgroup, 1u, 1u
+        )];
+}
+
+void borrowedNativeEncoderDispatchThreadgroupsIndirect(
+    void* context,
+    void* arguments,
+    const std::size_t offset,
+    const std::size_t threadsPerThreadgroup
+) {
+    id<MTLComputeCommandEncoder> encoder =
+        (__bridge id<MTLComputeCommandEncoder>)context;
+    [encoder dispatchThreadgroupsWithIndirectBuffer:
+        (__bridge id<MTLBuffer>)arguments
+        indirectBufferOffset:offset
+        threadsPerThreadgroup:MTLSizeMake(
+            threadsPerThreadgroup, 1u, 1u
+        )];
+}
+
 class HybridComputeEncoder {
 public:
     explicit HybridComputeEncoder(
         id<MTLComputeCommandEncoder> encoder
     )
-        : native_(encoder) {}
+        : native_(encoder) {
+        nativeCallbacks_.context = (__bridge void*)encoder;
+        nativeCallbacks_.setLabel = borrowedNativeEncoderSetLabel;
+        nativeCallbacks_.useHeap = borrowedNativeEncoderUseHeap;
+        nativeCallbacks_.setPipeline = borrowedNativeEncoderSetPipeline;
+        nativeCallbacks_.setBuffer = borrowedNativeEncoderSetBuffer;
+        nativeCallbacks_.setBytes = borrowedNativeEncoderSetBytes;
+        nativeCallbacks_.dispatchThreads =
+            borrowedNativeEncoderDispatchThreads;
+        nativeCallbacks_.dispatchThreadgroups =
+            borrowedNativeEncoderDispatchThreadgroups;
+        nativeCallbacks_.dispatchThreadgroupsIndirect =
+            borrowedNativeEncoderDispatchThreadgroupsIndirect;
+    }
 
     explicit HybridComputeEncoder(
         const MetalHybridComputeEncoderCallbacks& callbacks
@@ -2741,6 +2841,14 @@ public:
     [[nodiscard]] bool valid() const noexcept {
         return native_ != nil ||
             (callbacks_ != nullptr && callbacks_->valid());
+    }
+
+    [[nodiscard]] const MetalHybridComputeEncoderCallbacks*
+    borrowedCallbacks() const noexcept {
+        if (callbacks_ != nullptr) {
+            return callbacks_;
+        }
+        return native_ == nil ? nullptr : &nativeCallbacks_;
     }
 
     void setLabel(const char* label) {
@@ -2906,6 +3014,7 @@ public:
 private:
     __unsafe_unretained id<MTLComputeCommandEncoder> native_ = nil;
     const MetalHybridComputeEncoderCallbacks* callbacks_ = nullptr;
+    MetalHybridComputeEncoderCallbacks nativeCallbacks_{};
 };
 
 struct EncodeWorldResources {
@@ -3339,6 +3448,180 @@ MetalHybridRendererDiagnostics encodeLocked(
         encoder.useResources(
             state.visualResourceHeap,
             state.visualResourceResidencySet
+        );
+    }
+    if (liveState.meshDeformation != nullptr) {
+        const MetalHybridMeshDeformationRequest& deformation =
+            *liveState.meshDeformation;
+        const std::uint32_t expectedVertexCount =
+            state.layout.meshVertexCount;
+        const std::uint32_t expectedIndexCount =
+            state.layout.meshIndexCount;
+        const std::uint32_t expectedTriangleCount =
+            state.layout.meshTriangleCount;
+        const std::uint32_t expectedPrimitiveCount =
+            state.layout.meshPrimitiveCount;
+        const std::uint32_t expectedInstanceCount =
+            state.layout.meshInstanceCount;
+        if (state.rendererProfile.kind !=
+                MR_VISUAL_RENDERER_SENSOR_FAST ||
+            state.rendererProfile.rayQueryVisibility ||
+            environmentCount != 1u ||
+            deformation.expectedEnvironmentCount != environmentCount ||
+            deformation.encode == nullptr ||
+            !deformation.acceptedStateIsCommitted ||
+            deformation.acceptedStateBuffer == nullptr ||
+            deformation.acceptedStateByteCount == 0u ||
+            deformation.acceptedRootFingerprint == 0u ||
+            deformation.acceptedTransactionFingerprint == 0u ||
+            deformation.acceptedRootFingerprint !=
+                liveState.acceptedRootFingerprint ||
+            deformation.acceptedTransactionFingerprint !=
+                liveState.acceptedTransactionFingerprint ||
+            deformation.acceptedTimestampMicroseconds !=
+                liveState.acceptedTimestampMicroseconds ||
+            deformation.expectedMeshVertexCount !=
+                expectedVertexCount ||
+            deformation.expectedMeshIndexCount != expectedIndexCount ||
+            deformation.expectedMeshTriangleCount !=
+                expectedTriangleCount ||
+            deformation.expectedMeshPrimitiveCount !=
+                expectedPrimitiveCount ||
+            deformation.expectedMeshInstanceCount !=
+                expectedInstanceCount ||
+            expectedVertexCount == 0u || expectedIndexCount == 0u ||
+            expectedTriangleCount == 0u ||
+            expectedPrimitiveCount == 0u || expectedInstanceCount == 0u ||
+            state.layout.meshClusterCount == 0u ||
+            state.buildMeshClustersPipeline == nil) {
+            return reject(
+                std::move(diagnostics),
+                MetalHybridRendererStatus::invalidConfiguration,
+                "mesh deformation requires an accepted one-environment "
+                "sensor_fast request bound to this compiled mesh topology"
+            );
+        }
+
+        id<MTLBuffer> acceptedState =
+            (__bridge id<MTLBuffer>)deformation.acceptedStateBuffer;
+        std::size_t vertexBytes = 0u;
+        std::size_t indexBytes = 0u;
+        std::size_t triangleBytes = 0u;
+        std::size_t primitiveBytes = 0u;
+        std::size_t instanceBytes = 0u;
+        std::size_t clusterBytes = 0u;
+        if (acceptedState == nil || acceptedState.device != state.device ||
+            deformation.acceptedStateOffset > acceptedState.length ||
+            deformation.acceptedStateByteCount >
+                acceptedState.length - deformation.acceptedStateOffset ||
+            state.buffers.meshVertices == nil ||
+            state.buffers.meshIndices == nil ||
+            state.buffers.meshTriangles == nil ||
+            state.buffers.meshPrimitives == nil ||
+            state.buffers.meshInstances == nil ||
+            state.buffers.meshClusters == nil ||
+            state.buffers.meshVertices.device != state.device ||
+            state.buffers.meshIndices.device != state.device ||
+            state.buffers.meshTriangles.device != state.device ||
+            state.buffers.meshPrimitives.device != state.device ||
+            state.buffers.meshInstances.device != state.device ||
+            state.buffers.meshClusters.device != state.device ||
+            !checkedBytes<MRVisualVertexGPUV2>(
+                expectedVertexCount, vertexBytes
+            ) ||
+            !checkedBytes<std::uint32_t>(
+                expectedIndexCount, indexBytes
+            ) ||
+            !checkedBytes<MRVisualTriangleGPUV2>(
+                expectedTriangleCount, triangleBytes
+            ) ||
+            !checkedBytes<MRVisualPrimitiveGPUV2>(
+                expectedPrimitiveCount, primitiveBytes
+            ) ||
+            !checkedBytes<MRVisualInstanceGPUV2>(
+                expectedInstanceCount, instanceBytes
+            ) ||
+            !checkedBytes<MRHybridMeshClusterGPU>(
+                state.layout.meshClusterCount, clusterBytes
+            ) ||
+            state.buffers.meshVertices.length < vertexBytes ||
+            state.buffers.meshIndices.length < indexBytes ||
+            state.buffers.meshTriangles.length < triangleBytes ||
+            state.buffers.meshPrimitives.length < primitiveBytes ||
+            state.buffers.meshInstances.length < instanceBytes ||
+            state.buffers.meshClusters.length < clusterBytes) {
+            return reject(
+                std::move(diagnostics),
+                MetalHybridRendererStatus::metalBufferFailure,
+                "mesh deformation buffers do not match the compiled "
+                "device, accepted-state range, or topology sizes"
+            );
+        }
+
+        const MetalHybridComputeEncoderCallbacks* encoderCallbacks =
+            encoder.borrowedCallbacks();
+        if (encoderCallbacks == nullptr || !encoderCallbacks->valid()) {
+            return reject(
+                std::move(diagnostics),
+                MetalHybridRendererStatus::metalCommandFailure,
+                "mesh deformation could not borrow the active compute "
+                "encoder callback surface"
+            );
+        }
+        MetalHybridMeshDeformationLease lease;
+        lease.metalDevice = (__bridge void*)state.device;
+        lease.encoder = encoderCallbacks;
+        lease.meshVertices = (__bridge void*)state.buffers.meshVertices;
+        lease.meshInstances = (__bridge void*)state.buffers.meshInstances;
+        lease.meshIndices = (__bridge void*)state.buffers.meshIndices;
+        lease.meshTriangles =
+            (__bridge void*)state.buffers.meshTriangles;
+        lease.meshPrimitives =
+            (__bridge void*)state.buffers.meshPrimitives;
+        lease.acceptedStateBuffer =
+            (__bridge void*)acceptedState;
+        lease.acceptedStateOffset = deformation.acceptedStateOffset;
+        lease.acceptedStateByteCount =
+            deformation.acceptedStateByteCount;
+        lease.acceptedRootFingerprint =
+            deformation.acceptedRootFingerprint;
+        lease.acceptedTransactionFingerprint =
+            deformation.acceptedTransactionFingerprint;
+        lease.acceptedTimestampMicroseconds =
+            deformation.acceptedTimestampMicroseconds;
+        lease.environmentCount = environmentCount;
+        lease.meshVertexCount = expectedVertexCount;
+        lease.meshIndexCount = expectedIndexCount;
+        lease.meshTriangleCount = expectedTriangleCount;
+        lease.meshPrimitiveCount = expectedPrimitiveCount;
+        lease.meshInstanceCount = expectedInstanceCount;
+        if (!deformation.encode(deformation.context, lease)) {
+            return reject(
+                std::move(diagnostics),
+                MetalHybridRendererStatus::metalCommandFailure,
+                "accepted-state mesh deformation encoder rejected its "
+                "borrowed lease"
+            );
+        }
+
+        // Deformation changes cluster bounds. Rebuild them immediately on the
+        // same device encoder before any mesh culling/raster dispatch.
+        encoder.setPipeline(state.buildMeshClustersPipeline);
+        id<MTLBuffer> __unsafe_unretained clusterBuildBuffers[] = {
+            state.buffers.meshTriangles,
+            state.buffers.meshVertices,
+            state.buffers.meshClusters,
+        };
+        const NSUInteger clusterBuildOffsets[] = {0u, 0u, 0u};
+        encoder.setBuffers(clusterBuildBuffers, clusterBuildOffsets, 0u);
+        encoder.setBytes(
+            &state.layout.meshClusterCount,
+            sizeof(state.layout.meshClusterCount),
+            3u
+        );
+        encoder.dispatchThreads(
+            state.layout.meshClusterCount,
+            kPixelThreads
         );
     }
     if (options.clearAccumulation) {
