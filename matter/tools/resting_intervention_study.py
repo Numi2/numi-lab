@@ -363,7 +363,7 @@ def observation(args: argparse.Namespace, trace: Path, native: dict[str, Any], l
         raise ValueError("native trace does not cover the full declared simulation duration")
     pre = window_metrics(rows, args.start_s - width, args.start_s)
     dose = window_metrics(rows, args.end_s - width, args.end_s)
-    recovery = window_metrics(rows, duration_s - width, duration_s)
+    recovery = window_metrics(rows, expected_seconds - width, expected_seconds)
     primary = dose["mean_PaCO2_mmhg"] - pre["mean_PaCO2_mmhg"]
     result: dict[str, Any] = {
         "schema": "numi.human-resting.intervention-observation.v1",

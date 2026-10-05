@@ -1,0 +1,77 @@
+{
+  "schema": "numi.human-resting.intervention-observation.v1",
+  "unit_id": "retained-parser-check-only",
+  "arm": "control",
+  "accepted_steps": 15000,
+  "simulated_s": 30.00000142492354,
+  "device": "Apple M4 Pro",
+  "world_fingerprint": "6434571789366693551",
+  "timestep_s": 0.002,
+  "dense45": true,
+  "brain_control": true,
+  "nominal_duration_s": 30.0,
+  "duration_valid": true,
+  "whole_body_anatomy_qualified": false,
+  "intervention_applied": false,
+  "delivered_drive_scale": 1.0,
+  "primary_delta_PaCO2_mmhg": -0.5205871512018234,
+  "pre_window_s": [
+    2.0,
+    9.0
+  ],
+  "dose_window_s": [
+    13.0,
+    20.0
+  ],
+  "recovery_window_s": [
+    23.0,
+    30.0
+  ],
+  "complete_breath_windows": {
+    "pre": {
+      "available": false,
+      "complete_breath_count": 0,
+      "reason": "fewer than two accepted inspiratory boundaries inside the analysis window"
+    },
+    "dose": {
+      "available": false,
+      "complete_breath_count": 0,
+      "reason": "fewer than two accepted inspiratory boundaries inside the analysis window"
+    },
+    "recovery": {
+      "available": false,
+      "complete_breath_count": 0,
+      "reason": "fewer than two accepted inspiratory boundaries inside the analysis window"
+    }
+  },
+  "PaCO2_pre_mean_mmhg": 39.36435755458073,
+  "PaCO2_dose_mean_mmhg": 38.843770403378905,
+  "PaCO2_recovery_mean_mmhg": 38.92697175052202,
+  "PaO2_pre_mean_mmhg": 101.0141224992477,
+  "PaO2_dose_mean_mmhg": 103.01919989627524,
+  "PaO2_recovery_mean_mmhg": 103.84830845824771,
+  "SaO2_pre_mean": 0.9729436253188991,
+  "SaO2_dose_mean": 0.9743082900659816,
+  "SaO2_recovery_mean": 0.9748450041911009,
+  "inspiratory_minute_ventilation_pre_L_min": 4.717130110974964,
+  "inspiratory_minute_ventilation_dose_L_min": 4.610092408448872,
+  "inspiratory_minute_ventilation_recovery_L_min": 4.589196620985194,
+  "ventilation_delta_pre_to_dose_L_min": -0.10703770252609246,
+  "ventilation_delta_pre_to_recovery_L_min": -0.12793348998977017,
+  "lung_volume_pre_ml": 2623.545330598624,
+  "lung_volume_dose_ml": 2622.02545487789,
+  "lung_volume_recovery_ml": 2641.971921547706,
+  "breaths_pre_window": 1.0,
+  "breaths_dose_window": 3.0,
+  "breaths_recovery_window": 5.0,
+  "recovery_minus_pre_PaCO2_mmhg": -0.43738580405870664,
+  "dose_to_recovery_PaCO2_change_mmhg": 0.08320134714311678,
+  "blood_volume_error_abs_max_ml": 0.00791624188423,
+  "O2_balance_error_abs_max_STPD_ml": 0.000232830643654,
+  "CO2_balance_error_abs_max_STPD_ml": 0.000465661287308,
+  "complete_fill_ejection_cycles": 35.0,
+  "last_LV_stroke_volume_ml": 70.0334785506,
+  "real_time_factor": 0.09982958524881029,
+  "trace_sha256": "dea3b8de88eab8efe3d7348e44dc60fe0f688679fb914fa19f13f33a6f146d40",
+  "runtime_log_sha256": "2e18886002e91c15c999160a7463757c3e7a199d4a75e4f0e3164f2f3e99e2be"
+}

@@ -1,12 +1,14 @@
 """Arithmetic/admission regression tests, not physiological qualification."""
 import math
+import csv
 import tempfile
 import unittest
 from argparse import Namespace
 from pathlib import Path
 
 from resting_intervention_study import (complete_breath_metrics, positive_linear_area,
-                                       native_scene_command, native_scene_summary, native_body_trace_consistency)
+                                       native_scene_command, native_scene_summary, native_body_trace_consistency,
+                                       observation, TRACE_COLUMNS)
 
 
 class AcceptedBreathWindowTests(unittest.TestCase):
@@ -119,6 +121,30 @@ class NativeSceneBindingTests(unittest.TestCase):
             trace.write_text(header + rows.replace("64,.128,0,0,.00002\n", ""))
             with self.assertRaisesRegex(ValueError, 'skipped'):
                 native_body_trace_consistency(trace, 96, .002)
+
+    def test_observation_uses_final_accepted_window_for_recovery(self):
+        # Distinct pre/dose/recovery plateaus catch accidentally reusing the
+        # dose interval. This is parser arithmetic, not simulated physiology.
+        with tempfile.TemporaryDirectory() as directory:
+            trace = Path(directory) / 'trace.csv'
+            with trace.open('w', newline='') as stream:
+                writer = csv.DictWriter(stream, fieldnames=TRACE_COLUMNS)
+                writer.writeheader()
+                for index in range(2001):
+                    t = index * .016
+                    row = dict.fromkeys(TRACE_COLUMNS, 0.)
+                    row.update(time_s=t, PaCO2_mmhg=40. if t < 12 else 44. if t < 24 else 41.)
+                    writer.writerow(row)
+            args = Namespace(steps=16000, dt=.002, window_s=8., start_s=12., end_s=24.,
+                             unit_id='arithmetic-only', arm='treatment', scale=.5)
+            native = dict(accepted_steps=16000, simulated_s=32., device='Apple M4 Pro',
+                          world_fingerprint='123', vascular_dense45=True, brain_control=True,
+                          real_time_factor=.1)
+            result = observation(args, trace, native, 'fixture')
+            self.assertEqual(result['primary_delta_PaCO2_mmhg'], 4.)
+            self.assertEqual(result['recovery_window_s'], [24., 32.])
+            self.assertEqual(result['PaCO2_recovery_mean_mmhg'], 41.)
+            self.assertEqual(result['dose_to_recovery_PaCO2_change_mmhg'], -3.)
 
 
 if __name__ == '__main__':
