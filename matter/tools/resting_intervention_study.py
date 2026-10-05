@@ -478,6 +478,27 @@ def native_scene_summary(log: str) -> dict[str, Any]:
             "whole_body_anatomy_qualified": False}
 
 
+def native_body_trace_consistency(trace: Path, steps: int, dt: float) -> dict[str, Any]:
+    """Check the body fields on every retained accepted observation."""
+    previous_step = 0
+    maximum_penetration = 0.0
+    with trace.open(newline="") as stream:
+        for row in csv.DictReader(stream):
+            step = int(row["step"])
+            if not 0 < step - previous_step <= 32:
+                raise ValueError("native trace skipped an accepted observation segment")
+            if abs(finite_float(row["time_s"], "time_s") - step * dt) > max(1e-5, step * dt * 1e-7):
+                raise ValueError("body and physiological observation times disagree")
+            for key in ("root_assistance_n", "root_assistance_nm"):
+                if finite_float(row[key], key) != 0:
+                    raise ValueError("native body trace contains root assistance")
+            maximum_penetration = max(maximum_penetration, finite_float(row["peak_penetration_m"], "peak_penetration_m"))
+            previous_step = step
+    if previous_step != steps:
+        raise ValueError("native body trace does not reach the declared final accepted step")
+    return {"root_assistance_observed": False, "maximum_contact_penetration_m": maximum_penetration}
+
+
 def execute_native_scene_arm(args: argparse.Namespace) -> dict[str, Any]:
     validate_windows(args)
     work, output = Path.cwd().resolve(), Path(args.output).resolve()
@@ -519,6 +540,7 @@ def execute_native_scene_arm(args: argparse.Namespace) -> dict[str, Any]:
     movie, surfaces = output / "native-viewer.mov", output / "resting-surface-audit.csv"
     if not movie.is_file() or movie.stat().st_size == 0 or not surfaces.is_file():
         raise ValueError("native scene did not retain its continuous movie and surface trace")
+    result.update(native_body_trace_consistency(output / "resting-coupled.csv", args.steps, args.dt))
     result.update(native_whole_body_executed=True,
                   common_asset_identity=digest_json(bindings),
                   recording_sha256=sha256_file(movie), surface_trace_sha256=sha256_file(surfaces),

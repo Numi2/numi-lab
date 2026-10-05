@@ -1,11 +1,12 @@
 """Arithmetic/admission regression tests, not physiological qualification."""
 import math
+import tempfile
 import unittest
 from argparse import Namespace
 from pathlib import Path
 
 from resting_intervention_study import (complete_breath_metrics, positive_linear_area,
-                                       native_scene_command, native_scene_summary)
+                                       native_scene_command, native_scene_summary, native_body_trace_consistency)
 
 
 class AcceptedBreathWindowTests(unittest.TestCase):
@@ -65,13 +66,13 @@ class NativeSceneBindingTests(unittest.TestCase):
                     "/bones", "/network", "/respiration", "/anatomy", "/skin", "/tendon")}}
 
     def args(self):
-        return Namespace(steps=77500, dt=.004, arm="treatment", start_s=120., end_s=180., scale=.5)
+        return Namespace(steps=155000, dt=.002, arm="treatment", start_s=120., end_s=180., scale=.5)
 
     def test_rebinding_changes_only_output_timing_and_declared_intervention(self):
         original = self.invocation()
         command = native_scene_command(original, Path("/new"), self.args())
         self.assertEqual(command[4], "/new")
-        self.assertEqual(command[command.index("--muscle-step-count") + 1], "77500")
+        self.assertEqual(command[command.index("--muscle-step-count") + 1], "155000")
         self.assertEqual(command[-4:], ["--resting-drive-intervention", "120.0", "180.0", "0.5"])
         self.assertEqual(original["argv"][4], "/old-output")
 
@@ -98,6 +99,22 @@ class NativeSceneBindingTests(unittest.TestCase):
             native_scene_summary(log.replace('physiology_body_clock=matched', 'physiology_body_clock=failed'))
         with self.assertRaisesRegex(ValueError, 'root assistance'):
             native_scene_summary(log.replace('"root_assistance":false', '"root_assistance":true'))
+
+    def test_intermediate_assistance_cannot_be_hidden_by_an_unassisted_endpoint(self):
+        with tempfile.TemporaryDirectory() as directory:
+            trace = Path(directory) / "body.csv"
+            header = "step,time_s,root_assistance_n,root_assistance_nm,peak_penetration_m\n"
+            rows = "32,.064,0,0,.00001\n64,.128,0,0,.00002\n96,.192,0,0,.00001\n"
+            trace.write_text(header + rows)
+            result = native_body_trace_consistency(trace, 96, .002)
+            self.assertFalse(result['root_assistance_observed'])
+            self.assertEqual(result['maximum_contact_penetration_m'], .00002)
+            trace.write_text(header + rows.replace("64,.128,0,0", "64,.128,.001,0"))
+            with self.assertRaisesRegex(ValueError, 'root assistance'):
+                native_body_trace_consistency(trace, 96, .002)
+            trace.write_text(header + rows.replace("64,.128,0,0,.00002\n", ""))
+            with self.assertRaisesRegex(ValueError, 'skipped'):
+                native_body_trace_consistency(trace, 96, .002)
 
 
 if __name__ == '__main__':
