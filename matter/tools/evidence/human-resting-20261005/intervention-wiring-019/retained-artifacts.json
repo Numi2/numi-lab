@@ -1,0 +1,30 @@
+{
+  "qualification": "Native six-second integration wiring diagnostic, not final anatomy or300s recovery qualification.",
+  "artifacts": [
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/intervention-wiring-native-019/native-viewer.mov",
+      "sha256": "1837408783d51aaa607dfb8fb6be08a235353084298251329d19c3c0241cfefa",
+      "bytes": 749833
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/intervention-wiring-native-019/resting-human.mrvpack",
+      "sha256": "4f969193b7e66385b5a06d9d55a3ea966d156821e76558b16d4a785cdaddd6a7",
+      "bytes": 214589440
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/intervention-wiring-native-019/resting-coupled.csv",
+      "sha256": "0883fb0ed3e5f30213c3ce61547a88a08161529350d27d6ae9a7ffcde64b3dab",
+      "bytes": 58605
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/intervention-wiring-native-019/resting-surface-audit.csv",
+      "sha256": "e57babad1eac5a731e05499ac664a835c5bbdce58cd8589f5982bfd2d9452e18",
+      "bytes": 31171
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/vascular-structure-candidate-repeat-native-013/resting-coupled.csv",
+      "sha256": "ca65c98056682bae62e7a63f6f913191524b0c718760efaf97bf53e934f0a179",
+      "bytes": 55846
+    }
+  ]
+}

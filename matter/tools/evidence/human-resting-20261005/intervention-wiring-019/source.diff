@@ -1,0 +1,1561 @@
+diff --git a/apps/NumiHumanRestingAnatomy.hpp b/apps/NumiHumanRestingAnatomy.hpp
+index 975cddb..7eb0e9e 100644
+--- a/apps/NumiHumanRestingAnatomy.hpp
++++ b/apps/NumiHumanRestingAnatomy.hpp
+@@ -24,11 +24,12 @@ struct NumiHumanRestingAnatomy {
+     std::array<float,2> passiveTransition{}; // caudal zero and cranial unit weight, m
+     struct RespiratoryBasis {
+         double start=0,span=0;
++        double conformingGridSpacing=0;
+         std::array<double,4> rim{};
+         std::array<std::array<double,4>,2> crura{};
+         std::array<double,2> rimTransition{},cruralTransition{};
+         // xyz are the source-space gradient; w is the scalar basal weight.
+-        std::array<double,4> evaluate(const std::array<double,3>& p,const std::array<double,3>& axis) const {
++        std::array<double,4> evaluateSmooth(const std::array<double,3>& p,const std::array<double,3>& axis) const {
+             const auto ellipse=[&](const auto& e,const auto& transition,bool inward) {
+                 const double x=(p[0]-e[0])/e[2],z=(p[2]-e[1])/e[3],r=std::sqrt(x*x+z*z);
+                 const double t=std::clamp((r-transition[0])/transition[1],0.0,1.0);
+@@ -44,8 +45,31 @@ struct NumiHumanRestingAnatomy {
+             const double t=std::clamp((height-start)/span,0.0,1.0),g=1-t*t*(3-2*t),dg=-6*t*(1-t)/span;
+             return {g*wx+w*dg*axis[0],w*dg*axis[1],g*wz+w*dg*axis[2],g*w};
+         }
++        std::array<double,4> evaluate(const std::array<double,3>& p,const std::array<double,3>& axis) const {
++            if(conformingGridSpacing==0)return evaluateSmooth(p,axis);
++            std::array<double,3> corner{},fraction{};
++            for(unsigned k=0;k<3;++k) {
++                const double u=p[k]/conformingGridSpacing;
++                corner[k]=std::floor(u)*conformingGridSpacing;fraction[k]=u-std::floor(u);
++            }
++            const auto low=corner;
++            std::array<unsigned,3> order{0,1,2};
++            std::stable_sort(order.begin(),order.end(),[&](unsigned a,unsigned b){return fraction[a]>fraction[b];});
++            std::array<double,4> result{};
++            double previous=evaluateSmooth(corner,axis)[3];result[3]=previous;
++            for(unsigned k:order) {
++                corner[k]+=conformingGridSpacing;
++                const double next=evaluateSmooth(corner,axis)[3];
++                result[k]=(next-previous)/conformingGridSpacing;
++                result[3]+=result[k]*(p[k]-low[k]);previous=next;
++            }
++            return result;
++        }
+     } respiratoryBasis;
+     std::map<unsigned,std::vector<float>> cardiacFreewallWeights;
++    std::vector<MRHumanRestingCardiacWallVertexGPU> ventricularWallMap;
++    MRHumanRestingCardiacWallGPU ventricularWallGPU{};
++    unsigned ventricularWallStableId=MR_INVALID_INDEX;
+     struct CardiacWallBinding { unsigned chamber=0;mr_float4 displacementAndWeight{}; };
+     std::map<unsigned,std::vector<CardiacWallBinding>> cardiacWallBindings;
+     std::set<unsigned> cardiacWallSurfaces;
+@@ -308,13 +332,66 @@ struct NumiHumanRestingAnatomy {
+                 "passive visceral binding has an unsupported model or attribution");
+             NSArray* values=passive[@"stable_ids"];
+             require([values isKindOfClass:NSArray.class],"passive visceral binding lacks source identities");
++            NSDictionary* liverIdentity=bindings[@"liver_surface_identity"];
++            const bool eightPatchLiver=liverIdentity!=nil;
++            if(eightPatchLiver) {
++                // This is the only supported reduced liver representation:
++                // eight named display patches partition one closed aggregate
++                // exterior. They do not define eight independent solids or
++                // segment volumes, and source ID 22 is a retired alias for 21.
++                const std::string representation="single_closed_aggregate_partitioned_into_eight_passive_exterior_patches_v1";
++                NSArray* liverIDs=[liverIdentity isKindOfClass:NSDictionary.class]?liverIdentity[@"stable_ids"]:nil;
++                NSDictionary* aliases=[liverIdentity isKindOfClass:NSDictionary.class]?liverIdentity[@"retired_source_aliases"]:nil;
++                require([liverIdentity isKindOfClass:NSDictionary.class]&&liverIdentity.count==5&&
++                    [liverIdentity[@"representation"] isKindOfClass:NSString.class]&&
++                    std::string([liverIdentity[@"representation"] UTF8String])==representation&&
++                    [liverIDs isKindOfClass:NSArray.class]&&liverIDs.count==8&&
++                    [aliases isKindOfClass:NSDictionary.class]&&aliases.count==1&&
++                    [aliases[@"22"] isKindOfClass:NSNumber.class]&&[aliases[@"22"] doubleValue]==21&&
++                    [aliases[@"22"] unsignedIntValue]==21&&
++                    [liverIdentity[@"internal_segment_boundaries"] isEqual:@NO]&&
++                    [liverIdentity[@"segment_volumes_defined"] isEqual:@NO],
++                    "unsupported or incomplete eight-patch liver identity declaration");
++                std::set<unsigned> declaredLiverIDs;
++                for(unsigned i=0;i<8;++i) {
++                    id value=liverIDs[i];
++                    require([value isKindOfClass:NSNumber.class]&&[value doubleValue]==[value unsignedIntValue]&&
++                        [value unsignedIntValue]==14+i&&declaredLiverIDs.insert([value unsignedIntValue]).second,
++                        "eight-patch liver IDs must be the ordered exterior display patches 14 through 21");
++                }
++                NSDictionary* liverSourceMap=[provenance isKindOfClass:NSDictionary.class]?provenance[@"source_id_map"]:nil;
++                require([liverSourceMap isKindOfClass:NSDictionary.class]&&liverSourceMap[@"22"]==nil,
++                    "retired liver source ID 22 must not remain a rendered source-map record");
++                const std::string patchRole="one open surface patch of a single closed aggregate shell; no independent segment volume";
++                const std::string patchInterpretation="inferred display identity; no internal segment partition or segment volume";
++                for(unsigned idValue:declaredLiverIDs) {
++                    NSString* key=[NSString stringWithFormat:@"%u",idValue];
++                    NSDictionary* source=[liverSourceMap[key] isKindOfClass:NSDictionary.class]?liverSourceMap[key]:nil;
++                    NSDictionary* owner=[source[@"source_owner_metadata"] isKindOfClass:NSDictionary.class]?
++                        source[@"source_owner_metadata"]:nil;
++                    NSDictionary* repair=[source[@"repair"] isKindOfClass:NSDictionary.class]?source[@"repair"]:nil;
++                    const auto& patch=surface(idValue);
++                    require(source&&patch.bodyIndex==gpu.bodyAndFlags.x&&patch.layer==1&&
++                        [source[@"body_index"] isKindOfClass:NSNumber.class]&&[source[@"body_index"] unsignedIntValue]==20&&
++                        [source[@"layer"] isKindOfClass:NSNumber.class]&&[source[@"layer"] unsignedIntValue]==1&&
++                        [owner[@"source_atlas"] isEqual:@"Z-Anatomy"]&&
++                        [owner[@"geometry_role"] isKindOfClass:NSString.class]&&
++                        std::string([owner[@"geometry_role"] UTF8String])==patchRole&&
++                        [repair[@"interpretation"] isKindOfClass:NSString.class]&&
++                        std::string([repair[@"interpretation"] UTF8String])==patchInterpretation&&
++                        [repair[@"patch_face_count"] isKindOfClass:NSNumber.class]&&
++                        [repair[@"patch_face_count"] unsignedIntValue]>0,
++                        "eight-patch liver source map is not bound to the registered aggregate exterior");
++                }
++            }
+             for(id value in values) {
+                 require([value isKindOfClass:NSNumber.class]&&[value doubleValue]==[value unsignedIntValue],
+                     "invalid passive visceral source identity");
+                 require(passiveViscera.insert([value unsignedIntValue]).second,
+                     "duplicate passive visceral source identity");
+             }
+-            std::set<unsigned> expected{2,3,4,5,13,14,15,16,17,18,19,20,21,22};
++            std::set<unsigned> expected{2,3,4,5,13,14,15,16,17,18,19,20,21};
++            if(!eightPatchLiver)expected.insert(22);
+             for(unsigned id=398;id<=463;++id)expected.insert(id);
+             require(passiveViscera==expected,"passive visceral source identity set differs from the reference assembly");
+             id lower=passive[@"pelvic_body_index"];
+@@ -322,7 +399,8 @@ struct NumiHumanRestingAnatomy {
+                 [lower unsignedIntValue]!=gpu.bodyAndFlags.x,"passive visceral pelvic anchor is invalid");
+             passivePelvicBody=[lower unsignedIntValue];
+             float anchorMinimum=INFINITY,pelvicMaximum=-INFINITY;
+-            const std::set<unsigned> anchors{2,3,4,5,13,14,15,16,17,18,19,20,21,22,461};
++            std::set<unsigned> anchors{2,3,4,5,13,14,15,16,17,18,19,20,21,461};
++            if(!eightPatchLiver)anchors.insert(22);
+             for(unsigned id:passiveViscera) {
+                 const auto& s=surface(id); // All shared interfaces use the same source coordinate frame.
+                 for(unsigned i=s.firstVertex;i<s.firstVertex+s.vertexCount;++i) {
+@@ -390,6 +468,15 @@ struct NumiHumanRestingAnatomy {
+             }
+         };
+         respiratoryBasis.start=blendStart;respiratoryBasis.span=blendSpan;
++        id interpolation=respiratoryBinding[@"basal_weight_interpolation"];
++        if(interpolation) {
++            require([interpolation isEqual:@"conforming_kuhn_grid_v1"],
++                "unsupported respiratory basal interpolation");
++            respiratoryBasis.conformingGridSpacing=respiratoryNumber(@"conforming_grid_spacing_m");
++            require(respiratoryBasis.conformingGridSpacing==1.0/64.0&&
++                superior.x==0&&superior.y==1&&superior.z==0,
++                "conforming respiratory cells require the declared source grid and superior axis");
++        }
+         parameterArray(respiratoryBinding[@"footprint_rim_ellipse_m"],respiratoryBasis.rim);
+         parameterArray(respiratoryBinding[@"footprint_rim_transition"],respiratoryBasis.rimTransition);
+         parameterArray(respiratoryBinding[@"footprint_crural_transition"],respiratoryBasis.cruralTransition);
+@@ -586,18 +673,17 @@ struct NumiHumanRestingAnatomy {
+             gpu.chamberVolumePolynomial[c]={float(f0),float(a1),float(a2),float(a3)};
+         }
+ 
+-        // These exact BodyParts3D source records are the passive external
+-        // heart/myocardial geometry in the expanded scene receipt. Each
+-        // surface vertex follows the nearest hydraulic cavity wall through
+-        // the same accepted q, using that wall's free-wall interpolation and
+-        // a short spatial falloff. This is a presentation binding, not a
+-        // contractile myocardial material model.
++        // Verify the passive heart source identities. Keep the tested atrial
++        // reference bindings for IDs 1 and 24; ID 23 gets the closed source-
++        // derived ventricular material boundary and its reduced volume map.
+         struct ExpectedWall { unsigned id;const char* member;const char* conceptId;const char* digest; };
+         const std::array<ExpectedWall,3> expectedWalls{{
+             {1,"FJ2439","FMA7088","e7c21cd1659eced056eb56e28f4fa9019ace451ea6e0333097846177f807bb5a"},
+             {23,"FJ2428","FMA13884","ac3c7d6714bed8cf549c97b013546541cf67e189dad2107092a59758aa3ccc45"},
+             {24,"FJ2438","FMA7088","187235f3c3612ef27abde924d01c71579c2946435e64319164f43e5ad008284d"},
+         }};
++        id rawVentricularWallBinding=cardiacBinding[@"ventricular_wall_binding"];
++        const bool hasVentricularWallBinding=rawVentricularWallBinding!=nil;
+         NSDictionary* sourceMap=[provenance isKindOfClass:NSDictionary.class]?provenance[@"source_id_map"]:nil;
+         require([sourceMap isKindOfClass:NSDictionary.class],"expanded anatomy receipt lacks source-member identities");
+         for(const auto& expected:expectedWalls) {
+@@ -612,6 +698,12 @@ struct NumiHumanRestingAnatomy {
+                 [digest isKindOfClass:NSString.class]&&[digest isEqualToString:[NSString stringWithUTF8String:expected.digest]]&&
+                 [fmaConcept isKindOfClass:NSString.class]&&[fmaConcept isEqualToString:[NSString stringWithUTF8String:expected.conceptId]],
+                 "passive heart source-member binding differs");
++            if(expected.id==23&&hasVentricularWallBinding)continue;
++            if(expected.id==23) {
++                const auto& legacyWall=surface(expected.id);
++                require(legacyWall.vertexCount==21053&&legacyWall.indexCount==112326,
++                    "ID 23 has neither the exact legacy organ shell nor a declared ventricular wall binding");
++            }
+             cardiacWallSurfaces.insert(expected.id);
+             const auto& wall=surface(expected.id);auto& mapping=cardiacWallBindings[expected.id];mapping.resize(wall.vertexCount);
+             for(unsigned v=0;v<wall.vertexCount;++v) {
+@@ -630,5 +722,215 @@ struct NumiHumanRestingAnatomy {
+                     float(closest.point[2]-center.z),float(falloff*freewall)}};
+             }
+         }
++
++        if(hasVentricularWallBinding) {
++        NSDictionary* wallBinding=[rawVentricularWallBinding isKindOfClass:NSDictionary.class]?
++            (NSDictionary*)rawVentricularWallBinding:nil;
++        NSDictionary* wallMap=[wallBinding isKindOfClass:NSDictionary.class]?wallBinding[@"wall_map"]:nil;
++        NSDictionary* scales=[wallMap isKindOfClass:NSDictionary.class]?wallMap[@"normalization_scales"]:nil;
++        NSArray* radialOrigin=wallBinding[@"radial_closure_origin_m"];
++        NSArray* closureBounds=wallBinding[@"closure_bracket_m"];
++        NSNumber* closureTolerance=wallBinding[@"closure_relative_tolerance"];
++        NSNumber* wallStableID=wallBinding[@"stable_id"];
++        NSNumber* referenceVolume=wallBinding[@"reference_material_volume_m3"];
++        NSNumber* candidateVertexCount=wallBinding[@"arrangement_candidate_vertex_count"];
++        NSNumber* candidateTriangleCount=wallBinding[@"arrangement_candidate_triangle_count"];
++        NSArray* faceOwnerRanges=wallBinding[@"face_owner_ranges"];
++        NSString* wallMethod=wallBinding[@"method"];
++        NSString* wallSource=wallBinding[@"source_member"];
++        NSString* wallFMA=wallBinding[@"fma_id"];
++        NSString* wallSourceSHA=wallBinding[@"source_sha256"];
++        NSString* wallOutputSHA=wallBinding[@"output_anatomy_payload_sha256"];
++        NSString* wallMapMethod=[wallMap isKindOfClass:NSDictionary.class]?wallMap[@"method"]:nil;
++        require([wallBinding isKindOfClass:NSDictionary.class]&&
++            [wallMethod isKindOfClass:NSString.class]&&
++            [wallMethod isEqualToString:@"exact_ID23_material_boundary_with_RV_LV_lumens_and_continuous_barycentric_wall_map_v1"]&&
++            [wallStableID isKindOfClass:NSNumber.class]&&wallStableID.unsignedIntValue==23&&
++            [wallSource isKindOfClass:NSString.class]&&[wallSource isEqualToString:@"FJ2428"]&&
++            [wallFMA isKindOfClass:NSString.class]&&[wallFMA isEqualToString:@"FMA13884"]&&
++            [wallSourceSHA isKindOfClass:NSString.class]&&[wallSourceSHA isEqualToString:@"ac3c7d6714bed8cf549c97b013546541cf67e189dad2107092a59758aa3ccc45"]&&
++            [wallOutputSHA isKindOfClass:NSString.class]&&std::string(wallOutputSHA.UTF8String)==outputAnatomyHash&&
++            [wallMapMethod isKindOfClass:NSString.class]&&
++            [wallMapMethod isEqualToString:@"candidate_face_owner_ranges_with_pure_cavity_channel_boundary_and_natural_inverse_squared_distance_freewall_blend"]&&
++            [scales isKindOfClass:NSDictionary.class]&&
++            [scales[@"q_rv"] isKindOfClass:NSNumber.class]&&std::abs([scales[@"q_rv"] doubleValue]-.4)<1e-9&&
++            [scales[@"q_lv"] isKindOfClass:NSNumber.class]&&std::abs([scales[@"q_lv"] doubleValue]-.2)<1e-9&&
++            [scales[@"closure_m"] isKindOfClass:NSNumber.class]&&std::abs([scales[@"closure_m"] doubleValue]-.01)<1e-9&&
++            [radialOrigin isKindOfClass:NSArray.class]&&radialOrigin.count==3&&
++            [closureBounds isKindOfClass:NSArray.class]&&closureBounds.count==2&&
++            [closureBounds[0] isKindOfClass:NSNumber.class]&&[closureBounds[1] isKindOfClass:NSNumber.class]&&
++            [closureTolerance isKindOfClass:NSNumber.class]&&closureTolerance.doubleValue>0&&closureTolerance.doubleValue<1e-3&&
++            [referenceVolume isKindOfClass:NSNumber.class]&&std::isfinite(referenceVolume.doubleValue)&&referenceVolume.doubleValue>0&&
++            [candidateVertexCount isKindOfClass:NSNumber.class]&&candidateVertexCount.unsignedIntValue>0&&
++            [candidateTriangleCount isKindOfClass:NSNumber.class]&&candidateTriangleCount.unsignedIntValue>0&&
++            [faceOwnerRanges isKindOfClass:NSArray.class]&&faceOwnerRanges.count==3,
++            "ventricular wall binding is missing the source-bound map, volume reference, or closure controls");
++        const std::array<unsigned,3> expectedOwnerIDs{{23,319,321}};
++        const std::array<const char*,3> expectedOwnerNames{{"ID23_wall","ID319_RV_lumen","ID321_LV_lumen"}};
++        std::array<unsigned,3> ownerRangeFirst{},ownerRangeCount{};
++        unsigned coveredTriangles=0;
++        for(unsigned i=0;i<expectedOwnerIDs.size();++i) {
++            NSDictionary* range=faceOwnerRanges[i];
++            NSNumber* first=[range isKindOfClass:NSDictionary.class]?range[@"first_triangle"]:nil;
++            NSNumber* count=[range isKindOfClass:NSDictionary.class]?range[@"triangle_count"]:nil;
++            NSNumber* ownerID=[range isKindOfClass:NSDictionary.class]?range[@"stable_id"]:nil;
++            NSString* ownerName=[range isKindOfClass:NSDictionary.class]?range[@"owner"]:nil;
++            require([first isKindOfClass:NSNumber.class]&&[count isKindOfClass:NSNumber.class]&&
++                [ownerID isKindOfClass:NSNumber.class]&&ownerID.unsignedIntValue==expectedOwnerIDs[i]&&
++                [ownerName isKindOfClass:NSString.class]&&
++                [ownerName isEqualToString:[NSString stringWithUTF8String:expectedOwnerNames[i]] ]&&
++                first.unsignedIntValue==coveredTriangles&&count.unsignedIntValue>0,
++                "ventricular face-owner ranges are not contiguous in the declared wall/RV/LV order");
++            ownerRangeFirst[i]=first.unsignedIntValue;ownerRangeCount[i]=count.unsignedIntValue;
++            coveredTriangles+=ownerRangeCount[i];
++        }
++        const auto& ventricularWall=surface(23);
++        require(ventricularWall.layer==1&&ventricularWall.vertexCount==candidateVertexCount.unsignedIntValue&&
++            ventricularWall.indexCount==candidateTriangleCount.unsignedIntValue*3&&
++            coveredTriangles==candidateTriangleCount.unsignedIntValue,
++            "stable ID 23 does not match the source-bound complete ventricular material boundary");
++        ventricularWallStableId=23;
++        const auto material=closedSurface(anatomy,ventricularWall);
++        const double referenceMaterialVolume=referenceVolume.doubleValue;
++        require(std::abs(material.volume-referenceMaterialVolume)<5e-10,
++            "ventricular material shell volume differs from its source-bound candidate receipt");
++        std::array<double,3> radialCenter{};
++        for(unsigned k=0;k<3;++k) {
++            require([radialOrigin[k] isKindOfClass:NSNumber.class],"ventricular closure origin is malformed");
++            radialCenter[k]=[radialOrigin[k] doubleValue];
++            require(std::isfinite(radialCenter[k]),"ventricular closure origin is nonfinite");
++        }
++        const double closureLow=[closureBounds[0] doubleValue],closureHigh=[closureBounds[1] doubleValue];
++        require(std::isfinite(closureLow)&&std::isfinite(closureHigh)&&closureLow<closureHigh&&
++            closureLow>=-.02&&closureHigh<=.02,
++            "ventricular closure bracket is outside the admitted small-displacement range");
++        const double closureRelativeTolerance=closureTolerance.doubleValue;
++        const auto& rvIndex=*cavityIndex[1];const auto& lvIndex=*cavityIndex[3];
++        const auto& rvWeights=cardiacFreewallWeights.at(cavities[1]);
++        const auto& lvWeights=cardiacFreewallWeights.at(cavities[3]);
++        const auto displacementAt=[&](unsigned channel,const TriangleIndex::Nearest& closest) {
++            const auto& index=channel==1?rvIndex:lvIndex;
++            const auto& weights=channel==1?rvWeights:lvWeights;
++            const auto& center=gpu.chamberCenterAndVolume[channel];
++            std::array<double,3> value{};
++            for(unsigned k=0;k<3;++k) {
++                const unsigned sourceVertex=closest.vertex[k];
++                const auto& point=index.points.at(sourceVertex);
++                const double weight=closest.barycentric[k]*weights.at(sourceVertex);
++                for(unsigned axis=0;axis<3;++axis) {
++                    const double c=axis==0?center.x:axis==1?center.y:center.z;
++                    value[axis]+=weight*(point[axis]-c);
++                }
++            }
++            return value;
++        };
++        const auto& rvVertices=rvIndex.points;const auto& lvVertices=lvIndex.points;
++        std::vector<int> ownedChannel(ventricularWall.vertexCount,-1);
++        for(unsigned rangeIndex=1;rangeIndex<expectedOwnerIDs.size();++rangeIndex) {
++            const int channel=expectedOwnerIDs[rangeIndex]==319?1:3;
++            for(unsigned triangle=ownerRangeFirst[rangeIndex];triangle<ownerRangeFirst[rangeIndex]+ownerRangeCount[rangeIndex];++triangle) {
++                const unsigned faceIndex=ventricularWall.firstIndex+triangle*3;
++                for(unsigned corner=0;corner<3;++corner) {
++                    const unsigned global=anatomy.indices.at(faceIndex+corner);
++                    require(global>=ventricularWall.firstVertex&&global<ventricularWall.firstVertex+ventricularWall.vertexCount,
++                        "ventricular face-owner range points outside its registered material surface");
++                    const unsigned local=global-ventricularWall.firstVertex;
++                    require(ownedChannel[local]<0||ownedChannel[local]==channel,
++                        "one material-boundary vertex is owned by both RV and LV cavity faces");
++                    ownedChannel[local]=channel;
++                }
++            }
++        }
++        ventricularWallMap.resize(ventricularWall.vertexCount);
++        for(unsigned v=0;v<ventricularWall.vertexCount;++v) {
++            const auto& source=anatomy.vertices.at(ventricularWall.firstVertex+v);
++            const std::array<double,3> point{source.positionX,source.positionY,source.positionZ};
++            const auto rv=rvIndex.nearest(point),lv=lvIndex.nearest(point);
++            const double denominator=rv.distanceSquared+lv.distanceSquared;
++            require(std::isfinite(denominator)&&denominator>1e-18,
++                "ventricular wall vertex is simultaneously unowned by the RV/LV blend");
++            const double rvBlend=lv.distanceSquared/denominator,lvBlend=rv.distanceSquared/denominator;
++            const auto dRV=displacementAt(1,rv),dLV=displacementAt(3,lv);
++            double closureWeight=0;
++            if(ownedChannel[v]<0) {
++                double lumenVertexDistanceSquared=std::numeric_limits<double>::infinity();
++                for(const auto& q:rvVertices) {
++                    const double dx=point[0]-q[0],dy=point[1]-q[1],dz=point[2]-q[2];
++                    lumenVertexDistanceSquared=std::min(lumenVertexDistanceSquared,dx*dx+dy*dy+dz*dz);
++                }
++                for(const auto& q:lvVertices) {
++                    const double dx=point[0]-q[0],dy=point[1]-q[1],dz=point[2]-q[2];
++                    lumenVertexDistanceSquared=std::min(lumenVertexDistanceSquared,dx*dx+dy*dy+dz*dz);
++                }
++                const double clearance=std::sqrt(lumenVertexDistanceSquared);
++                closureWeight=smoothstep(.004,.015,clearance);
++            }
++            std::array<double,3> radial{point[0]-radialCenter[0],point[1]-radialCenter[1],point[2]-radialCenter[2]};
++            const double radialLength=std::sqrt(TriangleIndex::dot(radial,radial));
++            require(std::isfinite(radialLength)&&radialLength>1e-8,
++                "ventricular material vertex coincides with the inferred closure origin");
++            radial=TriangleIndex::scale(radial,closureWeight/radialLength);
++            auto& map=ventricularWallMap[v];
++            const double ownedRV=ownedChannel[v]==1?1.0:0.0,ownedLV=ownedChannel[v]==3?1.0:0.0;
++            map.first={float(dRV[0]*(ownedChannel[v]<0?rvBlend:ownedRV)),
++                float(dRV[1]*(ownedChannel[v]<0?rvBlend:ownedRV)),float(dRV[2]*(ownedChannel[v]<0?rvBlend:ownedRV)),0};
++            map.second={float(dLV[0]*(ownedChannel[v]<0?lvBlend:ownedLV)),
++                float(dLV[1]*(ownedChannel[v]<0?lvBlend:ownedLV)),float(dLV[2]*(ownedChannel[v]<0?lvBlend:ownedLV)),0};
++            map.closure={float(radial[0]),float(radial[1]),float(radial[2]),0};
++            require(std::isfinite(map.first.x)&&std::isfinite(map.first.y)&&std::isfinite(map.first.z)&&
++                std::isfinite(map.second.x)&&std::isfinite(map.second.y)&&std::isfinite(map.second.z)&&
++                std::isfinite(map.closure.x)&&std::isfinite(map.closure.y)&&std::isfinite(map.closure.z),
++                "ventricular wall map contains nonfinite coefficients");
++        }
++
++        // The source material shell is one closed record with its RV and LV
++        // endocardial boundary faces. Expand its signed volume directly from
++        // all 64 determinant products per triangle; no sampled fit or frame-
++        // dependent CPU correction enters the accepted simulation path.
++        const std::array<std::array<unsigned,3>,20> exponents{{
++            {{0,0,0}},{{1,0,0}},{{0,1,0}},
++            {{2,0,0}},{{1,1,0}},{{0,2,0}},
++            {{3,0,0}},{{2,1,0}},{{1,2,0}},{{0,3,0}},
++            {{0,0,1}},{{1,0,1}},{{0,1,1}},{{2,0,1}},{{1,1,1}},{{0,2,1}},
++            {{0,0,2}},{{1,0,2}},{{0,1,2}},{{0,0,3}}
++        }};
++        const auto exponentForBasis=[](unsigned basis) {
++            std::array<unsigned,3> e{};if(basis==1)e[0]=1;else if(basis==2)e[1]=1;else if(basis==3)e[2]=1;return e;
++        };
++        const auto termIndex=[&](const std::array<unsigned,3>& exponent) {
++            for(unsigned i=0;i<exponents.size();++i)if(exponents[i]==exponent)return i;
++            require(false,"ventricular material-volume term exceeds cubic order");return 0u;
++        };
++        const auto determinant=[](const std::array<double,3>& a,const std::array<double,3>& b,const std::array<double,3>& c) {
++            return a[0]*(b[1]*c[2]-b[2]*c[1])+a[1]*(b[2]*c[0]-b[0]*c[2])+a[2]*(b[0]*c[1]-b[1]*c[0]);
++        };
++        std::array<double,20> volumePolynomial{};
++        for(unsigned index=ventricularWall.firstIndex;index<ventricularWall.firstIndex+ventricularWall.indexCount;index+=3) {
++            std::array<std::array<std::array<double,3>,4>,3> basis{};
++            for(unsigned corner=0;corner<3;++corner) {
++                const unsigned global=anatomy.indices.at(index+corner),local=global-ventricularWall.firstVertex;
++                const auto& point=anatomy.vertices.at(global);const auto& map=ventricularWallMap.at(local);
++                basis[corner][0]={double(point.positionX)-radialCenter[0],double(point.positionY)-radialCenter[1],double(point.positionZ)-radialCenter[2]};
++                basis[corner][1]={double(map.first.x)*.4,double(map.first.y)*.4,double(map.first.z)*.4};
++                basis[corner][2]={double(map.second.x)*.2,double(map.second.y)*.2,double(map.second.z)*.2};
++                basis[corner][3]={double(map.closure.x)*.01,double(map.closure.y)*.01,double(map.closure.z)*.01};
++            }
++            for(unsigned a=0;a<4;++a)for(unsigned b=0;b<4;++b)for(unsigned c=0;c<4;++c) {
++                auto exponent=exponentForBasis(a),eb=exponentForBasis(b),ec=exponentForBasis(c);
++                for(unsigned axis=0;axis<3;++axis)exponent[axis]+=eb[axis]+ec[axis];
++                volumePolynomial[termIndex(exponent)]+=determinant(basis[0][a],basis[1][b],basis[2][c])/6.0;
++            }
++        }
++        require(std::isfinite(volumePolynomial[0])&&std::abs(volumePolynomial[0]-material.volume)<5e-10,
++            "ventricular material-volume polynomial constant differs from its exact source shell");
++        for(unsigned i=0;i<volumePolynomial.size();++i) {
++            mr_float4& row=ventricularWallGPU.volumePolynomial[i/4];const float value=float(volumePolynomial[i]);
++            if(i%4==0)row.x=value;else if(i%4==1)row.y=value;else if(i%4==2)row.z=value;else row.w=value;
++        }
++        ventricularWallGPU.scalesAndVolume={.4f,.2f,.01f,float(material.volume)};
++        ventricularWallGPU.closureBoundsAndTolerance={float(closureLow),float(closureHigh),
++            float(closureRelativeTolerance),0};
++        ventricularWallGPU.chambersAndFlags={1,3,1,ventricularWall.vertexCount};
++        }
+     }
+ };
+diff --git a/apps/NumiHumanRestingVisual.hpp b/apps/NumiHumanRestingVisual.hpp
+index c71915e..eed7f48 100644
+--- a/apps/NumiHumanRestingVisual.hpp
++++ b/apps/NumiHumanRestingVisual.hpp
+@@ -7,13 +7,17 @@
+ #include <string_view>
+ // Included after the existing Human source loaders and visual-pack compiler.
+ // It adds a persistent presentation consumer, not another dynamics owner.
++static_assert(sizeof(MRHumanRestingCardiacWallVertexGPU)==48);
++static_assert(sizeof(MRHumanRestingCardiacWallGPU)==128);
+ class NumiHumanRestingVisual {
+     NumiHumanRestingCoupling& coupled;
+     std::unique_ptr<NumiHumanRestingSupportGeometry> skinSupport;
+     std::unique_ptr<metalrobo::MetalHybridRenderer> renderer;
+     metalrobo::MetalWorldFamilyContext worlds;
+     id<MTLBuffer> mapping, influences, anatomyParameters, surfaceAudits, volumeResults, instanceLayers, cardiacQ;
++    id<MTLBuffer> cardiacWallMap, cardiacWallParameters, cardiacWallQ, cardiacWallNormalRanges, cardiacWallIncidentTriangles;
+     id<MTLComputePipelineState> skinPipeline, layerPipeline, volumePipeline, skinAuditPipeline, cardiacQPipeline, bodyAuditPipeline;
++    id<MTLComputePipelineState> cardiacWallQPipeline, cardiacWallNormalsPipeline;
+     id<MTLComputePipelineState> vertexCapturePipeline=nil;
+     id<MTLBuffer> vertexCaptureBuffer=nil;
+     id<MTLCommandQueue> queue;
+@@ -21,6 +25,8 @@ class NumiHumanRestingVisual {
+     unsigned dimension,layer=0;
+     bool complete=false;
+     unsigned auditCount=0;
++    std::vector<unsigned> auditStableIds;
++    unsigned cardiacWallVertexCount=0,cardiacWallAuditIndex=MR_INVALID_INDEX;
+     double wallOrigin=0;
+     std::filesystem::path initialPackPath, acceptedGeometryDirectory;
+     std::string initialPackContentHash, initialPackFileSHA256;
+@@ -175,7 +181,7 @@ public:
+         requestedGeometrySteps=geometryExportStepsFromEnvironment();
+         require(requestedGeometrySteps.empty()||presentWindow,
+             "accepted MRVPack export requires the native viewer path");
+-        surfaceTrace<<"time_s,step,min_skin_bed_gap_m,vertices_below_1mm,nonfinite_skin_vertices,max_functional_volume_relative_error,q_ra,q_rv,q_la,q_lv,ra_target_ml,rv_target_ml,la_target_ml,lv_target_ml,diaphragm_swept_ml,rib_swept_ml,lung_target_ml,body_com_x_m,body_com_y_m,body_com_z_m,represented_body_mass_kg\n";
++        surfaceTrace<<"time_s,step,min_skin_bed_gap_m,vertices_below_1mm,nonfinite_skin_vertices,max_functional_volume_relative_error,q_ra,q_rv,q_la,q_lv,ra_target_ml,rv_target_ml,la_target_ml,lv_target_ml,diaphragm_swept_ml,rib_swept_ml,lung_target_ml,body_com_x_m,body_com_y_m,body_com_z_m,represented_body_mass_kg,ventricular_wall_bound,ventricular_material_ml,ventricular_material_target_ml,ventricular_closure_mm,ventricular_material_status,functional_geometry_status\n";
+         require(initialBodies.size()*sizeof(MRBodyStateGPU)==coupled.presentationBodies.length,
+             "initial native frame does not match the body owner");
+         std::memcpy(coupled.presentationBodies.contents,initialBodies.data(),coupled.presentationBodies.length);
+@@ -187,6 +193,8 @@ public:
+         unsigned skinFirstVertex=MR_INVALID_INDEX;
+         std::vector<mr_float4> skinRestWorld(skin.header.vertexCount);
+         std::vector<MRHumanRestingSurfaceAuditGPU> audits;
++        std::vector<mr_uint4> wallNormalRanges;
++        std::vector<unsigned> wallIncidentTriangles;
+         std::vector<unsigned> visibleLayers;
+         // Keep the four source cavity identities visually distinguishable in
+         // the native inspection layer. These are presentation colors only;
+@@ -314,6 +322,8 @@ public:
+             }
+             if(instance.identity.x==kOrganSurfaceSemantic&&functional.passiveViscera.contains(instance.identity.w))
+                 deformation=9;
++            if(instance.identity.x==kOrganSurfaceSemantic&&instance.identity.w==functional.ventricularWallStableId)
++                deformation=10;
+             if(instance.identity.x==kBoneSemantic&&functional.ribs.contains(instance.identity.w)) {
+                 deformation=5;chamber=functional.ribs.at(instance.identity.w);
+             }
+@@ -325,18 +335,51 @@ public:
+                 semantic>=kOrganSurfaceSemantic?8u:0u;
+             if(deformation==1&&functional.lungs.contains(instance.identity.w))visibility|=16u;
+             if(deformation==2)visibility|=32u|64u;
++            if(deformation==8||deformation==10)visibility|=32u;
+             if(semantic==kVesselSurfaceSemantic||semantic==kPulmonaryArterySurfaceSemantic||semantic==kPulmonaryVeinSurfaceSemantic)
+                 visibility|=64u;
+             if(deformation==4||deformation==7)visibility=2u|16u;
+             visibleLayers.push_back(visibility);
+             if(deformation==2)for(unsigned p=instance.geometry.x;p<instance.geometry.x+instance.geometry.y;++p)
+                 pack.primitives.at(p).geometry.z=cardiacMaterials.at(chamber);
+-            if(functional.enclosedVolumes.contains(instance.identity.w)&&deformation) {
++            if(deformation==10) {
++                require(cardiacWallVertexCount==0&&instance.geometry.y==1,
++                    "ventricular material wall requires one source surface with one owner");
++                require(instance.binding.z==MR_VISUAL_BINDING_ARTICULATED_LINK&&
++                    instance.binding.y==anatomyGPU.bodyAndFlags.x&&
++                    instance.translationAndScale.x==0&&instance.translationAndScale.y==0&&
++                    instance.translationAndScale.z==0&&instance.translationAndScale.w==1&&
++                    instance.orientation.x==0&&instance.orientation.y==0&&instance.orientation.z==0&&instance.orientation.w==1,
++                    "ventricular wall coefficients require the registered torso source frame");
++                cardiacWallVertexCount=unsigned(functional.ventricularWallMap.size());
++                require(cardiacWallVertexCount>0&&vertices.size()==cardiacWallVertexCount&&
++                    vertices.back()-base+1==cardiacWallVertexCount,
++                    "ventricular wall pack vertex order differs from its source coefficient map");
++                const auto& p=pack.primitives.at(instance.geometry.x);
++                require(p.geometry.y%3==0,"ventricular material boundary must contain triangles");
++                cardiacWallAuditIndex=unsigned(audits.size());
++                audits.push_back({{p.geometry.x,p.geometry.y,deformation,0},
++                    {functional.ventricularWallGPU.scalesAndVolume.w,0,0,0}});
++                auditStableIds.push_back(instance.identity.w);
++                std::vector<std::vector<unsigned>> incident(cardiacWallVertexCount);
++                for(unsigned j=p.geometry.x;j<p.geometry.x+p.geometry.y;j+=3)
++                    for(unsigned k=0;k<3;++k) {
++                        const unsigned v=pack.indices.at(j+k);
++                        require(v>=base&&v-base<cardiacWallVertexCount,"ventricular material boundary index is invalid");
++                        incident[v-base].push_back(j);
++                    }
++                for(unsigned i=0;i<cardiacWallVertexCount;++i) {
++                    require(!incident[i].empty(),"ventricular material wall has an unreferenced vertex");
++                    wallNormalRanges.push_back({base+i,unsigned(wallIncidentTriangles.size()),unsigned(incident[i].size()),0});
++                    wallIncidentTriangles.insert(wallIncidentTriangles.end(),incident[i].begin(),incident[i].end());
++                }
++            }else if(functional.enclosedVolumes.contains(instance.identity.w)&&deformation) {
+                 require(instance.geometry.y==1,"functional anatomy audit requires one contiguous source surface");
+                 const auto& p=pack.primitives.at(instance.geometry.x);
+                 audits.push_back({{p.geometry.x,p.geometry.y,deformation,chamber},
+                     {functional.enclosedVolumes.at(instance.identity.w),
+                      deformation==1?functional.respiratorySweptAreas.at(instance.identity.w):0,0,0}});
++                auditStableIds.push_back(instance.identity.w);
+             }
+             const SoftTissueRecord* tissue=nullptr;
+             if(tissues&&(instance.identity.x==kMuscleSurfaceSemantic||instance.identity.x==kTendonSurfaceSemantic)) {
+@@ -346,7 +389,9 @@ public:
+             for(unsigned v:vertices) {
+                 require(!maps.at(v).influenceCount,"resting anatomy vertices have multiple owners");
+                 maps[v].deformationKind=deformation;maps[v].chamberIndex=chamber;
+-                if(deformation==2) {
++                if(deformation==10) {
++                    maps[v].chamberIndex=v-base;
++                }else if(deformation==2) {
+                     const auto& weights=functional.cardiacFreewallWeights.at(instance.identity.w);
+                     require(v>=base&&v-base<weights.size(),"cardiac cavity pack order differs from source vertices");
+                     maps[v].deformationWeight.x=weights.at(v-base);
+@@ -546,10 +591,23 @@ public:
+         mapping=[device newBufferWithBytes:maps.data() length:maps.size()*sizeof(maps.front()) options:MTLResourceStorageModeShared];
+         influences=[device newBufferWithBytes:weights.data() length:weights.size()*sizeof(weights.front()) options:MTLResourceStorageModeShared];
+         anatomyParameters=[device newBufferWithBytes:&anatomyGPU length:sizeof(anatomyGPU) options:MTLResourceStorageModeShared];
+-        auditCount=unsigned(audits.size());require(auditCount==9,"functional anatomy volume audit did not bind all nine surfaces");
++        auditCount=unsigned(audits.size());require(auditCount==9+unsigned(cardiacWallVertexCount>0),
++            "functional anatomy volume audit did not bind its lung, chamber and material surfaces");
+         surfaceAudits=[device newBufferWithBytes:audits.data() length:audits.size()*sizeof(audits.front()) options:MTLResourceStorageModeShared];
+         volumeResults=[device newBufferWithLength:(auditCount+2)*sizeof(mr_float4) options:MTLResourceStorageModeShared];
+         cardiacQ=[device newBufferWithLength:4*sizeof(float) options:MTLResourceStorageModeShared];
++        const MRHumanRestingCardiacWallVertexGPU emptyWallVertex{};
++        const mr_uint4 emptyWallRange{};const unsigned emptyWallIndex=0;
++        const mr_float4 emptyWallQ{};
++        cardiacWallMap=[device newBufferWithBytes:cardiacWallVertexCount?functional.ventricularWallMap.data():&emptyWallVertex
++            length:std::max(1u,cardiacWallVertexCount)*sizeof(emptyWallVertex) options:MTLResourceStorageModeShared];
++        cardiacWallParameters=[device newBufferWithBytes:&functional.ventricularWallGPU
++            length:sizeof(functional.ventricularWallGPU) options:MTLResourceStorageModeShared];
++        cardiacWallQ=[device newBufferWithBytes:&emptyWallQ length:sizeof(emptyWallQ) options:MTLResourceStorageModeShared];
++        cardiacWallNormalRanges=[device newBufferWithBytes:wallNormalRanges.empty()?&emptyWallRange:wallNormalRanges.data()
++            length:std::max(std::size_t(1),wallNormalRanges.size())*sizeof(emptyWallRange) options:MTLResourceStorageModeShared];
++        cardiacWallIncidentTriangles=[device newBufferWithBytes:wallIncidentTriangles.empty()?&emptyWallIndex:wallIncidentTriangles.data()
++            length:std::max(std::size_t(1),wallIncidentTriangles.size())*sizeof(unsigned) options:MTLResourceStorageModeShared];
+         instanceLayers=[device newBufferWithBytes:visibleLayers.data() length:visibleLayers.size()*sizeof(unsigned) options:MTLResourceStorageModeShared];
+         NSError* e=nil;auto lib=[device newLibraryWithURL:[NSURL fileURLWithPath:@(NUMI_HUMAN_RESPIRATION_METALLIB)] error:&e];
+         require(skinFirstVertex!=MR_INVALID_INDEX,"resting support has no registered skin range");
+@@ -596,6 +654,8 @@ public:
+         std::cout<<"] force_owner=existing_metal_stand partition=source_rest_voronoi\n";
+         skinPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_skin"] error:&e];
+         cardiacQPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_cardiac_q"] error:&e];
++        cardiacWallQPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_cardiac_wall_q"] error:&e];
++        cardiacWallNormalsPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_cardiac_wall_normals"] error:&e];
+         layerPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_layers"] error:&e];
+         volumePipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_audit_volumes"] error:&e];
+         skinAuditPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_audit_skin"] error:&e];
+@@ -606,6 +666,8 @@ public:
+             vertexCaptureBuffer.label=@"Numi Human selected accepted render vertices";
+         }
+         require(mapping&&influences&&anatomyParameters&&surfaceAudits&&volumeResults&&instanceLayers&&cardiacQ&&skinPipeline&&cardiacQPipeline&&layerPipeline&&volumePipeline&&skinAuditPipeline&&bodyAuditPipeline,"resting GPU anatomy setup failed");
++        require(cardiacWallMap&&cardiacWallParameters&&cardiacWallQ&&cardiacWallNormalRanges&&cardiacWallIncidentTriangles&&
++            cardiacWallQPipeline&&cardiacWallNormalsPipeline,"resting GPU cardiac material setup failed");
+         require(requestedGeometrySteps.empty()||(vertexCapturePipeline&&vertexCaptureBuffer),
+             "selected accepted geometry capture resources could not be created");
+         if(!presentWindow)return;
+@@ -622,17 +684,36 @@ public:
+         e.setBuffer(e.context,(__bridge void*)self.anatomyParameters,0,1);
+         e.setBuffer(e.context,(__bridge void*)self.cardiacQ,0,2);
+         e.dispatchThreads(e.context,4,1);
++        if(self.cardiacWallVertexCount) {
++            e.setPipeline(e.context,(__bridge void*)self.cardiacWallQPipeline);
++            e.setBuffer(e.context,(__bridge void*)self.cardiacWallParameters,0,0);
++            e.setBuffer(e.context,(__bridge void*)self.cardiacQ,0,1);
++            e.setBuffer(e.context,(__bridge void*)self.cardiacWallQ,0,2);
++            e.dispatchThreads(e.context,1,1);
++        }
+         e.setPipeline(e.context,(__bridge void*)self.skinPipeline);e.setBytes(e.context,&d,sizeof(d),0);
+         e.setBuffer(e.context,(__bridge void*)self.mapping,0,1);e.setBuffer(e.context,(__bridge void*)self.influences,0,2);
+         e.setBuffer(e.context,(__bridge void*)self.coupled.presentationBodies,0,3);e.setBuffer(e.context,lease.meshVertices,0,4);
+         e.setBuffer(e.context,(__bridge void*)self.coupled.presentationRespiration,0,5);
+         e.setBuffer(e.context,(__bridge void*)self.anatomyParameters,0,6);
+         e.setBuffer(e.context,(__bridge void*)self.cardiacQ,0,7);
++        e.setBuffer(e.context,(__bridge void*)self.cardiacWallMap,0,8);
++        e.setBuffer(e.context,(__bridge void*)self.cardiacWallParameters,0,9);
++        e.setBuffer(e.context,(__bridge void*)self.cardiacWallQ,0,10);
+         e.dispatchThreads(e.context,lease.meshVertexCount,64);
++        if(self.cardiacWallVertexCount) {
++            e.setPipeline(e.context,(__bridge void*)self.cardiacWallNormalsPipeline);
++            e.setBytes(e.context,&self.cardiacWallVertexCount,sizeof(self.cardiacWallVertexCount),0);
++            e.setBuffer(e.context,(__bridge void*)self.cardiacWallNormalRanges,0,1);
++            e.setBuffer(e.context,(__bridge void*)self.cardiacWallIncidentTriangles,0,2);
++            e.setBuffer(e.context,lease.meshIndices,0,3);e.setBuffer(e.context,lease.meshVertices,0,4);
++            e.dispatchThreads(e.context,self.cardiacWallVertexCount,64);
++        }
+         e.setPipeline(e.context,(__bridge void*)self.volumePipeline);e.setBytes(e.context,&d,sizeof(d),0);
+         e.setBuffer(e.context,(__bridge void*)self.surfaceAudits,0,1);e.setBuffer(e.context,lease.meshIndices,0,2);
+         e.setBuffer(e.context,lease.meshVertices,0,3);e.setBuffer(e.context,(__bridge void*)self.coupled.presentationRespiration,0,4);
+         e.setBuffer(e.context,(__bridge void*)self.anatomyParameters,0,5);e.setBuffer(e.context,(__bridge void*)self.volumeResults,0,6);
++        e.setBuffer(e.context,(__bridge void*)self.cardiacWallParameters,0,7);
+         e.dispatchThreads(e.context,self.auditCount,1);
+         e.setPipeline(e.context,(__bridge void*)self.skinAuditPipeline);e.setBytes(e.context,&d,sizeof(d),0);
+         e.setBuffer(e.context,(__bridge void*)self.mapping,0,1);e.setBuffer(e.context,lease.meshVertices,0,2);
+@@ -695,7 +776,12 @@ public:
+         }
+         const auto* volumes=static_cast<const mr_float4*>(volumeResults.contents);
+         const auto* cardiacCoordinates=static_cast<const float*>(cardiacQ.contents);
+-        float maxRelativeError=0;for(unsigned i=0;i<auditCount;++i)maxRelativeError=std::max(maxRelativeError,volumes[i].z);
++        const auto wallCorrection=*static_cast<const mr_float4*>(cardiacWallQ.contents);
++        const auto wallAudit=cardiacWallVertexCount?volumes[cardiacWallAuditIndex]:mr_float4{};
++        float maxRelativeError=0;unsigned geometryStatus=0;
++        for(unsigned i=0;i<auditCount;++i) {
++            maxRelativeError=std::max(maxRelativeError,volumes[i].z);geometryStatus|=unsigned(volumes[i].w);
++        }
+         const auto skinAudit=volumes[auditCount];
+         const auto bodyAudit=volumes[auditCount+1];
+         require(std::isfinite(bodyAudit.x)&&std::isfinite(bodyAudit.y)&&std::isfinite(bodyAudit.z)&&
+@@ -704,9 +790,14 @@ public:
+             <<','<<cardiacCoordinates[0]<<','<<cardiacCoordinates[1]<<','<<cardiacCoordinates[2]<<','<<cardiacCoordinates[3]
+             <<','<<p.chamberVolumes.x*1e6<<','<<p.chamberVolumes.y*1e6<<','<<p.chamberVolumes.z*1e6<<','<<p.chamberVolumes.w*1e6
+             <<','<<p.motion.x*1e6<<','<<p.motion.y*1e6<<','<<p.mechanics.x*1e6
+-            <<','<<bodyAudit.x<<','<<bodyAudit.y<<','<<bodyAudit.z<<','<<bodyAudit.w<<'\n';
++            <<','<<bodyAudit.x<<','<<bodyAudit.y<<','<<bodyAudit.z<<','<<bodyAudit.w
++            <<','<<(cardiacWallVertexCount>0)<<','<<wallAudit.x*1e6<<','<<wallAudit.y*1e6<<','<<wallCorrection.x*1e3<<','<<wallAudit.w<<','<<geometryStatus<<'\n';
+         surfaceTrace.flush();
+-        for(unsigned i=0;i<auditCount;++i)require(volumes[i].w==0,"accepted anatomical mesh volume disagrees with its functional owner");
++        require(wallCorrection.w==0,"accepted ventricular material volume closure failed");
++        for(unsigned i=0;i<auditCount;++i)require(volumes[i].w==0,
++            "accepted functional surface stable_id="+std::to_string(auditStableIds.at(i))+
++            " audit_index="+std::to_string(i)+" status="+std::to_string(unsigned(volumes[i].w))+
++            " has degenerate triangles or disagrees with its volume owner");
+         require(skinAudit.w==0&&skinAudit.z==0,"accepted full skin intersects the bed beyond the 1 mm inspection tolerance");
+         std::ostringstream metrics;metrics<<std::fixed<<std::setprecision(2)<<"Accepted time "<<time<<" s  |  "<<time/std::max(.001,CACurrentMediaTime()-wallOrigin)<<" x real time  |  breaths "<<p.status.y<<"  beats "<<p.cardiacStatus.x<<"\n"
+             <<"Lung "<<p.mechanics.x*1e3<<" L  Airflow "<<p.mechanics.w*1e3<<" L/s  Pleural "<<p.mechanics.z/98.0665<<" cmH2O  Muscle activation "
+diff --git a/include/metalrobo/numi_human_resting_visual_gpu.h b/include/metalrobo/numi_human_resting_visual_gpu.h
+index 7dd7237..7654f28 100644
+--- a/include/metalrobo/numi_human_resting_visual_gpu.h
++++ b/include/metalrobo/numi_human_resting_visual_gpu.h
+@@ -15,6 +15,23 @@ typedef struct MR_ALIGN16 MRHumanRestingInfluence {
+     mr_uint4 body;
+ } MRHumanRestingInfluence;
+ 
++// Reduced source-bound ventricular myocardium map. Displacements are stored
++// per unit CVSim q for RV/LV channels and per metre for volume closure. The
++// material-volume polynomial uses normalized qRV/.4, qLV/.2, closure/.01.
++typedef struct MR_ALIGN16 MRHumanRestingCardiacWallVertexGPU {
++    mr_float4 first;   // RV displacement per unit qRV, W is zero
++    mr_float4 second;  // LV displacement per unit qLV, W is zero
++    mr_float4 closure; // inferred outer-wall closure displacement per metre, W is zero
++} MRHumanRestingCardiacWallVertexGPU;
++
++typedef struct MR_ALIGN16 MRHumanRestingCardiacWallGPU {
++    // 20 terms: 1,r,l,r2,rl,l2,r3,r2l,rl2,l3,c,rc,lc,r2c,rlc,l2c,c2,rc2,lc2,c3.
++    mr_float4 volumePolynomial[5];
++    mr_float4 scalesAndVolume; // .4, .2, .01 scales and reference material volume m^3
++    mr_float4 closureBoundsAndTolerance; // closure c_min/c_max in metres, relative tolerance, reserved
++    mr_uint4 chambersAndFlags; // RV index, LV index, enabled flag, wall vertex count
++} MRHumanRestingCardiacWallGPU;
++
+ // Compiled from the registered, closed source surfaces at asset loading.
+ // Volumes are m^3, positions and height are m. The functional source cavities
+ // are ordered RA, RV, LA, LV, matching NMHumanRespirationState.chamberVolumes.
+diff --git a/matter/src/human_respiration.metal b/matter/src/human_respiration.metal
+index 142d368..54ea1ae 100644
+--- a/matter/src/human_respiration.metal
++++ b/matter/src/human_respiration.metal
+@@ -37,12 +37,55 @@ kernel void nm_human_resting_cardiac_q(
+     }
+     qOut[chamber]=.5f*(low+high);
+ }
++kernel void nm_human_resting_cardiac_wall_q(
++    constant MRHumanRestingCardiacWallGPU& wall [[buffer(0)]],
++    device const float* cardiacQ [[buffer(1)]],device float4* result [[buffer(2)]],
++    uint i [[thread_position_in_grid]]) {
++    if(i)return;
++    if(!wall.chambersAndFlags.z){result[0]=0;return;}
++    const float r=cardiacQ[wall.chambersAndFlags.x]/wall.scalesAndVolume.x;
++    const float l=cardiacQ[wall.chambersAndFlags.y]/wall.scalesAndVolume.y;
++    const float4 p0=wall.volumePolynomial[0],p1=wall.volumePolynomial[1],p2=wall.volumePolynomial[2],
++        p3=wall.volumePolynomial[3],p4=wall.volumePolynomial[4];
++    // Cubic source-mesh volume in normalized (r,l,s). This correction is
++    // derived from accepted chamber q; it is not a second pump or a history.
++    const float f0=p0.x+p0.y*r+p0.z*l+p0.w*r*r+p1.x*r*l+p1.y*l*l+
++        p1.z*r*r*r+p1.w*r*r*l+p2.x*r*l*l+p2.y*l*l*l;
++    const float f1=p2.z+p2.w*r+p3.x*l+p3.y*r*r+p3.z*r*l+p3.w*l*l;
++    const float f2=p4.x+p4.y*r+p4.z*l,f3=p4.w;
++    float low=wall.closureBoundsAndTolerance.x/wall.scalesAndVolume.z;
++    float high=wall.closureBoundsAndTolerance.y/wall.scalesAndVolume.z;
++    const float target=wall.scalesAndVolume.w;
++    const float vlo=((f3*low+f2)*low+f1)*low+f0;
++    const float vhi=((f3*high+f2)*high+f1)*high+f0;
++    float minimumDerivative=min((3*f3*low+2*f2)*low+f1,(3*f3*high+2*f2)*high+f1);
++    if(f3!=0) {
++        const float stationary=-f2/(3*f3);
++        if(stationary>low&&stationary<high)
++            minimumDerivative=min(minimumDerivative,(3*f3*stationary+2*f2)*stationary+f1);
++    }
++    if(!all(isfinite(float4(vlo,vhi,minimumDerivative,target)))||target<=0||low>=high||
++       minimumDerivative<=1.e-12f||vlo>target||vhi<target) {
++        result[0]=float4(NAN,NAN,target,1);return;
++    }
++    for(uint iteration=0;iteration<32;++iteration) {
++        const float mid=.5f*(low+high);
++        if(((f3*mid+f2)*mid+f1)*mid+f0<target)low=mid;else high=mid;
++    }
++    const float s=.5f*(low+high),volume=((f3*s+f2)*s+f1)*s+f0;
++    const float error=abs(volume-target)/target;
++    result[0]=float4(s*wall.scalesAndVolume.z,volume,target,
++        !isfinite(error)||error>wall.closureBoundsAndTolerance.z?1.0f:0.0f);
++}
++
+ kernel void nm_human_resting_skin(
+     constant uint4& d [[buffer(0)]], device const MRHumanRestingVertexMap* map [[buffer(1)]],
+     device const MRHumanRestingInfluence* influences [[buffer(2)]], device const MRBodyStateGPU* bodies [[buffer(3)]],
+     device MRVisualVertexGPUV2* vertices [[buffer(4)]],
+     device const NMHumanRespirationState* respiration [[buffer(5)]],
+     constant MRHumanRestingAnatomyGPU& anatomy [[buffer(6)]],device const float* cardiacQ [[buffer(7)]],
++    device const MRHumanRestingCardiacWallVertexGPU* wallMap [[buffer(8)]],
++    constant MRHumanRestingCardiacWallGPU& wall [[buffer(9)]],device const float4* wallQ [[buffer(10)]],
+     uint i [[thread_position_in_grid]]) {
+     if(i>=d.x)return;
+     auto m=map[i];if(!m.influenceCount)return;
+@@ -73,6 +116,12 @@ kernel void nm_human_resting_skin(
+                 local=cavity.xyz+scale*(local-cavity.xyz);
+                 normal/=scale;
+             }
++        } else if(m.deformationKind==10) {
++            const auto basis=wallMap[m.chamberIndex];
++            local+=basis.first.xyz*cardiacQ[wall.chambersAndFlags.x]+
++                basis.second.xyz*cardiacQ[wall.chambersAndFlags.y]+basis.closure.xyz*wallQ[0].x;
++            if(wallQ[0].w!=0)local=float3(NAN);
++            // Normals are rebuilt from the deformed source triangles below.
+         } else if(m.deformationKind==8) {
+             const float q=cardiacQ[m.chamberIndex],weight=m.deformationWeight.w;
+             const float scale=1.0f+q*weight;
+@@ -129,6 +178,24 @@ kernel void nm_human_resting_skin(
+     const float3 tangentAxis=abs(unitNormal.z)<.9f?float3(0,0,1):float3(0,1,0);
+     vertices[i].tangent=float4(normalize(cross(tangentAxis,unitNormal)),0);
+ }
++kernel void nm_human_resting_cardiac_wall_normals(
++    constant uint& count [[buffer(0)]],device const uint4* ranges [[buffer(1)]],
++    device const uint* incidentTriangleStarts [[buffer(2)]],device const uint* indices [[buffer(3)]],
++    device MRVisualVertexGPUV2* vertices [[buffer(4)]],uint i [[thread_position_in_grid]]) {
++    if(i>=count)return;
++    const uint4 row=ranges[i];float3 normal=0;
++    for(uint j=row.y;j<row.y+row.z;++j) {
++        const uint at=incidentTriangleStarts[j];
++        const float3 a=vertices[indices[at]].position.xyz,b=vertices[indices[at+1]].position.xyz,
++            c=vertices[indices[at+2]].position.xyz;
++        normal+=cross(b-a,c-a);
++    }
++    const float squared=dot(normal,normal);
++    if(!isfinite(squared)||squared<=1.e-30f){vertices[row.x].normalAndTangentSign=float4(NAN);return;}
++    normal*=rsqrt(squared);vertices[row.x].normalAndTangentSign=float4(normal,1);
++    const float3 tangentAxis=abs(normal.z)<.9f?float3(0,0,1):float3(0,1,0);
++    vertices[row.x].tangent=float4(normalize(cross(tangentAxis,normal)),0);
++}
+ kernel void nm_human_resting_layers(
+     constant uint4& d [[buffer(0)]], device MRVisualInstanceGPUV2* instances [[buffer(1)]],
+     device const uint* layerMask [[buffer(2)]],
+@@ -148,25 +215,29 @@ kernel void nm_human_resting_audit_volumes(
+     device const MRVisualVertexGPUV2* vertices [[buffer(3)]],
+     device const NMHumanRespirationState* respiration [[buffer(4)]],
+     constant MRHumanRestingAnatomyGPU& anatomy [[buffer(5)]],
+-    device float4* result [[buffer(6)]],uint i [[thread_position_in_grid]]) {
++    device float4* result [[buffer(6)]],constant MRHumanRestingCardiacWallGPU& wall [[buffer(7)]],
++    uint i [[thread_position_in_grid]]) {
+     if(i>=d.w)return;
+     const auto surface=surfaces[i];const uint4 owner=surface.indicesAndOwner;
+     const float3 origin=vertices[indices[owner.x]].position.xyz;
+-    float volume=0,compensation=0;
++    float volume=0,compensation=0;uint invalidTriangles=0;
+     for(uint j=owner.x;j<owner.x+owner.y;j+=3) {
+-        const float3 a=vertices[indices[j]].position.xyz-origin;
+-        const float3 b=vertices[indices[j+1]].position.xyz-origin;
+-        const float3 c=vertices[indices[j+2]].position.xyz-origin;
++        const float3 pa=vertices[indices[j]].position.xyz,pb=vertices[indices[j+1]].position.xyz,
++            pc=vertices[indices[j+2]].position.xyz;
++        const float3 a=pa-origin,b=pb-origin,c=pc-origin;
++        const float3 area=cross(pb-pa,pc-pa);
++        if(!all(isfinite(area))||all(area==float3(0)))++invalidTriangles;
+         const float y=dot(a,cross(b,c))/6.0f-compensation;
+         const float next=volume+y;compensation=(next-volume)-y;volume=next;
+     }
+     const auto state=respiration[0];
+     const float afterDiaphragm=anatomy.lungAnchorAndVolume.w+state.motion.x;
+-    const float expected=owner.z==2?state.chamberVolumes[owner.w]:
++    const float expected=owner.z==10?wall.scalesAndVolume.w:owner.z==2?state.chamberVolumes[owner.w]:
+         (surface.reference.x+surface.reference.y*state.motion.x/anatomy.lungBasalBlend.z)*
+         (1+state.motion.y/afterDiaphragm);
+     const float relative=abs(abs(volume)-expected)/expected;
+-    result[i]=float4(abs(volume),expected,relative,!isfinite(relative)||relative>2.e-4f?1.0f:0.0f);
++    const uint status=(!isfinite(relative)||relative>2.e-4f?1u:0u)|(invalidTriangles?2u:0u);
++    result[i]=float4(abs(volume),expected,relative,float(status));
+ }
+ 
+ kernel void nm_human_resting_audit_skin(
+diff --git a/matter/src/metal/vascular.metalinc b/matter/src/metal/vascular.metalinc
+index 79e4cf6..7780ab5 100644
+--- a/matter/src/metal/vascular.metalinc
++++ b/matter/src/metal/vascular.metalinc
+@@ -49,14 +49,17 @@ inline float2 vascularNodePressure(uint nodeIndex, uint stateBase, uint coeffici
+     device const NMVascularCompartmentGPU* compartments,
+     device const NMVascularCavityGPU* cavities, device const uint* compartmentCavity,
+     device const float4* candidate, device const float4* direction,
+-    device const float* elastance, uint basisColumn = NM_INVALID_INDEX) {
++    device const float* elastance, uint basisColumn = NM_INVALID_INDEX,
++    threadgroup const float2* preparedPressure = nullptr) {
+     const bool cavity = compartments[nodeIndex].identity.w == 5u;
+     const uint row = cavity ? cavities[compartmentCavity[nodeIndex]].identity.w : nodeIndex;
+     const float dv = derivative || trialAlpha != 0.0f ?
+         vascularDirection(direction, directionBase, row, basisColumn) * unknowns[row].initialAndScaling.y : 0.0f;
+     const float value = vascularPhysical(candidate, unknowns, stateBase, row) + trialAlpha * dv;
+     if (cavity) return float2(value, derivative ? dv : 0.0f);
+-    const float2 pressure = vascularPressureTangent(compartments[nodeIndex], value, elastance[coefficientBase + nodeIndex]);
++    const float2 pressure = preparedPressure != nullptr && trialAlpha == 0.0f
++        ? preparedPressure[nodeIndex]
++        : vascularPressureTangent(compartments[nodeIndex], value, elastance[coefficientBase + nodeIndex]);
+     return float2(pressure.x, derivative ? pressure.y * dv : 0.0f);
+ }
+ inline float vascularDrivingPressure(const NMVascularConnectionGPU edge, float pa, float pb) {
+@@ -716,7 +719,8 @@ inline float2 vascularEquation(
+     device const NMVascularCavityGPU* cavities, device const NMVascularCavityFaceGPU* cavityFaces,
+     device const uint* compartmentCavity, device const NMFEMNodeStateGPU* femCandidate,
+     device const NMFEMNodeStateGPU* femAccepted, uint nodeBase, float femTrialAlpha,
+-    uint basisColumn = NM_INVALID_INDEX) {
++    uint basisColumn = NM_INVALID_INDEX,
++    threadgroup const float2* preparedPressure = nullptr) {
+     const float scale = unknowns[local].initialAndScaling.y;
+     const float value = vascularPhysical(candidate, unknowns, stateBase, local);
+     const float delta = derivative ? vascularDirection(direction, directionBase, local, basisColumn) * scale : 0.0f;
+@@ -741,9 +745,9 @@ inline float2 vascularEquation(
+         const uint b = edge.identity.z;
+         const uint coefficientBase = (stateBase / graph.ranges.z) * graph.counts.x;
+         const float2 pa = vascularNodePressure(a, stateBase, coefficientBase, directionBase, derivative, 0.0f,
+-            unknowns, compartments, cavities, compartmentCavity, candidate, direction, elastance, basisColumn);
++            unknowns, compartments, cavities, compartmentCavity, candidate, direction, elastance, basisColumn, preparedPressure);
+         const float2 pb = vascularNodePressure(b, stateBase, coefficientBase, directionBase, derivative, 0.0f,
+-            unknowns, compartments, cavities, compartmentCavity, candidate, direction, elastance, basisColumn);
++            unknowns, compartments, cavities, compartmentCavity, candidate, direction, elastance, basisColumn, preparedPressure);
+         const float dp = vascularDrivingPressure(edge, pa.x, pb.x);
+         // At the Starling floor tie use the fixed downstream-pressure branch.
+         const float downstreamDerivative = edge.identity.w == 3u && pb.x <= edge.physical.w ? 0.0f : pb.y;
+@@ -944,6 +948,7 @@ kernel void nm_vascular_dense_solve(
+     constexpr uint unknownCount = 45u;
+     constexpr uint augmentedWidth = unknownCount + 1u;
+     threadgroup float matrix[unknownCount * augmentedWidth];
++    threadgroup float2 preparedPressure[21u];
+     threadgroup uint pivotRow;
+     threadgroup atomic_uint failed;
+ 
+@@ -978,17 +983,41 @@ kernel void nm_vascular_dense_solve(
+ 
+     if (lane == 0u)
+         atomic_store_explicit(&failed, 0u, memory_order_relaxed);
++    // Candidate volumes and elastance are invariant throughout this one
++    // Jacobian assembly. Reuse the same constitutive evaluation for all 45
++    // basis columns; this is transient threadgroup scratch, not new state.
++    if (lane < graph.counts.x) {
++        const float value = vascularPhysical(candidate, unknowns, base, lane) + 0.0f;
++        preparedPressure[lane] = vascularPressureTangent(compartments[lane],
++            value, elastance[environment * graph.counts.x + lane]);
++    }
+     threadgroup_barrier(mem_flags::mem_threadgroup);
+-    // A basis column is a constant direction accessor into the same JVP.
+-    // Every matrix entry is independent: no scratch device vector or 90
+-    // device-memory barriers are needed to represent the 45 unit vectors.
++    // Initialize structural zeros, then ask the ordinary JVP for every
++    // potentially nonzero entry. In this validated vascular-only graph a
++    // continuity row depends on its volume and incident edge flows; an edge
++    // row depends on its flow and its two endpoint volumes. Constitutive,
++    // valve, working-set and normalization arithmetic remains in the JVP.
+     for (uint entry = lane; entry < unknownCount * unknownCount; entry += 32u) {
+         const uint row = entry / unknownCount;
+         const uint column = entry - row * unknownCount;
++        matrix[row * augmentedWidth + column] = 0.0f;
++    }
++    threadgroup_barrier(mem_flags::mem_threadgroup);
++    for (uint row = lane; row < unknownCount; row += 32u) {
+         const bool constrainedFlow = row >= graph.offsets.y &&
+             row < graph.offsets.z && useWorkingSet != 0u &&
+             workingSet[base + row] != 0u;
+-        const float tangent = constrainedFlow ? 0.0f : vascularEquation(
++        if (constrainedFlow) continue;
++        const bool volumeRow = row < graph.offsets.y;
++        const NMVascularRangeGPU incidence = volumeRow ?
++            connectionRanges[row] : NMVascularRangeGPU{0u, 0u};
++        const uint columns = volumeRow ? 1u + incidence.count : 3u;
++        for (uint slot = 0u; slot < columns; ++slot) {
++            const uint column = slot == 0u ? row : (volumeRow ?
++                graph.offsets.y + connectionIncidence[incidence.first + slot - 1u] :
++                (slot == 1u ? connections[row - graph.offsets.y].identity.y :
++                    connections[row - graph.offsets.y].identity.z));
++            const float tangent = vascularEquation(
+             graph, microstep.time.x, row, base, directionBase, true,
+             unknowns, compartments, connections, tissues, exchanges,
+             connectionIncidence, connectionRanges, bloodExchangeIncidence,
+@@ -996,15 +1025,16 @@ kernel void nm_vascular_dense_solve(
+             tissueExchangeRanges, accepted, candidate, direction, elastance,
+             workingSet, useWorkingSet != 0u, cavities, cavityFaces,
+             compartmentCavity, femCandidate, femAccepted,
+-            environment * dispatch.femNodeCount, 0.0f, column).y;
+-        if (!isfinite(tangent)) {
+-            recordFailure(statuses[environment],
+-                NM_STATUS_LINEAR_SOLVER_FAILURE, NM_INVALID_INDEX,
+-                row, float4(tangent, float(column), 0.0f, 0.0f));
+-            atomic_store_explicit(&failed, 1u,
+-                memory_order_relaxed);
++            environment * dispatch.femNodeCount, 0.0f, column, preparedPressure).y;
++            if (!isfinite(tangent)) {
++                recordFailure(statuses[environment],
++                    NM_STATUS_LINEAR_SOLVER_FAILURE, NM_INVALID_INDEX,
++                    row, float4(tangent, float(column), 0.0f, 0.0f));
++                atomic_store_explicit(&failed, 1u,
++                    memory_order_relaxed);
++            }
++            matrix[row * augmentedWidth + column] = tangent;
+         }
+-        matrix[row * augmentedWidth + column] = tangent;
+     }
+     threadgroup_barrier(mem_flags::mem_threadgroup);
+ 
+diff --git a/matter/tools/cardiac_geometry_binding.py b/matter/tools/cardiac_geometry_binding.py
+index 0a0e43a..4fcb5ac 100644
+--- a/matter/tools/cardiac_geometry_binding.py
++++ b/matter/tools/cardiac_geometry_binding.py
+@@ -958,6 +958,198 @@ def compile_binding(input_path: Path, receipt_path: Path, output_path: Path, out
+     }
+ 
+ 
++def compile_ventricular_wall_binding(input_path: Path, receipt_path: Path, source_payload_path: Path,
++                                     candidate_path: Path, output_path: Path, output_receipt: Path):
++    """Compose the exact closed ventricular-wall arrangement into stable ID 23."""
++    require(not output_path.exists() and not output_receipt.exists(),
++            "refusing to overwrite an existing bound anatomy payload or receipt")
++    raw, header, records, vertices, indices = read_payload(input_path)
++    receipt = json.loads(receipt_path.read_text())
++    input_hash = hashlib.sha256(raw).hexdigest()
++    require(receipt.get("payload", {}).get("sha256") == input_hash and
++            receipt.get("functional_bindings", {}).get("anatomy_payload_sha256") == input_hash,
++            "input receipt does not bind the ventricular-wall base payload")
++
++    source_raw, _, source_records, source_vertices, source_indices = read_payload(source_payload_path)
++    source_hash = hashlib.sha256(source_raw).hexdigest()
++    candidate = json.loads(candidate_path.read_text())
++    require(candidate.get("payload_sha256") == source_hash,
++            "ventricular-wall arrangement candidate names another NHANAT source payload")
++    base_records = {row[5]: row for row in records}
++    source_rows = {row[5]: row for row in source_records}
++    for stable_id in (1, 23, 24, RA_ID, RV_ID, LA_ID, LV_ID):
++        require(stable_id in base_records and stable_id in source_rows,
++                f"source comparison lacks cardiac stable ID {stable_id}")
++        a, b = base_records[stable_id], source_rows[stable_id]
++        require((a[0], a[5], a[6], a[7]) == (b[0], b[5], b[6], b[7]),
++                f"base and arrangement source differ in record identity for stable ID {stable_id}")
++        av = vertices[a[1]:a[1] + a[2]]
++        bv = source_vertices[b[1]:b[1] + b[2]]
++        af = indices[a[3]:a[3] + a[4]].reshape(-1, 3).astype(np.int64) - a[1]
++        bf = source_indices[b[3]:b[3] + b[4]].reshape(-1, 3).astype(np.int64) - b[1]
++        require(np.array_equal(av, bv) and np.array_equal(af, bf),
++                f"base cardiac source surface changed before ventricular-wall composition (ID {stable_id})")
++
++    wall_identity = receipt.get("provenance", {}).get("source_id_map", {}).get("23", {})
++    require(wall_identity.get("source_member") == "FJ2428" and
++            wall_identity.get("source_sha256") == "ac3c7d6714bed8cf549c97b013546541cf67e189dad2107092a59758aa3ccc45" and
++            wall_identity.get("source_owner_metadata", {}).get("concept_id") == "FMA13884",
++            "stable ID 23 no longer identifies the registered BodyParts3D ventricular-wall source")
++    report_path = candidate_path.with_name("report.json")
++    require(report_path.is_file(), "ventricular-wall candidate exact report is missing")
++    report = json.loads(report_path.read_text())
++    require(report.get("input_payload_sha256") == source_hash and
++            report.get("output_exact_self_intersection_pairs") == 0 and
++            report.get("output_topology", {}).get("closed_oriented_manifold_candidate") is True,
++            "ventricular-wall candidate lacks its exact source/topology admission evidence")
++    candidate_sha = hashlib.sha256(candidate_path.read_bytes()).hexdigest()
++    report_sha = hashlib.sha256(report_path.read_bytes()).hexdigest()
++    points = np.asarray(candidate.get("vertices_m"), dtype=np.float32)
++    faces = np.asarray(candidate.get("triangles"), dtype=np.uint32)
++    owners = candidate.get("face_owner")
++    require(candidate.get("schema") == "numi.human.cardiac-myocardium-lv-subtractive-arrangement.audit.v1" and
++            points.ndim == 2 and points.shape[1] == 3 and faces.ndim == 2 and faces.shape[1] == 3 and
++            len(faces) == len(owners) and int(faces.max()) < len(points),
++            "ventricular-wall arrangement candidate arrays are malformed")
++    # The retained candidate report predates explicit array digests. Preserve
++    # it unchanged and bind the exact consumed arrays here, alongside both
++    # immutable input file hashes. These canonical little-endian digests let
++    # the native/composed payload be compared without trusting same-directory
++    # filenames or counts alone.
++    points_le = np.ascontiguousarray(points.astype("<f4", copy=False))
++    faces_le = np.ascontiguousarray(faces.astype("<u4", copy=False))
++    candidate_vertices_sha = hashlib.sha256(points_le.tobytes(order="C")).hexdigest()
++    candidate_triangles_sha = hashlib.sha256(faces_le.tobytes(order="C")).hexdigest()
++    owner_counts = Counter(owners)
++    require(set(owner_counts) == {"ID23_wall", "ID319_RV_lumen", "ID321_LV_lumen"} and
++            owner_counts["ID23_wall"] > 0 and owner_counts["ID319_RV_lumen"] > 0 and
++            owner_counts["ID321_LV_lumen"] > 0,
++            "candidate is not the admitted complete ID23/RV/LV material boundary")
++    owner_stable_ids = {"ID23_wall": 23, "ID319_RV_lumen": 319, "ID321_LV_lumen": 321}
++    face_owner_ranges = []
++    for triangle, owner in enumerate(owners):
++        require(owner in owner_stable_ids, "candidate face has an unknown material-boundary owner")
++        if not face_owner_ranges or face_owner_ranges[-1]["owner"] != owner:
++            face_owner_ranges.append({"first_triangle": triangle, "triangle_count": 1,
++                                      "stable_id": owner_stable_ids[owner], "owner": owner})
++        else:
++            face_owner_ranges[-1]["triangle_count"] += 1
++    require([row["stable_id"] for row in face_owner_ranges] == [23, 319, 321] and
++            face_owner_ranges[0]["first_triangle"] == 0 and
++            all(face_owner_ranges[i]["first_triangle"] + face_owner_ranges[i]["triangle_count"] ==
++                face_owner_ranges[i + 1]["first_triangle"] for i in range(len(face_owner_ranges) - 1)) and
++            face_owner_ranges[-1]["first_triangle"] + face_owner_ranges[-1]["triangle_count"] == len(faces),
++            "candidate face ownership is not a complete contiguous ID23/RV/LV partition")
++    material_volume = signed_volume(points.astype(np.float64), faces.astype(np.int64))
++    require(material_volume > 0 and abs(material_volume * 1e6 - report["output_signed_volume_ml"]) < 2e-5,
++            "candidate material-volume orientation differs from its retained exact report")
++    normals = vertex_normals(points, faces)
++    _, center_points, center_faces = surface_arrays(
++        source_records, source_vertices, source_indices, 23, expected_layer=1)
++    radial_origin = closed_centroid(center_points, center_faces).astype(np.float64)
++
++    out_records, vertex_rows, faces_by_record = [], [], []
++    for record in records:
++        body, first_vertex, vertex_count, first_index, index_count, stable_id, layer, reserved = record
++        local_points_normals = vertices[first_vertex:first_vertex + vertex_count].copy()
++        local_faces = (indices[first_index:first_index + index_count].reshape(-1, 3) - first_vertex).astype(np.uint32)
++        if stable_id == 23:
++            local_points_normals = np.concatenate((points, normals), axis=1).astype(np.float32)
++            local_faces = faces.copy()
++        vertex_rows.append(local_points_normals)
++        faces_by_record.append(local_faces)
++        out_records.append(record)
++    packed, packed_records, packed_vertices, packed_indices = pack_payload(
++        header, out_records, vertex_rows, faces_by_record)
++    packed_by_id = {row[5]: row for row in packed_records}
++    for original in records:
++        stable_id = original[5]
++        if stable_id == 23:
++            continue
++        updated = packed_by_id[stable_id]
++        require((original[0], original[5], original[6], original[7]) ==
++                (updated[0], updated[5], updated[6], updated[7]),
++                f"repacked record identity changed for stable ID {stable_id}")
++        original_vertex_rows = vertices[original[1]:original[1] + original[2]]
++        updated_vertex_rows = packed_vertices[updated[1]:updated[1] + updated[2]]
++        original_local_faces = (indices[original[3]:original[3] + original[4]].reshape(-1, 3) - original[1])
++        updated_local_faces = (packed_indices[updated[3]:updated[3] + updated[4]].reshape(-1, 3) - updated[1])
++        require(np.array_equal(original_vertex_rows, updated_vertex_rows) and
++                np.array_equal(original_local_faces, updated_local_faces),
++                f"non-ID23 local geometry changed during ventricular-wall composition (ID {stable_id})")
++    output_path.parent.mkdir(parents=True, exist_ok=True)
++    output_path.write_bytes(packed)
++    output_hash = hashlib.sha256(packed).hexdigest()
++    output_receipt_data = json.loads(json.dumps(receipt))
++    output_receipt_data["functional_bindings"]["anatomy_payload_sha256"] = output_hash
++    output_receipt_data["payload"].update({"path": str(output_path), "sha256": output_hash,
++                                            "vertex_count": len(packed_vertices),
++                                            "index_count": len(packed_indices)})
++    cardiac = output_receipt_data.setdefault("provenance", {}).setdefault("cardiac_geometry_binding", {})
++    cardiac["output_anatomy_payload_sha256"] = output_hash
++    cardiac["retained_geometry"] = (
++        "Stable ID 23 alone is replaced by the derived closed ventricular material boundary. "
++        "Every other record's local FP32 position/normal rows and local triangle indices were "
++        "verified byte-equivalent after NHANAT5 repacking against this input payload; prior-stage "
++        "RA/RV or other composition statements do not describe this final scope."
++    )
++    cardiac["ventricular_wall_binding"] = {
++        "method": "exact_ID23_material_boundary_with_RV_LV_lumens_and_continuous_barycentric_wall_map_v1",
++        "stable_id": 23, "source_member": "FJ2428", "fma_id": "FMA13884",
++        "source_sha256": wall_identity["source_sha256"],
++        "input_anatomy_payload_sha256": input_hash,
++        "arrangement_source_payload_sha256": source_hash,
++        "arrangement_candidate_sha256": candidate_sha,
++        "arrangement_report_sha256": report_sha,
++        "arrangement_candidate_vertex_array_sha256_le_f32_xyz": candidate_vertices_sha,
++        "arrangement_candidate_triangle_array_sha256_le_u32": candidate_triangles_sha,
++        "arrangement_candidate_vertex_count": len(points),
++        "arrangement_candidate_triangle_count": len(faces),
++        "arrangement_report_array_binding": "original report retained unchanged and contains no candidate array digest; candidate file plus canonical array digests are bound here; exact predicates remain separately recorded",
++        "output_anatomy_payload_sha256": output_hash,
++        "face_owner_counts": dict(sorted(owner_counts.items())),
++        "closed_material_boundary": "one ID23 closed shell containing source epicardial wall plus reversed RV/LV endocardial lumen boundary faces; hydraulic cavity records remain separately source-bound",
++        "face_owner_ranges": face_owner_ranges,
++        "reference_material_volume_m3": material_volume,
++        "radial_closure_origin_m": radial_origin.tolist(),
++        "closure_bracket_m": [-0.01, 0.01],
++        "closure_relative_tolerance": 1e-5,
++        "wall_map": {
++            "method": "candidate_face_owner_ranges_with_pure_cavity_channel_boundary_and_natural_inverse_squared_distance_freewall_blend",
++            "coefficient_formula": "D_c=sum_k(barycentric_k*source_freewall_weight_k*(cavity_vertex_k-cavity_center)); candidate-owned RV/LV boundary vertices use only their named channel and zero closure; unowned freewall uses wRV=dLV^2/(dRV^2+dLV^2), wLV=dRV^2/(dRV^2+dLV^2)",
++            "ownership_source": "contiguous face_owner ranges in the exact retained arrangement candidate; every vertex incident to an RV/LV-owned face is assigned that cavity channel; conflicting RV/LV vertex ownership is rejected",
++            "closure_basis": "radial unit vector from source ID23 closed-surface centroid multiplied by smoothstep of nearest RV/LV lumen-vertex distance from 4mm to 15mm on unowned freewall vertices only; identically zero on cavity-owned vertices",
++            "clearance_metric": "minimum Euclidean distance to registered RV/LV lumen vertices for unowned freewall vertices only",
++            "normalization_scales": {"q_rv": 0.4, "q_lv": 0.2, "closure_m": 0.01},
++            "parameter_status": "inferred_reference_registration_not_measured_subject_geometry",
++        },
++        "material_volume_polynomial": {
++            "method": f"direct_cubic_determinant_expansion_over_{len(faces):,}_source-bound_material_boundary_triangles; no sampled Vandermonde fit",
++            "variables": ["q_rv/0.4", "q_lv/0.2", "closure_m/0.01"],
++            "term_order": ["1", "r", "l", "r^2", "r*l", "l^2", "r^3", "r^2*l", "r*l^2", "l^3",
++                           "c", "r*c", "l*c", "r^2*c", "r*l*c", "l^2*c", "c^2", "r*c^2", "l*c^2", "c^3"],
++        },
++        "geometry_evidence": {"exact_static_self_intersections": 0,
++            "topology": report["output_topology"],
++            "phase_status": "single-step-0 exact embeddedness passed; complete accepted-cycle geometry remains unqualified"},
++        "interpretation": "derived registered reference assembly retaining the original FJ2428/FMA13884 identity; not a measured myocardium surface or a contractile tissue model",
++        "physical_solver_changed": False, "new_payload_format": False,
++    }
++    output_receipt.write_text(json.dumps(output_receipt_data, sort_keys=True, separators=(",", ":")) + "\n")
++    return {"input_anatomy_payload_sha256": input_hash, "arrangement_source_payload_sha256": source_hash,
++            "candidate_sha256": candidate_sha, "candidate_report_sha256": report_sha,
++            "candidate_vertex_array_sha256_le_f32_xyz": candidate_vertices_sha,
++            "candidate_triangle_array_sha256_le_u32": candidate_triangles_sha,
++            "output_anatomy_payload_sha256": output_hash,
++            "output_receipt_sha256": hashlib.sha256(output_receipt.read_bytes()).hexdigest(),
++            "surface_count": len(packed_records), "vertex_count": len(packed_vertices),
++            "index_count": len(packed_indices), "ID23_vertices": len(points),
++            "ID23_triangles": len(faces), "ID23_face_owner_counts": dict(sorted(owner_counts.items())),
++            "ID23_face_owner_ranges": face_owner_ranges,
++            "reference_material_volume_ml": material_volume * 1e6,
++            "radial_closure_origin_m": radial_origin.tolist(), "exact_static_self_intersections": 0}
++
++
+ def main(argv=None):
+     parser = argparse.ArgumentParser(description=__doc__)
+     parser.add_argument("--input", type=Path, required=True, help="merged registered NHANAT5 payload")
+@@ -966,13 +1158,25 @@ def main(argv=None):
+     parser.add_argument("--output-receipt", type=Path, required=True, help="updated existing-format anatomy receipt path")
+     parser.add_argument("--numilab-source", type=Path, required=True, help="pinned NumiLab source tree for exact partition predicates")
+     parser.add_argument("--phase-trace", type=Path, help="accepted resting-surface-audit.csv to audit sampled cardiac geometry through the recorded cycle")
++    parser.add_argument("--wall-candidate", type=Path, help="exact source-bound ventricular material-boundary candidate to compose into stable ID 23")
++    parser.add_argument("--candidate-source", type=Path, help="exact NHANAT5 source payload named by --wall-candidate")
+     parser.add_argument("--phase-selection", choices=("representative-cycle", "initial-and-lv-max"),
+                         default="representative-cycle", help="select a bounded initial/LV-maximum check before the full representative-cycle audit")
+     parser.add_argument("--skip-exact-audit", action="store_true", help="skip exact four-cavity collision admission")
+     args = parser.parse_args(argv)
+-    result = compile_binding(args.input, args.input_receipt, args.output, args.output_receipt,
+-                             args.numilab_source, audit=not args.skip_exact_audit,
+-                             phase_trace=args.phase_trace, phase_selection=args.phase_selection)
++    if args.wall_candidate is not None:
++        require(args.candidate_source is not None,
++                "--wall-candidate requires --candidate-source for exact source comparison")
++        require(args.phase_trace is None and args.phase_selection == "representative-cycle" and not args.skip_exact_audit,
++                "ventricular-wall composition does not accept cavity-only phase/audit switches")
++        result = compile_ventricular_wall_binding(args.input, args.input_receipt, args.candidate_source,
++                                                  args.wall_candidate, args.output, args.output_receipt)
++    else:
++        require(args.candidate_source is None,
++                "--candidate-source is only valid with --wall-candidate")
++        result = compile_binding(args.input, args.input_receipt, args.output, args.output_receipt,
++                                 args.numilab_source, audit=not args.skip_exact_audit,
++                                 phase_trace=args.phase_trace, phase_selection=args.phase_selection)
+     print(json.dumps(result, sort_keys=True, separators=(",", ":")))
+ 
+ 
+diff --git a/matter/tools/resting_intervention_study.py b/matter/tools/resting_intervention_study.py
+index 8386e6b..c11db5a 100644
+--- a/matter/tools/resting_intervention_study.py
++++ b/matter/tools/resting_intervention_study.py
+@@ -637,6 +637,10 @@ def native_surface_trace_consistency(trace: Path, steps: int, dt: float) -> dict
+     minimum_gap, maximum_volume_error, count = math.inf, 0.0, 0
+     body_columns = {"body_com_x_m", "body_com_y_m", "body_com_z_m", "represented_body_mass_kg"}
+     body_first, body_last, body_mass = None, None, None
++    wall_columns = {"ventricular_wall_bound", "ventricular_material_ml", "ventricular_material_target_ml",
++                    "ventricular_closure_mm"}
++    wall_bound, wall_target = None, None
++    wall_error, wall_min_closure, wall_max_closure = 0.0, math.inf, -math.inf
+     with trace.open(newline="") as stream:
+         reader = csv.DictReader(stream)
+         required = {"step", "time_s", "min_skin_bed_gap_m", "vertices_below_1mm", "nonfinite_skin_vertices",
+@@ -648,6 +652,12 @@ def native_surface_trace_consistency(trace: Path, steps: int, dt: float) -> dict
+         present_body_columns = body_columns.intersection(reader.fieldnames or [])
+         if present_body_columns and present_body_columns != body_columns:
+             raise ValueError("native surface trace has an incomplete body mass/COM diagnostic")
++        present_wall_columns = wall_columns.intersection(reader.fieldnames or [])
++        if present_wall_columns and present_wall_columns != wall_columns:
++            raise ValueError("native surface trace has an incomplete ventricular material diagnostic")
++        wall_status_present = "ventricular_material_status" in (reader.fieldnames or [])
++        if wall_status_present and not present_wall_columns:
++            raise ValueError("native surface trace material status lacks its ventricular diagnostic")
+         for row in reader:
+             step = int(row["step"])
+             if count >= len(expected_steps) or step != expected_steps[count]:
+@@ -657,6 +667,8 @@ def native_surface_trace_consistency(trace: Path, steps: int, dt: float) -> dict
+             for key in ("vertices_below_1mm", "nonfinite_skin_vertices"):
+                 if finite_float(row[key], key) != 0:
+                     raise ValueError("native surface trace contains invalid skin/bed geometry")
++            if "functional_geometry_status" in row and finite_float(row["functional_geometry_status"], "functional_geometry_status") != 0:
++                raise ValueError("native surface trace contains invalid functional triangles or volumes")
+             gap = finite_float(row["min_skin_bed_gap_m"], "min_skin_bed_gap_m")
+             error = finite_float(row["max_functional_volume_relative_error"], "max_functional_volume_relative_error")
+             if gap < -.001 or not 0 <= error <= 2e-4:
+@@ -674,6 +686,26 @@ def native_surface_trace_consistency(trace: Path, steps: int, dt: float) -> dict
+                 if body_first is None:
+                     body_first, body_mass = center, mass
+                 body_last = center
++            if present_wall_columns:
++                if wall_status_present and finite_float(row["ventricular_material_status"], "ventricular_material_status") != 0:
++                    raise ValueError("native surface trace contains a degenerate ventricular triangle or failed material volume check")
++                bound = finite_float(row["ventricular_wall_bound"], "ventricular_wall_bound")
++                material = finite_float(row["ventricular_material_ml"], "ventricular_material_ml")
++                target = finite_float(row["ventricular_material_target_ml"], "ventricular_material_target_ml")
++                closure = finite_float(row["ventricular_closure_mm"], "ventricular_closure_mm")
++                if bound not in (0, 1) or (wall_bound is not None and bound != wall_bound):
++                    raise ValueError("native surface trace ventricular binding changes or is invalid")
++                wall_bound = bound
++                if bound:
++                    if target <= 0 or material <= 0 or (wall_target is not None and abs(target - wall_target) > 1e-5):
++                        raise ValueError("native surface trace ventricular material target is nonpositive or changes")
++                    relative = abs(material - target) / target
++                    if relative > 2e-4:
++                        raise ValueError("native surface trace ventricular material exceeds the GPU volume tolerance")
++                    wall_target, wall_error = target, max(wall_error, relative)
++                    wall_min_closure, wall_max_closure = min(wall_min_closure, closure), max(wall_max_closure, closure)
++                elif material != 0 or target != 0 or closure != 0:
++                    raise ValueError("native surface trace unbound ventricular wall reports material state")
+             minimum_gap = min(minimum_gap, gap)
+             maximum_volume_error = max(maximum_volume_error, error)
+             count += 1
+@@ -687,6 +719,12 @@ def native_surface_trace_consistency(trace: Path, steps: int, dt: float) -> dict
+             "displacement_m": [last - first for first, last in zip(body_first, body_last)],
+             "represented_mass_kg": body_mass,
+             "qualification": "diagnostic displacement; stationary rest and drift are not inferred from endpoints"}
++    if wall_bound is not None:
++        result["ventricular_material"] = {"bound": bool(wall_bound), "target_ml": wall_target,
++            "gpu_degenerate_triangle_check_recorded": wall_status_present,
++            "maximum_volume_relative_error": wall_error if wall_bound else None,
++            "closure_range_mm": [wall_min_closure, wall_max_closure] if wall_bound else None,
++            "qualification": "rendered material volume consistency; wall topology and interfaces require separate checks"}
+     return result
+ 
+ 
+diff --git a/matter/tools/test_resting_intervention_study.py b/matter/tools/test_resting_intervention_study.py
+index aa1247a..670df9d 100644
+--- a/matter/tools/test_resting_intervention_study.py
++++ b/matter/tools/test_resting_intervention_study.py
+@@ -189,6 +189,50 @@ class NativeSceneBindingTests(unittest.TestCase):
+ 
+ 
+ class NativeSurfaceTraceTests(unittest.TestCase):
++    def test_ventricular_material_cannot_hide_an_intermediate_volume_or_binding_failure(self):
++        columns = ("step,time_s,min_skin_bed_gap_m,vertices_below_1mm,nonfinite_skin_vertices,"
++                   "max_functional_volume_relative_error,q_ra,q_rv,q_la,q_lv,ra_target_ml,rv_target_ml,"
++                   "la_target_ml,lv_target_ml,diaphragm_swept_ml,rib_swept_ml,lung_target_ml,"
++                   "ventricular_wall_bound,ventricular_material_ml,ventricular_material_target_ml,ventricular_closure_mm\n")
++        rows = [f"{step},{step*.002},0,0,0,0,0,0,0,0,40,120,50,120,0,0,2500,1,164,164,{closure}\n"
++                for step, closure in ((0, -1), (31, .5), (63, 2))]
++        with tempfile.TemporaryDirectory() as directory:
++            path = Path(directory) / "surfaces.csv"
++            path.write_text(columns + ''.join(rows))
++            wall = adapter.native_surface_trace_consistency(path, 64, .002)['ventricular_material']
++            self.assertTrue(wall['bound'])
++            self.assertEqual(wall['closure_range_mm'], [-1, 2])
++            self.assertFalse(wall['gpu_degenerate_triangle_check_recorded'])
++            status_columns = columns.rstrip('\n') + ',ventricular_material_status\n'
++            status_rows = [row.rstrip('\n') + ',0\n' for row in rows]
++            path.write_text(status_columns + ''.join(status_rows))
++            self.assertTrue(adapter.native_surface_trace_consistency(path, 64, .002)
++                            ['ventricular_material']['gpu_degenerate_triangle_check_recorded'])
++            status_rows[1] = status_rows[1][:-2] + '2\n'
++            path.write_text(status_columns + ''.join(status_rows))
++            with self.assertRaisesRegex(ValueError, 'degenerate ventricular triangle'):
++                adapter.native_surface_trace_consistency(path, 64, .002)
++            functional_columns = columns.rstrip('\n') + ',functional_geometry_status\n'
++            functional_rows = [row.rstrip('\n') + ',0\n' for row in rows]
++            path.write_text(functional_columns + ''.join(functional_rows))
++            adapter.native_surface_trace_consistency(path, 64, .002)
++            functional_rows[1] = functional_rows[1][:-2] + '2\n'
++            path.write_text(functional_columns + ''.join(functional_rows))
++            with self.assertRaisesRegex(ValueError, 'invalid functional triangles'):
++                adapter.native_surface_trace_consistency(path, 64, .002)
++            for header, middle in (
++                (columns.replace('ventricular_closure_mm', 'missing_closure'), rows[1]),
++                (columns, rows[1].replace(',1,164,164,', ',1,165,164,')),
++                (columns, rows[1].replace(',1,164,164,', ',1,165,165,')),
++                (columns, rows[1].replace(',1,164,164,', ',0,0,0,')),
++                (columns, rows[1].replace(',164,164,', ',nan,164,')),
++            ):
++                path.write_text(header + rows[0] + middle + rows[2])
++                with self.assertRaises(ValueError):
++                    adapter.native_surface_trace_consistency(path, 64, .002)
++            path.write_text(columns + ''.join(row[:row.rfind(',1,164,164,')] + ',0,0,0,0\n' for row in rows))
++            self.assertFalse(adapter.native_surface_trace_consistency(path, 64, .002)['ventricular_material']['bound'])
++
+     def test_body_observation_rejects_incomplete_nonfinite_or_changing_mass(self):
+         columns = ("step,time_s,min_skin_bed_gap_m,vertices_below_1mm,nonfinite_skin_vertices,"
+                    "max_functional_volume_relative_error,q_ra,q_rv,q_la,q_lv,ra_target_ml,rv_target_ml,"
+diff --git a/src/metal/MetalArticulatedOperator.mm b/src/metal/MetalArticulatedOperator.mm
+index 91e062b..eab7723 100644
+--- a/src/metal/MetalArticulatedOperator.mm
++++ b/src/metal/MetalArticulatedOperator.mm
+@@ -71,34 +71,143 @@
+ // Read-only timestamps. A focused stage samples its first eight physical
+ // steps. The cycle option samples one stage per step so the GPU counter limit
+ // cannot silently drop later encoders from an all-stage profile.
+-id<MTLComputeCommandEncoder> humanTimedEncoder(
+-    id<MTLCommandBuffer> commandBuffer, id<MTLDevice> device,
+-    const char* stage, std::uint32_t step
+-) {
++static constexpr std::array<const char*, 16u> kHumanCycleTimingStages{
++    "kinematics_prepare", "kinematics", "muscle_angular", "muscles",
++    "active_force", "force_reduce", "tendon_transfer", "activation",
++    "stand_prework", "stand_mass", "stand_factor",
++    "stand_equality_responses", "stand_equality_factor",
++    "stand_projected_responses", "stand_finish", "borrowed_callback",
++};
++
++constexpr bool humanCycleScheduleCoversEightRootsPerStage() {
++    std::array<std::uint8_t, kHumanCycleTimingStages.size()> counts{};
++    for (std::size_t step = 0u;
++         step < kHumanCycleTimingStages.size() * 8u; ++step)
++        ++counts[step % kHumanCycleTimingStages.size()];
++    for (const std::uint8_t count : counts)
++        if (count != 8u) return false;
++    return true;
++}
++static_assert(humanCycleScheduleCoversEightRootsPerStage());
++
++bool humanTimingSelected(const char* stage, std::uint32_t step) {
+     const char* requested = std::getenv("NUMI_HUMAN_GPU_TIMING");
++    if (requested == nullptr || std::strcmp(requested, "1") != 0) return false;
+     const char* selectedStage = std::getenv("NUMI_HUMAN_GPU_TIMING_STAGE");
+     const bool cycle = selectedStage != nullptr &&
+         std::strcmp(selectedStage, "cycle") == 0;
+     static const auto timingRoots =
+         humanDiagnosticRoots("NUMI_HUMAN_GPU_TIMING_ROOTS");
++    if (cycle) {
++        const bool sampledCycleRoot = timingRoots.empty()
++            ? step < kHumanCycleTimingStages.size() * 8u
++            : std::binary_search(timingRoots.begin(), timingRoots.end(), step);
++        if (!sampledCycleRoot) return false;
++        return std::strcmp(kHumanCycleTimingStages[
++            step % kHumanCycleTimingStages.size()], stage) == 0;
++    }
+     const bool sampledRoot = timingRoots.empty() ? step < 8u :
+         std::binary_search(timingRoots.begin(), timingRoots.end(), step);
+-    if (cycle) {
+-        static constexpr std::array<const char*, 14u> stages{
+-            "kinematics", "muscle_angular", "muscles", "active_force",
+-            "force_reduce", "tendon_transfer", "activation",
+-            "stand_prework", "stand_mass", "stand_factor",
+-            "stand_equality_responses", "stand_equality_factor",
+-            "stand_projected_responses", "stand_finish",
+-        };
+-        if ((timingRoots.empty() && step >= stages.size() * 8u) ||
+-            (!timingRoots.empty() && !sampledRoot))
+-            return [commandBuffer computeCommandEncoder];
+-        selectedStage = stages[step % stages.size()];
++    if (!sampledRoot) return false;
++    return selectedStage == nullptr || std::strcmp(selectedStage, stage) == 0;
++}
++
++struct HumanBorrowedCallbackTiming {
++    bool selected = false;
++    __strong id<MTLCounterSampleBuffer> samples = nil;
++    std::string label;
++    std::uint32_t step = 0u;
++    std::chrono::steady_clock::time_point hostBegin{};
++};
++
++HumanBorrowedCallbackTiming humanBeginBorrowedCallbackTiming(
++    id<MTLCommandBuffer> commandBuffer, id<MTLDevice> device,
++    std::uint32_t step, const char* label
++) {
++    HumanBorrowedCallbackTiming timing{};
++    timing.selected = humanTimingSelected("borrowed_callback", step);
++    if (!timing.selected) return timing;
++    timing.label = label == nullptr ? "unnamed" : label;
++    timing.step = step;
++    if (![device supportsCounterSampling:MTLCounterSamplingPointAtBlitBoundary]) {
++        timing.hostBegin = std::chrono::steady_clock::now();
++        return timing;
+     }
+-    if ((!cycle && !sampledRoot) || requested == nullptr ||
+-        std::strcmp(requested, "1") != 0 ||
+-        (selectedStage != nullptr && std::strcmp(selectedStage, stage) != 0) ||
++    for (id<MTLCounterSet> set in device.counterSets) {
++        if (![set.name isEqualToString:MTLCommonCounterSetTimestamp]) continue;
++        MTLCounterSampleBufferDescriptor* descriptor =
++            [MTLCounterSampleBufferDescriptor new];
++        descriptor.counterSet = set;
++        descriptor.storageMode = MTLStorageModeShared;
++        descriptor.sampleCount = 2u;
++        timing.samples = [device newCounterSampleBufferWithDescriptor:descriptor
++                                                               error:nil];
++        break;
++    }
++    if (timing.samples == nil) {
++        timing.hostBegin = std::chrono::steady_clock::now();
++        return timing;
++    }
++    id<MTLBlitCommandEncoder> marker = [commandBuffer blitCommandEncoder];
++    if (marker == nil) {
++        timing.samples = nil;
++        timing.hostBegin = std::chrono::steady_clock::now();
++        return timing;
++    }
++    [marker sampleCountersInBuffer:timing.samples atSampleIndex:0u withBarrier:YES];
++    [marker endEncoding];
++    timing.hostBegin = std::chrono::steady_clock::now();
++    return timing;
++}
++
++void humanFinishBorrowedCallbackTiming(
++    HumanBorrowedCallbackTiming timing,
++    id<MTLCommandBuffer> commandBuffer, bool encoded
++) {
++    if (!timing.selected) return;
++    const auto hostElapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(
++        std::chrono::steady_clock::now() - timing.hostBegin).count();
++    if (timing.samples != nil) {
++        id<MTLBlitCommandEncoder> marker = [commandBuffer blitCommandEncoder];
++        if (marker != nil) {
++            [marker sampleCountersInBuffer:timing.samples atSampleIndex:1u
++                               withBarrier:YES];
++            [marker endEncoding];
++            const auto label = timing.label;
++            const auto step = timing.step;
++            const auto hostNs = static_cast<unsigned long long>(hostElapsed);
++            const auto success = encoded ? 1u : 0u;
++            id<MTLCounterSampleBuffer> samples = timing.samples;
++            [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
++                NSData* data = [samples resolveCounterRange:NSMakeRange(0u, 2u)];
++                if (completed.status != MTLCommandBufferStatusCompleted ||
++                    data.length != 2u * sizeof(MTLCounterResultTimestamp)) return;
++                const auto* values =
++                    static_cast<const MTLCounterResultTimestamp*>(data.bytes);
++                if (values[0].timestamp == 0u ||
++                    values[1].timestamp < values[0].timestamp ||
++                    values[0].timestamp == MTLCounterErrorValue ||
++                    values[1].timestamp == MTLCounterErrorValue) return;
++                std::fprintf(stderr,
++                    "human_borrowed_callback=%s step=%u encoded=%u host_encode_ns=%llu gpu_envelope_ns=%llu\n",
++                    label.c_str(), step, success, hostNs,
++                    static_cast<unsigned long long>(
++                        values[1].timestamp - values[0].timestamp));
++            }];
++            return;
++        }
++    }
++    std::fprintf(stderr,
++        "human_borrowed_callback=%s step=%u encoded=%u host_encode_ns=%llu gpu_envelope_sampling=unavailable\n",
++        timing.label.c_str(), timing.step, encoded ? 1u : 0u,
++        static_cast<unsigned long long>(hostElapsed));
++}
++
++id<MTLComputeCommandEncoder> humanTimedEncoder(
++    id<MTLCommandBuffer> commandBuffer, id<MTLDevice> device,
++    const char* stage, std::uint32_t step
++) {
++    if (!humanTimingSelected(stage, step) ||
+         ![device supportsCounterSampling:MTLCounterSamplingPointAtStageBoundary])
+         return [commandBuffer computeCommandEncoder];
+     id<MTLCounterSampleBuffer> timing = nil;
+@@ -10493,7 +10602,17 @@ bool finitePayload(
+                 if (!numanXTransactionAbort.armed) {
+                     numanXTransactionAbort.armed = true;
+                 }
+-                return program.encode(program.context, pass);
++                const char* phaseName =
++                    phase == MetalNumanXTransactionPhase::beginStep ? "transaction_begin" :
++                    phase == MetalNumanXTransactionPhase::preDynamics ? "transaction_pre_dynamics" :
++                    phase == MetalNumanXTransactionPhase::postDynamics ? "transaction_post_dynamics" :
++                    "transaction_other";
++                auto callbackTiming = humanBeginBorrowedCallbackTiming(
++                    commandBuffer, state_->device, stepIndex, phaseName);
++                const bool encoded = program.encode(program.context, pass);
++                humanFinishBorrowedCallbackTiming(std::move(callbackTiming),
++                    commandBuffer, encoded);
++                return encoded;
+             };
+             const auto makeHumanMatterDispatch = [&]() {
+                 const MetalArticulatedOperatorLayout& layout =
+@@ -10707,6 +10826,7 @@ bool finitePayload(
+                 pass.slotGeneration = program.slotGeneration;
+                 return pass;
+             };
++            std::uint32_t diagnosticStepIndex = input.stand.stepIndexOffset;
+             const auto encodeHumanMatterPhase = [&] (
+                 const MetalNumanXHumanMatterPhase phase
+             ) -> bool {
+@@ -10724,7 +10844,17 @@ bool finitePayload(
+                 }
+                 const MetalNumanXHumanMatterPass pass =
+                     makeHumanMatterPass(phase);
+-                return program.encode(program.context, pass);
++                const char* phaseName =
++                    phase == MetalNumanXHumanMatterPhase::beginStep ? "matter_begin_step" :
++                    phase == MetalNumanXHumanMatterPhase::preDynamics ? "matter_pre_dynamics" :
++                    phase == MetalNumanXHumanMatterPhase::postDynamics ? "matter_post_dynamics" :
++                    "matter_other";
++                auto callbackTiming = humanBeginBorrowedCallbackTiming(
++                    commandBuffer, state_->device, diagnosticStepIndex, phaseName);
++                const bool encoded = program.encode(program.context, pass);
++                humanFinishBorrowedCallbackTiming(std::move(callbackTiming),
++                    commandBuffer, encoded);
++                return encoded;
+             };
+             // Optional first-root readback isolates the first divergent physical
+             // buffer. It never supplies forces or accepted-state authority.
+@@ -10734,6 +10864,7 @@ bool finitePayload(
+                  horizonStep < horizonStepCount; ++horizonStep) {
+             const std::uint32_t authoritativeStep =
+                 input.stand.stepIndexOffset + horizonStep;
++            diagnosticStepIndex = authoritativeStep;
+             // The permanent NumanX root owns its own wider prepare/apply
+             // protocol. Ordinary stand/tendon horizons retain their accepted
+             // physical bytes here, before excitation or contact state changes.
+@@ -11404,10 +11535,15 @@ bool finitePayload(
+                         tendonLoadAbort.armed = true;
+                         const MetalNumiHumanTendonLoadPass pass =
+                             tendonLoadPass();
+-                        if (!input.stand.tendonLoadProgram.encodePreDynamics(
+-                                input.stand.tendonLoadProgram.context,
+-                                pass
+-                            )) {
++                        auto callbackTiming = humanBeginBorrowedCallbackTiming(
++                            commandBuffer, state_->device, authoritativeStep,
++                            "tendon_pre_dynamics");
++                        const bool encoded =
++                            input.stand.tendonLoadProgram.encodePreDynamics(
++                                input.stand.tendonLoadProgram.context, pass);
++                        humanFinishBorrowedCallbackTiming(std::move(callbackTiming),
++                            commandBuffer, encoded);
++                        if (!encoded) {
+                             return reject(
+                                 std::move(diagnostics),
+                                 MetalArticulatedOperatorHostStatus::metalCommandFailure,
+@@ -11647,8 +11783,15 @@ bool finitePayload(
+                 pass.groundPoint = input.stand.groundPoint;
+                 pass.groundNormal = input.stand.groundNormal;
+                 supportGeometryAbort.armed = true;
+-                if (!input.stand.supportGeometryProgram.encodePreDynamics(
+-                        input.stand.supportGeometryProgram.context, pass)) {
++                auto callbackTiming = humanBeginBorrowedCallbackTiming(
++                    commandBuffer, state_->device, authoritativeStep,
++                    "support_geometry_pre_dynamics");
++                const bool encoded =
++                    input.stand.supportGeometryProgram.encodePreDynamics(
++                        input.stand.supportGeometryProgram.context, pass);
++                humanFinishBorrowedCallbackTiming(std::move(callbackTiming),
++                    commandBuffer, encoded);
++                if (!encoded) {
+                     return reject(
+                         std::move(diagnostics),
+                         MetalArticulatedOperatorHostStatus::externalProgramFailure,
+@@ -13368,10 +13511,15 @@ bool finitePayload(
+                     const MetalNumiHumanTendonLoadPass pass =
+                         tendonLoadPass();
+                     tendonLoadAbort.armed = true;
+-                    if (!input.stand.tendonLoadProgram.encodePostValidation(
+-                            input.stand.tendonLoadProgram.context,
+-                            pass
+-                        )) {
++                    auto callbackTiming = humanBeginBorrowedCallbackTiming(
++                        commandBuffer, state_->device, authoritativeStep,
++                        "tendon_post_validation");
++                    const bool encoded =
++                        input.stand.tendonLoadProgram.encodePostValidation(
++                            input.stand.tendonLoadProgram.context, pass);
++                    humanFinishBorrowedCallbackTiming(std::move(callbackTiming),
++                        commandBuffer, encoded);
++                    if (!encoded) {
+                         return reject(
+                             std::move(diagnostics),
+                             MetalArticulatedOperatorHostStatus::metalCommandFailure,

@@ -1,0 +1,177 @@
+{
+  "scope": "One6s native whole-body engineering intervention wiring check; drive\u00d70.5 on[0.5,1.5)s and automatic restoration. Not final300s intervention/recovery qualification, not clinical evidence. Same source013/inputs017 as matched control. Known anatomy defects remain.",
+  "frames": 94,
+  "pre_dose_bitwise_equal_rows": 7,
+  "pre_dose_rows": 7,
+  "windows": {
+    "dose": {
+      "sample_window_s": [
+        0.512000024319,
+        1.47200006992
+      ],
+      "diaphragm_excitation": {
+        "control_mean": 0.143348946236,
+        "treatment_mean": 0.07167448918336876,
+        "paired_mean_difference": -0.07167445705263126
+      },
+      "intercostal_excitation": {
+        "control_mean": 0.089593093842275,
+        "treatment_mean": 0.04479655739850625,
+        "paired_mean_difference": -0.04479653644376875
+      },
+      "diaphragm_activation": {
+        "control_mean": 0.1451036897488125,
+        "treatment_mean": 0.0765191637910875,
+        "paired_mean_difference": -0.068584525957725
+      },
+      "intercostal_activation": {
+        "control_mean": 0.09084165422245,
+        "treatment_mean": 0.047996019711725,
+        "paired_mean_difference": -0.042845634510725
+      },
+      "lung_volume_ml": {
+        "control_mean": 2974.137358250625,
+        "treatment_mean": 2835.910112480625,
+        "paired_mean_difference": -138.22724577000002
+      },
+      "PaCO2_mmhg": {
+        "control_mean": 39.993968486787494,
+        "treatment_mean": 39.994162321093754,
+        "paired_mean_difference": 0.0001938343062506398
+      },
+      "PaO2_mmhg": {
+        "control_mean": 100.00723886491875,
+        "treatment_mean": 100.00700426104376,
+        "paired_mean_difference": -0.0002346038749996282
+      },
+      "SaO2": {
+        "control_mean": 0.9722255244850624,
+        "treatment_mean": 0.9722253493963751,
+        "paired_mean_difference": -1.7508868749294138e-07
+      }
+    },
+    "after_restoration": {
+      "sample_window_s": [
+        1.53600007296,
+        2.94400013983
+      ],
+      "diaphragm_excitation": {
+        "control_mean": 0.01994990087721087,
+        "treatment_mean": 0.01994982169457435,
+        "paired_mean_difference": -7.918263652167304e-08
+      },
+      "intercostal_excitation": {
+        "control_mean": 0.012468688746748694,
+        "treatment_mean": 0.012468638678036522,
+        "paired_mean_difference": -5.0068712173467124e-08
+      },
+      "diaphragm_activation": {
+        "control_mean": 0.025503689614331373,
+        "treatment_mean": 0.024975160560448434,
+        "paired_mean_difference": -0.0005285290538829387
+      },
+      "intercostal_activation": {
+        "control_mean": 0.016165463460370115,
+        "treatment_mean": 0.015783910850871944,
+        "paired_mean_difference": -0.0003815526094981702
+      },
+      "lung_volume_ml": {
+        "control_mean": 2679.626720592174,
+        "treatment_mean": 2657.049720216087,
+        "paired_mean_difference": -22.57700037608692
+      },
+      "PaCO2_mmhg": {
+        "control_mean": 39.887588832700004,
+        "treatment_mean": 39.92877761176522,
+        "paired_mean_difference": 0.04118877906521775
+      },
+      "PaO2_mmhg": {
+        "control_mean": 100.14053809121738,
+        "treatment_mean": 100.09106843365217,
+        "paired_mean_difference": -0.049469657565218796
+      },
+      "SaO2": {
+        "control_mean": 0.972322318864913,
+        "treatment_mean": 0.9722864861074781,
+        "paired_mean_difference": -3.5832757434785314e-05
+      }
+    },
+    "end": {
+      "sample_window_s": [
+        5.05600024015,
+        5.9520002827
+      ],
+      "diaphragm_excitation": {
+        "control_mean": 0.09884711460524001,
+        "treatment_mean": 0.1009678406642,
+        "paired_mean_difference": 0.0021207260589599956
+      },
+      "intercostal_excitation": {
+        "control_mean": 0.06177944842105867,
+        "treatment_mean": 0.06310490112131467,
+        "paired_mean_difference": 0.0013254527002560003
+      },
+      "diaphragm_activation": {
+        "control_mean": 0.09798958841705532,
+        "treatment_mean": 0.10010983664549335,
+        "paired_mean_difference": 0.002120248228437999
+      },
+      "intercostal_activation": {
+        "control_mean": 0.061288515819849336,
+        "treatment_mean": 0.062614371782792,
+        "paired_mean_difference": 0.0013258559629426658
+      },
+      "lung_volume_ml": {
+        "control_mean": 2763.5396768640003,
+        "treatment_mean": 2769.181147838001,
+        "paired_mean_difference": 5.641470973999913
+      },
+      "PaCO2_mmhg": {
+        "control_mean": 39.28838424682667,
+        "treatment_mean": 39.70975290932001,
+        "paired_mean_difference": 0.42136866249333355
+      },
+      "PaO2_mmhg": {
+        "control_mean": 101.07710266113334,
+        "treatment_mean": 100.44835357673334,
+        "paired_mean_difference": -0.6287490844000019
+      },
+      "SaO2": {
+        "control_mean": 0.9729908307394,
+        "treatment_mean": 0.9725446065266669,
+        "paired_mean_difference": -0.00044622421273334825
+      }
+    }
+  },
+  "diaphragm_excitation_dose_ratio_range": [
+    0.4999999999982646,
+    0.5000005998403618
+  ],
+  "diaphragm_excitation_post_ratio_range": [
+    0.9998622275098137,
+    1.0000011187177107
+  ],
+  "intercostal_excitation_dose_ratio_range": [
+    0.49999999999930583,
+    0.5000006566662206
+  ],
+  "intercostal_excitation_post_ratio_range": [
+    0.9998622044654194,
+    1.0000010068410314
+  ],
+  "unchanged_circulation_rows": true,
+  "last_cumulative_inspired_volume_ml": {
+    "control": 1047.92278549,
+    "treatment": 916.289646682
+  },
+  "source_identity": {
+    "/Users/n/numi-human-resting-evidence-20261005/vascular-structure-candidate-repeat-native-013/invocation.json": "3abda3d6c6d77bd149421f3a821be3672c8b1ea7f07aa1b91c4c3bba5b3987b5",
+    "/Users/n/numi-human-resting-evidence-20261005/vascular-structure-candidate-repeat-native-013/resting-coupled.csv": "ca65c98056682bae62e7a63f6f913191524b0c718760efaf97bf53e934f0a179",
+    "/Users/n/numi-human-resting-evidence-20261005/vascular-structure-candidate-repeat-native-013/resting-surface-audit.csv": "ae7df7a485a563d29464574a546864bea47abe326dc2eda4440746a9f25f2faa",
+    "/Users/n/numi-human-resting-evidence-20261005/vascular-structure-candidate-repeat-native-013/native.log": "b7dca234014d5ee3ff4e9453fdccb129e6b8e92a16e06e8cf0b0145ebdf0f4da",
+    "/Users/n/numi-human-resting-evidence-20261005/intervention-wiring-native-019/invocation.json": "e9aaf07fdb3ec5838c8e48ce31f792dd22d7cf0332e0b4ba8138370b94a4fa3d",
+    "/Users/n/numi-human-resting-evidence-20261005/intervention-wiring-native-019/resting-coupled.csv": "0883fb0ed3e5f30213c3ce61547a88a08161529350d27d6ae9a7ffcde64b3dab",
+    "/Users/n/numi-human-resting-evidence-20261005/intervention-wiring-native-019/resting-surface-audit.csv": "e57babad1eac5a731e05499ac664a835c5bbdce58cd8589f5982bfd2d9452e18",
+    "/Users/n/numi-human-resting-evidence-20261005/intervention-wiring-native-019/native.log": "a58b7576925e8e31fdc2f28b523ca0aa2de27ad643d750e12df5715a108a85d9"
+  }
+}

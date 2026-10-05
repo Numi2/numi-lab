@@ -46,6 +46,16 @@ The body's center of mass moved after initialization, including about
 than 0.49 mm range on each axis. The trace records this motion; stationary
 rest and absence of unexplained drift have not been established.
 
+A subsequent native Metal forward-kinematic inspection of the retained,
+unmodified terminal joint coordinates confirmed an inter-leg defect: the
+explicit left/right lower-limb skin subsets had 1,102 intersecting triangle
+pairs, versus zero at initialization. Both hips reached their rotation limits,
+and left hip adduction reached its limit. The sampled bed normal reaction
+averaged approximately the 706.32 N body weight; vertical support alone did
+not prevent this posture defect. The terminal inspection advanced no physical
+steps and is not a replay of the physiological state. Its exact inputs,
+partition, predicates, counts, and image are in `terminal-posture/`.
+
 This was an engineering stability run, not the final preregistered paired
 respiratory-intervention study. That study and a corrected complete-cycle
 anatomical audit remain required. No final delivery claim is made.

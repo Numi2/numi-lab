@@ -1,0 +1,659 @@
+{
+  "qualification": "Read-only native Metal forward-kinematic reconstruction of exact terminal q; no physiology replay and no physical steps. Inter-limb subset is explicit and excludes the adjacent groin. A zero subset result would not imply whole-skin self clearance.",
+  "script_sha256": "6510cd16232819108715470496419d5549dde083746dedf8bd42861fe179ec90",
+  "pack_sha256": {
+    "/Users/n/numi-human-resting-evidence-20261005/costal-fit-stability-018/resting-human.mrvpack": "4f969193b7e66385b5a06d9d55a3ea966d156821e76558b16d4a785cdaddd6a7",
+    "/Users/n/numi-human-resting-evidence-20261005/terminal-posture-inspection-018/myosim-fullbody-articulated-bodyparts-bones-source-skinned-shell.mrvpack": "cad6c180dd632e61428569b0df0eaa8f3c480f401fb43191ab229385d0edc7ff"
+  },
+  "source_log_sha256": "1c8a244cef060c04011763e0b3969e08e2d426821294e308f268173163cbc2f5",
+  "predicate_sha256": "8b138882161c78312cb9b5aa46f49795092eb9b67ed9f705dc354787cb0a635b",
+  "pair_driver_sha256": "e7288d510b1fcba51708293f23f4dc32f052322a2c9496831803892cc2f6ca4d",
+  "partition": {
+    "initial_supine_world_y_max_m": -0.92,
+    "initial_midline_x_m": -0.025,
+    "right_face_count": 28657,
+    "left_face_count": 28441
+  },
+  "frames": [
+    {
+      "frame": "initial",
+      "aabb_candidates": 0,
+      "exact_intersecting_triangle_pairs": 0,
+      "complete": true,
+      "elapsed_s": 0.009892124682664871,
+      "minimum_skin_z_m": -0.00011051939509343356,
+      "vertices_below_1mm": 0,
+      "coordinate_scale_per_m": 1099511627776,
+      "first_witnesses": []
+    },
+    {
+      "frame": "terminal320s",
+      "aabb_candidates": 11210,
+      "exact_intersecting_triangle_pairs": 1102,
+      "complete": true,
+      "elapsed_s": 1.9524110425263643,
+      "minimum_skin_z_m": -2.1003692381782457e-05,
+      "vertices_below_1mm": 0,
+      "coordinate_scale_per_m": 8796093022208,
+      "first_witnesses": [
+        {
+          "lung_face": 16296,
+          "bone_face": 4654,
+          "points_lattice": [
+            [
+              "-29800060693530676936509161472/12128858884196345",
+              "-35116199480436966476239339520/2425771776839269",
+              "4836791243316034070940483584/12128858884196345"
+            ],
+            [
+              "-12342979967287460554666803200/5026564137098571",
+              "-72748221363403352873420718080/5026564137098571",
+              "677807965904289699118243840/1675521379032857"
+            ]
+          ]
+        },
+        {
+          "lung_face": 16296,
+          "bone_face": 4685,
+          "points_lattice": [
+            [
+              "-33914640467008066686442405888/13803264952545097",
+              "-199847799110846703471498362880/13803264952545097",
+              "5459551347909920596176879616/13803264952545097"
+            ],
+            [
+              "-29800060693530676936509161472/12128858884196345",
+              "-35116199480436966476239339520/2425771776839269",
+              "4836791243316034070940483584/12128858884196345"
+            ]
+          ]
+        },
+        {
+          "lung_face": 16297,
+          "bone_face": 4654,
+          "points_lattice": [
+            [
+              "-49982225173921917800523235328/20365182546914087",
+              "-294683543451829316267024580608/20365182546914087",
+              "8335306642471071107284107264/20365182546914087"
+            ],
+            [
+              "-12342979967287460554666803200/5026564137098571",
+              "-72748221363403352873420718080/5026564137098571",
+              "677807965904289699118243840/1675521379032857"
+            ]
+          ]
+        },
+        {
+          "lung_face": 16298,
+          "bone_face": 4654,
+          "points_lattice": [
+            [
+              "-14514659614910269583632105472/5914284925417129",
+              "-85578625979449742451935281152/5914284925417129",
+              "2422764536616913389322305536/5914284925417129"
+            ],
+            [
+              "-49982225173921917800523235328/20365182546914087",
+              "-294683543451829316267024580608/20365182546914087",
+              "8335306642471071107284107264/20365182546914087"
+            ]
+          ]
+        },
+        {
+          "lung_face": 16298,
+          "bone_face": 4653,
+          "points_lattice": [
+            [
+              "-14514659614910269583632105472/5914284925417129",
+              "-85578625979449742451935281152/5914284925417129",
+              "2422764536616913389322305536/5914284925417129"
+            ],
+            [
+              "-10933683722103764455866957824/4457601594628025",
+              "-64493314131746839363531833344/4457601594628025",
+              "1843422035994587246260232192/4457601594628025"
+            ]
+          ]
+        },
+        {
+          "lung_face": 17097,
+          "bone_face": 4614,
+          "points_lattice": [
+            [
+              "-7157378045468561104079945728/2924264388826591",
+              "-42298253681742719331302637568/2924264388826591",
+              "1239168039923230642171838464/2924264388826591"
+            ],
+            [
+              "-357208877104603398990987264/145671779808133",
+              "-90623187459725024010921050112/6263886531749719",
+              "2601094195272088491833982976/6263886531749719"
+            ]
+          ]
+        },
+        {
+          "lung_face": 17097,
+          "bone_face": 4653,
+          "points_lattice": [
+            [
+              "-10933683722103764455866957824/4457601594628025",
+              "-64493314131746839363531833344/4457601594628025",
+              "1843422035994587246260232192/4457601594628025"
+            ],
+            [
+              "-357208877104603398990987264/145671779808133",
+              "-90623187459725024010921050112/6263886531749719",
+              "2601094195272088491833982976/6263886531749719"
+            ]
+          ]
+        },
+        {
+          "lung_face": 16316,
+          "bone_face": 5323,
+          "points_lattice": [
+            [
+              "-437531723506816027316486144/178859201345683",
+              "-2594876226768097959372652544/178859201345683",
+              "63402386743514186929983488/178859201345683"
+            ],
+            [
+              "-52493848148242730620238692352/21479405627934079",
+              "-44527976447026335324387147776/3068486518276297",
+              "7521218059440878284810747904/21479405627934079"
+            ]
+          ]
+        },
+        {
+          "lung_face": 16316,
+          "bone_face": 5324,
+          "points_lattice": [
+            [
+              "-52493848148242730620238692352/21479405627934079",
+              "-44527976447026335324387147776/3068486518276297",
+              "7521218059440878284810747904/21479405627934079"
+            ],
+            [
+              "-27287719915854462695870038016/11169673522133439",
+              "-162101426335593564720323362816/11169673522133439",
+              "3893632861953128399228321792/11169673522133439"
+            ]
+          ]
+        },
+        {
+          "lung_face": 16316,
+          "bone_face": 5325,
+          "points_lattice": [
+            [
+              "-27287719915854462695870038016/11169673522133439",
+              "-162101426335593564720323362816/11169673522133439",
+              "3893632861953128399228321792/11169673522133439"
+            ],
+            [
+              "-43985770432854752871947173888/18012945179395739",
+              "-261438722880456609449304391680/18012945179395739",
+              "6250157704845496420414488576/18012945179395739"
+            ]
+          ]
+        },
+        {
+          "lung_face": 17099,
+          "bone_face": 4685,
+          "points_lattice": [
+            [
+              "-33914640467008066686442405888/13803264952545097",
+              "-199847799110846703471498362880/13803264952545097",
+              "5459551347909920596176879616/13803264952545097"
+            ],
+            [
+              "-145534815729607106966461874176/59257526649577969",
+              "-858632673008349369703014072320/59257526649577969",
+              "22477071699537719922866388992/59257526649577969"
+            ]
+          ]
+        },
+        {
+          "lung_face": 17099,
+          "bone_face": 4610,
+          "points_lattice": [
+            [
+              "-145534815729607106966461874176/59257526649577969",
+              "-858632673008349369703014072320/59257526649577969",
+              "22477071699537719922866388992/59257526649577969"
+            ],
+            [
+              "-3540977736036145545040756736/1442435527375597",
+              "-20907077467316477967063842816/1442435527375597",
+              "538213806061835001898483712/1442435527375597"
+            ]
+          ]
+        },
+        {
+          "lung_face": 17099,
+          "bone_face": 5323,
+          "points_lattice": [
+            [
+              "-437531723506816027316486144/178859201345683",
+              "-2594876226768097959372652544/178859201345683",
+              "63402386743514186929983488/178859201345683"
+            ],
+            [
+              "-3540977736036145545040756736/1442435527375597",
+              "-20907077467316477967063842816/1442435527375597",
+              "538213806061835001898483712/1442435527375597"
+            ]
+          ]
+        },
+        {
+          "lung_face": 16320,
+          "bone_face": 5325,
+          "points_lattice": [
+            [
+              "-43985770432854752871947173888/18012945179395739",
+              "-261438722880456609449304391680/18012945179395739",
+              "6250157704845496420414488576/18012945179395739"
+            ],
+            [
+              "-22456009906279972732460466176/9196298689649899",
+              "-133474948194660470642839126016/9196298689649899",
+              "3190410034397729506413150208/9196298689649899"
+            ]
+          ]
+        },
+        {
+          "lung_face": 16320,
+          "bone_face": 5354,
+          "points_lattice": [
+            [
+              "-22456009906279972732460466176/9196298689649899",
+              "-133474948194660470642839126016/9196298689649899",
+              "3190410034397729506413150208/9196298689649899"
+            ],
+            [
+              "-29842515178873828473711886336/12241499989542647",
+              "-177704965209299690914718941184/12241499989542647",
+              "4211521717447370277925912576/12241499989542647"
+            ]
+          ]
+        },
+        {
+          "lung_face": 17104,
+          "bone_face": 5354,
+          "points_lattice": [
+            [
+              "-22414167125414778239427543040/9231110012762641",
+              "-134061651312520545686263955456/9231110012762641",
+              "3131031022087177475880091648/9231110012762641"
+            ],
+            [
+              "-29842515178873828473711886336/12241499989542647",
+              "-177704965209299690914718941184/12241499989542647",
+              "4211521717447370277925912576/12241499989542647"
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "joint_manifest_sha256": "844d05330104a43f6c45867020f2abd493adec35d6e2f8f90fc636ee9bec04e7",
+  "lower_limb_joint_coordinates": [
+    {
+      "name": "hip_flexion_r",
+      "q_index": 101,
+      "initial": 0,
+      "terminal": -0.12291903793811798,
+      "source_range": [
+        -0.523599,
+        2.0944
+      ],
+      "core_limit_status": "enforced"
+    },
+    {
+      "name": "hip_adduction_r",
+      "q_index": 102,
+      "initial": 0,
+      "terminal": -0.39081403613090515,
+      "source_range": [
+        -0.872665,
+        0.523599
+      ],
+      "core_limit_status": "enforced"
+    },
+    {
+      "name": "hip_rotation_r",
+      "q_index": 103,
+      "initial": 0,
+      "terminal": -0.6981310844421387,
+      "source_range": [
+        -0.698132,
+        0.698132
+      ],
+      "core_limit_status": "enforced"
+    },
+    {
+      "name": "knee_angle_translation2_r",
+      "q_index": 104,
+      "initial": 7.69253966081962e-11,
+      "terminal": 5.5146052169163795e-09,
+      "source_range": [
+        7.69254e-11,
+        0.006792
+      ],
+      "core_limit_status": "retained_in_manifest_not_enforced_at_source_default"
+    },
+    {
+      "name": "knee_angle_translation1_r",
+      "q_index": 105,
+      "initial": 9.537330214470785e-08,
+      "terminal": 9.826687374925314e-08,
+      "source_range": [
+        9.53733e-08,
+        0.00159883
+      ],
+      "core_limit_status": "retained_in_manifest_not_enforced_at_source_default"
+    },
+    {
+      "name": "knee_angle_r",
+      "q_index": 106,
+      "initial": 0,
+      "terminal": 9.248212222701113e-07,
+      "source_range": [
+        0.0,
+        2.0944
+      ],
+      "core_limit_status": "enforced"
+    },
+    {
+      "name": "knee_angle_rotation2_r",
+      "q_index": 107,
+      "initial": -1.4732499664660281e-08,
+      "terminal": 5.8420830839622795e-08,
+      "source_range": [
+        -0.00167821,
+        0.0335354
+      ],
+      "core_limit_status": "enforced"
+    },
+    {
+      "name": "knee_angle_rotation3_r",
+      "q_index": 108,
+      "initial": 1.0893900004305124e-08,
+      "terminal": 3.526142791088205e-07,
+      "source_range": [
+        -0.262788,
+        0.262788
+      ],
+      "core_limit_status": "enforced"
+    },
+    {
+      "name": "ankle_angle_r",
+      "q_index": 109,
+      "initial": 0,
+      "terminal": -0.03575953096151352,
+      "source_range": [
+        -0.698132,
+        0.523599
+      ],
+      "core_limit_status": "enforced"
+    },
+    {
+      "name": "subtalar_angle_r",
+      "q_index": 110,
+      "initial": 0,
+      "terminal": -0.2591972351074219,
+      "source_range": [
+        -0.349066,
+        0.349066
+      ],
+      "core_limit_status": "enforced"
+    },
+    {
+      "name": "mtp_angle_r",
+      "q_index": 111,
+      "initial": 0,
+      "terminal": 0.5235990285873413,
+      "source_range": [
+        -0.523599,
+        0.523599
+      ],
+      "core_limit_status": "enforced"
+    },
+    {
+      "name": "knee_angle_beta_translation2_r",
+      "q_index": 112,
+      "initial": 0,
+      "terminal": -4.5117118929738353e-08,
+      "source_range": [
+        -0.03,
+        0.0
+      ],
+      "core_limit_status": "enforced"
+    },
+    {
+      "name": "knee_angle_beta_translation1_r",
+      "q_index": 113,
+      "initial": 0,
+      "terminal": -1.3889734695737843e-08,
+      "source_range": [
+        -0.0751923,
+        0.0
+      ],
+      "core_limit_status": "enforced"
+    },
+    {
+      "name": "knee_angle_beta_rotation1_r",
+      "q_index": 114,
+      "initial": 0.010506000369787216,
+      "terminal": 0.010506023652851582,
+      "source_range": [
+        -1.79241,
+        0.010506
+      ],
+      "core_limit_status": "enforced"
+    },
+    {
+      "name": "hip_flexion_l",
+      "q_index": 115,
+      "initial": 0,
+      "terminal": -0.12437886744737625,
+      "source_range": [
+        -0.523599,
+        2.0944
+      ],
+      "core_limit_status": "enforced"
+    },
+    {
+      "name": "hip_adduction_l",
+      "q_index": 116,
+      "initial": 0,
+      "terminal": 0.5235978960990906,
+      "source_range": [
+        -0.872665,
+        0.523599
+      ],
+      "core_limit_status": "enforced"
+    },
+    {
+      "name": "hip_rotation_l",
+      "q_index": 117,
+      "initial": 0,
+      "terminal": -0.6981315612792969,
+      "source_range": [
+        -0.698132,
+        0.698132
+      ],
+      "core_limit_status": "enforced"
+    },
+    {
+      "name": "knee_angle_translation2_l",
+      "q_index": 118,
+      "initial": -7.69253966081962e-11,
+      "terminal": -1.1082926243410895e-10,
+      "source_range": [
+        -0.006792,
+        -7.69254e-11
+      ],
+      "core_limit_status": "retained_in_manifest_not_enforced_at_source_default"
+    },
+    {
+      "name": "knee_angle_translation1_l",
+      "q_index": 119,
+      "initial": 9.537330214470785e-08,
+      "terminal": 9.53913428247688e-08,
+      "source_range": [
+        9.53733e-08,
+        0.00159883
+      ],
+      "core_limit_status": "retained_in_manifest_not_enforced_at_source_default"
+    },
+    {
+      "name": "knee_angle_l",
+      "q_index": 120,
+      "initial": 0,
+      "terminal": 5.766247479499498e-09,
+      "source_range": [
+        0.0,
+        2.0944
+      ],
+      "core_limit_status": "enforced"
+    },
+    {
+      "name": "knee_angle_rotation2_l",
+      "q_index": 121,
+      "initial": -1.4732499664660281e-08,
+      "terminal": -1.4276389848077997e-08,
+      "source_range": [
+        -0.00167821,
+        0.0335354
+      ],
+      "core_limit_status": "enforced"
+    },
+    {
+      "name": "knee_angle_rotation3_l",
+      "q_index": 122,
+      "initial": -1.0893900004305124e-08,
+      "terminal": -1.3024522793614324e-08,
+      "source_range": [
+        -0.262788,
+        0.262788
+      ],
+      "core_limit_status": "enforced"
+    },
+    {
+      "name": "ankle_angle_l",
+      "q_index": 123,
+      "initial": 0,
+      "terminal": -0.016774993389844894,
+      "source_range": [
+        -0.698132,
+        0.523599
+      ],
+      "core_limit_status": "enforced"
+    },
+    {
+      "name": "subtalar_angle_l",
+      "q_index": 124,
+      "initial": 0,
+      "terminal": -0.14177937805652618,
+      "source_range": [
+        -0.349066,
+        0.349066
+      ],
+      "core_limit_status": "enforced"
+    },
+    {
+      "name": "mtp_angle_l",
+      "q_index": 125,
+      "initial": 0,
+      "terminal": 0.5235990285873413,
+      "source_range": [
+        -0.523599,
+        0.523599
+      ],
+      "core_limit_status": "enforced"
+    },
+    {
+      "name": "knee_angle_beta_translation2_l",
+      "q_index": 126,
+      "initial": 0,
+      "terminal": -2.813046462435409e-10,
+      "source_range": [
+        -0.03,
+        0.0
+      ],
+      "core_limit_status": "enforced"
+    },
+    {
+      "name": "knee_angle_beta_translation1_l",
+      "q_index": 127,
+      "initial": 0,
+      "terminal": -8.660212130751077e-11,
+      "source_range": [
+        -0.0751923,
+        0.0
+      ],
+      "core_limit_status": "enforced"
+    },
+    {
+      "name": "knee_angle_beta_rotation1_l",
+      "q_index": 128,
+      "initial": 0.010506000369787216,
+      "terminal": 0.010506000369787216,
+      "source_range": [
+        -1.79241,
+        0.010506
+      ],
+      "core_limit_status": "enforced"
+    }
+  ],
+  "bed_normal_reaction_windows": [
+    {
+      "time_window_s": [
+        0,
+        10
+      ],
+      "sample_count": 156,
+      "min_n": 661.381840705,
+      "mean_n": 706.0705862748717,
+      "max_n": 754.7554373749999,
+      "reference_weight_n": 706.32,
+      "meaning": "Sampled final-step total normal impulse divided by timestep, not a full-horizon impulse integral or tangential force balance."
+    },
+    {
+      "time_window_s": [
+        10,
+        40
+      ],
+      "sample_count": 468,
+      "min_n": 702.54200697,
+      "mean_n": 706.3256526350214,
+      "max_n": 710.21223068,
+      "reference_weight_n": 706.32,
+      "meaning": "Sampled final-step total normal impulse divided by timestep, not a full-horizon impulse integral or tangential force balance."
+    },
+    {
+      "time_window_s": [
+        140,
+        170
+      ],
+      "sample_count": 469,
+      "min_n": 686.943769455,
+      "mean_n": 706.257207053049,
+      "max_n": 711.52114868,
+      "reference_weight_n": 706.32,
+      "meaning": "Sampled final-step total normal impulse divided by timestep, not a full-horizon impulse integral or tangential force balance."
+    },
+    {
+      "time_window_s": [
+        290,
+        320
+      ],
+      "sample_count": 468,
+      "min_n": 686.07622385,
+      "mean_n": 706.5176050633547,
+      "max_n": 730.289936065,
+      "reference_weight_n": 706.32,
+      "meaning": "Sampled final-step total normal impulse divided by timestep, not a full-horizon impulse integral or tangential force balance."
+    }
+  ]
+}
