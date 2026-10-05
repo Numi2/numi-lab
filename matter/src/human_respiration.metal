@@ -193,6 +193,28 @@ kernel void nm_human_resting_audit_skin(
     if(lane==0)result[d.w]=float4(minimum[0],float(owner[0]),float(below[0]),float(invalid[0]));
 }
 
+// Presentation-only reduction of the same committed body poses used by the
+// anatomy renderer. No extra body readback, alternate integrator, or state
+// history; this compact trace distinguishes postural settling from COM drift.
+kernel void nm_human_resting_audit_body(
+    constant uint4& d [[buffer(0)]],device const MRBodyStateGPU* bodies [[buffer(1)]],
+    device float4* result [[buffer(2)]],uint i [[thread_position_in_grid]]) {
+    if(i)return;
+    float4 sum=0,compensation=0;
+    for(uint b=0;b<d.x;++b) {
+        const auto body=bodies[b];
+        const float inverseMass=body.linearVelocityAndInverseMass.w;
+        if(inverseMass==0.0f)continue; // Source massless articulated links.
+        if(!isfinite(inverseMass)||inverseMass<0||!all(isfinite(body.position.xyz))) {
+            result[d.y]=float4(NAN);return;
+        }
+        const float mass=1.0f/inverseMass;
+        const float4 term=float4(body.position.xyz*mass,mass)-compensation;
+        const float4 next=sum+term;compensation=(next-sum)-term;sum=next;
+    }
+    result[d.y]=float4(sum.xyz/sum.w,sum.w);
+}
+
 kernel void nm_human_resting_prepare_world(
     constant uint4& d [[buffer(0)]], device const MRNumiHumanStandStatusGPU* body [[buffer(1)]],
     device MRMetalWorldStatusGPU* world [[buffer(2)]], uint i [[thread_position_in_grid]]) {

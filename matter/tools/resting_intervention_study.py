@@ -635,6 +635,8 @@ def native_surface_trace_consistency(trace: Path, steps: int, dt: float) -> dict
     if expected_steps[-1] != steps - 1:
         expected_steps.append(steps - 1)
     minimum_gap, maximum_volume_error, count = math.inf, 0.0, 0
+    body_columns = {"body_com_x_m", "body_com_y_m", "body_com_z_m", "represented_body_mass_kg"}
+    body_first, body_last, body_mass = None, None, None
     with trace.open(newline="") as stream:
         reader = csv.DictReader(stream)
         required = {"step", "time_s", "min_skin_bed_gap_m", "vertices_below_1mm", "nonfinite_skin_vertices",
@@ -643,6 +645,9 @@ def native_surface_trace_consistency(trace: Path, steps: int, dt: float) -> dict
                     "la_target_ml", "lv_target_ml", "lung_target_ml"}
         if not required.issubset(reader.fieldnames or []):
             raise ValueError("native surface trace lacks same-frame geometry target columns")
+        present_body_columns = body_columns.intersection(reader.fieldnames or [])
+        if present_body_columns and present_body_columns != body_columns:
+            raise ValueError("native surface trace has an incomplete body mass/COM diagnostic")
         for row in reader:
             step = int(row["step"])
             if count >= len(expected_steps) or step != expected_steps[count]:
@@ -661,14 +666,28 @@ def native_surface_trace_consistency(trace: Path, steps: int, dt: float) -> dict
             for key in ("ra_target_ml", "rv_target_ml", "la_target_ml", "lv_target_ml", "lung_target_ml"):
                 if finite_float(row[key], key) <= 0:
                     raise ValueError("native surface trace contains a nonpositive functional volume")
+            if present_body_columns:
+                center = [finite_float(row[f"body_com_{axis}_m"], f"body_com_{axis}_m") for axis in "xyz"]
+                mass = finite_float(row["represented_body_mass_kg"], "represented_body_mass_kg")
+                if mass <= 0 or (body_mass is not None and abs(mass - body_mass) > 1e-5):
+                    raise ValueError("native surface trace body mass is nonpositive or changes")
+                if body_first is None:
+                    body_first, body_mass = center, mass
+                body_last = center
             minimum_gap = min(minimum_gap, gap)
             maximum_volume_error = max(maximum_volume_error, error)
             count += 1
     if count != len(expected_steps):
         raise ValueError("native surface trace does not reach the final displayed accepted state")
-    return {"displayed_accepted_frames": count, "minimum_full_skin_bed_gap_m": minimum_gap,
+    result = {"displayed_accepted_frames": count, "minimum_full_skin_bed_gap_m": minimum_gap,
             "maximum_rendered_functional_volume_relative_error": maximum_volume_error,
             "displayed_state_lag_steps": 1, "whole_body_interfaces_qualified": False}
+    if body_first is not None:
+        result["body_center_of_mass"] = {"first_m": body_first, "last_m": body_last,
+            "displacement_m": [last - first for first, last in zip(body_first, body_last)],
+            "represented_mass_kg": body_mass,
+            "qualification": "diagnostic displacement; stationary rest and drift are not inferred from endpoints"}
+    return result
 
 
 def execute_native_scene_arm(args: argparse.Namespace) -> dict[str, Any]:

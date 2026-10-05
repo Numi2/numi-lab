@@ -1,0 +1,27 @@
+{
+  "displayed_accepted_frames": 95,
+  "minimum_full_skin_bed_gap_m": -0.000110551714897,
+  "maximum_rendered_functional_volume_relative_error": 1.09402515136e-06,
+  "displayed_state_lag_steps": 1,
+  "whole_body_interfaces_qualified": false,
+  "body_center_of_mass": {
+    "first_m": [
+      -0.0250191260129,
+      -0.756986141205,
+      0.115114875138
+    ],
+    "last_m": [
+      -0.0279192849994,
+      -0.75521504879,
+      0.0998658537865
+    ],
+    "displacement_m": [
+      -0.0029001589864999996,
+      0.001771092414999953,
+      -0.015249021351500011
+    ],
+    "represented_mass_kg": 72.0,
+    "qualification": "diagnostic displacement; stationary rest and drift are not inferred from endpoints"
+  },
+  "parser_sha256": "8cb9151b47976b2bcc290722fdfbb194b3598528f9eec52d17445baab7809113"
+}

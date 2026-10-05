@@ -13,7 +13,7 @@ class NumiHumanRestingVisual {
     std::unique_ptr<metalrobo::MetalHybridRenderer> renderer;
     metalrobo::MetalWorldFamilyContext worlds;
     id<MTLBuffer> mapping, influences, anatomyParameters, surfaceAudits, volumeResults, instanceLayers, cardiacQ;
-    id<MTLComputePipelineState> skinPipeline, layerPipeline, volumePipeline, skinAuditPipeline, cardiacQPipeline;
+    id<MTLComputePipelineState> skinPipeline, layerPipeline, volumePipeline, skinAuditPipeline, cardiacQPipeline, bodyAuditPipeline;
     id<MTLComputePipelineState> vertexCapturePipeline=nil;
     id<MTLBuffer> vertexCaptureBuffer=nil;
     id<MTLCommandQueue> queue;
@@ -175,7 +175,7 @@ public:
         requestedGeometrySteps=geometryExportStepsFromEnvironment();
         require(requestedGeometrySteps.empty()||presentWindow,
             "accepted MRVPack export requires the native viewer path");
-        surfaceTrace<<"time_s,step,min_skin_bed_gap_m,vertices_below_1mm,nonfinite_skin_vertices,max_functional_volume_relative_error,q_ra,q_rv,q_la,q_lv,ra_target_ml,rv_target_ml,la_target_ml,lv_target_ml,diaphragm_swept_ml,rib_swept_ml,lung_target_ml\n";
+        surfaceTrace<<"time_s,step,min_skin_bed_gap_m,vertices_below_1mm,nonfinite_skin_vertices,max_functional_volume_relative_error,q_ra,q_rv,q_la,q_lv,ra_target_ml,rv_target_ml,la_target_ml,lv_target_ml,diaphragm_swept_ml,rib_swept_ml,lung_target_ml,body_com_x_m,body_com_y_m,body_com_z_m,represented_body_mass_kg\n";
         require(initialBodies.size()*sizeof(MRBodyStateGPU)==coupled.presentationBodies.length,
             "initial native frame does not match the body owner");
         std::memcpy(coupled.presentationBodies.contents,initialBodies.data(),coupled.presentationBodies.length);
@@ -548,7 +548,7 @@ public:
         anatomyParameters=[device newBufferWithBytes:&anatomyGPU length:sizeof(anatomyGPU) options:MTLResourceStorageModeShared];
         auditCount=unsigned(audits.size());require(auditCount==9,"functional anatomy volume audit did not bind all nine surfaces");
         surfaceAudits=[device newBufferWithBytes:audits.data() length:audits.size()*sizeof(audits.front()) options:MTLResourceStorageModeShared];
-        volumeResults=[device newBufferWithLength:(auditCount+1)*sizeof(mr_float4) options:MTLResourceStorageModeShared];
+        volumeResults=[device newBufferWithLength:(auditCount+2)*sizeof(mr_float4) options:MTLResourceStorageModeShared];
         cardiacQ=[device newBufferWithLength:4*sizeof(float) options:MTLResourceStorageModeShared];
         instanceLayers=[device newBufferWithBytes:visibleLayers.data() length:visibleLayers.size()*sizeof(unsigned) options:MTLResourceStorageModeShared];
         NSError* e=nil;auto lib=[device newLibraryWithURL:[NSURL fileURLWithPath:@(NUMI_HUMAN_RESPIRATION_METALLIB)] error:&e];
@@ -599,12 +599,13 @@ public:
         layerPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_layers"] error:&e];
         volumePipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_audit_volumes"] error:&e];
         skinAuditPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_audit_skin"] error:&e];
+        bodyAuditPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_audit_body"] error:&e];
         if(!requestedGeometrySteps.empty()) {
             vertexCapturePipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_capture_vertices"] error:&e];
             vertexCaptureBuffer=[device newBufferWithLength:maps.size()*sizeof(MRVisualVertexGPUV2) options:MTLResourceStorageModeShared];
             vertexCaptureBuffer.label=@"Numi Human selected accepted render vertices";
         }
-        require(mapping&&influences&&anatomyParameters&&surfaceAudits&&volumeResults&&instanceLayers&&cardiacQ&&skinPipeline&&cardiacQPipeline&&layerPipeline&&volumePipeline&&skinAuditPipeline,"resting GPU anatomy setup failed");
+        require(mapping&&influences&&anatomyParameters&&surfaceAudits&&volumeResults&&instanceLayers&&cardiacQ&&skinPipeline&&cardiacQPipeline&&layerPipeline&&volumePipeline&&skinAuditPipeline&&bodyAuditPipeline,"resting GPU anatomy setup failed");
         require(requestedGeometrySteps.empty()||(vertexCapturePipeline&&vertexCaptureBuffer),
             "selected accepted geometry capture resources could not be created");
         if(!presentWindow)return;
@@ -636,6 +637,11 @@ public:
         e.setPipeline(e.context,(__bridge void*)self.skinAuditPipeline);e.setBytes(e.context,&d,sizeof(d),0);
         e.setBuffer(e.context,(__bridge void*)self.mapping,0,1);e.setBuffer(e.context,lease.meshVertices,0,2);
         e.setBuffer(e.context,(__bridge void*)self.volumeResults,0,3);e.dispatchThreads(e.context,256,256);
+        const mr_uint4 bodyAuditDimensions={unsigned(self.coupled.presentationBodies.length/sizeof(MRBodyStateGPU)),self.auditCount+1,0,0};
+        e.setPipeline(e.context,(__bridge void*)self.bodyAuditPipeline);
+        e.setBytes(e.context,&bodyAuditDimensions,sizeof(bodyAuditDimensions),0);
+        e.setBuffer(e.context,(__bridge void*)self.coupled.presentationBodies,0,1);
+        e.setBuffer(e.context,(__bridge void*)self.volumeResults,0,2);e.dispatchThreads(e.context,1,1);
         e.setPipeline(e.context,(__bridge void*)self.layerPipeline);e.setBytes(e.context,&d,sizeof(d),0);
         e.setBuffer(e.context,lease.meshInstances,0,1);e.setBuffer(e.context,(__bridge void*)self.instanceLayers,0,2);
         e.dispatchThreads(e.context,lease.meshInstanceCount,64);
@@ -691,10 +697,14 @@ public:
         const auto* cardiacCoordinates=static_cast<const float*>(cardiacQ.contents);
         float maxRelativeError=0;for(unsigned i=0;i<auditCount;++i)maxRelativeError=std::max(maxRelativeError,volumes[i].z);
         const auto skinAudit=volumes[auditCount];
+        const auto bodyAudit=volumes[auditCount+1];
+        require(std::isfinite(bodyAudit.x)&&std::isfinite(bodyAudit.y)&&std::isfinite(bodyAudit.z)&&
+            std::isfinite(bodyAudit.w)&&bodyAudit.w>0,"accepted body mass/center-of-mass diagnostic is invalid");
         surfaceTrace<<std::setprecision(12)<<time<<','<<p.status.x<<','<<skinAudit.x<<','<<skinAudit.z<<','<<skinAudit.w<<','<<maxRelativeError
             <<','<<cardiacCoordinates[0]<<','<<cardiacCoordinates[1]<<','<<cardiacCoordinates[2]<<','<<cardiacCoordinates[3]
             <<','<<p.chamberVolumes.x*1e6<<','<<p.chamberVolumes.y*1e6<<','<<p.chamberVolumes.z*1e6<<','<<p.chamberVolumes.w*1e6
-            <<','<<p.motion.x*1e6<<','<<p.motion.y*1e6<<','<<p.mechanics.x*1e6<<'\n';
+            <<','<<p.motion.x*1e6<<','<<p.motion.y*1e6<<','<<p.mechanics.x*1e6
+            <<','<<bodyAudit.x<<','<<bodyAudit.y<<','<<bodyAudit.z<<','<<bodyAudit.w<<'\n';
         surfaceTrace.flush();
         for(unsigned i=0;i<auditCount;++i)require(volumes[i].w==0,"accepted anatomical mesh volume disagrees with its functional owner");
         require(skinAudit.w==0&&skinAudit.z==0,"accepted full skin intersects the bed beyond the 1 mm inspection tolerance");

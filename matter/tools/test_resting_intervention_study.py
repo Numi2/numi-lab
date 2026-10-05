@@ -189,6 +189,29 @@ class NativeSceneBindingTests(unittest.TestCase):
 
 
 class NativeSurfaceTraceTests(unittest.TestCase):
+    def test_body_observation_rejects_incomplete_nonfinite_or_changing_mass(self):
+        columns = ("step,time_s,min_skin_bed_gap_m,vertices_below_1mm,nonfinite_skin_vertices,"
+                   "max_functional_volume_relative_error,q_ra,q_rv,q_la,q_lv,ra_target_ml,rv_target_ml,"
+                   "la_target_ml,lv_target_ml,diaphragm_swept_ml,rib_swept_ml,lung_target_ml,"
+                   "body_com_x_m,body_com_y_m,body_com_z_m,represented_body_mass_kg\n")
+        rows = [f"{step},{step*.002},0,0,0,0,0,0,0,0,40,120,50,120,0,0,2500,{x},-.7,.1,72\n"
+                for step, x in ((0, 0), (31, .01), (63, .02))]
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "surfaces.csv"
+            path.write_text(columns + ''.join(rows))
+            body = adapter.native_surface_trace_consistency(path, 64, .002)['body_center_of_mass']
+            self.assertEqual(body['represented_mass_kg'], 72)
+            self.assertEqual(body['displacement_m'], [.02, 0, 0])
+            for header, invalid in (
+                (columns.replace('body_com_x_m', 'missing_com_x'), rows),
+                (columns, [rows[0], rows[1].replace(',0.01,', ',nan,'), rows[2]]),
+                (columns, [rows[0], rows[1].replace(',72\n', ',73\n'), rows[2]]),
+                (columns, [row.replace(',72\n', ',0\n') for row in rows]),
+            ):
+                path.write_text(header + ''.join(invalid))
+                with self.assertRaises(ValueError):
+                    adapter.native_surface_trace_consistency(path, 64, .002)
+
     def test_displayed_clock_and_intermediate_invalid_geometry_are_not_hidden(self):
         columns = ("step,time_s,min_skin_bed_gap_m,vertices_below_1mm,nonfinite_skin_vertices,"
                    "max_functional_volume_relative_error,q_ra,q_rv,q_la,q_lv,ra_target_ml,rv_target_ml,"

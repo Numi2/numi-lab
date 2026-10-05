@@ -1,0 +1,52 @@
+[
+  {
+    "path": "/Users/n/numi-human-resting-evidence-20261005/body-observation-native-001/native-viewer.mov",
+    "bytes": 1155648,
+    "sha256": "5a0fabe38af21e0cda2d3d154265fad072444f3bc81f01b16ae07f92d1b2e2ec"
+  },
+  {
+    "path": "/Users/n/numi-human-resting-evidence-20261005/body-observation-native-001/resting-human.mrvpack",
+    "bytes": 197165056,
+    "sha256": "d13c266f251c3e1208d97760f086c7e0a8064a09682733a37c46de136abcef82"
+  },
+  {
+    "path": "/Users/n/numi-human-resting-evidence-20261005/body-observation-native-001/accepted-geometry/step-0.mrvpack",
+    "bytes": 197165056,
+    "sha256": "352ee485cac72f80a560846080b45ce9bafe4e4729b92e0fda29b8f9bc0902fd"
+  },
+  {
+    "path": "/Users/n/numi-human-resting-evidence-20261005/body-observation-native-001/accepted-geometry/step-0.receipt.json",
+    "bytes": 10312,
+    "sha256": "29b6b006b984fb3625f32854b92f5aad28c4c84238ac50c1adc7f3d41cd3b79e"
+  },
+  {
+    "path": "/Users/n/numi-human-resting-evidence-20261005/body-observation-native-001/accepted-geometry/step-2783.mrvpack",
+    "bytes": 197165056,
+    "sha256": "745d8efc3830534990d693907491655f54f7061d2dcac83e74ac03117bb024ee"
+  },
+  {
+    "path": "/Users/n/numi-human-resting-evidence-20261005/body-observation-native-001/accepted-geometry/step-2783.receipt.json",
+    "bytes": 10338,
+    "sha256": "8bb5d2622a9069350d9efcec5e3ac4862b4eb988d66b2093ed44171499c3f09f"
+  },
+  {
+    "path": "/Users/n/numi-human-resting-evidence-20261005/body-observation-native-001/accepted-geometry/step-2999.mrvpack",
+    "bytes": 197165056,
+    "sha256": "8b8f1e0997a1650e0bdde7bfbfc699e3c3bd83b922c0bb42e785972a59d0a233"
+  },
+  {
+    "path": "/Users/n/numi-human-resting-evidence-20261005/body-observation-native-001/accepted-geometry/step-2999.receipt.json",
+    "bytes": 10341,
+    "sha256": "fe1a384b8472cf88b0b93417b5477c807e001f52b62deb36fe5cb8f7ca456cee"
+  },
+  {
+    "path": "/Users/n/numi-human-resting-evidence-20261005/body-observation-native-001/accepted-geometry/step-639.mrvpack",
+    "bytes": 197165056,
+    "sha256": "9d8388dd7ff6c5332ccd83617c1a6d6da144854bf63d25d62f97b69885e67a25"
+  },
+  {
+    "path": "/Users/n/numi-human-resting-evidence-20261005/body-observation-native-001/accepted-geometry/step-639.receipt.json",
+    "bytes": 10336,
+    "sha256": "f658e3b0a0729f131def85dec232d88e629590ac313b7e477e9351f80d4bb3fe"
+  }
+]
