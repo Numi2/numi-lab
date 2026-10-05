@@ -26,7 +26,7 @@ public:
         const std::filesystem::path& output,unsigned size,const std::string& movie,bool presentWindow=true):
         coupled(owner),dimension(size),surfaceTrace(output/"resting-surface-audit.csv") {
         require(surfaceTrace.good(),"resting surface audit output unavailable");
-        surfaceTrace<<"time_s,step,min_skin_bed_gap_m,vertices_below_1mm,nonfinite_skin_vertices,max_functional_volume_relative_error,q_ra,q_rv,q_la,q_lv\n";
+        surfaceTrace<<"time_s,step,min_skin_bed_gap_m,vertices_below_1mm,nonfinite_skin_vertices,max_functional_volume_relative_error,q_ra,q_rv,q_la,q_lv,ra_target_ml,rv_target_ml,la_target_ml,lv_target_ml,diaphragm_swept_ml,rib_swept_ml,lung_target_ml\n";
         require(initialBodies.size()*sizeof(MRBodyStateGPU)==coupled.presentationBodies.length,
             "initial native frame does not match the body owner");
         std::memcpy(coupled.presentationBodies.contents,initialBodies.data(),coupled.presentationBodies.length);
@@ -439,7 +439,9 @@ public:
         float maxRelativeError=0;for(unsigned i=0;i<auditCount;++i)maxRelativeError=std::max(maxRelativeError,volumes[i].z);
         const auto skinAudit=volumes[auditCount];
         surfaceTrace<<std::setprecision(12)<<time<<','<<p.status.x<<','<<skinAudit.x<<','<<skinAudit.z<<','<<skinAudit.w<<','<<maxRelativeError
-            <<','<<cardiacCoordinates[0]<<','<<cardiacCoordinates[1]<<','<<cardiacCoordinates[2]<<','<<cardiacCoordinates[3]<<'\n';
+            <<','<<cardiacCoordinates[0]<<','<<cardiacCoordinates[1]<<','<<cardiacCoordinates[2]<<','<<cardiacCoordinates[3]
+            <<','<<p.chamberVolumes.x*1e6<<','<<p.chamberVolumes.y*1e6<<','<<p.chamberVolumes.z*1e6<<','<<p.chamberVolumes.w*1e6
+            <<','<<p.motion.x*1e6<<','<<p.motion.y*1e6<<','<<p.mechanics.x*1e6<<'\n';
         surfaceTrace.flush();
         for(unsigned i=0;i<auditCount;++i)require(volumes[i].w==0,"accepted anatomical mesh volume disagrees with its functional owner");
         require(skinAudit.w==0&&skinAudit.z==0,"accepted full skin intersects the bed beyond the 1 mm inspection tolerance");

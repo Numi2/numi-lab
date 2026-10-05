@@ -1,0 +1,18 @@
+{
+  "scope": "Same accepted-state geometry/physiology observation binding, not geometry embeddedness or endurance qualification",
+  "frames": 95,
+  "new_fields": [
+    "ra_target_ml",
+    "rv_target_ml",
+    "la_target_ml",
+    "lv_target_ml",
+    "diaphragm_swept_ml",
+    "rib_swept_ml",
+    "lung_target_ml"
+  ],
+  "max_lung_vs_FRC_plus_swept_volume_error_ml": 0.0002887050002016167,
+  "max_frame_time_error_s": 2.8488999959108696e-07,
+  "max_functional_volume_relative_error": 1.00233398825e-06,
+  "trace_sha256": "2bc2c9a953e9dadada211f0398750e757c6dca679b3618d39363350f563ff4c2",
+  "native_summary": "resting_integrated_body=completed simulated_s=6.0000002849847078 wall_s=63.148749500000001 real_time_factor=0.0950137624654738 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+}
