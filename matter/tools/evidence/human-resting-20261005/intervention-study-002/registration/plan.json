@@ -1,0 +1,360 @@
+{
+  "artifacts": [
+    "/Users/n/numi-human-resting-study-source-20261005/matter/tools/resting_intervention_study.py",
+    "/Users/n/numi-human-resting-study-build-20261005/matter/numi-human-resting",
+    "/Users/n/numi-human-resting-evidence-20261005/intervention-study-002/frozen/numi-human-resting",
+    "/Users/n/numi-human-resting-study-build-20261005/matter/shaders/NumiMatter.metallib",
+    "/Users/n/numi-human-resting-evidence-20261005/intervention-study-002/frozen/shaders/NumiMatter.metallib",
+    "/Users/n/numi-human-resting-study-build-20261005/matter/shaders/HumanRespiration.metallib",
+    "/Users/n/numi-human-resting-evidence-20261005/intervention-study-002/frozen/shaders/HumanRespiration.metallib",
+    "/Users/n/numi-human-resting-evidence-20261005/intervention-study-002/frozen/inputs/cvsim21.native.v3.json",
+    "/Users/n/numi-human-resting-evidence-20261005/intervention-study-002/frozen/inputs/resting-reference-respiration.json",
+    "/Users/n/numi-human-resting-evidence-20261005/dense45-pair-004/fgmres-6s.csv",
+    "/Users/n/numi-human-resting-evidence-20261005/intervention-study-002/build-receipt.json",
+    "/Users/n/numi-human-resting-evidence-20261005/intervention-study-002/registration-final/frozen-build-identity.json",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/CMakeLists.txt",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/src/matter_kernels.metal",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/src/runtime.mm",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/src/human_physiology.mm",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/src/metal_world.cpp",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/src/numi_human.mm",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/src/metal/common.metalinc",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/src/metal/mpm.metalinc",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/src/metal/fem.metalinc",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/src/metal/fgmres.metalinc",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/src/metal/vascular.metalinc",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/src/metal/human_equality.metalinc",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/src/metal/human_limits.metalinc",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/src/metal/mixed_fem.metalinc",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/src/metal/topology_mutation.metalinc",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/src/metal/contact.metalinc",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/src/metal/adaptive.metalinc",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/src/metal/identification_scheduler.metalinc",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/src/metal/numi_human.metalinc",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/src/metal/accepted_state_proof.metalinc",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/include/numi/matter/matter.hpp",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/include/numi/matter/shared.h",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/include/numi/matter/accepted_state_proof_gpu.h",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/include/numi/matter/fiber_exp_linear.h",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/include/numi/matter/human_equality_gpu.h",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/include/numi/matter/human_limits_gpu.h",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/include/numi/matter/human_support_precision_gpu.h",
+    "/Users/n/numi-human-resting-study-source-20261005/include/metalrobo/engine_types.h",
+    "/Users/n/numi-human-resting-study-source-20261005/include/metalrobo/compensated_translation_gpu.h",
+    "/Users/n/numi-human-resting-study-source-20261005/include/metalrobo/compensated_geometry_gpu.h",
+    "/Users/n/numi-human-resting-study-source-20261005/include/metalrobo/rod_gpu_shared.h",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/tools/human_resting.mm",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/tools/human_resting_runtime.hpp",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/tools/human_respiration_parameters.hpp",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/include/numi/matter/human_respiration.h",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/src/human_respiration.metal",
+    "/Users/n/numi-human-resting-study-source-20261005/src/metal/MujocoMuscleReference.metal",
+    "/Users/n/numi-human-resting-study-source-20261005/include/metalrobo/mujoco_muscle_gpu.h",
+    "/Users/n/numi-human-resting-study-source-20261005/include/metalrobo/numi_human_stand_gpu.h",
+    "/Users/n/numi-human-resting-study-source-20261005/include/metalrobo/numi_human_resting_visual_gpu.h",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/tools/fixtures/cvsim21.native.v3.json",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/examples/resting-reference-respiration.json",
+    "/Users/n/numi-human-resting-brain-20261005/Sources/NumiBrainABI/include/NumiBrainRespiratoryChemoreflexV1.h",
+    "/Users/n/numi-human-resting-brain-20261005/Sources/NumiBrainMetal/Shaders/RespiratoryChemoreflexV1.metal",
+    "/Users/n/numi-human-resting-evidence-20261005/intervention-study-002/registration-final/model.json",
+    "/Users/n/numi-human-resting-evidence-20261005/intervention-study-002/registration-final/calibration.json"
+  ],
+  "backend": "Apple Metal on Apple M4 Pro; existing Matter CVSim21 plus coupled respiration and NumiBrain chemoreflex",
+  "design": {
+    "allocation": "One exploratory pair, control then treatment, one run per arm; no retries or exclusion; all reads are from native accepted traces.",
+    "controls": "Matched fresh process from the same deterministic resting reference initialization, same compiled native executable/libraries, network, physiology parameters, device and timing; scale remains 1.0 throughout control.",
+    "dose_window_s": [
+      30.0,
+      35.0
+    ],
+    "experimental_unit": "One deterministic accepted-state initialization and fixed source/configuration identity; the paired arms are trajectories from the same initial state, not independent people or independent ticks.",
+    "intervention": "Existing NumiBrain respiratory drive continues to sense and regulate; only its delivered diaphragm/intercostal excitation is multiplied by 0.5 on [15,35) s.",
+    "pre_dose_window_s": [
+      10.0,
+      15.0
+    ],
+    "recovery_window_s": [
+      55.0,
+      60.0
+    ],
+    "unit_paths": {
+      "unit_id": [
+        "unit_id"
+      ]
+    }
+  },
+  "evidence_level": "simulation",
+  "hypothesis": "For fixed resting CO2 production, the steady-state alveolar-ventilation relationship predicts a nonnegative PaCO2 change if effective alveolar ventilation under reduced drive remains at or below baseline. If it lies between one-half and all of baseline, the sensitivity envelope is 0 to +40 mmHg from a 40 mmHg baseline. This broad algebraic interval is not a probability interval or clinical prediction; closed-loop finite-time behavior is measured rather than assumed.",
+  "instrument": {
+    "artifacts": [
+      "/Users/n/numi-human-resting-study-source-20261005/matter/tools/resting_intervention_study.py",
+      "/Users/n/numi-human-resting-study-build-20261005/matter/numi-human-resting",
+      "/Users/n/numi-human-resting-evidence-20261005/intervention-study-002/frozen/numi-human-resting",
+      "/Users/n/numi-human-resting-study-build-20261005/matter/shaders/NumiMatter.metallib",
+      "/Users/n/numi-human-resting-evidence-20261005/intervention-study-002/frozen/shaders/NumiMatter.metallib",
+      "/Users/n/numi-human-resting-study-build-20261005/matter/shaders/HumanRespiration.metallib",
+      "/Users/n/numi-human-resting-evidence-20261005/intervention-study-002/frozen/shaders/HumanRespiration.metallib",
+      "/Users/n/numi-human-resting-evidence-20261005/intervention-study-002/frozen/inputs/cvsim21.native.v3.json",
+      "/Users/n/numi-human-resting-evidence-20261005/intervention-study-002/frozen/inputs/resting-reference-respiration.json",
+      "/Users/n/numi-human-resting-evidence-20261005/dense45-pair-004/fgmres-6s.csv",
+      "/Users/n/numi-human-resting-evidence-20261005/intervention-study-002/build-receipt.json",
+      "/Users/n/numi-human-resting-evidence-20261005/intervention-study-002/registration-final/frozen-build-identity.json",
+      "/Users/n/numi-human-resting-study-source-20261005/matter/CMakeLists.txt",
+      "/Users/n/numi-human-resting-study-source-20261005/matter/src/matter_kernels.metal",
+      "/Users/n/numi-human-resting-study-source-20261005/matter/src/runtime.mm",
+      "/Users/n/numi-human-resting-study-source-20261005/matter/src/human_physiology.mm",
+      "/Users/n/numi-human-resting-study-source-20261005/matter/src/metal_world.cpp",
+      "/Users/n/numi-human-resting-study-source-20261005/matter/src/numi_human.mm",
+      "/Users/n/numi-human-resting-study-source-20261005/matter/src/metal/common.metalinc",
+      "/Users/n/numi-human-resting-study-source-20261005/matter/src/metal/mpm.metalinc",
+      "/Users/n/numi-human-resting-study-source-20261005/matter/src/metal/fem.metalinc",
+      "/Users/n/numi-human-resting-study-source-20261005/matter/src/metal/fgmres.metalinc",
+      "/Users/n/numi-human-resting-study-source-20261005/matter/src/metal/vascular.metalinc",
+      "/Users/n/numi-human-resting-study-source-20261005/matter/src/metal/human_equality.metalinc",
+      "/Users/n/numi-human-resting-study-source-20261005/matter/src/metal/human_limits.metalinc",
+      "/Users/n/numi-human-resting-study-source-20261005/matter/src/metal/mixed_fem.metalinc",
+      "/Users/n/numi-human-resting-study-source-20261005/matter/src/metal/topology_mutation.metalinc",
+      "/Users/n/numi-human-resting-study-source-20261005/matter/src/metal/contact.metalinc",
+      "/Users/n/numi-human-resting-study-source-20261005/matter/src/metal/adaptive.metalinc",
+      "/Users/n/numi-human-resting-study-source-20261005/matter/src/metal/identification_scheduler.metalinc",
+      "/Users/n/numi-human-resting-study-source-20261005/matter/src/metal/numi_human.metalinc",
+      "/Users/n/numi-human-resting-study-source-20261005/matter/src/metal/accepted_state_proof.metalinc",
+      "/Users/n/numi-human-resting-study-source-20261005/matter/include/numi/matter/matter.hpp",
+      "/Users/n/numi-human-resting-study-source-20261005/matter/include/numi/matter/shared.h",
+      "/Users/n/numi-human-resting-study-source-20261005/matter/include/numi/matter/accepted_state_proof_gpu.h",
+      "/Users/n/numi-human-resting-study-source-20261005/matter/include/numi/matter/fiber_exp_linear.h",
+      "/Users/n/numi-human-resting-study-source-20261005/matter/include/numi/matter/human_equality_gpu.h",
+      "/Users/n/numi-human-resting-study-source-20261005/matter/include/numi/matter/human_limits_gpu.h",
+      "/Users/n/numi-human-resting-study-source-20261005/matter/include/numi/matter/human_support_precision_gpu.h",
+      "/Users/n/numi-human-resting-study-source-20261005/include/metalrobo/engine_types.h",
+      "/Users/n/numi-human-resting-study-source-20261005/include/metalrobo/compensated_translation_gpu.h",
+      "/Users/n/numi-human-resting-study-source-20261005/include/metalrobo/compensated_geometry_gpu.h",
+      "/Users/n/numi-human-resting-study-source-20261005/include/metalrobo/rod_gpu_shared.h",
+      "/Users/n/numi-human-resting-study-source-20261005/matter/tools/human_resting.mm",
+      "/Users/n/numi-human-resting-study-source-20261005/matter/tools/human_resting_runtime.hpp",
+      "/Users/n/numi-human-resting-study-source-20261005/matter/tools/human_respiration_parameters.hpp",
+      "/Users/n/numi-human-resting-study-source-20261005/matter/include/numi/matter/human_respiration.h",
+      "/Users/n/numi-human-resting-study-source-20261005/matter/src/human_respiration.metal",
+      "/Users/n/numi-human-resting-study-source-20261005/src/metal/MujocoMuscleReference.metal",
+      "/Users/n/numi-human-resting-study-source-20261005/include/metalrobo/mujoco_muscle_gpu.h",
+      "/Users/n/numi-human-resting-study-source-20261005/include/metalrobo/numi_human_stand_gpu.h",
+      "/Users/n/numi-human-resting-study-source-20261005/include/metalrobo/numi_human_resting_visual_gpu.h",
+      "/Users/n/numi-human-resting-study-source-20261005/matter/tools/fixtures/cvsim21.native.v3.json",
+      "/Users/n/numi-human-resting-study-source-20261005/matter/examples/resting-reference-respiration.json",
+      "/Users/n/numi-human-resting-brain-20261005/Sources/NumiBrainABI/include/NumiBrainRespiratoryChemoreflexV1.h",
+      "/Users/n/numi-human-resting-brain-20261005/Sources/NumiBrainMetal/Shaders/RespiratoryChemoreflexV1.metal"
+    ],
+    "calibration": "/Users/n/numi-human-resting-evidence-20261005/intervention-study-002/registration-final/calibration.json",
+    "description": "Native accepted-state trace adapter: fixed 5 s PaCO2 windows; inspiratory minute ventilation integrated from accepted airflow; PaO2/SaO2 and late recovery diagnostics. Parser calibration is known-value/arithmetic only."
+  },
+  "limitations": "The primary effect is one deterministic paired difference-in-differences, not a sample/population estimate. Secondary ventilation, oxygenation, and recovery values are descriptive fields in each retained trial output. The alveolar ventilation equation supplies a steady-state sensitivity envelope; finite-time closed-loop behavior may differ. Parser calibration does not calibrate physiology or clinical measurement. The current runner explicitly reports no qualified whole-body anatomy/resting claim; this study does not establish anatomical mechanics or clinical validity.",
+  "model": {
+    "parameters": {
+      "assumption": "for the sensitivity envelope only, delivered drive scaling and closed-loop feedback leave effective alveolar ventilation in [0.5, 1.0] of baseline; the intervention result is measured from the accepted native state",
+      "baseline_PaCO2_mmhg": 40.0,
+      "maximum_effective_alveolar_ventilation_fraction": 1.0,
+      "minimum_effective_alveolar_ventilation_fraction": 0.5
+    },
+    "schema": "numi.human-resting-paco2-model.v1",
+    "scope": "One deterministic reduced-order simulation condition. Bounds are algebraic sensitivity to the declared ventilation range, not a statistical interval, calibration, physiological validation, or clinical claim.",
+    "statement": "For fixed resting CO2 production, the steady-state alveolar-ventilation relationship predicts a nonnegative PaCO2 change if effective alveolar ventilation under reduced drive remains at or below baseline. If it lies between one-half and all of baseline, the sensitivity envelope is 0 to +40 mmHg from a 40 mmHg baseline. This broad algebraic interval is not a probability interval or clinical prediction; closed-loop finite-time behavior is measured rather than assumed.",
+    "training_units": [],
+    "version": "alveolar-ventilation-envelope-v1"
+  },
+  "model_file": "/Users/n/numi-human-resting-evidence-20261005/intervention-study-002/registration-final/model.json",
+  "observable": {
+    "name": "paired difference-in-differences in PaCO2 from the 5 s pre-dose window to the last 5 s of the drive intervention",
+    "path": [
+      "primary_delta_PaCO2_mmhg"
+    ],
+    "unit": "mmHg"
+  },
+  "owner": "Numi Human/Matter coupled respiratory and circulation instrument",
+  "paired_equal": [
+    [
+      "unit_id"
+    ],
+    [
+      "device"
+    ],
+    [
+      "world_fingerprint"
+    ],
+    [
+      "timestep_s"
+    ],
+    [
+      "accepted_steps"
+    ],
+    [
+      "dense45"
+    ],
+    [
+      "brain_control"
+    ]
+  ],
+  "prediction": {
+    "estimand": "paired_difference_mean",
+    "maximum": 40.0,
+    "minimum": 0.0
+  },
+  "predictor": {
+    "argv": [
+      "/Applications/Xcode-26.6.0.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/bin/python3.9",
+      "/Users/n/numi-human-resting-study-source-20261005/matter/tools/resting_intervention_study.py",
+      "predict",
+      "--model",
+      "/Users/n/numi-human-resting-evidence-20261005/intervention-study-002/registration-final/model.json"
+    ],
+    "env": {},
+    "timeout_seconds": 30
+  },
+  "purpose": "exploration",
+  "question": "In the existing coupled reduced-order Matter/NumiBrain resting physiology instrument, does scaling delivered respiratory excitation to 0.5 on [15, 35) s reduce inspiratory ventilation and raise PaCO2, with PaO2 and same-state recovery diagnostics moving toward the unchanged baseline?",
+  "repository": "/Users/n/numi-human-resting-study-source-20261005",
+  "schema": "numi.science.plan.v2",
+  "trials": [
+    {
+      "argv": [
+        "/Applications/Xcode-26.6.0.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/bin/python3.9",
+        "/Users/n/numi-human-resting-study-source-20261005/matter/tools/resting_intervention_study.py",
+        "run",
+        "--runner",
+        "/Users/n/numi-human-resting-evidence-20261005/intervention-study-002/frozen/numi-human-resting",
+        "--network",
+        "/Users/n/numi-human-resting-evidence-20261005/intervention-study-002/frozen/inputs/cvsim21.native.v3.json",
+        "--parameters",
+        "/Users/n/numi-human-resting-evidence-20261005/intervention-study-002/frozen/inputs/resting-reference-respiration.json",
+        "--loaded-matter-metallib",
+        "/Users/n/numi-human-resting-study-build-20261005/matter/shaders/NumiMatter.metallib",
+        "--frozen-matter-metallib",
+        "/Users/n/numi-human-resting-evidence-20261005/intervention-study-002/frozen/shaders/NumiMatter.metallib",
+        "--loaded-respiration-metallib",
+        "/Users/n/numi-human-resting-study-build-20261005/matter/shaders/HumanRespiration.metallib",
+        "--frozen-respiration-metallib",
+        "/Users/n/numi-human-resting-evidence-20261005/intervention-study-002/frozen/shaders/HumanRespiration.metallib",
+        "--unit-id",
+        "resting-reference-initialization-v1-71709890b4404ad1a2b1",
+        "--world-fingerprint",
+        "11218263775426672239",
+        "--device",
+        "Apple M4 Pro",
+        "--steps",
+        "30000",
+        "--dt",
+        "0.002",
+        "--start-s",
+        "15.0",
+        "--end-s",
+        "35.0",
+        "--scale",
+        "0.5",
+        "--arm",
+        "control",
+        "--output",
+        "{run}/native.csv"
+      ],
+      "arm": "control",
+      "env": {},
+      "id": "reference-rest-baseline",
+      "pair": "reference-rest-v1",
+      "timeout_seconds": 86400,
+      "unit": {
+        "unit_id": "resting-reference-initialization-v1-71709890b4404ad1a2b1"
+      }
+    },
+    {
+      "argv": [
+        "/Applications/Xcode-26.6.0.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/bin/python3.9",
+        "/Users/n/numi-human-resting-study-source-20261005/matter/tools/resting_intervention_study.py",
+        "run",
+        "--runner",
+        "/Users/n/numi-human-resting-evidence-20261005/intervention-study-002/frozen/numi-human-resting",
+        "--network",
+        "/Users/n/numi-human-resting-evidence-20261005/intervention-study-002/frozen/inputs/cvsim21.native.v3.json",
+        "--parameters",
+        "/Users/n/numi-human-resting-evidence-20261005/intervention-study-002/frozen/inputs/resting-reference-respiration.json",
+        "--loaded-matter-metallib",
+        "/Users/n/numi-human-resting-study-build-20261005/matter/shaders/NumiMatter.metallib",
+        "--frozen-matter-metallib",
+        "/Users/n/numi-human-resting-evidence-20261005/intervention-study-002/frozen/shaders/NumiMatter.metallib",
+        "--loaded-respiration-metallib",
+        "/Users/n/numi-human-resting-study-build-20261005/matter/shaders/HumanRespiration.metallib",
+        "--frozen-respiration-metallib",
+        "/Users/n/numi-human-resting-evidence-20261005/intervention-study-002/frozen/shaders/HumanRespiration.metallib",
+        "--unit-id",
+        "resting-reference-initialization-v1-71709890b4404ad1a2b1",
+        "--world-fingerprint",
+        "11218263775426672239",
+        "--device",
+        "Apple M4 Pro",
+        "--steps",
+        "30000",
+        "--dt",
+        "0.002",
+        "--start-s",
+        "15.0",
+        "--end-s",
+        "35.0",
+        "--scale",
+        "0.5",
+        "--arm",
+        "treatment",
+        "--output",
+        "{run}/native.csv"
+      ],
+      "arm": "treatment",
+      "env": {},
+      "id": "reference-rest-drive-half",
+      "pair": "reference-rest-v1",
+      "timeout_seconds": 86400,
+      "unit": {
+        "unit_id": "resting-reference-initialization-v1-71709890b4404ad1a2b1"
+      }
+    }
+  ],
+  "validity": [
+    {
+      "equals": "numi.human-resting.intervention-observation.v1",
+      "path": [
+        "schema"
+      ]
+    },
+    {
+      "equals": 30000,
+      "path": [
+        "accepted_steps"
+      ]
+    },
+    {
+      "equals": 60.0,
+      "path": [
+        "nominal_duration_s"
+      ]
+    },
+    {
+      "equals": true,
+      "path": [
+        "duration_valid"
+      ]
+    },
+    {
+      "equals": true,
+      "path": [
+        "dense45"
+      ]
+    },
+    {
+      "equals": true,
+      "path": [
+        "brain_control"
+      ]
+    },
+    {
+      "equals": false,
+      "path": [
+        "whole_body_anatomy_qualified"
+      ]
+    }
+  ]
+}
