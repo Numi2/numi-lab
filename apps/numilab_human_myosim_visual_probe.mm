@@ -21958,6 +21958,9 @@ int main(int argc, char** argv) {
                     supportContactPayload.has_value()&&jointEqualityPayload.has_value()&&requestedRootPose.has_value()&&tendonPayloadPath.has_value()&&
                     !standRootAssistance&&!standRemoveAssistance&&!standBrainLibraryPath.has_value(),
                     "resting scene requires explicit supported root pose, native contact/equality/tendon payloads and bounded native steps");
+                // The accepted observer submits at most 32 steps and presents
+                // the matching pre-dynamics accepted pose (endpoint minus one).
+                NumiHumanRestingVisual::validateAcceptedGeometryExportCadence(*muscleStepCount,32u);
                 std::filesystem::create_directories(positional.back());
                 std::ofstream trace(std::filesystem::path(positional.back())/"resting-coupled.csv");
                 require(trace.good(),"resting trace path unavailable");

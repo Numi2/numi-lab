@@ -558,3 +558,14 @@ kernel void nm_human_respiration_resolve(
     if(env<d.environmentCount && statuses[env].code==NM_STATUS_SUCCESS && !candidate[env].status.w)
         accepted[env]=candidate[env];
 }
+
+// Selected accepted-render snapshots only. The caller allocates the shared
+// destination only when explicit physical step IDs were requested, then
+// dispatches this after deformation on the same command buffer.
+kernel void nm_human_resting_capture_vertices(
+    device const MRVisualVertexGPUV2* source [[buffer(0)]],
+    device MRVisualVertexGPUV2* destination [[buffer(1)]],
+    constant uint& vertexCount [[buffer(2)]],
+    uint i [[thread_position_in_grid]]) {
+    if(i<vertexCount)destination[i]=source[i];
+}

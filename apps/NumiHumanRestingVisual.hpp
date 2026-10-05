@@ -1,6 +1,10 @@
 #pragma once
 #include "NumiHumanRestingAnatomy.hpp"
 #include "NumiHumanRestingSupportGeometry.hpp"
+#include <charconv>
+#include <filesystem>
+#include <set>
+#include <string_view>
 // Included after the existing Human source loaders and visual-pack compiler.
 // It adds a persistent presentation consumer, not another dynamics owner.
 class NumiHumanRestingVisual {
@@ -10,22 +14,151 @@ class NumiHumanRestingVisual {
     metalrobo::MetalWorldFamilyContext worlds;
     id<MTLBuffer> mapping, influences, anatomyParameters, surfaceAudits, volumeResults, instanceLayers, cardiacQ;
     id<MTLComputePipelineState> skinPipeline, layerPipeline, volumePipeline, skinAuditPipeline, cardiacQPipeline;
+    id<MTLComputePipelineState> vertexCapturePipeline=nil;
+    id<MTLBuffer> vertexCaptureBuffer=nil;
     id<MTLCommandQueue> queue;
     NumiHumanRestingWindow* window=nil;
     unsigned dimension,layer=0;
     bool complete=false;
     unsigned auditCount=0;
     double wallOrigin=0;
+    std::filesystem::path initialPackPath, acceptedGeometryDirectory;
+    std::string initialPackContentHash, initialPackFileSHA256;
+    std::set<unsigned> requestedGeometrySteps, completedGeometrySteps;
+    bool captureThisFrame=false, captureKernelEncoded=false;
+    unsigned captureStep=0,captureCamera=0,captureLayer=0;
+    std::uint64_t captureRootFingerprint=0,captureTransactionFingerprint=0,captureTimestampMicroseconds=0;
     std::ofstream surfaceTrace;
     static mr_float4 inverseRotation(mr_float4 q){return {-q.x,-q.y,-q.z,q.w};}
+    static std::set<unsigned> geometryExportStepsFromEnvironment() {
+        const char* requested=std::getenv("NUMI_HUMAN_RESTING_EXPORT_MRV_STEPS");
+        if(!requested||!*requested)return {};
+        std::set<unsigned> steps;std::string_view remaining(requested);
+        while(!remaining.empty()) {
+            const auto separator=remaining.find(',');const auto token=remaining.substr(0,separator);
+            require(!token.empty(),"accepted geometry step selection contains an empty value");
+            unsigned step=0;const auto parsed=std::from_chars(token.data(),token.data()+token.size(),step);
+            require(parsed.ec==std::errc{}&&parsed.ptr==token.data()+token.size(),
+                "accepted geometry steps must be comma-separated unsigned physical step IDs");
+            require(steps.insert(step).second,"accepted geometry step selection contains a duplicate");
+            require(steps.size()<=8,"accepted geometry export is limited to eight explicitly selected frames");
+            if(separator==std::string_view::npos)break;
+            require(separator+1<remaining.size(),"accepted geometry step selection ends with an empty value");
+            remaining.remove_prefix(separator+1);
+        }
+        return steps;
+    }
+    void exportAcceptedGeometry(unsigned step,double time,std::uint64_t root,std::uint64_t transaction,
+                                std::uint64_t timestamp) {
+        require(vertexCaptureBuffer&&vertexCaptureBuffer.contents,"accepted geometry staging buffer is unavailable");
+        metalrobo::VisualAssetPackV2 pack;std::string error;
+        require(metalrobo::readVisualAssetPack(initialPackPath,pack,&error),error);
+        require(pack.contentHash==initialPackContentHash&&pack.vertices.size()==renderer->layout().meshVertexCount,
+            "accepted geometry base pack differs from the compiled renderer topology");
+        const std::size_t vertexBytes=pack.vertices.size()*sizeof(MRVisualVertexGPUV2);
+        require(vertexCaptureBuffer.length>=vertexBytes,"accepted geometry staging buffer is undersized");
+        std::memcpy(pack.vertices.data(),vertexCaptureBuffer.contents,vertexBytes);
+        for(const auto& vertex:pack.vertices)require(
+            std::isfinite(vertex.position.x)&&std::isfinite(vertex.position.y)&&std::isfinite(vertex.position.z)&&
+            std::isfinite(vertex.normalAndTangentSign.x)&&std::isfinite(vertex.normalAndTangentSign.y)&&
+            std::isfinite(vertex.normalAndTangentSign.z)&&std::isfinite(vertex.tangent.x)&&
+            std::isfinite(vertex.tangent.y)&&std::isfinite(vertex.tangent.z),
+            "accepted geometry copy contains non-finite rendered vertices");
+        for(auto& primitive:pack.primitives) {
+            require(primitive.geometry.x<=pack.indices.size()&&
+                primitive.geometry.y<=pack.indices.size()-primitive.geometry.x,
+                "accepted geometry primitive index span is invalid");
+            mr_float4 lo{INFINITY,INFINITY,INFINITY,1},hi{-INFINITY,-INFINITY,-INFINITY,1};
+            for(unsigned j=primitive.geometry.x;j<primitive.geometry.x+primitive.geometry.y;++j) {
+                const unsigned index=pack.indices[j];require(index<pack.vertices.size(),
+                    "accepted geometry pack has an out-of-range vertex index");
+                const auto p=pack.vertices[index].position;
+                lo.x=std::min(lo.x,p.x);lo.y=std::min(lo.y,p.y);lo.z=std::min(lo.z,p.z);
+                hi.x=std::max(hi.x,p.x);hi.y=std::max(hi.y,p.y);hi.z=std::max(hi.z,p.z);
+            }
+            primitive.boundsMinimum=lo;primitive.boundsMaximum=hi;
+        }
+        std::ostringstream rootHexStream;rootHexStream<<"0x"<<std::hex<<std::setw(16)<<std::setfill('0')<<root;
+        const auto rootHex=rootHexStream.str();
+        pack.preprocessingProvenance+="/accepted_native_render_step_"+std::to_string(step)+"_root_"+rootHex;
+        pack.contentHash=metalrobo::computeVisualAssetPackContentHash(pack);
+        std::filesystem::create_directories(acceptedGeometryDirectory);
+        const auto packPath=acceptedGeometryDirectory/("step-"+std::to_string(step)+".mrvpack");
+        const auto receiptPath=acceptedGeometryDirectory/("step-"+std::to_string(step)+".receipt.json");
+        require(!std::filesystem::exists(packPath)&&!std::filesystem::exists(receiptPath),
+            "refusing to overwrite accepted geometry evidence");
+        require(metalrobo::writeVisualAssetPack(pack,packPath,&error),error);
+        const auto packSHA=loadedKneeSHA256Hex(loadedKneeFileSHA256(packPath));
+        const auto vertexSHA=loadedKneeSHA256Hex(loadedKneeSHA256(vertexCaptureBuffer.contents,vertexBytes));
+        const auto bodySHA=loadedKneeSHA256Hex(loadedKneeSHA256(coupled.presentationBodies.contents,
+            coupled.presentationBodies.length));
+        const auto respirationSHA=loadedKneeSHA256Hex(loadedKneeSHA256(coupled.presentationRespiration.contents,
+            coupled.presentationRespiration.length));
+        NSError* jsonError=nil;
+        NSDictionary* receipt=@{
+            @"schema":@"numi.human.accepted-render-geometry.v1",
+            @"accepted_step":@(step),@"accepted_time_s":@(time),
+            @"accepted_root_fingerprint":@(root),@"accepted_root_fingerprint_hex":loadedKneeNSString(rootHex),
+            @"accepted_transaction_fingerprint":@(transaction),
+            @"accepted_timestamp_microseconds":@(timestamp),
+            @"camera_index":@(captureCamera),@"anatomy_layer_index":@(captureLayer),
+            @"accepted_body_state_sha256":loadedKneeNSString(bodySHA),
+            @"accepted_respiration_state_sha256":loadedKneeNSString(respirationSHA),
+            @"captured_vertex_buffer_sha256":loadedKneeNSString(vertexSHA),
+            @"base_pack_content_hash":loadedKneeNSString(initialPackContentHash),
+            @"base_pack_file_sha256":loadedKneeNSString(initialPackFileSHA256),
+            @"pack_content_hash":loadedKneeNSString(pack.contentHash),@"pack_file_sha256":loadedKneeNSString(packSHA),
+            @"source_pack_path":loadedKneeNSString(initialPackPath.string()),
+            @"accepted_pack_path":loadedKneeNSString(packPath.string()),
+            @"vertex_count":@(pack.vertices.size()),@"index_count":@(pack.indices.size()),
+            @"primitive_count":@(pack.primitives.size()),@"instance_count":@(pack.instances.size()),
+            @"position_normal_tangent_source":@"accepted-state renderer mesh buffer copied on the same Metal command buffer"
+        };
+        NSData* json=[NSJSONSerialization dataWithJSONObject:receipt
+            options:NSJSONWritingPrettyPrinted|NSJSONWritingSortedKeys error:&jsonError];
+        require(json!=nil,"accepted geometry receipt JSON serialization failed");
+        require([json writeToURL:[NSURL fileURLWithPath:loadedKneeNSString(receiptPath.string())]
+            options:NSDataWritingAtomic error:&jsonError],"accepted geometry receipt write failed");
+        completedGeometrySteps.insert(step);
+        const auto receiptSHA=loadedKneeSHA256Hex(loadedKneeFileSHA256(receiptPath));
+        std::cout<<"accepted_geometry_export="<<packPath.string()<<" receipt="<<receiptPath.string()
+            <<" accepted_root="<<rootHex
+            <<" pack_sha256="<<packSHA<<" receipt_sha256="<<receiptSHA<<"\n";
+    }
 public:
+    // Native presentation exposes accepted states at the initial frame, each
+    // completed fixed-size submission (whose state ID is the final zero-based
+    // step in that submission), and the exact terminal state. Validate an
+    // opt-in capture request before allocating or running the simulation so
+    // an unreachable ID cannot cause a late failure after a long native run.
+    static void validateAcceptedGeometryExportCadence(unsigned totalAcceptedSteps,
+                                                       unsigned submissionSteps) {
+        const auto steps=geometryExportStepsFromEnvironment();
+        if(steps.empty())return;
+        require(totalAcceptedSteps>0&&submissionSteps>0,
+            "accepted geometry capture requires a nonempty native horizon and submission cadence");
+        for(const unsigned step:steps) {
+            require(step<totalAcceptedSteps,
+                "accepted geometry step is outside the requested native horizon: "+std::to_string(step));
+            const bool initial=step==0;
+            const bool submissionEnd=(step+1u)%submissionSteps==0u;
+            const bool terminal=step+1u==totalAcceptedSteps;
+            require(initial||submissionEnd||terminal,
+                "accepted geometry step is not presented by the native submission cadence: "+std::to_string(step));
+        }
+    }
+
     NumiHumanRestingVisual(NumiHumanRestingCoupling& owner,metalrobo::VisualAssetPackV2 pack,
         const metalrobo::EngineModel& model,const LoadedSkin& skin,const LoadedSoftTissues* tissues,
         const std::vector<MRBodyStateGPU>& initialBodies,const std::vector<MRBodyStateGPU>& restBodies,
         const LoadedSupportContacts& support,const NumiHumanRestingAnatomy& functional,
         const std::filesystem::path& output,unsigned size,const std::string& movie,bool presentWindow=true):
-        coupled(owner),dimension(size),surfaceTrace(output/"resting-surface-audit.csv") {
+        coupled(owner),dimension(size),acceptedGeometryDirectory(output/"accepted-geometry"),
+        surfaceTrace(output/"resting-surface-audit.csv") {
         require(surfaceTrace.good(),"resting surface audit output unavailable");
+        requestedGeometrySteps=geometryExportStepsFromEnvironment();
+        require(requestedGeometrySteps.empty()||presentWindow,
+            "accepted MRVPack export requires the native viewer path");
         surfaceTrace<<"time_s,step,min_skin_bed_gap_m,vertices_below_1mm,nonfinite_skin_vertices,max_functional_volume_relative_error,q_ra,q_rv,q_la,q_lv,ra_target_ml,rv_target_ml,la_target_ml,lv_target_ml,diaphragm_swept_ml,rib_swept_ml,lung_target_ml\n";
         require(initialBodies.size()*sizeof(MRBodyStateGPU)==coupled.presentationBodies.length,
             "initial native frame does not match the body owner");
@@ -298,6 +431,8 @@ public:
         pack.contentHash=metalrobo::computeVisualAssetPackContentHash(pack);
         const auto packPath=output/"resting-human.mrvpack";std::string error;
         require(metalrobo::writeVisualAssetPack(pack,packPath,&error),error);
+        initialPackPath=packPath;initialPackContentHash=pack.contentHash;
+        initialPackFileSHA256=loadedKneeSHA256Hex(loadedKneeFileSHA256(packPath));
         const float distance=framing.distance;
         const auto c=framing.center;
         const auto& thorax=initialBodies.at(functional.gpu.bodyAndFlags.x);
@@ -379,7 +514,14 @@ public:
         layerPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_layers"] error:&e];
         volumePipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_audit_volumes"] error:&e];
         skinAuditPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_audit_skin"] error:&e];
+        if(!requestedGeometrySteps.empty()) {
+            vertexCapturePipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_capture_vertices"] error:&e];
+            vertexCaptureBuffer=[device newBufferWithLength:maps.size()*sizeof(MRVisualVertexGPUV2) options:MTLResourceStorageModeShared];
+            vertexCaptureBuffer.label=@"Numi Human selected accepted render vertices";
+        }
         require(mapping&&influences&&anatomyParameters&&surfaceAudits&&volumeResults&&instanceLayers&&cardiacQ&&skinPipeline&&cardiacQPipeline&&layerPipeline&&volumePipeline&&skinAuditPipeline,"resting GPU anatomy setup failed");
+        require(requestedGeometrySteps.empty()||(vertexCapturePipeline&&vertexCaptureBuffer),
+            "selected accepted geometry capture resources could not be created");
         if(!presentWindow)return;
         [NSApplication sharedApplication];[NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];[NSApp finishLaunching];
         window=[[NumiHumanRestingWindow alloc] initWithAdvance:[this](unsigned camera,unsigned selectedLayer){return render(camera,selectedLayer);}
@@ -411,18 +553,38 @@ public:
         e.setBuffer(e.context,(__bridge void*)self.volumeResults,0,3);e.dispatchThreads(e.context,256,256);
         e.setPipeline(e.context,(__bridge void*)self.layerPipeline);e.setBytes(e.context,&d,sizeof(d),0);
         e.setBuffer(e.context,lease.meshInstances,0,1);e.setBuffer(e.context,(__bridge void*)self.instanceLayers,0,2);
-        e.dispatchThreads(e.context,lease.meshInstanceCount,64);return true;
+        e.dispatchThreads(e.context,lease.meshInstanceCount,64);
+        if(self.captureThisFrame) {
+            if(!self.vertexCapturePipeline||!self.vertexCaptureBuffer||
+               lease.acceptedStateBuffer!=(__bridge void*)self.coupled.presentationRespiration||
+               lease.acceptedRootFingerprint!=self.captureRootFingerprint||
+               lease.acceptedTransactionFingerprint!=self.captureTransactionFingerprint||
+               lease.acceptedTimestampMicroseconds!=self.captureTimestampMicroseconds)return false;
+            const unsigned count=lease.meshVertexCount;
+            e.setPipeline(e.context,(__bridge void*)self.vertexCapturePipeline);
+            e.setBuffer(e.context,lease.meshVertices,0,0);
+            e.setBuffer(e.context,(__bridge void*)self.vertexCaptureBuffer,0,1);
+            e.setBytes(e.context,&count,sizeof(count),2);
+            e.dispatchThreads(e.context,count,64);self.captureKernelEncoded=true;
+        }
+        return true;
     }
     NumiHumanRestingFrame render(unsigned camera,unsigned selectedLayer) {
         layer=selectedLayer;
         const auto& p=*static_cast<const NMHumanRespirationState*>(coupled.presentationRespiration.contents);
         const double time=p.status.x*double(coupled.physiology.runtime.timestepSeconds());
+        captureStep=p.status.x;captureCamera=camera;captureLayer=selectedLayer;
+        captureThisFrame=requestedGeometrySteps.contains(captureStep)&&
+            !completedGeometrySteps.contains(captureStep);captureKernelEncoded=false;
         metalrobo::HybridDeviceStateBatch state;
         state.currentBodyStates=(__bridge void*)coupled.presentationBodies;state.environmentCount=1;
         state.bodyCount=unsigned(coupled.presentationBodies.length/sizeof(MRBodyStateGPU));state.frameIndex=p.status.x;
         state.sensorSequence=p.status.x;state.captureTimestampSeconds=time;
         state.acceptedRootFingerprint=coupled.brain.root(p.status.x);state.acceptedTransactionFingerprint=state.acceptedRootFingerprint;
         state.acceptedTimestampMicroseconds=std::llround(time*1e6);
+        captureRootFingerprint=state.acceptedRootFingerprint;
+        captureTransactionFingerprint=state.acceptedTransactionFingerprint;
+        captureTimestampMicroseconds=state.acceptedTimestampMicroseconds;
         const auto layout=renderer->layout();metalrobo::MetalHybridMeshDeformationRequest request;
         request.context=this;request.encode=&deform;request.acceptedStateIsCommitted=true;
         request.acceptedStateBuffer=(__bridge void*)coupled.presentationRespiration;request.acceptedStateByteCount=coupled.presentationRespiration.length;
@@ -434,6 +596,12 @@ public:
         auto cb=[queue commandBuffer];auto enc=[cb computeCommandEncoder];
         auto result=renderer->encode(worlds,state,camera,(__bridge void*)enc);require(result.succeeded(),result.message);
         [enc endEncoding];[cb commit];[cb waitUntilCompleted];require(cb.status==MTLCommandBufferStatusCompleted,"resting native renderer failed");
+        if(captureThisFrame) {
+            require(captureKernelEncoded,"selected accepted step did not encode its geometry snapshot");
+            exportAcceptedGeometry(captureStep,time,captureRootFingerprint,captureTransactionFingerprint,
+                captureTimestampMicroseconds);
+            captureThisFrame=false;
+        }
         const auto* volumes=static_cast<const mr_float4*>(volumeResults.contents);
         const auto* cardiacCoordinates=static_cast<const float*>(cardiacQ.contents);
         float maxRelativeError=0;for(unsigned i=0;i<auditCount;++i)maxRelativeError=std::max(maxRelativeError,volumes[i].z);
@@ -454,7 +622,11 @@ public:
             <<"Mixed-source reference anatomy; passive structures remain inspection geometry.";
         return {(__bridge id<MTLBuffer>)renderer->nativeBuffer(metalrobo::MetalHybridRendererBuffer::rgb),dimension,dimension,metrics.str(),time,complete};
     }
-    void present(bool finished=false){complete=finished;[window renderFrameNow];}
+    void present(bool finished=false){
+        complete=finished;[window renderFrameNow];
+        if(finished)for(unsigned step:requestedGeometrySteps)require(completedGeometrySteps.contains(step),
+            "requested accepted geometry step was not presented: "+std::to_string(step));
+    }
     metalrobo::MetalNumiHumanSupportGeometryProgram supportProgram(){return skinSupport->program();}
     ~NumiHumanRestingVisual(){[window finishRecording];}
 };
