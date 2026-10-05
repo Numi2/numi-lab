@@ -1,0 +1,11 @@
+frames=5001 timing_markers=5 first_wall_s=0.21166666666666667 last_wall_s=3200.9133333333334 max_gap_wall_s=4.071666666666666 duration_wall_s=3201.575
+frame=initial index=0 simulated_s=0.0 wall_s=0.21166666666666667 width=1280 height=900
+frame=middle index=2500 simulated_s=159.998007599 wall_s=1545.31 width=1280 height=900
+frame=final index=5000 simulated_s=319.998015199 wall_s=3200.9133333333334 width=1280 height=900
+frame=skin index=39 simulated_s=2.49400011846 wall_s=27.691666666666666 width=1280 height=900
+frame=muscles index=117 simulated_s=7.48600035557 wall_s=75.66 width=1280 height=900
+frame=skeleton index=195 simulated_s=12.4780005927 wall_s=123.67833333333333 width=1280 height=900
+frame=organs index=273 simulated_s=17.4700008298 wall_s=171.78 width=1280 height=900
+frame=lungs index=352 simulated_s=22.5260010699 wall_s=220.57666666666665 width=1280 height=900
+frame=heart index=430 simulated_s=27.518001307 wall_s=268.77166666666665 width=1280 height=900
+frame=vessels index=508 simulated_s=32.5100015441 wall_s=316.86 width=1280 height=900

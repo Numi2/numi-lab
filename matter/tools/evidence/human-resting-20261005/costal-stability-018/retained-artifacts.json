@@ -1,0 +1,20 @@
+{
+  "scope": "Compact source-bound engineering evidence. Not final anatomy acceptance. Full native movie and binary assets retained on Mac mini; see invocation and referenced exact paths.",
+  "remote_host": "macmini",
+  "full_recording": "/Users/n/numi-human-resting-evidence-20261005/costal-fit-stability-018/native-viewer.mov",
+  "full_recording_sha256": "475e63cd17e476bfb3d31102735a1ea6bdbf57bc76388a312f65d552d6b122ed",
+  "native_log": "/Users/n/numi-human-resting-evidence-20261005/costal-fit-stability-018/native.log",
+  "native_log_sha256": "1c8a244cef060c04011763e0b3969e08e2d426821294e308f268173163cbc2f5",
+  "files": {
+    "analyze-costal-fit-stability-018.py": "ae056cbfd4cab1c6a81128af7006f930b576e5f13f75a068e69c2965baf479de",
+    "engineering-stability-analysis.json": "b8067a7db0419c84d75b1052814adce6f4239aba1b7e400f717271a98ac56a74",
+    "execution.json": "fbeb2f7bbba7b494364f8f12a04e0793b30ea21b259e2f836fd57f661f87f76c",
+    "invocation.json": "35f2fe76e3bba96b17b1c8f19541a48ffa4831b1b5b85f8cf42025467ff241dd",
+    "movie-inspection.txt": "310909e5ca0aa3b6309ab67136cf4a11f401a7c54381e95d87ff7ec09b6994fe",
+    "optimized-step-2783.json": "6d1b8f1ded6a826965473976df9af866eb40e3d7043a8388ffe0f4b1d178d7df",
+    "optimized-step-639.json": "57f656c874f69e17eedd8410864b8189f3e03ef4e221915ffcc1d1de82d3a13e",
+    "resting-coupled.csv.gz": "b82cb9b3dadfef35708701f37d464f288734761aa3a61e2d15d3ed6e80aaf06e",
+    "resting-surface-audit.csv.gz": "f101c0e61bc08635fcb762e9c69927a9566622972faced6c4078a858be6cee00",
+    "source.diff": "98b92efec3c34fc6dca230a0158929786d8f94e8ec10e1b0e27c3304d5b99dcb"
+  }
+}

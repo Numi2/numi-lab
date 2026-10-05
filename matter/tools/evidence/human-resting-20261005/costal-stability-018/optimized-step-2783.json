@@ -1,0 +1,3835 @@
+{
+  "aabb_candidate_triangle_pairs_tested": 54234,
+  "accepted_body20_pose": {
+    "body_index": 20,
+    "position_m": [
+      -0.022335045039653778,
+      -0.44164517521858215,
+      0.09035909920930862
+    ],
+    "quaternion_xyzw": [
+      0.0031689319293946028,
+      -0.6980383396148682,
+      -0.029184509068727493,
+      0.715458333492279
+    ]
+  },
+  "accepted_root_fingerprint": "0x8bce6282d395cba7",
+  "accepted_time_s": 5.566000264370814,
+  "anatomy_receipt_path": "/Users/n/numi-human-resting-evidence-20261005/cardiac-wall-binding-005/resting-anatomy-receipt.json",
+  "anatomy_receipt_sha256": "21f5f53b20115e627e577b84848e2f2ba4f9034fe2a6c6f7a95adcb32bcb204e",
+  "audit_tool_path": "/Users/n/numi-human-resting-conforming-source-009/matter/tools/accepted_mrvpack_surface_audit.py",
+  "audit_tool_sha256": "eb9e5c762cdbab1e9b3f98c63a1580a21acba54637b105c28e2bc0a39187ba17",
+  "bones_payload_sha256": "7d94e2f28ac6cea30c6c11a79919077acc40281636eb20b11b50b50aebd3ec49",
+  "coordinate_lattice_scale_per_m": 2147483648,
+  "driver_path": "/Users/n/numi-human-resting-evidence-20261005/heart-swept-source-inverse-native017-001/actual-rib-pair-audit/optimized_driver-002.py",
+  "driver_sha256": "e7288d510b1fcba51708293f23f4dc32f052322a2c9496831803892cc2f6ca4d",
+  "limitation": "Exact triangle intersections on this accepted Float32 MRVPACK frame only; no inferred penetration depth, no source-space claim, and no cycle-wide qualification.",
+  "pack_path": "/Users/n/numi-human-resting-evidence-20261005/costal-fit-native-017/accepted-geometry/step-2783.mrvpack",
+  "pack_sha256": "8e71d6f13c1e4b14b01283f2ed0a41a046c9a4757baec2e61e6c0ce744a44730",
+  "pair_inventory": "five closed lung lobes IDs305-309 \u00d7 34 registered thorax bone surfaces IDs26-59; 170 exact pairs, no adjacency waivers, no fail-fast",
+  "pairs": [
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 26,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 305
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 27,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 305
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 28,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 305
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 29,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 305
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 30,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 305
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 31,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 305
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 32,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 305
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 33,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 305
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 34,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 305
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 35,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 305
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 36,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 305
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 37,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 305
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 38,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 305
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 39,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 305
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 40,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 305
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 41,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 305
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 42,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 305
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 43,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 305
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 44,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 305
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 45,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 305
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 46,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 305
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 47,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 305
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 48,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 305
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 49,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 305
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 50,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 305
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 51,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 305
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 524,
+      "audit_complete": true,
+      "bone_stable_id": 52,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 305
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 2942,
+      "audit_complete": true,
+      "bone_stable_id": 53,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 305
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 4408,
+      "audit_complete": true,
+      "bone_stable_id": 54,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 139,
+      "first_witnesses": [
+        {
+          "bone_face": 5311,
+          "lung_face": 33612,
+          "points_lattice": [
+            [
+              "257273504910091515200448/1559872641827071",
+              "-1868413798275151872401152/1559872641827071",
+              "63961471928241478098688/141806603802461"
+            ],
+            [
+              "83020910974827890911232/503305658730627",
+              "-602859842195322535091456/503305658730627",
+              "75666681860111894726144/167768552910209"
+            ]
+          ]
+        },
+        {
+          "bone_face": 5506,
+          "lung_face": 34029,
+          "points_lattice": [
+            [
+              "61217153991772928866064/372127087085015",
+              "-444902974813622391097728/372127087085015",
+              "168308576902786711178816/372127087085015"
+            ],
+            [
+              "1819865396559879975504/11062046547325",
+              "-13226607696479658932608/11062046547325",
+              "5002652021596109550656/11062046547325"
+            ]
+          ]
+        },
+        {
+          "bone_face": 5311,
+          "lung_face": 34029,
+          "points_lattice": [
+            [
+              "257273504910091515200448/1559872641827071",
+              "-1868413798275151872401152/1559872641827071",
+              "63961471928241478098688/141806603802461"
+            ],
+            [
+              "1819865396559879975504/11062046547325",
+              "-13226607696479658932608/11062046547325",
+              "5002652021596109550656/11062046547325"
+            ]
+          ]
+        },
+        {
+          "bone_face": 5506,
+          "lung_face": 34031,
+          "points_lattice": [
+            [
+              "61217153991772928866064/372127087085015",
+              "-444902974813622391097728/372127087085015",
+              "168308576902786711178816/372127087085015"
+            ],
+            [
+              "13197581904967446059792/80243468437541",
+              "-479530125187779992518656/401217342187705",
+              "181552597373593840278976/401217342187705"
+            ]
+          ]
+        },
+        {
+          "bone_face": 5507,
+          "lung_face": 34032,
+          "points_lattice": [
+            [
+              "2414484294359249099920/14691964090003",
+              "-17539270025434291420800/14691964090003",
+              "6659530846646391032928/14691964090003"
+            ],
+            [
+              "1673818950434093117552/10183871507765",
+              "-60798894505637883318144/50919357538825",
+              "69222893777449269051712/152758072616475"
+            ]
+          ]
+        },
+        {
+          "bone_face": 5506,
+          "lung_face": 34032,
+          "points_lattice": [
+            [
+              "13197581904967446059792/80243468437541",
+              "-479530125187779992518656/401217342187705",
+              "181552597373593840278976/401217342187705"
+            ],
+            [
+              "1673818950434093117552/10183871507765",
+              "-60798894505637883318144/50919357538825",
+              "69222893777449269051712/152758072616475"
+            ]
+          ]
+        },
+        {
+          "bone_face": 5508,
+          "lung_face": 34035,
+          "points_lattice": [
+            [
+              "390595782097302467720/2376612961623",
+              "-2835975841497071420800/2376612961623",
+              "359124552775034755016/792204320541"
+            ],
+            [
+              "782060170227553141648/4760425891961",
+              "-5677506720777612243584/4760425891961",
+              "2158598705803342481792/4760425891961"
+            ]
+          ]
+        },
+        {
+          "bone_face": 5515,
+          "lung_face": 34035,
+          "points_lattice": [
+            [
+              "1744952004899664679136/10621603538721",
+              "-1406488469387372490432/1180178170969",
+              "4817320076634225527536/10621603538721"
+            ],
+            [
+              "782060170227553141648/4760425891961",
+              "-5677506720777612243584/4760425891961",
+              "2158598705803342481792/4760425891961"
+            ]
+          ]
+        },
+        {
+          "bone_face": 5507,
+          "lung_face": 34035,
+          "points_lattice": [
+            [
+              "2414484294359249099920/14691964090003",
+              "-17539270025434291420800/14691964090003",
+              "6659530846646391032928/14691964090003"
+            ],
+            [
+              "390595782097302467720/2376612961623",
+              "-2835975841497071420800/2376612961623",
+              "359124552775034755016/792204320541"
+            ]
+          ]
+        },
+        {
+          "bone_face": 5452,
+          "lung_face": 34037,
+          "points_lattice": [
+            [
+              "4423637603573396095440/26929841545591",
+              "-32080238519266914852992/26929841545591",
+              "12216274539204858962944/26929841545591"
+            ],
+            [
+              "7078828949527571767664/43092623443113",
+              "-17101154094130095545216/14364207814371",
+              "19552801878384490357120/43092623443113"
+            ]
+          ]
+        },
+        {
+          "bone_face": 5517,
+          "lung_face": 34037,
+          "points_lattice": [
+            [
+              "708684503934247741168/4313832595531",
+              "-5139840660163309479168/4313832595531",
+              "1956686313217727897520/4313832595531"
+            ],
+            [
+              "4423637603573396095440/26929841545591",
+              "-32080238519266914852992/26929841545591",
+              "12216274539204858962944/26929841545591"
+            ]
+          ]
+        },
+        {
+          "bone_face": 5516,
+          "lung_face": 34037,
+          "points_lattice": [
+            [
+              "164197027428006298424/999496120329",
+              "-56715532590257666272/47595053349",
+              "453334713613390026184/999496120329"
+            ],
+            [
+              "708684503934247741168/4313832595531",
+              "-5139840660163309479168/4313832595531",
+              "1956686313217727897520/4313832595531"
+            ]
+          ]
+        },
+        {
+          "bone_face": 5515,
+          "lung_face": 34037,
+          "points_lattice": [
+            [
+              "1744952004899664679136/10621603538721",
+              "-1406488469387372490432/1180178170969",
+              "4817320076634225527536/10621603538721"
+            ],
+            [
+              "164197027428006298424/999496120329",
+              "-56715532590257666272/47595053349",
+              "453334713613390026184/999496120329"
+            ]
+          ]
+        },
+        {
+          "bone_face": 5452,
+          "lung_face": 34038,
+          "points_lattice": [
+            [
+              "7078828949527571767664/43092623443113",
+              "-17101154094130095545216/14364207814371",
+              "19552801878384490357120/43092623443113"
+            ],
+            [
+              "6874158622004984650576/41846514373223",
+              "-49818864732976567644288/41846514373223",
+              "18987506813254563426048/41846514373223"
+            ]
+          ]
+        },
+        {
+          "bone_face": 5453,
+          "lung_face": 34038,
+          "points_lattice": [
+            [
+              "7002315127597705074768/42411877414597",
+              "-654303976494522536238336/551354406389761",
+              "250055120566219076748544/551354406389761"
+            ],
+            [
+              "58387629953135514969328/354855962996239",
+              "-421555040078649925841664/354855962996239",
+              "161049842277369712488704/354855962996239"
+            ]
+          ]
+        },
+        {
+          "bone_face": 5463,
+          "lung_face": 34038,
+          "points_lattice": [
+            [
+              "233936964392785758312/1416863535641",
+              "-1681413076924316417760/1416863535641",
+              "642582017651270953056/1416863535641"
+            ],
+            [
+              "7002315127597705074768/42411877414597",
+              "-654303976494522536238336/551354406389761",
+              "250055120566219076748544/551354406389761"
+            ]
+          ]
+        }
+      ],
+      "lung_stable_id": 305
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 3025,
+      "audit_complete": true,
+      "bone_stable_id": 55,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 305
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 2749,
+      "audit_complete": true,
+      "bone_stable_id": 56,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 305
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 143,
+      "audit_complete": true,
+      "bone_stable_id": 57,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 305
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 8,
+      "audit_complete": true,
+      "bone_stable_id": 58,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 305
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 59,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 305
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 26,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 306
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 27,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 306
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 28,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 306
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 29,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 306
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 30,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 306
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 31,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 306
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 32,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 306
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 33,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 306
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 34,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 306
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 35,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 306
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 36,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 306
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 37,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 306
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 38,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 306
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 39,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 306
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 122,
+      "audit_complete": true,
+      "bone_stable_id": 40,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 306
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 2711,
+      "audit_complete": true,
+      "bone_stable_id": 41,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 306
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 2918,
+      "audit_complete": true,
+      "bone_stable_id": 42,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 13,
+      "first_witnesses": [
+        {
+          "bone_face": 7309,
+          "lung_face": 6575,
+          "points_lattice": [
+            [
+              "-70920463233232944444416/228563378991951",
+              "-263809425998921459361920/228563378991951",
+              "30963634394693870248576/76187792997317"
+            ],
+            [
+              "-11016451880080509149920/35460322789921",
+              "-40916241633130756915520/35460322789921",
+              "14379061262167770915136/35460322789921"
+            ]
+          ]
+        },
+        {
+          "bone_face": 7309,
+          "lung_face": 6578,
+          "points_lattice": [
+            [
+              "-70920463233232944444416/228563378991951",
+              "-263809425998921459361920/228563378991951",
+              "30963634394693870248576/76187792997317"
+            ],
+            [
+              "-144593470327588189018240/466119648839513",
+              "-538260906630840466782848/466119648839513",
+              "189591331929479357384704/466119648839513"
+            ]
+          ]
+        },
+        {
+          "bone_face": 7309,
+          "lung_face": 6579,
+          "points_lattice": [
+            [
+              "-58831909988418232858816/189866505356043",
+              "-73115035330207738163200/63288835118681",
+              "77394360495091865830400/189866505356043"
+            ],
+            [
+              "-144593470327588189018240/466119648839513",
+              "-538260906630840466782848/466119648839513",
+              "189591331929479357384704/466119648839513"
+            ]
+          ]
+        },
+        {
+          "bone_face": 7133,
+          "lung_face": 6574,
+          "points_lattice": [
+            [
+              "-57772405362730472454016/186503849496395",
+              "-214418684586274852434816/186503849496395",
+              "15154319161797582260096/37300769899279"
+            ],
+            [
+              "-48233147074758911355520/155692026059017",
+              "-178999777801748628018816/155692026059017",
+              "63241308707023420411904/155692026059017"
+            ]
+          ]
+        },
+        {
+          "bone_face": 7309,
+          "lung_face": 6574,
+          "points_lattice": [
+            [
+              "-17664201572845703621184/56901680431175",
+              "-65513700883270178706304/56901680431175",
+              "23062091776931313139936/56901680431175"
+            ],
+            [
+              "-48233147074758911355520/155692026059017",
+              "-178999777801748628018816/155692026059017",
+              "63241308707023420411904/155692026059017"
+            ]
+          ]
+        },
+        {
+          "bone_face": 7309,
+          "lung_face": 6576,
+          "points_lattice": [
+            [
+              "-17664201572845703621184/56901680431175",
+              "-65513700883270178706304/56901680431175",
+              "23062091776931313139936/56901680431175"
+            ],
+            [
+              "-11016451880080509149920/35460322789921",
+              "-40916241633130756915520/35460322789921",
+              "14379061262167770915136/35460322789921"
+            ]
+          ]
+        },
+        {
+          "bone_face": 7309,
+          "lung_face": 6582,
+          "points_lattice": [
+            [
+              "-56206801057164615597120/181882385851687",
+              "-210179723018802237851136/181882385851687",
+              "74479753617604560771264/181882385851687"
+            ],
+            [
+              "-58831909988418232858816/189866505356043",
+              "-73115035330207738163200/63288835118681",
+              "77394360495091865830400/189866505356043"
+            ]
+          ]
+        },
+        {
+          "bone_face": 7133,
+          "lung_face": 6557,
+          "points_lattice": [
+            [
+              "-57772405362730472454016/186503849496395",
+              "-214418684586274852434816/186503849496395",
+              "15154319161797582260096/37300769899279"
+            ],
+            [
+              "-17505294817050421714752/56552165841731",
+              "-65026258350645539970336/56552165841731",
+              "23008245669675052516768/56552165841731"
+            ]
+          ]
+        },
+        {
+          "bone_face": 7133,
+          "lung_face": 6558,
+          "points_lattice": [
+            [
+              "-17505294817050421714752/56552165841731",
+              "-65026258350645539970336/56552165841731",
+              "23008245669675052516768/56552165841731"
+            ],
+            [
+              "-3816980076412286986496/12331477883101",
+              "-14182234803479257131840/12331477883101",
+              "5017781505860403151808/12331477883101"
+            ]
+          ]
+        },
+        {
+          "bone_face": 7133,
+          "lung_face": 6561,
+          "points_lattice": [
+            [
+              "-113063924684171704192/365526226545",
+              "-420650829596469522944/365526226545",
+              "148964025632359450912/365526226545"
+            ],
+            [
+              "-3816980076412286986496/12331477883101",
+              "-14182234803479257131840/12331477883101",
+              "5017781505860403151808/12331477883101"
+            ]
+          ]
+        },
+        {
+          "bone_face": 7309,
+          "lung_face": 6561,
+          "points_lattice": [
+            [
+              "-29401050770035886827712/95149119197405",
+              "-328911474592704003054592/285447357592215",
+              "116640731522465360174656/285447357592215"
+            ],
+            [
+              "-113063924684171704192/365526226545",
+              "-420650829596469522944/365526226545",
+              "148964025632359450912/365526226545"
+            ]
+          ]
+        },
+        {
+          "bone_face": 7309,
+          "lung_face": 6565,
+          "points_lattice": [
+            [
+              "-29401050770035886827712/95149119197405",
+              "-328911474592704003054592/285447357592215",
+              "116640731522465360174656/285447357592215"
+            ],
+            [
+              "-144423798935175116751552/467633394533435",
+              "-41471576526162879518464/35971799579495",
+              "191328510155757710886208/467633394533435"
+            ]
+          ]
+        },
+        {
+          "bone_face": 7309,
+          "lung_face": 6584,
+          "points_lattice": [
+            [
+              "-144423798935175116751552/467633394533435",
+              "-41471576526162879518464/35971799579495",
+              "191328510155757710886208/467633394533435"
+            ],
+            [
+              "-56206801057164615597120/181882385851687",
+              "-210179723018802237851136/181882385851687",
+              "74479753617604560771264/181882385851687"
+            ]
+          ]
+        }
+      ],
+      "lung_stable_id": 306
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 5022,
+      "audit_complete": true,
+      "bone_stable_id": 43,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 65,
+      "first_witnesses": [
+        {
+          "bone_face": 6895,
+          "lung_face": 3182,
+          "points_lattice": [
+            [
+              "-77264390533053752906496/249268000928183",
+              "-284936613998493639946496/249268000928183",
+              "64895651490420050981840/249268000928183"
+            ],
+            [
+              "-168912883579458468380928/544668470118569",
+              "-622771343488203515030528/544668470118569",
+              "142078010576354173443920/544668470118569"
+            ]
+          ]
+        },
+        {
+          "bone_face": 6895,
+          "lung_face": 3183,
+          "points_lattice": [
+            [
+              "-9415017023291616964032/30357959747341",
+              "-34726329900484386184192/30357959747341",
+              "7925990603687447659120/30357959747341"
+            ],
+            [
+              "-168912883579458468380928/544668470118569",
+              "-622771343488203515030528/544668470118569",
+              "142078010576354173443920/544668470118569"
+            ]
+          ]
+        },
+        {
+          "bone_face": 6894,
+          "lung_face": 3179,
+          "points_lattice": [
+            [
+              "-8695607273686696670816/28046979733383",
+              "-3565993225288780909184/3116331081487",
+              "7314961825381960941488/28046979733383"
+            ],
+            [
+              "-5852152010270828334464/18868822678773",
+              "-21585842608306735214336/18868822678773",
+              "4927856088317444261168/18868822678773"
+            ]
+          ]
+        },
+        {
+          "bone_face": 6895,
+          "lung_face": 3179,
+          "points_lattice": [
+            [
+              "-9415017023291616964032/30357959747341",
+              "-34726329900484386184192/30357959747341",
+              "7925990603687447659120/30357959747341"
+            ],
+            [
+              "-5852152010270828334464/18868822678773",
+              "-21585842608306735214336/18868822678773",
+              "4927856088317444261168/18868822678773"
+            ]
+          ]
+        },
+        {
+          "bone_face": 6894,
+          "lung_face": 3215,
+          "points_lattice": [
+            [
+              "-1411410836967069886944/4553704489201",
+              "-5211363410181208550272/4553704489201",
+              "1186383771276447767216/4553704489201"
+            ],
+            [
+              "-8695607273686696670816/28046979733383",
+              "-3565993225288780909184/3116331081487",
+              "7314961825381960941488/28046979733383"
+            ]
+          ]
+        },
+        {
+          "bone_face": 6894,
+          "lung_face": 3219,
+          "points_lattice": [
+            [
+              "-1411410836967069886944/4553704489201",
+              "-5211363410181208550272/4553704489201",
+              "1186383771276447767216/4553704489201"
+            ],
+            [
+              "-147218010583356759223424/475207389285419",
+              "-543813026734420067606400/475207389285419",
+              "123585346028208338796000/475207389285419"
+            ]
+          ]
+        },
+        {
+          "bone_face": 6895,
+          "lung_face": 3181,
+          "points_lattice": [
+            [
+              "-14980387442966305505856/48329952011663",
+              "-7892082108462206494208/6904278858809",
+              "12581496187224444404240/48329952011663"
+            ],
+            [
+              "-77264390533053752906496/249268000928183",
+              "-284936613998493639946496/249268000928183",
+              "64895651490420050981840/249268000928183"
+            ]
+          ]
+        },
+        {
+          "bone_face": 6905,
+          "lung_face": 3217,
+          "points_lattice": [
+            [
+              "-911145684928066983424/2940186183411",
+              "-3360056263839654183808/2940186183411",
+              "764600513587438636064/2940186183411"
+            ],
+            [
+              "-37665367025446814238208/121588575343419",
+              "-138879241799013298461568/121588575343419",
+              "31558508731139325066080/121588575343419"
+            ]
+          ]
+        },
+        {
+          "bone_face": 6895,
+          "lung_face": 3217,
+          "points_lattice": [
+            [
+              "-14980387442966305505856/48329952011663",
+              "-7892082108462206494208/6904278858809",
+              "12581496187224444404240/48329952011663"
+            ],
+            [
+              "-911145684928066983424/2940186183411",
+              "-3360056263839654183808/2940186183411",
+              "764600513587438636064/2940186183411"
+            ]
+          ]
+        },
+        {
+          "bone_face": 6905,
+          "lung_face": 3216,
+          "points_lattice": [
+            [
+              "-43788105514066083605504/141631058434539",
+              "-53820178937029985710720/47210352811513",
+              "36432085890060368256800/141631058434539"
+            ],
+            [
+              "-37665367025446814238208/121588575343419",
+              "-138879241799013298461568/121588575343419",
+              "31558508731139325066080/121588575343419"
+            ]
+          ]
+        },
+        {
+          "bone_face": 7145,
+          "lung_face": 3216,
+          "points_lattice": [
+            [
+              "-13894729381435016311616/45054995550351",
+              "-17093736952425315025920/15018331850117",
+              "11464519387448266426640/45054995550351"
+            ],
+            [
+              "-43788105514066083605504/141631058434539",
+              "-53820178937029985710720/47210352811513",
+              "36432085890060368256800/141631058434539"
+            ]
+          ]
+        },
+        {
+          "bone_face": 6894,
+          "lung_face": 3221,
+          "points_lattice": [
+            [
+              "-140593980864057985765952/457529754464767",
+              "-522743492462678605817600/457529754464767",
+              "115445574931257024458800/457529754464767"
+            ],
+            [
+              "-294205634909276403051904/949674503458515",
+              "-21309414744775680817536/18621068695265",
+              "246974890594706651511808/949674503458515"
+            ]
+          ]
+        },
+        {
+          "bone_face": 6626,
+          "lung_face": 3221,
+          "points_lattice": [
+            [
+              "-140593980864057985765952/457529754464767",
+              "-522743492462678605817600/457529754464767",
+              "115445574931257024458800/457529754464767"
+            ],
+            [
+              "-18726673952313790641344/60944236783719",
+              "-427183961045176484096/373891023213",
+              "15375366986653291785616/60944236783719"
+            ]
+          ]
+        },
+        {
+          "bone_face": 6894,
+          "lung_face": 3222,
+          "points_lattice": [
+            [
+              "-147218010583356759223424/475207389285419",
+              "-543813026734420067606400/475207389285419",
+              "123585346028208338796000/475207389285419"
+            ],
+            [
+              "-294205634909276403051904/949674503458515",
+              "-21309414744775680817536/18621068695265",
+              "246974890594706651511808/949674503458515"
+            ]
+          ]
+        },
+        {
+          "bone_face": 7145,
+          "lung_face": 3214,
+          "points_lattice": [
+            [
+              "-13894729381435016311616/45054995550351",
+              "-17093736952425315025920/15018331850117",
+              "11464519387448266426640/45054995550351"
+            ],
+            [
+              "-721500913825193651648/2339650332823",
+              "-2662906975130044977920/2339650332823",
+              "595223536658248209200/2339650332823"
+            ]
+          ]
+        },
+        {
+          "bone_face": 7145,
+          "lung_face": 3209,
+          "points_lattice": [
+            [
+              "-4711291589531223538144/15308136571847",
+              "-17408428105389406343488/15308136571847",
+              "3865012308226123905736/15308136571847"
+            ],
+            [
+              "-40364990872135201033408/131214874477893",
+              "-49725874068160245177216/43738291492631",
+              "33065566027724280135776/131214874477893"
+            ]
+          ]
+        }
+      ],
+      "lung_stable_id": 306
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 2791,
+      "audit_complete": true,
+      "bone_stable_id": 44,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 306
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 283,
+      "audit_complete": true,
+      "bone_stable_id": 45,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 306
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 46,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 306
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 47,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 306
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 48,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 306
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 49,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 306
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 50,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 306
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 51,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 306
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 52,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 306
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 53,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 306
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 54,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 306
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 55,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 306
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 56,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 306
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 57,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 306
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 58,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 306
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 59,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 306
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 26,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 307
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 27,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 307
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 28,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 307
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 29,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 307
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 30,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 307
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 31,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 307
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 32,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 307
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 33,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 307
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 34,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 307
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 35,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 307
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 36,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 307
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 37,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 307
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 38,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 307
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 7,
+      "audit_complete": true,
+      "bone_stable_id": 39,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 307
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 973,
+      "audit_complete": true,
+      "bone_stable_id": 40,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 307
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 214,
+      "audit_complete": true,
+      "bone_stable_id": 41,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 307
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 42,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 307
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 43,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 307
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 44,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 307
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 45,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 307
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 46,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 307
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 47,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 307
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 48,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 307
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 49,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 307
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 50,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 307
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 51,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 307
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 52,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 307
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 53,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 307
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 54,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 307
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 55,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 307
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 56,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 307
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 57,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 307
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 58,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 307
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 59,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 307
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 26,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 308
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 417,
+      "audit_complete": true,
+      "bone_stable_id": 27,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 20,
+      "first_witnesses": [
+        {
+          "bone_face": 2252,
+          "lung_face": 2353,
+          "points_lattice": [
+            [
+              "207307718290499289688/19053148583131",
+              "-15497951041344407454368/19053148583131",
+              "618156919786488834816/1465626814087"
+            ],
+            [
+              "34241223184499533248/3436237726543",
+              "-13976252362816450529728/17181188632715",
+              "1449270400838183665920/3436237726543"
+            ]
+          ]
+        },
+        {
+          "bone_face": 2253,
+          "lung_face": 2353,
+          "points_lattice": [
+            [
+              "282314659328260514832/23675200931609",
+              "-19250858871108924116352/23675200931609",
+              "9980838361753222355712/23675200931609"
+            ],
+            [
+              "207307718290499289688/19053148583131",
+              "-15497951041344407454368/19053148583131",
+              "618156919786488834816/1465626814087"
+            ]
+          ]
+        },
+        {
+          "bone_face": 2252,
+          "lung_face": 3090,
+          "points_lattice": [
+            [
+              "34241223184499533248/3436237726543",
+              "-13976252362816450529728/17181188632715",
+              "1449270400838183665920/3436237726543"
+            ],
+            [
+              "2084336604512271752688/199797010042127",
+              "-162376117564278198835840/199797010042127",
+              "84103557630184606824384/199797010042127"
+            ]
+          ]
+        },
+        {
+          "bone_face": 2252,
+          "lung_face": 33747,
+          "points_lattice": [
+            [
+              "2084336604512271752688/199797010042127",
+              "-162376117564278198835840/199797010042127",
+              "84103557630184606824384/199797010042127"
+            ],
+            [
+              "32608334450201472432/3108498970603",
+              "-12629170217929955560576/15542494853015",
+              "1308003271772989838976/3108498970603"
+            ]
+          ]
+        },
+        {
+          "bone_face": 2433,
+          "lung_face": 3054,
+          "points_lattice": [
+            [
+              "227073265341600750960/15212222152969",
+              "-12345827337412158544832/15212222152969",
+              "6391145722401102575104/15212222152969"
+            ],
+            [
+              "2348811419687498417072/157402757389077",
+              "-127744367188538973700288/157402757389077",
+              "22043458081849559797888/52467585796359"
+            ]
+          ]
+        },
+        {
+          "bone_face": 2434,
+          "lung_face": 3054,
+          "points_lattice": [
+            [
+              "483881837174003541440/32387817900217",
+              "-26284709597526052030464/32387817900217",
+              "13606911112915987473216/32387817900217"
+            ],
+            [
+              "227073265341600750960/15212222152969",
+              "-12345827337412158544832/15212222152969",
+              "6391145722401102575104/15212222152969"
+            ]
+          ]
+        },
+        {
+          "bone_face": 2253,
+          "lung_face": 3055,
+          "points_lattice": [
+            [
+              "282314659328260514832/23675200931609",
+              "-19250858871108924116352/23675200931609",
+              "9980838361753222355712/23675200931609"
+            ],
+            [
+              "200395134315524139056/13805976314177",
+              "-11210882078639854168576/13805976314177",
+              "5806499038102879171968/13805976314177"
+            ]
+          ]
+        },
+        {
+          "bone_face": 2433,
+          "lung_face": 3055,
+          "points_lattice": [
+            [
+              "118518672759940939408/8155067651845",
+              "-6622019541091167740096/8155067651845",
+              "3429702595835905134336/8155067651845"
+            ],
+            [
+              "2348811419687498417072/157402757389077",
+              "-127744367188538973700288/157402757389077",
+              "22043458081849559797888/52467585796359"
+            ]
+          ]
+        },
+        {
+          "bone_face": 2252,
+          "lung_face": 33744,
+          "points_lattice": [
+            [
+              "32608334450201472432/3108498970603",
+              "-12629170217929955560576/15542494853015",
+              "1308003271772989838976/3108498970603"
+            ],
+            [
+              "351445166710507473872/32210105874025",
+              "-26146514451829373499008/32210105874025",
+              "13525194673249282664768/32210105874025"
+            ]
+          ]
+        },
+        {
+          "bone_face": 2252,
+          "lung_face": 33742,
+          "points_lattice": [
+            [
+              "351445166710507473872/32210105874025",
+              "-26146514451829373499008/32210105874025",
+              "13525194673249282664768/32210105874025"
+            ],
+            [
+              "100891086490937321392/8199655189307",
+              "-6637097753968315897984/8199655189307",
+              "3422622451588858805440/8199655189307"
+            ]
+          ]
+        },
+        {
+          "bone_face": 2252,
+          "lung_face": 3059,
+          "points_lattice": [
+            [
+              "3243304625508865186/252133968385",
+              "-204021592712310205784/252133968385",
+              "105181532389916558494/252133968385"
+            ],
+            [
+              "100891086490937321392/8199655189307",
+              "-6637097753968315897984/8199655189307",
+              "3422622451588858805440/8199655189307"
+            ]
+          ]
+        },
+        {
+          "bone_face": 2252,
+          "lung_face": 3062,
+          "points_lattice": [
+            [
+              "3243304625508865186/252133968385",
+              "-204021592712310205784/252133968385",
+              "105181532389916558494/252133968385"
+            ],
+            [
+              "1063292959525577813680/79693395707419",
+              "-64495941545059611654272/79693395707419",
+              "33259239636227864440384/79693395707419"
+            ]
+          ]
+        },
+        {
+          "bone_face": 2256,
+          "lung_face": 3062,
+          "points_lattice": [
+            [
+              "612531243929905130920/40126559530951",
+              "-32524398968742114082368/40126559530951",
+              "16814534548133089537376/40126559530951"
+            ],
+            [
+              "1063292959525577813680/79693395707419",
+              "-64495941545059611654272/79693395707419",
+              "33259239636227864440384/79693395707419"
+            ]
+          ]
+        },
+        {
+          "bone_face": 2436,
+          "lung_face": 3062,
+          "points_lattice": [
+            [
+              "612531243929905130920/40126559530951",
+              "-32524398968742114082368/40126559530951",
+              "16814534548133089537376/40126559530951"
+            ],
+            [
+              "611792826811328824080/40042548282991",
+              "-32457258255557205184512/40042548282991",
+              "16780604238583120956448/40042548282991"
+            ]
+          ]
+        },
+        {
+          "bone_face": 2253,
+          "lung_face": 3056,
+          "points_lattice": [
+            [
+              "1283081657491544788064/88378751458037",
+              "-71766171851006371331776/88378751458037",
+              "37170099486321068678592/88378751458037"
+            ],
+            [
+              "200395134315524139056/13805976314177",
+              "-11210882078639854168576/13805976314177",
+              "5806499038102879171968/13805976314177"
+            ]
+          ]
+        },
+        {
+          "bone_face": 2433,
+          "lung_face": 3056,
+          "points_lattice": [
+            [
+              "118518672759940939408/8155067651845",
+              "-6622019541091167740096/8155067651845",
+              "3429702595835905134336/8155067651845"
+            ],
+            [
+              "1283081657491544788064/88378751458037",
+              "-71766171851006371331776/88378751458037",
+              "37170099486321068678592/88378751458037"
+            ]
+          ]
+        }
+      ],
+      "lung_stable_id": 308
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 28,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 308
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 29,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 308
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 30,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 308
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 31,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 308
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 32,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 308
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 33,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 308
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 34,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 308
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 35,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 308
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 36,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 308
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 37,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 308
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 38,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 308
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 39,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 308
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 40,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 308
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 41,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 308
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 42,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 308
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 43,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 308
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 44,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 308
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 45,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 308
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 46,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 308
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 47,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 308
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 3816,
+      "audit_complete": true,
+      "bone_stable_id": 48,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 163,
+      "first_witnesses": [
+        {
+          "bone_face": 2543,
+          "lung_face": 13137,
+          "points_lattice": [
+            [
+              "1259984070266981153200/19784302874049",
+              "-4832562954056289750464/6594767624683",
+              "6694105594810777645568/19784302874049"
+            ],
+            [
+              "391448543002577087248/6170264555249",
+              "-22626630518171462490432/30851322776245",
+              "10462855050795957732736/30851322776245"
+            ]
+          ]
+        },
+        {
+          "bone_face": 2543,
+          "lung_face": 13138,
+          "points_lattice": [
+            [
+              "391448543002577087248/6170264555249",
+              "-22626630518171462490432/30851322776245",
+              "10462855050795957732736/30851322776245"
+            ],
+            [
+              "46328855920552603872/730126104689",
+              "-535609892639338416704/730126104689",
+              "247693016968670913024/730126104689"
+            ]
+          ]
+        },
+        {
+          "bone_face": 1577,
+          "lung_face": 35265,
+          "points_lattice": [
+            [
+              "276168493898166440121712/4623522284544349",
+              "-3182347319891866907639040/4623522284544349",
+              "1317285329978148005593408/4623522284544349"
+            ],
+            [
+              "3698486923432539258736/61395557428545",
+              "-42275528735855371892864/61395557428545",
+              "3494321818617026323456/12279111485709"
+            ]
+          ]
+        },
+        {
+          "bone_face": 1722,
+          "lung_face": 35265,
+          "points_lattice": [
+            [
+              "276168493898166440121712/4623522284544349",
+              "-3182347319891866907639040/4623522284544349",
+              "1317285329978148005593408/4623522284544349"
+            ],
+            [
+              "69330709225066457530624/1174106602735485",
+              "-807678100403696214299744/1174106602735485",
+              "334913308355455513936496/1174106602735485"
+            ]
+          ]
+        },
+        {
+          "bone_face": 1724,
+          "lung_face": 35265,
+          "points_lattice": [
+            [
+              "69330709225066457530624/1174106602735485",
+              "-807678100403696214299744/1174106602735485",
+              "334913308355455513936496/1174106602735485"
+            ],
+            [
+              "31218836618418702729824/524419842034987",
+              "-360961759063816718932224/524419842034987",
+              "150195176218607068365568/524419842034987"
+            ]
+          ]
+        },
+        {
+          "bone_face": 2572,
+          "lung_face": 13139,
+          "points_lattice": [
+            [
+              "6324266789882628462144/99692578045385",
+              "-73233585709469107620544/99692578045385",
+              "33907386732506430371712/99692578045385"
+            ],
+            [
+              "38843670639743069654688/606857174749985",
+              "-446289012992065992866496/606857174749985",
+              "41326343660991872535424/121371434949997"
+            ]
+          ]
+        },
+        {
+          "bone_face": 2573,
+          "lung_face": 13139,
+          "points_lattice": [
+            [
+              "38533494915778598734560/599843127347789",
+              "-441244020672532328282176/599843127347789",
+              "204261679816696773890816/599843127347789"
+            ],
+            [
+              "38843670639743069654688/606857174749985",
+              "-446289012992065992866496/606857174749985",
+              "41326343660991872535424/121371434949997"
+            ]
+          ]
+        },
+        {
+          "bone_face": 2542,
+          "lung_face": 13139,
+          "points_lattice": [
+            [
+              "72000826701238942859280/1119270102775477",
+              "-823257853733690913723008/1119270102775477",
+              "381017862620674768063168/1119270102775477"
+            ],
+            [
+              "38533494915778598734560/599843127347789",
+              "-441244020672532328282176/599843127347789",
+              "204261679816696773890816/599843127347789"
+            ]
+          ]
+        },
+        {
+          "bone_face": 2543,
+          "lung_face": 13139,
+          "points_lattice": [
+            [
+              "46328855920552603872/730126104689",
+              "-535609892639338416704/730126104689",
+              "247693016968670913024/730126104689"
+            ],
+            [
+              "2368760039732251536480/37396567886047",
+              "-27457447109698466393536/37396567886047",
+              "12709475957241469469184/37396567886047"
+            ]
+          ]
+        },
+        {
+          "bone_face": 2544,
+          "lung_face": 13139,
+          "points_lattice": [
+            [
+              "2368760039732251536480/37396567886047",
+              "-27457447109698466393536/37396567886047",
+              "12709475957241469469184/37396567886047"
+            ],
+            [
+              "6324266789882628462144/99692578045385",
+              "-73233585709469107620544/99692578045385",
+              "33907386732506430371712/99692578045385"
+            ]
+          ]
+        },
+        {
+          "bone_face": 1724,
+          "lung_face": 22396,
+          "points_lattice": [
+            [
+              "6561155480482438906731/110071086334759",
+              "-75768736527497216390456/110071086334759",
+              "31552788382289347948620/110071086334759"
+            ],
+            [
+              "43261043398012272260412/714629247356659",
+              "-492593367033995312471072/714629247356659",
+              "205600058322096487085520/714629247356659"
+            ]
+          ]
+        },
+        {
+          "bone_face": 1573,
+          "lung_face": 35262,
+          "points_lattice": [
+            [
+              "6298996517070172390507/104212121754452",
+              "-17941616286049813166650/26053030438613",
+              "7402192778559235258176/26053030438613"
+            ],
+            [
+              "6321220067351756281201/104787097031636",
+              "-18039525455101914533650/26196774257909",
+              "7453041323832326961543/26196774257909"
+            ]
+          ]
+        },
+        {
+          "bone_face": 1577,
+          "lung_face": 35262,
+          "points_lattice": [
+            [
+              "3698486923432539258736/61395557428545",
+              "-42275528735855371892864/61395557428545",
+              "3494321818617026323456/12279111485709"
+            ],
+            [
+              "6321220067351756281201/104787097031636",
+              "-18039525455101914533650/26196774257909",
+              "7453041323832326961543/26196774257909"
+            ]
+          ]
+        },
+        {
+          "bone_face": 1724,
+          "lung_face": 35262,
+          "points_lattice": [
+            [
+              "31218836618418702729824/524419842034987",
+              "-360961759063816718932224/524419842034987",
+              "150195176218607068365568/524419842034987"
+            ],
+            [
+              "6561155480482438906731/110071086334759",
+              "-75768736527497216390456/110071086334759",
+              "31552788382289347948620/110071086334759"
+            ]
+          ]
+        },
+        {
+          "bone_face": 1574,
+          "lung_face": 35262,
+          "points_lattice": [
+            [
+              "6298996517070172390507/104212121754452",
+              "-17941616286049813166650/26053030438613",
+              "7402192778559235258176/26053030438613"
+            ],
+            [
+              "11548924543372283215368/189408262391023",
+              "-6867801302772172896800/9968855915317",
+              "2830804114391541045384/9968855915317"
+            ]
+          ]
+        },
+        {
+          "bone_face": 1575,
+          "lung_face": 35262,
+          "points_lattice": [
+            [
+              "11548924543372283215368/189408262391023",
+              "-6867801302772172896800/9968855915317",
+              "2830804114391541045384/9968855915317"
+            ],
+            [
+              "2354888155920126811952/38363176506283",
+              "-26437520724761222685440/38363176506283",
+              "10892263043867147803872/38363176506283"
+            ]
+          ]
+        }
+      ],
+      "lung_stable_id": 308
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 952,
+      "audit_complete": true,
+      "bone_stable_id": 49,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 308
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 634,
+      "audit_complete": true,
+      "bone_stable_id": 50,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 308
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 5310,
+      "audit_complete": true,
+      "bone_stable_id": 51,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 142,
+      "first_witnesses": [
+        {
+          "bone_face": 4114,
+          "lung_face": 32541,
+          "points_lattice": [
+            [
+              "40099140889851806519664/274100620441807",
+              "-223130738992665724474240/274100620441807",
+              "54433846751174618408048/274100620441807"
+            ],
+            [
+              "220028974095701254563696/1502631748201573",
+              "-1223835818675599568076160/1502631748201573",
+              "298352984706229587259472/1502631748201573"
+            ]
+          ]
+        },
+        {
+          "bone_face": 4117,
+          "lung_face": 32541,
+          "points_lattice": [
+            [
+              "115879084844102363189232/788854751480711",
+              "-643296152161729752638080/788854751480711",
+              "156564487487569127108624/788854751480711"
+            ],
+            [
+              "98518813936104952024048/665055520547839",
+              "-1631696289290786377449344/1995166561643517",
+              "395622119588927817439408/1995166561643517"
+            ]
+          ]
+        },
+        {
+          "bone_face": 4168,
+          "lung_face": 32541,
+          "points_lattice": [
+            [
+              "220028974095701254563696/1502631748201573",
+              "-1223835818675599568076160/1502631748201573",
+              "298352984706229587259472/1502631748201573"
+            ],
+            [
+              "115879084844102363189232/788854751480711",
+              "-643296152161729752638080/788854751480711",
+              "156564487487569127108624/788854751480711"
+            ]
+          ]
+        },
+        {
+          "bone_face": 4175,
+          "lung_face": 32541,
+          "points_lattice": [
+            [
+              "98518813936104952024048/665055520547839",
+              "-1631696289290786377449344/1995166561643517",
+              "395622119588927817439408/1995166561643517"
+            ],
+            [
+              "108613297599949124643152/733147486461617",
+              "-599595554199422399175296/733147486461617",
+              "145375441328683143749904/733147486461617"
+            ]
+          ]
+        },
+        {
+          "bone_face": 4114,
+          "lung_face": 32542,
+          "points_lattice": [
+            [
+              "5179101950088505738480/35336748760243",
+              "-258954074682182121454208/318030738842187",
+              "63246830356448663804080/318030738842187"
+            ],
+            [
+              "40099140889851806519664/274100620441807",
+              "-223130738992665724474240/274100620441807",
+              "54433846751174618408048/274100620441807"
+            ]
+          ]
+        },
+        {
+          "bone_face": 4114,
+          "lung_face": 32545,
+          "points_lattice": [
+            [
+              "5179101950088505738480/35336748760243",
+              "-258954074682182121454208/318030738842187",
+              "63246830356448663804080/318030738842187"
+            ],
+            [
+              "14878549565512271870224/100326183860003",
+              "-81809306329958001982080/100326183860003",
+              "20135418568059167985200/100326183860003"
+            ]
+          ]
+        },
+        {
+          "bone_face": 4168,
+          "lung_face": 32545,
+          "points_lattice": [
+            [
+              "14878549565512271870224/100326183860003",
+              "-81809306329958001982080/100326183860003",
+              "20135418568059167985200/100326183860003"
+            ],
+            [
+              "4750020881082253471952/31818743327851",
+              "-25978196201584016582848/31818743327851",
+              "6409170757634830383552/31818743327851"
+            ]
+          ]
+        },
+        {
+          "bone_face": 4175,
+          "lung_face": 32543,
+          "points_lattice": [
+            [
+              "108613297599949124643152/733147486461617",
+              "-599595554199422399175296/733147486461617",
+              "145375441328683143749904/733147486461617"
+            ],
+            [
+              "46283714165489974015088/312396916361433",
+              "-255492543455429818500352/312396916361433",
+              "61947850649801043633392/312396916361433"
+            ]
+          ]
+        },
+        {
+          "bone_face": 4117,
+          "lung_face": 32544,
+          "points_lattice": [
+            [
+              "8339383018693380181104/55952444044507",
+              "-45751858237091258595296/55952444044507",
+              "11194013808982613877064/55952444044507"
+            ],
+            [
+              "12662243737207565065384/85448228965007",
+              "-69884937733053272530016/85448228965007",
+              "16947862666305988378152/85448228965007"
+            ]
+          ]
+        },
+        {
+          "bone_face": 4168,
+          "lung_face": 32544,
+          "points_lattice": [
+            [
+              "8339383018693380181104/55952444044507",
+              "-45751858237091258595296/55952444044507",
+              "11194013808982613877064/55952444044507"
+            ],
+            [
+              "4750020881082253471952/31818743327851",
+              "-25978196201584016582848/31818743327851",
+              "6409170757634830383552/31818743327851"
+            ]
+          ]
+        },
+        {
+          "bone_face": 4175,
+          "lung_face": 32544,
+          "points_lattice": [
+            [
+              "12662243737207565065384/85448228965007",
+              "-69884937733053272530016/85448228965007",
+              "16947862666305988378152/85448228965007"
+            ],
+            [
+              "46283714165489974015088/312396916361433",
+              "-255492543455429818500352/312396916361433",
+              "61947850649801043633392/312396916361433"
+            ]
+          ]
+        },
+        {
+          "bone_face": 4112,
+          "lung_face": 32552,
+          "points_lattice": [
+            [
+              "13949478476809151914048/92396690922335",
+              "-75459302384240392619328/92396690922335",
+              "18835010379961602874832/92396690922335"
+            ],
+            [
+              "229283088307827016787584/1522972925075255",
+              "-1244016262586982658741824/1522972925075255",
+              "309530414417411440815056/1522972925075255"
+            ]
+          ]
+        },
+        {
+          "bone_face": 4289,
+          "lung_face": 32552,
+          "points_lattice": [
+            [
+              "229283088307827016787584/1522972925075255",
+              "-1244016262586982658741824/1522972925075255",
+              "309530414417411440815056/1522972925075255"
+            ],
+            [
+              "58242905137577287665728/385890116225371",
+              "-1578900340131920350617408/1929450581126855",
+              "390741821551104788992976/1929450581126855"
+            ]
+          ]
+        },
+        {
+          "bone_face": 4289,
+          "lung_face": 32553,
+          "points_lattice": [
+            [
+              "58242905137577287665728/385890116225371",
+              "-1578900340131920350617408/1929450581126855",
+              "390741821551104788992976/1929450581126855"
+            ],
+            [
+              "289108401971594928101824/1915432960183829",
+              "-1567456632443693462752704/1915432960183829",
+              "387894842343682541433200/1915432960183829"
+            ]
+          ]
+        },
+        {
+          "bone_face": 4292,
+          "lung_face": 32547,
+          "points_lattice": [
+            [
+              "33002979810673957741232/215369937117685",
+              "-177134175959164895543808/215369937117685",
+              "43605402070401352040368/215369937117685"
+            ],
+            [
+              "4664141936155215738488/30351855547417",
+              "-24977464659289200908624/30351855547417",
+              "18464507265027641890456/91055566642251"
+            ]
+          ]
+        },
+        {
+          "bone_face": 4117,
+          "lung_face": 32554,
+          "points_lattice": [
+            [
+              "4573927326828275886832/30232381899511",
+              "-24790701057270867735680/30232381899511",
+              "6098749877741463425424/30232381899511"
+            ],
+            [
+              "6211369304738481281456/40983922972723",
+              "-33625250119663549399680/40983922972723",
+              "8268338683809069945040/40983922972723"
+            ]
+          ]
+        }
+      ],
+      "lung_stable_id": 308
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 1184,
+      "audit_complete": true,
+      "bone_stable_id": 52,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 308
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 19,
+      "audit_complete": true,
+      "bone_stable_id": 53,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 308
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 54,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 308
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 55,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 308
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 56,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 308
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 57,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 308
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 58,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 308
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 59,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 308
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 26,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 309
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 929,
+      "audit_complete": true,
+      "bone_stable_id": 27,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 55,
+      "first_witnesses": [
+        {
+          "bone_face": 258,
+          "lung_face": 29642,
+          "points_lattice": [
+            [
+              "-55206957989535477182256/623651070847073",
+              "-500943562838014477976928/623651070847073",
+              "260733025392196135725104/623651070847073"
+            ],
+            [
+              "-71584690700234726016192/808669356050011",
+              "-649608326931262923643008/808669356050011",
+              "338123956108535610295456/808669356050011"
+            ]
+          ]
+        },
+        {
+          "bone_face": 448,
+          "lung_face": 29642,
+          "points_lattice": [
+            [
+              "-24121663618305440945856/273032655771959",
+              "-219557465839864459351296/273032655771959",
+              "114351645731732554675328/273032655771959"
+            ],
+            [
+              "-333510199992009598920/3771169164037",
+              "-3032175455618843161152/3771169164037",
+              "1579064348296208893852/3771169164037"
+            ]
+          ]
+        },
+        {
+          "bone_face": 449,
+          "lung_face": 29642,
+          "points_lattice": [
+            [
+              "-71584690700234726016192/808669356050011",
+              "-649608326931262923643008/808669356050011",
+              "338123956108535610295456/808669356050011"
+            ],
+            [
+              "-333510199992009598920/3771169164037",
+              "-3032175455618843161152/3771169164037",
+              "1579064348296208893852/3771169164037"
+            ]
+          ]
+        },
+        {
+          "bone_face": 258,
+          "lung_face": 28586,
+          "points_lattice": [
+            [
+              "-99800346638294992134096/1141818763837045",
+              "-182829624933836790439744/228363752767409",
+              "474344735245425071610848/1141818763837045"
+            ],
+            [
+              "-30996286132542977794692/355647085397585",
+              "-283798460634025761094592/355647085397585",
+              "146961446110003754542344/355647085397585"
+            ]
+          ]
+        },
+        {
+          "bone_face": 281,
+          "lung_face": 28586,
+          "points_lattice": [
+            [
+              "-30996286132542977794692/355647085397585",
+              "-283798460634025761094592/355647085397585",
+              "146961446110003754542344/355647085397585"
+            ],
+            [
+              "-439229514233423509083024/5099942813548925",
+              "-4064567285341916458590016/5099942813548925",
+              "2101760148613660937266096/5099942813548925"
+            ]
+          ]
+        },
+        {
+          "bone_face": 281,
+          "lung_face": 28587,
+          "points_lattice": [
+            [
+              "-169246815850697288122544/2040098621646267",
+              "-124692886248466454160128/156930663203559",
+              "64168822009668404908288/156930663203559"
+            ],
+            [
+              "-439229514233423509083024/5099942813548925",
+              "-4064567285341916458590016/5099942813548925",
+              "2101760148613660937266096/5099942813548925"
+            ]
+          ]
+        },
+        {
+          "bone_face": 258,
+          "lung_face": 29639,
+          "points_lattice": [
+            [
+              "-99800346638294992134096/1141818763837045",
+              "-182829624933836790439744/228363752767409",
+              "474344735245425071610848/1141818763837045"
+            ],
+            [
+              "-55206957989535477182256/623651070847073",
+              "-500943562838014477976928/623651070847073",
+              "260733025392196135725104/623651070847073"
+            ]
+          ]
+        },
+        {
+          "bone_face": 448,
+          "lung_face": 29639,
+          "points_lattice": [
+            [
+              "-71913687621463884883264/845345148294161",
+              "-679730105932105242156800/845345148294161",
+              "353216461590921895875968/845345148294161"
+            ],
+            [
+              "-24121663618305440945856/273032655771959",
+              "-219557465839864459351296/273032655771959",
+              "114351645731732554675328/273032655771959"
+            ]
+          ]
+        },
+        {
+          "bone_face": 246,
+          "lung_face": 29628,
+          "points_lattice": [
+            [
+              "-2125894426046217937632/24732160420795",
+              "-59857427058067482516736/74196481262385",
+              "31235831519686508854336/74196481262385"
+            ],
+            [
+              "-8321681770824662357792/96756755254729",
+              "-78048521810488331052288/96756755254729",
+              "40725193721676234844512/96756755254729"
+            ]
+          ]
+        },
+        {
+          "bone_face": 448,
+          "lung_face": 29636,
+          "points_lattice": [
+            [
+              "-71913687621463884883264/845345148294161",
+              "-679730105932105242156800/845345148294161",
+              "353216461590921895875968/845345148294161"
+            ],
+            [
+              "-763331154802045246273856/8987477658637169",
+              "-7235411592252085479360256/8987477658637169",
+              "3765609135075424162249088/8987477658637169"
+            ]
+          ]
+        },
+        {
+          "bone_face": 246,
+          "lung_face": 29637,
+          "points_lattice": [
+            [
+              "-8321681770824662357792/96756755254729",
+              "-78048521810488331052288/96756755254729",
+              "40725193721676234844512/96756755254729"
+            ],
+            [
+              "-37529847176711186147168/441700793195381",
+              "-355675248793751710728832/441700793195381",
+              "185169957158855146037648/441700793195381"
+            ]
+          ]
+        },
+        {
+          "bone_face": 448,
+          "lung_face": 29637,
+          "points_lattice": [
+            [
+              "-37529847176711186147168/441700793195381",
+              "-355675248793751710728832/441700793195381",
+              "185169957158855146037648/441700793195381"
+            ],
+            [
+              "-763331154802045246273856/8987477658637169",
+              "-7235411592252085479360256/8987477658637169",
+              "3765609135075424162249088/8987477658637169"
+            ]
+          ]
+        },
+        {
+          "bone_face": 246,
+          "lung_face": 29631,
+          "points_lattice": [
+            [
+              "-2125894426046217937632/24732160420795",
+              "-59857427058067482516736/74196481262385",
+              "31235831519686508854336/74196481262385"
+            ],
+            [
+              "-9254448155356408410952/108524539018451",
+              "-87693233032123113282856/108524539018451",
+              "45814233885258103809592/108524539018451"
+            ]
+          ]
+        },
+        {
+          "bone_face": 246,
+          "lung_face": 29635,
+          "points_lattice": [
+            [
+              "-3288850885677138500640/38744699070613",
+              "-156673951389233347751936/193723495353065",
+              "16380290269692250235072/38744699070613"
+            ],
+            [
+              "-9254448155356408410952/108524539018451",
+              "-87693233032123113282856/108524539018451",
+              "45814233885258103809592/108524539018451"
+            ]
+          ]
+        },
+        {
+          "bone_face": 446,
+          "lung_face": 29635,
+          "points_lattice": [
+            [
+              "-91195555186451762521536/1094062255490143",
+              "-885704687496792226726144/1094062255490143",
+              "463346554816913892120256/1094062255490143"
+            ],
+            [
+              "-3288850885677138500640/38744699070613",
+              "-156673951389233347751936/193723495353065",
+              "16380290269692250235072/38744699070613"
+            ]
+          ]
+        },
+        {
+          "bone_face": 446,
+          "lung_face": 29624,
+          "points_lattice": [
+            [
+              "-91195555186451762521536/1094062255490143",
+              "-885704687496792226726144/1094062255490143",
+              "463346554816913892120256/1094062255490143"
+            ],
+            [
+              "-157699311132369706101056/1904322272251849",
+              "-1542691667343534075428608/1904322272251849",
+              "807662599131221103157056/1904322272251849"
+            ]
+          ]
+        }
+      ],
+      "lung_stable_id": 309
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 28,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 309
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 29,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 309
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 30,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 309
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 31,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 309
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 32,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 309
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 33,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 309
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 34,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 309
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 35,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 309
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 3233,
+      "audit_complete": true,
+      "bone_stable_id": 36,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 51,
+      "first_witnesses": [
+        {
+          "bone_face": 714,
+          "lung_face": 31929,
+          "points_lattice": [
+            [
+              "-514557779074942608328/3623591188521",
+              "-877965221745508988000/1207863729507",
+              "1244180726084747043136/3623591188521"
+            ],
+            [
+              "-1537809120589109531264/10832240285427",
+              "-2625717314064761520512/3610746761809",
+              "3722735960745355328320/10832240285427"
+            ]
+          ]
+        },
+        {
+          "bone_face": 671,
+          "lung_face": 31930,
+          "points_lattice": [
+            [
+              "-19554137969431709284480/138020330291061",
+              "-33493195287663291177088/46006776763687",
+              "47550395853879450668480/138020330291061"
+            ],
+            [
+              "-9972508263609501407360/70372609795827",
+              "-17075964545388077042816/23457536598609",
+              "8080032051281763517120/23457536598609"
+            ]
+          ]
+        },
+        {
+          "bone_face": 714,
+          "lung_face": 31930,
+          "points_lattice": [
+            [
+              "-9972508263609501407360/70372609795827",
+              "-17075964545388077042816/23457536598609",
+              "8080032051281763517120/23457536598609"
+            ],
+            [
+              "-1537809120589109531264/10832240285427",
+              "-2625717314064761520512/3610746761809",
+              "3722735960745355328320/10832240285427"
+            ]
+          ]
+        },
+        {
+          "bone_face": 668,
+          "lung_face": 31930,
+          "points_lattice": [
+            [
+              "-19554137969431709284480/138020330291061",
+              "-33493195287663291177088/46006776763687",
+              "47550395853879450668480/138020330291061"
+            ],
+            [
+              "-268425803493066550400/1895449632039",
+              "-460012411141105672832/631816544013",
+              "653193753405182054720/1895449632039"
+            ]
+          ]
+        },
+        {
+          "bone_face": 669,
+          "lung_face": 31930,
+          "points_lattice": [
+            [
+              "-1112460403709991969664/7924073436441",
+              "-1925262761009679722944/2641357812147",
+              "2741325520422392426240/7924073436441"
+            ],
+            [
+              "-268425803493066550400/1895449632039",
+              "-460012411141105672832/631816544013",
+              "653193753405182054720/1895449632039"
+            ]
+          ]
+        },
+        {
+          "bone_face": 669,
+          "lung_face": 31942,
+          "points_lattice": [
+            [
+              "-138057937093072213952/981623023169",
+              "-717217910988963213760/981623023169",
+              "341307913934378789760/981623023169"
+            ],
+            [
+              "-16685105732320024493232/119301714296699",
+              "-87199984486544592802240/119301714296699",
+              "41552313699981751788480/119301714296699"
+            ]
+          ]
+        },
+        {
+          "bone_face": 709,
+          "lung_face": 31942,
+          "points_lattice": [
+            [
+              "-16685105732320024493232/119301714296699",
+              "-87199984486544592802240/119301714296699",
+              "41552313699981751788480/119301714296699"
+            ],
+            [
+              "-59472509208131262661840/425330596920021",
+              "-310891694159814872454208/425330596920021",
+              "148154329051602659084608/425330596920021"
+            ]
+          ]
+        },
+        {
+          "bone_face": 709,
+          "lung_face": 31943,
+          "points_lattice": [
+            [
+              "-61066253672739490762736/436788612665885",
+              "-63861933976397589549504/87357722533177",
+              "152193561178987512561216/436788612665885"
+            ],
+            [
+              "-59472509208131262661840/425330596920021",
+              "-310891694159814872454208/425330596920021",
+              "148154329051602659084608/425330596920021"
+            ]
+          ]
+        },
+        {
+          "bone_face": 667,
+          "lung_face": 25129,
+          "points_lattice": [
+            [
+              "-82293246533747834846832/594576676500803",
+              "-436645638957637923340352/594576676500803",
+              "209595268460540955307520/594576676500803"
+            ],
+            [
+              "-41254415232624418218416/299314365322087",
+              "-219917090604389747758912/299314365322087",
+              "105700968236514480571904/299314365322087"
+            ]
+          ]
+        },
+        {
+          "bone_face": 709,
+          "lung_face": 31940,
+          "points_lattice": [
+            [
+              "-61066253672739490762736/436788612665885",
+              "-63861933976397589549504/87357722533177",
+              "152193561178987512561216/436788612665885"
+            ],
+            [
+              "-58726179887497754007056/422098795955835",
+              "-61890480374693358574144/84419759191167",
+              "49365709211134420982912/140699598651945"
+            ]
+          ]
+        },
+        {
+          "bone_face": 667,
+          "lung_face": 31940,
+          "points_lattice": [
+            [
+              "-82293246533747834846832/594576676500803",
+              "-436645638957637923340352/594576676500803",
+              "209595268460540955307520/594576676500803"
+            ],
+            [
+              "-58726179887497754007056/422098795955835",
+              "-61890480374693358574144/84419759191167",
+              "49365709211134420982912/140699598651945"
+            ]
+          ]
+        },
+        {
+          "bone_face": 737,
+          "lung_face": 31928,
+          "points_lattice": [
+            [
+              "-3446471525765038253752/24257194554897",
+              "-5871337969350233082064/8085731518299",
+              "2770402548898647595952/8085731518299"
+            ],
+            [
+              "-4328235718583575724104/30423698437725",
+              "-7356321593483903459824/10141232812575",
+              "3466539660488312340368/10141232812575"
+            ]
+          ]
+        },
+        {
+          "bone_face": 714,
+          "lung_face": 31928,
+          "points_lattice": [
+            [
+              "-514557779074942608328/3623591188521",
+              "-877965221745508988000/1207863729507",
+              "1244180726084747043136/3623591188521"
+            ],
+            [
+              "-3446471525765038253752/24257194554897",
+              "-5871337969350233082064/8085731518299",
+              "2770402548898647595952/8085731518299"
+            ]
+          ]
+        },
+        {
+          "bone_face": 770,
+          "lung_face": 23220,
+          "points_lattice": [
+            [
+              "-1924963473570081105273/13546561541255",
+              "-1959718390128554624672/2709312308251",
+              "4603149293359507857324/13546561541255"
+            ],
+            [
+              "-53964758800627946377248/379067522425261",
+              "-274483324887661273867392/379067522425261",
+              "129076426474768329864832/379067522425261"
+            ]
+          ]
+        },
+        {
+          "bone_face": 740,
+          "lung_face": 23220,
+          "points_lattice": [
+            [
+              "-1924963473570081105273/13546561541255",
+              "-1959718390128554624672/2709312308251",
+              "4603149293359507857324/13546561541255"
+            ],
+            [
+              "-4098165437527731614240/29123457289329",
+              "-7011921159271324536064/9707819096443",
+              "253481264044933861088/746755315111"
+            ]
+          ]
+        },
+        {
+          "bone_face": 713,
+          "lung_face": 23220,
+          "points_lattice": [
+            [
+              "-664938669228584041850/4748761411543",
+              "-3428516443809882108104/4748761411543",
+              "1612142070270708536754/4748761411543"
+            ],
+            [
+              "-4098165437527731614240/29123457289329",
+              "-7011921159271324536064/9707819096443",
+              "253481264044933861088/746755315111"
+            ]
+          ]
+        }
+      ],
+      "lung_stable_id": 309
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 521,
+      "audit_complete": true,
+      "bone_stable_id": 37,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 309
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 1042,
+      "audit_complete": true,
+      "bone_stable_id": 38,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 309
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 6429,
+      "audit_complete": true,
+      "bone_stable_id": 39,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 318,
+      "first_witnesses": [
+        {
+          "bone_face": 1437,
+          "lung_face": 4369,
+          "points_lattice": [
+            [
+              "-13719637624688045010048/48902451390469",
+              "-42981881082927096635712/48902451390469",
+              "325873047913439986420672/1026951479199849"
+            ],
+            [
+              "-63612899973587239102976/226760982325073",
+              "-199329078123938293550272/226760982325073",
+              "10286737699673875191104/32394426046439"
+            ]
+          ]
+        },
+        {
+          "bone_face": 1436,
+          "lung_face": 4398,
+          "points_lattice": [
+            [
+              "-218648474984843243514688/778684853993087",
+              "-684107590120870706578304/778684853993087",
+              "246108428293942691233120/778684853993087"
+            ],
+            [
+              "-24806515072918860383552/88348633342859",
+              "-77621222728568475869440/88348633342859",
+              "83791403168118342744928/265045900028577"
+            ]
+          ]
+        },
+        {
+          "bone_face": 1437,
+          "lung_face": 4398,
+          "points_lattice": [
+            [
+              "-13719637624688045010048/48902451390469",
+              "-42981881082927096635712/48902451390469",
+              "325873047913439986420672/1026951479199849"
+            ],
+            [
+              "-24806515072918860383552/88348633342859",
+              "-77621222728568475869440/88348633342859",
+              "83791403168118342744928/265045900028577"
+            ]
+          ]
+        },
+        {
+          "bone_face": 1691,
+          "lung_face": 2840,
+          "points_lattice": [
+            [
+              "-23648333016696088169600/84411533607361",
+              "-73020903000746376706048/84411533607361",
+              "24582705435012139539904/84411533607361"
+            ],
+            [
+              "-79251666029753332863856/282925161792935",
+              "-244688357187303845658368/282925161792935",
+              "16458233812037007530320/56585032358587"
+            ]
+          ]
+        },
+        {
+          "bone_face": 1690,
+          "lung_face": 3721,
+          "points_lattice": [
+            [
+              "-1689537615341729997/6029790563",
+              "-5231696837872350917/6029790563",
+              "3579785598239220937/12059581126"
+            ],
+            [
+              "-6996172077395887932296/24963186788755",
+              "-21667422393138080365768/24963186788755",
+              "1485177533273914517000/4992637357751"
+            ]
+          ]
+        },
+        {
+          "bone_face": 1715,
+          "lung_face": 3721,
+          "points_lattice": [
+            [
+              "-6996172077395887932296/24963186788755",
+              "-21667422393138080365768/24963186788755",
+              "1485177533273914517000/4992637357751"
+            ],
+            [
+              "-50743827724133634396992/180979575536009",
+              "-157198052829760920810176/180979575536009",
+              "54025280263692479451104/180979575536009"
+            ]
+          ]
+        },
+        {
+          "bone_face": 1691,
+          "lung_face": 3723,
+          "points_lattice": [
+            [
+              "-17984190930734612842016/64182910451419",
+              "-55650055617919107502816/64182910451419",
+              "18962872789211525092288/64182910451419"
+            ],
+            [
+              "-23648333016696088169600/84411533607361",
+              "-73020903000746376706048/84411533607361",
+              "24582705435012139539904/84411533607361"
+            ]
+          ]
+        },
+        {
+          "bone_face": 1690,
+          "lung_face": 3723,
+          "points_lattice": [
+            [
+              "-1689537615341729997/6029790563",
+              "-5231696837872350917/6029790563",
+              "3579785598239220937/12059581126"
+            ],
+            [
+              "-17984190930734612842016/64182910451419",
+              "-55650055617919107502816/64182910451419",
+              "18962872789211525092288/64182910451419"
+            ]
+          ]
+        },
+        {
+          "bone_face": 1691,
+          "lung_face": 2842,
+          "points_lattice": [
+            [
+              "-79251666029753332863856/282925161792935",
+              "-244688357187303845658368/282925161792935",
+              "16458233812037007530320/56585032358587"
+            ],
+            [
+              "-252054539541265955119936/899915460039629",
+              "-778232914526293276116608/899915460039629",
+              "261668496503604597103232/899915460039629"
+            ]
+          ]
+        },
+        {
+          "bone_face": 1437,
+          "lung_face": 4366,
+          "points_lattice": [
+            [
+              "-7205233818424907932288/25684260349441",
+              "-22581364449719242255424/25684260349441",
+              "8163219073417057553056/25684260349441"
+            ],
+            [
+              "-146343360100667810009792/521771931889541",
+              "-459243953490724908338944/521771931889541",
+              "166805207982165725980736/521771931889541"
+            ]
+          ]
+        },
+        {
+          "bone_face": 1437,
+          "lung_face": 4367,
+          "points_lattice": [
+            [
+              "-138730122754865822702528/496168815704195",
+              "-436948432115359920871552/496168815704195",
+              "160097664362830970996096/496168815704195"
+            ],
+            [
+              "-146343360100667810009792/521771931889541",
+              "-459243953490724908338944/521771931889541",
+              "166805207982165725980736/521771931889541"
+            ]
+          ]
+        },
+        {
+          "bone_face": 1437,
+          "lung_face": 4370,
+          "points_lattice": [
+            [
+              "-7205233818424907932288/25684260349441",
+              "-22581364449719242255424/25684260349441",
+              "8163219073417057553056/25684260349441"
+            ],
+            [
+              "-63612899973587239102976/226760982325073",
+              "-199329078123938293550272/226760982325073",
+              "10286737699673875191104/32394426046439"
+            ]
+          ]
+        },
+        {
+          "bone_face": 1231,
+          "lung_face": 5351,
+          "points_lattice": [
+            [
+              "-5869584159211662179904/21004174492811",
+              "-18497803275125018287104/21004174492811",
+              "6786306600201027512256/21004174492811"
+            ],
+            [
+              "-37144109943073401337536/132965423381779",
+              "-117112667135669301004096/132965423381779",
+              "43006018776566506338144/132965423381779"
+            ]
+          ]
+        },
+        {
+          "bone_face": 1437,
+          "lung_face": 5351,
+          "points_lattice": [
+            [
+              "-5869584159211662179904/21004174492811",
+              "-18497803275125018287104/21004174492811",
+              "6786306600201027512256/21004174492811"
+            ],
+            [
+              "-138730122754865822702528/496168815704195",
+              "-436948432115359920871552/496168815704195",
+              "160097664362830970996096/496168815704195"
+            ]
+          ]
+        },
+        {
+          "bone_face": 1416,
+          "lung_face": 3716,
+          "points_lattice": [
+            [
+              "-62999443445669595963840/224369730535619",
+              "-195362958212861691694720/224369730535619",
+              "67788817469934599810624/224369730535619"
+            ],
+            [
+              "-26196807800195589361520/93131157040801",
+              "-81261836295082013497040/93131157040801",
+              "28379752670800294599856/93131157040801"
+            ]
+          ]
+        },
+        {
+          "bone_face": 1417,
+          "lung_face": 3716,
+          "points_lattice": [
+            [
+              "-230515148998874482111520/819475612687811",
+              "-715054244538189322874240/819475612687811",
+              "249741440132410098345216/819475612687811"
+            ],
+            [
+              "-26196807800195589361520/93131157040801",
+              "-81261836295082013497040/93131157040801",
+              "28379752670800294599856/93131157040801"
+            ]
+          ]
+        }
+      ],
+      "lung_stable_id": 309
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 908,
+      "audit_complete": true,
+      "bone_stable_id": 40,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 309
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 41,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 309
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 42,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 309
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 43,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 309
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 44,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 309
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 45,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 309
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 46,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 309
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 47,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 309
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 48,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 309
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 49,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 309
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 50,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 309
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 51,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 309
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 52,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 309
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 53,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 309
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 54,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 309
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 55,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 309
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 56,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 309
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 57,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 309
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 58,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 309
+    },
+    {
+      "aabb_candidate_triangle_pair_count": 0,
+      "audit_complete": true,
+      "bone_stable_id": 59,
+      "count_is_lower_bound": false,
+      "exact_intersecting_triangle_pair_count": 0,
+      "first_witnesses": [],
+      "lung_stable_id": 309
+    }
+  ],
+  "predicate_path": "/Users/n/numi-human-neighbor-source-001/src/numilab_human/cardiac_cavity_intersections.py",
+  "predicate_sha256": "8b138882161c78312cb9b5aa46f49795092eb9b67ed9f705dc354787cb0a635b",
+  "receipt_path": "/Users/n/numi-human-resting-evidence-20261005/costal-fit-native-017/accepted-geometry/step-2783.receipt.json",
+  "receipt_sha256": "5cc54a53da9506f702c85afd7024bb687186c6b2f1d255fe249525a941f9eb3a",
+  "result_sha256": "8396fa168f6b27ea47cfa4357a77523225c526437958e128b584f00c524483fc",
+  "schema": "numi.human.accepted_native_rib_clearance.v1",
+  "step": 2783
+}
