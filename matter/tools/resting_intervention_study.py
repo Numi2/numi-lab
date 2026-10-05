@@ -326,6 +326,13 @@ def resting_reference_comparison(rows: list[dict[str, float]], start_s: float, e
             "supine_male_cohort_context": {"source": cohort, "source_location": "Table 2, men, supine",
                                           "values": cohort_values,
                                           "scope": "Published cohort mean/SD, not normal bounds or a clinical gate. OEP chest-wall tidal volume is a related measurement, not identical to model airway volume."},
+            "supine_pulmonary_pressure_review_context": {
+                "source": "https://pubmed.ncbi.nlm.nih.gov/19324955/",
+                "doi": "10.1183/09031936.00145608",
+                "source_location": "Kovacs et al. 2009, abstract, healthy subjects at rest in the supine position",
+                "mean_pulmonary_artery_pressure_mmhg": {
+                    "measured": mean(samples, "pulmonary_artery_mmhg"), "mean": 14.0, "sd": 3.3},
+                "scope": "Published right-heart-catheterization review mean/SD, not individual normal bounds or a clinical gate. This posture-specific context supplements the unchanged AACN comparison; it does not replace a failed comparison or tune the model."},
             "limitations": "General reference intervals depend on age, altitude and measurement method. Comparisons describe model outputs; they do not establish anatomical validity, numerical conservation, population generalization or clinical validation. Missing complete-cycle rates remain unavailable."}
 
 

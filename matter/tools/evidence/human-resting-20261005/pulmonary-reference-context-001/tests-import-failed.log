@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/Users/n/numi-human-resting-analysis-source-001/matter/tools/test_resting_intervention_study.py", line 14, in <module>
+    from metalrobo.science_notebook import validate as validate_plan
+ModuleNotFoundError: No module named 'metalrobo'
