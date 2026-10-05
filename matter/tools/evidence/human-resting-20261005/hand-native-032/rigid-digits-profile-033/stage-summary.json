@@ -1,0 +1,86 @@
+{
+  "kinematics": {
+    "samples": 5,
+    "mean_ms": 1.5874748,
+    "min_ms": 1.563208,
+    "max_ms": 1.60575
+  },
+  "muscle_angular": {
+    "samples": 2,
+    "mean_ms": 0.008292,
+    "min_ms": 0.00825,
+    "max_ms": 0.008334
+  },
+  "muscles": {
+    "samples": 2,
+    "mean_ms": 0.48654200000000003,
+    "min_ms": 0.486417,
+    "max_ms": 0.486667
+  },
+  "active_force": {
+    "samples": 2,
+    "mean_ms": 0.016937,
+    "min_ms": 0.016708,
+    "max_ms": 0.017166
+  },
+  "force_reduce": {
+    "samples": 2,
+    "mean_ms": 0.049854,
+    "min_ms": 0.04875,
+    "max_ms": 0.050958
+  },
+  "tendon_transfer": {
+    "samples": 2,
+    "mean_ms": 0.0820415,
+    "min_ms": 0.080625,
+    "max_ms": 0.083458
+  },
+  "activation": {
+    "samples": 2,
+    "mean_ms": 0.005667,
+    "min_ms": 0.005209,
+    "max_ms": 0.006125
+  },
+  "stand_prework": {
+    "samples": 2,
+    "mean_ms": 0.826708,
+    "min_ms": 0.82075,
+    "max_ms": 0.832666
+  },
+  "stand_mass": {
+    "samples": 2,
+    "mean_ms": 0.0559165,
+    "min_ms": 0.055458,
+    "max_ms": 0.056375
+  },
+  "stand_factor": {
+    "samples": 2,
+    "mean_ms": 0.945979,
+    "min_ms": 0.945333,
+    "max_ms": 0.946625
+  },
+  "stand_equality_responses": {
+    "samples": 2,
+    "mean_ms": 0.5085005,
+    "min_ms": 0.508459,
+    "max_ms": 0.508542
+  },
+  "stand_equality_factor": {
+    "samples": 2,
+    "mean_ms": 19.074541500000002,
+    "min_ms": 19.07375,
+    "max_ms": 19.075333
+  },
+  "stand_projected_responses": {
+    "samples": 2,
+    "mean_ms": 1.6070829999999998,
+    "min_ms": 1.60625,
+    "max_ms": 1.607916
+  },
+  "stand_finish": {
+    "samples": 2,
+    "mean_ms": 24.519479,
+    "min_ms": 24.299958,
+    "max_ms": 24.739
+  }
+}

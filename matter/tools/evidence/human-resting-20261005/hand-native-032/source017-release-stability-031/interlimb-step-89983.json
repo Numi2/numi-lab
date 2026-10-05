@@ -1,0 +1,35 @@
+{
+  "scope": "Exact accepted native left/right lower-limb skin subset audit, excluding adjacent groin. Not whole-skin or organ clearance.",
+  "accepted_receipt": {
+    "path": "/Users/n/numi-human-resting-evidence-20261005/source017-release-stability-031/accepted-geometry/step-89983.receipt.json",
+    "sha256": "0d217340a5aaa7cd0e0dfa780d4614954cd1b60001786c75102576811dc8ce52",
+    "accepted_step": 89983,
+    "accepted_time_s": 179.96600854792632,
+    "accepted_root_fingerprint": 16390922897400774331,
+    "accepted_root_fingerprint_hex": "0xe37841884863bebb",
+    "accepted_transaction_fingerprint": 16390922897400774331,
+    "accepted_body_state_sha256": "34e717b4b520447f61d61a4dbedd97bdcf1b4edde4588fd0b5049adac52c8013",
+    "accepted_respiration_state_sha256": "8b81ef2c65d388cb8d3f937456a71da92c2d9178caf352e1224b5bd73b9c40b6",
+    "base_pack_content_hash": "sha256:48d79fadcc6af47d2a8603327e5a70537392dc2ce62edb18747d4c947ac8956c",
+    "base_pack_file_sha256": "4f969193b7e66385b5a06d9d55a3ea966d156821e76558b16d4a785cdaddd6a7",
+    "anatomy_layer_index": 0,
+    "captured_vertex_buffer_sha256": "192bc86ef5d76e37ab9c12ce2e8588018cc22dd724c8d6c3c94f401cfa40dcf7"
+  },
+  "script_sha256": "681ea580eaa318d01b49abc81c899b3930f596aa7714fc91788c963ab0d53437",
+  "reference_pack_sha256": "4f969193b7e66385b5a06d9d55a3ea966d156821e76558b16d4a785cdaddd6a7",
+  "predicate_sha256": "8b138882161c78312cb9b5aa46f49795092eb9b67ed9f705dc354787cb0a635b",
+  "pair_driver_sha256": "e7288d510b1fcba51708293f23f4dc32f052322a2c9496831803892cc2f6ca4d",
+  "partition": {
+    "initial_supine_world_y_max_m": -0.92,
+    "initial_midline_x_m": -0.025,
+    "right_face_count": 28657,
+    "left_face_count": 28441
+  },
+  "step": 89983,
+  "aabb_candidates": 0,
+  "exact_intersecting_triangle_pairs": 0,
+  "complete": true,
+  "elapsed_s": 0.16846320778131485,
+  "coordinate_scale_per_m": 268435456,
+  "first_witnesses": []
+}

@@ -1,0 +1,24 @@
+[  0%] Built target numi_matter_shaders
+[  0%] Built target metalrobo_visual_kernel_hashes
+[  0%] Built target metalrobo_neuron_culture_shaders
+[  0%] Built target metalrobo_shaders
+[  6%] Built target numi_matter_compiler_objects
+[  6%] Built target metalrobo_hyper_policy_shaders
+[ 10%] Built target numi_human_respiration_shaders
+[ 13%] Built target numi_matter_runtime_objects
+[ 96%] Built target metalrobo
+[100%] Building OBJCXX object CMakeFiles/numi-human-native.dir/apps/numilab_human_myosim_visual_probe.mm.o
+[100%] Linking OBJCXX executable bin/numi-human-native
+[100%] Built target numi-human-native
+[  0%] Built target metalrobo_visual_kernel_hashes
+[  0%] Built target numi_matter_shaders
+[  0%] Built target metalrobo_shaders
+[  0%] Built target metalrobo_neuron_culture_shaders
+[  7%] Built target numi_matter_compiler_objects
+[  7%] Built target metalrobo_hyper_policy_shaders
+[ 10%] Built target numi_matter_runtime_objects
+[100%] Built target metalrobo
+[100%] Building OBJCXX object CMakeFiles/metalrobo_numilab_human_myosim_visual_probe.dir/apps/numilab_human_myosim_visual_probe.mm.o
+[100%] Linking OBJCXX executable bin/metalrobo_numilab_human_myosim_visual_probe
+[100%] Built target metalrobo_numilab_human_myosim_visual_probe
+[100%] Built target metalrobo_numi_human_resting_hand_reduction_test

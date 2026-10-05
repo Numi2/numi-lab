@@ -20,6 +20,7 @@ class NumiHumanRestingVisual {
     NumiHumanRestingWindow* window=nil;
     unsigned dimension,layer=0;
     bool complete=false;
+    bool rigidHands=false;
     unsigned auditCount=0;
     double wallOrigin=0;
     std::filesystem::path initialPackPath, acceptedGeometryDirectory;
@@ -715,8 +716,10 @@ public:
             <<"LV "<<p.circulation.y*1e6<<" mL / "<<p.cardiacPressure.x/133.322387415<<" mmHg  RV "<<p.circulation.z*1e6<<" mL  Stroke "<<p.cardiacFlow.w*1e6<<" mL  Blood "<<p.circulation.x*1e3<<" L  CO mean "
             <<(time>0?p.cardiacFlow.x*60e3/time:0)<<" L/min\n"
             <<"Mixed-source reference anatomy; passive structures remain inspection geometry.";
+        if(rigidHands)metrics<<" Rigid digits; wrists free; hand function not simulated.";
         return {(__bridge id<MTLBuffer>)renderer->nativeBuffer(metalrobo::MetalHybridRendererBuffer::rgb),dimension,dimension,metrics.str(),time,complete};
     }
+    void declareRigidHands(){rigidHands=true;}
     void present(bool finished=false){
         complete=finished;[window renderFrameNow];
         if(finished)for(unsigned step:requestedGeometrySteps)require(completedGeometrySteps.contains(step),

@@ -1,0 +1,170 @@
+{
+  "scope": "Hand failure localization, unsuccessful skin-weight sensitivity, and static rigid-digit preview. Native reduction acceptance is separate.",
+  "retained_files": [
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/audit-resting-hand-skin-001.py",
+      "source_sha256": "5e0dddc2aaf3744e17dad441699a4e8a6dfb7b484f43ced496d3ecdb9637bf54",
+      "source_bytes": 3481,
+      "retained": "audit-resting-hand-skin-001.py",
+      "retained_sha256": "5e0dddc2aaf3744e17dad441699a4e8a6dfb7b484f43ced496d3ecdb9637bf54"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/audit-resting-hand-skin-002.py",
+      "source_sha256": "f1edc4d3b6029c07873cb8639b8cb48ffdaac42d43b344924b68b226941f1dd9",
+      "source_bytes": 3489,
+      "retained": "audit-resting-hand-skin-002.py",
+      "retained_sha256": "f1edc4d3b6029c07873cb8639b8cb48ffdaac42d43b344924b68b226941f1dd9"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/test-resting-hand-geodesic-001.py",
+      "source_sha256": "38b198b5f4e84dcd3514e9286348a7d248b6e872802e1b6efe3348405179daf4",
+      "source_bytes": 6340,
+      "retained": "test-resting-hand-geodesic-001.py",
+      "retained_sha256": "38b198b5f4e84dcd3514e9286348a7d248b6e872802e1b6efe3348405179daf4"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/test-resting-hand-geodesic-002.py",
+      "source_sha256": "b2fdbe5921649d72a4daa42bd840cd02057543025625bb8a45bb738a89c9bf41",
+      "source_bytes": 6633,
+      "retained": "test-resting-hand-geodesic-002.py",
+      "retained_sha256": "b2fdbe5921649d72a4daa42bd840cd02057543025625bb8a45bb738a89c9bf41"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/preview-rigid-digits-cpu-001.mm",
+      "source_sha256": "863ce1c69675c607557ea6b517c77bd8fbe0379951f6318d7cc3482e5ea5d867",
+      "source_bytes": 3558,
+      "retained": "preview-rigid-digits-cpu-001.mm",
+      "retained_sha256": "863ce1c69675c607557ea6b517c77bd8fbe0379951f6318d7cc3482e5ea5d867"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/build-cpu-hand-preview-001.py",
+      "source_sha256": "3a075b228a21dcb0d6f3af62b7b61751c041de8a3f420f178b68c3274fff330b",
+      "source_bytes": 1278,
+      "retained": "build-cpu-hand-preview-001.py",
+      "retained_sha256": "3a075b228a21dcb0d6f3af62b7b61751c041de8a3f420f178b68c3274fff330b"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/audit-rigid-digits-static-preview-001.py",
+      "source_sha256": "85179184b261018293a4fe610f327321514f67fbab6535950d6f262b16b50e8c",
+      "source_bytes": 3225,
+      "retained": "audit-rigid-digits-static-preview-001.py",
+      "retained_sha256": "85179184b261018293a4fe610f327321514f67fbab6535950d6f262b16b50e8c"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/audit-resting-whole-skin-031.py",
+      "source_sha256": "442397a99a1b4cb8d54497f969b918bcc869c609a3742082cab6ecd2121003e1",
+      "source_bytes": 2553,
+      "retained": "audit-resting-whole-skin-031.py",
+      "retained_sha256": "442397a99a1b4cb8d54497f969b918bcc869c609a3742082cab6ecd2121003e1"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/prepare-hand-reduction-runner-032.py",
+      "source_sha256": "6b3fb49861575f9c9d1eb1ddb0eb05df9c074bc637a1443f20775febe2cd0254",
+      "source_bytes": 1001,
+      "retained": "prepare-hand-reduction-runner-032.py",
+      "retained_sha256": "6b3fb49861575f9c9d1eb1ddb0eb05df9c074bc637a1443f20775febe2cd0254"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/run-resting-hand-reduction-032.py",
+      "source_sha256": "9e2a5a290599c32ea6568743b9924a9c558337712d5896c6fc829fa58a45e48d",
+      "source_bytes": 5811,
+      "retained": "run-resting-hand-reduction-032.py",
+      "retained_sha256": "9e2a5a290599c32ea6568743b9924a9c558337712d5896c6fc829fa58a45e48d"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/resting-hand-skin-audit-002/report.json",
+      "source_sha256": "d1d35e47e4da2f879b40ba258abcb1786e64e896eecb15afb9c35d95d0a0521e",
+      "source_bytes": 170320,
+      "retained": "resting-hand-skin-audit-002/report.json.gz",
+      "retained_sha256": "ef64aa1175af140f944e5b269f0f6eec4ff3470415089e7fd8faaf6b319c2dea"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/resting-hand-geodesic-sensitivity-002/report.json",
+      "source_sha256": "8761aa55b219a92f5ce97506efb934582efdb2f31e6dad3086bbd3c2708e15cf",
+      "source_bytes": 935228,
+      "retained": "resting-hand-geodesic-sensitivity-002/report.json.gz",
+      "retained_sha256": "894147b4ecde4dad71a05b1d499915c7fe86ad907693eff7279ea69d291c3b75"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/resting-hand-geodesic-sensitivity-002/attribution.json",
+      "source_sha256": "dff0bdd53df95ae350510ce1751ceb12c728cf76ce84c4fb06f5600454da3584",
+      "source_bytes": 140432,
+      "retained": "resting-hand-geodesic-sensitivity-002/attribution.json.gz",
+      "retained_sha256": "2920624005945e23d68090a2f312ef69e5e4993450fe9834f05ee2231d2140ab"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-cpu-preview-001/geometry-audit.json",
+      "source_sha256": "d51625b9fc9cd82c7c46fb0921eeb81c366f4624a370538972144ea1d7a53550",
+      "source_bytes": 170701,
+      "retained": "rigid-digits-cpu-preview-001/geometry-audit.json.gz",
+      "retained_sha256": "85b1e44feb8998fd28d616a46c5764a700f4187cf6d1764058faa5415ff435c9"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-cpu-preview-001/build-invocation.json",
+      "source_sha256": "ee4f9025a59ec4159f5c4b72f7156a37cf655659d3f828a8cbc5b365ed5487ac",
+      "source_bytes": 3348,
+      "retained": "rigid-digits-cpu-preview-001/build-invocation.json",
+      "retained_sha256": "ee4f9025a59ec4159f5c4b72f7156a37cf655659d3f828a8cbc5b365ed5487ac"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-cpu-preview-001/poses-024.json",
+      "source_sha256": "a7064c374d64f3806192c40961d322c5e9675e3ec041e121fd181c39c203e9e0",
+      "source_bytes": 102382,
+      "retained": "rigid-digits-cpu-preview-001/poses-024.json.gz",
+      "retained_sha256": "dd89b93821e0cc1098b17bf96c15e14a776b1704b8541fd358eef5b29c9ee780"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-cpu-preview-001/poses-025.json",
+      "source_sha256": "687c484c753410ab4bffbf668855edd7471448f2b543ee1fe53016b623b7379b",
+      "source_bytes": 102672,
+      "retained": "rigid-digits-cpu-preview-001/poses-025.json.gz",
+      "retained_sha256": "71922f725f8160c51bf24f81ec11532d5a9f919885ffe7f3e17c97614706b229"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source017-release-stability-031/whole-skin-step-89983.json",
+      "source_sha256": "de5aa8ffbc955747997f857d63715e27df9ab421032873164d0fb75631f91420",
+      "source_bytes": 82978,
+      "retained": "source017-release-stability-031/whole-skin-step-89983.json.gz",
+      "retained_sha256": "99181b96aee1b93a0e5dc7ed94b1a879395c1c4ae40ce1431294f36109cec1a8"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/hand-reduction-ctest-018.log",
+      "source_sha256": "03d28a7312973f87e1bec14c3ef9c018e5b40b9963f089803c4151bf361c7038",
+      "source_bytes": 252,
+      "retained": "hand-reduction-ctest-018.log",
+      "retained_sha256": "03d28a7312973f87e1bec14c3ef9c018e5b40b9963f089803c4151bf361c7038"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/hand-reduction-launcher-test-018.log",
+      "source_sha256": "f2e92f6f11b9465ed8fc8112334f943f0c86cf5997be8dac04bfe6c227fc42a3",
+      "source_bytes": 113,
+      "retained": "hand-reduction-launcher-test-018.log",
+      "retained_sha256": "f2e92f6f11b9465ed8fc8112334f943f0c86cf5997be8dac04bfe6c227fc42a3"
+    }
+  ],
+  "preliminary_failures": [
+    {
+      "script": "audit-resting-hand-skin-001.py",
+      "reason": "Initial parser assumed skin vertex count equaled rendered index extent;35 unused trailing payload vertices made that assertion invalid. Corrected002 retains and validates exact face identity."
+    },
+    {
+      "script": "test-resting-hand-geodesic-001.py",
+      "reason": "Witness set included added boundary-cap faces absent from base source. The source-field fit in002 explicitly excludes and counts those pairs; candidate audits retain all cap faces."
+    }
+  ],
+  "cpu_preview_binary_sha256": "ec9d8aaf06634824e34d728e1cb67eabaf4a2ad763b93461e724aa96f5072338",
+  "original_binding_solution": {
+    "path": "/Users/n/numi-human-resting-evidence-20261005/bodyparts3d-skin-binding-solution-source.npz",
+    "sha256": "99c913815b2cc615673ca3c1ac3ee36b640c5166c8a3e770ed6d54a3a5a281fc"
+  },
+  "module_sha256": {
+    "skin_source_payload_preflight.py": "a5fb3b4fa3134a12231f68b4c29d012d1fb845fcc13ac413e65b83281caaea04",
+    "skin_geodesic_visual_candidate.py": "0919963f84e56ba8c107f9cd4671624fb42135af3eb800e3955d38f954ea7157",
+    "skin_crossing_attribution.py": "8ca52e0eaf8f7ee92e9fbb33f5d45036a8cd375aa5cfd6f6667db95f0a0bf015",
+    "skin_embeddedness_gate.py": "6a087122a0cdfb96c9d46707b3c88124ac97e92362faf43c4169521f0e74a453",
+    "compiled_quotient_embeddedness.py": "e14793d27e014e23117967a2f486415157d5ae494db342ace0ac701dd1bb5361",
+    "surface_topology_audit.py": "837f6281d6f2c58e4aa2e8d1972af7cb67ce068bc25862504eebc0f82df48a38",
+    "cardiac_cavity_intersections.py": "8b138882161c78312cb9b5aa46f49795092eb9b67ed9f705dc354787cb0a635b",
+    "resting_scene.py": "373cbc4777b9c4e9bb0c43254e66effdff69d8bf05686847c793294392363188"
+  }
+}

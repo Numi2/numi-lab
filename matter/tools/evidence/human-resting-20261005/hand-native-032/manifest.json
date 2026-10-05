@@ -1,0 +1,359 @@
+{
+  "scope": "Six-second native rigid-digit reduction and prior320-second dynamic-release diagnostic, not final anatomical acceptance or physiology qualification.",
+  "rigid_digit_q_error_max": 0,
+  "rigid_digit_v_max": 0,
+  "full_skin_captures": {
+    "639": 0,
+    "2783": 0,
+    "2999": 0
+  },
+  "known_failed_audit_wrapper": {
+    "script": "audit-resting-whole-skin-032.py",
+    "reason": "Failed literal replacement retained031 run path. Its639 and2783 outputs genuinely describe031 only;2999 failed missing file. Corrected033 script binds run argument and checked actual032 receipts."
+  },
+  "rigid_digit_run": {
+    "simulated_seconds": 6.000000284984708,
+    "wall_seconds": 192.361554708,
+    "rtf": 0.03119126529255057,
+    "rejection_replay": "pass",
+    "root_assistance": false
+  },
+  "old320_run": {
+    "simulated_seconds": 320.0000151991844,
+    "wall_seconds": 3112.06747275,
+    "rtf": 0.1028255389708547,
+    "breaths": 59,
+    "complete_cardiac_cycles": 373,
+    "qualification": "Not anatomically accepted: hand and eight final radius-region skin crossings plus known thoracic/cardiac defects. Late lateral COM drift about0.0347mm/s remains."
+  },
+  "movies": {
+    "rigid-digits-native-032": {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-native-032/native-viewer.mov",
+      "sha256": "30b1df49a6e0ada9743df42d43af2ce5563870d77f6c3e2443cceee7b65aa613"
+    },
+    "source017-release-stability-031": {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/source017-release-stability-031/native-viewer.mov",
+      "sha256": "a38d1259ca41383d7a1b288687f3efda033a6593f67b12f3ea8e618332b77997"
+    }
+  },
+  "retained_files": [
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/audit-resting-whole-skin-032.py",
+      "source_sha256": "9b4661b183cffcdd328b2b1807d7eb6f55a19a95777a28913e4ab22e07724876",
+      "retained": "audit-resting-whole-skin-032.py",
+      "retained_sha256": "9b4661b183cffcdd328b2b1807d7eb6f55a19a95777a28913e4ab22e07724876"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/audit-resting-whole-skin-033.py",
+      "source_sha256": "11a216b915cb3a959f6801f4eae7c5be167c141776aa9d758688fa6fb4b3274d",
+      "retained": "audit-resting-whole-skin-033.py",
+      "retained_sha256": "11a216b915cb3a959f6801f4eae7c5be167c141776aa9d758688fa6fb4b3274d"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/run-resting-hand-reduction-032.py",
+      "source_sha256": "9e2a5a290599c32ea6568743b9924a9c558337712d5896c6fc829fa58a45e48d",
+      "retained": "run-resting-hand-reduction-032.py",
+      "retained_sha256": "9e2a5a290599c32ea6568743b9924a9c558337712d5896c6fc829fa58a45e48d"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/run-resting-hand-profile-033.py",
+      "source_sha256": "281a9282f1a45d00813377330ba9b5d08503ebdd83b0ccf30523b14f6cd4d0ed",
+      "retained": "run-resting-hand-profile-033.py",
+      "retained_sha256": "281a9282f1a45d00813377330ba9b5d08503ebdd83b0ccf30523b14f6cd4d0ed"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/analyze-source017-release-stability-031.py",
+      "source_sha256": "abca67e17a33588829d46781c362cd2f9259e68c8aedfb692475672a695b46cb",
+      "retained": "analyze-source017-release-stability-031.py",
+      "retained_sha256": "abca67e17a33588829d46781c362cd2f9259e68c8aedfb692475672a695b46cb"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/hand-reduction-build-018-final2.log",
+      "source_sha256": "8a6817fd1f1217d6038e515c7a50e2a574c1f7818cc6c468d261d823f176d82d",
+      "retained": "hand-reduction-build-018-final2.log",
+      "retained_sha256": "8a6817fd1f1217d6038e515c7a50e2a574c1f7818cc6c468d261d823f176d82d"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-native-032/native.log",
+      "source_sha256": "5e98e2aa56923f2dd6c1a21cea84c30a367955c1f6d971a232c093bcda9cfd72",
+      "retained": "rigid-digits-native-032/native.log",
+      "retained_sha256": "5e98e2aa56923f2dd6c1a21cea84c30a367955c1f6d971a232c093bcda9cfd72"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-native-032/invocation.json",
+      "source_sha256": "f6c244a8f3f21283c2eb8fc2cd10c44da44ce22d7153a39922837da898aa7f7f",
+      "retained": "rigid-digits-native-032/invocation.json",
+      "retained_sha256": "f6c244a8f3f21283c2eb8fc2cd10c44da44ce22d7153a39922837da898aa7f7f"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-native-032/execution.json",
+      "source_sha256": "801b1a1c244b66da33ab0d7f762fe838409e0d228d2e5a4b53928621d0ce8843",
+      "retained": "rigid-digits-native-032/execution.json",
+      "retained_sha256": "801b1a1c244b66da33ab0d7f762fe838409e0d228d2e5a4b53928621d0ce8843"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-native-032/source.diff",
+      "source_sha256": "e9ffe666b6b28fc58fc2c3ef36d8f3bbffc0009ac7d673a83a4ca24fc6440a82",
+      "retained": "rigid-digits-native-032/source.diff.gz",
+      "retained_sha256": "678eaaed1488ca3e7ed92c3f80f0b4f72efeaf0eb3c80dcba82338f43c8f7d9c"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-native-032/resting-coupled.csv",
+      "source_sha256": "b7718b7b76f87e49c56f72276d41cb2a80dca7054fb0633cf967e09cd51a51d4",
+      "retained": "rigid-digits-native-032/resting-coupled.csv.gz",
+      "retained_sha256": "f97b8b1a92681eeb2da002c3ac3e267711e43b0c9aa31447244cfb49f7f5a6fb"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-native-032/resting-surface-audit.csv",
+      "source_sha256": "fc5b8bf6db23ec0edc769165c0b27c6a7b4071230725059398328e16e41e1093",
+      "retained": "rigid-digits-native-032/resting-surface-audit.csv",
+      "retained_sha256": "fc5b8bf6db23ec0edc769165c0b27c6a7b4071230725059398328e16e41e1093"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-native-032/movie-inspection.txt",
+      "source_sha256": "6af7dd980682c0b4062294c1beacc10417955f867c4c3be9bb8cdf26d95bb765",
+      "retained": "rigid-digits-native-032/movie-inspection.txt",
+      "retained_sha256": "6af7dd980682c0b4062294c1beacc10417955f867c4c3be9bb8cdf26d95bb765"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-native-032/whole-skin-step-2783.json",
+      "source_sha256": "e80d0837ecc6de6f3ab14a06470e51d8f6fdaee8255471cab84404f68eefaf72",
+      "retained": "rigid-digits-native-032/whole-skin-step-2783.json",
+      "retained_sha256": "e80d0837ecc6de6f3ab14a06470e51d8f6fdaee8255471cab84404f68eefaf72"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-native-032/whole-skin-step-2999.json",
+      "source_sha256": "61c53876bc88ccb811adc8020c38809d8d78444f17e64913291b530e77ff73c3",
+      "retained": "rigid-digits-native-032/whole-skin-step-2999.json",
+      "retained_sha256": "61c53876bc88ccb811adc8020c38809d8d78444f17e64913291b530e77ff73c3"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-native-032/whole-skin-step-639.json",
+      "source_sha256": "3082df85fead0247ef5ce3aa2e707173cb3b65a5a07fcbb71b2b201b275cf21f",
+      "retained": "rigid-digits-native-032/whole-skin-step-639.json",
+      "retained_sha256": "3082df85fead0247ef5ce3aa2e707173cb3b65a5a07fcbb71b2b201b275cf21f"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-native-032/accepted-geometry/step-2783.receipt.json",
+      "source_sha256": "2f56fc9462a2c0ca145ac43a6e5ff8a1ec068b04f22b831dc6eb2e1f7cbed0d3",
+      "retained": "rigid-digits-native-032/accepted-geometry/step-2783.receipt.json",
+      "retained_sha256": "2f56fc9462a2c0ca145ac43a6e5ff8a1ec068b04f22b831dc6eb2e1f7cbed0d3"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-native-032/accepted-geometry/step-2999.receipt.json",
+      "source_sha256": "b1ef9c5791c0fa3c27ba51c6f2e3ea3c49d49484c96f5ca05090096747632dea",
+      "retained": "rigid-digits-native-032/accepted-geometry/step-2999.receipt.json",
+      "retained_sha256": "b1ef9c5791c0fa3c27ba51c6f2e3ea3c49d49484c96f5ca05090096747632dea"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-native-032/accepted-geometry/step-639.receipt.json",
+      "source_sha256": "b078c0fb5e453c21fc1843d89a10ac9473cb50f53f55ed473cd8418191549a17",
+      "retained": "rigid-digits-native-032/accepted-geometry/step-639.receipt.json",
+      "retained_sha256": "b078c0fb5e453c21fc1843d89a10ac9473cb50f53f55ed473cd8418191549a17"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-profile-033/native.log",
+      "source_sha256": "184227b9fa05468a7acc10f036adb859d4acb107f41023bd49b47dd9c6b9fc6e",
+      "retained": "rigid-digits-profile-033/native.log",
+      "retained_sha256": "184227b9fa05468a7acc10f036adb859d4acb107f41023bd49b47dd9c6b9fc6e"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-profile-033/invocation.json",
+      "source_sha256": "bdd69423a187dc181727779f1e1e750706006fe60ca4ca9c56a605bcb92fa75d",
+      "retained": "rigid-digits-profile-033/invocation.json",
+      "retained_sha256": "bdd69423a187dc181727779f1e1e750706006fe60ca4ca9c56a605bcb92fa75d"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-profile-033/execution.json",
+      "source_sha256": "7cc3026ecbdf1b19a4db6ea1e8ffc8b9c9ad224c85846f741c28b6c1efdec4af",
+      "retained": "rigid-digits-profile-033/execution.json",
+      "retained_sha256": "7cc3026ecbdf1b19a4db6ea1e8ffc8b9c9ad224c85846f741c28b6c1efdec4af"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-profile-033/source.diff",
+      "source_sha256": "e9ffe666b6b28fc58fc2c3ef36d8f3bbffc0009ac7d673a83a4ca24fc6440a82",
+      "retained": "rigid-digits-profile-033/source.diff.gz",
+      "retained_sha256": "678eaaed1488ca3e7ed92c3f80f0b4f72efeaf0eb3c80dcba82338f43c8f7d9c"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-profile-033/resting-coupled.csv",
+      "source_sha256": "1e0414ce3daed9928e3428396070251fa006f15007f2ee77b7f78674300c66dc",
+      "retained": "rigid-digits-profile-033/resting-coupled.csv",
+      "retained_sha256": "1e0414ce3daed9928e3428396070251fa006f15007f2ee77b7f78674300c66dc"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-profile-033/resting-surface-audit.csv",
+      "source_sha256": "a1bb5df010cdfcdd247ffd8a680a8fe1fb12877cab9a86331533a155c8e307e5",
+      "retained": "rigid-digits-profile-033/resting-surface-audit.csv",
+      "retained_sha256": "a1bb5df010cdfcdd247ffd8a680a8fe1fb12877cab9a86331533a155c8e307e5"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-profile-033/stage-summary.json",
+      "source_sha256": "c936e29ba8903f44bd5d1adce3adf83bbc81ea562af1ed165c0d9b801df2e584",
+      "retained": "rigid-digits-profile-033/stage-summary.json",
+      "retained_sha256": "c936e29ba8903f44bd5d1adce3adf83bbc81ea562af1ed165c0d9b801df2e584"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-profile-033/accepted-geometry/step-31.receipt.json",
+      "source_sha256": "31a20fcdc32e12cbc70d98d873be4827da857c60a1ef5d36542fe2acdfa02c85",
+      "retained": "rigid-digits-profile-033/accepted-geometry/step-31.receipt.json",
+      "retained_sha256": "31a20fcdc32e12cbc70d98d873be4827da857c60a1ef5d36542fe2acdfa02c85"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source017-release-stability-031/native.log",
+      "source_sha256": "da610b86369d5433cae674d2a12a294657bd4c74636cc826278e8e849650883f",
+      "retained": "source017-release-stability-031/native.log.gz",
+      "retained_sha256": "27e1c9a96c8c9fbc7fd2c30db3005133adf0ea34821ce1acd44f002cadd0ec3c"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source017-release-stability-031/invocation.json",
+      "source_sha256": "ad76ad9d5d0be7d789970392e3a7eeea4d93ae30cae62bc2b95102674e91e1b4",
+      "retained": "source017-release-stability-031/invocation.json",
+      "retained_sha256": "ad76ad9d5d0be7d789970392e3a7eeea4d93ae30cae62bc2b95102674e91e1b4"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source017-release-stability-031/execution.json",
+      "source_sha256": "5d0da8e19e4d94e953a1f27b613a2c7fafa0d59133bdd113c4d9c109f43549f7",
+      "retained": "source017-release-stability-031/execution.json",
+      "retained_sha256": "5d0da8e19e4d94e953a1f27b613a2c7fafa0d59133bdd113c4d9c109f43549f7"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source017-release-stability-031/source.diff",
+      "source_sha256": "a814f57b5eae6c446cd8db88f00539e3a8fc148a0e4b02371c4703bf582f3e6a",
+      "retained": "source017-release-stability-031/source.diff.gz",
+      "retained_sha256": "9cfaaa85eb8d47d5722894a9aa2a25ec22b12069904f150862344d713ca39903"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source017-release-stability-031/resting-coupled.csv",
+      "source_sha256": "6cfbcbe07c92a5fe9280a3f5449eb2aab868d0b3d587dc882eaac5c92d10de8f",
+      "retained": "source017-release-stability-031/resting-coupled.csv.gz",
+      "retained_sha256": "d4933eaba95c1f48fa43cda637e21945952aa2c226271123bf6c78249d183e82"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source017-release-stability-031/resting-surface-audit.csv",
+      "source_sha256": "149c50aba3ba8b24b6f32faa546b04b41c8fe65c5d5662bf963b06b06fdae60f",
+      "retained": "source017-release-stability-031/resting-surface-audit.csv.gz",
+      "retained_sha256": "c1eed37f45bb291e6d858b36c5b1953c323b9fe88b18c8ceb0fc70128c2af225"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source017-release-stability-031/movie-inspection.txt",
+      "source_sha256": "0c9c543b17e5b141862655af0aa343dfce92016ce80d6983cf58bafafeb15937",
+      "retained": "source017-release-stability-031/movie-inspection.txt",
+      "retained_sha256": "0c9c543b17e5b141862655af0aa343dfce92016ce80d6983cf58bafafeb15937"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source017-release-stability-031/engineering-stability-analysis.json",
+      "source_sha256": "d895a8af232bd8244d1f420274a2d6924cda1aec95a02651f86bb006189dca34",
+      "retained": "source017-release-stability-031/engineering-stability-analysis.json",
+      "retained_sha256": "d895a8af232bd8244d1f420274a2d6924cda1aec95a02651f86bb006189dca34"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source017-release-stability-031/whole-skin-step-159999.json",
+      "source_sha256": "72bcbf6f02a474049b0dbade8eaa9ef2410a83c3b5c16aabd5e88e45b093e135",
+      "retained": "source017-release-stability-031/whole-skin-step-159999.json.gz",
+      "retained_sha256": "2560497ea82d51fcb2619dd1286710c852692b63187836c0d0120ac8f09b479b"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source017-release-stability-031/whole-skin-step-2783.json",
+      "source_sha256": "0230fd72aaa4b3c7c0f00ece8c44fe8df8b014825d6f9c1d0a5457fae0bd46f8",
+      "retained": "source017-release-stability-031/whole-skin-step-2783.json.gz",
+      "retained_sha256": "2e659e05f8f5cc23951e9ea8bd5906733141013492f145cb091467a72d6092df"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source017-release-stability-031/whole-skin-step-639.json",
+      "source_sha256": "5b7d8f7dceb97e29d326e36dcdd80d37728d0a21184ba596b6a944fd7999f1a7",
+      "retained": "source017-release-stability-031/whole-skin-step-639.json",
+      "retained_sha256": "5b7d8f7dceb97e29d326e36dcdd80d37728d0a21184ba596b6a944fd7999f1a7"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source017-release-stability-031/whole-skin-step-89983.json",
+      "source_sha256": "de5aa8ffbc955747997f857d63715e27df9ab421032873164d0fb75631f91420",
+      "retained": "source017-release-stability-031/whole-skin-step-89983.json.gz",
+      "retained_sha256": "99181b96aee1b93a0e5dc7ed94b1a879395c1c4ae40ce1431294f36109cec1a8"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source017-release-stability-031/interlimb-step-119999.json",
+      "source_sha256": "4c49e89a9fb521b07efcd2c75713e949b6068c8e479b7d241d3290d505a401f1",
+      "retained": "source017-release-stability-031/interlimb-step-119999.json",
+      "retained_sha256": "4c49e89a9fb521b07efcd2c75713e949b6068c8e479b7d241d3290d505a401f1"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source017-release-stability-031/interlimb-step-14975.json",
+      "source_sha256": "89e03315197f0ffd73f8a4bcd617acc11dc487d2cb14114c3a988b4c2dbe3bba",
+      "retained": "source017-release-stability-031/interlimb-step-14975.json",
+      "retained_sha256": "89e03315197f0ffd73f8a4bcd617acc11dc487d2cb14114c3a988b4c2dbe3bba"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source017-release-stability-031/interlimb-step-159999.json",
+      "source_sha256": "ecc8479c8c2b6bccff753d038698cde7ca33e22e6eff13294a0c3def675b07d4",
+      "retained": "source017-release-stability-031/interlimb-step-159999.json",
+      "retained_sha256": "ecc8479c8c2b6bccff753d038698cde7ca33e22e6eff13294a0c3def675b07d4"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source017-release-stability-031/interlimb-step-29983.json",
+      "source_sha256": "fa94b57116384049ee66671debf4bcbc2e97c44383de691195022e9a453ffbba",
+      "retained": "source017-release-stability-031/interlimb-step-29983.json",
+      "retained_sha256": "fa94b57116384049ee66671debf4bcbc2e97c44383de691195022e9a453ffbba"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source017-release-stability-031/interlimb-step-59999.json",
+      "source_sha256": "16126094e220b998f116b5bf19dc3c99b9a1cc0ebf6f9c1f646030abdf57c0bd",
+      "retained": "source017-release-stability-031/interlimb-step-59999.json",
+      "retained_sha256": "16126094e220b998f116b5bf19dc3c99b9a1cc0ebf6f9c1f646030abdf57c0bd"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source017-release-stability-031/interlimb-step-89983.json",
+      "source_sha256": "ec042c67b030cf4be37d7b01b46ecc4af319d829550db63942c7677200428457",
+      "retained": "source017-release-stability-031/interlimb-step-89983.json",
+      "retained_sha256": "ec042c67b030cf4be37d7b01b46ecc4af319d829550db63942c7677200428457"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source017-release-stability-031/accepted-geometry/step-119999.receipt.json",
+      "source_sha256": "75644a8519737f3f404c84610e0389c40fb7adee750f647a1eed64d0888d9e09",
+      "retained": "source017-release-stability-031/accepted-geometry/step-119999.receipt.json",
+      "retained_sha256": "75644a8519737f3f404c84610e0389c40fb7adee750f647a1eed64d0888d9e09"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source017-release-stability-031/accepted-geometry/step-14975.receipt.json",
+      "source_sha256": "052137a620340a375377e12b8c12e178e29bf843c4f2746cafb41839774130ea",
+      "retained": "source017-release-stability-031/accepted-geometry/step-14975.receipt.json",
+      "retained_sha256": "052137a620340a375377e12b8c12e178e29bf843c4f2746cafb41839774130ea"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source017-release-stability-031/accepted-geometry/step-159999.receipt.json",
+      "source_sha256": "918a486928b37de9e4e033ca97a2056d69bcbd9f131938c3769bf9919a9901c6",
+      "retained": "source017-release-stability-031/accepted-geometry/step-159999.receipt.json",
+      "retained_sha256": "918a486928b37de9e4e033ca97a2056d69bcbd9f131938c3769bf9919a9901c6"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source017-release-stability-031/accepted-geometry/step-2783.receipt.json",
+      "source_sha256": "d4eb18cdd646aa71e9b1a1fe08442770a50b850f75999dc827d6b326406bfc01",
+      "retained": "source017-release-stability-031/accepted-geometry/step-2783.receipt.json",
+      "retained_sha256": "d4eb18cdd646aa71e9b1a1fe08442770a50b850f75999dc827d6b326406bfc01"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source017-release-stability-031/accepted-geometry/step-29983.receipt.json",
+      "source_sha256": "6b94efe4132fb5fdee59093948f3732c0854370b4a1f0e34563c3c83fb3431f0",
+      "retained": "source017-release-stability-031/accepted-geometry/step-29983.receipt.json",
+      "retained_sha256": "6b94efe4132fb5fdee59093948f3732c0854370b4a1f0e34563c3c83fb3431f0"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source017-release-stability-031/accepted-geometry/step-59999.receipt.json",
+      "source_sha256": "0c61c29183041b82414eb2e657c52d1df8e1a72bda08b14ff0fff3b5aa5c0bca",
+      "retained": "source017-release-stability-031/accepted-geometry/step-59999.receipt.json",
+      "retained_sha256": "0c61c29183041b82414eb2e657c52d1df8e1a72bda08b14ff0fff3b5aa5c0bca"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source017-release-stability-031/accepted-geometry/step-639.receipt.json",
+      "source_sha256": "f0fca4cce6a066a5d4f1412189045c47e71aba1502f79753623b1a92667e7ec3",
+      "retained": "source017-release-stability-031/accepted-geometry/step-639.receipt.json",
+      "retained_sha256": "f0fca4cce6a066a5d4f1412189045c47e71aba1502f79753623b1a92667e7ec3"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source017-release-stability-031/accepted-geometry/step-89983.receipt.json",
+      "source_sha256": "0d217340a5aaa7cd0e0dfa780d4614954cd1b60001786c75102576811dc8ce52",
+      "retained": "source017-release-stability-031/accepted-geometry/step-89983.receipt.json",
+      "retained_sha256": "0d217340a5aaa7cd0e0dfa780d4614954cd1b60001786c75102576811dc8ce52"
+    }
+  ]
+}

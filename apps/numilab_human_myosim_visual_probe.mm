@@ -22,6 +22,7 @@
 #include "metalrobo/NumiHumanMuscleEquilibrium.hpp"
 #include "metalrobo/NumiHumanForceParity.hpp"
 #include "metalrobo/NumiHumanPassiveJoint.hpp"
+#include "metalrobo/NumiHumanRestingHandReduction.hpp"
 #include "metalrobo/NumiHumanCompliantEquilibrium.hpp"
 #include "metalrobo/NumiHumanInitialState.hpp"
 #include "NumiHumanBrainController.hpp"
@@ -6692,7 +6693,10 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 segment.velocityDiagnosticOwners.w;
         }
     };
-    const auto runAuthoritativeHorizon = [&context, &model, &config,
+    const auto runAuthoritativeHorizon = [&context, &model,
+#ifdef NUMI_HUMAN_RESTING_SCENE
+                                           &config,
+#endif
                                            &standBrainController,
                                            &mergeStandStatus,
                                            useSegmentedAuthoritativeHorizon,
@@ -20034,7 +20038,10 @@ int main(int argc, char** argv) {
             std::optional<double> muscleActivation;
             std::optional<std::uint32_t> muscleStepCount;
             bool persistentMetalStand = false;
+#ifdef NUMI_HUMAN_RESTING_SCENE
             bool restingReleaseInitialization = false;
+            bool restingRigidHands = false;
+#endif
             bool mechanicsOnly = false;
             bool persistentSourcePassiveJointTissue = false;
             bool persistentRuntimeWithoutPassiveJointTissue = false;
@@ -20147,6 +20154,11 @@ int main(int argc, char** argv) {
                 if(argument=="--resting-release-initialization") {
                     require(!restingReleaseInitialization, "duplicate resting release initialization flag");
                     restingReleaseInitialization = true;
+                    continue;
+                }
+                if(argument=="--resting-rigid-hands") {
+                    require(!restingRigidHands, "duplicate resting rigid-hands flag");
+                    restingRigidHands = true;
                     continue;
                 }
                 if(argument=="--inspect-terminal-state") {
@@ -21977,11 +21989,27 @@ int main(int argc, char** argv) {
 #ifdef NUMI_HUMAN_RESTING_SCENE
             require(!restingReleaseInitialization || restingScene.has_value(),
                     "--resting-release-initialization requires --resting-scene");
+            require(!restingRigidHands || restingScene.has_value(),
+                    "--resting-rigid-hands requires --resting-scene");
             if(restingScene.has_value()) {
                 require(persistentMetalStand&&muscleStepSeconds.has_value()&&muscleStepCount.has_value()&&
                     supportContactPayload.has_value()&&jointEqualityPayload.has_value()&&requestedRootPose.has_value()&&tendonPayloadPath.has_value()&&
                     !standRootAssistance&&!standRemoveAssistance&&!standBrainLibraryPath.has_value(),
                     "resting scene requires explicit supported root pose, native contact/equality/tendon payloads and bounded native steps");
+                if(restingRigidHands) {
+                    const char* cachePath=std::getenv("NUMI_HUMAN_STATIC_EQUILIBRIUM_CACHE_PATH");
+                    require(cachePath==nullptr||cachePath[0]=='\0',
+                        "rigid-hand reduction requires fresh source equilibrium initialization");
+                    std::vector<MRNumiHumanJointEqualityGPU> reduced;
+                    std::string reductionError;
+                    require(metalrobo::compileNumiHumanRestingHandReduction(
+                        jointEqualityPayload->payload,rigid.model.defaultQ,
+                        rigid.model.dofs,reduced,reductionError),reductionError);
+                    jointEqualityPayload->payload.records=std::move(reduced);
+                    std::cout<<"resting_hand_model=rigid_reference_digits source_equalities=51 "
+                        "derived_internal_equalities=40 wrist_dofs=free root_constraint_rows=0 "
+                        "hand_function_simulated=0 body_mass_inertia_preserved=1\n";
+                }
                 // The accepted observer submits at most 32 steps and presents
                 // the matching pre-dynamics accepted pose (endpoint minus one).
                 NumiHumanRestingVisual::validateAcceptedGeometryExportCadence(*muscleStepCount,32u);
@@ -22003,6 +22031,8 @@ int main(int argc, char** argv) {
                         metalrobo::numiHumanRuntimePayloadFingerprint(bytes));
                 };
                 appendSource("NHEQ",payloadBytes(*jointEqualityPayloadPath));
+                if(restingRigidHands)appendSource("resting_rigid_hand_reference_reduction_v1",
+                    std::as_bytes(std::span(jointEqualityPayload->payload.records)));
                 appendSource("NHTENDON",payloadBytes(*tendonPayloadPath));
                 if(!restingAnatomyReceipt.empty())appendSource("resting_functional_anatomy",payloadBytes(restingAnatomyReceipt));
                 if(torsoAnatomyPayloadPath)appendSource("NHANATOMY",payloadBytes(*torsoAnatomyPayloadPath));
@@ -22042,6 +22072,7 @@ int main(int argc, char** argv) {
                         counts[0],counts[1],counts[2],counts[3],counts[4],counts[5],counts[6],counts[7],counts[8],counts[9],true);
                     liveVisual=std::make_unique<NumiHumanRestingVisual>(coupled,std::move(pack),rigid.model,*skinPayload,&*softTissuePayload,
                         initialBodies,restBodies,*supportContactPayload,functional,positional.back(),frameDimension,restingMovie,!mechanicsOnly);
+                    if(restingRigidHands)liveVisual->declareRigidHands();
                     if(!mechanicsOnly)liveVisual->present();
                 }
                 auto restingProgram=coupled.program();
