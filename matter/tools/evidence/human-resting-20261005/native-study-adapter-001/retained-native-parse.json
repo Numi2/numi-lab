@@ -1,0 +1,25 @@
+{
+  "native_summary": {
+    "simulated_s": 6.000000284984708,
+    "wall_s": 138.171953584,
+    "real_time_factor": 0.043424154680834555,
+    "accepted_steps": 6000,
+    "device": "Apple M4 Pro",
+    "world_fingerprint": "18224450571998530811",
+    "vascular_dense45": true,
+    "brain_control": true,
+    "whole_body_anatomy_qualified": false
+  },
+  "complete_breath_window": {
+    "available": false,
+    "complete_breath_count": 0,
+    "reason": "fewer than two accepted inspiratory boundaries inside the analysis window"
+  },
+  "scope": "Parsing retained whole-body native evidence only; this does not repair its known right-atrial fold or qualify the anatomy.",
+  "sha256": {
+    "/Users/n/numi-human-resting-evidence-20261005/cardiac-native-002/run.log": "568831358bfe9d3554cf75a4dd872205505442c36ddf444212a042cb60c10029",
+    "/Users/n/numi-human-resting-evidence-20261005/cardiac-native-002/resting-coupled.csv": "73f75a856c0dd5e3834bd66ed826a051e3da2f291de056fe9c2d6f85c6421b1f",
+    "/Users/n/numi-human-resting-lab-20261005/matter/tools/resting_intervention_study.py": "6e814e9e4efaa91c54e6963e9a1bcaa42d67e16cbe5a4a641d3ad6db0d201e02",
+    "/Users/n/numi-human-resting-lab-20261005/matter/tools/test_resting_intervention_study.py": "72ccc35d142d7feba8c9db4db0d07f47631ad1d6d86948f68f99cb0666e8ac19"
+  }
+}

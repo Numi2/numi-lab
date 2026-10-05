@@ -14,6 +14,7 @@ import csv
 import hashlib
 import json
 import math
+import os
 from pathlib import Path
 import platform
 import re
@@ -343,6 +344,20 @@ def execute_arm(args: argparse.Namespace) -> dict[str, Any]:
     expected_seconds = duration_s
     if abs(native["simulated_s"] - expected_seconds) > max(1.0e-4, expected_seconds * 1.0e-7):
         raise ValueError("native runner simulated time does not match declared step count")
+    result = observation(args, trace, native, completed.stdout)
+    # Verify dynamic library images remained the exact copies during this run.
+    for loaded, frozen in checks:
+        if sha256_file(Path(loaded)) != sha256_file(Path(frozen)):
+            raise ValueError(f"loaded metallib changed during run: {loaded}")
+    print(json.dumps(result, sort_keys=True, separators=(",", ":"), allow_nan=False))
+    return result
+
+
+def observation(args: argparse.Namespace, trace: Path, native: dict[str, Any], log: str) -> dict[str, Any]:
+    """One instrument for both native entry points; every value uses accepted state."""
+    expected_seconds, width = args.steps * args.dt, args.window_s
+    if abs(native["simulated_s"] - expected_seconds) > max(1e-4, expected_seconds * 1e-7):
+        raise ValueError("accepted physical time differs from the preregistered duration")
     rows = read_trace(trace)
     if rows[-1]["time_s"] < expected_seconds - 0.05 or rows[-1]["time_s"] > expected_seconds + 1.0e-3:
         raise ValueError("native trace does not cover the full declared simulation duration")
@@ -404,12 +419,111 @@ def execute_arm(args: argparse.Namespace) -> dict[str, Any]:
         "last_LV_stroke_volume_ml": rows[-1]["last_lv_stroke_ml"],
         "real_time_factor": native["real_time_factor"],
         "trace_sha256": sha256_file(trace),
-        "runtime_log_sha256": hashlib.sha256(completed.stdout.encode()).hexdigest(),
+        "runtime_log_sha256": hashlib.sha256(log.encode()).hexdigest(),
     }
-    # Verify dynamic library images remained the exact copies during this run.
-    for loaded, frozen in checks:
-        if sha256_file(Path(loaded)) != sha256_file(Path(frozen)):
-            raise ValueError(f"loaded metallib changed during run: {loaded}")
+    return result
+
+
+def native_scene_command(invocation: dict[str, Any], output: Path, args: argparse.Namespace) -> list[str]:
+    """Rebind the existing Human launch receipt to one preregistered arm."""
+    command = list(invocation["argv"])
+    if len(command) < 5 or Path(command[0]).name != "numi-human-native":
+        raise ValueError("expected the existing anatomical native Human owner invocation")
+    if "--mechanics-only" in command or "--resting-drive-intervention" in command:
+        raise ValueError("the paired reference invocation must include the viewer and no intervention")
+    for required in ("--persistent-metal-stand", "--resting-scene", "--vascular-dense45",
+                     "--resting-anatomy-receipt", "--skin-payload", "--tendon-payload"):
+        if command.count(required) != 1:
+            raise ValueError(f"native reference invocation is missing/duplicates {required}")
+    command[4] = str(output)
+    for flag, value in (("--muscle-step-count", str(args.steps)), ("--muscle-step-seconds", repr(args.dt)),
+                        ("--resting-movie", str(output / "native-viewer.mov"))):
+        if command.count(flag) != 1:
+            raise ValueError(f"native reference invocation is missing/duplicates {flag}")
+        command[command.index(flag) + 1] = value
+    bindings = invocation.get("asset_sha256", {})
+    if not bindings:
+        raise ValueError("native invocation has no source/binary/asset identities")
+    # Every consumed file must be bound. Outputs are the only absolute paths
+    # allowed to be absent from the owner's manifest.
+    outputs = {str(output), str(output / "native-viewer.mov")}
+    for item in command:
+        if item.startswith("/") and item not in outputs and item not in bindings:
+            raise ValueError(f"native invocation consumes an unbound file: {item}")
+    if args.arm == "treatment":
+        command.extend(("--resting-drive-intervention", repr(args.start_s), repr(args.end_s), repr(args.scale)))
+    return command
+
+
+def native_scene_summary(log: str) -> dict[str, Any]:
+    runtime = next((line for line in log.splitlines() if line.startswith("runtime=")), "")
+    terminal = next((line for line in reversed(log.splitlines()) if line.startswith("stand_terminal_state=")), "")
+    summary = next((line for line in reversed(log.splitlines()) if line.startswith("resting_integrated_body=completed")), "")
+    device = re.search(r"\bdevice=(.*?)\s+world_fingerprint=([0-9]+)", runtime)
+    if device is None or "eligible dense45 vascular solve" not in runtime or not device[1].startswith("Apple "):
+        raise ValueError("native scene did not report the physical Apple GPU/Dense45 owner")
+    if not terminal or "physiology_body_clock=matched root_assistance=false" not in summary:
+        raise ValueError("native scene did not complete a shared-clock unassisted body trajectory")
+    state = json.loads(terminal.split("=", 1)[1])
+    if state.get("root_assistance") is not False or not state.get("step_count", 0) > 0:
+        raise ValueError("native body terminal state has invalid step count or root assistance")
+    if not all(math.isfinite(x) for key in ("q", "v") for x in state[key]):
+        raise ValueError("native terminal body state is nonfinite")
+    fields = dict(re.findall(r"([A-Za-z_]+)=([^ ]+)", summary))
+    values = {key: finite_float(fields[key], key) for key in ("simulated_s", "wall_s", "real_time_factor")}
+    if min(values.values()) <= 0:
+        raise ValueError("native execution timing must be positive")
+    return {**values, "accepted_steps": state["step_count"], "device": device[1],
+            "world_fingerprint": device[2], "vascular_dense45": True, "brain_control": True,
+            "whole_body_anatomy_qualified": False}
+
+
+def execute_native_scene_arm(args: argparse.Namespace) -> dict[str, Any]:
+    validate_windows(args)
+    work, output = Path.cwd().resolve(), Path(args.output).resolve()
+    if output.parent != work or output.exists():
+        raise ValueError("native scene output must be a new child of the notebook run directory")
+    invocation_path = Path(args.invocation).resolve()
+    invocation = json.loads(invocation_path.read_text())
+    command = native_scene_command(invocation, output, args)
+    bindings = invocation["asset_sha256"]
+
+    def verify_bindings() -> None:
+        for path, digest in bindings.items():
+            if sha256_file(Path(path)) != digest:
+                raise ValueError(f"preregistered native binary/library/asset changed: {path}")
+
+    verify_bindings()
+    env = os.environ.copy()
+    env.update(invocation.get("environment", {}))
+    if any(k.startswith("NUMI_HUMAN_STAND_CPU_") and v == "1" for k, v in env.items()):
+        raise ValueError("CPU stepping is not admitted for the native scene")
+    output.mkdir()
+    write_json(output / "invocation.json", {**invocation, "argv": command,
+               "reference_invocation_sha256": sha256_file(invocation_path)})
+    log_path = output / "native.log"
+    with log_path.open("w", encoding="utf-8") as stream:
+        completed = subprocess.run(command, env=env, stdout=stream, stderr=subprocess.STDOUT, check=False)
+    verify_bindings()
+    if completed.returncode:
+        raise ValueError(f"native scene failed with status {completed.returncode}; all output retained")
+    log = log_path.read_text()
+    native = native_scene_summary(log)
+    if native["device"] != args.device or native["accepted_steps"] != args.steps:
+        raise ValueError("native scene device or accepted step count differs from registration")
+    # The intervention is part of each root program's identity. Match each
+    # declared arm independently; pair equality applies to the common assets.
+    if native["world_fingerprint"] != args.world_fingerprint:
+        raise ValueError("native scene world differs from this arm's preregistered identity")
+    result = observation(args, output / "resting-coupled.csv", native, log)
+    movie, surfaces = output / "native-viewer.mov", output / "resting-surface-audit.csv"
+    if not movie.is_file() or movie.stat().st_size == 0 or not surfaces.is_file():
+        raise ValueError("native scene did not retain its continuous movie and surface trace")
+    result.update(native_whole_body_executed=True,
+                  common_asset_identity=digest_json(bindings),
+                  recording_sha256=sha256_file(movie), surface_trace_sha256=sha256_file(surfaces),
+                  reference_invocation_sha256=sha256_file(invocation_path))
+    write_json(output / "intervention-observation.json", result)
     print(json.dumps(result, sort_keys=True, separators=(",", ":"), allow_nan=False))
     return result
 
@@ -606,6 +720,19 @@ def main() -> int:
     run.add_argument("--end-s", type=float, required=True)
     run.add_argument("--scale", type=float, required=True)
     run.add_argument("--window-s", type=float, default=5.0)
+    native_run = sub.add_parser("run-native", help="execute the existing anatomical native viewer from its frozen launch receipt")
+    native_run.add_argument("--invocation", required=True)
+    native_run.add_argument("--unit-id", required=True)
+    native_run.add_argument("--world-fingerprint", required=True, help="expected fingerprint for this specific arm")
+    native_run.add_argument("--device", default="Apple M4 Pro")
+    native_run.add_argument("--steps", type=int, required=True)
+    native_run.add_argument("--dt", type=float, required=True)
+    native_run.add_argument("--arm", choices=("control", "treatment"), required=True)
+    native_run.add_argument("--output", required=True, help="new scene directory inside the notebook run directory")
+    native_run.add_argument("--start-s", type=float, required=True)
+    native_run.add_argument("--end-s", type=float, required=True)
+    native_run.add_argument("--scale", type=float, required=True)
+    native_run.add_argument("--window-s", type=float, default=30.0)
     prep = sub.add_parser("prepare", help="write the frozen identity, parser calibration, model, and v2 plan")
     prep.add_argument("--repository", required=True)
     prep.add_argument("--directory", required=True)
@@ -647,6 +774,8 @@ def main() -> int:
                               "prediction": model_prediction(model)}, sort_keys=True, separators=(",", ":"), allow_nan=False))
         elif args.command == "run":
             execute_arm(args)
+        elif args.command == "run-native":
+            execute_native_scene_arm(args)
         elif args.command == "receipt":
             repository = Path(args.repository).resolve()
             brain_root = Path(args.brain_root).resolve()

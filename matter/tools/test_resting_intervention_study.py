@@ -1,8 +1,11 @@
 """Arithmetic/admission regression tests, not physiological qualification."""
 import math
 import unittest
+from argparse import Namespace
+from pathlib import Path
 
-from resting_intervention_study import complete_breath_metrics, positive_linear_area
+from resting_intervention_study import (complete_breath_metrics, positive_linear_area,
+                                       native_scene_command, native_scene_summary)
 
 
 class AcceptedBreathWindowTests(unittest.TestCase):
@@ -48,6 +51,53 @@ class AcceptedBreathWindowTests(unittest.TestCase):
         self.assertEqual(positive_linear_area(-2, 2, 4), 2)
         self.assertEqual(positive_linear_area(2, -2, 4), 2)
         self.assertEqual(positive_linear_area(-2, -1, 4), 0)
+
+
+class NativeSceneBindingTests(unittest.TestCase):
+    def invocation(self):
+        return {"argv": ["/build/numi-human-native", "/rigid", "/myo", "/bones", "/old-output",
+                         "--persistent-metal-stand", "--resting-scene", "/network", "/respiration",
+                         "--vascular-dense45", "--resting-anatomy-receipt", "/anatomy",
+                         "--skin-payload", "/skin", "--tendon-payload", "/tendon",
+                         "--muscle-step-count", "64", "--muscle-step-seconds", ".001",
+                         "--resting-movie", "/old-output/native-viewer.mov"],
+                "asset_sha256": {p: "bound" for p in ("/build/numi-human-native", "/rigid", "/myo",
+                    "/bones", "/network", "/respiration", "/anatomy", "/skin", "/tendon")}}
+
+    def args(self):
+        return Namespace(steps=77500, dt=.004, arm="treatment", start_s=120., end_s=180., scale=.5)
+
+    def test_rebinding_changes_only_output_timing_and_declared_intervention(self):
+        original = self.invocation()
+        command = native_scene_command(original, Path("/new"), self.args())
+        self.assertEqual(command[4], "/new")
+        self.assertEqual(command[command.index("--muscle-step-count") + 1], "77500")
+        self.assertEqual(command[-4:], ["--resting-drive-intervention", "120.0", "180.0", "0.5"])
+        self.assertEqual(original["argv"][4], "/old-output")
+
+    def test_unbound_consumed_anatomy_and_preintervened_reference_are_rejected(self):
+        original = self.invocation()
+        del original["asset_sha256"]["/anatomy"]
+        with self.assertRaisesRegex(ValueError, "unbound file"):
+            native_scene_command(original, Path("/new"), self.args())
+        original = self.invocation()
+        original["argv"].extend(["--resting-drive-intervention", "1", "2", ".5"])
+        with self.assertRaisesRegex(ValueError, "no intervention"):
+            native_scene_command(original, Path("/new"), self.args())
+
+    def test_incomplete_and_assisted_native_logs_are_rejected(self):
+        log = ('runtime=Numi Matter runtime initialized with eligible dense45 vascular solve '
+               'device=Apple M4 Pro world_fingerprint=123 timestep_s=.001\n'
+               'stand_terminal_state={"step_count":32,"root_assistance":false,"q":[0],"v":[0]}\n'
+               'resting_integrated_body=completed simulated_s=.032 wall_s=1 real_time_factor=.032 '
+               'physiology_body_clock=matched root_assistance=false presentation_qualification=pending\n')
+        result = native_scene_summary(log)
+        self.assertEqual(result['accepted_steps'], 32)
+        self.assertEqual(result['world_fingerprint'], '123')
+        with self.assertRaisesRegex(ValueError, 'complete'):
+            native_scene_summary(log.replace('physiology_body_clock=matched', 'physiology_body_clock=failed'))
+        with self.assertRaisesRegex(ValueError, 'root assistance'):
+            native_scene_summary(log.replace('"root_assistance":false', '"root_assistance":true'))
 
 
 if __name__ == '__main__':

@@ -1,0 +1,12 @@
+test_complete_breath_ventilation_is_independent_of_partial_edges (test_resting_intervention_study.AcceptedBreathWindowTests.test_complete_breath_ventilation_is_independent_of_partial_edges) ... ok
+test_partial_breath_window_is_unavailable_not_zero_ventilation (test_resting_intervention_study.AcceptedBreathWindowTests.test_partial_breath_window_is_unavailable_not_zero_ventilation) ... ok
+test_positive_flow_area_includes_only_the_correct_triangle (test_resting_intervention_study.AcceptedBreathWindowTests.test_positive_flow_area_includes_only_the_correct_triangle) ... ok
+test_skipped_accepted_breath_transition_is_rejected (test_resting_intervention_study.AcceptedBreathWindowTests.test_skipped_accepted_breath_transition_is_rejected) ... ok
+test_incomplete_and_assisted_native_logs_are_rejected (test_resting_intervention_study.NativeSceneBindingTests.test_incomplete_and_assisted_native_logs_are_rejected) ... ok
+test_rebinding_changes_only_output_timing_and_declared_intervention (test_resting_intervention_study.NativeSceneBindingTests.test_rebinding_changes_only_output_timing_and_declared_intervention) ... ok
+test_unbound_consumed_anatomy_and_preintervened_reference_are_rejected (test_resting_intervention_study.NativeSceneBindingTests.test_unbound_consumed_anatomy_and_preintervened_reference_are_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.001s
+
+OK
