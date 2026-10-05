@@ -24,11 +24,12 @@ struct NumiHumanRestingAnatomy {
     std::array<float,2> passiveTransition{}; // caudal zero and cranial unit weight, m
     struct RespiratoryBasis {
         double start=0,span=0;
+        double conformingGridSpacing=0;
         std::array<double,4> rim{};
         std::array<std::array<double,4>,2> crura{};
         std::array<double,2> rimTransition{},cruralTransition{};
         // xyz are the source-space gradient; w is the scalar basal weight.
-        std::array<double,4> evaluate(const std::array<double,3>& p,const std::array<double,3>& axis) const {
+        std::array<double,4> evaluateSmooth(const std::array<double,3>& p,const std::array<double,3>& axis) const {
             const auto ellipse=[&](const auto& e,const auto& transition,bool inward) {
                 const double x=(p[0]-e[0])/e[2],z=(p[2]-e[1])/e[3],r=std::sqrt(x*x+z*z);
                 const double t=std::clamp((r-transition[0])/transition[1],0.0,1.0);
@@ -43,6 +44,26 @@ struct NumiHumanRestingAnatomy {
             const double height=p[0]*axis[0]+p[1]*axis[1]+p[2]*axis[2];
             const double t=std::clamp((height-start)/span,0.0,1.0),g=1-t*t*(3-2*t),dg=-6*t*(1-t)/span;
             return {g*wx+w*dg*axis[0],w*dg*axis[1],g*wz+w*dg*axis[2],g*w};
+        }
+        std::array<double,4> evaluate(const std::array<double,3>& p,const std::array<double,3>& axis) const {
+            if(conformingGridSpacing==0)return evaluateSmooth(p,axis);
+            std::array<double,3> corner{},fraction{};
+            for(unsigned k=0;k<3;++k) {
+                const double u=p[k]/conformingGridSpacing;
+                corner[k]=std::floor(u)*conformingGridSpacing;fraction[k]=u-std::floor(u);
+            }
+            const auto low=corner;
+            std::array<unsigned,3> order{0,1,2};
+            std::stable_sort(order.begin(),order.end(),[&](unsigned a,unsigned b){return fraction[a]>fraction[b];});
+            std::array<double,4> result{};
+            double previous=evaluateSmooth(corner,axis)[3];result[3]=previous;
+            for(unsigned k:order) {
+                corner[k]+=conformingGridSpacing;
+                const double next=evaluateSmooth(corner,axis)[3];
+                result[k]=(next-previous)/conformingGridSpacing;
+                result[3]+=result[k]*(p[k]-low[k]);previous=next;
+            }
+            return result;
         }
     } respiratoryBasis;
     std::map<unsigned,std::vector<float>> cardiacFreewallWeights;
@@ -390,6 +411,15 @@ struct NumiHumanRestingAnatomy {
             }
         };
         respiratoryBasis.start=blendStart;respiratoryBasis.span=blendSpan;
+        id interpolation=respiratoryBinding[@"basal_weight_interpolation"];
+        if(interpolation) {
+            require([interpolation isEqual:@"conforming_kuhn_grid_v1"],
+                "unsupported respiratory basal interpolation");
+            respiratoryBasis.conformingGridSpacing=respiratoryNumber(@"conforming_grid_spacing_m");
+            require(respiratoryBasis.conformingGridSpacing==1.0/64.0&&
+                superior.x==0&&superior.y==1&&superior.z==0,
+                "conforming respiratory cells require the declared source grid and superior axis");
+        }
         parameterArray(respiratoryBinding[@"footprint_rim_ellipse_m"],respiratoryBasis.rim);
         parameterArray(respiratoryBinding[@"footprint_rim_transition"],respiratoryBasis.rimTransition);
         parameterArray(respiratoryBinding[@"footprint_crural_transition"],respiratoryBasis.cruralTransition);
