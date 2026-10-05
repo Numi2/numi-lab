@@ -558,6 +558,239 @@ def execute_native_scene_arm(args: argparse.Namespace) -> dict[str, Any]:
     return result
 
 
+def native_plan_components(args: argparse.Namespace, invocation: dict[str, Any],
+                           source_hashes: dict[str, str], script: Path) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
+    """Build a v2 plan for the existing whole-body native scene adapter.
+
+    This is plan construction only: it does not register the study or launch
+    either arm. The per-arm program fingerprints must come from the native
+    owner for the exact frozen invocation and intervention settings.
+    """
+    validate_windows(args)
+    source_revisions = json.loads(Path(args.source_revisions).resolve().read_text(encoding="utf-8"))
+    required_repositories = {"numi-lab", "numilab-human", "numi-brain"}
+    if not isinstance(source_revisions, dict) or not required_repositories.issubset(source_revisions):
+        raise ValueError("source revision inventory must include numi-lab, numilab-human, and numi-brain")
+    for repository, revision in source_revisions.items():
+        if not isinstance(repository, str) or not isinstance(revision, dict):
+            raise ValueError("each source revision entry must be a repository identity object")
+        commit, diff = revision.get("revision"), revision.get("diff_sha256")
+        if not isinstance(commit, str) or not re.fullmatch(r"[0-9a-f]{40}", commit):
+            raise ValueError(f"{repository} revision must be the exact 40-character Git commit")
+        if not isinstance(diff, str) or not re.fullmatch(r"[0-9a-f]{64}", diff):
+            raise ValueError(f"{repository} source diff identity must be a SHA-256 digest")
+    for name, value in (("world", args.world_fingerprint),
+                        ("control program", args.control_program_fingerprint),
+                        ("treatment program", args.treatment_program_fingerprint)):
+        if not value.isdecimal() or int(value) == 0:
+            raise ValueError(f"{name} fingerprint must be a nonzero owner-reported integer")
+    if args.control_program_fingerprint == args.treatment_program_fingerprint:
+        raise ValueError("control and intervention must have distinct coupled-program fingerprints")
+    if not source_hashes or any(not isinstance(path, str) or not Path(path).is_absolute() or
+                                not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest)
+                                for path, digest in source_hashes.items()):
+        raise ValueError("source hash inventory must map absolute source paths to SHA-256 digests")
+    for path, expected in source_hashes.items():
+        source_path = Path(path)
+        if source_path.is_symlink() or not source_path.is_file() or sha256_file(source_path) != expected:
+            raise ValueError(f"source hash differs from frozen inventory: {path}")
+    bindings = invocation.get("asset_sha256")
+    if not isinstance(bindings, dict) or not bindings:
+        raise ValueError("native invocation must bind its consumed binary, libraries, and assets")
+    for path, expected in bindings.items():
+        if not isinstance(path, str) or not Path(path).is_absolute() or not isinstance(expected, str) or not re.fullmatch(r"[0-9a-f]{64}", expected):
+            raise ValueError("native invocation contains an invalid asset binding")
+        asset_path = Path(path)
+        if asset_path.is_symlink() or not asset_path.is_file() or sha256_file(asset_path) != expected:
+            raise ValueError(f"native invocation asset differs from its frozen digest: {path}")
+    if not isinstance(invocation.get("argv"), list):
+        raise ValueError("native invocation must preserve its exact owner argv")
+    if not args.device.startswith("Apple "):
+        raise ValueError("native paired plan requires the actual Apple device identity")
+
+    out = Path(args.directory).resolve()
+    invocation_path = Path(args.invocation).resolve()
+    source_hashes_path = Path(args.source_hashes).resolve()
+    source_revisions_path = Path(args.source_revisions).resolve()
+    fixture = Path(args.parser_fixture).resolve()
+    if not fixture.is_file():
+        raise ValueError("a retained accepted native CSV fixture is required for parser calibration")
+    for arm in ("control", "treatment"):
+        preflight_args = argparse.Namespace(steps=args.steps, dt=args.dt, arm=arm,
+                                            start_s=args.start_s, end_s=args.end_s, scale=args.scale)
+        native_scene_command(invocation, out / "preflight-output", preflight_args)
+    unit_basis = {"source_revisions": source_revisions,
+                  "source_files": source_hashes,
+                  "common_assets": bindings,
+                  "world_fingerprint": args.world_fingerprint,
+                  "invocation_sha256": sha256_file(invocation_path),
+                  "device": args.device, "steps": args.steps, "dt": args.dt}
+    unit_id = "human-resting-reference-v1-" + digest_json(unit_basis)[:20]
+    common_asset_identity = digest_json(bindings)
+
+    model = {
+        "schema": "numi.human-resting-paco2-model.v1",
+        "version": "alveolar-ventilation-envelope-v1",
+        "statement": ("For fixed resting CO2 production, the alveolar-ventilation relation predicts a "
+                       "nonnegative control-corrected PaCO2 change when effective alveolar ventilation "
+                       "under reduced drive is between one-half and all of baseline. From a 40 mmHg "
+                       "baseline this gives a broad 0 to +40 mmHg sensitivity envelope; it is not a "
+                       "probability interval or a clinical prediction."),
+        "parameters": {"baseline_PaCO2_mmhg": 40.0,
+                       "minimum_effective_alveolar_ventilation_fraction": 0.5,
+                       "maximum_effective_alveolar_ventilation_fraction": 1.0,
+                       "assumption": ("Sensitivity only: at fixed CO2 production, effective alveolar "
+                                      "ventilation is assumed to remain in [0.5, 1.0] of baseline. "
+                                      "The closed-loop native response is measured, not prescribed.")},
+        "training_units": [],
+        "scope": "One deterministic paired simulation condition; not population inference, physiology calibration, or clinical validation.",
+    }
+    calibration = known_parser_calibration(fixture)
+    calibration["bindings"] = {str(script): sha256_file(script), str(fixture): sha256_file(fixture),
+                               str(invocation_path): sha256_file(invocation_path),
+                               str(source_hashes_path): sha256_file(source_hashes_path),
+                               str(source_revisions_path): sha256_file(source_revisions_path)}
+    calibration["evidence"] = {str(fixture): sha256_file(fixture)}
+
+    py = str(Path(sys.executable).resolve())
+    common = ["--invocation", str(invocation_path), "--unit-id", unit_id,
+              "--world-fingerprint", args.world_fingerprint, "--device", args.device,
+              "--steps", str(args.steps), "--dt", repr(args.dt),
+              "--start-s", repr(args.start_s), "--end-s", repr(args.end_s),
+              "--scale", repr(args.scale), "--window-s", repr(args.window_s)]
+    trials = []
+    for arm, program_fingerprint, trial_id in (
+            ("control", args.control_program_fingerprint, "resting-baseline"),
+            ("treatment", args.treatment_program_fingerprint, "resting-drive-half")):
+        trials.append({"id": trial_id, "pair": "resting-reference-v1", "arm": arm,
+                       "unit": {"unit_id": unit_id},
+                       "argv": [py, str(script), "run-native", *common,
+                                "--program-fingerprint", program_fingerprint,
+                                "--arm", arm, "--output", "{run}/scene"],
+                       "env": {}, "timeout_seconds": 86400})
+
+    native_identity_path = out / "native-build-identity.json"
+    model_path = out / "model.json"
+    calibration_path = out / "calibration.json"
+    source_paths = sorted(source_hashes)
+    bound_assets = sorted(bindings)
+    instrument_artifacts = list(dict.fromkeys([str(script), str(invocation_path),
+        str(source_hashes_path), str(source_revisions_path), str(fixture), *source_paths, *bound_assets]))
+    identity = {"schema": "numi.human-resting.native-paired-build-identity.v1",
+                "source_revisions": source_revisions,
+                "source_revisions_file": {"path": str(source_revisions_path),
+                                          "sha256": sha256_file(source_revisions_path)},
+                "source_file_sha256": source_hashes,
+                "device": args.device,
+                "native_invocation": {"path": str(invocation_path),
+                                      "sha256": sha256_file(invocation_path),
+                                      "asset_sha256": bindings},
+                "world_fingerprint": args.world_fingerprint,
+                "coupled_program_fingerprint_by_arm": {
+                    "control": args.control_program_fingerprint,
+                    "treatment": args.treatment_program_fingerprint},
+                "common_asset_identity": common_asset_identity,
+                "unit_id": unit_id,
+                "configuration": {"steps": args.steps, "dt_s": args.dt,
+                                  "duration_s": args.steps * args.dt,
+                                  "drive_intervention_start_s": args.start_s,
+                  "drive_intervention_end_s": args.end_s,
+                  "drive_intervention_scale": args.scale,
+                  "analysis_window_s": args.window_s,
+                  "initialization_exclusion_s": 10.0,
+                  "observation_after_initialization_s": args.steps * args.dt - 10.0,
+                  "solver": "existing native Matter Dense45 circulation and accepted-state body coupling",
+                                  "controller": "existing NumiBrain respiratory chemoreflex"},
+                "scope": "Frozen native whole-body scene input identity; this is not physiological or clinical qualification."}
+    plan = {
+        "schema": "numi.science.plan.v2", "purpose": "exploration",
+        "question": (f"In the frozen native resting human scene, does reducing delivered respiratory excitation "
+                     f"to {args.scale:g} on [{args.start_s:g},{args.end_s:g}) s lower ventilation and raise "
+                     "control-corrected PaCO2 during the intervention, while gas measurements return near the "
+                     "unchanged control during late recovery?"),
+        "hypothesis": model["statement"],
+        "owner": "Numi Human native articulated body, Matter circulation, and NumiBrain respiratory control",
+        "repository": str(out),
+        "backend": f"Apple Metal native integrated viewer on {args.device}",
+        "evidence_level": "simulation", "model": model, "model_file": str(model_path),
+        "predictor": {"argv": [py, str(script), "predict", "--model", str(model_path)],
+                      "env": {}, "timeout_seconds": 30},
+        "instrument": {"description": (f"Native accepted-state PaCO2 difference-in-differences using {args.window_s:g} s "
+                        "pre-dose and dose windows; accepted-flow ventilation, PaO2/SaO2, late recovery, cardiac, "
+                        "blood-balance, body-clock, and whole-surface contact diagnostics are retained per arm."),
+                       "calibration": str(calibration_path), "artifacts": instrument_artifacts},
+        "artifacts": list(dict.fromkeys([*instrument_artifacts, str(native_identity_path),
+                                         str(model_path), str(calibration_path)])),
+        "design": {"intervention": (f"Existing Brain chemoreflex remains active; only its delivered diaphragm/intercostal "
+                                     f"excitation is multiplied by {args.scale:g} on [{args.start_s:g},{args.end_s:g}) s."),
+                   "pre_dose_window_s": [args.start_s - args.window_s, args.start_s],
+                   "dose_window_s": [args.end_s - args.window_s, args.end_s],
+                   "recovery_window_s": [args.steps * args.dt - args.window_s, args.steps * args.dt],
+                   "initialization_exclusion_window_s": [0.0, 10.0],
+                   "observation_after_initialization_s": args.steps * args.dt - 10.0,
+                   "controls": "Matched fresh native process and same frozen invocation/assets/initialization; control drive remains 1.0 throughout.",
+                   "experimental_unit": "One deterministic resting initialization and source/configuration identity; paired trajectories are not independent people or independent time samples.",
+                   "allocation": "One exploratory pair, control then treatment, no retries/exclusions; all outcomes come from accepted native state.",
+                   "unit_paths": {"unit_id": ["unit_id"]}},
+        "observable": {"name": (f"Control-corrected change in mean PaCO2: treatment-minus-control of each arm's "
+                                 f"dose-window minus pre-dose-window mean ({args.window_s:g} s windows)."),
+                        "unit": "mmHg", "path": ["primary_delta_PaCO2_mmhg"]},
+        "prediction": model_prediction(model),
+        "secondary_predictions": {
+            "dose_direction": {"treatment_minus_control_inspiratory_ventilation_L_min": "< 0",
+                               "treatment_minus_control_primary_delta_PaCO2_mmhg": ">= 0",
+                               "scope": "Mechanistic response-direction checks; not guaranteed by a target curve."},
+            "late_recovery_equivalence": {
+                "comparison": (f"treatment versus unchanged control, both averaged over the final "
+                               f"{args.window_s:g} s"),
+                "PaCO2_absolute_difference_max_mmhg": 1.0,
+                "inspiratory_minute_ventilation_relative_difference_max_fraction": 0.10,
+                "PaO2_absolute_difference_max_mmhg": 5.0,
+                "justification": ("Predeclared numerical equivalence margins: 1 mmHg is 2.5% of the model's "
+                                  "40 mmHg reference, 10% is a one-tenth relative ventilation tolerance, and "
+                                  "5 mmHg is a finite oxygen readout margin. These are study decision limits, "
+                                  "not literature-defined clinical cutoffs or guaranteed outcomes."),
+                "scope": "Descriptive late recovery comparison; apply to the fixed native trajectories only."}},
+        "validity": [{"path": ["schema"], "equals": "numi.human-resting.intervention-observation.v1"},
+                     {"path": ["accepted_steps"], "equals": args.steps},
+                     {"path": ["nominal_duration_s"], "equals": args.steps * args.dt},
+                     {"path": ["duration_valid"], "equals": True},
+                     {"path": ["dense45"], "equals": True}, {"path": ["brain_control"], "equals": True},
+                     {"path": ["root_assistance_observed"], "equals": False},
+                     {"path": ["common_asset_identity"], "equals": common_asset_identity}],
+        "paired_equal": [["unit_id"], ["device"], ["world_fingerprint"], ["timestep_s"],
+                         ["accepted_steps"], ["dense45"], ["brain_control"],
+                         ["common_asset_identity"]],
+        "trials": trials,
+        "limitations": ("This is one deterministic paired simulation, not a population estimate or clinical validation. "
+                        "The primary predictor is the fixed-production alveolar-ventilation relation and a broad "
+                        "sensitivity envelope; closed-loop finite-time response may differ. Recovery limits are "
+                        "prespecified analysis tolerances, not claimed physiological standards. Body and organ source "
+                        "anatomy remain explicitly unqualified wherever the owner receipt says so."),
+    }
+    return identity, calibration, plan
+
+
+def prepare_native(args: argparse.Namespace) -> Path:
+    """Write a native v2 plan draft from exact frozen owner identities only."""
+    invocation_path = Path(args.invocation).resolve()
+    source_hashes_path = Path(args.source_hashes).resolve()
+    script = Path(__file__).resolve()
+    invocation = json.loads(invocation_path.read_text(encoding="utf-8"))
+    source_hashes = json.loads(source_hashes_path.read_text(encoding="utf-8"))
+    if not isinstance(source_hashes, dict):
+        raise ValueError("source hash inventory must be a JSON object")
+    out = Path(args.directory).resolve()
+    identity, calibration, plan = native_plan_components(args, invocation, source_hashes, script)
+    out.mkdir(parents=True, exist_ok=False)
+    write_json(out / "native-build-identity.json", identity)
+    write_json(out / "model.json", plan["model"])
+    write_json(out / "calibration.json", calibration)
+    write_json(out / "plan.json", plan)
+    print(out / "plan.json")
+    return out / "plan.json"
+
+
 def get_git_identity(repository: Path) -> dict[str, str]:
     def git(*argv: str) -> str:
         return subprocess.check_output(["git", "-C", str(repository), *argv], text=True).strip()
@@ -714,8 +947,7 @@ def prepare(args: argparse.Namespace) -> Path:
                      {"path": ["accepted_steps"], "equals": args.steps},
                      {"path": ["nominal_duration_s"], "equals": args.steps * args.dt},
                      {"path": ["duration_valid"], "equals": True},
-                     {"path": ["dense45"], "equals": True}, {"path": ["brain_control"], "equals": True},
-                     {"path": ["whole_body_anatomy_qualified"], "equals": False}],
+                     {"path": ["dense45"], "equals": True}, {"path": ["brain_control"], "equals": True}],
         "paired_equal": [["unit_id"], ["device"], ["world_fingerprint"], ["timestep_s"], ["accepted_steps"], ["dense45"], ["brain_control"]],
         "trials": trials,
         "limitations": "The primary effect is one deterministic paired difference-in-differences, not a sample/population estimate. Secondary ventilation, oxygenation, and recovery values are descriptive fields in each retained trial output. The alveolar ventilation equation supplies a steady-state sensitivity envelope; finite-time closed-loop behavior may differ. Parser calibration does not calibrate physiology or clinical measurement. The current runner explicitly reports no qualified whole-body anatomy/resting claim; this study does not establish anatomical mechanics or clinical validity.",
@@ -787,6 +1019,23 @@ def main() -> int:
     prep.add_argument("--end-s", type=float, default=150.0)
     prep.add_argument("--scale", type=float, default=0.5)
     prep.add_argument("--window-s", type=float, default=5.0)
+    native_prep = sub.add_parser("prepare-native", help="write a v2 plan draft for the frozen anatomical native scene; never registers or launches")
+    native_prep.add_argument("--directory", required=True)
+    native_prep.add_argument("--invocation", required=True, help="exact baseline native invocation receipt with asset_sha256 bindings")
+    native_prep.add_argument("--source-hashes", required=True, help="JSON map of exact compiled source paths to SHA-256")
+    native_prep.add_argument("--source-revisions", required=True,
+                             help="JSON map for numi-lab, numilab-human, and numi-brain, each with revision and diff_sha256")
+    native_prep.add_argument("--parser-fixture", required=True)
+    native_prep.add_argument("--world-fingerprint", required=True, help="actual owner-reported vascular world identity")
+    native_prep.add_argument("--control-program-fingerprint", required=True, help="actual owner-reported control program identity")
+    native_prep.add_argument("--treatment-program-fingerprint", required=True, help="actual owner-reported intervention program identity")
+    native_prep.add_argument("--device", default="Apple M4 Pro")
+    native_prep.add_argument("--steps", type=int, default=160000)
+    native_prep.add_argument("--dt", type=float, default=0.002)
+    native_prep.add_argument("--start-s", type=float, default=60.0)
+    native_prep.add_argument("--end-s", type=float, default=100.0)
+    native_prep.add_argument("--scale", type=float, default=0.5)
+    native_prep.add_argument("--window-s", type=float, default=30.0)
     receipt = sub.add_parser("receipt", help="capture exact source, binary, library, input, and repository identity after a native build")
     receipt.add_argument("--repository", required=True)
     receipt.add_argument("--brain-root", required=True)
@@ -808,6 +1057,8 @@ def main() -> int:
             execute_arm(args)
         elif args.command == "run-native":
             execute_native_scene_arm(args)
+        elif args.command == "prepare-native":
+            prepare_native(args)
         elif args.command == "receipt":
             repository = Path(args.repository).resolve()
             brain_root = Path(args.brain_root).resolve()

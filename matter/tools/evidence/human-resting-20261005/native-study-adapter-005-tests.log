@@ -1,0 +1,16 @@
+Host: SSH Mac mini (macOS 26.6), Python 3.9.6
+Command: python3 matter/tools/test_resting_intervention_study.py
+
+...........
+----------------------------------------------------------------------
+Ran 11 tests in 0.030s
+
+OK
+/private/var/folders/ks/sfmz3dh91_7c9_vyd_3lzj100000gn/T/tmprzyjiytn/registration-draft/plan.json
+
+The temporary plan was produced from test-only assets and identities, passed the existing `numi.science.plan.v2` validator, and was removed with the test's temporary directory. No real plan was created or registered, and no native physiology trial was launched.
+
+`prepare-native --help` on the same host exposes the multi-repository `--source-revisions` input.
+
+Adapter SHA-256: `3b868581d0ee7fe453fe32d35db40b66c4d9c4c0e2f15be622f7c97749439cba`
+Test SHA-256: `31bc7ebe23a4d02ee0d67d9796fefe09ba4ca2d03713d5ff776ee4e4f89e090c`

@@ -1,11 +1,19 @@
 """Arithmetic/admission regression tests, not physiological qualification."""
 import math
 import csv
+import hashlib
+import json
+import sys
 import tempfile
 import unittest
 from argparse import Namespace
 from pathlib import Path
+from unittest.mock import patch
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "python"))
+from metalrobo.science_notebook import validate as validate_plan
+
+import resting_intervention_study as adapter
 from resting_intervention_study import (complete_breath_metrics, positive_linear_area,
                                        native_scene_command, native_scene_summary, native_body_trace_consistency,
                                        observation, TRACE_COLUMNS)
@@ -121,6 +129,140 @@ class NativeSceneBindingTests(unittest.TestCase):
             trace.write_text(header + rows.replace("64,.128,0,0,.00002\n", ""))
             with self.assertRaisesRegex(ValueError, 'skipped'):
                 native_body_trace_consistency(trace, 96, .002)
+
+
+class NativeV2PlanPreparationTests(unittest.TestCase):
+    @staticmethod
+    def write(path, content):
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(content)
+        return hashlib.sha256(content).hexdigest()
+
+    def test_native_plan_uses_exact_pair_ids_and_prespecified_windows_without_registering(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            asset_names = ("numi-human-native", "rigid.nhrigid", "muscle.nhmyo", "bones.nhbones",
+                           "network.json", "respiration.json", "anatomy.json", "skin.nhskin",
+                           "tendon.nhtendon", "tissue.nhtissue")
+            asset_hashes = {}
+            for index, name in enumerate(asset_names):
+                path = root / "assets" / name
+                asset_hashes[str(path)] = self.write(path, f"test asset {index}".encode())
+            source_path = root / "source" / "human.cpp"
+            source_hashes = {str(source_path): self.write(source_path, b"frozen source fixture")}
+            source_hash_path = root / "source-hashes.json"
+            source_hash_path.write_text(json.dumps(source_hashes), encoding="utf-8")
+            source_revisions_path = root / "source-revisions.json"
+            source_revisions = {
+                "numi-lab": {"revision": "a" * 40, "diff_sha256": "b" * 64},
+                "numilab-human": {"revision": "c" * 40, "diff_sha256": "d" * 64},
+                "numi-brain": {"revision": "e" * 40, "diff_sha256": "f" * 64},
+            }
+            source_revisions_path.write_text(json.dumps(source_revisions), encoding="utf-8")
+            invocation_path = root / "invocation.json"
+            invocation = {
+                "argv": [str(root / "assets" / "numi-human-native"),
+                         str(root / "assets" / "rigid.nhrigid"), str(root / "assets" / "muscle.nhmyo"),
+                         str(root / "assets" / "bones.nhbones"), str(root / "old-output"),
+                         "--persistent-metal-stand", "--muscle-step-seconds", ".002",
+                         "--muscle-step-count", "3000", "--support-contact-payload", str(root / "assets" / "skin.nhskin"),
+                         "--joint-equality-payload", str(root / "assets" / "bones.nhbones"),
+                         "--tendon-payload", str(root / "assets" / "tendon.nhtendon"),
+                         "--resting-scene", str(root / "assets" / "network.json"), str(root / "assets" / "respiration.json"),
+                         "--vascular-dense45", "--resting-anatomy-receipt", str(root / "assets" / "anatomy.json"),
+                         "--skin-payload", str(root / "assets" / "skin.nhskin"),
+                         "--soft-tissue-payload", str(root / "assets" / "tissue.nhtissue"),
+                         "--resting-movie", str(root / "old-output" / "native-viewer.mov")],
+                "asset_sha256": asset_hashes,
+            }
+            invocation_path.write_text(json.dumps(invocation), encoding="utf-8")
+            fixture = root / "accepted-fixture.csv"
+            fixture.write_text("calibration fixture reserved for the owner parser", encoding="utf-8")
+            output = root / "registration-draft"
+            args = Namespace(directory=str(output), invocation=str(invocation_path),
+                             source_hashes=str(source_hash_path), source_revisions=str(source_revisions_path),
+                             parser_fixture=str(fixture),
+                             world_fingerprint="123456", control_program_fingerprint="456789",
+                             treatment_program_fingerprint="987654", device="Apple M4 Pro",
+                             steps=160000, dt=.002, start_s=60., end_s=100., scale=.5, window_s=12.)
+            calibration = {"schema": "numi.science.calibration.v1", "status": "passed",
+                           "checks": [{"id": "parser_fixture_only", "passed": True}],
+                           "scope": "test double only", "observed_units": []}
+            with patch.object(adapter, "known_parser_calibration", return_value=calibration):
+                plan_path = adapter.prepare_native(args)
+            plan = json.loads(plan_path.read_text())
+            identity = json.loads((output / "native-build-identity.json").read_text())
+            validate_plan(plan, live=False)
+            self.assertEqual(plan["schema"], "numi.science.plan.v2")
+            self.assertEqual(plan["prediction"], {"estimand": "paired_difference_mean", "minimum": 0., "maximum": 40.})
+            self.assertEqual(plan["design"]["pre_dose_window_s"], [48., 60.])
+            self.assertEqual(plan["design"]["dose_window_s"], [88., 100.])
+            self.assertEqual(plan["design"]["recovery_window_s"], [308., 320.])
+            recovery = plan["secondary_predictions"]["late_recovery_equivalence"]
+            self.assertEqual(recovery["comparison"], "treatment versus unchanged control, both averaged over the final 12 s")
+            self.assertEqual(plan["secondary_predictions"]["late_recovery_equivalence"]["PaCO2_absolute_difference_max_mmhg"], 1.)
+            self.assertEqual(plan["secondary_predictions"]["late_recovery_equivalence"]["inspiratory_minute_ventilation_relative_difference_max_fraction"], .1)
+            self.assertEqual(plan["secondary_predictions"]["late_recovery_equivalence"]["PaO2_absolute_difference_max_mmhg"], 5.)
+            control, treatment = plan["trials"]
+            self.assertEqual(control["unit"], treatment["unit"])
+            self.assertIn("--program-fingerprint", control["argv"])
+            self.assertEqual(control["argv"][control["argv"].index("--program-fingerprint") + 1], "456789")
+            self.assertEqual(treatment["argv"][treatment["argv"].index("--program-fingerprint") + 1], "987654")
+            self.assertNotEqual(identity["coupled_program_fingerprint_by_arm"]["control"],
+                                identity["coupled_program_fingerprint_by_arm"]["treatment"])
+            self.assertEqual(identity["source_revisions"], source_revisions)
+            self.assertTrue(all("whole_body_anatomy_qualified" not in condition.get("path", [])
+                                for condition in plan["validity"]))
+            self.assertFalse(any(["whole_body_anatomy_qualified"] in pair for pair in plan["paired_equal"]))
+            self.assertEqual(len(plan["trials"]), 2)
+            self.assertFalse((output / "study").exists())
+            self.assertFalse((output / "registration").exists())
+
+    def test_native_plan_rejects_same_arm_program_identity_and_stale_assets(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "source.cpp"
+            source_hashes = {str(source): self.write(source, b"source")}
+            invocation_path = root / "invocation.json"
+            executable = root / "numi-human-native"
+            binding = self.write(executable, b"native executable")
+            invocation_path.write_text(json.dumps({"argv": [str(executable), "/rigid", "/myo", "/bones", "/out",
+                                                       "--persistent-metal-stand", "--resting-scene", "/network", "/resp",
+                                                       "--vascular-dense45", "--resting-anatomy-receipt", "/anatomy",
+                                                       "--skin-payload", "/skin", "--tendon-payload", "/tendon",
+                                                       "--muscle-step-count", "1", "--muscle-step-seconds", ".002",
+                                                       "--resting-movie", "/out/movie"],
+                                                   "asset_sha256": {str(executable): binding}}), encoding="utf-8")
+            fixture = root / "fixture.csv"
+            fixture.write_text("fixture", encoding="utf-8")
+            source_hash_path = root / "sources.json"
+            source_hash_path.write_text(json.dumps(source_hashes), encoding="utf-8")
+            source_revisions_path = root / "source-revisions.json"
+            source_revision_data = {
+                "numi-lab": {"revision": "a" * 40, "diff_sha256": "b" * 64},
+                "numilab-human": {"revision": "c" * 40, "diff_sha256": "d" * 64},
+                "numi-brain": {"revision": "e" * 40, "diff_sha256": "f" * 64},
+            }
+            source_revisions_path.write_text(json.dumps(source_revision_data), encoding="utf-8")
+            args = Namespace(directory=str(root / "out"), invocation=str(invocation_path),
+                             source_hashes=str(source_hash_path), source_revisions=str(source_revisions_path),
+                             parser_fixture=str(fixture),
+                             world_fingerprint="123", control_program_fingerprint="456",
+                             treatment_program_fingerprint="456", device="Apple M4 Pro",
+                             steps=160000, dt=.002, start_s=60., end_s=100., scale=.5, window_s=30.)
+            source_revisions_path.write_text(json.dumps({"numi-lab": source_revision_data["numi-lab"]}), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "must include numi-lab, numilab-human, and numi-brain"):
+                adapter.native_plan_components(args, json.loads(invocation_path.read_text()),
+                                               source_hashes, Path(adapter.__file__).resolve())
+            source_revisions_path.write_text(json.dumps(source_revision_data), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "distinct coupled-program"):
+                adapter.native_plan_components(args, json.loads(invocation_path.read_text()),
+                                               source_hashes, Path(adapter.__file__).resolve())
+            args.treatment_program_fingerprint = "789"
+            executable.write_bytes(b"changed native executable")
+            with self.assertRaisesRegex(ValueError, "asset differs"):
+                adapter.native_plan_components(args, json.loads(invocation_path.read_text()),
+                                               source_hashes, Path(adapter.__file__).resolve())
 
     def test_observation_uses_final_accepted_window_for_recovery(self):
         # Distinct pre/dose/recovery plateaus catch accidentally reusing the
