@@ -86,6 +86,41 @@ class AcceptedBreathWindowTests(unittest.TestCase):
             complete_breath_metrics(rows, 1, 21)
 
 
+class RestingReferenceComparisonTests(unittest.TestCase):
+    @staticmethod
+    def trace():
+        rows = []
+        for breath in AcceptedBreathWindowTests.trace():
+            row = {key: 0.0 for key in TRACE_COLUMNS}
+            row.update(breath)
+            row.update(PaCO2_mmhg=50.0, PaO2_mmhg=102.0, SaO2=.98,
+                       aorta_mmhg=90.0, pulmonary_artery_mmhg=16.0,
+                       last_lv_stroke_ml=70.0, tidal_ml=500.0,
+                       aortic_ejected_ml=80 * row["time_s"],
+                       pulmonary_ejected_ml=80 * row["time_s"],
+                       complete_filling_ejection_cycles=math.floor(row["time_s"] / .8))
+            rows.append(row)
+        return rows
+
+    def test_reference_outliers_are_reported_without_numerical_rejection(self):
+        result = adapter.resting_reference_comparison(self.trace(), 1, 21)
+        comparisons = result["general_adult_resting_reference_comparisons"]
+        self.assertFalse(comparisons["mean_PaCO2_mmhg"]["within_reference_bounds"])
+        self.assertFalse(comparisons["mean_PaO2_mmhg"]["within_reference_bounds"])
+        self.assertEqual(comparisons["aortic_output_L_min"]["measured"], 4.8)
+        self.assertEqual(comparisons["complete_breath_rate_per_min"]["measured"], 15)
+        self.assertNotIn("reference_bounds", result["supine_male_cohort_context"]["values"]["tidal_volume_L"])
+
+    def test_unresolved_complete_cycles_are_unavailable_not_zero(self):
+        rows = self.trace()
+        for row in rows:
+            row["breaths"] = row["complete_filling_ejection_cycles"] = 0
+        result = adapter.resting_reference_comparison(rows, 1, 21)
+        self.assertNotIn("complete_breath_rate_per_min", result["general_adult_resting_reference_comparisons"])
+        self.assertNotIn("complete_heartbeat_rate_per_min", result["general_adult_resting_reference_comparisons"])
+        self.assertIsNone(result["supine_male_cohort_context"]["values"]["minute_ventilation_L_min"]["measured"])
+
+
 class NativeSceneBindingTests(unittest.TestCase):
     def invocation(self):
         return {"argv": ["/build/numi-human-native", "/rigid", "/myo", "/bones", "/old-output",

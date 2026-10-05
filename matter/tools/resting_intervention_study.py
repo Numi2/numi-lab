@@ -270,6 +270,65 @@ def window_metrics(rows: list[dict[str, float]], start_s: float, end_s: float) -
     return out
 
 
+def resting_reference_comparison(rows: list[dict[str, float]], start_s: float, end_s: float) -> dict[str, Any]:
+    """Descriptive source comparisons, kept separate from numerical admission."""
+    samples = window_rows(rows, start_s, end_s)
+    elapsed = samples[-1]["time_s"] - samples[0]["time_s"]
+    aacn = "https://aacn.s3-us-west-2.amazonaws.com/Courses/ecco/course-resources/resources/common-resources/Normal_Ranges.pdf"
+    vital = "https://medlineplus.gov/ency/article/002341.htm"
+    cohort = "https://pmc.ncbi.nlm.nih.gov/articles/PMC7253877/"
+    comparisons: dict[str, Any] = {}
+
+    def compare(name: str, value: float, bounds: list[float | None], source: str,
+                method: str, strict_lower: bool = False) -> None:
+        lower, upper = bounds
+        inside = ((lower is None or (value > lower if strict_lower else value >= lower)) and
+                  (upper is None or value <= upper))
+        comparisons[name] = {"measured": value, "reference_bounds": bounds,
+                             "lower_bound_inclusive": not strict_lower,
+                             "within_reference_bounds": inside, "source": source,
+                             "measurement_method": method}
+
+    # These are sampled observations and integrated owner volumes, not
+    # independently generated vital-sign curves or a pass/fail simulator gate.
+    for name, column, bounds in (("mean_PaCO2_mmhg", "PaCO2_mmhg", [35.0, 45.0]),
+                                 ("mean_PaO2_mmhg", "PaO2_mmhg", [80.0, 100.0]),
+                                 ("mean_aortic_pressure_mmhg", "aorta_mmhg", [70.0, 105.0]),
+                                 ("mean_pulmonary_artery_pressure_mmhg", "pulmonary_artery_mmhg", [15.0, 20.0]),
+                                 ("mean_last_complete_LV_stroke_ml", "last_lv_stroke_ml", [50.0, 100.0])):
+        compare(name, mean(samples, column), bounds, aacn, "mean of retained accepted samples")
+    compare("mean_SaO2_percent", 100 * mean(samples, "SaO2"), [95.0, None], aacn,
+            "mean of retained accepted samples", strict_lower=True)
+    for name, column in (("aortic_output_L_min", "aortic_ejected_ml"),
+                         ("pulmonary_output_L_min", "pulmonary_ejected_ml")):
+        value = (samples[-1][column] - samples[0][column]) * 60 / (1000 * elapsed)
+        compare(name, value, [4.0, 8.0], aacn, "accepted cumulative forward flow difference / actual sample interval")
+
+    heart_boundaries = [right for left, right in zip(rows, rows[1:])
+                        if start_s <= right["time_s"] < end_s and
+                        right["complete_filling_ejection_cycles"] > left["complete_filling_ejection_cycles"]]
+    if len(heart_boundaries) >= 2:
+        first, last = heart_boundaries[0], heart_boundaries[-1]
+        rate = 60 * (last["complete_filling_ejection_cycles"] - first["complete_filling_ejection_cycles"]) / (last["time_s"] - first["time_s"])
+        compare("complete_heartbeat_rate_per_min", rate, [60.0, 100.0], vital,
+                "accepted complete-cycle count between first/last retained cycle transitions; timing limited by retained cadence")
+    breaths = complete_breath_metrics(rows, start_s, end_s)
+    if breaths["available"]:
+        compare("complete_breath_rate_per_min", breaths["respiratory_rate_per_min"], [12.0, 18.0], vital,
+                breaths.get("method", "resolved accepted airflow crossings"))
+    cohort_values = {
+        "tidal_volume_L": {"measured": mean(samples, "tidal_ml") / 1000, "mean": 0.58, "sd": 0.28},
+        "minute_ventilation_L_min": {"measured": breaths.get("inspiratory_minute_ventilation_L_min"), "mean": 8.32, "sd": 2.78},
+        "breaths_per_min": {"measured": breaths.get("respiratory_rate_per_min"), "mean": 16.15, "sd": 4.72},
+    }
+    return {"window_s": [start_s, end_s], "accepted_sample_interval_s": [samples[0]["time_s"], samples[-1]["time_s"]],
+            "general_adult_resting_reference_comparisons": comparisons,
+            "supine_male_cohort_context": {"source": cohort, "source_location": "Table 2, men, supine",
+                                          "values": cohort_values,
+                                          "scope": "Published cohort mean/SD, not normal bounds or a clinical gate. OEP chest-wall tidal volume is a related measurement, not identical to model airway volume."},
+            "limitations": "General reference intervals depend on age, altitude and measurement method. Comparisons describe model outputs; they do not establish anatomical validity, numerical conservation, population generalization or clinical validation. Missing complete-cycle rates remain unavailable."}
+
+
 def known_parser_calibration(fixture: Path) -> dict[str, Any]:
     rows = read_trace(fixture)
     last = rows[-1]
@@ -438,6 +497,11 @@ def observation(args: argparse.Namespace, trace: Path, native: dict[str, Any], l
             "pre": complete_breath_metrics(rows, args.start_s - width, args.start_s),
             "dose": complete_breath_metrics(rows, args.end_s - width, args.end_s),
             "recovery": complete_breath_metrics(rows, expected_seconds - width, expected_seconds),
+        },
+        "resting_reference_comparisons": {
+            "pre": resting_reference_comparison(rows, args.start_s - width, args.start_s),
+            "dose": resting_reference_comparison(rows, args.end_s - width, args.end_s),
+            "recovery": resting_reference_comparison(rows, expected_seconds - width, expected_seconds),
         },
         "PaCO2_pre_mean_mmhg": pre["mean_PaCO2_mmhg"],
         "PaCO2_dose_mean_mmhg": dose["mean_PaCO2_mmhg"],
