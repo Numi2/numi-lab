@@ -60,16 +60,12 @@ int main(int argc,const char* argv[]) {@autoreleasepool {try {
         return 0;
     }
     std::ofstream trace(argv[3]);need(trace.good(),"trace path is not writable");
-    trace<<std::setprecision(12)<<"time_s,lung_volume_ml,airflow_ml_s,alveolar_pa,pleural_pa,diaphragm_mm,rib_mm,PaO2_mmhg,PaCO2_mmhg,SaO2,oxygen_balance_error_stpd_ml,co2_balance_error_stpd_ml,breaths,tidal_ml,lv_mmhg,rv_mmhg,aorta_mmhg,pulmonary_artery_mmhg,lv_ml,rv_ml,blood_ml,blood_error_ml,aortic_ejected_ml,pulmonary_ejected_ml,complete_filling_ejection_cycles,last_lv_stroke_ml\n";
+    trace<<std::setprecision(12);writeRespirationTraceHeader(trace);trace<<'\n';
     double gpuSeconds=0;
     for(unsigned first=0;first<steps;) {@autoreleasepool {
         unsigned count=std::min(16u,steps-first);gpuSeconds+=run.batch(first,count);first+=count;
         const auto s=*static_cast<const NMHumanRespirationState*>(run.respiration->accepted.contents);
-        trace<<double(s.status.x)*run.runtime.timestepSeconds()<<','<<s.mechanics.x*1e6<<','<<s.mechanics.w*1e6<<','<<s.mechanics.y<<','<<s.mechanics.z<<','
-             <<s.motion.x/run.respiration->parameters.geometry.z*1000<<','<<s.motion.y/run.respiration->parameters.geometry.w*1000<<','
-             <<s.observation.x<<','<<s.observation.y<<','<<s.observation.z<<','<<s.gasBudget.z*1e6<<','<<s.gasBudget.w*1e6<<','<<s.status.y<<','<<s.breath.z*1e6<<','
-             <<s.cardiacPressure.x/133.322387415<<','<<s.cardiacPressure.y/133.322387415<<','<<s.cardiacPressure.z/133.322387415<<','<<s.cardiacPressure.w/133.322387415<<','
-             <<s.circulation.y*1e6<<','<<s.circulation.z*1e6<<','<<s.circulation.x*1e6<<','<<s.circulation.w*1e6<<','<<s.cardiacFlow.x*1e6<<','<<s.cardiacFlow.y*1e6<<','<<s.cardiacStatus.x<<','<<s.cardiacFlow.w*1e6<<'\n';
+        writeRespirationTraceSample(trace,s,run.respiration->parameters);trace<<'\n';
         if(first%1000==0)std::cout<<"accepted="<<first<<" time_s="<<first*double(run.runtime.timestepSeconds())<<" PaCO2="<<s.observation.y<<'\n';
     }}
     const double wall=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();

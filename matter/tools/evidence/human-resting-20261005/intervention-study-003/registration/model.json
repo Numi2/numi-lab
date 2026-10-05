@@ -1,0 +1,13 @@
+{
+  "parameters": {
+    "assumption": "for the sensitivity envelope only, delivered drive scaling and closed-loop feedback leave effective alveolar ventilation in [0.5, 1.0] of baseline; the intervention result is measured from the accepted native state",
+    "baseline_PaCO2_mmhg": 40.0,
+    "maximum_effective_alveolar_ventilation_fraction": 1.0,
+    "minimum_effective_alveolar_ventilation_fraction": 0.5
+  },
+  "schema": "numi.human-resting-paco2-model.v1",
+  "scope": "One deterministic reduced-order simulation condition. Bounds are algebraic sensitivity to the declared ventilation range, not a statistical interval, calibration, physiological validation, or clinical claim.",
+  "statement": "For fixed resting CO2 production, the steady-state alveolar-ventilation relationship predicts a nonnegative PaCO2 change if effective alveolar ventilation under reduced drive remains at or below baseline. If it lies between one-half and all of baseline, the sensitivity envelope is 0 to +40 mmHg from a 40 mmHg baseline. This broad algebraic interval is not a probability interval or clinical prediction; closed-loop finite-time behavior is measured rather than assumed.",
+  "training_units": [],
+  "version": "alveolar-ventilation-envelope-v1"
+}

@@ -226,6 +226,18 @@ struct TendonLoadAbortGuard {
     }
 };
 
+struct SupportGeometryAbortGuard {
+    const MetalNumiHumanSupportGeometryProgram* program = nullptr;
+    void* commandBuffer = nullptr;
+    bool armed = false;
+
+    ~SupportGeometryAbortGuard() noexcept {
+        if (armed && program != nullptr && program->abort != nullptr) {
+            program->abort(program->context, commandBuffer);
+        }
+    }
+};
+
 [[nodiscard]] bool knownNumanXTransactionPhase(
     const MetalNumanXTransactionPhase phase
 ) noexcept {
@@ -465,6 +477,7 @@ void visitSplitStandBoundary(
     appendSplitStandSpan(sink, input.stand.tendonBindings);
     appendSplitStandSpan(sink, input.stand.tendonEnvelopes);
     appendSplitStandValue(sink, input.stand.tendonLoadProgram.fingerprint);
+    appendSplitStandValue(sink, input.stand.supportGeometryProgram.fingerprint);
     appendSplitStandValue(
         sink, input.stand.numanXTransactionProgram.abiVersion);
     appendSplitStandValue(
@@ -1774,6 +1787,12 @@ bool validNumiHumanStand(
     if (stand.tendonLoadProgram.configured() &&
         !stand.tendonLoadProgram.valid()) {
         reason = "stand tendon-load consumer is only partially configured";
+        return false;
+    }
+    if (stand.supportGeometryProgram.configured() &&
+        (!stand.supportGeometryProgram.valid() || !stand.enabled() ||
+         !stand.enableContact || stand.contacts.empty())) {
+        reason = "stand support-geometry consumer requires a complete contact owner";
         return false;
     }
     if (!stand.tendonBindings.empty()) {
@@ -10005,6 +10024,13 @@ MetalArticulatedOperatorContext::submit(
                 (__bridge void*)commandBuffer,
                 false,
             };
+            SupportGeometryAbortGuard supportGeometryAbort{
+                input.stand.supportGeometryProgram.valid()
+                    ? &input.stand.supportGeometryProgram
+                    : nullptr,
+                (__bridge void*)commandBuffer,
+                false,
+            };
             NumanXTransactionAbortGuard numanXTransactionAbort{
                 input.stand.numanXTransactionProgram.valid()
                     ? input.stand.numanXTransactionProgram.context
@@ -11586,6 +11612,49 @@ MetalArticulatedOperatorContext::submit(
                       threadsPerThreadgroup:MTLSizeMake(
                           kStandThreadsPerThreadgroup, 1u, 1u)];
                 [consume endEncoding];
+            }
+
+            if (input.stand.supportGeometryProgram.valid()) {
+                const auto& layout = diagnostics.layout;
+                MetalNumiHumanSupportGeometryPass pass{};
+                pass.commandBuffer = (__bridge void*)commandBuffer;
+                pass.bodyPoses = (__bridge void*)state_->buffers[8u];
+                pass.bodyPositionLow = (__bridge void*)state_->standBuffers[
+                    kStandBodyPositionLowBuffer];
+                pass.pointWorld = (__bridge void*)state_->buffers[9u];
+                pass.pointPositionLow = (__bridge void*)state_->standBuffers[
+                    kStandPointPositionLowBuffer];
+                pass.pointJacobians = (__bridge void*)state_->buffers[11u];
+                pass.standContacts = (__bridge void*)state_->standBuffers[
+                    kStandContactsBuffer];
+                pass.stepIndex = authoritativeStep;
+                pass.articulationFirstBody = articulation.firstBody;
+                pass.bodyJacobianPointOffset =
+                    input.mujoco.bodyJacobianPointOffset;
+                pass.dofCount = articulation.nv;
+                pass.environmentCount = input.environmentCount;
+                pass.bodyCount = articulation.bodyCount;
+                pass.bodyPoseStride = layout.dispatch.bodyPoseStride;
+                pass.bodyPoseElementCount = layout.bodyPoseElements;
+                pass.pointCount = input.pointCount;
+                pass.pointWorldStride = layout.dispatch.pointWorldStride;
+                pass.pointWorldElementCount = layout.pointWorldElements;
+                pass.pointJacobianStride =
+                    layout.dispatch.pointJacobianStride;
+                pass.pointJacobianElementCount =
+                    layout.pointJacobianElements;
+                pass.standContactCount = layout.standContactElements;
+                pass.groundPoint = input.stand.groundPoint;
+                pass.groundNormal = input.stand.groundNormal;
+                supportGeometryAbort.armed = true;
+                if (!input.stand.supportGeometryProgram.encodePreDynamics(
+                        input.stand.supportGeometryProgram.context, pass)) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::externalProgramFailure,
+                        "Numi Human current-pose support geometry rejected encoding"
+                    );
+                }
             }
 
             if (input.stand.enabled()) {
@@ -13643,6 +13712,7 @@ MetalArticulatedOperatorContext::submit(
             humanMatterLease.armed = false;
             numanXTransactionAbort.armed = false;
             tendonLoadAbort.armed = false;
+            supportGeometryAbort.armed = false;
             [commandBuffer commit];
             geometryAbort.released = true;
             submission.state_ = std::move(pending);

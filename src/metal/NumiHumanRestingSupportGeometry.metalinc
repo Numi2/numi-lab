@@ -1,0 +1,506 @@
+// Current-pose support witnesses derived from the complete registered skin
+// and its untruncated LBS weights. The existing stand solver remains the sole
+// owner of unilateral contact forces and impulses.
+#include "metalrobo/compensated_geometry_gpu.h"
+#include "metalrobo/numi_human_support_geometry_gpu.h"
+
+namespace nm_human_resting_support {
+
+inline uint orderedFloat(float value) {
+    const uint bits = as_type<uint>(value);
+    return (bits & 0x80000000u) != 0u ? ~bits : (bits ^ 0x80000000u);
+}
+
+inline MRCompensatedPositionGPU skinPosition(
+    const MRHumanRestingVertexMap mappedVertex,
+    device const MRHumanRestingInfluence* influences,
+    device const MRArticulatedBodyPoseGPU* bodies,
+    device const float4* bodyPositionLow,
+    device const float4* normalizedOrientations,
+    const MRHumanRestingSupportDispatchGPU dispatch,
+    const uint environment
+) {
+    MRCompensatedPositionGPU result = mrCompensatedVector(float4(0.0f));
+    if (mappedVertex.firstInfluence > dispatch.identity.y ||
+        mappedVertex.influenceCount >
+            dispatch.identity.y - mappedVertex.firstInfluence) {
+        const float nan = as_type<float>(0x7fc00000u);
+        return {{nan, nan, nan, 0.0f}, {nan, nan, nan, 0.0f}};
+    }
+    for (uint influenceIndex = 0u;
+         influenceIndex < mappedVertex.influenceCount;
+         ++influenceIndex) {
+        const MRHumanRestingInfluence influence =
+            influences[mappedVertex.firstInfluence + influenceIndex];
+        const uint bodyIndex = influence.body.x;
+        if (bodyIndex == MR_INVALID_INDEX ||
+            bodyIndex < dispatch.identity.x ||
+            bodyIndex - dispatch.identity.x >= dispatch.strides.x ||
+            !all(isfinite(influence.positionAndWeight)) ||
+            !(influence.positionAndWeight.w > 0.0f)) {
+            const float nan = as_type<float>(0x7fc00000u);
+            return {{nan, nan, nan, 0.0f}, {nan, nan, nan, 0.0f}};
+        }
+        const uint localBody = bodyIndex - dispatch.identity.x;
+        const uint bodyOffset = environment * dispatch.strides.x + localBody;
+        const MRArticulatedBodyPoseGPU pose = bodies[bodyOffset];
+        const float4 orientation = normalizedOrientations[bodyOffset];
+        if (!all(isfinite(orientation))) {
+            const float nan = as_type<float>(0x7fc00000u);
+            return {{nan, nan, nan, 0.0f}, {nan, nan, nan, 0.0f}};
+        }
+        const MRCompensatedPositionGPU bodyPoint =
+            mrCompensatedVectorAdd(
+                MRCompensatedPositionGPU{
+                    pose.position,
+                    bodyPositionLow[bodyOffset]
+                },
+                mrCompensatedQuaternionRotate(
+                    orientation, influence.positionAndWeight
+                )
+            );
+        result = mrCompensatedVectorAdd(
+            result,
+            mrCompensatedVectorScale(
+                bodyPoint, {influence.positionAndWeight.w, 0.0f}
+            )
+        );
+    }
+    return result;
+}
+
+// For the full-skin minimum pass, only Z is observed. This keeps the exact
+// compensated quaternion/vector expression and its operation order; the
+// compiler can discard unobserved X/Y lanes. Selected points are recomputed
+// with skinPosition during publication, retaining the original full XYZ path.
+inline MRCompensatedScalar skinWorldZ(
+    const MRHumanRestingVertexMap mappedVertex,
+    device const MRHumanRestingInfluence* influences,
+    device const MRArticulatedBodyPoseGPU* bodies,
+    device const float4* bodyPositionLow,
+    device const float4* normalizedOrientations,
+    const MRHumanRestingSupportDispatchGPU dispatch,
+    const uint environment
+) {
+    if (mappedVertex.firstInfluence > dispatch.identity.y ||
+        mappedVertex.influenceCount >
+            dispatch.identity.y - mappedVertex.firstInfluence) {
+        const float nan = as_type<float>(0x7fc00000u);
+        return {nan, nan};
+    }
+    MRCompensatedScalar result{0.0f, 0.0f};
+    for (uint influenceIndex = 0u;
+         influenceIndex < mappedVertex.influenceCount;
+         ++influenceIndex) {
+        const MRHumanRestingInfluence influence =
+            influences[mappedVertex.firstInfluence + influenceIndex];
+        const uint bodyIndex = influence.body.x;
+        if (bodyIndex == MR_INVALID_INDEX ||
+            bodyIndex < dispatch.identity.x ||
+            bodyIndex - dispatch.identity.x >= dispatch.strides.x ||
+            !all(isfinite(influence.positionAndWeight)) ||
+            !(influence.positionAndWeight.w > 0.0f)) {
+            const float nan = as_type<float>(0x7fc00000u);
+            return {nan, nan};
+        }
+        const uint bodyOffset = environment * dispatch.strides.x +
+            bodyIndex - dispatch.identity.x;
+        const MRArticulatedBodyPoseGPU pose = bodies[bodyOffset];
+        const float4 bodyLow = bodyPositionLow[bodyOffset];
+        const float4 orientation = normalizedOrientations[bodyOffset];
+        if (!all(isfinite(pose.position)) || !all(isfinite(bodyLow)) ||
+            !all(isfinite(orientation))) {
+            const float nan = as_type<float>(0x7fc00000u);
+            return {nan, nan};
+        }
+        const MRCompensatedPositionGPU rotated =
+            mrCompensatedQuaternionRotate(
+                orientation, influence.positionAndWeight);
+        const MRCompensatedScalar bodyPointZ = mrCompensatedAdd(
+            {pose.position.z, bodyLow.z},
+            {rotated.high.z, rotated.low.z});
+        result = mrCompensatedAdd(
+            result,
+            mrCompensatedMultiply(
+                bodyPointZ, {influence.positionAndWeight.w, 0.0f}));
+    }
+    return result;
+}
+
+// Minimum-height candidate path. A compensated world-Z rotation basis is
+// computed once per body pose and reused for all 86 skin influences. This
+// selects vertices only; support positions and force Jacobians continue
+// through the canonical full XYZ source-LBS expression below.
+inline MRCompensatedScalar skinWorldZBasis(
+    const MRHumanRestingVertexMap mappedVertex,
+    device const MRHumanRestingInfluence* influences,
+    device const MRArticulatedBodyPoseGPU* bodies,
+    device const float4* bodyPositionLow,
+    device const MRHumanRestingSupportRotationZBasisGPU* rotationZBasis,
+    const MRHumanRestingSupportDispatchGPU dispatch,
+    const uint environment
+) {
+    if (mappedVertex.firstInfluence > dispatch.identity.y ||
+        mappedVertex.influenceCount >
+            dispatch.identity.y - mappedVertex.firstInfluence) {
+        const float nan = as_type<float>(0x7fc00000u);
+        return {nan, nan};
+    }
+    MRCompensatedScalar result{0.0f, 0.0f};
+    for (uint influenceIndex = 0u;
+         influenceIndex < mappedVertex.influenceCount;
+         ++influenceIndex) {
+        const MRHumanRestingInfluence influence =
+            influences[mappedVertex.firstInfluence + influenceIndex];
+        const uint bodyIndex = influence.body.x;
+        if (bodyIndex == MR_INVALID_INDEX ||
+            bodyIndex < dispatch.identity.x ||
+            bodyIndex - dispatch.identity.x >= dispatch.strides.x ||
+            !all(isfinite(influence.positionAndWeight)) ||
+            !(influence.positionAndWeight.w > 0.0f)) {
+            const float nan = as_type<float>(0x7fc00000u);
+            return {nan, nan};
+        }
+        const uint bodyOffset = environment * dispatch.strides.x +
+            bodyIndex - dispatch.identity.x;
+        const MRArticulatedBodyPoseGPU pose = bodies[bodyOffset];
+        const float4 bodyLow = bodyPositionLow[bodyOffset];
+        const MRHumanRestingSupportRotationZBasisGPU basis =
+            rotationZBasis[bodyOffset];
+        if (!all(isfinite(pose.position)) || !all(isfinite(bodyLow)) ||
+            !all(isfinite(basis.high)) || !all(isfinite(basis.low))) {
+            const float nan = as_type<float>(0x7fc00000u);
+            return {nan, nan};
+        }
+        const float4 local = influence.positionAndWeight;
+        const MRCompensatedScalar rotatedZ = mrCompensatedAdd(
+            mrCompensatedAdd(
+                mrCompensatedMultiply(
+                    {local.x, 0.0f}, {basis.high.x, basis.low.x}),
+                mrCompensatedMultiply(
+                    {local.y, 0.0f}, {basis.high.y, basis.low.y})),
+            mrCompensatedMultiply(
+                {local.z, 0.0f}, {basis.high.z, basis.low.z}));
+        const MRCompensatedScalar bodyPointZ = mrCompensatedAdd(
+            {pose.position.z, bodyLow.z}, rotatedZ);
+        result = mrCompensatedAdd(
+            result,
+            mrCompensatedMultiply(bodyPointZ, {local.w, 0.0f}));
+    }
+    return result;
+}
+
+} // namespace nm_human_resting_support
+
+// Normalize each current body orientation once per physical step, preserving
+// the exact input sequence of the source full-skin deformation path.
+kernel void nm_human_resting_support_normalize_poses(
+    constant MRHumanRestingSupportDispatchGPU& dispatch [[buffer(0)]],
+    device const MRArticulatedBodyPoseGPU* bodies [[buffer(1)]],
+    device float4* normalizedOrientations [[buffer(2)]],
+    device MRHumanRestingSupportRotationZBasisGPU* rotationZBasis [[buffer(3)]],
+    uint globalIndex [[thread_position_in_grid]]) {
+    const uint bodyStride = dispatch.strides.x;
+    const uint environmentCount = dispatch.counts.w;
+    const uint total = bodyStride * environmentCount;
+    if (globalIndex >= total) return;
+    const float4 orientation = bodies[globalIndex].orientation;
+    const float normSquared = dot(orientation, orientation);
+    if (!all(isfinite(orientation)) || !isfinite(normSquared) ||
+        !(normSquared > 1.0e-20f)) {
+        const float nan = as_type<float>(0x7fc00000u);
+        normalizedOrientations[globalIndex] = float4(nan);
+        rotationZBasis[globalIndex].high = float4(nan);
+        rotationZBasis[globalIndex].low = float4(nan);
+        return;
+    }
+    const float4 normalized = orientation * rsqrt(normSquared);
+    normalizedOrientations[globalIndex] = normalized;
+    const MRCompensatedPositionGPU axisX = mrCompensatedQuaternionRotate(
+        normalized, float4(1.0f, 0.0f, 0.0f, 0.0f));
+    const MRCompensatedPositionGPU axisY = mrCompensatedQuaternionRotate(
+        normalized, float4(0.0f, 1.0f, 0.0f, 0.0f));
+    const MRCompensatedPositionGPU axisZ = mrCompensatedQuaternionRotate(
+        normalized, float4(0.0f, 0.0f, 1.0f, 0.0f));
+    rotationZBasis[globalIndex] = {
+        float4(axisX.high.z, axisY.high.z, axisZ.high.z, 0.0f),
+        float4(axisX.low.z, axisY.low.z, axisZ.low.z, 0.0f),
+    };
+}
+
+// Stage 1: evaluate every registered skin vertex and atomically find the
+// lowest current world-Z key for its derived Voronoi support region.
+kernel void nm_human_resting_support_positions(
+    constant MRHumanRestingSupportDispatchGPU& dispatch [[buffer(0)]],
+    device const MRHumanRestingVertexMap* vertexMap [[buffer(1)]],
+    device const MRHumanRestingInfluence* influences [[buffer(2)]],
+    device const MRArticulatedBodyPoseGPU* bodies [[buffer(3)]],
+    device const float4* bodyPositionLow [[buffer(4)]],
+    device const uint* regionForVertex [[buffer(5)]],
+    device MRHumanRestingSupportPositionGPU* positions [[buffer(6)]],
+    device atomic_uint* minimumHeightKeys [[buffer(7)]],
+    device atomic_uint* invalidRegionFlags [[buffer(8)]],
+    device const float4* normalizedOrientations [[buffer(9)]],
+    device const MRHumanRestingSupportRotationZBasisGPU* rotationZBasis [[buffer(10)]],
+    uint globalIndex [[thread_position_in_grid]]) {
+    const uint vertexCount = dispatch.counts.x;
+    const uint regionCount = dispatch.counts.y;
+    const uint environmentCount = dispatch.counts.w;
+    if (vertexCount == 0u || globalIndex >= vertexCount * environmentCount) return;
+    const uint environment = globalIndex / vertexCount;
+    const uint vertexIndex = globalIndex - environment * vertexCount;
+    const uint region = regionForVertex[vertexIndex];
+    const MRHumanRestingVertexMap mappedVertex = vertexMap[vertexIndex];
+    const uint flagsBase = environment * (regionCount + 1u);
+    if (region >= regionCount) {
+        atomic_store_explicit(invalidRegionFlags + flagsBase + regionCount,
+                              1u, memory_order_relaxed);
+        return;
+    }
+    if (mappedVertex.deformationKind != 3u || mappedVertex.influenceCount == 0u) {
+        atomic_store_explicit(invalidRegionFlags + flagsBase + region,
+                              1u, memory_order_relaxed);
+        return;
+    }
+    const MRCompensatedScalar positionZ =
+        nm_human_resting_support::skinWorldZBasis(
+            mappedVertex, influences, bodies, bodyPositionLow,
+            rotationZBasis, dispatch, environment
+        );
+    positions[globalIndex] = {
+        float4(0.0f, 0.0f, positionZ.high, 0.0f),
+        float4(0.0f, 0.0f, positionZ.low, 0.0f)
+    };
+    if (!isfinite(positionZ.high) || !isfinite(positionZ.low)) {
+        atomic_store_explicit(invalidRegionFlags + flagsBase + region,
+                              1u, memory_order_relaxed);
+        return;
+    }
+    const float worldZ = positionZ.high + positionZ.low;
+    if (!isfinite(worldZ)) {
+        atomic_store_explicit(invalidRegionFlags + flagsBase + region,
+                              1u, memory_order_relaxed);
+        return;
+    }
+    atomic_fetch_min_explicit(
+        minimumHeightKeys + environment * regionCount + region,
+        nm_human_resting_support::orderedFloat(worldZ),
+        memory_order_relaxed
+    );
+}
+
+// Stage 2: choose the smallest source vertex index at the minimum height.
+// This tie-break is stable across GPU schedules and exact coincident seams.
+kernel void nm_human_resting_support_select(
+    constant MRHumanRestingSupportDispatchGPU& dispatch [[buffer(0)]],
+    device const uint* regionForVertex [[buffer(1)]],
+    device const MRHumanRestingSupportPositionGPU* positions [[buffer(2)]],
+    device const atomic_uint* minimumHeightKeys [[buffer(3)]],
+    device atomic_uint* selectedVertices [[buffer(4)]],
+    uint globalIndex [[thread_position_in_grid]]) {
+    const uint vertexCount = dispatch.counts.x;
+    const uint regionCount = dispatch.counts.y;
+    const uint environmentCount = dispatch.counts.w;
+    if (vertexCount == 0u || globalIndex >= vertexCount * environmentCount) return;
+    const uint environment = globalIndex / vertexCount;
+    const uint vertexIndex = globalIndex - environment * vertexCount;
+    const uint region = regionForVertex[vertexIndex];
+    if (region >= regionCount) return;
+    const auto position = positions[globalIndex];
+    const float worldZ = position.high.z + position.low.z;
+    if (!isfinite(worldZ)) return;
+    const uint regionIndex = environment * regionCount + region;
+    const uint key = nm_human_resting_support::orderedFloat(worldZ);
+    if (key == atomic_load_explicit(minimumHeightKeys + regionIndex,
+                                    memory_order_relaxed)) {
+        atomic_fetch_min_explicit(selectedVertices + regionIndex,
+                                  vertexIndex, memory_order_relaxed);
+    }
+}
+
+// Stage 3: publish each selected full-skin point and its complete weighted
+// articulated Jacobian into the existing source contact query row. For a
+// rigid body's point Jacobian, the four existing COM/+X/+Y/+Z probes give the
+// exact affine point-Jacobian field at any body-local point.
+kernel void nm_human_resting_support_publish(
+    constant MRHumanRestingSupportDispatchGPU& dispatch [[buffer(0)]],
+    device const MRHumanRestingVertexMap* vertexMap [[buffer(1)]],
+    device const MRHumanRestingInfluence* influences [[buffer(2)]],
+    device const MRHumanRestingSupportRegionGPU* regions [[buffer(3)]],
+    device const atomic_uint* selectedVertices [[buffer(4)]],
+    device const MRHumanRestingSupportPositionGPU* positions [[buffer(5)]],
+    device const MRNumiHumanStandContactGPU* contacts [[buffer(6)]],
+    device MRArticulatedPointWorldGPU* pointWorld [[buffer(7)]],
+    device float4* pointPositionLow [[buffer(8)]],
+    device float* pointJacobians [[buffer(9)]],
+    device const atomic_uint* invalidRegionFlags [[buffer(10)]],
+    device const MRArticulatedBodyPoseGPU* bodies [[buffer(11)]],
+    device const float4* bodyPositionLow [[buffer(12)]],
+    device const float4* normalizedOrientations [[buffer(13)]],
+    uint globalIndex [[thread_position_in_grid]]) {
+    const uint regionCount = dispatch.counts.y;
+    const uint dofCount = dispatch.counts.z;
+    const uint environmentCount = dispatch.counts.w;
+    const uint regionElements = environmentCount * regionCount;
+    const uint jacobianElements = regionElements * 3u * dofCount;
+    if (regionCount == 0u || dofCount == 0u ||
+        globalIndex >= regionElements + jacobianElements) return;
+    const bool publishPosition = globalIndex < regionElements;
+    const uint element = publishPosition
+        ? globalIndex : globalIndex - regionElements;
+    const uint regionElement = publishPosition
+        ? element : element / (3u * dofCount);
+    const uint environment = regionElement / regionCount;
+    const uint region = regionElement - environment * regionCount;
+    const uint query = regions[region].pointQueryIndex;
+    const uint vertexIndex = atomic_load_explicit(
+        selectedVertices + regionElement, memory_order_relaxed);
+    const uint flagsBase = environment * (regionCount + 1u);
+    const bool valid =
+        dispatch.identity.w == MR_NUMI_HUMAN_SUPPORT_GEOMETRY_ABI_VERSION &&
+        dispatch.identity.z == regionCount &&
+        regions[region].reserved0 == 0u && regions[region].reserved1 == 0u &&
+        contacts[region].pointQueryIndex == query &&
+        contacts[region].sourceGeometryIndex == regions[region].sourceGeometryIndex &&
+        atomic_load_explicit(invalidRegionFlags + flagsBase + region,
+                             memory_order_relaxed) == 0u &&
+        atomic_load_explicit(invalidRegionFlags + flagsBase + regionCount,
+                             memory_order_relaxed) == 0u &&
+        query < dispatch.strides.z && vertexIndex < dispatch.counts.x;
+    if (query >= dispatch.strides.z) return;
+    const uint pointBase = environment * dispatch.strides.z + query;
+    if (!valid) {
+        const float nan = as_type<float>(0x7fc00000u);
+        if (publishPosition) {
+            pointWorld[pointBase].position = float4(nan, nan, nan, 1.0f);
+            pointPositionLow[pointBase] = float4(nan, nan, nan, 0.0f);
+        } else {
+            const uint jacobianIndex = element % (3u * dofCount);
+            const uint axis = jacobianIndex / dofCount;
+            const uint dof = jacobianIndex - axis * dofCount;
+            pointJacobians[environment * dispatch.strides.w +
+                (3u * query + axis) * dofCount + dof] = nan;
+        }
+        return;
+    }
+    if (publishPosition) {
+        const MRCompensatedPositionGPU point =
+            nm_human_resting_support::skinPosition(
+                vertexMap[vertexIndex], influences, bodies, bodyPositionLow,
+                normalizedOrientations, dispatch, environment);
+        const MRHumanRestingSupportPositionGPU position = {
+            point.high, point.low
+        };
+        if (!all(isfinite(position.high)) || !all(isfinite(position.low))) {
+            const float nan = as_type<float>(0x7fc00000u);
+            pointWorld[pointBase].position = float4(nan, nan, nan, 1.0f);
+            pointPositionLow[pointBase] = float4(nan, nan, nan, 0.0f);
+            return;
+        }
+        pointWorld[pointBase].position = float4(position.high.xyz, 1.0f);
+        pointPositionLow[pointBase] = float4(position.low.xyz, 0.0f);
+        return;
+    }
+
+    // One GPU lane owns each scalar weighted-J entry. It retains the exact
+    // source influence order, while parallelizing independent rows/DOFs
+    // across the 32 contact regions instead of serially writing 384 entries
+    // from each of only 32 lanes.
+    const uint jacobianIndex = element % (3u * dofCount);
+    const uint axis = jacobianIndex / dofCount;
+    const uint dof = jacobianIndex - axis * dofCount;
+    const MRHumanRestingVertexMap mappedVertex = vertexMap[vertexIndex];
+    const uint jacobianEnvironmentBase = environment * dispatch.strides.w;
+    float value = 0.0f;
+    for (uint influenceIndex = 0u;
+         influenceIndex < mappedVertex.influenceCount;
+         ++influenceIndex) {
+        const MRHumanRestingInfluence influence =
+            influences[mappedVertex.firstInfluence + influenceIndex];
+        const uint body = influence.body.x;
+        if (body == MR_INVALID_INDEX ||
+            body < dispatch.identity.x ||
+            body - dispatch.identity.x >= dispatch.strides.x) {
+            value = as_type<float>(0x7fc00000u);
+            break;
+        }
+        const uint probe = dispatch.strides.y +
+            4u * (body - dispatch.identity.x);
+        const float jacobian0 = pointJacobians[
+            jacobianEnvironmentBase + (3u * probe + axis) * dofCount + dof];
+        const float jacobianX = pointJacobians[
+            jacobianEnvironmentBase + (3u * (probe + 1u) + axis) * dofCount + dof];
+        const float jacobianY = pointJacobians[
+            jacobianEnvironmentBase + (3u * (probe + 2u) + axis) * dofCount + dof];
+        const float jacobianZ = pointJacobians[
+            jacobianEnvironmentBase + (3u * (probe + 3u) + axis) * dofCount + dof];
+        const float3 local = influence.positionAndWeight.xyz;
+        const float pointJacobian = jacobian0 + local.x * (jacobianX - jacobian0) +
+            local.y * (jacobianY - jacobian0) +
+            local.z * (jacobianZ - jacobian0);
+        value += influence.positionAndWeight.w * pointJacobian;
+    }
+    pointJacobians[jacobianEnvironmentBase +
+        (3u * query + axis) * dofCount + dof] = value;
+}
+
+// One-shot bounded diagnostic for the first accepted/rejected candidate.
+// The encoder writes these compact records to shared memory only in an
+// explicitly instrumented run; normal resting execution does not dispatch it.
+kernel void nm_human_resting_support_debug(
+    constant MRHumanRestingSupportDispatchGPU& dispatch [[buffer(0)]],
+    device const MRHumanRestingSupportRegionGPU* regions [[buffer(1)]],
+    device const atomic_uint* selectedVertices [[buffer(2)]],
+    device const atomic_uint* invalidRegionFlags [[buffer(3)]],
+    device const MRArticulatedPointWorldGPU* pointWorld [[buffer(4)]],
+    device const float4* pointPositionLow [[buffer(5)]],
+    device const float* pointJacobians [[buffer(6)]],
+    device MRHumanRestingSupportDebugGPU* output [[buffer(7)]],
+    uint globalIndex [[thread_position_in_grid]]) {
+    const uint regionCount = dispatch.counts.y;
+    const uint dofCount = dispatch.counts.z;
+    const uint environmentCount = dispatch.counts.w;
+    const uint regionElements = environmentCount * regionCount;
+    if (regionCount == 0u || globalIndex >= regionElements) return;
+    const uint environment = globalIndex / regionCount;
+    const uint region = globalIndex - environment * regionCount;
+    const uint flagsBase = environment * (regionCount + 1u);
+    const uint query = regions[region].pointQueryIndex;
+    const uint selected = atomic_load_explicit(
+        selectedVertices + globalIndex, memory_order_relaxed);
+    MRHumanRestingSupportDebugGPU result{};
+    result.status = uint4(
+        selected,
+        atomic_load_explicit(invalidRegionFlags + flagsBase + region,
+                             memory_order_relaxed),
+        atomic_load_explicit(invalidRegionFlags + flagsBase + regionCount,
+                             memory_order_relaxed),
+        0u);
+    const bool valid = query < dispatch.strides.z &&
+        selected < dispatch.counts.x;
+    if (valid) {
+        const uint pointIndex = environment * dispatch.strides.z + query;
+        result.position = float4(
+            pointWorld[pointIndex].position.xyz + pointPositionLow[pointIndex].xyz,
+            1.0f);
+    } else {
+        result.status.y = 1u;
+        result.position = float4(as_type<float>(0x7fc00000u));
+    }
+    const uint jacobianBase = environment * dispatch.strides.w +
+        (3u * query * dofCount);
+    float maximumAbsolute = 0.0f;
+    uint nonfiniteCount = 0u;
+    if (query < dispatch.strides.z) {
+        for (uint row = 0u; row < 3u * dofCount; ++row) {
+            const float value = pointJacobians[jacobianBase + row];
+            if (!isfinite(value)) ++nonfiniteCount;
+            else maximumAbsolute = max(maximumAbsolute, abs(value));
+        }
+    } else {
+        nonfiniteCount = 3u * dofCount;
+    }
+    result.status.w = nonfiniteCount;
+    result.jacobian = float4(maximumAbsolute, 0.0f, 0.0f, 0.0f);
+    output[globalIndex] = result;
+}

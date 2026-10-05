@@ -1,0 +1,132 @@
+{
+  "scope": "Six simulated seconds including initialization; integrated body/physiology/native framebuffer recording; not 300 s acceptance or anatomical intersection qualification",
+  "samples": 188,
+  "ranges": {
+    "lung_volume_ml": [
+      2500.00273809,
+      3052.75735445
+    ],
+    "airflow_ml_s": [
+      -930.096255615,
+      707.7769842
+    ],
+    "diaphragm_mm": [
+      7.52951236791e-05,
+      16.3700218201
+    ],
+    "rib_mm": [
+      1.5287027054e-05,
+      2.40929889679
+    ],
+    "PaO2_mmhg": [
+      99.9985122681,
+      101.064720154
+    ],
+    "PaCO2_mmhg": [
+      39.3008308411,
+      39.9999885559
+    ],
+    "SaO2": [
+      0.97221916914,
+      0.972982227802
+    ],
+    "lv_mmhg": [
+      2.19813364047,
+      114.547777753
+    ],
+    "rv_mmhg": [
+      -1.48887737832,
+      25.185558804
+    ],
+    "aorta_mmhg": [
+      70.0399661967,
+      113.063879078
+    ],
+    "pulmonary_artery_mmhg": [
+      9.33895057435,
+      23.8641392877
+    ],
+    "lv_ml": [
+      99.8808754957,
+      175.141336513
+    ],
+    "rv_ml": [
+      78.6894452176,
+      153.957487782
+    ],
+    "blood_ml": [
+      5149.99916777,
+      5150.00289306
+    ],
+    "blood_error_ml": [
+      0.000931322574615,
+      0.00279396772385
+    ],
+    "oxygen_balance_error_stpd_ml": [
+      0.000116415321827,
+      0.000116415321827
+    ],
+    "co2_balance_error_stpd_ml": [
+      0.000232830643654,
+      0.000465661287308
+    ]
+  },
+  "final": {
+    "time_s": 6.00000028498,
+    "lung_volume_ml": 3013.61456513,
+    "airflow_ml_s": 259.171647485,
+    "alveolar_pa": -34.5533828735,
+    "pleural_pa": -776.727783203,
+    "diaphragm_mm": 15.2097845078,
+    "rib_mm": 2.222833395,
+    "PaO2_mmhg": 101.058692932,
+    "PaCO2_mmhg": 39.3037986755,
+    "SaO2": 0.972977995872,
+    "oxygen_balance_error_stpd_ml": 0.000116415321827,
+    "co2_balance_error_stpd_ml": 0.000465661287308,
+    "breaths": 1.0,
+    "tidal_ml": 552.823068574,
+    "lv_mmhg": 7.49965712263,
+    "rv_mmhg": 0.514036530874,
+    "aorta_mmhg": 78.8100977964,
+    "pulmonary_artery_mmhg": 10.4848106342,
+    "lv_ml": 166.431666003,
+    "rv_ml": 133.075765916,
+    "blood_ml": 5150.00103042,
+    "blood_error_ml": 0.00279396772385,
+    "aortic_ejected_ml": 497.327826452,
+    "pulmonary_ejected_ml": 490.468461066,
+    "complete_filling_ejection_cycles": 7.0,
+    "last_lv_stroke_ml": 70.530368248,
+    "right_atrium_ml": 30.6193869619,
+    "left_atrium_ml": 47.6095156046,
+    "blood_continuity_residual_accum_ml": 0.00106152064916,
+    "blood_physical_delta_accum_ml": 0.00111685949378,
+    "blood_residual_minus_physical_ml": -5.53388446178e-05,
+    "blood_endpoint_minus_physical_ml": -0.000185536919162,
+    "step": 6000.0,
+    "min_contact_gap_m": -2.40027202381e-06,
+    "peak_penetration_m": 2.40027202381e-06,
+    "normal_impulse_ns": 0.787784159184,
+    "root_assistance_n": 0.0,
+    "root_assistance_nm": 0.0,
+    "diaphragm_excitation": 0.158325597644,
+    "intercostal_excitation": 0.0989534929395,
+    "diaphragm_activation": 0.158234626055,
+    "intercostal_activation": 0.0989052206278
+  },
+  "surface_audit": {
+    "frames": 189,
+    "minimum_skin_gap_m": -0.000110551714897,
+    "max_bad_vertices": 0.0,
+    "max_volume_relative_error": 1.11794201985e-06
+  },
+  "file_sha256": {
+    "native.log": "dc5a7fac27fdba05ed5a1185c319aa84b650cb8350b51e2ce2527de06cc7f27b",
+    "invocation.json": "a38e696ebb0c83b5f247874a11b092eba72f775eca7faa9e249e37808cb5da8c",
+    "run-metadata.json": "cbe2ddcc5f5129712de48ab7d4106765344c02e2b39f183e98b10bccc04f3e96",
+    "resting-coupled.csv": "e22300cde895d80727d692d4c795a05d3950edfe73e71bf721c0ce142a091957",
+    "resting-surface-audit.csv": "68559316042ccb36c201605ffb3f752b85d8d49ba031bc3ad036c9daf97be835",
+    "native-viewer.mov": "b6a433f0cc7f591f0ed05303f5490397df206420f9c2338256f4829cdbfb7a3e"
+  }
+}

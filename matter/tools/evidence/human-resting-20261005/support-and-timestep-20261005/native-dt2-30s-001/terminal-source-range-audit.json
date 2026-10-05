@@ -1,0 +1,18 @@
+{
+  "schema": "numi.human.terminal-source-range-audit.v1",
+  "run_invocation_sha256": "1f2c7ded2ca20596471e58e12ed9b534c6e5ed222fbc535ec19f39fac231f733",
+  "rigid_payload_sha256": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4",
+  "terminal_step_count": 15000,
+  "nq": 129,
+  "nv": 128,
+  "enabled_source_range_count": 118,
+  "failed_range_count": 45,
+  "maximum_source_range_error": 2.2649765014648438e-06,
+  "worst_dof_index": 79,
+  "worst_q_index": 80,
+  "terminal_value": -0.7854002714157104,
+  "lower": -0.785398006439209,
+  "upper": 0.785398006439209,
+  "tolerance": 1e-09,
+  "method": "evaluate all enabled NHRIGID2 scalar DOF source limits on retained native terminal fp32 q; no projection or physics"
+}

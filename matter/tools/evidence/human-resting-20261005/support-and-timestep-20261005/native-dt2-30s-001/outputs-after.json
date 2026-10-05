@@ -1,0 +1,25 @@
+{
+  "schema": "numi.human.native-run-output-inventory.v1",
+  "outputs": {
+    "run.log": {
+      "bytes": 157162,
+      "sha256": "2e18886002e91c15c999160a7463757c3e7a199d4a75e4f0e3164f2f3e99e2be"
+    },
+    "resting-coupled.csv": {
+      "bytes": 265285,
+      "sha256": "dea3b8de88eab8efe3d7348e44dc60fe0f688679fb914fa19f13f33a6f146d40"
+    },
+    "resting-surface-audit.csv": {
+      "bytes": 58965,
+      "sha256": "f8c5d04c5059d9998d81fd6116f2e867858afc97b76459f6f8357c832422a199"
+    },
+    "native-viewer.mov": {
+      "bytes": 4195417,
+      "sha256": "990b31a220deb0b63bed20fdc330bb5fd1a23da791cf5c91b5a09fe7c0192e6c"
+    },
+    "resting-human.mrvpack": {
+      "bytes": 177201152,
+      "sha256": "2408dbca925df801d6c1bd3dca4cd885e1c4cade449d649c2b98b8da3a2c7768"
+    }
+  }
+}

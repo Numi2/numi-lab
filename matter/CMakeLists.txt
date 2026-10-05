@@ -236,6 +236,10 @@ if(APPLE)
         DEPENDS src/human_respiration.metal include/numi/matter/human_respiration.h
             include/numi/matter/shared.h ../src/metal/MujocoMuscleReference.metal
             ../include/metalrobo/mujoco_muscle_gpu.h
+            ../include/metalrobo/numi_human_stand_gpu.h
+            ../include/metalrobo/numi_human_resting_visual_gpu.h
+            ../include/metalrobo/numi_human_support_geometry_gpu.h
+            ../src/metal/NumiHumanRestingSupportGeometry.metalinc
             "${NUMI_BRAIN_ROOT}/Sources/NumiBrainABI/include/NumiBrainRespiratoryChemoreflexV1.h"
             "${NUMI_BRAIN_ROOT}/Sources/NumiBrainMetal/Shaders/RespiratoryChemoreflexV1.metal"
         VERBATIM

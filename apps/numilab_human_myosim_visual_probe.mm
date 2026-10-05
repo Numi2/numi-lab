@@ -47,6 +47,7 @@
 #include <cstring>
 #include <filesystem>
 #include <fstream>
+#include <functional>
 #include <iomanip>
 #include <iostream>
 #include <limits>
@@ -65,6 +66,13 @@
 #include <utility>
 #include <vector>
 #include <unistd.h>
+#ifdef NUMI_HUMAN_RESTING_SCENE
+#include "NumiHumanRestingCoupling.hpp"
+#include "NumiHumanRestingTransactionProbe.hpp"
+#include "NumiHumanRestingWindow.hpp"
+#include "metalrobo/numi_human_resting_visual_gpu.h"
+#include "metalrobo/NumiHumanRuntimeIdentity.hpp"
+#endif
 
 namespace {
 
@@ -2319,8 +2327,11 @@ LoadedTorsoAnatomy loadTorsoAnatomy(
                 result.header.sourceSha256 == rigid.sourceSha256 &&
                 result.header.surfaceCount > 0u && result.header.surfaceCount <=
                     (result.header.payloadAbi == 1u ? 64u : 1024u) &&
-                result.header.vertexCount > 0u && result.header.vertexCount <= 1'000'000u &&
-                result.header.indexCount > 0u && result.header.indexCount <= 6'000'000u &&
+                // The registered resting atlas includes the appended passive
+                // bowel, pelvic viscera and named major peripheral vessels
+                // (about 1.259 million vertices and 6.002 million indices).
+                result.header.vertexCount > 0u && result.header.vertexCount <= 1'500'000u &&
+                result.header.indexCount > 0u && result.header.indexCount <= 7'000'000u &&
                 result.header.indexCount % 3u == 0u,
             "BodyParts3D torso anatomy payload/header disagreement");
     result.records = readVector<TorsoAnatomyRecord>(
@@ -2348,12 +2359,9 @@ LoadedTorsoAnatomy loadTorsoAnatomy(
     // Focused Human payloads deliberately retain their global source stable
     // IDs (for example a four-surface calf subset includes tendon ID 7). IDs
     // are therefore unique but need not be dense in [1, tissueCount].
-    // Stable IDs are authored global IDs and may be sparse.  The previous
-    // reserve-only vector had size zero, so every valid torso record failed
-    // the bounds check before any source surface could reach the renderer.
-    // Size the lookup by the declared surface count and keep index zero
-    // unused, preserving the strict uniqueness/range gate.
-    std::vector<std::uint8_t> stableIds(result.header.surfaceCount + 1u, 0u);
+    // A focused source payload may contain IDs 305..321 while having only
+    // 17 surfaces. Track identities independently of the payload's count.
+    std::set<std::uint32_t> stableIds;
     for (const TorsoAnatomyRecord& record : result.records) {
         require(record.bodyIndex < rigid.engineBodyCount && record.vertexCount > 0u &&
                     record.indexCount > 0u && record.indexCount % 3u == 0u &&
@@ -2361,8 +2369,7 @@ LoadedTorsoAnatomy loadTorsoAnatomy(
                     record.vertexCount <= result.vertices.size() - record.firstVertex &&
                     record.firstIndex <= result.indices.size() &&
                     record.indexCount <= result.indices.size() - record.firstIndex &&
-                    record.stableId > 0u && record.stableId < stableIds.size() &&
-                    !stableIds[record.stableId] && record.reserved0 == 0u &&
+                    record.stableId > 0u && !stableIds.contains(record.stableId) && record.reserved0 == 0u &&
                     (record.layer == kTorsoAnatomyLayerOrgan ||
                      record.layer == kTorsoAnatomyLayerVessel ||
                      record.layer == kTorsoAnatomyLayerNerve ||
@@ -2383,7 +2390,7 @@ LoadedTorsoAnatomy loadTorsoAnatomy(
                        record.layer == kTorsoAnatomyLayerOcularRegionReference ||
                        record.layer == kTorsoAnatomyLayerOcularMuscleReference))),
                 "BodyParts3D torso anatomy record is malformed");
-        stableIds[record.stableId] = true;
+        stableIds.insert(record.stableId);
         for (std::uint32_t offset = 0u; offset < record.indexCount; ++offset) {
             const std::uint32_t index = result.indices[record.firstIndex + offset];
             require(index >= record.firstVertex && index < record.firstVertex + record.vertexCount,
@@ -3976,14 +3983,20 @@ struct GroundAlignedSupport {
 
 GroundAlignedSupport makeGroundAlignedSupport(
     const metalrobo::EngineModel& model,
-    const LoadedSupportContacts& support
+    const LoadedSupportContacts& support,
+    const std::span<const float> seedQ = {}
 ) {
     require(model.articulations.size() == 1u &&
                 model.articulations.front().rootType == MR_ROOT_FLOATING,
             "MyoSim support contact requires one floating articulation");
     GroundAlignedSupport result;
     result.witnessCount = support.header.contactCount;
-    result.q.assign(model.defaultQ.begin(), model.defaultQ.end());
+    require(seedQ.empty() || seedQ.size() == model.world.nq,
+            "MyoSim support seed q does not match the full source articulation");
+    const std::span<const float> initial = seedQ.empty()
+        ? std::span<const float>(model.defaultQ)
+        : seedQ;
+    result.q.assign(initial.begin(), initial.end());
     const MRArticulationGPU& articulation = model.articulations.front();
     require(articulation.qOffset + 3u <= result.q.size(),
             "MyoSim floating root position is unavailable for support alignment");
@@ -5300,10 +5313,23 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     const std::optional<std::filesystem::path> standBrainLibraryPath = std::nullopt,
     const std::optional<std::filesystem::path> standBrainProgramPath = std::nullopt,
     const std::optional<std::filesystem::path> standBrainOutputPath = std::nullopt,
-    const std::uint32_t standBrainSeed = 0x4e554d49u
+    const std::uint32_t standBrainSeed = 0x4e554d49u,
+    const std::span<const float> seedPoseQ = {},
+    const metalrobo::MetalNumanXTransactionProgram* restingProgram = nullptr,
+    const std::function<void(std::uint32_t,const metalrobo::MetalArticulatedOperatorResult&)>* acceptedObserver = nullptr,
+    const metalrobo::MetalNumiHumanSupportGeometryProgram* supportGeometryProgram = nullptr
 ) {
+    require(restingProgram == nullptr ||
+                (restingProgram->valid() && acceptedObserver != nullptr &&
+                 !verifyDeterminism && !enableRootAssistance && !removeRootAssistance &&
+                 !muscleFeedback.has_value() && !standBrainLibraryPath.has_value() &&
+                 continuumTransaction == nullptr && additionalTendonLoadProgram == nullptr &&
+                 !capturePersistentStandTrace && !endpointEnergy),
+            "resting physiology requires one unassisted physical owner and accepted observer");
+    const double maximumTimestepSeconds = restingProgram == nullptr
+        ? 1.0e-3 : 2.0e-3;
     require(std::isfinite(timestepSeconds) && timestepSeconds >= 1.0e-6 &&
-                timestepSeconds <= 1.0e-3 && stepCount >= 1u &&
+                timestepSeconds <= maximumTimestepSeconds && stepCount >= 1u &&
                 stepCount <= MR_NUMI_HUMAN_STAND_MAX_HORIZON_STEPS &&
                 std::isfinite(activation) && activation >= 0.0 &&
                 activation <= 1.0 && contactIterationCount >= 1u &&
@@ -5397,7 +5423,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         ? wholeBodyUpperPassiveCoordinateCouplings()
         : std::vector<metalrobo::NumiHumanPassiveCoordinateCoupling>{};
     GroundAlignedSupport aligned =
-        makeGroundAlignedSupport(model, supportContacts);
+        makeGroundAlignedSupport(model, supportContacts, seedPoseQ);
     if (initialCoordinate.has_value()) {
         const auto [qIndex, value] = *initialCoordinate;
         const auto dof = std::find_if(
@@ -5460,7 +5486,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             &supportContacts,
             persistentPassiveCouplings,
             1024u,
-            !initialCoordinate.has_value(),
+            !initialCoordinate.has_value() && restingProgram == nullptr,
             std::optional<std::uint32_t>{24u},
             timestepSeconds
         );
@@ -5493,7 +5519,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             &supportContacts,
             persistentPassiveCouplings,
             1024u,
-            !initialCoordinate.has_value(),
+            !initialCoordinate.has_value() && restingProgram == nullptr,
             std::optional<std::uint32_t>{24u},
             timestepSeconds
         );
@@ -6152,7 +6178,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         metalrobo::MetalArticulatedOperatorContext parityForceContext(config);
         const MetalMujocoForceStep parityForce = evaluateMetalMujocoForce(
             model, muscles, queries, compiledActivation.q, parityForceStates,
-            parityForceContext
+            parityForceContext, initialRoots
         );
         parityGeneralizedForce.assign(
             parityForce.generalizedForce.begin(),
@@ -6178,6 +6204,24 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         const double forceParityTolerance = std::max(
             0.05, 1.0e-4 * std::max(1.0, maximumCompiledForce)
         );
+        if(sourceDynamicForceParityMaximumNewtons>forceParityTolerance) {
+            std::vector<std::pair<double,unsigned>> errors;
+            for(unsigned i=0;i<parityForce.muscleResults.size();++i)
+                errors.emplace_back(std::abs(double(parityForce.muscleResults[i].pathForceAndActivationDerivative.z)-
+                    compiledActivation.muscleTendonForce.at(i)),i);
+            std::sort(errors.rbegin(),errors.rend());
+            for(unsigned j=0;j<std::min<unsigned>(8,errors.size());++j) {
+                const auto i=errors[j].second;const auto& m=parityForce.muscleResults[i];
+                std::cerr<<std::setprecision(12)<<"initial_force_parity_muscle="<<i
+                    <<" cpu_force_n="<<compiledActivation.muscleTendonForce.at(i)
+                    <<" metal_force_n="<<m.pathForceAndActivationDerivative.z
+                    <<" metal_path_m="<<m.pathForceAndActivationDerivative.x
+                    <<" cpu_fibre_m="<<compiledActivation.referenceFiberLength.at(i)
+                    <<" metal_fibre_m="<<m.fiberStateTendonForceResidual.x
+                    <<" metal_fibre_velocity_m_s="<<m.fiberStateTendonForceResidual.y
+                    <<" metal_residual="<<m.fiberStateTendonForceResidual.w<<'\n';
+            }
+        }
         require(
             parityCount == compiledActivation.generalizedMuscleForce.size() &&
                 parityCount == parityGeneralizedForce.size() &&
@@ -6440,9 +6484,10 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     // execution envelope. Cap-8 is qualified against monolithic, cap-16 and
     // cap-32 mechanics, including physical-M4 replay and validation-layer runs.
     constexpr std::uint32_t kMaximumAuthoritativeSubmissionSteps = 8u;
+    const std::uint32_t maximumSubmissionSteps=acceptedObserver!=nullptr?32u:kMaximumAuthoritativeSubmissionSteps;
     const bool captureExactContinuumSteps = continuumTransaction != nullptr;
     const bool useSegmentedAuthoritativeHorizon =
-        standBrainController != nullptr || captureExactContinuumSteps || endpointEnergy ||
+        acceptedObserver != nullptr || standBrainController != nullptr || captureExactContinuumSteps || endpointEnergy ||
         muscleFeedback.has_value() ||
         (!enableRootAssistance && !removeRootAssistance &&
          additionalTendonLoadProgram == nullptr &&
@@ -6631,7 +6676,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 segment.velocityDiagnosticOwners.w;
         }
     };
-    const auto runAuthoritativeHorizon = [&context, &model,
+    const auto runAuthoritativeHorizon = [&context, &model, &config,
                                            &standBrainController,
                                            &mergeStandStatus,
                                            useSegmentedAuthoritativeHorizon,
@@ -6639,14 +6684,14 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                                            continuumTransaction,
                                            timestepSeconds, muscleFeedback, musclePathFeedback, endpointEnergy, &muscles,
                                            &passiveEnergyAt,
-                                           kMaximumAuthoritativeSubmissionSteps](
+                                           restingProgram, acceptedObserver, supportGeometryProgram, maximumSubmissionSteps](
         metalrobo::MetalArticulatedOperatorInput horizonInput,
         metalrobo::MetalArticulatedOperatorResult& horizonResult,
         std::vector<HumanTendonContinuumTransaction::AcceptedStep>*
             capturedSteps
     ) {
         const std::uint32_t requestedSteps = horizonInput.stand.stepCount;
-        if (standBrainController == nullptr &&
+        if (acceptedObserver == nullptr && standBrainController == nullptr &&
             (!useSegmentedAuthoritativeHorizon ||
              (!captureExactContinuumSteps &&
              requestedSteps <= kMaximumAuthoritativeSubmissionSteps &&
@@ -6670,6 +6715,17 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                          requestedSteps),
                 "segmented Human horizon requires complete authoritative state");
         horizonInput.stand.authoritativeStepCount = requestedSteps;
+        if(restingProgram != nullptr)horizonInput.stand.numanXTransactionProgram=*restingProgram;
+        if(supportGeometryProgram != nullptr)horizonInput.stand.supportGeometryProgram=*supportGeometryProgram;
+#ifdef NUMI_HUMAN_RESTING_SCENE
+        const char* transactionProbe=std::getenv("NUMI_HUMAN_RESTING_TRANSACTION_PROBE");
+        if(restingProgram&&transactionProbe&&std::strcmp(transactionProbe,"1")==0)
+            numi::human::transaction_probe::run(model,config,horizonInput,
+                *static_cast<NumiHumanRestingCoupling*>(restingProgram->context));
+#endif
+        const bool residentResting=restingProgram!=nullptr;
+        horizonInput.publishAcceptedResidentState=residentResting;
+        metalrobo::MetalArticulatedOperatorResidentStateContinuation restingContinuation;
         std::vector<float> currentQ(
             horizonInput.q.begin(), horizonInput.q.end()
         );
@@ -6758,14 +6814,20 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             const std::uint32_t segmentSteps =
                 (standBrainController != nullptr || captureExactContinuumSteps || endpointEnergy)
                 ? 1u
-                : std::min(kMaximumAuthoritativeSubmissionSteps,
+                : std::min(maximumSubmissionSteps,
                            requestedSteps - completedSteps);
             horizonInput.stand.stepCount = segmentSteps;
             horizonInput.stand.stepIndexOffset = completedSteps;
-            horizonInput.q = currentQ;
-            horizonInput.rootTranslations = currentRoots;
-            horizonInput.stand.v = currentV;
-            horizonInput.mujoco.states = currentStates;
+            horizonInput.collectFullResultToHost=!residentResting||completedSteps+segmentSteps==requestedSteps;
+            const bool residentStep=residentResting&&completedSteps!=0;
+            horizonInput.residentContinuation=residentStep?restingContinuation:
+                metalrobo::MetalArticulatedOperatorResidentStateContinuation{};
+            horizonInput.q = residentStep?std::span<const float>{}:std::span<const float>{currentQ};
+            horizonInput.rootTranslations = residentStep?std::span<const MRCompensatedRootTranslationGPU>{}:
+                std::span<const MRCompensatedRootTranslationGPU>{currentRoots};
+            horizonInput.stand.v = residentStep?std::span<const float>{}:std::span<const float>{currentV};
+            horizonInput.mujoco.states = residentStep?std::span<const MRMujocoMuscleStateGPU>{}:
+                std::span<const MRMujocoMuscleStateGPU>{currentStates};
             metalrobo::MetalArticulatedOperatorResult segmentResult;
             reportHumanExecutionStage(
                 "authoritative_segment_begin", completedSteps
@@ -6785,11 +6847,12 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 !segmentDiagnostics.published ||
                 segmentDiagnostics.completedStandSteps !=
                     completedSteps + segmentSteps ||
-                segmentResult.standQ.size() != currentQ.size() ||
-                segmentResult.standV.size() != currentV.size() ||
-                segmentResult.mujocoActivationStates.size() !=
-                    currentStates.size() ||
-                segmentResult.standRootTranslations.size() != 1u ||
+                (horizonInput.collectFullResultToHost&&
+                 (segmentResult.standQ.size() != currentQ.size() ||
+                  segmentResult.standV.size() != currentV.size() ||
+                  segmentResult.mujocoActivationStates.size() != currentStates.size() ||
+                  segmentResult.standRootTranslations.size() != 1u)) ||
+                (residentResting&&(!segmentDiagnostics.residentStateTransactionFingerprint||!segmentDiagnostics.residentStateGeneration)) ||
                 segmentResult.standStatuses.size() != 1u ||
                 segmentResult.standStatuses.front().code !=
                     MR_NUMI_HUMAN_STAND_SUCCESS) {
@@ -6805,6 +6868,14 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 }
                 horizonResult = std::move(segmentResult);
                 return segmentDiagnostics;
+            }
+            if(residentResting) {
+                restingContinuation.previousTransactionFingerprint=segmentDiagnostics.residentStateTransactionFingerprint;
+                restingContinuation.previousPhysicsGeneration=segmentDiagnostics.residentStateGeneration;
+                if(trainingProfile)std::cout<<"resting_native_profile step="<<completedSteps+segmentSteps
+                    <<" command_ms="<<segmentDiagnostics.elapsedMilliseconds<<" gpu_ms="<<segmentDiagnostics.gpuMilliseconds
+                    <<" host_copy_ms="<<segmentDiagnostics.hostCopyMilliseconds
+                    <<" full_state_readback="<<horizonInput.collectFullResultToHost<<'\n';
             }
             if (standBrainController != nullptr) {
                 try {
@@ -7070,7 +7141,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 }
             }
             const char* progress = std::getenv("NUMI_HUMAN_EXECUTION_STAGES");
-            if (progress != nullptr && std::strcmp(progress, "1") == 0) {
+            if (progress != nullptr && std::strcmp(progress, "1") == 0 && horizonInput.collectFullResultToHost) {
                 const auto& accepted = segmentResult.standStatuses.front();
                 const auto& acceptedQ = segmentResult.standQ;
                 const auto& acceptedV = segmentResult.standV;
@@ -7206,6 +7277,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                         "loaded-knee authoritative callback/status index did not advance globally");
                 capturedSteps->push_back(std::move(captured));
             }
+            if(acceptedObserver != nullptr)(*acceptedObserver)(completedSteps + segmentSteps,segmentResult);
             if (!haveStatus) {
                 aggregateStatus = segmentResult.standStatuses.front();
                 haveStatus = true;
@@ -7215,10 +7287,12 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 );
             }
             completedSteps += segmentSteps;
-            currentQ = segmentResult.standQ;
-            currentV = segmentResult.standV;
-            currentStates = segmentResult.mujocoActivationStates;
-            currentRoots = segmentResult.standRootTranslations;
+            if(horizonInput.collectFullResultToHost) {
+                currentQ = segmentResult.standQ;
+                currentV = segmentResult.standV;
+                currentStates = segmentResult.mujocoActivationStates;
+                currentRoots = segmentResult.standRootTranslations;
+            }
             aggregateDiagnostics = segmentDiagnostics;
             horizonResult = std::move(segmentResult);
         }
@@ -7874,7 +7948,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                    captureExactContinuumSteps || endpointEnergy)
                     ? 1u
                     : ((stepCount - 1u) %
-                       kMaximumAuthoritativeSubmissionSteps) + 1u;
+                       maximumSubmissionSteps) + 1u;
         const bool borrowedTendonStatusMatchesPublication =
             acceptedTendonConsumer.statusSnapshot != nil &&
             (!useSegmentedAuthoritativeHorizon
@@ -9229,7 +9303,8 @@ MuscleDrivenVisualState integrateMuscleDrivenVisualState(
     const std::uint32_t stepCount,
     const double activation,
     const std::span<const std::uint32_t> selectedSourceMuscleIndices,
-    const LoadedSupportContacts* supportContacts
+    const LoadedSupportContacts* supportContacts,
+    const std::span<const float> seedPoseQ = {}
 ) {
     require(std::isfinite(timestepSeconds) &&
                 timestepSeconds >= 1.0e-6 && timestepSeconds <= 1.0e-3,
@@ -9263,8 +9338,11 @@ MuscleDrivenVisualState integrateMuscleDrivenVisualState(
     const std::vector<double> initialV(model.defaultV.begin(), model.defaultV.end());
     std::optional<GroundAlignedSupport> support;
     if (supportContacts != nullptr) {
-        support.emplace(makeGroundAlignedSupport(model, *supportContacts));
+        support.emplace(makeGroundAlignedSupport(model, *supportContacts, seedPoseQ));
         initialQ = support->q;
+    } else {
+        require(seedPoseQ.empty(),
+                "an explicit source root seed requires the native support-plane path");
     }
     MuscleDrivenVisualState result;
     result.stepCount = stepCount;
@@ -18595,7 +18673,8 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     std::uint32_t& renderedRouteSegments,
     std::uint32_t& renderedPassiveFEMTissues,
     std::uint32_t& renderedPectoralisFascia,
-    std::uint32_t& renderedOpenKneeRegions
+    std::uint32_t& renderedOpenKneeRegions,
+    const bool retainAllAnatomicalLayers = false
 ) {
     metalrobo::VisualAssetPackV2 pack;
     pack.id = bonePayload != nullptr
@@ -18883,7 +18962,7 @@ metalrobo::VisualAssetPackV2 makeMarkerPack(
     // frame, but drawing it behind source skin openings creates misleading
     // blue/ivory peeks that read as broken anatomy rather than an exterior.
     // Exposed bones remain available through the separate anatomy command.
-    if (bonePayload != nullptr && skinPayload == nullptr) {
+    if (bonePayload != nullptr && (skinPayload == nullptr || retainAllAnatomicalLayers)) {
         const auto kneeBodies = openKneePayload != nullptr
             ? openKneeBodyIndices(*openKneePayload)
             : std::array<std::uint32_t, 3u>{
@@ -19471,10 +19550,14 @@ metalrobo::WorldTemplate makeWorld(
     const metalrobo::EngineModel& model,
     const CameraFraming& framing,
     const std::uint32_t dimension,
-    std::array<std::string, 4u>& cameraNames
+    std::array<std::string, 4u>& cameraNames,
+    const std::array<mr_float4,4u>* positionsOverride = nullptr,
+    const std::array<mr_float4,4u>* targetsOverride = nullptr,
+    const metalrobo::SensorSpec* detailCamera = nullptr
 ) {
     const mr_float4 center = framing.center;
-    const std::array<mr_float4, 4u> positions = cameraPositions(framing);
+    const std::array<mr_float4, 4u> positions = positionsOverride?*positionsOverride:cameraPositions(framing);
+    const std::array<mr_float4,4u> targets=targetsOverride?*targetsOverride:std::array<mr_float4,4u>{center,center,center,center};
     cameraNames = {"front", "oblique", "side", "rear"};
     metalrobo::EpisodeTwin episode;
     episode.id = "myosim_fullbody_articulated_marker_visualization";
@@ -19492,11 +19575,12 @@ metalrobo::WorldTemplate makeWorld(
     }
     episode.assets.push_back(std::move(human));
     episode.sensors = {
-        makeCamera(cameraNames[0], positions[0], center, dimension),
-        makeCamera(cameraNames[1], positions[1], center, dimension),
-        makeCamera(cameraNames[2], positions[2], center, dimension),
-        makeCamera(cameraNames[3], positions[3], center, dimension),
+        makeCamera(cameraNames[0], positions[0], targets[0], dimension),
+        makeCamera(cameraNames[1], positions[1], targets[1], dimension),
+        makeCamera(cameraNames[2], positions[2], targets[2], dimension),
+        makeCamera(cameraNames[3], positions[3], targets[3], dimension),
     };
+    if(detailCamera)episode.sensors.push_back(*detailCamera);
     episode.task.id = "pose_snapshot_visualization";
     episode.task.robotAssetId = "myosim_human";
     episode.task.controlPeriodSeconds = 1.0 / 120.0;
@@ -19917,6 +20001,9 @@ int sourceCompliantCertificate(int argc,char** argv) {
     return status.balanced?0:2;
 }
 
+#ifdef NUMI_HUMAN_RESTING_SCENE
+#include "NumiHumanRestingVisual.hpp"
+#endif
 } // namespace
 
 int main(int argc, char** argv) {
@@ -20005,10 +20092,53 @@ int main(int argc, char** argv) {
             std::optional<double> wholeBodyActivationCap;
             std::optional<std::uint32_t> wholeBodyPoseSweeps;
             std::vector<std::pair<std::uint32_t, double>> requestedPoseCoordinates;
+            std::optional<std::array<double, 7>> requestedRootPose;
             std::uint32_t frameDimension = kDefaultFrameDimension;
             std::vector<std::string> positional;
+#ifdef NUMI_HUMAN_RESTING_SCENE
+            std::optional<std::pair<std::string,std::string>> restingScene;
+            std::string restingMovie;
+            std::string restingAnatomyReceipt;
+            std::string inspectTerminalState;
+            bool restingDenseVascular=false;
+            std::optional<double> restingReferenceMassKg;
+            std::optional<std::array<double,3>> restingDriveIntervention;
+#endif
             for (int index = 1; index < argc; ++index) {
                 const std::string argument{argv[index]};
+#ifdef NUMI_HUMAN_RESTING_SCENE
+                if(argument=="--resting-scene") {
+                    require(index+2<argc&&!restingScene.has_value(),"--resting-scene requires network and respiration JSON once");
+                    std::string network=argv[++index];std::string respiration=argv[++index];
+                    restingScene.emplace(network,respiration);continue;
+                }
+                if(argument=="--resting-movie") {
+                    require(index+1<argc&&restingMovie.empty(),"--resting-movie requires one new movie path");
+                    restingMovie=argv[++index];continue;
+                }
+                if(argument=="--vascular-dense45") {restingDenseVascular=true;continue;}
+                if(argument=="--resting-reference-mass-kg") {
+                    require(index+1<argc&&!restingReferenceMassKg,"--resting-reference-mass-kg requires one declared mass");
+                    const double mass=std::stod(argv[++index]);
+                    require(std::isfinite(mass)&&mass>0&&mass<1000,"invalid resting reference body mass");
+                    restingReferenceMassKg=mass;continue;
+                }
+                if(argument=="--resting-anatomy-receipt") {
+                    require(index+1<argc&&restingAnatomyReceipt.empty(),"--resting-anatomy-receipt requires one source-bound receipt");
+                    restingAnatomyReceipt=argv[++index];continue;
+                }
+                if(argument=="--inspect-terminal-state") {
+                    require(index+1<argc&&inspectTerminalState.empty(),"--inspect-terminal-state requires one retained native log");
+                    inspectTerminalState=argv[++index];continue;
+                }
+                if(argument=="--resting-drive-intervention") {
+                    require(index+3<argc&&!restingDriveIntervention.has_value(),"--resting-drive-intervention requires start, end, scale");
+                    std::array<double,3> values;
+                    for(auto& v:values){v=std::stod(argv[++index]);require(std::isfinite(v),"nonfinite respiratory intervention");}
+                    require(values[0]>=0&&values[1]>values[0]&&values[2]>=0&&values[2]<=2,"invalid respiratory intervention window/scale");
+                    restingDriveIntervention=values;continue;
+                }
+#endif
                 if (argument == "--muscle-step-seconds") {
                     require(index + 1 < argc && !muscleStepSeconds.has_value(),
                             "--muscle-step-seconds requires one value and may be given only once");
@@ -20375,6 +20505,22 @@ int main(int argc, char** argv) {
                     const std::uint32_t qIndex = parseSourceRouteIndex(argv[++index]);
                     const double qValue = parsePoseCoordinate(argv[++index]);
                     requestedPoseCoordinates.emplace_back(qIndex, qValue);
+                } else if (argument == "--root-pose") {
+                    require(index + 7 < argc && !requestedRootPose.has_value(),
+                            "--root-pose requires xyz and xyzw quaternion values and may be given only once");
+                    std::array<double, 7> rootPose{};
+                    for (double& value : rootPose) {
+                        value = parsePoseCoordinate(argv[++index]);
+                    }
+                    const double quaternionNorm = std::sqrt(
+                        rootPose[3] * rootPose[3] + rootPose[4] * rootPose[4] +
+                        rootPose[5] * rootPose[5] + rootPose[6] * rootPose[6]);
+                    require(std::isfinite(quaternionNorm) && quaternionNorm > 1.0e-12,
+                            "--root-pose quaternion must be finite and nonzero");
+                    for (std::size_t component = 3; component < rootPose.size(); ++component) {
+                        rootPose[component] /= quaternionNorm;
+                    }
+                    requestedRootPose = rootPose;
                 } else if (!argument.starts_with("--")) {
                     positional.push_back(argument);
                 } else {
@@ -20445,6 +20591,7 @@ int main(int argc, char** argv) {
                           << " [--focus-joint-child-body-index <1..156>] [--focus-distance-m <0.08..0.80>]"
                           << " [--camera-index <0..3>]"
                           << " [--pose-q <q-index> <coordinate-value>]..."
+                          << " [--root-pose <x-m> <y-m> <z-m> <qx> <qy> <qz> <qw>]"
                           << " [--dimension <512..2048; multiple-of-64>]\n";
                 return 2;
             }
@@ -20465,7 +20612,27 @@ int main(int argc, char** argv) {
                         mrNumiHumanTimedRootForceValid(*standPush, muscleStepCount.value_or(1u)),
                     "--stand-push window must lie inside --muscle-step-count");
             const bool bodypartsBoneVisual = positional.size() == 4u;
-            const LoadedRigid rigid = loadRigid(positional[0]);
+            LoadedRigid rigid = loadRigid(positional[0]);
+#ifdef NUMI_HUMAN_RESTING_SCENE
+            if(restingReferenceMassKg) {
+                require(restingScene.has_value(),"declared reference mass requires the integrated resting scene");
+                double sourceMass=0;for(const auto& b:rigid.model.bodies)sourceMass+=b.massAndInverseMass.x;
+                require(sourceMass>0,"source body has no mass");
+                const float scale=float(*restingReferenceMassKg/sourceMass);
+                double executedMass=0;
+                for(auto& b:rigid.model.bodies) {
+                    if(b.massAndInverseMass.x==0)continue;
+                    b.massAndInverseMass.x*=scale;b.massAndInverseMass.y=1/b.massAndInverseMass.x;
+                    b.inertiaRow0=scalePoint(b.inertiaRow0,scale);b.inertiaRow1=scalePoint(b.inertiaRow1,scale);b.inertiaRow2=scalePoint(b.inertiaRow2,scale);
+                    b.inverseInertiaRow0=scalePoint(b.inverseInertiaRow0,1/scale);b.inverseInertiaRow1=scalePoint(b.inverseInertiaRow1,1/scale);b.inverseInertiaRow2=scalePoint(b.inverseInertiaRow2,1/scale);
+                    executedMass+=b.massAndInverseMass.x;
+                }
+                std::string reason;require(rigid.model.valid(&reason),"reference mass calibration invalid: "+reason);
+                std::cout<<std::setprecision(12)<<"resting_mass_calibration source_composite_kg="<<sourceMass
+                    <<" declared_reference_kg="<<*restingReferenceMassKg<<" executed_kg="<<executedMass<<" uniform_mass_inertia_scale="<<scale
+                    <<" measured_person=false additional_organ_or_blood_mass_kg=0\n";
+            }
+#endif
             std::optional<LoadedBones> bonePayload;
             if (bodypartsBoneVisual) {
                 bonePayload.emplace(loadBones(positional[2], rigid));
@@ -20696,7 +20863,7 @@ int main(int argc, char** argv) {
                         !openKneePayloadPath.has_value() &&
                         !openKneeLigamentFEMPath.has_value() &&
                         !openKneeLiveTissueFEM &&
-                        requestedPoseCoordinates.empty(),
+                        requestedPoseCoordinates.empty() && !requestedRootPose.has_value(),
                     "--bilateral-plantar-fascia-certificate is a nonvisual "
                     "mechanics qualification and cannot be combined with "
                     "presentation or another continuum scope"
@@ -20727,7 +20894,7 @@ int main(int argc, char** argv) {
                         !pectoralisFasciaPayloadPath.has_value() &&
                         !openKneePayloadPath.has_value() &&
                         !openKneeLigamentFEMPath.has_value() &&
-                        requestedPoseCoordinates.empty(),
+                        requestedPoseCoordinates.empty() && !requestedRootPose.has_value(),
                     "--whole-body-support-certificate requires NHCNT1 or NHCNT2, "
                     "NHEQ1, a response timestep, and no presentation, "
                     "activation, or continuum scope"
@@ -20763,7 +20930,7 @@ int main(int argc, char** argv) {
                         !pectoralisFasciaPayloadPath.has_value() &&
                         !anteriorThoraxPayloadPath.has_value() &&
                         !openKneeLigamentFEMPath.has_value() &&
-                        requestedPoseCoordinates.empty(),
+                        requestedPoseCoordinates.empty() && !requestedRootPose.has_value(),
                     "--open-knee-sustained-certificate requires an isolated nonvisual selected-quadriceps NHTENDON3/NHEQ1/NHCNT1 live Open Knee run");
             }
             require(!sourcePassiveJointTissue || wholeBodySupportCertificate,
@@ -20974,7 +21141,7 @@ int main(int argc, char** argv) {
                         ((wholeBodySupportCertificate || persistentMetalStand) &&
                          supportContactPayloadPath.has_value() &&
                          jointEqualityPayloadPath.has_value() &&
-                         requestedPoseCoordinates.empty()),
+                         requestedPoseCoordinates.empty() && !requestedRootPose.has_value()),
                     "support stance is an offline initial condition for the whole-body support or persistent stand probe");
             std::optional<LoadedSupportContacts> supportContactPayload;
             if (supportContactPayloadPath.has_value()) {
@@ -21007,16 +21174,22 @@ int main(int argc, char** argv) {
             require(requestedPoseCoordinates.empty() ||
                         (!muscleStepSeconds.has_value() && jointEqualityPayload.has_value()),
                     "--pose-q requires NHEQ1 joint equalities and cannot be combined with muscle stepping");
+            require(!requestedRootPose.has_value() ||
+                        (jointEqualityPayload.has_value() &&
+                         (!muscleStepSeconds.has_value() ||
+                          supportContactPayloadPath.has_value())),
+                    "--root-pose requires NHEQ1 and the source support-plane path when stepping");
             require(!openKneeLigamentFEM.has_value() ||
-                        (requestedPoseCoordinates.empty() &&
+                        (requestedPoseCoordinates.empty() && !requestedRootPose.has_value() &&
                          !muscleStepSeconds.has_value()),
                     "NHKFEM1/2 is an accepted neutral preflight snapshot and cannot be rendered as an arbitrary pose");
             require(!openKneeLiveTissueFEM ||
                         (openKneePayload.has_value() &&
-                         (persistentMetalStand || selectedTendonControl) &&
-                         muscleStepSeconds.has_value() &&
-                         supportContactPayload.has_value() &&
-                         jointEqualityPayload.has_value() &&
+                        (persistentMetalStand || selectedTendonControl) &&
+                        muscleStepSeconds.has_value() &&
+                        supportContactPayload.has_value() &&
+                        jointEqualityPayload.has_value() &&
+                         !requestedRootPose.has_value() &&
                          (musclePayload.tendonPayload.payloadAbi == 2u ||
                           musclePayload.tendonPayload.payloadAbi == 3u)),
                     "--open-knee-live-tissue-fem requires NHKNEE1 and a persistent NHTENDON2/3 Human transaction");
@@ -21608,9 +21781,11 @@ int main(int argc, char** argv) {
             // named poses. The raw source default can leave the patellar
             // translation coordinates away from their equality references.
             // Keep mechanics initialization and source rest witnesses intact.
-            const bool projectDefaultVisualPose = requestedPoseCoordinates.empty() &&
+            const bool explicitPoseOverride = !requestedPoseCoordinates.empty() ||
+                requestedRootPose.has_value();
+            const bool projectDefaultVisualPose = !explicitPoseOverride &&
                 jointEqualityPayload.has_value() && !muscleStepSeconds.has_value();
-            if (!requestedPoseCoordinates.empty() || projectDefaultVisualPose) {
+            if (explicitPoseOverride || projectDefaultVisualPose) {
                 std::sort(requestedPoseCoordinates.begin(), requestedPoseCoordinates.end());
                 require(std::adjacent_find(
                             requestedPoseCoordinates.begin(), requestedPoseCoordinates.end(),
@@ -21622,6 +21797,12 @@ int main(int argc, char** argv) {
                 std::vector<double> projected(
                     rigid.model.defaultQ.begin(), rigid.model.defaultQ.end()
                 );
+                if (requestedRootPose.has_value()) {
+                    require(projected.size() >= requestedRootPose->size(),
+                            "--root-pose requires a floating-root source q with at least seven coordinates");
+                    std::copy(requestedRootPose->begin(), requestedRootPose->end(),
+                              projected.begin());
+                }
                 for (const auto& [index, value] : requestedPoseCoordinates) {
                     require(index < projected.size(), "--pose-q index exceeds the source nq");
                     const auto dof = std::find_if(
@@ -21700,6 +21881,7 @@ int main(int argc, char** argv) {
                               ? loadedKneeSHA256Hex(bonePayload->payloadSha256) : "unavailable")
                           << " boundary=consumed_enabled_native_limits_after_NHEQ_projection_not_disabled_source_limits_or_loaded_motion\n";
                 std::cout << "pose_q_override_count=" << requestedPoseCoordinates.size()
+                          << " root_pose_override=" << (requestedRootPose.has_value() ? 1 : 0)
                           << " pose_q_equality_maximum_correction=" << maximumProjection
                           << "\n";
                 if (projectDefaultVisualPose) {
@@ -21709,6 +21891,40 @@ int main(int argc, char** argv) {
                 }
             }
             std::optional<PectoralisFasciaVisual> pectoralisFascia;
+#ifdef NUMI_HUMAN_RESTING_SCENE
+            if(!inspectTerminalState.empty()) {
+                require(!restingScene&&!muscleStepSeconds&&!requestedRootPose&&requestedPoseCoordinates.empty(),
+                    "terminal-state inspection cannot change or advance the retained physical state");
+                std::ifstream input(inspectTerminalState);require(input.good(),"terminal-state log unavailable");
+                std::string line,receipt;bool matchedSource=false;
+                while(std::getline(input,line)) {
+                    if(line.starts_with("rigid_source_rest_frames=")&&
+                       line.find("rigid_sha256="+loadedKneeSHA256Hex(rigid.payloadSha256))!=std::string::npos)matchedSource=true;
+                    if(line.starts_with("stand_terminal_state=")) {
+                        require(receipt.empty(),"terminal-state log has multiple physical roots");receipt=line.substr(21);
+                    }
+                }
+                require(matchedSource&&!receipt.empty(),"terminal-state log lacks matching source identity/root");
+                NSData* bytes=[NSData dataWithBytes:receipt.data() length:receipt.size()];NSError* error=nil;
+                NSDictionary* state=[NSJSONSerialization JSONObjectWithData:bytes options:0 error:&error];
+                require([state isKindOfClass:NSDictionary.class]&&[state[@"schema"] isEqual:@"numi.human.legacy-stand-terminal.v1"],
+                    "terminal-state receipt has wrong schema");
+                NSArray* coordinates=state[@"q"];require([coordinates isKindOfClass:NSArray.class]&&coordinates.count==poseQ.size(),
+                    "terminal-state coordinate dimensions differ");
+                overriddenPoseQ.resize(poseQ.size());
+                for(unsigned i=0;i<poseQ.size();++i) {
+                    require([coordinates[i] isKindOfClass:NSNumber.class]&&std::isfinite([coordinates[i] doubleValue]),
+                        "terminal-state coordinate is not finite");overriddenPoseQ[i]=[coordinates[i] floatValue];
+                }
+                poseQ=overriddenPoseQ;
+                double maximumRangeError=0;
+                for(const auto& dof:rigid.model.dofs)if(dof.flags&MR_DOF_FLAG_POSITION_LIMIT)
+                    maximumRangeError=std::max(maximumRangeError,std::max({0.0,double(dof.limits.x)-poseQ[dof.qIndex],
+                        double(poseQ[dof.qIndex])-dof.limits.y}));
+                std::cout<<"terminal_state_inspection=unmodified_native_q maximum_source_range_error="<<maximumRangeError
+                    <<" step_count="<<[state[@"step_count"] unsignedIntValue]<<" physical_steps_advanced=0\n";
+            }
+#endif
             std::optional<AnteriorThoraxMechanics> anteriorThoraxMechanics;
             std::vector<MRBodyStateGPU> precomputedRestBodies;
             if (pectoralisFasciaPayload.has_value()) {
@@ -21736,6 +21952,100 @@ int main(int argc, char** argv) {
                     rigid.model, restResult.bodyPoses
                 );
             }
+#ifdef NUMI_HUMAN_RESTING_SCENE
+            if(restingScene.has_value()) {
+                require(persistentMetalStand&&muscleStepSeconds.has_value()&&muscleStepCount.has_value()&&
+                    supportContactPayload.has_value()&&jointEqualityPayload.has_value()&&requestedRootPose.has_value()&&tendonPayloadPath.has_value()&&
+                    !standRootAssistance&&!standRemoveAssistance&&!standBrainLibraryPath.has_value(),
+                    "resting scene requires explicit supported root pose, native contact/equality/tendon payloads and bounded native steps");
+                std::filesystem::create_directories(positional.back());
+                std::ofstream trace(std::filesystem::path(positional.back())/"resting-coupled.csv");
+                require(trace.good(),"resting trace path unavailable");
+                trace<<std::setprecision(12);numi::human::writeRespirationTraceHeader(trace);
+                trace<<",step,min_contact_gap_m,peak_penetration_m,normal_impulse_ns,root_assistance_n,root_assistance_nm,diaphragm_excitation,intercostal_excitation,diaphragm_activation,intercostal_activation\n";
+                const auto payloadBytes=[](const std::filesystem::path& path) {
+                    NSData* bytes=[NSData dataWithContentsOfFile:@(path.c_str())];
+                    require(bytes!=nil,"resting source identity file unavailable: "+path.string());
+                    const auto* begin=static_cast<const std::byte*>(bytes.bytes);
+                    return std::vector<std::byte>(begin,begin+bytes.length);
+                };
+                auto sourceIdentity=metalrobo::numiHumanRuntimeBaseSourceFingerprint(payloadBytes(positional[0]),
+                    payloadBytes(positional[1]),payloadBytes(*supportContactPayloadPath));
+                const auto appendSource=[&](std::string_view domain,std::span<const std::byte> bytes) {
+                    sourceIdentity=metalrobo::numiHumanRuntimeAppendPayloadOwner(sourceIdentity,domain,
+                        metalrobo::numiHumanRuntimePayloadFingerprint(bytes));
+                };
+                appendSource("NHEQ",payloadBytes(*jointEqualityPayloadPath));
+                appendSource("NHTENDON",payloadBytes(*tendonPayloadPath));
+                if(!restingAnatomyReceipt.empty())appendSource("resting_functional_anatomy",payloadBytes(restingAnatomyReceipt));
+                if(torsoAnatomyPayloadPath)appendSource("NHANATOMY",payloadBytes(*torsoAnatomyPayloadPath));
+                if(skinPayloadPath)appendSource("NHSKIN_full_surface_contact",payloadBytes(*skinPayloadPath));
+                appendSource("resting_initial_q",std::as_bytes(std::span(poseQ)));
+                if(restingReferenceMassKg)appendSource("resting_reference_mass_inertia",std::as_bytes(std::span(rigid.model.bodies)));
+                const std::array<double,5> settings{muscleActivation.value_or(kDefaultPersistentStandActivationCap),
+                    double(standContactIterationCount.value_or(16u)),double(persistentSourcePassiveJointTissue),
+                    double(persistentRuntimeWithoutPassiveJointTissue),double(restingDenseVascular)};
+                appendSource("resting_native_options",std::as_bytes(std::span(settings)));
+                if(restingDriveIntervention)appendSource("resting_drive_intervention",std::as_bytes(std::span(*restingDriveIntervention)));
+                NumiHumanRestingCoupling coupled(restingScene->first.c_str(),restingScene->second.c_str(),float(*muscleStepSeconds),
+                    rigid.model,sourceIdentity,restingDenseVascular);
+                std::cout<<"resting_body_source_fingerprint="<<sourceIdentity<<" coupled_program_fingerprint="
+                    <<coupled.brain.rootProgramIdentity<<"\n";
+                if(restingDriveIntervention) {
+                    coupled.brain.interventionStart=(*restingDriveIntervention)[0];coupled.brain.interventionEnd=(*restingDriveIntervention)[1];
+                    coupled.brain.interventionScale=float((*restingDriveIntervention)[2]);
+                }
+                std::unique_ptr<NumiHumanRestingVisual> liveVisual;
+                if(!mechanicsOnly||skinPayload) {
+                    require(bonePayload&&skinPayload&&softTissuePayload&&torsoAnatomyPayload&&!restingAnatomyReceipt.empty(),
+                        "native resting viewer requires the registered skeleton, skin, muscle/tendon and internal-anatomy payloads");
+                    NumiHumanRestingAnatomy functional(restingAnatomyReceipt.c_str(),*torsoAnatomyPayloadPath,
+                        *torsoAnatomyPayload,*bonePayload,coupled.physiology.respiration->parameters);
+                    auto nativePose=[&](std::span<const float> coordinates) {
+                        metalrobo::MetalArticulatedOperatorInput input;input.articulationIndex=0;input.environmentCount=1;input.q=coordinates;
+                        metalrobo::MetalArticulatedOperatorConfig config;config.pointJacobiansOnly=true;
+                        metalrobo::MetalArticulatedOperatorResult result;
+                        auto status=metalrobo::runMetalArticulatedOperator(rigid.model,input,result,config);
+                        require(status.succeeded(),status.message);return visualBodyStates(rigid.model,result.bodyPoses);
+                    };
+                    const auto initialBodies=nativePose(poseQ),restBodies=nativePose(rigid.model.defaultQ);
+                    std::array<unsigned,10> counts{};
+                    auto pack=makeMarkerPack(rigid.model,musclePayload,&*bonePayload,nullptr,nullptr,&*softTissuePayload,&*skinPayload,
+                        &*torsoAnatomyPayload,0xffffffffu,{},initialBodies,restBodies,nullptr,nullptr,false,{},{},{},false,false,false,nullptr,
+                        counts[0],counts[1],counts[2],counts[3],counts[4],counts[5],counts[6],counts[7],counts[8],counts[9],true);
+                    liveVisual=std::make_unique<NumiHumanRestingVisual>(coupled,std::move(pack),rigid.model,*skinPayload,&*softTissuePayload,
+                        initialBodies,restBodies,*supportContactPayload,functional,positional.back(),frameDimension,restingMovie,!mechanicsOnly);
+                    if(!mechanicsOnly)liveVisual->present();
+                }
+                auto restingProgram=coupled.program();
+                const auto skinSupportProgram=liveVisual?liveVisual->supportProgram():metalrobo::MetalNumiHumanSupportGeometryProgram{};
+                const std::function<void(std::uint32_t,const metalrobo::MetalArticulatedOperatorResult&)> observer=
+                    [&](unsigned step,const metalrobo::MetalArticulatedOperatorResult& result) {
+                        const auto& p=*static_cast<const NMHumanRespirationState*>(coupled.physiology.respiration->accepted.contents);
+                        require(p.status.x==step&&!p.status.w,"body/respiratory accepted clocks differ");
+                        const auto& b=result.standStatuses.front();
+                        numi::human::writeRespirationTraceSample(trace,p,coupled.physiology.respiration->parameters);
+                        trace<<','<<step<<','
+                             <<b.contactAndAcceleration.x<<','<<b.contactAndAcceleration.y<<','<<b.contactAndAcceleration.z<<','
+                             <<b.factorAndAssistance.z<<','<<b.factorAndAssistance.w<<','<<p.control.x<<','<<p.control.y<<','
+                             <<p.muscles[0].excitationAndActivation.y<<','<<p.muscles[1].excitationAndActivation.y<<'\n';
+                        trace.flush();
+                        if(liveVisual&&!mechanicsOnly)liveVisual->present(step==*muscleStepCount);
+                    };
+                const auto start=std::chrono::steady_clock::now();
+                auto final=integratePersistentMetalHumanState(rigid.model,musclePayload,*supportContactPayload,*jointEqualityPayload,
+                    *muscleStepSeconds,*muscleStepCount,muscleActivation.value_or(kDefaultPersistentStandActivationCap),{},false,false,false,false,
+                    nullptr,std::nullopt,true,nullptr,persistentSourcePassiveJointTissue,false,standContactIterationCount.value_or(16u),
+                    persistentRuntimeWithoutPassiveJointTissue,std::nullopt,false,false,{},std::nullopt,std::nullopt,std::nullopt,0x4e554d49u,
+                    poseQ,&restingProgram,&observer,liveVisual?&skinSupportProgram:nullptr);
+                (void)final;
+                const double wall=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();
+                std::cout<<"resting_integrated_body=completed simulated_s="<<*muscleStepCount*double(coupled.physiology.runtime.timestepSeconds())
+                    <<" wall_s="<<wall<<" real_time_factor="<<*muscleStepCount*double(coupled.physiology.runtime.timestepSeconds())/wall
+                    <<" physiology_body_clock=matched root_assistance=false presentation_qualification=pending\n";
+                return 0;
+            }
+#endif
             if (muscleStepSeconds.has_value()) {
                 if (bilateralPlantarFasciaCertificate) {
                     std::array<PlantarFasciaSideAudit, 2u> audits;
@@ -22346,7 +22656,10 @@ int main(int argc, char** argv) {
                                     ? std::optional<std::filesystem::path>(
                                           std::filesystem::path(positional.back()) / "numi-brain")
                                     : std::nullopt,
-                                standBrainSeed
+                                standBrainSeed,
+                                requestedRootPose.has_value()
+                                    ? std::span<const float>(overriddenPoseQ)
+                                    : std::span<const float>{}
                             )
                         );
                     }
@@ -22356,7 +22669,10 @@ int main(int argc, char** argv) {
                         muscleStepCount.value_or(1u),
                         muscleActivation.value_or(0.5),
                         selectedSourceMuscleActivations,
-                        supportContactPayload.has_value() ? &*supportContactPayload : nullptr
+                        supportContactPayload.has_value() ? &*supportContactPayload : nullptr,
+                        requestedRootPose.has_value()
+                            ? std::span<const float>(overriddenPoseQ)
+                            : std::span<const float>{}
                     ));
                 }
                 poseQ = muscleDrivenState->q;
@@ -22852,7 +23168,7 @@ int main(int argc, char** argv) {
                 (supportContactPayload.has_value() ? "-source-support-contact" : "") +
                 (sourceRouteCentrelines ? "-source-route-centrelines" : "") +
                 (renderedTendonAttachmentEnvelopes > 0u ? "-tendon-attachment-envelopes" : "") +
-                (!requestedPoseCoordinates.empty() ? "-posed" : "") +
+                ((!requestedPoseCoordinates.empty() || requestedRootPose.has_value()) ? "-posed" : "") +
                 (surfaceProjectSourceSites ? "-surface-projected-sites" : "") +
                 (focusBodyIndex.has_value()
                     ? "-focus-body-" + std::to_string(*focusBodyIndex) : "") +
@@ -23157,8 +23473,8 @@ int main(int argc, char** argv) {
             const bool sourceSupportContact = muscleDrivenState.has_value() &&
                 muscleDrivenState->supportContactApplied;
             const std::string poseSource = !muscleDrivenState.has_value()
-                ? (!requestedPoseCoordinates.empty()
-                    ? "explicit_source_q_override_projected_through_NHEQ1_to_metal_kinematic_pose"
+                ? (explicitPoseOverride
+                    ? "explicit_source_root_and_or_scalar_q_override_projected_through_NHEQ1_to_metal_kinematic_pose"
                     : "source_default_q_to_metal_kinematic_pose")
                 : muscleDrivenState->selectedTendonControl
                     ? "persistent_metal_compiled_posture_baseline_plus_selected_source_activation_increment_all_416_mujoco_routes_" + tendonProgramName + "_transaction_gravity_joint_equalities_and_source_foot_support"
@@ -23206,9 +23522,9 @@ int main(int argc, char** argv) {
                 evidenceBoundary +=
                     "_with_explicit_source_actuator_subset_excitation_all_416_source_paths_still_evaluated";
             }
-            if (!requestedPoseCoordinates.empty()) {
+            if (explicitPoseOverride) {
                 evidenceBoundary +=
-                    "_with_explicit_kinematic_source_coordinate_override_and_exact_dependent_polynomial_projection_not_dynamics_or_loaded_contact_validation";
+                    "_with_explicit_kinematic_source_root_or_coordinate_override_and_exact_dependent_polynomial_projection_not_dynamics_or_loaded_contact_validation";
             }
             if (projectDefaultVisualPose) {
                 evidenceBoundary +=

@@ -1,0 +1,49 @@
+{
+  "payload": {
+    "evidence_level": "simulation",
+    "issues": [],
+    "limitations": "The primary effect is one deterministic paired difference-in-differences, not a sample/population estimate. Secondary ventilation, oxygenation, and recovery values are descriptive fields in each retained trial output. The alveolar ventilation equation supplies a steady-state sensitivity envelope; finite-time closed-loop behavior may differ. Parser calibration does not calibrate physiology or clinical measurement. The current runner explicitly reports no qualified whole-body anatomy/resting claim; this study does not establish anatomical mechanics or clinical validity.",
+    "mean_difference": 1.978909932649998,
+    "observed_spread": {
+      "maximum": 1.978909932649998,
+      "minimum": 1.978909932649998,
+      "sample_sd": null
+    },
+    "paired_differences": [
+      {
+        "pair": "reference-rest-v1",
+        "treatment_minus_control": 1.978909932649998
+      }
+    ],
+    "registration_sha256": "3f6fe7596a60b0746c86817b5a56c1afeaabf45eedcd0c239c6e211371ff9647",
+    "schema": "numi.science.analysis.v1",
+    "trials": [
+      {
+        "arm": "control",
+        "experimental_unit": {
+          "unit_id": "resting-reference-initialization-v1-71709890b4404ad1a2b1"
+        },
+        "id": "reference-rest-baseline",
+        "pair": "reference-rest-v1",
+        "receipt_sha256": "17bf1c42f8791d1374cc08e0b0965ccaecd176343f6124b8bb472d2ca3b17c19",
+        "status": "valid",
+        "value": 0.0796609536185926
+      },
+      {
+        "arm": "treatment",
+        "experimental_unit": {
+          "unit_id": "resting-reference-initialization-v1-71709890b4404ad1a2b1"
+        },
+        "id": "reference-rest-drive-half",
+        "pair": "reference-rest-v1",
+        "receipt_sha256": "a6c69c7c074dc2b11e5c0903afe8b5eabc3af59a14639ea086b21e5b8196ca59",
+        "status": "valid",
+        "value": 2.0585708862685905
+      }
+    ],
+    "uncertainty": "Descriptive variation across declared pairs, not a confidence interval or population inference.",
+    "unit": "mmHg",
+    "verdict": "supported"
+  },
+  "sha256": "b5978a0a76e54bdd4097673b63008f991e04053f4973b1870bcc4cdcd63800f5"
+}

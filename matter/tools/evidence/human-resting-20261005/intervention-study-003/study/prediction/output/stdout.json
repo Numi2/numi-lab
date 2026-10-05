@@ -1,0 +1,1 @@
+{"model_sha256":"19686f34f68d6de67ff9525f2f3e0cf775abe0480d79b568eb57194c15b50437","prediction":{"estimand":"paired_difference_mean","maximum":40.0,"minimum":0.0},"schema":"numi.science.prediction.v1"}

@@ -1,0 +1,12 @@
+{
+  "payload": {
+    "binding": "ef799fff87be01b4cc9fd3183c59ccba4df7233979647c77bc6dafb61c911875",
+    "host": "ns-Mac-mini.local",
+    "identity": "Mon Oct  5 01:30:39 2026",
+    "pgid": 63465,
+    "pid": 63465,
+    "runner_identity": "Mon Oct  5 01:30:39 2026",
+    "runner_pid": 63463
+  },
+  "sha256": "85b142a3c42d281aa9bbd1b993a3e40214c1675a4a77334db96cbd7cdaa37a56"
+}

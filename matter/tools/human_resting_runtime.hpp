@@ -197,10 +197,16 @@ struct RestingRun {
         respiration=std::make_unique<Respiration>(device,world,configuration,runtime.timestepSeconds());
         std::cout<<"runtime="<<init.message<<" device="<<[device name].UTF8String<<" world_fingerprint="<<world.fingerprint<<" timestep_s="<<runtime.timestepSeconds()<<'\n';
     }
-    double batch(unsigned first,unsigned count,bool expectRejected=false) {
+    double batch(unsigned first,unsigned count,bool expectRejected=false,
+                 unsigned rejectAtControlStep=NM_INVALID_INDEX) {
         *static_cast<MRMetalWorldStatusGPU*>(statuses.contents)={};
         auto cb=[queue commandBuffer];need(cb!=nil,"command buffer");
         for(unsigned step=first;step<first+count;++step) {
+            // Probe-only per-frame rejection injection. The dispatch struct is
+            // copied into that frame's command stream, so earlier accepted
+            // frames and a later rejected frame share one command buffer.
+            if(rejectAtControlStep!=NM_INVALID_INDEX)
+                respiration->dispatch.reject=step==rejectAtControlStep?1u:0u;
             EncodeRequest r;r.commandBuffer=(__bridge void*)cb;r.environmentStatuses=(__bridge void*)statuses;
             r.controlStep=step;r.physicsSubsteps=1;r.timestepSeconds=runtime.timestepSeconds();r.runAdaptiveTransfer=false;
             r.acceptedStepExtensionContext=respiration.get();r.encodeAcceptedStepExtension=&Respiration::callback;
@@ -211,7 +217,10 @@ struct RestingRun {
         auto* state=static_cast<const NMHumanRespirationState*>(respiration->accepted.contents);
         auto* staged=static_cast<const NMHumanRespirationState*>(respiration->candidate.contents);
         if(expectRejected) {
-            need(state->status.x==first&&staged->status.w!=0,"forced physical rejection did not preserve accepted count");
+            const unsigned expectedAccepted=rejectAtControlStep==NM_INVALID_INDEX
+                ? first : rejectAtControlStep;
+            need(state->status.x==expectedAccepted&&staged->status.w!=0,
+                 "forced physical rejection did not preserve the last accepted prefix");
         }else if(state->status.x!=first+count) {
             const auto failed=runtime.snapshot();
             const auto status=failed.statuses.empty()?NMMatterStatusGPU{}:failed.statuses.front();
@@ -223,4 +232,24 @@ struct RestingRun {
         return cb.GPUEndTime-cb.GPUStartTime;
     }
 };
+inline void writeRespirationTraceHeader(std::ostream& trace) {
+    trace<<"time_s,lung_volume_ml,airflow_ml_s,alveolar_pa,pleural_pa,diaphragm_mm,rib_mm,PaO2_mmhg,PaCO2_mmhg,SaO2,oxygen_balance_error_stpd_ml,co2_balance_error_stpd_ml,breaths,tidal_ml,lv_mmhg,rv_mmhg,aorta_mmhg,pulmonary_artery_mmhg,lv_ml,rv_ml,blood_ml,blood_error_ml,aortic_ejected_ml,pulmonary_ejected_ml,complete_filling_ejection_cycles,last_lv_stroke_ml,right_atrium_ml,left_atrium_ml,blood_continuity_residual_accum_ml,blood_physical_delta_accum_ml,blood_residual_minus_physical_ml,blood_endpoint_minus_physical_ml";
 }
+inline void writeRespirationTraceSample(std::ostream& trace,const NMHumanRespirationState& s,
+    const NMHumanRespirationParameters& parameters) {
+    trace<<double(s.status.x)*parameters.environment.w<<','<<s.mechanics.x*1e6<<','<<s.mechanics.w*1e6<<','<<s.mechanics.y<<','<<s.mechanics.z<<','
+         <<s.motion.x/parameters.geometry.z*1000<<','<<s.motion.y/parameters.geometry.w*1000<<','
+         <<s.observation.x<<','<<s.observation.y<<','<<s.observation.z<<','<<s.gasBudget.z*1e6<<','<<s.gasBudget.w*1e6<<','<<s.status.y<<','<<s.breath.z*1e6<<','
+         <<s.cardiacPressure.x/133.322387415<<','<<s.cardiacPressure.y/133.322387415<<','<<s.cardiacPressure.z/133.322387415<<','<<s.cardiacPressure.w/133.322387415<<','
+         <<s.chamberVolumes.w*1e6<<','<<s.chamberVolumes.y*1e6<<','<<s.circulation.x*1e6<<','<<s.circulation.w*1e6<<','<<s.cardiacFlow.x*1e6<<','<<s.cardiacFlow.y*1e6<<','<<s.cardiacStatus.x<<','<<s.cardiacFlow.w*1e6<<','
+         <<s.chamberVolumes.x*1e6<<','<<s.chamberVolumes.z*1e6<<',';
+    const double continuity=double(s.bloodBalance.continuityResidualSumM3)-
+        double(s.bloodBalance.continuityResidualCompensationM3);
+    const double physical=double(s.bloodBalance.physicalVolumeDeltaSumM3)-
+        double(s.bloodBalance.physicalVolumeDeltaCompensationM3);
+    const double endpoint=double(s.circulation.x)-double(0.00515f);
+    trace<<continuity*1e6<<','<<physical*1e6<<','
+         <<(continuity-physical)*1e6<<','
+         <<(endpoint-physical)*1e6;
+}
+} // namespace numi::human

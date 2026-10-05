@@ -1,0 +1,102 @@
+{
+  "bindings": {
+    "/Users/n/numi-human-resting-brain-20261005/Sources/NumiBrainABI/include/NumiBrainRespiratoryChemoreflexV1.h": "0d7ac6e2b8438cbd0b4cb9fdc5c169585421dd8542ac071d47c3002401892248",
+    "/Users/n/numi-human-resting-brain-20261005/Sources/NumiBrainMetal/Shaders/RespiratoryChemoreflexV1.metal": "495d3b51dc679ecf20c69e6c6f095d7d3c59d731216093c6ce790c0d0a6357cc",
+    "/Users/n/numi-human-resting-evidence-20261005/dense45-pair-004/fgmres-6s.csv": "b1fefe034428e83d976241f483d064760a201ea46e7f3977bc6c1ee39e62d859",
+    "/Users/n/numi-human-resting-evidence-20261005/intervention-study-002/build-receipt.json": "dda6836c89da6fb1187e05a5a453a9017a649a8ccefdb86f5cb63a758b2859ad",
+    "/Users/n/numi-human-resting-evidence-20261005/intervention-study-002/frozen/inputs/cvsim21.native.v3.json": "eeb6ebc5dad5cb413587038532ac5badc3d3e8aa419cca111604239e7f692818",
+    "/Users/n/numi-human-resting-evidence-20261005/intervention-study-002/frozen/inputs/resting-reference-respiration.json": "27100bf8941fcd623bba1ea87474f6fe6a4b1ab4f89b3e6ec0df5e4f8d9551f3",
+    "/Users/n/numi-human-resting-evidence-20261005/intervention-study-002/frozen/numi-human-resting": "462a089285cf2b05b022650937375ef91151a2ecba1a984220b71e34f36c814f",
+    "/Users/n/numi-human-resting-evidence-20261005/intervention-study-002/frozen/shaders/HumanRespiration.metallib": "f1fe31119fb00f310d3f64d42b6a6afa6c8e7183971e88e64b21c1b9a2eb72d3",
+    "/Users/n/numi-human-resting-evidence-20261005/intervention-study-002/frozen/shaders/NumiMatter.metallib": "8c5f0c6078f7f385b3cce3b08b816df95721528cc797da27e134c14717e03a93",
+    "/Users/n/numi-human-resting-evidence-20261005/intervention-study-003/registration/frozen-build-identity.json": "8f5c385657846ff52f4a1fde3c952ae9bb3709381a941d8cb146279900339f97",
+    "/Users/n/numi-human-resting-study-build-20261005/matter/numi-human-resting": "462a089285cf2b05b022650937375ef91151a2ecba1a984220b71e34f36c814f",
+    "/Users/n/numi-human-resting-study-build-20261005/matter/shaders/HumanRespiration.metallib": "f1fe31119fb00f310d3f64d42b6a6afa6c8e7183971e88e64b21c1b9a2eb72d3",
+    "/Users/n/numi-human-resting-study-build-20261005/matter/shaders/NumiMatter.metallib": "8c5f0c6078f7f385b3cce3b08b816df95721528cc797da27e134c14717e03a93",
+    "/Users/n/numi-human-resting-study-source-20261005/include/metalrobo/compensated_geometry_gpu.h": "1bf85c7e7b8b2102c5e0e6f3fbba88e2b30530e6b5fbb33375fb581d5261d84e",
+    "/Users/n/numi-human-resting-study-source-20261005/include/metalrobo/compensated_translation_gpu.h": "a04166e5c8ef76db05271c8c9b084f0b2edc9bb4a7e6bfe1986527a4f8c09097",
+    "/Users/n/numi-human-resting-study-source-20261005/include/metalrobo/engine_types.h": "a54daa034035d103dc9c78833a9f4f06bc1556c5052f9e161b4e7a5df43eca43",
+    "/Users/n/numi-human-resting-study-source-20261005/include/metalrobo/mujoco_muscle_gpu.h": "3169e324f631099c79c6fa719e4633a6bcfba4f99716772bed10e9aaf7862538",
+    "/Users/n/numi-human-resting-study-source-20261005/include/metalrobo/numi_human_resting_visual_gpu.h": "90f322c6d525a3ed6c4406768de3a77e8a9d06ba95a8229b65173cccfc66f0df",
+    "/Users/n/numi-human-resting-study-source-20261005/include/metalrobo/numi_human_stand_gpu.h": "246718813afd3053e935ccb5f07e1728bf29cff2621d127e8976be1d4e086395",
+    "/Users/n/numi-human-resting-study-source-20261005/include/metalrobo/rod_gpu_shared.h": "0e8a2fc59a2969ca2493aaa0ee9d6e51cac723a22a63cb2e6d03b00807fd373d",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/CMakeLists.txt": "461fd369a8297c28d624a2137b47c3de6ba516e9c36fae7319168748c455f760",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/examples/resting-reference-respiration.json": "27100bf8941fcd623bba1ea87474f6fe6a4b1ab4f89b3e6ec0df5e4f8d9551f3",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/include/numi/matter/accepted_state_proof_gpu.h": "d0b17b52cbdd54c5116a3e400435e60a833c92b5b6e309d1fbc74f3062e1c24e",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/include/numi/matter/fiber_exp_linear.h": "26ca19f47c8ece392409fe233708cc87d96b31eb010359cb987b1eed38dee49c",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/include/numi/matter/human_equality_gpu.h": "7bf03f512c0fbdf9be0382a8bd655fb8f0d90b1703ddaf74302e60a38656f519",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/include/numi/matter/human_limits_gpu.h": "adff1dd6bb8e7d67767bca38e959b03880376ec973f0d8a556564e4a87921dd9",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/include/numi/matter/human_respiration.h": "1e3708a0fa80f1315d092c75f73196af73f9c4088c9fa84e7300d992217c2fa6",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/include/numi/matter/human_support_precision_gpu.h": "d84b419be157c7feba0fe9eb9bfe2379262e38bc5fa4f2bd4641a6b0d8b671a1",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/include/numi/matter/matter.hpp": "36af4eacdd3ffc732aac3a8beffbad55584c77fa97cc5f74593eb0dcb3635065",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/include/numi/matter/shared.h": "7b1a593f9bbbd1828da60f5e192a229d6486fa6ad51e29caf233916da48db238",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/src/human_physiology.mm": "2fefc2ab1903aff0e03ddf8eae45c0fe985444cf39dc96c56beb719fa79ca18e",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/src/human_respiration.metal": "ef2e107b16e36621acb0163e84ad6943d9b3b92b80d3beee1cac546ca26dcba4",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/src/matter_kernels.metal": "37d3530284e2361b20f805409768c65446fc13186c50e94f286b73256debe168",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/src/metal/accepted_state_proof.metalinc": "1782bb5ea45d2dc67d7e50a92d403c1508942989edfd9dce7d4a6f08ea459987",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/src/metal/adaptive.metalinc": "48575bba875c8e7b6eba0138d542ac521acce8261a544a01390997d3eef0a332",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/src/metal/common.metalinc": "049989184ee26dce23af1a36ad62fbdfd508f7b1843bd056d719b2c6666fdac0",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/src/metal/contact.metalinc": "ce13b383a2c650efecf5f19638004bab1cec4cae882c6399813154aee54ebbf1",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/src/metal/fem.metalinc": "2a8d9aaa5522d3d11a9aec2c59a7f3e459872f1ca1a0f7877cb37532a79da16e",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/src/metal/fgmres.metalinc": "5c2f170cc5ba01ca03dc606861867a0467ff8d61d9f14367482992f0e90f8d1a",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/src/metal/human_equality.metalinc": "7d258cd6479fd54655d17dc16668713209ae418e62d73d44e1992c7e34b0c927",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/src/metal/human_limits.metalinc": "cb63fbad03fe852e532acbdf984f5147d5897595c21b68572de430793a15a87e",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/src/metal/identification_scheduler.metalinc": "5699e9bf15cd6386c905cc35ddec05c032f5721f32ce1023a5e21627d7b06ae9",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/src/metal/mixed_fem.metalinc": "5042632a1d44d12cabbc3d09fa6dc9c9f40ac51b3f81ab733ccedd95b58b4f0a",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/src/metal/mpm.metalinc": "eb0198a7b62252ef102fd94fbc908beb9e95da6d74bffb21ea68101013710643",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/src/metal/numi_human.metalinc": "f211dc328beced30cb199af32b294ad9f21da9eaf1ca2d3ccbe441eb3806fda4",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/src/metal/topology_mutation.metalinc": "b0c202ab7538717437562a223ca3809efee6ccc629b2ac0755b9cd091d3997ca",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/src/metal/vascular.metalinc": "3e125ad35485f11cd6c47bba1dfa7fa72b5f51cc80d089e617e1621608e6012b",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/src/metal_world.cpp": "af7c0d5411caa24ac2048a45b7066cd8dc0e36c793eb8256c3100323a5fd517d",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/src/numi_human.mm": "bd1fd95e478491eb2435f156b0700d1e2a5078ee86fc763f409ee91599945694",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/src/runtime.mm": "3c4e548e1d98d9918d9b0526fe74e2450fbce2fcd977df22779b9ea51bfe2f11",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/tools/fixtures/cvsim21.native.v3.json": "eeb6ebc5dad5cb413587038532ac5badc3d3e8aa419cca111604239e7f692818",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/tools/human_respiration_parameters.hpp": "25ed0482231702401bae49b6989efc5c0afdbd9fe2bc1beb98fbaae9266478a7",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/tools/human_resting.mm": "4d179431c3ddeb889d1d6a071dc8169eb001697759037d9f7c3aee553f45717a",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/tools/human_resting_runtime.hpp": "7575a2612bceba5b59d9a501329e5ac69ae29cc3a66f07bdccc975227e865b5b",
+    "/Users/n/numi-human-resting-study-source-20261005/matter/tools/resting_intervention_study.py": "c2610347642ff9badbea89ece4d4ec089cb2075d075a5347fed9c6ddbc3ace22",
+    "/Users/n/numi-human-resting-study-source-20261005/src/metal/MujocoMuscleReference.metal": "a6828c6d9907ae6768a72074c855ad06ce2da4e206909e6b1d65e7b8023b8173"
+  },
+  "checks": [
+    {
+      "id": "native_csv_required_columns_and_monotonic_time",
+      "passed": true,
+      "samples": 188
+    },
+    {
+      "expected": 6.00000028498,
+      "id": "native_csv_known_last_time",
+      "measured": 6.00000028498,
+      "passed": true
+    },
+    {
+      "expected": 39.3035583496,
+      "id": "native_csv_known_last_PaCO2",
+      "measured": 39.3035583496,
+      "passed": true
+    },
+    {
+      "expected": 7,
+      "id": "native_csv_known_complete_cycles",
+      "measured": 7.0,
+      "passed": true
+    },
+    {
+      "expected": 37.5,
+      "id": "known_value_window_mean",
+      "measured": 37.5,
+      "passed": true
+    },
+    {
+      "id": "reject_nonfinite_trace_values",
+      "passed": true
+    }
+  ],
+  "evidence": {
+    "/Users/n/numi-human-resting-evidence-20261005/dense45-pair-004/fgmres-6s.csv": "b1fefe034428e83d976241f483d064760a201ea46e7f3977bc6c1ee39e62d859"
+  },
+  "observed_units": [],
+  "schema": "numi.science.calibration.v1",
+  "scope": "Known-value native CSV parsing, monotonic accepted-time validation, finite-value rejection, and window-mean arithmetic only. This does not calibrate physiological sensors, the gas-exchange model, biological parameters, or clinical validity.",
+  "status": "passed"
+}

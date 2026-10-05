@@ -2039,6 +2039,24 @@ set_target_properties(
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
 )
 
+# The live resting scene reuses the exact source loaders, articulated owner,
+# tendon program and anatomy presentation in the existing Human application.
+# Cross-suite Brain dependency is explicit and excluded from ordinary builds.
+add_executable(numi-human-native EXCLUDE_FROM_ALL apps/numilab_human_myosim_visual_probe.mm)
+get_target_property(NUMI_HUMAN_VISUAL_DEFINITIONS metalrobo_numilab_human_myosim_visual_probe COMPILE_DEFINITIONS)
+target_compile_definitions(numi-human-native PRIVATE ${NUMI_HUMAN_VISUAL_DEFINITIONS}
+    NUMI_HUMAN_RESTING_SCENE=1
+    NUMI_HUMAN_RESPIRATION_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/HumanRespiration.metallib")
+target_include_directories(numi-human-native PRIVATE "${NUMI_BRAIN_ROOT}/Sources/NumiBrainABI/include")
+target_compile_options(numi-human-native PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+target_link_libraries(numi-human-native PRIVATE metalrobo
+    "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}" "${COREGRAPHICS_FRAMEWORK}" "${IMAGEIO_FRAMEWORK}"
+    "-framework AppKit" "-framework MetalKit" "-framework AVFoundation" "-framework CoreVideo" "-framework CoreMedia" "-framework QuartzCore")
+add_dependencies(numi-human-native numi_matter_shaders numi_human_respiration_shaders)
+set_target_properties(numi-human-native PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+    BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
+
 add_executable(
     metalrobo_numilab_human_tendon_fem_load_probe
     apps/numi_human_tendon_fem_load_probe.mm
@@ -5863,6 +5881,7 @@ install(
         numi/commands/evaluate
         numi/commands/foundation
         numi/commands/hyper-policy
+        numi/commands/human-resting
         numi/commands/matter
         numi/commands/motion
         numi/commands/neurons

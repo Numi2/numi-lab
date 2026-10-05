@@ -28,6 +28,13 @@ typedef struct NM_ALIGN16 NMHumanRespirationParameters {
     MRMujocoMuscleGPU muscles[2]; // diaphragm, inspiratory intercostals
 } NMHumanRespirationParameters;
 
+typedef struct NM_ALIGN16 NMHumanBloodBalanceLedger {
+    float continuityResidualSumM3;
+    float continuityResidualCompensationM3;
+    float physicalVolumeDeltaSumM3;
+    float physicalVolumeDeltaCompensationM3;
+} NMHumanBloodBalanceLedger;
+
 typedef struct NM_ALIGN16 NMHumanRespirationState {
     // Diaphragm/rib swept volume and velocities, SI.
     nm_float4 motion;
@@ -54,12 +61,18 @@ typedef struct NM_ALIGN16 NMHumanRespirationState {
     nm_float4 cardiacFlow;
     // Total blood, LV/RV chamber volume, maximum absolute blood error, m3.
     nm_float4 circulation;
+    // Right atrium, right ventricle, left atrium, left ventricle, m3.
+    // These are the actual four source chamber volumes used for geometry.
+    nm_float4 chamberVolumes;
     // Completed LV filling/ejection cycles, filling-seen, outlet-open, reserved.
     nm_uint4 cardiacStatus;
     // Max/min lung volume this cycle, last tidal volume, integrated inspiration.
     nm_float4 breath;
     // accepted steps, complete breaths, previous inspiration flag, failure code.
     nm_uint4 status;
+    // Compensated accepted-step ledgers separate global continuity residual,
+    // rounded physical volume delta, and endpoint summation rounding.
+    NMHumanBloodBalanceLedger bloodBalance;
 } NMHumanRespirationState;
 
 typedef struct NM_ALIGN16 NMHumanRespirationDispatch {

@@ -76,6 +76,9 @@ inline NMHumanRespirationState initializeRespiration(const NMHumanRespirationPar
     if(std::abs(totalBlood-0.00515)>1.e-8)throw std::runtime_error("reference blood budget changed");
     NMHumanRespirationState s{};
     s.mechanics={p.lung.x,0,p.environment.x,0};
+    s.chamberVolumes={w.vascular.unknowns[15].initialAndScaling.x,w.vascular.unknowns[16].initialAndScaling.x,
+        w.vascular.unknowns[19].initialAndScaling.x,w.vascular.unknowns[20].initialAndScaling.x};
+    s.circulation={float(totalBlood),s.chamberVolumes.w,s.chamberVolumes.y,0};
     const float arterialO2=100, venousO2=40, arterialCO2=40, venousCO2=46;
     auto oxygen=[&](float pressure){const float ratio=std::pow(pressure/p.oxygen.z,p.oxygen.w);return p.oxygen.x*ratio/(1+ratio)+p.oxygen.y*pressure;};
     auto co2=[&](float pressure){return p.carbonDioxide.x+p.carbonDioxide.y*(pressure-40);};

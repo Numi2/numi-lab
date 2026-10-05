@@ -3,6 +3,241 @@
 #include "MujocoMuscleReference.metal"
 #include "numi/matter/human_respiration.h"
 #include "RespiratoryChemoreflexV1.metal"
+#include "metalrobo/numi_human_stand_gpu.h"
+#include "metalrobo/numi_human_resting_visual_gpu.h"
+#include "NumiHumanRestingSupportGeometry.metalinc"
+
+inline float3 restingRotate(float4 q,float3 v) {
+    return v+2.0f*cross(q.xyz,cross(q.xyz,v)+q.w*v);
+}
+inline float4 restingRibRotation(constant MRHumanRestingAnatomyGPU& anatomy,uint rib,float excursion) {
+    const float angle=excursion*anatomy.ribPivotAndGain[rib].w;
+    return float4(anatomy.ribAxis[rib].xyz*sin(.5f*angle),cos(.5f*angle));
+}
+inline float3 restingRibPoint(constant MRHumanRestingAnatomyGPU& anatomy,uint rib,float4 rotation,float3 p) {
+    const float3 pivot=anatomy.ribPivotAndGain[rib].xyz;return pivot+restingRotate(rotation,p-pivot);
+}
+inline float nmHumanRestingCardiacVolume(constant MRHumanRestingAnatomyGPU& anatomy,uint chamber,float q) {
+    const float4 c=anatomy.chamberVolumePolynomial[chamber];return ((c.w*q+c.z)*q+c.y)*q+c.x;
+}
+// Four scalar roots are derived from the accepted hydraulic chamber volumes;
+// this presentation field never writes back into the physiological state.
+kernel void nm_human_resting_cardiac_q(
+    device const NMHumanRespirationState* respiration [[buffer(0)]],
+    constant MRHumanRestingAnatomyGPU& anatomy [[buffer(1)]],device float* qOut [[buffer(2)]],
+    uint chamber [[thread_position_in_grid]]) {
+    if(chamber>=4)return;
+    const float target=respiration[0].chamberVolumes[chamber];
+    float low=-.999f,high=1.0f;
+    if(!isfinite(target)||nmHumanRestingCardiacVolume(anatomy,chamber,low)>target||
+       nmHumanRestingCardiacVolume(anatomy,chamber,high)<target){qOut[chamber]=NAN;return;}
+    for(uint iteration=0;iteration<28;++iteration){
+        const float mid=.5f*(low+high);
+        if(nmHumanRestingCardiacVolume(anatomy,chamber,mid)<target)low=mid;else high=mid;
+    }
+    qOut[chamber]=.5f*(low+high);
+}
+kernel void nm_human_resting_skin(
+    constant uint4& d [[buffer(0)]], device const MRHumanRestingVertexMap* map [[buffer(1)]],
+    device const MRHumanRestingInfluence* influences [[buffer(2)]], device const MRBodyStateGPU* bodies [[buffer(3)]],
+    device MRVisualVertexGPUV2* vertices [[buffer(4)]],
+    device const NMHumanRespirationState* respiration [[buffer(5)]],
+    constant MRHumanRestingAnatomyGPU& anatomy [[buffer(6)]],device const float* cardiacQ [[buffer(7)]],
+    uint i [[thread_position_in_grid]]) {
+    if(i>=d.x)return;
+    auto m=map[i];if(!m.influenceCount)return;
+    float3 p=0,n=0,strongest=0;float strongestWeight=-1;
+    for(uint j=0;j<m.influenceCount;++j) {
+        auto influence=influences[m.firstInfluence+j];float w=influence.positionAndWeight.w;
+        float3 ni;
+        if(influence.body.x==MR_INVALID_INDEX) {
+            p+=w*influence.positionAndWeight.xyz;ni=influence.normal.xyz;
+        }else {
+            auto body=bodies[influence.body.x];
+            p+=w*(body.position.xyz+restingRotate(body.orientation,influence.positionAndWeight.xyz));
+            ni=restingRotate(body.orientation,influence.normal.xyz);
+        }
+        n+=w*ni;if(w>strongestWeight){strongestWeight=w;strongest=ni;}
+    }
+    if(m.deformationKind && anatomy.bodyAndFlags.y) {
+        auto body=bodies[anatomy.bodyAndFlags.x];
+        const float4 inverse=float4(-body.orientation.xyz,body.orientation.w);
+        float3 local=restingRotate(inverse,p-body.position.xyz);
+        float3 normal=restingRotate(inverse,n);
+        const auto state=respiration[0];
+        if(m.deformationKind==2) {
+            const float4 cavity=anatomy.chamberCenterAndVolume[m.chamberIndex];
+            const float weight=m.deformationWeight.x;
+            if(weight!=0.0f) {
+                const float scale=1.0f+cardiacQ[m.chamberIndex]*weight;
+                local=cavity.xyz+scale*(local-cavity.xyz);
+                normal/=scale;
+            }
+        } else if(m.deformationKind==8) {
+            const float q=cardiacQ[m.chamberIndex],weight=m.deformationWeight.w;
+            const float scale=1.0f+q*weight;
+            local+=m.deformationWeight.xyz*q*weight;
+            const float radialSquared=dot(m.deformationWeight.xyz,m.deformationWeight.xyz);
+            if(radialSquared>1.e-12f) {
+                const float3 radial=m.deformationWeight.xyz*rsqrt(radialSquared);
+                normal+=radial*dot(normal,radial)*(1.0f/scale-1.0f);
+            }
+        } else if(m.deformationKind==5||m.deformationKind==7||m.deformationKind==4) {
+            const float excursion=state.motion.y/anatomy.muscleAreas.y;
+            const float4 rotation=restingRibRotation(anatomy,m.chamberIndex,excursion);
+            float3 mapped=restingRibPoint(anatomy,m.chamberIndex,rotation,local);
+            float3 mappedNormal=restingRotate(rotation,normal);
+            if(m.deformationKind==7||m.deformationKind==4) {
+                const uint other=uint(m.deformationWeight.y);
+                const float4 otherRotation=restingRibRotation(anatomy,other,excursion);
+                mapped=mix(mapped,restingRibPoint(anatomy,other,otherRotation,local),m.deformationWeight.z);
+                mappedNormal=mix(mappedNormal,restingRotate(otherRotation,normal),m.deformationWeight.z);
+            }
+            if(m.deformationKind==4) {
+                const float3 superior=anatomy.superiorAxisAndHeight.xyz;
+                const float span=anatomy.diaphragmHeight.y-anatomy.diaphragmHeight.x;
+                const float dome=clamp((dot(local,superior)-anatomy.diaphragmHeight.x)/span,0.0f,1.0f);
+                const float displacement=state.motion.x/anatomy.muscleAreas.x;
+                mapped=mix(mapped,local,dome)-superior*(displacement*dome);
+                const float3 along=dot(normal,superior)*superior;
+                mappedNormal=normal-along+along/(1-displacement/span);
+            }
+            local=mapped;normal=mappedNormal;
+        } else if(m.deformationKind==6) {
+            local+=anatomy.anteriorAxis.xyz*(state.motion.y/anatomy.muscleAreas.y);
+        } else {
+            const float3 axis=anatomy.superiorAxisAndHeight.xyz;
+            const float height=anatomy.superiorAxisAndHeight.w;
+            const float axial=1.0f+state.motion.x/(anatomy.muscleAreas.x*height);
+            const float determinant=1.0f+(state.motion.x+state.motion.y)/anatomy.lungAnchorAndVolume.w;
+            const float radial=sqrt(determinant/axial);
+            const float3 offset=local-anatomy.lungAnchorAndVolume.xyz;
+            const float3 along=dot(offset,axis)*axis,across=offset-along;
+            const float weight=m.deformationKind==1?1.0f:m.deformationWeight.x;
+            const float3 mapped=anatomy.lungAnchorAndVolume.xyz+axial*along+radial*across;
+            local=mix(local,mapped,weight);
+            const float3 normalAlong=dot(normal,axis)*axis;
+            normal=normalAlong/mix(1.0f,axial,weight)+(normal-normalAlong)/mix(1.0f,radial,weight);
+        }
+        p=body.position.xyz+restingRotate(body.orientation,local);
+        n=restingRotate(body.orientation,normal);
+    }
+    vertices[i].position=float4(p,1);
+    const float3 unitNormal=normalize(dot(n,n)>1e-12f?n:strongest);
+    vertices[i].normalAndTangentSign=float4(unitNormal,1);
+    const float3 tangentAxis=abs(unitNormal.z)<.9f?float3(0,0,1):float3(0,1,0);
+    vertices[i].tangent=float4(normalize(cross(tangentAxis,unitNormal)),0);
+}
+kernel void nm_human_resting_layers(
+    constant uint4& d [[buffer(0)]], device MRVisualInstanceGPUV2* instances [[buffer(1)]],
+    device const uint* layerMask [[buffer(2)]],
+    uint i [[thread_position_in_grid]]) {
+    if(i>=d.y)return;
+    bool visible=d.z<7 && (layerMask[i]&(1u<<d.z));
+    uint bits=MR_VISUAL_INSTANCE_VISIBLE_TO_SENSOR|MR_VISUAL_INSTANCE_CASTS_SHADOW|MR_VISUAL_INSTANCE_RECEIVES_SHADOW;
+    instances[i].binding.w=visible?bits:0;
+}
+
+// Verify the actual submitted anatomical triangles against their mechanical
+// volume coordinates. Compact diagnostic readback only; no CPU deformation.
+kernel void nm_human_resting_audit_volumes(
+    constant uint4& d [[buffer(0)]],
+    device const MRHumanRestingSurfaceAuditGPU* surfaces [[buffer(1)]],
+    device const uint* indices [[buffer(2)]],
+    device const MRVisualVertexGPUV2* vertices [[buffer(3)]],
+    device const NMHumanRespirationState* respiration [[buffer(4)]],
+    constant MRHumanRestingAnatomyGPU& anatomy [[buffer(5)]],
+    device float4* result [[buffer(6)]],uint i [[thread_position_in_grid]]) {
+    if(i>=d.w)return;
+    const auto surface=surfaces[i];const uint4 owner=surface.indicesAndOwner;
+    const float3 origin=vertices[indices[owner.x]].position.xyz;
+    float volume=0,compensation=0;
+    for(uint j=owner.x;j<owner.x+owner.y;j+=3) {
+        const float3 a=vertices[indices[j]].position.xyz-origin;
+        const float3 b=vertices[indices[j+1]].position.xyz-origin;
+        const float3 c=vertices[indices[j+2]].position.xyz-origin;
+        const float y=dot(a,cross(b,c))/6.0f-compensation;
+        const float next=volume+y;compensation=(next-volume)-y;volume=next;
+    }
+    const auto state=respiration[0];
+    const float expected=owner.z==2?state.chamberVolumes[owner.w]:
+        surface.reference.x*(1+(state.motion.x+state.motion.y)/anatomy.lungAnchorAndVolume.w);
+    const float relative=abs(abs(volume)-expected)/expected;
+    result[i]=float4(abs(volume),expected,relative,!isfinite(relative)||relative>2.e-4f?1.0f:0.0f);
+}
+
+kernel void nm_human_resting_audit_skin(
+    constant uint4& d [[buffer(0)]], device const MRHumanRestingVertexMap* map [[buffer(1)]],
+    device const MRVisualVertexGPUV2* vertices [[buffer(2)]],device float4* result [[buffer(3)]],
+    uint lane [[thread_index_in_threadgroup]]) {
+    threadgroup float minimum[256];threadgroup uint owner[256],below[256],invalid[256];
+    float value=INFINITY;uint index=MR_INVALID_INDEX,count=0,nonfinite=0;
+    for(uint i=lane;i<d.x;i+=256) {
+        if(!all(isfinite(vertices[i].position))||!all(isfinite(vertices[i].normalAndTangentSign)))++nonfinite;
+        if(map[i].deformationKind!=3)continue;
+        const float z=vertices[i].position.z;
+        if(z<value){value=z;index=i;}if(z<-.001f)++count;
+    }
+    minimum[lane]=value;owner[lane]=index;below[lane]=count;invalid[lane]=nonfinite;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    for(uint stride=128;stride;stride>>=1) {
+        if(lane<stride) {
+            if(minimum[lane+stride]<minimum[lane]){minimum[lane]=minimum[lane+stride];owner[lane]=owner[lane+stride];}
+            below[lane]+=below[lane+stride];invalid[lane]+=invalid[lane+stride];
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+    if(lane==0)result[d.w]=float4(minimum[0],float(owner[0]),float(below[0]),float(invalid[0]));
+}
+
+kernel void nm_human_resting_prepare_world(
+    constant uint4& d [[buffer(0)]], device const MRNumiHumanStandStatusGPU* body [[buffer(1)]],
+    device MRMetalWorldStatusGPU* world [[buffer(2)]], uint i [[thread_position_in_grid]]) {
+    if(i)return;
+    MRMetalWorldStatusGPU s{};
+    s.code=body[0].code==MR_NUMI_HUMAN_STAND_SUCCESS?MR_STEP_SUCCESS:MR_STEP_DID_NOT_CONVERGE;
+    world[0]=s;(void)d;
+}
+kernel void nm_human_resting_validate_body(
+    constant uint4& d [[buffer(0)]], device const MRNumiHumanStandStatusGPU* body [[buffer(1)]],
+    device MRMetalWorldStatusGPU* world [[buffer(2)]], uint i [[thread_position_in_grid]]) {
+    if(i)return;
+    if(body[0].code!=MR_NUMI_HUMAN_STAND_SUCCESS||body[0].completedSteps!=d.x+1)
+        world[0].code=MR_STEP_DID_NOT_CONVERGE;
+}
+kernel void nm_human_resting_validate_matter(
+    constant uint4& d [[buffer(0)]], device MRNumiHumanStandStatusGPU* body [[buffer(1)]],
+    device const MRMetalWorldStatusGPU* world [[buffer(2)]],
+    device const NMMatterStatusGPU* matter [[buffer(3)]], uint i [[thread_position_in_grid]]) {
+    if(i)return;
+    if(body[0].code==MR_NUMI_HUMAN_STAND_SUCCESS&&
+       (world[0].code!=MR_STEP_SUCCESS||matter[0].code!=NM_STATUS_SUCCESS)) {
+        body[0].code=MR_NUMI_HUMAN_STAND_EXTERNAL_PHYSICS_FAILED;body[0].failingIndex=d.x;
+    }
+}
+kernel void nm_human_resting_capture(
+    constant uint4& d [[buffer(0)]], device const MRArticulatedBodyPoseGPU* poses [[buffer(1)]],
+    device const MRBodyStateGPU* properties [[buffer(2)]], device MRBodyStateGPU* bodies [[buffer(3)]],
+    device const NMHumanRespirationState* respiration [[buffer(4)]],
+    device NMHumanRespirationState* frame [[buffer(5)]],
+    device const MRNumiHumanStandStatusGPU* statuses [[buffer(6)]],uint i [[thread_position_in_grid]]) {
+    if(i>=d.y||statuses[0].code!=MR_NUMI_HUMAN_STAND_SUCCESS||respiration[0].status.x!=d.x)return;
+    auto b=properties[i];b.position=poses[i].position;
+    // Match the existing visualBodyStates boundary: presentation rotations
+    // are unit quaternions even when the physical pose stream has roundoff.
+    b.orientation=normalize(poses[i].orientation);bodies[i]=b;
+    if(i==0)frame[0]=respiration[0];
+}
+
+kernel void nm_human_resting_present_commit(
+    constant uint4& d [[buffer(0)]], device const MRBodyStateGPU* candidateBodies [[buffer(1)]],
+    device const NMHumanRespirationState* candidateRespiration [[buffer(2)]],
+    device MRBodyStateGPU* bodies [[buffer(3)]], device NMHumanRespirationState* respiration [[buffer(4)]],
+    device const MRNumiHumanStandStatusGPU* statuses [[buffer(5)]],uint i [[thread_position_in_grid]]) {
+    if(i>=d.y||statuses[0].code!=MR_NUMI_HUMAN_STAND_SUCCESS||
+       statuses[0].completedSteps!=d.x+1||candidateRespiration[0].status.x!=d.x)return;
+    bodies[i]=candidateBodies[i];if(i==0)respiration[0]=candidateRespiration[0];
+}
 
 kernel void nm_human_respiration_brain_observe(
     constant NMHumanRespirationBrainDispatch& d [[buffer(0)]],
@@ -220,6 +455,48 @@ kernel void nm_human_respiration_exchange(
         human_respiration::physical(vascularAfter,unknowns,base,20),
         human_respiration::physical(vascularAfter,unknowns,base,16),
         max(n.circulation.w,abs(bloodVolume-0.00515f)));
+    // In the closed 21-compartment network every edge is internal: its signed
+    // dt*Q term appears once at each endpoint and cancels in the global volume
+    // equation. Thus the global continuity residual is the sum of each node's
+    // normalized volume term. Compare that with the rounded physical delta;
+    // their difference isolates state-normalization arithmetic, while the
+    // endpoint total also includes its simple FP32 reduction-order error.
+    float stepResidual=0,stepResidualCorrection=0;
+    float stepPhysicalDelta=0,stepPhysicalDeltaCorrection=0;
+    for(uint node=0;node<p.topology.z;++node) {
+        const float oldNormalized=vascularBefore[base+node].x;
+        const float newNormalized=vascularAfter[base+node].x;
+        const float scale=unknowns[node].initialAndScaling.y;
+        const float volumeTerm=scale*(newNormalized-oldNormalized);
+        const float oldPhysical=scale*oldNormalized;
+        const float newPhysical=scale*newNormalized;
+        const float physicalDelta=newPhysical-oldPhysical;
+        const float residualAdjusted=volumeTerm-stepResidualCorrection;
+        const float residualNext=stepResidual+residualAdjusted;
+        stepResidualCorrection=(residualNext-stepResidual)-residualAdjusted;
+        stepResidual=residualNext;
+        const float physicalAdjusted=physicalDelta-stepPhysicalDeltaCorrection;
+        const float physicalNext=stepPhysicalDelta+physicalAdjusted;
+        stepPhysicalDeltaCorrection=(physicalNext-stepPhysicalDelta)-physicalAdjusted;
+        stepPhysicalDelta=physicalNext;
+    }
+    const float residualValue=stepResidual-stepResidualCorrection;
+    const float residualAdjusted=residualValue-n.bloodBalance.continuityResidualCompensationM3;
+    const float residualNext=n.bloodBalance.continuityResidualSumM3+residualAdjusted;
+    n.bloodBalance.continuityResidualCompensationM3=
+        (residualNext-n.bloodBalance.continuityResidualSumM3)-residualAdjusted;
+    n.bloodBalance.continuityResidualSumM3=residualNext;
+    const float physicalValue=stepPhysicalDelta-stepPhysicalDeltaCorrection;
+    const float physicalAdjusted=physicalValue-n.bloodBalance.physicalVolumeDeltaCompensationM3;
+    const float physicalNext=n.bloodBalance.physicalVolumeDeltaSumM3+physicalAdjusted;
+    n.bloodBalance.physicalVolumeDeltaCompensationM3=
+        (physicalNext-n.bloodBalance.physicalVolumeDeltaSumM3)-physicalAdjusted;
+    n.bloodBalance.physicalVolumeDeltaSumM3=physicalNext;
+    n.chamberVolumes=float4(
+        human_respiration::physical(vascularAfter,unknowns,base,15),
+        human_respiration::physical(vascularAfter,unknowns,base,16),
+        human_respiration::physical(vascularAfter,unknowns,base,19),
+        human_respiration::physical(vascularAfter,unknowns,base,20));
     const float aortic=max(0.0f,human_respiration::physical(vascularAfter,unknowns,base,21));
     const float pulmonary=max(0.0f,human_respiration::physical(vascularAfter,unknowns,base,41));
     const float mitral=max(0.0f,human_respiration::physical(vascularAfter,unknowns,base,44));

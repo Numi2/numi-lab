@@ -1,0 +1,54 @@
+{
+  "schema": "numi.human.terminal-joint-equality-audit.v1",
+  "run_invocation_sha256": "1f2c7ded2ca20596471e58e12ed9b534c6e5ed222fbc535ec19f39fac231f733",
+  "rigid_payload_sha256": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4",
+  "equality_payload_sha256": "0e3c593792a8c4ccd619f1999f6685b68e6ff0fd5ae5f6f0bca66b594a0e9b88",
+  "terminal_step_count": 15000,
+  "q_count": 129,
+  "nheq_records": 51,
+  "method": "evaluate source NHEQ1 polynomial on retained terminal native fp32 q; no projection or physics",
+  "maximum_absolute_equality_residual": 4.3511949598951105e-10,
+  "worst_record_index": 0,
+  "dependent_q_index": 12,
+  "master_q_index": 7,
+  "signed_residual": -4.3511949598951105e-10,
+  "dependent_target": -0.00817425226121582,
+  "terminal_dependent_q": -0.008174252696335316,
+  "top_5_residuals": [
+    {
+      "abs_error": 4.3511949598951105e-10,
+      "record": 0,
+      "dependent_q": 12,
+      "master_q": 7,
+      "signed_error": -4.3511949598951105e-10
+    },
+    {
+      "abs_error": 9.181141437386575e-11,
+      "record": 50,
+      "dependent_q": 128,
+      "master_q": 120,
+      "signed_error": -9.181141437386575e-11
+    },
+    {
+      "abs_error": 7.44320161061296e-11,
+      "record": 4,
+      "dependent_q": 16,
+      "master_q": 7,
+      "signed_error": 7.44320161061296e-11
+    },
+    {
+      "abs_error": 6.274436525899318e-11,
+      "record": 7,
+      "dependent_q": 19,
+      "master_q": 7,
+      "signed_error": -6.274436525899318e-11
+    },
+    {
+      "abs_error": 5.6065180276121396e-11,
+      "record": 3,
+      "dependent_q": 14,
+      "master_q": 8,
+      "signed_error": 5.6065180276121396e-11
+    }
+  ]
+}

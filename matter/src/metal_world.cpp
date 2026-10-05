@@ -71,16 +71,19 @@ std::uint64_t programFingerprint(
     return fingerprint == 0u ? 1u : fingerprint;
 }
 
-bool encodeMetalWorldMatter(
-    void* context,
-    const metalrobo::MetalWorldDevicePhysicsPass& pass
+} // namespace
+
+bool encodeMetalWorldDevicePhysics(
+    Runtime& runtime,
+    const metalrobo::MetalWorldDevicePhysicsPass& pass,
+    void* extensionContext,
+    EncodeAcceptedStepExtension extension
 ) {
-    if (context == nullptr || pass.commandBuffer == nullptr ||
+    if (pass.commandBuffer == nullptr ||
         pass.physicsSubsteps == 0u ||
         pass.physicsSubstep >= pass.physicsSubsteps) {
         return false;
     }
-    auto& runtime = *static_cast<Runtime*>(context);
     const float cookedTimestep = runtime.timestepSeconds();
     if (!std::isfinite(pass.timestepSeconds) ||
         !(pass.timestepSeconds > 0.0f) ||
@@ -152,6 +155,8 @@ bool encodeMetalWorldMatter(
     request.rigidWorldPhysicsSubstep = pass.physicsSubstep;
     request.seed = pass.seed;
     request.timestepSeconds = cookedTimestep;
+    request.acceptedStepExtensionContext = extensionContext;
+    request.encodeAcceptedStepExtension = extension;
     // A MetalWorld submission encodes its full rollout horizon into one
     // command buffer. Identification therefore updates/samples once at the
     // beginning of that horizon; later control steps consume the same
@@ -166,6 +171,15 @@ bool encodeMetalWorldMatter(
         request.phase == EncodePhase::postCommit &&
         matterPhysicsSubstep + 1u == matterPhysicsSubsteps;
     return runtime.encode(request).encoded;
+}
+
+namespace {
+bool encodeMetalWorldMatter(
+    void* context,
+    const metalrobo::MetalWorldDevicePhysicsPass& pass
+) {
+    return context != nullptr && encodeMetalWorldDevicePhysics(
+        *static_cast<Runtime*>(context), pass, nullptr, nullptr);
 }
 
 void abortMetalWorldMatter(

@@ -184,6 +184,65 @@ struct MetalNumiHumanTendonLoadProgram {
     }
 };
 
+// Optional current-pose support-surface query refresh. The callback is offered
+// after current-step kinematics, MyoSim/tendon evaluation, and the Human/Matter
+// pre-dynamics apply, immediately before the existing stand contact solver.
+// It may write only the pointWorld, pointPositionLow, and pointJacobians rows
+// addressed by the immutable stand.contacts pointQueryIndex values. Body
+// poses, paired body positions, support rows, and every other point row are
+// borrowed read-only. Implementations append work to the same command buffer;
+// they must not commit, wait, retain, read back, or replace borrowed resources.
+struct MetalNumiHumanSupportGeometryPass {
+    std::uint32_t abiVersion = 1u;
+    std::uint32_t structSize = sizeof(MetalNumiHumanSupportGeometryPass);
+    void* commandBuffer = nullptr;
+    void* bodyPoses = nullptr;
+    void* bodyPositionLow = nullptr;
+    void* pointWorld = nullptr;
+    void* pointPositionLow = nullptr;
+    void* pointJacobians = nullptr;
+    void* standContacts = nullptr;
+    std::uint32_t stepIndex = 0u;
+    std::uint32_t articulationFirstBody = 0u;
+    std::uint32_t bodyJacobianPointOffset = MR_INVALID_INDEX;
+    std::uint32_t dofCount = 0u;
+    std::uint64_t environmentCount = 0u;
+    std::uint64_t bodyCount = 0u;
+    std::uint64_t bodyPoseStride = 0u;
+    std::uint64_t bodyPoseElementCount = 0u;
+    std::uint64_t pointCount = 0u;
+    std::uint64_t pointWorldStride = 0u;
+    std::uint64_t pointWorldElementCount = 0u;
+    std::uint64_t pointJacobianStride = 0u;
+    std::uint64_t pointJacobianElementCount = 0u;
+    std::uint64_t standContactCount = 0u;
+    mr_float4 groundPoint{};
+    mr_float4 groundNormal{};
+};
+
+using MetalNumiHumanSupportGeometryEncode = bool (*)(
+    void* context, const MetalNumiHumanSupportGeometryPass& pass
+);
+using MetalNumiHumanSupportGeometryAbort = void (*)(
+    void* context, void* commandBuffer
+);
+
+struct MetalNumiHumanSupportGeometryProgram {
+    void* context = nullptr;
+    MetalNumiHumanSupportGeometryEncode encodePreDynamics = nullptr;
+    MetalNumiHumanSupportGeometryAbort abort = nullptr;
+    std::uint64_t fingerprint = 0u;
+
+    [[nodiscard]] bool valid() const noexcept {
+        return context != nullptr && encodePreDynamics != nullptr &&
+            abort != nullptr && fingerprint != 0u;
+    }
+    [[nodiscard]] bool configured() const noexcept {
+        return context != nullptr || encodePreDynamics != nullptr ||
+            abort != nullptr || fingerprint != 0u;
+    }
+};
+
 enum class MetalNumanXTransactionPhase : std::uint32_t {
     beginStep = 0u,
     preDynamics = 1u,
@@ -1653,6 +1712,7 @@ struct MetalNumiHumanStandInput {
     std::span<const MRNumiHumanTendonBindingGPU> tendonBindings{};
     std::span<const MRNumiHumanTendonEnvelopeGPU> tendonEnvelopes{};
     MetalNumiHumanTendonLoadProgram tendonLoadProgram{};
+    MetalNumiHumanSupportGeometryProgram supportGeometryProgram{};
     MetalNumanXTransactionProgram numanXTransactionProgram{};
     MetalNumanXHumanMatterProgram numanXHumanMatterProgram{};
     // Local steps encoded by this submission. A caller that must observe an
