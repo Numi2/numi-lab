@@ -1,0 +1,20 @@
+{
+  "schema": "numi.human.source-revision-reconciliation.v1",
+  "run_invocation_sha256": "7df38a44548be100a97bc60a1a796f029d23be1cf5161ec95ee5eacbe9c2c4da",
+  "invocation_source_revision_field": "0d71d9cb6dd813a2934c825079b9720dc097b523",
+  "invocation_source_revision_field_status": "stale inherited value; do not treat as the complete source revision for this build",
+  "invocation_created_utc": "2026-10-05T06:01:31.080815+00:00",
+  "local_authoring_checkout_head_observed_after_run": "4a0bfcecc97b68c67f5240eb784ddd30d3869d14",
+  "mini_checkout_git_metadata_available": false,
+  "complete_remote_git_revision_claim": false,
+  "authoritative_runtime_identity": {
+    "executable_sha256": "f69d9d8215db84996e3f11e517893ddd84c32a06570b579b449a0fa0a4edf2a8",
+    "libmetalrobo_dylib_sha256": "8aeff068fe9cf9bae314907aa6dfc58daab38a1dcd36a88c29b734451883e73d",
+    "numi_human_constraint_projection_header_sha256": "171715576ad7104d3784a26bf80bd9708148c9beb67fce406cc4eef155bd1069",
+    "numi_human_stand_solve_metalinc_sha256": "a60c33d4fc07812d12d730cdd7a44ccfd1acb00284a62ee427cbdcf162acf839",
+    "constraint_projection_regression_source_sha256": "ee320e1d1f6da8b57d498c59e1fe5df99ad79d03239b6e3b41cfdc41d1d5a5d1",
+    "other_runtime_metallibs": "See invocation.json assets and execution.json postrun_asset_sha256; all six are recorded and unchanged."
+  },
+  "inherited_source_inventory_note": "The invocation's source_file_sha256 map was copied from the pre-fix 30-second manifest and therefore contains old hashes for the constraint header and its focused test. The source_and_runtime_hashes_before/after map records the exact tested values. The immutable invocation was not rewritten after launch.",
+  "boundary": "The exact executable, libraries, consumed assets, and modified constraint source are hash-bound. The full remote checkout commit cannot be claimed because the Mini checkout has no Git metadata and its source mirror was not a single frozen Git worktree."
+}

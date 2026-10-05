@@ -1,5 +1,10 @@
 #pragma once
 
+#if !defined(__METAL_VERSION__)
+#include <cmath>
+#include <limits>
+#endif
+
 // Scalar policy shared by the Metal standing owner and portable regressions.
 // Callers validate finite inputs, positive dt/response, ordered position bounds,
 // and stabilization in [0,1]. No mass, force, or timestep is hidden here.
@@ -60,7 +65,20 @@ inline float mrNumiHumanLowerLimitVelocityTarget(
     if (gap >= 0.0f) return -gap / timestep;
     const float slop = mrNumiHumanPositionLimitSlop(position, lower);
     if (gap >= -slop) return 0.0f;
-    const float correction = -0.2f * (gap + slop) / timestep;
+    // Once a coordinate has left the representational band, return it to the
+    // band edge in one constrained step. The existing limit row applies the
+    // corresponding unilateral generalized impulse; a fractional correction
+    // can leave a persistent source-range overshoot after FP32 integration.
+    // nextafter() moves the correction goal by one representable q value
+    // toward the legal interval. This compensates for the final FP32 q
+    // integration rounding without changing the accepted 16-epsilon band.
+#if defined(__METAL_VERSION__)
+    const float targetPosition = nextafter(lower + slop, INFINITY);
+#else
+    const float targetPosition = std::nextafter(
+        lower + slop, std::numeric_limits<float>::infinity());
+#endif
+    const float correction = (targetPosition - position) / timestep;
     return correction < 4.0f ? correction : 4.0f;
 }
 

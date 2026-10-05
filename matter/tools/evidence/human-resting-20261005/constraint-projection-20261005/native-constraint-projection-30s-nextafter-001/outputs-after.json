@@ -1,0 +1,38 @@
+{
+  "invocation_sha256": "7df38a44548be100a97bc60a1a796f029d23be1cf5161ec95ee5eacbe9c2c4da",
+  "outputs": {
+    "constraint-projection-summary.json": {
+      "sha256": "6e47f8999257b1a080763fea47c956259cfe55d6a9bced203956fa5f55004bce",
+      "size_bytes": 1718
+    },
+    "native-viewer.mov": {
+      "sha256": "c36ac403d771fee6acfaa5d6d7982955e53fccc5d78a53c43cd00fe19e52f0fe",
+      "size_bytes": 4196189
+    },
+    "resting-coupled.csv": {
+      "sha256": "5ead0f40acb2690f54ee3f8151061b5fc077938e0c5cace466e079f86d3141e9",
+      "size_bytes": 265291
+    },
+    "resting-human.mrvpack": {
+      "sha256": "2408dbca925df801d6c1bd3dca4cd885e1c4cade449d649c2b98b8da3a2c7768",
+      "size_bytes": 177201152
+    },
+    "resting-surface-audit.csv": {
+      "sha256": "72e2ccf9c3ec9253eeffebf6900bd9c23e72e06869fda5a7e85ea97ab41dedad",
+      "size_bytes": 58978
+    },
+    "run.log": {
+      "sha256": "d1f014142484131404cd8162659744baf331438990e559f070197ca066054542",
+      "size_bytes": 157259
+    },
+    "terminal-equality-audit.json": {
+      "sha256": "6cd26df03c92fbe4dda708757dcde18b295f784038ce6bffe7e2bf92a8baa9f7",
+      "size_bytes": 7552
+    },
+    "terminal-source-range-audit.json": {
+      "sha256": "e61376ee55b52df17bae784265bcf5bdaa3049c9cdc61cc75c26fadd3f5f4809",
+      "size_bytes": 12054
+    }
+  },
+  "schema": "numi.human.native-run-outputs.v1"
+}

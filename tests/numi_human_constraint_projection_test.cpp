@@ -4,6 +4,7 @@
 #include <array>
 #include <cmath>
 #include <iostream>
+#include <limits>
 #include <stdexcept>
 
 namespace {
@@ -97,18 +98,44 @@ int main() {
                         1.0f, dt) == 0.0f,
                     "sub-ULP upper-limit drift became a timestep-amplified correction");
         }
-        const float expectedLowerCorrection =
-            0.2f * (0.001f - mrNumiHumanPositionLimitSlop(-0.001f, 0.0f)) /
-            0.01f;
-        const float expectedUpperCorrection =
-            -0.2f * (0.001f - mrNumiHumanPositionLimitSlop(1.001f, 1.0f)) /
-            0.01f;
-        require(close(mrNumiHumanLowerLimitVelocityTarget(-0.001f, 0, 0.01f),
-                      expectedLowerCorrection),
-                "penetration stabilization outside the representational band changed");
-        require(close(mrNumiHumanUpperLimitVelocityTarget(1.001f, 1, 0.01f),
-                      expectedUpperCorrection),
-                "upper penetration stabilization outside the representational band changed");
+        const float lowerSlop = mrNumiHumanPositionLimitSlop(-0.001f, 0.0f);
+        const float lowerTarget = std::nextafter(lowerSlop, INFINITY);
+        const float expectedLowerCorrection = (lowerTarget + 0.001f) / 0.01f;
+        const float upperPositionOutside = 1.001f;
+        const float upperSlop = mrNumiHumanPositionLimitSlop(
+            upperPositionOutside, 1.0f);
+        const float upperTarget = std::nextafter(
+            1.0f - upperSlop, -std::numeric_limits<float>::infinity());
+        const float expectedUpperCorrection = (upperTarget - upperPositionOutside) / 0.01f;
+        const float lowerCorrection = mrNumiHumanLowerLimitVelocityTarget(
+            -0.001f, 0, 0.01f);
+        const float upperCorrection = mrNumiHumanUpperLimitVelocityTarget(
+            1.001f, 1, 0.01f);
+        require(close(lowerCorrection, expectedLowerCorrection),
+                "lower-limit impulse target no longer returns to the existing slop band");
+        require(close(upperCorrection, expectedUpperCorrection),
+                "upper-limit impulse target no longer returns to the existing slop band");
+        require(close(-0.001f + 0.01f * lowerCorrection,
+                      lowerTarget, 2.0e-7f),
+                "lower-limit velocity target fails to reach its representable interior goal");
+        require(close(1.001f + 0.01f * upperCorrection,
+                      upperTarget, 2.0e-7f),
+                "upper-limit velocity target fails to reach its representable interior goal");
+        for (const auto [position, lower, upper] : {
+                 std::array<float, 3>{-0.7854002714157104f,
+                     -0.785398006439209f, 0.785398006439209f},
+                 std::array<float, 3>{0.7854002714157104f,
+                     -0.785398006439209f, 0.785398006439209f}}) {
+            const float dt = 0.002f;
+            const float slop = mrNumiHumanPositionLimitSlop(position,
+                position < lower ? lower : upper);
+            const float integrated = position + dt *
+                (position < lower
+                    ? mrNumiHumanLowerLimitVelocityTarget(position, lower, dt)
+                    : mrNumiHumanUpperLimitVelocityTarget(position, upper, dt));
+            require(integrated >= lower - slop && integrated <= upper + slop,
+                    "one-ULP inward goal leaves a source stop outside the unchanged acceptance band");
+        }
         for (const float dt : {1.0e-4f, 5.0e-5f, 2.5e-5f, 1.25e-5f}) {
             const float force = 981.0f;
             const float response = 0.01f;

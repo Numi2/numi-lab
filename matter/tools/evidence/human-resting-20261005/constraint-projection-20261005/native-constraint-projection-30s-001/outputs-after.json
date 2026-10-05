@@ -1,0 +1,38 @@
+{
+  "invocation_sha256": "dd1ee5fb78c2d677eaf4c1f6aa797c1e266ff298a1926f56a452175ad594d0bf",
+  "outputs": {
+    "native-viewer.mov": {
+      "sha256": "e163238213f7a75dc1ebe1c1c26de7da869745fbf0378e816e6957683ef69ff4",
+      "size_bytes": 4194970
+    },
+    "receipt-writer-failure.txt": {
+      "sha256": "90da7582146217996611ccbef66a8ae2f8771c62ad455d52e2caa699da718710",
+      "size_bytes": 477
+    },
+    "resting-coupled.csv": {
+      "sha256": "dc48536eac501211665119ee395164d2e184d9a3529b802d722db6595ebff18c",
+      "size_bytes": 265304
+    },
+    "resting-human.mrvpack": {
+      "sha256": "2408dbca925df801d6c1bd3dca4cd885e1c4cade449d649c2b98b8da3a2c7768",
+      "size_bytes": 177201152
+    },
+    "resting-surface-audit.csv": {
+      "sha256": "0730a702181cf0b84bbc140c5663bc8e18e92a6b8bc65e09b1267e76c5718d05",
+      "size_bytes": 58972
+    },
+    "run.log": {
+      "sha256": "2f9aaad0be25940c75b4b8a35c465965830c7b175ddcba94942994558ae02318",
+      "size_bytes": 157190
+    },
+    "terminal-equality-audit.json": {
+      "sha256": "693fc674581655a4871c128fd1833579f588c69dd3665c2e453bd0d0336774bc",
+      "size_bytes": 7551
+    },
+    "terminal-source-range-audit.json": {
+      "sha256": "f495a305e7ab734fb1945a7f78f8c52811c65815a77cecababbc26888a526678",
+      "size_bytes": 14037
+    }
+  },
+  "schema": "numi.human.native-run-outputs.v1"
+}
