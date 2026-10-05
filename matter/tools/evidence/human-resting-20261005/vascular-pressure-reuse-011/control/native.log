@@ -1,0 +1,501 @@
+rigid_source_rest_frames=passed source_body_count=103 maximum_COM_position_residual_m=6.26739049493e-08 maximum_orientation_unit_witness_residual_m=1.05692510994e-07 allowed_rest_reconstruction_residual_m=1e-06 rigid_sha256=2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4 boundary=consumed_reference_frame_join_not_source_authentication_or_loaded_motion
+resting_mass_calibration source_composite_kg=97.1319506911 declared_reference_kg=72 executed_kg=71.9999993989 uniform_mass_inertia_scale=0.741259694099 measured_person=false additional_organ_or_blood_mass_kg=0
+bone_orientation_semantics=unit_normalized_once_at_load bone_count=185 maximum_raw_norm_error=5.96046447754e-08 norm_admission_tolerance=0.00200000009499 bone_sha256=7d94e2f28ac6cea30c6c11a79919077acc40281636eb20b11b50b50aebd3ec49
+tendon_bone_geometry=checked_bodyparts_subset bodyparts_envelope_count=160 fixed_sibling_envelope_count=0 external_surface_unverified_count=0 maximum_node_residual_m=2.77883934062e-07 allowed_point_residual_m=1e-06 tendon_sha256=52819336540a36621b60bd03b5084bd1d300ed2971673cfd0ccdb7eecfcb52b5 bone_sha256=7d94e2f28ac6cea30c6c11a79919077acc40281636eb20b11b50b50aebd3ec49 rigid_sha256=2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4 boundary=consumed_rest_surface_binding_not_loaded_or_clinical_qualification
+tendon_payload=NHTENDON2 tendon_endpoints=832 tendon_point_bindings=672 tendon_triangle_bindings=0 tendon_envelope_bindings=160 tendon_migrated_envelope_bindings=0 tendon_max_reference_path_delta_m=0 tendon_max_architecture_scale_change=0 tendon_muscle_payload_sha256=e5bb8a8168706bb3b23cf42b1d849659569ba2e6027bcc85729c3110fdbb8c4b tendon_geometry_identity_verified=true tendon_bone_payload_sha256=7d94e2f28ac6cea30c6c11a79919077acc40281636eb20b11b50b50aebd3ec49
+joint_equality_payload=NHEQ1 joint_equalities=51
+pose_joint_ranges=passed enabled_range_count=118 failed_range_count=0 rigid_sha256=2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4 equality_sha256=0e3c593792a8c4ccd619f1999f6685b68e6ff0fd5ae5f6f0bca66b594a0e9b88 bone_sha256=7d94e2f28ac6cea30c6c11a79919077acc40281636eb20b11b50b50aebd3ec49 boundary=consumed_enabled_native_limits_after_NHEQ_projection_not_disabled_source_limits_or_loaded_motion
+pose_q_override_count=0 root_pose_override=1 pose_q_equality_maximum_correction=0.0105060003698
+runtime=Numi Matter runtime initialized with eligible dense45 vascular solve device=Apple M4 Pro world_fingerprint=6434571789366693551 timestep_s=0.00200000009499
+resting_body_source_fingerprint=4239144087961668832 coupled_program_fingerprint=12067436715041705397
+resting_passive_viscera=shared_torso_pelvis_field source_surfaces=80 caudal_m=-0.397011578083 cranial_m=-0.259147137403 upper_body=20 lower_body=128 independent_forces=false independent_mass=false organ_physiology=false
+resting_lung_motion=basal_superior_sweep_v1 blend_start_m=-0.052405 blend_span_m=0.06 effective_area_m2=0.0193752665191
+resting_initial_anatomical_registration={"body_poses":[{"body_index":20,"position_m":[-0.025000007823109627,-0.44271242618560791,0.096546053886413574],"quaternion_xyzw":[0.0061705871485173702,-0.70707988739013672,-0.0061705652624368668,0.70707988739013672]},{"body_index":128,"position_m":[-0.025055751204490662,-0.83042281866073608,0.11920696496963501],"quaternion_xyzw":[0.0058914260007441044,-0.70680069923400879,-0.005886733066290617,0.7073637843132019]}],"coordinate_source":"source pack transformed by native initialBodies before physical stepping","surfaces":[{"role":"upper_visceral_anchor","semantic":51010,"source_body_index":20,"stable_id":2,"torso_local_max_m":[0.1489698737859726,-0.06762242317199707,0.029034055769443512],"torso_local_min_m":[0.035220548510551453,-0.18552298843860626,-0.10646510124206543]},{"role":"upper_visceral_anchor","semantic":51010,"source_body_index":20,"stable_id":3,"torso_local_max_m":[0.10061360895633698,-0.14701209962368011,0.048131499439477921],"torso_local_min_m":[0.049258694052696228,-0.22131331264972687,-0.073365472257137299]},{"role":"upper_visceral_anchor","semantic":51010,"source_body_index":20,"stable_id":4,"torso_local_max_m":[0.065826825797557831,-0.15392428636550903,0.088104061782360077],"torso_local_min_m":[0.018313027918338776,-0.25914710760116577,0.030521268025040627]},{"role":"upper_visceral_anchor","semantic":51010,"source_body_index":20,"stable_id":5,"torso_local_max_m":[0.054068014025688171,-0.1345781683921814,-0.033227771520614624],"torso_local_min_m":[0.013165432959794998,-0.24133054912090302,-0.091208852827548981]},{"role":"upper_visceral_anchor","semantic":51010,"source_body_index":20,"stable_id":13,"torso_local_max_m":[0.095457650721073151,-0.10293921083211899,-0.056195467710494995],"torso_local_min_m":[-0.00033182650804519653,-0.17370373010635376,-0.11487260460853577]},{"role":"upper_visceral_anchor","semantic":51010,"source_body_index":20,"stable_id":14,"torso_local_max_m":[0.094544753432273865,-0.055873673409223557,0.033946555107831955],"torso_local_min_m":[0.058444060385227203,-0.13125307857990265,-0.011481210589408875]},{"role":"upper_visceral_anchor","semantic":51010,"source_body_index":20,"stable_id":15,"torso_local_max_m":[0.15468204021453857,-0.051299087703227997,-0.0026821792125701904],"torso_local_min_m":[0.045374639332294464,-0.10517608374357224,-0.095222979784011841]},{"role":"upper_visceral_anchor","semantic":51010,"source_body_index":20,"stable_id":16,"torso_local_max_m":[0.15707412362098694,-0.071360647678375244,0.0014663934707641602],"torso_local_min_m":[0.07356831431388855,-0.138477623462677,-0.074144557118415833]},{"role":"upper_visceral_anchor","semantic":51010,"source_body_index":20,"stable_id":17,"torso_local_max_m":[0.15518583357334137,-0.04497130960226059,0.046523258090019226],"torso_local_min_m":[0.074793577194213867,-0.16443367302417755,-0.011679999530315399]},{"role":"upper_visceral_anchor","semantic":51010,"source_body_index":20,"stable_id":18,"torso_local_max_m":[0.15332278609275818,-0.10873293876647949,0.10524313896894455],"torso_local_min_m":[0.06183064728975296,-0.17893320322036743,0.026367701590061188]},{"role":"upper_visceral_anchor","semantic":51010,"source_body_index":20,"stable_id":19,"torso_local_max_m":[0.11932293325662613,-0.11438564956188202,0.11530916392803192],"torso_local_min_m":[-0.0020214840769767761,-0.19753372669219971,0.021444413810968399]},{"role":"upper_visceral_anchor","semantic":51010,"source_body_index":20,"stable_id":20,"torso_local_max_m":[0.11958994716405869,-0.11408335715532303,0.11550363898277283],"torso_local_min_m":[-0.0022704675793647766,-0.19755388796329498,0.021117139607667923]},{"role":"upper_visceral_anchor","semantic":51010,"source_body_index":20,"stable_id":21,"torso_local_max_m":[0.10608795285224915,-0.049535799771547318,0.11580190062522888],"torso_local_min_m":[-0.0032210424542427063,-0.13487040996551514,0.020207773894071579]},{"role":"upper_visceral_anchor","semantic":51010,"source_body_index":20,"stable_id":22,"torso_local_max_m":[0.15336306393146515,-0.041172627359628677,0.11002320796251297],"torso_local_min_m":[0.02455456554889679,-0.11670317500829697,0.017514020204544067]},{"role":"upper_visceral_anchor","semantic":51010,"source_body_index":20,"stable_id":461,"torso_local_max_m":[0.13303953409194946,-0.13353027403354645,0.063625447452068329],"torso_local_min_m":[0.084262087941169739,-0.17424784600734711,0.026906765997409821]},{"role":"pelvic_anchor","semantic":51010,"source_body_index":20,"stable_id":462,"torso_local_max_m":[0.08233652263879776,-0.39701157808303833,0.034268602728843689],"torso_local_min_m":[0.010075983591377735,-0.43757495284080505,-0.033010013401508331]},{"role":"pelvic_anchor","semantic":51010,"source_body_index":20,"stable_id":463,"torso_local_max_m":[0.050315443426370621,-0.4348473846912384,0.01782398484647274],"torso_local_min_m":[0.018116317689418793,-0.4553583562374115,-0.016720972955226898]}],"torso_body_index":20}
+resting_support_geometry=full_registered_skin vertices=54949 regions=32 full_binding_count=86 region_sizes=[6907,1222,2796,2044,1525,1394,710,777,1891,1262,810,832,890,483,1328,1266,835,700,870,3097,4320,2043,1882,579,1199,1219,962,632,868,3302,4308,1996] force_owner=ex2026-10-05 16:27:27.064 numi-human-native[19364:15943946] +[NSXPCSharedListener endpointForReply:withListenerName:replyErrorCode:]: an error occurred while attempting to obtain endpoint for listener 'ClientCallsAuxiliary': Connection interrupted
+2026-10-05 16:27:27.135 numi-human-native[19364:15943946] Human native framebuffer output: recording; window drawable unavailable
+isting_metal_stand partition=source_rest_voronoi
+human_execution_stage=static_equilibrium_begin wall_elapsed_ms=0 stage_step=0
+compiled_support_geometry=admissible compiled_support_min_gap_m=-1.38777878078e-17 compiled_support_gap_tolerance_m=1e-06 compiled_support_activation_distance_m=0.002 compiled_support_separated_witnesses=31 compiled_support_max_separated_force_n=0 compiled_support_rejected_pose_candidates=0
+human_execution_stage=static_equilibrium_end wall_elapsed_ms=3641.582291 stage_step=0
+human_execution_stage=fiber_equilibrium_begin wall_elapsed_ms=3641.645625 stage_step=0
+human_execution_stage=fiber_equilibrium_end wall_elapsed_ms=3676.927333 stage_step=2
+human_execution_stage=initial_force_checks_begin wall_elapsed_ms=3676.9425 stage_step=0
+human_stand_finish_work root=0 environment=0 nv=128 contacts=32 equalities=0 sweeps=16 contact_decisions=0 contact_axis_contractions=0 normal_impulse_changes=0 tangent_impulse_changes=0 zero_contact_changes=0 friction_interior=0 friction_boundary=0 friction_boundary_iterations=0 limit_previews=0 limit_preview_blocks=0 limit_nonzero=0 limit_selected_zero=0 contact_response_coefficients=0 limit_response_coefficients=0 equality_response_coefficients=0
+human_stand_finish_work root=0 environment=0 nv=128 contacts=32 equalities=0 sweeps=16 contact_decisions=0 contact_axis_contractions=0 normal_impulse_changes=0 tangent_impulse_changes=0 zero_contact_changes=0 friction_interior=0 friction_boundary=0 friction_boundary_iterations=0 limit_previews=0 limit_preview_blocks=0 limit_nonzero=0 limit_selected_zero=0 contact_response_coefficients=0 limit_response_coefficients=0 equality_response_coefficients=0
+human_stand_solver_path=split_candidate
+human_execution_stage=initial_force_checks_end wall_elapsed_ms=3702.21325 stage_step=0
+human_execution_stage=native_horizon_begin wall_elapsed_ms=3702.220333 stage_step=0
+resting_support_gpu_stage=support_normalize_poses step=0 elapsed_ns=23792
+resting_support_gpu_stage=support_positions step=0 elapsed_ns=1885375
+resting_support_gpu_stage=support_select step=0 elapsed_ns=9375
+resting_support_gpu_stage=support_publish step=0 elapsed_ns=754417
+human_stand_finish_work root=0 environment=0 nv=128 contacts=32 equalities=51 sweeps=16 contact_decisions=64 contact_axis_contractions=192 normal_impulse_changes=32 tangent_impulse_changes=64 zero_contact_changes=32 friction_interior=15 friction_boundary=17 friction_boundary_iterations=431 limit_previews=9011 limit_preview_blocks=670 limit_nonzero=622 limit_selected_zero=0 contact_response_coefficients=24576 limit_response_coefficients=79616 equality_response_coefficients=31722
+human_gpu_stage=kinematics step=1 elapsed_ns=1595333
+resting_support_gpu_stage=support_normalize_poses step=0 elapsed_ns=24125
+resting_support_gpu_stage=support_positions step=0 elapsed_ns=1873916
+resting_support_gpu_stage=support_select step=0 elapsed_ns=9208
+resting_support_gpu_stage=support_publish step=0 elapsed_ns=753958
+human_stand_finish_work root=0 environment=0 nv=128 contacts=32 equalities=51 sweeps=16 contact_decisions=64 contact_axis_contractions=192 normal_impulse_changes=32 tangent_impulse_changes=64 zero_contact_changes=32 friction_interior=15 friction_boundary=17 friction_boundary_iterations=431 limit_previews=9011 limit_preview_blocks=670 limit_nonzero=622 limit_selected_zero=0 contact_response_coefficients=24576 limit_response_coefficients=79616 equality_response_coefficients=31722
+human_gpu_stage=kinematics step=1 elapsed_ns=1600959
+human_gpu_stage=kinematics step=1 elapsed_ns=1601250
+resting_integrated_rejection=pass rejected_after_accepted_predecessor=true body_q_v_root_myo_unchanged=true circulation_and_clock_unchanged=true respiration_brain_history_unchanged=true retry_matches_uninterrupted_replay=true same_command_buffer_reject=pass accepted_prefix=2 rejected_step=2 inert_suffix=1
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=3827.6155 stage_step=0
+human_borrowed_callback=transaction_begin step=15 encoded=1 host_encode_ns=42 gpu_envelope_sampling=unavailable
+human_borrowed_callback=tendon_pre_dynamics step=15 encoded=1 host_encode_ns=0 gpu_envelope_sampling=unavailable
+human_borrowed_callback=transaction_pre_dynamics step=15 encoded=1 host_encode_ns=165250 gpu_envelope_sampling=unavailable
+human_borrowed_callback=support_geometry_pre_dynamics step=15 encoded=1 host_encode_ns=17917 gpu_envelope_sampling=unavailable
+human_borrowed_callback=transaction_post_dynamics step=15 encoded=1 host_encode_ns=8125 gpu_envelope_sampling=unavailable
+human_borrowed_callback=tendon_post_validation step=15 encoded=1 host_encode_ns=9666 gpu_envelope_sampling=unavailable
+human_borrowed_callback=transaction_begin step=31 encoded=1 host_encode_ns=42 gpu_envelope_sampling=unavailable
+human_borrowed_callback=tendon_pre_dynamics step=31 encoded=1 host_encode_ns=42 gpu_envelope_sampling=unavailable
+human_borrowed_callback=transaction_pre_dynamics step=31 encoded=1 host_encode_ns=171750 gpu_envelope_sampling=unavailable
+human_borrowed_callback=support_geometry_pre_dynamics step=31 encoded=1 host_encode_ns=16709 gpu_envelope_sampling=unavailable
+human_borrowed_callback=transaction_post_dynamics step=31 encoded=1 host_encode_ns=7916 gpu_envelope_sampling=unavailable
+human_borrowed_callback=tendon_post_validation step=31 encoded=1 host_encode_ns=9667 gpu_envelope_sampling=unavailable
+resting_support_gpu_stage=support_normalize_poses step=0 elapsed_ns=23583
+resting_support_gpu_stage=support_positions step=0 elapsed_ns=1891417
+resting_support_gpu_stage=support_select step=0 elapsed_ns=9167
+resting_support_gpu_stage=support_publish step=0 elapsed_ns=752667
+human_stand_finish_work root=0 environment=0 nv=128 contacts=32 equalities=51 sweeps=16 contact_decisions=64 contact_axis_contractions=192 normal_impulse_changes=32 tangent_impulse_changes=64 zero_contact_changes=32 friction_interior=15 friction_boundary=17 friction_boundary_iterations=431 limit_previews=9011 limit_preview_blocks=670 limit_nonzero=622 limit_selected_zero=0 contact_response_coefficients=24576 limit_response_coefficients=79616 equality_response_coefficients=31722
+human_gpu_stage=kinematics step=1 elapsed_ns=1566083
+human_gpu_stage=muscle_angular step=2 elapsed_ns=5750
+human_gpu_stage=muscles step=3 elapsed_ns=486458
+human_gpu_stage=active_force step=4 elapsed_ns=13834
+human_gpu_stage=force_reduce step=5 elapsed_ns=48416
+human_gpu_stage=tendon_transfer step=6 elapsed_ns=80375
+human_gpu_stage=activation step=7 elapsed_ns=3167
+human_gpu_stage=stand_prework step=8 elapsed_ns=435917
+human_gpu_stage=stand_mass step=9 elapsed_ns=52791
+human_gpu_stage=stand_factor step=10 elapsed_ns=945292
+human_gpu_stage=stand_equality_responses step=11 elapsed_ns=504625
+human_gpu_stage=stand_equality_factor step=12 elapsed_ns=326209
+human_gpu_stage=stand_projected_responses step=13 elapsed_ns=898125
+human_gpu_stage=stand_finish step=14 elapsed_ns=2991250
+human_gpu_stage=kinematics step=17 elapsed_ns=1566625
+human_gpu_stage=muscle_angular step=18 elapsed_ns=5917
+human_gpu_stage=muscles step=19 elapsed_ns=481791
+human_gpu_stage=active_force step=20 elapsed_ns=14000
+human_gpu_stage=force_reduce step=21 elapsed_ns=48333
+human_gpu_stage=tendon_transfer step=22 elapsed_ns=81083
+human_gpu_stage=activation step=23 elapsed_ns=3541
+human_gpu_stage=stand_prework step=24 elapsed_ns=435917
+human_gpu_stage=stand_mass step=25 elapsed_ns=52542
+human_gpu_stage=stand_factor step=26 elapsed_ns=944209
+human_gpu_stage=stand_equality_responses step=27 elapsed_ns=505000
+human_gpu_stage=stand_equality_factor step=28 elapsed_ns=326292
+human_gpu_stage=stand_projected_responses step=29 elapsed_ns=899083
+human_gpu_stage=stand_finish step=30 elapsed_ns=3523625
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=4373.958875 stage_step=32
+resting_native_profile step=32 command_ms=537.648833 gpu_ms=536.946750246 host_copy_ms=0.005667 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=4425.392208 stage_step=32
+human_borrowed_callback=transaction_begin step=47 encoded=1 host_encode_ns=0 gpu_envelope_sampling=unavailable
+human_borrowed_callback=tendon_pre_dynamics step=47 encoded=1 host_encode_ns=41 gpu_envelope_sampling=unavailable
+human_borrowed_callback=transaction_pre_dynamics step=47 encoded=1 host_encode_ns=106667 gpu_envelope_sampling=unavailable
+human_borrowed_callback=support_geometry_pre_dynamics step=47 encoded=1 host_encode_ns=8792 gpu_envelope_sampling=unavailable
+human_borrowed_callback=transaction_post_dynamics step=47 encoded=1 host_encode_ns=7375 gpu_envelope_sampling=unavailable
+human_borrowed_callback=tendon_post_validation step=47 encoded=1 host_encode_ns=3292 gpu_envelope_sampling=unavailable
+human_borrowed_callback=transaction_begin step=63 encoded=1 host_encode_ns=84 gpu_envelope_sampling=unavailable
+human_borrowed_callback=tendon_pre_dynamics step=63 encoded=1 host_encode_ns=0 gpu_envelope_sampling=unavailable
+human_borrowed_callback=transaction_pre_dynamics step=63 encoded=1 host_encode_ns=107375 gpu_envelope_sampling=unavailable
+human_borrowed_callback=support_geometry_pre_dynamics step=63 encoded=1 host_encode_ns=7125 gpu_envelope_sampling=unavailable
+human_borrowed_callback=transaction_post_dynamics step=63 encoded=1 host_encode_ns=7417 gpu_envelope_sampling=unavailable
+human_borrowed_callback=tendon_post_validation step=63 encoded=1 host_encode_ns=2916 gpu_envelope_sampling=unavailable
+human_gpu_stage=kinematics step=33 elapsed_ns=1568250
+human_gpu_stage=muscle_angular step=34 elapsed_ns=6084
+human_gpu_stage=muscles step=35 elapsed_ns=478833
+human_gpu_stage=active_force step=36 elapsed_ns=13792
+human_gpu_stage=force_reduce step=37 elapsed_ns=48458
+human_gpu_stage=tendon_transfer step=38 elapsed_ns=80292
+human_gpu_stage=activation step=39 elapsed_ns=3042
+human_gpu_stage=stand_prework step=40 elapsed_ns=436750
+human_gpu_stage=stand_mass step=41 elapsed_ns=52500
+human_gpu_stage=stand_factor step=42 elapsed_ns=944625
+human_gpu_stage=stand_equality_responses step=43 elapsed_ns=504584
+human_gpu_stage=stand_equality_factor step=44 elapsed_ns=325750
+human_gpu_stage=stand_projected_responses step=45 elapsed_ns=899375
+human_gpu_stage=stand_finish step=46 elapsed_ns=3106250
+human_gpu_stage=kinematics step=49 elapsed_ns=1568708
+human_gpu_stage=muscle_angular step=50 elapsed_ns=6041
+human_gpu_stage=muscles step=51 elapsed_ns=482375
+human_gpu_stage=active_force step=52 elapsed_ns=13917
+human_gpu_stage=force_reduce step=53 elapsed_ns=48375
+human_gpu_stage=tendon_transfer step=54 elapsed_ns=79875
+human_gpu_stage=activation step=55 elapsed_ns=3125
+human_gpu_stage=stand_prework step=56 elapsed_ns=438500
+human_gpu_stage=stand_mass step=57 elapsed_ns=53000
+human_gpu_stage=stand_factor step=58 elapsed_ns=945875
+human_gpu_stage=stand_equality_responses step=59 elapsed_ns=504333
+human_gpu_stage=stand_equality_factor step=60 elapsed_ns=326333
+human_gpu_stage=stand_projected_responses step=61 elapsed_ns=898625
+human_gpu_stage=stand_finish step=62 elapsed_ns=3220291
+human_stand_finish_work root=63 environment=0 nv=128 contacts=32 equalities=51 sweeps=16 contact_decisions=112 contact_axis_contractions=336 normal_impulse_changes=63 tangent_impulse_changes=126 zero_contact_changes=49 friction_interior=31 friction_boundary=32 friction_boundary_iterations=764 limit_previews=8803 limit_preview_blocks=631 limit_nonzero=583 limit_selected_zero=0 contact_response_coefficients=43008 limit_response_coefficients=74624 equality_response_coefficients=29733
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=4974.066125 stage_step=64
+resting_native_profile step=64 command_ms=543.460458 gpu_ms=542.736999691 host_copy_ms=0.006083 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=5022.206208 stage_step=64
+human_borrowed_callback=transaction_begin step=79 encoded=1 host_encode_ns=42 gpu_envelope_sampling=unavailable
+human_borrowed_callback=tendon_pre_dynamics step=79 encoded=1 host_encode_ns=42 gpu_envelope_sampling=unavailable
+human_borrowed_callback=transaction_pre_dynamics step=79 encoded=1 host_encode_ns=104542 gpu_envelope_sampling=unavailable
+human_borrowed_callback=support_geometry_pre_dynamics step=79 encoded=1 host_encode_ns=7750 gpu_envelope_sampling=unavailable
+human_borrowed_callback=transaction_post_dynamics step=79 encoded=1 host_encode_ns=7000 gpu_envelope_sampling=unavailable
+human_borrowed_callback=tendon_post_validation step=79 encoded=1 host_encode_ns=3250 gpu_envelope_sampling=unavailable
+human_borrowed_callback=transaction_begin step=95 encoded=1 host_encode_ns=42 gpu_envelope_sampling=unavailable
+human_borrowed_callback=tendon_pre_dynamics step=95 encoded=1 host_encode_ns=42 gpu_envelope_sampling=unavailable
+human_borrowed_callback=transaction_pre_dynamics step=95 encoded=1 host_encode_ns=103750 gpu_envelope_sampling=unavailable
+human_borrowed_callback=support_geometry_pre_dynamics step=95 encoded=1 host_encode_ns=6833 gpu_envelope_sampling=unavailable
+human_borrowed_callback=transaction_post_dynamics step=95 encoded=1 host_encode_ns=7333 gpu_envelope_sampling=unavailable
+human_borrowed_callback=tendon_post_validation step=95 encoded=1 host_encode_ns=3083 gpu_envelope_sampling=unavailable
+human_gpu_stage=kinematics step=65 elapsed_ns=1569042
+human_gpu_stage=muscle_angular step=66 elapsed_ns=6000
+human_gpu_stage=muscles step=67 elapsed_ns=488000
+human_gpu_stage=active_force step=68 elapsed_ns=13792
+human_gpu_stage=force_reduce step=69 elapsed_ns=48375
+human_gpu_stage=tendon_transfer step=70 elapsed_ns=80625
+human_gpu_stage=activation step=71 elapsed_ns=3209
+human_gpu_stage=stand_prework step=72 elapsed_ns=435500
+human_gpu_stage=stand_mass step=73 elapsed_ns=52709
+human_gpu_stage=stand_factor step=74 elapsed_ns=945834
+human_gpu_stage=stand_equality_responses step=75 elapsed_ns=504417
+human_gpu_stage=stand_equality_factor step=76 elapsed_ns=325584
+human_gpu_stage=stand_projected_responses step=77 elapsed_ns=901750
+human_gpu_stage=stand_finish step=78 elapsed_ns=4004541
+human_gpu_stage=kinematics step=81 elapsed_ns=1556000
+human_gpu_stage=muscle_angular step=82 elapsed_ns=5791
+human_gpu_stage=muscles step=83 elapsed_ns=480833
+human_gpu_stage=active_force step=84 elapsed_ns=13917
+human_gpu_stage=force_reduce step=85 elapsed_ns=48375
+human_gpu_stage=tendon_transfer step=86 elapsed_ns=80458
+human_gpu_stage=activation step=87 elapsed_ns=3291
+human_gpu_stage=stand_prework step=88 elapsed_ns=437542
+human_gpu_stage=stand_mass step=89 elapsed_ns=53041
+human_gpu_stage=stand_factor step=90 elapsed_ns=946125
+human_gpu_stage=stand_equality_responses step=91 elapsed_ns=505208
+human_gpu_stage=stand_equality_factor step=92 elapsed_ns=326166
+human_gpu_stage=stand_projected_responses step=93 elapsed_ns=901958
+human_gpu_stage=stand_finish step=94 elapsed_ns=4221833
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=5591.207166 stage_step=96
+resting_native_profile step=96 command_ms=563.89875 gpu_ms=563.525833189 host_copy_ms=0.0085 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=5639.2085 stage_step=96
+human_borrowed_callback=transaction_begin step=111 encoded=1 host_encode_ns=42 gpu_envelope_sampling=unavailable
+human_borrowed_callback=tendon_pre_dynamics step=111 encoded=1 host_encode_ns=42 gpu_envelope_sampling=unavailable
+human_borrowed_callback=transaction_pre_dynamics step=111 encoded=1 host_encode_ns=104750 gpu_envelope_sampling=unavailable
+human_borrowed_callback=support_geometry_pre_dynamics step=111 encoded=1 host_encode_ns=8750 gpu_envelope_sampling=unavailable
+human_borrowed_callback=transaction_post_dynamics step=111 encoded=1 host_encode_ns=7042 gpu_envelope_sampling=unavailable
+human_borrowed_callback=tendon_post_validation step=111 encoded=1 host_encode_ns=3167 gpu_envelope_sampling=unavailable
+human_borrowed_callback=transaction_begin step=127 encoded=1 host_encode_ns=42 gpu_envelope_sampling=unavailable
+human_borrowed_callback=tendon_pre_dynamics step=127 encoded=1 host_encode_ns=42 gpu_envelope_sampling=unavailable
+human_borrowed_callback=transaction_pre_dynamics step=127 encoded=1 host_encode_ns=112458 gpu_envelope_sampling=unavailable
+human_borrowed_callback=support_geometry_pre_dynamics step=127 encoded=1 host_encode_ns=13042 gpu_envelope_sampling=unavailable
+human_borrowed_callback=transaction_post_dynamics step=127 encoded=1 host_encode_ns=8084 gpu_envelope_sampling=unavailable
+human_borrowed_callback=tendon_post_validation step=127 encoded=1 host_encode_ns=3042 gpu_envelope_sampling=unavailable
+human_gpu_stage=kinematics step=97 elapsed_ns=1565291
+human_gpu_stage=muscle_angular step=98 elapsed_ns=5875
+human_gpu_stage=muscles step=99 elapsed_ns=482667
+human_gpu_stage=active_force step=100 elapsed_ns=13750
+matter_gpu_stage=matter_pre step=100 elapsed_ns=4666
+matter_gpu_stage=brain_advance step=100 elapsed_ns=10125
+matter_gpu_stage=respiratory_mechanics step=100 elapsed_ns=56625
+matter_gpu_stage=matter_after_frame_begin step=100 elapsed_ns=5469875
+matter_gpu_stage=respiratory_gas_exchange step=100 elapsed_ns=46250
+matter_gpu_stage=matter_after_candidate_ready step=100 elapsed_ns=3583
+matter_gpu_stage=matter_after_microstep step=100 elapsed_ns=5292
+resting_support_gpu_stage=support_normalize_poses step=100 elapsed_ns=23875
+resting_support_gpu_stage=support_positions step=100 elapsed_ns=1870875
+resting_support_gpu_stage=support_select step=100 elapsed_ns=9000
+resting_support_gpu_stage=support_publish step=100 elapsed_ns=754292
+matter_gpu_stage=matter_post step=100 elapsed_ns=6583
+matter_gpu_stage=brain_resolve step=100 elapsed_ns=2667
+matter_gpu_stage=respiratory_resolve step=100 elapsed_ns=3625
+human_gpu_stage=force_reduce step=101 elapsed_ns=48375
+human_gpu_stage=tendon_transfer step=102 elapsed_ns=80375
+human_gpu_stage=activation step=103 elapsed_ns=3250
+human_gpu_stage=stand_prework step=104 elapsed_ns=444667
+human_gpu_stage=stand_mass step=105 elapsed_ns=52625
+human_gpu_stage=stand_factor step=106 elapsed_ns=946875
+human_gpu_stage=stand_equality_responses step=107 elapsed_ns=504792
+human_gpu_stage=stand_equality_factor step=108 elapsed_ns=325792
+human_gpu_stage=stand_projected_responses step=109 elapsed_ns=901458
+human_gpu_stage=stand_finish step=110 elapsed_ns=3920208
+human_gpu_stage=kinematics step=113 elapsed_ns=1571000
+human_gpu_stage=muscle_angular step=114 elapsed_ns=6125
+human_gpu_stage=muscles step=115 elapsed_ns=482750
+human_stand_finish_work root=127 environment=0 nv=128 contacts=32 equalities=51 sweeps=16 contact_decisions=208 contact_axis_contractions=624 normal_impulse_changes=80 tangent_impulse_changes=160 zero_contact_changes=128 friction_interior=20 friction_boundary=60 friction_boundary_iterations=1508 limit_previews=8979 limit_preview_blocks=646 limit_nonzero=584 limit_selected_zero=0 contact_response_coefficients=79872 limit_response_coefficients=74752 equality_response_coefficients=29784
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=6210.615041 stage_step=128
+resting_native_profile step=128 command_ms=566.161334 gpu_ms=565.878625028 host_copy_ms=0.006916 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=6258.46625 stage_step=128
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=6829.005916 stage_step=160
+resting_native_profile step=160 command_ms=565.845417 gpu_ms=565.25529176 host_copy_ms=0.006333 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=6876.957541 stage_step=160
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=7447.114958 stage_step=192
+resting_native_profile step=192 command_ms=565.394458 gpu_ms=564.848124981 host_copy_ms=0.006375 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=7494.889333 stage_step=192
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=8068.378625 stage_step=224
+resting_native_profile step=224 command_ms=568.929792 gpu_ms=568.376791663 host_copy_ms=0.006333 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=8116.244166 stage_step=224
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=8688.707208 stage_step=256
+resting_native_profile step=256 command_ms=567.762792 gpu_ms=567.143000662 host_copy_ms=0.005417 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=8736.380208 stage_step=256
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=9303.8845 stage_step=288
+resting_native_profile step=288 command_ms=563.077916 gpu_ms=562.537624501 host_copy_ms=0.006209 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=9354.290291 stage_step=288
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=9919.2785 stage_step=320
+resting_native_profile step=320 command_ms=560.305584 gpu_ms=559.738875367 host_copy_ms=0.005875 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=9967.597333 stage_step=320
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=10527.601416 stage_step=352
+resting_native_profile step=352 command_ms=555.381375 gpu_ms=554.771666415 host_copy_ms=0.005916 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=10575.683125 stage_step=352
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=11137.420375 stage_step=384
+resting_native_profile step=384 command_ms=557.169167 gpu_ms=556.614750065 host_copy_ms=0.005791 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=11185.477916 stage_step=384
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=11745.08325 stage_step=416
+resting_native_profile step=416 command_ms=554.987917 gpu_ms=554.453166202 host_copy_ms=0.005333 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=11793.064208 stage_step=416
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=12349.886875 stage_step=448
+resting_native_profile step=448 command_ms=552.204209 gpu_ms=551.642041653 host_copy_ms=0.008708 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=12398.6635 stage_step=448
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=12954.759916 stage_step=480
+resting_native_profile step=480 command_ms=551.450459 gpu_ms=550.803624094 host_copy_ms=0.006333 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=13002.99725 stage_step=480
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=13557.939041 stage_step=512
+resting_native_profile step=512 command_ms=550.364167 gpu_ms=549.789374694 host_copy_ms=0.005417 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=13606.365458 stage_step=512
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=14162.318291 stage_step=544
+resting_native_profile step=544 command_ms=551.360625 gpu_ms=550.758833066 host_copy_ms=0.006875 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=14212.12625 stage_step=544
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=14770.984041 stage_step=576
+resting_native_profile step=576 command_ms=551.237917 gpu_ms=550.598041154 host_copy_ms=2.965292 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=14819.135625 stage_step=576
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=15375.011916 stage_step=608
+resting_native_profile step=608 command_ms=551.246375 gpu_ms=550.702000037 host_copy_ms=0.005667 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=15422.641708 stage_step=608
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=15978.942583 stage_step=640
+resting_native_profile step=640 command_ms=551.735875 gpu_ms=551.12050008 host_copy_ms=0.006667 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=16026.585791 stage_step=640
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=16581.500375 stage_step=672
+resting_native_profile step=672 command_ms=550.303792 gpu_ms=549.787958153 host_copy_ms=0.005708 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=16629.426375 stage_step=672
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=17190.602625 stage_step=704
+resting_native_profile step=704 command_ms=556.476083 gpu_ms=555.816416629 host_copy_ms=0.006459 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=17238.203708 stage_step=704
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=17802.846875 stage_step=736
+resting_native_profile step=736 command_ms=560.129375 gpu_ms=559.48187504 host_copy_ms=0.006917 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=17850.519291 stage_step=736
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=18414.416 stage_step=768
+resting_native_profile step=768 command_ms=559.285042 gpu_ms=558.662999421 host_copy_ms=0.008458 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=18462.734916 stage_step=768
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=19026.6975 stage_step=800
+resting_native_profile step=800 command_ms=559.249458 gpu_ms=558.727875352 host_copy_ms=0.013375 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=19076.817416 stage_step=800
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=19640.715458 stage_step=832
+resting_native_profile step=832 command_ms=559.168333 gpu_ms=558.62687435 host_copy_ms=0.006542 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=19688.791333 stage_step=832
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=20252.426125 stage_step=864
+resting_native_profile step=864 command_ms=559.023542 gpu_ms=558.845791034 host_copy_ms=0.007291 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=20300.553791 stage_step=864
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=20868.658083 stage_step=896
+resting_native_profile step=896 command_ms=563.475417 gpu_ms=562.894208357 host_copy_ms=0.005666 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=20916.665166 stage_step=896
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=21488.899333 stage_step=928
+resting_native_profile step=928 command_ms=567.600083 gpu_ms=567.037167028 host_copy_ms=0.005792 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=21536.918708 stage_step=928
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=22108.80325 stage_step=960
+resting_native_profile step=960 command_ms=567.138125 gpu_ms=566.583124921 host_copy_ms=0.005458 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=22156.712833 stage_step=960
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=22728.994541 stage_step=992
+resting_native_profile step=992 command_ms=567.724875 gpu_ms=567.215000279 host_copy_ms=0.006125 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=22777.484708 stage_step=992
+resting_support_gpu_stage=support_normalize_poses step=1000 elapsed_ns=23875
+resting_support_gpu_stage=support_positions step=1000 elapsed_ns=1867375
+resting_support_gpu_stage=support_select step=1000 elapsed_ns=9209
+resting_support_gpu_stage=support_publish step=1000 elapsed_ns=754666
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=23348.720708 stage_step=1024
+resting_native_profile step=1024 command_ms=566.264542 gpu_ms=565.663415939 host_copy_ms=0.005666 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=23396.655791 stage_step=1024
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=23965.956791 stage_step=1056
+resting_native_profile step=1056 command_ms=564.629459 gpu_ms=564.006917179 host_copy_ms=0.006208 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=24017.370625 stage_step=1056
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=24585.397291 stage_step=1088
+resting_native_profile step=1088 command_ms=563.326667 gpu_ms=562.73525022 host_copy_ms=0.006 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=24633.74625 stage_step=1088
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=25204.628583 stage_step=1120
+resting_native_profile step=1120 command_ms=562.67925 gpu_ms=562.038082629 host_copy_ms=3.657375 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=25255.060583 stage_step=1120
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=25823.548083 stage_step=1152
+resting_native_profile step=1152 command_ms=563.784083 gpu_ms=563.130083494 host_copy_ms=0.014375 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=25872.693125 stage_step=1152
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=26438.394708 stage_step=1184
+resting_native_profile step=1184 command_ms=561.21375 gpu_ms=561.021666974 host_copy_ms=0.011666 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=26486.826541 stage_step=1184
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=27053.238083 stage_step=1216
+resting_native_profile step=1216 command_ms=561.754167 gpu_ms=561.182000674 host_copy_ms=0.005416 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=27101.365166 stage_step=1216
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=27667.009 stage_step=1248
+resting_native_profile step=1248 command_ms=561.114333 gpu_ms=560.493750498 host_copy_ms=0.005667 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=27715.117875 stage_step=1248
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=28281.094708 stage_step=1280
+resting_native_profile step=1280 command_ms=561.416208 gpu_ms=560.823999345 host_copy_ms=0.005708 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=28329.07025 stage_step=1280
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=28894.646291 stage_step=1312
+resting_native_profile step=1312 command_ms=560.981459 gpu_ms=560.441125184 host_copy_ms=0.005458 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=28945.617708 stage_step=1312
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=29510.869458 stage_step=1344
+resting_native_profile step=1344 command_ms=560.534708 gpu_ms=560.006625019 host_copy_ms=0.005792 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=29558.8975 stage_step=1344
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=30122.282625 stage_step=1376
+resting_native_profile step=1376 command_ms=558.757833 gpu_ms=558.23137518 host_copy_ms=0.008417 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=30170.71375 stage_step=1376
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=30735.58525 stage_step=1408
+resting_native_profile step=1408 command_ms=560.061333 gpu_ms=559.595500119 host_copy_ms=0.005708 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=30783.506833 stage_step=1408
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=31347.957458 stage_step=1440
+resting_native_profile step=1440 command_ms=559.856333 gpu_ms=559.224749915 host_copy_ms=0.005875 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=31396.029458 stage_step=1440
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=31961.149083 stage_step=1472
+resting_native_profile step=1472 command_ms=560.377375 gpu_ms=559.713250026 host_copy_ms=0.007333 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=32008.831208 stage_step=1472
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=32573.826583 stage_step=1504
+resting_native_profile step=1504 command_ms=560.391458 gpu_ms=559.843958355 host_copy_ms=0.005542 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=32621.905791 stage_step=1504
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=33186.156916 stage_step=1536
+resting_native_profile step=1536 command_ms=559.624041 gpu_ms=559.445458464 host_copy_ms=0.007042 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=33238.083125 stage_step=1536
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=33805.424083 stage_step=1568
+resting_native_profile step=1568 command_ms=562.729084 gpu_ms=562.113124877 host_copy_ms=0.006375 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=33854.219291 stage_step=1568
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=34421.217041 stage_step=1600
+resting_native_profile step=1600 command_ms=562.316083 gpu_ms=561.766999774 host_copy_ms=0.00525 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=34469.216875 stage_step=1600
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=35036.099875 stage_step=1632
+resting_native_profile step=1632 command_ms=562.195125 gpu_ms=561.626375653 host_copy_ms=0.005333 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=35083.782458 stage_step=1632
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=35650.220208 stage_step=1664
+resting_native_profile step=1664 command_ms=561.792791 gpu_ms=561.170500703 host_copy_ms=0.008542 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=35698.00925 stage_step=1664
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=36264.276083 stage_step=1696
+resting_native_profile step=1696 command_ms=561.659375 gpu_ms=561.037791893 host_copy_ms=0.008708 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=36312.521875 stage_step=1696
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=36877.892208 stage_step=1728
+resting_native_profile step=1728 command_ms=560.634667 gpu_ms=560.072666965 host_copy_ms=0.007 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=36925.684041 stage_step=1728
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=37490.734458 stage_step=1760
+resting_native_profile step=1760 command_ms=560.489041 gpu_ms=559.961708263 host_copy_ms=0.006417 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=37538.391791 stage_step=1760
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=38102.852791 stage_step=1792
+resting_native_profile step=1792 command_ms=559.904042 gpu_ms=559.73366648 host_copy_ms=0.006125 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=38152.720458 stage_step=1792
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=38717.673041 stage_step=1824
+resting_native_profile step=1824 command_ms=560.282459 gpu_ms=559.665500186 host_copy_ms=0.005916 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=38765.586166 stage_step=1824
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=39330.646083 stage_step=1856
+resting_native_profile step=1856 command_ms=560.38925 gpu_ms=559.781833552 host_copy_ms=0.006625 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=39378.318541 stage_step=1856
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=39943.710541 stage_step=1888
+resting_native_profile step=1888 command_ms=560.67925 gpu_ms=560.111624189 host_copy_ms=0.005042 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=39991.444 stage_step=1888
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=40556.407 stage_step=1920
+resting_native_profile step=1920 command_ms=560.3155 gpu_ms=559.794291854 host_copy_ms=0.006416 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=40604.115666 stage_step=1920
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=41168.388583 stage_step=1952
+resting_native_profile step=1952 command_ms=559.560083 gpu_ms=559.067124501 host_copy_ms=0.005542 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=41216.0975 stage_step=1952
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=41781.159375 stage_step=1984
+resting_native_profile step=1984 command_ms=560.434959 gpu_ms=559.849416837 host_copy_ms=0.005833 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=41828.8005 stage_step=1984
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=42393.886875 stage_step=2016
+resting_native_profile step=2016 command_ms=560.404208 gpu_ms=559.855999425 host_copy_ms=0.006167 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=42441.417583 stage_step=2016
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=43006.298291 stage_step=2048
+resting_native_profile step=2048 command_ms=560.306625 gpu_ms=559.671499766 host_copy_ms=0.008666 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=43056.987458 stage_step=2048
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=43622.28625 stage_step=2080
+resting_native_profile step=2080 command_ms=560.584083 gpu_ms=560.035875067 host_copy_ms=0.007208 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=43670.845583 stage_step=2080
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=44236.684458 stage_step=2112
+resting_native_profile step=2112 command_ms=561.171292 gpu_ms=560.695874505 host_copy_ms=0.005958 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=44285.25325 stage_step=2112
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=44850.853625 stage_step=2144
+resting_native_profile step=2144 command_ms=560.831625 gpu_ms=560.30412484 host_copy_ms=0.006 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=44899.1105 stage_step=2144
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=45464.864666 stage_step=2176
+resting_native_profile step=2176 command_ms=561.127417 gpu_ms=560.501249507 host_copy_ms=0.006083 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=45513.188833 stage_step=2176
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=46078.974583 stage_step=2208
+resting_native_profile step=2208 command_ms=561.138459 gpu_ms=560.520917177 host_copy_ms=0.0095 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=46127.100666 stage_step=2208
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=46691.543333 stage_step=2240
+resting_native_profile step=2240 command_ms=559.823958 gpu_ms=559.270916507 host_copy_ms=0.006292 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=46739.732458 stage_step=2240
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=47305.197875 stage_step=2272
+resting_native_profile step=2272 command_ms=560.823625 gpu_ms=560.337499715 host_copy_ms=0.005417 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=47353.557041 stage_step=2272
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=47919.327458 stage_step=2304
+resting_native_profile step=2304 command_ms=561.227041 gpu_ms=560.661790892 host_copy_ms=0.006667 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=47968.908083 stage_step=2304
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=48534.722875 stage_step=2336
+resting_native_profile step=2336 command_ms=561.196583 gpu_ms=560.505500063 host_copy_ms=0.00625 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=48582.884958 stage_step=2336
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=49147.633333 stage_step=2368
+resting_native_profile step=2368 command_ms=560.141833 gpu_ms=559.50754229 host_copy_ms=0.008792 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=49195.983583 stage_step=2368
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=49760.729958 stage_step=2400
+resting_native_profile step=2400 command_ms=560.075666 gpu_ms=559.541124851 host_copy_ms=0.007375 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=49808.713958 stage_step=2400
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=50374.819375 stage_step=2432
+resting_native_profile step=2432 command_ms=561.422875 gpu_ms=560.86908374 host_copy_ms=0.006583 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=50422.64425 stage_step=2432
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=50988.127416 stage_step=2464
+resting_native_profile step=2464 command_ms=560.845042 gpu_ms=560.216291808 host_copy_ms=0.006917 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=51035.931625 stage_step=2464
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=51601.499125 stage_step=2496
+resting_native_profile step=2496 command_ms=560.975292 gpu_ms=560.443749651 host_copy_ms=0.005833 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=51649.093791 stage_step=2496
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=52215.384708 stage_step=2528
+resting_native_profile step=2528 command_ms=561.583042 gpu_ms=560.971625149 host_copy_ms=0.006083 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=52263.105666 stage_step=2528
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=52828.542041 stage_step=2560
+resting_native_profile step=2560 command_ms=560.815334 gpu_ms=560.205374844 host_copy_ms=0.006125 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=52878.725791 stage_step=2560
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=53444.801958 stage_step=2592
+resting_native_profile step=2592 command_ms=561.430584 gpu_ms=560.880624689 host_copy_ms=0.005958 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=53492.793916 stage_step=2592
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=54058.398375 stage_step=2624
+resting_native_profile step=2624 command_ms=561.060541 gpu_ms=560.517374426 host_copy_ms=0.006459 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=54106.386833 stage_step=2624
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=54671.617791 stage_step=2656
+resting_native_profile step=2656 command_ms=560.577792 gpu_ms=560.014874674 host_copy_ms=0.006 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=54719.636083 stage_step=2656
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=55283.2205 stage_step=2688
+resting_native_profile step=2688 command_ms=558.96725 gpu_ms=558.387500234 host_copy_ms=0.008 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=55331.803041 stage_step=2688
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=55893.078958 stage_step=2720
+resting_native_profile step=2720 command_ms=556.585125 gpu_ms=555.963916704 host_copy_ms=0.006 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=55941.279166 stage_step=2720
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=56502.023416 stage_step=2752
+resting_native_profile step=2752 command_ms=556.177208 gpu_ms=555.644541979 host_copy_ms=0.011208 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=56550.873291 stage_step=2752
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=57111.675291 stage_step=2784
+resting_native_profile step=2784 command_ms=556.196958 gpu_ms=555.595041253 host_copy_ms=0.006333 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=57163.291583 stage_step=2784
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=57723.220791 stage_step=2816
+resting_native_profile step=2816 command_ms=555.16625 gpu_ms=554.569083266 host_copy_ms=0.005792 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=57771.841708 stage_step=2816
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=58332.372083 stage_step=2848
+resting_native_profile step=2848 command_ms=555.934333 gpu_ms=555.766458623 host_copy_ms=0.006667 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=58380.606458 stage_step=2848
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=58941.617458 stage_step=2880
+resting_native_profile step=2880 command_ms=556.3185 gpu_ms=555.690541863 host_copy_ms=0.006417 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=58989.90275 stage_step=2880
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=59551.010833 stage_step=2912
+resting_native_profile step=2912 command_ms=556.446708 gpu_ms=555.855750106 host_copy_ms=0.006042 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=59599.2565 stage_step=2912
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=60160.441125 stage_step=2944
+resting_native_profile step=2944 command_ms=556.544542 gpu_ms=555.91287557 host_copy_ms=0.006708 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=60208.942125 stage_step=2944
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=60770.235833 stage_step=2976
+resting_native_profile step=2976 command_ms=556.615625 gpu_ms=556.08220771 host_copy_ms=0.006 full_state_readback=0
+human_execution_stage=authoritative_segment_begin wall_elapsed_ms=60818.576333 stage_step=2976
+human_execution_stage=authoritative_segment_end wall_elapsed_ms=61239.698083 stage_step=3000
+resting_native_profile step=3000 command_ms=417.449625 gpu_ms=416.895542294 host_copy_ms=0.112833 full_state_readback=1
+human_standing_progress=accepted step=3000 simulated_seconds=6 root_xyz_m=[-0.0537473224103,0.201349839568,0.0993208363652] center_of_mass_xyz_m=[-0.0279192855023,-0.755215068322,0.0998658543893] root_orientation_xyzw=[-0.698741674423,-0.00115685607307,-0.00340096093714,0.715365052223] root_linear_velocity_xyz_m_s=[-3.13758246193e-05,5.78522849537e-06,-0.000274827791145] max_generalized_acceleration=2.7225189209 root_linear_speed_m_s=0.000276673500764 support_force_n=707.037985325 penetration_m=3.79791003979e-06 contact_count=11 friction_witness=unavailable maximum_friction_utilization=0 saturated_friction_contacts=0 maximum_tangent_force_n=0 muscle_feedback_max_excitation_delta=0 root_assistance_force_n=0 root_assistance_torque_nm=0
+human_execution_stage=native_horizon_end wall_elapsed_ms=61298.340166 stage_step=3000
+stand_terminal_state={"schema":"numi.human.legacy-stand-terminal.v1","step_count":3000,"timestep_seconds":0.002,"root_assistance":false,"initial_q":[-0.05000000074505806,0.20000000298023224,0.10715460777282715,-0.70090925693511963,0,0,0.71325045824050903,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7.6925396608196195e-11,9.537330214470785e-08,0,-1.4732499664660281e-08,1.0893900004305124e-08,0,0,0,0,0,0.010506000369787216,0,0,0,-7.6925396608196195e-11,9.537330214470785e-08,0,-1.4732499664660281e-08,-1.0893900004305124e-08,0,0,0,0,0,0.010506000369787216],"initial_v":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"q":[-0.053747322410345078,0.20134983956813812,0.099320836365222931,-0.69874167442321777,-0.0011568560730665922,-0.0034009609371423721,0.71536505222320557,-0.011723420582711697,-0.01822567917406559,0.026588493958115578,0,0,-0.007536986842751503,-0.0021688328124582767,-0.0033006705343723297,0.0010045133531093597,-0.0023915776982903481,-0.0044707590714097023,0.0010045133531093597,-0.0027081102598458529,-0.0045582419261336327,0.00082716805627569556,-0.0029894721228629351,-0.0034264274872839451,0.00076814158819615841,3.9370647186842689e-07,-1.6675583935921168e-07,1.6675583935921168e-07,-3.9370647186842689e-07,7.9717423773217888e-08,-6.4424693846376613e-07,-2.8958575626347738e-07,2.8958575626347738e-07,6.4424693846376613e-07,-7.9717423773217888e-08,0.00064244272653013468,-1.6268862736978917e-06,-0.00064244272653013468,-0.18132947385311127,9.5248902098887811e-09,-0.014517470262944698,-0.17453370988368988,-0.12514086067676544,-0.55148613452911377,-0.063906461000442505,-0.085728868842124939,-0.057796943932771683,1.6188074880574277e-08,-0.090470731258392334,4.3301344732071811e-09,-4.7585840823316516e-10,1.2650890113263813e-08,-0.087208285927772522,3.6917635615196787e-09,3.2329777743811405e-10,0.01961001381278038,-0.068935245275497437,1.8937367229909796e-09,-1.1895645357640205e-08,9.5446308634450361e-09,-0.076807528734207153,1.7962562548490268e-09,-2.2598183591071574e-07,2.8415081487764837e-07,-1.2035313545766257e-07,1.2035313545766257e-07,-2.8415081487764837e-07,5.753466680857855e-08,-4.6497405037371209e-07,-2.0900348829400173e-07,2.0900348829400173e-07,4.6497405037371209e-07,-5.753466680857855e-08,-0.00073811272159218788,-1.1741768730644253e-06,0.00073811272159218788,-0.4493165910243988,-1.1512925084389281e-06,-0.34183737635612488,-0.17453299462795258,-0.59830302000045776,-0.77999991178512573,-0.5,-0.034953739494085312,-0.14626225829124451,0.67833602428436279,0.16138526797294617,7.9685534615236975e-08,-1.6916155800572596e-06,-1.3402011518337531e-06,-0.055687699466943741,-1.0556955203355756e-06,-3.7507064121200528e-07,0.061434220522642136,-0.075850456953048706,-5.7833211997149192e-08,-2.5432109396206215e-07,-1.7135795360445627e-06,-0.10027874261140823,-5.5102157148212427e-07,-1.5666381614209968e-06,-0.031103232875466347,-0.089684277772903442,-0.69813179969787598,1.4688127103479331e-10,9.5410527478634322e-08,1.1897843599228963e-08,-1.379138048207551e-08,1.5290140709112165e-08,-0.04835805669426918,-0.2574048638343811,0.52359902858734131,-5.804327019021116e-10,-1.7869133950298988e-10,0.010506000369787216,-0.034093998372554779,-0.088899210095405579,-0.69813179969787598,3.1768334490811512e-11,9.5315463966016978e-08,-1.848624009426203e-08,-1.6194761087717779e-08,-4.0632528452988481e-09,-0.039432350546121597,-0.22150629758834839,0.52359902858734131,9.0184565371131953e-10,2.7764113230688281e-10,0.010506000369787216],"v":[-3.1375824619317427e-05,5.7852284953696653e-06,-0.00027482779114507139,-0.00027896417304873466,0.00014577868569176644,6.6163884184788913e-05,-0.00012283406977076083,0.00012078309373464435,-0.0010317264823243022,0,0,-7.8970020695123821e-05,-2.272430356242694e-05,2.1873818695894442e-05,-3.8978629163466394e-05,-2.5058150640688837e-05,2.9628092306666076e-05,-3.8978629163466394e-05,-2.8374670364428312e-05,3.0207849704311229e-05,-3.2097010262077674e-05,-3.1322688300861046e-05,2.270722143293824e-05,-2.980657882289961e-05,1.0131349199582473e-06,-4.2911705122605781e-07,4.2911705122605781e-07,-1.0131349199582473e-06,2.0513887477591197e-07,-1.6578570694036898e-06,-7.4519840609355015e-07,7.4519840609355015e-07,1.6578570694036898e-06,-2.0513887477591197e-07,0.00016628982848487794,-4.1865077946567908e-06,-0.00016628982848487794,-0.0024991373065859079,-3.5166766565453145e-07,-0.010403981432318687,-3.8577250052185263e-06,-0.02794257365167141,-0.10499521344900131,0.0047320006415247917,-0.014108146540820599,-0.0045277741737663746,1.3855597558176669e-07,-0.0058351373299956322,4.0415201851828897e-08,-1.7630195081608235e-09,1.8363643050633982e-07,-0.0080195106565952301,5.0799421558167523e-08,1.372154212475607e-08,0.0074296304956078529,-0.0052083609625697136,4.2399129540626745e-08,-2.393760745178497e-08,2.6726385726760782e-07,-0.010872190818190575,8.0248717893027788e-08,-1.167708560956271e-07,5.4340493989002425e-06,-2.3016118575469591e-06,2.3016118575469591e-06,-5.4340493989002425e-06,1.1002827022821293e-06,-8.8920805865200236e-06,-3.9969454519450665e-06,3.9969454519450665e-06,8.8920805865200236e-06,-1.1002827022821293e-06,-0.00012795078509952873,-2.2454749341704883e-05,0.00012795078509952873,0.00071184872649610043,-2.3752863853587769e-05,0.0067281369119882584,2.0855554794252384e-06,-0.093102701008319855,1.4292000969362562e-06,1.6051078546297504e-06,-0.01552005298435688,-0.011245517991483212,0.21088744699954987,-0.0061429841443896294,-2.9090072075632634e-06,-1.0582085678834119e-06,-1.8091295714839362e-05,0.025252899155020714,-7.852550879761111e-06,-6.1421133068506606e-07,-0.00027456218958832324,0.0028732381761074066,-4.5974484237376601e-06,-6.1588991684402572e-07,-2.7536889319890179e-05,-0.009220559149980545,-1.0287982149748132e-05,-4.551336871827516e-07,-0.0003664570685941726,-0.00049095280701294541,-8.2360511441947892e-06,5.6634483769357757e-09,3.0137101703076041e-09,9.63219008554006e-07,7.6190623587990558e-08,3.5590846891864203e-07,-0.00038231661892496049,-0.00110274413600564,-1.8031883541880234e-08,-4.6990351165732136e-08,-1.4466395192869186e-08,2.3850716956985707e-08,-0.00028903083875775337,0.00012696815247181803,-1.5466306649614125e-05,-1.7335299862253351e-09,9.2246921212790767e-10,2.9483257435458654e-07,2.3321256037434068e-08,-1.0894034119246498e-07,-0.00039962166920304298,-0.0010457703610882163,-4.9908205346227419e-10,-1.4383318536204115e-08,-4.4280312749833683e-09,7.300510862506826e-09]}
+resting_integrated_body=completed simulated_s=6.0000002849847078 wall_s=61.299294541999998 real_time_factor=0.097880413303512506 physiology_body_clock=matched root_assistance=false presentation_qualification=pending

@@ -49,14 +49,17 @@ inline float2 vascularNodePressure(uint nodeIndex, uint stateBase, uint coeffici
     device const NMVascularCompartmentGPU* compartments,
     device const NMVascularCavityGPU* cavities, device const uint* compartmentCavity,
     device const float4* candidate, device const float4* direction,
-    device const float* elastance, uint basisColumn = NM_INVALID_INDEX) {
+    device const float* elastance, uint basisColumn = NM_INVALID_INDEX,
+    threadgroup const float2* preparedPressure = nullptr) {
     const bool cavity = compartments[nodeIndex].identity.w == 5u;
     const uint row = cavity ? cavities[compartmentCavity[nodeIndex]].identity.w : nodeIndex;
     const float dv = derivative || trialAlpha != 0.0f ?
         vascularDirection(direction, directionBase, row, basisColumn) * unknowns[row].initialAndScaling.y : 0.0f;
     const float value = vascularPhysical(candidate, unknowns, stateBase, row) + trialAlpha * dv;
     if (cavity) return float2(value, derivative ? dv : 0.0f);
-    const float2 pressure = vascularPressureTangent(compartments[nodeIndex], value, elastance[coefficientBase + nodeIndex]);
+    const float2 pressure = preparedPressure != nullptr && trialAlpha == 0.0f
+        ? preparedPressure[nodeIndex]
+        : vascularPressureTangent(compartments[nodeIndex], value, elastance[coefficientBase + nodeIndex]);
     return float2(pressure.x, derivative ? pressure.y * dv : 0.0f);
 }
 inline float vascularDrivingPressure(const NMVascularConnectionGPU edge, float pa, float pb) {
@@ -716,7 +719,8 @@ inline float2 vascularEquation(
     device const NMVascularCavityGPU* cavities, device const NMVascularCavityFaceGPU* cavityFaces,
     device const uint* compartmentCavity, device const NMFEMNodeStateGPU* femCandidate,
     device const NMFEMNodeStateGPU* femAccepted, uint nodeBase, float femTrialAlpha,
-    uint basisColumn = NM_INVALID_INDEX) {
+    uint basisColumn = NM_INVALID_INDEX,
+    threadgroup const float2* preparedPressure = nullptr) {
     const float scale = unknowns[local].initialAndScaling.y;
     const float value = vascularPhysical(candidate, unknowns, stateBase, local);
     const float delta = derivative ? vascularDirection(direction, directionBase, local, basisColumn) * scale : 0.0f;
@@ -741,9 +745,9 @@ inline float2 vascularEquation(
         const uint b = edge.identity.z;
         const uint coefficientBase = (stateBase / graph.ranges.z) * graph.counts.x;
         const float2 pa = vascularNodePressure(a, stateBase, coefficientBase, directionBase, derivative, 0.0f,
-            unknowns, compartments, cavities, compartmentCavity, candidate, direction, elastance, basisColumn);
+            unknowns, compartments, cavities, compartmentCavity, candidate, direction, elastance, basisColumn, preparedPressure);
         const float2 pb = vascularNodePressure(b, stateBase, coefficientBase, directionBase, derivative, 0.0f,
-            unknowns, compartments, cavities, compartmentCavity, candidate, direction, elastance, basisColumn);
+            unknowns, compartments, cavities, compartmentCavity, candidate, direction, elastance, basisColumn, preparedPressure);
         const float dp = vascularDrivingPressure(edge, pa.x, pb.x);
         // At the Starling floor tie use the fixed downstream-pressure branch.
         const float downstreamDerivative = edge.identity.w == 3u && pb.x <= edge.physical.w ? 0.0f : pb.y;
@@ -944,6 +948,7 @@ kernel void nm_vascular_dense_solve(
     constexpr uint unknownCount = 45u;
     constexpr uint augmentedWidth = unknownCount + 1u;
     threadgroup float matrix[unknownCount * augmentedWidth];
+    threadgroup float2 preparedPressure[21u];
     threadgroup uint pivotRow;
     threadgroup atomic_uint failed;
 
@@ -978,6 +983,14 @@ kernel void nm_vascular_dense_solve(
 
     if (lane == 0u)
         atomic_store_explicit(&failed, 0u, memory_order_relaxed);
+    // Candidate volumes and elastance are invariant throughout this one
+    // Jacobian assembly. Reuse the same constitutive evaluation for all 45
+    // basis columns; this is transient threadgroup scratch, not new state.
+    if (lane < graph.counts.x) {
+        const float value = vascularPhysical(candidate, unknowns, base, lane) + 0.0f;
+        preparedPressure[lane] = vascularPressureTangent(compartments[lane],
+            value, elastance[environment * graph.counts.x + lane]);
+    }
     threadgroup_barrier(mem_flags::mem_threadgroup);
     // A basis column is a constant direction accessor into the same JVP.
     // Every matrix entry is independent: no scratch device vector or 90
@@ -996,7 +1009,7 @@ kernel void nm_vascular_dense_solve(
             tissueExchangeRanges, accepted, candidate, direction, elastance,
             workingSet, useWorkingSet != 0u, cavities, cavityFaces,
             compartmentCavity, femCandidate, femAccepted,
-            environment * dispatch.femNodeCount, 0.0f, column).y;
+            environment * dispatch.femNodeCount, 0.0f, column, preparedPressure).y;
         if (!isfinite(tangent)) {
             recordFailure(statuses[environment],
                 NM_STATUS_LINEAR_SOLVER_FAILURE, NM_INVALID_INDEX,

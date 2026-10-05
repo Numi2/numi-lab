@@ -1,0 +1,104 @@
+{
+  "qualification": "one engineering A/B; not a repeated benchmark distribution, anatomy clearance, or endurance qualification",
+  "same_trace_bytes": {
+    "resting-coupled.csv": true,
+    "resting-surface-audit.csv": true,
+    "resting-human.mrvpack": true
+  },
+  "control": {
+    "execution": {
+      "returncode": 0,
+      "wrapper_wall_seconds": 64.55471308436245,
+      "changed_inputs": [],
+      "finished_utc": "2026-10-05T14:28:28.528816+00:00",
+      "last_surface_frame": {
+        "time_s": "5.99800028489",
+        "step": "2999",
+        "min_skin_bed_gap_m": "-3.71038913727e-06",
+        "vertices_below_1mm": "0",
+        "nonfinite_skin_vertices": "0",
+        "max_functional_volume_relative_error": "7.8551875049e-07",
+        "q_ra": "-0.32688331604",
+        "q_rv": "0.0391409359872",
+        "q_la": "-0.0359732843935",
+        "q_lv": "0.0803644657135",
+        "ra_target_ml": "30.5983376165",
+        "rv_target_ml": "132.934452267",
+        "la_target_ml": "47.6015775348",
+        "lv_target_ml": "126.341052237",
+        "diaphragm_swept_ml": "372.370937839",
+        "rib_swept_ml": "135.502166813",
+        "lung_target_ml": "3007.87296146",
+        "body_com_x_m": "-0.0279192849994",
+        "body_com_y_m": "-0.75521504879",
+        "body_com_z_m": "0.0998658537865",
+        "represented_body_mass_kg": "72",
+        "ventricular_wall_bound": "1",
+        "ventricular_material_ml": "164.012802998",
+        "ventricular_material_target_ml": "164.012890309",
+        "ventricular_closure_mm": "-1.17781455629",
+        "ventricular_material_status": "0",
+        "functional_geometry_status": "0"
+      }
+    },
+    "terminal_lines": [
+      "matter_gpu_stage=matter_after_frame_begin step=100 elapsed_ns=5469875"
+    ],
+    "gpu_ms_sum": 52407.163413240996
+  },
+  "candidate": {
+    "execution": {
+      "returncode": 0,
+      "wrapper_wall_seconds": 64.13806187454611,
+      "changed_inputs": [],
+      "finished_utc": "2026-10-05T14:31:17.637528+00:00",
+      "last_surface_frame": {
+        "time_s": "5.99800028489",
+        "step": "2999",
+        "min_skin_bed_gap_m": "-3.71038913727e-06",
+        "vertices_below_1mm": "0",
+        "nonfinite_skin_vertices": "0",
+        "max_functional_volume_relative_error": "7.8551875049e-07",
+        "q_ra": "-0.32688331604",
+        "q_rv": "0.0391409359872",
+        "q_la": "-0.0359732843935",
+        "q_lv": "0.0803644657135",
+        "ra_target_ml": "30.5983376165",
+        "rv_target_ml": "132.934452267",
+        "la_target_ml": "47.6015775348",
+        "lv_target_ml": "126.341052237",
+        "diaphragm_swept_ml": "372.370937839",
+        "rib_swept_ml": "135.502166813",
+        "lung_target_ml": "3007.87296146",
+        "body_com_x_m": "-0.0279192849994",
+        "body_com_y_m": "-0.75521504879",
+        "body_com_z_m": "0.0998658537865",
+        "represented_body_mass_kg": "72",
+        "ventricular_wall_bound": "1",
+        "ventricular_material_ml": "164.012802998",
+        "ventricular_material_target_ml": "164.012890309",
+        "ventricular_closure_mm": "-1.17781455629",
+        "ventricular_material_status": "0",
+        "functional_geometry_status": "0"
+      }
+    },
+    "terminal_lines": [
+      "matter_gpu_stage=matter_after_frame_begin step=100 elapsed_ns=5342208"
+    ],
+    "gpu_ms_sum": 52022.907156495
+  },
+  "stand_terminal_state_byte_identical": true,
+  "stand_terminal_state_count": [
+    1,
+    1
+  ],
+  "native_completion_lines": [
+    [
+      "resting_integrated_body=completed simulated_s=6.0000002849847078 wall_s=61.299294541999998 real_time_factor=0.097880413303512506 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+    ],
+    [
+      "resting_integrated_body=completed simulated_s=6.0000002849847078 wall_s=60.921613207999997 real_time_factor=0.098487219379752244 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+    ]
+  ],
+  "vascular_core_regression_log_sha256": "017aaff7eedf60b96724cb2a0c765eab3282f637cb3b21263ab2a35c2b9ad4ac"
+}
