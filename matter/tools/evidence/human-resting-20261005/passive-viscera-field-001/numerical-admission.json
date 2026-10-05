@@ -1,0 +1,66 @@
+{
+  "qualification": "Engineering admission of GPU passive visceral presentation only; known source organ interfaces and cardiac wall defects remain unresolved. Not whole-body anatomical qualification.",
+  "native": {
+    "simulated_s": 6.000000284984708,
+    "wall_s": 61.537468584,
+    "real_time_factor": 0.09750157786868621,
+    "accepted_steps": 3000,
+    "device": "Apple M4 Pro",
+    "world_fingerprint": "6434571789366693551",
+    "vascular_dense45": true,
+    "brain_control": true,
+    "body_source_fingerprint": "11119782942869732786",
+    "coupled_program_fingerprint": "16903177929762411963",
+    "whole_body_anatomy_qualified": false
+  },
+  "body": {
+    "root_assistance_observed": false,
+    "maximum_contact_penetration_m": 0.000120462682389
+  },
+  "rendered_surfaces": {
+    "displayed_accepted_frames": 95,
+    "minimum_full_skin_bed_gap_m": -0.000110551714897,
+    "maximum_rendered_functional_volume_relative_error": 1.09402515136e-06,
+    "displayed_state_lag_steps": 1,
+    "whole_body_interfaces_qualified": false
+  },
+  "rejection_replay": "resting_integrated_rejection=pass rejected_after_accepted_predecessor=true body_q_v_root_myo_unchanged=true circulation_and_clock_unchanged=true respiration_brain_history_unchanged=true retry_matches_uninterrupted_replay=true same_command_buffer_reject=pass accepted_prefix=2 rejected_step=2 inert_suffix=1",
+  "comparison": {
+    "reference": "/Users/n/numi-human-resting-evidence-20261005/diaphragm-common-map-native-001",
+    "trace_byte_identity": {
+      "resting-coupled.csv": true,
+      "resting-surface-audit.csv": true
+    },
+    "terminal_physical_state_byte_values_identical": true
+  },
+  "accepted_samples": 94,
+  "final_accepted_values": {
+    "time_s": 6.00000028498,
+    "lung_volume_ml": 3009.74026322,
+    "airflow_ml_s": 228.208315093,
+    "PaO2_mmhg": 101.144493103,
+    "PaCO2_mmhg": 39.2626991272,
+    "SaO2": 0.973038136959,
+    "oxygen_balance_error_stpd_ml": 0.000232830643654,
+    "co2_balance_error_stpd_ml": 0.000465661287308,
+    "breaths": 1.0,
+    "tidal_ml": 542.240682989,
+    "lv_mmhg": 7.49664021236,
+    "rv_mmhg": 0.514948585424,
+    "aorta_mmhg": 78.7817727172,
+    "pulmonary_artery_mmhg": 10.4892018639,
+    "lv_ml": 126.402432215,
+    "rv_ml": 133.093359182,
+    "blood_ml": 5150.00149608,
+    "blood_error_ml": 0.00279396772385,
+    "aortic_ejected_ml": 497.111992445,
+    "pulmonary_ejected_ml": 490.232778247,
+    "complete_filling_ejection_cycles": 7.0,
+    "last_lv_stroke_ml": 70.5011480022,
+    "inspired_volume_accum_ml": 1051.97937191,
+    "last_inspiration_step": 2509.0,
+    "last_inspiration_time_s": 5.01800023834,
+    "last_inspiration_volume_accum_ml": 542.240866183,
+    "last_complete_breath_inspired_ml": 542.240857612
+  }
+}

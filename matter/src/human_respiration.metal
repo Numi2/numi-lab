@@ -108,7 +108,10 @@ kernel void nm_human_resting_skin(
             const float radial=sqrt((afterDiaphragm+state.motion.y)/afterDiaphragm);
             const float3 offset=local-anatomy.lungAnchorAndVolume.xyz;
             const float3 along=dot(offset,axis)*axis,across=offset-along;
-            const float weight=m.deformationKind==3?m.deformationWeight.x:1.0f;
+            // Passive viscera share the diaphragm field cranially, tapering
+            // toward their common pelvic attachment. They add no forces,
+            // physical mass or independent physiological state.
+            const float weight=(m.deformationKind==3||m.deformationKind==9)?m.deformationWeight.x:1.0f;
             const float3 mapped=local-axis*(displacement*basalWeight)+(radial-1.0f)*across;
             local=mix(local,mapped,weight);
             const float3 normalAlong=dot(normal,axis)*axis;

@@ -19,6 +19,9 @@ struct NumiHumanRestingAnatomy {
     std::array<unsigned,4> cavities{};
     std::map<unsigned,float> enclosedVolumes;
     std::map<unsigned,float> respiratorySweptAreas;
+    std::set<unsigned> passiveViscera;
+    unsigned passivePelvicBody=MR_INVALID_INDEX;
+    std::array<float,2> passiveTransition{}; // caudal zero and cranial unit weight, m
     struct RespiratoryBasis {
         double start=0,span=0;
         std::array<double,4> rim{};
@@ -297,6 +300,54 @@ struct NumiHumanRestingAnatomy {
             require(it!=anatomy.records.end()&&it->bodyIndex==gpu.bodyAndFlags.x,"functional source surface has wrong body owner");
             return *it;
         };
+        if(NSDictionary* passive=bindings[@"passive_viscera_geometry_binding"]) {
+            require([passive isKindOfClass:NSDictionary.class]&&
+                [passive[@"motion_model"] isEqual:@"common_respiratory_field_with_torso_pelvis_blend_v1"]&&
+                [passive[@"parameter_status"] isEqual:@"inferred_reference_attachment_not_measured_subject_motion"]&&
+                [passive[@"functional_role"] isEqual:@"passive_geometry_no_independent_forces_mass_or_physiology"],
+                "passive visceral binding has an unsupported model or attribution");
+            NSArray* values=passive[@"stable_ids"];
+            require([values isKindOfClass:NSArray.class],"passive visceral binding lacks source identities");
+            for(id value in values) {
+                require([value isKindOfClass:NSNumber.class]&&[value doubleValue]==[value unsignedIntValue],
+                    "invalid passive visceral source identity");
+                require(passiveViscera.insert([value unsignedIntValue]).second,
+                    "duplicate passive visceral source identity");
+            }
+            std::set<unsigned> expected{2,3,4,5,13,14,15,16,17,18,19,20,21,22};
+            for(unsigned id=398;id<=463;++id)expected.insert(id);
+            require(passiveViscera==expected,"passive visceral source identity set differs from the reference assembly");
+            id lower=passive[@"pelvic_body_index"];
+            require([lower isKindOfClass:NSNumber.class]&&[lower doubleValue]==[lower unsignedIntValue]&&
+                [lower unsignedIntValue]!=gpu.bodyAndFlags.x,"passive visceral pelvic anchor is invalid");
+            passivePelvicBody=[lower unsignedIntValue];
+            float anchorMinimum=INFINITY,pelvicMaximum=-INFINITY;
+            const std::set<unsigned> anchors{2,3,4,5,13,14,15,16,17,18,19,20,21,22,461};
+            for(unsigned id:passiveViscera) {
+                const auto& s=surface(id); // All shared interfaces use the same source coordinate frame.
+                for(unsigned i=s.firstVertex;i<s.firstVertex+s.vertexCount;++i) {
+                    const auto& v=anatomy.vertices[i];
+                    const float h=dotPoint({v.positionX,v.positionY,v.positionZ,0},superior);
+                    if(anchors.contains(id))anchorMinimum=std::min(anchorMinimum,h);
+                    if(id==462||id==463)pelvicMaximum=std::max(pelvicMaximum,h);
+                }
+            }
+            require(std::isfinite(anchorMinimum)&&std::isfinite(pelvicMaximum)&&anchorMinimum>pelvicMaximum,
+                "source visceral and pelvic anchors do not define a caudal transition");
+            NSArray* transition=passive[@"transition_superior_coordinates_m"];
+            require([transition isKindOfClass:NSArray.class]&&transition.count==2,
+                "passive visceral binding lacks source-derived transition coordinates");
+            for(unsigned i=0;i<2;++i)require([transition[i] isKindOfClass:NSNumber.class]&&
+                std::isfinite([transition[i] doubleValue]),"invalid passive visceral transition coordinate");
+            require(std::abs([transition[0] doubleValue]-pelvicMaximum)<1e-6&&
+                std::abs([transition[1] doubleValue]-anchorMinimum)<1e-6,
+                "passive visceral transition differs from source geometry");
+            passiveTransition={pelvicMaximum,anchorMinimum};
+            std::cout<<"resting_passive_viscera=shared_torso_pelvis_field source_surfaces="<<passiveViscera.size()
+                <<" caudal_m="<<pelvicMaximum<<" cranial_m="<<anchorMinimum
+                <<" upper_body="<<gpu.bodyAndFlags.x<<" lower_body="<<passivePelvicBody
+                <<" independent_forces=false independent_mass=false organ_physiology=false\n";
+        }
         mr_float4 centroid{};double totalVolume=0;float inferior=INFINITY,top=-INFINITY;
         for(unsigned id:lungs) {
             const auto& s=surface(id);require(s.layer==7,"functional lung binding is not a source lung lobe");

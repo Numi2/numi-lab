@@ -218,6 +218,7 @@ public:
         const std::set<unsigned> pelvicVisceralAnchors{462,463};
         NSMutableArray* registrationRows=[NSMutableArray array];
         registrationBodyIndices.insert(anatomyGPU.bodyAndFlags.x);
+        if(!functional.passiveViscera.empty())registrationBodyIndices.insert(functional.passivePelvicBody);
         for(const auto& instance:pack.instances)if(instance.identity.x==kOrganSurfaceSemantic&&
             (upperVisceralAnchors.contains(instance.identity.w)||pelvicVisceralAnchors.contains(instance.identity.w))) {
             require(instance.binding.z==MR_VISUAL_BINDING_ARTICULATED_LINK&&instance.binding.y<initialBodies.size(),
@@ -311,6 +312,8 @@ public:
                 if(functional.diaphragm.contains(instance.identity.w))deformation=4;
                 if(functional.intercostals.contains(instance.identity.w))deformation=7;
             }
+            if(instance.identity.x==kOrganSurfaceSemantic&&functional.passiveViscera.contains(instance.identity.w))
+                deformation=9;
             if(instance.identity.x==kBoneSemantic&&functional.ribs.contains(instance.identity.w)) {
                 deformation=5;chamber=functional.ribs.at(instance.identity.w);
             }
@@ -379,6 +382,28 @@ public:
                         auto p=addPoint({t.translation[0],t.translation[1],t.translation[2],0},scalePoint(rotatePoint(q,{source.positionX,source.positionY,source.positionZ,0}),t.uniformScale));
                         add(v,tissue->bodyIndex[b],p,rotatePoint(q,{source.normalX,source.normalY,source.normalZ,0}),w);
                     }
+                }else if(deformation==9) {
+                    const auto& vertex=pack.vertices.at(v);
+                    require(instance.binding.z==MR_VISUAL_BINDING_ARTICULATED_LINK&&
+                        instance.binding.y==anatomyGPU.bodyAndFlags.x,
+                        "passive shared anatomy must be stored in the common torso source frame");
+                    // Use the same local arithmetic as diaphragm/lobe vertices:
+                    // a world/torso round trip would split coincident Float32
+                    // interface points before the GPU even sees them.
+                    const auto local=addPoint(instance.translationAndScale,
+                        scalePoint(rotatePoint(instance.orientation,vertex.position),instance.translationAndScale.w));
+                    const auto normal=rotatePoint(instance.orientation,vertex.normalAndTangentSign);
+                    const float height=dotPoint(local,anatomyGPU.superiorAxisAndHeight);
+                    const float h=float(NumiHumanRestingAnatomy::smoothstep(
+                        functional.passiveTransition[0],functional.passiveTransition[1],height));
+                    maps[v].deformationWeight.x=h;
+                    const auto& pelvis=initialBodies.at(functional.passivePelvicBody);
+                    const auto world=addPoint(initialThorax.position,rotatePoint(initialThorax.orientation,local));
+                    const auto worldNormal=rotatePoint(initialThorax.orientation,normal);
+                    const auto pelvicPoint=rotatePoint(inverseRotation(pelvis.orientation),subtractPoint(world,pelvis.position));
+                    const auto pelvicNormal=rotatePoint(inverseRotation(pelvis.orientation),worldNormal);
+                    add(v,anatomyGPU.bodyAndFlags.x,local,normal,h);
+                    add(v,functional.passivePelvicBody,pelvicPoint,pelvicNormal,1-h);
                 }else {
                     const auto& vertex=pack.vertices.at(v);
                     auto p=addPoint(instance.translationAndScale,scalePoint(rotatePoint(instance.orientation,vertex.position),instance.translationAndScale.w));
@@ -405,7 +430,7 @@ public:
                 p=addPoint(p,scalePoint(point,w.positionAndWeight.w));n=addPoint(n,scalePoint(normal,w.positionAndWeight.w));
             }
             p.w=1;pack.vertices[v].position=p;
-            if(maps[v].deformationKind==1||maps[v].deformationKind==3||maps[v].deformationKind==4) {
+            if(maps[v].deformationKind==1||maps[v].deformationKind==3||maps[v].deformationKind==4||maps[v].deformationKind==9) {
                 const auto local=rotatePoint(inverseRotation(initialThorax.orientation),subtractPoint(p,initialThorax.position));
                 const auto& axis=functional.gpu.superiorAxisAndHeight;
                 const auto b=functional.respiratoryBasis.evaluate({local.x,local.y,local.z},{axis.x,axis.y,axis.z});

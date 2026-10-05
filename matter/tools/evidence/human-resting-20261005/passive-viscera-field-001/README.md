@@ -1,0 +1,13 @@
+# Passive viscera in the common respiratory field
+
+The existing native scene now binds 80 passive abdominal and pelvic source surfaces to one continuous torso-to-pelvis presentation field. Source points are rebased into torso coordinates through the exact native initial body poses. This preserves their neutral world positions (maximum error 16.1 nm), identities, topology, source-owner provenance and the bytes of every unselected surface. Upper organs use the same respiratory map as the diaphragm; a source-bounded smooth transition carries the lower bowel and pelvic organs with the pelvis.
+
+This is an inferred reference attachment convention, not measured motion of an individual or an abdominal tissue solver. It adds no physical mass, forces or organ physiology. Liver/diaphragm coupling and predominantly superior–inferior visceral respiratory motion motivate the approximation; unequal organ motion remains a limitation ([Davies et al., 1994](https://pubmed.ncbi.nlm.nih.gov/7820402/), [Song et al., 2011](https://pmc.ncbi.nlm.nih.gov/articles/PMC4539151/)).
+
+The Mac mini M4 Pro executed 3,000 accepted 2 ms steps: 6.000000285 simulated seconds in 61.537469 seconds, or 0.097502× real time. The physiology/contact CSV, the existing rendered-volume/skin CSV and the terminal physical state were identical to the preceding diaphragm run. Rejection after accepted predecessors, inert rejected suffixes, and uninterrupted-versus-retried replay all passed. This isolates the change to passive geometry.
+
+The movie contains 95 native images with their original wall-time timestamps. The whole-body organ layer is retained as `frame-organs.png`; the full movie and selected exact renderer packs remain on the mini at the paths and SHA-256 identities in `retained-large-artifacts.json`. `invocation.json` binds the executable, all runtime libraries, assets, configuration, environment, source revision and patch. No simulation or asset processing ran on the Air.
+
+**This is not complete anatomical acceptance.** Known source liver/diaphragm and liver/neighbour interfaces remain unresolved; the cardiac wall and thoracic interface repairs are separate pending changes. Matching physiological traces and small volume error do not certify those interfaces. The geometry is a mixed-source reference assembly with passive organs, not measurements of one person.
+
+The implementation is the patch retained in `source.diff.gz`, the existing `NumiHumanRestingAnatomy`/`NumiHumanRestingVisual`/`human_respiration.metal` owners, and `matter/tools/passive_viscera_geometry_rebase.py`. The existing NHANAT1 payload and anatomy receipt are reused; `rebase-summary.json` records the selected source identities and preservation checks.
