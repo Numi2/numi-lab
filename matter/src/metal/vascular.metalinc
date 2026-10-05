@@ -893,6 +893,262 @@ kernel void nm_vascular_residual(NM_VASCULAR_EQUATION_ARGUMENTS) {
     }
     output[layout.vascularBase + global] = float4(-value, 0.0f, 0.0f, 0.0f);
 }
+
+// Opt-in direct solve for the exact 21-compartment/24-edge vascular-only
+// network. It assembles each Jacobian column through vascularEquation(), so
+// the source pressure, valve, and flow laws stay owned by the normal evaluator.
+// The host selects this kernel only for a validated 45-unknown graph with no
+// inertance, transport species, tissue, cavity, or mechanical unknowns.
+kernel void nm_vascular_dense_solve(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMVascularLayoutGPU& graph [[buffer(1)]],
+    constant NMMicrostepGPU& microstep [[buffer(2)]],
+    device const NMVascularUnknownGPU* unknowns [[buffer(3)]],
+    device const NMVascularCompartmentGPU* compartments [[buffer(4)]],
+    device const NMVascularConnectionGPU* connections [[buffer(5)]],
+    device const NMVascularTissueGPU* tissues [[buffer(6)]],
+    device const NMVascularExchangeGPU* exchanges [[buffer(7)]],
+    device const uint* connectionIncidence [[buffer(8)]],
+    device const NMVascularRangeGPU* connectionRanges [[buffer(9)]],
+    device const uint* bloodExchangeIncidence [[buffer(10)]],
+    device const NMVascularRangeGPU* bloodExchangeRanges [[buffer(11)]],
+    device const uint* tissueExchangeIncidence [[buffer(12)]],
+    device const NMVascularRangeGPU* tissueExchangeRanges [[buffer(13)]],
+    device const float4* accepted [[buffer(14)]],
+    device const float4* candidate [[buffer(15)]],
+    device float4* direction [[buffer(16)]],
+    device float4* output [[buffer(17)]],
+    device NMFGMRESStateGPU* states [[buffer(18)]],
+    device NMMatterStatusGPU* statuses [[buffer(19)]],
+    device const float* elastance [[buffer(20)]],
+    device const uint* workingSet [[buffer(21)]],
+    constant uint& useWorkingSet [[buffer(22)]],
+    device const NMVascularCavityGPU* cavities [[buffer(23)]],
+    device const NMVascularCavityFaceGPU* cavityFaces [[buffer(24)]],
+    device const uint* compartmentCavity [[buffer(25)]],
+    device const NMFEMNodeStateGPU* femCandidate [[buffer(26)]],
+    device const NMFEMNodeStateGPU* femAccepted [[buffer(27)]],
+    device const float4* residual [[buffer(28)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]) {
+    constexpr uint unknownCount = 45u;
+    constexpr uint augmentedWidth = unknownCount + 1u;
+    threadgroup float matrix[unknownCount * augmentedWidth];
+    threadgroup uint pivotRow;
+    threadgroup atomic_uint failed;
+
+    if (environment >= dispatch.environmentCount || lane >= 32u) return;
+    const uint base = environment * graph.ranges.z;
+    const uint directionBase = layout.vascularBase + base;
+    if (graph.counts.x != 21u || graph.counts.y != 24u ||
+        graph.counts.z != 0u || graph.counts.w != 0u ||
+        graph.ranges.z != unknownCount || layout.vascularUnknownCount != unknownCount ||
+        layout.vascularBase != 0u) {
+        if (lane == 0u) recordFailure(statuses[environment],
+            NM_STATUS_LINEAR_SOLVER_FAILURE, NM_INVALID_INDEX,
+            graph.ranges.z, float4(float(graph.ranges.z), 0.0f, 0.0f, 0.0f));
+        for (uint local = lane; local < unknownCount; local += 32u)
+            output[directionBase + local] = float4(0.0f);
+        return;
+    }
+    if (!environmentHealthy(statuses, environment)) {
+        for (uint local = lane; local < unknownCount; local += 32u)
+            output[directionBase + local] = float4(0.0f);
+        return;
+    }
+
+    // The begin kernel owns nonlinear convergence/history. A converged or
+    // rejected candidate must not leave a stale correction in the shared
+    // Newton arena.
+    if (states[environment].diagnostics.z > 0.5f) {
+        for (uint local = lane; local < unknownCount; local += 32u)
+            output[directionBase + local] = float4(0.0f);
+        return;
+    }
+
+    if (lane == 0u)
+        atomic_store_explicit(&failed, 0u, memory_order_relaxed);
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    for (uint column = 0u; column < unknownCount; ++column) {
+        // The existing JVP reads one shared device vector. Sweep one-hot
+        // normalized directions through it, evaluating all 45 residual rows
+        // in parallel for each column.
+        for (uint local = lane; local < unknownCount; local += 32u)
+            direction[directionBase + local] = float4(
+                local == column ? 1.0f : 0.0f, 0.0f, 0.0f, 0.0f);
+        threadgroup_barrier(mem_flags::mem_device);
+        for (uint row = lane; row < unknownCount; row += 32u) {
+            const bool constrainedFlow = row >= graph.offsets.y &&
+                row < graph.offsets.z && useWorkingSet != 0u &&
+                workingSet[base + row] != 0u;
+            const float tangent = constrainedFlow ? 0.0f : vascularEquation(
+                graph, microstep.time.x, row, base, directionBase, true,
+                unknowns, compartments, connections, tissues, exchanges,
+                connectionIncidence, connectionRanges, bloodExchangeIncidence,
+                bloodExchangeRanges, tissueExchangeIncidence,
+                tissueExchangeRanges, accepted, candidate, direction, elastance,
+                workingSet, useWorkingSet != 0u, cavities, cavityFaces,
+                compartmentCavity, femCandidate, femAccepted,
+                environment * dispatch.femNodeCount, 0.0f).y;
+            if (!isfinite(tangent)) {
+                recordFailure(statuses[environment],
+                    NM_STATUS_LINEAR_SOLVER_FAILURE, NM_INVALID_INDEX,
+                    row, float4(tangent, float(column), 0.0f, 0.0f));
+                atomic_store_explicit(&failed, 1u,
+                    memory_order_relaxed);
+            }
+            matrix[row * augmentedWidth + column] = tangent;
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup | mem_flags::mem_device);
+    }
+
+    for (uint row = lane; row < unknownCount; row += 32u) {
+        const bool constrainedFlow = row >= graph.offsets.y &&
+            row < graph.offsets.z && useWorkingSet != 0u &&
+            workingSet[base + row] != 0u;
+        if (constrainedFlow) {
+            for (uint column = 0u; column < unknownCount; ++column)
+                matrix[row * augmentedWidth + column] = row == column ? 1.0f : 0.0f;
+            matrix[row * augmentedWidth + unknownCount] = 0.0f;
+        } else {
+            matrix[row * augmentedWidth + unknownCount] =
+                residual[directionBase + row].x;
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup | mem_flags::mem_device);
+
+    if (atomic_load_explicit(&failed, memory_order_relaxed) != 0u) {
+        for (uint local = lane; local < unknownCount; local += 32u)
+            output[directionBase + local] = float4(0.0f);
+        return;
+    }
+
+    // Parallel partial-pivot LU of the assembled normalized Jacobian.
+    // A singular/nonfinite pivot rejects through the ordinary Matter status;
+    // no regularized shadow system is substituted.
+    for (uint pivot = 0u; pivot < unknownCount; ++pivot) {
+        if (lane == 0u) {
+            float maximum = 0.0f;
+            pivotRow = pivot;
+            for (uint row = pivot; row < unknownCount; ++row) {
+                const float value = abs(matrix[row * augmentedWidth + pivot]);
+                if (!isfinite(value)) {
+                    maximum = NAN;
+                    break;
+                }
+                if (value > maximum) {
+                    maximum = value;
+                    pivotRow = row;
+                }
+            }
+            const float diagonal = matrix[pivotRow * augmentedWidth + pivot];
+            if (!isfinite(maximum) || !(maximum > 1.0e-30f) ||
+                !isfinite(diagonal)) {
+                atomic_store_explicit(&failed, 1u, memory_order_relaxed);
+                recordFailure(statuses[environment],
+                    NM_STATUS_LINEAR_SOLVER_FAILURE, NM_INVALID_INDEX,
+                    pivot, float4(maximum, diagonal, 0.0f, 0.0f));
+            }
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup | mem_flags::mem_device);
+        if (atomic_load_explicit(&failed, memory_order_relaxed) != 0u) break;
+        if (pivotRow != pivot) {
+            for (uint column = lane; column <= unknownCount; column += 32u) {
+                const uint a = pivot * augmentedWidth + column;
+                const uint b = pivotRow * augmentedWidth + column;
+                const float value = matrix[a];
+                matrix[a] = matrix[b];
+                matrix[b] = value;
+            }
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        const float diagonal = matrix[pivot * augmentedWidth + pivot];
+        for (uint row = pivot + 1u + lane; row < unknownCount; row += 32u) {
+            const uint rowBase = row * augmentedWidth;
+            const float factor = matrix[rowBase + pivot] / diagonal;
+            matrix[rowBase + pivot] = 0.0f;
+            for (uint column = pivot + 1u; column <= unknownCount; ++column)
+                matrix[rowBase + column] = fma(-factor,
+                    matrix[pivot * augmentedWidth + column],
+                    matrix[rowBase + column]);
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup | mem_flags::mem_device);
+    }
+
+    if (atomic_load_explicit(&failed, memory_order_relaxed) != 0u) {
+        for (uint local = lane; local < unknownCount; local += 32u)
+            output[directionBase + local] = float4(0.0f);
+        return;
+    }
+
+    if (lane == 0u) {
+        // Forward substitution through unit-lower L, then backward through U.
+        for (uint row = 0u; row < unknownCount; ++row) {
+            float value = matrix[row * augmentedWidth + unknownCount];
+            for (uint column = 0u; column < row; ++column)
+                value -= matrix[row * augmentedWidth + column] *
+                    matrix[column * augmentedWidth + unknownCount];
+            matrix[row * augmentedWidth + unknownCount] = value;
+        }
+        for (int row = int(unknownCount) - 1; row >= 0; --row) {
+            float value = matrix[uint(row) * augmentedWidth + unknownCount];
+            for (uint column = uint(row) + 1u; column < unknownCount; ++column)
+                value -= matrix[uint(row) * augmentedWidth + column] *
+                    matrix[column * augmentedWidth + unknownCount];
+            matrix[uint(row) * augmentedWidth + unknownCount] = value /
+                matrix[uint(row) * augmentedWidth + uint(row)];
+            if (!isfinite(matrix[uint(row) * augmentedWidth + unknownCount])) {
+                atomic_store_explicit(&failed, 1u, memory_order_relaxed);
+                recordFailure(statuses[environment],
+                    NM_STATUS_LINEAR_SOLVER_FAILURE, NM_INVALID_INDEX,
+                    uint(row), float4(matrix[uint(row) * augmentedWidth + unknownCount],
+                        0.0f, 0.0f, 0.0f));
+                break;
+            }
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup | mem_flags::mem_device);
+    if (atomic_load_explicit(&failed, memory_order_relaxed) != 0u) {
+        for (uint local = lane; local < unknownCount; local += 32u)
+            output[directionBase + local] = float4(0.0f);
+        return;
+    }
+    for (uint local = lane; local < unknownCount; local += 32u)
+        output[directionBase + local] = float4(
+            matrix[local * augmentedWidth + unknownCount], 0.0f, 0.0f, 0.0f);
+    threadgroup_barrier(mem_flags::mem_device);
+
+    float residualNorm2 = 0.0f;
+    for (uint row = lane; row < unknownCount; row += 32u) {
+        const float applied = vascularEquation(graph, microstep.time.x, row,
+            base, directionBase, true, unknowns, compartments, connections,
+            tissues, exchanges, connectionIncidence, connectionRanges,
+            bloodExchangeIncidence, bloodExchangeRanges, tissueExchangeIncidence,
+            tissueExchangeRanges, accepted, candidate, direction, elastance,
+            workingSet, useWorkingSet != 0u, cavities, cavityFaces,
+            compartmentCavity, femCandidate, femAccepted,
+            environment * dispatch.femNodeCount, 0.0f).y;
+        const bool constrainedFlow = row >= graph.offsets.y &&
+            row < graph.offsets.z && useWorkingSet != 0u &&
+            workingSet[base + row] != 0u;
+        const float expected = constrainedFlow ? 0.0f : residual[directionBase + row].x;
+        const float error = expected - applied;
+        residualNorm2 += error * error;
+        if (!isfinite(error)) {
+            recordFailure(statuses[environment],
+                NM_STATUS_LINEAR_SOLVER_FAILURE, NM_INVALID_INDEX,
+                row, float4(error, applied, expected, 0.0f));
+        }
+    }
+    residualNorm2 = simd_sum(residualNorm2);
+    if (lane == 0u && environmentHealthy(statuses, environment)) {
+        states[environment].diagnostics.x = sqrt(max(residualNorm2, 0.0f));
+        states[environment].diagnostics.z = 1.0f;
+        // `w` is the count of Krylov columns; the direct solve took none.
+        states[environment].diagnostics.w = 0.0f;
+    }
+}
 kernel void nm_vascular_operator(NM_VASCULAR_EQUATION_ARGUMENTS) {
     if (global >= dispatch.environmentCount * graph.ranges.z) return;
     const uint environment = global / graph.ranges.z;

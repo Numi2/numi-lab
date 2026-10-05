@@ -857,6 +857,10 @@ struct RuntimeConfiguration {
     // This additionally requires a nonzero accepted-state MyoSim capacity and
     // its sibling NumiMatterPhysicalStateDigest.metallib image.
     bool enablePhysicalStateDigest = false;
+    // Opt into a fused 45-unknown vascular linear solve when the initialized
+    // world is an exact vascular-only, zero-inertance 21/24 network. Ineligible
+    // worlds continue through the general FGMRES path.
+    bool enableVascularDense45 = false;
 };
 
 struct HumanSupportConsequencesView {

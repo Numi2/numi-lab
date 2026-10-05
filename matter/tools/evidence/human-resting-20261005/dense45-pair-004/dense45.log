@@ -1,0 +1,4 @@
+runtime=Numi Matter runtime initialized with eligible dense45 vascular solve device=Apple M4 Pro world_fingerprint=6020581806073115747 timestep_s=0.00200000009499
+accepted=2000 time_s=4.00000018999 PaCO2=39.5408096313
+accepted=3000 time_s=6.00000028498 PaCO2=39.3035812378
+accepted_steps=3000 simulated_s=6.00000028498 wall_s=21.261836 gpu_s=20.8238866692 real_time_factor=0.282195774861 Brain_control=1 no_anatomy_or_resting_claim=true

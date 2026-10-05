@@ -111,6 +111,60 @@ NM_ASSERT_PROOF_V2_FIELD_LAYOUT(motorCandidateFingerprint);
 NM_ASSERT_PROOF_V2_FIELD_LAYOUT(inboundAuthorityFingerprint);
 NM_ASSERT_PROOF_V2_FIELD_LAYOUT(proofFingerprint);
 #undef NM_ASSERT_PROOF_V2_FIELD_LAYOUT
+
+const char* vascularDense45Ineligibility(const CompiledWorld& world) {
+    const auto& d = world.dispatch;
+    const auto& vascular = world.vascular;
+    const auto& graph = vascular.layout;
+    if (d.environmentCount == 0u) return "no environments";
+    if (d.materialCount != 0u || d.parameterCount != 0u)
+        return "Matter material or parameter graph present";
+    if (d.objectCount != 0u || d.particleCount != 0u || d.femNodeCount != 0u ||
+        d.tetrahedronCount != 0u || d.topologyNodeCapacity != 0u ||
+        d.cohesiveFaceCount != 0u || d.punctureChannelCount != 0u ||
+        d.rigidGeneralizedCapacity != 0u || d.rigidProxyCount != 0u ||
+        d.contactPairCount != 0u || d.deformableContactCapacity != 0u ||
+        d.femHumanAttachmentCount != 0u || d.mpmActiveNodeCapacity != 0u ||
+        d.mpmGridCount != 0u || d.mpmBlockCount != 0u ||
+        d.mpmBlockLookupCount != 0u || d.gridNodeCount != 0u ||
+        d.surfaceFaceCount != 0u || d.rigidQCapacity != 0u ||
+        d.fieldBoundaryCount != 0u || d.mutationCommandCount != 0u ||
+        d.learnedMaterialCount != 0u || d.learnedWeightCount != 0u ||
+        d.learnedLayerCount != 0u) {
+        return "nonvascular Matter mechanical or learned state present";
+    }
+    if (graph.counts.x != 21u || graph.counts.y != 24u ||
+        graph.counts.z != 0u || graph.counts.w != 0u ||
+        graph.ranges.x != 0u || graph.ranges.y != 0u ||
+        graph.ranges.z != 45u || graph.ranges.w != 0u ||
+        graph.offsets.x != 0u || graph.offsets.y != 21u ||
+        graph.offsets.z != 45u || graph.offsets.w != 45u ||
+        graph.cavities.x != 0u || graph.cavities.y != 0u ||
+        graph.cavities.z != 45u || graph.cavities.w != 0u ||
+        vascular.compartments.size() != 21u ||
+        vascular.connections.size() != 24u ||
+        vascular.unknowns.size() != 45u) {
+        return "vascular topology is not the exact 21/24/45 graph";
+    }
+    if (
+        !vascular.species.empty() || !vascular.tissues.empty() ||
+        !vascular.exchanges.empty() || !vascular.tissueBindings.empty() ||
+        !vascular.cavities.empty() || !vascular.cavityFaces.empty() ||
+        !world.objects.empty() || !world.mpm.particles.empty() ||
+        !world.mpm.nodes.empty() || !world.mpm.grids.empty() ||
+        !world.mpm.blocks.empty() ||
+        !world.fem.nodes.empty() || !world.fem.tetrahedra.empty() ||
+        !world.fem.humanAttachments.empty() ||
+        !world.contact.pairs.empty() || !world.contact.rigidProxies.empty()) {
+        return "nonvascular compiled arrays are present";
+    }
+    if (!std::all_of(vascular.connections.begin(), vascular.connections.end(),
+        [](const NMVascularConnectionGPU& edge) {
+            return edge.physical.y == 0.0f;
+        })) return "vascular edge inertance is nonzero";
+    return nullptr;
+}
+
 static_assert(sizeof(NMExactInboundAuthorityGPUV2) ==
               sizeof(MRNumanXExactInboundAuthorityGPUV2));
 static_assert(alignof(NMExactInboundAuthorityGPUV2) ==
@@ -638,6 +692,7 @@ struct Runtime::State {
     std::uint64_t acceptedStateProofProgramFingerprintV2 = 0u;
     std::uint64_t acceptedStateProofMujocoBytesPerEnvironmentCapacity = 0u;
     bool physicalStateDigestEnabled = false;
+    bool enableVascularDense45 = false;
     std::size_t acceptedStateProofResidentByteCount = 0u;
     std::size_t residentBytes = 0u;
     std::uint32_t identificationDistributionCount = 0u;
@@ -2346,6 +2401,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_vascular_commit",
             "nm_vascular_rollback",
             "nm_vascular_residual",
+            "nm_vascular_dense_solve",
             "nm_vascular_operator",
             "nm_vascular_cavity_forces",
             "nm_vascular_cavity_operator",
@@ -3470,6 +3526,23 @@ RuntimeDiagnostics Runtime::initialize(
             static_cast<std::uint32_t>(mixedUnknownTotal - multiplied(
                 world.vascular.layout.ranges.z)),
             vascularTolerance, 0u};
+        const char* dense45Reason = vascularDense45Ineligibility(world);
+        if (dense45Reason == nullptr &&
+            candidate->humanSupportDispatch.contactCount != 0u)
+            dense45Reason = "Human support unknowns are present";
+        if (dense45Reason == nullptr &&
+            candidate->humanEqualityDispatch.count != 0u)
+            dense45Reason = "Human joint equality rows are present";
+        if (dense45Reason == nullptr &&
+            candidate->humanLimitDispatch.count != 0u)
+            dense45Reason = "Human joint limit rows are present";
+        if (dense45Reason == nullptr &&
+            (candidate->fgmresLayout.vascularBase != 0u ||
+             candidate->fgmresLayout.unknownCount != 45u ||
+             candidate->fgmresLayout.vascularUnknownCount != 45u))
+            dense45Reason = "FGMRES arena is not exactly the 45 vascular unknowns";
+        candidate->enableVascularDense45 =
+            configuration.enableVascularDense45 && dense45Reason == nullptr;
         candidate->femSolution = privateScratch<nm_float4>(
             candidate->device, mixedUnknownTotal,
             valid, candidate->residentBytes);
@@ -3956,7 +4029,17 @@ RuntimeDiagnostics Runtime::initialize(
         diagnostics.encoded = true;
         diagnostics.residentBytes = candidate->residentBytes;
         diagnostics.device = nsString(candidate->device.name);
-        diagnostics.message = "Numi Matter runtime initialized";
+        if (candidate->enableVascularDense45) {
+            diagnostics.message =
+                "Numi Matter runtime initialized with eligible dense45 vascular solve";
+        } else if (configuration.enableVascularDense45) {
+            diagnostics.message =
+                "Numi Matter runtime initialized; dense45 ineligible (" +
+                std::string(dense45Reason == nullptr ? "unknown" : dense45Reason) +
+                "), using FGMRES";
+        } else {
+            diagnostics.message = "Numi Matter runtime initialized";
+        }
         state_ = std::move(candidate);
         return diagnostics;
     }
@@ -7217,6 +7300,86 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 return diagnostics;
             }
 
+            if (state.enableVascularDense45) {
+                const std::uint32_t restartCycle = 0u;
+                const float nonlinearTolerance = std::max(
+                    state.mixedSolverValue.residualTolerances.x, 0.0f);
+                const float scheduledForcing = std::ldexp(
+                    0.25f,
+                    -static_cast<int>(std::min(nonlinearIteration, 4u)));
+                const float linearForcing = std::clamp(
+                    std::max(std::sqrt(nonlinearTolerance), scheduledForcing),
+                    nonlinearTolerance, 0.25f);
+                dispatchGroups32("nm_fgmres_begin", environments, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
+                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femResidual offset:0u atIndex:3u];
+                    [encoder setBuffer:state.fgmresBasis offset:0u atIndex:4u];
+                    [encoder setBuffer:state.fgmresHessenberg offset:0u atIndex:5u];
+                    [encoder setBuffer:state.fgmresRotations offset:0u atIndex:6u];
+                    [encoder setBuffer:state.fgmresLeastSquares offset:0u atIndex:7u];
+                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:8u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:9u];
+                    [encoder setBytes:&micro length:sizeof(micro) atIndex:10u];
+                    [encoder setBuffer:state.schedulers offset:0u atIndex:11u];
+                    [encoder setBuffer:state.adaptive offset:0u atIndex:12u];
+                    bindPrimalContactArguments(13u);
+                    [encoder setBytes:&restartCycle
+                               length:sizeof(restartCycle) atIndex:14u];
+                    [encoder setBytes:&linearForcing
+                               length:sizeof(linearForcing) atIndex:15u];
+                    [encoder setBytes:&nonlinearIteration
+                               length:sizeof(nonlinearIteration) atIndex:16u];
+                    [encoder setBuffer:state.femCandidate
+                                 offset:0u atIndex:17u];
+                    [encoder setBuffer:state.coupledGeneralizedCandidate
+                                 offset:0u atIndex:18u];
+                    [encoder setBuffer:state.humanSupportHistoriesCandidate
+                                 offset:0u atIndex:19u];
+                    [encoder setBytes:&state.humanSupportDispatch
+                               length:sizeof(state.humanSupportDispatch) atIndex:20u];
+                    [encoder setBuffer:state.humanSupportContacts
+                                 offset:0u atIndex:21u];
+                });
+                const std::uint32_t useWorkingSet = 1u;
+                dispatchGroups32("nm_vascular_dense_solve", environments, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.vascularValue.layout
+                               length:sizeof(state.vascularValue.layout) atIndex:1u];
+                    [encoder setBytes:&micro length:sizeof(micro) atIndex:2u];
+                    [encoder setBuffer:state.vascularUnknowns offset:0u atIndex:3u];
+                    [encoder setBuffer:state.vascularCompartments offset:0u atIndex:4u];
+                    [encoder setBuffer:state.vascularConnections offset:0u atIndex:5u];
+                    [encoder setBuffer:state.vascularTissues offset:0u atIndex:6u];
+                    [encoder setBuffer:state.vascularExchanges offset:0u atIndex:7u];
+                    [encoder setBuffer:state.vascularConnectionIncidence offset:0u atIndex:8u];
+                    [encoder setBuffer:state.vascularConnectionRanges offset:0u atIndex:9u];
+                    [encoder setBuffer:state.vascularBloodExchangeIncidence offset:0u atIndex:10u];
+                    [encoder setBuffer:state.vascularBloodExchangeRanges offset:0u atIndex:11u];
+                    [encoder setBuffer:state.vascularTissueExchangeIncidence offset:0u atIndex:12u];
+                    [encoder setBuffer:state.vascularTissueExchangeRanges offset:0u atIndex:13u];
+                    [encoder setBuffer:state.vascularAccepted offset:0u atIndex:14u];
+                    [encoder setBuffer:state.vascularCandidate offset:0u atIndex:15u];
+                    [encoder setBuffer:state.femSolution offset:0u atIndex:16u];
+                    [encoder setBuffer:state.femSolution offset:0u atIndex:17u];
+                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:18u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:19u];
+                    [encoder setBuffer:state.vascularElastance offset:0u atIndex:20u];
+                    [encoder setBuffer:state.vascularWorkingSet offset:0u atIndex:21u];
+                    [encoder setBytes:&useWorkingSet
+                               length:sizeof(useWorkingSet) atIndex:22u];
+                    [encoder setBuffer:state.vascularCavities offset:0u atIndex:23u];
+                    [encoder setBuffer:state.vascularCavityFaces offset:0u atIndex:24u];
+                    [encoder setBuffer:state.vascularCompartmentCavity offset:0u atIndex:25u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:26u];
+                    [encoder setBuffer:state.femAccepted offset:0u atIndex:27u];
+                    [encoder setBuffer:state.femResidual offset:0u atIndex:28u];
+                    [encoder setBytes:&state.fgmresLayout
+                               length:sizeof(state.fgmresLayout) atIndex:30u];
+                });
+            } else {
+
             // Staged, GPU-resident FGMRES: expensive constitutive and contact
             // operator work is distributed over nodes/active contacts. The
             // SIMD32 object kernels only perform bounded reductions and the
@@ -8148,6 +8311,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:3u];
                     [encoder setBuffer:state.femResidual offset:0u atIndex:4u];
                 });
+            }
             }
             }
 
