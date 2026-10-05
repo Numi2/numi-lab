@@ -1,0 +1,2 @@
+/Applications/Xcode-26.6.0.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/install_name_tool: warning: changes being made to the file will invalidate the code signature in: /Users/n/numi-human-resting-triangle-cache-build-021/bin/numi-human-native
+/Users/n/numi-human-resting-triangle-cache-build-021/bin/numi-human-native: replacing existing signature

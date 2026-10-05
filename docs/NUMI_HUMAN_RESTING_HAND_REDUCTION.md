@@ -69,3 +69,27 @@ Total measured GPU time fell 39.53%; wall time was 119.966 s (0.05001 times
 real time). A 32-step control/candidate check also preserved the original
 51-row configuration exactly. This is a local comparison with concurrent CPU
 asset preparation, not a general benchmark. See `equality-cooperative-039`.
+
+The following 24-second run completed 12,000 accepted steps at 0.05065 times
+real time. Complete outer-skin checks at 10, 18 and 24 seconds found zero
+forbidden pairs. Its 18–24 s center-of-mass slopes were 0.0446, 0.0401 and
+0.00275 mm/s; it is a settling-body diagnostic, not demonstrated equilibrium.
+The recording retains 376 unretimed frames over 476.14 wall seconds.
+
+The existing projected-contact solve now also handles blocks larger than the
+64-row factor cache, using their existing device factors. The 91-row resting
+case previously fell back to interleaved equality corrections. This changes
+the finite-iteration body trajectory: it is not a bitwise-equivalent rewrite.
+In the paired six-second native run, measured GPU time fell another 29.98%,
+to 86.194 wall seconds (0.06961 times real time). Physiological trace columns
+were identical; body/contact columns changed. The three accepted full-skin
+checks remained clear, all digit coordinates stayed fixed, and rejection/retry
+checks passed. The 51-row native regression remained bit-for-bit identical.
+
+The production-kernel test now exercises 64, 65 and 91 equality rows against
+an independent reduced-mass and energy oracle, including physical support;
+5,068 checks passed on the Mac mini. A packed-triangle cache experiment made
+no meaningful measured difference and was not adopted. Exact evidence and
+both successful and failed trials are retained in `projected-equality-044`.
+The long-duration, complete breathing-cycle and cardiac anatomical gates
+remain open; these solver results do not qualify them.

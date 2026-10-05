@@ -1,0 +1,19 @@
+{
+  "scope": "The packed-triangle cache trial showed no meaningful gain in two sampled finish kernels and was not adopted. No long run claimed.",
+  "profiles": {
+    "rigid-digits-equality-finish-profile-036": {
+      "finish_ms": [
+        18.782209,
+        18.36575
+      ]
+    },
+    "rigid-digits-triangle-profile-041": {
+      "finish_ms": [
+        18.746833,
+        18.28725
+      ]
+    }
+  },
+  "physiology_trace_identical": true,
+  "surface_trace_identical": true
+}

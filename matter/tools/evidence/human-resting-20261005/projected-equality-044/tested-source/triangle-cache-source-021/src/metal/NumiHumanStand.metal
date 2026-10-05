@@ -57,7 +57,7 @@ struct MRStandFinishWorkCounters {
 // sequence. Completed blocks update independent future rows in parallel;
 // lane zero resolves dependencies within each block and performs the original
 // ordered backward substitution. All lanes enter every barrier together.
-template<typename FactorPointer>
+template<bool packedTriangleCache, typename FactorPointer>
 inline bool mrNumiHumanBilateralSolveCooperative(
     FactorPointer factor,
     device const float* inverseScale,
@@ -66,7 +66,8 @@ inline bool mrNumiHumanBilateralSolveCooperative(
     const uint n,
     const uint lane,
     const uint threadCount,
-    threadgroup uint* succeeded
+    threadgroup uint* succeeded,
+    threadgroup float* triangleCache
 ) {
     if (lane == 0u) {
         *succeeded = n != 0u && n <= MR_NUMI_HUMAN_STAND_MAX_DOFS ? 1u : 0u;
@@ -99,6 +100,16 @@ inline bool mrNumiHumanBilateralSolveCooperative(
     threadgroup_barrier(mem_flags::mem_threadgroup);
     if (*succeeded == 0u) return false;
 
+    // A 91-row strict triangle fits the existing 64x64 cache (4095
+    // floats). Reuse it first for L, then U; keep pivots in the original
+    // factor allocation. This changes no arithmetic or FMA ordering.
+    if (packedTriangleCache) {
+        for (uint i = lane; i < n; i += threadCount)
+            for (uint j = 0u; j < i; ++j)
+                triangleCache[i * (i - 1u) / 2u + j] = factor[i * n + j];
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+
     constexpr uint blockSize = 4u;
     for (uint begin = 0u; begin < n; begin += blockSize) {
         const uint end = min(begin + blockSize, n);
@@ -107,7 +118,9 @@ inline bool mrNumiHumanBilateralSolveCooperative(
                 float value = rhs[i];
                 for (uint j = begin; j < i; ++j)
                     value = mrNHBilateralFma(
-                        -factor[i * n + j], rhs[j], value);
+                        -(packedTriangleCache
+                            ? triangleCache[i * (i - 1u) / 2u + j]
+                            : factor[i * n + j]), rhs[j], value);
                 rhs[i] = value;
             }
         }
@@ -116,9 +129,19 @@ inline bool mrNumiHumanBilateralSolveCooperative(
             float value = rhs[i];
             for (uint j = begin; j < end; ++j)
                 value = mrNHBilateralFma(
-                    -factor[i * n + j], rhs[j], value);
+                    -(packedTriangleCache
+                        ? triangleCache[i * (i - 1u) / 2u + j]
+                        : factor[i * n + j]), rhs[j], value);
             rhs[i] = value;
         }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+
+    if (packedTriangleCache) {
+        for (uint i = lane; i < n; i += threadCount)
+            for (uint j = i + 1u; j < n; ++j)
+                triangleCache[i * n - i * (i + 1u) / 2u + j - i - 1u] =
+                    factor[i * n + j];
         threadgroup_barrier(mem_flags::mem_threadgroup);
     }
 
@@ -128,7 +151,9 @@ inline bool mrNumiHumanBilateralSolveCooperative(
             float value = rhs[i];
             for (uint j = i + 1u; j < n; ++j)
                 value = mrNHBilateralFma(
-                    -factor[i * n + j], rhs[j], value);
+                    -(packedTriangleCache
+                        ? triangleCache[i * n - i * (i + 1u) / 2u + j - i - 1u]
+                        : factor[i * n + j]), rhs[j], value);
             const float pivot = factor[i * n + i];
             if (pivot == 0.0f || !isfinite(pivot)) {
                 *succeeded = 0u;
@@ -1212,7 +1237,7 @@ kernel void mr_numi_human_stand_step(
         equalityResponseByDof + nv * equalityCount;
     const bool useProjectedContacts =
         equalityCount != 0u &&
-        equalityCount <= MR_NUMI_HUMAN_STAND_MAX_DOFS &&
+        equalityCount <= kCachedEqualityCapacity &&
         (dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) != 0u &&
         dispatch.supportContactCount != 0u &&
         bodyCount * MR_NUMI_HUMAN_STAND_SPATIAL_SCRATCH_ROWS * nv >=
@@ -1537,12 +1562,9 @@ kernel void mr_numi_human_stand_step(
                             response[equality.indices.w], residual);
                     independentRhs[row] = residual;
                 }
-                const bool solved = equalityCount <= kCachedEqualityCapacity
-                    ? mrNumiHumanBilateralSolve(equalityFactorStorage,
-                        equalityScale, equalityPivots, independentRhs, equalityCount)
-                    : mrNumiHumanBilateralSolve(equalityFactor,
-                        equalityScale, equalityPivots, independentRhs, equalityCount);
-                if (!solved) {
+                if (!mrNumiHumanBilateralSolve(equalityFactorStorage,
+                        equalityScale, equalityPivots, independentRhs,
+                        equalityCount)) {
                     valid = false;
                     break;
                 }
@@ -2061,7 +2083,7 @@ kernel void mr_numi_human_stand_projected_response_assemble(
     const bool contactEnabled =
         (dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) != 0u;
     const bool useProjectedContacts =
-        equalityCount != 0u && equalityCount <= MR_NUMI_HUMAN_STAND_MAX_DOFS &&
+        equalityCount != 0u && equalityCount <= kCachedEqualityCapacity &&
         contactEnabled && dispatch.supportContactCount != 0u &&
         bodyCount * MR_NUMI_HUMAN_STAND_SPATIAL_SCRATCH_ROWS * nv >=
             (2u + equalityCount) * nv +
@@ -2265,7 +2287,7 @@ kernel void mr_numi_human_stand_projected_response_cooperative(
     const bool contactEnabled =
         (dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) != 0u;
     const bool useProjectedContacts =
-        equalityCount != 0u && equalityCount <= MR_NUMI_HUMAN_STAND_MAX_DOFS &&
+        equalityCount != 0u && equalityCount <= kCachedEqualityCapacity &&
         contactEnabled && dispatch.supportContactCount != 0u &&
         articulation.bodyCount * MR_NUMI_HUMAN_STAND_SPATIAL_SCRATCH_ROWS * nv >=
             (2u + equalityCount) * nv +
@@ -2636,7 +2658,7 @@ kernel void mr_numi_human_stand_finish(
         equalityResponseByDof + nv * equalityCount;
     const bool useProjectedContacts =
         equalityCount != 0u &&
-        equalityCount <= MR_NUMI_HUMAN_STAND_MAX_DOFS &&
+        equalityCount <= kCachedEqualityCapacity &&
         (dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) != 0u &&
         dispatch.supportContactCount != 0u &&
         bodyCount * MR_NUMI_HUMAN_STAND_SPATIAL_SCRATCH_ROWS * nv >=

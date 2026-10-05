@@ -1,0 +1,590 @@
+{
+  "scope": "Production projected-contact solver extended beyond64rows;91row native6s and51row regression, plus preceding24s rigid-digit stability. Known anatomy failures prevent final acceptance. Packedtrianglecachetrialretainednotadopted.",
+  "retained_files": [
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/analyze-rigid-digits-stability-040.py",
+      "source_sha256": "db1e0e85e9f8de136df677ecb985e3efff00822f76871975945ecb155dbcae41",
+      "retained": "analyze-rigid-digits-stability-040.py",
+      "retained_sha256": "db1e0e85e9f8de136df677ecb985e3efff00822f76871975945ecb155dbcae41"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/build-triangle-cache-021.py",
+      "source_sha256": "dccba6f5ee7049c9d57800bc371d72bdfbfc00d3ebdd66956904bc87b5ca97e9",
+      "retained": "build-triangle-cache-021.py",
+      "retained_sha256": "dccba6f5ee7049c9d57800bc371d72bdfbfc00d3ebdd66956904bc87b5ca97e9"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/triangle-cache-build-021-invocation.json",
+      "source_sha256": "4e5d9787a0055f5ee6d63b23f69d3ed790736d9d4408b494acb4b4f234a454e9",
+      "retained": "triangle-cache-build-021-invocation.json",
+      "retained_sha256": "4e5d9787a0055f5ee6d63b23f69d3ed790736d9d4408b494acb4b4f234a454e9"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/triangle-cache-build-021-result.json",
+      "source_sha256": "8800cdc62653b886072cd0347fa5e0a10e608cb34ef6f141310a4b3f0dd5f7ec",
+      "retained": "triangle-cache-build-021-result.json",
+      "retained_sha256": "8800cdc62653b886072cd0347fa5e0a10e608cb34ef6f141310a4b3f0dd5f7ec"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/triangle-cache-build-021.log",
+      "source_sha256": "4e4f37c0a3fe1299949ff5f954aa860482de0dfcfce4094ce1cd0b0ad9501d78",
+      "retained": "triangle-cache-build-021.log",
+      "retained_sha256": "4e4f37c0a3fe1299949ff5f954aa860482de0dfcfce4094ce1cd0b0ad9501d78"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/run-resting-triangle-cache-profile-041.py",
+      "source_sha256": "2b790b3906aea21e289ca9386992f6e01048b28c40afdae011e5ed737bb6b3dc",
+      "retained": "run-resting-triangle-cache-profile-041.py",
+      "retained_sha256": "2b790b3906aea21e289ca9386992f6e01048b28c40afdae011e5ed737bb6b3dc"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/build-projected-equality-022.py",
+      "source_sha256": "f981ebacf6475473927e819becab349ade7ab728062bffc9d8f3e79f988dfc70",
+      "retained": "build-projected-equality-022.py",
+      "retained_sha256": "f981ebacf6475473927e819becab349ade7ab728062bffc9d8f3e79f988dfc70"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/projected-equality-build-022-invocation.json",
+      "source_sha256": "f507106277cc784762affe3ce87c1d17116ca7119622295f8e955b5ddf6a0570",
+      "retained": "projected-equality-build-022-invocation.json",
+      "retained_sha256": "f507106277cc784762affe3ce87c1d17116ca7119622295f8e955b5ddf6a0570"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/projected-equality-build-022-result.json",
+      "source_sha256": "83913c5fda313cfb0123fa9f1679bb2a67d5aa30a98ee03cb7c5fcfdca61d4a1",
+      "retained": "projected-equality-build-022-result.json",
+      "retained_sha256": "83913c5fda313cfb0123fa9f1679bb2a67d5aa30a98ee03cb7c5fcfdca61d4a1"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/projected-equality-build-022.log",
+      "source_sha256": "dd3eba44d9640535fcdce72353d8c7cc6882853a1c8aa796ea3963282451b5b9",
+      "retained": "projected-equality-build-022.log",
+      "retained_sha256": "dd3eba44d9640535fcdce72353d8c7cc6882853a1c8aa796ea3963282451b5b9"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/run-resting-projected-equality-profile-042.py",
+      "source_sha256": "3a3dc074f744c7bbfc7ffcb9cdd3037742efecf82ea287e3a45a50e4c663d620",
+      "retained": "run-resting-projected-equality-profile-042.py",
+      "retained_sha256": "3a3dc074f744c7bbfc7ffcb9cdd3037742efecf82ea287e3a45a50e4c663d620"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/run-resting-projected-equality-043.py",
+      "source_sha256": "583a968dee16632c4bb70c0edc03aa53710d6232956ba40fe925895e1a8a0fa9",
+      "retained": "run-resting-projected-equality-043.py",
+      "retained_sha256": "583a968dee16632c4bb70c0edc03aa53710d6232956ba40fe925895e1a8a0fa9"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/run-resting-source51-projected-044.py",
+      "source_sha256": "ea91dd765328d1297a642f2a326c77c8d6047195e6b3d468212c562db75223e2",
+      "retained": "run-resting-source51-projected-044.py",
+      "retained_sha256": "ea91dd765328d1297a642f2a326c77c8d6047195e6b3d468212c562db75223e2"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/compare-projected-equality-043.py",
+      "source_sha256": "c8819a546134c5fbb82e3fe872d26eae836cb0498c8621203df6b1e7dba4e29a",
+      "retained": "compare-projected-equality-043.py",
+      "retained_sha256": "c8819a546134c5fbb82e3fe872d26eae836cb0498c8621203df6b1e7dba4e29a"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/projected-equality-comparison-043.json",
+      "source_sha256": "ead67228c360dd7be629458d7c3961077424894c7cbbe622e0ed298804519cd5",
+      "retained": "projected-equality-comparison-043.json",
+      "retained_sha256": "ead67228c360dd7be629458d7c3961077424894c7cbbe622e0ed298804519cd5"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/compare-projected-equality-default-044.py",
+      "source_sha256": "548ed6dcfd925b42ed5ab88b954eece11024246710d42f1fa83a02e120e46d52",
+      "retained": "compare-projected-equality-default-044.py",
+      "retained_sha256": "548ed6dcfd925b42ed5ab88b954eece11024246710d42f1fa83a02e120e46d52"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/projected-equality-default-comparison-044.json",
+      "source_sha256": "890080eba66ae38bd331b5c2c9ca28ebea223e3f1ade71c890d550bd3d4c270b",
+      "retained": "projected-equality-default-comparison-044.json",
+      "retained_sha256": "890080eba66ae38bd331b5c2c9ca28ebea223e3f1ade71c890d550bd3d4c270b"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/bilateral-projected-022-build.log",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "retained": "bilateral-projected-022-build.log",
+      "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/bilateral-projected-022-build2.log",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "retained": "bilateral-projected-022-build2.log",
+      "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/bilateral-projected-022-test.log",
+      "source_sha256": "92ba98efe1c641ffb065bd3303f4a82b60d4802e12005cbd8891c5a271193a35",
+      "retained": "bilateral-projected-022-test.log",
+      "retained_sha256": "92ba98efe1c641ffb065bd3303f4a82b60d4802e12005cbd8891c5a271193a35"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/bilateral-projected-022-test2.log",
+      "source_sha256": "583e7e3cd98dfd6ef3321dde10a6482ccc819fcaf18878d425e582906fb4fb7b",
+      "retained": "bilateral-projected-022-test2.log",
+      "retained_sha256": "583e7e3cd98dfd6ef3321dde10a6482ccc819fcaf18878d425e582906fb4fb7b"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-stability-native-040/accepted-geometry/step-11999.receipt.json",
+      "source_sha256": "1c2adcc766acb2046d27a77d83d0632675445e9f055d82d5fd5f5d8f031c4c04",
+      "retained": "rigid-digits-stability-native-040/accepted-geometry/step-11999.receipt.json",
+      "retained_sha256": "1c2adcc766acb2046d27a77d83d0632675445e9f055d82d5fd5f5d8f031c4c04"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-stability-native-040/accepted-geometry/step-2783.receipt.json",
+      "source_sha256": "5d3f3531ba651fae01e4c083b1a9842aeb781661069c577d7e01dffc67c657ee",
+      "retained": "rigid-digits-stability-native-040/accepted-geometry/step-2783.receipt.json",
+      "retained_sha256": "5d3f3531ba651fae01e4c083b1a9842aeb781661069c577d7e01dffc67c657ee"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-stability-native-040/accepted-geometry/step-4991.receipt.json",
+      "source_sha256": "f3901976235dd416462f8554bd1c7c6fdc2f7c9f11adc47e681bf6c333a66099",
+      "retained": "rigid-digits-stability-native-040/accepted-geometry/step-4991.receipt.json",
+      "retained_sha256": "f3901976235dd416462f8554bd1c7c6fdc2f7c9f11adc47e681bf6c333a66099"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-stability-native-040/accepted-geometry/step-639.receipt.json",
+      "source_sha256": "769904f6219f883e092eaa2fbf927b114d76be27760289908e3d6c43f8dc3c12",
+      "retained": "rigid-digits-stability-native-040/accepted-geometry/step-639.receipt.json",
+      "retained_sha256": "769904f6219f883e092eaa2fbf927b114d76be27760289908e3d6c43f8dc3c12"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-stability-native-040/accepted-geometry/step-8991.receipt.json",
+      "source_sha256": "41cd7f4ed5333a9eb09f154d8d51f7f3abd1d8bddd20ef8a373fea5459161e8b",
+      "retained": "rigid-digits-stability-native-040/accepted-geometry/step-8991.receipt.json",
+      "retained_sha256": "41cd7f4ed5333a9eb09f154d8d51f7f3abd1d8bddd20ef8a373fea5459161e8b"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-stability-native-040/engineering-stability-analysis.json",
+      "source_sha256": "13a50e73d58a264f60e592a05b760cbb458ab8edc0827bbf46bf3b2a6e378a95",
+      "retained": "rigid-digits-stability-native-040/engineering-stability-analysis.json",
+      "retained_sha256": "13a50e73d58a264f60e592a05b760cbb458ab8edc0827bbf46bf3b2a6e378a95"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-stability-native-040/execution.json",
+      "source_sha256": "3810709f72c44cae7f1ff1e41663f52a681521bb29f3dad2448ff29bada838ce",
+      "retained": "rigid-digits-stability-native-040/execution.json",
+      "retained_sha256": "3810709f72c44cae7f1ff1e41663f52a681521bb29f3dad2448ff29bada838ce"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-stability-native-040/frame-final.png",
+      "source_sha256": "8d4003c4b71d6619becac9c13dded8dcb60a752bb2103dd7605399c491585e4a",
+      "retained": "rigid-digits-stability-native-040/frame-final.png",
+      "retained_sha256": "8d4003c4b71d6619becac9c13dded8dcb60a752bb2103dd7605399c491585e4a"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-stability-native-040/invocation.json",
+      "source_sha256": "bc4c9d6173c1fb8211f58e05061f4f2119bb90c21a292f25c893ba3c3773fb88",
+      "retained": "rigid-digits-stability-native-040/invocation.json",
+      "retained_sha256": "bc4c9d6173c1fb8211f58e05061f4f2119bb90c21a292f25c893ba3c3773fb88"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-stability-native-040/movie-inspection.txt",
+      "source_sha256": "459cb327d0938d449b1935433f3c6f48063582eaa9cf15884956f746b02f4890",
+      "retained": "rigid-digits-stability-native-040/movie-inspection.txt",
+      "retained_sha256": "459cb327d0938d449b1935433f3c6f48063582eaa9cf15884956f746b02f4890"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-stability-native-040/native.log",
+      "source_sha256": "6970aa530469f8fd5c2e93117c19f6639b48b5976d9b2242f1cc76e17bee00db",
+      "retained": "rigid-digits-stability-native-040/native.log",
+      "retained_sha256": "6970aa530469f8fd5c2e93117c19f6639b48b5976d9b2242f1cc76e17bee00db"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-stability-native-040/resting-coupled.csv",
+      "source_sha256": "fd06b8f863ca3a8a8e69e37af793140da7f52b79bd2e40086f5d99232e7b2cec",
+      "retained": "rigid-digits-stability-native-040/resting-coupled.csv",
+      "retained_sha256": "fd06b8f863ca3a8a8e69e37af793140da7f52b79bd2e40086f5d99232e7b2cec"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-stability-native-040/resting-surface-audit.csv",
+      "source_sha256": "0c7c3d414c0aa1a04da437e275e2196796094b1133eb38796f7c848e8ff455c8",
+      "retained": "rigid-digits-stability-native-040/resting-surface-audit.csv",
+      "retained_sha256": "0c7c3d414c0aa1a04da437e275e2196796094b1133eb38796f7c848e8ff455c8"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-stability-native-040/source.diff",
+      "source_sha256": "4ffa79a1f4d7bb2d5096d9e8dbcb27bdb37e1cd87d987ccdbc2e0ea18ed285af",
+      "retained": "rigid-digits-stability-native-040/source.diff.gz",
+      "retained_sha256": "1593847f8ee264df23e64174c4ce25494bcfa3cde626a4869b284867ea4f682c"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-stability-native-040/whole-skin-step-11999.json",
+      "source_sha256": "03e29db63a16f2463a7e06ba139bc0fd8d2f63fa17d19d60267c436d7bc204d8",
+      "retained": "rigid-digits-stability-native-040/whole-skin-step-11999.json",
+      "retained_sha256": "03e29db63a16f2463a7e06ba139bc0fd8d2f63fa17d19d60267c436d7bc204d8"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-stability-native-040/whole-skin-step-4991.json",
+      "source_sha256": "075e58be845706f7fa1117829441dee7c7776b0eb3dd80c0781d765a6fbc946e",
+      "retained": "rigid-digits-stability-native-040/whole-skin-step-4991.json",
+      "retained_sha256": "075e58be845706f7fa1117829441dee7c7776b0eb3dd80c0781d765a6fbc946e"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-stability-native-040/whole-skin-step-8991.json",
+      "source_sha256": "d67c13e967f4ba839420e7a7134db6cf897f07cb99e14b741886c59d1807cb51",
+      "retained": "rigid-digits-stability-native-040/whole-skin-step-8991.json",
+      "retained_sha256": "d67c13e967f4ba839420e7a7134db6cf897f07cb99e14b741886c59d1807cb51"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-triangle-profile-041/execution.json",
+      "source_sha256": "fa34d97141fe4d3f62eccf5af8d50e16d8b92bae9845b5072a5322db297c0b68",
+      "retained": "rigid-digits-triangle-profile-041/execution.json",
+      "retained_sha256": "fa34d97141fe4d3f62eccf5af8d50e16d8b92bae9845b5072a5322db297c0b68"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-triangle-profile-041/invocation.json",
+      "source_sha256": "1a80c1d7b3a91965c2d93d6e6106a393691878c638fdd8aea5a260a6d86fbb93",
+      "retained": "rigid-digits-triangle-profile-041/invocation.json",
+      "retained_sha256": "1a80c1d7b3a91965c2d93d6e6106a393691878c638fdd8aea5a260a6d86fbb93"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-triangle-profile-041/native.log",
+      "source_sha256": "a4a7000067532349935c19f1bfc4267844bf9ea727154d81f81ea191cf297b37",
+      "retained": "rigid-digits-triangle-profile-041/native.log",
+      "retained_sha256": "a4a7000067532349935c19f1bfc4267844bf9ea727154d81f81ea191cf297b37"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-triangle-profile-041/resting-coupled.csv",
+      "source_sha256": "1e0414ce3daed9928e3428396070251fa006f15007f2ee77b7f78674300c66dc",
+      "retained": "rigid-digits-triangle-profile-041/resting-coupled.csv",
+      "retained_sha256": "1e0414ce3daed9928e3428396070251fa006f15007f2ee77b7f78674300c66dc"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-triangle-profile-041/resting-surface-audit.csv",
+      "source_sha256": "a1bb5df010cdfcdd247ffd8a680a8fe1fb12877cab9a86331533a155c8e307e5",
+      "retained": "rigid-digits-triangle-profile-041/resting-surface-audit.csv",
+      "retained_sha256": "a1bb5df010cdfcdd247ffd8a680a8fe1fb12877cab9a86331533a155c8e307e5"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-triangle-profile-041/source.diff",
+      "source_sha256": "ab4667b84c607a57bb27f5aa09721effc51a5369ea491e5ffa60c104601785f4",
+      "retained": "rigid-digits-triangle-profile-041/source.diff.gz",
+      "retained_sha256": "affbefdca45b9cb3b9985e2690c7f39a442cc4d9f4df3d4feeaa344bb12ff379"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-projected-profile-042/execution.json",
+      "source_sha256": "4be4be631ed9a979d50c3ba26e64ab0aeeb273503a45f0c81cdbaf8e01c280c0",
+      "retained": "rigid-digits-projected-profile-042/execution.json",
+      "retained_sha256": "4be4be631ed9a979d50c3ba26e64ab0aeeb273503a45f0c81cdbaf8e01c280c0"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-projected-profile-042/invocation.json",
+      "source_sha256": "3a58c35f8796ec910e41f26e884e92ad80e59e33e8e3a1086348d40b909dab73",
+      "retained": "rigid-digits-projected-profile-042/invocation.json",
+      "retained_sha256": "3a58c35f8796ec910e41f26e884e92ad80e59e33e8e3a1086348d40b909dab73"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-projected-profile-042/native.log",
+      "source_sha256": "1909b04f60105ae7a196d98b1a5ef8db486d9586a1698642c57019400565282e",
+      "retained": "rigid-digits-projected-profile-042/native.log",
+      "retained_sha256": "1909b04f60105ae7a196d98b1a5ef8db486d9586a1698642c57019400565282e"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-projected-profile-042/resting-coupled.csv",
+      "source_sha256": "8e57ee1536b92f74cf31d8747127d36160ead66f2d6c458a7094c48e54ebcdee",
+      "retained": "rigid-digits-projected-profile-042/resting-coupled.csv",
+      "retained_sha256": "8e57ee1536b92f74cf31d8747127d36160ead66f2d6c458a7094c48e54ebcdee"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-projected-profile-042/resting-surface-audit.csv",
+      "source_sha256": "f0caf00c3dff5e340059d44478b7c24461ca89ad7b8a4d498f2916bd11344fcb",
+      "retained": "rigid-digits-projected-profile-042/resting-surface-audit.csv",
+      "retained_sha256": "f0caf00c3dff5e340059d44478b7c24461ca89ad7b8a4d498f2916bd11344fcb"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-projected-profile-042/source.diff",
+      "source_sha256": "b0ef79ebe71a59900523ccb1f0356e2aebcaf770ede9e5a4f67e2267e0bdab11",
+      "retained": "rigid-digits-projected-profile-042/source.diff.gz",
+      "retained_sha256": "0eb8f1b0c49c093db78c0b66c0bce20999c49feaf69dbbff1737f2aeb4af38f7"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-projected-native-043/accepted-geometry/step-2783.receipt.json",
+      "source_sha256": "47135c7a629e332ed9b9dab22bc959859c7396a250e7ff00e6aa8a0b91a8d68a",
+      "retained": "rigid-digits-projected-native-043/accepted-geometry/step-2783.receipt.json",
+      "retained_sha256": "47135c7a629e332ed9b9dab22bc959859c7396a250e7ff00e6aa8a0b91a8d68a"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-projected-native-043/accepted-geometry/step-2999.receipt.json",
+      "source_sha256": "95530967cee30f84fc3398ee57f7fc14cf49dde58c22bc27a0550139e8d28b27",
+      "retained": "rigid-digits-projected-native-043/accepted-geometry/step-2999.receipt.json",
+      "retained_sha256": "95530967cee30f84fc3398ee57f7fc14cf49dde58c22bc27a0550139e8d28b27"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-projected-native-043/accepted-geometry/step-639.receipt.json",
+      "source_sha256": "c7358b178695338b6eb702ed53d9deca5eeb1270256f9f53e0ecff05a161a801",
+      "retained": "rigid-digits-projected-native-043/accepted-geometry/step-639.receipt.json",
+      "retained_sha256": "c7358b178695338b6eb702ed53d9deca5eeb1270256f9f53e0ecff05a161a801"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-projected-native-043/execution.json",
+      "source_sha256": "c517e929be4f0d7d31d115533ae7102e66fd89a6e1841682b85ec192ba0aceed",
+      "retained": "rigid-digits-projected-native-043/execution.json",
+      "retained_sha256": "c517e929be4f0d7d31d115533ae7102e66fd89a6e1841682b85ec192ba0aceed"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-projected-native-043/invocation.json",
+      "source_sha256": "256d59c3b9abb279e8b64f1c413368273d7831d0dcb282f54f6623421bfce896",
+      "retained": "rigid-digits-projected-native-043/invocation.json",
+      "retained_sha256": "256d59c3b9abb279e8b64f1c413368273d7831d0dcb282f54f6623421bfce896"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-projected-native-043/native.log",
+      "source_sha256": "b734b06d048f511d80387ec21bae8ab7aad8b42dce1c4098df427acc2df3803c",
+      "retained": "rigid-digits-projected-native-043/native.log",
+      "retained_sha256": "b734b06d048f511d80387ec21bae8ab7aad8b42dce1c4098df427acc2df3803c"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-projected-native-043/resting-coupled.csv",
+      "source_sha256": "279ead3d8f7dceaf82dbfadb2c758a41a0baa6bc8319ab74c7b493c50c853ced",
+      "retained": "rigid-digits-projected-native-043/resting-coupled.csv",
+      "retained_sha256": "279ead3d8f7dceaf82dbfadb2c758a41a0baa6bc8319ab74c7b493c50c853ced"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-projected-native-043/resting-surface-audit.csv",
+      "source_sha256": "7a368494603654198f4d857bdea7dd31a1c8a2e63dbc95110928c7d704df4da7",
+      "retained": "rigid-digits-projected-native-043/resting-surface-audit.csv",
+      "retained_sha256": "7a368494603654198f4d857bdea7dd31a1c8a2e63dbc95110928c7d704df4da7"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-projected-native-043/source.diff",
+      "source_sha256": "b0ef79ebe71a59900523ccb1f0356e2aebcaf770ede9e5a4f67e2267e0bdab11",
+      "retained": "rigid-digits-projected-native-043/source.diff.gz",
+      "retained_sha256": "0eb8f1b0c49c093db78c0b66c0bce20999c49feaf69dbbff1737f2aeb4af38f7"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-projected-native-043/whole-skin-step-2783.json",
+      "source_sha256": "73a89260566541e74ad70ca74fca0692305c92f07dfb41354b81800be6fe69f8",
+      "retained": "rigid-digits-projected-native-043/whole-skin-step-2783.json",
+      "retained_sha256": "73a89260566541e74ad70ca74fca0692305c92f07dfb41354b81800be6fe69f8"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-projected-native-043/whole-skin-step-2783.log",
+      "source_sha256": "b463d1be67c56b3bb9f7c1c46ba9fc2b58e7661657b6d53e043f8efe26a9b98d",
+      "retained": "rigid-digits-projected-native-043/whole-skin-step-2783.log",
+      "retained_sha256": "b463d1be67c56b3bb9f7c1c46ba9fc2b58e7661657b6d53e043f8efe26a9b98d"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-projected-native-043/whole-skin-step-2999.json",
+      "source_sha256": "26cf0ac6aefbbfa72f02de24a006ba8ec34f00d0028446421ca8c73f4c9103d6",
+      "retained": "rigid-digits-projected-native-043/whole-skin-step-2999.json",
+      "retained_sha256": "26cf0ac6aefbbfa72f02de24a006ba8ec34f00d0028446421ca8c73f4c9103d6"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-projected-native-043/whole-skin-step-2999.log",
+      "source_sha256": "94a69865cf9daec3d469843e78aae863cc3d9a5d6b83c1ae449fc6e6b84c2b2e",
+      "retained": "rigid-digits-projected-native-043/whole-skin-step-2999.log",
+      "retained_sha256": "94a69865cf9daec3d469843e78aae863cc3d9a5d6b83c1ae449fc6e6b84c2b2e"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-projected-native-043/whole-skin-step-639.json",
+      "source_sha256": "a0849776b720d95aff69388121ff3a51339568bc32274d243ec1dc3d3b49e458",
+      "retained": "rigid-digits-projected-native-043/whole-skin-step-639.json",
+      "retained_sha256": "a0849776b720d95aff69388121ff3a51339568bc32274d243ec1dc3d3b49e458"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-projected-native-043/whole-skin-step-639.log",
+      "source_sha256": "587594289370681563fc2577b1e2e834dc8e801bb23fc5ddcc764d8a2e966e51",
+      "retained": "rigid-digits-projected-native-043/whole-skin-step-639.log",
+      "retained_sha256": "587594289370681563fc2577b1e2e834dc8e801bb23fc5ddcc764d8a2e966e51"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source51-projected-profile-044/accepted-geometry/step-31.receipt.json",
+      "source_sha256": "4d1d5b7392a4a84cde6657b07585957b06caa8d183b7594ef4addf8fca67a7a6",
+      "retained": "source51-projected-profile-044/accepted-geometry/step-31.receipt.json",
+      "retained_sha256": "4d1d5b7392a4a84cde6657b07585957b06caa8d183b7594ef4addf8fca67a7a6"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source51-projected-profile-044/execution.json",
+      "source_sha256": "4991739811a29da826273e4fdbc008b846f6642285c890a64e0447e2a9d8f225",
+      "retained": "source51-projected-profile-044/execution.json",
+      "retained_sha256": "4991739811a29da826273e4fdbc008b846f6642285c890a64e0447e2a9d8f225"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source51-projected-profile-044/invocation.json",
+      "source_sha256": "18b467d44d54c4aea1610ad88cd7e8b2f72a10914e4841d55dafe964790ee959",
+      "retained": "source51-projected-profile-044/invocation.json",
+      "retained_sha256": "18b467d44d54c4aea1610ad88cd7e8b2f72a10914e4841d55dafe964790ee959"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source51-projected-profile-044/native.log",
+      "source_sha256": "12f7699f79e2055e95936e5c4d8689f9fad63bb594d59deff3633290e642af00",
+      "retained": "source51-projected-profile-044/native.log",
+      "retained_sha256": "12f7699f79e2055e95936e5c4d8689f9fad63bb594d59deff3633290e642af00"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source51-projected-profile-044/resting-coupled.csv",
+      "source_sha256": "c334489f2e3ade88b4e0c6203db71ee0efe246d6ea4a8cfb06228ceb272b0472",
+      "retained": "source51-projected-profile-044/resting-coupled.csv",
+      "retained_sha256": "c334489f2e3ade88b4e0c6203db71ee0efe246d6ea4a8cfb06228ceb272b0472"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source51-projected-profile-044/resting-surface-audit.csv",
+      "source_sha256": "04045ac90ce3f529a08ab1f4dadfd830f7099909e646636b4ded3908768bf061",
+      "retained": "source51-projected-profile-044/resting-surface-audit.csv",
+      "retained_sha256": "04045ac90ce3f529a08ab1f4dadfd830f7099909e646636b4ded3908768bf061"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/source51-projected-profile-044/source.diff",
+      "source_sha256": "933e02665277d85f7af283bad8b85b62152deb8bb09298f25f1d91d0cda63099",
+      "retained": "source51-projected-profile-044/source.diff.gz",
+      "retained_sha256": "87ff23be614267e314ec38bfdbf80c6d998f7a9c3790a2d02cae6a4f340df725"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-projected-equality-source-022/tests/numi_human_bilateral_metal_test.mm",
+      "source_sha256": "b257250e310ed7153a25101c218a0f4e0d99a79ce7efea9f20e82c1b812679ee",
+      "retained": "tested-source/numi_human_bilateral_metal_test.mm",
+      "retained_sha256": "b257250e310ed7153a25101c218a0f4e0d99a79ce7efea9f20e82c1b812679ee"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-triangle-cache-source-021/src/metal/NumiHumanStand.metal",
+      "source_sha256": "a131c4aa6c3e732010c92d6186fcb52500a599d76398186a07cd43056077ebeb",
+      "retained": "tested-source/triangle-cache-source-021/src/metal/NumiHumanStand.metal",
+      "retained_sha256": "a131c4aa6c3e732010c92d6186fcb52500a599d76398186a07cd43056077ebeb"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-triangle-cache-source-021/src/metal/NumiHumanStandSolve.metalinc",
+      "source_sha256": "9408bc6a134285ef0de6e4643081968b4eae8d11b0e7d90ff679b1b477529019",
+      "retained": "tested-source/triangle-cache-source-021/src/metal/NumiHumanStandSolve.metalinc",
+      "retained_sha256": "9408bc6a134285ef0de6e4643081968b4eae8d11b0e7d90ff679b1b477529019"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-projected-equality-source-022/src/metal/NumiHumanStand.metal",
+      "source_sha256": "b378b18acc67b0a7b0e7d553e0f272af33825dfa6fcef2a580bc1d58790bb518",
+      "retained": "tested-source/projected-equality-source-022/src/metal/NumiHumanStand.metal",
+      "retained_sha256": "b378b18acc67b0a7b0e7d553e0f272af33825dfa6fcef2a580bc1d58790bb518"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-projected-equality-source-022/src/metal/NumiHumanStandSolve.metalinc",
+      "source_sha256": "2d08d967a222dc0b6d707c54588496086a1a2d80f81f7ba98bd5449fb5c52a39",
+      "retained": "tested-source/projected-equality-source-022/src/metal/NumiHumanStandSolve.metalinc",
+      "retained_sha256": "2d08d967a222dc0b6d707c54588496086a1a2d80f81f7ba98bd5449fb5c52a39"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/triangle-cache-trial-041.json",
+      "source_sha256": "581f35a768344b6e94c3a9f11a4513bf7a7d65b3bbfeeac099dc8ba06c9ff442",
+      "retained": "triangle-cache-trial-041.json",
+      "retained_sha256": "581f35a768344b6e94c3a9f11a4513bf7a7d65b3bbfeeac099dc8ba06c9ff442"
+    }
+  ],
+  "large_artifacts_retained_on_macmini": [
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-stability-native-040/accepted-geometry/step-11999.mrvpack",
+      "sha256": "d318c6ea1f79c04200159701d760c4613b762395de2ea2244c4985783c87a901",
+      "size": 214589440
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-stability-native-040/accepted-geometry/step-2783.mrvpack",
+      "sha256": "e3ba519d55fdaa25905597165dd5a15613e7efa9b380de407f24e5f058d1bc46",
+      "size": 214589440
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-stability-native-040/accepted-geometry/step-4991.mrvpack",
+      "sha256": "66e2585e6c4a5e69c9cca4af0bcfdef0574eab659866de498b6f4b08906e7ee8",
+      "size": 214589440
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-stability-native-040/accepted-geometry/step-639.mrvpack",
+      "sha256": "590de6ed1a29e42e453730c242512f661d96c1a9a0370905b5aefba9007b8da2",
+      "size": 214589440
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-stability-native-040/accepted-geometry/step-8991.mrvpack",
+      "sha256": "2c57dcac18f6acf42f0bd2b82556bbb6cf487de07fcccde9dc2b4303af8ea298",
+      "size": 214589440
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-stability-native-040/native-viewer.mov",
+      "sha256": "f562c7ec469906e26a9972ed93bf25453d40a4769cbaa4a20b9ef05604372e04",
+      "size": 2707010
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-stability-native-040/resting-human.mrvpack",
+      "sha256": "4f969193b7e66385b5a06d9d55a3ea966d156821e76558b16d4a785cdaddd6a7",
+      "size": 214589440
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-triangle-profile-041/native-viewer.mov",
+      "sha256": "b780ed1198d8a506e5707d621f34a44a06a1e9072d2738950735cc7b150b4cb3",
+      "size": 45938
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-triangle-profile-041/resting-human.mrvpack",
+      "sha256": "4f969193b7e66385b5a06d9d55a3ea966d156821e76558b16d4a785cdaddd6a7",
+      "size": 214589440
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-projected-profile-042/native-viewer.mov",
+      "sha256": "71f85d79fd5d69f85b087bc7f2a0759eae1fd20b1819c257494f332706517ac9",
+      "size": 45926
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-projected-profile-042/resting-human.mrvpack",
+      "sha256": "4f969193b7e66385b5a06d9d55a3ea966d156821e76558b16d4a785cdaddd6a7",
+      "size": 214589440
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-projected-native-043/accepted-geometry/step-2783.mrvpack",
+      "sha256": "ca9197c0753d6a9ed06e007ae02264f6270dae924a7ffaa7c9929cf87fa223bc",
+      "size": 214589440
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-projected-native-043/accepted-geometry/step-2999.mrvpack",
+      "sha256": "a860ce25de462e09c49312142463a0b3765c4fd306dcaf1f464c34bd0b16aaf4",
+      "size": 214589440
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-projected-native-043/accepted-geometry/step-639.mrvpack",
+      "sha256": "5ff53b3461068415633841e13cbba9687777fbe06da1b22a8d44204a93f64a4f",
+      "size": 214589440
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-projected-native-043/native-viewer.mov",
+      "sha256": "2b585dcc5af50412442f6338d43a4f2733b510c4121f1e0bfb4f2aac5fe31f8b",
+      "size": 711421
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/rigid-digits-projected-native-043/resting-human.mrvpack",
+      "sha256": "4f969193b7e66385b5a06d9d55a3ea966d156821e76558b16d4a785cdaddd6a7",
+      "size": 214589440
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/source51-projected-profile-044/accepted-geometry/step-31.mrvpack",
+      "sha256": "15a2ecb044724930bbd63a9d897d426d436cd88c5fc9b4eae6ac77bd941ea30a",
+      "size": 214589440
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/source51-projected-profile-044/native-viewer.mov",
+      "sha256": "38a1a63038a463371de3bcbc257ea9552f65752cf56b7d4fc62b141a4f75530e",
+      "size": 43052
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/source51-projected-profile-044/resting-human.mrvpack",
+      "sha256": "4f969193b7e66385b5a06d9d55a3ea966d156821e76558b16d4a785cdaddd6a7",
+      "size": 214589440
+    }
+  ],
+  "bilateral_test_build_command": [
+    "xcrun",
+    "clang++",
+    "-std=c++20",
+    "-O2",
+    "-fobjc-arc",
+    "-framework",
+    "Foundation",
+    "-framework",
+    "Metal",
+    "-I/Users/n/numi-human-resting-projected-equality-source-022/include",
+    "/Users/n/numi-human-resting-projected-equality-source-022/tests/numi_human_bilateral_metal_test.mm",
+    "-o",
+    "/Users/n/numi-human-resting-evidence-20261005/bilateral-projected-022-test"
+  ],
+  "bilateral_test_binary_sha256": "d1a28c176ecc7080d17a6032e8d113587570e27fa4fadf2c2469a3be969ab503",
+  "bilateral_test_run_command": [
+    "/Users/n/numi-human-resting-evidence-20261005/bilateral-projected-022-test",
+    "/Users/n/numi-human-resting-projected-equality-build-022/shaders/MetalRobo.metallib"
+  ]
+}
