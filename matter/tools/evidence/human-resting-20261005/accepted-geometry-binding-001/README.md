@@ -14,6 +14,12 @@ volume error 1.003e-6 relative to the actual target. The lung target minus FRC
 and the two swept volumes closes within 0.000289 mL (FP32 arithmetic). Native
 wall time was 63.14875 s, RTF 0.09501; wrapper exit status was zero.
 
+The integrated profile covers all 94 bounded command buffers: 56.515 s of GPU
+update work and 5.420 ms total host snapshot copies. Median GPU time per
+physical step was 18.871 ms; full physical-state readback occurred only at the
+terminal segment. This identifies a GPU update bottleneck at the current
+resolution. It is a six-second profile, not the final five-minute measurement.
+
 This tests observation binding and numerical volume consistency. The retained
 atlas still has known phase intersections; it is not anatomical or endurance
 qualification. Exact invocation, source/binary/library/asset identities and

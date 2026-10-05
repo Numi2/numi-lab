@@ -1,0 +1,17 @@
+{
+  "scope": "Integrated GPU command-buffer profile including body, muscle/tendon, circulation, respiration and Brain; presentation/initialization remain in native wall time",
+  "run": "native-accepted-geometry-001",
+  "segments": 94,
+  "accepted_steps": 3000.0,
+  "simulated_seconds": 6.000000284984708,
+  "native_wall_seconds": 63.1487495,
+  "integrated_gpu_seconds": 56.51517145615,
+  "integrated_command_seconds": 56.570059203,
+  "host_snapshot_copy_seconds": 0.005419671,
+  "full_state_readback_segments": [
+    3000
+  ],
+  "median_gpu_ms_per_physical_step": 18.870766274640623,
+  "max_host_snapshot_copy_ms": 4.528792,
+  "interpretation": "Runtime is GPU-bound at this resolution; optimizing host copies or asset uploads would not recover real time. This is six seconds, not the final five-minute profile."
+}
