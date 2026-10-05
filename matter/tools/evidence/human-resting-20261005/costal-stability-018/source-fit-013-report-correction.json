@@ -1,0 +1,128 @@
+{
+  "source_report_path": "/Users/n/numi-human-resting-evidence-20261005/thorax-costal-source-fit-013/fit-report.json",
+  "source_report_sha256": "7013692ee56c03dfb7e2a6a08ff43ebba2441aead18a87835e631a8f7bda5a47",
+  "interpretation": "Earlier working summary saying zero costal crossings was incorrect. Original source-fit report already records the native-like failure counts; there is no demonstrated integration clearance regression.",
+  "frames": [
+    {
+      "step": 639,
+      "audited_surface_pairs": 170,
+      "crossing_surface_pairs": 12,
+      "intersecting_triangle_pairs": 2918,
+      "hits": [
+        {
+          "lung": 305,
+          "bone": 54,
+          "triangle_pairs": 411
+        },
+        {
+          "lung": 305,
+          "bone": 55,
+          "triangle_pairs": 315
+        },
+        {
+          "lung": 305,
+          "bone": 56,
+          "triangle_pairs": 109
+        },
+        {
+          "lung": 306,
+          "bone": 42,
+          "triangle_pairs": 322
+        },
+        {
+          "lung": 306,
+          "bone": 43,
+          "triangle_pairs": 415
+        },
+        {
+          "lung": 306,
+          "bone": 44,
+          "triangle_pairs": 182
+        },
+        {
+          "lung": 308,
+          "bone": 27,
+          "triangle_pairs": 41
+        },
+        {
+          "lung": 308,
+          "bone": 48,
+          "triangle_pairs": 185
+        },
+        {
+          "lung": 308,
+          "bone": 51,
+          "triangle_pairs": 337
+        },
+        {
+          "lung": 309,
+          "bone": 27,
+          "triangle_pairs": 90
+        },
+        {
+          "lung": 309,
+          "bone": 36,
+          "triangle_pairs": 129
+        },
+        {
+          "lung": 309,
+          "bone": 39,
+          "triangle_pairs": 382
+        }
+      ]
+    },
+    {
+      "step": 2783,
+      "audited_surface_pairs": 170,
+      "crossing_surface_pairs": 9,
+      "intersecting_triangle_pairs": 966,
+      "hits": [
+        {
+          "lung": 305,
+          "bone": 54,
+          "triangle_pairs": 139
+        },
+        {
+          "lung": 306,
+          "bone": 42,
+          "triangle_pairs": 13
+        },
+        {
+          "lung": 306,
+          "bone": 43,
+          "triangle_pairs": 65
+        },
+        {
+          "lung": 308,
+          "bone": 27,
+          "triangle_pairs": 20
+        },
+        {
+          "lung": 308,
+          "bone": 48,
+          "triangle_pairs": 163
+        },
+        {
+          "lung": 308,
+          "bone": 51,
+          "triangle_pairs": 142
+        },
+        {
+          "lung": 309,
+          "bone": 27,
+          "triangle_pairs": 55
+        },
+        {
+          "lung": 309,
+          "bone": 36,
+          "triangle_pairs": 51
+        },
+        {
+          "lung": 309,
+          "bone": 39,
+          "triangle_pairs": 318
+        }
+      ]
+    }
+  ]
+}

@@ -33,9 +33,12 @@ This scene is **not anatomically accepted**. Independent exact checks of the
 same input scene's native017 accepted frames found 12 crossing lung–bone
 pairs (2,918 triangle pairs) at step 639 and nine crossing pairs (966 triangle
 pairs) at step 2783. They involve actual ribs/sternum, not intended pleural
-interfaces. Both complete 170-pair audit results are retained here. They
-contradict the earlier source-fit clearance result, which must not be used
-as evidence of native clearance. Cardiac-wall and liver interfaces also
+interfaces. Both complete 170-pair audit results are retained here. An earlier
+working summary incorrectly reported source-fit clearance: re-reading the
+original fit013 report shows the same totals (2,918 and 966). This was a
+reporting error, not a demonstrated source-to-native clearance regression.
+`source-fit-013-report-correction.json` binds the original report and its
+per-pair counts. Cardiac-wall and liver interfaces also
 remain under repair. Zero runtime guard status does not waive these defects.
 
 The body's center of mass moved after initialization, including about
