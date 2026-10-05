@@ -1,0 +1,41 @@
+{
+  "scope": "Post-hoc diagnostic on the retained failed-to-establish-recovery study003; not a new prospective effect estimate",
+  "arms": {
+    "reference-rest-baseline": {
+      "trace_sha256": "20fbc48dbafee4fb3664ef0f6c2539d51aa38009e0c9ae57bf2b19ff75e1afdf",
+      "original_5s_recovery": {
+        "available": false,
+        "complete_breath_count": 0,
+        "reason": "fewer than two accepted inspiratory boundaries inside the analysis window"
+      },
+      "posthoc_25s_recovery": {
+        "available": true,
+        "complete_breath_count": 3,
+        "window_s": [
+          37.76000179973027,
+          54.59200259812495
+        ],
+        "inspiratory_minute_ventilation_L_min": 5.7281851457466315,
+        "respiratory_rate_per_min": 10.693915842563834
+      }
+    },
+    "reference-rest-drive-half": {
+      "trace_sha256": "7c1082450497c1837988b4db27c7738c33fd39748f18fba90ca74feef0743bc3",
+      "original_5s_recovery": {
+        "available": false,
+        "complete_breath_count": 0,
+        "reason": "fewer than two accepted inspiratory boundaries inside the analysis window"
+      },
+      "posthoc_25s_recovery": {
+        "available": true,
+        "complete_breath_count": 4,
+        "window_s": [
+          36.28800182227431,
+          55.64800268519631
+        ],
+        "inspiratory_minute_ventilation_L_min": 6.917949010805358,
+        "respiratory_rate_per_min": 12.39669366232543
+      }
+    }
+  }
+}

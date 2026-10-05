@@ -169,6 +169,34 @@ def inspiratory_l_min(rows: list[dict[str, float]], start_s: float, end_s: float
     return area_ml * 60.0 / ((end_s - start_s) * 1000.0)
 
 
+def complete_breath_metrics(rows: list[dict[str, float]], start_s: float, end_s: float) -> dict[str, Any]:
+    """Use accepted breath transitions to exclude partial breaths at window edges.
+
+    The owner increments `breaths` at the start of inspiration. Interpolate that
+    crossing within the retained accepted-flow samples; never infer a prescribed
+    respiratory frequency or use the controller's requested ventilation.
+    """
+    boundaries: list[float] = []
+    for left, right in zip(rows, rows[1:]):
+        change = right["breaths"] - left["breaths"]
+        if change == 0:
+            continue
+        if change != 1 or left["airflow_ml_s"] > 0 or right["airflow_ml_s"] <= 0:
+            raise ValueError("trace does not resolve accepted inspiratory breath transitions")
+        f0, f1 = left["airflow_ml_s"], right["airflow_ml_s"]
+        crossing = left["time_s"] + (right["time_s"] - left["time_s"]) * (-f0) / (f1 - f0)
+        if start_s <= crossing <= end_s:
+            boundaries.append(crossing)
+    if len(boundaries) < 2:
+        return {"available": False, "complete_breath_count": 0,
+                "reason": "fewer than two accepted inspiratory boundaries inside the analysis window"}
+    first, last = boundaries[0], boundaries[-1]
+    return {"available": True, "complete_breath_count": len(boundaries) - 1,
+            "window_s": [first, last],
+            "inspiratory_minute_ventilation_L_min": inspiratory_l_min(rows, first, last),
+            "respiratory_rate_per_min": 60.0 * (len(boundaries) - 1) / (last - first)}
+
+
 def window_metrics(rows: list[dict[str, float]], start_s: float, end_s: float) -> dict[str, float]:
     samples = window_rows(rows, start_s, end_s)
     out = {
@@ -273,6 +301,14 @@ def runner_summary(log: str) -> dict[str, Any]:
             "whole_body_anatomy_qualified": False}
 
 
+def validate_windows(args: argparse.Namespace) -> None:
+    duration_s, width = args.steps * args.dt, args.window_s
+    if (not all(math.isfinite(x) for x in (duration_s, width, args.start_s, args.end_s, args.scale)) or
+            width < 5.0 or args.start_s < width or args.end_s <= args.start_s + width or
+            args.end_s > duration_s - width or not 0.0 <= args.scale <= 2.0):
+        raise ValueError("intervention must leave nonoverlapping analysis windows of at least 5 s")
+
+
 def execute_arm(args: argparse.Namespace) -> dict[str, Any]:
     work = Path.cwd()
     trace = Path(args.output).resolve()
@@ -281,9 +317,8 @@ def execute_arm(args: argparse.Namespace) -> dict[str, Any]:
     if trace.exists():
         raise ValueError("refusing to overwrite a prior native trace")
     duration_s = args.steps * args.dt
-    if (args.start_s < 5.0 or args.end_s <= args.start_s + 5.0 or
-            args.end_s > duration_s - 5.0 or not 0.0 <= args.scale <= 2.0):
-        raise ValueError("intervention must leave nonoverlapping 5 s pre, dose, and recovery windows")
+    width = args.window_s
+    validate_windows(args)
     checks = ((args.loaded_matter_metallib, args.frozen_matter_metallib),
               (args.loaded_respiration_metallib, args.frozen_respiration_metallib))
     for loaded, frozen in checks:
@@ -311,9 +346,9 @@ def execute_arm(args: argparse.Namespace) -> dict[str, Any]:
     rows = read_trace(trace)
     if rows[-1]["time_s"] < expected_seconds - 0.05 or rows[-1]["time_s"] > expected_seconds + 1.0e-3:
         raise ValueError("native trace does not cover the full declared simulation duration")
-    pre = window_metrics(rows, args.start_s - 5.0, args.start_s)
-    dose = window_metrics(rows, args.end_s - 5.0, args.end_s)
-    recovery = window_metrics(rows, args.steps * args.dt - 5.0, args.steps * args.dt)
+    pre = window_metrics(rows, args.start_s - width, args.start_s)
+    dose = window_metrics(rows, args.end_s - width, args.end_s)
+    recovery = window_metrics(rows, duration_s - width, duration_s)
     primary = dose["mean_PaCO2_mmhg"] - pre["mean_PaCO2_mmhg"]
     result: dict[str, Any] = {
         "schema": "numi.human-resting.intervention-observation.v1",
@@ -332,9 +367,14 @@ def execute_arm(args: argparse.Namespace) -> dict[str, Any]:
         "intervention_applied": args.arm == "treatment",
         "delivered_drive_scale": args.scale if args.arm == "treatment" else 1.0,
         "primary_delta_PaCO2_mmhg": primary,
-        "pre_window_s": [args.start_s - 5.0, args.start_s],
-        "dose_window_s": [args.end_s - 5.0, args.end_s],
-        "recovery_window_s": [expected_seconds - 5.0, expected_seconds],
+        "pre_window_s": [args.start_s - width, args.start_s],
+        "dose_window_s": [args.end_s - width, args.end_s],
+        "recovery_window_s": [expected_seconds - width, expected_seconds],
+        "complete_breath_windows": {
+            "pre": complete_breath_metrics(rows, args.start_s - width, args.start_s),
+            "dose": complete_breath_metrics(rows, args.end_s - width, args.end_s),
+            "recovery": complete_breath_metrics(rows, expected_seconds - width, expected_seconds),
+        },
         "PaCO2_pre_mean_mmhg": pre["mean_PaCO2_mmhg"],
         "PaCO2_dose_mean_mmhg": dose["mean_PaCO2_mmhg"],
         "PaCO2_recovery_mean_mmhg": recovery["mean_PaCO2_mmhg"],
@@ -384,6 +424,7 @@ def get_git_identity(repository: Path) -> dict[str, str]:
 
 
 def prepare(args: argparse.Namespace) -> Path:
+    validate_windows(args)
     repository = Path(args.repository).resolve()
     out = Path(args.directory).resolve()
     out.mkdir(parents=True, exist_ok=False)
@@ -451,6 +492,7 @@ def prepare(args: argparse.Namespace) -> Path:
         "build_receipt_contents": receipt,
         "build_receipt": {str(build_receipt): sha256_file(build_receipt)},
         "configuration": {"steps": args.steps, "dt_s": args.dt,
+                          "analysis_window_s": args.window_s,
                           "drive_intervention_start_s": args.start_s,
                           "drive_intervention_end_s": args.end_s,
                           "drive_intervention_scale": args.scale,
@@ -492,7 +534,7 @@ def prepare(args: argparse.Namespace) -> Path:
               "--unit-id", unit_id, "--world-fingerprint", args.world_fingerprint,
               "--device", args.device,
               "--steps", str(args.steps), "--dt", repr(args.dt), "--start-s", repr(args.start_s),
-              "--end-s", repr(args.end_s), "--scale", repr(args.scale)]
+              "--end-s", repr(args.end_s), "--scale", repr(args.scale), "--window-s", repr(args.window_s)]
     trials = [
         {"id": "reference-rest-baseline", "pair": "reference-rest-v1", "arm": "control",
          "unit": {"unit_id": unit_id},
@@ -511,18 +553,18 @@ def prepare(args: argparse.Namespace) -> Path:
         "repository": str(repository), "backend": "Apple Metal on Apple M4 Pro; existing Matter CVSim21 plus coupled respiration and NumiBrain chemoreflex",
         "evidence_level": "simulation", "model": model, "model_file": str(model_path),
         "predictor": {"argv": [py, str(script), "predict", "--model", str(model_path)], "env": {}, "timeout_seconds": 30},
-        "instrument": {"description": "Native accepted-state trace adapter: fixed 5 s PaCO2 windows; inspiratory minute ventilation integrated from accepted airflow; PaO2/SaO2 and late recovery diagnostics. Parser calibration is known-value/arithmetic only.",
+        "instrument": {"description": f"Native accepted-state trace adapter: fixed {args.window_s:g} s PaCO2 windows; inspiratory minute ventilation integrated from accepted airflow, with additional complete-breath windows; PaO2/SaO2 and late recovery diagnostics. Parser calibration is known-value/arithmetic only.",
                        "calibration": str(calibration_path), "artifacts": instrument_artifacts},
         "artifacts": artifacts,
         "design": {"intervention": f"Existing NumiBrain respiratory drive continues to sense and regulate; only its delivered diaphragm/intercostal excitation is multiplied by {args.scale:g} on [{args.start_s:g},{args.end_s:g}) s.",
-                   "pre_dose_window_s": [args.start_s - 5.0, args.start_s],
-                   "dose_window_s": [args.end_s - 5.0, args.end_s],
-                   "recovery_window_s": [args.steps * args.dt - 5.0, args.steps * args.dt],
+                   "pre_dose_window_s": [args.start_s - args.window_s, args.start_s],
+                   "dose_window_s": [args.end_s - args.window_s, args.end_s],
+                   "recovery_window_s": [args.steps * args.dt - args.window_s, args.steps * args.dt],
                    "controls": "Matched fresh process from the same deterministic resting reference initialization, same compiled native executable/libraries, network, physiology parameters, device and timing; scale remains 1.0 throughout control.",
                    "experimental_unit": "One deterministic accepted-state initialization and fixed source/configuration identity; the paired arms are trajectories from the same initial state, not independent people or independent ticks.",
                    "allocation": "One exploratory pair, control then treatment, one run per arm; no retries or exclusion; all reads are from native accepted traces.",
                    "unit_paths": {"unit_id": ["unit_id"]}},
-        "observable": {"name": "paired difference-in-differences in PaCO2 from the 5 s pre-dose window to the last 5 s of the drive intervention", "unit": "mmHg", "path": ["primary_delta_PaCO2_mmhg"]},
+        "observable": {"name": f"paired difference-in-differences in PaCO2 from the {args.window_s:g} s pre-dose window to the last {args.window_s:g} s of the drive intervention", "unit": "mmHg", "path": ["primary_delta_PaCO2_mmhg"]},
         "prediction": model_prediction(model),
         "validity": [{"path": ["schema"], "equals": "numi.human-resting.intervention-observation.v1"},
                      {"path": ["accepted_steps"], "equals": args.steps},
@@ -563,6 +605,7 @@ def main() -> int:
     run.add_argument("--start-s", type=float, required=True)
     run.add_argument("--end-s", type=float, required=True)
     run.add_argument("--scale", type=float, required=True)
+    run.add_argument("--window-s", type=float, default=5.0)
     prep = sub.add_parser("prepare", help="write the frozen identity, parser calibration, model, and v2 plan")
     prep.add_argument("--repository", required=True)
     prep.add_argument("--directory", required=True)
@@ -584,6 +627,7 @@ def main() -> int:
     prep.add_argument("--start-s", type=float, default=120.0)
     prep.add_argument("--end-s", type=float, default=150.0)
     prep.add_argument("--scale", type=float, default=0.5)
+    prep.add_argument("--window-s", type=float, default=5.0)
     receipt = sub.add_parser("receipt", help="capture exact source, binary, library, input, and repository identity after a native build")
     receipt.add_argument("--repository", required=True)
     receipt.add_argument("--brain-root", required=True)
