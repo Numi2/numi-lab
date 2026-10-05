@@ -6,6 +6,7 @@
 #include "fem_reference_geometry.hpp"
 #include "numi/matter/accepted_state_apply_gpu.h"
 #include "accepted_state_proof_gpu.hpp"
+#include "metal_encoder_timing.hpp"
 #include "metalrobo/engine_types.h"
 #include "metalrobo/compensated_translation_gpu.h"
 #include "metalrobo/mujoco_muscle_gpu.h"
@@ -4839,7 +4840,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
         }
 
         id<MTLComputeCommandEncoder> encoder =
-            [commandBuffer computeCommandEncoder];
+            detail::timedEncoder(commandBuffer, state.device,
+                request.phase == EncodePhase::preDynamics ? "matter_pre" : "matter_post",
+                request.controlStep);
         if (encoder == nil) {
             diagnostics.message =
                 "failed to create borrowed matter compute encoder";
@@ -5073,7 +5076,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     "accepted-step extension failed to encode its device transaction";
                 return false;
             }
-            encoder = [commandBuffer computeCommandEncoder];
+            const char* stage = phase == AcceptedStepExtensionPhase::frameBegin ? "matter_after_frame_begin" :
+                phase == AcceptedStepExtensionPhase::candidateReady ? "matter_after_candidate_ready" :
+                phase == AcceptedStepExtensionPhase::microstepComplete ? "matter_after_microstep" :
+                "matter_after_frame_complete";
+            encoder = detail::timedEncoder(commandBuffer, state.device, stage, request.controlStep);
             if (encoder == nil) {
                 ownership->preDynamicsOpen = false;
                 diagnostics.message =

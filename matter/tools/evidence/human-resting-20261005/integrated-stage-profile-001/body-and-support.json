@@ -1,0 +1,273 @@
+{
+  "source": "native.log",
+  "source_sha256": "e87c24a7fa49e7534b7a3dd318c7adc994a1e503f66cd1ed54f00d76769fc1c9",
+  "stage_samples": {
+    "human:kinematics": {
+      "n": 12,
+      "steps": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        14,
+        42,
+        56,
+        70,
+        84,
+        98
+      ],
+      "median_ms": 1.6229165,
+      "min_ms": 1.564542,
+      "max_ms": 7.316875
+    },
+    "resting_support:support_normalize_poses": {
+      "n": 2,
+      "steps": [
+        0,
+        100
+      ],
+      "median_ms": 0.0233745,
+      "min_ms": 0.023291,
+      "max_ms": 0.023458
+    },
+    "resting_support:support_positions": {
+      "n": 2,
+      "steps": [
+        0,
+        100
+      ],
+      "median_ms": 1.884583,
+      "min_ms": 1.870833,
+      "max_ms": 1.898333
+    },
+    "resting_support:support_select": {
+      "n": 2,
+      "steps": [
+        0,
+        100
+      ],
+      "median_ms": 0.0104585,
+      "min_ms": 0.009042,
+      "max_ms": 0.011875
+    },
+    "resting_support:support_publish": {
+      "n": 2,
+      "steps": [
+        0,
+        100
+      ],
+      "median_ms": 0.752771,
+      "min_ms": 0.752417,
+      "max_ms": 0.753125
+    },
+    "human:muscle_angular": {
+      "n": 7,
+      "steps": [
+        1,
+        15,
+        43,
+        57,
+        71,
+        85,
+        99
+      ],
+      "median_ms": 0.008083,
+      "min_ms": 0.005209,
+      "max_ms": 0.008709
+    },
+    "human:muscles": {
+      "n": 7,
+      "steps": [
+        2,
+        16,
+        44,
+        58,
+        72,
+        86,
+        100
+      ],
+      "median_ms": 0.484125,
+      "min_ms": 0.480625,
+      "max_ms": 0.490833
+    },
+    "human:active_force": {
+      "n": 7,
+      "steps": [
+        3,
+        17,
+        45,
+        59,
+        73,
+        87,
+        101
+      ],
+      "median_ms": 0.016125,
+      "min_ms": 0.013667,
+      "max_ms": 0.016833
+    },
+    "human:force_reduce": {
+      "n": 8,
+      "steps": [
+        4,
+        18,
+        32,
+        46,
+        60,
+        74,
+        88,
+        102
+      ],
+      "median_ms": 0.048542,
+      "min_ms": 0.048125,
+      "max_ms": 0.0535
+    },
+    "human:tendon_transfer": {
+      "n": 8,
+      "steps": [
+        5,
+        19,
+        33,
+        47,
+        61,
+        75,
+        89,
+        103
+      ],
+      "median_ms": 0.083208,
+      "min_ms": 0.082583,
+      "max_ms": 0.084041
+    },
+    "human:activation": {
+      "n": 8,
+      "steps": [
+        6,
+        20,
+        34,
+        48,
+        62,
+        76,
+        90,
+        104
+      ],
+      "median_ms": 0.006,
+      "min_ms": 0.003333,
+      "max_ms": 0.0065
+    },
+    "human:stand_prework": {
+      "n": 8,
+      "steps": [
+        7,
+        21,
+        35,
+        49,
+        63,
+        77,
+        91,
+        105
+      ],
+      "median_ms": 0.4394585,
+      "min_ms": 0.43775,
+      "max_ms": 0.441166
+    },
+    "human:stand_mass": {
+      "n": 8,
+      "steps": [
+        8,
+        22,
+        36,
+        50,
+        64,
+        78,
+        92,
+        106
+      ],
+      "median_ms": 0.055667,
+      "min_ms": 0.054667,
+      "max_ms": 0.056291
+    },
+    "human:stand_factor": {
+      "n": 8,
+      "steps": [
+        9,
+        23,
+        37,
+        51,
+        65,
+        79,
+        93,
+        107
+      ],
+      "median_ms": 0.9486665,
+      "min_ms": 0.94525,
+      "max_ms": 0.950625
+    },
+    "human:stand_equality_responses": {
+      "n": 8,
+      "steps": [
+        10,
+        24,
+        38,
+        52,
+        66,
+        80,
+        94,
+        108
+      ],
+      "median_ms": 0.5077085,
+      "min_ms": 0.505416,
+      "max_ms": 0.50825
+    },
+    "human:stand_equality_factor": {
+      "n": 8,
+      "steps": [
+        11,
+        25,
+        39,
+        53,
+        67,
+        81,
+        95,
+        109
+      ],
+      "median_ms": 0.329354,
+      "min_ms": 0.326917,
+      "max_ms": 0.330041
+    },
+    "human:stand_projected_responses": {
+      "n": 8,
+      "steps": [
+        12,
+        26,
+        40,
+        54,
+        68,
+        82,
+        96,
+        110
+      ],
+      "median_ms": 0.902625,
+      "min_ms": 0.901875,
+      "max_ms": 0.905
+    },
+    "human:stand_finish": {
+      "n": 8,
+      "steps": [
+        13,
+        27,
+        41,
+        55,
+        69,
+        83,
+        97,
+        111
+      ],
+      "median_ms": 3.638208,
+      "min_ms": 2.96375,
+      "max_ms": 4.002
+    }
+  },
+  "sum_stage_medians_ms": 11.761874,
+  "qualification": "Asynchronous Metal timestamp samples; human stages are interleaved across the first 112 roots, support sampled at roots 0 and 100. Sum of medians is approximate stage attribution, not an exact decomposition of one physical step."
+}

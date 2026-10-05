@@ -1,0 +1,36 @@
+{
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "-m",
+    "numilab_human.resting_run",
+    "--body-scene",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/output/supine-skin-boundaries-001/resting-supine-scene.manifest.json",
+    "--anatomy-receipt",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/output/major-vessels-cardiac-admission-003/resting-anatomy-receipt.json",
+    "--tendon",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/output/tendon-current-source-owner-nhtendon2/numi-human-tendon-attachments.nhtendon",
+    "--lab",
+    "/Users/n/numi-human-resting-candidate-source-001",
+    "--build",
+    "/Users/n/numi-human-resting-candidate-build-001",
+    "--circulation",
+    "/Users/n/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json",
+    "--output",
+    "/Users/n/numi-human-resting-evidence-20261005/native-integrated-stage-profile-002",
+    "--seconds",
+    ".256",
+    "--dt",
+    ".002",
+    "--inspection-tour",
+    "--inspection-period-seconds",
+    ".5"
+  ],
+  "environment": {
+    "PYTHONPATH": "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/output/nhtiss-source-prep-20261005/project/src",
+    "NUMI_HUMAN_GPU_TIMING": "1",
+    "NUMI_HUMAN_GPU_TIMING_STAGE": "cycle",
+    "NUMI_HUMAN_SUPPORT_GPU_TIMING": "1",
+    "NUMI_MATTER_GPU_TIMING": "1"
+  },
+  "scope": "Same 128-step native diagnostic with read-only Matter, respiratory mechanics, exchange and Brain stage timestamps added. Compare accepted physical state to profile 001; geometry still pending."
+}

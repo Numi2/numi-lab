@@ -3,6 +3,7 @@
 #import <Metal/Metal.h>
 #include "numi/matter/human_physiology.hpp"
 #include "human_respiration_parameters.hpp"
+#include "../src/metal_encoder_timing.hpp"
 #include "metalrobo/engine_types.h"
 #include <NumiBrainRespiratoryChemoreflexV1.h>
 #include <chrono>
@@ -52,7 +53,9 @@ struct Respiration {
         if(brain&&!brain(phase,v)) return false;
         id<MTLCommandBuffer> cb=(__bridge id<MTLCommandBuffer>)v.commandBuffer;
         if(phase==AcceptedStepExtensionPhase::microstepComplete) return true;
-        auto enc=[cb computeCommandEncoder];if(!enc)return false;
+        const char* stage=phase==AcceptedStepExtensionPhase::frameBegin?"respiratory_mechanics":
+            phase==AcceptedStepExtensionPhase::candidateReady?"respiratory_gas_exchange":"respiratory_resolve";
+        auto enc=detail::timedEncoder(cb,device,stage,v.controlStep);if(!enc)return false;
         if(phase==AcceptedStepExtensionPhase::frameBegin) {
             [enc setComputePipelineState:predict];
             [enc setBytes:&parameters length:sizeof(parameters) atIndex:0];
@@ -150,7 +153,9 @@ struct RespiratoryBrain {
         const double t=double(v.controlStep)*dt;
         d.driveScale=t>=interventionStart&&t<interventionEnd?interventionScale:1;
         auto cb=(__bridge id<MTLCommandBuffer>)v.commandBuffer;
-        auto enc=[cb computeCommandEncoder];if(!enc)return false;
+        auto enc=detail::timedEncoder(cb,body.device,
+            phase==AcceptedStepExtensionPhase::frameBegin?"brain_advance":"brain_resolve",v.controlStep);
+        if(!enc)return false;
         auto launch=[&](){[enc dispatchThreads:MTLSizeMake(v.environmentCount,1,1) threadsPerThreadgroup:MTLSizeMake(1,1,1)];};
         if(phase==AcceptedStepExtensionPhase::frameBegin) {
             [enc setComputePipelineState:observe];[enc setBytes:&d length:sizeof(d) atIndex:0];

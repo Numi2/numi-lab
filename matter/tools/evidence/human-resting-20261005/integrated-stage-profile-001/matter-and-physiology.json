@@ -1,0 +1,60 @@
+{
+  "profile001_log_sha256": "e87c24a7fa49e7534b7a3dd318c7adc994a1e503f66cd1ed54f00d76769fc1c9",
+  "profile002_log_sha256": "7a7bc0abbbbd41504f0b9f5fa720e96307d11e9cfe65c97b5a671a3df720ffaf",
+  "same_terminal_body_state": true,
+  "same_coupled_csv": true,
+  "same_surface_csv": true,
+  "matter_stage_samples": [
+    {
+      "stage": "matter_pre",
+      "step": 100,
+      "elapsed_ns": 4625
+    },
+    {
+      "stage": "brain_advance",
+      "step": 100,
+      "elapsed_ns": 9875
+    },
+    {
+      "stage": "respiratory_mechanics",
+      "step": 100,
+      "elapsed_ns": 57958
+    },
+    {
+      "stage": "matter_after_frame_begin",
+      "step": 100,
+      "elapsed_ns": 7021084
+    },
+    {
+      "stage": "respiratory_gas_exchange",
+      "step": 100,
+      "elapsed_ns": 46834
+    },
+    {
+      "stage": "matter_after_candidate_ready",
+      "step": 100,
+      "elapsed_ns": 6750
+    },
+    {
+      "stage": "matter_after_microstep",
+      "step": 100,
+      "elapsed_ns": 5916
+    },
+    {
+      "stage": "matter_post",
+      "step": 100,
+      "elapsed_ns": 8416
+    },
+    {
+      "stage": "brain_resolve",
+      "step": 100,
+      "elapsed_ns": 3750
+    },
+    {
+      "stage": "respiratory_resolve",
+      "step": 100,
+      "elapsed_ns": 3375
+    }
+  ],
+  "scope": "128 accepted steps. Exact endpoint q/v and both trace comparisons establish this read-only timing change preserves this diagnostic state; not endurance or geometry acceptance. Source Anatomy.hpp/helper were restored to published 8b68d03 copies before build; no physical shader changed."
+}
