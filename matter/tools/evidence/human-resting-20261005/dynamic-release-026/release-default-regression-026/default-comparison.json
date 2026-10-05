@@ -1,0 +1,170 @@
+{
+  "scope": "Default physical-state and rendered geometry regression after optional dynamic-release initialization flag; six seconds only. Runtime options fingerprint intentionally includes the new default-false flag.",
+  "comparisons": {
+    "resting-coupled.csv": {
+      "baseline_sha256": "ca65c98056682bae62e7a63f6f913191524b0c718760efaf97bf53e934f0a179",
+      "candidate_sha256": "ca65c98056682bae62e7a63f6f913191524b0c718760efaf97bf53e934f0a179",
+      "identical": true
+    },
+    "resting-surface-audit.csv": {
+      "baseline_sha256": "ae7df7a485a563d29464574a546864bea47abe326dc2eda4440746a9f25f2faa",
+      "candidate_sha256": "ae7df7a485a563d29464574a546864bea47abe326dc2eda4440746a9f25f2faa",
+      "identical": true
+    },
+    "resting-human.mrvpack": {
+      "baseline_sha256": "4f969193b7e66385b5a06d9d55a3ea966d156821e76558b16d4a785cdaddd6a7",
+      "candidate_sha256": "4f969193b7e66385b5a06d9d55a3ea966d156821e76558b16d4a785cdaddd6a7",
+      "identical": true
+    },
+    "accepted-geometry/step-639.mrvpack": {
+      "baseline_sha256": "8f51d7b07bcbd930cd6e8d4d235de9b15818e90f2b2a1e3822571617620db4c4",
+      "candidate_sha256": "1135c1b73140c33360d408c36357960a647f361bbb7f3017f8b880756fe43e09",
+      "identical": false
+    },
+    "accepted-geometry/step-2783.mrvpack": {
+      "baseline_sha256": "8e71d6f13c1e4b14b01283f2ed0a41a046c9a4757baec2e61e6c0ce744a44730",
+      "candidate_sha256": "67f83fffcf019aa3bad3a7b9f3ecfe7d662d63285c06b1259dae1aaf9e5a2539",
+      "identical": false
+    }
+  },
+  "accepted_geometry_sections": {
+    "639": {
+      "sections": [
+        {
+          "1": "ea5d9a0116ed11733d0391a00b1539ba5dc423500714fa4e59dd91c75f765b53",
+          "2": "fc08c93494917160436a53be698169b5652491d78553e0244dafa4cfd616e607",
+          "3": "87b88d853931d8913ed8b71f1b03f50d6be28d19e1ec905ab3623d78d2efc4b0",
+          "4": "affae6fa7232c007bfdd123ab90afe0ae1af2454c5c9140172c089520897f77a",
+          "5": "60be5d0929af00149497f6056d0e37a0082fdacec303181eaf34bcb44b330e5d",
+          "6": "33ed636c610c6289da124c286c5bc421d46bef0b3f03ed66c24806101f36a99c",
+          "7": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "8": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "10": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "1": "ae2c8270d7f8397734827e65a3e890b8c932fffb7a58ab1e8cf11f6a7ee1551d",
+          "2": "fc08c93494917160436a53be698169b5652491d78553e0244dafa4cfd616e607",
+          "3": "87b88d853931d8913ed8b71f1b03f50d6be28d19e1ec905ab3623d78d2efc4b0",
+          "4": "affae6fa7232c007bfdd123ab90afe0ae1af2454c5c9140172c089520897f77a",
+          "5": "60be5d0929af00149497f6056d0e37a0082fdacec303181eaf34bcb44b330e5d",
+          "6": "33ed636c610c6289da124c286c5bc421d46bef0b3f03ed66c24806101f36a99c",
+          "7": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "8": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "10": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "identical_by_type": {
+        "1": false,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true,
+        "6": true,
+        "7": true,
+        "8": true,
+        "10": true
+      },
+      "validated_receipts": [
+        {
+          "path": "/Users/n/numi-human-resting-evidence-20261005/vascular-structure-candidate-native-013/accepted-geometry/step-639.receipt.json",
+          "sha256": "b0b44b8de7e0c5f49b1f599e1bcd89390c8f14af474ba9461df31f0f4e8a8435",
+          "accepted_step": 639,
+          "accepted_time_s": 1.2780000607017428,
+          "accepted_root_fingerprint": 11142735646500887431,
+          "accepted_root_fingerprint_hex": "0x9aa2f308a3c49b87",
+          "accepted_transaction_fingerprint": 11142735646500887431,
+          "accepted_body_state_sha256": "23bb088086c1f8574b819c356f78db1c0375fffa633cebb44d15dc66f2c61b11",
+          "accepted_respiration_state_sha256": "6a2a634bf736173ce4809ebe6fb00b773203a9d75542b4983e87d9ccdc286122",
+          "base_pack_content_hash": "sha256:48d79fadcc6af47d2a8603327e5a70537392dc2ce62edb18747d4c947ac8956c",
+          "base_pack_file_sha256": "4f969193b7e66385b5a06d9d55a3ea966d156821e76558b16d4a785cdaddd6a7",
+          "anatomy_layer_index": 0,
+          "captured_vertex_buffer_sha256": "fc08c93494917160436a53be698169b5652491d78553e0244dafa4cfd616e607"
+        },
+        {
+          "path": "/Users/n/numi-human-resting-evidence-20261005/release-default-regression-026/accepted-geometry/step-639.receipt.json",
+          "sha256": "8cba9176e6b967f3e3866bcf2d973dfe08fd8bc84b65123d312ba9349ffd9336",
+          "accepted_step": 639,
+          "accepted_time_s": 1.2780000607017428,
+          "accepted_root_fingerprint": 9359680685327421293,
+          "accepted_root_fingerprint_hex": "0x81e443fe5c068f6d",
+          "accepted_transaction_fingerprint": 9359680685327421293,
+          "accepted_body_state_sha256": "23bb088086c1f8574b819c356f78db1c0375fffa633cebb44d15dc66f2c61b11",
+          "accepted_respiration_state_sha256": "6a2a634bf736173ce4809ebe6fb00b773203a9d75542b4983e87d9ccdc286122",
+          "base_pack_content_hash": "sha256:48d79fadcc6af47d2a8603327e5a70537392dc2ce62edb18747d4c947ac8956c",
+          "base_pack_file_sha256": "4f969193b7e66385b5a06d9d55a3ea966d156821e76558b16d4a785cdaddd6a7",
+          "anatomy_layer_index": 0,
+          "captured_vertex_buffer_sha256": "fc08c93494917160436a53be698169b5652491d78553e0244dafa4cfd616e607"
+        }
+      ]
+    },
+    "2783": {
+      "sections": [
+        {
+          "1": "a3fbc9b6b47ffbc7b88ba65828cf1afba8b629f38c1e7957fd540a511a42b419",
+          "2": "97aaf25d36c36b1a5f0025f6dc7d5839e86b119514ccfa24ac1e1a5e7a36e10b",
+          "3": "87b88d853931d8913ed8b71f1b03f50d6be28d19e1ec905ab3623d78d2efc4b0",
+          "4": "accfc19f4424b95e47d1b2d1811919a2187b7d630a35dfaa95de04604f63a00d",
+          "5": "60be5d0929af00149497f6056d0e37a0082fdacec303181eaf34bcb44b330e5d",
+          "6": "33ed636c610c6289da124c286c5bc421d46bef0b3f03ed66c24806101f36a99c",
+          "7": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "8": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "10": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "1": "cf123bfb20111d5591ae453a2bfa886cad3dd1318da0687ed71649db7213539d",
+          "2": "97aaf25d36c36b1a5f0025f6dc7d5839e86b119514ccfa24ac1e1a5e7a36e10b",
+          "3": "87b88d853931d8913ed8b71f1b03f50d6be28d19e1ec905ab3623d78d2efc4b0",
+          "4": "accfc19f4424b95e47d1b2d1811919a2187b7d630a35dfaa95de04604f63a00d",
+          "5": "60be5d0929af00149497f6056d0e37a0082fdacec303181eaf34bcb44b330e5d",
+          "6": "33ed636c610c6289da124c286c5bc421d46bef0b3f03ed66c24806101f36a99c",
+          "7": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "8": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "10": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "identical_by_type": {
+        "1": false,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true,
+        "6": true,
+        "7": true,
+        "8": true,
+        "10": true
+      },
+      "validated_receipts": [
+        {
+          "path": "/Users/n/numi-human-resting-evidence-20261005/vascular-structure-candidate-native-013/accepted-geometry/step-2783.receipt.json",
+          "sha256": "7cad0989267b095abc509ed01c969c434a6516d02d11cff999c7c0d56b0fd27f",
+          "accepted_step": 2783,
+          "accepted_time_s": 5.566000264370814,
+          "accepted_root_fingerprint": 10074097730509458343,
+          "accepted_root_fingerprint_hex": "0x8bce6282d395cba7",
+          "accepted_transaction_fingerprint": 10074097730509458343,
+          "accepted_body_state_sha256": "55e594dacedabafdd591dc9493992e6ec168b7137486e0cba2410d42b468ebef",
+          "accepted_respiration_state_sha256": "9d1843c87eebd179d6734a4bf01ac631fcf2005978768cfa3c61689d41869ea8",
+          "base_pack_content_hash": "sha256:48d79fadcc6af47d2a8603327e5a70537392dc2ce62edb18747d4c947ac8956c",
+          "base_pack_file_sha256": "4f969193b7e66385b5a06d9d55a3ea966d156821e76558b16d4a785cdaddd6a7",
+          "anatomy_layer_index": 1,
+          "captured_vertex_buffer_sha256": "97aaf25d36c36b1a5f0025f6dc7d5839e86b119514ccfa24ac1e1a5e7a36e10b"
+        },
+        {
+          "path": "/Users/n/numi-human-resting-evidence-20261005/release-default-regression-026/accepted-geometry/step-2783.receipt.json",
+          "sha256": "ba10189883cdc435f86f3e03eb8816d8e9292cb4629dacc0d87968b76d8ba186",
+          "accepted_step": 2783,
+          "accepted_time_s": 5.566000264370814,
+          "accepted_root_fingerprint": 10414805534696267597,
+          "accepted_root_fingerprint_hex": "0x9088d2742c57df4d",
+          "accepted_transaction_fingerprint": 10414805534696267597,
+          "accepted_body_state_sha256": "55e594dacedabafdd591dc9493992e6ec168b7137486e0cba2410d42b468ebef",
+          "accepted_respiration_state_sha256": "9d1843c87eebd179d6734a4bf01ac631fcf2005978768cfa3c61689d41869ea8",
+          "base_pack_content_hash": "sha256:48d79fadcc6af47d2a8603327e5a70537392dc2ce62edb18747d4c947ac8956c",
+          "base_pack_file_sha256": "4f969193b7e66385b5a06d9d55a3ea966d156821e76558b16d4a785cdaddd6a7",
+          "anatomy_layer_index": 1,
+          "captured_vertex_buffer_sha256": "97aaf25d36c36b1a5f0025f6dc7d5839e86b119514ccfa24ac1e1a5e7a36e10b"
+        }
+      ]
+    }
+  }
+}

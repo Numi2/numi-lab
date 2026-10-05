@@ -1,0 +1,1109 @@
+{
+  "scope": "Native startup option and bounded body-posture engineering evidence; not whole-body anatomical acceptance. All execution SSH Mac mini.",
+  "runs": {
+    "zero-recruitment-native-020": {
+      "execution": {
+        "returncode": 1,
+        "wrapper_wall_seconds": 3.172607708722353,
+        "changed_inputs": [],
+        "finished_utc": "2026-10-05T20:58:35.249106+00:00",
+        "last_surface_frame": {
+          "time_s": "0",
+          "step": "0",
+          "min_skin_bed_gap_m": "-0.000110551714897",
+          "vertices_below_1mm": "0",
+          "nonfinite_skin_vertices": "0",
+          "max_functional_volume_relative_error": "6.27651900231e-07",
+          "q_ra": "-0.31223398447",
+          "q_rv": "0.0542525686324",
+          "q_la": "-0.0350566618145",
+          "q_lv": "0.0582944639027",
+          "ra_target_ml": "32.2639498336",
+          "rv_target_ml": "138.358649565",
+          "la_target_ml": "47.7374887851",
+          "lv_target_ml": "118.755349831",
+          "diaphragm_swept_ml": "0",
+          "rib_swept_ml": "0",
+          "lung_target_ml": "2499.99994412",
+          "body_com_x_m": "-0.0250191260129",
+          "body_com_y_m": "-0.756986141205",
+          "body_com_z_m": "0.115114875138",
+          "represented_body_mass_kg": "72",
+          "ventricular_wall_bound": "1",
+          "ventricular_material_ml": "164.012875757",
+          "ventricular_material_target_ml": "164.012890309",
+          "ventricular_closure_mm": "-1.2374430662",
+          "ventricular_material_status": "0",
+          "functional_geometry_status": "0"
+        }
+      },
+      "retained_directory": "/Users/n/numi-human-resting-evidence-20261005/zero-recruitment-native-020",
+      "initialization_records": [],
+      "surface_guard_maxima": {
+        "vertices_below_1mm": 0.0,
+        "nonfinite_skin_vertices": 0.0,
+        "ventricular_material_status": 0.0,
+        "functional_geometry_status": 0.0,
+        "max_functional_volume_relative_error": 6.27651900231e-07
+      },
+      "lower_limb_subset_results": []
+    },
+    "low-recruitment-native-021": {
+      "execution": {
+        "returncode": 1,
+        "wrapper_wall_seconds": 6.208666292019188,
+        "changed_inputs": [],
+        "finished_utc": "2026-10-05T21:00:33.534374+00:00",
+        "last_surface_frame": {
+          "time_s": "0",
+          "step": "0",
+          "min_skin_bed_gap_m": "-0.000110551714897",
+          "vertices_below_1mm": "0",
+          "nonfinite_skin_vertices": "0",
+          "max_functional_volume_relative_error": "6.27651900231e-07",
+          "q_ra": "-0.31223398447",
+          "q_rv": "0.0542525686324",
+          "q_la": "-0.0350566618145",
+          "q_lv": "0.0582944639027",
+          "ra_target_ml": "32.2639498336",
+          "rv_target_ml": "138.358649565",
+          "la_target_ml": "47.7374887851",
+          "lv_target_ml": "118.755349831",
+          "diaphragm_swept_ml": "0",
+          "rib_swept_ml": "0",
+          "lung_target_ml": "2499.99994412",
+          "body_com_x_m": "-0.0250191260129",
+          "body_com_y_m": "-0.756986141205",
+          "body_com_z_m": "0.115114875138",
+          "represented_body_mass_kg": "72",
+          "ventricular_wall_bound": "1",
+          "ventricular_material_ml": "164.012875757",
+          "ventricular_material_target_ml": "164.012890309",
+          "ventricular_closure_mm": "-1.2374430662",
+          "ventricular_material_status": "0",
+          "functional_geometry_status": "0"
+        }
+      },
+      "retained_directory": "/Users/n/numi-human-resting-evidence-20261005/low-recruitment-native-021",
+      "initialization_records": [],
+      "surface_guard_maxima": {
+        "vertices_below_1mm": 0.0,
+        "nonfinite_skin_vertices": 0.0,
+        "ventricular_material_status": 0.0,
+        "functional_geometry_status": 0.0,
+        "max_functional_volume_relative_error": 6.27651900231e-07
+      },
+      "lower_limb_subset_results": []
+    },
+    "dynamic-release-native-022": {
+      "execution": {
+        "returncode": 0,
+        "wrapper_wall_seconds": 65.84962741658092,
+        "changed_inputs": [],
+        "finished_utc": "2026-10-05T21:06:11.786872+00:00",
+        "last_surface_frame": {
+          "time_s": "5.99800028489",
+          "step": "2999",
+          "min_skin_bed_gap_m": "-2.23517417908e-06",
+          "vertices_below_1mm": "0",
+          "nonfinite_skin_vertices": "0",
+          "max_functional_volume_relative_error": "8.4394133637e-07",
+          "q_ra": "-0.32688331604",
+          "q_rv": "0.0391409359872",
+          "q_la": "-0.0359732843935",
+          "q_lv": "0.0803644657135",
+          "ra_target_ml": "30.5983376165",
+          "rv_target_ml": "132.934452267",
+          "la_target_ml": "47.6015775348",
+          "lv_target_ml": "126.341052237",
+          "diaphragm_swept_ml": "372.274109395",
+          "rib_swept_ml": "135.535286972",
+          "lung_target_ml": "3007.8093987",
+          "body_com_x_m": "-0.0250745564699",
+          "body_com_y_m": "-0.742889642715",
+          "body_com_z_m": "0.0987313762307",
+          "represented_body_mass_kg": "72",
+          "ventricular_wall_bound": "1",
+          "ventricular_material_ml": "164.012802998",
+          "ventricular_material_target_ml": "164.012890309",
+          "ventricular_closure_mm": "-1.17781455629",
+          "ventricular_material_status": "0",
+          "functional_geometry_status": "0"
+        }
+      },
+      "retained_directory": "/Users/n/numi-human-resting-evidence-20261005/dynamic-release-native-022",
+      "initialization_records": [
+        "resting_initialization=dynamic_release recruitment_activation_cap=0.01 normalized_residual_rms=101.4427227 maximum_acceleration_residual=576.867872555 balanced=false qualification=initialization_transient_not_static_equilibrium",
+        "compiled_support_geometry=admissible compiled_support_min_gap_m=-1.38777878078e-17 compiled_support_gap_tolerance_m=1e-06 compiled_support_activation_distance_m=0.002 compiled_support_separated_witnesses=31 compiled_support_max_separated_force_n=0 compiled_support_rejected_pose_candidates=0",
+        "resting_integrated_rejection=pass rejected_after_accepted_predecessor=true body_q_v_root_myo_unchanged=true circulation_and_clock_unchanged=true respiration_brain_history_unchanged=true retry_matches_uninterrupted_replay=true same_command_buffer_reject=pass accepted_prefix=2 rejected_step=2 inert_suffix=1",
+        "resting_integrated_body=completed simulated_s=6.0000002849847078 wall_s=61.923316540999998 real_time_factor=0.096894039598348261 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+      ],
+      "last_coupled_sample": {
+        "time_s": "6.00000028498",
+        "lung_volume_ml": "3008.25503655",
+        "airflow_ml_s": "222.818940529",
+        "alveolar_pa": "-29.7067546844",
+        "pleural_pa": "-769.253234863",
+        "diaphragm_mm": "19.2479228973",
+        "rib_mm": "2.26217794418",
+        "PaO2_mmhg": "101.134208679",
+        "PaCO2_mmhg": "39.2698097229",
+        "SaO2": "0.973030924797",
+        "oxygen_balance_error_stpd_ml": "0.000232830643654",
+        "co2_balance_error_stpd_ml": "0.000465661287308",
+        "breaths": "1",
+        "tidal_ml": "539.669301361",
+        "lv_mmhg": "7.49664021236",
+        "rv_mmhg": "0.514948585424",
+        "aorta_mmhg": "78.7817727172",
+        "pulmonary_artery_mmhg": "10.4892018639",
+        "lv_ml": "126.402432215",
+        "rv_ml": "133.093359182",
+        "blood_ml": "5150.00149608",
+        "blood_error_ml": "0.00279396772385",
+        "aortic_ejected_ml": "497.111992445",
+        "pulmonary_ejected_ml": "490.232778247",
+        "complete_filling_ejection_cycles": "7",
+        "last_lv_stroke_ml": "70.5011480022",
+        "right_atrium_ml": "30.6223046209",
+        "left_atrium_ml": "47.607038141",
+        "blood_continuity_residual_accum_ml": "0.00168881068852",
+        "blood_physical_delta_accum_ml": "0.00170621206053",
+        "blood_residual_minus_physical_ml": "-1.740137201e-05",
+        "blood_endpoint_minus_physical_ml": "-0.000309228198603",
+        "inspired_volume_accum_ml": "1047.92278549",
+        "last_inspiration_step": "2509",
+        "last_inspiration_time_s": "5.01800023834",
+        "last_inspiration_volume_accum_ml": "539.669231183",
+        "last_complete_breath_inspired_ml": "539.669243153",
+        "step": "3000",
+        "min_contact_gap_m": "-2.48044580076e-06",
+        "peak_penetration_m": "2.48044580076e-06",
+        "normal_impulse_ns": "1.41438746452",
+        "root_assistance_n": "0",
+        "root_assistance_nm": "0",
+        "diaphragm_excitation": "0.158080652356",
+        "intercostal_excitation": "0.0988004133105",
+        "diaphragm_activation": "0.157983973622",
+        "intercostal_activation": "0.0987494289875"
+      },
+      "maximum_absolute_root_assistance_n": 0.0,
+      "maximum_absolute_root_assistance_nm": 0.0,
+      "surface_guard_maxima": {
+        "vertices_below_1mm": 0.0,
+        "nonfinite_skin_vertices": 0.0,
+        "ventricular_material_status": 0.0,
+        "functional_geometry_status": 0.0,
+        "max_functional_volume_relative_error": 1.51047049712e-06
+      },
+      "lower_limb_subset_results": []
+    },
+    "dynamic-release-native-023": {
+      "execution": {
+        "returncode": 1,
+        "wrapper_wall_seconds": 0.3855404583737254,
+        "changed_inputs": [],
+        "finished_utc": "2026-10-05T21:07:57.017388+00:00"
+      },
+      "retained_directory": "/Users/n/numi-human-resting-evidence-20261005/dynamic-release-native-023",
+      "initialization_records": [],
+      "lower_limb_subset_results": []
+    },
+    "dynamic-release-native-024": {
+      "execution": {
+        "returncode": 0,
+        "wrapper_wall_seconds": 593.4430996254086,
+        "changed_inputs": [],
+        "finished_utc": "2026-10-05T21:18:13.969083+00:00",
+        "last_surface_frame": {
+          "time_s": "59.9980028498",
+          "step": "29999",
+          "min_skin_bed_gap_m": "-9.04500484467e-06",
+          "vertices_below_1mm": "0",
+          "nonfinite_skin_vertices": "0",
+          "max_functional_volume_relative_error": "1.06469065031e-06",
+          "q_ra": "-0.326856374741",
+          "q_rv": "0.0391498990357",
+          "q_la": "-0.0369496457279",
+          "q_lv": "0.0783857554197",
+          "ra_target_ml": "30.6013353111",
+          "rv_target_ml": "132.937624585",
+          "la_target_ml": "47.4570915685",
+          "lv_target_ml": "125.64813369",
+          "diaphragm_swept_ml": "103.125734313",
+          "rib_swept_ml": "15.354145944",
+          "lung_target_ml": "2618.4800081",
+          "body_com_x_m": "-0.0292707011104",
+          "body_com_y_m": "-0.744184434414",
+          "body_com_z_m": "0.0985772907734",
+          "represented_body_mass_kg": "72",
+          "ventricular_wall_bound": "1",
+          "ventricular_material_ml": "164.013064932",
+          "ventricular_material_target_ml": "164.012890309",
+          "ventricular_closure_mm": "-1.1659899028",
+          "ventricular_material_status": "0",
+          "functional_geometry_status": "0"
+        }
+      },
+      "retained_directory": "/Users/n/numi-human-resting-evidence-20261005/dynamic-release-native-024",
+      "initialization_records": [
+        "resting_initialization=dynamic_release recruitment_activation_cap=0.01 normalized_residual_rms=101.4427227 maximum_acceleration_residual=576.867872555 balanced=false qualification=initialization_transient_not_static_equilibrium",
+        "compiled_support_geometry=admissible compiled_support_min_gap_m=-1.38777878078e-17 compiled_support_gap_tolerance_m=1e-06 compiled_support_activation_distance_m=0.002 compiled_support_separated_witnesses=31 compiled_support_max_separated_force_n=0 compiled_support_rejected_pose_candidates=0",
+        "resting_integrated_rejection=pass rejected_after_accepted_predecessor=true body_q_v_root_myo_unchanged=true circulation_and_clock_unchanged=true respiration_brain_history_unchanged=true retry_matches_uninterrupted_replay=true same_command_buffer_reject=pass accepted_prefix=2 rejected_step=2 inert_suffix=1",
+        "resting_integrated_body=completed simulated_s=60.000002849847078 wall_s=590.32602341699999 real_time_factor=0.10163875633086179 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+      ],
+      "last_coupled_sample": {
+        "time_s": "60.0000028498",
+        "lung_volume_ml": "2619.75754984",
+        "airflow_ml_s": "638.851721305",
+        "alveolar_pa": "-85.1732406616",
+        "pleural_pa": "-634.226806641",
+        "diaphragm_mm": "5.38020133972",
+        "rib_mm": "0.260485768318",
+        "PaO2_mmhg": "102.414787292",
+        "PaCO2_mmhg": "39.3058738708",
+        "SaO2": "0.973908305168",
+        "oxygen_balance_error_stpd_ml": "0.000232830643654",
+        "co2_balance_error_stpd_ml": "0.000465661287308",
+        "breaths": "11",
+        "tidal_ml": "526.268500835",
+        "lv_mmhg": "7.42511654892",
+        "rv_mmhg": "0.51512586896",
+        "aorta_mmhg": "77.9119283586",
+        "pulmonary_artery_mmhg": "10.4118416922",
+        "lv_ml": "125.709368149",
+        "rv_ml": "133.096778882",
+        "blood_ml": "5150.01639724",
+        "blood_error_ml": "0.0176951289177",
+        "aortic_ejected_ml": "4910.59944034",
+        "pulmonary_ejected_ml": "4901.96282044",
+        "complete_filling_ejection_cycles": "70",
+        "last_lv_stroke_ml": "70.0338787283",
+        "right_atrium_ml": "30.6253386952",
+        "left_atrium_ml": "47.4625448987",
+        "blood_continuity_residual_accum_ml": "0.0165536769708",
+        "blood_physical_delta_accum_ml": "0.0165582605405",
+        "blood_residual_minus_physical_ml": "-4.58356963495e-06",
+        "blood_endpoint_minus_physical_ml": "-0.000260115484707",
+        "inspired_volume_accum_ml": "5940.72362151",
+        "last_inspiration_step": "29861",
+        "last_inspiration_time_s": "59.7220028366",
+        "last_inspiration_volume_accum_ml": "5820.96779964",
+        "last_complete_breath_inspired_ml": "526.268675458",
+        "step": "30000",
+        "min_contact_gap_m": "-1.07833875518e-05",
+        "peak_penetration_m": "1.07833875518e-05",
+        "normal_impulse_ns": "1.41205692291",
+        "root_assistance_n": "0",
+        "root_assistance_nm": "0",
+        "diaphragm_excitation": "0.0589097291231",
+        "intercostal_excitation": "0.0368185825646",
+        "diaphragm_activation": "0.0579295232892",
+        "intercostal_activation": "0.0362452343106"
+      },
+      "maximum_absolute_root_assistance_n": 0.0,
+      "maximum_absolute_root_assistance_nm": 0.0,
+      "surface_guard_maxima": {
+        "vertices_below_1mm": 0.0,
+        "nonfinite_skin_vertices": 0.0,
+        "ventricular_material_status": 0.0,
+        "functional_geometry_status": 0.0,
+        "max_functional_volume_relative_error": 2.09787572203e-06
+      },
+      "lower_limb_subset_results": [
+        {
+          "step": 14975,
+          "aabb_candidates": 0,
+          "exact_intersecting_triangle_pairs": 0,
+          "complete": true
+        },
+        {
+          "step": 29999,
+          "aabb_candidates": 0,
+          "exact_intersecting_triangle_pairs": 0,
+          "complete": true
+        },
+        {
+          "step": 3199,
+          "aabb_candidates": 0,
+          "exact_intersecting_triangle_pairs": 0,
+          "complete": true
+        },
+        {
+          "step": 4991,
+          "aabb_candidates": 0,
+          "exact_intersecting_triangle_pairs": 0,
+          "complete": true
+        }
+      ]
+    },
+    "passive-joint-release-native-025": {
+      "execution": {
+        "returncode": 0,
+        "wrapper_wall_seconds": 65.60912504140288,
+        "changed_inputs": [],
+        "finished_utc": "2026-10-05T21:20:56.609863+00:00",
+        "last_surface_frame": {
+          "time_s": "5.99800028489",
+          "step": "2999",
+          "min_skin_bed_gap_m": "-2.80886888504e-06",
+          "vertices_below_1mm": "0",
+          "nonfinite_skin_vertices": "0",
+          "max_functional_volume_relative_error": "1.5584542723e-07",
+          "q_ra": "-0.32688331604",
+          "q_rv": "0.0391409359872",
+          "q_la": "-0.0359732843935",
+          "q_lv": "0.0803644657135",
+          "ra_target_ml": "30.5983376165",
+          "rv_target_ml": "132.934452267",
+          "la_target_ml": "47.6015775348",
+          "lv_target_ml": "126.341052237",
+          "diaphragm_swept_ml": "372.274109395",
+          "rib_swept_ml": "135.535286972",
+          "lung_target_ml": "3007.8093987",
+          "body_com_x_m": "-0.0251088775694",
+          "body_com_y_m": "-0.742880403996",
+          "body_com_z_m": "0.0987302735448",
+          "represented_body_mass_kg": "72",
+          "ventricular_wall_bound": "1",
+          "ventricular_material_ml": "164.012904861",
+          "ventricular_material_target_ml": "164.012890309",
+          "ventricular_closure_mm": "-1.17781455629",
+          "ventricular_material_status": "0",
+          "functional_geometry_status": "0"
+        }
+      },
+      "retained_directory": "/Users/n/numi-human-resting-evidence-20261005/passive-joint-release-native-025",
+      "initialization_records": [
+        "resting_initialization=dynamic_release recruitment_activation_cap=0.01 normalized_residual_rms=101.4427227 maximum_acceleration_residual=576.867872555 balanced=false qualification=initialization_transient_not_static_equilibrium",
+        "compiled_support_geometry=admissible compiled_support_min_gap_m=-1.38777878078e-17 compiled_support_gap_tolerance_m=1e-06 compiled_support_activation_distance_m=0.002 compiled_support_separated_witnesses=31 compiled_support_max_separated_force_n=0 compiled_support_rejected_pose_candidates=0",
+        "resting_integrated_rejection=pass rejected_after_accepted_predecessor=true body_q_v_root_myo_unchanged=true circulation_and_clock_unchanged=true respiration_brain_history_unchanged=true retry_matches_uninterrupted_replay=true same_command_buffer_reject=pass accepted_prefix=2 rejected_step=2 inert_suffix=1",
+        "resting_integrated_body=completed simulated_s=6.0000002849847078 wall_s=61.833544291999999 real_time_factor=0.097034713983894752 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+      ],
+      "last_coupled_sample": {
+        "time_s": "6.00000028498",
+        "lung_volume_ml": "3008.25503655",
+        "airflow_ml_s": "222.818940529",
+        "alveolar_pa": "-29.7067546844",
+        "pleural_pa": "-769.253234863",
+        "diaphragm_mm": "19.2479228973",
+        "rib_mm": "2.26217794418",
+        "PaO2_mmhg": "101.134208679",
+        "PaCO2_mmhg": "39.2698097229",
+        "SaO2": "0.973030924797",
+        "oxygen_balance_error_stpd_ml": "0.000232830643654",
+        "co2_balance_error_stpd_ml": "0.000465661287308",
+        "breaths": "1",
+        "tidal_ml": "539.669301361",
+        "lv_mmhg": "7.49664021236",
+        "rv_mmhg": "0.514948585424",
+        "aorta_mmhg": "78.7817727172",
+        "pulmonary_artery_mmhg": "10.4892018639",
+        "lv_ml": "126.402432215",
+        "rv_ml": "133.093359182",
+        "blood_ml": "5150.00149608",
+        "blood_error_ml": "0.00279396772385",
+        "aortic_ejected_ml": "497.111992445",
+        "pulmonary_ejected_ml": "490.232778247",
+        "complete_filling_ejection_cycles": "7",
+        "last_lv_stroke_ml": "70.5011480022",
+        "right_atrium_ml": "30.6223046209",
+        "left_atrium_ml": "47.607038141",
+        "blood_continuity_residual_accum_ml": "0.00168881068852",
+        "blood_physical_delta_accum_ml": "0.00170621206053",
+        "blood_residual_minus_physical_ml": "-1.740137201e-05",
+        "blood_endpoint_minus_physical_ml": "-0.000309228198603",
+        "inspired_volume_accum_ml": "1047.92278549",
+        "last_inspiration_step": "2509",
+        "last_inspiration_time_s": "5.01800023834",
+        "last_inspiration_volume_accum_ml": "539.669231183",
+        "last_complete_breath_inspired_ml": "539.669243153",
+        "step": "3000",
+        "min_contact_gap_m": "-2.97143697026e-06",
+        "peak_penetration_m": "2.97143697026e-06",
+        "normal_impulse_ns": "1.40751767159",
+        "root_assistance_n": "0",
+        "root_assistance_nm": "0",
+        "diaphragm_excitation": "0.158080652356",
+        "intercostal_excitation": "0.0988004133105",
+        "diaphragm_activation": "0.157983973622",
+        "intercostal_activation": "0.0987494289875"
+      },
+      "maximum_absolute_root_assistance_n": 0.0,
+      "maximum_absolute_root_assistance_nm": 0.0,
+      "surface_guard_maxima": {
+        "vertices_below_1mm": 0.0,
+        "nonfinite_skin_vertices": 0.0,
+        "ventricular_material_status": 0.0,
+        "functional_geometry_status": 0.0,
+        "max_functional_volume_relative_error": 1.40534575621e-06
+      },
+      "lower_limb_subset_results": []
+    },
+    "release-default-regression-026": {
+      "execution": {
+        "returncode": 0,
+        "wrapper_wall_seconds": 65.36992045864463,
+        "changed_inputs": [],
+        "finished_utc": "2026-10-05T21:36:47.753509+00:00",
+        "last_surface_frame": {
+          "time_s": "5.99800028489",
+          "step": "2999",
+          "min_skin_bed_gap_m": "-3.71038913727e-06",
+          "vertices_below_1mm": "0",
+          "nonfinite_skin_vertices": "0",
+          "max_functional_volume_relative_error": "1.46327170114e-06",
+          "q_ra": "-0.32688331604",
+          "q_rv": "0.0391409359872",
+          "q_la": "-0.0359732843935",
+          "q_lv": "0.0803644657135",
+          "ra_target_ml": "30.5983376165",
+          "rv_target_ml": "132.934452267",
+          "la_target_ml": "47.6015775348",
+          "lv_target_ml": "126.341052237",
+          "diaphragm_swept_ml": "372.274109395",
+          "rib_swept_ml": "135.535286972",
+          "lung_target_ml": "3007.8093987",
+          "body_com_x_m": "-0.0279192849994",
+          "body_com_y_m": "-0.75521504879",
+          "body_com_z_m": "0.0998658537865",
+          "represented_body_mass_kg": "72",
+          "ventricular_wall_bound": "1",
+          "ventricular_material_ml": "164.012802998",
+          "ventricular_material_target_ml": "164.012890309",
+          "ventricular_closure_mm": "-1.17781455629",
+          "ventricular_material_status": "0",
+          "functional_geometry_status": "0"
+        }
+      },
+      "retained_directory": "/Users/n/numi-human-resting-evidence-20261005/release-default-regression-026",
+      "initialization_records": [
+        "compiled_support_geometry=admissible compiled_support_min_gap_m=-1.38777878078e-17 compiled_support_gap_tolerance_m=1e-06 compiled_support_activation_distance_m=0.002 compiled_support_separated_witnesses=31 compiled_support_max_separated_force_n=0 compiled_support_rejected_pose_candidates=0",
+        "resting_integrated_rejection=pass rejected_after_accepted_predecessor=true body_q_v_root_myo_unchanged=true circulation_and_clock_unchanged=true respiration_brain_history_unchanged=true retry_matches_uninterrupted_replay=true same_command_buffer_reject=pass accepted_prefix=2 rejected_step=2 inert_suffix=1",
+        "resting_integrated_body=completed simulated_s=6.0000002849847078 wall_s=62.383916999999997 real_time_factor=0.09617863984053307 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+      ],
+      "last_coupled_sample": {
+        "time_s": "6.00000028498",
+        "lung_volume_ml": "3008.25503655",
+        "airflow_ml_s": "222.818940529",
+        "alveolar_pa": "-29.7067546844",
+        "pleural_pa": "-769.253234863",
+        "diaphragm_mm": "19.2479228973",
+        "rib_mm": "2.26217794418",
+        "PaO2_mmhg": "101.134208679",
+        "PaCO2_mmhg": "39.2698097229",
+        "SaO2": "0.973030924797",
+        "oxygen_balance_error_stpd_ml": "0.000232830643654",
+        "co2_balance_error_stpd_ml": "0.000465661287308",
+        "breaths": "1",
+        "tidal_ml": "539.669301361",
+        "lv_mmhg": "7.49664021236",
+        "rv_mmhg": "0.514948585424",
+        "aorta_mmhg": "78.7817727172",
+        "pulmonary_artery_mmhg": "10.4892018639",
+        "lv_ml": "126.402432215",
+        "rv_ml": "133.093359182",
+        "blood_ml": "5150.00149608",
+        "blood_error_ml": "0.00279396772385",
+        "aortic_ejected_ml": "497.111992445",
+        "pulmonary_ejected_ml": "490.232778247",
+        "complete_filling_ejection_cycles": "7",
+        "last_lv_stroke_ml": "70.5011480022",
+        "right_atrium_ml": "30.6223046209",
+        "left_atrium_ml": "47.607038141",
+        "blood_continuity_residual_accum_ml": "0.00168881068852",
+        "blood_physical_delta_accum_ml": "0.00170621206053",
+        "blood_residual_minus_physical_ml": "-1.740137201e-05",
+        "blood_endpoint_minus_physical_ml": "-0.000309228198603",
+        "inspired_volume_accum_ml": "1047.92278549",
+        "last_inspiration_step": "2509",
+        "last_inspiration_time_s": "5.01800023834",
+        "last_inspiration_volume_accum_ml": "539.669231183",
+        "last_complete_breath_inspired_ml": "539.669243153",
+        "step": "3000",
+        "min_contact_gap_m": "-3.79791003979e-06",
+        "peak_penetration_m": "3.79791003979e-06",
+        "normal_impulse_ns": "1.41407597065",
+        "root_assistance_n": "0",
+        "root_assistance_nm": "0",
+        "diaphragm_excitation": "0.158080652356",
+        "intercostal_excitation": "0.0988004133105",
+        "diaphragm_activation": "0.157983973622",
+        "intercostal_activation": "0.0987494289875"
+      },
+      "maximum_absolute_root_assistance_n": 0.0,
+      "maximum_absolute_root_assistance_nm": 0.0,
+      "surface_guard_maxima": {
+        "vertices_below_1mm": 0.0,
+        "nonfinite_skin_vertices": 0.0,
+        "ventricular_material_status": 0.0,
+        "functional_geometry_status": 0.0,
+        "max_functional_volume_relative_error": 1.46327170114e-06
+      },
+      "lower_limb_subset_results": []
+    },
+    "release-cap005-sensitivity-027": {
+      "execution": {
+        "returncode": 0,
+        "wrapper_wall_seconds": 65.28885887470096,
+        "changed_inputs": [],
+        "finished_utc": "2026-10-05T21:38:20.376859+00:00",
+        "last_surface_frame": {
+          "time_s": "5.99800028489",
+          "step": "2999",
+          "min_skin_bed_gap_m": "-2.54809856415e-06",
+          "vertices_below_1mm": "0",
+          "nonfinite_skin_vertices": "0",
+          "max_functional_volume_relative_error": "4.92299079724e-07",
+          "q_ra": "-0.32688331604",
+          "q_rv": "0.0391409359872",
+          "q_la": "-0.0359732843935",
+          "q_lv": "0.0803644657135",
+          "ra_target_ml": "30.5983376165",
+          "rv_target_ml": "132.934452267",
+          "la_target_ml": "47.6015775348",
+          "lv_target_ml": "126.341052237",
+          "diaphragm_swept_ml": "372.274109395",
+          "rib_swept_ml": "135.535286972",
+          "lung_target_ml": "3007.8093987",
+          "body_com_x_m": "-0.0238075833768",
+          "body_com_y_m": "-0.742942452431",
+          "body_com_z_m": "0.099532186985",
+          "represented_body_mass_kg": "72",
+          "ventricular_wall_bound": "1",
+          "ventricular_material_ml": "164.012904861",
+          "ventricular_material_target_ml": "164.012890309",
+          "ventricular_closure_mm": "-1.17781455629",
+          "ventricular_material_status": "0",
+          "functional_geometry_status": "0"
+        }
+      },
+      "retained_directory": "/Users/n/numi-human-resting-evidence-20261005/release-cap005-sensitivity-027",
+      "initialization_records": [
+        "resting_initialization=dynamic_release recruitment_activation_cap=0.005 normalized_residual_rms=106.77303235 maximum_acceleration_residual=602.509604386 balanced=false qualification=initialization_transient_not_static_equilibrium",
+        "compiled_support_geometry=admissible compiled_support_min_gap_m=-1.38777878078e-17 compiled_support_gap_tolerance_m=1e-06 compiled_support_activation_distance_m=0.002 compiled_support_separated_witnesses=31 compiled_support_max_separated_force_n=0 compiled_support_rejected_pose_candidates=0",
+        "resting_integrated_rejection=pass rejected_after_accepted_predecessor=true body_q_v_root_myo_unchanged=true circulation_and_clock_unchanged=true respiration_brain_history_unchanged=true retry_matches_uninterrupted_replay=true same_command_buffer_reject=pass accepted_prefix=2 rejected_step=2 inert_suffix=1",
+        "resting_integrated_body=completed simulated_s=6.0000002849847078 wall_s=62.049888875000001 real_time_factor=0.096696390497519769 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+      ],
+      "last_coupled_sample": {
+        "time_s": "6.00000028498",
+        "lung_volume_ml": "3008.25503655",
+        "airflow_ml_s": "222.818940529",
+        "alveolar_pa": "-29.7067546844",
+        "pleural_pa": "-769.253234863",
+        "diaphragm_mm": "19.2479228973",
+        "rib_mm": "2.26217794418",
+        "PaO2_mmhg": "101.134208679",
+        "PaCO2_mmhg": "39.2698097229",
+        "SaO2": "0.973030924797",
+        "oxygen_balance_error_stpd_ml": "0.000232830643654",
+        "co2_balance_error_stpd_ml": "0.000465661287308",
+        "breaths": "1",
+        "tidal_ml": "539.669301361",
+        "lv_mmhg": "7.49664021236",
+        "rv_mmhg": "0.514948585424",
+        "aorta_mmhg": "78.7817727172",
+        "pulmonary_artery_mmhg": "10.4892018639",
+        "lv_ml": "126.402432215",
+        "rv_ml": "133.093359182",
+        "blood_ml": "5150.00149608",
+        "blood_error_ml": "0.00279396772385",
+        "aortic_ejected_ml": "497.111992445",
+        "pulmonary_ejected_ml": "490.232778247",
+        "complete_filling_ejection_cycles": "7",
+        "last_lv_stroke_ml": "70.5011480022",
+        "right_atrium_ml": "30.6223046209",
+        "left_atrium_ml": "47.607038141",
+        "blood_continuity_residual_accum_ml": "0.00168881068852",
+        "blood_physical_delta_accum_ml": "0.00170621206053",
+        "blood_residual_minus_physical_ml": "-1.740137201e-05",
+        "blood_endpoint_minus_physical_ml": "-0.000309228198603",
+        "inspired_volume_accum_ml": "1047.92278549",
+        "last_inspiration_step": "2509",
+        "last_inspiration_time_s": "5.01800023834",
+        "last_inspiration_volume_accum_ml": "539.669231183",
+        "last_complete_breath_inspired_ml": "539.669243153",
+        "step": "3000",
+        "min_contact_gap_m": "-2.85486271423e-06",
+        "peak_penetration_m": "2.85486271423e-06",
+        "normal_impulse_ns": "1.4024014473",
+        "root_assistance_n": "0",
+        "root_assistance_nm": "0",
+        "diaphragm_excitation": "0.158080652356",
+        "intercostal_excitation": "0.0988004133105",
+        "diaphragm_activation": "0.157983973622",
+        "intercostal_activation": "0.0987494289875"
+      },
+      "maximum_absolute_root_assistance_n": 0.0,
+      "maximum_absolute_root_assistance_nm": 0.0,
+      "surface_guard_maxima": {
+        "vertices_below_1mm": 0.0,
+        "nonfinite_skin_vertices": 0.0,
+        "ventricular_material_status": 0.0,
+        "functional_geometry_status": 0.0,
+        "max_functional_volume_relative_error": 1.45489252645e-06
+      },
+      "lower_limb_subset_results": [
+        {
+          "step": 2783,
+          "aabb_candidates": 0,
+          "exact_intersecting_triangle_pairs": 0,
+          "complete": true
+        },
+        {
+          "step": 2999,
+          "aabb_candidates": 0,
+          "exact_intersecting_triangle_pairs": 0,
+          "complete": true
+        },
+        {
+          "step": 639,
+          "aabb_candidates": 0,
+          "exact_intersecting_triangle_pairs": 0,
+          "complete": true
+        }
+      ]
+    },
+    "release-cap020-sensitivity-028": {
+      "execution": {
+        "returncode": 0,
+        "wrapper_wall_seconds": 64.94289266690612,
+        "changed_inputs": [],
+        "finished_utc": "2026-10-05T21:40:07.502270+00:00",
+        "last_surface_frame": {
+          "time_s": "5.99800028489",
+          "step": "2999",
+          "min_skin_bed_gap_m": "-2.14576721191e-06",
+          "vertices_below_1mm": "0",
+          "nonfinite_skin_vertices": "0",
+          "max_functional_volume_relative_error": "7.64255958075e-07",
+          "q_ra": "-0.32688331604",
+          "q_rv": "0.0391409359872",
+          "q_la": "-0.0359732843935",
+          "q_lv": "0.0803644657135",
+          "ra_target_ml": "30.5983376165",
+          "rv_target_ml": "132.934452267",
+          "la_target_ml": "47.6015775348",
+          "lv_target_ml": "126.341052237",
+          "diaphragm_swept_ml": "372.274109395",
+          "rib_swept_ml": "135.535286972",
+          "lung_target_ml": "3007.8093987",
+          "body_com_x_m": "-0.0255858153105",
+          "body_com_y_m": "-0.742677927017",
+          "body_com_z_m": "0.0989302098751",
+          "represented_body_mass_kg": "72",
+          "ventricular_wall_bound": "1",
+          "ventricular_material_ml": "164.012832101",
+          "ventricular_material_target_ml": "164.012890309",
+          "ventricular_closure_mm": "-1.17781455629",
+          "ventricular_material_status": "0",
+          "functional_geometry_status": "0"
+        }
+      },
+      "retained_directory": "/Users/n/numi-human-resting-evidence-20261005/release-cap020-sensitivity-028",
+      "initialization_records": [
+        "resting_initialization=dynamic_release recruitment_activation_cap=0.02 normalized_residual_rms=91.944533373 maximum_acceleration_residual=524.859031218 balanced=false qualification=initialization_transient_not_static_equilibrium",
+        "compiled_support_geometry=admissible compiled_support_min_gap_m=-1.38777878078e-17 compiled_support_gap_tolerance_m=1e-06 compiled_support_activation_distance_m=0.002 compiled_support_separated_witnesses=31 compiled_support_max_separated_force_n=0 compiled_support_rejected_pose_candidates=0",
+        "resting_integrated_rejection=pass rejected_after_accepted_predecessor=true body_q_v_root_myo_unchanged=true circulation_and_clock_unchanged=true respiration_brain_history_unchanged=true retry_matches_uninterrupted_replay=true same_command_buffer_reject=pass accepted_prefix=2 rejected_step=2 inert_suffix=1",
+        "resting_integrated_body=completed simulated_s=6.0000002849847078 wall_s=61.861814332999998 real_time_factor=0.096990370387245908 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+      ],
+      "last_coupled_sample": {
+        "time_s": "6.00000028498",
+        "lung_volume_ml": "3008.25503655",
+        "airflow_ml_s": "222.818940529",
+        "alveolar_pa": "-29.7067546844",
+        "pleural_pa": "-769.253234863",
+        "diaphragm_mm": "19.2479228973",
+        "rib_mm": "2.26217794418",
+        "PaO2_mmhg": "101.134208679",
+        "PaCO2_mmhg": "39.2698097229",
+        "SaO2": "0.973030924797",
+        "oxygen_balance_error_stpd_ml": "0.000232830643654",
+        "co2_balance_error_stpd_ml": "0.000465661287308",
+        "breaths": "1",
+        "tidal_ml": "539.669301361",
+        "lv_mmhg": "7.49664021236",
+        "rv_mmhg": "0.514948585424",
+        "aorta_mmhg": "78.7817727172",
+        "pulmonary_artery_mmhg": "10.4892018639",
+        "lv_ml": "126.402432215",
+        "rv_ml": "133.093359182",
+        "blood_ml": "5150.00149608",
+        "blood_error_ml": "0.00279396772385",
+        "aortic_ejected_ml": "497.111992445",
+        "pulmonary_ejected_ml": "490.232778247",
+        "complete_filling_ejection_cycles": "7",
+        "last_lv_stroke_ml": "70.5011480022",
+        "right_atrium_ml": "30.6223046209",
+        "left_atrium_ml": "47.607038141",
+        "blood_continuity_residual_accum_ml": "0.00168881068852",
+        "blood_physical_delta_accum_ml": "0.00170621206053",
+        "blood_residual_minus_physical_ml": "-1.740137201e-05",
+        "blood_endpoint_minus_physical_ml": "-0.000309228198603",
+        "inspired_volume_accum_ml": "1047.92278549",
+        "last_inspiration_step": "2509",
+        "last_inspiration_time_s": "5.01800023834",
+        "last_inspiration_volume_accum_ml": "539.669231183",
+        "last_complete_breath_inspired_ml": "539.669243153",
+        "step": "3000",
+        "min_contact_gap_m": "-2.63177275883e-06",
+        "peak_penetration_m": "2.63177275883e-06",
+        "normal_impulse_ns": "1.40744185448",
+        "root_assistance_n": "0",
+        "root_assistance_nm": "0",
+        "diaphragm_excitation": "0.158080652356",
+        "intercostal_excitation": "0.0988004133105",
+        "diaphragm_activation": "0.157983973622",
+        "intercostal_activation": "0.0987494289875"
+      },
+      "maximum_absolute_root_assistance_n": 0.0,
+      "maximum_absolute_root_assistance_nm": 0.0,
+      "surface_guard_maxima": {
+        "vertices_below_1mm": 0.0,
+        "nonfinite_skin_vertices": 0.0,
+        "ventricular_material_status": 0.0,
+        "functional_geometry_status": 0.0,
+        "max_functional_volume_relative_error": 1.71865042375e-06
+      },
+      "lower_limb_subset_results": [
+        {
+          "step": 2783,
+          "aabb_candidates": 0,
+          "exact_intersecting_triangle_pairs": 0,
+          "complete": true
+        },
+        {
+          "step": 2999,
+          "aabb_candidates": 0,
+          "exact_intersecting_triangle_pairs": 0,
+          "complete": true
+        },
+        {
+          "step": 639,
+          "aabb_candidates": 0,
+          "exact_intersecting_triangle_pairs": 0,
+          "complete": true
+        }
+      ]
+    }
+  },
+  "retained_artifacts": {
+    "zero-recruitment-native-020": {
+      "/Users/n/numi-human-resting-evidence-20261005/zero-recruitment-native-020/native-viewer.mov": {
+        "sha256": "5a0eaecb438b6c7f2249d38ea9bf30502f8f889fe55e13042f7c56529917e1ec",
+        "bytes": 27745
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/zero-recruitment-native-020/resting-human.mrvpack": {
+        "sha256": "4f969193b7e66385b5a06d9d55a3ea966d156821e76558b16d4a785cdaddd6a7",
+        "bytes": 214589440
+      }
+    },
+    "low-recruitment-native-021": {
+      "/Users/n/numi-human-resting-evidence-20261005/low-recruitment-native-021/native-viewer.mov": {
+        "sha256": "237bf6bbaf5661f6d17095b04b5ff196abc05f0a27f7509f92003b3858249f8e",
+        "bytes": 27745
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/low-recruitment-native-021/resting-human.mrvpack": {
+        "sha256": "4f969193b7e66385b5a06d9d55a3ea966d156821e76558b16d4a785cdaddd6a7",
+        "bytes": 214589440
+      }
+    },
+    "dynamic-release-native-022": {
+      "/Users/n/numi-human-resting-evidence-20261005/dynamic-release-native-022/native-viewer.mov": {
+        "sha256": "9b6684edab9b7e2fb5a92246c0e41d82efe74640a6763c07f4062464cfb2be6d",
+        "bytes": 716676
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/dynamic-release-native-022/resting-human.mrvpack": {
+        "sha256": "4f969193b7e66385b5a06d9d55a3ea966d156821e76558b16d4a785cdaddd6a7",
+        "bytes": 214589440
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/dynamic-release-native-022/accepted-geometry/step-2783.mrvpack": {
+        "sha256": "ccd06e616a7892aaa0eda74ae29a3cb45ee7e0d490d8909bdc525d49212f0036",
+        "bytes": 214589440
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/dynamic-release-native-022/accepted-geometry/step-2783.receipt.json": {
+        "sha256": "3ec40663e8406f7bcbe3f0ae96045af119a183a3d28d6388f7ed4ba79a9e5831",
+        "bytes": 10337
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/dynamic-release-native-022/accepted-geometry/step-2999.mrvpack": {
+        "sha256": "3fd1ad28a00e3d204c2b8fc07bb6acf9bcc985b4f171e45ea8ca40e73f649b8c",
+        "bytes": 214589440
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/dynamic-release-native-022/accepted-geometry/step-2999.receipt.json": {
+        "sha256": "6b3b3851f2ee86c593edf5277a0cabf8019f9b29bd7fc834737bfe8879c01c00",
+        "bytes": 10335
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/dynamic-release-native-022/accepted-geometry/step-639.mrvpack": {
+        "sha256": "fa68b9f6264f1c886de7337a53b6d7d7eab4183eab2f5632c69b1a2499712f4a",
+        "bytes": 214589440
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/dynamic-release-native-022/accepted-geometry/step-639.receipt.json": {
+        "sha256": "7af55ce74540f728296fff388e90d765cb66dcbddea12776d214dc53c33ec38b",
+        "bytes": 10333
+      }
+    },
+    "dynamic-release-native-023": {},
+    "dynamic-release-native-024": {
+      "/Users/n/numi-human-resting-evidence-20261005/dynamic-release-native-024/native-viewer.mov": {
+        "sha256": "7208b3ab65a011aa70055e9d1ef675a092b500f6bbe1c815c14560fde1b946e2",
+        "bytes": 6501908
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/dynamic-release-native-024/resting-human.mrvpack": {
+        "sha256": "4f969193b7e66385b5a06d9d55a3ea966d156821e76558b16d4a785cdaddd6a7",
+        "bytes": 214589440
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/dynamic-release-native-024/accepted-geometry/step-14975.mrvpack": {
+        "sha256": "e0804c49c85dc209bf6ee44e9e86c7f9707c5599483ed8b070b370ebeeb14b3a",
+        "bytes": 214589440
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/dynamic-release-native-024/accepted-geometry/step-14975.receipt.json": {
+        "sha256": "3e2a25cf8ed9f53e03da0e510b9ed34e43af63644c15cf6a2b543f7435541e7e",
+        "bytes": 10335
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/dynamic-release-native-024/accepted-geometry/step-2783.mrvpack": {
+        "sha256": "ccd06e616a7892aaa0eda74ae29a3cb45ee7e0d490d8909bdc525d49212f0036",
+        "bytes": 214589440
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/dynamic-release-native-024/accepted-geometry/step-2783.receipt.json": {
+        "sha256": "06bfc394975ebaaeb0b179aeff8a5ad5544b75fe9fd09c3e4e6e8c42ec2ee883",
+        "bytes": 10337
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/dynamic-release-native-024/accepted-geometry/step-29999.mrvpack": {
+        "sha256": "5f096d40206f4b6ada71e5b0236def2503f6f5f8b03e1e5ddaeb219759fe2dd1",
+        "bytes": 214589440
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/dynamic-release-native-024/accepted-geometry/step-29999.receipt.json": {
+        "sha256": "e39d749398569416c6c3ef8e57b6d681a3ed02cd36e8fb849f8c6f93eb43ffc1",
+        "bytes": 10336
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/dynamic-release-native-024/accepted-geometry/step-31.mrvpack": {
+        "sha256": "15a2ecb044724930bbd63a9d897d426d436cd88c5fc9b4eae6ac77bd941ea30a",
+        "bytes": 214589440
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/dynamic-release-native-024/accepted-geometry/step-31.receipt.json": {
+        "sha256": "c6f2dabe6a980a34b2abe98406fe0a0224b90cf13d4a314981c7af611a224e28",
+        "bytes": 10329
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/dynamic-release-native-024/accepted-geometry/step-3199.mrvpack": {
+        "sha256": "f1ecc7ad8ca70f12e21565941c558beabed65e8cedf60303fb14f2ad62e96044",
+        "bytes": 214589440
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/dynamic-release-native-024/accepted-geometry/step-3199.receipt.json": {
+        "sha256": "e5681a334f3f23da3a22224267ebd1c8313befacda8c1e2acd1890f72b10fc20",
+        "bytes": 10334
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/dynamic-release-native-024/accepted-geometry/step-4991.mrvpack": {
+        "sha256": "d77dbef0bbac21123f89570a13906597f5b95311c622acc13692608ac122e5d3",
+        "bytes": 214589440
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/dynamic-release-native-024/accepted-geometry/step-4991.receipt.json": {
+        "sha256": "e11b75edb1dbe0bb34dcb48ce88879be20a0746e7f15a33ea01819320c4f9019",
+        "bytes": 10338
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/dynamic-release-native-024/accepted-geometry/step-639.mrvpack": {
+        "sha256": "fa68b9f6264f1c886de7337a53b6d7d7eab4183eab2f5632c69b1a2499712f4a",
+        "bytes": 214589440
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/dynamic-release-native-024/accepted-geometry/step-639.receipt.json": {
+        "sha256": "4a431d5534679aa73ee9938a9edc736bb4dfc0f2d944f5113024774477845600",
+        "bytes": 10333
+      }
+    },
+    "passive-joint-release-native-025": {
+      "/Users/n/numi-human-resting-evidence-20261005/passive-joint-release-native-025/native-viewer.mov": {
+        "sha256": "62e3e12d2dd8030f126aac49d36d52f1f2d66e4650d916f8a01bb4e1bea543c4",
+        "bytes": 708105
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/passive-joint-release-native-025/resting-human.mrvpack": {
+        "sha256": "4f969193b7e66385b5a06d9d55a3ea966d156821e76558b16d4a785cdaddd6a7",
+        "bytes": 214589440
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/passive-joint-release-native-025/accepted-geometry/step-2783.mrvpack": {
+        "sha256": "f72cbff33719e4ed29985156db2c67a64a5f23535d4ba181fb059902b32bf441",
+        "bytes": 214589440
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/passive-joint-release-native-025/accepted-geometry/step-2783.receipt.json": {
+        "sha256": "7b67fc03f6229f5b9f8e8991b0ed02eef980c9ac5f0e2982da48e6b990072bbe",
+        "bytes": 10348
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/passive-joint-release-native-025/accepted-geometry/step-2999.mrvpack": {
+        "sha256": "164ca31fac959a1637133a5e894d05f51e312cdcd650f1b558f8466b8b7dc35e",
+        "bytes": 214589440
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/passive-joint-release-native-025/accepted-geometry/step-2999.receipt.json": {
+        "sha256": "c5ad6b9fa3961a5c6e35231602dbcd200bcc0afa161a78c2c2afd64813c03bd4",
+        "bytes": 10347
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/passive-joint-release-native-025/accepted-geometry/step-639.mrvpack": {
+        "sha256": "081d69dedb614537cee35746f85b0adaf08aea2934e2d83da2eee1dbe15a2e89",
+        "bytes": 214589440
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/passive-joint-release-native-025/accepted-geometry/step-639.receipt.json": {
+        "sha256": "e16d4b9d3800a74ea57bc0abc923a2d9850d47f58bebb7155ce51a843782d5a3",
+        "bytes": 10346
+      }
+    },
+    "release-default-regression-026": {
+      "/Users/n/numi-human-resting-evidence-20261005/release-default-regression-026/native-viewer.mov": {
+        "sha256": "fde2618b4358a7c7b65843cf652ce41f12e612850e92ce0803b9a4601f3b8f9a",
+        "bytes": 754233
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/release-default-regression-026/resting-human.mrvpack": {
+        "sha256": "4f969193b7e66385b5a06d9d55a3ea966d156821e76558b16d4a785cdaddd6a7",
+        "bytes": 214589440
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/release-default-regression-026/accepted-geometry/step-2783.mrvpack": {
+        "sha256": "67f83fffcf019aa3bad3a7b9f3ecfe7d662d63285c06b1259dae1aaf9e5a2539",
+        "bytes": 214589440
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/release-default-regression-026/accepted-geometry/step-2783.receipt.json": {
+        "sha256": "ba10189883cdc435f86f3e03eb8816d8e9292cb4629dacc0d87968b76d8ba186",
+        "bytes": 10347
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/release-default-regression-026/accepted-geometry/step-2999.mrvpack": {
+        "sha256": "4f57140caec64e73fec1709f3105d7cf0490c3e112dd498911bf3da64420c42a",
+        "bytes": 214589440
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/release-default-regression-026/accepted-geometry/step-2999.receipt.json": {
+        "sha256": "44f8d097b2582cdfe3c93f8f745068eb5f8368ee5834afa047a9d9d07a09d53f",
+        "bytes": 10346
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/release-default-regression-026/accepted-geometry/step-639.mrvpack": {
+        "sha256": "1135c1b73140c33360d408c36357960a647f361bbb7f3017f8b880756fe43e09",
+        "bytes": 214589440
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/release-default-regression-026/accepted-geometry/step-639.receipt.json": {
+        "sha256": "8cba9176e6b967f3e3866bcf2d973dfe08fd8bc84b65123d312ba9349ffd9336",
+        "bytes": 10343
+      }
+    },
+    "release-cap005-sensitivity-027": {
+      "/Users/n/numi-human-resting-evidence-20261005/release-cap005-sensitivity-027/native-viewer.mov": {
+        "sha256": "6e362da0735817aa75d1813492062c6da8f184fdbfe0b1b396a5dff2fc42862a",
+        "bytes": 750414
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/release-cap005-sensitivity-027/resting-human.mrvpack": {
+        "sha256": "4f969193b7e66385b5a06d9d55a3ea966d156821e76558b16d4a785cdaddd6a7",
+        "bytes": 214589440
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/release-cap005-sensitivity-027/accepted-geometry/step-2783.mrvpack": {
+        "sha256": "bb932d8a948f6cd0509b1ca365fdafe9e50080e5e966ef6016cdf4dfc5bf6c85",
+        "bytes": 214589440
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/release-cap005-sensitivity-027/accepted-geometry/step-2783.receipt.json": {
+        "sha256": "815815a4a01efff8ed18f8d0b121d8a96bc5fd2d9810b4b61b2a41e57442349e",
+        "bytes": 10343
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/release-cap005-sensitivity-027/accepted-geometry/step-2999.mrvpack": {
+        "sha256": "b009a66621d8ea188c0295d71c1ea7ee22ce70fc184205d59150940d775f6052",
+        "bytes": 214589440
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/release-cap005-sensitivity-027/accepted-geometry/step-2999.receipt.json": {
+        "sha256": "51c2f31377d7557d489cadb98329ab00e330377accf5a3e2b2237fe75409775c",
+        "bytes": 10339
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/release-cap005-sensitivity-027/accepted-geometry/step-639.mrvpack": {
+        "sha256": "6d15b5468910890b485bb7805992865e709909356b926857fc0fff47b7361fd1",
+        "bytes": 214589440
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/release-cap005-sensitivity-027/accepted-geometry/step-639.receipt.json": {
+        "sha256": "aed729e91eca04ec6215d16ef032314bfa9951365405a0456b644247219851b3",
+        "bytes": 10344
+      }
+    },
+    "release-cap020-sensitivity-028": {
+      "/Users/n/numi-human-resting-evidence-20261005/release-cap020-sensitivity-028/native-viewer.mov": {
+        "sha256": "12fd1f66866eff26567dd6f704dd6d09dcf0ce9d7debaf85a003b499bbd095ac",
+        "bytes": 723784
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/release-cap020-sensitivity-028/resting-human.mrvpack": {
+        "sha256": "4f969193b7e66385b5a06d9d55a3ea966d156821e76558b16d4a785cdaddd6a7",
+        "bytes": 214589440
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/release-cap020-sensitivity-028/accepted-geometry/step-2783.mrvpack": {
+        "sha256": "bc4f273d81fd79b3857aa7cbb63e6cf7f5a7ceda071bfe32d6b0c38cb3706d19",
+        "bytes": 214589440
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/release-cap020-sensitivity-028/accepted-geometry/step-2783.receipt.json": {
+        "sha256": "c72639744c81162deddbfab0187db97fa342496706a73cabc8920eec931eea42",
+        "bytes": 10343
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/release-cap020-sensitivity-028/accepted-geometry/step-2999.mrvpack": {
+        "sha256": "c453b7a0278c1d6687dddca9ecdc57c59a2d001a9b293da997d88a0ec6da180b",
+        "bytes": 214589440
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/release-cap020-sensitivity-028/accepted-geometry/step-2999.receipt.json": {
+        "sha256": "1c1c2050e2640ad2a7ddeec114d8b56aff875fcba14082ea42f90cb016f57584",
+        "bytes": 10344
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/release-cap020-sensitivity-028/accepted-geometry/step-639.mrvpack": {
+        "sha256": "a282bfe692aed044c17e2c0f4d4784a4443cdd1b32441fa02de9bd1bb44ce6e1",
+        "bytes": 214589440
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/release-cap020-sensitivity-028/accepted-geometry/step-639.receipt.json": {
+        "sha256": "647c724774239ffabcc4618db03856e971b549334c3ac2d13e2af5ce6e935ced",
+        "bytes": 10342
+      }
+    },
+    "terminal-posture-inspection-024": {
+      "/Users/n/numi-human-resting-evidence-20261005/terminal-posture-inspection-024/myosim-fullbody-articulated-bodyparts-bones-source-skinned-shell.skin-poses.json": {
+        "sha256": "178e6bc11b5778f149cdc2ebce2d9421c5a91240a57e64a463fb5c89bcac9190",
+        "bytes": 26335
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/terminal-posture-inspection-024/myosim-fullbody-articulated-bodyparts-bones-source-skinned-shell-oblique.png": {
+        "sha256": "77a70fbc68416aa0a81ff11010b6a95fd71282d37458b37ad83289313cbba5ef",
+        "bytes": 114899
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/terminal-posture-inspection-024/native.log": {
+        "sha256": "c9c73c4fb43b0b0b108adf8b3d68c8e3a21ac9675b46571795b055862d283dc5",
+        "bytes": 21685
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/terminal-posture-inspection-024/myosim-fullbody-articulated-bodyparts-bones-source-skinned-shell.visual.v3.json": {
+        "sha256": "f2e3b10d854a552fb3b14be43b44afae5b1ca591a9b784adc603e34e2cd96de1",
+        "bytes": 952
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/terminal-posture-inspection-024/myosim-fullbody-articulated-bodyparts-bones-source-skinned-shell.mrvpack": {
+        "sha256": "a0133628459c81a4753377e183e6bd64f10254893623f78cc2d923edee845b10",
+        "bytes": 5730304
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/terminal-posture-inspection-024/invocation.json": {
+        "sha256": "6be461b96a1cc0a0920eee5d2e029bc85c9e4b3e8a8720aadaaf8e2ae4449a2f",
+        "bytes": 2710
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/terminal-posture-inspection-024/execution.json": {
+        "sha256": "a45f156dd0488795f77b25be2b7c0a7c8525016eb2ba5699551d8e74295534e8",
+        "bytes": 84
+      }
+    },
+    "terminal-posture-inspection-025": {
+      "/Users/n/numi-human-resting-evidence-20261005/terminal-posture-inspection-025/myosim-fullbody-articulated-bodyparts-bones-source-skinned-shell.skin-poses.json": {
+        "sha256": "e5704813e01e5c71b90fabc60ada865af8045331bad8bdb93393e14177541d6d",
+        "bytes": 26420
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/terminal-posture-inspection-025/myosim-fullbody-articulated-bodyparts-bones-source-skinned-shell-oblique.png": {
+        "sha256": "957356e4429e3e31e1784a38c579d0b4c5374054920e200c8332255d8affb739",
+        "bytes": 118857
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/terminal-posture-inspection-025/native.log": {
+        "sha256": "1c4991e7c160f9e1b0889987795af75bfb8c74155d66eab54f59a1b53f432b12",
+        "bytes": 21688
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/terminal-posture-inspection-025/myosim-fullbody-articulated-bodyparts-bones-source-skinned-shell.visual.v3.json": {
+        "sha256": "479641fba19b4ef86c4922a93c2447e1e2450a907a12ee7ca85b25ebbb94a35a",
+        "bytes": 951
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/terminal-posture-inspection-025/myosim-fullbody-articulated-bodyparts-bones-source-skinned-shell.mrvpack": {
+        "sha256": "b0094106f677afb245df2ea2c71f00a09999b72ca294299b0a0ca3c6ec9d331a",
+        "bytes": 5730304
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/terminal-posture-inspection-025/invocation.json": {
+        "sha256": "f79ed4ec1a6e12ffa484381573be34fcf2b5b5f6d6b3003f10f2c9dbcf974eeb",
+        "bytes": 2722
+      },
+      "/Users/n/numi-human-resting-evidence-20261005/terminal-posture-inspection-025/execution.json": {
+        "sha256": "ad07b80cd728ca6dba6b21509c19235310418abbe1f2d9782b84cdf3c6a6280c",
+        "bytes": 85
+      }
+    }
+  }
+}

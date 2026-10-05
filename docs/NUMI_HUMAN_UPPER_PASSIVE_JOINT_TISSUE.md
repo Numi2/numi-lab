@@ -29,9 +29,11 @@ flexion/extension and radial/ulnar deviation:
 
 `K = [[1.28, -0.18], [-0.18, 1.74]] N m/rad`
 
-Source: *Characterization of the passive stiffness of the human wrist and
-forearm* (Pando et al.), open primary article:
-<https://pmc.ncbi.nlm.nih.gov/articles/PMC3424077/>.
+Source: Charles and Hogan, *Stiffness, not inertial coupling, determines path
+curvature of wrist motions*, Journal of Neurophysiology 107 (2012),
+<https://doi.org/10.1152/jn.00428.2011>. The earlier attribution to Pando and
+PMC3424077 was incorrect; that identifier belongs to Formica et al., *The
+passive stiffness of the wrist and forearm*.
 
 The four non-thumb rays use the published middle-finger linearized stiffnesses
 as an explicit fallback where digit-specific source data are unavailable:
@@ -43,9 +45,12 @@ as an explicit fallback where digit-specific source data are unavailable:
 | PIP flexion | 0.0231 |
 | DIP flexion | 0.0037206 |
 
-Source: *A biomechanical model of the human finger for studying the effects of
-external loading on finger stiffness* (primary open article):
-<https://pmc.ncbi.nlm.nih.gov/articles/PMC10869888/>.
+Source: Tsakonas et al., *Parameter estimation of a model describing the human
+fingers*, Healthcare Technology Letters 11 (2024), Table 2, first participant
+row: <https://doi.org/10.1049/htl2.12070>
+(<https://pmc.ncbi.nlm.nih.gov/articles/PMC10869888/>). These are participant
+estimates averaged over trials, not population means. The previous article
+title in this document was incorrect.
 
 The bilateral MyoSim DoF mapping is explicit: right wrist deviation/flexion
 `40/41`, left `78/79`; right ray bases `46, 50, 54, 58`, with left offset `38`.
@@ -53,6 +58,16 @@ The rest coordinate is zero because this is the source model's neutral pose.
 There are 40 coupling rows total. The same middle-finger values on index,
 ring, and little rays are a documented inference, not digit-specific evidence.
 Thumb passive mechanics remain absent.
+
+These measurements describe aggregate passive joint behavior, including
+muscle-tendon contributions. They do not isolate capsule/ligament stiffness.
+Adding the complete measured stiffness alongside MyoSim passive muscle/tendon
+forces may therefore overcount that contribution. Kuo and Deshpande's index
+MCP study found both muscle-tendon and capsuloligamentous contributions:
+<https://doi.org/10.1016/j.jbiomech.2012.07.034>. The current optional rows are a
+reference-model approximation, not a resolved tissue decomposition. Resting
+body qualification must report whether they are enabled and cannot use their
+presence alone to claim anatomically complete hand mechanics.
 
 ## Apple M4 Pro nonvisual result
 

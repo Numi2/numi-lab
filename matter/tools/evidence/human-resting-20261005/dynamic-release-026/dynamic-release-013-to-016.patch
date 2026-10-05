@@ -1,0 +1,136 @@
+--- /Users/n/numi-human-resting-vascular-structure-source-013/apps/numilab_human_myosim_visual_probe.mm	2026-10-05 22:11:39
++++ /Users/n/numi-human-resting-passive-release-source-016/apps/numilab_human_myosim_visual_probe.mm	2026-10-05 23:17:26
+@@ -4446,7 +4446,8 @@
+     const std::uint32_t activationSweeps = 240u,
+     const bool allowPoseSearch = true,
+     const std::optional<std::uint32_t> poseSweeps = std::nullopt,
+-    const double solverTimestepSeconds = 1.0e-4
++    const double solverTimestepSeconds = 1.0e-4,
++    const bool allowDynamicRelease = false
+ ) {
+     require(muscles.header.payloadAbi == kMusclePayloadAbi &&
+                 muscles.referenceArchitectures.size() ==
+@@ -4570,8 +4571,8 @@
+                     diagnostics.initialNormalizedResidualRms
+                 : diagnostics.normalizedResidualRms <=
+                     diagnostics.initialNormalizedResidualRms + 1.0e-12) &&
+-            diagnostics.maximumGeneralizedAccelerationResidual *
+-                config.timestep <= 2.5e-2,
++            (allowDynamicRelease || diagnostics.maximumGeneralizedAccelerationResidual *
++                config.timestep <= 2.5e-2),
+         std::string("source-constrained stand equilibrium failed: ") +
+             metalrobo::numiHumanMuscleEquilibriumStatusName(
+                 diagnostics.status
+@@ -4592,6 +4593,15 @@
+             std::to_string(diagnostics.activeSupportContactCount) +
+             positionLimitDetails
+     );
++    if (allowDynamicRelease) {
++        std::cout << std::setprecision(12)
++                  << "resting_initialization=dynamic_release"
++                  << " recruitment_activation_cap=" << activationCap
++                  << " normalized_residual_rms=" << diagnostics.normalizedResidualRms
++                  << " maximum_acceleration_residual=" << diagnostics.maximumGeneralizedAccelerationResidual
++                  << " balanced=" << (diagnostics.balanced ? "true" : "false")
++                  << " qualification=initialization_transient_not_static_equilibrium" << std::endl;
++    }
+     require(compiled.supportPlaneGapMeters.size() == staticSupports.size() &&
+                 compiled.supportNormalForce.size() == staticSupports.size(),
+             "static Human support compile lost geometric witness identity");
+@@ -5317,7 +5327,8 @@
+     const std::span<const float> seedPoseQ = {},
+     const metalrobo::MetalNumanXTransactionProgram* restingProgram = nullptr,
+     const std::function<void(std::uint32_t,const metalrobo::MetalArticulatedOperatorResult&)>* acceptedObserver = nullptr,
+-    const metalrobo::MetalNumiHumanSupportGeometryProgram* supportGeometryProgram = nullptr
++    const metalrobo::MetalNumiHumanSupportGeometryProgram* supportGeometryProgram = nullptr,
++    const bool restingReleaseInitialization = false
+ ) {
+     require(restingProgram == nullptr ||
+                 (restingProgram->valid() && acceptedObserver != nullptr &&
+@@ -5326,6 +5337,8 @@
+                  continuumTransaction == nullptr && additionalTendonLoadProgram == nullptr &&
+                  !capturePersistentStandTrace && !endpointEnergy),
+             "resting physiology requires one unassisted physical owner and accepted observer");
++    require(!restingReleaseInitialization || restingProgram != nullptr,
++            "dynamic release initialization requires the resting owner");
+     const double maximumTimestepSeconds = restingProgram == nullptr
+         ? 1.0e-3 : 2.0e-3;
+     require(std::isfinite(timestepSeconds) && timestepSeconds >= 1.0e-6 &&
+@@ -5460,6 +5473,8 @@
+     const std::filesystem::path staticCachePath = useStaticCache
+         ? std::filesystem::path(staticCachePathSetting)
+         : std::filesystem::path{};
++    require(!restingReleaseInitialization || !useStaticCache,
++            "dynamic release initialization does not reuse standing recruitment caches");
+     const bool staticCacheExists = useStaticCache &&
+         std::filesystem::is_regular_file(staticCachePath);
+     double sourceDynamicForceParityMaximumNewtons = 0.0;
+@@ -5521,7 +5536,8 @@
+             1024u,
+             !initialCoordinate.has_value() && restingProgram == nullptr,
+             std::optional<std::uint32_t>{24u},
+-            timestepSeconds
++            timestepSeconds,
++            restingReleaseInitialization
+         );
+     }
+     if (useStaticCache && !staticCacheExists) {
+@@ -20018,6 +20034,7 @@
+             std::optional<double> muscleActivation;
+             std::optional<std::uint32_t> muscleStepCount;
+             bool persistentMetalStand = false;
++            bool restingReleaseInitialization = false;
+             bool mechanicsOnly = false;
+             bool persistentSourcePassiveJointTissue = false;
+             bool persistentRuntimeWithoutPassiveJointTissue = false;
+@@ -20127,6 +20144,11 @@
+                     require(index+1<argc&&restingAnatomyReceipt.empty(),"--resting-anatomy-receipt requires one source-bound receipt");
+                     restingAnatomyReceipt=argv[++index];continue;
+                 }
++                if(argument=="--resting-release-initialization") {
++                    require(!restingReleaseInitialization, "duplicate resting release initialization flag");
++                    restingReleaseInitialization = true;
++                    continue;
++                }
+                 if(argument=="--inspect-terminal-state") {
+                     require(index+1<argc&&inspectTerminalState.empty(),"--inspect-terminal-state requires one retained native log");
+                     inspectTerminalState=argv[++index];continue;
+@@ -20536,7 +20558,7 @@
+                           << " [--muscle-step-count <1.."
+                           << MR_NUMI_HUMAN_STAND_MAX_HORIZON_STEPS << "; extended horizons require unassisted persistent stand>]"
+                           << " [--muscle-activation <0..1>]"
+-                          << " [--persistent-metal-stand] [--mechanics-only] [--persistent-source-passive-joint-tissue] [--persistent-runtime-without-passive-joint-tissue] [--selected-tendon-control] [--stand-root-assistance] [--stand-remove-assistance] [--stand-deterministic-replay] [--persistent-stand-trace] [--stand-endpoint-energy] [--stand-contact-iterations <1..64>] [--stand-muscle-feedback <length-gain> <velocity-gain-seconds>] [--stand-muscle-path-feedback <length-gain> <velocity-gain-seconds>]"
++                          << " [--resting-release-initialization] [--persistent-metal-stand] [--mechanics-only] [--persistent-source-passive-joint-tissue] [--persistent-runtime-without-passive-joint-tissue] [--selected-tendon-control] [--stand-root-assistance] [--stand-remove-assistance] [--stand-deterministic-replay] [--persistent-stand-trace] [--stand-endpoint-energy] [--stand-contact-iterations <1..64>] [--stand-muscle-feedback <length-gain> <velocity-gain-seconds>] [--stand-muscle-path-feedback <length-gain> <velocity-gain-seconds>]"
+                           << " [--stand-push <start-step> <duration-steps> <fx-N> <fy-N> <fz-N>]"
+                           << " [--stand-brain-library <NumiBrainHumanStanding.dylib>]"
+                           << " [--stand-brain-program <source-bound-MuscleLocomotorProgram.json>]"
+@@ -21953,6 +21975,8 @@
+                 );
+             }
+ #ifdef NUMI_HUMAN_RESTING_SCENE
++            require(!restingReleaseInitialization || restingScene.has_value(),
++                    "--resting-release-initialization requires --resting-scene");
+             if(restingScene.has_value()) {
+                 require(persistentMetalStand&&muscleStepSeconds.has_value()&&muscleStepCount.has_value()&&
+                     supportContactPayload.has_value()&&jointEqualityPayload.has_value()&&requestedRootPose.has_value()&&tendonPayloadPath.has_value()&&
+@@ -21985,9 +22009,9 @@
+                 if(skinPayloadPath)appendSource("NHSKIN_full_surface_contact",payloadBytes(*skinPayloadPath));
+                 appendSource("resting_initial_q",std::as_bytes(std::span(poseQ)));
+                 if(restingReferenceMassKg)appendSource("resting_reference_mass_inertia",std::as_bytes(std::span(rigid.model.bodies)));
+-                const std::array<double,5> settings{muscleActivation.value_or(kDefaultPersistentStandActivationCap),
++                const std::array<double,6> settings{muscleActivation.value_or(kDefaultPersistentStandActivationCap),
+                     double(standContactIterationCount.value_or(16u)),double(persistentSourcePassiveJointTissue),
+-                    double(persistentRuntimeWithoutPassiveJointTissue),double(restingDenseVascular)};
++                    double(persistentRuntimeWithoutPassiveJointTissue),double(restingDenseVascular),double(restingReleaseInitialization)};
+                 appendSource("resting_native_options",std::as_bytes(std::span(settings)));
+                 if(restingDriveIntervention)appendSource("resting_drive_intervention",std::as_bytes(std::span(*restingDriveIntervention)));
+                 NumiHumanRestingCoupling coupled(restingScene->first.c_str(),restingScene->second.c_str(),float(*muscleStepSeconds),
+@@ -22040,7 +22064,7 @@
+                     *muscleStepSeconds,*muscleStepCount,muscleActivation.value_or(kDefaultPersistentStandActivationCap),{},false,false,false,false,
+                     nullptr,std::nullopt,true,nullptr,persistentSourcePassiveJointTissue,false,standContactIterationCount.value_or(16u),
+                     persistentRuntimeWithoutPassiveJointTissue,std::nullopt,false,false,{},std::nullopt,std::nullopt,std::nullopt,0x4e554d49u,
+-                    poseQ,&restingProgram,&observer,liveVisual?&skinSupportProgram:nullptr);
++                    poseQ,&restingProgram,&observer,liveVisual?&skinSupportProgram:nullptr,restingReleaseInitialization);
+                 (void)final;
+                 const double wall=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();
+                 std::cout<<"resting_integrated_body=completed simulated_s="<<*muscleStepCount*double(coupled.physiology.runtime.timestepSeconds())

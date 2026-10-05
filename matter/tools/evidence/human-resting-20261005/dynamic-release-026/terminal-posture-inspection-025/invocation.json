@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "/Users/n/numi-human-resting-vascular-structure-build-013/bin/numi-human-native",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-muscle-reference.nhmyo",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/current-bone-registration-b1b410ad/bodyparts3d-myosim-major-bones.nhbones",
+    "/Users/n/numi-human-resting-evidence-20261005/terminal-posture-inspection-025",
+    "--skin-payload",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/output/skin-boundaries-001/bodyparts3d-myosim-skinned-shell.nhskin",
+    "--joint-equality-payload",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-joint-equalities.nheq",
+    "--dimension",
+    "1024",
+    "--camera-index",
+    "1",
+    "--inspect-terminal-state",
+    "/Users/n/numi-human-resting-evidence-20261005/passive-joint-release-native-025/native.log"
+  ],
+  "inputs": {
+    "/Users/n/numi-human-resting-vascular-structure-build-013/bin/numi-human-native": "81509a0afe88770d6aabdcef23abfef52f88f73e92238a93429d87ba86d05905",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-muscle-reference.nhmyo": "e5bb8a8168706bb3b23cf42b1d849659569ba2e6027bcc85729c3110fdbb8c4b",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/current-bone-registration-b1b410ad/bodyparts3d-myosim-major-bones.nhbones": "7d94e2f28ac6cea30c6c11a79919077acc40281636eb20b11b50b50aebd3ec49",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/output/skin-boundaries-001/bodyparts3d-myosim-skinned-shell.nhskin": "1de6422eed1a681fb5f37df1e5355c0474016634c342516753a1058c4d0f4334",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-joint-equalities.nheq": "0e3c593792a8c4ccd619f1999f6685b68e6ff0fd5ae5f6f0bca66b594a0e9b88",
+    "/Users/n/numi-human-resting-evidence-20261005/passive-joint-release-native-025/native.log": "8933d50a729dcd05df34e8df2c34505d60b89ca1de7aee463de3a4d452fc0a86"
+  },
+  "meaning": "Read-only terminal q inspection by existing Metal FK, zero physical steps; not physiology replay."
+}
