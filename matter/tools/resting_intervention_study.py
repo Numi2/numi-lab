@@ -616,6 +616,54 @@ def native_body_trace_consistency(trace: Path, steps: int, dt: float) -> dict[st
     return {"root_assistance_observed": False, "maximum_contact_penetration_m": maximum_penetration}
 
 
+def native_surface_trace_consistency(trace: Path, steps: int, dt: float) -> dict[str, Any]:
+    """Validate every retained displayed state, whose clock precedes its accepted segment end.
+
+    The renderer captures step n-1 before step n is evaluated and publishes it
+    only after that step is accepted. Never pair this trace with the next
+    physiology row: its own chamber/lung target columns are authoritative.
+    These checks cover numerical geometry consistency, not tissue interfaces.
+    """
+    expected_steps = [0] + list(range(31, steps, 32))
+    if expected_steps[-1] != steps - 1:
+        expected_steps.append(steps - 1)
+    minimum_gap, maximum_volume_error, count = math.inf, 0.0, 0
+    with trace.open(newline="") as stream:
+        reader = csv.DictReader(stream)
+        required = {"step", "time_s", "min_skin_bed_gap_m", "vertices_below_1mm", "nonfinite_skin_vertices",
+                    "max_functional_volume_relative_error", "q_ra", "q_rv", "q_la", "q_lv",
+                    "diaphragm_swept_ml", "rib_swept_ml", "ra_target_ml", "rv_target_ml",
+                    "la_target_ml", "lv_target_ml", "lung_target_ml"}
+        if not required.issubset(reader.fieldnames or []):
+            raise ValueError("native surface trace lacks same-frame geometry target columns")
+        for row in reader:
+            step = int(row["step"])
+            if count >= len(expected_steps) or step != expected_steps[count]:
+                raise ValueError("native surface trace skipped or duplicated a displayed accepted step")
+            if abs(finite_float(row["time_s"], "surface time_s") - step * dt) > max(1e-5, step * dt * 1e-7):
+                raise ValueError("native surface trace clock differs from its displayed accepted step")
+            for key in ("vertices_below_1mm", "nonfinite_skin_vertices"):
+                if finite_float(row[key], key) != 0:
+                    raise ValueError("native surface trace contains invalid skin/bed geometry")
+            gap = finite_float(row["min_skin_bed_gap_m"], "min_skin_bed_gap_m")
+            error = finite_float(row["max_functional_volume_relative_error"], "max_functional_volume_relative_error")
+            if gap < -.001 or not 0 <= error <= 2e-4:
+                raise ValueError("native surface trace exceeds the existing GPU geometry tolerance")
+            for key in ("q_ra", "q_rv", "q_la", "q_lv", "diaphragm_swept_ml", "rib_swept_ml"):
+                finite_float(row[key], key)
+            for key in ("ra_target_ml", "rv_target_ml", "la_target_ml", "lv_target_ml", "lung_target_ml"):
+                if finite_float(row[key], key) <= 0:
+                    raise ValueError("native surface trace contains a nonpositive functional volume")
+            minimum_gap = min(minimum_gap, gap)
+            maximum_volume_error = max(maximum_volume_error, error)
+            count += 1
+    if count != len(expected_steps):
+        raise ValueError("native surface trace does not reach the final displayed accepted state")
+    return {"displayed_accepted_frames": count, "minimum_full_skin_bed_gap_m": minimum_gap,
+            "maximum_rendered_functional_volume_relative_error": maximum_volume_error,
+            "displayed_state_lag_steps": 1, "whole_body_interfaces_qualified": False}
+
+
 def execute_native_scene_arm(args: argparse.Namespace) -> dict[str, Any]:
     validate_windows(args)
     work, output = Path.cwd().resolve(), Path(args.output).resolve()
@@ -660,6 +708,7 @@ def execute_native_scene_arm(args: argparse.Namespace) -> dict[str, Any]:
     if not movie.is_file() or movie.stat().st_size == 0 or not surfaces.is_file():
         raise ValueError("native scene did not retain its continuous movie and surface trace")
     result.update(native_body_trace_consistency(output / "resting-coupled.csv", args.steps, args.dt))
+    result.update(native_surface_trace_consistency(surfaces, args.steps, args.dt))
     result.update(native_whole_body_executed=True,
                   common_asset_identity=digest_json(bindings),
                   body_source_fingerprint=native["body_source_fingerprint"],

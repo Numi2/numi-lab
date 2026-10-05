@@ -188,6 +188,44 @@ class NativeSceneBindingTests(unittest.TestCase):
                 native_body_trace_consistency(trace, 96, .002)
 
 
+class NativeSurfaceTraceTests(unittest.TestCase):
+    def test_displayed_clock_and_intermediate_invalid_geometry_are_not_hidden(self):
+        columns = ("step,time_s,min_skin_bed_gap_m,vertices_below_1mm,nonfinite_skin_vertices,"
+                   "max_functional_volume_relative_error,q_ra,q_rv,q_la,q_lv,ra_target_ml,rv_target_ml,"
+                   "la_target_ml,lv_target_ml,diaphragm_swept_ml,rib_swept_ml,lung_target_ml\n")
+        rows = [f"{step},{step * .002},-.0001,0,0,.000001,0,0,0,0,40,120,50,120,0,0,2500\n"
+                for step in (0, 31, 63, 95)]
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "surfaces.csv"
+            path.write_text(columns + ''.join(rows))
+            result = adapter.native_surface_trace_consistency(path, 96, .002)
+            self.assertEqual(result['displayed_accepted_frames'], 4)
+            self.assertEqual(result['minimum_full_skin_bed_gap_m'], -.0001)
+            self.assertFalse(result['whole_body_interfaces_qualified'])
+            cases = (
+                (rows[:2] + rows[3:], 'skipped'),
+                (rows[:-1], 'final displayed'),
+                ([row.replace('63,0.126', '63,0.128') for row in rows], 'clock differs'),
+                ([row.replace('63,0.126,-.0001,0,0', '63,0.126,-.0001,1,0') for row in rows], 'invalid skin'),
+                ([row.replace('63,0.126,-.0001,0,0,.000001', '63,0.126,-.0001,0,0,.001') for row in rows], 'tolerance'),
+            )
+            for invalid, message in cases:
+                with self.subTest(message=message):
+                    path.write_text(columns + ''.join(invalid))
+                    with self.assertRaisesRegex(ValueError, message):
+                        adapter.native_surface_trace_consistency(path, 96, .002)
+
+    def test_partial_final_segment_is_checked_at_its_actual_displayed_step(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "surfaces.csv"
+            path.write_text("step,time_s,min_skin_bed_gap_m,vertices_below_1mm,nonfinite_skin_vertices,"
+                            "max_functional_volume_relative_error,q_ra,q_rv,q_la,q_lv,ra_target_ml,rv_target_ml,"
+                            "la_target_ml,lv_target_ml,diaphragm_swept_ml,rib_swept_ml,lung_target_ml\n" +
+                            ''.join(f"{step},{step*.002},0,0,0,0,0,0,0,0,40,120,50,120,0,0,2500\n"
+                                    for step in (0, 31, 34)))
+            self.assertEqual(adapter.native_surface_trace_consistency(path, 35, .002)['displayed_accepted_frames'], 3)
+
+
 class NativeV2PlanPreparationTests(unittest.TestCase):
     @staticmethod
     def write(path, content):
