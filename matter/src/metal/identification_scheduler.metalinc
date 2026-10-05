@@ -803,6 +803,63 @@ kernel void nm_finalize_status(
     statuses[environment] = status;
 }
 
+struct NMControlCursorPublicationGPU {
+    uint controlStep;
+    uint physicsSubstep;
+    uint environmentCount;
+    uint externalStatusCount;
+    uint externalStatusStrideWords;
+    uint acceptedStatusCode;
+    uint flags;
+    uint reserved;
+};
+
+// The completion cursor is transactional GPU state. Publishing it per
+// accepted frame (rather than in a command-buffer completion callback) means
+// a later rejected frame in the same command buffer cannot erase earlier
+// accepted progress. External status records are optional and must have their
+// uint32 status code as the first field.
+kernel void nm_publish_accepted_control_cursor(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMControlCursorPublicationGPU& publication [[buffer(1)]],
+    device const NMMatterStatusGPU* matterStatuses [[buffer(2)]],
+    device const uint* externalStatusCodes [[buffer(3)]],
+    device nm_uint4* acceptedCursor [[buffer(4)]],
+    uint lane [[thread_position_in_grid]]) {
+    if (lane != 0u || publication.environmentCount != dispatch.environmentCount ||
+        publication.reserved != 0u || publication.environmentCount == 0u) {
+        return;
+    }
+    for (uint environment = 0u;
+         environment < publication.environmentCount;
+         ++environment) {
+        if (matterStatuses[environment].code != NM_STATUS_SUCCESS) {
+            return;
+        }
+    }
+    if ((publication.flags & 1u) != 0u) {
+        if (publication.externalStatusCount == 0u ||
+            publication.externalStatusStrideWords == 0u) {
+            return;
+        }
+        for (uint record = 0u;
+             record < publication.externalStatusCount;
+             ++record) {
+            if (externalStatusCodes[
+                    record * publication.externalStatusStrideWords] !=
+                publication.acceptedStatusCode) {
+                return;
+            }
+        }
+    }
+    nm_uint4 cursor = acceptedCursor[0];
+    cursor.x = publication.controlStep;
+    cursor.y = publication.physicsSubstep;
+    cursor.z += 1u;
+    cursor.w = 0x4e4d4343u; // "NMCC"
+    acceptedCursor[0] = cursor;
+}
+
 kernel void nm_complete_microstep(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device NMMatterStatusGPU* statuses [[buffer(1)]],

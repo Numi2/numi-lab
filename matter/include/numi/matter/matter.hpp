@@ -1098,6 +1098,25 @@ struct EncodeRequest {
     // This remains opt-in and is appended to preserve existing field offsets.
     void* acceptedStepExtensionContext = nullptr;
     EncodeAcceptedStepExtension encodeAcceptedStepExtension = nullptr;
+    // Integrated owners may defer publication of the completion cursor until
+    // their external body/Brain gates have passed. The default path publishes
+    // after Matter's own postCommit reconciliation, preserving the standalone
+    // runtime contract. A deferred caller must call
+    // Runtime::encodeAcceptedControlCursorPublication in the same borrowed
+    // command buffer after its final GPU acceptance gate.
+    bool deferAcceptedControlCursorPublication = false;
+};
+
+// Optional final owner acceptance gate for the Matter completion cursor.
+// `statusCodes` points to records whose first uint32 is a status code. Runtime
+// checks every record after Matter's own status array and publishes only when
+// every code equals acceptedStatusCode. This is a borrowed, same-device lease;
+// Runtime neither retains nor reads it back.
+struct AcceptedControlCursorGate {
+    void* statusCodes = nullptr; // id<MTLBuffer>; null means no external gate
+    std::uint32_t recordCount = 0u;
+    std::uint32_t recordStrideBytes = sizeof(std::uint32_t);
+    std::uint32_t acceptedStatusCode = 0u;
 };
 
 // Borrowed, device-only accepted-state proof surface. This is intentionally
@@ -1680,6 +1699,18 @@ public:
         const RuntimeConfiguration& configuration = {}
     );
     [[nodiscard]] RuntimeDiagnostics encode(const EncodeRequest& request);
+    // Encodes publication of the accepted transaction cursor into an active
+    // borrowed command buffer. Call only after the final external owner gate
+    // has been written in that command buffer. Matter statuses are always
+    // checked; the optional gate covers a coupled owner such as Stand/Brain.
+    // The kernel updates a tiny GPU cursor only if every environment and gate
+    // record reports success. No CPU state readback or queue submission occurs.
+    [[nodiscard]] RuntimeDiagnostics encodeAcceptedControlCursorPublication(
+        void* commandBuffer,
+        std::uint32_t controlStep,
+        std::uint32_t physicsSubstep,
+        const AcceptedControlCursorGate& gate = {}
+    );
     // Performs the complete success-surviving post-dynamics reconciliation
     // but retains every rollback checkpoint and quarantines the Runtime until
     // a later immutable Brain ACK is applied and jointly published.

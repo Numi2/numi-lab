@@ -613,6 +613,18 @@ template <typename T>
 
 } // namespace
 
+struct NMControlCursorPublicationParams {
+    std::uint32_t controlStep;
+    std::uint32_t physicsSubstep;
+    std::uint32_t environmentCount;
+    std::uint32_t externalStatusCount;
+    std::uint32_t externalStatusStrideWords;
+    std::uint32_t acceptedStatusCode;
+    std::uint32_t flags;
+    std::uint32_t reserved;
+};
+static_assert(sizeof(NMControlCursorPublicationParams) == 32u);
+
 struct Runtime::State {
     id<MTLDevice> device = nil;
     id<MTLCommandQueue> queue = nil;
@@ -650,6 +662,9 @@ struct Runtime::State {
     id<MTLBuffer> preparedStateRestoreStatuses = nil;
     id<MTLBuffer> preparedStateApplyOutcome = nil;
     id<MTLBuffer> preparedStatePublicationFacts = nil;
+    // Tiny GPU-owned transaction cursor. Host snapshots read these two
+    // coordinates only at explicit completion boundaries.
+    id<MTLBuffer> acceptedControlCursor = nil; // nm_uint4
     std::uint32_t acceptedStateProofScratchStride = 0u;
 
     NMMatterDispatchGPU dispatch{};
@@ -725,6 +740,7 @@ struct Runtime::State {
         bool preDynamicsOpen = false;
         std::uint32_t controlStep = 0u;
         std::uint32_t physicsSubstep = 0u;
+        bool acceptedControlCursorDeferred = false;
         std::uint32_t identificationGeneration = 0u;
         std::uint32_t identificationCheckpoint = 0u;
         bool identificationAdvanced = false;
@@ -2479,6 +2495,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fem_commit_microstep",
             "nm_scheduler_observe",
             "nm_complete_microstep",
+            "nm_publish_accepted_control_cursor",
             "nm_mpm_rollback_frame",
             "nm_fem_rollback_frame",
             "nm_latch_matter_status_into_rigid_world",
@@ -3621,6 +3638,8 @@ RuntimeDiagnostics Runtime::initialize(
             valid,
             candidate->residentBytes
         );
+        candidate->acceptedControlCursor = sharedScratch<nm_uint4>(
+            candidate->device, 1u, valid, candidate->residentBytes);
         const auto proofBytes = [&](const std::uint64_t count,
                                     const std::uint64_t elementBytes) {
             if (count != 0u && elementBytes >
@@ -4049,6 +4068,97 @@ RuntimeDiagnostics Runtime::encode(const EncodeRequest& request) {
     return encodeImpl(request, false);
 }
 
+RuntimeDiagnostics Runtime::encodeAcceptedControlCursorPublication(
+    void* const commandBufferRaw,
+    const std::uint32_t controlStep,
+    const std::uint32_t physicsSubstep,
+    const AcceptedControlCursorGate& gate
+) {
+    RuntimeDiagnostics diagnostics;
+    if (!state_ || commandBufferRaw == nullptr) {
+        diagnostics.message =
+            "accepted-control-cursor publication requires an initialized Runtime and borrowed command buffer";
+        return diagnostics;
+    }
+    State& state = *state_;
+    id<MTLCommandBuffer> commandBuffer =
+        (__bridge id<MTLCommandBuffer>)commandBufferRaw;
+    id<MTLBuffer> externalStatuses = gate.statusCodes == nullptr
+        ? state.statuses
+        : (__bridge id<MTLBuffer>)gate.statusCodes;
+    if (commandBuffer.commandQueue == nil ||
+        commandBuffer.commandQueue.device.registryID !=
+            state.device.registryID ||
+        externalStatuses == nil ||
+        externalStatuses.device.registryID != state.device.registryID ||
+        (gate.statusCodes == nullptr && gate.recordCount != 0u) ||
+        (gate.statusCodes != nullptr &&
+         (gate.recordCount == 0u || gate.recordStrideBytes < sizeof(std::uint32_t) ||
+          (gate.recordStrideBytes % sizeof(std::uint32_t)) != 0u ||
+          static_cast<std::uint64_t>(gate.recordCount - 1u) *
+                  gate.recordStrideBytes + sizeof(std::uint32_t) >
+              externalStatuses.length))) {
+        diagnostics.message =
+            "accepted-control-cursor external gate has invalid device provenance or bounds";
+        return diagnostics;
+    }
+    const auto ownership = state.commandOwnership;
+    std::unique_lock lock(ownership->mutex);
+    if (ownership->activeCommandBuffer != commandBufferRaw ||
+        ownership->preDynamicsOpen ||
+        !ownership->acceptedControlCursorDeferred ||
+        ownership->controlStep != controlStep ||
+        ownership->physicsSubstep != physicsSubstep) {
+        diagnostics.message =
+            "accepted-control-cursor publication does not match the deferred active transaction";
+        return diagnostics;
+    }
+    const auto pipeline = state.pipelines.find(
+        "nm_publish_accepted_control_cursor");
+    if (pipeline == state.pipelines.end() || pipeline->second == nil) {
+        diagnostics.message =
+            "accepted-control-cursor Metal pipeline is unavailable";
+        return diagnostics;
+    }
+    const std::uint32_t strideWords = gate.statusCodes == nullptr
+        ? 0u
+        : gate.recordStrideBytes / sizeof(std::uint32_t);
+    const NMControlCursorPublicationParams publication{
+        .controlStep = controlStep,
+        .physicsSubstep = physicsSubstep,
+        .environmentCount = state.dispatch.environmentCount,
+        .externalStatusCount = gate.recordCount,
+        .externalStatusStrideWords = strideWords,
+        .acceptedStatusCode = gate.acceptedStatusCode,
+        .flags = gate.statusCodes == nullptr ? 0u : 1u,
+        .reserved = 0u,
+    };
+    id<MTLComputeCommandEncoder> encoder =
+        [commandBuffer computeCommandEncoder];
+    if (encoder == nil) {
+        diagnostics.message =
+            "failed to create accepted-control-cursor compute encoder";
+        return diagnostics;
+    }
+    [encoder setLabel:@"Numi Matter accepted control cursor publication"];
+    [encoder setComputePipelineState:pipeline->second];
+    [encoder setBuffer:state.dispatchBuffer offset:0u atIndex:0u];
+    [encoder setBytes:&publication length:sizeof(publication) atIndex:1u];
+    [encoder setBuffer:state.statuses offset:0u atIndex:2u];
+    [encoder setBuffer:externalStatuses offset:0u atIndex:3u];
+    [encoder setBuffer:state.acceptedControlCursor offset:0u atIndex:4u];
+    [encoder dispatchThreads:MTLSizeMake(1u, 1u, 1u)
+        threadsPerThreadgroup:MTLSizeMake(1u, 1u, 1u)];
+    [encoder endEncoding];
+    ownership->acceptedControlCursorDeferred = false;
+    diagnostics.encoded = true;
+    diagnostics.residentBytes = state.residentBytes;
+    diagnostics.device = nsString(state.device.name);
+    diagnostics.message =
+        "accepted Matter control cursor publication encoded behind all owner gates";
+    return diagnostics;
+}
+
 RuntimeDiagnostics Runtime::prepareAcceptedState(
     const EncodeRequest& postCommitRequest
 ) {
@@ -4131,6 +4241,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
             (state.hasAdaptive || request.runAdaptiveTransfer)) {
             diagnostics.message =
                 "prepared-state v1 rejects adaptive worlds/transfers until borrowed current-body and scene-body rollback authority is covered by ACK-gated apply/restore";
+            return diagnostics;
+        }
+        if (request.enablePreparedState &&
+            request.deferAcceptedControlCursorPublication) {
+            diagnostics.message =
+                "prepared-state publication owns its cursor and cannot defer the standalone accepted-cursor kernel";
             return diagnostics;
         }
         if (state.requiresCurrentBodies &&
@@ -4493,9 +4609,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
         if (request.phase == EncodePhase::postCommit &&
             (!ownership->preDynamicsOpen ||
              ownership->controlStep != request.controlStep ||
-             ownership->physicsSubstep != request.physicsSubstep)) {
+             ownership->physicsSubstep != request.physicsSubstep ||
+             ownership->acceptedControlCursorDeferred !=
+                 request.deferAcceptedControlCursorPublication)) {
             diagnostics.message =
-                "Matter post-commit pass does not match its pre-dynamics transaction";
+                "Matter post-commit pass does not match its pre-dynamics transaction or cursor-publication policy";
             return diagnostics;
         }
         if (retainPreparedState && !ownership->preparedStateRequested) {
@@ -5473,6 +5591,35 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     AcceptedStepExtensionPhase::frameComplete,
                     microtickCount - 1u)) {
                 return diagnostics;
+            }
+
+            if (!request.deferAcceptedControlCursorPublication &&
+                !retainPreparedState) {
+                const NMControlCursorPublicationParams publication{
+                    .controlStep = request.controlStep,
+                    .physicsSubstep = request.physicsSubstep,
+                    .environmentCount = state.dispatch.environmentCount,
+                    .externalStatusCount = 0u,
+                    .externalStatusStrideWords = 0u,
+                    .acceptedStatusCode = NM_STATUS_SUCCESS,
+                    .flags = 0u,
+                    .reserved = 0u,
+                };
+                dispatchThreads(
+                    "nm_publish_accepted_control_cursor",
+                    1u,
+                    [&] {
+                        setDispatch();
+                        [encoder setBytes:&publication
+                                   length:sizeof(publication)
+                                  atIndex:1u];
+                        [encoder setBuffer:state.statuses
+                                     offset:0u atIndex:2u];
+                        [encoder setBuffer:state.statuses
+                                     offset:0u atIndex:3u];
+                        [encoder setBuffer:state.acceptedControlCursor
+                                     offset:0u atIndex:4u];
+                    });
             }
 
             [encoder endEncoding];
@@ -9535,6 +9682,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         locked->acceptedStateProofEligible = false;
                         locked->transactionPolicyFingerprint = 0u;
                         locked->preparedStateRequested = false;
+                        // Snapshot clocks describe the accepted Matter state,
+                        // not the most recent candidate that reached a
+                        // command-buffer boundary. The GPU accepted cursor is
+                        // published after each complete gate, so a later
+                        // same-command-buffer rejection preserves earlier
+                        // accepted frames without host-side chronology guesses.
                     }
                 }
             }];
@@ -9611,7 +9764,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 (state.captureDiagnostics ? 2ull : 0ull) |
                 (state.automaticIdentification ? 4ull : 0ull) |
                 (state.adaptiveTransfer ? 8ull : 0ull) |
-                (request.enablePreparedState ? 16ull : 0ull),
+                (request.enablePreparedState ? 16ull : 0ull) |
+                (request.deferAcceptedControlCursorPublication ? 32ull : 0ull),
         }};
         for (const std::uint64_t value : transactionPolicyValues) {
             transactionPolicyFingerprint = mixFingerprint(
@@ -9634,6 +9788,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
             transactionPolicyFingerprint;
         ownership->controlStep = request.controlStep;
         ownership->physicsSubstep = request.physicsSubstep;
+        ownership->acceptedControlCursorDeferred =
+            request.deferAcceptedControlCursorPublication;
         ownership->physicsSubsteps = request.physicsSubsteps;
         ownership->preparedStateRequested = request.enablePreparedState;
         diagnostics.encoded = true;
@@ -14222,6 +14378,11 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
             restoredProxyLayout,
             "rigid-proxy"
         );
+        const std::array<nm_uint4, 1u> acceptedCursorValue{{
+            nm_uint4{snapshot.controlStep, snapshot.physicsSubstep, 0u,
+                     0x4e4d4343u}}};
+        id<MTLBuffer> acceptedCursor = stage(
+            acceptedCursorValue, "accepted-control-cursor");
         if (!stagingValid) {
             return diagnostics;
         }
@@ -14338,6 +14499,7 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
         copy(identification, state.identificationDistributions);
         copy(environmentParameters, state.environmentParameters);
         copy(rigidProxies, state.rigidProxies);
+        copy(acceptedCursor, state.acceptedControlCursor);
         [blit endEncoding];
         [commandBuffer commit];
         [commandBuffer waitUntilCompleted];
@@ -14421,8 +14583,15 @@ RuntimeStateSnapshot Runtime::snapshot() const {
             state_->newtonIterationBudgetOverride.load(
                 std::memory_order_acquire
             );
-        snapshot.controlStep = ownership->controlStep;
-        snapshot.physicsSubstep = ownership->physicsSubstep;
+        const auto* acceptedCursor = static_cast<const nm_uint4*>(
+            state_->acceptedControlCursor.contents);
+        if (acceptedCursor == nullptr) {
+            snapshot.message =
+                "Matter accepted-control-cursor readback is unavailable";
+            return snapshot;
+        }
+        snapshot.controlStep = acceptedCursor->x;
+        snapshot.physicsSubstep = acceptedCursor->y;
         snapshot.identificationGeneration =
             ownership->identificationGeneration;
         snapshot.identificationCheckpoint =
