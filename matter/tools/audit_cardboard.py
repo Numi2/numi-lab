@@ -23,6 +23,74 @@ def rotation(q):
                        [2 * (x*z - y*w), 2 * (y*z + x*w), 1 - 2 * (x*x + y*y)]])
 
 
+def tet_face_audit(rest, cells, labels, finite_glue, material_names):
+    """Count conforming triangular faces and independently measure interfaces."""
+    faces = {}
+    for cell_index, cell in enumerate(cells):
+        if len(set(map(int, cell))) != 4:
+            raise ValueError(f"tetrahedron {cell_index} repeats a node")
+        for opposite in range(4):
+            face = tuple(sorted(int(cell[j]) for j in range(4) if j != opposite))
+            faces.setdefault(face, []).append((cell_index, int(labels[cell_index])))
+
+    incidence = {1: 0, 2: 0}
+    interface_areas = {}
+    interface_counts = {}
+    for face, owners in faces.items():
+        count = len(owners)
+        if count > 2:
+            raise ValueError(f"nonmanifold tetrahedral face {face} has incidence {count}")
+        incidence[count] = incidence.get(count, 0) + 1
+        if count != 2:
+            continue
+        first, second = owners[0][1], owners[1][1]
+        if first == second:
+            continue
+        pair = tuple(sorted((first, second)))
+        points = rest[np.asarray(face, dtype=int)]
+        area = 0.5 * float(np.linalg.norm(np.cross(points[1] - points[0], points[2] - points[0])))
+        if not np.isfinite(area) or area <= 0:
+            raise ValueError(f"degenerate shared face {face}")
+        interface_counts[pair] = interface_counts.get(pair, 0) + 1
+        interface_areas[pair] = interface_areas.get(pair, 0.0) + area
+
+    if finite_glue:
+        allowed = {
+            tuple(sorted((material_names["liner"], material_names["glue"]))),
+            tuple(sorted((material_names["medium"], material_names["glue"]))),
+        }
+        missing = allowed - set(interface_counts)
+        if missing:
+            raise ValueError(f"finite-glue mesh is missing required material interfaces: {sorted(missing)}")
+        unexpected = set(interface_counts) - allowed
+    else:
+        allowed = {tuple(sorted((material_names["liner"], material_names["medium"])))}
+        unexpected = set(interface_counts) - allowed
+    if unexpected:
+        raise ValueError(f"unexpected shared material interfaces: {sorted(unexpected)}")
+
+    interfaces = []
+    index_names = {index: role for role, index in material_names.items()}
+    for pair in sorted(interface_counts):
+        interfaces.append({
+            "material_indices": list(pair),
+            "material_names": [index_names.get(pair[0], f"material_{pair[0]}"),
+                               index_names.get(pair[1], f"material_{pair[1]}")],
+            "shared_face_count": interface_counts[pair],
+            "shared_face_area_m2": interface_areas[pair],
+        })
+    return {
+        "tetrahedral_faces": len(faces),
+        "face_incidence_counts": {str(key): incidence.get(key, 0) for key in (1, 2)},
+        "boundary_face_count": incidence.get(1, 0),
+        "shared_face_count": incidence.get(2, 0),
+        "material_interface_face_count": sum(interface_counts.values()),
+        "material_interfaces": interfaces,
+        "interface_policy": "finite glue: liner-glue and medium-glue only" if finite_glue
+                            else "legacy direct liner-medium interface permitted",
+    }
+
+
 def audit(mesh_path, accepted_path):
     mesh = json.loads(mesh_path.read_text())
     rest = np.asarray(mesh["nodes_m"], dtype=float)
@@ -50,6 +118,27 @@ def audit(mesh_path, accepted_path):
     if len(used) != len(rest):
         raise ValueError("mesh contains unused nodes")
 
+    manifest_path = mesh_path.with_name("manifest.json")
+    manifest = json.loads(manifest_path.read_text()) if manifest_path.exists() else None
+    material_names = {"liner": 0, "medium": 1, "glue": 2}
+    finite_glue = len(densities) >= 3 and bool(np.any(labels == 2))
+    if manifest is not None:
+        rows = manifest.get("materials", {}).get("cells", [])
+        by_role = {}
+        for row in rows:
+            name = str(row.get("name", "")).lower()
+            index = int(row["index"])
+            if "liner" in name:
+                by_role["liner"] = index
+            if "medium" in name:
+                by_role["medium"] = index
+            if "glue" in name:
+                by_role["glue"] = index
+        material_names.update(by_role)
+        finite_glue = "glue" in by_role or bool(manifest.get("glue_footprints"))
+    if not {"liner", "medium"}.issubset(material_names):
+        raise ValueError("could not identify liner and medium material indices")
+
     # Compute deformation from exported positions and an independent FP64
     # rest inverse, not the native solver's determinant telemetry.
     dm = np.stack([rest[cells[:, j]] - rest[cells[:, 0]] for j in (1, 2, 3)], axis=2)
@@ -58,6 +147,7 @@ def audit(mesh_path, accepted_path):
     if not (determinants > 0).all():
         raise ValueError("authored tetrahedron is inverted or degenerate")
     volumes = determinants / 6
+    topology = tet_face_audit(rest, cells, labels, finite_glue, material_names)
     f = ds @ np.linalg.inv(dm)
     jacobians = np.linalg.det(f)
     q = np.stack([rotation(row) for row in frames])
@@ -91,18 +181,43 @@ def audit(mesh_path, accepted_path):
                               "min_J": float(jacobians[mask].min()), "max_J": float(jacobians[mask].max()),
                               "max_abs_material_log_stretch_M_C_T": np.abs(true_normal[mask]).max(axis=0).tolist(),
                               "max_abs_material_Green_shear_MC_MT_CT": np.abs(green[mask][:, [0,0,1], [1,2,2]]).max(axis=0).tolist()})
-    return {"schema": "numi.cardboard.geometry-audit.v1", "status": "passed",
+    result = {"schema": "numi.cardboard.geometry-audit.v1", "status": "passed",
             "scope": "Exported geometry validity and measured deformation; no claim of physical calibration or solver convergence",
             "nodes": len(rest), "free_nodes": int(free.sum()), "fixed_nodes": len(fixed),
             "tetrahedra": len(cells), "connected_components": component_count,
             "minimum_reference_tet_volume_m3": float(volumes.min()),
-            "total_mass_kg_without_adhesive": float((volumes * densities[labels]).sum()),
+            "total_regional_mass_kg": float((volumes * densities[labels]).sum()),
             "authored_extent_m": (rest.max(axis=0) - rest.min(axis=0)).tolist(),
             "max_node_displacement_m": float(displacement.max()),
             "max_free_node_displacement_m": float(displacement[free].max()) if free.any() else None,
             "materials": material_rows,
+            "topology": topology,
             "inputs": {str(p.resolve()): hashlib.sha256(p.read_bytes()).hexdigest()
                        for p in (mesh_path, accepted_path)}}
+    if manifest is not None:
+        result["inputs"][str(manifest_path.resolve())] = hashlib.sha256(manifest_path.read_bytes()).hexdigest()
+        footprints = manifest.get("glue_footprints", [])
+        if footprints:
+            geometry = manifest.get("geometry", {})
+            width = float(geometry["width_m"])
+            footprint_volume = sum(float(item["cross_section_area_m2"]) * width for item in footprints)
+            glue_index = material_names.get("glue")
+            declared_glue_volume = next((float(row["volume_m3"]) for row in manifest["materials"]["cells"]
+                                         if int(row["index"]) == glue_index), None)
+            if declared_glue_volume is None:
+                raise ValueError("manifest has glue footprints but no declared glue material volume")
+            tolerance = max(1e-14, 1e-6 * abs(declared_glue_volume))
+            if abs(footprint_volume - declared_glue_volume) > tolerance:
+                raise ValueError("manifest glue volume disagrees with footprint area times board width")
+            result["glue_volume_crosscheck"] = {
+                "footprint_count": len(footprints),
+                "board_width_m": width,
+                "footprint_area_times_width_m3": footprint_volume,
+                "declared_glue_volume_m3": declared_glue_volume,
+                "absolute_difference_m3": abs(footprint_volume - declared_glue_volume),
+                "tolerance_m3": tolerance,
+            }
+    return result
 
 
 def main():

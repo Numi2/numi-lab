@@ -2,6 +2,7 @@
 #import <Metal/Metal.h>
 #include <CommonCrypto/CommonDigest.h>
 
+#include "cardboard_glue_mesh.hpp"
 #include "metalrobo/engine_types.h"
 #include "numi/matter/language.hpp"
 #include "numi/matter/matter.hpp"
@@ -18,6 +19,7 @@
 #include <limits>
 #include <map>
 #include <numeric>
+#include <optional>
 #include <ranges>
 #include <set>
 #include <sstream>
@@ -49,12 +51,23 @@ struct Arguments {
     std::filesystem::path output;
     std::filesystem::path linerMaterial;
     std::filesystem::path mediumMaterial;
-    std::string preset = "nagasawa2013";
+    std::filesystem::path glueMaterial;
+    double glueGapM = 0.0;
+    double bondWidthM = 0.0;
+    double upperGlueGapM = 0.0;
+    double upperBondWidthM = 0.0;
+    bool disableSelfContact = false;
+    std::string preset = "literature2009";
     bool withoutMedium = false;
     bool compileOnly = false;
     bool help = false;
     std::uint32_t steps = 8u;
+    std::uint32_t holdSteps = 0u;
+    std::uint32_t unloadSteps = 0u;
+    std::uint32_t relaxSteps = 0u;
     std::uint32_t fgmresIterations = NM_MIXED_FGMRES_ITERATIONS;
+    std::uint32_t localMaterialIterations = 8u;
+    std::uint32_t newtonIterations = NM_MIXED_NEWTON_ITERATIONS;
     std::uint32_t nxPerPitch = 16u;
     std::uint32_t ny = 4u;
     std::uint32_t thicknessSlices = 2u;
@@ -90,6 +103,7 @@ struct MeshSource {
     std::vector<std::uint32_t> materialIndices;
     std::string materialMapDigest;
     std::string frameMapDigest;
+    std::vector<numi::cardboard::GlueFootprint> glueFootprints;
 };
 
 struct Digest {
@@ -192,17 +206,23 @@ std::uint32_t parseUnsigned(const std::string& value,
 void printUsage() {
     std::cout
         << "usage: numi-matter-cardboard-probe --output DIR [options]\n"
-        << "  --preset nagasawa2013\n"
+        << "  --preset nagasawa2013|literature2009 (default literature2009)\n"
+        << "  --upper-glue-gap-mm N --upper-bond-width-mm N  asymmetric glue (0 uses lower value)\n"
+        << "  --without-self-contact  numerical control only for the finite-glue mesh\n"
         << "  --material liner=FILE --material medium=FILE\n"
         << "  --liner-material FILE --medium-material FILE\n"
+        << "  --glue-material FILE --glue-gap-mm N --bond-width-mm N  finite glue bridges\n"
         << "  --without-medium       paired two-liner control geometry\n"
-        << "  --steps N              ramp the end-grip rotation (default 8)\n"
-        << "  --fgmres-iterations N  Krylov-column budget (default 10; max 256)\n"
-        << "  --bend-angle DEGREES   final right-grip rotation (default 1)\n"
-        << "  --dt SECONDS           frame timestep (default 0.0001)\n"
-        << "  --nx N                 cross-section subdivisions per flute pitch (default 16)\n"
-        << "  --ny N                 subdivisions across the 20 mm width (default 4)\n"
-        << "  --thickness-slices N   elements through each paper layer (default 2)\n"
+        << "  --steps N              ramp the end-grip rotation\n"
+        << "  --hold-steps N --unload-steps N --relax-steps N  loading cycle phases\n"
+        << "  --newton-iterations N  global nonlinear budget (1..64)\n"
+        << "  --material-iterations N  local constitutive Newton budget (1..16)\n"
+        << "  --fgmres-iterations N  Krylov-column budget (max 256)\n"
+        << "  --bend-angle DEGREES   final right-grip rotation\n"
+        << "  --dt SECONDS           frame timestep\n"
+        << "  --nx N                 cross-section subdivisions per flute pitch\n"
+        << "  --ny N                 subdivisions across the width\n"
+        << "  --thickness-slices N   elements through each paper layer\n"
         << "  --length-mm N --width-mm N --height-mm N --pitch-mm N\n"
         << "  --liner-thickness-mm N --medium-thickness-mm N\n"
         << "  --compile-only         write package and initial OBJ without creating a Metal runtime\n";
@@ -223,6 +243,8 @@ void setMaterialPath(Arguments& arguments,
 
 Arguments parseArguments(const int argc, const char* argv[]) {
     Arguments arguments;
+    for (int i = 1; i + 1 < argc; ++i)
+        if (std::string_view(argv[i]) == "--preset") arguments.preset = argv[i + 1];
     arguments.linerMaterial =
         std::filesystem::path(NUMI_CARDBOARD_MATERIAL_DIR) /
         "nagasawa2013_liner_orthotropic.nmatter";
@@ -230,8 +252,32 @@ Arguments parseArguments(const int argc, const char* argv[]) {
         std::filesystem::path(NUMI_CARDBOARD_MATERIAL_DIR) /
         "nagasawa2013_medium_orthotropic.nmatter";
 
+    if (arguments.preset == "literature2009") {
+        const auto root = std::filesystem::path(NUMI_CARDBOARD_MATERIAL_DIR);
+        arguments.linerMaterial = root / "hajali2009_liner_hill_ideal.nmatter";
+        arguments.mediumMaterial = root / "hajali2009_medium_hill_ideal.nmatter";
+        arguments.glueMaterial = root / "starch2007_finite_glue_elastic.nmatter";
+        arguments.pitchM = 0.0079; arguments.lengthM = 4.0 * arguments.pitchM;
+        arguments.totalHeightM = 0.004210;
+        arguments.linerThicknessM = 0.000277; arguments.mediumThicknessM = 0.000191;
+        arguments.glueGapM = 0.000100; arguments.bondWidthM = 0.000800;
+        arguments.upperGlueGapM = 0.000030; arguments.upperBondWidthM = 0.000600;
+        arguments.fgmresIterations = 32u;
+        arguments.localMaterialIterations = 16u;
+        arguments.newtonIterations = 14u;
+        arguments.nxPerPitch = 8u;
+        arguments.ny = 1u;
+        arguments.thicknessSlices = 1u;
+        arguments.steps = 32u;
+        arguments.holdSteps = 16u;
+        arguments.unloadSteps = 32u;
+        arguments.relaxSteps = 64u;
+        arguments.timestepSeconds = 0.000025;
+        arguments.bendAngleDegrees = 0.25;
+    }
     for (int index = 1; index < argc; ++index) {
         const std::string option = argv[index];
+        if (option == "--without-self-contact") { arguments.disableSelfContact = true; continue; }
         if (option == "--help" || option == "-h") {
             arguments.help = true;
             return arguments;
@@ -247,11 +293,21 @@ Arguments parseArguments(const int argc, const char* argv[]) {
         require(index + 1 < argc, "missing value for " + option);
         const std::string value = argv[++index];
         if (option == "--output") arguments.output = value;
+        else if (option == "--newton-iterations") arguments.newtonIterations = parseUnsigned(value, option);
+        else if (option == "--material-iterations") arguments.localMaterialIterations = parseUnsigned(value, option);
         else if (option == "--preset") arguments.preset = value;
         else if (option == "--material") setMaterialPath(arguments, value);
         else if (option == "--liner-material") arguments.linerMaterial = value;
         else if (option == "--medium-material") arguments.mediumMaterial = value;
         else if (option == "--steps") arguments.steps = parseUnsigned(value, option);
+        else if (option == "--upper-glue-gap-mm") arguments.upperGlueGapM = parseDouble(value, option) * 1e-3;
+        else if (option == "--upper-bond-width-mm") arguments.upperBondWidthM = parseDouble(value, option) * 1e-3;
+        else if (option == "--glue-material") arguments.glueMaterial = value;
+        else if (option == "--glue-gap-mm") arguments.glueGapM = parseDouble(value, option) * 1e-3;
+        else if (option == "--bond-width-mm") arguments.bondWidthM = parseDouble(value, option) * 1e-3;
+        else if (option == "--hold-steps") arguments.holdSteps = parseUnsigned(value, option);
+        else if (option == "--unload-steps") arguments.unloadSteps = parseUnsigned(value, option);
+        else if (option == "--relax-steps") arguments.relaxSteps = parseUnsigned(value, option);
         else if (option == "--fgmres-iterations")
             arguments.fgmresIterations = parseUnsigned(value, option);
         else if (option == "--nx") arguments.nxPerPitch = parseUnsigned(value, option);
@@ -277,11 +333,25 @@ Arguments parseArguments(const int argc, const char* argv[]) {
         else require(false, "unknown option: " + option);
     }
 
-    require(arguments.preset == "nagasawa2013",
-            "unsupported preset; only the explicit nagasawa2013 dimensions are currently implemented");
+    require(arguments.glueMaterial.empty() == (arguments.glueGapM == 0.0 && arguments.bondWidthM == 0.0),
+            "finite glue requires --glue-material, positive --glue-gap-mm and --bond-width-mm together");
+    if (!arguments.glueMaterial.empty()) {
+        require(!arguments.withoutMedium && arguments.glueGapM > 0 && arguments.bondWidthM > 0 &&
+                arguments.bondWidthM < 0.45 * arguments.pitchM, "finite glue dimensions or medium are invalid");
+    }
+    require(arguments.newtonIterations > 0 && arguments.newtonIterations <= 64, "global Newton iterations must be 1..64");
+    require(arguments.localMaterialIterations >= 1u && arguments.localMaterialIterations <= 16u, "material iterations must be 1..16");
+    require(arguments.preset == "nagasawa2013" || arguments.preset == "literature2009",
+            "unsupported preset");
+    require(!arguments.glueMaterial.empty() || (arguments.upperGlueGapM == 0 && arguments.upperBondWidthM == 0), "upper glue dimensions require a glue material");
+    require(arguments.upperGlueGapM >= 0 && arguments.upperBondWidthM >= 0, "upper glue dimensions must be nonnegative");
     require(!arguments.output.empty(), "--output DIR is required");
     require(arguments.steps > 0u && arguments.steps <= 10000u,
             "--steps must lie in [1, 10000]");
+    require(arguments.holdSteps <= 10000u && arguments.unloadSteps <= 10000u &&
+                arguments.relaxSteps <= 10000u, "cycle phase exceeds 10000 steps");
+    require(arguments.relaxSteps == 0u || arguments.unloadSteps > 0u,
+            "relaxation requires an unloading phase; no instantaneous release");
     require(arguments.fgmresIterations >= NM_MIXED_FGMRES_DEFAULT_RESTART &&
                 arguments.fgmresIterations <= 256u,
             "--fgmres-iterations must lie between the compiled restart size and 256");
@@ -407,7 +477,7 @@ public:
         return triangles_;
     }
 
-private:
+public:
     void triangle(const std::array<std::uint32_t, 3> indices,
                   const std::uint32_t materialIndex,
                   const double frameAngle) {
@@ -421,6 +491,7 @@ private:
         triangles_.push_back({indices, materialIndex, frameAngle});
     }
 
+private:
     std::map<PointKey, std::uint32_t> indices_;
     std::vector<CrossSectionPoint> points_;
     std::vector<TriangleCell> triangles_;
@@ -540,102 +611,121 @@ MeshSource buildMesh(const Arguments& arguments,
                      const MaterialProgram& linerMaterial,
                      const MaterialProgram& mediumMaterial,
                      const std::string& linerDigest,
-                     const std::string& mediumDigest) {
+                     const std::string& mediumDigest,
+                     const MaterialProgram* glueMaterial, const std::string& glueDigest) {
     requireSameInterface(linerMaterial, mediumMaterial);
     CrossSectionBuilder crossSection;
-    const std::vector<double> xs = fluteSampleXs(arguments);
-    const double linerBottom = arguments.linerThicknessM;
-    const double linerTop = arguments.totalHeightM -
-        arguments.linerThicknessM;
+    if (glueMaterial == nullptr) {
+        const std::vector<double> xs = fluteSampleXs(arguments);
+        const double linerBottom = arguments.linerThicknessM;
+        const double linerTop = arguments.totalHeightM -
+            arguments.linerThicknessM;
 
-    // Flat outer liners are separate finite-thickness continua. Their mesh
-    // includes the exact flute-contact abscissae so contact nodes can be shared
-    // without filling or flattening the intervening voids.
-    for (std::size_t xIndex = 0u; xIndex + 1u < xs.size(); ++xIndex) {
-        const double x0 = xs[xIndex];
-        const double x1 = xs[xIndex + 1u];
-        for (std::uint32_t slice = 0u;
-             slice < arguments.thicknessSlices; ++slice) {
-            const double alpha0 = static_cast<double>(slice) /
-                static_cast<double>(arguments.thicknessSlices);
-            const double alpha1 = static_cast<double>(slice + 1u) /
-                static_cast<double>(arguments.thicknessSlices);
-            const double bottomZ0 = alpha0 * arguments.linerThicknessM;
-            const double bottomZ1 = alpha1 * arguments.linerThicknessM;
-            const double topZ0 = linerTop + alpha0 * arguments.linerThicknessM;
-            const double topZ1 = linerTop + alpha1 * arguments.linerThicknessM;
-            crossSection.quad({
-                crossSection.point(x0, bottomZ0),
-                crossSection.point(x1, bottomZ0),
-                crossSection.point(x1, bottomZ1),
-                crossSection.point(x0, bottomZ1),
-            }, 0u, 0.0);
-            crossSection.quad({
-                crossSection.point(x0, topZ0),
-                crossSection.point(x1, topZ0),
-                crossSection.point(x1, topZ1),
-                crossSection.point(x0, topZ1),
-            }, 0u, 0.0);
-        }
-    }
-
-    if (!arguments.withoutMedium) {
-        const double halfThickness = 0.5 * arguments.mediumThicknessM;
-        std::vector<CrossSectionPoint> lower(xs.size());
-        std::vector<CrossSectionPoint> upper(xs.size());
-        std::vector<double> slopes(xs.size());
-        for (std::size_t index = 0u; index < xs.size(); ++index) {
-            const double x = xs[index];
-            const WaveState wave = waveState(arguments, x);
-            const double normalScale = std::sqrt(1.0 + wave.slope * wave.slope);
-            lower[index] = {
-                x + halfThickness * wave.slope / normalScale,
-                wave.center - halfThickness / normalScale,
-            };
-            upper[index] = {
-                x - halfThickness * wave.slope / normalScale,
-                wave.center + halfThickness / normalScale,
-            };
-            slopes[index] = wave.slope;
-            if (wave.valley) {
-                lower[index] = {x, linerBottom};
-                upper[index] = {x, linerBottom + arguments.mediumThicknessM};
-            } else if (wave.crest) {
-                upper[index] = {x, linerTop};
-                lower[index] = {x, linerTop - arguments.mediumThicknessM};
-            }
-        }
+        // Flat outer liners are separate finite-thickness continua. Their mesh
+        // includes the exact flute-contact abscissae so contact nodes can be shared
+        // without filling or flattening the intervening voids.
         for (std::size_t xIndex = 0u; xIndex + 1u < xs.size(); ++xIndex) {
-            const double midpointX = 0.5 * (xs[xIndex] + xs[xIndex + 1u]);
-            const double tangentAngle = std::atan(waveState(arguments, midpointX).slope);
+            const double x0 = xs[xIndex];
+            const double x1 = xs[xIndex + 1u];
             for (std::uint32_t slice = 0u;
                  slice < arguments.thicknessSlices; ++slice) {
                 const double alpha0 = static_cast<double>(slice) /
                     static_cast<double>(arguments.thicknessSlices);
                 const double alpha1 = static_cast<double>(slice + 1u) /
                     static_cast<double>(arguments.thicknessSlices);
-                const auto pointAt = [&](const std::size_t xIndex,
-                                         const double alpha) {
-                    return CrossSectionPoint{
-                        lower[xIndex].x * (1.0 - alpha) + upper[xIndex].x * alpha,
-                        lower[xIndex].z * (1.0 - alpha) + upper[xIndex].z * alpha,
-                    };
-                };
-                const CrossSectionPoint p00 = pointAt(xIndex, alpha0);
-                const CrossSectionPoint p10 = pointAt(xIndex + 1u, alpha0);
-                const CrossSectionPoint p11 = pointAt(xIndex + 1u, alpha1);
-                const CrossSectionPoint p01 = pointAt(xIndex, alpha1);
+                const double bottomZ0 = alpha0 * arguments.linerThicknessM;
+                const double bottomZ1 = alpha1 * arguments.linerThicknessM;
+                const double topZ0 = linerTop + alpha0 * arguments.linerThicknessM;
+                const double topZ1 = linerTop + alpha1 * arguments.linerThicknessM;
                 crossSection.quad({
-                    crossSection.point(p00.x, p00.z),
-                    crossSection.point(p10.x, p10.z),
-                    crossSection.point(p11.x, p11.z),
-                    crossSection.point(p01.x, p01.z),
-                }, 1u, tangentAngle);
+                    crossSection.point(x0, bottomZ0),
+                    crossSection.point(x1, bottomZ0),
+                    crossSection.point(x1, bottomZ1),
+                    crossSection.point(x0, bottomZ1),
+                }, 0u, 0.0);
+                crossSection.quad({
+                    crossSection.point(x0, topZ0),
+                    crossSection.point(x1, topZ0),
+                    crossSection.point(x1, topZ1),
+                    crossSection.point(x0, topZ1),
+                }, 0u, 0.0);
+            }
+        }
+
+        if (!arguments.withoutMedium) {
+            const double halfThickness = 0.5 * arguments.mediumThicknessM;
+            std::vector<CrossSectionPoint> lower(xs.size());
+            std::vector<CrossSectionPoint> upper(xs.size());
+            std::vector<double> slopes(xs.size());
+            for (std::size_t index = 0u; index < xs.size(); ++index) {
+                const double x = xs[index];
+                const WaveState wave = waveState(arguments, x);
+                const double normalScale = std::sqrt(1.0 + wave.slope * wave.slope);
+                lower[index] = {
+                    x + halfThickness * wave.slope / normalScale,
+                    wave.center - halfThickness / normalScale,
+                };
+                upper[index] = {
+                    x - halfThickness * wave.slope / normalScale,
+                    wave.center + halfThickness / normalScale,
+                };
+                slopes[index] = wave.slope;
+                if (wave.valley) {
+                    lower[index] = {x, linerBottom};
+                    upper[index] = {x, linerBottom + arguments.mediumThicknessM};
+                } else if (wave.crest) {
+                    upper[index] = {x, linerTop};
+                    lower[index] = {x, linerTop - arguments.mediumThicknessM};
+                }
+            }
+            for (std::size_t xIndex = 0u; xIndex + 1u < xs.size(); ++xIndex) {
+                const double midpointX = 0.5 * (xs[xIndex] + xs[xIndex + 1u]);
+                const double tangentAngle = std::atan(waveState(arguments, midpointX).slope);
+                for (std::uint32_t slice = 0u;
+                     slice < arguments.thicknessSlices; ++slice) {
+                    const double alpha0 = static_cast<double>(slice) /
+                        static_cast<double>(arguments.thicknessSlices);
+                    const double alpha1 = static_cast<double>(slice + 1u) /
+                        static_cast<double>(arguments.thicknessSlices);
+                    const auto pointAt = [&](const std::size_t xIndex,
+                                             const double alpha) {
+                        return CrossSectionPoint{
+                            lower[xIndex].x * (1.0 - alpha) + upper[xIndex].x * alpha,
+                            lower[xIndex].z * (1.0 - alpha) + upper[xIndex].z * alpha,
+                        };
+                    };
+                    const CrossSectionPoint p00 = pointAt(xIndex, alpha0);
+                    const CrossSectionPoint p10 = pointAt(xIndex + 1u, alpha0);
+                    const CrossSectionPoint p11 = pointAt(xIndex + 1u, alpha1);
+                    const CrossSectionPoint p01 = pointAt(xIndex, alpha1);
+                    crossSection.quad({
+                        crossSection.point(p00.x, p00.z),
+                        crossSection.point(p10.x, p10.z),
+                        crossSection.point(p11.x, p11.z),
+                        crossSection.point(p01.x, p01.z),
+                    }, 1u, tangentAngle);
+                }
             }
         }
     }
 
     MeshSource result;
+    if (glueMaterial != nullptr) {
+        requireSameInterface(linerMaterial, *glueMaterial);
+        const auto glued = numi::cardboard::buildConformingGlueCrossSection({
+            .length = arguments.lengthM, .pitch = arguments.pitchM,
+            .caliper = arguments.totalHeightM, .linerThickness = arguments.linerThicknessM,
+            .mediumThickness = arguments.mediumThicknessM, .glueMinimumGap = arguments.glueGapM,
+            .bondWidth = arguments.bondWidthM,
+            .upperGlueMinimumGap = arguments.upperGlueGapM, .upperBondWidth = arguments.upperBondWidthM,
+            .nxPerPitch = arguments.nxPerPitch, .thicknessSlices = arguments.thicknessSlices});
+        std::vector<std::uint32_t> remap;
+        for (const auto& point : glued.points) remap.push_back(crossSection.point(point.x, point.z));
+        for (const auto& cell : glued.triangles)
+            crossSection.triangle({remap.at(cell.points[0]), remap.at(cell.points[1]), remap.at(cell.points[2])},
+                static_cast<std::uint32_t>(cell.material), cell.frameAngle);
+        result.glueFootprints = glued.glueFootprints;
+    }
     const std::uint32_t pointsPerSlice =
         static_cast<std::uint32_t>(crossSection.points().size());
     require(pointsPerSlice > 0u, "cardboard source mesh is empty");
@@ -654,14 +744,14 @@ MeshSource buildMesh(const Arguments& arguments,
 
     ObjectSource object;
     object.name = arguments.withoutMedium
-        ? "nagasawa2013_two_liner_bending_control"
-        : "nagasawa2013_explicit_sinusoidal_corrugated_strip";
+        ? "cardboard_two_liner_bending_control"
+        : "cardboard_explicit_sinusoidal_corrugated_strip";
     object.materialIndex = 0u;
     object.representation = Representation::fem;
     object.mixedFEM = false;
     object.adaptive = false;
-    object.deformableContact = false;
-    object.deformableSelfContact = false;
+    object.deformableContact = glueMaterial != nullptr && !arguments.disableSelfContact;
+    object.deformableSelfContact = object.deformableContact;
     object.characteristicLength = std::min(
         arguments.linerThicknessM, arguments.mediumThicknessM) /
         static_cast<double>(arguments.thicknessSlices);
@@ -697,17 +787,21 @@ MeshSource buildMesh(const Arguments& arguments,
 
     result.world.frameTimestep = arguments.timestepSeconds;
     result.world.gravity = {0.0, 0.0, 0.0};
+    if (glueMaterial != nullptr) result.world.contactSlop = 0.01 * std::min(arguments.mediumThicknessM, arguments.linerThicknessM);
     result.world.environmentCount = kEnvironmentCount;
     result.world.deterministic = true;
     result.world.mixedSolver.fgmresIterations = arguments.fgmresIterations;
+    result.world.mixedSolver.newtonIterations = arguments.newtonIterations;
     result.world.materials = {linerMaterial, mediumMaterial};
+    if (glueMaterial != nullptr) result.world.materials.push_back(*glueMaterial);
     if (!arguments.withoutMedium) {
         object.femMaterialIndices = result.materialIndices;
         std::ostringstream mapSource;
         mapSource << "numi.cardboard.layer-material-map.v1\n"
-                  << "geometry=nagasawa2013_explicit_sinusoidal_approximation\n"
+                  << "geometry=explicit_sinusoidal_approximation\n"
                   << "liner_sha256=" << linerDigest << '\n'
                   << "medium_sha256=" << mediumDigest << '\n'
+                  << "glue_sha256=" << glueDigest << '\n'
                   << std::setprecision(17)
                   << "liner_density_kg_m3=" << materialDensity(linerMaterial) << '\n'
                   << "medium_density_kg_m3=" << materialDensity(mediumMaterial) << '\n';
@@ -725,6 +819,7 @@ MeshSource buildMesh(const Arguments& arguments,
                     << "liner_frame=identity\n"
                     << "liner_sha256=" << linerDigest << '\n'
                     << "medium_sha256=" << mediumDigest << '\n'
+                  << "glue_sha256=" << glueDigest << '\n'
                     << std::hexfloat;
         for (const auto& frame : result.materialFrames)
             frameSource << frame[0] << ',' << frame[1] << ',' << frame[2] << ','
@@ -862,9 +957,7 @@ void writeInitialObj(const std::filesystem::path& path,
 
 void writeMeshJson(const std::filesystem::path& path,
                    const Arguments& arguments,
-                   const MeshSource& mesh,
-                   const MaterialProgram& linerMaterial,
-                   const MaterialProgram& mediumMaterial) {
+                   const MeshSource& mesh) {
     const ObjectSource& object = mesh.world.objects.front();
     require(mesh.restNodes.size() == mesh.world.objects.front().femNodes.size(),
             "authored node export differs from source FEM node order");
@@ -881,10 +974,12 @@ void writeMeshJson(const std::filesystem::path& path,
            << "  \"geometry_equation\": \"sinusoidal centerline; constant normal thickness; piecewise-linear sampled surfaces\",\n"
            << "  \"medium_present\": "
            << (arguments.withoutMedium ? "false" : "true") << ",\n"
-           << "  \"material_densities_kg_m3\": ["
-           << materialDensity(linerMaterial) << ','
-           << materialDensity(mediumMaterial) << "],\n"
-           << "  \"nodes_m\": [\n";
+           << "  \"material_densities_kg_m3\": [";
+    for (std::size_t mi = 0; mi < mesh.world.materials.size(); ++mi) {
+        if (mi) output << ',';
+        output << materialDensity(mesh.world.materials[mi]);
+    }
+    output << "],\n  \"nodes_m\": [\n";
     for (std::size_t index = 0u; index < mesh.restNodes.size(); ++index) {
         const Vec3& node = mesh.restNodes[index];
         output << "    [" << node.x << ',' << node.y << ',' << node.z << ']'
@@ -936,7 +1031,7 @@ void writeManifest(const std::filesystem::path& path,
                    const MeshSource& mesh,
                    const CompileResult& compiled,
                    const Digest& linerDigest,
-                   const Digest& mediumDigest) {
+                   const Digest& mediumDigest, const std::string& glueDigest) {
     const auto totals = calculateTotals(compiled.world, mesh.world);
     const auto [minimum, maximum] = nodeBounds(compiled.world);
     const double expectedMass = std::accumulate(
@@ -960,7 +1055,10 @@ void writeManifest(const std::filesystem::path& path,
            << "  \"owner\": \"Numi Matter FEM runtime\",\n"
            << "  \"preset\": \"" << jsonEscape(arguments.preset) << "\",\n"
            << "  \"geometry\": {\n"
-           << "    \"source_dimensions\": \"Nagasawa 2013 coupon dimensions; 36x20x5 mm, 9 mm pitch, 0.25 mm liner and medium sheets\",\n"
+           << "    \"source_dimensions\": \"" << (arguments.preset == "literature2009" ?
+               "Cross-source recipe: Haj-Ali 2009 pitch and parametric glue zones; Popil 2017 separate sheet calipers and board caliper; coupon length/width numerical choices" :
+               "Nagasawa 2013 nominal dimensions; sinusoidal approximation; CLI values below are authoritative") << "\",\n"
+           << "    \"initial_condition\": \"assembled conditioned geometry with zero stress; corrugation forming, curing and moisture history are not simulated\",\n"
            << "    \"equation\": \"sinusoidal centerline with constant-normal-thickness sampled strip\",\n"
            << "    \"length_m\": " << arguments.lengthM << ",\n"
            << "    \"width_m\": " << arguments.widthM << ",\n"
@@ -970,11 +1068,28 @@ void writeManifest(const std::filesystem::path& path,
            << "    \"medium_normal_thickness_m\": " << arguments.mediumThicknessM << ",\n"
            << "    \"medium_centerline_height_m\": "
            << (arguments.totalHeightM - 2.0 * arguments.linerThicknessM -
-               arguments.mediumThicknessM) << ",\n"
+               arguments.mediumThicknessM - arguments.glueGapM - (arguments.upperGlueGapM > 0 ? arguments.upperGlueGapM : arguments.glueGapM)) << ",\n"
            << "    \"medium_present\": "
            << (arguments.withoutMedium ? "false" : "true") << ",\n"
-           << "    \"contact_tie_assumption\": \"perfect bond by shared nodes at isolated crest and trough contact lines; no adhesive/interphase law\"\n"
+           << "    \"glue_minimum_gap_m\": " << arguments.glueGapM << ",\n"
+           << "    \"bond_width_m\": " << arguments.bondWidthM << ",\n"
+           << "    \"upper_glue_gap_m\": " << (arguments.upperGlueGapM > 0 ? arguments.upperGlueGapM : arguments.glueGapM) << ",\n"
+           << "    \"upper_bond_width_m\": " << (arguments.upperBondWidthM > 0 ? arguments.upperBondWidthM : arguments.bondWidthM) << ",\n"
+           << "    \"contact_tie_assumption\": \""
+           << (arguments.glueMaterial.empty() ? "legacy shared-node contact lines; no adhesive material" :
+               "finite solid glue bridges; conforming bonded interfaces; no interface separation or cure law") << "\"\n"
            << "  },\n"
+           << "  \"glue_footprints\": [\n";
+    for (std::size_t i = 0; i < mesh.glueFootprints.size(); ++i) {
+        const auto& footprint = mesh.glueFootprints[i];
+        output << "    {\"upper\":" << (footprint.crest ? "true" : "false")
+               << ",\"center_x_m\":" << footprint.centerX
+               << ",\"requested_width_m\":" << footprint.requestedHorizontalWidth
+               << ",\"actual_width_m\":" << footprint.actualHorizontalWidth
+               << ",\"cross_section_area_m2\":" << footprint.crossSectionArea
+               << "}" << (i + 1 == mesh.glueFootprints.size() ? "\n" : ",\n");
+    }
+    output << "  ],\n"
            << "  \"mesh\": {\n"
            << "    \"nodes\": " << compiled.world.fem.nodes.size() << ",\n"
            << "    \"tetrahedra\": " << compiled.world.fem.tetrahedra.size() << ",\n"
@@ -993,6 +1108,8 @@ void writeManifest(const std::filesystem::path& path,
            << massRelativeError << "\n"
            << "  },\n"
            << "  \"materials\": {\n"
+           << "    \"glue_path\": \"" << jsonEscape(arguments.glueMaterial.string()) << "\",\n"
+           << "    \"glue_sha256\": \"" << glueDigest << "\",\n"
            << "    \"liner_path\": \"" << jsonEscape(arguments.linerMaterial.string()) << "\",\n"
            << "    \"liner_sha256\": \"" << hexDigest(linerDigest) << "\",\n"
            << "    \"medium_path\": \"" << jsonEscape(arguments.mediumMaterial.string()) << "\",\n"
@@ -1014,9 +1131,15 @@ void writeManifest(const std::filesystem::path& path,
     output << "    ]\n  },\n"
            << "  \"solver\": {\n"
            << "    \"backend\": \"implicit nonlinear Matter FEM on Apple Metal\",\n"
+           << "    \"deformable_self_contact\": " << (mesh.world.objects.front().deformableSelfContact ? "true" : "false") << ",\n"
+           << "    \"contact_slop_m\": " << mesh.world.contactSlop << ",\n"
            << "    \"dt_s\": " << arguments.timestepSeconds << ",\n"
            << "    \"bend_angle_deg\": " << arguments.bendAngleDegrees << ",\n"
            << "    \"steps\": " << arguments.steps << ",\n"
+           << "    \"hold_steps\": " << arguments.holdSteps << ",\n"
+           << "    \"unload_steps\": " << arguments.unloadSteps << ",\n"
+           << "    \"relax_steps\": " << arguments.relaxSteps << ",\n"
+           << "    \"local_material_newton_iterations\": " << arguments.localMaterialIterations << ",\n"
            << "    \"newton_iteration_budget\": "
            << compiled.world.mixedSolver.nonlinearIterations.x << ",\n"
            << "    \"fgmres_restart\": "
@@ -1065,10 +1188,32 @@ std::string stepLabel(const std::uint32_t step) {
     return result.str();
 }
 
+struct LoadPoint { double angleDegrees; const char* phase; };
+
+std::uint32_t totalSteps(const Arguments& a) {
+    return a.steps + a.holdSteps + a.unloadSteps + a.relaxSteps;
+}
+
+LoadPoint loadingPoint(const Arguments& a, std::uint32_t step) {
+    require(step < totalSteps(a), "loading step outside protocol");
+    if (step < a.steps)
+        return {a.bendAngleDegrees * static_cast<double>(step + 1u) / a.steps, "loading"};
+    step -= a.steps;
+    if (step < a.holdSteps) return {a.bendAngleDegrees, "hold"};
+    step -= a.holdSteps;
+    if (step < a.unloadSteps)
+        return {a.bendAngleDegrees * (1.0 - static_cast<double>(step + 1u) / a.unloadSteps), "unloading"};
+    return {0.0, "relaxation"};
+}
+
 struct Metrics {
     double minJ = INFINITY;
     double maxJ = -INFINITY;
     double maxDisplacementM = 0.0;
+    double maxFreeDisplacementM = 0.0;
+    double maxFreeSpeedMps = 0.0;
+    double kineticEnergyJ = 0.0;
+    double maxStateChange = 0.0;
 };
 
 std::array<double, 9> inverseRestMatrix(const NMTetrahedronGPU& tetrahedron) {
@@ -1099,11 +1244,27 @@ Metrics stateMetrics(const CompiledWorld& world,
         const double dx = current.x - initial.x;
         const double dy = current.y - initial.y;
         const double dz = current.z - initial.z;
-        metrics.maxDisplacementM = std::max(
-            metrics.maxDisplacementM, std::sqrt(dx * dx + dy * dy + dz * dz));
+        const double distance = std::sqrt(dx * dx + dy * dy + dz * dz);
+        metrics.maxDisplacementM = std::max(metrics.maxDisplacementM, distance);
+        const auto velocity = snapshot.femNodes[nodeBase + node].velocityAndInverseMass;
+        const double speed2 = velocity.x * velocity.x + velocity.y * velocity.y + velocity.z * velocity.z;
+        metrics.kineticEnergyJ += 0.5 * current.w * speed2;
+        if (world.fem.nodes[node].restAndFixed.w == 0.0f) {
+            metrics.maxFreeDisplacementM = std::max(metrics.maxFreeDisplacementM, distance);
+            metrics.maxFreeSpeedMps = std::max(metrics.maxFreeSpeedMps, std::sqrt(speed2));
+        }
     }
 
-    for (const NMTetrahedronGPU& tetrahedron : world.fem.tetrahedra) {
+    for (std::size_t ti = 0; ti < world.fem.tetrahedra.size(); ++ti) {
+        const NMTetrahedronGPU& tetrahedron = world.fem.tetrahedra[ti];
+        const auto& material = world.materials.at(tetrahedron.identity.x);
+        const auto stateBase = (environment * world.dispatch.tetrahedronCount + ti) * snapshot.materialStateStride;
+        for (std::uint32_t state = 0; state < material.stateCount; ++state) {
+            const double value = snapshot.femMaterialState.at(stateBase + state);
+            require(std::isfinite(value), "nonfinite accepted material state");
+            metrics.maxStateChange = std::max(metrics.maxStateChange,
+                std::abs(value - world.stateInitials.at(material.stateInitialOffset + state)));
+        }
         const std::array<std::uint32_t, 4> indices{
             tetrahedron.nodes.x, tetrahedron.nodes.y,
             tetrahedron.nodes.z, tetrahedron.nodes.w,
@@ -1167,8 +1328,7 @@ void fillTargets(const Arguments& arguments,
         static_cast<std::uint32_t>(mesh.restNodes.size());
     targets.assign(static_cast<std::size_t>(kEnvironmentCount) * nodeCount,
                    nm_float4{0.0f, 0.0f, 0.0f, 0.0f});
-    const double angle = arguments.bendAngleDegrees * kPi / 180.0 *
-        static_cast<double>(step + 1u) / static_cast<double>(arguments.steps);
+    const double angle = loadingPoint(arguments, step).angleDegrees * kPi / 180.0;
     std::vector<bool> left(nodeCount, false);
     std::vector<bool> right(nodeCount, false);
     for (const std::uint32_t node : mesh.leftGripNodes) left[node] = true;
@@ -1358,7 +1518,9 @@ void writeHeader(std::ofstream& output) {
               "status_diagnostic_x,status_diagnostic_y,status_diagnostic_z,"
               "status_diagnostic_w,min_J,max_J,"
               "max_node_displacement_m,reaction_x_N,reaction_y_N,reaction_z_N,"
-              "reaction_moment_y_Nm\n";
+              "reaction_moment_y_Nm,phase,max_free_displacement_m,max_free_speed_m_s,"
+              "kinetic_energy_J,max_material_state_change,certificate_residual,"
+              "certificate_correction,certificate_volume,certificate_pressure,certificate_raw_accepted_flag,step_accepted\n";
 }
 
 void writeObservation(std::ofstream& output,
@@ -1368,7 +1530,8 @@ void writeObservation(std::ofstream& output,
                       const double targetAngleDegrees,
                       const NMMatterStatusGPU& status,
                       const Metrics& metrics,
-                      const ReactionMetrics& reaction) {
+                      const ReactionMetrics& reaction,
+                      const char* phase, const NMSolverCertificateGPU& certificate, const bool stepAccepted) {
     output << step << ',' << std::setprecision(17)
            << static_cast<double>(step + 1u) * timestep << ','
            << environment << ','
@@ -1381,9 +1544,57 @@ void writeObservation(std::ofstream& output,
            << metrics.minJ << ',' << metrics.maxJ
            << ',' << metrics.maxDisplacementM << ','
            << reaction.force.x << ',' << reaction.force.y << ','
-           << reaction.force.z << ',' << reaction.momentAboutY << '\n';
+           << reaction.force.z << ',' << reaction.momentAboutY << ',' << phase << ','
+           << metrics.maxFreeDisplacementM << ',' << metrics.maxFreeSpeedMps << ','
+           << metrics.kineticEnergyJ << ',' << metrics.maxStateChange << ','
+           << certificate.nonlinear.x << ',' << certificate.nonlinear.y << ','
+           << certificate.nonlinear.z << ',' << certificate.nonlinear.w << ','
+           << certificate.validity.w << ',' << (stepAccepted ? 1 : 0) << '\n';
     output.flush();
     require(output.good(), "failed while writing per-step CSV observations");
+}
+
+void writeMaterialState(const std::filesystem::path& path,
+                        const CompiledWorld& world, const WorldSource& source,
+                        const RuntimeStateSnapshot& snapshot,
+                        const std::uint32_t environment) {
+    std::ofstream output(path);
+    require(output.good(), "cannot create material-state export");
+    output << std::setprecision(17)
+           << "{\n  \"schema\": \"numi.cardboard.accepted-material-state.v1\",\n"
+           << "  \"environment\": " << environment << ",\n"
+           << "  \"status_code\": " << snapshot.statuses.at(environment).code << ",\n"
+           << "  \"solver_certificate_raw_accepted_flag\": " << snapshot.solverCertificates.at(environment).validity.w << ",\n"
+           << "  \"note\": \"Accepted material history. A failed step retains rolled-back state; incremental multipliers are not permanent-strain observables.\",\n"
+           << "  \"materials\": [";
+    for (std::size_t mi = 0; mi < source.materials.size(); ++mi) {
+        if (mi) output << ',';
+        const auto& material = source.materials[mi];
+        output << "{\"index\":" << mi << ",\"name\":\"" << jsonEscape(material.name)
+               << "\",\"state_names\":[";
+        for (std::size_t si = 0; si < material.internalState.size(); ++si) {
+            if (si) output << ',';
+            output << '\"' << jsonEscape(material.internalState[si].name) << '\"';
+        }
+        output << "]}";
+    }
+    output << "],\n  \"tetrahedra\": [\n";
+    for (std::size_t ti = 0; ti < world.fem.tetrahedra.size(); ++ti) {
+        const auto& tet = world.fem.tetrahedra[ti];
+        const auto& material = world.materials.at(tet.identity.x);
+        const auto base = (environment * world.dispatch.tetrahedronCount + ti) * snapshot.materialStateStride;
+        if (ti) output << ",\n";
+        output << "    {\"index\":" << ti << ",\"material_index\":" << tet.identity.x << ",\"state\":[";
+        for (std::uint32_t si = 0; si < material.stateCount; ++si) {
+            if (si) output << ',';
+            const auto value = snapshot.femMaterialState.at(base + si);
+            require(std::isfinite(value), "nonfinite accepted material history");
+            output << value;
+        }
+        output << "]}";
+    }
+    output << "\n  ]\n}\n";
+    require(output.good(), "failed to export material history");
 }
 
 void writeSummaryJson(const std::filesystem::path& path,
@@ -1432,11 +1643,19 @@ int execute(const Arguments& arguments) {
     const Digest mediumDigest = sha256File(arguments.mediumMaterial);
     MaterialProgram liner = readMaterial(arguments.linerMaterial, "liner");
     MaterialProgram medium = readMaterial(arguments.mediumMaterial, "medium");
+    std::optional<MaterialProgram> glue;
+    std::string glueDigest;
+    if (!arguments.glueMaterial.empty()) {
+        glue = readMaterial(arguments.glueMaterial, "glue");
+        glueDigest = hexDigest(sha256File(arguments.glueMaterial));
+    }
     MeshSource mesh = buildMesh(
-        arguments, liner, medium, hexDigest(linerDigest), hexDigest(mediumDigest));
+        arguments, liner, medium, hexDigest(linerDigest), hexDigest(mediumDigest),
+        glue ? &*glue : nullptr, glueDigest);
 
     CompileResult compiled = compileWorld(
-        mesh.world, {.maximumRateExponent = 0u, .emitSpecializedMetal = false});
+        mesh.world, {.maximumRateExponent = 0u, .emitSpecializedMetal = false,
+                     .localMaterialNewtonIterations = arguments.localMaterialIterations});
     require(compiled.succeeded(),
             "Matter cardboard source compile failed: " +
                 diagnosticText(compiled.diagnostics));
@@ -1444,10 +1663,9 @@ int execute(const Arguments& arguments) {
     prepareOutput(arguments.output);
     writePackageOrThrow(compiled, arguments.output / "compiled.nmatterpack");
     writeInitialObj(arguments.output / "initial.obj", compiled.world);
-    writeMeshJson(arguments.output / "mesh.json", arguments, mesh,
-                  liner, medium);
+    writeMeshJson(arguments.output / "mesh.json", arguments, mesh);
     writeManifest(arguments.output / "manifest.json", arguments, mesh,
-                  compiled, linerDigest, mediumDigest);
+                  compiled, linerDigest, mediumDigest, glueDigest);
     if (arguments.compileOnly) {
         writeSummaryJson(arguments.output / "result.json", "compile_only",
                          mesh, compiled, 0u);
@@ -1462,7 +1680,7 @@ int execute(const Arguments& arguments) {
     bool failed = false;
     std::string failure;
     std::uint32_t acceptedSteps = 0u;
-    for (std::uint32_t step = 0u; step < arguments.steps; ++step) {
+    for (std::uint32_t step = 0u; step < totalSteps(arguments); ++step) {
         std::vector<nm_float4> targets;
         fillTargets(arguments, mesh, step, targets);
         RunState current;
@@ -1477,8 +1695,8 @@ int execute(const Arguments& arguments) {
         }
         require(current.snapshot.statuses.size() >= kEnvironmentCount,
                 "Matter status readback is truncated");
-        const double targetAngle = arguments.bendAngleDegrees *
-            static_cast<double>(step + 1u) / static_cast<double>(arguments.steps);
+        const LoadPoint load = loadingPoint(arguments, step);
+        const double targetAngle = load.angleDegrees;
         const double targetRadians = targetAngle * kPi / 180.0;
         bool stepFailed = false;
         for (std::uint32_t environment = 0u;
@@ -1492,15 +1710,27 @@ int execute(const Arguments& arguments) {
                 environmentAngle);
             const NMMatterStatusGPU& status =
                 current.snapshot.statuses[environment];
+            const auto& certificate = current.snapshot.solverCertificates.at(environment);
+            const bool accepted = status.code == NM_STATUS_SUCCESS && certificate.validity.w > 0.5f &&
+                std::isfinite(certificate.nonlinear.x) && std::isfinite(certificate.nonlinear.y) &&
+                std::isfinite(certificate.nonlinear.z) && std::isfinite(certificate.nonlinear.w) &&
+                certificate.nonlinear.x <= compiled.world.mixedSolver.residualTolerances.x &&
+                certificate.nonlinear.z <= compiled.world.mixedSolver.residualTolerances.y &&
+                certificate.nonlinear.w <= compiled.world.mixedSolver.residualTolerances.z;
             writeObservation(observations, step, run.runtime().timestepSeconds(),
                              environment, environment == 0u ? targetAngle : 0.0,
-                             status, metrics, reaction);
+                             status, metrics, reaction, load.phase,
+                             certificate, accepted);
             const std::string arm = environment == 0u ? "bent" : "held_reference";
             writeObj(arguments.output /
                          ("accepted_step_" + stepLabel(step + 1u) + "_" +
                           arm + ".obj"),
                      compiled.world, current.snapshot.femNodes, environment);
-            stepFailed = stepFailed || status.code != NM_STATUS_SUCCESS;
+            if (step + 1u == totalSteps(arguments) || !accepted ||
+                std::string(loadingPoint(arguments, step + 1u).phase) != load.phase)
+                writeMaterialState(arguments.output / ("material_state_" + stepLabel(step + 1u) + "_" + arm + ".json"),
+                    compiled.world, mesh.world, current.snapshot, environment);
+            stepFailed = stepFailed || !accepted;
         }
         if (stepFailed) {
             failed = true;

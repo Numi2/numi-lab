@@ -1,0 +1,382 @@
+{
+  "schema": "numi.cardboard.manufacturing_source_manifest.v1",
+  "purpose": "Source provenance and parameter boundaries for a literature-informed corrugated-board finite-element example. This is not a same-lot reconstruction or crease validation record.",
+  "recommended_recipe_name": "literature2009",
+  "recipe_status": "mixed-source literature proxy used as a preformed stress-free starting board; not a same-roll reconstruction or complete source-exact manufactured-board model",
+  "units": {
+    "length": "mm",
+    "stress": "MPa",
+    "density": "kg/m^3",
+    "basis_weight": "g/m^2",
+    "strain": "dimensionless"
+  },
+  "sources": [
+    {
+      "id": "haj_ali_2009",
+      "citation": "Haj-Ali, R., Choi, J., Wei, B.-S., Popil, R., and Schaepe, M. (2009). Refined nonlinear finite element models for corrugated fiberboards. Composite Structures 87(4), 321-333.",
+      "doi": "10.1016/j.compstruct.2008.02.001",
+      "urls": [
+        "https://doi.org/10.1016/j.compstruct.2008.02.001",
+        "https://www.researchgate.net/publication/223896964_Refined_nonlinear_finite_element_models_for_corrugated_fiberboard"
+      ],
+      "publication_type": "peer-reviewed journal article",
+      "local_pdf_retained": false,
+      "local_pdf_sha256": null,
+      "evidence_locations": [
+        "Printed p.323, section 2: constituent names, basis weights, and tensile testing.",
+        "Printed p.324, Table 1 and Figs. 1-2: directional tensile yield points and bilinear stress-strain plots.",
+        "Printed pp.324-325, Eqs. 1-4 and Tables 2-4: elastic constants, Hill function, yield assumptions, Tsai-Wu limits.",
+        "Printed p.326, Table 5 and text: C-flute pitch and height, measured and idealized sinusoid.",
+        "Printed pp.331-332, section 5 and Table 8: glue material and finite parametric glue-solid geometries."
+      ],
+      "data": {
+        "liner": {
+          "grade_description": "unbleached southern softwood kraft liner",
+          "basis_weight_g_m2": 205,
+          "axes": {
+            "1": "machine direction (MD)",
+            "2": "cross direction (CD)",
+            "3": "z-direction (ZD, through thickness)"
+          },
+          "elastic": {
+            "E11_MPa": 4775,
+            "E22_MPa": 2088,
+            "E33_MPa": 19.1,
+            "G12_MPa": 1222,
+            "G13_MPa": 166.28,
+            "G23_MPa": 137.28,
+            "nu12": 0.18,
+            "nu13": 0.01,
+            "nu23": 0.01
+          },
+          "tension_yield": {
+            "MD_stress_MPa": 38.2,
+            "MD_strain": 0.008,
+            "CD_stress_MPa": 18.4,
+            "CD_strain": 0.009
+          },
+          "compression_yield_as_used_for_hill": {
+            "MD_stress_MPa": 22.92,
+            "MD_strain": 0.0048,
+            "CD_stress_MPa": 11.02,
+            "CD_strain": 0.0054,
+            "ZD_stress_MPa": 7.52
+          },
+          "tension_ZD_yield_MPa": 12.55,
+          "in_plane_shear_yield_MPa": 2.1,
+          "out_of_plane_shear_yield_MPa": 0.024
+        },
+        "medium": {
+          "grade_description": "NSSC (neutral sulfite semichemical) medium",
+          "basis_weight_g_m2": 126,
+          "axes": {
+            "1": "machine direction (MD)",
+            "2": "cross direction (CD)",
+            "3": "z-direction (ZD, through thickness)"
+          },
+          "elastic": {
+            "E11_MPa": 4472,
+            "E22_MPa": 1612,
+            "E33_MPa": 17.9,
+            "G12_MPa": 1039,
+            "G13_MPa": 226.34,
+            "G23_MPa": 198.72,
+            "nu12": 0.18,
+            "nu13": 0.01,
+            "nu23": 0.01
+          },
+          "tension_yield": {
+            "MD_stress_MPa": 15.7,
+            "MD_strain": 0.0035,
+            "CD_stress_MPa": 8.06,
+            "CD_strain": 0.005
+          },
+          "compression_yield_as_used_for_hill": {
+            "MD_stress_MPa": 9.391,
+            "MD_strain": 0.0021,
+            "CD_stress_MPa": 4.836,
+            "CD_strain": 0.003,
+            "ZD_stress_MPa": 3.23
+          },
+          "tension_ZD_yield_MPa": 5.38,
+          "in_plane_shear_yield_MPa": 2.1,
+          "out_of_plane_shear_yield_MPa": 0.024
+        },
+        "hill_model": {
+          "source_equation": "Article Eq. 2, quadratic Hill orthotropic yield function, with F,G,H,L,M,N computed from directional yield stresses using Eq. 3.",
+          "hardening": "Bilinear curves are plotted in Figs. 1-2, but numerical post-yield slopes are not tabulated.",
+          "compression_assumption": "Compression yield stress and strain assumed as 60% of corresponding in-plane tension values. Table 3 supplies the ZD yield values used for Hill; these are based on a cited relation, not direct ZD tests.",
+          "shear_assumption": "Source states tau12=2.1 MPa and tau13=tau23=0.024 MPa; not reported as direct sheet-specific measurements.",
+          "rounding_note": "60% of Table 1 medium MD tensile stress 15.7 MPa is 9.42 MPa, while Table 3 prints 9.391 MPa, consistent with an underlying more precise tensile value. Retain Table 3 value for source Hill reconstruction and note the discrepancy."
+        },
+        "flute": {
+          "profile": "sinusoid for FE idealization",
+          "typical_pitch_range_mm": [7.1, 8.3],
+          "typical_height_mm": 3.61,
+          "measured_pitch_mm": 7.9,
+          "FE_sinusoid_pitch_mm": 8.5,
+          "FE_sinusoid_height_mm": 3.5,
+          "height_definition": "Source does not clearly establish whether tabulated height is centerline peak-to-trough or an outer-face envelope dimension. Do not infer the definition.",
+          "implemented_recipe_choice": {
+            "pitch_mm": 7.9,
+            "pitch_status": "measured specimen pitch reported by source; selected instead of the article's 8.50 mm FE pitch",
+            "core_centerline_peak_to_trough_mm": 3.335,
+            "sinusoid_amplitude_mm": 1.6675,
+            "height_status": "derived to close the 4.210 mm board caliper using two 0.277 mm liner coupons, one 0.191 mm medium coupon, and glue gaps 0.100 mm and 0.030 mm; not a published height measurement",
+            "equation": "4.210 - 2*0.277 - 0.191 - 0.100 - 0.030 = 3.335 mm"
+          }
+        },
+        "adhesive_from_explicit_glue_study": {
+          "elastic_modulus_MPa": 400,
+          "poisson_ratio": 0.3,
+          "material_model": "homogeneous isotropic 3-D continuum elastic glue solid in the reported explicit glue study",
+          "density_kg_m3": null,
+          "density_status": "not reported",
+          "fracture_energy": null,
+          "fracture_energy_status": "not reported; no calibrated cohesive/debonding law",
+          "table_8_finite_geometry": [
+            {
+              "type": "I",
+              "double_back_width_mm": 1.5,
+              "double_back_thickness_mm": 0.2,
+              "double_back_area_mm2": 0.3,
+              "single_face_width_mm": 1.5,
+              "single_face_thickness_mm": 0.1,
+              "single_face_area_mm2": 0.15
+            },
+            {
+              "type": "II",
+              "double_back_width_mm": 0.8,
+              "double_back_thickness_mm": 0.1,
+              "double_back_area_mm2": 0.08,
+              "single_face_width_mm": 0.6,
+              "single_face_thickness_mm": 0.03,
+              "single_face_area_mm2": 0.018
+            },
+            {
+              "type": "III",
+              "double_back_width_mm": 0.3,
+              "double_back_thickness_mm": 0.1,
+              "double_back_area_mm2": 0.03,
+              "single_face_width_mm": 1.0,
+              "single_face_thickness_mm": 0.03,
+              "single_face_area_mm2": 0.03
+            }
+          ],
+          "implemented_selection": {
+            "source_type": "II",
+            "double_back_role": "lower gap",
+            "double_back_width_mm": 0.8,
+            "double_back_gap_mm": 0.1,
+            "single_face_role": "upper gap",
+            "single_face_width_mm": 0.6,
+            "single_face_gap_mm": 0.03,
+            "bridge_geometry": "curved, surface-following finite bridges"
+          },
+          "geometry_status": "Source reports parametric rectangular glue solid zones; the implemented curved surface-conforming bridge is an explicit adaptation, not published measured glue geometry."
+        }
+      }
+    },
+    {
+      "id": "popil_et_al_2007_adhesive",
+      "citation": "Popil, R. E., Schaepe, M. K., Haj-Ali, R., Wei, B.-S., and Choi, J. (2007). Adhesive level effect on corrugated board strength – experiment and FE modeling. International Progress in Paper Physics Seminar report, 6 pp.",
+      "urls": [
+        "https://research.gatech.edu/sites/default/files/rbi/pdfs/Adhesive%20level%20effect%20on%20corrugated%20board%20strength%20PPP%20Miami%20U%20final%20ver%203.pdf"
+      ],
+      "publication_type": "conference/seminar report; source file calls itself an abstract submitted to the seminar",
+      "local_pdf_retained": true,
+      "local_pdf_path": "/Users/home/cardboard-research-20261006/popil-2007-adhesive-level.pdf",
+      "local_pdf_sha256": "9afcd4ed5e648b5d8b51f6f54b18b3e4fd5a3748d0a0d03441bc2e2da8bf52cc",
+      "evidence_locations": [
+        "Printed p.3: FE adhesive modulus and Poisson ratio; apparent slope measurement interval.",
+        "Printed pp.5-6: IPST double-backer simulator sequence, bath temperature, doctor gaps, and applied adhesive levels."
+      ],
+      "adhesive": {
+        "formulation_classes": [
+          "standard high-shear starch",
+          "PVA, 60% solids",
+          "sodium silicate, 40% solids",
+          "aqueous acrylic dispersion, 38% solids",
+          "modified starch"
+        ],
+        "fully_dried_starch_elastic_modulus_MPa": 400,
+        "poisson_ratio": 0.3,
+        "poisson_ratio_status": "assumed for homogeneous FE adhesive",
+        "density_kg_m3": null,
+        "cured_local_thickness": null,
+        "cohesive_strength": null,
+        "fracture_energy": null
+      },
+      "simulator_process": {
+        "sequence": [
+          "preheat liner and medium",
+          "meter adhesive through a doctored gravure-roll applicator",
+          "combine single-face board and liner",
+          "pause over pressure-actuated hotplate for a prescribed but unreported time"
+        ],
+        "adhesive_bath_temperature_C": 37.8,
+        "doctor_gap_mm": [0.1, 0.2, 0.4],
+        "reported_applied_adhesive_level_g_m2": [14.6, 19.5, 36.6],
+        "mass_level_basis": "inferred from produced-board masses and component weights; whether reported as dry-solids mass is unspecified",
+        "missing_operating_parameters": [
+          "corrugating-roll temperature",
+          "line or gravure-roll speed",
+          "hotplate pressure",
+          "hotplate dwell duration",
+          "local cured glue thickness",
+          "final moisture or solids content"
+        ]
+      },
+      "validation_observables": {
+        "reported": [
+          "ECT changes with adhesive type and level; up to 12% increase is stated from 0.1 to 0.4 mm doctor gap",
+          "FE ECT load/deflection and out-of-plane buckling responses"
+        ],
+        "not_validated": [
+          "local cohesive strength or fracture energy",
+          "glue failure or debonding",
+          "crease moment-angle, residual fold, or springback"
+        ]
+      }
+    },
+    {
+      "id": "popil_2017_physical_testing_book",
+      "citation": "Popil, R. E. (2017). The Physical Testing of Paper. First published 2017. Used here at printed pp.61, 108-109, 120-123.",
+      "urls": [
+        "https://repository.gatech.edu/bitstreams/e4749f61-7780-41d3-93c7-d51cf5127e3e/download"
+      ],
+      "publication_type": "technical book; publicly accessible author/publisher work in Georgia Tech repository",
+      "local_pdf_retained": true,
+      "local_pdf_path": "/Users/home/cardboard-research-20261006/popil-thesis-physical-testing-of-paper.pdf",
+      "local_pdf_sha256": "87308594c972701ef5b0031e9c7c37829f8d7232eb1b501702aca84823874ef0",
+      "evidence_locations": [
+        "Printed pp.108-109, section 5.5.1: commercial WC 4226C 42 board grade and ECT arrangements/rates.",
+        "Printed p.120, Table 5.4: finished-board caliper/basis weight/SCT/Taber/ECT values.",
+        "Printed p.123: pilot corrugator and manual Stein-Hall starch double-backing sequence.",
+        "Printed p.61, Table 4.1: separate kraft-liner and NSSC-medium soft-caliper samples."
+      ],
+      "commercial_board_benchmark": {
+        "sample": "WC 4226C 42 commercial C-flute",
+        "nominal_liner_basis_weight_g_m2": 205,
+        "nominal_medium_basis_weight_g_m2": 126,
+        "table_5_4_reported_board_caliper_token": "4,210",
+        "table_5_4_unit_heading": "μm",
+        "interpreted_board_caliper_mm": 4.21,
+        "caliper_interpretation_status": "rotated Table 5.4 header visibly states μm; value converts directly to 4.210 mm",
+        "board_basis_weight_g_m2": 605,
+        "liner_CD_SCT_kN_m": 3.4,
+        "medium_CD_SCT_kN_m": 2.1,
+        "RMS_Taber_moment_gf_cm": 31.4,
+        "TAPPI_T839_ECT_kN_m": 7.9,
+        "ECT_crosshead_speed_mm_min": 12.5,
+        "ECT_method": "TAPPI T 839 clamp arrangement or resin-embedded ends; stated specimen height at or below 60 mm avoids beam-buckling influence for this board under the described support methods"
+      },
+      "separate_paper_coupon_proxy": {
+        "status": "these are separate Table 4.1 soft-caliper coupons, not identified as constituent rolls of WC 4226C 42 or Haj-Ali's 2009 constitutive sheets; selected in the implementation only as thickness/density proxies",
+        "kraft_liner": {
+          "grade": "42# brown kraft linerboard",
+          "basis_weight_g_m2": 212,
+          "soft_platen_caliper_um": 277,
+          "apparent_density_kg_m3": 766
+        },
+        "nssc_medium": {
+          "grade": "26# neutral sulfite semichemical medium",
+          "basis_weight_g_m2": 130,
+          "soft_platen_caliper_um": 191,
+          "apparent_density_kg_m3": 679
+        }
+      },
+      "manufacturing_evidence": {
+        "pilot_single_facer": "conventional operating parameters are mentioned without numeric operating conditions",
+        "double_backing": "metered rolling-nip application of Stein-Hall starch to flute tips, then hotplate press to attach liner",
+        "numeric_temperature_speed_pressure_dwell": "not supplied for this process"
+      }
+    }
+  ],
+  "implemented_starting_recipe": {
+    "name": "literature2009",
+    "identity": "mixed-source literature proxy; Haj-Ali 2009 paper elasticity/yield, Popil 2017 commercial board caliper, separate Popil 2017 Table 4.1 coupon thickness/density, Haj-Ali Table 8 glue geometry, and Popil 2007 dried-starch elastic modulus",
+    "coupon": {
+      "length_mm": 31.6,
+      "width_mm": 20.0,
+      "flute_pitch_mm": 7.9,
+      "number_of_pitches": 4,
+      "dimension_status": "numerical coupon dimensions; not a published physical test coupon"
+    },
+    "board_caliper_mm": 4.21,
+    "board_caliper_source": "Popil 2017 Table 5.4, commercial WC 4226C 42, 4210 um",
+    "paper_thickness_density_proxy": {
+      "liner_thickness_mm": 0.277,
+      "liner_density_kg_m3": 766,
+      "liner_source": "Popil 2017 Table 4.1, 42# brown kraft liner coupon, 277 um soft-platen caliper; separate sample, not known to be the commercial board roll",
+      "medium_thickness_mm": 0.191,
+      "medium_density_kg_m3": 679,
+      "medium_source": "Popil 2017 Table 4.1, 26# NSSC medium coupon, 191 um soft-platen caliper; separate sample, not known to be the commercial board roll"
+    },
+    "core_profile": {
+      "type": "sinusoid",
+      "pitch_mm": 7.9,
+      "core_centerline_peak_to_trough_mm": 3.335,
+      "amplitude_mm": 1.6675,
+      "derivation": "board caliper minus two liner thicknesses, medium thickness, and the two different glue gaps: 4.210 - 2*0.277 - 0.191 - 0.100 - 0.030 = 3.335 mm",
+      "status": "derived geometric closure for this implementation; not a source-measured flute height"
+    },
+    "glue": {
+      "double_back_lower_gap": {
+        "width_mm": 0.8,
+        "thickness_mm": 0.1,
+        "source": "Haj-Ali 2009 Table 8, Type II double-back zone"
+      },
+      "single_face_upper_gap": {
+        "width_mm": 0.6,
+        "thickness_mm": 0.03,
+        "source": "Haj-Ali 2009 Table 8, Type II single-face zone"
+      },
+      "bridge_shape": "curved surface-following geometry adapted from the source rectangular zones",
+      "elastic_modulus_MPa": 400,
+      "poisson_ratio": 0.3,
+      "density_kg_m3": 1500,
+      "density_status": "numerical assumption; no published matching starch density",
+      "failure_model": "none; perfectly bonded elastic bridges, no cohesive separation or fracture"
+    },
+    "paper_constitutive_implementation": {
+      "elasticity": "Haj-Ali 2009 orthotropic Table 2 inputs; retain source measured/estimated/assumed labels",
+      "yield": "compression-calibrated Hill orthotropic yield surface using the source's compression assumptions and inferred out-of-plane/shear values",
+      "hardening_modulus_MPa": 0,
+      "plasticity": "ideal plasticity, zero hardening, associated flow",
+      "strain_kinematics": "Green strain",
+      "source_fit_status": "not the source's full plotted bilinear elastic-plastic fit; source post-yield slopes are not tabulated",
+      "failure": "none; Tsai-Wu failure/damage is not implemented"
+    },
+    "initial_condition": "preformed, conditioned, stress-free board geometry",
+    "omitted_manufacturing_physics": [
+      "paper flute forming/corrugation",
+      "corrugator thermal, pressure, speed, and moisture history",
+      "starch curing or drying",
+      "residual forming/bonding stresses",
+      "cohesive debonding or fracture"
+    ],
+    "validation_status": "physical fold, crease, springback, and box assembly validation have not been demonstrated; published ECT targets are not a claim of a completed match"
+  },
+  "implementation_inputs_and_assumptions": {
+    "paper": "Use Haj-Ali 2009 E/nu/G and Hill yield inputs as source values with measured-versus-derived/assumed annotations. The paper reports no constituent caliper or density. The current implementation uses compression-calibrated Hill ideal plasticity with H=0, associated flow, and Green-strain kinematics; this is not the full source bilinear fit because post-yield slopes are not tabulated.",
+    "glue_modulus": "400 MPa from the dried-starch apparent-slope value used by Popil et al. 2007 and repeated in the 2009 explicit glue study.",
+    "glue_poisson_ratio": "0.3, explicitly assumed by Popil et al. 2007 for homogeneous adhesive FE.",
+    "glue_density": "If a density is required, 1500 kg/m^3 is a solver numerical assumption, not source-derived or starch-calibrated. Record separately and do not use it as validation evidence.",
+    "glue_geometry": "The current recipe selects Table 8 Type II dimensions (double-back lower .800 mm width x .100 mm gap; single-face upper .600 mm width x .030 mm gap), mapped to curved surface-following finite bridges. The curved bridge geometry is an adaptation of the source rectangles.",
+    "adhesive_failure": "No published matching-grade Gc or cohesive law found in these sources. Current finite glue should remain perfectly bonded/elastic unless separately calibrated evidence is supplied.",
+    "paper_sheet_density_and_thickness": "Current starter uses Popil 2017 Table 4.1 separate coupons: liner .277 mm / 766 kg/m^3 and medium .191 mm / 679 kg/m^3. These do not establish same-lot data with the commercial WC 4226C board or Haj-Ali 2009 constitutive sheets.",
+    "profile": "Current starter uses measured 7.9 mm pitch and derives 3.335 mm centerline peak-to-trough height to close the 4.210 mm board caliper. This is not the Haj-Ali FE sinusoid (8.50 mm pitch x 3.50 mm height).",
+    "manufacturing_conditions": "The simulator's 37.8 C adhesive bath and 0.1/0.2/0.4 mm doctor gaps are process observations, not cured adhesive material geometry. Line speed, corrugating-roll heat, hotplate pressure/dwell, moisture and cured thickness are absent.",
+    "initial_condition": "Preformed, conditioned, stress-free geometry; no flute-forming, cure, moisture, or residual-stress simulation.",
+    "validation_boundary": "Physical folding, crease response, springback, and box assembly have not been validated. Published ECT is a future comparison target, not current validation evidence."
+  },
+  "explicit_nonclaims": [
+    "Not a same-roll or same-lot reproduction across the 2009, 2007, and 2017 sources.",
+    "Not a source-exact density or thickness definition for 2009's 205/126 g/m^2 constituent papers.",
+    "Not a cohesive or debonding-capable starch adhesive model.",
+    "Not an experimentally validated rotary crease, fold, residual-set, or springback model.",
+    "Not a claim that the conforming finite bridge shape appears in the publications."
+  ],
+  "retained_sources_policy": "PDF copies are retained outside the repository for audit only; the PDFs are not redistributed in this source package."
+}

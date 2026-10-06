@@ -1,0 +1,8 @@
+{
+  "created_utc": "2026-10-06T03:46:13.579941+00:00",
+  "observed": "Exact FP32 production trace reproduces GPU liner mixed-direction projection rejection at first local Newton step. All programs finite and pivots nonsingular; all8 Armijo trials exhausted. At alpha1/128 residual.930426 versusinitial.928917.",
+  "hypothesis": "A smaller Newton step beyond the current8-trial cap reaches the local descent region for the strongly anisotropic Hill surface.",
+  "revision": "Increase only generic local backtrack cap from8to16; leave material equations, strengths, local/global convergence tolerances, and linear solve unchanged.",
+  "gate": "FP32 trace must converge then GPU independent stress/Ep and tangent tests must pass before loaded board qualification",
+  "physical_validation": false
+}

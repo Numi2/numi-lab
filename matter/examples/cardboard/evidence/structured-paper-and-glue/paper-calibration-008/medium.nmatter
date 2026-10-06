@@ -1,0 +1,210 @@
+// Literature-assembled medium material based on Haj-Ali et al. (2009),
+// Composite Structures 87, 321-333, DOI 10.1016/j.compstruct.2008.02.001.
+// Table 2 reports E11=4472, E22=1612, E33=17.9 MPa, nu12=.18,
+// nu13=nu23=.01, G12=1039, G13=226.34, G23=198.72 MPa. The normal
+// stiffnesses below invert the symmetric compliance under the conventional
+// axial-first interpretation of nu_ij. In-plane values are measured; the
+// out-of-plane values/ratios include the paper's estimates and assumptions.
+// Table 3 compressive Hill strengths are (9.391, 4.836, 3.23) MPa;
+// tau12=2.1 and tau13=tau23=.024 MPa are assumed there. In the source's
+// Eq. 2 ordering L multiplies tau23, M tau31 and N tau12. F..N are computed
+// from those values by the standard quadratic Hill formula, normalized so
+// uniaxial MD compression at sigma_ref has q=1. The paper shows bilinear
+// post-yield curves graphically but does not tabulate a hardening slope;
+// hardening is set to zero here as an explicit ideal-plastic approximation.
+// This is not a numerical reproduction of the paper's bilinear fit.
+//
+// Finite-strain continuation: additive plastic Green strain in an orthotropic
+// StVK energy, with associated compression-calibrated Hill flow. Six Ep
+// states, six normalized stress states, and accumulated multiplier are solved
+// implicitly. Each stress update initializes Newton at the elastic trial stress;
+// the implicit stress residual determines the accepted returned stress. A smooth
+// Fischer-Burmeister epsilon and q floor regularize the local equations; q
+// floor=2e-6 also keeps derivative q^2 denominators above the runtime's
+// 1e-12 expression-division floor at zero stress. Neither value is a measured
+// paper parameter. No fracture/creasing law.
+// Density 679 kg/m^3 is borrowed from a separate 26# NSSC medium coupon in Popil (2017), Table 4.1
+// (191 um soft-platen caliper, apparent density 679 kg/m^3). Haj-Ali gives no
+// matching caliper or density; the separate-coupon proxy is explicit.
+material hajali2009_medium_hill_ideal {
+    parameter density : kg/m^3 = 679;
+    parameter c11 : MPa = 4524.848543681839;
+    parameter c22 : MPa = 1631.0512147406462;
+    parameter c33 : MPa = 17.90002997076348;
+    parameter c12 : MPa = 293.59114732344125;
+    parameter c13 : MPa = 0.21371636195674576;
+    parameter c23 : MPa = 0.19286701249506086;
+    parameter g12 : MPa = 1039;
+    parameter g13 : MPa = 226.34;
+    parameter g23 : MPa = 198.72;
+
+    parameter sigma_ref : MPa = 9.391;
+    parameter hill_F : one = 5.612051993569077;
+    parameter hill_G : one = 2.841099191623919;
+    parameter hill_H : one = -1.8410991916239194;
+    parameter hill_L : one = 76554.58420138889;
+    parameter hill_M : one = 76554.58420138889;
+    parameter hill_N : one = 9.998966099773243;
+    parameter q_floor : one = 2e-6;
+    parameter fb_epsilon : one = 1e-8;
+
+    state ep11 : one = 0;
+    state ep22 : one = 0;
+    state ep33 : one = 0;
+    state ep23 : one = 0;
+    state ep13 : one = 0;
+    state ep12 : one = 0;
+    state sbar11 : one = 0;
+    state sbar22 : one = 0;
+    state sbar33 : one = 0;
+    state sbar23 : one = 0;
+    state sbar13 : one = 0;
+    state sbar12 : one = 0;
+    state accumulated_multiplier : one = 0 transfer max;
+
+    model generic;
+    energy =
+        0.5 * c11 * pow(0.5 * (pow(F(0,0),2)+pow(F(1,0),2)+pow(F(2,0),2)-1) - next(ep11), 2)
+      + 0.5 * c22 * pow(0.5 * (pow(F(0,1),2)+pow(F(1,1),2)+pow(F(2,1),2)-1) - next(ep22), 2)
+      + 0.5 * c33 * pow(0.5 * (pow(F(0,2),2)+pow(F(1,2),2)+pow(F(2,2),2)-1) - next(ep33), 2)
+      + c12 * (0.5 * (pow(F(0,0),2)+pow(F(1,0),2)+pow(F(2,0),2)-1) - next(ep11))
+            * (0.5 * (pow(F(0,1),2)+pow(F(1,1),2)+pow(F(2,1),2)-1) - next(ep22))
+      + c13 * (0.5 * (pow(F(0,0),2)+pow(F(1,0),2)+pow(F(2,0),2)-1) - next(ep11))
+            * (0.5 * (pow(F(0,2),2)+pow(F(1,2),2)+pow(F(2,2),2)-1) - next(ep33))
+      + c23 * (0.5 * (pow(F(0,1),2)+pow(F(1,1),2)+pow(F(2,1),2)-1) - next(ep22))
+            * (0.5 * (pow(F(0,2),2)+pow(F(1,2),2)+pow(F(2,2),2)-1) - next(ep33))
+      + 0.5 * g12 * pow(F(0,0)*F(0,1)+F(1,0)*F(1,1)+F(2,0)*F(2,1)-2*next(ep12), 2)
+      + 0.5 * g13 * pow(F(0,0)*F(0,2)+F(1,0)*F(1,2)+F(2,0)*F(2,2)-2*next(ep13), 2)
+      + 0.5 * g23 * pow(F(0,1)*F(0,2)+F(1,1)*F(1,2)+F(2,1)*F(2,2)-2*next(ep23), 2);
+
+    // The trial elastic stress is an initial guess for the implicit stress
+    // state below. Matter projects these updates before its local Newton solve;
+    // the implicit equations, not these estimates, determine accepted stress.
+    update sbar11 = (
+        c11*(0.5*(pow(F(0,0),2)+pow(F(1,0),2)+pow(F(2,0),2)-1)-ep11)
+      + c12*(0.5*(pow(F(0,1),2)+pow(F(1,1),2)+pow(F(2,1),2)-1)-ep22)
+      + c13*(0.5*(pow(F(0,2),2)+pow(F(1,2),2)+pow(F(2,2),2)-1)-ep33)
+    )/sigma_ref;
+    update sbar22 = (
+        c12*(0.5*(pow(F(0,0),2)+pow(F(1,0),2)+pow(F(2,0),2)-1)-ep11)
+      + c22*(0.5*(pow(F(0,1),2)+pow(F(1,1),2)+pow(F(2,1),2)-1)-ep22)
+      + c23*(0.5*(pow(F(0,2),2)+pow(F(1,2),2)+pow(F(2,2),2)-1)-ep33)
+    )/sigma_ref;
+    update sbar33 = (
+        c13*(0.5*(pow(F(0,0),2)+pow(F(1,0),2)+pow(F(2,0),2)-1)-ep11)
+      + c23*(0.5*(pow(F(0,1),2)+pow(F(1,1),2)+pow(F(2,1),2)-1)-ep22)
+      + c33*(0.5*(pow(F(0,2),2)+pow(F(1,2),2)+pow(F(2,2),2)-1)-ep33)
+    )/sigma_ref;
+    update sbar23 = g23*(F(0,1)*F(0,2)+F(1,1)*F(1,2)+F(2,1)*F(2,2)-2*ep23)/sigma_ref;
+    update sbar13 = g13*(F(0,0)*F(0,2)+F(1,0)*F(1,2)+F(2,0)*F(2,2)-2*ep13)/sigma_ref;
+    update sbar12 = g12*(F(0,0)*F(0,1)+F(1,0)*F(1,1)+F(2,0)*F(2,1)-2*ep12)/sigma_ref;
+
+    // Exact normalized StVK second Piola stress equations. The update roots
+    // above are only Newton seeds; these residuals define returned stress.
+    implicit sbar11 = next(sbar11) - (
+        c11*(0.5*(pow(F(0,0),2)+pow(F(1,0),2)+pow(F(2,0),2)-1)-next(ep11))
+      + c12*(0.5*(pow(F(0,1),2)+pow(F(1,1),2)+pow(F(2,1),2)-1)-next(ep22))
+      + c13*(0.5*(pow(F(0,2),2)+pow(F(1,2),2)+pow(F(2,2),2)-1)-next(ep33))
+    )/sigma_ref;
+    implicit sbar22 = next(sbar22) - (
+        c12*(0.5*(pow(F(0,0),2)+pow(F(1,0),2)+pow(F(2,0),2)-1)-next(ep11))
+      + c22*(0.5*(pow(F(0,1),2)+pow(F(1,1),2)+pow(F(2,1),2)-1)-next(ep22))
+      + c23*(0.5*(pow(F(0,2),2)+pow(F(1,2),2)+pow(F(2,2),2)-1)-next(ep33))
+    )/sigma_ref;
+    implicit sbar33 = next(sbar33) - (
+        c13*(0.5*(pow(F(0,0),2)+pow(F(1,0),2)+pow(F(2,0),2)-1)-next(ep11))
+      + c23*(0.5*(pow(F(0,1),2)+pow(F(1,1),2)+pow(F(2,1),2)-1)-next(ep22))
+      + c33*(0.5*(pow(F(0,2),2)+pow(F(1,2),2)+pow(F(2,2),2)-1)-next(ep33))
+    )/sigma_ref;
+    implicit sbar23 = next(sbar23) - g23*(F(0,1)*F(0,2)+F(1,1)*F(1,2)+F(2,1)*F(2,2)-2*next(ep23))/sigma_ref;
+    implicit sbar13 = next(sbar13) - g13*(F(0,0)*F(0,2)+F(1,0)*F(1,2)+F(2,0)*F(2,2)-2*next(ep13))/sigma_ref;
+    implicit sbar12 = next(sbar12) - g12*(F(0,0)*F(0,1)+F(1,0)*F(1,1)+F(2,0)*F(2,1)-2*next(ep12))/sigma_ref;
+
+    implicit ep11 = next(ep11)-ep11-(next(accumulated_multiplier)-accumulated_multiplier) * (
+        hill_G*(next(sbar11)-next(sbar33)) + hill_H*(next(sbar11)-next(sbar22))
+    ) / sqrt(
+        hill_F*pow(next(sbar22)-next(sbar33),2)
+      + hill_G*pow(next(sbar33)-next(sbar11),2)
+      + hill_H*pow(next(sbar11)-next(sbar22),2)
+      + 2*hill_L*pow(next(sbar23),2)
+      + 2*hill_M*pow(next(sbar13),2)
+      + 2*hill_N*pow(next(sbar12),2)
+      + pow(q_floor,2)
+    );
+    implicit ep22 = next(ep22)-ep22-(next(accumulated_multiplier)-accumulated_multiplier) * (
+        hill_F*(next(sbar22)-next(sbar33)) + hill_H*(next(sbar22)-next(sbar11))
+    ) / sqrt(
+        hill_F*pow(next(sbar22)-next(sbar33),2)
+      + hill_G*pow(next(sbar33)-next(sbar11),2)
+      + hill_H*pow(next(sbar11)-next(sbar22),2)
+      + 2*hill_L*pow(next(sbar23),2)
+      + 2*hill_M*pow(next(sbar13),2)
+      + 2*hill_N*pow(next(sbar12),2)
+      + pow(q_floor,2)
+    );
+    implicit ep33 = next(ep33)-ep33-(next(accumulated_multiplier)-accumulated_multiplier) * (
+        hill_F*(next(sbar33)-next(sbar22)) + hill_G*(next(sbar33)-next(sbar11))
+    ) / sqrt(
+        hill_F*pow(next(sbar22)-next(sbar33),2)
+      + hill_G*pow(next(sbar33)-next(sbar11),2)
+      + hill_H*pow(next(sbar11)-next(sbar22),2)
+      + 2*hill_L*pow(next(sbar23),2)
+      + 2*hill_M*pow(next(sbar13),2)
+      + 2*hill_N*pow(next(sbar12),2)
+      + pow(q_floor,2)
+    );
+    implicit ep23 = next(ep23)-ep23-(next(accumulated_multiplier)-accumulated_multiplier) * hill_L*next(sbar23) / sqrt(
+        hill_F*pow(next(sbar22)-next(sbar33),2)
+      + hill_G*pow(next(sbar33)-next(sbar11),2)
+      + hill_H*pow(next(sbar11)-next(sbar22),2)
+      + 2*hill_L*pow(next(sbar23),2)
+      + 2*hill_M*pow(next(sbar13),2)
+      + 2*hill_N*pow(next(sbar12),2)
+      + pow(q_floor,2)
+    );
+    implicit ep13 = next(ep13)-ep13-(next(accumulated_multiplier)-accumulated_multiplier) * hill_M*next(sbar13) / sqrt(
+        hill_F*pow(next(sbar22)-next(sbar33),2)
+      + hill_G*pow(next(sbar33)-next(sbar11),2)
+      + hill_H*pow(next(sbar11)-next(sbar22),2)
+      + 2*hill_L*pow(next(sbar23),2)
+      + 2*hill_M*pow(next(sbar13),2)
+      + 2*hill_N*pow(next(sbar12),2)
+      + pow(q_floor,2)
+    );
+    implicit ep12 = next(ep12)-ep12-(next(accumulated_multiplier)-accumulated_multiplier) * hill_N*next(sbar12) / sqrt(
+        hill_F*pow(next(sbar22)-next(sbar33),2)
+      + hill_G*pow(next(sbar33)-next(sbar11),2)
+      + hill_H*pow(next(sbar11)-next(sbar22),2)
+      + 2*hill_L*pow(next(sbar23),2)
+      + 2*hill_M*pow(next(sbar13),2)
+      + 2*hill_N*pow(next(sbar12),2)
+      + pow(q_floor,2)
+    );
+
+    implicit accumulated_multiplier = sqrt(
+        pow(next(accumulated_multiplier)-accumulated_multiplier,2)
+      + pow(1-sqrt(
+            hill_F*pow(next(sbar22)-next(sbar33),2)
+      + hill_G*pow(next(sbar33)-next(sbar11),2)
+      + hill_H*pow(next(sbar11)-next(sbar22),2)
+      + 2*hill_L*pow(next(sbar23),2)
+      + 2*hill_M*pow(next(sbar13),2)
+      + 2*hill_N*pow(next(sbar12),2)
+      + pow(q_floor,2)
+        ),2)
+      + pow(fb_epsilon,2)
+    ) - (next(accumulated_multiplier)-accumulated_multiplier) - (1-sqrt(
+        hill_F*pow(next(sbar22)-next(sbar33),2)
+      + hill_G*pow(next(sbar33)-next(sbar11),2)
+      + hill_H*pow(next(sbar11)-next(sbar22),2)
+      + 2*hill_L*pow(next(sbar23),2)
+      + 2*hill_M*pow(next(sbar13),2)
+      + 2*hill_N*pow(next(sbar12),2)
+      + pow(q_floor,2)
+    ));
+
+    valid = J() - 0.20;
+    supports fem;
+    interface { static_friction = 0; dynamic_friction = 0; restitution = 0; adhesion = 0; }
+    limits { minimum_J = 0.20; maximum_J = 2.5; maximum_stress = 1e9; maximum_energy_density = 1e9; }
+}

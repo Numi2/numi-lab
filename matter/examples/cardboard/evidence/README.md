@@ -1,5 +1,10 @@
 # Cardboard instrument evidence — 6 October 2026
 
+The initial elastic instrument is recorded below. The subsequent
+[paper plasticity and finite-glue evidence](structured-paper-and-glue/README.md)
+records the new default recipe, rejected trials, solver corrections, and native
+loading/unloading checks. Keep the two model versions distinct.
+
 This is native numerical development evidence, not experimental validation of
 paperboard or a demonstration of permanent folding. No new physical data was
 collected. The source baseline is `c3d3641f06c80b7723324a39c9e0f8e9af2f431e`.

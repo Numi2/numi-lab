@@ -1,0 +1,25 @@
+{
+  "sealed_utc": "2026-10-06T03:00:37.173163+00:00",
+  "scope": "instrument qualification of load/unload and accepted material-state observation; no physical model claim",
+  "model": "legacy sinusoidal orthotropic elastic strip",
+  "trial": "elastic-cycle-001",
+  "loading_steps": 8,
+  "hold_steps": 8,
+  "unload_steps": 8,
+  "relax_steps": 32,
+  "angle_deg": 0.25,
+  "dt_s": 0.0001,
+  "nx": 8,
+  "ny": 1,
+  "thickness_slices": 1,
+  "fgmres_budget": 32,
+  "predictions": [
+    "56 accepted steps and finite positive J, else invalid",
+    "zero material state change because supplied materials are stateless",
+    "angle exactly zero from final unload step onward; no persistent material crease can be inferred from transient residual motion"
+  ],
+  "controls": [
+    "held reference in same native invocation"
+  ],
+  "stopping": "one attempt; retain any failure; do not tune tolerances"
+}

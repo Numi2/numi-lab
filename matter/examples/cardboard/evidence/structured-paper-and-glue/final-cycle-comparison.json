@@ -1,0 +1,623 @@
+{
+  "schema": "numi.cardboard.final-cycle-comparison.v1",
+  "physical_validation": false,
+  "protocol": "32 load, 16 hold, 32 unload, 64 settling; dt 25 us; both grips clamped after return to zero",
+  "plastic_observable": "maximum absolute value of the six named ep components; cells above 1e-6 is a numerical diagnostic",
+  "runs": [
+    {
+      "name": "finite-glue-default-final-001",
+      "result": {
+        "schema": "numi.cardboard.probe-result.v1",
+        "status": "completed",
+        "accepted_steps": 144,
+        "compiled_world_fingerprint": 14145526298378724577,
+        "nodes": 588,
+        "tetrahedra": 960,
+        "material_map_sha256": "53ac1f9ec3e3808f414aaa245c07724b75a6fc4d6254a3e7ab396964c4c1d5a1",
+        "frame_map_sha256": "7d1e7082d4296fb93016d7f0418551ad1aac9447d0a61289f1615f531cb98075",
+        "failure": "",
+        "physical_validation": false
+      },
+      "inputs": {
+        "observations.csv": "8a22e3df0775e73fd360ff720ee50656451798cc64e5c2172362a77a3a96cb22",
+        "material_state_000032_bent.json": "b58fdc802d4190744fc2cc262554369422d38c8ee33dc31272c28beecaad0409",
+        "material_state_000032_held_reference.json": "7258e4658049411ad66a75e00580c83db69fae463c6fbae42b91b5458674f34b",
+        "material_state_000048_bent.json": "fd302a0ddc05b68f65873f7375d4c4a0441c0d512288c4dad2dbaf78f5292b29",
+        "material_state_000048_held_reference.json": "e25e40c5863c7daadfebc2b321421743bde93bc24e4dc95ce42ce3796ca906bf",
+        "material_state_000080_bent.json": "1a756fad7001db6c64c49d9ef989f2145f89d12790ac643b51cb262215d610f2",
+        "material_state_000080_held_reference.json": "8cb8bc0c25f8153145b7e4302014b57ef7da9a0a45627fa7d7adf1c7d394cc30",
+        "material_state_000144_bent.json": "93dce0dbc01c58f01473b3c86f79c8f2a16934a1c0748055f44ee0df1516a5b2",
+        "material_state_000144_held_reference.json": "6e67c83d2856d39556c03bcb689b010355fa878b99c1d2e5d0ff3581d84a840a"
+      },
+      "states": [
+        {
+          "file": "material_state_000032_bent.json",
+          "paper_cells_with_plastic_state": 864,
+          "max_abs_plastic_strain": 0.012299671769142151,
+          "cells_above_1e_6": 416,
+          "materials": {
+            "hajali2009_liner_hill_ideal": {
+              "max_abs_plastic_strain": 0.009298491291701794,
+              "cells_above_1e_6": 257
+            },
+            "hajali2009_medium_hill_ideal": {
+              "max_abs_plastic_strain": 0.012299671769142151,
+              "cells_above_1e_6": 159
+            }
+          }
+        },
+        {
+          "file": "material_state_000032_held_reference.json",
+          "paper_cells_with_plastic_state": 864,
+          "max_abs_plastic_strain": 0,
+          "cells_above_1e_6": 0,
+          "materials": {
+            "hajali2009_liner_hill_ideal": {
+              "max_abs_plastic_strain": 0,
+              "cells_above_1e_6": 0
+            },
+            "hajali2009_medium_hill_ideal": {
+              "max_abs_plastic_strain": 0,
+              "cells_above_1e_6": 0
+            }
+          }
+        },
+        {
+          "file": "material_state_000048_bent.json",
+          "paper_cells_with_plastic_state": 864,
+          "max_abs_plastic_strain": 0.014713597483932972,
+          "cells_above_1e_6": 527,
+          "materials": {
+            "hajali2009_liner_hill_ideal": {
+              "max_abs_plastic_strain": 0.011440678499639034,
+              "cells_above_1e_6": 310
+            },
+            "hajali2009_medium_hill_ideal": {
+              "max_abs_plastic_strain": 0.014713597483932972,
+              "cells_above_1e_6": 217
+            }
+          }
+        },
+        {
+          "file": "material_state_000048_held_reference.json",
+          "paper_cells_with_plastic_state": 864,
+          "max_abs_plastic_strain": 0,
+          "cells_above_1e_6": 0,
+          "materials": {
+            "hajali2009_liner_hill_ideal": {
+              "max_abs_plastic_strain": 0,
+              "cells_above_1e_6": 0
+            },
+            "hajali2009_medium_hill_ideal": {
+              "max_abs_plastic_strain": 0,
+              "cells_above_1e_6": 0
+            }
+          }
+        },
+        {
+          "file": "material_state_000080_bent.json",
+          "paper_cells_with_plastic_state": 864,
+          "max_abs_plastic_strain": 0.007510944735258818,
+          "cells_above_1e_6": 558,
+          "materials": {
+            "hajali2009_liner_hill_ideal": {
+              "max_abs_plastic_strain": 0.005602600518614054,
+              "cells_above_1e_6": 324
+            },
+            "hajali2009_medium_hill_ideal": {
+              "max_abs_plastic_strain": 0.007510944735258818,
+              "cells_above_1e_6": 234
+            }
+          }
+        },
+        {
+          "file": "material_state_000080_held_reference.json",
+          "paper_cells_with_plastic_state": 864,
+          "max_abs_plastic_strain": 0,
+          "cells_above_1e_6": 0,
+          "materials": {
+            "hajali2009_liner_hill_ideal": {
+              "max_abs_plastic_strain": 0,
+              "cells_above_1e_6": 0
+            },
+            "hajali2009_medium_hill_ideal": {
+              "max_abs_plastic_strain": 0,
+              "cells_above_1e_6": 0
+            }
+          }
+        },
+        {
+          "file": "material_state_000144_bent.json",
+          "paper_cells_with_plastic_state": 864,
+          "max_abs_plastic_strain": 0.002899570157751441,
+          "cells_above_1e_6": 563,
+          "materials": {
+            "hajali2009_liner_hill_ideal": {
+              "max_abs_plastic_strain": 0.002133402042090893,
+              "cells_above_1e_6": 328
+            },
+            "hajali2009_medium_hill_ideal": {
+              "max_abs_plastic_strain": 0.002899570157751441,
+              "cells_above_1e_6": 235
+            }
+          }
+        },
+        {
+          "file": "material_state_000144_held_reference.json",
+          "paper_cells_with_plastic_state": 864,
+          "max_abs_plastic_strain": 0,
+          "cells_above_1e_6": 0,
+          "materials": {
+            "hajali2009_liner_hill_ideal": {
+              "max_abs_plastic_strain": 0,
+              "cells_above_1e_6": 0
+            },
+            "hajali2009_medium_hill_ideal": {
+              "max_abs_plastic_strain": 0,
+              "cells_above_1e_6": 0
+            }
+          }
+        }
+      ],
+      "observation_rows": 288,
+      "all_status_success": true,
+      "all_step_accepted": true,
+      "final_observations": [
+        {
+          "step": "143",
+          "time_s": "0.0035999999090563506",
+          "environment": "0",
+          "arm": "bent",
+          "target_angle_deg": "0",
+          "status_code": "0",
+          "object_index": "4294967295",
+          "failing_index": "4294967295",
+          "completed_microsteps": "1",
+          "fgmres_iterations": "10",
+          "status_diagnostic_x": "0.99906462430953979",
+          "status_diagnostic_y": "0",
+          "status_diagnostic_z": "0",
+          "status_diagnostic_w": "0",
+          "min_J": "0.99906470821840165",
+          "max_J": "1.0010930570258973",
+          "max_node_displacement_m": "1.980390623787908e-06",
+          "reaction_x_N": "0.15831374377012253",
+          "reaction_y_N": "-0.010298952693119645",
+          "reaction_z_N": "0.59295619977638125",
+          "reaction_moment_y_Nm": "0.011028473301045595",
+          "phase": "relaxation",
+          "max_free_displacement_m": "1.980390623787908e-06",
+          "max_free_speed_m_s": "0.00061208921863205605",
+          "kinetic_energy_J": "8.3860221499270488e-12",
+          "max_material_state_change": "0.067477069795131683",
+          "certificate_residual": "1.119263924920233e-05",
+          "certificate_correction": "0",
+          "certificate_volume": "0",
+          "certificate_pressure": "0",
+          "certificate_raw_accepted_flag": "1",
+          "step_accepted": "1"
+        },
+        {
+          "step": "143",
+          "time_s": "0.0035999999090563506",
+          "environment": "1",
+          "arm": "held_reference",
+          "target_angle_deg": "0",
+          "status_code": "0",
+          "object_index": "4294967295",
+          "failing_index": "4294967295",
+          "completed_microsteps": "1",
+          "fgmres_iterations": "8",
+          "status_diagnostic_x": "0.99999910593032837",
+          "status_diagnostic_y": "0",
+          "status_diagnostic_z": "0",
+          "status_diagnostic_w": "0",
+          "min_J": "0.99999927070196981",
+          "max_J": "1.0000006567451234",
+          "max_node_displacement_m": "1.9384377679476731e-09",
+          "reaction_x_N": "0.0030301424376375508",
+          "reaction_y_N": "-0.0043997983848385047",
+          "reaction_z_N": "0.0001049570429358937",
+          "reaction_moment_y_Nm": "3.0978267219688811e-07",
+          "phase": "relaxation",
+          "max_free_displacement_m": "1.9384377679476731e-09",
+          "max_free_speed_m_s": "3.6851903252734906e-05",
+          "kinetic_energy_J": "1.4858564448553097e-14",
+          "max_material_state_change": "0.00097555859247222543",
+          "certificate_residual": "2.2264632661972428e-06",
+          "certificate_correction": "0",
+          "certificate_volume": "0",
+          "certificate_pressure": "0",
+          "certificate_raw_accepted_flag": "1",
+          "step_accepted": "1"
+        }
+      ]
+    },
+    {
+      "name": "finite-glue-elastic-final-001",
+      "result": {
+        "schema": "numi.cardboard.probe-result.v1",
+        "status": "completed",
+        "accepted_steps": 144,
+        "compiled_world_fingerprint": 16732034275433489517,
+        "nodes": 588,
+        "tetrahedra": 960,
+        "material_map_sha256": "71838d94b72994c298b51dfc412b7438c815fa88bd2363773000941563f3c4c7",
+        "frame_map_sha256": "61fe79282ca888c33f9bf9e9ef250382d25df8af24a34b84e15966b2ed472c45",
+        "failure": "",
+        "physical_validation": false
+      },
+      "inputs": {
+        "observations.csv": "4dcd0431a7ab85aa685e5a6709b4dd69f69f24fad826629ce274279f282c4079",
+        "material_state_000032_bent.json": "fcc3f924482d7df7a9cdb8647680de0ecfc94385ee0edc670bcbe6fed026e4e3",
+        "material_state_000032_held_reference.json": "478f2473baf283acf25d995e5354d91a3ec5792e8219a78736276c74f115e490",
+        "material_state_000048_bent.json": "fcc3f924482d7df7a9cdb8647680de0ecfc94385ee0edc670bcbe6fed026e4e3",
+        "material_state_000048_held_reference.json": "478f2473baf283acf25d995e5354d91a3ec5792e8219a78736276c74f115e490",
+        "material_state_000080_bent.json": "fcc3f924482d7df7a9cdb8647680de0ecfc94385ee0edc670bcbe6fed026e4e3",
+        "material_state_000080_held_reference.json": "478f2473baf283acf25d995e5354d91a3ec5792e8219a78736276c74f115e490",
+        "material_state_000144_bent.json": "fcc3f924482d7df7a9cdb8647680de0ecfc94385ee0edc670bcbe6fed026e4e3",
+        "material_state_000144_held_reference.json": "478f2473baf283acf25d995e5354d91a3ec5792e8219a78736276c74f115e490"
+      },
+      "states": [
+        {
+          "file": "material_state_000032_bent.json",
+          "paper_cells_with_plastic_state": 0,
+          "max_abs_plastic_strain": 0,
+          "cells_above_1e_6": 0,
+          "materials": {}
+        },
+        {
+          "file": "material_state_000032_held_reference.json",
+          "paper_cells_with_plastic_state": 0,
+          "max_abs_plastic_strain": 0,
+          "cells_above_1e_6": 0,
+          "materials": {}
+        },
+        {
+          "file": "material_state_000048_bent.json",
+          "paper_cells_with_plastic_state": 0,
+          "max_abs_plastic_strain": 0,
+          "cells_above_1e_6": 0,
+          "materials": {}
+        },
+        {
+          "file": "material_state_000048_held_reference.json",
+          "paper_cells_with_plastic_state": 0,
+          "max_abs_plastic_strain": 0,
+          "cells_above_1e_6": 0,
+          "materials": {}
+        },
+        {
+          "file": "material_state_000080_bent.json",
+          "paper_cells_with_plastic_state": 0,
+          "max_abs_plastic_strain": 0,
+          "cells_above_1e_6": 0,
+          "materials": {}
+        },
+        {
+          "file": "material_state_000080_held_reference.json",
+          "paper_cells_with_plastic_state": 0,
+          "max_abs_plastic_strain": 0,
+          "cells_above_1e_6": 0,
+          "materials": {}
+        },
+        {
+          "file": "material_state_000144_bent.json",
+          "paper_cells_with_plastic_state": 0,
+          "max_abs_plastic_strain": 0,
+          "cells_above_1e_6": 0,
+          "materials": {}
+        },
+        {
+          "file": "material_state_000144_held_reference.json",
+          "paper_cells_with_plastic_state": 0,
+          "max_abs_plastic_strain": 0,
+          "cells_above_1e_6": 0,
+          "materials": {}
+        }
+      ],
+      "observation_rows": 288,
+      "all_status_success": true,
+      "all_step_accepted": true,
+      "final_observations": [
+        {
+          "step": "143",
+          "time_s": "0.0035999999090563506",
+          "environment": "0",
+          "arm": "bent",
+          "target_angle_deg": "0",
+          "status_code": "0",
+          "object_index": "4294967295",
+          "failing_index": "4294967295",
+          "completed_microsteps": "1",
+          "fgmres_iterations": "10",
+          "status_diagnostic_x": "0.99965345859527588",
+          "status_diagnostic_y": "0",
+          "status_diagnostic_z": "0",
+          "status_diagnostic_w": "0",
+          "min_J": "0.99965344491569252",
+          "max_J": "1.0007308626642795",
+          "max_node_displacement_m": "1.9710447896337962e-06",
+          "reaction_x_N": "0.31380672752857208",
+          "reaction_y_N": "0.011177713167853653",
+          "reaction_z_N": "0.98846520157530904",
+          "reaction_moment_y_Nm": "0.0037499405025243756",
+          "phase": "relaxation",
+          "max_free_displacement_m": "1.9710447896337962e-06",
+          "max_free_speed_m_s": "0.00045951167103256931",
+          "kinetic_energy_J": "2.3746237842958032e-12",
+          "max_material_state_change": "0",
+          "certificate_residual": "1.0562880561337806e-05",
+          "certificate_correction": "0",
+          "certificate_volume": "0",
+          "certificate_pressure": "0",
+          "certificate_raw_accepted_flag": "1",
+          "step_accepted": "1"
+        },
+        {
+          "step": "143",
+          "time_s": "0.0035999999090563506",
+          "environment": "1",
+          "arm": "held_reference",
+          "target_angle_deg": "0",
+          "status_code": "0",
+          "object_index": "4294967295",
+          "failing_index": "4294967295",
+          "completed_microsteps": "1",
+          "fgmres_iterations": "7",
+          "status_diagnostic_x": "0.99999910593032837",
+          "status_diagnostic_y": "0",
+          "status_diagnostic_z": "0",
+          "status_diagnostic_w": "0",
+          "min_J": "0.99999927070196981",
+          "max_J": "1.0000006567451234",
+          "max_node_displacement_m": "1.9401754582587226e-09",
+          "reaction_x_N": "0.0030301425413199468",
+          "reaction_y_N": "-0.0026553814823273569",
+          "reaction_z_N": "0.00010504426688839885",
+          "reaction_moment_y_Nm": "3.0981770461403339e-07",
+          "phase": "relaxation",
+          "max_free_displacement_m": "1.9401754582587226e-09",
+          "max_free_speed_m_s": "3.624443808995731e-05",
+          "kinetic_energy_J": "1.4252519777668174e-14",
+          "max_material_state_change": "0",
+          "certificate_residual": "2.1803039089718368e-06",
+          "certificate_correction": "0",
+          "certificate_volume": "0",
+          "certificate_pressure": "0",
+          "certificate_raw_accepted_flag": "1",
+          "step_accepted": "1"
+        }
+      ]
+    },
+    {
+      "name": "finite-glue-unused-angle-final-001",
+      "result": {
+        "schema": "numi.cardboard.probe-result.v1",
+        "status": "completed",
+        "accepted_steps": 144,
+        "compiled_world_fingerprint": 14145526298378724577,
+        "nodes": 588,
+        "tetrahedra": 960,
+        "material_map_sha256": "53ac1f9ec3e3808f414aaa245c07724b75a6fc4d6254a3e7ab396964c4c1d5a1",
+        "frame_map_sha256": "7d1e7082d4296fb93016d7f0418551ad1aac9447d0a61289f1615f531cb98075",
+        "failure": "",
+        "physical_validation": false
+      },
+      "inputs": {
+        "observations.csv": "14cc494e1f03ed76ad56f2025fd04d9b1b3d33b42ea2a059eeae260677b3235a",
+        "material_state_000032_bent.json": "e5f3dce63c331184338acbb8f0f8ffb08a295bda51c67db9428fc79cd7bb60f0",
+        "material_state_000032_held_reference.json": "7258e4658049411ad66a75e00580c83db69fae463c6fbae42b91b5458674f34b",
+        "material_state_000048_bent.json": "bafbd5f465b426ca20bd8409f4f69cd2e698690b7e770020e592bdee7fcc14d9",
+        "material_state_000048_held_reference.json": "e25e40c5863c7daadfebc2b321421743bde93bc24e4dc95ce42ce3796ca906bf",
+        "material_state_000080_bent.json": "570d55a6fc082d0fea24f15e929cd9f9dc632616bd8c08416e7fca09fb6d7ee6",
+        "material_state_000080_held_reference.json": "8cb8bc0c25f8153145b7e4302014b57ef7da9a0a45627fa7d7adf1c7d394cc30",
+        "material_state_000144_bent.json": "e6e112fe6755d0407038448b31bf4fdcb477b5e0cb2340cc90c124570986f46a",
+        "material_state_000144_held_reference.json": "6e67c83d2856d39556c03bcb689b010355fa878b99c1d2e5d0ff3581d84a840a"
+      },
+      "states": [
+        {
+          "file": "material_state_000032_bent.json",
+          "paper_cells_with_plastic_state": 864,
+          "max_abs_plastic_strain": 0.0057082707062363625,
+          "cells_above_1e_6": 258,
+          "materials": {
+            "hajali2009_liner_hill_ideal": {
+              "max_abs_plastic_strain": 0.004095578566193581,
+              "cells_above_1e_6": 140
+            },
+            "hajali2009_medium_hill_ideal": {
+              "max_abs_plastic_strain": 0.0057082707062363625,
+              "cells_above_1e_6": 118
+            }
+          }
+        },
+        {
+          "file": "material_state_000032_held_reference.json",
+          "paper_cells_with_plastic_state": 864,
+          "max_abs_plastic_strain": 0,
+          "cells_above_1e_6": 0,
+          "materials": {
+            "hajali2009_liner_hill_ideal": {
+              "max_abs_plastic_strain": 0,
+              "cells_above_1e_6": 0
+            },
+            "hajali2009_medium_hill_ideal": {
+              "max_abs_plastic_strain": 0,
+              "cells_above_1e_6": 0
+            }
+          }
+        },
+        {
+          "file": "material_state_000048_bent.json",
+          "paper_cells_with_plastic_state": 864,
+          "max_abs_plastic_strain": 0.007145068142563105,
+          "cells_above_1e_6": 323,
+          "materials": {
+            "hajali2009_liner_hill_ideal": {
+              "max_abs_plastic_strain": 0.0052325110882520676,
+              "cells_above_1e_6": 167
+            },
+            "hajali2009_medium_hill_ideal": {
+              "max_abs_plastic_strain": 0.007145068142563105,
+              "cells_above_1e_6": 156
+            }
+          }
+        },
+        {
+          "file": "material_state_000048_held_reference.json",
+          "paper_cells_with_plastic_state": 864,
+          "max_abs_plastic_strain": 0,
+          "cells_above_1e_6": 0,
+          "materials": {
+            "hajali2009_liner_hill_ideal": {
+              "max_abs_plastic_strain": 0,
+              "cells_above_1e_6": 0
+            },
+            "hajali2009_medium_hill_ideal": {
+              "max_abs_plastic_strain": 0,
+              "cells_above_1e_6": 0
+            }
+          }
+        },
+        {
+          "file": "material_state_000080_bent.json",
+          "paper_cells_with_plastic_state": 864,
+          "max_abs_plastic_strain": 0.004056865349411964,
+          "cells_above_1e_6": 367,
+          "materials": {
+            "hajali2009_liner_hill_ideal": {
+              "max_abs_plastic_strain": 0.0032306802459061146,
+              "cells_above_1e_6": 184
+            },
+            "hajali2009_medium_hill_ideal": {
+              "max_abs_plastic_strain": 0.004056865349411964,
+              "cells_above_1e_6": 183
+            }
+          }
+        },
+        {
+          "file": "material_state_000080_held_reference.json",
+          "paper_cells_with_plastic_state": 864,
+          "max_abs_plastic_strain": 0,
+          "cells_above_1e_6": 0,
+          "materials": {
+            "hajali2009_liner_hill_ideal": {
+              "max_abs_plastic_strain": 0,
+              "cells_above_1e_6": 0
+            },
+            "hajali2009_medium_hill_ideal": {
+              "max_abs_plastic_strain": 0,
+              "cells_above_1e_6": 0
+            }
+          }
+        },
+        {
+          "file": "material_state_000144_bent.json",
+          "paper_cells_with_plastic_state": 864,
+          "max_abs_plastic_strain": 0.0019261124543845654,
+          "cells_above_1e_6": 368,
+          "materials": {
+            "hajali2009_liner_hill_ideal": {
+              "max_abs_plastic_strain": 0.001541042234748602,
+              "cells_above_1e_6": 184
+            },
+            "hajali2009_medium_hill_ideal": {
+              "max_abs_plastic_strain": 0.0019261124543845654,
+              "cells_above_1e_6": 184
+            }
+          }
+        },
+        {
+          "file": "material_state_000144_held_reference.json",
+          "paper_cells_with_plastic_state": 864,
+          "max_abs_plastic_strain": 0,
+          "cells_above_1e_6": 0,
+          "materials": {
+            "hajali2009_liner_hill_ideal": {
+              "max_abs_plastic_strain": 0,
+              "cells_above_1e_6": 0
+            },
+            "hajali2009_medium_hill_ideal": {
+              "max_abs_plastic_strain": 0,
+              "cells_above_1e_6": 0
+            }
+          }
+        }
+      ],
+      "observation_rows": 288,
+      "all_status_success": true,
+      "all_step_accepted": true,
+      "final_observations": [
+        {
+          "step": "143",
+          "time_s": "0.0035999999090563506",
+          "environment": "0",
+          "arm": "bent",
+          "target_angle_deg": "0",
+          "status_code": "0",
+          "object_index": "4294967295",
+          "failing_index": "4294967295",
+          "completed_microsteps": "1",
+          "fgmres_iterations": "10",
+          "status_diagnostic_x": "0.99924194812774658",
+          "status_diagnostic_y": "0",
+          "status_diagnostic_z": "0",
+          "status_diagnostic_w": "0",
+          "min_J": "0.99924199689271875",
+          "max_J": "1.0007333724677085",
+          "max_node_displacement_m": "1.1741601343528792e-06",
+          "reaction_x_N": "0.14974446035921574",
+          "reaction_y_N": "-0.022223424224648625",
+          "reaction_z_N": "0.42479551373980939",
+          "reaction_moment_y_Nm": "0.00707179714786075",
+          "phase": "relaxation",
+          "max_free_displacement_m": "1.1741601343528792e-06",
+          "max_free_speed_m_s": "0.00030174271995962439",
+          "kinetic_energy_J": "1.709760018116434e-12",
+          "max_material_state_change": "0.038160543888807297",
+          "certificate_residual": "9.8982118288404308e-06",
+          "certificate_correction": "0",
+          "certificate_volume": "0",
+          "certificate_pressure": "0",
+          "certificate_raw_accepted_flag": "1",
+          "step_accepted": "1"
+        },
+        {
+          "step": "143",
+          "time_s": "0.0035999999090563506",
+          "environment": "1",
+          "arm": "held_reference",
+          "target_angle_deg": "0",
+          "status_code": "0",
+          "object_index": "4294967295",
+          "failing_index": "4294967295",
+          "completed_microsteps": "1",
+          "fgmres_iterations": "8",
+          "status_diagnostic_x": "0.99999910593032837",
+          "status_diagnostic_y": "0",
+          "status_diagnostic_z": "0",
+          "status_diagnostic_w": "0",
+          "min_J": "0.99999927070196981",
+          "max_J": "1.0000006567451234",
+          "max_node_displacement_m": "1.9384377679476731e-09",
+          "reaction_x_N": "0.0030301424376375508",
+          "reaction_y_N": "-0.0043997983848385047",
+          "reaction_z_N": "0.0001049570429358937",
+          "reaction_moment_y_Nm": "3.0978267219688811e-07",
+          "phase": "relaxation",
+          "max_free_displacement_m": "1.9384377679476731e-09",
+          "max_free_speed_m_s": "3.6851903252734906e-05",
+          "kinetic_energy_J": "1.4858564448553097e-14",
+          "max_material_state_change": "0.00097555859247222543",
+          "certificate_residual": "2.2264632661972428e-06",
+          "certificate_correction": "0",
+          "certificate_volume": "0",
+          "certificate_pressure": "0",
+          "certificate_raw_accepted_flag": "1",
+          "step_accepted": "1"
+        }
+      ]
+    }
+  ]
+}

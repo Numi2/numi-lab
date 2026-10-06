@@ -1,0 +1,14 @@
+device=Apple M4 production_projection_and_algorithmic_tangent=true physical_steps=0
+hajali2009_liner_hill_ideal case=md_elastic valid=1 oracle_stress_relative=1.68165e-05 oracle_Ep_absolute=0 q=0.244493 max_Ep=0 plastic_work_J_m3=0 tangent_fd_relative=0.00100067
+hajali2009_liner_hill_ideal case=md_plastic valid=1 oracle_stress_relative=1.64239e-06 oracle_Ep_absolute=2.50207e-08 q=1 max_Ep=0.00212487 plastic_work_J_m3=16436.4 tangent_fd_relative=0.00193203
+hajali2009_liner_hill_ideal case=shear12_plastic valid=1 oracle_stress_relative=1.19631e-05 oracle_Ep_absolute=1.50476e-09 q=1 max_Ep=0.00114075 plastic_work_J_m3=4791.17 tangent_fd_relative=0.00052742
+hajali2009_liner_hill_ideal case=shear13_plastic valid=1 oracle_stress_relative=1.16229e-05 oracle_Ep_absolute=8.62342e-12 q=1 max_Ep=7.78326e-05 plastic_work_J_m3=3.73596 tangent_fd_relative=0.00101012
+hajali2009_liner_hill_ideal case=shear23_plastic valid=1 oracle_stress_relative=1.16229e-05 oracle_Ep_absolute=1.09779e-11 q=1 max_Ep=6.25874e-05 plastic_work_J_m3=3.0042 tangent_fd_relative=0.00101013
+hajali2009_liner_hill_ideal unload_stress_Pa=40.4815 plastic_memory_drift=0 retained_Ep=0.00212487
+hajali2009_medium_hill_ideal case=md_elastic valid=1 oracle_stress_relative=1.68284e-05 oracle_Ep_absolute=0 q=0.539676 max_Ep=0 plastic_work_J_m3=0 tangent_fd_relative=0.00081685
+hajali2009_medium_hill_ideal case=md_plastic valid=1 oracle_stress_relative=1.34616e-06 oracle_Ep_absolute=9.64725e-09 q=1 max_Ep=0.000820004 plastic_work_J_m3=2719.78 tangent_fd_relative=0.00108705
+hajali2009_medium_hill_ideal case=shear12_plastic valid=1 oracle_stress_relative=7.83065e-06 oracle_Ep_absolute=3.95104e-09 q=1 max_Ep=0.000989414 plastic_work_J_m3=4155.55 tangent_fd_relative=0.000529168
+hajali2009_medium_hill_ideal case=shear13_plastic valid=1 oracle_stress_relative=1.08928e-05 oracle_Ep_absolute=1.26474e-11 q=1 max_Ep=9.69824e-05 plastic_work_J_m3=4.65516 tangent_fd_relative=0.000824352
+hajali2009_medium_hill_ideal case=shear23_plastic valid=1 oracle_stress_relative=1.08928e-05 oracle_Ep_absolute=2.25356e-12 q=1 max_Ep=8.96135e-05 plastic_work_J_m3=4.30145 tangent_fd_relative=0.000824344
+hajali2009_medium_hill_ideal unload_stress_Pa=46.0664 plastic_memory_drift=0 retained_Ep=0.000820004
+PASS paper production material projection; physical_validation=false

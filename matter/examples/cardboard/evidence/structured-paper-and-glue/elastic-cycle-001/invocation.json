@@ -1,0 +1,40 @@
+{
+  "schema": "numi.cardboard.native-invocation.v1",
+  "argv": [
+    "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-cardboard-probe",
+    "--output",
+    "/Users/home/cardboard-evidence-20261006/elastic-cycle-001",
+    "--nx",
+    "8",
+    "--ny",
+    "1",
+    "--thickness-slices",
+    "1",
+    "--steps",
+    "8",
+    "--hold-steps",
+    "8",
+    "--unload-steps",
+    "8",
+    "--relax-steps",
+    "32",
+    "--bend-angle",
+    "0.25",
+    "--dt",
+    "0.0001",
+    "--fgmres-iterations",
+    "32"
+  ],
+  "started_utc": "2026-10-06T03:00:37.222117+00:00",
+  "bindings": {
+    "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-cardboard-probe": "f30d18e442b5b4bd20392a7c15a5bf912220f2df570f182d8f3fe3819a718c9b",
+    "/Users/home/numi-cardboard-20261006/build-cardboard/shaders/NumiMatter.metallib": "8611c7d6cb6c0812774b18cdc82b60a6d62814aa18158f57f678d2a93537c520",
+    "/Users/home/numi-cardboard-20261006/matter/materials/nagasawa2013_liner_orthotropic.nmatter": "35f5c46318ad9f9c06cf7479e86460f803d65a66d3fd034a3a83170d83dfdecf",
+    "/Users/home/numi-cardboard-20261006/matter/materials/nagasawa2013_medium_orthotropic.nmatter": "ce39e29918c0111ab1e25e9af8a69eb0e3f7f6f07d1227bfd443da735d9ea348",
+    "/Users/home/numi-cardboard-20261006/matter/materials/nagasawa2013_medium_rct_elastic.nmatter": "ea0173912b8bb78823970ef4f670478557eaa9e6a9342d7d31466a2286ffabd4",
+    "/Users/home/numi-cardboard-20261006/matter/tools/cardboard_probe.mm": "0eb3fe8eef5105079cc625ed9ae93bc0573beb244385a20a2893bbd624ea6611"
+  },
+  "base_git_commit": "b1cfa538c1b4f9e75710184a32648afa734ebaac",
+  "purpose": "bounded numerical instrument qualification; no physical validation claim",
+  "timeout_seconds": 240
+}

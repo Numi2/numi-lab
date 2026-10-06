@@ -477,6 +477,13 @@ void validateWorld(
             "matter compiler options exceed the versioned ABI contract",
         });
     }
+    if (options.localMaterialNewtonIterations == 0u ||
+        options.localMaterialNewtonIterations > 16u) {
+        diagnostics.push_back({
+            Diagnostic::Severity::error, 0u, 0u,
+            "local material Newton iteration budget must be between 1 and 16",
+        });
+    }
     if (options.maximumRateExponent != 0u &&
         std::ranges::any_of(
             source.rigidProxies,
@@ -649,6 +656,7 @@ CompileResult compileWorld(
             continue;
         }
         ConstitutiveProgram program = std::move(compiled.program);
+        program.gpu.localNewtonIterations = options.localMaterialNewtonIterations;
         program.gpu.parameterOffset =
             static_cast<nm_u32>(world.parameters.size());
         program.gpu.stateInitialOffset =

@@ -1,0 +1,2174 @@
+[
+  {
+    "file": "paper-calibration-001/result.json",
+    "uncompressed_sha256": "1db846fdc13f3231aa3e93480a837300a59eb747c6449e1127240340776a74cd",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-001/result.json",
+    "gzip": false
+  },
+  {
+    "file": "paper-calibration-001/output.log",
+    "uncompressed_sha256": "60d0849ad1739740b7c8c2a06e6ee2c6eadf9aa1c4358bf171d30222e0d63b98",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-001/output.log",
+    "gzip": false
+  },
+  {
+    "file": "paper-calibration-001/liner.nmatter",
+    "uncompressed_sha256": "2dbf0bebb1913730ebb60ce3413933edfc9294cb508eb79d0aebeeef9f317859",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-001/liner.nmatter",
+    "gzip": false
+  },
+  {
+    "file": "paper-calibration-001/medium.nmatter",
+    "uncompressed_sha256": "e0cc7cadaab601a06e6c6bd346d4362f3338aa23715f63f107a0a51b1c24c3a5",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-001/medium.nmatter",
+    "gzip": false
+  },
+  {
+    "file": "paper-calibration-001/invocation.json",
+    "uncompressed_sha256": "cae93cec9053db84b3dc08da4ec29cb4cbe67997157f3b2e3dfd8f6d20df4537",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-001/invocation.json",
+    "gzip": false
+  },
+  {
+    "file": "paper-calibration-002/cardboard_paper_gpu_check.mm.gz",
+    "uncompressed_sha256": "bcc0cf8eab069cd9ca7d93ef42b8a39a55382c4f72c5249ee262770bf38765df",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-002/cardboard_paper_gpu_check.mm",
+    "gzip": true
+  },
+  {
+    "file": "paper-calibration-002/result.json",
+    "uncompressed_sha256": "20e38b01e6ca5ea91239b1d8bc39edf7930526756770e2fd2df90a2a10570674",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-002/result.json",
+    "gzip": false
+  },
+  {
+    "file": "paper-calibration-002/common.metalinc.gz",
+    "uncompressed_sha256": "049989184ee26dce23af1a36ad62fbdfd508f7b1843bd056d719b2c6666fdac0",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-002/common.metalinc",
+    "gzip": true
+  },
+  {
+    "file": "paper-calibration-002/output.log",
+    "uncompressed_sha256": "47b32b4e4fd68f627345075c9d093e211b4da45cf70ce34540ffb11060cac681",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-002/output.log",
+    "gzip": false
+  },
+  {
+    "file": "paper-calibration-002/liner.nmatter",
+    "uncompressed_sha256": "2dbf0bebb1913730ebb60ce3413933edfc9294cb508eb79d0aebeeef9f317859",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-002/liner.nmatter",
+    "gzip": false
+  },
+  {
+    "file": "paper-calibration-002/medium.nmatter",
+    "uncompressed_sha256": "e0cc7cadaab601a06e6c6bd346d4362f3338aa23715f63f107a0a51b1c24c3a5",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-002/medium.nmatter",
+    "gzip": false
+  },
+  {
+    "file": "paper-calibration-002/invocation.json",
+    "uncompressed_sha256": "d4fde8b74d479c9aea42c99ee1097ad9d7325be60d60bafd6e660f4507ac6ead",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-002/invocation.json",
+    "gzip": false
+  },
+  {
+    "file": "paper-calibration-002/cardboard_paper_check.metal.gz",
+    "uncompressed_sha256": "9ab0c491830e3cb0ab4d7a76c0fbf29e53ea02c95356cf21addbc9e02936824e",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-002/cardboard_paper_check.metal",
+    "gzip": true
+  },
+  {
+    "file": "paper-calibration-003/cardboard_paper_gpu_check.mm.gz",
+    "uncompressed_sha256": "bcc0cf8eab069cd9ca7d93ef42b8a39a55382c4f72c5249ee262770bf38765df",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-003/cardboard_paper_gpu_check.mm",
+    "gzip": true
+  },
+  {
+    "file": "paper-calibration-003/result.json",
+    "uncompressed_sha256": "5fb937925b145711f4053be12f2d30f2c9bad2d12bc968bf705209bcfec49d53",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-003/result.json",
+    "gzip": false
+  },
+  {
+    "file": "paper-calibration-003/common.metalinc.gz",
+    "uncompressed_sha256": "049989184ee26dce23af1a36ad62fbdfd508f7b1843bd056d719b2c6666fdac0",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-003/common.metalinc",
+    "gzip": true
+  },
+  {
+    "file": "paper-calibration-003/output.log",
+    "uncompressed_sha256": "167275a56d57ef27f74672d4b8c7783cc6b33c4a32910e66f4997126a67027ff",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-003/output.log",
+    "gzip": false
+  },
+  {
+    "file": "paper-calibration-003/liner.nmatter",
+    "uncompressed_sha256": "a010dc94945af77232bde96e4c44fb29ff423cd9e50c0f5bdc378b1a99da093e",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-003/liner.nmatter",
+    "gzip": false
+  },
+  {
+    "file": "paper-calibration-003/medium.nmatter",
+    "uncompressed_sha256": "580dd482de89aa5c2d1cd9e6fb04c57ccdfc4d8e11763c2688e6716f55a80b9c",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-003/medium.nmatter",
+    "gzip": false
+  },
+  {
+    "file": "paper-calibration-003/invocation.json",
+    "uncompressed_sha256": "084df374f42fd68e8c51671ea57283995e8de852169c66a7a22fb098eb518f19",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-003/invocation.json",
+    "gzip": false
+  },
+  {
+    "file": "paper-calibration-003/cardboard_paper_check.metal.gz",
+    "uncompressed_sha256": "db50048015e3638dc840b9c3637fd1031c22e6147b194a0759abab969706f832",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-003/cardboard_paper_check.metal",
+    "gzip": true
+  },
+  {
+    "file": "paper-calibration-004/cardboard_paper_gpu_check.mm.gz",
+    "uncompressed_sha256": "4fccb9f3bbc4238996a7de826bdb0973ced45b2787dacb6a1bd314dee6090c59",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-004/cardboard_paper_gpu_check.mm",
+    "gzip": true
+  },
+  {
+    "file": "paper-calibration-004/result.json",
+    "uncompressed_sha256": "fc04f92441f90770f4727d0466b962efb04b3e94ed546988dce0b0b68584425b",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-004/result.json",
+    "gzip": false
+  },
+  {
+    "file": "paper-calibration-004/common.metalinc.gz",
+    "uncompressed_sha256": "049989184ee26dce23af1a36ad62fbdfd508f7b1843bd056d719b2c6666fdac0",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-004/common.metalinc",
+    "gzip": true
+  },
+  {
+    "file": "paper-calibration-004/output.log",
+    "uncompressed_sha256": "9b85270c9aa66e7567064d10eb20710ae9f8b31a2a72ee602920fe479a749020",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-004/output.log",
+    "gzip": false
+  },
+  {
+    "file": "paper-calibration-004/liner.nmatter",
+    "uncompressed_sha256": "a010dc94945af77232bde96e4c44fb29ff423cd9e50c0f5bdc378b1a99da093e",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-004/liner.nmatter",
+    "gzip": false
+  },
+  {
+    "file": "paper-calibration-004/medium.nmatter",
+    "uncompressed_sha256": "580dd482de89aa5c2d1cd9e6fb04c57ccdfc4d8e11763c2688e6716f55a80b9c",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-004/medium.nmatter",
+    "gzip": false
+  },
+  {
+    "file": "paper-calibration-004/invocation.json",
+    "uncompressed_sha256": "4d66f644bd9a9a158843c63935f442a7b377f9319ae2f5efddbda2978764a03d",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-004/invocation.json",
+    "gzip": false
+  },
+  {
+    "file": "paper-calibration-004/cardboard_paper_check.metal.gz",
+    "uncompressed_sha256": "db50048015e3638dc840b9c3637fd1031c22e6147b194a0759abab969706f832",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-004/cardboard_paper_check.metal",
+    "gzip": true
+  },
+  {
+    "file": "paper-calibration-005/cardboard_paper_gpu_check.mm.gz",
+    "uncompressed_sha256": "322d533f61b347244f344f8474e4e289460d859086072d36ebe52148236a4d80",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-005/cardboard_paper_gpu_check.mm",
+    "gzip": true
+  },
+  {
+    "file": "paper-calibration-005/result.json",
+    "uncompressed_sha256": "e4a50f3bdede3cc565b49327c3c67ac87c7b57e1f10dbf5655f9e4954cc5233d",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-005/result.json",
+    "gzip": false
+  },
+  {
+    "file": "paper-calibration-005/common.metalinc.gz",
+    "uncompressed_sha256": "049989184ee26dce23af1a36ad62fbdfd508f7b1843bd056d719b2c6666fdac0",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-005/common.metalinc",
+    "gzip": true
+  },
+  {
+    "file": "paper-calibration-005/output.log",
+    "uncompressed_sha256": "dd1d9347a5c26e1b50099cc9029ff2e2c5553aceb5b9790bdf5ff4c6a36e4805",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-005/output.log",
+    "gzip": false
+  },
+  {
+    "file": "paper-calibration-005/liner.nmatter",
+    "uncompressed_sha256": "a010dc94945af77232bde96e4c44fb29ff423cd9e50c0f5bdc378b1a99da093e",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-005/liner.nmatter",
+    "gzip": false
+  },
+  {
+    "file": "paper-calibration-005/medium.nmatter",
+    "uncompressed_sha256": "580dd482de89aa5c2d1cd9e6fb04c57ccdfc4d8e11763c2688e6716f55a80b9c",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-005/medium.nmatter",
+    "gzip": false
+  },
+  {
+    "file": "paper-calibration-005/invocation.json",
+    "uncompressed_sha256": "0265c7a9c2af9bda7d58df99b70538ea4cfcfed2fa7155d57f26bca126cce214",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-005/invocation.json",
+    "gzip": false
+  },
+  {
+    "file": "paper-calibration-005/cardboard_paper_check.metal.gz",
+    "uncompressed_sha256": "db50048015e3638dc840b9c3637fd1031c22e6147b194a0759abab969706f832",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-005/cardboard_paper_check.metal",
+    "gzip": true
+  },
+  {
+    "file": "paper-calibration-005/cardboard_paper_reference.hpp.gz",
+    "uncompressed_sha256": "637815c7a32e5626aa2c39d448aaabb68f29d99ced0868643f6ed1ba494d2506",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-005/cardboard_paper_reference.hpp",
+    "gzip": true
+  },
+  {
+    "file": "paper-calibration-006/cardboard_paper_gpu_check.mm.gz",
+    "uncompressed_sha256": "2618912fc5d50f32c28e62b45cc8abc6229814a1797130e32627644e45d0bd3a",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-006/cardboard_paper_gpu_check.mm",
+    "gzip": true
+  },
+  {
+    "file": "paper-calibration-006/result.json",
+    "uncompressed_sha256": "7c735897e903e8e894b4ad7068c789058bea98881a52333dfab10bd373ecbbf9",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-006/result.json",
+    "gzip": false
+  },
+  {
+    "file": "paper-calibration-006/common.metalinc.gz",
+    "uncompressed_sha256": "049989184ee26dce23af1a36ad62fbdfd508f7b1843bd056d719b2c6666fdac0",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-006/common.metalinc",
+    "gzip": true
+  },
+  {
+    "file": "paper-calibration-006/output.log",
+    "uncompressed_sha256": "3d05cc0be15421f4248210ec956e1630279b1b55543ba82c2d30cc71a700326d",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-006/output.log",
+    "gzip": false
+  },
+  {
+    "file": "paper-calibration-006/liner.nmatter",
+    "uncompressed_sha256": "62f056400c7c0c42f0d831ffa8be9738ee666bd05b6d4513d7cfa82a5a32eb39",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-006/liner.nmatter",
+    "gzip": false
+  },
+  {
+    "file": "paper-calibration-006/medium.nmatter",
+    "uncompressed_sha256": "01507b68491e4d34255d65ed9ff14c17a08540c782fce1e92ea16d620a2007c0",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-006/medium.nmatter",
+    "gzip": false
+  },
+  {
+    "file": "paper-calibration-006/invocation.json",
+    "uncompressed_sha256": "1aa3bfcf2c641579ee0a42f88cfd64c66631123b7d6e2fbd3f24869f44b4dbf9",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-006/invocation.json",
+    "gzip": false
+  },
+  {
+    "file": "paper-calibration-006/cardboard_paper_check.metal.gz",
+    "uncompressed_sha256": "db50048015e3638dc840b9c3637fd1031c22e6147b194a0759abab969706f832",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-006/cardboard_paper_check.metal",
+    "gzip": true
+  },
+  {
+    "file": "paper-calibration-006/cardboard_paper_reference.hpp.gz",
+    "uncompressed_sha256": "a52a656df25b9cacfb5b476989305d88881d3a46e6a4c52dd04f7732984d3302",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-006/cardboard_paper_reference.hpp",
+    "gzip": true
+  },
+  {
+    "file": "paper-calibration-007/cardboard_paper_gpu_check.mm.gz",
+    "uncompressed_sha256": "8cda2e714e5e1cd4b20aeb1068439053533d74221d4603d501e1cb15ce0541a0",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-007/cardboard_paper_gpu_check.mm",
+    "gzip": true
+  },
+  {
+    "file": "paper-calibration-007/result.json",
+    "uncompressed_sha256": "42d5b1ce58d5f4aa0742a9cb773a310f8c6bb94d03df23437cd39eed49fefab0",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-007/result.json",
+    "gzip": false
+  },
+  {
+    "file": "paper-calibration-007/common.metalinc.gz",
+    "uncompressed_sha256": "049989184ee26dce23af1a36ad62fbdfd508f7b1843bd056d719b2c6666fdac0",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-007/common.metalinc",
+    "gzip": true
+  },
+  {
+    "file": "paper-calibration-007/source.patch.gz",
+    "uncompressed_sha256": "fd2694247f4cebbe4f87f629168d1caeffe87e20faab8c08e7e9cebfe03780ad",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-007/source.patch",
+    "gzip": true
+  },
+  {
+    "file": "paper-calibration-007/output.log",
+    "uncompressed_sha256": "0cde51c0006b6199857e7a1e2355c28d6e94daf81b897391bed97181f2a6a17c",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-007/output.log",
+    "gzip": false
+  },
+  {
+    "file": "paper-calibration-007/liner.nmatter",
+    "uncompressed_sha256": "62f056400c7c0c42f0d831ffa8be9738ee666bd05b6d4513d7cfa82a5a32eb39",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-007/liner.nmatter",
+    "gzip": false
+  },
+  {
+    "file": "paper-calibration-007/medium.nmatter",
+    "uncompressed_sha256": "01507b68491e4d34255d65ed9ff14c17a08540c782fce1e92ea16d620a2007c0",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-007/medium.nmatter",
+    "gzip": false
+  },
+  {
+    "file": "paper-calibration-007/invocation.json",
+    "uncompressed_sha256": "a5550d4523fa41bd4a5aa23168b4f7f89a1dd62ebddd218b142d6a18677300d2",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-007/invocation.json",
+    "gzip": false
+  },
+  {
+    "file": "paper-calibration-007/cardboard_paper_check.metal.gz",
+    "uncompressed_sha256": "db50048015e3638dc840b9c3637fd1031c22e6147b194a0759abab969706f832",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-007/cardboard_paper_check.metal",
+    "gzip": true
+  },
+  {
+    "file": "paper-calibration-007/cardboard_paper_reference.hpp.gz",
+    "uncompressed_sha256": "a52a656df25b9cacfb5b476989305d88881d3a46e6a4c52dd04f7732984d3302",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-007/cardboard_paper_reference.hpp",
+    "gzip": true
+  },
+  {
+    "file": "paper-calibration-008/cardboard_paper_gpu_check.mm.gz",
+    "uncompressed_sha256": "8cda2e714e5e1cd4b20aeb1068439053533d74221d4603d501e1cb15ce0541a0",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-008/cardboard_paper_gpu_check.mm",
+    "gzip": true
+  },
+  {
+    "file": "paper-calibration-008/result.json",
+    "uncompressed_sha256": "45a8acf75890df1a0df0f5653a3a2d46830ff7d93c2eadb1debeff473f7fc0bb",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-008/result.json",
+    "gzip": false
+  },
+  {
+    "file": "paper-calibration-008/common.metalinc.gz",
+    "uncompressed_sha256": "f1f7852fa95b119ad56c1b7d7da4422e9be8dac40806317b8cd1c4ed06bc640f",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-008/common.metalinc",
+    "gzip": true
+  },
+  {
+    "file": "paper-calibration-008/source.patch.gz",
+    "uncompressed_sha256": "3310bc8e75024f615ad2a7b26349a912d9ad97c6b1834a08e482fe8ce3118769",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-008/source.patch",
+    "gzip": true
+  },
+  {
+    "file": "paper-calibration-008/output.log",
+    "uncompressed_sha256": "cc89db5e27a6bdc784dc85cb9138a4a53d86ef60756db91f050b60a851ac3837",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-008/output.log",
+    "gzip": false
+  },
+  {
+    "file": "paper-calibration-008/liner.nmatter",
+    "uncompressed_sha256": "62f056400c7c0c42f0d831ffa8be9738ee666bd05b6d4513d7cfa82a5a32eb39",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-008/liner.nmatter",
+    "gzip": false
+  },
+  {
+    "file": "paper-calibration-008/medium.nmatter",
+    "uncompressed_sha256": "01507b68491e4d34255d65ed9ff14c17a08540c782fce1e92ea16d620a2007c0",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-008/medium.nmatter",
+    "gzip": false
+  },
+  {
+    "file": "paper-calibration-008/invocation.json",
+    "uncompressed_sha256": "0381744f14235823b7a8fd64e9e012eceb977bfdf428b144cd61729290eb7ddb",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-008/invocation.json",
+    "gzip": false
+  },
+  {
+    "file": "paper-calibration-008/cardboard_paper_check.metal.gz",
+    "uncompressed_sha256": "db50048015e3638dc840b9c3637fd1031c22e6147b194a0759abab969706f832",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-008/cardboard_paper_check.metal",
+    "gzip": true
+  },
+  {
+    "file": "paper-calibration-008/cardboard_paper_reference.hpp.gz",
+    "uncompressed_sha256": "a52a656df25b9cacfb5b476989305d88881d3a46e6a4c52dd04f7732984d3302",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-008/cardboard_paper_reference.hpp",
+    "gzip": true
+  },
+  {
+    "file": "paper-calibration-009/cardboard_paper_gpu_check.mm.gz",
+    "uncompressed_sha256": "8cda2e714e5e1cd4b20aeb1068439053533d74221d4603d501e1cb15ce0541a0",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-009/cardboard_paper_gpu_check.mm",
+    "gzip": true
+  },
+  {
+    "file": "paper-calibration-009/result.json",
+    "uncompressed_sha256": "0c1821381cf23ea75da1f3ed141b7be7c26a39de392cb0176860204fdf3cdf42",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-009/result.json",
+    "gzip": false
+  },
+  {
+    "file": "paper-calibration-009/common.metalinc.gz",
+    "uncompressed_sha256": "f1f7852fa95b119ad56c1b7d7da4422e9be8dac40806317b8cd1c4ed06bc640f",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-009/common.metalinc",
+    "gzip": true
+  },
+  {
+    "file": "paper-calibration-009/source.patch.gz",
+    "uncompressed_sha256": "6813b00280c1df53bc6ca784adf7c4ac893f1df784d092521c120ab88d97fe40",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-009/source.patch",
+    "gzip": true
+  },
+  {
+    "file": "paper-calibration-009/output.log",
+    "uncompressed_sha256": "38cdb5a70b83c1a47b34904de4ae94a7c6919c0342fb270c57634d75ad37b7c2",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-009/output.log",
+    "gzip": false
+  },
+  {
+    "file": "paper-calibration-009/liner.nmatter",
+    "uncompressed_sha256": "c6cd258db8516a7ef3a3a8c1f2482c1a32e1e8b972dd07dbf8b4fb6a9e9d758c",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-009/liner.nmatter",
+    "gzip": false
+  },
+  {
+    "file": "paper-calibration-009/medium.nmatter",
+    "uncompressed_sha256": "d1665e8846f48bc366f0f3d50bb8eafb8c6d382dd0acf9d9c4f8f8848a3cfce5",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-009/medium.nmatter",
+    "gzip": false
+  },
+  {
+    "file": "paper-calibration-009/invocation.json",
+    "uncompressed_sha256": "c905c6a5eb954b14d10235ba611371c16fea5a66268c9ed6ede71bdd76a4cfa0",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-009/invocation.json",
+    "gzip": false
+  },
+  {
+    "file": "paper-calibration-009/cardboard_paper_check.metal.gz",
+    "uncompressed_sha256": "db50048015e3638dc840b9c3637fd1031c22e6147b194a0759abab969706f832",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-009/cardboard_paper_check.metal",
+    "gzip": true
+  },
+  {
+    "file": "paper-calibration-009/cardboard_paper_reference.hpp.gz",
+    "uncompressed_sha256": "a52a656df25b9cacfb5b476989305d88881d3a46e6a4c52dd04f7732984d3302",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-calibration-009/cardboard_paper_reference.hpp",
+    "gzip": true
+  },
+  {
+    "file": "cycle-instrument-plan.json",
+    "uncompressed_sha256": "6ac96cda0e8fc96341aaa0a1129ffd733b11aef66fbc4223ad1f39c7621cdaf0",
+    "source": "/Users/home/cardboard-evidence-20261006/cycle-instrument-plan.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-cycle-plan.json",
+    "uncompressed_sha256": "933a1f620776db77cc47996c28a3bf3268938d25b205e06e442845417938914a",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-cycle-plan.json",
+    "gzip": false
+  },
+  {
+    "file": "global-newton-revision-plan.json",
+    "uncompressed_sha256": "aee941f20396ebcf36ead690f2bd662e07f9b59ae156253a814ea402fee2fa70",
+    "source": "/Users/home/cardboard-evidence-20261006/global-newton-revision-plan.json",
+    "gzip": false
+  },
+  {
+    "file": "local-line-search-revision-plan.json",
+    "uncompressed_sha256": "a5240a9f04218e038c48858e60b47090285f93a8e15e5b2e53a30a0afe0e7dba",
+    "source": "/Users/home/cardboard-evidence-20261006/local-line-search-revision-plan.json",
+    "gzip": false
+  },
+  {
+    "file": "final-cardboard-ctest.log.gz",
+    "uncompressed_sha256": "7b829cb1e164db525636d30dff4fcfe30067de37a01322a738203e18b520b716",
+    "source": "/Users/home/cardboard-evidence-20261006/final-cardboard-ctest.log",
+    "gzip": true
+  },
+  {
+    "file": "cardboard-ctest-missing-target-001.log.gz",
+    "uncompressed_sha256": "eec2291914f1482cedaa31a51407db85434f19252a6678d3db236d678800824c",
+    "source": "/Users/home/cardboard-evidence-20261006/cardboard-ctest-missing-target-001.log",
+    "gzip": true
+  },
+  {
+    "file": "paper-fp32-trace-001.log.gz",
+    "uncompressed_sha256": "267835ba98614360cd2ad8b1f53762e07cd315407ff2ed707fcfe0adc3070366",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-fp32-trace-001.log",
+    "gzip": true
+  },
+  {
+    "file": "paper-fp32-trace-002.log.gz",
+    "uncompressed_sha256": "e7b651572a45bbb75026a0cd1fbff85f6f6e48daacd579073f11c61aed74698a",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-fp32-trace-002.log",
+    "gzip": true
+  },
+  {
+    "file": "final-cycle-comparison.json",
+    "uncompressed_sha256": "263d285b13055047c90f7e143df8ba3dae7bf829f46972a6046e9a9df8c2c2ca",
+    "source": "/Users/home/cardboard-evidence-20261006/final-cycle-comparison.json",
+    "gzip": false
+  },
+  {
+    "file": "summarize_final_cycles.py",
+    "uncompressed_sha256": "0b60bee5b134dba8be0866f0c64a9f06fe609bf3428b25fa2bc797c658abcd19",
+    "source": "/Users/home/cardboard-evidence-20261006/summarize_final_cycles.py",
+    "gzip": false
+  },
+  {
+    "file": "elastic-cycle-001/stderr.log",
+    "uncompressed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/elastic-cycle-001/stderr.log",
+    "gzip": false
+  },
+  {
+    "file": "elastic-cycle-001/inputs/probe-source.mm.gz",
+    "uncompressed_sha256": "0eb3fe8eef5105079cc625ed9ae93bc0573beb244385a20a2893bbd624ea6611",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/elastic-cycle-001/probe-source.mm",
+    "gzip": true
+  },
+  {
+    "file": "elastic-cycle-001/stdout.log",
+    "uncompressed_sha256": "20f26d9781c9d5f41630a69ed705ee293f7d8b7ad0b4f7f8ffd0cae16b578a15",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/elastic-cycle-001/stdout.log",
+    "gzip": false
+  },
+  {
+    "file": "elastic-cycle-001/invocation.json",
+    "uncompressed_sha256": "d2671834a637d252ebe167e8f165de334d747c0063ee09caf186a015de2a2475",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/elastic-cycle-001/invocation.json",
+    "gzip": false
+  },
+  {
+    "file": "elastic-cycle-001/receipt.json",
+    "uncompressed_sha256": "69d310d4875c9a381870a448bf5f2397dd5c835c3367e7c3b4c445c678161e5c",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/elastic-cycle-001/receipt.json",
+    "gzip": false
+  },
+  {
+    "file": "elastic-cycle-001/result.json",
+    "uncompressed_sha256": "30a014419512e7433c47e01e84e156d18370f369c4f7f07b3ad1d3ae436621f6",
+    "source": "/Users/home/cardboard-evidence-20261006/elastic-cycle-001/result.json",
+    "gzip": false
+  },
+  {
+    "file": "elastic-cycle-001/manifest.json",
+    "uncompressed_sha256": "49f99bb029faf43649e1a8555972601ef054ed2bc71d2d4c83b25a8d771fa6ca",
+    "source": "/Users/home/cardboard-evidence-20261006/elastic-cycle-001/manifest.json",
+    "gzip": false
+  },
+  {
+    "file": "elastic-cycle-001/observations.csv",
+    "uncompressed_sha256": "5288393ba3f93be398ba696de10fe9a0abf253108a0e062291ac6ab55fb7f80d",
+    "source": "/Users/home/cardboard-evidence-20261006/elastic-cycle-001/observations.csv",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-compile-001/inputs/hajali2009_medium_hill_ideal.nmatter.gz",
+    "uncompressed_sha256": "580dd482de89aa5c2d1cd9e6fb04c57ccdfc4d8e11763c2688e6716f55a80b9c",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-compile-001/hajali2009_medium_hill_ideal.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-compile-001/inputs/hajali2009_liner_hill_ideal.nmatter.gz",
+    "uncompressed_sha256": "a010dc94945af77232bde96e4c44fb29ff423cd9e50c0f5bdc378b1a99da093e",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-compile-001/hajali2009_liner_hill_ideal.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-compile-001/stderr.log",
+    "uncompressed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-compile-001/stderr.log",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-compile-001/inputs/cardboard_glue_mesh.hpp.gz",
+    "uncompressed_sha256": "d2668155580cdbdd09411d6cdac6a367a726e909d5dd6d4c9770e8f3822d0146",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-compile-001/cardboard_glue_mesh.hpp",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-compile-001/inputs/cardboard_probe.mm.gz",
+    "uncompressed_sha256": "1b21e596573fbb4949bdb03b413520a0676ecd1147a695c37431a69e01d21f87",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-compile-001/cardboard_probe.mm",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-compile-001/inputs/nagasawa2013_medium_rct_elastic.nmatter.gz",
+    "uncompressed_sha256": "ea0173912b8bb78823970ef4f670478557eaa9e6a9342d7d31466a2286ffabd4",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-compile-001/nagasawa2013_medium_rct_elastic.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-compile-001/inputs/nagasawa2013_medium_orthotropic.nmatter.gz",
+    "uncompressed_sha256": "ce39e29918c0111ab1e25e9af8a69eb0e3f7f6f07d1227bfd443da735d9ea348",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-compile-001/nagasawa2013_medium_orthotropic.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-compile-001/inputs/nagasawa2013_liner_orthotropic.nmatter.gz",
+    "uncompressed_sha256": "35f5c46318ad9f9c06cf7479e86460f803d65a66d3fd034a3a83170d83dfdecf",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-compile-001/nagasawa2013_liner_orthotropic.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-compile-001/stdout.log",
+    "uncompressed_sha256": "4d1e981646841096e5563e800f37d624a73fa10ffb39d7f832aca60cf32ae647",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-compile-001/stdout.log",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-compile-001/inputs/cardboard_profile.hpp.gz",
+    "uncompressed_sha256": "cda9e21278954a1fa74fca07ded5ed43bf9f73aeb5f16edeb5c7c4370f38c367",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-compile-001/cardboard_profile.hpp",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-compile-001/inputs/starch2007_finite_glue_elastic.nmatter.gz",
+    "uncompressed_sha256": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-compile-001/starch2007_finite_glue_elastic.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-compile-001/invocation.json",
+    "uncompressed_sha256": "1be2f8a2db0c84f1c9d471988bfb1eca439e41f63b3be61fbd82a8934b58f51c",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-compile-001/invocation.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-compile-001/inputs/cardboard_paper_reference.hpp.gz",
+    "uncompressed_sha256": "637815c7a32e5626aa2c39d448aaabb68f29d99ced0868643f6ed1ba494d2506",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-compile-001/cardboard_paper_reference.hpp",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-compile-001/receipt.json",
+    "uncompressed_sha256": "711bf0961df60b0b8fb63c6e16a9ff70542d31ec1fe71c56d23c45f7ea37aa34",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-compile-001/receipt.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-compile-001/geometry-audit-independent-3d.json",
+    "uncompressed_sha256": "4b7ecb739078cae93d50e85b813d8cb30c6e03940e23000a4a3563e0e8a76b7f",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-compile-001/geometry-audit-independent-3d.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-compile-001/result.json",
+    "uncompressed_sha256": "0ba44e137273d46dcdb11b9b54f7a7fad638abec27928b26f2916e98d8e01779",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-compile-001/result.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-compile-001/geometry-audit.json",
+    "uncompressed_sha256": "22db254bf1a745ef8bccbf7ded2cf218a0b21d273546a42cb21069756dccdf48",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-compile-001/geometry-audit.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-compile-001/manifest.json",
+    "uncompressed_sha256": "ef445c4cfdfd38b2c5b2842fce1ff9a6b5bc170c77cca9de7c9887a40ed1bcd4",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-compile-001/manifest.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-compile-001/mesh.json.gz",
+    "uncompressed_sha256": "add3e5f87879dac154eb4a31bb73b1c2de8740b04f29f05721f3b8198aa367e5",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-compile-001/mesh.json",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-compile-001/layers.png",
+    "uncompressed_sha256": "9f7f3656793dae873959861613324fe52fc93beb2eb7a7b96dfe6398e25a8c99",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-compile-001/layers.png",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-compile-001/layers.png.json",
+    "uncompressed_sha256": "f8f724b256b084dc163a32daf60dbecb04107c215a88869daec1d38b77bd0522",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-compile-001/layers.png.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-default-final-001/inputs/hajali2009_medium_hill_ideal.nmatter.gz",
+    "uncompressed_sha256": "ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-default-final-001/hajali2009_medium_hill_ideal.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-default-final-001/inputs/hajali2009_liner_hill_ideal.nmatter.gz",
+    "uncompressed_sha256": "787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-default-final-001/hajali2009_liner_hill_ideal.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-default-final-001/stderr.log",
+    "uncompressed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-default-final-001/stderr.log",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-default-final-001/inputs/cardboard_glue_mesh.hpp.gz",
+    "uncompressed_sha256": "d2668155580cdbdd09411d6cdac6a367a726e909d5dd6d4c9770e8f3822d0146",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-default-final-001/cardboard_glue_mesh.hpp",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-default-final-001/inputs/cardboard_probe.mm.gz",
+    "uncompressed_sha256": "f2370878b9b960571031d2a5ed8a20c9452e47111a4a4807ed0101579a6d279d",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-default-final-001/cardboard_probe.mm",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-default-final-001/inputs/source.patch.gz",
+    "uncompressed_sha256": "ab9574e88c9b591489b4dfc4ea8dd943d457a26e193943d01cd800529f338f09",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-default-final-001/source.patch",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-default-final-001/stdout.log",
+    "uncompressed_sha256": "0500567beb049f8ac9b5a5874b904662c6394e53c2dd7fb08a05209007ffbc48",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-default-final-001/stdout.log",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-default-final-001/inputs/starch2007_finite_glue_elastic.nmatter.gz",
+    "uncompressed_sha256": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-default-final-001/starch2007_finite_glue_elastic.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-default-final-001/invocation.json",
+    "uncompressed_sha256": "b8352bb0fc6327909f67b8cf84922fab916db007393150e921452598fdb01618",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-default-final-001/invocation.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-default-final-001/receipt.json",
+    "uncompressed_sha256": "8c2cc206a5db5c605d48c56d84aa4d89894e586e86adbc7260a69832c845ef2d",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-default-final-001/receipt.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-default-final-001/material_state_000048_held_reference.json.gz",
+    "uncompressed_sha256": "e25e40c5863c7daadfebc2b321421743bde93bc24e4dc95ce42ce3796ca906bf",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-default-final-001/material_state_000048_held_reference.json",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-default-final-001/result.json",
+    "uncompressed_sha256": "6d4c12e8c44eddfea92fc56adef69ee0773c6d9202b47fbfcf8b4865f65285b1",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-default-final-001/result.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-default-final-001/material_state_000144_bent.json.gz",
+    "uncompressed_sha256": "93dce0dbc01c58f01473b3c86f79c8f2a16934a1c0748055f44ee0df1516a5b2",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-default-final-001/material_state_000144_bent.json",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-default-final-001/material_state_000080_held_reference.json.gz",
+    "uncompressed_sha256": "8cb8bc0c25f8153145b7e4302014b57ef7da9a0a45627fa7d7adf1c7d394cc30",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-default-final-001/material_state_000080_held_reference.json",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-default-final-001/material_state_000048_bent.json.gz",
+    "uncompressed_sha256": "fd302a0ddc05b68f65873f7375d4c4a0441c0d512288c4dad2dbaf78f5292b29",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-default-final-001/material_state_000048_bent.json",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-default-final-001/material_state_000032_bent.json.gz",
+    "uncompressed_sha256": "b58fdc802d4190744fc2cc262554369422d38c8ee33dc31272c28beecaad0409",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-default-final-001/material_state_000032_bent.json",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-default-final-001/manifest.json",
+    "uncompressed_sha256": "3676151e1a6de92ce3e71ad26fde05a76d53a9212c69639e721d52d7394f938d",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-default-final-001/manifest.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-default-final-001/material_state_000144_held_reference.json.gz",
+    "uncompressed_sha256": "6e67c83d2856d39556c03bcb689b010355fa878b99c1d2e5d0ff3581d84a840a",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-default-final-001/material_state_000144_held_reference.json",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-default-final-001/material_state_000032_held_reference.json.gz",
+    "uncompressed_sha256": "7258e4658049411ad66a75e00580c83db69fae463c6fbae42b91b5458674f34b",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-default-final-001/material_state_000032_held_reference.json",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-default-final-001/material_state_000080_bent.json.gz",
+    "uncompressed_sha256": "1a756fad7001db6c64c49d9ef989f2145f89d12790ac643b51cb262215d610f2",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-default-final-001/material_state_000080_bent.json",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-default-final-001/final-audit.json",
+    "uncompressed_sha256": "0c63be95cefe83d577668910291e17ab3780029f8b108ed011d52d496909bd4a",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-default-final-001/final-audit.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-default-final-001/observations.csv",
+    "uncompressed_sha256": "8a22e3df0775e73fd360ff720ee50656451798cc64e5c2172362a77a3a96cb22",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-default-final-001/observations.csv",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-elastic-001/inputs/hajali2009_medium_hill_ideal.nmatter.gz",
+    "uncompressed_sha256": "580dd482de89aa5c2d1cd9e6fb04c57ccdfc4d8e11763c2688e6716f55a80b9c",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-elastic-001/hajali2009_medium_hill_ideal.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-001/inputs/hajali2009_liner_hill_ideal.nmatter.gz",
+    "uncompressed_sha256": "a010dc94945af77232bde96e4c44fb29ff423cd9e50c0f5bdc378b1a99da093e",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-elastic-001/hajali2009_liner_hill_ideal.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-001/stderr.log",
+    "uncompressed_sha256": "82a77a72f4d9d23b4c08e9ad2a67a07699f1e85955d466fc23c1b2569fbc0f83",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-elastic-001/stderr.log",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-elastic-001/inputs/cardboard_glue_mesh.hpp.gz",
+    "uncompressed_sha256": "d2668155580cdbdd09411d6cdac6a367a726e909d5dd6d4c9770e8f3822d0146",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-elastic-001/cardboard_glue_mesh.hpp",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-001/inputs/cardboard_probe.mm.gz",
+    "uncompressed_sha256": "a43a64c63a0c7ca1ccf8216bdaf9fd32cbe6ec41baa278758910a57a6b714ad9",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-elastic-001/cardboard_probe.mm",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-001/inputs/nagasawa2013_medium_rct_elastic.nmatter.gz",
+    "uncompressed_sha256": "ea0173912b8bb78823970ef4f670478557eaa9e6a9342d7d31466a2286ffabd4",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-elastic-001/nagasawa2013_medium_rct_elastic.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-001/inputs/nagasawa2013_medium_orthotropic.nmatter.gz",
+    "uncompressed_sha256": "ce39e29918c0111ab1e25e9af8a69eb0e3f7f6f07d1227bfd443da735d9ea348",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-elastic-001/nagasawa2013_medium_orthotropic.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-001/inputs/nagasawa2013_liner_orthotropic.nmatter.gz",
+    "uncompressed_sha256": "35f5c46318ad9f9c06cf7479e86460f803d65a66d3fd034a3a83170d83dfdecf",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-elastic-001/nagasawa2013_liner_orthotropic.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-001/stdout.log",
+    "uncompressed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-elastic-001/stdout.log",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-elastic-001/inputs/cardboard_profile.hpp.gz",
+    "uncompressed_sha256": "cda9e21278954a1fa74fca07ded5ed43bf9f73aeb5f16edeb5c7c4370f38c367",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-elastic-001/cardboard_profile.hpp",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-001/inputs/hajali2009_liner_elastic_control.nmatter.gz",
+    "uncompressed_sha256": "49dfbada08aca3eaa0fd42c534e2fd1d805fa8cd80280e3451c0bd61001291fa",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-elastic-001/hajali2009_liner_elastic_control.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-001/inputs/starch2007_finite_glue_elastic.nmatter.gz",
+    "uncompressed_sha256": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-elastic-001/starch2007_finite_glue_elastic.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-001/invocation.json",
+    "uncompressed_sha256": "060b24e3b587c0efb347fb687c5b88c7e33bc2bbf7be56014082909123e94a33",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-elastic-001/invocation.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-elastic-001/inputs/hajali2009_medium_elastic_control.nmatter.gz",
+    "uncompressed_sha256": "b3c28da0d50102f704def1d8f54e5fc18da6729cb6fc5c4e31d50a1c03d3e9e4",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-elastic-001/hajali2009_medium_elastic_control.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-001/inputs/cardboard_paper_reference.hpp.gz",
+    "uncompressed_sha256": "637815c7a32e5626aa2c39d448aaabb68f29d99ced0868643f6ed1ba494d2506",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-elastic-001/cardboard_paper_reference.hpp",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-001/receipt.json",
+    "uncompressed_sha256": "59cfe64524301ed80842f341267166ec621088c0c9b027f14986fc5b23642da1",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-elastic-001/receipt.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-elastic-002/inputs/hajali2009_medium_hill_ideal.nmatter.gz",
+    "uncompressed_sha256": "580dd482de89aa5c2d1cd9e6fb04c57ccdfc4d8e11763c2688e6716f55a80b9c",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-elastic-002/hajali2009_medium_hill_ideal.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-002/inputs/hajali2009_liner_hill_ideal.nmatter.gz",
+    "uncompressed_sha256": "a010dc94945af77232bde96e4c44fb29ff423cd9e50c0f5bdc378b1a99da093e",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-elastic-002/hajali2009_liner_hill_ideal.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-002/stderr.log",
+    "uncompressed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-elastic-002/stderr.log",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-elastic-002/inputs/cardboard_glue_mesh.hpp.gz",
+    "uncompressed_sha256": "d2668155580cdbdd09411d6cdac6a367a726e909d5dd6d4c9770e8f3822d0146",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-elastic-002/cardboard_glue_mesh.hpp",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-002/inputs/cardboard_probe.mm.gz",
+    "uncompressed_sha256": "cf1780bba5b8e10e586f3e41acb4bb22a1e7d7cf45ec17eea33af7d254667ab3",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-elastic-002/cardboard_probe.mm",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-002/inputs/nagasawa2013_medium_rct_elastic.nmatter.gz",
+    "uncompressed_sha256": "ea0173912b8bb78823970ef4f670478557eaa9e6a9342d7d31466a2286ffabd4",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-elastic-002/nagasawa2013_medium_rct_elastic.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-002/inputs/nagasawa2013_medium_orthotropic.nmatter.gz",
+    "uncompressed_sha256": "ce39e29918c0111ab1e25e9af8a69eb0e3f7f6f07d1227bfd443da735d9ea348",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-elastic-002/nagasawa2013_medium_orthotropic.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-002/inputs/nagasawa2013_liner_orthotropic.nmatter.gz",
+    "uncompressed_sha256": "35f5c46318ad9f9c06cf7479e86460f803d65a66d3fd034a3a83170d83dfdecf",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-elastic-002/nagasawa2013_liner_orthotropic.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-002/stdout.log",
+    "uncompressed_sha256": "98448afeda22808609d4ca2cf577211528907a41175d0566320e6d24a925ec5c",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-elastic-002/stdout.log",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-elastic-002/inputs/cardboard_profile.hpp.gz",
+    "uncompressed_sha256": "cda9e21278954a1fa74fca07ded5ed43bf9f73aeb5f16edeb5c7c4370f38c367",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-elastic-002/cardboard_profile.hpp",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-002/inputs/hajali2009_liner_elastic_control.nmatter.gz",
+    "uncompressed_sha256": "b91e94ce08c0252487c26f783ed125d76fb33bd20c18fd89edd427097d78b422",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-elastic-002/hajali2009_liner_elastic_control.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-002/inputs/starch2007_finite_glue_elastic.nmatter.gz",
+    "uncompressed_sha256": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-elastic-002/starch2007_finite_glue_elastic.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-002/invocation.json",
+    "uncompressed_sha256": "1985ed8c2de4ba7780c2cc7a58cdb52b89d71bddc04d9e98ee59c7c7996d1e8d",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-elastic-002/invocation.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-elastic-002/inputs/hajali2009_medium_elastic_control.nmatter.gz",
+    "uncompressed_sha256": "0904e7d95ae66e9e3a8682c636d8937a80c471fbf37fea6305c182a5da9626df",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-elastic-002/hajali2009_medium_elastic_control.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-002/inputs/cardboard_paper_reference.hpp.gz",
+    "uncompressed_sha256": "637815c7a32e5626aa2c39d448aaabb68f29d99ced0868643f6ed1ba494d2506",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-elastic-002/cardboard_paper_reference.hpp",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-002/receipt.json",
+    "uncompressed_sha256": "6bde6ac79b09b99c6ac0c478feaf9952905070ef93dee1e85dcda037aebd329a",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-elastic-002/receipt.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-elastic-002/material_state_000008_bent.json.gz",
+    "uncompressed_sha256": "094064b3d9551c53789b57b8dec7032d26652a7c21d99fb7a536b769c1dfb28a",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-elastic-002/material_state_000008_bent.json",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-002/result.json",
+    "uncompressed_sha256": "f0329768d308a3fa0a5df549d0ec4c77e43c82d73cf8ce446ae7f87ae699da0f",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-elastic-002/result.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-elastic-002/material_state_000036_bent.json.gz",
+    "uncompressed_sha256": "094064b3d9551c53789b57b8dec7032d26652a7c21d99fb7a536b769c1dfb28a",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-elastic-002/material_state_000036_bent.json",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-002/accepted-audit.json",
+    "uncompressed_sha256": "d78bb8847c22f95471481222e03f06e1237034d54caf700d1c5ab19810194dd5",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-elastic-002/accepted-audit.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-elastic-002/material_state_000012_held_reference.json.gz",
+    "uncompressed_sha256": "c820918ca5b392b1e90e796112799793331e661baeba62c36074c65e16fe8708",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-elastic-002/material_state_000012_held_reference.json",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-002/material_state_000008_held_reference.json.gz",
+    "uncompressed_sha256": "c820918ca5b392b1e90e796112799793331e661baeba62c36074c65e16fe8708",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-elastic-002/material_state_000008_held_reference.json",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-002/material_state_000020_held_reference.json.gz",
+    "uncompressed_sha256": "c820918ca5b392b1e90e796112799793331e661baeba62c36074c65e16fe8708",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-elastic-002/material_state_000020_held_reference.json",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-002/manifest.json",
+    "uncompressed_sha256": "34a6d982ece4dfc0fbb6402b5c5b905d200055bc35ac0007dd045374d72cfea1",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-elastic-002/manifest.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-elastic-002/material_state_000020_bent.json.gz",
+    "uncompressed_sha256": "094064b3d9551c53789b57b8dec7032d26652a7c21d99fb7a536b769c1dfb28a",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-elastic-002/material_state_000020_bent.json",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-002/material_state_000012_bent.json.gz",
+    "uncompressed_sha256": "094064b3d9551c53789b57b8dec7032d26652a7c21d99fb7a536b769c1dfb28a",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-elastic-002/material_state_000012_bent.json",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-002/material_state_000036_held_reference.json.gz",
+    "uncompressed_sha256": "c820918ca5b392b1e90e796112799793331e661baeba62c36074c65e16fe8708",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-elastic-002/material_state_000036_held_reference.json",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-002/observations.csv",
+    "uncompressed_sha256": "82e04af55cd1d430a5be797f1fd8e96f290f8e13333ff16aae69721885c1c129",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-elastic-002/observations.csv",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-elastic-final-001/stderr.log",
+    "uncompressed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-elastic-final-001/stderr.log",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-elastic-final-001/inputs/cardboard_glue_mesh.hpp.gz",
+    "uncompressed_sha256": "d2668155580cdbdd09411d6cdac6a367a726e909d5dd6d4c9770e8f3822d0146",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-elastic-final-001/cardboard_glue_mesh.hpp",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-final-001/inputs/cardboard_probe.mm.gz",
+    "uncompressed_sha256": "f2370878b9b960571031d2a5ed8a20c9452e47111a4a4807ed0101579a6d279d",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-elastic-final-001/cardboard_probe.mm",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-final-001/inputs/source.patch.gz",
+    "uncompressed_sha256": "06b3eebfc39eea39210c7a351bbba58a8070d796c47cd5c7f1fdb6e2209e2862",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-elastic-final-001/source.patch",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-final-001/stdout.log",
+    "uncompressed_sha256": "f972bffcb61f71cbbca69b53a413cad4b77f6c6e53ab434b5db23f55949d195c",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-elastic-final-001/stdout.log",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-elastic-final-001/inputs/hajali2009_liner_elastic_control.nmatter.gz",
+    "uncompressed_sha256": "b91e94ce08c0252487c26f783ed125d76fb33bd20c18fd89edd427097d78b422",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-elastic-final-001/hajali2009_liner_elastic_control.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-final-001/inputs/starch2007_finite_glue_elastic.nmatter.gz",
+    "uncompressed_sha256": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-elastic-final-001/starch2007_finite_glue_elastic.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-final-001/invocation.json",
+    "uncompressed_sha256": "516f6972d8abeac5687ec399afc2bbc8337dc9de3ffbe37aec15c769a173c982",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-elastic-final-001/invocation.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-elastic-final-001/inputs/hajali2009_medium_elastic_control.nmatter.gz",
+    "uncompressed_sha256": "0904e7d95ae66e9e3a8682c636d8937a80c471fbf37fea6305c182a5da9626df",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-elastic-final-001/hajali2009_medium_elastic_control.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-final-001/receipt.json",
+    "uncompressed_sha256": "8c90fc8003b9a0aca29d5c43e99c82fc47409b2b60074ff4e07eaf219cd35563",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-elastic-final-001/receipt.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-elastic-final-001/material_state_000048_held_reference.json.gz",
+    "uncompressed_sha256": "478f2473baf283acf25d995e5354d91a3ec5792e8219a78736276c74f115e490",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-elastic-final-001/material_state_000048_held_reference.json",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-final-001/result.json",
+    "uncompressed_sha256": "88a81005acc8017a6cc652e5f02fc036725bf68a9f4747e3635c8f45b90c0ab5",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-elastic-final-001/result.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-elastic-final-001/material_state_000144_bent.json.gz",
+    "uncompressed_sha256": "fcc3f924482d7df7a9cdb8647680de0ecfc94385ee0edc670bcbe6fed026e4e3",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-elastic-final-001/material_state_000144_bent.json",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-final-001/material_state_000080_held_reference.json.gz",
+    "uncompressed_sha256": "478f2473baf283acf25d995e5354d91a3ec5792e8219a78736276c74f115e490",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-elastic-final-001/material_state_000080_held_reference.json",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-final-001/material_state_000048_bent.json.gz",
+    "uncompressed_sha256": "fcc3f924482d7df7a9cdb8647680de0ecfc94385ee0edc670bcbe6fed026e4e3",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-elastic-final-001/material_state_000048_bent.json",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-final-001/material_state_000032_bent.json.gz",
+    "uncompressed_sha256": "fcc3f924482d7df7a9cdb8647680de0ecfc94385ee0edc670bcbe6fed026e4e3",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-elastic-final-001/material_state_000032_bent.json",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-final-001/manifest.json",
+    "uncompressed_sha256": "d3af05e8669b83a1abc226363bc28228af45e67d6233ca4d868f95bb17e9553b",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-elastic-final-001/manifest.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-elastic-final-001/material_state_000144_held_reference.json.gz",
+    "uncompressed_sha256": "478f2473baf283acf25d995e5354d91a3ec5792e8219a78736276c74f115e490",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-elastic-final-001/material_state_000144_held_reference.json",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-final-001/material_state_000032_held_reference.json.gz",
+    "uncompressed_sha256": "478f2473baf283acf25d995e5354d91a3ec5792e8219a78736276c74f115e490",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-elastic-final-001/material_state_000032_held_reference.json",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-final-001/material_state_000080_bent.json.gz",
+    "uncompressed_sha256": "fcc3f924482d7df7a9cdb8647680de0ecfc94385ee0edc670bcbe6fed026e4e3",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-elastic-final-001/material_state_000080_bent.json",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-elastic-final-001/observations.csv",
+    "uncompressed_sha256": "4dcd0431a7ab85aa685e5a6709b4dd69f69f24fad826629ce274279f282c4079",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-elastic-final-001/observations.csv",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-plastic-cycle-001/inputs/hajali2009_medium_hill_ideal.nmatter.gz",
+    "uncompressed_sha256": "01507b68491e4d34255d65ed9ff14c17a08540c782fce1e92ea16d620a2007c0",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-cycle-001/hajali2009_medium_hill_ideal.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-cycle-001/inputs/hajali2009_liner_hill_ideal.nmatter.gz",
+    "uncompressed_sha256": "62f056400c7c0c42f0d831ffa8be9738ee666bd05b6d4513d7cfa82a5a32eb39",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-cycle-001/hajali2009_liner_hill_ideal.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-cycle-001/stderr.log",
+    "uncompressed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-cycle-001/stderr.log",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-plastic-cycle-001/inputs/cardboard_glue_mesh.hpp.gz",
+    "uncompressed_sha256": "d2668155580cdbdd09411d6cdac6a367a726e909d5dd6d4c9770e8f3822d0146",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-cycle-001/cardboard_glue_mesh.hpp",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-cycle-001/inputs/cardboard_probe.mm.gz",
+    "uncompressed_sha256": "8158918a06e68122305ccdc3808e84f382aed80bcc3ebf8dac3274f1aafaa81d",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-cycle-001/cardboard_probe.mm",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-cycle-001/inputs/nagasawa2013_medium_rct_elastic.nmatter.gz",
+    "uncompressed_sha256": "ea0173912b8bb78823970ef4f670478557eaa9e6a9342d7d31466a2286ffabd4",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-cycle-001/nagasawa2013_medium_rct_elastic.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-cycle-001/inputs/source.patch.gz",
+    "uncompressed_sha256": "3310bc8e75024f615ad2a7b26349a912d9ad97c6b1834a08e482fe8ce3118769",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-cycle-001/source.patch",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-cycle-001/inputs/nagasawa2013_medium_orthotropic.nmatter.gz",
+    "uncompressed_sha256": "ce39e29918c0111ab1e25e9af8a69eb0e3f7f6f07d1227bfd443da735d9ea348",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-cycle-001/nagasawa2013_medium_orthotropic.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-cycle-001/inputs/nagasawa2013_liner_orthotropic.nmatter.gz",
+    "uncompressed_sha256": "35f5c46318ad9f9c06cf7479e86460f803d65a66d3fd034a3a83170d83dfdecf",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-cycle-001/nagasawa2013_liner_orthotropic.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-cycle-001/stdout.log",
+    "uncompressed_sha256": "ad5e53944878f207e32b8740dd3c370a4be43069eaa6ce7b2b314f254c34890a",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-cycle-001/stdout.log",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-plastic-cycle-001/inputs/cardboard_profile.hpp.gz",
+    "uncompressed_sha256": "cda9e21278954a1fa74fca07ded5ed43bf9f73aeb5f16edeb5c7c4370f38c367",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-cycle-001/cardboard_profile.hpp",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-cycle-001/inputs/hajali2009_liner_elastic_control.nmatter.gz",
+    "uncompressed_sha256": "b91e94ce08c0252487c26f783ed125d76fb33bd20c18fd89edd427097d78b422",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-cycle-001/hajali2009_liner_elastic_control.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-cycle-001/inputs/starch2007_finite_glue_elastic.nmatter.gz",
+    "uncompressed_sha256": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-cycle-001/starch2007_finite_glue_elastic.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-cycle-001/invocation.json",
+    "uncompressed_sha256": "dee7eed47c68202ee6e4048e8d001474f188be0de749bde3da9a63c48e82eef5",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-cycle-001/invocation.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-plastic-cycle-001/inputs/hajali2009_medium_elastic_control.nmatter.gz",
+    "uncompressed_sha256": "0904e7d95ae66e9e3a8682c636d8937a80c471fbf37fea6305c182a5da9626df",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-cycle-001/hajali2009_medium_elastic_control.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-cycle-001/inputs/cardboard_paper_reference.hpp.gz",
+    "uncompressed_sha256": "a52a656df25b9cacfb5b476989305d88881d3a46e6a4c52dd04f7732984d3302",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-cycle-001/cardboard_paper_reference.hpp",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-cycle-001/receipt.json",
+    "uncompressed_sha256": "36b6022ca086938bc8c867e4343df7f1da5c04c83ec2ee27a0e221bdb3a7a634",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-cycle-001/receipt.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-plastic-cycle-001/result.json",
+    "uncompressed_sha256": "3cb326cac21945cfb823713ade62460bdc90e9c9890f0b42cfa838dc4a639333",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-plastic-cycle-001/result.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-plastic-cycle-001/manifest.json",
+    "uncompressed_sha256": "e0629e0a2399041b6830c911c3d9c3da1137b093410b1273aef367cfc6594ba0",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-plastic-cycle-001/manifest.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-plastic-cycle-001/observations.csv",
+    "uncompressed_sha256": "824828ea5ab871c69bca916c1da1b4d25791ca18be07ae6ba0bef86fdbc3f4ad",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-plastic-cycle-001/observations.csv",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-plastic-diagnostic-001/inputs/hajali2009_medium_hill_ideal.nmatter.gz",
+    "uncompressed_sha256": "01507b68491e4d34255d65ed9ff14c17a08540c782fce1e92ea16d620a2007c0",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-diagnostic-001/hajali2009_medium_hill_ideal.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-diagnostic-001/inputs/hajali2009_liner_hill_ideal.nmatter.gz",
+    "uncompressed_sha256": "62f056400c7c0c42f0d831ffa8be9738ee666bd05b6d4513d7cfa82a5a32eb39",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-diagnostic-001/hajali2009_liner_hill_ideal.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-diagnostic-001/stderr.log",
+    "uncompressed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-diagnostic-001/stderr.log",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-plastic-diagnostic-001/inputs/cardboard_glue_mesh.hpp.gz",
+    "uncompressed_sha256": "d2668155580cdbdd09411d6cdac6a367a726e909d5dd6d4c9770e8f3822d0146",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-diagnostic-001/cardboard_glue_mesh.hpp",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-diagnostic-001/inputs/cardboard_probe.mm.gz",
+    "uncompressed_sha256": "c5b028915e2740eccf6f6a2c490cc42ce5cdc2fef8d439a7956dae9d8ca92bc9",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-diagnostic-001/cardboard_probe.mm",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-diagnostic-001/inputs/nagasawa2013_medium_rct_elastic.nmatter.gz",
+    "uncompressed_sha256": "ea0173912b8bb78823970ef4f670478557eaa9e6a9342d7d31466a2286ffabd4",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-diagnostic-001/nagasawa2013_medium_rct_elastic.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-diagnostic-001/inputs/source.patch.gz",
+    "uncompressed_sha256": "fa70f7a890fb1e33dc7f18478f2a7832c931e14485941711a72f1c8fdac92a56",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-diagnostic-001/source.patch",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-diagnostic-001/inputs/nagasawa2013_medium_orthotropic.nmatter.gz",
+    "uncompressed_sha256": "ce39e29918c0111ab1e25e9af8a69eb0e3f7f6f07d1227bfd443da735d9ea348",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-diagnostic-001/nagasawa2013_medium_orthotropic.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-diagnostic-001/inputs/nagasawa2013_liner_orthotropic.nmatter.gz",
+    "uncompressed_sha256": "35f5c46318ad9f9c06cf7479e86460f803d65a66d3fd034a3a83170d83dfdecf",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-diagnostic-001/nagasawa2013_liner_orthotropic.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-diagnostic-001/stdout.log",
+    "uncompressed_sha256": "0363573d60d3ffc66711760ce5989e3a6022c16f6adc13f3aaf61b224509267a",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-diagnostic-001/stdout.log",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-plastic-diagnostic-001/inputs/cardboard_profile.hpp.gz",
+    "uncompressed_sha256": "cda9e21278954a1fa74fca07ded5ed43bf9f73aeb5f16edeb5c7c4370f38c367",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-diagnostic-001/cardboard_profile.hpp",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-diagnostic-001/inputs/hajali2009_liner_elastic_control.nmatter.gz",
+    "uncompressed_sha256": "b91e94ce08c0252487c26f783ed125d76fb33bd20c18fd89edd427097d78b422",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-diagnostic-001/hajali2009_liner_elastic_control.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-diagnostic-001/inputs/starch2007_finite_glue_elastic.nmatter.gz",
+    "uncompressed_sha256": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-diagnostic-001/starch2007_finite_glue_elastic.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-diagnostic-001/invocation.json",
+    "uncompressed_sha256": "0edab105bc49036e2ed7ef7e975bd0177349b046c2eab6cc6380bd00ea840f31",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-diagnostic-001/invocation.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-plastic-diagnostic-001/inputs/hajali2009_medium_elastic_control.nmatter.gz",
+    "uncompressed_sha256": "0904e7d95ae66e9e3a8682c636d8937a80c471fbf37fea6305c182a5da9626df",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-diagnostic-001/hajali2009_medium_elastic_control.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-diagnostic-001/inputs/cardboard_paper_reference.hpp.gz",
+    "uncompressed_sha256": "a52a656df25b9cacfb5b476989305d88881d3a46e6a4c52dd04f7732984d3302",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-diagnostic-001/cardboard_paper_reference.hpp",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-diagnostic-001/receipt.json",
+    "uncompressed_sha256": "c2421e3e7977c23540bbe43d6653fb9e492c22abf3e80b8b3e01781733c52b32",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-diagnostic-001/receipt.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-plastic-diagnostic-001/result.json",
+    "uncompressed_sha256": "73bbb267c71dfb5f738a07a7d0bfc490c77682bb0e9e3f700aebeecbe693f6f9",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-plastic-diagnostic-001/result.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-plastic-diagnostic-001/manifest.json",
+    "uncompressed_sha256": "f740e01aa5832e76cdc83e2028d50572ec0f68cbc295bd10b86c355758648438",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-plastic-diagnostic-001/manifest.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-plastic-diagnostic-001/observations.csv",
+    "uncompressed_sha256": "959efeb7a14be5922d27f211cdf82dfbe92d988167c6d5dff99975f7b845147e",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-plastic-diagnostic-001/observations.csv",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-plastic-no-contact-001/inputs/hajali2009_medium_hill_ideal.nmatter.gz",
+    "uncompressed_sha256": "01507b68491e4d34255d65ed9ff14c17a08540c782fce1e92ea16d620a2007c0",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-no-contact-001/hajali2009_medium_hill_ideal.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-no-contact-001/inputs/hajali2009_liner_hill_ideal.nmatter.gz",
+    "uncompressed_sha256": "62f056400c7c0c42f0d831ffa8be9738ee666bd05b6d4513d7cfa82a5a32eb39",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-no-contact-001/hajali2009_liner_hill_ideal.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-no-contact-001/stderr.log",
+    "uncompressed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-no-contact-001/stderr.log",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-plastic-no-contact-001/inputs/cardboard_glue_mesh.hpp.gz",
+    "uncompressed_sha256": "d2668155580cdbdd09411d6cdac6a367a726e909d5dd6d4c9770e8f3822d0146",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-no-contact-001/cardboard_glue_mesh.hpp",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-no-contact-001/inputs/cardboard_probe.mm.gz",
+    "uncompressed_sha256": "8158918a06e68122305ccdc3808e84f382aed80bcc3ebf8dac3274f1aafaa81d",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-no-contact-001/cardboard_probe.mm",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-no-contact-001/inputs/nagasawa2013_medium_rct_elastic.nmatter.gz",
+    "uncompressed_sha256": "ea0173912b8bb78823970ef4f670478557eaa9e6a9342d7d31466a2286ffabd4",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-no-contact-001/nagasawa2013_medium_rct_elastic.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-no-contact-001/inputs/source.patch.gz",
+    "uncompressed_sha256": "3310bc8e75024f615ad2a7b26349a912d9ad97c6b1834a08e482fe8ce3118769",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-no-contact-001/source.patch",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-no-contact-001/inputs/nagasawa2013_medium_orthotropic.nmatter.gz",
+    "uncompressed_sha256": "ce39e29918c0111ab1e25e9af8a69eb0e3f7f6f07d1227bfd443da735d9ea348",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-no-contact-001/nagasawa2013_medium_orthotropic.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-no-contact-001/inputs/nagasawa2013_liner_orthotropic.nmatter.gz",
+    "uncompressed_sha256": "35f5c46318ad9f9c06cf7479e86460f803d65a66d3fd034a3a83170d83dfdecf",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-no-contact-001/nagasawa2013_liner_orthotropic.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-no-contact-001/stdout.log",
+    "uncompressed_sha256": "c20a9027909ccc99288d44eb6fbe03643911086210be275323fefeee2e12da33",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-no-contact-001/stdout.log",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-plastic-no-contact-001/inputs/cardboard_profile.hpp.gz",
+    "uncompressed_sha256": "cda9e21278954a1fa74fca07ded5ed43bf9f73aeb5f16edeb5c7c4370f38c367",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-no-contact-001/cardboard_profile.hpp",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-no-contact-001/inputs/hajali2009_liner_elastic_control.nmatter.gz",
+    "uncompressed_sha256": "b91e94ce08c0252487c26f783ed125d76fb33bd20c18fd89edd427097d78b422",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-no-contact-001/hajali2009_liner_elastic_control.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-no-contact-001/inputs/starch2007_finite_glue_elastic.nmatter.gz",
+    "uncompressed_sha256": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-no-contact-001/starch2007_finite_glue_elastic.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-no-contact-001/invocation.json",
+    "uncompressed_sha256": "df57b3eed4428b74b7272161127c78653c4c095c4889950f1443ce9897bfed0d",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-no-contact-001/invocation.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-plastic-no-contact-001/inputs/hajali2009_medium_elastic_control.nmatter.gz",
+    "uncompressed_sha256": "0904e7d95ae66e9e3a8682c636d8937a80c471fbf37fea6305c182a5da9626df",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-no-contact-001/hajali2009_medium_elastic_control.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-no-contact-001/inputs/cardboard_paper_reference.hpp.gz",
+    "uncompressed_sha256": "a52a656df25b9cacfb5b476989305d88881d3a46e6a4c52dd04f7732984d3302",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-no-contact-001/cardboard_paper_reference.hpp",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-no-contact-001/receipt.json",
+    "uncompressed_sha256": "4038141ebb07c682de8ef287ec4144e25086671f0c56aaae93c09cb5961c28f3",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-no-contact-001/receipt.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-plastic-no-contact-001/result.json",
+    "uncompressed_sha256": "c17796365c46a9396d741e31237c66009cadbe68bb65383538f05b2d0fc5ff26",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-plastic-no-contact-001/result.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-plastic-no-contact-001/manifest.json",
+    "uncompressed_sha256": "457401f4c1c4eae42ad47a7695cb75eecaacab16d30845466c2dfdf40742b5ca",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-plastic-no-contact-001/manifest.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-plastic-no-contact-001/observations.csv",
+    "uncompressed_sha256": "824828ea5ab871c69bca916c1da1b4d25791ca18be07ae6ba0bef86fdbc3f4ad",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-plastic-no-contact-001/observations.csv",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-plastic-refine-time-001/inputs/hajali2009_medium_hill_ideal.nmatter.gz",
+    "uncompressed_sha256": "01507b68491e4d34255d65ed9ff14c17a08540c782fce1e92ea16d620a2007c0",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-refine-time-001/hajali2009_medium_hill_ideal.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-refine-time-001/inputs/hajali2009_liner_hill_ideal.nmatter.gz",
+    "uncompressed_sha256": "62f056400c7c0c42f0d831ffa8be9738ee666bd05b6d4513d7cfa82a5a32eb39",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-refine-time-001/hajali2009_liner_hill_ideal.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-refine-time-001/stderr.log",
+    "uncompressed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-refine-time-001/stderr.log",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-plastic-refine-time-001/inputs/cardboard_glue_mesh.hpp.gz",
+    "uncompressed_sha256": "d2668155580cdbdd09411d6cdac6a367a726e909d5dd6d4c9770e8f3822d0146",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-refine-time-001/cardboard_glue_mesh.hpp",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-refine-time-001/inputs/cardboard_probe.mm.gz",
+    "uncompressed_sha256": "2fccdd6ae01e77262d12311f43dabeb3fe369979dae233d4466071f42725a9d7",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-refine-time-001/cardboard_probe.mm",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-refine-time-001/inputs/nagasawa2013_medium_rct_elastic.nmatter.gz",
+    "uncompressed_sha256": "ea0173912b8bb78823970ef4f670478557eaa9e6a9342d7d31466a2286ffabd4",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-refine-time-001/nagasawa2013_medium_rct_elastic.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-refine-time-001/inputs/source.patch.gz",
+    "uncompressed_sha256": "11f16c759dee6e8244bb1ff86a9054388f04d77f494f65b967f5828a3557e55d",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-refine-time-001/source.patch",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-refine-time-001/inputs/nagasawa2013_medium_orthotropic.nmatter.gz",
+    "uncompressed_sha256": "ce39e29918c0111ab1e25e9af8a69eb0e3f7f6f07d1227bfd443da735d9ea348",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-refine-time-001/nagasawa2013_medium_orthotropic.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-refine-time-001/inputs/nagasawa2013_liner_orthotropic.nmatter.gz",
+    "uncompressed_sha256": "35f5c46318ad9f9c06cf7479e86460f803d65a66d3fd034a3a83170d83dfdecf",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-refine-time-001/nagasawa2013_liner_orthotropic.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-refine-time-001/stdout.log",
+    "uncompressed_sha256": "97f48ccc5fa6b7fc492c185c18ba3013ec8f39f3f8ee7262a259baac550413d3",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-refine-time-001/stdout.log",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-plastic-refine-time-001/inputs/cardboard_profile.hpp.gz",
+    "uncompressed_sha256": "cda9e21278954a1fa74fca07ded5ed43bf9f73aeb5f16edeb5c7c4370f38c367",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-refine-time-001/cardboard_profile.hpp",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-refine-time-001/inputs/liner.nmatter.gz",
+    "uncompressed_sha256": "c6cd258db8516a7ef3a3a8c1f2482c1a32e1e8b972dd07dbf8b4fb6a9e9d758c",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-refine-time-001/liner.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-refine-time-001/inputs/hajali2009_liner_elastic_control.nmatter.gz",
+    "uncompressed_sha256": "b91e94ce08c0252487c26f783ed125d76fb33bd20c18fd89edd427097d78b422",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-refine-time-001/hajali2009_liner_elastic_control.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-refine-time-001/inputs/starch2007_finite_glue_elastic.nmatter.gz",
+    "uncompressed_sha256": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-refine-time-001/starch2007_finite_glue_elastic.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-refine-time-001/inputs/medium.nmatter.gz",
+    "uncompressed_sha256": "d1665e8846f48bc366f0f3d50bb8eafb8c6d382dd0acf9d9c4f8f8848a3cfce5",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-refine-time-001/medium.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-refine-time-001/invocation.json",
+    "uncompressed_sha256": "0806e6f8e95b85e5630255d3f105c675b1a12e179df36a77d9ca6d3c93412b6c",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-refine-time-001/invocation.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-plastic-refine-time-001/inputs/hajali2009_medium_elastic_control.nmatter.gz",
+    "uncompressed_sha256": "0904e7d95ae66e9e3a8682c636d8937a80c471fbf37fea6305c182a5da9626df",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-refine-time-001/hajali2009_medium_elastic_control.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-refine-time-001/inputs/cardboard_paper_reference.hpp.gz",
+    "uncompressed_sha256": "a52a656df25b9cacfb5b476989305d88881d3a46e6a4c52dd04f7732984d3302",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-refine-time-001/cardboard_paper_reference.hpp",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-refine-time-001/receipt.json",
+    "uncompressed_sha256": "03af9accaf703b90486d9bf729f9fd6be40a59f71fd84b6bb8c643f2eaa041a0",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-refine-time-001/receipt.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-plastic-refine-time-001/material_state_000048_held_reference.json.gz",
+    "uncompressed_sha256": "b46ecda430d5825d2710ca54a68dcbeec1e74ac34dca9ac37e938dba3c9cfd09",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-plastic-refine-time-001/material_state_000048_held_reference.json",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-refine-time-001/result.json",
+    "uncompressed_sha256": "bd2c05c168726adc66a4453888d0ae373d35fef00bf71d3c4847620641e7a60f",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-plastic-refine-time-001/result.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-plastic-refine-time-001/material_state_000144_bent.json.gz",
+    "uncompressed_sha256": "34404039e0e28c652e6805130151c87fad4c00a1a019b3c7143dde8b5973cffb",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-plastic-refine-time-001/material_state_000144_bent.json",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-refine-time-001/material_state_000080_held_reference.json.gz",
+    "uncompressed_sha256": "da4525d5c99dff90cca24a6271d0019a38307e00bc964ac7ed5eef2961ca4ea6",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-plastic-refine-time-001/material_state_000080_held_reference.json",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-refine-time-001/material_state_000048_bent.json.gz",
+    "uncompressed_sha256": "6c7c3d9be8c8a6483b232080a66b21a92cd39f329dfe4ad027f7988210a79db5",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-plastic-refine-time-001/material_state_000048_bent.json",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-refine-time-001/material_state_000032_bent.json.gz",
+    "uncompressed_sha256": "094798973f55649d5a0b175675026e12c0e1ab9b50d6ae65eeaf4271575a8785",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-plastic-refine-time-001/material_state_000032_bent.json",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-refine-time-001/manifest.json",
+    "uncompressed_sha256": "44f61fe51d05e2fbbac063356832c48c2f16ccc026feaf0582cb3d415b8c6c67",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-plastic-refine-time-001/manifest.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-plastic-refine-time-001/material_state_000144_held_reference.json.gz",
+    "uncompressed_sha256": "1622a50f40411e229de2c6659dec5ead06d83e7dc98760e4a6186102525d9aa6",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-plastic-refine-time-001/material_state_000144_held_reference.json",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-refine-time-001/material_state_000032_held_reference.json.gz",
+    "uncompressed_sha256": "73690a20bb6a5656f284e41f04a54d1e3bd5f002970137bbf42233782ee812d8",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-plastic-refine-time-001/material_state_000032_held_reference.json",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-refine-time-001/material_state_000080_bent.json.gz",
+    "uncompressed_sha256": "14da2b45c6c10e873adef2fa9f514df9fbcd615ff5d2ef98d4b71fbed774e022",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-plastic-refine-time-001/material_state_000080_bent.json",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-refine-time-001/observations.csv",
+    "uncompressed_sha256": "45bc4021f23b556487f9aeda6dd6592fd60972f9f492eed162e0e11a35efcc41",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-plastic-refine-time-001/observations.csv",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-plastic-rest-001/inputs/hajali2009_medium_hill_ideal.nmatter.gz",
+    "uncompressed_sha256": "01507b68491e4d34255d65ed9ff14c17a08540c782fce1e92ea16d620a2007c0",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-rest-001/hajali2009_medium_hill_ideal.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-rest-001/inputs/hajali2009_liner_hill_ideal.nmatter.gz",
+    "uncompressed_sha256": "62f056400c7c0c42f0d831ffa8be9738ee666bd05b6d4513d7cfa82a5a32eb39",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-rest-001/hajali2009_liner_hill_ideal.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-rest-001/stderr.log",
+    "uncompressed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-rest-001/stderr.log",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-plastic-rest-001/inputs/cardboard_glue_mesh.hpp.gz",
+    "uncompressed_sha256": "d2668155580cdbdd09411d6cdac6a367a726e909d5dd6d4c9770e8f3822d0146",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-rest-001/cardboard_glue_mesh.hpp",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-rest-001/inputs/cardboard_probe.mm.gz",
+    "uncompressed_sha256": "c5b028915e2740eccf6f6a2c490cc42ce5cdc2fef8d439a7956dae9d8ca92bc9",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-rest-001/cardboard_probe.mm",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-rest-001/inputs/nagasawa2013_medium_rct_elastic.nmatter.gz",
+    "uncompressed_sha256": "ea0173912b8bb78823970ef4f670478557eaa9e6a9342d7d31466a2286ffabd4",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-rest-001/nagasawa2013_medium_rct_elastic.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-rest-001/inputs/source.patch.gz",
+    "uncompressed_sha256": "fd2694247f4cebbe4f87f629168d1caeffe87e20faab8c08e7e9cebfe03780ad",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-rest-001/source.patch",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-rest-001/inputs/nagasawa2013_medium_orthotropic.nmatter.gz",
+    "uncompressed_sha256": "ce39e29918c0111ab1e25e9af8a69eb0e3f7f6f07d1227bfd443da735d9ea348",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-rest-001/nagasawa2013_medium_orthotropic.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-rest-001/inputs/nagasawa2013_liner_orthotropic.nmatter.gz",
+    "uncompressed_sha256": "35f5c46318ad9f9c06cf7479e86460f803d65a66d3fd034a3a83170d83dfdecf",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-rest-001/nagasawa2013_liner_orthotropic.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-rest-001/stdout.log",
+    "uncompressed_sha256": "1edcc642c636661609f42d25e65f86bc9ab0f19c6f816232642f6b211d00b615",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-rest-001/stdout.log",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-plastic-rest-001/inputs/cardboard_profile.hpp.gz",
+    "uncompressed_sha256": "cda9e21278954a1fa74fca07ded5ed43bf9f73aeb5f16edeb5c7c4370f38c367",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-rest-001/cardboard_profile.hpp",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-rest-001/inputs/hajali2009_liner_elastic_control.nmatter.gz",
+    "uncompressed_sha256": "b91e94ce08c0252487c26f783ed125d76fb33bd20c18fd89edd427097d78b422",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-rest-001/hajali2009_liner_elastic_control.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-rest-001/inputs/starch2007_finite_glue_elastic.nmatter.gz",
+    "uncompressed_sha256": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-rest-001/starch2007_finite_glue_elastic.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-rest-001/invocation.json",
+    "uncompressed_sha256": "765860d6978e65b631747897fb4c2b26d4f7e5ef5f65583e1ed65429f1de8e1a",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-rest-001/invocation.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-plastic-rest-001/inputs/hajali2009_medium_elastic_control.nmatter.gz",
+    "uncompressed_sha256": "0904e7d95ae66e9e3a8682c636d8937a80c471fbf37fea6305c182a5da9626df",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-rest-001/hajali2009_medium_elastic_control.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-rest-001/inputs/cardboard_paper_reference.hpp.gz",
+    "uncompressed_sha256": "a52a656df25b9cacfb5b476989305d88881d3a46e6a4c52dd04f7732984d3302",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-rest-001/cardboard_paper_reference.hpp",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-rest-001/receipt.json",
+    "uncompressed_sha256": "b2d2100b19bf2a6fb31adcfa41bb65ac9788bec689ee15783d8f26db4ba83619",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-rest-001/receipt.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-plastic-rest-001/result.json",
+    "uncompressed_sha256": "5967547bab3d3432e3650dd966402cacebd2a53be549d64a3015820827688b0a",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-plastic-rest-001/result.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-plastic-rest-001/manifest.json",
+    "uncompressed_sha256": "f8769994e45c464d46f28b12425abe5ab6a2e44142e610509d6f7d3569c007dc",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-plastic-rest-001/manifest.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-plastic-rest-001/observations.csv",
+    "uncompressed_sha256": "0973b1a1df3d713d73c2e6e494ad17ab792261f1f95522ca904605169870fff4",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-plastic-rest-001/observations.csv",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-plastic-scale10-001/inputs/hajali2009_medium_hill_ideal.nmatter.gz",
+    "uncompressed_sha256": "01507b68491e4d34255d65ed9ff14c17a08540c782fce1e92ea16d620a2007c0",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-scale10-001/hajali2009_medium_hill_ideal.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-scale10-001/inputs/hajali2009_liner_hill_ideal.nmatter.gz",
+    "uncompressed_sha256": "62f056400c7c0c42f0d831ffa8be9738ee666bd05b6d4513d7cfa82a5a32eb39",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-scale10-001/hajali2009_liner_hill_ideal.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-scale10-001/stderr.log",
+    "uncompressed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-scale10-001/stderr.log",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-plastic-scale10-001/inputs/cardboard_glue_mesh.hpp.gz",
+    "uncompressed_sha256": "d2668155580cdbdd09411d6cdac6a367a726e909d5dd6d4c9770e8f3822d0146",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-scale10-001/cardboard_glue_mesh.hpp",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-scale10-001/inputs/cardboard_probe.mm.gz",
+    "uncompressed_sha256": "8158918a06e68122305ccdc3808e84f382aed80bcc3ebf8dac3274f1aafaa81d",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-scale10-001/cardboard_probe.mm",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-scale10-001/inputs/nagasawa2013_medium_rct_elastic.nmatter.gz",
+    "uncompressed_sha256": "ea0173912b8bb78823970ef4f670478557eaa9e6a9342d7d31466a2286ffabd4",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-scale10-001/nagasawa2013_medium_rct_elastic.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-scale10-001/inputs/source.patch.gz",
+    "uncompressed_sha256": "6813b00280c1df53bc6ca784adf7c4ac893f1df784d092521c120ab88d97fe40",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-scale10-001/source.patch",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-scale10-001/inputs/nagasawa2013_medium_orthotropic.nmatter.gz",
+    "uncompressed_sha256": "ce39e29918c0111ab1e25e9af8a69eb0e3f7f6f07d1227bfd443da735d9ea348",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-scale10-001/nagasawa2013_medium_orthotropic.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-scale10-001/inputs/nagasawa2013_liner_orthotropic.nmatter.gz",
+    "uncompressed_sha256": "35f5c46318ad9f9c06cf7479e86460f803d65a66d3fd034a3a83170d83dfdecf",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-scale10-001/nagasawa2013_liner_orthotropic.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-scale10-001/stdout.log",
+    "uncompressed_sha256": "c8b4213f6c7d7f660645e28f9971797a98ff67fb4bfca5005afaa4bea9b5f88f",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-scale10-001/stdout.log",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-plastic-scale10-001/inputs/cardboard_profile.hpp.gz",
+    "uncompressed_sha256": "cda9e21278954a1fa74fca07ded5ed43bf9f73aeb5f16edeb5c7c4370f38c367",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-scale10-001/cardboard_profile.hpp",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-scale10-001/inputs/liner.nmatter.gz",
+    "uncompressed_sha256": "c6cd258db8516a7ef3a3a8c1f2482c1a32e1e8b972dd07dbf8b4fb6a9e9d758c",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-scale10-001/liner.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-scale10-001/inputs/hajali2009_liner_elastic_control.nmatter.gz",
+    "uncompressed_sha256": "b91e94ce08c0252487c26f783ed125d76fb33bd20c18fd89edd427097d78b422",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-scale10-001/hajali2009_liner_elastic_control.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-scale10-001/inputs/starch2007_finite_glue_elastic.nmatter.gz",
+    "uncompressed_sha256": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-scale10-001/starch2007_finite_glue_elastic.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-scale10-001/inputs/medium.nmatter.gz",
+    "uncompressed_sha256": "d1665e8846f48bc366f0f3d50bb8eafb8c6d382dd0acf9d9c4f8f8848a3cfce5",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-scale10-001/medium.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-scale10-001/invocation.json",
+    "uncompressed_sha256": "f20baeb948cb2ca9da95dec5bb61a462a516d5a10a78e885c8f13da3e2e1d72a",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-scale10-001/invocation.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-plastic-scale10-001/inputs/hajali2009_medium_elastic_control.nmatter.gz",
+    "uncompressed_sha256": "0904e7d95ae66e9e3a8682c636d8937a80c471fbf37fea6305c182a5da9626df",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-scale10-001/hajali2009_medium_elastic_control.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-scale10-001/inputs/cardboard_paper_reference.hpp.gz",
+    "uncompressed_sha256": "a52a656df25b9cacfb5b476989305d88881d3a46e6a4c52dd04f7732984d3302",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-scale10-001/cardboard_paper_reference.hpp",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-plastic-scale10-001/receipt.json",
+    "uncompressed_sha256": "1f432ce148ec4ad376ba904c435210a52ddea8848bebc556c84d1638715050ed",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-plastic-scale10-001/receipt.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-plastic-scale10-001/result.json",
+    "uncompressed_sha256": "9fa67a7b01e0bed309b505e83ff785f134341da83b42daee50c30d6cb6f29dbc",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-plastic-scale10-001/result.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-plastic-scale10-001/manifest.json",
+    "uncompressed_sha256": "937825b98f062d732624213937e3ecc3bfc1b7cc286c4d9e8beb1d0f7f1712be",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-plastic-scale10-001/manifest.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-plastic-scale10-001/observations.csv",
+    "uncompressed_sha256": "1b99977d57f87f35f4d3123b2b5b70fdb29b6c88522d434411365b441a7a22cb",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-plastic-scale10-001/observations.csv",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-unused-angle-final-001/inputs/hajali2009_medium_hill_ideal.nmatter.gz",
+    "uncompressed_sha256": "ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-unused-angle-final-001/hajali2009_medium_hill_ideal.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-unused-angle-final-001/inputs/hajali2009_liner_hill_ideal.nmatter.gz",
+    "uncompressed_sha256": "787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-unused-angle-final-001/hajali2009_liner_hill_ideal.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-unused-angle-final-001/stderr.log",
+    "uncompressed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-unused-angle-final-001/stderr.log",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-unused-angle-final-001/inputs/cardboard_glue_mesh.hpp.gz",
+    "uncompressed_sha256": "d2668155580cdbdd09411d6cdac6a367a726e909d5dd6d4c9770e8f3822d0146",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-unused-angle-final-001/cardboard_glue_mesh.hpp",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-unused-angle-final-001/inputs/cardboard_probe.mm.gz",
+    "uncompressed_sha256": "f2370878b9b960571031d2a5ed8a20c9452e47111a4a4807ed0101579a6d279d",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-unused-angle-final-001/cardboard_probe.mm",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-unused-angle-final-001/inputs/source.patch.gz",
+    "uncompressed_sha256": "06b3eebfc39eea39210c7a351bbba58a8070d796c47cd5c7f1fdb6e2209e2862",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-unused-angle-final-001/source.patch",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-unused-angle-final-001/stdout.log",
+    "uncompressed_sha256": "0500567beb049f8ac9b5a5874b904662c6394e53c2dd7fb08a05209007ffbc48",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-unused-angle-final-001/stdout.log",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-unused-angle-final-001/inputs/starch2007_finite_glue_elastic.nmatter.gz",
+    "uncompressed_sha256": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-unused-angle-final-001/starch2007_finite_glue_elastic.nmatter",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-unused-angle-final-001/invocation.json",
+    "uncompressed_sha256": "f92f7744869239392a74bb8c5597c64b7621ba765b66de252340c16613f21b86",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-unused-angle-final-001/invocation.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-unused-angle-final-001/receipt.json",
+    "uncompressed_sha256": "57dc6802e5d76bda940535633895595dc951f90db01619a6d25f245942d2df15",
+    "source": "/Users/home/cardboard-evidence-20261006/receipts/finite-glue-unused-angle-final-001/receipt.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-unused-angle-final-001/material_state_000048_held_reference.json.gz",
+    "uncompressed_sha256": "e25e40c5863c7daadfebc2b321421743bde93bc24e4dc95ce42ce3796ca906bf",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-unused-angle-final-001/material_state_000048_held_reference.json",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-unused-angle-final-001/result.json",
+    "uncompressed_sha256": "6d4c12e8c44eddfea92fc56adef69ee0773c6d9202b47fbfcf8b4865f65285b1",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-unused-angle-final-001/result.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-unused-angle-final-001/material_state_000144_bent.json.gz",
+    "uncompressed_sha256": "e6e112fe6755d0407038448b31bf4fdcb477b5e0cb2340cc90c124570986f46a",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-unused-angle-final-001/material_state_000144_bent.json",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-unused-angle-final-001/material_state_000080_held_reference.json.gz",
+    "uncompressed_sha256": "8cb8bc0c25f8153145b7e4302014b57ef7da9a0a45627fa7d7adf1c7d394cc30",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-unused-angle-final-001/material_state_000080_held_reference.json",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-unused-angle-final-001/material_state_000048_bent.json.gz",
+    "uncompressed_sha256": "bafbd5f465b426ca20bd8409f4f69cd2e698690b7e770020e592bdee7fcc14d9",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-unused-angle-final-001/material_state_000048_bent.json",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-unused-angle-final-001/material_state_000032_bent.json.gz",
+    "uncompressed_sha256": "e5f3dce63c331184338acbb8f0f8ffb08a295bda51c67db9428fc79cd7bb60f0",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-unused-angle-final-001/material_state_000032_bent.json",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-unused-angle-final-001/manifest.json",
+    "uncompressed_sha256": "fecffd697f7e844a4a6cafa6b00b579959d12d5cdbd995078cbd9f5793e37c8b",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-unused-angle-final-001/manifest.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-unused-angle-final-001/material_state_000144_held_reference.json.gz",
+    "uncompressed_sha256": "6e67c83d2856d39556c03bcb689b010355fa878b99c1d2e5d0ff3581d84a840a",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-unused-angle-final-001/material_state_000144_held_reference.json",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-unused-angle-final-001/material_state_000032_held_reference.json.gz",
+    "uncompressed_sha256": "7258e4658049411ad66a75e00580c83db69fae463c6fbae42b91b5458674f34b",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-unused-angle-final-001/material_state_000032_held_reference.json",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-unused-angle-final-001/material_state_000080_bent.json.gz",
+    "uncompressed_sha256": "570d55a6fc082d0fea24f15e929cd9f9dc632616bd8c08416e7fca09fb6d7ee6",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-unused-angle-final-001/material_state_000080_bent.json",
+    "gzip": true
+  },
+  {
+    "file": "finite-glue-unused-angle-final-001/final-audit.json",
+    "uncompressed_sha256": "0ca1c1a990c17d462299a63fb249765ce78e82f2fc566e08bd5d276d8827c133",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-unused-angle-final-001/final-audit.json",
+    "gzip": false
+  },
+  {
+    "file": "finite-glue-unused-angle-final-001/observations.csv",
+    "uncompressed_sha256": "14cc494e1f03ed76ad56f2025fd04d9b1b3d33b42ea2a059eeae260677b3235a",
+    "source": "/Users/home/cardboard-evidence-20261006/finite-glue-unused-angle-final-001/observations.csv",
+    "gzip": false
+  },
+  {
+    "file": "paper-residual-scale-10/hajali2009_liner_hill_ideal_residual-scale-10.nmatter",
+    "uncompressed_sha256": "c6cd258db8516a7ef3a3a8c1f2482c1a32e1e8b972dd07dbf8b4fb6a9e9d758c",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-residual-scale-10/hajali2009_liner_hill_ideal_residual-scale-10.nmatter",
+    "gzip": false
+  },
+  {
+    "file": "paper-residual-scale-10/paper_fp32_residual_scale_trace.cpp.gz",
+    "uncompressed_sha256": "d0ca522a9c3370d09ac94d93fd53ba8b89f263dc17ffd12fcbb9bcb464a0dda6",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-residual-scale-10/paper_fp32_residual_scale_trace.cpp",
+    "gzip": true
+  },
+  {
+    "file": "paper-residual-scale-10/fp32-local-trace.txt.gz",
+    "uncompressed_sha256": "44809e8fed1be46de669ab1acccd74b8421738f0bfeaf99edf7155f1886443ae",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-residual-scale-10/fp32-local-trace.txt",
+    "gzip": true
+  },
+  {
+    "file": "paper-residual-scale-10/hajali2009_medium_hill_ideal_residual-scale-10.nmatter",
+    "uncompressed_sha256": "d1665e8846f48bc366f0f3d50bb8eafb8c6d382dd0acf9d9c4f8f8848a3cfce5",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-residual-scale-10/hajali2009_medium_hill_ideal_residual-scale-10.nmatter",
+    "gzip": false
+  },
+  {
+    "file": "paper-residual-scale-10/README.md",
+    "uncompressed_sha256": "3470e867a00a20604b8ff891c757bbd87526be1627cc604b85af4b4198ece315",
+    "source": "/Users/home/cardboard-evidence-20261006/paper-residual-scale-10/README.md",
+    "gzip": false
+  }
+]

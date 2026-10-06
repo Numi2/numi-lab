@@ -570,10 +570,6 @@ private:
         if (material.stateUpdateRoots[*state] != NM_INVALID_INDEX) {
             error(nameToken, "duplicate update for state '" + name + "'");
         }
-        if (*state < material.stateImplicitRoots.size() &&
-            material.stateImplicitRoots[*state] != NM_INVALID_INDEX) {
-            error(nameToken, "state '" + name + "' cannot have both update and implicit evolution");
-        }
         material.stateUpdateRoots[*state] = root;
     }
 
@@ -601,10 +597,6 @@ private:
             material.internalState.size(), NM_INVALID_INDEX);
         if (material.stateImplicitRoots[*state] != NM_INVALID_INDEX) {
             error(nameToken, "duplicate implicit residual for state '" + name + "'");
-        }
-        if (*state < material.stateUpdateRoots.size() &&
-            material.stateUpdateRoots[*state] != NM_INVALID_INDEX) {
-            error(nameToken, "state '" + name + "' cannot have both update and implicit evolution");
         }
         material.stateImplicitRoots[*state] = root;
     }

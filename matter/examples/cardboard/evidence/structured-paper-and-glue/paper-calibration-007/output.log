@@ -1,0 +1,3 @@
+device=Apple M4 production_projection_and_algorithmic_tangent=true physical_steps=0
+hajali2009_liner_hill_ideal case=md_elastic valid=1 oracle_stress_relative=1.68165e-05 oracle_Ep_absolute=0 q=0.244493 max_Ep=0 plastic_work_J_m3=0 tangent_fd_relative=0.00100063
+hajali2009_liner_hill_ideal case=md_plastic valid=1 oracle_stress_relative=1.10384e-05 oracle_Ep_absolute=1.8451e-07FAIL FD projection failed plus=0 minus=0 plus_projection=0 minus_projection=0 at md_plastic

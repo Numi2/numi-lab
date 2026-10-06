@@ -1,0 +1,79 @@
+{
+  "schema": "numi.cardboard.geometry-audit.v1",
+  "status": "passed",
+  "scope": "Exported geometry validity and measured deformation; no claim of physical calibration or solver convergence",
+  "nodes": 588,
+  "free_nodes": 564,
+  "fixed_nodes": 24,
+  "tetrahedra": 960,
+  "connected_components": 1,
+  "minimum_reference_tet_volume_m3": 2.9999999999999444e-11,
+  "total_regional_mass_kg": 0.0003942508145537677,
+  "authored_extent_m": [
+    0.0316,
+    0.02,
+    0.00421
+  ],
+  "max_node_displacement_m": 1.555024121960894e-09,
+  "max_free_node_displacement_m": 1.0123982817025533e-09,
+  "materials": [
+    {
+      "material_index": 0,
+      "tetrahedra": 576,
+      "volume_m3": 3.501280000000002e-07,
+      "mass_kg": 0.0002681980480000001,
+      "min_J": 0.9999978177754959,
+      "max_J": 1.0000043855357095,
+      "max_abs_material_log_stretch_M_C_T": [
+        4.333323933086913e-06,
+        2.000000030049519e-08,
+        7.220216030857099e-08
+      ],
+      "max_abs_material_Green_shear_MC_MT_CT": [
+        6.949998117307826e-15,
+        3.0106008391708546e-16,
+        5.595781531197066e-15
+      ]
+    },
+    {
+      "material_index": 1,
+      "tetrahedra": 288,
+      "volume_m3": 1.606414113148235e-07,
+      "mass_kg": 0.00010907551828276516,
+      "min_J": 0.9999943589445509,
+      "max_J": 1.0000062536304737,
+      "max_abs_material_log_stretch_M_C_T": [
+        4.456822340299831e-06,
+        2.0000000411517495e-08,
+        5.978834154201633e-06
+      ],
+      "max_abs_material_Green_shear_MC_MT_CT": [
+        8.008694872682959e-15,
+        3.0270305504483558e-06,
+        9.797405101419969e-15
+      ]
+    },
+    {
+      "material_index": 2,
+      "tetrahedra": 96,
+      "volume_m3": 1.1318165514001627e-08,
+      "mass_kg": 1.697724827100244e-05,
+      "min_J": 0.9999966964554766,
+      "max_J": 1.0000039799984801,
+      "max_abs_material_log_stretch_M_C_T": [
+        4.219115451409534e-06,
+        2.0000000411517495e-08,
+        1.2847046968506683e-06
+      ],
+      "max_abs_material_Green_shear_MC_MT_CT": [
+        6.975479335594753e-15,
+        7.927534647337551e-07,
+        1.9312181684472577e-14
+      ]
+    }
+  ],
+  "inputs": {
+    "/Users/home/cardboard-evidence-20261006/finite-glue-compile-001/mesh.json": "add3e5f87879dac154eb4a31bb73b1c2de8740b04f29f05721f3b8198aa367e5",
+    "/Users/home/cardboard-evidence-20261006/finite-glue-compile-001/initial.obj": "3c802328457d3559e867dbf951e7a9890da8163dbb2cf6ee82914bab7fa86372"
+  }
+}

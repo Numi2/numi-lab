@@ -60,6 +60,25 @@ target_link_libraries(numi-matterc PRIVATE numi_matter_compiler)
 target_compile_options(numi-matterc PRIVATE -Wall -Wextra -Wpedantic -Werror)
 
 include(CTest)
+add_executable(numi-matter-cardboard-profile-check tools/cardboard_profile_check.cpp)
+target_compile_options(numi-matter-cardboard-profile-check PRIVATE -Wall -Wextra -Wpedantic -Werror)
+if(BUILD_TESTING)
+    add_test(NAME matter.compiler.cardboard_profile COMMAND numi-matter-cardboard-profile-check)
+    set_tests_properties(matter.compiler.cardboard_profile PROPERTIES LABELS "matter;cardboard;geometry" TIMEOUT 30)
+endif()
+add_executable(numi-matter-cardboard-glue-mesh-check tools/cardboard_glue_mesh_check.cpp)
+target_compile_options(numi-matter-cardboard-glue-mesh-check PRIVATE -Wall -Wextra -Wpedantic -Werror)
+if(BUILD_TESTING)
+    add_test(NAME matter.compiler.cardboard_glue_mesh COMMAND numi-matter-cardboard-glue-mesh-check)
+    set_tests_properties(matter.compiler.cardboard_glue_mesh PROPERTIES LABELS "matter;cardboard;geometry" TIMEOUT 60)
+endif()
+add_executable(numi-matter-cardboard-paper-material-check tools/cardboard_paper_material_check.cpp)
+target_link_libraries(numi-matter-cardboard-paper-material-check PRIVATE numi_matter_compiler)
+target_compile_options(numi-matter-cardboard-paper-material-check PRIVATE -Wall -Wextra -Wpedantic -Werror)
+if(BUILD_TESTING)
+    add_test(NAME matter.compiler.cardboard_paper COMMAND numi-matter-cardboard-paper-material-check)
+    set_tests_properties(matter.compiler.cardboard_paper PROPERTIES LABELS "matter;cardboard;material" TIMEOUT 120)
+endif()
 add_executable(numi-matter-cardboard-material-check tools/cardboard_material_check.cpp)
 target_link_libraries(numi-matter-cardboard-material-check PRIVATE numi_matter_compiler)
 target_compile_options(numi-matter-cardboard-material-check PRIVATE -Wall -Wextra -Wpedantic)
@@ -321,6 +340,31 @@ install(DIRECTORY materials/ DESTINATION share/numi-matter/materials)
 
 # Source-fibre law: FP64 independent oracle and actual Metal bytecode parity.
 if(APPLE)
+    set(NUMI_CARDBOARD_PAPER_AIR "${NUMI_MATTER_SHADER_DIR}/cardboard_paper_check.air")
+    set(NUMI_CARDBOARD_PAPER_METALLIB "${NUMI_MATTER_SHADER_DIR}/cardboard_paper_check.metallib")
+    add_custom_command(OUTPUT "${NUMI_CARDBOARD_PAPER_METALLIB}"
+        COMMAND "${CMAKE_COMMAND}" -E make_directory "${NUMI_MATTER_SHADER_DIR}"
+        COMMAND xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include" -I "${CMAKE_CURRENT_SOURCE_DIR}/../include"
+            -c "${CMAKE_CURRENT_SOURCE_DIR}/tools/cardboard_paper_check.metal" -o "${NUMI_CARDBOARD_PAPER_AIR}"
+        COMMAND xcrun -sdk macosx metallib "${NUMI_CARDBOARD_PAPER_AIR}" -o "${NUMI_CARDBOARD_PAPER_METALLIB}"
+        DEPENDS tools/cardboard_paper_check.metal src/metal/common.metalinc
+            include/numi/matter/shared.h include/numi/matter/fiber_exp_linear.h
+            "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/engine_types.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/rod_gpu_shared.h"
+        VERBATIM)
+    add_custom_target(numi_cardboard_paper_shaders DEPENDS "${NUMI_CARDBOARD_PAPER_METALLIB}")
+    add_executable(numi-matter-cardboard-paper-gpu-check tools/cardboard_paper_gpu_check.mm)
+    add_dependencies(numi-matter-cardboard-paper-gpu-check numi_cardboard_paper_shaders)
+    target_link_libraries(numi-matter-cardboard-paper-gpu-check PRIVATE numi_matter_compiler "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_compile_options(numi-matter-cardboard-paper-gpu-check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    target_compile_definitions(numi-matter-cardboard-paper-gpu-check PRIVATE NUMI_CARDBOARD_PAPER_METALLIB="${NUMI_CARDBOARD_PAPER_METALLIB}")
+    if(BUILD_TESTING)
+        add_test(NAME matter.metal.cardboard_paper COMMAND numi-matter-cardboard-paper-gpu-check
+            "${CMAKE_CURRENT_SOURCE_DIR}/materials/hajali2009_liner_hill_ideal.nmatter"
+            "${CMAKE_CURRENT_SOURCE_DIR}/materials/hajali2009_medium_hill_ideal.nmatter")
+        set_tests_properties(matter.metal.cardboard_paper PROPERTIES LABELS "matter;cardboard;plasticity" TIMEOUT 180)
+    endif()
     set(NUMI_FIBER_CHECK_AIR "${CMAKE_CURRENT_BINARY_DIR}/shaders/fiber_exp_linear_check.air")
     set(NUMI_FIBER_CHECK_METALLIB "${CMAKE_CURRENT_BINARY_DIR}/shaders/fiber_exp_linear_check.metallib")
     add_custom_command(OUTPUT "${NUMI_FIBER_CHECK_METALLIB}"

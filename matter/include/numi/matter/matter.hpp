@@ -223,13 +223,14 @@ struct MaterialProgram {
     std::uint32_t energyRoot = NM_INVALID_INDEX;
     std::uint32_t dissipationRoot = NM_INVALID_INDEX;
     std::uint32_t validityRoot = NM_INVALID_INDEX;
-    // One next-state expression per internal state. Missing entries are
-    // compiled as identity updates, so all state transitions remain explicit
-    // and transactionally reproducible on the GPU.
+    // One explicit state expression per internal state. Missing entries are
+    // compiled as identity updates. When a state also has an implicit
+    // residual, this expression seeds the generic local Newton solve; the
+    // residual alone determines the accepted candidate state.
     std::vector<std::uint32_t> stateUpdateRoots;
     // A residual R(next(state), state, F, Fdot, dt, T) = 0 for each
-    // implicitly integrated state. A state may own an update or a residual,
-    // never both.
+    // implicitly integrated state. An explicit update may accompany a
+    // residual as its Newton initial guess; it does not replace the residual.
     std::vector<std::uint32_t> stateImplicitRoots;
     std::vector<Representation> supportedRepresentations;
     ConstitutiveHint hint = ConstitutiveHint::generic;
@@ -758,6 +759,10 @@ struct CompileOptions {
     std::uint32_t maximumRateExponent = NM_MAX_RATE_EXPONENT;
     std::uint32_t maximumExpressionStack = NM_EXPRESSION_STACK_CAPACITY;
     bool emitSpecializedMetal = true;
+    // Bounded Newton budget for authored generic implicit material state.
+    // Kept at the historical per-material value unless a study explicitly
+    // selects another count; the cooked NMMaterialGPU carries this value.
+    std::uint32_t localMaterialNewtonIterations = 8u;
 };
 
 struct CompileResult {

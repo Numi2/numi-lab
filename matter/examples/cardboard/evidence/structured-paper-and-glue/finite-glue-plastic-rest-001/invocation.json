@@ -1,0 +1,41 @@
+{
+  "schema": "numi.cardboard.native-invocation.v1",
+  "argv": [
+    "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-cardboard-probe",
+    "--output",
+    "/Users/home/cardboard-evidence-20261006/finite-glue-plastic-rest-001",
+    "--preset",
+    "literature2009",
+    "--nx",
+    "8",
+    "--ny",
+    "1",
+    "--thickness-slices",
+    "1",
+    "--steps",
+    "1",
+    "--bend-angle",
+    "0"
+  ],
+  "started_utc": "2026-10-06T03:40:55.803253+00:00",
+  "bindings": {
+    "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-cardboard-probe": "8ffdba32ae8aab92116724450bfd9f1641a92686d919f3f7450c495a787c8213",
+    "/Users/home/numi-cardboard-20261006/build-cardboard/shaders/NumiMatter.metallib": "8611c7d6cb6c0812774b18cdc82b60a6d62814aa18158f57f678d2a93537c520",
+    "/Users/home/numi-cardboard-20261006/matter/materials/nagasawa2013_liner_orthotropic.nmatter": "35f5c46318ad9f9c06cf7479e86460f803d65a66d3fd034a3a83170d83dfdecf",
+    "/Users/home/numi-cardboard-20261006/matter/materials/nagasawa2013_medium_orthotropic.nmatter": "ce39e29918c0111ab1e25e9af8a69eb0e3f7f6f07d1227bfd443da735d9ea348",
+    "/Users/home/numi-cardboard-20261006/matter/materials/nagasawa2013_medium_rct_elastic.nmatter": "ea0173912b8bb78823970ef4f670478557eaa9e6a9342d7d31466a2286ffabd4",
+    "/Users/home/numi-cardboard-20261006/matter/materials/hajali2009_liner_elastic_control.nmatter": "b91e94ce08c0252487c26f783ed125d76fb33bd20c18fd89edd427097d78b422",
+    "/Users/home/numi-cardboard-20261006/matter/materials/hajali2009_liner_hill_ideal.nmatter": "62f056400c7c0c42f0d831ffa8be9738ee666bd05b6d4513d7cfa82a5a32eb39",
+    "/Users/home/numi-cardboard-20261006/matter/materials/hajali2009_medium_elastic_control.nmatter": "0904e7d95ae66e9e3a8682c636d8937a80c471fbf37fea6305c182a5da9626df",
+    "/Users/home/numi-cardboard-20261006/matter/materials/hajali2009_medium_hill_ideal.nmatter": "01507b68491e4d34255d65ed9ff14c17a08540c782fce1e92ea16d620a2007c0",
+    "/Users/home/numi-cardboard-20261006/matter/materials/starch2007_finite_glue_elastic.nmatter": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1",
+    "/Users/home/numi-cardboard-20261006/matter/tools/cardboard_glue_mesh.hpp": "d2668155580cdbdd09411d6cdac6a367a726e909d5dd6d4c9770e8f3822d0146",
+    "/Users/home/numi-cardboard-20261006/matter/tools/cardboard_paper_reference.hpp": "a52a656df25b9cacfb5b476989305d88881d3a46e6a4c52dd04f7732984d3302",
+    "/Users/home/numi-cardboard-20261006/matter/tools/cardboard_profile.hpp": "cda9e21278954a1fa74fca07ded5ed43bf9f73aeb5f16edeb5c7c4370f38c367",
+    "/Users/home/numi-cardboard-20261006/matter/tools/cardboard_probe.mm": "c5b028915e2740eccf6f6a2c490cc42ce5cdc2fef8d439a7956dae9d8ca92bc9"
+  },
+  "base_git_commit": "b1cfa538c1b4f9e75710184a32648afa734ebaac",
+  "purpose": "bounded numerical instrument qualification; no physical validation claim",
+  "timeout_seconds": 240,
+  "source_patch_sha256": "fd2694247f4cebbe4f87f629168d1caeffe87e20faab8c08e7e9cebfe03780ad"
+}

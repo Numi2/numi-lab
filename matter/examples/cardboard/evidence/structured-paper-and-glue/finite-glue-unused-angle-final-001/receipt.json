@@ -1,0 +1,28 @@
+{
+  "schema": "numi.cardboard.native-invocation.v1",
+  "argv": [
+    "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-cardboard-probe",
+    "--output",
+    "/Users/home/cardboard-evidence-20261006/finite-glue-unused-angle-final-001",
+    "--bend-angle",
+    ".125"
+  ],
+  "started_utc": "2026-10-06T04:04:38.107474+00:00",
+  "bindings": {
+    "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-cardboard-probe": "4a467d430f42dcb4094244eb6a9d23ffed7e4dd694f226af14b17514fbc95ea9",
+    "/Users/home/numi-cardboard-20261006/build-cardboard/shaders/NumiMatter.metallib": "2c6ceccc0909a7c2391a686d5aadc328241f0178f4095dd5e9837846f1c620f1",
+    "/Users/home/numi-cardboard-20261006/matter/materials/hajali2009_liner_hill_ideal.nmatter": "787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d",
+    "/Users/home/numi-cardboard-20261006/matter/materials/hajali2009_medium_hill_ideal.nmatter": "ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8",
+    "/Users/home/numi-cardboard-20261006/matter/materials/starch2007_finite_glue_elastic.nmatter": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1",
+    "/Users/home/numi-cardboard-20261006/matter/tools/cardboard_glue_mesh.hpp": "d2668155580cdbdd09411d6cdac6a367a726e909d5dd6d4c9770e8f3822d0146",
+    "/Users/home/numi-cardboard-20261006/matter/tools/cardboard_probe.mm": "f2370878b9b960571031d2a5ed8a20c9452e47111a4a4807ed0101579a6d279d"
+  },
+  "base_git_commit": "b1cfa538c1b4f9e75710184a32648afa734ebaac",
+  "purpose": "bounded numerical instrument qualification; no physical validation claim",
+  "timeout_seconds": 240,
+  "source_patch_sha256": "06b3eebfc39eea39210c7a351bbba58a8070d796c47cd5c7f1fdb6e2209e2862",
+  "return_code": 0,
+  "wall_seconds": 124.98665633331984,
+  "finished_utc": "2026-10-06T04:06:43.110847+00:00",
+  "inputs_unchanged": true
+}

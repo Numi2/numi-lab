@@ -1079,7 +1079,10 @@ inline bool projectMaterialState(
         float trialResidual[NM_MAX_MATERIAL_STATE];
         float step = 1.0f;
         bool acceptedStep = false;
-        for (uint backtrack = 0u; backtrack < 8u; ++backtrack) {
+        // Strongly anisotropic implicit laws can require a first step below
+        // 1/128. Retain the same Armijo/tolerance tests, with a bounded search
+        // down to 1/32768; previously accepted trials still exit immediately.
+        for (uint backtrack = 0u; backtrack < 16u; ++backtrack) {
             for (uint state = 0u; state < material.stateCount; ++state)
                 trialState[state] = projectedState[state] +
                     step * residual[state];

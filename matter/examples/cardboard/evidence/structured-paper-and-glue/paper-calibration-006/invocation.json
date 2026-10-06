@@ -1,0 +1,19 @@
+{
+  "started_utc": "2026-10-06T03:39:42.333510+00:00",
+  "command": [
+    "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-cardboard-paper-gpu-check",
+    "/Users/home/cardboard-evidence-20261006/paper-calibration-006/liner.nmatter",
+    "/Users/home/cardboard-evidence-20261006/paper-calibration-006/medium.nmatter"
+  ],
+  "sha256": {
+    "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-cardboard-paper-gpu-check": "f63a99de7fa1bc7cc9f5be4ef2e5c914ef7bee4b9f6cd30e5f9294271b6d9a12",
+    "/Users/home/numi-cardboard-20261006/build-cardboard/shaders/cardboard_paper_check.metallib": "8dca83e9e8888ea511e9072b21dbca3d77a07ade21882d6290fed4d7160fd3e4",
+    "/Users/home/numi-cardboard-20261006/matter/tools/cardboard_paper_check.metal": "db50048015e3638dc840b9c3637fd1031c22e6147b194a0759abab969706f832",
+    "/Users/home/numi-cardboard-20261006/matter/tools/cardboard_paper_gpu_check.mm": "2618912fc5d50f32c28e62b45cc8abc6229814a1797130e32627644e45d0bd3a",
+    "/Users/home/numi-cardboard-20261006/matter/src/metal/common.metalinc": "049989184ee26dce23af1a36ad62fbdfd508f7b1843bd056d719b2c6666fdac0",
+    "/Users/home/numi-cardboard-20261006/matter/tools/cardboard_paper_reference.hpp": "a52a656df25b9cacfb5b476989305d88881d3a46e6a4c52dd04f7732984d3302",
+    "/Users/home/cardboard-evidence-20261006/paper-calibration-006/liner.nmatter": "62f056400c7c0c42f0d831ffa8be9738ee666bd05b6d4513d7cfa82a5a32eb39",
+    "/Users/home/cardboard-evidence-20261006/paper-calibration-006/medium.nmatter": "01507b68491e4d34255d65ed9ff14c17a08540c782fce1e92ea16d620a2007c0"
+  },
+  "purpose": "exploratory production constitutive kernel calibration; no physical timesteps or physical validation"
+}

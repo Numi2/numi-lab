@@ -1,0 +1,8 @@
+{
+  "created_utc": "2026-10-06T03:45:24.193499+00:00",
+  "observed": "finite-glue-plastic-diagnostic-001 failed first loaded step at residual1.47626e-4 versus1e-4 tolerance, global Newton budget7; rest control passed",
+  "hypothesis": "additional global Newton iterations may close the same residual once local return mapping is qualified",
+  "revision": "explicit --newton-iterations14; all load, geometry and acceptance tolerances unchanged",
+  "classification": "numerical budget diagnostic, not physical validation",
+  "required_independent_gate": "production mixed-direction return map and tangent comparison"
+}

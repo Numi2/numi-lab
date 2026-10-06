@@ -1,0 +1,30 @@
+{
+  "schema": "numi.cardboard.native-invocation.v1",
+  "argv": [
+    "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-cardboard-probe",
+    "--output",
+    "/Users/home/cardboard-evidence-20261006/finite-glue-elastic-final-001",
+    "--liner-material",
+    "matter/materials/hajali2009_liner_elastic_control.nmatter",
+    "--medium-material",
+    "matter/materials/hajali2009_medium_elastic_control.nmatter"
+  ],
+  "started_utc": "2026-10-06T04:03:54.938164+00:00",
+  "bindings": {
+    "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-cardboard-probe": "4a467d430f42dcb4094244eb6a9d23ffed7e4dd694f226af14b17514fbc95ea9",
+    "/Users/home/numi-cardboard-20261006/build-cardboard/shaders/NumiMatter.metallib": "2c6ceccc0909a7c2391a686d5aadc328241f0178f4095dd5e9837846f1c620f1",
+    "/Users/home/numi-cardboard-20261006/matter/materials/hajali2009_liner_elastic_control.nmatter": "b91e94ce08c0252487c26f783ed125d76fb33bd20c18fd89edd427097d78b422",
+    "/Users/home/numi-cardboard-20261006/matter/materials/hajali2009_medium_elastic_control.nmatter": "0904e7d95ae66e9e3a8682c636d8937a80c471fbf37fea6305c182a5da9626df",
+    "/Users/home/numi-cardboard-20261006/matter/materials/starch2007_finite_glue_elastic.nmatter": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1",
+    "/Users/home/numi-cardboard-20261006/matter/tools/cardboard_glue_mesh.hpp": "d2668155580cdbdd09411d6cdac6a367a726e909d5dd6d4c9770e8f3822d0146",
+    "/Users/home/numi-cardboard-20261006/matter/tools/cardboard_probe.mm": "f2370878b9b960571031d2a5ed8a20c9452e47111a4a4807ed0101579a6d279d"
+  },
+  "base_git_commit": "b1cfa538c1b4f9e75710184a32648afa734ebaac",
+  "purpose": "bounded numerical instrument qualification; no physical validation claim",
+  "timeout_seconds": 240,
+  "source_patch_sha256": "06b3eebfc39eea39210c7a351bbba58a8070d796c47cd5c7f1fdb6e2209e2862",
+  "return_code": 0,
+  "wall_seconds": 36.79871166590601,
+  "finished_utc": "2026-10-06T04:04:31.757055+00:00",
+  "inputs_unchanged": true
+}

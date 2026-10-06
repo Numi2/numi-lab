@@ -1,0 +1,29 @@
+{
+  "schema": "numi.cardboard.numerical-study-plan.v1",
+  "created_utc": "2026-10-06T03:28:15.031842+00:00",
+  "question": "Can source-informed orthotropic plastic paper and finite glue complete a native loaded/unloaded strip cycle while held reference stays quiescent?",
+  "prediction": "With resolved interfaces and accepted local projection, modest bending will move free nodes; where Hill yield is crossed, accepted Ep will persist on unloading. A held reference should have negligible Ep. An elastic control with identical geometry should have no Ep state.",
+  "parameters": {
+    "preset": "literature2009",
+    "nx": 8,
+    "ny": 1,
+    "thickness_slices": 1,
+    "steps": 8,
+    "hold_steps": 4,
+    "unload_steps": 8,
+    "relax_steps": 16,
+    "bend_angle_degrees": 0.25,
+    "dt_s": 0.0001,
+    "fgmres_iterations": 32,
+    "local_material_iterations": 16
+  },
+  "gates": [
+    "production constitutive instrument with independent FP64 comparison",
+    "accepted solver certificates for both environments on every step",
+    "positive independent volume determinants",
+    "inspect all six Ep components separately from algebraic stress scratch states",
+    "preserve rejected steps and run no-load/contact controls before changing tolerances"
+  ],
+  "unused_condition": "halve target angle to .125 degrees after baseline; no physical qualification or quasi-static fold claim",
+  "physical_validation": false
+}

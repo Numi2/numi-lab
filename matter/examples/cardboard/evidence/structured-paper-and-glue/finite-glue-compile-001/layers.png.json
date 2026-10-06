@@ -1,0 +1,8 @@
+{
+  "schema": "numi.cardboard.regional-render.v1",
+  "physical_validation": false,
+  "geometry_scale": 1,
+  "boundary_triangles": 320,
+  "mesh_sha256": "add3e5f87879dac154eb4a31bb73b1c2de8740b04f29f05721f3b8198aa367e5",
+  "renderer_sha256": "dd13816bae09870a9360f304b3982b872c18e1650a07e396769e59300e7fe505"
+}

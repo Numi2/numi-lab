@@ -1,0 +1,125 @@
+{
+  "schema": "numi.cardboard.geometry-audit.v1",
+  "status": "passed",
+  "scope": "Exported geometry validity and measured deformation; no claim of physical calibration or solver convergence",
+  "nodes": 588,
+  "free_nodes": 564,
+  "fixed_nodes": 24,
+  "tetrahedra": 960,
+  "connected_components": 1,
+  "minimum_reference_tet_volume_m3": 2.9999999999999444e-11,
+  "total_regional_mass_kg": 0.0003942508145537677,
+  "authored_extent_m": [
+    0.0316,
+    0.02,
+    0.00421
+  ],
+  "max_node_displacement_m": 2.8525962543194176e-06,
+  "max_free_node_displacement_m": 2.8525962543194176e-06,
+  "materials": [
+    {
+      "material_index": 0,
+      "tetrahedra": 576,
+      "volume_m3": 3.501280000000002e-07,
+      "mass_kg": 0.0002681980480000001,
+      "min_J": 0.9995548897425649,
+      "max_J": 1.0005795612353547,
+      "max_abs_material_log_stretch_M_C_T": [
+        0.00016446264142620616,
+        2.0386535725597755e-06,
+        0.0005434377515505546
+      ],
+      "max_abs_material_Green_shear_MC_MT_CT": [
+        4.656239476257018e-06,
+        0.0003096684621008756,
+        4.791251136017206e-06
+      ]
+    },
+    {
+      "material_index": 1,
+      "tetrahedra": 288,
+      "volume_m3": 1.606414113148235e-07,
+      "mass_kg": 0.00010907551828276516,
+      "min_J": 0.9992687233197783,
+      "max_J": 1.0010951627517979,
+      "max_abs_material_log_stretch_M_C_T": [
+        0.00020155846457571916,
+        1.6631149336288352e-06,
+        0.0010334381228086684
+      ],
+      "max_abs_material_Green_shear_MC_MT_CT": [
+        5.511232850965055e-06,
+        0.0004390302366301537,
+        9.997218556381148e-06
+      ]
+    },
+    {
+      "material_index": 2,
+      "tetrahedra": 96,
+      "volume_m3": 1.1318165514001627e-08,
+      "mass_kg": 1.697724827100244e-05,
+      "min_J": 0.9997865468200182,
+      "max_J": 1.0003657719918033,
+      "max_abs_material_log_stretch_M_C_T": [
+        0.00020155836424110894,
+        1.7524328325846605e-06,
+        0.0002211152920172341
+      ],
+      "max_abs_material_Green_shear_MC_MT_CT": [
+        4.8201651750608005e-06,
+        0.0006620210237092524,
+        2.9891896481174748e-05
+      ]
+    }
+  ],
+  "topology": {
+    "tetrahedral_faces": 2520,
+    "face_incidence_counts": {
+      "1": 1200,
+      "2": 1320
+    },
+    "boundary_face_count": 1200,
+    "shared_face_count": 1320,
+    "material_interface_face_count": 64,
+    "material_interfaces": [
+      {
+        "material_indices": [
+          0,
+          2
+        ],
+        "material_names": [
+          "liner",
+          "glue"
+        ],
+        "shared_face_count": 32,
+        "shared_face_area_m2": 0.00011200000000000012
+      },
+      {
+        "material_indices": [
+          1,
+          2
+        ],
+        "material_names": [
+          "medium",
+          "glue"
+        ],
+        "shared_face_count": 32,
+        "shared_face_area_m2": 0.00011364878493116853
+      }
+    ],
+    "interface_policy": "finite glue: liner-glue and medium-glue only"
+  },
+  "inputs": {
+    "/Users/home/cardboard-evidence-20261006/finite-glue-elastic-002/mesh.json": "add3e5f87879dac154eb4a31bb73b1c2de8740b04f29f05721f3b8198aa367e5",
+    "/Users/home/cardboard-evidence-20261006/finite-glue-elastic-002/accepted_step_000036_bent.obj": "b5d98e99c5c040189847ae6bf4af7c17e4e885190ae02f750bcb03d2ac74a4ce",
+    "/Users/home/cardboard-evidence-20261006/finite-glue-elastic-002/manifest.json": "34a6d982ece4dfc0fbb6402b5c5b905d200055bc35ac0007dd045374d72cfea1"
+  },
+  "glue_volume_crosscheck": {
+    "footprint_count": 9,
+    "board_width_m": 0.02,
+    "footprint_area_times_width_m3": 1.1318165514001626e-08,
+    "declared_glue_volume_m3": 1.1318164665902186e-08,
+    "absolute_difference_m3": 8.480994394898711e-16,
+    "tolerance_m3": 1.1318164665902186e-14
+  }
+}
