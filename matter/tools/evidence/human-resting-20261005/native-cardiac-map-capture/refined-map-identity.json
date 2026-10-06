@@ -1,0 +1,52 @@
+{
+  "bundle_order" : "map bytes followed by parameter bytes",
+  "bundle_sha256" : "7177f336380e81e0e13fe36096d1ed501b796db0a034b3a13aa748eb923b3d09",
+  "byte_order" : "little-endian native uploaded bytes",
+  "capture_scope" : "Exact immutable Metal input buffers immediately after native asset upload; no simulation step or independent physiology update",
+  "closure_bounds_and_relative_tolerance" : [
+    -0.0099999997764825821,
+    0.0099999997764825821,
+    9.9999997473787516e-06
+  ],
+  "coefficient_abi" : "MRHumanRestingCardiacWallVertexGPU:48-byte IEEE-754 binary32 records; MRHumanRestingCardiacWallGPU:128 bytes",
+  "gpu_q_scales" : [
+    0.40000000596046448,
+    0.20000000298023224,
+    0.0099999997764825821
+  ],
+  "gpu_volume_polynomial_m3" : [
+    0.00016401289030909538,
+    3.0988790967967361e-05,
+    1.0536297850194387e-05,
+    -7.6478572736959904e-06,
+    -3.8249813769652974e-06,
+    -2.8223955723660765e-06,
+    -1.8857717805076391e-06,
+    -1.2458997389330762e-06,
+    -3.2481167977493897e-07,
+    -3.7530844565480947e-07,
+    5.9008227253798395e-05,
+    -4.5183496695244685e-06,
+    1.2085963135177735e-05,
+    -1.4759822306587012e-06,
+    -1.0568265906840679e-06,
+    6.2152224700184888e-07,
+    4.8911010708252434e-06,
+    -1.0837510444616782e-06,
+    2.3380199820621783e-07,
+    -1.5555846744064183e-07
+  ],
+  "map_bytes" : 1230048,
+  "map_file" : "ventricular-wall-map-f32.bin",
+  "map_sha256" : "17dc35a3241e09589b4178560c50cf535bcd70dfd19602e801c922b1edb45f10",
+  "map_vertex_count" : 25626,
+  "parameters_bytes" : 128,
+  "parameters_file" : "ventricular-wall-parameters-f32.bin",
+  "parameters_sha256" : "3c8737fd09de14e1dce03150331498d1bfbfa56b0ea58607a3db5c71221bf027",
+  "record_layout" : "first.xyz=RV m\/qRV; second.xyz=LV m\/qLV; closure.xyz=dimensionless displacement per metre of closure; all w lanes reserved zero",
+  "reference_material_volume_ml" : 164.0128973031845,
+  "schema" : "numi.human.cardiac.ventricular_wall_map_identity.v1",
+  "source_anatomy_payload_sha256" : "82248c7d2397a19af382c21646da6c827b901880a08ae8242c80dab8b4329b0e",
+  "source_material_volume_ml" : 164.01289730318558,
+  "stable_id" : 23
+}

@@ -1,0 +1,37 @@
+{
+  "report.json": {
+    "source_path": "/Users/n/numi-human-resting-evidence-20261005/cardiac-map-capture-validation-168/report.json",
+    "sha256": "d248ead1f78868157a832267dc3e246c3f6ae11cf34d4af1b97305e34328b2f3",
+    "bytes": 2930
+  },
+  "validate_capture.py": {
+    "source_path": "/Users/n/numi-human-resting-evidence-20261005/cardiac-map-capture-validation-168.py",
+    "sha256": "6ca855b7c8b95470916008dbc8820660dd2858f6fd6242e41655032785553aab",
+    "bytes": 3782
+  },
+  "build-checks.json": {
+    "source_path": "/Users/n/numi-human-resting-evidence-20261005/cardiac-map-capture-164/build-checks.json",
+    "sha256": "1dafcddf42df2b6f24f1e17e27dfdcd5e6ee0b67128b94381d96e7d4626a0a27",
+    "bytes": 818
+  },
+  "refined-invocation.json": {
+    "source_path": "/Users/n/numi-human-resting-evidence-20261005/cardiac-map-capture-native-165/invocation.json",
+    "sha256": "c8d2c1e40afdcf4093a93ca0c57fcef8110d7cf1eff4e90057c64e8f6478f799",
+    "bytes": 12345
+  },
+  "base-invocation.json": {
+    "source_path": "/Users/n/numi-human-resting-evidence-20261005/cardiac-map-capture-native-167/invocation.json",
+    "sha256": "d0aaadb582af4fbfb51b95b483f4e410f26cd918f2485f0f98cab9158bb99ee2",
+    "bytes": 12214
+  },
+  "refined-map-identity.json": {
+    "source_path": "/Users/n/numi-human-resting-evidence-20261005/cardiac-map-capture-native-165/ventricular-wall-map-identity.json",
+    "sha256": "01082587cf2f50074d4adc6c1d1b69987be02798002d510dc8f51447b80fb8d6",
+    "bytes": 2153
+  },
+  "base-map-identity.json": {
+    "source_path": "/Users/n/numi-human-resting-evidence-20261005/cardiac-map-capture-native-167/ventricular-wall-map-identity.json",
+    "sha256": "ebcc893bfe3cf44cd051260abcb5082c23f875ae258bc78595a614bbeee5bc39",
+    "bytes": 2148
+  }
+}

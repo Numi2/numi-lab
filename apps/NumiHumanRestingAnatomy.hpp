@@ -72,6 +72,8 @@ struct NumiHumanRestingAnatomy {
     std::map<unsigned,std::vector<float>> cardiacFreewallWeights;
     std::vector<MRHumanRestingCardiacWallVertexGPU> ventricularWallMap;
     MRHumanRestingCardiacWallGPU ventricularWallGPU{};
+    std::string ventricularWallAnatomyPayloadSHA256;
+    double ventricularWallSourceMaterialVolumeM3=0,ventricularWallReferenceMaterialVolumeM3=0;
     unsigned ventricularWallStableId=MR_INVALID_INDEX;
     struct CardiacWallBinding { unsigned chamber=0;mr_float4 displacementAndWeight{}; };
     std::map<unsigned,std::vector<CardiacWallBinding>> cardiacWallBindings;
@@ -799,6 +801,9 @@ struct NumiHumanRestingAnatomy {
         const double referenceMaterialVolume=referenceVolume.doubleValue;
         require(std::abs(material.volume-referenceMaterialVolume)<5e-10,
             "ventricular material shell volume differs from its source-bound candidate receipt");
+        ventricularWallAnatomyPayloadSHA256=outputAnatomyHash;
+        ventricularWallSourceMaterialVolumeM3=material.volume;
+        ventricularWallReferenceMaterialVolumeM3=referenceMaterialVolume;
         std::array<double,3> radialCenter{};
         for(unsigned k=0;k<3;++k) {
             require([radialOrigin[k] isKindOfClass:NSNumber.class],"ventricular closure origin is malformed");

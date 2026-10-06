@@ -1,0 +1,6 @@
+# Native cardiac input capture
+The existing accepted-geometry export now records the immutable cardiac map and parameter buffers immediately after their native Metal upload. Accepted geometry receipts bind those exact bytes using the retained ventricular-wall-map identity format. Capture is opt-in through NUMI_HUMAN_RESTING_EXPORT_MRV_STEPS and adds no per-step readback or alternative simulation owner.
+
+The Mac mini release build passed. A 64-step refined native run reproduced the published 031 run's complete rendered vertex-buffer hashes, body and respiration fingerprints, and accepted MRVPACK bytes at steps 0 and 63; both physiological CSV rows and all three surface rows matched its prefix. A separate one-step unrefined capture reproduced the retained base map and parameter bytes while binding the current anatomy payload. Both invocations retained source, asset, runtime, host and timing identity.
+
+These are engineering regressions. The unrefined input retains known wall crossings and is not an accepted anatomy. Neither short run qualifies five continuous minutes, the remaining whole-body interfaces, clinical physiology, or interactive desktop display. Full binaries, native movies and accepted geometry remain at the invocation paths on the Mac mini.

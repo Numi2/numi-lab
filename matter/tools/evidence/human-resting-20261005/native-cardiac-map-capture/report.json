@@ -1,0 +1,71 @@
+{
+  "scope": "Load-time input capture regression, using actual native Metal execution. Refined 64-step prefix compared with published 031 replay; unrefined one-step run checks only immutable buffer identity and remains anatomically unqualified. No new five-minute or physiology qualification.",
+  "driver_sha256": "6ca855b7c8b95470916008dbc8820660dd2858f6fd6242e41655032785553aab",
+  "captures": [
+    {
+      "run": "cardiac-map-capture-native-165",
+      "invocation_sha256": "c8d2c1e40afdcf4093a93ca0c57fcef8110d7cf1eff4e90057c64e8f6478f799",
+      "identity_sha256": "01082587cf2f50074d4adc6c1d1b69987be02798002d510dc8f51447b80fb8d6",
+      "map_sha256": "17dc35a3241e09589b4178560c50cf535bcd70dfd19602e801c922b1edb45f10",
+      "parameters_sha256": "3c8737fd09de14e1dce03150331498d1bfbfa56b0ea58607a3db5c71221bf027",
+      "source_anatomy_payload_sha256": "82248c7d2397a19af382c21646da6c827b901880a08ae8242c80dab8b4329b0e",
+      "captured_steps": [
+        0,
+        63
+      ],
+      "buffer_bytes_and_receipt_bindings_pass": true
+    },
+    {
+      "run": "cardiac-map-capture-native-167",
+      "invocation_sha256": "d0aaadb582af4fbfb51b95b483f4e410f26cd918f2485f0f98cab9158bb99ee2",
+      "identity_sha256": "ebcc893bfe3cf44cd051260abcb5082c23f875ae258bc78595a614bbeee5bc39",
+      "map_sha256": "8700de474c21afd695beed6b1a44c12b7292e7df9563924c699803e0c8f64a45",
+      "parameters_sha256": "de3798aa0e3e954d41cbd014bd0747631916aea84fb5710d31b7c46a5a630b8c",
+      "source_anatomy_payload_sha256": "82248c7d2397a19af382c21646da6c827b901880a08ae8242c80dab8b4329b0e",
+      "captured_steps": [
+        0
+      ],
+      "buffer_bytes_and_receipt_bindings_pass": true
+    }
+  ],
+  "refined_native_prefix_comparison": [
+    {
+      "step": 0,
+      "checks": {
+        "accepted_body_state_sha256": true,
+        "accepted_respiration_state_sha256": true,
+        "accepted_root_fingerprint_hex": true,
+        "captured_vertex_buffer_sha256": true,
+        "accepted_registered_body_poses": true,
+        "accepted_step": true,
+        "accepted_time_s": true,
+        "index_count": true,
+        "vertex_count": true,
+        "pack_content_hash": true,
+        "pack_file_sha256": true
+      }
+    },
+    {
+      "step": 63,
+      "checks": {
+        "accepted_body_state_sha256": true,
+        "accepted_respiration_state_sha256": true,
+        "accepted_root_fingerprint_hex": true,
+        "captured_vertex_buffer_sha256": true,
+        "accepted_registered_body_poses": true,
+        "accepted_step": true,
+        "accepted_time_s": true,
+        "index_count": true,
+        "vertex_count": true,
+        "pack_content_hash": true,
+        "pack_file_sha256": true
+      }
+    }
+  ],
+  "physiology_rows": 2,
+  "physiology_prefix_equal": true,
+  "surface_rows": 3,
+  "surface_prefix_equal": true,
+  "comparison_invocation_sha256": "2706e00710fb7c1a3f827e99463f28d629db9efaabe28cfe72c026ecc0477ecf",
+  "pass": true
+}

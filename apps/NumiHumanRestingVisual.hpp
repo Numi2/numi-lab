@@ -2,6 +2,7 @@
 #include "NumiHumanRestingAnatomy.hpp"
 #include "NumiHumanRestingSupportGeometry.hpp"
 #include <charconv>
+#include <bit>
 #include <filesystem>
 #include <set>
 #include <string_view>
@@ -31,6 +32,7 @@ class NumiHumanRestingVisual {
     double wallOrigin=0;
     std::filesystem::path initialPackPath, acceptedGeometryDirectory;
     std::string initialPackContentHash, initialPackFileSHA256;
+    std::string cardiacWallMapSHA256,cardiacWallParametersSHA256,cardiacWallBundleSHA256,cardiacWallIdentityReceiptSHA256;
     NSDictionary* initialAnatomicalRegistration=nil;
     std::set<unsigned> registrationBodyIndices;
     std::set<unsigned> requestedGeometrySteps, completedGeometrySteps;
@@ -61,6 +63,84 @@ class NumiHumanRestingVisual {
             remaining.remove_prefix(separator+1);
         }
         return steps;
+    }
+    // Reuse the retained load-time map identity format. Capture only when the
+    // caller opts into accepted geometry evidence; no extra per-step readback.
+    void writeCardiacWallMapIdentity(const std::filesystem::path& output,
+                                    const NumiHumanRestingAnatomy& functional) {
+        if(functional.ventricularWallMap.empty())return;
+        require(sizeof(float)==4&&std::numeric_limits<float>::is_iec559&&
+            std::endian::native==std::endian::little,
+            "cardiac coefficient capture requires little-endian IEEE-754 binary32");
+        const auto mapPath=output/"ventricular-wall-map-f32.bin";
+        const auto parametersPath=output/"ventricular-wall-parameters-f32.bin";
+        const auto receiptPath=output/"ventricular-wall-map-identity.json";
+        require(std::filesystem::is_directory(output)&&!std::filesystem::exists(mapPath)&&
+            !std::filesystem::exists(parametersPath)&&!std::filesystem::exists(receiptPath),
+            "cardiac coefficient identity output is unavailable or already exists");
+        const auto mapBytes=functional.ventricularWallMap.size()*sizeof(MRHumanRestingCardiacWallVertexGPU);
+        const auto parameterBytes=sizeof(functional.ventricularWallGPU);
+        require(cardiacWallMap.contents&&cardiacWallParameters.contents&&cardiacWallMap.length==mapBytes&&
+            cardiacWallParameters.length==parameterBytes&&
+            std::memcmp(cardiacWallMap.contents,functional.ventricularWallMap.data(),mapBytes)==0&&
+            std::memcmp(cardiacWallParameters.contents,&functional.ventricularWallGPU,parameterBytes)==0,
+            "uploaded cardiac coefficient buffers differ from the admitted anatomy map");
+        const auto digest=[](const void* bytes,std::size_t size) {
+            return loadedKneeSHA256Hex(loadedKneeSHA256(bytes,size));
+        };
+        cardiacWallMapSHA256=digest(cardiacWallMap.contents,mapBytes);
+        cardiacWallParametersSHA256=digest(cardiacWallParameters.contents,parameterBytes);
+        NSMutableData* bundle=[NSMutableData dataWithBytes:cardiacWallMap.contents length:mapBytes];
+        [bundle appendBytes:cardiacWallParameters.contents length:parameterBytes];
+        cardiacWallBundleSHA256=digest(bundle.bytes,bundle.length);
+        const auto writeBytes=[&](const std::filesystem::path& path,const void* bytes,std::size_t size,
+                                  const std::string& expected) {
+            NSData* data=[NSData dataWithBytes:bytes length:size];NSError* error=nil;
+            require([data writeToURL:[NSURL fileURLWithPath:loadedKneeNSString(path.string())]
+                options:NSDataWritingAtomic error:&error],"cardiac coefficient identity write failed");
+            require(loadedKneeSHA256Hex(loadedKneeFileSHA256(path))==expected,
+                "written cardiac coefficient bytes differ from the uploaded buffer");
+        };
+        writeBytes(mapPath,cardiacWallMap.contents,mapBytes,cardiacWallMapSHA256);
+        writeBytes(parametersPath,cardiacWallParameters.contents,parameterBytes,cardiacWallParametersSHA256);
+        const auto& w=functional.ventricularWallGPU;
+        NSMutableArray* polynomial=[NSMutableArray array];
+        for(unsigned i=0;i<20;++i) {
+            const auto& row=w.volumePolynomial[i/4];
+            const std::array<float,4> values{{row.x,row.y,row.z,row.w}};
+            [polynomial addObject:@(values[i%4])];
+        }
+        NSDictionary* receipt=@{
+            @"schema":@"numi.human.cardiac.ventricular_wall_map_identity.v1",@"stable_id":@23,
+            @"source_anatomy_payload_sha256":loadedKneeNSString(functional.ventricularWallAnatomyPayloadSHA256),
+            @"coefficient_abi":@"MRHumanRestingCardiacWallVertexGPU:48-byte IEEE-754 binary32 records; MRHumanRestingCardiacWallGPU:128 bytes",
+            @"byte_order":@"little-endian native uploaded bytes",
+            @"record_layout":@"first.xyz=RV m/qRV; second.xyz=LV m/qLV; closure.xyz=dimensionless displacement per metre of closure; all w lanes reserved zero",
+            @"map_file":@"ventricular-wall-map-f32.bin",@"map_bytes":@(mapBytes),
+            @"map_sha256":loadedKneeNSString(cardiacWallMapSHA256),
+            @"parameters_file":@"ventricular-wall-parameters-f32.bin",@"parameters_bytes":@(parameterBytes),
+            @"parameters_sha256":loadedKneeNSString(cardiacWallParametersSHA256),
+            @"bundle_sha256":loadedKneeNSString(cardiacWallBundleSHA256),
+            @"bundle_order":@"map bytes followed by parameter bytes",
+            @"map_vertex_count":@(functional.ventricularWallMap.size()),
+            @"source_material_volume_ml":@(functional.ventricularWallSourceMaterialVolumeM3*1e6),
+            @"reference_material_volume_ml":@(functional.ventricularWallReferenceMaterialVolumeM3*1e6),
+            @"gpu_q_scales":@[@(w.scalesAndVolume.x),@(w.scalesAndVolume.y),@(w.scalesAndVolume.z)],
+            @"closure_bounds_and_relative_tolerance":@[@(w.closureBoundsAndTolerance.x),
+                @(w.closureBoundsAndTolerance.y),@(w.closureBoundsAndTolerance.z)],
+            @"gpu_volume_polynomial_m3":polynomial,
+            @"capture_scope":@"Exact immutable Metal input buffers immediately after native asset upload; no simulation step or independent physiology update"
+        };
+        NSError* error=nil;
+        NSData* json=[NSJSONSerialization dataWithJSONObject:receipt
+            options:NSJSONWritingPrettyPrinted|NSJSONWritingSortedKeys error:&error];
+        require(json!=nil,"cardiac coefficient identity JSON serialization failed");
+        cardiacWallIdentityReceiptSHA256=digest(json.bytes,json.length);
+        writeBytes(receiptPath,json.bytes,json.length,cardiacWallIdentityReceiptSHA256);
+        std::cout<<"cardiac_wall_map_sha256="<<cardiacWallMapSHA256
+            <<" cardiac_wall_parameters_sha256="<<cardiacWallParametersSHA256
+            <<" cardiac_wall_identity_receipt="<<receiptPath.string()
+            <<" cardiac_wall_identity_receipt_sha256="<<cardiacWallIdentityReceiptSHA256<<"\n";
     }
     void exportAcceptedGeometry(unsigned step,double time,std::uint64_t root,std::uint64_t transaction,
                                 std::uint64_t timestamp) {
@@ -127,6 +207,10 @@ class NumiHumanRestingVisual {
             @"accepted_registered_body_poses":registeredPoses,
             @"initial_anatomical_registration":initialAnatomicalRegistration?initialAnatomicalRegistration:@{},
             @"accepted_respiration_state_sha256":loadedKneeNSString(respirationSHA),
+            @"ventricular_wall_map_sha256":loadedKneeNSString(cardiacWallMapSHA256),
+            @"ventricular_wall_parameters_sha256":loadedKneeNSString(cardiacWallParametersSHA256),
+            @"ventricular_wall_coefficient_bundle_sha256":loadedKneeNSString(cardiacWallBundleSHA256),
+            @"ventricular_wall_map_identity_receipt_sha256":loadedKneeNSString(cardiacWallIdentityReceiptSHA256),
             @"captured_vertex_buffer_sha256":loadedKneeNSString(vertexSHA),
             @"base_pack_content_hash":loadedKneeNSString(initialPackContentHash),
             @"base_pack_file_sha256":loadedKneeNSString(initialPackFileSHA256),
@@ -604,6 +688,7 @@ public:
             length:std::max(1u,cardiacWallVertexCount)*sizeof(emptyWallVertex) options:MTLResourceStorageModeShared];
         cardiacWallParameters=[device newBufferWithBytes:&functional.ventricularWallGPU
             length:sizeof(functional.ventricularWallGPU) options:MTLResourceStorageModeShared];
+        if(!requestedGeometrySteps.empty())writeCardiacWallMapIdentity(output,functional);
         cardiacWallQ=[device newBufferWithBytes:&emptyWallQ length:sizeof(emptyWallQ) options:MTLResourceStorageModeShared];
         cardiacWallNormalRanges=[device newBufferWithBytes:wallNormalRanges.empty()?&emptyWallRange:wallNormalRanges.data()
             length:std::max(std::size_t(1),wallNormalRanges.size())*sizeof(emptyWallRange) options:MTLResourceStorageModeShared];
