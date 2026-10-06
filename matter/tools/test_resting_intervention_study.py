@@ -4,6 +4,7 @@ import csv
 import hashlib
 import json
 import sys
+import subprocess
 import tempfile
 import unittest
 from argparse import Namespace
@@ -12,6 +13,8 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "python"))
 from metalrobo.science_notebook import validate as validate_plan
+from metalrobo.science_notebook import validate_calibration
+from metalrobo.science_notebook import register as register_plan
 
 import resting_intervention_study as adapter
 from resting_intervention_study import (complete_breath_metrics, positive_linear_area,
@@ -189,6 +192,50 @@ class NativeSceneBindingTests(unittest.TestCase):
 
 
 class NativeSurfaceTraceTests(unittest.TestCase):
+    def test_ventricular_material_cannot_hide_an_intermediate_volume_or_binding_failure(self):
+        columns = ("step,time_s,min_skin_bed_gap_m,vertices_below_1mm,nonfinite_skin_vertices,"
+                   "max_functional_volume_relative_error,q_ra,q_rv,q_la,q_lv,ra_target_ml,rv_target_ml,"
+                   "la_target_ml,lv_target_ml,diaphragm_swept_ml,rib_swept_ml,lung_target_ml,"
+                   "ventricular_wall_bound,ventricular_material_ml,ventricular_material_target_ml,ventricular_closure_mm\n")
+        rows = [f"{step},{step*.002},0,0,0,0,0,0,0,0,40,120,50,120,0,0,2500,1,164,164,{closure}\n"
+                for step, closure in ((0, -1), (31, .5), (63, 2))]
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "surfaces.csv"
+            path.write_text(columns + ''.join(rows))
+            wall = adapter.native_surface_trace_consistency(path, 64, .002)['ventricular_material']
+            self.assertTrue(wall['bound'])
+            self.assertEqual(wall['closure_range_mm'], [-1, 2])
+            self.assertFalse(wall['gpu_degenerate_triangle_check_recorded'])
+            status_columns = columns.rstrip('\n') + ',ventricular_material_status\n'
+            status_rows = [row.rstrip('\n') + ',0\n' for row in rows]
+            path.write_text(status_columns + ''.join(status_rows))
+            self.assertTrue(adapter.native_surface_trace_consistency(path, 64, .002)
+                            ['ventricular_material']['gpu_degenerate_triangle_check_recorded'])
+            status_rows[1] = status_rows[1][:-2] + '2\n'
+            path.write_text(status_columns + ''.join(status_rows))
+            with self.assertRaisesRegex(ValueError, 'degenerate ventricular triangle'):
+                adapter.native_surface_trace_consistency(path, 64, .002)
+            functional_columns = columns.rstrip('\n') + ',functional_geometry_status\n'
+            functional_rows = [row.rstrip('\n') + ',0\n' for row in rows]
+            path.write_text(functional_columns + ''.join(functional_rows))
+            adapter.native_surface_trace_consistency(path, 64, .002)
+            functional_rows[1] = functional_rows[1][:-2] + '2\n'
+            path.write_text(functional_columns + ''.join(functional_rows))
+            with self.assertRaisesRegex(ValueError, 'invalid functional triangles'):
+                adapter.native_surface_trace_consistency(path, 64, .002)
+            for header, middle in (
+                (columns.replace('ventricular_closure_mm', 'missing_closure'), rows[1]),
+                (columns, rows[1].replace(',1,164,164,', ',1,165,164,')),
+                (columns, rows[1].replace(',1,164,164,', ',1,165,165,')),
+                (columns, rows[1].replace(',1,164,164,', ',0,0,0,')),
+                (columns, rows[1].replace(',164,164,', ',nan,164,')),
+            ):
+                path.write_text(header + rows[0] + middle + rows[2])
+                with self.assertRaises(ValueError):
+                    adapter.native_surface_trace_consistency(path, 64, .002)
+            path.write_text(columns + ''.join(row[:row.rfind(',1,164,164,')] + ',0,0,0,0\n' for row in rows))
+            self.assertFalse(adapter.native_surface_trace_consistency(path, 64, .002)['ventricular_material']['bound'])
+
     def test_body_observation_rejects_incomplete_nonfinite_or_changing_mass(self):
         columns = ("step,time_s,min_skin_bed_gap_m,vertices_below_1mm,nonfinite_skin_vertices,"
                    "max_functional_volume_relative_error,q_ra,q_rv,q_la,q_lv,ra_target_ml,rv_target_ml,"
@@ -297,7 +344,12 @@ class NativeV2PlanPreparationTests(unittest.TestCase):
             fixture = root / "accepted-fixture.csv"
             fixture.write_text("calibration fixture reserved for the owner parser", encoding="utf-8")
             output = root / "registration-draft"
-            args = Namespace(directory=str(output), invocation=str(invocation_path),
+            repository = root / "owner"
+            subprocess.run(["git", "init", "-q", str(repository)], check=True)
+            subprocess.run(["git", "-C", str(repository), "-c", "user.name=Numi Test", "-c",
+                            "user.email=numi-test@example.invalid", "commit", "-q", "--allow-empty", "-m",
+                            "Temporary registration test"], check=True)
+            args = Namespace(repository=str(repository), directory=str(output), invocation=str(invocation_path),
                              source_hashes=str(source_hash_path), source_revisions=str(source_revisions_path),
                              parser_fixture=str(fixture),
                              world_fingerprint="123456", control_program_fingerprint="456789",
@@ -311,6 +363,15 @@ class NativeV2PlanPreparationTests(unittest.TestCase):
             plan = json.loads(plan_path.read_text())
             identity = json.loads((output / "native-build-identity.json").read_text())
             validate_plan(plan, live=False)
+            calibration_report = json.loads((output / "calibration.json").read_text())
+            artifact_hashes = {path: hashlib.sha256(Path(path).read_bytes()).hexdigest()
+                               for path in plan["artifacts"]}
+            validate_calibration(plan, artifact_hashes, calibration_report)
+            self.assertEqual(set(calibration_report["bindings"]), set(plan["instrument"]["artifacts"]))
+            fixture_key = str(fixture.resolve())
+            broken = dict(calibration_report, bindings={fixture_key: artifact_hashes[fixture_key]})
+            with self.assertRaisesRegex(ValueError, "does not bind the exact instrument"):
+                validate_calibration(plan, artifact_hashes, broken)
             self.assertEqual(plan["schema"], "numi.science.plan.v2")
             self.assertEqual(plan["prediction"], {"estimand": "paired_difference_mean", "minimum": 0., "maximum": 40.})
             self.assertEqual(plan["design"]["pre_dose_window_s"], [48., 60.])
@@ -335,6 +396,10 @@ class NativeV2PlanPreparationTests(unittest.TestCase):
             self.assertEqual(len(plan["trials"]), 2)
             self.assertFalse((output / "study").exists())
             self.assertFalse((output / "registration").exists())
+            # Exercise the real registration boundary; validation alone omits
+            # exact calibration bindings and the Git owner identity lookup.
+            self.assertEqual(plan["repository"], str(repository.resolve()))
+            register_plan(plan_path, root / "test-study")
 
     def test_native_plan_rejects_same_arm_program_identity_and_stale_assets(self):
         with tempfile.TemporaryDirectory() as directory:

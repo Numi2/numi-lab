@@ -16,11 +16,12 @@ Run this only after the integrated scene, source snapshot, assets, executable, l
 
 ```sh
 python3 /Users/n/numi-human-resting-lab-20261005/matter/tools/resting_intervention_study.py prepare-native \
+  --repository /Users/n/numi-human-resting-lab-20261005 \
   --directory /Users/n/numi-human-resting-evidence-20261005/native-drive-final/plan-draft \
   --invocation /Users/n/numi-human-resting-evidence-20261005/native-drive-final/baseline-invocation.json \
   --source-hashes /Users/n/numi-human-resting-evidence-20261005/native-drive-final/source-hashes.json \
   --source-revisions /Users/n/numi-human-resting-evidence-20261005/native-drive-final/source-revisions.json \
-  --parser-fixture /Users/n/numi-human-resting-evidence-20261005/native-breath-001/resting-coupled.csv \
+  --parser-fixture /Users/n/numi-human-resting-evidence-20261005/dense45-pair-004/fgmres-6s.csv \
   --world-fingerprint ACTUAL_OWNER_WORLD_FINGERPRINT \
   --control-program-fingerprint ACTUAL_CONTROL_PROGRAM_FINGERPRINT \
   --treatment-program-fingerprint ACTUAL_TREATMENT_PROGRAM_FINGERPRINT \

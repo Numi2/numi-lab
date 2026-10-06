@@ -1,0 +1,9 @@
+# Native study registration repair
+
+Actual registration of the integrated viewer exposed two defects that plan-shape validation did not catch: the parser-calibration receipt bound only five files while the instrument declared the full native source/binary/asset inventory, and the plan identified its evidence directory as its Git repository. `prepare-native` now binds the complete instrument and requires `--repository` to name the existing owner checkout. The command example also uses the parser's actual known-value fixture, `dense45-pair-004/fgmres-6s.csv`.
+
+The existing test now exercises the real notebook calibration validator and registration boundary with temporary test-only assets and a temporary Git repository. It does not execute those assets as a simulator. The 18-test module passed on the SSH Mac mini in 0.220 s, with the output retained here. Tests and all native execution run on the Mac mini, not the Air.
+
+The same increment retains the accepted-surface parser's ventricular material checks: a complete diagnostic column set, stable binding and material target, finite closure, positive volume, the existing GPU volume tolerance, and explicit rejection of reported degenerate triangles or failed functional geometry. These are numerical consistency checks; they do not qualify anatomical interfaces.
+
+The failed preparations and real registration attempts remain at `/Users/n/numi-human-resting-evidence-20261005/native-drive-study-{096,097,098}` on the Mac mini. Study 098 subsequently failed before physical stepping because the requested capture index 24999 did not match the native 32-step submission cadence. Both arms, analysis, and verification were retained. The separately preregistered study 100 corrects that capture to 24991; it is a 160 s exploratory drive/recovery study on anatomy with known outstanding defects, not the final five-minute anatomical acceptance run. No outcome from the unfinished study is claimed here.
