@@ -1,0 +1,86 @@
+{
+  "scope": "60-second integrated supported-rest engineering run on source073; not anatomical acceptance or the required five-minute paired demonstration. Source and binary identity are bound in invocation.json; known respiratory, cardiac-neighbor and passive-anatomy defects are retained.",
+  "retained_files": [
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/fullchain073-stability-native-088/engineering-stability-analysis.json",
+      "source_sha256": "7cb4f6cf108dc16ea1d12e8d4d4bf7ed303cfb3a6b269b17835f4f0ec9d1b706",
+      "retained": "engineering-stability-analysis.json",
+      "retained_sha256": "7cb4f6cf108dc16ea1d12e8d4d4bf7ed303cfb3a6b269b17835f4f0ec9d1b706"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/fullchain073-stability-native-088/invocation.json",
+      "source_sha256": "2e5678c358320b031fd27ec8fdbb5daeb1d917cf7eb13197cc59d126a4487e20",
+      "retained": "invocation.json",
+      "retained_sha256": "2e5678c358320b031fd27ec8fdbb5daeb1d917cf7eb13197cc59d126a4487e20"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/fullchain073-stability-native-088/movie-inspection.txt",
+      "source_sha256": "21c1ec5fe80f975679f063197d266c1a89cffa2a2e644c0006c56b5dee2e42a1",
+      "retained": "movie-inspection.txt",
+      "retained_sha256": "21c1ec5fe80f975679f063197d266c1a89cffa2a2e644c0006c56b5dee2e42a1"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/fullchain073-stability-native-088/whole-skin-step-29999.json",
+      "source_sha256": "409cc33c07bd0102b70f2095fc8c1ad013de62212b7435c3b14e998da2b485fe",
+      "retained": "whole-skin-step-29999.json",
+      "retained_sha256": "409cc33c07bd0102b70f2095fc8c1ad013de62212b7435c3b14e998da2b485fe"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/fullchain073-stability-native-088/resting-coupled.csv",
+      "source_sha256": "3d2abf58a4c706574bc89405dfb43d2bf77ce6fcc02916e646c9c8fd99da476f",
+      "retained": "resting-coupled.csv",
+      "retained_sha256": "3d2abf58a4c706574bc89405dfb43d2bf77ce6fcc02916e646c9c8fd99da476f"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/fullchain073-stability-native-088/resting-surface-audit.csv",
+      "source_sha256": "6c183ceaab136c3a13955b00c16d123f50f25b8d1a7638edd94dee33d14ee3dd",
+      "retained": "resting-surface-audit.csv",
+      "retained_sha256": "6c183ceaab136c3a13955b00c16d123f50f25b8d1a7638edd94dee33d14ee3dd"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/fullchain073-stability-native-088/frame-initial.png",
+      "source_sha256": "9200b8f36ffa1713b4ae5738228b0949e414663227ec32d5b17c4e8f681b48f3",
+      "retained": "frame-initial.png",
+      "retained_sha256": "9200b8f36ffa1713b4ae5738228b0949e414663227ec32d5b17c4e8f681b48f3"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/fullchain073-stability-native-088/frame-final.png",
+      "source_sha256": "f69f863d7ce116c42b40c6809f1d9235518cd0190d72d655a31e2042f8f02f33",
+      "retained": "frame-final.png",
+      "retained_sha256": "f69f863d7ce116c42b40c6809f1d9235518cd0190d72d655a31e2042f8f02f33"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/analyze-resting-stability-092.py",
+      "source_sha256": "e26c8143952463bfae3040f80e9fbf767f87b2b3079541c9474016186a32b0d5",
+      "retained": "analyze-resting-stability-092.py",
+      "retained_sha256": "e26c8143952463bfae3040f80e9fbf767f87b2b3079541c9474016186a32b0d5"
+    }
+  ],
+  "remote_artifacts": [
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/fullchain073-stability-native-088/native-viewer.mov",
+      "sha256": "5210fed155c59852d2320e0e1052d2f0d5912f1b89e97f73cf93ec3ab121cfa7",
+      "bytes": 6241178
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/fullchain073-stability-native-088/native.log",
+      "sha256": "7759b5b1cd9939737f2642d73c187f8b683884ac7e58684555b07f2a00cd26b3",
+      "bytes": 127905
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/fullchain073-stability-native-088/resting-human.mrvpack",
+      "sha256": "5ec1e3cbdfdf3d4a64d0d1456504b44473d48db7dac5834891f87d91fa54af30",
+      "bytes": 213233664
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/fullchain073-stability-native-088/accepted-geometry/step-29999.mrvpack",
+      "sha256": "9bff7f23f599975922798f27b4b01bc273f8d9c51f02be9b27939709c9d20725",
+      "bytes": 213233664
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/fullchain073-stability-native-088/accepted-geometry/step-29999.receipt.json",
+      "sha256": "0fd8daa1c493f718e548241ef1133df7005fb2348267b2f0250d773d5779fa96",
+      "bytes": 10355
+    }
+  ]
+}
