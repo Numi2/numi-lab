@@ -1,0 +1,198 @@
+{
+  "scope": "The specific source bladder/prostate interface is retained by exact oriented coordinate-triangle identity. This does not waive other organ pairs or infer a simulated urinary lumen.",
+  "driver_sha256": "5d0514d645fb823d8daa1e89bb3ed13b096e915d6c2e5d981d04f7ce1392bcc2",
+  "predicate_sha256": "8b138882161c78312cb9b5aa46f49795092eb9b67ed9f705dc354787cb0a635b",
+  "source_npz_sha256": "0800e6c485f6a234b99883f0d65a40cff6262257e6815def2910a2f96d1e9e7d",
+  "candidate_sha256": "82b09db9127f1db5a9ef7789bf9a3c08ac1aa81d33a4515f1fb6004f23c092cd",
+  "exact_audit_sha256": "29fc96fdd70eb429db37497763ee2d1f41febbb5f5ee97c3e1e0cd7482fae378",
+  "source_members": [
+    "FJ3149",
+    "FJ3139"
+  ],
+  "source_interface_count": 13,
+  "source_triangle_pairs": [
+    [
+      85,
+      115
+    ],
+    [
+      95,
+      115
+    ],
+    [
+      95,
+      216
+    ],
+    [
+      95,
+      222
+    ],
+    [
+      122,
+      115
+    ],
+    [
+      122,
+      169
+    ],
+    [
+      144,
+      169
+    ],
+    [
+      144,
+      240
+    ],
+    [
+      156,
+      222
+    ],
+    [
+      156,
+      253
+    ],
+    [
+      164,
+      240
+    ],
+    [
+      164,
+      253
+    ],
+    [
+      164,
+      306
+    ]
+  ],
+  "candidate_triangle_pairs": [
+    [
+      111,
+      115
+    ],
+    [
+      122,
+      115
+    ],
+    [
+      122,
+      216
+    ],
+    [
+      122,
+      222
+    ],
+    [
+      177,
+      115
+    ],
+    [
+      177,
+      169
+    ],
+    [
+      214,
+      169
+    ],
+    [
+      214,
+      240
+    ],
+    [
+      232,
+      222
+    ],
+    [
+      232,
+      253
+    ],
+    [
+      240,
+      240
+    ],
+    [
+      240,
+      253
+    ],
+    [
+      240,
+      306
+    ]
+  ],
+  "candidate_to_original_interface_pairs": [
+    [
+      85,
+      115
+    ],
+    [
+      95,
+      115
+    ],
+    [
+      95,
+      216
+    ],
+    [
+      95,
+      222
+    ],
+    [
+      122,
+      115
+    ],
+    [
+      122,
+      169
+    ],
+    [
+      144,
+      169
+    ],
+    [
+      144,
+      240
+    ],
+    [
+      156,
+      222
+    ],
+    [
+      156,
+      253
+    ],
+    [
+      164,
+      240
+    ],
+    [
+      164,
+      253
+    ],
+    [
+      164,
+      306
+    ]
+  ],
+  "source_interface_triangles_preserved_exactly": true,
+  "witness_bounds_m": [
+    [
+      0.029191806523061054,
+      -0.43701370532740524,
+      -0.0028663122682513423
+    ],
+    [
+      0.03832166473894851,
+      -0.4355505088584179,
+      0.003848254382410521
+    ]
+  ],
+  "distance_from_bladder_inferior_extent_m": [
+    0.0005612773157221973,
+    0.002024473784709546
+  ],
+  "distance_from_prostate_superior_extent_m": [
+    0.0007031241671794919,
+    0.002166320636166841
+  ],
+  "anatomical_interpretation": "The passive closed bladder envelope meets the prostate at the bladder neck. Source connectivity/inspection layers are retained; urine flow and urethral wall mechanics are not simulated.",
+  "anatomical_source": "https://mapkmc.manipal.edu/specimen/anat301/"
+}

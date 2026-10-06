@@ -1,0 +1,13 @@
+test_only_bladder_changes_and_prior_repairs_remain_bound (test_resting_passive_interfaces.BladderInterfaceAdmissionTests.test_only_bladder_changes_and_prior_repairs_remain_bound) ... ok
+test_preserved_source_neck_is_checked_from_geometry_not_a_flag (test_resting_passive_interfaces.BladderInterfaceAdmissionTests.test_preserved_source_neck_is_checked_from_geometry_not_a_flag) ... ok
+test_stale_neighbor_or_unlocalized_contact_cannot_be_admitted (test_resting_passive_interfaces.BladderInterfaceAdmissionTests.test_stale_neighbor_or_unlocalized_contact_cannot_be_admitted) ... ok
+test_invalid_candidate_cannot_be_admitted_by_a_zero_count_receipt (test_resting_passive_interfaces.PassiveInterfaceAdmissionTests.test_invalid_candidate_cannot_be_admitted_by_a_zero_count_receipt) ... ok
+test_scoped_replacement_preserves_every_other_anatomical_record_and_identity (test_resting_passive_interfaces.PassiveInterfaceAdmissionTests.test_scoped_replacement_preserves_every_other_anatomical_record_and_identity) ... ok
+test_source_bound_cardiac_refinement_requires_owner_rebinding (test_resting_passive_interfaces.PassiveInterfaceAdmissionTests.test_source_bound_cardiac_refinement_requires_owner_rebinding) ... ok
+test_stale_and_incomplete_evidence_fails_before_output (test_resting_passive_interfaces.PassiveInterfaceAdmissionTests.test_stale_and_incomplete_evidence_fails_before_output) ... ok
+test_unresolved_source_neighbor_stays_explicit (test_resting_passive_interfaces.PassiveInterfaceAdmissionTests.test_unresolved_source_neighbor_stays_explicit) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.021s
+
+OK

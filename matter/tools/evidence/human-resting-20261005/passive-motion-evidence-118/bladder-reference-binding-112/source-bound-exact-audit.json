@@ -1,0 +1,992 @@
+{
+  "scope": "Exact static self and all passive-neighbor intersections for inferred bladder source candidate; crossing classification and native cycle remain separate.",
+  "driver_sha256": "51af8649518efc5ea952b65c2250bad6484d7212a798f3953cf00b0957aa569b",
+  "source_sha256": "7483f24d2cd74a93fbe877e1119c2f0c5ffcecc7674949002f370a59bbb73344",
+  "helper_sha256": "6fa55a8e1f730c17026d08365eaf63295e4e3414de01a813bbdb9ec6919286d6",
+  "predicate_sha256": "8b138882161c78312cb9b5aa46f49795092eb9b67ed9f705dc354787cb0a635b",
+  "quality": {
+    "method": "shared_reciprocal_diagonal_flip_across_registered_field_cells",
+    "minimum_altitude_target_m": 1.2e-06,
+    "minimum_result_altitude_m": 1.2e-06,
+    "maximum_nonplanarity_m": 1e-05,
+    "same_affine_field_cell_required": false,
+    "strict_altitude_improvement_required": true,
+    "source_vertex_displacement_m": 0,
+    "flip_count": 1,
+    "changes": [
+      {
+        "source_surface": 462,
+        "source_face": 339,
+        "neighbor_face": 342,
+        "shared_surface_owners": [
+          462
+        ],
+        "old_altitude_m": 1.0588540105711928e-06,
+        "new_minimum_altitude_m": 3.77235939596476e-06,
+        "maximum_patch_nonplanarity_m": 5.3238480919966245e-09,
+        "modified_faces": {
+          "462": [
+            339,
+            342
+          ]
+        }
+      }
+    ],
+    "skipped_reasons": {},
+    "remaining": {
+      "462": {
+        "minimum_altitude_m": 2.9706592297907366e-06,
+        "below_bound_face_count": 0
+      }
+    },
+    "qualification": "local mesh conditioning only; remaining thin faces and native cycle validation must be checked"
+  },
+  "candidate_sha256": {
+    "462": "82b09db9127f1db5a9ef7789bf9a3c08ac1aa81d33a4515f1fb6004f23c092cd"
+  },
+  "self": {
+    "462": {
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 4335,
+      "allowed_shared_vertex_or_edge_pairs": 3694
+    }
+  },
+  "pairs": [
+    {
+      "ids": [
+        462,
+        2
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        3
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        4
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        5
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        13
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        14
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        15
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        16
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        17
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        18
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        19
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        20
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        21
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        398
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        399
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        400
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        401
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        402
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        403
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        404
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        405
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        406
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        407
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        408
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        409
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        410
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        411
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        412
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        413
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        414
+      ],
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 0,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    },
+    {
+      "ids": [
+        462,
+        415
+      ],
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 228,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    },
+    {
+      "ids": [
+        462,
+        416
+      ],
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 285,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    },
+    {
+      "ids": [
+        462,
+        417
+      ],
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 0,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    },
+    {
+      "ids": [
+        462,
+        418
+      ],
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 0,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    },
+    {
+      "ids": [
+        462,
+        419
+      ],
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 0,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    },
+    {
+      "ids": [
+        462,
+        420
+      ],
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 0,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    },
+    {
+      "ids": [
+        462,
+        421
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        422
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        423
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        424
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        425
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        426
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        427
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        428
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        429
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        430
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        431
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        432
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        433
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        434
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        435
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        436
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        437
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        438
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        439
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        440
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        441
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        442
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        443
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        444
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        445
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        446
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        447
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        448
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        449
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        450
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        451
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        452
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        453
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        454
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        455
+      ],
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 1411,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    },
+    {
+      "ids": [
+        462,
+        456
+      ],
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 8,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    },
+    {
+      "ids": [
+        462,
+        457
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        458
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        459
+      ],
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 514,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    },
+    {
+      "ids": [
+        462,
+        460
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        461
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        463
+      ],
+      "triangle_pairs": [
+        [
+          111,
+          115
+        ],
+        [
+          122,
+          115
+        ],
+        [
+          122,
+          216
+        ],
+        [
+          122,
+          222
+        ],
+        [
+          177,
+          115
+        ],
+        [
+          177,
+          169
+        ],
+        [
+          214,
+          169
+        ],
+        [
+          214,
+          240
+        ],
+        [
+          232,
+          222
+        ],
+        [
+          232,
+          253
+        ],
+        [
+          240,
+          240
+        ],
+        [
+          240,
+          253
+        ],
+        [
+          240,
+          306
+        ]
+      ],
+      "count": 13,
+      "aabb_candidate_pairs": 81,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    }
+  ],
+  "elapsed_seconds": 0.7665254166349769,
+  "source_payload_sha256": "f5c822ba23800cefa7cfb39b2ad0c35f03fd422ac7a1aa049b5e3ceb5fd80ba6",
+  "source_record_sha256": {
+    "2": "d0215bc12c2ed64d6e8ded61a04844820ec4b7934f268fe6ad7c67c90613c096",
+    "3": "5da76ac9c88489bb78288f7af766c8b61c11c072f1425366f7629c216c91d60b",
+    "4": "e015708c0d047d3d5fc8906c6b35d4c82baca464d7d73ca716770b045d838768",
+    "5": "5a937bc365f2bbf5626355d989cbc04138bc14f4d8b655b069a1736272daaf5c",
+    "13": "a80b9ada7e5c941e865f327842ec1b8533883dfae6b6019f35127d2bb35754cf",
+    "14": "0c955261d7675f52539de92c1c73776be1152268d59a234253ab4ac3831f8793",
+    "15": "2c01f2d2d05b6fe69f6f684d1a8597ea993f41f2ca093a297334c9a2b4b8ef12",
+    "16": "b325ec4e3051590d2af627dee4c83e5e815e2f6bb79ddadf0ffab63191f6fc40",
+    "17": "4fe69bb3ca4bd42f523b3cef965d23875cb59ef47c46d40ac0420ae659e42b99",
+    "18": "1a28e714afcc9bfde1b609397ed93909a0f99a636d12d0c96aac0da74284d5d5",
+    "19": "bff46401753b7c9786ca9219dc62dda6d959e7ff4ce0a20e042da4a79a1e659c",
+    "20": "6eb13bd647a1553228e0d3a208e5fe12ecc07de6d2e1f8702224ff719faa2ed1",
+    "21": "84d7670da45a4a98134221d635ff796360536f5141429333bbb969e973dd0997",
+    "398": "b6bd48d02964e18c3c49477aadb427988debae83cf6c038241b02468419ff619",
+    "399": "780c4ef9b1fb395fa13e024e428519a424e987ed31b4192ab40066d4f6a8fb7b",
+    "400": "4e084b0f724203e4706cd1db8546cff376aa742652b62e6d22524d4667f2e054",
+    "401": "ecd2bf0bf30151166431fb32dc2491debe2293f6eba397979959f6b83d587e1a",
+    "402": "84a37cd61c7045fd1a9a5e4c4cb545da59293b6ad18c929b4ffb6aa533fe5389",
+    "403": "a420146af98d3bd677417d5d6bb9d2674ebda26b307d6acd235e255ed2023e47",
+    "404": "1357af50aef032d0c11bf1c0d1396130084c5f09c0538e969273bccebafc9bb5",
+    "405": "0fbe4c04dbf3d06733aec3c4f1406560140cf292534d6126a364ddd4b7364cd5",
+    "406": "403fa473be5629e32d793e8237da367b102d551d2d22b8ee898724ed140de569",
+    "407": "7b2663f8d0516195e3d11aa9eb30ee06260d73c79c7eddc848840c65d75d81cb",
+    "408": "7b7d748fdf9ba0f136a3c99850fa1cd4003e2b3ddfcc4315159dc91e66e5fd62",
+    "409": "6b3c05988d8aeb7d529e4c2b160ea04e3f274c3a198771601a8f2f2c07ea21d7",
+    "410": "7f86e9b7a3b22cf3df707e99e9bf26e661ee7609a0ba64ccaf89aba60095c2c4",
+    "411": "8b9b470cf5c15dd15b57afe892240c7d894a8d06659ed4fe908ace1898f3bb62",
+    "412": "09c29004af840edbed21d2a275afc949e028408263ac666f0015a41e2d8d51f9",
+    "413": "e05b3be41b966f14311b6a35b2598ad4341c6e64435b7f623a0aaf92e6bd86e9",
+    "414": "3878a5cc417675c7f84733f5ecd8dd47b32a9071522e8a1cdfe599a34624b9c1",
+    "415": "c2957f94654313869e320ff1f5cc0715d48301c2d1776764ce5348e2cc4bfffc",
+    "416": "f280e6022057c156899a95c8b6ff63108fccf6d4b1cd0fa48f696f2b2c2e1e71",
+    "417": "56b1409c740a8947da9b81e72020bd6aac29a1bf22da7e06ab47227f78d58dc6",
+    "418": "eb8db55432448943a9ead9a60b9faca81d8d1d795588610a48482786cac3dc99",
+    "419": "93e4f3537b1d507d3a0c1fc4726a765254df215f7337864ee9e576fba02cb82a",
+    "420": "d780d9f519f88083cb5444a60208ddacb3bb78710947412df5798277cac6abd1",
+    "421": "7ffef7fd84ba10b91f069a9c48d0522b4b6bfd95544825bf3a71f32a24d971af",
+    "422": "4648464888273f70b0e197a2b2f6880110b518aa759da5e74b5f8ed569d9761d",
+    "423": "f38bf7c39fde7a8ba9904f736ef85d24c9240fc65235299316e9aeb3fe90f615",
+    "424": "22278dac6629e6606a543419003506a778711d4bbc3105fd4484b8280c33902e",
+    "425": "79b5db8464ec7d5c3062b731d2e13f1a548637ef97451f0ddf7de0a6c063abf0",
+    "426": "501d5aa912efe051fa6a3afb5dfc14e5d616b16157257e53ec1fbbed9bec4cbd",
+    "427": "a0e2a1a30cd410a998f5b4c801c3bb12d25599c0742bf35345251e7430754f6e",
+    "428": "5978e16ecf96e17c8ea58d0483c4e522cd8c67978cd6c5064c90c0d9ae6b109e",
+    "429": "c6f38d9cdf3762a4e93ac3b99bcbaac29d9dbf166b2a79a4adef522375de69a1",
+    "430": "32c28e9e1fcc538afe30abd93afc49fdf13613d50115b679681e9b5209ff1645",
+    "431": "ddf0b860625cb494fdee042ea4c8abddee1cdb4ce8729b9a170de47576b7d879",
+    "432": "4c2434300a38e5ceede450ce2801c4308906dda496cb046bd5816aa05e8f052d",
+    "433": "254b16aff72037a543ff9588a9d3617861667e437110ac24437f87823171e2e0",
+    "434": "63541d6085bf42e75cb4d6a4410600875c3a5d9e792458e7177fe13edb7e0846",
+    "435": "348ca1cbf176824f688125913554f6542ab0bebaf0029a4b98b006f84ea084b4",
+    "436": "4edcade9e04b85d3ca1555fb8738ac9f8c48a5cba45074e4d712901f62a0aca5",
+    "437": "253c44e7576bf9b5dff62c3e7bdd1d1c570dae596835f657b16e5016af54a191",
+    "438": "f13bdb0ee6789caa1fc05ee6fd244d6bf7661934710c9f0e0d4149382124d287",
+    "439": "916e1e100af36c26b36bf98a02717da6b66d41218dd72854d01a3170b374f5ef",
+    "440": "0b40c6a3ea0bb0263485510cdd1d81f1d0548b38ea6a8e1668bee5c277fbf97e",
+    "441": "709d1995d130a1a7a5b0945e419e4954cd7008e7815cd9170ccd540c1729d71b",
+    "442": "5b2aeb5a94a0524a5c0933070f03b8988735b50b3d2a03224a1a05cf677791bc",
+    "443": "034646d72ee37d65ace4cc237c31195fe86c6d2bf4274654a84b37025bcd7c9d",
+    "444": "68a0788082f4a0d7a3cf24b5886cb825068b84293f0f53b98dcdafe0e5932ab0",
+    "445": "f6c5c08bf42ab76030b79e7864d2c950adc5ababce5ad29309c5fde3f53d0640",
+    "446": "2efb4ee44183af60c982d82df4644a629b1eb692633d3c117ccd633eb58dfa56",
+    "447": "f34d1db70fd9b98c871d30fd0d6f992b0076b475b1a93cc16cf5b491b12d5f94",
+    "448": "0cf123006fd18b5945b8806b9cc802bd7754e3986ab06efa9a1b0f76463ffbb7",
+    "449": "2bd09f233c31a1d3e7dceba687b9073e78d47a6491bc4fa9cdb26002e8307016",
+    "450": "0ec2e0579b03b44e6e635b4f63d7b3a3fce73761cb8a045bc2ef010dd03874ec",
+    "451": "3c75a046902eedb46495de30e8f61b38566953c7ea25892c52187936b55d4b62",
+    "452": "96185c6983cb27d86486ccb21cf05dbdf6c213b8331381a7c0ef480d7e61c37b",
+    "453": "e5048672ec92154a712c09d5d6d8f4fdafc857e14af5797cd593eafc9f7f6886",
+    "454": "927bdc7df4b98756618e4c4510093b8b2697f7c927f989a5528074262d7341d2",
+    "455": "2c6dd8291c2d2706941b9af5c35e5ae2a3445a26ed0693e79c5f2de67903a9ed",
+    "456": "e9e42ad483b1d544cd409fbe8c72e839bc5d6835cc128ffd40c061a227927d4c",
+    "457": "263181162e374866157bbcf2243822e3156c055c5a9ce7ea376215cf2df471ed",
+    "458": "390fe784ea01b9bff4e91beb8ed5f3577dfbf909a3d7e16655d681a0cf8a5dad",
+    "459": "e269e74bcfba846cf434ac9cb4835ab74eb73e85e7f24aab4e70b8cb3f874a2e",
+    "460": "ef3fc44dd2b3e4dc534ee0475ac98c7df05c68b431278ce861fa2577eb5e0744",
+    "461": "f70b2a336235aa0e486ef826edf309dce78c4feed5a9cc143c39447e5223c600",
+    "462": "a439d242cef6017931fb9d999abb8f638738a24c790afdb03b19ee7af919cac8",
+    "463": "e245982f4895c1268dcc4317bcbb91d220ab8a6aa49647d8de5626cb0d0ea8ff"
+  },
+  "exact_audit_sha256": "29fc96fdd70eb429db37497763ee2d1f41febbb5f5ee97c3e1e0cd7482fae378",
+  "source_binding_proof": {
+    "driver_sha256": "b7657d5d14737e9d9aa14322117b41f2925820ab42b76e0e7859cce3c2069f75",
+    "audited_positions_and_indices_exactly_match_current_payload": [
+      2,
+      3,
+      4,
+      5,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      398,
+      399,
+      400,
+      401,
+      402,
+      403,
+      404,
+      405,
+      406,
+      407,
+      408,
+      409,
+      410,
+      411,
+      412,
+      413,
+      414,
+      415,
+      416,
+      417,
+      418,
+      419,
+      420,
+      421,
+      422,
+      423,
+      424,
+      425,
+      426,
+      427,
+      428,
+      429,
+      430,
+      431,
+      432,
+      433,
+      434,
+      435,
+      436,
+      437,
+      438,
+      439,
+      440,
+      441,
+      442,
+      443,
+      444,
+      445,
+      446,
+      447,
+      448,
+      449,
+      450,
+      451,
+      452,
+      453,
+      454,
+      455,
+      456,
+      457,
+      458,
+      459,
+      460,
+      461,
+      462,
+      463
+    ],
+    "audited_reference_source_npz_sha256": "0800e6c485f6a234b99883f0d65a40cff6262257e6815def2910a2f96d1e9e7d"
+  }
+}

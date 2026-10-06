@@ -1,0 +1,399 @@
+{
+  "scope": "Passive bladder/taenia reference repairs and four exact accepted native captures over six simulated seconds. Original native taenia failure retained. Not complete human anatomical or five-minute acceptance.",
+  "human_implementation_revisions": [
+    "d11c0bc",
+    "7ba50a5"
+  ],
+  "retained_files": [
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/diagnose-taenia-native-099.py",
+      "source_sha256": "ee89d92e59a01bbfccffa6da5b7c36900f03b4fa160cc281d23b43d4edb4acde",
+      "retained": "diagnose-taenia-native-099.py",
+      "retained_sha256": "ee89d92e59a01bbfccffa6da5b7c36900f03b4fa160cc281d23b43d4edb4acde"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/condition-taenia-motion-margin-102.py",
+      "source_sha256": "a5af8ccdbdcf4799e64a070b4a9b020a0605f5c61ebad57b5ca1f90b0410a126",
+      "retained": "condition-taenia-motion-margin-102.py",
+      "retained_sha256": "a5af8ccdbdcf4799e64a070b4a9b020a0605f5c61ebad57b5ca1f90b0410a126"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/audit-taenia-motion-margin-103.py",
+      "source_sha256": "923f57fb9f7f55089be84ee1d1905683a2ad59ea0869e3468e7e4573426baccb",
+      "retained": "audit-taenia-motion-margin-103.py",
+      "retained_sha256": "923f57fb9f7f55089be84ee1d1905683a2ad59ea0869e3468e7e4573426baccb"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/measure-taenia-motion-margin-shape-106.py",
+      "source_sha256": "5c9ba7dbf863e2f6db42b057742ba5e1e23f258bc27e46a9b596f8d580d80897",
+      "retained": "measure-taenia-motion-margin-shape-106.py",
+      "retained_sha256": "5c9ba7dbf863e2f6db42b057742ba5e1e23f258bc27e46a9b596f8d580d80897"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/classify-taenia-motion-interfaces-108.py",
+      "source_sha256": "59b4f37bd291bf2a8203be338808ea9324eabbb808629cbe6190b2b2e7bcffdb",
+      "retained": "classify-taenia-motion-interfaces-108.py",
+      "retained_sha256": "59b4f37bd291bf2a8203be338808ea9324eabbb808629cbe6190b2b2e7bcffdb"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/bind-taenia-motion-reference-111.py",
+      "source_sha256": "df05a87b059dadc84fa691814ee4e2d59dba3833856774e7cda68b3c84586049",
+      "retained": "bind-taenia-motion-reference-111.py",
+      "retained_sha256": "df05a87b059dadc84fa691814ee4e2d59dba3833856774e7cda68b3c84586049"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/bladder-neighbor-overlap-volumes-104.py",
+      "source_sha256": "74c4cb0413b8844b35e74588ab3d211a0cb4d73aa8534f2980255239720ae7c6",
+      "retained": "bladder-neighbor-overlap-volumes-104.py",
+      "retained_sha256": "74c4cb0413b8844b35e74588ab3d211a0cb4d73aa8534f2980255239720ae7c6"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/repair-bladder-interfaces-105.py",
+      "source_sha256": "72082aa7bc291e903e3e617a4ca6e8c1904061035d2b5848cc9cf4fde8e00592",
+      "retained": "repair-bladder-interfaces-105.py",
+      "retained_sha256": "72082aa7bc291e903e3e617a4ca6e8c1904061035d2b5848cc9cf4fde8e00592"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/condition-bladder-interface-107.py",
+      "source_sha256": "84acbcd173ed7f54b7ae0ae7156681f3079071c4e419f5705045c00f89301901",
+      "retained": "condition-bladder-interface-107.py",
+      "retained_sha256": "84acbcd173ed7f54b7ae0ae7156681f3079071c4e419f5705045c00f89301901"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/audit-bladder-interface-109.py",
+      "source_sha256": "51af8649518efc5ea952b65c2250bad6484d7212a798f3953cf00b0957aa569b",
+      "retained": "audit-bladder-interface-109.py",
+      "retained_sha256": "51af8649518efc5ea952b65c2250bad6484d7212a798f3953cf00b0957aa569b"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/audit-bladder-neck-110.py",
+      "source_sha256": "5d0514d645fb823d8daa1e89bb3ed13b096e915d6c2e5d981d04f7ce1392bcc2",
+      "retained": "audit-bladder-neck-110.py",
+      "retained_sha256": "5d0514d645fb823d8daa1e89bb3ed13b096e915d6c2e5d981d04f7ce1392bcc2"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/bind-bladder-reference-112.py",
+      "source_sha256": "b7657d5d14737e9d9aa14322117b41f2925820ab42b76e0e7859cce3c2069f75",
+      "retained": "bind-bladder-reference-112.py",
+      "retained_sha256": "b7657d5d14737e9d9aa14322117b41f2925820ab42b76e0e7859cce3c2069f75"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/attach-bladder-cardiac-113.py",
+      "source_sha256": "3f5aaab766b265c21712b0ab70aac920f96f3586d9a20b12598aa2be32b9f859",
+      "retained": "attach-bladder-cardiac-113.py",
+      "retained_sha256": "3f5aaab766b265c21712b0ab70aac920f96f3586d9a20b12598aa2be32b9f859"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/run-bladder-taenia-native-114.py",
+      "source_sha256": "aa70eaa5d3a7d1c0c8e18298ce74917a26b65ef22635abf591fb8671adeebfe8",
+      "retained": "run-bladder-taenia-native-114.py",
+      "retained_sha256": "aa70eaa5d3a7d1c0c8e18298ce74917a26b65ef22635abf591fb8671adeebfe8"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/audit-bladder-taenia-native-115.py",
+      "source_sha256": "bdd01585e06d95b8bd3da4a6bc0bb6be7640f6917bacfa72c3351b07ee5eedd7",
+      "retained": "audit-bladder-taenia-native-115.py",
+      "retained_sha256": "bdd01585e06d95b8bd3da4a6bc0bb6be7640f6917bacfa72c3351b07ee5eedd7"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/taenia-native-diagnostic-099/report.json",
+      "source_sha256": "be089823ff05ac91b65a81f820b43d63e01878d7b70960aedd072a4f3591d4a9",
+      "retained": "taenia-native-diagnostic-099/report.json",
+      "retained_sha256": "be089823ff05ac91b65a81f820b43d63e01878d7b70960aedd072a4f3591d4a9"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/taenia-motion-margin-102/report.json",
+      "source_sha256": "be4b7cad492a37c8bea0935c9056e35ba9c103981ec32fdbfbb8d26940485792",
+      "retained": "taenia-motion-margin-102/report.json",
+      "retained_sha256": "be4b7cad492a37c8bea0935c9056e35ba9c103981ec32fdbfbb8d26940485792"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/taenia-motion-margin-audit-103/report.json",
+      "source_sha256": "8f8217e54874481aec429f54b5a49291a5ca742bce5d57eee2cbff5cf5a1bfbe",
+      "retained": "taenia-motion-margin-audit-103/report.json",
+      "retained_sha256": "8f8217e54874481aec429f54b5a49291a5ca742bce5d57eee2cbff5cf5a1bfbe"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/taenia-motion-margin-shape-106/report.json",
+      "source_sha256": "c777f919b41d362bb3f3035f933b67e498f458f02e72ee3fa572374077dbf654",
+      "retained": "taenia-motion-margin-shape-106/report.json",
+      "retained_sha256": "c777f919b41d362bb3f3035f933b67e498f458f02e72ee3fa572374077dbf654"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/taenia-motion-interface-classification-108/report.json",
+      "source_sha256": "f257ad92a5b69274610d3073290541687c28eca49e75aad75d5febfcde6010c8",
+      "retained": "taenia-motion-interface-classification-108/report.json",
+      "retained_sha256": "f257ad92a5b69274610d3073290541687c28eca49e75aad75d5febfcde6010c8"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/bladder-neighbor-overlap-volumes-104/report.json",
+      "source_sha256": "d83fde90e3464bf5813fdc8ebb42cebcffeb6ab1721a1e46c3c1aac5f784aaee",
+      "retained": "bladder-neighbor-overlap-volumes-104/report.json",
+      "retained_sha256": "d83fde90e3464bf5813fdc8ebb42cebcffeb6ab1721a1e46c3c1aac5f784aaee"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/bladder-interface-candidate-105-50um/report.json",
+      "source_sha256": "497aeb2c1b6e75bdac4394d70b3f74a961c575eb1d0961a855000b5a189b0e27",
+      "retained": "bladder-interface-candidate-105-50um/report.json",
+      "retained_sha256": "497aeb2c1b6e75bdac4394d70b3f74a961c575eb1d0961a855000b5a189b0e27"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/bladder-interface-conditioned-107/report.json",
+      "source_sha256": "14435c5c64589338ae9b1ab9b47bbcb03c2c7101e69ad68eae8ed3aa655e9c4e",
+      "retained": "bladder-interface-conditioned-107/report.json",
+      "retained_sha256": "14435c5c64589338ae9b1ab9b47bbcb03c2c7101e69ad68eae8ed3aa655e9c4e"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/bladder-interface-audit-109/report.json",
+      "source_sha256": "29fc96fdd70eb429db37497763ee2d1f41febbb5f5ee97c3e1e0cd7482fae378",
+      "retained": "bladder-interface-audit-109/report.json",
+      "retained_sha256": "29fc96fdd70eb429db37497763ee2d1f41febbb5f5ee97c3e1e0cd7482fae378"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/bladder-neck-interface-110/report.json",
+      "source_sha256": "abc11e46537d5a4fc8a7c3fa0be77618b25981c86e5c2f3fa544ef166d95cde5",
+      "retained": "bladder-neck-interface-110/report.json",
+      "retained_sha256": "abc11e46537d5a4fc8a7c3fa0be77618b25981c86e5c2f3fa544ef166d95cde5"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/taenia-native-audit-095/report.json",
+      "source_sha256": "97899cf009956357aba9c2df134d8cc5e71b95c498ea3cced0b5ffd2f0af2604",
+      "retained": "taenia-native-audit-095/report.json",
+      "retained_sha256": "97899cf009956357aba9c2df134d8cc5e71b95c498ea3cced0b5ffd2f0af2604"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/bladder-taenia-native-audit-115/report.json",
+      "source_sha256": "4005a31e550c6479b1c224b9103a4327266c2502de5e91a3d38e7b78f6cee0a6",
+      "retained": "bladder-taenia-native-audit-115/report.json",
+      "retained_sha256": "4005a31e550c6479b1c224b9103a4327266c2502de5e91a3d38e7b78f6cee0a6"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/taenia-motion-reference-binding-111/invocation.json",
+      "source_sha256": "c32f4d1c25f3efbcb8c48bb86aa97be397e41d4584933a87798575b1983a0962",
+      "retained": "taenia-motion-reference-binding-111/invocation.json",
+      "retained_sha256": "c32f4d1c25f3efbcb8c48bb86aa97be397e41d4584933a87798575b1983a0962"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/taenia-motion-reference-binding-111/source-bound-exact-audit.json",
+      "source_sha256": "8d0e4f8351c7ed516da0ae17083e10e47b1975d7649ae23033123e85893e5772",
+      "retained": "taenia-motion-reference-binding-111/source-bound-exact-audit.json",
+      "retained_sha256": "8d0e4f8351c7ed516da0ae17083e10e47b1975d7649ae23033123e85893e5772"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/bladder-reference-binding-112/invocation.json",
+      "source_sha256": "30b9c8a82ffcabc687bb48d8eb7d0ef25cb286bffd097ce033001aa01da689c8",
+      "retained": "bladder-reference-binding-112/invocation.json",
+      "retained_sha256": "30b9c8a82ffcabc687bb48d8eb7d0ef25cb286bffd097ce033001aa01da689c8"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/bladder-reference-binding-112/source-bound-exact-audit.json",
+      "source_sha256": "db6464a67266c6f52e8c53fb0e61ee2b6d4ff2e1b6b55a75d99bc56e8fb269cb",
+      "retained": "bladder-reference-binding-112/source-bound-exact-audit.json",
+      "retained_sha256": "db6464a67266c6f52e8c53fb0e61ee2b6d4ff2e1b6b55a75d99bc56e8fb269cb"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/bladder-reference-binding-112/macmini-admission-tests.log",
+      "source_sha256": "cc252fdefcc456f647a3efc95ea095fad46c7894bb9144cda65d1f2e649a8df6",
+      "retained": "bladder-reference-binding-112/macmini-admission-tests.log",
+      "retained_sha256": "cc252fdefcc456f647a3efc95ea095fad46c7894bb9144cda65d1f2e649a8df6"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/bladder-cardiac-input-113/invocation.json",
+      "source_sha256": "291d0a53ff31edb93964422a859336be0aaff2f422de05950f6f626ee01b2445",
+      "retained": "bladder-cardiac-input-113/invocation.json",
+      "retained_sha256": "291d0a53ff31edb93964422a859336be0aaff2f422de05950f6f626ee01b2445"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/bladder-taenia-native-114/invocation.json",
+      "source_sha256": "af7af75e7ec881960654b00c42f783f008ce475a8c997eb3c596d2e23e1bb4a0",
+      "retained": "bladder-taenia-native-114/invocation.json",
+      "retained_sha256": "af7af75e7ec881960654b00c42f783f008ce475a8c997eb3c596d2e23e1bb4a0"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/bladder-taenia-native-114/resting-coupled.csv",
+      "source_sha256": "da4c0e87d50473e13d17ee2b70cf02d459aeccf2adc88ca1bb6da3efcd52c99f",
+      "retained": "bladder-taenia-native-114/resting-coupled.csv",
+      "retained_sha256": "da4c0e87d50473e13d17ee2b70cf02d459aeccf2adc88ca1bb6da3efcd52c99f"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/bladder-taenia-native-114/resting-surface-audit.csv",
+      "source_sha256": "e279881b46b9b9e68195fb9c9fceb35093f6e5e0f99a0887f0b313edf2993da6",
+      "retained": "bladder-taenia-native-114/resting-surface-audit.csv",
+      "retained_sha256": "e279881b46b9b9e68195fb9c9fceb35093f6e5e0f99a0887f0b313edf2993da6"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/bladder-taenia-native-114/retained-native-comparison.json",
+      "source_sha256": "c525b6e464e0d12e27c596f31771385b89ce936a2d3940596d63ba2611de1a6d",
+      "retained": "bladder-taenia-native-114/retained-native-comparison.json",
+      "retained_sha256": "c525b6e464e0d12e27c596f31771385b89ce936a2d3940596d63ba2611de1a6d"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/bladder-taenia-native-audit-115.log",
+      "source_sha256": "cdb094779b5a5555ff8dab4a2e88c5a64ba76a28db0a54c08659d83f14b77cab",
+      "retained": "bladder-taenia-native-audit-115.log",
+      "retained_sha256": "cdb094779b5a5555ff8dab4a2e88c5a64ba76a28db0a54c08659d83f14b77cab"
+    }
+  ],
+  "remote_artifacts": [
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/taenia-native-094/native-viewer.mov",
+      "sha256": "ba28d5759b100451d404bcdef9151bbd65c04a3aa214444f40f158e1c59e64a5",
+      "bytes": 668384
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/taenia-native-094/native.log",
+      "sha256": "efb72d2dec900c36b498952124b7132e78f66a998cbc323139f338f78882274f",
+      "bytes": 27925
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/taenia-native-094/resting-human.mrvpack",
+      "sha256": "3ae9772d8e2d1a765bb30db8e01749bb0eea23416b2239394414bdffdbaa0de9",
+      "bytes": 212578304
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/taenia-native-094/accepted-geometry/step-0.mrvpack",
+      "sha256": "88a1a61bd817712019e922c5700e91bb5b58886456ae166cdf8512d1fed909f1",
+      "bytes": 212578304
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/taenia-native-094/accepted-geometry/step-0.receipt.json",
+      "sha256": "1af985f1e5b20bb8d47b858c2fd4bc0a189e5c35fe7d67fbb231b165578191ca",
+      "bytes": 10296
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/taenia-native-094/accepted-geometry/step-639.mrvpack",
+      "sha256": "75fd4159a2041939769226117ddd926ee9db11cdbca5000b11122cf13bf6e654",
+      "bytes": 212578304
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/taenia-native-094/accepted-geometry/step-639.receipt.json",
+      "sha256": "6104ef052a3b13e387eabeaf9cf5bf233e9732392187cd961a3db610797e8e86",
+      "bytes": 10317
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/taenia-native-094/accepted-geometry/step-2783.mrvpack",
+      "sha256": "93da4e3a4c559c83d9d1f83043c5239258955fca77f369d1cdff077cf7a65ec2",
+      "bytes": 212578304
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/taenia-native-094/accepted-geometry/step-2783.receipt.json",
+      "sha256": "dfc6b5894bc1c9057080cb5d714072a4eafb8c0a50cde30ffbfc778f9ca90ee5",
+      "bytes": 10318
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/taenia-native-094/accepted-geometry/step-2999.mrvpack",
+      "sha256": "c9fe3aa015cb28364afbb75321d51ce9bec98ac7813f60ad1bf0eb8ad45c0710",
+      "bytes": 212578304
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/taenia-native-094/accepted-geometry/step-2999.receipt.json",
+      "sha256": "9d882e43608af4519e579e4be64b9a316d5ed46dea4a8e8990f74a4f259a5029",
+      "bytes": 10321
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/bladder-taenia-native-114/native-viewer.mov",
+      "sha256": "f7cfac9d8b461c44a28f91c68ee2d1dc180e5eb931e2ccbd965f3deb3fac79de",
+      "bytes": 668388
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/bladder-taenia-native-114/native.log",
+      "sha256": "179657a4d9ce50eaca88806048e5b305ae1bb30658e624f1c1d5253064445b9d",
+      "bytes": 27966
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/bladder-taenia-native-114/resting-human.mrvpack",
+      "sha256": "0d518050c070f874fae42f453eae1884e892b9a04a27e18a468abff97178129c",
+      "bytes": 212590592
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/bladder-taenia-native-114/accepted-geometry/step-0.mrvpack",
+      "sha256": "2b7dcc639eb78ed4f23cee592bab3c958ef196bd39b7abf7ecad3a554f857fb6",
+      "bytes": 212590592
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/bladder-taenia-native-114/accepted-geometry/step-0.receipt.json",
+      "sha256": "a1d7363875f3f646e97cacdfe8b40cc8802f3b50f695a512f22166dcdd48c82b",
+      "bytes": 10309
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/bladder-taenia-native-114/accepted-geometry/step-639.mrvpack",
+      "sha256": "1be3f9eb3580f02a6c272a7cab3d803238505595d282ff809982a0d5bd1bbf78",
+      "bytes": 212590592
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/bladder-taenia-native-114/accepted-geometry/step-639.receipt.json",
+      "sha256": "2efbc153ce04278b0b4e964732206f3b9abf9732c40af962575451302ecfb348",
+      "bytes": 10336
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/bladder-taenia-native-114/accepted-geometry/step-2783.mrvpack",
+      "sha256": "e7fdc236f8d8f3660697888954cd16ae46ff959bee9cfbc80a32425dcf2c53e8",
+      "bytes": 212590592
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/bladder-taenia-native-114/accepted-geometry/step-2783.receipt.json",
+      "sha256": "9071ac133a64c2a8fc9e113316f059116efa4ae1c61804f794fa20b39d970967",
+      "bytes": 10337
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/bladder-taenia-native-114/accepted-geometry/step-2999.mrvpack",
+      "sha256": "2a4970916f0d87211c02b23b67c5f1203e836d085569f301fe0fb87536d6c965",
+      "bytes": 212590592
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/bladder-taenia-native-114/accepted-geometry/step-2999.receipt.json",
+      "sha256": "97a7194906c789403575be6801a29a49654a2866d9a1807d25bacab76c673dd9",
+      "bytes": 10336
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/taenia-native-input-092/resting-thorax.nhanatomy",
+      "sha256": "b0efec08f7d62b8559ba5d0ef25ebdaf653f997b2f82546918fa5c0d02f166c5",
+      "bytes": 60915508
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/taenia-native-input-092/resting-anatomy-receipt.json",
+      "sha256": "989abb8dd4e71888a1107ce9258d5cc31f47ba3b42bc01c754576f833687d904",
+      "bytes": 1393457
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/taenia-motion-native-input-111/resting-thorax.nhanatomy",
+      "sha256": "f5c822ba23800cefa7cfb39b2ad0c35f03fd422ac7a1aa049b5e3ceb5fd80ba6",
+      "bytes": 60915508
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/taenia-motion-native-input-111/resting-anatomy-receipt.json",
+      "sha256": "9e997cae98e60337d3952930e2e12e0a0e24675c69f0ce210f93c24b0e99c78b",
+      "bytes": 1393463
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/bladder-native-input-112/resting-thorax.nhanatomy",
+      "sha256": "00128e08b2a83fd6e4b1c3873e50276d1d5574aa32e9fbf891d0221eb15bce60",
+      "bytes": 60922180
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/bladder-native-input-112/resting-anatomy-receipt.json",
+      "sha256": "c53d779a2943ee812fd344ac820baca96c4bb28111cf1326626a34b0495e6366",
+      "bytes": 1403861
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/bladder-cardiac-input-113/resting-thorax.nhanatomy",
+      "sha256": "00128e08b2a83fd6e4b1c3873e50276d1d5574aa32e9fbf891d0221eb15bce60",
+      "bytes": 60922180
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/bladder-cardiac-input-113/resting-anatomy-receipt.json",
+      "sha256": "21bbcbd2a37b74028e5cfa61c5930cb86128372246d9cfd9a0fed16a0a9e55ab",
+      "bytes": 1279907
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/taenia-motion-margin-audit-103/surface-457.npz",
+      "sha256": "c66a2e9165152c80e0a3c14ce61ae81c820bfae2e3c7ee20214570cd7637a6c3",
+      "bytes": 209566
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/bladder-interface-audit-109/surface-462.npz",
+      "sha256": "82b09db9127f1db5a9ef7789bf9a3c08ac1aa81d33a4515f1fb6004f23c092cd",
+      "bytes": 8477
+    }
+  ]
+}

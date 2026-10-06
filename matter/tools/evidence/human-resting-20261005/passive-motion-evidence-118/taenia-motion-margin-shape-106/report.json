@@ -1,0 +1,23 @@
+{
+  "scope": "Final candidate reference-shape samples; all vertices and triangle centroids in both directions. This is not a global Hausdorff certificate.",
+  "driver_sha256": "5c9ba7dbf863e2f6db42b057742ba5e1e23f258bc27e46a9b596f8d580d80897",
+  "source_sha256": "65e6cd8a9346fd3eadf059cf74ba8f4678f4b88a699cf7642aae3f7fea63a290",
+  "candidate_sha256": "c66a2e9165152c80e0a3c14ce61ae81c820bfae2e3c7ee20214570cd7637a6c3",
+  "source_to_candidate": {
+    "max_m": 0.0003580656775739044,
+    "rms_m": 5.9973589309327286e-05,
+    "p99_m": 0.0002271692370413804,
+    "sample_count": 20356
+  },
+  "candidate_to_source": {
+    "max_m": 0.00013709929771721363,
+    "rms_m": 2.4662938596052617e-05,
+    "p99_m": 7.507664042350379e-05,
+    "sample_count": 21002
+  },
+  "source_volume_m3": 6.9385382740005e-06,
+  "candidate_volume_m3": 6.908534600285554e-06,
+  "sampled_distance_bound_m": 0.0005,
+  "relative_volume_bound": 0.04,
+  "passed": true
+}

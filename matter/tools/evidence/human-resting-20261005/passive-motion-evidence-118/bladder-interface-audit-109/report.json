@@ -1,0 +1,820 @@
+{
+  "scope": "Exact static self and all passive-neighbor intersections for inferred bladder source candidate; crossing classification and native cycle remain separate.",
+  "driver_sha256": "51af8649518efc5ea952b65c2250bad6484d7212a798f3953cf00b0957aa569b",
+  "source_sha256": "7483f24d2cd74a93fbe877e1119c2f0c5ffcecc7674949002f370a59bbb73344",
+  "helper_sha256": "6fa55a8e1f730c17026d08365eaf63295e4e3414de01a813bbdb9ec6919286d6",
+  "predicate_sha256": "8b138882161c78312cb9b5aa46f49795092eb9b67ed9f705dc354787cb0a635b",
+  "quality": {
+    "method": "shared_reciprocal_diagonal_flip_across_registered_field_cells",
+    "minimum_altitude_target_m": 1.2e-06,
+    "minimum_result_altitude_m": 1.2e-06,
+    "maximum_nonplanarity_m": 1e-05,
+    "same_affine_field_cell_required": false,
+    "strict_altitude_improvement_required": true,
+    "source_vertex_displacement_m": 0,
+    "flip_count": 1,
+    "changes": [
+      {
+        "source_surface": 462,
+        "source_face": 339,
+        "neighbor_face": 342,
+        "shared_surface_owners": [
+          462
+        ],
+        "old_altitude_m": 1.0588540105711928e-06,
+        "new_minimum_altitude_m": 3.77235939596476e-06,
+        "maximum_patch_nonplanarity_m": 5.3238480919966245e-09,
+        "modified_faces": {
+          "462": [
+            339,
+            342
+          ]
+        }
+      }
+    ],
+    "skipped_reasons": {},
+    "remaining": {
+      "462": {
+        "minimum_altitude_m": 2.9706592297907366e-06,
+        "below_bound_face_count": 0
+      }
+    },
+    "qualification": "local mesh conditioning only; remaining thin faces and native cycle validation must be checked"
+  },
+  "candidate_sha256": "82b09db9127f1db5a9ef7789bf9a3c08ac1aa81d33a4515f1fb6004f23c092cd",
+  "self": {
+    "triangle_pairs": [],
+    "count": 0,
+    "aabb_candidate_pairs": 4335,
+    "allowed_shared_vertex_or_edge_pairs": 3694
+  },
+  "pairs": [
+    {
+      "ids": [
+        462,
+        2
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        3
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        4
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        5
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        13
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        14
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        15
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        16
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        17
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        18
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        19
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        20
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        21
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        398
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        399
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        400
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        401
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        402
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        403
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        404
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        405
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        406
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        407
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        408
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        409
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        410
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        411
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        412
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        413
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        414
+      ],
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 0,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    },
+    {
+      "ids": [
+        462,
+        415
+      ],
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 228,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    },
+    {
+      "ids": [
+        462,
+        416
+      ],
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 285,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    },
+    {
+      "ids": [
+        462,
+        417
+      ],
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 0,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    },
+    {
+      "ids": [
+        462,
+        418
+      ],
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 0,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    },
+    {
+      "ids": [
+        462,
+        419
+      ],
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 0,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    },
+    {
+      "ids": [
+        462,
+        420
+      ],
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 0,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    },
+    {
+      "ids": [
+        462,
+        421
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        422
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        423
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        424
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        425
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        426
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        427
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        428
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        429
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        430
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        431
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        432
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        433
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        434
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        435
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        436
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        437
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        438
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        439
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        440
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        441
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        442
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        443
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        444
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        445
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        446
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        447
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        448
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        449
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        450
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        451
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        452
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        453
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        454
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        455
+      ],
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 1411,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    },
+    {
+      "ids": [
+        462,
+        456
+      ],
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 8,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    },
+    {
+      "ids": [
+        462,
+        457
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        458
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        459
+      ],
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 514,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    },
+    {
+      "ids": [
+        462,
+        460
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        461
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        462,
+        463
+      ],
+      "triangle_pairs": [
+        [
+          111,
+          115
+        ],
+        [
+          122,
+          115
+        ],
+        [
+          122,
+          216
+        ],
+        [
+          122,
+          222
+        ],
+        [
+          177,
+          115
+        ],
+        [
+          177,
+          169
+        ],
+        [
+          214,
+          169
+        ],
+        [
+          214,
+          240
+        ],
+        [
+          232,
+          222
+        ],
+        [
+          232,
+          253
+        ],
+        [
+          240,
+          240
+        ],
+        [
+          240,
+          253
+        ],
+        [
+          240,
+          306
+        ]
+      ],
+      "count": 13,
+      "aabb_candidate_pairs": 81,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    }
+  ],
+  "elapsed_seconds": 0.7665254166349769
+}

@@ -1,0 +1,25 @@
+{
+  "scope": "Actual native comparison of original taenia093 versus bladder/taenia113 source candidates. Both runs retain identical physical configuration and binary; this comparison alone does not qualify geometry.",
+  "files": {
+    "resting-coupled.csv": {
+      "before_sha256": "da4c0e87d50473e13d17ee2b70cf02d459aeccf2adc88ca1bb6da3efcd52c99f",
+      "after_sha256": "da4c0e87d50473e13d17ee2b70cf02d459aeccf2adc88ca1bb6da3efcd52c99f",
+      "byte_identical": true,
+      "rows": [
+        94,
+        94
+      ],
+      "differing_columns": []
+    },
+    "resting-surface-audit.csv": {
+      "before_sha256": "e279881b46b9b9e68195fb9c9fceb35093f6e5e0f99a0887f0b313edf2993da6",
+      "after_sha256": "e279881b46b9b9e68195fb9c9fceb35093f6e5e0f99a0887f0b313edf2993da6",
+      "byte_identical": true,
+      "rows": [
+        95,
+        95
+      ],
+      "differing_columns": []
+    }
+  }
+}

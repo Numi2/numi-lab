@@ -1,0 +1,19 @@
+{
+  "scope": "Offline inferred numerical conditioning of one passive source vertex. Native094 created three intersections as this vertex crossed a neighboring face plane by0.66micrometres. No mass, state, force or solver change.",
+  "driver_sha256": "a5af8ccdbdcf4799e64a070b4a9b020a0605f5c61ebad57b5ca1f90b0410a126",
+  "source_sha256": "7289bf54b328fea328265bb077b7a573f80da6ae64ae79801a948ccfa21e9b6d",
+  "native_diagnostic_sha256": "be089823ff05ac91b65a81f820b43d63e01878d7b70960aedd072a4f3591d4a9",
+  "vertex": 4199,
+  "neighbor_face": 4232,
+  "source_signed_distance_m": -9.297309644308203e-06,
+  "target_signed_distance_m": -4e-05,
+  "actual_signed_distance_m": -4.0003045328265816e-05,
+  "movement_m": 3.0705737317806593e-05,
+  "movement_bound_m": 5e-05,
+  "minimum_altitude_m": 1.7660004724074478e-06,
+  "volume_m3": 6.908534600285619e-06,
+  "volume_delta_m3": -4.539661624688811e-12,
+  "all_face_orientations_preserved": true,
+  "output_sha256": "c66a2e9165152c80e0a3c14ce61ae81c820bfae2e3c7ee20214570cd7637a6c3",
+  "qualification": "Exact source and native-cycle audits are required. A40micrometre margin is an inferred numerical choice, not a measured anatomical boundary."
+}

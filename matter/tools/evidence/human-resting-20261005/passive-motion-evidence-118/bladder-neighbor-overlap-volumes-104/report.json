@@ -1,0 +1,195 @@
+{
+  "scope": "Source geometry Boolean overlap diagnostic for distinct passive organs and continuity interfaces; no input mutation and no admission claim. Closed nondegenerate output is required to interpret volume.",
+  "driver_sha256": "74c4cb0413b8844b35e74588ab3d211a0cb4d73aa8534f2980255239720ae7c6",
+  "source_payload_sha256": "25023be357a78fdcb98460562fba707cd3ac2c1d9de59b2c98b9d442f6aaca87",
+  "input_npz_sha256": "04745ecc49ccebe9b183b5106d79177bc8fa3776235bb2cae40e58c842c6315c",
+  "blender_version": "5.1.2",
+  "pairs": [
+    {
+      "ids": [
+        415,
+        462
+      ],
+      "names": [
+        "small intestine",
+        "urinary bladder"
+      ],
+      "input_topology": [
+        {
+          "boundary_edges": 0,
+          "nonmanifold_edges": 0,
+          "zero_area_faces": [],
+          "signed_volume_ml": 11.084778518784002,
+          "vertices": 94,
+          "triangles": 184
+        },
+        {
+          "boundary_edges": 0,
+          "nonmanifold_edges": 0,
+          "zero_area_faces": [],
+          "signed_volume_ml": 78.2357407187401,
+          "vertices": 115,
+          "triangles": 226
+        }
+      ],
+      "intersection": {
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "zero_area_faces": [],
+        "signed_volume_ml": 0.09714764723754776,
+        "vertices": 36,
+        "triangles": 68
+      },
+      "output_sha256": "4e5cad71a6ac632a4d6b1e0060173e0030c20a7618617b542815ce1e1323cb9e"
+    },
+    {
+      "ids": [
+        416,
+        462
+      ],
+      "names": [
+        "small intestine",
+        "urinary bladder"
+      ],
+      "input_topology": [
+        {
+          "boundary_edges": 0,
+          "nonmanifold_edges": 0,
+          "zero_area_faces": [],
+          "signed_volume_ml": 13.731451471137374,
+          "vertices": 115,
+          "triangles": 226
+        },
+        {
+          "boundary_edges": 0,
+          "nonmanifold_edges": 0,
+          "zero_area_faces": [],
+          "signed_volume_ml": 78.2357407187401,
+          "vertices": 115,
+          "triangles": 226
+        }
+      ],
+      "intersection": {
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "zero_area_faces": [],
+        "signed_volume_ml": 0.08988644834056825,
+        "vertices": 32,
+        "triangles": 60
+      },
+      "output_sha256": "0a834f615499420f89a32efc3db1043b272ca7c1b27d4761cee8b1cd64f1ec54"
+    },
+    {
+      "ids": [
+        455,
+        462
+      ],
+      "names": [
+        "large intestine",
+        "urinary bladder"
+      ],
+      "input_topology": [
+        {
+          "boundary_edges": 0,
+          "nonmanifold_edges": 0,
+          "zero_area_faces": [],
+          "signed_volume_ml": 470.03445057881106,
+          "vertices": 2796,
+          "triangles": 5588
+        },
+        {
+          "boundary_edges": 0,
+          "nonmanifold_edges": 0,
+          "zero_area_faces": [],
+          "signed_volume_ml": 78.2357407187401,
+          "vertices": 115,
+          "triangles": 226
+        }
+      ],
+      "intersection": {
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "zero_area_faces": [],
+        "signed_volume_ml": 0.7584905226481615,
+        "vertices": 104,
+        "triangles": 204
+      },
+      "output_sha256": "29197b08c4d38058336f527bb4e973b1526db5b73e85e7b7d730741ef497a308"
+    },
+    {
+      "ids": [
+        459,
+        462
+      ],
+      "names": [
+        "large intestine",
+        "urinary bladder"
+      ],
+      "input_topology": [
+        {
+          "boundary_edges": 0,
+          "nonmanifold_edges": 0,
+          "zero_area_faces": [],
+          "signed_volume_ml": 157.76643705845544,
+          "vertices": 1061,
+          "triangles": 2118
+        },
+        {
+          "boundary_edges": 0,
+          "nonmanifold_edges": 0,
+          "zero_area_faces": [],
+          "signed_volume_ml": 78.2357407187401,
+          "vertices": 115,
+          "triangles": 226
+        }
+      ],
+      "intersection": {
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "zero_area_faces": [],
+        "signed_volume_ml": 0.05549015808511081,
+        "vertices": 42,
+        "triangles": 80
+      },
+      "output_sha256": "7e177256582dbe7d09d876fafdc73edb9d8149ee9ed8980362e98ceaee9a51b3"
+    },
+    {
+      "ids": [
+        462,
+        463
+      ],
+      "names": [
+        "urinary bladder",
+        "prostate"
+      ],
+      "input_topology": [
+        {
+          "boundary_edges": 0,
+          "nonmanifold_edges": 0,
+          "zero_area_faces": [],
+          "signed_volume_ml": 78.2357407187401,
+          "vertices": 115,
+          "triangles": 226
+        },
+        {
+          "boundary_edges": 0,
+          "nonmanifold_edges": 0,
+          "zero_area_faces": [],
+          "signed_volume_ml": 11.85355148006702,
+          "vertices": 223,
+          "triangles": 442
+        }
+      ],
+      "intersection": {
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "zero_area_faces": [],
+        "signed_volume_ml": 0.013100610704141334,
+        "vertices": 15,
+        "triangles": 26
+      },
+      "output_sha256": "88db1fb3b7f785346fd57d947e53a53981440c9d65a56255ce49b2dfdc36efb2"
+    }
+  ],
+  "elapsed_seconds": 0.12736450042575598
+}

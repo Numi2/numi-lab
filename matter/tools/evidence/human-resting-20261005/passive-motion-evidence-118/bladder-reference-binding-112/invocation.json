@@ -1,0 +1,15 @@
+{
+  "function": "numilab_human.resting_passive_interfaces.build_candidate",
+  "arguments": {
+    "base_payload": "/Users/n/numi-human-resting-evidence-20261005/taenia-motion-native-input-111/resting-thorax.nhanatomy",
+    "base_receipt": "/Users/n/numi-human-resting-evidence-20261005/taenia-motion-native-input-111/resting-anatomy-receipt.json",
+    "reference_payload": "/Users/n/numi-human-resting-evidence-20261005/costal-current003-full-chain-003/resting-thorax.nhanatomy",
+    "candidate_dir": "/Users/n/numi-human-resting-evidence-20261005/bladder-interface-audit-109",
+    "audit_path": "/Users/n/numi-human-resting-evidence-20261005/bladder-reference-binding-112/source-bound-exact-audit.json",
+    "derivation_path": "/Users/n/numi-human-resting-evidence-20261005/bladder-interface-candidate-105-50um/report.json",
+    "interface_path": "/Users/n/numi-human-resting-evidence-20261005/bladder-neck-interface-110/report.json",
+    "organ_set": "bladder",
+    "output": "/Users/n/numi-human-resting-evidence-20261005/bladder-native-input-112"
+  },
+  "driver_sha256": "b7657d5d14737e9d9aa14322117b41f2925820ab42b76e0e7859cce3c2069f75"
+}

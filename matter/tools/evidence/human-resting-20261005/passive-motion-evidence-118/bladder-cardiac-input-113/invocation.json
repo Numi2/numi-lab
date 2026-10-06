@@ -1,0 +1,41 @@
+{
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/n/numi-human-resting-cardiac-source-026/matter/tools/cardiac_geometry_binding.py",
+    "--input",
+    "/Users/n/numi-human-resting-evidence-20261005/bladder-native-input-112/resting-thorax.nhanatomy",
+    "--input-receipt",
+    "/Users/n/numi-human-resting-evidence-20261005/bladder-native-input-112/resting-anatomy-receipt.json",
+    "--arrangement-candidate",
+    "/Users/n/numi-human-resting-evidence-20261005/cardiac-wall-resolution-003/candidate.json",
+    "--wall-map-refinement",
+    "/Users/n/numi-human-resting-evidence-20261005/bladder-cardiac-input-113/ventricular-wall-map-refinement.json",
+    "--output",
+    "/Users/n/numi-human-resting-evidence-20261005/bladder-cardiac-input-113/resting-thorax.nhanatomy",
+    "--output-receipt",
+    "/Users/n/numi-human-resting-evidence-20261005/bladder-cardiac-input-113/resting-anatomy-receipt.json",
+    "--attach-map-refinement"
+  ],
+  "driver_sha256": "3f5aaab766b265c21712b0ab70aac920f96f3586d9a20b12598aa2be32b9f859",
+  "helper_sha256": "0853be4db037c3353c82a02d1fe2843cc4055acc5d092dd31f71d2a7eb0308a0",
+  "original_descriptor": "/Users/n/numi-human-resting-evidence-20261005/cardiac-map-multiregion-affine-repair-011/ventricular-wall-map-refinement-fullchain073-002.json",
+  "original_descriptor_sha256": "461471153615b38849dafdf9eca7cc5149269beaf6ce4426dcb8810fe5598d72",
+  "descriptor_changed_fields": [
+    "source_payload_sha256",
+    "source_receipt_sha256"
+  ],
+  "byte_identical_cardiac_record_sha256": {
+    "1": "c38bbdf7f5833e40f726661ebae3464384357a99bf0debe624406439b6f24434",
+    "23": "a66f3891134651986294723bf50e6e3f28d70a17236ca61a95644b16820bbd27",
+    "24": "fc6027cc5c7ec3b5ba80574650f0227a926b4fc382dc3fa7a96a928c6a715779",
+    "318": "456cc82dab11fd3b6ef59a2340a54766e617ebad2d33679d87ae1e7e761428f2",
+    "319": "ccacbc494a8199ea4639f8e983db7c1d00056c4cfe8d1ff5535302556cb98f5d",
+    "320": "2bb008f84985464670dc9e503929ba409d114e08f9408c0b9d70d2a29a72a3ad",
+    "321": "d5d6791d1f5b25ca8cb309a5baaf6dc67e32e1fd1b8a785e13a840db5b4ce1ec"
+  },
+  "input_sha256": "00128e08b2a83fd6e4b1c3873e50276d1d5574aa32e9fbf891d0221eb15bce60",
+  "input_receipt_sha256": "c53d779a2943ee812fd344ac820baca96c4bb28111cf1326626a34b0495e6366",
+  "return_code": 0,
+  "output_sha256": "00128e08b2a83fd6e4b1c3873e50276d1d5574aa32e9fbf891d0221eb15bce60",
+  "output_receipt_sha256": "21bbcbd2a37b74028e5cfa61c5930cb86128372246d9cfd9a0fed16a0a9e55ab"
+}

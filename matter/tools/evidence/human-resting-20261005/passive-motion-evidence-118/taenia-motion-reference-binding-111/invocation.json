@@ -1,0 +1,13 @@
+{
+  "function": "numilab_human.resting_taenia_reference.build_candidate",
+  "arguments": {
+    "base_payload": "/Users/n/numi-human-resting-evidence-20261005/passive-organ-native-input-074/resting-thorax.nhanatomy",
+    "base_receipt": "/Users/n/numi-human-resting-evidence-20261005/passive-organ-native-input-074/resting-anatomy-receipt.json",
+    "candidate_path": "/Users/n/numi-human-resting-evidence-20261005/taenia-motion-margin-audit-103/surface-457.npz",
+    "audit_path": "/Users/n/numi-human-resting-evidence-20261005/taenia-motion-reference-binding-111/source-bound-exact-audit.json",
+    "shape_path": "/Users/n/numi-human-resting-evidence-20261005/taenia-motion-margin-shape-106/report.json",
+    "interface_path": "/Users/n/numi-human-resting-evidence-20261005/taenia-motion-interface-classification-108/report.json",
+    "output": "/Users/n/numi-human-resting-evidence-20261005/taenia-motion-native-input-111"
+  },
+  "driver_sha256": "df05a87b059dadc84fa691814ee4e2d59dba3833856774e7cda68b3c84586049"
+}

@@ -1,0 +1,90 @@
+{
+  "scope": "Inferred passive reference surface repair; source organ identities retained. Difference removes only source overlaps and a declared numerical separation from stationary registered neighbors. The bladder remains passive geometry and add no mass, force or physiological state. Not measured subject geometry or native full-cycle qualification.",
+  "input_payload_sha256": "25023be357a78fdcb98460562fba707cd3ac2c1d9de59b2c98b9d442f6aaca87",
+  "input_npz_sha256": "04745ecc49ccebe9b183b5106d79177bc8fa3776235bb2cae40e58c842c6315c",
+  "driver_sha256": "72082aa7bc291e903e3e617a4ca6e8c1904061035d2b5848cc9cf4fde8e00592",
+  "blender_version": "5.1.2",
+  "separation_margin_m": 5e-05,
+  "method": "Source neighbor surfaces expanded along area-weighted outward normals by the declared numerical margin, then existing Blender exact Boolean difference. Original bladder exterior retained outside the local cut. Difference priority preserves the registered small-bowel and colon components; the bladder/prostate neck interface is not intentionally cut.",
+  "surfaces": [
+    {
+      "stable_id": 462,
+      "neighbors": [
+        415,
+        416,
+        455,
+        459
+      ],
+      "source_stats": {
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "zero_area_faces": [],
+        "minimum_altitude_m": 0.0008036368681691505,
+        "signed_volume_ml": 78.2357407187401,
+        "vertices": 115,
+        "triangles": 226
+      },
+      "stages": [
+        {
+          "neighbor_id": 415,
+          "stats": {
+            "boundary_edges": 0,
+            "nonmanifold_edges": 0,
+            "zero_area_faces": [],
+            "minimum_altitude_m": 1.1007373820362506e-05,
+            "signed_volume_ml": 78.13648441878372,
+            "vertices": 136,
+            "triangles": 268
+          }
+        },
+        {
+          "neighbor_id": 416,
+          "stats": {
+            "boundary_edges": 0,
+            "nonmanifold_edges": 0,
+            "zero_area_faces": [],
+            "minimum_altitude_m": 2.9706592297907366e-06,
+            "signed_volume_ml": 78.12891138981298,
+            "vertices": 142,
+            "triangles": 280
+          }
+        },
+        {
+          "neighbor_id": 455,
+          "stats": {
+            "boundary_edges": 0,
+            "nonmanifold_edges": 0,
+            "zero_area_faces": [],
+            "minimum_altitude_m": 1.0588540105711928e-06,
+            "signed_volume_ml": 77.34485625447809,
+            "vertices": 237,
+            "triangles": 470
+          }
+        },
+        {
+          "neighbor_id": 459,
+          "stats": {
+            "boundary_edges": 0,
+            "nonmanifold_edges": 0,
+            "zero_area_faces": [],
+            "minimum_altitude_m": 9.095912683993278e-08,
+            "signed_volume_ml": 77.33158133775946,
+            "vertices": 260,
+            "triangles": 516
+          }
+        }
+      ],
+      "output_stats": {
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "zero_area_faces": [],
+        "minimum_altitude_m": 9.095912683993278e-08,
+        "signed_volume_ml": 77.33158133775946,
+        "vertices": 260,
+        "triangles": 516
+      },
+      "output_sha256": "d0afa7de08df71736b1089c64cec86df3c862d0ae19c47738fad6e3ba72d0d87",
+      "removed_volume_ml": 0.9041593809806443
+    }
+  ]
+}
