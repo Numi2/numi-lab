@@ -44,6 +44,65 @@ def canonical_hash(value) -> str:
     return sha256(json.dumps(value, sort_keys=True, separators=(",", ":")).encode())
 
 
+def refresh_current_payload_identities(receipt: dict, source_hash: str, output_hash: str) -> dict:
+    """Refresh only the existing current-payload pointers in an anatomy receipt.
+
+    The cardiac binding and its optional ventricular-wall sub-binding each own
+    an output identity. Historical source/input identities are deliberately
+    retained. This uses explicit paths rather than a recursive hash rewrite.
+    """
+    payload = receipt.get("payload")
+    bindings = receipt.get("functional_bindings")
+    provenance = receipt.get("provenance")
+    require(isinstance(payload, dict) and payload.get("sha256") == source_hash,
+            "payload identity changed before composition")
+    require(isinstance(bindings, dict) and bindings.get("anatomy_payload_sha256") == source_hash,
+            "functional anatomy identity changed before composition")
+    require(isinstance(provenance, dict), "receipt lacks provenance for payload composition")
+    cardiac = provenance.get("cardiac_geometry_binding")
+    require(isinstance(cardiac, dict) and cardiac.get("output_anatomy_payload_sha256") == source_hash,
+            "cardiac output identity changed before composition")
+
+    paths = [
+        ("payload", "sha256"),
+        ("functional_bindings", "anatomy_payload_sha256"),
+        ("provenance", "cardiac_geometry_binding", "output_anatomy_payload_sha256"),
+    ]
+    wall = cardiac.get("ventricular_wall_binding")
+    old_wall_output = None
+    if wall is not None:
+        require(isinstance(wall, dict) and wall.get("output_anatomy_payload_sha256") == source_hash,
+                "ventricular wall output identity changed before composition")
+        old_wall_output = wall["output_anatomy_payload_sha256"]
+        paths.append(("provenance", "cardiac_geometry_binding", "ventricular_wall_binding",
+                      "output_anatomy_payload_sha256"))
+
+    old_cardiac_output = cardiac["output_anatomy_payload_sha256"]
+    cardiac_before = canonical_hash(cardiac)
+    payload["sha256"] = output_hash
+    bindings["anatomy_payload_sha256"] = output_hash
+    cardiac["output_anatomy_payload_sha256"] = output_hash
+    if wall is not None:
+        wall["output_anatomy_payload_sha256"] = output_hash
+
+    # Prove the cardiac record differs only at those current output pointers.
+    cardiac_identity_only = json.loads(json.dumps(cardiac))
+    cardiac_identity_only["output_anatomy_payload_sha256"] = source_hash
+    if old_wall_output is not None:
+        cardiac_identity_only["ventricular_wall_binding"]["output_anatomy_payload_sha256"] = source_hash
+    cardiac_after_reset = canonical_hash(cardiac_identity_only)
+    require(cardiac_after_reset == cardiac_before,
+            "cardiac source/history fields changed while refreshing output identity")
+    return {
+        "updated_current_payload_identity_paths": [".".join(path) for path in paths],
+        "updated_current_payload_identity_count": len(paths),
+        "cardiac_prior_output_anatomy_payload_sha256": old_cardiac_output,
+        "ventricular_wall_prior_output_anatomy_payload_sha256": old_wall_output,
+        "cardiac_binding_proof_sha256_before": cardiac_before,
+        "cardiac_binding_proof_sha256_after_resetting_current_output_pointers": cardiac_after_reset,
+    }
+
+
 def normalized_quaternion(value) -> np.ndarray:
     q = np.asarray(value, dtype=np.float64)
     norm = float(np.linalg.norm(q))
@@ -222,7 +281,6 @@ def main() -> int:
     output_hash = sha256(output_bytes)
     output_receipt = json.loads(json.dumps(receipt))
     bindings = output_receipt["functional_bindings"]
-    bindings["anatomy_payload_sha256"] = output_hash
     upper_minimum_y = min(rebased_bounds[str(sid)]["minimum_m"][1] for sid in UPPER_ANCHOR_IDS)
     pelvic_maximum_y = max(rebased_bounds[str(sid)]["maximum_m"][1] for sid in PELVIC_ANCHOR_IDS)
     require(pelvic_maximum_y < upper_minimum_y, "passive reference transition endpoints are inverted")
@@ -240,18 +298,9 @@ def main() -> int:
     }
     payload_row = output_receipt["payload"]
     payload_row["path"] = str(args.output_payload)
-    payload_row["sha256"] = output_hash
     payload_row["input_payload_sha256"] = source_hash
-
+    refreshed_identities = refresh_current_payload_identities(output_receipt, source_hash, output_hash)
     cardiac_out = output_receipt["provenance"]["cardiac_geometry_binding"]
-    old_cardiac_output = cardiac_out["output_anatomy_payload_sha256"]
-    require(old_cardiac_output == source_hash, "cardiac proof source payload changed before composition")
-    cardiac_binding_hash_before = canonical_hash(cardiac_out)
-    cardiac_out["output_anatomy_payload_sha256"] = output_hash
-    cardiac_binding_for_hash = json.loads(json.dumps(cardiac_out))
-    cardiac_binding_for_hash["output_anatomy_payload_sha256"] = old_cardiac_output
-    require(canonical_hash(cardiac_binding_for_hash) == cardiac_binding_hash_before,
-            "cardiac binding proof changed beyond its composed-payload identity pointer")
     rebase = {
         "schema": "numi.human.passive-viscera-geometry-rebase.v1",
         "method": "preserve_neutral_world_pose_rebase_selected_surface_frames_to_torso20",
@@ -275,9 +324,7 @@ def main() -> int:
             key=lambda sid: rebased_bounds[str(sid)]["maximum_m"][1]),
         "transition_upper_anchor_stable_id": min(UPPER_ANCHOR_IDS,
             key=lambda sid: rebased_bounds[str(sid)]["minimum_m"][1]),
-        "cardiac_prior_output_anatomy_payload_sha256": old_cardiac_output,
-        "cardiac_binding_proof_sha256_before": cardiac_binding_hash_before,
-        "cardiac_binding_proof_sha256_after_replacing_output_identity_only": canonical_hash(cardiac_binding_for_hash),
+        **refreshed_identities,
         "cardiac_surface_subset_sha256_before": source_cardiac_digest,
         "cardiac_surface_subset_sha256_after": candidate_cardiac_digest,
         "unselected_records_byte_identical": True,
