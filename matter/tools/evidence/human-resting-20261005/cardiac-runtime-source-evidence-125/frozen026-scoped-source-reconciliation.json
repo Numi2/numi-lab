@@ -1,0 +1,31 @@
+{
+  "base_revision": "6c54145",
+  "scope": "Only five cardiac runtime/binding files changed; all other published source preserved. Existing frozen026 engineering evidence; clean build and final acceptance pending.",
+  "files": [
+    {
+      "path": "apps/NumiHumanRestingAnatomy.hpp",
+      "published_sha256": "df77981352754d9ea379c16e6c30a9eb6026d6b9abb31357b5b8c7fb2a607ef9",
+      "frozen026_sha256": "ef6f57b6ebc9b331a588c3366961e1df77906ba1070f498282e12b2e1b0ab382"
+    },
+    {
+      "path": "apps/NumiHumanRestingVisual.hpp",
+      "published_sha256": "5866b41cda480b3572edaa0287cc7ae915390e86ee3f8bc85ff94caffb0278aa",
+      "frozen026_sha256": "7d486d44ebdfdb98cdd191a3eb40208d534ba90d97b7f498ef1d9e4de0813bbc"
+    },
+    {
+      "path": "include/metalrobo/numi_human_resting_visual_gpu.h",
+      "published_sha256": "6c1bbd0106fc4d48206fea2453b8befc1b502e068c0d0cd430f341d3bc0428ad",
+      "frozen026_sha256": "e01b134146f90949041df4f55766aabdeae1eb56d3ec504c5cfcc4df2da8bc2e"
+    },
+    {
+      "path": "matter/src/human_respiration.metal",
+      "published_sha256": "ed294382def451799c1147cb1ef3b8aa2ebd6c181fdaefe2aa5524bcdf42d0a5",
+      "frozen026_sha256": "893df30d15a820e9b9fad8919c9fe19557c3a049f39433e87ec2e24f5e06757c"
+    },
+    {
+      "path": "matter/tools/cardiac_geometry_binding.py",
+      "published_sha256": "eec44309d6d823f7949cc15dae6120dd8d20136a7dd173da1f3ee7d56a3a6b6b",
+      "frozen026_sha256": "0853be4db037c3353c82a02d1fe2843cc4055acc5d092dd31f71d2a7eb0308a0"
+    }
+  ]
+}

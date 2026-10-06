@@ -1,0 +1,98 @@
+{
+  "scope": "Current-main plus five scoped cardiac files built and run on Mini. Same input trajectory and retained geometry bytes as frozen026 run114. Cardiac/respiratory neighbor defects remain; no whole-anatomy acceptance.",
+  "retention_script_sha256": "62420ae4a02a9e89d5a57d21e900f803c9f30c1feaaee38d8a50e1f060777d72",
+  "retained_files": [
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-source-reconciliation-123/invocation.json",
+      "source_sha256": "5d7f543f88fdddf3b1154f202b29f3b1c51f41d15cf51d48653a862ddcf4c63c",
+      "retained": "invocation.json",
+      "retained_sha256": "5d7f543f88fdddf3b1154f202b29f3b1c51f41d15cf51d48653a862ddcf4c63c"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-source-reconciliation-123/native.log",
+      "source_sha256": "ce74e02250dc79a6c00a95e8da77394a58e36ff0d96793d68f37bc2666a42aba",
+      "retained": "native.log",
+      "retained_sha256": "ce74e02250dc79a6c00a95e8da77394a58e36ff0d96793d68f37bc2666a42aba"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-source-reconciliation-123/source.patch",
+      "source_sha256": "d33e98142cd7f4f5618babebd8d56c3605551ef6d856b95e568ce5ce3e939e89",
+      "retained": "source.patch",
+      "retained_sha256": "d33e98142cd7f4f5618babebd8d56c3605551ef6d856b95e568ce5ce3e939e89"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-source-reconciliation-123/resting-coupled.csv",
+      "source_sha256": "da4c0e87d50473e13d17ee2b70cf02d459aeccf2adc88ca1bb6da3efcd52c99f",
+      "retained": "resting-coupled.csv",
+      "retained_sha256": "da4c0e87d50473e13d17ee2b70cf02d459aeccf2adc88ca1bb6da3efcd52c99f"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-source-reconciliation-123/resting-surface-audit.csv",
+      "source_sha256": "e279881b46b9b9e68195fb9c9fceb35093f6e5e0f99a0887f0b313edf2993da6",
+      "retained": "resting-surface-audit.csv",
+      "retained_sha256": "e279881b46b9b9e68195fb9c9fceb35093f6e5e0f99a0887f0b313edf2993da6"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-source-reconciliation-123/frozen026-comparison.json",
+      "source_sha256": "b3b22d6a5a2356cf817791e7ccf218cf163e74220ef640cddce9c4d386f6af17",
+      "retained": "frozen026-comparison.json",
+      "retained_sha256": "b3b22d6a5a2356cf817791e7ccf218cf163e74220ef640cddce9c4d386f6af17"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/run-source-reconciliation-123.py",
+      "source_sha256": "4d623b16db0ae7135f7cc8e2ae95630041c55b19a34261cb9cb64c776c7eaab3",
+      "retained": "run-source-reconciliation-123.py",
+      "retained_sha256": "4d623b16db0ae7135f7cc8e2ae95630041c55b19a34261cb9cb64c776c7eaab3"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/final-runtime-reconciliation-121/configure.log",
+      "source_sha256": "85aa90872c4f74db7059da184bb590eae61f0256e7ab6b6fa830cc77c1c1962c",
+      "retained": "configure.log",
+      "retained_sha256": "85aa90872c4f74db7059da184bb590eae61f0256e7ab6b6fa830cc77c1c1962c"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/final-runtime-reconciliation-121/build.log",
+      "source_sha256": "671d5b27e470efffcd3976b6bbcd0630ac35aa51e8da9887950d7f29abf50a61",
+      "retained": "build.log",
+      "retained_sha256": "671d5b27e470efffcd3976b6bbcd0630ac35aa51e8da9887950d7f29abf50a61"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/final-runtime-reconciliation-121/frozen026-scoped-source-reconciliation.json",
+      "source_sha256": "5eb4e2e160996aaa1ab01671d5d390fd0421a99335b17f26550a69413c2959a9",
+      "retained": "frozen026-scoped-source-reconciliation.json",
+      "retained_sha256": "5eb4e2e160996aaa1ab01671d5d390fd0421a99335b17f26550a69413c2959a9"
+    }
+  ],
+  "remote_artifacts": [
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-source-reconciliation-123/native-viewer.mov",
+      "sha256": "f237429c457c67775c8e098ad40ef0cdaae61ff0d64c602674d873c40c495c8a",
+      "bytes": 668410
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-source-reconciliation-123/resting-human.mrvpack",
+      "sha256": "0d518050c070f874fae42f453eae1884e892b9a04a27e18a468abff97178129c",
+      "bytes": 212590592
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-source-reconciliation-123/accepted-geometry/step-0.mrvpack",
+      "sha256": "2b7dcc639eb78ed4f23cee592bab3c958ef196bd39b7abf7ecad3a554f857fb6",
+      "bytes": 212590592
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-source-reconciliation-123/accepted-geometry/step-2783.mrvpack",
+      "sha256": "e7fdc236f8d8f3660697888954cd16ae46ff959bee9cfbc80a32425dcf2c53e8",
+      "bytes": 212590592
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-source-reconciliation-123/accepted-geometry/step-2999.mrvpack",
+      "sha256": "2a4970916f0d87211c02b23b67c5f1203e836d085569f301fe0fb87536d6c965",
+      "bytes": 212590592
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-source-reconciliation-123/accepted-geometry/step-639.mrvpack",
+      "sha256": "1be3f9eb3580f02a6c272a7cab3d803238505595d282ff809982a0d5bd1bbf78",
+      "bytes": 212590592
+    }
+  ]
+}

@@ -37,12 +37,55 @@ kernel void nm_human_resting_cardiac_q(
     }
     qOut[chamber]=.5f*(low+high);
 }
+kernel void nm_human_resting_cardiac_wall_q(
+    constant MRHumanRestingCardiacWallGPU& wall [[buffer(0)]],
+    device const float* cardiacQ [[buffer(1)]],device float4* result [[buffer(2)]],
+    uint i [[thread_position_in_grid]]) {
+    if(i)return;
+    if(!wall.chambersAndFlags.z){result[0]=0;return;}
+    const float r=cardiacQ[wall.chambersAndFlags.x]/wall.scalesAndVolume.x;
+    const float l=cardiacQ[wall.chambersAndFlags.y]/wall.scalesAndVolume.y;
+    const float4 p0=wall.volumePolynomial[0],p1=wall.volumePolynomial[1],p2=wall.volumePolynomial[2],
+        p3=wall.volumePolynomial[3],p4=wall.volumePolynomial[4];
+    // Cubic source-mesh volume in normalized (r,l,s). This correction is
+    // derived from accepted chamber q; it is not a second pump or a history.
+    const float f0=p0.x+p0.y*r+p0.z*l+p0.w*r*r+p1.x*r*l+p1.y*l*l+
+        p1.z*r*r*r+p1.w*r*r*l+p2.x*r*l*l+p2.y*l*l*l;
+    const float f1=p2.z+p2.w*r+p3.x*l+p3.y*r*r+p3.z*r*l+p3.w*l*l;
+    const float f2=p4.x+p4.y*r+p4.z*l,f3=p4.w;
+    float low=wall.closureBoundsAndTolerance.x/wall.scalesAndVolume.z;
+    float high=wall.closureBoundsAndTolerance.y/wall.scalesAndVolume.z;
+    const float target=wall.scalesAndVolume.w;
+    const float vlo=((f3*low+f2)*low+f1)*low+f0;
+    const float vhi=((f3*high+f2)*high+f1)*high+f0;
+    float minimumDerivative=min((3*f3*low+2*f2)*low+f1,(3*f3*high+2*f2)*high+f1);
+    if(f3!=0) {
+        const float stationary=-f2/(3*f3);
+        if(stationary>low&&stationary<high)
+            minimumDerivative=min(minimumDerivative,(3*f3*stationary+2*f2)*stationary+f1);
+    }
+    if(!all(isfinite(float4(vlo,vhi,minimumDerivative,target)))||target<=0||low>=high||
+       minimumDerivative<=1.e-12f||vlo>target||vhi<target) {
+        result[0]=float4(NAN,NAN,target,1);return;
+    }
+    for(uint iteration=0;iteration<32;++iteration) {
+        const float mid=.5f*(low+high);
+        if(((f3*mid+f2)*mid+f1)*mid+f0<target)low=mid;else high=mid;
+    }
+    const float s=.5f*(low+high),volume=((f3*s+f2)*s+f1)*s+f0;
+    const float error=abs(volume-target)/target;
+    result[0]=float4(s*wall.scalesAndVolume.z,volume,target,
+        !isfinite(error)||error>wall.closureBoundsAndTolerance.z?1.0f:0.0f);
+}
+
 kernel void nm_human_resting_skin(
     constant uint4& d [[buffer(0)]], device const MRHumanRestingVertexMap* map [[buffer(1)]],
     device const MRHumanRestingInfluence* influences [[buffer(2)]], device const MRBodyStateGPU* bodies [[buffer(3)]],
     device MRVisualVertexGPUV2* vertices [[buffer(4)]],
     device const NMHumanRespirationState* respiration [[buffer(5)]],
     constant MRHumanRestingAnatomyGPU& anatomy [[buffer(6)]],device const float* cardiacQ [[buffer(7)]],
+    device const MRHumanRestingCardiacWallVertexGPU* wallMap [[buffer(8)]],
+    constant MRHumanRestingCardiacWallGPU& wall [[buffer(9)]],device const float4* wallQ [[buffer(10)]],
     uint i [[thread_position_in_grid]]) {
     if(i>=d.x)return;
     auto m=map[i];if(!m.influenceCount)return;
@@ -73,6 +116,12 @@ kernel void nm_human_resting_skin(
                 local=cavity.xyz+scale*(local-cavity.xyz);
                 normal/=scale;
             }
+        } else if(m.deformationKind==10) {
+            const auto basis=wallMap[m.chamberIndex];
+            local+=basis.first.xyz*cardiacQ[wall.chambersAndFlags.x]+
+                basis.second.xyz*cardiacQ[wall.chambersAndFlags.y]+basis.closure.xyz*wallQ[0].x;
+            if(wallQ[0].w!=0)local=float3(NAN);
+            // Normals are rebuilt from the deformed source triangles below.
         } else if(m.deformationKind==8) {
             const float q=cardiacQ[m.chamberIndex],weight=m.deformationWeight.w;
             const float scale=1.0f+q*weight;
@@ -129,6 +178,24 @@ kernel void nm_human_resting_skin(
     const float3 tangentAxis=abs(unitNormal.z)<.9f?float3(0,0,1):float3(0,1,0);
     vertices[i].tangent=float4(normalize(cross(tangentAxis,unitNormal)),0);
 }
+kernel void nm_human_resting_cardiac_wall_normals(
+    constant uint& count [[buffer(0)]],device const uint4* ranges [[buffer(1)]],
+    device const uint* incidentTriangleStarts [[buffer(2)]],device const uint* indices [[buffer(3)]],
+    device MRVisualVertexGPUV2* vertices [[buffer(4)]],uint i [[thread_position_in_grid]]) {
+    if(i>=count)return;
+    const uint4 row=ranges[i];float3 normal=0;
+    for(uint j=row.y;j<row.y+row.z;++j) {
+        const uint at=incidentTriangleStarts[j];
+        const float3 a=vertices[indices[at]].position.xyz,b=vertices[indices[at+1]].position.xyz,
+            c=vertices[indices[at+2]].position.xyz;
+        normal+=cross(b-a,c-a);
+    }
+    const float squared=dot(normal,normal);
+    if(!isfinite(squared)||squared<=1.e-30f){vertices[row.x].normalAndTangentSign=float4(NAN);return;}
+    normal*=rsqrt(squared);vertices[row.x].normalAndTangentSign=float4(normal,1);
+    const float3 tangentAxis=abs(normal.z)<.9f?float3(0,0,1):float3(0,1,0);
+    vertices[row.x].tangent=float4(normalize(cross(tangentAxis,normal)),0);
+}
 kernel void nm_human_resting_layers(
     constant uint4& d [[buffer(0)]], device MRVisualInstanceGPUV2* instances [[buffer(1)]],
     device const uint* layerMask [[buffer(2)]],
@@ -148,25 +215,29 @@ kernel void nm_human_resting_audit_volumes(
     device const MRVisualVertexGPUV2* vertices [[buffer(3)]],
     device const NMHumanRespirationState* respiration [[buffer(4)]],
     constant MRHumanRestingAnatomyGPU& anatomy [[buffer(5)]],
-    device float4* result [[buffer(6)]],uint i [[thread_position_in_grid]]) {
+    device float4* result [[buffer(6)]],constant MRHumanRestingCardiacWallGPU& wall [[buffer(7)]],
+    uint i [[thread_position_in_grid]]) {
     if(i>=d.w)return;
     const auto surface=surfaces[i];const uint4 owner=surface.indicesAndOwner;
     const float3 origin=vertices[indices[owner.x]].position.xyz;
-    float volume=0,compensation=0;
+    float volume=0,compensation=0;uint invalidTriangles=0;
     for(uint j=owner.x;j<owner.x+owner.y;j+=3) {
-        const float3 a=vertices[indices[j]].position.xyz-origin;
-        const float3 b=vertices[indices[j+1]].position.xyz-origin;
-        const float3 c=vertices[indices[j+2]].position.xyz-origin;
+        const float3 pa=vertices[indices[j]].position.xyz,pb=vertices[indices[j+1]].position.xyz,
+            pc=vertices[indices[j+2]].position.xyz;
+        const float3 a=pa-origin,b=pb-origin,c=pc-origin;
+        const float3 area=cross(pb-pa,pc-pa);
+        if(!all(isfinite(area))||all(area==float3(0)))++invalidTriangles;
         const float y=dot(a,cross(b,c))/6.0f-compensation;
         const float next=volume+y;compensation=(next-volume)-y;volume=next;
     }
     const auto state=respiration[0];
     const float afterDiaphragm=anatomy.lungAnchorAndVolume.w+state.motion.x;
-    const float expected=owner.z==2?state.chamberVolumes[owner.w]:
+    const float expected=owner.z==10?wall.scalesAndVolume.w:owner.z==2?state.chamberVolumes[owner.w]:
         (surface.reference.x+surface.reference.y*state.motion.x/anatomy.lungBasalBlend.z)*
         (1+state.motion.y/afterDiaphragm);
     const float relative=abs(abs(volume)-expected)/expected;
-    result[i]=float4(abs(volume),expected,relative,!isfinite(relative)||relative>2.e-4f?1.0f:0.0f);
+    const uint status=(!isfinite(relative)||relative>2.e-4f?1u:0u)|(invalidTriangles?2u:0u);
+    result[i]=float4(abs(volume),expected,relative,float(status));
 }
 
 kernel void nm_human_resting_audit_skin(

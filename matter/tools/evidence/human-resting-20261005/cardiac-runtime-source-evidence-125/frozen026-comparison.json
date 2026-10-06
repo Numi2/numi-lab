@@ -1,0 +1,96 @@
+{
+  "scope": "Same six-second input comparison after current-main source reconciliation; geometric qualification is unchanged and pending.",
+  "files": {
+    "resting-coupled.csv": {
+      "frozen026_sha256": "da4c0e87d50473e13d17ee2b70cf02d459aeccf2adc88ca1bb6da3efcd52c99f",
+      "new028_sha256": "da4c0e87d50473e13d17ee2b70cf02d459aeccf2adc88ca1bb6da3efcd52c99f",
+      "bytes_equal": true
+    },
+    "resting-surface-audit.csv": {
+      "frozen026_sha256": "e279881b46b9b9e68195fb9c9fceb35093f6e5e0f99a0887f0b313edf2993da6",
+      "new028_sha256": "e279881b46b9b9e68195fb9c9fceb35093f6e5e0f99a0887f0b313edf2993da6",
+      "bytes_equal": true
+    }
+  },
+  "terminal_q_equal": true,
+  "terminal_v_equal": true,
+  "dynamic_library_loaded_lines": [
+    "dyld[73017]: <C11E8097-F062-33D9-8EFA-FA805E901540> /Users/n/numi-human-resting-final-build-028/lib/libmetalrobo.dylib"
+  ],
+  "run": {
+    "simulated_s": 6.000000284984708,
+    "wall_s": 88.746843958,
+    "real_time_factor": 0.06760804122594202,
+    "accepted_steps": 3000,
+    "device": "Apple M4 Pro",
+    "world_fingerprint": "6434571789366693551",
+    "vascular_dense45": true,
+    "brain_control": true,
+    "body_source_fingerprint": "7873402463639349342",
+    "coupled_program_fingerprint": "267776972848766584",
+    "whole_body_anatomy_qualified": false
+  },
+  "body": {
+    "root_assistance_observed": false,
+    "maximum_contact_penetration_m": 0.000120462682389
+  },
+  "surfaces": {
+    "displayed_accepted_frames": 95,
+    "minimum_full_skin_bed_gap_m": -0.000110551714897,
+    "maximum_rendered_functional_volume_relative_error": 1.50192374804e-06,
+    "displayed_state_lag_steps": 1,
+    "whole_body_interfaces_qualified": false,
+    "body_center_of_mass": {
+      "first_m": [
+        -0.0250191260129,
+        -0.756986141205,
+        0.115114875138
+      ],
+      "last_m": [
+        -0.0246255882084,
+        -0.742640435696,
+        0.0985958129168
+      ],
+      "displacement_m": [
+        0.0003935378045000007,
+        0.01434570550899994,
+        -0.016519062221200004
+      ],
+      "represented_mass_kg": 72.0,
+      "qualification": "diagnostic displacement; stationary rest and drift are not inferred from endpoints"
+    },
+    "ventricular_material": {
+      "bound": true,
+      "target_ml": 164.012890309,
+      "gpu_degenerate_triangle_check_recorded": true,
+      "maximum_volume_relative_error": 1.1534154397639147e-06,
+      "closure_range_mm": [
+        -1.95051461924,
+        4.74161515012
+      ],
+      "qualification": "rendered material volume consistency; wall topology and interfaces require separate checks"
+    }
+  },
+  "accepted_pack_file_identity": [
+    {
+      "step": 0,
+      "frozen026_sha256": "2b7dcc639eb78ed4f23cee592bab3c958ef196bd39b7abf7ecad3a554f857fb6",
+      "new028_sha256": "2b7dcc639eb78ed4f23cee592bab3c958ef196bd39b7abf7ecad3a554f857fb6"
+    },
+    {
+      "step": 639,
+      "frozen026_sha256": "1be3f9eb3580f02a6c272a7cab3d803238505595d282ff809982a0d5bd1bbf78",
+      "new028_sha256": "1be3f9eb3580f02a6c272a7cab3d803238505595d282ff809982a0d5bd1bbf78"
+    },
+    {
+      "step": 2783,
+      "frozen026_sha256": "e7fdc236f8d8f3660697888954cd16ae46ff959bee9cfbc80a32425dcf2c53e8",
+      "new028_sha256": "e7fdc236f8d8f3660697888954cd16ae46ff959bee9cfbc80a32425dcf2c53e8"
+    },
+    {
+      "step": 2999,
+      "frozen026_sha256": "2a4970916f0d87211c02b23b67c5f1203e836d085569f301fe0fb87536d6c965",
+      "new028_sha256": "2a4970916f0d87211c02b23b67c5f1203e836d085569f301fe0fb87536d6c965"
+    }
+  ]
+}

@@ -958,21 +958,635 @@ def compile_binding(input_path: Path, receipt_path: Path, output_path: Path, out
     }
 
 
+def _load_ventricular_wall_map_refinement(path: Path, *, source_payload_sha256: str,
+                                         candidate_sha256: str, points: np.ndarray,
+                                         faces: np.ndarray, owners: list[str]) -> dict:
+    """Validate the sparse inferred correction consumed by the native wall-map owner."""
+    refinement = json.loads(path.read_text())
+    require(refinement.get("schema") == "numi.human.cardiac.ventricular_wall_map_refinement.v1" and
+            refinement.get("source_payload_sha256") == source_payload_sha256 and
+            refinement.get("arrangement_candidate_sha256") == candidate_sha256 and
+            refinement.get("vertex_count") == len(points),
+            "ventricular wall refinement does not bind this exact source arrangement")
+    require(refinement.get("method") == "joint_selected_state_affine_harmonic_map_conditioning_v1" and
+            refinement.get("interpretation") == "inferred_reference_registration_not_measured_subject_geometry",
+            "ventricular wall refinement method/provenance is unsupported")
+    for name in ("base_map_binary_sha256", "corrected_map_binary_sha256", "correction_records_sha256",
+                 "candidate_coefficients_sha256", "phase_audit_report_sha256"):
+        value = refinement.get(name)
+        require(isinstance(value, str) and len(value) == 64 and
+                all(ch in "0123456789abcdef" for ch in value),
+                f"ventricular wall refinement {name} is malformed")
+    q_domain = refinement.get("q_domain")
+    require(isinstance(q_domain, dict), "ventricular wall refinement has no accepted q-domain envelope")
+    domains = []
+    for name in ("q_rv", "q_lv"):
+        interval = q_domain.get(name)
+        require(isinstance(interval, list) and len(interval) == 2 and
+                all(isinstance(v, (int, float)) and np.isfinite(v) for v in interval) and interval[0] < interval[1],
+                f"ventricular wall refinement {name} envelope is malformed")
+        domains.append([float(interval[0]), float(interval[1])])
+    require(domains[0][0] >= -.2 and domains[0][1] <= .2 and
+            domains[1][0] >= -.2 and domains[1][1] <= .2,
+            "ventricular wall refinement q-domain exceeds the admitted reduced model range")
+    owned = np.zeros(len(points), dtype=bool)
+    for triangle, owner in enumerate(owners):
+        if owner != "ID23_wall":
+            owned[faces[triangle]] = True
+    rows = refinement.get("corrections")
+    require(isinstance(rows, list) and rows, "ventricular wall refinement has no sparse coefficient corrections")
+    canonical = bytearray()
+    previous = -1
+    max_rv = max_lv = max_bound = 0.0
+    for row in rows:
+        require(isinstance(row, dict), "ventricular wall refinement row is malformed")
+        index = row.get("vertex")
+        rv = row.get("rv_coefficient_m")
+        lv = row.get("lv_coefficient_m")
+        rv_delta = row.get("rv_delta_m")
+        lv_delta = row.get("lv_delta_m")
+        require(isinstance(index, int) and not isinstance(index, bool) and
+                previous < index < len(points) and not owned[index],
+                "ventricular wall refinement rows are unsorted, duplicated, out of range, or alter an owned lumen boundary")
+        require(isinstance(rv, list) and len(rv) == 3 and isinstance(lv, list) and len(lv) == 3 and
+                isinstance(rv_delta, list) and len(rv_delta) == 3 and
+                isinstance(lv_delta, list) and len(lv_delta) == 3 and
+                all(isinstance(v, (int, float)) and np.isfinite(v) for v in rv + lv + rv_delta + lv_delta),
+                "ventricular wall refinement coefficient vector is malformed")
+        rv32 = np.asarray(rv, dtype="<f4"); lv32 = np.asarray(lv, dtype="<f4")
+        rv_delta32 = np.asarray(rv_delta, dtype="<f4"); lv_delta32 = np.asarray(lv_delta, dtype="<f4")
+        require(np.all(np.isfinite(rv32)) and np.all(np.isfinite(lv32)) and
+                np.all(np.isfinite(rv_delta32)) and np.all(np.isfinite(lv_delta32)) and
+                np.linalg.norm(rv32) < .08 and np.linalg.norm(lv32) < .08 and
+                np.linalg.norm(rv_delta32) < .04 and np.linalg.norm(lv_delta32) < .04,
+                "ventricular wall refinement coefficient exceeds the bounded local map range")
+        max_rv = max(max_rv, float(np.linalg.norm(rv_delta32)))
+        max_lv = max(max_lv, float(np.linalg.norm(lv_delta32)))
+        max_bound = max(max_bound, float(np.linalg.norm(rv_delta32))*max(abs(domains[0][0]), abs(domains[0][1])) +
+                        float(np.linalg.norm(lv_delta32))*max(abs(domains[1][0]), abs(domains[1][1])))
+        canonical.extend(struct.pack("<I6f", index, *rv32.tolist(), *lv32.tolist()))
+        previous = index
+    require(hashlib.sha256(canonical).hexdigest() == refinement["correction_records_sha256"],
+            "ventricular wall refinement sparse rows differ from their canonical source-bound digest")
+    max_bound = max_rv * max(abs(domains[0][0]), abs(domains[0][1])) + \
+        max_lv * max(abs(domains[1][0]), abs(domains[1][1]))
+    closure_shift = refinement.get("max_closure_shift_m")
+    require(isinstance(closure_shift, (int, float)) and np.isfinite(closure_shift) and 0 <= closure_shift <= .02,
+            "ventricular wall refinement closure-shift bound is malformed")
+    max_bound += float(closure_shift) + 1e-6
+    claimed_bound = refinement.get("max_displacement_bound_m")
+    require(isinstance(claimed_bound, (int, float)) and np.isfinite(claimed_bound) and
+            max_bound <= float(claimed_bound) + 1e-9 and float(claimed_bound) <= .01,
+            "ventricular wall refinement displacement bound is malformed or understated")
+    phase_rows = refinement.get("checked_phases")
+    require(isinstance(phase_rows, list) and len(phase_rows) >= 8 and
+            all(isinstance(r, dict) and isinstance(r.get("step"), int) and
+                isinstance(r.get("exact_self_intersection_pairs"), int) and
+                r["exact_self_intersection_pairs"] == 0 for r in phase_rows),
+            "ventricular wall refinement lacks complete zero-pair selected-state audits")
+    result = dict(refinement)
+    result["correction_vertex_count"] = len(rows)
+    result["validated_max_rv_coefficient_correction_m"] = max_rv
+    result["validated_max_lv_coefficient_correction_m"] = max_lv
+    result["validated_max_displacement_bound_m"] = max_bound
+    return result
+
+
+def emit_ventricular_wall_map_refinement(source_payload_path: Path, base_map_source_path: Path,
+                                         arrangement_source_path: Path,
+                                         candidate_path: Path,
+                                         base_map_path: Path, candidate_coefficients_path: Path,
+                                         phase_report_path: Path, phase_trace_path: Path,
+                                         domain_trace_paths: list[Path],
+                                         output_path: Path) -> dict:
+    """Bind a tested sparse correction into the existing cardiac map receipt."""
+    require(not output_path.exists(), "refusing to overwrite an existing wall-map refinement")
+    source_hash = hashlib.sha256(source_payload_path.read_bytes()).hexdigest()
+    source_receipt_path = source_payload_path.with_name("resting-anatomy-receipt.json")
+    require(source_receipt_path.is_file(), "refined wall source has no sibling source-bound anatomy receipt")
+    source_receipt = json.loads(source_receipt_path.read_text())
+    require(source_receipt.get("payload", {}).get("sha256") == source_hash and
+            source_receipt.get("functional_bindings", {}).get("anatomy_payload_sha256") == source_hash,
+            "source anatomy receipt does not bind the exact wall payload")
+    base_source_hash = hashlib.sha256(base_map_source_path.read_bytes()).hexdigest()
+    base_source_receipt_path = base_map_source_path.with_name("resting-anatomy-receipt.json")
+    require(base_source_receipt_path.is_file(), "base map source has no sibling source-bound anatomy receipt")
+    base_source_receipt = json.loads(base_source_receipt_path.read_text())
+    require(base_source_receipt.get("payload", {}).get("sha256") == base_source_hash and
+            base_source_receipt.get("functional_bindings", {}).get("anatomy_payload_sha256") == base_source_hash,
+            "base map source receipt does not bind the exact map-source payload")
+    arrangement_source_hash = hashlib.sha256(arrangement_source_path.read_bytes()).hexdigest()
+    arrangement_receipt_path = arrangement_source_path.with_name("resting-anatomy-receipt.json")
+    require(arrangement_receipt_path.is_file(), "arrangement source has no sibling source-bound anatomy receipt")
+    arrangement_receipt = json.loads(arrangement_receipt_path.read_text())
+    require(arrangement_receipt.get("payload", {}).get("sha256") == arrangement_source_hash and
+            arrangement_receipt.get("functional_bindings", {}).get("anatomy_payload_sha256") == arrangement_source_hash,
+            "arrangement source receipt does not bind the exact candidate input payload")
+    candidate_hash = hashlib.sha256(candidate_path.read_bytes()).hexdigest()
+    base_hash = hashlib.sha256(base_map_path.read_bytes()).hexdigest()
+    map_identity_path = base_map_path.with_name("ventricular-wall-map-identity.json")
+    require(map_identity_path.is_file(), "base cardiac loader map has no retained identity receipt")
+    map_identity = json.loads(map_identity_path.read_text())
+    require(map_identity.get("source_anatomy_payload_sha256") == base_source_hash and
+            map_identity.get("map_sha256") == base_hash,
+            "base cardiac loader-map identity does not bind the exact map-source payload and bytes")
+    field_hash = hashlib.sha256(candidate_coefficients_path.read_bytes()).hexdigest()
+    phase_report = json.loads(phase_report_path.read_text())
+    require(phase_report.get("schema") == "numi.human.cardiac.multiregion_affine_repair.v3" and
+            phase_report.get("status") == "exact_geometry_pass" and
+            phase_report.get("source_payload_sha256") == base_source_hash and
+            phase_report.get("loader_map_sha256") == base_hash and
+            phase_report.get("candidate_map_npy_sha256") == field_hash,
+            "map refinement phase evidence does not bind these exact source, base map, and coefficient arrays")
+    _, _, records, vertices, indices = read_payload(source_payload_path)
+    wall_body, source_points, wall_faces = surface_arrays(records, vertices, indices, 23, expected_layer=1)
+    _, _, base_records, base_vertices, base_indices = read_payload(base_map_source_path)
+    relevant_ids = (1, 23, 24, 318, 319, 320, 321)
+    identity_digest = bytearray()
+    for stable_id in relevant_ids:
+        current_record = next((r for r in records if r[5] == stable_id), None)
+        base_record = next((r for r in base_records if r[5] == stable_id), None)
+        require(current_record is not None and base_record is not None,
+                f"current/base map payload is missing cardiac identity {stable_id}")
+        require((current_record[0], current_record[2], current_record[4], current_record[5],
+                 current_record[6], current_record[7]) ==
+                (base_record[0], base_record[2], base_record[4], base_record[5],
+                 base_record[6], base_record[7]),
+                f"cardiac surface record identity changed between map source and current payload (ID {stable_id})")
+        current_vertex_rows = vertices[current_record[1]:current_record[1] + current_record[2]]
+        base_vertex_rows = base_vertices[base_record[1]:base_record[1] + base_record[2]]
+        current_faces = (indices[current_record[3]:current_record[3] + current_record[4]].reshape(-1, 3) - current_record[1]).astype(np.uint32)
+        base_faces = (base_indices[base_record[3]:base_record[3] + base_record[4]].reshape(-1, 3) - base_record[1]).astype(np.uint32)
+        require(np.array_equal(current_vertex_rows.view(np.uint32), base_vertex_rows.view(np.uint32)) and
+                np.array_equal(current_faces, base_faces),
+                f"cardiac surface local positions/normals/faces changed between map source and current payload (ID {stable_id})")
+        identity_digest.extend(struct.pack("<6I", current_record[0], current_record[2], current_record[4],
+                                           current_record[5], current_record[6], current_record[7]))
+        identity_digest.extend(np.asarray(current_vertex_rows, dtype="<f4").tobytes(order="C"))
+        identity_digest.extend(np.asarray(current_faces, dtype="<u4").tobytes(order="C"))
+    candidate = json.loads(candidate_path.read_text())
+    require(candidate.get("payload_sha256") == arrangement_source_hash and
+            candidate.get("schema") == "numi.human.cardiac-myocardium-lv-subtractive-arrangement.audit.v1",
+            "map refinement candidate is not bound to its exact arrangement source payload")
+    candidate_points = np.asarray(candidate.get("vertices_m"), dtype=np.float32)
+    candidate_faces = np.asarray(candidate.get("triangles"), dtype=np.int64)
+    require(candidate_points.shape == source_points.shape and candidate_faces.shape == wall_faces.shape and
+            np.array_equal(candidate_points.view(np.uint32), source_points.astype(np.float32).view(np.uint32)) and
+            np.array_equal(candidate_faces, wall_faces),
+            "arrangement candidate local ID23 arrays differ from the exact current source payload")
+    field = np.asarray(np.load(candidate_coefficients_path), dtype=np.float32)
+    base_raw = np.fromfile(base_map_path, dtype="<f4")
+    require(base_raw.size == len(source_points) * 12 and field.shape == (len(source_points), 3, 3),
+            "base/corrected coefficient arrays do not match the registered ID23 vertex count")
+    base_map = base_raw.reshape(-1, 12)
+    base = np.stack((base_map[:, 0:3], base_map[:, 4:7], base_map[:, 8:11]), axis=1).astype(np.float32)
+    require(np.all(base_map[:, [3, 7, 11]] == 0) and np.array_equal(field[:, 2], base[:, 2]),
+            "candidate changes reserved map lanes or the existing material-volume closure basis")
+    owners = candidate.get("face_owner")
+    faces = np.asarray(candidate.get("triangles"), dtype=np.int64)
+    require(isinstance(owners, list) and faces.shape == wall_faces.shape and len(owners) == len(faces) and
+            np.array_equal(faces, wall_faces),
+            "map refinement wall candidate faces differ from the source-bound NHANAT ID23 geometry")
+    owned = np.zeros(len(source_points), dtype=bool)
+    for triangle, owner in enumerate(owners):
+        if owner != "ID23_wall":
+            owned[faces[triangle]] = True
+    changed = np.flatnonzero(np.any(field[:, :2] != base[:, :2], axis=(1, 2)))
+    require(len(changed) > 0 and not np.any(owned[changed]),
+            "map refinement is empty or changes an RV/LV lumen-owned material boundary vertex")
+    # The native loader replaces sparse entries with exact binary32 values. This
+    # avoids a subtract/add rounding mismatch and reproduces the retained field.
+    rebuilt = base.copy(); rebuilt[:, :2] = field[:, :2]
+    packed = np.zeros((len(field), 12), dtype="<f4")
+    packed[:, 0:3], packed[:, 4:7], packed[:, 8:11] = rebuilt[:, 0], rebuilt[:, 1], rebuilt[:, 2]
+    corrected_map_hash = hashlib.sha256(packed.tobytes(order="C")).hexdigest()
+    correction_records = []
+    canonical = bytearray()
+    max_delta_rv = max_delta_lv = max_bound = 0.0
+    for raw_index in changed:
+        index = int(raw_index)
+        rv = np.asarray(field[index, 0], dtype="<f4")
+        lv = np.asarray(field[index, 1], dtype="<f4")
+        drv = np.asarray(rv - base[index, 0], dtype="<f4")
+        dlv = np.asarray(lv - base[index, 1], dtype="<f4")
+        canonical.extend(struct.pack("<I6f", index, *rv.tolist(), *lv.tolist()))
+        correction_records.append({"vertex": index, "rv_coefficient_m": rv.tolist(),
+                                   "lv_coefficient_m": lv.tolist(), "rv_delta_m": drv.tolist(),
+                                   "lv_delta_m": dlv.tolist()})
+        max_delta_rv = max(max_delta_rv, float(np.linalg.norm(drv.astype(np.float64))))
+        max_delta_lv = max(max_delta_lv, float(np.linalg.norm(dlv.astype(np.float64))))
+    trace_rows = {int(row["step"]): row for row in csv.DictReader(phase_trace_path.open(newline=""))}
+    domain_traces = []
+    qrv_values, qlv_values = [], []
+    for trace_path in [phase_trace_path, *domain_trace_paths]:
+        rows = list(csv.DictReader(trace_path.open(newline="")))
+        require(rows and all("q_rv" in row and "q_lv" in row and "step" in row for row in rows),
+                f"cardiac map q-domain trace lacks accepted q columns: {trace_path}")
+        qr = [float(row["q_rv"]) for row in rows]; ql = [float(row["q_lv"]) for row in rows]
+        qrv_values.extend(qr); qlv_values.extend(ql)
+        domain_traces.append({"path": str(trace_path), "sha256": hashlib.sha256(trace_path.read_bytes()).hexdigest(),
+                              "first_step": int(rows[0]["step"]), "last_step": int(rows[-1]["step"]),
+                              "q_rv_range": [min(qr), max(qr)], "q_lv_range": [min(ql), max(ql)]})
+    require(qrv_values and qlv_values, "accepted phase trace contains no q-domain samples")
+    qrv_domain, qlv_domain = [min(qrv_values), max(qrv_values)], [min(qlv_values), max(qlv_values)]
+    phases = []
+    maximum_closure_shift = maximum_displacement = 0.0
+    for phase in phase_report["phases"]:
+        step = int(phase["step"]); row = trace_rows.get(step)
+        require(row is not None and phase.get("audit_complete") is True and phase.get("candidate_pairs") == 0,
+                f"map refinement phase {step} lacks a complete zero-pair exact self-audit")
+        qr, ql, closure = np.float32(float(row["q_rv"])), np.float32(float(row["q_lv"])), np.float32(float(row["ventricular_closure_mm"]) * 1e-3)
+        candidate_closure = np.float32(float(phase["candidate_closure_mm"]) * 1e-3)
+        base_xyz = source_points.astype(np.float32, copy=True)
+        base_xyz = np.asarray(base_xyz + np.asarray(base[:, 0] * qr, dtype=np.float32), dtype=np.float32)
+        base_xyz = np.asarray(base_xyz + np.asarray(base[:, 1] * ql, dtype=np.float32), dtype=np.float32)
+        base_xyz = np.asarray(base_xyz + np.asarray(base[:, 2] * closure, dtype=np.float32), dtype=np.float32)
+        candidate_xyz = source_points.astype(np.float32, copy=True)
+        candidate_xyz = np.asarray(candidate_xyz + np.asarray(field[:, 0] * qr, dtype=np.float32), dtype=np.float32)
+        candidate_xyz = np.asarray(candidate_xyz + np.asarray(field[:, 1] * ql, dtype=np.float32), dtype=np.float32)
+        candidate_xyz = np.asarray(candidate_xyz + np.asarray(field[:, 2] * candidate_closure, dtype=np.float32), dtype=np.float32)
+        actual = np.linalg.norm(candidate_xyz.astype(np.float64) - base_xyz.astype(np.float64), axis=1)
+        closure_shift = abs(float(candidate_closure) - float(closure))
+        maximum_displacement = max(maximum_displacement, float(actual.max()))
+        maximum_closure_shift = max(maximum_closure_shift, closure_shift)
+        phases.append({"step": step, "q_rv": float(qr), "q_lv": float(ql),
+                       "source_closure_m": float(closure), "refined_closure_m": float(candidate_closure),
+                       "closure_shift_m": closure_shift, "max_actual_map_displacement_m": float(actual.max()),
+                       "exact_self_intersection_pairs": int(phase["candidate_pairs"]),
+                       "material_volume_error_ul": float(phase["material_volume_error_ul"])})
+    coefficient_bound = max_delta_rv * max(abs(qrv_domain[0]), abs(qrv_domain[1])) + \
+        max_delta_lv * max(abs(qlv_domain[0]), abs(qlv_domain[1]))
+    displacement_bound = coefficient_bound + maximum_closure_shift + 1e-6
+    require(displacement_bound <= .01, "map refinement exceeds the admitted 10 mm local displacement bound")
+    descriptor = {
+        "schema": "numi.human.cardiac.ventricular_wall_map_refinement.v1",
+        "method": "joint_selected_state_affine_harmonic_map_conditioning_v1",
+        "interpretation": "inferred_reference_registration_not_measured_subject_geometry",
+        "source_payload_sha256": source_hash, "base_map_source_payload_sha256": base_source_hash,
+        "base_map_source_receipt_sha256": hashlib.sha256(base_source_receipt_path.read_bytes()).hexdigest(),
+        "cardiac_surface_identity_ids": list(relevant_ids),
+        "cardiac_surface_identity_sha256": hashlib.sha256(identity_digest).hexdigest(),
+        "cavity_source_payload_sha256": arrangement_source_hash,
+        "cavity_source_receipt_sha256": hashlib.sha256(arrangement_receipt_path.read_bytes()).hexdigest(),
+        "arrangement_candidate_sha256": candidate_hash,
+        "arrangement_candidate_vertex_array_sha256_le_f32_xyz": hashlib.sha256(
+            np.asarray(candidate_points, dtype="<f4").tobytes(order="C")).hexdigest(),
+        "arrangement_candidate_triangle_array_sha256_le_u32": hashlib.sha256(
+            np.asarray(candidate_faces, dtype="<u4").tobytes(order="C")).hexdigest(),
+        "source_receipt_sha256": hashlib.sha256(source_receipt_path.read_bytes()).hexdigest(),
+        "base_map_binary_sha256": base_hash, "corrected_map_binary_sha256": corrected_map_hash,
+        "base_map_identity_sha256": hashlib.sha256(map_identity_path.read_bytes()).hexdigest(),
+        "candidate_coefficients_sha256": field_hash,
+        "phase_audit_report_sha256": hashlib.sha256(phase_report_path.read_bytes()).hexdigest(),
+        "phase_trace_sha256": hashlib.sha256(phase_trace_path.read_bytes()).hexdigest(),
+        "q_domain_trace_sources": domain_traces,
+        "vertex_count": len(source_points), "candidate_arrays_match_current_ID23": True,
+        "correction_vertex_count": len(correction_records),
+        "correction_records_sha256": hashlib.sha256(canonical).hexdigest(),
+        "q_domain": {"q_rv": qrv_domain, "q_lv": qlv_domain},
+        "max_rv_coefficient_correction_m": max_delta_rv,
+        "max_lv_coefficient_correction_m": max_delta_lv,
+        "max_coefficient_displacement_bound_m": coefficient_bound,
+        "max_closure_shift_m": maximum_closure_shift,
+        "max_actual_displacement_seen_m": maximum_displacement,
+        "max_displacement_bound_m": displacement_bound,
+        "checked_phases": phases,
+        "corrections": correction_records,
+    }
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(json.dumps(descriptor, sort_keys=True, separators=(",", ":")) + "\n")
+    return {"output": str(output_path), "sha256": hashlib.sha256(output_path.read_bytes()).hexdigest(),
+            "source_payload_sha256": source_hash, "base_map_binary_sha256": base_hash,
+            "corrected_map_binary_sha256": corrected_map_hash,
+            "correction_vertex_count": len(correction_records),
+            "max_actual_displacement_seen_m": maximum_displacement,
+            "max_displacement_bound_m": displacement_bound, "phase_count": len(phases)}
+
+
+def attach_ventricular_wall_map_refinement(payload_path: Path, receipt_path: Path,
+                                            candidate_path: Path, refinement_path: Path,
+                                            output_path: Path, output_receipt_path: Path) -> dict:
+    """Copy the existing NHANAT payload unchanged and attach a map descriptor to its receipt."""
+    require(not output_path.exists() and not output_receipt_path.exists(),
+            "refusing to overwrite an existing refinement-bound payload or receipt")
+    raw = payload_path.read_bytes()
+    payload_hash = hashlib.sha256(raw).hexdigest()
+    receipt = json.loads(receipt_path.read_text())
+    require(receipt.get("payload", {}).get("sha256") == payload_hash and
+            receipt.get("functional_bindings", {}).get("anatomy_payload_sha256") == payload_hash,
+            "input receipt does not bind the exact unchanged NHANAT payload")
+    cardiac = receipt.get("provenance", {}).get("cardiac_geometry_binding", {})
+    wall = cardiac.get("ventricular_wall_binding", {})
+    require(wall.get("output_anatomy_payload_sha256") == payload_hash and wall.get("stable_id") == 23 and
+            wall.get("wall_map", {}).get("local_coefficient_refinement") is None,
+            "input receipt lacks the expected unrevised stable-ID 23 map binding")
+    candidate_bytes = candidate_path.read_bytes()
+    candidate_hash = hashlib.sha256(candidate_bytes).hexdigest()
+    candidate = json.loads(candidate_bytes)
+    require(candidate_hash == wall.get("arrangement_candidate_sha256") and
+            candidate.get("schema") == "numi.human.cardiac-myocardium-lv-subtractive-arrangement.audit.v1" and
+            candidate.get("payload_sha256") == wall.get("arrangement_source_payload_sha256"),
+            "retained arrangement candidate does not match the current stable-ID 23 receipt")
+    _, _, records, vertices, indices = read_payload(payload_path)
+    _, points, faces = surface_arrays(records, vertices, indices, 23, expected_layer=1)
+    candidate_points = np.asarray(candidate.get("vertices_m"), dtype=np.float32)
+    candidate_faces = np.asarray(candidate.get("triangles"), dtype=np.int64)
+    require(candidate_points.shape == points.shape and candidate_faces.shape == faces.shape and
+            np.array_equal(candidate_points.view(np.uint32), points.astype(np.float32).view(np.uint32)) and
+            np.array_equal(candidate_faces, faces),
+            "arrangement candidate arrays do not exactly match the current stable-ID 23 source arrays")
+    require(hashlib.sha256(np.asarray(candidate_points, dtype="<f4").tobytes(order="C")).hexdigest() ==
+            wall.get("arrangement_candidate_vertex_array_sha256_le_f32_xyz") and
+            hashlib.sha256(np.asarray(candidate_faces, dtype="<u4").tobytes(order="C")).hexdigest() ==
+            wall.get("arrangement_candidate_triangle_array_sha256_le_u32"),
+            "current ID23 candidate arrays differ from their retained receipt digests")
+    owners = candidate.get("face_owner")
+    refinement = _load_ventricular_wall_map_refinement(
+        refinement_path, source_payload_sha256=payload_hash, candidate_sha256=candidate_hash,
+        points=points, faces=faces, owners=owners)
+    updated = json.loads(json.dumps(receipt))
+    target_wall = updated["provenance"]["cardiac_geometry_binding"]["ventricular_wall_binding"]
+    target_wall["wall_map"]["local_coefficient_refinement"] = refinement
+    target_wall["wall_map"]["method_before_local_refinement"] = target_wall["wall_map"]["method"]
+    target_wall["geometry_evidence"]["phase_status"] = "selected_phase_map_refinement_exact_self_audits_passed; held_out_full_cycle_and_native_neighbor_clearance_pending"
+    target_wall["geometry_evidence"]["exact_static_self_intersections"] = 0
+    updated["payload"]["path"] = str(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_bytes(raw)
+    output_receipt_path.parent.mkdir(parents=True, exist_ok=True)
+    output_receipt_path.write_text(json.dumps(updated, sort_keys=True, separators=(",", ":")) + "\n")
+    return {"output_payload": str(output_path), "payload_sha256": payload_hash,
+            "output_receipt": str(output_receipt_path),
+            "output_receipt_sha256": hashlib.sha256(output_receipt_path.read_bytes()).hexdigest(),
+            "refinement_sha256": hashlib.sha256(refinement_path.read_bytes()).hexdigest(),
+            "correction_vertex_count": refinement["correction_vertex_count"],
+            "max_displacement_bound_m": refinement["validated_max_displacement_bound_m"],
+            "source_payload_bytes_unchanged": True}
+
+
+def compile_ventricular_wall_binding(input_path: Path, receipt_path: Path, source_payload_path: Path,
+                                     candidate_path: Path, output_path: Path, output_receipt: Path,
+                                     wall_map_refinement_path: Path | None = None):
+    """Compose the exact closed ventricular-wall arrangement into stable ID 23."""
+    require(not output_path.exists() and not output_receipt.exists(),
+            "refusing to overwrite an existing bound anatomy payload or receipt")
+    raw, header, records, vertices, indices = read_payload(input_path)
+    receipt = json.loads(receipt_path.read_text())
+    input_hash = hashlib.sha256(raw).hexdigest()
+    require(receipt.get("payload", {}).get("sha256") == input_hash and
+            receipt.get("functional_bindings", {}).get("anatomy_payload_sha256") == input_hash,
+            "input receipt does not bind the ventricular-wall base payload")
+
+    source_raw, _, source_records, source_vertices, source_indices = read_payload(source_payload_path)
+    source_hash = hashlib.sha256(source_raw).hexdigest()
+    candidate = json.loads(candidate_path.read_text())
+    require(candidate.get("payload_sha256") == source_hash,
+            "ventricular-wall arrangement candidate names another NHANAT source payload")
+    base_records = {row[5]: row for row in records}
+    source_rows = {row[5]: row for row in source_records}
+    for stable_id in (1, 23, 24, RA_ID, RV_ID, LA_ID, LV_ID):
+        require(stable_id in base_records and stable_id in source_rows,
+                f"source comparison lacks cardiac stable ID {stable_id}")
+        a, b = base_records[stable_id], source_rows[stable_id]
+        require((a[0], a[5], a[6], a[7]) == (b[0], b[5], b[6], b[7]),
+                f"base and arrangement source differ in record identity for stable ID {stable_id}")
+        av = vertices[a[1]:a[1] + a[2]]
+        bv = source_vertices[b[1]:b[1] + b[2]]
+        af = indices[a[3]:a[3] + a[4]].reshape(-1, 3).astype(np.int64) - a[1]
+        bf = source_indices[b[3]:b[3] + b[4]].reshape(-1, 3).astype(np.int64) - b[1]
+        require(np.array_equal(av, bv) and np.array_equal(af, bf),
+                f"base cardiac source surface changed before ventricular-wall composition (ID {stable_id})")
+
+    wall_identity = receipt.get("provenance", {}).get("source_id_map", {}).get("23", {})
+    require(wall_identity.get("source_member") == "FJ2428" and
+            wall_identity.get("source_sha256") == "ac3c7d6714bed8cf549c97b013546541cf67e189dad2107092a59758aa3ccc45" and
+            wall_identity.get("source_owner_metadata", {}).get("concept_id") == "FMA13884",
+            "stable ID 23 no longer identifies the registered BodyParts3D ventricular-wall source")
+    report_path = candidate_path.with_name("report.json")
+    require(report_path.is_file(), "ventricular-wall candidate exact report is missing")
+    report = json.loads(report_path.read_text())
+    require(report.get("input_payload_sha256") == source_hash and
+            report.get("output_exact_self_intersection_pairs") == 0 and
+            report.get("output_topology", {}).get("closed_oriented_manifold_candidate") is True,
+            "ventricular-wall candidate lacks its exact source/topology admission evidence")
+    candidate_sha = hashlib.sha256(candidate_path.read_bytes()).hexdigest()
+    report_sha = hashlib.sha256(report_path.read_bytes()).hexdigest()
+    points = np.asarray(candidate.get("vertices_m"), dtype=np.float32)
+    faces = np.asarray(candidate.get("triangles"), dtype=np.uint32)
+    owners = candidate.get("face_owner")
+    require(candidate.get("schema") == "numi.human.cardiac-myocardium-lv-subtractive-arrangement.audit.v1" and
+            points.ndim == 2 and points.shape[1] == 3 and faces.ndim == 2 and faces.shape[1] == 3 and
+            len(faces) == len(owners) and int(faces.max()) < len(points),
+            "ventricular-wall arrangement candidate arrays are malformed")
+    # The retained candidate report predates explicit array digests. Preserve
+    # it unchanged and bind the exact consumed arrays here, alongside both
+    # immutable input file hashes. These canonical little-endian digests let
+    # the native/composed payload be compared without trusting same-directory
+    # filenames or counts alone.
+    points_le = np.ascontiguousarray(points.astype("<f4", copy=False))
+    faces_le = np.ascontiguousarray(faces.astype("<u4", copy=False))
+    candidate_vertices_sha = hashlib.sha256(points_le.tobytes(order="C")).hexdigest()
+    candidate_triangles_sha = hashlib.sha256(faces_le.tobytes(order="C")).hexdigest()
+    owner_counts = Counter(owners)
+    require(set(owner_counts) == {"ID23_wall", "ID319_RV_lumen", "ID321_LV_lumen"} and
+            owner_counts["ID23_wall"] > 0 and owner_counts["ID319_RV_lumen"] > 0 and
+            owner_counts["ID321_LV_lumen"] > 0,
+            "candidate is not the admitted complete ID23/RV/LV material boundary")
+    owner_stable_ids = {"ID23_wall": 23, "ID319_RV_lumen": 319, "ID321_LV_lumen": 321}
+    face_owner_ranges = []
+    for triangle, owner in enumerate(owners):
+        require(owner in owner_stable_ids, "candidate face has an unknown material-boundary owner")
+        if not face_owner_ranges or face_owner_ranges[-1]["owner"] != owner:
+            face_owner_ranges.append({"first_triangle": triangle, "triangle_count": 1,
+                                      "stable_id": owner_stable_ids[owner], "owner": owner})
+        else:
+            face_owner_ranges[-1]["triangle_count"] += 1
+    require([row["stable_id"] for row in face_owner_ranges] == [23, 319, 321] and
+            face_owner_ranges[0]["first_triangle"] == 0 and
+            all(face_owner_ranges[i]["first_triangle"] + face_owner_ranges[i]["triangle_count"] ==
+                face_owner_ranges[i + 1]["first_triangle"] for i in range(len(face_owner_ranges) - 1)) and
+            face_owner_ranges[-1]["first_triangle"] + face_owner_ranges[-1]["triangle_count"] == len(faces),
+            "candidate face ownership is not a complete contiguous ID23/RV/LV partition")
+    material_volume = signed_volume(points.astype(np.float64), faces.astype(np.int64))
+    require(material_volume > 0 and abs(material_volume * 1e6 - report["output_signed_volume_ml"]) < 2e-5,
+            "candidate material-volume orientation differs from its retained exact report")
+    normals = vertex_normals(points, faces)
+    wall_map_refinement = (_load_ventricular_wall_map_refinement(
+        wall_map_refinement_path, source_payload_sha256=source_hash, candidate_sha256=candidate_sha,
+        points=points, faces=faces.astype(np.int64), owners=owners)
+        if wall_map_refinement_path is not None else None)
+    _, center_points, center_faces = surface_arrays(
+        source_records, source_vertices, source_indices, 23, expected_layer=1)
+    radial_origin = closed_centroid(center_points, center_faces).astype(np.float64)
+
+    out_records, vertex_rows, faces_by_record = [], [], []
+    for record in records:
+        body, first_vertex, vertex_count, first_index, index_count, stable_id, layer, reserved = record
+        local_points_normals = vertices[first_vertex:first_vertex + vertex_count].copy()
+        local_faces = (indices[first_index:first_index + index_count].reshape(-1, 3) - first_vertex).astype(np.uint32)
+        if stable_id == 23:
+            local_points_normals = np.concatenate((points, normals), axis=1).astype(np.float32)
+            local_faces = faces.copy()
+        vertex_rows.append(local_points_normals)
+        faces_by_record.append(local_faces)
+        out_records.append(record)
+    packed, packed_records, packed_vertices, packed_indices = pack_payload(
+        header, out_records, vertex_rows, faces_by_record)
+    packed_by_id = {row[5]: row for row in packed_records}
+    for original in records:
+        stable_id = original[5]
+        if stable_id == 23:
+            continue
+        updated = packed_by_id[stable_id]
+        require((original[0], original[5], original[6], original[7]) ==
+                (updated[0], updated[5], updated[6], updated[7]),
+                f"repacked record identity changed for stable ID {stable_id}")
+        original_vertex_rows = vertices[original[1]:original[1] + original[2]]
+        updated_vertex_rows = packed_vertices[updated[1]:updated[1] + updated[2]]
+        original_local_faces = (indices[original[3]:original[3] + original[4]].reshape(-1, 3) - original[1])
+        updated_local_faces = (packed_indices[updated[3]:updated[3] + updated[4]].reshape(-1, 3) - updated[1])
+        require(np.array_equal(original_vertex_rows, updated_vertex_rows) and
+                np.array_equal(original_local_faces, updated_local_faces),
+                f"non-ID23 local geometry changed during ventricular-wall composition (ID {stable_id})")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_bytes(packed)
+    output_hash = hashlib.sha256(packed).hexdigest()
+    output_receipt_data = json.loads(json.dumps(receipt))
+    output_receipt_data["functional_bindings"]["anatomy_payload_sha256"] = output_hash
+    output_receipt_data["payload"].update({"path": str(output_path), "sha256": output_hash,
+                                            "vertex_count": len(packed_vertices),
+                                            "index_count": len(packed_indices)})
+    cardiac = output_receipt_data.setdefault("provenance", {}).setdefault("cardiac_geometry_binding", {})
+    cardiac["output_anatomy_payload_sha256"] = output_hash
+    cardiac["retained_geometry"] = (
+        "Stable ID 23 alone is replaced by the derived closed ventricular material boundary. "
+        "Every other record's local FP32 position/normal rows and local triangle indices were "
+        "verified byte-equivalent after NHANAT5 repacking against this input payload; prior-stage "
+        "RA/RV or other composition statements do not describe this final scope."
+    )
+    cardiac["ventricular_wall_binding"] = {
+        "method": "exact_ID23_material_boundary_with_RV_LV_lumens_and_continuous_barycentric_wall_map_v1",
+        "stable_id": 23, "source_member": "FJ2428", "fma_id": "FMA13884",
+        "source_sha256": wall_identity["source_sha256"],
+        "input_anatomy_payload_sha256": input_hash,
+        "arrangement_source_payload_sha256": source_hash,
+        "arrangement_candidate_sha256": candidate_sha,
+        "arrangement_report_sha256": report_sha,
+        "arrangement_candidate_vertex_array_sha256_le_f32_xyz": candidate_vertices_sha,
+        "arrangement_candidate_triangle_array_sha256_le_u32": candidate_triangles_sha,
+        "arrangement_candidate_vertex_count": len(points),
+        "arrangement_candidate_triangle_count": len(faces),
+        "arrangement_report_array_binding": "original report retained unchanged and contains no candidate array digest; candidate file plus canonical array digests are bound here; exact predicates remain separately recorded",
+        "output_anatomy_payload_sha256": output_hash,
+        "face_owner_counts": dict(sorted(owner_counts.items())),
+        "closed_material_boundary": "one ID23 closed shell containing source epicardial wall plus reversed RV/LV endocardial lumen boundary faces; hydraulic cavity records remain separately source-bound",
+        "face_owner_ranges": face_owner_ranges,
+        "reference_material_volume_m3": material_volume,
+        "radial_closure_origin_m": radial_origin.tolist(),
+        "closure_bracket_m": [-0.01, 0.01],
+        "closure_relative_tolerance": 1e-5,
+        "wall_map": {
+            "method": "candidate_face_owner_ranges_with_pure_cavity_channel_boundary_and_natural_inverse_squared_distance_freewall_blend",
+            "coefficient_formula": "D_c=sum_k(barycentric_k*source_freewall_weight_k*(cavity_vertex_k-cavity_center)); candidate-owned RV/LV boundary vertices use only their named channel and zero closure; unowned freewall uses wRV=dLV^2/(dRV^2+dLV^2), wLV=dRV^2/(dRV^2+dLV^2)",
+            "ownership_source": "contiguous face_owner ranges in the exact retained arrangement candidate; every vertex incident to an RV/LV-owned face is assigned that cavity channel; conflicting RV/LV vertex ownership is rejected",
+            "closure_basis": "radial unit vector from source ID23 closed-surface centroid multiplied by smoothstep of nearest RV/LV lumen-vertex distance from 4mm to 15mm on unowned freewall vertices only; identically zero on cavity-owned vertices",
+            "clearance_metric": "minimum Euclidean distance to registered RV/LV lumen vertices for unowned freewall vertices only",
+            "normalization_scales": {"q_rv": 0.4, "q_lv": 0.2, "closure_m": 0.01},
+            "parameter_status": "inferred_reference_registration_not_measured_subject_geometry",
+        },
+        "material_volume_polynomial": {
+            "method": f"direct_cubic_determinant_expansion_over_{len(faces):,}_source-bound_material_boundary_triangles; no sampled Vandermonde fit",
+            "variables": ["q_rv/0.4", "q_lv/0.2", "closure_m/0.01"],
+            "term_order": ["1", "r", "l", "r^2", "r*l", "l^2", "r^3", "r^2*l", "r*l^2", "l^3",
+                           "c", "r*c", "l*c", "r^2*c", "r*l*c", "l^2*c", "c^2", "r*c^2", "l*c^2", "c^3"],
+        },
+        "geometry_evidence": {"exact_static_self_intersections": 0,
+            "topology": report["output_topology"],
+            "phase_status": "single-step-0 exact embeddedness passed; complete accepted-cycle geometry remains unqualified"},
+        "interpretation": "derived registered reference assembly retaining the original FJ2428/FMA13884 identity; not a measured myocardium surface or a contractile tissue model",
+        "physical_solver_changed": False, "new_payload_format": False,
+    }
+    if wall_map_refinement is not None:
+        output_receipt_data["provenance"]["cardiac_geometry_binding"]["ventricular_wall_binding"]["wall_map"]["local_coefficient_refinement"] = wall_map_refinement
+    output_receipt.write_text(json.dumps(output_receipt_data, sort_keys=True, separators=(",", ":")) + "\n")
+    return {"input_anatomy_payload_sha256": input_hash, "arrangement_source_payload_sha256": source_hash,
+            "candidate_sha256": candidate_sha, "candidate_report_sha256": report_sha,
+            "candidate_vertex_array_sha256_le_f32_xyz": candidate_vertices_sha,
+            "candidate_triangle_array_sha256_le_u32": candidate_triangles_sha,
+            "output_anatomy_payload_sha256": output_hash,
+            "output_receipt_sha256": hashlib.sha256(output_receipt.read_bytes()).hexdigest(),
+            "surface_count": len(packed_records), "vertex_count": len(packed_vertices),
+            "index_count": len(packed_indices), "ID23_vertices": len(points),
+            "ID23_triangles": len(faces), "ID23_face_owner_counts": dict(sorted(owner_counts.items())),
+            "ID23_face_owner_ranges": face_owner_ranges,
+            "reference_material_volume_ml": material_volume * 1e6,
+            "radial_closure_origin_m": radial_origin.tolist(), "exact_static_self_intersections": 0}
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--input", type=Path, required=True, help="merged registered NHANAT5 payload")
-    parser.add_argument("--input-receipt", type=Path, required=True, help="existing source-bound anatomy receipt")
-    parser.add_argument("--output", type=Path, required=True, help="emitted NHANAT5 payload path")
-    parser.add_argument("--output-receipt", type=Path, required=True, help="updated existing-format anatomy receipt path")
-    parser.add_argument("--numilab-source", type=Path, required=True, help="pinned NumiLab source tree for exact partition predicates")
+    parser.add_argument("--input", type=Path, help="merged registered NHANAT5 payload")
+    parser.add_argument("--input-receipt", type=Path, help="existing source-bound anatomy receipt")
+    parser.add_argument("--output", type=Path, help="emitted NHANAT5 payload path")
+    parser.add_argument("--output-receipt", type=Path, help="updated existing-format anatomy receipt path")
+    parser.add_argument("--numilab-source", type=Path, help="pinned NumiLab source tree for exact partition predicates")
     parser.add_argument("--phase-trace", type=Path, help="accepted resting-surface-audit.csv to audit sampled cardiac geometry through the recorded cycle")
+    parser.add_argument("--wall-candidate", type=Path, help="exact source-bound ventricular material-boundary candidate to compose into stable ID 23")
+    parser.add_argument("--candidate-source", type=Path, help="exact NHANAT5 source payload named by --wall-candidate")
+    parser.add_argument("--wall-map-refinement", type=Path, help="sparse source-bound inferred map correction consumed by the native ventricular-wall map owner")
+    parser.add_argument("--emit-map-refinement", action="store_true", help="emit a source-bound sparse map refinement descriptor without composing anatomy")
+    parser.add_argument("--attach-map-refinement", action="store_true", help="copy the current NHANAT unchanged and attach a tested map refinement to its existing receipt")
+    parser.add_argument("--arrangement-source", type=Path, help="exact source payload used to produce --wall-candidate")
+    parser.add_argument("--base-map-source", type=Path, help="exact source payload named by the retained native coefficient-map identity")
+    parser.add_argument("--base-wall-map", type=Path, help="retained native binary32 loader map used as the refinement base")
+    parser.add_argument("--candidate-coefficients", type=Path, help="tested corrected map coefficient array")
+    parser.add_argument("--map-audit-report", type=Path, help="retained exact phase-audit report for the corrected map")
+    parser.add_argument("--map-phase-trace", type=Path, help="accepted physiological trace used to bind the correction q domain")
+    parser.add_argument("--map-domain-trace", type=Path, action="append", default=[],
+                        help="additional accepted trace whose q extrema expand the admitted correction domain; may be repeated")
+    parser.add_argument("--map-refinement-output", type=Path, help="new descriptor path; existing files are never overwritten")
+    parser.add_argument("--arrangement-candidate", type=Path, help="retained exact candidate whose ID23 arrays are already present in the input payload")
     parser.add_argument("--phase-selection", choices=("representative-cycle", "initial-and-lv-max"),
                         default="representative-cycle", help="select a bounded initial/LV-maximum check before the full representative-cycle audit")
     parser.add_argument("--skip-exact-audit", action="store_true", help="skip exact four-cavity collision admission")
     args = parser.parse_args(argv)
-    result = compile_binding(args.input, args.input_receipt, args.output, args.output_receipt,
-                             args.numilab_source, audit=not args.skip_exact_audit,
-                             phase_trace=args.phase_trace, phase_selection=args.phase_selection)
+    if args.attach_map_refinement:
+        require(all((args.input, args.input_receipt, args.arrangement_candidate, args.wall_map_refinement,
+                     args.output, args.output_receipt)),
+                "--attach-map-refinement requires --input, --input-receipt, --arrangement-candidate, --wall-map-refinement, --output, and --output-receipt")
+        result = attach_ventricular_wall_map_refinement(
+            args.input, args.input_receipt, args.arrangement_candidate, args.wall_map_refinement,
+            args.output, args.output_receipt)
+        print(json.dumps(result, sort_keys=True, separators=(",", ":")))
+        return
+    if args.emit_map_refinement:
+        required = (args.input, args.base_map_source, args.arrangement_source, args.wall_candidate, args.base_wall_map,
+                    args.candidate_coefficients, args.map_audit_report, args.map_phase_trace,
+                    args.map_refinement_output)
+        require(all(required), "--emit-map-refinement requires --input, --base-map-source, --arrangement-source, --wall-candidate, --base-wall-map, --candidate-coefficients, --map-audit-report, --map-phase-trace, and --map-refinement-output")
+        result = emit_ventricular_wall_map_refinement(
+            args.input, args.base_map_source, args.arrangement_source, args.wall_candidate, args.base_wall_map,
+            args.candidate_coefficients, args.map_audit_report, args.map_phase_trace,
+            args.map_domain_trace,
+            args.map_refinement_output)
+        print(json.dumps(result, sort_keys=True, separators=(",", ":")))
+        return
+    require(all((args.input, args.input_receipt, args.output, args.output_receipt, args.numilab_source)),
+            "anatomy composition requires --input, --input-receipt, --output, --output-receipt, and --numilab-source")
+    if args.wall_candidate is not None:
+        require(args.candidate_source is not None,
+                "--wall-candidate requires --candidate-source for exact source comparison")
+        require(args.phase_trace is None and args.phase_selection == "representative-cycle" and not args.skip_exact_audit,
+                "ventricular-wall composition does not accept cavity-only phase/audit switches")
+        result = compile_ventricular_wall_binding(args.input, args.input_receipt, args.candidate_source,
+                                                  args.wall_candidate, args.output, args.output_receipt,
+                                                  args.wall_map_refinement)
+    else:
+        require(args.candidate_source is None,
+                "--candidate-source is only valid with --wall-candidate")
+        result = compile_binding(args.input, args.input_receipt, args.output, args.output_receipt,
+                                 args.numilab_source, audit=not args.skip_exact_audit,
+                                 phase_trace=args.phase_trace, phase_selection=args.phase_selection)
     print(json.dumps(result, sort_keys=True, separators=(",", ":")))
 
 

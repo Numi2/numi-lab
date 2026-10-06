@@ -7,13 +7,17 @@
 #include <string_view>
 // Included after the existing Human source loaders and visual-pack compiler.
 // It adds a persistent presentation consumer, not another dynamics owner.
+static_assert(sizeof(MRHumanRestingCardiacWallVertexGPU)==48);
+static_assert(sizeof(MRHumanRestingCardiacWallGPU)==128);
 class NumiHumanRestingVisual {
     NumiHumanRestingCoupling& coupled;
     std::unique_ptr<NumiHumanRestingSupportGeometry> skinSupport;
     std::unique_ptr<metalrobo::MetalHybridRenderer> renderer;
     metalrobo::MetalWorldFamilyContext worlds;
     id<MTLBuffer> mapping, influences, anatomyParameters, surfaceAudits, volumeResults, instanceLayers, cardiacQ;
+    id<MTLBuffer> cardiacWallMap, cardiacWallParameters, cardiacWallQ, cardiacWallNormalRanges, cardiacWallIncidentTriangles;
     id<MTLComputePipelineState> skinPipeline, layerPipeline, volumePipeline, skinAuditPipeline, cardiacQPipeline, bodyAuditPipeline;
+    id<MTLComputePipelineState> cardiacWallQPipeline, cardiacWallNormalsPipeline;
     id<MTLComputePipelineState> vertexCapturePipeline=nil;
     id<MTLBuffer> vertexCaptureBuffer=nil;
     id<MTLCommandQueue> queue;
@@ -22,6 +26,8 @@ class NumiHumanRestingVisual {
     bool complete=false;
     bool rigidHands=false;
     unsigned auditCount=0;
+    std::vector<unsigned> auditStableIds;
+    unsigned cardiacWallVertexCount=0,cardiacWallAuditIndex=MR_INVALID_INDEX;
     double wallOrigin=0;
     std::filesystem::path initialPackPath, acceptedGeometryDirectory;
     std::string initialPackContentHash, initialPackFileSHA256;
@@ -176,7 +182,7 @@ public:
         requestedGeometrySteps=geometryExportStepsFromEnvironment();
         require(requestedGeometrySteps.empty()||presentWindow,
             "accepted MRVPack export requires the native viewer path");
-        surfaceTrace<<"time_s,step,min_skin_bed_gap_m,vertices_below_1mm,nonfinite_skin_vertices,max_functional_volume_relative_error,q_ra,q_rv,q_la,q_lv,ra_target_ml,rv_target_ml,la_target_ml,lv_target_ml,diaphragm_swept_ml,rib_swept_ml,lung_target_ml,body_com_x_m,body_com_y_m,body_com_z_m,represented_body_mass_kg\n";
+        surfaceTrace<<"time_s,step,min_skin_bed_gap_m,vertices_below_1mm,nonfinite_skin_vertices,max_functional_volume_relative_error,q_ra,q_rv,q_la,q_lv,ra_target_ml,rv_target_ml,la_target_ml,lv_target_ml,diaphragm_swept_ml,rib_swept_ml,lung_target_ml,body_com_x_m,body_com_y_m,body_com_z_m,represented_body_mass_kg,ventricular_wall_bound,ventricular_material_ml,ventricular_material_target_ml,ventricular_closure_mm,ventricular_material_status,functional_geometry_status\n";
         require(initialBodies.size()*sizeof(MRBodyStateGPU)==coupled.presentationBodies.length,
             "initial native frame does not match the body owner");
         std::memcpy(coupled.presentationBodies.contents,initialBodies.data(),coupled.presentationBodies.length);
@@ -188,6 +194,8 @@ public:
         unsigned skinFirstVertex=MR_INVALID_INDEX;
         std::vector<mr_float4> skinRestWorld(skin.header.vertexCount);
         std::vector<MRHumanRestingSurfaceAuditGPU> audits;
+        std::vector<mr_uint4> wallNormalRanges;
+        std::vector<unsigned> wallIncidentTriangles;
         std::vector<unsigned> visibleLayers;
         // Keep the four source cavity identities visually distinguishable in
         // the native inspection layer. These are presentation colors only;
@@ -315,6 +323,8 @@ public:
             }
             if(instance.identity.x==kOrganSurfaceSemantic&&functional.passiveViscera.contains(instance.identity.w))
                 deformation=9;
+            if(instance.identity.x==kOrganSurfaceSemantic&&instance.identity.w==functional.ventricularWallStableId)
+                deformation=10;
             if(instance.identity.x==kBoneSemantic&&functional.ribs.contains(instance.identity.w)) {
                 deformation=5;chamber=functional.ribs.at(instance.identity.w);
             }
@@ -326,18 +336,51 @@ public:
                 semantic>=kOrganSurfaceSemantic?8u:0u;
             if(deformation==1&&functional.lungs.contains(instance.identity.w))visibility|=16u;
             if(deformation==2)visibility|=32u|64u;
+            if(deformation==8||deformation==10)visibility|=32u;
             if(semantic==kVesselSurfaceSemantic||semantic==kPulmonaryArterySurfaceSemantic||semantic==kPulmonaryVeinSurfaceSemantic)
                 visibility|=64u;
             if(deformation==4||deformation==7)visibility=2u|16u;
             visibleLayers.push_back(visibility);
             if(deformation==2)for(unsigned p=instance.geometry.x;p<instance.geometry.x+instance.geometry.y;++p)
                 pack.primitives.at(p).geometry.z=cardiacMaterials.at(chamber);
-            if(functional.enclosedVolumes.contains(instance.identity.w)&&deformation) {
+            if(deformation==10) {
+                require(cardiacWallVertexCount==0&&instance.geometry.y==1,
+                    "ventricular material wall requires one source surface with one owner");
+                require(instance.binding.z==MR_VISUAL_BINDING_ARTICULATED_LINK&&
+                    instance.binding.y==anatomyGPU.bodyAndFlags.x&&
+                    instance.translationAndScale.x==0&&instance.translationAndScale.y==0&&
+                    instance.translationAndScale.z==0&&instance.translationAndScale.w==1&&
+                    instance.orientation.x==0&&instance.orientation.y==0&&instance.orientation.z==0&&instance.orientation.w==1,
+                    "ventricular wall coefficients require the registered torso source frame");
+                cardiacWallVertexCount=unsigned(functional.ventricularWallMap.size());
+                require(cardiacWallVertexCount>0&&vertices.size()==cardiacWallVertexCount&&
+                    vertices.back()-base+1==cardiacWallVertexCount,
+                    "ventricular wall pack vertex order differs from its source coefficient map");
+                const auto& p=pack.primitives.at(instance.geometry.x);
+                require(p.geometry.y%3==0,"ventricular material boundary must contain triangles");
+                cardiacWallAuditIndex=unsigned(audits.size());
+                audits.push_back({{p.geometry.x,p.geometry.y,deformation,0},
+                    {functional.ventricularWallGPU.scalesAndVolume.w,0,0,0}});
+                auditStableIds.push_back(instance.identity.w);
+                std::vector<std::vector<unsigned>> incident(cardiacWallVertexCount);
+                for(unsigned j=p.geometry.x;j<p.geometry.x+p.geometry.y;j+=3)
+                    for(unsigned k=0;k<3;++k) {
+                        const unsigned v=pack.indices.at(j+k);
+                        require(v>=base&&v-base<cardiacWallVertexCount,"ventricular material boundary index is invalid");
+                        incident[v-base].push_back(j);
+                    }
+                for(unsigned i=0;i<cardiacWallVertexCount;++i) {
+                    require(!incident[i].empty(),"ventricular material wall has an unreferenced vertex");
+                    wallNormalRanges.push_back({base+i,unsigned(wallIncidentTriangles.size()),unsigned(incident[i].size()),0});
+                    wallIncidentTriangles.insert(wallIncidentTriangles.end(),incident[i].begin(),incident[i].end());
+                }
+            }else if(functional.enclosedVolumes.contains(instance.identity.w)&&deformation) {
                 require(instance.geometry.y==1,"functional anatomy audit requires one contiguous source surface");
                 const auto& p=pack.primitives.at(instance.geometry.x);
                 audits.push_back({{p.geometry.x,p.geometry.y,deformation,chamber},
                     {functional.enclosedVolumes.at(instance.identity.w),
                      deformation==1?functional.respiratorySweptAreas.at(instance.identity.w):0,0,0}});
+                auditStableIds.push_back(instance.identity.w);
             }
             const SoftTissueRecord* tissue=nullptr;
             if(tissues&&(instance.identity.x==kMuscleSurfaceSemantic||instance.identity.x==kTendonSurfaceSemantic)) {
@@ -347,7 +390,9 @@ public:
             for(unsigned v:vertices) {
                 require(!maps.at(v).influenceCount,"resting anatomy vertices have multiple owners");
                 maps[v].deformationKind=deformation;maps[v].chamberIndex=chamber;
-                if(deformation==2) {
+                if(deformation==10) {
+                    maps[v].chamberIndex=v-base;
+                }else if(deformation==2) {
                     const auto& weights=functional.cardiacFreewallWeights.at(instance.identity.w);
                     require(v>=base&&v-base<weights.size(),"cardiac cavity pack order differs from source vertices");
                     maps[v].deformationWeight.x=weights.at(v-base);
@@ -547,10 +592,23 @@ public:
         mapping=[device newBufferWithBytes:maps.data() length:maps.size()*sizeof(maps.front()) options:MTLResourceStorageModeShared];
         influences=[device newBufferWithBytes:weights.data() length:weights.size()*sizeof(weights.front()) options:MTLResourceStorageModeShared];
         anatomyParameters=[device newBufferWithBytes:&anatomyGPU length:sizeof(anatomyGPU) options:MTLResourceStorageModeShared];
-        auditCount=unsigned(audits.size());require(auditCount==9,"functional anatomy volume audit did not bind all nine surfaces");
+        auditCount=unsigned(audits.size());require(auditCount==9+unsigned(cardiacWallVertexCount>0),
+            "functional anatomy volume audit did not bind its lung, chamber and material surfaces");
         surfaceAudits=[device newBufferWithBytes:audits.data() length:audits.size()*sizeof(audits.front()) options:MTLResourceStorageModeShared];
         volumeResults=[device newBufferWithLength:(auditCount+2)*sizeof(mr_float4) options:MTLResourceStorageModeShared];
         cardiacQ=[device newBufferWithLength:4*sizeof(float) options:MTLResourceStorageModeShared];
+        const MRHumanRestingCardiacWallVertexGPU emptyWallVertex{};
+        const mr_uint4 emptyWallRange{};const unsigned emptyWallIndex=0;
+        const mr_float4 emptyWallQ{};
+        cardiacWallMap=[device newBufferWithBytes:cardiacWallVertexCount?functional.ventricularWallMap.data():&emptyWallVertex
+            length:std::max(1u,cardiacWallVertexCount)*sizeof(emptyWallVertex) options:MTLResourceStorageModeShared];
+        cardiacWallParameters=[device newBufferWithBytes:&functional.ventricularWallGPU
+            length:sizeof(functional.ventricularWallGPU) options:MTLResourceStorageModeShared];
+        cardiacWallQ=[device newBufferWithBytes:&emptyWallQ length:sizeof(emptyWallQ) options:MTLResourceStorageModeShared];
+        cardiacWallNormalRanges=[device newBufferWithBytes:wallNormalRanges.empty()?&emptyWallRange:wallNormalRanges.data()
+            length:std::max(std::size_t(1),wallNormalRanges.size())*sizeof(emptyWallRange) options:MTLResourceStorageModeShared];
+        cardiacWallIncidentTriangles=[device newBufferWithBytes:wallIncidentTriangles.empty()?&emptyWallIndex:wallIncidentTriangles.data()
+            length:std::max(std::size_t(1),wallIncidentTriangles.size())*sizeof(unsigned) options:MTLResourceStorageModeShared];
         instanceLayers=[device newBufferWithBytes:visibleLayers.data() length:visibleLayers.size()*sizeof(unsigned) options:MTLResourceStorageModeShared];
         NSError* e=nil;auto lib=[device newLibraryWithURL:[NSURL fileURLWithPath:@(NUMI_HUMAN_RESPIRATION_METALLIB)] error:&e];
         require(skinFirstVertex!=MR_INVALID_INDEX,"resting support has no registered skin range");
@@ -597,6 +655,8 @@ public:
         std::cout<<"] force_owner=existing_metal_stand partition=source_rest_voronoi\n";
         skinPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_skin"] error:&e];
         cardiacQPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_cardiac_q"] error:&e];
+        cardiacWallQPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_cardiac_wall_q"] error:&e];
+        cardiacWallNormalsPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_cardiac_wall_normals"] error:&e];
         layerPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_layers"] error:&e];
         volumePipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_audit_volumes"] error:&e];
         skinAuditPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_audit_skin"] error:&e];
@@ -607,6 +667,8 @@ public:
             vertexCaptureBuffer.label=@"Numi Human selected accepted render vertices";
         }
         require(mapping&&influences&&anatomyParameters&&surfaceAudits&&volumeResults&&instanceLayers&&cardiacQ&&skinPipeline&&cardiacQPipeline&&layerPipeline&&volumePipeline&&skinAuditPipeline&&bodyAuditPipeline,"resting GPU anatomy setup failed");
+        require(cardiacWallMap&&cardiacWallParameters&&cardiacWallQ&&cardiacWallNormalRanges&&cardiacWallIncidentTriangles&&
+            cardiacWallQPipeline&&cardiacWallNormalsPipeline,"resting GPU cardiac material setup failed");
         require(requestedGeometrySteps.empty()||(vertexCapturePipeline&&vertexCaptureBuffer),
             "selected accepted geometry capture resources could not be created");
         if(!presentWindow)return;
@@ -623,17 +685,36 @@ public:
         e.setBuffer(e.context,(__bridge void*)self.anatomyParameters,0,1);
         e.setBuffer(e.context,(__bridge void*)self.cardiacQ,0,2);
         e.dispatchThreads(e.context,4,1);
+        if(self.cardiacWallVertexCount) {
+            e.setPipeline(e.context,(__bridge void*)self.cardiacWallQPipeline);
+            e.setBuffer(e.context,(__bridge void*)self.cardiacWallParameters,0,0);
+            e.setBuffer(e.context,(__bridge void*)self.cardiacQ,0,1);
+            e.setBuffer(e.context,(__bridge void*)self.cardiacWallQ,0,2);
+            e.dispatchThreads(e.context,1,1);
+        }
         e.setPipeline(e.context,(__bridge void*)self.skinPipeline);e.setBytes(e.context,&d,sizeof(d),0);
         e.setBuffer(e.context,(__bridge void*)self.mapping,0,1);e.setBuffer(e.context,(__bridge void*)self.influences,0,2);
         e.setBuffer(e.context,(__bridge void*)self.coupled.presentationBodies,0,3);e.setBuffer(e.context,lease.meshVertices,0,4);
         e.setBuffer(e.context,(__bridge void*)self.coupled.presentationRespiration,0,5);
         e.setBuffer(e.context,(__bridge void*)self.anatomyParameters,0,6);
         e.setBuffer(e.context,(__bridge void*)self.cardiacQ,0,7);
+        e.setBuffer(e.context,(__bridge void*)self.cardiacWallMap,0,8);
+        e.setBuffer(e.context,(__bridge void*)self.cardiacWallParameters,0,9);
+        e.setBuffer(e.context,(__bridge void*)self.cardiacWallQ,0,10);
         e.dispatchThreads(e.context,lease.meshVertexCount,64);
+        if(self.cardiacWallVertexCount) {
+            e.setPipeline(e.context,(__bridge void*)self.cardiacWallNormalsPipeline);
+            e.setBytes(e.context,&self.cardiacWallVertexCount,sizeof(self.cardiacWallVertexCount),0);
+            e.setBuffer(e.context,(__bridge void*)self.cardiacWallNormalRanges,0,1);
+            e.setBuffer(e.context,(__bridge void*)self.cardiacWallIncidentTriangles,0,2);
+            e.setBuffer(e.context,lease.meshIndices,0,3);e.setBuffer(e.context,lease.meshVertices,0,4);
+            e.dispatchThreads(e.context,self.cardiacWallVertexCount,64);
+        }
         e.setPipeline(e.context,(__bridge void*)self.volumePipeline);e.setBytes(e.context,&d,sizeof(d),0);
         e.setBuffer(e.context,(__bridge void*)self.surfaceAudits,0,1);e.setBuffer(e.context,lease.meshIndices,0,2);
         e.setBuffer(e.context,lease.meshVertices,0,3);e.setBuffer(e.context,(__bridge void*)self.coupled.presentationRespiration,0,4);
         e.setBuffer(e.context,(__bridge void*)self.anatomyParameters,0,5);e.setBuffer(e.context,(__bridge void*)self.volumeResults,0,6);
+        e.setBuffer(e.context,(__bridge void*)self.cardiacWallParameters,0,7);
         e.dispatchThreads(e.context,self.auditCount,1);
         e.setPipeline(e.context,(__bridge void*)self.skinAuditPipeline);e.setBytes(e.context,&d,sizeof(d),0);
         e.setBuffer(e.context,(__bridge void*)self.mapping,0,1);e.setBuffer(e.context,lease.meshVertices,0,2);
@@ -696,7 +777,12 @@ public:
         }
         const auto* volumes=static_cast<const mr_float4*>(volumeResults.contents);
         const auto* cardiacCoordinates=static_cast<const float*>(cardiacQ.contents);
-        float maxRelativeError=0;for(unsigned i=0;i<auditCount;++i)maxRelativeError=std::max(maxRelativeError,volumes[i].z);
+        const auto wallCorrection=*static_cast<const mr_float4*>(cardiacWallQ.contents);
+        const auto wallAudit=cardiacWallVertexCount?volumes[cardiacWallAuditIndex]:mr_float4{};
+        float maxRelativeError=0;unsigned geometryStatus=0;
+        for(unsigned i=0;i<auditCount;++i) {
+            maxRelativeError=std::max(maxRelativeError,volumes[i].z);geometryStatus|=unsigned(volumes[i].w);
+        }
         const auto skinAudit=volumes[auditCount];
         const auto bodyAudit=volumes[auditCount+1];
         require(std::isfinite(bodyAudit.x)&&std::isfinite(bodyAudit.y)&&std::isfinite(bodyAudit.z)&&
@@ -705,9 +791,14 @@ public:
             <<','<<cardiacCoordinates[0]<<','<<cardiacCoordinates[1]<<','<<cardiacCoordinates[2]<<','<<cardiacCoordinates[3]
             <<','<<p.chamberVolumes.x*1e6<<','<<p.chamberVolumes.y*1e6<<','<<p.chamberVolumes.z*1e6<<','<<p.chamberVolumes.w*1e6
             <<','<<p.motion.x*1e6<<','<<p.motion.y*1e6<<','<<p.mechanics.x*1e6
-            <<','<<bodyAudit.x<<','<<bodyAudit.y<<','<<bodyAudit.z<<','<<bodyAudit.w<<'\n';
+            <<','<<bodyAudit.x<<','<<bodyAudit.y<<','<<bodyAudit.z<<','<<bodyAudit.w
+            <<','<<(cardiacWallVertexCount>0)<<','<<wallAudit.x*1e6<<','<<wallAudit.y*1e6<<','<<wallCorrection.x*1e3<<','<<wallAudit.w<<','<<geometryStatus<<'\n';
         surfaceTrace.flush();
-        for(unsigned i=0;i<auditCount;++i)require(volumes[i].w==0,"accepted anatomical mesh volume disagrees with its functional owner");
+        require(wallCorrection.w==0,"accepted ventricular material volume closure failed");
+        for(unsigned i=0;i<auditCount;++i)require(volumes[i].w==0,
+            "accepted functional surface stable_id="+std::to_string(auditStableIds.at(i))+
+            " audit_index="+std::to_string(i)+" status="+std::to_string(unsigned(volumes[i].w))+
+            " has degenerate triangles or disagrees with its volume owner");
         require(skinAudit.w==0&&skinAudit.z==0,"accepted full skin intersects the bed beyond the 1 mm inspection tolerance");
         std::ostringstream metrics;metrics<<std::fixed<<std::setprecision(2)<<"Accepted time "<<time<<" s  |  "<<time/std::max(.001,CACurrentMediaTime()-wallOrigin)<<" x real time  |  breaths "<<p.status.y<<"  beats "<<p.cardiacStatus.x<<"\n"
             <<"Lung "<<p.mechanics.x*1e3<<" L  Airflow "<<p.mechanics.w*1e3<<" L/s  Pleural "<<p.mechanics.z/98.0665<<" cmH2O  Muscle activation "

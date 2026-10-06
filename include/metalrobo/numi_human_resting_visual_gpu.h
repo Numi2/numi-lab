@@ -15,6 +15,23 @@ typedef struct MR_ALIGN16 MRHumanRestingInfluence {
     mr_uint4 body;
 } MRHumanRestingInfluence;
 
+// Reduced source-bound ventricular myocardium map. Displacements are stored
+// per unit CVSim q for RV/LV channels and per metre for volume closure. The
+// material-volume polynomial uses normalized qRV/.4, qLV/.2, closure/.01.
+typedef struct MR_ALIGN16 MRHumanRestingCardiacWallVertexGPU {
+    mr_float4 first;   // RV displacement per unit qRV, W is zero
+    mr_float4 second;  // LV displacement per unit qLV, W is zero
+    mr_float4 closure; // inferred outer-wall closure displacement per metre, W is zero
+} MRHumanRestingCardiacWallVertexGPU;
+
+typedef struct MR_ALIGN16 MRHumanRestingCardiacWallGPU {
+    // 20 terms: 1,r,l,r2,rl,l2,r3,r2l,rl2,l3,c,rc,lc,r2c,rlc,l2c,c2,rc2,lc2,c3.
+    mr_float4 volumePolynomial[5];
+    mr_float4 scalesAndVolume; // .4, .2, .01 scales and reference material volume m^3
+    mr_float4 closureBoundsAndTolerance; // closure c_min/c_max in metres, relative tolerance, reserved
+    mr_uint4 chambersAndFlags; // RV index, LV index, enabled flag, wall vertex count
+} MRHumanRestingCardiacWallGPU;
+
 // Compiled from the registered, closed source surfaces at asset loading.
 // Volumes are m^3, positions and height are m. The functional source cavities
 // are ordered RA, RV, LA, LV, matching NMHumanRespirationState.chamberVolumes.
