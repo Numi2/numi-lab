@@ -1,6 +1,7 @@
 #pragma once
 #include "NumiHumanRestingAnatomy.hpp"
 #include "NumiHumanRestingSupportGeometry.hpp"
+#include "NumiHumanRestingSurfaceAuditDiagnostic.hpp"
 #include <charconv>
 #include <bit>
 #include <filesystem>
@@ -10,6 +11,8 @@
 // It adds a persistent presentation consumer, not another dynamics owner.
 static_assert(sizeof(MRHumanRestingCardiacWallVertexGPU)==48);
 static_assert(sizeof(MRHumanRestingCardiacWallGPU)==128);
+static_assert(sizeof(MRHumanRestingSurfaceFailureGPU)==80);
+static_assert(alignof(MRHumanRestingSurfaceFailureGPU)==16);
 class NumiHumanRestingVisual {
     NumiHumanRestingCoupling& coupled;
     std::unique_ptr<NumiHumanRestingSupportGeometry> skinSupport;
@@ -30,7 +33,7 @@ class NumiHumanRestingVisual {
     std::vector<unsigned> auditStableIds;
     unsigned cardiacWallVertexCount=0,cardiacWallAuditIndex=MR_INVALID_INDEX;
     double wallOrigin=0;
-    std::filesystem::path initialPackPath, acceptedGeometryDirectory;
+    std::filesystem::path outputDirectory, initialPackPath, acceptedGeometryDirectory;
     std::string initialPackContentHash, initialPackFileSHA256;
     std::string cardiacWallMapSHA256,cardiacWallParametersSHA256,cardiacWallBundleSHA256,cardiacWallIdentityReceiptSHA256;
     NSDictionary* initialAnatomicalRegistration=nil;
@@ -143,7 +146,7 @@ class NumiHumanRestingVisual {
             <<" cardiac_wall_identity_receipt_sha256="<<cardiacWallIdentityReceiptSHA256<<"\n";
     }
     void exportAcceptedGeometry(unsigned step,double time,std::uint64_t root,std::uint64_t transaction,
-                                std::uint64_t timestamp) {
+                                std::uint64_t timestamp,NSDictionary* surfaceAuditOutcome) {
         require(vertexCaptureBuffer&&vertexCaptureBuffer.contents,"accepted geometry staging buffer is unavailable");
         metalrobo::VisualAssetPackV2 pack;std::string error;
         require(metalrobo::readVisualAssetPack(initialPackPath,pack,&error),error);
@@ -206,6 +209,8 @@ class NumiHumanRestingVisual {
             @"accepted_body_state_sha256":loadedKneeNSString(bodySHA),
             @"accepted_registered_body_poses":registeredPoses,
             @"initial_anatomical_registration":initialAnatomicalRegistration?initialAnatomicalRegistration:@{},
+            @"physical_endpoint":@"accepted",@"surface_audit_endpoint":@"passed",
+            @"surface_audit":surfaceAuditOutcome,
             @"accepted_respiration_state_sha256":loadedKneeNSString(respirationSHA),
             @"ventricular_wall_map_sha256":loadedKneeNSString(cardiacWallMapSHA256),
             @"ventricular_wall_parameters_sha256":loadedKneeNSString(cardiacWallParametersSHA256),
@@ -232,6 +237,73 @@ class NumiHumanRestingVisual {
             <<" accepted_root="<<rootHex
             <<" pack_sha256="<<packSHA<<" receipt_sha256="<<receiptSHA<<"\n";
     }
+    static id surfaceAuditJSONNumber(float value) {
+        if(std::isfinite(value))return @(static_cast<double>(value));
+        if(std::isnan(value))return @"NaN";
+        return std::signbit(value)?@"-Infinity":@"+Infinity";
+    }
+    void writeSurfaceAuditFailureReceipt(unsigned step,double time,std::uint64_t root,
+        std::uint64_t transaction,std::uint64_t timestamp,unsigned auditIndex,unsigned stableId,
+        unsigned status,float relativeError,unsigned indexBufferStart,
+        const MRHumanRestingSurfaceFailureGPU& firstFailure,bool captureRequested) {
+        NSMutableDictionary* triangle=[NSMutableDictionary dictionary];
+        const bool haveTriangle=firstFailure.surfaceTriangleKind.x==auditIndex&&
+            firstFailure.surfaceTriangleKind.z!=MR_HUMAN_RESTING_TRIANGLE_FAILURE_NONE;
+        if(haveTriangle) {
+            NSMutableArray* positions=[NSMutableArray array];NSMutableArray* positionBits=[NSMutableArray array];
+            for(unsigned k=0;k<3;++k) {
+                const auto& p=firstFailure.renderedPositions[k];
+                [positions addObject:@[surfaceAuditJSONNumber(p.x),surfaceAuditJSONNumber(p.y),surfaceAuditJSONNumber(p.z)]];
+                [positionBits addObject:@[loadedKneeNSString(numiHumanRestingSurfaceAudit::float32BitsHex(p.x)),
+                    loadedKneeNSString(numiHumanRestingSurfaceAudit::float32BitsHex(p.y)),
+                    loadedKneeNSString(numiHumanRestingSurfaceAudit::float32BitsHex(p.z))]];
+            }
+            triangle[@"triangle_index_in_surface"]=@(firstFailure.surfaceTriangleKind.y);
+            triangle[@"index_buffer_offset"]=@(indexBufferStart+3u*firstFailure.surfaceTriangleKind.y);
+            triangle[@"area_failure_kind"]=loadedKneeNSString(
+                numiHumanRestingSurfaceAudit::triangleFailureName(firstFailure.surfaceTriangleKind.z));
+            triangle[@"mesh_vertex_indices"]=@[@(firstFailure.vertexIndices.x),@(firstFailure.vertexIndices.y),
+                @(firstFailure.vertexIndices.z)];
+            triangle[@"rendered_positions_m"]=positions;
+            triangle[@"rendered_positions_f32_bits_hex"]=positionBits;
+        }
+        const auto fingerprintHex=[](std::uint64_t value) {
+            std::ostringstream out;out<<std::hex<<std::setw(16)<<std::setfill('0')<<value;return out.str();
+        };
+        NSDictionary* receipt=@{
+            @"schema":@"numi.human.accepted_surface_audit_failure.v1",
+            @"physical_endpoint":@"accepted",@"surface_audit_endpoint":@"rejected",
+            @"rejection_stage":@"post_accept_surface_presentation",
+            @"accepted_step":@(step),@"accepted_time_s":@(time),
+            @"accepted_root_fingerprint":@(root),@"accepted_root_fingerprint_hex":loadedKneeNSString(fingerprintHex(root)),
+            @"accepted_transaction_fingerprint":@(transaction),
+            @"accepted_transaction_fingerprint_hex":loadedKneeNSString(fingerprintHex(transaction)),
+            @"accepted_timestamp_microseconds":@(timestamp),
+            @"source_pack_content_hash":loadedKneeNSString(initialPackContentHash),
+            @"source_pack_file_sha256":loadedKneeNSString(initialPackFileSHA256),
+            @"source_pack_path":loadedKneeNSString(initialPackPath.string()),
+            @"surface_stable_id":@(stableId),@"surface_audit_index":@(auditIndex),
+            @"surface_status":@(status),@"volume_relative_error":surfaceAuditJSONNumber(relativeError),
+            @"volume_owner_mismatch":@((status&1u)!=0),
+            @"invalid_triangle_present":@((status&2u)!=0),
+            @"first_invalid_triangle_available":@(haveTriangle),
+            @"first_invalid_triangle":triangle,
+            @"accepted_geometry_capture_requested":@(captureRequested),
+            @"accepted_geometry_capture_written":@NO,
+            @"accepted_geometry_capture_skipped_reason":captureRequested?@"surface_audit_rejected":@"not_requested"
+        };
+        const auto path=outputDirectory/("surface-audit-failure-step-"+std::to_string(step)+".json");
+        require(!std::filesystem::exists(path),"refusing to overwrite accepted surface-audit failure receipt");
+        NSData* json=[NSJSONSerialization dataWithJSONObject:receipt
+            options:NSJSONWritingPrettyPrinted|NSJSONWritingSortedKeys error:nil];
+        require(json!=nil,"accepted surface-audit failure receipt serialization failed");
+        NSError* error=nil;
+        require([json writeToURL:[NSURL fileURLWithPath:loadedKneeNSString(path.string())]
+            options:NSDataWritingAtomic error:&error],"accepted surface-audit failure receipt write failed");
+        std::cout<<"accepted_surface_audit_failure_receipt="<<path.string()
+            <<" physical_endpoint=accepted surface_audit_endpoint=rejected\n";
+    }
+
 public:
     // Native presentation exposes accepted states at the initial frame, each
     // completed fixed-size submission (whose state ID is the final zero-based
@@ -260,7 +332,7 @@ public:
         const std::vector<MRBodyStateGPU>& initialBodies,const std::vector<MRBodyStateGPU>& restBodies,
         const LoadedSupportContacts& support,const NumiHumanRestingAnatomy& functional,
         const std::filesystem::path& output,unsigned size,const std::string& movie,bool presentWindow=true):
-        coupled(owner),dimension(size),acceptedGeometryDirectory(output/"accepted-geometry"),
+        coupled(owner),dimension(size),outputDirectory(output),acceptedGeometryDirectory(output/"accepted-geometry"),
         surfaceTrace(output/"resting-surface-audit.csv") {
         require(surfaceTrace.good(),"resting surface audit output unavailable");
         requestedGeometrySteps=geometryExportStepsFromEnvironment();
@@ -679,7 +751,8 @@ public:
         auditCount=unsigned(audits.size());require(auditCount==9+unsigned(cardiacWallVertexCount>0),
             "functional anatomy volume audit did not bind its lung, chamber and material surfaces");
         surfaceAudits=[device newBufferWithBytes:audits.data() length:audits.size()*sizeof(audits.front()) options:MTLResourceStorageModeShared];
-        volumeResults=[device newBufferWithLength:(auditCount+2)*sizeof(mr_float4) options:MTLResourceStorageModeShared];
+        volumeResults=[device newBufferWithLength:(auditCount+2)*sizeof(mr_float4)+
+            auditCount*sizeof(MRHumanRestingSurfaceFailureGPU) options:MTLResourceStorageModeShared];
         cardiacQ=[device newBufferWithLength:4*sizeof(float) options:MTLResourceStorageModeShared];
         const MRHumanRestingCardiacWallVertexGPU emptyWallVertex{};
         const mr_uint4 emptyWallRange{};const unsigned emptyWallIndex=0;
@@ -800,6 +873,8 @@ public:
         e.setBuffer(e.context,lease.meshVertices,0,3);e.setBuffer(e.context,(__bridge void*)self.coupled.presentationRespiration,0,4);
         e.setBuffer(e.context,(__bridge void*)self.anatomyParameters,0,5);e.setBuffer(e.context,(__bridge void*)self.volumeResults,0,6);
         e.setBuffer(e.context,(__bridge void*)self.cardiacWallParameters,0,7);
+        e.setBuffer(e.context,(__bridge void*)self.volumeResults,
+            (self.auditCount+2)*sizeof(mr_float4),8);
         e.dispatchThreads(e.context,self.auditCount,1);
         e.setPipeline(e.context,(__bridge void*)self.skinAuditPipeline);e.setBytes(e.context,&d,sizeof(d),0);
         e.setBuffer(e.context,(__bridge void*)self.mapping,0,1);e.setBuffer(e.context,lease.meshVertices,0,2);
@@ -854,13 +929,11 @@ public:
         auto cb=[queue commandBuffer];auto enc=[cb computeCommandEncoder];
         auto result=renderer->encode(worlds,state,camera,(__bridge void*)enc);require(result.succeeded(),result.message);
         [enc endEncoding];[cb commit];[cb waitUntilCompleted];require(cb.status==MTLCommandBufferStatusCompleted,"resting native renderer failed");
-        if(captureThisFrame) {
-            require(captureKernelEncoded,"selected accepted step did not encode its geometry snapshot");
-            exportAcceptedGeometry(captureStep,time,captureRootFingerprint,captureTransactionFingerprint,
-                captureTimestampMicroseconds);
-            captureThisFrame=false;
-        }
+        if(captureThisFrame)require(captureKernelEncoded,
+            "selected accepted step did not encode its geometry snapshot");
         const auto* volumes=static_cast<const mr_float4*>(volumeResults.contents);
+        const auto* failureRecords=reinterpret_cast<const MRHumanRestingSurfaceFailureGPU*>(
+            static_cast<const unsigned char*>(volumeResults.contents)+(auditCount+2)*sizeof(mr_float4));
         const auto* cardiacCoordinates=static_cast<const float*>(cardiacQ.contents);
         const auto wallCorrection=*static_cast<const mr_float4*>(cardiacWallQ.contents);
         const auto wallAudit=cardiacWallVertexCount?volumes[cardiacWallAuditIndex]:mr_float4{};
@@ -879,11 +952,34 @@ public:
             <<','<<bodyAudit.x<<','<<bodyAudit.y<<','<<bodyAudit.z<<','<<bodyAudit.w
             <<','<<(cardiacWallVertexCount>0)<<','<<wallAudit.x*1e6<<','<<wallAudit.y*1e6<<','<<wallCorrection.x*1e3<<','<<wallAudit.w<<','<<geometryStatus<<'\n';
         surfaceTrace.flush();
+        unsigned firstFailedAudit=MR_INVALID_INDEX;
+        for(unsigned i=0;i<auditCount;++i)if(unsigned(volumes[i].w)!=0u){firstFailedAudit=i;break;}
+        if(firstFailedAudit!=MR_INVALID_INDEX) {
+            const unsigned status=unsigned(volumes[firstFailedAudit].w);
+            const auto& failure=failureRecords[firstFailedAudit];
+            const unsigned step=static_cast<unsigned>(p.status.x);
+            const auto message=numiHumanRestingSurfaceAudit::describeSurfaceFailure(
+                auditStableIds.at(firstFailedAudit),firstFailedAudit,
+                static_cast<const MRHumanRestingSurfaceAuditGPU*>(surfaceAudits.contents)[firstFailedAudit].indicesAndOwner.x,status,volumes[firstFailedAudit].z,
+                failure,initialPackContentHash);
+            writeSurfaceAuditFailureReceipt(step,time,state.acceptedRootFingerprint,
+                state.acceptedTransactionFingerprint,state.acceptedTimestampMicroseconds,
+                firstFailedAudit,auditStableIds.at(firstFailedAudit),status,volumes[firstFailedAudit].z,
+                static_cast<const MRHumanRestingSurfaceAuditGPU*>(surfaceAudits.contents)[firstFailedAudit].indicesAndOwner.x,failure,captureThisFrame);
+            std::cerr<<"resting_surface_audit_failure accepted_step="<<step<<' '<<message<<'\n';
+            captureThisFrame=false;captureKernelEncoded=false;
+            require(false,message);
+        }
+        if(captureThisFrame) {
+            NSDictionary* surfaceAuditOutcome=@{
+                @"schema":@"numi.human.accepted_surface_audit.v1",
+                @"physical_endpoint":@"accepted",@"surface_audit_endpoint":@"passed",
+                @"functional_surface_count":@(auditCount),@"functional_surface_status":@(geometryStatus)};
+            exportAcceptedGeometry(captureStep,time,captureRootFingerprint,captureTransactionFingerprint,
+                captureTimestampMicroseconds,surfaceAuditOutcome);
+            captureThisFrame=false;
+        }
         require(wallCorrection.w==0,"accepted ventricular material volume closure failed");
-        for(unsigned i=0;i<auditCount;++i)require(volumes[i].w==0,
-            "accepted functional surface stable_id="+std::to_string(auditStableIds.at(i))+
-            " audit_index="+std::to_string(i)+" status="+std::to_string(unsigned(volumes[i].w))+
-            " has degenerate triangles or disagrees with its volume owner");
         require(skinAudit.w==0&&skinAudit.z==0,"accepted full skin intersects the bed beyond the 1 mm inspection tolerance");
         std::ostringstream metrics;metrics<<std::fixed<<std::setprecision(2)<<"Accepted time "<<time<<" s  |  "<<time/std::max(.001,CACurrentMediaTime()-wallOrigin)<<" x real time  |  breaths "<<p.status.y<<"  beats "<<p.cardiacStatus.x<<"\n"
             <<"Lung "<<p.mechanics.x*1e3<<" L  Airflow "<<p.mechanics.w*1e3<<" L/s  Pleural "<<p.mechanics.z/98.0665<<" cmH2O  Muscle activation "

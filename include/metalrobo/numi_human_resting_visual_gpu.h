@@ -58,3 +58,16 @@ typedef struct MR_ALIGN16 MRHumanRestingSurfaceAuditGPU {
     mr_uint4 indicesAndOwner; // first index, count, kind (1 lung / 2 cavity), channel
     mr_float4 reference; // x: source enclosed volume m^3, y: source lobe swept area m^2
 } MRHumanRestingSurfaceAuditGPU;
+#define MR_HUMAN_RESTING_TRIANGLE_FAILURE_NONE 0u
+#define MR_HUMAN_RESTING_TRIANGLE_FAILURE_NONFINITE_AREA 1u
+#define MR_HUMAN_RESTING_TRIANGLE_FAILURE_EXACT_ZERO_AREA 2u
+#define MR_HUMAN_RESTING_TRIANGLE_FAILURE_NO_TRIANGLE 0xffffffffu
+// One compact per-surface record written by the existing volume audit. The
+// first two lanes identify the audit row and local triangle ordinal; the
+// third lane distinguishes non-finite from exactly zero area. Positions are
+// the three binary32 rendered vertices from that same accepted presentation.
+typedef struct MR_ALIGN16 MRHumanRestingSurfaceFailureGPU {
+    mr_uint4 surfaceTriangleKind;
+    mr_uint4 vertexIndices;
+    mr_float4 renderedPositions[3];
+} MRHumanRestingSurfaceFailureGPU;

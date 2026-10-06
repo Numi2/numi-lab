@@ -1684,6 +1684,16 @@ if(BUILD_TESTING)
     add_executable(metalrobo_numi_human_cardiac_identity_test tests/numi_human_cardiac_identity_test.cpp)
     target_compile_options(metalrobo_numi_human_cardiac_identity_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
     add_test(NAME numi_human_cardiac_identity COMMAND metalrobo_numi_human_cardiac_identity_test)
+    add_executable(metalrobo_numi_human_surface_audit_diagnostic_test
+        tests/numi_human_surface_audit_diagnostic_test.cpp)
+    target_include_directories(metalrobo_numi_human_surface_audit_diagnostic_test PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/include")
+    target_compile_options(metalrobo_numi_human_surface_audit_diagnostic_test PRIVATE
+        -Wall -Wextra -Wpedantic -Werror -fno-fast-math -ffp-contract=off)
+    add_test(NAME numi_human_surface_audit_diagnostic
+        COMMAND metalrobo_numi_human_surface_audit_diagnostic_test)
+    set_tests_properties(numi_human_surface_audit_diagnostic PROPERTIES
+        LABELS "numi-human;surface-audit;diagnostic;cpu" TIMEOUT 30)
     add_executable(metalrobo_numi_human_passive_joint_test tests/numi_human_passive_joint_test.cpp)
     target_include_directories(metalrobo_numi_human_passive_joint_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
     target_compile_options(metalrobo_numi_human_passive_joint_test PRIVATE -Wall -Wextra -Werror -fno-fast-math)

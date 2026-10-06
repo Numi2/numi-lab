@@ -216,17 +216,35 @@ kernel void nm_human_resting_audit_volumes(
     device const NMHumanRespirationState* respiration [[buffer(4)]],
     constant MRHumanRestingAnatomyGPU& anatomy [[buffer(5)]],
     device float4* result [[buffer(6)]],constant MRHumanRestingCardiacWallGPU& wall [[buffer(7)]],
+    device MRHumanRestingSurfaceFailureGPU* failureResults [[buffer(8)]],
     uint i [[thread_position_in_grid]]) {
     if(i>=d.w)return;
     const auto surface=surfaces[i];const uint4 owner=surface.indicesAndOwner;
     const float3 origin=vertices[indices[owner.x]].position.xyz;
     float volume=0,compensation=0;uint invalidTriangles=0;
+    MRHumanRestingSurfaceFailureGPU firstFailure;
+    firstFailure.surfaceTriangleKind=uint4(MR_HUMAN_RESTING_TRIANGLE_FAILURE_NO_TRIANGLE,0,0,0);
+    firstFailure.vertexIndices=uint4(0);
+    firstFailure.renderedPositions[0]=float4(0);firstFailure.renderedPositions[1]=float4(0);
+    firstFailure.renderedPositions[2]=float4(0);
     for(uint j=owner.x;j<owner.x+owner.y;j+=3) {
         const float3 pa=vertices[indices[j]].position.xyz,pb=vertices[indices[j+1]].position.xyz,
             pc=vertices[indices[j+2]].position.xyz;
         const float3 a=pa-origin,b=pb-origin,c=pc-origin;
         const float3 area=cross(pb-pa,pc-pa);
-        if(!all(isfinite(area))||all(area==float3(0)))++invalidTriangles;
+        const uint areaFailure=!all(isfinite(area))?MR_HUMAN_RESTING_TRIANGLE_FAILURE_NONFINITE_AREA:
+            all(area==float3(0))?MR_HUMAN_RESTING_TRIANGLE_FAILURE_EXACT_ZERO_AREA:
+            MR_HUMAN_RESTING_TRIANGLE_FAILURE_NONE;
+        if(areaFailure!=MR_HUMAN_RESTING_TRIANGLE_FAILURE_NONE) {
+            ++invalidTriangles;
+            if(firstFailure.surfaceTriangleKind.x==MR_HUMAN_RESTING_TRIANGLE_FAILURE_NO_TRIANGLE) {
+                firstFailure.surfaceTriangleKind=uint4(i,(j-owner.x)/3,areaFailure,0);
+                firstFailure.vertexIndices=uint4(indices[j],indices[j+1],indices[j+2],0);
+                firstFailure.renderedPositions[0]=float4(pa,0);
+                firstFailure.renderedPositions[1]=float4(pb,0);
+                firstFailure.renderedPositions[2]=float4(pc,0);
+            }
+        }
         const float y=dot(a,cross(b,c))/6.0f-compensation;
         const float next=volume+y;compensation=(next-volume)-y;volume=next;
     }
@@ -238,6 +256,7 @@ kernel void nm_human_resting_audit_volumes(
     const float relative=abs(abs(volume)-expected)/expected;
     const uint status=(!isfinite(relative)||relative>2.e-4f?1u:0u)|(invalidTriangles?2u:0u);
     result[i]=float4(abs(volume),expected,relative,float(status));
+    failureResults[i]=firstFailure;
 }
 
 kernel void nm_human_resting_audit_skin(
