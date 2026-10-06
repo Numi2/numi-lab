@@ -72,6 +72,11 @@ struct CouplingMemoryImage {
     std::vector<std::byte> presentationRespiration;
     std::vector<std::byte> presentationCandidateBodies;
     std::vector<std::byte> presentationCandidateRespiration;
+    std::vector<std::byte> presentationCommonCoordinates;
+    std::vector<std::byte> presentationCandidateCommonCoordinates;
+    std::vector<std::byte> acceptedCommonCoordinates;
+    std::vector<std::byte> presentationFrameCommonCoordinates;
+    bool commonAcceptedCoordinatesInitialized = false;
     std::uint32_t presentedStep = 0u;
 };
 
@@ -98,6 +103,16 @@ struct CouplingMemoryImage {
     image.presentationCandidateRespiration = readBufferBytes(
         coupling.presentationCandidateRespiration,
         "candidate presentation respiration state");
+    image.presentationCommonCoordinates = readBufferBytes(
+        coupling.presentationCommonCoordinates, "presented common coordinates");
+    image.presentationCandidateCommonCoordinates = readBufferBytes(
+        coupling.presentationCandidateCommonCoordinates,
+        "candidate common coordinates");
+    image.acceptedCommonCoordinates = readBufferBytes(
+        coupling.acceptedCommonCoordinates, "accepted common coordinates");
+    image.presentationFrameCommonCoordinates = readBufferBytes(
+        coupling.presentationFrameCommonCoordinates, "captured frame common coordinates");
+    image.commonAcceptedCoordinatesInitialized = coupling.commonAcceptedCoordinatesInitialized;
     image.presentedStep = coupling.presentedStep;
     return image;
 }
@@ -131,6 +146,18 @@ inline void restoreCouplingMemory(
     restoreBufferBytes(coupling.presentationCandidateRespiration,
                        image.presentationCandidateRespiration,
                        "candidate presentation respiration state");
+    restoreBufferBytes(coupling.presentationCommonCoordinates,
+                       image.presentationCommonCoordinates,
+                       "presented common coordinates");
+    restoreBufferBytes(coupling.presentationCandidateCommonCoordinates,
+                       image.presentationCandidateCommonCoordinates,
+                       "candidate common coordinates");
+    restoreBufferBytes(coupling.acceptedCommonCoordinates,
+                       image.acceptedCommonCoordinates, "accepted common coordinates");
+    restoreBufferBytes(coupling.presentationFrameCommonCoordinates,
+                       image.presentationFrameCommonCoordinates,
+                       "captured frame common coordinates");
+    coupling.commonAcceptedCoordinatesInitialized = image.commonAcceptedCoordinatesInitialized;
     coupling.presentedStep = image.presentedStep;
 }
 
@@ -384,8 +411,129 @@ inline void run(
              sameBytes(baselineFirstMemory.respirationAccepted,
                        trialFirstMemory.respirationAccepted) &&
              sameBytes(baselineFirstMemory.brainAccepted,
-                       trialFirstMemory.brainAccepted),
+                       trialFirstMemory.brainAccepted) &&
+             sameBytes(baselineFirstMemory.presentationCommonCoordinates,
+                       trialFirstMemory.presentationCommonCoordinates) &&
+             sameBytes(baselineFirstMemory.acceptedCommonCoordinates,
+                       trialFirstMemory.acceptedCommonCoordinates) &&
+             sameBytes(baselineFirstMemory.presentationFrameCommonCoordinates,
+                       trialFirstMemory.presentationFrameCommonCoordinates) &&
+             baselineFirstMemory.commonAcceptedCoordinatesInitialized ==
+                 trialFirstMemory.commonAcceptedCoordinatesInitialized,
          "resting transaction predecessor did not replay from the same accepted seed");
+
+    if (respiration.commonGeometryGateEnabled) {
+        need(respiration.commonGeometryBoxes != nil &&
+                 respiration.commonCandidateCoordinates != nil &&
+                 respiration.commonGeometryBoxes.contents != nullptr &&
+                 respiration.commonGeometryBoxes.length %
+                     sizeof(MRHumanRestingCommonCoordinateBoxGPU) == 0u,
+             "common-field domain rejection probe lacks certified-box buffers");
+        const auto savedBoxes = readBufferBytes(
+            respiration.commonGeometryBoxes, "common certified coordinate boxes");
+        const std::size_t boxCount = savedBoxes.size() /
+            sizeof(MRHumanRestingCommonCoordinateBoxGPU);
+        need(boxCount > 0u, "common-field domain rejection probe has no boxes");
+        std::vector<MRHumanRestingCommonCoordinateBoxGPU> impossibleBoxes(boxCount);
+        for (auto& box : impossibleBoxes) {
+            box.lower[0] = {0.95f, 0.95f, 0.95f, 0.95f};
+            box.lower[1] = {0.95f, 0.0f, 0.0f, 0.0f};
+            box.upper[0] = {0.951f, 0.951f, 0.951f, 0.951f};
+            box.upper[1] = {0.951f, 0.0f, 0.0f, 0.0f};
+        }
+        std::memcpy(respiration.commonGeometryBoxes.contents, impossibleBoxes.data(),
+                    impossibleBoxes.size() * sizeof(impossibleBoxes.front()));
+        auto domainRejectedInput = makeInput(
+            true, trialFirstDiagnostics.residentStateTransactionFingerprint,
+            trialFirstDiagnostics.residentStateGeneration, false);
+        metalrobo::MetalArticulatedOperatorResult domainRejectedResult;
+        domainRejectedResult.standQ = {-902.0f};
+        const auto domainRejectedDiagnostics = trialContext.run(
+            model, domainRejectedInput, domainRejectedResult);
+        const auto afterDomainMatter = physiology.runtime.snapshot();
+        const auto afterDomainMemory = captureCouplingMemory(coupling);
+        MRHumanRestingCommonCoordinatesGPU rejectedCoordinates{};
+        need(afterDomainMemory.presentationCandidateCommonCoordinates.size() ==
+                 sizeof(rejectedCoordinates),
+             "common-field rejection candidate ABI size changed");
+        std::memcpy(&rejectedCoordinates,
+                    afterDomainMemory.presentationCandidateCommonCoordinates.data(),
+                    sizeof(rejectedCoordinates));
+        const PhysicalSnapshot afterDomainPhysical = observePhysicalState(
+            trialContext, physical,
+            trialFirstDiagnostics.residentStateTransactionFingerprint,
+            trialFirstDiagnostics.residentStateGeneration);
+        const bool domainRejected = !domainRejectedDiagnostics.succeeded() &&
+            domainRejectedDiagnostics.dispatched &&
+            !domainRejectedDiagnostics.published &&
+            domainRejectedDiagnostics.firstStandGPUStatusCode !=
+                MR_NUMI_HUMAN_STAND_SUCCESS &&
+            domainRejectedResult.standQ == std::vector<float>{-902.0f} &&
+            rejectedCoordinates.status.x ==
+                MR_HUMAN_RESTING_COMMON_STATUS_OUTSIDE_CERTIFIED_DOMAIN;
+        const bool acceptedStateUnchanged =
+            samePhysicalState(trialFirstPhysical, afterDomainPhysical) &&
+            sameMatterCirculation(trialFirstMatter, afterDomainMatter) &&
+            sameBytes(trialFirstMemory.respirationAccepted,
+                      afterDomainMemory.respirationAccepted) &&
+            sameBytes(trialFirstMemory.brainAccepted,
+                      afterDomainMemory.brainAccepted) &&
+            sameBytes(trialFirstMemory.presentationBodies,
+                      afterDomainMemory.presentationBodies) &&
+            sameBytes(trialFirstMemory.presentationRespiration,
+                      afterDomainMemory.presentationRespiration) &&
+            sameBytes(trialFirstMemory.presentationCommonCoordinates,
+                      afterDomainMemory.presentationCommonCoordinates) &&
+            sameBytes(trialFirstMemory.acceptedCommonCoordinates,
+                      afterDomainMemory.acceptedCommonCoordinates) &&
+            sameBytes(trialFirstMemory.presentationFrameCommonCoordinates,
+                      afterDomainMemory.presentationFrameCommonCoordinates) &&
+            trialFirstMemory.commonAcceptedCoordinatesInitialized ==
+                afterDomainMemory.commonAcceptedCoordinatesInitialized &&
+            trialFirstMemory.presentedStep == afterDomainMemory.presentedStep;
+        if (!acceptedStateUnchanged) {
+            std::cerr << "resting_common_domain_rollback_diagnostic"
+                      << " physical=" << samePhysicalState(trialFirstPhysical, afterDomainPhysical)
+                      << " matter=" << sameMatterCirculation(trialFirstMatter, afterDomainMatter)
+                      << " respiration=" << sameBytes(trialFirstMemory.respirationAccepted, afterDomainMemory.respirationAccepted)
+                      << " brain=" << sameBytes(trialFirstMemory.brainAccepted, afterDomainMemory.brainAccepted)
+                      << " presented_bodies=" << sameBytes(trialFirstMemory.presentationBodies, afterDomainMemory.presentationBodies)
+                      << " presented_respiration=" << sameBytes(trialFirstMemory.presentationRespiration, afterDomainMemory.presentationRespiration)
+                      << " presented_common=" << sameBytes(trialFirstMemory.presentationCommonCoordinates, afterDomainMemory.presentationCommonCoordinates)
+                      << " accepted_common=" << sameBytes(trialFirstMemory.acceptedCommonCoordinates, afterDomainMemory.acceptedCommonCoordinates)
+                      << " captured_common=" << sameBytes(trialFirstMemory.presentationFrameCommonCoordinates, afterDomainMemory.presentationFrameCommonCoordinates)
+                      << " common_initialized=" << (trialFirstMemory.commonAcceptedCoordinatesInitialized == afterDomainMemory.commonAcceptedCoordinatesInitialized)
+                      << " cursor=" << (trialFirstMemory.presentedStep == afterDomainMemory.presentedStep)
+                      << " root_diff=" << firstDifferingByte(trialFirstPhysical.rootValues, afterDomainPhysical.rootValues)
+                      << " q_diff=" << firstDifferingByte(trialFirstPhysical.qValues, afterDomainPhysical.qValues)
+                      << " v_diff=" << firstDifferingByte(trialFirstPhysical.vValues, afterDomainPhysical.vValues)
+                      << " muscle_diff=" << firstDifferingByte(trialFirstPhysical.muscleValues, afterDomainPhysical.muscleValues)
+                      << " matter_state_diff=" << firstDifferingByte(trialFirstMatter.vascularState, afterDomainMatter.vascularState)
+                      << " matter_clock_diff=" << firstDifferingByte(trialFirstMatter.vascularClock, afterDomainMatter.vascularClock)
+                      << " respiration_diff=" << firstDifferingByte(trialFirstMemory.respirationAccepted, afterDomainMemory.respirationAccepted)
+                      << " brain_diff=" << firstDifferingByte(trialFirstMemory.brainAccepted, afterDomainMemory.brainAccepted)
+                      << " presentation_body_diff=" << firstDifferingByte(trialFirstMemory.presentationBodies, afterDomainMemory.presentationBodies)
+                      << " presentation_resp_diff=" << firstDifferingByte(trialFirstMemory.presentationRespiration, afterDomainMemory.presentationRespiration)
+                      << " presentation_common_diff=" << firstDifferingByte(trialFirstMemory.presentationCommonCoordinates, afterDomainMemory.presentationCommonCoordinates)
+                      << " cursor_before=" << trialFirstMemory.presentedStep
+                      << " cursor_after=" << afterDomainMemory.presentedStep << std::endl;
+        }
+        std::memcpy(respiration.commonGeometryBoxes.contents, savedBoxes.data(),
+                    savedBoxes.size());
+        restoreBufferBytes(coupling.presentationCandidateCommonCoordinates,
+                           trialFirstMemory.presentationCandidateCommonCoordinates,
+                           "common coordinates after domain rejection probe");
+        need(domainRejected,
+             "out-of-certified-domain common coordinates did not reject the actual body transaction");
+        need(acceptedStateUnchanged,
+             "common-coordinate domain rejection advanced body, circulation, controller history, or presentation");
+        std::cout << "resting_common_domain_rejection=pass status="
+                  << rejectedCoordinates.status.x
+                  << " accepted_physical_and_circulation_unchanged=true"
+                     " controller_history_and_common_presentation_unchanged=true"
+                     " retry_predecessor_generation="
+                  << trialFirstDiagnostics.residentStateGeneration << '\n';
+    }
 
     auto rejectedInput = makeInput(
         true, trialFirstDiagnostics.residentStateTransactionFingerprint,
@@ -401,7 +549,13 @@ inline void run(
                  MR_NUMI_HUMAN_STAND_EXTERNAL_PHYSICS_FAILED &&
              rejectedResult.standQ == std::vector<float>{-901.0f},
          "forced respiratory dispatch rejection did not fail the actual body transaction: " +
-             rejectedDiagnostics.message);
+             rejectedDiagnostics.message +
+             " succeeded=" + std::to_string(rejectedDiagnostics.succeeded()) +
+             " dispatched=" + std::to_string(rejectedDiagnostics.dispatched) +
+             " published=" + std::to_string(rejectedDiagnostics.published) +
+             " stand_status=" + std::to_string(rejectedDiagnostics.firstStandGPUStatusCode) +
+             " expected_stand_status=" + std::to_string(MR_NUMI_HUMAN_STAND_EXTERNAL_PHYSICS_FAILED) +
+             " result_q_count=" + std::to_string(rejectedResult.standQ.size()));
     const auto afterRejectedMatter = physiology.runtime.snapshot();
     const auto afterRejectedMemory = captureCouplingMemory(coupling);
     NMHumanRespirationState rejectedRespirationCandidate{};
@@ -446,10 +600,27 @@ inline void run(
     const bool unchangedPresentedRespiration = sameBytes(
         trialFirstMemory.presentationRespiration,
         afterRejectedMemory.presentationRespiration);
+    const bool unchangedPresentedCommonCoordinates = sameBytes(
+        trialFirstMemory.presentationCommonCoordinates,
+        afterRejectedMemory.presentationCommonCoordinates);
+    const bool unchangedAcceptedCommonCoordinates = sameBytes(
+        trialFirstMemory.acceptedCommonCoordinates,
+        afterRejectedMemory.acceptedCommonCoordinates);
+    const bool unchangedCapturedCommonCoordinates = sameBytes(
+        trialFirstMemory.presentationFrameCommonCoordinates,
+        afterRejectedMemory.presentationFrameCommonCoordinates);
+    const bool unchangedCommonInitialization =
+        trialFirstMemory.commonAcceptedCoordinatesInitialized ==
+        afterRejectedMemory.commonAcceptedCoordinatesInitialized;
+    const bool unchangedPresentationCursor =
+        trialFirstMemory.presentedStep == afterRejectedMemory.presentedStep;
     const bool rejectedStateUnchanged = unchangedRoots && unchangedQ &&
         unchangedV && unchangedMuscles && unchangedMatterState &&
         unchangedMatterClock && unchangedMatterMetadata && unchangedRespiration &&
-        unchangedBrain && unchangedPresentedBodies && unchangedPresentedRespiration;
+        unchangedBrain && unchangedPresentedBodies && unchangedPresentedRespiration &&
+        unchangedPresentedCommonCoordinates && unchangedAcceptedCommonCoordinates &&
+        unchangedCapturedCommonCoordinates && unchangedCommonInitialization &&
+        unchangedPresentationCursor;
     if (!rejectedStateUnchanged) {
         std::cerr << "resting_rejection_rollback_diagnostic"
                   << " roots=" << unchangedRoots
@@ -463,6 +634,9 @@ inline void run(
                   << " brain=" << unchangedBrain
                   << " presented_bodies=" << unchangedPresentedBodies
                   << " presented_respiration=" << unchangedPresentedRespiration
+                  << " accepted_common=" << unchangedAcceptedCommonCoordinates
+                  << " captured_common=" << unchangedCapturedCommonCoordinates
+                  << " common_initialized=" << unchangedCommonInitialization
                   << " control_step=" << trialFirstMatter.controlStep << "/"
                   << afterRejectedMatter.controlStep
                   << " physics_substep=" << trialFirstMatter.physicsSubstep << "/"
@@ -491,6 +665,12 @@ inline void run(
                   << " first_byte_presented_respiration=" << firstDifferingByte(
                          trialFirstMemory.presentationRespiration,
                          afterRejectedMemory.presentationRespiration)
+                  << " first_byte_accepted_common=" << firstDifferingByte(
+                         trialFirstMemory.acceptedCommonCoordinates,
+                         afterRejectedMemory.acceptedCommonCoordinates)
+                  << " first_byte_captured_common=" << firstDifferingByte(
+                         trialFirstMemory.presentationFrameCommonCoordinates,
+                         afterRejectedMemory.presentationFrameCommonCoordinates)
                   << '\n';
     }
     need(rejectedStateUnchanged,
@@ -520,7 +700,13 @@ inline void run(
              sameBytes(baselineFinalMemory.presentationBodies,
                        retryMemory.presentationBodies) &&
              sameBytes(baselineFinalMemory.presentationRespiration,
-                       retryMemory.presentationRespiration),
+                       retryMemory.presentationRespiration) &&
+             sameBytes(baselineFinalMemory.presentationCommonCoordinates,
+                       retryMemory.presentationCommonCoordinates) &&
+             sameBytes(baselineFinalMemory.acceptedCommonCoordinates,
+                       retryMemory.acceptedCommonCoordinates) &&
+             sameBytes(baselineFinalMemory.presentationFrameCommonCoordinates,
+                       retryMemory.presentationFrameCommonCoordinates),
          "accepted respiratory retry did not replay the uninterrupted coupled baseline");
 
     restoreInitialCoupling();

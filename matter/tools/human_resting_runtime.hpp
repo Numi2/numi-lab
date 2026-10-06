@@ -21,6 +21,9 @@ struct Respiration {
     id<MTLDevice> device;
     id<MTLBuffer> accepted,candidate,excitation;
     id<MTLComputePipelineState> predict,exchange,resolve;
+    id<MTLComputePipelineState> commonCoordinatesSolvePipeline=nil,commonCoordinateStatusPipeline=nil;
+    id<MTLBuffer> commonGeometryParameters=nil,commonGeometryBoxes=nil,commonCandidateCoordinates=nil;
+    bool commonGeometryGateEnabled=false;
     NMHumanRespirationParameters parameters;
     NMHumanRespirationDispatch dispatch{};
     std::function<bool(AcceptedStepExtensionPhase,const AcceptedStepExtensionView&)> brain;
@@ -56,6 +59,7 @@ struct Respiration {
         const char* stage=phase==AcceptedStepExtensionPhase::frameBegin?"respiratory_mechanics":
             phase==AcceptedStepExtensionPhase::candidateReady?"respiratory_gas_exchange":"respiratory_resolve";
         auto enc=detail::timedEncoder(cb,device,stage,v.controlStep);if(!enc)return false;
+        bool dispatched = false;
         if(phase==AcceptedStepExtensionPhase::frameBegin) {
             [enc setComputePipelineState:predict];
             [enc setBytes:&parameters length:sizeof(parameters) atIndex:0];
@@ -64,6 +68,12 @@ struct Respiration {
             [enc setBuffer:candidate offset:0 atIndex:3];
             [enc setBuffer:excitation offset:0 atIndex:4];
         } else if(phase==AcceptedStepExtensionPhase::candidateReady) {
+            if(commonGeometryGateEnabled &&
+               (!commonCoordinatesSolvePipeline||!commonCoordinateStatusPipeline||
+                !commonGeometryParameters||!commonGeometryBoxes||!commonCandidateCoordinates)) {
+                [enc endEncoding];
+                return false;
+            }
             [enc setComputePipelineState:exchange];
             [enc setBytes:&parameters length:sizeof(parameters) atIndex:0];
             [enc setBytes:&dispatch length:sizeof(dispatch) atIndex:1];
@@ -76,6 +86,25 @@ struct Respiration {
             [enc setBuffer:buffer(v.matterStatuses) offset:0 atIndex:8];
             [enc setBuffer:buffer(v.vascularCompartments) offset:0 atIndex:9];
             [enc setBuffer:buffer(v.vascularElastance) offset:0 atIndex:10];
+            // Exchange must execute before switching this encoder to the
+            // common-coordinate solver/status pipelines. This propagates any
+            // respiratory candidate failure into the Matter transaction.
+            [enc dispatchThreads:MTLSizeMake(dispatch.environmentCount,1,1)
+                threadsPerThreadgroup:MTLSizeMake(1,1,1)];
+            dispatched = true;
+            if(commonGeometryGateEnabled) {
+                [enc memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                [enc setComputePipelineState:commonCoordinatesSolvePipeline];
+                [enc setBuffer:candidate offset:0 atIndex:0];
+                [enc setBuffer:commonGeometryParameters offset:0 atIndex:1];
+                [enc setBuffer:commonGeometryBoxes offset:0 atIndex:2];
+                [enc setBuffer:commonCandidateCoordinates offset:0 atIndex:3];
+                [enc dispatchThreads:MTLSizeMake(1,1,1) threadsPerThreadgroup:MTLSizeMake(1,1,1)];
+                [enc setComputePipelineState:commonCoordinateStatusPipeline];
+                [enc setBuffer:commonCandidateCoordinates offset:0 atIndex:0];
+                [enc setBuffer:buffer(v.matterStatuses) offset:0 atIndex:1];
+                [enc dispatchThreads:MTLSizeMake(1,1,1) threadsPerThreadgroup:MTLSizeMake(1,1,1)];
+            }
         } else if(phase==AcceptedStepExtensionPhase::frameComplete) {
             [enc setComputePipelineState:resolve];
             [enc setBytes:&dispatch length:sizeof(dispatch) atIndex:0];
@@ -83,7 +112,9 @@ struct Respiration {
             [enc setBuffer:accepted offset:0 atIndex:2];
             [enc setBuffer:buffer(v.matterStatuses) offset:0 atIndex:3];
         } else {[enc endEncoding];return false;}
-        [enc dispatchThreads:MTLSizeMake(dispatch.environmentCount,1,1) threadsPerThreadgroup:MTLSizeMake(1,1,1)];
+        if(!dispatched)
+            [enc dispatchThreads:MTLSizeMake(dispatch.environmentCount,1,1)
+                threadsPerThreadgroup:MTLSizeMake(1,1,1)];
         [enc endEncoding];return true;
     }
     static bool callback(void* ctx,AcceptedStepExtensionPhase phase,const AcceptedStepExtensionView& v) {

@@ -4,6 +4,8 @@
 #include <cmath>
 #include <cstdint>
 #include <cstring>
+#include <fstream>
+#include <filesystem>
 #include <limits>
 #include <map>
 #include <numeric>
@@ -75,6 +77,13 @@ struct NumiHumanRestingAnatomy {
     std::string ventricularWallAnatomyPayloadSHA256;
     double ventricularWallSourceMaterialVolumeM3=0,ventricularWallReferenceMaterialVolumeM3=0;
     unsigned ventricularWallStableId=MR_INVALID_INDEX;
+    bool commonCardiacGeometry=false;
+    std::vector<MRHumanRestingCommonFieldVertexGPU> commonFieldMap;
+    MRHumanRestingCommonFieldGPU commonFieldGPU{};
+    std::vector<MRHumanRestingCommonCoordinateBoxGPU> commonFieldBoxes;
+    std::map<unsigned,std::pair<unsigned,unsigned>> commonFieldRanges;
+    std::string commonFieldMapSHA256,commonFieldPolynomialSHA256,commonFieldBoxesSHA256,commonFieldAnatomyPayloadSHA256;
+    std::array<unsigned,7> commonFieldStableIDs{{318,319,320,321,1,23,24}};
     struct CardiacWallBinding { unsigned chamber=0;mr_float4 displacementAndWeight{}; };
     std::map<unsigned,std::vector<CardiacWallBinding>> cardiacWallBindings;
     std::set<unsigned> cardiacWallSurfaces;
@@ -253,9 +262,13 @@ struct NumiHumanRestingAnatomy {
         require([root isKindOfClass:NSDictionary.class],"invalid resting anatomy receipt");
         NSDictionary* provenance=root[@"provenance"];
         NSDictionary* cardiacBinding=[provenance isKindOfClass:NSDictionary.class]?provenance[@"cardiac_geometry_binding"]:nil;
+        const bool commonReceiptRequested=
+            [cardiacBinding isKindOfClass:NSDictionary.class]&&
+            (cardiacBinding[@"common_field"]!=nil||cardiacBinding[@"geometry_mode"]!=nil);
         require([cardiacBinding isKindOfClass:NSDictionary.class]&&
-            [cardiacBinding[@"output_anatomy_payload_sha256"] isKindOfClass:NSString.class],
-            "resting anatomy lacks the source-bound cardiac cavity ownership receipt");
+            ([cardiacBinding[@"output_anatomy_payload_sha256"] isKindOfClass:NSString.class]||
+             (commonReceiptRequested&&[cardiacBinding[@"common_field"] isKindOfClass:NSDictionary.class])),
+            "resting anatomy lacks the source-bound cardiac geometry receipt");
         NSDictionary* bindings=root[@"functional_bindings"];
         require([bindings isKindOfClass:NSDictionary.class],"resting anatomy receipt lacks functional bindings");
         numiHumanVerifyVascularAnatomy(bindings,provenance,anatomy);
@@ -531,9 +544,24 @@ struct NumiHumanRestingAnatomy {
             enclosedVolumes[cavities[i]]=float(closed.volume);
         }
         const auto outputAnatomyHash=loadedKneeSHA256Hex(loadedKneeFileSHA256(payload));
-        require([cardiacBinding[@"output_anatomy_payload_sha256"] isKindOfClass:NSString.class]&&
-            outputAnatomyHash==[cardiacBinding[@"output_anatomy_payload_sha256"] UTF8String],
-            "cardiac cavity ownership receipt names another anatomy payload");
+        id rawCommonField=cardiacBinding[@"common_field"];
+        NSString* geometryMode=cardiacBinding[@"geometry_mode"];
+        commonCardiacGeometry=rawCommonField!=nil||geometryMode!=nil;
+        if(commonCardiacGeometry) {
+            NSDictionary* common=[rawCommonField isKindOfClass:NSDictionary.class]?(NSDictionary*)rawCommonField:nil;
+            require([geometryMode isKindOfClass:NSString.class]&&
+                [geometryMode isEqualToString:@"common_seven_coordinate_v1"]&&common!=nil&&
+                [common[@"schema"] isEqual:@"numi.human.cardiac_common_field.v1"]&&
+                [common[@"anatomy_payload_sha256"] isKindOfClass:NSString.class]&&
+                std::string([common[@"anatomy_payload_sha256"] UTF8String])==outputAnatomyHash,
+                "common cardiac field mode is malformed or bound to another anatomy payload");
+        } else {
+            require([cardiacBinding[@"output_anatomy_payload_sha256"] isKindOfClass:NSString.class]&&
+                outputAnatomyHash==[cardiacBinding[@"output_anatomy_payload_sha256"] UTF8String],
+                "cardiac cavity ownership receipt names another anatomy payload");
+        }
+        std::array<std::unique_ptr<TriangleIndex>,4> cavityIndex;
+        if(!commonCardiacGeometry) {
         require([cardiacBinding[@"method"] isKindOfClass:NSString.class]&&
             [cardiacBinding[@"method"] isEqualToString:@"exact_source_face_arrangement_with_RA_priority"],
             "unsupported cardiac cavity ownership convention");
@@ -593,7 +621,6 @@ struct NumiHumanRestingAnatomy {
         // unit free-wall weights. Positive radial scale and exact accepted-
         // cycle geometry remain the admission authority.
         std::array<const TorsoAnatomyRecord*,4> cavityRecords{};
-        std::array<std::unique_ptr<TriangleIndex>,4> cavityIndex;
         for(unsigned c=0;c<4;++c){
             cavityRecords[c]=&surface(cavities[c]);cavityIndex[c]=std::make_unique<TriangleIndex>(anatomy,*cavityRecords[c]);}
         auto sourcePoint=[&](const TorsoAnatomyRecord& s,unsigned localVertex) {
@@ -677,6 +704,7 @@ struct NumiHumanRestingAnatomy {
                 "cardiac positive-radius branch cannot represent the observed 23.7 mL reference RA minimum");
             gpu.chamberVolumePolynomial[c]={float(f0),float(a1),float(a2),float(a3)};
         }
+        } // legacy independent cavity and ventricular wall map
 
         // Verify the passive heart source identities. Keep the tested atrial
         // reference bindings for IDs 1 and 24; ID 23 gets the closed source-
@@ -687,8 +715,217 @@ struct NumiHumanRestingAnatomy {
             {23,"FJ2428","FMA13884","ac3c7d6714bed8cf549c97b013546541cf67e189dad2107092a59758aa3ccc45"},
             {24,"FJ2438","FMA9531","187235f3c3612ef27abde924d01c71579c2946435e64319164f43e5ad008284d"},
         }};
+        if(commonCardiacGeometry) {
+            NSDictionary* common=[rawCommonField isKindOfClass:NSDictionary.class]?(NSDictionary*)rawCommonField:nil;
+            require([geometryMode isKindOfClass:NSString.class]&&
+                [geometryMode isEqualToString:@"common_seven_coordinate_v1"]&&common!=nil&&
+                [common[@"schema"] isEqual:@"numi.human.cardiac_common_field.v1"]&&
+                [common[@"anatomy_payload_sha256"] isKindOfClass:NSString.class]&&
+                std::string([common[@"anatomy_payload_sha256"] UTF8String])==outputAnatomyHash,
+                "common cardiac field mode is malformed or bound to another anatomy payload");
+            commonFieldAnatomyPayloadSHA256=outputAnatomyHash;
+            const std::array<const char*,7> expectedCoordinates{{
+                "RA","RV","LA","LV","RA-material","ventricular-material","LA-material"}};
+            NSArray* coordinateOrder=common[@"coordinate_order"];
+            require([coordinateOrder isKindOfClass:NSArray.class]&&coordinateOrder.count==7,
+                "common cardiac field coordinate order is missing");
+            for(unsigned i=0;i<7;++i)
+                require([coordinateOrder[i] isKindOfClass:NSString.class]&&
+                    [coordinateOrder[i] isEqualToString:[NSString stringWithUTF8String:expectedCoordinates[i]]],
+                    "common cardiac field coordinate order differs from the fixed seven-coordinate owner");
+            NSArray* volumeIDs=common[@"volume_stable_ids"];
+            const std::array<unsigned,7> expectedVolumeIDs{{318,319,320,321,1,23,24}};
+            require([volumeIDs isKindOfClass:NSArray.class]&&volumeIDs.count==7,
+                "common cardiac field volume owners are missing");
+            for(unsigned i=0;i<7;++i)
+                require([volumeIDs[i] isKindOfClass:NSNumber.class]&&
+                    [volumeIDs[i] unsignedIntValue]==expectedVolumeIDs[i]&&
+                    [volumeIDs[i] doubleValue]==expectedVolumeIDs[i],
+                    "common cardiac field volume owner order is invalid");
+            const auto readCommonBytes=[&](NSDictionary* descriptor,std::size_t expectedBytes,
+                                           const char* label,std::string& digestOut) {
+                require([descriptor isKindOfClass:NSDictionary.class],
+                    std::string("common field lacks ")+label+" file descriptor");
+                NSString* relativeString=descriptor[@"path"];NSString* expectedSHA=descriptor[@"sha256"];
+                require([relativeString isKindOfClass:NSString.class]&&[expectedSHA isKindOfClass:NSString.class],
+                    std::string("common field ")+label+" path or digest is malformed");
+                const std::filesystem::path relative(relativeString.UTF8String);
+                require(!relative.empty()&&!relative.is_absolute(),
+                    std::string("common field ")+label+" path must be relative to the receipt");
+                for(const auto& component:relative)
+                    require(component!="..",std::string("common field ")+label+" path escapes its receipt directory");
+                const auto resolved=(std::filesystem::path(receipt).parent_path()/relative).lexically_normal();
+                std::ifstream input(resolved,std::ios::binary|std::ios::ate);
+                require(input.good()&&input.tellg()==static_cast<std::streamoff>(expectedBytes),
+                    std::string("common field ")+label+" byte length is incorrect");
+                std::vector<std::uint8_t> bytes(expectedBytes);
+                input.seekg(0);input.read(reinterpret_cast<char*>(bytes.data()),static_cast<std::streamsize>(bytes.size()));
+                require(input.gcount()==static_cast<std::streamsize>(bytes.size()),
+                    std::string("common field ")+label+" read was truncated");
+                digestOut=loadedKneeSHA256Hex(loadedKneeSHA256(bytes.data(),bytes.size()));
+                require(digestOut==expectedSHA.UTF8String,std::string("common field ")+label+" SHA-256 mismatch");
+                return bytes;
+            };
+            NSArray* sourceVolumes=common[@"source_reference_volumes_m3"];
+            NSArray* materialTargets=common[@"material_target_volumes_m3"];
+            require([sourceVolumes isKindOfClass:NSArray.class]&&sourceVolumes.count==7&&
+                [materialTargets isKindOfClass:NSArray.class]&&materialTargets.count==3,
+                "common field source or material volume rows are malformed");
+            float referenceValues[7]{},materialValues[3]{};
+            for(unsigned i=0;i<7;++i) {
+                require([sourceVolumes[i] isKindOfClass:NSNumber.class]&&
+                    std::isfinite([sourceVolumes[i] doubleValue])&&[sourceVolumes[i] doubleValue]>0&&
+                    [sourceVolumes[i] doubleValue]<1e-2,
+                    "common field source reference volume is outside the bounded metre domain");
+                referenceValues[i]=[sourceVolumes[i] floatValue];
+                require(std::isfinite(referenceValues[i])&&referenceValues[i]>0,
+                    "common field source volume is not representable in binary32");
+            }
+            for(unsigned i=0;i<3;++i) {
+                require([materialTargets[i] isKindOfClass:NSNumber.class]&&
+                    std::isfinite([materialTargets[i] doubleValue])&&[materialTargets[i] doubleValue]>0&&
+                    [materialTargets[i] doubleValue]<1e-2,
+                    "common field material target volume is outside the bounded metre domain");
+                materialValues[i]=[materialTargets[i] floatValue];
+                require(std::isfinite(materialValues[i])&&materialValues[i]>0,
+                    "common field material target is not representable in binary32");
+            }
+            commonFieldGPU.sourceReferenceVolumes[0]={referenceValues[0],referenceValues[1],referenceValues[2],referenceValues[3]};
+            commonFieldGPU.sourceReferenceVolumes[1]={referenceValues[4],referenceValues[5],referenceValues[6],0};
+            commonFieldGPU.materialTargetVolumes={materialValues[0],materialValues[1],materialValues[2],0};
+
+            NSDictionary* mapDescriptor=common[@"map"];
+            NSNumber* mapRecords=[mapDescriptor isKindOfClass:NSDictionary.class]?mapDescriptor[@"record_count"]:nil;
+            NSNumber* mapStride=[mapDescriptor isKindOfClass:NSDictionary.class]?mapDescriptor[@"record_stride_bytes"]:nil;
+            require([mapRecords isKindOfClass:NSNumber.class]&&[mapStride isKindOfClass:NSNumber.class]&&
+                mapStride.unsignedIntValue==sizeof(MRHumanRestingCommonFieldVertexGPU)&&mapRecords.unsignedIntValue>0&&
+                mapRecords.unsignedIntValue<=2000000,
+                "common field map record count or stride is outside its bounded ABI");
+            NSArray* ranges=common[@"vertex_ranges"];
+            require([ranges isKindOfClass:NSArray.class]&&ranges.count==7,
+                "common field map lacks the seven source-order ranges");
+            // The sidecar is compact and concatenated in coordinate/source order;
+            // each first_vertex indexes this map file, not the global NHA vertex table.
+            unsigned nextVertex=0;
+            for(unsigned i=0;i<7;++i) {
+                NSDictionary* range=[ranges[i] isKindOfClass:NSDictionary.class]?ranges[i]:nil;
+                NSNumber* stableID=range[@"stable_id"];NSNumber* first=range[@"first_vertex"];
+                NSNumber* count=range[@"vertex_count"];
+                const unsigned idValue=expectedVolumeIDs[i];
+                const auto& sourceSurface=surface(idValue);
+                require(range&&[stableID isKindOfClass:NSNumber.class]&&stableID.unsignedIntValue==idValue&&
+                    [first isKindOfClass:NSNumber.class]&&first.unsignedIntValue==nextVertex&&
+                    [count isKindOfClass:NSNumber.class]&&count.unsignedIntValue==sourceSurface.vertexCount&&
+                    sourceSurface.layer==(i<4?9u:1u),
+                    "common field vertex range differs from its exact stable-ID source order");
+                commonFieldRanges[idValue]={nextVertex,sourceSurface.vertexCount};
+                nextVertex+=sourceSurface.vertexCount;
+            }
+            require(mapRecords.unsignedIntValue==nextVertex,"common field map has unowned or missing source vertices");
+            auto mapBytes=readCommonBytes(mapDescriptor,std::size_t(nextVertex)*sizeof(MRHumanRestingCommonFieldVertexGPU),
+                "map",commonFieldMapSHA256);
+            commonFieldMap.resize(nextVertex);std::memcpy(commonFieldMap.data(),mapBytes.data(),mapBytes.size());
+            struct SourceCoordinateKey {
+                std::array<std::uint32_t,3> bits{};
+                bool operator<(const SourceCoordinateKey& other) const {return bits<other.bits;}
+            };
+            std::map<SourceCoordinateKey,std::array<unsigned char,sizeof(MRHumanRestingCommonFieldVertexGPU)>> repeatedRows;
+            for(unsigned i=0;i<7;++i) {
+                const auto& sourceSurface=surface(expectedVolumeIDs[i]);
+                const unsigned first=commonFieldRanges.at(expectedVolumeIDs[i]).first;
+                for(unsigned v=0;v<sourceSurface.vertexCount;++v) {
+                    const auto& source=anatomy.vertices.at(sourceSurface.firstVertex+v);
+                    const std::array<float,3> position{{source.positionX,source.positionY,source.positionZ}};
+                    SourceCoordinateKey key;std::memcpy(key.bits.data(),position.data(),sizeof(position));
+                    const auto& row=commonFieldMap.at(first+v);
+                    for(unsigned coordinate=0;coordinate<7;++coordinate) {
+                        const auto& vector=row.displacement[coordinate];
+                        require(std::isfinite(vector.x)&&std::isfinite(vector.y)&&std::isfinite(vector.z)&&
+                            vector.w==0.0f&&!std::signbit(vector.w),
+                            "common field map contains a nonfinite or noncanonical coefficient lane");
+                    }
+                    std::array<unsigned char,sizeof(MRHumanRestingCommonFieldVertexGPU)> bytes{};
+                    std::memcpy(bytes.data(),&row,sizeof(row));
+                    auto [existing,inserted]=repeatedRows.emplace(key,bytes);
+                    require(inserted||existing->second==bytes,
+                        "exactly shared source coordinates have different common-field coefficient bytes");
+                }
+            }
+
+            NSDictionary* polynomialDescriptor=common[@"polynomials"];
+            require([polynomialDescriptor isKindOfClass:NSDictionary.class]&&
+                [polynomialDescriptor[@"volume_count"] unsignedIntValue]==7&&
+                [polynomialDescriptor[@"term_count"] unsignedIntValue]==120&&
+                [polynomialDescriptor[@"coefficient_type"] isEqual:@"float32_le"]&&
+                [polynomialDescriptor[@"normalization"] isEqual:@"source_reference_volume"]&&
+                [polynomialDescriptor[@"monomial_order"] isEqual:@"lexicographic_e0_to_e6_total_degree_le_3"],
+                "common field polynomial representation or monomial ordering is unsupported");
+            auto polynomialBytes=readCommonBytes(polynomialDescriptor,7u*120u*sizeof(float),
+                "polynomial",commonFieldPolynomialSHA256);
+            std::memcpy(commonFieldGPU.volumePolynomial,polynomialBytes.data(),polynomialBytes.size());
+            for(const auto& row:commonFieldGPU.volumePolynomial)for(const auto& term:row)
+                require(std::isfinite(term.x)&&std::isfinite(term.y)&&std::isfinite(term.z)&&std::isfinite(term.w),
+                    "common field volume polynomial contains a nonfinite coefficient");
+
+            NSDictionary* boxDescriptor=common[@"domain_boxes"];
+            NSNumber* boxCount=[boxDescriptor isKindOfClass:NSDictionary.class]?boxDescriptor[@"count"]:nil;
+            NSNumber* boxStride=[boxDescriptor isKindOfClass:NSDictionary.class]?boxDescriptor[@"record_stride_bytes"]:nil;
+            require([boxCount isKindOfClass:NSNumber.class]&&[boxStride isKindOfClass:NSNumber.class]&&
+                boxCount.unsignedIntValue>0&&boxCount.unsignedIntValue<=1024&&
+                boxStride.unsignedIntValue==sizeof(MRHumanRestingCommonCoordinateBoxGPU),
+                "common field certified-box count or record stride is invalid");
+            auto boxBytes=readCommonBytes(boxDescriptor,std::size_t(boxCount.unsignedIntValue)*
+                sizeof(MRHumanRestingCommonCoordinateBoxGPU),"certified boxes",commonFieldBoxesSHA256);
+            commonFieldBoxes.resize(boxCount.unsignedIntValue);
+            std::memcpy(commonFieldBoxes.data(),boxBytes.data(),boxBytes.size());
+
+            NSDictionary* solver=common[@"solver"];
+            NSNumber* maxIterations=solver[@"max_iterations"];NSNumber* maxBacktracks=solver[@"max_backtracks"];
+            NSNumber* tolerance=solver[@"relative_volume_tolerance"];
+            NSArray* trialLow=solver[@"trial_lower"];NSArray* trialHigh=solver[@"trial_upper"];
+            require([solver isKindOfClass:NSDictionary.class]&&[maxIterations isKindOfClass:NSNumber.class]&&
+                maxIterations.unsignedIntValue==12&&[maxBacktracks isKindOfClass:NSNumber.class]&&
+                maxBacktracks.unsignedIntValue==12&&[tolerance isKindOfClass:NSNumber.class]&&
+                std::isfinite(tolerance.doubleValue)&&tolerance.doubleValue>0&&tolerance.doubleValue<=2.0e-5&&
+                [trialLow isKindOfClass:NSArray.class]&&trialLow.count==7&&
+                [trialHigh isKindOfClass:NSArray.class]&&trialHigh.count==7,
+                "common field bounded Newton controls are malformed or unsupported");
+            float low[7]{},high[7]{};
+            for(unsigned i=0;i<7;++i) {
+                require([trialLow[i] isKindOfClass:NSNumber.class]&&[trialHigh[i] isKindOfClass:NSNumber.class]&&
+                    std::isfinite([trialLow[i] doubleValue])&&std::isfinite([trialHigh[i] doubleValue])&&
+                    [trialLow[i] doubleValue]<[trialHigh[i] doubleValue]&&
+                    [trialLow[i] doubleValue]>=-1.0&&[trialHigh[i] doubleValue]<=1.0,
+                    "common field Newton trial interval is nonfinite or unbounded");
+                low[i]=[trialLow[i] floatValue];high[i]=[trialHigh[i] floatValue];
+            }
+            commonFieldGPU.trialLower[0]={low[0],low[1],low[2],low[3]};
+            commonFieldGPU.trialLower[1]={low[4],low[5],low[6],0};
+            commonFieldGPU.trialUpper[0]={high[0],high[1],high[2],high[3]};
+            commonFieldGPU.trialUpper[1]={high[4],high[5],high[6],0};
+            commonFieldGPU.solver={float(tolerance.doubleValue),0,0,0};
+            commonFieldGPU.countsAndFlags={boxCount.unsignedIntValue,1,0,0};
+            for(const auto& box:commonFieldBoxes) {
+                const float* boxLow=reinterpret_cast<const float*>(box.lower);
+                const float* boxHigh=reinterpret_cast<const float*>(box.upper);
+                require(box.lower[1].w==0.0f&&!std::signbit(box.lower[1].w)&&
+                    box.upper[1].w==0.0f&&!std::signbit(box.upper[1].w),
+                    "common field coordinate box padding is not canonical +0");
+                for(unsigned i=0;i<7;++i)
+                    require(std::isfinite(boxLow[i])&&std::isfinite(boxHigh[i])&&
+                        boxLow[i]<boxHigh[i]&&boxLow[i]>=low[i]&&boxHigh[i]<=high[i],
+                        "common field certified box escapes the declared finite trial domain");
+            }
+            std::cout<<"common_cardiac_geometry=common_seven_coordinate_v1 map_vertices="<<nextVertex
+                <<" certified_boxes="<<commonFieldBoxes.size()<<" map_sha256="<<commonFieldMapSHA256
+                <<" polynomial_sha256="<<commonFieldPolynomialSHA256<<" boxes_sha256="<<commonFieldBoxesSHA256
+                <<" exact_shared_coordinate_rows="<<repeatedRows.size()<<"\\n";
+        } else {
+            require(cardiacBinding[@"common_field"]==nil,
+                "common cardiac field descriptor is present without its explicit geometry mode");
+        }
         id rawVentricularWallBinding=cardiacBinding[@"ventricular_wall_binding"];
-        const bool hasVentricularWallBinding=rawVentricularWallBinding!=nil;
+        const bool hasVentricularWallBinding=rawVentricularWallBinding!=nil&&!commonCardiacGeometry;
         NSDictionary* sourceMap=[provenance isKindOfClass:NSDictionary.class]?provenance[@"source_id_map"]:nil;
         require([sourceMap isKindOfClass:NSDictionary.class],"expanded anatomy receipt lacks source-member identities");
         for(const auto& expected:expectedWalls) {
@@ -705,6 +942,7 @@ struct NumiHumanRestingAnatomy {
                 [digest isKindOfClass:NSString.class]&&[digest isEqualToString:[NSString stringWithUTF8String:expected.digest]]&&
                 conceptMatches,
                 "passive heart source-member binding differs");
+            if(commonCardiacGeometry)continue;
             if(expected.id==23&&hasVentricularWallBinding)continue;
             if(expected.id==23) {
                 const auto& legacyWall=surface(expected.id);

@@ -5,6 +5,7 @@
 #include "RespiratoryChemoreflexV1.metal"
 #include "metalrobo/numi_human_stand_gpu.h"
 #include "metalrobo/numi_human_resting_visual_gpu.h"
+#include "NumiHumanRestingCommonField.metalinc"
 #include "NumiHumanRestingSupportGeometry.metalinc"
 
 inline float3 restingRotate(float4 q,float3 v) {
@@ -17,6 +18,31 @@ inline float4 restingRibRotation(constant MRHumanRestingAnatomyGPU& anatomy,uint
 inline float3 restingRibPoint(constant MRHumanRestingAnatomyGPU& anatomy,uint rib,float4 rotation,float3 p) {
     const float3 pivot=anatomy.ribPivotAndGain[rib].xyz;return pivot+restingRotate(rotation,p-pivot);
 }
+kernel void nm_human_resting_common_coordinates(
+    device const NMHumanRespirationState* respiration [[buffer(0)]],
+    constant MRHumanRestingCommonFieldGPU& parameters [[buffer(1)]],
+    device const MRHumanRestingCommonCoordinateBoxGPU* boxes [[buffer(2)]],
+    device MRHumanRestingCommonCoordinatesGPU* output [[buffer(3)]],uint lane [[thread_position_in_grid]]) {
+    if(lane)return;
+    const auto state=respiration[0];
+    const float targets[7]={state.chamberVolumes.x,state.chamberVolumes.y,state.chamberVolumes.z,
+        state.chamberVolumes.w,parameters.materialTargetVolumes.x,parameters.materialTargetVolumes.y,
+        parameters.materialTargetVolumes.z};
+    float coordinates[7]={0,0,0,0,0,0,0},residual=INFINITY;
+    uint iterations=0,matched=MR_INVALID_INDEX;
+    const uint status=nmHumanRestingCommonSolve(parameters,boxes,targets,coordinates,iterations,matched,residual);
+    output[0].first=status?float4(NAN):float4(coordinates[0],coordinates[1],coordinates[2],coordinates[3]);
+    output[0].second=status?float4(NAN):float4(coordinates[4],coordinates[5],coordinates[6],0);
+    output[0].status=uint4(status,iterations,matched,0);
+    output[0].diagnostics=float4(residual,0,0,0);
+}
+kernel void nm_human_resting_common_coordinate_status_gate(
+    device const MRHumanRestingCommonCoordinatesGPU* coordinates [[buffer(0)]],
+    device NMMatterStatusGPU* statuses [[buffer(1)]],uint lane [[thread_position_in_grid]]) {
+    if(lane==0u&&coordinates[0].status.x!=0u&&statuses[0].code==NM_STATUS_SUCCESS)
+        statuses[0].code=NM_STATUS_MULTIPHYSICS_FAILURE;
+}
+
 inline float nmHumanRestingCardiacVolume(constant MRHumanRestingAnatomyGPU& anatomy,uint chamber,float q) {
     const float4 c=anatomy.chamberVolumePolynomial[chamber];return ((c.w*q+c.z)*q+c.y)*q+c.x;
 }
@@ -86,9 +112,16 @@ kernel void nm_human_resting_skin(
     constant MRHumanRestingAnatomyGPU& anatomy [[buffer(6)]],device const float* cardiacQ [[buffer(7)]],
     device const MRHumanRestingCardiacWallVertexGPU* wallMap [[buffer(8)]],
     constant MRHumanRestingCardiacWallGPU& wall [[buffer(9)]],device const float4* wallQ [[buffer(10)]],
+    device const MRHumanRestingCommonFieldVertexGPU* commonMap [[buffer(11)]],
+    device const MRHumanRestingCommonCoordinatesGPU* commonCoordinates [[buffer(12)]],
     uint i [[thread_position_in_grid]]) {
     if(i>=d.x)return;
     auto m=map[i];if(!m.influenceCount)return;
+    const auto soleInfluence=influences[m.firstInfluence];
+    const bool sourceLocalDeformation=m.deformationKind==1u||m.deformationKind==3u||
+        m.deformationKind==4u||m.deformationKind==9u||m.deformationKind==12u;
+    const bool exactBodyLocal=sourceLocalDeformation&&m.influenceCount==1u&&
+        soleInfluence.body.x==anatomy.bodyAndFlags.x&&soleInfluence.positionAndWeight.w==1.0f;
     float3 p=0,n=0,strongest=0;float strongestWeight=-1;
     for(uint j=0;j<m.influenceCount;++j) {
         auto influence=influences[m.firstInfluence+j];float w=influence.positionAndWeight.w;
@@ -105,8 +138,9 @@ kernel void nm_human_resting_skin(
     if(m.deformationKind && anatomy.bodyAndFlags.y) {
         auto body=bodies[anatomy.bodyAndFlags.x];
         const float4 inverse=float4(-body.orientation.xyz,body.orientation.w);
-        float3 local=restingRotate(inverse,p-body.position.xyz);
-        float3 normal=restingRotate(inverse,n);
+        float3 local=exactBodyLocal?soleInfluence.positionAndWeight.xyz:
+            restingRotate(inverse,p-body.position.xyz);
+        float3 normal=exactBodyLocal?soleInfluence.normal.xyz:restingRotate(inverse,n);
         const auto state=respiration[0];
         if(m.deformationKind==2) {
             const float4 cavity=anatomy.chamberCenterAndVolume[m.chamberIndex];
@@ -115,6 +149,15 @@ kernel void nm_human_resting_skin(
                 const float scale=1.0f+cardiacQ[m.chamberIndex]*weight;
                 local=cavity.xyz+scale*(local-cavity.xyz);
                 normal/=scale;
+            }
+        } else if(m.deformationKind==12) {
+            const auto solved=commonCoordinates[0];
+            if(solved.status.x!=0u) local=float3(NAN);
+            else {
+                const auto basis=commonMap[m.chamberIndex];
+                const float coordinate[7]={solved.first.x,solved.first.y,solved.first.z,solved.first.w,
+                    solved.second.x,solved.second.y,solved.second.z};
+                for(uint c=0;c<7;++c) local+=basis.displacement[c].xyz*coordinate[c];
             }
         } else if(m.deformationKind==10) {
             const auto basis=wallMap[m.chamberIndex];
@@ -217,6 +260,8 @@ kernel void nm_human_resting_audit_volumes(
     constant MRHumanRestingAnatomyGPU& anatomy [[buffer(5)]],
     device float4* result [[buffer(6)]],constant MRHumanRestingCardiacWallGPU& wall [[buffer(7)]],
     device MRHumanRestingSurfaceFailureGPU* failureResults [[buffer(8)]],
+    constant MRHumanRestingCommonFieldGPU& common [[buffer(9)]],
+    device const MRHumanRestingCommonCoordinatesGPU* commonCoordinates [[buffer(10)]],
     uint i [[thread_position_in_grid]]) {
     if(i>=d.w)return;
     const auto surface=surfaces[i];const uint4 owner=surface.indicesAndOwner;
@@ -250,11 +295,13 @@ kernel void nm_human_resting_audit_volumes(
     }
     const auto state=respiration[0];
     const float afterDiaphragm=anatomy.lungAnchorAndVolume.w+state.motion.x;
+    const float commonExpected=owner.w<4u?state.chamberVolumes[owner.w]:common.materialTargetVolumes[owner.w-4u];
     const float expected=owner.z==10?wall.scalesAndVolume.w:owner.z==2?state.chamberVolumes[owner.w]:
-        (surface.reference.x+surface.reference.y*state.motion.x/anatomy.lungBasalBlend.z)*
+        owner.z==12?commonExpected:(surface.reference.x+surface.reference.y*state.motion.x/anatomy.lungBasalBlend.z)*
         (1+state.motion.y/afterDiaphragm);
     const float relative=abs(abs(volume)-expected)/expected;
-    const uint status=(!isfinite(relative)||relative>2.e-4f?1u:0u)|(invalidTriangles?2u:0u);
+    const uint commonFailure=(owner.z==12u&&commonCoordinates[0].status.x!=0u)?4u:0u;
+    const uint status=(!isfinite(relative)||relative>2.e-4f?1u:0u)|(invalidTriangles?2u:0u)|commonFailure;
     result[i]=float4(abs(volume),expected,relative,float(status));
     failureResults[i]=firstFailure;
 }
@@ -330,6 +377,68 @@ kernel void nm_human_resting_validate_matter(
         body[0].code=MR_NUMI_HUMAN_STAND_EXTERNAL_PHYSICS_FAILED;body[0].failingIndex=d.x;
     }
 }
+kernel void nm_human_resting_latch_common_failure(
+    constant uint4& d [[buffer(0)]],
+    device const MRNumiHumanStandStatusGPU* stand [[buffer(1)]],
+    device const NMMatterStatusGPU* matter [[buffer(2)]],
+    device const NMHumanRespirationState* respirationCandidate [[buffer(3)]],
+    device const NMHumanRespirationState* respirationAccepted [[buffer(4)]],
+    device const MRHumanRestingCommonCoordinatesGPU* commonCoordinates [[buffer(5)]],
+    device const NBNumiRespiratoryChemoreflexInputV1* brainInput [[buffer(6)]],
+    device const NBNumiRespiratoryChemoreflexStateV1* brainAccepted [[buffer(7)]],
+    device const NBNumiRespiratoryChemoreflexStateV1* brainCandidate [[buffer(8)]],
+    device const NBNumiRespiratoryChemoreflexOutputV1* brainOutput [[buffer(9)]],
+    device const float4* excitation [[buffer(10)]],
+    device MRHumanRestingCommonFailureGPU* latched [[buffer(11)]],
+    constant MRHumanRestingCommonFieldGPU& commonParameters [[buffer(12)]],
+    device const MRHumanRestingCommonCoordinateBoxGPU* commonBoxes [[buffer(13)]],
+    uint lane [[thread_position_in_grid]]) {
+    if(lane!=0u||latched[0].identity.w!=0u)return;
+    const auto s=stand[0];const auto m=matter[0];const auto r=respirationCandidate[0];
+    const auto c=commonCoordinates[0];
+    if(s.code==MR_NUMI_HUMAN_STAND_SUCCESS&&m.code==NM_STATUS_SUCCESS&&r.status.w==0u&&c.status.x==0u)return;
+    const auto bi=brainInput[0];const auto ba=brainAccepted[0];
+    const auto bc=brainCandidate[0];const auto bo=brainOutput[0];
+    device MRHumanRestingCommonFailureGPU& out=latched[0];
+    out.identity=uint4(d.x,m.code,s.code,1u);
+    out.matterStatus=uint4(m.environment,m.objectIndex,m.failingIndex,m.completedMicrosteps);
+    out.matterDiagnostics=m.diagnostics;
+    out.standStatus=uint4(s.completedSteps,s.failingIndex,s.contactIterations,s.flags);
+    out.respirationCandidateStatus=r.status;
+    out.respirationAcceptedStatus=respirationAccepted[0].status;
+    out.chamberVolumes=r.chamberVolumes;
+    out.respirationControl=r.control;
+    // Re-evaluate the exact accepted candidate targets only on failure. The
+    // runtime output sanitizes every nonzero status to NaN, so this preserves
+    // the converged trial point that status 5 rejected without making it a
+    // renderable/published coordinate.
+    float targetVolumes[7]={r.chamberVolumes.x,r.chamberVolumes.y,r.chamberVolumes.z,
+        r.chamberVolumes.w,commonParameters.materialTargetVolumes.x,
+        commonParameters.materialTargetVolumes.y,commonParameters.materialTargetVolumes.z};
+    float attempted[7]={0,0,0,0,0,0,0},attemptResidual=INFINITY;
+    uint attemptIterations=0u,attemptBox=MR_INVALID_INDEX;
+    const uint attemptStatus=nmHumanRestingCommonSolve(commonParameters,commonBoxes,
+        targetVolumes,attempted,attemptIterations,attemptBox,attemptResidual);
+    out.commonFirst=float4(attempted[0],attempted[1],attempted[2],attempted[3]);
+    out.commonSecond=float4(attempted[4],attempted[5],attempted[6],0.0f);
+    out.commonStatus=uint4(attemptStatus,attemptIterations,attemptBox,0u);
+    out.commonDiagnostics=float4(attemptResidual,0.0f,0.0f,0.0f);
+    out.brainInputMetadata=uint4(bi.validityMask,bi.flags,uint(bi.sourceTimestampMicroseconds),uint(bi.targetTimestampMicroseconds));
+    out.brainInputRoots=uint4(uint(bi.sourceAcceptedRootFingerprint),uint(bi.sourceAcceptedRootFingerprint>>32),
+        uint(bi.targetTransactionFingerprint),uint(bi.targetTransactionFingerprint>>32));
+    out.brainInputTimestampHighs=uint4(uint(bi.sourceTimestampMicroseconds>>32),uint(bi.targetTimestampMicroseconds>>32),0u,0u);
+    out.brainAcceptedMetadata=uint4(ba.flags,uint(ba.timestampMicroseconds),uint(ba.timestampMicroseconds>>32),0u);
+    out.brainAcceptedRoots=uint4(uint(ba.acceptedRootFingerprint),uint(ba.acceptedRootFingerprint>>32),0u,0u);
+    out.brainCandidateMetadata=uint4(bc.flags,uint(bc.timestampMicroseconds),uint(bc.timestampMicroseconds>>32),0u);
+    out.brainCandidateRoot=uint4(uint(bc.acceptedRootFingerprint),uint(bc.acceptedRootFingerprint>>32),0u,0u);
+    out.brainOutputMetadata=uint4(bo.flags,uint(bo.targetTimestampMicroseconds),uint(bo.targetTimestampMicroseconds>>32),0u);
+    out.brainOutputRoots=uint4(uint(bo.sourceAcceptedRootFingerprint),uint(bo.sourceAcceptedRootFingerprint>>32),
+        uint(bo.targetTransactionFingerprint),uint(bo.targetTransactionFingerprint>>32));
+    out.brainOutputSetpoints=float4(bo.targetMinuteVentilationLitresPerMinute,bo.targetFrequencyBreathsPerMinute,
+        bo.targetTidalVolumeLitres,bo.diaphragmExcitation);
+    out.brainOutputExcitations=float4(bo.intercostalExcitation,0.0f,0.0f,0.0f);
+    out.excitationBuffer=excitation[0];
+}
 kernel void nm_human_resting_capture(
     constant uint4& d [[buffer(0)]], device const MRArticulatedBodyPoseGPU* poses [[buffer(1)]],
     device const MRBodyStateGPU* properties [[buffer(2)]], device MRBodyStateGPU* bodies [[buffer(3)]],
@@ -348,10 +457,33 @@ kernel void nm_human_resting_present_commit(
     constant uint4& d [[buffer(0)]], device const MRBodyStateGPU* candidateBodies [[buffer(1)]],
     device const NMHumanRespirationState* candidateRespiration [[buffer(2)]],
     device MRBodyStateGPU* bodies [[buffer(3)]], device NMHumanRespirationState* respiration [[buffer(4)]],
-    device const MRNumiHumanStandStatusGPU* statuses [[buffer(5)]],uint i [[thread_position_in_grid]]) {
+    device const MRNumiHumanStandStatusGPU* statuses [[buffer(5)]],
+    device MRHumanRestingCommonCoordinatesGPU* frameCommonCoordinates [[buffer(6)]],
+    device MRHumanRestingCommonCoordinatesGPU* commonCoordinates [[buffer(7)]],
+    device const MRHumanRestingCommonCoordinatesGPU* candidateCommonCoordinates [[buffer(8)]],
+    device MRHumanRestingCommonCoordinatesGPU* acceptedCommonCoordinates [[buffer(9)]],
+    device const NMMatterStatusGPU* matterStatuses [[buffer(10)]],
+    uint i [[thread_position_in_grid]]) {
     if(i>=d.y||statuses[0].code!=MR_NUMI_HUMAN_STAND_SUCCESS||
-       statuses[0].completedSteps!=d.x+1||candidateRespiration[0].status.x!=d.x)return;
-    bodies[i]=candidateBodies[i];if(i==0)respiration[0]=candidateRespiration[0];
+       statuses[0].completedSteps!=d.x+1||candidateRespiration[0].status.x!=d.x||
+       (d.z&&matterStatuses[0].code!=NM_STATUS_SUCCESS))return;
+    bodies[i]=candidateBodies[i];
+    if(i==0) {
+        respiration[0]=candidateRespiration[0];
+        if(d.z) {
+            // Capture the exact common coordinates paired with the body and
+            // respiratory frame candidates. This occurs only after the whole
+            // physical transaction succeeds, so a rejected attempt cannot
+            // mutate the published-frame snapshot.
+            frameCommonCoordinates[0]=acceptedCommonCoordinates[0];
+            commonCoordinates[0]=frameCommonCoordinates[0];
+            // Candidate coordinates belong to this accepted physical step,
+            // not to the renderer's sparse frame-export cadence.
+            acceptedCommonCoordinates[0]=candidateCommonCoordinates[0];
+        } else {
+            commonCoordinates[0]=candidateCommonCoordinates[0];
+        }
+    }
 }
 
 kernel void nm_human_respiration_brain_observe(

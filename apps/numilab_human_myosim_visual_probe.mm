@@ -2328,11 +2328,11 @@ LoadedTorsoAnatomy loadTorsoAnatomy(
                 result.header.sourceSha256 == rigid.sourceSha256 &&
                 result.header.surfaceCount > 0u && result.header.surfaceCount <=
                     (result.header.payloadAbi == 1u ? 64u : 1024u) &&
-                // The registered resting atlas includes the appended passive
-                // bowel, pelvic viscera and named major peripheral vessels
-                // (about 1.259 million vertices and 6.002 million indices).
-                result.header.vertexCount > 0u && result.header.vertexCount <= 1'500'000u &&
-                result.header.indexCount > 0u && result.header.indexCount <= 7'000'000u &&
+                // The registered atlas includes source-conforming cardiac and
+                // respiratory patches. Allocation ceilings remain bounded;
+                // exact exhaustion and record ranges are checked below.
+                result.header.vertexCount > 0u && result.header.vertexCount <= 4'000'000u &&
+                result.header.indexCount > 0u && result.header.indexCount <= 24'000'000u &&
                 result.header.indexCount % 3u == 0u,
             "BodyParts3D torso anatomy payload/header disagreement");
     result.records = readVector<TorsoAnatomyRecord>(
@@ -6876,6 +6876,329 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 segmentResult.standStatuses.size() != 1u ||
                 segmentResult.standStatuses.front().code !=
                     MR_NUMI_HUMAN_STAND_SUCCESS) {
+                if (restingProgram != nullptr && restingProgram->context != nullptr) {
+                    auto& coupled = *static_cast<NumiHumanRestingCoupling*>(
+                        restingProgram->context);
+                    const auto* candidate = static_cast<const NMHumanRespirationState*>(
+                        coupled.physiology.respiration->candidate.contents);
+                    const auto* accepted = static_cast<const NMHumanRespirationState*>(
+                        coupled.physiology.respiration->accepted.contents);
+                    const auto* common = static_cast<const MRHumanRestingCommonCoordinatesGPU*>(
+                        coupled.presentationCandidateCommonCoordinates.contents);
+                    const auto snapshot = coupled.physiology.runtime.snapshot();
+                    const NMMatterStatusGPU matter = snapshot.statuses.empty()
+                        ? NMMatterStatusGPU{} : snapshot.statuses.front();
+                    const MRNumiHumanStandStatusGPU stand =
+                        segmentResult.standStatuses.empty()
+                            ? MRNumiHumanStandStatusGPU{}
+                            : segmentResult.standStatuses.front();
+                    const auto* brainInput =
+                        static_cast<const NBNumiRespiratoryChemoreflexInputV1*>(
+                            coupled.brain.input.contents);
+                    const auto* brainAccepted =
+                        static_cast<const NBNumiRespiratoryChemoreflexStateV1*>(
+                            coupled.brain.accepted.contents);
+                    const auto* brainCandidate =
+                        static_cast<const NBNumiRespiratoryChemoreflexStateV1*>(
+                            coupled.brain.candidate.contents);
+                    const auto* brainOutput =
+                        static_cast<const NBNumiRespiratoryChemoreflexOutputV1*>(
+                            coupled.brain.output.contents);
+                    const auto* excitation =
+                        static_cast<const nm_float4*>(
+                            coupled.physiology.respiration->excitation.contents);
+                    const auto component4 = [](const mr_float4& value,
+                                               unsigned component) -> float {
+                        switch (component) {
+                            case 0u: return value.x;
+                            case 1u: return value.y;
+                            case 2u: return value.z;
+                            default: return value.w;
+                        }
+                    };
+                    const auto vector7 = [&](const mr_float4& first,
+                                             const mr_float4& second) {
+                        return std::array<float, 7>{
+                            first.x, first.y, first.z, first.w,
+                            second.x, second.y, second.z};
+                    };
+                    const auto coordinates = vector7(common->first, common->second);
+                    const auto acceptedCoordinates =
+                        static_cast<const MRHumanRestingCommonCoordinatesGPU*>(
+                            coupled.acceptedCommonCoordinates.contents);
+                    const auto acceptedValues = vector7(
+                        acceptedCoordinates->first, acceptedCoordinates->second);
+                    const MRHumanRestingCommonFieldGPU* field =
+                        coupled.physiology.respiration->commonGeometryParameters == nil
+                            ? nullptr
+                            : static_cast<const MRHumanRestingCommonFieldGPU*>(
+                                  coupled.physiology.respiration->commonGeometryParameters.contents);
+                    const MRHumanRestingCommonCoordinateBoxGPU* boxes =
+                        coupled.physiology.respiration->commonGeometryBoxes == nil
+                            ? nullptr
+                            : static_cast<const MRHumanRestingCommonCoordinateBoxGPU*>(
+                                  coupled.physiology.respiration->commonGeometryBoxes.contents);
+                    const std::uint32_t boxIndex = common->status.z;
+                    const bool matchedBox = boxes != nullptr &&
+                        field != nullptr && boxIndex < field->countsAndFlags.x;
+                    std::cerr << std::setprecision(17)
+                              << "resting_common_failure"
+                              << " segment_start=" << completedSteps
+                              << " accepted_before_segment="
+                              << segmentDiagnostics.completedStandSteps
+                              << " stand_code=" << stand.code
+                              << " stand_completed_steps=" << stand.completedSteps
+                              << " stand_failing_index=" << stand.failingIndex
+                              << " matter_code=" << matter.code
+                              << " matter_environment=" << matter.environment
+                              << " matter_object=" << matter.objectIndex
+                              << " matter_failing_index=" << matter.failingIndex
+                              << " common_status=" << common->status.x
+                              << " common_iterations=" << common->status.y
+                              << " common_box=" << boxIndex
+                              << " common_residual=" << common->diagnostics.x
+                              << " respiratory_candidate_status=["
+                              << candidate->status.x << ',' << candidate->status.y << ','
+                              << candidate->status.z << ',' << candidate->status.w << ']'
+                              << " respiratory_accepted_status=["
+                              << accepted->status.x << ',' << accepted->status.y << ','
+                              << accepted->status.z << ',' << accepted->status.w << ']'
+                              << " chamber_targets_m3=["
+                              << candidate->chamberVolumes.x << ','
+                              << candidate->chamberVolumes.y << ','
+                              << candidate->chamberVolumes.z << ','
+                              << candidate->chamberVolumes.w << ']'
+                              << " respiratory_candidate_control=["
+                              << candidate->control.x << ',' << candidate->control.y << ','
+                              << candidate->control.z << ',' << candidate->control.w << ']'
+                              << " candidate_common_coordinates=[";
+                    for (std::size_t i = 0; i < coordinates.size(); ++i)
+                        std::cerr << (i == 0 ? "" : ",") << coordinates[i];
+                    std::cerr << "] accepted_common_coordinates=[";
+                    for (std::size_t i = 0; i < acceptedValues.size(); ++i)
+                        std::cerr << (i == 0 ? "" : ",") << acceptedValues[i];
+                    std::cerr << "] matter_diagnostics=["
+                              << matter.diagnostics.x << ',' << matter.diagnostics.y << ','
+                              << matter.diagnostics.z << ',' << matter.diagnostics.w << ']'
+                              << " box_match=" << (matchedBox ? 1 : 0)
+                              << " excitation_buffer=[" << excitation->x << ','
+                              << excitation->y << ',' << excitation->z << ','
+                              << excitation->w << ']'
+                              << " brain_input_flags=" << brainInput->flags
+                              << " brain_input_validity=" << brainInput->validityMask
+                              << " brain_input_source_step_us="
+                              << brainInput->sourceTimestampMicroseconds
+                              << " brain_input_target_step_us="
+                              << brainInput->targetTimestampMicroseconds
+                              << " brain_input_source_root="
+                              << brainInput->sourceAcceptedRootFingerprint
+                              << " brain_input_target_root="
+                              << brainInput->targetTransactionFingerprint
+                              << " brain_accepted_flags=" << brainAccepted->flags
+                              << " brain_candidate_flags=" << brainCandidate->flags
+                              << " brain_candidate_root=" << brainCandidate->acceptedRootFingerprint
+                              << " brain_output_flags=" << brainOutput->flags
+                              << " brain_output_target_root="
+                              << brainOutput->targetTransactionFingerprint
+                              << " brain_output_source_root="
+                              << brainOutput->sourceAcceptedRootFingerprint
+                              << " brain_excitation=["
+                              << brainOutput->diaphragmExcitation << ','
+                              << brainOutput->intercostalExcitation << ']'
+                              << std::endl;
+                    if (const char* diagnosticPath = std::getenv(
+                            "NUMI_HUMAN_RESTING_COMMON_FAILURE_RECEIPT");
+                        diagnosticPath != nullptr && diagnosticPath[0] != '\0') {
+                        try {
+                            const std::filesystem::path outputPath(diagnosticPath);
+                            if (!outputPath.parent_path().empty())
+                                std::filesystem::create_directories(outputPath.parent_path());
+                            std::ofstream receipt(outputPath);
+                            require(receipt.good(),
+                                "cannot create common failure receipt " + outputPath.string());
+                            const auto writeJsonFloat = [&](float value) {
+                                if (std::isfinite(value)) receipt << value;
+                                else receipt << "null";
+                            };
+                            receipt << std::setprecision(17)
+                                    << "{\n  \"schema\": \"numi.human.common_field_failure.v1\",\n"
+                                    << "  \"segment_start\": " << completedSteps << ",\n"
+                                    << "  \"stand_code\": " << stand.code << ",\n"
+                                    << "  \"stand_completed_steps\": " << stand.completedSteps << ",\n"
+                                    << "  \"stand_failing_index\": " << stand.failingIndex << ",\n"
+                                    << "  \"matter_code\": " << matter.code << ",\n"
+                                    << "  \"matter_environment\": " << matter.environment << ",\n"
+                                    << "  \"matter_object_index\": " << matter.objectIndex << ",\n"
+                                    << "  \"matter_failing_index\": " << matter.failingIndex << ",\n"
+                                    << "  \"matter_microsteps\": " << matter.completedMicrosteps << ",\n"
+                                    << "  \"matter_diagnostics\": [";
+                            writeJsonFloat(matter.diagnostics.x); receipt << ',';
+                            writeJsonFloat(matter.diagnostics.y); receipt << ',';
+                            writeJsonFloat(matter.diagnostics.z); receipt << ',';
+                            writeJsonFloat(matter.diagnostics.w);
+                            receipt << "],\n  \"common_status\": " << common->status.x << ",\n"
+                                    << "  \"common_iterations\": " << common->status.y << ",\n"
+                                    << "  \"common_box\": " << boxIndex << ",\n"
+                                    << "  \"common_box_match\": " << (matchedBox ? "true" : "false") << ",\n"
+                                    << "  \"common_residual\": ";
+                            writeJsonFloat(common->diagnostics.x);
+                            receipt << ",\n  \"candidate_common_coordinates\": [";
+                            for (std::size_t i = 0; i < coordinates.size(); ++i) {
+                                if (i) receipt << ',';
+                                writeJsonFloat(coordinates[i]);
+                            }
+                            receipt << "],\n  \"accepted_common_coordinates\": [";
+                            for (std::size_t i = 0; i < acceptedValues.size(); ++i) {
+                                if (i) receipt << ',';
+                                writeJsonFloat(acceptedValues[i]);
+                            }
+                            receipt << "],\n  \"respiratory_candidate_status\": ["
+                                    << candidate->status.x << ',' << candidate->status.y << ','
+                                    << candidate->status.z << ',' << candidate->status.w
+                                    << "],\n  \"respiratory_accepted_status\": ["
+                                    << accepted->status.x << ',' << accepted->status.y << ','
+                                    << accepted->status.z << ',' << accepted->status.w
+                                    << "],\n  \"chamber_targets_m3\": [";
+                            writeJsonFloat(candidate->chamberVolumes.x); receipt << ',';
+                            writeJsonFloat(candidate->chamberVolumes.y); receipt << ',';
+                            writeJsonFloat(candidate->chamberVolumes.z); receipt << ',';
+                            writeJsonFloat(candidate->chamberVolumes.w);
+                            receipt << ']' << ",\n  \"respiratory_candidate_control\": [";
+                            writeJsonFloat(candidate->control.x); receipt << ',';
+                            writeJsonFloat(candidate->control.y); receipt << ',';
+                            writeJsonFloat(candidate->control.z); receipt << ',';
+                            writeJsonFloat(candidate->control.w); receipt << ']';
+                            receipt << ",\n  \"excitation_buffer\": [";
+                            writeJsonFloat(excitation->x); receipt << ',';
+                            writeJsonFloat(excitation->y); receipt << ',';
+                            writeJsonFloat(excitation->z); receipt << ',';
+                            writeJsonFloat(excitation->w); receipt << ']';
+                            receipt << ",\n  \"brain_input\": {"
+                                    << "\n    \"source_time_us\": "
+                                    << brainInput->sourceTimestampMicroseconds
+                                    << ",\n    \"target_time_us\": "
+                                    << brainInput->targetTimestampMicroseconds
+                                    << ",\n    \"source_root\": "
+                                    << brainInput->sourceAcceptedRootFingerprint
+                                    << ",\n    \"target_root\": "
+                                    << brainInput->targetTransactionFingerprint
+                                    << ",\n    \"validity_mask\": "
+                                    << brainInput->validityMask
+                                    << ",\n    \"flags\": "
+                                    << brainInput->flags
+                                    << ",\n    \"pa_o2_mmhg\": ";
+                            writeJsonFloat(brainInput->paO2MillimetersMercury);
+                            receipt << ",\n    \"pa_co2_mmhg\": ";
+                            writeJsonFloat(brainInput->paCO2MillimetersMercury);
+                            receipt << "\n  },\n  \"brain_candidate\": {"
+                                    << "\n    \"timestamp_us\": "
+                                    << brainCandidate->timestampMicroseconds
+                                    << ",\n    \"accepted_root\": "
+                                    << brainCandidate->acceptedRootFingerprint
+                                    << ",\n    \"flags\": "
+                                    << brainCandidate->flags
+                                    << "\n  },\n  \"brain_output\": {"
+                                    << "\n    \"target_time_us\": "
+                                    << brainOutput->targetTimestampMicroseconds
+                                    << ",\n    \"source_root\": "
+                                    << brainOutput->sourceAcceptedRootFingerprint
+                                    << ",\n    \"target_root\": "
+                                    << brainOutput->targetTransactionFingerprint
+                                    << ",\n    \"flags\": "
+                                    << brainOutput->flags
+                                    << ",\n    \"excitation\": [";
+                            writeJsonFloat(brainOutput->diaphragmExcitation);
+                            receipt << ',';
+                            writeJsonFloat(brainOutput->intercostalExcitation);
+                            receipt << "]\n  }";
+                            if (field != nullptr) {
+                                receipt << ",\n  \"trial_lower\": [";
+                                for (unsigned i = 0; i < 7; ++i) {
+                                    const float value = i < 4
+                                        ? component4(field->trialLower[0], i)
+                                        : component4(field->trialLower[1], i - 4);
+                                    receipt << (i == 0 ? "" : ",") << value;
+                                }
+                                receipt << "],\n  \"trial_upper\": [";
+                                for (unsigned i = 0; i < 7; ++i) {
+                                    const float value = i < 4
+                                        ? component4(field->trialUpper[0], i)
+                                        : component4(field->trialUpper[1], i - 4);
+                                    receipt << (i == 0 ? "" : ",") << value;
+                                }
+                                receipt << ']';
+                            }
+                            if (matchedBox) {
+                                const auto lower = vector7(boxes[boxIndex].lower[0],
+                                                           boxes[boxIndex].lower[1]);
+                                const auto upper = vector7(boxes[boxIndex].upper[0],
+                                                           boxes[boxIndex].upper[1]);
+                                receipt << ",\n  \"matched_box_lower\": [";
+                                for (std::size_t i = 0; i < lower.size(); ++i)
+                                    receipt << (i == 0 ? "" : ",") << lower[i];
+                                receipt << "],\n  \"matched_box_upper\": [";
+                                for (std::size_t i = 0; i < upper.size(); ++i)
+                                    receipt << (i == 0 ? "" : ",") << upper[i];
+                                receipt << ']';
+                            }
+                            const auto* failureLatch = coupled.commonFailureCaptureBuffer == nil
+                                ? nullptr
+                                : static_cast<const MRHumanRestingCommonFailureGPU*>(
+                                      coupled.commonFailureCaptureBuffer.contents);
+                            if (failureLatch != nullptr && failureLatch->identity.w != 0u) {
+                                const auto& f = *failureLatch;
+                                const auto writeU32Array = [&](const mr_uint4& value) {
+                                    receipt << '[' << value.x << ',' << value.y << ','
+                                            << value.z << ',' << value.w << ']';
+                                };
+                                const auto writeF32Array = [&](const mr_float4& value) {
+                                    receipt << '[';
+                                    writeJsonFloat(value.x); receipt << ',';
+                                    writeJsonFloat(value.y); receipt << ',';
+                                    writeJsonFloat(value.z); receipt << ',';
+                                    writeJsonFloat(value.w); receipt << ']';
+                                };
+                                receipt << ",\n  \"first_failure_latch\": {\n    \"step\": "
+                                        << f.identity.x << ",\n    \"matter_code\": " << f.identity.y
+                                        << ",\n    \"stand_code\": " << f.identity.z
+                                        << ",\n    \"matter_status\": ";
+                                writeU32Array(f.matterStatus);
+                                receipt << ",\n    \"matter_diagnostics\": ";writeF32Array(f.matterDiagnostics);
+                                receipt << ",\n    \"stand_status\": ";writeU32Array(f.standStatus);
+                                receipt << ",\n    \"respiration_candidate_status\": ";writeU32Array(f.respirationCandidateStatus);
+                                receipt << ",\n    \"respiration_accepted_status\": ";writeU32Array(f.respirationAcceptedStatus);
+                                receipt << ",\n    \"chamber_targets_m3\": ";writeF32Array(f.chamberVolumes);
+                                receipt << ",\n    \"respiration_control\": ";writeF32Array(f.respirationControl);
+                                receipt << ",\n    \"common_first\": ";writeF32Array(f.commonFirst);
+                                receipt << ",\n    \"common_second\": ";writeF32Array(f.commonSecond);
+                                receipt << ",\n    \"common_status\": ";writeU32Array(f.commonStatus);
+                                receipt << ",\n    \"common_diagnostics\": ";writeF32Array(f.commonDiagnostics);
+                                receipt << ",\n    \"brain_input_metadata\": ";writeU32Array(f.brainInputMetadata);
+                                receipt << ",\n    \"brain_input_roots\": ";writeU32Array(f.brainInputRoots);
+                                receipt << ",\n    \"brain_input_timestamp_highs\": ";writeU32Array(f.brainInputTimestampHighs);
+                                receipt << ",\n    \"brain_accepted_metadata\": ";writeU32Array(f.brainAcceptedMetadata);
+                                receipt << ",\n    \"brain_accepted_roots\": ";writeU32Array(f.brainAcceptedRoots);
+                                receipt << ",\n    \"brain_candidate_metadata\": ";writeU32Array(f.brainCandidateMetadata);
+                                receipt << ",\n    \"brain_candidate_root\": ";writeU32Array(f.brainCandidateRoot);
+                                receipt << ",\n    \"brain_output_metadata\": ";writeU32Array(f.brainOutputMetadata);
+                                receipt << ",\n    \"brain_output_roots\": ";writeU32Array(f.brainOutputRoots);
+                                receipt << ",\n    \"brain_output_setpoints\": ";writeF32Array(f.brainOutputSetpoints);
+                                receipt << ",\n    \"brain_output_excitations\": ";writeF32Array(f.brainOutputExcitations);
+                                receipt << ",\n    \"excitation_buffer\": ";writeF32Array(f.excitationBuffer);
+                                receipt << "\n  }";
+                            }
+                            receipt << "\n}\n";
+                            receipt.flush();
+                            require(receipt.good(),
+                                "failed writing common failure receipt " + outputPath.string());
+                            std::cerr << "resting_common_failure_receipt="
+                                      << outputPath.string() << std::endl;
+                        } catch (const std::exception& exception) {
+                            std::cerr << "resting_common_failure_receipt_error="
+                                      << exception.what() << std::endl;
+                        }
+                    }
+                }
                 segmentDiagnostics.elapsedMilliseconds = elapsedMilliseconds;
                 segmentDiagnostics.message =
                     "segmented authoritative Human horizon failed after " +

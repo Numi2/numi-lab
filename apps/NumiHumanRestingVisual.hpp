@@ -20,8 +20,11 @@ class NumiHumanRestingVisual {
     metalrobo::MetalWorldFamilyContext worlds;
     id<MTLBuffer> mapping, influences, anatomyParameters, surfaceAudits, volumeResults, instanceLayers, cardiacQ;
     id<MTLBuffer> cardiacWallMap, cardiacWallParameters, cardiacWallQ, cardiacWallNormalRanges, cardiacWallIncidentTriangles;
+    id<MTLBuffer> commonFieldMapBuffer, commonFieldParameters, commonFieldBoxes, commonFieldCoordinates;
+    id<MTLBuffer> commonFieldNormalRanges, commonFieldIncidentTriangles;
     id<MTLComputePipelineState> skinPipeline, layerPipeline, volumePipeline, skinAuditPipeline, cardiacQPipeline, bodyAuditPipeline;
     id<MTLComputePipelineState> cardiacWallQPipeline, cardiacWallNormalsPipeline;
+    id<MTLComputePipelineState> commonCoordinatesPipeline=nil,commonCoordinateStatusPipeline=nil;
     id<MTLComputePipelineState> vertexCapturePipeline=nil;
     id<MTLBuffer> vertexCaptureBuffer=nil;
     id<MTLCommandQueue> queue;
@@ -32,10 +35,16 @@ class NumiHumanRestingVisual {
     unsigned auditCount=0;
     std::vector<unsigned> auditStableIds;
     unsigned cardiacWallVertexCount=0,cardiacWallAuditIndex=MR_INVALID_INDEX;
+    bool commonCardiacGeometry=false;
+    unsigned commonFieldVertexCount=0,commonFieldNormalVertexCount=0;
+    std::array<unsigned,7> commonFieldAuditIndices{{MR_INVALID_INDEX,MR_INVALID_INDEX,MR_INVALID_INDEX,
+        MR_INVALID_INDEX,MR_INVALID_INDEX,MR_INVALID_INDEX,MR_INVALID_INDEX}};
     double wallOrigin=0;
     std::filesystem::path outputDirectory, initialPackPath, acceptedGeometryDirectory;
     std::string initialPackContentHash, initialPackFileSHA256;
     std::string cardiacWallMapSHA256,cardiacWallParametersSHA256,cardiacWallBundleSHA256,cardiacWallIdentityReceiptSHA256;
+    std::string commonFieldMapSHA256,commonFieldParametersSHA256,commonFieldPolynomialSHA256,
+        commonFieldBoxesSHA256,commonFieldBundleSHA256,commonFieldIdentityReceiptSHA256,commonFieldSourcePayloadSHA256;
     NSDictionary* initialAnatomicalRegistration=nil;
     std::set<unsigned> registrationBodyIndices;
     std::set<unsigned> requestedGeometrySteps, completedGeometrySteps;
@@ -66,6 +75,95 @@ class NumiHumanRestingVisual {
             remaining.remove_prefix(separator+1);
         }
         return steps;
+    }
+    void writeCommonFieldIdentity(const std::filesystem::path& output,
+                                  const NumiHumanRestingAnatomy& functional) {
+        require(functional.commonCardiacGeometry,"common-field identity requested for legacy anatomy");
+        require(sizeof(float)==4&&std::numeric_limits<float>::is_iec559&&
+            std::endian::native==std::endian::little,
+            "common-field capture requires little-endian IEEE-754 binary32");
+        const auto mapPath=output/"common-field-map-f32.bin";
+        const auto parametersPath=output/"common-field-parameters-f32.bin";
+        const auto boxesPath=output/"common-field-domain-boxes-f32.bin";
+        const auto polynomialPath=output/"common-field-polynomials-f32.bin";
+        const auto receiptPath=output/"common-field-map-identity.json";
+        require(std::filesystem::is_directory(output)&&!std::filesystem::exists(mapPath)&&
+            !std::filesystem::exists(parametersPath)&&!std::filesystem::exists(boxesPath)&&
+            !std::filesystem::exists(polynomialPath)&&!std::filesystem::exists(receiptPath),
+            "common-field identity output is unavailable or already exists");
+        const auto mapBytes=functional.commonFieldMap.size()*sizeof(MRHumanRestingCommonFieldVertexGPU);
+        const auto parameterBytes=sizeof(functional.commonFieldGPU);
+        const auto boxesBytes=functional.commonFieldBoxes.size()*sizeof(MRHumanRestingCommonCoordinateBoxGPU);
+        require(commonFieldMapBuffer.contents&&commonFieldParameters.contents&&commonFieldBoxes.contents&&
+            commonFieldMapBuffer.length==mapBytes&&commonFieldParameters.length==parameterBytes&&commonFieldBoxes.length==boxesBytes&&
+            std::memcmp(commonFieldMapBuffer.contents,functional.commonFieldMap.data(),mapBytes)==0&&
+            std::memcmp(commonFieldParameters.contents,&functional.commonFieldGPU,parameterBytes)==0&&
+            std::memcmp(commonFieldBoxes.contents,functional.commonFieldBoxes.data(),boxesBytes)==0,
+            "uploaded common-field buffers differ from the admitted anatomy map");
+        const auto digest=[](const void* bytes,std::size_t size) {
+            return loadedKneeSHA256Hex(loadedKneeSHA256(bytes,size));
+        };
+        const auto polynomialBytes=sizeof(functional.commonFieldGPU.volumePolynomial);
+        commonFieldMapSHA256=digest(commonFieldMapBuffer.contents,mapBytes);
+        commonFieldParametersSHA256=digest(commonFieldParameters.contents,parameterBytes);
+        commonFieldPolynomialSHA256=digest(commonFieldParameters.contents,polynomialBytes);
+        commonFieldBoxesSHA256=digest(commonFieldBoxes.contents,boxesBytes);
+        require(commonFieldPolynomialSHA256==functional.commonFieldPolynomialSHA256&&
+            commonFieldMapSHA256==functional.commonFieldMapSHA256&&commonFieldBoxesSHA256==functional.commonFieldBoxesSHA256,
+            "loaded common-field sidecar hashes differ from exact uploaded bytes");
+        NSMutableData* bundle=[NSMutableData dataWithBytes:commonFieldMapBuffer.contents length:mapBytes];
+        [bundle appendBytes:commonFieldParameters.contents length:parameterBytes];
+        [bundle appendBytes:commonFieldBoxes.contents length:boxesBytes];
+        commonFieldBundleSHA256=digest(bundle.bytes,bundle.length);
+        const auto writeBytes=[&](const std::filesystem::path& path,const void* bytes,std::size_t size,
+                                  const std::string& expected) {
+            NSData* data=[NSData dataWithBytes:bytes length:size];NSError* error=nil;
+            require([data writeToURL:[NSURL fileURLWithPath:loadedKneeNSString(path.string())]
+                options:NSDataWritingAtomic error:&error],"common-field coefficient identity write failed");
+            require(loadedKneeSHA256Hex(loadedKneeFileSHA256(path))==expected,
+                "written common-field bytes differ from the uploaded buffer");
+        };
+        writeBytes(mapPath,commonFieldMapBuffer.contents,mapBytes,commonFieldMapSHA256);
+        writeBytes(parametersPath,commonFieldParameters.contents,parameterBytes,commonFieldParametersSHA256);
+        writeBytes(boxesPath,commonFieldBoxes.contents,boxesBytes,commonFieldBoxesSHA256);
+        writeBytes(polynomialPath,commonFieldParameters.contents,polynomialBytes,commonFieldPolynomialSHA256);
+        NSMutableArray* ranges=[NSMutableArray array];
+        for(unsigned id:functional.commonFieldStableIDs) {
+            const auto range=functional.commonFieldRanges.at(id);
+            [ranges addObject:@{@"stable_id":@(id),@"first_vertex":@(range.first),@"vertex_count":@(range.second)}];
+        }
+        NSError* error=nil;
+        NSDictionary* receipt=@{
+            @"schema":@"numi.human.cardiac_common_field_loaded_buffers.v1",
+            @"geometry_mode":@"common_seven_coordinate_v1",
+            @"source_anatomy_payload_sha256":loadedKneeNSString(functional.commonFieldAnatomyPayloadSHA256),
+            @"coordinate_order":@[@"RA",@"RV",@"LA",@"LV",@"RA-material",@"ventricular-material",@"LA-material"],
+            @"volume_stable_ids":@[@318,@319,@320,@321,@1,@23,@24],
+            @"vertex_ranges":ranges,
+            @"map":@{@"path":loadedKneeNSString(mapPath.filename().string()),@"sha256":loadedKneeNSString(commonFieldMapSHA256),
+                @"record_count":@(functional.commonFieldMap.size()),@"record_stride_bytes":@112},
+            @"polynomials":@{@"path":loadedKneeNSString(polynomialPath.filename().string()),@"sha256":loadedKneeNSString(commonFieldPolynomialSHA256),
+                @"volume_count":@7,@"term_count":@120,@"coefficient_type":@"float32_le",
+                @"normalization":@"source_reference_volume",
+                @"monomial_order":@"lexicographic_e0_to_e6_total_degree_le_3"},
+            @"parameters":@{@"path":loadedKneeNSString(parametersPath.filename().string()),@"sha256":loadedKneeNSString(commonFieldParametersSHA256),
+                @"record_bytes":@(parameterBytes)},
+            @"domain_boxes":@{@"path":loadedKneeNSString(boxesPath.filename().string()),@"sha256":loadedKneeNSString(commonFieldBoxesSHA256),
+                @"count":@(functional.commonFieldBoxes.size()),@"record_stride_bytes":@64},
+            @"map_record_layout":@"seven float4 displacements, xyz metres per unit dimensionless coordinate, W exact +0",
+            @"domain_record_layout":@"lower float4[2] followed by upper float4[2], padding lanes exact +0",
+            @"uploaded_buffer_bundle_sha256":loadedKneeNSString(commonFieldBundleSHA256)
+        };
+        NSData* json=[NSJSONSerialization dataWithJSONObject:receipt
+            options:NSJSONWritingPrettyPrinted|NSJSONWritingSortedKeys error:&error];
+        require(json!=nil,"common-field identity receipt serialization failed");
+        require([json writeToURL:[NSURL fileURLWithPath:loadedKneeNSString(receiptPath.string())]
+            options:NSDataWritingAtomic error:&error],"common-field identity receipt write failed");
+        commonFieldIdentityReceiptSHA256=loadedKneeSHA256Hex(loadedKneeFileSHA256(receiptPath));
+        std::cout<<"common_field_map_sha256="<<commonFieldMapSHA256
+            <<" common_field_polynomial_sha256="<<commonFieldPolynomialSHA256
+            <<" common_field_boxes_sha256="<<commonFieldBoxesSHA256
+            <<" common_field_identity_receipt_sha256="<<commonFieldIdentityReceiptSHA256<<"\n";
     }
     // Reuse the retained load-time map identity format. Capture only when the
     // caller opts into accepted geometry evidence; no extra per-step readback.
@@ -216,6 +314,14 @@ class NumiHumanRestingVisual {
             @"ventricular_wall_parameters_sha256":loadedKneeNSString(cardiacWallParametersSHA256),
             @"ventricular_wall_coefficient_bundle_sha256":loadedKneeNSString(cardiacWallBundleSHA256),
             @"ventricular_wall_map_identity_receipt_sha256":loadedKneeNSString(cardiacWallIdentityReceiptSHA256),
+            @"cardiac_geometry_mode":commonCardiacGeometry?@"common_seven_coordinate_v1":@"legacy_ventricular_wall_v2",
+            @"common_field_source_anatomy_payload_sha256":loadedKneeNSString(commonFieldSourcePayloadSHA256),
+            @"common_field_map_sha256":loadedKneeNSString(commonFieldMapSHA256),
+            @"common_field_parameters_sha256":loadedKneeNSString(commonFieldParametersSHA256),
+            @"common_field_polynomial_sha256":loadedKneeNSString(commonFieldPolynomialSHA256),
+            @"common_field_domain_boxes_sha256":loadedKneeNSString(commonFieldBoxesSHA256),
+            @"common_field_uploaded_buffer_bundle_sha256":loadedKneeNSString(commonFieldBundleSHA256),
+            @"common_field_identity_receipt_sha256":loadedKneeNSString(commonFieldIdentityReceiptSHA256),
             @"captured_vertex_buffer_sha256":loadedKneeNSString(vertexSHA),
             @"base_pack_content_hash":loadedKneeNSString(initialPackContentHash),
             @"base_pack_file_sha256":loadedKneeNSString(initialPackFileSHA256),
@@ -237,6 +343,58 @@ class NumiHumanRestingVisual {
             <<" accepted_root="<<rootHex
             <<" pack_sha256="<<packSHA<<" receipt_sha256="<<receiptSHA<<"\n";
     }
+    struct RejectedGeometryDiagnostic {
+        std::string path,fileSHA256,contentHash;
+    };
+    RejectedGeometryDiagnostic exportRejectedGeometryDiagnostic(unsigned step,double time,std::uint64_t root,
+        std::uint64_t transaction,std::uint64_t timestamp,unsigned stableId,unsigned status,float relativeError) {
+        require(vertexCaptureBuffer&&vertexCaptureBuffer.contents&&captureKernelEncoded,
+            "requested rejected geometry snapshot was not captured on the render command buffer");
+        metalrobo::VisualAssetPackV2 pack;std::string error;
+        require(metalrobo::readVisualAssetPack(initialPackPath,pack,&error),error);
+        require(pack.contentHash==initialPackContentHash&&pack.vertices.size()==renderer->layout().meshVertexCount,
+            "rejected geometry base pack differs from the compiled renderer topology");
+        const std::size_t vertexBytes=pack.vertices.size()*sizeof(MRVisualVertexGPUV2);
+        require(vertexCaptureBuffer.length>=vertexBytes,"rejected geometry staging buffer is undersized");
+        std::memcpy(pack.vertices.data(),vertexCaptureBuffer.contents,vertexBytes);
+        for(const auto& vertex:pack.vertices)require(
+            std::isfinite(vertex.position.x)&&std::isfinite(vertex.position.y)&&std::isfinite(vertex.position.z)&&
+            std::isfinite(vertex.normalAndTangentSign.x)&&std::isfinite(vertex.normalAndTangentSign.y)&&
+            std::isfinite(vertex.normalAndTangentSign.z)&&std::isfinite(vertex.tangent.x)&&
+            std::isfinite(vertex.tangent.y)&&std::isfinite(vertex.tangent.z),
+            "rejected geometry diagnostic contains non-finite rendered vertices");
+        for(auto& primitive:pack.primitives) {
+            require(primitive.geometry.x<=pack.indices.size()&&
+                primitive.geometry.y<=pack.indices.size()-primitive.geometry.x,
+                "rejected geometry primitive index span is invalid");
+            mr_float4 lo{INFINITY,INFINITY,INFINITY,1},hi{-INFINITY,-INFINITY,-INFINITY,1};
+            for(unsigned j=primitive.geometry.x;j<primitive.geometry.x+primitive.geometry.y;++j) {
+                const unsigned index=pack.indices[j];require(index<pack.vertices.size(),
+                    "rejected geometry pack has an out-of-range vertex index");
+                const auto point=pack.vertices[index].position;
+                lo.x=std::min(lo.x,point.x);lo.y=std::min(lo.y,point.y);lo.z=std::min(lo.z,point.z);
+                hi.x=std::max(hi.x,point.x);hi.y=std::max(hi.y,point.y);hi.z=std::max(hi.z,point.z);
+            }
+            primitive.boundsMinimum=lo;primitive.boundsMaximum=hi;
+        }
+        std::ostringstream rootHexStream;rootHexStream<<"0x"<<std::hex<<std::setw(16)<<std::setfill('0')<<root;
+        pack.preprocessingProvenance+="/rejected_surface_audit_render_step_"+std::to_string(step)+"_root_"+rootHexStream.str();
+        pack.contentHash=metalrobo::computeVisualAssetPackContentHash(pack);
+        const auto directory=outputDirectory/"rejected-surface-audit";
+        std::filesystem::create_directories(directory);
+        const auto packPath=directory/("step-"+std::to_string(step)+".mrvpack");
+        require(!std::filesystem::exists(packPath),"refusing to overwrite rejected render diagnostic geometry");
+        require(metalrobo::writeVisualAssetPack(pack,packPath,&error),error);
+        RejectedGeometryDiagnostic result{packPath.string(),
+            loadedKneeSHA256Hex(loadedKneeFileSHA256(packPath)),pack.contentHash};
+        std::cout<<"rejected_surface_audit_geometry="<<result.path
+            <<" stable_id="<<stableId<<" status="<<status<<" relative_volume_error="<<relativeError
+            <<" accepted_step="<<step<<" accepted_time_s="<<time
+            <<" root="<<rootHexStream.str()<<" pack_sha256="<<result.fileSHA256
+            <<" content_hash="<<result.contentHash<<" transaction="<<transaction
+            <<" timestamp_us="<<timestamp<<"\n";
+        return result;
+    }
     static id surfaceAuditJSONNumber(float value) {
         if(std::isfinite(value))return @(static_cast<double>(value));
         if(std::isnan(value))return @"NaN";
@@ -245,7 +403,8 @@ class NumiHumanRestingVisual {
     void writeSurfaceAuditFailureReceipt(unsigned step,double time,std::uint64_t root,
         std::uint64_t transaction,std::uint64_t timestamp,unsigned auditIndex,unsigned stableId,
         unsigned status,float relativeError,unsigned indexBufferStart,
-        const MRHumanRestingSurfaceFailureGPU& firstFailure,bool captureRequested) {
+        const MRHumanRestingSurfaceFailureGPU& firstFailure,bool captureRequested,
+        const RejectedGeometryDiagnostic& diagnostic) {
         NSMutableDictionary* triangle=[NSMutableDictionary dictionary];
         const bool haveTriangle=firstFailure.surfaceTriangleKind.x==auditIndex&&
             firstFailure.surfaceTriangleKind.z!=MR_HUMAN_RESTING_TRIANGLE_FAILURE_NONE;
@@ -290,7 +449,11 @@ class NumiHumanRestingVisual {
             @"first_invalid_triangle":triangle,
             @"accepted_geometry_capture_requested":@(captureRequested),
             @"accepted_geometry_capture_written":@NO,
-            @"accepted_geometry_capture_skipped_reason":captureRequested?@"surface_audit_rejected":@"not_requested"
+            @"accepted_geometry_capture_skipped_reason":captureRequested?@"surface_audit_rejected":@"not_requested",
+            @"rejected_geometry_diagnostic_written":@(!diagnostic.path.empty()),
+            @"rejected_geometry_diagnostic_mrvpack_path":loadedKneeNSString(diagnostic.path),
+            @"rejected_geometry_diagnostic_mrvpack_sha256":loadedKneeNSString(diagnostic.fileSHA256),
+            @"rejected_geometry_diagnostic_content_hash":loadedKneeNSString(diagnostic.contentHash)
         };
         const auto path=outputDirectory/("surface-audit-failure-step-"+std::to_string(step)+".json");
         require(!std::filesystem::exists(path),"refusing to overwrite accepted surface-audit failure receipt");
@@ -335,10 +498,13 @@ public:
         coupled(owner),dimension(size),outputDirectory(output),acceptedGeometryDirectory(output/"accepted-geometry"),
         surfaceTrace(output/"resting-surface-audit.csv") {
         require(surfaceTrace.good(),"resting surface audit output unavailable");
+        commonCardiacGeometry=functional.commonCardiacGeometry;
+        commonFieldVertexCount=unsigned(functional.commonFieldMap.size());
+        commonFieldSourcePayloadSHA256=functional.commonFieldAnatomyPayloadSHA256;
         requestedGeometrySteps=geometryExportStepsFromEnvironment();
         require(requestedGeometrySteps.empty()||presentWindow,
             "accepted MRVPack export requires the native viewer path");
-        surfaceTrace<<"time_s,step,min_skin_bed_gap_m,vertices_below_1mm,nonfinite_skin_vertices,max_functional_volume_relative_error,q_ra,q_rv,q_la,q_lv,ra_target_ml,rv_target_ml,la_target_ml,lv_target_ml,diaphragm_swept_ml,rib_swept_ml,lung_target_ml,body_com_x_m,body_com_y_m,body_com_z_m,represented_body_mass_kg,ventricular_wall_bound,ventricular_material_ml,ventricular_material_target_ml,ventricular_closure_mm,ventricular_material_status,functional_geometry_status\n";
+        surfaceTrace<<"time_s,step,min_skin_bed_gap_m,vertices_below_1mm,nonfinite_skin_vertices,max_functional_volume_relative_error,q_ra,q_rv,q_la,q_lv,ra_target_ml,rv_target_ml,la_target_ml,lv_target_ml,diaphragm_swept_ml,rib_swept_ml,lung_target_ml,body_com_x_m,body_com_y_m,body_com_z_m,represented_body_mass_kg,ventricular_wall_bound,ventricular_material_ml,ventricular_material_target_ml,ventricular_closure_mm,ventricular_material_status,functional_geometry_status,geometry_mode,common_coordinate_RA,common_coordinate_RV,common_coordinate_LA,common_coordinate_LV,common_coordinate_RA_material,common_coordinate_ventricular_material,common_coordinate_LA_material,common_coordinate_solver_status,common_coordinate_solver_iterations,common_coordinate_domain_box,common_coordinate_normalized_residual,ventricular_closure_mm_applicable\n";
         require(initialBodies.size()*sizeof(MRBodyStateGPU)==coupled.presentationBodies.length,
             "initial native frame does not match the body owner");
         std::memcpy(coupled.presentationBodies.contents,initialBodies.data(),coupled.presentationBodies.length);
@@ -485,20 +651,75 @@ public:
                 deformation=5;chamber=functional.ribs.at(instance.identity.w);
             }
             if(instance.identity.x==kBoneSemantic&&functional.sternum.contains(instance.identity.w))deformation=6;
+            unsigned commonChannel=MR_INVALID_INDEX;
+            if(commonCardiacGeometry)for(unsigned c=0;c<functional.commonFieldStableIDs.size();++c) {
+                const unsigned expectedSemantic=c<4?kCavityReferenceSemantic:kOrganSurfaceSemantic;
+                if(instance.identity.w==functional.commonFieldStableIDs[c]&&
+                    instance.identity.x==expectedSemantic&&
+                    instance.binding.z==MR_VISUAL_BINDING_ARTICULATED_LINK&&
+                    instance.binding.y==anatomyGPU.bodyAndFlags.x) {
+                    commonChannel=c;break;
+                }
+            }
+            if(commonChannel!=MR_INVALID_INDEX){deformation=12;chamber=commonChannel;}
             const auto semantic=instance.identity.x;
             unsigned visibility=semantic==kSkinShellSemantic?1u:
                 semantic==kBoneSemantic?6u:
                 (semantic==kMuscleSurfaceSemantic||semantic==kTendonSurfaceSemantic)?2u:
                 semantic>=kOrganSurfaceSemantic?8u:0u;
             if(deformation==1&&functional.lungs.contains(instance.identity.w))visibility|=16u;
-            if(deformation==2)visibility|=32u|64u;
+            if(deformation==2||deformation==12)visibility|=32u|64u;
             if(deformation==8||deformation==10)visibility|=32u;
             if(semantic==kVesselSurfaceSemantic||semantic==kPulmonaryArterySurfaceSemantic||semantic==kPulmonaryVeinSurfaceSemantic)
                 visibility|=64u;
             if(deformation==4||deformation==7)visibility=2u|16u;
             visibleLayers.push_back(visibility);
-            if(deformation==2)for(unsigned p=instance.geometry.x;p<instance.geometry.x+instance.geometry.y;++p)
+            if(deformation==2||(deformation==12&&chamber<4))for(unsigned p=instance.geometry.x;p<instance.geometry.x+instance.geometry.y;++p)
                 pack.primitives.at(p).geometry.z=cardiacMaterials.at(chamber);
+            if(deformation==12) {
+                require(commonCardiacGeometry&&chamber<7&&instance.geometry.y==1,
+                    "common cardiac field surface has an invalid channel or split primitive range");
+                const auto range=functional.commonFieldRanges.at(instance.identity.w);
+                std::cout<<"common_cardiac_source_binding stable_id="<<instance.identity.w
+                    <<" map_first="<<range.first<<" map_count="<<range.second
+                    <<" indexed_unique_count="<<vertices.size()<<" source_base="<<base
+                    <<" indexed_last="<<vertices.back()
+                    <<" binding_kind="<<instance.binding.z<<" binding_body="<<instance.binding.y
+                    <<" expected_body="<<anatomyGPU.bodyAndFlags.x
+                    <<" primitive_count="<<instance.geometry.y<<"\n";
+                require(range.second==vertices.size()&&vertices.back()-base+1==range.second&&
+                    instance.binding.z==MR_VISUAL_BINDING_ARTICULATED_LINK&&
+                    instance.binding.y==anatomyGPU.bodyAndFlags.x&&
+                    instance.translationAndScale.x==0&&instance.translationAndScale.y==0&&
+                    instance.translationAndScale.z==0&&instance.translationAndScale.w==1&&
+                    instance.orientation.x==0&&instance.orientation.y==0&&instance.orientation.z==0&&instance.orientation.w==1,
+                    "common cardiac surfaces must preserve the contiguous registered torso source frame");
+                require(range.first<=functional.commonFieldMap.size()&&range.second<=functional.commonFieldMap.size()-range.first,
+                    "common cardiac surface range escapes its coefficient map");
+                require(commonFieldAuditIndices[chamber]==MR_INVALID_INDEX,
+                    "common cardiac surface channel is duplicated in the renderer pack");
+                const auto& primitive=pack.primitives.at(instance.geometry.x);
+                require(primitive.geometry.y%3==0,"common cardiac surface contains a partial triangle");
+                commonFieldAuditIndices[chamber]=unsigned(audits.size());
+                const float reference=chamber<4?
+                    reinterpret_cast<const float*>(functional.commonFieldGPU.sourceReferenceVolumes)[chamber]:
+                    reinterpret_cast<const float*>(&functional.commonFieldGPU.materialTargetVolumes)[chamber-4];
+                audits.push_back({{primitive.geometry.x,primitive.geometry.y,deformation,chamber},{reference,0,0,0}});
+                auditStableIds.push_back(instance.identity.w);
+                std::vector<std::vector<unsigned>> incident(range.second);
+                for(unsigned j=primitive.geometry.x;j<primitive.geometry.x+primitive.geometry.y;j+=3)
+                    for(unsigned k=0;k<3;++k) {
+                        const unsigned v=pack.indices.at(j+k);
+                        require(v>=base&&v-base<range.second,"common cardiac surface triangle vertex is outside its source range");
+                        incident[v-base].push_back(j);
+                    }
+                for(unsigned local=0;local<range.second;++local) {
+                    require(!incident[local].empty(),"common cardiac map has a source vertex unused by its triangles");
+                    wallNormalRanges.push_back({base+local,unsigned(wallIncidentTriangles.size()),unsigned(incident[local].size()),0});
+                    wallIncidentTriangles.insert(wallIncidentTriangles.end(),incident[local].begin(),incident[local].end());
+                }
+                commonFieldNormalVertexCount+=range.second;
+            }
             if(deformation==10) {
                 require(cardiacWallVertexCount==0&&instance.geometry.y==1,
                     "ventricular material wall requires one source surface with one owner");
@@ -530,7 +751,7 @@ public:
                     wallNormalRanges.push_back({base+i,unsigned(wallIncidentTriangles.size()),unsigned(incident[i].size()),0});
                     wallIncidentTriangles.insert(wallIncidentTriangles.end(),incident[i].begin(),incident[i].end());
                 }
-            }else if(functional.enclosedVolumes.contains(instance.identity.w)&&deformation) {
+            }else if(deformation!=12&&functional.enclosedVolumes.contains(instance.identity.w)&&deformation) {
                 require(instance.geometry.y==1,"functional anatomy audit requires one contiguous source surface");
                 const auto& p=pack.primitives.at(instance.geometry.x);
                 audits.push_back({{p.geometry.x,p.geometry.y,deformation,chamber},
@@ -548,6 +769,9 @@ public:
                 maps[v].deformationKind=deformation;maps[v].chamberIndex=chamber;
                 if(deformation==10) {
                     maps[v].chamberIndex=v-base;
+                }else if(deformation==12) {
+                    const auto range=functional.commonFieldRanges.at(instance.identity.w);
+                    maps[v].chamberIndex=range.first+(v-base);
                 }else if(deformation==2) {
                     const auto& weights=functional.cardiacFreewallWeights.at(instance.identity.w);
                     require(v>=base&&v-base<weights.size(),"cardiac cavity pack order differs from source vertices");
@@ -623,6 +847,10 @@ public:
         for(unsigned v=0;v<maps.size();++v) {
             const auto& m=maps[v];mr_float4 p{},n{};
             if(!m.influenceCount)continue;
+            const auto& soleInfluence=weights[m.firstInfluence];
+            const bool exactTorsoSource=m.influenceCount==1&&
+                soleInfluence.body.x==functional.gpu.bodyAndFlags.x&&
+                soleInfluence.positionAndWeight.w==1.0f;
             for(unsigned j=0;j<m.influenceCount;++j) {
                 const auto& w=weights[m.firstInfluence+j];mr_float4 point=w.positionAndWeight,normal=w.normal;
                 if(w.body.x!=MR_INVALID_INDEX) {
@@ -633,14 +861,16 @@ public:
             }
             p.w=1;pack.vertices[v].position=p;
             if(maps[v].deformationKind==1||maps[v].deformationKind==3||maps[v].deformationKind==4||maps[v].deformationKind==9) {
-                const auto local=rotatePoint(inverseRotation(initialThorax.orientation),subtractPoint(p,initialThorax.position));
+                const auto local=exactTorsoSource?soleInfluence.positionAndWeight:
+                    rotatePoint(inverseRotation(initialThorax.orientation),subtractPoint(p,initialThorax.position));
                 const auto& axis=functional.gpu.superiorAxisAndHeight;
                 const auto b=functional.respiratoryBasis.evaluate({local.x,local.y,local.z},{axis.x,axis.y,axis.z});
                 maps[v].respiratoryBasis={float(b[0]),float(b[1]),float(b[2]),float(b[3])};
             }
             if(maps[v].deformationKind==3) {
                 const auto& torso=initialBodies.at(functional.gpu.bodyAndFlags.x);
-                const auto local=rotatePoint(inverseRotation(torso.orientation),subtractPoint(p,torso.position));
+                const auto local=exactTorsoSource?soleInfluence.positionAndWeight:
+                    rotatePoint(inverseRotation(torso.orientation),subtractPoint(p,torso.position));
                 const auto& axis=functional.gpu.superiorAxisAndHeight;
                 const float h=dotPoint(subtractPoint(functional.gpu.lungAnchorAndVolume,local),axis)/axis.w;
                 const float upper=std::clamp(h/.2f,0.0f,1.0f),lower=std::clamp((1.6f-h)/.6f,0.0f,1.0f);
@@ -674,6 +904,13 @@ public:
         }
         require(std::isfinite(posteriorSkin)&&anteriorSkin-posteriorSkin>.05f,
             "registered skin has no usable anterior/posterior thorax extent");
+        if(commonCardiacGeometry) {
+            require(commonFieldVertexCount>0&&commonFieldNormalVertexCount==commonFieldVertexCount,
+                "common cardiac coefficient map and rendered source ranges have different vertex totals");
+            for(unsigned channel=0;channel<7;++channel)
+                require(commonFieldAuditIndices[channel]!=MR_INVALID_INDEX,
+                    "common cardiac renderer pack is missing a declared source surface");
+        }
         // Supine reduction: the dorsal support strip stays with its contact
         // owner. The chest expands toward the anterior surface; all five lung
         // lobes, pleura and diaphragm share the same basal motion field.
@@ -748,7 +985,10 @@ public:
         mapping=[device newBufferWithBytes:maps.data() length:maps.size()*sizeof(maps.front()) options:MTLResourceStorageModeShared];
         influences=[device newBufferWithBytes:weights.data() length:weights.size()*sizeof(weights.front()) options:MTLResourceStorageModeShared];
         anatomyParameters=[device newBufferWithBytes:&anatomyGPU length:sizeof(anatomyGPU) options:MTLResourceStorageModeShared];
-        auditCount=unsigned(audits.size());require(auditCount==9+unsigned(cardiacWallVertexCount>0),
+        auditCount=unsigned(audits.size());
+        const unsigned expectedAuditCount=commonCardiacGeometry?unsigned(functional.lungs.size()+7):
+            9+unsigned(cardiacWallVertexCount>0);
+        require(auditCount==expectedAuditCount,
             "functional anatomy volume audit did not bind its lung, chamber and material surfaces");
         surfaceAudits=[device newBufferWithBytes:audits.data() length:audits.size()*sizeof(audits.front()) options:MTLResourceStorageModeShared];
         volumeResults=[device newBufferWithLength:(auditCount+2)*sizeof(mr_float4)+
@@ -761,12 +1001,20 @@ public:
             length:std::max(1u,cardiacWallVertexCount)*sizeof(emptyWallVertex) options:MTLResourceStorageModeShared];
         cardiacWallParameters=[device newBufferWithBytes:&functional.ventricularWallGPU
             length:sizeof(functional.ventricularWallGPU) options:MTLResourceStorageModeShared];
-        if(!requestedGeometrySteps.empty())writeCardiacWallMapIdentity(output,functional);
         cardiacWallQ=[device newBufferWithBytes:&emptyWallQ length:sizeof(emptyWallQ) options:MTLResourceStorageModeShared];
         cardiacWallNormalRanges=[device newBufferWithBytes:wallNormalRanges.empty()?&emptyWallRange:wallNormalRanges.data()
             length:std::max(std::size_t(1),wallNormalRanges.size())*sizeof(emptyWallRange) options:MTLResourceStorageModeShared];
         cardiacWallIncidentTriangles=[device newBufferWithBytes:wallIncidentTriangles.empty()?&emptyWallIndex:wallIncidentTriangles.data()
             length:std::max(std::size_t(1),wallIncidentTriangles.size())*sizeof(unsigned) options:MTLResourceStorageModeShared];
+        const MRHumanRestingCommonFieldVertexGPU emptyCommonMap{};
+        const MRHumanRestingCommonCoordinateBoxGPU emptyCommonBox{};
+        commonFieldMapBuffer=[device newBufferWithBytes:functional.commonFieldMap.empty()?&emptyCommonMap:functional.commonFieldMap.data()
+            length:std::max(std::size_t(1),functional.commonFieldMap.size())*sizeof(emptyCommonMap) options:MTLResourceStorageModeShared];
+        commonFieldParameters=[device newBufferWithBytes:&functional.commonFieldGPU length:sizeof(functional.commonFieldGPU) options:MTLResourceStorageModeShared];
+        commonFieldBoxes=[device newBufferWithBytes:functional.commonFieldBoxes.empty()?&emptyCommonBox:functional.commonFieldBoxes.data()
+            length:std::max(std::size_t(1),functional.commonFieldBoxes.size())*sizeof(emptyCommonBox) options:MTLResourceStorageModeShared];
+        commonFieldCoordinates=coupled.presentationCommonCoordinates;
+        commonFieldNormalRanges=cardiacWallNormalRanges;commonFieldIncidentTriangles=cardiacWallIncidentTriangles;
         instanceLayers=[device newBufferWithBytes:visibleLayers.data() length:visibleLayers.size()*sizeof(unsigned) options:MTLResourceStorageModeShared];
         NSError* e=nil;auto lib=[device newLibraryWithURL:[NSURL fileURLWithPath:@(NUMI_HUMAN_RESPIRATION_METALLIB)] error:&e];
         require(skinFirstVertex!=MR_INVALID_INDEX,"resting support has no registered skin range");
@@ -815,6 +1063,8 @@ public:
         cardiacQPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_cardiac_q"] error:&e];
         cardiacWallQPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_cardiac_wall_q"] error:&e];
         cardiacWallNormalsPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_cardiac_wall_normals"] error:&e];
+        commonCoordinatesPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_common_coordinates"] error:&e];
+        commonCoordinateStatusPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_common_coordinate_status_gate"] error:&e];
         layerPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_layers"] error:&e];
         volumePipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_audit_volumes"] error:&e];
         skinAuditPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_audit_skin"] error:&e];
@@ -827,6 +1077,24 @@ public:
         require(mapping&&influences&&anatomyParameters&&surfaceAudits&&volumeResults&&instanceLayers&&cardiacQ&&skinPipeline&&cardiacQPipeline&&layerPipeline&&volumePipeline&&skinAuditPipeline&&bodyAuditPipeline,"resting GPU anatomy setup failed");
         require(cardiacWallMap&&cardiacWallParameters&&cardiacWallQ&&cardiacWallNormalRanges&&cardiacWallIncidentTriangles&&
             cardiacWallQPipeline&&cardiacWallNormalsPipeline,"resting GPU cardiac material setup failed");
+        require(commonFieldMapBuffer&&commonFieldParameters&&commonFieldBoxes&&commonFieldCoordinates&&
+            commonFieldNormalRanges&&commonFieldIncidentTriangles,"resting common-field buffer setup failed");
+        require(!commonCardiacGeometry||(commonCoordinatesPipeline&&commonCoordinateStatusPipeline&&commonFieldVertexCount>0),
+            "resting common cardiac field pipelines are unavailable");
+        if(commonCardiacGeometry) {
+            auto& respiration=*coupled.physiology.respiration;
+            require(!respiration.commonGeometryGateEnabled,"common cardiac transaction gate was already installed");
+            respiration.commonGeometryGateEnabled=true;
+            respiration.commonCoordinatesSolvePipeline=commonCoordinatesPipeline;
+            respiration.commonCoordinateStatusPipeline=commonCoordinateStatusPipeline;
+            respiration.commonGeometryParameters=commonFieldParameters;
+            respiration.commonGeometryBoxes=commonFieldBoxes;
+            respiration.commonCandidateCoordinates=coupled.presentationCandidateCommonCoordinates;
+        }
+        if(!requestedGeometrySteps.empty()) {
+            if(commonCardiacGeometry)writeCommonFieldIdentity(output,functional);
+            else writeCardiacWallMapIdentity(output,functional);
+        }
         require(requestedGeometrySteps.empty()||(vertexCapturePipeline&&vertexCaptureBuffer),
             "selected accepted geometry capture resources could not be created");
         if(!presentWindow)return;
@@ -843,7 +1111,7 @@ public:
         e.setBuffer(e.context,(__bridge void*)self.anatomyParameters,0,1);
         e.setBuffer(e.context,(__bridge void*)self.cardiacQ,0,2);
         e.dispatchThreads(e.context,4,1);
-        if(self.cardiacWallVertexCount) {
+        if(self.cardiacWallVertexCount&&!self.commonCardiacGeometry) {
             e.setPipeline(e.context,(__bridge void*)self.cardiacWallQPipeline);
             e.setBuffer(e.context,(__bridge void*)self.cardiacWallParameters,0,0);
             e.setBuffer(e.context,(__bridge void*)self.cardiacQ,0,1);
@@ -859,14 +1127,19 @@ public:
         e.setBuffer(e.context,(__bridge void*)self.cardiacWallMap,0,8);
         e.setBuffer(e.context,(__bridge void*)self.cardiacWallParameters,0,9);
         e.setBuffer(e.context,(__bridge void*)self.cardiacWallQ,0,10);
+        e.setBuffer(e.context,(__bridge void*)self.commonFieldMapBuffer,0,11);
+        e.setBuffer(e.context,(__bridge void*)self.commonFieldCoordinates,0,12);
         e.dispatchThreads(e.context,lease.meshVertexCount,64);
-        if(self.cardiacWallVertexCount) {
+        const unsigned normalVertexCount=self.commonCardiacGeometry?self.commonFieldNormalVertexCount:self.cardiacWallVertexCount;
+        if(normalVertexCount) {
             e.setPipeline(e.context,(__bridge void*)self.cardiacWallNormalsPipeline);
-            e.setBytes(e.context,&self.cardiacWallVertexCount,sizeof(self.cardiacWallVertexCount),0);
-            e.setBuffer(e.context,(__bridge void*)self.cardiacWallNormalRanges,0,1);
-            e.setBuffer(e.context,(__bridge void*)self.cardiacWallIncidentTriangles,0,2);
+            e.setBytes(e.context,&normalVertexCount,sizeof(normalVertexCount),0);
+            const auto ranges=self.commonCardiacGeometry?self.commonFieldNormalRanges:self.cardiacWallNormalRanges;
+            const auto incidents=self.commonCardiacGeometry?self.commonFieldIncidentTriangles:self.cardiacWallIncidentTriangles;
+            e.setBuffer(e.context,(__bridge void*)ranges,0,1);
+            e.setBuffer(e.context,(__bridge void*)incidents,0,2);
             e.setBuffer(e.context,lease.meshIndices,0,3);e.setBuffer(e.context,lease.meshVertices,0,4);
-            e.dispatchThreads(e.context,self.cardiacWallVertexCount,64);
+            e.dispatchThreads(e.context,normalVertexCount,64);
         }
         e.setPipeline(e.context,(__bridge void*)self.volumePipeline);e.setBytes(e.context,&d,sizeof(d),0);
         e.setBuffer(e.context,(__bridge void*)self.surfaceAudits,0,1);e.setBuffer(e.context,lease.meshIndices,0,2);
@@ -875,6 +1148,8 @@ public:
         e.setBuffer(e.context,(__bridge void*)self.cardiacWallParameters,0,7);
         e.setBuffer(e.context,(__bridge void*)self.volumeResults,
             (self.auditCount+2)*sizeof(mr_float4),8);
+        e.setBuffer(e.context,(__bridge void*)self.commonFieldParameters,0,9);
+        e.setBuffer(e.context,(__bridge void*)self.commonFieldCoordinates,0,10);
         e.dispatchThreads(e.context,self.auditCount,1);
         e.setPipeline(e.context,(__bridge void*)self.skinAuditPipeline);e.setBytes(e.context,&d,sizeof(d),0);
         e.setBuffer(e.context,(__bridge void*)self.mapping,0,1);e.setBuffer(e.context,lease.meshVertices,0,2);
@@ -936,7 +1211,11 @@ public:
             static_cast<const unsigned char*>(volumeResults.contents)+(auditCount+2)*sizeof(mr_float4));
         const auto* cardiacCoordinates=static_cast<const float*>(cardiacQ.contents);
         const auto wallCorrection=*static_cast<const mr_float4*>(cardiacWallQ.contents);
-        const auto wallAudit=cardiacWallVertexCount?volumes[cardiacWallAuditIndex]:mr_float4{};
+        const auto wallAudit=commonCardiacGeometry?volumes[commonFieldAuditIndices[5]]:
+            (cardiacWallVertexCount?volumes[cardiacWallAuditIndex]:mr_float4{});
+        const auto commonCoordinatesValue=commonCardiacGeometry?
+            *static_cast<const MRHumanRestingCommonCoordinatesGPU*>(commonFieldCoordinates.contents):
+            MRHumanRestingCommonCoordinatesGPU{};
         float maxRelativeError=0;unsigned geometryStatus=0;
         for(unsigned i=0;i<auditCount;++i) {
             maxRelativeError=std::max(maxRelativeError,volumes[i].z);geometryStatus|=unsigned(volumes[i].w);
@@ -950,7 +1229,15 @@ public:
             <<','<<p.chamberVolumes.x*1e6<<','<<p.chamberVolumes.y*1e6<<','<<p.chamberVolumes.z*1e6<<','<<p.chamberVolumes.w*1e6
             <<','<<p.motion.x*1e6<<','<<p.motion.y*1e6<<','<<p.mechanics.x*1e6
             <<','<<bodyAudit.x<<','<<bodyAudit.y<<','<<bodyAudit.z<<','<<bodyAudit.w
-            <<','<<(cardiacWallVertexCount>0)<<','<<wallAudit.x*1e6<<','<<wallAudit.y*1e6<<','<<wallCorrection.x*1e3<<','<<wallAudit.w<<','<<geometryStatus<<'\n';
+            <<','<<(!commonCardiacGeometry&&cardiacWallVertexCount>0)<<','<<wallAudit.x*1e6<<','<<wallAudit.y*1e6<<','
+            <<(commonCardiacGeometry?std::numeric_limits<double>::quiet_NaN():wallCorrection.x*1e3)<<','<<wallAudit.w<<','<<geometryStatus
+            <<','<<(commonCardiacGeometry?"common_seven_coordinate_v1":"legacy_ventricular_wall_v2")
+            <<','<<commonCoordinatesValue.first.x<<','<<commonCoordinatesValue.first.y<<','
+            <<commonCoordinatesValue.first.z<<','<<commonCoordinatesValue.first.w<<','
+            <<commonCoordinatesValue.second.x<<','<<commonCoordinatesValue.second.y<<','
+            <<commonCoordinatesValue.second.z<<','<<commonCoordinatesValue.status.x<<','
+            <<commonCoordinatesValue.status.y<<','<<commonCoordinatesValue.status.z<<','
+            <<commonCoordinatesValue.diagnostics.x<<','<<(!commonCardiacGeometry)<<'\n';
         surfaceTrace.flush();
         unsigned firstFailedAudit=MR_INVALID_INDEX;
         for(unsigned i=0;i<auditCount;++i)if(unsigned(volumes[i].w)!=0u){firstFailedAudit=i;break;}
@@ -962,10 +1249,16 @@ public:
                 auditStableIds.at(firstFailedAudit),firstFailedAudit,
                 static_cast<const MRHumanRestingSurfaceAuditGPU*>(surfaceAudits.contents)[firstFailedAudit].indicesAndOwner.x,status,volumes[firstFailedAudit].z,
                 failure,initialPackContentHash);
+            RejectedGeometryDiagnostic diagnostic{};
+            if(captureThisFrame&&captureKernelEncoded)
+                diagnostic=exportRejectedGeometryDiagnostic(step,time,state.acceptedRootFingerprint,
+                    state.acceptedTransactionFingerprint,state.acceptedTimestampMicroseconds,
+                    auditStableIds.at(firstFailedAudit),status,volumes[firstFailedAudit].z);
             writeSurfaceAuditFailureReceipt(step,time,state.acceptedRootFingerprint,
                 state.acceptedTransactionFingerprint,state.acceptedTimestampMicroseconds,
                 firstFailedAudit,auditStableIds.at(firstFailedAudit),status,volumes[firstFailedAudit].z,
-                static_cast<const MRHumanRestingSurfaceAuditGPU*>(surfaceAudits.contents)[firstFailedAudit].indicesAndOwner.x,failure,captureThisFrame);
+                static_cast<const MRHumanRestingSurfaceAuditGPU*>(surfaceAudits.contents)[firstFailedAudit].indicesAndOwner.x,
+                failure,captureThisFrame,diagnostic);
             std::cerr<<"resting_surface_audit_failure accepted_step="<<step<<' '<<message<<'\n';
             captureThisFrame=false;captureKernelEncoded=false;
             require(false,message);
