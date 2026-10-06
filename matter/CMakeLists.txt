@@ -60,6 +60,19 @@ target_link_libraries(numi-matterc PRIVATE numi_matter_compiler)
 target_compile_options(numi-matterc PRIVATE -Wall -Wextra -Wpedantic -Werror)
 
 include(CTest)
+add_executable(numi-matter-cardboard-material-check tools/cardboard_material_check.cpp)
+target_link_libraries(numi-matter-cardboard-material-check PRIVATE numi_matter_compiler)
+target_compile_options(numi-matter-cardboard-material-check PRIVATE -Wall -Wextra -Wpedantic)
+if(BUILD_TESTING)
+    add_test(NAME matter.compiler.cardboard_material
+        COMMAND numi-matter-cardboard-material-check
+            "${CMAKE_CURRENT_SOURCE_DIR}/materials/nagasawa2013_liner_orthotropic.nmatter"
+            "${CMAKE_CURRENT_SOURCE_DIR}/materials/nagasawa2013_medium_orthotropic.nmatter"
+            "${CMAKE_CURRENT_SOURCE_DIR}/materials/nagasawa2013_medium_rct_elastic.nmatter")
+    set_tests_properties(matter.compiler.cardboard_material PROPERTIES
+        LABELS "matter;compiler;cardboard;material" TIMEOUT 120)
+endif()
+
 add_executable(numi-matter-cardiac-material-check tools/cardiac_material_check.cpp)
 target_link_libraries(numi-matter-cardiac-material-check PRIVATE numi_matter_compiler)
 target_compile_options(numi-matter-cardiac-material-check PRIVATE -Wall -Wextra -Wpedantic -Werror)
@@ -218,6 +231,29 @@ if(APPLE)
         STATIC
         $<TARGET_OBJECTS:numi_matter_runtime_objects>
     )
+    add_executable(numi-matter-cardboard-probe tools/cardboard_probe.mm)
+    target_link_libraries(numi-matter-cardboard-probe PRIVATE
+        numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_include_directories(numi-matter-cardboard-probe PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../include")
+    target_compile_options(numi-matter-cardboard-probe PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
+    target_compile_definitions(numi-matter-cardboard-probe PRIVATE
+        NUMI_CARDBOARD_MATERIAL_DIR="${CMAKE_CURRENT_SOURCE_DIR}/materials"
+        NUMI_CARDBOARD_METALLIB="${NUMI_MATTER_METALLIB}")
+    add_executable(numi-matter-cardboard-gpu-check tools/cardboard_gpu_check.mm)
+    target_link_libraries(numi-matter-cardboard-gpu-check PRIVATE
+        numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_include_directories(numi-matter-cardboard-gpu-check PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../include")
+    target_compile_options(numi-matter-cardboard-gpu-check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
+    target_compile_definitions(numi-matter-cardboard-gpu-check PRIVATE
+        NUMI_MATTER_METALLIB="${NUMI_MATTER_METALLIB}")
+    if(BUILD_TESTING)
+        add_test(NAME matter.metal.cardboard_material
+            COMMAND numi-matter-cardboard-gpu-check
+                "${CMAKE_CURRENT_SOURCE_DIR}/materials/nagasawa2013_liner_orthotropic.nmatter"
+                "${CMAKE_CURRENT_SOURCE_DIR}/materials/nagasawa2013_medium_orthotropic.nmatter")
+        set_tests_properties(matter.metal.cardboard_material PROPERTIES
+            LABELS "matter;metal;cardboard;material" TIMEOUT 120)
+    endif()
     set(NUMI_HUMAN_RESPIRATION_METALLIB "${NUMI_MATTER_SHADER_DIR}/HumanRespiration.metallib")
     set(NUMI_BRAIN_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../numi-brain" CACHE PATH "NumiBrain source for the accepted respiratory chemoreflex")
     add_custom_command(

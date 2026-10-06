@@ -1,0 +1,20 @@
+{
+  "schema": "numi.cardboard.geometry-reference.v1",
+  "purpose": "Independent continuum sinusoid geometry reference, before mesh observations",
+  "geometry_status": "Sinusoidal approximation to Nagasawa dimensions, not reproduction of its arc-and-tangent flute",
+  "length_m": 0.036,
+  "width_m": 0.02,
+  "caliper_m": 0.005,
+  "paper_thickness_m": 0.00025,
+  "pitch_m": 0.009,
+  "midsurface_amplitude_m": 0.002125,
+  "flute_midsurface_arclength_m": 0.05121347328287188,
+  "flute_take_up_ratio": 1.4225964800797746,
+  "two_liner_volume_m3": 3.6e-07,
+  "core_normal_offset_volume_m3": 2.5606736641435943e-07,
+  "two_liner_mass_kg": 0.0003024,
+  "core_mass_kg": 0.0001843685038183388,
+  "assembled_mass_kg_without_adhesive": 0.00048676850381833877,
+  "numerical_integration": "Composite Simpson, 100000 intervals",
+  "validation": "Compare discrete normal-thickness mesh volume with resolution convergence; no adhesive mass and no new measurements."
+}

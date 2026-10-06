@@ -1,0 +1,43 @@
+{
+  "schema": "numi.cardboard.geometry-audit.v1",
+  "status": "passed",
+  "scope": "Exported geometry validity and measured deformation; no claim of physical calibration or solver convergence",
+  "nodes": 264,
+  "free_nodes": 248,
+  "fixed_nodes": 16,
+  "tetrahedra": 384,
+  "connected_components": 2,
+  "minimum_reference_tet_volume_m3": 9.374999999999937e-10,
+  "total_mass_kg_without_adhesive": 0.0003024,
+  "authored_extent_m": [
+    0.036,
+    0.02,
+    0.005
+  ],
+  "max_node_displacement_m": 1.8500000035552765e-09,
+  "max_free_node_displacement_m": 1.8500000035552765e-09,
+  "materials": [
+    {
+      "material_index": 0,
+      "tetrahedra": 384,
+      "volume_m3": 3.6000000000000005e-07,
+      "mass_kg": 0.0003024,
+      "min_J": 0.9999970946665814,
+      "max_J": 1.000000585774226,
+      "max_abs_material_log_stretch_M_C_T": [
+        2.933337637683734e-06,
+        2.722540618928742e-08,
+        1.6000002108860356e-07
+      ],
+      "max_abs_material_Green_shear_MC_MT_CT": [
+        9.292030525270496e-08,
+        7.741304426116185e-09,
+        4.181413795259903e-07
+      ]
+    }
+  ],
+  "inputs": {
+    "/Users/home/cardboard-evidence-20261006/no-medium-001/mesh.json": "20a76de4998f3fca830736688ff718d43ae600c9bb4c1366890a95d94862805b",
+    "/Users/home/cardboard-evidence-20261006/no-medium-001/accepted_step_000008_held_reference.obj": "9af9981f7421464164357241cdbc96c1e8d1c7395e76888b6de47f9723ce0c71"
+  }
+}

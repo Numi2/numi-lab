@@ -1,0 +1,61 @@
+{
+  "schema": "numi.cardboard.geometry-audit.v1",
+  "status": "passed",
+  "scope": "Exported geometry validity and measured deformation; no claim of physical calibration or solver convergence",
+  "nodes": 762,
+  "free_nodes": 742,
+  "fixed_nodes": 20,
+  "tetrahedra": 1152,
+  "connected_components": 1,
+  "minimum_reference_tet_volume_m3": 4.173221571804299e-10,
+  "total_mass_kg_without_adhesive": 0.00048448603353959245,
+  "authored_extent_m": [
+    0.036,
+    0.02,
+    0.005
+  ],
+  "max_node_displacement_m": 1.3666053985527218e-05,
+  "max_free_node_displacement_m": 1.3666053985527218e-05,
+  "materials": [
+    {
+      "material_index": 0,
+      "tetrahedra": 768,
+      "volume_m3": 3.5999999999999973e-07,
+      "mass_kg": 0.0003023999999999997,
+      "min_J": 0.9991753199363118,
+      "max_J": 1.0005586092310337,
+      "max_abs_material_log_stretch_M_C_T": [
+        0.0008679266736582897,
+        6.72666320627381e-05,
+        0.0009637694145373545
+      ],
+      "max_abs_material_Green_shear_MC_MT_CT": [
+        0.00012413888729499988,
+        0.001702793491611961,
+        0.00045173906588289456
+      ]
+    },
+    {
+      "material_index": 1,
+      "tetrahedra": 384,
+      "volume_m3": 2.528972688049899e-07,
+      "mass_kg": 0.00018208603353959277,
+      "min_J": 0.9945600071662681,
+      "max_J": 1.0042420799010872,
+      "max_abs_material_log_stretch_M_C_T": [
+        0.00032522043684556507,
+        3.728935889530958e-05,
+        0.005444370412366599
+      ],
+      "max_abs_material_Green_shear_MC_MT_CT": [
+        0.0001256301980546925,
+        0.009017158201780654,
+        0.0005692011730067336
+      ]
+    }
+  ],
+  "inputs": {
+    "/Users/home/cardboard-evidence-20261006/refine-x-budget32-001/mesh.json": "904a4f8dff2381f342530b99d9d5b78fe45e8e917fb8766e5fd4f56087611eef",
+    "/Users/home/cardboard-evidence-20261006/refine-x-budget32-001/accepted_step_000008_bent.obj": "a17b17b52e176dd534af7dfdb6990c0449a476493b695e068f713a205d6d4cdc"
+  }
+}

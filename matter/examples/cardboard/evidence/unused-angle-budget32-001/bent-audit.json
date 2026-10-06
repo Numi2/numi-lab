@@ -1,0 +1,61 @@
+{
+  "schema": "numi.cardboard.geometry-audit.v1",
+  "status": "passed",
+  "scope": "Exported geometry validity and measured deformation; no claim of physical calibration or solver convergence",
+  "nodes": 762,
+  "free_nodes": 742,
+  "fixed_nodes": 20,
+  "tetrahedra": 1152,
+  "connected_components": 1,
+  "minimum_reference_tet_volume_m3": 4.173221571804299e-10,
+  "total_mass_kg_without_adhesive": 0.00048448603353959245,
+  "authored_extent_m": [
+    0.036,
+    0.02,
+    0.005
+  ],
+  "max_node_displacement_m": 7.045685410964681e-06,
+  "max_free_node_displacement_m": 7.045685410964681e-06,
+  "materials": [
+    {
+      "material_index": 0,
+      "tetrahedra": 768,
+      "volume_m3": 3.5999999999999973e-07,
+      "mass_kg": 0.0003023999999999997,
+      "min_J": 0.999516287506805,
+      "max_J": 1.0004087492288996,
+      "max_abs_material_log_stretch_M_C_T": [
+        0.0005234538744002385,
+        3.453271547799962e-05,
+        0.0006348535007020015
+      ],
+      "max_abs_material_Green_shear_MC_MT_CT": [
+        7.012020846426241e-05,
+        0.0009675494114216824,
+        0.0002054548012142521
+      ]
+    },
+    {
+      "material_index": 1,
+      "tetrahedra": 384,
+      "volume_m3": 2.528972688049899e-07,
+      "mass_kg": 0.00018208603353959277,
+      "min_J": 0.9971883697307687,
+      "max_J": 1.0022638612626962,
+      "max_abs_material_log_stretch_M_C_T": [
+        0.00019117136737553447,
+        1.702701878329438e-05,
+        0.0028595821137207722
+      ],
+      "max_abs_material_Green_shear_MC_MT_CT": [
+        6.025060178769617e-05,
+        0.004805735792886871,
+        0.0002612037716120194
+      ]
+    }
+  ],
+  "inputs": {
+    "/Users/home/cardboard-evidence-20261006/unused-angle-budget32-001/mesh.json": "904a4f8dff2381f342530b99d9d5b78fe45e8e917fb8766e5fd4f56087611eef",
+    "/Users/home/cardboard-evidence-20261006/unused-angle-budget32-001/accepted_step_000008_bent.obj": "59db59a3cea4b8e8c9d90287676f756bd1afa836d4319295e7c5199a309e9f00"
+  }
+}
