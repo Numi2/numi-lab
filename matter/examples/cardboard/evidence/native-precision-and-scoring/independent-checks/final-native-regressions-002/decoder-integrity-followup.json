@@ -1,0 +1,10 @@
+{
+  "created_utc": "2026-10-06T10:11:27.774910+00:00",
+  "python_tests_passed": 14,
+  "scope": "Decoder-only gap and duplicate-record rejection; no native implementation change after final 9 Metal suites. Together with the other 26 analysis cases, 40 cases pass.",
+  "bindings": {
+    "/Users/home/numi-cardboard-20261006/matter/tools/cardboard_newton_trace.py": "56f68fd26ccec706dc897eadced24db85fee9011f74fe3c1a3a662fb33319ecb",
+    "/Users/home/numi-cardboard-20261006/matter/tools/test_cardboard_newton_trace.py": "7713ae1ddf6c40ace47d4f8a5991f530eae5f9630a2b31b479477f506de81c07",
+    "/Users/home/cardboard-closure-evidence-20261006/newton-trace-tests-003.log": "7a129998fcf13604568d9da21d81193d5c134679c19c112d73a702d98993c8d3"
+  }
+}

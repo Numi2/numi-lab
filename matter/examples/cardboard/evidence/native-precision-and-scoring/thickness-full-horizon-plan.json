@@ -1,0 +1,53 @@
+{
+  "schema": "numi.cardboard.thickness-full-horizon.v1",
+  "created_utc": "2026-10-06T09:24:20.981815+00:00",
+  "question": "Does the higher Krylov budget recover the complete loading/hold thickness-refined trajectory, with acceptable sensitivity relative to a matching-budget coarse control?",
+  "prediction": "Both trajectories complete 48 increments. Phase-end reaction moment and paper plastic strain RMS differ by no more than 10 percent. Reaction-force curve discrepancies and force imbalance are reported independently. Failure contradicts this recovery hypothesis.",
+  "scope": "Matched 256-column Krylov controls; 0.8 ms loading and 0.4 ms hold only. No release, physical damage, quasi-static or full-box qualification.",
+  "trials": [
+    {
+      "name": "thickness-k256-baseline-001",
+      "args": [
+        "--reference-displacement-gradient",
+        "--residual-tolerance",
+        "1e-6",
+        "--newton-iterations",
+        "28",
+        "--fgmres-iterations",
+        "256",
+        "--steps",
+        "32",
+        "--hold-steps",
+        "16",
+        "--unload-steps",
+        "0",
+        "--relax-steps",
+        "0"
+      ]
+    },
+    {
+      "name": "thickness2-k256-full-001",
+      "args": [
+        "--reference-displacement-gradient",
+        "--residual-tolerance",
+        "1e-6",
+        "--newton-iterations",
+        "28",
+        "--fgmres-iterations",
+        "256",
+        "--steps",
+        "32",
+        "--hold-steps",
+        "16",
+        "--unload-steps",
+        "0",
+        "--relax-steps",
+        "0",
+        "--thickness-slices",
+        "2"
+      ]
+    }
+  ],
+  "timeout_seconds_per_run": 1800,
+  "physical_validation": false
+}

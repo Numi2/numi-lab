@@ -1,0 +1,16 @@
+Test project /Users/home/numi-cardboard-20261006/build-cardboard
+    Start 1: matter.analysis.cardboard_convergence
+1/3 Test #1: matter.analysis.cardboard_convergence ....   Passed    0.34 sec
+    Start 2: matter.analysis.cardboard_tooling
+2/3 Test #2: matter.analysis.cardboard_tooling ........   Passed    0.06 sec
+    Start 3: matter.analysis.cardboard_newton_trace
+3/3 Test #3: matter.analysis.cardboard_newton_trace ...   Passed    0.05 sec
+
+100% tests passed, 0 tests failed out of 3
+
+Label Time Summary:
+analysis     =   0.45 sec*proc (3 tests)
+cardboard    =   0.45 sec*proc (3 tests)
+matter       =   0.45 sec*proc (3 tests)
+
+Total Test time (real) =   0.45 sec

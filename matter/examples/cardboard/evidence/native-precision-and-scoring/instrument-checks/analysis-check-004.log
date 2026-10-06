@@ -1,0 +1,33 @@
+Test project /Users/home/numi-cardboard-20261006/build-cardboard
+    Start 1: matter.analysis.cardboard_convergence
+1/2 Test #1: matter.analysis.cardboard_convergence ...   Passed    0.21 sec
+    Start 2: matter.analysis.cardboard_tooling
+2/2 Test #2: matter.analysis.cardboard_tooling .......***Failed    0.06 sec
+E..........
+======================================================================
+ERROR: test_barrier_scale_requires_prescribed_path (__main__.CardboardToolingAnalysisTests.test_barrier_scale_requires_prescribed_path)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/home/numi-cardboard-20261006/matter/tools/test_cardboard_tooling_analysis.py", line 113, in test_barrier_scale_requires_prescribed_path
+    analysis.analyze(self.run_dir)
+    ^^^^^^^^^^^^^^^^
+AttributeError: module 'cardboard_tooling_analysis' has no attribute 'analyze'
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.013s
+
+FAILED (errors=1)
+
+
+50% tests passed, 1 tests failed out of 2
+
+Label Time Summary:
+analysis     =   0.26 sec*proc (2 tests)
+cardboard    =   0.26 sec*proc (2 tests)
+matter       =   0.26 sec*proc (2 tests)
+
+Total Test time (real) =   0.27 sec
+
+The following tests FAILED:
+	  2 - matter.analysis.cardboard_tooling (Failed)        analysis cardboard matter
+Errors while running CTest

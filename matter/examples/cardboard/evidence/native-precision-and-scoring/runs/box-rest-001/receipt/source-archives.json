@@ -1,0 +1,58 @@
+{
+  "hajali2009_medium_hill_ideal.nmatter": {
+    "sha256": "ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8",
+    "archive": "source-snapshots/ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8-hajali2009_medium_hill_ideal.nmatter.gz"
+  },
+  "compiler_impl.cpp": {
+    "sha256": "f5dff505e324f8dae6873ba7bad1c02a8cbc85fa3b75e7057fdb5357bfb4c25a",
+    "archive": "source-snapshots/f5dff505e324f8dae6873ba7bad1c02a8cbc85fa3b75e7057fdb5357bfb4c25a-compiler_impl.cpp.gz"
+  },
+  "fem_reference_geometry.hpp": {
+    "sha256": "29984e3d7cad38b82253320feca1ffeb8df58b66ca48102755856ffcad125e67",
+    "archive": "source-snapshots/29984e3d7cad38b82253320feca1ffeb8df58b66ca48102755856ffcad125e67-fem_reference_geometry.hpp.gz"
+  },
+  "cardboard_tooling.hpp": {
+    "sha256": "db98b29d39895054ca25cedcc8e3adc67c4304bc083a6453eab660e9858b6ded",
+    "archive": "source-snapshots/db98b29d39895054ca25cedcc8e3adc67c4304bc083a6453eab660e9858b6ded-cardboard_tooling.hpp.gz"
+  },
+  "hajali2009_liner_hill_ideal.nmatter": {
+    "sha256": "787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d",
+    "archive": "source-snapshots/787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d-hajali2009_liner_hill_ideal.nmatter.gz"
+  },
+  "cardboard_glue_mesh.hpp": {
+    "sha256": "d2668155580cdbdd09411d6cdac6a367a726e909d5dd6d4c9770e8f3822d0146",
+    "archive": "source-snapshots/d2668155580cdbdd09411d6cdac6a367a726e909d5dd6d4c9770e8f3822d0146-cardboard_glue_mesh.hpp.gz"
+  },
+  "cardboard_probe.mm": {
+    "sha256": "814844f53a64b542fe94634c31ac5d452ddb91295f3d47d45c237cea6e110bb8",
+    "archive": "source-snapshots/814844f53a64b542fe94634c31ac5d452ddb91295f3d47d45c237cea6e110bb8-cardboard_probe.mm.gz"
+  },
+  "validation_impl.cpp": {
+    "sha256": "16e639e6e437e8e7b5a16ff25217a7201f2a872b0aa6f445184d9b296693df04",
+    "archive": "source-snapshots/16e639e6e437e8e7b5a16ff25217a7201f2a872b0aa6f445184d9b296693df04-validation_impl.cpp.gz"
+  },
+  "matter.hpp": {
+    "sha256": "e3e03013954aa739c1300bdca0795470cbc0ffbd454d76d1136ad326dbaf9e67",
+    "archive": "source-snapshots/e3e03013954aa739c1300bdca0795470cbc0ffbd454d76d1136ad326dbaf9e67-matter.hpp.gz"
+  },
+  "cardboard_box_blank.hpp": {
+    "sha256": "633f4a9425207a252653763342822aeb07df025f799bce1052e9087881c75c47",
+    "archive": "source-snapshots/633f4a9425207a252653763342822aeb07df025f799bce1052e9087881c75c47-cardboard_box_blank.hpp.gz"
+  },
+  "fem.metalinc": {
+    "sha256": "bb985969bd5ebcda5e56d36c9cede6386a1a23ac917a583611225a15e7de7ff7",
+    "archive": "source-snapshots/bb985969bd5ebcda5e56d36c9cede6386a1a23ac917a583611225a15e7de7ff7-fem.metalinc.gz"
+  },
+  "starch2007_finite_glue_elastic.nmatter": {
+    "sha256": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1",
+    "archive": "source-snapshots/39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1-starch2007_finite_glue_elastic.nmatter.gz"
+  },
+  "runtime.mm": {
+    "sha256": "3304263d06b4559f584fd8854ac659a5d37e863c647a87059ff08b51e06ec654",
+    "archive": "source-snapshots/3304263d06b4559f584fd8854ac659a5d37e863c647a87059ff08b51e06ec654-runtime.mm.gz"
+  },
+  "contact.metalinc": {
+    "sha256": "bd58b64bdc23db7dc4ddf0a670fb30a813d048f059bd5c65aa4b3e0dd09b0694",
+    "archive": "source-snapshots/bd58b64bdc23db7dc4ddf0a670fb30a813d048f059bd5c65aa4b3e0dd09b0694-contact.metalinc.gz"
+  }
+}

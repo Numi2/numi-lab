@@ -1,0 +1,12 @@
+Command:
+  build-cardboard/numi-matter-cardboard-preconditioner-gpu-check \
+    matter/materials/hajali2009_liner_hill_ideal.nmatter \
+    matter/materials/hajali2009_medium_hill_ideal.nmatter
+
+Exit code: 0
+
+Output:
+device=Apple M4 kernel=nm_fgmres_build_tangent_fem_preconditioner physical_steps=0
+hajali2009_liner_hill_ideal.nmatter direct_kernel_diagonal_entries=12 fd_relative_max=2.72786e-05 fd_absolute_max=54.3262
+hajali2009_medium_hill_ideal.nmatter direct_kernel_diagonal_entries=12 fd_relative_max=2.69773e-05 fd_absolute_max=41.7709
+PASS direct Metal tangent-diagonal FD; physical_validation=false

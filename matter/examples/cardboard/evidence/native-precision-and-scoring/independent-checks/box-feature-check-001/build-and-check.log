@@ -1,0 +1,5 @@
+patching file 'matter/tools/cardboard_box_blank.hpp'
+patching file 'matter/tools/cardboard_probe.mm'
+patching file 'matter/tools/cardboard_box_blank_check.cpp'
+patching file 'matter/examples/cardboard/cardboard-box-blank.md'
+fefco0201_blank_geometry_passed nodes=5238 tetrahedra=15312 score_lines=12 slots=6 assembly_actions=15 folds_executed=false score_damage_authored=false

@@ -42,6 +42,10 @@ CURVE_FIELDS = (
     "reaction_x_N", "reaction_y_N", "reaction_z_N", "reaction_moment_y_Nm",
     "kinetic_energy_J", "max_free_speed_m_s", "max_free_displacement_m",
 )
+FORCE_IMBALANCE_FIELDS = ("free_force_imbalance_l2_N", "free_force_imbalance_max_N")
+# Probe manifests are emitted with finite decimal precision. Compare the
+# normalized tolerance-per-timestep ratio with a 1 ppm relative allowance.
+FORCE_MATCH_RATIO_REL_TOL = 1.0e-6
 COMMON_SOLVER_FIELDS = (
     "backend", "deformable_self_contact", "contact_slop_m", "local_material_newton_iterations",
     "newton_iteration_budget", "fgmres_restart", "fgmres_iteration_budget", "line_search_steps",
@@ -222,6 +226,8 @@ def _load_run(path: Path) -> RunData:
     mesh = _read_json(path / "mesh.json", files)
     if manifest.get("schema") != MANIFEST_SCHEMA:
         raise EvidenceError("unsupported_manifest_schema", f"unsupported manifest schema {manifest.get('schema')!r}")
+    if manifest.get("specimen", "corrugated_strip") != "corrugated_strip":
+        raise EvidenceError("unsupported_specimen", "strip convergence cannot admit a box blank")
     if result.get("schema") != RESULT_SCHEMA:
         raise EvidenceError("unsupported_result_schema", f"unsupported result schema {result.get('schema')!r}")
     if mesh.get("schema") != MESH_SCHEMA or mesh.get("units") != "metres":
@@ -332,6 +338,8 @@ def _load_run(path: Path) -> RunData:
     volume_tolerance = _number(solver.get("volume_tolerance"), "solver.volume_tolerance")
     pressure_tolerance = _number(solver.get("pressure_tolerance"), "solver.pressure_tolerance")
     dt = protocol["dt_s"]
+    if tolerance <= 0:
+        raise EvidenceError("invalid_solver_tolerance", "solver.relative_residual_tolerance must be positive")
     for raw in rows:
         step = _int(raw.get("step"), "CSV.step")
         env = _int(raw.get("environment"), "CSV.environment")
@@ -340,6 +348,12 @@ def _load_run(path: Path) -> RunData:
         if raw.get("arm") != ("bent" if env == 0 else "held_reference"):
             raise EvidenceError("unknown_arm_mapping", f"environment {env} has unexpected arm label")
         values = {key: _number(raw.get(key), f"CSV.{key}") for key in FLOAT_FIELDS}
+        for key in FORCE_IMBALANCE_FIELDS:
+            if key in header:
+                force_value = _number(raw.get(key), f"CSV.{key}")
+                if force_value < 0:
+                    raise EvidenceError("invalid_force_imbalance", f"CSV.{key} cannot be negative")
+                values[key] = force_value
         status_code = _int(raw.get("status_code"), "CSV.status_code")
         accepted = _int(raw.get(acceptance_field), f"CSV.{acceptance_field}")
         if status_code != 0 or accepted != 1:
@@ -574,13 +588,100 @@ def _same_materials(a: RunData, b: RunData) -> None:
         raise IncompatibleError("material_map_mismatch", "material region names differ")
 
 
-def _same_solver_controls(a: RunData, b: RunData) -> None:
+def _same_solver_controls(a: RunData, b: RunData, *,
+                          allow_force_matched_tolerance: bool = False) -> None:
     sa, sb = a.manifest["solver"], b.manifest["solver"]
+    # Older manifests predate the immutable-reference arithmetic option.
+    # They unambiguously used absolute-position Ds*Dm^-1. Do not admit a
+    # precision-method change as an otherwise matched mesh/time comparison.
+    gradients = [s.get("deformation_gradient", "absolute_position") for s in (sa, sb)]
+    if any(value not in {"absolute_position", "reference_displacement", "persistent_reference_displacement"} for value in gradients):
+        raise EvidenceError("unknown_deformation_gradient", "unrecognized FEM arithmetic mode")
+    if gradients[0] != gradients[1]:
+        raise IncompatibleError("solver_control_mismatch", "deformation gradient arithmetic differs")
+    preconditioners = [s.get("fgmres_preconditioner", "scalar_diagonal") for s in (sa, sb)]
+    if any(value not in {"scalar_diagonal", "regional_tangent_fem_diagonal"} for value in preconditioners):
+        raise EvidenceError("unknown_preconditioner", "unrecognized FGMRES preconditioner")
+    if preconditioners[0] != preconditioners[1]:
+        raise IncompatibleError("solver_control_mismatch", "FGMRES preconditioner differs")
     for key in COMMON_SOLVER_FIELDS:
         if key not in sa or key not in sb:
             raise EvidenceError("missing_solver_control", f"solver control {key} is missing")
+        if key == "relative_residual_tolerance" and allow_force_matched_tolerance:
+            continue
         if not _numeric_equal(sa[key], sb[key]):
             raise IncompatibleError("solver_control_mismatch", f"solver control {key} differs")
+
+
+def _force_tolerance_ratio(run: RunData) -> float:
+    solver = run.manifest["solver"]
+    tolerance = _number(solver.get("relative_residual_tolerance"),
+                        "solver.relative_residual_tolerance")
+    dt = _protocol(solver)["dt_s"]
+    if tolerance <= 0 or dt <= 0:
+        raise EvidenceError("invalid_force_tolerance_ratio",
+                            "relative residual tolerance and timestep must be positive")
+    return tolerance / dt
+
+
+def _observed_force_imbalance_bounds(run: RunData) -> dict[str, Any]:
+    if not all(any(field in row for row in run.rows) for field in FORCE_IMBALANCE_FIELDS):
+        return {
+            "available": False,
+            "note": "free-node force-imbalance observations are absent from this export",
+        }
+    by_arm: dict[str, dict[str, float]] = {}
+    for arm in ("bent", "held_reference"):
+        arm_rows = [row for row in run.rows if row["arm"] == arm]
+        by_arm[arm] = {
+            field: max((row[field] for row in arm_rows if field in row), default=0.0)
+            for field in FORCE_IMBALANCE_FIELDS
+        }
+    return {
+        "available": True,
+        "maximum_over_recorded_accepted_steps_by_arm_N": by_arm,
+        "note": "observed free-node force residuals from the probe; measurements, not a solver acceptance threshold",
+    }
+
+
+def _force_tolerance_contract(a: RunData, b: RunData, enabled: bool) -> dict[str, Any]:
+    def one(run: RunData) -> dict[str, Any]:
+        solver = run.manifest["solver"]
+        protocol = _protocol(solver)
+        tolerance = _number(solver.get("relative_residual_tolerance"),
+                            "solver.relative_residual_tolerance")
+        ratio = _force_tolerance_ratio(run)
+        return {
+            "dt_s": protocol["dt_s"],
+            "relative_residual_tolerance": tolerance,
+            "relative_residual_tolerance_over_dt_s_inverse": ratio,
+            "force_equivalent_at_one_Ns_residual_scale_N": ratio,
+            "volume_tolerance": _number(solver.get("volume_tolerance"), "solver.volume_tolerance"),
+            "pressure_tolerance": _number(solver.get("pressure_tolerance"), "solver.pressure_tolerance"),
+            "transport_tolerance": _number(solver.get("transport_tolerance"), "solver.transport_tolerance"),
+            "observed_free_force_imbalance": _observed_force_imbalance_bounds(run),
+        }
+
+    base, candidate = one(a), one(b)
+    return {
+        "enabled": enabled,
+        "applies_only_to": "temporal",
+        "matching_quantity": "relative_residual_tolerance / dt_s",
+        "ratio_rounding_allowance": {
+            "relative": FORCE_MATCH_RATIO_REL_TOL,
+        },
+        "baseline": base,
+        "candidate": candidate,
+        "force_bound_interpretation": {
+            "force_equivalent_at_one_Ns_residual_scale_N": base["force_equivalent_at_one_Ns_residual_scale_N"],
+            "absolute_force_bound_N": None,
+            "absolute_force_bound_unavailable_reason": (
+                "the export omits the residual normalization scale needed to turn the relative "
+                "solver threshold into an absolute force bound; per-step free-force residuals "
+                "above are observed measurements, not the solver gate"
+            ),
+        },
+    }
 
 
 def _phase_durations(run: RunData) -> dict[str, float]:
@@ -593,7 +694,8 @@ def _mesh_resolution(run: RunData) -> tuple[int, int, int]:
     return tuple(_int(mesh.get(key), f"mesh.{key}") for key in ("nx_per_pitch", "ny", "thickness_slices"))
 
 
-def _same_protocol_except_axis(a: RunData, b: RunData, kind: str) -> dict[str, Any]:
+def _same_protocol_except_axis(a: RunData, b: RunData, kind: str,
+                               *, force_matched_tolerance: bool = False) -> dict[str, Any]:
     pa, pb = _protocol(a.manifest["solver"]), _protocol(b.manifest["solver"])
     if not _close(pa["bend_angle_deg"], pb["bend_angle_deg"], abs_tol=1e-9):
         raise IncompatibleError("bend_angle_mismatch", "peak grip rotation differs")
@@ -618,6 +720,20 @@ def _same_protocol_except_axis(a: RunData, b: RunData, kind: str) -> dict[str, A
         ratio = coarse / fine
         if not _close(ratio, round(ratio), rel=1e-9, abs_tol=1e-9):
             raise IncompatibleError("incommensurate_time_sampling", "finer timestep does not nest the coarse sampling grid")
+        if force_matched_tolerance:
+            tolerance_ratio_a = _force_tolerance_ratio(a)
+            tolerance_ratio_b = _force_tolerance_ratio(b)
+            if not math.isclose(
+                tolerance_ratio_a, tolerance_ratio_b,
+                rel_tol=FORCE_MATCH_RATIO_REL_TOL,
+                abs_tol=0.0,
+            ):
+                raise IncompatibleError(
+                    "force_tolerance_ratio_mismatch",
+                    "relative_residual_tolerance / dt_s differs between runs "
+                    f"({tolerance_ratio_a:.12g} vs {tolerance_ratio_b:.12g} s^-1; "
+                    f"allowed relative rounding {FORCE_MATCH_RATIO_REL_TOL:g})",
+                )
     elif kind == "load_rate":
         if ra != rb:
             raise IncompatibleError("mesh_resolution_mismatch", "load-rate comparison requires identical mesh resolution")
@@ -945,7 +1061,8 @@ def analyze_pair(baseline_dir: str | Path, candidate_dir: str | Path, kind: str,
                  requested_phases: Iterable[str] | None = None,
                  endpoint_relative_tolerance: float | None = None,
                  plastic_absolute_floor: float = 1.0e-8,
-                 moment_absolute_floor: float = 1.0e-6) -> dict[str, Any]:
+                 moment_absolute_floor: float = 1.0e-6,
+                 force_matched_tolerance: bool = False) -> dict[str, Any]:
     base_path, cand_path = Path(baseline_dir), Path(candidate_dir)
     report: dict[str, Any] = {
         "schema": ANALYSIS_SCHEMA,
@@ -959,11 +1076,20 @@ def analyze_pair(baseline_dir: str | Path, candidate_dir: str | Path, kind: str,
     try:
         a = _load_run(base_path)
         b = _load_run(cand_path)
+        if force_matched_tolerance and kind != "temporal":
+            raise IncompatibleError(
+                "force_matched_tolerance_requires_temporal",
+                "force-matched tolerance is only admitted for temporal comparisons",
+            )
         phases = _request_phases(a, b, requested_phases)
         _same_materials(a, b)
         _same_geometry(a, b)
-        _same_solver_controls(a, b)
-        axis = _same_protocol_except_axis(a, b, kind)
+        _same_solver_controls(a, b,
+                              allow_force_matched_tolerance=force_matched_tolerance)
+        axis = _same_protocol_except_axis(
+            a, b, kind, force_matched_tolerance=force_matched_tolerance)
+        axis["force_matched_tolerance"] = _force_tolerance_contract(
+            a, b, force_matched_tolerance)
         if "release" in phases:
             if a.manifest["solver"].get("release_steps", 0) <= 0 or b.manifest["solver"].get("release_steps", 0) <= 0:
                 raise EvidenceError("inconclusive_missing_free_release", "requested free-release comparison lacks release in both runs")
@@ -1075,8 +1201,12 @@ def main(argv: list[str] | None = None) -> int:
                         help="denominator floor for plastic-strain relative difference")
     parser.add_argument("--moment-absolute-floor", type=float, default=1.0e-6,
                         help="denominator floor for reaction-moment relative difference in N m")
+    parser.add_argument("--force-matched-tolerance", action="store_true",
+                        help="temporal studies only: allow differing residual tolerances only when tolerance/dt matches")
     parser.add_argument("--output", type=Path, help="write the JSON report to this path; stdout if omitted")
     args = parser.parse_args(argv)
+    if args.force_matched_tolerance and args.kind != "temporal":
+        parser.error("--force-matched-tolerance is usable only with --kind temporal")
     if args.run is not None:
         if args.kind is not None or args.baseline is not None or args.candidate is not None:
             parser.error("--run is exclusive with --kind, --baseline, and --candidate")
@@ -1088,7 +1218,8 @@ def main(argv: list[str] | None = None) -> int:
             parser.error("paired analysis requires --kind, --baseline, and --candidate")
         result = analyze_pair(args.baseline, args.candidate, args.kind, args.phase,
                               args.endpoint_relative_tolerance,
-                              args.plastic_absolute_floor, args.moment_absolute_floor)
+                              args.plastic_absolute_floor, args.moment_absolute_floor,
+                              args.force_matched_tolerance)
     encoded = json.dumps(result, indent=2, sort_keys=True) + "\n"
     if args.output:
         try:

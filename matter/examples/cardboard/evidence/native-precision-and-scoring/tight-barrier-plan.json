@@ -1,0 +1,63 @@
+{
+  "schema": "numi.cardboard.tight-barrier-sensitivity.v1",
+  "created_utc": "2026-10-06T08:32:31.701118+00:00",
+  "question": "Do the two successful50um barrier factors remain viable at a100-fold tighter impulse threshold, and do accepted punch forces become less sensitive?",
+  "prediction": "Both96-step cycles complete without floor changes. Peak punch reaction differs by at most10% between factors2and4; report full force curves and maximum accepted force imbalance, not only peak. Any incomplete arm blocks a completed paired estimate.",
+  "scope": "Same build,geometry,material,tool,dt and acceptance controls,only barrier factor differs. No physical calibration or actual deep crease claim.",
+  "trials": [
+    {
+      "name": "barrier50-scale2-tight-001",
+      "args": [
+        "--crease",
+        "--prescribed-tool-predictor",
+        "--reference-displacement-gradient",
+        "--steps",
+        "32",
+        "--hold-steps",
+        "16",
+        "--unload-steps",
+        "32",
+        "--relax-steps",
+        "16",
+        "--indent-mm",
+        ".050",
+        "--residual-tolerance",
+        "1e-6",
+        "--newton-iterations",
+        "28",
+        "--fgmres-iterations",
+        "64",
+        "--prescribed-tool-barrier-scale",
+        "2"
+      ]
+    },
+    {
+      "name": "barrier50-scale4-tight-001",
+      "args": [
+        "--crease",
+        "--prescribed-tool-predictor",
+        "--reference-displacement-gradient",
+        "--steps",
+        "32",
+        "--hold-steps",
+        "16",
+        "--unload-steps",
+        "32",
+        "--relax-steps",
+        "16",
+        "--indent-mm",
+        ".050",
+        "--residual-tolerance",
+        "1e-6",
+        "--newton-iterations",
+        "28",
+        "--fgmres-iterations",
+        "64",
+        "--prescribed-tool-barrier-scale",
+        "4"
+      ]
+    }
+  ],
+  "timeout_seconds_per_run": 900,
+  "physical_validation": false
+}

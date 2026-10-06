@@ -1,0 +1,14 @@
+{
+  "schema": "numi.cardboard.line-search-diagnostic.v1",
+  "created_utc": "2026-10-06T07:52:44.904020+00:00",
+  "question": "Which native globalization gate rejects the 50 micrometre trial at control step 15 despite an in-tolerance residual certificate?",
+  "prior_evidence": "predictor50-001: 15 accepted steps, then status 10 with invalid object/index and four zero diagnostics; certificate residual 2.4540244e-5 at 1e-4 threshold. Prior accepted sampled gap 44.8649 nm.",
+  "prediction": "A contact limiter reduces shared alpha to zero; the no-support final alpha gate records generic nonlinear failure. Instrument separate stages before contact, after deformable limit, after rigid limit, and final shared alpha.",
+  "trial": "predictor50-trace-001",
+  "environment": {
+    "NM_FEM_CONTACT_TRACE_ROOT": "15"
+  },
+  "controls": "Same 32/16/32/16 protocol, 50 um travel, scalar preconditioner and persistent displacement; diagnostic copies do not modify native state. Compare accepted observations with predictor50-001.",
+  "stopping_rule": "First native rejection or 900 seconds; retain trace and failure. No relaxed penetration or residual gates.",
+  "physical_validation": false
+}

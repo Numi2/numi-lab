@@ -1119,6 +1119,145 @@ kernel void nm_fgmres_build_preconditioner(
     inverseDiagonal[global] = float4(velocityInverse, pressureInverse);
 }
 
+// Experimental regional-FEM diagonal built from the same constitutive
+// algorithmic tangent used by nm_fem_apply_operator_elements. Each incident
+// tetrahedron contributes the three same-node Jacobian diagonal entries. The
+// result is still only a componentwise diagonal approximation; cross-axis and
+// cross-node blocks remain the job of restarted FGMRES. This kernel is
+// dispatched once per Newton linearization only when executionBudgets.z == 1.
+kernel void nm_fgmres_build_tangent_fem_preconditioner(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMixedSolverGPU& solver [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(3)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(4)]],
+    device const uint* nodeIncidence [[buffer(5)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(6)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(7)]],
+    device const NMMaterialGPU* materials [[buffer(8)]],
+    device const NMScalarProgramGPU* programs [[buffer(9)]],
+    device const NMExpressionInstructionGPU* instructions [[buffer(10)]],
+    device const float* environmentParameters [[buffer(11)]],
+    device const float* acceptedMaterialState [[buffer(12)]],
+    device float4* inverseDiagonal [[buffer(13)]],
+    constant NMPrimalContactArguments& contact [[buffer(14)]],
+    device NMMatterStatusGPU* statuses [[buffer(15)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u) return;
+    inverseDiagonal[global] = float4(0.0f);
+    const uint environment = global / dispatch.femNodeCount;
+    const NMIncidenceRangeGPU range = nodeRanges[global];
+    if (range.objectIndex == NM_INVALID_INDEX ||
+        range.objectIndex >= dispatch.objectCount) return;
+    const NMContinuumObjectGPU object = objects[range.objectIndex];
+    if (object.representation != NM_REPRESENTATION_FEM ||
+        (object.flags & (NM_OBJECT_MIXED_FEM | NM_OBJECT_MULTIPHYSICS)) != 0u)
+        return;
+
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    const uint localNode = global - nodeBase;
+    const float dt = objectTimestep(
+        dispatch, schedulers[environment * dispatch.objectCount +
+                             range.objectIndex]);
+    float3 stiffnessDiagonal = float3(0.0f);
+    for (uint local = 0u; local < range.count; ++local) {
+        const uint tetrahedronIndex = nodeIncidence[range.first + local];
+        if (tetrahedronIndex >= dispatch.tetrahedronCount) continue;
+        const uint globalTet = environment * dispatch.tetrahedronCount +
+            tetrahedronIndex;
+        const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
+            dispatch, tetrahedra, environment, tetrahedronIndex);
+        if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+            tetrahedron.identity.y != range.objectIndex) continue;
+
+        const float3x3 inverseRest = matrixFromRows(
+            tetrahedron.inverseRestRow0, tetrahedron.inverseRestRow1,
+            tetrahedron.inverseRestRow2);
+        const float3x3 deformation = tetrahedronDeformation(
+            tetrahedron, candidate, nodeBase);
+        const float3x3 deformationRate = tetrahedronVelocityGradient(
+            tetrahedron, candidate, nodeBase);
+        const NMMaterialGPU material = materials[tetrahedron.identity.x];
+        device const float* internalState = material.stateCount == 0u
+            ? nullptr
+            : acceptedMaterialState + globalTet * dispatch.materialStateStride;
+        device const float* parameters = environmentParameters +
+            environment * dispatch.parameterCount;
+        uint localSlot = 0u;
+        bool foundLocalSlot = false;
+        for (uint slot = 0u; slot < 4u; ++slot)
+            if (tetrahedron.nodes[slot] == localNode) {
+                localSlot = slot;
+                foundLocalSlot = true;
+            }
+        if (!foundLocalSlot) continue;
+
+        for (uint axisIndex = 0u; axisIndex < 3u; ++axisIndex) {
+            const float3 axis = axisIndex == 0u ? float3(1.0f, 0.0f, 0.0f) :
+                (axisIndex == 1u ? float3(0.0f, 1.0f, 0.0f) :
+                                   float3(0.0f, 0.0f, 1.0f));
+            const float3 p0 = localSlot == 0u ? axis : float3(0.0f);
+            const float3 p1 = localSlot == 1u ? axis : float3(0.0f);
+            const float3 p2 = localSlot == 2u ? axis : float3(0.0f);
+            const float3 p3 = localSlot == 3u ? axis : float3(0.0f);
+            const float3x3 dp = float3x3(p1 - p0, p2 - p0, p3 - p0);
+            const float3x3 deformationDirection = dp * inverseRest;
+            const float3x3 rateDirection = deformationDirection /
+                max(dt, 1.0e-12f);
+            bool valid = true;
+            float3x3 analytic;
+            float3x3 tangent;
+            evaluateAlgorithmicStressTangent(
+                material, programs, instructions, parameters, internalState,
+                femMaterialInput(object, tetrahedron, deformation),
+                femMaterialInput(object, tetrahedron, deformationDirection),
+                femMaterialInput(object, tetrahedron, deformationRate),
+                femMaterialInput(object, tetrahedron, rateDirection),
+                dt, material.bulk.y, analytic, tangent, valid);
+            (void)analytic;
+            const bool finiteTangent = all(isfinite(tangent[0])) &&
+                all(isfinite(tangent[1])) && all(isfinite(tangent[2]));
+            if (!valid || !finiteTangent) {
+                recordFailure(statuses[environment],
+                    NM_STATUS_NONFINITE_RESULT, range.objectIndex,
+                    tetrahedronIndex,
+                    float4(maximumAbs(deformationDirection), dt,
+                           float(axisIndex), 0.0f));
+                return;
+            }
+            tangent = femMaterialOutput(object, tetrahedron, tangent);
+            const NMFEMElementVectorGPU forceDirection =
+                tetrahedronForce(tetrahedron, tangent);
+            const float3 nodeForceDirection = elementNodeVector(
+                forceDirection, tetrahedron, localNode).xyz;
+            if (!all(isfinite(nodeForceDirection))) {
+                recordFailure(statuses[environment],
+                    NM_STATUS_NONFINITE_RESULT, range.objectIndex,
+                    tetrahedronIndex,
+                    float4(maximumAbsoluteCoordinate(nodeForceDirection), dt,
+                           float(axisIndex), 1.0f));
+                return;
+            }
+            stiffnessDiagonal[axisIndex] -= dt * dt *
+                nodeForceDirection[axisIndex];
+        }
+    }
+
+    const float mass = max(candidate[global].positionAndMass.w, 0.0f);
+    const bool fixedVelocity = candidate[global].restAndFixed.w > 0.5f;
+    const float3 contactDiagonal = fgmresContactDiagonal(
+        dispatch, contact, environment,
+        dispatch.gridNodeCount + localNode, range.objectIndex);
+    const float3 velocityInverse = fixedVelocity
+        ? float3(0.0f)
+        : 1.0f / max(
+            float3(mass) + stiffnessDiagonal + contactDiagonal,
+            float3(solver.regularization.x));
+    inverseDiagonal[global] = float4(velocityInverse, 0.0f);
+}
+
 kernel void nm_fgmres_export_rigid(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const float4* source [[buffer(1)]],

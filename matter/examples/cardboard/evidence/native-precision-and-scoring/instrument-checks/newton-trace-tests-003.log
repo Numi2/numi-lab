@@ -1,0 +1,19 @@
+test_cli_binds_hashes_and_never_overwrites_an_existing_report (__main__.NewtonTraceTests.test_cli_binds_hashes_and_never_overwrites_an_existing_report) ... ok
+test_cli_retains_incomplete_and_skipped_reports_but_fails (__main__.NewtonTraceTests.test_cli_retains_incomplete_and_skipped_reports_but_fails) ... ok
+test_duplicate_terminal_is_invalid (__main__.NewtonTraceTests.test_duplicate_terminal_is_invalid) ... ok
+test_exact_stage_state_comparison_catches_small_norm_drift (__main__.NewtonTraceTests.test_exact_stage_state_comparison_catches_small_norm_drift) ... ok
+test_malformed_or_truncated_record_is_invalid (__main__.NewtonTraceTests.test_malformed_or_truncated_record_is_invalid) ... ok
+test_missing_stage_is_incomplete_not_silently_complete (__main__.NewtonTraceTests.test_missing_stage_is_incomplete_not_silently_complete) ... ok
+test_missing_terminal_certificate_is_incomplete (__main__.NewtonTraceTests.test_missing_terminal_certificate_is_incomplete) ... ok
+test_missing_whole_iteration_is_invalid (__main__.NewtonTraceTests.test_missing_whole_iteration_is_invalid) ... ok
+test_raw_terminal_status_overrides_certificate_flag (__main__.NewtonTraceTests.test_raw_terminal_status_overrides_certificate_flag) ... ok
+test_rejects_unaccepted_or_stale_arnoldi_state (__main__.NewtonTraceTests.test_rejects_unaccepted_or_stale_arnoldi_state) ... ok
+test_skip_is_explicit (__main__.NewtonTraceTests.test_skip_is_explicit) ... ok
+test_terminal_identity_must_match_last_captured_iteration (__main__.NewtonTraceTests.test_terminal_identity_must_match_last_captured_iteration) ... ok
+test_uses_next_assembly_for_residual_growth (__main__.NewtonTraceTests.test_uses_next_assembly_for_residual_growth) ... ok
+test_zero_final_restart_columns_do_not_hide_a_latched_accepted_cycle (__main__.NewtonTraceTests.test_zero_final_restart_columns_do_not_hide_a_latched_accepted_cycle) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.004s
+
+OK

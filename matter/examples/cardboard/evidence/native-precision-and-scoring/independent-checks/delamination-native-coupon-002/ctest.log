@@ -1,0 +1,13 @@
+Test project /Users/home/numi-cardboard-20261006/build-cardboard
+    Start 17: matter.metal.cardboard_delamination_coupon
+1/1 Test #17: matter.metal.cardboard_delamination_coupon ...   Passed    6.95 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Label Time Summary:
+cardboard       =   6.95 sec*proc (1 test)
+delamination    =   6.95 sec*proc (1 test)
+material        =   6.95 sec*proc (1 test)
+matter          =   6.95 sec*proc (1 test)
+
+Total Test time (real) =   6.95 sec

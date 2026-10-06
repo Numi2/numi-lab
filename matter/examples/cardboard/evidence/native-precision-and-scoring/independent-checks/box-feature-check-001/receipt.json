@@ -1,0 +1,28 @@
+{
+  "schema": "numi.cardboard.box-feature-cpu-check.v1",
+  "status": "passed",
+  "utc": "2026-10-06T09:43:22.133776+00:00",
+  "scope": "CPU topology/typed feature identity check in copied source; current production binary and bound inputs unchanged",
+  "command": [
+    "c++",
+    "-std=c++23",
+    "-O1",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-Imatter/tools",
+    "matter/tools/cardboard_box_blank_check.cpp",
+    "-o",
+    "/Users/home/cardboard-closure-evidence-20261006/box-feature-check-001/cardboard_box_blank_check"
+  ],
+  "sha256": {
+    "cardboard_box_blank_check": "7bff28bbd447fd6aee9213a4454834a7d8095670632470f47072c977e5900032",
+    "build-and-check.log": "a5dc7b8a5d12b241e9cb6b0deffdd941b49fd071234f484f79d2b3d5fcbcd9d7",
+    "src/matter/tools/cardboard_glue_mesh.hpp": "d2668155580cdbdd09411d6cdac6a367a726e909d5dd6d4c9770e8f3822d0146",
+    "src/matter/tools/cardboard_probe.mm": "b37d9e6806890fba1ef528bb50217de999c76aff0c493c329f699e36ea49f717",
+    "src/matter/tools/cardboard_box_blank_check.cpp": "04117a19a8bde6ba7ff096a3b4b50eebfae812db2c26457afec9709acad55d5d",
+    "src/matter/tools/cardboard_box_blank.hpp": "bb07194cc135e51413fcdaff0445fa5992a7b386ccf4e7feeacfb4d9f2b25da3",
+    "src/matter/examples/cardboard/cardboard-box-blank.md": "badbc13a7cfd5478a95e703cda3ef446ed64e51ceb2f627b8a6882174078957c"
+  }
+}

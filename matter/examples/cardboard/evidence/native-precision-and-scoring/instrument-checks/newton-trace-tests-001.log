@@ -1,0 +1,32 @@
+test_cli_binds_hashes_and_never_overwrites_an_existing_report (__main__.NewtonTraceTests.test_cli_binds_hashes_and_never_overwrites_an_existing_report) ... ok
+test_exact_stage_state_comparison_catches_small_norm_drift (__main__.NewtonTraceTests.test_exact_stage_state_comparison_catches_small_norm_drift) ... ok
+test_malformed_or_truncated_record_is_invalid (__main__.NewtonTraceTests.test_malformed_or_truncated_record_is_invalid) ... ok
+test_missing_stage_is_incomplete_not_silently_complete (__main__.NewtonTraceTests.test_missing_stage_is_incomplete_not_silently_complete) ... ok
+test_missing_terminal_certificate_is_incomplete (__main__.NewtonTraceTests.test_missing_terminal_certificate_is_incomplete) ... ok
+test_raw_terminal_status_overrides_certificate_flag (__main__.NewtonTraceTests.test_raw_terminal_status_overrides_certificate_flag) ... ok
+test_rejects_unaccepted_or_stale_arnoldi_state (__main__.NewtonTraceTests.test_rejects_unaccepted_or_stale_arnoldi_state) ... ok
+test_runtime_trace_scope_accounts_for_full_layout_and_one_object (__main__.NewtonTraceTests.test_runtime_trace_scope_accounts_for_full_layout_and_one_object) ... ERROR
+test_skip_is_explicit (__main__.NewtonTraceTests.test_skip_is_explicit) ... ok
+test_terminal_identity_must_match_last_captured_iteration (__main__.NewtonTraceTests.test_terminal_identity_must_match_last_captured_iteration) ... ok
+test_uses_next_assembly_for_residual_growth (__main__.NewtonTraceTests.test_uses_next_assembly_for_residual_growth) ... ok
+test_zero_final_restart_columns_do_not_hide_a_latched_accepted_cycle (__main__.NewtonTraceTests.test_zero_final_restart_columns_do_not_hide_a_latched_accepted_cycle) ... ok
+
+======================================================================
+ERROR: test_runtime_trace_scope_accounts_for_full_layout_and_one_object (__main__.NewtonTraceTests.test_runtime_trace_scope_accounts_for_full_layout_and_one_object)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/home/numi-cardboard-20261006/matter/tools/test_cardboard_newton_trace.py", line 152, in test_runtime_trace_scope_accounts_for_full_layout_and_one_object
+    source = re.sub(r"\s+", " ", runtime.read_text())
+                                 ~~~~~~~~~~~~~~~~~^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/pathlib/__init__.py", line 787, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/pathlib/__init__.py", line 771, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/home/numi-cardboard-20261006/src/runtime.mm'
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.003s
+
+FAILED (errors=1)

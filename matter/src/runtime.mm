@@ -26,6 +26,7 @@
 #include <cstring>
 #include <dlfcn.h>
 #include <filesystem>
+#include <iomanip>
 #include <limits>
 #include <memory>
 #include <mutex>
@@ -941,6 +942,7 @@ struct Runtime::State {
     bool requiresCoupledCandidate = false;
     bool requiresSceneBodies = false;
     bool requiresRodNodes = false;
+    bool hasPrescribedTranslation = false;
     bool hasAdaptive = false;
     bool hasMutableFEMTopology = false;
     std::vector<NMRigidProxyGPU> rigidProxyLayout;
@@ -1114,6 +1116,8 @@ struct Runtime::State {
     std::uint64_t mutationFingerprint = 0u;
     std::uint64_t learnedFingerprint = 0u;
     id<MTLBuffer> rigidStates = nil;
+    id<MTLBuffer> prescribedRigidEndpoints = nil;
+    id<MTLBuffer> prescribedRigidPrevious = nil;
     id<MTLBuffer> rigidStatesPreparedCheckpoint = nil;
     id<MTLBuffer> contactSamples = nil;
     id<MTLBuffer> contactHistoriesAccepted = nil;
@@ -1706,7 +1710,7 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->objectLayout = world.objects;
         if (std::any_of(world.objects.begin(), world.objects.end(),
                 [](const NMContinuumObjectGPU& object) {
-                    return (object.flags & (NM_OBJECT_FEM_MATERIAL_FRAME | NM_OBJECT_FEM_REGIONAL_MATERIAL | NM_OBJECT_FEM_REFERENCE_CONFIGURATION)) != 0u;
+                    return (object.flags & (NM_OBJECT_FEM_MATERIAL_FRAME | NM_OBJECT_FEM_REGIONAL_MATERIAL | NM_OBJECT_FEM_REFERENCE_CONFIGURATION | NM_OBJECT_FEM_REFERENCE_DISPLACEMENT_GRADIENT)) != 0u;
                 })) {
             candidate->femImmutableElementLayout = world.fem.tetrahedra;
             candidate->femImmutableNodeLayout = world.fem.topologyNodes;
@@ -1715,7 +1719,7 @@ RuntimeDiagnostics Runtime::initialize(
         }
         if (std::any_of(world.objects.begin(), world.objects.end(),
                 [](const NMContinuumObjectGPU& object) {
-                    return (object.flags & (NM_OBJECT_FEM_REGIONAL_MATERIAL | NM_OBJECT_FEM_REFERENCE_CONFIGURATION)) != 0u;
+                    return (object.flags & (NM_OBJECT_FEM_REGIONAL_MATERIAL | NM_OBJECT_FEM_REFERENCE_CONFIGURATION | NM_OBJECT_FEM_REFERENCE_DISPLACEMENT_GRADIENT)) != 0u;
                 })) {
             candidate->femRegionalMassLayout.reserve(world.fem.nodes.size());
             candidate->femRegionalRestLayout.reserve(world.fem.nodes.size());
@@ -1725,7 +1729,7 @@ RuntimeDiagnostics Runtime::initialize(
             }
             std::set<std::uint32_t> regionalMaterials;
             for (const auto& object : world.objects) {
-                if ((object.flags & (NM_OBJECT_FEM_REGIONAL_MATERIAL | NM_OBJECT_FEM_REFERENCE_CONFIGURATION)) == 0u) continue;
+                if ((object.flags & (NM_OBJECT_FEM_REGIONAL_MATERIAL | NM_OBJECT_FEM_REFERENCE_CONFIGURATION | NM_OBJECT_FEM_REFERENCE_DISPLACEMENT_GRADIENT)) == 0u) continue;
                 regionalMaterials.insert(object.materialIndex);
                 candidate->femRegionalBaseExponentLayout.emplace_back(
                     object.schedulerIndex, world.schedulers[object.schedulerIndex].baseExponent);
@@ -1743,7 +1747,7 @@ RuntimeDiagnostics Runtime::initialize(
                 candidate->femRegionalIdentificationIdentityLayout.push_back(distribution.identity);
         }
         for (const auto& object : world.objects) {
-            if ((object.flags & NM_OBJECT_FEM_REFERENCE_CONFIGURATION) == 0u) continue;
+            if ((object.flags & (NM_OBJECT_FEM_REFERENCE_CONFIGURATION | NM_OBJECT_FEM_REFERENCE_DISPLACEMENT_GRADIENT)) == 0u) continue;
             candidate->femReferenceCenterLayout.emplace_back(object.schedulerIndex, world.adaptive[object.schedulerIndex].referenceCenter);
             for (std::uint32_t local = 0u; local < object.elementCount; ++local) {
                 const auto index = object.elementOffset + local;
@@ -2349,6 +2353,10 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_learned_commit",
             "nm_learned_rollback",
             "nm_project_rigid_states",
+            "nm_contact_initialize_prescribed_fem_candidate",
+            "nm_contact_capture_prescribed_endpoint",
+            "nm_contact_validate_prescribed_motion",
+            "nm_contact_rollback_prescribed_motion",
             "nm_project_primal_free_rigid_candidate",
             "nm_mask_primal_rigid_candidate",
             "nm_publish_primal_free_rigid_candidate",
@@ -2370,6 +2378,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fem_human_attachment_mask_reactions",
             "nm_fgmres_measure_correction",
             "nm_fgmres_build_preconditioner",
+            "nm_fgmres_build_tangent_fem_preconditioner",
             "nm_fgmres_precondition",
             "nm_fgmres_precondition_patches",
             "nm_fgmres_precondition_coarse",
@@ -2857,6 +2866,18 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->fieldBoundaries = uploads.one(
             std::span<const NMFieldBoundaryGPU>(world.fem.fieldBoundaries),
             valid, candidate->residentBytes);
+        candidate->hasPrescribedTranslation = std::ranges::any_of(world.contact.rigidProxies,
+            [](const NMRigidProxyGPU& proxy) { return (proxy.flags & NM_RIGID_PRESCRIBED_TRANSLATION) != 0u; });
+        // Worlds without prescribed motion need only typed binding sentinels,
+        // not two additional proxy-state arenas per environment.
+        const std::vector<NMRigidStateGPU> prescribedPoseDefaults(
+            candidate->hasPrescribedTranslation ? world.contact.rigidProxies.size() : 0u);
+        candidate->prescribedRigidEndpoints = uploads.repeated(
+            std::span<const NMRigidStateGPU>(prescribedPoseDefaults),
+            environments, valid, candidate->residentBytes);
+        candidate->prescribedRigidPrevious = uploads.repeated(
+            std::span<const NMRigidStateGPU>(prescribedPoseDefaults),
+            environments, valid, candidate->residentBytes);
         candidate->rigidProxies = uploads.one(
             std::span<const NMRigidProxyGPU>(world.contact.rigidProxies),
             valid, candidate->residentBytes);
@@ -5299,6 +5320,19 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:rodNodes offset:0u atIndex:5u];
                 [encoder setBuffer:rodInverseMasses offset:0u atIndex:6u];
             });
+
+            if (state.hasPrescribedTranslation) {
+                dispatchThreads("nm_contact_validate_prescribed_motion", proxyTotal, [&] {
+                    setDispatch();
+                    [encoder setBytes:&bridge length:sizeof(bridge) atIndex:1u];
+                    [encoder setBuffer:state.rigidProxies offset:0u atIndex:2u];
+                    [encoder setBuffer:currentBodies offset:0u atIndex:3u];
+                    [encoder setBuffer:state.prescribedRigidPrevious offset:0u atIndex:4u];
+                    [encoder setBuffer:state.rigidStates offset:0u atIndex:5u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:6u];
+                });
+            }
+
             const std::uint32_t internalMicroticks =
                 1u << state.dispatch.maximumRateExponent;
             std::uint64_t finalGeneration64 =
@@ -5330,6 +5364,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.punctureChannelsAccepted
                                  offset:0u atIndex:12u];
                     [encoder setBuffer:state.mixedSolver offset:0u atIndex:13u];
+                    [encoder setBuffer:state.femCheckpoint offset:0u atIndex:14u];
+                    [encoder setBuffer:state.prescribedRigidEndpoints offset:0u atIndex:15u];
                 }
             );
             const std::uint32_t rigidWorldPhysicsSubstep =
@@ -5364,6 +5400,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.femMaterialStateAccepted offset:0u atIndex:4u];
                 [encoder setBuffer:state.femMaterialStateCheckpoint offset:0u atIndex:5u];
             });
+        if (state.hasPrescribedTranslation) {
+            dispatchThreads("nm_contact_rollback_prescribed_motion", proxyTotal, [&] {
+                setDispatch();
+                [encoder setBuffer:state.rigidProxies offset:0u atIndex:1u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:2u];
+                [encoder setBuffer:state.prescribedRigidPrevious offset:0u atIndex:3u];
+                [encoder setBuffer:state.rigidStates offset:0u atIndex:4u];
+            });
+        }
+
             dispatchThreads("nm_topology_rollback", topologyTransactionalTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.statuses offset:0u atIndex:1u];
@@ -5980,6 +6026,14 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 AcceptedStepExtensionPhase::frameBegin, 0u)) {
             return diagnostics;
         }
+        if (state.hasPrescribedTranslation) {
+            dispatchThreads("nm_contact_capture_prescribed_endpoint", proxyTotal, [&] {
+                setDispatch();
+                [encoder setBuffer:state.rigidStates offset:0u atIndex:1u];
+                [encoder setBuffer:state.prescribedRigidPrevious offset:0u atIndex:2u];
+            });
+        }
+
         dispatchThreads("nm_project_rigid_states", proxyTotal, [&] {
             setDispatch();
             [encoder setBytes:&bridge length:sizeof(bridge) atIndex:1u];
@@ -5989,6 +6043,23 @@ RuntimeDiagnostics Runtime::encodeImpl(
             [encoder setBuffer:rodNodes offset:0u atIndex:5u];
             [encoder setBuffer:rodInverseMasses offset:0u atIndex:6u];
         });
+        if (state.hasPrescribedTranslation) {
+            dispatchThreads("nm_contact_capture_prescribed_endpoint", proxyTotal, [&] {
+                setDispatch();
+                [encoder setBuffer:state.rigidStates offset:0u atIndex:1u];
+                [encoder setBuffer:state.prescribedRigidEndpoints offset:0u atIndex:2u];
+            });
+            dispatchThreads("nm_contact_validate_prescribed_motion", proxyTotal, [&] {
+                setDispatch();
+                [encoder setBytes:&bridge length:sizeof(bridge) atIndex:1u];
+                [encoder setBuffer:state.rigidProxies offset:0u atIndex:2u];
+                [encoder setBuffer:currentBodies offset:0u atIndex:3u];
+                [encoder setBuffer:state.prescribedRigidPrevious offset:0u atIndex:4u];
+                [encoder setBuffer:state.rigidStates offset:0u atIndex:5u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:6u];
+            });
+        }
+
 
         // Immutable FEM worlds retain their cooked nodal masses and incidence.
         // Explicit commands still enter the transaction owner for validation;
@@ -6179,6 +6250,469 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 encoder = [commandBuffer computeCommandEncoder];
                 if (encoder == nil) {
                     diagnostics.message = "failed to resume Matter after vascular diagnostic snapshot";
+                    return false;
+                }
+                return true;
+            };
+            // Optional compact trace for one Newton microstep. FGMRES already
+            // stores the exact assembled full-space residual norm at the start
+            // of each Newton solve in nonlinear.y. This trace does not copy a
+            // partial FEM residual or label an Arnoldi estimate as b-Ax.
+            bool femNewtonTraceNoticeLogged = false;
+            bool femNewtonTraceSelectorErrorLogged = false;
+            bool femNewtonTraceCapturedAny = false;
+            const auto femNewtonTraceScope = [&]() -> const char* {
+                if (request.physicsSubsteps != 1u ||
+                    request.physicsSubstep != 0u)
+                    return "requires_one_physics_substep_at_index_zero";
+                if (state.dispatch.maximumRateExponent != 0u)
+                    return "requires_maximum_rate_exponent_zero";
+                if (state.dispatch.environmentCount > 4u)
+                    return "environment_cap_4";
+                if (state.dispatch.femNodeCount == 0u ||
+                    state.dispatch.femNodeCount > 4096u)
+                    return "fem_node_cap_4096";
+                if (state.dispatch.objectCount != 1u ||
+                    state.dispatch.tetrahedronCount == 0u)
+                    return "requires_one_explicit_fem_object";
+                constexpr std::uint32_t unsupportedMatterFlags =
+                    NM_MATTER_ADAPTIVE | NM_MATTER_IDENTIFICATION |
+                    NM_MATTER_MIXED_FEM | NM_MATTER_MULTIPHYSICS |
+                    NM_MATTER_MUTATION | NM_MATTER_LEARNED_MATERIAL;
+                if ((state.dispatch.flags & unsupportedMatterFlags) != 0u ||
+                    state.dispatch.particleCount != 0u ||
+                    state.dispatch.mpmGridCount != 0u ||
+                    state.dispatch.mpmBlockCount != 0u ||
+                    state.dispatch.mpmActiveNodeCapacity != 0u)
+                    return "requires_static_fem_without_mpm_or_mixed_fields";
+                if (state.dispatch.fieldBoundaryCount != 0u ||
+                    state.dispatch.rigidGeneralizedCapacity != 0u ||
+                    state.dispatch.femHumanAttachmentCount != 0u ||
+                    state.dispatch.learnedMaterialCount != 0u ||
+                    state.dispatch.learnedWeightCount != 0u ||
+                    state.dispatch.mutationCommandCount != 0u ||
+                    state.fgmresLayout.supportContactCount != 0u ||
+                    state.fgmresLayout.vascularUnknownCount != 0u ||
+                    state.fgmresLayout.unknownCount !=
+                        2u * environments * state.dispatch.femNodeCount)
+                    return "requires_fem_nodes_as_only_generalized_unknowns";
+                return nullptr;
+            };
+            const auto emitFEMNewtonTraceSkip = [&](std::uint32_t root,
+                                                     const char* reason) {
+                if (femNewtonTraceNoticeLogged) return;
+                femNewtonTraceNoticeLogged = true;
+                std::fprintf(stderr,
+                    "fem_newton_trace_skipped={\"schema\":1,\"root\":%u,\"reason\":\"%s\"}\n",
+                    root, reason);
+            };
+            const auto selectedFEMNewtonTraceRoot =
+                [&](std::uint32_t& root) -> bool {
+                    const char* text = std::getenv("NM_FEM_NEWTON_TRACE_ROOT");
+                    if (text == nullptr) return false;
+                    char* end = nullptr;
+                    const unsigned long parsed = std::strtoul(text, &end, 10);
+                    if (end == text || *end != '\0' ||
+                        parsed > std::numeric_limits<std::uint32_t>::max()) {
+                        if (!femNewtonTraceSelectorErrorLogged) {
+                            femNewtonTraceSelectorErrorLogged = true;
+                            std::fprintf(stderr,
+                                "fem_newton_trace_error={\"schema\":1,\"reason\":\"invalid_control_step_selector\"}\n");
+                        }
+                        return false;
+                    }
+                    root = static_cast<std::uint32_t>(parsed);
+                    return request.controlStep == root;
+                };
+            const auto appendTraceFloat = [](std::ostringstream& output,
+                                             float value) {
+                if (std::isfinite(value)) output << value;
+                else output << "null";
+            };
+            const auto encodeFEMNewtonTrace = [&](const char* stage) -> bool {
+                std::uint32_t root = 0u;
+                if (!selectedFEMNewtonTraceRoot(root)) return true;
+                if (microtick != 0u) {
+                    if (microtick == 1u && !femNewtonTraceCapturedAny &&
+                        std::strcmp(stage, "before_contact_limits") == 0)
+                        emitFEMNewtonTraceSkip(root, "only_microtick_zero_is_traced");
+                    return true;
+                }
+                if (environments == 0u) {
+                    emitFEMNewtonTraceSkip(root, "zero_environments");
+                    return true;
+                }
+                if (micro.solverIteration >= 32u) {
+                    if (micro.solverIteration == 32u &&
+                        std::strcmp(stage, "before_contact_limits") == 0)
+                        emitFEMNewtonTraceSkip(root, "newton_iteration_cap_32");
+                    return true;
+                }
+                if (const char* reason = femNewtonTraceScope()) {
+                    if (std::strcmp(stage, "before_contact_limits") == 0)
+                        emitFEMNewtonTraceSkip(root, reason);
+                    return true;
+                }
+                struct TraceArena {
+                    const char* name;
+                    id<MTLBuffer> source;
+                    NSUInteger bytes;
+                };
+                const std::array<TraceArena, 4u> arenas{{
+                    {"alpha", state.environmentLineSearch,
+                        environments * sizeof(float)},
+                    {"object_line_search", state.femLineSearch,
+                        objectTotal * sizeof(nm_float4)},
+                    {"fgmres", state.fgmresStates,
+                        environments * sizeof(NMFGMRESStateGPU)},
+                    {"status", state.statuses,
+                        environments * sizeof(NMMatterStatusGPU)},
+                }};
+                NSUInteger bytes = 0u;
+                for (const auto& arena : arenas)
+                    bytes += (arena.bytes + 15u) & ~15u;
+                constexpr NSUInteger maximumSnapshotBytes = 16u * 1024u;
+                if (bytes > maximumSnapshotBytes) {
+                    if (std::strcmp(stage, "before_contact_limits") == 0)
+                        emitFEMNewtonTraceSkip(root,
+                            "snapshot_bytes_exceed_16KiB");
+                    return true;
+                }
+                id<MTLBuffer> snapshot = [state.device
+                    newBufferWithLength:bytes
+                    options:MTLResourceStorageModeShared];
+                if (snapshot == nil) {
+                    if (!femNewtonTraceNoticeLogged) {
+                        femNewtonTraceNoticeLogged = true;
+                        std::fprintf(stderr,
+                            "fem_newton_trace_error={\"schema\":1,\"root\":%u,\"reason\":\"snapshot_allocation_failed\"}\n",
+                            root);
+                    }
+                    return true;
+                }
+                [encoder endEncoding];
+                encoder = nil;
+                id<MTLBlitCommandEncoder> copy = [commandBuffer blitCommandEncoder];
+                if (copy == nil) {
+                    emitFEMNewtonTraceSkip(root, "blit_encoder_unavailable");
+                    encoder = [commandBuffer computeCommandEncoder];
+                    if (encoder == nil) {
+                        diagnostics.message = "failed to resume Matter after FEM Newton trace";
+                        return false;
+                    }
+                    [encoder setLabel:@"Numi Matter FEM Newton trace continuation"];
+                    return true;
+                }
+                NSUInteger offset = 0u;
+                for (const auto& arena : arenas) {
+                    [copy copyFromBuffer:arena.source sourceOffset:0u
+                        toBuffer:snapshot destinationOffset:offset
+                        size:arena.bytes];
+                    offset += (arena.bytes + 15u) & ~15u;
+                }
+                [copy endEncoding];
+                femNewtonTraceCapturedAny = true;
+                const auto iteration = micro.solverIteration;
+                const auto tick = microtick;
+                const auto objectCount = state.dispatch.objectCount;
+                // The completion outlives this encoding lambda. Snapshot
+                // values locally so the Objective-C block never keeps its
+                // reference captures through the destroyed C++ closure.
+                const auto capturedEnvironments = environments;
+                const auto capturedObjectTotal = objectTotal;
+                const auto capturedAppendTraceFloat = appendTraceFloat;
+                [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+                    if (completed.status != MTLCommandBufferStatusCompleted) return;
+                    const auto* data = static_cast<const unsigned char*>(snapshot.contents);
+                    NSUInteger at = 0u;
+                    const auto* alpha = reinterpret_cast<const float*>(data + at);
+                    at += (arenas[0].bytes + 15u) & ~15u;
+                    const auto* objectAlpha = reinterpret_cast<const nm_float4*>(data + at);
+                    at += (arenas[1].bytes + 15u) & ~15u;
+                    const auto* fgmres = reinterpret_cast<const NMFGMRESStateGPU*>(data + at);
+                    at += (arenas[2].bytes + 15u) & ~15u;
+                    const auto* status = reinterpret_cast<const NMMatterStatusGPU*>(data + at);
+                    std::ostringstream line;
+                    line << std::setprecision(9)
+                         << "fem_newton_iterate={\"schema\":1,\"root\":" << root
+                         << ",\"environment_count\":" << capturedEnvironments
+                         << ",\"object_count\":" << objectCount
+                         << ",\"microtick\":" << tick << ",\"iteration\":"
+                         << iteration << ",\"stage\":\"" << stage << "\","
+                         << "\"semantics\":{\"alpha\":\"environment line-search scalar at this capture boundary\","
+                         << "\"object_line_search\":\"per-object [selected_alpha,min_J,candidate_count,solver_iteration]\","
+                         << "\"fgmres_diagnostics\":\"x=final_restart_Arnoldi_estimate,y=Newton_initial_full_residual_norm,z=cycle_accepted,w=columns_in_final_restart\","
+                         << "\"fgmres_nonlinear\":\"x=first_Newton_residual_norm,y=this_Newton_reassembled_residual_norm,z=previous_correction_ratio,w=nonlinear_converged\","
+                         << "\"status_fgmres_iterations\":\"maximum_totalUsed_seen_so_far_in_this_microstep_not_per_Newton\"},\"alpha\":[";
+                    for (std::uint32_t environment = 0u;
+                         environment < capturedEnvironments; ++environment) {
+                        if (environment != 0u) line << ',';
+                        capturedAppendTraceFloat(line, alpha[environment]);
+                    }
+                    line << "],\"object_line_search\":[";
+                    for (NSUInteger index = 0u; index < capturedObjectTotal; ++index) {
+                        if (index != 0u) line << ',';
+                        line << '[';
+                        capturedAppendTraceFloat(line, objectAlpha[index].x); line << ',';
+                        capturedAppendTraceFloat(line, objectAlpha[index].y); line << ',';
+                        capturedAppendTraceFloat(line, objectAlpha[index].z); line << ',';
+                        capturedAppendTraceFloat(line, objectAlpha[index].w); line << ']';
+                    }
+                    line << "],\"fgmres\":[";
+                    for (std::uint32_t environment = 0u;
+                         environment < capturedEnvironments; ++environment) {
+                        if (environment != 0u) line << ',';
+                        line << "{\"diagnostics\":[";
+                        capturedAppendTraceFloat(line, fgmres[environment].diagnostics.x); line << ',';
+                        capturedAppendTraceFloat(line, fgmres[environment].diagnostics.y); line << ',';
+                        capturedAppendTraceFloat(line, fgmres[environment].diagnostics.z); line << ',';
+                        capturedAppendTraceFloat(line, fgmres[environment].diagnostics.w); line << "],\"nonlinear\":[";
+                        capturedAppendTraceFloat(line, fgmres[environment].nonlinear.x); line << ',';
+                        capturedAppendTraceFloat(line, fgmres[environment].nonlinear.y); line << ',';
+                        capturedAppendTraceFloat(line, fgmres[environment].nonlinear.z); line << ',';
+                        capturedAppendTraceFloat(line, fgmres[environment].nonlinear.w); line << "],\"cycle_accepted\":"
+                             << (fgmres[environment].diagnostics.z > 0.5f ? "true" : "false") << '}';
+                    }
+                    line << "],\"status\":[";
+                    for (std::uint32_t environment = 0u;
+                         environment < capturedEnvironments; ++environment) {
+                        if (environment != 0u) line << ',';
+                        line << "{\"code\":" << status[environment].code
+                             << ",\"completed_microsteps\":" << status[environment].completedMicrosteps
+                             << ",\"fgmres_iterations_microstep_max\":" << status[environment].fgmresIterations
+                             << ",\"diagnostics\":[";
+                        capturedAppendTraceFloat(line, status[environment].diagnostics.x); line << ',';
+                        capturedAppendTraceFloat(line, status[environment].diagnostics.y); line << ',';
+                        capturedAppendTraceFloat(line, status[environment].diagnostics.z); line << ',';
+                        capturedAppendTraceFloat(line, status[environment].diagnostics.w); line << "]}";
+                    }
+                    line << "]}\n";
+                    const auto text = line.str();
+                    std::fwrite(text.data(), 1u, text.size(), stderr);
+                }];
+                encoder = [commandBuffer computeCommandEncoder];
+                if (encoder == nil) {
+                    diagnostics.message = "failed to resume Matter after FEM Newton trace";
+                    return false;
+                }
+                [encoder setLabel:@"Numi Matter FEM Newton trace continuation"];
+                return true;
+            };
+            const auto encodeFEMNewtonCertificateTrace = [&]() -> bool {
+                std::uint32_t root = 0u;
+                if (!selectedFEMNewtonTraceRoot(root) || microtick != 0u)
+                    return true;
+                if (environments == 0u) {
+                    emitFEMNewtonTraceSkip(root, "zero_environments_at_certificate");
+                    return true;
+                }
+                if (const char* reason = femNewtonTraceScope()) {
+                    emitFEMNewtonTraceSkip(root, reason);
+                    return true;
+                }
+                const NSUInteger certificateBytes =
+                    objectTotal * sizeof(NMSolverCertificateGPU);
+                const NSUInteger statusBytes =
+                    environments * sizeof(NMMatterStatusGPU);
+                const NSUInteger fgmresBytes =
+                    environments * sizeof(NMFGMRESStateGPU);
+                const NSUInteger bytes = certificateBytes + statusBytes + fgmresBytes;
+                constexpr NSUInteger maximumSnapshotBytes = 16u * 1024u;
+                if (bytes > maximumSnapshotBytes) {
+                    if (!femNewtonTraceNoticeLogged) {
+                        femNewtonTraceNoticeLogged = true;
+                        std::fprintf(stderr,
+                            "fem_newton_certificate_skipped={\"schema\":1,\"root\":%u,\"reason\":\"snapshot_bytes_exceed_16KiB\",\"bytes\":%lu}\n",
+                            root, static_cast<unsigned long>(bytes));
+                    }
+                    return true;
+                }
+                id<MTLBuffer> snapshot = [state.device
+                    newBufferWithLength:bytes
+                    options:MTLResourceStorageModeShared];
+                if (snapshot == nil) {
+                    if (!femNewtonTraceNoticeLogged) {
+                        femNewtonTraceNoticeLogged = true;
+                        std::fprintf(stderr,
+                            "fem_newton_certificate_error={\"schema\":1,\"root\":%u,\"reason\":\"snapshot_allocation_failed\"}\n",
+                            root);
+                    }
+                    return true;
+                }
+                [encoder endEncoding];
+                encoder = nil;
+                id<MTLBlitCommandEncoder> copy = [commandBuffer blitCommandEncoder];
+                if (copy == nil) {
+                    emitFEMNewtonTraceSkip(root, "certificate_blit_encoder_unavailable");
+                    encoder = [commandBuffer computeCommandEncoder];
+                    if (encoder == nil) {
+                        diagnostics.message = "failed to resume Matter after FEM certificate trace";
+                        return false;
+                    }
+                    [encoder setLabel:@"Numi Matter FEM certificate trace continuation"];
+                    return true;
+                }
+                [copy copyFromBuffer:state.solverCertificates sourceOffset:0u
+                    toBuffer:snapshot destinationOffset:0u size:certificateBytes];
+                [copy copyFromBuffer:state.statuses sourceOffset:0u
+                    toBuffer:snapshot destinationOffset:certificateBytes size:statusBytes];
+                [copy copyFromBuffer:state.fgmresStates sourceOffset:0u
+                    toBuffer:snapshot destinationOffset:certificateBytes + statusBytes
+                    size:fgmresBytes];
+                [copy endEncoding];
+                femNewtonTraceCapturedAny = true;
+                const auto iteration = micro.solverIteration;
+                const auto tick = microtick;
+                const auto objectCount = state.dispatch.objectCount;
+                // The completion outlives this encoding lambda. Snapshot
+                // values locally so the Objective-C block never keeps its
+                // reference captures through the destroyed C++ closure.
+                const auto capturedEnvironments = environments;
+                const auto capturedObjectTotal = objectTotal;
+                const auto capturedAppendTraceFloat = appendTraceFloat;
+                [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+                    if (completed.status != MTLCommandBufferStatusCompleted) return;
+                    const auto* data = static_cast<const unsigned char*>(snapshot.contents);
+                    const auto* certificates = reinterpret_cast<const NMSolverCertificateGPU*>(data);
+                    const auto* statuses = reinterpret_cast<const NMMatterStatusGPU*>(data + certificateBytes);
+                    const auto* fgmres = reinterpret_cast<const NMFGMRESStateGPU*>(data + certificateBytes + statusBytes);
+                    std::ostringstream line;
+                    line << std::setprecision(9)
+                         << "fem_newton_terminal_certificate={\"schema\":1,\"root\":" << root
+                         << ",\"environment_count\":" << capturedEnvironments
+                         << ",\"object_count\":" << objectCount
+                         << ",\"microtick\":" << tick << ",\"last_iteration\":" << iteration
+                         << ",\"capture_order\":\"immediately_after_nm_mixed_certify_before_candidate_masks_or_commit\","
+                         << "\"status_authority\":\"raw NMMatterStatusGPU.code at this capture; certificate validity.w is not acceptance authority\",\"objects\":[";
+                    for (NSUInteger index = 0u; index < capturedObjectTotal; ++index) {
+                        if (index != 0u) line << ',';
+                        const auto& certificate = certificates[index];
+                        line << "{\"nonlinear\":[";
+                        capturedAppendTraceFloat(line, certificate.nonlinear.x); line << ',';
+                        capturedAppendTraceFloat(line, certificate.nonlinear.y); line << ',';
+                        capturedAppendTraceFloat(line, certificate.nonlinear.z); line << ',';
+                        capturedAppendTraceFloat(line, certificate.nonlinear.w); line << "],\"contact\":[";
+                        capturedAppendTraceFloat(line, certificate.contact.x); line << ',';
+                        capturedAppendTraceFloat(line, certificate.contact.y); line << ',';
+                        capturedAppendTraceFloat(line, certificate.contact.z); line << ',';
+                        capturedAppendTraceFloat(line, certificate.contact.w); line << "],\"transport\":[";
+                        capturedAppendTraceFloat(line, certificate.transport.x); line << ',';
+                        capturedAppendTraceFloat(line, certificate.transport.y); line << ',';
+                        capturedAppendTraceFloat(line, certificate.transport.z); line << ',';
+                        capturedAppendTraceFloat(line, certificate.transport.w); line << "],\"validity\":[";
+                        capturedAppendTraceFloat(line, certificate.validity.x); line << ',';
+                        capturedAppendTraceFloat(line, certificate.validity.y); line << ',';
+                        capturedAppendTraceFloat(line, certificate.validity.z); line << ',';
+                        capturedAppendTraceFloat(line, certificate.validity.w); line << "]}";
+                    }
+                    line << "],\"status\":[";
+                    for (std::uint32_t environment = 0u;
+                         environment < capturedEnvironments; ++environment) {
+                        if (environment != 0u) line << ',';
+                        line << "{\"code\":" << statuses[environment].code
+                             << ",\"object_index\":" << statuses[environment].objectIndex
+                             << ",\"failing_index\":" << statuses[environment].failingIndex
+                             << ",\"completed_microsteps_at_certificate\":" << statuses[environment].completedMicrosteps
+                             << ",\"fgmres_iterations_microstep_max\":" << statuses[environment].fgmresIterations
+                             << ",\"diagnostics\":[";
+                        capturedAppendTraceFloat(line, statuses[environment].diagnostics.x); line << ',';
+                        capturedAppendTraceFloat(line, statuses[environment].diagnostics.y); line << ',';
+                        capturedAppendTraceFloat(line, statuses[environment].diagnostics.z); line << ',';
+                        capturedAppendTraceFloat(line, statuses[environment].diagnostics.w); line << "]}";
+                    }
+                    line << "],\"fgmres\":[";
+                    for (std::uint32_t environment = 0u;
+                         environment < capturedEnvironments; ++environment) {
+                        if (environment != 0u) line << ',';
+                        line << "{\"diagnostics\":[";
+                        capturedAppendTraceFloat(line, fgmres[environment].diagnostics.x); line << ',';
+                        capturedAppendTraceFloat(line, fgmres[environment].diagnostics.y); line << ',';
+                        capturedAppendTraceFloat(line, fgmres[environment].diagnostics.z); line << ',';
+                        capturedAppendTraceFloat(line, fgmres[environment].diagnostics.w); line << "],\"nonlinear\":[";
+                        capturedAppendTraceFloat(line, fgmres[environment].nonlinear.x); line << ',';
+                        capturedAppendTraceFloat(line, fgmres[environment].nonlinear.y); line << ',';
+                        capturedAppendTraceFloat(line, fgmres[environment].nonlinear.z); line << ',';
+                        capturedAppendTraceFloat(line, fgmres[environment].nonlinear.w); line << "]}";
+                    }
+                    line << "]}\n";
+                    const auto text = line.str();
+                    std::fwrite(text.data(), 1u, text.size(), stderr);
+                }];
+                encoder = [commandBuffer computeCommandEncoder];
+                if (encoder == nil) {
+                    diagnostics.message = "failed to resume Matter after FEM certificate trace";
+                    return false;
+                }
+                [encoder setLabel:@"Numi Matter FEM certificate trace continuation"];
+                return true;
+            };
+            // Read-only copies at one explicitly requested control step. This
+            // preserves the failing candidate and individual globalization
+            // decisions before rollback, without submitting or waiting here.
+            const auto encodeFEMContactTrace = [&](const char* stage) -> bool {
+                const char* traceRoot = std::getenv("NM_FEM_CONTACT_TRACE_ROOT");
+                if (traceRoot == nullptr || environments > 4u || microtick != 0u || micro.solverIteration >= 32u ||
+                    state.dispatch.femNodeCount == 0u || state.dispatch.femNodeCount > 4096u ||
+                    state.dispatch.contactPairCount == 0u || state.dispatch.contactPairCount > 16384u ||
+                    request.controlStep != std::strtoul(traceRoot, nullptr, 10)) return true;
+                struct TraceArena { const char* name; id<MTLBuffer> source; NSUInteger offset; NSUInteger bytes; };
+                const std::array<TraceArena, 10u> arenas{{
+                    {"candidate", state.femCandidate, 0u, femNodeTotal * sizeof(NMFEMNodeStateGPU)},
+                    {"residual", state.femResidual, 0u, femNodeTotal * sizeof(nm_float4)},
+                    {"solution", state.femSolution, 0u, femNodeTotal * sizeof(nm_float4)},
+                    {"alpha", state.environmentLineSearch, 0u, environments * sizeof(float)},
+                    {"object_line_search", state.femLineSearch, 0u, objectTotal * sizeof(nm_float4)},
+                    {"fgmres", state.fgmresStates, 0u, environments * sizeof(NMFGMRESStateGPU)},
+                    {"status", state.statuses, 0u, environments * sizeof(NMMatterStatusGPU)},
+                    {"samples", state.contactSamples, 0u, environments * state.dispatch.contactPairCount * sizeof(NMContactSampleGPU)},
+                    {"active_pairs", state.contactActivePairs, 0u, environments * state.contactActiveCapacity * sizeof(std::uint32_t)},
+                    {"active_counts", state.contactActiveCounts, 0u, environments * sizeof(std::uint32_t)},
+                }};
+                NSUInteger bytes = 0u;
+                for (const auto& arena : arenas) bytes += (arena.bytes + 15u) & ~15u;
+                if (bytes > 1024u * 1024u) return true; // at most 128 MiB per traced root
+                id<MTLBuffer> snapshot = [state.device newBufferWithLength:bytes options:MTLResourceStorageModeShared];
+                [encoder endEncoding];
+                encoder = nil;
+                id<MTLBlitCommandEncoder> copy = [commandBuffer blitCommandEncoder];
+                if (snapshot == nil || copy == nil) {
+                    if (copy != nil) [copy endEncoding];
+                    diagnostics.message = "failed to allocate FEM contact diagnostic snapshot";
+                    return false;
+                }
+                NSUInteger offset = 0u;
+                for (const auto& arena : arenas) {
+                    [copy copyFromBuffer:arena.source sourceOffset:arena.offset toBuffer:snapshot destinationOffset:offset size:arena.bytes];
+                    offset += (arena.bytes + 15u) & ~15u;
+                }
+                [copy endEncoding];
+                const auto root = request.controlStep;
+                const auto iteration = micro.solverIteration;
+                const auto tick = microtick;
+                [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+                    if (completed.status != MTLCommandBufferStatusCompleted) return;
+                    std::ostringstream line;
+                    line << "fem_contact_iterate={\"root\":" << root << ",\"microtick\":" << tick
+                         << ",\"iteration\":" << iteration << ",\"stage\":\"" << stage << "\",\"arenas\":{";
+                    const auto* data = static_cast<const unsigned char*>(snapshot.contents);
+                    NSUInteger at = 0u;
+                    bool first = true;
+                    constexpr char hex[] = "0123456789abcdef";
+                    for (const auto& arena : arenas) {
+                        if (!first) line << ',';
+                        first = false;
+                        line << '\"' << arena.name << "\":\"";
+                        for (NSUInteger i = 0u; i < arena.bytes; ++i) line << hex[data[at + i] >> 4u] << hex[data[at + i] & 15u];
+                        line << '\"';
+                        at += (arena.bytes + 15u) & ~15u;
+                    }
+                    line << "}}\n";
+                    const auto text = line.str();
+                    std::fwrite(text.data(), 1u, text.size(), stderr);
+                }];
+                encoder = [commandBuffer computeCommandEncoder];
+                if (encoder == nil) {
+                    diagnostics.message = "failed to resume Matter after FEM contact diagnostic snapshot";
                     return false;
                 }
                 return true;
@@ -6471,6 +7005,23 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:femKinematicTargets offset:0u atIndex:4u];
                     [encoder setBuffer:state.statuses offset:0u atIndex:5u];
                 });
+            }
+            if (state.hasPrescribedTranslation) {
+            dispatchThreads("nm_contact_initialize_prescribed_fem_candidate", femNodeTotal, [&] {
+                setDispatch();
+                [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                [encoder setBytes:&bridge length:sizeof(bridge) atIndex:2u];
+                [encoder setBuffer:state.rigidProxies offset:0u atIndex:3u];
+                [encoder setBuffer:state.rigidStates offset:0u atIndex:4u];
+                [encoder setBuffer:currentBodies offset:0u atIndex:5u];
+                [encoder setBuffer:state.contactPairs offset:0u atIndex:6u];
+                [encoder setBuffer:state.contactNodeIncidence offset:0u atIndex:7u];
+                [encoder setBuffer:state.contactNodeRanges offset:0u atIndex:8u];
+                [encoder setBuffer:state.femAccepted offset:0u atIndex:9u];
+                [encoder setBuffer:state.femCandidate offset:0u atIndex:10u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:11u];
+                [encoder setBuffer:state.mixedSolver offset:0u atIndex:12u];
+            });
             }
             const NSUInteger rigidCandidateTotal = environments *
                 state.dispatch.rigidGeneralizedCapacity;
@@ -7571,6 +8122,39 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 0.25f);
             NMMicrostepGPU operatorMicro = micro;
             operatorMicro.flags |= NM_MICROSTEP_FGMRES_OPERATOR;
+            if (state.mixedSolverValue.executionBudgets.z == 1u) {
+                dispatchThreads(
+                    "nm_fgmres_build_tangent_fem_preconditioner",
+                    femNodeTotal, [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.mixedSolver
+                                   offset:0u atIndex:1u];
+                        [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femCandidate
+                                   offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femTetrahedraCandidate
+                                   offset:0u atIndex:4u];
+                        [encoder setBuffer:state.femNodeIncidence
+                                   offset:0u atIndex:5u];
+                        [encoder setBuffer:state.femNodeRanges
+                                   offset:0u atIndex:6u];
+                        [encoder setBuffer:state.schedulers
+                                   offset:0u atIndex:7u];
+                        [encoder setBuffer:state.materials offset:0u atIndex:8u];
+                        [encoder setBuffer:state.scalarPrograms
+                                   offset:0u atIndex:9u];
+                        [encoder setBuffer:state.instructions
+                                   offset:0u atIndex:10u];
+                        [encoder setBuffer:state.environmentParameters
+                                   offset:0u atIndex:11u];
+                        [encoder setBuffer:state.femMaterialStateAccepted
+                                   offset:0u atIndex:12u];
+                        [encoder setBuffer:state.femPreconditioned
+                                   offset:0u atIndex:13u];
+                        bindPrimalContactArguments(14u);
+                        [encoder setBuffer:state.statuses offset:0u atIndex:15u];
+                    });
+            }
             for (std::uint32_t restartCycle = 0u;
                  restartCycle < restartCycleCount;
                  ++restartCycle) {
@@ -7609,19 +8193,25 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.humanSupportContacts
                              offset:0u atIndex:21u];
             });
-            dispatchThreads("nm_fgmres_build_preconditioner", femNodeTotal, [&] {
-                setDispatch();
-                [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
-                [encoder setBuffer:state.objects offset:0u atIndex:2u];
-                [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
-                [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:4u];
-                [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:5u];
-                [encoder setBuffer:state.femNodeRanges offset:0u atIndex:6u];
-                [encoder setBuffer:state.schedulers offset:0u atIndex:7u];
-                [encoder setBuffer:state.mixedMaterials offset:0u atIndex:8u];
-                [encoder setBuffer:state.femPreconditioned offset:0u atIndex:9u];
-                bindPrimalContactArguments(10u);
-            });
+            if (state.mixedSolverValue.executionBudgets.z == 0u) {
+                dispatchThreads(
+                    "nm_fgmres_build_preconditioner", femNodeTotal, [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
+                        [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femTetrahedraCandidate
+                                   offset:0u atIndex:4u];
+                        [encoder setBuffer:state.femNodeIncidence
+                                   offset:0u atIndex:5u];
+                        [encoder setBuffer:state.femNodeRanges offset:0u atIndex:6u];
+                        [encoder setBuffer:state.schedulers offset:0u atIndex:7u];
+                        [encoder setBuffer:state.mixedMaterials offset:0u atIndex:8u];
+                        [encoder setBuffer:state.femPreconditioned
+                                   offset:0u atIndex:9u];
+                        bindPrimalContactArguments(10u);
+                    });
+            }
             for (std::uint32_t column = 0u; column < columnsThisCycle; ++column) {
                 const NSUInteger columnOffset = vectorBytes * column;
                 dispatchThreads("nm_fgmres_precondition", femNodeTotal, [&] {
@@ -8596,6 +9186,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.femLineSearch
                                  offset:0u atIndex:1u];
                 });
+            if (!encodeFEMNewtonTrace("before_contact_limits") ||
+                !encodeFEMContactTrace("before_contact_limits")) {
+                ownership->preDynamicsOpen = false;
+                return diagnostics;
+            }
             dispatchGroups32(
                 "nm_contact_limit_deformable_line_search",
                 environments,
@@ -8616,6 +9211,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.mpmActiveNodeCounts offset:0u atIndex:13u];
                     [encoder setBuffer:state.mixedSolver offset:0u atIndex:14u];
                 });
+            if (!encodeFEMNewtonTrace("after_deformable_limit") ||
+                !encodeFEMContactTrace("after_deformable_limit")) {
+                ownership->preDynamicsOpen = false;
+                return diagnostics;
+            }
             dispatchGroups32(
                 "nm_contact_limit_rigid_line_search",
                 environments,
@@ -8645,6 +9245,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.femLineSearch
                                  offset:0u atIndex:1u];
                 });
+            if (!encodeFEMNewtonTrace("after_rigid_limit") ||
+                !encodeFEMContactTrace("after_rigid_limit")) {
+                ownership->preDynamicsOpen = false;
+                return diagnostics;
+            }
             const auto encodeHumanSupportLineSearchLimit = [&] {
                 dispatchGroups32(
                     "nm_human_support_limit_line_search",
@@ -8758,7 +9363,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 });
             [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             if (!encodeHumanSupportTrace("line_search", false) ||
-                !encodeVascularTrace("line_search")) {
+                !encodeVascularTrace("line_search") ||
+                !encodeFEMNewtonTrace("final_line_search") ||
+                !encodeFEMContactTrace("final_line_search")) {
                 ownership->preDynamicsOpen = false;
                 return diagnostics;
             }
@@ -9282,6 +9889,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.coupledGeneralizedCandidate
                              offset:0u atIndex:20u];
             });
+            if (!encodeFEMNewtonCertificateTrace()) {
+                ownership->preDynamicsOpen = false;
+                return diagnostics;
+            }
             dispatchThreads(
                 "nm_mask_primal_rigid_candidate",
                 rigidCandidateTotal,
@@ -9495,6 +10106,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
             [encoder setBuffer:state.femMaterialStateAccepted offset:0u atIndex:4u];
             [encoder setBuffer:state.femMaterialStateCheckpoint offset:0u atIndex:5u];
         });
+        if (state.hasPrescribedTranslation) {
+            dispatchThreads("nm_contact_rollback_prescribed_motion", proxyTotal, [&] {
+                setDispatch();
+                [encoder setBuffer:state.rigidProxies offset:0u atIndex:1u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:2u];
+                [encoder setBuffer:state.prescribedRigidPrevious offset:0u atIndex:3u];
+                [encoder setBuffer:state.rigidStates offset:0u atIndex:4u];
+            });
+        }
+
         dispatchThreads("nm_topology_rollback", topologyTransactionalTotal, [&] {
             setDispatch();
             [encoder setBuffer:state.statuses offset:0u atIndex:1u];
@@ -13825,6 +14446,35 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
     }
     if (!dimensionsValid) {
         return diagnostics;
+    }
+
+    // The displacement-mode tag is immutable layout metadata carried beside
+    // the dynamic u state. Absolute positions are its FP32 materialization for
+    // contact/output, while constitutive FEM kinematics consume u directly.
+    for (std::size_t environment = 0u; environment < state.dispatch.environmentCount; ++environment) {
+        const std::size_t nodeBase = environment * state.dispatch.femNodeCount;
+        for (const auto& object : state.objectLayout) {
+            if (object.representation != NM_REPRESENTATION_FEM) continue;
+            const bool displacementMode =
+                (object.flags & NM_OBJECT_FEM_REFERENCE_DISPLACEMENT_GRADIENT) != 0u;
+            for (std::size_t local = 0u; local < object.stateCount; ++local) {
+                const auto& node = snapshot.femNodes[nodeBase + object.stateOffset + local];
+                const auto& u = node.referenceDisplacementAndMode;
+                const bool finite = std::isfinite(u.x) && std::isfinite(u.y) &&
+                    std::isfinite(u.z) && std::isfinite(u.w);
+                const bool canonical = displacementMode
+                    ? u.w == 1.0f &&
+                        node.positionAndMass.x == node.restAndFixed.x + u.x &&
+                        node.positionAndMass.y == node.restAndFixed.y + u.y &&
+                        node.positionAndMass.z == node.restAndFixed.z + u.z
+                    : u.x == 0.0f && u.y == 0.0f && u.z == 0.0f && u.w == 0.0f;
+                if (!finite || !canonical) {
+                    diagnostics.message =
+                        "Matter snapshot has a noncanonical FEM reference displacement state";
+                    return diagnostics;
+                }
+            }
+        }
     }
 
     // This admission applies to ordinary snapshots as well as generation

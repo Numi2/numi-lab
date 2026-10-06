@@ -1,0 +1,23 @@
+{
+  "schema": "numi.cardboard.default-barrier-regression.v1",
+  "scope": "Accepted and failed-row exports after code additions; different binary identity, not same-build replay",
+  "old_run": "predictor50-001",
+  "new_run": "barrier50-scale1-001",
+  "artifacts": {
+    "observations.csv": {
+      "identical": true,
+      "old_sha256": "44f7f0824e3a9d6fbb9744fad24908c29299a02e3e34a81a0313deb9ae5121e1",
+      "new_sha256": "44f7f0824e3a9d6fbb9744fad24908c29299a02e3e34a81a0313deb9ae5121e1"
+    },
+    "tool-observations.csv": {
+      "identical": true,
+      "old_sha256": "c2ad0cd5e348477b1e23ea5b4f1e46b0c22b245a931c17f1a6d3710c9abd2737",
+      "new_sha256": "c2ad0cd5e348477b1e23ea5b4f1e46b0c22b245a931c17f1a6d3710c9abd2737"
+    },
+    "mesh.json": {
+      "identical": true,
+      "old_sha256": "add3e5f87879dac154eb4a31bb73b1c2de8740b04f29f05721f3b8198aa367e5",
+      "new_sha256": "add3e5f87879dac154eb4a31bb73b1c2de8740b04f29f05721f3b8198aa367e5"
+    }
+  }
+}

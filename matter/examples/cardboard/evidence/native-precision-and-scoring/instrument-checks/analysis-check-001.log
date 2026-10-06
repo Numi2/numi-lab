@@ -1,0 +1,17 @@
+............E
+======================================================================
+ERROR: test_cardboard_tooling_analysis (unittest.loader._FailedTest.test_cardboard_tooling_analysis)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_cardboard_tooling_analysis
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/loader.py", line 137, in loadTestsFromName
+    module = __import__(module_name)
+  File "/Users/home/numi-cardboard-20261006/matter/tools/test_cardboard_tooling_analysis.py", line 15, in <module>
+    import cardboard_tooling_analysis as analysis
+ModuleNotFoundError: No module named 'cardboard_tooling_analysis'
+
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.164s
+
+FAILED (errors=1)

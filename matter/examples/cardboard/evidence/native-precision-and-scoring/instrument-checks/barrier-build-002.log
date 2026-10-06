@@ -1,0 +1,19 @@
+[ 10%] Built target numi_matter_shaders
+[ 57%] Built target numi_matter_compiler_objects
+[ 63%] Built target numi_matter_compiler
+[ 84%] Built target numi_matter_runtime_objects
+[ 89%] Built target numi_matter_runtime
+[100%] Built target numi-matter-cardboard-probe
+[ 75%] Built target numi_matter_compiler_objects
+[ 83%] Built target numi_matter_compiler
+[ 91%] Building CXX object CMakeFiles/numi-matter-cardboard-barrier-scale-check.dir/tools/cardboard_prescribed_barrier_scale_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-barrier-scale-check
+[100%] Built target numi-matter-cardboard-barrier-scale-check
+[ 10%] Built target numi_matter_shaders
+[ 57%] Built target numi_matter_compiler_objects
+[ 68%] Built target numi_matter_compiler
+[ 84%] Built target numi_matter_runtime_objects
+[ 89%] Built target numi_matter_runtime
+[ 94%] Building OBJCXX object CMakeFiles/numi-matter-cardboard-tooling-native-check.dir/tools/cardboard_tooling_native_check.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-tooling-native-check
+[100%] Built target numi-matter-cardboard-tooling-native-check

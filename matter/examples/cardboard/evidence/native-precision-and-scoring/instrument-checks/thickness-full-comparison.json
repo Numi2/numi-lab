@@ -1,0 +1,18 @@
+{
+  "analyzer_sha256": "46294362b07f4dfb3de9a2f2607c23a88bc5565c9678cda194e21471c371544a",
+  "comparison": {
+    "baseline": "thickness-k256-baseline-001",
+    "candidate": "thickness2-k256-full-001",
+    "kind": "spatial"
+  },
+  "convergence_verdict": "not_assessed; acceptance is not inferred from completed step count",
+  "physical_validation": false,
+  "reasons": [
+    {
+      "code": "native_run_failed",
+      "message": "Matter rejected step 29; status, accepted state OBJ, and CSV observations were retained"
+    }
+  ],
+  "schema": "numi.cardboard.convergence-analysis.v1",
+  "status": "failed_run"
+}

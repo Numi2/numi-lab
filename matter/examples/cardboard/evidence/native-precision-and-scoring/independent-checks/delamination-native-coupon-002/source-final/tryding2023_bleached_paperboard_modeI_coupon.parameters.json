@@ -1,0 +1,173 @@
+{
+  "schema": "numi.matter.cardboard.bleached-paperboard-modeI-coupon.v1",
+  "asset": "tryding2023_bleached_paperboard_modeI_coupon.nmatter",
+  "material_scope": "single-ply bleached clay-coated paperboard, positive-opening pure Mode I evaluator coupon",
+  "not_identified_as": [
+    "Nagasawa corrugated liner or flute medium",
+    "corrugated-board starch adhesive",
+    "zero-thickness cohesive-face law",
+    "complete creasing/folding material"
+  ],
+  "sources": [
+    {
+      "citation": "Tryding et al., International Journal of Solids and Structures 279 (2023) 112365",
+      "doi": "10.1016/j.ijsolstr.2023.112365",
+      "url": "https://doi.org/10.1016/j.ijsolstr.2023.112365",
+      "full_text_url": "https://www.diva-portal.org/smash/get/diva2%3A1774521/FULLTEXT01.pdf",
+      "used_for": [
+        "normal cohesive envelope",
+        "damage relation",
+        "free energy",
+        "unloading modulus",
+        "initial damage",
+        "sample mass and thickness"
+      ]
+    },
+    {
+      "citation": "Biel et al., International Journal of Solids and Structures 252 (2022) 111755",
+      "doi": "10.1016/j.ijsolstr.2022.111755",
+      "url": "https://doi.org/10.1016/j.ijsolstr.2022.111755",
+      "used_for": [
+        "normal cohesive calibration underlying the later Table 1 values"
+      ]
+    }
+  ],
+  "sample": {
+    "paperboard": "single-ply bleached clay-coated paperboard",
+    "basis_weight_kg_per_m2": 0.319,
+    "thickness_m": 0.00041,
+    "inverse_thickness_per_m": 2439.0243902439024,
+    "density_kg_per_m3": 778.048780487805,
+    "density_derivation": "0.319 kg/m^2 / 0.000410 m"
+  },
+  "parameters": {
+    "normal_strength_Pa": 397000.0,
+    "normal_length_m": 0.000111,
+    "shape_c": 0.863,
+    "shape_factor_xc": 0.7031799504329036,
+    "normal_unloading_scale_Pa_per_m": 10900000000.0,
+    "normal_unloading_exponent_m": 1.39,
+    "inverse_thickness_per_m": 2439.0243902439024,
+    "mode_i_kinematic_tolerance": 2e-06,
+    "history_fb_epsilon": 1e-08,
+    "initial_damage_kappa": 0.01,
+    "initial_opening_m": 1.4796407557789918e-06,
+    "initial_opening_derivation": "deltaN * xc * (kappa/(1-kappa))^c from the normal damage relation and envelope"
+  },
+  "model_mapping": {
+    "material_axes": {
+      "x": "machine direction",
+      "y": "cross direction",
+      "z": "thickness direction"
+    },
+    "opening_m": "thickness * (F33 - 1)",
+    "history": "exact max(previous kappa, envelope damage) initializer with 1e-8 dimensionless Fischer-Burmeister residual regularization; production projection tolerance accepts the exact-max seed at the junction",
+    "surface_free_energy_J_per_m2": "0.5 * E(kappa) * (opening - plastic_opening)^2",
+    "volumetric_energy_J_per_m3": "surface_free_energy * inverse_thickness, where inverse_thickness = 1 / reported board thickness",
+    "loading_work_J_per_m2": "integral of the published normal traction envelope",
+    "history_regularizer_audit": {
+      "epsilon_dimensionless": 1e-08,
+      "max_seed_residual_at_junction": 1.41421356e-08,
+      "local_projection_tolerance_at_kappa_0_01": 2.01999992e-05,
+      "residual_to_tolerance_ratio": 0.0007001058,
+      "exact_smoothed_root_damage_increment_at_junction": 1e-08,
+      "exact_smoothed_root_maximum_opening_shift_mm": 1.28982818e-09,
+      "exact_smoothed_root_traction_shift_Pa_at_old_opening": -2.84134638,
+      "exact_smoothed_root_free_energy_shift_J_per_m2": -4.65105819e-07,
+      "production_seed_state_shift_at_junction": 0,
+      "compiled_fp32_junction_tangent_Pa_per_F33": 450340608,
+      "source_loading_one_sided_tangent_Pa_per_F33": -1261948.21,
+      "source_unloading_one_sided_tangent_Pa_per_F33": 901943314.97,
+      "source_one_sided_midpoint_Pa_per_F33": 450340683.38,
+      "compiled_tangent_midpoint_error_Pa_per_F33": -75.38,
+      "compiled_loading_tangent_relative_error": 2.85683673e-06,
+      "compiled_unloading_tangent_relative_error": 2.1029344e-08,
+      "repeated_constant_opening_holds": 1000,
+      "compiled_fp32_damage_change_after_holds": 0,
+      "evidence_scope": "CPU scalar-bytecode compilation against independent source equations; native Metal values are separately captured in native_metal_audit"
+    }
+  },
+  "scope_limits": [
+    "Pure normal Mode I only; shear parameters and friction are not consumed.",
+    "Uniaxial positive F33 opening only; compression, contact, shear, and in-plane strain beyond the 2e-6 admission tolerance are rejected.",
+    "The calibration is for paperboard, not starch glue.",
+    "No finite complete-separation threshold or face-topology evolution is provided.",
+    "No physical creasing, folding, or packaging qualification is implied."
+  ],
+  "verification_targets": {
+    "cpu_reference": "cardboard_bleached_delamination_check.cpp",
+    "native_material_evaluator": "cardboard_bleached_delamination_gpu_check.mm",
+    "native_kernel": "cardboard_bleached_delamination_check.metal",
+    "native_gpu_execution": "Passed on Apple M4 via the production material evaluator in a one-tetra instrument fixture; 11,894 checks, zero physical FEM steps. The source work error fell from 1.471085757e-3 J/m^2 at 32 increments to 5.547617313e-6 J/m^2 at 512; maximum loading tangent relative error was 2.083090985e-6, maximum centered stress-FD relative error 1.123424749e-2, and 1000 repeated native holds changed damage by zero. Full metrics and hashes are in native_metal_audit and the linked closure receipt.",
+    "preserved_pre_fix_failures": [
+      "/Users/home/cardboard-closure-evidence-20261006/delamination-native-coupon-002/prior-failures/delamination-native-debug-001.log",
+      "/Users/home/cardboard-closure-evidence-20261006/delamination-native-coupon-002/prior-failures/delamination-native-debug-002.log",
+      "/Users/home/cardboard-closure-evidence-20261006/delamination-native-coupon-002/prior-failures/attempt-001.stdout.log",
+      "/Users/home/cardboard-closure-evidence-20261006/delamination-native-coupon-002/prior-failures/attempt-003.stdout.log",
+      "/Users/home/cardboard-closure-evidence-20261006/delamination-native-coupon-002/prior-failures/attempt-004.stdout.log"
+    ]
+  },
+  "native_metal_audit": {
+    "status": "passed",
+    "date": "2026-10-06",
+    "device": "Apple M4",
+    "test": "matter.metal.cardboard_delamination_coupon",
+    "command": "ctest --test-dir build-cardboard -R matter.metal.cardboard_delamination_coupon --output-on-failure",
+    "production_material_fingerprint_u64": 5570626462714653447,
+    "instrument": "production constitutive evaluator on a one-tetra fixture",
+    "physical_fem_steps": 0,
+    "assertions": 11894,
+    "seed": {
+      "damage": 0.01,
+      "source_opening_mm": 0.001479640756,
+      "fp32_stretch": 1.003608823,
+      "represented_opening_mm": 0.001479617357,
+      "source_traction_Pa": 393030.0,
+      "native_traction_Pa": 392978.5276,
+      "native_minus_source_traction_Pa": -51.47236163
+    },
+    "loading_and_work": {
+      "loaded_opening_mm": 0.1,
+      "loaded_traction_MPa": 0.1701978437,
+      "native_work_J_per_m2": 26.10949601,
+      "source_work_J_per_m2": 26.10950156,
+      "steps_32_native_work_J_per_m2": 26.11097265,
+      "steps_32_absolute_work_error_J_per_m2": 0.001471085757,
+      "steps_512_absolute_work_error_J_per_m2": 5.547617313e-06
+    },
+    "history_junction": {
+      "fb_epsilon": 1e-08,
+      "native_residual": 1.414213562e-08,
+      "local_projection_tolerance": 2.022309478e-05,
+      "residual_over_tolerance": 0.0006993062029,
+      "damage": 0.01115473919,
+      "loading_tangent_Pa_per_F33": -1278203.908,
+      "unloading_tangent_Pa_per_F33": 790006314.2,
+      "source_midpoint_tangent_Pa_per_F33": 394364055.2,
+      "native_midpoint_tangent_Pa_per_F33": 394364064.0,
+      "junction_convention": "exact max-history state is retained; the production tolerance accepts its small FB residual; generated tangent selects the midpoint of distinct source one-sided tangents, not a unique source derivative"
+    },
+    "unloading": {
+      "free_energy_J_per_m2": 0.156083926,
+      "dissipation_J_per_m2": 23.80819347,
+      "damage_preserved": true
+    },
+    "holds_and_tangents": {
+      "constant_opening_holds": 1000,
+      "damage_change_after_holds": 0.0,
+      "maximum_source_loading_tangent_relative_error": 2.083090985e-06,
+      "maximum_centered_native_stress_fd_relative_error": 0.01123424749,
+      "centered_fd_limit": 0.04,
+      "rejected_compression_zero_opening_shear_and_in_plane_inputs_preserve_accepted_state": true
+    },
+    "evidence_receipt": "/Users/home/cardboard-closure-evidence-20261006/delamination-native-coupon-002/receipt.md",
+    "limitations": [
+      "No FEM equilibrium solve or physical coupon steps were run.",
+      "This is a pure positive-opening Mode I constitutive evaluator coupon, not a zero-thickness cohesive face or finite debonding topology.",
+      "The parameters describe single-ply bleached clay-coated paperboard and do not calibrate the current corrugated board or starch adhesive."
+    ],
+    "material_source_sha256": "10e36ae366d305e23a0f4b694703862e7d9d472596e63e472751baabf8f5b6cd",
+    "source_snapshot_directory": "/Users/home/cardboard-closure-evidence-20261006/delamination-native-coupon-002/source-final"
+  },
+  "evidence_bundle": "/Users/home/cardboard-closure-evidence-20261006/delamination-native-coupon-002"
+}

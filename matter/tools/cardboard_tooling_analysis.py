@@ -295,6 +295,8 @@ def analyze_run(run_directory: str | Path) -> dict[str, Any]:
     result = _read_json(run_dir / "result.json")
     if manifest.get("schema") != MANIFEST_SCHEMA:
         raise EvidenceError("unsupported cardboard manifest schema")
+    if manifest.get("specimen", "corrugated_strip") != "corrugated_strip":
+        raise EvidenceError("tool strip analysis cannot admit a box blank")
     if result.get("schema") != RESULT_SCHEMA:
         raise EvidenceError("unsupported cardboard result schema")
 
@@ -306,14 +308,25 @@ def analyze_run(run_directory: str | Path) -> dict[str, Any]:
         raise EvidenceError("manifest does not declare crease tooling enabled")
     if not isinstance(solver, dict) or not isinstance(geometry, dict) or not isinstance(materials, dict):
         raise EvidenceError("manifest is missing solver, geometry, or materials metadata")
+    scale_metadata = dict(tooling)
+    scale_metadata.setdefault("prescribed_tool_barrier_stiffness_scale", 1.0)
+    barrier_scale = _finite_manifest_number(
+        scale_metadata, "prescribed_tool_barrier_stiffness_scale", "tooling", positive=True)
+    if not 1.0 <= barrier_scale <= 100.0:
+        raise EvidenceError("prescribed tool barrier scale must be in [1, 100]")
+    if barrier_scale != 1.0 and tooling.get("native_feasible_predictor") is not True:
+        raise EvidenceError("nondefault barrier scale requires the prescribed native tool path")
     timing = tooling.get("timing")
     legacy_timing = isinstance(timing, str) and (
         "start-of-step body pose" in timing and "commanded end pose" in timing)
     native_endpoint_timing = isinstance(timing, str) and (
         "start-of-step pose" in timing and "preDynamics" in timing and
         "realized end pose" in timing and "postCommit" in timing)
-    if not (legacy_timing or native_endpoint_timing):
-        raise EvidenceError("manifest does not document start/preDynamics and end/postCommit tooling timing")
+    endpoint_solve_timing = isinstance(timing, str) and (
+        "prescribed end pose" in timing and "consistent step velocity" in timing and
+        "preDynamics and postCommit" in timing)
+    if not (legacy_timing or native_endpoint_timing or endpoint_solve_timing):
+        raise EvidenceError("manifest does not document recognized tooling solve and certificate timing")
 
     dt = _finite_manifest_number(solver, "dt_s", "solver", positive=True)
     slop = _finite_manifest_number(solver, "contact_slop_m", "solver", positive=True)
@@ -586,6 +599,8 @@ def analyze_run(run_directory: str | Path) -> dict[str, Any]:
             "initial_nose_clearance_m": nose_clearance,
             "initial_anvil_clearance_m": anvil_clearance,
             "timing_contract": timing,
+            "prescribed_tool_barrier_stiffness_scale": barrier_scale,
+            "barrier_scale_role": "numerical conditioning only; not material calibration",
         },
         "checks": {
         "moving_arm_native_punch_contact": "pass" if moving_contacts > 0 else ("inconclusive" if incomplete else "fail"),

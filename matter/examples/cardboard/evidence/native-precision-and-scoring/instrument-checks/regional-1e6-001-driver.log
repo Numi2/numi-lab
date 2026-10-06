@@ -1,0 +1,4 @@
+{"return_code": 2, "wall_seconds": 110.0529704997316, "inputs_unchanged": true}
+{"schema":"numi.cardboard.probe-result.v1","status":"failed","accepted_steps":0,"compiled_world_fingerprint":11083850490444789364,"nodes":588,"tetrahedra":960,"failure":"Matter rejected step 0; status, accepted state OBJ, and CSV observations were retained","physical_validation":false}
+
+

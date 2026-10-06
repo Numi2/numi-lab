@@ -281,6 +281,11 @@ struct TetrahedronSource {
     std::array<std::uint32_t, 4> nodes{};
 };
 
+enum class FEMPreconditionerMode : std::uint32_t {
+    scalarDiagonal = 0u,
+    regionalTangentDiagonal = 1u,
+};
+
 struct MixedSolverSource {
     std::uint32_t newtonIterations = NM_MIXED_NEWTON_ITERATIONS;
     std::uint32_t fgmresRestart = NM_MIXED_FGMRES_DEFAULT_RESTART;
@@ -291,6 +296,11 @@ struct MixedSolverSource {
     std::uint32_t fieldSmootherPasses =
         NM_MIXED_FIELD_SMOOTHER_MAX_PASSES;
     std::uint32_t mutationRestarts = NM_MIXED_MUTATION_RESTARTS;
+    // Opt-in tangent-aware diagonal, currently validated only for pure FEM
+    // worlds without mixed/multiphysics or learned constitutive operators.
+    // The zero-valued scalar path preserves the historical implementation.
+    FEMPreconditionerMode femPreconditioner =
+        FEMPreconditionerMode::scalarDiagonal;
     double relativeResidual = 1.0e-4;
     double volumeTolerance = 1.0e-4;
     double pressureTolerance = 1.0e-4;
@@ -380,6 +390,17 @@ struct RigidProxySource {
     bool dynamic = false;
     bool punctureTip = false;
     bool punctureDilator = false;
+    // Pure FEM/no microticks only. currentBodies supplies the endpoint pose and
+    // step velocity in BOTH phases; angular velocity must be exactly zero.
+    // Enables a feasible Newton predictor and swept capsule-node certificate.
+    bool prescribedEndPoseTranslation = false;
+    // Numerical conditioning multiplier for this prescribed capsule's IPC
+    // barrier stiffness only. The default is exactly the legacy response.
+    // Because Coulomb limits follow the normal barrier impulse, nonzero
+    // friction capacity also scales with this multiplier.
+    // This is not a physical contact/material calibration; supported range
+    // is [1, 100] and non-1 values require prescribedEndPoseTranslation.
+    double prescribedBarrierStiffnessScale = 1.0;
     // Live MetalWorld DER capsule. When enabled, body/scene bindings and local
     // capsule endpoints are ignored; strandNodeA/B address the global
     // environment-local rod-node arena and radiusOrOffset remains physical.
@@ -447,6 +468,13 @@ struct ObjectSource {
     // SHA256 of the supplied reference and its source/derivation contract.
     // Required with femReferenceNodes, canonical zero without them.
     std::array<std::uint64_t, 4> femReferenceSourceIdentity{};
+    // Opt in to F = I + grad(u) in FP32 FEM kinematics, where u is initialized
+    // from femNodes - femReferenceNodes and persists as a separate nodal state
+    // from the materialized absolute position X + u. Requires authored
+    // reference coordinates and per-tet regional material assignments on
+    // explicit, immutable FEM without Human attachments. Empty/false preserves
+    // the legacy current-edge times inverse-reference formulation.
+    bool femReferenceDisplacementGradient = false;
     // Local FEM node indices whose position is prescribed at the authored
     // initial femNodes position, including when a separate reference exists.
     // Fixed nodes retain their assembled mass for accounting,
@@ -1674,7 +1702,9 @@ struct RuntimeStateSnapshot {
     std::vector<NMSchedulerStateGPU> schedulers;
     std::vector<NMRigidReactionGPU> reactions;
     // Completion-boundary projected proxy geometry/kinematics. This is
-    // diagnostic readback, not an independently writable rigid state.
+    // diagnostic readback for ordinary proxies. For prescribed translating
+    // capsules this also preserves the accepted endpoint used to validate
+    // the next motion; it is not an independently writable rigid state.
     std::vector<NMRigidStateGPU> rigidStates;
     // Completion-boundary primal-contact diagnostics, populated only when
     // RuntimeConfiguration::captureDiagnostics is enabled.

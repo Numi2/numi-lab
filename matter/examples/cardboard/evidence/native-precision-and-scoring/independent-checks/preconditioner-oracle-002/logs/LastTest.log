@@ -1,0 +1,35 @@
+Start testing: Oct 06 10:21 CEST
+----------------------------------------------------------
+37/41 Testing: matter.metal.cardboard_preconditioner
+37/41 Test: matter.metal.cardboard_preconditioner
+Command: "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-cardboard-preconditioner-gpu-check" "/Users/home/numi-cardboard-20261006/matter/materials/hajali2009_liner_hill_ideal.nmatter" "/Users/home/numi-cardboard-20261006/matter/materials/hajali2009_medium_hill_ideal.nmatter"
+Directory: /Users/home/numi-cardboard-20261006/build-cardboard
+"matter.metal.cardboard_preconditioner" start time: Oct 06 10:21 CEST
+Output:
+----------------------------------------------------------
+device=Apple M4 kernel=nm_fgmres_build_tangent_fem_preconditioner physical_steps=0
+package_roundtrip=pass mode=regional-tangent local_material_newton=16
+hajali2009_liner_hill_ideal.nmatter direct_kernel_diagonal_entries=12 accepted_lambda=0 fd_relative_max=2.72786e-05 fd_absolute_max=54.3262
+package_roundtrip=pass mode=regional-tangent local_material_newton=16
+hajali2009_medium_hill_ideal.nmatter direct_kernel_diagonal_entries=12 accepted_lambda=0 fd_relative_max=2.69773e-05 fd_absolute_max=41.7709
+package_roundtrip=pass mode=regional-tangent local_material_newton=16
+hajali2009_liner_hill_ideal.nmatter yielded_state_fd_entries=12 lambda=0.00235114 q=1 work_MPa=0.0538882 fd_relative_max=4.15745e-05 fd_absolute_max=15.6455
+package_roundtrip=pass mode=regional-tangent local_material_newton=16
+hajali2009_medium_hill_ideal.nmatter yielded_state_fd_entries=12 lambda=0.00521895 q=1 work_MPa=0.0490112 fd_relative_max=0.000202512 fd_absolute_max=389.301
+PASS direct Metal tangent-diagonal FD; physical_validation=false
+<end of output>
+Test time =   1.09 sec
+----------------------------------------------------------
+Test Passed.
+"matter.metal.cardboard_preconditioner" end time: Oct 06 10:21 CEST
+"matter.metal.cardboard_preconditioner" time elapsed: 00:00:01
+----------------------------------------------------------
+
+End testing: Oct 06 10:21 CEST
+
+cardboard =   1.09 sec*proc
+
+matter =   1.09 sec*proc
+
+numerics =   1.09 sec*proc
+

@@ -1,0 +1,20 @@
+Test project /Users/home/numi-cardboard-20261006/build-cardboard
+    Start 17: matter.metal.cardboard_delamination_coupon
+1/1 Test #17: matter.metal.cardboard_delamination_coupon ...***Failed    1.63 sec
+device=Apple M4 instrument=production_constitutive_evaluator physical_coupon_steps=0
+FAIL native algorithmic tangent differs from source envelope derivative
+
+
+0% tests passed, 1 tests failed out of 1
+
+Label Time Summary:
+cardboard       =   1.63 sec*proc (1 test)
+delamination    =   1.63 sec*proc (1 test)
+material        =   1.63 sec*proc (1 test)
+matter          =   1.63 sec*proc (1 test)
+
+Total Test time (real) =   1.63 sec
+
+The following tests FAILED:
+	 17 - matter.metal.cardboard_delamination_coupon (Failed) cardboard delamination material matter
+Errors while running CTest

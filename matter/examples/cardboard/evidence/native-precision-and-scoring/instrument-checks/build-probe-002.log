@@ -1,0 +1,8 @@
+[ 10%] Built target numi_matter_shaders
+[ 31%] Built target numi_matter_runtime_objects
+[ 78%] Built target numi_matter_compiler_objects
+[ 84%] Built target numi_matter_compiler
+[ 89%] Built target numi_matter_runtime
+[ 94%] Building OBJCXX object CMakeFiles/numi-matter-cardboard-probe.dir/tools/cardboard_probe.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-probe
+[100%] Built target numi-matter-cardboard-probe

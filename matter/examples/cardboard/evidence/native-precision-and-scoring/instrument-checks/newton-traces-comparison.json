@@ -1,0 +1,95 @@
+{
+  "schema": "numi.cardboard.newton-trace-comparison.v1",
+  "physical_validation": false,
+  "scope": "Descriptive failed-iterate diagnostic. No accepted mesh endpoint, true b-Ax check or causal attribution.",
+  "runs": {
+    "nx16-k64-newton-trace-002": {
+      "trace_integrity": "ok",
+      "accepted_steps": 0,
+      "raw_terminal_status": 10,
+      "terminal_residual": 5.4649364756187424e-05,
+      "iterations": 28,
+      "near_full_steps_with_more_than_10pct_growth": [
+        4,
+        6,
+        9,
+        12,
+        13,
+        18,
+        25,
+        27
+      ],
+      "screen_observations_with_accepted_inner_cycle": [],
+      "prediction_supported_in_this_arm": false,
+      "final_cycle_accepted_count": 2,
+      "prior_untraced_name": "persistent-nx16-001",
+      "byte_identical_to_prior": {
+        "observations.csv": true,
+        "initial.obj": true,
+        "mesh.json": true
+      },
+      "inputs_unchanged": true,
+      "bindings": {
+        "observations.csv": "67d058373b94414e9826a019735642459ae3a5a85432dc2e0eb855187986c24a",
+        "initial.obj": "85937469616d2ce4096aa8fe945854b748537931dc8eff01f174ba00e2cf4b11",
+        "mesh.json": "28bed660bf7e5d75001dbd8ab8b9567ebb09403e633134ca34082589c1442c58"
+      },
+      "analysis_sha256": "ac8bff9f61fda28869c0c6a4079f8594ecd2aa51b7fd4c7657cad206255919ec"
+    },
+    "nx16-k256-newton-trace-002": {
+      "trace_integrity": "ok",
+      "accepted_steps": 0,
+      "raw_terminal_status": 10,
+      "terminal_residual": 0.0001745011832099408,
+      "iterations": 28,
+      "near_full_steps_with_more_than_10pct_growth": [
+        4,
+        5,
+        6,
+        8,
+        11,
+        12,
+        13,
+        14,
+        17,
+        18,
+        20,
+        21,
+        23,
+        24,
+        26
+      ],
+      "screen_observations_with_accepted_inner_cycle": [
+        {
+          "alpha": 1.0,
+          "arnoldi_estimate_ratio_not_true_residual": 0.12284946220664006,
+          "cycle_accepted": true,
+          "growth_ratio": 1.706704861093309,
+          "interpretation": "descriptive candidate only; Arnoldi estimate is not a true b-Ax check or a causal explanation",
+          "iteration": 4,
+          "next_status_code": 0,
+          "residual_after": 1.36813696e-05,
+          "residual_before": 8.0162481e-06
+        }
+      ],
+      "prediction_supported_in_this_arm": true,
+      "final_cycle_accepted_count": 5,
+      "prior_untraced_name": "nx16-k256-first-001",
+      "byte_identical_to_prior": {
+        "observations.csv": true,
+        "initial.obj": true,
+        "mesh.json": true
+      },
+      "inputs_unchanged": true,
+      "bindings": {
+        "observations.csv": "6a64017c6308d7ef3e192bba0119ed93adf2c9f273939c2fdb6f5887d1124708",
+        "initial.obj": "85937469616d2ce4096aa8fe945854b748537931dc8eff01f174ba00e2cf4b11",
+        "mesh.json": "28bed660bf7e5d75001dbd8ab8b9567ebb09403e633134ca34082589c1442c58"
+      },
+      "analysis_sha256": "e02ce3b5cd462e1a9a65d135227224391cd65ae00e5f2c617457b33a6a0086cf"
+    }
+  },
+  "same_native_source_binary_material_bindings": true,
+  "prediction_supported_in_at_least_one_arm": true,
+  "next_prediction": "A native direct b-Ax diagnostic will determine whether estimated inner residuals predict actual linearized residuals at the first nonlinear-growth iteration. Do not alter the acceptance gate or attribute the failure to globalization alone before that check."
+}

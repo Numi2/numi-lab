@@ -1,0 +1,21 @@
+{
+  "schema": "numi.cardboard.closure-plan.v1",
+  "created_utc": "2026-10-06T06:47:48.084430+00:00",
+  "question": "Does solving prescribed contact at the actual endpoint eliminate the retained 20um scoring rejection?",
+  "prediction": "Endpoint solve produces no accepted penetration and advances beyond old step16 rejection; nonlinear failure or infeasible initial guess remains an explicit rejected prediction.",
+  "protocol": [
+    "--crease",
+    "--steps",
+    "32",
+    "--hold-steps",
+    "16",
+    "--unload-steps",
+    "32",
+    "--relax-steps",
+    "16",
+    "--indent-mm",
+    "0.020"
+  ],
+  "stop": "First native rejection; maximum900s; no threshold relaxation.",
+  "numerical_followup": "Compare immutable reference-displacement arithmetic to legacy under same load path, then physical-duration matched time and mesh refinement."
+}

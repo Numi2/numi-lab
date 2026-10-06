@@ -1,0 +1,26 @@
+{
+  "schema": "numi.cardboard.baseline-repeat.v1",
+  "scope": "Same controls on final binary; different source build from original baseline. Native observation and phase state regression only.",
+  "artifacts": {
+    "observations.csv": {
+      "identical": true,
+      "old_sha256": "6d7a8c2dfc9a5ae46375fc56a74db2dd2882b843ccf3dcb7f9fdd59b58fc059f",
+      "new_sha256": "6d7a8c2dfc9a5ae46375fc56a74db2dd2882b843ccf3dcb7f9fdd59b58fc059f"
+    },
+    "mesh.json": {
+      "identical": true,
+      "old_sha256": "add3e5f87879dac154eb4a31bb73b1c2de8740b04f29f05721f3b8198aa367e5",
+      "new_sha256": "add3e5f87879dac154eb4a31bb73b1c2de8740b04f29f05721f3b8198aa367e5"
+    },
+    "material_state_000032_bent.json": {
+      "identical": true,
+      "old_sha256": "084cac380158b0034747570b8a0acfce8183e21e58f36b8db7c7791ee6a50adc",
+      "new_sha256": "084cac380158b0034747570b8a0acfce8183e21e58f36b8db7c7791ee6a50adc"
+    },
+    "material_state_000048_bent.json": {
+      "identical": true,
+      "old_sha256": "b768dcf5300ed090fa29385e2946aac7d0a1a1342ba110fdf6e759aacb5aa5f0",
+      "new_sha256": "b768dcf5300ed090fa29385e2946aac7d0a1a1342ba110fdf6e759aacb5aa5f0"
+    }
+  }
+}

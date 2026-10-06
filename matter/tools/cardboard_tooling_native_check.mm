@@ -107,7 +107,7 @@ struct Fixture {
     std::uint32_t supportProxyIndex = kSupportProxyIndex;
     double timestep = 0.0;
 
-    Fixture() {
+    Fixture(const bool prescribed = false, const double punchSpeed = kPunchSpeed) {
         device = MTLCreateSystemDefaultDevice();
         require(device != nil, "Metal device unavailable");
         require([[device name] rangeOfString:@"Apple"].location != NSNotFound &&
@@ -221,7 +221,8 @@ struct Fixture {
         toolSpec.initialClearance = kBottomClearance + kInitialPunchGap;
         toolSpec.punchBodyIndex = kPunchBodyIndex;
         toolSpec.contactMaterialIndex = 0u;
-        const auto tools = numi::cardboard::makeCreaseTooling(toolSpec);
+        auto tools = numi::cardboard::makeCreaseTooling(toolSpec);
+        tools.punch.prescribedEndPoseTranslation = prescribed;
         source.rigidProxies = {tools.punch, tools.support};
 
         const auto compiled = compileWorld(source, {
@@ -269,7 +270,7 @@ struct Fixture {
             body.linearVelocityAndInverseMass = {
                 0.0f,
                 0.0f,
-                static_cast<float>(environment == 0u ? -kPunchSpeed : 0.0),
+                static_cast<float>(environment == 0u ? -punchSpeed : 0.0),
                 0.0f,
             };
             body.angularVelocity = {0.0f, 0.0f, 0.0f, 0.0f};
@@ -296,7 +297,11 @@ struct Fixture {
     }
 
     RuntimeStateSnapshot step(const unsigned index,
-                              const bool unsafeExternalEndpoint = false) {
+                              const bool unsafeExternalEndpoint = false,
+                              const bool expectedPreRejection = false,
+                              const unsigned preFault = 0u,
+                              const bool twoSubsteps = false,
+                              const unsigned postFault = 0u) {
         const auto before = snapshot();
         auto nextBodies = authoredBodies;
         for (unsigned environment = 0u; environment < kEnvironmentCount; ++environment) {
@@ -304,6 +309,9 @@ struct Fixture {
                 nextBodies[environment].linearVelocityAndInverseMass.z *
                 static_cast<float>(runtime.timestepSeconds());
         }
+        if (preFault == 1u) nextBodies[0].position.z -= 0.0001f;
+        if (preFault == 2u) nextBodies[0].orientation = {0.0f, 0.0f, std::sin(0.2f), std::cos(0.2f)};
+        if (preFault == 3u) nextBodies[0].linearVelocityAndInverseMass.w = 1.0f;
         if (unsafeExternalEndpoint) {
             // Put the nose inside the authored top collision surface. A jump
             // through the entire pad would instead test swept CCD, which an
@@ -314,6 +322,9 @@ struct Fixture {
                     nextBodies[0].position.z > kPadCaliper,
                     "unsafe endpoint fixture does not intersect the pad top");
         }
+        id<MTLBuffer> plannedBodies = postFault != 0u ? makeBuffer(device, nextBodies) : nil;
+        if (postFault == 1u) nextBodies[0].inverseInertiaWorldRow0.x = 1.0f;
+        if (postFault == 2u) nextBodies[0].flagsAndIndices[0] = MR_MOTION_DYNAMIC;
         std::memcpy(endpointBodies.contents, nextBodies.data(),
                     nextBodies.size() * sizeof(MRBodyStateGPU));
         auto* statusValues = static_cast<MRMetalWorldStatusGPU*>(statuses.contents);
@@ -326,19 +337,21 @@ struct Fixture {
         EncodeRequest request;
         request.commandBuffer = (__bridge void*)command;
         request.environmentStatuses = (__bridge void*)statuses;
-        request.rigid.currentBodies = (__bridge void*)bodies;
+        request.rigid.currentBodies = (__bridge void*)(postFault != 0u ? plannedBodies :
+            (unsafeExternalEndpoint ? bodies : endpointBodies));
         request.rigid.currentBodyCount = 1u;
         request.rigid.currentBodyStride = 1u;
-        request.controlStep = index;
-        request.physicsSubsteps = 1u;
+        request.controlStep = twoSubsteps ? index / 2u : index;
+        request.physicsSubsteps = twoSubsteps ? 2u : 1u;
+        request.physicsSubstep = twoSubsteps ? index % 2u : 0u;
         request.timestepSeconds = runtime.timestepSeconds();
         request.runAdaptiveTransfer = false;
         request.phase = EncodePhase::preDynamics;
         auto encoded = runtime.encode(request);
         require(encoded.encoded, "native tooling preDynamics encode: " + encoded.message);
-        // The mechanics solve sees the caller's accepted start pose. Native
-        // postCommit certification receives the commanded end pose in a
-        // distinct immutable buffer from the same enclosing command buffer.
+        // The normal solve and certificate use the identical endpoint. The
+        // negative case deliberately substitutes an unexpected external endpoint
+        // after solving, exercising the native rejection and rollback path.
         request.rigid.currentBodies = (__bridge void*)endpointBodies;
         request.phase = EncodePhase::postCommit;
         encoded = runtime.encode(request);
@@ -350,7 +363,7 @@ struct Fixture {
         const auto result = snapshot();
         require(result.statuses.size() == kEnvironmentCount,
                 "native tooling status snapshot arity");
-        if (unsafeExternalEndpoint) {
+        if (unsafeExternalEndpoint || expectedPreRejection || postFault != 0u) {
             require(result.statuses[0].code != NM_STATUS_SUCCESS,
                     "unsafe external end pose was not rejected by postCommit certification");
             require(result.statuses[1].code == NM_STATUS_SUCCESS,
@@ -363,6 +376,9 @@ struct Fixture {
                         static_cast<MRBodyStateGPU*>(bodies.contents)[0].position.z) -
                     authoredBodies[0].position.z) <= 1.0e-9,
                     "rejected external endpoint advanced the caller-owned tool pose");
+            if ((world.contact.rigidProxies[0].flags & NM_RIGID_PRESCRIBED_TRANSLATION) != 0u)
+                require(std::memcmp(&result.rigidStates[0], &before.rigidStates[0], sizeof(NMRigidStateGPU)) == 0,
+                    "rejected prescribed tool did not restore exact prior native rigid pose");
             std::cout << std::setprecision(10)
                       << "unsafe_endpoint_regression=rejected"
                       << " status=" << result.statuses[0].code
@@ -512,6 +528,54 @@ void runCheck() {
     const auto rejected = rollbackFixture.step(0u, true);
     require(rejected.statuses[0].code != NM_STATUS_SUCCESS,
             "unsafe endpoint regression unexpectedly committed");
+    // This endpoint starts 10 um inside the previous pad surface. A feasible
+    // native initial guess must still converge under the original 1e-7 gate.
+    Fixture prescribedFixture(true, 0.2);
+    const auto beforePredictor = prescribedFixture.snapshot();
+    const auto predicted = prescribedFixture.step(0u);
+    const auto predictedContacts = contactsFor(predicted, 0u, 0u, 2u);
+    require(predictedContacts.valid > 0u && predictedContacts.maxNormalImpulse > 0.0,
+            "prescribed endpoint predictor produced no physical contact response");
+    require(predicted.solverCertificates.at(0).nonlinear.x <= prescribedFixture.world.mixedSolver.residualTolerances.x,
+            "feasible predictor was published without native equilibrium");
+    require(maximumNodeDisplacement(predicted, beforePredictor, 1u, prescribedFixture.femNodeCount) <= 1e-9,
+            "prescribed initial guess moved stationary control");
+    std::cout << "prescribed_predictor=pass endpoint_travel_m=0.00002 residual="
+        << predicted.solverCertificates.at(0).nonlinear.x << " native_contact_impulse="
+        << predictedContacts.maxNormalImpulse << '\n';
+
+    // A capsule translating through the pad can end outside the top surface;
+    // the swept path must reject it even when an endpoint-only check could pass.
+    Fixture sweepFixture(true, 20.0);
+    const auto sweptRejection = sweepFixture.step(0u, false, true);
+    require(sweptRejection.statuses[0].code == NM_STATUS_CONTACT_FAILURE,
+            "through-surface tool trajectory did not fail the swept contact gate");
+    std::cout << "prescribed_swept_capsule=rejected rollback=true\n";
+
+    Fixture changedEndpointFixture(true);
+    const auto changedEndpoint = changedEndpointFixture.step(0u, true);
+    require(changedEndpoint.statuses[0].code == NM_STATUS_CONTACT_FAILURE,
+            "changed prescribed endpoint was not rejected");
+
+    for (unsigned fault = 1u; fault <= 3u; ++fault) {
+        Fixture continuityFixture(true);
+        const auto accepted = continuityFixture.step(0u);
+        const auto restored = continuityFixture.runtime.restore(accepted);
+        require(restored.encoded, "prescribed tool accepted-pose restore failed: " + restored.message);
+        const auto inconsistent = continuityFixture.step(1u, false, true, fault);
+        require(inconsistent.statuses[0].code != NM_STATUS_SUCCESS,
+                "inconsistent start/rotation/inverse mass was accepted");
+    }
+    for (unsigned fault = 1u; fault <= 2u; ++fault) {
+        Fixture postFaultFixture(true);
+        (void)postFaultFixture.step(0u);
+        (void)postFaultFixture.step(1u, false, false, 0u, false, fault);
+    }
+    Fixture substepFixture(true);
+    (void)substepFixture.step(0u, false, false, 0u, true);
+    (void)substepFixture.step(1u, false, false, 0u, true);
+    std::cout << "prescribed_pose_continuity=pass invalid_start_rotation_mass=rejected post_inertia_motion_type=rejected snapshot_restore=pass multi_substep=pass\n";
+
 }
 
 } // namespace

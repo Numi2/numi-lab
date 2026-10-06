@@ -1,0 +1,30 @@
+Start testing: Oct 06 09:57 CEST
+----------------------------------------------------------
+17/40 Testing: matter.metal.cardboard_delamination_coupon
+17/40 Test: matter.metal.cardboard_delamination_coupon
+Command: "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-cardboard-delamination-gpu-check" "/Users/home/numi-cardboard-20261006/matter/materials/tryding2023_bleached_paperboard_modeI_coupon.nmatter"
+Directory: /Users/home/numi-cardboard-20261006/build-cardboard
+"matter.metal.cardboard_delamination_coupon" start time: Oct 06 09:57 CEST
+Output:
+----------------------------------------------------------
+device=Apple M4 instrument=production_constitutive_evaluator physical_coupon_steps=0
+tryding2023_bleached_paperboard_modeI_coupon source_material_fingerprint=5570626462714653447 seed_damage=0.01 seed_opening_mm=0.001479640756 seed_stretch_fp32=1.003608823 represented_seed_opening_mm=0.001479617357 seed_envelope_traction_Pa=393030 represented_seed_traction_Pa=392978.5276 seed_traction_quantization_delta_Pa=-51.47236163 loaded_opening_mm=0.1 loaded_traction_MPa=0.1701978437 native_work_J_m2=26.10949601 source_work_J_m2=26.10950156 unload_free_energy_J_m2=0.156083926 unload_dissipation_J_m2=23.80819347 coarse_steps=32 coarse_native_work_J_m2=26.11097265 coarse_work_error_J_m2=0.001471085757 refined_steps=512 refined_work_error_J_m2=5.547617313e-06 history_fb_epsilon=1e-08 junction_residual=1.414213562e-08 junction_local_tolerance=2.022309478e-05 junction_residual_to_tolerance=0.0006993062029 junction_state=0.01115473919 junction_loading_tangent_Pa_per_F33=-1278203.908 junction_unloading_tangent_Pa_per_F33=790006314.2 junction_native_midpoint_tangent_Pa_per_F33=394364064 junction_source_midpoint_Pa_per_F33=394364055.2 repeated_holds=1000 hold_damage_change=0 rejected_shear=true rejected_in_plane=true max_tangent_relative_error=2.083090985e-06 max_centered_fd_relative_error=0.01123424749
+PASS native pure-mode-I constitutive coupon checks=11894 zero_thickness_face_law=false corrugated_cardboard_validation=false
+<end of output>
+Test time =   6.95 sec
+----------------------------------------------------------
+Test Passed.
+"matter.metal.cardboard_delamination_coupon" end time: Oct 06 09:57 CEST
+"matter.metal.cardboard_delamination_coupon" time elapsed: 00:00:06
+----------------------------------------------------------
+
+End testing: Oct 06 09:57 CEST
+
+cardboard =   6.95 sec*proc
+
+delamination =   6.95 sec*proc
+
+material =   6.95 sec*proc
+
+matter =   6.95 sec*proc
+

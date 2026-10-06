@@ -1,0 +1,10 @@
+{
+  "assembly_actions": 15,
+  "baseline_v1_geometry_and_schedule": "matched",
+  "panels": 4,
+  "path": "/Users/home/cardboard-closure-evidence-20261006/box-feature-rest-003/box-layout.json",
+  "physical_assembly": false,
+  "score_lines": 12,
+  "sha256": "0a70b3803252c4c41accb00c4f07680579ea331d1cd4434a71c5e747c395e302",
+  "version": "v2"
+}

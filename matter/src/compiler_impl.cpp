@@ -239,7 +239,7 @@ using Mat3 = std::array<double, 9>;
     result.executionBudgets = {
         source.fieldSmootherPasses,
         source.mutationRestarts,
-        0u,
+        static_cast<std::uint32_t>(source.femPreconditioner),
         0u,
     };
     result.residualTolerances = f4(
@@ -918,7 +918,14 @@ CompileResult compileWorld(
         const double capsuleLengthSquared =
             capsuleDx * capsuleDx + capsuleDy * capsuleDy +
             capsuleDz * capsuleDz;
-        if (!finite(proxy.localCenter) || !finite(proxy.localExtent) ||
+        const bool invalidPrescribedBarrierScale =
+            !finite(proxy.prescribedBarrierStiffnessScale) ||
+            proxy.prescribedBarrierStiffnessScale < 1.0 ||
+            proxy.prescribedBarrierStiffnessScale > 100.0 ||
+            (!proxy.prescribedEndPoseTranslation &&
+             proxy.prescribedBarrierStiffnessScale != 1.0);
+        if (invalidPrescribedBarrierScale ||
+            !finite(proxy.localCenter) || !finite(proxy.localExtent) ||
             !std::ranges::all_of(proxy.localOrientation, [](const double value) {
                 return finite(value);
             }) || !finite(proxy.radiusOrOffset) ||
@@ -948,6 +955,13 @@ CompileResult compileWorld(
               proxy.bodyIndex == NM_INVALID_INDEX ||
               !(proxy.radiusOrOffset > 0.0) ||
               !(capsuleLengthSquared > 1.0e-18))) ||
+            (proxy.prescribedEndPoseTranslation &&
+             (proxy.shape != NM_RIGID_CAPSULE || proxy.bodyIndex == NM_INVALID_INDEX ||
+              proxy.dynamic || proxy.articulated || strand || proxy.punctureTip || proxy.punctureDilator ||
+              options.maximumRateExponent != 0u ||
+              std::ranges::any_of(source.objects, [](const ObjectSource& object) {
+                  return object.representation != Representation::fem || object.automaticRepresentation || object.adaptive;
+              }))) ||
             (proxy.punctureDilator &&
              (proxy.bodyIndex == NM_INVALID_INDEX ||
               (proxy.shape != NM_RIGID_CAPSULE &&
@@ -970,7 +984,18 @@ CompileResult compileWorld(
             (proxy.dynamic ? NM_RIGID_DYNAMIC : 0u) |
             (proxy.punctureTip ? NM_RIGID_PUNCTURE_TIP : 0u) |
             (strand ? NM_RIGID_SUTURE_STRAND : 0u) |
-            (proxy.punctureDilator ? NM_RIGID_PUNCTURE_DILATOR : 0u);
+            (proxy.punctureDilator ? NM_RIGID_PUNCTURE_DILATOR : 0u) |
+            (proxy.prescribedEndPoseTranslation ? NM_RIGID_PRESCRIBED_TRANSLATION : 0u);
+        if (proxy.prescribedEndPoseTranslation) {
+            const float effectiveBarrierScale = static_cast<float>(
+                proxy.prescribedBarrierStiffnessScale);
+            // The runtime consumes an FP32 value. Canonicalize the cooked
+            // identity to that value, retaining reserved2==0 for every source
+            // double that rounds to the exact legacy factor 1.0f.
+            if (effectiveBarrierScale != 1.0f) {
+                cooked.reserved2 = std::bit_cast<nm_u32>(effectiveBarrierScale);
+            }
+        }
         cooked.adaptiveObjectIndex = NM_INVALID_INDEX;
         cooked.generalizedFreeBodyIndex = NM_INVALID_INDEX;
         if (proxy.dynamic) {
@@ -1118,6 +1143,17 @@ CompileResult compileWorld(
                 "regional FEM materials require exact indices/source identity and explicit non-mixed FEM without nodal fields or object identification"});
             return result;
         }
+        if (object.femReferenceDisplacementGradient &&
+                (!referenced || !regional || representation != Representation::fem ||
+                 object.automaticRepresentation || object.mixedFEM ||
+                 object.multiphysics.enabled || object.identifiable ||
+                 object.adaptive || object.mutationPolicy.enabled ||
+                 !object.mutationCommands.empty() || !object.fieldBoundaries.empty() ||
+                 !object.femHumanAttachments.empty())) {
+            result.diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
+                "reference-displacement FEM requires authored reference nodes and regional materials on explicit immutable non-mixed FEM without nodal fields, Human attachments, or identification"});
+            return result;
+        }
         std::set<std::uint32_t> regionalMaterials(object.femMaterialIndices.begin(), object.femMaterialIndices.end());
         if (referenced) regionalMaterials.insert(object.materialIndex);
         const auto hasIdentifiableParameters = [](const MaterialProgram& candidate) {
@@ -1181,7 +1217,9 @@ CompileResult compileWorld(
                 ? NM_OBJECT_MUTABLE_TOPOLOGY : 0u) |
             (framed ? NM_OBJECT_FEM_MATERIAL_FRAME : 0u) |
             (regional ? NM_OBJECT_FEM_REGIONAL_MATERIAL : 0u) |
-            (referenced ? NM_OBJECT_FEM_REFERENCE_CONFIGURATION : 0u);
+            (referenced ? NM_OBJECT_FEM_REFERENCE_CONFIGURATION : 0u) |
+            (object.femReferenceDisplacementGradient
+                ? NM_OBJECT_FEM_REFERENCE_DISPLACEMENT_GRADIENT : 0u);
         std::copy(object.femMaterialFrameSourceIdentity.begin(),
             object.femMaterialFrameSourceIdentity.end(), descriptor.materialFrameSourceIdentity);
         std::copy(object.femMaterialSourceIdentity.begin(),
@@ -1653,7 +1691,6 @@ CompileResult compileWorld(
                 const FEMHumanAttachmentSource* const attachment =
                     attachmentByNode[sourceNodeIndex];
                 NMFEMNodeStateGPU node{};
-                node.positionAndMass = f4(sourceNode[0], sourceNode[1], sourceNode[2], 0.0);
                 node.velocityAndInverseMass = f4(
                     fixed ? 0.0 : object.femInitialVelocity[0],
                     fixed ? 0.0 : object.femInitialVelocity[1],
@@ -1665,6 +1702,25 @@ CompileResult compileWorld(
                     referenceNode[0], referenceNode[1], referenceNode[2],
                     attachment != nullptr ? 2.0 : (fixed ? 1.0 : 0.0)
                 );
+                if (object.femReferenceDisplacementGradient) {
+                    node.referenceDisplacementAndMode = f4(
+                        sourceNode[0] - referenceNode[0],
+                        sourceNode[1] - referenceNode[1],
+                        sourceNode[2] - referenceNode[2],
+                        1.0
+                    );
+                    // The stored displacement is authoritative for reference-
+                    // displacement mode; position remains its FP32 materialization
+                    // for contact, output, and compatibility with existing APIs.
+                    node.positionAndMass = f4(
+                        double(node.restAndFixed.x) + node.referenceDisplacementAndMode.x,
+                        double(node.restAndFixed.y) + node.referenceDisplacementAndMode.y,
+                        double(node.restAndFixed.z) + node.referenceDisplacementAndMode.z,
+                        0.0
+                    );
+                } else {
+                    node.positionAndMass = f4(sourceNode[0], sourceNode[1], sourceNode[2], 0.0);
+                }
                 if (attachment != nullptr) {
                     NMFEMHumanAttachmentGPU cooked{};
                     cooked.identity = {
@@ -1711,7 +1767,10 @@ CompileResult compileWorld(
             for (std::size_t local = object.femNodes.size();
                  local < nodeCapacity;
                  ++local) {
-                world.fem.nodes.push_back({});
+                NMFEMNodeStateGPU dormant{};
+                if (object.femReferenceDisplacementGradient)
+                    dormant.referenceDisplacementAndMode.w = 1.0f;
+                world.fem.nodes.push_back(dormant);
                 femNodeObjects.push_back(objectIndex);
                 // Dormant mutable-topology slots must already own analytic
                 // rigid-proxy pairs. A split can activate the slot inside a
@@ -1865,20 +1924,6 @@ CompileResult compileWorld(
                     });
                     continue;
                 }
-                if (referenced) {
-                    const auto current = [&](std::uint32_t slot) {
-                        const auto p = world.fem.nodes[descriptor.stateOffset + sourceTet.nodes[slot]].positionAndMass;
-                        return Vec3{p.x, p.y, p.z};
-                    };
-                    const auto initial0 = current(0);
-                    const auto a = subtract(current(1), initial0), b = subtract(current(2), initial0), c = subtract(current(3), initial0);
-                    const double initialDeterminant = determinant(Mat3{a[0],b[0],c[0],a[1],b[1],c[1],a[2],b[2],c[2]});
-                    if (!(initialDeterminant > 6.0e-18) || !finite(initialDeterminant)) {
-                        result.diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
-                            "initial FEM geometry is degenerate or inverted relative to its reference"});
-                        return result;
-                    }
-                }
                 NMTetrahedronGPU tetrahedron{};
                 tetrahedron.nodes = {
                     descriptor.stateOffset + sourceTet.nodes[0],
@@ -1895,18 +1940,70 @@ CompileResult compileWorld(
                 tetrahedron.inverseRestRow2 = f4(
                     inverseRest[6], inverseRest[7], inverseRest[8]
                 );
+                tetrahedron.identity = {
+                    elementMaterial,
+                    objectIndex,
+                    1u,
+                    NM_OBJECT_ACTIVE | (object.femReferenceDisplacementGradient
+                        ? NM_TETRAHEDRON_REFERENCE_DISPLACEMENT_GRADIENT : 0u),
+                };
+                if (referenced) {
+                    double initialDeterminant = 0.0;
+                    if (object.femReferenceDisplacementGradient) {
+                        Mat3 du{};
+                        const auto stored = [&](std::uint32_t slot) {
+                            const auto& value = world.fem.nodes[
+                                descriptor.stateOffset + sourceTet.nodes[slot]
+                            ].referenceDisplacementAndMode;
+                            return Vec3{value.x, value.y, value.z};
+                        };
+                        const auto u0 = stored(0);
+                        const auto u1 = stored(1);
+                        const auto u2 = stored(2);
+                        const auto u3 = stored(3);
+                        const std::array<Vec3, 3> edges{
+                            subtract(u1, u0), subtract(u2, u0), subtract(u3, u0)
+                        };
+                        for (unsigned column = 0; column < 3; ++column)
+                            for (unsigned row = 0; row < 3; ++row)
+                                du[row * 3 + column] = edges[column][row];
+                        const Mat3 cookedInverse{
+                            tetrahedron.inverseRestRow0.x, tetrahedron.inverseRestRow0.y, tetrahedron.inverseRestRow0.z,
+                            tetrahedron.inverseRestRow1.x, tetrahedron.inverseRestRow1.y, tetrahedron.inverseRestRow1.z,
+                            tetrahedron.inverseRestRow2.x, tetrahedron.inverseRestRow2.y, tetrahedron.inverseRestRow2.z,
+                        };
+                        Mat3 deformation{};
+                        for (unsigned row = 0; row < 3; ++row)
+                            for (unsigned column = 0; column < 3; ++column) {
+                                for (unsigned k = 0; k < 3; ++k)
+                                    deformation[row * 3 + column] +=
+                                        du[row * 3 + k] * cookedInverse[k * 3 + column];
+                                if (row == column) deformation[row * 3 + column] += 1.0;
+                            }
+                        initialDeterminant = determinant(deformation);
+                    } else {
+                        const auto current = [&](std::uint32_t slot) {
+                            const auto p = world.fem.nodes[
+                                descriptor.stateOffset + sourceTet.nodes[slot]
+                            ].positionAndMass;
+                            return Vec3{p.x, p.y, p.z};
+                        };
+                        const auto initial0 = current(0);
+                        const auto a = subtract(current(1), initial0), b = subtract(current(2), initial0), c = subtract(current(3), initial0);
+                        initialDeterminant = determinant(Mat3{a[0],b[0],c[0],a[1],b[1],c[1],a[2],b[2],c[2]});
+                    }
+                    if (!(initialDeterminant > 6.0e-18) || !finite(initialDeterminant)) {
+                        result.diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
+                            "initial FEM geometry is degenerate or inverted relative to its reference"});
+                        return result;
+                    }
+                }
                 if (referenced && !detail::femReferenceDeterminantInterval(tetrahedron, world.fem.nodes.data())
                         .strictlyAdmitted(world.materials[elementMaterial].validity)) {
                     result.diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
                         "initial FEM geometry is not within the conservative executable FP32 determinant interior of its selected material"});
                     return result;
                 }
-                tetrahedron.identity = {
-                    elementMaterial,
-                    objectIndex,
-                    1u,
-                    NM_OBJECT_ACTIVE,
-                };
                 if (framed) {
                     const auto& rotation = object.femMaterialFrameRotations[
                         sourceTetIndex];

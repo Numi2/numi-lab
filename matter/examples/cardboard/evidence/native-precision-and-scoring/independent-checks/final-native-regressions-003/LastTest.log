@@ -1,0 +1,254 @@
+Start testing: Oct 06 12:23 CEST
+----------------------------------------------------------
+15/43 Testing: matter.metal.fem_kinematic_release
+15/43 Test: matter.metal.fem_kinematic_release
+Command: "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-fem-kinematic-release-check"
+Directory: /Users/home/numi-cardboard-20261006/build-cardboard
+"matter.metal.fem_kinematic_release" start time: Oct 06 12:23 CEST
+Output:
+----------------------------------------------------------
+native_release_passed momentum_preserved=true free_residual_finite=true fixed_residual_rows_zero=true rejected_release_rollback=true released_snapshot_restore=true corrupt_mass_rejected=true signed_zero_rest_coordinate_rejected=true invalid_tag_isolated=true physical_validation=false
+<end of output>
+Test time =   0.85 sec
+----------------------------------------------------------
+Test Passed.
+"matter.metal.fem_kinematic_release" end time: Oct 06 12:23 CEST
+"matter.metal.fem_kinematic_release" time elapsed: 00:00:00
+----------------------------------------------------------
+
+16/43 Testing: matter.metal.cardboard_tooling
+16/43 Test: matter.metal.cardboard_tooling
+Command: "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-cardboard-tooling-native-check"
+Directory: /Users/home/numi-cardboard-20261006/build-cardboard
+"matter.metal.cardboard_tooling" start time: Oct 06 12:23 CEST
+Output:
+----------------------------------------------------------
+rigid_proxy_validator=pass zero_radius_box=accepted zero_extent_box=rejected zero_radius_capsule=rejected
+native_tooling_fixture=synthetic_elastic_pad accepted_steps=3 timestep_s=9.999999747e-05 contact_slop_m=1e-05 initial_punch_gap_m=1e-05 support_gap_m=2e-05 punch_step_travel_m=1.999999949e-06 moving_punch_valid_contacts=1 moving_punch_max_normal_impulse=5.179116442e-07 moving_punch_min_separation_m=8.922826964e-06 stationary_punch_valid_contacts=0 moving_support_valid_contacts=0 moving_support_min_separation_m=inf accepted_pad_displacement_m=4.923151186e-06 stationary_control_displacement_m=3.261855022e-11 kinematic_body_pose_advanced=true postcommit_end_pose_certified=true cardboard_qualification=false
+rigid_proxy_validator=pass zero_radius_box=accepted zero_extent_box=rejected zero_radius_capsule=rejected
+unsafe_endpoint_regression=rejected status=6 rolledback_fem_displacement_m=0 caller_pose_unchanged=true
+rigid_proxy_validator=pass zero_radius_box=accepted zero_extent_box=rejected zero_radius_capsule=rejected
+prescribed_predictor=pass endpoint_travel_m=0.00002 residual=7.36072252e-08 native_contact_impulse=3.289910637e-06
+rigid_proxy_validator=pass zero_radius_box=accepted zero_extent_box=rejected zero_radius_capsule=rejected
+unsafe_endpoint_regression=rejected status=6 rolledback_fem_displacement_m=0 caller_pose_unchanged=true
+prescribed_swept_capsule=rejected rollback=true
+rigid_proxy_validator=pass zero_radius_box=accepted zero_extent_box=rejected zero_radius_capsule=rejected
+unsafe_endpoint_regression=rejected status=6 rolledback_fem_displacement_m=0 caller_pose_unchanged=true
+rigid_proxy_validator=pass zero_radius_box=accepted zero_extent_box=rejected zero_radius_capsule=rejected
+unsafe_endpoint_regression=rejected status=6 rolledback_fem_displacement_m=0 caller_pose_unchanged=true
+rigid_proxy_validator=pass zero_radius_box=accepted zero_extent_box=rejected zero_radius_capsule=rejected
+unsafe_endpoint_regression=rejected status=6 rolledback_fem_displacement_m=0 caller_pose_unchanged=true
+rigid_proxy_validator=pass zero_radius_box=accepted zero_extent_box=rejected zero_radius_capsule=rejected
+unsafe_endpoint_regression=rejected status=1 rolledback_fem_displacement_m=0 caller_pose_unchanged=true
+rigid_proxy_validator=pass zero_radius_box=accepted zero_extent_box=rejected zero_radius_capsule=rejected
+unsafe_endpoint_regression=rejected status=1 rolledback_fem_displacement_m=0 caller_pose_unchanged=true
+rigid_proxy_validator=pass zero_radius_box=accepted zero_extent_box=rejected zero_radius_capsule=rejected
+unsafe_endpoint_regression=rejected status=1 rolledback_fem_displacement_m=0 caller_pose_unchanged=true
+rigid_proxy_validator=pass zero_radius_box=accepted zero_extent_box=rejected zero_radius_capsule=rejected
+prescribed_pose_continuity=pass invalid_start_rotation_mass=rejected post_inertia_motion_type=rejected snapshot_restore=pass multi_substep=pass
+<end of output>
+Test time =   4.60 sec
+----------------------------------------------------------
+Test Passed.
+"matter.metal.cardboard_tooling" end time: Oct 06 12:23 CEST
+"matter.metal.cardboard_tooling" time elapsed: 00:00:04
+----------------------------------------------------------
+
+17/43 Testing: matter.metal.cardboard_material
+17/43 Test: matter.metal.cardboard_material
+Command: "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-cardboard-gpu-check" "/Users/home/numi-cardboard-20261006/matter/materials/nagasawa2013_liner_orthotropic.nmatter" "/Users/home/numi-cardboard-20261006/matter/materials/nagasawa2013_medium_orthotropic.nmatter"
+Directory: /Users/home/numi-cardboard-20261006/build-cardboard
+"matter.metal.cardboard_material" start time: Oct 06 12:23 CEST
+Output:
+----------------------------------------------------------
+cardboard_gpu_device=Apple M4 abi=40
+nagasawa2013_liner_orthotropic identity_no_load_force_N=0 rigid_rotation_no_load_force_N=4.54952e-05 fp32_force_floor_bound_N=3.53903 rigid_rotation_oracle_error_N=0.0073101 identity_oracle_error_N=4.43358e-13 loaded_force_N=782.314 force_oracle_error=8.67762e-06 tangent_oracle_error=7.28912e-08 tangent_fd_error=8.40055e-05
+nagasawa2013_medium_orthotropic identity_no_load_force_N=0 rigid_rotation_no_load_force_N=3.63962e-05 fp32_force_floor_bound_N=3.29067 rigid_rotation_oracle_error_N=0.00682375 identity_oracle_error_N=4.71658e-13 loaded_force_N=736.68 force_oracle_error=7.12429e-06 tangent_oracle_error=1.64571e-07 tangent_fd_error=0.000158574
+PASS cardboard_gpu_check checks=50 production_kernels=FEM_internal_forces+apply_operator physical_steps=0 crease_plasticity_and_cardboard_qualification=false
+<end of output>
+Test time =   0.36 sec
+----------------------------------------------------------
+Test Passed.
+"matter.metal.cardboard_material" end time: Oct 06 12:23 CEST
+"matter.metal.cardboard_material" time elapsed: 00:00:00
+----------------------------------------------------------
+
+18/43 Testing: matter.metal.cardboard_paper
+18/43 Test: matter.metal.cardboard_paper
+Command: "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-cardboard-paper-gpu-check" "/Users/home/numi-cardboard-20261006/matter/materials/hajali2009_liner_hill_ideal.nmatter" "/Users/home/numi-cardboard-20261006/matter/materials/hajali2009_medium_hill_ideal.nmatter"
+Directory: /Users/home/numi-cardboard-20261006/build-cardboard
+"matter.metal.cardboard_paper" start time: Oct 06 12:23 CEST
+Output:
+----------------------------------------------------------
+device=Apple M4 production_projection_and_algorithmic_tangent=true physical_steps=0
+hajali2009_liner_hill_ideal case=md_elastic valid=1 oracle_stress_relative=1.68165e-05 oracle_Ep_absolute=0 q=0.244493 max_Ep=0 plastic_work_J_m3=0 tangent_fd_relative=0.00100067
+hajali2009_liner_hill_ideal case=md_plastic valid=1 oracle_stress_relative=1.64239e-06 oracle_Ep_absolute=2.50207e-08 q=1 max_Ep=0.00212487 plastic_work_J_m3=16436.4 tangent_fd_relative=0.00193203
+hajali2009_liner_hill_ideal case=shear12_plastic valid=1 oracle_stress_relative=1.19631e-05 oracle_Ep_absolute=1.50476e-09 q=1 max_Ep=0.00114075 plastic_work_J_m3=4791.17 tangent_fd_relative=0.00052742
+hajali2009_liner_hill_ideal case=shear13_plastic valid=1 oracle_stress_relative=1.16229e-05 oracle_Ep_absolute=8.62342e-12 q=1 max_Ep=7.78326e-05 plastic_work_J_m3=3.73596 tangent_fd_relative=0.00101012
+hajali2009_liner_hill_ideal case=shear23_plastic valid=1 oracle_stress_relative=1.16229e-05 oracle_Ep_absolute=1.09779e-11 q=1 max_Ep=6.25874e-05 plastic_work_J_m3=3.0042 tangent_fd_relative=0.00101013
+hajali2009_liner_hill_ideal unload_stress_Pa=40.4815 plastic_memory_drift=0 retained_Ep=0.00212487
+hajali2009_medium_hill_ideal case=md_elastic valid=1 oracle_stress_relative=1.68284e-05 oracle_Ep_absolute=0 q=0.539676 max_Ep=0 plastic_work_J_m3=0 tangent_fd_relative=0.00081685
+hajali2009_medium_hill_ideal case=md_plastic valid=1 oracle_stress_relative=1.34616e-06 oracle_Ep_absolute=9.64725e-09 q=1 max_Ep=0.000820004 plastic_work_J_m3=2719.78 tangent_fd_relative=0.00108705
+hajali2009_medium_hill_ideal case=shear12_plastic valid=1 oracle_stress_relative=7.83065e-06 oracle_Ep_absolute=3.95104e-09 q=1 max_Ep=0.000989414 plastic_work_J_m3=4155.55 tangent_fd_relative=0.000529168
+hajali2009_medium_hill_ideal case=shear13_plastic valid=1 oracle_stress_relative=1.08928e-05 oracle_Ep_absolute=1.26474e-11 q=1 max_Ep=9.69824e-05 plastic_work_J_m3=4.65516 tangent_fd_relative=0.000824352
+hajali2009_medium_hill_ideal case=shear23_plastic valid=1 oracle_stress_relative=1.08928e-05 oracle_Ep_absolute=2.25356e-12 q=1 max_Ep=8.96135e-05 plastic_work_J_m3=4.30145 tangent_fd_relative=0.000824344
+hajali2009_medium_hill_ideal unload_stress_Pa=46.0664 plastic_memory_drift=0 retained_Ep=0.000820004
+PASS paper production material projection; physical_validation=false
+<end of output>
+Test time =   1.73 sec
+----------------------------------------------------------
+Test Passed.
+"matter.metal.cardboard_paper" end time: Oct 06 12:23 CEST
+"matter.metal.cardboard_paper" time elapsed: 00:00:01
+----------------------------------------------------------
+
+19/43 Testing: matter.metal.cardboard_delamination_coupon
+19/43 Test: matter.metal.cardboard_delamination_coupon
+Command: "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-cardboard-delamination-gpu-check" "/Users/home/numi-cardboard-20261006/matter/materials/tryding2023_bleached_paperboard_modeI_coupon.nmatter"
+Directory: /Users/home/numi-cardboard-20261006/build-cardboard
+"matter.metal.cardboard_delamination_coupon" start time: Oct 06 12:23 CEST
+Output:
+----------------------------------------------------------
+device=Apple M4 instrument=production_constitutive_evaluator physical_coupon_steps=0
+tryding2023_bleached_paperboard_modeI_coupon source_material_fingerprint=5570626462714653447 seed_damage=0.01 seed_opening_mm=0.001479640756 seed_stretch_fp32=1.003608823 represented_seed_opening_mm=0.001479617357 seed_envelope_traction_Pa=393030 represented_seed_traction_Pa=392978.5276 seed_traction_quantization_delta_Pa=-51.47236163 loaded_opening_mm=0.1 loaded_traction_MPa=0.1701978437 native_work_J_m2=26.10949601 source_work_J_m2=26.10950156 unload_free_energy_J_m2=0.156083926 unload_dissipation_J_m2=23.80819347 coarse_steps=32 coarse_native_work_J_m2=26.11097265 coarse_work_error_J_m2=0.001471085757 refined_steps=512 refined_work_error_J_m2=5.547617313e-06 history_fb_epsilon=1e-08 junction_residual=1.414213562e-08 junction_local_tolerance=2.022309478e-05 junction_residual_to_tolerance=0.0006993062029 junction_state=0.01115473919 junction_loading_tangent_Pa_per_F33=-1278203.908 junction_unloading_tangent_Pa_per_F33=790006314.2 junction_native_midpoint_tangent_Pa_per_F33=394364064 junction_source_midpoint_Pa_per_F33=394364055.2 repeated_holds=1000 hold_damage_change=0 rejected_shear=true rejected_in_plane=true max_tangent_relative_error=2.083090985e-06 max_centered_fd_relative_error=0.01123424749
+PASS native pure-mode-I constitutive coupon checks=11894 zero_thickness_face_law=false corrugated_cardboard_validation=false
+<end of output>
+Test time =   6.28 sec
+----------------------------------------------------------
+Test Passed.
+"matter.metal.cardboard_delamination_coupon" end time: Oct 06 12:23 CEST
+"matter.metal.cardboard_delamination_coupon" time elapsed: 00:00:06
+----------------------------------------------------------
+
+33/43 Testing: matter.metal.fem_regional_material
+33/43 Test: matter.metal.fem_regional_material
+Command: "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-fem-regional-material-check" "/Users/home/numi-cardboard-20261006/matter/materials/rodero2021_ventricular_guccione_passive.nmatter" "/Users/home/numi-cardboard-20261006/matter/materials/rodero2021_nonventricular_neo_hookean_passive.nmatter"
+Directory: /Users/home/numi-cardboard-20261006/build-cardboard
+"matter.metal.fem_regional_material" start time: Oct 06 12:23 CEST
+Output:
+----------------------------------------------------------
+regional_abi=40
+regional_compiler_checks=40 shared_nodes=3 element_mass_kg=0.0013351440827591432 nodal_mass_kg=0.00133514404296875 selected_material_rate_exponent=5 default_material_rate_exponent=0 lumped_inertia_relative_error=2.9802321738857619e-08 source_density_supplied=false
+regional_device=Apple M4
+regional_source_force_error=2.378244333367824e-07 regional_source_tangent_error=2.0186041035049957e-07 regional_source_fd_error=0.0016590304248321397 homogeneous_fallback_consequence=0.12038753020895762 regional_state_force_error=1.5118860636542636e-07 regional_state_tangent_error=2.8712626954622155e-06 regional_state_fd_error=2.0631400116938371e-05 heterogeneous_state_stride=2
+regional_icnn_force_error=2.0409321219456913e-07 regional_icnn_tangent_error=1.2069666139688348e-07 regional_icnn_fd_error=0.00074758411957886659 regional_icnn_world_fibre_force_error=2.2840123702109972e-07 regional_icnn_world_fibre_tangent_error=3.0028282438097145e-07 wrong_fibre_consequence=1.0359297285902127 trained_material_qualified=false
+regional_projected_state_absolute_error=6.6682896149306004e-09 unowned_padding=preserved
+regional_runtime_case=source_laws_framed accepted_steps=16 environments=2 motion_m=4.6220987611155015e-05 replay=bitwise rollback=isolated reset=bitwise snapshot_rebinding=denied mass=unchanged
+regional_runtime_case=source_laws_unframed accepted_steps=2 environments=2 motion_m=6.359144030389523e-06 replay=bitwise rollback=isolated reset=bitwise snapshot_rebinding=denied mass=unchanged
+regional_runtime_case=heterogeneous_state_programs accepted_steps=2 environments=2 motion_m=8.4448828916146513e-06 replay=bitwise rollback=isolated reset=bitwise snapshot_rebinding=denied mass=unchanged
+legacy_restore_object0_material1=pass incidence_owner_mismatch=denied
+regional_unframed_unrelated_posterior_values=restored posterior_identity_retarget=denied fixed_parameters=unchanged
+immutable_event_capacity_restore=pass framed=0 dormant_cohesive_capacity=1 dormant_puncture_capacity=1 topology_accounting=bound
+immutable_event_capacity_restore=pass framed=1 dormant_cohesive_capacity=1 dormant_puncture_capacity=1 topology_accounting=bound
+fem_regional_material_check=pass anatomical_wall_qualified=false source_density_supplied=false active_cardiac_source_reproduced=false
+<end of output>
+Test time =  11.80 sec
+----------------------------------------------------------
+Test Passed.
+"matter.metal.fem_regional_material" end time: Oct 06 12:24 CEST
+"matter.metal.fem_regional_material" time elapsed: 00:00:11
+----------------------------------------------------------
+
+34/43 Testing: matter.metal.fem_material_frame
+34/43 Test: matter.metal.fem_material_frame
+Command: "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-fem-material-frame-check" "/Users/home/numi-cardboard-20261006/matter/materials/rodero2021_ventricular_guccione_passive.nmatter"
+Directory: /Users/home/numi-cardboard-20261006/build-cardboard
+"matter.metal.fem_material_frame" start time: Oct 06 12:24 CEST
+Output:
+----------------------------------------------------------
+frame_device=Apple M4 abi=40
+source_frame_force_error=9.0348969973945068e-07 source_frame_tangent_error=2.4088713604617131e-07 source_frame_fd_error=0.0018985037968984153 identity_error=0 anisotropic_angular_consequence=0.0057515638262883818 synthetic_state_rate_force_error=5.4808775475776649e-08 synthetic_state_rate_tangent_error=2.6039016682320251e-06 synthetic_state_rate_fd_error=1.3026630216087603e-06 mixed_active_force_error=1.0115523359873733e-07 mixed_active_tangent_error=1.9138180633217196e-07 mixed_active_fd_error=0.00014447508831119007 mixed_source_equivalent=false
+framed_icnn_force_error=2.5056373622279655e-07 framed_icnn_tangent_error=4.2242867456084868e-08 framed_icnn_fd_error=0.0011090525313200306 framed_icnn_world_fibre_force_error=2.0910758320286181e-07 framed_icnn_world_fibre_tangent_error=5.4983434590826474e-08 framed_icnn_angular_consequence=0.87027824102061657 trained_material_qualified=false
+accepted_steps=16 environments=2 motion_m=4.395736311293541e-05 replay=bitwise rollback=isolated reset=bitwise frame_snapshot_tamper=denied immutable_cell_rebinding=denied mass=unchanged
+fem_material_frame_check=pass anatomical_wall_qualified=false source_density_supplied=false active_cardiac_source_reproduced=false
+<end of output>
+Test time =   6.94 sec
+----------------------------------------------------------
+Test Passed.
+"matter.metal.fem_material_frame" end time: Oct 06 12:24 CEST
+"matter.metal.fem_material_frame" time elapsed: 00:00:06
+----------------------------------------------------------
+
+39/43 Testing: matter.metal.cardboard_preconditioner
+39/43 Test: matter.metal.cardboard_preconditioner
+Command: "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-cardboard-preconditioner-gpu-check" "/Users/home/numi-cardboard-20261006/matter/materials/hajali2009_liner_hill_ideal.nmatter" "/Users/home/numi-cardboard-20261006/matter/materials/hajali2009_medium_hill_ideal.nmatter"
+Directory: /Users/home/numi-cardboard-20261006/build-cardboard
+"matter.metal.cardboard_preconditioner" start time: Oct 06 12:24 CEST
+Output:
+----------------------------------------------------------
+device=Apple M4 kernel=nm_fgmres_build_tangent_fem_preconditioner physical_steps=0
+package_roundtrip=pass mode=regional-tangent local_material_newton=16
+hajali2009_liner_hill_ideal.nmatter direct_kernel_diagonal_entries=12 accepted_lambda=0 fd_relative_max=2.72786e-05 fd_absolute_max=54.3262
+package_roundtrip=pass mode=regional-tangent local_material_newton=16
+hajali2009_medium_hill_ideal.nmatter direct_kernel_diagonal_entries=12 accepted_lambda=0 fd_relative_max=2.69773e-05 fd_absolute_max=41.7709
+package_roundtrip=pass mode=regional-tangent local_material_newton=16
+hajali2009_liner_hill_ideal.nmatter yielded_state_fd_entries=12 lambda=0.00235114 q=1 work_MPa=0.0538882 fd_relative_max=4.15745e-05 fd_absolute_max=15.6455
+package_roundtrip=pass mode=regional-tangent local_material_newton=16
+hajali2009_medium_hill_ideal.nmatter yielded_state_fd_entries=12 lambda=0.00521895 q=1 work_MPa=0.0490112 fd_relative_max=0.000202512 fd_absolute_max=389.301
+PASS direct Metal tangent-diagonal FD; physical_validation=false
+<end of output>
+Test time =   0.93 sec
+----------------------------------------------------------
+Test Passed.
+"matter.metal.cardboard_preconditioner" end time: Oct 06 12:24 CEST
+"matter.metal.cardboard_preconditioner" time elapsed: 00:00:00
+----------------------------------------------------------
+
+41/43 Testing: matter.metal.fem_reference
+41/43 Test: matter.metal.fem_reference
+Command: "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-fem-reference-check" "/Users/home/numi-cardboard-20261006/matter/materials/rodero2021_ventricular_guccione_passive.nmatter" "/Users/home/numi-cardboard-20261006/matter/materials/rodero2021_nonventricular_neo_hookean_passive.nmatter"
+Directory: /Users/home/numi-cardboard-20261006/build-cardboard
+"matter.metal.fem_reference" start time: Oct 06 12:24 CEST
+Output:
+----------------------------------------------------------
+reference_abi=40
+reference_compiler_checks=42 reference_volume_m3=6.3578287760416663e-07 reference_mass_kg=0.0011444092137935513 initial_J=1.015625 inertia_relative_error=2.9802321499516919e-08
+reference_compiler_checks=84 reference_volume_m3=6.3578287760416663e-07 reference_mass_kg=0.0013351440827591432 initial_J=1.015625 inertia_relative_error=2.9802321552109992e-08
+reference_displacement_cpu=pass checks=100 affine_F_max_error=0 rest_F_max_error=0 rigid_rotation_F_max_error=0 default_path=unchanged fingerprint=bound package=roundtrip
+reference_displacement_thin_skew_cpu=pass checks=101 horizontal_scale_m=0.00421 thickness_m=3.07e-5 translated_origin_m=0.05219 legacy_rest_F_max_error=2.384185791015625e-07 legacy_green_strain_max=1.1920928955078125e-07 displacement_rest_F_max_error=0
+general_reference_compiler_checks=103 inverse_relative_error=3.7252903090437266e-08 affine_F_max_error=2.2642780095338821e-08 origin_translated=true
+general_reference_compiler_checks=105 inverse_relative_error=3.7252903090437266e-08 affine_F_max_error=2.2642780095338821e-08 origin_translated=true
+reference_executable_boundary_checks=113 old_ratio=0.20000001179885038 host_nominal_FP32_J=0.19999997317790985 minimum_J=0.20000000298023224 determinant_interval_center=0.19999998789256282 determinant_interval_radius=3.5762825627553419e-07 source_cooked_boundary=rejected snapshot_boundary=ambiguous_not_certified
+reference_device=Apple M4
+reference_boundary_restore=overlap_accepted_without_strict_GPU_certification provably_outside=denied restoration=unchanged
+reference_direct_case=reference_only force_relative_error=8.5178576712888533e-08 tangent_relative_error=9.7114850952897605e-08 finite_difference_relative_error=0.00087647317562756534 initial_prestress_nodal_force_N=0.62854409217834473 internal_force_balance_relative=1.1853711918765089e-08 unloaded_force_N=0
+reference_direct_case=reference_regional_frames force_relative_error=8.5782724898444736e-08 tangent_relative_error=3.057803571054997e-07 finite_difference_relative_error=0.001340282055436168 initial_prestress_nodal_force_N=0.64432328939437866 internal_force_balance_relative=4.1194682566091187e-08 unloaded_force_N=0
+reference_direct_case=reference_displacement_regional_frames force_relative_error=8.5782724898444736e-08 tangent_relative_error=3.057803571054997e-07 finite_difference_relative_error=0.00087981223627321193 initial_prestress_nodal_force_N=0.64432328939437866 internal_force_balance_relative=4.1194682566091187e-08 unloaded_force_N=0
+reference_displacement_rigid_rotation=pass cpu_F_max_error=0 production_force_max_N=0 tangent_relative_error=1.4729112977216784e-07 finite_difference_relative_error=1.7827294345071392e-05
+reference_displacement_thin_skew_metal_rest=pass force_max_N=0 geometry=translated_skew_30.7um
+reference_runtime_case=reference_only accepted_steps=16 environments=2 motion_m=0.00036255130544304848 replay=bitwise rollback=isolated reset=loaded_initial_bitwise snapshot_rebinding=denied reference_mass=unchanged
+reference_runtime_case=reference_regional_frames accepted_steps=16 environments=2 motion_m=0.00037146033719182014 replay=bitwise rollback=isolated reset=loaded_initial_bitwise snapshot_rebinding=denied reference_mass=unchanged
+reference_runtime_case=reference_displacement_regional_frames accepted_steps=16 environments=2 motion_m=0.00037146080285310745 replay=bitwise rollback=isolated reset=loaded_initial_bitwise snapshot_rebinding=denied reference_mass=unchanged
+fem_reference_check=pass unloaded_reference_recovered=false anatomical_wall_qualified=false source_density_supplied=false active_cardiac_source_reproduced=false
+<end of output>
+Test time =  23.00 sec
+----------------------------------------------------------
+Test Passed.
+"matter.metal.fem_reference" end time: Oct 06 12:24 CEST
+"matter.metal.fem_reference" time elapsed: 00:00:22
+----------------------------------------------------------
+
+End testing: Oct 06 12:24 CEST
+
+cardboard =  13.90 sec*proc
+
+contact =   4.60 sec*proc
+
+delamination =   6.28 sec*proc
+
+fem =   0.85 sec*proc
+
+human =  41.75 sec*proc
+
+material =  48.39 sec*proc
+
+matter =  56.49 sec*proc
+
+metal =   0.36 sec*proc
+
+numerics =   0.93 sec*proc
+
+plasticity =   1.73 sec*proc
+
+release =   0.85 sec*proc
+

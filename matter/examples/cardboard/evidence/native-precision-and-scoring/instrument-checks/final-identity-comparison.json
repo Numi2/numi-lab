@@ -1,0 +1,30 @@
+{
+  "schema": "numi.cardboard.final-identity-comparison.v1",
+  "physical_validation": false,
+  "same_native_bindings": true,
+  "barrier_effective_scale": 1,
+  "requested_rounded_scale": 1.00000001,
+  "same_world_fingerprint": 1940416473352324990,
+  "box_rest_steps_per_environment": 2,
+  "box_exact_zero_motion_speed_force_and_energy": true,
+  "box_byte_identical_to_prior": {
+    "mesh.json": true,
+    "initial.obj": true,
+    "observations.csv": true
+  },
+  "scope": "Identity and zero-load rest checks, not assembly or contact calibration.",
+  "file_hashes": {
+    "barrier-exact1-compile-001": {
+      "manifest.json": "119b71f51b395151678a501e82bc92537270616cbe5b2185659841b6cf447939",
+      "result.json": "2268843805c0977ebd981031487d9c60b0da95b2e77dceca318efd2c2e7ec7e2"
+    },
+    "barrier-rounded1-compile-001": {
+      "manifest.json": "0f60db019991bbfe8e5bb3b6660ed88705d588666b9a28c6ec53d28f2e1b82b2",
+      "result.json": "2268843805c0977ebd981031487d9c60b0da95b2e77dceca318efd2c2e7ec7e2"
+    },
+    "box-feature-rest-002": {
+      "manifest.json": "c7048c92566a075c2b0ef08feecd9ffb53ef9494d99be793e0d1cb391a33970f",
+      "result.json": "1714adf5dc01dd0f724ba1fa250237f0d4207e593d7cb16a8aceea413fdadd7c"
+    }
+  }
+}

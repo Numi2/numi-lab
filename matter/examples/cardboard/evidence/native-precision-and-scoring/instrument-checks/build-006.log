@@ -1,0 +1,27 @@
+[  5%] Generating shaders/NumiMatter.metallib
+[ 10%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/matter.cpp.o
+[ 15%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/language_impl.cpp.o
+[ 21%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/constitutive_impl.cpp.o
+[ 26%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/compiler_impl.cpp.o
+In file included from /Users/home/numi-cardboard-20261006/matter/src/matter_kernels.metal:4:
+/Users/home/numi-cardboard-20261006/matter/src/metal/fgmres.metalinc:1233:26: error: cannot initialize a variable of type 'const float3' (vector of 3 'float' values) with an rvalue of type 'float4' (vector of 4 'float' values)
+            const float3 nodeForceDirection = elementNodeVector(
+                         ^                    ~~~~~~~~~~~~~~~~~~
+/Users/home/numi-cardboard-20261006/matter/src/metal/fgmres.metalinc:1239:28: error: no matching function for call to 'maximumAbs'
+                    float4(maximumAbs(nodeForceDirection), dt,
+                           ^~~~~~~~~~
+/Users/home/numi-cardboard-20261006/matter/src/metal/common.metalinc:1389:14: note: candidate function not viable: no known conversion from 'const float3' (vector of 3 'float' values) to 'const metal::float3x3' (aka 'const matrix<float, 3, 3>') for 1st argument
+inline float maximumAbs(const float3x3 value) {
+             ^
+[ 31%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/vascular_impl.cpp.o
+2 errors generated.
+make[3]: *** [shaders/NumiMatter.metallib] Error 1
+make[2]: *** [CMakeFiles/numi_matter_shaders.dir/all] Error 2
+make[2]: *** Waiting for unfinished jobs....
+[ 36%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/fingerprint_impl.cpp.o
+[ 42%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/validation_impl.cpp.o
+[ 47%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/package_impl.cpp.o
+[ 52%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/surgical_tissue.cpp.o
+[ 52%] Built target numi_matter_compiler_objects
+make[1]: *** [CMakeFiles/numi-matter-cardboard-probe.dir/rule] Error 2
+make: *** [numi-matter-cardboard-probe] Error 2

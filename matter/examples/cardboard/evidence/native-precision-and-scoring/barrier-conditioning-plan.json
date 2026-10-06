@@ -1,0 +1,95 @@
+{
+  "schema": "numi.cardboard.barrier-conditioning-trials.v1",
+  "created_utc": "2026-10-06T08:26:20.910913+00:00",
+  "question": "Does stronger prescribed-punch barrier stiffness prevent the observed clearance-floor stagnation without changing clearance or acceptance, and does the shallow cycle survive a tighter force gate?",
+  "prediction": "Factor1 reproduces the retained50um failure. Factors2 and4 complete96steps with unchanged collision floors and no penetration;20um at1e-6 completes96steps. All failures retained, no endpoint substitution. Compare accepted force/gap curves for stiffness sensitivity; this is not material calibration.",
+  "scope": "Fixed multiplier sensitivity motivated by IPC supplement section6; not the adaptive IPC algorithm. Same final binary and metallib for all arms.",
+  "trials": [
+    {
+      "name": "barrier50-scale1-001",
+      "args": [
+        "--crease",
+        "--prescribed-tool-predictor",
+        "--reference-displacement-gradient",
+        "--steps",
+        "32",
+        "--hold-steps",
+        "16",
+        "--unload-steps",
+        "32",
+        "--relax-steps",
+        "16",
+        "--indent-mm",
+        ".050",
+        "--prescribed-tool-barrier-scale",
+        "1"
+      ]
+    },
+    {
+      "name": "barrier50-scale2-001",
+      "args": [
+        "--crease",
+        "--prescribed-tool-predictor",
+        "--reference-displacement-gradient",
+        "--steps",
+        "32",
+        "--hold-steps",
+        "16",
+        "--unload-steps",
+        "32",
+        "--relax-steps",
+        "16",
+        "--indent-mm",
+        ".050",
+        "--prescribed-tool-barrier-scale",
+        "2"
+      ]
+    },
+    {
+      "name": "barrier50-scale4-001",
+      "args": [
+        "--crease",
+        "--prescribed-tool-predictor",
+        "--reference-displacement-gradient",
+        "--steps",
+        "32",
+        "--hold-steps",
+        "16",
+        "--unload-steps",
+        "32",
+        "--relax-steps",
+        "16",
+        "--indent-mm",
+        ".050",
+        "--prescribed-tool-barrier-scale",
+        "4"
+      ]
+    },
+    {
+      "name": "barrier20-tight-001",
+      "args": [
+        "--crease",
+        "--prescribed-tool-predictor",
+        "--reference-displacement-gradient",
+        "--steps",
+        "32",
+        "--hold-steps",
+        "16",
+        "--unload-steps",
+        "32",
+        "--relax-steps",
+        "16",
+        "--indent-mm",
+        ".020",
+        "--residual-tolerance",
+        "1e-6",
+        "--newton-iterations",
+        "28",
+        "--fgmres-iterations",
+        "64"
+      ]
+    }
+  ],
+  "timeout_seconds_per_run": 900,
+  "physical_validation": false
+}

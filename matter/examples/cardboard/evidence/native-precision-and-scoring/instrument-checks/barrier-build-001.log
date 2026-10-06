@@ -1,0 +1,41 @@
+[ 10%] Generating shaders/NumiMatterPhysicalStateDigest.metallib
+[ 10%] Generating shaders/NumiMatter.metallib
+[ 21%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/language_impl.cpp.o
+[ 21%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/matter.cpp.o
+[ 26%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/constitutive_impl.cpp.o
+[ 31%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/compiler_impl.cpp.o
+[ 36%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/vascular_impl.cpp.o
+[ 42%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/fingerprint_impl.cpp.o
+[ 47%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/validation_impl.cpp.o
+[ 47%] Built target numi_matter_shaders
+[ 52%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/package_impl.cpp.o
+[ 57%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/surgical_tissue.cpp.o
+[ 63%] Building OBJCXX object CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o
+[ 68%] Building OBJCXX object CMakeFiles/numi_matter_runtime_objects.dir/src/human_physiology.mm.o
+[ 73%] Building CXX object CMakeFiles/numi_matter_runtime_objects.dir/src/metal_world.cpp.o
+[ 73%] Built target numi_matter_compiler_objects
+[ 78%] Building OBJCXX object CMakeFiles/numi_matter_runtime_objects.dir/src/numi_human.mm.o
+[ 84%] Linking CXX static library libnumi_matter_compiler.a
+[ 84%] Built target numi_matter_compiler
+[ 84%] Built target numi_matter_runtime_objects
+[ 89%] Linking CXX static library libnumi_matter_runtime.a
+[ 89%] Built target numi_matter_runtime
+[ 94%] Building OBJCXX object CMakeFiles/numi-matter-cardboard-probe.dir/tools/cardboard_probe.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-probe
+[100%] Built target numi-matter-cardboard-probe
+[ 75%] Built target numi_matter_compiler_objects
+[ 83%] Built target numi_matter_compiler
+[ 91%] Building CXX object CMakeFiles/numi-matter-cardboard-barrier-scale-check.dir/tools/cardboard_prescribed_barrier_scale_check.cpp.o
+/Users/home/numi-cardboard-20261006/matter/tools/cardboard_prescribed_barrier_scale_check.cpp:117:17: error: no matching function for call to 'writePackage'
+  117 |         require(writePackage(fourfold.world, package, &error),
+      |                 ^~~~~~~~~~~~
+/Users/home/numi-cardboard-20261006/matter/include/numi/matter/matter.hpp:823:20: note: candidate function not viable: no known conversion from 'const CompiledWorld' to 'const CompileResult' for 1st argument
+  823 | [[nodiscard]] bool writePackage(
+      |                    ^
+  824 |     const CompileResult& compiled,
+      |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 error generated.
+make[3]: *** [CMakeFiles/numi-matter-cardboard-barrier-scale-check.dir/tools/cardboard_prescribed_barrier_scale_check.cpp.o] Error 1
+make[2]: *** [CMakeFiles/numi-matter-cardboard-barrier-scale-check.dir/all] Error 2
+make[1]: *** [CMakeFiles/numi-matter-cardboard-barrier-scale-check.dir/rule] Error 2
+make: *** [numi-matter-cardboard-barrier-scale-check] Error 2

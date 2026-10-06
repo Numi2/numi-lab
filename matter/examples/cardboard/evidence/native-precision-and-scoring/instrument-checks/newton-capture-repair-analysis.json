@@ -1,0 +1,25 @@
+{
+  "created_utc": "2026-10-06T10:17:22.833075+00:00",
+  "scope": "Completion callback capture-lifetime repair only; no numerical kernel change. Nine preceding Metal suites retained as earlier build evidence; current rest and loaded traces independently exercise repaired callback.",
+  "runs": {
+    "nx16-k64-newton-trace-001": {
+      "return_code": 2,
+      "inputs_unchanged": true,
+      "runtime_sha256": "d29c10f7e2f3c49bdb312fbc00f2eaf8832cf3ec18b8e1b97cbd576abb64f45c",
+      "probe_sha256": "420f0ec9ace18ee392aca496f66860f33a8028c488cb58954bf65e129b3afd4e"
+    },
+    "newton-capture-rest-001": {
+      "return_code": 0,
+      "inputs_unchanged": true,
+      "runtime_sha256": "df2109ef180838e87723ab234191ac2e19e711d05aad88b72a3c8449d652e925",
+      "probe_sha256": "6e0505349d71e2b1827411ba0e120f52d2dfdaf34ff971603260f7ce1936f83c"
+    },
+    "nx16-k64-newton-trace-002": {
+      "return_code": 2,
+      "inputs_unchanged": true,
+      "runtime_sha256": "df2109ef180838e87723ab234191ac2e19e711d05aad88b72a3c8449d652e925",
+      "probe_sha256": "6e0505349d71e2b1827411ba0e120f52d2dfdaf34ff971603260f7ce1936f83c"
+    }
+  },
+  "failed_capture_and_repair_and_prior_untraced_csv_byte_equal": true
+}

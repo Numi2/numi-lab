@@ -1,0 +1,18 @@
+{
+  "analyzer_sha256": "25daf9e1e4997761d2d0846d3eee174f0ff969666b89eb917defb5d38251feca",
+  "comparison": {
+    "baseline": "/Users/home/cardboard-closure-evidence-20261006/persistent-tight-001",
+    "candidate": "/Users/home/cardboard-closure-evidence-20261006/persistent-nx16-001",
+    "kind": "spatial"
+  },
+  "convergence_verdict": "not_assessed; acceptance is not inferred from completed step count",
+  "physical_validation": false,
+  "reasons": [
+    {
+      "code": "native_run_failed",
+      "message": "Matter rejected step 0; status, accepted state OBJ, and CSV observations were retained"
+    }
+  ],
+  "schema": "numi.cardboard.convergence-analysis.v1",
+  "status": "failed_run"
+}

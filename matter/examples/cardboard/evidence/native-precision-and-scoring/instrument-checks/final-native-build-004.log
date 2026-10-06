@@ -1,0 +1,78 @@
+[ 10%] Built target numi_matter_shaders
+[ 57%] Built target numi_matter_compiler_objects
+[ 63%] Built target numi_matter_compiler
+[ 84%] Built target numi_matter_runtime_objects
+[ 89%] Built target numi_matter_runtime
+[ 94%] Building OBJCXX object CMakeFiles/numi-matter-cardboard-probe.dir/tools/cardboard_probe.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-probe
+[100%] Built target numi-matter-cardboard-probe
+[ 10%] Built target numi_matter_shaders
+[ 57%] Built target numi_matter_compiler_objects
+[ 68%] Built target numi_matter_compiler
+[ 84%] Built target numi_matter_runtime_objects
+[ 89%] Built target numi_matter_runtime
+[ 94%] Building OBJCXX object CMakeFiles/numi-matter-cardboard-tooling-native-check.dir/tools/cardboard_tooling_native_check.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-tooling-native-check
+[100%] Built target numi-matter-cardboard-tooling-native-check
+[ 10%] Built target numi_matter_shaders
+[ 57%] Built target numi_matter_compiler_objects
+[ 78%] Built target numi_matter_runtime_objects
+[ 84%] Built target numi_matter_compiler
+[ 89%] Built target numi_matter_runtime
+[ 94%] Building OBJCXX object CMakeFiles/numi-matter-fem-kinematic-release-check.dir/tools/fem_kinematic_release_check.mm.o
+[100%] Linking CXX executable numi-matter-fem-kinematic-release-check
+[100%] Built target numi-matter-fem-kinematic-release-check
+[ 10%] Built target numi_matter_shaders
+[ 57%] Built target numi_matter_compiler_objects
+[ 68%] Built target numi_matter_compiler
+[ 84%] Built target numi_matter_runtime_objects
+[ 89%] Built target numi_matter_runtime
+[ 94%] Building OBJCXX object CMakeFiles/numi-matter-fem-reference-check.dir/tools/fem_reference_check.mm.o
+[100%] Linking CXX executable numi-matter-fem-reference-check
+[100%] Built target numi-matter-fem-reference-check
+[ 10%] Built target numi_matter_shaders
+[ 57%] Built target numi_matter_compiler_objects
+[ 73%] Built target numi_matter_compiler
+[ 84%] Built target numi_matter_runtime_objects
+[ 89%] Built target numi_matter_runtime
+[ 94%] Building OBJCXX object CMakeFiles/numi-matter-fem-regional-material-check.dir/tools/fem_regional_material_check.mm.o
+[100%] Linking CXX executable numi-matter-fem-regional-material-check
+[100%] Built target numi-matter-fem-regional-material-check
+[ 10%] Built target numi_matter_shaders
+[ 57%] Built target numi_matter_compiler_objects
+[ 73%] Built target numi_matter_compiler
+[ 84%] Built target numi_matter_runtime_objects
+[ 89%] Built target numi_matter_runtime
+[ 94%] Building OBJCXX object CMakeFiles/numi-matter-fem-material-frame-check.dir/tools/fem_material_frame_check.mm.o
+[100%] Linking CXX executable numi-matter-fem-material-frame-check
+[100%] Built target numi-matter-fem-material-frame-check
+[ 10%] Built target numi_matter_shaders
+[ 57%] Built target numi_matter_compiler_objects
+[ 68%] Built target numi_matter_compiler
+[ 84%] Built target numi_matter_runtime_objects
+[ 89%] Built target numi_matter_runtime
+[ 94%] Building OBJCXX object CMakeFiles/numi-matter-cardboard-gpu-check.dir/tools/cardboard_gpu_check.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-gpu-check
+[100%] Built target numi-matter-cardboard-gpu-check
+[  7%] Generating shaders/cardboard_paper_check.metallib
+[ 76%] Built target numi_matter_compiler_objects
+[ 84%] Built target numi_matter_compiler
+[ 84%] Built target numi_cardboard_paper_shaders
+[ 92%] Building OBJCXX object CMakeFiles/numi-matter-cardboard-paper-gpu-check.dir/tools/cardboard_paper_gpu_check.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-paper-gpu-check
+[100%] Built target numi-matter-cardboard-paper-gpu-check
+[  7%] Generating shaders/cardboard_bleached_delamination_check.metallib
+[ 76%] Built target numi_matter_compiler_objects
+[ 84%] Built target numi_matter_compiler
+[ 84%] Built target numi_cardboard_delamination_shaders
+[ 92%] Building OBJCXX object CMakeFiles/numi-matter-cardboard-delamination-gpu-check.dir/tools/cardboard_bleached_delamination_gpu_check.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-delamination-gpu-check
+[100%] Built target numi-matter-cardboard-delamination-gpu-check
+[ 10%] Built target numi_matter_shaders
+[ 57%] Built target numi_matter_compiler_objects
+[ 73%] Built target numi_matter_compiler
+[ 84%] Built target numi_matter_runtime_objects
+[ 89%] Built target numi_matter_runtime
+[ 94%] Building OBJCXX object CMakeFiles/numi-matter-cardboard-preconditioner-gpu-check.dir/tools/cardboard_fgmres_preconditioner_gpu_check.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-preconditioner-gpu-check
+[100%] Built target numi-matter-cardboard-preconditioner-gpu-check

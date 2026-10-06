@@ -1,0 +1,42 @@
+{
+  "hajali2009_medium_hill_ideal.nmatter": {
+    "sha256": "ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8",
+    "archive": "source-snapshots/ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8-hajali2009_medium_hill_ideal.nmatter.gz"
+  },
+  "cardboard_tooling.hpp": {
+    "sha256": "db98b29d39895054ca25cedcc8e3adc67c4304bc083a6453eab660e9858b6ded",
+    "archive": "source-snapshots/db98b29d39895054ca25cedcc8e3adc67c4304bc083a6453eab660e9858b6ded-cardboard_tooling.hpp.gz"
+  },
+  "hajali2009_liner_hill_ideal.nmatter": {
+    "sha256": "787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d",
+    "archive": "source-snapshots/787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d-hajali2009_liner_hill_ideal.nmatter.gz"
+  },
+  "cardboard_glue_mesh.hpp": {
+    "sha256": "d2668155580cdbdd09411d6cdac6a367a726e909d5dd6d4c9770e8f3822d0146",
+    "archive": "source-snapshots/d2668155580cdbdd09411d6cdac6a367a726e909d5dd6d4c9770e8f3822d0146-cardboard_glue_mesh.hpp.gz"
+  },
+  "cardboard_probe.mm": {
+    "sha256": "fe2015e9a03ce70f236e583946962fcbe26ecb3ed67b09b066d3aecfbc2fd622",
+    "archive": "source-snapshots/fe2015e9a03ce70f236e583946962fcbe26ecb3ed67b09b066d3aecfbc2fd622-cardboard_probe.mm.gz"
+  },
+  "validation_impl.cpp": {
+    "sha256": "2fbab4168a37f8db6687ff25cb1c7a0b9a51c0aadf939a39e98b092882950ce2",
+    "archive": "source-snapshots/2fbab4168a37f8db6687ff25cb1c7a0b9a51c0aadf939a39e98b092882950ce2-validation_impl.cpp.gz"
+  },
+  "matter.hpp": {
+    "sha256": "e0e3d91a71171460fe4d25a43a5fc58d3d51eae09195d857f02cc9bd48b025a3",
+    "archive": "source-snapshots/e0e3d91a71171460fe4d25a43a5fc58d3d51eae09195d857f02cc9bd48b025a3-matter.hpp.gz"
+  },
+  "fem.metalinc": {
+    "sha256": "e3fedd86fb7980757d30302be73c562feb2df203fab03cc6dcff2f9546968026",
+    "archive": "source-snapshots/e3fedd86fb7980757d30302be73c562feb2df203fab03cc6dcff2f9546968026-fem.metalinc.gz"
+  },
+  "starch2007_finite_glue_elastic.nmatter": {
+    "sha256": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1",
+    "archive": "source-snapshots/39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1-starch2007_finite_glue_elastic.nmatter.gz"
+  },
+  "runtime.mm": {
+    "sha256": "fcae14eaea5e48e0ea76e8822dabd242d5214fcd892ee2d8b16936e9a3348176",
+    "archive": "source-snapshots/fcae14eaea5e48e0ea76e8822dabd242d5214fcd892ee2d8b16936e9a3348176-runtime.mm.gz"
+  }
+}

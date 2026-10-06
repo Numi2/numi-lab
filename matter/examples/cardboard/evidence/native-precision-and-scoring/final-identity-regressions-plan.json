@@ -1,0 +1,47 @@
+{
+  "schema": "numi.cardboard.final-identity-regressions.v1",
+  "created_utc": "2026-10-06T10:02:55.183149+00:00",
+  "question": "Do typed box feature identities and FP32-effective barrier metadata preserve the geometry/default cooked world they describe?",
+  "prediction": "The box remains at exact rest for2 native steps, with unchanged mesh and initial OBJ against box-rest-001 and valid v2 typed actions. Near1 double scale rounds to effective1, preserves requested value in metadata, and shares a cooked-world fingerprint with exact1. These identity checks do not qualify assembly or contact response.",
+  "trials": [
+    {
+      "name": "box-feature-rest-002",
+      "args": [
+        "--box-blank",
+        "--bend-angle",
+        "0",
+        "--steps",
+        "2",
+        "--hold-steps",
+        "0",
+        "--unload-steps",
+        "0",
+        "--relax-steps",
+        "0"
+      ]
+    },
+    {
+      "name": "barrier-exact1-compile-001",
+      "args": [
+        "--compile-only",
+        "--crease",
+        "--prescribed-tool-predictor",
+        "--reference-displacement-gradient",
+        "--prescribed-tool-barrier-scale",
+        "1"
+      ]
+    },
+    {
+      "name": "barrier-rounded1-compile-001",
+      "args": [
+        "--compile-only",
+        "--crease",
+        "--prescribed-tool-predictor",
+        "--reference-displacement-gradient",
+        "--prescribed-tool-barrier-scale",
+        "1.00000001"
+      ]
+    }
+  ],
+  "physical_validation": false
+}

@@ -1,0 +1,38 @@
+{
+  "schema": "numi.cardboard.default-barrier-tight-followup.v1",
+  "created_utc": "2026-10-06T09:05:47.921786+00:00",
+  "question": "Does tighter nonlinear acceptance alone remove the50um clearance-floor failure at default barrier stiffness?",
+  "evidence": "The20um default-factor tight arm completed with much larger gap and lower force than its loose predecessor. The50um factor2 tight arm now completes with417nm minimum gap and0.388N peak, versus53nm and2.316N at loose tolerance. The accepted trajectory error may cause the original default-factor floor failure.",
+  "prediction": "Default factor1 at1e-6 completes96steps without changing collision floors. If factors1,2,4 all complete at1e-6, their peak-force relative spread is no more than10%; report full-curve differences separately. Failure retained without substituting a partial endpoint.",
+  "scope": "Numerical trajectory/conditioning comparison, not physical scoring or material calibration. Same native build as the two tight multiplier arms.",
+  "trials": [
+    {
+      "name": "barrier50-scale1-tight-001",
+      "args": [
+        "--crease",
+        "--prescribed-tool-predictor",
+        "--reference-displacement-gradient",
+        "--steps",
+        "32",
+        "--hold-steps",
+        "16",
+        "--unload-steps",
+        "32",
+        "--relax-steps",
+        "16",
+        "--indent-mm",
+        ".050",
+        "--residual-tolerance",
+        "1e-6",
+        "--newton-iterations",
+        "28",
+        "--fgmres-iterations",
+        "64",
+        "--prescribed-tool-barrier-scale",
+        "1"
+      ]
+    }
+  ],
+  "timeout_seconds_per_run": 900,
+  "physical_validation": false
+}

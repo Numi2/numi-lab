@@ -1,0 +1,16 @@
+Test project /Users/home/numi-cardboard-20261006/build-cardboard
+    Start 4: matter.compiler.cardboard_barrier_scale
+1/2 Test #4: matter.compiler.cardboard_barrier_scale ...   Passed    0.41 sec
+    Start 7: matter.compiler.cardboard_box_blank
+2/2 Test #7: matter.compiler.cardboard_box_blank .......   Passed    0.25 sec
+
+100% tests passed, 0 tests failed out of 2
+
+Label Time Summary:
+cardboard      =   0.67 sec*proc (2 tests)
+contact        =   0.41 sec*proc (1 test)
+fingerprint    =   0.41 sec*proc (1 test)
+geometry       =   0.25 sec*proc (1 test)
+matter         =   0.67 sec*proc (2 tests)
+
+Total Test time (real) =   0.67 sec

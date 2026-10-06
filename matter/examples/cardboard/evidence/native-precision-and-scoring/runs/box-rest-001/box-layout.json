@@ -1,0 +1,38 @@
+{
+  "schema": "numi.cardboard.fefco0201-layout.v1",
+  "units": "metres",
+  "state": "flat_unscored_blank",
+  "physical_assembly": false,
+  "dimensions": {"panel_length": 0.031600000000000003, "panel_width": 0.023700000000000002, "wall_height": 0.031600000000000003, "joint_width": 0.0079000000000000008, "slot_kerf": 0.0015800000000000002},
+  "score_lines": [
+    {"kind": 0, "panel": 0, "first": [0.0079000000000000008,0.011850000000000001,0], "second": [0.0079000000000000008,0.043450000000000003,0], "physically_scored": false},
+    {"kind": 1, "panel": 0, "first": [0.039500000000000007,0.011850000000000001,0], "second": [0.039500000000000007,0.043450000000000003,0], "physically_scored": false},
+    {"kind": 1, "panel": 1, "first": [0.063200000000000006,0.011850000000000001,0], "second": [0.063200000000000006,0.043450000000000003,0], "physically_scored": false},
+    {"kind": 1, "panel": 2, "first": [0.094800000000000009,0.011850000000000001,0], "second": [0.094800000000000009,0.043450000000000003,0], "physically_scored": false},
+    {"kind": 2, "panel": 0, "first": [0.0079000000000000008,0.011850000000000001,0], "second": [0.039500000000000007,0.011850000000000001,0], "physically_scored": false},
+    {"kind": 3, "panel": 0, "first": [0.0079000000000000008,0.043450000000000003,0], "second": [0.039500000000000007,0.043450000000000003,0], "physically_scored": false},
+    {"kind": 2, "panel": 1, "first": [0.039500000000000007,0.011850000000000001,0], "second": [0.063200000000000006,0.011850000000000001,0], "physically_scored": false},
+    {"kind": 3, "panel": 1, "first": [0.039500000000000007,0.043450000000000003,0], "second": [0.063200000000000006,0.043450000000000003,0], "physically_scored": false},
+    {"kind": 2, "panel": 2, "first": [0.063200000000000006,0.011850000000000001,0], "second": [0.094800000000000009,0.011850000000000001,0], "physically_scored": false},
+    {"kind": 3, "panel": 2, "first": [0.063200000000000006,0.043450000000000003,0], "second": [0.094800000000000009,0.043450000000000003,0], "physically_scored": false},
+    {"kind": 2, "panel": 3, "first": [0.094800000000000009,0.011850000000000001,0], "second": [0.11850000000000001,0.011850000000000001,0], "physically_scored": false},
+    {"kind": 3, "panel": 3, "first": [0.094800000000000009,0.043450000000000003,0], "second": [0.11850000000000001,0.043450000000000003,0], "physically_scored": false}
+  ],
+  "assembly_actions": [
+    {"stage": "form four-wall tube from flat blank", "kind": 0, "feature": 0, "target_angle_deg": 90, "executed": false},
+    {"stage": "form four-wall tube from flat blank", "kind": 0, "feature": 1, "target_angle_deg": 90, "executed": false},
+    {"stage": "form four-wall tube from flat blank", "kind": 0, "feature": 2, "target_angle_deg": 90, "executed": false},
+    {"stage": "form four-wall tube from flat blank", "kind": 0, "feature": 3, "target_angle_deg": 90, "executed": false},
+    {"stage": "overlap tab and bond the manufacturer's joint", "kind": 1, "feature": 0, "target_angle_deg": 0, "executed": false},
+    {"stage": "close bottom flap", "kind": 2, "feature": 1, "target_angle_deg": 90, "executed": false},
+    {"stage": "close bottom flap", "kind": 2, "feature": 3, "target_angle_deg": 90, "executed": false},
+    {"stage": "close bottom flap", "kind": 2, "feature": 0, "target_angle_deg": 90, "executed": false},
+    {"stage": "close bottom flap", "kind": 2, "feature": 2, "target_angle_deg": 90, "executed": false},
+    {"stage": "seal bottom flaps", "kind": 3, "feature": 0, "target_angle_deg": 0, "executed": false},
+    {"stage": "close top flap", "kind": 2, "feature": 5, "target_angle_deg": -90, "executed": false},
+    {"stage": "close top flap", "kind": 2, "feature": 7, "target_angle_deg": -90, "executed": false},
+    {"stage": "close top flap", "kind": 2, "feature": 4, "target_angle_deg": -90, "executed": false},
+    {"stage": "close top flap", "kind": 2, "feature": 6, "target_angle_deg": -90, "executed": false},
+    {"stage": "seal top flaps", "kind": 3, "feature": 1, "target_angle_deg": 0, "executed": false}
+  ]
+}

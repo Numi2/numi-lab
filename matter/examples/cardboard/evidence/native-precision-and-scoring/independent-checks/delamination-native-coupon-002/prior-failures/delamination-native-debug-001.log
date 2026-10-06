@@ -1,0 +1,20 @@
+Test project /Users/home/numi-cardboard-20261006/build-cardboard
+    Start 17: matter.metal.cardboard_delamination_coupon
+1/1 Test #17: matter.metal.cardboard_delamination_coupon ...***Failed    0.42 sec
+device=Apple M4 instrument=production_constitutive_evaluator physical_coupon_steps=0
+FAIL source-seeded positive-opening state was rejected: margin=0.000002 seed_damage=0.010000 opening_mm=0.001480 stretch=1.003609
+
+
+0% tests passed, 1 tests failed out of 1
+
+Label Time Summary:
+cardboard       =   0.42 sec*proc (1 test)
+delamination    =   0.42 sec*proc (1 test)
+material        =   0.42 sec*proc (1 test)
+matter          =   0.42 sec*proc (1 test)
+
+Total Test time (real) =   0.42 sec
+
+The following tests FAILED:
+	 17 - matter.metal.cardboard_delamination_coupon (Failed) cardboard delamination material matter
+Errors while running CTest

@@ -1,0 +1,24 @@
+{
+  "schema": "numi.cardboard.box-export-closure.v1",
+  "created_utc": "2026-10-06T10:24:24.839024+00:00",
+  "question": "Can every v2 assembly feature resolve from the exported layout without C++ helper conventions?",
+  "prediction": "Four panel records, one tab identity, two end records and twelve score records resolve all fifteen unexecuted actions. No mesh or native zero-load observation differs from box-rest-001 or box-feature-rest-002.",
+  "scope": "Metadata completeness and rest regression only; no physical folding, scoring, adhesive failure or assembly.",
+  "patch_sha256": "33659c7a091958160072ce615d46529a550a4af27784de85b6f5afceeb745b31",
+  "trial": {
+    "name": "box-feature-rest-003",
+    "args": [
+      "--box-blank",
+      "--bend-angle",
+      "0",
+      "--steps",
+      "2",
+      "--hold-steps",
+      "0",
+      "--unload-steps",
+      "0",
+      "--relax-steps",
+      "0"
+    ]
+  }
+}

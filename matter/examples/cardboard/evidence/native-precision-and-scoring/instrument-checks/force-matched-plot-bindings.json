@@ -1,0 +1,8 @@
+{
+  "script_sha256": "e387a2fb8b8fe3818b5d194f2787bab9f9bb8ab93a17b2a29ff576f8ed929b8b",
+  "inputs": {
+    "/Users/home/cardboard-closure-evidence-20261006/matched-baseline-001/observations.csv": "6d7a8c2dfc9a5ae46375fc56a74db2dd2882b843ccf3dcb7f9fdd59b58fc059f",
+    "/Users/home/cardboard-closure-evidence-20261006/matched-halfdt-001/observations.csv": "69754e921e5f23428a224ddde1c287b6c3fd6b6a8c3aec004590fcb7dd9cbec9",
+    "/Users/home/cardboard-closure-evidence-20261006/force-matched-time-comparison.json": "93116e1e66bd6200428e14a7342477ff887e1a8c4e03b719b6cea89f1bf5458c"
+  }
+}

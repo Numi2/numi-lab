@@ -1,0 +1,9 @@
+[
+  {
+    "name": "barrier50-scale2-tight-001-driver.log",
+    "prior_bytes": 0,
+    "completed_bytes": 287,
+    "prior_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reason": "Earlier package captured the driver before completion; retained separately. Authoritative completed stdout/stderr remain in native receipt."
+  }
+]

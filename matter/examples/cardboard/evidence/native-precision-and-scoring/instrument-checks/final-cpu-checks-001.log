@@ -1,0 +1,46 @@
+Test project /Users/home/numi-cardboard-20261006/build-cardboard
+      Start  3: matter.compiler.cardboard_tooling
+ 1/11 Test  #3: matter.compiler.cardboard_tooling ..................   Passed    0.37 sec
+      Start  4: matter.compiler.cardboard_barrier_scale
+ 2/11 Test  #4: matter.compiler.cardboard_barrier_scale ............   Passed    0.02 sec
+      Start  5: matter.compiler.cardboard_profile
+ 3/11 Test  #5: matter.compiler.cardboard_profile ..................   Passed    0.00 sec
+      Start  6: matter.compiler.cardboard_glue_mesh
+ 4/11 Test  #6: matter.compiler.cardboard_glue_mesh ................   Passed    0.01 sec
+      Start  7: matter.compiler.cardboard_box_blank
+ 5/11 Test  #7: matter.compiler.cardboard_box_blank ................   Passed    0.02 sec
+      Start  8: matter.compiler.cardboard_paper
+ 6/11 Test  #8: matter.compiler.cardboard_paper ....................   Passed    0.35 sec
+      Start  9: matter.compiler.cardboard_delamination_reference
+ 7/11 Test  #9: matter.compiler.cardboard_delamination_reference ...   Passed    0.27 sec
+      Start 10: matter.compiler.cardboard_material
+ 8/11 Test #10: matter.compiler.cardboard_material .................   Passed    0.30 sec
+      Start 12: matter.compiler.fem_material_frame
+ 9/11 Test #12: matter.compiler.fem_material_frame .................   Passed    0.45 sec
+      Start 13: matter.compiler.stateful_roundtrip
+10/11 Test #13: matter.compiler.stateful_roundtrip .................***Failed    0.39 sec
+numi-matter-stateful-check: canonical layout validator returned the wrong diagnostic
+
+      Start 39: matter.compiler.fem_reference
+11/11 Test #39: matter.compiler.fem_reference ......................   Passed    1.11 sec
+
+91% tests passed, 1 tests failed out of 11
+
+Label Time Summary:
+cardboard       =   1.35 sec*proc (8 tests)
+compiler        =   0.70 sec*proc (2 tests)
+contact         =   0.02 sec*proc (1 test)
+delamination    =   0.27 sec*proc (1 test)
+fingerprint     =   0.02 sec*proc (1 test)
+geometry        =   0.40 sec*proc (4 tests)
+human           =   1.57 sec*proc (2 tests)
+material        =   2.22 sec*proc (4 tests)
+matter          =   3.31 sec*proc (11 tests)
+reference       =   0.27 sec*proc (1 test)
+stateful        =   0.39 sec*proc (1 test)
+
+Total Test time (real) =   3.32 sec
+
+The following tests FAILED:
+	 13 - matter.compiler.stateful_roundtrip (Failed)       compiler matter stateful
+Errors while running CTest

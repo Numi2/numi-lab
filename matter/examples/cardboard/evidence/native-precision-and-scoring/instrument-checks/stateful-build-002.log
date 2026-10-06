@@ -1,0 +1,5 @@
+[ 75%] Built target numi_matter_compiler_objects
+[ 83%] Built target numi_matter_compiler
+[ 91%] Building CXX object CMakeFiles/numi-matter-stateful-check.dir/tools/stateful_check.cpp.o
+[100%] Linking CXX executable numi-matter-stateful-check
+[100%] Built target numi-matter-stateful-check

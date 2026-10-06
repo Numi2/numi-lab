@@ -1,0 +1,14 @@
+{
+  "script_sha256": "c52408a518021159410bc6461a50ea05546e090090cf1a58a65dc6f7ac3a73c4",
+  "inputs": {
+    "/Users/home/cardboard-closure-evidence-20261006/barrier50-scale1-001/tool-observations.csv": "c2ad0cd5e348477b1e23ea5b4f1e46b0c22b245a931c17f1a6d3710c9abd2737",
+    "/Users/home/cardboard-closure-evidence-20261006/barrier50-scale1-001/observations.csv": "44f7f0824e3a9d6fbb9744fad24908c29299a02e3e34a81a0313deb9ae5121e1",
+    "/Users/home/cardboard-closure-evidence-20261006/barrier50-scale1-001/result.json": "7789be47c95aacab618fea273103f9fde3996dc25823eb96cc6bf588ee54f2c4",
+    "/Users/home/cardboard-closure-evidence-20261006/barrier50-scale2-001/tool-observations.csv": "91eddb814856b134202a246ac83cf52fb0915b45b65af5b7fa9cc4b404610ed6",
+    "/Users/home/cardboard-closure-evidence-20261006/barrier50-scale2-001/observations.csv": "7f459726cec9109a77d456f7c88bbf517f1dd6db4322ef9866bea5d971000257",
+    "/Users/home/cardboard-closure-evidence-20261006/barrier50-scale2-001/result.json": "a6e97bf3bb182d77da6897e34f7e6e32c45a8b012cc6a6b2a0f6bde8114d7141",
+    "/Users/home/cardboard-closure-evidence-20261006/barrier50-scale4-001/tool-observations.csv": "084b4583df9be0c4116614fb0d495e3c491cb2c605eeee439204a3050f2d83fc",
+    "/Users/home/cardboard-closure-evidence-20261006/barrier50-scale4-001/observations.csv": "ab0b4cd635c2032e075f2cd716cd9ea8a4d8bd169ecac6ba4650b08b2953b59f",
+    "/Users/home/cardboard-closure-evidence-20261006/barrier50-scale4-001/result.json": "f5ccb119b9db870edcb67f854e97e21f6c9639c3d8695fb7692053238b435e6b"
+  }
+}

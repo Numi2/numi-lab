@@ -1,0 +1,80 @@
+[ 10%] Built target numi_matter_shaders
+[ 57%] Built target numi_matter_compiler_objects
+[ 78%] Built target numi_matter_runtime_objects
+[ 84%] Built target numi_matter_compiler
+[ 89%] Built target numi_matter_runtime
+[ 94%] Building OBJCXX object CMakeFiles/numi-matter-cardboard-preconditioner-gpu-check.dir/tools/cardboard_fgmres_preconditioner_gpu_check.mm.o
+In file included from /Users/home/numi-cardboard-20261006/matter/tools/cardboard_fgmres_preconditioner_gpu_check.mm:4:
+/Users/home/numi-cardboard-20261006/matter/tools/cardboard_paper_reference.hpp:246:61: error: implicit instantiation of undefined template 'std::basic_string<char>'
+  246 |                 "paper oracle line search failed material="+std::string(p.name)+
+      |                                                             ^
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__fwd/string.h:46:7: note: template is declared here
+   46 | class basic_string;
+      |       ^
+In file included from /Users/home/numi-cardboard-20261006/matter/tools/cardboard_fgmres_preconditioner_gpu_check.mm:4:
+/Users/home/numi-cardboard-20261006/matter/tools/cardboard_paper_reference.hpp:246:60: error: invalid operands to binary expression ('const char[42]' and 'std::string' (aka 'basic_string<char>'))
+  246 |                 "paper oracle line search failed material="+std::string(p.name)+
+      |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__iterator/reverse_iterator.h:303:1: note: candidate template ignored: could not match 'reverse_iterator' against 'std::basic_string'
+  303 | operator+(typename reverse_iterator<_Iter>::difference_type __n, const reverse_iterator<_Iter>& __x) {
+      | ^
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__iterator/move_iterator.h:317:1: note: candidate template ignored: could not match 'move_iterator' against 'std::basic_string'
+  317 | operator+(iter_difference_t<_Iter> __n, const move_iterator<_Iter>& __x)
+      | ^
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__iterator/wrap_iter.h:228:1: note: candidate template ignored: could not match '__wrap_iter' against 'std::basic_string'
+  228 | operator+(typename __wrap_iter<_Iter1>::difference_type __n, __wrap_iter<_Iter1> __x) _NOEXCEPT {
+      | ^
+In file included from /Users/home/numi-cardboard-20261006/matter/tools/cardboard_fgmres_preconditioner_gpu_check.mm:4:
+/Users/home/numi-cardboard-20261006/matter/tools/cardboard_paper_reference.hpp:247:36: error: no member named 'to_string' in namespace 'std'
+  247 |                 " iteration="+std::to_string(iterations)+" norm="+std::to_string(norm)+
+      |                                    ^~~~~~~~~
+/Users/home/numi-cardboard-20261006/matter/tools/cardboard_paper_reference.hpp:247:72: error: no member named 'to_string' in namespace 'std'
+  247 |                 " iteration="+std::to_string(iterations)+" norm="+std::to_string(norm)+
+      |                                                                        ^~~~~~~~~
+/Users/home/numi-cardboard-20261006/matter/tools/cardboard_paper_reference.hpp:248:36: error: no member named 'to_string' in namespace 'std'
+  248 |                 " worst_row="+std::to_string(worst)+" residual="+std::to_string(r[worst])+
+      |                                    ^~~~~~~~~
+/Users/home/numi-cardboard-20261006/matter/tools/cardboard_paper_reference.hpp:248:71: error: no member named 'to_string' in namespace 'std'
+  248 |                 " worst_row="+std::to_string(worst)+" residual="+std::to_string(r[worst])+
+      |                                                                       ^~~~~~~~~
+/Users/home/numi-cardboard-20261006/matter/tools/cardboard_paper_reference.hpp:249:37: error: no member named 'to_string' in namespace 'std'
+  249 |                 " multiplier="+std::to_string(x[12])+" q="+
+      |                                     ^~~~~~~~~
+/Users/home/numi-cardboard-20261006/matter/tools/cardboard_paper_reference.hpp:250:22: error: no member named 'to_string' in namespace 'std'
+  250 |                 std::to_string(hillEquivalent(p,returnedNormalizedStress(p,f,accepted,x)))+
+      |                      ^~~~~~~~~
+/Users/home/numi-cardboard-20261006/matter/tools/cardboard_paper_reference.hpp:251:28: error: no member named 'to_string' in namespace 'std'
+  251 |                 " s="+std::to_string(x[6])+","+std::to_string(x[7])+","+std::to_string(x[8])+
+      |                            ^~~~~~~~~
+/Users/home/numi-cardboard-20261006/matter/tools/cardboard_paper_reference.hpp:251:53: error: no member named 'to_string' in namespace 'std'
+  251 |                 " s="+std::to_string(x[6])+","+std::to_string(x[7])+","+std::to_string(x[8])+
+      |                                                     ^~~~~~~~~
+/Users/home/numi-cardboard-20261006/matter/tools/cardboard_paper_reference.hpp:251:78: error: no member named 'to_string' in namespace 'std'
+  251 |                 " s="+std::to_string(x[6])+","+std::to_string(x[7])+","+std::to_string(x[8])+
+      |                                                                              ^~~~~~~~~
+/Users/home/numi-cardboard-20261006/matter/tools/cardboard_paper_reference.hpp:252:29: error: no member named 'to_string' in namespace 'std'
+  252 |                 " ep="+std::to_string(x[0])+","+std::to_string(x[1])+","+std::to_string(x[2])+
+      |                             ^~~~~~~~~
+/Users/home/numi-cardboard-20261006/matter/tools/cardboard_paper_reference.hpp:252:54: error: no member named 'to_string' in namespace 'std'
+  252 |                 " ep="+std::to_string(x[0])+","+std::to_string(x[1])+","+std::to_string(x[2])+
+      |                                                      ^~~~~~~~~
+/Users/home/numi-cardboard-20261006/matter/tools/cardboard_paper_reference.hpp:252:79: error: no member named 'to_string' in namespace 'std'
+  252 |                 " ep="+std::to_string(x[0])+","+std::to_string(x[1])+","+std::to_string(x[2])+
+      |                                                                               ^~~~~~~~~
+/Users/home/numi-cardboard-20261006/matter/tools/cardboard_paper_reference.hpp:253:32: error: no member named 'to_string' in namespace 'std'
+  253 |                 " oldep="+std::to_string(accepted[0])+","+std::to_string(accepted[1])+","+
+      |                                ^~~~~~~~~
+/Users/home/numi-cardboard-20261006/matter/tools/cardboard_paper_reference.hpp:253:64: error: no member named 'to_string' in namespace 'std'
+  253 |                 " oldep="+std::to_string(accepted[0])+","+std::to_string(accepted[1])+","+
+      |                                                                ^~~~~~~~~
+/Users/home/numi-cardboard-20261006/matter/tools/cardboard_paper_reference.hpp:254:26: error: no member named 'to_string' in namespace 'std'
+  254 |                     std::to_string(accepted[2])+" oldlambda="+std::to_string(accepted[12]));
+      |                          ^~~~~~~~~
+/Users/home/numi-cardboard-20261006/matter/tools/cardboard_paper_reference.hpp:254:68: error: no member named 'to_string' in namespace 'std'
+  254 |                     std::to_string(accepted[2])+" oldlambda="+std::to_string(accepted[12]));
+      |                                                                    ^~~~~~~~~
+18 errors generated.
+make[3]: *** [CMakeFiles/numi-matter-cardboard-preconditioner-gpu-check.dir/tools/cardboard_fgmres_preconditioner_gpu_check.mm.o] Error 1
+make[2]: *** [CMakeFiles/numi-matter-cardboard-preconditioner-gpu-check.dir/all] Error 2
+make[1]: *** [CMakeFiles/numi-matter-cardboard-preconditioner-gpu-check.dir/rule] Error 2
+make: *** [numi-matter-cardboard-preconditioner-gpu-check] Error 2

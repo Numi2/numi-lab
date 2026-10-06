@@ -1,0 +1,29 @@
+Start testing: Oct 06 10:03 CEST
+----------------------------------------------------------
+37/41 Testing: matter.metal.cardboard_preconditioner
+37/41 Test: matter.metal.cardboard_preconditioner
+Command: "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-cardboard-preconditioner-gpu-check" "/Users/home/numi-cardboard-20261006/matter/materials/hajali2009_liner_hill_ideal.nmatter" "/Users/home/numi-cardboard-20261006/matter/materials/hajali2009_medium_hill_ideal.nmatter"
+Directory: /Users/home/numi-cardboard-20261006/build-cardboard
+"matter.metal.cardboard_preconditioner" start time: Oct 06 10:03 CEST
+Output:
+----------------------------------------------------------
+device=Apple M4 kernel=nm_fgmres_build_tangent_fem_preconditioner physical_steps=0
+hajali2009_liner_hill_ideal.nmatter direct_kernel_diagonal_entries=12 fd_relative_max=2.72786e-05 fd_absolute_max=54.3262
+hajali2009_medium_hill_ideal.nmatter direct_kernel_diagonal_entries=12 fd_relative_max=2.69773e-05 fd_absolute_max=41.7709
+PASS direct Metal tangent-diagonal FD; physical_validation=false
+<end of output>
+Test time =   0.64 sec
+----------------------------------------------------------
+Test Passed.
+"matter.metal.cardboard_preconditioner" end time: Oct 06 10:03 CEST
+"matter.metal.cardboard_preconditioner" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Oct 06 10:03 CEST
+
+cardboard =   0.64 sec*proc
+
+matter =   0.64 sec*proc
+
+numerics =   0.64 sec*proc
+

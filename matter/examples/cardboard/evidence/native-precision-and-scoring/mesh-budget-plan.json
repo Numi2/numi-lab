@@ -1,0 +1,59 @@
+{
+  "schema": "numi.cardboard.refined-mesh-krylov-diagnostic.v1",
+  "created_utc": "2026-10-06T08:37:00.016050+00:00",
+  "question": "Are the rejected early refined-mesh increments recoverable by more Krylov work at fixed tolerance and Newton budget?",
+  "prediction": "Length refinement accepts its first increment and thickness refinement accepts its first three increments with256Krylov columns instead of64. Failure contradicts this budget hypothesis.",
+  "scope": "Early-increment diagnostic only, not full-horizon mesh convergence. Grip increments and timestep exactly match the failed48step trajectories, but total peak angle and phase length are shortened to stop at the failed increment.",
+  "trials": [
+    {
+      "name": "nx16-k256-first-001",
+      "args": [
+        "--reference-displacement-gradient",
+        "--residual-tolerance",
+        "1e-6",
+        "--newton-iterations",
+        "28",
+        "--fgmres-iterations",
+        "256",
+        "--hold-steps",
+        "0",
+        "--unload-steps",
+        "0",
+        "--relax-steps",
+        "0",
+        "--nx",
+        "16",
+        "--steps",
+        "1",
+        "--bend-angle",
+        ".0078125"
+      ]
+    },
+    {
+      "name": "thickness2-k256-first3-001",
+      "args": [
+        "--reference-displacement-gradient",
+        "--residual-tolerance",
+        "1e-6",
+        "--newton-iterations",
+        "28",
+        "--fgmres-iterations",
+        "256",
+        "--hold-steps",
+        "0",
+        "--unload-steps",
+        "0",
+        "--relax-steps",
+        "0",
+        "--thickness-slices",
+        "2",
+        "--steps",
+        "3",
+        "--bend-angle",
+        ".0234375"
+      ]
+    }
+  ],
+  "timeout_seconds_per_run": 900,
+  "physical_validation": false
+}

@@ -1,0 +1,63 @@
+{
+  "schema": "numi.cardboard.tight-barrier-comparison.v1",
+  "physical_validation": false,
+  "runs": {
+    "barrier50-scale1-tight-001": {
+      "status": "failed",
+      "verdict": "inconclusive",
+      "accepted_steps": 48,
+      "scale": 1,
+      "minimum_accepted_punch_gap_m": 1.8617831231847095e-07,
+      "peak_accepted_punch_force_N": 0.3867805123656722,
+      "maximum_accepted_free_force_imbalance_l2_N": 0.039998081300995775,
+      "inputs_unchanged": true,
+      "input_sha256": {
+        "manifest.json": "0ffb0106b76bd7625ebb6f8d543e287c2989ebc96345caedd70f469fb4e6baa7",
+        "result.json": "99f4b01860044f69529f34f75911348d2e8223041dab2685cbb2e401e40231eb",
+        "observations.csv": "3bfa758d02366fc80704f1ac82b852cb2aaec7059c721230048936a70932c34c",
+        "tool-observations.csv": "e053f073d51c3c2fbd8dfa9cdd48006073b97c0c03401a355c30e2eb9f8ff86f",
+        "mesh.json": "add3e5f87879dac154eb4a31bb73b1c2de8740b04f29f05721f3b8198aa367e5",
+        "compiled.nmatterpack": "9270aab2982813f9b67a2f4faa7494e15f3fd05537a83c6d29c35fcf85a4b6ee"
+      }
+    },
+    "barrier50-scale2-tight-001": {
+      "status": "completed",
+      "verdict": "instrument_checks_passed",
+      "accepted_steps": 96,
+      "scale": 2,
+      "minimum_accepted_punch_gap_m": 4.1714517052756934e-07,
+      "peak_accepted_punch_force_N": 0.3877883962297442,
+      "maximum_accepted_free_force_imbalance_l2_N": 0.03996993254407608,
+      "inputs_unchanged": true,
+      "input_sha256": {
+        "manifest.json": "01693ab19593d29c73a224b8181cf0a6b4b03d394154e20edc14a55e74d66dde",
+        "result.json": "ecb6b929138e53d14c6f39dcd0249169c171724c212443757c177627e93a6756",
+        "observations.csv": "9eef88d92866fd5764fc5a0c552dc9fe312ff3778b426011712b689c47ba95ab",
+        "tool-observations.csv": "9e8ee47b2a4932bff8c048878f71fc52e01f590c4c90174799cb9ec9ffffd382",
+        "mesh.json": "add3e5f87879dac154eb4a31bb73b1c2de8740b04f29f05721f3b8198aa367e5",
+        "compiled.nmatterpack": "21bd2a4e075c36e7a83b7451d8445156a870541c6fd8fc5b1ff5948fa786ed1a"
+      }
+    },
+    "barrier50-scale4-tight-001": {
+      "status": "completed",
+      "verdict": "instrument_checks_passed",
+      "accepted_steps": 96,
+      "scale": 4,
+      "minimum_accepted_punch_gap_m": 8.069035456788201e-07,
+      "peak_accepted_punch_force_N": 0.39070316311351333,
+      "maximum_accepted_free_force_imbalance_l2_N": 0.03998575166079052,
+      "inputs_unchanged": true,
+      "input_sha256": {
+        "manifest.json": "eb20327991222eddb7e08ce6f0586ff618e66a8411c6f2bae56fe119ab5557d5",
+        "result.json": "70fb0b1251b9511eb47b7c026cabc4fc5376422371395f801d77f7c271aa57b6",
+        "observations.csv": "25d68e1a9593b1273c35488ab5bc9cf92cc1333e7e8ef8251716f9d4011ccae8",
+        "tool-observations.csv": "54d8d8359e84896b38605a83b7e986589df4d1bddbe8419eb5397eea98d37c14",
+        "mesh.json": "add3e5f87879dac154eb4a31bb73b1c2de8740b04f29f05721f3b8198aa367e5",
+        "compiled.nmatterpack": "3524b0dc1b669a64898418e0825e9c5792008fd45c422d80f5e20694a9b3e870"
+      }
+    }
+  },
+  "paired_status": "inconclusive",
+  "analyzer_sha256": "5262b5d0623dd4f7b7c1ebc4f08a8ea8c20cd0f952837514db27f7037a1c5751",
+  "tooling_analyzer_sha256": "02e2098b8c4fe11cad87eb32f9d81163dfd3fc80261308185b13cf02bdac2282"
+}

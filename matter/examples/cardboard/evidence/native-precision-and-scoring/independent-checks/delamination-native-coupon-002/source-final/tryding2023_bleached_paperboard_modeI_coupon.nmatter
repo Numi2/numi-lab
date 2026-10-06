@@ -1,0 +1,165 @@
+// Source-bounded native constitutive coupon, NOT a corrugated-board or glue
+// material. This is the pure normal Mode-I specialization of the single-ply,
+// bleached clay-coated paperboard model in Tryding et al. (2023), calibrated
+// to the same quality's tests reported in Biel et al. (2022).
+//
+// Source: Tryding et al., Int. J. Solids Struct. 279 (2023) 112365,
+// DOI 10.1016/j.ijsolstr.2023.112365, Table 1 and Eqs. (2), (22)-(24), (39),
+// and (43). Table-1 cohesive parameters are attributed there to Biel et al.,
+// Int. J. Solids Struct. 252 (2022) 111755, DOI 10.1016/j.ijsolstr.2022.111755.
+// The sample is 319 g/m^2 and 0.410 mm thick (Tryding 2023, Sec. 3.1).
+//
+// The one-dimensional specialization maps opening delta=(F33-1)*h through a
+// finite-thickness evaluator layer. The layer thickness is the reported board
+// thickness; multiplying the source interface free energy by its reciprocal
+// yields J/m^3. The reciprocal is explicit so symbolic tangent bytecode does
+// not retain a tiny thickness^4 denominator rejected by the FP32 evaluator.
+// This is an evaluator/coupon construction, not the source paper's zero-
+// thickness interface element and not a claim about corrugated-board glue.
+//
+// The source's uniaxial damage is kappa=1-sigma/Tn. With
+// xi=(delta/(xc*deltaN))^(1/c), kappa=xi/(1+xi), so
+// deltaMax=deltaN*xc*(kappa/(1-kappa))^c. Eq. (43) gives
+// E(kappa)=Ec*(xc*deltaN*c/deltaMax)^m and Eq. (2) gives
+// Psi=0.5*E(kappa)*(delta-deltaP)^2. The plastic opening is the value needed
+// to recover the source cohesive traction Tn*(1-kappa) at deltaMax.
+//
+// The paper initializes its finite-element runs with kappa=0.01. The native
+// coupon therefore starts at that explicitly documented post-initiation
+// state, with F33 set by the matching positive opening. The material's valid
+// domain is uniaxial positive Mode-I opening: all other F components must be
+// identity/zero within the explicitly declared FP32 admission tolerance.
+// Compression, shear, mixed mode, hysteresis, and production cardboard are
+// outside this asset's claim.
+material tryding2023_bleached_paperboard_modeI_coupon {
+    // Derived from the reported areal mass and thickness: 319 g/m^2 / 0.410 mm.
+    parameter density : kg/m^3 = 778.0487804878049;
+    parameter thickness : m = 0.000410;
+    // Source-energy conversion from area to volume; exactly 1 / thickness.
+    // Keeping this constant explicit avoids generated quotient-rule terms
+    // that place thickness^4 in a later tangent denominator below the
+    // production FP32 evaluator's geometry floor.
+    parameter inverse_thickness : one/m = 2439.0243902439024;
+    parameter normal_strength : MPa = 0.397;
+    parameter normal_length : mm = 0.111;
+    parameter shape : one = 0.863;
+    parameter unloading_scale : MPa/mm = 10.9;
+    parameter unloading_exponent : one = 1.39;
+    // Eq. (24), derived from the reported shape parameter.
+    parameter shape_factor_xc : one = 0.7031799504329036;
+    // Numerical admission tolerance for the uniaxial Mode-I evaluator only.
+    parameter mode_i_kinematic_tolerance : one = 2e-6;
+    // Numerical smoothing of the damage-history complementarity only.
+    parameter history_fb_epsilon : one = 1e-8;
+
+    // Explicit source initialization: the paper states initial FE damage 0.01.
+    state damage : one = 0.01 transfer max;
+
+    model generic;
+
+    // Damage evolves irreversibly with the positive normal opening. `valid`
+    // below rejects nonpositive opening before the production evaluator uses
+    // this logarithm.
+    update damage = max(damage,
+        exp((1 / shape) * log(
+            (thickness * (F(2,2) - 1)) /
+            (shape_factor_xc * normal_length)
+        )) /
+        (1 + exp((1 / shape) * log(
+            (thickness * (F(2,2) - 1)) /
+            (shape_factor_xc * normal_length)
+        )))
+    );
+
+    // Smoothed complementarity form of kappa=max(kappa_old,kappa_envelope):
+    // a=next(kappa)-kappa_old>=0, b=next(kappa)-kappa_envelope>=0,
+    // a*b=0. A dimensionless 1e-8 Fischer-Burmeister smoothing avoids the
+    // nonsmooth max in generated implicit tangents. `update` above supplies
+    // the exact max-history value as the projection seed. The production
+    // local residual tolerance is much larger than this epsilon, so it may
+    // accept that seed without resolving the regularized junction. This
+    // retains source max-history state without hold creep; the tangent exactly
+    // at the nonsmooth junction is not claimed.
+    implicit damage =
+        sqrt(
+            pow(next(damage) - damage, 2) +
+            pow(
+                next(damage) -
+                    exp((1 / shape) * log(
+                        (thickness * (F(2,2) - 1)) /
+                        (shape_factor_xc * normal_length)
+                    )) /
+                    (1 + exp((1 / shape) * log(
+                        (thickness * (F(2,2) - 1)) /
+                        (shape_factor_xc * normal_length)
+                    ))),
+                2
+            ) +
+            2 * pow(history_fb_epsilon, 2)
+        ) -
+        (next(damage) - damage) -
+        (
+            next(damage) -
+                exp((1 / shape) * log(
+                    (thickness * (F(2,2) - 1)) /
+                    (shape_factor_xc * normal_length)
+                )) /
+                (1 + exp((1 / shape) * log(
+                    (thickness * (F(2,2) - 1)) /
+                    (shape_factor_xc * normal_length)
+                )))
+        );
+
+    // Source free energy per volume, with its state taken from the candidate
+    // (projected) value. Real-valued powers use exp(log(.)) because the native
+    // DSL's pow primitive intentionally accepts integer exponents only.
+    energy =
+        0.5 * unloading_scale *
+        exp(unloading_exponent * (
+            log(shape) + shape * log(
+                (1 - next(damage)) / next(damage)
+            )
+        )) *
+        pow(
+            thickness * (F(2,2) - 1) -
+            (
+                normal_length * shape_factor_xc *
+                exp(shape * log(
+                    next(damage) / (1 - next(damage))
+                )) -
+                normal_strength * (1 - next(damage)) /
+                (
+                    unloading_scale *
+                    exp(unloading_exponent * (
+                        log(shape) + shape * log(
+                            (1 - next(damage)) / next(damage)
+                        )
+                    ))
+                )
+            ),
+            2
+        ) * inverse_thickness;
+
+    // Admit only the coupon's axial opening kinematics: F33 > 1, all other
+    // diagonal entries equal one, and every off-diagonal entry is zero up to
+    // a small FP32 input tolerance. This is not a material behavior for shear,
+    // biaxial strain, or arbitrary rotated deformation states.
+    valid = min(
+        min(
+            min(F(2,2) - 1,
+                mode_i_kinematic_tolerance - abs(F(0,0) - 1)),
+            min(mode_i_kinematic_tolerance - abs(F(1,1) - 1),
+                mode_i_kinematic_tolerance - abs(F(0,1)))
+        ),
+        min(
+            min(mode_i_kinematic_tolerance - abs(F(0,2)),
+                mode_i_kinematic_tolerance - abs(F(1,0))),
+            min(mode_i_kinematic_tolerance - abs(F(1,2)),
+                min(mode_i_kinematic_tolerance - abs(F(2,0)),
+                    mode_i_kinematic_tolerance - abs(F(2,1))))
+        )
+    );
+    supports fem;
+    interface { static_friction = 0; dynamic_friction = 0; restitution = 0; adhesion = 0; }
+    limits { minimum_J = 0.20; maximum_J = 2.5; maximum_stress = 1e9; maximum_energy_density = 1e9; }
+}

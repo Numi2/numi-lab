@@ -1,0 +1,8 @@
+[ 10%] Built target numi_matter_shaders
+[ 57%] Built target numi_matter_compiler_objects
+[ 73%] Built target numi_matter_compiler
+[ 84%] Built target numi_matter_runtime_objects
+[ 89%] Built target numi_matter_runtime
+[ 94%] Building OBJCXX object CMakeFiles/numi-matter-cardboard-preconditioner-gpu-check.dir/tools/cardboard_fgmres_preconditioner_gpu_check.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-preconditioner-gpu-check
+[100%] Built target numi-matter-cardboard-preconditioner-gpu-check

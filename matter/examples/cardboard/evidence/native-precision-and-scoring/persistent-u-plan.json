@@ -1,0 +1,17 @@
+{
+  "schema": "numi.cardboard.persistent-displacement-revision.v1",
+  "created_utc": "2026-10-06T07:14:47.815282+00:00",
+  "prior_results": {
+    "gradient-tight-001": "failedfirstloadedstep residual1.23274e-5 andfreeforceL2.4931N;stationarycontrolzero",
+    "endpoint20-001": "failedstep16 initialpenetration.429um"
+  },
+  "revision": "Store authoritative FEM displacement separately from FP32 absolute positions (ABI40); add explicitly opted native feasible prescribed-capsule Newton initializer, swept node/capsule certificate and exact planned endpoint check. Every accepted state still requires native residual, positive volume and contact gates.",
+  "prediction": {
+    "persistent_u": "same 48step loaded/hold tight1e-6 protocol now completes; forceL2\u2264.04N eachacceptedstep",
+    "tooling": "same20um96step cycle now completes with all nativecertificates and nonpenetratingnodegaps; iffails retainfailure anddiagnose ratherthanrelax",
+    "box": "full15pitch flatunscored box blank compiles and accepts2zeroloadsteps with zerostationarymotion; NOTassembly"
+  },
+  "followup_if_pass": "tighten1e-8 before matched time/length/thicknessstudy; test50umdeeper punch with samecorrectednativepath",
+  "stopping_rule": "firstrejection perrun,900s cap percondition,allfailuresretained",
+  "physical_validation": false
+}

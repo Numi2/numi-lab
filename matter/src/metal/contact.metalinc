@@ -2849,6 +2849,182 @@ inline bool rigidWitness(
     }
 }
 
+kernel void nm_contact_capture_prescribed_endpoint(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMRigidStateGPU* states [[buffer(1)]],
+    device NMRigidStateGPU* endpoints [[buffer(2)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global < dispatch.environmentCount * dispatch.rigidProxyCount)
+        endpoints[global] = states[global];
+}
+
+kernel void nm_contact_validate_prescribed_motion(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMBridgeDispatchGPU& bridge [[buffer(1)]],
+    device const NMRigidProxyGPU* proxies [[buffer(2)]],
+    device const MRBodyStateGPU* bodies [[buffer(3)]],
+    device const NMRigidStateGPU* previous [[buffer(4)]],
+    device const NMRigidStateGPU* endpoint [[buffer(5)]],
+    device NMMatterStatusGPU* statuses [[buffer(6)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= dispatch.environmentCount * dispatch.rigidProxyCount || dispatch.rigidProxyCount == 0u) return;
+    const uint environment = global / dispatch.rigidProxyCount;
+    const uint index = global - environment * dispatch.rigidProxyCount;
+    const NMRigidProxyGPU proxy = proxies[index];
+    if ((proxy.flags & NM_RIGID_PRESCRIBED_TRANSLATION) == 0u || !environmentHealthy(statuses, environment)) return;
+    if (proxy.bodyIndex >= bridge.currentBodyCount || bridge.currentBodyStride < bridge.currentBodyCount) {
+        recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH, NM_INVALID_INDEX, index, float4(0.0f)); return;
+    }
+    const MRBodyStateGPU body = bodies[environment * bridge.currentBodyStride + proxy.bodyIndex];
+    if (body.flagsAndIndices[0] != MR_MOTION_KINEMATIC ||
+        any(body.angularVelocity.xyz != float3(0.0f)) ||
+        body.linearVelocityAndInverseMass.w != 0.0f ||
+        any(body.inverseInertiaWorldRow0.xyz != float3(0.0f)) ||
+        any(body.inverseInertiaWorldRow1.xyz != float3(0.0f)) ||
+        any(body.inverseInertiaWorldRow2.xyz != float3(0.0f)) ||
+        !finite3(body.linearVelocityAndInverseMass.xyz)) {
+        recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH, NM_INVALID_INDEX, index, float4(-3.0f)); return;
+    }
+    const NMRigidStateGPU old = previous[global], next = endpoint[global];
+    // Episode reset initializes the complete previous record to zero. The
+    // first interval's start is declared by endpoint - dt*v and checked by
+    // the nodal swept gate. Subsequent intervals bind to native accepted pose.
+    if (dot(old.orientation, old.orientation) > 0.0f) {
+        const float3 travel = bridge.time.y * next.linearVelocityAndInverseMass.xyz;
+        const float scale = max(maximumAbsoluteCoordinate(next.centerAndRadius.xyz),
+            max(maximumAbsoluteCoordinate(next.extent.xyz), maximumAbsoluteCoordinate(old.centerAndRadius.xyz)));
+        const float allowance = 8.0f * kEpsilon * max(scale, 1.0e-12f);
+        const float centerError = length(next.centerAndRadius.xyz - travel - old.centerAndRadius.xyz);
+        const float extentError = length(next.extent.xyz - travel - old.extent.xyz);
+        if (any(old.orientation != next.orientation) ||
+            old.centerAndRadius.w != next.centerAndRadius.w ||
+            !isfinite(centerError) || !isfinite(extentError) ||
+            centerError > allowance || extentError > allowance) {
+            recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE, NM_INVALID_INDEX, index,
+                float4(centerError, extentError, allowance, -4.0f));
+        }
+    }
+}
+
+kernel void nm_contact_rollback_prescribed_motion(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMRigidProxyGPU* proxies [[buffer(1)]],
+    device const NMMatterStatusGPU* statuses [[buffer(2)]],
+    device const NMRigidStateGPU* previous [[buffer(3)]],
+    device NMRigidStateGPU* states [[buffer(4)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= dispatch.environmentCount * dispatch.rigidProxyCount || dispatch.rigidProxyCount == 0u) return;
+    const uint environment = global / dispatch.rigidProxyCount;
+    const uint index = global - environment * dispatch.rigidProxyCount;
+    if ((proxies[index].flags & NM_RIGID_PRESCRIBED_TRANSLATION) != 0u &&
+        !environmentHealthy(statuses, environment)) states[global] = previous[global];
+}
+
+// Opt-in backward-Euler prescribed capsule translation. This changes only the
+// initial Newton iterate. It never changes accepted state, constraints or
+// material history; the ordinary residual/J/contact gates still own acceptance.
+inline float prescribedCapsulePathGap(const NMRigidStateGPU rigid,
+                                     const float3 first, const float3 last) {
+    // Normalize before segment closest-point algebra so SI micron increments
+    // do not fall below the generic squared-length/determinant floors.
+    const float scale = max(max(length(rigid.extent.xyz - rigid.centerAndRadius.xyz),
+        length(last - first)), max(rigid.centerAndRadius.w, 1.0e-12f));
+    float s, t; float3 p, q;
+    closestPointsOnSegments((first - rigid.centerAndRadius.xyz) / scale,
+        (last - rigid.centerAndRadius.xyz) / scale, float3(0.0f),
+        (rigid.extent.xyz - rigid.centerAndRadius.xyz) / scale, s, t, p, q);
+    return scale * length(p - q) - rigid.centerAndRadius.w;
+}
+
+kernel void nm_contact_initialize_prescribed_fem_candidate(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& micro [[buffer(1)]],
+    constant NMBridgeDispatchGPU& bridge [[buffer(2)]],
+    device const NMRigidProxyGPU* proxies [[buffer(3)]],
+    device const NMRigidStateGPU* rigidStates [[buffer(4)]],
+    device const MRBodyStateGPU* bodies [[buffer(5)]],
+    device const NMContactPairGPU* pairs [[buffer(6)]],
+    device const uint* incidence [[buffer(7)]],
+    device const NMIncidenceRangeGPU* ranges [[buffer(8)]],
+    device const NMFEMNodeStateGPU* accepted [[buffer(9)]],
+    device NMFEMNodeStateGPU* candidate [[buffer(10)]],
+    device NMMatterStatusGPU* statuses [[buffer(11)]],
+    constant NMMixedSolverGPU& solver [[buffer(12)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= dispatch.environmentCount * dispatch.femNodeCount ||
+        dispatch.femNodeCount == 0u || dispatch.contactPairCount == 0u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    if (!environmentHealthy(statuses, environment)) return;
+    const uint local = global - environment * dispatch.femNodeCount;
+    const NMIncidenceRangeGPU range = ranges[dispatch.gridNodeCount + local];
+    const NMFEMNodeStateGPU previous = accepted[global];
+    NMFEMNodeStateGPU next = candidate[global];
+    bool changed = false;
+    for (uint i = 0u; i < range.count; ++i) {
+        const uint pairIndex = incidence[range.first + i];
+        const NMContactPairGPU pair = pairs[pairIndex];
+        const NMRigidProxyGPU proxy = proxies[pair.rigidProxy];
+        if ((proxy.flags & NM_RIGID_PRESCRIBED_TRANSLATION) == 0u) continue;
+        if (proxy.bodyIndex >= bridge.currentBodyCount ||
+            bridge.currentBodyStride < bridge.currentBodyCount) {
+            recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+                pair.objectIndex, pairIndex, float4(0.0f)); return;
+        }
+        const MRBodyStateGPU body = bodies[environment * bridge.currentBodyStride + proxy.bodyIndex];
+        const NMRigidStateGPU rigid = rigidStates[environment * dispatch.rigidProxyCount + pair.rigidProxy];
+        if (body.flagsAndIndices[0] != MR_MOTION_KINEMATIC ||
+            any(body.angularVelocity.xyz != float3(0.0f)) ||
+            !finite3(body.linearVelocityAndInverseMass.xyz) || !(micro.time.x > 0.0f)) {
+            recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+                pair.objectIndex, pairIndex, float4(0.0f)); return;
+        }
+        const float3 travel = micro.time.x * body.linearVelocityAndInverseMass.xyz;
+        const float3 startInEndFrame = previous.positionAndMass.xyz + travel;
+        const float scale = max(maximumAbsoluteCoordinate(startInEndFrame),
+            maximumAbsoluteCoordinate(rigid.centerAndRadius.xyz));
+        const float floor = max(solver.contactAcceptance.x * dispatch.numericalLimits.x,
+            16.0f * kEpsilon * max(scale, 1.0e-12f));
+        float gap = INFINITY, startGap = INFINITY; float3 normal, witness, startNormal, startWitness;
+        if (!rigidWitness(proxy, rigid, next.positionAndMass.xyz, gap, normal, witness) ||
+            !rigidWitness(proxy, rigid, startInEndFrame, startGap, startNormal, startWitness) ||
+            !(startGap > floor)) {
+            recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+                pair.objectIndex, pairIndex, float4(startGap, floor, gap, 0.0f)); return;
+        }
+        if (gap <= floor) {
+            // Never resolve a tool which has crossed through the node to its
+            // opposite side. That is tunneling, not an admissible predictor.
+            if (next.restAndFixed.w != 0.0f || dot(normal, startNormal) <= 0.0f) {
+                recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+                    pair.objectIndex, pairIndex, float4(gap, floor, 0.0f, 0.0f)); return;
+            }
+            const float clearance = max(0.125f * dispatch.numericalLimits.x, 2.0f * floor);
+            const float3 shift = (clearance - gap) * normal;
+            if (next.referenceDisplacementAndMode.w == 1.0f) {
+                next.referenceDisplacementAndMode.xyz += shift;
+                next.positionAndMass.xyz = next.restAndFixed.xyz + next.referenceDisplacementAndMode.xyz;
+                next.velocityAndInverseMass.xyz = (next.referenceDisplacementAndMode.xyz -
+                    previous.referenceDisplacementAndMode.xyz) / micro.time.x;
+            } else {
+                next.positionAndMass.xyz += shift;
+                next.velocityAndInverseMass.xyz = (next.positionAndMass.xyz - previous.positionAndMass.xyz) / micro.time.x;
+            }
+            next.deltaVelocity.xyz = next.velocityAndInverseMass.xyz - previous.velocityAndInverseMass.xyz;
+            changed = true;
+        }
+        const float sweptGap = prescribedCapsulePathGap(rigid, startInEndFrame, next.positionAndMass.xyz);
+        if (!(sweptGap > floor)) {
+            recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+                pair.objectIndex, pairIndex, float4(sweptGap, floor, gap, 1.0f)); return;
+        }
+    }
+    if (changed) candidate[global] = next;
+}
+
 inline float rigidDirectionalResponse(
     const NMRigidStateGPU rigid,
     const float3 lever,
@@ -3156,9 +3332,33 @@ kernel void nm_contact_evaluate(
     if (!(normalResponse > 1.0e-12f)) {
         return;
     }
-    const float4 barrier = ipcBarrierResponse(
+    float4 barrier = ipcBarrierResponse(
         separation, slop, normalResponse, dt,
         max(-normalVelocity, 0.0f));
+    if ((proxy.flags & NM_RIGID_PRESCRIBED_TRANSLATION) != 0u) {
+        float barrierScale = 1.0f;
+        if (proxy.reserved2 != 0u) {
+            barrierScale = as_type<float>(proxy.reserved2);
+            if (!isfinite(barrierScale) || barrierScale < 1.0f ||
+                barrierScale > 100.0f) {
+                recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+                    pair.objectIndex, pairIndex,
+                    float4(barrierScale, float(proxy.reserved2), 0.0f, 0.0f));
+                return;
+            }
+            // Keep impulse, curvature, and potential stiffness on the same
+            // scaled IPC potential. The authored activation distance (z) is
+            // unchanged; zero reserved2 takes the exact legacy path.
+            barrier.x *= barrierScale;
+            barrier.y *= barrierScale;
+            barrier.w *= barrierScale;
+        }
+    } else if (proxy.reserved2 != 0u) {
+        recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+            pair.objectIndex, pairIndex,
+            float4(float(proxy.reserved2), 0.0f, 0.0f, 0.0f));
+        return;
+    }
     const float normalImpulse = barrier.x;
     const float staticFriction = sqrt(max(
         materials[object.materialIndex].interfaceResponse.x *
@@ -3258,6 +3458,8 @@ kernel void nm_contact_certify_post_commit_rigid(
     device NMMatterStatusGPU* statuses [[buffer(11)]],
     device const NMPunctureChannelGPU* punctureChannels [[buffer(12)]],
     constant NMMixedSolverGPU& solver [[buffer(13)]],
+    device const NMFEMNodeStateGPU* femCheckpoint [[buffer(14)]],
+    device const NMRigidStateGPU* prescribedEndpoints [[buffer(15)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.contactPairCount;
@@ -3315,7 +3517,9 @@ kernel void nm_contact_certify_post_commit_rigid(
         velocity = node.velocityAndInverseMass.xyz;
         inverseMass = node.velocityAndInverseMass.w;
     }
-    if (!(inverseMass > 0.0f) || !finite3(point)) return;
+    if (!finite3(point)) return;
+    if (!(inverseMass > 0.0f) &&
+        (rigidProxies[pair.rigidProxy].flags & NM_RIGID_PRESCRIBED_TRANSLATION) == 0u) return;
 
     const NMRigidProxyGPU proxy = rigidProxies[pair.rigidProxy];
     const NMSchedulerStateGPU scheduler = schedulers[
@@ -3358,6 +3562,31 @@ kernel void nm_contact_certify_post_commit_rigid(
     const float collisionThickness = max(
         solver.contactAcceptance.x * dispatch.numericalLimits.x,
         16.0f * kEpsilon * max(coordinateScale, 1.0e-12f));
+    if ((proxy.flags & NM_RIGID_PRESCRIBED_TRANSLATION) != 0u &&
+        pair.continuumNode >= dispatch.gridNodeCount) {
+        const NMRigidStateGPU expected = prescribedEndpoints[environment * dispatch.rigidProxyCount + pair.rigidProxy];
+        if (any(expected.centerAndRadius != rigid.centerAndRadius) ||
+            any(expected.extent != rigid.extent) || any(expected.orientation != rigid.orientation) ||
+            any(expected.linearVelocityAndInverseMass != rigid.linearVelocityAndInverseMass) ||
+            any(expected.angularVelocity != rigid.angularVelocity) ||
+            any(expected.bodyCenter != rigid.bodyCenter) ||
+            any(expected.inverseInertiaRow0 != rigid.inverseInertiaRow0) ||
+            any(expected.inverseInertiaRow1 != rigid.inverseInertiaRow1) ||
+            any(expected.inverseInertiaRow2 != rigid.inverseInertiaRow2)) {
+            recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+                pair.objectIndex, pairIndex, float4(float(pair.rigidProxy), -2.0f, 0.0f, 0.0f));
+            return;
+        }
+        const uint nodeIndex = pair.continuumNode - dispatch.gridNodeCount;
+        const float3 start = femCheckpoint[environment * dispatch.femNodeCount + nodeIndex].positionAndMass.xyz;
+        const float3 travel = dispatch.gravityAndTimestep.w * rigid.linearVelocityAndInverseMass.xyz;
+        const float sweptGap = prescribedCapsulePathGap(rigid, start + travel, point);
+        if (!(sweptGap > collisionThickness)) {
+            recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+                pair.objectIndex, pairIndex, float4(sweptGap, collisionThickness, float(pair.rigidProxy), -1.0f));
+            return;
+        }
+    }
     if (!isfinite(separation) || !(separation > collisionThickness)) {
         recordFailure(
             statuses[environment], NM_STATUS_CONTACT_FAILURE,

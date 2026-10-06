@@ -1,0 +1,77 @@
+{
+  "schema": "numi.cardboard.tight-resolution-trials.v1",
+  "created_utc": "2026-10-06T07:56:48.293527+00:00",
+  "baseline": "persistent-tight-001: 48 accepted steps, scalar diagonal, dt25us,32loading16hold",
+  "prediction": "Every candidate completes; no more than10% phase-end change in reaction moment and volume-weighted paper plastic-strain RMS at loading/hold ends. Failure is retained and prevents endpoint substitution.",
+  "scope": "Loading and hold only. Equal relative impulse tolerance, not equal physical force tolerance. Report force imbalance and do not claim quasi-static, released-fold or physical convergence.",
+  "trials": [
+    {
+      "name": "persistent-halfdt-001",
+      "args": [
+        "--reference-displacement-gradient",
+        "--residual-tolerance",
+        "1e-6",
+        "--newton-iterations",
+        "28",
+        "--fgmres-iterations",
+        "64",
+        "--unload-steps",
+        "0",
+        "--relax-steps",
+        "0",
+        "--dt",
+        ".0000125",
+        "--steps",
+        "64",
+        "--hold-steps",
+        "32"
+      ]
+    },
+    {
+      "name": "persistent-nx16-001",
+      "args": [
+        "--reference-displacement-gradient",
+        "--residual-tolerance",
+        "1e-6",
+        "--newton-iterations",
+        "28",
+        "--fgmres-iterations",
+        "64",
+        "--unload-steps",
+        "0",
+        "--relax-steps",
+        "0",
+        "--nx",
+        "16",
+        "--steps",
+        "32",
+        "--hold-steps",
+        "16"
+      ]
+    },
+    {
+      "name": "persistent-thickness2-001",
+      "args": [
+        "--reference-displacement-gradient",
+        "--residual-tolerance",
+        "1e-6",
+        "--newton-iterations",
+        "28",
+        "--fgmres-iterations",
+        "64",
+        "--unload-steps",
+        "0",
+        "--relax-steps",
+        "0",
+        "--thickness-slices",
+        "2",
+        "--steps",
+        "32",
+        "--hold-steps",
+        "16"
+      ]
+    }
+  ],
+  "timeout_seconds_per_run": 1800,
+  "physical_validation": false
+}

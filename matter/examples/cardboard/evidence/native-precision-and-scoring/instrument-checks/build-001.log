@@ -1,0 +1,33 @@
+[ 10%] Built target numi_matter_shaders
+[ 21%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/compiler_impl.cpp.o
+[ 21%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/validation_impl.cpp.o
+[ 26%] Building OBJCXX object CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o
+In file included from /Users/home/numi-cardboard-20261006/matter/src/compiler_impl.cpp:2:
+/Users/home/numi-cardboard-20261006/matter/src/fem_reference_geometry.hpp:130:15: error: '#pragma clang fp' can only appear at file scope or at the start of a compound statement
+In file included from /Users/home/numi-cardboard-20261006/matter/src/validation_impl.cpp:2:
+/Users/home/numi-cardboard-20261006/matter/src/fem_reference_geometry.hpp:130:15: error: '#pragma clang fp' can only appear at file scope or at the start of a compound statement
+  130 | #pragma clang fp contract(off)
+      |               ^
+  130 | #pragma clang fp contract(off)
+      |               ^
+/Users/home/numi-cardboard-20261006/matter/src/validation_impl.cpp:52:22: warning: bitwise operation between different enumeration types ('NMObjectFlags' and 'NMTetrahedronFlags') is deprecated [-Wdeprecated-enum-enum-conversion]
+   52 |     NM_OBJECT_ACTIVE |
+      |     ~~~~~~~~~~~~~~~~ ^
+   53 |     NM_TETRAHEDRON_REFERENCE_DISPLACEMENT_GRADIENT;
+      |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 warning and 1 error generated.
+make[3]: *** [CMakeFiles/numi_matter_compiler_objects.dir/src/validation_impl.cpp.o] Error 1
+make[3]: *** Waiting for unfinished jobs....
+In file included from /Users/home/numi-cardboard-20261006/matter/src/runtime.mm:6:
+/Users/home/numi-cardboard-20261006/matter/src/fem_reference_geometry.hpp:130:15: error: '#pragma clang fp' can only appear at file scope or at the start of a compound statement
+  130 | #pragma clang fp contract(off)
+      |               ^
+1 error generated.
+make[3]: *** [CMakeFiles/numi_matter_compiler_objects.dir/src/compiler_impl.cpp.o] Error 1
+make[2]: *** [CMakeFiles/numi_matter_compiler_objects.dir/all] Error 2
+make[2]: *** Waiting for unfinished jobs....
+1 error generated.
+make[3]: *** [CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o] Error 1
+make[2]: *** [CMakeFiles/numi_matter_runtime_objects.dir/all] Error 2
+make[1]: *** [CMakeFiles/numi-matter-cardboard-probe.dir/rule] Error 2
+make: *** [numi-matter-cardboard-probe] Error 2

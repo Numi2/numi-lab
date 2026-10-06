@@ -1,0 +1,74 @@
+{
+  "hajali2009_medium_hill_ideal.nmatter": {
+    "sha256": "ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8",
+    "archive": "source-snapshots/ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8-hajali2009_medium_hill_ideal.nmatter.gz"
+  },
+  "compiler_impl.cpp": {
+    "sha256": "ebe37669d5869736066600145eb9ea7c2437a58247bfd86e27f4dd9e8f74518d",
+    "archive": "source-snapshots/ebe37669d5869736066600145eb9ea7c2437a58247bfd86e27f4dd9e8f74518d-compiler_impl.cpp.gz"
+  },
+  "mixed_fem.metalinc": {
+    "sha256": "5042632a1d44d12cabbc3d09fa6dc9c9f40ac51b3f81ab733ccedd95b58b4f0a",
+    "archive": "source-snapshots/5042632a1d44d12cabbc3d09fa6dc9c9f40ac51b3f81ab733ccedd95b58b4f0a-mixed_fem.metalinc.gz"
+  },
+  "fem_reference_geometry.hpp": {
+    "sha256": "29984e3d7cad38b82253320feca1ffeb8df58b66ca48102755856ffcad125e67",
+    "archive": "source-snapshots/29984e3d7cad38b82253320feca1ffeb8df58b66ca48102755856ffcad125e67-fem_reference_geometry.hpp.gz"
+  },
+  "cardboard_tooling.hpp": {
+    "sha256": "db98b29d39895054ca25cedcc8e3adc67c4304bc083a6453eab660e9858b6ded",
+    "archive": "source-snapshots/db98b29d39895054ca25cedcc8e3adc67c4304bc083a6453eab660e9858b6ded-cardboard_tooling.hpp.gz"
+  },
+  "hajali2009_liner_hill_ideal.nmatter": {
+    "sha256": "787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d",
+    "archive": "source-snapshots/787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d-hajali2009_liner_hill_ideal.nmatter.gz"
+  },
+  "fgmres.metalinc": {
+    "sha256": "b5605b0973754852204f882e3cf4ed1330b8159bb2eec0ba88826e22f6111f60",
+    "archive": "source-snapshots/b5605b0973754852204f882e3cf4ed1330b8159bb2eec0ba88826e22f6111f60-fgmres.metalinc.gz"
+  },
+  "cardboard_glue_mesh.hpp": {
+    "sha256": "d2668155580cdbdd09411d6cdac6a367a726e909d5dd6d4c9770e8f3822d0146",
+    "archive": "source-snapshots/d2668155580cdbdd09411d6cdac6a367a726e909d5dd6d4c9770e8f3822d0146-cardboard_glue_mesh.hpp.gz"
+  },
+  "shared.h": {
+    "sha256": "96426161d707dd5ebbcff5de02bff291cdcdfb14f3ceaa13b1811899c4aff5d0",
+    "archive": "source-snapshots/96426161d707dd5ebbcff5de02bff291cdcdfb14f3ceaa13b1811899c4aff5d0-shared.h.gz"
+  },
+  "cardboard_probe.mm": {
+    "sha256": "6522c306744f9a48313c740cdc2ebf8d28cf7e779148f00ee64b0c5119cd8cc7",
+    "archive": "source-snapshots/6522c306744f9a48313c740cdc2ebf8d28cf7e779148f00ee64b0c5119cd8cc7-cardboard_probe.mm.gz"
+  },
+  "common.metalinc": {
+    "sha256": "f1f7852fa95b119ad56c1b7d7da4422e9be8dac40806317b8cd1c4ed06bc640f",
+    "archive": "source-snapshots/f1f7852fa95b119ad56c1b7d7da4422e9be8dac40806317b8cd1c4ed06bc640f-common.metalinc.gz"
+  },
+  "validation_impl.cpp": {
+    "sha256": "b9b49de5519283e002546a816f40fa0084283d61fe6a21a89e13a5918c1cf0b2",
+    "archive": "source-snapshots/b9b49de5519283e002546a816f40fa0084283d61fe6a21a89e13a5918c1cf0b2-validation_impl.cpp.gz"
+  },
+  "matter.hpp": {
+    "sha256": "912abb070f35a76e3c6e909b4ae7788e9ffdf4206291003a9776784811ec2f77",
+    "archive": "source-snapshots/912abb070f35a76e3c6e909b4ae7788e9ffdf4206291003a9776784811ec2f77-matter.hpp.gz"
+  },
+  "cardboard_box_blank.hpp": {
+    "sha256": "bb07194cc135e51413fcdaff0445fa5992a7b386ccf4e7feeacfb4d9f2b25da3",
+    "archive": "source-snapshots/bb07194cc135e51413fcdaff0445fa5992a7b386ccf4e7feeacfb4d9f2b25da3-cardboard_box_blank.hpp.gz"
+  },
+  "fem.metalinc": {
+    "sha256": "bb985969bd5ebcda5e56d36c9cede6386a1a23ac917a583611225a15e7de7ff7",
+    "archive": "source-snapshots/bb985969bd5ebcda5e56d36c9cede6386a1a23ac917a583611225a15e7de7ff7-fem.metalinc.gz"
+  },
+  "starch2007_finite_glue_elastic.nmatter": {
+    "sha256": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1",
+    "archive": "source-snapshots/39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1-starch2007_finite_glue_elastic.nmatter.gz"
+  },
+  "runtime.mm": {
+    "sha256": "df2109ef180838e87723ab234191ac2e19e711d05aad88b72a3c8449d652e925",
+    "archive": "source-snapshots/df2109ef180838e87723ab234191ac2e19e711d05aad88b72a3c8449d652e925-runtime.mm.gz"
+  },
+  "contact.metalinc": {
+    "sha256": "9416d54a64dcb96fd267b7a379938293547bea313b7f3aa2394ab844cb88435a",
+    "archive": "source-snapshots/9416d54a64dcb96fd267b7a379938293547bea313b7f3aa2394ab844cb88435a-contact.metalinc.gz"
+  }
+}

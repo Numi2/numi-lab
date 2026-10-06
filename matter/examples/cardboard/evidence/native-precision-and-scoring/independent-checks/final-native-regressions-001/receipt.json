@@ -1,0 +1,32 @@
+{
+  "created_utc": "2026-10-06T08:57:03.935446+00:00",
+  "purpose": "Final native regression after opt-in scratch allocation guard; source/binary checks, not physical calibration",
+  "native_suites_passed": 9,
+  "bindings": {
+    "/Users/home/numi-cardboard-20261006/matter/src/runtime.mm": "a1c1bae6f0c6a61a703969a0994026f6fa46d7ec579bccf51d07d6b1107abda3",
+    "/Users/home/numi-cardboard-20261006/matter/src/metal/contact.metalinc": "9416d54a64dcb96fd267b7a379938293547bea313b7f3aa2394ab844cb88435a",
+    "/Users/home/numi-cardboard-20261006/matter/src/metal/fem.metalinc": "bb985969bd5ebcda5e56d36c9cede6386a1a23ac917a583611225a15e7de7ff7",
+    "/Users/home/numi-cardboard-20261006/matter/src/metal/fgmres.metalinc": "b5605b0973754852204f882e3cf4ed1330b8159bb2eec0ba88826e22f6111f60",
+    "/Users/home/numi-cardboard-20261006/matter/include/numi/matter/shared.h": "9d86ad9bd7a322621c6cb8d5f5517b7288da4410a3112a08eb6dda9483093b4f",
+    "/Users/home/numi-cardboard-20261006/build-cardboard/shaders/NumiMatter.metallib": "d3c5d8ed5fda79305761338a4ed615c2399db0575e5c50efa31c523700deb4c9",
+    "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-cardboard-barrier-scale-check": "a2c95bfefcae1c5720e0cf3408caa2bbc092c72bb7912cb2beeea25c0847db1d",
+    "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-cardboard-box-blank-check": "d7da76af1b5ba1c2626627f2c4f7698c73151de52f9f4fd9386a3573a023079e",
+    "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-fem-kinematic-release-check": "4b131700137f110f4ca96975da53d62853ab583b70f8266de4f37f4ac541885e",
+    "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-cardboard-paper-gpu-check": "ef1fb85d3bce0a17950984ef9277f03549a505cb51a2050176d515d630f3e41b",
+    "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-cardboard-tooling-native-check": "8b56331c99830953198e1b886e3a9655860c1c321cb6a21fc28ed6ccb9cddcdd",
+    "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-fem-regional-material-check": "5e0c545b19810fbf1c54a083001cfb35d12b1928e99ae5bf9999a32a7e196bba",
+    "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-cardboard-paper-material-check": "05b06fc78ec97ad3451fb6e82e82c4cd003d548d80ced5fd743a7bb275802146",
+    "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-cardboard-delamination-gpu-check": "1a8107e0a6264f9f122afcf07b7bb579ab73c54a1a01850c74afeeaa327c0e23",
+    "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-cardboard-tooling-check": "1762dd129658a0e84740d1ae7949c933748ac4e7299f93d66c90c03b2fa5c35a",
+    "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-cardboard-material-check": "bc38c78a659b8af1b79f3a040e4ad608af7c50c9d3728ee39d9280727a45223b",
+    "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-fem-material-frame-check": "84cb35fe4d4bc9b8f812e2f7853284939f26a4100c44eb822635d5177445fa9b",
+    "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-fem-reference-check": "40cb4c0b6578c1a070e7263662b1f6c752af8a750c4dcdaa62840768d66d7cdf",
+    "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-cardboard-gpu-check": "4f618dc1719e19c81342744d52876e399913fba6b890484dab95bd0f2a7948b1",
+    "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-cardboard-preconditioner-gpu-check": "996b2aeb793687902347f3b56ec5b55e3afd6a0e58b28918547c735eb46868ab",
+    "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-cardboard-profile-check": "8159d9ded974d49104aca894098549063374c4340924fe8b7f50244aab200b9f",
+    "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-stateful-check": "d5553f0e65565eda91d101d20841a66a596e034406338441b5c44deb48b4bbf4",
+    "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-cardboard-glue-mesh-check": "1d5f9ead9aaf3ae6af9e81222801492b5ec7190d55d2382007eee8fec7c86b59",
+    "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-cardboard-delamination-reference-check": "7caea115515a596ab9b5587953a52864a35e555c456ab6c0e3bd89d439e215dc",
+    "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-fem-material-frame-compiler-check": "a7578d61a56c406b29eb85735bef9a341bde2b3eb4b987feb026c5822c21efd8"
+  }
+}

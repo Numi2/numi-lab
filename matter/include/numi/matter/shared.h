@@ -39,7 +39,7 @@ typedef struct NM_ALIGN16 nm_int4 {
 } nm_int4;
 #endif
 
-#define NM_MATTER_ABI_VERSION 39u
+#define NM_MATTER_ABI_VERSION 40u
 #define NM_INVALID_INDEX 0xffffffffu
 #define NM_VASCULAR_TISSUE_MOMENTUM_TRANSFER 0x80000000u
 #define NM_EXPRESSION_STACK_CAPACITY 96u
@@ -184,6 +184,12 @@ enum NMObjectFlags : nm_u32 {
     NM_OBJECT_FEM_MATERIAL_FRAME = 1u << 9u,
     NM_OBJECT_FEM_REGIONAL_MATERIAL = 1u << 10u,
     NM_OBJECT_FEM_REFERENCE_CONFIGURATION = 1u << 11u,
+    // Use F = I + grad(x - X) for explicit FEM elements with authored X.
+    NM_OBJECT_FEM_REFERENCE_DISPLACEMENT_GRADIENT = 1u << 12u,
+};
+
+enum NMTetrahedronFlags : nm_u32 {
+    NM_TETRAHEDRON_REFERENCE_DISPLACEMENT_GRADIENT = 1u << 1u,
 };
 
 enum NMFieldBoundaryFlags : nm_u32 {
@@ -262,6 +268,8 @@ enum NMRigidBindingFlags : nm_u32 {
     // the sharp tip admits fracture. Only an explicitly flagged capsule or
     // circular arc on the same body may dilate that tract.
     NM_RIGID_PUNCTURE_DILATOR = 1u << 4u,
+    // Endpoint-authoritative translating kinematic capsule; native feasible predictor and swept nodal certificate.
+    NM_RIGID_PRESCRIBED_TRANSLATION = 1u << 5u,
 };
 
 enum NMResetFlags : nm_u32 {
@@ -358,7 +366,7 @@ typedef struct NM_ALIGN16 NMMatterDispatchGPU {
 typedef struct NM_ALIGN16 NMMixedSolverGPU {
     // Newton, FGMRES restart, total FGMRES, determinant backtracking.
     nm_uint4 nonlinearIterations;
-    // Field-smoother passes, mutation restarts, reserved, reserved.
+    // Field-smoother passes, mutation restarts, FEM preconditioner selector, reserved.
     nm_uint4 executionBudgets;
     // Equilibrium, volume, pressure, and transport relative residuals.
     nm_float4 residualTolerances;
@@ -620,7 +628,7 @@ typedef struct NM_ALIGN16 NMFEMTopologyStateGPU {
     nm_uint4 counts;
     // accepted arena, candidate arena, checkpoint arena, generation.
     nm_uint4 roles;
-    // conserved mass, removed mass, removed energy, cohesive energy.
+    // conserved mass, removed mass, removed energy, separated cohesive-face area (m^2).
     nm_float4 accounting;
 } NMFEMTopologyStateGPU;
 
@@ -949,6 +957,9 @@ typedef struct NM_ALIGN16 NMFEMNodeStateGPU {
     nm_float4 velocityAndInverseMass;
     nm_float4 restAndFixed;
     nm_float4 deltaVelocity;
+    // Opt-in reference-displacement FEM stores the authoritative FP32
+    // displacement u in xyz and mode tag 1 in w. Legacy nodes require zero.
+    nm_float4 referenceDisplacementAndMode;
 } NMFEMNodeStateGPU;
 
 typedef struct NM_ALIGN16 NMTetrahedronGPU {
@@ -1022,6 +1033,8 @@ typedef struct NM_ALIGN16 NMRigidProxyGPU {
     // the same dynamic non-articulated body shares one index; all other
     // proxies carry NM_INVALID_INDEX.
     nm_u32 generalizedFreeBodyIndex;
+    // IEEE FP32 prescribed-tool barrier scale bits. Zero is the exact legacy
+    // scale 1.0; nonzero is legal only with NM_RIGID_PRESCRIBED_TRANSLATION.
     nm_u32 reserved2;
 
     // body-local center or plane normal; w radius or plane offset.
@@ -1244,7 +1257,7 @@ static_assert(sizeof(NMVascularCavityGPU) == 96);
 static_assert(sizeof(NMVascularCavityFaceGPU) == 32);
 static_assert(sizeof(NMFEMHumanAttachmentGPU) == 32);
 static_assert(alignof(NMFEMHumanAttachmentGPU) == 16);
-static_assert(sizeof(NMFEMNodeStateGPU) % 16 == 0);
+static_assert(sizeof(NMFEMNodeStateGPU) == 80);
 static_assert(sizeof(NMAdaptiveStateGPU) == 160);
 static_assert(sizeof(NMSchedulerStateGPU) == 80);
 static_assert(sizeof(NMEventTokenGPU) == 48);

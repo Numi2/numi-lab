@@ -1,0 +1,61 @@
+{
+  "schema": "numi.cardboard.nonlinear-iterate-diagnostic.v1",
+  "created_utc": "2026-10-06T09:36:03.683982+00:00",
+  "question": "Does the rejected refined-length increment exhibit nonmonotonic nonlinear residual under near-full Newton steps?",
+  "prediction": "At least one iteration with final alpha >=0.99 increases the next reassembled residual norm by more than 10 percent while its inner Arnoldi estimate reports convergence. Report contradictions and every iteration, not only selected peaks.",
+  "scope": "Read-only numerical diagnostic. The Arnoldi residual is an estimate, not direct b-Ax. Nonlinear growth alone cannot identify its cause; no physics thresholds or globalization are changed. Compare two failed candidates without treating them as accepted endpoints.",
+  "instrument": "NM_FEM_NEWTON_TRACE_ROOT=0; compact GPU snapshots of stored pre-Newton nonlinear norm, alpha stages, Arnoldi diagnostics, status and terminal certificate. No extra numerical kernels.",
+  "controls": "Same source/binary/material hashes and identical mesh/first grip increment; only Krylov budget differs. Compare observation CSVs against earlier untraced first-increment outcomes.",
+  "trials": [
+    {
+      "name": "nx16-k64-newton-trace-001",
+      "args": [
+        "--reference-displacement-gradient",
+        "--residual-tolerance",
+        "1e-6",
+        "--newton-iterations",
+        "28",
+        "--hold-steps",
+        "0",
+        "--unload-steps",
+        "0",
+        "--relax-steps",
+        "0",
+        "--nx",
+        "16",
+        "--steps",
+        "1",
+        "--bend-angle",
+        ".0078125",
+        "--fgmres-iterations",
+        "64"
+      ]
+    },
+    {
+      "name": "nx16-k256-newton-trace-001",
+      "args": [
+        "--reference-displacement-gradient",
+        "--residual-tolerance",
+        "1e-6",
+        "--newton-iterations",
+        "28",
+        "--hold-steps",
+        "0",
+        "--unload-steps",
+        "0",
+        "--relax-steps",
+        "0",
+        "--nx",
+        "16",
+        "--steps",
+        "1",
+        "--bend-angle",
+        ".0078125",
+        "--fgmres-iterations",
+        "256"
+      ]
+    }
+  ],
+  "timeout_seconds_per_run": 900,
+  "physical_validation": false
+}

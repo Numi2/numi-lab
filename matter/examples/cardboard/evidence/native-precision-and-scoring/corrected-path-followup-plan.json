@@ -1,0 +1,68 @@
+{
+  "schema": "numi.cardboard.corrected-path-followup.v1",
+  "created_utc": "2026-10-06T07:35:11.039187+00:00",
+  "prior_result": "Persistent displacement passes48 load/hold at1e-6 but firstloadedstep fails1e-8 with residual2.3138374e-7 and forceL2.00925535N; referencezero. No1e-8 endpoint substituted.",
+  "predictions": {
+    "tool20": "all96steps at20um travel accepted with corrected prescribed tool predictor, positive sampled gaps and force inloadedarm; stationaryarm remainszero",
+    "tool50": "samepath50um all96steps accepted; deepernonlinearrejection retained ifhypothesisfalse",
+    "box": "4308node/10356tet blank accepts2zero-loadsteps with exactlyzeromotion",
+    "resolution": "persistent-u1e-6 load/hold atdt12.5us96steps andnx16at25us48steps have <=10% phase-end moment/plastic-RMS change againstexisting48stepbaseline; thickness2alsoaccepts48steps"
+  },
+  "scope": "Numerical load/hold screen, not completeunload/release or physicalcalibration; fixedrelativeimpulsetolerance gives twiceforceboundonhalfdt, measuredforceimbalance must bereported.",
+  "trials": [
+    {
+      "name": "predictor20-001",
+      "args": [
+        "--crease",
+        "--prescribed-tool-predictor",
+        "--reference-displacement-gradient",
+        "--steps",
+        "32",
+        "--hold-steps",
+        "16",
+        "--unload-steps",
+        "32",
+        "--relax-steps",
+        "16",
+        "--indent-mm",
+        ".020"
+      ]
+    },
+    {
+      "name": "predictor50-001",
+      "args": [
+        "--crease",
+        "--prescribed-tool-predictor",
+        "--reference-displacement-gradient",
+        "--steps",
+        "32",
+        "--hold-steps",
+        "16",
+        "--unload-steps",
+        "32",
+        "--relax-steps",
+        "16",
+        "--indent-mm",
+        ".050"
+      ]
+    },
+    {
+      "name": "box-rest-001",
+      "args": [
+        "--box-blank",
+        "--bend-angle",
+        "0",
+        "--steps",
+        "2",
+        "--hold-steps",
+        "0",
+        "--unload-steps",
+        "0",
+        "--relax-steps",
+        "0"
+      ]
+    }
+  ],
+  "stopping_rule": "Firstnative rejectionperrun;900sperrun for tool/box. Resolutionrunnercap1800sexplicitlyextendedbeforetrials, retains anytimeout.",
+  "physical_validation": false
+}

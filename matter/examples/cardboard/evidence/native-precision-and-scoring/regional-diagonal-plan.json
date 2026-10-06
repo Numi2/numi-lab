@@ -1,0 +1,59 @@
+{
+  "schema": "numi.cardboard.regional-diagonal-prediction.v1",
+  "created_utc": "2026-10-06T08:04:44.345155+00:00",
+  "question": "Does the production regional constitutive diagonal improve convergence at the same native residual gate?",
+  "intervention": "Opt-in anisotropic regional FEM diagonal, built once per Newton; default scalar mode unchanged. Independent direct GPU FD oracle passed at <2.8e-5 relative error.",
+  "prediction": "Both1e-8 and1e-6 first-loading-increment trials accept with lower terminal force imbalance than scalar1e-8 rejection (residual2.31384e-7). If1e-8 still rejects, retain rejection; do not lower gate or claim tighter equilibrium.",
+  "trials": [
+    {
+      "name": "regional-1e8-001",
+      "args": [
+        "--reference-displacement-gradient",
+        "--fgmres-preconditioner",
+        "regional-tangent-diagonal",
+        "--newton-iterations",
+        "28",
+        "--fgmres-iterations",
+        "64",
+        "--steps",
+        "1",
+        "--bend-angle",
+        ".0078125",
+        "--hold-steps",
+        "0",
+        "--unload-steps",
+        "0",
+        "--relax-steps",
+        "0",
+        "--residual-tolerance",
+        "1e-8"
+      ]
+    },
+    {
+      "name": "regional-1e6-001",
+      "args": [
+        "--reference-displacement-gradient",
+        "--fgmres-preconditioner",
+        "regional-tangent-diagonal",
+        "--newton-iterations",
+        "28",
+        "--fgmres-iterations",
+        "64",
+        "--steps",
+        "1",
+        "--bend-angle",
+        ".0078125",
+        "--hold-steps",
+        "0",
+        "--unload-steps",
+        "0",
+        "--relax-steps",
+        "0",
+        "--residual-tolerance",
+        "1e-6"
+      ]
+    }
+  ],
+  "timeout_seconds_per_run": 900,
+  "physical_validation": false
+}

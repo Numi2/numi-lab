@@ -3,6 +3,7 @@
 #include <CommonCrypto/CommonDigest.h>
 
 #include "cardboard_glue_mesh.hpp"
+#include "cardboard_box_blank.hpp"
 #include "cardboard_tooling.hpp"
 #include "metalrobo/engine_types.h"
 #include "numi/matter/language.hpp"
@@ -59,6 +60,11 @@ struct Arguments {
     double upperBondWidthM = 0.0;
     bool disableSelfContact = false;
     bool crease = false;
+    bool prescribedToolPredictor = false;
+    double prescribedToolBarrierStiffnessScale = 1.0;
+    bool boxBlank = false;
+    numi::cardboard::FEFCO0201BlankConfig boxConfig;
+    bool referenceDisplacementGradient = false;
     double indentationM = 0.000020;
     double punchRadiusM = 0.000750;
     double toolClearanceM = 0.000010;
@@ -73,6 +79,8 @@ struct Arguments {
     std::uint32_t relaxSteps = 0u;
     std::uint32_t releaseSteps = 0u;
     std::uint32_t fgmresIterations = NM_MIXED_FGMRES_ITERATIONS;
+    FEMPreconditionerMode femPreconditioner =
+        FEMPreconditionerMode::scalarDiagonal;
     std::uint32_t localMaterialIterations = 8u;
     std::uint32_t newtonIterations = NM_MIXED_NEWTON_ITERATIONS;
     std::uint32_t nxPerPitch = 16u;
@@ -113,6 +121,7 @@ struct MeshSource {
     std::string frameMapDigest;
     std::vector<numi::cardboard::GlueFootprint> glueFootprints;
     std::optional<numi::cardboard::CreaseToolingGeometry> tooling;
+    std::optional<numi::cardboard::FEFCO0201Blank> boxBlank;
 };
 
 struct Digest {
@@ -218,6 +227,10 @@ void printUsage() {
         << "  --preset nagasawa2013|literature2009 (default literature2009)\n"
         << "  --upper-glue-gap-mm N --upper-bond-width-mm N  asymmetric glue (0 uses lower value)\n"
         << "  --residual-tolerance N tighten nonlinear residual threshold (default 1e-4)\n"
+        << "  --reference-displacement-gradient  opt in to immutable-reference FEM arithmetic\n"
+        << "  --prescribed-tool-predictor  native feasible initial guess and swept node/punch certificate\n"
+        << "  --prescribed-tool-barrier-scale N  punch IPC stiffness multiplier [1,100] (default 1; study arms 1,2,4)\n"
+        << "  --box-blank           FEFCO0201 flat blank native rest check; requires --bend-angle 0\n"
         << "  --crease              rounded punch indentation; grips held at zero rotation\n"
         << "  --indent-mm N --punch-radius-mm N --tool-clearance-mm N --anvil-clearance-mm N\n"
         << "  --without-self-contact  numerical control only for the finite-glue mesh\n"
@@ -231,6 +244,7 @@ void printUsage() {
         << "  --newton-iterations N  global nonlinear budget (1..64)\n"
         << "  --material-iterations N  local constitutive Newton budget (1..16)\n"
         << "  --fgmres-iterations N  Krylov-column budget (max 256)\n"
+        << "  --fgmres-preconditioner scalar|regional-tangent-diagonal\n"
         << "  --bend-angle DEGREES   final right-grip rotation\n"
         << "  --dt SECONDS           frame timestep\n"
         << "  --nx N                 cross-section subdivisions per flute pitch\n"
@@ -290,7 +304,10 @@ Arguments parseArguments(const int argc, const char* argv[]) {
     }
     for (int index = 1; index < argc; ++index) {
         const std::string option = argv[index];
+        if (option == "--box-blank") { arguments.boxBlank = true; continue; }
+        if (option == "--prescribed-tool-predictor") { arguments.prescribedToolPredictor = true; continue; }
         if (option == "--crease") { arguments.crease = true; continue; }
+        if (option == "--reference-displacement-gradient") { arguments.referenceDisplacementGradient = true; continue; }
         if (option == "--without-self-contact") { arguments.disableSelfContact = true; continue; }
         if (option == "--help" || option == "-h") {
             arguments.help = true;
@@ -312,6 +329,8 @@ Arguments parseArguments(const int argc, const char* argv[]) {
         else if (option == "--tool-clearance-mm") arguments.toolClearanceM = parseDouble(value, option) * 1e-3;
         else if (option == "--anvil-clearance-mm") arguments.anvilClearanceM = parseDouble(value, option) * 1e-3;
         else if (option == "--residual-tolerance") arguments.relativeResidualTolerance = parseDouble(value, option);
+        else if (option == "--prescribed-tool-barrier-scale")
+            arguments.prescribedToolBarrierStiffnessScale = parseDouble(value, option);
         else if (option == "--newton-iterations") arguments.newtonIterations = parseUnsigned(value, option);
         else if (option == "--material-iterations") arguments.localMaterialIterations = parseUnsigned(value, option);
         else if (option == "--preset") arguments.preset = value;
@@ -330,6 +349,17 @@ Arguments parseArguments(const int argc, const char* argv[]) {
         else if (option == "--release-steps") arguments.releaseSteps = parseUnsigned(value, option);
         else if (option == "--fgmres-iterations")
             arguments.fgmresIterations = parseUnsigned(value, option);
+        else if (option == "--fgmres-preconditioner") {
+            if (value == "scalar")
+                arguments.femPreconditioner =
+                    FEMPreconditionerMode::scalarDiagonal;
+            else if (value == "regional-tangent-diagonal")
+                arguments.femPreconditioner =
+                    FEMPreconditionerMode::regionalTangentDiagonal;
+            else
+                require(false, "--fgmres-preconditioner expects scalar or "
+                               "regional-tangent-diagonal");
+        }
         else if (option == "--nx") arguments.nxPerPitch = parseUnsigned(value, option);
         else if (option == "--ny") arguments.ny = parseUnsigned(value, option);
         else if (option == "--thickness-slices")
@@ -353,6 +383,25 @@ Arguments parseArguments(const int argc, const char* argv[]) {
         else require(false, "unknown option: " + option);
     }
 
+    if (arguments.boxBlank) {
+        require(arguments.preset == "literature2009" && !arguments.withoutMedium &&
+                !arguments.crease && arguments.releaseSteps == 0u && arguments.bendAngleDegrees == 0.0,
+                "box blank mode requires literature2009, medium, zero bend and no crease/release; assembly targets are not executed");
+        arguments.boxConfig = {4.0 * arguments.pitchM, 3.0 * arguments.pitchM,
+            4.0 * arguments.pitchM, arguments.pitchM, 0.2 * arguments.pitchM, arguments.ny};
+        arguments.lengthM = 15.0 * arguments.pitchM;
+        arguments.widthM = 7.0 * arguments.pitchM;
+        arguments.referenceDisplacementGradient = true;
+    }
+
+    require(!arguments.prescribedToolPredictor || arguments.crease, "prescribed tool predictor requires crease mode");
+    require(std::isfinite(arguments.prescribedToolBarrierStiffnessScale) &&
+                arguments.prescribedToolBarrierStiffnessScale >= 1.0 &&
+                arguments.prescribedToolBarrierStiffnessScale <= 100.0,
+            "prescribed tool barrier scale must be finite and in [1, 100]");
+    require(arguments.prescribedToolBarrierStiffnessScale == 1.0 ||
+                arguments.prescribedToolPredictor,
+            "nondefault prescribed tool barrier scale requires --prescribed-tool-predictor");
     if (arguments.crease) {
         require(arguments.releaseSteps == 0u, "crease mode does not release end grips");
         require(arguments.indentationM >= 0.0 && arguments.indentationM < arguments.totalHeightM &&
@@ -754,6 +803,8 @@ MeshSource buildMesh(const Arguments& arguments,
             crossSection.triangle({remap.at(cell.points[0]), remap.at(cell.points[1]), remap.at(cell.points[2])},
                 static_cast<std::uint32_t>(cell.material), cell.frameAngle);
         result.glueFootprints = glued.glueFootprints;
+        if (arguments.boxBlank)
+            result.boxBlank = numi::cardboard::buildFEFCO0201Blank(arguments.boxConfig, glued);
     }
     const std::uint32_t pointsPerSlice =
         static_cast<std::uint32_t>(crossSection.points().size());
@@ -771,8 +822,17 @@ MeshSource buildMesh(const Arguments& arguments,
             addPrism(triangle, ySlice, pointsPerSlice, result.restNodes,
                      result.tetrahedra);
 
+    if (result.boxBlank) {
+        result.restNodes.clear();
+        result.tetrahedra.clear();
+        for (const auto& point : result.boxBlank->points)
+            result.restNodes.push_back({point.x, point.y, point.z});
+        for (const auto& tet : result.boxBlank->tetrahedra)
+            result.tetrahedra.push_back({tet.nodes, static_cast<std::uint32_t>(tet.material), tet.frameAngle});
+    }
+
     ObjectSource object;
-    object.name = arguments.withoutMedium
+    object.name = arguments.boxBlank ? "cardboard_fefco0201_unscored_flat_blank" : arguments.withoutMedium
         ? "cardboard_two_liner_bending_control"
         : "cardboard_explicit_sinusoidal_corrugated_strip";
     object.materialIndex = 0u;
@@ -794,6 +854,17 @@ MeshSource buildMesh(const Arguments& arguments,
         object.tetrahedra.push_back({tetrahedron.nodes});
         result.materialIndices.push_back(tetrahedron.materialIndex);
         result.materialFrames.push_back(frameQuaternion(tetrahedron.frameAngle));
+    }
+
+    if (arguments.referenceDisplacementGradient) {
+        require(!arguments.withoutMedium, "reference-displacement arithmetic requires regional materials");
+        object.femReferenceDisplacementGradient = true;
+        object.femReferenceNodes = object.femNodes;
+        std::ostringstream referenceSource;
+        referenceSource << "numi.cardboard.stress-free-authored-reference.v1\n" << std::setprecision(17);
+        for (const auto& node : object.femReferenceNodes)
+            referenceSource << node[0] << ',' << node[1] << ',' << node[2] << '\n';
+        object.femReferenceSourceIdentity = digestIdentity(sha256(referenceSource.str()));
     }
 
     const double gripTolerance = 1.0e-10;
@@ -821,6 +892,7 @@ MeshSource buildMesh(const Arguments& arguments,
     result.world.deterministic = true;
     result.world.mixedSolver.relativeResidual = arguments.relativeResidualTolerance;
     result.world.mixedSolver.fgmresIterations = arguments.fgmresIterations;
+    result.world.mixedSolver.femPreconditioner = arguments.femPreconditioner;
     result.world.mixedSolver.newtonIterations = arguments.newtonIterations;
     result.world.materials = {linerMaterial, mediumMaterial};
     if (glueMaterial != nullptr) result.world.materials.push_back(*glueMaterial);
@@ -889,6 +961,9 @@ MeshSource buildMesh(const Arguments& arguments,
         spec.supportEndOverhang = 0.002; spec.supportThickness = 0.003;
         spec.initialClearance = arguments.toolClearanceM; spec.punchBodyIndex = 0u;
         auto geometry = numi::cardboard::makeCreaseTooling(spec);
+        geometry.punch.prescribedEndPoseTranslation = arguments.prescribedToolPredictor;
+        geometry.punch.prescribedBarrierStiffnessScale =
+            arguments.prescribedToolBarrierStiffnessScale;
         geometry.support.localCenter[0] += 0.5 * arguments.lengthM;
         geometry.support.localCenter[1] += 0.5 * arguments.widthM;
         geometry.punchInitialPose.translation.x += 0.5 * arguments.lengthM;
@@ -1023,6 +1098,111 @@ void writeInitialObj(const std::filesystem::path& path,
     writeObj(path, world, nodes, 0u);
 }
 
+void writeBoxLayout(const std::filesystem::path& path, const MeshSource& mesh) {
+    if (!mesh.boxBlank) return;
+    const auto& blank = *mesh.boxBlank;
+    std::ofstream output(path);
+    require(output.good(), "cannot create box layout");
+    const auto jsonIndexSemantics = [](const numi::cardboard::BoxAssemblyFeatureKind kind) {
+        switch (kind) {
+            case numi::cardboard::BoxAssemblyFeatureKind::panel:
+                return "zero-based index into panels";
+            case numi::cardboard::BoxAssemblyFeatureKind::scoreLine:
+                return "zero-based index into score_lines";
+            case numi::cardboard::BoxAssemblyFeatureKind::manufacturerJoint:
+                return "0 identifies the manufacturer_joint object";
+            case numi::cardboard::BoxAssemblyFeatureKind::boxEnd:
+                return "zero-based index into box_ends: 0=bottom, 1=top";
+        }
+        return "unknown feature index semantics";
+    };
+    const auto rootScoreLine = std::find_if(
+        blank.scoreLines.begin(), blank.scoreLines.end(), [](const auto& line) {
+            return line.kind == numi::cardboard::BoxScoreKind::manufacturerJointRoot;
+        });
+    require(rootScoreLine != blank.scoreLines.end(),
+            "box layout has no manufacturer-joint root score line");
+    const auto rootScoreLineIndex = static_cast<std::size_t>(
+        std::distance(blank.scoreLines.begin(), rootScoreLine));
+
+    output << std::setprecision(17)
+        << "{\n  \"schema\": \"numi.cardboard.fefco0201-layout.v2\",\n"
+        << "  \"units\": \"metres\",\n  \"state\": \"flat_unscored_blank\",\n"
+        << "  \"physical_assembly\": false,\n  \"dimensions\": {\"panel_length\": " << blank.config.panelLength
+        << ", \"panel_width\": " << blank.config.panelWidth << ", \"wall_height\": " << blank.config.wallHeight
+        << ", \"joint_width\": " << blank.config.manufacturerJointWidth << ", \"slot_kerf\": " << blank.config.slotKerf
+        << ", \"board_caliper\": " << blank.boardCaliper
+        << ", \"perimeter_span\": " << blank.perimeterSpan
+        << ", \"blank_height\": " << blank.blankHeight
+        << ", \"bottom_score_y\": " << blank.bottomScoreY
+        << ", \"top_score_y\": " << blank.topScoreY
+        << ", \"flap_depth\": " << blank.topFlapDepth << "},\n"
+        << "  \"panels\": [\n";
+    for (std::size_t i = 0; i < blank.panels.size(); ++i) {
+        const auto& panel = blank.panels[i];
+        output << "    {\"index\": " << panel.index
+            << ", \"long_wall\": " << (panel.longWall ? "true" : "false")
+            << ", \"bounds_kind\": \"axis_aligned_envelope\", \"bounds_m\": {\"x\": ["
+            << panel.xStart << ',' << panel.xEnd << "], \"y\": ["
+            << panel.yStart << ',' << panel.yEnd << "], \"z\": [0," << blank.boardCaliper << "]}}"
+            << (i + 1 == blank.panels.size() ? "\n" : ",\n");
+    }
+    output << "  ],\n  \"manufacturer_joint\": {\"index\": 0, \"bounds_kind\": \"axis_aligned_envelope\", \"bounds_m\": {\"x\": [0,"
+        << blank.config.manufacturerJointWidth << "], \"y\": [" << blank.bottomScoreY << ',' << blank.topScoreY
+        << "], \"z\": [0," << blank.boardCaliper << "]}, \"root_score_line_index\": "
+        << rootScoreLineIndex << "},\n  \"box_ends\": [\n";
+    for (std::uint32_t endIndex = 0u; endIndex < 2u; ++endIndex) {
+        const bool top = endIndex == 1u;
+        const auto flapKind = top ? numi::cardboard::BoxScoreKind::topFlap
+                                  : numi::cardboard::BoxScoreKind::bottomFlap;
+        output << "    {\"index\": " << endIndex
+            << ", \"end\": \"" << (top ? "top" : "bottom")
+            << "\", \"bounds_kind\": \"axis_aligned_envelope\", \"bounds_m\": {\"x\": [" << blank.config.manufacturerJointWidth << ","
+            << blank.perimeterSpan << "], \"y\": ["
+            << (top ? blank.topScoreY : 0.0) << ','
+            << (top ? blank.blankHeight : blank.bottomScoreY)
+            << "], \"z\": [0," << blank.boardCaliper << "]}, \"panel_indices\": [";
+        for (std::size_t panelIndex = 0; panelIndex < blank.panels.size(); ++panelIndex) {
+            if (panelIndex) output << ',';
+            output << blank.panels[panelIndex].index;
+        }
+        output << "], \"flap_score_line_indices\": [";
+        bool firstFlap = true;
+        for (std::size_t scoreIndex = 0; scoreIndex < blank.scoreLines.size(); ++scoreIndex) {
+            const auto& score = blank.scoreLines[scoreIndex];
+            if (score.kind != flapKind) continue;
+            if (!firstFlap) output << ',';
+            firstFlap = false;
+            output << scoreIndex;
+        }
+        output << "]}" << (endIndex == 1u ? "\n" : ",\n");
+    }
+    output << "  ],\n  \"score_lines\": [\n";
+    for (std::size_t i = 0; i < blank.scoreLines.size(); ++i) {
+        const auto& score = blank.scoreLines[i];
+        output << "    {\"kind\": " << static_cast<unsigned>(score.kind) << ", \"panel\": " << score.panelIndex
+            << ", \"first\": [" << score.first.x << ',' << score.first.y << ',' << score.first.z
+            << "], \"second\": [" << score.second.x << ',' << score.second.y << ',' << score.second.z
+            << "], \"physically_scored\": false}" << (i + 1 == blank.scoreLines.size() ? "\n" : ",\n");
+    }
+    output << "  ],\n  \"assembly_actions\": [\n";
+    for (std::size_t i = 0; i < blank.assembly.actions.size(); ++i) {
+        const auto& action = blank.assembly.actions[i];
+        output << "    {\"stage\": \"" << jsonEscape(action.stage) << "\", \"kind\": " << static_cast<unsigned>(action.kind)
+            << ", \"feature\": {\"type\": \"" << boxAssemblyFeatureKindName(action.feature.kind)
+            << "\", \"index\": " << action.feature.index
+            << ", \"index_semantics\": \"" << jsonIndexSemantics(action.feature.kind) << "\"}"
+            << ", \"hinge_score_line_index\": ";
+        if (action.hingeScoreLineIndex == numi::cardboard::kNoBoxScoreLineIndex)
+            output << "null";
+        else
+            output << action.hingeScoreLineIndex;
+        output << ", \"target_angle_deg\": " << action.targetAngleDegrees
+            << ", \"executed\": false}" << (i + 1 == blank.assembly.actions.size() ? "\n" : ",\n");
+    }
+    output << "  ]\n}\n";
+}
+
 void writeMeshJson(const std::filesystem::path& path,
                    const Arguments& arguments,
                    const MeshSource& mesh) {
@@ -1114,12 +1294,15 @@ void writeManifest(const std::filesystem::path& path,
         std::max(1.0e-20, expectedMass);
     require(massRelativeError < 5.0e-5,
             "compiled shared-node mass does not close against regional cell mass");
+    const double effectiveToolBarrierScale = static_cast<double>(
+        static_cast<float>(arguments.prescribedToolBarrierStiffnessScale));
 
     std::ofstream output(path);
     require(output.good(), "cannot create manifest: " + path.string());
     output << std::setprecision(17)
            << "{\n"
            << "  \"schema\": \"numi.cardboard.explicit-strip.v1\",\n"
+           << "  \"specimen\": \"" << (arguments.boxBlank ? "fefco0201_flat_blank" : "corrugated_strip") << "\",\n"
            << "  \"owner\": \"Numi Matter FEM runtime\",\n"
            << "  \"preset\": \"" << jsonEscape(arguments.preset) << "\",\n"
            << "  \"geometry\": {\n"
@@ -1199,15 +1382,22 @@ void writeManifest(const std::filesystem::path& path,
     output << "    ]\n  },\n"
            << "  \"tooling\": {\"enabled\": " << (arguments.crease ? "true" : "false")
            << ", \"mode\": \"rounded capsule on finite backing box\", \"indentation_m\": " << arguments.indentationM
+           << ", \"native_feasible_predictor\": " << (arguments.prescribedToolPredictor ? "true" : "false")
+           << ", \"prescribed_tool_barrier_stiffness_scale\": " << effectiveToolBarrierScale;
+    if (arguments.prescribedToolBarrierStiffnessScale != effectiveToolBarrierScale)
+        output << ", \"prescribed_tool_barrier_stiffness_scale_requested\": "
+               << arguments.prescribedToolBarrierStiffnessScale;
+    output << ", \"barrier_scale_role\": \"numerical conditioning sensitivity on prescribed punch only; not a material calibration; activation distance and collision floors unchanged\""
            << ", \"punch_radius_m\": " << arguments.punchRadiusM
            << ", \"initial_nose_clearance_m\": " << arguments.toolClearanceM
            << ", \"initial_anvil_clearance_m\": " << arguments.anvilClearanceM
            << ", \"crease_x_m\": " << 0.5 * arguments.lengthM
-           << ", \"timing\": \"start-of-step pose and consistent velocity in preDynamics; realized end pose in postCommit and independent gap audit\"},\n"
+           << ", \"timing\": \"prescribed end pose and consistent step velocity in preDynamics and postCommit; independent end gap audit\"},\n"
            << "  \"solver\": {\n"
            << "    \"backend\": \"implicit nonlinear Matter FEM on Apple Metal\",\n"
            << "    \"deformable_self_contact\": " << (mesh.world.objects.front().deformableSelfContact ? "true" : "false") << ",\n"
            << "    \"contact_slop_m\": " << mesh.world.contactSlop << ",\n"
+           << "    \"deformation_gradient\": \"" << (arguments.referenceDisplacementGradient ? "persistent_reference_displacement" : "absolute_position") << "\",\n"
            << "    \"dt_s\": " << arguments.timestepSeconds << ",\n"
            << "    \"bend_angle_deg\": " << arguments.bendAngleDegrees << ",\n"
            << "    \"steps\": " << arguments.steps << ",\n"
@@ -1223,6 +1413,15 @@ void writeManifest(const std::filesystem::path& path,
            << compiled.world.mixedSolver.nonlinearIterations.y << ",\n"
            << "    \"fgmres_iteration_budget\": "
            << compiled.world.mixedSolver.nonlinearIterations.z << ",\n"
+           << "    \"fgmres_preconditioner\": \""
+           << (compiled.world.mixedSolver.executionBudgets.z == 1u
+                   ? "regional_tangent_fem_diagonal" : "scalar_diagonal")
+           << "\",\n"
+           << "    \"fgmres_preconditioner_rebuild_policy\": \""
+           << (compiled.world.mixedSolver.executionBudgets.z == 1u
+                   ? "once_per_newton_linearization"
+                   : "legacy_each_krylov_restart_cycle")
+           << "\",\n"
            << "    \"line_search_steps\": "
            << compiled.world.mixedSolver.nonlinearIterations.w << ",\n"
            << "    \"relative_residual_tolerance\": "
@@ -1237,7 +1436,7 @@ void writeManifest(const std::filesystem::path& path,
            << "    \"runtime_execution\": "
            << (arguments.compileOnly ? "false" : "true") << "\n"
            << "  },\n"
-           << "  \"status_diagnostics_semantics\": \"CSV retains NMMatterStatusGPU.diagnostics x/y/z/w verbatim. Successful finalization writes minimum J, maximum stress, scheduler numerical.y, and maximum contact speed; scheduler numerical.y is not populated as a successful KKT residual in this probe path and may remain zero. Failure statuses replace the vector with the originating failure-site float4 payload (for example, code 10 uses relative residual, relative correction, volume residual, and pressure residual). Independent min_J and max_J are recomputed from accepted FEM positions; status_diagnostic_z must not be interpreted as the successful-state KKT residual.\",\n"
+           << "  \"status_diagnostics_semantics\": \"CSV retains NMMatterStatusGPU.diagnostics x/y/z/w verbatim. Successful finalization writes minimum J, maximum stress, scheduler numerical.y, and maximum contact speed; scheduler numerical.y is not populated as a successful KKT residual in this probe path and may remain zero. Failure statuses replace the vector with the originating failure-site float4 payload (for example, code 10 uses relative residual, relative correction, volume residual, and pressure residual). Independent min_J and max_J are recomputed from accepted native FEM kinematics (stored displacement for opted-in elements, positions for legacy); status_diagnostic_z must not be interpreted as the successful-state KKT residual.\",\n"
            << "  \"compiled_world_fingerprint\": "
            << compiled.world.fingerprint << ",\n"
            << "  \"evidence_boundary\": \"native software mechanics instrument only; analytic geometry approximation and published material inputs do not establish physical validation\"\n"
@@ -1349,10 +1548,12 @@ Metrics stateMetrics(const CompiledWorld& world,
             tetrahedron.nodes.x, tetrahedron.nodes.y,
             tetrahedron.nodes.z, tetrahedron.nodes.w,
         };
-        const nm_float4 p0 = snapshot.femNodes[nodeBase + indices[0]].positionAndMass;
-        const nm_float4 p1 = snapshot.femNodes[nodeBase + indices[1]].positionAndMass;
-        const nm_float4 p2 = snapshot.femNodes[nodeBase + indices[2]].positionAndMass;
-        const nm_float4 p3 = snapshot.femNodes[nodeBase + indices[3]].positionAndMass;
+        const bool displacementMode = (tetrahedron.identity.w & NM_TETRAHEDRON_REFERENCE_DISPLACEMENT_GRADIENT) != 0u;
+        const auto coordinate = [&](const unsigned index) {
+            const auto& node = snapshot.femNodes[nodeBase + indices[index]];
+            return displacementMode ? node.referenceDisplacementAndMode : node.positionAndMass;
+        };
+        const nm_float4 p0 = coordinate(0), p1 = coordinate(1), p2 = coordinate(2), p3 = coordinate(3);
         const std::array<double, 9> edge{
             p1.x - p0.x, p2.x - p0.x, p3.x - p0.x,
             p1.y - p0.y, p2.y - p0.y, p3.y - p0.y,
@@ -1365,6 +1566,7 @@ Metrics stateMetrics(const CompiledWorld& world,
                 for (std::uint32_t k = 0u; k < 3u; ++k)
                     deformation[3u * row + column] +=
                         edge[3u * row + k] * inverseRest[3u * k + column];
+        if (displacementMode) { deformation[0] += 1.0; deformation[4] += 1.0; deformation[8] += 1.0; }
         const double j =
             deformation[0] * (deformation[4] * deformation[8] -
                                deformation[5] * deformation[7]) -
@@ -1539,7 +1741,18 @@ public:
         id<MTLBuffer> toolBodies = nil;
         if (!bodies.empty()) {
             require(bodies.size() == kEnvironmentCount, "tool body count differs from environments");
-            toolBodies = sharedBuffer(device_, bodies, "kinematic punch bodies");
+            // Backward Euler contact must be evaluated at the prescribed
+            // endpoint, just like FEM candidate positions. The velocity remains
+            // the finite difference of the prescribed trajectory. Supplying a
+            // start pose here solves a different obstacle and leaves endpoint
+            // penetration for postCommit to reject.
+            auto endpoints = bodies;
+            for (auto& body : endpoints) {
+                body.position.x += runtime_.timestepSeconds() * body.linearVelocityAndInverseMass.x;
+                body.position.y += runtime_.timestepSeconds() * body.linearVelocityAndInverseMass.y;
+                body.position.z += runtime_.timestepSeconds() * body.linearVelocityAndInverseMass.z;
+            }
+            toolBodies = sharedBuffer(device_, endpoints, "prescribed end-pose punch bodies");
             request.rigid.currentBodies = (__bridge void*)toolBodies;
             request.rigid.currentBodyCount = 1u;
             request.rigid.currentBodyStride = 1u;
@@ -1570,20 +1783,8 @@ public:
             destinationOffset:0u size:static_cast<std::size_t>(kEnvironmentCount) * nodeCount_ * sizeof(nm_float4)];
         [blit endEncoding];
 
-        // The rigid owner publishes its realized end pose for the native
-        // postCommit contact certificate. Reusing the start pose would certify
-        // a different geometry and could commit an overlapping tool endpoint.
-        id<MTLBuffer> endToolBodies = nil;
-        if (!bodies.empty()) {
-            auto endpoints = bodies;
-            for (auto& body : endpoints) {
-                body.position.x += runtime_.timestepSeconds() * body.linearVelocityAndInverseMass.x;
-                body.position.y += runtime_.timestepSeconds() * body.linearVelocityAndInverseMass.y;
-                body.position.z += runtime_.timestepSeconds() * body.linearVelocityAndInverseMass.z;
-            }
-            endToolBodies = sharedBuffer(device_, endpoints, "realized end-pose punch bodies");
-            request.rigid.currentBodies = (__bridge void*)endToolBodies;
-        }
+        // The same immutable prescribed endpoint is both solved and certified.
+        // These tools have no free rigid unknown; native FEM owns all response.
         request.phase = EncodePhase::postCommit;
         const RuntimeDiagnostics post = runtime_.encode(request);
         require(post.encoded, "Matter postCommit encode failed: " + post.message);
@@ -1757,6 +1958,15 @@ void writeMaterialState(const std::filesystem::path& path,
         }
         output << "]}";
     }
+    output << "\n  ],\n  \"native_node_state\": [\n";
+    for (std::size_t ni = 0; ni < world.dispatch.femNodeCount; ++ni) {
+        const auto& node = snapshot.femNodes.at(environment * world.dispatch.femNodeCount + ni);
+        if (ni) output << ",\n";
+        output << "    {\"position_m\": [" << node.positionAndMass.x << ',' << node.positionAndMass.y << ',' << node.positionAndMass.z
+            << "], \"velocity_m_s\": [" << node.velocityAndInverseMass.x << ',' << node.velocityAndInverseMass.y << ',' << node.velocityAndInverseMass.z
+            << "], \"reference_displacement_m\": [" << node.referenceDisplacementAndMode.x << ',' << node.referenceDisplacementAndMode.y << ',' << node.referenceDisplacementAndMode.z
+            << "], \"displacement_mode\": " << node.referenceDisplacementAndMode.w << ", \"constraint_tag\": " << node.restAndFixed.w << '}';
+    }
     output << "\n  ]\n}\n";
     require(output.good(), "failed to export material history");
 }
@@ -1828,6 +2038,7 @@ int execute(const Arguments& arguments) {
     writePackageOrThrow(compiled, arguments.output / "compiled.nmatterpack");
     writeInitialObj(arguments.output / "initial.obj", compiled.world);
     writeMeshJson(arguments.output / "mesh.json", arguments, mesh);
+    writeBoxLayout(arguments.output / "box-layout.json", mesh);
     writeManifest(arguments.output / "manifest.json", arguments, mesh,
                   compiled, linerDigest, mediumDigest, glueDigest);
     if (arguments.compileOnly) {
@@ -1934,9 +2145,8 @@ int execute(const Arguments& arguments) {
                         ++contacts; impulseZ += sample.impulseAndNormal.z;
                     }
                 }
-                // Native contact currently keeps prescribed non-dynamic proxy
-                // geometry at the start pose during Newton. Audit the actual
-                // commanded endpoint independently before advancing the tool.
+                // Independently audit the prescribed endpoint used by both
+                // the native Newton solve and the postCommit certificate.
                 const double roundoff = 8.0 * std::numeric_limits<float>::epsilon() *
                     std::max({arguments.lengthM, arguments.widthM, arguments.totalHeightM, arguments.punchRadiusM});
                 if (accepted && (!std::isfinite(minPunch) || !std::isfinite(minAnvil) ||

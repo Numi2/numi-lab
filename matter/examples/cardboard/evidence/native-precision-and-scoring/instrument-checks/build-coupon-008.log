@@ -1,0 +1,6 @@
+[  7%] Built target numi_cardboard_delamination_shaders
+[ 76%] Built target numi_matter_compiler_objects
+[ 84%] Built target numi_matter_compiler
+[ 92%] Building OBJCXX object CMakeFiles/numi-matter-cardboard-delamination-gpu-check.dir/tools/cardboard_bleached_delamination_gpu_check.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-delamination-gpu-check
+[100%] Built target numi-matter-cardboard-delamination-gpu-check

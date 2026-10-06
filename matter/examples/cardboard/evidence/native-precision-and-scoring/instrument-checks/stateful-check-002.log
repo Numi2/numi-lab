@@ -1,0 +1,12 @@
+Test project /Users/home/numi-cardboard-20261006/build-cardboard
+    Start 13: matter.compiler.stateful_roundtrip
+1/1 Test #13: matter.compiler.stateful_roundtrip ...   Passed    1.13 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Label Time Summary:
+compiler    =   1.13 sec*proc (1 test)
+matter      =   1.13 sec*proc (1 test)
+stateful    =   1.13 sec*proc (1 test)
+
+Total Test time (real) =   1.13 sec

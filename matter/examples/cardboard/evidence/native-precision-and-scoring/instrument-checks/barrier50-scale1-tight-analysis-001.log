@@ -1,0 +1,561 @@
+{
+  "accepted_steps": 48,
+  "checks": {
+    "accepted_solver_certificate_within_manifest_tolerance": "inconclusive",
+    "arm_environment_mapping": "pass",
+    "command_travel_matches_manifest_and_velocity": "inconclusive",
+    "commanded_end_pose_node_nonpenetration": "pass",
+    "finite_measurements": "pass",
+    "material_source_hashes": "pass",
+    "moving_arm_native_punch_contact": "pass",
+    "moving_contact_has_resolved_z_force": "pass",
+    "node_penetration_within_contact_slop": "pass",
+    "stationary_control_punch_contact": "pass"
+  },
+  "command_curve": {
+    "indented": {
+      "0": {
+        "speed_m_s": -0.0625,
+        "travel_m": 1.5625e-06
+      },
+      "1": {
+        "speed_m_s": -0.0625,
+        "travel_m": 3.125e-06
+      },
+      "10": {
+        "speed_m_s": -0.06250000000000003,
+        "travel_m": 1.71875e-05
+      },
+      "11": {
+        "speed_m_s": -0.06250000000000003,
+        "travel_m": 1.8750000000000002e-05
+      },
+      "12": {
+        "speed_m_s": -0.06250000000000003,
+        "travel_m": 2.0312500000000002e-05
+      },
+      "13": {
+        "speed_m_s": -0.06249999999999989,
+        "travel_m": 2.1875e-05
+      },
+      "14": {
+        "speed_m_s": -0.06250000000000003,
+        "travel_m": 2.34375e-05
+      },
+      "15": {
+        "speed_m_s": -0.06250000000000003,
+        "travel_m": 2.5e-05
+      },
+      "16": {
+        "speed_m_s": -0.06250000000000003,
+        "travel_m": 2.6562500000000002e-05
+      },
+      "17": {
+        "speed_m_s": -0.06250000000000003,
+        "travel_m": 2.8125000000000003e-05
+      },
+      "18": {
+        "speed_m_s": -0.06249999999999989,
+        "travel_m": 2.96875e-05
+      },
+      "19": {
+        "speed_m_s": -0.06250000000000003,
+        "travel_m": 3.125e-05
+      },
+      "2": {
+        "speed_m_s": -0.06250000000000001,
+        "travel_m": 4.6875000000000004e-06
+      },
+      "20": {
+        "speed_m_s": -0.06250000000000017,
+        "travel_m": 3.2812500000000005e-05
+      },
+      "21": {
+        "speed_m_s": -0.06249999999999989,
+        "travel_m": 3.4375e-05
+      },
+      "22": {
+        "speed_m_s": -0.06249999999999989,
+        "travel_m": 3.59375e-05
+      },
+      "23": {
+        "speed_m_s": -0.06250000000000017,
+        "travel_m": 3.7500000000000003e-05
+      },
+      "24": {
+        "speed_m_s": -0.06249999999999989,
+        "travel_m": 3.90625e-05
+      },
+      "25": {
+        "speed_m_s": -0.06250000000000017,
+        "travel_m": 4.0625000000000005e-05
+      },
+      "26": {
+        "speed_m_s": -0.06249999999999989,
+        "travel_m": 4.21875e-05
+      },
+      "27": {
+        "speed_m_s": -0.06249999999999989,
+        "travel_m": 4.375e-05
+      },
+      "28": {
+        "speed_m_s": -0.06250000000000017,
+        "travel_m": 4.5312500000000004e-05
+      },
+      "29": {
+        "speed_m_s": -0.06249999999999989,
+        "travel_m": 4.6875e-05
+      },
+      "3": {
+        "speed_m_s": -0.06249999999999999,
+        "travel_m": 6.25e-06
+      },
+      "30": {
+        "speed_m_s": -0.06250000000000017,
+        "travel_m": 4.8437500000000005e-05
+      },
+      "31": {
+        "speed_m_s": -0.06249999999999989,
+        "travel_m": 5e-05
+      },
+      "32": {
+        "speed_m_s": -0.0,
+        "travel_m": 5e-05
+      },
+      "33": {
+        "speed_m_s": -0.0,
+        "travel_m": 5e-05
+      },
+      "34": {
+        "speed_m_s": -0.0,
+        "travel_m": 5e-05
+      },
+      "35": {
+        "speed_m_s": -0.0,
+        "travel_m": 5e-05
+      },
+      "36": {
+        "speed_m_s": -0.0,
+        "travel_m": 5e-05
+      },
+      "37": {
+        "speed_m_s": -0.0,
+        "travel_m": 5e-05
+      },
+      "38": {
+        "speed_m_s": -0.0,
+        "travel_m": 5e-05
+      },
+      "39": {
+        "speed_m_s": -0.0,
+        "travel_m": 5e-05
+      },
+      "4": {
+        "speed_m_s": -0.06249999999999999,
+        "travel_m": 7.8125e-06
+      },
+      "40": {
+        "speed_m_s": -0.0,
+        "travel_m": 5e-05
+      },
+      "41": {
+        "speed_m_s": -0.0,
+        "travel_m": 5e-05
+      },
+      "42": {
+        "speed_m_s": -0.0,
+        "travel_m": 5e-05
+      },
+      "43": {
+        "speed_m_s": -0.0,
+        "travel_m": 5e-05
+      },
+      "44": {
+        "speed_m_s": -0.0,
+        "travel_m": 5e-05
+      },
+      "45": {
+        "speed_m_s": -0.0,
+        "travel_m": 5e-05
+      },
+      "46": {
+        "speed_m_s": -0.0,
+        "travel_m": 5e-05
+      },
+      "47": {
+        "speed_m_s": -0.0,
+        "travel_m": 5e-05
+      },
+      "48": {
+        "speed_m_s": 0.06249999999999989,
+        "travel_m": 4.8437500000000005e-05
+      },
+      "5": {
+        "speed_m_s": -0.06250000000000003,
+        "travel_m": 9.375000000000001e-06
+      },
+      "6": {
+        "speed_m_s": -0.06249999999999996,
+        "travel_m": 1.09375e-05
+      },
+      "7": {
+        "speed_m_s": -0.06250000000000003,
+        "travel_m": 1.25e-05
+      },
+      "8": {
+        "speed_m_s": -0.06250000000000003,
+        "travel_m": 1.4062500000000001e-05
+      },
+      "9": {
+        "speed_m_s": -0.06249999999999996,
+        "travel_m": 1.5625e-05
+      }
+    },
+    "stationary_tool_reference": {
+      "0": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "1": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "10": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "11": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "12": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "13": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "14": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "15": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "16": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "17": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "18": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "19": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "2": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "20": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "21": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "22": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "23": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "24": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "25": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "26": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "27": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "28": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "29": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "3": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "30": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "31": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "32": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "33": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "34": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "35": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "36": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "37": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "38": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "39": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "4": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "40": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "41": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "42": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "43": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "44": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "45": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "46": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "47": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "48": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "5": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "6": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "7": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "8": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "9": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      }
+    }
+  },
+  "contact_slop_m": 1.91e-06,
+  "coverage": {
+    "arm_mapping_errors": [],
+    "certificate_acceptance_errors": [],
+    "expected_rows_per_table": 192,
+    "incomplete_reasons": [
+      "observations.csv is missing 94 expected step/environment rows",
+      "tool-observations.csv is missing 94 expected step/environment rows",
+      "result status is 'failed', not completed",
+      "result accepted_steps=48, expected 96",
+      "rejected observation rows: step=48, environment=0"
+    ],
+    "material_hash_mismatches": [],
+    "nonfinite_fields": [],
+    "observations_rows": 98,
+    "tool_observations_rows": 98,
+    "travel_errors": []
+  },
+  "evidence_boundary": "software mechanics instrumentation only; no cardboard fold or physical qualification",
+  "exit_code": 2,
+  "expected_steps": 96,
+  "fold_qualification": false,
+  "physical_validation": false,
+  "result_status": "failed",
+  "run_directory": "/Users/home/cardboard-closure-evidence-20261006/barrier50-scale1-tight-001",
+  "schema": "numi.cardboard.tooling-analysis.v1",
+  "sha256_bindings": {
+    "artifacts": {
+      "compiled.nmatterpack": "9270aab2982813f9b67a2f4faa7494e15f3fd05537a83c6d29c35fcf85a4b6ee",
+      "manifest.json": "0ffb0106b76bd7625ebb6f8d543e287c2989ebc96345caedd70f469fb4e6baa7",
+      "mesh.json": "add3e5f87879dac154eb4a31bb73b1c2de8740b04f29f05721f3b8198aa367e5",
+      "observations.csv": "3bfa758d02366fc80704f1ac82b852cb2aaec7059c721230048936a70932c34c",
+      "result.json": "99f4b01860044f69529f34f75911348d2e8223041dab2685cbb2e401e40231eb",
+      "tool-observations.csv": "e053f073d51c3c2fbd8dfa9cdd48006073b97c0c03401a355c30e2eb9f8ff86f"
+    },
+    "compiled_world_fingerprint": "14821044046432828210",
+    "materials": {
+      "frame_map_sha256": "7d1e7082d4296fb93016d7f0418551ad1aac9447d0a61289f1615f531cb98075",
+      "glue": {
+        "file_available": true,
+        "file_hash_verified": true,
+        "file_sha256": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1",
+        "manifest_sha256": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1",
+        "path": "/Users/home/numi-cardboard-20261006/matter/materials/starch2007_finite_glue_elastic.nmatter"
+      },
+      "liner": {
+        "file_available": true,
+        "file_hash_verified": true,
+        "file_sha256": "787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d",
+        "manifest_sha256": "787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d",
+        "path": "/Users/home/numi-cardboard-20261006/matter/materials/hajali2009_liner_hill_ideal.nmatter"
+      },
+      "medium": {
+        "file_available": true,
+        "file_hash_verified": true,
+        "file_sha256": "ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8",
+        "manifest_sha256": "ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8",
+        "path": "/Users/home/numi-cardboard-20261006/matter/materials/hajali2009_medium_hill_ideal.nmatter"
+      },
+      "regional_map_sha256": "53ac1f9ec3e3808f414aaa245c07724b75a6fc4d6254a3e7ab396964c4c1d5a1"
+    }
+  },
+  "summary": {
+    "certificate_acceptance_errors": [],
+    "certificate_tolerances": {
+      "certificate_pressure": 9.999999747378752e-05,
+      "certificate_residual": 9.999999974752427e-07,
+      "certificate_volume": 9.999999747378752e-05
+    },
+    "contact_barrier_range_m": 1.91e-06,
+    "contact_slop_is_not_an_allowed_physical_penetration": true,
+    "force_measurement": "z impulse from native punch contact samples divided by timestep; signed force is on the punch and is an instrument receipt, not force or fold qualification",
+    "gap_measurement": "CPU signed-distance evaluation at FEM node samples and commanded end pose; not a continuous surface-distance measurement",
+    "indented_environment_all_observed_rows": {
+      "maximum_absolute_commanded_speed_m_s": 0.06250000000000017,
+      "maximum_commanded_travel_m": 5e-05,
+      "minimum_anvil_node_gap_m": 8.18317166955242e-06,
+      "minimum_end_punch_node_gap_m": 1.8617831231847095e-07,
+      "peak_punch_contact_count_per_step": 2,
+      "punch_contact_count_total": 90,
+      "punch_force_z_N_max": 0.3867805123656722,
+      "punch_force_z_N_min": 0.0,
+      "punch_force_z_N_peak_absolute": 0.3867805123656722,
+      "steps_observed": 49,
+      "steps_with_punch_contacts": 45
+    },
+    "minimum_gap_roundoff_tolerance_m": 3.01361083984375e-08,
+    "minimum_node_gap_any_tool_all_observed_rows_m": 1.8617831231847095e-07,
+    "rejected_or_unverified_indented_punch_force_diagnostics": {
+      "punch_contact_count_total": 2,
+      "punch_force_z_N_max": 0.10140007845301496,
+      "punch_force_z_N_min": 0.10140007845301496,
+      "punch_force_z_N_peak_absolute": 0.10140007845301496,
+      "steps_observed": 1
+    },
+    "rejected_or_unverified_step_node_gap_diagnostics": {
+      "first_fp32_roundoff_violation": null,
+      "fp32_roundoff_violation_count": 0,
+      "minimum_node_gap_m": 1.8129394615022058e-06,
+      "negative_gap_count": 0,
+      "samples": 2
+    },
+    "roundoff_coordinate_scale_m": 0.0316,
+    "stationary_control_all_step_force_diagnostics": {
+      "punch_contact_count_total": 0,
+      "punch_force_z_N_max": 0.0,
+      "punch_force_z_N_min": 0.0,
+      "punch_force_z_N_peak_absolute": 0.0,
+      "steps_observed": 49
+    },
+    "stationary_tool_reference_environment_all_observed_rows": {
+      "maximum_absolute_commanded_speed_m_s": 0.0,
+      "maximum_commanded_travel_m": 0.0,
+      "minimum_anvil_node_gap_m": 1.0000000000000026e-05,
+      "minimum_end_punch_node_gap_m": 1.0000073612118814e-05,
+      "peak_punch_contact_count_per_step": 0,
+      "punch_contact_count_total": 0,
+      "punch_force_z_N_max": 0.0,
+      "punch_force_z_N_min": 0.0,
+      "punch_force_z_N_peak_absolute": 0.0,
+      "steps_observed": 49,
+      "steps_with_punch_contacts": 0
+    },
+    "verified_accepted_indented_punch_force_receipt": {
+      "punch_contact_count_total": 88,
+      "punch_force_z_N_max": 0.3867805123656722,
+      "punch_force_z_N_min": 0.0,
+      "punch_force_z_N_peak_absolute": 0.3867805123656722,
+      "steps_observed": 48
+    },
+    "verified_accepted_step_node_gaps": {
+      "first_fp32_roundoff_violation": null,
+      "fp32_roundoff_violation_count": 0,
+      "minimum_node_gap_m": 1.8617831231847095e-07,
+      "negative_gap_count": 0,
+      "samples": 194
+    }
+  },
+  "timestep_s": 2.5e-05,
+  "tooling": {
+    "barrier_scale_role": "numerical conditioning only; not material calibration",
+    "indentation_m": 5e-05,
+    "initial_anvil_clearance_m": 1e-05,
+    "initial_nose_clearance_m": 1e-05,
+    "prescribed_tool_barrier_stiffness_scale": 1.0,
+    "timing_contract": "prescribed end pose and consistent step velocity in preDynamics and postCommit; independent end gap audit"
+  },
+  "verdict": "inconclusive"
+}

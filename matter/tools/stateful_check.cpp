@@ -788,7 +788,8 @@ void verifyAdaptiveLayout() {
     }
     {
         auto candidate = roundTrip;
-        candidate.mixedSolver.executionBudgets.z = 1u;
+        // Selectors 0 and 1 are defined; 2 remains an invalid policy.
+        candidate.mixedSolver.executionBudgets.z = 2u;
         requireRejected(std::move(candidate), "mixed solver policy");
     }
     {

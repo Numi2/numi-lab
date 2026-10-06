@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <bit>
 #include <cstring>
+#include <fstream>
 #include <functional>
 #include <iomanip>
 #include <iostream>
@@ -60,6 +61,17 @@ WorldSource source(const MaterialProgram& first,const MaterialProgram& second,bo
         o.femMaterialFrameRotations={{{0,0,std::sin(.305),std::cos(.305)}},{{0,std::sin(-.245),0,std::cos(-.245)}}};
         o.femMaterialFrameSourceIdentity={5,6,7,8};}
     s.objects={o};return s;
+}
+WorldSource thinSkewSource(const WorldSource& regionalReference,bool displacementGradient){
+    auto s=regionalReference;auto& o=s.objects[0];
+    const Vec origin{.04127,-.02863,.05219};
+    const Vec a{.00421,.00037,0.0},b{.00113,.00273,0.0},c{.00014,.00009,.0000307};
+    const auto point=[&](const Vec& delta){return Vec{origin[0]+delta[0],origin[1]+delta[1],origin[2]+delta[2]};};
+    o.femReferenceNodes={origin,point(a),point(b),point(c),point(Vec{-c[0],-c[1],-c[2]})};
+    o.femNodes=o.femReferenceNodes;o.femReferenceDisplacementGradient=displacementGradient;
+    o.femReferenceSourceIdentity={0x9a831c5a8f0b6d11ull,0x672ef91a1b094ed3ull,
+        0xbb857ac30216de44ull,0x5f1ce8a773b20d96ull};
+    return s;
 }
 CompiledWorld cook(const WorldSource& s){auto c=compileWorld(s,{.maximumRateExponent=0,.emitSpecializedMetal=false});need(c.succeeded(),"reference fixture compile: "+diagnostic(c.diagnostics));return std::move(c.world);}
 struct Device {
@@ -116,7 +128,36 @@ std::vector<NMFEMElementVectorGPU> dispatch(Device& d,const CompiledWorld& w,con
 Matrix gradient(const CompiledWorld& w,const Inputs& v,unsigned e,unsigned ti,bool rate=false,bool direction=false){
     const auto& t=w.fem.tetrahedra[ti];const unsigned base=e*w.dispatch.femNodeCount;
     const auto at=[&](unsigned n){return direction?xyz(v.direction[base+n]):rate?xyz(v.nodes[base+n].velocityAndInverseMass):xyz(v.nodes[base+n].positionAndMass);};
+    if(!rate&&!direction&&(t.identity.w&NM_TETRAHEDRON_REFERENCE_DISPLACEMENT_GRADIENT)!=0u){
+        const auto displacement=[&](unsigned n){return xyz(v.nodes[base+n].referenceDisplacementAndMode);};
+        const Vec u=displacement(t.nodes.x);
+        Matrix result=ref::multiply(columns(sub(displacement(t.nodes.y),u),sub(displacement(t.nodes.z),u),sub(displacement(t.nodes.w),u)),inverseRest(t));
+        for(unsigned i=0;i<3;++i)result[4*i]+=1.0;
+        return result;
+    }
     const Vec x=at(t.nodes.x);return ref::multiply(columns(sub(at(t.nodes.y),x),sub(at(t.nodes.z),x),sub(at(t.nodes.w),x)),inverseRest(t));
+}
+Matrix executableRestF32(const CompiledWorld& w,unsigned ti,bool displacementGradient){
+    const auto& t=w.fem.tetrahedra[ti];std::array<std::array<float,3>,4> current{},reference{},u{};
+    const std::array<unsigned,4> ids{t.nodes.x,t.nodes.y,t.nodes.z,t.nodes.w};
+    for(unsigned n=0;n<4;++n){const auto& node=w.fem.nodes[ids[n]];
+        current[n]={node.positionAndMass.x,node.positionAndMass.y,node.positionAndMass.z};
+        reference[n]={node.restAndFixed.x,node.restAndFixed.y,node.restAndFixed.z};
+        for(unsigned r=0;r<3;++r)u[n][r]=displacementGradient
+            ? (r==0?node.referenceDisplacementAndMode.x:r==1?node.referenceDisplacementAndMode.y:node.referenceDisplacementAndMode.z)
+            : current[n][r]-reference[n][r];}
+    std::array<float,9> edge{};
+    for(unsigned r=0;r<3;++r)for(unsigned c=0;c<3;++c)
+        edge[3*r+c]=displacementGradient?u[c+1][r]-u[0][r]:current[c+1][r]-current[0][r];
+    const std::array<float,9> inverse{t.inverseRestRow0.x,t.inverseRestRow0.y,t.inverseRestRow0.z,
+        t.inverseRestRow1.x,t.inverseRestRow1.y,t.inverseRestRow1.z,
+        t.inverseRestRow2.x,t.inverseRestRow2.y,t.inverseRestRow2.z};
+    Matrix f{};
+    for(unsigned r=0;r<3;++r)for(unsigned c=0;c<3;++c){
+        const float a=edge[3*r]*inverse[c],b=edge[3*r+1]*inverse[3+c],d=edge[3*r+2]*inverse[6+c];
+        f[3*r+c]=double((a+b)+d)+(displacementGradient&&r==c?1.0:0.0);
+    }
+    return f;
 }
 std::array<Vec,4> forces(const NMTetrahedronGPU& t,const Matrix& p){
     const Matrix a=ref::scale(ref::multiply(p,ref::transpose(inverseRest(t))),-double(t.inverseRestRow0.w));
@@ -139,6 +180,20 @@ double finiteDifference(Device& d,const CompiledWorld& w,const Inputs& v,const s
         plus.nodes[i].positionAndMass.x+=epsilon*p.x;minus.nodes[i].positionAndMass.x-=epsilon*p.x;
         plus.nodes[i].positionAndMass.y+=epsilon*p.y;minus.nodes[i].positionAndMass.y-=epsilon*p.y;
         plus.nodes[i].positionAndMass.z+=epsilon*p.z;minus.nodes[i].positionAndMass.z-=epsilon*p.z;
+        if(plus.nodes[i].referenceDisplacementAndMode.w==1.0f){
+            plus.nodes[i].referenceDisplacementAndMode.x+=float(epsilon*p.x);
+            plus.nodes[i].referenceDisplacementAndMode.y+=float(epsilon*p.y);
+            plus.nodes[i].referenceDisplacementAndMode.z+=float(epsilon*p.z);
+            minus.nodes[i].referenceDisplacementAndMode.x-=float(epsilon*p.x);
+            minus.nodes[i].referenceDisplacementAndMode.y-=float(epsilon*p.y);
+            minus.nodes[i].referenceDisplacementAndMode.z-=float(epsilon*p.z);
+            plus.nodes[i].positionAndMass.x=plus.nodes[i].restAndFixed.x+plus.nodes[i].referenceDisplacementAndMode.x;
+            plus.nodes[i].positionAndMass.y=plus.nodes[i].restAndFixed.y+plus.nodes[i].referenceDisplacementAndMode.y;
+            plus.nodes[i].positionAndMass.z=plus.nodes[i].restAndFixed.z+plus.nodes[i].referenceDisplacementAndMode.z;
+            minus.nodes[i].positionAndMass.x=minus.nodes[i].restAndFixed.x+minus.nodes[i].referenceDisplacementAndMode.x;
+            minus.nodes[i].positionAndMass.y=minus.nodes[i].restAndFixed.y+minus.nodes[i].referenceDisplacementAndMode.y;
+            minus.nodes[i].positionAndMass.z=minus.nodes[i].restAndFixed.z+minus.nodes[i].referenceDisplacementAndMode.z;
+        }
         plus.nodes[i].velocityAndInverseMass.x+=epsilon*p.x/dt;minus.nodes[i].velocityAndInverseMass.x-=epsilon*p.x/dt;
         plus.nodes[i].velocityAndInverseMass.y+=epsilon*p.y/dt;minus.nodes[i].velocityAndInverseMass.y-=epsilon*p.y/dt;
         plus.nodes[i].velocityAndInverseMass.z+=epsilon*p.z/dt;minus.nodes[i].velocityAndInverseMass.z-=epsilon*p.z/dt;
@@ -251,6 +306,119 @@ void cpuChecks(const WorldSource& authored){
     need(ok&&!removed&&loaded.fingerprint==w.fingerprint&&same(loaded.objects,w.objects)&&same(loaded.fem.nodes,w.fem.nodes)&&same(loaded.fem.tetrahedra,w.fem.tetrahedra),"reference package roundtrip "+error);++cpuCheckCount;
     std::cout<<"reference_compiler_checks="<<cpuCheckCount<<" reference_volume_m3="<<volume<<" reference_mass_kg="<<elementMass<<" initial_J="<<ref::determinant(expectedF)<<" inertia_relative_error="<<inertiaError/inertiaScale<<'\n';
 }
+void referenceDisplacementChecks(const WorldSource& regionalReference){
+    auto authored=regionalReference;authored.objects[0].femReferenceDisplacementGradient=true;
+    const auto w=cook(authored);const auto& object=w.objects[0];
+    need((object.flags&NM_OBJECT_FEM_REFERENCE_DISPLACEMENT_GRADIENT)!=0&&
+         (object.flags&NM_OBJECT_FEM_REFERENCE_CONFIGURATION)!=0&&
+         (object.flags&NM_OBJECT_FEM_REGIONAL_MATERIAL)!=0,
+         "reference-displacement ownership flags were not cooked");
+    for(const auto& t:w.fem.tetrahedra)
+        need((t.identity.w&NM_TETRAHEDRON_REFERENCE_DISPLACEMENT_GRADIENT)!=0,
+             "reference-displacement element flag was not cooked");
+    for(const auto& node:w.fem.nodes)
+        need(node.referenceDisplacementAndMode.w==1.0f&&
+             node.positionAndMass.x==node.restAndFixed.x+node.referenceDisplacementAndMode.x&&
+             node.positionAndMass.y==node.restAndFixed.y+node.referenceDisplacementAndMode.y&&
+             node.positionAndMass.z==node.restAndFixed.z+node.referenceDisplacementAndMode.z,
+             "reference-displacement node state is not canonical");
+    const auto loaded=manufactured(w);const Matrix expected{1.015625,.0078125,0,0,1,0,0,0,1};
+    double affineError=0;
+    for(unsigned ti=0;ti<w.dispatch.tetrahedronCount;++ti){const auto actual=gradient(w,loaded,0,ti);
+        for(unsigned i=0;i<9;++i)affineError=std::max(affineError,std::abs(actual[i]-expected[i]));}
+    need(affineError<1e-6,"reference-displacement affine F differs from I+grad(u)");++cpuCheckCount;
+
+    auto restSource=authored;restSource.objects[0].femNodes=restSource.objects[0].femReferenceNodes;
+    const auto rest=cook(restSource);const auto restInput=manufactured(rest);double restError=0;
+    for(const auto& t:rest.fem.tetrahedra){const auto actual=detail::femReferenceDeterminantInterval(t,rest.fem.nodes.data());
+        need(actual.nominal==1.0f&&actual.strictlyAdmitted(rest.materials[t.identity.x].validity),
+             "zero displacement did not produce exact executable rest J=1");
+    }
+    for(unsigned ti=0;ti<rest.dispatch.tetrahedronCount;++ti){const auto f=gradient(rest,restInput,0,ti);
+        for(unsigned i=0;i<9;++i)restError=std::max(restError,std::abs(f[i]-ref::identity[i]));}
+    need(restError==0.0,"CPU reference-displacement rest gradient was not exactly identity");++cpuCheckCount;
+
+    auto rotatedSource=authored;const Matrix rotation{0,-1,0,1,0,0,0,0,1};const Vec translation{.03125,-.015625,.0078125};
+    for(unsigned n=0;n<rotatedSource.objects[0].femReferenceNodes.size();++n){auto p=transform(rotation,rotatedSource.objects[0].femReferenceNodes[n]);
+        for(unsigned j=0;j<3;++j)p[j]+=translation[j];rotatedSource.objects[0].femNodes[n]=p;}
+    const auto rotated=cook(rotatedSource);const auto rotatedInput=manufactured(rotated);double rotationError=0;
+    for(unsigned ti=0;ti<rotated.dispatch.tetrahedronCount;++ti){const auto f=gradient(rotated,rotatedInput,0,ti);
+        for(unsigned i=0;i<9;++i)rotationError=std::max(rotationError,std::abs(f[i]-rotation[i]));}
+    need(rotationError<1e-6,"reference-displacement rigid rotation did not produce F=R");++cpuCheckCount;
+
+    const auto legacy=cook(regionalReference);
+    need(w.fingerprint!=legacy.fingerprint&&
+         !(legacy.objects[0].flags&NM_OBJECT_FEM_REFERENCE_DISPLACEMENT_GRADIENT),
+         "opt-in kinematics was not separately fingerprinted or changed legacy defaults");++cpuCheckCount;
+    const auto rejectSource=[&](const char* label,const std::function<void(WorldSource&)>& change){auto s=authored;change(s);
+        const auto c=compileWorld(s,{.maximumRateExponent=0,.emitSpecializedMetal=false});
+        need(!c.succeeded(),std::string("reference-displacement source accepted ")+label);++cpuCheckCount;};
+    rejectSource("missing regional field",[](auto& s){s.objects[0].femMaterialIndices.clear();s.objects[0].femMaterialSourceIdentity={};});
+    rejectSource("missing reference coordinates",[](auto& s){s.objects[0].femReferenceNodes.clear();s.objects[0].femReferenceSourceIdentity={};});
+    rejectSource("adaptive representation",[](auto& s){s.objects[0].adaptive=true;});
+    rejectSource("mutable topology",[](auto& s){s.objects[0].mutationPolicy.enabled=true;});
+    rejectSource("mixed FEM",[](auto& s){s.objects[0].mixedFEM=true;});
+    rejectSource("multiphysics",[](auto& s){s.objects[0].multiphysics.enabled=true;});
+    rejectSource("nodal field",[](auto& s){FieldBoundarySource b;b.node=0;b.flags=NM_FIELD_DIRICHLET_TEMPERATURE;b.stableIdentifier=1;s.objects[0].fieldBoundaries={b};});
+    rejectSource("identification",[](auto& s){s.objects[0].identifiable=true;});
+    const auto rejectCooked=[&](const char* label,const std::function<void(CompiledWorld&)>& change){auto c=w;change(c);
+        c.fingerprint=compiledWorldFingerprint(c);std::string error;
+        need(!validateCompiledWorldLayout(c,&error),std::string("reference-displacement cooked layout accepted ")+label);++cpuCheckCount;};
+    rejectCooked("object mode without element mode",[](auto& c){c.fem.tetrahedra[0].identity.w&=~NM_TETRAHEDRON_REFERENCE_DISPLACEMENT_GRADIENT;});
+    rejectCooked("element mode without object mode",[](auto& c){c.objects[0].flags&=~NM_OBJECT_FEM_REFERENCE_DISPLACEMENT_GRADIENT;});
+    const auto path=std::filesystem::temp_directory_path()/(std::string("numi-reference-displacement-")+[[NSUUID UUID] UUIDString].UTF8String+".nmatterpack");
+    CompileResult package;package.world=w;std::string error;need(writePackage(package,path,&error),error);CompiledWorld decoded;
+    const bool ok=readPackage(path,decoded,nullptr,&error);std::error_code removed;
+    need(ok&&!removed&&decoded.fingerprint==w.fingerprint&&same(decoded.objects,w.objects)&&
+         same(decoded.fem.nodes,w.fem.nodes)&&same(decoded.fem.tetrahedra,w.fem.tetrahedra),
+         "reference-displacement package roundtrip "+error);++cpuCheckCount;
+    {
+        std::fstream packageBytes(path,std::ios::in|std::ios::out|std::ios::binary);
+        need(packageBytes.good(),"could not reopen Matter package for stale-ABI guard check");
+        constexpr std::streamoff abiOffset = 16 + 2 * std::streamoff(sizeof(std::uint32_t));
+        const std::uint32_t previousAbi = NM_MATTER_ABI_VERSION - 1u;
+        packageBytes.seekp(abiOffset);
+        packageBytes.write(reinterpret_cast<const char*>(&previousAbi),sizeof(previousAbi));
+        packageBytes.flush();
+        need(packageBytes.good(),"could not encode stale Matter ABI fixture");
+    }
+    CompiledWorld staleAbi;error.clear();
+    const bool staleAbiAccepted=readPackage(path,staleAbi,nullptr,&error);
+    const bool removedPackage=std::filesystem::remove(path,removed);
+    need(!staleAbiAccepted&&removedPackage&&!removed&&error=="matter package ABI mismatch: recook required",
+         "pre-ABI40 package was not rejected by the explicit ABI guard: "+error);++cpuCheckCount;
+    std::cout<<"reference_displacement_cpu=pass checks="<<cpuCheckCount<<" affine_F_max_error="<<affineError
+        <<" rest_F_max_error="<<restError<<" rigid_rotation_F_max_error="<<rotationError
+        <<" default_path=unchanged fingerprint=bound package=roundtrip\n";
+}
+void thinSkewArithmeticChecks(const WorldSource& regionalReference){
+    const auto oldWorld=cook(thinSkewSource(regionalReference,false));
+    const auto newWorld=cook(thinSkewSource(regionalReference,true));
+    double oldRestFError=0,newRestFError=0,oldGreenStrainError=0;
+    for(unsigned ti=0;ti<newWorld.dispatch.tetrahedronCount;++ti){
+        const auto oldF=executableRestF32(oldWorld,ti,false);
+        const auto newF=executableRestF32(newWorld,ti,true);
+        Matrix green=ref::sub(ref::multiply(ref::transpose(oldF),oldF),ref::identity);
+        for(double& value:green)value*=.5;
+        for(unsigned i=0;i<9;++i){
+            oldRestFError=std::max(oldRestFError,std::abs(oldF[i]-ref::identity[i]));
+            newRestFError=std::max(newRestFError,std::abs(newF[i]-ref::identity[i]));
+            oldGreenStrainError=std::max(oldGreenStrainError,std::abs(green[i]));
+        }
+        const auto interval=detail::femReferenceDeterminantInterval(
+            newWorld.fem.tetrahedra[ti],newWorld.fem.nodes.data());
+        need(interval.nominal==1.0f&&interval.strictlyAdmitted(
+            newWorld.materials[newWorld.fem.tetrahedra[ti].identity.x].validity),
+            "thin translated reference did not preserve exact rest J");
+    }
+    need(oldRestFError>0.0,"thin/skew control unexpectedly has exact legacy FP32 identity");
+    need(newRestFError==0.0,"reference-displacement thin/skew rest F is not exact identity");++cpuCheckCount;
+    std::cout<<"reference_displacement_thin_skew_cpu=pass checks="<<cpuCheckCount
+        <<" horizontal_scale_m=0.00421 thickness_m=3.07e-5 translated_origin_m=0.05219"
+        <<" legacy_rest_F_max_error="<<oldRestFError
+        <<" legacy_green_strain_max="<<oldGreenStrainError
+        <<" displacement_rest_F_max_error="<<newRestFError<<'\n';
+}
 void generalReferenceChecks(const WorldSource& authored){
     auto s=authored;auto& o=s.objects[0];
     // Rotation/shear with every matrix entry nonzero, at a translated
@@ -329,6 +497,40 @@ void directChecks(Device& d,const WorldSource& authored,const char* label){
     need(zeroScale<1e-4*forceScale,"supplied reference zero-load control has unexpected stress");
     std::cout<<"reference_direct_case="<<label<<" force_relative_error="<<fe<<" tangent_relative_error="<<je<<" finite_difference_relative_error="<<fd<<" initial_prestress_nodal_force_N="<<forceScale<<" internal_force_balance_relative="<<net/forceScale<<" unloaded_force_N="<<zeroScale<<'\n';
 }
+void rigidRotationChecks(Device& d,const WorldSource& regionalReference){
+    auto authored=regionalReference;auto& object=authored.objects[0];
+    object.femReferenceDisplacementGradient=true;
+    const Matrix rotation{0,-1,0,1,0,0,0,0,1};const Vec translation{.03125,-.015625,.0078125};
+    for(unsigned n=0;n<object.femReferenceNodes.size();++n){auto p=transform(rotation,object.femReferenceNodes[n]);
+        for(unsigned j=0;j<3;++j)p[j]+=translation[j];object.femNodes[n]=p;}
+    const auto w=cook(authored);const auto input=manufactured(w);
+    double cpuError=0;for(unsigned ti=0;ti<w.dispatch.tetrahedronCount;++ti){const auto f=gradient(w,input,0,ti);
+        for(unsigned i=0;i<9;++i)cpuError=std::max(cpuError,std::abs(f[i]-rotation[i]));}
+    need(cpuError<1e-6,"rigid-rotation CPU kinematics did not produce F=R");
+    const Oracle oracle=[&](unsigned ti,const Matrix& f,const Matrix& h,const Matrix&,const Matrix& q){
+        if(w.fem.tetrahedra[ti].identity.x==0)return ref::framedGuccione(f,h,q);
+        auto r=ref::neoHookean(ref::multiply(f,q),ref::multiply(h,q));
+        r.stress=ref::multiply(r.stress,ref::transpose(q));r.tangent=ref::multiply(r.tangent,ref::transpose(q));return r;};
+    const auto force=dispatch(d,w,input,false),tangent=dispatch(d,w,input,true);
+    double maximumForce=0;for(const auto& item:force)for(const auto& value:forces(item))
+        for(double component:value)maximumForce=std::max(maximumForce,std::abs(component));
+    const double tangentError=compare(w,input,tangent,true,oracle),fd=finiteDifference(d,w,input,tangent);
+    need(maximumForce<1e-4&&tangentError<3e-4&&fd<3e-3,
+         "production FEM rigid rotation/tangent check failed force_N="+number(maximumForce)+
+         " tangent="+number(tangentError)+" FD="+number(fd));
+    std::cout<<"reference_displacement_rigid_rotation=pass cpu_F_max_error="<<cpuError
+        <<" production_force_max_N="<<maximumForce<<" tangent_relative_error="<<tangentError
+        <<" finite_difference_relative_error="<<fd<<'\n';
+}
+void thinSkewMetalRestCheck(Device& d,const WorldSource& regionalReference){
+    const auto authored=thinSkewSource(regionalReference,true);const auto w=cook(authored);
+    const auto input=manufactured(w);const auto values=dispatch(d,w,input,false);double maximumForce=0;
+    for(const auto& item:values)for(const auto& value:forces(item))
+        for(double component:value)maximumForce=std::max(maximumForce,std::abs(component));
+    need(maximumForce==0.0,"production thin/skew reference-rest forces are nonzero: "+number(maximumForce));
+    std::cout<<"reference_displacement_thin_skew_metal_rest=pass force_max_N="
+        <<maximumForce<<" geometry=translated_skew_30.7um\n";
+}
 void integratedChecks(Device& device,const WorldSource& authored,unsigned steps,const char* label){
     Run run(device,authored);const auto initial=run.state();RuntimeStateSnapshot one;double motion=0;
     for(unsigned i=0;i<steps;++i){run.step(i);const auto s=run.state();if(i==0)one=s;paired(s.femNodes,"accepted reference nodes");
@@ -349,6 +551,10 @@ void integratedChecks(Device& device,const WorldSource& authored,unsigned steps,
     deny("mass",[](auto& s){s.femNodes[3].positionAndMass.w=std::nextafter(s.femNodes[3].positionAndMass.w,1.f);});
     deny("inverse mass",[](auto& s){s.femNodes[3].velocityAndInverseMass.w=std::nextafter(s.femNodes[3].velocityAndInverseMass.w,0.f);});
     deny("fixed constraint",[](auto& s){s.femNodes[3].restAndFixed.w=1;});
+    if (authored.objects[0].femReferenceDisplacementGradient) {
+        deny("reference-displacement mode tag",[](auto& s){s.femNodes[3].referenceDisplacementAndMode.w=0.0f;});
+        deny("reference-displacement materialization",[](auto& s){s.femNodes[3].positionAndMass.x=std::nextafter(s.femNodes[3].positionAndMass.x,INFINITY);});
+    }
     deny("inverted current geometry",[](auto& s){s.femNodes[3].positionAndMass.z=s.femNodes[4].positionAndMass.z;});
     deny("collapsed current geometry",[](auto& s){const auto p=s.femNodes[0].positionAndMass;s.femNodes[3].positionAndMass.x=p.x;s.femNodes[3].positionAndMass.y=p.y;s.femNodes[3].positionAndMass.z=p.z;});
     deny("nonfinite current geometry",[](auto& s){s.femNodes[3].positionAndMass.x=std::numeric_limits<float>::infinity();});
@@ -366,10 +572,13 @@ int main(int argc,char** argv){@autoreleasepool{try{
     auto a=parseMatterFile(argv[1]),b=parseMatterFile(argv[2]);need(a.succeeded()&&b.succeeded(),diagnostic(a.diagnostics)+diagnostic(b.diagnostics));
     set(a.material,"density",900);set(b.material,"density",1200); // synthetic fixture only
     const auto simple=source(a.material,b.material),combined=source(a.material,b.material,true);
-    std::cout<<std::setprecision(17)<<"reference_abi="<<NM_MATTER_ABI_VERSION<<'\n';cpuChecks(simple);cpuChecks(combined);generalReferenceChecks(simple);generalReferenceChecks(combined);executableBoundaryChecks(simple);
+    auto displacement=combined;displacement.objects[0].femReferenceDisplacementGradient=true;
+    std::cout<<std::setprecision(17)<<"reference_abi="<<NM_MATTER_ABI_VERSION<<'\n';cpuChecks(simple);cpuChecks(combined);referenceDisplacementChecks(combined);thinSkewArithmeticChecks(combined);generalReferenceChecks(simple);generalReferenceChecks(combined);executableBoundaryChecks(simple);
     if(argc==4){std::cout<<"fem_reference_compiler_check=pass unloaded_reference_recovered=false anatomical_wall_qualified=false\n";return 0;}
     Device device;std::cout<<"reference_device="<<[device.device name].UTF8String<<'\n';
     boundaryRestoreChecks(device,simple);directChecks(device,simple,"reference_only");directChecks(device,combined,"reference_regional_frames");
+    directChecks(device,displacement,"reference_displacement_regional_frames");rigidRotationChecks(device,combined);thinSkewMetalRestCheck(device,combined);
     integratedChecks(device,simple,16,"reference_only");integratedChecks(device,combined,16,"reference_regional_frames");
+    integratedChecks(device,displacement,16,"reference_displacement_regional_frames");
     std::cout<<"fem_reference_check=pass unloaded_reference_recovered=false anatomical_wall_qualified=false source_density_supplied=false active_cardiac_source_reproduced=false\n";return 0;
 }catch(const std::exception& e){std::cerr<<"fem reference check failed: "<<e.what()<<'\n';return 1;}}}

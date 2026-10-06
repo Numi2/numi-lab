@@ -1,0 +1,55 @@
+{
+  "schema": "numi.cardboard.force-matched-time-trials.v1",
+  "created_utc": "2026-10-06T08:26:20.911263+00:00",
+  "question": "Does persistent-reference-displacement time sensitivity pass at equal equivalent force tolerance on exactly the same source/binary?",
+  "prediction": "Both runs complete; reaction-moment and paper plastic-strain RMS phase endpoints change by no more than10%. Report reaction-force curves separately, including failures of broader convergence.",
+  "scope": "Same0.8msloading+0.4mshold,scalar preconditioner,relative impulse tolerance/dt fixed0.04. No free release or physical calibration claim.",
+  "trials": [
+    {
+      "name": "matched-baseline-001",
+      "args": [
+        "--reference-displacement-gradient",
+        "--newton-iterations",
+        "28",
+        "--fgmres-iterations",
+        "64",
+        "--unload-steps",
+        "0",
+        "--relax-steps",
+        "0",
+        "--residual-tolerance",
+        "1e-6",
+        "--dt",
+        ".000025",
+        "--steps",
+        "32",
+        "--hold-steps",
+        "16"
+      ]
+    },
+    {
+      "name": "matched-halfdt-001",
+      "args": [
+        "--reference-displacement-gradient",
+        "--newton-iterations",
+        "28",
+        "--fgmres-iterations",
+        "64",
+        "--unload-steps",
+        "0",
+        "--relax-steps",
+        "0",
+        "--residual-tolerance",
+        "5e-7",
+        "--dt",
+        ".0000125",
+        "--steps",
+        "64",
+        "--hold-steps",
+        "32"
+      ]
+    }
+  ],
+  "timeout_seconds_per_run": 1800,
+  "physical_validation": false
+}

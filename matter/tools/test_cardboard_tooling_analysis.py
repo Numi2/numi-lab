@@ -106,6 +106,20 @@ class CardboardToolingAnalysisTests(unittest.TestCase):
         self._write_csv("observations.csv", self.observations)
         self._write_csv("tool-observations.csv", self.tool_rows)
 
+    def test_barrier_scale_requires_prescribed_path(self) -> None:
+        self.manifest["tooling"]["prescribed_tool_barrier_stiffness_scale"] = 4.0
+        self._write_json("manifest.json", self.manifest)
+        with self.assertRaises(analysis.EvidenceError):
+            analysis.analyze_run(self.run_dir)
+        self.manifest["tooling"]["native_feasible_predictor"] = True
+        self._write_json("manifest.json", self.manifest)
+        report = analysis.analyze_run(self.run_dir)
+        self.assertEqual(report["tooling"]["prescribed_tool_barrier_stiffness_scale"], 4.0)
+        self.manifest["tooling"]["prescribed_tool_barrier_stiffness_scale"] = 101.0
+        self._write_json("manifest.json", self.manifest)
+        with self.assertRaises(analysis.EvidenceError):
+            analysis.analyze_run(self.run_dir)
+
     def tearDown(self) -> None:
         self.temp.cleanup()
 
@@ -130,6 +144,15 @@ class CardboardToolingAnalysisTests(unittest.TestCase):
         self.assertFalse(report["physical_validation"])
         self.assertEqual(report["summary"]["verified_accepted_step_node_gaps"]["negative_gap_count"], 0)
         self.assertEqual(report["summary"]["verified_accepted_indented_punch_force_receipt"]["punch_contact_count_total"], 1)
+
+    def test_prescribed_endpoint_solve_timing_is_recognized(self) -> None:
+        manifest_path = self.run_dir / "manifest.json"
+        manifest = json.loads(manifest_path.read_text())
+        manifest["tooling"]["timing"] = (
+            "prescribed end pose and consistent step velocity in preDynamics and postCommit; independent end gap audit")
+        manifest_path.write_text(json.dumps(manifest))
+        report = analysis.analyze_run(self.run_dir)
+        self.assertEqual(report["verdict"], "instrument_checks_passed")
 
     def test_no_moving_arm_native_contact_fails(self) -> None:
         for row in self.tool_rows:

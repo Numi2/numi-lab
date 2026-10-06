@@ -40,6 +40,38 @@ The sources support useful process and output checks, but leave the constitutive
 
 The laminated-sheet work by Beex and Peerlings (2009), [*An experimental and computational study of laminated paperboard creasing and folding*](https://doi.org/10.1016/j.ijsolstr.2009.08.012), offers detailed ply-delamination mechanisms and score/fold measurements, but it is solid laminated paperboard without a corrugated medium and flute-tip glue joints. It can inform candidate mechanisms; it cannot be substituted for corrugated-board crease validation.
 
+## Native follow-up and remaining implementation boundary
+
+The [precision and scoring follow-up](evidence/native-precision-and-scoring/README.md)
+repairs thin-layer reference-displacement arithmetic, adds a native prescribed
+capsule predictor with rollback, and retains tighter-tolerance, time/mesh and
+contact-conditioning experiments. A shallow 20 µm travel cycle completes. At the exploratory tolerance the default
+50 µm cycle reaches a conservative clearance floor while Newton is still
+unconverged. At `1e-6`, default stiffness completes loading/hold but rejects
+the first withdrawal. Factors 2 and 4 complete the tighter full cycle, with
+0.75% peak-force spread but 22.6% relative RMS withdrawal-force difference
+(0.00213 N absolute RMS). This remains a numerical blocker before a physical
+deep score can be claimed. Refinement failures remain evidence, even when a coarse run passes.
+
+The [Tryding/Biel coupon](../../materials/tryding2023_bleached_paperboard_modeI_coupon.md)
+now implements and checks a published positive Mode I paperboard delamination
+law in the native constitutive evaluator. It is a separate bleached single-ply
+grade, executes zero physical FEM steps in that check, and supplies neither a
+starch interface calibration nor a corrugated-sheet bulk damage law. The
+[Robertsson architecture assessment](../../materials/robertsson2023_bulk_damage_architecture.md)
+identifies the source damage model's 22 persistent scalar states versus the
+current 16-value material limit, its mesh calibration, and why published starch
+peel force alone does not identify a traction–separation law. Further inputs
+must come from matching published datasets or source curves, not new physical
+data collection or cross-grade parameter substitution.
+
+The [FEFCO blank helper](cardboard-box-blank.md) and native zero-load rest run
+supply a connected slotted laminate and explicit, unexecuted assembly targets.
+They do not execute the score, wall folds, manufacturer joint or flap closure.
+A complete assembly prediction still needs the source-bound damage/interface
+mechanisms, converged contact/tool histories and physically solved transitions
+through those targets.
+
 ## Evidence and limits
 
 The complete source URLs, exact page/table/figure locations, board/tool/process numbers, source PDF hashes, reported and derived values, unit conflict, and source-vs-derived distinctions are in [`crease-fold-reference-manifest.json`](crease-fold-reference-manifest.json). PDFs used for inspection remain outside the repository under `/Users/home/cardboard-research-20261006/`.

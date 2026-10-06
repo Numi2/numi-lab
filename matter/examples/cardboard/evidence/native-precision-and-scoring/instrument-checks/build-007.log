@@ -1,0 +1,37 @@
+[  5%] Generating shaders/NumiMatter.metallib
+[ 52%] Built target numi_matter_compiler_objects
+[ 57%] Linking CXX static library libnumi_matter_compiler.a
+[ 57%] Built target numi_matter_compiler
+[ 63%] Built target numi_matter_shaders
+[ 68%] Building OBJCXX object CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o
+[ 73%] Building OBJCXX object CMakeFiles/numi_matter_runtime_objects.dir/src/human_physiology.mm.o
+[ 78%] Building OBJCXX object CMakeFiles/numi_matter_runtime_objects.dir/src/numi_human.mm.o
+[ 84%] Building CXX object CMakeFiles/numi_matter_runtime_objects.dir/src/metal_world.cpp.o
+[ 84%] Built target numi_matter_runtime_objects
+[ 89%] Linking CXX static library libnumi_matter_runtime.a
+[ 89%] Built target numi_matter_runtime
+[ 94%] Building OBJCXX object CMakeFiles/numi-matter-cardboard-probe.dir/tools/cardboard_probe.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-probe
+[100%] Built target numi-matter-cardboard-probe
+[ 10%] Built target numi_matter_shaders
+[ 57%] Built target numi_matter_compiler_objects
+[ 63%] Built target numi_matter_compiler
+[ 84%] Built target numi_matter_runtime_objects
+[ 89%] Built target numi_matter_runtime
+[ 94%] Building OBJCXX object CMakeFiles/numi-matter-cardboard-tooling-native-check.dir/tools/cardboard_tooling_native_check.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-tooling-native-check
+[100%] Built target numi-matter-cardboard-tooling-native-check
+[  7%] Built target numi_cardboard_delamination_shaders
+[ 76%] Built target numi_matter_compiler_objects
+[ 84%] Built target numi_matter_compiler
+[ 92%] Building OBJCXX object CMakeFiles/numi-matter-cardboard-delamination-gpu-check.dir/tools/cardboard_bleached_delamination_gpu_check.mm.o
+[100%] Linking CXX executable numi-matter-cardboard-delamination-gpu-check
+[100%] Built target numi-matter-cardboard-delamination-gpu-check
+[ 10%] Built target numi_matter_shaders
+[ 57%] Built target numi_matter_compiler_objects
+[ 68%] Built target numi_matter_compiler
+[ 84%] Built target numi_matter_runtime_objects
+[ 89%] Built target numi_matter_runtime
+[ 94%] Building OBJCXX object CMakeFiles/numi-matter-fem-reference-check.dir/tools/fem_reference_check.mm.o
+[100%] Linking CXX executable numi-matter-fem-reference-check
+[100%] Built target numi-matter-fem-reference-check

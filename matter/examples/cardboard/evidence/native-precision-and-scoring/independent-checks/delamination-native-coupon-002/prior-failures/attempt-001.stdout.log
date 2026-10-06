@@ -1,0 +1,20 @@
+Test project /Users/home/numi-cardboard-20261006/build-cardboard
+    Start 17: matter.metal.cardboard_delamination_coupon
+1/1 Test #17: matter.metal.cardboard_delamination_coupon ...***Failed    2.44 sec
+device=Apple M4 instrument=production_constitutive_evaluator physical_coupon_steps=0
+FAIL native initial onset traction: actual=392977.468750 expected=393030.000000
+
+
+0% tests passed, 1 tests failed out of 1
+
+Label Time Summary:
+cardboard       =   2.44 sec*proc (1 test)
+delamination    =   2.44 sec*proc (1 test)
+material        =   2.44 sec*proc (1 test)
+matter          =   2.44 sec*proc (1 test)
+
+Total Test time (real) =   2.45 sec
+
+The following tests FAILED:
+	 17 - matter.metal.cardboard_delamination_coupon (Failed) cardboard delamination material matter
+Errors while running CTest

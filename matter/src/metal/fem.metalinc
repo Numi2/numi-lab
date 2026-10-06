@@ -147,12 +147,25 @@ inline float3x3 tetrahedronDeformation(
     const float3 x1 = nodes[nodeBase + tetrahedron.nodes.y].positionAndMass.xyz;
     const float3 x2 = nodes[nodeBase + tetrahedron.nodes.z].positionAndMass.xyz;
     const float3 x3 = nodes[nodeBase + tetrahedron.nodes.w].positionAndMass.xyz;
-    const float3x3 ds = float3x3(x1 - x0, x2 - x0, x3 - x0);
     const float3x3 inverseRest = matrixFromRows(
         tetrahedron.inverseRestRow0,
         tetrahedron.inverseRestRow1,
         tetrahedron.inverseRestRow2
     );
+    if ((tetrahedron.identity.w &
+         NM_TETRAHEDRON_REFERENCE_DISPLACEMENT_GRADIENT) != 0u) {
+        // The displacement is stored separately from absolute positions so
+        // adding micron-scale motion to centimeter-scale X cannot quantize the
+        // strain unknown. positionAndMass remains the materialized X + u used
+        // by collision/output paths.
+        const float3 u0 = nodes[nodeBase + tetrahedron.nodes.x].referenceDisplacementAndMode.xyz;
+        const float3 u1 = nodes[nodeBase + tetrahedron.nodes.y].referenceDisplacementAndMode.xyz;
+        const float3 u2 = nodes[nodeBase + tetrahedron.nodes.z].referenceDisplacementAndMode.xyz;
+        const float3 u3 = nodes[nodeBase + tetrahedron.nodes.w].referenceDisplacementAndMode.xyz;
+        const float3x3 du = float3x3(u1 - u0, u2 - u0, u3 - u0);
+        return float3x3(1.0f) + du * inverseRest;
+    }
+    const float3x3 ds = float3x3(x1 - x0, x2 - x0, x3 - x0);
     return ds * inverseRest;
 }
 
@@ -718,8 +731,10 @@ kernel void nm_fem_apply_kinematic_targets(
         return;
     }
     const float remaining = float(microstep.microtickCount - microstep.microtick);
-    const float3 displacement =
-        (target.xyz - previous.positionAndMass.xyz) / remaining;
+    const float3 displacement = previous.referenceDisplacementAndMode.w == 1.0f
+        ? ((target.xyz - previous.restAndFixed.xyz) -
+            previous.referenceDisplacementAndMode.xyz) / remaining
+        : (target.xyz - previous.positionAndMass.xyz) / remaining;
     const float3 velocity = displacement / microstep.time.x;
     if (!all(isfinite(displacement)) || !all(isfinite(velocity))) {
         recordFailure(
@@ -730,7 +745,13 @@ kernel void nm_fem_apply_kinematic_targets(
         return;
     }
     NMFEMNodeStateGPU next = candidate[global];
-    next.positionAndMass.xyz = previous.positionAndMass.xyz + displacement;
+        if (previous.referenceDisplacementAndMode.w == 1.0f) {
+            const float3 nextDisplacement = previous.referenceDisplacementAndMode.xyz + displacement;
+            next.referenceDisplacementAndMode.xyz = nextDisplacement;
+            next.positionAndMass.xyz = previous.restAndFixed.xyz + nextDisplacement;
+        } else {
+            next.positionAndMass.xyz = previous.positionAndMass.xyz + displacement;
+        }
     next.velocityAndInverseMass.xyz = velocity;
     next.deltaVelocity.xyz = velocity - previous.velocityAndInverseMass.xyz;
     candidate[global] = next;
@@ -858,7 +879,12 @@ kernel void nm_fem_human_attachment_drive_candidate(
     }
 
     NMFEMNodeStateGPU next = candidate[nodeGlobal];
-    next.positionAndMass.xyz = position;
+    if (next.referenceDisplacementAndMode.w == 1.0f) {
+        next.referenceDisplacementAndMode.xyz = position - next.restAndFixed.xyz;
+        next.positionAndMass.xyz = next.restAndFixed.xyz + next.referenceDisplacementAndMode.xyz;
+    } else {
+        next.positionAndMass.xyz = position;
+    }
     next.velocityAndInverseMass.xyz = velocity;
     next.deltaVelocity.xyz =
         velocity - accepted[nodeGlobal].velocityAndInverseMass.xyz;
@@ -1404,9 +1430,17 @@ kernel void nm_fem_apply_solution(
                     alpha * solution[global].xyz;
                 next.deltaVelocity.xyz = next.velocityAndInverseMass.xyz -
                     accepted[global].velocityAndInverseMass.xyz;
-                next.positionAndMass.xyz = accepted[global].positionAndMass.xyz +
-                    objectTimestep(dispatch, scheduler) *
-                    next.velocityAndInverseMass.xyz;
+                const float dt = objectTimestep(dispatch, scheduler);
+                if (next.referenceDisplacementAndMode.w == 1.0f) {
+                    next.referenceDisplacementAndMode.xyz =
+                        accepted[global].referenceDisplacementAndMode.xyz +
+                        dt * next.velocityAndInverseMass.xyz;
+                    next.positionAndMass.xyz = next.restAndFixed.xyz +
+                        next.referenceDisplacementAndMode.xyz;
+                } else {
+                    next.positionAndMass.xyz = accepted[global].positionAndMass.xyz +
+                        dt * next.velocityAndInverseMass.xyz;
+                }
             }
             if ((object.flags & NM_OBJECT_MIXED_FEM) != 0u &&
                 object.materialIndex < dispatch.mixedMaterialCount) {
@@ -1470,21 +1504,35 @@ kernel void nm_fem_select_backtracking(
                 (tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
             const uint nodeBase = environment * dispatch.femNodeCount;
             float3 x[4];
+            float3 u[4];
             for (uint slot = 0u; slot < 4u; ++slot) {
                 const uint index = nodeBase + tetrahedron.nodes[slot];
                 const float3 velocity =
                     candidate[index].velocityAndInverseMass.xyz +
                     alpha * correction[index].xyz;
-                x[slot] = accepted[index].positionAndMass.xyz + dt * velocity;
+                if ((tetrahedron.identity.w & NM_TETRAHEDRON_REFERENCE_DISPLACEMENT_GRADIENT) != 0u) {
+                    u[slot] = accepted[index].referenceDisplacementAndMode.xyz + dt * velocity;
+                    x[slot] = accepted[index].restAndFixed.xyz + u[slot];
+                } else {
+                    x[slot] = accepted[index].positionAndMass.xyz + dt * velocity;
+                    u[slot] = float3(0.0f);
+                }
             }
             const float3x3 inverseRest = matrixFromRows(
                 tetrahedron.inverseRestRow0,
                 tetrahedron.inverseRestRow1,
                 tetrahedron.inverseRestRow2
             );
-            const float3x3 deformation = float3x3(
-                x[1] - x[0], x[2] - x[0], x[3] - x[0]
-            ) * inverseRest;
+            float3x3 deformation;
+            if ((tetrahedron.identity.w & NM_TETRAHEDRON_REFERENCE_DISPLACEMENT_GRADIENT) != 0u) {
+                deformation = float3x3(1.0f) + float3x3(
+                    u[1] - u[0], u[2] - u[0], u[3] - u[0]
+                ) * inverseRest;
+            } else {
+                deformation = float3x3(
+                    x[1] - x[0], x[2] - x[0], x[3] - x[0]
+                ) * inverseRest;
+            }
             const float determinantValue = determinant(deformation);
             const float currentDeterminant = determinant(
                 tetrahedronDeformation(tetrahedron, candidate, nodeBase));
@@ -1616,10 +1664,19 @@ kernel void nm_fem_integrate(
     if (object.representation == NM_REPRESENTATION_FEM &&
         objectDue(object, scheduler, adaptiveState, microstep) &&
         candidate[global].restAndFixed.w <= 0.5f) {
-        candidate[global].positionAndMass.xyz =
-            accepted[global].positionAndMass.xyz +
-            objectTimestep(dispatch, scheduler) *
-            candidate[global].velocityAndInverseMass.xyz;
+        if (candidate[global].referenceDisplacementAndMode.w == 1.0f) {
+            candidate[global].referenceDisplacementAndMode.xyz =
+                accepted[global].referenceDisplacementAndMode.xyz +
+                objectTimestep(dispatch, scheduler) *
+                candidate[global].velocityAndInverseMass.xyz;
+            candidate[global].positionAndMass.xyz = candidate[global].restAndFixed.xyz +
+                candidate[global].referenceDisplacementAndMode.xyz;
+        } else {
+            candidate[global].positionAndMass.xyz =
+                accepted[global].positionAndMass.xyz +
+                objectTimestep(dispatch, scheduler) *
+                candidate[global].velocityAndInverseMass.xyz;
+        }
     }
 }
 

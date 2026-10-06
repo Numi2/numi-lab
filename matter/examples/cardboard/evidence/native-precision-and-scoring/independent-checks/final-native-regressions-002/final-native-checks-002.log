@@ -1,0 +1,36 @@
+Test project /Users/home/numi-cardboard-20261006/build-cardboard
+    Start 15: matter.metal.fem_kinematic_release
+1/9 Test #15: matter.metal.fem_kinematic_release ...........   Passed    0.54 sec
+    Start 16: matter.metal.cardboard_tooling
+2/9 Test #16: matter.metal.cardboard_tooling ...............   Passed    4.62 sec
+    Start 17: matter.metal.cardboard_material
+3/9 Test #17: matter.metal.cardboard_material ..............   Passed    1.07 sec
+    Start 18: matter.metal.cardboard_paper
+4/9 Test #18: matter.metal.cardboard_paper .................   Passed    2.02 sec
+    Start 19: matter.metal.cardboard_delamination_coupon
+5/9 Test #19: matter.metal.cardboard_delamination_coupon ...   Passed    6.73 sec
+    Start 33: matter.metal.fem_regional_material
+6/9 Test #33: matter.metal.fem_regional_material ...........   Passed   10.62 sec
+    Start 34: matter.metal.fem_material_frame
+7/9 Test #34: matter.metal.fem_material_frame ..............   Passed    6.85 sec
+    Start 39: matter.metal.cardboard_preconditioner
+8/9 Test #39: matter.metal.cardboard_preconditioner ........   Passed    0.87 sec
+    Start 41: matter.metal.fem_reference
+9/9 Test #41: matter.metal.fem_reference ...................   Passed   22.84 sec
+
+100% tests passed, 0 tests failed out of 9
+
+Label Time Summary:
+cardboard       =  15.30 sec*proc (5 tests)
+contact         =   4.62 sec*proc (1 test)
+delamination    =   6.73 sec*proc (1 test)
+fem             =   0.54 sec*proc (1 test)
+human           =  40.31 sec*proc (3 tests)
+material        =  48.11 sec*proc (5 tests)
+matter          =  56.15 sec*proc (9 tests)
+metal           =   1.07 sec*proc (1 test)
+numerics        =   0.87 sec*proc (1 test)
+plasticity      =   2.02 sec*proc (1 test)
+release         =   0.54 sec*proc (1 test)
+
+Total Test time (real) =  56.16 sec

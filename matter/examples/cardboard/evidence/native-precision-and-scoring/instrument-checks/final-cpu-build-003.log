@@ -1,0 +1,18 @@
+[ 50%] Building CXX object CMakeFiles/numi-matter-cardboard-box-blank-check.dir/tools/cardboard_box_blank_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-box-blank-check
+[100%] Built target numi-matter-cardboard-box-blank-check
+[ 16%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/matter.cpp.o
+[ 16%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/language_impl.cpp.o
+[ 25%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/constitutive_impl.cpp.o
+[ 33%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/compiler_impl.cpp.o
+[ 41%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/vascular_impl.cpp.o
+[ 50%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/fingerprint_impl.cpp.o
+[ 58%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/validation_impl.cpp.o
+[ 66%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/package_impl.cpp.o
+[ 75%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/surgical_tissue.cpp.o
+[ 75%] Built target numi_matter_compiler_objects
+[ 83%] Linking CXX static library libnumi_matter_compiler.a
+[ 83%] Built target numi_matter_compiler
+[ 91%] Building CXX object CMakeFiles/numi-matter-cardboard-barrier-scale-check.dir/tools/cardboard_prescribed_barrier_scale_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-barrier-scale-check
+[100%] Built target numi-matter-cardboard-barrier-scale-check

@@ -1,0 +1,15 @@
+{
+  "schema": "numi.cardboard.tooling-plot.v1",
+  "bindings": {
+    "predictor20-001/tool-observations.csv": "145137b257380f00bd1a06c3c0954b7d05700beb4589bbab01e9d6b547e8f3cc",
+    "predictor20-001/observations.csv": "8ba27a240770077349eb6bab627dcfc93b118a132ae54f40589adf2206391eaf",
+    "predictor20-001/manifest.json": "3f91d969ffe35c9db811b1d5652b2110091611c41ab04bc82d034211f18736ec",
+    "predictor20-001/result.json": "452b850f18ba2e4ce1e91581e8d63d8bef090b952ee7194c4770fecf3e3b1206",
+    "predictor50-001/tool-observations.csv": "c2ad0cd5e348477b1e23ea5b4f1e46b0c22b245a931c17f1a6d3710c9abd2737",
+    "predictor50-001/observations.csv": "44f7f0824e3a9d6fbb9744fad24908c29299a02e3e34a81a0313deb9ae5121e1",
+    "predictor50-001/manifest.json": "1bf2f49d5d91c5cea792f08047b4989e58fb07174c9129065a8e1d6a4f4ffbfe",
+    "predictor50-001/result.json": "7789be47c95aacab618fea273103f9fde3996dc25823eb96cc6bf588ee54f2c4"
+  },
+  "script_sha256": "2f13ddc19d6850aa66e009d246d896ba2cab3c7b5d79feb032e3aefde9daf569",
+  "physical_validation": false
+}

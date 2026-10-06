@@ -29,6 +29,7 @@ def write_json(path: Path, value: object) -> None:
 def fake_run(root: Path, name: str, *, nx: int = 2, dt: float = 1.0,
              steps: int = 1, hold: int = 1, unload: int = 1, relax: int = 1,
              release: int = 0, phase_angle: float = 1.0, material_digest: str = "liner-v1",
+             relative_residual_tolerance: float = 1e-4,
              geometry_length: float = 1.0, plastic_liner: float = 0.0,
              plastic_medium: float = 3e-6, moment_scale: float = 1.0,
              raw_status: int = 0, accepted_flag: int = 1,
@@ -61,7 +62,7 @@ def fake_run(root: Path, name: str, *, nx: int = 2, dt: float = 1.0,
         "release_policy": "right grip free; left grip remains fixed; physical state preserved",
         "local_material_newton_iterations": 16, "newton_iteration_budget": 14,
         "fgmres_restart": 10, "fgmres_iteration_budget": 32, "line_search_steps": 8,
-        "relative_residual_tolerance": 1e-4, "volume_tolerance": 1e-4,
+        "relative_residual_tolerance": relative_residual_tolerance, "volume_tolerance": 1e-4,
         "pressure_tolerance": 1e-4, "transport_tolerance": 1e-4,
         "maximum_rate_exponent": 0, "runtime_execution": True,
     }
@@ -109,7 +110,8 @@ def fake_run(root: Path, name: str, *, nx: int = 2, dt: float = 1.0,
     headers = ["step", "time_s", "environment", "arm", "target_angle_deg", "status_code",
                "reaction_x_N", "reaction_y_N", "reaction_z_N", "reaction_moment_y_Nm", "phase",
                "max_free_displacement_m", "max_free_speed_m_s", "kinetic_energy_J", "certificate_residual",
-               "certificate_volume", "certificate_pressure", "certificate_raw_accepted_flag"]
+               "certificate_volume", "certificate_pressure", "certificate_raw_accepted_flag",
+               "free_force_imbalance_l2_N", "free_force_imbalance_max_N"]
     if not omit_step_accepted:
         headers.append("step_accepted")
     headers += ["right_grip_constrained", "measured_right_grip_angle_deg", "current_fixed_nodes"]
@@ -158,6 +160,8 @@ def fake_run(root: Path, name: str, *, nx: int = 2, dt: float = 1.0,
                 "max_free_speed_m_s": .01 * angle, "kinetic_energy_J": 1e-9 * (step + 1),
                 "certificate_residual": 1e-5, "certificate_volume": 0.0,
                 "certificate_pressure": 0.0, "certificate_raw_accepted_flag": accepted_flag,
+                "free_force_imbalance_l2_N": .25 if env == 0 else .05,
+                "free_force_imbalance_max_N": .20 if env == 0 else .04,
                 "right_grip_constrained": 0 if phase == "release" else 1,
                 "measured_right_grip_angle_deg": (0.25 if env == 0 and phase == "release" else (angle if env == 0 else 0.0)),
                 "current_fixed_nodes": 3 if phase == "release" else 6,
@@ -215,6 +219,28 @@ class CardboardConvergenceTests(unittest.TestCase):
         screen = result["endpoint_resolution_screen"]
         self.assertEqual(screen["status"], "within_declared_thresholds")
         self.assertAlmostEqual(screen["metrics_by_phase"]["relaxation"]["plastic_volume_rms_frobenius_ep"]["relative_difference_with_floor"], 0.0)
+
+    def test_arithmetic_change_cannot_masquerade_as_mesh_convergence(self) -> None:
+        a = fake_run(self.root, "legacy", nx=2)
+        b = fake_run(self.root, "displacement", nx=4)
+        path = b / "manifest.json"
+        manifest = json.loads(path.read_text())
+        manifest["solver"]["deformation_gradient"] = "reference_displacement"
+        write_json(path, manifest)
+        result = cc.analyze_pair(a, b, "spatial")
+        self.assertEqual(result["status"], "incompatible_pair")
+        self.assertEqual(result["reasons"][0]["code"], "solver_control_mismatch")
+
+    def test_preconditioner_change_is_not_a_matched_resolution_pair(self) -> None:
+        a = fake_run(self.root, "scalar", nx=2)
+        b = fake_run(self.root, "regional", nx=4)
+        path = b / "manifest.json"
+        manifest = json.loads(path.read_text())
+        manifest["solver"]["fgmres_preconditioner"] = "regional_tangent_fem_diagonal"
+        write_json(path, manifest)
+        result = cc.analyze_pair(a, b, "spatial")
+        self.assertEqual(result["status"], "incompatible_pair")
+        self.assertEqual(result["reasons"][0]["code"], "solver_control_mismatch")
 
     def test_failed_status_not_overridden_by_raw_accepted_flag(self) -> None:
         a = fake_run(self.root, "failed", raw_status=10, accepted_flag=1)
@@ -310,6 +336,74 @@ class CardboardConvergenceTests(unittest.TestCase):
         rate = cc.analyze_pair(coarse, slower, "load_rate")
         self.assertEqual(rate["status"], "analyzed_descriptive")
         self.assertTrue(rate["comparison_contract"]["duration_difference_is_declared_axis"])
+
+    def test_force_matched_tolerance_is_temporal_only_and_reports_force_bounds(self) -> None:
+        baseline = fake_run(self.root, "force-base", nx=2, dt=1.0,
+                            steps=2, hold=2, unload=2, relax=2,
+                            relative_residual_tolerance=1.0e-4)
+        # The ratio differs by 8e-7 relatively, within the documented 1 ppm
+        # allowance for rounded manifest values.
+        candidate = fake_run(self.root, "force-halfdt", nx=2, dt=.5,
+                             steps=4, hold=4, unload=4, relax=4,
+                             relative_residual_tolerance=5.000004e-5)
+
+        default = cc.analyze_pair(baseline, candidate, "temporal")
+        self.assertEqual(default["status"], "incompatible_pair")
+        self.assertEqual(default["reasons"][0]["code"], "solver_control_mismatch")
+
+        result = cc.analyze_pair(
+            baseline, candidate, "temporal", force_matched_tolerance=True)
+        self.assertEqual(result["status"], "analyzed_descriptive")
+        contract = result["comparison_contract"]["force_matched_tolerance"]
+        self.assertTrue(contract["enabled"])
+        self.assertEqual(contract["matching_quantity"], "relative_residual_tolerance / dt_s")
+        self.assertAlmostEqual(contract["baseline"]["relative_residual_tolerance"], 1.0e-4)
+        self.assertAlmostEqual(contract["candidate"]["relative_residual_tolerance"], 5.000004e-5)
+        self.assertAlmostEqual(
+            contract["baseline"]["relative_residual_tolerance_over_dt_s_inverse"],
+            contract["candidate"]["relative_residual_tolerance_over_dt_s_inverse"],
+            delta=1.0e-10)
+        self.assertEqual(
+            contract["baseline"]["observed_free_force_imbalance"]
+            ["maximum_over_recorded_accepted_steps_by_arm_N"]["bent"]
+            ["free_force_imbalance_l2_N"], .25)
+        self.assertIsNone(contract["force_bound_interpretation"]["absolute_force_bound_N"])
+        self.assertIn("residual normalization scale",
+                      contract["force_bound_interpretation"]["absolute_force_bound_unavailable_reason"])
+
+        command = [sys.executable, str(TOOL), "--kind", "temporal",
+                   "--baseline", str(baseline), "--candidate", str(candidate),
+                   "--force-matched-tolerance"]
+        cli = subprocess.run(command, capture_output=True, text=True,
+                             check=False, timeout=10)
+        self.assertEqual(cli.returncode, 0, cli.stderr)
+        self.assertTrue(json.loads(cli.stdout)["comparison_contract"]
+                        ["force_matched_tolerance"]["enabled"])
+
+        bad_ratio = fake_run(self.root, "force-bad-ratio", nx=2, dt=.5,
+                             steps=4, hold=4, unload=4, relax=4,
+                             relative_residual_tolerance=5.00001e-5)
+        rejected = cc.analyze_pair(
+            baseline, bad_ratio, "temporal", force_matched_tolerance=True)
+        self.assertEqual(rejected["status"], "incompatible_pair")
+        self.assertEqual(rejected["reasons"][0]["code"], "force_tolerance_ratio_mismatch")
+
+    def test_force_matched_tolerance_rejects_non_temporal_api_and_cli_use(self) -> None:
+        baseline = fake_run(self.root, "non-temporal-base")
+        candidate = fake_run(self.root, "non-temporal-fine", nx=4)
+        result = cc.analyze_pair(
+            baseline, candidate, "spatial", force_matched_tolerance=True)
+        self.assertEqual(result["status"], "incompatible_pair")
+        self.assertEqual(result["reasons"][0]["code"],
+                         "force_matched_tolerance_requires_temporal")
+
+        command = [sys.executable, str(TOOL), "--kind", "spatial",
+                   "--baseline", str(baseline), "--candidate", str(candidate),
+                   "--force-matched-tolerance"]
+        rejected = subprocess.run(command, capture_output=True, text=True,
+                                  check=False, timeout=10)
+        self.assertEqual(rejected.returncode, 2)
+        self.assertIn("usable only with --kind temporal", rejected.stderr)
 
     def test_free_release_is_measured_and_not_confused_with_clamped_relaxation(self) -> None:
         clamped = fake_run(self.root, "clamped", release=0)

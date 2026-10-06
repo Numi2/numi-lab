@@ -1,0 +1,73 @@
+{
+  "schema": "numi.cardboard.reference-displacement-study.v1",
+  "created_utc": "2026-10-06T06:54:37.247142+00:00",
+  "question": "Does exact rest-gradient arithmetic reduce force noise enough for tighter native equilibrium and improve mesh/time stability?",
+  "model": "same 2009 ideal-Hill corrugated strip and finite elastic glue; changed F arithmetic only; reference state equals authored initial state",
+  "prediction": {
+    "rest_control": "stationary-control force imbalance should fall compared with prior 0.08934N peak",
+    "tight_gate": "1e-6 residual threshold should accept the 48-step loading/hold path; first rejection refutes",
+    "resolution_screen": "all loading/hold/unloading/settle endpoint moment and paper plastic RMS differences <=10% on matched physical time refinements; failure/incomplete pair inconclusive, never pass"
+  },
+  "trials": [
+    {
+      "name": "gradient-tight-001",
+      "args": [
+        "--reference-displacement-gradient",
+        "--residual-tolerance",
+        "0.000001",
+        "--newton-iterations",
+        "28",
+        "--fgmres-iterations",
+        "64",
+        "--steps",
+        "32",
+        "--hold-steps",
+        "16",
+        "--unload-steps",
+        "0",
+        "--relax-steps",
+        "0"
+      ]
+    },
+    {
+      "name": "gradient-base-001",
+      "args": [
+        "--reference-displacement-gradient"
+      ]
+    },
+    {
+      "name": "gradient-time-001",
+      "args": [
+        "--reference-displacement-gradient",
+        "--dt",
+        "0.0000125",
+        "--steps",
+        "64",
+        "--hold-steps",
+        "32",
+        "--unload-steps",
+        "64",
+        "--relax-steps",
+        "128"
+      ]
+    },
+    {
+      "name": "gradient-length-001",
+      "args": [
+        "--reference-displacement-gradient",
+        "--nx",
+        "16"
+      ]
+    },
+    {
+      "name": "gradient-thickness-001",
+      "args": [
+        "--reference-displacement-gradient",
+        "--thickness-slices",
+        "2"
+      ]
+    }
+  ],
+  "stop": "each native run stops on first rejected step; 900s cap; retain all failures; tight test first; no threshold relaxation; reuse baseline condition unchanged for matched comparisons",
+  "evidence_boundary": "numerical instrument study, no real-grade calibration or box qualification"
+}

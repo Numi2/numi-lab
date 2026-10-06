@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <array>
+#include <bit>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -46,13 +47,18 @@ constexpr std::uint32_t kKnownObjectFlags =
     NM_OBJECT_DISABLE_DEFORMABLE_CONTACT |
     NM_OBJECT_FEM_MATERIAL_FRAME |
     NM_OBJECT_FEM_REGIONAL_MATERIAL |
-    NM_OBJECT_FEM_REFERENCE_CONFIGURATION;
+    NM_OBJECT_FEM_REFERENCE_CONFIGURATION |
+    NM_OBJECT_FEM_REFERENCE_DISPLACEMENT_GRADIENT;
+constexpr std::uint32_t kKnownTetrahedronFlags =
+    static_cast<std::uint32_t>(NM_OBJECT_ACTIVE) |
+    static_cast<std::uint32_t>(NM_TETRAHEDRON_REFERENCE_DISPLACEMENT_GRADIENT);
 constexpr std::uint32_t kKnownRigidFlags =
     NM_RIGID_ARTICULATED |
     NM_RIGID_DYNAMIC |
     NM_RIGID_PUNCTURE_TIP |
     NM_RIGID_SUTURE_STRAND |
-    NM_RIGID_PUNCTURE_DILATOR;
+    NM_RIGID_PUNCTURE_DILATOR |
+    NM_RIGID_PRESCRIBED_TRANSLATION;
 
 [[nodiscard]] bool finite4(const nm_float4 value) noexcept {
     return std::isfinite(value.x) && std::isfinite(value.y) &&
@@ -90,10 +96,10 @@ constexpr std::uint32_t kKnownRigidFlags =
     const auto det = [](const Matrix& m) {
         return m[0]*(m[4]*m[8]-m[5]*m[7])-m[1]*(m[3]*m[8]-m[5]*m[6])+m[2]*(m[3]*m[7]-m[4]*m[6]);
     };
-    const auto m=edges(true);const double d=det(m),initialD=det(edges(false));
+    const auto m=edges(true);const double d=det(m);
     double scale=1.0;for (double value:m) scale=std::max(scale,std::abs(value));
     if (!(d>6e-18) || !(d>128.0*std::numeric_limits<double>::epsilon()*scale*scale*scale) ||
-            !(initialD>6e-18) || !std::isfinite(d) || !std::isfinite(initialD)) return false;
+            !std::isfinite(d)) return false;
     const double r=1/d;
     const Matrix expected{(m[4]*m[8]-m[5]*m[7])*r,(m[2]*m[7]-m[1]*m[8])*r,(m[1]*m[5]-m[2]*m[4])*r,
         (m[5]*m[6]-m[3]*m[8])*r,(m[0]*m[8]-m[2]*m[6])*r,(m[2]*m[3]-m[0]*m[5])*r,
@@ -101,6 +107,25 @@ constexpr std::uint32_t kKnownRigidFlags =
     const std::array<float,9> actual{t.inverseRestRow0.x,t.inverseRestRow0.y,t.inverseRestRow0.z,
         t.inverseRestRow1.x,t.inverseRestRow1.y,t.inverseRestRow1.z,t.inverseRestRow2.x,t.inverseRestRow2.y,t.inverseRestRow2.z};
     for (unsigned i=0;i<9;++i) if (!std::isfinite(expected[i]) || actual[i]!=static_cast<float>(expected[i])) return false;
+    double initialD = det(edges(false));
+    if ((t.identity.w & NM_TETRAHEDRON_REFERENCE_DISPLACEMENT_GRADIENT) != 0u) {
+        Matrix du{};
+        for (unsigned c=0;c<3;++c) {
+            const auto& node = nodes[indices[c+1]].referenceDisplacementAndMode;
+            const auto& origin = nodes[indices[0]].referenceDisplacementAndMode;
+            du[c] = double(node.x)-origin.x;
+            du[3+c] = double(node.y)-origin.y;
+            du[6+c] = double(node.z)-origin.z;
+        }
+        Matrix f{};
+        for (unsigned r=0;r<3;++r) for (unsigned c=0;c<3;++c) {
+            for (unsigned k=0;k<3;++k)
+                f[3*r+c] += du[3*r+k] * double(actual[3*k+c]);
+            if (r==c) f[3*r+c] += 1.0;
+        }
+        initialD = det(f);
+    }
+    if (!(initialD>6e-18) || !std::isfinite(initialD)) return false;
     return detail::femReferenceDeterminantInterval(t,nodes.data()).strictlyAdmitted(material.validity) &&
         t.inverseRestRow0.w==static_cast<float>(d/6) && t.inverseRestRow1.w==0.0f && t.inverseRestRow2.w==0.0f;
 }
@@ -357,7 +382,7 @@ private:
             solver.executionBudgets.x >
                 NM_MIXED_FIELD_SMOOTHER_MAX_PASSES ||
             solver.executionBudgets.y == 0u ||
-            solver.executionBudgets.z != 0u ||
+            solver.executionBudgets.z > 1u ||
             solver.executionBudgets.w != 0u ||
             !finite4(solver.residualTolerances) ||
             !(solver.residualTolerances.x > 0.0f) ||
@@ -384,6 +409,34 @@ private:
             solver.globalization.w < 0.0f ||
             solver.globalization.w > 1.0f) {
             return fail("mixed solver policy is invalid");
+        }
+        if (solver.executionBudgets.z == 1u) {
+            if (world_.objects.empty() || !world_.learnedMaterials.empty() ||
+                !world_.fem.humanAttachments.empty() ||
+                !world_.fem.mutationCommands.empty() ||
+                !world_.fem.cohesiveFaces.empty() ||
+                !world_.fem.punctureChannels.empty() ||
+                std::any_of(world_.objects.begin(), world_.objects.end(),
+                    [](const NMContinuumObjectGPU& object) {
+                        return object.representation != NM_REPRESENTATION_FEM ||
+                            (object.flags & (NM_OBJECT_MIXED_FEM |
+                                             NM_OBJECT_MULTIPHYSICS |
+                                             NM_OBJECT_ADAPTIVE |
+                                             NM_OBJECT_MUTABLE_TOPOLOGY |
+                                             NM_OBJECT_IDENTIFIABLE)) != 0u;
+                    }) ||
+                std::any_of(world_.materials.begin(), world_.materials.end(),
+                    [](const NMMaterialGPU& material) {
+                        return material.constitutiveKind ==
+                            NM_CONSTITUTIVE_POLYCONVEX_ICNN;
+                    })) {
+                return fail(
+                    "regional tangent FEM preconditioner requires a pure, "
+                    "non-mixed FEM world without learned materials or "
+                    "eliminated Human attachments, adaptation, topology "
+                    "mutation, or cohesive/puncture mutations"
+                );
+            }
         }
         if (world_.mixedMaterials.size() != world_.materials.size() ||
             world_.fem.capacities.size() != world_.objects.size() ||
@@ -412,6 +465,44 @@ private:
         }
         if (tetrahedronCapacity != world_.dispatch.topologyTetrahedronCapacity) {
             return fail("topology tetrahedron capacity disagrees with dispatch");
+        }
+        if (solver.executionBudgets.z == 1u) {
+            std::uint64_t nodeCapacity = 0u;
+            std::uint64_t cohesiveCapacity = 0u;
+            std::uint64_t channelCapacity = 0u;
+            std::uint64_t mutationCapacity = 0u;
+            for (const NMFEMCapacityGPU capacity : world_.fem.capacities) {
+                nodeCapacity += capacity.topology.x;
+                cohesiveCapacity += capacity.topology.z;
+                channelCapacity += capacity.topology.w;
+                mutationCapacity += capacity.work.x;
+            }
+            const std::uint64_t activeNodeCount = std::ranges::count_if(
+                world_.fem.topologyNodes,
+                [](const NMFEMTopologyNodeGPU& node) {
+                    return (node.identity.w & NM_TOPOLOGY_ACTIVE) != 0u;
+                });
+            const std::uint64_t activeTetrahedronCount =
+                std::ranges::count_if(
+                    world_.fem.tetrahedra,
+                    [](const NMTetrahedronGPU& tetrahedron) {
+                        return (tetrahedron.identity.w & NM_OBJECT_ACTIVE) != 0u;
+                    });
+            // FEM state/topology vectors are arenas sized to their reserved
+            // capacities, so comparing capacity with vector size cannot
+            // detect dormant slots. The tangent-diagonal mode is restricted
+            // to immutable topology; count the authored active entries
+            // rather than their backing arena allocation.
+            if (nodeCapacity != activeNodeCount ||
+                tetrahedronCapacity != activeTetrahedronCount ||
+                cohesiveCapacity != world_.fem.cohesiveFaces.size() ||
+                channelCapacity != world_.fem.punctureChannels.size() ||
+                mutationCapacity != world_.fem.mutationCommands.size()) {
+                return fail(
+                    "regional tangent FEM preconditioner does not support "
+                    "reserved mutable-topology capacity"
+                );
+            }
         }
         for (std::size_t node = 0u; node < world_.fem.fields.size(); ++node) {
             if (!finite4(world_.fem.fields[node].primary) ||
@@ -1144,6 +1235,8 @@ private:
                 return failIndexed("continuum object", index, "material frame identity or representation is invalid");
             }
             const bool referenced = (object.flags & NM_OBJECT_FEM_REFERENCE_CONFIGURATION) != 0u;
+            const bool referenceDisplacement =
+                (object.flags & NM_OBJECT_FEM_REFERENCE_DISPLACEMENT_GRADIENT) != 0u;
             const bool referenceIdentity = std::ranges::any_of(object.referenceSourceIdentity,
                 [](nm_u64 word) { return word != 0u; });
             if (referenced != referenceIdentity || (referenced &&
@@ -1166,6 +1259,18 @@ private:
                      })))) {
                 return failIndexed("continuum object", index,
                     "regional material identity, representation or nodal-field ownership is invalid");
+            }
+            if (referenceDisplacement && (!referenced || !regional ||
+                    object.representation != NM_REPRESENTATION_FEM ||
+                    (object.flags & (NM_OBJECT_ADAPTIVE | NM_OBJECT_MUTABLE_TOPOLOGY |
+                                     NM_OBJECT_MIXED_FEM | NM_OBJECT_MULTIPHYSICS |
+                                     NM_OBJECT_IDENTIFIABLE)) != 0u ||
+                    std::ranges::any_of(world_.fem.humanAttachments,
+                        [&](const NMFEMHumanAttachmentGPU& attachment) {
+                            return attachment.identity.z == index;
+                        }))) {
+                return failIndexed("continuum object", index,
+                    "reference-displacement FEM lacks immutable explicit reference and regional ownership or has unsupported Human attachments");
             }
             if (object.materialIndex >= world_.materials.size() ||
                 (object.flags & ~kKnownObjectFlags) != 0u ||
@@ -1303,10 +1408,21 @@ private:
                     const std::size_t nodeIndex =
                         static_cast<std::size_t>(object.stateOffset) + local;
                     const NMFEMNodeStateGPU& node = world_.fem.nodes[nodeIndex];
+                    const bool displacementStateValid = referenceDisplacement
+                        ? node.referenceDisplacementAndMode.w == 1.0f &&
+                            node.positionAndMass.x == node.restAndFixed.x + node.referenceDisplacementAndMode.x &&
+                            node.positionAndMass.y == node.restAndFixed.y + node.referenceDisplacementAndMode.y &&
+                            node.positionAndMass.z == node.restAndFixed.z + node.referenceDisplacementAndMode.z
+                        : node.referenceDisplacementAndMode.x == 0.0f &&
+                            node.referenceDisplacementAndMode.y == 0.0f &&
+                            node.referenceDisplacementAndMode.z == 0.0f &&
+                            node.referenceDisplacementAndMode.w == 0.0f;
                     if (!finite4(node.positionAndMass) ||
                         !finite4(node.velocityAndInverseMass) ||
                         !finite4(node.restAndFixed) ||
                         !finite4(node.deltaVelocity) ||
+                        !finite4(node.referenceDisplacementAndMode) ||
+                        !displacementStateValid ||
                         node.positionAndMass.w < 0.0f ||
                         node.velocityAndInverseMass.w < 0.0f ||
                         (node.positionAndMass.w > 0.0f &&
@@ -1344,6 +1460,7 @@ private:
                         (!regional && tetrahedron.identity.x != object.materialIndex) ||
                         tetrahedron.identity.y != index ||
                         tetrahedron.identity.z != object.topologyGeneration ||
+                        (tetrahedron.identity.w & ~kKnownTetrahedronFlags) != 0u ||
                         !finite4(tetrahedron.inverseRestRow0) ||
                         !finite4(tetrahedron.inverseRestRow1) ||
                         !finite4(tetrahedron.inverseRestRow2)) {
@@ -1355,6 +1472,20 @@ private:
                     }
                     const bool active =
                         (tetrahedron.identity.w & NM_OBJECT_ACTIVE) != 0u;
+                    const bool displacementElement = (tetrahedron.identity.w &
+                        NM_TETRAHEDRON_REFERENCE_DISPLACEMENT_GRADIENT) != 0u;
+                    if (active && displacementElement != referenceDisplacement) {
+                        return failIndexed("FEM tetrahedron", tetrahedronIndex,
+                            "reference-displacement mode disagrees with its owning object");
+                    }
+                    if (displacementElement &&
+                        std::ranges::any_of(nodes, [&](std::uint32_t nodeIndex) {
+                            const auto& node = world_.fem.nodes[nodeIndex];
+                            return node.referenceDisplacementAndMode.w != 1.0f;
+                        })) {
+                        return failIndexed("FEM tetrahedron", tetrahedronIndex,
+                            "reference-displacement element has a node without canonical stored displacement");
+                    }
                     if (regional || referenced) {
                         const auto a = world_.materials[tetrahedron.identity.x].interfaceResponse;
                         const auto b = world_.materials[object.materialIndex].interfaceResponse;
@@ -1597,6 +1728,16 @@ private:
                 (proxy.flags & NM_RIGID_SUTURE_STRAND) != 0u;
             const bool punctureDilator =
                 (proxy.flags & NM_RIGID_PUNCTURE_DILATOR) != 0u;
+            const bool prescribedTranslation =
+                (proxy.flags & NM_RIGID_PRESCRIBED_TRANSLATION) != 0u;
+            const float prescribedBarrierScale = proxy.reserved2 == 0u
+                ? 1.0f : std::bit_cast<float>(proxy.reserved2);
+            const bool invalidPrescribedBarrierScale =
+                (!prescribedTranslation && proxy.reserved2 != 0u) ||
+                (prescribedTranslation &&
+                 (!std::isfinite(prescribedBarrierScale) ||
+                  prescribedBarrierScale < 1.0f ||
+                  prescribedBarrierScale > 100.0f));
             const float capsuleDx =
                 proxy.localExtent.x - proxy.localCenterAndRadius.x;
             const float capsuleDy =
@@ -1614,6 +1755,15 @@ private:
             if (proxy.shapeKind > NM_RIGID_ARC ||
                 proxy.materialIndex >= world_.materials.size() ||
                 (proxy.flags & ~kKnownRigidFlags) != 0u ||
+                invalidPrescribedBarrierScale ||
+                ((proxy.flags & NM_RIGID_PRESCRIBED_TRANSLATION) != 0u &&
+                 (proxy.shapeKind != NM_RIGID_CAPSULE || proxy.bodyIndex == NM_INVALID_INDEX ||
+                  articulated || dynamic || strand || punctureTip || punctureDilator ||
+                  world_.dispatch.maximumRateExponent != 0u || world_.dispatch.gridNodeCount != 0u ||
+                  std::ranges::any_of(world_.objects, [](const NMContinuumObjectGPU& object) {
+                      return object.representation != NM_REPRESENTATION_FEM ||
+                          (object.flags & (NM_OBJECT_ADAPTIVE | NM_OBJECT_MUTABLE_TOPOLOGY)) != 0u;
+                  }))) ||
                 (articulated && dynamic) ||
                 (strand &&
                     (articulated || dynamic || punctureTip ||
@@ -1644,8 +1794,7 @@ private:
                 (dynamic &&
                     proxy.generalizedFreeBodyIndex == NM_INVALID_INDEX) ||
                 (!dynamic &&
-                    proxy.generalizedFreeBodyIndex != NM_INVALID_INDEX) ||
-                proxy.reserved2 != 0u) {
+                    proxy.generalizedFreeBodyIndex != NM_INVALID_INDEX)) {
                 return failIndexed(
                     "rigid proxy",
                     index,

@@ -32,12 +32,105 @@ struct FEMReferenceDeterminantInterval {
     }
 };
 
+[[nodiscard]] inline FEMReferenceDeterminantInterval femReferenceDisplacementDeterminantInterval(
+    const NMTetrahedronGPU& t, const NMFEMNodeStateGPU* nodes, std::size_t base=0u
+) noexcept {
+#if defined(__clang__)
+#pragma clang fp contract(off)
+#endif
+    FEMReferenceDeterminantInterval out;
+    constexpr double u = double(std::numeric_limits<float>::epsilon()) * 0.5;
+    constexpr double eta = std::numeric_limits<float>::min();
+    constexpr double gamma12 = (12.0*u)/(1.0-12.0*u);
+    constexpr double maximum = std::numeric_limits<float>::max();
+    const std::array<nm_u32,4> ids{t.nodes.x,t.nodes.y,t.nodes.z,t.nodes.w};
+    const std::array<float,9> inverse{t.inverseRestRow0.x,t.inverseRestRow0.y,t.inverseRestRow0.z,
+        t.inverseRestRow1.x,t.inverseRestRow1.y,t.inverseRestRow1.z,t.inverseRestRow2.x,t.inverseRestRow2.y,t.inverseRestRow2.z};
+    std::array<std::array<double,3>,4> displacement{};
+    std::array<std::array<double,3>,4> displacementError{};
+    std::array<std::array<float,3>,4> displacement32{};
+    bool safe = true;
+    const auto normalOrZero = [](float v) {
+        return std::isfinite(v) && (v == 0.0f || std::abs(v) >= std::numeric_limits<float>::min());
+    };
+    for (unsigned n=0;n<4;++n) {
+        const auto& node=nodes[base+ids[n]];
+        safe=safe&&node.referenceDisplacementAndMode.w==1.0f;
+        for (unsigned r=0;r<3;++r) {
+            const float stored = r==0 ? node.referenceDisplacementAndMode.x :
+                r==1 ? node.referenceDisplacementAndMode.y : node.referenceDisplacementAndMode.z;
+            safe=safe&&normalOrZero(stored);
+            displacement[n][r]=double(stored);
+            displacement32[n][r]=stored;
+            // Stored FP32 u is the state variable, not a subtraction from
+            // centimeter-scale absolute coordinates.
+            displacementError[n][r]=0.0;
+            safe=safe&&std::isfinite(displacement[n][r])&&std::isfinite(displacement32[n][r])&&
+                std::abs(displacement[n][r])<=maximum&&
+                std::abs(double(displacement32[n][r]))<=maximum;
+        }
+    }
+    std::array<double,9> f{},error{};
+    std::array<float,9> f32{};
+    std::array<double,9> du{};
+    std::array<float,9> du32{};
+    std::array<double,9> duError{};
+    for (unsigned r=0;r<3;++r) for (unsigned c=0;c<3;++c) {
+        du[3*r+c]=displacement[c+1][r]-displacement[0][r];
+        du32[3*r+c]=displacement32[c+1][r]-displacement32[0][r];
+        duError[3*r+c]=u*(std::abs(double(displacement32[c+1][r]))+
+            std::abs(double(displacement32[0][r])))+eta;
+        safe=safe&&std::isfinite(du[3*r+c])&&std::isfinite(du32[3*r+c])&&
+            std::abs(du[3*r+c])<=maximum&&std::abs(double(du32[3*r+c]))<=maximum;
+    }
+    for (float value:inverse) safe=safe&&normalOrZero(value);
+    for (unsigned r=0;r<3;++r) for (unsigned c=0;c<3;++c) {
+        double magnitude=0.0, inverseMagnitude=0.0, propagated=0.0;
+        float a=du32[3*r]*inverse[c];
+        float b=du32[3*r+1]*inverse[3+c];
+        float d=du32[3*r+2]*inverse[6+c];
+        const float sum=(a+b)+d;
+        const float diagonal=(r==c)?1.0f:0.0f;
+        f32[3*r+c]=sum+diagonal;
+        for (unsigned k=0;k<3;++k) {
+            const double inv=double(inverse[3*k+c]);
+            magnitude+=std::abs(du[3*r+k]*inv);
+            inverseMagnitude+=std::abs(inv);
+            propagated+=duError[3*r+k]*std::abs(inv);
+            f[3*r+c]+=du[3*r+k]*inv;
+        }
+        f[3*r+c]+=(r==c)?1.0:0.0;
+        error[3*r+c]=propagated+gamma12*(magnitude+1.0)+
+            16.0*eta*(inverseMagnitude+8.0);
+        safe=safe&&std::isfinite(f[3*r+c])&&std::isfinite(error[3*r+c])&&
+            magnitude+error[3*r+c]<=maximum&&std::abs(double(f32[3*r+c]))<=maximum;
+    }
+    out.center=f[0]*(f[4]*f[8]-f[5]*f[7])-f[1]*(f[3]*f[8]-f[5]*f[6])+f[2]*(f[3]*f[7]-f[4]*f[6]);
+    out.nominal=f32[0]*(f32[4]*f32[8]-f32[5]*f32[7])-f32[1]*(f32[3]*f32[8]-f32[5]*f32[6])+f32[2]*(f32[3]*f32[7]-f32[4]*f32[6]);
+    constexpr std::array<std::array<unsigned,3>,6> terms{{{{0,4,8}},{{0,5,7}},{{1,3,8}},{{1,5,6}},{{2,3,7}},{{2,4,6}}}};
+    double perturbation=0.0, expandedMagnitude=0.0;
+    for (const auto& indices:terms) {
+        const double a=std::abs(f[indices[0]]),b=std::abs(f[indices[1]]),c=std::abs(f[indices[2]]);
+        const double da=error[indices[0]],db=error[indices[1]],dc=error[indices[2]];
+        perturbation+=da*b*c+a*db*c+a*b*dc+da*db*c+da*b*dc+a*db*dc+da*db*dc;
+        expandedMagnitude+=(a+da)*(b+db)*(c+dc);
+    }
+    double largest=0.0;for (unsigned i=0;i<9;++i) largest=std::max(largest,std::abs(f[i])+error[i]);
+    out.radius=perturbation+gamma12*expandedMagnitude+32.0*eta*(1.0+largest+largest*largest);
+    out.noIntermediateOverflow=safe&&(1.0+gamma12)*expandedMagnitude<=maximum&&
+        2.0*(1.0+gamma12)*largest*largest<=maximum;
+    out.finite=std::isfinite(out.center)&&std::isfinite(out.radius)&&out.radius>=0.0;
+    return out;
+}
+
 [[nodiscard]] inline FEMReferenceDeterminantInterval femReferenceDeterminantInterval(
     const NMTetrahedronGPU& t, const NMFEMNodeStateGPU* nodes, std::size_t base=0u
 ) noexcept {
 #if defined(__clang__)
 #pragma clang fp contract(off)
 #endif
+    if ((t.identity.w & NM_TETRAHEDRON_REFERENCE_DISPLACEMENT_GRADIENT) != 0u)
+        return femReferenceDisplacementDeterminantInterval(t,nodes,base);
     FEMReferenceDeterminantInterval out;
     constexpr double u = double(std::numeric_limits<float>::epsilon()) * 0.5;
     // Min-normal, rather than min-subnormal, also covers denormal flush-to-zero.

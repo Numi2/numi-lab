@@ -1,0 +1,4 @@
+{"return_code": 0, "wall_seconds": 4.097992499358952, "inputs_unchanged": true}
+{"schema":"numi.cardboard.probe-result.v1","status":"completed","accepted_steps":2,"compiled_world_fingerprint":13648271121845636518,"nodes":4308,"tetrahedra":10356,"failure":"","physical_validation":false}
+
+

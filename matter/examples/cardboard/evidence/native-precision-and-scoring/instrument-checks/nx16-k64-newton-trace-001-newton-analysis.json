@@ -1,0 +1,501 @@
+{
+  "contract": {
+    "alpha_boundary": "environment line-search scalar at each captured stage",
+    "arnoldi": "diagnostics.x is a final-restart least-squares estimate normalized by diagnostics.y, which retains the Newton-start norm; it is not an independently re-evaluated b-Ax residual",
+    "capture_order": "terminal certificate is captured after nm_mixed_certify and before candidate masks or commit",
+    "cycle_status": "diagnostics.z is cycle_accepted, not proof that the full nonlinear residual converged",
+    "residual_alignment": "iteration i post-step residual is iteration i+1 nonlinear.y; terminal certificate is used only for the last captured iteration",
+    "terminal_status": "raw status.code at the certificate capture is authoritative for failure; certificate.validity.w cannot override it; code zero here does not prove later commit acceptance",
+    "work_count": "status.fgmres_iterations_microstep_max is the max totalUsed observed in the microstep, not per-Newton work"
+  },
+  "environment": 0,
+  "evidence_binding": {
+    "decoder_sha256": "56f68fd26ccec706dc897eadced24db85fee9011f74fe3c1a3a662fb33319ecb",
+    "input_log_sha256": "1b3e3dcc5b301cfecf524dc1d9a399e7f14c5e9c92ea2170334cae53d249aadf"
+  },
+  "integrity": "invalid",
+  "iterations": [],
+  "parse_errors": [],
+  "schema": "cardboard.fem-newton-trace-analysis.v1",
+  "screen": {
+    "growth_limit": 1.1,
+    "near_full_alpha": 0.99,
+    "observations": []
+  },
+  "skips": [],
+  "terminal": {
+    "authority_note": "A nonzero raw status code rejects this capture even if validity.w is 1. A zero code here is before candidate masks and commit, so it is not final accepted-state evidence.",
+    "capture_order": "immediately_after_nm_mixed_certify_before_candidate_masks_or_commit",
+    "certificate_relative_residual": null,
+    "certificate_residual_absolute_equivalent": null,
+    "certificate_validity_w_informational_only": null,
+    "completed_microsteps_at_certificate": null,
+    "disposition": "invalid_terminal_status",
+    "last_step_residual_growth_ratio": null,
+    "pre_step_residual_norm_from_last_fgmres": null,
+    "status_code_at_certificate": null
+  },
+  "trace_errors": [
+    {
+      "iteration": 0,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 0,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 0,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 0,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 1,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 1,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 1,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 1,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 2,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 2,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 2,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 2,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 3,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 3,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 3,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 3,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 4,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 4,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 4,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 4,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 5,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 5,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 5,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 5,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 6,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 6,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 6,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 6,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 7,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 7,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 7,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 7,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 8,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 8,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 8,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 8,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 9,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 9,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 9,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 9,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 10,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 10,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 10,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 10,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 11,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 11,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 11,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 11,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 12,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 12,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 12,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 12,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 13,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 13,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 13,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 13,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 14,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 14,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 14,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 14,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 15,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 15,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 15,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 15,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 16,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 16,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 16,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 16,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 17,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 17,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 17,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 17,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 18,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 18,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 18,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 18,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 19,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 19,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 19,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 19,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 20,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 20,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 20,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 20,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 21,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 21,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 21,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 21,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 22,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 22,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 22,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 22,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 23,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 23,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 23,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 23,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 24,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 24,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 24,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 24,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 25,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 25,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 25,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 25,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 26,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 26,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 26,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 26,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 27,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 27,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 27,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "iteration": 27,
+      "reason": "requested_environment_unavailable"
+    },
+    {
+      "reason": "missing_or_malformed_terminal_measurement"
+    },
+    {
+      "last_iterate_seen": null,
+      "last_iteration": 27,
+      "microtick": 0,
+      "reason": "terminal_identity_mismatch",
+      "root": 0
+    },
+    {
+      "reason": "terminal_without_aligned_newton_trace"
+    }
+  ]
+}

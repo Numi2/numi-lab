@@ -1,0 +1,103 @@
+{
+  "schema": "numi.cardboard.barrier-sensitivity.v1",
+  "physical_validation": false,
+  "interpretation": "Numerical conditioning sensitivity, not calibrated scoring. Rejected rows excluded from force/gap extrema.",
+  "runs": {
+    "barrier50-scale1-001": {
+      "status": "failed",
+      "accepted_steps": 15,
+      "scale": 1,
+      "residual_tolerance": 9.999999747378752e-05,
+      "inputs_unchanged": true,
+      "wall_seconds": 20.91412604227662,
+      "world_fingerprint": "1940416473352324990",
+      "minimum_accepted_sampled_punch_gap_m": 4.486486354486358e-08,
+      "peak_accepted_punch_force_abs_N": 1.5830064184861714,
+      "maximum_accepted_free_force_imbalance_l2_N": 3.987951032503399,
+      "rejected_row_diagnostics": [
+        {
+          "step": "15",
+          "status_code": "10",
+          "certificate_residual": "2.4540244339732453e-05",
+          "free_force_imbalance_l2_N": "0.98160978366863272"
+        }
+      ],
+      "input_sha256": {
+        "manifest.json": "bbe5f195eb73e3e4d7fd0605d52d21814859b210e0621c1f20ad249af46b227f",
+        "result.json": "7789be47c95aacab618fea273103f9fde3996dc25823eb96cc6bf588ee54f2c4",
+        "observations.csv": "44f7f0824e3a9d6fbb9744fad24908c29299a02e3e34a81a0313deb9ae5121e1",
+        "tool-observations.csv": "c2ad0cd5e348477b1e23ea5b4f1e46b0c22b245a931c17f1a6d3710c9abd2737"
+      }
+    },
+    "barrier50-scale2-001": {
+      "status": "completed",
+      "accepted_steps": 96,
+      "scale": 2,
+      "residual_tolerance": 9.999999747378752e-05,
+      "inputs_unchanged": true,
+      "wall_seconds": 101.62673912476748,
+      "world_fingerprint": "13333801724193085502",
+      "minimum_accepted_sampled_punch_gap_m": 5.3464140374538845e-08,
+      "peak_accepted_punch_force_abs_N": 2.315874648343865,
+      "maximum_accepted_free_force_imbalance_l2_N": 3.9738518631233766,
+      "rejected_row_diagnostics": [],
+      "input_sha256": {
+        "manifest.json": "c64b115b3e295abcf7db7213eaef653490b8db3b0453499b8b85aea9c13035f0",
+        "result.json": "a6e97bf3bb182d77da6897e34f7e6e32c45a8b012cc6a6b2a0f6bde8114d7141",
+        "observations.csv": "7f459726cec9109a77d456f7c88bbf517f1dd6db4322ef9866bea5d971000257",
+        "tool-observations.csv": "91eddb814856b134202a246ac83cf52fb0915b45b65af5b7fa9cc4b404610ed6"
+      }
+    },
+    "barrier50-scale4-001": {
+      "status": "completed",
+      "accepted_steps": 96,
+      "scale": 4,
+      "residual_tolerance": 9.999999747378752e-05,
+      "inputs_unchanged": true,
+      "wall_seconds": 104.28398799989372,
+      "world_fingerprint": "14326191793204535486",
+      "minimum_accepted_sampled_punch_gap_m": 8.01608316229347e-08,
+      "peak_accepted_punch_force_abs_N": 2.745145244488553,
+      "maximum_accepted_free_force_imbalance_l2_N": 2.4164321246725393,
+      "rejected_row_diagnostics": [],
+      "input_sha256": {
+        "manifest.json": "2c5d126885ad6a99e1ef8a1f1e0dbf03682f75edd69b02eaa9266993db6c79d5",
+        "result.json": "f5ccb119b9db870edcb67f854e97e21f6c9639c3d8695fb7692053238b435e6b",
+        "observations.csv": "ab0b4cd635c2032e075f2cd716cd9ea8a4d8bd169ecac6ba4650b08b2953b59f",
+        "tool-observations.csv": "084b4583df9be0c4116614fb0d495e3c491cb2c605eeee439204a3050f2d83fc"
+      }
+    },
+    "barrier20-tight-001": {
+      "status": "completed",
+      "accepted_steps": 96,
+      "scale": 1,
+      "residual_tolerance": 9.999999974752427e-07,
+      "inputs_unchanged": true,
+      "wall_seconds": 176.31925808265805,
+      "world_fingerprint": "14821044046432828210",
+      "minimum_accepted_sampled_punch_gap_m": 2.1955877581216615e-07,
+      "peak_accepted_punch_force_abs_N": 0.3154749708870739,
+      "maximum_accepted_free_force_imbalance_l2_N": 0.03975000391361875,
+      "rejected_row_diagnostics": [],
+      "input_sha256": {
+        "manifest.json": "ebadc2376aa93815a3bbd76d5a1182363de0a9c7660ab18b7454d19518ee8138",
+        "result.json": "c022d1a53630e4b211b738fdb45c9f087d33877c2e28d6f85736e865c7815c70",
+        "observations.csv": "ca846825b19de1ec5f90865dadbd58ca8ed4867333b95f4813eddaf8dc000d44",
+        "tool-observations.csv": "25d180b1a2c90b120d7cd502e91681d4f135a22a2087ef9907badb78df78d41a"
+      }
+    }
+  },
+  "factor2_vs_factor4": {
+    "peak_accepted_punch_force_abs_N": {
+      "factor2": 2.315874648343865,
+      "factor4": 2.745145244488553,
+      "relative_difference": 0.15637445669096658
+    },
+    "minimum_accepted_sampled_punch_gap_m": {
+      "factor2": 5.3464140374538845e-08,
+      "factor4": 8.01608316229347e-08,
+      "relative_difference": 0.33303910036728845
+    }
+  },
+  "analyzer_sha256": "51cae3a7b368968d39599c68f0c91192e100310a154f5b4bb7c8c47585d49741"
+}

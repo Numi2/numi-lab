@@ -1,0 +1,28 @@
+-- Configuring done (0.4s)
+-- Generating done (0.1s)
+-- Build files have been written to: /Users/home/numi-cardboard-20261006/build-cardboard
+[ 10%] Generating shaders/NumiMatter.metallib
+[ 10%] Generating shaders/NumiMatterPhysicalStateDigest.metallib
+[ 57%] Built target numi_matter_compiler_objects
+[ 63%] Built target numi_matter_compiler
+[ 63%] Built target numi_matter_shaders
+[ 73%] Building OBJCXX object CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o
+[ 73%] Building OBJCXX object CMakeFiles/numi_matter_runtime_objects.dir/src/human_physiology.mm.o
+[ 78%] Building CXX object CMakeFiles/numi_matter_runtime_objects.dir/src/metal_world.cpp.o
+[ 84%] Building OBJCXX object CMakeFiles/numi_matter_runtime_objects.dir/src/numi_human.mm.o
+[ 84%] Built target numi_matter_runtime_objects
+[ 89%] Linking CXX static library libnumi_matter_runtime.a
+[ 89%] Built target numi_matter_runtime
+[ 94%] Building OBJCXX object CMakeFiles/numi-matter-cardboard-probe.dir/tools/cardboard_probe.mm.o
+/Users/home/numi-cardboard-20261006/matter/tools/cardboard_probe.mm:1128:43: error: use of undeclared identifier 'kNoBoxScoreLineIndex'; did you mean 'numi::cardboard::kNoBoxScoreLineIndex'?
+ 1128 |         if (action.hingeScoreLineIndex == kNoBoxScoreLineIndex)
+      |                                           ^~~~~~~~~~~~~~~~~~~~
+      |                                           numi::cardboard::kNoBoxScoreLineIndex
+/Users/home/numi-cardboard-20261006/matter/tools/cardboard_box_blank.hpp:98:32: note: 'numi::cardboard::kNoBoxScoreLineIndex' declared here
+   98 | inline constexpr std::uint32_t kNoBoxScoreLineIndex =
+      |                                ^
+1 error generated.
+make[3]: *** [CMakeFiles/numi-matter-cardboard-probe.dir/tools/cardboard_probe.mm.o] Error 1
+make[2]: *** [CMakeFiles/numi-matter-cardboard-probe.dir/all] Error 2
+make[1]: *** [CMakeFiles/numi-matter-cardboard-probe.dir/rule] Error 2
+make: *** [numi-matter-cardboard-probe] Error 2
