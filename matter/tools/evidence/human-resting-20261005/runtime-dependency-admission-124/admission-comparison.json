@@ -1,0 +1,15 @@
+{
+  "scope": "Admission-only check on retained invocations; no native run or physiology claim.",
+  "implementation_sha256": "7263baa0ddc41427c64b01f473a6fddc897cfabab3bdd6cc2f1c6c6d0aa1ba4e",
+  "test_sha256": "4d9d971a731ad98be2eccee1cf9c22f0350da96465c132fc873ee77502e97797",
+  "test_log_sha256": "ffe30401f00b7c21a5aff4d1625cd936d829f4164f37ab8dbc71a728e02debf5",
+  "results": {
+    "legacy_study100": {
+      "admitted": false,
+      "reason": "native invocation has an unbound runtime dependency: /Users/n/numi-human-resting-cardiac-build-026/lib/libmetalrobo.dylib"
+    },
+    "reconciled123": {
+      "admitted": true
+    }
+  }
+}

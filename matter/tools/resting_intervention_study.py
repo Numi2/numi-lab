@@ -564,6 +564,18 @@ def native_scene_command(invocation: dict[str, Any], output: Path, args: argpars
     bindings = invocation.get("asset_sha256", {})
     if not bindings:
         raise ValueError("native invocation has no source/binary/asset identities")
+    # These dependencies are loaded by the native executable, not named in
+    # argv. Match the existing Human launcher's build layout so a manually
+    # assembled reference cannot silently omit a mutable runtime library.
+    build = Path(command[0]).parent.parent
+    if Path(command[0]).parent.name != "bin":
+        raise ValueError("native invocation does not use the Human owner build layout")
+    for relative in ("lib/libmetalrobo.dylib", "shaders/MetalRobo.metallib",
+                     "shaders/MetalRoboHyperPolicy.metallib", "shaders/NumiNeuron.metallib",
+                     "matter/shaders/HumanRespiration.metallib", "matter/shaders/NumiMatter.metallib",
+                     "matter/shaders/NumiMatterPhysicalStateDigest.metallib"):
+        if str(build / relative) not in bindings:
+            raise ValueError(f"native invocation has an unbound runtime dependency: {build / relative}")
     # Every consumed file must be bound. Outputs are the only absolute paths
     # allowed to be absent from the owner's manifest.
     outputs = {str(output), str(output / "native-viewer.mov")}

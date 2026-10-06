@@ -169,14 +169,18 @@ class NativeRespiratoryMechanicalTests(unittest.TestCase):
 
 class NativeSceneBindingTests(unittest.TestCase):
     def invocation(self):
-        return {"argv": ["/build/numi-human-native", "/rigid", "/myo", "/bones", "/old-output",
+        return {"argv": ["/build/bin/numi-human-native", "/rigid", "/myo", "/bones", "/old-output",
                          "--persistent-metal-stand", "--resting-scene", "/network", "/respiration",
                          "--vascular-dense45", "--resting-anatomy-receipt", "/anatomy",
                          "--skin-payload", "/skin", "--tendon-payload", "/tendon",
                          "--muscle-step-count", "64", "--muscle-step-seconds", ".001",
                          "--resting-movie", "/old-output/native-viewer.mov"],
-                "asset_sha256": {p: "bound" for p in ("/build/numi-human-native", "/rigid", "/myo",
-                    "/bones", "/network", "/respiration", "/anatomy", "/skin", "/tendon")}}
+                "asset_sha256": {p: "bound" for p in ("/build/bin/numi-human-native", "/rigid", "/myo",
+                    "/bones", "/network", "/respiration", "/anatomy", "/skin", "/tendon",
+                    "/build/lib/libmetalrobo.dylib", "/build/shaders/MetalRobo.metallib",
+                    "/build/shaders/MetalRoboHyperPolicy.metallib", "/build/shaders/NumiNeuron.metallib",
+                    "/build/matter/shaders/HumanRespiration.metallib", "/build/matter/shaders/NumiMatter.metallib",
+                    "/build/matter/shaders/NumiMatterPhysicalStateDigest.metallib")}}
 
     def args(self):
         return Namespace(steps=155000, dt=.002, arm="treatment", start_s=120., end_s=180., scale=.5)
@@ -198,6 +202,17 @@ class NativeSceneBindingTests(unittest.TestCase):
         original["argv"].extend(["--resting-drive-intervention", "1", "2", ".5"])
         with self.assertRaisesRegex(ValueError, "no intervention"):
             native_scene_command(original, Path("/new"), self.args())
+
+    def test_implicit_runtime_dependencies_must_be_preregistered(self):
+        for path in ("/build/lib/libmetalrobo.dylib", "/build/shaders/MetalRobo.metallib",
+                     "/build/shaders/MetalRoboHyperPolicy.metallib", "/build/shaders/NumiNeuron.metallib",
+                     "/build/matter/shaders/HumanRespiration.metallib", "/build/matter/shaders/NumiMatter.metallib",
+                     "/build/matter/shaders/NumiMatterPhysicalStateDigest.metallib"):
+            with self.subTest(path=path):
+                original = self.invocation()
+                del original["asset_sha256"][path]
+                with self.assertRaisesRegex(ValueError, "unbound runtime dependency"):
+                    native_scene_command(original, Path("/new"), self.args())
 
     def test_incomplete_and_assisted_native_logs_are_rejected(self):
         log = ('runtime=Numi Matter runtime initialized with eligible dense45 vascular solve '
@@ -349,9 +364,12 @@ class NativeV2PlanPreparationTests(unittest.TestCase):
     def test_native_plan_uses_exact_pair_ids_and_prespecified_windows_without_registering(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            asset_names = ("numi-human-native", "rigid.nhrigid", "muscle.nhmyo", "bones.nhbones",
+            asset_names = ("bin/numi-human-native", "rigid.nhrigid", "muscle.nhmyo", "bones.nhbones",
                            "network.json", "respiration.json", "anatomy.json", "skin.nhskin",
-                           "tendon.nhtendon", "tissue.nhtissue")
+                           "tendon.nhtendon", "tissue.nhtissue", "lib/libmetalrobo.dylib",
+                           "shaders/MetalRobo.metallib", "shaders/MetalRoboHyperPolicy.metallib",
+                           "shaders/NumiNeuron.metallib", "matter/shaders/HumanRespiration.metallib",
+                           "matter/shaders/NumiMatter.metallib", "matter/shaders/NumiMatterPhysicalStateDigest.metallib")
             asset_hashes = {}
             for index, name in enumerate(asset_names):
                 path = root / "assets" / name
@@ -369,7 +387,7 @@ class NativeV2PlanPreparationTests(unittest.TestCase):
             source_revisions_path.write_text(json.dumps(source_revisions), encoding="utf-8")
             invocation_path = root / "invocation.json"
             invocation = {
-                "argv": [str(root / "assets" / "numi-human-native"),
+                "argv": [str(root / "assets" / "bin" / "numi-human-native"),
                          str(root / "assets" / "rigid.nhrigid"), str(root / "assets" / "muscle.nhmyo"),
                          str(root / "assets" / "bones.nhbones"), str(root / "old-output"),
                          "--persistent-metal-stand", "--muscle-step-seconds", ".002",
@@ -450,7 +468,7 @@ class NativeV2PlanPreparationTests(unittest.TestCase):
             source = root / "source.cpp"
             source_hashes = {str(source): self.write(source, b"source")}
             invocation_path = root / "invocation.json"
-            executable = root / "numi-human-native"
+            executable = root / "bin" / "numi-human-native"
             binding = self.write(executable, b"native executable")
             invocation_path.write_text(json.dumps({"argv": [str(executable), "/rigid", "/myo", "/bones", "/out",
                                                        "--persistent-metal-stand", "--resting-scene", "/network", "/resp",
