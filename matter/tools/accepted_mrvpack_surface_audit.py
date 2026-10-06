@@ -288,6 +288,102 @@ def first_intersection(first, second, predicates):
             "audit_complete": True, "count_is_lower_bound": False}
 
 
+def shared_source_boundaries(mapped, vertex_offset, surfaces, source_meshes, pairs):
+    """Compare copies of exact source points after native motion; never use a tolerance.
+
+    Face order is the existing NHANAT-to-viewer contract. Verify a bijection of
+    source and captured vertex indices before using that correspondence.
+    """
+    import math
+    by_source = {}
+    for key in {item for pair in pairs for item in pair}:
+        if key not in surfaces or key not in source_meshes:
+            raise ValueError(f"source/captured surface identity absent: {key}")
+        points, source_faces = source_meshes[key]
+        captured_faces = surfaces[key]["faces"]
+        if len(source_faces) != len(captured_faces):
+            raise ValueError(f"source/captured triangle counts differ: {key}")
+        forward, reverse = {}, {}
+        for source_face, captured_face in zip(source_faces, captured_faces):
+            if len(source_face) != 3 or len(captured_face) != 3:
+                raise ValueError(f"non-triangular shared-boundary source: {key}")
+            for local, captured in zip(source_face, captured_face):
+                local, captured = int(local), int(captured)
+                if not 0 <= local < len(points):
+                    raise ValueError(f"source vertex index out of bounds: {key}")
+                if forward.setdefault(local, captured) != captured or reverse.setdefault(captured, local) != local:
+                    raise ValueError(f"source/captured vertex correspondence is not bijective: {key}")
+        groups = {}
+        for local, captured in forward.items():
+            point = tuple(float(value) for value in points[local])
+            world = struct.unpack_from("<3f", mapped, vertex_offset + captured * 80)
+            if len(point) != 3 or not all(math.isfinite(x) for x in (*point, *world)):
+                raise ValueError(f"nonfinite shared-boundary source/capture: {key}")
+            groups.setdefault(point, []).append((local, world))
+        by_source[key] = groups
+    rows = []
+    for left, right in pairs:
+        if left == right:
+            raise ValueError("shared-boundary comparison requires distinct surfaces")
+        first, second = by_source[left], by_source[right]
+        common = sorted(first.keys() & second.keys())
+        different, comparisons, maximum, squared = 0, 0, 0.0, 0.0
+        witnesses = []
+        for point in common:
+            for local_a, world_a in first[point]:
+                for local_b, world_b in second[point]:
+                    comparisons += 1
+                    gap = math.dist(world_a, world_b)
+                    squared += gap * gap
+                    maximum = max(maximum, gap)
+                    if world_a != world_b:
+                        different += 1
+                        if len(witnesses) < 16:
+                            witnesses.append({"source_point_m": point,
+                                              "first_local_vertex": local_a,
+                                              "second_local_vertex": local_b,
+                                              "first_world_m": world_a, "second_world_m": world_b,
+                                              "gap_m": gap})
+        rows.append({"first": list(left), "second": list(right),
+                     "source_shared_coordinate_count": len(common),
+                     "native_vertex_copy_comparisons": comparisons,
+                     "native_different_vertex_copies": different,
+                     "max_world_gap_m": maximum,
+                     "rms_world_gap_m": math.sqrt(squared / comparisons) if comparisons else None,
+                     "status": ("no_shared_source_boundary" if not common else
+                                "different_native_boundary_copies" if different else "pass"),
+                     "witnesses": witnesses})
+    return rows
+
+
+def load_source_boundary_meshes(path, expected_sha256, surfaces, keys):
+    """Read the existing NHANAT5 owner format, retaining its explicit identity."""
+    if len(expected_sha256) != 64 or sha256_file(path) != expected_sha256:
+        raise ValueError("source anatomy SHA-256 differs from the supplied identity")
+    owner_path = Path(__file__).with_name("cardiac_geometry_binding.py")
+    spec = importlib.util.spec_from_file_location("_accepted_boundary_nhanat_owner", owner_path)
+    owner = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(owner)
+    raw, _, records, vertices, indices = owner.read_payload(path)
+    if hashlib.sha256(raw).hexdigest() != expected_sha256:
+        raise ValueError("source anatomy changed while loading")
+    meshes = {}
+    for key in keys:
+        if key[0] not in (51010, 51023, 51024, 51025):
+            raise ValueError(f"shared-boundary mode supports NHANAT anatomy surfaces only: {key}")
+        found = [row for row in records if row[5] == key[1]]
+        if len(found) != 1:
+            raise ValueError(f"source anatomy stable ID is absent or ambiguous: {key}")
+        record = found[0]
+        body, points, faces = owner.surface_arrays(records, vertices, indices,
+                                                   key[1], expected_layer=record[6])
+        if surfaces[key]["link"] != body:
+            raise ValueError(f"source/captured body identity differs: {key}")
+        meshes[key] = (points, faces)
+    return meshes, {"path": str(path.resolve()), "sha256": expected_sha256,
+                    "reader": str(owner_path.resolve()), "reader_sha256": sha256_file(owner_path)}
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("pack", type=Path)
@@ -315,6 +411,10 @@ def main():
     parser.add_argument("--receipt", type=Path, required=True,
                         help="receipt for this exact accepted MRVPACK and vertex buffer")
     parser.add_argument("--stop-after-first", action="store_true")
+    parser.add_argument("--shared-boundaries-only", action="store_true",
+                        help="compare exact source-shared vertex copies in the accepted native frame")
+    parser.add_argument("--source-anatomy", type=Path, help="NHANAT5 source for shared-boundary mode")
+    parser.add_argument("--source-anatomy-sha256", help="expected NHANAT5 SHA-256 from the run inputs")
     args = parser.parse_args()
 
     args.pack = args.pack.resolve(strict=True)
@@ -381,6 +481,33 @@ def main():
             raise ValueError(f"surface identity absent from pack: {left} or {right}")
         pairs.append((left, right))
         keys.update((left, right))
+
+    if args.shared_boundaries_only:
+        if not args.source_anatomy or not args.source_anatomy_sha256:
+            parser.error("--shared-boundaries-only requires --source-anatomy and --source-anatomy-sha256")
+        if (vector_arg(args.first_scale) != (1., 1., 1.) or
+                vector_arg(args.first_translate) != (0., 0., 0.) or args.frame_local_transform):
+            parser.error("shared-boundary mode audits the native capture without hypothetical transforms")
+        meshes, source_identity = load_source_boundary_meshes(
+            args.source_anatomy, args.source_anatomy_sha256, surfaces, keys)
+        rows = shared_source_boundaries(mapped, vertex_offset, surfaces, meshes, pairs)
+        print(json.dumps({"schema": "accepted-mrvpack-pair-audit.v2",
+                          "audit_mode": "source_shared_boundary_correspondence",
+                          "step": args.step, "pack": str(args.pack),
+                          "pack_sha256": sha256_file(args.pack),
+                          "accepted_receipt": receipt_provenance,
+                          "source_anatomy": source_identity,
+                          "driver_sha256": sha256_file(Path(__file__)),
+                          "pairs": rows,
+                          "status": "pass" if rows and all(row["status"] == "pass" for row in rows) else "rejected",
+                          "limitation": "Exact correspondence of declared source-shared coordinates only. The supplied source hash must come from the retained run input identity. This does not certify triangle intersections, solid containment, a full trajectory, or physiology."}, indent=2))
+        mapped.close()
+        stream.close()
+        if not rows or any(row["status"] != "pass" for row in rows):
+            raise SystemExit(2)
+        return
+    if args.source_anatomy or args.source_anatomy_sha256:
+        parser.error("--source-anatomy options require --shared-boundaries-only")
 
     affine_scale = vector_arg(args.first_scale)
     translate = vector_arg(args.first_translate)

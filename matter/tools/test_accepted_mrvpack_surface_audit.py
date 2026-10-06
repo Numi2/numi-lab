@@ -226,5 +226,95 @@ class AcceptedMrvpackAuditTests(unittest.TestCase):
             self.assertIn("post-motion", report["limitation"])
 
 
+
+class SharedSourceBoundaryTests(unittest.TestCase):
+    left, right = (51010, 23), (51025, 319)
+
+    def fixture(self):
+        points = [(0., 0., 0.), (1., 0., 0.), (0., 1., 0.)]
+        source = {self.left: (points, [(0, 1, 2)]),
+                  self.right: (points, [(0, 2, 1)])}
+        surfaces = {self.left: {"faces": [(3, 5, 1)]},
+                    self.right: {"faces": [(0, 4, 2)]}}
+        capture = bytearray(6 * 80)
+        # Different record order and opposite winding retain explicit incidence.
+        for index, point in zip((3, 5, 1, 0, 2, 4), points + points):
+            struct.pack_into("<3f", capture, index * 80, *point)
+        return capture, surfaces, source
+
+    def test_shared_points_survive_noncontiguous_native_vertex_indices(self):
+        capture, surfaces, source = self.fixture()
+        row = audit.shared_source_boundaries(capture, 0, surfaces, source,
+                                             [(self.left, self.right)])[0]
+        self.assertEqual(row["status"], "pass")
+        self.assertEqual(row["source_shared_coordinate_count"], 3)
+        self.assertEqual(row["native_different_vertex_copies"], 0)
+
+    def test_one_ulp_gap_is_reported_without_tolerance(self):
+        capture, surfaces, source = self.fixture()
+        value = struct.unpack("<f", struct.pack("<I", 0x3f800001))[0]
+        struct.pack_into("<f", capture, 2 * 80, value)
+        row = audit.shared_source_boundaries(capture, 0, surfaces, source,
+                                             [(self.left, self.right)])[0]
+        self.assertEqual(row["status"], "different_native_boundary_copies")
+        self.assertEqual(row["native_different_vertex_copies"], 1)
+        self.assertEqual(row["max_world_gap_m"], 2. ** -23)
+        self.assertEqual(row["witnesses"][0]["second_local_vertex"], 1)
+
+    def test_topology_disagreement_fails_closed(self):
+        capture, surfaces, source = self.fixture()
+        source[self.left] = (source[self.left][0], [(0, 1, 2), (0, 2, 1)])
+        surfaces[self.left]["faces"] = [(3, 5, 1), (5, 1, 3)]
+        with self.assertRaisesRegex(ValueError, "not bijective"):
+            audit.shared_source_boundaries(capture, 0, surfaces, source,
+                                            [(self.left, self.right)])
+
+    def test_missing_or_wrong_count_source_fails_closed(self):
+        capture, surfaces, source = self.fixture()
+        missing = dict(source); del missing[self.right]
+        with self.assertRaisesRegex(ValueError, "identity absent"):
+            audit.shared_source_boundaries(capture, 0, surfaces, missing,
+                                            [(self.left, self.right)])
+        source[self.left] = (source[self.left][0], [])
+        with self.assertRaisesRegex(ValueError, "triangle counts"):
+            audit.shared_source_boundaries(capture, 0, surfaces, source,
+                                            [(self.left, self.right)])
+
+    def test_no_common_points_does_not_pass_vacuously(self):
+        capture, surfaces, source = self.fixture()
+        source[self.right] = ([(2., 0., 0.), (3., 0., 0.), (2., 1., 0.)],
+                              source[self.right][1])
+        row = audit.shared_source_boundaries(capture, 0, surfaces, source,
+                                             [(self.left, self.right)])[0]
+        self.assertEqual(row["status"], "no_shared_source_boundary")
+        self.assertIsNone(row["rms_world_gap_m"])
+
+    def test_nonfinite_native_vertex_fails_closed(self):
+        capture, surfaces, source = self.fixture()
+        struct.pack_into("<f", capture, 0, float("nan"))
+        with self.assertRaisesRegex(ValueError, "nonfinite"):
+            audit.shared_source_boundaries(capture, 0, surfaces, source,
+                                            [(self.left, self.right)])
+
+    def test_duplicate_source_point_copies_are_all_checked(self):
+        capture, surfaces, source = self.fixture()
+        points, faces = source[self.left]
+        source[self.left] = (points + [points[0]], faces + [(3, 1, 2)])
+        surfaces[self.left]["faces"].append((6, 5, 1))
+        capture.extend(bytearray(80))
+        struct.pack_into("<3f", capture, 6 * 80, 0., 0., 2. ** -100)
+        row = audit.shared_source_boundaries(capture, 0, surfaces, source,
+                                             [(self.left, self.right)])[0]
+        self.assertEqual(row["native_vertex_copy_comparisons"], 4)
+        self.assertEqual(row["native_different_vertex_copies"], 1)
+
+    def test_source_identity_mismatch_rejected_before_reading(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "source.nhanatomy"
+            path.write_bytes(b"not the declared source")
+            with self.assertRaisesRegex(ValueError, "SHA-256"):
+                audit.load_source_boundary_meshes(path, "0" * 64, {}, set())
+
+
 if __name__ == "__main__":
     unittest.main()

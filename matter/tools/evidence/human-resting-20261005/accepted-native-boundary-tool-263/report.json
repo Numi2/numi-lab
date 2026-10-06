@@ -1,0 +1,80 @@
+{
+  "scope": "Owner audit regression and retained native negative reproduction. Runtime renderer fix not included or claimed.",
+  "host": "Mac.domain_not_set.invalid",
+  "python": "/Users/n/numi-human-prep-venv-20261005/bin/python",
+  "base_revision": "2c6d710a39d8a3f81b7f60c5325e18fcca288a7b",
+  "test_returncode": 0,
+  "native_negative_returncode": 2,
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/n/numi-human-resting-normal-source-035/matter/tools/accepted_mrvpack_surface_audit.py",
+    "/Users/n/numi-human-resting-evidence-20261005/cardiac-source240-ventricular-native-admission-259/native-output/accepted-geometry/step-0.mrvpack",
+    "/Users/n/numi-human-resting-broadphase-source-042/src/numilab_human/cardiac_cavity_intersections.py",
+    "--step",
+    "0",
+    "--receipt",
+    "/Users/n/numi-human-resting-evidence-20261005/cardiac-source240-ventricular-native-admission-259/native-output/accepted-geometry/step-0.receipt.json",
+    "--pairs",
+    "51010:23-51025:319,51010:23-51025:321",
+    "--shared-boundaries-only",
+    "--source-anatomy",
+    "/Users/n/numi-human-resting-evidence-20261005/cardiac-source240-map-admission-257/native-input/resting-thorax.nhanatomy",
+    "--source-anatomy-sha256",
+    "0c0ecfcd1dc8dd909bee074953b65900d8cba7f07edca64586fbe325f89c0cbf"
+  ],
+  "test_log_sha256": "e49c07ae220356172b77eeac911ac6504c334a270ad1245e7651b8b5baa2cb95",
+  "native_negative_report_sha256": "409413c828187e2e46589d675e8e6d6c8fab311f0ed01814044f1d6b88933ff1",
+  "tool_sha256": "9016a1845a43d7f40c7805b85b6798ffbad8ffe9613d0a6322231e51c757ba27",
+  "tests_sha256": "22747864e8bf339ac76c8fa8ef01e36a53d1d68fa539afbfe704249c28c4b958",
+  "source_payload_sha256": "0c0ecfcd1dc8dd909bee074953b65900d8cba7f07edca64586fbe325f89c0cbf",
+  "native_pack_sha256": "1e3280429bc47403ee41601733c50ca9484bc6bab2a62b206e7df71cc1a0b7eb",
+  "accepted_receipt": {
+    "path": "/Users/n/numi-human-resting-evidence-20261005/cardiac-source240-ventricular-native-admission-259/native-output/accepted-geometry/step-0.receipt.json",
+    "sha256": "76711e10a4b8648d95ec8c5a587cd65808a918218647490f34bbd41e0aca3b83",
+    "accepted_step": 0,
+    "accepted_time_s": 0,
+    "accepted_root_fingerprint": 13538806222226829359,
+    "accepted_root_fingerprint_hex": "0xbbe3808706adb02f",
+    "accepted_transaction_fingerprint": 13538806222226829359,
+    "accepted_body_state_sha256": "0481da5c1b06085a1081185f6e54e2f51293b0b1a7a0dbb6fa33b3cc60a90734",
+    "accepted_respiration_state_sha256": "c321d4844866f1c00204e2d4aa8b40067bf65512c65e720b38c5054fc84e5548",
+    "base_pack_content_hash": "sha256:7b02c103c6e18585b6ad3f82f6456b91a710bc3f218b5fb5b97e9344b2e96e74",
+    "base_pack_file_sha256": "cf56b3e20eb789ee246f1be527d292616b11902a0d51af40d0e44b30635a6793",
+    "anatomy_layer_index": 0,
+    "captured_vertex_buffer_sha256": "c559f5776ea168e1a75d7a3ba525e7ad9a38a841a09d50a9c824ba71b3929d13"
+  },
+  "pairs": [
+    {
+      "first": [
+        51010,
+        23
+      ],
+      "second": [
+        51025,
+        319
+      ],
+      "source_shared_coordinate_count": 4573,
+      "native_vertex_copy_comparisons": 4573,
+      "native_different_vertex_copies": 875,
+      "max_world_gap_m": 4.280032699210963e-08,
+      "rms_world_gap_m": 7.268527423986167e-09,
+      "status": "different_native_boundary_copies"
+    },
+    {
+      "first": [
+        51010,
+        23
+      ],
+      "second": [
+        51025,
+        321
+      ],
+      "source_shared_coordinate_count": 4725,
+      "native_vertex_copy_comparisons": 4725,
+      "native_different_vertex_copies": 1182,
+      "max_world_gap_m": 4.470348358154297e-08,
+      "rms_world_gap_m": 7.70498712286213e-09,
+      "status": "different_native_boundary_copies"
+    }
+  ]
+}
