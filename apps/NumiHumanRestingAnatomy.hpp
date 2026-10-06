@@ -14,6 +14,7 @@
 #include <vector>
 #include "NumiHumanRestingVascularBindings.hpp"
 #include "NumiHumanRestingCardiacIdentity.hpp"
+#include "metalrobo/numi_human_resting_common_attachment.hpp"
 
 // Asset admission for the functional anatomical surfaces. This only runs at
 // loading; all time-dependent deformation consumes the accepted Metal state.
@@ -82,6 +83,13 @@ struct NumiHumanRestingAnatomy {
     MRHumanRestingCommonFieldGPU commonFieldGPU{};
     std::vector<MRHumanRestingCommonCoordinateBoxGPU> commonFieldBoxes;
     std::map<unsigned,std::pair<unsigned,unsigned>> commonFieldRanges;
+    struct CommonFieldPassiveAttachment {
+        unsigned stableId=0,semantic=0,bodyIndex=0,firstVertex=0,vertexCount=0;
+        unsigned originalBodyIndex=MR_INVALID_INDEX,anchorBodyIndex=MR_INVALID_INDEX,sourceSuperiorAxis=MR_INVALID_INDEX;
+        float transitionLower=0,transitionUpper=0;
+        bool inferiorVenaCava=false;
+    };
+    std::vector<CommonFieldPassiveAttachment> commonFieldPassiveAttachments;
     std::string commonFieldMapSHA256,commonFieldPolynomialSHA256,commonFieldBoxesSHA256,commonFieldAnatomyPayloadSHA256;
     std::array<unsigned,7> commonFieldStableIDs{{318,319,320,321,1,23,24}};
     struct CardiacWallBinding { unsigned chamber=0;mr_float4 displacementAndWeight{}; };
@@ -814,13 +822,108 @@ struct NumiHumanRestingAnatomy {
                 const unsigned idValue=expectedVolumeIDs[i];
                 const auto& sourceSurface=surface(idValue);
                 require(range&&[stableID isKindOfClass:NSNumber.class]&&stableID.unsignedIntValue==idValue&&
-                    [first isKindOfClass:NSNumber.class]&&first.unsignedIntValue==nextVertex&&
+                    [stableID doubleValue]==double(idValue)&&[first isKindOfClass:NSNumber.class]&&
+                    first.unsignedIntValue==nextVertex&&[first doubleValue]==double(nextVertex)&&
                     [count isKindOfClass:NSNumber.class]&&count.unsignedIntValue==sourceSurface.vertexCount&&
-                    sourceSurface.layer==(i<4?9u:1u),
+                    [count doubleValue]==double(sourceSurface.vertexCount)&&nextVertex<=mapRecords.unsignedIntValue&&
+                    sourceSurface.vertexCount<=mapRecords.unsignedIntValue-nextVertex&&sourceSurface.layer==(i<4?9u:1u),
                     "common field vertex range differs from its exact stable-ID source order");
                 commonFieldRanges[idValue]={nextVertex,sourceSurface.vertexCount};
                 nextVertex+=sourceSurface.vertexCount;
             }
+            id rawAttachments=common[@"passive_attachment_ranges"];
+            require(rawAttachments==nil||[rawAttachments isKindOfClass:NSArray.class],
+                "common passive attachment ranges are malformed");
+            NSArray* attachments=[rawAttachments isKindOfClass:NSArray.class]?(NSArray*)rawAttachments:@[];
+            require(attachments.count<=512,"common passive attachment range count exceeds its bounded owner");
+            NSDictionary* sourceIdentityMap=[provenance isKindOfClass:NSDictionary.class]?provenance[@"source_id_map"]:nil;
+            require([sourceIdentityMap isKindOfClass:NSDictionary.class],
+                "common passive attachment ranges require source-member identities");
+            std::vector<numi_human_resting_common_field::PassiveAttachmentRangeContract> attachmentContracts;
+            attachmentContracts.reserve(attachments.count);
+            const NSSet* commonRangeKeys=[NSSet setWithArray:@[@"stable_id",@"semantic",@"body_index",@"first_vertex",@"vertex_count"]];
+            const NSSet* attachmentKeys=[NSSet setWithArray:@[@"anchor_body_index",@"torso_body_index",@"source_superior_axis",
+                @"transition_lower_m",@"transition_upper_m",@"rule"]];
+            const auto readExactUnsigned=[](id value,unsigned& out) {
+                if(![value isKindOfClass:NSNumber.class]||CFGetTypeID((__bridge CFTypeRef)value)==CFBooleanGetTypeID())return false;
+                const double v=[value doubleValue];
+                if(!std::isfinite(v)||v<0||v>double(UINT32_MAX)||std::floor(v)!=v)return false;
+                out=static_cast<unsigned>(v);return true;
+            };
+            for(id rawRange in attachments) {
+                NSDictionary* range=[rawRange isKindOfClass:NSDictionary.class]?(NSDictionary*)rawRange:nil;
+                require(range!=nil,"common passive attachment range is not an object");
+                unsigned idValue=0,semantic=0,bodyIndex=0,first=0,count=0;
+                require(readExactUnsigned(range[@"stable_id"],idValue)&&readExactUnsigned(range[@"semantic"],semantic)&&
+                    readExactUnsigned(range[@"body_index"],bodyIndex)&&readExactUnsigned(range[@"first_vertex"],first)&&
+                    readExactUnsigned(range[@"vertex_count"],count),
+                    "common passive attachment range contains a malformed integer");
+                const unsigned expectedLayer=semantic==51011?2u:semantic==51021?5u:semantic==51022?6u:0u;
+                require(expectedLayer!=0,"common passive attachment semantic is unsupported");
+                id rawAttachment=range[@"attachment"],rawOriginal=range[@"original_body_index"];
+                const NSSet* allowedRangeKeys=idValue==11?
+                    [NSSet setWithArray:@[@"stable_id",@"semantic",@"body_index",@"first_vertex",@"vertex_count",
+                        @"original_body_index",@"attachment"]]:commonRangeKeys;
+                for(id key in range)require([key isKindOfClass:NSString.class]&&[allowedRangeKeys containsObject:key],
+                    "common passive attachment range contains an unsupported field");
+                // The IVC alone has two source-body influences and an explicit
+                // registered torso-to-abdomen transition.
+                if(idValue==11) {
+                    require(semantic==51011&&rawAttachment!=nil,
+                        "inferior vena cava attachment identity is incomplete");
+                    unsigned originalBody=0;require(readExactUnsigned(rawOriginal,originalBody)&&originalBody==7,
+                        "inferior vena cava original body must remain the source abdomen");
+                    unsigned rangeBody=0;require(readExactUnsigned(range[@"body_index"],rangeBody)&&rangeBody==20,
+                        "inferior vena cava common field must be registered in the torso frame");
+                    NSDictionary* attachment=[rawAttachment isKindOfClass:NSDictionary.class]?(NSDictionary*)rawAttachment:nil;
+                    require(attachment&&attachment.count==attachmentKeys.count,
+                        "inferior vena cava attachment contract has missing or extra fields");
+                    for(id key in attachment)require([key isKindOfClass:NSString.class]&&[attachmentKeys containsObject:key],
+                        "inferior vena cava attachment contract contains an unsupported field");
+                    unsigned anchor=0,torso=0,axis=0;
+                    NSNumber* low=attachment[@"transition_lower_m"];NSNumber* high=attachment[@"transition_upper_m"];
+                    require(readExactUnsigned(attachment[@"anchor_body_index"],anchor)&&anchor==7&&
+                        readExactUnsigned(attachment[@"torso_body_index"],torso)&&torso==20&&
+                        readExactUnsigned(attachment[@"source_superior_axis"],axis)&&axis==1&&
+                        [attachment[@"rule"] isKindOfClass:NSString.class]&&[attachment[@"rule"] isEqualToString:@"quintic_smoothstep"]&&
+                        [low isKindOfClass:NSNumber.class]&&[high isKindOfClass:NSNumber.class]&&
+                        std::isfinite(low.doubleValue)&&std::isfinite(high.doubleValue)&&
+                        std::abs(low.doubleValue-(-0.10))<1e-12&&std::abs(high.doubleValue-(-0.055))<1e-12,
+                        "inferior vena cava attachment contract differs from the registered quintic rule");
+                    bodyIndex=rangeBody;
+                } else require(rawAttachment==nil&&rawOriginal==nil,
+                    "only the inferior vena cava may declare an abdomen-to-torso attachment");
+                const auto& sourceSurface=surface(idValue);
+                require(first==nextVertex&&count==sourceSurface.vertexCount&&nextVertex<=mapRecords.unsignedIntValue&&
+                    count<=mapRecords.unsignedIntValue-nextVertex&&sourceSurface.bodyIndex==20&&
+                    sourceSurface.layer==expectedLayer&&bodyIndex==20,
+                    "common passive range differs from its exact torso source record");
+                NSString* sourceKey=[NSString stringWithFormat:@"%u",idValue];NSDictionary* identity=sourceIdentityMap[sourceKey];
+                NSNumber* sourceBody=[identity isKindOfClass:NSDictionary.class]?identity[@"body_index"]:nil;
+                NSNumber* sourceLayer=[identity isKindOfClass:NSDictionary.class]?identity[@"layer"]:nil;
+                const unsigned expectedSourceBody=idValue==11?7u:20u;
+                require([sourceBody isKindOfClass:NSNumber.class]&&sourceBody.unsignedIntValue==expectedSourceBody&&
+                    [sourceLayer isKindOfClass:NSNumber.class]&&sourceLayer.unsignedIntValue==expectedLayer,
+                    "common passive stable ID disagrees with its pinned source body/layer identity");
+                numi_human_resting_common_field::PassiveAttachmentRangeContract contract{};
+                contract.stableId=idValue;contract.semantic=semantic;contract.bodyIndex=bodyIndex;
+                contract.sourceLayer=sourceSurface.layer;contract.firstVertex=first;contract.vertexCount=count;
+                contract.hasOriginalBodyIndex=idValue==11;contract.hasAttachment=idValue==11;
+                if(idValue==11) {
+                    contract.originalBodyIndex=7;contract.anchorBodyIndex=7;contract.torsoBodyIndex=20;
+                    contract.sourceSuperiorAxis=1;contract.quinticSmoothstep=true;
+                    contract.transitionLower=-0.10f;contract.transitionUpper=-0.055f;
+                    commonFieldPassiveAttachments.push_back({idValue,semantic,bodyIndex,first,count,7,7,1,-0.10f,-0.055f,true});
+                } else commonFieldPassiveAttachments.push_back({idValue,semantic,bodyIndex,first,count});
+                attachmentContracts.push_back(contract);
+                require(commonFieldRanges.emplace(idValue,std::pair<unsigned,unsigned>{nextVertex,count}).second,
+                    "common passive stable ID duplicates a cardiac volume-owner range");
+                nextVertex+=count;
+            }
+            require(numi_human_resting_common_field::validPassiveAttachmentRanges(
+                    attachmentContracts,commonFieldRanges.at(expectedVolumeIDs[6]).first+
+                        commonFieldRanges.at(expectedVolumeIDs[6]).second,nextVertex),
+                "common passive attachment ranges violate the fixed typed source contract");
             require(mapRecords.unsignedIntValue==nextVertex,"common field map has unowned or missing source vertices");
             auto mapBytes=readCommonBytes(mapDescriptor,std::size_t(nextVertex)*sizeof(MRHumanRestingCommonFieldVertexGPU),
                 "map",commonFieldMapSHA256);
@@ -830,9 +933,9 @@ struct NumiHumanRestingAnatomy {
                 bool operator<(const SourceCoordinateKey& other) const {return bits<other.bits;}
             };
             std::map<SourceCoordinateKey,std::array<unsigned char,sizeof(MRHumanRestingCommonFieldVertexGPU)>> repeatedRows;
-            for(unsigned i=0;i<7;++i) {
-                const auto& sourceSurface=surface(expectedVolumeIDs[i]);
-                const unsigned first=commonFieldRanges.at(expectedVolumeIDs[i]).first;
+            const auto validateRowsFor=[&](unsigned idValue) {
+                const auto& sourceSurface=surface(idValue);
+                const unsigned first=commonFieldRanges.at(idValue).first;
                 for(unsigned v=0;v<sourceSurface.vertexCount;++v) {
                     const auto& source=anatomy.vertices.at(sourceSurface.firstVertex+v);
                     const std::array<float,3> position{{source.positionX,source.positionY,source.positionZ}};
@@ -850,7 +953,9 @@ struct NumiHumanRestingAnatomy {
                     require(inserted||existing->second==bytes,
                         "exactly shared source coordinates have different common-field coefficient bytes");
                 }
-            }
+            };
+            for(unsigned idValue:expectedVolumeIDs)validateRowsFor(idValue);
+            for(const auto& attachment:commonFieldPassiveAttachments)validateRowsFor(attachment.stableId);
 
             NSDictionary* polynomialDescriptor=common[@"polynomials"];
             require([polynomialDescriptor isKindOfClass:NSDictionary.class]&&

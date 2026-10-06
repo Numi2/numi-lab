@@ -132,6 +132,19 @@ class NumiHumanRestingVisual {
             const auto range=functional.commonFieldRanges.at(id);
             [ranges addObject:@{@"stable_id":@(id),@"first_vertex":@(range.first),@"vertex_count":@(range.second)}];
         }
+        NSMutableArray* passiveRanges=[NSMutableArray array];
+        for(const auto& range:functional.commonFieldPassiveAttachments) {
+            NSMutableDictionary* row=[@{@"stable_id":@(range.stableId),@"semantic":@(range.semantic),
+                @"body_index":@(range.bodyIndex),@"first_vertex":@(range.firstVertex),
+                @"vertex_count":@(range.vertexCount)} mutableCopy];
+            if(range.inferiorVenaCava)row[@"original_body_index"]=@(range.originalBodyIndex);
+            if(range.inferiorVenaCava)row[@"attachment"]=@{
+                @"anchor_body_index":@(range.anchorBodyIndex),@"torso_body_index":@(range.bodyIndex),
+                @"source_superior_axis":@(range.sourceSuperiorAxis),
+                @"transition_lower_m":@(range.transitionLower),@"transition_upper_m":@(range.transitionUpper),
+                @"rule":@"quintic_smoothstep"};
+            [passiveRanges addObject:row];
+        }
         NSError* error=nil;
         NSDictionary* receipt=@{
             @"schema":@"numi.human.cardiac_common_field_loaded_buffers.v1",
@@ -140,6 +153,7 @@ class NumiHumanRestingVisual {
             @"coordinate_order":@[@"RA",@"RV",@"LA",@"LV",@"RA-material",@"ventricular-material",@"LA-material"],
             @"volume_stable_ids":@[@318,@319,@320,@321,@1,@23,@24],
             @"vertex_ranges":ranges,
+            @"passive_attachment_ranges":passiveRanges,
             @"map":@{@"path":loadedKneeNSString(mapPath.filename().string()),@"sha256":loadedKneeNSString(commonFieldMapSHA256),
                 @"record_count":@(functional.commonFieldMap.size()),@"record_stride_bytes":@112},
             @"polynomials":@{@"path":loadedKneeNSString(polynomialPath.filename().string()),@"sha256":loadedKneeNSString(commonFieldPolynomialSHA256),
@@ -519,6 +533,7 @@ public:
         std::vector<mr_uint4> wallNormalRanges;
         std::vector<unsigned> wallIncidentTriangles;
         std::vector<unsigned> visibleLayers;
+        std::set<unsigned> commonAttachmentsSeen;
         // Keep the four source cavity identities visually distinguishable in
         // the native inspection layer. These are presentation colors only;
         // they do not encode oxygenation, flow, or tissue state.
@@ -651,7 +666,7 @@ public:
                 deformation=5;chamber=functional.ribs.at(instance.identity.w);
             }
             if(instance.identity.x==kBoneSemantic&&functional.sternum.contains(instance.identity.w))deformation=6;
-            unsigned commonChannel=MR_INVALID_INDEX;
+            unsigned commonChannel=MR_INVALID_INDEX,commonAttachmentIndex=MR_INVALID_INDEX;
             if(commonCardiacGeometry)for(unsigned c=0;c<functional.commonFieldStableIDs.size();++c) {
                 const unsigned expectedSemantic=c<4?kCavityReferenceSemantic:kOrganSurfaceSemantic;
                 if(instance.identity.w==functional.commonFieldStableIDs[c]&&
@@ -661,24 +676,35 @@ public:
                     commonChannel=c;break;
                 }
             }
+            if(commonCardiacGeometry&&commonChannel==MR_INVALID_INDEX)
+                for(unsigned a=0;a<functional.commonFieldPassiveAttachments.size();++a) {
+                    const auto& range=functional.commonFieldPassiveAttachments[a];
+                    if(instance.identity.w==range.stableId&&instance.identity.x==range.semantic) {
+                        commonAttachmentIndex=a;break;
+                    }
+                }
             if(commonChannel!=MR_INVALID_INDEX){deformation=12;chamber=commonChannel;}
+            else if(commonAttachmentIndex!=MR_INVALID_INDEX){deformation=12;chamber=7+commonAttachmentIndex;}
             const auto semantic=instance.identity.x;
             unsigned visibility=semantic==kSkinShellSemantic?1u:
                 semantic==kBoneSemantic?6u:
                 (semantic==kMuscleSurfaceSemantic||semantic==kTendonSurfaceSemantic)?2u:
                 semantic>=kOrganSurfaceSemantic?8u:0u;
             if(deformation==1&&functional.lungs.contains(instance.identity.w))visibility|=16u;
-            if(deformation==2||deformation==12)visibility|=32u|64u;
+            if(deformation==2||(deformation==12&&commonChannel<4))visibility|=32u|64u;
+            if(deformation==12&&commonChannel>=4&&commonChannel<7)visibility|=32u;
             if(deformation==8||deformation==10)visibility|=32u;
             if(semantic==kVesselSurfaceSemantic||semantic==kPulmonaryArterySurfaceSemantic||semantic==kPulmonaryVeinSurfaceSemantic)
                 visibility|=64u;
             if(deformation==4||deformation==7)visibility=2u|16u;
             visibleLayers.push_back(visibility);
-            if(deformation==2||(deformation==12&&chamber<4))for(unsigned p=instance.geometry.x;p<instance.geometry.x+instance.geometry.y;++p)
+            if(deformation==2||(deformation==12&&commonChannel<4))for(unsigned p=instance.geometry.x;p<instance.geometry.x+instance.geometry.y;++p)
                 pack.primitives.at(p).geometry.z=cardiacMaterials.at(chamber);
             if(deformation==12) {
-                require(commonCardiacGeometry&&chamber<7&&instance.geometry.y==1,
-                    "common cardiac field surface has an invalid channel or split primitive range");
+                const bool volumeOwner=commonChannel<7;
+                require(commonCardiacGeometry&&(volumeOwner||commonAttachmentIndex<functional.commonFieldPassiveAttachments.size())&&
+                    instance.geometry.y==1,
+                    "common field surface has an invalid cardiac channel or passive attachment range");
                 const auto range=functional.commonFieldRanges.at(instance.identity.w);
                 std::cout<<"common_cardiac_source_binding stable_id="<<instance.identity.w
                     <<" map_first="<<range.first<<" map_count="<<range.second
@@ -693,19 +719,26 @@ public:
                     instance.translationAndScale.x==0&&instance.translationAndScale.y==0&&
                     instance.translationAndScale.z==0&&instance.translationAndScale.w==1&&
                     instance.orientation.x==0&&instance.orientation.y==0&&instance.orientation.z==0&&instance.orientation.w==1,
-                    "common cardiac surfaces must preserve the contiguous registered torso source frame");
+                    "common field surfaces must preserve the contiguous registered torso source frame");
                 require(range.first<=functional.commonFieldMap.size()&&range.second<=functional.commonFieldMap.size()-range.first,
-                    "common cardiac surface range escapes its coefficient map");
-                require(commonFieldAuditIndices[chamber]==MR_INVALID_INDEX,
-                    "common cardiac surface channel is duplicated in the renderer pack");
+                    "common field surface range escapes its coefficient map");
                 const auto& primitive=pack.primitives.at(instance.geometry.x);
-                require(primitive.geometry.y%3==0,"common cardiac surface contains a partial triangle");
-                commonFieldAuditIndices[chamber]=unsigned(audits.size());
-                const float reference=chamber<4?
-                    reinterpret_cast<const float*>(functional.commonFieldGPU.sourceReferenceVolumes)[chamber]:
-                    reinterpret_cast<const float*>(&functional.commonFieldGPU.materialTargetVolumes)[chamber-4];
-                audits.push_back({{primitive.geometry.x,primitive.geometry.y,deformation,chamber},{reference,0,0,0}});
-                auditStableIds.push_back(instance.identity.w);
+                require(primitive.geometry.y%3==0,"common field surface contains a partial triangle");
+                if(volumeOwner) {
+                    require(commonFieldAuditIndices[chamber]==MR_INVALID_INDEX,
+                        "common cardiac volume channel is duplicated in the renderer pack");
+                    const float reference=chamber<4?
+                        reinterpret_cast<const float*>(functional.commonFieldGPU.sourceReferenceVolumes)[chamber]:
+                        reinterpret_cast<const float*>(&functional.commonFieldGPU.materialTargetVolumes)[chamber-4];
+                    commonFieldAuditIndices[chamber]=unsigned(audits.size());
+                    audits.push_back({{primitive.geometry.x,primitive.geometry.y,deformation,chamber},{reference,0,0,0}});
+                    auditStableIds.push_back(instance.identity.w);
+                } else {
+                    const auto& attachment=functional.commonFieldPassiveAttachments.at(commonAttachmentIndex);
+                    require(instance.identity.w==attachment.stableId&&instance.identity.x==attachment.semantic&&
+                        attachment.bodyIndex==anatomyGPU.bodyAndFlags.x&&commonAttachmentsSeen.insert(attachment.stableId).second,
+                        "common passive attachment does not match its unique typed source range");
+                }
                 std::vector<std::vector<unsigned>> incident(range.second);
                 for(unsigned j=primitive.geometry.x;j<primitive.geometry.x+primitive.geometry.y;j+=3)
                     for(unsigned k=0;k<3;++k) {
@@ -830,6 +863,37 @@ public:
                     const auto pelvicNormal=rotatePoint(inverseRotation(pelvis.orientation),worldNormal);
                     add(v,anatomyGPU.bodyAndFlags.x,local,normal,h);
                     add(v,functional.passivePelvicBody,pelvicPoint,pelvicNormal,1-h);
+                }else if(deformation==12&&commonAttachmentIndex!=MR_INVALID_INDEX) {
+                    const auto& attachment=functional.commonFieldPassiveAttachments.at(commonAttachmentIndex);
+                    require(instance.binding.z==MR_VISUAL_BINDING_ARTICULATED_LINK&&
+                        instance.binding.y==anatomyGPU.bodyAndFlags.x&&
+                        instance.translationAndScale.x==0&&instance.translationAndScale.y==0&&
+                        instance.translationAndScale.z==0&&instance.translationAndScale.w==1&&
+                        instance.orientation.x==0&&instance.orientation.y==0&&instance.orientation.z==0&&instance.orientation.w==1,
+                        "passive common attachment must be registered in the exact torso source frame");
+                    const auto& vertex=pack.vertices.at(v);
+                    const mr_float4 local={vertex.position.x,vertex.position.y,vertex.position.z,0};
+                    const mr_float4 normal={vertex.normalAndTangentSign.x,vertex.normalAndTangentSign.y,
+                        vertex.normalAndTangentSign.z,0};
+                    float torsoWeight=1.0f;
+                    if(attachment.inferiorVenaCava) {
+                        torsoWeight=numi_human_resting_common_field::quinticSmoothstep(attachment.transitionLower,attachment.transitionUpper,
+                            (&local.x)[attachment.sourceSuperiorAxis]);
+                        const auto& anchor=initialBodies.at(attachment.anchorBodyIndex);
+                        require(attachment.originalBodyIndex==attachment.anchorBodyIndex&&
+                            attachment.bodyIndex==anatomyGPU.bodyAndFlags.x&&
+                            attachment.sourceSuperiorAxis==1&&std::isfinite(torsoWeight)&&torsoWeight>=0&&torsoWeight<=1,
+                            "inferior vena cava torso/abdomen attachment parameters are invalid");
+                        const auto world=addPoint(initialThorax.position,rotatePoint(initialThorax.orientation,local));
+                        const auto worldNormal=rotatePoint(initialThorax.orientation,normal);
+                        const auto anchorLocal=rotatePoint(inverseRotation(anchor.orientation),subtractPoint(world,anchor.position));
+                        const auto anchorNormal=rotatePoint(inverseRotation(anchor.orientation),worldNormal);
+                        add(v,anatomyGPU.bodyAndFlags.x,local,normal,torsoWeight);
+                        add(v,attachment.anchorBodyIndex,anchorLocal,anchorNormal,1.0f-torsoWeight);
+                    }else add(v,anatomyGPU.bodyAndFlags.x,local,normal,1.0f);
+                    // W marks a typed passive attachment for identity/debugging;
+                    // kind 12 still applies the complete common-field delta.
+                    maps[v].deformationWeight={torsoWeight,0,0,1};
                 }else {
                     const auto& vertex=pack.vertices.at(v);
                     auto p=addPoint(instance.translationAndScale,scalePoint(rotatePoint(instance.orientation,vertex.position),instance.translationAndScale.w));
@@ -910,6 +974,8 @@ public:
             for(unsigned channel=0;channel<7;++channel)
                 require(commonFieldAuditIndices[channel]!=MR_INVALID_INDEX,
                     "common cardiac renderer pack is missing a declared source surface");
+            require(commonAttachmentsSeen.size()==functional.commonFieldPassiveAttachments.size(),
+                "common field renderer pack is missing a declared passive attachment surface");
         }
         // Supine reduction: the dorsal support strip stays with its contact
         // owner. The chest expands toward the anterior surface; all five lung
