@@ -1,0 +1,25 @@
+/Users/n/numi-human-resting-limit-lanes-source-023/matter/tools/inspect_resting_movie.swift:19:29: warning: 'tracks(withMediaType:)' was deprecated in macOS 13.0: Use loadTracks(withMediaType:) instead [#DeprecatedDeclaration]
+17 |     }
+18 |     let reader = try AVAssetReader(asset: asset)
+19 |     guard let track = asset.tracks(withMediaType: .video).first else {
+   |                             `- warning: 'tracks(withMediaType:)' was deprecated in macOS 13.0: Use loadTracks(withMediaType:) instead [#DeprecatedDeclaration]
+20 |         throw NSError(domain: "missing-video-track", code: 2)
+21 |     }
+
+/Users/n/numi-human-resting-limit-lanes-source-023/matter/tools/inspect_resting_movie.swift:52:198: warning: 'duration' was deprecated in macOS 13.0: Use load(.duration) instead [#DeprecatedDeclaration]
+50 |         maxGap = max(maxGap, gap)
+51 |     }
+52 |     print("frames=\(timestamps.count) timing_markers=\(timingMarkers) first_wall_s=\(timestamps[0].seconds) last_wall_s=\(timestamps.last!.seconds) max_gap_wall_s=\(maxGap) duration_wall_s=\(asset.duration.seconds)")
+   |                                                                                                                                                                                                      `- warning: 'duration' was deprecated in macOS 13.0: Use load(.duration) instead [#DeprecatedDeclaration]
+53 |     var selected = [("initial", 0), ("middle", timestamps.count/2), ("final", timestamps.count-1)]
+54 |     if CommandLine.arguments.count > 2 {
+
+/Users/n/numi-human-resting-limit-lanes-source-023/matter/tools/inspect_resting_movie.swift:72:35: warning: 'copyCGImage(at:actualTime:)' was deprecated in macOS 15.0: Use generateCGImageAsynchronouslyForTime:completionHandler: instead [#DeprecatedDeclaration]
+70 |     for (name, index) in selected {
+71 |         var actual = CMTime.zero
+72 |         let frame = try generator.copyCGImage(at: timestamps[index], actualTime: &actual)
+   |                                   `- warning: 'copyCGImage(at:actualTime:)' was deprecated in macOS 15.0: Use generateCGImageAsynchronouslyForTime:completionHandler: instead [#DeprecatedDeclaration]
+73 |         guard CMTimeCompare(actual, timestamps[index]) == 0 else {
+74 |             throw NSError(domain: "inexact-frame-extraction", code: 8)
+
+[#DeprecatedDeclaration]: <https://docs.swift.org/compiler/documentation/diagnostics/deprecated-declaration>

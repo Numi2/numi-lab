@@ -1,0 +1,5 @@
+frames=376 timing_markers=5 first_wall_s=0.27166666666666667 last_wall_s=272.635 max_gap_wall_s=2.276666666666667 duration_wall_s=274.21
+frame=skin index=39 simulated_s=2.49400011846 wall_s=29.471666666666668 width=1280 height=900
+frame=muscles index=117 simulated_s=7.48600035557 wall_s=85.24666666666667 width=1280 height=900
+frame=skeleton index=195 simulated_s=12.4780005927 wall_s=141.47166666666666 width=1280 height=900
+frame=organs index=273 simulated_s=17.4700008298 wall_s=197.11833333333334 width=1280 height=900

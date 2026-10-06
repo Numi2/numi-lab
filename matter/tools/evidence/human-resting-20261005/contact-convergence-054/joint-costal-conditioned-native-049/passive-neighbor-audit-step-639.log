@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/Users/n/numi-human-resting-evidence-20261005/audit-resting-passive-neighbors-051.py", line 21, in <module>
+    provenance = audit.validate_accepted_receipt(pack, receipt, step, mm, offset, surfaces)
+  File "/Users/n/numi-human-resting-conforming-source-009/matter/tools/accepted_mrvpack_surface_audit.py", line 101, in validate_accepted_receipt
+    receipt_path = receipt_path.resolve(strict=True)
+  File "/Users/n/miniforge3/lib/python3.13/pathlib/_local.py", line 670, in resolve
+    return self.with_segments(os.path.realpath(self, strict=strict))
+                              ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen posixpath>", line 451, in realpath
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-049/accepted-geometry/step-639.json'

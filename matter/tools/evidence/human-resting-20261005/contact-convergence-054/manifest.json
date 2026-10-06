@@ -1,0 +1,611 @@
+{
+  "scope": "Retained24s integrated engineering diagnostics and controlled16/32/64 contact-sweep comparison; failed admission048 retained. Not final anatomy, five-minute acceptance, physiological intervention/recovery or real-time qualification.",
+  "retained_files": [
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/run-resting-limit-lanes-046.py",
+      "source_sha256": "ec3e44c388d49b1d0bf622948c4a1e7d36d17a148704769f5225544731e37dd9",
+      "retained": "run-resting-limit-lanes-046.py",
+      "retained_sha256": "ec3e44c388d49b1d0bf622948c4a1e7d36d17a148704769f5225544731e37dd9"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/run-resting-contact-convergence-050.py",
+      "source_sha256": "da866fcb02dfccf22e54df5dd873ab1ceba89d3ff8f0c0b0a5205a17867467c9",
+      "retained": "run-resting-contact-convergence-050.py",
+      "retained_sha256": "da866fcb02dfccf22e54df5dd873ab1ceba89d3ff8f0c0b0a5205a17867467c9"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/run-resting-contact-convergence-052.py",
+      "source_sha256": "3188f06c43da4f5dd5b83a472c363e0f24a2f5aea85328fcd016523c05425e3a",
+      "retained": "run-resting-contact-convergence-052.py",
+      "retained_sha256": "3188f06c43da4f5dd5b83a472c363e0f24a2f5aea85328fcd016523c05425e3a"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/analyze-joint-costal-conditioned-049.py",
+      "source_sha256": "66dff33ad9bcc40c5437dc05c1241cfb4e07fa0b9933e0d7d477e08284fb181f",
+      "retained": "analyze-joint-costal-conditioned-049.py",
+      "retained_sha256": "66dff33ad9bcc40c5437dc05c1241cfb4e07fa0b9933e0d7d477e08284fb181f"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/analyze-contact-iterations32-050.py",
+      "source_sha256": "6f57a0289958bed9cc16726187d0d52e442b9fba093eeaa6f9b67fccd516f2a5",
+      "retained": "analyze-contact-iterations32-050.py",
+      "retained_sha256": "6f57a0289958bed9cc16726187d0d52e442b9fba093eeaa6f9b67fccd516f2a5"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/analyze-contact-iterations64-052.py",
+      "source_sha256": "c7dc2da24a0301663500e7218737571746a59278a60ab0ca29b9850313e6d6cd",
+      "retained": "analyze-contact-iterations64-052.py",
+      "retained_sha256": "c7dc2da24a0301663500e7218737571746a59278a60ab0ca29b9850313e6d6cd"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/compare-contact-iterations-054.py",
+      "source_sha256": "fd2b6237c29a1872159e5377912ccb78b8c3e0bed90a4625d09060c7cd92ee62",
+      "retained": "compare-contact-iterations-054.py",
+      "retained_sha256": "fd2b6237c29a1872159e5377912ccb78b8c3e0bed90a4625d09060c7cd92ee62"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/contact-iterations-comparison-054.json",
+      "source_sha256": "ea9652f14a85e68704d9f059471add86318d874e86ba5d432ca5dabe4358e19c",
+      "retained": "contact-iterations-comparison-054.json",
+      "retained_sha256": "ea9652f14a85e68704d9f059471add86318d874e86ba5d432ca5dabe4358e19c"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/audit-resting-whole-skin-033.py",
+      "source_sha256": "11a216b915cb3a959f6801f4eae7c5be167c141776aa9d758688fa6fb4b3274d",
+      "retained": "audit-resting-whole-skin-033.py",
+      "retained_sha256": "11a216b915cb3a959f6801f4eae7c5be167c141776aa9d758688fa6fb4b3274d"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/audit-resting-passive-neighbors-051.py",
+      "source_sha256": "66af2f8b8ccc6579d6284c08f4540f40e5708e442103a27a43882589c5624eb8",
+      "retained": "audit-resting-passive-neighbors-051.py",
+      "retained_sha256": "66af2f8b8ccc6579d6284c08f4540f40e5708e442103a27a43882589c5624eb8"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/audit-resting-passive-neighbors-051-path-error.py",
+      "source_sha256": "6ad1b3e0caff2ae9e921d2f2051155c6123f9a42fbce63c5d99066e2d26d58d5",
+      "retained": "audit-resting-passive-neighbors-051-path-error.py",
+      "retained_sha256": "6ad1b3e0caff2ae9e921d2f2051155c6123f9a42fbce63c5d99066e2d26d58d5"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/audit-resting-passive-source-053.py",
+      "source_sha256": "ddf1401332c1dad481841ff046b98be3349062f8e867f8b27974277256bf4528",
+      "retained": "audit-resting-passive-source-053.py",
+      "retained_sha256": "ddf1401332c1dad481841ff046b98be3349062f8e867f8b27974277256bf4528"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/inspect-native049-layers.swift",
+      "source_sha256": "3530d61ab05371a65084d1d0a59a5c5da7b51cac210daf87f32e77d7a4506500",
+      "retained": "inspect-native049-layers.swift",
+      "retained_sha256": "3530d61ab05371a65084d1d0a59a5c5da7b51cac210daf87f32e77d7a4506500"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/resting-launcher-contact-iterations-054-test.log",
+      "source_sha256": "6952ad3e38fdc0e7c905c2dadd89a27815939f138f127ce402eca2d18e02cdb7",
+      "retained": "resting-launcher-contact-iterations-054-test.log",
+      "retained_sha256": "6952ad3e38fdc0e7c905c2dadd89a27815939f138f127ce402eca2d18e02cdb7"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-048/execution.json",
+      "source_sha256": "34329944ecebaccb7d0fa36a07ec19c0d288ee17253fe5c0e39309c61376494d",
+      "retained": "joint-costal-conditioned-native-048/execution.json",
+      "retained_sha256": "34329944ecebaccb7d0fa36a07ec19c0d288ee17253fe5c0e39309c61376494d"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-048/invocation.json",
+      "source_sha256": "a417849562d40f26c7ae2ab62209d40ee7acc814fcc970e64b1f0f635e3e2ae2",
+      "retained": "joint-costal-conditioned-native-048/invocation.json",
+      "retained_sha256": "a417849562d40f26c7ae2ab62209d40ee7acc814fcc970e64b1f0f635e3e2ae2"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-048/native.log",
+      "source_sha256": "3bdb7a3d04511d0148c11f04b22f63dc503bce94391eb4797605c00cf34cb0b0",
+      "retained": "joint-costal-conditioned-native-048/native.log",
+      "retained_sha256": "3bdb7a3d04511d0148c11f04b22f63dc503bce94391eb4797605c00cf34cb0b0"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-048/resting-coupled.csv",
+      "source_sha256": "67d92586acfcc1286be61ee00d50ba07128e27d34ce02d8ad6234a7be1e0eb87",
+      "retained": "joint-costal-conditioned-native-048/resting-coupled.csv",
+      "retained_sha256": "67d92586acfcc1286be61ee00d50ba07128e27d34ce02d8ad6234a7be1e0eb87"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-048/source.diff",
+      "source_sha256": "9760b17a9d6592eca410b806154923a3bd3ecd51a100a63bfa260bd1b7c427f6",
+      "retained": "joint-costal-conditioned-native-048/source.diff.gz",
+      "retained_sha256": "b2edabc5999be76712dd5a80c3d426397e93f2bf042ff986f3f519a29ad87981"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-049/accepted-geometry/step-11999.receipt.json",
+      "source_sha256": "82b0c5278584cfea1fa0bc2fb7b0d68aa2ec5feafdb5a8e3a0d2692577cba6e9",
+      "retained": "joint-costal-conditioned-native-049/accepted-geometry/step-11999.receipt.json",
+      "retained_sha256": "82b0c5278584cfea1fa0bc2fb7b0d68aa2ec5feafdb5a8e3a0d2692577cba6e9"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-049/accepted-geometry/step-2783.receipt.json",
+      "source_sha256": "78c583176000ad59492f20a5d8faa2d027ce7f1c07728f06ae198082ad441d7e",
+      "retained": "joint-costal-conditioned-native-049/accepted-geometry/step-2783.receipt.json",
+      "retained_sha256": "78c583176000ad59492f20a5d8faa2d027ce7f1c07728f06ae198082ad441d7e"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-049/accepted-geometry/step-4991.receipt.json",
+      "source_sha256": "f146c2dbe9bd2d97c1cd97a3c0908226f5f95933124a913cc866c92461822bcc",
+      "retained": "joint-costal-conditioned-native-049/accepted-geometry/step-4991.receipt.json",
+      "retained_sha256": "f146c2dbe9bd2d97c1cd97a3c0908226f5f95933124a913cc866c92461822bcc"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-049/accepted-geometry/step-639.receipt.json",
+      "source_sha256": "edff4434f1052740d1f05973e9949ae02b6d4e5fec3c0acc140ef8796e2af68f",
+      "retained": "joint-costal-conditioned-native-049/accepted-geometry/step-639.receipt.json",
+      "retained_sha256": "edff4434f1052740d1f05973e9949ae02b6d4e5fec3c0acc140ef8796e2af68f"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-049/accepted-geometry/step-8991.receipt.json",
+      "source_sha256": "f32be58b69c7f82a16e9f375a6bbe172638315be7d37c99d75af18e63e8bd205",
+      "retained": "joint-costal-conditioned-native-049/accepted-geometry/step-8991.receipt.json",
+      "retained_sha256": "f32be58b69c7f82a16e9f375a6bbe172638315be7d37c99d75af18e63e8bd205"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-049/accepted-geometry/step-9311.receipt.json",
+      "source_sha256": "2d39061a0e72211adccf66a382563d59d08ff6da418e8d4543fdeae87d4cf89a",
+      "retained": "joint-costal-conditioned-native-049/accepted-geometry/step-9311.receipt.json",
+      "retained_sha256": "2d39061a0e72211adccf66a382563d59d08ff6da418e8d4543fdeae87d4cf89a"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-049/engineering-stability-analysis.json",
+      "source_sha256": "830284852e432ded182c922c640e0426e5b9b4f9dbbdc79e68ba47849dd1ca32",
+      "retained": "joint-costal-conditioned-native-049/engineering-stability-analysis.json",
+      "retained_sha256": "830284852e432ded182c922c640e0426e5b9b4f9dbbdc79e68ba47849dd1ca32"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-049/execution.json",
+      "source_sha256": "0127527fa557859d2da8cd752faf1b769ad0a9e6a512aa8c11839c4d1e5ea08d",
+      "retained": "joint-costal-conditioned-native-049/execution.json",
+      "retained_sha256": "0127527fa557859d2da8cd752faf1b769ad0a9e6a512aa8c11839c4d1e5ea08d"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-049/invocation.json",
+      "source_sha256": "79310662a7341ab36d16ddf354d252bc8947e8db0698bfc5ccb08222120e40d5",
+      "retained": "joint-costal-conditioned-native-049/invocation.json",
+      "retained_sha256": "79310662a7341ab36d16ddf354d252bc8947e8db0698bfc5ccb08222120e40d5"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-049/layer-inspection.stderr",
+      "source_sha256": "6b870787648f0874ad60935604eae832e1e87bed3acd4f3bc7af0c443e2cdd02",
+      "retained": "joint-costal-conditioned-native-049/layer-inspection.stderr",
+      "retained_sha256": "6b870787648f0874ad60935604eae832e1e87bed3acd4f3bc7af0c443e2cdd02"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-049/layer-inspection.txt",
+      "source_sha256": "945f5121b8069e3b8e20545cfc2d7072efa9c568fa77ceda3869a786a191c44e",
+      "retained": "joint-costal-conditioned-native-049/layer-inspection.txt",
+      "retained_sha256": "945f5121b8069e3b8e20545cfc2d7072efa9c568fa77ceda3869a786a191c44e"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-049/movie-inspection.stderr",
+      "source_sha256": "6b938aab5e831687414749a29dbab1c3014bc1db01495ce9a304ecd2c928c9b2",
+      "retained": "joint-costal-conditioned-native-049/movie-inspection.stderr",
+      "retained_sha256": "6b938aab5e831687414749a29dbab1c3014bc1db01495ce9a304ecd2c928c9b2"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-049/movie-inspection.txt",
+      "source_sha256": "d69bf360170434529eccf3fe541300e00d5487e35e36e22f8b1e5f5292f8a4e8",
+      "retained": "joint-costal-conditioned-native-049/movie-inspection.txt",
+      "retained_sha256": "d69bf360170434529eccf3fe541300e00d5487e35e36e22f8b1e5f5292f8a4e8"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-049/native.log",
+      "source_sha256": "a6415ae71931428d010f4ca4796dadcdcb9d6cf04a9aad25bc4cb068a13b020d",
+      "retained": "joint-costal-conditioned-native-049/native.log",
+      "retained_sha256": "a6415ae71931428d010f4ca4796dadcdcb9d6cf04a9aad25bc4cb068a13b020d"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-049/passive-neighbor-audit-step-639-retry.log",
+      "source_sha256": "8b17c2145611ecb7be945108e6455d1f6442aeb04735e08ada48a181dfe89935",
+      "retained": "joint-costal-conditioned-native-049/passive-neighbor-audit-step-639-retry.log",
+      "retained_sha256": "8b17c2145611ecb7be945108e6455d1f6442aeb04735e08ada48a181dfe89935"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-049/passive-neighbor-audit-step-639.json",
+      "source_sha256": "a1a7aa2511bb911eff05ce04a2eec0cdbfd0f732ba44a7ef19e03757618c87d6",
+      "retained": "joint-costal-conditioned-native-049/passive-neighbor-audit-step-639.json.gz",
+      "retained_sha256": "3e597a2b0ccd30de5aca197a80095bf31a1a8741b510de11ff816a9fdb400286",
+      "encoding": "gzip; decompressed SHA256 equals source_sha256"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-049/passive-neighbor-audit-step-639.log",
+      "source_sha256": "233c04730f189b8bc0d8959a5ce8c9998a4358da034d9b073ed8442916e6bb70",
+      "retained": "joint-costal-conditioned-native-049/passive-neighbor-audit-step-639.log",
+      "retained_sha256": "233c04730f189b8bc0d8959a5ce8c9998a4358da034d9b073ed8442916e6bb70"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-049/resting-coupled.csv",
+      "source_sha256": "44996b0980c18e050ee5744607fb0f8057cc9e8efd077e24bfd6de0260346cdd",
+      "retained": "joint-costal-conditioned-native-049/resting-coupled.csv",
+      "retained_sha256": "44996b0980c18e050ee5744607fb0f8057cc9e8efd077e24bfd6de0260346cdd"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-049/resting-surface-audit.csv",
+      "source_sha256": "496397e259b10ddfd91d3f7f9c02b4d2571bc3c96d89490cf9b9973125262c42",
+      "retained": "joint-costal-conditioned-native-049/resting-surface-audit.csv",
+      "retained_sha256": "496397e259b10ddfd91d3f7f9c02b4d2571bc3c96d89490cf9b9973125262c42"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-049/source.diff",
+      "source_sha256": "9760b17a9d6592eca410b806154923a3bd3ecd51a100a63bfa260bd1b7c427f6",
+      "retained": "joint-costal-conditioned-native-049/source.diff.gz",
+      "retained_sha256": "b2edabc5999be76712dd5a80c3d426397e93f2bf042ff986f3f519a29ad87981"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-049/whole-skin-step-11999.json",
+      "source_sha256": "794eb2a8950dbd6792be61034fc2cbcde821a7a0a527a71004424d89f20b1fdc",
+      "retained": "joint-costal-conditioned-native-049/whole-skin-step-11999.json",
+      "retained_sha256": "794eb2a8950dbd6792be61034fc2cbcde821a7a0a527a71004424d89f20b1fdc"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-049/whole-skin-step-11999.log",
+      "source_sha256": "5acec3e8d7974b508ad33580b1010e4894c0c0ae7a81b49f42d96958d39cade1",
+      "retained": "joint-costal-conditioned-native-049/whole-skin-step-11999.log",
+      "retained_sha256": "5acec3e8d7974b508ad33580b1010e4894c0c0ae7a81b49f42d96958d39cade1"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-049/whole-skin-step-4991.json",
+      "source_sha256": "2e624494591f963a4ecfcf309c105c55beee2a76f340c5038d2a5b541759addf",
+      "retained": "joint-costal-conditioned-native-049/whole-skin-step-4991.json",
+      "retained_sha256": "2e624494591f963a4ecfcf309c105c55beee2a76f340c5038d2a5b541759addf"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-049/whole-skin-step-4991.log",
+      "source_sha256": "754c828ac1a8fe7a6416b97ca72b197641568cab2cbca52ab67e6d40fbe2a4a1",
+      "retained": "joint-costal-conditioned-native-049/whole-skin-step-4991.log",
+      "retained_sha256": "754c828ac1a8fe7a6416b97ca72b197641568cab2cbca52ab67e6d40fbe2a4a1"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-049/whole-skin-step-9311.json",
+      "source_sha256": "7344ce947c28a0b88d289ef7bf1346354cf6ac88a361fe19c1e7e01b03782819",
+      "retained": "joint-costal-conditioned-native-049/whole-skin-step-9311.json",
+      "retained_sha256": "7344ce947c28a0b88d289ef7bf1346354cf6ac88a361fe19c1e7e01b03782819"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-049/whole-skin-step-9311.log",
+      "source_sha256": "bf9c56daae15dc2648ed8f3e23cc2f2976622a650cbff9de9d20152097da891a",
+      "retained": "joint-costal-conditioned-native-049/whole-skin-step-9311.log",
+      "retained_sha256": "bf9c56daae15dc2648ed8f3e23cc2f2976622a650cbff9de9d20152097da891a"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/contact-iterations32-native-050/accepted-geometry/step-11999.receipt.json",
+      "source_sha256": "bf54a567b41060e46143dc6ac8ceb763899b699db9c52ffc375f980ddf747304",
+      "retained": "contact-iterations32-native-050/accepted-geometry/step-11999.receipt.json",
+      "retained_sha256": "bf54a567b41060e46143dc6ac8ceb763899b699db9c52ffc375f980ddf747304"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/contact-iterations32-native-050/accepted-geometry/step-2783.receipt.json",
+      "source_sha256": "7970dd33ac8c60a202088ff2ee56fa34ff3da4031eeb24253d5650e9425e3f83",
+      "retained": "contact-iterations32-native-050/accepted-geometry/step-2783.receipt.json",
+      "retained_sha256": "7970dd33ac8c60a202088ff2ee56fa34ff3da4031eeb24253d5650e9425e3f83"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/contact-iterations32-native-050/accepted-geometry/step-639.receipt.json",
+      "source_sha256": "be05f179888ea4660d563491e9524747132338e049d9cee4bca41954ab59af9b",
+      "retained": "contact-iterations32-native-050/accepted-geometry/step-639.receipt.json",
+      "retained_sha256": "be05f179888ea4660d563491e9524747132338e049d9cee4bca41954ab59af9b"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/contact-iterations32-native-050/accepted-geometry/step-9311.receipt.json",
+      "source_sha256": "ba302edd4def33bd414daed0ad91b6e897272b6528ef4d52b1dabbd919d1594c",
+      "retained": "contact-iterations32-native-050/accepted-geometry/step-9311.receipt.json",
+      "retained_sha256": "ba302edd4def33bd414daed0ad91b6e897272b6528ef4d52b1dabbd919d1594c"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/contact-iterations32-native-050/engineering-stability-analysis.json",
+      "source_sha256": "547fae63305bccaf3ee6c614791d3902993215dd7d68fadf0a84eaf8f2a7fba1",
+      "retained": "contact-iterations32-native-050/engineering-stability-analysis.json",
+      "retained_sha256": "547fae63305bccaf3ee6c614791d3902993215dd7d68fadf0a84eaf8f2a7fba1"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/contact-iterations32-native-050/execution.json",
+      "source_sha256": "735cf79107066586f05e0f7fcdf449fa6668e0059d57b05903de50070f4e5825",
+      "retained": "contact-iterations32-native-050/execution.json",
+      "retained_sha256": "735cf79107066586f05e0f7fcdf449fa6668e0059d57b05903de50070f4e5825"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/contact-iterations32-native-050/invocation.json",
+      "source_sha256": "9d8b53a6d1ede9f81dc7c98878c9aac63ef8095b3a6606879ec9d1c84fc2d743",
+      "retained": "contact-iterations32-native-050/invocation.json",
+      "retained_sha256": "9d8b53a6d1ede9f81dc7c98878c9aac63ef8095b3a6606879ec9d1c84fc2d743"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/contact-iterations32-native-050/native.log",
+      "source_sha256": "19e0aa0124de9278e288c8a84d568a1c073bcee21e6baf502d441a73a5deb2d3",
+      "retained": "contact-iterations32-native-050/native.log",
+      "retained_sha256": "19e0aa0124de9278e288c8a84d568a1c073bcee21e6baf502d441a73a5deb2d3"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/contact-iterations32-native-050/resting-coupled.csv",
+      "source_sha256": "841929e7f10b545dddc39b07db68ae3c842f308046b90ae3fa7b32cdc71ec1ad",
+      "retained": "contact-iterations32-native-050/resting-coupled.csv",
+      "retained_sha256": "841929e7f10b545dddc39b07db68ae3c842f308046b90ae3fa7b32cdc71ec1ad"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/contact-iterations32-native-050/resting-surface-audit.csv",
+      "source_sha256": "e7068d9a74206819574be5b52ba67c00d0702187f6a44107893263b736dd0a28",
+      "retained": "contact-iterations32-native-050/resting-surface-audit.csv",
+      "retained_sha256": "e7068d9a74206819574be5b52ba67c00d0702187f6a44107893263b736dd0a28"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/contact-iterations32-native-050/source.diff",
+      "source_sha256": "9760b17a9d6592eca410b806154923a3bd3ecd51a100a63bfa260bd1b7c427f6",
+      "retained": "contact-iterations32-native-050/source.diff.gz",
+      "retained_sha256": "b2edabc5999be76712dd5a80c3d426397e93f2bf042ff986f3f519a29ad87981"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/contact-iterations32-native-050/whole-skin-step-11999.json",
+      "source_sha256": "1dea60d0076655471f49350285d4e0b4798c1ed0dbc933a8f7b23dc3e78bc712",
+      "retained": "contact-iterations32-native-050/whole-skin-step-11999.json",
+      "retained_sha256": "1dea60d0076655471f49350285d4e0b4798c1ed0dbc933a8f7b23dc3e78bc712"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/contact-iterations32-native-050/whole-skin-step-11999.log",
+      "source_sha256": "470786e8e7105afec4e5b8be9518243444918c19026d3a557e9e67ec4ee9fd79",
+      "retained": "contact-iterations32-native-050/whole-skin-step-11999.log",
+      "retained_sha256": "470786e8e7105afec4e5b8be9518243444918c19026d3a557e9e67ec4ee9fd79"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/contact-iterations64-native-052/accepted-geometry/step-11999.receipt.json",
+      "source_sha256": "16ee34348f4194d843881951233ba1d59d80db8045344ba1704e884a4829a6ee",
+      "retained": "contact-iterations64-native-052/accepted-geometry/step-11999.receipt.json",
+      "retained_sha256": "16ee34348f4194d843881951233ba1d59d80db8045344ba1704e884a4829a6ee"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/contact-iterations64-native-052/accepted-geometry/step-2783.receipt.json",
+      "source_sha256": "ac5f87fd2abe9fb91e162e3af9aeb6b79af89412752ec89f22c4586b0458e955",
+      "retained": "contact-iterations64-native-052/accepted-geometry/step-2783.receipt.json",
+      "retained_sha256": "ac5f87fd2abe9fb91e162e3af9aeb6b79af89412752ec89f22c4586b0458e955"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/contact-iterations64-native-052/accepted-geometry/step-639.receipt.json",
+      "source_sha256": "303f7f32dca105e57d187cbc3100785795d4f777b956061d5eceb30f0f1a96c3",
+      "retained": "contact-iterations64-native-052/accepted-geometry/step-639.receipt.json",
+      "retained_sha256": "303f7f32dca105e57d187cbc3100785795d4f777b956061d5eceb30f0f1a96c3"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/contact-iterations64-native-052/accepted-geometry/step-9311.receipt.json",
+      "source_sha256": "c8413fd89e05c10608f1042d166ae3a76ce807cec111c274455b6806dd761b87",
+      "retained": "contact-iterations64-native-052/accepted-geometry/step-9311.receipt.json",
+      "retained_sha256": "c8413fd89e05c10608f1042d166ae3a76ce807cec111c274455b6806dd761b87"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/contact-iterations64-native-052/engineering-stability-analysis.json",
+      "source_sha256": "d58e498afebdd6752e75888793c570e4643609e0f56861c4041e7c7f5998b758",
+      "retained": "contact-iterations64-native-052/engineering-stability-analysis.json",
+      "retained_sha256": "d58e498afebdd6752e75888793c570e4643609e0f56861c4041e7c7f5998b758"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/contact-iterations64-native-052/execution.json",
+      "source_sha256": "25267bd4fc086b8b7124a774422f0b59c1079b8b26dcaa76886c1074d6a7319d",
+      "retained": "contact-iterations64-native-052/execution.json",
+      "retained_sha256": "25267bd4fc086b8b7124a774422f0b59c1079b8b26dcaa76886c1074d6a7319d"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/contact-iterations64-native-052/invocation.json",
+      "source_sha256": "84494174e65756d37ad7c7dd7c49e88997725cdf0fc6fdc15cb795901144660b",
+      "retained": "contact-iterations64-native-052/invocation.json",
+      "retained_sha256": "84494174e65756d37ad7c7dd7c49e88997725cdf0fc6fdc15cb795901144660b"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/contact-iterations64-native-052/native.log",
+      "source_sha256": "d5e0c9a016ac33eac82f5edbc14856457a19f50f3c7518e1aeb5dda03521ceca",
+      "retained": "contact-iterations64-native-052/native.log",
+      "retained_sha256": "d5e0c9a016ac33eac82f5edbc14856457a19f50f3c7518e1aeb5dda03521ceca"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/contact-iterations64-native-052/resting-coupled.csv",
+      "source_sha256": "48d6a8d47e49055e5d62924e4bacfce56ae6272da7627084732d9da134d9bbe6",
+      "retained": "contact-iterations64-native-052/resting-coupled.csv",
+      "retained_sha256": "48d6a8d47e49055e5d62924e4bacfce56ae6272da7627084732d9da134d9bbe6"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/contact-iterations64-native-052/resting-surface-audit.csv",
+      "source_sha256": "2e519e004c55de74516ca6daaa679fa591e9d60c0119212c3f0f550098a50a81",
+      "retained": "contact-iterations64-native-052/resting-surface-audit.csv",
+      "retained_sha256": "2e519e004c55de74516ca6daaa679fa591e9d60c0119212c3f0f550098a50a81"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/contact-iterations64-native-052/source.diff",
+      "source_sha256": "9760b17a9d6592eca410b806154923a3bd3ecd51a100a63bfa260bd1b7c427f6",
+      "retained": "contact-iterations64-native-052/source.diff.gz",
+      "retained_sha256": "b2edabc5999be76712dd5a80c3d426397e93f2bf042ff986f3f519a29ad87981"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/contact-iterations64-native-052/whole-skin-step-11999.json",
+      "source_sha256": "beac06ae32bfa8f5807e89acde9e77caf0b6d6a1002d51ec1b8803bfee8e8cc8",
+      "retained": "contact-iterations64-native-052/whole-skin-step-11999.json",
+      "retained_sha256": "beac06ae32bfa8f5807e89acde9e77caf0b6d6a1002d51ec1b8803bfee8e8cc8"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/contact-iterations64-native-052/whole-skin-step-11999.log",
+      "source_sha256": "5c2d045ac98eedc7f0026e8ed68441e89200dd97a4b1098ec89532ad70835ab7",
+      "retained": "contact-iterations64-native-052/whole-skin-step-11999.log",
+      "retained_sha256": "5c2d045ac98eedc7f0026e8ed68441e89200dd97a4b1098ec89532ad70835ab7"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/costal-current003-full-chain-003/resting-anatomy-receipt.json",
+      "source_sha256": "60d6fcf39cac0dd49ee92c3385368c5add93805f3090f1fc618bea075d616cd5",
+      "retained": "costal-current003-full-chain-003/resting-anatomy-receipt.json.gz",
+      "retained_sha256": "1f21706979180265a1a072e13104e44096e90723860b8e38b01f01b63c41ef89",
+      "encoding": "gzip; decompressed SHA256 equals source_sha256"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/costal-current003-full-chain-003/resting-reference-respiration.json",
+      "source_sha256": "35aeafa56153a8c82e8b8b041fedb5666c19007eb8a4e327d706611f8aad4f5b",
+      "retained": "costal-current003-full-chain-003/resting-reference-respiration.json",
+      "retained_sha256": "35aeafa56153a8c82e8b8b041fedb5666c19007eb8a4e327d706611f8aad4f5b"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/costal-current003-full-chain-003/cardiac-output-binding-refresh.json",
+      "source_sha256": "c89721caf7954b8839fe7a4ed01d9ff53e04316edee4e422633fb8ff5f979630",
+      "retained": "costal-current003-full-chain-003/cardiac-output-binding-refresh.json",
+      "retained_sha256": "c89721caf7954b8839fe7a4ed01d9ff53e04316edee4e422633fb8ff5f979630"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/costal-current003-full-chain-003/passive-neighbor-source-audit-053.json",
+      "source_sha256": "1f1a200265ae2c96eadd8bda34fd4aa9f4a542d380b2ee3a3c910c9acb1fd617",
+      "retained": "costal-current003-full-chain-003/passive-neighbor-source-audit-053.json.gz",
+      "retained_sha256": "28bfb8ccdab7cc408eb40d0b298b4fb688d1d614c2d34d598b3091eb403c233c",
+      "encoding": "gzip; decompressed SHA256 equals source_sha256"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/costal-current003-full-chain-003/passive-neighbor-source-audit-053.log",
+      "source_sha256": "ef0cb36197d8dca09a2395c1916e79c626b809dc9649332e7b8c324aec140bdd",
+      "retained": "costal-current003-full-chain-003/passive-neighbor-source-audit-053.log",
+      "retained_sha256": "ef0cb36197d8dca09a2395c1916e79c626b809dc9649332e7b8c324aec140bdd"
+    }
+  ],
+  "large_artifacts_retained_on_macmini": [
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-049/accepted-geometry/step-11999.mrvpack",
+      "sha256": "de1d30e6548cb841851ea857fe0f8f70477c49e0a85e213b24ace6b30307b8a1",
+      "size_bytes": 213184512
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-049/accepted-geometry/step-2783.mrvpack",
+      "sha256": "57cda59d3d0bb6902211882eb547db2b1858932b89858a8827734403f4cb5dca",
+      "size_bytes": 213184512
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-049/accepted-geometry/step-4991.mrvpack",
+      "sha256": "f4dee1bd3a9dc2b27da92b50a2da33bc66dbbac2930cc3dbf700ee4c1a7e2b7e",
+      "size_bytes": 213184512
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-049/accepted-geometry/step-639.mrvpack",
+      "sha256": "f29b2541ee8d48d01621e02c6eeedeb5ec41cde908ffe684af83c7223ddcaa32",
+      "size_bytes": 213184512
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-049/accepted-geometry/step-8991.mrvpack",
+      "sha256": "297f8cbe80b3ddd800712c37cc664d8056d32b68940e24f3cc21e129a015004e",
+      "size_bytes": 213184512
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-049/accepted-geometry/step-9311.mrvpack",
+      "sha256": "9fbf564e8c86a87bb3daa984417ed20abebaacfa718d1bb2b40533cf1b2daeb6",
+      "size_bytes": 213184512
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-049/frame-final.png",
+      "sha256": "7a897aeced247e71277f4c521d6bcab23210d5dddf02af059e888e45bba7fa24",
+      "size_bytes": 264398
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-049/frame-initial.png",
+      "sha256": "9200b8f36ffa1713b4ae5738228b0949e414663227ec32d5b17c4e8f681b48f3",
+      "size_bytes": 211658
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-049/frame-middle.png",
+      "sha256": "52a9d6187ba97039847b651db35b6c4eb7b72f2fb23d242864343c976bc3ff14",
+      "size_bytes": 180042
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-049/frame-muscles.png",
+      "sha256": "07361dbe28db15cfd5f0668f32778f82aa14ccf55538ff790d72feb6addf060f",
+      "size_bytes": 203821
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-049/frame-organs.png",
+      "sha256": "46960fa750eb9a4989874eadcbcb0567678efbf891daa87a8cb36232c1aa20ac",
+      "size_bytes": 171986
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-049/frame-skeleton.png",
+      "sha256": "dc20b9da9f0ff5c30589100ca531e3618fa49f431c605675008d7497bc9a5562",
+      "size_bytes": 179529
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-049/frame-skin.png",
+      "sha256": "035cbf5db3c26f97ddb42bd30c18d7b3aa0d7aea9d823d3c549f4428572fdb58",
+      "size_bytes": 194037
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-049/native-viewer.mov",
+      "sha256": "042d1947b538bd6b22ef8090dfba06fd85bf23af780f9eb3aac8c49bde2b6348",
+      "size_bytes": 2775773
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/joint-costal-conditioned-native-049/resting-human.mrvpack",
+      "sha256": "4b99041ad51223e8eb6452a74e3addd53920dcf7076fc648da4b76cbd26bb7d7",
+      "size_bytes": 213184512
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/contact-iterations32-native-050/accepted-geometry/step-11999.mrvpack",
+      "sha256": "6ca640e2578e30a3f78c1e3ea8ca7a757d1924f63eae45ff61aada9ed5b49b1d",
+      "size_bytes": 213184512
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/contact-iterations32-native-050/accepted-geometry/step-2783.mrvpack",
+      "sha256": "e740ec9c8a7f22b0b941d45748274c40862f938ab93b485719a9072c35995426",
+      "size_bytes": 213184512
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/contact-iterations32-native-050/accepted-geometry/step-639.mrvpack",
+      "sha256": "826ed04ba4c13321d2f2c52ccc0f4b4b88ac568d7111f7e18e174a87a506b1e9",
+      "size_bytes": 213184512
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/contact-iterations32-native-050/accepted-geometry/step-9311.mrvpack",
+      "sha256": "7755ca77d0bdba9d4bd1f8a0b5bfe45f43e5438a20147e00fcd4ad4999114896",
+      "size_bytes": 213184512
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/contact-iterations32-native-050/native-viewer.mov",
+      "sha256": "ac0ef32ab4739edb5beb8c12f5b78442767c31bc0a448e4d998272da80c66296",
+      "size_bytes": 2665515
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/contact-iterations32-native-050/resting-human.mrvpack",
+      "sha256": "4b99041ad51223e8eb6452a74e3addd53920dcf7076fc648da4b76cbd26bb7d7",
+      "size_bytes": 213184512
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/contact-iterations64-native-052/accepted-geometry/step-11999.mrvpack",
+      "sha256": "53feff21ddbb57e0437c3f92b5a84986c0857d8001461c6ba4211d01399e6b2a",
+      "size_bytes": 213184512
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/contact-iterations64-native-052/accepted-geometry/step-2783.mrvpack",
+      "sha256": "f8998745614f76878ed521d55a6ef4fb3d76b5b26815c008af0ba13ec68bd301",
+      "size_bytes": 213184512
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/contact-iterations64-native-052/accepted-geometry/step-639.mrvpack",
+      "sha256": "d25d78bb3f76f149a35a7422f87a30e1a1d962d1a6943dda5e9605459a9cc67a",
+      "size_bytes": 213184512
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/contact-iterations64-native-052/accepted-geometry/step-9311.mrvpack",
+      "sha256": "6e1497340fab60078076b443c2cefbc0daea47bc132a52298fc3ff773c3fad31",
+      "size_bytes": 213184512
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/contact-iterations64-native-052/native-viewer.mov",
+      "sha256": "36b6b5295fe7464d5c5ddd957f90e8424bb65193d5bb1660582ba810b2bb97da",
+      "size_bytes": 2554509
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/contact-iterations64-native-052/resting-human.mrvpack",
+      "sha256": "4b99041ad51223e8eb6452a74e3addd53920dcf7076fc648da4b76cbd26bb7d7",
+      "size_bytes": 213184512
+    }
+  ],
+  "human_launcher_revision": "9f9a740",
+  "limitations": [
+    "Current geometry has weak Float32 triangle margins and stale derived pleura.",
+    "Actual lung-bone crossing and ventricular-wall self-intersection blockers remain.",
+    "Passive source/captured intersections need anatomical component interpretation; taenia mesocolica has two zero-area source triangles.",
+    "No graphical desktop was available on the Mac mini; recordings come from the native Metal viewer path.",
+    "Other CPU source-preparation jobs ran on the Mini; timings are contention-affected.",
+    "The physics binary is the documented source023 relocatable build; use its invocation hashes and prior limit-lanes-047 build receipt, not directory git HEAD alone."
+  ],
+  "packaging_note": "Large JSON evidence is losslessly gzip-compressed; original experiment files and their source hashes are unchanged."
+}

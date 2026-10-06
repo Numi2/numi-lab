@@ -1,0 +1,66 @@
+{
+  "cardiac_surface_hashes": {
+    "1": {
+      "face_count": 17784,
+      "faces_sha256": "a14a7076b0dbd7f46934c97b4a608feaab43256c9c32aa57f9e0ed5c72012849",
+      "positions_sha256": "bc8d17bfd6b34e54e0aa9793ade7788561517d35a896a7eb1db96abc44bdd035",
+      "vertex_count": 9887
+    },
+    "23": {
+      "face_count": 51256,
+      "faces_sha256": "537ee5a70d5f92d4200bf72464757f3b83fbbb396a9f3846c4a5a071e60055b1",
+      "positions_sha256": "78605d62977f6c3f7b1ef0ccf5668cd96785ea64cf0307060b8ea9989b95e690",
+      "vertex_count": 25626
+    },
+    "24": {
+      "face_count": 7544,
+      "faces_sha256": "8919c822a09ce2ee5041f82e4ebc6f756281d95f9e249f71a5333b535f753e9f",
+      "positions_sha256": "b1042d616ba32a8f1f8f9ef4cbe41209709149e87176e6aa8e66d63dc5bb2f2c",
+      "vertex_count": 4284
+    },
+    "318": {
+      "face_count": 2328,
+      "faces_sha256": "00fceacc2f47e62b724be622bfe76e5ced4b05fcda42b23dacb1df208b494d12",
+      "positions_sha256": "cd65de79890bd38516ff1b4ebd15967084ed678bdffd88e588ea9effb99f4626",
+      "vertex_count": 1166
+    },
+    "319": {
+      "face_count": 1988,
+      "faces_sha256": "a785a9599bd49981d2ec5ab12a891c74a11fd51d06e1ed32b13369325cb43057",
+      "positions_sha256": "9b6fd55cd6b1ac4cfad1fb1359e122a9225c9b305befbcc12fe4aa14213756fc",
+      "vertex_count": 996
+    },
+    "320": {
+      "face_count": 1064,
+      "faces_sha256": "8defb8046c021851faf6561559f4a45acefb0a34bc8557ab107c188d8f1b6be7",
+      "positions_sha256": "61010d8f974fb1da5ede068d3d5b500254168333824c4d7b55f11244c0e9be32",
+      "vertex_count": 534
+    },
+    "321": {
+      "face_count": 1722,
+      "faces_sha256": "16fa5c94077fcbec7be5e93e535d76a75848651d9810033dac36cf01b487006d",
+      "positions_sha256": "45a42ad3fd01b4e25d79c58fad2fb29ba765dcaef76748ab76737659771e259d",
+      "vertex_count": 863
+    }
+  },
+  "cardiac_surface_ids_byte_identical": [
+    1,
+    23,
+    24,
+    318,
+    319,
+    320,
+    321
+  ],
+  "changed_cardiac_binding_fields": [
+    "provenance.cardiac_geometry_binding.ventricular_wall_binding.output_anatomy_payload_sha256"
+  ],
+  "config_sha256": "35aeafa56153a8c82e8b8b041fedb5666c19007eb8a4e327d706611f8aad4f5b",
+  "payload_sha256_after_copy": "25023be357a78fdcb98460562fba707cd3ac2c1d9de59b2c98b9d442f6aaca87",
+  "previous_payload_sha256": "b92da1214920478a14051f2a5da5dba2833c38459d8e83f09259dff361d2d61b",
+  "rebound_receipt_sha256": "60d6fcf39cac0dd49ee92c3385368c5add93805f3090f1fc618bea075d616cd5",
+  "source_candidate_payload_sha256": "25023be357a78fdcb98460562fba707cd3ac2c1d9de59b2c98b9d442f6aaca87",
+  "source_candidate_receipt_sha256": "e9ea024bc081312f9eb2e1ab5b79cf91809b4de68ad2d36b2b3d654345e5b7f8",
+  "source_payload_sha256": "b92da1214920478a14051f2a5da5dba2833c38459d8e83f09259dff361d2d61b",
+  "source_receipt_sha256": "de9bb2b39d0469b80bf1574d992f22360eb251c345363a11cd3316c0281bfd4c"
+}

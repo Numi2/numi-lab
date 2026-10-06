@@ -1,0 +1,338 @@
+{
+  "qualification": "Completed contact-driven release engineering diagnostic. Whole-skin exact audits are separate; do not infer them from this numerical report. Known lung-rib and ventricular-wall deformation defects remain; this is not anatomical acceptance. Not a paired intervention study or clinical validation.",
+  "analysis_script_sha256": "66dff33ad9bcc40c5437dc05c1241cfb4e07fa0b9933e0d7d477e08284fb181f",
+  "existing_analysis_owner_sha256": "3f60075f6acb43f1aa1ecd52890f326b6f7eaca0a4351cd8be71ecba42962cc7",
+  "run": {
+    "simulated_s": 24.00000113993883,
+    "wall_s": 272.369990208,
+    "real_time_factor": 0.0881154385679965,
+    "accepted_steps": 12000,
+    "device": "Apple M4 Pro",
+    "world_fingerprint": "6434571789366693551",
+    "vascular_dense45": true,
+    "brain_control": true,
+    "body_source_fingerprint": "5457735093724435231",
+    "coupled_program_fingerprint": "3934278658754501554",
+    "whole_body_anatomy_qualified": false
+  },
+  "initialization_excluded_s": 10.0,
+  "continuous_post_initialization_s": 14.0,
+  "body_consistency": {
+    "root_assistance_observed": false,
+    "maximum_contact_penetration_m": 0.000120462682389
+  },
+  "surface_consistency": {
+    "displayed_accepted_frames": 376,
+    "minimum_full_skin_bed_gap_m": -0.000110551714897,
+    "maximum_rendered_functional_volume_relative_error": 1.64820369264e-06,
+    "displayed_state_lag_steps": 1,
+    "whole_body_interfaces_qualified": false,
+    "body_center_of_mass": {
+      "first_m": [
+        -0.0250191260129,
+        -0.756986141205,
+        0.115114875138
+      ],
+      "last_m": [
+        -0.0266071632504,
+        -0.743522167206,
+        0.0987470671535
+      ],
+      "displacement_m": [
+        -0.0015880372374999993,
+        0.013463973999000012,
+        -0.016367807984500007
+      ],
+      "represented_mass_kg": 72.0,
+      "qualification": "diagnostic displacement; stationary rest and drift are not inferred from endpoints"
+    },
+    "ventricular_material": {
+      "bound": true,
+      "target_ml": 164.012890309,
+      "gpu_degenerate_triangle_check_recorded": true,
+      "maximum_volume_relative_error": 1.5970330107260784e-06,
+      "closure_range_mm": [
+        -1.91272015218,
+        4.74732648581
+      ],
+      "qualification": "rendered material volume consistency; wall topology and interfaces require separate checks"
+    }
+  },
+  "retained_trace_rows": 375,
+  "late_window": {
+    "mean_PaCO2_mmhg": 38.99314400909449,
+    "mean_PaO2_mmhg": 102.69050003188532,
+    "mean_SaO2": 0.9740901775316514,
+    "mean_lung_volume_ml": 2682.0198378592204,
+    "inspiratory_minute_ventilation_L_min": 6.765653596935962,
+    "breaths_at_window_start": 1.0,
+    "breaths_at_window_end": 4.0,
+    "mean_tidal_volume_ml": 530.4431040783256,
+    "complete_fill_ejection_cycles_at_end": 28.0,
+    "last_LV_stroke_volume_ml": 70.0349046383,
+    "max_abs_blood_error_ml": 0.00791624188423,
+    "max_abs_O2_balance_error_STPD_ml": 0.000232830643654,
+    "max_abs_CO2_balance_error_STPD_ml": 0.000465661287308,
+    "accepted_samples": 218.0
+  },
+  "late_complete_breaths": {
+    "available": true,
+    "complete_breath_count": 2,
+    "method": "accepted_gpu_event_ledger",
+    "window_s": [
+      10.1760004833,
+      20.9360009944
+    ],
+    "events_between_retained_samples": 0,
+    "inspiratory_minute_ventilation_L_min": 5.885882003041424,
+    "respiratory_rate_per_min": 11.15241582713757
+  },
+  "late_reference_comparison": {
+    "window_s": [
+      10,
+      24
+    ],
+    "accepted_sample_interval_s": [
+      10.0480004773,
+      23.9360011369
+    ],
+    "general_adult_resting_reference_comparisons": {
+      "mean_PaCO2_mmhg": {
+        "measured": 38.99314400909449,
+        "reference_bounds": [
+          35.0,
+          45.0
+        ],
+        "lower_bound_inclusive": true,
+        "within_reference_bounds": true,
+        "source": "https://aacn.s3-us-west-2.amazonaws.com/Courses/ecco/course-resources/resources/common-resources/Normal_Ranges.pdf",
+        "measurement_method": "mean of retained accepted samples"
+      },
+      "mean_PaO2_mmhg": {
+        "measured": 102.69050003188532,
+        "reference_bounds": [
+          80.0,
+          100.0
+        ],
+        "lower_bound_inclusive": true,
+        "within_reference_bounds": false,
+        "source": "https://aacn.s3-us-west-2.amazonaws.com/Courses/ecco/course-resources/resources/common-resources/Normal_Ranges.pdf",
+        "measurement_method": "mean of retained accepted samples"
+      },
+      "mean_aortic_pressure_mmhg": {
+        "measured": 89.11284719681973,
+        "reference_bounds": [
+          70.0,
+          105.0
+        ],
+        "lower_bound_inclusive": true,
+        "within_reference_bounds": true,
+        "source": "https://aacn.s3-us-west-2.amazonaws.com/Courses/ecco/course-resources/resources/common-resources/Normal_Ranges.pdf",
+        "measurement_method": "mean of retained accepted samples"
+      },
+      "mean_pulmonary_artery_pressure_mmhg": {
+        "measured": 14.739724587346652,
+        "reference_bounds": [
+          15.0,
+          20.0
+        ],
+        "lower_bound_inclusive": true,
+        "within_reference_bounds": false,
+        "source": "https://aacn.s3-us-west-2.amazonaws.com/Courses/ecco/course-resources/resources/common-resources/Normal_Ranges.pdf",
+        "measurement_method": "mean of retained accepted samples"
+      },
+      "mean_last_complete_LV_stroke_ml": {
+        "measured": 70.05947024040412,
+        "reference_bounds": [
+          50.0,
+          100.0
+        ],
+        "lower_bound_inclusive": true,
+        "within_reference_bounds": true,
+        "source": "https://aacn.s3-us-west-2.amazonaws.com/Courses/ecco/course-resources/resources/common-resources/Normal_Ranges.pdf",
+        "measurement_method": "mean of retained accepted samples"
+      },
+      "mean_SaO2_percent": {
+        "measured": 97.40901775316514,
+        "reference_bounds": [
+          95.0,
+          null
+        ],
+        "lower_bound_inclusive": false,
+        "within_reference_bounds": true,
+        "source": "https://aacn.s3-us-west-2.amazonaws.com/Courses/ecco/course-resources/resources/common-resources/Normal_Ranges.pdf",
+        "measurement_method": "mean of retained accepted samples"
+      },
+      "aortic_output_L_min": {
+        "measured": 4.842485949543222,
+        "reference_bounds": [
+          4.0,
+          8.0
+        ],
+        "lower_bound_inclusive": true,
+        "within_reference_bounds": true,
+        "source": "https://aacn.s3-us-west-2.amazonaws.com/Courses/ecco/course-resources/resources/common-resources/Normal_Ranges.pdf",
+        "measurement_method": "accepted cumulative forward flow difference / actual sample interval"
+      },
+      "pulmonary_output_L_min": {
+        "measured": 4.8406823839232365,
+        "reference_bounds": [
+          4.0,
+          8.0
+        ],
+        "lower_bound_inclusive": true,
+        "within_reference_bounds": true,
+        "source": "https://aacn.s3-us-west-2.amazonaws.com/Courses/ecco/course-resources/resources/common-resources/Normal_Ranges.pdf",
+        "measurement_method": "accepted cumulative forward flow difference / actual sample interval"
+      },
+      "complete_heartbeat_rate_per_min": {
+        "measured": 69.96268324415426,
+        "reference_bounds": [
+          60.0,
+          100.0
+        ],
+        "lower_bound_inclusive": true,
+        "within_reference_bounds": true,
+        "source": "https://medlineplus.gov/ency/article/002341.htm",
+        "measurement_method": "accepted complete-cycle count between first/last retained cycle transitions; timing limited by retained cadence"
+      },
+      "complete_breath_rate_per_min": {
+        "measured": 11.15241582713757,
+        "reference_bounds": [
+          12.0,
+          18.0
+        ],
+        "lower_bound_inclusive": true,
+        "within_reference_bounds": false,
+        "source": "https://medlineplus.gov/ency/article/002341.htm",
+        "measurement_method": "accepted_gpu_event_ledger"
+      }
+    },
+    "supine_male_cohort_context": {
+      "source": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7253877/",
+      "source_location": "Table 2, men, supine",
+      "values": {
+        "tidal_volume_L": {
+          "measured": 0.5304431040783256,
+          "mean": 0.58,
+          "sd": 0.28
+        },
+        "minute_ventilation_L_min": {
+          "measured": 5.885882003041424,
+          "mean": 8.32,
+          "sd": 2.78
+        },
+        "breaths_per_min": {
+          "measured": 11.15241582713757,
+          "mean": 16.15,
+          "sd": 4.72
+        }
+      },
+      "scope": "Published cohort mean/SD, not normal bounds or a clinical gate. OEP chest-wall tidal volume is a related measurement, not identical to model airway volume."
+    },
+    "supine_pulmonary_pressure_review_context": {
+      "source": "https://pubmed.ncbi.nlm.nih.gov/19324955/",
+      "doi": "10.1183/09031936.00145608",
+      "source_location": "Kovacs et al. 2009, abstract, healthy subjects at rest in the supine position",
+      "mean_pulmonary_artery_pressure_mmhg": {
+        "measured": 14.739724587346652,
+        "mean": 14.0,
+        "sd": 3.3
+      },
+      "scope": "Published right-heart-catheterization review mean/SD, not individual normal bounds or a clinical gate. This posture-specific context supplements the unchanged AACN comparison; it does not replace a failed comparison or tune the model."
+    },
+    "limitations": "General reference intervals depend on age, altitude and measurement method. Comparisons describe model outputs; they do not establish anatomical validity, numerical conservation, population generalization or clinical validation. Missing complete-cycle rates remain unavailable."
+  },
+  "final_total_breaths": 4.0,
+  "final_total_complete_filling_ejection_cycles": 28.0,
+  "maximum_abs_blood_volume_error_ml": 0.00791624188423,
+  "maximum_abs_oxygen_balance_error_stpd_ml": 0.000232830643654,
+  "maximum_abs_co2_balance_error_stpd_ml": 0.000465661287308,
+  "finite_all_trace_values": true,
+  "input_hash_changes": [],
+  "artifact_sha256": {
+    "native-viewer.mov": "042d1947b538bd6b22ef8090dfba06fd85bf23af780f9eb3aac8c49bde2b6348",
+    "movie-inspection.txt": "d69bf360170434529eccf3fe541300e00d5487e35e36e22f8b1e5f5292f8a4e8",
+    "resting-human.mrvpack": "4b99041ad51223e8eb6452a74e3addd53920dcf7076fc648da4b76cbd26bb7d7",
+    "resting-surface-audit.csv": "496397e259b10ddfd91d3f7f9c02b4d2571bc3c96d89490cf9b9973125262c42",
+    "native.log": "a6415ae71931428d010f4ca4796dadcdcb9d6cf04a9aad25bc4cb068a13b020d",
+    "resting-coupled.csv": "44996b0980c18e050ee5744607fb0f8057cc9e8efd077e24bfd6de0260346cdd",
+    "source.diff": "9760b17a9d6592eca410b806154923a3bd3ecd51a100a63bfa260bd1b7c427f6",
+    "invocation.json": "79310662a7341ab36d16ddf354d252bc8947e8db0698bfc5ccb08222120e40d5",
+    "execution.json": "0127527fa557859d2da8cd752faf1b769ad0a9e6a512aa8c11839c4d1e5ea08d"
+  },
+  "center_of_mass_windows": {
+    "0-10": {
+      "samples": 157,
+      "first_m": [
+        -0.0250191260129,
+        -0.756986141205,
+        0.115114875138
+      ],
+      "last_m": [
+        -0.0254642367363,
+        -0.743075072765,
+        0.0987407267094
+      ],
+      "range_m": [
+        0.003031233325600003,
+        0.01634305715599993,
+        0.01656503975410001
+      ],
+      "linear_slope_m_per_s": [
+        -0.00012420409939566,
+        7.563065692410468e-05,
+        -0.0002694008750438426
+      ],
+      "qualification": "Descriptive bed-supported displacement; no automatic stationary-rest gate is inferred."
+    },
+    "10-18": {
+      "samples": 125,
+      "first_m": [
+        -0.0254699084908,
+        -0.743077874184,
+        0.0987408608198
+      ],
+      "last_m": [
+        -0.0261378213763,
+        -0.74337041378,
+        0.0987555086613
+      ],
+      "range_m": [
+        0.0006679128854999994,
+        0.0002925395960000632,
+        1.4998018700002058e-05
+      ],
+      "linear_slope_m_per_s": [
+        -8.42563900628624e-05,
+        -3.668204484817914e-05,
+        1.924189602694064e-06
+      ],
+      "qualification": "Descriptive bed-supported displacement; no automatic stationary-rest gate is inferred."
+    },
+    "18-24": {
+      "samples": 94,
+      "first_m": [
+        -0.0261432752013,
+        -0.74337208271,
+        0.09875562042
+      ],
+      "last_m": [
+        -0.0266071632504,
+        -0.743522167206,
+        0.0987470671535
+      ],
+      "range_m": [
+        0.0004638880490999975,
+        0.0001500844959999581,
+        9.313225699997263e-06
+      ],
+      "linear_slope_m_per_s": [
+        -7.792973424534301e-05,
+        -2.511096244117035e-05,
+        -1.5314457344936666e-06
+      ],
+      "qualification": "Descriptive bed-supported displacement; no automatic stationary-rest gate is inferred."
+    }
+  }
+}

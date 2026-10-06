@@ -1,0 +1,20 @@
+test_changed_muscle_surface_is_rejected_before_launch (test_resting_run.RestingRunAdmissionTests.test_changed_muscle_surface_is_rejected_before_launch) ... ok
+test_changed_skin_is_rejected_before_launch (test_resting_run.RestingRunAdmissionTests.test_changed_skin_is_rejected_before_launch) ... ok
+test_composed_anatomy_uses_the_recorded_muscle_owner_without_a_sibling_copy (test_resting_run.RestingRunAdmissionTests.test_composed_anatomy_uses_the_recorded_muscle_owner_without_a_sibling_copy) ... ok
+test_contact_iterations_reach_existing_native_owner (test_resting_run.RestingRunAdmissionTests.test_contact_iterations_reach_existing_native_owner) ... ok
+test_cpu_solver_experiment_cannot_enter_native_run (test_resting_run.RestingRunAdmissionTests.test_cpu_solver_experiment_cannot_enter_native_run) ... ok
+test_duration_must_respect_physical_cadence (test_resting_run.RestingRunAdmissionTests.test_duration_must_respect_physical_cadence) ... ok
+test_existing_evidence_is_never_replaced (test_resting_run.RestingRunAdmissionTests.test_existing_evidence_is_never_replaced) ... ok
+test_explicit_circulation_is_hashed_and_passed_to_native_owner (test_resting_run.RestingRunAdmissionTests.test_explicit_circulation_is_hashed_and_passed_to_native_owner) ... ok
+test_explicit_respiration_is_hashed_and_delivered_to_the_existing_owner (test_resting_run.RestingRunAdmissionTests.test_explicit_respiration_is_hashed_and_delivered_to_the_existing_owner) ... ok
+test_explicit_timestep_preserves_requested_physical_time (test_resting_run.RestingRunAdmissionTests.test_explicit_timestep_preserves_requested_physical_time) ... ok
+test_intervention_requires_recovery (test_resting_run.RestingRunAdmissionTests.test_intervention_requires_recovery) ... ok
+test_invalid_postural_cap_is_rejected_before_native_launch (test_resting_run.RestingRunAdmissionTests.test_invalid_postural_cap_is_rejected_before_native_launch) ... ok
+test_launch_binds_native_owners_and_full_duration (test_resting_run.RestingRunAdmissionTests.test_launch_binds_native_owners_and_full_duration) ... ok
+test_postural_initialization_options_remain_explicit (test_resting_run.RestingRunAdmissionTests.test_postural_initialization_options_remain_explicit) ... ok
+test_rigid_hand_reduction_is_explicit (test_resting_run.RestingRunAdmissionTests.test_rigid_hand_reduction_is_explicit) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.076s
+
+OK

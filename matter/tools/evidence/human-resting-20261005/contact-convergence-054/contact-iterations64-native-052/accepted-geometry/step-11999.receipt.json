@@ -1,0 +1,363 @@
+{
+  "accepted_body_state_sha256" : "968e7688a235095b0f8686959a49de52a7e5b61928a189feb686646ddc8703e5",
+  "accepted_pack_path" : "\/Users\/n\/numi-human-resting-evidence-20261005\/contact-iterations64-native-052\/accepted-geometry\/step-11999.mrvpack",
+  "accepted_registered_body_poses" : [
+    {
+      "body_index" : 20,
+      "position_m" : [
+        -0.023139448836445808,
+        -0.43876409530639648,
+        0.090410731732845306
+      ],
+      "quaternion_xyzw" : [
+        0.066662371158599854,
+        -0.70389401912689209,
+        -0.07773667573928833,
+        0.70288431644439697
+      ]
+    },
+    {
+      "body_index" : 128,
+      "position_m" : [
+        -0.025448128581047058,
+        -0.81201332807540894,
+        0.10650765895843506
+      ],
+      "quaternion_xyzw" : [
+        -0.091455534100532532,
+        -0.69913452863693237,
+        0.099139340221881866,
+        0.70215249061584473
+      ]
+    }
+  ],
+  "accepted_respiration_state_sha256" : "7957971eef114d9424771335e965bdb7fad5d3f4feacaf2c25779092ae7f62f8",
+  "accepted_root_fingerprint" : 9849623570149672407,
+  "accepted_root_fingerprint_hex" : "0x88b0e473961605d7",
+  "accepted_step" : 11999,
+  "accepted_time_s" : 23.998001139843836,
+  "accepted_timestamp_microseconds" : 23998001,
+  "accepted_transaction_fingerprint" : 9849623570149672407,
+  "anatomy_layer_index" : 4,
+  "base_pack_content_hash" : "sha256:8a33a1de8a35e82887992e4a7768f54ccc5ee639a8edda1578c2d93ef45058a6",
+  "base_pack_file_sha256" : "4b99041ad51223e8eb6452a74e3addd53920dcf7076fc648da4b76cbd26bb7d7",
+  "camera_index" : 2,
+  "captured_vertex_buffer_sha256" : "2544b7a233db83937cfef9a1ac7aa5ac853a01a1329c8542082df388c3987433",
+  "index_count" : 10472835,
+  "initial_anatomical_registration" : {
+    "body_poses" : [
+      {
+        "body_index" : 20,
+        "position_m" : [
+          -0.025000007823109627,
+          -0.44271242618560791,
+          0.096546053886413574
+        ],
+        "quaternion_xyzw" : [
+          0.0061705871485173702,
+          -0.70707988739013672,
+          -0.0061705652624368668,
+          0.70707988739013672
+        ]
+      },
+      {
+        "body_index" : 128,
+        "position_m" : [
+          -0.025055751204490662,
+          -0.83042281866073608,
+          0.11920696496963501
+        ],
+        "quaternion_xyzw" : [
+          0.0058914260007441044,
+          -0.70680069923400879,
+          -0.005886733066290617,
+          0.7073637843132019
+        ]
+      }
+    ],
+    "coordinate_source" : "source pack transformed by native initialBodies before physical stepping",
+    "surfaces" : [
+      {
+        "role" : "upper_visceral_anchor",
+        "semantic" : 51010,
+        "source_body_index" : 20,
+        "stable_id" : 2,
+        "torso_local_max_m" : [
+          0.1489698737859726,
+          -0.06762242317199707,
+          0.029034055769443512
+        ],
+        "torso_local_min_m" : [
+          0.035220548510551453,
+          -0.18552298843860626,
+          -0.10645896196365356
+        ]
+      },
+      {
+        "role" : "upper_visceral_anchor",
+        "semantic" : 51010,
+        "source_body_index" : 20,
+        "stable_id" : 3,
+        "torso_local_max_m" : [
+          0.10061360895633698,
+          -0.14701209962368011,
+          0.048131499439477921
+        ],
+        "torso_local_min_m" : [
+          0.049258694052696228,
+          -0.22131331264972687,
+          -0.073365472257137299
+        ]
+      },
+      {
+        "role" : "upper_visceral_anchor",
+        "semantic" : 51010,
+        "source_body_index" : 20,
+        "stable_id" : 4,
+        "torso_local_max_m" : [
+          0.065826825797557831,
+          -0.15392428636550903,
+          0.088104061782360077
+        ],
+        "torso_local_min_m" : [
+          0.018313027918338776,
+          -0.25914710760116577,
+          0.030521268025040627
+        ]
+      },
+      {
+        "role" : "upper_visceral_anchor",
+        "semantic" : 51010,
+        "source_body_index" : 20,
+        "stable_id" : 5,
+        "torso_local_max_m" : [
+          0.054068014025688171,
+          -0.1345781683921814,
+          -0.033227771520614624
+        ],
+        "torso_local_min_m" : [
+          0.013165432959794998,
+          -0.24133054912090302,
+          -0.091208852827548981
+        ]
+      },
+      {
+        "role" : "upper_visceral_anchor",
+        "semantic" : 51010,
+        "source_body_index" : 20,
+        "stable_id" : 13,
+        "torso_local_max_m" : [
+          0.095457650721073151,
+          -0.10293921083211899,
+          -0.056195467710494995
+        ],
+        "torso_local_min_m" : [
+          -0.00033182650804519653,
+          -0.17370373010635376,
+          -0.11487260460853577
+        ]
+      },
+      {
+        "role" : "upper_visceral_anchor",
+        "semantic" : 51010,
+        "source_body_index" : 20,
+        "stable_id" : 14,
+        "torso_local_max_m" : [
+          0.091583244502544403,
+          -0.057399556040763855,
+          0.032167300581932068
+        ],
+        "torso_local_min_m" : [
+          0.054899297654628754,
+          -0.13517054915428162,
+          -0.011148050427436829
+        ]
+      },
+      {
+        "role" : "upper_visceral_anchor",
+        "semantic" : 51010,
+        "source_body_index" : 20,
+        "stable_id" : 15,
+        "torso_local_max_m" : [
+          0.14529798924922943,
+          -0.054803524166345596,
+          -0.00016997754573822021
+        ],
+        "torso_local_min_m" : [
+          0.044483475387096405,
+          -0.10827997326850891,
+          -0.081781387329101562
+        ]
+      },
+      {
+        "role" : "upper_visceral_anchor",
+        "semantic" : 51010,
+        "source_body_index" : 20,
+        "stable_id" : 16,
+        "torso_local_max_m" : [
+          0.14555037021636963,
+          -0.076950214803218842,
+          0.0034730583429336548
+        ],
+        "torso_local_min_m" : [
+          0.070841141045093536,
+          -0.14232207834720612,
+          -0.066602751612663269
+        ]
+      },
+      {
+        "role" : "upper_visceral_anchor",
+        "semantic" : 51010,
+        "source_body_index" : 20,
+        "stable_id" : 17,
+        "torso_local_max_m" : [
+          0.14544790983200073,
+          -0.046261340379714966,
+          0.04582890123128891
+        ],
+        "torso_local_min_m" : [
+          0.071815699338912964,
+          -0.16987395286560059,
+          -0.010366916656494141
+        ]
+      },
+      {
+        "role" : "upper_visceral_anchor",
+        "semantic" : 51010,
+        "source_body_index" : 20,
+        "stable_id" : 18,
+        "torso_local_max_m" : [
+          0.14095832407474518,
+          -0.1117347925901413,
+          0.10171232372522354
+        ],
+        "torso_local_min_m" : [
+          0.058839522302150726,
+          -0.18475639820098877,
+          0.027744609862565994
+        ]
+      },
+      {
+        "role" : "upper_visceral_anchor",
+        "semantic" : 51010,
+        "source_body_index" : 20,
+        "stable_id" : 19,
+        "torso_local_max_m" : [
+          0.11320210993289948,
+          -0.11827600747346878,
+          0.11058175563812256
+        ],
+        "torso_local_min_m" : [
+          -0.0012684613466262817,
+          -0.20231522619724274,
+          0.021600734442472458
+        ]
+      },
+      {
+        "role" : "upper_visceral_anchor",
+        "semantic" : 51010,
+        "source_body_index" : 20,
+        "stable_id" : 20,
+        "torso_local_max_m" : [
+          0.10111340880393982,
+          -0.050926655530929565,
+          0.11093625426292419
+        ],
+        "torso_local_min_m" : [
+          -0.0022434890270233154,
+          -0.13834927976131439,
+          0.019856229424476624
+        ]
+      },
+      {
+        "role" : "upper_visceral_anchor",
+        "semantic" : 51010,
+        "source_body_index" : 20,
+        "stable_id" : 21,
+        "torso_local_max_m" : [
+          0.14313989877700806,
+          -0.043088436126708984,
+          0.10617084801197052
+        ],
+        "torso_local_min_m" : [
+          0.025023393332958221,
+          -0.12118934094905853,
+          0.018454927951097488
+        ]
+      },
+      {
+        "role" : "upper_visceral_anchor",
+        "semantic" : 51010,
+        "source_body_index" : 20,
+        "stable_id" : 22,
+        "torso_local_max_m" : [
+          0.15336306393146515,
+          -0.041172627359628677,
+          0.11002320796251297
+        ],
+        "torso_local_min_m" : [
+          0.02455456554889679,
+          -0.11670317500829697,
+          0.017514020204544067
+        ]
+      },
+      {
+        "role" : "upper_visceral_anchor",
+        "semantic" : 51010,
+        "source_body_index" : 20,
+        "stable_id" : 461,
+        "torso_local_max_m" : [
+          0.13303953409194946,
+          -0.13353027403354645,
+          0.063625447452068329
+        ],
+        "torso_local_min_m" : [
+          0.084262087941169739,
+          -0.17424784600734711,
+          0.026906765997409821
+        ]
+      },
+      {
+        "role" : "pelvic_anchor",
+        "semantic" : 51010,
+        "source_body_index" : 20,
+        "stable_id" : 462,
+        "torso_local_max_m" : [
+          0.08233652263879776,
+          -0.39701157808303833,
+          0.034268602728843689
+        ],
+        "torso_local_min_m" : [
+          0.010075983591377735,
+          -0.43757495284080505,
+          -0.033010013401508331
+        ]
+      },
+      {
+        "role" : "pelvic_anchor",
+        "semantic" : 51010,
+        "source_body_index" : 20,
+        "stable_id" : 463,
+        "torso_local_max_m" : [
+          0.050315443426370621,
+          -0.4348473846912384,
+          0.01782398484647274
+        ],
+        "torso_local_min_m" : [
+          0.018116317689418793,
+          -0.4553583562374115,
+          -0.016720972955226898
+        ]
+      }
+    ],
+    "torso_body_index" : 20
+  },
+  "instance_count" : 861,
+  "pack_content_hash" : "sha256:1709ad70cb3efc71cbb2fda958ab739d4ffa636e5115c899d83483ce0b8162d7",
+  "pack_file_sha256" : "53feff21ddbb57e0437c3f92b5a84986c0857d8001461c6ba4211d01399e6b2a",
+  "position_normal_tangent_source" : "accepted-state renderer mesh buffer copied on the same Metal command buffer",
+  "primitive_count" : 861,
+  "schema" : "numi.human.accepted-render-geometry.v1",
+  "source_pack_path" : "\/Users\/n\/numi-human-resting-evidence-20261005\/contact-iterations64-native-052\/resting-human.mrvpack",
+  "vertex_count" : 2139335
+}
