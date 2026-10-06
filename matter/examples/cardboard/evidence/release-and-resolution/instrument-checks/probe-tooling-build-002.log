@@ -1,0 +1,38 @@
+[ 10%] Built target numi_matter_shaders
+[ 15%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/matter.cpp.o
+[ 21%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/language_impl.cpp.o
+[ 26%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/constitutive_impl.cpp.o
+[ 31%] Building OBJCXX object CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o
+[ 36%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/compiler_impl.cpp.o
+[ 42%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/vascular_impl.cpp.o
+[ 47%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/fingerprint_impl.cpp.o
+[ 52%] Building OBJCXX object CMakeFiles/numi_matter_runtime_objects.dir/src/human_physiology.mm.o
+[ 57%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/validation_impl.cpp.o
+[ 63%] Building CXX object CMakeFiles/numi_matter_runtime_objects.dir/src/metal_world.cpp.o
+[ 68%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/package_impl.cpp.o
+[ 73%] Building OBJCXX object CMakeFiles/numi_matter_runtime_objects.dir/src/numi_human.mm.o
+[ 78%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/surgical_tissue.cpp.o
+[ 78%] Built target numi_matter_compiler_objects
+[ 84%] Linking CXX static library libnumi_matter_compiler.a
+[ 84%] Built target numi_matter_compiler
+[ 84%] Built target numi_matter_runtime_objects
+[ 89%] Linking CXX static library libnumi_matter_runtime.a
+[ 89%] Built target numi_matter_runtime
+[ 94%] Building OBJCXX object CMakeFiles/numi-matter-cardboard-probe.dir/tools/cardboard_probe.mm.o
+/Users/home/numi-cardboard-20261006/matter/tools/cardboard_probe.mm:873:60: error: expected '}'
+  873 |                     {n[0], n[2], n[3]}, {n[1], n[2], n[3]}}) {
+      |                                                            ^
+/Users/home/numi-cardboard-20261006/matter/tools/cardboard_probe.mm:871:73: note: to match this '{'
+  871 |             for (auto face : std::array<std::array<std::uint32_t, 3>, 4>{{
+      |                                                                         ^
+/Users/home/numi-cardboard-20261006/matter/tools/cardboard_probe.mm:1682:83: warning: unused parameter 'forceL2' [-Wunused-parameter]
+ 1682 |                       const double measuredAngle, const bool crease, const double forceL2, const double forceMax) {
+      |                                                                                   ^
+/Users/home/numi-cardboard-20261006/matter/tools/cardboard_probe.mm:1682:105: warning: unused parameter 'forceMax' [-Wunused-parameter]
+ 1682 |                       const double measuredAngle, const bool crease, const double forceL2, const double forceMax) {
+      |                                                                                                         ^
+2 warnings and 1 error generated.
+make[3]: *** [CMakeFiles/numi-matter-cardboard-probe.dir/tools/cardboard_probe.mm.o] Error 1
+make[2]: *** [CMakeFiles/numi-matter-cardboard-probe.dir/all] Error 2
+make[1]: *** [CMakeFiles/numi-matter-cardboard-probe.dir/rule] Error 2
+make: *** [numi-matter-cardboard-probe] Error 2

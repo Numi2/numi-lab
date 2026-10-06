@@ -693,6 +693,20 @@ kernel void nm_fem_apply_kinematic_targets(
     if (target.w <= 0.0f) return;
     const uint nodeIndex = global - environment * dispatch.femNodeCount;
     const NMFEMNodeStateGPU previous = accepted[global];
+    // Explicit release is a candidate-state operation, so rejection restores
+    // the original constraint and mass along with the rest of the FEM state.
+    // Repeated release is idempotent across microticks and later frames.
+    if (target.w == 2.0f && all(isfinite(target)) &&
+        (previous.restAndFixed.w == 0.0f || femStaticConstraint(previous.restAndFixed.w)) &&
+        previous.positionAndMass.w > 0.0f && isfinite(previous.positionAndMass.w)) {
+        NMFEMNodeStateGPU next = candidate[global];
+        next.restAndFixed.w = 0.0f;
+        next.velocityAndInverseMass = float4(0.0f, 0.0f, 0.0f, 1.0f / previous.positionAndMass.w);
+        next.deltaVelocity.xyz = -previous.velocityAndInverseMass.xyz;
+        next.positionAndMass.xyz = previous.positionAndMass.xyz;
+        candidate[global] = next;
+        return;
+    }
     if (!all(isfinite(target)) || target.w != 1.0f ||
         previous.restAndFixed.w <= 0.5f ||
         microstep.microtick >= microstep.microtickCount ||
@@ -1047,7 +1061,7 @@ kernel void nm_fem_build_mechanical_residual(
     const float3 momentumCorrection = node.positionAndMass.w *
         (current.velocityAndInverseMass.xyz -
          node.velocityAndInverseMass.xyz);
-    const bool fixedVelocity = femStaticConstraint(node.restAndFixed.w) ||
+    const bool fixedVelocity = femStaticConstraint(current.restAndFixed.w) ||
         node.positionAndMass.w <= 0.0f;
     const float3 externalForce = hasExternalForces != 0u
         ? externalForces[global].xyz
@@ -1064,7 +1078,7 @@ kernel void nm_fem_build_mechanical_residual(
         constraintReactions[global] = float4(unconstrainedRhs / dt, 0.0f);
     }
     const float3 rhs = fixedVelocity ? float3(0.0f) : unconstrainedRhs;
-    const float inverseMass = node.velocityAndInverseMass.w;
+    const float inverseMass = current.velocityAndInverseMass.w;
     const float3 z = fixedVelocity ? float3(0.0f) : inverseMass * rhs;
     float pressureResidual = 0.0f;
     float pressureDiagonal = 1.0f;

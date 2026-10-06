@@ -1,0 +1,45 @@
+{
+  "schema": "numi.cardboard.final-verification.v1",
+  "created_utc": "2026-10-06T05:34:44.125363+00:00",
+  "git_base": "05d55a7f0741a52d1f1c4f6a6a1d4ebb18170d11",
+  "final_targeted_checks_passed": 14,
+  "test_records": {
+    "instrument-checks/ctest-final-001.log": "13/14 passed; endpoint fixture incorrectly used a through-pad jump outside endpoint contact nodes",
+    "instrument-checks/ctest-tooling-final-002.log": "corrected endpoint-intrusion and rollback regression passed; completes14targetedchecks",
+    "instrument-checks/ctest-tooling-analysis-final-003.log": "current tooling analyzer passed after admitting current timing schema;9syntheticcases",
+    "instrument-checks/tooling-native-final-detail.log.gz": "raw validator, three-step contact, postCommit endpoint rejection and exact-position rollback diagnostics"
+  },
+  "native_receipts_verified_inputs_unchanged": 15,
+  "source_sha256": {
+    "matter/CMakeLists.txt": "4da474b1d32b6804a8daf006362725fc1cf40d45d0577e8caef7ae6fc8a29928",
+    "matter/include/numi/matter/matter.hpp": "f8e6359248497d3dbb4dac08afa7cd2d1996aa3638c94e8c3acc67f3ddc28ec7",
+    "matter/src/runtime.mm": "fcae14eaea5e48e0ea76e8822dabd242d5214fcd892ee2d8b16936e9a3348176",
+    "matter/src/metal/fem.metalinc": "12f944de6b149028c4c2f075c3bfa843e9d8a685a952f31f0955de4655c31b09",
+    "matter/src/validation_impl.cpp": "fd065e79ea34f3bffb532550171d5d18435023329be2a378615e3ba8cbc1e933",
+    "matter/tools/cardboard_probe.mm": "9a460f423acde1ffdaef9e726f21b01d51dcf304d332d2ef93af0b91a27341f0",
+    "matter/tools/fem_kinematic_release_check.mm": "1cf75d1756f5b39473194f73f0316ce7e44a9301cbd3025692f3d1e618a310cd",
+    "matter/tools/cardboard_tooling.hpp": "db98b29d39895054ca25cedcc8e3adc67c4304bc083a6453eab660e9858b6ded",
+    "matter/tools/cardboard_tooling_check.cpp": "b0c20dd493029b8806630ed4dd797acf7709461091d5d494713206190d52800a",
+    "matter/tools/cardboard_tooling_native_check.mm": "21357ddd8e9f2bbe02f27e5df9ce8f8b451082366df5e3327be200d333f36742",
+    "matter/tools/cardboard_convergence.py": "3525290344c765db98b0e628ea2cb7d6d9a3921dac1158a94d3897ae56760302",
+    "matter/tools/test_cardboard_convergence.py": "4271b5866879b5260012910e13a0d172f3f2c49d49ea53ca17a92f97ac9a3d9a",
+    "matter/tools/cardboard_tooling_analysis.py": "820f112ccf2c83446cec4b706586c72ee6ecfa0bee73b500f2f33239d3b5df20",
+    "matter/tools/test_cardboard_tooling_analysis.py": "b5ddfb59d9f897909c770e7ec7e58918fb344e6a2762c94364ffe4b1f5062112"
+  },
+  "binary_sha256": {
+    "build-cardboard/numi-matter-cardboard-probe": "8abac4a46b6cea9eecb1ace6d1a906db684f890bf4a0eb5142b4506997892aec",
+    "build-cardboard/numi-matter-fem-kinematic-release-check": "0b720556cd7db35eabb4092d045c9609620d8c5fe78eea29ac74ff9145dffa02",
+    "build-cardboard/numi-matter-cardboard-tooling-native-check": "9131dd854524e76bdf16466e27726954589943361d30332cf2737bf6b072b4da",
+    "build-cardboard/shaders/NumiMatter.metallib": "76c00fbfe1883b0119e46cf8404fd07f8429cb66f7872884e002a2cb1fc55607"
+  },
+  "physical_validation": false,
+  "remaining_gates": [
+    "force/timestep/mesh convergence",
+    "end-geometry contact equilibrium and swept CCD",
+    "source-matched damage/fracture/glue/moisture laws",
+    "qualified score-fold-assemble cycle"
+  ],
+  "compressed_log_uncompressed_sha256": {
+    "instrument-checks/tooling-native-final-detail.log.gz": "68ba9dc2211a8a57517ce225f5a4bd8c7d2c7ba3a6a6c04bc565ef462b08d910"
+  }
+}

@@ -13899,8 +13899,18 @@ RuntimeDiagnostics Runtime::restore(const RuntimeStateSnapshot& snapshot) {
                     const auto nodeIndex = object.stateOffset + local;
                     const auto& node = snapshot.femNodes[environment * state.dispatch.femNodeCount + nodeIndex];
                     const std::array<float, 2> observed{node.positionAndMass.w, node.velocityAndInverseMass.w};
-                    if (std::memcmp(observed.data(), state.femRegionalMassLayout[nodeIndex].data(), sizeof(observed)) != 0 ||
-                        std::memcmp(&node.restAndFixed, &state.femRegionalRestLayout[nodeIndex], sizeof(node.restAndFixed)) != 0) {
+                    const auto& authoredRest = state.femRegionalRestLayout[nodeIndex];
+                    const float authoredMass = state.femRegionalMassLayout[nodeIndex][0];
+                    // Kinematic release may change only the static constraint
+                    // tag and its derived inverse mass. Reference coordinates
+                    // and regional mass remain immutable; Human attachments
+                    // are never admitted through this transition.
+                    const bool releasedStatic = authoredRest.w == 1.0f && node.restAndFixed.w == 0.0f &&
+                        node.positionAndMass.w == authoredMass && authoredMass > 0.0f &&
+                        node.velocityAndInverseMass.w == 1.0f / authoredMass &&
+                        std::memcmp(&node.restAndFixed, &authoredRest, 3u * sizeof(float)) == 0;
+                    if (!releasedStatic && (std::memcmp(observed.data(), state.femRegionalMassLayout[nodeIndex].data(), sizeof(observed)) != 0 ||
+                        std::memcmp(&node.restAndFixed, &authoredRest, sizeof(node.restAndFixed)) != 0)) {
                         diagnostics.message = "Matter snapshot changed immutable authored FEM mass or rest constraint";
                         return diagnostics;
                     }
@@ -14864,6 +14874,10 @@ void* Runtime::statusBuffer() const noexcept {
 
 void* Runtime::femConstraintReactionBuffer() const noexcept {
     return state_ ? (__bridge void*)state_->femConstraintReactions : nullptr;
+}
+
+void* Runtime::femMechanicalResidualBuffer() const noexcept {
+    return state_ ? (__bridge void*)state_->femResidual : nullptr;
 }
 
 void* Runtime::femAcceptedNodeBuffer() const noexcept {

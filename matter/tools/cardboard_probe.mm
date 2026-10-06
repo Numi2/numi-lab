@@ -3,6 +3,7 @@
 #include <CommonCrypto/CommonDigest.h>
 
 #include "cardboard_glue_mesh.hpp"
+#include "cardboard_tooling.hpp"
 #include "metalrobo/engine_types.h"
 #include "numi/matter/language.hpp"
 #include "numi/matter/matter.hpp"
@@ -57,6 +58,11 @@ struct Arguments {
     double upperGlueGapM = 0.0;
     double upperBondWidthM = 0.0;
     bool disableSelfContact = false;
+    bool crease = false;
+    double indentationM = 0.000020;
+    double punchRadiusM = 0.000750;
+    double toolClearanceM = 0.000010;
+    double anvilClearanceM = 0.000010;
     std::string preset = "literature2009";
     bool withoutMedium = false;
     bool compileOnly = false;
@@ -65,6 +71,7 @@ struct Arguments {
     std::uint32_t holdSteps = 0u;
     std::uint32_t unloadSteps = 0u;
     std::uint32_t relaxSteps = 0u;
+    std::uint32_t releaseSteps = 0u;
     std::uint32_t fgmresIterations = NM_MIXED_FGMRES_ITERATIONS;
     std::uint32_t localMaterialIterations = 8u;
     std::uint32_t newtonIterations = NM_MIXED_NEWTON_ITERATIONS;
@@ -73,6 +80,7 @@ struct Arguments {
     std::uint32_t thicknessSlices = 2u;
     double bendAngleDegrees = 1.0;
     double timestepSeconds = 1.0e-4;
+    double relativeResidualTolerance = 1.0e-4;
     double lengthM = 0.036;
     double widthM = 0.020;
     double totalHeightM = 0.005;
@@ -104,6 +112,7 @@ struct MeshSource {
     std::string materialMapDigest;
     std::string frameMapDigest;
     std::vector<numi::cardboard::GlueFootprint> glueFootprints;
+    std::optional<numi::cardboard::CreaseToolingGeometry> tooling;
 };
 
 struct Digest {
@@ -208,6 +217,9 @@ void printUsage() {
         << "usage: numi-matter-cardboard-probe --output DIR [options]\n"
         << "  --preset nagasawa2013|literature2009 (default literature2009)\n"
         << "  --upper-glue-gap-mm N --upper-bond-width-mm N  asymmetric glue (0 uses lower value)\n"
+        << "  --residual-tolerance N tighten nonlinear residual threshold (default 1e-4)\n"
+        << "  --crease              rounded punch indentation; grips held at zero rotation\n"
+        << "  --indent-mm N --punch-radius-mm N --tool-clearance-mm N --anvil-clearance-mm N\n"
         << "  --without-self-contact  numerical control only for the finite-glue mesh\n"
         << "  --material liner=FILE --material medium=FILE\n"
         << "  --liner-material FILE --medium-material FILE\n"
@@ -215,6 +227,7 @@ void printUsage() {
         << "  --without-medium       paired two-liner control geometry\n"
         << "  --steps N              ramp the end-grip rotation\n"
         << "  --hold-steps N --unload-steps N --relax-steps N  loading cycle phases\n"
+        << "  --release-steps N      release right grip after preceding phases; left remains fixed\n"
         << "  --newton-iterations N  global nonlinear budget (1..64)\n"
         << "  --material-iterations N  local constitutive Newton budget (1..16)\n"
         << "  --fgmres-iterations N  Krylov-column budget (max 256)\n"
@@ -277,6 +290,7 @@ Arguments parseArguments(const int argc, const char* argv[]) {
     }
     for (int index = 1; index < argc; ++index) {
         const std::string option = argv[index];
+        if (option == "--crease") { arguments.crease = true; continue; }
         if (option == "--without-self-contact") { arguments.disableSelfContact = true; continue; }
         if (option == "--help" || option == "-h") {
             arguments.help = true;
@@ -293,6 +307,11 @@ Arguments parseArguments(const int argc, const char* argv[]) {
         require(index + 1 < argc, "missing value for " + option);
         const std::string value = argv[++index];
         if (option == "--output") arguments.output = value;
+        else if (option == "--indent-mm") arguments.indentationM = parseDouble(value, option) * 1e-3;
+        else if (option == "--punch-radius-mm") arguments.punchRadiusM = parseDouble(value, option) * 1e-3;
+        else if (option == "--tool-clearance-mm") arguments.toolClearanceM = parseDouble(value, option) * 1e-3;
+        else if (option == "--anvil-clearance-mm") arguments.anvilClearanceM = parseDouble(value, option) * 1e-3;
+        else if (option == "--residual-tolerance") arguments.relativeResidualTolerance = parseDouble(value, option);
         else if (option == "--newton-iterations") arguments.newtonIterations = parseUnsigned(value, option);
         else if (option == "--material-iterations") arguments.localMaterialIterations = parseUnsigned(value, option);
         else if (option == "--preset") arguments.preset = value;
@@ -308,6 +327,7 @@ Arguments parseArguments(const int argc, const char* argv[]) {
         else if (option == "--hold-steps") arguments.holdSteps = parseUnsigned(value, option);
         else if (option == "--unload-steps") arguments.unloadSteps = parseUnsigned(value, option);
         else if (option == "--relax-steps") arguments.relaxSteps = parseUnsigned(value, option);
+        else if (option == "--release-steps") arguments.releaseSteps = parseUnsigned(value, option);
         else if (option == "--fgmres-iterations")
             arguments.fgmresIterations = parseUnsigned(value, option);
         else if (option == "--nx") arguments.nxPerPitch = parseUnsigned(value, option);
@@ -333,6 +353,13 @@ Arguments parseArguments(const int argc, const char* argv[]) {
         else require(false, "unknown option: " + option);
     }
 
+    if (arguments.crease) {
+        require(arguments.releaseSteps == 0u, "crease mode does not release end grips");
+        require(arguments.indentationM >= 0.0 && arguments.indentationM < arguments.totalHeightM &&
+                arguments.punchRadiusM > 0.0 && arguments.toolClearanceM > 0.0 && arguments.anvilClearanceM > 0.0,
+                "invalid tooling travel, radius or clearance");
+        arguments.bendAngleDegrees = 0.0;
+    }
     require(arguments.glueMaterial.empty() == (arguments.glueGapM == 0.0 && arguments.bondWidthM == 0.0),
             "finite glue requires --glue-material, positive --glue-gap-mm and --bond-width-mm together");
     if (!arguments.glueMaterial.empty()) {
@@ -349,7 +376,7 @@ Arguments parseArguments(const int argc, const char* argv[]) {
     require(arguments.steps > 0u && arguments.steps <= 10000u,
             "--steps must lie in [1, 10000]");
     require(arguments.holdSteps <= 10000u && arguments.unloadSteps <= 10000u &&
-                arguments.relaxSteps <= 10000u, "cycle phase exceeds 10000 steps");
+                arguments.relaxSteps <= 10000u && arguments.releaseSteps <= 10000u, "cycle phase exceeds 10000 steps");
     require(arguments.relaxSteps == 0u || arguments.unloadSteps > 0u,
             "relaxation requires an unloading phase; no instantaneous release");
     require(arguments.fgmresIterations >= NM_MIXED_FGMRES_DEFAULT_RESTART &&
@@ -366,6 +393,8 @@ Arguments parseArguments(const int argc, const char* argv[]) {
     require(arguments.bendAngleDegrees >= 0.0 &&
                 arguments.bendAngleDegrees <= 10.0,
             "--bend-angle must lie in [0, 10] degrees");
+    require(arguments.relativeResidualTolerance > 0.0 && arguments.relativeResidualTolerance <= 1.0e-4,
+            "--residual-tolerance must lie in (0, 1e-4]; this probe permits tightening only");
     require(arguments.timestepSeconds > 0.0 &&
                 arguments.timestepSeconds <= 0.01,
             "--dt must lie in (0, 0.01] seconds");
@@ -790,6 +819,7 @@ MeshSource buildMesh(const Arguments& arguments,
     if (glueMaterial != nullptr) result.world.contactSlop = 0.01 * std::min(arguments.mediumThicknessM, arguments.linerThicknessM);
     result.world.environmentCount = kEnvironmentCount;
     result.world.deterministic = true;
+    result.world.mixedSolver.relativeResidual = arguments.relativeResidualTolerance;
     result.world.mixedSolver.fgmresIterations = arguments.fgmresIterations;
     result.world.mixedSolver.newtonIterations = arguments.newtonIterations;
     result.world.materials = {linerMaterial, mediumMaterial};
@@ -828,6 +858,44 @@ MeshSource buildMesh(const Arguments& arguments,
         object.femMaterialFrameRotations = result.materialFrames;
         object.femMaterialFrameSourceIdentity = digestIdentity(frameDigest);
         result.frameMapDigest = hexDigest(frameDigest);
+    }
+    if (arguments.crease) {
+        require(arguments.toolClearanceM > result.world.contactSlop &&
+                arguments.anvilClearanceM > result.world.contactSlop,
+                "tool and anvil clearances must exceed contact slop");
+        // Only nodes on exposed tetrahedral faces may contact tooling. Shared
+        // paper/glue interfaces and interior thickness nodes are excluded.
+        std::map<std::array<std::uint32_t, 3>, std::uint32_t> faceCounts;
+        for (const auto& cell : result.tetrahedra) {
+            const auto& n = cell.nodes;
+            for (auto face : std::array<std::array<std::uint32_t, 3>, 4>{{
+                    {n[0], n[1], n[2]}, {n[0], n[1], n[3]},
+                    {n[0], n[2], n[3]}, {n[1], n[2], n[3]}}}) {
+                std::sort(face.begin(), face.end()); ++faceCounts[face];
+            }
+        }
+        std::set<std::uint32_t> surfaceNodes;
+        for (const auto& [face, count] : faceCounts) {
+            require(count <= 2u, "nonmanifold tooling contact surface");
+            if (count == 1u) surfaceNodes.insert(face.begin(), face.end());
+        }
+        require(!surfaceNodes.empty(), "empty tooling contact surface");
+        object.femContactNodes.assign(surfaceNodes.begin(), surfaceNodes.end());
+        numi::cardboard::CreaseToolingSpec spec;
+        spec.boardLength = arguments.lengthM; spec.boardWidth = arguments.widthM;
+        spec.boardCaliper = arguments.totalHeightM; spec.creaseX = 0.0;
+        spec.supportSurfaceZ = -arguments.anvilClearanceM;
+        spec.punchRadius = arguments.punchRadiusM; spec.punchEndOverhang = 0.002;
+        spec.supportEndOverhang = 0.002; spec.supportThickness = 0.003;
+        spec.initialClearance = arguments.toolClearanceM; spec.punchBodyIndex = 0u;
+        auto geometry = numi::cardboard::makeCreaseTooling(spec);
+        geometry.support.localCenter[0] += 0.5 * arguments.lengthM;
+        geometry.support.localCenter[1] += 0.5 * arguments.widthM;
+        geometry.punchInitialPose.translation.x += 0.5 * arguments.lengthM;
+        geometry.punchInitialPose.translation.y += 0.5 * arguments.widthM;
+        geometry.punchInitialPose.translation.z += arguments.anvilClearanceM;
+        result.world.rigidProxies = {geometry.punch, geometry.support};
+        result.tooling = geometry;
     }
     result.world.objects = {std::move(object)};
     return result;
@@ -1129,6 +1197,13 @@ void writeManifest(const std::filesystem::path& path,
                << (index + 1u == totals.size() ? "\n" : ",\n");
     }
     output << "    ]\n  },\n"
+           << "  \"tooling\": {\"enabled\": " << (arguments.crease ? "true" : "false")
+           << ", \"mode\": \"rounded capsule on finite backing box\", \"indentation_m\": " << arguments.indentationM
+           << ", \"punch_radius_m\": " << arguments.punchRadiusM
+           << ", \"initial_nose_clearance_m\": " << arguments.toolClearanceM
+           << ", \"initial_anvil_clearance_m\": " << arguments.anvilClearanceM
+           << ", \"crease_x_m\": " << 0.5 * arguments.lengthM
+           << ", \"timing\": \"start-of-step pose and consistent velocity in preDynamics; realized end pose in postCommit and independent gap audit\"},\n"
            << "  \"solver\": {\n"
            << "    \"backend\": \"implicit nonlinear Matter FEM on Apple Metal\",\n"
            << "    \"deformable_self_contact\": " << (mesh.world.objects.front().deformableSelfContact ? "true" : "false") << ",\n"
@@ -1139,6 +1214,8 @@ void writeManifest(const std::filesystem::path& path,
            << "    \"hold_steps\": " << arguments.holdSteps << ",\n"
            << "    \"unload_steps\": " << arguments.unloadSteps << ",\n"
            << "    \"relax_steps\": " << arguments.relaxSteps << ",\n"
+           << "    \"release_steps\": " << arguments.releaseSteps << ",\n"
+           << "    \"release_policy\": \"right grip free; left grip remains fixed; physical state preserved\",\n"
            << "    \"local_material_newton_iterations\": " << arguments.localMaterialIterations << ",\n"
            << "    \"newton_iteration_budget\": "
            << compiled.world.mixedSolver.nonlinearIterations.x << ",\n"
@@ -1191,7 +1268,7 @@ std::string stepLabel(const std::uint32_t step) {
 struct LoadPoint { double angleDegrees; const char* phase; };
 
 std::uint32_t totalSteps(const Arguments& a) {
-    return a.steps + a.holdSteps + a.unloadSteps + a.relaxSteps;
+    return a.steps + a.holdSteps + a.unloadSteps + a.relaxSteps + a.releaseSteps;
 }
 
 LoadPoint loadingPoint(const Arguments& a, std::uint32_t step) {
@@ -1203,7 +1280,9 @@ LoadPoint loadingPoint(const Arguments& a, std::uint32_t step) {
     step -= a.holdSteps;
     if (step < a.unloadSteps)
         return {a.bendAngleDegrees * (1.0 - static_cast<double>(step + 1u) / a.unloadSteps), "unloading"};
-    return {0.0, "relaxation"};
+    step -= a.unloadSteps;
+    if (step < a.relaxSteps) return {0.0, "relaxation"};
+    return {0.0, "release"};
 }
 
 struct Metrics {
@@ -1214,6 +1293,7 @@ struct Metrics {
     double maxFreeSpeedMps = 0.0;
     double kineticEnergyJ = 0.0;
     double maxStateChange = 0.0;
+    std::uint32_t currentFixedNodes = 0u;
 };
 
 std::array<double, 9> inverseRestMatrix(const NMTetrahedronGPU& tetrahedron) {
@@ -1249,10 +1329,10 @@ Metrics stateMetrics(const CompiledWorld& world,
         const auto velocity = snapshot.femNodes[nodeBase + node].velocityAndInverseMass;
         const double speed2 = velocity.x * velocity.x + velocity.y * velocity.y + velocity.z * velocity.z;
         metrics.kineticEnergyJ += 0.5 * current.w * speed2;
-        if (world.fem.nodes[node].restAndFixed.w == 0.0f) {
+        if (snapshot.femNodes[nodeBase + node].restAndFixed.w == 0.0f) {
             metrics.maxFreeDisplacementM = std::max(metrics.maxFreeDisplacementM, distance);
             metrics.maxFreeSpeedMps = std::max(metrics.maxFreeSpeedMps, std::sqrt(speed2));
-        }
+        } else { ++metrics.currentFixedNodes; }
     }
 
     for (std::size_t ti = 0; ti < world.fem.tetrahedra.size(); ++ti) {
@@ -1339,6 +1419,10 @@ void fillTargets(const Arguments& arguments,
         const std::size_t base = static_cast<std::size_t>(environment) * nodeCount;
         for (std::uint32_t node = 0u; node < nodeCount; ++node) {
             if (!left[node] && !right[node]) continue;
+            if (right[node] && std::string_view(loadingPoint(arguments, step).phase) == "release") {
+                targets[base + node] = {0.0f, 0.0f, 0.0f, 2.0f};
+                continue;
+            }
             const Vec3 target = targetPosition(
                 mesh.restNodes[node], right[node], environmentAngle, arguments);
             targets[base + node] = {
@@ -1351,9 +1435,37 @@ void fillTargets(const Arguments& arguments,
     }
 }
 
+double indentationAtEnd(const Arguments& a, std::uint32_t step) {
+    if (step < a.steps) return a.indentationM * (step + 1u) / a.steps;
+    step -= a.steps;
+    if (step < a.holdSteps) return a.indentationM;
+    step -= a.holdSteps;
+    if (step < a.unloadSteps) return a.indentationM * (1.0 - double(step + 1u) / a.unloadSteps);
+    return 0.0;
+}
+
+std::vector<MRBodyStateGPU> toolingBodies(const Arguments& a, const MeshSource& mesh,
+                                        const std::uint32_t step) {
+    if (!mesh.tooling) return {};
+    std::vector<MRBodyStateGPU> bodies(kEnvironmentCount);
+    const double start = step == 0u ? 0.0 : indentationAtEnd(a, step - 1u);
+    const double end = indentationAtEnd(a, step);
+    const auto pose = mesh.tooling->punchInitialPose;
+    for (std::uint32_t e = 0u; e < kEnvironmentCount; ++e) {
+        bodies[e].position = {float(pose.translation.x), float(pose.translation.y),
+            float(pose.translation.z - (e == 0u ? start : 0.0)), 0.0f};
+        bodies[e].orientation = {0.0f, 0.0f, 0.0f, 1.0f};
+        bodies[e].flagsAndIndices[0] = MR_MOTION_KINEMATIC;
+        bodies[e].linearVelocityAndInverseMass = {0.0f, 0.0f,
+            float(e == 0u ? -(end - start) / a.timestepSeconds : 0.0), 0.0f};
+    }
+    return bodies;
+}
+
 struct RunState {
     RuntimeStateSnapshot snapshot;
     std::vector<nm_float4> reactions;
+    std::vector<nm_float4> residuals;
 };
 
 class NativeRun {
@@ -1393,12 +1505,17 @@ public:
             static_cast<std::size_t>(kEnvironmentCount) * nodeCount_ *
                 sizeof(nm_float4)
             options:MTLResourceStorageModeShared];
+        residuals_ = [device_ newBufferWithLength:
+            static_cast<std::size_t>(kEnvironmentCount) * nodeCount_ * sizeof(nm_float4)
+            options:MTLResourceStorageModeShared];
+        require(residuals_ != nil, "cannot allocate FEM residual readback buffer");
         require(reactions_ != nil,
                 "cannot allocate FEM reaction readback buffer");
     }
 
     RunState step(const std::uint32_t index,
-                  const std::vector<nm_float4>& targets) {
+                  const std::vector<nm_float4>& targets,
+                  const std::vector<MRBodyStateGPU>& bodies = {}) {
         require(targets.size() ==
                     static_cast<std::size_t>(kEnvironmentCount) * nodeCount_,
                 "kinematic target count differs from compiled FEM state");
@@ -1419,6 +1536,14 @@ public:
         request.environmentStatuses = (__bridge void*)environmentStatuses_;
         request.femKinematicTargets = (__bridge void*)targets_;
         request.femKinematicTargetCount = kEnvironmentCount * nodeCount_;
+        id<MTLBuffer> toolBodies = nil;
+        if (!bodies.empty()) {
+            require(bodies.size() == kEnvironmentCount, "tool body count differs from environments");
+            toolBodies = sharedBuffer(device_, bodies, "kinematic punch bodies");
+            request.rigid.currentBodies = (__bridge void*)toolBodies;
+            request.rigid.currentBodyCount = 1u;
+            request.rigid.currentBodyStride = 1u;
+        }
         request.controlStep = index;
         request.physicsSubsteps = 1u;
         request.timestepSeconds = runtime_.timestepSeconds();
@@ -1439,8 +1564,26 @@ public:
            destinationOffset:0u
                         size:static_cast<std::size_t>(kEnvironmentCount) *
                             nodeCount_ * sizeof(nm_float4)];
+        id<MTLBuffer> residualSource = (__bridge id<MTLBuffer>)runtime_.femMechanicalResidualBuffer();
+        require(residualSource != nil, "Matter FEM residual buffer is unavailable");
+        [blit copyFromBuffer:residualSource sourceOffset:0u toBuffer:residuals_
+            destinationOffset:0u size:static_cast<std::size_t>(kEnvironmentCount) * nodeCount_ * sizeof(nm_float4)];
         [blit endEncoding];
 
+        // The rigid owner publishes its realized end pose for the native
+        // postCommit contact certificate. Reusing the start pose would certify
+        // a different geometry and could commit an overlapping tool endpoint.
+        id<MTLBuffer> endToolBodies = nil;
+        if (!bodies.empty()) {
+            auto endpoints = bodies;
+            for (auto& body : endpoints) {
+                body.position.x += runtime_.timestepSeconds() * body.linearVelocityAndInverseMass.x;
+                body.position.y += runtime_.timestepSeconds() * body.linearVelocityAndInverseMass.y;
+                body.position.z += runtime_.timestepSeconds() * body.linearVelocityAndInverseMass.z;
+            }
+            endToolBodies = sharedBuffer(device_, endpoints, "realized end-pose punch bodies");
+            request.rigid.currentBodies = (__bridge void*)endToolBodies;
+        }
         request.phase = EncodePhase::postCommit;
         const RuntimeDiagnostics post = runtime_.encode(request);
         require(post.encoded, "Matter postCommit encode failed: " + post.message);
@@ -1458,6 +1601,8 @@ public:
             reactionData,
             reactionData + static_cast<std::size_t>(kEnvironmentCount) *
                 nodeCount_);
+        const auto* residualData = static_cast<const nm_float4*>(residuals_.contents);
+        result.residuals.assign(residualData, residualData + static_cast<std::size_t>(kEnvironmentCount) * nodeCount_);
         return result;
     }
 
@@ -1479,6 +1624,7 @@ private:
     id<MTLBuffer> environmentStatuses_ = nil;
     id<MTLBuffer> targets_ = nil;
     id<MTLBuffer> reactions_ = nil;
+    id<MTLBuffer> residuals_ = nil;
     std::uint32_t nodeCount_ = 0u;
 };
 
@@ -1512,6 +1658,21 @@ ReactionMetrics reactionMetrics(const std::uint32_t environment,
     return result;
 }
 
+double measuredGripAngle(const MeshSource& mesh, const RuntimeStateSnapshot& snapshot,
+                         const std::uint32_t environment) {
+    double meanZ = 0.0;
+    for (const auto node : mesh.rightGripNodes) meanZ += mesh.restNodes[node].z;
+    meanZ /= mesh.rightGripNodes.size();
+    double x = 0.0, z = 0.0;
+    const auto base = environment * mesh.restNodes.size();
+    for (const auto node : mesh.rightGripNodes) {
+        const double weight = mesh.restNodes[node].z - meanZ;
+        const auto point = snapshot.femNodes.at(base + node).positionAndMass;
+        x += weight * point.x; z += weight * point.z;
+    }
+    return std::atan2(x, z) * 180.0 / kPi;
+}
+
 void writeHeader(std::ofstream& output) {
     output << "step,time_s,environment,arm,target_angle_deg,status_code,"
               "object_index,failing_index,completed_microsteps,fgmres_iterations,"
@@ -1520,7 +1681,7 @@ void writeHeader(std::ofstream& output) {
               "max_node_displacement_m,reaction_x_N,reaction_y_N,reaction_z_N,"
               "reaction_moment_y_Nm,phase,max_free_displacement_m,max_free_speed_m_s,"
               "kinetic_energy_J,max_material_state_change,certificate_residual,"
-              "certificate_correction,certificate_volume,certificate_pressure,certificate_raw_accepted_flag,step_accepted\n";
+              "certificate_correction,certificate_volume,certificate_pressure,certificate_raw_accepted_flag,step_accepted,right_grip_constrained,measured_right_grip_angle_deg,current_fixed_nodes,free_force_imbalance_l2_N,free_force_imbalance_max_N\n";
 }
 
 void writeObservation(std::ofstream& output,
@@ -1531,11 +1692,12 @@ void writeObservation(std::ofstream& output,
                       const NMMatterStatusGPU& status,
                       const Metrics& metrics,
                       const ReactionMetrics& reaction,
-                      const char* phase, const NMSolverCertificateGPU& certificate, const bool stepAccepted) {
+                      const char* phase, const NMSolverCertificateGPU& certificate, const bool stepAccepted,
+                      const double measuredAngle, const bool crease, const double forceL2, const double forceMax) {
     output << step << ',' << std::setprecision(17)
            << static_cast<double>(step + 1u) * timestep << ','
            << environment << ','
-           << (environment == 0u ? "bent" : "held_reference") << ','
+           << (crease ? (environment == 0u ? "indented" : "stationary_tool_reference") : (environment == 0u ? "bent" : "held_reference")) << ','
            << targetAngleDegrees << ',' << status.code << ','
            << status.objectIndex << ',' << status.failingIndex << ','
            << status.completedMicrosteps << ',' << status.fgmresIterations << ','
@@ -1549,7 +1711,9 @@ void writeObservation(std::ofstream& output,
            << metrics.kineticEnergyJ << ',' << metrics.maxStateChange << ','
            << certificate.nonlinear.x << ',' << certificate.nonlinear.y << ','
            << certificate.nonlinear.z << ',' << certificate.nonlinear.w << ','
-           << certificate.validity.w << ',' << (stepAccepted ? 1 : 0) << '\n';
+           << certificate.validity.w << ',' << (stepAccepted ? 1 : 0) << ','
+           << (std::string_view(phase) == "release" ? 0 : 1) << ',' << measuredAngle << ','
+           << metrics.currentFixedNodes << ',' << forceL2 << ',' << forceMax << '\n';
     output.flush();
     require(output.good(), "failed while writing per-step CSV observations");
 }
@@ -1677,6 +1841,13 @@ int execute(const Arguments& arguments) {
     std::ofstream observations(arguments.output / "observations.csv");
     require(observations.good(), "cannot create observations.csv");
     writeHeader(observations);
+    std::ofstream toolObservations;
+    if (arguments.crease) {
+        toolObservations.open(arguments.output / "tool-observations.csv");
+        require(toolObservations.good(), "cannot create tool observations");
+        toolObservations << "step,environment,commanded_end_travel_m,commanded_speed_m_s,punch_force_z_N,punch_contact_count,min_end_punch_node_gap_m,min_anvil_node_gap_m,step_accepted\n";
+        toolObservations << std::setprecision(17);
+    }
     bool failed = false;
     std::string failure;
     std::uint32_t acceptedSteps = 0u;
@@ -1685,7 +1856,7 @@ int execute(const Arguments& arguments) {
         fillTargets(arguments, mesh, step, targets);
         RunState current;
         try {
-            current = run.step(step, targets);
+            current = run.step(step, targets, toolingBodies(arguments, mesh, step));
         } catch (const std::exception& error) {
             failed = true;
             failure = "step " + std::to_string(step) + ": " + error.what();
@@ -1699,6 +1870,7 @@ int execute(const Arguments& arguments) {
         const double targetAngle = load.angleDegrees;
         const double targetRadians = targetAngle * kPi / 180.0;
         bool stepFailed = false;
+        bool toolEndPoseFailed = false;
         for (std::uint32_t environment = 0u;
              environment < kEnvironmentCount; ++environment) {
             const Metrics metrics = stateMetrics(
@@ -1717,11 +1889,20 @@ int execute(const Arguments& arguments) {
                 certificate.nonlinear.x <= compiled.world.mixedSolver.residualTolerances.x &&
                 certificate.nonlinear.z <= compiled.world.mixedSolver.residualTolerances.y &&
                 certificate.nonlinear.w <= compiled.world.mixedSolver.residualTolerances.z;
+            double forceNorm2 = 0.0, forceMax = 0.0;
+            for (std::size_t n = 0; n < mesh.restNodes.size(); ++n) {
+                const auto i = environment * mesh.restNodes.size() + n;
+                if (current.snapshot.femNodes.at(i).restAndFixed.w != 0.0f) continue;
+                const auto r = current.residuals.at(i);
+                const double norm2 = (double(r.x)*r.x + double(r.y)*r.y + double(r.z)*r.z) /
+                    (run.runtime().timestepSeconds() * run.runtime().timestepSeconds());
+                forceNorm2 += norm2; forceMax = std::max(forceMax, std::sqrt(norm2));
+            }
             writeObservation(observations, step, run.runtime().timestepSeconds(),
                              environment, environment == 0u ? targetAngle : 0.0,
                              status, metrics, reaction, load.phase,
-                             certificate, accepted);
-            const std::string arm = environment == 0u ? "bent" : "held_reference";
+                             certificate, accepted, measuredGripAngle(mesh, current.snapshot, environment), arguments.crease, std::sqrt(forceNorm2), forceMax);
+            const std::string arm = arguments.crease ? (environment == 0u ? "indented" : "stationary_tool_reference") : (environment == 0u ? "bent" : "held_reference");
             writeObj(arguments.output /
                          ("accepted_step_" + stepLabel(step + 1u) + "_" +
                           arm + ".obj"),
@@ -1730,6 +1911,40 @@ int execute(const Arguments& arguments) {
                 std::string(loadingPoint(arguments, step + 1u).phase) != load.phase)
                 writeMaterialState(arguments.output / ("material_state_" + stepLabel(step + 1u) + "_" + arm + ".json"),
                     compiled.world, mesh.world, current.snapshot, environment);
+            if (mesh.tooling) {
+                const auto& geometry = *mesh.tooling;
+                auto endPose = geometry.punchInitialPose;
+                const double travel = environment == 0u ? indentationAtEnd(arguments, step) : 0.0;
+                const double previous = environment == 0u && step > 0u ? indentationAtEnd(arguments, step - 1u) : 0.0;
+                endPose.translation.z -= travel;
+                double minPunch = INFINITY, minAnvil = INFINITY, impulseZ = 0.0;
+                std::uint32_t contacts = 0u;
+                const auto nodeBase = environment * mesh.restNodes.size();
+                for (std::size_t n = 0; n < mesh.restNodes.size(); ++n) {
+                    const auto x = current.snapshot.femNodes.at(nodeBase + n).positionAndMass;
+                    const numi::cardboard::ToolVec3 point{x.x, x.y, x.z};
+                    minPunch = std::min(minPunch, numi::cardboard::capsuleContactWitness(geometry.punch, endPose, point).separation);
+                    minAnvil = std::min(minAnvil, numi::cardboard::boxContactWitness(geometry.support, {}, point).separation);
+                }
+                require(current.snapshot.contactSamples.size() % kEnvironmentCount == 0u, "contact sample arena shape");
+                const auto sampleStride = current.snapshot.contactSamples.size() / kEnvironmentCount;
+                for (std::size_t i = 0; i < sampleStride; ++i) {
+                    const auto& sample = current.snapshot.contactSamples[environment * sampleStride + i];
+                    if (sample.identity.y == 0u && (sample.identity.w & NM_CONTACT_VALID) != 0u) {
+                        ++contacts; impulseZ += sample.impulseAndNormal.z;
+                    }
+                }
+                // Native contact currently keeps prescribed non-dynamic proxy
+                // geometry at the start pose during Newton. Audit the actual
+                // commanded endpoint independently before advancing the tool.
+                const double roundoff = 8.0 * std::numeric_limits<float>::epsilon() *
+                    std::max({arguments.lengthM, arguments.widthM, arguments.totalHeightM, arguments.punchRadiusM});
+                if (accepted && (!std::isfinite(minPunch) || !std::isfinite(minAnvil) ||
+                                 minPunch < -roundoff || minAnvil < -roundoff)) toolEndPoseFailed = true;
+                toolObservations << step << ',' << environment << ',' << travel << ','
+                    << -(travel - previous) / arguments.timestepSeconds << ',' << impulseZ / run.runtime().timestepSeconds()
+                    << ',' << contacts << ',' << minPunch << ',' << minAnvil << ',' << (accepted ? 1 : 0) << '\n';
+            }
             stepFailed = stepFailed || !accepted;
         }
         if (stepFailed) {
@@ -1739,6 +1954,20 @@ int execute(const Arguments& arguments) {
             break;
         }
         ++acceptedSteps;
+        if (toolEndPoseFailed) {
+            for (std::uint32_t e = 0u; e < kEnvironmentCount; ++e) {
+                const std::string arm = e == 0u ? "indented" : "stationary_tool_reference";
+                writeMaterialState(arguments.output / ("material_state_" + stepLabel(step + 1u) + "_" + arm + ".json"),
+                    compiled.world, mesh.world, current.snapshot, e);
+            }
+            failed = true;
+            failure = "native step " + std::to_string(step) +
+                " accepted, but commanded end-pose tooling gap audit failed; "
+                "native accepted state retained, tool trajectory not qualified";
+            std::ofstream diagnostic(arguments.output / "failure.txt");
+            diagnostic << failure << '\n';
+            break;
+        }
     }
 
     const std::string resultStatus = failed ? "failed" : "completed";

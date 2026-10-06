@@ -1,0 +1,17 @@
+[ 10%] Built target numi_matter_shaders
+[ 57%] Built target numi_matter_compiler_objects
+[ 68%] Built target numi_matter_compiler
+[ 84%] Built target numi_matter_runtime_objects
+[ 89%] Built target numi_matter_runtime
+[ 94%] Building OBJCXX object CMakeFiles/numi-matter-cardboard-probe.dir/tools/cardboard_probe.mm.o
+/Users/home/numi-cardboard-20261006/matter/tools/cardboard_probe.mm:873:60: error: expected '}'
+  873 |                     {n[0], n[2], n[3]}, {n[1], n[2], n[3]}}) {
+      |                                                            ^
+/Users/home/numi-cardboard-20261006/matter/tools/cardboard_probe.mm:871:73: note: to match this '{'
+  871 |             for (auto face : std::array<std::array<std::uint32_t, 3>, 4>{{
+      |                                                                         ^
+1 error generated.
+make[3]: *** [CMakeFiles/numi-matter-cardboard-probe.dir/tools/cardboard_probe.mm.o] Error 1
+make[2]: *** [CMakeFiles/numi-matter-cardboard-probe.dir/all] Error 2
+make[1]: *** [CMakeFiles/numi-matter-cardboard-probe.dir/rule] Error 2
+make: *** [numi-matter-cardboard-probe] Error 2

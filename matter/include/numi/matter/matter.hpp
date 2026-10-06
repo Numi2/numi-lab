@@ -1046,7 +1046,12 @@ struct EncodeRequest {
     void* humanEqualitySourceEffectiveTangentFactor = nullptr;
     void* femExternalForces = nullptr; // id<MTLBuffer>, float4
     // Optional absolute world-space targets for cooked fixed FEM nodes. One
-    // float4 covers every environment/node; w > 0 selects a target. Targets
+    // float4 covers every environment/node: w <= 0 leaves the constraint
+    // unchanged; w = 1 selects an absolute target; w = 2 releases an authored
+    // static constraint (xyz ignored, finite required). Release is idempotent
+    // for free nodes, preserves mass and momentum history, and cannot release
+    // Human attachments. A released node cannot be reattached with w = 1.
+    // Targets
     // are interpolated over internal microticks and participate in the same
     // accepted/candidate/checkpoint transaction as the FEM state.
     void* femKinematicTargets = nullptr; // id<MTLBuffer>, float4
@@ -1904,6 +1909,16 @@ public:
     // world-space newtons (float4 per environment/node, w = 0). Valid only
     // after an accepted pre-dynamics solve in the same command buffer.
     [[nodiscard]] void* femConstraintReactionBuffer() const noexcept;
+    // Borrowed final assembled unpreconditioned generalized residual, valid
+    // after accepted preDynamics in the same command buffer. Leading FEM rows
+    // are env-major float4; xyz is mechanical impulse imbalance (N s), including
+    // inertia and contact, and w is the mixed pressure row, not a force. Filter
+    // by the candidate constraint mask: contact assembly can populate fixed
+    // rows too. Divide free xyz rows by the actual substep dt only for a
+    // force-imbalance diagnostic; this buffer is not the normalized certificate.
+    // Runtime owns the buffer; callers must not mutate it or retain it beyond
+    // runtime lifetime. Rejected transactions do not provide accepted evidence.
+    [[nodiscard]] void* femMechanicalResidualBuffer() const noexcept;
     // Borrowed accepted FEM state for same-command-buffer consumers. The
     // runtime retains ownership; callers must neither mutate nor retain it
     // beyond the initialized runtime lifetime.

@@ -1,0 +1,26 @@
+{
+  "schema": "numi.cardboard.tooling_analysis_source_snapshot.v1",
+  "test_result": "9 stdlib unittest tests passed; python3 -m py_compile passed",
+  "versions": {
+    "analyzer-001": {
+      "cardboard_tooling_analysis.py": {
+        "path": "source-snapshots/analyzer/cardboard_tooling_analysis.py",
+        "sha256": "1866ea822c9b2a985691a8493c7d3ad0c644775d9ba0a6399ed774cc7e8f2fe6"
+      },
+      "test_cardboard_tooling_analysis.py": {
+        "path": "source-snapshots/analyzer/test_cardboard_tooling_analysis.py",
+        "sha256": "b5ddfb59d9f897909c770e7ec7e58918fb344e6a2762c94364ffe4b1f5062112"
+      }
+    },
+    "analyzer-002": {
+      "cardboard_tooling_analysis.py": {
+        "path": "source-snapshots/analyzer-002/cardboard_tooling_analysis.py",
+        "sha256": "820f112ccf2c83446cec4b706586c72ee6ecfa0bee73b500f2f33239d3b5df20"
+      },
+      "test_cardboard_tooling_analysis.py": {
+        "path": "source-snapshots/analyzer-002/test_cardboard_tooling_analysis.py",
+        "sha256": "b5ddfb59d9f897909c770e7ec7e58918fb344e6a2762c94364ffe4b1f5062112"
+      }
+    }
+  }
+}

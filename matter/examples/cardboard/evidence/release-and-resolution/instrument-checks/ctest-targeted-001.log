@@ -1,0 +1,36 @@
+Test project /Users/home/numi-cardboard-20261006/build-cardboard
+      Start  1: matter.compiler.cardboard_tooling
+ 1/10 Test  #1: matter.compiler.cardboard_tooling .....   Passed    0.33 sec
+      Start  2: matter.compiler.cardboard_profile
+ 2/10 Test  #2: matter.compiler.cardboard_profile .....   Passed    0.24 sec
+      Start  3: matter.compiler.cardboard_glue_mesh
+ 3/10 Test  #3: matter.compiler.cardboard_glue_mesh ...   Passed    0.26 sec
+      Start  4: matter.compiler.cardboard_paper
+ 4/10 Test  #4: matter.compiler.cardboard_paper .......   Passed    0.41 sec
+      Start  5: matter.compiler.cardboard_material
+ 5/10 Test  #5: matter.compiler.cardboard_material ....   Passed    0.34 sec
+      Start  7: matter.compiler.fem_material_frame
+ 6/10 Test  #7: matter.compiler.fem_material_frame ....   Passed    0.30 sec
+      Start 10: matter.metal.cardboard_tooling
+ 7/10 Test #10: matter.metal.cardboard_tooling ........   Passed    0.94 sec
+      Start 11: matter.metal.cardboard_material
+ 8/10 Test #11: matter.metal.cardboard_material .......   Passed    0.38 sec
+      Start 12: matter.metal.cardboard_paper
+ 9/10 Test #12: matter.metal.cardboard_paper ..........   Passed    2.20 sec
+      Start 27: matter.metal.fem_material_frame
+10/10 Test #27: matter.metal.fem_material_frame .......   Passed    6.98 sec
+
+100% tests passed, 0 tests failed out of 10
+
+Label Time Summary:
+cardboard     =   5.10 sec*proc (8 tests)
+compiler      =   0.34 sec*proc (1 test)
+contact       =   0.94 sec*proc (1 test)
+geometry      =   0.83 sec*proc (3 tests)
+human         =   7.28 sec*proc (2 tests)
+material      =   8.41 sec*proc (5 tests)
+matter        =  12.39 sec*proc (10 tests)
+metal         =   0.38 sec*proc (1 test)
+plasticity    =   2.20 sec*proc (1 test)
+
+Total Test time (real) =  12.40 sec

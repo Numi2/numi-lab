@@ -1,0 +1,233 @@
+{
+  "schema": "numi.cardboard.crease_fold_reference.v1",
+  "purpose": "Primary-source experimental references for corrugated-board crease formation and post-crease bending, with explicit specimen, tooling, loading, and observables. Values labelled digitized or derived are not raw source tables.",
+  "best_near_term_instrument_reference": "aduke_venter_coetzee_2024",
+  "best_direct_corrugated_crease_process_reference": "nagasawa_komiyama_2012",
+  "sources": [
+    {
+      "id": "nagasawa_komiyama_2012",
+      "citation": "Nagasawa, S. and Komiyama, Y. (2012). Effect of Scoring Condition on Creasing Characteristics of Double-Wall Corrugated Board. Journal of Advanced Mechanical Design, Systems, and Manufacturing 6(7), 1263-1272. DOI: 10.1299/jamdsm.6.1263.",
+      "urls": [
+        "https://doi.org/10.1299/jamdsm.6.1263",
+        "https://www.jstage.jst.go.jp/article/jamdsm/6/7/6_1263/_article",
+        "https://www.jstage.jst.go.jp/article/jamdsm/6/7/6_1263/_pdf/-char/en"
+      ],
+      "publication_type": "peer-reviewed, free-access journal article",
+      "local_pdf": "/Users/home/cardboard-research-20261006/nagasawa-komiyama-2012-doublewall-creasing.pdf",
+      "local_pdf_sha256": "364dbc9c02d1a5bd6f7b1c2b309a2f3d502de791151b474d0989655f6f3f3e17",
+      "evidence_pages": {
+        "specimen_and_tools": "Printed pp.1264-1265, Figs.1-4 and Table 1.",
+        "process_and_failure": "Printed pp.1265-1269, conditions, Figs.5-8 and 12-14.",
+        "fold_moment_and_position": "Printed pp.1268-1269, Figs.9-11 and Eq.1."
+      },
+      "board": {
+        "architecture": "AB double-wall corrugated fiberboard, outside to inside nominal sheet basis weights 210(K6)-160-160-180-210(K6) g/m^2",
+        "liner_basis_weight_g_m2": 210,
+        "B_flute_medium_basis_weight_g_m2": 160,
+        "A_flute_medium_basis_weight_g_m2": 180,
+        "liner_sheet_thickness_mm": 0.24,
+        "B_flute_medium_sheet_thickness_mm": 0.22,
+        "A_flute_medium_sheet_thickness_mm": 0.25,
+        "five_flat_sheet_total_thickness_mm": 1.17,
+        "measured_board_height_mm": 7.91,
+        "A_flute_height_mm": 5.0,
+        "B_flute_height_mm": 3.0,
+        "flute_pitch_mm": 8.8,
+        "caution": "The five-sheet flat calipers sum to 1.17 mm; this is not assembled board caliper. AB double-wall construction and paper grades differ from the single-wall Haj-Ali 2009 recipe."
+      },
+      "raw_paper_tensile_table_1": {
+        "condition": "50% RH, 296 K, strain rate 0.002 s^-1; values are ultimate tensile stress, breaking strain, and Young modulus, not yield/hardening tables",
+        "liner_210": {
+          "CD": {"ultimate_MPa": 29.1, "breaking_strain_percent": 5.5, "E_GPa": 2.5},
+          "MD": {"ultimate_MPa": 56.8, "breaking_strain_percent": 2.0, "E_GPa": 5.9}
+        },
+        "medium_160": {
+          "CD": {"ultimate_MPa": 17.6, "breaking_strain_percent": 4.2, "E_GPa": 1.9},
+          "MD": {"ultimate_MPa": 47.1, "breaking_strain_percent": 2.1, "E_GPa": 4.6}
+        },
+        "medium_180": {
+          "CD": {"ultimate_MPa": 18.4, "breaking_strain_percent": 4.7, "E_GPa": 1.9},
+          "MD": {"ultimate_MPa": 43.3, "breaking_strain_percent": 2.0, "E_GPa": 4.7}
+        }
+      },
+      "scoring_machine": {
+        "arrangement": "three parallel scoring lines: a pre-creaser pair followed by a main-creaser pair; center line measured, side lines are dummy stabilizers",
+        "incoming_blank_mm": [230, 320],
+        "dummy_score_offsets_from_center_mm": [-80, 80],
+        "cut_fold_specimens_mm": [125, 50],
+        "scoring_direction": "heightwise/longitudinal to corrugated medium",
+        "precreaser": {
+          "round_roll_radius_mm": 40,
+          "round_roll_diameter_mm": 140,
+          "flat_trapezoidal_roll_width_mm": 17
+        },
+        "main_creaser": {
+          "wedge_angle_deg": 120,
+          "bite_roll_width_mm": 3.2,
+          "main_roll_diameter_mm": 310,
+          "flat_anvil": "8 mm width, 7 mm thick urethane rubber insert, JIS K-6253 hardness 90"
+        },
+        "failure_metric": "inside-liner failure occurrence q; counted as a failure when the combined failure-zone length exceeded 5% of specimen length. The authors report actually observed failure lengths often exceeded half the specimen.",
+        "replicates": "10 specimens for failure occurrence and 10 for bending per creaser-gap condition; Fig.9 describes 10 pieces from two 230x320 blanks."
+      },
+      "process_conditions": {
+        "normal_scoring": {
+          "feed_speed_m_s": 2.92,
+          "precreaser_gap_mm": [1.2, 1.4],
+          "precreaser_gap_over_board_height": [0.15, 0.18],
+          "main_creaser_gap_mm": 0.7,
+          "main_creaser_gap_over_board_height": 0.09
+        },
+        "parameter_sweeps": {
+          "precreaser_gap_mm": [0.75, 7.1],
+          "precreaser_gap_over_height": [0.09, 0.9],
+          "main_gap_sweep_mm": [0.7, 3.2],
+          "no_precreaser_or_no_main_gap_mm": 8.5,
+          "speeds_m_s": [0.0162, 1.62, 2.92]
+        },
+        "conditioning": "specimens held 24 h in room conditions averaging 296 K and 50% RH for the stated reference condition",
+        "moisture_sensitivity": {
+          "reported_water_content_percent": [5.3, 6.9, 7.3],
+          "observation": "The authors report that a 1.6 percentage-point increase in board water content reduced inside-liner failure occurrence by about 20-40%; Fig.12 shows the dependence on pre-creaser gap.",
+          "raw_q_table": false
+        },
+        "best_gap_observations": [
+          "With main gap cC=0.7 mm and V=2.92 m/s, the local minimum in inside-liner failures occurs near pre-gap cP/t=0.15-0.25.",
+          "With no pre-creasing, q rises markedly for main gap cC/t<0.4 and is about 1 at cC/t=0.09.",
+          "With no main crease, q rises for pre-gap cP/t<0.09."
+        ]
+      },
+      "fold_reference": {
+        "instrument": "prototype crease stress test measuring bending line moment per unit width against rotation angle",
+        "angle_range_deg": [0, 90],
+        "moment_unit_as_printed": "N m m^-1",
+        "figure_9_specific_scoring": {
+          "blank_mm": [230, 320],
+          "precreaser_gap_mm": 3.0,
+          "precreaser_gap_over_board_height": 0.38,
+          "main_creaser_gap_mm": 0.7,
+          "main_creaser_gap_over_board_height": 0.09,
+          "feed_speed_m_s": 2.92
+        },
+        "available_numeric_curve_data": "Figure 9 plots the moment-angle response from 10 pieces from two blanks; there is no raw point table in the article. Figure 10 gives measured peak moment versus crease/flute-apex offset. No digitized moment-angle samples are included in this manifest.",
+        "peak_moment_offset_relation": {
+          "source_equation": "ΔM_peak = 2.21 ΔX + 0.34",
+          "delta_x_definition": "ΔX=e/λ, crease displacement from flute apex divided by flute pitch",
+          "delta_m_unit": "N m m^-1",
+          "status": "equation printed in article Eq.1; not a fit reconstructed here"
+        }
+      },
+      "unreported_for_this_source": [
+        "main-creaser reaction-force versus indentation-depth table",
+        "raw moment-angle time-series",
+        "adhesive formulation, bondline dimensions, adhesive density, cohesive strength, or fracture energy",
+        "a moisture-dependent orthotropic plastic/damage law",
+        "crease crack-initiation stress or fracture-energy calibration"
+      ]
+    },
+    {
+      "id": "aduke_venter_coetzee_2024",
+      "citation": "Aduke, R. N., Venter, M. P., and Coetzee, C. J. (2024). Numerical Modelling of Corrugated Paperboard Boxes. Mathematics and Computation in Applied Sciences 29(4), 70. DOI: 10.3390/mca29040070.",
+      "urls": [
+        "https://doi.org/10.3390/mca29040070",
+        "https://www.mdpi.com/2297-8747/29/4/70"
+      ],
+      "publication_type": "peer-reviewed open-access journal article",
+      "local_pdf": "/Users/home/cardboard-research-20261006/aduke-venter-coetzee-2024.pdf",
+      "local_pdf_sha256": "b082376b778e72e702c5274df3b86d82396708892dc4d194bab709f5c9d01eae",
+      "evidence_pages": {
+        "board_and_conditioning": "Printed p.3, section 2.2.",
+        "crease_bend_fixture": "Printed pp.3-5, section 2.3 and Figs.3-4.",
+        "material_and_crease_models": "Printed pp.7-8, Tables 1-2; p.10, Table 3; pp.14-16, Tables 4-5 and Figs.14-15.",
+        "availability": "Article states data are available from authors on request; plotted curves are not provided as tabular raw samples."
+      },
+      "board": {
+        "architecture": "single-wall C-flute, 250KL/150SC/250KL",
+        "liner_grade_and_basis_weight": "250 gsm virgin kraft liner",
+        "medium_grade_and_basis_weight": "150 gsm semi-chemical fluting",
+        "conditioning": "23 °C, 50% RH for 24 h under BS EN 20187:1993",
+        "table_1_individual_sheet_thickness_mm": {"liner": 0.345, "core_medium": 0.251},
+        "table_1_individual_sheet_orthotropic_inputs_MPa": {
+          "liner_250KL": {"E1_MD": 6695, "E2_CD": 2310, "E3_ZD_estimated": 35, "G12_estimated": 1522, "G13_estimated": 122, "G23_estimated": 66},
+          "medium_150SC": {"E1_MD": 4709, "E2_CD": 2918, "E3_ZD_estimated": 42, "G12_estimated": 1435, "G13_estimated": 86, "G23_estimated": 83}
+        },
+        "yield_stress_table_3_MPa": {
+          "liner_250KL": {"MD_0deg": 26.11, "45deg": 17.44, "CD_90deg": 17.44, "average": 19.61},
+          "medium_150SC": {"MD_0deg": 32.65, "45deg": 14.02, "CD_90deg": 14.02, "average": 18.68},
+          "provenance": "Reported as yield values used in the study, sourced by the article to Cillie and Coetzee (2022), rather than a new sheet test in this 2024 work."
+        }
+      },
+      "physical_creased_four_point_bend": {
+        "specimen_mm": [400, 100],
+        "crease_position": "center of specimen, across the specimen; source describes the sample as creased with fluting oriented in CD",
+        "replicates": 10,
+        "standard": "ISO 5628:1990",
+        "machine": "Instron 5982",
+        "load_cell_N": 100,
+        "deflection_sensor": "HBM WA100 100 mm LVDT measuring at the crease center",
+        "lower_support_spacing_mm": 200,
+        "upper_anvil_spacing_mm": 340,
+        "load_point_offset_from_inner_support_mm": 70,
+        "displacement_rate_mm_min": 12.7,
+        "stop_rule": "record until failure; stop when force drops 10% from maximum",
+        "quantitative_targets": {
+          "crease_stiffness_reduction_percent_source_text": 63,
+          "creased_to_uncreased_stiffness_ratio_calculated": 0.37,
+          "creased_to_uncreased_stiffness_ratio_status": "admitted as a dimensionless rounded within-study comparison derived from the source-reported 63% reduction; it does not depend on resolving the absolute unit convention",
+          "uncreased_CD_bending_stiffness_table_5_value_as_printed": 6.88,
+          "table_5_stiffness_unit_as_printed": "N/m",
+          "equation_1_as_printed": "S_b = (1/16) (P/Y) (L^3/b) (a/L)",
+          "equation_1_variable_definitions_as_printed": {
+            "P": "maximum/failure load",
+            "Y": "maximum deflection at the sample centre",
+            "L": "distance between inner supports, 200 mm",
+            "a": "distance between supporting and loading anvils, 70 mm",
+            "b": "sample width, 100 mm"
+          },
+          "equation_1_dimensional_result_if_lengths_use_SI": "N*m: (P/Y) has units N/m, (L^3/b) has units m^2, and (a/L) is dimensionless",
+          "table_5_equation_unit_mismatch": "Table 5 caption prints N/m, but Eq. 1 as printed has dimensions force times length when P is a force and Y,L,a,b are lengths. The article does not resolve the mismatch; do not silently correct the published unit.",
+          "absolute_stiffness_target_admission": "not admitted for quantitative model comparison until the authors or cited Eq. 1 source clarify the unit/convention; retain 6.88 only as the value and N/m label printed in Table 5",
+          "creased_CD_bending_stiffness_derived_approx_from_printed_value": 2.5456,
+          "derived_status": "6.88*(1-0.63); rounded estimate, not directly tabulated. Its absolute unit inherits the unresolved Table 5 / Eq. 1 mismatch and it is not an admitted quantitative target. The 0.37 ratio remains an admissible rounded dimensionless report."
+        },
+        "curves": {
+          "Figure_15": "experimental force-displacement curves for creased and uncreased CD four-point bends are plotted",
+          "raw_numeric_points": false,
+          "digitized_points_in_this_package": false
+        },
+        "crease_creation_boundary": "The paper describes the post-crease bending tests but does not report the creasing rule/channel geometry, score gap/depth, crease feed speed, score load, crease moisture content, or the process used to create these physical creases.",
+        "structural_FE_crease_zone": {
+          "width_mm": 4,
+          "status": "approximated from physical crease width for FE calibration, not a complete crease-tool geometry",
+          "Table_2_material_inputs": {
+            "liner_E1_E2_G12_MPa": [2378, 980, 603],
+            "core_E1_E2_G12_MPa": [1429, 1197, 596]
+          },
+          "status_of_properties": "inverse-calibrated FE crease-zone inputs; do not treat as directly measured constituent paper properties"
+        },
+        "equivalent_homogenized_creaseregion_parameters_Table4_MPa": {
+          "normal_liner_E1_E2_G12": [5364, 1884, 1427],
+          "vertical_crease_liner_E1_E2_G12": [3390, 983, 764],
+          "normal_core_E1_E2_G12": [60, 251, 15],
+          "vertical_crease_core_E1_E2_G12": [51, 116, 11],
+          "status": "inverse-calibrated homogenized FE material parameters for this board and bending setup; not a direct local material measurement"
+        }
+      },
+      "adhesive_and_failure_boundary": {
+        "FE_liner_medium_joint": "structural model connects liner and flute-tip nodes directly; perfect kinematic bond assumption",
+        "adhesive_modulus_density_fracture_or_cure": "not supplied for this grade; authors note that real starch-bond flexibility may further reduce FE stiffness",
+        "local_paper_damage_law": "crease region is represented by inverse-calibrated reduced properties; the physical score tool and local damage history are not identified"
+      }
+    }
+  ],
+  "nontransferable_related_source": {
+    "citation": "Beex, L. A. A. and Peerlings, R. H. J. (2009). An experimental and computational study of laminated paperboard creasing and folding. International Journal of Solids and Structures 46, 4192-4207.",
+    "url": "https://doi.org/10.1016/j.ijsolstr.2009.08.012",
+    "reason_not_a_corrugated_board_benchmark": "Solid laminated paperboard, with no corrugated medium/flute-and-liner geometry. Its layer delamination and crease response can inform possible mechanisms but its material and force-angle data cannot validate a corrugated board recipe."
+  },
+  "raw_curve_data_status": {
+    "nagasawa_2012": "Moment-angle is Figure 9 only; peak-moment offset relationship is Eq.1. No raw numeric moment-angle table or supplementary time series found.",
+    "aduke_2024": "Four-point force-displacement is Figure 15 only; Table 5 prints uncreased stiffness in N/m while Eq. 1 dimensions are force times length, an unresolved source unit mismatch. Prose gives a rounded 63% decrease, supporting the dimensionless 0.37 ratio but not an absolute stiffness target. Article says raw data are available from authors on request.",
+    "digitization": "No graph points were digitized for this package; only the clearly labelled derived stiffness estimate is calculated from a table value and the source's rounded percentage."
+  }
+}

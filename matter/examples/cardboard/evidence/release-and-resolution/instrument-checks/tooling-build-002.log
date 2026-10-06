@@ -1,0 +1,9 @@
+[ 10%] Built target numi_matter_shaders
+[ 15%] Building CXX object CMakeFiles/numi_matter_compiler_objects.dir/src/validation_impl.cpp.o
+[ 36%] Built target numi_matter_runtime_objects
+[ 78%] Built target numi_matter_compiler_objects
+[ 84%] Linking CXX static library libnumi_matter_compiler.a
+[ 84%] Built target numi_matter_compiler
+[ 89%] Built target numi_matter_runtime
+[ 94%] Linking CXX executable numi-matter-cardboard-tooling-native-check
+[100%] Built target numi-matter-cardboard-tooling-native-check

@@ -1681,7 +1681,8 @@ private:
                         "plane normal is degenerate"
                     );
                 }
-            } else if (!(proxy.localCenterAndRadius.w > 0.0f)) {
+            } else if (proxy.shapeKind != NM_RIGID_BOX &&
+                       !(proxy.localCenterAndRadius.w > 0.0f)) {
                 return failIndexed(
                     "rigid proxy",
                     index,

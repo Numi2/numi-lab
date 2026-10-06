@@ -110,3 +110,15 @@ tabs, and full-box closure are not implemented by this slice.
 
 The final source additionally clarifies the diagnostic semantics in its manifest;
 `budget32-probe-source.mm` retains the exact source of the two budget-32 runs.
+
+
+## Native release and creasing-tool follow-up
+
+The [release and resolution package](release-and-resolution/README.md) retains
+native grip release, plastic/elastic springback trajectories, the full mesh/time
+sensitivity screen, physical-unit force residuals, prescribed-tool endpoint
+certification and rollback, and a complete shallow contact cycle. Time/length
+sensitivity, a thickness failure, tighter-tolerance failures and the deeper
+punch failure remain explicit. No box-fold or manufacturing qualification is
+claimed. Published crease protocols and missing material parameters are mapped
+in [the source gap record](../crease-fold-gap-priorities.md).

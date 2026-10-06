@@ -1,0 +1,9 @@
+{
+  "error": "manifest does not document start-pose/end-pose tooling timing",
+  "evidence_boundary": "software mechanics instrumentation only; no cardboard fold or physical qualification",
+  "exit_code": 1,
+  "fold_qualification": false,
+  "physical_validation": false,
+  "schema": "numi.cardboard.tooling-analysis.v1",
+  "verdict": "invalid_evidence"
+}

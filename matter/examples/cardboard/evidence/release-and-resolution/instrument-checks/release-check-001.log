@@ -1,0 +1,2 @@
+regional FEM materials require exact indices/source identity and explicit non-mixed FEM without nodal fields or object identification
+compile fixture

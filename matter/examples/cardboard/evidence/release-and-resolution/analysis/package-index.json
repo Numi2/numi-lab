@@ -1,0 +1,46 @@
+{
+  "analysis_source": {
+    "analyzer_file": "source-snapshots/analyzer/cardboard_convergence.py",
+    "analyzer_sha256": "3525290344c765db98b0e628ea2cb7d6d9a3921dac1158a94d3897ae56760302",
+    "endpoint_screen": {
+      "moment_absolute_floor_Nm": 1e-06,
+      "plastic_absolute_floor": 1e-08,
+      "relative_tolerance": 0.1
+    },
+    "initial_rest_fp32_audit": "source-snapshots/analyzer/initial_rest_fp32_audit.py",
+    "test_result": "11 passed (unittest)",
+    "tests": "source-snapshots/analyzer/test_cardboard_convergence.py"
+  },
+  "native_run_binding": {
+    "force_metrics": "The analyzed receipt-bound observations do not contain free_force_imbalance_l2_N or free_force_imbalance_max_N; screens use phase endpoint plastic strain and reaction moment only.",
+    "mixed_certificate": "The 1e-4 certificate residual is an environment-wide generalized norm over FEM/field/MPM/rigid/support blocks, divided by max(last Newton FGMRES initial norm, 1). The vector mixes units; when the denominator is 1 it behaves as an absolute algebraic residual threshold, not a directly interpretable force tolerance.",
+    "receipt_paths": {
+      "resolution-base-001": "../runs/resolution-base-001/receipt/receipt.json",
+      "resolution-length-001": "../runs/resolution-length-001/receipt/receipt.json",
+      "resolution-thickness-001": "../runs/resolution-thickness-001/receipt/receipt.json",
+      "resolution-time-001": "../runs/resolution-time-001/receipt/receipt.json",
+      "resolution-width-001": "../runs/resolution-width-001/receipt/receipt.json"
+    },
+    "residual_buffer_review": "The getter exposes final reassembled generalized residual rows after accepted preDynamics. FEM xyz are impulses (N s), including inertia and contact; mixed pressure is w. Constrained rows can receive contact assembly entries, so the probe filters using the accepted node constraint tag before dividing free xyz rows by the actual one-substep dt. This yields free-node force-balance residuals in N, not the normalized mixed certificate.",
+    "run_inputs": "Canonical archived native runs and compressed inputs are in ../runs/.",
+    "source_archive_mapping": {
+      "resolution-base-001": "../runs/resolution-base-001/receipt/source-archives.json",
+      "resolution-length-001": "../runs/resolution-length-001/receipt/source-archives.json",
+      "resolution-thickness-001": "../runs/resolution-thickness-001/receipt/source-archives.json",
+      "resolution-time-001": "../runs/resolution-time-001/receipt/source-archives.json",
+      "resolution-width-001": "../runs/resolution-width-001/receipt/source-archives.json"
+    },
+    "source_version": "Those resolution receipts predate femMechanicalResidualBuffer and free-force CSV columns. Current source for the residual contract review is separately referenced in source-snapshots/SHA256SUMS.json and is not retroactively bound to those runs."
+  },
+  "physical_validation": false,
+  "reports": {
+    "convergence-base-description-003.json": "Completed baseline descriptive report; no convergence claim.",
+    "convergence-spatial-screen-003.json": "Lengthwise refinement nx=16 versus nx=8 baseline; completed pair, endpoint screen exceeds 10%.",
+    "convergence-thickness-screen-003.json": "Thickness subdivision=2 candidate rejected at step 112; failed_run with no complete paired endpoint and remains inconclusive.",
+    "convergence-time-screen-003.json": "Time refinement, dt=12.5 us versus dt=25 us baseline; completed pair, endpoint screen exceeds 10%.",
+    "convergence-width-screen-003.json": "Widthwise refinement ny=2 versus ny=1 baseline; completed pair, endpoint screen within declared thresholds.",
+    "initial-rest-fp32-audit-001.json": "CPU-only arithmetic estimate of the initial Ds times rounded inverse path across the baseline mesh; not a Metal instruction trace or a causal explanation of the step-zero rejection.",
+    "initial-rest-fp32-audit-002.json": "CPU-only arithmetic sensitivity report with exact input/source digests. It is not a Metal instruction trace or a cause attribution."
+  },
+  "schema": "numi.cardboard.release_resolution_analysis_package.v1"
+}

@@ -1,0 +1,52 @@
+{
+  "schema": "numi.cardboard.tooling-endpoint-revision.v1",
+  "created_utc": "2026-10-06T05:25:54.305462+00:00",
+  "prior_plan_sha256": "36825f4814b97c8ab35f47b2a825bc20453d4e7284efa4148dcc466abd6e05d0",
+  "revision": "correct caller to publish realized endpoint body to native postCommit contact certificate; preserve independent gap audit",
+  "prediction_regression": "20um trajectory rejected at first inadmissible native endpoint, with FEM rollback; no accepted overlap",
+  "prediction_unused": "10um shallow contact cycle accepts96steps, positive punch contact impulse, stationarycontrol no punchcontacts, all nativeaccepted end gaps admissible; explicitlynot creaseformation orloadcapacityqualification",
+  "interpretation": "smallertravel is a distinct instrument condition, not repair or concealment of the retained20umfailure",
+  "trials": [
+    {
+      "name": "crease-endpose-native-001",
+      "args": [
+        "--crease",
+        "--steps",
+        "32",
+        "--hold-steps",
+        "16",
+        "--unload-steps",
+        "32",
+        "--relax-steps",
+        "16",
+        "--indent-mm",
+        "0.020"
+      ]
+    },
+    {
+      "name": "shallow-contact-cycle-001",
+      "args": [
+        "--crease",
+        "--steps",
+        "32",
+        "--hold-steps",
+        "16",
+        "--unload-steps",
+        "32",
+        "--relax-steps",
+        "16",
+        "--indent-mm",
+        "0.010"
+      ]
+    }
+  ],
+  "stopping_rule": "one run per condition,900seconds maximum; retain failure, no tolerance relaxation",
+  "bindings": {
+    "build-cardboard/numi-matter-cardboard-probe": "8abac4a46b6cea9eecb1ace6d1a906db684f890bf4a0eb5142b4506997892aec",
+    "build-cardboard/shaders/NumiMatter.metallib": "76c00fbfe1883b0119e46cf8404fd07f8429cb66f7872884e002a2cb1fc55607",
+    "matter/tools/cardboard_probe.mm": "9a460f423acde1ffdaef9e726f21b01d51dcf304d332d2ef93af0b91a27341f0",
+    "matter/src/runtime.mm": "fcae14eaea5e48e0ea76e8822dabd242d5214fcd892ee2d8b16936e9a3348176",
+    "matter/include/numi/matter/matter.hpp": "f8e6359248497d3dbb4dac08afa7cd2d1996aa3638c94e8c3acc67f3ddc28ec7",
+    "matter/tools/cardboard_tooling.hpp": "db98b29d39895054ca25cedcc8e3adc67c4304bc083a6453eab660e9858b6ded"
+  }
+}

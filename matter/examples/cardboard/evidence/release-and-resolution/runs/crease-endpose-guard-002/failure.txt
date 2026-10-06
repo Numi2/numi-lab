@@ -1,0 +1,1 @@
+native step 16 accepted, but commanded end-pose tooling gap audit failed; native accepted state retained, tool trajectory not qualified

@@ -1,0 +1,8 @@
+[ 10%] Built target numi_matter_shaders
+[ 57%] Built target numi_matter_compiler_objects
+[ 68%] Built target numi_matter_compiler
+[ 84%] Built target numi_matter_runtime_objects
+[ 89%] Built target numi_matter_runtime
+[ 94%] Building OBJCXX object CMakeFiles/numi-matter-fem-kinematic-release-check.dir/tools/fem_kinematic_release_check.mm.o
+[100%] Linking CXX executable numi-matter-fem-kinematic-release-check
+[100%] Built target numi-matter-fem-kinematic-release-check

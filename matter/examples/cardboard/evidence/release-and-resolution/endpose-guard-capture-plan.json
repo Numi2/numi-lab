@@ -1,0 +1,27 @@
+{
+  "schema": "numi.cardboard.instrument-calibration.v1",
+  "created_utc": "2026-10-06T05:18:43.553089+00:00",
+  "purpose": "regression after adding phase-state capture at independent endpoint failure",
+  "prediction": "same known bad tool trajectory stops at first native-accepted endpoint with penetration beyond8*float_epsilon*max(board extents,punch radius), returns failed; native accepted count remains honest; material_state_000017 exists for both arms",
+  "trial": {
+    "name": "crease-endpose-guard-002",
+    "args": [
+      "--crease",
+      "--indent-mm",
+      "0.020",
+      "--steps",
+      "32",
+      "--hold-steps",
+      "16",
+      "--unload-steps",
+      "32",
+      "--relax-steps",
+      "16"
+    ]
+  },
+  "bindings": {
+    "build-cardboard/numi-matter-cardboard-probe": "a59065857e95af71814964186d68e6ca87c07b3102e756e8583d6f6b2e19c34f",
+    "build-cardboard/shaders/NumiMatter.metallib": "76c00fbfe1883b0119e46cf8404fd07f8429cb66f7872884e002a2cb1fc55607",
+    "matter/tools/cardboard_probe.mm": "2c23eff5ed725d0b5798189bac32261f270e345473f421768ea91afbb6e2e2fd"
+  }
+}

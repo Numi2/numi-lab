@@ -1,0 +1,34 @@
+{
+  "cardboard_glue_mesh.hpp": {
+    "sha256": "d2668155580cdbdd09411d6cdac6a367a726e909d5dd6d4c9770e8f3822d0146",
+    "archive": "source-snapshots/d2668155580cdbdd09411d6cdac6a367a726e909d5dd6d4c9770e8f3822d0146-cardboard_glue_mesh.hpp.gz"
+  },
+  "cardboard_probe.mm": {
+    "sha256": "164704a16447f56367d83caae9164e9239ce198618cf1499638cf6380f4fc859",
+    "archive": "source-snapshots/164704a16447f56367d83caae9164e9239ce198618cf1499638cf6380f4fc859-cardboard_probe.mm.gz"
+  },
+  "matter.hpp": {
+    "sha256": "3326e44dbf00ea70957adfe6c02b7a79f88ee302defe3fe26cd9354ee2d7e44b",
+    "archive": "source-snapshots/3326e44dbf00ea70957adfe6c02b7a79f88ee302defe3fe26cd9354ee2d7e44b-matter.hpp.gz"
+  },
+  "fem.metalinc": {
+    "sha256": "12f944de6b149028c4c2f075c3bfa843e9d8a685a952f31f0955de4655c31b09",
+    "archive": "source-snapshots/12f944de6b149028c4c2f075c3bfa843e9d8a685a952f31f0955de4655c31b09-fem.metalinc.gz"
+  },
+  "hajali2009_liner_elastic_control.nmatter": {
+    "sha256": "b91e94ce08c0252487c26f783ed125d76fb33bd20c18fd89edd427097d78b422",
+    "archive": "source-snapshots/b91e94ce08c0252487c26f783ed125d76fb33bd20c18fd89edd427097d78b422-hajali2009_liner_elastic_control.nmatter.gz"
+  },
+  "starch2007_finite_glue_elastic.nmatter": {
+    "sha256": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1",
+    "archive": "source-snapshots/39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1-starch2007_finite_glue_elastic.nmatter.gz"
+  },
+  "runtime.mm": {
+    "sha256": "c67a9f770ccd4b836e2d94b4f5964ff550ef65812e85c0ae4e651aa034f3febf",
+    "archive": "source-snapshots/c67a9f770ccd4b836e2d94b4f5964ff550ef65812e85c0ae4e651aa034f3febf-runtime.mm.gz"
+  },
+  "hajali2009_medium_elastic_control.nmatter": {
+    "sha256": "0904e7d95ae66e9e3a8682c636d8937a80c471fbf37fea6305c182a5da9626df",
+    "archive": "source-snapshots/0904e7d95ae66e9e3a8682c636d8937a80c471fbf37fea6305c182a5da9626df-hajali2009_medium_elastic_control.nmatter.gz"
+  }
+}

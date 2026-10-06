@@ -1,0 +1,3218 @@
+{
+  "analyzer_sha256": "3525290344c765db98b0e628ea2cb7d6d9a3921dac1158a94d3897ae56760302",
+  "baseline_run": {
+    "accepted_steps": 144,
+    "compiled_world_fingerprint": 14145526298378724577,
+    "free_release_response": null,
+    "input_sha256": {
+      "manifest.json": "f3bfa9c5643794b565159a65142c49be52cd7da4f611d71f5ad847333523a915",
+      "material_state_000032_bent.json": "b58fdc802d4190744fc2cc262554369422d38c8ee33dc31272c28beecaad0409",
+      "material_state_000032_held_reference.json": "7258e4658049411ad66a75e00580c83db69fae463c6fbae42b91b5458674f34b",
+      "material_state_000048_bent.json": "fd302a0ddc05b68f65873f7375d4c4a0441c0d512288c4dad2dbaf78f5292b29",
+      "material_state_000048_held_reference.json": "e25e40c5863c7daadfebc2b321421743bde93bc24e4dc95ce42ce3796ca906bf",
+      "material_state_000080_bent.json": "1a756fad7001db6c64c49d9ef989f2145f89d12790ac643b51cb262215d610f2",
+      "material_state_000080_held_reference.json": "8cb8bc0c25f8153145b7e4302014b57ef7da9a0a45627fa7d7adf1c7d394cc30",
+      "material_state_000144_bent.json": "93dce0dbc01c58f01473b3c86f79c8f2a16934a1c0748055f44ee0df1516a5b2",
+      "material_state_000144_held_reference.json": "6e67c83d2856d39556c03bcb689b010355fa878b99c1d2e5d0ff3581d84a840a",
+      "mesh.json": "add3e5f87879dac154eb4a31bb73b1c2de8740b04f29f05721f3b8198aa367e5",
+      "observations.csv": "96fca0880dd999a3ae0e2bbdc661493902d9ff69a4e0771a85a7b882a8b4b9ba",
+      "result.json": "6d4c12e8c44eddfea92fc56adef69ee0773c6d9202b47fbfcf8b4865f65285b1"
+    },
+    "materials": {
+      "frame_map_sha256": "7d1e7082d4296fb93016d7f0418551ad1aac9447d0a61289f1615f531cb98075",
+      "glue_sha256": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1",
+      "liner_sha256": "787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d",
+      "medium_sha256": "ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8",
+      "regional_map_sha256": "53ac1f9ec3e3808f414aaa245c07724b75a6fc4d6254a3e7ab396964c4c1d5a1"
+    },
+    "mesh": {
+      "minimum_reference_tet_volume_m3": 2.9999999999999463e-11,
+      "nodes": 588,
+      "regional_discretized_geometry": {
+        "hajali2009_liner_hill_ideal": {
+          "manifest_mass_kg": 0.00026819804028965777,
+          "manifest_volume_m3": 3.5012798993427907e-07,
+          "reference_mass_kg": 0.0002681980480000003,
+          "reference_volume_m3": 3.501280000000004e-07,
+          "tetrahedra": 576
+        },
+        "hajali2009_medium_hill_ideal": {
+          "manifest_mass_kg": 0.00010907557249147104,
+          "manifest_volume_m3": 1.6064149115091464e-07,
+          "reference_mass_kg": 0.00010907551828276524,
+          "reference_volume_m3": 1.6064141131482362e-07,
+          "tetrahedra": 288
+        },
+        "starch2007_finite_glue_elastic": {
+          "manifest_mass_kg": 1.697724699885328e-05,
+          "manifest_volume_m3": 1.1318164665902186e-08,
+          "reference_mass_kg": 1.6977248271002437e-05,
+          "reference_volume_m3": 1.1318165514001624e-08,
+          "tetrahedra": 96
+        }
+      },
+      "resolution": [
+        8,
+        1,
+        1
+      ],
+      "tetrahedra": 960
+    },
+    "path": "/Users/home/cardboard-gap-evidence-20261006/resolution-base-001",
+    "phase_endpoints": {
+      "hold": {
+        "bent": {
+          "certificate_residual": 3.293039480922744e-05,
+          "current_fixed_nodes": 24,
+          "kinetic_energy_J": 8.168808331434121e-10,
+          "max_free_displacement_m": 1.2063173780799134e-05,
+          "max_free_speed_m_s": 0.0063817186064795495,
+          "measured_right_grip_angle_deg": 0.25000022428743224,
+          "phase": "hold",
+          "plastic_strain": {
+            "by_material": {
+              "hajali2009_liner_hill_ideal": {
+                "max_frobenius_ep": 0.016180547255122007,
+                "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.514405327004218,
+                "reference_volume_m3": 3.501280000000004e-07,
+                "tetrahedra": 576,
+                "volume_integral_abs_ep_m3": 3.629820678905951e-10,
+                "volume_integral_squared_ep_m3": 1.697960849213603e-12,
+                "volume_mean_abs_ep": [
+                  1.6536292350786995e-07,
+                  3.31545336547384e-07,
+                  4.967956702512394e-07,
+                  1.2791052652923444e-05,
+                  0.0007328554240038847,
+                  1.053351496373164e-07
+                ],
+                "volume_mean_ep": [
+                  5.3241083600012123e-08,
+                  1.0693901169823521e-07,
+                  -1.6024354156867097e-07,
+                  -1.1809105720806437e-06,
+                  0.0007316412492418247,
+                  -3.441978976968869e-08
+                ],
+                "volume_mean_frobenius_ep": 0.0010367124819797178,
+                "volume_rms_frobenius_ep": 0.0022021678330282402
+              },
+              "hajali2009_medium_hill_ideal": {
+                "max_frobenius_ep": 0.02081101070381091,
+                "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.6109456849878627,
+                "reference_volume_m3": 1.6064141131482362e-07,
+                "tetrahedra": 288,
+                "volume_integral_abs_ep_m3": 2.4880646429472266e-10,
+                "volume_integral_squared_ep_m3": 1.7773544909821261e-12,
+                "volume_mean_abs_ep": [
+                  5.119969017770287e-07,
+                  9.534586920183328e-07,
+                  1.4652369745559857e-06,
+                  2.9081093221979627e-05,
+                  0.0010945652802099926,
+                  1.1802736017094457e-07
+                ],
+                "volume_mean_ep": [
+                  -1.4283729135955823e-07,
+                  -2.649455216551906e-07,
+                  4.0771232557928843e-07,
+                  -3.7411631750044776e-07,
+                  0.0010894370822357796,
+                  -3.2540323142215256e-08
+                ],
+                "volume_mean_frobenius_ep": 0.001548831414379907,
+                "volume_rms_frobenius_ep": 0.0033262759249824718
+              }
+            },
+            "paper_total": {
+              "max_frobenius_ep": 0.02081101070381091,
+              "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.5447681071781704,
+              "reference_volume_m3": 5.10769411314824e-07,
+              "volume_integral_abs_ep_m3": 6.117885321853178e-10,
+              "volume_integral_squared_ep_m3": 3.475315340195729e-12,
+              "volume_mean_abs_ep": [
+                2.7438231708409887e-07,
+                5.27142482588716e-07,
+                8.013788626914635e-07,
+                1.791441174495012e-05,
+                0.000846616311990218,
+                1.0932695996828039e-07
+              ],
+              "volume_mean_ep": [
+                -8.427266508776741e-09,
+                -1.0021900526844795e-08,
+                1.8383506257704413e-08,
+                -9.271667792352081e-07,
+                0.0008441711429697104,
+                -3.382868120901894e-08
+              ],
+              "volume_mean_frobenius_ep": 0.0011977783293843892,
+              "volume_rms_frobenius_ep": 0.002608462925411069
+            },
+            "plastic_norm": "symmetric tensor Frobenius norm; engineering shear components weighted by two",
+            "plastic_state_components": [
+              "ep11",
+              "ep22",
+              "ep33",
+              "ep23",
+              "ep13",
+              "ep12"
+            ],
+            "plasticized_threshold": {
+              "ep_frobenius_norm_gt": 1e-06,
+              "meaning": "numerical diagnostic, not physical yield"
+            },
+            "snapshot": "material_state_000048_bent.json"
+          },
+          "reaction_force_N": [
+            -1.0873178243637085,
+            0.06314598419703543,
+            -1.9291953303618357
+          ],
+          "reaction_moment_y_Nm": -0.06499906297731811,
+          "right_grip_constrained": 1,
+          "step": 47,
+          "target_angle_deg": 0.25,
+          "time_s": 0.0011999999696854502
+        },
+        "held_reference": {
+          "certificate_residual": 2.1063599433546187e-06,
+          "current_fixed_nodes": 24,
+          "kinetic_energy_J": 1.678574659997709e-14,
+          "max_free_displacement_m": 1.877140660839749e-09,
+          "max_free_speed_m_s": 3.5421285705363487e-05,
+          "measured_right_grip_angle_deg": -4.8827249338482e-14,
+          "phase": "hold",
+          "plastic_strain": {
+            "by_material": {
+              "hajali2009_liner_hill_ideal": {
+                "max_frobenius_ep": 0.0,
+                "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.0,
+                "reference_volume_m3": 3.501280000000004e-07,
+                "tetrahedra": 576,
+                "volume_integral_abs_ep_m3": 0.0,
+                "volume_integral_squared_ep_m3": 0.0,
+                "volume_mean_abs_ep": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "volume_mean_ep": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "volume_mean_frobenius_ep": 0.0,
+                "volume_rms_frobenius_ep": 0.0
+              },
+              "hajali2009_medium_hill_ideal": {
+                "max_frobenius_ep": 0.0,
+                "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.0,
+                "reference_volume_m3": 1.6064141131482362e-07,
+                "tetrahedra": 288,
+                "volume_integral_abs_ep_m3": 0.0,
+                "volume_integral_squared_ep_m3": 0.0,
+                "volume_mean_abs_ep": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "volume_mean_ep": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "volume_mean_frobenius_ep": 0.0,
+                "volume_rms_frobenius_ep": 0.0
+              }
+            },
+            "paper_total": {
+              "max_frobenius_ep": 0.0,
+              "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.0,
+              "reference_volume_m3": 5.10769411314824e-07,
+              "volume_integral_abs_ep_m3": 0.0,
+              "volume_integral_squared_ep_m3": 0.0,
+              "volume_mean_abs_ep": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "volume_mean_ep": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "volume_mean_frobenius_ep": 0.0,
+              "volume_rms_frobenius_ep": 0.0
+            },
+            "plastic_norm": "symmetric tensor Frobenius norm; engineering shear components weighted by two",
+            "plastic_state_components": [
+              "ep11",
+              "ep22",
+              "ep33",
+              "ep23",
+              "ep13",
+              "ep12"
+            ],
+            "plasticized_threshold": {
+              "ep_frobenius_norm_gt": 1e-06,
+              "meaning": "numerical diagnostic, not physical yield"
+            },
+            "snapshot": "material_state_000048_held_reference.json"
+          },
+          "reaction_force_N": [
+            0.0030301424903882435,
+            -0.003101927228271961,
+            0.0001042444917800367
+          ],
+          "reaction_moment_y_Nm": 3.0949754157518274e-07,
+          "right_grip_constrained": 1,
+          "step": 47,
+          "target_angle_deg": 0.0,
+          "time_s": 0.0011999999696854502
+        }
+      },
+      "loading": {
+        "bent": {
+          "certificate_residual": 7.096191257005557e-05,
+          "current_fixed_nodes": 24,
+          "kinetic_energy_J": 4.32216274791417e-09,
+          "max_free_displacement_m": 9.145487804221663e-06,
+          "max_free_speed_m_s": 0.014875582080058873,
+          "measured_right_grip_angle_deg": 0.25000022428743224,
+          "phase": "loading",
+          "plastic_strain": {
+            "by_material": {
+              "hajali2009_liner_hill_ideal": {
+                "max_frobenius_ep": 0.013151192793143595,
+                "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.4289622890295354,
+                "reference_volume_m3": 3.501280000000004e-07,
+                "tetrahedra": 576,
+                "volume_integral_abs_ep_m3": 2.774449109959747e-10,
+                "volume_integral_squared_ep_m3": 1.158364216140094e-12,
+                "volume_mean_abs_ep": [
+                  1.263252375342419e-07,
+                  2.5331422080788773e-07,
+                  3.7953940658018833e-07,
+                  9.573380544151183e-06,
+                  0.0005601692532126944,
+                  7.432847282055449e-08
+                ],
+                "volume_mean_ep": [
+                  4.949503613352594e-08,
+                  9.947884300077476e-08,
+                  -1.4905391227991292e-07,
+                  -3.0819593615338204e-07,
+                  0.000559854374578945,
+                  -2.576734560445321e-08
+                ],
+                "volume_mean_frobenius_ep": 0.0007924099500639034,
+                "volume_rms_frobenius_ep": 0.0018189013486711613
+              },
+              "hajali2009_medium_hill_ideal": {
+                "max_frobenius_ep": 0.017396265682225295,
+                "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.45658422528793224,
+                "reference_volume_m3": 1.6064141131482362e-07,
+                "tetrahedra": 288,
+                "volume_integral_abs_ep_m3": 1.526513947959696e-10,
+                "volume_integral_squared_ep_m3": 9.350520988992475e-13,
+                "volume_mean_abs_ep": [
+                  3.3820613452384246e-07,
+                  6.30123904362104e-07,
+                  9.68274767165987e-07,
+                  1.8403898838368e-05,
+                  0.0006715752641756394,
+                  6.571483887160054e-08
+                ],
+                "volume_mean_ep": [
+                  -1.2345052095882048e-07,
+                  -2.2948956500481674e-07,
+                  3.529860094059436e-07,
+                  -1.6389627477755562e-06,
+                  0.0006692315012645012,
+                  -1.6277859566190114e-08
+                ],
+                "volume_mean_frobenius_ep": 0.0009502617883305615,
+                "volume_rms_frobenius_ep": 0.0024126212528628775
+              }
+            },
+            "paper_total": {
+              "max_frobenius_ep": 0.017396265682225295,
+              "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.43764962763185045,
+              "reference_volume_m3": 5.10769411314824e-07,
+              "volume_integral_abs_ep_m3": 4.300963057919443e-10,
+              "volume_integral_squared_ep_m3": 2.0934163150393416e-12,
+              "volume_mean_abs_ep": [
+                1.92963617924803e-07,
+                3.7182413550192104e-07,
+                5.647017853764995e-07,
+                1.2350655161620407e-05,
+                0.0005952074102236501,
+                7.161941021136789e-08
+              ],
+              "volume_mean_ep": [
+                -4.897842054746667e-09,
+                -3.984575460351861e-09,
+                8.84199880919123e-09,
+                -7.267336441958638e-07,
+                0.000594254429881979,
+                -2.2782819914250324e-08
+              ],
+              "volume_mean_frobenius_ep": 0.0008420557227277751,
+              "volume_rms_frobenius_ep": 0.0020244887230440444
+            },
+            "plastic_norm": "symmetric tensor Frobenius norm; engineering shear components weighted by two",
+            "plastic_state_components": [
+              "ep11",
+              "ep22",
+              "ep33",
+              "ep23",
+              "ep13",
+              "ep12"
+            ],
+            "plasticized_threshold": {
+              "ep_frobenius_norm_gt": 1e-06,
+              "meaning": "numerical diagnostic, not physical yield"
+            },
+            "snapshot": "material_state_000032_bent.json"
+          },
+          "reaction_force_N": [
+            -1.9052031934261322,
+            0.04360176436603069,
+            -3.412618320900947
+          ],
+          "reaction_moment_y_Nm": -0.09949451199334082,
+          "right_grip_constrained": 1,
+          "step": 31,
+          "target_angle_deg": 0.25,
+          "time_s": 0.0007999999797903001
+        },
+        "held_reference": {
+          "certificate_residual": 2.1193836801103316e-06,
+          "current_fixed_nodes": 24,
+          "kinetic_energy_J": 1.7343494688325468e-14,
+          "max_free_displacement_m": 1.877140660839749e-09,
+          "max_free_speed_m_s": 3.527892003845549e-05,
+          "measured_right_grip_angle_deg": -4.8827249338482e-14,
+          "phase": "loading",
+          "plastic_strain": {
+            "by_material": {
+              "hajali2009_liner_hill_ideal": {
+                "max_frobenius_ep": 0.0,
+                "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.0,
+                "reference_volume_m3": 3.501280000000004e-07,
+                "tetrahedra": 576,
+                "volume_integral_abs_ep_m3": 0.0,
+                "volume_integral_squared_ep_m3": 0.0,
+                "volume_mean_abs_ep": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "volume_mean_ep": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "volume_mean_frobenius_ep": 0.0,
+                "volume_rms_frobenius_ep": 0.0
+              },
+              "hajali2009_medium_hill_ideal": {
+                "max_frobenius_ep": 0.0,
+                "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.0,
+                "reference_volume_m3": 1.6064141131482362e-07,
+                "tetrahedra": 288,
+                "volume_integral_abs_ep_m3": 0.0,
+                "volume_integral_squared_ep_m3": 0.0,
+                "volume_mean_abs_ep": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "volume_mean_ep": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "volume_mean_frobenius_ep": 0.0,
+                "volume_rms_frobenius_ep": 0.0
+              }
+            },
+            "paper_total": {
+              "max_frobenius_ep": 0.0,
+              "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.0,
+              "reference_volume_m3": 5.10769411314824e-07,
+              "volume_integral_abs_ep_m3": 0.0,
+              "volume_integral_squared_ep_m3": 0.0,
+              "volume_mean_abs_ep": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "volume_mean_ep": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "volume_mean_frobenius_ep": 0.0,
+              "volume_rms_frobenius_ep": 0.0
+            },
+            "plastic_norm": "symmetric tensor Frobenius norm; engineering shear components weighted by two",
+            "plastic_state_components": [
+              "ep11",
+              "ep22",
+              "ep33",
+              "ep23",
+              "ep13",
+              "ep12"
+            ],
+            "plasticized_threshold": {
+              "ep_frobenius_norm_gt": 1e-06,
+              "meaning": "numerical diagnostic, not physical yield"
+            },
+            "snapshot": "material_state_000032_held_reference.json"
+          },
+          "reaction_force_N": [
+            0.0030301424967547064,
+            -0.003386555108590983,
+            0.00010362049494005987
+          ],
+          "reaction_moment_y_Nm": 3.0924817097093145e-07,
+          "right_grip_constrained": 1,
+          "step": 31,
+          "target_angle_deg": 0.0,
+          "time_s": 0.0007999999797903001
+        }
+      },
+      "relaxation": {
+        "bent": {
+          "certificate_residual": 1.119263924920233e-05,
+          "current_fixed_nodes": 24,
+          "kinetic_energy_J": 8.386022149927049e-12,
+          "max_free_displacement_m": 1.980390623787908e-06,
+          "max_free_speed_m_s": 0.000612089218632056,
+          "measured_right_grip_angle_deg": -4.8827249338482e-14,
+          "phase": "relaxation",
+          "plastic_strain": {
+            "by_material": {
+              "hajali2009_liner_hill_ideal": {
+                "max_frobenius_ep": 0.0030170973054754473,
+                "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.5396888185653995,
+                "reference_volume_m3": 3.501280000000004e-07,
+                "tetrahedra": 576,
+                "volume_integral_abs_ep_m3": 1.4013814493156009e-10,
+                "volume_integral_squared_ep_m3": 1.9106930015343538e-13,
+                "volume_mean_abs_ep": [
+                  1.6379835596784577e-07,
+                  3.2707870529050356e-07,
+                  4.902952586229791e-07,
+                  9.312275306391587e-06,
+                  0.0002824146121250361,
+                  1.4290047734861946e-07
+                ],
+                "volume_mean_ep": [
+                  5.459282027170525e-08,
+                  1.0910605538006618e-07,
+                  -1.636942354021547e-07,
+                  -1.3040617434699506e-06,
+                  0.00012698148771604054,
+                  -4.398535735608157e-08
+                ],
+                "volume_mean_frobenius_ep": 0.00040024832327480213,
+                "volume_rms_frobenius_ep": 0.0007387237042482687
+              },
+              "hajali2009_medium_hill_ideal": {
+                "max_frobenius_ep": 0.004100667148981089,
+                "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.6843771000571266,
+                "reference_volume_m3": 1.6064141131482362e-07,
+                "tetrahedra": 288,
+                "volume_integral_abs_ep_m3": 9.770405986594376e-11,
+                "volume_integral_squared_ep_m3": 1.6390634569379241e-13,
+                "volume_mean_abs_ep": [
+                  2.791567546686655e-07,
+                  5.180569699831421e-07,
+                  7.966798369100262e-07,
+                  1.9531748919976168e-05,
+                  0.00042836618131299826,
+                  1.4559807676269305e-07
+                ],
+                "volume_mean_ep": [
+                  -8.364405228645211e-09,
+                  -1.3633137629333404e-08,
+                  2.1793505876260316e-08,
+                  6.587861336533313e-07,
+                  0.00029876004479320985,
+                  -6.453261096660234e-08
+                ],
+                "volume_mean_frobenius_ep": 0.0006082121606518024,
+                "volume_rms_frobenius_ep": 0.001010111064755022
+              }
+            },
+            "paper_total": {
+              "max_frobenius_ep": 0.004100667148981089,
+              "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.585194538415998,
+              "reference_volume_m3": 5.10769411314824e-07,
+              "volume_integral_abs_ep_m3": 2.3784220479750384e-10,
+              "volume_integral_squared_ep_m3": 3.5497564584722777e-13,
+              "volume_mean_abs_ep": [
+                2.0007957321344078e-07,
+                3.8714302647157705e-07,
+                5.866558666993929e-07,
+                1.2526388422435154e-05,
+                0.00032831764691643633,
+                1.437488957688285e-07
+              ],
+              "volume_mean_ep": [
+                3.4792226632380595e-08,
+                7.050351428834941e-08,
+                -1.0535673147086033e-07,
+                -6.867290563661836e-07,
+                0.0001810073342746001,
+                -5.04476468854034e-08
+              ],
+              "volume_mean_frobenius_ep": 0.000465654754432631,
+              "volume_rms_frobenius_ep": 0.000833655920328009
+            },
+            "plastic_norm": "symmetric tensor Frobenius norm; engineering shear components weighted by two",
+            "plastic_state_components": [
+              "ep11",
+              "ep22",
+              "ep33",
+              "ep23",
+              "ep13",
+              "ep12"
+            ],
+            "plasticized_threshold": {
+              "ep_frobenius_norm_gt": 1e-06,
+              "meaning": "numerical diagnostic, not physical yield"
+            },
+            "snapshot": "material_state_000144_bent.json"
+          },
+          "reaction_force_N": [
+            0.15831374377012253,
+            -0.010298952693119645,
+            0.5929561997763813
+          ],
+          "reaction_moment_y_Nm": 0.011028473301045595,
+          "right_grip_constrained": 1,
+          "step": 143,
+          "target_angle_deg": 0.0,
+          "time_s": 0.0035999999090563506
+        },
+        "held_reference": {
+          "certificate_residual": 2.2264632661972428e-06,
+          "current_fixed_nodes": 24,
+          "kinetic_energy_J": 1.4858564448553097e-14,
+          "max_free_displacement_m": 1.938437767947673e-09,
+          "max_free_speed_m_s": 3.6851903252734906e-05,
+          "measured_right_grip_angle_deg": -4.8827249338482e-14,
+          "phase": "relaxation",
+          "plastic_strain": {
+            "by_material": {
+              "hajali2009_liner_hill_ideal": {
+                "max_frobenius_ep": 0.0,
+                "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.0,
+                "reference_volume_m3": 3.501280000000004e-07,
+                "tetrahedra": 576,
+                "volume_integral_abs_ep_m3": 0.0,
+                "volume_integral_squared_ep_m3": 0.0,
+                "volume_mean_abs_ep": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "volume_mean_ep": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "volume_mean_frobenius_ep": 0.0,
+                "volume_rms_frobenius_ep": 0.0
+              },
+              "hajali2009_medium_hill_ideal": {
+                "max_frobenius_ep": 0.0,
+                "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.0,
+                "reference_volume_m3": 1.6064141131482362e-07,
+                "tetrahedra": 288,
+                "volume_integral_abs_ep_m3": 0.0,
+                "volume_integral_squared_ep_m3": 0.0,
+                "volume_mean_abs_ep": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "volume_mean_ep": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "volume_mean_frobenius_ep": 0.0,
+                "volume_rms_frobenius_ep": 0.0
+              }
+            },
+            "paper_total": {
+              "max_frobenius_ep": 0.0,
+              "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.0,
+              "reference_volume_m3": 5.10769411314824e-07,
+              "volume_integral_abs_ep_m3": 0.0,
+              "volume_integral_squared_ep_m3": 0.0,
+              "volume_mean_abs_ep": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "volume_mean_ep": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "volume_mean_frobenius_ep": 0.0,
+              "volume_rms_frobenius_ep": 0.0
+            },
+            "plastic_norm": "symmetric tensor Frobenius norm; engineering shear components weighted by two",
+            "plastic_state_components": [
+              "ep11",
+              "ep22",
+              "ep33",
+              "ep23",
+              "ep13",
+              "ep12"
+            ],
+            "plasticized_threshold": {
+              "ep_frobenius_norm_gt": 1e-06,
+              "meaning": "numerical diagnostic, not physical yield"
+            },
+            "snapshot": "material_state_000144_held_reference.json"
+          },
+          "reaction_force_N": [
+            0.0030301424376375508,
+            -0.004399798384838505,
+            0.0001049570429358937
+          ],
+          "reaction_moment_y_Nm": 3.097826721968881e-07,
+          "right_grip_constrained": 1,
+          "step": 143,
+          "target_angle_deg": 0.0,
+          "time_s": 0.0035999999090563506
+        }
+      },
+      "unloading": {
+        "bent": {
+          "certificate_residual": 5.976854663458653e-05,
+          "current_fixed_nodes": 24,
+          "kinetic_energy_J": 3.65631496415455e-09,
+          "max_free_displacement_m": 6.793618939746836e-06,
+          "max_free_speed_m_s": 0.013995495748560613,
+          "measured_right_grip_angle_deg": -4.8827249338482e-14,
+          "phase": "unloading",
+          "plastic_strain": {
+            "by_material": {
+              "hajali2009_liner_hill_ideal": {
+                "max_frobenius_ep": 0.007923305259156618,
+                "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.5308544303797454,
+                "reference_volume_m3": 3.501280000000004e-07,
+                "tetrahedra": 576,
+                "volume_integral_abs_ep_m3": 2.0071903513214975e-10,
+                "volume_integral_squared_ep_m3": 4.996814496536979e-13,
+                "volume_mean_abs_ep": [
+                  1.6982148735317204e-07,
+                  3.400920495015258e-07,
+                  5.097819884393594e-07,
+                  1.019327758242336e-05,
+                  0.0004049006211265014,
+                  1.4592411639026646e-07
+                ],
+                "volume_mean_ep": [
+                  5.545007836050001e-08,
+                  1.1128665574379755e-07,
+                  -1.6685621446966289e-07,
+                  -1.5084085652377483e-06,
+                  0.0002506037075238768,
+                  -4.545576271647534e-08
+                ],
+                "volume_mean_frobenius_ep": 0.0005732733032837977,
+                "volume_rms_frobenius_ep": 0.0011946293816382488
+              },
+              "hajali2009_medium_hill_ideal": {
+                "max_frobenius_ep": 0.010622427177603425,
+                "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.6816292173485202,
+                "reference_volume_m3": 1.6064141131482362e-07,
+                "tetrahedra": 288,
+                "volume_integral_abs_ep_m3": 1.8590215962488554e-10,
+                "volume_integral_squared_ep_m3": 7.780667732105813e-13,
+                "volume_mean_abs_ep": [
+                  3.777794251890051e-07,
+                  7.020334386231253e-07,
+                  1.0794247144440251e-06,
+                  2.7305072978550598e-05,
+                  0.0008167847767990622,
+                  1.5151027996657814e-07
+                ],
+                "volume_mean_ep": [
+                  -2.6832288108073497e-08,
+                  -4.7774014123250374e-08,
+                  7.425661104171651e-08,
+                  1.7864247961735526e-07,
+                  0.0006864427815527834,
+                  -5.936471818027292e-08
+                ],
+                "volume_mean_frobenius_ep": 0.0011572492927154141,
+                "volume_rms_frobenius_ep": 0.0022007954486927914
+              }
+            },
+            "paper_total": {
+              "max_frobenius_ep": 0.010622427177603425,
+              "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.578274409009646,
+              "reference_volume_m3": 5.10769411314824e-07,
+              "volume_integral_abs_ep_m3": 3.866211947570353e-10,
+              "volume_integral_squared_ep_m3": 1.277748222864279e-12,
+              "volume_mean_abs_ep": [
+                2.3522606305411914e-07,
+                4.5392575659857023e-07,
+                6.889395680114255e-07,
+                1.5575085697142388e-05,
+                0.0005344417616093093,
+                1.4768101330080022e-07
+              ],
+              "volume_mean_ep": [
+                2.9571560220955457e-08,
+                6.1260695053731e-08,
+                -9.102413894159444e-08,
+                -9.778163747069249e-07,
+                0.0003876788776636073,
+                -4.983024988450639e-08
+              ],
+              "volume_mean_frobenius_ep": 0.0007569388185596197,
+              "volume_rms_frobenius_ep": 0.0015816493329137012
+            },
+            "plastic_norm": "symmetric tensor Frobenius norm; engineering shear components weighted by two",
+            "plastic_state_components": [
+              "ep11",
+              "ep22",
+              "ep33",
+              "ep23",
+              "ep13",
+              "ep12"
+            ],
+            "plasticized_threshold": {
+              "ep_frobenius_norm_gt": 1e-06,
+              "meaning": "numerical diagnostic, not physical yield"
+            },
+            "snapshot": "material_state_000080_bent.json"
+          },
+          "reaction_force_N": [
+            1.51002237200737,
+            0.021809391677379608,
+            2.279902331531048
+          ],
+          "reaction_moment_y_Nm": 0.050505416483908896,
+          "right_grip_constrained": 1,
+          "step": 79,
+          "target_angle_deg": 0.0,
+          "time_s": 0.0019999999494757503
+        },
+        "held_reference": {
+          "certificate_residual": 2.1090618247399107e-06,
+          "current_fixed_nodes": 24,
+          "kinetic_energy_J": 1.5277191103554023e-14,
+          "max_free_displacement_m": 1.877140660839749e-09,
+          "max_free_speed_m_s": 3.369634113615385e-05,
+          "measured_right_grip_angle_deg": -4.8827249338482e-14,
+          "phase": "unloading",
+          "plastic_strain": {
+            "by_material": {
+              "hajali2009_liner_hill_ideal": {
+                "max_frobenius_ep": 0.0,
+                "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.0,
+                "reference_volume_m3": 3.501280000000004e-07,
+                "tetrahedra": 576,
+                "volume_integral_abs_ep_m3": 0.0,
+                "volume_integral_squared_ep_m3": 0.0,
+                "volume_mean_abs_ep": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "volume_mean_ep": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "volume_mean_frobenius_ep": 0.0,
+                "volume_rms_frobenius_ep": 0.0
+              },
+              "hajali2009_medium_hill_ideal": {
+                "max_frobenius_ep": 0.0,
+                "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.0,
+                "reference_volume_m3": 1.6064141131482362e-07,
+                "tetrahedra": 288,
+                "volume_integral_abs_ep_m3": 0.0,
+                "volume_integral_squared_ep_m3": 0.0,
+                "volume_mean_abs_ep": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "volume_mean_ep": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "volume_mean_frobenius_ep": 0.0,
+                "volume_rms_frobenius_ep": 0.0
+              }
+            },
+            "paper_total": {
+              "max_frobenius_ep": 0.0,
+              "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.0,
+              "reference_volume_m3": 5.10769411314824e-07,
+              "volume_integral_abs_ep_m3": 0.0,
+              "volume_integral_squared_ep_m3": 0.0,
+              "volume_mean_abs_ep": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "volume_mean_ep": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "volume_mean_frobenius_ep": 0.0,
+              "volume_rms_frobenius_ep": 0.0
+            },
+            "plastic_norm": "symmetric tensor Frobenius norm; engineering shear components weighted by two",
+            "plastic_state_components": [
+              "ep11",
+              "ep22",
+              "ep33",
+              "ep23",
+              "ep13",
+              "ep12"
+            ],
+            "plasticized_threshold": {
+              "ep_frobenius_norm_gt": 1e-06,
+              "meaning": "numerical diagnostic, not physical yield"
+            },
+            "snapshot": "material_state_000080_held_reference.json"
+          },
+          "reaction_force_N": [
+            0.003030142488569254,
+            -0.0028718601388391107,
+            0.00010525574029429663
+          ],
+          "reaction_moment_y_Nm": 3.099022788337604e-07,
+          "right_grip_constrained": 1,
+          "step": 79,
+          "target_angle_deg": 0.0,
+          "time_s": 0.0019999999494757503
+        }
+      }
+    },
+    "physical_validation": false,
+    "protocol": {
+      "bend_angle_deg": 0.25,
+      "dt_s": 2.5e-05,
+      "hold": 16,
+      "loading": 32,
+      "phase_durations_s": {
+        "hold": 0.0004,
+        "loading": 0.0008,
+        "relaxation": 0.0016,
+        "release": 0.0,
+        "unloading": 0.0008
+      },
+      "relaxation": 64,
+      "release": 0,
+      "release_policy": "right grip free; left grip remains fixed; physical state preserved",
+      "unloading": 32
+    },
+    "scope": "retained native software mechanics data; not a physical validation",
+    "status": "valid_completed_native_export"
+  },
+  "candidate_run": {
+    "accepted_steps": 144,
+    "compiled_world_fingerprint": 1006293026576496361,
+    "free_release_response": null,
+    "input_sha256": {
+      "manifest.json": "c7807bca3730ccb724a29494cdace09b9983d8f0886546e30eab56e242dceee7",
+      "material_state_000032_bent.json": "44c4f405e7fe34cc859a3a0c3f6368b9683614f4bf8e149220751ce58ea4ac0d",
+      "material_state_000032_held_reference.json": "8d2e8cdf1b21668df2471cb2f4511a9190c5cd0dbf362f6274037019148ad391",
+      "material_state_000048_bent.json": "234039491efe539a961a627f55e0458ba006acd552890f83379b54e8a3ba829e",
+      "material_state_000048_held_reference.json": "135a969e90a34432b79cb0220d5826c0f029d8eaaed6a1a45e99bb99f4dbae4e",
+      "material_state_000080_bent.json": "f1f95dadabe37710b1d3535dfe7986ca7bf13c79b51866c12056f9adfb85705a",
+      "material_state_000080_held_reference.json": "2697c4331dedaaeb688587d898096d5078f6054a3231b5aae1efbef58fa0783d",
+      "material_state_000144_bent.json": "4a17a8210908185127a6b3a3d87c2bb528724344d96eebdab1a2a82c6a95746d",
+      "material_state_000144_held_reference.json": "32862bd6343d74596078098dc841b8089f142584eb3f0e492e40b4e0be9013fd",
+      "mesh.json": "28bed660bf7e5d75001dbd8ab8b9567ebb09403e633134ca34082589c1442c58",
+      "observations.csv": "18153b9dc75f80088b57b7484ebf60d119dfeff0a123c2e4c68710c2fdc088b0",
+      "result.json": "c808d1d2b0cae7a814c451c7443dd1ba8d7c622af9fc1cdc477d611b7c0602ed"
+    },
+    "materials": {
+      "frame_map_sha256": "27fda22b531c8660bebeb7f7dba9450bbff06173fa77d6a5f08cadc1e3805fba",
+      "glue_sha256": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1",
+      "liner_sha256": "787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d",
+      "medium_sha256": "ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8",
+      "regional_map_sha256": "87d7b81d808204bceb232bb5a391928c3b2ffab250a9e5b3182e6a6cf573ba41"
+    },
+    "mesh": {
+      "minimum_reference_tet_volume_m3": 2.9999999999999463e-11,
+      "nodes": 972,
+      "regional_discretized_geometry": {
+        "hajali2009_liner_hill_ideal": {
+          "manifest_mass_kg": 0.00026819804079991627,
+          "manifest_volume_m3": 3.501279906004129e-07,
+          "reference_mass_kg": 0.000268198048,
+          "reference_volume_m3": 3.50128e-07,
+          "tetrahedra": 960
+        },
+        "hajali2009_medium_hill_ideal": {
+          "manifest_mass_kg": 0.00011001498390479647,
+          "manifest_volume_m3": 1.6202501311457507e-07,
+          "reference_mass_kg": 0.000110014933709211,
+          "reference_volume_m3": 1.6202493918882327e-07,
+          "tetrahedra": 480
+        },
+        "starch2007_finite_glue_elastic": {
+          "manifest_mass_kg": 1.697724699885328e-05,
+          "manifest_volume_m3": 1.1318164665902186e-08,
+          "reference_mass_kg": 1.6977248271002437e-05,
+          "reference_volume_m3": 1.1318165514001624e-08,
+          "tetrahedra": 96
+        }
+      },
+      "resolution": [
+        16,
+        1,
+        1
+      ],
+      "tetrahedra": 1536
+    },
+    "path": "/Users/home/cardboard-gap-evidence-20261006/resolution-length-001",
+    "phase_endpoints": {
+      "hold": {
+        "bent": {
+          "certificate_residual": 4.218341564410366e-05,
+          "current_fixed_nodes": 24,
+          "kinetic_energy_J": 5.888633773428853e-10,
+          "max_free_displacement_m": 1.2519672259832727e-05,
+          "max_free_speed_m_s": 0.006871834343273698,
+          "measured_right_grip_angle_deg": 0.25000022428743224,
+          "phase": "hold",
+          "plastic_strain": {
+            "by_material": {
+              "hajali2009_liner_hill_ideal": {
+                "max_frobenius_ep": 0.009187796431333486,
+                "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.4307753164556954,
+                "reference_volume_m3": 3.50128e-07,
+                "tetrahedra": 960,
+                "volume_integral_abs_ep_m3": 2.805859740604133e-10,
+                "volume_integral_squared_ep_m3": 9.956625902733178e-13,
+                "volume_mean_abs_ep": [
+                  1.5668122183227346e-07,
+                  3.1449806892834197e-07,
+                  4.711781958707732e-07,
+                  1.150709989348743e-05,
+                  0.0005664512205567852,
+                  8.128796714776744e-08
+                ],
+                "volume_mean_ep": [
+                  6.317452413946408e-08,
+                  1.2683316808612065e-07,
+                  -1.9001432063343892e-07,
+                  1.1857499690423131e-06,
+                  0.0005660391854937788,
+                  -3.2598318205675416e-08
+                ],
+                "volume_mean_frobenius_ep": 0.0008013811350717832,
+                "volume_rms_frobenius_ep": 0.001686330416155949
+              },
+              "hajali2009_medium_hill_ideal": {
+                "max_frobenius_ep": 0.04292331904612687,
+                "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.49752533593455434,
+                "reference_volume_m3": 1.6202493918882327e-07,
+                "tetrahedra": 480,
+                "volume_integral_abs_ep_m3": 2.4001458338131366e-10,
+                "volume_integral_squared_ep_m3": 3.083009116742071e-12,
+                "volume_mean_abs_ep": [
+                  5.348755203901816e-07,
+                  9.935409688560679e-07,
+                  1.5273676033861686e-06,
+                  1.6623100047940408e-05,
+                  0.0010471660105233125,
+                  1.1066383380721171e-07
+                ],
+                "volume_mean_ep": [
+                  -1.3044163426125534e-07,
+                  -2.418577263818461e-07,
+                  3.727445144792921e-07,
+                  4.6077377440483823e-07,
+                  0.0010407378380515077,
+                  -4.880556174451422e-08
+                ],
+                "volume_mean_frobenius_ep": 0.0014813434560317998,
+                "volume_rms_frobenius_ep": 0.0043621085724686
+              }
+            },
+            "paper_total": {
+              "max_frobenius_ep": 0.04292331904612687,
+              "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.45189238329132564,
+              "reference_volume_m3": 5.121529391888233e-07,
+              "volume_integral_abs_ep_m3": 5.20600557441727e-10,
+              "volume_integral_squared_ep_m3": 4.078671707015389e-12,
+              "volume_mean_abs_ep": [
+                2.763269439137645e-07,
+                5.293203927866231e-07,
+                8.053147621777146e-07,
+                1.3125600053279821e-05,
+                0.0007185303724110293,
+                9.05813298230925e-08
+              ],
+              "volume_mean_ep": [
+                1.9220272963594894e-09,
+                1.0193947289574614e-08,
+                -1.1979676955457054e-08,
+                9.563961669621612e-07,
+                0.0007162150693528103,
+                -3.772564921925502e-08
+              ],
+              "volume_mean_frobenius_ep": 0.0010164943273903366,
+              "volume_rms_frobenius_ep": 0.002822016446291693
+            },
+            "plastic_norm": "symmetric tensor Frobenius norm; engineering shear components weighted by two",
+            "plastic_state_components": [
+              "ep11",
+              "ep22",
+              "ep33",
+              "ep23",
+              "ep13",
+              "ep12"
+            ],
+            "plasticized_threshold": {
+              "ep_frobenius_norm_gt": 1e-06,
+              "meaning": "numerical diagnostic, not physical yield"
+            },
+            "snapshot": "material_state_000048_bent.json"
+          },
+          "reaction_force_N": [
+            -2.055378019809723,
+            0.09515949711203575,
+            -1.1932502966374159
+          ],
+          "reaction_moment_y_Nm": -0.07553156183374321,
+          "right_grip_constrained": 1,
+          "step": 47,
+          "target_angle_deg": 0.25,
+          "time_s": 0.0011999999696854502
+        },
+        "held_reference": {
+          "certificate_residual": 3.103609742538538e-06,
+          "current_fixed_nodes": 24,
+          "kinetic_energy_J": 1.4140996126966425e-14,
+          "max_free_displacement_m": 1.863554421996479e-09,
+          "max_free_speed_m_s": 4.4128819647926254e-05,
+          "measured_right_grip_angle_deg": -4.8827249338482e-14,
+          "phase": "hold",
+          "plastic_strain": {
+            "by_material": {
+              "hajali2009_liner_hill_ideal": {
+                "max_frobenius_ep": 0.0,
+                "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.0,
+                "reference_volume_m3": 3.50128e-07,
+                "tetrahedra": 960,
+                "volume_integral_abs_ep_m3": 0.0,
+                "volume_integral_squared_ep_m3": 0.0,
+                "volume_mean_abs_ep": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "volume_mean_ep": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "volume_mean_frobenius_ep": 0.0,
+                "volume_rms_frobenius_ep": 0.0
+              },
+              "hajali2009_medium_hill_ideal": {
+                "max_frobenius_ep": 0.0,
+                "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.0,
+                "reference_volume_m3": 1.6202493918882327e-07,
+                "tetrahedra": 480,
+                "volume_integral_abs_ep_m3": 0.0,
+                "volume_integral_squared_ep_m3": 0.0,
+                "volume_mean_abs_ep": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "volume_mean_ep": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "volume_mean_frobenius_ep": 0.0,
+                "volume_rms_frobenius_ep": 0.0
+              }
+            },
+            "paper_total": {
+              "max_frobenius_ep": 0.0,
+              "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.0,
+              "reference_volume_m3": 5.121529391888233e-07,
+              "volume_integral_abs_ep_m3": 0.0,
+              "volume_integral_squared_ep_m3": 0.0,
+              "volume_mean_abs_ep": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "volume_mean_ep": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "volume_mean_frobenius_ep": 0.0,
+              "volume_rms_frobenius_ep": 0.0
+            },
+            "plastic_norm": "symmetric tensor Frobenius norm; engineering shear components weighted by two",
+            "plastic_state_components": [
+              "ep11",
+              "ep22",
+              "ep33",
+              "ep23",
+              "ep13",
+              "ep12"
+            ],
+            "plasticized_threshold": {
+              "ep_frobenius_norm_gt": 1e-06,
+              "meaning": "numerical diagnostic, not physical yield"
+            },
+            "snapshot": "material_state_000048_held_reference.json"
+          },
+          "reaction_force_N": [
+            0.003341826492032851,
+            -0.0017241820169147104,
+            -2.5778460098990763e-05
+          ],
+          "reaction_moment_y_Nm": -2.469704324485066e-07,
+          "right_grip_constrained": 1,
+          "step": 47,
+          "target_angle_deg": 0.0,
+          "time_s": 0.0011999999696854502
+        }
+      },
+      "loading": {
+        "bent": {
+          "certificate_residual": 7.957182970130816e-05,
+          "current_fixed_nodes": 24,
+          "kinetic_energy_J": 3.386172122929656e-09,
+          "max_free_displacement_m": 1.0595945327745495e-05,
+          "max_free_speed_m_s": 0.017015876952988784,
+          "measured_right_grip_angle_deg": 0.25000022428743224,
+          "phase": "loading",
+          "plastic_strain": {
+            "by_material": {
+              "hajali2009_liner_hill_ideal": {
+                "max_frobenius_ep": 0.008457366710821779,
+                "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.36252307489451424,
+                "reference_volume_m3": 3.50128e-07,
+                "tetrahedra": 960,
+                "volume_integral_abs_ep_m3": 2.2033357964133684e-10,
+                "volume_integral_squared_ep_m3": 7.566183467858158e-13,
+                "volume_mean_abs_ep": [
+                  1.2426901388225692e-07,
+                  2.494686407555452e-07,
+                  3.737248599048425e-07,
+                  8.98785234392418e-06,
+                  0.00044482001994766745,
+                  5.856877503980123e-08
+                ],
+                "volume_mean_ep": [
+                  6.014287917991363e-08,
+                  1.20813901549406e-07,
+                  -1.8098144924740304e-07,
+                  1.7979852213396715e-06,
+                  0.000444544196028501,
+                  -2.1471136728364996e-08
+                ],
+                "volume_mean_frobenius_ep": 0.0006292943713194513,
+                "volume_rms_frobenius_ep": 0.001470025987919898
+              },
+              "hajali2009_medium_hill_ideal": {
+                "max_frobenius_ep": 0.02520843171827055,
+                "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.3907197799811662,
+                "reference_volume_m3": 1.6202493918882327e-07,
+                "tetrahedra": 480,
+                "volume_integral_abs_ep_m3": 1.4470298408585532e-10,
+                "volume_integral_squared_ep_m3": 1.2565065374545958e-12,
+                "volume_mean_abs_ep": [
+                  3.491887714392735e-07,
+                  6.488828749037693e-07,
+                  9.974222784128622e-07,
+                  9.725937506671574e-06,
+                  0.000631366518643299,
+                  5.790338705464082e-08
+                ],
+                "volume_mean_ep": [
+                  -1.3369232731144295e-07,
+                  -2.485169505721959e-07,
+                  3.825634398325654e-07,
+                  1.33514396437424e-06,
+                  0.0006266752690096135,
+                  -2.6548294778939944e-08
+                ],
+                "volume_mean_frobenius_ep": 0.0008930908094168082,
+                "volume_rms_frobenius_ep": 0.0027847835361084526
+              }
+            },
+            "paper_total": {
+              "max_frobenius_ep": 0.02520843171827055,
+              "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.37144339747281657,
+              "reference_volume_m3": 5.121529391888233e-07,
+              "volume_integral_abs_ep_m3": 3.650365637271922e-10,
+              "volume_integral_squared_ep_m3": 2.013124884240412e-12,
+              "volume_mean_abs_ep": [
+                1.9542473173923212e-07,
+                3.7582751141147815e-07,
+                5.710380618285565e-07,
+                9.221353305179482e-06,
+                0.0005038359559977855,
+                5.83582725910535e-08
+              ],
+              "volume_mean_ep": [
+                -1.178915817803e-09,
+                3.97222345547947e-09,
+                -2.6981291751345457e-09,
+                1.651560548598988e-06,
+                0.0005021632659705756,
+                -2.3077348782325616e-08
+              ],
+              "volume_mean_frobenius_ep": 0.0007127491336969727,
+              "volume_rms_frobenius_ep": 0.001982601926653734
+            },
+            "plastic_norm": "symmetric tensor Frobenius norm; engineering shear components weighted by two",
+            "plastic_state_components": [
+              "ep11",
+              "ep22",
+              "ep33",
+              "ep23",
+              "ep13",
+              "ep12"
+            ],
+            "plasticized_threshold": {
+              "ep_frobenius_norm_gt": 1e-06,
+              "meaning": "numerical diagnostic, not physical yield"
+            },
+            "snapshot": "material_state_000032_bent.json"
+          },
+          "reaction_force_N": [
+            -1.8407335877418518,
+            0.06313655618578196,
+            -2.592374320141971
+          ],
+          "reaction_moment_y_Nm": -0.11435164776871379,
+          "right_grip_constrained": 1,
+          "step": 31,
+          "target_angle_deg": 0.25,
+          "time_s": 0.0007999999797903001
+        },
+        "held_reference": {
+          "certificate_residual": 3.08538687932014e-06,
+          "current_fixed_nodes": 24,
+          "kinetic_energy_J": 1.3830994272579676e-14,
+          "max_free_displacement_m": 1.863554421996479e-09,
+          "max_free_speed_m_s": 4.3910574326934336e-05,
+          "measured_right_grip_angle_deg": -4.8827249338482e-14,
+          "phase": "loading",
+          "plastic_strain": {
+            "by_material": {
+              "hajali2009_liner_hill_ideal": {
+                "max_frobenius_ep": 0.0,
+                "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.0,
+                "reference_volume_m3": 3.50128e-07,
+                "tetrahedra": 960,
+                "volume_integral_abs_ep_m3": 0.0,
+                "volume_integral_squared_ep_m3": 0.0,
+                "volume_mean_abs_ep": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "volume_mean_ep": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "volume_mean_frobenius_ep": 0.0,
+                "volume_rms_frobenius_ep": 0.0
+              },
+              "hajali2009_medium_hill_ideal": {
+                "max_frobenius_ep": 0.0,
+                "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.0,
+                "reference_volume_m3": 1.6202493918882327e-07,
+                "tetrahedra": 480,
+                "volume_integral_abs_ep_m3": 0.0,
+                "volume_integral_squared_ep_m3": 0.0,
+                "volume_mean_abs_ep": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "volume_mean_ep": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "volume_mean_frobenius_ep": 0.0,
+                "volume_rms_frobenius_ep": 0.0
+              }
+            },
+            "paper_total": {
+              "max_frobenius_ep": 0.0,
+              "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.0,
+              "reference_volume_m3": 5.121529391888233e-07,
+              "volume_integral_abs_ep_m3": 0.0,
+              "volume_integral_squared_ep_m3": 0.0,
+              "volume_mean_abs_ep": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "volume_mean_ep": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "volume_mean_frobenius_ep": 0.0,
+              "volume_rms_frobenius_ep": 0.0
+            },
+            "plastic_norm": "symmetric tensor Frobenius norm; engineering shear components weighted by two",
+            "plastic_state_components": [
+              "ep11",
+              "ep22",
+              "ep33",
+              "ep23",
+              "ep13",
+              "ep12"
+            ],
+            "plasticized_threshold": {
+              "ep_frobenius_norm_gt": 1e-06,
+              "meaning": "numerical diagnostic, not physical yield"
+            },
+            "snapshot": "material_state_000032_held_reference.json"
+          },
+          "reaction_force_N": [
+            0.003341826527048397,
+            -0.003905077959643677,
+            -2.56949859362976e-05
+          ],
+          "reaction_moment_y_Nm": -2.4693710524616153e-07,
+          "right_grip_constrained": 1,
+          "step": 31,
+          "target_angle_deg": 0.0,
+          "time_s": 0.0007999999797903001
+        }
+      },
+      "relaxation": {
+        "bent": {
+          "certificate_residual": 2.1421685232780874e-05,
+          "current_fixed_nodes": 24,
+          "kinetic_energy_J": 6.503470977091925e-12,
+          "max_free_displacement_m": 2.5750537496853856e-06,
+          "max_free_speed_m_s": 0.0006713896608762324,
+          "measured_right_grip_angle_deg": -4.8827249338482e-14,
+          "phase": "relaxation",
+          "plastic_strain": {
+            "by_material": {
+              "hajali2009_liner_hill_ideal": {
+                "max_frobenius_ep": 0.004986845550139828,
+                "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.4474716508438808,
+                "reference_volume_m3": 3.50128e-07,
+                "tetrahedra": 960,
+                "volume_integral_abs_ep_m3": 9.369049781200572e-11,
+                "volume_integral_squared_ep_m3": 1.0656360790169876e-13,
+                "volume_mean_abs_ep": [
+                  1.4805980900615066e-07,
+                  2.971330354383855e-07,
+                  4.452875531100453e-07,
+                  7.5857805641104155e-06,
+                  0.00018856354602713777,
+                  1.1635827665742836e-07
+                ],
+                "volume_mean_ep": [
+                  5.827686238270951e-08,
+                  1.1664900136564778e-07,
+                  -1.7487609205050204e-07,
+                  -1.7123432499150077e-06,
+                  0.00010077999745689393,
+                  -4.506573978133349e-08
+                ],
+                "volume_mean_frobenius_ep": 0.0002675892753850184,
+                "volume_rms_frobenius_ep": 0.00055168482284543
+              },
+              "hajali2009_medium_hill_ideal": {
+                "max_frobenius_ep": 0.013020978674193997,
+                "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.5561756819029468,
+                "reference_volume_m3": 1.6202493918882327e-07,
+                "tetrahedra": 480,
+                "volume_integral_abs_ep_m3": 1.0693446848827356e-10,
+                "volume_integral_squared_ep_m3": 4.4619494928538776e-13,
+                "volume_mean_abs_ep": [
+                  2.993037298122069e-07,
+                  5.541837483864737e-07,
+                  8.521764453826086e-07,
+                  1.7741905298121256e-05,
+                  0.000464836324976906,
+                  1.5802482683606103e-07
+                ],
+                "volume_mean_ep": [
+                  3.0504572809878585e-09,
+                  7.726575219636476e-09,
+                  -1.0812468632249856e-08,
+                  2.043888019117016e-06,
+                  0.00035718828052925275,
+                  -8.509514269398912e-08
+                ],
+                "volume_mean_frobenius_ep": 0.0006599877094454732,
+                "volume_rms_frobenius_ep": 0.0016594775879303556
+              }
+            },
+            "paper_total": {
+              "max_frobenius_ep": 0.013020978674193997,
+              "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.4818613080619399,
+              "reference_volume_m3": 5.121529391888233e-07,
+              "volume_integral_abs_ep_m3": 2.006249663002793e-10,
+              "volume_integral_squared_ep_m3": 5.527585571870865e-13,
+              "volume_mean_abs_ep": [
+                1.9590740529270777e-07,
+                3.7845371710785534e-07,
+                5.74011110044986e-07,
+                1.0798776851954663e-05,
+                0.00027596532932991775,
+                1.2953992561875945e-07
+              ],
+              "volume_mean_ep": [
+                4.080541148681852e-08,
+                8.219025257752461e-08,
+                -1.2297284875457753e-07,
+                -5.240201995620991e-07,
+                0.00018189743971566547,
+                -5.772946008129007e-08
+              ],
+              "volume_mean_frobenius_ep": 0.00039172862430124957,
+              "volume_rms_frobenius_ep": 0.0010388860210491305
+            },
+            "plastic_norm": "symmetric tensor Frobenius norm; engineering shear components weighted by two",
+            "plastic_state_components": [
+              "ep11",
+              "ep22",
+              "ep33",
+              "ep23",
+              "ep13",
+              "ep12"
+            ],
+            "plasticized_threshold": {
+              "ep_frobenius_norm_gt": 1e-06,
+              "meaning": "numerical diagnostic, not physical yield"
+            },
+            "snapshot": "material_state_000144_bent.json"
+          },
+          "reaction_force_N": [
+            0.6436707265675068,
+            -0.02840209868736565,
+            0.4854613926727325
+          ],
+          "reaction_moment_y_Nm": 0.015273390472840516,
+          "right_grip_constrained": 1,
+          "step": 143,
+          "target_angle_deg": 0.0,
+          "time_s": 0.0035999999090563506
+        },
+        "held_reference": {
+          "certificate_residual": 2.6889197215496097e-06,
+          "current_fixed_nodes": 24,
+          "kinetic_energy_J": 1.0230466723615486e-14,
+          "max_free_displacement_m": 1.9212851309902135e-09,
+          "max_free_speed_m_s": 3.9301391035458065e-05,
+          "measured_right_grip_angle_deg": -4.8827249338482e-14,
+          "phase": "relaxation",
+          "plastic_strain": {
+            "by_material": {
+              "hajali2009_liner_hill_ideal": {
+                "max_frobenius_ep": 0.0,
+                "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.0,
+                "reference_volume_m3": 3.50128e-07,
+                "tetrahedra": 960,
+                "volume_integral_abs_ep_m3": 0.0,
+                "volume_integral_squared_ep_m3": 0.0,
+                "volume_mean_abs_ep": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "volume_mean_ep": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "volume_mean_frobenius_ep": 0.0,
+                "volume_rms_frobenius_ep": 0.0
+              },
+              "hajali2009_medium_hill_ideal": {
+                "max_frobenius_ep": 0.0,
+                "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.0,
+                "reference_volume_m3": 1.6202493918882327e-07,
+                "tetrahedra": 480,
+                "volume_integral_abs_ep_m3": 0.0,
+                "volume_integral_squared_ep_m3": 0.0,
+                "volume_mean_abs_ep": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "volume_mean_ep": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "volume_mean_frobenius_ep": 0.0,
+                "volume_rms_frobenius_ep": 0.0
+              }
+            },
+            "paper_total": {
+              "max_frobenius_ep": 0.0,
+              "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.0,
+              "reference_volume_m3": 5.121529391888233e-07,
+              "volume_integral_abs_ep_m3": 0.0,
+              "volume_integral_squared_ep_m3": 0.0,
+              "volume_mean_abs_ep": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "volume_mean_ep": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "volume_mean_frobenius_ep": 0.0,
+              "volume_rms_frobenius_ep": 0.0
+            },
+            "plastic_norm": "symmetric tensor Frobenius norm; engineering shear components weighted by two",
+            "plastic_state_components": [
+              "ep11",
+              "ep22",
+              "ep33",
+              "ep23",
+              "ep13",
+              "ep12"
+            ],
+            "plasticized_threshold": {
+              "ep_frobenius_norm_gt": 1e-06,
+              "meaning": "numerical diagnostic, not physical yield"
+            },
+            "snapshot": "material_state_000144_held_reference.json"
+          },
+          "reaction_force_N": [
+            0.0033418263119529,
+            -0.002864778187358752,
+            -2.59915078117956e-05
+          ],
+          "reaction_moment_y_Nm": -2.4705565178283017e-07,
+          "right_grip_constrained": 1,
+          "step": 143,
+          "target_angle_deg": 0.0,
+          "time_s": 0.0035999999090563506
+        }
+      },
+      "unloading": {
+        "bent": {
+          "certificate_residual": 7.104297401383519e-05,
+          "current_fixed_nodes": 24,
+          "kinetic_energy_J": 2.414764027963784e-09,
+          "max_free_displacement_m": 6.881383689381884e-06,
+          "max_free_speed_m_s": 0.014602536566670387,
+          "measured_right_grip_angle_deg": -4.8827249338482e-14,
+          "phase": "unloading",
+          "plastic_strain": {
+            "by_material": {
+              "hajali2009_liner_hill_ideal": {
+                "max_frobenius_ep": 0.007194143529097099,
+                "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.44488396624472465,
+                "reference_volume_m3": 3.50128e-07,
+                "tetrahedra": 960,
+                "volume_integral_abs_ep_m3": 1.2135628850403463e-10,
+                "volume_integral_squared_ep_m3": 1.9905130894391141e-13,
+                "volume_mean_abs_ep": [
+                  1.5243080951462749e-07,
+                  3.0564156925132257e-07,
+                  4.580378223279254e-07,
+                  8.080721184686667e-06,
+                  0.0002446224410140494,
+                  1.15056035915653e-07
+                ],
+                "volume_mean_ep": [
+                  5.952989120441435e-08,
+                  1.192988277927199e-07,
+                  -1.7883083457384e-07,
+                  -1.2407146509786996e-06,
+                  0.00018083774707399868,
+                  -4.375313235040132e-08
+                ],
+                "volume_mean_frobenius_ep": 0.0003466054942879022,
+                "volume_rms_frobenius_ep": 0.0007539960963320908
+              },
+              "hajali2009_medium_hill_ideal": {
+                "max_frobenius_ep": 0.027868182273617065,
+                "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.5486254136795317,
+                "reference_volume_m3": 1.6202493918882327e-07,
+                "tetrahedra": 480,
+                "volume_integral_abs_ep_m3": 1.79673696232838e-10,
+                "volume_integral_squared_ep_m3": 1.7196775629458677e-12,
+                "volume_mean_abs_ep": [
+                  4.037349621613956e-07,
+                  7.482902835070275e-07,
+                  1.1505749883996112e-06,
+                  1.884901025422577e-05,
+                  0.0007825651413939823,
+                  1.5330281554189555e-07
+                ],
+                "volume_mean_ep": [
+                  -1.5085773648126303e-09,
+                  -1.3570228414173812e-09,
+                  3.151888557482001e-09,
+                  1.4487827621965251e-06,
+                  0.0007078718620542716,
+                  -8.12196669494498e-08
+                ],
+                "volume_mean_frobenius_ep": 0.0011089261760095274,
+                "volume_rms_frobenius_ep": 0.0032578612113038996
+              }
+            },
+            "paper_total": {
+              "max_frobenius_ep": 0.027868182273617065,
+              "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.4777036582269823,
+              "reference_volume_m3": 5.121529391888233e-07,
+              "volume_integral_abs_ep_m3": 3.0102998473687264e-10,
+              "volume_integral_squared_ep_m3": 1.918728871889779e-12,
+              "volume_mean_abs_ep": [
+                2.3193350672648393e-07,
+                4.456781199013798e-07,
+                6.771291984244615e-07,
+                1.1487382063023414e-05,
+                0.00041480624090433043,
+                1.2715580469356006e-07
+              ],
+              "volume_mean_ep": [
+                4.021973323915527e-08,
+                8.112808744173204e-08,
+                -1.2125869665841557e-07,
+                -3.89864013455456e-07,
+                0.00034757050187447634,
+                -5.560606245296324e-08
+              ],
+              "volume_mean_frobenius_ep": 0.0005877736154627188,
+              "volume_rms_frobenius_ep": 0.0019355614802205653
+            },
+            "plastic_norm": "symmetric tensor Frobenius norm; engineering shear components weighted by two",
+            "plastic_state_components": [
+              "ep11",
+              "ep22",
+              "ep33",
+              "ep23",
+              "ep13",
+              "ep12"
+            ],
+            "plasticized_threshold": {
+              "ep_frobenius_norm_gt": 1e-06,
+              "meaning": "numerical diagnostic, not physical yield"
+            },
+            "snapshot": "material_state_000080_bent.json"
+          },
+          "reaction_force_N": [
+            0.44205012172460556,
+            0.00264726672321558,
+            1.9048058297485113
+          ],
+          "reaction_moment_y_Nm": 0.06044228658936173,
+          "right_grip_constrained": 1,
+          "step": 79,
+          "target_angle_deg": 0.0,
+          "time_s": 0.0019999999494757503
+        },
+        "held_reference": {
+          "certificate_residual": 2.7367118491383735e-06,
+          "current_fixed_nodes": 24,
+          "kinetic_energy_J": 1.2354419516573745e-14,
+          "max_free_displacement_m": 1.863554421996479e-09,
+          "max_free_speed_m_s": 4.396071114901967e-05,
+          "measured_right_grip_angle_deg": -4.8827249338482e-14,
+          "phase": "unloading",
+          "plastic_strain": {
+            "by_material": {
+              "hajali2009_liner_hill_ideal": {
+                "max_frobenius_ep": 0.0,
+                "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.0,
+                "reference_volume_m3": 3.50128e-07,
+                "tetrahedra": 960,
+                "volume_integral_abs_ep_m3": 0.0,
+                "volume_integral_squared_ep_m3": 0.0,
+                "volume_mean_abs_ep": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "volume_mean_ep": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "volume_mean_frobenius_ep": 0.0,
+                "volume_rms_frobenius_ep": 0.0
+              },
+              "hajali2009_medium_hill_ideal": {
+                "max_frobenius_ep": 0.0,
+                "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.0,
+                "reference_volume_m3": 1.6202493918882327e-07,
+                "tetrahedra": 480,
+                "volume_integral_abs_ep_m3": 0.0,
+                "volume_integral_squared_ep_m3": 0.0,
+                "volume_mean_abs_ep": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "volume_mean_ep": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "volume_mean_frobenius_ep": 0.0,
+                "volume_rms_frobenius_ep": 0.0
+              }
+            },
+            "paper_total": {
+              "max_frobenius_ep": 0.0,
+              "plasticized_volume_fraction_ep_norm_gt_1e-6": 0.0,
+              "reference_volume_m3": 5.121529391888233e-07,
+              "volume_integral_abs_ep_m3": 0.0,
+              "volume_integral_squared_ep_m3": 0.0,
+              "volume_mean_abs_ep": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "volume_mean_ep": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ],
+              "volume_mean_frobenius_ep": 0.0,
+              "volume_rms_frobenius_ep": 0.0
+            },
+            "plastic_norm": "symmetric tensor Frobenius norm; engineering shear components weighted by two",
+            "plastic_state_components": [
+              "ep11",
+              "ep22",
+              "ep33",
+              "ep23",
+              "ep13",
+              "ep12"
+            ],
+            "plasticized_threshold": {
+              "ep_frobenius_norm_gt": 1e-06,
+              "meaning": "numerical diagnostic, not physical yield"
+            },
+            "snapshot": "material_state_000080_held_reference.json"
+          },
+          "reaction_force_N": [
+            0.0033418264915781037,
+            -0.0019451016269158572,
+            -2.5071580239455216e-05
+          ],
+          "reaction_moment_y_Nm": -2.4668757520112235e-07,
+          "right_grip_constrained": 1,
+          "step": 79,
+          "target_angle_deg": 0.0,
+          "time_s": 0.0019999999494757503
+        }
+      }
+    },
+    "physical_validation": false,
+    "protocol": {
+      "bend_angle_deg": 0.25,
+      "dt_s": 2.5e-05,
+      "hold": 16,
+      "loading": 32,
+      "phase_durations_s": {
+        "hold": 0.0004,
+        "loading": 0.0008,
+        "relaxation": 0.0016,
+        "release": 0.0,
+        "unloading": 0.0008
+      },
+      "relaxation": 64,
+      "release": 0,
+      "release_policy": "right grip free; left grip remains fixed; physical state preserved",
+      "unloading": 32
+    },
+    "scope": "retained native software mechanics data; not a physical validation",
+    "status": "valid_completed_native_export"
+  },
+  "comparison": {
+    "baseline": "/Users/home/cardboard-gap-evidence-20261006/resolution-base-001",
+    "candidate": "/Users/home/cardboard-gap-evidence-20261006/resolution-length-001",
+    "kind": "spatial"
+  },
+  "comparison_contract": {
+    "baseline_dt_s": 2.5e-05,
+    "baseline_mesh_resolution": [
+      8,
+      1,
+      1
+    ],
+    "baseline_phase_durations_s": {
+      "hold": 0.0004,
+      "loading": 0.0008,
+      "relaxation": 0.0016,
+      "release": 0.0,
+      "unloading": 0.0008
+    },
+    "candidate_dt_s": 2.5e-05,
+    "candidate_mesh_resolution": [
+      16,
+      1,
+      1
+    ],
+    "candidate_phase_durations_s": {
+      "hold": 0.0004,
+      "loading": 0.0008,
+      "relaxation": 0.0016,
+      "release": 0.0,
+      "unloading": 0.0008
+    },
+    "duration_difference_is_declared_axis": false,
+    "kind": "spatial"
+  },
+  "convergence_verdict": "not_assessed; acceptance is not inferred from completed step count",
+  "endpoint_resolution_screen": {
+    "interpretation": "narrow numerical screen only; it does not establish convergence, physical fidelity, or qualification",
+    "metrics_by_phase": {
+      "hold": {
+        "plastic_volume_rms_frobenius_ep": {
+          "absolute_difference": 0.0002135535208806238,
+          "absolute_floor": 1e-08,
+          "baseline": 0.002608462925411069,
+          "candidate": 0.002822016446291693,
+          "relative_difference_with_floor": 0.07567408799521581,
+          "within_tolerance": true
+        },
+        "reaction_moment_y_Nm": {
+          "absolute_difference": 0.010532498856425099,
+          "absolute_floor": 1e-06,
+          "baseline": -0.06499906297731811,
+          "candidate": -0.07553156183374321,
+          "relative_difference_with_floor": 0.13944500286660003,
+          "within_tolerance": false
+        }
+      },
+      "loading": {
+        "plastic_volume_rms_frobenius_ep": {
+          "absolute_difference": 4.188679639031056e-05,
+          "absolute_floor": 1e-08,
+          "baseline": 0.0020244887230440444,
+          "candidate": 0.001982601926653734,
+          "relative_difference_with_floor": 0.020690061600999732,
+          "within_tolerance": true
+        },
+        "reaction_moment_y_Nm": {
+          "absolute_difference": 0.014857135775372968,
+          "absolute_floor": 1e-06,
+          "baseline": -0.09949451199334082,
+          "candidate": -0.11435164776871379,
+          "relative_difference_with_floor": 0.12992498197684763,
+          "within_tolerance": false
+        }
+      },
+      "relaxation": {
+        "plastic_volume_rms_frobenius_ep": {
+          "absolute_difference": 0.00020523010072112148,
+          "absolute_floor": 1e-08,
+          "baseline": 0.000833655920328009,
+          "candidate": 0.0010388860210491305,
+          "relative_difference_with_floor": 0.19754823586312925,
+          "within_tolerance": false
+        },
+        "reaction_moment_y_Nm": {
+          "absolute_difference": 0.004244917171794921,
+          "absolute_floor": 1e-06,
+          "baseline": 0.011028473301045595,
+          "candidate": 0.015273390472840516,
+          "relative_difference_with_floor": 0.2779289365608329,
+          "within_tolerance": false
+        }
+      },
+      "unloading": {
+        "plastic_volume_rms_frobenius_ep": {
+          "absolute_difference": 0.00035391214730686404,
+          "absolute_floor": 1e-08,
+          "baseline": 0.0015816493329137012,
+          "candidate": 0.0019355614802205653,
+          "relative_difference_with_floor": 0.18284727761090508,
+          "within_tolerance": false
+        },
+        "reaction_moment_y_Nm": {
+          "absolute_difference": 0.009936870105452834,
+          "absolute_floor": 1e-06,
+          "baseline": 0.050505416483908896,
+          "candidate": 0.06044228658936173,
+          "relative_difference_with_floor": 0.16440261721008076,
+          "within_tolerance": false
+        }
+      }
+    },
+    "relative_tolerance": 0.1,
+    "status": "exceeds_declared_thresholds"
+  },
+  "interpretation": "descriptive numerical sensitivity only; no convergence or physical-validity claim without separately declared thresholds and evidence",
+  "phase_endpoint_differences": {
+    "hold": {
+      "bent": {
+        "kinetic_energy_difference_J": -2.2801745580052683e-10,
+        "max_free_displacement_difference_m": 4.5649847903359235e-07,
+        "max_free_speed_difference_m_s": 0.0004901157367941484,
+        "measured_right_grip_angle_difference_deg": 0.0,
+        "plastic_strain_by_material": {
+          "hajali2009_liner_hill_ideal": {
+            "plasticized_volume_fraction_difference": -0.08363001054852265,
+            "volume_difference_m3": -3.705769144237564e-22,
+            "volume_rms_frobenius_ep_difference": -0.0005158374168722911
+          },
+          "hajali2009_medium_hill_ideal": {
+            "plasticized_volume_fraction_difference": -0.11342034905330839,
+            "volume_difference_m3": 1.3835278739996564e-09,
+            "volume_rms_frobenius_ep_difference": 0.0010358326474861285
+          }
+        },
+        "reaction_force_difference_N": [
+          -0.9680601954460144,
+          0.03201351291500032,
+          0.7359450337244198
+        ],
+        "reaction_moment_y_difference_Nm": -0.010532498856425099
+      },
+      "held_reference": {
+        "kinetic_energy_difference_J": -2.6447504730106657e-15,
+        "max_free_displacement_difference_m": -1.3586238843269755e-11,
+        "max_free_speed_difference_m_s": 8.707533942562768e-06,
+        "measured_right_grip_angle_difference_deg": 0.0,
+        "plastic_strain_by_material": {
+          "hajali2009_liner_hill_ideal": {
+            "plasticized_volume_fraction_difference": 0.0,
+            "volume_difference_m3": -3.705769144237564e-22,
+            "volume_rms_frobenius_ep_difference": 0.0
+          },
+          "hajali2009_medium_hill_ideal": {
+            "plasticized_volume_fraction_difference": 0.0,
+            "volume_difference_m3": 1.3835278739996564e-09,
+            "volume_rms_frobenius_ep_difference": 0.0
+          }
+        },
+        "reaction_force_difference_N": [
+          0.00031168400164460763,
+          0.0013777452113572508,
+          -0.00013002295187902746
+        ],
+        "reaction_moment_y_difference_Nm": -5.564679740236894e-07
+      }
+    },
+    "loading": {
+      "bent": {
+        "kinetic_energy_difference_J": -9.359906249845143e-10,
+        "max_free_displacement_difference_m": 1.4504575235238324e-06,
+        "max_free_speed_difference_m_s": 0.0021402948729299116,
+        "measured_right_grip_angle_difference_deg": 0.0,
+        "plastic_strain_by_material": {
+          "hajali2009_liner_hill_ideal": {
+            "plasticized_volume_fraction_difference": -0.06643921413502119,
+            "volume_difference_m3": -3.705769144237564e-22,
+            "volume_rms_frobenius_ep_difference": -0.0003488753607512633
+          },
+          "hajali2009_medium_hill_ideal": {
+            "plasticized_volume_fraction_difference": -0.06586444530676605,
+            "volume_difference_m3": 1.3835278739996564e-09,
+            "volume_rms_frobenius_ep_difference": 0.0003721622832455751
+          }
+        },
+        "reaction_force_difference_N": [
+          0.0644696056842804,
+          0.019534791819751263,
+          0.8202440007589757
+        ],
+        "reaction_moment_y_difference_Nm": -0.014857135775372968
+      },
+      "held_reference": {
+        "kinetic_energy_difference_J": -3.5125004157457916e-15,
+        "max_free_displacement_difference_m": -1.3586238843269755e-11,
+        "max_free_speed_difference_m_s": 8.631654288478844e-06,
+        "measured_right_grip_angle_difference_deg": 0.0,
+        "plastic_strain_by_material": {
+          "hajali2009_liner_hill_ideal": {
+            "plasticized_volume_fraction_difference": 0.0,
+            "volume_difference_m3": -3.705769144237564e-22,
+            "volume_rms_frobenius_ep_difference": 0.0
+          },
+          "hajali2009_medium_hill_ideal": {
+            "plasticized_volume_fraction_difference": 0.0,
+            "volume_difference_m3": 1.3835278739996564e-09,
+            "volume_rms_frobenius_ep_difference": 0.0
+          }
+        },
+        "reaction_force_difference_N": [
+          0.00031168403029369074,
+          -0.000518522851052694,
+          -0.00012931548087635747
+        ],
+        "reaction_moment_y_difference_Nm": -5.56185276217093e-07
+      }
+    },
+    "relaxation": {
+      "bent": {
+        "kinetic_energy_difference_J": -1.882551172835124e-12,
+        "max_free_displacement_difference_m": 5.946631258974775e-07,
+        "max_free_speed_difference_m_s": 5.930044224417637e-05,
+        "measured_right_grip_angle_difference_deg": 0.0,
+        "plastic_strain_by_material": {
+          "hajali2009_liner_hill_ideal": {
+            "plasticized_volume_fraction_difference": -0.09221716772151872,
+            "volume_difference_m3": -3.705769144237564e-22,
+            "volume_rms_frobenius_ep_difference": -0.00018703888140283868
+          },
+          "hajali2009_medium_hill_ideal": {
+            "plasticized_volume_fraction_difference": -0.12820141815417985,
+            "volume_difference_m3": 1.3835278739996564e-09,
+            "volume_rms_frobenius_ep_difference": 0.0006493665231753335
+          }
+        },
+        "reaction_force_difference_N": [
+          0.48535698279738426,
+          -0.018103145994246006,
+          -0.10749480710364878
+        ],
+        "reaction_moment_y_difference_Nm": 0.004244917171794921
+      },
+      "held_reference": {
+        "kinetic_energy_difference_J": -4.628097724937611e-15,
+        "max_free_displacement_difference_m": -1.7152636957459578e-11,
+        "max_free_speed_difference_m_s": 2.4494877827231586e-06,
+        "measured_right_grip_angle_difference_deg": 0.0,
+        "plastic_strain_by_material": {
+          "hajali2009_liner_hill_ideal": {
+            "plasticized_volume_fraction_difference": 0.0,
+            "volume_difference_m3": -3.705769144237564e-22,
+            "volume_rms_frobenius_ep_difference": 0.0
+          },
+          "hajali2009_medium_hill_ideal": {
+            "plasticized_volume_fraction_difference": 0.0,
+            "volume_difference_m3": 1.3835278739996564e-09,
+            "volume_rms_frobenius_ep_difference": 0.0
+          }
+        },
+        "reaction_force_difference_N": [
+          0.0003116838743153494,
+          0.0015350201974797528,
+          -0.0001309485507476893
+        ],
+        "reaction_moment_y_difference_Nm": -5.568383239797182e-07
+      }
+    },
+    "unloading": {
+      "bent": {
+        "kinetic_energy_difference_J": -1.241550936190766e-09,
+        "max_free_displacement_difference_m": 8.776474963504787e-08,
+        "max_free_speed_difference_m_s": 0.000607040818109774,
+        "measured_right_grip_angle_difference_deg": 0.0,
+        "plastic_strain_by_material": {
+          "hajali2009_liner_hill_ideal": {
+            "plasticized_volume_fraction_difference": -0.0859704641350208,
+            "volume_difference_m3": -3.705769144237564e-22,
+            "volume_rms_frobenius_ep_difference": -0.000440633285306158
+          },
+          "hajali2009_medium_hill_ideal": {
+            "plasticized_volume_fraction_difference": -0.13300380366898856,
+            "volume_difference_m3": 1.3835278739996564e-09,
+            "volume_rms_frobenius_ep_difference": 0.0010570657626111082
+          }
+        },
+        "reaction_force_difference_N": [
+          -1.0679722502827644,
+          -0.019162124954164028,
+          -0.3750965017825365
+        ],
+        "reaction_moment_y_difference_Nm": 0.009936870105452834
+      },
+      "held_reference": {
+        "kinetic_energy_difference_J": -2.922771586980278e-15,
+        "max_free_displacement_difference_m": -1.3586238843269755e-11,
+        "max_free_speed_difference_m_s": 1.0264370012865821e-05,
+        "measured_right_grip_angle_difference_deg": 0.0,
+        "plastic_strain_by_material": {
+          "hajali2009_liner_hill_ideal": {
+            "plasticized_volume_fraction_difference": 0.0,
+            "volume_difference_m3": -3.705769144237564e-22,
+            "volume_rms_frobenius_ep_difference": 0.0
+          },
+          "hajali2009_medium_hill_ideal": {
+            "plasticized_volume_fraction_difference": 0.0,
+            "volume_difference_m3": 1.3835278739996564e-09,
+            "volume_rms_frobenius_ep_difference": 0.0
+          }
+        },
+        "reaction_force_difference_N": [
+          0.0003116840030088497,
+          0.0009267585119232535,
+          -0.00013032732053375184
+        ],
+        "reaction_moment_y_difference_Nm": -5.565898540348828e-07
+      }
+    }
+  },
+  "phases": [
+    "loading",
+    "hold",
+    "unloading",
+    "relaxation"
+  ],
+  "physical_validation": false,
+  "reaction_dynamics_and_energy_curves": {
+    "hold": {
+      "bent": {
+        "coordinate_samples": [
+          0.000824999979158747,
+          0.0008499999785271939,
+          0.0008749999778956408,
+          0.0008999999772640876,
+          0.0009249999766325345,
+          0.0009499999760009814,
+          0.0009749999753694283,
+          0.0009999999747378752,
+          0.001024999974106322,
+          0.001049999973474769,
+          0.0010749999728432158,
+          0.0010999999722116627,
+          0.0011249999715801096,
+          0.0011499999709485564,
+          0.0011749999703170033,
+          0.0011999999696854502
+        ],
+        "kinetic_energy_J": {
+          "baseline_max_abs": 9.346794212124264e-09,
+          "candidate_max_abs": 6.149512018937613e-09,
+          "max_abs_difference": 3.840557078643547e-09,
+          "relative_rms_difference": 0.5831670907360437,
+          "rms_difference": 1.7116258103151308e-09,
+          "sample_count": 16
+        },
+        "matched_samples": [],
+        "max_free_displacement_m": {
+          "baseline_max_abs": 1.2063173780799134e-05,
+          "candidate_max_abs": 1.2519672259832727e-05,
+          "max_abs_difference": 1.7772940266620232e-06,
+          "relative_rms_difference": 0.10797271082221023,
+          "rms_difference": 1.1726212569262915e-06,
+          "sample_count": 16
+        },
+        "max_free_speed_m_s": {
+          "baseline_max_abs": 0.02546373945151135,
+          "candidate_max_abs": 0.026881808671900397,
+          "max_abs_difference": 0.014194579595754991,
+          "relative_rms_difference": 0.4543233148654904,
+          "rms_difference": 0.005359224982933003,
+          "sample_count": 16
+        },
+        "reaction_moment_y_Nm": {
+          "baseline_max_abs": 0.0928216889846361,
+          "candidate_max_abs": 0.10889494037448637,
+          "max_abs_difference": 0.016073251389850274,
+          "relative_rms_difference": 0.1516248280420164,
+          "rms_difference": 0.011550697166109241,
+          "sample_count": 16
+        },
+        "reaction_x_N": {
+          "baseline_max_abs": 2.1572469770908356,
+          "candidate_max_abs": 3.542375385761261,
+          "max_abs_difference": 1.6528965830802917,
+          "relative_rms_difference": 0.86549095456008,
+          "rms_difference": 1.274494510499547,
+          "sample_count": 16
+        },
+        "reaction_y_N": {
+          "baseline_max_abs": 0.100901132915169,
+          "candidate_max_abs": 0.1286556210834533,
+          "max_abs_difference": 0.07779324986040592,
+          "relative_rms_difference": 0.36530010229154797,
+          "rms_difference": 0.029832580907105014,
+          "sample_count": 16
+        },
+        "reaction_z_N": {
+          "baseline_max_abs": 3.423359503300162,
+          "candidate_max_abs": 2.369170445948839,
+          "max_abs_difference": 1.0541890573513228,
+          "relative_rms_difference": 0.3568226776564257,
+          "rms_difference": 0.8961123477237789,
+          "sample_count": 16
+        },
+        "sampling": "exact common physical times; coarse samples nested in fine grid"
+      },
+      "held_reference": {
+        "coordinate_samples": [
+          0.000824999979158747,
+          0.0008499999785271939,
+          0.0008749999778956408,
+          0.0008999999772640876,
+          0.0009249999766325345,
+          0.0009499999760009814,
+          0.0009749999753694283,
+          0.0009999999747378752,
+          0.001024999974106322,
+          0.001049999973474769,
+          0.0010749999728432158,
+          0.0010999999722116627,
+          0.0011249999715801096,
+          0.0011499999709485564,
+          0.0011749999703170033,
+          0.0011999999696854502
+        ],
+        "kinetic_energy_J": {
+          "baseline_max_abs": 1.7536206654638098e-14,
+          "candidate_max_abs": 1.4686763312629733e-14,
+          "max_abs_difference": 3.5117604017741742e-15,
+          "relative_rms_difference": 0.14866073056663826,
+          "rms_difference": 2.413167100732563e-15,
+          "sample_count": 16
+        },
+        "matched_samples": [],
+        "max_free_displacement_m": {
+          "baseline_max_abs": 1.877140660839749e-09,
+          "candidate_max_abs": 1.863554421996479e-09,
+          "max_abs_difference": 1.3586238843269755e-11,
+          "relative_rms_difference": 0.007237730835360989,
+          "rms_difference": 1.3586238843269755e-11,
+          "sample_count": 16
+        },
+        "max_free_speed_m_s": {
+          "baseline_max_abs": 3.625597515560022e-05,
+          "candidate_max_abs": 4.5457938172669585e-05,
+          "max_abs_difference": 1.4708421274837763e-05,
+          "relative_rms_difference": 0.3312036595494556,
+          "rms_difference": 1.1013659565369061e-05,
+          "sample_count": 16
+        },
+        "reaction_moment_y_Nm": {
+          "baseline_max_abs": 3.0949754157518274e-07,
+          "candidate_max_abs": 2.470552672340319e-07,
+          "max_abs_difference": 5.564679740236894e-07,
+          "relative_rms_difference": 1.8677303811292445,
+          "rms_difference": 5.301125601394811e-07,
+          "sample_count": 16
+        },
+        "reaction_x_N": {
+          "baseline_max_abs": 0.0030624064565927256,
+          "candidate_max_abs": 0.0033418265779801004,
+          "max_abs_difference": 0.00031168405166681623,
+          "relative_rms_difference": 0.09715571205489039,
+          "rms_difference": 0.0002959671101525843,
+          "sample_count": 16
+        },
+        "reaction_y_N": {
+          "baseline_max_abs": 0.005936454370385036,
+          "candidate_max_abs": 0.0038293763936962932,
+          "max_abs_difference": 0.003579833632102236,
+          "relative_rms_difference": 0.4544043150049263,
+          "rms_difference": 0.002108592439055327,
+          "sample_count": 16
+        },
+        "reaction_z_N": {
+          "baseline_max_abs": 0.0001042444917800367,
+          "candidate_max_abs": 3.2135197670868365e-05,
+          "max_abs_difference": 0.00013609723703211785,
+          "relative_rms_difference": 1.2619796255503974,
+          "rms_difference": 0.00012741401276249824,
+          "sample_count": 16
+        },
+        "sampling": "exact common physical times; coarse samples nested in fine grid"
+      }
+    },
+    "loading": {
+      "bent": {
+        "coordinate_samples": [
+          2.499999936844688e-05,
+          4.999999873689376e-05,
+          7.499999810534064e-05,
+          9.999999747378752e-05,
+          0.0001249999968422344,
+          0.00014999999621068127,
+          0.00017499999557912815,
+          0.00019999999494757503,
+          0.0002249999943160219,
+          0.0002499999936844688,
+          0.00027499999305291567,
+          0.00029999999242136255,
+          0.00032499999178980943,
+          0.0003499999911582563,
+          0.0003749999905267032,
+          0.00039999998989515007,
+          0.00042499998926359694,
+          0.0004499999886320438,
+          0.0004749999880004907,
+          0.0004999999873689376,
+          0.0005249999867373845,
+          0.0005499999861058313,
+          0.0005749999854742782,
+          0.0005999999848427251,
+          0.000624999984211172,
+          0.0006499999835796189,
+          0.0006749999829480657,
+          0.0006999999823165126,
+          0.0007249999816849595,
+          0.0007499999810534064,
+          0.0007749999804218533,
+          0.0007999999797903001
+        ],
+        "kinetic_energy_J": {
+          "baseline_max_abs": 4.32216274791417e-09,
+          "candidate_max_abs": 3.5656805113819847e-09,
+          "max_abs_difference": 1.527924703646764e-09,
+          "relative_rms_difference": 0.23195646894423544,
+          "rms_difference": 6.826698208247669e-10,
+          "sample_count": 32
+        },
+        "matched_samples": [],
+        "max_free_displacement_m": {
+          "baseline_max_abs": 9.145487804221663e-06,
+          "candidate_max_abs": 1.0595945327745495e-05,
+          "max_abs_difference": 1.4504575235238324e-06,
+          "relative_rms_difference": 0.10290240458731148,
+          "rms_difference": 5.509043896568991e-07,
+          "sample_count": 32
+        },
+        "max_free_speed_m_s": {
+          "baseline_max_abs": 0.014875582080058873,
+          "candidate_max_abs": 0.017898000202722954,
+          "max_abs_difference": 0.0037279997623642543,
+          "relative_rms_difference": 0.14802069295882236,
+          "rms_difference": 0.0018368497883857026,
+          "sample_count": 32
+        },
+        "reaction_moment_y_Nm": {
+          "baseline_max_abs": 0.09949451199334082,
+          "candidate_max_abs": 0.11435164776871379,
+          "max_abs_difference": 0.016465427861492868,
+          "relative_rms_difference": 0.18102885714953568,
+          "rms_difference": 0.012138943958201202,
+          "sample_count": 32
+        },
+        "reaction_x_N": {
+          "baseline_max_abs": 1.915425717830658,
+          "candidate_max_abs": 1.9091679155826569,
+          "max_abs_difference": 1.4310958236455917,
+          "relative_rms_difference": 0.9248614899208213,
+          "rms_difference": 1.0532228427761847,
+          "sample_count": 32
+        },
+        "reaction_y_N": {
+          "baseline_max_abs": 0.04360176436603069,
+          "candidate_max_abs": 0.06313655618578196,
+          "max_abs_difference": 0.028549838811159134,
+          "relative_rms_difference": 0.636966970061708,
+          "rms_difference": 0.013810413456685886,
+          "sample_count": 32
+        },
+        "reaction_z_N": {
+          "baseline_max_abs": 3.412618320900947,
+          "candidate_max_abs": 2.592374320141971,
+          "max_abs_difference": 0.8421161534060957,
+          "relative_rms_difference": 0.17330756694452867,
+          "rms_difference": 0.3975380324773534,
+          "sample_count": 32
+        },
+        "sampling": "exact common physical times; coarse samples nested in fine grid"
+      },
+      "held_reference": {
+        "coordinate_samples": [
+          2.499999936844688e-05,
+          4.999999873689376e-05,
+          7.499999810534064e-05,
+          9.999999747378752e-05,
+          0.0001249999968422344,
+          0.00014999999621068127,
+          0.00017499999557912815,
+          0.00019999999494757503,
+          0.0002249999943160219,
+          0.0002499999936844688,
+          0.00027499999305291567,
+          0.00029999999242136255,
+          0.00032499999178980943,
+          0.0003499999911582563,
+          0.0003749999905267032,
+          0.00039999998989515007,
+          0.00042499998926359694,
+          0.0004499999886320438,
+          0.0004749999880004907,
+          0.0004999999873689376,
+          0.0005249999867373845,
+          0.0005499999861058313,
+          0.0005749999854742782,
+          0.0005999999848427251,
+          0.000624999984211172,
+          0.0006499999835796189,
+          0.0006749999829480657,
+          0.0006999999823165126,
+          0.0007249999816849595,
+          0.0007499999810534064,
+          0.0007749999804218533,
+          0.0007999999797903001
+        ],
+        "kinetic_energy_J": {
+          "baseline_max_abs": 3.7799286534801816e-14,
+          "candidate_max_abs": 1.9454524460590713e-14,
+          "max_abs_difference": 1.8344762074211104e-14,
+          "relative_rms_difference": 0.23904288683786923,
+          "rms_difference": 4.246351868629394e-15,
+          "sample_count": 32
+        },
+        "matched_samples": [],
+        "max_free_displacement_m": {
+          "baseline_max_abs": 1.877140660839749e-09,
+          "candidate_max_abs": 1.863554421996479e-09,
+          "max_abs_difference": 1.3586238843269755e-11,
+          "relative_rms_difference": 0.007237730835360989,
+          "rms_difference": 1.3586238843269755e-11,
+          "sample_count": 32
+        },
+        "max_free_speed_m_s": {
+          "baseline_max_abs": 6.929200180826366e-05,
+          "candidate_max_abs": 5.393929936365536e-05,
+          "max_abs_difference": 1.5352702444608304e-05,
+          "relative_rms_difference": 0.24292401725017698,
+          "rms_difference": 8.952257064095445e-06,
+          "sample_count": 32
+        },
+        "reaction_moment_y_Nm": {
+          "baseline_max_abs": 3.96101170178099e-07,
+          "candidate_max_abs": 2.484312693272847e-07,
+          "max_abs_difference": 5.565415816104176e-07,
+          "relative_rms_difference": 1.7389923728906547,
+          "rms_difference": 4.991677356918598e-07,
+          "sample_count": 32
+        },
+        "reaction_x_N": {
+          "baseline_max_abs": 0.0034258012474310817,
+          "candidate_max_abs": 0.0033418265434193017,
+          "max_abs_difference": 0.0003116841091923561,
+          "relative_rms_difference": 0.09035577617418614,
+          "rms_difference": 0.00027886726025368647,
+          "sample_count": 32
+        },
+        "reaction_y_N": {
+          "baseline_max_abs": 0.006924943193467925,
+          "candidate_max_abs": 0.0059604173875413835,
+          "max_abs_difference": 0.0035961785761173815,
+          "relative_rms_difference": 0.37688406157944654,
+          "rms_difference": 0.001988186655789447,
+          "sample_count": 32
+        },
+        "reaction_z_N": {
+          "baseline_max_abs": 0.00010362049494005987,
+          "candidate_max_abs": 2.980172979505369e-05,
+          "max_abs_difference": 0.000130206847984482,
+          "relative_rms_difference": 1.276133614841435,
+          "rms_difference": 0.00011948661600972598,
+          "sample_count": 32
+        },
+        "sampling": "exact common physical times; coarse samples nested in fine grid"
+      }
+    },
+    "relaxation": {
+      "bent": {
+        "coordinate_samples": [
+          0.002024999948844197,
+          0.002049999948212644,
+          0.002074999947581091,
+          0.002099999946949538,
+          0.0021249999463179847,
+          0.0021499999456864316,
+          0.0021749999450548785,
+          0.0021999999444233254,
+          0.0022249999437917722,
+          0.002249999943160219,
+          0.002274999942528666,
+          0.002299999941897113,
+          0.0023249999412655598,
+          0.0023499999406340066,
+          0.0023749999400024535,
+          0.0023999999393709004,
+          0.0024249999387393473,
+          0.002449999938107794,
+          0.002474999937476241,
+          0.002499999936844688,
+          0.002524999936213135,
+          0.0025499999355815817,
+          0.0025749999349500285,
+          0.0025999999343184754,
+          0.0026249999336869223,
+          0.002649999933055369,
+          0.002674999932423816,
+          0.002699999931792263,
+          0.00272499993116071,
+          0.0027499999305291567,
+          0.0027749999298976036,
+          0.0027999999292660505,
+          0.0028249999286344973,
+          0.002849999928002944,
+          0.002874999927371391,
+          0.002899999926739838,
+          0.002924999926108285,
+          0.0029499999254767317,
+          0.0029749999248451786,
+          0.0029999999242136255,
+          0.0030249999235820724,
+          0.0030499999229505192,
+          0.003074999922318966,
+          0.003099999921687413,
+          0.00312499992105586,
+          0.0031499999204243068,
+          0.0031749999197927536,
+          0.0031999999191612005,
+          0.0032249999185296474,
+          0.0032499999178980943,
+          0.003274999917266541,
+          0.003299999916634988,
+          0.003324999916003435,
+          0.003349999915371882,
+          0.0033749999147403287,
+          0.0033999999141087756,
+          0.0034249999134772224,
+          0.0034499999128456693,
+          0.003474999912214116,
+          0.003499999911582563,
+          0.00352499991095101,
+          0.003549999910319457,
+          0.0035749999096879037,
+          0.0035999999090563506
+        ],
+        "kinetic_energy_J": {
+          "baseline_max_abs": 5.839117643434286e-09,
+          "candidate_max_abs": 3.668322673525349e-09,
+          "max_abs_difference": 2.1707949699089366e-09,
+          "relative_rms_difference": 0.481861782218971,
+          "rms_difference": 4.112045698574228e-10,
+          "sample_count": 64
+        },
+        "matched_samples": [],
+        "max_free_displacement_m": {
+          "baseline_max_abs": 6.310908127025926e-06,
+          "candidate_max_abs": 6.47521476993246e-06,
+          "max_abs_difference": 7.411201876681388e-07,
+          "relative_rms_difference": 0.19447226723283348,
+          "rms_difference": 6.390569864848928e-07,
+          "sample_count": 64
+        },
+        "max_free_speed_m_s": {
+          "baseline_max_abs": 0.019971504988113085,
+          "candidate_max_abs": 0.020313655151019346,
+          "max_abs_difference": 0.01110688848360529,
+          "relative_rms_difference": 0.3825663337395962,
+          "rms_difference": 0.0018756557925424008,
+          "sample_count": 64
+        },
+        "reaction_moment_y_Nm": {
+          "baseline_max_abs": 0.04435197704578565,
+          "candidate_max_abs": 0.054227787282593545,
+          "max_abs_difference": 0.009875810236807898,
+          "relative_rms_difference": 0.2639608836228492,
+          "rms_difference": 0.005344770523764544,
+          "sample_count": 64
+        },
+        "reaction_x_N": {
+          "baseline_max_abs": 1.7238050401210785,
+          "candidate_max_abs": 2.3665334805846214,
+          "max_abs_difference": 1.0226646433584392,
+          "relative_rms_difference": 1.0447690837050287,
+          "rms_difference": 0.6843777595969234,
+          "sample_count": 64
+        },
+        "reaction_y_N": {
+          "baseline_max_abs": 0.06313862430397421,
+          "candidate_max_abs": 0.055621492298087105,
+          "max_abs_difference": 0.039039700757712126,
+          "relative_rms_difference": 0.45068436963621056,
+          "rms_difference": 0.013165225924953842,
+          "sample_count": 64
+        },
+        "reaction_z_N": {
+          "baseline_max_abs": 2.328676888719201,
+          "candidate_max_abs": 1.764335123822093,
+          "max_abs_difference": 0.686212376691401,
+          "relative_rms_difference": 0.28405765527067817,
+          "rms_difference": 0.31597646914097127,
+          "sample_count": 64
+        },
+        "sampling": "exact common physical times; coarse samples nested in fine grid"
+      },
+      "held_reference": {
+        "coordinate_samples": [
+          0.002024999948844197,
+          0.002049999948212644,
+          0.002074999947581091,
+          0.002099999946949538,
+          0.0021249999463179847,
+          0.0021499999456864316,
+          0.0021749999450548785,
+          0.0021999999444233254,
+          0.0022249999437917722,
+          0.002249999943160219,
+          0.002274999942528666,
+          0.002299999941897113,
+          0.0023249999412655598,
+          0.0023499999406340066,
+          0.0023749999400024535,
+          0.0023999999393709004,
+          0.0024249999387393473,
+          0.002449999938107794,
+          0.002474999937476241,
+          0.002499999936844688,
+          0.002524999936213135,
+          0.0025499999355815817,
+          0.0025749999349500285,
+          0.0025999999343184754,
+          0.0026249999336869223,
+          0.002649999933055369,
+          0.002674999932423816,
+          0.002699999931792263,
+          0.00272499993116071,
+          0.0027499999305291567,
+          0.0027749999298976036,
+          0.0027999999292660505,
+          0.0028249999286344973,
+          0.002849999928002944,
+          0.002874999927371391,
+          0.002899999926739838,
+          0.002924999926108285,
+          0.0029499999254767317,
+          0.0029749999248451786,
+          0.0029999999242136255,
+          0.0030249999235820724,
+          0.0030499999229505192,
+          0.003074999922318966,
+          0.003099999921687413,
+          0.00312499992105586,
+          0.0031499999204243068,
+          0.0031749999197927536,
+          0.0031999999191612005,
+          0.0032249999185296474,
+          0.0032499999178980943,
+          0.003274999917266541,
+          0.003299999916634988,
+          0.003324999916003435,
+          0.003349999915371882,
+          0.0033749999147403287,
+          0.0033999999141087756,
+          0.0034249999134772224,
+          0.0034499999128456693,
+          0.003474999912214116,
+          0.003499999911582563,
+          0.00352499991095101,
+          0.003549999910319457,
+          0.0035749999096879037,
+          0.0035999999090563506
+        ],
+        "kinetic_energy_J": {
+          "baseline_max_abs": 1.7196025312981875e-14,
+          "candidate_max_abs": 1.2768659946803463e-14,
+          "max_abs_difference": 5.662060898407756e-15,
+          "relative_rms_difference": 0.24983758857881183,
+          "rms_difference": 3.5921360906140824e-15,
+          "sample_count": 64
+        },
+        "matched_samples": [],
+        "max_free_displacement_m": {
+          "baseline_max_abs": 1.938437767947673e-09,
+          "candidate_max_abs": 1.9248804772331596e-09,
+          "max_abs_difference": 5.5159979810940796e-11,
+          "relative_rms_difference": 0.01029920223892944,
+          "rms_difference": 1.9381154625156213e-11,
+          "sample_count": 64
+        },
+        "max_free_speed_m_s": {
+          "baseline_max_abs": 4.875108404518384e-05,
+          "candidate_max_abs": 4.963342825163132e-05,
+          "max_abs_difference": 1.413968805453525e-05,
+          "relative_rms_difference": 0.16238659896295324,
+          "rms_difference": 5.97607410826478e-06,
+          "sample_count": 64
+        },
+        "reaction_moment_y_Nm": {
+          "baseline_max_abs": 3.100069749407337e-07,
+          "candidate_max_abs": 2.475544296532954e-07,
+          "max_abs_difference": 5.572318051940785e-07,
+          "relative_rms_difference": 1.84300455943477,
+          "rms_difference": 5.390342425204106e-07,
+          "sample_count": 64
+        },
+        "reaction_x_N": {
+          "baseline_max_abs": 0.0030624064820585772,
+          "candidate_max_abs": 0.003341826590258279,
+          "max_abs_difference": 0.0003116840748589311,
+          "relative_rms_difference": 0.09895853260915057,
+          "rms_difference": 0.00030095979559395145,
+          "sample_count": 64
+        },
+        "reaction_y_N": {
+          "baseline_max_abs": 0.005432878460851498,
+          "candidate_max_abs": 0.0033618613670114428,
+          "max_abs_difference": 0.004156999755650759,
+          "relative_rms_difference": 0.5724287289875492,
+          "rms_difference": 0.002287130324839865,
+          "sample_count": 64
+        },
+        "reaction_z_N": {
+          "baseline_max_abs": 0.00010551779274692308,
+          "candidate_max_abs": 3.26602948348409e-05,
+          "max_abs_difference": 0.00013790555857440268,
+          "relative_rms_difference": 1.2613414131989658,
+          "rms_difference": 0.0001298841354527845,
+          "sample_count": 64
+        },
+        "sampling": "exact common physical times; coarse samples nested in fine grid"
+      }
+    },
+    "unloading": {
+      "bent": {
+        "coordinate_samples": [
+          0.001224999969053897,
+          0.001249999968422344,
+          0.0012749999677907908,
+          0.0012999999671592377,
+          0.0013249999665276846,
+          0.0013499999658961315,
+          0.0013749999652645783,
+          0.0013999999646330252,
+          0.001424999964001472,
+          0.001449999963369919,
+          0.0014749999627383659,
+          0.0014999999621068127,
+          0.0015249999614752596,
+          0.0015499999608437065,
+          0.0015749999602121534,
+          0.0015999999595806003,
+          0.0016249999589490471,
+          0.001649999958317494,
+          0.001674999957685941,
+          0.0016999999570543878,
+          0.0017249999564228347,
+          0.0017499999557912815,
+          0.0017749999551597284,
+          0.0017999999545281753,
+          0.0018249999538966222,
+          0.001849999953265069,
+          0.001874999952633516,
+          0.0018999999520019628,
+          0.0019249999513704097,
+          0.0019499999507388566,
+          0.0019749999501073034,
+          0.0019999999494757503
+        ],
+        "kinetic_energy_J": {
+          "baseline_max_abs": 3.857996610518583e-09,
+          "candidate_max_abs": 2.5015269703296613e-09,
+          "max_abs_difference": 1.4621814855143205e-09,
+          "relative_rms_difference": 0.23020000249055655,
+          "rms_difference": 5.384253387106348e-10,
+          "sample_count": 32
+        },
+        "matched_samples": [],
+        "max_free_displacement_m": {
+          "baseline_max_abs": 1.2032865352934443e-05,
+          "candidate_max_abs": 1.2395719105475445e-05,
+          "max_abs_difference": 6.27405961202291e-07,
+          "relative_rms_difference": 0.035058960641582294,
+          "rms_difference": 3.461043863045817e-07,
+          "sample_count": 32
+        },
+        "max_free_speed_m_s": {
+          "baseline_max_abs": 0.014375718911220666,
+          "candidate_max_abs": 0.01541047329661115,
+          "max_abs_difference": 0.003909670943596514,
+          "relative_rms_difference": 0.12131266603291514,
+          "rms_difference": 0.0014680460590812577,
+          "sample_count": 32
+        },
+        "reaction_moment_y_Nm": {
+          "baseline_max_abs": 0.057316501535665115,
+          "candidate_max_abs": 0.06447748183713162,
+          "max_abs_difference": 0.009936870105452834,
+          "relative_rms_difference": 0.18539249807209374,
+          "rms_difference": 0.005871382565208672,
+          "sample_count": 32
+        },
+        "reaction_x_N": {
+          "baseline_max_abs": 1.6128652095794678,
+          "candidate_max_abs": 3.5015269219875336,
+          "max_abs_difference": 2.323026016354561,
+          "relative_rms_difference": 1.8705169807166053,
+          "rms_difference": 1.6357015124619911,
+          "sample_count": 32
+        },
+        "reaction_y_N": {
+          "baseline_max_abs": 0.1016652489779517,
+          "candidate_max_abs": 0.12986699538305402,
+          "max_abs_difference": 0.04963381798006594,
+          "relative_rms_difference": 0.39639373771452824,
+          "rms_difference": 0.026855497541549176,
+          "sample_count": 32
+        },
+        "reaction_z_N": {
+          "baseline_max_abs": 2.279902331531048,
+          "candidate_max_abs": 1.9048058297485113,
+          "max_abs_difference": 0.8869171161204576,
+          "relative_rms_difference": 0.4125598611779414,
+          "rms_difference": 0.5290152575800886,
+          "sample_count": 32
+        },
+        "sampling": "exact common physical times; coarse samples nested in fine grid"
+      },
+      "held_reference": {
+        "coordinate_samples": [
+          0.001224999969053897,
+          0.001249999968422344,
+          0.0012749999677907908,
+          0.0012999999671592377,
+          0.0013249999665276846,
+          0.0013499999658961315,
+          0.0013749999652645783,
+          0.0013999999646330252,
+          0.001424999964001472,
+          0.001449999963369919,
+          0.0014749999627383659,
+          0.0014999999621068127,
+          0.0015249999614752596,
+          0.0015499999608437065,
+          0.0015749999602121534,
+          0.0015999999595806003,
+          0.0016249999589490471,
+          0.001649999958317494,
+          0.001674999957685941,
+          0.0016999999570543878,
+          0.0017249999564228347,
+          0.0017499999557912815,
+          0.0017749999551597284,
+          0.0017999999545281753,
+          0.0018249999538966222,
+          0.001849999953265069,
+          0.001874999952633516,
+          0.0018999999520019628,
+          0.0019249999513704097,
+          0.0019499999507388566,
+          0.0019749999501073034,
+          0.0019999999494757503
+        ],
+        "kinetic_energy_J": {
+          "baseline_max_abs": 1.6684299820823965e-14,
+          "candidate_max_abs": 1.446986806745608e-14,
+          "max_abs_difference": 4.68411666553418e-15,
+          "relative_rms_difference": 0.17348330376944196,
+          "rms_difference": 2.6892408658398483e-15,
+          "sample_count": 32
+        },
+        "matched_samples": [],
+        "max_free_displacement_m": {
+          "baseline_max_abs": 1.877140660839749e-09,
+          "candidate_max_abs": 1.863554421996479e-09,
+          "max_abs_difference": 1.3586238843269755e-11,
+          "relative_rms_difference": 0.007237730835360989,
+          "rms_difference": 1.3586238843269755e-11,
+          "sample_count": 32
+        },
+        "max_free_speed_m_s": {
+          "baseline_max_abs": 3.6242613935731994e-05,
+          "candidate_max_abs": 4.553535692235323e-05,
+          "max_abs_difference": 1.4316278068434357e-05,
+          "relative_rms_difference": 0.29531466494632425,
+          "rms_difference": 9.949173119176645e-06,
+          "sample_count": 32
+        },
+        "reaction_moment_y_Nm": {
+          "baseline_max_abs": 3.109936305127118e-07,
+          "candidate_max_abs": 2.472676536262957e-07,
+          "max_abs_difference": 5.575099550217149e-07,
+          "relative_rms_difference": 1.8670422472748591,
+          "rms_difference": 5.303531547404212e-07,
+          "sample_count": 32
+        },
+        "reaction_x_N": {
+          "baseline_max_abs": 0.003062406449316768,
+          "candidate_max_abs": 0.003341826567066164,
+          "max_abs_difference": 0.0003116841462542652,
+          "relative_rms_difference": 0.0971515657703639,
+          "rms_difference": 0.0002959548224793114,
+          "sample_count": 32
+        },
+        "reaction_y_N": {
+          "baseline_max_abs": 0.005631743260892108,
+          "candidate_max_abs": 0.0034943181526614353,
+          "max_abs_difference": 0.003918159141903743,
+          "relative_rms_difference": 0.503968849891721,
+          "rms_difference": 0.0022147226658433264,
+          "sample_count": 32
+        },
+        "reaction_z_N": {
+          "baseline_max_abs": 0.00011458703360744948,
+          "candidate_max_abs": 3.2593887738130434e-05,
+          "max_abs_difference": 0.0001392298676421433,
+          "relative_rms_difference": 1.263854811796321,
+          "rms_difference": 0.00012862670841311762,
+          "sample_count": 32
+        },
+        "sampling": "exact common physical times; coarse samples nested in fine grid"
+      }
+    }
+  },
+  "reasons": [],
+  "regional_mesh_sensitivity": {
+    "baseline": {
+      "minimum_reference_tet_volume_m3": 2.9999999999999463e-11,
+      "nodes": 588,
+      "regional_discretized_geometry": {
+        "hajali2009_liner_hill_ideal": {
+          "manifest_mass_kg": 0.00026819804028965777,
+          "manifest_volume_m3": 3.5012798993427907e-07,
+          "reference_mass_kg": 0.0002681980480000003,
+          "reference_volume_m3": 3.501280000000004e-07,
+          "tetrahedra": 576
+        },
+        "hajali2009_medium_hill_ideal": {
+          "manifest_mass_kg": 0.00010907557249147104,
+          "manifest_volume_m3": 1.6064149115091464e-07,
+          "reference_mass_kg": 0.00010907551828276524,
+          "reference_volume_m3": 1.6064141131482362e-07,
+          "tetrahedra": 288
+        },
+        "starch2007_finite_glue_elastic": {
+          "manifest_mass_kg": 1.697724699885328e-05,
+          "manifest_volume_m3": 1.1318164665902186e-08,
+          "reference_mass_kg": 1.6977248271002437e-05,
+          "reference_volume_m3": 1.1318165514001624e-08,
+          "tetrahedra": 96
+        }
+      },
+      "resolution": [
+        8,
+        1,
+        1
+      ],
+      "tetrahedra": 960
+    },
+    "by_material": {
+      "hajali2009_liner_hill_ideal": {
+        "mass_difference_kg": -2.710505431213761e-19,
+        "tetrahedra_difference": 384,
+        "volume_difference_m3": -3.705769144237564e-22,
+        "volume_relative_difference": -1.058404110564582e-15
+      },
+      "hajali2009_medium_hill_ideal": {
+        "mass_difference_kg": 9.394154264457652e-07,
+        "tetrahedra_difference": 192,
+        "volume_difference_m3": 1.3835278739996564e-09,
+        "volume_relative_difference": 0.00861252315125787
+      },
+      "starch2007_finite_glue_elastic": {
+        "mass_difference_kg": 0.0,
+        "tetrahedra_difference": 0,
+        "volume_difference_m3": 0.0,
+        "volume_relative_difference": 0.0
+      }
+    },
+    "candidate": {
+      "minimum_reference_tet_volume_m3": 2.9999999999999463e-11,
+      "nodes": 972,
+      "regional_discretized_geometry": {
+        "hajali2009_liner_hill_ideal": {
+          "manifest_mass_kg": 0.00026819804079991627,
+          "manifest_volume_m3": 3.501279906004129e-07,
+          "reference_mass_kg": 0.000268198048,
+          "reference_volume_m3": 3.50128e-07,
+          "tetrahedra": 960
+        },
+        "hajali2009_medium_hill_ideal": {
+          "manifest_mass_kg": 0.00011001498390479647,
+          "manifest_volume_m3": 1.6202501311457507e-07,
+          "reference_mass_kg": 0.000110014933709211,
+          "reference_volume_m3": 1.6202493918882327e-07,
+          "tetrahedra": 480
+        },
+        "starch2007_finite_glue_elastic": {
+          "manifest_mass_kg": 1.697724699885328e-05,
+          "manifest_volume_m3": 1.1318164665902186e-08,
+          "reference_mass_kg": 1.6977248271002437e-05,
+          "reference_volume_m3": 1.1318165514001624e-08,
+          "tetrahedra": 96
+        }
+      },
+      "resolution": [
+        16,
+        1,
+        1
+      ],
+      "tetrahedra": 1536
+    },
+    "note": "reference-region volume and mass may vary with mesh discretization; reported, not used as a material-source match gate"
+  },
+  "schema": "numi.cardboard.convergence-analysis.v1",
+  "status": "analyzed_descriptive"
+}

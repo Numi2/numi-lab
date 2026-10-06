@@ -1,0 +1,1066 @@
+{
+  "title": "FP64 local Hill law material-point path audit",
+  "scope": "synthetic constitutive material point only; not a board, mesh, or physical diagnosis",
+  "python_runtime": {
+    "version": "3.14.6",
+    "float_mantissa_bits": 53,
+    "float_epsilon": 2.220446049250313e-16,
+    "dependencies": "Python standard library only"
+  },
+  "implementation": "independent Python standard-library double-precision solve of stress/Ep/DeltaLambda equations transcribed from the exact scale-10 material-copy equations; forward-difference damped Newton, local residual norm target 2e-13; stresses reported in MPa",
+  "source_materials": {
+    "liner": {
+      "material_copy_path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/structured-paper-and-glue/paper-calibration-009/liner.nmatter",
+      "material_copy_sha256": "c6cd258db8516a7ef3a3a8c1f2482c1a32e1e8b972dd07dbf8b4fb6a9e9d758c",
+      "canonical_material_path": "/Users/home/numi-cardboard-20261006/matter/materials/hajali2009_liner_hill_ideal.nmatter",
+      "canonical_material_sha256": "787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d",
+      "copy_and_canonical_math_equal_after_comment_and_whitespace_removal": true,
+      "explicit_dt_time_or_rate_token_in_code": false
+    },
+    "medium": {
+      "material_copy_path": "/Users/home/numi-cardboard-20261006/matter/examples/cardboard/evidence/structured-paper-and-glue/paper-calibration-009/medium.nmatter",
+      "material_copy_sha256": "d1665e8846f48bc366f0f3d50bb8eafb8c6d382dd0acf9d9c4f8f8848a3cfce5",
+      "canonical_material_path": "/Users/home/numi-cardboard-20261006/matter/materials/hajali2009_medium_hill_ideal.nmatter",
+      "canonical_material_sha256": "ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8",
+      "copy_and_canonical_math_equal_after_comment_and_whitespace_removal": true,
+      "explicit_dt_time_or_rate_token_in_code": false
+    }
+  },
+  "material_parameters": {
+    "liner": {
+      "sigma_ref": 22.92,
+      "C": [
+        [
+          4843.6261790411845,
+          381.24384915298583,
+          0.22861936478052688
+        ],
+        [
+          381.24384915298583,
+          2118.009773355429,
+          0.20899490085830671
+        ],
+        [
+          0.22861936478052688,
+          0.20899490085830671,
+          19.100028262603168
+        ]
+      ],
+      "G": {
+        "12": 1222.0,
+        "13": 166.28,
+        "23": 137.28
+      },
+      "hill": {
+        "F": 6.307660915935419,
+        "G": 2.981864887595591,
+        "H": -1.9818648875955915,
+        "L": 456012.5,
+        "M": 456012.5,
+        "N": 59.56081632653061
+      }
+    },
+    "medium": {
+      "sigma_ref": 9.391,
+      "C": [
+        [
+          4524.848543681839,
+          293.59114732344125,
+          0.21371636195674576
+        ],
+        [
+          293.59114732344125,
+          1631.0512147406462,
+          0.19286701249506086
+        ],
+        [
+          0.21371636195674576,
+          0.19286701249506086,
+          17.90002997076348
+        ]
+      ],
+      "G": {
+        "12": 1039.0,
+        "13": 226.34,
+        "23": 198.72
+      },
+      "hill": {
+        "F": 5.612051993569077,
+        "G": 2.841099191623919,
+        "H": -1.8410991916239194,
+        "L": 76554.58420138889,
+        "M": 76554.58420138889,
+        "N": 9.998966099773243
+      }
+    }
+  },
+  "law_audit": {
+    "stress_law": "normalized StVK second Piola stress from current Green strain minus additive Ep; diagonal stress couples through the symmetric 3x3 C matrix; shear stresses are Gij*(Cij-2*Epij)/sigma_ref",
+    "hill_measure": "q=sqrt(Hill quadratic normalized stress + q_floor^2)",
+    "flow_update": "Ep_next=Ep_old+DeltaLambda*HillFlow(sigma_bar_next,q_next)",
+    "smooth_complementarity": "sqrt(DeltaLambda^2+(1-q)^2+fb_epsilon^2)-DeltaLambda-(1-q)=0",
+    "explicit_dt_or_strain_rate_dependence": false,
+    "rate_independence_limit": "no physical time or strain-rate argument occurs in the local constitutive equations; subdivision differences arise from incremental backward-Euler path integration and the smooth complementarity regularizer, not a rate law",
+    "residual_scale_note": "all 13 implicit residual rows use residual_scale=10; multiplying equations leaves the exact root unchanged but can change finite-tolerance solver error",
+    "monotonicity": "the oracle enforces DeltaLambda >= 0 in line search; positive increments, including tiny subyield smoothing increments, are expected. This checks mathematical increment monotonicity only, not GPU state transfer."
+  },
+  "synthetic_paths": {
+    "held_md_compression": "Green E11 increases linearly from 0 to -0.010 over n equal strain increments, then remains fixed for n updates; each update is a rate-independent local material update, with no physical hold-time assigned",
+    "proportional_md_compression_plus_cd_shear_cycle": "Green E11 and engineering C12 increase proportionally from (0,0) to (-0.006,0.004) over n equal increments, then are strain-controlled back to (0,0) over n increments; final residual stress is therefore for prescribed zero total strain, not force-free relaxation"
+  },
+  "regularization": {
+    "hill_q_floor": 2e-06,
+    "smooth_FB_epsilon": 1e-08
+  },
+  "native_temporal_refinement_context_from_requesting_agent": {
+    "source_status": "values supplied by parent for diagnosis; not recomputed by this CPU oracle",
+    "coarse_dt_us": 25.0,
+    "coarse_steps": 144,
+    "fine_dt_us": 12.5,
+    "fine_steps": 288,
+    "protocol_duration_ms": 3.6,
+    "protocol": "clamped",
+    "reported_endpoint_moment_difference_percent_range": [
+      19.0,
+      24.0
+    ],
+    "reported_weighted_EP_RMS_final_coarse": 0.00082457,
+    "reported_weighted_EP_RMS_final_fine": 0.000695219,
+    "reported_weighted_EP_RMS_relative_change_percent": 15.688
+  },
+  "subdivisions": [
+    32,
+    64,
+    128
+  ],
+  "materials": {
+    "liner": {
+      "held_md_compression": {
+        "32": {
+          "loaded": {
+            "strain": [
+              -0.01,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "ep": [
+              -0.0022880184911794705,
+              -0.004424017313408449,
+              0.006712035804587921,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "stress_MPa": [
+              -35.668860640483395,
+              6.428563611015796,
+              -0.12903858482116815,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lambda": 0.00229953874337997,
+            "q": 0.9999999999997342
+          },
+          "held": {
+            "ep": [
+              -0.0022880207454054834,
+              -0.004424021519996709,
+              0.00671204226540219,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "stress_MPa": [
+              -35.66884811959643,
+              6.428573378670367,
+              -0.12903870682838808,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lambda": 0.002299541035249907,
+            "q": 0.9999986654836197,
+            "hold_delta_lambda": 2.291869937311178e-09,
+            "hold_delta_ep_norm": 8.032374538390576e-09,
+            "hold_delta_stress_norm_MPa": 1.588063512674065e-05
+          },
+          "min_delta_lambda": 5.413614509805996e-17,
+          "negative_delta_lambda_count": 0,
+          "iterations_max": null
+        },
+        "64": {
+          "loaded": {
+            "strain": [
+              -0.01,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "ep": [
+              -0.0022866986588852053,
+              -0.00442570459998918,
+              0.006712403258874385,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "stress_MPa": [
+              -35.67461023111234,
+              6.431634045744063,
+              -0.12904555231335396,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lambda": 0.0022977145027911444,
+            "q": 0.9999999999993727
+          },
+          "held": {
+            "ep": [
+              -0.0022867018804221414,
+              -0.004425710611485361,
+              0.0067124124919075035,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "stress_MPa": [
+              -35.674592337456616,
+              6.431648004413208,
+              -0.12904572667166966,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lambda": 0.0022977177781772344,
+            "q": 0.9999980929274498,
+            "hold_delta_lambda": 3.2753860898320583e-09,
+            "hold_delta_ep_norm": 1.1478906181848173e-08,
+            "hold_delta_stress_norm_MPa": 2.2694884012358856e-05
+          },
+          "min_delta_lambda": 5.1985931541150004e-17,
+          "negative_delta_lambda_count": 0,
+          "iterations_max": null
+        },
+        "128": {
+          "loaded": {
+            "strain": [
+              -0.01,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "ep": [
+              -0.0022860388494928127,
+              -0.004426548121578005,
+              0.00671258697107082,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "stress_MPa": [
+              -35.67748455574131,
+              6.433169046045853,
+              -0.12904903577499136,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lambda": 0.002296807296107769,
+            "q": 0.9999999999984912
+          },
+          "held": {
+            "ep": [
+              -0.002286043430974622,
+              -0.004426556670647921,
+              0.00671260010162254,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "stress_MPa": [
+              -35.677459108477656,
+              6.433188896977029,
+              -0.12904928373477284,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lambda": 0.0022968119542076627,
+            "q": 0.999997287942236,
+            "hold_delta_lambda": 4.658099893674012e-09,
+            "hold_delta_ep_norm": 1.6324458964293272e-08,
+            "hold_delta_stress_norm_MPa": 3.2275132535300495e-05
+          },
+          "min_delta_lambda": 5.09736301465623e-17,
+          "negative_delta_lambda_count": 0,
+          "iterations_max": null
+        },
+        "subdivision_comparison_to_128": {
+          "loaded": {
+            "32_vs_128": {
+              "stress_vector_L2_error_MPa": 0.009776607561633713,
+              "stress_relative_error_percent": 0.026967666601713323,
+              "plastic_strain_vector_L2_error": 3.2600238788260864e-06,
+              "plastic_strain_relative_error_percent": 0.038998423373421305,
+              "accumulated_multiplier_absolute_error": 2.7314472722007876e-06,
+              "accumulated_multiplier_relative_error_percent": 0.11892365880366068
+            },
+            "64_vs_128": {
+              "stress_vector_L2_error_MPa": 0.003258524226348571,
+              "stress_relative_error_percent": 0.008988270665033203,
+              "plastic_strain_vector_L2_error": 1.0865667380436994e-06,
+              "plastic_strain_relative_error_percent": 0.012998183832004413,
+              "accumulated_multiplier_absolute_error": 9.072066833753535e-07,
+              "accumulated_multiplier_relative_error_percent": 0.03949859811542441
+            }
+          },
+          "held": {
+            "32_vs_128": {
+              "stress_vector_L2_error_MPa": 0.009769966766710509,
+              "stress_relative_error_percent": 0.02694936471683646,
+              "plastic_strain_vector_L2_error": 3.263118513257804e-06,
+              "plastic_strain_relative_error_percent": 0.03903536707964964,
+              "accumulated_multiplier_absolute_error": 2.7290810422444557e-06,
+              "accumulated_multiplier_relative_error_percent": 0.11882039525460038
+            },
+            "64_vs_128": {
+              "stress_vector_L2_error_MPa": 0.0032546487726039437,
+              "stress_relative_error_percent": 0.008977585993124058,
+              "plastic_strain_vector_L2_error": 1.0883791557477746e-06,
+              "plastic_strain_relative_error_percent": 0.013019839669886051,
+              "accumulated_multiplier_absolute_error": 9.058239695716556e-07,
+              "accumulated_multiplier_relative_error_percent": 0.03943831657233516
+            }
+          }
+        },
+        "monotonicity_check": {
+          "all_increments_nonnegative_within_1e-15": true,
+          "minimum_increment_by_subdivision": {
+            "32": 5.413614509805996e-17,
+            "64": 5.1985931541150004e-17,
+            "128": 5.09736301465623e-17
+          }
+        }
+      },
+      "proportional_md_compression_plus_cd_shear_cycle": {
+        "32": {
+          "loaded": {
+            "strain": [
+              -0.006,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.004
+            ],
+            "ep": [
+              -0.0007490893007413861,
+              -0.0014850302979309874,
+              0.0022341195986723735,
+              0.0,
+              0.0,
+              0.0018334222330930361
+            ],
+            "stress_MPa": [
+              -24.867800622847955,
+              1.1429643585987748,
+              -0.043561843585374085,
+              0.0,
+              0.0,
+              0.4071160623206202
+            ],
+            "lambda": 0.0008418325529671794,
+            "q": 0.9999999999993046
+          },
+          "unloaded": {
+            "strain": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "ep": [
+              -0.0007147260884497973,
+              -0.0014064440925740688,
+              0.0021211701810238664,
+              0.0,
+              0.0,
+              0.0007586351984090053
+            ],
+            "stress_MPa": [
+              3.9975792117511832,
+              3.250903945048857,
+              -0.0400570705393232,
+              0.0,
+              0.0,
+              -1.8541044249116092
+            ],
+            "lambda": 0.0010468827008807623,
+            "q": 0.9999999999969963,
+            "unload_delta_lambda": 0.00020505014791358302,
+            "unload_ep_drift_norm": 0.0010841039446950764,
+            "residual_stress_norm_MPa": 5.476159585104915
+          },
+          "min_delta_lambda": 5.4703301289797814e-17,
+          "negative_delta_lambda_count": 0
+        },
+        "64": {
+          "loaded": {
+            "strain": [
+              -0.006,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.004
+            ],
+            "ep": [
+              -0.0007472462860504949,
+              -0.0014820043039864138,
+              0.0022292505900369085,
+              0.0,
+              0.0,
+              0.0018380967725425902
+            ],
+            "stress_MPa": [
+              -24.87788002548239,
+              1.1358536534332302,
+              -0.04346989914897821,
+              0.0,
+              0.0,
+              0.39569148790590974
+            ],
+            "lambda": 0.0008413759694200634,
+            "q": 0.9999999999986219
+          },
+          "unloaded": {
+            "strain": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "ep": [
+              -0.0007154908181365216,
+              -0.0014086203690768999,
+              0.002124111187213422,
+              0.0,
+              0.0,
+              0.0007583410042973926
+            ],
+            "stress_MPa": [
+              4.002112296141484,
+              3.2558042537854073,
+              -0.04011261417795704,
+              0.0,
+              0.0,
+              -1.8533854145028272
+            ],
+            "lambda": 0.0010469963144007946,
+            "q": 0.9999999999938145,
+            "unload_delta_lambda": 0.00020562034498073124,
+            "unload_ep_drift_norm": 0.0010878053248307325,
+            "residual_stress_norm_MPa": 5.482135595404588
+          },
+          "min_delta_lambda": 5.22460138485839e-17,
+          "negative_delta_lambda_count": 0
+        },
+        "128": {
+          "loaded": {
+            "strain": [
+              -0.006,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.004
+            ],
+            "ep": [
+              -0.0007463448994910356,
+              -0.001480532340673602,
+              0.0022268772401646377,
+              0.0,
+              0.0,
+              0.0018404275719556865
+            ],
+            "stress_MPa": [
+              -24.882806639384672,
+              1.1323928686871922,
+              -0.04342508180659007,
+              0.0,
+              0.0,
+              0.389995014140302
+            ],
+            "lambda": 0.0008411932027787406,
+            "q": 0.9999999999972333
+          },
+          "unloaded": {
+            "strain": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "ep": [
+              -0.0007158968924741316,
+              -0.0014097566891881613,
+              0.0021256535816622946,
+              0.0,
+              0.0,
+              0.0007581864298793068
+            ],
+            "stress_MPa": [
+              4.004512030865617,
+              3.2583654818776577,
+              -0.04014174363395648,
+              0.0,
+              0.0,
+              -1.8530076346250257
+            ],
+            "lambda": 0.0010471057347700447,
+            "q": 0.999999999987851,
+            "unload_delta_lambda": 0.00020591253199130413,
+            "unload_ep_drift_norm": 0.0010896918796696044,
+            "residual_stress_norm_MPa": 5.485281293826224
+          },
+          "min_delta_lambda": 5.10983381021397e-17,
+          "negative_delta_lambda_count": 0
+        },
+        "subdivision_comparison_to_128": {
+          "loaded": {
+            "32_vs_128": {
+              "stress_vector_L2_error_MPa": 0.025101512421123417,
+              "stress_relative_error_percent": 0.1007621385529294,
+              "plastic_strain_vector_L2_error": 1.1370571095917957e-05,
+              "plastic_strain_relative_error_percent": 0.3413622105370867,
+              "accumulated_multiplier_absolute_error": 6.393501884387719e-07,
+              "accumulated_multiplier_relative_error_percent": 0.07600515390837513
+            },
+            "64_vs_128": {
+              "stress_vector_L2_error_MPa": 0.008288569089836634,
+              "stress_relative_error_percent": 0.03327185760858105,
+              "plastic_strain_vector_L2_error": 3.747611138330113e-06,
+              "plastic_strain_relative_error_percent": 0.11250910896402048,
+              "accumulated_multiplier_absolute_error": 1.8276664132284553e-07,
+              "accumulated_multiplier_relative_error_percent": 0.021727070632419115
+            }
+          },
+          "unloaded": {
+            "32_vs_128": {
+              "stress_vector_L2_error_MPa": 0.010244443917885582,
+              "stress_relative_error_percent": 0.18676241689584588,
+              "plastic_strain_vector_L2_error": 5.713698703029469e-06,
+              "plastic_strain_relative_error_percent": 0.20735079926112157,
+              "accumulated_multiplier_absolute_error": 2.2303388928237265e-07,
+              "accumulated_multiplier_relative_error_percent": 0.021300035123134265
+            },
+            "64_vs_128": {
+              "stress_vector_L2_error_MPa": 0.0035301816168604753,
+              "stress_relative_error_percent": 0.06435734883521387,
+              "plastic_strain_vector_L2_error": 1.9644321443008012e-06,
+              "plastic_strain_relative_error_percent": 0.07128947401427393,
+              "accumulated_multiplier_absolute_error": 1.094203692501329e-07,
+              "accumulated_multiplier_relative_error_percent": 0.010449791803896743
+            }
+          }
+        },
+        "monotonicity_check": {
+          "all_increments_nonnegative_within_1e-15": true,
+          "minimum_increment_by_subdivision": {
+            "32": 5.4703301289797814e-17,
+            "64": 5.22460138485839e-17,
+            "128": 5.10983381021397e-17
+          }
+        }
+      }
+    },
+    "medium": {
+      "held_md_compression": {
+        "32": {
+          "loaded": {
+            "strain": [
+              -0.01,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "ep": [
+              -0.0040998995843249215,
+              -0.006648288907708905,
+              0.010748188492033827,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "stress_MPa": [
+              -24.747479069034174,
+              9.109409477499623,
+              -0.19237160851500434,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lambda": 0.004440868556661523,
+            "q": 0.9999999999997831
+          },
+          "held": {
+            "ep": [
+              -0.004099901427229382,
+              -0.006648291420890661,
+              0.01074819284812004,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "stress_MPa": [
+              -24.74746999325366,
+              9.109414116848065,
+              -0.1923716856105094,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lambda": 0.004440870886088688,
+            "q": 0.9999986870716059,
+            "hold_delta_lambda": 2.3294271646257115e-09,
+            "hold_delta_ep_norm": 5.356105532388372e-09,
+            "hold_delta_stress_norm_MPa": 1.0193100098326721e-05
+          },
+          "min_delta_lambda": 6.014284170508827e-17,
+          "negative_delta_lambda_count": 0,
+          "iterations_max": null
+        },
+        "64": {
+          "loaded": {
+            "strain": [
+              -0.01,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "ep": [
+              -0.004094703994505789,
+              -0.006658375238236537,
+              0.010753079232742326,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "stress_MPa": [
+              -24.76802811394026,
+              9.12433447672042,
+              -0.19245831798238416,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lambda": 0.00442508931129721,
+            "q": 0.9999999999996552
+          },
+          "held": {
+            "ep": [
+              -0.004094706629093859,
+              -0.006658378827794346,
+              0.01075308545688821,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "stress_MPa": [
+              -24.768015140296075,
+              9.124341103764348,
+              -0.19245842813942016,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lambda": 0.004425092644630902,
+            "q": 0.9999981262696712,
+            "hold_delta_lambda": 3.333333691566938e-09,
+            "hold_delta_ep_norm": 7.652840750365278e-09,
+            "hold_delta_stress_norm_MPa": 1.456864061022952e-05
+          },
+          "min_delta_lambda": 5.4604403495681954e-17,
+          "negative_delta_lambda_count": 0,
+          "iterations_max": null
+        },
+        "128": {
+          "loaded": {
+            "strain": [
+              -0.01,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "ep": [
+              -0.0040921083083327306,
+              -0.006663417024177475,
+              0.010755525332510212,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "stress_MPa": [
+              -24.778293499792863,
+              9.131795345550255,
+              -0.1925016855879544,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lambda": 0.004417243544281708,
+            "q": 0.9999999999991276
+          },
+          "held": {
+            "ep": [
+              -0.0040921120558498544,
+              -0.006663422127756313,
+              0.010755534183606166,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "stress_MPa": [
+              -24.778275046371522,
+              9.131804768279487,
+              -0.19250184223761954,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "lambda": 0.004417248288014083,
+            "q": 0.9999973370369941,
+            "hold_delta_lambda": 4.743732375870619e-09,
+            "hold_delta_ep_norm": 1.08826605720939e-08,
+            "hold_delta_stress_norm_MPa": 2.0720548365448805e-05
+          },
+          "min_delta_lambda": 5.220086504289871e-17,
+          "negative_delta_lambda_count": 0,
+          "iterations_max": null
+        },
+        "subdivision_comparison_to_128": {
+          "loaded": {
+            "32_vs_128": {
+              "stress_vector_L2_error_MPa": 0.03808770341471424,
+              "stress_relative_error_percent": 0.14422706001742927,
+              "plastic_strain_vector_L2_error": 1.853086931714267e-05,
+              "plastic_strain_relative_error_percent": 0.13935434649789077,
+              "accumulated_multiplier_absolute_error": 2.3625012379815263e-05,
+              "accumulated_multiplier_relative_error_percent": 0.53483608370199
+            },
+            "64_vs_128": {
+              "stress_vector_L2_error_MPa": 0.012690334556189243,
+              "stress_relative_error_percent": 0.04805460764456791,
+              "plastic_strain_vector_L2_error": 6.175807336510974e-06,
+              "plastic_strain_relative_error_percent": 0.046442807444560225,
+              "accumulated_multiplier_absolute_error": 7.845767015502575e-06,
+              "accumulated_multiplier_relative_error_percent": 0.17761680869190977
+            }
+          },
+          "held": {
+            "32_vs_128": {
+              "stress_vector_L2_error_MPa": 0.03808292937610488,
+              "stress_relative_error_percent": 0.14420905887255486,
+              "plastic_strain_vector_L2_error": 1.8533963511951444e-05,
+              "plastic_strain_relative_error_percent": 0.13937750128326057,
+              "accumulated_multiplier_absolute_error": 2.362259807460465e-05,
+              "accumulated_multiplier_relative_error_percent": 0.534780853018904
+            },
+            "64_vs_128": {
+              "stress_vector_L2_error_MPa": 0.012687546865153637,
+              "stress_relative_error_percent": 0.04804407703923266,
+              "plastic_strain_vector_L2_error": 6.177616641076884e-06,
+              "plastic_strain_relative_error_percent": 0.04645637565672148,
+              "accumulated_multiplier_absolute_error": 7.844356616818447e-06,
+              "accumulated_multiplier_relative_error_percent": 0.17758468859682622
+            }
+          }
+        },
+        "monotonicity_check": {
+          "all_increments_nonnegative_within_1e-15": true,
+          "minimum_increment_by_subdivision": {
+            "32": 6.014284170508827e-17,
+            "64": 5.4604403495681954e-17,
+            "128": 5.220086504289871e-17
+          }
+        }
+      },
+      "proportional_md_compression_plus_cd_shear_cycle": {
+        "32": {
+          "loaded": {
+            "strain": [
+              -0.006,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.004
+            ],
+            "ep": [
+              -0.001995759808398305,
+              -0.003480372970363761,
+              0.005476132778762065,
+              0.0,
+              0.0,
+              0.001709249111482482
+            ],
+            "stress_MPa": [
+              -17.0979440452137,
+              4.50000092368228,
+              -0.09820746337270876,
+              0.0,
+              0.0,
+              0.6041803463394028
+            ],
+            "lambda": 0.002174387462017863,
+            "q": 0.9999999999995165
+          },
+          "unloaded": {
+            "strain": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "ep": [
+              -0.0008846256140474685,
+              -0.0012288411216857835,
+              0.0021134667357332495,
+              0.0,
+              0.0,
+              0.0003661256800093926
+            ],
+            "stress_MPa": [
+              4.363122113798417,
+              2.2636134352134265,
+              -0.037405056027938234,
+              0.0,
+              0.0,
+              -0.7608091630595178
+            ],
+            "lambda": 0.0034906034398446166,
+            "q": 0.9999999999994138,
+            "unload_delta_lambda": 0.0013162159778267533,
+            "unload_ep_drift_norm": 0.004406304384921458,
+            "residual_stress_norm_MPa": 4.974033582999543
+          },
+          "min_delta_lambda": 5.672733255566121e-17,
+          "negative_delta_lambda_count": 0
+        },
+        "64": {
+          "loaded": {
+            "strain": [
+              -0.006,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.004
+            ],
+            "ep": [
+              -0.0019941701151591344,
+              -0.0034823826170479427,
+              0.005476552732207078,
+              0.0,
+              0.0,
+              0.0017099249234431306
+            ],
+            "stress_MPa": [
+              -17.10454724162706,
+              4.502811959490566,
+              -0.09821493270086434,
+              0.0,
+              0.0,
+              0.6027760090851749
+            ],
+            "lambda": 0.0021720407005176175,
+            "q": 0.9999999999991789
+          },
+          "unloaded": {
+            "strain": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "ep": [
+              -0.0008849451555145461,
+              -0.001231363853483141,
+              0.0021163090089976844,
+              0.0,
+              0.0,
+              0.00036324179475030207
+            ],
+            "stress_MPa": [
+              4.365308034822842,
+              2.267821406341155,
+              -0.037455377961571786,
+              0.0,
+              0.0,
+              -0.7548164494911278
+            ],
+            "lambda": 0.0034890970422544075,
+            "q": 0.9999999999988204,
+            "unload_delta_lambda": 0.00131705634173679,
+            "unload_ep_drift_norm": 0.004404799520238507,
+            "residual_stress_norm_MPa": 4.976954786584732
+          },
+          "min_delta_lambda": 5.315164466197247e-17,
+          "negative_delta_lambda_count": 0
+        },
+        "128": {
+          "loaded": {
+            "strain": [
+              -0.006,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.004
+            ],
+            "ep": [
+              -0.0019933698184739002,
+              -0.003483405948867848,
+              0.005476775767341749,
+              0.0,
+              0.0,
+              0.0017102538977341445
+            ],
+            "stress_MPa": [
+              -17.107868069420913,
+              4.504246063060369,
+              -0.09821889870600467,
+              0.0,
+              0.0,
+              0.6020924005084477
+            ],
+            "lambda": 0.0021708872256711196,
+            "q": 0.9999999999980462
+          },
+          "unloaded": {
+            "strain": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "ep": [
+              -0.0008851171340754612,
+              -0.0012326379789011882,
+              0.002117755112976648,
+              0.0,
+              0.0,
+              0.0003617601117574111
+            ],
+            "stress_MPa": [
+              4.366459974650981,
+              2.2699497826292525,
+              -0.03748098077474079,
+              0.0,
+              0.0,
+              -0.7517375122319002
+            ],
+            "lambda": 0.003488430736378296,
+            "q": 0.999999999997695,
+            "unload_delta_lambda": 0.001317543510707176,
+            "unload_ep_drift_norm": 0.004404047651237824,
+            "residual_stress_norm_MPa": 4.978469527586172
+          },
+          "min_delta_lambda": 5.152767543253579e-17,
+          "negative_delta_lambda_count": 0
+        },
+        "subdivision_comparison_to_128": {
+          "loaded": {
+            "32_vs_128": {
+              "stress_vector_L2_error_MPa": 0.010993958039058557,
+              "stress_relative_error_percent": 0.06210784650966954,
+              "plastic_strain_vector_L2_error": 4.041539331757834e-06,
+              "plastic_strain_relative_error_percent": 0.05771997467487501,
+              "accumulated_multiplier_absolute_error": 3.5002363467434225e-06,
+              "accumulated_multiplier_relative_error_percent": 0.16123529151365018
+            },
+            "64_vs_128": {
+              "stress_vector_L2_error_MPa": 0.0036812887282476805,
+              "stress_relative_error_percent": 0.02079659704716886,
+              "plastic_strain_vector_L2_error": 1.3585475896977653e-06,
+              "plastic_strain_relative_error_percent": 0.019402343027022182,
+              "accumulated_multiplier_absolute_error": 1.1534748464978907e-06,
+              "accumulated_multiplier_relative_error_percent": 0.05313379860813817
+            }
+          },
+          "unloaded": {
+            "32_vs_128": {
+              "stress_vector_L2_error_MPa": 0.011558167110338908,
+              "stress_relative_error_percent": 0.23216305827110137,
+              "plastic_strain_vector_L2_error": 7.218454280280093e-06,
+              "plastic_strain_relative_error_percent": 0.27443250115120227,
+              "accumulated_multiplier_absolute_error": 2.172703466320723e-06,
+              "accumulated_multiplier_relative_error_percent": 0.06228311898709026
+            },
+            "64_vs_128": {
+              "stress_vector_L2_error_MPa": 0.0039163070795955905,
+              "stress_relative_error_percent": 0.07866487999765714,
+              "plastic_strain_vector_L2_error": 2.437124004995355e-06,
+              "plastic_strain_relative_error_percent": 0.09265502146819143,
+              "accumulated_multiplier_absolute_error": 6.663058761116267e-07,
+              "accumulated_multiplier_relative_error_percent": 0.01910044734909624
+            }
+          }
+        },
+        "monotonicity_check": {
+          "all_increments_nonnegative_within_1e-15": true,
+          "minimum_increment_by_subdivision": {
+            "32": 5.672733255566121e-17,
+            "64": 5.315164466197247e-17,
+            "128": 5.152767543253579e-17
+          }
+        }
+      }
+    }
+  },
+  "interpretation_and_limits": {
+    "same_path_twofold_subdivision_max_relative_differences_percent": {
+      "stress_vector": 0.07866487999765714,
+      "plastic_strain_vector": 0.11250910896402048,
+      "accumulated_multiplier": 0.17761680869190977
+    },
+    "same_path_32_vs_128_max_plastic_strain_vector_relative_difference_percent": 0.3413622105370867,
+    "held_near_yield_smooth_FB_drift_128_updates": {
+      "liner_delta_lambda": 4.658099893674012e-09,
+      "liner_delta_Ep_norm": 1.6324458964293272e-08,
+      "liner_delta_stress_norm_MPa": 3.2275132535300495e-05,
+      "medium_delta_lambda": 4.743732375870619e-09,
+      "medium_delta_Ep_norm": 1.08826605720939e-08,
+      "medium_delta_stress_norm_MPa": 2.0720548365448805e-05
+    },
+    "assessment": "The local update is rate-independent and has only small same-material-point subdivision differences on these prescribed paths. At held active yield, smooth FB epsilon causes tiny positive plastic drift that grows with update count. These oracle effects are much smaller than the parent-reported board endpoint differences, so this evidence does not support attributing the FE change to the local constitutive law alone.",
+    "not_a_diagnosis_of": "board-level deformation-history changes, contact activation, changing Newton convergence, line-search choices, local GPU implicit-root tolerance, mesh/geometry, or physical material behavior"
+  }
+}

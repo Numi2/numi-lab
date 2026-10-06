@@ -1,0 +1,27 @@
+{
+  "schema": "numi.cardboard.native-invocation.v1",
+  "argv": [
+    "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-cardboard-probe",
+    "--output",
+    "/Users/home/cardboard-gap-evidence-20261006/resolution-thickness-001",
+    "--thickness-slices",
+    "2"
+  ],
+  "started_utc": "2026-10-06T04:54:14.007217+00:00",
+  "bindings": {
+    "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-cardboard-probe": "ad1a6cf3bf68ce5e1d73b4b53a17767ed5c6bd2fcf706b908c653a44243938d1",
+    "/Users/home/numi-cardboard-20261006/build-cardboard/shaders/NumiMatter.metallib": "76c00fbfe1883b0119e46cf8404fd07f8429cb66f7872884e002a2cb1fc55607",
+    "/Users/home/numi-cardboard-20261006/matter/materials/hajali2009_liner_hill_ideal.nmatter": "787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d",
+    "/Users/home/numi-cardboard-20261006/matter/materials/hajali2009_medium_hill_ideal.nmatter": "ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8",
+    "/Users/home/numi-cardboard-20261006/matter/materials/starch2007_finite_glue_elastic.nmatter": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1",
+    "/Users/home/numi-cardboard-20261006/matter/tools/cardboard_glue_mesh.hpp": "d2668155580cdbdd09411d6cdac6a367a726e909d5dd6d4c9770e8f3822d0146",
+    "/Users/home/numi-cardboard-20261006/matter/tools/cardboard_probe.mm": "164704a16447f56367d83caae9164e9239ce198618cf1499638cf6380f4fc859",
+    "/Users/home/numi-cardboard-20261006/matter/src/metal/fem.metalinc": "12f944de6b149028c4c2f075c3bfa843e9d8a685a952f31f0955de4655c31b09",
+    "/Users/home/numi-cardboard-20261006/matter/src/runtime.mm": "c67a9f770ccd4b836e2d94b4f5964ff550ef65812e85c0ae4e651aa034f3febf",
+    "/Users/home/numi-cardboard-20261006/matter/include/numi/matter/matter.hpp": "3326e44dbf00ea70957adfe6c02b7a79f88ee302defe3fe26cd9354ee2d7e44b"
+  },
+  "base_git_commit": "05d55a7f0741a52d1f1c4f6a6a1d4ebb18170d11",
+  "purpose": "bounded numerical instrument qualification; no physical validation claim",
+  "timeout_seconds": 900,
+  "source_patch_sha256": "f4064b733ada2e10f82fc8daceac3cc9ef228330e311e4c76d22c321e816fe8a"
+}

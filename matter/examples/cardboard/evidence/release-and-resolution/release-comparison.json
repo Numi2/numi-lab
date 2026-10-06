@@ -1,0 +1,10 @@
+{
+  "schema": "numi.cardboard.release-plot.v1",
+  "inputs": {
+    "/Users/home/cardboard-gap-evidence-20261006/release-plastic-001/observations.csv": "5f2798618dbee70236897d2055db5b326ecbf68fcc24db158b984eede5af476b",
+    "/Users/home/cardboard-gap-evidence-20261006/release-elastic-001/observations.csv": "75b5c7dd8c1a373fa734d31f737f246a3a8e1dccd08a421a7acc6bc293eeb244"
+  },
+  "release_marker": "time of last constrained accepted state",
+  "physical_validation": false,
+  "image_sha256": "f4f43ca7273dd9e936dbacdf2b0aedd9521906da31ef97635e7c29ceec8ae375"
+}

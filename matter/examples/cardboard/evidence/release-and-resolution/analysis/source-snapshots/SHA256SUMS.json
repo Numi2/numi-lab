@@ -1,0 +1,50 @@
+{
+  "analysis_tools": {
+    "cardboard_convergence.py": {
+      "path": "analyzer/cardboard_convergence.py",
+      "sha256": "3525290344c765db98b0e628ea2cb7d6d9a3921dac1158a94d3897ae56760302"
+    },
+    "initial_rest_fp32_audit.py": {
+      "path": "analyzer/initial_rest_fp32_audit.py",
+      "sha256": "967865b2c4c8243fd9dd8f4cfa0d34e25edfc35740a9c377b98c7ef748b0bb89"
+    },
+    "test_cardboard_convergence.py": {
+      "path": "analyzer/test_cardboard_convergence.py",
+      "sha256": "4271b5866879b5260012910e13a0d172f3f2c49d49ea53ca17a92f97ac9a3d9a"
+    }
+  },
+  "analyzed_run_source_is_current": false,
+  "current_review_files": {
+    "cardboard_probe.mm": {
+      "archive": "current-residual-review/9a460f423acde1ffdaef9e726f21b01d51dcf304d332d2ef93af0b91a27341f0-cardboard_probe.mm.gz",
+      "sha256": "9a460f423acde1ffdaef9e726f21b01d51dcf304d332d2ef93af0b91a27341f0"
+    },
+    "common.metalinc": {
+      "archive": "current-residual-review/f1f7852fa95b119ad56c1b7d7da4422e9be8dac40806317b8cd1c4ed06bc640f-common.metalinc.gz",
+      "sha256": "f1f7852fa95b119ad56c1b7d7da4422e9be8dac40806317b8cd1c4ed06bc640f"
+    },
+    "compiler_impl.cpp": {
+      "archive": "current-residual-review/497eb865566ffa26ee00db6ca251beb3fcccc6bd834d8c0741ade90485485da7-compiler_impl.cpp.gz",
+      "sha256": "497eb865566ffa26ee00db6ca251beb3fcccc6bd834d8c0741ade90485485da7"
+    },
+    "fem.metalinc": {
+      "archive": "../../source-snapshots/12f944de6b149028c4c2f075c3bfa843e9d8a685a952f31f0955de4655c31b09-fem.metalinc.gz",
+      "sha256": "12f944de6b149028c4c2f075c3bfa843e9d8a685a952f31f0955de4655c31b09"
+    },
+    "matter.hpp": {
+      "archive": "current-residual-review/f8e6359248497d3dbb4dac08afa7cd2d1996aa3638c94e8c3acc67f3ddc28ec7-matter.hpp.gz",
+      "sha256": "f8e6359248497d3dbb4dac08afa7cd2d1996aa3638c94e8c3acc67f3ddc28ec7"
+    },
+    "mixed_fem.metalinc": {
+      "archive": "current-residual-review/5042632a1d44d12cabbc3d09fa6dc9c9f40ac51b3f81ab733ccedd95b58b4f0a-mixed_fem.metalinc.gz",
+      "sha256": "5042632a1d44d12cabbc3d09fa6dc9c9f40ac51b3f81ab733ccedd95b58b4f0a"
+    },
+    "runtime.mm": {
+      "archive": "current-residual-review/fcae14eaea5e48e0ea76e8822dabd242d5214fcd892ee2d8b16936e9a3348176-runtime.mm.gz",
+      "sha256": "fcae14eaea5e48e0ea76e8822dabd242d5214fcd892ee2d8b16936e9a3348176"
+    }
+  },
+  "precision_audit_report_sha256": "e0a6ee2ed439dd7c66ec889c07cef928be0e4aee87d64d3b387f8cb5a2f5a318",
+  "schema": "numi.cardboard.analysis_source_map.v1",
+  "scope": "Current source reviewed for the residual readback and CPU initial-rest arithmetic audit. The actual resolution runs bind older sources in their per-run receipts."
+}

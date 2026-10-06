@@ -1,0 +1,323 @@
+{
+  "accepted_steps": 17,
+  "checks": {
+    "accepted_solver_certificate_within_manifest_tolerance": "inconclusive",
+    "arm_environment_mapping": "pass",
+    "command_travel_matches_manifest_and_velocity": "inconclusive",
+    "commanded_end_pose_node_nonpenetration": "fail",
+    "finite_measurements": "pass",
+    "material_source_hashes": "pass",
+    "moving_arm_native_punch_contact": "pass",
+    "moving_contact_has_resolved_z_force": "pass",
+    "node_penetration_within_contact_slop": "pass",
+    "stationary_control_punch_contact": "pass"
+  },
+  "command_curve": {
+    "indented": {
+      "0": {
+        "speed_m_s": -0.025,
+        "travel_m": 6.25e-07
+      },
+      "1": {
+        "speed_m_s": -0.025,
+        "travel_m": 1.25e-06
+      },
+      "10": {
+        "speed_m_s": -0.024999999999999998,
+        "travel_m": 6.875e-06
+      },
+      "11": {
+        "speed_m_s": -0.02500000000000003,
+        "travel_m": 7.500000000000001e-06
+      },
+      "12": {
+        "speed_m_s": -0.024999999999999998,
+        "travel_m": 8.125000000000001e-06
+      },
+      "13": {
+        "speed_m_s": -0.024999999999999998,
+        "travel_m": 8.750000000000001e-06
+      },
+      "14": {
+        "speed_m_s": -0.024999999999999998,
+        "travel_m": 9.375000000000001e-06
+      },
+      "15": {
+        "speed_m_s": -0.024999999999999998,
+        "travel_m": 1e-05
+      },
+      "16": {
+        "speed_m_s": -0.024999999999999998,
+        "travel_m": 1.0625e-05
+      },
+      "17": {
+        "speed_m_s": -0.024999999999999998,
+        "travel_m": 1.125e-05
+      },
+      "2": {
+        "speed_m_s": -0.025000000000000005,
+        "travel_m": 1.8750000000000003e-06
+      },
+      "3": {
+        "speed_m_s": -0.024999999999999998,
+        "travel_m": 2.5e-06
+      },
+      "4": {
+        "speed_m_s": -0.024999999999999998,
+        "travel_m": 3.125e-06
+      },
+      "5": {
+        "speed_m_s": -0.025000000000000015,
+        "travel_m": 3.7500000000000005e-06
+      },
+      "6": {
+        "speed_m_s": -0.024999999999999998,
+        "travel_m": 4.3750000000000005e-06
+      },
+      "7": {
+        "speed_m_s": -0.024999999999999998,
+        "travel_m": 5e-06
+      },
+      "8": {
+        "speed_m_s": -0.024999999999999998,
+        "travel_m": 5.625e-06
+      },
+      "9": {
+        "speed_m_s": -0.024999999999999998,
+        "travel_m": 6.25e-06
+      }
+    },
+    "stationary_tool_reference": {
+      "0": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "1": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "10": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "11": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "12": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "13": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "14": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "15": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "16": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "17": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "2": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "3": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "4": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "5": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "6": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "7": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "8": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      },
+      "9": {
+        "speed_m_s": -0.0,
+        "travel_m": 0.0
+      }
+    }
+  },
+  "contact_slop_m": 1.91e-06,
+  "coverage": {
+    "arm_mapping_errors": [],
+    "certificate_acceptance_errors": [],
+    "expected_rows_per_table": 192,
+    "incomplete_reasons": [
+      "observations.csv is missing 156 expected step/environment rows",
+      "tool-observations.csv is missing 156 expected step/environment rows",
+      "result status is 'failed', not completed",
+      "result accepted_steps=17, expected 96",
+      "rejected observation rows: step=17, environment=0"
+    ],
+    "material_hash_mismatches": [],
+    "nonfinite_fields": [],
+    "observations_rows": 36,
+    "tool_observations_rows": 36,
+    "travel_errors": []
+  },
+  "evidence_boundary": "software mechanics instrumentation only; no cardboard fold or physical qualification",
+  "exit_code": 2,
+  "expected_steps": 96,
+  "fold_qualification": false,
+  "physical_validation": false,
+  "result_status": "failed",
+  "run_directory": "/Users/home/cardboard-gap-evidence-20261006/crease-contact-001",
+  "schema": "numi.cardboard.tooling-analysis.v1",
+  "sha256_bindings": {
+    "artifacts": {
+      "compiled.nmatterpack": "fe97f5d2bc8fa3de73945bea60c206d2311a6ecf556a6ab8e44b46baa303ce8c",
+      "manifest.json": "0ff263ef422bef9a7401ba090b6ebf9fd1537cfba9f95a012b608c864c9d15f7",
+      "mesh.json": "add3e5f87879dac154eb4a31bb73b1c2de8740b04f29f05721f3b8198aa367e5",
+      "observations.csv": "d8cedacb55b17d6c3a9531f0b54f45b48236332fc239c4a66d1ed47b31a03efd",
+      "result.json": "91ac8596a582a57e18a68d068e775b33b0f2b1b866e5c0894215f396c98aac1b",
+      "tool-observations.csv": "813b2ec28865982b8334135bf763f52ad69d4054d77d7def7e7ebb43aef04595"
+    },
+    "compiled_world_fingerprint": "572588373011996702",
+    "materials": {
+      "frame_map_sha256": "7d1e7082d4296fb93016d7f0418551ad1aac9447d0a61289f1615f531cb98075",
+      "glue": {
+        "file_available": true,
+        "file_hash_verified": true,
+        "file_sha256": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1",
+        "manifest_sha256": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1",
+        "path": "/Users/home/numi-cardboard-20261006/matter/materials/starch2007_finite_glue_elastic.nmatter"
+      },
+      "liner": {
+        "file_available": true,
+        "file_hash_verified": true,
+        "file_sha256": "787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d",
+        "manifest_sha256": "787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d",
+        "path": "/Users/home/numi-cardboard-20261006/matter/materials/hajali2009_liner_hill_ideal.nmatter"
+      },
+      "medium": {
+        "file_available": true,
+        "file_hash_verified": true,
+        "file_sha256": "ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8",
+        "manifest_sha256": "ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8",
+        "path": "/Users/home/numi-cardboard-20261006/matter/materials/hajali2009_medium_hill_ideal.nmatter"
+      },
+      "regional_map_sha256": "53ac1f9ec3e3808f414aaa245c07724b75a6fc4d6254a3e7ab396964c4c1d5a1"
+    }
+  },
+  "summary": {
+    "certificate_acceptance_errors": [],
+    "certificate_tolerances": {
+      "certificate_pressure": 9.999999747378752e-05,
+      "certificate_residual": 9.999999747378752e-05,
+      "certificate_volume": 9.999999747378752e-05
+    },
+    "contact_barrier_range_m": 1.91e-06,
+    "contact_slop_is_not_an_allowed_physical_penetration": true,
+    "force_measurement": "z impulse from native punch contact samples divided by timestep; signed force is on the punch and is an instrument receipt, not force or fold qualification",
+    "gap_measurement": "CPU signed-distance evaluation at FEM node samples and commanded end pose; not a continuous surface-distance measurement",
+    "indented_environment_all_observed_rows": {
+      "maximum_absolute_commanded_speed_m_s": 0.02500000000000003,
+      "maximum_commanded_travel_m": 1.125e-05,
+      "minimum_anvil_node_gap_m": 9.999718448495693e-06,
+      "minimum_end_punch_node_gap_m": -1.0566769405830545e-06,
+      "peak_punch_contact_count_per_step": 2,
+      "punch_contact_count_total": 12,
+      "punch_force_z_N_max": 518.7427383576489,
+      "punch_force_z_N_min": 0.0,
+      "punch_force_z_N_peak_absolute": 518.7427383576489,
+      "steps_observed": 18,
+      "steps_with_punch_contacts": 6
+    },
+    "minimum_gap_roundoff_tolerance_m": 3.01361083984375e-08,
+    "minimum_node_gap_any_tool_all_observed_rows_m": -1.0566769405830545e-06,
+    "rejected_or_unverified_indented_punch_force_diagnostics": {
+      "punch_contact_count_total": 2,
+      "punch_force_z_N_max": 518.7427383576489,
+      "punch_force_z_N_min": 518.7427383576489,
+      "punch_force_z_N_peak_absolute": 518.7427383576489,
+      "steps_observed": 1
+    },
+    "rejected_or_unverified_step_node_gap_diagnostics": {
+      "first_fp32_roundoff_violation": {
+        "environment": 0,
+        "gap_m": -1.0566769405830545e-06,
+        "step": 17,
+        "step_accepted": false,
+        "surface": "punch"
+      },
+      "fp32_roundoff_violation_count": 1,
+      "minimum_node_gap_m": -1.0566769405830545e-06,
+      "negative_gap_count": 1,
+      "samples": 2
+    },
+    "roundoff_coordinate_scale_m": 0.0316,
+    "stationary_control_all_step_force_diagnostics": {
+      "punch_contact_count_total": 0,
+      "punch_force_z_N_max": 0.0,
+      "punch_force_z_N_min": 0.0,
+      "punch_force_z_N_peak_absolute": 0.0,
+      "steps_observed": 18
+    },
+    "stationary_tool_reference_environment_all_observed_rows": {
+      "maximum_absolute_commanded_speed_m_s": 0.0,
+      "maximum_commanded_travel_m": 0.0,
+      "minimum_anvil_node_gap_m": 9.999970555317223e-06,
+      "minimum_end_punch_node_gap_m": 1.0000073612118814e-05,
+      "peak_punch_contact_count_per_step": 0,
+      "punch_contact_count_total": 0,
+      "punch_force_z_N_max": 0.0,
+      "punch_force_z_N_min": 0.0,
+      "punch_force_z_N_peak_absolute": 0.0,
+      "steps_observed": 18,
+      "steps_with_punch_contacts": 0
+    },
+    "verified_accepted_indented_punch_force_receipt": {
+      "punch_contact_count_total": 10,
+      "punch_force_z_N_max": 0.5321862907130767,
+      "punch_force_z_N_min": 0.0,
+      "punch_force_z_N_peak_absolute": 0.5321862907130767,
+      "steps_observed": 17
+    },
+    "verified_accepted_step_node_gaps": {
+      "first_fp32_roundoff_violation": {
+        "environment": 0,
+        "gap_m": -4.3167694059446406e-07,
+        "step": 16,
+        "step_accepted": true,
+        "surface": "punch"
+      },
+      "fp32_roundoff_violation_count": 1,
+      "minimum_node_gap_m": -4.3167694059446406e-07,
+      "negative_gap_count": 1,
+      "samples": 70
+    }
+  },
+  "timestep_s": 2.5e-05,
+  "tooling": {
+    "indentation_m": 2e-05,
+    "initial_anvil_clearance_m": 1e-05,
+    "initial_nose_clearance_m": 1e-05,
+    "timing_contract": "start-of-step body pose plus consistent velocity; commanded end pose for independent gap audit"
+  },
+  "verdict": "inconclusive"
+}

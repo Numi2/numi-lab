@@ -1,0 +1,272 @@
+{
+  "deduplicated_outputs": {
+    "crease-endpose-guard-001": "No separate report: result.json, observations.csv, tool-observations.csv, manifest.json, and compiled.nmatterpack.gz hashes match crease-endpose-guard-002."
+  },
+  "fold_qualification": false,
+  "instrument_boundary": "Native Matter tooling/contact receipts and CPU node-to-tool signed-distance analysis only; no fold or physical qualification.",
+  "physical_validation": false,
+  "preserved_analysis_attempts": [
+    "reports/analysis-attempts/crease-endpose-native-001-invalid-timing-contract.json",
+    "reports/analysis-attempts/shallow-contact-cycle-001-invalid-timing-contract.json"
+  ],
+  "reports": {
+    "crease-contact-001-analysis.json": {
+      "accepted_steps": 17,
+      "analyzer_sha256": "1866ea822c9b2a985691a8493c7d3ad0c644775d9ba0a6399ed774cc7e8f2fe6",
+      "analyzer_source_version": "analyzer-001",
+      "exit_code": 2,
+      "expected_steps": 96,
+      "fold_qualification": false,
+      "path": "reports/crease-contact-001-analysis.json",
+      "physical_validation": false,
+      "result_status": "failed",
+      "sha256": "480269e0a32334c5ffaa081c219cc6de4f9b800c09d90571940081178188f383",
+      "verdict": "inconclusive"
+    },
+    "crease-endpose-guard-002-analysis.json": {
+      "accepted_steps": 17,
+      "analyzer_sha256": "1866ea822c9b2a985691a8493c7d3ad0c644775d9ba0a6399ed774cc7e8f2fe6",
+      "analyzer_source_version": "analyzer-001",
+      "exit_code": 2,
+      "expected_steps": 96,
+      "fold_qualification": false,
+      "path": "reports/crease-endpose-guard-002-analysis.json",
+      "physical_validation": false,
+      "result_status": "failed",
+      "sha256": "dbb3bf799eda4685fa65f468bcbd2c18c77ffe4e6d2e1c590390d17be106b1bd",
+      "verdict": "inconclusive"
+    },
+    "crease-endpose-native-001-analysis-002.json": {
+      "accepted_steps": 16,
+      "analyzer_sha256": "820f112ccf2c83446cec4b706586c72ee6ecfa0bee73b500f2f33239d3b5df20",
+      "analyzer_source_version": "analyzer-002",
+      "exit_code": 2,
+      "expected_steps": 96,
+      "fold_qualification": false,
+      "path": "reports/crease-endpose-native-001-analysis-002.json",
+      "physical_validation": false,
+      "result_status": "failed",
+      "sha256": "326b517fae027844dfc2154ad026d8be05086a34a223938844df99a6bdd821c6",
+      "verdict": "inconclusive"
+    },
+    "shallow-contact-cycle-001-analysis-002.json": {
+      "accepted_steps": 96,
+      "analyzer_sha256": "820f112ccf2c83446cec4b706586c72ee6ecfa0bee73b500f2f33239d3b5df20",
+      "analyzer_source_version": "analyzer-002",
+      "exit_code": 0,
+      "expected_steps": 96,
+      "fold_qualification": false,
+      "path": "reports/shallow-contact-cycle-001-analysis-002.json",
+      "physical_validation": false,
+      "result_status": "completed",
+      "sha256": "4df14b6ec7c1aafb8cfa2f4602561cbb6623dad625fa6086ea46fe08e76833a0",
+      "verdict": "instrument_checks_passed"
+    }
+  },
+  "runs": {
+    "crease-contact-001": {
+      "binary_and_input_bindings": {
+        "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-cardboard-probe": "ddd23880012cb8e159778a39e3ade8887b954ecd55304f6c77db41c74568b706",
+        "/Users/home/numi-cardboard-20261006/build-cardboard/shaders/NumiMatter.metallib": "76c00fbfe1883b0119e46cf8404fd07f8429cb66f7872884e002a2cb1fc55607",
+        "/Users/home/numi-cardboard-20261006/matter/include/numi/matter/matter.hpp": "1fa6ea1fae3fbf6d68792febff88e711669e7a088c62bb18f51160cd5c0833db",
+        "/Users/home/numi-cardboard-20261006/matter/materials/hajali2009_liner_hill_ideal.nmatter": "787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d",
+        "/Users/home/numi-cardboard-20261006/matter/materials/hajali2009_medium_hill_ideal.nmatter": "ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8",
+        "/Users/home/numi-cardboard-20261006/matter/materials/starch2007_finite_glue_elastic.nmatter": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1",
+        "/Users/home/numi-cardboard-20261006/matter/src/metal/fem.metalinc": "12f944de6b149028c4c2f075c3bfa843e9d8a685a952f31f0955de4655c31b09",
+        "/Users/home/numi-cardboard-20261006/matter/src/runtime.mm": "3b29c26bf35e9d1804f0b819145cc18669c60f1e358eab945ddf8d13b842ffd3",
+        "/Users/home/numi-cardboard-20261006/matter/src/validation_impl.cpp": "fd065e79ea34f3bffb532550171d5d18435023329be2a378615e3ba8cbc1e933",
+        "/Users/home/numi-cardboard-20261006/matter/tools/cardboard_glue_mesh.hpp": "d2668155580cdbdd09411d6cdac6a367a726e909d5dd6d4c9770e8f3822d0146",
+        "/Users/home/numi-cardboard-20261006/matter/tools/cardboard_probe.mm": "4090c276e6e247719a18cb6b210ec6ec184a47b86a4642c2fa5302f75cef7366",
+        "/Users/home/numi-cardboard-20261006/matter/tools/cardboard_tooling.hpp": "db98b29d39895054ca25cedcc8e3adc67c4304bc083a6453eab660e9858b6ded"
+      },
+      "inputs_unchanged": true,
+      "invocation_sha256": "b8981a37121ef5faf455113bfffe1a294cf2fae8032e9b5164a907707a15f6cc",
+      "output_artifact_sha256": {
+        "compiled.nmatterpack": "fe97f5d2bc8fa3de73945bea60c206d2311a6ecf556a6ab8e44b46baa303ce8c",
+        "manifest.json": "0ff263ef422bef9a7401ba090b6ebf9fd1537cfba9f95a012b608c864c9d15f7",
+        "mesh.json": "add3e5f87879dac154eb4a31bb73b1c2de8740b04f29f05721f3b8198aa367e5",
+        "observations.csv": "d8cedacb55b17d6c3a9531f0b54f45b48236332fc239c4a66d1ed47b31a03efd",
+        "result.json": "91ac8596a582a57e18a68d068e775b33b0f2b1b866e5c0894215f396c98aac1b",
+        "tool-observations.csv": "813b2ec28865982b8334135bf763f52ad69d4054d77d7def7e7ebb43aef04595"
+      },
+      "raw_run_directory": "/Users/home/cardboard-gap-evidence-20261006/crease-contact-001",
+      "receipt": "/Users/home/cardboard-gap-evidence-20261006/receipts/crease-contact-001/receipt.json",
+      "receipt_sha256": "a47097506e0becf71a7961c3144278164a7c492f7d4fd97207ca5b3f3b6d8ca2",
+      "report": "reports/crease-contact-001-analysis.json",
+      "return_code": 2,
+      "source_patch_file_sha256": "16eb221ec581df90d72f3cfa09b5ba3a7d8893f546999db600a8d3a8c56b72a8",
+      "source_patch_sha256": "16eb221ec581df90d72f3cfa09b5ba3a7d8893f546999db600a8d3a8c56b72a8",
+      "summary": {
+        "accepted_first_gap_violation": {
+          "environment": 0,
+          "gap_m": -4.3167694059446406e-07,
+          "step": 16,
+          "step_accepted": true,
+          "surface": "punch"
+        },
+        "accepted_min_gap_m": -4.3167694059446406e-07,
+        "accepted_negative_gap_count": 1,
+        "accepted_punch_force_receipt_peak_abs_N": 0.5321862907130767,
+        "accepted_roundoff_violation_count": 1,
+        "contact_slop_m": 1.91e-06,
+        "rejected_min_gap_diagnostic_m": -1.0566769405830545e-06,
+        "rejected_negative_gap_diagnostic_count": 1,
+        "rejected_punch_force_diagnostic_peak_abs_N": 518.7427383576489,
+        "roundoff_tolerance_m": 3.01361083984375e-08,
+        "stationary_control_punch_contact_count": 0
+      }
+    },
+    "crease-endpose-guard-002": {
+      "binary_and_input_bindings": {
+        "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-cardboard-probe": "a59065857e95af71814964186d68e6ca87c07b3102e756e8583d6f6b2e19c34f",
+        "/Users/home/numi-cardboard-20261006/build-cardboard/shaders/NumiMatter.metallib": "76c00fbfe1883b0119e46cf8404fd07f8429cb66f7872884e002a2cb1fc55607",
+        "/Users/home/numi-cardboard-20261006/matter/include/numi/matter/matter.hpp": "1fa6ea1fae3fbf6d68792febff88e711669e7a088c62bb18f51160cd5c0833db",
+        "/Users/home/numi-cardboard-20261006/matter/materials/hajali2009_liner_hill_ideal.nmatter": "787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d",
+        "/Users/home/numi-cardboard-20261006/matter/materials/hajali2009_medium_hill_ideal.nmatter": "ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8",
+        "/Users/home/numi-cardboard-20261006/matter/materials/starch2007_finite_glue_elastic.nmatter": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1",
+        "/Users/home/numi-cardboard-20261006/matter/src/metal/fem.metalinc": "12f944de6b149028c4c2f075c3bfa843e9d8a685a952f31f0955de4655c31b09",
+        "/Users/home/numi-cardboard-20261006/matter/src/runtime.mm": "3b29c26bf35e9d1804f0b819145cc18669c60f1e358eab945ddf8d13b842ffd3",
+        "/Users/home/numi-cardboard-20261006/matter/src/validation_impl.cpp": "fd065e79ea34f3bffb532550171d5d18435023329be2a378615e3ba8cbc1e933",
+        "/Users/home/numi-cardboard-20261006/matter/tools/cardboard_glue_mesh.hpp": "d2668155580cdbdd09411d6cdac6a367a726e909d5dd6d4c9770e8f3822d0146",
+        "/Users/home/numi-cardboard-20261006/matter/tools/cardboard_probe.mm": "2c23eff5ed725d0b5798189bac32261f270e345473f421768ea91afbb6e2e2fd",
+        "/Users/home/numi-cardboard-20261006/matter/tools/cardboard_tooling.hpp": "db98b29d39895054ca25cedcc8e3adc67c4304bc083a6453eab660e9858b6ded"
+      },
+      "inputs_unchanged": true,
+      "invocation_sha256": "dfe5cb6ba3ed5a671d2c65cae808c484485af011e90defff39a72e73c5caab90",
+      "output_artifact_sha256": {
+        "compiled.nmatterpack": "fe97f5d2bc8fa3de73945bea60c206d2311a6ecf556a6ab8e44b46baa303ce8c",
+        "manifest.json": "0ff263ef422bef9a7401ba090b6ebf9fd1537cfba9f95a012b608c864c9d15f7",
+        "mesh.json": "add3e5f87879dac154eb4a31bb73b1c2de8740b04f29f05721f3b8198aa367e5",
+        "observations.csv": "b4834b5da5024b7cec5bb16fe8914cd80cbe20dbd5cecaf8f04136289df2d4ca",
+        "result.json": "f2a71293dbac9b98156f96baf62161ff9bd8519e189c628af458e765ebb4e823",
+        "tool-observations.csv": "10bc69b5d26bb50430c15379577057738caf7376d3e2d96612c6cd0de034e55e"
+      },
+      "raw_run_directory": "/Users/home/cardboard-gap-evidence-20261006/crease-endpose-guard-002",
+      "receipt": "/Users/home/cardboard-gap-evidence-20261006/receipts/crease-endpose-guard-002/receipt.json",
+      "receipt_sha256": "64ebf27b0b02b03eb03821bc601c6b946bec639f694a8340de288cff8122f4b1",
+      "report": "reports/crease-endpose-guard-002-analysis.json",
+      "return_code": 2,
+      "source_patch_file_sha256": "3fe94b70b0088f1e9cb071c018b62fdbd141d87f2402ce9f38e7f42aa89105db",
+      "source_patch_sha256": "3fe94b70b0088f1e9cb071c018b62fdbd141d87f2402ce9f38e7f42aa89105db",
+      "summary": {
+        "accepted_first_gap_violation": {
+          "environment": 0,
+          "gap_m": -4.3167694059446406e-07,
+          "step": 16,
+          "step_accepted": true,
+          "surface": "punch"
+        },
+        "accepted_min_gap_m": -4.3167694059446406e-07,
+        "accepted_negative_gap_count": 1,
+        "accepted_punch_force_receipt_peak_abs_N": 0.5321862907130767,
+        "accepted_roundoff_violation_count": 1,
+        "contact_slop_m": 1.91e-06,
+        "rejected_min_gap_diagnostic_m": null,
+        "rejected_negative_gap_diagnostic_count": 0,
+        "rejected_punch_force_diagnostic_peak_abs_N": null,
+        "roundoff_tolerance_m": 3.01361083984375e-08,
+        "stationary_control_punch_contact_count": 0
+      }
+    },
+    "crease-endpose-native-001": {
+      "binary_and_input_bindings": {
+        "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-cardboard-probe": "8abac4a46b6cea9eecb1ace6d1a906db684f890bf4a0eb5142b4506997892aec",
+        "/Users/home/numi-cardboard-20261006/build-cardboard/shaders/NumiMatter.metallib": "76c00fbfe1883b0119e46cf8404fd07f8429cb66f7872884e002a2cb1fc55607",
+        "/Users/home/numi-cardboard-20261006/matter/include/numi/matter/matter.hpp": "f8e6359248497d3dbb4dac08afa7cd2d1996aa3638c94e8c3acc67f3ddc28ec7",
+        "/Users/home/numi-cardboard-20261006/matter/materials/hajali2009_liner_hill_ideal.nmatter": "787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d",
+        "/Users/home/numi-cardboard-20261006/matter/materials/hajali2009_medium_hill_ideal.nmatter": "ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8",
+        "/Users/home/numi-cardboard-20261006/matter/materials/starch2007_finite_glue_elastic.nmatter": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1",
+        "/Users/home/numi-cardboard-20261006/matter/src/metal/fem.metalinc": "12f944de6b149028c4c2f075c3bfa843e9d8a685a952f31f0955de4655c31b09",
+        "/Users/home/numi-cardboard-20261006/matter/src/runtime.mm": "fcae14eaea5e48e0ea76e8822dabd242d5214fcd892ee2d8b16936e9a3348176",
+        "/Users/home/numi-cardboard-20261006/matter/src/validation_impl.cpp": "fd065e79ea34f3bffb532550171d5d18435023329be2a378615e3ba8cbc1e933",
+        "/Users/home/numi-cardboard-20261006/matter/tools/cardboard_glue_mesh.hpp": "d2668155580cdbdd09411d6cdac6a367a726e909d5dd6d4c9770e8f3822d0146",
+        "/Users/home/numi-cardboard-20261006/matter/tools/cardboard_probe.mm": "9a460f423acde1ffdaef9e726f21b01d51dcf304d332d2ef93af0b91a27341f0",
+        "/Users/home/numi-cardboard-20261006/matter/tools/cardboard_tooling.hpp": "db98b29d39895054ca25cedcc8e3adc67c4304bc083a6453eab660e9858b6ded"
+      },
+      "inputs_unchanged": true,
+      "invocation_sha256": "ae05158700f1874b48e288fc56394163866e2e710b9f15f8fc424becd46a2700",
+      "output_artifact_sha256": {
+        "compiled.nmatterpack": "fe97f5d2bc8fa3de73945bea60c206d2311a6ecf556a6ab8e44b46baa303ce8c",
+        "manifest.json": "f2a33bc882eb127fad1ab582325b4e0d3145716a387cb80b26b73a4a754d1a29",
+        "mesh.json": "add3e5f87879dac154eb4a31bb73b1c2de8740b04f29f05721f3b8198aa367e5",
+        "observations.csv": "7779dc08ebfe61123471063f731e94ebb11da39f10d97a103878c7d6036dc1c9",
+        "result.json": "c847713f805707c29031b5b08275b7a5156667217f5b40cf6b0a9b0066926cf0",
+        "tool-observations.csv": "b53db416c8d4443bd2d3ef048fd8efe141c9d1baee3cf6fc44d1553279ceb047"
+      },
+      "postcommit_rejection_rollback_obj_check": {
+        "accepted_step_000016_sha256": "389a880a2be45d1974c5a638a5bb5789e737e954008f795aa268dc1606c95794",
+        "byte_identical": true,
+        "rejected_step_000017_sha256": "389a880a2be45d1974c5a638a5bb5789e737e954008f795aa268dc1606c95794"
+      },
+      "raw_run_directory": "/Users/home/cardboard-gap-evidence-20261006/crease-endpose-native-001",
+      "receipt": "/Users/home/cardboard-gap-evidence-20261006/receipts/crease-endpose-native-001/receipt.json",
+      "receipt_sha256": "8a11d312b8c4a07cd1bcd3410022101752648f172944b8727506a989bdad5fdd",
+      "report": "reports/crease-endpose-native-001-analysis-002.json",
+      "return_code": 2,
+      "source_patch_file_sha256": "f8bff4ad6865089a95afd5a03e70dc01d64aa6acb6e68fd7e91b8c30fe934a64",
+      "source_patch_sha256": "f8bff4ad6865089a95afd5a03e70dc01d64aa6acb6e68fd7e91b8c30fe934a64",
+      "summary": {
+        "accepted_first_gap_violation": null,
+        "accepted_min_gap_m": 9.087756735646439e-08,
+        "accepted_negative_gap_count": 0,
+        "accepted_punch_force_receipt_peak_abs_N": 0.16661768734408985,
+        "accepted_roundoff_violation_count": 0,
+        "contact_slop_m": 1.91e-06,
+        "rejected_min_gap_diagnostic_m": -5.341224326402575e-07,
+        "rejected_negative_gap_diagnostic_count": 1,
+        "rejected_punch_force_diagnostic_peak_abs_N": 0.5321862907130767,
+        "roundoff_tolerance_m": 3.01361083984375e-08,
+        "stationary_control_punch_contact_count": 0
+      }
+    },
+    "shallow-contact-cycle-001": {
+      "binary_and_input_bindings": {
+        "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-cardboard-probe": "8abac4a46b6cea9eecb1ace6d1a906db684f890bf4a0eb5142b4506997892aec",
+        "/Users/home/numi-cardboard-20261006/build-cardboard/shaders/NumiMatter.metallib": "76c00fbfe1883b0119e46cf8404fd07f8429cb66f7872884e002a2cb1fc55607",
+        "/Users/home/numi-cardboard-20261006/matter/include/numi/matter/matter.hpp": "f8e6359248497d3dbb4dac08afa7cd2d1996aa3638c94e8c3acc67f3ddc28ec7",
+        "/Users/home/numi-cardboard-20261006/matter/materials/hajali2009_liner_hill_ideal.nmatter": "787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d",
+        "/Users/home/numi-cardboard-20261006/matter/materials/hajali2009_medium_hill_ideal.nmatter": "ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8",
+        "/Users/home/numi-cardboard-20261006/matter/materials/starch2007_finite_glue_elastic.nmatter": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1",
+        "/Users/home/numi-cardboard-20261006/matter/src/metal/fem.metalinc": "12f944de6b149028c4c2f075c3bfa843e9d8a685a952f31f0955de4655c31b09",
+        "/Users/home/numi-cardboard-20261006/matter/src/runtime.mm": "fcae14eaea5e48e0ea76e8822dabd242d5214fcd892ee2d8b16936e9a3348176",
+        "/Users/home/numi-cardboard-20261006/matter/src/validation_impl.cpp": "fd065e79ea34f3bffb532550171d5d18435023329be2a378615e3ba8cbc1e933",
+        "/Users/home/numi-cardboard-20261006/matter/tools/cardboard_glue_mesh.hpp": "d2668155580cdbdd09411d6cdac6a367a726e909d5dd6d4c9770e8f3822d0146",
+        "/Users/home/numi-cardboard-20261006/matter/tools/cardboard_probe.mm": "9a460f423acde1ffdaef9e726f21b01d51dcf304d332d2ef93af0b91a27341f0",
+        "/Users/home/numi-cardboard-20261006/matter/tools/cardboard_tooling.hpp": "db98b29d39895054ca25cedcc8e3adc67c4304bc083a6453eab660e9858b6ded"
+      },
+      "inputs_unchanged": true,
+      "invocation_sha256": "59507479cdee85d4f76a63a527c2e59e3495a50e3df6d2732c511aaf7bbacf82",
+      "output_artifact_sha256": {
+        "compiled.nmatterpack": "fe97f5d2bc8fa3de73945bea60c206d2311a6ecf556a6ab8e44b46baa303ce8c",
+        "manifest.json": "a3a9499666772ab18efb6fbff05e18aa3c26296a007b99d68cc5927e4a959fff",
+        "mesh.json": "add3e5f87879dac154eb4a31bb73b1c2de8740b04f29f05721f3b8198aa367e5",
+        "observations.csv": "416400fba795251d60edd10706e6eabf70895be442997e7ce8067cbcc726f537",
+        "result.json": "9939dbb578f8f80b89f8ec8f289e82368ab5756b73b279b4bb2e1295525e33b3",
+        "tool-observations.csv": "2a7b1b6a11c255ebca7b7ddebd46cf46092b6a61be9cf83323f9edbe2f41b81c"
+      },
+      "raw_run_directory": "/Users/home/cardboard-gap-evidence-20261006/shallow-contact-cycle-001",
+      "receipt": "/Users/home/cardboard-gap-evidence-20261006/receipts/shallow-contact-cycle-001/receipt.json",
+      "receipt_sha256": "49b0b5a60fa183fa723a8a490ba29567651978e485f93efeaf8ce1409d92145c",
+      "report": "reports/shallow-contact-cycle-001-analysis-002.json",
+      "return_code": 0,
+      "source_patch_file_sha256": "f8bff4ad6865089a95afd5a03e70dc01d64aa6acb6e68fd7e91b8c30fe934a64",
+      "source_patch_sha256": "f8bff4ad6865089a95afd5a03e70dc01d64aa6acb6e68fd7e91b8c30fe934a64",
+      "summary": {
+        "accepted_first_gap_violation": null,
+        "accepted_min_gap_m": 1.8726946266010153e-07,
+        "accepted_negative_gap_count": 0,
+        "accepted_punch_force_receipt_peak_abs_N": 0.28843461042157265,
+        "accepted_roundoff_violation_count": 0,
+        "contact_slop_m": 1.91e-06,
+        "rejected_min_gap_diagnostic_m": null,
+        "rejected_negative_gap_diagnostic_count": 0,
+        "rejected_punch_force_diagnostic_peak_abs_N": null,
+        "roundoff_tolerance_m": 3.01361083984375e-08,
+        "stationary_control_punch_contact_count": 0
+      }
+    }
+  },
+  "schema": "numi.cardboard.tooling_analysis_package.v1",
+  "source_snapshots": "source-snapshots/SHA256SUMS.json",
+  "test_result": "9 stdlib unittest tests passed; python3 -m py_compile passed"
+}

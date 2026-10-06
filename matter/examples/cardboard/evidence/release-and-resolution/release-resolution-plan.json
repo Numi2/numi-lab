@@ -1,0 +1,115 @@
+{
+  "schema": "numi.cardboard.release-resolution-plan.v1",
+  "created_utc": "2026-10-06T04:39:07.872632+00:00",
+  "purpose": "exploratory native instrument and model-sensitivity study; no physical validation",
+  "design": "deterministic multi-phase trajectories and discretization sensitivity; custom curve analysis, not independent paired scalar samples",
+  "question": "Does native right-grip release preserve mechanics and reveal springback distinct from clamped unloading, and are current coupon observables stable under temporal/spatial refinement?",
+  "hypotheses": [
+    {
+      "id": "release",
+      "prediction": "all112steps accepted; right-grip constrained flag changes1to0 at step48, number fixed halves; unloaded reference maximum Ep remains0; loaded plastic arm retains maximumEp>1e-6 afterrelease; rightgrip reaction components are0 duringrelease",
+      "refutation": "valid accepted trajectory violating any condition; a rejected step is inconclusive numerical failure, not support"
+    },
+    {
+      "id": "resolution",
+      "prediction": "temporal and nx refinement change phase-end volume-weighted plastic strain RMS and reaction moment by no more than10percent relative to larger absolute paired magnitude, floor1e-8 strain and1e-6 Nm; dynamic settling is NOT an equilibrium claim",
+      "refutation": "valid delta above bounds contradicts resolution adequacy; failed arm inconclusive"
+    }
+  ],
+  "controls": "each run contains independent unloaded-reference environment; release elastic uses identical geometry, density and elastic constants",
+  "units": "one trajectory per condition, ticks are not independent samples",
+  "stopping_rule": "run each listed condition once, maximum900seconds each; retain all failures/timeouts; revisions require separate plan and unused conditions",
+  "calibration": {
+    "file": "release-check-004.log",
+    "sha256": "a6c4e26f9edb6194d24d02f7a2542ecd2bd3459cecbadc4f92426550aacc03dd"
+  },
+  "bindings": {
+    "build-cardboard/numi-matter-cardboard-probe": "ad1a6cf3bf68ce5e1d73b4b53a17767ed5c6bd2fcf706b908c653a44243938d1",
+    "build-cardboard/shaders/NumiMatter.metallib": "76c00fbfe1883b0119e46cf8404fd07f8429cb66f7872884e002a2cb1fc55607",
+    "matter/tools/cardboard_probe.mm": "164704a16447f56367d83caae9164e9239ce198618cf1499638cf6380f4fc859",
+    "matter/src/metal/fem.metalinc": "12f944de6b149028c4c2f075c3bfa843e9d8a685a952f31f0955de4655c31b09",
+    "matter/src/runtime.mm": "c67a9f770ccd4b836e2d94b4f5964ff550ef65812e85c0ae4e651aa034f3febf",
+    "matter/materials/hajali2009_liner_hill_ideal.nmatter": "787bf121f4ce359235e28691892e9d77adffde05faf10f2a90593d9f4b32398d",
+    "matter/materials/hajali2009_medium_hill_ideal.nmatter": "ecfd9de3f4550a6a269d7a6559781b16e15316cf3d587093f2e11a2e6942a8e8",
+    "matter/materials/hajali2009_liner_elastic_control.nmatter": "b91e94ce08c0252487c26f783ed125d76fb33bd20c18fd89edd427097d78b422",
+    "matter/materials/hajali2009_medium_elastic_control.nmatter": "0904e7d95ae66e9e3a8682c636d8937a80c471fbf37fea6305c182a5da9626df",
+    "matter/materials/starch2007_finite_glue_elastic.nmatter": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1"
+  },
+  "trials": [
+    {
+      "name": "release-plastic-001",
+      "args": [
+        "--steps",
+        "32",
+        "--hold-steps",
+        "16",
+        "--unload-steps",
+        "0",
+        "--relax-steps",
+        "0",
+        "--release-steps",
+        "64"
+      ]
+    },
+    {
+      "name": "release-elastic-001",
+      "args": [
+        "--steps",
+        "32",
+        "--hold-steps",
+        "16",
+        "--unload-steps",
+        "0",
+        "--relax-steps",
+        "0",
+        "--release-steps",
+        "64",
+        "--liner-material",
+        "matter/materials/hajali2009_liner_elastic_control.nmatter",
+        "--medium-material",
+        "matter/materials/hajali2009_medium_elastic_control.nmatter"
+      ]
+    },
+    {
+      "name": "resolution-base-001",
+      "args": []
+    },
+    {
+      "name": "resolution-time-001",
+      "args": [
+        "--dt",
+        "0.0000125",
+        "--steps",
+        "64",
+        "--hold-steps",
+        "32",
+        "--unload-steps",
+        "64",
+        "--relax-steps",
+        "128"
+      ]
+    },
+    {
+      "name": "resolution-length-001",
+      "args": [
+        "--nx",
+        "16"
+      ]
+    },
+    {
+      "name": "resolution-width-001",
+      "args": [
+        "--ny",
+        "2"
+      ]
+    },
+    {
+      "name": "resolution-thickness-001",
+      "args": [
+        "--thickness-slices",
+        "2"
+      ]
+    }
+  ],
+  "unused_followup": "released plastic smaller angle0.125deg and release128steps; any revision must be sealed before launch"
+}

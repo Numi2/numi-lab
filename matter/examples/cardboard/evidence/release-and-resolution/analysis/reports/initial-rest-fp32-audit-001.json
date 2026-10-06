@@ -1,0 +1,122 @@
+{
+  "classification": "bounded CPU arithmetic sensitivity estimate; not an execution trace of Metal",
+  "comparison": "At initial reference positions u=0, the mathematically equivalent F=I+grad(u) representation is exactly identity. The Ds*rounded-inverse route is evaluated under two plausible FP32 dot-product roundings plus an FP64 product of rounded operands.",
+  "limitations": [
+    "Metal instruction/FMA/reduction order is not reproduced.",
+    "The estimate does not show that initial strain caused any failed step.",
+    "No solver tolerance, material, or runtime source was changed."
+  ],
+  "material_model": "Haj-Ali paper materials use the authored orthotropic StVK initial elastic tangent, before any plastic return. Glue uses the source mu/lambda small-strain tangent. Frame rotations are applied to F before stress evaluation.",
+  "max_across_materials": {
+    "fp64_product_of_rounded_operands": {
+      "max_F_minus_I_frobenius": 8.894195617507122e-06,
+      "max_Green_strain_frobenius": 6.291788754921464e-06,
+      "max_first_Piola_frobenius_Pa": 8966.40427889135
+    },
+    "rounded_products_adds": {
+      "max_F_minus_I_frobenius": 1.5377543513369302e-05,
+      "max_Green_strain_frobenius": 1.0873570045637622e-05,
+      "max_first_Piola_frobenius_Pa": 14305.186994559535
+    },
+    "serial_fma": {
+      "max_F_minus_I_frobenius": 2.8412879108750915e-05,
+      "max_Green_strain_frobenius": 2.0090940148035356e-05,
+      "max_first_Piola_frobenius_Pa": 13126.513033139907
+    }
+  },
+  "mesh": "/Users/home/cardboard-gap-evidence-20261006/resolution-base-001/mesh.json",
+  "mesh_resolution": null,
+  "physical_validation": false,
+  "schema": "numi.cardboard.initial_rest_fp32_precision_audit.v1",
+  "source_path": "compiler_impl.cpp cookedNodePosition -> double inverse -> FP32 serialized inverse; fem.metalinc tetrahedronDeformation computes FP32 Ds * FP32 inverseRest",
+  "stats_by_product_rounding_and_material": {
+    "fp64_product_of_rounded_operands": {
+      "0": {
+        "max_F_minus_I_frobenius": 5.2083206913486914e-08,
+        "max_Green_strain_frobenius": 5.960464477539063e-08,
+        "max_Hill_ratio": 1.457264953185323e-05,
+        "max_first_Piola_frobenius_MPa": 0.0002895955241569611,
+        "max_first_Piola_frobenius_Pa": 289.59552415696106,
+        "name": "hajali2009_liner_hill_ideal",
+        "tetrahedra": 576
+      },
+      "1": {
+        "max_F_minus_I_frobenius": 8.894195617507122e-06,
+        "max_Green_strain_frobenius": 6.291788754921464e-06,
+        "max_Hill_ratio": 0.07064219759598216,
+        "max_first_Piola_frobenius_MPa": 0.00896640427889135,
+        "max_first_Piola_frobenius_Pa": 8966.40427889135,
+        "name": "hajali2009_medium_hill_ideal",
+        "tetrahedra": 288
+      },
+      "2": {
+        "max_F_minus_I_frobenius": 4.883267612967525e-06,
+        "max_Green_strain_frobenius": 3.452799235832501e-06,
+        "max_Hill_ratio": 0.0,
+        "max_first_Piola_frobenius_MPa": 0.0010625258616565605,
+        "max_first_Piola_frobenius_Pa": 1062.5258616565604,
+        "name": "starch2007_finite_glue_elastic",
+        "tetrahedra": 96
+      }
+    },
+    "rounded_products_adds": {
+      "0": {
+        "max_F_minus_I_frobenius": 5.960464477539063e-08,
+        "max_Green_strain_frobenius": 5.960464477539063e-08,
+        "max_Hill_ratio": 1.457264953185323e-05,
+        "max_first_Piola_frobenius_MPa": 0.0002895955241569611,
+        "max_first_Piola_frobenius_Pa": 289.59552415696106,
+        "name": "hajali2009_liner_hill_ideal",
+        "tetrahedra": 576
+      },
+      "1": {
+        "max_F_minus_I_frobenius": 1.5377543513369302e-05,
+        "max_Green_strain_frobenius": 1.0873570045637622e-05,
+        "max_Hill_ratio": 0.10052144370205908,
+        "max_first_Piola_frobenius_MPa": 0.014305186994559535,
+        "max_first_Piola_frobenius_Pa": 14305.186994559535,
+        "name": "hajali2009_medium_hill_ideal",
+        "tetrahedra": 288
+      },
+      "2": {
+        "max_F_minus_I_frobenius": 1.52587890625e-05,
+        "max_Green_strain_frobenius": 1.0789594247656284e-05,
+        "max_Hill_ratio": 0.0,
+        "max_first_Piola_frobenius_MPa": 0.0033198751951989576,
+        "max_first_Piola_frobenius_Pa": 3319.8751951989575,
+        "name": "starch2007_finite_glue_elastic",
+        "tetrahedra": 96
+      }
+    },
+    "serial_fma": {
+      "0": {
+        "max_F_minus_I_frobenius": 3.108893127613514e-06,
+        "max_Green_strain_frobenius": 2.198319440031891e-06,
+        "max_Hill_ratio": 0.012790583075833271,
+        "max_first_Piola_frobenius_MPa": 0.0037783278363863085,
+        "max_first_Piola_frobenius_Pa": 3778.3278363863083,
+        "name": "hajali2009_liner_hill_ideal",
+        "tetrahedra": 576
+      },
+      "1": {
+        "max_F_minus_I_frobenius": 1.595131582252065e-05,
+        "max_Green_strain_frobenius": 1.128057603159133e-05,
+        "max_Hill_ratio": 0.1130901625998282,
+        "max_first_Piola_frobenius_MPa": 0.013126513033139907,
+        "max_first_Piola_frobenius_Pa": 13126.513033139907,
+        "name": "hajali2009_medium_hill_ideal",
+        "tetrahedra": 288
+      },
+      "2": {
+        "max_F_minus_I_frobenius": 2.8412879108750915e-05,
+        "max_Green_strain_frobenius": 2.0090940148035356e-05,
+        "max_Hill_ratio": 0.0,
+        "max_first_Piola_frobenius_MPa": 0.00618182781770481,
+        "max_first_Piola_frobenius_Pa": 6181.8278177048105,
+        "name": "starch2007_finite_glue_elastic",
+        "tetrahedra": 96
+      }
+    }
+  },
+  "timestep_or_solver": null
+}

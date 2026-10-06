@@ -1,0 +1,13 @@
+[  5%] Generating shaders/NumiMatter.metallib
+[ 52%] Built target numi_matter_compiler_objects
+[ 57%] Built target numi_matter_compiler
+[ 63%] Built target numi_matter_shaders
+[ 84%] Built target numi_matter_runtime_objects
+[ 89%] Built target numi_matter_runtime
+[100%] Built target numi-matter-cardboard-probe
+[ 10%] Built target numi_matter_shaders
+[ 57%] Built target numi_matter_compiler_objects
+[ 78%] Built target numi_matter_runtime_objects
+[ 84%] Built target numi_matter_compiler
+[ 89%] Built target numi_matter_runtime
+[100%] Built target numi-matter-fem-kinematic-release-check

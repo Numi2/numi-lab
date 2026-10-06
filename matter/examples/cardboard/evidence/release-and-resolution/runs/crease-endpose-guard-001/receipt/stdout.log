@@ -1,0 +1,1 @@
+{"schema":"numi.cardboard.probe-result.v1","status":"failed","accepted_steps":17,"compiled_world_fingerprint":572588373011996702,"nodes":588,"tetrahedra":960,"failure":"native step 16 accepted, but commanded end-pose tooling gap audit failed; native accepted state retained, tool trajectory not qualified","physical_validation":false}

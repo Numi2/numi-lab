@@ -1,0 +1,27 @@
+{
+  "schema": "numi.cardboard.instrument-calibration.v1",
+  "created_utc": "2026-10-06T05:13:34.095830+00:00",
+  "purpose": "regression of independent commanded end-pose audit, not new physical study",
+  "prediction": "same known bad tool trajectory stops at first native-accepted endpoint with penetration beyond8*float_epsilon*max(board extents,punch radius), returns failed; native accepted count remains honest",
+  "trial": {
+    "name": "crease-endpose-guard-001",
+    "args": [
+      "--crease",
+      "--indent-mm",
+      "0.020",
+      "--steps",
+      "32",
+      "--hold-steps",
+      "16",
+      "--unload-steps",
+      "32",
+      "--relax-steps",
+      "16"
+    ]
+  },
+  "bindings": {
+    "build-cardboard/numi-matter-cardboard-probe": "146e67326cf41aceaf1b361cf4ff6c08144cd339b1bc62c1909f506aad7ab2f2",
+    "build-cardboard/shaders/NumiMatter.metallib": "76c00fbfe1883b0119e46cf8404fd07f8429cb66f7872884e002a2cb1fc55607",
+    "matter/tools/cardboard_probe.mm": "5922676e8ae8c3648dea4b9b1098ebecafc09a31774db693e3c089f24a73e145"
+  }
+}

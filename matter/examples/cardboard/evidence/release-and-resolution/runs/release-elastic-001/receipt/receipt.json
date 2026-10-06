@@ -1,0 +1,43 @@
+{
+  "schema": "numi.cardboard.native-invocation.v1",
+  "argv": [
+    "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-cardboard-probe",
+    "--output",
+    "/Users/home/cardboard-gap-evidence-20261006/release-elastic-001",
+    "--steps",
+    "32",
+    "--hold-steps",
+    "16",
+    "--unload-steps",
+    "0",
+    "--relax-steps",
+    "0",
+    "--release-steps",
+    "64",
+    "--liner-material",
+    "matter/materials/hajali2009_liner_elastic_control.nmatter",
+    "--medium-material",
+    "matter/materials/hajali2009_medium_elastic_control.nmatter"
+  ],
+  "started_utc": "2026-10-06T04:41:51.013903+00:00",
+  "bindings": {
+    "/Users/home/numi-cardboard-20261006/build-cardboard/numi-matter-cardboard-probe": "ad1a6cf3bf68ce5e1d73b4b53a17767ed5c6bd2fcf706b908c653a44243938d1",
+    "/Users/home/numi-cardboard-20261006/build-cardboard/shaders/NumiMatter.metallib": "76c00fbfe1883b0119e46cf8404fd07f8429cb66f7872884e002a2cb1fc55607",
+    "/Users/home/numi-cardboard-20261006/matter/materials/hajali2009_liner_elastic_control.nmatter": "b91e94ce08c0252487c26f783ed125d76fb33bd20c18fd89edd427097d78b422",
+    "/Users/home/numi-cardboard-20261006/matter/materials/hajali2009_medium_elastic_control.nmatter": "0904e7d95ae66e9e3a8682c636d8937a80c471fbf37fea6305c182a5da9626df",
+    "/Users/home/numi-cardboard-20261006/matter/materials/starch2007_finite_glue_elastic.nmatter": "39fac837793259ab875d02ae2500475d9d974c2880fbb404867dead7c52eb2c1",
+    "/Users/home/numi-cardboard-20261006/matter/tools/cardboard_glue_mesh.hpp": "d2668155580cdbdd09411d6cdac6a367a726e909d5dd6d4c9770e8f3822d0146",
+    "/Users/home/numi-cardboard-20261006/matter/tools/cardboard_probe.mm": "164704a16447f56367d83caae9164e9239ce198618cf1499638cf6380f4fc859",
+    "/Users/home/numi-cardboard-20261006/matter/src/metal/fem.metalinc": "12f944de6b149028c4c2f075c3bfa843e9d8a685a952f31f0955de4655c31b09",
+    "/Users/home/numi-cardboard-20261006/matter/src/runtime.mm": "c67a9f770ccd4b836e2d94b4f5964ff550ef65812e85c0ae4e651aa034f3febf",
+    "/Users/home/numi-cardboard-20261006/matter/include/numi/matter/matter.hpp": "3326e44dbf00ea70957adfe6c02b7a79f88ee302defe3fe26cd9354ee2d7e44b"
+  },
+  "base_git_commit": "05d55a7f0741a52d1f1c4f6a6a1d4ebb18170d11",
+  "purpose": "bounded numerical instrument qualification; no physical validation claim",
+  "timeout_seconds": 900,
+  "source_patch_sha256": "ca239ccca4f0187dc48e06d5c6caf1c4ed2b3da33689c717fdb35d23de8a3a0f",
+  "return_code": 0,
+  "wall_seconds": 30.578812290914357,
+  "finished_utc": "2026-10-06T04:42:21.622366+00:00",
+  "inputs_unchanged": true
+}

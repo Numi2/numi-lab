@@ -1,0 +1,18 @@
+{
+  "analyzer_sha256": "3525290344c765db98b0e628ea2cb7d6d9a3921dac1158a94d3897ae56760302",
+  "comparison": {
+    "baseline": "/Users/home/cardboard-gap-evidence-20261006/resolution-base-001",
+    "candidate": "/Users/home/cardboard-gap-evidence-20261006/resolution-thickness-001",
+    "kind": "spatial"
+  },
+  "convergence_verdict": "not_assessed; acceptance is not inferred from completed step count",
+  "physical_validation": false,
+  "reasons": [
+    {
+      "code": "native_run_failed",
+      "message": "Matter rejected step 112; status, accepted state OBJ, and CSV observations were retained"
+    }
+  ],
+  "schema": "numi.cardboard.convergence-analysis.v1",
+  "status": "failed_run"
+}

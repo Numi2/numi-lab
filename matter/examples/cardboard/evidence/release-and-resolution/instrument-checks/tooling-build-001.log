@@ -1,0 +1,37 @@
+[ 75%] Built target numi_matter_compiler_objects
+[ 83%] Built target numi_matter_compiler
+[ 91%] Building CXX object CMakeFiles/numi-matter-cardboard-tooling-check.dir/tools/cardboard_tooling_check.cpp.o
+[100%] Linking CXX executable numi-matter-cardboard-tooling-check
+[100%] Built target numi-matter-cardboard-tooling-check
+[ 10%] Built target numi_matter_shaders
+[ 57%] Built target numi_matter_compiler_objects
+[ 63%] Built target numi_matter_compiler
+[ 84%] Built target numi_matter_runtime_objects
+[ 89%] Built target numi_matter_runtime
+[ 94%] Building OBJCXX object CMakeFiles/numi-matter-cardboard-tooling-native-check.dir/tools/cardboard_tooling_native_check.mm.o
+/Users/home/numi-cardboard-20261006/matter/tools/cardboard_tooling_native_check.mm:191:23: error: no member named 'rigidProxies' in 'numi::matter::CompiledWorld'
+  191 |         require(world.rigidProxies.size() == 2u &&
+      |                 ~~~~~ ^
+/Users/home/numi-cardboard-20261006/matter/tools/cardboard_tooling_native_check.mm:192:27: error: no member named 'rigidProxies' in 'numi::matter::CompiledWorld'
+  192 |                     world.rigidProxies[kPunchProxyIndex].shapeKind == NM_RIGID_CAPSULE &&
+      |                     ~~~~~ ^
+/Users/home/numi-cardboard-20261006/matter/tools/cardboard_tooling_native_check.mm:193:27: error: no member named 'rigidProxies' in 'numi::matter::CompiledWorld'
+  193 |                     world.rigidProxies[kPunchProxyIndex].bodyIndex == kPunchBodyIndex &&
+      |                     ~~~~~ ^
+/Users/home/numi-cardboard-20261006/matter/tools/cardboard_tooling_native_check.mm:194:27: error: no member named 'rigidProxies' in 'numi::matter::CompiledWorld'
+  194 |                     world.rigidProxies[kSupportProxyIndex].shapeKind == NM_RIGID_BOX &&
+      |                     ~~~~~ ^
+/Users/home/numi-cardboard-20261006/matter/tools/cardboard_tooling_native_check.mm:195:27: error: no member named 'rigidProxies' in 'numi::matter::CompiledWorld'
+  195 |                     world.rigidProxies[kSupportProxyIndex].bodyIndex == NM_INVALID_INDEX,
+      |                     ~~~~~ ^
+/Users/home/numi-cardboard-20261006/matter/tools/cardboard_tooling_native_check.mm:364:50: error: no member named 'rigidProxies' in 'numi::matter::CompiledWorld'
+  364 |         static_cast<std::uint32_t>(fixture.world.rigidProxies.size());
+      |                                    ~~~~~~~~~~~~~ ^
+/Users/home/numi-cardboard-20261006/matter/tools/cardboard_tooling_native_check.mm:402:37: error: no member named 'rigidProxies' in 'numi::matter::CompiledWorld'
+  402 |                       fixture.world.rigidProxies[kPunchProxyIndex].localCenter[2])) < 2.0e-6,
+      |                       ~~~~~~~~~~~~~ ^
+7 errors generated.
+make[3]: *** [CMakeFiles/numi-matter-cardboard-tooling-native-check.dir/tools/cardboard_tooling_native_check.mm.o] Error 1
+make[2]: *** [CMakeFiles/numi-matter-cardboard-tooling-native-check.dir/all] Error 2
+make[1]: *** [CMakeFiles/numi-matter-cardboard-tooling-native-check.dir/rule] Error 2
+make: *** [numi-matter-cardboard-tooling-native-check] Error 2

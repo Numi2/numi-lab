@@ -1,0 +1,12 @@
+{
+  "schema": "numi.cardboard.probe-result.v1",
+  "status": "completed",
+  "accepted_steps": 144,
+  "compiled_world_fingerprint": 720205121026843522,
+  "nodes": 882,
+  "tetrahedra": 1920,
+  "material_map_sha256": "852f72f6b0a7a49ab87222ecfc0cdf3f4f4140d29e2e5bebf6b67f156760039a",
+  "frame_map_sha256": "800d3c2d25db33d7526f12ce3dc4db04055ca58138ae8a1b908e5020744439d4",
+  "failure": "",
+  "physical_validation": false
+}

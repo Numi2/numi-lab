@@ -1,0 +1,57 @@
+Test project /Users/home/numi-cardboard-20261006/build-cardboard
+      Start  1: matter.analysis.cardboard_convergence
+ 1/14 Test  #1: matter.analysis.cardboard_convergence ...   Passed    0.24 sec
+      Start  2: matter.analysis.cardboard_tooling
+ 2/14 Test  #2: matter.analysis.cardboard_tooling .......   Passed    0.05 sec
+      Start  3: matter.compiler.cardboard_tooling
+ 3/14 Test  #3: matter.compiler.cardboard_tooling .......   Passed    0.82 sec
+      Start  4: matter.compiler.cardboard_profile
+ 4/14 Test  #4: matter.compiler.cardboard_profile .......   Passed    0.00 sec
+      Start  5: matter.compiler.cardboard_glue_mesh
+ 5/14 Test  #5: matter.compiler.cardboard_glue_mesh .....   Passed    0.00 sec
+      Start  6: matter.compiler.cardboard_paper
+ 6/14 Test  #6: matter.compiler.cardboard_paper .........   Passed    0.06 sec
+      Start  7: matter.compiler.cardboard_material
+ 7/14 Test  #7: matter.compiler.cardboard_material ......   Passed    0.02 sec
+      Start  9: matter.compiler.fem_material_frame
+ 8/14 Test  #9: matter.compiler.fem_material_frame ......   Passed    0.02 sec
+      Start 10: matter.compiler.stateful_roundtrip
+ 9/14 Test #10: matter.compiler.stateful_roundtrip ......   Passed    0.75 sec
+      Start 11: matter.metal.fem_kinematic_release
+10/14 Test #11: matter.metal.fem_kinematic_release ......   Passed    0.63 sec
+      Start 12: matter.metal.cardboard_tooling
+11/14 Test #12: matter.metal.cardboard_tooling ..........***Failed    1.18 sec
+rigid_proxy_validator=pass zero_radius_box=accepted zero_extent_box=rejected zero_radius_capsule=rejected
+native_tooling_fixture=synthetic_elastic_pad accepted_steps=3 timestep_s=9.999999747e-05 contact_slop_m=1e-05 initial_punch_gap_m=1e-05 support_gap_m=2e-05 punch_step_travel_m=1.999999949e-06 moving_punch_valid_contacts=1 moving_punch_max_normal_impulse=4.172410115e-07 moving_punch_min_separation_m=9.03691398e-06 stationary_punch_valid_contacts=0 moving_support_valid_contacts=0 moving_support_min_separation_m=inf accepted_pad_displacement_m=3.037872954e-06 stationary_control_displacement_m=3.261855022e-11 kinematic_body_pose_advanced=true postcommit_end_pose_certified=true cardboard_qualification=false
+rigid_proxy_validator=pass zero_radius_box=accepted zero_extent_box=rejected zero_radius_capsule=rejected
+native cardboard tooling fixture failed: unsafe external end pose was not rejected by postCommit certification
+
+      Start 13: matter.metal.cardboard_material
+12/14 Test #13: matter.metal.cardboard_material .........   Passed    0.36 sec
+      Start 14: matter.metal.cardboard_paper
+13/14 Test #14: matter.metal.cardboard_paper ............   Passed    1.72 sec
+      Start 29: matter.metal.fem_material_frame
+14/14 Test #29: matter.metal.fem_material_frame .........   Passed    7.21 sec
+
+93% tests passed, 1 tests failed out of 14
+
+Label Time Summary:
+analysis      =   0.29 sec*proc (2 tests)
+cardboard     =   4.45 sec*proc (10 tests)
+compiler      =   0.76 sec*proc (2 tests)
+contact       =   1.18 sec*proc (1 test)
+fem           =   0.63 sec*proc (1 test)
+geometry      =   0.83 sec*proc (3 tests)
+human         =   7.23 sec*proc (2 tests)
+material      =   7.66 sec*proc (5 tests)
+matter        =  13.05 sec*proc (14 tests)
+metal         =   0.36 sec*proc (1 test)
+plasticity    =   1.72 sec*proc (1 test)
+release       =   0.63 sec*proc (1 test)
+stateful      =   0.75 sec*proc (1 test)
+
+Total Test time (real) =  13.06 sec
+
+The following tests FAILED:
+	 12 - matter.metal.cardboard_tooling (Failed)           cardboard contact matter
+Errors while running CTest
