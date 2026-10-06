@@ -1,0 +1,39 @@
+{
+  "resting-coupled.csv": {
+    "rows": 94,
+    "baseline_rows": 94,
+    "fields_in_both": 47,
+    "different_fields": {},
+    "fields_new": [],
+    "fields_removed": []
+  },
+  "resting-surface-audit.csv": {
+    "rows": 95,
+    "baseline_rows": 95,
+    "fields_in_both": 27,
+    "different_fields": {
+      "ventricular_material_ml": 88,
+      "ventricular_closure_mm": 95,
+      "max_functional_volume_relative_error": 20
+    },
+    "fields_new": [],
+    "fields_removed": [],
+    "max_functional_volume_relative_error": 1.50192374804e-06,
+    "ventricular_material_status": [
+      "0"
+    ]
+  },
+  "scope": "Native158 compared with unchanged physics at retained073source trajectory; cardiac geometric closure may differ. This is numerical state consistency only, not whole anatomy or physiological qualification.",
+  "source_sha256": {
+    "/Users/n/numi-human-resting-evidence-20261005/cardiac-annular-map-native-158/resting-coupled.csv": "da4c0e87d50473e13d17ee2b70cf02d459aeccf2adc88ca1bb6da3efcd52c99f",
+    "/Users/n/numi-human-resting-evidence-20261005/cardiac-annular-map-native-158/resting-surface-audit.csv": "e78e4261c1b7834de20dadcc7b2c06f7539243b82cc2f4f7abbbec89976d91b2",
+    "/Users/n/numi-human-resting-evidence-20261005/cardiac-map-multiregion-affine-repair-011/native-fullchain073-6s-001/resting-coupled.csv": "da4c0e87d50473e13d17ee2b70cf02d459aeccf2adc88ca1bb6da3efcd52c99f",
+    "/Users/n/numi-human-resting-evidence-20261005/cardiac-map-multiregion-affine-repair-011/native-fullchain073-6s-001/resting-surface-audit.csv": "e279881b46b9b9e68195fb9c9fceb35093f6e5e0f99a0887f0b313edf2993da6"
+  },
+  "terminal_state_comparison": {
+    "q_equal": true,
+    "v_equal": true,
+    "all_fields_equal": true,
+    "scope": "Equality of full-precision retained terminal serialization, not new checkpoint identity proof."
+  }
+}

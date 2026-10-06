@@ -889,7 +889,7 @@ struct NumiHumanRestingAnatomy {
         }
 
         // Optional source-bound local coefficient conditioning. This is a
-        // load-time replacement of sparse free-wall RV/LV coefficients in the
+        // load-time replacement of sparse free-wall coefficients in the
         // existing map; it adds no state, force, or per-step CPU work.
         NSDictionary* mapRefinement=[wallMap isKindOfClass:NSDictionary.class]?
             (NSDictionary*)wallMap[@"local_coefficient_refinement"]:nil;
@@ -898,6 +898,8 @@ struct NumiHumanRestingAnatomy {
                 "cardiac wall coefficient identity expects the existing 48-byte map ABI");
             NSString* refinementSchema=mapRefinement[@"schema"];
             NSString* refinementMethod=mapRefinement[@"method"];
+            const bool hasClosureRefinement=[refinementSchema isKindOfClass:NSString.class]&&
+                [refinementSchema isEqualToString:@"numi.human.cardiac.ventricular_wall_map_refinement.v2"];
             NSString* refinementInterpretation=mapRefinement[@"interpretation"];
             NSString* refinementSourceSHA=mapRefinement[@"source_payload_sha256"];
             NSString* cavitySourceSHA=mapRefinement[@"cavity_source_payload_sha256"];
@@ -921,9 +923,11 @@ struct NumiHumanRestingAnatomy {
                 return true;
             };
             require([refinementSchema isKindOfClass:NSString.class]&&
-                [refinementSchema isEqualToString:@"numi.human.cardiac.ventricular_wall_map_refinement.v1"]&&
+                (hasClosureRefinement||[refinementSchema isEqualToString:@"numi.human.cardiac.ventricular_wall_map_refinement.v1"])&&
                 [refinementMethod isKindOfClass:NSString.class]&&
-                [refinementMethod isEqualToString:@"joint_selected_state_affine_harmonic_map_conditioning_v1"]&&
+                [refinementMethod isEqualToString:hasClosureRefinement?
+                    @"joint_selected_state_affine_harmonic_map_conditioning_v2":
+                    @"joint_selected_state_affine_harmonic_map_conditioning_v1"]&&
                 [refinementInterpretation isKindOfClass:NSString.class]&&
                 [refinementInterpretation isEqualToString:@"inferred_reference_registration_not_measured_subject_geometry"]&&
                 validSHA(refinementSourceSHA)&&std::string(refinementSourceSHA.UTF8String)==outputAnatomyHash&&
@@ -935,7 +939,7 @@ struct NumiHumanRestingAnatomy {
                 [refinementCount isKindOfClass:NSNumber.class]&&[corrections isKindOfClass:NSArray.class]&&
                 corrections.count==refinementCount.unsignedIntValue&&corrections.count>0&&
                 [refinementMaxDisplacement isKindOfClass:NSNumber.class]&&
-                std::isfinite(refinementMaxDisplacement.doubleValue)&&refinementMaxDisplacement.doubleValue<=.01&&
+                std::isfinite(refinementMaxDisplacement.doubleValue)&&refinementMaxDisplacement.doubleValue<=(hasClosureRefinement?.03:.01)&&
                 [qDomains isKindOfClass:NSDictionary.class]&&
                 [qDomains[@"q_rv"] isKindOfClass:NSArray.class]&&[qDomains[@"q_rv"] count]==2&&
                 [qDomains[@"q_lv"] isKindOfClass:NSArray.class]&&[qDomains[@"q_lv"] count]==2&&
@@ -949,13 +953,32 @@ struct NumiHumanRestingAnatomy {
                     low.doubleValue>=-.2&&high.doubleValue<=.2,
                     "ventricular wall refinement q-domain is outside the supported bounded range");
             }
+            if(hasClosureRefinement) {
+                NSArray* interval=mapRefinement[@"closure_domain_m"];
+                require([interval isKindOfClass:NSArray.class]&&interval.count==2&&
+                    [interval[0] isKindOfClass:NSNumber.class]&&[interval[1] isKindOfClass:NSNumber.class]&&
+                    [interval[0] doubleValue]==-.01&&[interval[1] doubleValue]==.01&&
+                    closureLow==-.01&&closureHigh==.01,
+                    "conditioned closure basis must bind the full existing +/-10 mm solver bracket");
+            }
+            NSMutableSet* distinctPhases=[NSMutableSet set];
             for(id phase in checkedPhases) {
                 require([phase isKindOfClass:NSDictionary.class]&&
                     [phase[@"step"] isKindOfClass:NSNumber.class]&&
                     [phase[@"exact_self_intersection_pairs"] isKindOfClass:NSNumber.class]&&
                     [phase[@"exact_self_intersection_pairs"] unsignedLongLongValue]==0,
                     "ventricular wall refinement includes a phase without a zero-pair exact self-audit");
+                if(hasClosureRefinement) {
+                    require([phase[@"exact_ra_intersection_pairs"] isKindOfClass:NSNumber.class]&&
+                        [phase[@"exact_la_intersection_pairs"] isKindOfClass:NSNumber.class]&&
+                        [phase[@"exact_ra_intersection_pairs"] unsignedLongLongValue]==0&&
+                        [phase[@"exact_la_intersection_pairs"] unsignedLongLongValue]==0,
+                        "conditioned closure basis lacks an exact zero-pair atrial-cavity audit");
+                    [distinctPhases addObject:phase[@"step"]];
+                }
             }
+            require(!hasClosureRefinement||distinctPhases.count>=8,
+                "conditioned closure basis requires at least eight distinct audited states");
             const auto baseMapSHAActual=loadedKneeSHA256Hex(loadedKneeSHA256(
                 ventricularWallMap.data(),ventricularWallMap.size()*sizeof(MRHumanRestingCardiacWallVertexGPU)));
             require(baseMapSHAActual==baseMapSHA.UTF8String,
@@ -969,13 +992,20 @@ struct NumiHumanRestingAnatomy {
             const auto appendLEFloat=[&](float value) {
                 uint32_t bits=0;std::memcpy(&bits,&value,sizeof(bits));appendLE32(bits);
             };
-            int64_t previous=-1;double maxRVDelta=0,maxLVDelta=0;
+            int64_t previous=-1;double maxRVDelta=0,maxLVDelta=0,maxClosureDelta=0;
             for(id rawRow in corrections) {
                 require([rawRow isKindOfClass:NSDictionary.class],"ventricular wall refinement row is not a dictionary");
                 NSDictionary* row=rawRow;
                 NSNumber* vertexNumber=row[@"vertex"];
                 NSArray* rvValues=row[@"rv_coefficient_m"];NSArray* lvValues=row[@"lv_coefficient_m"];
                 NSArray* rvDeltas=row[@"rv_delta_m"];NSArray* lvDeltas=row[@"lv_delta_m"];
+                NSArray* closureValues=row[@"closure_coefficient"];
+                NSArray* closureDeltas=row[@"closure_delta"];
+                if(hasClosureRefinement) {
+                    require([closureValues isKindOfClass:NSArray.class]&&closureValues.count==3&&
+                        [closureDeltas isKindOfClass:NSArray.class]&&closureDeltas.count==3,
+                        "conditioned closure basis row has malformed dimensionless vectors");
+                }
                 require([vertexNumber isKindOfClass:NSNumber.class]&&
                     [rvValues isKindOfClass:NSArray.class]&&rvValues.count==3&&
                     [lvValues isKindOfClass:NSArray.class]&&lvValues.count==3&&
@@ -988,7 +1018,7 @@ struct NumiHumanRestingAnatomy {
                     "ventricular wall refinement is unsorted, out of range, or changes a lumen-owned vertex");
                 const unsigned vertex=static_cast<unsigned>(vertex64);previous=static_cast<int64_t>(vertex64);
                 auto& map=ventricularWallMap[vertex];
-                std::array<float,3> rv{},lv{},rvDelta{},lvDelta{};
+                std::array<float,3> rv{},lv{},rvDelta{},lvDelta{},closure{},closureDelta{};
                 for(unsigned axis=0;axis<3;++axis) {
                     for(NSArray* vector in @[rvValues,lvValues,rvDeltas,lvDeltas]) {
                         NSNumber* component=vector[axis];
@@ -997,6 +1027,16 @@ struct NumiHumanRestingAnatomy {
                     }
                     rv[axis]=[rvValues[axis] floatValue];lv[axis]=[lvValues[axis] floatValue];
                     rvDelta[axis]=[rvDeltas[axis] floatValue];lvDelta[axis]=[lvDeltas[axis] floatValue];
+                    if(hasClosureRefinement) {
+                        for(NSArray* vector in @[closureValues,closureDeltas]) {
+                            NSNumber* component=vector[axis];
+                            require([component isKindOfClass:NSNumber.class]&&std::isfinite(component.doubleValue)&&
+                                std::isfinite(component.floatValue),
+                                "conditioned closure basis contains a nonfinite binary32 coefficient");
+                        }
+                        closure[axis]=[closureValues[axis] floatValue];
+                        closureDelta[axis]=[closureDeltas[axis] floatValue];
+                    }
                 }
                 require(std::isfinite(rv[0])&&std::isfinite(rv[1])&&std::isfinite(rv[2])&&
                     std::isfinite(lv[0])&&std::isfinite(lv[1])&&std::isfinite(lv[2])&&
@@ -1007,9 +1047,16 @@ struct NumiHumanRestingAnatomy {
                 const double lvNorm=std::sqrt(double(lv[0])*lv[0]+double(lv[1])*lv[1]+double(lv[2])*lv[2]);
                 const double rvDeltaNorm=std::sqrt(double(rvDelta[0])*rvDelta[0]+double(rvDelta[1])*rvDelta[1]+double(rvDelta[2])*rvDelta[2]);
                 const double lvDeltaNorm=std::sqrt(double(lvDelta[0])*lvDelta[0]+double(lvDelta[1])*lvDelta[1]+double(lvDelta[2])*lvDelta[2]);
-                require(rvNorm<.08&&lvNorm<.08&&rvDeltaNorm<.04&&lvDeltaNorm<.04,
+                const double deltaLimit=hasClosureRefinement?.06:.04;
+                require(rvNorm<.08&&lvNorm<.08&&rvDeltaNorm<deltaLimit&&lvDeltaNorm<deltaLimit,
                     "ventricular wall refinement coefficients exceed their bounded map ranges");
                 maxRVDelta=std::max(maxRVDelta,rvDeltaNorm);maxLVDelta=std::max(maxLVDelta,lvDeltaNorm);
+                if(hasClosureRefinement) {
+                    const double norm=std::sqrt(double(closure[0])*closure[0]+double(closure[1])*closure[1]+double(closure[2])*closure[2]);
+                    const double deltaNorm=std::sqrt(double(closureDelta[0])*closureDelta[0]+double(closureDelta[1])*closureDelta[1]+double(closureDelta[2])*closureDelta[2]);
+                    require(norm<2&&deltaNorm<2,"conditioned closure basis exceeds its bounded dimensionless range");
+                    maxClosureDelta=std::max(maxClosureDelta,deltaNorm);
+                }
                 for(unsigned axis=0;axis<3;++axis) {
                     const float baseRV=axis==0?map.first.x:axis==1?map.first.y:map.first.z;
                     const float baseLV=axis==0?map.second.x:axis==1?map.second.y:map.second.z;
@@ -1018,10 +1065,19 @@ struct NumiHumanRestingAnatomy {
                     if(axis==0){map.first.x=rv[axis];map.second.x=lv[axis];}
                     else if(axis==1){map.first.y=rv[axis];map.second.y=lv[axis];}
                     else {map.first.z=rv[axis];map.second.z=lv[axis];}
+                    if(hasClosureRefinement) {
+                        const float baseClosure=axis==0?map.closure.x:axis==1?map.closure.y:map.closure.z;
+                        require(closure[axis]-baseClosure==closureDelta[axis],
+                            "conditioned closure delta differs from the exact binary32 loader coefficient");
+                        if(axis==0)map.closure.x=closure[axis];
+                        else if(axis==1)map.closure.y=closure[axis];
+                        else map.closure.z=closure[axis];
+                    }
                 }
                 appendLE32(static_cast<uint32_t>(vertex64));
                 for(unsigned axis=0;axis<3;++axis)appendLEFloat(rv[axis]);
                 for(unsigned axis=0;axis<3;++axis)appendLEFloat(lv[axis]);
+                if(hasClosureRefinement)for(unsigned axis=0;axis<3;++axis)appendLEFloat(closure[axis]);
             }
             require(loadedKneeSHA256Hex(loadedKneeSHA256(canonicalCorrections.bytes,canonicalCorrections.length))==
                     correctionSHA.UTF8String,
@@ -1032,7 +1088,7 @@ struct NumiHumanRestingAnatomy {
             NSNumber* closureShift=mapRefinement[@"max_closure_shift_m"];
             require([closureShift isKindOfClass:NSNumber.class]&&std::isfinite(closureShift.doubleValue)&&
                 closureShift.doubleValue>=0&&closureShift.doubleValue<=.02&&
-                maxRVDelta*qrvMax+maxLVDelta*qlvMax+closureShift.doubleValue+1e-6<=
+                maxRVDelta*qrvMax+maxLVDelta*qlvMax+maxClosureDelta*.01+closureShift.doubleValue+1e-6<=
                     refinementMaxDisplacement.doubleValue+1e-9,
                 "ventricular wall refinement displacement bound understates the accepted q-domain map change");
             const auto correctedMapSHAActual=loadedKneeSHA256Hex(loadedKneeSHA256(

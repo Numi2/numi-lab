@@ -1,0 +1,11 @@
+{
+  "base_revision": "7c0bc0511378d064436783e5c524888b46ce88bf",
+  "source030_revision": "f877719bf70d98560bb3ecbe190f1038e2e347de",
+  "copied_files": {
+    "apps/NumiHumanRestingAnatomy.hpp": "5e94be3075ddb33da7ac0e2d3fbf4d12ab18a2a16b85215050a3396994f0e3d3",
+    "matter/tools/cardiac_geometry_binding.py": "e899bd3bdce664a22d4aec5f041912b693cdf27be9da666e2d7e9dacba0e0864",
+    "matter/tools/test_cardiac_map_refinement.py": "f8a96dfaa4a31015a884c53e641dc31c8f01b93757ab6648b668895311b9c1c6"
+  },
+  "patch_sha256": "f7f2f472534cbb439407cd8c1d7211905d0555a98d2dd4cb1271fb8c78ad51b5",
+  "scope": "Only conditioned ventricular-map loader/compiler and focusedtests; airway128notincluded. Existing upstreamcardboardcommit retained."
+}

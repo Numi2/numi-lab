@@ -1,0 +1,55 @@
+{
+  "scope": "Exact audits of actual accepted native ID23 ventricular material surface against itself and anatomical atrial cavities318/320. Other anatomical surfaces are outside this audit.",
+  "step": 1951,
+  "pack_sha256": "a4dd727597d45e9d27a7b1c12f7311b46f3ea53a409dea3b8e147ea483df87a5",
+  "receipt_sha256": "41c69f3301b608433417f93cca66928c158b26858896bdee2627bbab64bee4cf",
+  "accepted_receipt": {
+    "path": "/Users/n/numi-human-resting-evidence-20261005/cardiac-annular-map-native-158/accepted-geometry/step-1951.receipt.json",
+    "sha256": "41c69f3301b608433417f93cca66928c158b26858896bdee2627bbab64bee4cf",
+    "accepted_step": 1951,
+    "accepted_time_s": 3.902000185335055,
+    "accepted_root_fingerprint": 16701737933093270551,
+    "accepted_root_fingerprint_hex": "0xe7c87e2919b0f417",
+    "accepted_transaction_fingerprint": 16701737933093270551,
+    "accepted_body_state_sha256": "fcb3a68cf59b62d04be7a31a78d97e7e83f9a88a85c337e374f83bade7132634",
+    "accepted_respiration_state_sha256": "feae8ba48c681da6ee526dab01249c08d3a42fe322b48dce4bae19b82eace862",
+    "base_pack_content_hash": "sha256:c4906458e5f11cf3c9f25fedde5ec53c789fbeff17b1c80735c6cf16753861e1",
+    "base_pack_file_sha256": "5ec1e3cbdfdf3d4a64d0d1456504b44473d48db7dac5834891f87d91fa54af30",
+    "anatomy_layer_index": 0,
+    "captured_vertex_buffer_sha256": "579f706317ab242a89a2ecc47a299e439b9f0ac58e2d5cfd2b921125dd6a08ad"
+  },
+  "invocation_sha256": "c623f9776452a4e7cd3299d8019e7f4bcd8ff42d73050b61840b9de86c642361",
+  "driver_sha256": "fe35bb9f78abe8e7d215bbfd28045214f39928778e71a4b7f1134ec0733d43e0",
+  "predicate_sha256": "8b138882161c78312cb9b5aa46f49795092eb9b67ed9f705dc354787cb0a635b",
+  "geometry_counterfactual": {
+    "source_npz_sha256": "50b91f9f173f1433c583513f7d5e5772bdae32d93c5c896602856c1cdc044671",
+    "maximum_position_difference_m": 6.828569911354542e-08,
+    "rms_position_difference_m": 1.2054140764130114e-08,
+    "exact_same_triangle_bytes": false
+  },
+  "degenerate_face_count": 0,
+  "degenerate_faces": [],
+  "common_lattice_scale": 1073741824,
+  "pairs": {
+    "self": {
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 421169,
+      "allowed_shared_vertex_or_edge_pairs": 356596
+    },
+    "RA": {
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 1007,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    },
+    "LA": {
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 1072,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    }
+  },
+  "elapsed_seconds": 222.88424820825458,
+  "status": "pass"
+}

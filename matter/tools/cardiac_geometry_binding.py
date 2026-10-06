@@ -963,12 +963,14 @@ def _load_ventricular_wall_map_refinement(path: Path, *, source_payload_sha256: 
                                          faces: np.ndarray, owners: list[str]) -> dict:
     """Validate the sparse inferred correction consumed by the native wall-map owner."""
     refinement = json.loads(path.read_text())
-    require(refinement.get("schema") == "numi.human.cardiac.ventricular_wall_map_refinement.v1" and
+    has_closure = refinement.get("schema") == "numi.human.cardiac.ventricular_wall_map_refinement.v2"
+    require((has_closure or refinement.get("schema") == "numi.human.cardiac.ventricular_wall_map_refinement.v1") and
             refinement.get("source_payload_sha256") == source_payload_sha256 and
             refinement.get("arrangement_candidate_sha256") == candidate_sha256 and
             refinement.get("vertex_count") == len(points),
             "ventricular wall refinement does not bind this exact source arrangement")
-    require(refinement.get("method") == "joint_selected_state_affine_harmonic_map_conditioning_v1" and
+    method = "joint_selected_state_affine_harmonic_map_conditioning_v2" if has_closure else "joint_selected_state_affine_harmonic_map_conditioning_v1"
+    require(refinement.get("method") == method and
             refinement.get("interpretation") == "inferred_reference_registration_not_measured_subject_geometry",
             "ventricular wall refinement method/provenance is unsupported")
     for name in ("base_map_binary_sha256", "corrected_map_binary_sha256", "correction_records_sha256",
@@ -989,6 +991,9 @@ def _load_ventricular_wall_map_refinement(path: Path, *, source_payload_sha256: 
     require(domains[0][0] >= -.2 and domains[0][1] <= .2 and
             domains[1][0] >= -.2 and domains[1][1] <= .2,
             "ventricular wall refinement q-domain exceeds the admitted reduced model range")
+    if has_closure:
+        require(refinement.get("closure_domain_m") == [-.01, .01],
+                "conditioned closure basis must bind the full existing +/-10 mm solver bracket")
     owned = np.zeros(len(points), dtype=bool)
     for triangle, owner in enumerate(owners):
         if owner != "ID23_wall":
@@ -997,7 +1002,7 @@ def _load_ventricular_wall_map_refinement(path: Path, *, source_payload_sha256: 
     require(isinstance(rows, list) and rows, "ventricular wall refinement has no sparse coefficient corrections")
     canonical = bytearray()
     previous = -1
-    max_rv = max_lv = max_bound = 0.0
+    max_rv = max_lv = max_closure = max_bound = 0.0
     for row in rows:
         require(isinstance(row, dict), "ventricular wall refinement row is malformed")
         index = row.get("vertex")
@@ -1005,6 +1010,13 @@ def _load_ventricular_wall_map_refinement(path: Path, *, source_payload_sha256: 
         lv = row.get("lv_coefficient_m")
         rv_delta = row.get("rv_delta_m")
         lv_delta = row.get("lv_delta_m")
+        closure = row.get("closure_coefficient")
+        closure_delta = row.get("closure_delta")
+        if has_closure:
+            require(isinstance(closure, list) and len(closure) == 3 and
+                    isinstance(closure_delta, list) and len(closure_delta) == 3 and
+                    all(isinstance(v, (int, float)) and np.isfinite(v) for v in closure + closure_delta),
+                    "conditioned closure basis dimensionless vectors are malformed")
         require(isinstance(index, int) and not isinstance(index, bool) and
                 previous < index < len(points) and not owned[index],
                 "ventricular wall refinement rows are unsorted, duplicated, out of range, or alter an owned lumen boundary")
@@ -1018,13 +1030,24 @@ def _load_ventricular_wall_map_refinement(path: Path, *, source_payload_sha256: 
         require(np.all(np.isfinite(rv32)) and np.all(np.isfinite(lv32)) and
                 np.all(np.isfinite(rv_delta32)) and np.all(np.isfinite(lv_delta32)) and
                 np.linalg.norm(rv32) < .08 and np.linalg.norm(lv32) < .08 and
-                np.linalg.norm(rv_delta32) < .04 and np.linalg.norm(lv_delta32) < .04,
+                np.linalg.norm(rv_delta32) < (.06 if has_closure else .04) and
+                np.linalg.norm(lv_delta32) < (.06 if has_closure else .04),
                 "ventricular wall refinement coefficient exceeds the bounded local map range")
         max_rv = max(max_rv, float(np.linalg.norm(rv_delta32)))
         max_lv = max(max_lv, float(np.linalg.norm(lv_delta32)))
         max_bound = max(max_bound, float(np.linalg.norm(rv_delta32))*max(abs(domains[0][0]), abs(domains[0][1])) +
                         float(np.linalg.norm(lv_delta32))*max(abs(domains[1][0]), abs(domains[1][1])))
-        canonical.extend(struct.pack("<I6f", index, *rv32.tolist(), *lv32.tolist()))
+        if has_closure:
+            closure32 = np.asarray(closure, dtype="<f4")
+            closure_delta32 = np.asarray(closure_delta, dtype="<f4")
+            require(np.all(np.isfinite(closure32)) and np.all(np.isfinite(closure_delta32)) and
+                    np.linalg.norm(closure32.astype(np.float64)) < 2 and
+                    np.linalg.norm(closure_delta32.astype(np.float64)) < 2,
+                    "conditioned closure basis exceeds its bounded dimensionless range")
+            max_closure = max(max_closure, float(np.linalg.norm(closure_delta32.astype(np.float64))))
+            canonical.extend(struct.pack("<I9f", index, *rv32.tolist(), *lv32.tolist(), *closure32.tolist()))
+        else:
+            canonical.extend(struct.pack("<I6f", index, *rv32.tolist(), *lv32.tolist()))
         previous = index
     require(hashlib.sha256(canonical).hexdigest() == refinement["correction_records_sha256"],
             "ventricular wall refinement sparse rows differ from their canonical source-bound digest")
@@ -1033,10 +1056,10 @@ def _load_ventricular_wall_map_refinement(path: Path, *, source_payload_sha256: 
     closure_shift = refinement.get("max_closure_shift_m")
     require(isinstance(closure_shift, (int, float)) and np.isfinite(closure_shift) and 0 <= closure_shift <= .02,
             "ventricular wall refinement closure-shift bound is malformed")
-    max_bound += float(closure_shift) + 1e-6
+    max_bound += max_closure * .01 + float(closure_shift) + 1e-6
     claimed_bound = refinement.get("max_displacement_bound_m")
     require(isinstance(claimed_bound, (int, float)) and np.isfinite(claimed_bound) and
-            max_bound <= float(claimed_bound) + 1e-9 and float(claimed_bound) <= .01,
+            max_bound <= float(claimed_bound) + 1e-9 and float(claimed_bound) <= (.03 if has_closure else .01),
             "ventricular wall refinement displacement bound is malformed or understated")
     phase_rows = refinement.get("checked_phases")
     require(isinstance(phase_rows, list) and len(phase_rows) >= 8 and
@@ -1044,12 +1067,77 @@ def _load_ventricular_wall_map_refinement(path: Path, *, source_payload_sha256: 
                 isinstance(r.get("exact_self_intersection_pairs"), int) and
                 r["exact_self_intersection_pairs"] == 0 for r in phase_rows),
             "ventricular wall refinement lacks complete zero-pair selected-state audits")
+    if has_closure:
+        require(len({r["step"] for r in phase_rows}) >= 8 and
+                all(isinstance(r.get("exact_ra_intersection_pairs"), int) and
+                    isinstance(r.get("exact_la_intersection_pairs"), int) and
+                    r["exact_ra_intersection_pairs"] == 0 and r["exact_la_intersection_pairs"] == 0
+                    for r in phase_rows),
+                "conditioned closure basis lacks eight distinct exact atrial-cavity audits")
     result = dict(refinement)
     result["correction_vertex_count"] = len(rows)
     result["validated_max_rv_coefficient_correction_m"] = max_rv
     result["validated_max_lv_coefficient_correction_m"] = max_lv
+    if has_closure:
+        result["validated_max_closure_coefficient_correction"] = max_closure
     result["validated_max_displacement_bound_m"] = max_bound
     return result
+
+
+def _wall_closure_from_native_parameters(parameters: np.ndarray, qr: np.float32,
+                                         ql: np.float32) -> np.float32:
+    """Asset-admission replay of the existing uploaded cubic, never a simulation step."""
+    require(parameters.shape == (32,) and np.all(np.isfinite(parameters[:28])),
+            "native wall polynomial parameters are malformed")
+    p0, p1, p2, p3, p4 = parameters[:20].reshape(5, 4)
+    scales, limits = parameters[20:24], parameters[24:28]
+    require(np.all(scales[:3] > 0) and scales[3] > 0 and limits[0] < limits[1],
+            "native wall polynomial scales/bounds are invalid")
+    r, l = np.float32(qr) / scales[0], np.float32(ql) / scales[1]
+    f0 = p0[0]+p0[1]*r+p0[2]*l+p0[3]*r*r+p1[0]*r*l+p1[1]*l*l+p1[2]*r*r*r+p1[3]*r*r*l+p2[0]*r*l*l+p2[1]*l*l*l
+    f1 = p2[2]+p2[3]*r+p3[0]*l+p3[1]*r*r+p3[2]*r*l+p3[3]*l*l
+    f2, f3 = p4[0]+p4[1]*r+p4[2]*l, p4[3]
+    low, high, target = limits[0]/scales[2], limits[1]/scales[2], scales[3]
+    volume = lambda x: ((f3*x+f2)*x+f1)*x+f0
+    derivative = lambda x: (np.float32(3)*f3*x+np.float32(2)*f2)*x+f1
+    derivatives = [derivative(low), derivative(high)]
+    if f3 != 0:
+        stationary = -f2/(np.float32(3)*f3)
+        if low < stationary < high:
+            derivatives.append(derivative(stationary))
+    require(min(derivatives) > 1e-12 and volume(low) <= target <= volume(high),
+            "native wall polynomial does not have the admitted monotone bracket")
+    for _ in range(32):
+        mid = np.float32(.5)*np.float32(low+high)
+        if volume(mid) < target:
+            low = mid
+        else:
+            high = mid
+    root = np.float32(.5)*np.float32(low+high)
+    require(abs(volume(root)-target)/target <= limits[2],
+            "native wall polynomial root exceeds its volume tolerance")
+    return np.float32(root*scales[2])
+
+
+def _pack_refined_wall_map(base_map, field, owned):
+    """Match the native sparse replacement exactly, including signed zero."""
+    base_map = np.asarray(base_map, dtype="<f4")
+    field = np.asarray(field, dtype="<f4")
+    owned = np.asarray(owned, dtype=bool)
+    require(base_map.ndim == 2 and base_map.shape[1] == 12 and
+            field.shape == (len(base_map), 3, 3) and owned.shape == (len(base_map),),
+            "refinement map packing shapes are inconsistent")
+    require(np.all(np.isfinite(base_map)) and np.all(np.isfinite(field)),
+            "refinement map packing contains nonfinite coefficients")
+    base = np.stack((base_map[:, :3], base_map[:, 4:7], base_map[:, 8:11]), axis=1)
+    changed = np.flatnonzero(np.any(field.view("<u4") != base.view("<u4"), axis=(1, 2)))
+    require(len(changed) > 0 and not np.any(owned[changed]),
+            "map refinement is empty or changes an RV/LV lumen-owned material boundary vertex")
+    packed = base_map.copy()
+    packed[changed, :3] = field[changed, 0]
+    packed[changed, 4:7] = field[changed, 1]
+    packed[changed, 8:11] = field[changed, 2]
+    return changed, packed
 
 
 def emit_ventricular_wall_map_refinement(source_payload_path: Path, base_map_source_path: Path,
@@ -1058,7 +1146,8 @@ def emit_ventricular_wall_map_refinement(source_payload_path: Path, base_map_sou
                                          base_map_path: Path, candidate_coefficients_path: Path,
                                          phase_report_path: Path, phase_trace_path: Path,
                                          domain_trace_paths: list[Path],
-                                         output_path: Path) -> dict:
+                                         output_path: Path, *,
+                                         phase_source_path: Path | None = None) -> dict:
     """Bind a tested sparse correction into the existing cardiac map receipt."""
     require(not output_path.exists(), "refusing to overwrite an existing wall-map refinement")
     source_hash = hashlib.sha256(source_payload_path.read_bytes()).hexdigest()
@@ -1091,17 +1180,44 @@ def emit_ventricular_wall_map_refinement(source_payload_path: Path, base_map_sou
             map_identity.get("map_sha256") == base_hash,
             "base cardiac loader-map identity does not bind the exact map-source payload and bytes")
     field_hash = hashlib.sha256(candidate_coefficients_path.read_bytes()).hexdigest()
+    phase_source_path = phase_source_path or base_map_source_path
+    phase_source_hash = hashlib.sha256(phase_source_path.read_bytes()).hexdigest()
+    phase_source_receipt_path = phase_source_path.with_name("resting-anatomy-receipt.json")
+    require(phase_source_receipt_path.is_file(), "phase geometry source has no source-bound anatomy receipt")
+    phase_source_receipt = json.loads(phase_source_receipt_path.read_text())
+    require(phase_source_receipt.get("payload", {}).get("sha256") == phase_source_hash and
+            phase_source_receipt.get("functional_bindings", {}).get("anatomy_payload_sha256") == phase_source_hash,
+            "phase source receipt does not bind its exact anatomy payload")
     phase_report = json.loads(phase_report_path.read_text())
     require(phase_report.get("schema") == "numi.human.cardiac.multiregion_affine_repair.v3" and
             phase_report.get("status") == "exact_geometry_pass" and
-            phase_report.get("source_payload_sha256") == base_source_hash and
+            phase_report.get("source_payload_sha256") == phase_source_hash and
             phase_report.get("loader_map_sha256") == base_hash and
             phase_report.get("candidate_map_npy_sha256") == field_hash,
             "map refinement phase evidence does not bind these exact source, base map, and coefficient arrays")
     _, _, records, vertices, indices = read_payload(source_payload_path)
     wall_body, source_points, wall_faces = surface_arrays(records, vertices, indices, 23, expected_layer=1)
     _, _, base_records, base_vertices, base_indices = read_payload(base_map_source_path)
-    relevant_ids = (1, 23, 24, 318, 319, 320, 321)
+    field = np.asarray(np.load(candidate_coefficients_path), dtype=np.float32)
+    base_raw = np.fromfile(base_map_path, dtype="<f4")
+    require(base_raw.size == len(source_points) * 12 and field.shape == (len(source_points), 3, 3),
+            "base/corrected coefficient arrays do not match the registered ID23 vertex count")
+    base_map = base_raw.reshape(-1, 12)
+    base = np.stack((base_map[:, 0:3], base_map[:, 4:7], base_map[:, 8:11]), axis=1).astype(np.float32)
+    require(np.all(np.isfinite(field)) and np.all(base_map[:, [3, 7, 11]] == 0),
+            "candidate is nonfinite or base map changes reserved lanes")
+    has_closure = not np.array_equal(field[:, 2].view("<u4"), base[:, 2].view("<u4"))
+    base_parameters = None
+    if has_closure:
+        parameter_path = base_map_path.with_name("ventricular-wall-parameters-f32.bin")
+        require(parameter_path.is_file() and parameter_path.stat().st_size == 128 and
+                hashlib.sha256(parameter_path.read_bytes()).hexdigest() == map_identity.get("parameters_sha256"),
+                "conditioned wall refinement lacks the exact source-bound native volume polynomial")
+        base_parameters = np.fromfile(parameter_path, dtype="<f4")
+    # Atrial wall remeshing does not alter this map's inputs. Keep all five
+    # actual dependencies byte-exact, including all four chamber surfaces.
+    relevant_ids = (23, 318, 319, 320, 321) if has_closure else (1, 23, 24, 318, 319, 320, 321)
+    _, _, phase_records, phase_vertices, phase_indices = read_payload(phase_source_path)
     identity_digest = bytearray()
     for stable_id in relevant_ids:
         current_record = next((r for r in records if r[5] == stable_id), None)
@@ -1120,6 +1236,18 @@ def emit_ventricular_wall_map_refinement(source_payload_path: Path, base_map_sou
         require(np.array_equal(current_vertex_rows.view(np.uint32), base_vertex_rows.view(np.uint32)) and
                 np.array_equal(current_faces, base_faces),
                 f"cardiac surface local positions/normals/faces changed between map source and current payload (ID {stable_id})")
+        phase_record = next((r for r in phase_records if r[5] == stable_id), None)
+        require(phase_record is not None and
+                (current_record[0], current_record[2], current_record[4], current_record[5],
+                 current_record[6], current_record[7]) ==
+                (phase_record[0], phase_record[2], phase_record[4], phase_record[5],
+                 phase_record[6], phase_record[7]),
+                f"phase-source map dependency record differs (ID {stable_id})")
+        phase_vertex_rows = phase_vertices[phase_record[1]:phase_record[1] + phase_record[2]]
+        phase_faces = (phase_indices[phase_record[3]:phase_record[3] + phase_record[4]].reshape(-1, 3) - phase_record[1]).astype(np.uint32)
+        require(np.array_equal(current_vertex_rows.view(np.uint32), phase_vertex_rows.view(np.uint32)) and
+                np.array_equal(current_faces, phase_faces),
+                f"phase-source map dependency arrays differ (ID {stable_id})")
         identity_digest.extend(struct.pack("<6I", current_record[0], current_record[2], current_record[4],
                                            current_record[5], current_record[6], current_record[7]))
         identity_digest.extend(np.asarray(current_vertex_rows, dtype="<f4").tobytes(order="C"))
@@ -1134,14 +1262,6 @@ def emit_ventricular_wall_map_refinement(source_payload_path: Path, base_map_sou
             np.array_equal(candidate_points.view(np.uint32), source_points.astype(np.float32).view(np.uint32)) and
             np.array_equal(candidate_faces, wall_faces),
             "arrangement candidate local ID23 arrays differ from the exact current source payload")
-    field = np.asarray(np.load(candidate_coefficients_path), dtype=np.float32)
-    base_raw = np.fromfile(base_map_path, dtype="<f4")
-    require(base_raw.size == len(source_points) * 12 and field.shape == (len(source_points), 3, 3),
-            "base/corrected coefficient arrays do not match the registered ID23 vertex count")
-    base_map = base_raw.reshape(-1, 12)
-    base = np.stack((base_map[:, 0:3], base_map[:, 4:7], base_map[:, 8:11]), axis=1).astype(np.float32)
-    require(np.all(base_map[:, [3, 7, 11]] == 0) and np.array_equal(field[:, 2], base[:, 2]),
-            "candidate changes reserved map lanes or the existing material-volume closure basis")
     owners = candidate.get("face_owner")
     faces = np.asarray(candidate.get("triangles"), dtype=np.int64)
     require(isinstance(owners, list) and faces.shape == wall_faces.shape and len(owners) == len(faces) and
@@ -1151,28 +1271,30 @@ def emit_ventricular_wall_map_refinement(source_payload_path: Path, base_map_sou
     for triangle, owner in enumerate(owners):
         if owner != "ID23_wall":
             owned[faces[triangle]] = True
-    changed = np.flatnonzero(np.any(field[:, :2] != base[:, :2], axis=(1, 2)))
-    require(len(changed) > 0 and not np.any(owned[changed]),
-            "map refinement is empty or changes an RV/LV lumen-owned material boundary vertex")
-    # The native loader replaces sparse entries with exact binary32 values. This
-    # avoids a subtract/add rounding mismatch and reproduces the retained field.
-    rebuilt = base.copy(); rebuilt[:, :2] = field[:, :2]
-    packed = np.zeros((len(field), 12), dtype="<f4")
-    packed[:, 0:3], packed[:, 4:7], packed[:, 8:11] = rebuilt[:, 0], rebuilt[:, 1], rebuilt[:, 2]
+    # Select by IEEE-754 bytes: numerical comparison silently drops signed-zero
+    # changes and previously produced a digest the sparse loader could not match.
+    changed, packed = _pack_refined_wall_map(base_map, field, owned)
     corrected_map_hash = hashlib.sha256(packed.tobytes(order="C")).hexdigest()
     correction_records = []
     canonical = bytearray()
-    max_delta_rv = max_delta_lv = max_bound = 0.0
+    max_delta_rv = max_delta_lv = max_delta_closure = max_bound = 0.0
     for raw_index in changed:
         index = int(raw_index)
         rv = np.asarray(field[index, 0], dtype="<f4")
         lv = np.asarray(field[index, 1], dtype="<f4")
         drv = np.asarray(rv - base[index, 0], dtype="<f4")
         dlv = np.asarray(lv - base[index, 1], dtype="<f4")
-        canonical.extend(struct.pack("<I6f", index, *rv.tolist(), *lv.tolist()))
-        correction_records.append({"vertex": index, "rv_coefficient_m": rv.tolist(),
-                                   "lv_coefficient_m": lv.tolist(), "rv_delta_m": drv.tolist(),
-                                   "lv_delta_m": dlv.tolist()})
+        correction = {"vertex": index, "rv_coefficient_m": rv.tolist(),
+                      "lv_coefficient_m": lv.tolist(), "rv_delta_m": drv.tolist(), "lv_delta_m": dlv.tolist()}
+        if has_closure:
+            closure = np.asarray(field[index, 2], dtype="<f4")
+            delta_closure = np.asarray(closure - base[index, 2], dtype="<f4")
+            canonical.extend(struct.pack("<I9f", index, *rv.tolist(), *lv.tolist(), *closure.tolist()))
+            correction.update(closure_coefficient=closure.tolist(), closure_delta=delta_closure.tolist())
+            max_delta_closure = max(max_delta_closure, float(np.linalg.norm(delta_closure.astype(np.float64))))
+        else:
+            canonical.extend(struct.pack("<I6f", index, *rv.tolist(), *lv.tolist()))
+        correction_records.append(correction)
         max_delta_rv = max(max_delta_rv, float(np.linalg.norm(drv.astype(np.float64))))
         max_delta_lv = max(max_delta_lv, float(np.linalg.norm(dlv.astype(np.float64))))
     trace_rows = {int(row["step"]): row for row in csv.DictReader(phase_trace_path.open(newline=""))}
@@ -1195,8 +1317,18 @@ def emit_ventricular_wall_map_refinement(source_payload_path: Path, base_map_sou
         step = int(phase["step"]); row = trace_rows.get(step)
         require(row is not None and phase.get("audit_complete") is True and phase.get("candidate_pairs") == 0,
                 f"map refinement phase {step} lacks a complete zero-pair exact self-audit")
-        qr, ql, closure = np.float32(float(row["q_rv"])), np.float32(float(row["q_lv"])), np.float32(float(row["ventricular_closure_mm"]) * 1e-3)
+        qr, ql = np.float32(float(row["q_rv"])), np.float32(float(row["q_lv"]))
+        captured_closure = np.float32(float(row["ventricular_closure_mm"]) * 1e-3)
+        # A captured phase can already use an earlier corrected map. Bound the
+        # new correction against its actual unrefined base polynomial, not that
+        # captured map's different closure coordinate.
+        closure = _wall_closure_from_native_parameters(base_parameters, qr, ql) if has_closure else captured_closure
         candidate_closure = np.float32(float(phase["candidate_closure_mm"]) * 1e-3)
+        if has_closure:
+            require(phase.get("RA_pairs") == 0 and phase.get("LA_pairs") == 0,
+                    f"conditioned closure phase {step} lacks zero exact atrial-cavity pairs")
+            require(abs(float(candidate_closure)) <= .01,
+                    f"conditioned closure phase {step} exceeds the bound used for the coefficient displacement")
         base_xyz = source_points.astype(np.float32, copy=True)
         base_xyz = np.asarray(base_xyz + np.asarray(base[:, 0] * qr, dtype=np.float32), dtype=np.float32)
         base_xyz = np.asarray(base_xyz + np.asarray(base[:, 1] * ql, dtype=np.float32), dtype=np.float32)
@@ -1214,13 +1346,21 @@ def emit_ventricular_wall_map_refinement(source_payload_path: Path, base_map_sou
                        "closure_shift_m": closure_shift, "max_actual_map_displacement_m": float(actual.max()),
                        "exact_self_intersection_pairs": int(phase["candidate_pairs"]),
                        "material_volume_error_ul": float(phase["material_volume_error_ul"])})
+        if has_closure:
+            phases[-1].update(exact_ra_intersection_pairs=0, exact_la_intersection_pairs=0,
+                              captured_previous_map_closure_m=float(captured_closure))
     coefficient_bound = max_delta_rv * max(abs(qrv_domain[0]), abs(qrv_domain[1])) + \
         max_delta_lv * max(abs(qlv_domain[0]), abs(qlv_domain[1]))
-    displacement_bound = coefficient_bound + maximum_closure_shift + 1e-6
-    require(displacement_bound <= .01, "map refinement exceeds the admitted 10 mm local displacement bound")
+    displacement_bound = coefficient_bound + max_delta_closure * .01 + maximum_closure_shift + 1e-6
+    require(displacement_bound <= (.03 if has_closure else .01),
+            "map refinement exceeds the admitted conservative coefficient-domain displacement bound")
+    if has_closure:
+        wall_binding = source_receipt.get("provenance", {}).get("cardiac_geometry_binding", {}).get("ventricular_wall_binding", {})
+        require(wall_binding.get("closure_bracket_m") == [-.01, .01],
+                "conditioned closure emitter requires the exact existing +/-10 mm solver bracket")
     descriptor = {
-        "schema": "numi.human.cardiac.ventricular_wall_map_refinement.v1",
-        "method": "joint_selected_state_affine_harmonic_map_conditioning_v1",
+        "schema": "numi.human.cardiac.ventricular_wall_map_refinement.v2" if has_closure else "numi.human.cardiac.ventricular_wall_map_refinement.v1",
+        "method": "joint_selected_state_affine_harmonic_map_conditioning_v2" if has_closure else "joint_selected_state_affine_harmonic_map_conditioning_v1",
         "interpretation": "inferred_reference_registration_not_measured_subject_geometry",
         "source_payload_sha256": source_hash, "base_map_source_payload_sha256": base_source_hash,
         "base_map_source_receipt_sha256": hashlib.sha256(base_source_receipt_path.read_bytes()).hexdigest(),
@@ -1238,6 +1378,8 @@ def emit_ventricular_wall_map_refinement(source_payload_path: Path, base_map_sou
         "base_map_identity_sha256": hashlib.sha256(map_identity_path.read_bytes()).hexdigest(),
         "candidate_coefficients_sha256": field_hash,
         "phase_audit_report_sha256": hashlib.sha256(phase_report_path.read_bytes()).hexdigest(),
+        "phase_source_payload_sha256": phase_source_hash,
+        "phase_source_receipt_sha256": hashlib.sha256(phase_source_receipt_path.read_bytes()).hexdigest(),
         "phase_trace_sha256": hashlib.sha256(phase_trace_path.read_bytes()).hexdigest(),
         "q_domain_trace_sources": domain_traces,
         "vertex_count": len(source_points), "candidate_arrays_match_current_ID23": True,
@@ -1253,6 +1395,11 @@ def emit_ventricular_wall_map_refinement(source_payload_path: Path, base_map_sou
         "checked_phases": phases,
         "corrections": correction_records,
     }
+    if has_closure:
+        descriptor.update(closure_domain_m=[-.01, .01],
+                          base_map_parameters_sha256=map_identity["parameters_sha256"],
+                          max_closure_coefficient_correction=max_delta_closure,
+                          max_closure_coefficient_displacement_bound_m=max_delta_closure * .01)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(json.dumps(descriptor, sort_keys=True, separators=(",", ":")) + "\n")
     return {"output": str(output_path), "sha256": hashlib.sha256(output_path.read_bytes()).hexdigest(),
@@ -1265,7 +1412,8 @@ def emit_ventricular_wall_map_refinement(source_payload_path: Path, base_map_sou
 
 def attach_ventricular_wall_map_refinement(payload_path: Path, receipt_path: Path,
                                             candidate_path: Path, refinement_path: Path,
-                                            output_path: Path, output_receipt_path: Path) -> dict:
+                                            output_path: Path, output_receipt_path: Path, *,
+                                            replace_existing: bool = False) -> dict:
     """Copy the existing NHANAT payload unchanged and attach a map descriptor to its receipt."""
     require(not output_path.exists() and not output_receipt_path.exists(),
             "refusing to overwrite an existing refinement-bound payload or receipt")
@@ -1277,9 +1425,12 @@ def attach_ventricular_wall_map_refinement(payload_path: Path, receipt_path: Pat
             "input receipt does not bind the exact unchanged NHANAT payload")
     cardiac = receipt.get("provenance", {}).get("cardiac_geometry_binding", {})
     wall = cardiac.get("ventricular_wall_binding", {})
+    previous_refinement = wall.get("wall_map", {}).get("local_coefficient_refinement")
     require(wall.get("output_anatomy_payload_sha256") == payload_hash and wall.get("stable_id") == 23 and
-            wall.get("wall_map", {}).get("local_coefficient_refinement") is None,
-            "input receipt lacks the expected unrevised stable-ID 23 map binding")
+            (previous_refinement is None or replace_existing),
+            "input receipt lacks the expected stable-ID 23 map binding or explicit refinement replacement")
+    require(not replace_existing or isinstance(previous_refinement, dict),
+            "explicit refinement replacement requires an existing descriptor")
     candidate_bytes = candidate_path.read_bytes()
     candidate_hash = hashlib.sha256(candidate_bytes).hexdigest()
     candidate = json.loads(candidate_bytes)
@@ -1307,7 +1458,18 @@ def attach_ventricular_wall_map_refinement(payload_path: Path, receipt_path: Pat
     updated = json.loads(json.dumps(receipt))
     target_wall = updated["provenance"]["cardiac_geometry_binding"]["ventricular_wall_binding"]
     target_wall["wall_map"]["local_coefficient_refinement"] = refinement
-    target_wall["wall_map"]["method_before_local_refinement"] = target_wall["wall_map"]["method"]
+    target_wall["wall_map"].setdefault("method_before_local_refinement", target_wall["wall_map"]["method"])
+    if previous_refinement is not None:
+        require(previous_refinement.get("base_map_binary_sha256") == refinement["base_map_binary_sha256"] and
+                previous_refinement.get("arrangement_candidate_sha256") == candidate_hash and
+                previous_refinement.get("vertex_count") == len(points),
+                "replacement refinement must retain the same exact base map and material arrangement")
+        target_wall["wall_map"]["replaces_local_refinement"] = {
+            "source_receipt_sha256": hashlib.sha256(receipt_path.read_bytes()).hexdigest(),
+            "descriptor_canonical_sha256": hashlib.sha256(json.dumps(
+                previous_refinement, sort_keys=True, separators=(",", ":")).encode()).hexdigest(),
+            "corrected_map_binary_sha256": previous_refinement.get("corrected_map_binary_sha256"),
+            "state_owner": "one current coefficient map; the previous descriptor remains in its retained source receipt"}
     target_wall["geometry_evidence"]["phase_status"] = "selected_phase_map_refinement_exact_self_audits_passed; held_out_full_cycle_and_native_neighbor_clearance_pending"
     target_wall["geometry_evidence"]["exact_static_self_intersections"] = 0
     updated["payload"]["path"] = str(output_path)
@@ -1536,11 +1698,15 @@ def main(argv=None):
     parser.add_argument("--wall-map-refinement", type=Path, help="sparse source-bound inferred map correction consumed by the native ventricular-wall map owner")
     parser.add_argument("--emit-map-refinement", action="store_true", help="emit a source-bound sparse map refinement descriptor without composing anatomy")
     parser.add_argument("--attach-map-refinement", action="store_true", help="copy the current NHANAT unchanged and attach a tested map refinement to its existing receipt")
+    parser.add_argument("--replace-existing-refinement", action="store_true",
+                        help="with --attach-map-refinement, replace the existing correction while retaining its source receipt identity")
     parser.add_argument("--arrangement-source", type=Path, help="exact source payload used to produce --wall-candidate")
     parser.add_argument("--base-map-source", type=Path, help="exact source payload named by the retained native coefficient-map identity")
     parser.add_argument("--base-wall-map", type=Path, help="retained native binary32 loader map used as the refinement base")
     parser.add_argument("--candidate-coefficients", type=Path, help="tested corrected map coefficient array")
     parser.add_argument("--map-audit-report", type=Path, help="retained exact phase-audit report for the corrected map")
+    parser.add_argument("--map-audit-source", type=Path,
+                        help="exact anatomy used for the phase audit; defaults to --base-map-source and must have byte-identical map dependencies")
     parser.add_argument("--map-phase-trace", type=Path, help="accepted physiological trace used to bind the correction q domain")
     parser.add_argument("--map-domain-trace", type=Path, action="append", default=[],
                         help="additional accepted trace whose q extrema expand the admitted correction domain; may be repeated")
@@ -1550,13 +1716,15 @@ def main(argv=None):
                         default="representative-cycle", help="select a bounded initial/LV-maximum check before the full representative-cycle audit")
     parser.add_argument("--skip-exact-audit", action="store_true", help="skip exact four-cavity collision admission")
     args = parser.parse_args(argv)
+    require(not args.replace_existing_refinement or args.attach_map_refinement,
+            "--replace-existing-refinement is only valid with --attach-map-refinement")
     if args.attach_map_refinement:
         require(all((args.input, args.input_receipt, args.arrangement_candidate, args.wall_map_refinement,
                      args.output, args.output_receipt)),
                 "--attach-map-refinement requires --input, --input-receipt, --arrangement-candidate, --wall-map-refinement, --output, and --output-receipt")
         result = attach_ventricular_wall_map_refinement(
             args.input, args.input_receipt, args.arrangement_candidate, args.wall_map_refinement,
-            args.output, args.output_receipt)
+            args.output, args.output_receipt, replace_existing=args.replace_existing_refinement)
         print(json.dumps(result, sort_keys=True, separators=(",", ":")))
         return
     if args.emit_map_refinement:
@@ -1568,7 +1736,7 @@ def main(argv=None):
             args.input, args.base_map_source, args.arrangement_source, args.wall_candidate, args.base_wall_map,
             args.candidate_coefficients, args.map_audit_report, args.map_phase_trace,
             args.map_domain_trace,
-            args.map_refinement_output)
+            args.map_refinement_output, phase_source_path=args.map_audit_source)
         print(json.dumps(result, sort_keys=True, separators=(",", ":")))
         return
     require(all((args.input, args.input_receipt, args.output, args.output_receipt, args.numilab_source)),

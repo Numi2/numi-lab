@@ -1,0 +1,124 @@
+{
+  "scope": "Source-bound ventricular ID23 map compiler/loader increment. Not the final integrated resting-human acceptance.",
+  "source_revision_before_patch": "7c0bc0511378d064436783e5c524888b46ce88bf",
+  "source_file_sha256": {
+    "apps/NumiHumanRestingAnatomy.hpp": "5e94be3075ddb33da7ac0e2d3fbf4d12ab18a2a16b85215050a3396994f0e3d3",
+    "matter/tools/cardiac_geometry_binding.py": "e899bd3bdce664a22d4aec5f041912b693cdf27be9da666e2d7e9dacba0e0864",
+    "matter/tools/test_cardiac_map_refinement.py": "f8a96dfaa4a31015a884c53e641dc31c8f01b93757ab6648b668895311b9c1c6"
+  },
+  "source_patch_sha256": "f7f2f472534cbb439407cd8c1d7211905d0555a98d2dd4cb1271fb8c78ad51b5",
+  "host": "ssh macmini",
+  "device": {
+    "host": "ssh macmini",
+    "cpu": "Apple M4 Pro",
+    "macos": "26.6"
+  },
+  "simulated_seconds": 6.0,
+  "accepted_steps": 3000,
+  "timestep_seconds": 0.002,
+  "launch_wall_seconds": 97.40267516672611,
+  "launch_real_time_factor": 0.06159995081993056,
+  "maximum_functional_volume_relative_error": 1.50192374804e-06,
+  "physiology_csv_unchanged_from158": true,
+  "terminal_state_unchanged_from158": true,
+  "actual_loaded_library": "dyld[88675]: <46371E63-A79D-3536-B0FA-FA3D9B1ACDEE> /Users/n/numi-human-resting-publish-build-031/lib/libmetalrobo.dylib",
+  "rejection_probe": "resting_integrated_rejection=pass rejected_after_accepted_predecessor=true body_q_v_root_myo_unchanged=true circulation_and_clock_unchanged=true respiration_brain_history_unchanged=true retry_matches_uninterrupted_replay=true same_command_buffer_reject=pass accepted_prefix=2 rejected_step=2 inert_suffix=1",
+  "exact_audits": [
+    {
+      "step": 0,
+      "exact_report_sha256": "05a3f90b1b7bd7dfea608fb1c3163566632c42d3fca25879e4abba5e7e4bac43",
+      "degenerate_triangles": 0,
+      "self_pairs": 0,
+      "RA_pairs": 0,
+      "LA_pairs": 0,
+      "native_counterfactual_difference_m": 6.664001874625056e-08
+    },
+    {
+      "step": 63,
+      "exact_report_sha256": "80c57dc85bff9718232ba9a9a306f2875533c122958113ac1dc22b0df0778105",
+      "degenerate_triangles": 0,
+      "self_pairs": 0,
+      "RA_pairs": 0,
+      "LA_pairs": 0,
+      "native_counterfactual_difference_m": 6.749358375368058e-08
+    },
+    {
+      "step": 511,
+      "exact_report_sha256": "fc4abe7c9cf0be0108332126298f5e28ca048035b23c6c7e7fdd5dd2a24eee08",
+      "degenerate_triangles": 0,
+      "self_pairs": 0,
+      "RA_pairs": 0,
+      "LA_pairs": 0,
+      "native_counterfactual_difference_m": 6.722478334181583e-08
+    },
+    {
+      "step": 639,
+      "exact_report_sha256": "0a12dc9207f53ab65c2b40d975cabe83f97cfb9b4c344618169d98580b136144",
+      "degenerate_triangles": 0,
+      "self_pairs": 0,
+      "RA_pairs": 0,
+      "LA_pairs": 0,
+      "native_counterfactual_difference_m": 6.674406255472048e-08
+    },
+    {
+      "step": 1951,
+      "exact_report_sha256": "d112878e0fb1ea885ecefb05a48c900052adf237719e82da530068a1da2752da",
+      "degenerate_triangles": 0,
+      "self_pairs": 0,
+      "RA_pairs": 0,
+      "LA_pairs": 0,
+      "native_counterfactual_difference_m": 6.828569911354542e-08
+    },
+    {
+      "step": 2207,
+      "exact_report_sha256": "66a45a8a8de6456586758664ee78086db6803f8de61e1fa31a16ef1fbc459e32",
+      "degenerate_triangles": 0,
+      "self_pairs": 0,
+      "RA_pairs": 0,
+      "LA_pairs": 0,
+      "native_counterfactual_difference_m": 6.757064591056501e-08
+    },
+    {
+      "step": 2783,
+      "exact_report_sha256": "c06268b43b557222fd28426459c7095a42979b99232134b27ef183e8ce243fe8",
+      "degenerate_triangles": 0,
+      "self_pairs": 0,
+      "RA_pairs": 0,
+      "LA_pairs": 0,
+      "native_counterfactual_difference_m": 6.705522537231445e-08
+    },
+    {
+      "step": 2999,
+      "exact_report_sha256": "efcbb86496ae46a8f59a0e7ac17f7b59d53fca1a5d1bc7d3f6f8a6bb9be5b7d5",
+      "degenerate_triangles": 0,
+      "self_pairs": 0,
+      "RA_pairs": 0,
+      "LA_pairs": 0,
+      "native_counterfactual_difference_m": 6.828569911354542e-08
+    }
+  ],
+  "map_descriptor_sha256": "c07d686c1f54e0eeac564c08aed2716f389b8e1668bb3c416ef0b2e36647f570",
+  "candidate_npy_sha256": "8b6763130d4311c8d21bf904dfe4c1827d0f61af63c51439080f177e6be8e7bf",
+  "native_movie": {
+    "path": "/Users/n/numi-human-resting-evidence-20261005/cardiac-annular-map-native-161/native-viewer.mov",
+    "sha256": "d57781c5151b6cb980e354967b1930a3d0570ed3f56350449de1d6ec283a7f19",
+    "recording_mode": "native framebuffer recording; no GUI drawable in locked SSH session"
+  },
+  "retained_failures": {
+    "signed_zero_admission155": {
+      "invocation_sha256": "41b0367cd6e7721b582971eef3c33a61f5cc63762b3cad4709d0b89f7790d8cc",
+      "stderr_sha256": "348f7c9f5d994e532893af19aa3a0ea1ac78e67763d711416a83a3c80304a2ba",
+      "reason": "Numeric sparse selection omitted signed-zero bit differences; native admission failed before stepping."
+    },
+    "unsupported_debug_flag154": {
+      "scope": "Preflight unknown-option failure; no CPU-admission claim."
+    }
+  },
+  "limitations": [
+    "Eight sampled accepted cardiac states, not a continuous-domain embedding certificate.",
+    "The emitter displacement accounting uses measured q-domain and selected-phase closure shifts; no proof of all unobserved closure shifts is asserted.",
+    "Conditioning nominal50um optimization margin was not met; exact nonintersection gates were unchanged and all listed native states pass.",
+    "Atrial walls, pleura, and passive bowel remain separate open anatomy gates.",
+    "No five-minute final-scene acceptance or real-time claim from this six-second check."
+  ]
+}

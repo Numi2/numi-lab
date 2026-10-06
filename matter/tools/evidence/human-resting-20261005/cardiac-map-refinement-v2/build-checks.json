@@ -1,0 +1,63 @@
+[
+  {
+    "argv": [
+      "/opt/homebrew/bin/cmake",
+      "-S",
+      "/Users/n/numi-human-resting-publish-source-031",
+      "-B",
+      "/Users/n/numi-human-resting-publish-build-031",
+      "-DCMAKE_BUILD_TYPE=Release",
+      "-DNUMI_BRAIN_ROOT=/Users/n/numi-human-resting-integration-20261005/numi-brain"
+    ],
+    "cwd": null,
+    "return_code": 0,
+    "wall_seconds": 1.9582469584420323,
+    "log": "configure.log",
+    "log_sha256": "b0194cebd1e036f5ad505ba2b4beaafe36999ddb5e9a5c8c8ef6df2ea0285bec"
+  },
+  {
+    "argv": [
+      "/opt/homebrew/bin/cmake",
+      "--build",
+      "/Users/n/numi-human-resting-publish-build-031",
+      "--target",
+      "numi-human-native",
+      "metalrobo_numi_human_cardiac_identity_test",
+      "-j2"
+    ],
+    "cwd": null,
+    "return_code": 0,
+    "wall_seconds": 93.26032666582614,
+    "log": "build.log",
+    "log_sha256": "19761aead1c25e3987756d328eae2c5c6a2aaa00ab64c1965600012b7567c0ad"
+  },
+  {
+    "argv": [
+      "/opt/homebrew/bin/ctest",
+      "--test-dir",
+      "/Users/n/numi-human-resting-publish-build-031",
+      "-R",
+      "^numi_human_cardiac_identity$",
+      "--output-on-failure"
+    ],
+    "cwd": null,
+    "return_code": 0,
+    "wall_seconds": 0.35958654060959816,
+    "log": "ctest.log",
+    "log_sha256": "d87bc92f51eaf71e3d40824ec482421ca9fd0917f959d7dbe36c26c7195e9a8f"
+  },
+  {
+    "argv": [
+      "/Users/n/numi-human-prep-venv-20261005/bin/python",
+      "-m",
+      "unittest",
+      "-v",
+      "test_cardiac_map_refinement"
+    ],
+    "cwd": "/Users/n/numi-human-resting-publish-source-031/matter/tools",
+    "return_code": 0,
+    "wall_seconds": 0.13779924996197224,
+    "log": "python-tests.log",
+    "log_sha256": "fb8702c05dc3445dcc169c5ee4d50f3d85bc73f8884208bd4408504eaab07f57"
+  }
+]

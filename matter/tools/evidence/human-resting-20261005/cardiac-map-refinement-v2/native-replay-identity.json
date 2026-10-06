@@ -1,0 +1,272 @@
+{
+  "scope": "Current-main031 ventricular refinement replay compared to030158, which includes the separate unpublished airway patch. Numerical state and exact cardiac triangle identity only; not final whole-human acceptance.",
+  "driver_sha256": "08d4318295d64f7e2836cfd245f35c7d86cf17b0a914c01a89d7db871f8617ae",
+  "physiology_csv_rows_equal": true,
+  "physiology_rows": 94,
+  "terminal_serialization_equal": true,
+  "phases": [
+    {
+      "step": 0,
+      "meshes": {
+        "23": {
+          "position_bytes_equal": true,
+          "triangle_index_bytes_equal": true,
+          "max_position_difference_m": 0.0
+        },
+        "318": {
+          "position_bytes_equal": true,
+          "triangle_index_bytes_equal": true,
+          "max_position_difference_m": 0.0
+        },
+        "319": {
+          "position_bytes_equal": true,
+          "triangle_index_bytes_equal": true,
+          "max_position_difference_m": 0.0
+        },
+        "320": {
+          "position_bytes_equal": true,
+          "triangle_index_bytes_equal": true,
+          "max_position_difference_m": 0.0
+        },
+        "321": {
+          "position_bytes_equal": true,
+          "triangle_index_bytes_equal": true,
+          "max_position_difference_m": 0.0
+        }
+      },
+      "source_pack_sha256": "bdaa4b265845d4ab25c04fd8570759307dc24de4ab66259ddc343d7502d3314a",
+      "target_pack_sha256": "6413dee71866e7622c688ec9e74981f2dd45821a6697c2377b30261f35022028"
+    },
+    {
+      "step": 63,
+      "meshes": {
+        "23": {
+          "position_bytes_equal": true,
+          "triangle_index_bytes_equal": true,
+          "max_position_difference_m": 0.0
+        },
+        "318": {
+          "position_bytes_equal": true,
+          "triangle_index_bytes_equal": true,
+          "max_position_difference_m": 0.0
+        },
+        "319": {
+          "position_bytes_equal": true,
+          "triangle_index_bytes_equal": true,
+          "max_position_difference_m": 0.0
+        },
+        "320": {
+          "position_bytes_equal": true,
+          "triangle_index_bytes_equal": true,
+          "max_position_difference_m": 0.0
+        },
+        "321": {
+          "position_bytes_equal": true,
+          "triangle_index_bytes_equal": true,
+          "max_position_difference_m": 0.0
+        }
+      },
+      "source_pack_sha256": "bcc78be9b4c9db38935f5b277fef25bb3f360f8f772e2499d79cf625b01a76a9",
+      "target_pack_sha256": "a45e341658a4b107bdcd61d816a83c1d3655d4bb89e22e1af66eaede28b3fef9"
+    },
+    {
+      "step": 511,
+      "meshes": {
+        "23": {
+          "position_bytes_equal": true,
+          "triangle_index_bytes_equal": true,
+          "max_position_difference_m": 0.0
+        },
+        "318": {
+          "position_bytes_equal": true,
+          "triangle_index_bytes_equal": true,
+          "max_position_difference_m": 0.0
+        },
+        "319": {
+          "position_bytes_equal": true,
+          "triangle_index_bytes_equal": true,
+          "max_position_difference_m": 0.0
+        },
+        "320": {
+          "position_bytes_equal": true,
+          "triangle_index_bytes_equal": true,
+          "max_position_difference_m": 0.0
+        },
+        "321": {
+          "position_bytes_equal": true,
+          "triangle_index_bytes_equal": true,
+          "max_position_difference_m": 0.0
+        }
+      },
+      "source_pack_sha256": "eebc20fe1840f8c238df40acb80f8eb234a75906caebdf158cc30be5e443ea30",
+      "target_pack_sha256": "9bfd93aefba37b6c844eddf8aa7b24b9305f7de3847b031269e9d105015c3d29"
+    },
+    {
+      "step": 639,
+      "meshes": {
+        "23": {
+          "position_bytes_equal": true,
+          "triangle_index_bytes_equal": true,
+          "max_position_difference_m": 0.0
+        },
+        "318": {
+          "position_bytes_equal": true,
+          "triangle_index_bytes_equal": true,
+          "max_position_difference_m": 0.0
+        },
+        "319": {
+          "position_bytes_equal": true,
+          "triangle_index_bytes_equal": true,
+          "max_position_difference_m": 0.0
+        },
+        "320": {
+          "position_bytes_equal": true,
+          "triangle_index_bytes_equal": true,
+          "max_position_difference_m": 0.0
+        },
+        "321": {
+          "position_bytes_equal": true,
+          "triangle_index_bytes_equal": true,
+          "max_position_difference_m": 0.0
+        }
+      },
+      "source_pack_sha256": "bd275ac5c84c502441d7b1887cb30b8d4cbe32fc50aa917a85e300a2567a2b7c",
+      "target_pack_sha256": "d8e6d4274d2904b5e7822ac198e842270d3bdd1e66d0f36e1ab2f22850407cb6"
+    },
+    {
+      "step": 1951,
+      "meshes": {
+        "23": {
+          "position_bytes_equal": true,
+          "triangle_index_bytes_equal": true,
+          "max_position_difference_m": 0.0
+        },
+        "318": {
+          "position_bytes_equal": true,
+          "triangle_index_bytes_equal": true,
+          "max_position_difference_m": 0.0
+        },
+        "319": {
+          "position_bytes_equal": true,
+          "triangle_index_bytes_equal": true,
+          "max_position_difference_m": 0.0
+        },
+        "320": {
+          "position_bytes_equal": true,
+          "triangle_index_bytes_equal": true,
+          "max_position_difference_m": 0.0
+        },
+        "321": {
+          "position_bytes_equal": true,
+          "triangle_index_bytes_equal": true,
+          "max_position_difference_m": 0.0
+        }
+      },
+      "source_pack_sha256": "a4dd727597d45e9d27a7b1c12f7311b46f3ea53a409dea3b8e147ea483df87a5",
+      "target_pack_sha256": "99c26d1891bbe7ba00402f9f32617b30de33052889be9376b3d00d13b4296d37"
+    },
+    {
+      "step": 2207,
+      "meshes": {
+        "23": {
+          "position_bytes_equal": true,
+          "triangle_index_bytes_equal": true,
+          "max_position_difference_m": 0.0
+        },
+        "318": {
+          "position_bytes_equal": true,
+          "triangle_index_bytes_equal": true,
+          "max_position_difference_m": 0.0
+        },
+        "319": {
+          "position_bytes_equal": true,
+          "triangle_index_bytes_equal": true,
+          "max_position_difference_m": 0.0
+        },
+        "320": {
+          "position_bytes_equal": true,
+          "triangle_index_bytes_equal": true,
+          "max_position_difference_m": 0.0
+        },
+        "321": {
+          "position_bytes_equal": true,
+          "triangle_index_bytes_equal": true,
+          "max_position_difference_m": 0.0
+        }
+      },
+      "source_pack_sha256": "d6dec08fd44c039431a2a96d2549035e760824f5a1236104f55c79486a768d9a",
+      "target_pack_sha256": "b321d2e3e201f6396018f89ae8bb509d7abd0c59f290b185d5dc857e4e175987"
+    },
+    {
+      "step": 2783,
+      "meshes": {
+        "23": {
+          "position_bytes_equal": true,
+          "triangle_index_bytes_equal": true,
+          "max_position_difference_m": 0.0
+        },
+        "318": {
+          "position_bytes_equal": true,
+          "triangle_index_bytes_equal": true,
+          "max_position_difference_m": 0.0
+        },
+        "319": {
+          "position_bytes_equal": true,
+          "triangle_index_bytes_equal": true,
+          "max_position_difference_m": 0.0
+        },
+        "320": {
+          "position_bytes_equal": true,
+          "triangle_index_bytes_equal": true,
+          "max_position_difference_m": 0.0
+        },
+        "321": {
+          "position_bytes_equal": true,
+          "triangle_index_bytes_equal": true,
+          "max_position_difference_m": 0.0
+        }
+      },
+      "source_pack_sha256": "af5b5d4fe1bb35066f4b4946082f0e5d13366277a91216a633f34cc0cef2a4e5",
+      "target_pack_sha256": "c358f73a81d194b695d8e65a2aee8e26b9528a049db6feda69819dd2858fdca0"
+    },
+    {
+      "step": 2999,
+      "meshes": {
+        "23": {
+          "position_bytes_equal": true,
+          "triangle_index_bytes_equal": true,
+          "max_position_difference_m": 0.0
+        },
+        "318": {
+          "position_bytes_equal": true,
+          "triangle_index_bytes_equal": true,
+          "max_position_difference_m": 0.0
+        },
+        "319": {
+          "position_bytes_equal": true,
+          "triangle_index_bytes_equal": true,
+          "max_position_difference_m": 0.0
+        },
+        "320": {
+          "position_bytes_equal": true,
+          "triangle_index_bytes_equal": true,
+          "max_position_difference_m": 0.0
+        },
+        "321": {
+          "position_bytes_equal": true,
+          "triangle_index_bytes_equal": true,
+          "max_position_difference_m": 0.0
+        }
+      },
+      "source_pack_sha256": "07820c0bd3e1393d5dc974e5d00bfd4448b91abc208e39c851a402c2b2fc248f",
+      "target_pack_sha256": "3338368b161ee99e0e5484919b732f212472a09553b4b05fbea33a32a1ce8500"
+    }
+  ],
+  "invocations": {
+    "/Users/n/numi-human-resting-evidence-20261005/cardiac-annular-map-native-161": "2706e00710fb7c1a3f827e99463f28d629db9efaabe28cfe72c026ecc0477ecf",
+    "/Users/n/numi-human-resting-evidence-20261005/cardiac-annular-map-native-158": "c623f9776452a4e7cd3299d8019e7f4bcd8ff42d73050b61840b9de86c642361"
+  },
+  "byte_identity_pass": true,
+  "exact_geometry_predicates_rerun": false,
+  "proof_transfer_condition": "159 exact predicates may apply to161 only when each original159phase report completes with zero forbidden/degenerate counts, because compared world triangle coordinates and indices are byte-identical."
+}
