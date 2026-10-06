@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 #include "NumiHumanRestingVascularBindings.hpp"
+#include "NumiHumanRestingCardiacIdentity.hpp"
 
 // Asset admission for the functional anatomical surfaces. This only runs at
 // loading; all time-dependent deformation consumes the accepted Metal state.
@@ -680,9 +681,9 @@ struct NumiHumanRestingAnatomy {
         // derived ventricular material boundary and its reduced volume map.
         struct ExpectedWall { unsigned id;const char* member;const char* conceptId;const char* digest; };
         const std::array<ExpectedWall,3> expectedWalls{{
-            {1,"FJ2439","FMA7088","e7c21cd1659eced056eb56e28f4fa9019ace451ea6e0333097846177f807bb5a"},
+            {1,"FJ2439","FMA9457","e7c21cd1659eced056eb56e28f4fa9019ace451ea6e0333097846177f807bb5a"},
             {23,"FJ2428","FMA13884","ac3c7d6714bed8cf549c97b013546541cf67e189dad2107092a59758aa3ccc45"},
-            {24,"FJ2438","FMA7088","187235f3c3612ef27abde924d01c71579c2946435e64319164f43e5ad008284d"},
+            {24,"FJ2438","FMA9531","187235f3c3612ef27abde924d01c71579c2946435e64319164f43e5ad008284d"},
         }};
         id rawVentricularWallBinding=cardiacBinding[@"ventricular_wall_binding"];
         const bool hasVentricularWallBinding=rawVentricularWallBinding!=nil;
@@ -694,11 +695,13 @@ struct NumiHumanRestingAnatomy {
             NSNumber* owner=identity[@"body_index"];NSNumber* layer=identity[@"layer"];
             NSString* member=identity[@"source_member"];NSString* digest=identity[@"source_sha256"];
             NSString* fmaConcept=[metadata isKindOfClass:NSDictionary.class]?metadata[@"concept_id"]:nil;
+            const char* conceptText=[fmaConcept isKindOfClass:NSString.class]?fmaConcept.UTF8String:nullptr;
+            const bool conceptMatches=conceptText&&numiHumanRestingCardiacConceptAccepted(expected.id,conceptText);
             require([owner isKindOfClass:NSNumber.class]&&owner.unsignedIntValue==gpu.bodyAndFlags.x&&
                 [layer isKindOfClass:NSNumber.class]&&layer.unsignedIntValue==1&&
                 [member isKindOfClass:NSString.class]&&[member isEqualToString:[NSString stringWithUTF8String:expected.member]]&&
                 [digest isKindOfClass:NSString.class]&&[digest isEqualToString:[NSString stringWithUTF8String:expected.digest]]&&
-                [fmaConcept isKindOfClass:NSString.class]&&[fmaConcept isEqualToString:[NSString stringWithUTF8String:expected.conceptId]],
+                conceptMatches,
                 "passive heart source-member binding differs");
             if(expected.id==23&&hasVentricularWallBinding)continue;
             if(expected.id==23) {
