@@ -8,7 +8,44 @@ import unittest
 
 import numpy as np
 
-from cardiac_geometry_binding import _load_ventricular_wall_map_refinement, _wall_closure_from_native_parameters, _pack_refined_wall_map
+from cardiac_geometry_binding import _load_ventricular_wall_map_refinement, _wall_closure_from_native_parameters, _pack_refined_wall_map, vertex_normals
+
+
+class VertexNormalsTest(unittest.TestCase):
+    def test_normals_are_invariant_under_uniform_mesh_scale(self):
+        points = np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0]], dtype=np.float32)
+        faces = np.array([[0, 1, 2]], dtype=np.uint32)
+        expected = np.tile(np.array([0, 0, 1], dtype=np.float32), (3, 1))
+        for scale in (1e-12, 1e-7, 1, 1e7, 1e12):
+            with self.subTest(scale=scale):
+                np.testing.assert_array_equal(vertex_normals(points * np.float32(scale), faces), expected)
+
+    def test_small_well_conditioned_fan_keeps_area_weighted_direction(self):
+        points = np.array([[0, 0, 0], [1e-7, 0, 0], [0, 2e-7, 0],
+                           [0, 0, 3e-7]], dtype=np.float32)
+        faces = np.array([[0, 1, 2], [0, 3, 1]], dtype=np.uint32)
+        tri = points[faces].astype(np.float64)
+        raw = np.cross(tri[:, 1] - tri[:, 0], tri[:, 2] - tri[:, 0])
+        normal = np.zeros_like(points, dtype=np.float64)
+        for corner in range(3):
+            np.add.at(normal, faces[:, corner], raw)
+        normal /= np.linalg.norm(normal, axis=1)[:, None]
+        np.testing.assert_array_equal(vertex_normals(points, faces), normal.astype(np.float32))
+
+    def test_unused_vertex_and_cancelled_incident_sum_are_rejected(self):
+        points = np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1]], dtype=np.float32)
+        for p, f in ((points, [[0, 1, 2]]), (points[:3], [[0, 1, 2], [0, 2, 1]])):
+            with self.assertRaisesRegex(ValueError, "undefined vertex normals"):
+                vertex_normals(p, np.array(f, dtype=np.uint32))
+
+    def test_zero_area_and_nonfinite_face_are_rejected(self):
+        points = np.array([[0, 0, 0], [1, 0, 0], [2, 0, 0]], dtype=np.float32)
+        faces = np.array([[0, 1, 2]], dtype=np.uint32)
+        with self.assertRaisesRegex(ValueError, "undefined face normals"):
+            vertex_normals(points, faces)
+        points[2] = [0, np.nan, 0]
+        with self.assertRaisesRegex(ValueError, "undefined face normals"):
+            vertex_normals(points, faces)
 
 
 class CardiacMapRefinementTest(unittest.TestCase):

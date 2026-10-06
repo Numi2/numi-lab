@@ -1,0 +1,21 @@
+test_changed_closure_bytes_require_matching_digest (test_cardiac_map_refinement.CardiacMapRefinementTest.test_changed_closure_bytes_require_matching_digest) ... ok
+test_closure_correction_cannot_understate_displacement (test_cardiac_map_refinement.CardiacMapRefinementTest.test_closure_correction_cannot_understate_displacement) ... ok
+test_distinct_clear_geometry_states_are_required (test_cardiac_map_refinement.CardiacMapRefinementTest.test_distinct_clear_geometry_states_are_required) ... ok
+test_full_solver_bracket_is_required (test_cardiac_map_refinement.CardiacMapRefinementTest.test_full_solver_bracket_is_required) ... ok
+test_owned_lumen_boundary_cannot_be_conditioned (test_cardiac_map_refinement.CardiacMapRefinementTest.test_owned_lumen_boundary_cannot_be_conditioned) ... ok
+test_source_identity_and_nonfinite_closure_are_rejected (test_cardiac_map_refinement.CardiacMapRefinementTest.test_source_identity_and_nonfinite_closure_are_rejected) ... ok
+test_v1_compatibility_and_v2_closure_bound (test_cardiac_map_refinement.CardiacMapRefinementTest.test_v1_compatibility_and_v2_closure_bound) ... ok
+test_v1_does_not_accept_v2_method (test_cardiac_map_refinement.CardiacMapRefinementTest.test_v1_does_not_accept_v2_method) ... ok
+test_linear_reference_has_unique_two_mm_closure (test_cardiac_map_refinement.NativePolynomialAdmissionTest.test_linear_reference_has_unique_two_mm_closure) ... ok
+test_nonmonotone_or_unbracketed_polynomial_is_rejected (test_cardiac_map_refinement.NativePolynomialAdmissionTest.test_nonmonotone_or_unbracketed_polynomial_is_rejected) ... ok
+test_signed_zero_change_on_lumen_owned_vertex_is_rejected (test_cardiac_map_refinement.SparseMapPackingTest.test_signed_zero_change_on_lumen_owned_vertex_is_rejected) ... ok
+test_signed_zero_is_a_byte_change_and_reserved_lanes_are_preserved (test_cardiac_map_refinement.SparseMapPackingTest.test_signed_zero_is_a_byte_change_and_reserved_lanes_are_preserved) ... ok
+test_normals_are_invariant_under_uniform_mesh_scale (test_cardiac_map_refinement.VertexNormalsTest.test_normals_are_invariant_under_uniform_mesh_scale) ... ok
+test_small_well_conditioned_fan_keeps_area_weighted_direction (test_cardiac_map_refinement.VertexNormalsTest.test_small_well_conditioned_fan_keeps_area_weighted_direction) ... ok
+test_unused_vertex_and_cancelled_incident_sum_are_rejected (test_cardiac_map_refinement.VertexNormalsTest.test_unused_vertex_and_cancelled_incident_sum_are_rejected) ... ok
+test_zero_area_and_nonfinite_face_are_rejected (test_cardiac_map_refinement.VertexNormalsTest.test_zero_area_and_nonfinite_face_are_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 0.012s
+
+OK

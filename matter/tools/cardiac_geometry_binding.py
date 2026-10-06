@@ -643,11 +643,26 @@ def mesh_from_triangles(triangles, partition):
 def vertex_normals(points: np.ndarray, faces: np.ndarray) -> np.ndarray:
     tri = points[faces].astype(np.float64)
     face_normals = np.cross(tri[:, 1] - tri[:, 0], tri[:, 2] - tri[:, 0])
+    face_areas_twice = np.linalg.norm(face_normals, axis=1)
+    require(len(faces) > 0 and np.all(np.isfinite(face_areas_twice))
+            and np.all(face_areas_twice > 0), "partition surface has undefined face normals")
     normals = np.zeros_like(points, dtype=np.float64)
+    incident_area = np.zeros(len(points), dtype=np.float64)
+    incident_count = np.zeros(len(points), dtype=np.int64)
     for corner in range(3):
         np.add.at(normals, faces[:, corner], face_normals)
+        np.add.at(incident_area, faces[:, corner], face_areas_twice)
+        np.add.at(incident_count, faces[:, corner], 1)
     lengths = np.linalg.norm(normals, axis=1)
-    require(np.all(np.isfinite(lengths)) and np.all(lengths > 1e-12), "partition surface has undefined vertex normals")
+    # Normal direction depends on relative cancellation, not an absolute area
+    # in square metres. Preserve well-conditioned Float32 subdivision fans at
+    # any physical scale; reject unused vertices and numerically cancelled
+    # sums. The margin covers cross-product and incident-sum roundoff in this
+    # Float64 display-normal calculation, not geometric/contact admission.
+    roundoff_margin = 32 * np.finfo(np.float64).eps * incident_count * incident_area
+    require(np.all(np.isfinite(lengths)) and np.all(np.isfinite(incident_area))
+            and np.all(incident_count > 0) and np.all(lengths > roundoff_margin),
+            "partition surface has undefined vertex normals")
     normals /= lengths[:, None]
     return normals.astype(np.float32)
 

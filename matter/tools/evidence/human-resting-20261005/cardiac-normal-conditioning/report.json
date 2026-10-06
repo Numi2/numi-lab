@@ -1,0 +1,53 @@
+{
+  "source_path": "/Users/n/numi-human-resting-normal-source-035/matter/tools/cardiac_geometry_binding.py",
+  "source_sha256": "45d8ffba9a91a8c32abef7d5ef08f14216c0eec31f62fb57fe6ba932363a13e8",
+  "normal_change_only": true,
+  "surfaces": [
+    {
+      "name": "RA020_wall",
+      "candidate_sha256": "98299be2322eaa545fa7e9821ea6c990d64a87b9975e6affd27e4c5b47f3c081",
+      "vertices": 10650,
+      "faces": 21308,
+      "previous_absolute_cutoff_rejected_vertices": 1,
+      "smallest_area_vector_length_m2": 6.372030504891793e-13,
+      "all_normals_finite": true,
+      "unit_length_max_error": 4.952137311331484e-08,
+      "all_area_weighted_directions_bit_identical": true
+    },
+    {
+      "name": "RA020_lumen",
+      "candidate_sha256": "98299be2322eaa545fa7e9821ea6c990d64a87b9975e6affd27e4c5b47f3c081",
+      "vertices": 4185,
+      "faces": 8366,
+      "previous_absolute_cutoff_rejected_vertices": 1,
+      "smallest_area_vector_length_m2": 6.372030504891793e-13,
+      "all_normals_finite": true,
+      "unit_length_max_error": 4.521629215492595e-08,
+      "all_area_weighted_directions_bit_identical": true
+    },
+    {
+      "name": "LA007_wall",
+      "candidate_sha256": "effd7780664257ca2eb20390e21e39c26e8db9d3558eefbc82961609e763e379",
+      "vertices": 5503,
+      "faces": 11022,
+      "previous_absolute_cutoff_rejected_vertices": 0,
+      "smallest_area_vector_length_m2": 2.2584746478006645e-11,
+      "all_normals_finite": true,
+      "unit_length_max_error": 4.446430690308034e-08,
+      "all_area_weighted_directions_bit_identical": true
+    },
+    {
+      "name": "LA007_lumen",
+      "candidate_sha256": "effd7780664257ca2eb20390e21e39c26e8db9d3558eefbc82961609e763e379",
+      "vertices": 2414,
+      "faces": 4824,
+      "previous_absolute_cutoff_rejected_vertices": 0,
+      "smallest_area_vector_length_m2": 5.1188532511433306e-11,
+      "all_normals_finite": true,
+      "unit_length_max_error": 3.960621064447167e-08,
+      "all_area_weighted_directions_bit_identical": true
+    }
+  ],
+  "test_log_sha256": "a8b8510a535492099b4a41aeae1dca6bd4763dd426730cc63742963604250f80",
+  "status": "pass"
+}
