@@ -1,0 +1,16 @@
+{
+  "numi-lab": {
+    "revision": "7c96324795baa1778015f2be0a48c45bd5c200be",
+    "diff_sha256": "cb870d46873b6d4683bc43cd1f98fe9a9ea5f49b1dd9ef85f8fb62f329e0bbfd",
+    "note": "Retained build snapshot label; copied .git indirection is not used as current build identity. Exact compiled-file hashes above are authoritative."
+  },
+  "numilab-human": {
+    "revision": "d11c0bcb7504fc2114be5de48f3ee09529134d7c",
+    "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "note": "Published taenia admission compiler revision. The assembled asset receipt retains the earlier source-specific compiler chain; no claim that every mixed-source asset was rebuilt at this tip."
+  },
+  "numi-brain": {
+    "revision": "a1cf7218fae5d26f9aed9d845047fc6c472ad596",
+    "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

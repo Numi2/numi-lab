@@ -1,0 +1,4 @@
+frames=2501 timing_markers=5 first_wall_s=1.0633333333333332 last_wall_s=2359.4416666666666 max_gap_wall_s=2.3600000000000003 duration_wall_s=2361.285
+frame=initial index=0 simulated_s=0.0 wall_s=1.0633333333333332 width=1280 height=900
+frame=middle index=1250 simulated_s=79.9980037997 wall_s=1169.4933333333333 width=1280 height=900
+frame=final index=2500 simulated_s=159.998007599 wall_s=2359.4416666666666 width=1280 height=900

@@ -1,0 +1,49 @@
+{
+  "payload": {
+    "evidence_level": "simulation",
+    "issues": [],
+    "limitations": "This is one deterministic paired simulation, not a population estimate or clinical validation. The primary predictor is the fixed-production alveolar-ventilation relation and a broad sensitivity envelope; closed-loop finite-time response may differ. Recovery limits are prespecified analysis tolerances, not claimed physiological standards. Body and organ source anatomy remain explicitly unqualified wherever the owner receipt says so. Previous study098 retained both pre-stepping failures for an invalid capture index; this follow-up fixes24999 to24991 without changing physics, parameters or predictions. This is an exploratory160s study on still-unqualified source anatomy, not final five-minute acceptance.",
+    "mean_difference": 1.1400319038514937,
+    "observed_spread": {
+      "maximum": 1.1400319038514937,
+      "minimum": 1.1400319038514937,
+      "sample_sd": null
+    },
+    "paired_differences": [
+      {
+        "pair": "resting-reference-v1",
+        "treatment_minus_control": 1.1400319038514937
+      }
+    ],
+    "registration_sha256": "94ad83c907c831331b4e0288e867dc8275d44465f390d30c23d63b1b78a54908",
+    "schema": "numi.science.analysis.v1",
+    "trials": [
+      {
+        "arm": "control",
+        "experimental_unit": {
+          "unit_id": "human-resting-reference-v1-c5ff188b8f7fd290ebf1"
+        },
+        "id": "resting-baseline",
+        "pair": "resting-reference-v1",
+        "receipt_sha256": "838e3f4c59577fc05a9e79566699a629f419708cfac0dae297d9615d7126ec44",
+        "status": "valid",
+        "value": 0.22180233574304964
+      },
+      {
+        "arm": "treatment",
+        "experimental_unit": {
+          "unit_id": "human-resting-reference-v1-c5ff188b8f7fd290ebf1"
+        },
+        "id": "resting-drive-half",
+        "pair": "resting-reference-v1",
+        "receipt_sha256": "3d407b321518ad84ba700f3f885bd44b10bc6a1792ea50053f50480be08c5837",
+        "status": "valid",
+        "value": 1.3618342395945433
+      }
+    ],
+    "uncertainty": "Descriptive variation across declared pairs, not a confidence interval or population inference.",
+    "unit": "mmHg",
+    "verdict": "supported"
+  },
+  "sha256": "a150c8f4cfcf0c31126943d4a522baa116d58455bea4b9d78d0e912ac0220240"
+}

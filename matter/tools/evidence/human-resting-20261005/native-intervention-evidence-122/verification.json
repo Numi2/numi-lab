@@ -1,0 +1,11 @@
+{
+  "analysis": true,
+  "declared_trials": 2,
+  "guarantees": "v2 snapshots, executable prediction and declared-unit lineage",
+  "integrity": "verified",
+  "recorded_trials": 2,
+  "registration_sha256": "94ad83c907c831331b4e0288e867dc8275d44465f390d30c23d63b1b78a54908",
+  "revision": false,
+  "state": "analysis",
+  "unfinished_trials": []
+}

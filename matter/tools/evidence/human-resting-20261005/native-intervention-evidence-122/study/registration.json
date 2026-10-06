@@ -1,0 +1,435 @@
+{
+  "payload": {
+    "artifacts": {
+      "/Applications/Xcode-26.6.0.app/Contents/Developer/usr/bin/python3": "271143990bc83af0fb2404a255038f5faafb96df1584ed7f085e5018c0f33ffb",
+      "/Users/n/miniforge3/bin/python3.13": "d6923d821cb2fba4e8edf49679d4a3073d3013b60e25a84fe36351493bd7b09e",
+      "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/current-bone-registration-b1b410ad/bodyparts3d-myosim-major-bones.nhbones": "7d94e2f28ac6cea30c6c11a79919077acc40281636eb20b11b50b50aebd3ec49",
+      "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4",
+      "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-joint-equalities.nheq": "0e3c593792a8c4ccd619f1999f6685b68e6ff0fd5ae5f6f0bca66b594a0e9b88",
+      "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-muscle-reference.nhmyo": "e5bb8a8168706bb3b23cf42b1d849659569ba2e6027bcc85729c3110fdbb8c4b",
+      "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/output/current-anatomy-20261005/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue": "9340447e7874366033f544ee8e56e9c09bdf4efecf52b0fa3b16d7b4d5489c33",
+      "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/output/skin-boundaries-001/bodyparts3d-myosim-skinned-shell.nhskin": "1de6422eed1a681fb5f37df1e5355c0474016634c342516753a1058c4d0f4334",
+      "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/output/supine-skin-boundaries-001/myosim-fullbody-resting-bed-support.nhcnt": "04704109e30d6b0de1620d349a0e610860cb665e9e35406e3a7685abd95695c6",
+      "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/output/tendon-current-source-owner-nhtendon2/numi-human-tendon-attachments.nhtendon": "52819336540a36621b60bd03b5084bd1d300ed2971673cfd0ccdb7eecfcb52b5",
+      "/Users/n/numi-human-resting-cardiac-build-026/bin/numi-human-native": "5f58491cf5697e684e358ab2b1f8388501ade802ff25145c8ec04a9a4396cae7",
+      "/Users/n/numi-human-resting-cardiac-build-026/matter/shaders/HumanRespiration.metallib": "197b93f32ef0894c88dd6e302265ebfc01c48392bb7119931af8c6b2d694b027",
+      "/Users/n/numi-human-resting-cardiac-build-026/matter/shaders/NumiMatter.metallib": "99252940b5482dc3b4ccf5bb86a282a99db1f8fb1433ae1ffc2382b995504ca9",
+      "/Users/n/numi-human-resting-cardiac-build-026/shaders/MetalRobo.metallib": "85a011fe7ed38365957bd1adc69e5b47ac3405710e785002066e3c2a07cf1060",
+      "/Users/n/numi-human-resting-cardiac-source-026/CMakeLists.txt": "7121e1eea5425117138ac307b8f3c5c37db49952c7ded9c1bd9442910b405800",
+      "/Users/n/numi-human-resting-cardiac-source-026/apps/NumiHumanRestingAnatomy.hpp": "ef6f57b6ebc9b331a588c3366961e1df77906ba1070f498282e12b2e1b0ab382",
+      "/Users/n/numi-human-resting-cardiac-source-026/apps/NumiHumanRestingVisual.hpp": "7d486d44ebdfdb98cdd191a3eb40208d534ba90d97b7f498ef1d9e4de0813bbc",
+      "/Users/n/numi-human-resting-cardiac-source-026/apps/numilab_human_myosim_visual_probe.mm": "dcf19a0232ae03584589a93c656005823020ca5a94a8da169033f0ca41954817",
+      "/Users/n/numi-human-resting-cardiac-source-026/include/metalrobo/numi_human_resting_visual_gpu.h": "e01b134146f90949041df4f55766aabdeae1eb56d3ec504c5cfcc4df2da8bc2e",
+      "/Users/n/numi-human-resting-cardiac-source-026/matter/include/numi/matter/human_respiration.h": "cef72b8ffad33faf382f4f42ed910b2d246e71bd0f223e355f32e2b07b8e9352",
+      "/Users/n/numi-human-resting-cardiac-source-026/matter/src/human_respiration.metal": "893df30d15a820e9b9fad8919c9fe19557c3a049f39433e87ec2e24f5e06757c",
+      "/Users/n/numi-human-resting-cardiac-source-026/matter/src/metal/vascular.metalinc": "5e5475f50ca8809604293799d2ff469198e232a082501a71e4df79eb25ac04ad",
+      "/Users/n/numi-human-resting-cardiac-source-026/matter/tools/cardiac_geometry_binding.py": "0853be4db037c3353c82a02d1fe2843cc4055acc5d092dd31f71d2a7eb0308a0",
+      "/Users/n/numi-human-resting-cardiac-source-026/matter/tools/human_resting_runtime.hpp": "00b43289f5fd6e4cf9f61cdf253493bad62974ba0e921823ecf4210d58ceb734",
+      "/Users/n/numi-human-resting-cardiac-source-026/matter/tools/resting_intervention_study.py": "3f60075f6acb43f1aa1ecd52890f326b6f7eaca0a4351cd8be71ecba42962cc7",
+      "/Users/n/numi-human-resting-cardiac-source-026/matter/tools/test_resting_intervention_study.py": "1ba30e15417285ea1e2b2642ec83a0fc77e2888e4e2dba85bf5d9772a33c2f3f",
+      "/Users/n/numi-human-resting-cardiac-source-026/src/metal/MetalArticulatedOperator.mm": "b3e455245e453deec306813d2bad885faaf2901437abb37cbfe184084147a8c1",
+      "/Users/n/numi-human-resting-cardiac-source-026/src/metal/NumiHumanStand.metal": "b378b18acc67b0a7b0e7d553e0f272af33825dfa6fcef2a580bc1d58790bb518",
+      "/Users/n/numi-human-resting-cardiac-source-026/src/metal/NumiHumanStandSolve.metalinc": "b93cd3d0a3183e58c8e34994c10e9cc9de12cf868c12a98c99325b2927bdf917",
+      "/Users/n/numi-human-resting-cardiac-source-026/tests/numi_human_bilateral_metal_test.mm": "b257250e310ed7153a25101c218a0f4e0d99a79ce7efea9f20e82c1b812679ee",
+      "/Users/n/numi-human-resting-evidence-20261005/costal-current003-full-chain-003/resting-reference-respiration.json": "35aeafa56153a8c82e8b8b041fedb5666c19007eb8a4e327d706611f8aad4f5b",
+      "/Users/n/numi-human-resting-evidence-20261005/dense45-pair-004/fgmres-6s.csv": "b1fefe034428e83d976241f483d064760a201ea46e7f3977bc6c1ee39e62d859",
+      "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-096/source-hashes.json": "03b8ea7d48d90baf267b99e89182f42e50625c5ec8b705e026bb9d2b3a25824e",
+      "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-096/source-revisions.json": "408897071096e1ddd0ff650f23343b9ba5ea6bc3f41d152cc503c9094f40af1b",
+      "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-098/resting_intervention_study.py": "99156f2e7c3df8a33718bf29b5c5362a13dd6c4c1af9dfb5a6f622a16394596a",
+      "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/baseline-invocation.json": "34869db6c52e89d1496fbf91c3960b3d297d22894abdc1e2781c75f0ff3cfda1",
+      "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/plan-draft/calibration.json": "24c23cd62e080c05b3c8f8dd5ce9667158b4a54312590f329a1014468bd331fe",
+      "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/plan-draft/model.json": "d8c1ecb2f3221a94bcf1f3da84c4006abfa5c74ff00915b3880d741fa18f30d5",
+      "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/plan-draft/native-build-identity.json": "63132dc849d9ece1f66cfc43e64f695267c9a5c94660f18780bb0914f7052c0d",
+      "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/preparation.json": "54aaa7db235bcaab1c8c49d68c179a22524b8b9f7ba53da4a75612b151d4903c",
+      "/Users/n/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json": "43ff6b49daf1d42cf9e88d85d8577f70e112dfcc3756ec43954e544a3e4bc0dc",
+      "/Users/n/numi-human-resting-evidence-20261005/taenia-cardiac-input-093/resting-anatomy-receipt.json": "af7a86c95b0779c3ddeaafb6fee93a5ebcc1721010f42364f4cece6bb11553a2",
+      "/Users/n/numi-human-resting-evidence-20261005/taenia-cardiac-input-093/resting-thorax.nhanatomy": "b0efec08f7d62b8559ba5d0ef25ebdaf653f997b2f82546918fa5c0d02f166c5",
+      "/Users/n/numi-human-resting-evidence-20261005/taenia-cardiac-input-093/ventricular-wall-map-refinement.json": "5b57393a4c0ec81e8f3c76e32371195c93b65e0c62f5033e0c64b9f795233348",
+      "/Users/n/numi-human-resting-lab-20261005/python/metalrobo/science_notebook.py": "e05d6b7810dbe0ffbd28a449e57f79d6c7f5a480db37483d1c33bca3d5ea6f57"
+    },
+    "environment": {
+      "HOME": "/Users/n",
+      "PATH": "/bin:/usr/bin",
+      "TMPDIR": "/var/folders/ks/sfmz3dh91_7c9_vyd_3lzj100000gn/T"
+    },
+    "host": {
+      "machine": "arm64",
+      "node": "Mac.domain_not_set.invalid",
+      "platform": "macOS-26.6-arm64-arm-64bit"
+    },
+    "parent": null,
+    "plan": {
+      "artifacts": [
+        "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-098/resting_intervention_study.py",
+        "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/baseline-invocation.json",
+        "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-096/source-hashes.json",
+        "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-096/source-revisions.json",
+        "/Users/n/numi-human-resting-evidence-20261005/dense45-pair-004/fgmres-6s.csv",
+        "/Users/n/numi-human-resting-cardiac-source-026/CMakeLists.txt",
+        "/Users/n/numi-human-resting-cardiac-source-026/apps/NumiHumanRestingAnatomy.hpp",
+        "/Users/n/numi-human-resting-cardiac-source-026/apps/NumiHumanRestingVisual.hpp",
+        "/Users/n/numi-human-resting-cardiac-source-026/apps/numilab_human_myosim_visual_probe.mm",
+        "/Users/n/numi-human-resting-cardiac-source-026/include/metalrobo/numi_human_resting_visual_gpu.h",
+        "/Users/n/numi-human-resting-cardiac-source-026/matter/include/numi/matter/human_respiration.h",
+        "/Users/n/numi-human-resting-cardiac-source-026/matter/src/human_respiration.metal",
+        "/Users/n/numi-human-resting-cardiac-source-026/matter/src/metal/vascular.metalinc",
+        "/Users/n/numi-human-resting-cardiac-source-026/matter/tools/cardiac_geometry_binding.py",
+        "/Users/n/numi-human-resting-cardiac-source-026/matter/tools/human_resting_runtime.hpp",
+        "/Users/n/numi-human-resting-cardiac-source-026/matter/tools/resting_intervention_study.py",
+        "/Users/n/numi-human-resting-cardiac-source-026/matter/tools/test_resting_intervention_study.py",
+        "/Users/n/numi-human-resting-cardiac-source-026/src/metal/MetalArticulatedOperator.mm",
+        "/Users/n/numi-human-resting-cardiac-source-026/src/metal/NumiHumanStand.metal",
+        "/Users/n/numi-human-resting-cardiac-source-026/src/metal/NumiHumanStandSolve.metalinc",
+        "/Users/n/numi-human-resting-cardiac-source-026/tests/numi_human_bilateral_metal_test.mm",
+        "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/current-bone-registration-b1b410ad/bodyparts3d-myosim-major-bones.nhbones",
+        "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid",
+        "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-joint-equalities.nheq",
+        "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-muscle-reference.nhmyo",
+        "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/output/current-anatomy-20261005/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue",
+        "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/output/skin-boundaries-001/bodyparts3d-myosim-skinned-shell.nhskin",
+        "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/output/supine-skin-boundaries-001/myosim-fullbody-resting-bed-support.nhcnt",
+        "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/output/tendon-current-source-owner-nhtendon2/numi-human-tendon-attachments.nhtendon",
+        "/Users/n/numi-human-resting-cardiac-build-026/bin/numi-human-native",
+        "/Users/n/numi-human-resting-cardiac-build-026/matter/shaders/HumanRespiration.metallib",
+        "/Users/n/numi-human-resting-cardiac-build-026/matter/shaders/NumiMatter.metallib",
+        "/Users/n/numi-human-resting-cardiac-build-026/shaders/MetalRobo.metallib",
+        "/Users/n/numi-human-resting-evidence-20261005/costal-current003-full-chain-003/resting-reference-respiration.json",
+        "/Users/n/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json",
+        "/Users/n/numi-human-resting-evidence-20261005/taenia-cardiac-input-093/resting-anatomy-receipt.json",
+        "/Users/n/numi-human-resting-evidence-20261005/taenia-cardiac-input-093/resting-thorax.nhanatomy",
+        "/Users/n/numi-human-resting-evidence-20261005/taenia-cardiac-input-093/ventricular-wall-map-refinement.json",
+        "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/plan-draft/native-build-identity.json",
+        "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/plan-draft/model.json",
+        "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/plan-draft/calibration.json",
+        "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/preparation.json"
+      ],
+      "backend": "Apple Metal native integrated viewer on Apple M4 Pro",
+      "design": {
+        "allocation": "One exploratory pair, control then treatment, no retries/exclusions; all outcomes come from accepted native state.",
+        "controls": "Matched fresh native process and same frozen invocation/assets/initialization; control drive remains 1.0 throughout.",
+        "dose_window_s": [
+          35.0,
+          50.0
+        ],
+        "experimental_unit": "One deterministic resting initialization and source/configuration identity; paired trajectories are not independent people or independent time samples.",
+        "initialization_exclusion_window_s": [
+          0.0,
+          10.0
+        ],
+        "intervention": "Existing Brain chemoreflex remains active; only its delivered diaphragm/intercostal excitation is multiplied by 0.5 on [30,50) s.",
+        "observation_after_initialization_s": 150.0,
+        "pre_dose_window_s": [
+          15.0,
+          30.0
+        ],
+        "recovery_window_s": [
+          145.0,
+          160.0
+        ],
+        "unit_paths": {
+          "unit_id": [
+            "unit_id"
+          ]
+        }
+      },
+      "evidence_level": "simulation",
+      "hypothesis": "For fixed resting CO2 production, the alveolar-ventilation relation predicts a nonnegative control-corrected PaCO2 change when effective alveolar ventilation under reduced drive is between one-half and all of baseline. From a 40 mmHg baseline this gives a broad 0 to +40 mmHg sensitivity envelope; it is not a probability interval or a clinical prediction.",
+      "instrument": {
+        "artifacts": [
+          "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-098/resting_intervention_study.py",
+          "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/baseline-invocation.json",
+          "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-096/source-hashes.json",
+          "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-096/source-revisions.json",
+          "/Users/n/numi-human-resting-evidence-20261005/dense45-pair-004/fgmres-6s.csv",
+          "/Users/n/numi-human-resting-cardiac-source-026/CMakeLists.txt",
+          "/Users/n/numi-human-resting-cardiac-source-026/apps/NumiHumanRestingAnatomy.hpp",
+          "/Users/n/numi-human-resting-cardiac-source-026/apps/NumiHumanRestingVisual.hpp",
+          "/Users/n/numi-human-resting-cardiac-source-026/apps/numilab_human_myosim_visual_probe.mm",
+          "/Users/n/numi-human-resting-cardiac-source-026/include/metalrobo/numi_human_resting_visual_gpu.h",
+          "/Users/n/numi-human-resting-cardiac-source-026/matter/include/numi/matter/human_respiration.h",
+          "/Users/n/numi-human-resting-cardiac-source-026/matter/src/human_respiration.metal",
+          "/Users/n/numi-human-resting-cardiac-source-026/matter/src/metal/vascular.metalinc",
+          "/Users/n/numi-human-resting-cardiac-source-026/matter/tools/cardiac_geometry_binding.py",
+          "/Users/n/numi-human-resting-cardiac-source-026/matter/tools/human_resting_runtime.hpp",
+          "/Users/n/numi-human-resting-cardiac-source-026/matter/tools/resting_intervention_study.py",
+          "/Users/n/numi-human-resting-cardiac-source-026/matter/tools/test_resting_intervention_study.py",
+          "/Users/n/numi-human-resting-cardiac-source-026/src/metal/MetalArticulatedOperator.mm",
+          "/Users/n/numi-human-resting-cardiac-source-026/src/metal/NumiHumanStand.metal",
+          "/Users/n/numi-human-resting-cardiac-source-026/src/metal/NumiHumanStandSolve.metalinc",
+          "/Users/n/numi-human-resting-cardiac-source-026/tests/numi_human_bilateral_metal_test.mm",
+          "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/current-bone-registration-b1b410ad/bodyparts3d-myosim-major-bones.nhbones",
+          "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid",
+          "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-joint-equalities.nheq",
+          "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-muscle-reference.nhmyo",
+          "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/output/current-anatomy-20261005/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue",
+          "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/output/skin-boundaries-001/bodyparts3d-myosim-skinned-shell.nhskin",
+          "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/output/supine-skin-boundaries-001/myosim-fullbody-resting-bed-support.nhcnt",
+          "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/output/tendon-current-source-owner-nhtendon2/numi-human-tendon-attachments.nhtendon",
+          "/Users/n/numi-human-resting-cardiac-build-026/bin/numi-human-native",
+          "/Users/n/numi-human-resting-cardiac-build-026/matter/shaders/HumanRespiration.metallib",
+          "/Users/n/numi-human-resting-cardiac-build-026/matter/shaders/NumiMatter.metallib",
+          "/Users/n/numi-human-resting-cardiac-build-026/shaders/MetalRobo.metallib",
+          "/Users/n/numi-human-resting-evidence-20261005/costal-current003-full-chain-003/resting-reference-respiration.json",
+          "/Users/n/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json",
+          "/Users/n/numi-human-resting-evidence-20261005/taenia-cardiac-input-093/resting-anatomy-receipt.json",
+          "/Users/n/numi-human-resting-evidence-20261005/taenia-cardiac-input-093/resting-thorax.nhanatomy",
+          "/Users/n/numi-human-resting-evidence-20261005/taenia-cardiac-input-093/ventricular-wall-map-refinement.json"
+        ],
+        "calibration": "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/plan-draft/calibration.json",
+        "description": "Native accepted-state PaCO2 difference-in-differences using 15 s pre-dose and dose windows; accepted-flow ventilation, PaO2/SaO2, late recovery, cardiac, blood-balance, body-clock, and whole-surface contact diagnostics are retained per arm."
+      },
+      "limitations": "This is one deterministic paired simulation, not a population estimate or clinical validation. The primary predictor is the fixed-production alveolar-ventilation relation and a broad sensitivity envelope; closed-loop finite-time response may differ. Recovery limits are prespecified analysis tolerances, not claimed physiological standards. Body and organ source anatomy remain explicitly unqualified wherever the owner receipt says so. Previous study098 retained both pre-stepping failures for an invalid capture index; this follow-up fixes24999 to24991 without changing physics, parameters or predictions. This is an exploratory160s study on still-unqualified source anatomy, not final five-minute acceptance.",
+      "model": {
+        "parameters": {
+          "assumption": "Sensitivity only: at fixed CO2 production, effective alveolar ventilation is assumed to remain in [0.5, 1.0] of baseline. The closed-loop native response is measured, not prescribed.",
+          "baseline_PaCO2_mmhg": 40.0,
+          "maximum_effective_alveolar_ventilation_fraction": 1.0,
+          "minimum_effective_alveolar_ventilation_fraction": 0.5
+        },
+        "schema": "numi.human-resting-paco2-model.v1",
+        "scope": "One deterministic paired simulation condition; not population inference, physiology calibration, or clinical validation.",
+        "statement": "For fixed resting CO2 production, the alveolar-ventilation relation predicts a nonnegative control-corrected PaCO2 change when effective alveolar ventilation under reduced drive is between one-half and all of baseline. From a 40 mmHg baseline this gives a broad 0 to +40 mmHg sensitivity envelope; it is not a probability interval or a clinical prediction.",
+        "training_units": [],
+        "version": "alveolar-ventilation-envelope-v1"
+      },
+      "model_file": "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/plan-draft/model.json",
+      "observable": {
+        "name": "Control-corrected change in mean PaCO2: treatment-minus-control of each arm's dose-window minus pre-dose-window mean (15 s windows).",
+        "path": [
+          "primary_delta_PaCO2_mmhg"
+        ],
+        "unit": "mmHg"
+      },
+      "owner": "Numi Human native articulated body, Matter circulation, and NumiBrain respiratory control",
+      "paired_equal": [
+        [
+          "unit_id"
+        ],
+        [
+          "device"
+        ],
+        [
+          "world_fingerprint"
+        ],
+        [
+          "timestep_s"
+        ],
+        [
+          "accepted_steps"
+        ],
+        [
+          "dense45"
+        ],
+        [
+          "brain_control"
+        ],
+        [
+          "common_asset_identity"
+        ]
+      ],
+      "prediction": {
+        "estimand": "paired_difference_mean",
+        "maximum": 40.0,
+        "minimum": 0.0
+      },
+      "predictor": {
+        "argv": [
+          "/Users/n/miniforge3/bin/python3.13",
+          "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-098/resting_intervention_study.py",
+          "predict",
+          "--model",
+          "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/plan-draft/model.json"
+        ],
+        "env": {},
+        "timeout_seconds": 30
+      },
+      "purpose": "exploration",
+      "question": "In the frozen native resting human scene, does reducing delivered respiratory excitation to 0.5 on [30,50) s lower ventilation and raise control-corrected PaCO2 during the intervention, while gas measurements return near the unchanged control during late recovery?",
+      "repository": "/Users/n/numi-human-resting-cardiac-source-026",
+      "schema": "numi.science.plan.v2",
+      "secondary_predictions": {
+        "dose_direction": {
+          "scope": "Mechanistic response-direction checks; not guaranteed by a target curve.",
+          "treatment_minus_control_inspiratory_ventilation_L_min": "< 0",
+          "treatment_minus_control_primary_delta_PaCO2_mmhg": ">= 0"
+        },
+        "late_recovery_equivalence": {
+          "PaCO2_absolute_difference_max_mmhg": 1.0,
+          "PaO2_absolute_difference_max_mmhg": 5.0,
+          "comparison": "treatment versus unchanged control, both averaged over the final 15 s",
+          "inspiratory_minute_ventilation_relative_difference_max_fraction": 0.1,
+          "justification": "Predeclared numerical equivalence margins: 1 mmHg is 2.5% of the model's 40 mmHg reference, 10% is a one-tenth relative ventilation tolerance, and 5 mmHg is a finite oxygen readout margin. These are study decision limits, not literature-defined clinical cutoffs or guaranteed outcomes.",
+          "scope": "Descriptive late recovery comparison; apply to the fixed native trajectories only."
+        }
+      },
+      "trials": [
+        {
+          "argv": [
+            "/Users/n/miniforge3/bin/python3.13",
+            "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-098/resting_intervention_study.py",
+            "run-native",
+            "--invocation",
+            "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/baseline-invocation.json",
+            "--unit-id",
+            "human-resting-reference-v1-c5ff188b8f7fd290ebf1",
+            "--world-fingerprint",
+            "6434571789366693551",
+            "--device",
+            "Apple M4 Pro",
+            "--steps",
+            "80000",
+            "--dt",
+            "0.002",
+            "--start-s",
+            "30.0",
+            "--end-s",
+            "50.0",
+            "--scale",
+            "0.5",
+            "--window-s",
+            "15.0",
+            "--program-fingerprint",
+            "13009185541112217610",
+            "--arm",
+            "control",
+            "--output",
+            "{run}/scene"
+          ],
+          "arm": "control",
+          "env": {},
+          "id": "resting-baseline",
+          "pair": "resting-reference-v1",
+          "timeout_seconds": 86400,
+          "unit": {
+            "unit_id": "human-resting-reference-v1-c5ff188b8f7fd290ebf1"
+          }
+        },
+        {
+          "argv": [
+            "/Users/n/miniforge3/bin/python3.13",
+            "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-098/resting_intervention_study.py",
+            "run-native",
+            "--invocation",
+            "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/baseline-invocation.json",
+            "--unit-id",
+            "human-resting-reference-v1-c5ff188b8f7fd290ebf1",
+            "--world-fingerprint",
+            "6434571789366693551",
+            "--device",
+            "Apple M4 Pro",
+            "--steps",
+            "80000",
+            "--dt",
+            "0.002",
+            "--start-s",
+            "30.0",
+            "--end-s",
+            "50.0",
+            "--scale",
+            "0.5",
+            "--window-s",
+            "15.0",
+            "--program-fingerprint",
+            "12943794728695691240",
+            "--arm",
+            "treatment",
+            "--output",
+            "{run}/scene"
+          ],
+          "arm": "treatment",
+          "env": {},
+          "id": "resting-drive-half",
+          "pair": "resting-reference-v1",
+          "timeout_seconds": 86400,
+          "unit": {
+            "unit_id": "human-resting-reference-v1-c5ff188b8f7fd290ebf1"
+          }
+        }
+      ],
+      "validity": [
+        {
+          "equals": "numi.human-resting.intervention-observation.v1",
+          "path": [
+            "schema"
+          ]
+        },
+        {
+          "equals": 80000,
+          "path": [
+            "accepted_steps"
+          ]
+        },
+        {
+          "equals": 160.0,
+          "path": [
+            "nominal_duration_s"
+          ]
+        },
+        {
+          "equals": true,
+          "path": [
+            "duration_valid"
+          ]
+        },
+        {
+          "equals": true,
+          "path": [
+            "dense45"
+          ]
+        },
+        {
+          "equals": true,
+          "path": [
+            "brain_control"
+          ]
+        },
+        {
+          "equals": false,
+          "path": [
+            "root_assistance_observed"
+          ]
+        },
+        {
+          "equals": "12e7d9bc0d559fd9017435e4164abcaf724a8a853cb9474a40a8028c9c9ddafa",
+          "path": [
+            "common_asset_identity"
+          ]
+        }
+      ]
+    },
+    "prediction_run": {
+      "argv": [
+        "/Users/n/miniforge3/bin/python3.13",
+        "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-098/resting_intervention_study.py",
+        "predict",
+        "--model",
+        "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/plan-draft/model.json"
+      ],
+      "cwd": "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/study/prediction/output",
+      "elapsed_seconds": 0.07081729199999998,
+      "ended_at": "2026-10-06T02:44:20.076041+00:00",
+      "environment": {
+        "HOME": "/Users/n",
+        "PATH": "/bin:/usr/bin",
+        "TMPDIR": "/var/folders/ks/sfmz3dh91_7c9_vyd_3lzj100000gn/T"
+      },
+      "failure": null,
+      "files": {
+        "stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout.json": "b7de7aeea76c0f9e86b9ea291f5a020a4d33a651052996b562403526b0273734"
+      },
+      "process_sha256": "5aed43a7c7fa5caf77b725a004da8988b04e81b7d0476ef9e154b0cb67c22394",
+      "returncode": 0,
+      "started_at": "2026-10-06T02:44:20.005100+00:00"
+    },
+    "registered_at": "2026-10-06T02:44:20.076150+00:00",
+    "schema": "numi.science.registration.v2",
+    "source": {
+      "diff_sha256": "cb870d46873b6d4683bc43cd1f98fe9a9ea5f49b1dd9ef85f8fb62f329e0bbfd",
+      "repository": "/Users/n/numi-human-resting-cardiac-source-026",
+      "revision": "7c96324795baa1778015f2be0a48c45bd5c200be",
+      "status": "M CMakeLists.txt\n M apps/NumiHumanRestingAnatomy.hpp\n M apps/NumiHumanRestingVisual.hpp\n M apps/numilab_human_myosim_visual_probe.mm\n M include/metalrobo/numi_human_resting_visual_gpu.h\n M matter/src/human_respiration.metal\n M matter/src/metal/vascular.metalinc\n M matter/tools/cardiac_geometry_binding.py\n M matter/tools/resting_intervention_study.py\n M matter/tools/test_resting_intervention_study.py\n M src/metal/MetalArticulatedOperator.mm\n M src/metal/NumiHumanStand.metal\n M src/metal/NumiHumanStandSolve.metalinc\n M tests/numi_human_bilateral_metal_test.mm\n?? include/metalrobo/NumiHumanRestingHandReduction.hpp\n?? tests/numi_human_resting_hand_reduction_test.cpp"
+    }
+  },
+  "sha256": "94ad83c907c831331b4e0288e867dc8275d44465f390d30c23d63b1b78a54908"
+}

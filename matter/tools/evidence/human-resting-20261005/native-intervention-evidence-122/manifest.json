@@ -1,0 +1,236 @@
+{
+  "scope": "Frozen exploratory 160-second native paired study100. Known anatomy defects and incomplete preregistered implicit-library binding remain; not final five-minute acceptance.",
+  "retention_script_sha256": "62420ae4a02a9e89d5a57d21e900f803c9f30c1feaaee38d8a50e1f060777d72",
+  "retained_files": [
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/analysis.json",
+      "source_sha256": "2bed497c394afb98f5a3d60ea78390554206c28eb187c46defa333ad247638e0",
+      "retained": "analysis.json",
+      "retained_sha256": "2bed497c394afb98f5a3d60ea78390554206c28eb187c46defa333ad247638e0"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/verification.json",
+      "source_sha256": "bcc7695c3b09cc9b33914387b9c2bd21941d54d01f19c8156521078616c17061",
+      "retained": "verification.json",
+      "retained_sha256": "bcc7695c3b09cc9b33914387b9c2bd21941d54d01f19c8156521078616c17061"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/baseline-invocation.json",
+      "source_sha256": "34869db6c52e89d1496fbf91c3960b3d297d22894abdc1e2781c75f0ff3cfda1",
+      "retained": "baseline-invocation.json",
+      "retained_sha256": "34869db6c52e89d1496fbf91c3960b3d297d22894abdc1e2781c75f0ff3cfda1"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/paired-post-run-diagnostics-120.json",
+      "source_sha256": "0244dbfceab096aac4164ea5c6fd71a64a509466033f73fe7ba6b5fcab693c60",
+      "retained": "paired-post-run-diagnostics-120.json",
+      "retained_sha256": "0244dbfceab096aac4164ea5c6fd71a64a509466033f73fe7ba6b5fcab693c60"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/study/registration.json",
+      "source_sha256": "3b22c13d04f6ebdfc496e98d0dd538f64f7ad1a213842e2dbb2bc69d431de50d",
+      "retained": "study/registration.json",
+      "retained_sha256": "3b22c13d04f6ebdfc496e98d0dd538f64f7ad1a213842e2dbb2bc69d431de50d"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/analyze-native-study-120.py",
+      "source_sha256": "0477a0b53b6e23ee6d42d3289cf2826e9ab1bd4a644a4cdc231cdca1c4a843fd",
+      "retained": "post-run/analyze-native-study-120.py",
+      "retained_sha256": "0477a0b53b6e23ee6d42d3289cf2826e9ab1bd4a644a4cdc231cdca1c4a843fd"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/respiratory-mechanical-consistency-117/resting_intervention_study.py",
+      "source_sha256": "e7cb9f0afacebfa8b793595d562906f6f5cfb9a07ab768fb054df21e87087767",
+      "retained": "post-run/resting_intervention_study.py",
+      "retained_sha256": "e7cb9f0afacebfa8b793595d562906f6f5cfb9a07ab768fb054df21e87087767"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-098/resting_intervention_study.py",
+      "source_sha256": "99156f2e7c3df8a33718bf29b5c5362a13dd6c4c1af9dfb5a6f622a16394596a",
+      "retained": "instrument/resting_intervention_study.py",
+      "retained_sha256": "99156f2e7c3df8a33718bf29b5c5362a13dd6c4c1af9dfb5a6f622a16394596a"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-layer-admission-002/inspect_resting_movie.swift",
+      "source_sha256": "2d6704dd5f06bffd0b8aa0072171af805fdb3dd00dcc11c02e0b692513b21649",
+      "retained": "inspect_resting_movie.swift",
+      "retained_sha256": "2d6704dd5f06bffd0b8aa0072171af805fdb3dd00dcc11c02e0b692513b21649"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/retain-native-integration-122-125.py",
+      "source_sha256": "62420ae4a02a9e89d5a57d21e900f803c9f30c1feaaee38d8a50e1f060777d72",
+      "retained": "retain-native-integration-122-125.py",
+      "retained_sha256": "62420ae4a02a9e89d5a57d21e900f803c9f30c1feaaee38d8a50e1f060777d72"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/study/trials/resting-baseline/output/scene/invocation.json",
+      "source_sha256": "aad7ec75ebb5d1f8d176f692a88facf01ec2b8ea3315cb6db35b2d861b3ce572",
+      "retained": "resting-baseline/invocation.json",
+      "retained_sha256": "aad7ec75ebb5d1f8d176f692a88facf01ec2b8ea3315cb6db35b2d861b3ce572"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/study/trials/resting-baseline/output/scene/native.log",
+      "source_sha256": "079f399f4e695cab495e0034f06fbeeb613822822267f1f9bb9886e0b2de00d2",
+      "retained": "resting-baseline/native.log",
+      "retained_sha256": "079f399f4e695cab495e0034f06fbeeb613822822267f1f9bb9886e0b2de00d2"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/study/trials/resting-baseline/output/scene/resting-coupled.csv",
+      "source_sha256": "cc62d027c5cd78f80d47f7cc84b24aab32ed7d99bc8e48adafde536f0eb01245",
+      "retained": "resting-baseline/resting-coupled.csv",
+      "retained_sha256": "cc62d027c5cd78f80d47f7cc84b24aab32ed7d99bc8e48adafde536f0eb01245"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/study/trials/resting-baseline/output/scene/resting-surface-audit.csv",
+      "source_sha256": "b8d35df11d8c611a8216a9b61b2cd165f9541bd89ac5b2d8415b980996115e7c",
+      "retained": "resting-baseline/resting-surface-audit.csv",
+      "retained_sha256": "b8d35df11d8c611a8216a9b61b2cd165f9541bd89ac5b2d8415b980996115e7c"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/study/trials/resting-baseline/output/scene/intervention-observation.json",
+      "source_sha256": "1f0055f3a70b6c023681126a1533085505cf8bceba8cbbd86114896a6418edc3",
+      "retained": "resting-baseline/intervention-observation.json",
+      "retained_sha256": "1f0055f3a70b6c023681126a1533085505cf8bceba8cbbd86114896a6418edc3"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/study/trials/resting-baseline/output/scene/movie-inspection.txt",
+      "source_sha256": "9f00295ec9a87507e6e655df7239673c3857d115798661a97166857567b2c36e",
+      "retained": "resting-baseline/movie-inspection.txt",
+      "retained_sha256": "9f00295ec9a87507e6e655df7239673c3857d115798661a97166857567b2c36e"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/study/trials/resting-baseline/output/scene/frame-initial.png",
+      "source_sha256": "9200b8f36ffa1713b4ae5738228b0949e414663227ec32d5b17c4e8f681b48f3",
+      "retained": "resting-baseline/frame-initial.png",
+      "retained_sha256": "9200b8f36ffa1713b4ae5738228b0949e414663227ec32d5b17c4e8f681b48f3"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/study/trials/resting-baseline/output/scene/frame-final.png",
+      "source_sha256": "4317e1540963716964c84c00670a3ea7faea4f80c58997f2adec4b9752fa98a0",
+      "retained": "resting-baseline/frame-final.png",
+      "retained_sha256": "4317e1540963716964c84c00670a3ea7faea4f80c58997f2adec4b9752fa98a0"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/study/trials/resting-drive-half/output/scene/invocation.json",
+      "source_sha256": "5463d499bbf9af6e243e504b58838d9dbeb43477ef0330eda6a45e9699dab15f",
+      "retained": "resting-drive-half/invocation.json",
+      "retained_sha256": "5463d499bbf9af6e243e504b58838d9dbeb43477ef0330eda6a45e9699dab15f"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/study/trials/resting-drive-half/output/scene/native.log",
+      "source_sha256": "0569b82dcb53739cf7ac5b0841550ef1615767c996882f54029a1029b8b3a7dc",
+      "retained": "resting-drive-half/native.log",
+      "retained_sha256": "0569b82dcb53739cf7ac5b0841550ef1615767c996882f54029a1029b8b3a7dc"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/study/trials/resting-drive-half/output/scene/resting-coupled.csv",
+      "source_sha256": "d4b86c4076e3986af89b751ede4c67b09038a98f2f66ad7b90865d00b7f414d5",
+      "retained": "resting-drive-half/resting-coupled.csv",
+      "retained_sha256": "d4b86c4076e3986af89b751ede4c67b09038a98f2f66ad7b90865d00b7f414d5"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/study/trials/resting-drive-half/output/scene/resting-surface-audit.csv",
+      "source_sha256": "78e698be147913f2a4fdbb21cc764a5c66971fec8ba092b4db76e68f6f8e6b4e",
+      "retained": "resting-drive-half/resting-surface-audit.csv",
+      "retained_sha256": "78e698be147913f2a4fdbb21cc764a5c66971fec8ba092b4db76e68f6f8e6b4e"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/study/trials/resting-drive-half/output/scene/intervention-observation.json",
+      "source_sha256": "9add4e24c059c937e561f49cf85382037910248dd0c85c55f3f135261a0a8cd4",
+      "retained": "resting-drive-half/intervention-observation.json",
+      "retained_sha256": "9add4e24c059c937e561f49cf85382037910248dd0c85c55f3f135261a0a8cd4"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/study/trials/resting-drive-half/output/scene/movie-inspection.txt",
+      "source_sha256": "30ea3746bebd26e5be7bc752d31d6e40eed4dd408d941c8d618c4409a2ccb3e1",
+      "retained": "resting-drive-half/movie-inspection.txt",
+      "retained_sha256": "30ea3746bebd26e5be7bc752d31d6e40eed4dd408d941c8d618c4409a2ccb3e1"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/study/trials/resting-drive-half/output/scene/frame-initial.png",
+      "source_sha256": "9200b8f36ffa1713b4ae5738228b0949e414663227ec32d5b17c4e8f681b48f3",
+      "retained": "resting-drive-half/frame-initial.png",
+      "retained_sha256": "9200b8f36ffa1713b4ae5738228b0949e414663227ec32d5b17c4e8f681b48f3"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/study/trials/resting-drive-half/output/scene/frame-final.png",
+      "source_sha256": "f8b3a2f0f97917f3c443d04ed92faa7d98d19a2d26614c6a50c0d7b821575fe1",
+      "retained": "resting-drive-half/frame-final.png",
+      "retained_sha256": "f8b3a2f0f97917f3c443d04ed92faa7d98d19a2d26614c6a50c0d7b821575fe1"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-096/source-hashes.json",
+      "source_sha256": "03b8ea7d48d90baf267b99e89182f42e50625c5ec8b705e026bb9d2b3a25824e",
+      "retained": "source-hashes.json",
+      "retained_sha256": "03b8ea7d48d90baf267b99e89182f42e50625c5ec8b705e026bb9d2b3a25824e"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-096/source-revisions.json",
+      "source_sha256": "408897071096e1ddd0ff650f23343b9ba5ea6bc3f41d152cc503c9094f40af1b",
+      "retained": "source-revisions.json",
+      "retained_sha256": "408897071096e1ddd0ff650f23343b9ba5ea6bc3f41d152cc503c9094f40af1b"
+    }
+  ],
+  "remote_artifacts": [
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/study/trials/resting-baseline/output/scene/native-viewer.mov",
+      "sha256": "408d515605ed21521e927bbcccbd86c750285001a0aff38f3951cac17b452c71",
+      "bytes": 16436815
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/study/trials/resting-baseline/output/scene/resting-human.mrvpack",
+      "sha256": "3ae9772d8e2d1a765bb30db8e01749bb0eea23416b2239394414bdffdbaa0de9",
+      "bytes": 212578304
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/study/trials/resting-baseline/output/scene/accepted-geometry/step-0.mrvpack",
+      "sha256": "88a1a61bd817712019e922c5700e91bb5b58886456ae166cdf8512d1fed909f1",
+      "bytes": 212578304
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/study/trials/resting-baseline/output/scene/accepted-geometry/step-15999.mrvpack",
+      "sha256": "f30dfe4cc0af6c462e0edc4611da8a4466215fc9cb563193a66c91d9456d26ec",
+      "bytes": 212578304
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/study/trials/resting-baseline/output/scene/accepted-geometry/step-24991.mrvpack",
+      "sha256": "da7e6f9dbe4bcf37fa968527e76601c378decbf029f67da0a8a8dfc3382f7db5",
+      "bytes": 212578304
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/study/trials/resting-baseline/output/scene/accepted-geometry/step-79999.mrvpack",
+      "sha256": "659111a403121900991261b2d8ac471fc10c71f9217aefa96e86ea768b656272",
+      "bytes": 212578304
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/study/trials/resting-drive-half/output/scene/native-viewer.mov",
+      "sha256": "15e34ca9d1c6726a5b55f845ebfc4a58592fa1a85aebdea8b26eaaffd5c9ddba",
+      "bytes": 16494503
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/study/trials/resting-drive-half/output/scene/resting-human.mrvpack",
+      "sha256": "3ae9772d8e2d1a765bb30db8e01749bb0eea23416b2239394414bdffdbaa0de9",
+      "bytes": 212578304
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/study/trials/resting-drive-half/output/scene/accepted-geometry/step-0.mrvpack",
+      "sha256": "4e086fbd53323ee530b3d77dc32eb7bc69aa58d85740516bd4d8318cc38edd63",
+      "bytes": 212578304
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/study/trials/resting-drive-half/output/scene/accepted-geometry/step-15999.mrvpack",
+      "sha256": "e6477bd6b83a41f1c8af7e39944fb19b635095e9e7e486ca93fccea0a2cd4ae4",
+      "bytes": 212578304
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/study/trials/resting-drive-half/output/scene/accepted-geometry/step-24991.mrvpack",
+      "sha256": "a3db304e6ea5024bb3637f561362a2a6c482b7c26577fa82400dd176132eec86",
+      "bytes": 212578304
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/native-drive-study-100/study/trials/resting-drive-half/output/scene/accepted-geometry/step-79999.mrvpack",
+      "sha256": "ddb53c606631e90c54006e599e60c5d83fb94d594f6d5cf111f2766c55e401de",
+      "bytes": 212578304
+    }
+  ]
+}

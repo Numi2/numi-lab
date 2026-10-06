@@ -1,0 +1,533 @@
+{
+  "qualification": "Post-run numerical and descriptive diagnostics only. The frozen registered study remains the primary intervention analysis. These results do not qualify anatomy, stationary rest, physiology, or clinical use.",
+  "analysis_script_sha256": "0477a0b53b6e23ee6d42d3289cf2826e9ab1bd4a644a4cdc231cdca1c4a843fd",
+  "existing_analysis_owner": {
+    "path": "/Users/n/numi-human-resting-evidence-20261005/respiratory-mechanical-consistency-117/resting_intervention_study.py",
+    "sha256": "e7cb9f0afacebfa8b793595d562906f6f5cfb9a07ab768fb054df21e87087767"
+  },
+  "registration_sha256": "3b22c13d04f6ebdfc496e98d0dd538f64f7ad1a213842e2dbb2bc69d431de50d",
+  "arms": {
+    "resting-baseline": {
+      "respiratory_mechanics": {
+        "parameter_sha256": "35aeafa56153a8c82e8b8b041fedb5666c19007eb8a4e327d706611f8aad4f5b",
+        "trace_sha256": "cc62d027c5cd78f80d47f7cc84b24aab32ed7d99bc8e48adafde536f0eb01245",
+        "accepted_samples": 2500,
+        "maximum_absolute_identity_residuals": {
+          "volume_decomposition_ml": 0.0002753576975462245,
+          "airway_pressure_pa": 6.359273797329479e-06,
+          "pleural_compliance_pa": 6.781828656343691e-05
+        },
+        "rounding_allowance_float32_epsilons": 32,
+        "maximum_fraction_of_rounding_allowance": 0.03175708905585236,
+        "windows": {
+          "pre": {
+            "window_s": [
+              15.0,
+              30.0
+            ],
+            "accepted_samples": 234,
+            "means": {
+              "diaphragm_excitation": 0.0427050533124743,
+              "intercostal_excitation": 0.02669065937305179,
+              "diaphragm_activation": 0.04453355892708755,
+              "intercostal_activation": 0.027927749171011363
+            },
+            "ranges": {
+              "diaphragm_mm": [
+                7.20465468476e-05,
+                20.3759632111
+              ],
+              "rib_mm": [
+                -0.0144846178591,
+                2.39616847038
+              ],
+              "lung_volume_ml": [
+                2500.00157394,
+                3026.11012012
+              ],
+              "airflow_ml_s": [
+                -816.216808744,
+                672.331254464
+              ],
+              "alveolar_pa": [
+                -89.6368103027,
+                108.819976807
+              ],
+              "pleural_pa": [
+                -762.209350586,
+                -471.487060547
+              ]
+            }
+          },
+          "dose": {
+            "window_s": [
+              35.0,
+              50.0
+            ],
+            "accepted_samples": 235,
+            "means": {
+              "diaphragm_excitation": 0.03913986895312285,
+              "intercostal_excitation": 0.024462419064676427,
+              "diaphragm_activation": 0.0403441027514453,
+              "intercostal_activation": 0.025282731953672498
+            },
+            "ranges": {
+              "diaphragm_mm": [
+                7.20321913832e-05,
+                20.3338832855
+              ],
+              "rib_mm": [
+                -0.017493898049,
+                2.36786532402
+              ],
+              "lung_volume_ml": [
+                2500.00157394,
+                3023.34665321
+              ],
+              "airflow_ml_s": [
+                -810.675730463,
+                657.586380839
+              ],
+              "alveolar_pa": [
+                -87.6709899902,
+                108.081230164
+              ],
+              "pleural_pa": [
+                -760.294250488,
+                -471.597381592
+              ]
+            }
+          },
+          "recovery": {
+            "window_s": [
+              145.0,
+              160.0
+            ],
+            "accepted_samples": 234,
+            "means": {
+              "diaphragm_excitation": 0.042069298667933214,
+              "intercostal_excitation": 0.026293313022283837,
+              "diaphragm_activation": 0.04392468421457625,
+              "intercostal_activation": 0.027549561040903954
+            },
+            "ranges": {
+              "diaphragm_mm": [
+                7.21201358829e-05,
+                20.4122066498
+              ],
+              "rib_mm": [
+                -0.0162781383842,
+                2.42882537842
+              ],
+              "lung_volume_ml": [
+                2500.00157394,
+                3028.8149137
+              ],
+              "airflow_ml_s": [
+                -825.389986858,
+                681.518577039
+              ],
+              "alveolar_pa": [
+                -90.8616867065,
+                110.04296875
+              ],
+              "pleural_pa": [
+                -764.26373291,
+                -471.247802734
+              ]
+            }
+          }
+        },
+        "qualification": "Observed volume, pressure-flow and pressure-compliance identities; not independent proof of causal response, anatomy, or physiological plausibility."
+      },
+      "center_of_mass_windows": {
+        "pre": {
+          "window_s": [
+            15.0,
+            30.0
+          ],
+          "samples": 234,
+          "first_m": [
+            -0.0246436074376,
+            -0.742544233799,
+            0.0986705720425
+          ],
+          "last_m": [
+            -0.0247525516897,
+            -0.74242579937,
+            0.0987795889378
+          ],
+          "range_m": [
+            0.0001089442521000003,
+            0.0001184344290000583,
+            0.00010901689530000425
+          ],
+          "linear_slope_m_per_s": [
+            -7.80222974957702e-06,
+            7.756453981550745e-06,
+            7.234081319751424e-06
+          ],
+          "linear_slope_norm_m_per_s": 1.3166977632466595e-05,
+          "represented_mass_range_kg": [
+            72.0,
+            72.0
+          ]
+        },
+        "dose": {
+          "window_s": [
+            35.0,
+            50.0
+          ],
+          "samples": 235,
+          "first_m": [
+            -0.0247984528542,
+            -0.742402136326,
+            0.0988072156906
+          ],
+          "last_m": [
+            -0.0248773768544,
+            -0.742360889912,
+            0.0988062620163
+          ],
+          "range_m": [
+            7.89258628999985e-05,
+            4.1306018000009104e-05,
+            1.5944242000021092e-06
+          ],
+          "linear_slope_m_per_s": [
+            -5.387170242832308e-06,
+            2.778868813608635e-06,
+            -2.5836951070675618e-08
+          ],
+          "linear_slope_norm_m_per_s": 6.06171449810573e-06,
+          "represented_mass_range_kg": [
+            72.0,
+            72.0
+          ]
+        },
+        "recovery": {
+          "window_s": [
+            145.0,
+            160.0
+          ],
+          "samples": 235,
+          "first_m": [
+            -0.0253620781004,
+            -0.742225289345,
+            0.0987991765141
+          ],
+          "last_m": [
+            -0.0254223365337,
+            -0.74222689867,
+            0.0987917482853
+          ],
+          "range_m": [
+            6.025843330000058e-05,
+            1.7285350000229016e-06,
+            7.428228799996606e-06
+          ],
+          "linear_slope_m_per_s": [
+            -4.0245093048159435e-06,
+            -1.0625467173051993e-07,
+            -4.921083503415681e-07
+          ],
+          "linear_slope_norm_m_per_s": 4.055876702796889e-06,
+          "represented_mass_range_kg": [
+            72.0,
+            72.0
+          ]
+        }
+      },
+      "artifact_sha256": {
+        "resting-coupled.csv": "cc62d027c5cd78f80d47f7cc84b24aab32ed7d99bc8e48adafde536f0eb01245",
+        "resting-surface-audit.csv": "b8d35df11d8c611a8216a9b61b2cd165f9541bd89ac5b2d8415b980996115e7c",
+        "invocation.json": "aad7ec75ebb5d1f8d176f692a88facf01ec2b8ea3315cb6db35b2d861b3ce572",
+        "intervention-observation.json": "1f0055f3a70b6c023681126a1533085505cf8bceba8cbbd86114896a6418edc3"
+      }
+    },
+    "resting-drive-half": {
+      "respiratory_mechanics": {
+        "parameter_sha256": "35aeafa56153a8c82e8b8b041fedb5666c19007eb8a4e327d706611f8aad4f5b",
+        "trace_sha256": "d4b86c4076e3986af89b751ede4c67b09038a98f2f66ad7b90865d00b7f414d5",
+        "accepted_samples": 2500,
+        "maximum_absolute_identity_residuals": {
+          "volume_decomposition_ml": 0.0002779448539058649,
+          "airway_pressure_pa": 6.3416652551495645e-06,
+          "pleural_compliance_pa": 7.360353151852905e-05
+        },
+        "rounding_allowance_float32_epsilons": 32,
+        "maximum_fraction_of_rounding_allowance": 0.03199613533379893,
+        "windows": {
+          "pre": {
+            "window_s": [
+              15.0,
+              30.0
+            ],
+            "accepted_samples": 234,
+            "means": {
+              "diaphragm_excitation": 0.0427050533124743,
+              "intercostal_excitation": 0.02669065937305179,
+              "diaphragm_activation": 0.04453355892708755,
+              "intercostal_activation": 0.027927749171011363
+            },
+            "ranges": {
+              "diaphragm_mm": [
+                7.20465468476e-05,
+                20.3759632111
+              ],
+              "rib_mm": [
+                -0.0144846178591,
+                2.39616847038
+              ],
+              "lung_volume_ml": [
+                2500.00157394,
+                3026.11012012
+              ],
+              "airflow_ml_s": [
+                -816.216808744,
+                672.331254464
+              ],
+              "alveolar_pa": [
+                -89.6368103027,
+                108.819976807
+              ],
+              "pleural_pa": [
+                -762.209350586,
+                -471.487060547
+              ]
+            }
+          },
+          "dose": {
+            "window_s": [
+              35.0,
+              50.0
+            ],
+            "accepted_samples": 235,
+            "means": {
+              "diaphragm_excitation": 0.02064463846774596,
+              "intercostal_excitation": 0.012902899502644526,
+              "diaphragm_activation": 0.021680876881891246,
+              "intercostal_activation": 0.013580137663879971
+            },
+            "ranges": {
+              "diaphragm_mm": [
+                7.20194293535e-05,
+                16.0182476044
+              ],
+              "rib_mm": [
+                -0.0303991530091,
+                0.824689686298
+              ],
+              "lung_volume_ml": [
+                2500.00157394,
+                2849.11273047
+              ],
+              "airflow_ml_s": [
+                -567.357463297,
+                447.01382285
+              ],
+              "alveolar_pa": [
+                -59.596950531,
+                75.641456604
+              ],
+              "pleural_pa": [
+                -672.686767578,
+                -477.056884766
+              ]
+            }
+          },
+          "recovery": {
+            "window_s": [
+              145.0,
+              160.0
+            ],
+            "accepted_samples": 234,
+            "means": {
+              "diaphragm_excitation": 0.0417873293816159,
+              "intercostal_excitation": 0.02611708201261158,
+              "diaphragm_activation": 0.0436499259886952,
+              "intercostal_activation": 0.027378973302293386
+            },
+            "ranges": {
+              "diaphragm_mm": [
+                7.21334072296e-05,
+                20.4446620941
+              ],
+              "rib_mm": [
+                -0.013226352632,
+                2.44986343384
+              ],
+              "lung_volume_ml": [
+                2500.00157394,
+                3030.50177172
+              ],
+              "airflow_ml_s": [
+                -844.087684527,
+                691.416906193
+              ],
+              "alveolar_pa": [
+                -92.1813583374,
+                112.53578949
+              ],
+              "pleural_pa": [
+                -765.591064453,
+                -470.875457764
+              ]
+            }
+          }
+        },
+        "qualification": "Observed volume, pressure-flow and pressure-compliance identities; not independent proof of causal response, anatomy, or physiological plausibility."
+      },
+      "center_of_mass_windows": {
+        "pre": {
+          "window_s": [
+            15.0,
+            30.0
+          ],
+          "samples": 234,
+          "first_m": [
+            -0.0246436074376,
+            -0.742544233799,
+            0.0986705720425
+          ],
+          "last_m": [
+            -0.0247525516897,
+            -0.74242579937,
+            0.0987795889378
+          ],
+          "range_m": [
+            0.0001089442521000003,
+            0.0001184344290000583,
+            0.00010901689530000425
+          ],
+          "linear_slope_m_per_s": [
+            -7.80222974957702e-06,
+            7.756453981550745e-06,
+            7.234081319751424e-06
+          ],
+          "linear_slope_norm_m_per_s": 1.3166977632466595e-05,
+          "represented_mass_range_kg": [
+            72.0,
+            72.0
+          ]
+        },
+        "dose": {
+          "window_s": [
+            35.0,
+            50.0
+          ],
+          "samples": 235,
+          "first_m": [
+            -0.0247984528542,
+            -0.742402136326,
+            0.0988072156906
+          ],
+          "last_m": [
+            -0.0248773768544,
+            -0.742360889912,
+            0.0988062620163
+          ],
+          "range_m": [
+            7.89258628999985e-05,
+            4.1306018000009104e-05,
+            1.5944242000021092e-06
+          ],
+          "linear_slope_m_per_s": [
+            -5.387170242832308e-06,
+            2.778868813608635e-06,
+            -2.5836951070675618e-08
+          ],
+          "linear_slope_norm_m_per_s": 6.06171449810573e-06,
+          "represented_mass_range_kg": [
+            72.0,
+            72.0
+          ]
+        },
+        "recovery": {
+          "window_s": [
+            145.0,
+            160.0
+          ],
+          "samples": 235,
+          "first_m": [
+            -0.0253620781004,
+            -0.742225289345,
+            0.0987991765141
+          ],
+          "last_m": [
+            -0.0254223365337,
+            -0.74222689867,
+            0.0987917482853
+          ],
+          "range_m": [
+            6.025843330000058e-05,
+            1.7285350000229016e-06,
+            7.428228799996606e-06
+          ],
+          "linear_slope_m_per_s": [
+            -4.0245093048159435e-06,
+            -1.0625467173051993e-07,
+            -4.921083503415681e-07
+          ],
+          "linear_slope_norm_m_per_s": 4.055876702796889e-06,
+          "represented_mass_range_kg": [
+            72.0,
+            72.0
+          ]
+        }
+      },
+      "artifact_sha256": {
+        "resting-coupled.csv": "d4b86c4076e3986af89b751ede4c67b09038a98f2f66ad7b90865d00b7f414d5",
+        "resting-surface-audit.csv": "78e698be147913f2a4fdbb21cc764a5c66971fec8ba092b4db76e68f6f8e6b4e",
+        "invocation.json": "5463d499bbf9af6e243e504b58838d9dbeb43477ef0330eda6a45e9699dab15f",
+        "intervention-observation.json": "9add4e24c059c937e561f49cf85382037910248dd0c85c55f3f135261a0a8cd4"
+      }
+    }
+  },
+  "pre_intervention_exact_trace_comparison": {
+    "time_exclusive_upper_bound_s": 30.0,
+    "control_rows": 468,
+    "treatment_rows": 468,
+    "all_exported_fields_equal": true,
+    "qualification": "Equality of retained CSV fields before intervention; not whole checkpoint or archive identity."
+  },
+  "paired_diagnostics": {
+    "treatment_minus_control": {
+      "pre": {
+        "PaCO2_pre_mean_mmhg": 0.0,
+        "PaO2_pre_mean_mmhg": 0.0,
+        "SaO2_pre_mean": 0.0,
+        "inspiratory_minute_ventilation_pre_L_min": 0.0
+      },
+      "dose": {
+        "PaCO2_dose_mean_mmhg": 1.1400319038514937,
+        "PaO2_dose_mean_mmhg": -2.5580563159553122,
+        "SaO2_dose_mean": -0.0017805954243618194,
+        "inspiratory_minute_ventilation_dose_L_min": -2.141293087346833
+      },
+      "recovery": {
+        "PaCO2_recovery_mean_mmhg": -0.018269775255987497,
+        "PaO2_recovery_mean_mmhg": 1.0436827830696558,
+        "SaO2_recovery_mean": 0.0007781052692179546,
+        "inspiratory_minute_ventilation_recovery_L_min": 0.053014096434711
+      }
+    },
+    "dose_ventilation_decreased": true,
+    "PaCO2_difference_in_differences_mmhg": 1.1400319038514937,
+    "late_recovery_predeclared_margins": {
+      "PaCO2_absolute_difference_max_mmhg": 1.0,
+      "PaO2_absolute_difference_max_mmhg": 5.0,
+      "comparison": "treatment versus unchanged control, both averaged over the final 15 s",
+      "inspiratory_minute_ventilation_relative_difference_max_fraction": 0.1,
+      "justification": "Predeclared numerical equivalence margins: 1 mmHg is 2.5% of the model's 40 mmHg reference, 10% is a one-tenth relative ventilation tolerance, and 5 mmHg is a finite oxygen readout margin. These are study decision limits, not literature-defined clinical cutoffs or guaranteed outcomes.",
+      "scope": "Descriptive late recovery comparison; apply to the fixed native trajectories only."
+    },
+    "late_recovery_checks": {
+      "PaCO2_within_margin": true,
+      "PaO2_within_margin": true,
+      "ventilation_relative_difference": 0.00838642232635127,
+      "ventilation_within_margin": true
+    },
+    "qualification": "Fixed-window deterministic paired measurements and predeclared descriptive recovery margins; these are not population estimates or clinical cutoffs."
+  }
+}
