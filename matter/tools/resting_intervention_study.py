@@ -728,6 +728,66 @@ def native_surface_trace_consistency(trace: Path, steps: int, dt: float) -> dict
     return result
 
 
+def native_respiration_trace_consistency(trace: Path, parameters: Path,
+                                         windows: dict[str, list[float]]) -> dict[str, Any]:
+    """Check observed mechanical identities, without advancing model state."""
+    config = json.loads(parameters.read_text())
+    keys = ("frc_m3", "diaphragm_area_m2", "rib_effective_area_m2",
+            "airway_resistance_pa_s_per_m3", "lung_compliance_m3_per_pa")
+    values = {key: finite_float(config.get(key), key) for key in keys}
+    if min(values.values()) <= 0:
+        raise ValueError("respiratory mechanical parameters must be positive")
+    rest = finite_float(config.get("rest_pleural_pressure_pa"), "rest_pleural_pressure_pa")
+    columns = ("time_s", "lung_volume_ml", "airflow_ml_s", "alveolar_pa", "pleural_pa",
+               "diaphragm_mm", "rib_mm", "diaphragm_excitation", "intercostal_excitation",
+               "diaphragm_activation", "intercostal_activation")
+    with trace.open(newline="") as stream:
+        reader = csv.DictReader(stream)
+        if not set(columns).issubset(reader.fieldnames or ()):
+            raise ValueError("native trace is missing respiratory mechanical observations")
+        rows = [{key: finite_float(row[key], key) for key in columns} for row in reader]
+    if len(rows) < 2 or any(b["time_s"] <= a["time_s"] for a, b in zip(rows, rows[1:])):
+        raise ValueError("respiratory observations require increasing accepted times")
+    maxima = {key: 0.0 for key in ("volume_decomposition_ml", "airway_pressure_pa",
+                                  "pleural_compliance_pa")}
+    maximum_fraction = 0.0
+    for row in rows:
+        if any(not 0 <= row[key] <= 1 for key in columns[-4:]):
+            raise ValueError("respiratory excitation or activation is outside [0, 1]")
+        volume_terms = (row["lung_volume_ml"], -1e6 * values["frc_m3"],
+                        -1e3 * values["diaphragm_area_m2"] * row["diaphragm_mm"],
+                        -1e3 * values["rib_effective_area_m2"] * row["rib_mm"])
+        airway_terms = (row["alveolar_pa"],
+                        values["airway_resistance_pa_s_per_m3"] * 1e-6 * row["airflow_ml_s"])
+        pleural_terms = (row["pleural_pa"], -rest, -row["alveolar_pa"],
+                         (row["lung_volume_ml"] * 1e-6 - values["frc_m3"]) /
+                         values["lung_compliance_m3_per_pa"])
+        for key, terms in zip(maxima, (volume_terms, airway_terms, pleural_terms)):
+            residual = abs(math.fsum(terms))
+            # A declared rounding allowance for exported Float32 states and
+            # parameters, scaled by the terms in the identity. This is not a
+            # physiological reference interval or an integration-error bound.
+            allowance = 32 * 2**-23 * max(1.0, *(abs(x) for x in terms))
+            if residual > allowance:
+                raise ValueError(f"respiratory {key} identity failed at {row['time_s']} s")
+            maxima[key] = max(maxima[key], residual)
+            maximum_fraction = max(maximum_fraction, residual / allowance)
+    summaries = {}
+    for name, (start, end) in windows.items():
+        samples = window_rows(rows, start, end)
+        summaries[name] = {"window_s": [start, end], "accepted_samples": len(samples),
+            "means": {key: mean(samples, key) for key in columns[-4:]},
+            "ranges": {key: [min(r[key] for r in samples), max(r[key] for r in samples)]
+                       for key in ("diaphragm_mm", "rib_mm", "lung_volume_ml", "airflow_ml_s",
+                                   "alveolar_pa", "pleural_pa")}}
+    return {"respiratory_mechanics": {
+        "parameter_sha256": sha256_file(parameters), "trace_sha256": sha256_file(trace),
+        "accepted_samples": len(rows), "maximum_absolute_identity_residuals": maxima,
+        "rounding_allowance_float32_epsilons": 32,
+        "maximum_fraction_of_rounding_allowance": maximum_fraction, "windows": summaries,
+        "qualification": "Observed volume, pressure-flow and pressure-compliance identities; not independent proof of causal response, anatomy, or physiological plausibility."}}
+
+
 def execute_native_scene_arm(args: argparse.Namespace) -> dict[str, Any]:
     validate_windows(args)
     work, output = Path.cwd().resolve(), Path(args.output).resolve()
@@ -773,6 +833,9 @@ def execute_native_scene_arm(args: argparse.Namespace) -> dict[str, Any]:
         raise ValueError("native scene did not retain its continuous movie and surface trace")
     result.update(native_body_trace_consistency(output / "resting-coupled.csv", args.steps, args.dt))
     result.update(native_surface_trace_consistency(surfaces, args.steps, args.dt))
+    parameters = Path(command[command.index("--resting-scene") + 2])
+    result.update(native_respiration_trace_consistency(output / "resting-coupled.csv", parameters,
+        {name: result[name + "_window_s"] for name in ("pre", "dose", "recovery")}))
     result.update(native_whole_body_executed=True,
                   common_asset_identity=digest_json(bindings),
                   body_source_fingerprint=native["body_source_fingerprint"],

@@ -124,6 +124,49 @@ class RestingReferenceComparisonTests(unittest.TestCase):
         self.assertIsNone(result["supine_male_cohort_context"]["values"]["minute_ventilation_L_min"]["measured"])
 
 
+class NativeRespiratoryMechanicalTests(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        self.parameters = self.root / 'parameters.json'
+        self.config = {'frc_m3':.0025,'diaphragm_area_m2':.02,'rib_effective_area_m2':.06,
+                       'airway_resistance_pa_s_per_m3':100000.,'lung_compliance_m3_per_pa':.000002,
+                       'rest_pleural_pressure_pa':-500.}
+        self.parameters.write_text(json.dumps(self.config))
+        self.trace = self.root / 'mechanical.csv'
+        self.rows = []
+        for i in range(128):
+            pressure = -20. if i%2 else 20.
+            self.rows.append({'time_s':i*.1,'lung_volume_ml':2800.,'airflow_ml_s':-pressure*10,
+                'alveolar_pa':pressure,'pleural_pa':-650.+pressure,'diaphragm_mm':10.,'rib_mm':5/3,
+                'diaphragm_excitation':.1,'intercostal_excitation':.1,
+                'diaphragm_activation':.09,'intercostal_activation':.09})
+
+    def run_check(self):
+        with self.trace.open('w',newline='') as stream:
+            writer=csv.DictWriter(stream,fieldnames=self.rows[0]);writer.writeheader();writer.writerows(self.rows)
+        return adapter.native_respiration_trace_consistency(self.trace,self.parameters,{'test':[0.,12.8]})['respiratory_mechanics']
+
+    def test_known_unit_conversion_and_both_flow_directions(self):
+        result=self.run_check()
+        self.assertLess(max(result['maximum_absolute_identity_residuals'].values()),1e-9)
+        self.assertEqual(result['windows']['test']['ranges']['airflow_ml_s'],[-200.,200.])
+        self.assertAlmostEqual(result['windows']['test']['means']['diaphragm_activation'],.09)
+
+    def test_wrong_units_stale_area_or_invalid_activation_are_rejected(self):
+        for key,value in [('diaphragm_mm',.01),('alveolar_pa',200.),('pleural_pa',-6.3),
+                          ('diaphragm_activation',1.01)]:
+            before=self.rows[63][key]
+            with self.subTest(key=key):
+                self.rows[63][key]=value
+                with self.assertRaises(ValueError):self.run_check()
+                self.rows[63][key]=before
+        self.config['diaphragm_area_m2']=.021
+        self.parameters.write_text(json.dumps(self.config))
+        with self.assertRaisesRegex(ValueError,'volume_decomposition'):self.run_check()
+
+
 class NativeSceneBindingTests(unittest.TestCase):
     def invocation(self):
         return {"argv": ["/build/numi-human-native", "/rigid", "/myo", "/bones", "/old-output",

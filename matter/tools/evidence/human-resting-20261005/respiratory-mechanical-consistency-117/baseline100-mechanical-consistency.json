@@ -1,0 +1,137 @@
+{
+  "analysis_source_sha256": "e7cb9f0afacebfa8b793595d562906f6f5cfb9a07ab768fb054df21e87087767",
+  "respiratory_mechanics": {
+    "accepted_samples": 2500,
+    "maximum_absolute_identity_residuals": {
+      "airway_pressure_pa": 6.359273797329479e-06,
+      "pleural_compliance_pa": 6.781828656343691e-05,
+      "volume_decomposition_ml": 0.0002753576975462245
+    },
+    "maximum_fraction_of_rounding_allowance": 0.03175708905585236,
+    "parameter_sha256": "35aeafa56153a8c82e8b8b041fedb5666c19007eb8a4e327d706611f8aad4f5b",
+    "qualification": "Observed volume, pressure-flow and pressure-compliance identities; not independent proof of causal response, anatomy, or physiological plausibility.",
+    "rounding_allowance_float32_epsilons": 32,
+    "trace_sha256": "cc62d027c5cd78f80d47f7cc84b24aab32ed7d99bc8e48adafde536f0eb01245",
+    "windows": {
+      "dose": {
+        "accepted_samples": 235,
+        "means": {
+          "diaphragm_activation": 0.0403441027514453,
+          "diaphragm_excitation": 0.03913986895312285,
+          "intercostal_activation": 0.025282731953672498,
+          "intercostal_excitation": 0.024462419064676427
+        },
+        "ranges": {
+          "airflow_ml_s": [
+            -810.675730463,
+            657.586380839
+          ],
+          "alveolar_pa": [
+            -87.6709899902,
+            108.081230164
+          ],
+          "diaphragm_mm": [
+            7.20321913832e-05,
+            20.3338832855
+          ],
+          "lung_volume_ml": [
+            2500.00157394,
+            3023.34665321
+          ],
+          "pleural_pa": [
+            -760.294250488,
+            -471.597381592
+          ],
+          "rib_mm": [
+            -0.017493898049,
+            2.36786532402
+          ]
+        },
+        "window_s": [
+          35,
+          50
+        ]
+      },
+      "pre": {
+        "accepted_samples": 234,
+        "means": {
+          "diaphragm_activation": 0.04453355892708755,
+          "diaphragm_excitation": 0.0427050533124743,
+          "intercostal_activation": 0.027927749171011363,
+          "intercostal_excitation": 0.02669065937305179
+        },
+        "ranges": {
+          "airflow_ml_s": [
+            -816.216808744,
+            672.331254464
+          ],
+          "alveolar_pa": [
+            -89.6368103027,
+            108.819976807
+          ],
+          "diaphragm_mm": [
+            7.20465468476e-05,
+            20.3759632111
+          ],
+          "lung_volume_ml": [
+            2500.00157394,
+            3026.11012012
+          ],
+          "pleural_pa": [
+            -762.209350586,
+            -471.487060547
+          ],
+          "rib_mm": [
+            -0.0144846178591,
+            2.39616847038
+          ]
+        },
+        "window_s": [
+          15,
+          30
+        ]
+      },
+      "recovery": {
+        "accepted_samples": 234,
+        "means": {
+          "diaphragm_activation": 0.04392468421457625,
+          "diaphragm_excitation": 0.042069298667933214,
+          "intercostal_activation": 0.027549561040903954,
+          "intercostal_excitation": 0.026293313022283837
+        },
+        "ranges": {
+          "airflow_ml_s": [
+            -825.389986858,
+            681.518577039
+          ],
+          "alveolar_pa": [
+            -90.8616867065,
+            110.04296875
+          ],
+          "diaphragm_mm": [
+            7.21201358829e-05,
+            20.4122066498
+          ],
+          "lung_volume_ml": [
+            2500.00157394,
+            3028.8149137
+          ],
+          "pleural_pa": [
+            -764.26373291,
+            -471.247802734
+          ],
+          "rib_mm": [
+            -0.0162781383842,
+            2.42882537842
+          ]
+        },
+        "window_s": [
+          145,
+          160
+        ]
+      }
+    }
+  },
+  "scope": "Post-run descriptive consistency analysis of completed baseline100; no modification of preregistered study100, its frozen instrument, or its primary outcome.",
+  "test_source_sha256": "b561844adf2b04b72eb4c56779d9a78ef36ae099a563fe22ea81f314287b2374"
+}
