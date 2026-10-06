@@ -1,0 +1,342 @@
+[
+  {
+    "id": 2,
+    "member": "FJ2564",
+    "indexed": {
+      "edge_count": 18288,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "exact_weld": {
+      "edge_count": 18288,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    }
+  },
+  {
+    "id": 3,
+    "member": "FJ1895",
+    "indexed": {
+      "edge_count": 7361,
+      "boundary_edge_count": 52,
+      "boundary_loop_count": 11,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "exact_weld": {
+      "edge_count": 7335,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    }
+  },
+  {
+    "id": 4,
+    "member": "FJ3147",
+    "indexed": {
+      "edge_count": 3476,
+      "boundary_edge_count": 22,
+      "boundary_loop_count": 5,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "exact_weld": {
+      "edge_count": 3465,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    }
+  },
+  {
+    "id": 5,
+    "member": "FJ3145",
+    "indexed": {
+      "edge_count": 4478,
+      "boundary_edge_count": 10,
+      "boundary_loop_count": 1,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "exact_weld": {
+      "edge_count": 4473,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    }
+  },
+  {
+    "id": 13,
+    "member": "FJ2561",
+    "indexed": {
+      "edge_count": 2024,
+      "boundary_edge_count": 58,
+      "boundary_loop_count": 7,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "exact_weld": {
+      "edge_count": 1995,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    }
+  },
+  {
+    "id": 14,
+    "member": "Posterior segment of liver (I)",
+    "indexed": {
+      "edge_count": 5382,
+      "boundary_edge_count": 177,
+      "boundary_loop_count": 1,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "exact_weld": {
+      "edge_count": 5382,
+      "boundary_edge_count": 177,
+      "boundary_loop_count": 1,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    }
+  },
+  {
+    "id": 398,
+    "member": "FJ2573",
+    "indexed": {
+      "edge_count": 2840,
+      "boundary_edge_count": 100,
+      "boundary_loop_count": 5,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "exact_weld": {
+      "edge_count": 2790,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    }
+  },
+  {
+    "id": 454,
+    "member": "FJ2566",
+    "indexed": {
+      "edge_count": 5150,
+      "boundary_edge_count": 370,
+      "boundary_loop_count": 36,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "exact_weld": {
+      "edge_count": 4965,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    }
+  },
+  {
+    "id": 455,
+    "member": "FJ2567",
+    "indexed": {
+      "edge_count": 8680,
+      "boundary_edge_count": 596,
+      "boundary_loop_count": 63,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "exact_weld": {
+      "edge_count": 8382,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    }
+  },
+  {
+    "id": 456,
+    "member": "FJ2568",
+    "indexed": {
+      "edge_count": 29383,
+      "boundary_edge_count": 13034,
+      "boundary_loop_count": 1595,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "exact_weld": {
+      "edge_count": 22866,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    }
+  },
+  {
+    "id": 457,
+    "member": "FJ2569",
+    "indexed": {
+      "edge_count": 26731,
+      "boundary_edge_count": 13436,
+      "boundary_loop_count": 1967,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "exact_weld": {
+      "edge_count": 20011,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 2,
+      "orientation_error_edge_count": 1
+    }
+  },
+  {
+    "id": 458,
+    "member": "FJ2570",
+    "indexed": {
+      "edge_count": 28237,
+      "boundary_edge_count": 8708,
+      "boundary_loop_count": 944,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "exact_weld": {
+      "edge_count": 23883,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    }
+  },
+  {
+    "id": 459,
+    "member": "FJ2571",
+    "indexed": {
+      "edge_count": 3246,
+      "boundary_edge_count": 138,
+      "boundary_loop_count": 17,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "exact_weld": {
+      "edge_count": 3177,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    }
+  },
+  {
+    "id": 460,
+    "member": "FJ2572",
+    "indexed": {
+      "edge_count": 5434,
+      "boundary_edge_count": 452,
+      "boundary_loop_count": 43,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "exact_weld": {
+      "edge_count": 5208,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    }
+  },
+  {
+    "id": 461,
+    "member": "FJ2817",
+    "indexed": {
+      "edge_count": 3597,
+      "boundary_edge_count": 6,
+      "boundary_loop_count": 1,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "exact_weld": {
+      "edge_count": 3594,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    }
+  },
+  {
+    "id": 462,
+    "member": "FJ3149",
+    "indexed": {
+      "edge_count": 351,
+      "boundary_edge_count": 24,
+      "boundary_loop_count": 2,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "exact_weld": {
+      "edge_count": 339,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    }
+  },
+  {
+    "id": 463,
+    "member": "FJ3139",
+    "indexed": {
+      "edge_count": 663,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "exact_weld": {
+      "edge_count": 663,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    }
+  }
+]

@@ -1,0 +1,66 @@
+{
+  "scope": "Bounded inferred numerical cleanup of isolated passive-organ reference interfaces; no accepted runtime qualification. Every collapse retains closed oriented topology, positive old/new face orientation, source ancestry displacement\u22645um and shell volume delta\u22641uL.",
+  "driver_sha256": "bcc4e2b32cb701beb31fa9b9aafdcda02aea15440759092fce9416c2addec703",
+  "minimum_altitude_target_m": 1.2e-06,
+  "movement_bound_m": 5e-06,
+  "volume_bound_m3": 1e-09,
+  "surfaces": [
+    {
+      "stable_id": 3,
+      "source_sha256": "d2611050e35069b478b3a287289ee9273b45326ca4f5aec0cc2ba97ac19255b4",
+      "output_sha256": "d86650a627f148abd0ec187c4da15c37f46984d31a85ab75efc2f7c5dc78015b",
+      "changes": [
+        {
+          "from_vertex": 2439,
+          "to_vertex": 2440,
+          "point_m": [
+            0.09463649988174438,
+            -0.21934103965759277,
+            0.025387711822986603
+          ],
+          "maximum_ancestry_displacement_m": 3.8071828952762438e-06,
+          "volume_delta_m3": -3.0222135558033436e-18,
+          "minimum_altitude_m": 9.414374180209805e-07,
+          "topology": {
+            "edge_count": 8217,
+            "boundary_edge_count": 0,
+            "boundary_loop_count": 0,
+            "boundary_branch_vertex_count": 0,
+            "nonmanifold_edge_count": 0,
+            "orientation_error_edge_count": 0
+          }
+        }
+      ],
+      "remaining_below_target": 1,
+      "minimum_altitude_m": 9.414374180209805e-07,
+      "volume_m3": 6.391249220550288e-05,
+      "volume_delta_m3": -3.0222135558033436e-18,
+      "topology": {
+        "edge_count": 8217,
+        "boundary_edge_count": 0,
+        "boundary_loop_count": 0,
+        "boundary_branch_vertex_count": 0,
+        "nonmanifold_edge_count": 0,
+        "orientation_error_edge_count": 0
+      }
+    },
+    {
+      "stable_id": 13,
+      "source_sha256": "760c556037cf056761ea5d20f16b38590150f34d9c18a93cbd35b463b3ebfe60",
+      "output_sha256": "0c9d5f7a311157877f8e70e7aa8f762e118beebe5e89dfaa6c1654dcb0be03a5",
+      "changes": [],
+      "remaining_below_target": 0,
+      "minimum_altitude_m": 2.3335301832258047e-06,
+      "volume_m3": 0.00011471052392227151,
+      "volume_delta_m3": 0.0,
+      "topology": {
+        "edge_count": 2505,
+        "boundary_edge_count": 0,
+        "boundary_loop_count": 0,
+        "boundary_branch_vertex_count": 0,
+        "nonmanifold_edge_count": 0,
+        "orientation_error_edge_count": 0
+      }
+    }
+  ]
+}

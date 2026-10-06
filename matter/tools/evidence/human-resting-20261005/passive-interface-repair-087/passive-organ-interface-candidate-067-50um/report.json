@@ -1,0 +1,130 @@
+{
+  "scope": "Inferred passive reference surface repair; source organ identities retained. Difference removes only source overlaps and a declared numerical separation from stationary registered neighbors. The pancreas and spleen remain passive geometry and add no mass, force or physiological state. Not measured subject geometry or native full-cycle qualification.",
+  "input_payload_sha256": "25023be357a78fdcb98460562fba707cd3ac2c1d9de59b2c98b9d442f6aaca87",
+  "input_npz_sha256": "04745ecc49ccebe9b183b5106d79177bc8fa3776235bb2cae40e58c842c6315c",
+  "driver_sha256": "168dbf859be545e51f4c33c3937753235206b8d23da12181f47ca7b72e2491e3",
+  "blender_version": "5.1.2",
+  "separation_margin_m": 5e-05,
+  "method": "Source neighbor surfaces expanded along area-weighted outward normals by the declared numerical margin, then existing Blender exact Boolean difference. Original pancreas/spleen exterior retained outside the local cut. Difference priority preserves stomach, left kidney and duodenum source geometry.",
+  "surfaces": [
+    {
+      "stable_id": 13,
+      "neighbors": [
+        2,
+        5
+      ],
+      "source_stats": {
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "zero_area_faces": [],
+        "minimum_altitude_m": 0.00028842499861226494,
+        "signed_volume_ml": 115.27526918197685,
+        "vertices": 667,
+        "triangles": 1330
+      },
+      "stages": [
+        {
+          "neighbor_id": 2,
+          "stats": {
+            "boundary_edges": 0,
+            "nonmanifold_edges": 0,
+            "zero_area_faces": [],
+            "minimum_altitude_m": 2.8337038797503848e-09,
+            "signed_volume_ml": 115.08394857788907,
+            "vertices": 729,
+            "triangles": 1454
+          }
+        },
+        {
+          "neighbor_id": 5,
+          "stats": {
+            "boundary_edges": 0,
+            "nonmanifold_edges": 0,
+            "zero_area_faces": [],
+            "minimum_altitude_m": 2.733266417513144e-09,
+            "signed_volume_ml": 114.71052400224514,
+            "vertices": 839,
+            "triangles": 1674
+          }
+        }
+      ],
+      "output_stats": {
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "zero_area_faces": [],
+        "minimum_altitude_m": 2.733266417513144e-09,
+        "signed_volume_ml": 114.71052400224514,
+        "vertices": 839,
+        "triangles": 1674
+      },
+      "output_sha256": "33d3321f3b629474eb68924957b0dbf77803bc01910fc97d37b484845fa01b09",
+      "removed_volume_ml": 0.564745179731716
+    },
+    {
+      "stable_id": 3,
+      "neighbors": [
+        2,
+        398,
+        13
+      ],
+      "source_stats": {
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "zero_area_faces": [],
+        "minimum_altitude_m": 0.00012087257350349008,
+        "signed_volume_ml": 66.11616955285928,
+        "vertices": 2447,
+        "triangles": 4890
+      },
+      "stages": [
+        {
+          "neighbor_id": 2,
+          "stats": {
+            "boundary_edges": 0,
+            "nonmanifold_edges": 0,
+            "zero_area_faces": [],
+            "minimum_altitude_m": 2.5905528382092286e-09,
+            "signed_volume_ml": 66.11159548096914,
+            "vertices": 2493,
+            "triangles": 4982
+          }
+        },
+        {
+          "neighbor_id": 398,
+          "stats": {
+            "boundary_edges": 0,
+            "nonmanifold_edges": 0,
+            "zero_area_faces": [],
+            "minimum_altitude_m": 2.5905528382092286e-09,
+            "signed_volume_ml": 63.9313072692847,
+            "vertices": 2712,
+            "triangles": 5420
+          }
+        },
+        {
+          "neighbor_id": 13,
+          "stats": {
+            "boundary_edges": 0,
+            "nonmanifold_edges": 0,
+            "zero_area_faces": [],
+            "minimum_altitude_m": 1.5415314531538922e-09,
+            "signed_volume_ml": 63.91249254557092,
+            "vertices": 2742,
+            "triangles": 5480
+          }
+        }
+      ],
+      "output_stats": {
+        "boundary_edges": 0,
+        "nonmanifold_edges": 0,
+        "zero_area_faces": [],
+        "minimum_altitude_m": 1.5415314531538922e-09,
+        "signed_volume_ml": 63.91249254557092,
+        "vertices": 2742,
+        "triangles": 5480
+      },
+      "output_sha256": "1eb3f21bce51d4b62c281efa00cdb44383382e67c87ea0552404e3d5499d3933",
+      "removed_volume_ml": 2.2036770072883556
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "function": "numilab_human.resting_passive_interfaces.build_candidate",
+  "arguments": {
+    "base_payload": "/Users/n/numi-human-resting-evidence-20261005/costal-current003-full-chain-003/resting-thorax.nhanatomy",
+    "base_receipt": "/Users/n/numi-human-resting-evidence-20261005/costal-current003-full-chain-003/resting-anatomy-receipt.json",
+    "reference_payload": "/Users/n/numi-human-resting-evidence-20261005/costal-current003-full-chain-003/resting-thorax.nhanatomy",
+    "candidate_dir": "/Users/n/numi-human-resting-evidence-20261005/passive-organ-interface-conditioned-071",
+    "audit_path": "/Users/n/numi-human-resting-evidence-20261005/passive-organ-candidate-audit-072/report.json",
+    "derivation_path": "/Users/n/numi-human-resting-evidence-20261005/passive-organ-interface-candidate-067-50um/report.json",
+    "output": "/Users/n/numi-human-resting-evidence-20261005/passive-organ-native-input-074"
+  },
+  "source_sha256": "fe3549e7f3b3bd5680f5cefb45b16ce77b5aab22a2ce7586059a735ba7248e01"
+}

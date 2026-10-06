@@ -1,0 +1,1399 @@
+{
+  "payload_sha256": "25023be357a78fdcb98460562fba707cd3ac2c1d9de59b2c98b9d442f6aaca87",
+  "receipt_sha256": "60d6fcf39cac0dd49ee92c3385368c5add93805f3090f1fc618bea075d616cd5",
+  "pair_audit_sha256": "1f1a200265ae2c96eadd8bda34fd4aa9f4a542d380b2ee3a3c910c9acb1fd617",
+  "invalid_surfaces": {
+    "457": "exact predicate rejected zero-area triangle rows [9709, 9710] (total 2); no faces were omitted"
+  },
+  "stable_ids": [
+    2,
+    3,
+    4,
+    5,
+    13,
+    14,
+    398,
+    399,
+    400,
+    401,
+    402,
+    403,
+    404,
+    405,
+    406,
+    407,
+    408,
+    409,
+    410,
+    411,
+    412,
+    413,
+    414,
+    415,
+    416,
+    417,
+    418,
+    419,
+    420,
+    421,
+    422,
+    423,
+    424,
+    425,
+    426,
+    427,
+    428,
+    429,
+    430,
+    431,
+    432,
+    433,
+    434,
+    435,
+    436,
+    437,
+    438,
+    439,
+    440,
+    441,
+    442,
+    443,
+    444,
+    445,
+    446,
+    447,
+    448,
+    449,
+    450,
+    451,
+    452,
+    453,
+    454,
+    455,
+    456,
+    458,
+    459,
+    460,
+    461,
+    462,
+    463
+  ],
+  "pairs": [
+    [
+      2,
+      3
+    ],
+    [
+      2,
+      13
+    ],
+    [
+      2,
+      14
+    ],
+    [
+      2,
+      398
+    ],
+    [
+      3,
+      13
+    ],
+    [
+      3,
+      398
+    ],
+    [
+      4,
+      14
+    ],
+    [
+      5,
+      13
+    ],
+    [
+      14,
+      398
+    ],
+    [
+      14,
+      454
+    ],
+    [
+      14,
+      458
+    ],
+    [
+      14,
+      460
+    ],
+    [
+      14,
+      461
+    ],
+    [
+      398,
+      431
+    ],
+    [
+      399,
+      410
+    ],
+    [
+      399,
+      437
+    ],
+    [
+      399,
+      439
+    ],
+    [
+      399,
+      446
+    ],
+    [
+      400,
+      401
+    ],
+    [
+      400,
+      402
+    ],
+    [
+      400,
+      430
+    ],
+    [
+      400,
+      455
+    ],
+    [
+      400,
+      456
+    ],
+    [
+      401,
+      402
+    ],
+    [
+      401,
+      455
+    ],
+    [
+      401,
+      456
+    ],
+    [
+      402,
+      403
+    ],
+    [
+      402,
+      430
+    ],
+    [
+      402,
+      455
+    ],
+    [
+      403,
+      404
+    ],
+    [
+      403,
+      411
+    ],
+    [
+      403,
+      412
+    ],
+    [
+      403,
+      428
+    ],
+    [
+      404,
+      405
+    ],
+    [
+      404,
+      406
+    ],
+    [
+      404,
+      407
+    ],
+    [
+      404,
+      426
+    ],
+    [
+      405,
+      406
+    ],
+    [
+      405,
+      421
+    ],
+    [
+      405,
+      425
+    ],
+    [
+      406,
+      407
+    ],
+    [
+      406,
+      408
+    ],
+    [
+      407,
+      408
+    ],
+    [
+      407,
+      409
+    ],
+    [
+      407,
+      411
+    ],
+    [
+      408,
+      409
+    ],
+    [
+      408,
+      411
+    ],
+    [
+      408,
+      419
+    ],
+    [
+      409,
+      411
+    ],
+    [
+      409,
+      412
+    ],
+    [
+      409,
+      416
+    ],
+    [
+      409,
+      417
+    ],
+    [
+      410,
+      421
+    ],
+    [
+      410,
+      425
+    ],
+    [
+      411,
+      412
+    ],
+    [
+      411,
+      413
+    ],
+    [
+      411,
+      416
+    ],
+    [
+      411,
+      417
+    ],
+    [
+      412,
+      413
+    ],
+    [
+      412,
+      414
+    ],
+    [
+      413,
+      414
+    ],
+    [
+      414,
+      415
+    ],
+    [
+      414,
+      416
+    ],
+    [
+      415,
+      416
+    ],
+    [
+      415,
+      462
+    ],
+    [
+      416,
+      417
+    ],
+    [
+      416,
+      462
+    ],
+    [
+      417,
+      418
+    ],
+    [
+      417,
+      419
+    ],
+    [
+      417,
+      420
+    ],
+    [
+      418,
+      419
+    ],
+    [
+      418,
+      420
+    ],
+    [
+      418,
+      422
+    ],
+    [
+      419,
+      420
+    ],
+    [
+      419,
+      422
+    ],
+    [
+      420,
+      422
+    ],
+    [
+      421,
+      425
+    ],
+    [
+      422,
+      423
+    ],
+    [
+      423,
+      424
+    ],
+    [
+      424,
+      454
+    ],
+    [
+      425,
+      426
+    ],
+    [
+      426,
+      427
+    ],
+    [
+      426,
+      436
+    ],
+    [
+      426,
+      438
+    ],
+    [
+      427,
+      428
+    ],
+    [
+      427,
+      435
+    ],
+    [
+      427,
+      436
+    ],
+    [
+      427,
+      438
+    ],
+    [
+      428,
+      429
+    ],
+    [
+      428,
+      430
+    ],
+    [
+      428,
+      434
+    ],
+    [
+      428,
+      435
+    ],
+    [
+      428,
+      436
+    ],
+    [
+      429,
+      430
+    ],
+    [
+      429,
+      434
+    ],
+    [
+      429,
+      435
+    ],
+    [
+      430,
+      455
+    ],
+    [
+      430,
+      456
+    ],
+    [
+      431,
+      442
+    ],
+    [
+      431,
+      456
+    ],
+    [
+      432,
+      433
+    ],
+    [
+      432,
+      435
+    ],
+    [
+      432,
+      448
+    ],
+    [
+      432,
+      453
+    ],
+    [
+      433,
+      434
+    ],
+    [
+      434,
+      435
+    ],
+    [
+      435,
+      436
+    ],
+    [
+      435,
+      438
+    ],
+    [
+      435,
+      453
+    ],
+    [
+      436,
+      437
+    ],
+    [
+      436,
+      438
+    ],
+    [
+      436,
+      451
+    ],
+    [
+      437,
+      438
+    ],
+    [
+      437,
+      439
+    ],
+    [
+      437,
+      440
+    ],
+    [
+      437,
+      446
+    ],
+    [
+      437,
+      451
+    ],
+    [
+      438,
+      439
+    ],
+    [
+      438,
+      440
+    ],
+    [
+      439,
+      440
+    ],
+    [
+      439,
+      446
+    ],
+    [
+      440,
+      441
+    ],
+    [
+      440,
+      443
+    ],
+    [
+      440,
+      451
+    ],
+    [
+      441,
+      443
+    ],
+    [
+      441,
+      444
+    ],
+    [
+      441,
+      445
+    ],
+    [
+      441,
+      456
+    ],
+    [
+      441,
+      460
+    ],
+    [
+      442,
+      447
+    ],
+    [
+      442,
+      448
+    ],
+    [
+      443,
+      444
+    ],
+    [
+      444,
+      445
+    ],
+    [
+      444,
+      446
+    ],
+    [
+      445,
+      446
+    ],
+    [
+      446,
+      454
+    ],
+    [
+      447,
+      448
+    ],
+    [
+      448,
+      449
+    ],
+    [
+      448,
+      450
+    ],
+    [
+      448,
+      451
+    ],
+    [
+      448,
+      452
+    ],
+    [
+      448,
+      453
+    ],
+    [
+      449,
+      450
+    ],
+    [
+      449,
+      451
+    ],
+    [
+      450,
+      451
+    ],
+    [
+      450,
+      456
+    ],
+    [
+      450,
+      460
+    ],
+    [
+      451,
+      452
+    ],
+    [
+      451,
+      453
+    ],
+    [
+      452,
+      453
+    ],
+    [
+      454,
+      456
+    ],
+    [
+      454,
+      458
+    ],
+    [
+      454,
+      460
+    ],
+    [
+      455,
+      456
+    ],
+    [
+      455,
+      458
+    ],
+    [
+      455,
+      459
+    ],
+    [
+      455,
+      460
+    ],
+    [
+      455,
+      462
+    ],
+    [
+      456,
+      458
+    ],
+    [
+      456,
+      459
+    ],
+    [
+      456,
+      460
+    ],
+    [
+      458,
+      459
+    ],
+    [
+      458,
+      460
+    ],
+    [
+      459,
+      462
+    ],
+    [
+      462,
+      463
+    ]
+  ],
+  "names": {
+    "2": "stomach",
+    "3": "pancreas",
+    "4": "right kidney",
+    "5": "left kidney",
+    "13": "spleen",
+    "14": "liver aggregate",
+    "398": "small intestine",
+    "399": "small intestine",
+    "400": "small intestine",
+    "401": "small intestine",
+    "402": "small intestine",
+    "403": "small intestine",
+    "404": "small intestine",
+    "405": "small intestine",
+    "406": "small intestine",
+    "407": "small intestine",
+    "408": "small intestine",
+    "409": "small intestine",
+    "410": "small intestine",
+    "411": "small intestine",
+    "412": "small intestine",
+    "413": "small intestine",
+    "414": "small intestine",
+    "415": "small intestine",
+    "416": "small intestine",
+    "417": "small intestine",
+    "418": "small intestine",
+    "419": "small intestine",
+    "420": "small intestine",
+    "421": "small intestine",
+    "422": "small intestine",
+    "423": "small intestine",
+    "424": "ileocecal junction",
+    "425": "small intestine",
+    "426": "small intestine",
+    "427": "small intestine",
+    "428": "small intestine",
+    "429": "small intestine",
+    "430": "small intestine",
+    "431": "small intestine",
+    "432": "small intestine",
+    "433": "small intestine",
+    "434": "small intestine",
+    "435": "small intestine",
+    "436": "small intestine",
+    "437": "small intestine",
+    "438": "small intestine",
+    "439": "small intestine",
+    "440": "small intestine",
+    "441": "small intestine",
+    "442": "small intestine",
+    "443": "small intestine",
+    "444": "small intestine",
+    "445": "small intestine",
+    "446": "small intestine",
+    "447": "small intestine",
+    "448": "small intestine",
+    "449": "small intestine",
+    "450": "small intestine",
+    "451": "small intestine",
+    "452": "small intestine",
+    "453": "small intestine",
+    "454": "large intestine",
+    "455": "large intestine",
+    "456": "large intestine",
+    "458": "large intestine",
+    "459": "large intestine",
+    "460": "large intestine",
+    "461": "gallbladder",
+    "462": "urinary bladder",
+    "463": "prostate"
+  },
+  "topology": {
+    "2": {
+      "edge_count": 18288,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "3": {
+      "edge_count": 7335,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "4": {
+      "edge_count": 3465,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "5": {
+      "edge_count": 4473,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "13": {
+      "edge_count": 1995,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "14": {
+      "edge_count": 87903,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "398": {
+      "edge_count": 2790,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "399": {
+      "edge_count": 570,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "400": {
+      "edge_count": 414,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "401": {
+      "edge_count": 258,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "402": {
+      "edge_count": 471,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "403": {
+      "edge_count": 438,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "404": {
+      "edge_count": 420,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "405": {
+      "edge_count": 516,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "406": {
+      "edge_count": 297,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "407": {
+      "edge_count": 318,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "408": {
+      "edge_count": 297,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "409": {
+      "edge_count": 342,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "410": {
+      "edge_count": 432,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "411": {
+      "edge_count": 396,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "412": {
+      "edge_count": 342,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "413": {
+      "edge_count": 399,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "414": {
+      "edge_count": 489,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "415": {
+      "edge_count": 276,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "416": {
+      "edge_count": 339,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "417": {
+      "edge_count": 354,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "418": {
+      "edge_count": 393,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "419": {
+      "edge_count": 330,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "420": {
+      "edge_count": 387,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "421": {
+      "edge_count": 339,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "422": {
+      "edge_count": 303,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "423": {
+      "edge_count": 369,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "424": {
+      "edge_count": 432,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "425": {
+      "edge_count": 384,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "426": {
+      "edge_count": 312,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "427": {
+      "edge_count": 405,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "428": {
+      "edge_count": 441,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "429": {
+      "edge_count": 297,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "430": {
+      "edge_count": 498,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "431": {
+      "edge_count": 480,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "432": {
+      "edge_count": 360,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "433": {
+      "edge_count": 393,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "434": {
+      "edge_count": 288,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "435": {
+      "edge_count": 444,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "436": {
+      "edge_count": 339,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "437": {
+      "edge_count": 372,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "438": {
+      "edge_count": 264,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "439": {
+      "edge_count": 348,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "440": {
+      "edge_count": 396,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "441": {
+      "edge_count": 666,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "442": {
+      "edge_count": 351,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "443": {
+      "edge_count": 333,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "444": {
+      "edge_count": 390,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "445": {
+      "edge_count": 426,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "446": {
+      "edge_count": 750,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "447": {
+      "edge_count": 240,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "448": {
+      "edge_count": 579,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "449": {
+      "edge_count": 258,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "450": {
+      "edge_count": 228,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "451": {
+      "edge_count": 495,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "452": {
+      "edge_count": 285,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "453": {
+      "edge_count": 354,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "454": {
+      "edge_count": 4965,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "455": {
+      "edge_count": 8382,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "456": {
+      "edge_count": 22866,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "458": {
+      "edge_count": 23883,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "459": {
+      "edge_count": 3177,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "460": {
+      "edge_count": 5208,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "461": {
+      "edge_count": 3594,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "462": {
+      "edge_count": 339,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    },
+    "463": {
+      "edge_count": 663,
+      "boundary_edge_count": 0,
+      "boundary_loop_count": 0,
+      "boundary_branch_vertex_count": 0,
+      "nonmanifold_edge_count": 0,
+      "orientation_error_edge_count": 0
+    }
+  },
+  "excluded_invalid_ids": [
+    457
+  ],
+  "liver_source_stable_ids": [
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21
+  ]
+}

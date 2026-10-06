@@ -1,0 +1,41 @@
+{
+  "scope": "Bounded in-plane numerical opening of one residual passive-organ sliver; inferred surface conditioning only. No native acceptance yet.",
+  "source_report_sha256": "61df67c9a1fab14909f9c8a027fa1026c52aa73f614cf9a63d5b52ad194ebd39",
+  "driver_sha256": "4c56039ed08414c69515f1217194b654e7cc29276b5fb9cfc19387e497f28f54",
+  "surfaces": [
+    {
+      "stable_id": 3,
+      "input_sha256": "d86650a627f148abd0ec187c4da15c37f46984d31a85ab75efc2f7c5dc78015b",
+      "output_sha256": "9473df959d52289553f8c72988b9ad28908198365d3df0c9077039547289c848",
+      "changes": [
+        {
+          "face": 1134,
+          "vertex": 2439,
+          "from_m": [
+            0.09463649988174438,
+            -0.21934103965759277,
+            0.025387711822986603
+          ],
+          "to_m": [
+            0.09463620185852051,
+            -0.21934083104133606,
+            0.02538772113621235
+          ],
+          "displacement_m": 3.6390290011089155e-07
+        }
+      ],
+      "minimum_altitude_m": 1.2177220181209225e-06,
+      "volume_m3": 6.391249220450524e-05,
+      "volume_delta_m3": -9.97642181539693e-16
+    },
+    {
+      "stable_id": 13,
+      "input_sha256": "0c9d5f7a311157877f8e70e7aa8f762e118beebe5e89dfaa6c1654dcb0be03a5",
+      "output_sha256": "0c9d5f7a311157877f8e70e7aa8f762e118beebe5e89dfaa6c1654dcb0be03a5",
+      "changes": [],
+      "minimum_altitude_m": 2.3335301832258047e-06,
+      "volume_m3": 0.00011471052392227151,
+      "volume_delta_m3": 0.0
+    }
+  ]
+}

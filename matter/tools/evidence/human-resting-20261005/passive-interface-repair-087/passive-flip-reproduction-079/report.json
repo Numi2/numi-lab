@@ -1,0 +1,113 @@
+{
+  "scope": "Offline reproduction of retained step069; no new geometry produced or promoted.",
+  "driver_sha256": "a2bf7b11ea0c1674a6fe481157067402099c14f85e0a2f5686d2d6846e1567e2",
+  "helper_sha256": "6fa55a8e1f730c17026d08365eaf63295e4e3414de01a813bbdb9ec6919286d6",
+  "flips": {
+    "method": "shared_reciprocal_diagonal_flip_across_registered_field_cells",
+    "minimum_altitude_target_m": 1.2e-06,
+    "minimum_result_altitude_m": 1.2e-06,
+    "maximum_nonplanarity_m": 1e-07,
+    "same_affine_field_cell_required": false,
+    "strict_altitude_improvement_required": true,
+    "source_vertex_displacement_m": 0,
+    "flip_count": 4,
+    "changes": [
+      {
+        "source_surface": 13,
+        "source_face": 238,
+        "neighbor_face": 1493,
+        "shared_surface_owners": [
+          13
+        ],
+        "old_altitude_m": 3.943932661663641e-09,
+        "new_minimum_altitude_m": 3.16737431767727e-05,
+        "maximum_patch_nonplanarity_m": 5.259960572290262e-10,
+        "modified_faces": {
+          "13": [
+            238,
+            1493
+          ]
+        }
+      },
+      {
+        "source_surface": 3,
+        "source_face": 4997,
+        "neighbor_face": 5000,
+        "shared_surface_owners": [
+          3
+        ],
+        "old_altitude_m": 1.0212949749786956e-06,
+        "new_minimum_altitude_m": 6.487387727707961e-06,
+        "maximum_patch_nonplanarity_m": 6.738793735850733e-09,
+        "modified_faces": {
+          "3": [
+            4997,
+            5000
+          ]
+        }
+      },
+      {
+        "source_surface": 3,
+        "source_face": 5034,
+        "neighbor_face": 5033,
+        "shared_surface_owners": [
+          3
+        ],
+        "old_altitude_m": 1.0638888292239224e-06,
+        "new_minimum_altitude_m": 1.3359857314930797e-05,
+        "maximum_patch_nonplanarity_m": 1.0998851869169919e-10,
+        "modified_faces": {
+          "3": [
+            5034,
+            5033
+          ]
+        }
+      },
+      {
+        "source_surface": 3,
+        "source_face": 5347,
+        "neighbor_face": 5351,
+        "shared_surface_owners": [
+          3
+        ],
+        "old_altitude_m": 1.1041014028328144e-06,
+        "new_minimum_altitude_m": 5.055784429901918e-06,
+        "maximum_patch_nonplanarity_m": 2.4446966380185943e-09,
+        "modified_faces": {
+          "3": [
+            5347,
+            5351
+          ]
+        }
+      }
+    ],
+    "skipped_reasons": {
+      "orientation or quality not improved": 2
+    },
+    "remaining": {
+      "3": {
+        "minimum_altitude_m": 2.487562508570271e-07,
+        "below_bound_face_count": 2
+      },
+      "13": {
+        "minimum_altitude_m": 2.3335301832258047e-06,
+        "below_bound_face_count": 0
+      }
+    },
+    "qualification": "local mesh conditioning only; remaining thin faces and native cycle validation must be checked"
+  },
+  "checks": [
+    {
+      "stable_id": 3,
+      "retained_npz_sha256": "d2611050e35069b478b3a287289ee9273b45326ca4f5aec0cc2ba97ac19255b4",
+      "positions_bitwise_equal": true,
+      "faces_bitwise_equal": true
+    },
+    {
+      "stable_id": 13,
+      "retained_npz_sha256": "760c556037cf056761ea5d20f16b38590150f34d9c18a93cbd35b463b3ebfe60",
+      "positions_bitwise_equal": true,
+      "faces_bitwise_equal": true
+    }
+  ]
+}

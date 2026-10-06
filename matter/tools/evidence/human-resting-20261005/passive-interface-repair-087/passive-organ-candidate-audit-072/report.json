@@ -1,0 +1,1445 @@
+{
+  "scope": "Full exact source self and passive-neighbor triangle-intersection audit of the two inferred interface candidates. No input faces omitted. Accepted dynamic anatomy remains a separate gate.",
+  "source_payload_sha256": "25023be357a78fdcb98460562fba707cd3ac2c1d9de59b2c98b9d442f6aaca87",
+  "driver_sha256": "4130f848387debc9449cb7ab1ac8ba1ec929ce5905c66254adbdc26ad9a4a8d2",
+  "predicate_sha256": "8b138882161c78312cb9b5aa46f49795092eb9b67ed9f705dc354787cb0a635b",
+  "candidate_sha256": {
+    "3": "9473df959d52289553f8c72988b9ad28908198365d3df0c9077039547289c848",
+    "13": "0c9d5f7a311157877f8e70e7aa8f762e118beebe5e89dfaa6c1654dcb0be03a5"
+  },
+  "self": {
+    "3": {
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 40175,
+      "allowed_shared_vertex_or_edge_pairs": 36718
+    },
+    "13": {
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 12526,
+      "allowed_shared_vertex_or_edge_pairs": 10969
+    }
+  },
+  "pairs": [
+    {
+      "ids": [
+        2,
+        3
+      ],
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 1121,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    },
+    {
+      "ids": [
+        2,
+        13
+      ],
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 2935,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    },
+    {
+      "ids": [
+        3,
+        4
+      ],
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 0,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    },
+    {
+      "ids": [
+        3,
+        5
+      ],
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 0,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    },
+    {
+      "ids": [
+        3,
+        13
+      ],
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 703,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    },
+    {
+      "ids": [
+        3,
+        14
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        15
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        16
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        17
+      ],
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 0,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    },
+    {
+      "ids": [
+        3,
+        18
+      ],
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 0,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    },
+    {
+      "ids": [
+        3,
+        19
+      ],
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 0,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    },
+    {
+      "ids": [
+        3,
+        20
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        21
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        398
+      ],
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 4860,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    },
+    {
+      "ids": [
+        3,
+        399
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        400
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        401
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        402
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        403
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        404
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        405
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        406
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        407
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        408
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        409
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        410
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        411
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        412
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        413
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        414
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        415
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        416
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        417
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        418
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        419
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        420
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        421
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        422
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        423
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        424
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        425
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        426
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        427
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        428
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        429
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        430
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        431
+      ],
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 0,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    },
+    {
+      "ids": [
+        3,
+        432
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        433
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        434
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        435
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        436
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        437
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        438
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        439
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        440
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        441
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        442
+      ],
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 0,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    },
+    {
+      "ids": [
+        3,
+        443
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        444
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        445
+      ],
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 0,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    },
+    {
+      "ids": [
+        3,
+        446
+      ],
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 0,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    },
+    {
+      "ids": [
+        3,
+        447
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        448
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        449
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        450
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        451
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        452
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        453
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        454
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        455
+      ],
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 0,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    },
+    {
+      "ids": [
+        3,
+        456
+      ],
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 0,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    },
+    {
+      "ids": [
+        3,
+        457
+      ],
+      "invalid_geometry": "cardiac cavity intersections: exactly degenerate triangle",
+      "audit_complete": false
+    },
+    {
+      "ids": [
+        3,
+        458
+      ],
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 0,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    },
+    {
+      "ids": [
+        3,
+        459
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        460
+      ],
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 0,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    },
+    {
+      "ids": [
+        3,
+        461
+      ],
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 0,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    },
+    {
+      "ids": [
+        3,
+        462
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        3,
+        463
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        4,
+        13
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        5,
+        13
+      ],
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 1764,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    },
+    {
+      "ids": [
+        13,
+        14
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        15
+      ],
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 0,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    },
+    {
+      "ids": [
+        13,
+        16
+      ],
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 0,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    },
+    {
+      "ids": [
+        13,
+        17
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        18
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        19
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        20
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        21
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        398
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        399
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        400
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        401
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        402
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        403
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        404
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        405
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        406
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        407
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        408
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        409
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        410
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        411
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        412
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        413
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        414
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        415
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        416
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        417
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        418
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        419
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        420
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        421
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        422
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        423
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        424
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        425
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        426
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        427
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        428
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        429
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        430
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        431
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        432
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        433
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        434
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        435
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        436
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        437
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        438
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        439
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        440
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        441
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        442
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        443
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        444
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        445
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        446
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        447
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        448
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        449
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        450
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        451
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        452
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        453
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        454
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        455
+      ],
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 110,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    },
+    {
+      "ids": [
+        13,
+        456
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        457
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        458
+      ],
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 126,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    },
+    {
+      "ids": [
+        13,
+        459
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        460
+      ],
+      "triangle_pairs": [],
+      "count": 0,
+      "aabb_candidate_pairs": 0,
+      "allowed_shared_vertex_or_edge_pairs": 0
+    },
+    {
+      "ids": [
+        13,
+        461
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        462
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    },
+    {
+      "ids": [
+        13,
+        463
+      ],
+      "count": 0,
+      "aabb_disjoint": true,
+      "audit_complete": true
+    }
+  ],
+  "elapsed_seconds": 56.05743208434433
+}

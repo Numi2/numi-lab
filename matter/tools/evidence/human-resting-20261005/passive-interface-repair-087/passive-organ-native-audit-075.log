@@ -1,0 +1,8 @@
+{"step": 0, "self": {"3": 0, "13": 0}, "crossings": [], "invalid": [[3, 457]], "elapsed_seconds": 70.43902595806867}
+{"step": 63, "self": {"3": 0, "13": 0}, "crossings": [], "invalid": [[3, 457]], "elapsed_seconds": 72.79271591734141}
+{"step": 511, "self": {"3": 0, "13": 0}, "crossings": [], "invalid": [[3, 457]], "elapsed_seconds": 72.89100883435458}
+{"step": 639, "self": {"3": 0, "13": 0}, "crossings": [], "invalid": [[3, 457]], "elapsed_seconds": 72.48203937523067}
+{"step": 1951, "self": {"3": 0, "13": 0}, "crossings": [], "invalid": [[3, 457]], "elapsed_seconds": 73.37586583290249}
+{"step": 2207, "self": {"3": 0, "13": 0}, "crossings": [], "invalid": [[3, 457]], "elapsed_seconds": 73.2421590834856}
+{"step": 2783, "self": {"3": 0, "13": 0}, "crossings": [], "invalid": [[3, 457]], "elapsed_seconds": 73.22213520854712}
+{"step": 2999, "self": {"3": 0, "13": 0}, "crossings": [], "invalid": [[3, 457]], "elapsed_seconds": 73.09463066607714}

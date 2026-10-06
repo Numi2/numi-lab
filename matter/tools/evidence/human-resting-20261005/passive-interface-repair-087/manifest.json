@@ -1,0 +1,316 @@
+{
+  "scope": "Inferred passive pancreas/spleen interface repair, source audit and eight accepted-frame native checks in a six-second integrated cardiac scene. Not final full-body or five-minute acceptance. The original taenia neighbor remains unresolved.",
+  "human_implementation_revision": "3d706b8",
+  "retained_files": [
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/passive-neighbor-depth-062.py",
+      "source_sha256": "6eaa4714a08b8c543908b0ec0127e3cce229059296e5fd3a15f14e9a15f085e6",
+      "retained": "passive-neighbor-depth-062.py",
+      "retained_sha256": "6eaa4714a08b8c543908b0ec0127e3cce229059296e5fd3a15f14e9a15f085e6"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/passive-neighbor-containment-065.py",
+      "source_sha256": "27d3e5c093167fb5443413d445c02769118fac9041f2d0f589d04ce7aa63b7b6",
+      "retained": "passive-neighbor-containment-065.py",
+      "retained_sha256": "27d3e5c093167fb5443413d445c02769118fac9041f2d0f589d04ce7aa63b7b6"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/passive-organ-overlap-volumes-066.py",
+      "source_sha256": "56dbbb139149b22875816b02905252c8d20f1a006fdffa97b2d0bd57af64dee6",
+      "retained": "passive-organ-overlap-volumes-066.py",
+      "retained_sha256": "56dbbb139149b22875816b02905252c8d20f1a006fdffa97b2d0bd57af64dee6"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/repair-passive-organ-interfaces-067.py",
+      "source_sha256": "168dbf859be545e51f4c33c3937753235206b8d23da12181f47ca7b72e2491e3",
+      "retained": "repair-passive-organ-interfaces-067.py",
+      "retained_sha256": "168dbf859be545e51f4c33c3937753235206b8d23da12181f47ca7b72e2491e3"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/condition-passive-organ-interfaces-068.py",
+      "source_sha256": "66108d706c2af4ee79909b5acb7a5a576f15dc60b4b5ea43a6371e9c13fbbb7e",
+      "retained": "condition-passive-organ-interfaces-068.py",
+      "retained_sha256": "66108d706c2af4ee79909b5acb7a5a576f15dc60b4b5ea43a6371e9c13fbbb7e"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/passive-interface-helper-069.py",
+      "source_sha256": "6fa55a8e1f730c17026d08365eaf63295e4e3414de01a813bbdb9ec6919286d6",
+      "retained": "passive-interface-helper-069.py",
+      "retained_sha256": "6fa55a8e1f730c17026d08365eaf63295e4e3414de01a813bbdb9ec6919286d6"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/condition-passive-organ-star-070.py",
+      "source_sha256": "bcc4e2b32cb701beb31fa9b9aafdcda02aea15440759092fce9416c2addec703",
+      "retained": "condition-passive-organ-star-070.py",
+      "retained_sha256": "bcc4e2b32cb701beb31fa9b9aafdcda02aea15440759092fce9416c2addec703"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/open-passive-organ-sliver-071.py",
+      "source_sha256": "4c56039ed08414c69515f1217194b654e7cc29276b5fb9cfc19387e497f28f54",
+      "retained": "open-passive-organ-sliver-071.py",
+      "retained_sha256": "4c56039ed08414c69515f1217194b654e7cc29276b5fb9cfc19387e497f28f54"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/audit-passive-organ-candidate-072.py",
+      "source_sha256": "4130f848387debc9449cb7ab1ac8ba1ec929ce5905c66254adbdc26ad9a4a8d2",
+      "retained": "audit-passive-organ-candidate-072.py",
+      "retained_sha256": "4130f848387debc9449cb7ab1ac8ba1ec929ce5905c66254adbdc26ad9a4a8d2"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/audit-passive-native-075.py",
+      "source_sha256": "b890409b9c286e1d466bd1fc7d770332a06c42485a713b457565367a9688ea1b",
+      "retained": "audit-passive-native-075.py",
+      "retained_sha256": "b890409b9c286e1d466bd1fc7d770332a06c42485a713b457565367a9688ea1b"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/reproduce-passive-flips-079.py",
+      "source_sha256": "a2bf7b11ea0c1674a6fe481157067402099c14f85e0a2f5686d2d6846e1567e2",
+      "retained": "reproduce-passive-flips-079.py",
+      "retained_sha256": "a2bf7b11ea0c1674a6fe481157067402099c14f85e0a2f5686d2d6846e1567e2"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/passive-organ-native-input-074-invocation.json",
+      "source_sha256": "6ea581e3dae2737eea178fd0b95fe6e22fd8c6b7a4c2063863eba64d19d4ffbb",
+      "retained": "passive-organ-native-input-074-invocation.json",
+      "retained_sha256": "6ea581e3dae2737eea178fd0b95fe6e22fd8c6b7a4c2063863eba64d19d4ffbb"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/passive-interfaces-074-tests.log",
+      "source_sha256": "7795963bebb4adeb08d95ca5d6efe813d005658379b4e49104efbf183b404e66",
+      "retained": "passive-interfaces-074-tests.log",
+      "retained_sha256": "7795963bebb4adeb08d95ca5d6efe813d005658379b4e49104efbf183b404e66"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/passive-organ-native-audit-075.log",
+      "source_sha256": "46ca0ff717ce82ac5810b52e840305768b4fffda0b245b956c19de81d7c30b57",
+      "retained": "passive-organ-native-audit-075.log",
+      "retained_sha256": "46ca0ff717ce82ac5810b52e840305768b4fffda0b245b956c19de81d7c30b57"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/passive-neighbor-depth-062/input.json",
+      "source_sha256": "4c3100934897aca4b0103253c253a5b2060a95c9e6865242e3c73f2820c1d138",
+      "retained": "passive-neighbor-depth-062/input.json.gz",
+      "retained_sha256": "63430ffbe3d009c737557eb15b46ca436535092855a9a03c2c4a02eb0a53acb2"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/passive-neighbor-depth-062/report.json",
+      "source_sha256": "48871a4b8a642fdde1c73623d9ce5910eb15ba38d72b24e369788a05849e2ed2",
+      "retained": "passive-neighbor-depth-062/report.json.gz",
+      "retained_sha256": "b089dd8fcf7caf8503a0c5670fe27fd39973a2db6055acf1f94d5a502c542702"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/passive-neighbor-depth-062/source-topology.json",
+      "source_sha256": "a63022497d0d080dc54f853ae725dc5ddd28e3ac5b64f7697fc8147580722c53",
+      "retained": "passive-neighbor-depth-062/source-topology.json",
+      "retained_sha256": "a63022497d0d080dc54f853ae725dc5ddd28e3ac5b64f7697fc8147580722c53"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/passive-neighbor-containment-065/input.json",
+      "source_sha256": "f239a03d79bc7a15001430c65545344e7413378c37bb38841be857adea04ad2d",
+      "retained": "passive-neighbor-containment-065/input.json",
+      "retained_sha256": "f239a03d79bc7a15001430c65545344e7413378c37bb38841be857adea04ad2d"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/passive-neighbor-containment-065/report.json",
+      "source_sha256": "f68610d9e8c8a768a61e83fe1b29e5cd146cef4a765a647ff4ffe5ccaaf25aec",
+      "retained": "passive-neighbor-containment-065/report.json.gz",
+      "retained_sha256": "2238107461b5aa0167d1c85abacd8e7d52792a9db6c9e371ab032900934521c6"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/passive-organ-overlap-volumes-066/report.json",
+      "source_sha256": "4a9cdf2daac3373ca2e6734aa7304f4d9822fe0258a9a9d42fa4254740fd4263",
+      "retained": "passive-organ-overlap-volumes-066/report.json",
+      "retained_sha256": "4a9cdf2daac3373ca2e6734aa7304f4d9822fe0258a9a9d42fa4254740fd4263"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/passive-organ-interface-candidate-067-25um/report.json",
+      "source_sha256": "b223bc0340436b78709cde9827e1708043828ef1160aa6a1d94db896f9fa1cf6",
+      "retained": "passive-organ-interface-candidate-067-25um/report.json",
+      "retained_sha256": "b223bc0340436b78709cde9827e1708043828ef1160aa6a1d94db896f9fa1cf6"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/passive-organ-interface-candidate-067-50um/report.json",
+      "source_sha256": "91bfdeb9a1cfad09b066cc7fbdd46dd46626fecc69cba515d560f86d436fb93e",
+      "retained": "passive-organ-interface-candidate-067-50um/report.json",
+      "retained_sha256": "91bfdeb9a1cfad09b066cc7fbdd46dd46626fecc69cba515d560f86d436fb93e"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/passive-organ-interface-candidate-067-100um/report.json",
+      "source_sha256": "03027e0b6d314b99303e9417b35fe1617eb757abae86ceba442b07e2931bf096",
+      "retained": "passive-organ-interface-candidate-067-100um/report.json",
+      "retained_sha256": "03027e0b6d314b99303e9417b35fe1617eb757abae86ceba442b07e2931bf096"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/passive-organ-interface-conditioned-068/report.json",
+      "source_sha256": "d736e6421c8cc7f2db4ae9dc18ee81d7747961ebe9884d6c69e70fb7527c67f7",
+      "retained": "passive-organ-interface-conditioned-068/report.json",
+      "retained_sha256": "d736e6421c8cc7f2db4ae9dc18ee81d7747961ebe9884d6c69e70fb7527c67f7"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/passive-organ-interface-flipped-069/report.json",
+      "source_sha256": "c2870e47d395adfd6a58320da4ee8e6074c1587c3e0e7dd2a6817b66b8b5849a",
+      "retained": "passive-organ-interface-flipped-069/report.json",
+      "retained_sha256": "c2870e47d395adfd6a58320da4ee8e6074c1587c3e0e7dd2a6817b66b8b5849a"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/passive-organ-interface-star-070/report.json",
+      "source_sha256": "61df67c9a1fab14909f9c8a027fa1026c52aa73f614cf9a63d5b52ad194ebd39",
+      "retained": "passive-organ-interface-star-070/report.json",
+      "retained_sha256": "61df67c9a1fab14909f9c8a027fa1026c52aa73f614cf9a63d5b52ad194ebd39"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/passive-organ-interface-conditioned-071/report.json",
+      "source_sha256": "0db9bee65c1712f9902302885f98c3c885a05196d1c50030d2e7ba1c7ccf9d93",
+      "retained": "passive-organ-interface-conditioned-071/report.json",
+      "retained_sha256": "0db9bee65c1712f9902302885f98c3c885a05196d1c50030d2e7ba1c7ccf9d93"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/passive-organ-candidate-audit-072/report.json",
+      "source_sha256": "91b32172ff96d987c8bd08b408c7605ecc7b091eb661cdb261fe89355ba7a700",
+      "retained": "passive-organ-candidate-audit-072/report.json",
+      "retained_sha256": "91b32172ff96d987c8bd08b408c7605ecc7b091eb661cdb261fe89355ba7a700"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/passive-organ-native-input-074/resting-anatomy-receipt.json",
+      "source_sha256": "a9734edfd5b294ee74e0c54b83441db4790d550901ccd2dc9e229e81fd3b5b58",
+      "retained": "passive-organ-native-input-074/resting-anatomy-receipt.json.gz",
+      "retained_sha256": "ab647ed3518161d2b77f31af283fad07e6fed775494183f7ea8e532b25d3959d"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/passive-organ-native-input-074/resting-anatomy-manifest.json",
+      "source_sha256": "147396b8936f5a0ede2b8cc2a516c6291a96ca92c5c4598527dd2be6b4a53060",
+      "retained": "passive-organ-native-input-074/resting-anatomy-manifest.json.gz",
+      "retained_sha256": "4eff2f8cd9677a19d540f53cb558ae61cc53c286d9d3bf6b1ea98850053ab0d8"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/passive-organ-native-audit-075/report.json",
+      "source_sha256": "13be0eadd54b35d4f91963d99f5f1f7e358cf25537a0c00278f264be2e0e74c0",
+      "retained": "passive-organ-native-audit-075/report.json.gz",
+      "retained_sha256": "a0e1a80d4bd50d6ae62c823ed2fdb4aaeeed518e85cd41be104c2366607efb99"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/passive-flip-reproduction-079/report.json",
+      "source_sha256": "b8deb8c8cfd98f2f62a5aa0e326492b88965f9ef9a9e0be80e1cb64d7b6af51c",
+      "retained": "passive-flip-reproduction-079/report.json",
+      "retained_sha256": "b8deb8c8cfd98f2f62a5aa0e326492b88965f9ef9a9e0be80e1cb64d7b6af51c"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/cardiac-map-multiregion-affine-repair-011/native-fullchain073-6s-001/invocation.json",
+      "source_sha256": "156f3861a6886624e230145bf6ac620950eb892d7f0c330f9243c7fbf07e82bc",
+      "retained": "native073/invocation.json",
+      "retained_sha256": "156f3861a6886624e230145bf6ac620950eb892d7f0c330f9243c7fbf07e82bc"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/cardiac-map-multiregion-affine-repair-011/native-fullchain073-6s-001/run.log",
+      "source_sha256": "3d95ec145285d2c614ab98ee1132392964de628136f02c8876f109bc8803f4bb",
+      "retained": "native073/run.log",
+      "retained_sha256": "3d95ec145285d2c614ab98ee1132392964de628136f02c8876f109bc8803f4bb"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/cardiac-map-multiregion-affine-repair-011/native-fullchain073-6s-001/resting-coupled.csv",
+      "source_sha256": "da4c0e87d50473e13d17ee2b70cf02d459aeccf2adc88ca1bb6da3efcd52c99f",
+      "retained": "native073/resting-coupled.csv",
+      "retained_sha256": "da4c0e87d50473e13d17ee2b70cf02d459aeccf2adc88ca1bb6da3efcd52c99f"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/cardiac-map-multiregion-affine-repair-011/native-fullchain073-6s-001/resting-surface-audit.csv",
+      "source_sha256": "e279881b46b9b9e68195fb9c9fceb35093f6e5e0f99a0887f0b313edf2993da6",
+      "retained": "native073/resting-surface-audit.csv",
+      "retained_sha256": "e279881b46b9b9e68195fb9c9fceb35093f6e5e0f99a0887f0b313edf2993da6"
+    },
+    {
+      "source": "/Users/n/numi-human-resting-evidence-20261005/retain-passive-interface-evidence-087.py",
+      "source_sha256": "cd0d1870be7aabd70430f32666170bc8b395c5242f80bc6da334a0604805132a",
+      "retained": "retain-passive-interface-evidence-087.py",
+      "retained_sha256": "cd0d1870be7aabd70430f32666170bc8b395c5242f80bc6da334a0604805132a"
+    }
+  ],
+  "retained_on_macmini": [
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/costal-current003-full-chain-003/resting-thorax.nhanatomy",
+      "sha256": "25023be357a78fdcb98460562fba707cd3ac2c1d9de59b2c98b9d442f6aaca87",
+      "bytes": 61084948
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/passive-organ-native-input-074/resting-thorax.nhanatomy",
+      "sha256": "82248c7d2397a19af382c21646da6c827b901880a08ae8242c80dab8b4329b0e",
+      "bytes": 61106332
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/passive-organ-native-input-073/resting-anatomy-receipt.json",
+      "sha256": "b8d8fdbf2a03dddd6074cd9659b197bdf316b089881e66ec74c18498297d377a",
+      "bytes": 1087055
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/cardiac-map-multiregion-affine-repair-011/native-fullchain073-6s-001/native-viewer.mov",
+      "sha256": "377b0f2bab9b4ae439bf57f36a1ad0e889836ffb7cf6afec723d166b9362c1e7",
+      "bytes": 668991
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/cardiac-map-multiregion-affine-repair-011/native-fullchain073-6s-001/resting-human.mrvpack",
+      "sha256": "5ec1e3cbdfdf3d4a64d0d1456504b44473d48db7dac5834891f87d91fa54af30",
+      "bytes": 213233664
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/cardiac-map-multiregion-affine-repair-011/native-fullchain073-6s-001/accepted-geometry/step-0.mrvpack",
+      "sha256": "fe520ab31d05ec1dad4fbbebb584a6f69ff64292c7a725d780801f7eae212b88",
+      "bytes": 213233664
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/cardiac-map-multiregion-affine-repair-011/native-fullchain073-6s-001/accepted-geometry/step-63.mrvpack",
+      "sha256": "05b978c00f4fa9e0e6e3db2e22cd6b9f117f4e5145de12d9d5d7594200d0ad19",
+      "bytes": 213233664
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/cardiac-map-multiregion-affine-repair-011/native-fullchain073-6s-001/accepted-geometry/step-511.mrvpack",
+      "sha256": "0519887cdefb2619bf3fe44de53cc2021757ea071cd12c1dcfceec87660db96d",
+      "bytes": 213233664
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/cardiac-map-multiregion-affine-repair-011/native-fullchain073-6s-001/accepted-geometry/step-639.mrvpack",
+      "sha256": "b4fca108cc4865a4183a3bfe1a68b5c950fd6c1501a9339d4583778eaab4613c",
+      "bytes": 213233664
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/cardiac-map-multiregion-affine-repair-011/native-fullchain073-6s-001/accepted-geometry/step-1951.mrvpack",
+      "sha256": "99ec416af72d6e5eae7447e2d31472131ce75734213deedb015a86883e54316d",
+      "bytes": 213233664
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/cardiac-map-multiregion-affine-repair-011/native-fullchain073-6s-001/accepted-geometry/step-2207.mrvpack",
+      "sha256": "7c55c74e217bd618e8977bd90c64adfb15423794a35292e1774e43fb501de26e",
+      "bytes": 213233664
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/cardiac-map-multiregion-affine-repair-011/native-fullchain073-6s-001/accepted-geometry/step-2783.mrvpack",
+      "sha256": "c0580576dbbe0f4bdba92001ba2ef4e08bb920bab71307d1abeb799d0b57decc",
+      "bytes": 213233664
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/cardiac-map-multiregion-affine-repair-011/native-fullchain073-6s-001/accepted-geometry/step-2999.mrvpack",
+      "sha256": "7b5670e2a4c0acbc0e072b6ba2f2e32c44d0f24319b73887db2ef27a134d1d08",
+      "bytes": 213233664
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/passive-organ-interface-conditioned-071/surface-3.npz",
+      "sha256": "9473df959d52289553f8c72988b9ad28908198365d3df0c9077039547289c848",
+      "bytes": 81847
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/passive-organ-interface-conditioned-071/surface-13.npz",
+      "sha256": "0c9d5f7a311157877f8e70e7aa8f762e118beebe5e89dfaa6c1654dcb0be03a5",
+      "bytes": 25523
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/passive-neighbor-depth-062/source-surfaces.npz",
+      "sha256": "0800e6c485f6a234b99883f0d65a40cff6262257e6815def2910a2f96d1e9e7d",
+      "bytes": 1695011
+    },
+    {
+      "path": "/Users/n/numi-human-resting-evidence-20261005/passive-neighbor-containment-065/source-surfaces.npz",
+      "sha256": "04745ecc49ccebe9b183b5106d79177bc8fa3776235bb2cae40e58c842c6315c",
+      "bytes": 1404198
+    }
+  ],
+  "packaging_driver_sha256": "cd0d1870be7aabd70430f32666170bc8b395c5242f80bc6da334a0604805132a"
+}

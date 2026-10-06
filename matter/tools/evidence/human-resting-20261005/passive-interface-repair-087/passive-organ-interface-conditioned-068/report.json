@@ -1,0 +1,36 @@
+{
+  "scope": "Offline inferred passive organ interfaces. Numerical conditioning of the Boolean triangulation; no native or exact clearance admission yet.",
+  "input_report_sha256": "91bfdeb9a1cfad09b066cc7fbdd46dd46626fecc69cba515d560f86d436fb93e",
+  "driver_sha256": "66108d706c2af4ee79909b5acb7a5a576f15dc60b4b5ea43a6371e9c13fbbb7e",
+  "merge_distance_m": 1e-06,
+  "dissolve_distance_m": 1e-06,
+  "coplanar_angle_rad": 1e-05,
+  "surfaces": [
+    {
+      "stable_id": 3,
+      "input_sha256": "1eb3f21bce51d4b62c281efa00cdb44383382e67c87ea0552404e3d5499d3933",
+      "output_sha256": "35f0bcc79db78f5acf9153e62d27248b3e2555d37254a727b5b74481c5f28b0f",
+      "vertices": 2742,
+      "triangles": 5480,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "zero_area_faces": [],
+      "minimum_altitude_m": 2.487562508570271e-07,
+      "signed_volume_ml": 63.91249220566637,
+      "max_vertex_distance_to_unconditioned_m": 4.7706993910878737e-08
+    },
+    {
+      "stable_id": 13,
+      "input_sha256": "33d3321f3b629474eb68924957b0dbf77803bc01910fc97d37b484845fa01b09",
+      "output_sha256": "2c36c5a1fa527451c0eacbd5516766d6ffb72a11ca59eff230f656d0a011e4b7",
+      "vertices": 837,
+      "triangles": 1670,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "zero_area_faces": [],
+      "minimum_altitude_m": 3.943932661663641e-09,
+      "signed_volume_ml": 114.71052392235511,
+      "max_vertex_distance_to_unconditioned_m": 1.825012141409843e-08
+    }
+  ]
+}
