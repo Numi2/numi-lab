@@ -1,0 +1,180 @@
+{
+  "schema": "numi.cardboard.source-manifest.v1",
+  "purpose": "Record published corrugated-board inputs and comparison targets for a native Matter instrument.",
+  "evidence_status": "literature specification only; no measurements or simulations were performed for this manifest",
+  "preferred_source": "nagasawa-2013",
+  "preferred_slice": "Published target: A-flute rotary indentation, orthotropic-elastic liner and medium option (a). The current initial Matter slice is a small end-grip bend instrument without contact or crease formation, so it is not yet a reproduction of the published crease protocol.",
+  "current_initial_matter_slice": "Small end-grip bending instrument; no contact/creasing and no experimental validation claim.",
+  "sources": [
+    {
+      "id": "nagasawa-2013",
+      "citation": "Nagasawa, S.; Komiyama, Y.; Mitsomwang, P. Finite Element Analysis of Corrugated Board on Rotary Creasing Process. Journal of Advanced Mechanical Design, Systems, and Manufacturing 7(2), 103-114 (2013).",
+      "doi": "10.1299/jamdsm.7.103",
+      "article_url": "https://doi.org/10.1299/jamdsm.7.103",
+      "open_pdf_url": "https://www.jstage.jst.go.jp/article/jamdsm/7/2/7_103/_pdf/-char/en",
+      "local_pdf_outside_repo": "/Users/home/cardboard-research-20261006/nagasawa-2013-rotary-creasing.pdf",
+      "local_pdf_sha256": "1f062121eaeb9fd189ebe5587d640e77fc3f42739bf32023cf38668411bd4f23",
+      "board": {
+        "type": "single-wall A-flute, JIS-Z1516 AF",
+        "nominal_caliper_mm": 5.0,
+        "flute_pitch_mm": 9.0,
+        "inside_liner": {"basis_weight_g_m2": 210, "thickness_mm": 0.25},
+        "outside_liner": {"basis_weight_g_m2": 210, "thickness_mm": 0.25},
+        "corrugated_medium": {"basis_weight_g_m2": 180, "sheet_thickness_mm": 0.25, "profile_radius_mm": 1.7, "profile_inclination_deg": 64.8},
+        "finished_board_basis_weight_g_m2": null,
+        "basis_weight_note": "Component paper basis weights are reported; finished-board grammage is not. Do not sum flat-sheet grammages as finished-board grammage because flute take-up and adhesive mass are unreported."
+      },
+      "default_material_model_a": {
+        "description": "Both liners and corrugated medium are orthotropic elastic; the source reports no fracture model.",
+        "axes": {"M": "machine direction", "C": "cross-machine direction", "T": "thickness direction"},
+        "liner": {
+          "E_M_MPa": 5020,
+          "E_C_MPa": 1884,
+          "E_T_MPa": 20,
+          "nu_MT": 0.2,
+          "nu_TC": 0.01,
+          "nu_CM": 0.2,
+          "G_MT_MPa": 20,
+          "G_TC_MPa": 20,
+          "G_CM_MPa": 1175
+        },
+        "medium": {
+          "E_M_MPa": 4727,
+          "E_C_MPa": 2046,
+          "E_T_MPa": 16,
+          "nu_MT": 0.2,
+          "nu_TC": 0.01,
+          "nu_CM": 0.2,
+          "G_MT_MPa": 16,
+          "G_TC_MPa": 16,
+          "G_CM_MPa": 1250
+        },
+        "source_ref": "Table 3, printed p.105; shear moduli are said to follow the equations on printed p.105. Reverse Poisson ratios are not independently listed.",
+        "poisson_closure_assumption": "The current material file reads the first subscript as the loading axis and derives reverse ratios by nu_ij/E_i=nu_ji/E_j. This is conventional but not explicitly defined in the paper.",
+        "source_shear_consistency_note": "Under that axial-first closure, the printed shear-modulus equations give liner G_MT/G_TC/G_CM about 19.89/19.41/1061 MPa and medium about 15.92/15.57/1116 MPa, versus Table 3 values 20/20/1175 and 16/16/1250 MPa. Use the tabulated shear values directly and retain the closure as an implementation assumption; the paper is not fully self-consistent under this interpretation."
+      },
+      "crease_model": {
+        "coupon_width_mm": 20,
+        "coupon_length_mm": 36,
+        "length_definition": "4 flute pitches",
+        "element_type_in_source": "3D eight-node solid-shell",
+        "main_roller_diameter_mm": 140,
+        "bite_angle_deg": 120,
+        "bite_width_mm": 3.2,
+        "flat_anvil_width_mm": 8,
+        "flat_anvil_thickness_mm": 7,
+        "experimental_anvil_hardness_JIS_K_6253_deg": 90,
+        "normalized_gap_cC_over_t": 0.3,
+        "gap_mm": 1.5,
+        "bite_position_X_over_lambda": 0.0,
+        "edge_liner_boundary": "both lateral edges fixed in the source default; free-edge case was also studied",
+        "contact_friction_coefficient_mu_CL": 0.0,
+        "feed": "source assumes sheet feed speed equals roller circumferential speed; with zero friction it imposes feed as a constraint",
+        "interface_law": "not reported",
+        "declared_implementation_assumption": "Use tied/perfect-bond interfaces for a first executable model because the paper gives no adhesive geometry or interface law. This is an assumption, not a calibrated source input."
+      },
+      "published_profile_observables": {
+        "physical_profile_source_ref": "Section 2.3, Fig. 7, printed p.107",
+        "physical_crushed_medium_width_mm": [5, 7],
+        "physical_total_liner_tangent_angle_deg": [124, 132],
+        "physical_deflected_span_in_flute_pitches": [3.0, 3.3],
+        "physical_deflected_span_mm_derived": [27.0, 29.7],
+        "model_a_at_cC_over_t_0_3_and_X_over_lambda_0": {
+          "crushed_medium_width_mm": 5.0,
+          "total_liner_tangent_angle_deg": 163,
+          "source_ref": "Section 4.1, Fig. 15, printed pp.109-110"
+        },
+        "model_c_rct_medium_at_same_condition": {
+          "crushed_medium_width_mm": 6.6,
+          "total_liner_tangent_angle_deg": 146,
+          "deflected_span_in_flute_pitches": 3.0,
+          "source_ref": "Section 4.1, Fig. 15, printed p.110"
+        },
+        "profile_state": "Source profile/stress plots report the worksheet front position s/t=-1.6; treat this as a source state label, not as an applied physical displacement."
+      },
+      "alternate_rct_medium_model_c": {
+        "description": "Orthotropic-elastic liners plus isotropic-elastoplastic corrugated medium with Ring Crush Test equivalent properties.",
+        "medium_E_MPa": 189,
+        "medium_yield_stress_MPa": 4.3,
+        "liner_rct_E_MPa": 372,
+        "liner_rct_yield_stress_MPa": 7.7,
+        "source_ref": "Table 4, printed p.108",
+        "hardening_law": "not specified in sufficient detail for strict reproduction",
+        "use_limit": "Keep as an alternate only. The RCT values act as effective crush/buckling response; combining them with an explicit flute geometry may count core buckling twice."
+      },
+      "material_and_validation_limits": [
+        "The model-a liner is elastic and does not fail; at the reported state its simulated liner strain is 0.036 versus measured raw-sheet breaking strain 0.014 (Section 4.1, printed p.110).",
+        "Model-a predicts a 163 degree crease angle versus a physical 124-132 degree range; its profile is not a deep-crease validation.",
+        "The source reports qualitative liner-failure locations, not a measured stress field or a quantitative failure threshold for the simulation.",
+        "The source does not report adhesive properties, an interface law, or an RCT hardening curve."
+      ],
+      "other_source_inputs": {
+        "raw_sheet_test_source_ref": "Tables 1-2, printed p.105; 10 samples; 24 h conditioning at 296 K and 50% RH",
+        "liner_MD_tensile_strength_MPa": 44.6,
+        "liner_MD_breaking_true_strain": 0.014,
+        "liner_CD_tensile_strength_MPa": 21.2,
+        "liner_CD_breaking_true_strain": 0.048,
+        "medium_MD_tensile_strength_MPa": 38.7,
+        "medium_CD_tensile_strength_MPa": 21.5,
+        "reported_raw_modulus_unit_note": "Table 1 prints 5.02 and 1.88 under an MPa heading while Table 3 gives 5020 and 1884 MPa; retain Table 3 for FE inputs and treat the Table 1 unit/scale as internally inconsistent."
+      }
+    },
+    {
+      "id": "aduke-venter-coetzee-2024",
+      "citation": "Aduke, R.N.; Venter, M.P.; Coetzee, C.J. Numerical Modelling of Corrugated Paperboard Boxes. Mathematical and Computational Applications 29(4), 70 (2024).",
+      "doi": "10.3390/mca29040070",
+      "article_url": "https://www.mdpi.com/2297-8747/29/4/70",
+      "open_pdf_url": "https://res.mdpi.com/d_attachment/mca/mca-29-00070/article_deploy/mca-29-00070.pdf",
+      "local_pdf_outside_repo": "/Users/home/cardboard-research-20261006/aduke-venter-coetzee-2024.pdf",
+      "local_pdf_sha256": "b082376b778e72e702c5274df3b86d82396708892dc4d194bab709f5c9d01eae",
+      "role": "Separate C-flute reference; do not combine its properties with the A-flute data above.",
+      "board": {
+        "paper_combination": "250KL/150SC/250KL",
+        "component_basis_weights_g_m2": {"each_virgin_kraft_liner": 250, "semi_chemical_fluting": 150},
+        "finished_board_basis_weight_g_m2": null,
+        "basis_weight_note": "Component grammages only; actual finished-board grammage is unreported because flute take-up and adhesive contribution are not given.",
+        "flute_pitch_mm": 7.7,
+        "inner_liner_clear_gap_mm_as_figured": 3.861,
+        "core_sheet_thickness_mm": 0.251,
+        "derived_core_mid_surface_peak_to_trough_mm": 3.610,
+        "derived_sine_amplitude_mm_if_centered": 1.805,
+        "liner_thickness_mm_each": 0.345,
+        "derived_caliper_mm": 4.551,
+        "homogenised_effective_thickness_mm": 4.4,
+        "geometry_note": "Fig. 6 p.6 dimension 3.861 spans the inner liner faces. Subtract core thickness before using it as mid-surface peak-to-trough. Derived values are interpretations of the figure."
+      },
+      "four_point_bending_target": {
+        "sample_mm": {"length": 400, "width": 100},
+        "crease": "centered, across CD; 10 specimens",
+        "source_geometry_ref": "Section 2.3 and Fig. 3, printed p.4",
+        "reported_anvil_spacing_mm": {"bottom_supports": 200, "top_loading_anvils": 340, "support_to_loading_anvil_a": 70},
+        "reported_free_span_text": "70 mm on either side",
+        "geometry_caveat": "The paper's labels/wording for the 200 mm and 340 mm anvil pairs should be checked against Fig. 4 before reproducing the fixture; do not silently swap their roles.",
+        "stiffness_equation_as_printed": "Sb = (1/16) (P/Y) (L^3/b) (a/L)",
+        "equation_definitions": {"P": "maximum/failure load", "Y": "maximum center deflection", "L_mm": 200, "a_mm": 70, "b_mm": 100},
+        "table5_values_as_printed": {
+          "table_unit_as_printed": "N/m",
+          "dimensional_unit_from_equation": "N*m",
+          "unit_caveat": "Table 5 p.15 prints N/m, but Eq. (1) has dimensions of force times length. Preserve the published label and values; N*m is the dimensionally consistent interpretation, pending author confirmation.",
+          "MD": {"experiment": 20.44, "structural_FE": 21.20, "homogenised_FE": 18.10},
+          "CD": {"experiment": 6.88, "structural_FE": 6.58, "homogenised_FE": 6.21}
+        }
+      },
+      "model_notes": {
+        "interface": "Structural FE layers are connected by shared nodes at flute extremes (perfect tie); authors note this rigid connection can overestimate stiffness relative to flexible starch bonds.",
+        "elements": "Thick-shell; structural mesh 0.5 mm, homogenised mesh 2 mm; quarter symmetry; top rigid cylinder position-controlled downward; bottom cylinder static; no other boundary conditions stated.",
+        "crease_representation": "A 4 mm reduced-property strip calibrated from bending tests, not a simulated crease-forming process.",
+        "data_availability": "Raw data are available from authors on request; paper provides tabulated stiffness and plotted curves, not a public data file."
+      },
+      "material_source_refs": "Table 1 p.7; Table 3 p.10; Table 4 p.15. Orthotropic elastic constants and yield values are recorded in sources.md; missing Hill strain ratios limit exact plastic reconstruction."
+    },
+    {
+      "id": "beex-peerlings-2009",
+      "citation": "Beex, L.A.A.; Peerlings, R.H.J. An experimental and computational study of laminated paperboard creasing and folding. International Journal of Solids and Structures 46 (2009), 4192-4207.",
+      "doi": "10.1016/j.ijsolstr.2009.08.012",
+      "metadata_url": "https://orbilu.uni.lu/handle/10993/17431?locale=en",
+      "open_postprint_url": "https://publications.uni.lu/bitstream/10993/17431/1/BeexPeerlings2009.pdf",
+      "role": "Scope boundary only: laminated solid paperboard, not a corrugated flute board; do not transfer its geometry or properties into either corrugated benchmark."
+    }
+  ]
+}

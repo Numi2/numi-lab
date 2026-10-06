@@ -1,0 +1,62 @@
+{
+  "schema": "numi.cardboard.explicit-strip.v1",
+  "owner": "Numi Matter FEM runtime",
+  "preset": "nagasawa2013",
+  "geometry": {
+    "source_dimensions": "Nagasawa 2013 coupon dimensions; 36x20x5 mm, 9 mm pitch, 0.25 mm liner and medium sheets",
+    "equation": "sinusoidal centerline with constant-normal-thickness sampled strip",
+    "length_m": 0.035999999999999997,
+    "width_m": 0.02,
+    "total_height_m": 0.0050000000000000001,
+    "pitch_m": 0.0089999999999999993,
+    "liner_thickness_m": 0.00025000000000000001,
+    "medium_normal_thickness_m": 0.00025000000000000001,
+    "medium_centerline_height_m": 0.0042500000000000003,
+    "medium_present": true,
+    "contact_tie_assumption": "perfect bond by shared nodes at isolated crest and trough contact lines; no adhesive/interphase law"
+  },
+  "mesh": {
+    "nodes": 378,
+    "tetrahedra": 576,
+    "fixed_grip_nodes": 20,
+    "nx_per_pitch": 8,
+    "ny": 1,
+    "thickness_slices": 1,
+    "free_nodes": 358,
+    "min_extent_m": [0, 0, 0],
+    "max_extent_m": [0.035999998450279236, 0.019999999552965164, 0.004999999888241291],
+    "shared_node_total_mass_relative_error": 1.4462094334769669e-09
+  },
+  "materials": {
+    "liner_path": "/Users/home/numi-cardboard-20261006/matter/materials/nagasawa2013_liner_orthotropic.nmatter",
+    "liner_sha256": "35f5c46318ad9f9c06cf7479e86460f803d65a66d3fd034a3a83170d83dfdecf",
+    "medium_path": "/Users/home/numi-cardboard-20261006/matter/materials/nagasawa2013_medium_orthotropic.nmatter",
+    "medium_sha256": "ce39e29918c0111ab1e25e9af8a69eb0e3f7f6f07d1227bfd443da735d9ea348",
+    "regional_map_sha256": "30e1fb0074fa4f5913191c312c23304fd77f4e12d59c9f5d52d9163d04ec46d4",
+    "frame_map_sha256": "a4bf8d2ff189b662dd9953a02a72514317a0bce4a421b14427cb14998dd794b9",
+    "frame_source": "analytic local flute tangent; local x=tangent, y=width, z=in-plane normal",
+    "cells": [
+      {"index": 0, "name": "nagasawa2013_liner_orthotropic", "tetrahedra": 384, "volume_m3": 3.6000002578973067e-07, "mass_kg": 0.00030240002166337376},
+      {"index": 1, "name": "nagasawa2013_medium_orthotropic", "tetrahedra": 192, "volume_m3": 2.436148679452188e-07, "mass_kg": 0.00017540270492055754}
+    ]
+  },
+  "solver": {
+    "backend": "implicit nonlinear Matter FEM on Apple Metal",
+    "dt_s": 0.0001,
+    "bend_angle_deg": 1,
+    "steps": 8,
+    "newton_iteration_budget": 7,
+    "fgmres_restart": 10,
+    "fgmres_iteration_budget": 32,
+    "line_search_steps": 8,
+    "relative_residual_tolerance": 9.9999997473787516e-05,
+    "volume_tolerance": 9.9999997473787516e-05,
+    "pressure_tolerance": 9.9999997473787516e-05,
+    "transport_tolerance": 9.9999997473787516e-05,
+    "maximum_rate_exponent": 0,
+    "runtime_execution": false
+  },
+  "status_diagnostics_semantics": "CSV retains NMMatterStatusGPU.diagnostics x/y/z/w verbatim. Successful finalization writes minimum J, maximum stress, scheduler numerical.y, and maximum contact speed; scheduler numerical.y is not populated as a successful KKT residual in this probe path and may remain zero. Failure statuses replace the vector with the originating failure-site float4 payload (for example, code 10 uses relative residual, relative correction, volume residual, and pressure residual). Independent min_J and max_J are recomputed from accepted FEM positions; status_diagnostic_z must not be interpreted as the successful-state KKT residual.",
+  "compiled_world_fingerprint": 9894752142132291483,
+  "evidence_boundary": "native software mechanics instrument only; analytic geometry approximation and published material inputs do not establish physical validation"
+}

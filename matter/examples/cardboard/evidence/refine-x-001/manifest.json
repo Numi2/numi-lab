@@ -1,0 +1,50 @@
+{
+  "schema": "numi.cardboard.explicit-strip.v1",
+  "owner": "Numi Matter FEM runtime",
+  "preset": "nagasawa2013",
+  "geometry": {
+    "source_dimensions": "Nagasawa 2013 coupon dimensions; 36x20x5 mm, 9 mm pitch, 0.25 mm liner and medium sheets",
+    "equation": "sinusoidal centerline with constant-normal-thickness sampled strip",
+    "length_m": 0.035999999999999997,
+    "width_m": 0.02,
+    "total_height_m": 0.0050000000000000001,
+    "pitch_m": 0.0089999999999999993,
+    "liner_thickness_m": 0.00025000000000000001,
+    "medium_normal_thickness_m": 0.00025000000000000001,
+    "medium_centerline_height_m": 0.0042500000000000003,
+    "medium_present": true,
+    "contact_tie_assumption": "perfect bond by shared nodes at isolated crest and trough contact lines; no adhesive/interphase law"
+  },
+  "mesh": {
+    "nodes": 762,
+    "tetrahedra": 1152,
+    "fixed_grip_nodes": 20,
+    "free_nodes": 742,
+    "min_extent_m": [0, 0, 0],
+    "max_extent_m": [0.035999998450279236, 0.019999999552965164, 0.004999999888241291],
+    "shared_node_total_mass_relative_error": 3.063341190288988e-09
+  },
+  "materials": {
+    "liner_path": "/Users/home/numi-cardboard-20261006/matter/materials/nagasawa2013_liner_orthotropic.nmatter",
+    "liner_sha256": "35f5c46318ad9f9c06cf7479e86460f803d65a66d3fd034a3a83170d83dfdecf",
+    "medium_path": "/Users/home/numi-cardboard-20261006/matter/materials/nagasawa2013_medium_orthotropic.nmatter",
+    "medium_sha256": "ce39e29918c0111ab1e25e9af8a69eb0e3f7f6f07d1227bfd443da735d9ea348",
+    "regional_map_sha256": "c35044182c039f9b37e97d7330769a26f46b41a4465088662a9b1863eb96ed61",
+    "frame_map_sha256": "299f185892bd071f961b8513ba1d665942e04ad7f9352b56ace949fa215c331a",
+    "frame_source": "analytic local flute tangent; local x=tangent, y=width, z=in-plane normal",
+    "cells": [
+      {"index": 0, "name": "nagasawa2013_liner_orthotropic", "tetrahedra": 768, "volume_m3": 3.6000002778813212e-07, "mass_kg": 0.00030240002334203098},
+      {"index": 1, "name": "nagasawa2013_medium_orthotropic", "tetrahedra": 384, "volume_m3": 2.5289728927679889e-07, "mass_kg": 0.0001820860482792952}
+    ]
+  },
+  "solver": {
+    "backend": "implicit nonlinear Matter FEM on Apple Metal",
+    "dt_s": 0.0001,
+    "bend_angle_deg": 0.25,
+    "steps": 8,
+    "maximum_rate_exponent": 0,
+    "runtime_execution": true
+  },
+  "compiled_world_fingerprint": 14472131186431402669,
+  "evidence_boundary": "native software mechanics instrument only; analytic geometry approximation and published material inputs do not establish physical validation"
+}
