@@ -97,6 +97,12 @@ constant bool kStandContactWarmStart [[function_constant(13)]];
 constant bool kUseStandContactWarmStart =
     is_function_constant_defined(kStandContactWarmStart)
         ? kStandContactWarmStart : false;
+// Default-off base bilateral correction in the already-validated reduced
+// equality coordinates. Undefined/false keeps the full Schur refinements.
+constant bool kReducedStandBaseProjection [[function_constant(17)]];
+constant bool kUseReducedStandBaseProjection =
+    is_function_constant_defined(kReducedStandBaseProjection)
+        ? kReducedStandBaseProjection : false;
 // Skip exact no-op contact response terms when candidate velocity is finite
 // and nonzero. Undefined/false retains the original three-axis update loop.
 constant bool kZeroContactResponseFastPath [[function_constant(14)]];

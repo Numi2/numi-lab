@@ -6694,7 +6694,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         constexpr std::uint32_t perRootExecutionReceipts =
             MR_NUMI_HUMAN_STAND_CONTACT_WARMSTART_HIT |
             MR_NUMI_HUMAN_STAND_CONTACT_WARMSTART_USED |
-            MR_NUMI_HUMAN_STAND_PGS_EARLY_EXIT_USED;
+            MR_NUMI_HUMAN_STAND_PGS_EARLY_EXIT_USED |
+            MR_NUMI_HUMAN_STAND_REDUCED_BASE_PROJECTION_USED;
         require(aggregate.code == MR_NUMI_HUMAN_STAND_SUCCESS &&
                     segment.code == MR_NUMI_HUMAN_STAND_SUCCESS &&
                     aggregate.environment == segment.environment &&

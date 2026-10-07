@@ -92,6 +92,9 @@ enum MRNumiHumanStandFlags {
     // Status-only receipt that the cooperative projected-PGS residual met its
     // requested threshold before the configured sweep limit.
     MR_NUMI_HUMAN_STAND_PGS_EARLY_EXIT_USED = 1u << 26u,
+    // Status-only proof that a bilateral base refinement used the validated
+    // reduced-coordinate correction rather than the full Schur fallback.
+    MR_NUMI_HUMAN_STAND_REDUCED_BASE_PROJECTION_USED = 1u << 27u,
 };
 
 // One source-authored support witness. The point-query index addresses the

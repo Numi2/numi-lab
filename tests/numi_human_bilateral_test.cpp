@@ -279,6 +279,287 @@ void testReducedSourceTriangleSelection() {
             "asymmetric fixture did not distinguish lower from upper source A");
 }
 
+struct ReducedBaseReference {
+    std::vector<double> velocity;
+    std::vector<double> reaction;
+    double impulseWork = 0.0;
+};
+
+std::vector<double> selectedSourceOperator(
+    const std::vector<double>& source, unsigned nv, bool upperTriangle
+) {
+    std::vector<double> selected(nv * nv, 0.0);
+    for (unsigned row = 0u; row < nv; ++row)
+        for (unsigned column = 0u; column < nv; ++column) {
+            const unsigned sourceRow = upperTriangle
+                ? std::min(row, column) : std::max(row, column);
+            const unsigned sourceColumn = upperTriangle
+                ? std::max(row, column) : std::min(row, column);
+            selected[row * nv + column] =
+                source[sourceRow * nv + sourceColumn];
+        }
+    return selected;
+}
+
+std::vector<double> equalityMatrixReference(
+    unsigned nv, const std::vector<ReducedEqualityReference>& equalities
+) {
+    std::vector<double> rows(equalities.size() * nv, 0.0);
+    for (unsigned row = 0u; row < equalities.size(); ++row) {
+        rows[row * nv + equalities[row].dependent] = 1.0;
+        if (equalities[row].master >= 0)
+            rows[row * nv + unsigned(equalities[row].master)] =
+                -equalities[row].derivative;
+    }
+    return rows;
+}
+
+double equalityVelocityReference(
+    const std::vector<double>& rows, const std::vector<double>& velocity,
+    unsigned nv, unsigned row
+) {
+    double value = 0.0;
+    for (unsigned dof = 0u; dof < nv; ++dof)
+        value = std::fma(rows[row * nv + dof], velocity[dof], value);
+    return value;
+}
+
+ReducedBaseReference runFullSchurBaseReference(
+    const std::vector<double>& matrix, unsigned nv,
+    const std::vector<ReducedEqualityReference>& equalities,
+    const std::vector<double>& force, const std::vector<double>& targets
+) {
+    const unsigned count = unsigned(equalities.size());
+    const auto rows = equalityMatrixReference(nv, equalities);
+    ReducedBaseReference result;
+    require(solveReference(matrix, force, nv, result.velocity),
+            "full base reference mass solve failed");
+    std::vector<double> responses(nv * count, 0.0);
+    for (unsigned row = 0u; row < count; ++row) {
+        std::vector<double> rhs(nv, 0.0), response;
+        for (unsigned dof = 0u; dof < nv; ++dof)
+            rhs[dof] = rows[row * nv + dof];
+        require(solveReference(matrix, rhs, nv, response),
+                "full base equality response solve failed");
+        for (unsigned dof = 0u; dof < nv; ++dof)
+            responses[dof * count + row] = response[dof];
+    }
+    std::vector<double> schur(count * count, 0.0);
+    for (unsigned row = 0u; row < count; ++row)
+        for (unsigned column = 0u; column < count; ++column)
+            for (unsigned dof = 0u; dof < nv; ++dof)
+                schur[row * count + column] = std::fma(
+                    rows[row * nv + dof],
+                    responses[dof * count + column],
+                    schur[row * count + column]);
+
+    result.reaction.assign(count, 0.0);
+    for (unsigned refinement = 0u; refinement < 2u; ++refinement) {
+        std::vector<double> oldVelocity(count), residual(count), impulse;
+        for (unsigned row = 0u; row < count; ++row) {
+            oldVelocity[row] = equalityVelocityReference(
+                rows, result.velocity, nv, row);
+            residual[row] = targets[row] - oldVelocity[row];
+        }
+        require(solveReference(schur, residual, count, impulse),
+                "full base equality Schur solve failed");
+        double refinementWork = 0.0;
+        for (unsigned row = 0u; row < count; ++row) {
+            refinementWork = std::fma(
+                0.5 * impulse[row], oldVelocity[row], refinementWork);
+            result.reaction[row] += impulse[row];
+        }
+        for (unsigned dof = 0u; dof < nv; ++dof) {
+            double correction = 0.0;
+            for (unsigned row = 0u; row < count; ++row)
+                correction = std::fma(
+                    impulse[row], responses[dof * count + row], correction);
+            result.velocity[dof] += correction;
+        }
+        for (unsigned row = 0u; row < count; ++row)
+            refinementWork = std::fma(
+                0.5 * impulse[row],
+                equalityVelocityReference(rows, result.velocity, nv, row),
+                refinementWork);
+        result.impulseWork += refinementWork;
+    }
+    return result;
+}
+
+ReducedBaseReference runReducedBaseReference(
+    const std::vector<double>& matrix, unsigned nv,
+    const std::vector<ReducedEqualityReference>& equalities,
+    const std::vector<double>& force, const std::vector<double>& targets
+) {
+    require(validReducedGraph(nv, equalities),
+            "ineligible graph entered reduced base reference");
+    const unsigned count = unsigned(equalities.size());
+    const auto rows = equalityMatrixReference(nv, equalities);
+    std::vector<int> coordinate(nv, -1);
+    std::vector<double> coefficient(nv, 0.0);
+    std::vector<unsigned char> dependent(nv, 0u);
+    for (const auto& equality : equalities)
+        dependent[equality.dependent] = 1u;
+    unsigned freeDofs = 0u;
+    for (unsigned dof = 0u; dof < nv; ++dof)
+        if (dependent[dof] == 0u) {
+            coordinate[dof] = int(freeDofs++);
+            coefficient[dof] = 1.0;
+        }
+    for (const auto& equality : equalities)
+        if (equality.master >= 0) {
+            coordinate[equality.dependent] =
+                coordinate[unsigned(equality.master)];
+            coefficient[equality.dependent] = equality.derivative;
+        }
+
+    std::vector<double> reduced(freeDofs * freeDofs, 0.0);
+    for (unsigned rowCoordinate = 0u;
+         rowCoordinate < freeDofs; ++rowCoordinate)
+        for (unsigned columnCoordinate = 0u;
+             columnCoordinate < freeDofs; ++columnCoordinate) {
+            double value = 0.0;
+            for (unsigned rowDof = 0u; rowDof < nv; ++rowDof)
+                if (coordinate[rowDof] == int(rowCoordinate))
+                    for (unsigned columnDof = 0u;
+                         columnDof < nv; ++columnDof)
+                        if (coordinate[columnDof] == int(columnCoordinate))
+                            value = std::fma(
+                                coefficient[rowDof] * coefficient[columnDof],
+                                matrix[rowDof * nv + columnDof], value);
+            reduced[rowCoordinate * freeDofs + columnCoordinate] = value;
+        }
+
+    ReducedBaseReference result;
+    require(solveReference(matrix, force, nv, result.velocity),
+            "reduced base reference mass solve failed");
+    result.reaction.assign(count, 0.0);
+    for (unsigned refinement = 0u; refinement < 2u; ++refinement) {
+        std::vector<double> residual(count, 0.0);
+        for (unsigned row = 0u; row < count; ++row)
+            residual[row] = targets[row] - equalityVelocityReference(
+                rows, result.velocity, nv, row);
+        std::vector<double> particular(nv, 0.0);
+        for (unsigned row = 0u; row < count; ++row)
+            particular[equalities[row].dependent] = residual[row];
+
+        std::vector<double> rhs(freeDofs, 0.0);
+        for (unsigned rowDof = 0u; rowDof < nv; ++rowDof) {
+            const int rowCoordinate = coordinate[rowDof];
+            if (rowCoordinate < 0) continue;
+            for (unsigned columnDof = 0u; columnDof < nv; ++columnDof)
+                rhs[unsigned(rowCoordinate)] = std::fma(
+                    -coefficient[rowDof] * particular[columnDof],
+                    matrix[rowDof * nv + columnDof],
+                    rhs[unsigned(rowCoordinate)]);
+        }
+        std::vector<double> reducedCorrection;
+        require(solveReference(reduced, rhs, freeDofs, reducedCorrection),
+                "reduced base R^T A R correction failed");
+        std::vector<double> delta(nv, 0.0);
+        for (unsigned dof = 0u; dof < nv; ++dof) {
+            delta[dof] = particular[dof];
+            if (coordinate[dof] >= 0)
+                delta[dof] = std::fma(
+                    coefficient[dof],
+                    reducedCorrection[unsigned(coordinate[dof])], delta[dof]);
+        }
+        std::vector<double> impulse(count, 0.0);
+        double refinementWork = 0.0;
+        for (unsigned row = 0u; row < count; ++row) {
+            const unsigned dependentDof = equalities[row].dependent;
+            for (unsigned dof = 0u; dof < nv; ++dof)
+                impulse[row] = std::fma(
+                    matrix[dependentDof * nv + dof], delta[dof], impulse[row]);
+            const double before = equalityVelocityReference(
+                rows, result.velocity, nv, row);
+            refinementWork = std::fma(
+                0.5 * impulse[row], before, refinementWork);
+            result.reaction[row] += impulse[row];
+        }
+        for (unsigned dof = 0u; dof < nv; ++dof)
+            result.velocity[dof] += delta[dof];
+        for (unsigned row = 0u; row < count; ++row)
+            refinementWork = std::fma(
+                0.5 * impulse[row],
+                equalityVelocityReference(rows, result.velocity, nv, row),
+                refinementWork);
+        result.impulseWork += refinementWork;
+    }
+    return result;
+}
+
+void testReducedBaseProjectionReference() {
+    constexpr unsigned nv = 6u;
+    const std::vector<ReducedEqualityReference> equalities{
+        {1u, -1, 0.0}, {3u, 2, 0.4}, {5u, 2, -0.3}};
+    const std::vector<double> force{0.7, -0.3, 1.2, 0.4, -0.8, 1.1};
+    const std::vector<double> targets{0.11, -0.07, 0.16};
+    std::vector<double> source(nv * nv, 0.0);
+    for (unsigned row = 0u; row < nv; ++row)
+        for (unsigned column = 0u; column < nv; ++column)
+            source[row * nv + column] = row == column
+                ? 5.0 + 0.5 * row
+                : 0.02 * double(int((row * 7u + column * 3u) % 7u) - 3) +
+                    (row > column ? 0.013 : -0.009);
+
+    std::vector<ReducedBaseReference> triangleResults;
+    for (const bool upperTriangle : {false, true}) {
+        const auto matrix = selectedSourceOperator(
+            source, nv, upperTriangle);
+        const auto full = runFullSchurBaseReference(
+            matrix, nv, equalities, force, targets);
+        const auto reduced = runReducedBaseReference(
+            matrix, nv, equalities, force, targets);
+        for (unsigned dof = 0u; dof < nv; ++dof)
+            require(std::abs(full.velocity[dof] - reduced.velocity[dof]) <
+                        2.0e-10,
+                    "reduced base correction differs from full Schur velocity");
+        const auto rows = equalityMatrixReference(nv, equalities);
+        for (unsigned row = 0u; row < equalities.size(); ++row) {
+            require(std::abs(full.reaction[row] - reduced.reaction[row]) <
+                        2.0e-10,
+                    "reduced base reaction differs from full Schur impulse");
+            require(std::abs(equalityVelocityReference(
+                        rows, reduced.velocity, nv, row) - targets[row]) <
+                        2.0e-12,
+                    "reduced base failed to satisfy a nonzero target");
+        }
+        require(std::abs(full.impulseWork - reduced.impulseWork) < 2.0e-10,
+                "reduced base impulse work differs from full Schur work");
+        require(std::any_of(reduced.reaction.begin(), reduced.reaction.end(),
+                    [](double value) { return std::abs(value) > 1.0e-5; }),
+                "nonzero dependent-coordinate force produced no equality reaction");
+        require(std::abs(reduced.impulseWork) > 1.0e-5,
+                "nonzero equality targets produced no impulse work");
+        triangleResults.push_back(reduced);
+    }
+    require(std::abs(triangleResults[0].velocity[0] -
+                     triangleResults[1].velocity[0]) > 1.0e-7,
+            "base projection reference ignored selected source triangle");
+
+    // A chained graph is valid for the legacy Schur solve but ineligible for
+    // the reduced map; opt-in must therefore preserve that exact fallback.
+    const std::vector<ReducedEqualityReference> chained{
+        {1u, 0, 0.5}, {2u, 1, -0.25}};
+    require(!validReducedGraph(nv, chained),
+            "chained equality graph unexpectedly eligible for reduction");
+    const auto selected = selectedSourceOperator(source, nv, false);
+    const std::vector<double> chainedTargets{0.05, -0.04};
+    const auto baseline = runFullSchurBaseReference(
+        selected, nv, chained, force, chainedTargets);
+    const bool optIn = true;
+    const bool useReduced = optIn && validReducedGraph(nv, chained);
+    const auto fallback = useReduced
+        ? runReducedBaseReference(selected, nv, chained, force, chainedTargets)
+        : runFullSchurBaseReference(
+            selected, nv, chained, force, chainedTargets);
+    require(fallback.velocity == baseline.velocity &&
+            fallback.reaction == baseline.reaction &&
+            fallback.impulseWork == baseline.impulseWork,
+            "ineligible reduced graph did not retain the full Schur fallback");
+}
+
 void testReducedResponseReference() {
     constexpr unsigned nv = 6u;
     const std::vector<ReducedEqualityReference> equalities{
@@ -475,6 +756,7 @@ void testReducedResponseReference() {
 }
 int main() {
     testReducedResponseReference();
+    testReducedBaseProjectionReference();
     testReducedSourceTriangleSelection();
     testReducedCholeskyReferenceAndFallback();
     checkSystem({2.0f},{-3.0f});

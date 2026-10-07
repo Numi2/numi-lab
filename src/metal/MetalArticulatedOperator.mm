@@ -574,11 +574,12 @@ void visitSplitStandBoundary(
     const float speculativeContactAdmissionDistanceMeters,
     const bool hybridEqualityFactorCache,
     const float standPgsVelocityResidualTolerance,
-    const bool contactWarmStart
+    const bool contactWarmStart,
+    const bool reducedBaseProjection
 ) {
     constexpr std::array<std::uint8_t, 30u> domain{{
         'm','r','n','x','.','s','p','l','i','t','-','s','t','a','n','d','.',
-        'b','o','u','n','d','a','r','y','.','v','5',0,0}};
+        'b','o','u','n','d','a','r','y','.','v','6',0,0}};
     sink.append(domain.data(), domain.size());
     appendSplitStandValue(sink, input.articulationIndex);
     appendSplitStandValue(sink, input.environmentCount);
@@ -608,6 +609,7 @@ void visitSplitStandBoundary(
     appendSplitStandValue(sink, hybridEqualityFactorCache);
     appendSplitStandValue(sink, standPgsVelocityResidualTolerance);
     appendSplitStandValue(sink, contactWarmStart);
+    appendSplitStandValue(sink, reducedBaseProjection);
     const std::uint8_t contact = input.stand.enableContact ? 1u : 0u;
     const std::uint8_t assistance =
         input.stand.enableRootAssistance ? 1u : 0u;
@@ -700,14 +702,16 @@ void visitSplitStandBoundary(
     const float speculativeContactAdmissionDistanceMeters,
     const bool hybridEqualityFactorCache,
     const float standPgsVelocityResidualTolerance,
-    const bool contactWarmStart
+    const bool contactWarmStart,
+    const bool reducedBaseProjection
 ) {
     if (cache.fingerprint != 0u) {
         SplitStandBoundaryCompare compare{cache.bytes};
         visitSplitStandBoundary(compare, input,
             speculativeContactAdmissionDistanceMeters,
             hybridEqualityFactorCache,
-            standPgsVelocityResidualTolerance, contactWarmStart);
+            standPgsVelocityResidualTolerance, contactWarmStart,
+            reducedBaseProjection);
         if (compare.exact && compare.offset == cache.bytes.size())
             return cache.fingerprint;
     }
@@ -715,7 +719,8 @@ void visitSplitStandBoundary(
     visitSplitStandBoundary(capture, input,
         speculativeContactAdmissionDistanceMeters,
         hybridEqualityFactorCache,
-        standPgsVelocityResidualTolerance, contactWarmStart);
+        standPgsVelocityResidualTolerance, contactWarmStart,
+        reducedBaseProjection);
     std::array<std::uint8_t, CC_SHA256_DIGEST_LENGTH> digest{};
     CC_SHA256_Final(digest.data(), &capture.context);
     std::uint64_t fingerprint = 0u;
@@ -745,6 +750,13 @@ struct MetalArticulatedOperatorContextState {
         if (reducedProjected != nullptr)
             config.reducedStandProjectedResponses =
                 std::strcmp(reducedProjected, "1") == 0;
+        const char* reducedBase =
+            std::getenv("NUMI_HUMAN_STAND_REDUCED_BASE_PROJECTION");
+        if (reducedBase != nullptr)
+            config.reducedStandBaseProjection =
+                std::strcmp(reducedBase, "1") == 0;
+        if (config.reducedStandBaseProjection)
+            config.reducedStandProjectedResponses = true;
         const char* reducedCholesky =
             std::getenv("NUMI_HUMAN_STAND_REDUCED_CHOLESKY");
         if (reducedCholesky != nullptr)
@@ -4413,6 +4425,11 @@ MetalArticulatedOperatorDiagnostics initializeContext(
         }
         MTLFunctionConstantValues* finishConstants =
             [[MTLFunctionConstantValues alloc] init];
+        bool reducedStandBaseProjection =
+            context.config.reducedStandBaseProjection &&
+            context.config.reducedStandProjectedResponses;
+        [finishConstants setConstantValue:&reducedStandBaseProjection
+                                    type:MTLDataTypeBool atIndex:17u];
         [finishConstants setConstantValue:&sparseOperator
                                     type:MTLDataTypeBool atIndex:2u];
         bool cpuFinishSpecialized = false;
@@ -4533,6 +4550,9 @@ MetalArticulatedOperatorDiagnostics initializeContext(
         cpuFinishSpecialized = true;
         [finishConstants setConstantValue:&cpuFinishSpecialized
                                     type:MTLDataTypeBool atIndex:0u];
+        reducedStandBaseProjection = false;
+        [finishConstants setConstantValue:&reducedStandBaseProjection
+                                    type:MTLDataTypeBool atIndex:17u];
         contactWarmStartSpecialized = false;
         [finishConstants setConstantValue:&contactWarmStartSpecialized
                                     type:MTLDataTypeBool atIndex:13u];
@@ -9715,13 +9735,16 @@ MetalArticulatedOperatorSubmission::wait(
                     const bool reducedUsed =
                         (stand.flags &
                          MR_NUMI_HUMAN_STAND_REDUCED_PROJECTION_USED) != 0u;
+                    const bool reducedBaseUsed =
+                        (stand.flags &
+                         MR_NUMI_HUMAN_STAND_REDUCED_BASE_PROJECTION_USED) != 0u;
                     const std::size_t freeDofs =
                         pending->articulation.nv >=
                             pending->standJointEqualityCount
                         ? pending->articulation.nv -
                             pending->standJointEqualityCount
                         : 0u;
-                    if (reducedUsed && !reducedReady) {
+                    if ((reducedUsed || reducedBaseUsed) && !reducedReady) {
                         return reject(
                             std::move(diagnostics),
                             MetalArticulatedOperatorHostStatus::internalFailure,
@@ -9731,11 +9754,13 @@ MetalArticulatedOperatorSubmission::wait(
                     std::fprintf(stderr,
                         "human_stand_reduced_response root_step=%u environment=%zu "
                         "requested=1 admitted=%u ready=%u used=%u "
-                        "free_dofs=%zu source_triangle=%s\n",
+                        "base_requested=%u base_used=%u free_dofs=%zu source_triangle=%s\n",
                         stand.completedSteps, environment,
                         reducedAdmitted ? 1u : 0u,
                         reducedReady ? 1u : 0u, reducedUsed ? 1u : 0u,
-                        freeDofs,
+                        pending->context->config.reducedStandBaseProjection
+                            ? 1u : 0u,
+                        reducedBaseUsed ? 1u : 0u, freeDofs,
                         pending->context->config.sparseStandOperator
                             ? "upper" : "lower");
                 }
@@ -10393,7 +10418,8 @@ MetalArticulatedOperatorContext::submit(
                       state_->config.speculativeContactAdmissionDistanceMeters,
                       state_->config.hybridStandEqualityFactorCache,
                       state_->config.standPgsVelocityResidualTolerance,
-                      state_->config.standContactWarmStart)
+                      state_->config.standContactWarmStart,
+                      state_->config.reducedStandBaseProjection)
                 : 0u;
         const std::uint64_t standBoundaryFingerprint =
             hasExplicitAuthoritativeHorizon

@@ -408,6 +408,11 @@
 #if defined(MR_NH_COOPERATIVE_FINISH)
         for (uint refinement = 0u; refinement < 2u; ++refinement) {
             float refinementWork = 0.0f;
+            const bool reducedBaseRequested =
+                kUseReducedStandBaseProjection &&
+                (dispatch.flags &
+                 MR_NUMI_HUMAN_STAND_REDUCED_PROJECTED_RESPONSES) != 0u &&
+                equalityCount < nv;
             if (lane == 0u) {
                 for (uint row = 0u; row < equalityCount; ++row) {
                     device const MRNumiHumanJointEqualityGPU& equality =
@@ -422,58 +427,277 @@
                         equalityTargetVelocityCache[row] - velocity;
                 }
             }
-            bool solved = true;
-            if (equalityCount <= kCachedEqualityCapacity) {
-                solved = mrNumiHumanBilateralSolveCooperative(
-                    equalityFactorStorage, equalityScale, equalityPivots,
-                    equalityRhs, equalityCount, lane, threadCount,
-                    &cooperativeEqualitySucceeded);
-            } else {
-                solved = mrNumiHumanBilateralSolveCooperative(
-                    equalityFactor, equalityScale, equalityPivots,
-                    equalityRhs, equalityCount, lane, threadCount,
-                    &cooperativeEqualitySucceeded);
-            }
-            if (lane == 0u) {
-                if (!solved) {
-                    fail(status, MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED,
-                         MR_INVALID_INDEX);
-                } else {
-                    for (uint row = 0u; row < equalityCount; ++row) {
-                        refinementWork = fma(0.5f * equalityRhs[row],
-                                             workspace[row], refinementWork);
-                        equalityLambdas[row] += equalityRhs[row];
+
+            bool reducedBaseAttempted = false;
+            bool reducedBaseApplied = false;
+            if (reducedBaseRequested) {
+                const uint legacyStride = standLegacyResponseStride(
+                    nv, dispatch.supportContactCount, equalityCount);
+                device float* reducedArena =
+                    responseScratch + responseBase + legacyStride;
+                device const float* sourceA = reducedArena;
+                device float* reducedFactor = reducedArena + nv * nv;
+                device const float* reducedScale =
+                    reducedFactor + (nv - equalityCount) *
+                        (nv - equalityCount);
+                device const float* reducedPivots =
+                    reducedScale + (nv - equalityCount);
+                device const uint* coordinateForDof =
+                    reinterpret_cast<device const uint*>(
+                        reducedPivots + (nv - equalityCount));
+                device const float* coefficientForDof =
+                    reinterpret_cast<device const float*>(
+                        coordinateForDof + nv);
+                const uint freeDofs = nv - equalityCount;
+                device const uint* coordinateOffsets =
+                    reinterpret_cast<device const uint*>(
+                        coefficientForDof + nv);
+                device const uint* coordinateDofs =
+                    coordinateOffsets + freeDofs + 1u;
+                device const uint* reducedReady = coordinateDofs + nv;
+                const bool upperTriangle =
+                    (dispatch.flags &
+                     MR_NUMI_HUMAN_STAND_REDUCED_SOURCE_UPPER_TRIANGLE) != 0u;
+
+                if (freeDofs != 0u && *reducedReady != 0u) {
+                    reducedBaseAttempted = true;
+                    // Lane zero published the current row residuals above.
+                    // All lanes must observe those writes before clearing q.
+                    threadgroup_barrier(mem_flags::mem_threadgroup);
+                    for (uint dof = lane; dof < nv; dof += threadCount)
+                        workspace[dof] = 0.0f;
+                    threadgroup_barrier(mem_flags::mem_threadgroup);
+                    if (lane == 0u) {
+                        for (uint row = 0u; row < equalityCount; ++row)
+                            workspace[jointEqualities[row].indices.y] =
+                                equalityRhs[row];
+                    }
+                    threadgroup_barrier(mem_flags::mem_threadgroup);
+
+                    for (uint coordinate = lane; coordinate < freeDofs;
+                         coordinate += threadCount) {
+                        float value = 0.0f;
+                        for (uint member = coordinateOffsets[coordinate];
+                             member < coordinateOffsets[coordinate + 1u];
+                             ++member) {
+                            const uint rowDof = coordinateDofs[member];
+                            const float rowCoefficient =
+                                coefficientForDof[rowDof];
+                            for (uint columnDof = 0u; columnDof < nv;
+                                 ++columnDof) {
+                                value = fma(
+                                    rowCoefficient * workspace[columnDof],
+                                    standSelectedSourceA(sourceA, nv, rowDof,
+                                        columnDof, upperTriangle),
+                                    value);
+                            }
+                        }
+                        equalityRhs[coordinate] = -value;
+                    }
+                    threadgroup_barrier(mem_flags::mem_threadgroup);
+
+                    const bool reducedSolved =
+                        mrNumiHumanBilateralSolveCooperative(
+                            reducedFactor, reducedScale, reducedPivots,
+                            equalityRhs, freeDofs, lane, threadCount,
+                            &cooperativeEqualitySucceeded);
+                    if (reducedSolved) {
+                        // Each equality row owns one tail entry. Preserve the
+                        // authored ascending-DOF FMA order within each A*delta.
+                        for (uint row = lane; row < equalityCount;
+                             row += threadCount) {
+                            const uint dependent =
+                                jointEqualities[row].indices.y;
+                            float reaction = 0.0f;
+                            for (uint dof = 0u; dof < nv; ++dof) {
+                                const uint coordinate = coordinateForDof[dof];
+                                float delta = workspace[dof];
+                                if (coordinate != MR_INVALID_INDEX)
+                                    delta = fma(coefficientForDof[dof],
+                                        equalityRhs[coordinate], delta);
+                                reaction = fma(
+                                    standSelectedSourceA(sourceA, nv,
+                                        dependent, dof, upperTriangle),
+                                    delta, reaction);
+                            }
+                            equalityRhs[freeDofs + row] = reaction;
+                        }
+                        threadgroup_barrier(mem_flags::mem_threadgroup);
+                        if (lane == 0u) {
+                            cooperativeEqualitySucceeded = 1u;
+                            for (uint row = 0u; row < equalityCount; ++row) {
+                                const float reaction =
+                                    equalityRhs[freeDofs + row];
+                                const uint dependent =
+                                    jointEqualities[row].indices.y;
+                                float velocity = candidateV[dependent];
+                                if (jointEqualities[row].indices.w !=
+                                    MR_INVALID_INDEX)
+                                    velocity = fma(
+                                        -equalityDerivativeCache[row],
+                                        candidateV[
+                                            jointEqualities[row].indices.w],
+                                        velocity);
+                                refinementWork = fma(
+                                    0.5f * reaction, velocity, refinementWork);
+                                if (!isfinite(reaction) || !isfinite(velocity) ||
+                                    !isfinite(refinementWork))
+                                    cooperativeEqualitySucceeded = 0u;
+                            }
+                            if (cooperativeEqualitySucceeded != 0u) {
+                                for (uint dof = 0u; dof < nv; ++dof) {
+                                    const uint coordinate =
+                                        coordinateForDof[dof];
+                                    float delta = workspace[dof];
+                                    if (coordinate != MR_INVALID_INDEX)
+                                        delta = fma(
+                                            coefficientForDof[dof],
+                                            equalityRhs[coordinate], delta);
+                                    if (!isfinite(delta) ||
+                                        !isfinite(candidateV[dof] + delta)) {
+                                        cooperativeEqualitySucceeded = 0u;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (cooperativeEqualitySucceeded != 0u) {
+                                status.flags |=
+                                    MR_NUMI_HUMAN_STAND_REDUCED_BASE_PROJECTION_USED;
+                            }
+                        }
+                    }
+                    threadgroup_barrier(
+                        mem_flags::mem_device | mem_flags::mem_threadgroup);
+                    reducedBaseApplied =
+                        cooperativeEqualitySucceeded != 0u;
+                    if (reducedBaseApplied) {
+                        if (lane == 0u)
+                            for (uint row = 0u; row < equalityCount; ++row)
+                                equalityLambdas[row] +=
+                                    equalityRhs[freeDofs + row];
+                        threadgroup_barrier(
+                            mem_flags::mem_device | mem_flags::mem_threadgroup);
+                        for (uint dof = lane; dof < nv; dof += threadCount) {
+                            const uint coordinate = coordinateForDof[dof];
+                            float correction = workspace[dof];
+                            if (coordinate != MR_INVALID_INDEX)
+                                correction = fma(coefficientForDof[dof],
+                                    equalityRhs[coordinate], correction);
+                            candidateV[dof] += correction;
+                        }
+                        threadgroup_barrier(mem_flags::mem_threadgroup);
+                        if (lane == 0u) {
+                            for (uint row = 0u; row < equalityCount; ++row) {
+                                const uint dependent =
+                                    jointEqualities[row].indices.y;
+                                float velocity = candidateV[dependent];
+                                if (jointEqualities[row].indices.w !=
+                                    MR_INVALID_INDEX)
+                                    velocity = fma(
+                                        -equalityDerivativeCache[row],
+                                        candidateV[
+                                            jointEqualities[row].indices.w],
+                                        velocity);
+                                refinementWork = fma(
+                                    0.5f * equalityRhs[freeDofs + row],
+                                    velocity, refinementWork);
+                            }
+                            if (!isfinite(refinementWork)) {
+                                fail(status,
+                                    MR_NUMI_HUMAN_STAND_NONFINITE_RESULT,
+                                    MR_INVALID_INDEX);
+                            } else {
+                                equalityImpulseWork += refinementWork;
+                                equalityAbsoluteImpulseWork +=
+                                    abs(refinementWork);
+                                // Publish the final refinement impulse in the
+                                // same row vector as the legacy path.
+                                for (uint row = 0u; row < equalityCount; ++row)
+                                    equalityRhs[row] =
+                                        equalityRhs[freeDofs + row];
+                            }
+                        }
+                        threadgroup_barrier(
+                            mem_flags::mem_device | mem_flags::mem_threadgroup);
+                        if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
                     }
                 }
             }
-            threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
-            if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
-            // Each lane owns disjoint DOFs. The equality order and FP32 fma
-            // sequence for any one DOF remain identical to the scalar path.
-            for (uint dof = lane; dof < nv; dof += threadCount) {
-                float correction = 0.0f;
-                if (cacheEqualityResponseByDof) {
-                    device const float* responses =
-                        equalityResponseByDof + dof * equalityCount;
-                    for (uint row = 0u; row < equalityCount; ++row)
-                        correction = fma(equalityRhs[row], responses[row],
-                                         correction);
-                } else {
+
+            if (!reducedBaseApplied) {
+                // A rejected reduced solve may have consumed the residual
+                // vector and q scratch. Reconstruct the exact legacy RHS before
+                // the unchanged full Schur solve.
+                if (reducedBaseAttempted && lane == 0u) {
+                    refinementWork = 0.0f;
                     for (uint row = 0u; row < equalityCount; ++row) {
-                        device const float* response = responseScratch +
-                            responseBase +
-                            (3u * dispatch.supportContactCount + row) * nv;
-                        correction = fma(equalityRhs[row], response[dof],
-                                         correction);
+                        device const MRNumiHumanJointEqualityGPU& equality =
+                            jointEqualities[row];
+                        const float derivative = equalityDerivativeCache[row];
+                        float velocity = candidateV[equality.indices.y];
+                        if (equality.indices.w != MR_INVALID_INDEX)
+                            velocity = fma(-derivative,
+                                candidateV[equality.indices.w], velocity);
+                        workspace[row] = velocity;
+                        equalityRhs[row] =
+                            equalityTargetVelocityCache[row] - velocity;
                     }
                 }
-                candidateV[dof] += correction;
-            }
-            // Disjoint lanes update the threadgroup candidate before lane 0
-            // reads its equality velocity.
-            threadgroup_barrier(mem_flags::mem_threadgroup);
-            if (lane == 0u) {
-                auto recordEqualityWork = [&]() {
+                bool solved = true;
+                if (equalityCount <= kCachedEqualityCapacity) {
+                    solved = mrNumiHumanBilateralSolveCooperative(
+                        equalityFactorStorage, equalityScale, equalityPivots,
+                        equalityRhs, equalityCount, lane, threadCount,
+                        &cooperativeEqualitySucceeded);
+                } else {
+                    solved = mrNumiHumanBilateralSolveCooperative(
+                        equalityFactor, equalityScale, equalityPivots,
+                        equalityRhs, equalityCount, lane, threadCount,
+                        &cooperativeEqualitySucceeded);
+                }
+                if (lane == 0u) {
+                    if (!solved) {
+                        fail(status,
+                             MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED,
+                             MR_INVALID_INDEX);
+                    } else {
+                        for (uint row = 0u; row < equalityCount; ++row) {
+                            refinementWork = fma(
+                                0.5f * equalityRhs[row], workspace[row],
+                                refinementWork);
+                            equalityLambdas[row] += equalityRhs[row];
+                        }
+                    }
+                }
+                threadgroup_barrier(
+                    mem_flags::mem_device | mem_flags::mem_threadgroup);
+                if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
+                // Each lane owns disjoint DOFs. The equality order and FP32
+                // fma sequence for any one DOF remain identical to the scalar
+                // path.
+                for (uint dof = lane; dof < nv; dof += threadCount) {
+                    float correction = 0.0f;
+                    if (cacheEqualityResponseByDof) {
+                        device const float* responses =
+                            equalityResponseByDof + dof * equalityCount;
+                        for (uint row = 0u; row < equalityCount; ++row)
+                            correction = fma(equalityRhs[row],
+                                responses[row], correction);
+                    } else {
+                        for (uint row = 0u; row < equalityCount; ++row) {
+                            device const float* response = responseScratch +
+                                responseBase +
+                                (3u * dispatch.supportContactCount + row) * nv;
+                            correction = fma(equalityRhs[row], response[dof],
+                                             correction);
+                        }
+                    }
+                    candidateV[dof] += correction;
+                }
+                // Disjoint lanes update the threadgroup candidate before lane
+                // 0 reads its equality velocity.
+                threadgroup_barrier(mem_flags::mem_threadgroup);
+                if (lane == 0u) {
                     for (uint row = 0u; row < equalityCount; ++row) {
                         device const MRNumiHumanJointEqualityGPU& equality =
                             jointEqualities[row];
@@ -492,11 +716,11 @@
                     }
                     equalityImpulseWork += refinementWork;
                     equalityAbsoluteImpulseWork += abs(refinementWork);
-                };
-                recordEqualityWork();
+                }
+                threadgroup_barrier(
+                    mem_flags::mem_device | mem_flags::mem_threadgroup);
+                if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
             }
-            threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
-            if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
         }
 #else
         // Recompute the actual velocity residual for a refinement correction.
@@ -2995,6 +3219,7 @@
          MR_NUMI_HUMAN_STAND_REDUCED_PROJECTION_USED |
          MR_NUMI_HUMAN_STAND_DEFERRED_EQUALITY_DIAGNOSTICS_USED |
          MR_NUMI_HUMAN_STAND_HYBRID_FACTOR_CACHE_USED |
+         MR_NUMI_HUMAN_STAND_REDUCED_BASE_PROJECTION_USED |
          MR_NUMI_HUMAN_STAND_CONTACT_WARMSTART_HIT |
          MR_NUMI_HUMAN_STAND_CONTACT_WARMSTART_USED);
 #if defined(MR_NH_COOPERATIVE_FINISH)
