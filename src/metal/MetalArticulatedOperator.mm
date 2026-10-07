@@ -2456,6 +2456,7 @@ bool buildRequirements(
     const MetalArticulatedOperatorLayout& layout,
     std::size_t cachedLimitEqualityElements,
     std::size_t sparseGraphElements,
+    const bool contactWarmStartArena,
     RequiredBuffers& requirements,
     std::size_t& totalAllocatedBytes
 ) {
@@ -2701,7 +2702,7 @@ bool buildRequirements(
         ) ||
         !makeRequirement<MRNumiHumanStandContactWarmStartSlotGPU>(
             "Numi Human accepted contact warm starts",
-            standContactWarmStartArenaApplicable(config, input)
+            contactWarmStartArena
                 ? layout.standStatusElements : 0u,
             requirements.standEntries[kStandContactWarmStartBuffer]
         ) ||
@@ -2841,7 +2842,7 @@ bool buildRequirements(
         requirements.standEntries[kStandLimitEqualityResponseBuffer].allocationBytes = 0u;
     if (sparseGraphElements == 0u)
         requirements.standEntries[kStandSparseGraphBuffer].allocationBytes = 0u;
-    if (!standContactWarmStartArenaApplicable(config, input))
+    if (!contactWarmStartArena)
         requirements.standEntries[
             kStandContactWarmStartBuffer].allocationBytes = 0u;
 
@@ -3631,6 +3632,7 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
             layout,
             cachedLimitEqualityElements,
             requirements.sparseStandGraph.size(),
+            standContactWarmStartArenaApplicable(config, input),
             requirements,
             totalAllocatedBytes
         )) {
