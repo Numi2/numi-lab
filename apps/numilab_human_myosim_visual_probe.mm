@@ -23042,8 +23042,8 @@ int main(int argc, char** argv) {
                                 << " simulated_s=" << measuredSimulation
                                 << " wall_s=" << measuredWall
                                 << " real_time_factor=" << measuredSimulation / measuredWall
-                                << " includes=physics_physiology_controller_audits_trace_viewer_movie_geometry_export"
-                                << " excludes=load_compile_initial_parity_and_first_accepted_observer"
+                                << " includes=physics_physiology_controller_audits_trace_viewer_movie_frames_geometry_export"
+                                << " excludes=load_compile_initial_parity_first_accepted_observer_movie_finalization"
                                 << std::endl;
                         }
                     };
