@@ -624,7 +624,7 @@
                 float4(point, 0.0f), pointPositionLow[pointIndex],
                 dispatch.groundPointAndTimestep, float4(0.0f)).xyz,
                 normal);
-            if (gap > support.frictionSlopAndStabilization.y) {
+            if (gap > standContactAdmissionDistanceMeters(support)) {
                 contactMatrices[entry] = 0.0f;
                 continue;
             }
@@ -689,11 +689,11 @@
 #if defined(MR_NH_COOPERATIVE_FINISH)
             cooperativeContactGap[contact] = gap;
             cooperativeContactActive[contact] =
-                gap > support.frictionSlopAndStabilization.y ? 0u : 1u;
+                gap > standContactAdmissionDistanceMeters(support) ? 0u : 1u;
 #endif
             minimumGap = min(minimumGap, gap);
             maximumPenetration = max(maximumPenetration, max(-gap, 0.0f));
-            if (gap > support.frictionSlopAndStabilization.y) {
+            if (gap > standContactAdmissionDistanceMeters(support)) {
                 lambdas[3u * contact + 0u] = 0.0f;
                 lambdas[3u * contact + 1u] = 0.0f;
                 lambdas[3u * contact + 2u] = 0.0f;
@@ -1102,7 +1102,7 @@
                     mrCompensatedPositionDifference(float4(point,0.0f), pointPositionLow[pointBase + support.pointQueryIndex],
                     dispatch.groundPointAndTimestep, float4(0.0f)).xyz, normal
                 );
-                if (gap > support.frictionSlopAndStabilization.y) continue;
+                if (gap > standContactAdmissionDistanceMeters(support)) continue;
                 float3 velocity{0.0f};
                 for (uint axis = 0u; axis < 3u; ++axis) {
                     for (uint dof = 0u; dof < nv; ++dof) {

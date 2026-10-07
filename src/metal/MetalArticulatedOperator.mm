@@ -19,6 +19,7 @@
 #include <array>
 #include <atomic>
 #include <chrono>
+#include <cerrno>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -567,11 +568,12 @@ void appendSplitStandSpan(
 template <typename Sink>
 void visitSplitStandBoundary(
     Sink& sink,
-    const MetalArticulatedOperatorInput& input
+    const MetalArticulatedOperatorInput& input,
+    const float speculativeContactAdmissionDistanceMeters
 ) {
     constexpr std::array<std::uint8_t, 30u> domain{{
         'm','r','n','x','.','s','p','l','i','t','-','s','t','a','n','d','.',
-        'b','o','u','n','d','a','r','y','.','v','2',0,0}};
+        'b','o','u','n','d','a','r','y','.','v','3',0,0}};
     sink.append(domain.data(), domain.size());
     appendSplitStandValue(sink, input.articulationIndex);
     appendSplitStandValue(sink, input.environmentCount);
@@ -597,6 +599,7 @@ void visitSplitStandBoundary(
     appendSplitStandValue(
         sink, input.stand.numanXTransactionProgram.fingerprint);
     appendSplitStandValue(sink, input.stand.contactIterationCount);
+    appendSplitStandValue(sink, speculativeContactAdmissionDistanceMeters);
     const std::uint8_t contact = input.stand.enableContact ? 1u : 0u;
     const std::uint8_t assistance =
         input.stand.enableRootAssistance ? 1u : 0u;
@@ -612,16 +615,19 @@ void visitSplitStandBoundary(
 
 [[nodiscard]] std::uint64_t splitStandBoundaryFingerprint(
     SplitStandBoundaryCache& cache,
-    const MetalArticulatedOperatorInput& input
+    const MetalArticulatedOperatorInput& input,
+    const float speculativeContactAdmissionDistanceMeters
 ) {
     if (cache.fingerprint != 0u) {
         SplitStandBoundaryCompare compare{cache.bytes};
-        visitSplitStandBoundary(compare, input);
+        visitSplitStandBoundary(compare, input,
+            speculativeContactAdmissionDistanceMeters);
         if (compare.exact && compare.offset == cache.bytes.size())
             return cache.fingerprint;
     }
     SplitStandBoundaryCapture capture(cache.bytes);
-    visitSplitStandBoundary(capture, input);
+    visitSplitStandBoundary(capture, input,
+        speculativeContactAdmissionDistanceMeters);
     std::array<std::uint8_t, CC_SHA256_DIGEST_LENGTH> digest{};
     CC_SHA256_Final(digest.data(), &capture.context);
     std::uint64_t fingerprint = 0u;
@@ -666,6 +672,22 @@ struct MetalArticulatedOperatorContextState {
         if (onePassStandLimits != nullptr)
             config.onePassStandOrderedLimits =
                 std::strcmp(onePassStandLimits, "1") == 0;
+        const char* speculativeContactAdmission = std::getenv(
+            "NUMI_HUMAN_STAND_SPECULATIVE_CONTACT_DISTANCE_M");
+        if (speculativeContactAdmission != nullptr) {
+            char* end = nullptr;
+            errno = 0;
+            const float parsed = std::strtof(
+                speculativeContactAdmission, &end);
+            if (end == speculativeContactAdmission || *end != '\0' ||
+                errno == ERANGE || !std::isfinite(parsed) ||
+                parsed < 0.0f || parsed > 0.02f) {
+                config.speculativeContactAdmissionDistanceMeters =
+                    std::numeric_limits<float>::quiet_NaN();
+            } else {
+                config.speculativeContactAdmissionDistanceMeters = parsed;
+            }
+        }
         const char* sparseOperator =
             std::getenv("NUMI_HUMAN_STAND_SPARSE_OPERATOR");
         if (sparseOperator != nullptr)
@@ -2755,7 +2777,18 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
     StandSparseGraphCache* sparseGraphCache = nullptr
 ) {
     MetalArticulatedOperatorDiagnostics diagnostics{};
+    diagnostics.speculativeContactAdmissionOverrideRequestedMeters =
+        config.speculativeContactAdmissionDistanceMeters;
 
+    if (!std::isfinite(config.speculativeContactAdmissionDistanceMeters) ||
+        config.speculativeContactAdmissionDistanceMeters < 0.0f ||
+        config.speculativeContactAdmissionDistanceMeters > 0.02f) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::invalidDimensions,
+            "stand speculative-contact admission override must be finite and within [0, 0.02] metres"
+        );
+    }
     if (!std::isfinite(config.mujocoActivationTimestepSeconds) ||
         config.mujocoActivationTimestepSeconds < 0.0f ||
         config.mujocoActivationTimestepSeconds > 0.01f) {
@@ -2764,6 +2797,22 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
             MetalArticulatedOperatorHostStatus::invalidDimensions,
             "MyoSim activation timestep must be finite and within [0, 0.01] seconds"
         );
+    }
+
+    if (input.stand.enableContact) {
+        const std::size_t contactCount = std::min(
+            input.stand.contacts.size(),
+            static_cast<std::size_t>(MR_NUMI_HUMAN_STAND_MAX_CONTACTS));
+        for (std::size_t index = 0u; index < contactCount; ++index) {
+            const float authored =
+                input.stand.contacts[index].frictionSlopAndStabilization.y;
+            if (!std::isfinite(authored) || authored < 0.0f) continue;
+            diagnostics.speculativeContactAdmissionEffectiveMaximumMeters =
+                std::max(
+                    diagnostics.speculativeContactAdmissionEffectiveMaximumMeters,
+                    std::max(authored,
+                        config.speculativeContactAdmissionDistanceMeters));
+        }
     }
 
     std::string modelReason;
@@ -3980,6 +4029,11 @@ MetalArticulatedOperatorDiagnostics initializeContext(
     bool sparseOperator = context.config.sparseStandOperator;
     [operatorConstants setConstantValue:&sparseOperator
                                    type:MTLDataTypeBool atIndex:2u];
+    float speculativeContactAdmissionDistanceMeters =
+        context.config.speculativeContactAdmissionDistanceMeters;
+    [operatorConstants setConstantValue:
+        &speculativeContactAdmissionDistanceMeters
+        type:MTLDataTypeFloat atIndex:8u];
     id<MTLFunction> standFunction = [library
         newFunctionWithName:@"mr_numi_human_stand_step"
             constantValues:operatorConstants error:&error];
@@ -4071,6 +4125,9 @@ MetalArticulatedOperatorDiagnostics initializeContext(
             [[MTLFunctionConstantValues alloc] init];
         [equalityConstants setConstantValue:&reducedStandCholesky
                                        type:MTLDataTypeBool atIndex:5u];
+        [equalityConstants setConstantValue:
+            &speculativeContactAdmissionDistanceMeters
+            type:MTLDataTypeFloat atIndex:8u];
         error = nil;
         id<MTLFunction> standEqualityFunction = [library
             newFunctionWithName:@"mr_numi_human_stand_equality_prepare"
@@ -4118,6 +4175,9 @@ MetalArticulatedOperatorDiagnostics initializeContext(
         bool onePassStandLimits = context.config.onePassStandOrderedLimits;
         [finishConstants setConstantValue:&onePassStandLimits
                                     type:MTLDataTypeBool atIndex:7u];
+        [finishConstants setConstantValue:
+            &speculativeContactAdmissionDistanceMeters
+            type:MTLDataTypeFloat atIndex:8u];
         error = nil;
         id<MTLFunction> standFinishFunction = [library
             newFunctionWithName:@"mr_numi_human_stand_finish"
@@ -9941,6 +10001,16 @@ MetalArticulatedOperatorContext::submit(
         if (!diagnostics.succeeded()) {
             return diagnostics;
         }
+        if (input.stand.enabled() && input.stand.enableContact &&
+            !input.stand.contacts.empty() && input.stand.stepIndexOffset == 0u) {
+            std::fprintf(stderr,
+                "human_stand_speculative_contact_admission "
+                "requested_override_m=%.9g effective_max_m=%.9g "
+                "support_contacts=%zu\n",
+                diagnostics.speculativeContactAdmissionOverrideRequestedMeters,
+                diagnostics.speculativeContactAdmissionEffectiveMaximumMeters,
+                input.stand.contacts.size());
+        }
 
         const std::lock_guard lock(state_->mutex);
         if (state_->geometryFailureQuarantine.load()) {
@@ -9984,7 +10054,8 @@ MetalArticulatedOperatorContext::submit(
         const std::uint64_t residentProgramFingerprint =
             input.stand.enabled()
                 ? splitStandBoundaryFingerprint(
-                      state_->splitStandBoundaryCache, input)
+                      state_->splitStandBoundaryCache, input,
+                      state_->config.speculativeContactAdmissionDistanceMeters)
                 : 0u;
         const std::uint64_t standBoundaryFingerprint =
             hasExplicitAuthoritativeHorizon
@@ -12127,6 +12198,22 @@ MetalArticulatedOperatorContext::submit(
                 // fails instead of silently changing solver authority.
                 const bool cpuFinish = cpuFinishRequested &&
                     input.stand.numanXTransactionProgram.valid();
+                const bool cpuStandDiagnosticRequested =
+                    handoffProbeRequested || cpuShadowRequested ||
+                    cpuFinishRequested || cpuFactorShadowRequested ||
+                    cpuFactorRequested || cpuEqualityShadowRequested ||
+                    cpuEqualityRequested || cpuEqualityFactorRequested ||
+                    cpuProjectedRequested || cpuFreeRequested ||
+                    oneHandoffRequested || neonConditionRequested;
+                if (state_->config.speculativeContactAdmissionDistanceMeters > 0.0f &&
+                    input.stand.enableContact && !input.stand.contacts.empty() &&
+                    cpuStandDiagnosticRequested) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::invalidDimensions,
+                        "speculative-contact admission override is incompatible with CPU Stand handoff or constraint diagnostics"
+                    );
+                }
                 // One-step, read-only diagnostic for the fixed 128-DOF free
                 // parity probe. It shadows the same assembled matrix and RHS;
                 // it never writes a CPU result into GPU-owned state.

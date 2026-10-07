@@ -87,7 +87,8 @@ typedef struct MR_ALIGN16 MRNumiHumanStandContactGPU {
     mr_u32 sourceGeometryIndex;
     mr_u32 reserved0;
 
-    // x = Coulomb friction, y = activation slop metres,
+    // x = Coulomb friction, y = source activation and warm-start slop
+    // metres (operator-level speculative admission may be wider),
     // z = normal stabilization fraction, w = source static normal
     // support force in N. A zero force retains cold-start contact.
     mr_float4 frictionSlopAndStabilization;

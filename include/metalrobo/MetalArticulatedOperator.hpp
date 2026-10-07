@@ -1886,6 +1886,9 @@ struct MetalArticulatedOperatorConfig {
     // Default-off ordered one-pass limit projection, retaining authored row
     // order and all existing checks/work accounting.
     bool onePassStandOrderedLimits = false;
+    // Optional speculative-contact candidate admission override. Zero retains
+    // the source contact activation distance and warm-start policy.
+    float speculativeContactAdmissionDistanceMeters = 0.0f;
 };
 
 enum class MetalArticulatedOperatorHostStatus : std::uint32_t {
@@ -2104,6 +2107,8 @@ struct MetalArticulatedOperatorDiagnostics {
     std::uint32_t completedStandSteps = 0u;
     std::uint32_t firstStandGPUStatusCode =
         MR_NUMI_HUMAN_STAND_SUCCESS;
+    float speculativeContactAdmissionOverrideRequestedMeters = 0.0f;
+    float speculativeContactAdmissionEffectiveMaximumMeters = 0.0f;
     // Exact owning command-buffer and external-program identities. Downstream
     // candidate publishers must match both before accepting a zero-copy view.
     std::uint64_t numanXProgramFingerprint = 0u;

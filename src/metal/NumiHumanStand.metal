@@ -63,6 +63,22 @@ constant bool kOnePassOrderedLimits [[function_constant(7)]];
 constant bool kUseOnePassOrderedLimits =
     is_function_constant_defined(kOnePassOrderedLimits)
         ? kOnePassOrderedLimits : false;
+// Optional speculative-contact admission broadening. The source contact
+// activation slop remains the warm-start threshold; this value only admits
+// existing source witnesses to the response and finish paths.
+constant float kSpeculativeContactAdmissionDistanceMeters
+    [[function_constant(8)]];
+constant float kUseSpeculativeContactAdmissionDistanceMeters =
+    is_function_constant_defined(kSpeculativeContactAdmissionDistanceMeters)
+        ? kSpeculativeContactAdmissionDistanceMeters : 0.0f;
+inline float standContactAdmissionDistanceMeters(
+    const MRNumiHumanStandContactGPU& support
+) {
+    return kUseSpeculativeContactAdmissionDistanceMeters > 0.0f
+        ? max(support.frictionSlopAndStabilization.y,
+            kUseSpeculativeContactAdmissionDistanceMeters)
+        : support.frictionSlopAndStabilization.y;
+}
 
 inline uint standLegacyResponseStride(
     const uint nv, const uint contactCount, const uint equalityCount
@@ -1658,7 +1674,7 @@ kernel void mr_numi_human_stand_step(
                 const float gap = dot(mrCompensatedPositionDifference(
                     pointWorld[pointIndex].position, pointPositionLow[pointIndex],
                     dispatch.groundPointAndTimestep, float4(0.0f)).xyz, responseNormal);
-                if (gap > support.frictionSlopAndStabilization.y) continue;
+                if (gap > standContactAdmissionDistanceMeters(support)) continue;
                 for (uint dof = 0u; dof < nv; ++dof)
                     response[dof] = pointJacobianAxis(pointJacobians, pointJacobianBase,
                         support.pointQueryIndex, nv, dof, responseDirections[column % 3u]);
@@ -1775,7 +1791,7 @@ kernel void mr_numi_human_stand_step(
                 pointPositionLow[pointIndex],
                 dispatch.groundPointAndTimestep, float4(0.0f)).xyz,
                 dispatch.groundNormal.xyz);
-            if (gap > support.frictionSlopAndStabilization.y) continue;
+            if (gap > standContactAdmissionDistanceMeters(support)) continue;
             device float* response = responseScratch + responseBase +
                 column * nv;
             device float* reaction =
@@ -2004,7 +2020,7 @@ kernel void mr_numi_human_stand_response_assemble(
         const float gap = dot(mrCompensatedPositionDifference(
             pointWorld[pointIndex].position, pointPositionLow[pointIndex],
             dispatch.groundPointAndTimestep, float4(0.0f)).xyz, normal);
-        if (gap > support.frictionSlopAndStabilization.y) return;
+        if (gap > standContactAdmissionDistanceMeters(support)) return;
         const float3 reference = abs(normal.x) < 0.8f
             ? float3(1.0f, 0.0f, 0.0f)
             : float3(0.0f, 1.0f, 0.0f);
@@ -2526,7 +2542,7 @@ kernel void mr_numi_human_stand_projected_response_assemble(
         const float gap = dot(mrCompensatedPositionDifference(
             pointWorld[pointIndex].position, pointPositionLow[pointIndex],
             dispatch.groundPointAndTimestep, float4(0.0f)).xyz, normal);
-        if (gap > support.frictionSlopAndStabilization.y) return;
+        if (gap > standContactAdmissionDistanceMeters(support)) return;
         const float3 reference = abs(normal.x) < 0.8f
             ? float3(1.0f, 0.0f, 0.0f)
             : float3(0.0f, 1.0f, 0.0f);
@@ -2746,7 +2762,7 @@ kernel void mr_numi_human_stand_projected_response_cooperative(
                     pointWorld[pointIndex].position, pointPositionLow[pointIndex],
                     dispatch.groundPointAndTimestep, float4(0.0f)).xyz,
                     normal);
-                if (gap <= support.frictionSlopAndStabilization.y) {
+                if (gap <= standContactAdmissionDistanceMeters(support)) {
                     const float3 reference = abs(normal.x) < 0.8f
                         ? float3(1.0f, 0.0f, 0.0f)
                         : float3(0.0f, 1.0f, 0.0f);
