@@ -1267,6 +1267,7 @@
     }
 
 #if defined(MR_NH_COOPERATIVE_FINISH)
+    bool useDeferredEqualityDiagnostics = false;
     if ((dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) != 0u) {
         if (coupledSweep == 0u) {
             if (lane == 0u) {
@@ -1351,6 +1352,36 @@
             threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
             if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
         }
+        useDeferredEqualityDiagnostics =
+            kUseDeferredStandEqualityDiagnostics &&
+            !kCpuFinishSpecialized &&
+            useProjectedContacts &&
+            (dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) != 0u &&
+            coupledSweepCount != 0u && cooperativeLimitCount != 0u &&
+            nv == 128u && threadCount == 128u && simdWidth == 32u &&
+            equalityCount > 0u && equalityCount <= 3u * simdWidth;
+        if (useDeferredEqualityDiagnostics) {
+            // Snapshot the exact projected row velocities that the ordered
+            // limit path would otherwise keep in SIMD registers, and clear
+            // this sweep's sparse event journal. Skipped zero rows stay zero.
+            for (uint row = lane; row < equalityCount; row += threadCount) {
+                device const MRNumiHumanJointEqualityGPU& equality =
+                    jointEqualities[row];
+                float velocity = candidateV[equality.indices.y];
+                if (equality.indices.w != MR_INVALID_INDEX)
+                    velocity = fma(-equalityDerivativeCache[row],
+                        candidateV[equality.indices.w], velocity);
+                deferredEqualityVelocityStart[row] = velocity;
+            }
+            for (uint limit = lane; limit < cooperativeLimitCount;
+                 limit += threadCount)
+                deferredLimitImpulseJournal[limit] = 0.0f;
+            threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+            if (lane == 0u && coupledSweep == 0u)
+                status.flags |=
+                    MR_NUMI_HUMAN_STAND_DEFERRED_EQUALITY_DIAGNOSTICS_USED;
+            threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+        }
         if (threadCount >= simdWidth && nv <= 4u * simdWidth &&
             equalityCount <= 3u * simdWidth) {
             if (kUseCachedLimitEqualityResponse && coupledSweep == 0u) {
@@ -1414,13 +1445,17 @@
                 // Each SIMD lane alone owns these equality rows throughout
                 // the ordered limit pass. Keep their multipliers in FP32
                 // registers and publish once before the next contact sweep.
-                float equalityLambda0 = equality0 < equalityCount
+                float equalityLambda0 = !useDeferredEqualityDiagnostics &&
+                    equality0 < equalityCount
                     ? equalityLambdas[equality0] : 0.0f;
-                float equalityLambda1 = equality1 < equalityCount
+                float equalityLambda1 = !useDeferredEqualityDiagnostics &&
+                    equality1 < equalityCount
                     ? equalityLambdas[equality1] : 0.0f;
-                float equalityLambda2 = equality2 < equalityCount
+                float equalityLambda2 = !useDeferredEqualityDiagnostics &&
+                    equality2 < equalityCount
                     ? equalityLambdas[equality2] : 0.0f;
-                if (equality0 < equalityCount) {
+                if (!useDeferredEqualityDiagnostics &&
+                    equality0 < equalityCount) {
                     device const auto& equality = jointEqualities[equality0];
                     equalityDof0 = equality.indices.y;
                     equalityOtherDof0 = equality.indices.w;
@@ -1430,7 +1465,8 @@
                         equalityVelocity0 = fma(-equalityDerivative0,
                             candidateV[equalityOtherDof0], equalityVelocity0);
                 }
-                if (equality1 < equalityCount) {
+                if (!useDeferredEqualityDiagnostics &&
+                    equality1 < equalityCount) {
                     device const auto& equality = jointEqualities[equality1];
                     equalityDof1 = equality.indices.y;
                     equalityOtherDof1 = equality.indices.w;
@@ -1440,7 +1476,8 @@
                         equalityVelocity1 = fma(-equalityDerivative1,
                             candidateV[equalityOtherDof1], equalityVelocity1);
                 }
-                if (equality2 < equalityCount) {
+                if (!useDeferredEqualityDiagnostics &&
+                    equality2 < equalityCount) {
                     device const auto& equality = jointEqualities[equality2];
                     equalityDof2 = equality.indices.y;
                     equalityOtherDof2 = equality.indices.w;
@@ -1540,6 +1577,8 @@
                             fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT, dof);
                         break;
                     }
+                    if (useDeferredEqualityDiagnostics && simdLane == 0u)
+                        deferredLimitImpulseJournal[limit] = impulse;
                     if (kUseFinishWorkCounters && simdLane == 0u) {
                         if (impulse == 0.0f) ++finishCounts.limitSelectedZero;
                         else {
@@ -1552,8 +1591,12 @@
                     if (impulse == 0.0f) continue;
                     device const float* response = responseScratch +
                         limitResponseBase + dof * nv;
+                    // The opt-in route records only the selected impulse;
+                    // equality responses, work and lambda updates are replayed
+                    // after the physical candidate-velocity updates finish.
                     float equalityWorkContribution = 0.0f;
-                    if (equality0 < equalityCount) {
+                    if (!useDeferredEqualityDiagnostics &&
+                        equality0 < equalityCount) {
                         const float equalityImpulse = impulse *
                             limitEqualityCorrections[
                                 dof * equalityCount + equality0];
@@ -1578,7 +1621,8 @@
                             equalityWorkContribution);
                         equalityLambda0 += equalityImpulse;
                     }
-                    if (equality1 < equalityCount) {
+                    if (!useDeferredEqualityDiagnostics &&
+                        equality1 < equalityCount) {
                         const float equalityImpulse = impulse *
                             limitEqualityCorrections[
                                 dof * equalityCount + equality1];
@@ -1603,7 +1647,8 @@
                             equalityWorkContribution);
                         equalityLambda1 += equalityImpulse;
                     }
-                    if (equality2 < equalityCount) {
+                    if (!useDeferredEqualityDiagnostics &&
+                        equality2 < equalityCount) {
                         const float equalityImpulse = impulse *
                             limitEqualityCorrections[
                                 dof * equalityCount + equality2];
@@ -1628,15 +1673,18 @@
                             equalityWorkContribution);
                         equalityLambda2 += equalityImpulse;
                     }
-                    const float equalityWorkIncrement =
-                        simd_sum(equalityWorkContribution);
+                    float equalityWorkIncrement = 0.0f;
+                    if (!useDeferredEqualityDiagnostics)
+                        equalityWorkIncrement =
+                            simd_sum(equalityWorkContribution);
                     const float halfImpulse = 0.5f * impulse;
                     const float velocityAfter = fma(impulse,
                         response[dof], velocityBefore);
                     const float limitWorkIncrement = fma(halfImpulse,
                         velocityAfter, halfImpulse * velocityBefore);
                     if (!isfinite(limitWorkIncrement) ||
-                        !isfinite(equalityWorkIncrement)) {
+                        (!useDeferredEqualityDiagnostics &&
+                         !isfinite(equalityWorkIncrement))) {
                         if (simdLane == 0u)
                             fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT, dof);
                         break;
@@ -1646,9 +1694,11 @@
                         sourceLimitImpulseWork += limitWorkIncrement;
                         sourceLimitAbsoluteImpulseWork +=
                             abs(limitWorkIncrement);
-                        equalityImpulseWork += equalityWorkIncrement;
-                        equalityAbsoluteImpulseWork +=
-                            abs(equalityWorkIncrement);
+                        if (!useDeferredEqualityDiagnostics) {
+                            equalityImpulseWork += equalityWorkIncrement;
+                            equalityAbsoluteImpulseWork +=
+                                abs(equalityWorkIncrement);
+                        }
                     }
                     if (dof0 < nv)
                         velocity0 = fma(impulse, response[dof0], velocity0);
@@ -1663,12 +1713,14 @@
                 if (dof1 < nv) candidateV[dof1] = velocity1;
                 if (dof2 < nv) candidateV[dof2] = velocity2;
                 if (dof3 < nv) candidateV[dof3] = velocity3;
-                if (equality0 < equalityCount)
-                    equalityLambdas[equality0] = equalityLambda0;
-                if (equality1 < equalityCount)
-                    equalityLambdas[equality1] = equalityLambda1;
-                if (equality2 < equalityCount)
-                    equalityLambdas[equality2] = equalityLambda2;
+                if (!useDeferredEqualityDiagnostics) {
+                    if (equality0 < equalityCount)
+                        equalityLambdas[equality0] = equalityLambda0;
+                    if (equality1 < equalityCount)
+                        equalityLambdas[equality1] = equalityLambda1;
+                    if (equality2 < equalityCount)
+                        equalityLambdas[equality2] = equalityLambda2;
+                }
             }
         } else {
         for (uint limit = 0u; limit < cooperativeLimitCount; ++limit) {
@@ -1797,6 +1849,161 @@
     }
     threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
     if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
+    if (useDeferredEqualityDiagnostics) {
+        // Replay nonzero source-limit events in ascending order. Each SIMD
+        // lane retains its same equality-row order and FP32 FMA sequence;
+        // contact work was accumulated before limits in this sweep, so its
+        // scalar event accumulation order is unchanged as well.
+        if (lane < simdWidth) {
+            const uint simdLane = lane;
+            const uint equality0 = simdLane;
+            const uint equality1 = simdLane + simdWidth;
+            const uint equality2 = simdLane + 2u * simdWidth;
+            uint equalityDof0 = MR_INVALID_INDEX;
+            uint equalityOtherDof0 = MR_INVALID_INDEX;
+            uint equalityDof1 = MR_INVALID_INDEX;
+            uint equalityOtherDof1 = MR_INVALID_INDEX;
+            uint equalityDof2 = MR_INVALID_INDEX;
+            uint equalityOtherDof2 = MR_INVALID_INDEX;
+            float equalityDerivative0 = 0.0f;
+            float equalityDerivative1 = 0.0f;
+            float equalityDerivative2 = 0.0f;
+            float equalityVelocity0 = equality0 < equalityCount
+                ? deferredEqualityVelocityStart[equality0] : 0.0f;
+            float equalityVelocity1 = equality1 < equalityCount
+                ? deferredEqualityVelocityStart[equality1] : 0.0f;
+            float equalityVelocity2 = equality2 < equalityCount
+                ? deferredEqualityVelocityStart[equality2] : 0.0f;
+            float equalityLambda0 = equality0 < equalityCount
+                ? equalityLambdas[equality0] : 0.0f;
+            float equalityLambda1 = equality1 < equalityCount
+                ? equalityLambdas[equality1] : 0.0f;
+            float equalityLambda2 = equality2 < equalityCount
+                ? equalityLambdas[equality2] : 0.0f;
+            if (equality0 < equalityCount) {
+                device const auto& equality = jointEqualities[equality0];
+                equalityDof0 = equality.indices.y;
+                equalityOtherDof0 = equality.indices.w;
+                equalityDerivative0 = equalityDerivativeCache[equality0];
+            }
+            if (equality1 < equalityCount) {
+                device const auto& equality = jointEqualities[equality1];
+                equalityDof1 = equality.indices.y;
+                equalityOtherDof1 = equality.indices.w;
+                equalityDerivative1 = equalityDerivativeCache[equality1];
+            }
+            if (equality2 < equalityCount) {
+                device const auto& equality = jointEqualities[equality2];
+                equalityDof2 = equality.indices.y;
+                equalityOtherDof2 = equality.indices.w;
+                equalityDerivative2 = equalityDerivativeCache[equality2];
+            }
+            for (uint limit = 0u; limit < cooperativeLimitCount; ++limit) {
+                const float impulse = deferredLimitImpulseJournal[limit];
+                if (impulse == 0.0f) continue;
+                const uint dof = limitDofs[limit];
+                device const float* response = responseScratch +
+                    limitResponseBase + dof * nv;
+                float equalityWorkContribution = 0.0f;
+                if (equality0 < equalityCount) {
+                    const float equalityImpulse = impulse *
+                        limitEqualityCorrections[
+                            dof * equalityCount + equality0];
+                    const float before = equalityVelocity0;
+                    float responseEquality;
+                    if (kUseCachedLimitEqualityResponse) {
+                        responseEquality = cachedLimitEqualityResponse[
+                            (environment * nv + dof) * equalityCount + equality0];
+                    } else {
+                        responseEquality = response[equalityDof0];
+                        if (equalityOtherDof0 != MR_INVALID_INDEX)
+                            responseEquality = fma(-equalityDerivative0,
+                                response[equalityOtherDof0], responseEquality);
+                    }
+                    equalityVelocity0 = fma(impulse, responseEquality,
+                        equalityVelocity0);
+                    equalityWorkContribution = fma(
+                        0.5f * equalityImpulse, before,
+                        equalityWorkContribution);
+                    equalityWorkContribution = fma(
+                        0.5f * equalityImpulse, equalityVelocity0,
+                        equalityWorkContribution);
+                    equalityLambda0 += equalityImpulse;
+                }
+                if (equality1 < equalityCount) {
+                    const float equalityImpulse = impulse *
+                        limitEqualityCorrections[
+                            dof * equalityCount + equality1];
+                    const float before = equalityVelocity1;
+                    float responseEquality;
+                    if (kUseCachedLimitEqualityResponse) {
+                        responseEquality = cachedLimitEqualityResponse[
+                            (environment * nv + dof) * equalityCount + equality1];
+                    } else {
+                        responseEquality = response[equalityDof1];
+                        if (equalityOtherDof1 != MR_INVALID_INDEX)
+                            responseEquality = fma(-equalityDerivative1,
+                                response[equalityOtherDof1], responseEquality);
+                    }
+                    equalityVelocity1 = fma(impulse, responseEquality,
+                        equalityVelocity1);
+                    equalityWorkContribution = fma(
+                        0.5f * equalityImpulse, before,
+                        equalityWorkContribution);
+                    equalityWorkContribution = fma(
+                        0.5f * equalityImpulse, equalityVelocity1,
+                        equalityWorkContribution);
+                    equalityLambda1 += equalityImpulse;
+                }
+                if (equality2 < equalityCount) {
+                    const float equalityImpulse = impulse *
+                        limitEqualityCorrections[
+                            dof * equalityCount + equality2];
+                    const float before = equalityVelocity2;
+                    float responseEquality;
+                    if (kUseCachedLimitEqualityResponse) {
+                        responseEquality = cachedLimitEqualityResponse[
+                            (environment * nv + dof) * equalityCount + equality2];
+                    } else {
+                        responseEquality = response[equalityDof2];
+                        if (equalityOtherDof2 != MR_INVALID_INDEX)
+                            responseEquality = fma(-equalityDerivative2,
+                                response[equalityOtherDof2], responseEquality);
+                    }
+                    equalityVelocity2 = fma(impulse, responseEquality,
+                        equalityVelocity2);
+                    equalityWorkContribution = fma(
+                        0.5f * equalityImpulse, before,
+                        equalityWorkContribution);
+                    equalityWorkContribution = fma(
+                        0.5f * equalityImpulse, equalityVelocity2,
+                        equalityWorkContribution);
+                    equalityLambda2 += equalityImpulse;
+                }
+                const float equalityWorkIncrement =
+                    simd_sum(equalityWorkContribution);
+                if (!isfinite(equalityWorkIncrement)) {
+                    if (simdLane == 0u)
+                        fail(status, MR_NUMI_HUMAN_STAND_NONFINITE_RESULT,
+                             dof);
+                    break;
+                }
+                if (simdLane == 0u) {
+                    equalityImpulseWork += equalityWorkIncrement;
+                    equalityAbsoluteImpulseWork +=
+                        abs(equalityWorkIncrement);
+                }
+            }
+            if (equality0 < equalityCount)
+                equalityLambdas[equality0] = equalityLambda0;
+            if (equality1 < equalityCount)
+                equalityLambdas[equality1] = equalityLambda1;
+            if (equality2 < equalityCount)
+                equalityLambdas[equality2] = equalityLambda2;
+        }
+        threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+        if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
+    }
 #else
     if ((dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) != 0u) {
     // Source-authored scalar position limits are unilateral generalized
@@ -2366,12 +2573,13 @@
         status.maximumActiveContactCount, activeContacts
     );
     status.contactIterations = dispatch.contactIterationCount;
-    const uint reducedProjectionEvidence = status.flags &
+    const uint finishPathEvidence = status.flags &
         (MR_NUMI_HUMAN_STAND_REDUCED_PROJECTION_READY |
-         MR_NUMI_HUMAN_STAND_REDUCED_PROJECTION_USED);
+         MR_NUMI_HUMAN_STAND_REDUCED_PROJECTION_USED |
+         MR_NUMI_HUMAN_STAND_DEFERRED_EQUALITY_DIAGNOSTICS_USED);
     status.flags = (dispatch.flags &
         ~(MR_NUMI_HUMAN_STAND_FREE_READY |
-          MR_NUMI_HUMAN_STAND_CPU_FINISH_READY)) | reducedProjectionEvidence;
+          MR_NUMI_HUMAN_STAND_CPU_FINISH_READY)) | finishPathEvidence;
     status.contactAndAcceleration.x = min(
         status.contactAndAcceleration.x, minimumGap
     );

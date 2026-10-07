@@ -71,6 +71,14 @@ constant float kSpeculativeContactAdmissionDistanceMeters
 constant float kUseSpeculativeContactAdmissionDistanceMeters =
     is_function_constant_defined(kSpeculativeContactAdmissionDistanceMeters)
         ? kSpeculativeContactAdmissionDistanceMeters : 0.0f;
+// Default-off diagnostic scheduling experiment. It changes only where the
+// existing source-limit/equality multiplier and work evidence is evaluated;
+// the coupled candidate-velocity PGS operations remain in authored order.
+constant bool kDeferredStandEqualityDiagnostics
+    [[function_constant(9)]];
+constant bool kUseDeferredStandEqualityDiagnostics =
+    is_function_constant_defined(kDeferredStandEqualityDiagnostics)
+        ? kDeferredStandEqualityDiagnostics : false;
 inline float standContactAdmissionDistanceMeters(
     const MRNumiHumanStandContactGPU support
 ) {
@@ -3200,6 +3208,13 @@ kernel void mr_numi_human_stand_finish(
     threadgroup float cooperativeContactApplied[3];
     threadgroup float cooperativeContactEqualityWork[
         3u * MR_NUMI_HUMAN_STAND_MAX_CONTACTS];
+    // A one-sweep journal lets the optional diagnostic replay run after the
+    // source-ordered physical limit updates. It is reused at each sweep
+    // boundary; no accepted-state or cross-root history is retained.
+    threadgroup float deferredLimitImpulseJournal[
+        MR_NUMI_HUMAN_STAND_MAX_DOFS];
+    threadgroup float deferredEqualityVelocityStart[
+        MR_NUMI_HUMAN_STAND_MAX_DOFS];
     threadgroup MRNumiHumanPreparedFrictionMetric cooperativeFrictionMetrics[
         MR_NUMI_HUMAN_STAND_MAX_CONTACTS];
     threadgroup float* equalityRhs = equalityRhsStorage;

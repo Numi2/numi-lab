@@ -77,6 +77,9 @@ enum MRNumiHumanStandFlags {
     MR_NUMI_HUMAN_STAND_ANALYTIC_BODY_SPATIAL_JACOBIANS = 1u << 20u,
     // Optional accurate body-ordered reductions; the physical terms are unchanged.
     MR_NUMI_HUMAN_STAND_COMPENSATED_BODY_SUM = 1u << 21u,
+    // Status-only proof that the opt-in per-sweep equality diagnostic replay
+    // was selected for this finish. This is never an input dispatch flag.
+    MR_NUMI_HUMAN_STAND_DEFERRED_EQUALITY_DIAGNOSTICS_USED = 1u << 22u,
 };
 
 // One source-authored support witness. The point-query index addresses the

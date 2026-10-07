@@ -672,6 +672,11 @@ struct MetalArticulatedOperatorContextState {
         if (onePassStandLimits != nullptr)
             config.onePassStandOrderedLimits =
                 std::strcmp(onePassStandLimits, "1") == 0;
+        const char* deferStandEqualityDiagnostics = std::getenv(
+            "NUMI_HUMAN_STAND_DEFER_EQUALITY_DIAGNOSTICS");
+        if (deferStandEqualityDiagnostics != nullptr)
+            config.deferStandEqualityDiagnostics =
+                std::strcmp(deferStandEqualityDiagnostics, "1") == 0;
         const char* speculativeContactAdmission = std::getenv(
             "NUMI_HUMAN_STAND_SPECULATIVE_CONTACT_DISTANCE_M");
         if (speculativeContactAdmission != nullptr) {
@@ -4034,6 +4039,9 @@ MetalArticulatedOperatorDiagnostics initializeContext(
     [operatorConstants setConstantValue:
         &speculativeContactAdmissionDistanceMeters
         type:MTLDataTypeFloat atIndex:8u];
+    bool deferStandEqualityDiagnostics = false;
+    [operatorConstants setConstantValue:&deferStandEqualityDiagnostics
+                                   type:MTLDataTypeBool atIndex:9u];
     id<MTLFunction> standFunction = [library
         newFunctionWithName:@"mr_numi_human_stand_step"
             constantValues:operatorConstants error:&error];
@@ -4128,6 +4136,8 @@ MetalArticulatedOperatorDiagnostics initializeContext(
         [equalityConstants setConstantValue:
             &speculativeContactAdmissionDistanceMeters
             type:MTLDataTypeFloat atIndex:8u];
+        [equalityConstants setConstantValue:&deferStandEqualityDiagnostics
+                                       type:MTLDataTypeBool atIndex:9u];
         error = nil;
         id<MTLFunction> standEqualityFunction = [library
             newFunctionWithName:@"mr_numi_human_stand_equality_prepare"
@@ -4175,6 +4185,10 @@ MetalArticulatedOperatorDiagnostics initializeContext(
         bool onePassStandLimits = context.config.onePassStandOrderedLimits;
         [finishConstants setConstantValue:&onePassStandLimits
                                     type:MTLDataTypeBool atIndex:7u];
+        deferStandEqualityDiagnostics =
+            context.config.deferStandEqualityDiagnostics;
+        [finishConstants setConstantValue:&deferStandEqualityDiagnostics
+                                    type:MTLDataTypeBool atIndex:9u];
         [finishConstants setConstantValue:
             &speculativeContactAdmissionDistanceMeters
             type:MTLDataTypeFloat atIndex:8u];
@@ -4259,6 +4273,9 @@ MetalArticulatedOperatorDiagnostics initializeContext(
         cpuFinishSpecialized = true;
         [finishConstants setConstantValue:&cpuFinishSpecialized
                                     type:MTLDataTypeBool atIndex:0u];
+        deferStandEqualityDiagnostics = false;
+        [finishConstants setConstantValue:&deferStandEqualityDiagnostics
+                                    type:MTLDataTypeBool atIndex:9u];
         error = nil;
         id<MTLFunction> standCpuFinishFunction = [library
             newFunctionWithName:@"mr_numi_human_stand_finish"

@@ -1886,6 +1886,10 @@ struct MetalArticulatedOperatorConfig {
     // Default-off ordered one-pass limit projection, retaining authored row
     // order and all existing checks/work accounting.
     bool onePassStandOrderedLimits = false;
+    // Experimental default-off relocation of limit/equality reaction and work
+    // bookkeeping to an ordered replay within each coupled sweep. Candidate
+    // velocity updates retain their existing order and arithmetic.
+    bool deferStandEqualityDiagnostics = false;
     // Optional speculative-contact candidate admission override. Zero retains
     // the source contact activation distance and warm-start policy.
     float speculativeContactAdmissionDistanceMeters = 0.0f;
