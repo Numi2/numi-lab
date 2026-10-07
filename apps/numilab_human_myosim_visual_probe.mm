@@ -6515,11 +6515,9 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     constexpr std::uint32_t kMaximumAuthoritativeSubmissionSteps = 8u;
     require(acceptedComMomentumAuditSegmentSteps >= 1u &&
                 acceptedComMomentumAuditSegmentSteps <= 32u,
-            "accepted COM audit segment cap must be in [1, 32]");
+            "accepted observer segment cap must be in [1, 32]");
     const std::uint32_t maximumSubmissionSteps = acceptedObserver != nullptr
-        ? (acceptedComMomentumAudit
-            ? acceptedComMomentumAuditSegmentSteps
-            : 32u)
+        ? acceptedComMomentumAuditSegmentSteps
         : kMaximumAuthoritativeSubmissionSteps;
     const bool captureExactContinuumSteps = continuumTransaction != nullptr;
     const bool useSegmentedAuthoritativeHorizon =
@@ -22363,9 +22361,19 @@ int main(int argc, char** argv) {
                         "derived_internal_equalities=40 wrist_dofs=free root_constraint_rows=0 "
                         "hand_function_simulated=0 body_mass_inertia_preserved=1\n";
                 }
-                // The accepted observer submits at most 32 steps and presents
-                // the matching pre-dynamics accepted pose (endpoint minus one).
-                NumiHumanRestingVisual::validateAcceptedGeometryExportCadence(*muscleStepCount,32u);
+                const bool restingTimestepSensitivity =
+                    numi::matter::humanRestingTimestepSensitivityEnabled();
+                // Keep the established 64 ms presentation cadence at larger
+                // experimental timesteps: 32 steps at 2 ms, 16 at 4 ms,
+                // and 8 at 8 ms. Smaller values remain bounded by 32 steps.
+                const std::uint32_t restingPresentationCadenceSteps =
+                    restingTimestepSensitivity
+                        ? static_cast<std::uint32_t>(std::clamp(
+                            std::llround(0.064 / *muscleStepSeconds),
+                            1ll, 32ll))
+                        : 32u;
+                NumiHumanRestingVisual::validateAcceptedGeometryExportCadence(
+                    *muscleStepCount, restingPresentationCadenceSteps);
                 std::filesystem::create_directories(positional.back());
                 std::ofstream trace(std::filesystem::path(positional.back())/"resting-coupled.csv");
                 require(trace.good(),"resting trace path unavailable");
@@ -22383,7 +22391,8 @@ int main(int argc, char** argv) {
                     std::strcmp(comMomentumAuditSetting, "1") == 0;
                 const char* comMomentumSegmentSetting =
                     std::getenv("NUMI_HUMAN_ACCEPTED_COM_MOMENTUM_AUDIT_SEGMENT_STEPS");
-                std::uint32_t restingComMomentumAuditSegmentSteps = 32u;
+                std::uint32_t restingComMomentumAuditSegmentSteps =
+                    restingPresentationCadenceSteps;
                 if (comMomentumSegmentSetting != nullptr &&
                     comMomentumSegmentSetting[0] != '\0') {
                     require(restingComMomentumAudit,
@@ -22397,7 +22406,10 @@ int main(int argc, char** argv) {
                                 parsedResult.ptr == end && parsed >= 1u &&
                                 parsed <= 32u,
                             "NUMI_HUMAN_ACCEPTED_COM_MOMENTUM_AUDIT_SEGMENT_STEPS must be an integer in [1, 32]");
-                    restingComMomentumAuditSegmentSteps = parsed;
+                    restingComMomentumAuditSegmentSteps =
+                        restingTimestepSensitivity
+                            ? std::gcd(parsed, restingPresentationCadenceSteps)
+                            : parsed;
                 }
                 const char* qIntegrationAuditSetting =
                     std::getenv("NUMI_HUMAN_ACCEPTED_Q_INTEGRATION_AUDIT");
@@ -22942,13 +22954,15 @@ int main(int argc, char** argv) {
                         if (liveVisual && !mechanicsOnly) {
                             // The COM observer may run every accepted step,
                             // while viewer/surface presentation keeps its
-                            // qualified 32-step cadence. This only throttles
+                            // 64 ms physical cadence. This only throttles
                             // read-only presentation; physical and support-
                             // geometry work still runs for every step.
                             const bool presentAcceptedPose =
                                 !restingComMomentumAudit ||
-                                restingComMomentumAuditSegmentSteps >= 32u ||
-                                step % 32u == 0u || step == *muscleStepCount;
+                                restingComMomentumAuditSegmentSteps >=
+                                    restingPresentationCadenceSteps ||
+                                step % restingPresentationCadenceSteps == 0u ||
+                                step == *muscleStepCount;
                             if (presentAcceptedPose)
                                 liveVisual->present(step == *muscleStepCount);
                         }
