@@ -1247,7 +1247,7 @@ def validate_native_310s_invocation(invocation: dict[str, Any]) -> None:
     if (invocation.get("qualification") !=
             "native execution receipt; physiological and anatomical acceptance require separate audits" or
             invocation.get("machine") != "arm64" or
-            not str(invocation.get("system", "")).startswith("Darwin")):
+            not str(invocation.get("system", "")).startswith(("Darwin", "macOS-"))):
         raise ValueError("310 s preparation requires a completed Apple-silicon Human owner run receipt")
     for key, expected in NATIVE_310S_REQUIRED_ENVIRONMENT.items():
         if environment.get(key) != expected:

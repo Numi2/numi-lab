@@ -626,6 +626,14 @@ class Native310sPreparationTests(unittest.TestCase):
             "asset_sha256": {},
         }
 
+    def test_accepts_current_macos_platform_receipt(self):
+        invocation = self.invocation()
+        invocation["system"] = "macOS-26.6-arm64-arm-64bit"
+        adapter.validate_native_310s_invocation(invocation)
+        invocation["system"] = "Linux-6.1-aarch64"
+        with self.assertRaisesRegex(ValueError, "Apple-silicon"):
+            adapter.validate_native_310s_invocation(invocation)
+
     @staticmethod
     def write_surface_fixture(path, steps, dt, *, include_whole_mesh=True):
         columns = ["step", "time_s", "min_skin_bed_gap_m", "vertices_below_1mm",
