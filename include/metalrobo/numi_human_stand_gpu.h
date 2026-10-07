@@ -65,6 +65,13 @@ enum MRNumiHumanStandFlags {
     // Optional response-only R^T A R solve. The source equality factor and
     // ordered physical finish remain authoritative.
     MR_NUMI_HUMAN_STAND_REDUCED_PROJECTED_RESPONSES = 1u << 16u,
+    // The selected source operator uses the upper triangle for sparse
+    // Cholesky and the lower triangle for dense Cholesky.
+    MR_NUMI_HUMAN_STAND_REDUCED_SOURCE_UPPER_TRIANGLE = 1u << 17u,
+    // Read-only per-root evidence in status.flags: operator factored and a
+    // projected response actually used the reduced path.
+    MR_NUMI_HUMAN_STAND_REDUCED_PROJECTION_READY = 1u << 18u,
+    MR_NUMI_HUMAN_STAND_REDUCED_PROJECTION_USED = 1u << 19u,
 };
 
 // One source-authored support witness. The point-query index addresses the

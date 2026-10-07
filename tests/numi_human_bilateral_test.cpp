@@ -94,6 +94,57 @@ bool solveReference(
     return true;
 }
 
+void testReducedSourceTriangleSelection() {
+    constexpr unsigned nv = 3u;
+    // Deliberately asymmetric rounding distinguishes the triangles consumed
+    // by the native dense and sparse Cholesky paths.
+    const std::vector<double> sourceA{
+        4.0, 1.001, 0.400,
+        1.000, 5.0, 0.700,
+        0.200, 0.600, 3.0};
+    const std::vector<double> force{0.8, 2.0, -0.5};
+    std::vector<double> reactionByTriangle;
+    for (const bool upperTriangle : {false, true}) {
+        std::vector<double> selected(nv*nv, 0.0);
+        for (unsigned row = 0u; row < nv; ++row)
+            for (unsigned column = 0u; column < nv; ++column) {
+                const unsigned storedRow = upperTriangle
+                    ? std::min(row, column) : std::max(row, column);
+                const unsigned storedColumn = upperTriangle
+                    ? std::max(row, column) : std::min(row, column);
+                selected[row*nv+column] =
+                    sourceA[storedRow*nv+storedColumn];
+            }
+        require(selected[1] == selected[nv],
+                "selected source triangle did not produce a symmetric operator");
+        const std::vector<double> reduced{
+            selected[0], selected[2*nv],
+            selected[2*nv], selected[2*nv+2]};
+        std::vector<double> coordinates;
+        require(solveReference(reduced, {force[0], force[2]}, 2u,
+                               coordinates),
+                "asymmetric source-triangle reduced solve failed");
+        const std::vector<double> response{
+            coordinates[0], 0.0, coordinates[1]};
+        const double reaction = -force[1] +
+            selected[nv+0]*response[0] +
+            selected[nv+1]*response[1] +
+            selected[nv+2]*response[2];
+        for (unsigned dof = 0u; dof < nv; ++dof) {
+            const double residual =
+                selected[dof*nv+0]*response[0] +
+                selected[dof*nv+1]*response[1] +
+                selected[dof*nv+2]*response[2] - force[dof];
+            require(std::abs(residual -
+                        (dof == 1u ? reaction : 0.0)) < 1e-12,
+                    "triangle-selected response/reaction violates KKT");
+        }
+        reactionByTriangle.push_back(reaction);
+    }
+    require(std::abs(reactionByTriangle[0] - reactionByTriangle[1]) > 1e-5,
+            "asymmetric fixture did not distinguish lower from upper source A");
+}
+
 void testReducedResponseReference() {
     constexpr unsigned nv = 6u;
     const std::vector<ReducedEqualityReference> equalities{
@@ -266,6 +317,7 @@ void testReducedResponseReference() {
 }
 int main() {
     testReducedResponseReference();
+    testReducedSourceTriangleSelection();
     checkSystem({2.0f},{-3.0f});
     // Two successive pivot swaps, including previously computed L columns.
     checkSystem({1,9,1, 2,1,8, 5,2,1},{1,-2,3});

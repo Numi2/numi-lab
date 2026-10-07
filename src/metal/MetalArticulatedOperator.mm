@@ -9261,6 +9261,40 @@ MetalArticulatedOperatorSubmission::wait(
                         "GPU returned a malformed Numi Human stand status"
                     );
                 }
+                if (pending->context->config.reducedStandProjectedResponses) {
+                    const bool reducedAdmitted =
+                        (stand.flags &
+                         MR_NUMI_HUMAN_STAND_REDUCED_PROJECTED_RESPONSES) != 0u;
+                    const bool reducedReady =
+                        (stand.flags &
+                         MR_NUMI_HUMAN_STAND_REDUCED_PROJECTION_READY) != 0u;
+                    const bool reducedUsed =
+                        (stand.flags &
+                         MR_NUMI_HUMAN_STAND_REDUCED_PROJECTION_USED) != 0u;
+                    const std::size_t freeDofs =
+                        pending->articulation.nv >=
+                            pending->standJointEqualityCount
+                        ? pending->articulation.nv -
+                            pending->standJointEqualityCount
+                        : 0u;
+                    if (reducedUsed && !reducedReady) {
+                        return reject(
+                            std::move(diagnostics),
+                            MetalArticulatedOperatorHostStatus::internalFailure,
+                            "reduced Human response used without a ready operator"
+                        );
+                    }
+                    std::fprintf(stderr,
+                        "human_stand_reduced_response root_step=%u environment=%zu "
+                        "requested=1 admitted=%u ready=%u used=%u "
+                        "free_dofs=%zu source_triangle=%s\n",
+                        stand.completedSteps, environment,
+                        reducedAdmitted ? 1u : 0u,
+                        reducedReady ? 1u : 0u, reducedUsed ? 1u : 0u,
+                        freeDofs,
+                        pending->context->config.sparseStandOperator
+                            ? "upper" : "lower");
+                }
                 diagnostics.completedStandSteps = std::min(
                     diagnostics.completedStandSteps == 0u
                         ? stand.completedSteps
@@ -13375,9 +13409,13 @@ MetalArticulatedOperatorContext::submit(
                         }
                     }
                     MRNumiHumanStandDispatchGPU phaseDispatch = standDispatch;
-                    if (reducedProjectedResponses)
+                    if (reducedProjectedResponses) {
                         phaseDispatch.flags |=
                             MR_NUMI_HUMAN_STAND_REDUCED_PROJECTED_RESPONSES;
+                        if (state_->config.sparseStandOperator)
+                            phaseDispatch.flags |=
+                                MR_NUMI_HUMAN_STAND_REDUCED_SOURCE_UPPER_TRIANGLE;
+                    }
                     if (parallelMass) {
                         if (phase == 0u) {
                             phaseDispatch.flags |= MR_NUMI_HUMAN_STAND_PREPARE_ONLY |

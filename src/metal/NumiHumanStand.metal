@@ -77,6 +77,21 @@ inline uint standResponseStride(
         : legacy;
 }
 
+// The dense factor reads the source lower triangle. Sparse Cholesky reads the
+// source upper triangle before writing its lower factor. Mirror the exact
+// selected source triangle when constructing the reduced operator or reactions.
+inline float standSelectedSourceA(
+    device const float* sourceA,
+    const uint nv,
+    const uint row,
+    const uint column,
+    const bool upperTriangle
+) {
+    const uint storedRow = upperTriangle ? min(row, column) : max(row, column);
+    const uint storedColumn = upperTriangle ? max(row, column) : min(row, column);
+    return sourceA[storedRow * nv + storedColumn];
+}
+
 struct MRStandFinishWorkCounters {
     uint sweeps, contactDecisions, contactContractions;
     uint normalChanges, tangentChanges, zeroContactChanges;
@@ -1920,6 +1935,7 @@ inline bool prepareReducedStandProjection(
     device const MRNumiHumanJointEqualityGPU* jointEqualities,
     const uint nv,
     const uint equalityCount,
+    const bool upperTriangle,
     const uint lane,
     const uint threadCount,
     device float* reducedFactor,
@@ -2040,10 +2056,8 @@ inline bool prepareReducedStandProjection(
                  columnIndex < coordinateOffsets[column + 1u];
                  ++columnIndex) {
                 const uint sourceColumn = coordinateDofs[columnIndex];
-                const uint lowerRow = max(sourceRow, sourceColumn);
-                const uint lowerColumn = min(sourceRow, sourceColumn);
-                const float sourceValue =
-                    sourceA[lowerRow * nv + lowerColumn];
+                const float sourceValue = standSelectedSourceA(
+                    sourceA, nv, sourceRow, sourceColumn, upperTriangle);
                 value = fma(rowCoefficient * coefficientForDof[sourceColumn],
                             sourceValue, value);
             }
@@ -2204,12 +2218,23 @@ kernel void mr_numi_human_stand_equality_prepare(
         reinterpret_cast<device uint*>(coefficientForDof + nv);
     device uint* coordinateDofs = coordinateOffsets + freeDofs + 1u;
     device uint* reducedReady = coordinateDofs + nv;
-    prepareReducedStandProjection(
-        sourceA, derivativeCache, jointEqualities, nv, equalityCount, lane,
-        threadCount, reducedFactor, reducedScale, reducedPivots,
+    const bool upperTriangle =
+        (dispatch.flags &
+         MR_NUMI_HUMAN_STAND_REDUCED_SOURCE_UPPER_TRIANGLE) != 0u;
+    const bool reducedReadyForRoot = prepareReducedStandProjection(
+        sourceA, derivativeCache, jointEqualities, nv, equalityCount,
+        upperTriangle, lane, threadCount, reducedFactor, reducedScale,
+        reducedPivots,
         coordinateForDof, coefficientForDof, coordinateOffsets,
         coordinateDofs, reducedReady, factorCache, scaleCache, pivotCache,
         &factorFailure, &selectedPivot);
+    if (lane == 0u && reducedReadyForRoot) {
+        device atomic_uint* statusFlags =
+            reinterpret_cast<device atomic_uint*>(&status.flags);
+        atomic_fetch_or_explicit(statusFlags,
+            MR_NUMI_HUMAN_STAND_REDUCED_PROJECTION_READY,
+            memory_order_relaxed);
+    }
 }
 
 // Contact and position-limit responses have no cross-column dependency after
@@ -2587,6 +2612,8 @@ kernel void mr_numi_human_stand_projected_response_cooperative(
             reinterpret_cast<device const uint*>(coefficientForDof + nv);
         device const uint* coordinateDofs = coordinateOffsets + freeDofs + 1u;
         device const uint* reducedReady = coordinateDofs + nv;
+        const bool useUpperTriangle = (dispatch.flags &
+            MR_NUMI_HUMAN_STAND_REDUCED_SOURCE_UPPER_TRIANGLE) != 0u;
         if (*reducedReady != 0u) {
             for (uint coordinate = lane; coordinate < freeDofs;
                  coordinate += threadCount) {
@@ -2612,6 +2639,7 @@ kernel void mr_numi_human_stand_projected_response_cooperative(
                 if (lane == 0u)
                     atomic_store_explicit(&reducedFailure, 0u,
                                           memory_order_relaxed);
+                threadgroup_barrier(mem_flags::mem_threadgroup);
                 for (uint dof = lane; dof < nv; dof += threadCount) {
                     const uint coordinate = coordinateForDof[dof];
                     reducedLift[dof] =
@@ -2630,10 +2658,9 @@ kernel void mr_numi_human_stand_projected_response_cooperative(
                         ? -rawResponse[dependent]
                         : (dependent == limitDof ? -1.0f : 0.0f);
                     for (uint dof = 0u; dof < nv; ++dof) {
-                        const uint lowerRow = max(dependent, dof);
-                        const uint lowerColumn = min(dependent, dof);
                         reactionValue = fma(
-                            sourceA[lowerRow * nv + lowerColumn],
+                            standSelectedSourceA(sourceA, nv, dependent, dof,
+                                useUpperTriangle),
                             reducedLift[dof], reactionValue);
                     }
                     equalityRhs[row] = reactionValue;
@@ -2662,6 +2689,14 @@ kernel void mr_numi_human_stand_projected_response_cooperative(
                     }
                     threadgroup_barrier(mem_flags::mem_threadgroup);
                     useReducedResponse = true;
+                    if (lane == 0u) {
+                        device atomic_uint* statusFlags =
+                            reinterpret_cast<device atomic_uint*>(
+                                &status.flags);
+                        atomic_fetch_or_explicit(statusFlags,
+                            MR_NUMI_HUMAN_STAND_REDUCED_PROJECTION_USED,
+                            memory_order_relaxed);
+                    }
                 }
             }
         }
