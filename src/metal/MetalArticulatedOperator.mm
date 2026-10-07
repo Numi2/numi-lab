@@ -2267,7 +2267,8 @@ bool canCacheStandLimitEqualityResponses(
         input.stand.enabled() && input.stand.enableContact &&
         !input.stand.contacts.empty() && nv != 0u && nv <= 128u &&
         !input.stand.jointEqualities.empty() &&
-        input.stand.jointEqualities.size() <= 64u;
+        // The cooperative SIMD limit path holds three equality rows per lane.
+        input.stand.jointEqualities.size() <= 96u;
 }
 
 bool buildRequirements(
