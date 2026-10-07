@@ -25,10 +25,10 @@ class NumiHumanRestingVisual {
     id<MTLBuffer> commonFieldMapBuffer, commonFieldParameters, commonFieldBoxes, commonFieldCoordinates;
     id<MTLBuffer> commonFieldNormalRanges, commonFieldIncidentTriangles;
     id<MTLBuffer> airwayNormalRanges, airwayIncidentTriangles;
-    id<MTLBuffer> meshAuditPartials,meshAuditResult;
-    id<MTLComputePipelineState> meshAuditPipeline,meshAuditReducePipeline;
+    id<MTLBuffer> meshAuditPartials,meshAuditResult,skinAuditPartials;
+    id<MTLComputePipelineState> meshAuditPipeline,meshAuditReducePipeline,skinAuditReducePipeline;
     std::vector<MRVisualPrimitiveGPUV2> auditedMeshPrimitives;
-    static constexpr unsigned meshAuditGroupCount=64;
+    static constexpr unsigned meshAuditGroupCount=64,skinAuditGroupThreads=256;
     id<MTLComputePipelineState> skinPipeline, layerPipeline, volumeAuditPartialPipeline, volumeAuditReducePipeline;
     id<MTLComputePipelineState> skinAuditPipeline, cardiacQPipeline, bodyAuditPipeline;
     id<MTLComputePipelineState> cardiacWallQPipeline, cardiacWallNormalsPipeline;
@@ -42,7 +42,7 @@ class NumiHumanRestingVisual {
     bool rigidHands=false;
     bool profileTiming=false;
     bool profileGpuTiming=false,gpuTimingUnavailableReported=false;
-    unsigned auditCount=0,volumeAuditGroupCount=0;
+    unsigned auditCount=0,volumeAuditGroupCount=0,skinAuditGroupCount=0;
     std::vector<unsigned> auditStableIds;
     unsigned cardiacWallVertexCount=0,cardiacWallAuditIndex=MR_INVALID_INDEX;
     bool commonCardiacGeometry=false;
@@ -1379,10 +1379,20 @@ public:
         config.clearColorAndDepth={.012f,.019f,.03f,1e30f};renderer=std::make_unique<metalrobo::MetalHybridRenderer>(config);
         auto rc=renderer->compile(std::move(manifest.renderScene),metalrobo::VisualRendererProfileV1::sensorFast(),1);require(rc.succeeded(),rc.message);
         require(renderer->layout().meshVertexCount==maps.size(),"resting compiled vertex order changed");
+        require(renderer->layout().meshVertexCount>0u&&
+            renderer->layout().meshVertexCount<=std::numeric_limits<unsigned>::max()-
+                (skinAuditGroupThreads-1u),
+            "resting rendered vertex count exceeds parallel skin-audit indexing bounds");
+        skinAuditGroupCount=(renderer->layout().meshVertexCount+skinAuditGroupThreads-1u)/
+            skinAuditGroupThreads;
+        require(skinAuditGroupCount>0u,"resting parallel skin audit has no vertex groups");
         auditedMeshPrimitives=pack.primitives;
         auto device=coupled.physiology.device;queue=[device newCommandQueue];
         meshAuditPartials=[device newBufferWithLength:meshAuditGroupCount*sizeof(mr_uint4) options:MTLResourceStorageModeShared];
         meshAuditResult=[device newBufferWithLength:sizeof(mr_uint4)+sizeof(MRHumanRestingSurfaceFailureGPU) options:MTLResourceStorageModeShared];
+        skinAuditPartials=[device newBufferWithLength:std::size_t(skinAuditGroupCount)*sizeof(mr_uint4)
+            options:MTLResourceStorageModeShared];
+        skinAuditPartials.label=@"Numi Human parallel full-skin audit partials";
         mapping=[device newBufferWithBytes:maps.data() length:maps.size()*sizeof(maps.front()) options:MTLResourceStorageModeShared];
         influences=[device newBufferWithBytes:weights.data() length:weights.size()*sizeof(weights.front()) options:MTLResourceStorageModeShared];
         anatomyParameters=[device newBufferWithBytes:&anatomyGPU length:sizeof(anatomyGPU) options:MTLResourceStorageModeShared];
@@ -1504,11 +1514,14 @@ public:
         layerPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_layers"] error:&e];
         volumeAuditPartialPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_audit_volume_partials"] error:&e];
         volumeAuditReducePipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_reduce_volume_audits"] error:&e];
-        skinAuditPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_audit_skin"] error:&e];
+        skinAuditPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_audit_skin_partials"] error:&e];
+        skinAuditReducePipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_reduce_skin_audit"] error:&e];
         bodyAuditPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_audit_body"] error:&e];
         meshAuditPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_audit_mesh_triangles"] error:&e];
         meshAuditReducePipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_reduce_mesh_audit"] error:&e];
         require(meshAuditPartials&&meshAuditResult&&meshAuditPipeline&&meshAuditReducePipeline,"whole-mesh GPU triangle audit setup failed");
+        require(skinAuditPartials&&skinAuditPipeline&&skinAuditReducePipeline,
+            "parallel full-skin GPU audit setup failed");
         require(volumeAuditGroups&&volumeAuditRanges&&volumeAuditPartials&&
             volumeAuditPartialPipeline&&volumeAuditReducePipeline,
             "parallel functional volume audit setup failed");
@@ -1644,9 +1657,19 @@ public:
         e.setBuffer(e.context,(__bridge void*)self.meshAuditResult,0,4);
         e.setBuffer(e.context,(__bridge void*)self.meshAuditResult,sizeof(mr_uint4),5);
         e.dispatchThreads(e.context,1,1);
-        e.setPipeline(e.context,(__bridge void*)self.skinAuditPipeline);e.setBytes(e.context,&d,sizeof(d),0);
+        const mr_uint4 skinAuditPartialDimensions={d.x,self.skinAuditGroupCount,0,0};
+        e.setPipeline(e.context,(__bridge void*)self.skinAuditPipeline);
+        e.setBytes(e.context,&skinAuditPartialDimensions,sizeof(skinAuditPartialDimensions),0);
         e.setBuffer(e.context,(__bridge void*)self.mapping,0,1);e.setBuffer(e.context,lease.meshVertices,0,2);
-        e.setBuffer(e.context,(__bridge void*)self.volumeResults,0,3);e.dispatchThreads(e.context,256,256);
+        e.setBuffer(e.context,(__bridge void*)self.skinAuditPartials,0,3);
+        e.dispatchThreads(e.context,std::size_t(self.skinAuditGroupCount)*skinAuditGroupThreads,
+            skinAuditGroupThreads);
+        const mr_uint4 skinAuditReduceDimensions={self.skinAuditGroupCount,d.w,0,0};
+        e.setPipeline(e.context,(__bridge void*)self.skinAuditReducePipeline);
+        e.setBytes(e.context,&skinAuditReduceDimensions,sizeof(skinAuditReduceDimensions),0);
+        e.setBuffer(e.context,(__bridge void*)self.skinAuditPartials,0,1);
+        e.setBuffer(e.context,(__bridge void*)self.volumeResults,0,2);
+        e.dispatchThreads(e.context,skinAuditGroupThreads,skinAuditGroupThreads);
         const mr_uint4 bodyAuditDimensions={unsigned(self.coupled.presentationBodies.length/sizeof(MRBodyStateGPU)),self.auditCount+1,0,0};
         e.setPipeline(e.context,(__bridge void*)self.bodyAuditPipeline);
         e.setBytes(e.context,&bodyAuditDimensions,sizeof(bodyAuditDimensions),0);

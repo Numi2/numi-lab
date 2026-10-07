@@ -462,6 +462,85 @@ kernel void nm_human_resting_audit_skin(
     if(lane==0)result[d.w]=float4(minimum[0],float(owner[0]),float(below[0]),float(invalid[0]));
 }
 
+// Preserve the original single-group skin audit's left-biased reduction
+// witness order: stride-halving orders the 8-bit lane indices by bit reversal;
+// ties within a lane choose the earliest original loop iteration.
+inline uint nmHumanRestingSkinAuditLanePriority(uint lane) {
+    uint x=lane&255u;
+    x=((x&0x55u)<<1)|((x>>1)&0x55u);
+    x=((x&0x33u)<<2)|((x>>2)&0x33u);
+    x=((x&0x0fu)<<4)|((x>>4)&0x0fu);
+    return x;
+}
+inline bool nmHumanRestingSkinAuditOwnerBefore(uint candidate,uint current) {
+    if(candidate==MR_INVALID_INDEX)return false;
+    if(current==MR_INVALID_INDEX)return true;
+    const uint candidatePriority=nmHumanRestingSkinAuditLanePriority(candidate);
+    const uint currentPriority=nmHumanRestingSkinAuditLanePriority(current);
+    return candidatePriority<currentPriority||
+        (candidatePriority==currentPriority&&candidate/256u<current/256u);
+}
+kernel void nm_human_resting_audit_skin_partials(
+    constant uint4& d [[buffer(0)]],device const MRHumanRestingVertexMap* map [[buffer(1)]],
+    device const MRVisualVertexGPUV2* vertices [[buffer(2)]],device uint4* partials [[buffer(3)]],
+    uint lane [[thread_index_in_threadgroup]],uint3 group [[threadgroup_position_in_grid]]) {
+    threadgroup float minimum[256];threadgroup uint owner[256],below[256],invalid[256];
+    float value=INFINITY;uint index=MR_INVALID_INDEX,count=0,nonfinite=0;
+    const uint i=group.x*256u+lane;
+    if(i<d.x) {
+        if(!all(isfinite(vertices[i].position))||!all(isfinite(vertices[i].normalAndTangentSign)))++nonfinite;
+        if(map[i].deformationKind==3u) {
+            const float z=vertices[i].position.z;
+            if(z<value){value=z;index=i;}
+            if(z<-.001f)++count;
+        }
+    }
+    minimum[lane]=value;owner[lane]=index;below[lane]=count;invalid[lane]=nonfinite;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    for(uint stride=128;stride;stride>>=1) {
+        if(lane<stride) {
+            const uint other=lane+stride;
+            if(minimum[other]<minimum[lane]||
+               (minimum[other]==minimum[lane]&&
+                nmHumanRestingSkinAuditOwnerBefore(owner[other],owner[lane]))) {
+                minimum[lane]=minimum[other];owner[lane]=owner[other];
+            }
+            below[lane]+=below[other];invalid[lane]+=invalid[other];
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+    if(lane==0)partials[group.x]=uint4(as_type<uint>(minimum[0]),owner[0],below[0],invalid[0]);
+}
+kernel void nm_human_resting_reduce_skin_audit(
+    constant uint4& d [[buffer(0)]],device const uint4* partials [[buffer(1)]],
+    device float4* result [[buffer(2)]],uint lane [[thread_index_in_threadgroup]]) {
+    threadgroup float minimum[256];threadgroup uint owner[256],below[256],invalid[256];
+    float value=INFINITY;uint index=MR_INVALID_INDEX,count=0,nonfinite=0;
+    for(uint group=lane;group<d.x;group+=256u) {
+        const uint4 partial=partials[group];const float candidate=as_type<float>(partial.x);
+        if(candidate<value||
+           (candidate==value&&nmHumanRestingSkinAuditOwnerBefore(partial.y,index))) {
+            value=candidate;index=partial.y;
+        }
+        count+=partial.z;nonfinite+=partial.w;
+    }
+    minimum[lane]=value;owner[lane]=index;below[lane]=count;invalid[lane]=nonfinite;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    for(uint stride=128;stride;stride>>=1) {
+        if(lane<stride) {
+            const uint other=lane+stride;
+            if(minimum[other]<minimum[lane]||
+               (minimum[other]==minimum[lane]&&
+                nmHumanRestingSkinAuditOwnerBefore(owner[other],owner[lane]))) {
+                minimum[lane]=minimum[other];owner[lane]=owner[other];
+            }
+            below[lane]+=below[other];invalid[lane]+=invalid[other];
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+    if(lane==0)result[d.y]=float4(minimum[0],float(owner[0]),float(below[0]),float(invalid[0]));
+}
+
 // Presentation-only reduction of the same committed body poses used by the
 // anatomy renderer. No extra body readback, alternate integrator, or state
 // history; this compact trace distinguishes postural settling from COM drift.
