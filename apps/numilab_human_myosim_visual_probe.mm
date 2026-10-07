@@ -77,6 +77,14 @@
 
 namespace {
 
+bool humanRestingTimestepSensitivityEnabledForApp() {
+#ifdef NUMI_HUMAN_RESTING_SCENE
+    return numi::matter::humanRestingTimestepSensitivityEnabled();
+#else
+    return false;
+#endif
+}
+
 // Wall-clock diagnostics only; never alter simulation time or state.
 void reportHumanExecutionStage(const char* stage, std::uint32_t step = 0u) {
     static const bool enabled = [] {
@@ -5352,7 +5360,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             "accepted COM momentum audit requires the resting owner");
     const double maximumTimestepSeconds = restingProgram == nullptr
         ? 1.0e-3
-        : (numi::matter::humanRestingTimestepSensitivityEnabled()
+        : (humanRestingTimestepSensitivityEnabledForApp()
             ? 8.0e-3 : 2.0e-3);
     require(std::isfinite(timestepSeconds) && timestepSeconds >= 1.0e-6 &&
                 timestepSeconds <= maximumTimestepSeconds && stepCount >= 1u &&
@@ -22362,7 +22370,7 @@ int main(int argc, char** argv) {
                         "hand_function_simulated=0 body_mass_inertia_preserved=1\n";
                 }
                 const bool restingTimestepSensitivity =
-                    numi::matter::humanRestingTimestepSensitivityEnabled();
+                    humanRestingTimestepSensitivityEnabledForApp();
                 // Keep the established 64 ms presentation cadence at larger
                 // experimental timesteps: 32 steps at 2 ms, 16 at 4 ms,
                 // and 8 at 8 ms. Smaller values remain bounded by 32 steps.
