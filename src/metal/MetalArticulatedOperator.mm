@@ -646,6 +646,11 @@ struct MetalArticulatedOperatorContextState {
         if (equalityCache != nullptr)
             config.cacheStandLimitEqualityResponses =
                 std::strcmp(equalityCache, "1") == 0;
+        const char* reducedProjected =
+            std::getenv("NUMI_HUMAN_STAND_REDUCED_PROJECTED_RESPONSES");
+        if (reducedProjected != nullptr)
+            config.reducedStandProjectedResponses =
+                std::strcmp(reducedProjected, "1") == 0;
         const char* sparseOperator =
             std::getenv("NUMI_HUMAN_STAND_SPARSE_OPERATOR");
         if (sparseOperator != nullptr)
@@ -2261,6 +2266,19 @@ bool cachedStandSparseGraph(
     return true;
 }
 
+bool canUseReducedStandProjectedResponses(
+    const MetalArticulatedOperatorConfig& config,
+    const MetalArticulatedOperatorInput& input,
+    std::uint32_t nv
+) noexcept {
+    const auto equalityCount = input.stand.jointEqualities.size();
+    return config.reducedStandProjectedResponses && config.splitStandSolve &&
+        input.stand.enabled() && input.stand.enableContact &&
+        !input.stand.contacts.empty() && equalityCount != 0u &&
+        nv != 0u && nv <= MR_NUMI_HUMAN_STAND_MAX_DOFS &&
+        equalityCount < nv && nv - equalityCount <= 64u;
+}
+
 bool canCacheStandLimitEqualityResponses(
     const MetalArticulatedOperatorConfig& config,
     const MetalArticulatedOperatorInput& input,
@@ -3145,8 +3163,38 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
             !checkedMultiply(input.stand.jointEqualities.size(),
                              bilateralScratchElements, bilateralScratchElements) ||
             !checkedAdd(responsePerEnvironment, bilateralScratchElements,
-                        responsePerEnvironment) ||
-            !checkedMultiply(input.environmentCount, responsePerEnvironment,
+                        responsePerEnvironment)) {
+            return reject(
+                std::move(diagnostics),
+                MetalArticulatedOperatorHostStatus::arithmeticOverflow,
+                "derived Numi Human stand response element count overflow"
+            );
+        }
+        if (canUseReducedStandProjectedResponses(
+                config, input, articulation.nv)) {
+            const std::size_t freeDofs =
+                articulation.nv - input.stand.jointEqualities.size();
+            std::size_t reducedWorkspace = 0u;
+            std::size_t term = 0u;
+            if (!checkedMultiply(articulation.nv, articulation.nv,
+                                 reducedWorkspace) ||
+                !checkedMultiply(freeDofs, freeDofs, term) ||
+                !checkedAdd(reducedWorkspace, term, reducedWorkspace) ||
+                !checkedMultiply(freeDofs, 3u, term) ||
+                !checkedAdd(reducedWorkspace, term, reducedWorkspace) ||
+                !checkedMultiply(articulation.nv, 3u, term) ||
+                !checkedAdd(reducedWorkspace, term, reducedWorkspace) ||
+                !checkedAdd(reducedWorkspace, 2u, reducedWorkspace) ||
+                !checkedAdd(responsePerEnvironment, reducedWorkspace,
+                            responsePerEnvironment)) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::arithmeticOverflow,
+                    "reduced stand response workspace size overflow"
+                );
+            }
+        }
+        if (!checkedMultiply(input.environmentCount, responsePerEnvironment,
                              layout.standResponseElements)) {
             return reject(
                 std::move(diagnostics),
@@ -11823,6 +11871,9 @@ MetalArticulatedOperatorContext::submit(
                 const bool parallelMass = splitStand &&
                     (parallelMassSetting == nullptr ||
                      std::strcmp(parallelMassSetting, "1") == 0);
+                const bool reducedProjectedResponses = parallelMass &&
+                    canUseReducedStandProjectedResponses(
+                        state_->config, input, articulation.nv);
                 const char* freeSplitSetting =
                     std::getenv("NUMI_HUMAN_STAND_FREE_SPLIT");
                 const bool freeSplitRequested = freeSplitSetting != nullptr &&
@@ -13324,6 +13375,9 @@ MetalArticulatedOperatorContext::submit(
                         }
                     }
                     MRNumiHumanStandDispatchGPU phaseDispatch = standDispatch;
+                    if (reducedProjectedResponses)
+                        phaseDispatch.flags |=
+                            MR_NUMI_HUMAN_STAND_REDUCED_PROJECTED_RESPONSES;
                     if (parallelMass) {
                         if (phase == 0u) {
                             phaseDispatch.flags |= MR_NUMI_HUMAN_STAND_PREPARE_ONLY |

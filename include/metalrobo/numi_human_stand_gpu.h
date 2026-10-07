@@ -62,6 +62,9 @@ enum MRNumiHumanStandFlags {
     // Internal same-command-buffer handoff: projected mass responses were
     // solved against the current mass factor before this Metal dispatch.
     MR_NUMI_HUMAN_STAND_PROJECTED_RAW_READY = 1u << 15u,
+    // Optional response-only R^T A R solve. The source equality factor and
+    // ordered physical finish remain authoritative.
+    MR_NUMI_HUMAN_STAND_REDUCED_PROJECTED_RESPONSES = 1u << 16u,
 };
 
 // One source-authored support witness. The point-query index addresses the

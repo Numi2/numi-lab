@@ -44,6 +44,39 @@ constant bool kFinishWorkCounters [[function_constant(4)]];
 constant bool kUseFinishWorkCounters =
     is_function_constant_defined(kFinishWorkCounters)
         ? kFinishWorkCounters : false;
+
+inline uint standLegacyResponseStride(
+    const uint nv, const uint contactCount, const uint equalityCount
+) {
+    const uint responseColumns =
+        (3u * contactCount + equalityCount + nv) * nv;
+    return responseColumns + equalityCount * (equalityCount + 3u) +
+        nv * equalityCount;
+}
+
+inline uint standReducedResponseWorkspaceElements(
+    const uint nv, const uint equalityCount
+) {
+    if (equalityCount > nv) return 0u;
+    const uint freeDofs = nv - equalityCount;
+    // Source A, reduced factor, scale/pivot vectors, coordinate map,
+    // coefficients, grouped member offsets/indices, and readiness word.
+    return nv * nv + freeDofs * freeDofs + 3u * freeDofs +
+        3u * nv + 2u;
+}
+
+inline uint standResponseStride(
+    constant const MRNumiHumanStandDispatchGPU& dispatch, const uint nv
+) {
+    const uint legacy = standLegacyResponseStride(
+        nv, dispatch.supportContactCount, dispatch.jointEqualityCount);
+    return (dispatch.flags &
+            MR_NUMI_HUMAN_STAND_REDUCED_PROJECTED_RESPONSES) != 0u
+        ? legacy + standReducedResponseWorkspaceElements(
+            nv, dispatch.jointEqualityCount)
+        : legacy;
+}
+
 struct MRStandFinishWorkCounters {
     uint sweeps, contactDecisions, contactContractions;
     uint normalChanges, tangentChanges, zeroContactChanges;
@@ -665,8 +698,7 @@ kernel void mr_numi_human_stand_step(
     const uint vectorBase = preloadBase + nv;
     const uint equalityCount = dispatch.jointEqualityCount;
     const uint responseColumns = (dispatch.supportContactCount * 3u + equalityCount + nv) * nv;
-    const uint responseStride = responseColumns + equalityCount * (equalityCount + 3u) +
-        nv * equalityCount;
+    const uint responseStride = standResponseStride(dispatch, nv);
     const uint responseBase = environment * responseStride;
     device float* equalityFactor = responseScratch + responseBase + responseColumns;
     device float* equalityScale = equalityFactor + equalityCount * equalityCount;
@@ -1733,8 +1765,7 @@ kernel void mr_numi_human_stand_response_assemble(
         (dispatch.flags & MR_NUMI_HUMAN_STAND_ENABLE_CONTACT) != 0u;
     if (!contactEnabled && equalityCount == 0u) return;
     const uint responseColumns = (equalityColumnsEnd + nv) * nv;
-    const uint responseStride = responseColumns +
-        equalityCount * (equalityCount + 3u) + nv * equalityCount;
+    const uint responseStride = standResponseStride(dispatch, nv);
     device float* response = responseScratch +
         environment * responseStride + column * nv;
     const uint pointBase = environment * dispatch.pointWorldStride;
@@ -1832,8 +1863,7 @@ kernel void mr_numi_human_stand_equality_response_cooperative(
     const uint column = contactColumns + equalityIndex;
     const uint responseColumns =
         (contactColumns + equalityCount + nv) * nv;
-    const uint responseStride = responseColumns +
-        equalityCount * (equalityCount + 3u) + nv * equalityCount;
+    const uint responseStride = standResponseStride(dispatch, nv);
     device float* response = responseScratch +
         environment * responseStride + column * nv;
     threadgroup float rhs[MR_NUMI_HUMAN_STAND_MAX_DOFS];
@@ -1881,6 +1911,156 @@ kernel void mr_numi_human_stand_equality_response_cooperative(
 // The equality block depends on all equality response columns. Factor it
 // once, publish the source linearization, and transpose the equality columns
 // into the layout consumed by every coupled sweep.
+// The source-A snapshot and this factor are per-environment scratch written
+// in phase 1, consumed by phases 4/5 of the same root, then overwritten by the
+// next phase-1 assembly. They never serve as persistent physical state.
+inline bool prepareReducedStandProjection(
+    device const float* sourceA,
+    device const float* derivativeCache,
+    device const MRNumiHumanJointEqualityGPU* jointEqualities,
+    const uint nv,
+    const uint equalityCount,
+    const uint lane,
+    const uint threadCount,
+    device float* reducedFactor,
+    device float* reducedScale,
+    device float* reducedPivots,
+    device uint* coordinateForDof,
+    device float* coefficientForDof,
+    device uint* coordinateOffsets,
+    device uint* coordinateDofs,
+    device uint* ready,
+    threadgroup float* factorCache,
+    threadgroup float* scaleCache,
+    threadgroup float* pivotCache,
+    threadgroup atomic_uint* factorFailure,
+    threadgroup uint* selectedPivot
+) {
+    const uint freeDofs =
+        equalityCount <= nv ? nv - equalityCount : 0u;
+    if (lane == 0u) {
+        *ready = 0u;
+        bool valid = equalityCount <= nv &&
+            freeDofs != 0u && freeDofs <= 64u;
+        if (valid) {
+            for (uint dof = 0u; dof < nv; ++dof) {
+                coordinateForDof[dof] = MR_INVALID_INDEX;
+                coefficientForDof[dof] = 0.0f;
+            }
+            // Mark all dependents first so every chained source relation rejects.
+            for (uint row = 0u; row < equalityCount && valid; ++row) {
+                const uint dependent = jointEqualities[row].indices.y;
+                if (dependent >= nv ||
+                    coordinateForDof[dependent] != MR_INVALID_INDEX) {
+                    valid = false;
+                    break;
+                }
+                coordinateForDof[dependent] = nv;
+            }
+            for (uint row = 0u; row < equalityCount && valid; ++row) {
+                device const auto& equality = jointEqualities[row];
+                const bool fixed = equality.indices.z == MR_INVALID_INDEX &&
+                    equality.indices.w == MR_INVALID_INDEX;
+                const bool coupled =
+                    equality.indices.z != MR_INVALID_INDEX &&
+                    equality.indices.w < nv;
+                if ((!fixed && !coupled) ||
+                    (coupled &&
+                     (coordinateForDof[equality.indices.w] == nv ||
+                      !isfinite(derivativeCache[row]))))
+                    valid = false;
+            }
+            uint coordinate = 0u;
+            for (uint dof = 0u; dof < nv && valid; ++dof) {
+                if (coordinateForDof[dof] == MR_INVALID_INDEX) {
+                    if (coordinate >= freeDofs) {
+                        valid = false;
+                        break;
+                    }
+                    coordinateForDof[dof] = coordinate++;
+                    coefficientForDof[dof] = 1.0f;
+                }
+            }
+            valid = valid && coordinate == freeDofs;
+            for (uint row = 0u; row < equalityCount && valid; ++row) {
+                device const auto& equality = jointEqualities[row];
+                const uint dependent = equality.indices.y;
+                if (equality.indices.w == MR_INVALID_INDEX) {
+                    coordinateForDof[dependent] = MR_INVALID_INDEX;
+                    coefficientForDof[dependent] = 0.0f;
+                } else {
+                    const uint master = equality.indices.w;
+                    const uint masterCoordinate = coordinateForDof[master];
+                    if (master >= nv || masterCoordinate >= freeDofs ||
+                        !isfinite(derivativeCache[row])) {
+                        valid = false;
+                        break;
+                    }
+                    coordinateForDof[dependent] = masterCoordinate;
+                    coefficientForDof[dependent] = derivativeCache[row];
+                }
+            }
+            if (valid) {
+                for (uint index = 0u; index <= freeDofs; ++index)
+                    coordinateOffsets[index] = 0u;
+                for (uint dof = 0u; dof < nv; ++dof) {
+                    const uint coordinateIndex = coordinateForDof[dof];
+                    if (coordinateIndex != MR_INVALID_INDEX)
+                        ++coordinateOffsets[coordinateIndex + 1u];
+                }
+                for (uint coordinateIndex = 0u;
+                     coordinateIndex < freeDofs; ++coordinateIndex)
+                    coordinateOffsets[coordinateIndex + 1u] +=
+                        coordinateOffsets[coordinateIndex];
+                for (uint coordinateIndex = 0u;
+                     coordinateIndex < freeDofs; ++coordinateIndex) {
+                    uint output = coordinateOffsets[coordinateIndex];
+                    for (uint dof = 0u; dof < nv; ++dof)
+                        if (coordinateForDof[dof] == coordinateIndex)
+                            coordinateDofs[output++] = dof;
+                }
+                *ready = 1u;
+            }
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+    if (*ready == 0u) return false;
+
+    const uint matrixElements = freeDofs * freeDofs;
+    for (uint index = lane; index < matrixElements; index += threadCount) {
+        const uint row = index / freeDofs;
+        const uint column = index - row * freeDofs;
+        if (row < column) continue;
+        float value = 0.0f;
+        for (uint rowIndex = coordinateOffsets[row];
+             rowIndex < coordinateOffsets[row + 1u]; ++rowIndex) {
+            const uint sourceRow = coordinateDofs[rowIndex];
+            const float rowCoefficient = coefficientForDof[sourceRow];
+            for (uint columnIndex = coordinateOffsets[column];
+                 columnIndex < coordinateOffsets[column + 1u];
+                 ++columnIndex) {
+                const uint sourceColumn = coordinateDofs[columnIndex];
+                const uint lowerRow = max(sourceRow, sourceColumn);
+                const uint lowerColumn = min(sourceRow, sourceColumn);
+                const float sourceValue =
+                    sourceA[lowerRow * nv + lowerColumn];
+                value = fma(rowCoefficient * coefficientForDof[sourceColumn],
+                            sourceValue, value);
+            }
+        }
+        reducedFactor[row * freeDofs + column] = value;
+        reducedFactor[column * freeDofs + row] = value;
+    }
+    threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+    const bool factored = mrNumiHumanBilateralFactorCooperative<false>(
+        reducedFactor, reducedScale, reducedPivots, freeDofs, lane,
+        threadCount, factorCache, scaleCache, pivotCache, factorFailure,
+        selectedPivot);
+    if (lane == 0u) *ready = factored ? 1u : 0u;
+    threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+    return *ready != 0u;
+}
+
 kernel void mr_numi_human_stand_equality_prepare(
     device const MRArticulationGPU* articulations [[buffer(1)]],
     constant const MRNumiHumanStandDispatchGPU& dispatch [[buffer(4)]],
@@ -1913,8 +2093,7 @@ kernel void mr_numi_human_stand_equality_prepare(
     if (equalityCount == 0u) return;
     const uint responseColumns =
         (contactColumns + equalityCount + nv) * nv;
-    const uint responseStride = responseColumns +
-        equalityCount * (equalityCount + 3u) + nv * equalityCount;
+    const uint responseStride = standResponseStride(dispatch, nv);
     const uint responseBase = environment * responseStride;
     device float* equalityFactor =
         responseScratch + responseBase + responseColumns;
@@ -2003,6 +2182,34 @@ kernel void mr_numi_human_stand_equality_prepare(
         fail(status, MR_NUMI_HUMAN_STAND_JOINT_EQUALITY_FAILED,
              MR_INVALID_INDEX);
     }
+    threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+    if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS ||
+        (dispatch.flags &
+         MR_NUMI_HUMAN_STAND_REDUCED_PROJECTED_RESPONSES) == 0u)
+        return;
+    const uint legacyStride = standLegacyResponseStride(
+        nv, dispatch.supportContactCount, equalityCount);
+    device float* reducedArena = responseScratch + responseBase + legacyStride;
+    const uint freeDofs = nv - equalityCount;
+    device const float* sourceA = reducedArena;
+    device float* reducedFactor = responseScratch + responseBase +
+        legacyStride + nv * nv;
+    device float* reducedScale = reducedFactor + freeDofs * freeDofs;
+    device float* reducedPivots = reducedScale + freeDofs;
+    device uint* coordinateForDof =
+        reinterpret_cast<device uint*>(reducedPivots + freeDofs);
+    device float* coefficientForDof =
+        reinterpret_cast<device float*>(coordinateForDof + nv);
+    device uint* coordinateOffsets =
+        reinterpret_cast<device uint*>(coefficientForDof + nv);
+    device uint* coordinateDofs = coordinateOffsets + freeDofs + 1u;
+    device uint* reducedReady = coordinateDofs + nv;
+    prepareReducedStandProjection(
+        sourceA, derivativeCache, jointEqualities, nv, equalityCount, lane,
+        threadCount, reducedFactor, reducedScale, reducedPivots,
+        coordinateForDof, coefficientForDof, coordinateOffsets,
+        coordinateDofs, reducedReady, factorCache, scaleCache, pivotCache,
+        &factorFailure, &selectedPivot);
 }
 
 // Contact and position-limit responses have no cross-column dependency after
@@ -2039,8 +2246,7 @@ kernel void mr_numi_human_stand_projected_response_assemble(
     const uint column = positionIndex < contactColumns
         ? positionIndex : equalityColumnsEnd + positionIndex - contactColumns;
     const uint responseColumns = (equalityColumnsEnd + nv) * nv;
-    const uint responseStride = responseColumns +
-        equalityCount * (equalityCount + 3u) + nv * equalityCount;
+    const uint responseStride = standResponseStride(dispatch, nv);
     const uint responseBase = environment * responseStride;
     device float* response = responseScratch + responseBase + column * nv;
     device float* equalityFactor =
@@ -2244,8 +2450,7 @@ kernel void mr_numi_human_stand_projected_response_cooperative(
     const uint column = positionIndex < contactColumns
         ? positionIndex : equalityColumnsEnd + positionIndex - contactColumns;
     const uint responseColumns = (equalityColumnsEnd + nv) * nv;
-    const uint responseStride = responseColumns +
-        equalityCount * (equalityCount + 3u) + nv * equalityCount;
+    const uint responseStride = standResponseStride(dispatch, nv);
     const uint responseBase = environment * responseStride;
     device float* response = responseScratch + responseBase + column * nv;
     device float* equalityFactor =
@@ -2278,12 +2483,16 @@ kernel void mr_numi_human_stand_projected_response_cooperative(
     threadgroup float workspace[MR_NUMI_HUMAN_STAND_MAX_DOFS];
     threadgroup float equalityRhs[MR_NUMI_HUMAN_STAND_MAX_DOFS];
     threadgroup float rawResponse[MR_NUMI_HUMAN_STAND_MAX_DOFS];
+    threadgroup float reducedResponse[MR_NUMI_HUMAN_STAND_MAX_DOFS];
+    threadgroup float reducedLift[MR_NUMI_HUMAN_STAND_MAX_DOFS];
     threadgroup float3 direction;
     threadgroup uint responseActive = 0u;
     threadgroup uint conditionValid = 1u;
     threadgroup uint restoreRawResponse = 0u;
     threadgroup uint solveSucceeded = 0u;
+    threadgroup uint reducedSolveSucceeded = 0u;
     threadgroup atomic_uint correctionFailed;
+    threadgroup atomic_uint reducedFailure;
     if (lane == 0u) {
         if (positionIndex < contactColumns) {
             if (contactEnabled) {
@@ -2317,6 +2526,9 @@ kernel void mr_numi_human_stand_projected_response_cooperative(
     if (responseActive == 0u) return;
     const bool projectedRawReady =
         (dispatch.flags & MR_NUMI_HUMAN_STAND_PROJECTED_RAW_READY) != 0u;
+    const bool reducedResponseRequested =
+        (dispatch.flags &
+         MR_NUMI_HUMAN_STAND_REDUCED_PROJECTED_RESPONSES) != 0u;
     for (uint dof = lane; dof < nv; dof += threadCount) {
         rhs[dof] = projectedRawReady ? response[dof] :
             positionIndex < contactColumns
@@ -2324,6 +2536,9 @@ kernel void mr_numi_human_stand_projected_response_cooperative(
                     contacts[positionIndex / 3u].pointQueryIndex, nv, dof,
                     direction)
                 : (dof == positionIndex - contactColumns ? 1.0f : 0.0f);
+        if (reducedResponseRequested && !projectedRawReady &&
+            positionIndex < contactColumns)
+            rawResponse[dof] = rhs[dof];
     }
     threadgroup_barrier(mem_flags::mem_threadgroup);
     if (!projectedRawReady && !solveFactorCooperativeForward(
@@ -2351,7 +2566,115 @@ kernel void mr_numi_human_stand_projected_response_cooperative(
     const float rawDiagonal = !contactColumn && projectEquality
         ? rhs[limitDof] : 0.0f;
     threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
-    if (projectEquality) {
+
+    bool useReducedResponse = false;
+    if (reducedResponseRequested && projectEquality && !projectedRawReady) {
+        const uint legacyStride = standLegacyResponseStride(
+            nv, dispatch.supportContactCount, equalityCount);
+        device float* reducedArena =
+            responseScratch + responseBase + legacyStride;
+        const uint freeDofs = nv - equalityCount;
+        device const float* sourceA = reducedArena;
+        device float* reducedFactor = reducedArena + nv * nv;
+        device const float* reducedScale =
+            reducedFactor + freeDofs * freeDofs;
+        device const float* reducedPivots = reducedScale + freeDofs;
+        device const uint* coordinateForDof =
+            reinterpret_cast<device const uint*>(reducedPivots + freeDofs);
+        device const float* coefficientForDof =
+            reinterpret_cast<device const float*>(coordinateForDof + nv);
+        device const uint* coordinateOffsets =
+            reinterpret_cast<device const uint*>(coefficientForDof + nv);
+        device const uint* coordinateDofs = coordinateOffsets + freeDofs + 1u;
+        device const uint* reducedReady = coordinateDofs + nv;
+        if (*reducedReady != 0u) {
+            for (uint coordinate = lane; coordinate < freeDofs;
+                 coordinate += threadCount) {
+                float value = 0.0f;
+                for (uint index = coordinateOffsets[coordinate];
+                     index < coordinateOffsets[coordinate + 1u]; ++index) {
+                    const uint dof = coordinateDofs[index];
+                    const float force = contactColumn
+                        ? rawResponse[dof]
+                        : dof == limitDof ? 1.0f : 0.0f;
+                    value = fma(coefficientForDof[dof], force, value);
+                }
+                reducedResponse[coordinate] = value;
+            }
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+            const bool reducedSolved = mrNumiHumanBilateralSolveCooperative(
+                reducedFactor, reducedScale, reducedPivots,
+                reducedResponse, freeDofs, lane, threadCount,
+                &reducedSolveSucceeded);
+            if (lane == 0u) reducedSolveSucceeded = reducedSolved ? 1u : 0u;
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+            if (reducedSolveSucceeded != 0u) {
+                if (lane == 0u)
+                    atomic_store_explicit(&reducedFailure, 0u,
+                                          memory_order_relaxed);
+                for (uint dof = lane; dof < nv; dof += threadCount) {
+                    const uint coordinate = coordinateForDof[dof];
+                    reducedLift[dof] =
+                        coordinate == MR_INVALID_INDEX ? 0.0f :
+                        coefficientForDof[dof] * reducedResponse[coordinate];
+                    if (!isfinite(reducedLift[dof]))
+                        atomic_store_explicit(&reducedFailure, 1u,
+                                              memory_order_relaxed);
+                }
+                threadgroup_barrier(mem_flags::mem_threadgroup);
+                for (uint row = lane; row < equalityCount;
+                     row += threadCount) {
+                    device const auto& equality = jointEqualities[row];
+                    const uint dependent = equality.indices.y;
+                    float reactionValue = contactColumn
+                        ? -rawResponse[dependent]
+                        : (dependent == limitDof ? -1.0f : 0.0f);
+                    for (uint dof = 0u; dof < nv; ++dof) {
+                        const uint lowerRow = max(dependent, dof);
+                        const uint lowerColumn = min(dependent, dof);
+                        reactionValue = fma(
+                            sourceA[lowerRow * nv + lowerColumn],
+                            reducedLift[dof], reactionValue);
+                    }
+                    equalityRhs[row] = reactionValue;
+                    if (!isfinite(reactionValue))
+                        atomic_store_explicit(&reducedFailure, 1u,
+                                              memory_order_relaxed);
+                }
+                threadgroup_barrier(mem_flags::mem_threadgroup);
+                if (atomic_load_explicit(&reducedFailure,
+                        memory_order_relaxed) == 0u) {
+                    if (!contactColumn &&
+                        !(reducedLift[limitDof] > 1.0e-6f * rawDiagonal)) {
+                        for (uint dof = lane; dof < nv; dof += threadCount)
+                            reducedLift[dof] = rawResponse[dof];
+                        for (uint row = lane; row < equalityCount;
+                             row += threadCount)
+                            equalityRhs[row] = 0.0f;
+                    }
+                    threadgroup_barrier(mem_flags::mem_threadgroup);
+                    for (uint dof = lane; dof < nv; dof += threadCount)
+                        rhs[dof] = reducedLift[dof];
+                    for (uint row = lane; row < equalityCount;
+                         row += threadCount) {
+                        if (contactColumn) reaction[row] = equalityRhs[row];
+                        else equalityCorrection[row] = equalityRhs[row];
+                    }
+                    threadgroup_barrier(mem_flags::mem_threadgroup);
+                    useReducedResponse = true;
+                }
+            }
+        }
+    }
+
+    if (projectEquality && !useReducedResponse) {
+        // Restore complete legacy reactions when the candidate factor or
+        // response is ineligible; the original Schur correction stays intact.
+        for (uint row = lane; row < equalityCount; row += threadCount) {
+            if (contactColumn && useProjectedContacts) reaction[row] = 0.0f;
+            if (!contactColumn) equalityCorrection[row] = 0.0f;
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
         for (uint refinement = 0u; refinement < 2u; ++refinement) {
             if (lane == 0u) {
                 for (uint row = 0u; row < equalityCount; ++row) {
@@ -2436,6 +2759,7 @@ kernel void mr_numi_human_stand_mass_assemble(
     constant const MRNumiHumanStandDispatchGPU& dispatch [[buffer(4)]],
     device const float* spatialJacobianScratch [[buffer(12)]],
     device float* factorScratch [[buffer(14)]],
+    device float* responseScratch [[buffer(16)]],
     device MRNumiHumanStandStatusGPU* statuses [[buffer(17)]],
     device const float* passiveJointProgram [[buffer(24)]],
     device float* sourceDynamicsWitness [[buffer(25)]],
@@ -2500,6 +2824,16 @@ kernel void mr_numi_human_stand_mass_assemble(
         value += mrNumiHumanPassiveEffectiveInertia(
             passiveJointProgram[index], dispatch.groundPointAndTimestep.w);
     factorScratch[environment * nv * nv + index] = value;
+    if ((dispatch.flags &
+         MR_NUMI_HUMAN_STAND_REDUCED_PROJECTED_RESPONSES) != 0u) {
+        // Snapshot the current source A before phase 2 factors factorScratch.
+        // Phase 4 consumes this per-root derived scratch to form R^T A R.
+        const uint legacyStride = standLegacyResponseStride(
+            nv, dispatch.supportContactCount, dispatch.jointEqualityCount);
+        const uint responseBase = environment *
+            standResponseStride(dispatch, nv);
+        responseScratch[responseBase + legacyStride + index] = value;
+    }
     if ((dispatch.flags & MR_NUMI_HUMAN_STAND_PREDICT_VELOCITY_ONLY) != 0u &&
         row == column)
         sourceDynamicsWitness[environment * 3u * nv + row] = value;
@@ -2570,8 +2904,7 @@ kernel void mr_numi_human_stand_finish(
     const uint vectorBase = preloadBase + nv;
     const uint equalityCount = dispatch.jointEqualityCount;
     const uint responseColumns = (dispatch.supportContactCount * 3u + equalityCount + nv) * nv;
-    const uint responseStride = responseColumns + equalityCount * (equalityCount + 3u) +
-        nv * equalityCount;
+    const uint responseStride = standResponseStride(dispatch, nv);
     const uint responseBase = environment * responseStride;
     device float* equalityFactor = responseScratch + responseBase + responseColumns;
     device float* equalityScale = equalityFactor + equalityCount * equalityCount;

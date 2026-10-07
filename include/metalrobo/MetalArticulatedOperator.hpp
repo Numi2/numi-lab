@@ -1873,6 +1873,10 @@ struct MetalArticulatedOperatorConfig {
     // leaves before ancestors. Experimental; numerical/physical admission is
     // unchanged. CPU completion is incompatible with this upper factor.
     bool sparseStandOperator = false;
+    // Default-off response-only nullspace solve for validated scalar
+    // equality graphs. The source-matrix snapshot lives only through phases
+    // 1, 4, and 5 of one root command buffer; it is derived scratch.
+    bool reducedStandProjectedResponses = false;
 };
 
 enum class MetalArticulatedOperatorHostStatus : std::uint32_t {
