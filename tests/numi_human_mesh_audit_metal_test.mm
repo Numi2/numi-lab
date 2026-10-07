@@ -121,15 +121,15 @@ int main() { @autoreleasepool { try {
             std::memcmp(skinVerticesBuffer.contents,skinVertices.data(),skinVerticesBuffer.length)==0,
             "skin audit mutated submitted maps or vertices");
     };
-    const float positiveInfinity=std::numeric_limits<float>::infinity();
-    const float negativeInfinity=-std::numeric_limits<float>::infinity();
+    const float positiveInfiniteGap=std::numeric_limits<float>::infinity();
+    const float negativeInfiniteGap=-std::numeric_limits<float>::infinity();
     runSkinAudit(257u,{{256u,-0.01f}},{255u},true,-0.01f,256u,1u,1u);
     runSkinAudit(513u,{{512u,-0.01f}},{511u},true,-0.01f,512u,1u,1u);
     runSkinAudit(513u,{{37u,0.0f},{176u,-0.0f}},{},true,-0.0f,176u,0u,0u);
-    runSkinAudit(513u,{{256u,negativeInfinity},{512u,negativeInfinity}},{},false,
-        negativeInfinity,256u,2u,2u);
-    runSkinAudit(257u,{{37u,positiveInfinity},{176u,positiveInfinity}},{},false,
-        positiveInfinity,MR_INVALID_INDEX,0u,2u);
+    runSkinAudit(513u,{{256u,negativeInfiniteGap},{512u,negativeInfiniteGap}},{},false,
+        negativeInfiniteGap,256u,2u,2u);
+    runSkinAudit(257u,{{37u,positiveInfiniteGap},{176u,positiveInfiniteGap}},{},false,
+        positiveInfiniteGap,MR_INVALID_INDEX,0u,2u);
     std::cout<<"scalar_parallel_skin_audit_metal_test=passed cases=5 sizes=257,513 ties=signed-zero,negative-infinity positive-infinity=unselected tail=256,512 nan-normal=255,511\n";
     auto run=[&](unsigned triangles,unsigned zero,unsigned nonfinite,unsigned first,unsigned kind) {
         std::memcpy(vb.contents,vertices.data(),vb.length);
