@@ -119,7 +119,7 @@ kernel void nm_human_resting_skin(
     auto m=map[i];if(!m.influenceCount)return;
     const auto soleInfluence=influences[m.firstInfluence];
     const bool sourceLocalDeformation=m.deformationKind==1u||m.deformationKind==3u||
-        m.deformationKind==4u||m.deformationKind==9u||m.deformationKind==12u;
+        m.deformationKind==4u||m.deformationKind==9u||m.deformationKind==11u||m.deformationKind==12u;
     const bool exactBodyLocal=sourceLocalDeformation&&m.influenceCount==1u&&
         soleInfluence.body.x==anatomy.bodyAndFlags.x&&soleInfluence.positionAndWeight.w==1.0f;
     float3 p=0,n=0,strongest=0;float strongestWeight=-1;
@@ -203,7 +203,8 @@ kernel void nm_human_resting_skin(
             // Passive viscera share the diaphragm field cranially, tapering
             // toward their common pelvic attachment. They add no forces,
             // physical mass or independent physiological state.
-            const float weight=(m.deformationKind==3||m.deformationKind==9)?m.deformationWeight.x:1.0f;
+            const float weight=m.deformationKind==11?m.deformationWeight.x:
+                ((m.deformationKind==3||m.deformationKind==9)?m.deformationWeight.x:1.0f);
             const float3 mapped=local-axis*(displacement*basalWeight)+(radial-1.0f)*across;
             local=mix(local,mapped,weight);
             const float3 normalAlong=dot(normal,axis)*axis;

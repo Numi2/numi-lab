@@ -22,6 +22,7 @@ class NumiHumanRestingVisual {
     id<MTLBuffer> cardiacWallMap, cardiacWallParameters, cardiacWallQ, cardiacWallNormalRanges, cardiacWallIncidentTriangles;
     id<MTLBuffer> commonFieldMapBuffer, commonFieldParameters, commonFieldBoxes, commonFieldCoordinates;
     id<MTLBuffer> commonFieldNormalRanges, commonFieldIncidentTriangles;
+    id<MTLBuffer> airwayNormalRanges, airwayIncidentTriangles;
     id<MTLComputePipelineState> skinPipeline, layerPipeline, volumePipeline, skinAuditPipeline, cardiacQPipeline, bodyAuditPipeline;
     id<MTLComputePipelineState> cardiacWallQPipeline, cardiacWallNormalsPipeline;
     id<MTLComputePipelineState> commonCoordinatesPipeline=nil,commonCoordinateStatusPipeline=nil;
@@ -36,7 +37,7 @@ class NumiHumanRestingVisual {
     std::vector<unsigned> auditStableIds;
     unsigned cardiacWallVertexCount=0,cardiacWallAuditIndex=MR_INVALID_INDEX;
     bool commonCardiacGeometry=false;
-    unsigned commonFieldVertexCount=0,commonFieldNormalVertexCount=0;
+    unsigned commonFieldVertexCount=0,commonFieldNormalVertexCount=0,airwayNormalVertexCount=0;
     std::array<unsigned,7> commonFieldAuditIndices{{MR_INVALID_INDEX,MR_INVALID_INDEX,MR_INVALID_INDEX,
         MR_INVALID_INDEX,MR_INVALID_INDEX,MR_INVALID_INDEX,MR_INVALID_INDEX}};
     double wallOrigin=0;
@@ -532,6 +533,8 @@ public:
         std::vector<MRHumanRestingSurfaceAuditGPU> audits;
         std::vector<mr_uint4> wallNormalRanges;
         std::vector<unsigned> wallIncidentTriangles;
+        std::vector<mr_uint4> airwayPointNormalRanges;
+        std::vector<unsigned> airwayPointIncidentTriangles;
         std::vector<unsigned> visibleLayers;
         std::set<unsigned> commonAttachmentsSeen;
         // Keep the four source cavity identities visually distinguishable in
@@ -632,6 +635,128 @@ public:
             auto& m=maps.at(vertex);if(!m.influenceCount)m.firstInfluence=unsigned(weights.size());
             ++m.influenceCount;p.w=w;weights.push_back({p,n,{body,0,0,0}});
         };
+        // ID31 is a bronchopulmonary segment surface that meets ID32 at a
+        // source-derived contact neighborhood. Keep the first 2 mm fixed to
+        // that registered neighbor, then blend smoothly into the same GPU
+        // respiratory map used by the lung surfaces over the next 8 mm.
+        // The distances are computed once at scene load in their shared
+        // articulated body-20 source frame; no per-step CPU work is added.
+        const MRVisualInstanceGPUV2* airway31Instance=nullptr;
+        const MRVisualInstanceGPUV2* airway32Instance=nullptr;
+        for(const auto& candidate:pack.instances)if(candidate.identity.x==kAirwaySurfaceSemantic) {
+            if(candidate.identity.w==31) {
+                require(!airway31Instance,"airway ID31 has multiple visual instances");
+                airway31Instance=&candidate;
+            }else if(candidate.identity.w==32) {
+                require(!airway32Instance,"airway ID32 has multiple visual instances");
+                airway32Instance=&candidate;
+            }
+        }
+        std::vector<float> airway31RespiratoryWeight(pack.vertices.size(),1.0f);
+        if(airway31Instance||airway32Instance) {
+            require(airway31Instance&&airway32Instance,
+                "source-derived ID31 respiratory attachment requires both airway surfaces 31 and 32");
+            for(const auto* airway:{airway31Instance,airway32Instance})
+                require(airway->binding.z==MR_VISUAL_BINDING_ARTICULATED_LINK&&
+                    airway->binding.y==anatomyGPU.bodyAndFlags.x,
+                    "ID31/ID32 source attachment surfaces must share the articulated torso owner");
+            auto airwaySourcePoint=[&](const MRVisualInstanceGPUV2& instance,unsigned vertexIndex) {
+                const auto& vertex=pack.vertices.at(vertexIndex);
+                return addPoint(instance.translationAndScale,
+                    scalePoint(rotatePoint(instance.orientation,vertex.position),instance.translationAndScale.w));
+            };
+            std::vector<std::array<mr_float4,3>> airway32Triangles;
+            std::set<unsigned> airway31VertexIndices;
+            for(unsigned p=airway32Instance->geometry.x;
+                p<airway32Instance->geometry.x+airway32Instance->geometry.y;++p) {
+                const auto& primitive=pack.primitives.at(p);
+                require(primitive.geometry.y%3==0,"airway ID32 surface indices are not triangles");
+                for(unsigned j=primitive.geometry.x;j<primitive.geometry.x+primitive.geometry.y;j+=3) {
+                    std::array<mr_float4,3> triangle{};
+                    for(unsigned k=0;k<3;++k)
+                        triangle[k]=airwaySourcePoint(*airway32Instance,pack.indices.at(j+k));
+                    airway32Triangles.push_back(triangle);
+                }
+            }
+            for(unsigned p=airway31Instance->geometry.x;
+                p<airway31Instance->geometry.x+airway31Instance->geometry.y;++p) {
+                const auto& primitive=pack.primitives.at(p);
+                for(unsigned j=primitive.geometry.x;j<primitive.geometry.x+primitive.geometry.y;++j)
+                    airway31VertexIndices.insert(pack.indices.at(j));
+            }
+            require(!airway32Triangles.empty()&&!airway31VertexIndices.empty(),
+                "source-derived airway attachment has no triangles or ID31 vertices");
+            std::vector<std::byte> airwayMaskDigestBytes;
+            std::vector<std::tuple<unsigned,unsigned,float,float,mr_float4,mr_float4>> airwayMaskRows;
+            unsigned airwayHeldCount=0,airwayBlendCount=0,airwayFullCount=0;
+            float airwayMinDistance=INFINITY,airwayMaxDistance=0.0f;
+            for(unsigned vertexIndex:airway31VertexIndices) {
+                const auto point=airwaySourcePoint(*airway31Instance,vertexIndex);
+                float bestSquared=INFINITY;unsigned bestTriangle=MR_INVALID_INDEX;mr_float4 bestPoint{};
+                for(unsigned triangleIndex=0;triangleIndex<airway32Triangles.size();++triangleIndex) {
+                    const auto& triangle=airway32Triangles[triangleIndex];
+                    const auto nearest=closestPointOnTriangle(point,triangle[0],triangle[1],triangle[2]);
+                    const auto delta=subtractPoint(point,nearest);
+                    const float distanceSquared=dotPoint(delta,delta);
+                    if(distanceSquared<bestSquared) {
+                        bestSquared=distanceSquared;bestTriangle=triangleIndex;bestPoint=nearest;
+                    }
+                }
+                require(std::isfinite(bestSquared)&&bestTriangle!=MR_INVALID_INDEX,
+                    "ID31 source vertex has no finite nearest ID32 triangle");
+                const float distance=std::sqrt(std::max(0.0f,bestSquared));
+                const float t=std::clamp((distance-.002f)/.008f,0.0f,1.0f);
+                const float smooth=t*t*(3.0f-2.0f*t);
+                airway31RespiratoryWeight[vertexIndex]=smooth;
+                airwayMinDistance=std::min(airwayMinDistance,distance);
+                airwayMaxDistance=std::max(airwayMaxDistance,distance);
+                if(distance<=.002f)++airwayHeldCount;
+                else if(distance<.010f)++airwayBlendCount;
+                else ++airwayFullCount;
+                airwayMaskRows.emplace_back(vertexIndex,bestTriangle,distance,smooth,point,bestPoint);
+                appendLoadedKneeScalar(airwayMaskDigestBytes,vertexIndex);
+                appendLoadedKneeScalar(airwayMaskDigestBytes,distance);
+                appendLoadedKneeScalar(airwayMaskDigestBytes,smooth);
+                appendLoadedKneeScalar(airwayMaskDigestBytes,bestTriangle);
+                for(const float value:{point.x,point.y,point.z,bestPoint.x,bestPoint.y,bestPoint.z})
+                    appendLoadedKneeScalar(airwayMaskDigestBytes,value);
+            }
+            const auto airwayMaskSHA=loadedKneeSHA256Hex(
+                loadedKneeSHA256(airwayMaskDigestBytes.data(),airwayMaskDigestBytes.size()));
+            const auto airwayMapPath=output/"resting-airway-anchor-map.json";
+            require(!std::filesystem::exists(airwayMapPath),
+                "refusing to overwrite a prior source-derived airway anchor receipt");
+            std::ofstream airwayMapFile(airwayMapPath);
+            require(airwayMapFile.good(),"source-derived airway anchor receipt is not writable");
+            airwayMapFile<<std::setprecision(9)
+                <<"{\n  \"schema\": \"resting-airway-anchor-map.v1\",\n"
+                <<"  \"source_pack_content_hash\": \""<<pack.contentHash<<"\",\n"
+                <<"  \"semantic\": "<<kAirwaySurfaceSemantic<<", \"stable_id\": 31, \"neighbor_stable_id\": 32,\n"
+                <<"  \"body_index\": "<<anatomyGPU.bodyAndFlags.x<<", \"coordinate_frame\": \"shared articulated body-20 source frame\",\n"
+                <<"  \"mask_rule\": \"0 for distance <= 0.002 m; smoothstep((d-0.002)/0.008) for 0.002 < d < 0.010 m; 1 for d >= 0.010 m\",\n"
+                <<"  \"id32_triangle_count\": "<<airway32Triangles.size()<<", \"id31_vertex_count\": "<<airwayMaskRows.size()<<",\n"
+                <<"  \"held_at_or_below_2mm\": "<<airwayHeldCount<<", \"blended_2_to_10mm\": "<<airwayBlendCount
+                <<", \"full_map_at_or_above_10mm\": "<<airwayFullCount<<",\n"
+                <<"  \"min_distance_m\": "<<airwayMinDistance<<", \"max_distance_m\": "<<airwayMaxDistance
+                <<", \"mask_inputs_sha256\": \""<<airwayMaskSHA<<"\",\n  \"vertices\": [\n";
+            for(std::size_t row=0;row<airwayMaskRows.size();++row) {
+                const auto& [index,triangleIndex,distance,weight,point,nearest]=airwayMaskRows[row];
+                airwayMapFile<<"    {\"pack_vertex\": "<<index<<", \"nearest_id32_triangle\": "<<triangleIndex
+                    <<", \"distance_m\": "<<distance<<", \"respiratory_weight\": "<<weight
+                    <<", \"source_point_m\": ["
+                    <<point.x<<", "<<point.y<<", "<<point.z<<"], \"nearest_id32_point_m\": ["
+                    <<nearest.x<<", "<<nearest.y<<", "<<nearest.z<<"]}"
+                    <<(row+1==airwayMaskRows.size()?"\n":",\n");
+            }
+            airwayMapFile<<"  ]\n}\n";
+            require(airwayMapFile.good(),"source-derived airway anchor receipt write failed");
+            std::cout<<"resting_airway_anchor stable_id=31 neighbor_stable_id=32 body="
+                <<anatomyGPU.bodyAndFlags.x<<" vertices="<<airwayMaskRows.size()
+                <<" triangles="<<airway32Triangles.size()<<" held_le_2mm="<<airwayHeldCount
+                <<" blend_2_10mm="<<airwayBlendCount<<" full_ge_10mm="<<airwayFullCount
+                <<" distance_m=["<<airwayMinDistance<<","<<airwayMaxDistance<<"]"
+                <<" map_sha256="<<airwayMaskSHA<<" receipt="<<airwayMapPath.string()<<"\n";
+        }
         for(auto& instance:pack.instances) {
             std::vector<unsigned> vertices;
             for(unsigned p=instance.geometry.x;p<instance.geometry.x+instance.geometry.y;++p) {
@@ -651,6 +776,7 @@ public:
                 std::iota(vertices.begin(),vertices.end(),base);
             }
             unsigned deformation=0,chamber=0;
+            if(instance.identity.x==kAirwaySurfaceSemantic&&instance.identity.w==31)deformation=11;
             if(instance.identity.x>=kOrganSurfaceSemantic) {
                 if(functional.lungs.contains(instance.identity.w)||functional.pleura.contains(instance.identity.w))deformation=1;
                 for(unsigned c=0;c<4;++c)if(instance.identity.w==functional.cavities[c]){deformation=2;chamber=c;}
@@ -700,6 +826,28 @@ public:
             visibleLayers.push_back(visibility);
             if(deformation==2||(deformation==12&&commonChannel<4))for(unsigned p=instance.geometry.x;p<instance.geometry.x+instance.geometry.y;++p)
                 pack.primitives.at(p).geometry.z=cardiacMaterials.at(chamber);
+            if(deformation==11&&instance.identity.w==31) {
+                require(airwayNormalVertexCount==0&&instance.geometry.y==1&&vertices.size()>0&&
+                    vertices.back()-base+1==vertices.size(),
+                    "ID31 normal reconstruction requires one contiguous source surface");
+                const auto& primitive=pack.primitives.at(instance.geometry.x);
+                require(primitive.geometry.y%3==0,"ID31 normal source has a partial triangle");
+                std::vector<std::vector<unsigned>> incident(vertices.size());
+                for(unsigned j=primitive.geometry.x;j<primitive.geometry.x+primitive.geometry.y;j+=3)
+                    for(unsigned k=0;k<3;++k) {
+                        const unsigned v=pack.indices.at(j+k);
+                        require(v>=base&&v-base<vertices.size(),"ID31 normal triangle escapes its source vertices");
+                        incident[v-base].push_back(j);
+                    }
+                for(unsigned local=0;local<vertices.size();++local) {
+                    require(!incident[local].empty(),"ID31 respiratory surface has an unreferenced source vertex");
+                    airwayPointNormalRanges.push_back({base+local,unsigned(airwayPointIncidentTriangles.size()),
+                        unsigned(incident[local].size()),0});
+                    airwayPointIncidentTriangles.insert(airwayPointIncidentTriangles.end(),
+                        incident[local].begin(),incident[local].end());
+                }
+                airwayNormalVertexCount=unsigned(vertices.size());
+            }
             if(deformation==12) {
                 const bool volumeOwner=commonChannel<7;
                 require(commonCardiacGeometry&&(volumeOwner||commonAttachmentIndex<functional.commonFieldPassiveAttachments.size())&&
@@ -800,7 +948,11 @@ public:
             for(unsigned v:vertices) {
                 require(!maps.at(v).influenceCount,"resting anatomy vertices have multiple owners");
                 maps[v].deformationKind=deformation;maps[v].chamberIndex=chamber;
-                if(deformation==10) {
+                if(deformation==11) {
+                    require(v<airway31RespiratoryWeight.size()&&std::isfinite(airway31RespiratoryWeight[v]),
+                        "airway ID31 respiratory mask is missing a source vertex");
+                    maps[v].deformationWeight.x=airway31RespiratoryWeight[v];
+                }else if(deformation==10) {
                     maps[v].chamberIndex=v-base;
                 }else if(deformation==12) {
                     const auto range=functional.commonFieldRanges.at(instance.identity.w);
@@ -924,7 +1076,8 @@ public:
                 p=addPoint(p,scalePoint(point,w.positionAndWeight.w));n=addPoint(n,scalePoint(normal,w.positionAndWeight.w));
             }
             p.w=1;pack.vertices[v].position=p;
-            if(maps[v].deformationKind==1||maps[v].deformationKind==3||maps[v].deformationKind==4||maps[v].deformationKind==9) {
+            if(maps[v].deformationKind==1||maps[v].deformationKind==3||maps[v].deformationKind==4||
+               maps[v].deformationKind==9||maps[v].deformationKind==11) {
                 const auto local=exactTorsoSource?soleInfluence.positionAndWeight:
                     rotatePoint(inverseRotation(initialThorax.orientation),subtractPoint(p,initialThorax.position));
                 const auto& axis=functional.gpu.superiorAxisAndHeight;
@@ -1072,6 +1225,10 @@ public:
             length:std::max(std::size_t(1),wallNormalRanges.size())*sizeof(emptyWallRange) options:MTLResourceStorageModeShared];
         cardiacWallIncidentTriangles=[device newBufferWithBytes:wallIncidentTriangles.empty()?&emptyWallIndex:wallIncidentTriangles.data()
             length:std::max(std::size_t(1),wallIncidentTriangles.size())*sizeof(unsigned) options:MTLResourceStorageModeShared];
+        airwayNormalRanges=[device newBufferWithBytes:airwayPointNormalRanges.empty()?&emptyWallRange:airwayPointNormalRanges.data()
+            length:std::max(std::size_t(1),airwayPointNormalRanges.size())*sizeof(emptyWallRange) options:MTLResourceStorageModeShared];
+        airwayIncidentTriangles=[device newBufferWithBytes:airwayPointIncidentTriangles.empty()?&emptyWallIndex:airwayPointIncidentTriangles.data()
+            length:std::max(std::size_t(1),airwayPointIncidentTriangles.size())*sizeof(unsigned) options:MTLResourceStorageModeShared];
         const MRHumanRestingCommonFieldVertexGPU emptyCommonMap{};
         const MRHumanRestingCommonCoordinateBoxGPU emptyCommonBox{};
         commonFieldMapBuffer=[device newBufferWithBytes:functional.commonFieldMap.empty()?&emptyCommonMap:functional.commonFieldMap.data()
@@ -1145,6 +1302,7 @@ public:
             cardiacWallQPipeline&&cardiacWallNormalsPipeline,"resting GPU cardiac material setup failed");
         require(commonFieldMapBuffer&&commonFieldParameters&&commonFieldBoxes&&commonFieldCoordinates&&
             commonFieldNormalRanges&&commonFieldIncidentTriangles,"resting common-field buffer setup failed");
+        require(airwayNormalRanges&&airwayIncidentTriangles,"ID31 normal reconstruction buffers are unavailable");
         require(!commonCardiacGeometry||(commonCoordinatesPipeline&&commonCoordinateStatusPipeline&&commonFieldVertexCount>0),
             "resting common cardiac field pipelines are unavailable");
         if(commonCardiacGeometry) {
@@ -1206,6 +1364,15 @@ public:
             e.setBuffer(e.context,(__bridge void*)incidents,0,2);
             e.setBuffer(e.context,lease.meshIndices,0,3);e.setBuffer(e.context,lease.meshVertices,0,4);
             e.dispatchThreads(e.context,normalVertexCount,64);
+        }
+        if(self.airwayNormalVertexCount) {
+            const unsigned airwayCount=self.airwayNormalVertexCount;
+            e.setPipeline(e.context,(__bridge void*)self.cardiacWallNormalsPipeline);
+            e.setBytes(e.context,&airwayCount,sizeof(airwayCount),0);
+            e.setBuffer(e.context,(__bridge void*)self.airwayNormalRanges,0,1);
+            e.setBuffer(e.context,(__bridge void*)self.airwayIncidentTriangles,0,2);
+            e.setBuffer(e.context,lease.meshIndices,0,3);e.setBuffer(e.context,lease.meshVertices,0,4);
+            e.dispatchThreads(e.context,airwayCount,64);
         }
         e.setPipeline(e.context,(__bridge void*)self.volumePipeline);e.setBytes(e.context,&d,sizeof(d),0);
         e.setBuffer(e.context,(__bridge void*)self.surfaceAudits,0,1);e.setBuffer(e.context,lease.meshIndices,0,2);
