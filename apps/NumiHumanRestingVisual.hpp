@@ -5,6 +5,8 @@
 #include <charconv>
 #include <bit>
 #include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <filesystem>
 #include <set>
 #include <string_view>
@@ -42,6 +44,8 @@ class NumiHumanRestingVisual {
     bool rigidHands=false;
     bool profileTiming=false;
     bool profileGpuTiming=false,gpuTimingUnavailableReported=false;
+    NumiHumanSkinInfluenceLayout skinInfluenceLayout =
+        NumiHumanSkinInfluenceLayout::vertexMajor;
     unsigned auditCount=0,volumeAuditGroupCount=0,skinAuditGroupCount=0;
     std::vector<unsigned> auditStableIds;
     unsigned cardiacWallVertexCount=0,cardiacWallAuditIndex=MR_INVALID_INDEX;
@@ -354,7 +358,8 @@ class NumiHumanRestingVisual {
             @"accepted_pack_path":loadedKneeNSString(packPath.string()),
             @"vertex_count":@(pack.vertices.size()),@"index_count":@(pack.indices.size()),
             @"primitive_count":@(pack.primitives.size()),@"instance_count":@(pack.instances.size()),
-            @"position_normal_tangent_source":@"accepted-state renderer mesh buffer copied on the same Metal command buffer"
+            @"position_normal_tangent_source":@"accepted-state renderer mesh buffer copied on the same Metal command buffer",
+            @"runtime_skin_influence_layout_id":loadedKneeNSString(skinInfluenceLayoutName(skinInfluenceLayout))
         };
         NSData* json=[NSJSONSerialization dataWithJSONObject:receipt
             options:NSJSONWritingPrettyPrinted|NSJSONWritingSortedKeys error:&jsonError];
@@ -464,6 +469,7 @@ class NumiHumanRestingVisual {
             @"accepted_transaction_fingerprint_hex":loadedKneeNSString(fingerprintHex(transaction)),
             @"accepted_timestamp_microseconds":@(timestamp),
             @"source_pack_content_hash":loadedKneeNSString(initialPackContentHash),
+            @"runtime_skin_influence_layout_id":loadedKneeNSString(skinInfluenceLayoutName(skinInfluenceLayout)),
             @"source_pack_file_sha256":loadedKneeNSString(initialPackFileSHA256),
             @"source_pack_path":loadedKneeNSString(initialPackPath.string()),
             @"surface_stable_id":@(stableId),@"surface_audit_index":@(auditIndex),
@@ -643,6 +649,213 @@ public:
             static_cast<unsigned long long>(stamps[7].timestamp-stamps[0].timestamp));
     }
 
+    struct SkinInfluenceTileAudit {
+        std::size_t sourceRecordCount = 0u;
+        std::size_t outputRecordCount = 0u;
+        std::size_t paddedRecordCount = 0u;
+        std::size_t tiledVertexCount = 0u;
+    };
+
+    static constexpr std::size_t skinInfluenceTileWidth = 32u;
+
+    static const char* skinInfluenceLayoutName(
+        const NumiHumanSkinInfluenceLayout layout
+    ) {
+        return layout == NumiHumanSkinInfluenceLayout::tile32
+            ? "tile32-slot-major-v1" : "vertex-major-v1";
+    }
+
+    static SkinInfluenceTileAudit repackSkinInfluencesTile32(
+        std::vector<MRHumanRestingVertexMap>& maps,
+        std::vector<MRHumanRestingInfluence>& influences
+    ) {
+        require(maps.size() <= std::numeric_limits<std::uint32_t>::max() &&
+                    influences.size() <= std::numeric_limits<std::uint32_t>::max(),
+                "skin influence tile32 input exceeds the source map index range");
+        std::size_t nonSkinRecordCount = 0u;
+        std::size_t tiledRecordCount = 0u;
+        std::size_t tiledVertexCount = 0u;
+        for (std::size_t vertex = 0u; vertex < maps.size(); ++vertex) {
+            const auto& map = maps[vertex];
+            require(map.firstInfluence <= influences.size() &&
+                        map.influenceCount <= influences.size() - map.firstInfluence,
+                    "skin influence tile32 input map range is invalid");
+            if (map.influenceCount == 0u) continue;
+            if (map.deformationKind == 3u) {
+                ++tiledVertexCount;
+            } else {
+                require(nonSkinRecordCount <=
+                            std::numeric_limits<std::size_t>::max() -
+                                map.influenceCount,
+                        "skin influence tile32 non-skin record count overflows");
+                nonSkinRecordCount += map.influenceCount;
+            }
+        }
+        for (std::size_t firstVertex = 0u; firstVertex < maps.size();
+             firstVertex += skinInfluenceTileWidth) {
+            const std::size_t tileEnd = std::min(
+                maps.size(), firstVertex + skinInfluenceTileWidth);
+            std::uint32_t tileInfluenceCount = 0u;
+            for (std::size_t vertex = firstVertex; vertex < tileEnd; ++vertex) {
+                const auto& map = maps[vertex];
+                if (map.deformationKind == 3u) {
+                    tileInfluenceCount = std::max(tileInfluenceCount,
+                                                  map.influenceCount);
+                }
+            }
+            if (tileInfluenceCount == 0u) continue;
+            const std::size_t tileRecordCount =
+                skinInfluenceTileWidth * tileInfluenceCount;
+            require(tiledRecordCount <=
+                        std::numeric_limits<std::size_t>::max() - tileRecordCount,
+                    "skin influence tile32 storage size overflows");
+            tiledRecordCount += tileRecordCount;
+        }
+        require(nonSkinRecordCount <=
+                    std::numeric_limits<std::size_t>::max() - tiledRecordCount,
+                "skin influence tile32 output size overflows");
+        const std::size_t outputRecordCount =
+            nonSkinRecordCount + tiledRecordCount;
+        require(outputRecordCount <= std::numeric_limits<std::uint32_t>::max(),
+                "skin influence tile32 output exceeds the map index range");
+
+        std::vector<MRHumanRestingVertexMap> tiledMaps = maps;
+        std::vector<MRHumanRestingInfluence> tiledInfluences;
+        tiledInfluences.reserve(outputRecordCount);
+        std::vector<std::uint8_t> sourceWritten(influences.size(), 0u);
+        std::vector<std::uint8_t> destinationWritten(outputRecordCount, 0u);
+        std::size_t copiedRecordCount = 0u;
+
+        const auto copySourceRecord = [&](const std::size_t sourceIndex,
+                                          const std::size_t destinationIndex) {
+            require(sourceIndex < influences.size() &&
+                        destinationIndex < outputRecordCount,
+                    "skin influence tile32 copy index is out of range");
+            require(sourceWritten[sourceIndex] == 0u &&
+                        destinationWritten[destinationIndex] == 0u,
+                    "skin influence tile32 mapping is not one-to-one");
+            sourceWritten[sourceIndex] = 1u;
+            destinationWritten[destinationIndex] = 1u;
+            tiledInfluences[destinationIndex] = influences[sourceIndex];
+            require(std::memcmp(&tiledInfluences[destinationIndex],
+                                &influences[sourceIndex],
+                                sizeof(MRHumanRestingInfluence)) == 0,
+                    "skin influence tile32 copy changed source record bytes");
+            ++copiedRecordCount;
+        };
+
+        for (std::size_t vertex = 0u; vertex < maps.size(); ++vertex) {
+            const auto& sourceMap = maps[vertex];
+            if (sourceMap.influenceCount == 0u ||
+                sourceMap.deformationKind == 3u) continue;
+            const std::size_t destinationBase = tiledInfluences.size();
+            require(destinationBase <=
+                        std::numeric_limits<std::uint32_t>::max(),
+                    "skin influence tile32 non-skin base exceeds map range");
+            tiledMaps[vertex].firstInfluence =
+                static_cast<std::uint32_t>(destinationBase);
+            for (std::size_t local = 0u;
+                 local < sourceMap.influenceCount; ++local) {
+                const std::size_t destination = tiledInfluences.size();
+                tiledInfluences.push_back({});
+                destinationWritten[destination] = 0u;
+                copySourceRecord(
+                    static_cast<std::size_t>(sourceMap.firstInfluence) + local,
+                    destination);
+            }
+        }
+        require(tiledInfluences.size() == nonSkinRecordCount,
+                "skin influence tile32 non-skin packing count differs");
+
+        MRHumanRestingInfluence paddingRecord{};
+        paddingRecord.body.x = MR_INVALID_INDEX;
+        for (std::size_t firstVertex = 0u; firstVertex < maps.size();
+             firstVertex += skinInfluenceTileWidth) {
+            const std::size_t tileEnd = std::min(
+                maps.size(), firstVertex + skinInfluenceTileWidth);
+            std::uint32_t tileInfluenceCount = 0u;
+            for (std::size_t vertex = firstVertex; vertex < tileEnd; ++vertex) {
+                const auto& map = maps[vertex];
+                if (map.deformationKind == 3u && map.influenceCount > 0u) {
+                    tileInfluenceCount = std::max(tileInfluenceCount,
+                                                  map.influenceCount);
+                }
+            }
+            if (tileInfluenceCount == 0u) continue;
+            const std::size_t tileBase = tiledInfluences.size();
+            const std::size_t tileRecordCount =
+                skinInfluenceTileWidth * tileInfluenceCount;
+            tiledInfluences.resize(tileBase + tileRecordCount, paddingRecord);
+            for (std::size_t vertex = firstVertex; vertex < tileEnd; ++vertex) {
+                const auto& sourceMap = maps[vertex];
+                if (sourceMap.deformationKind != 3u) continue;
+                const std::size_t lane = vertex - firstVertex;
+                const std::size_t mappedBase = tileBase + lane;
+                require(mappedBase <=
+                            std::numeric_limits<std::uint32_t>::max(),
+                        "skin influence tile32 vertex base exceeds map range");
+                tiledMaps[vertex].firstInfluence =
+                    static_cast<std::uint32_t>(mappedBase);
+                for (std::size_t local = 0u;
+                     local < sourceMap.influenceCount; ++local) {
+                    const std::size_t destination =
+                        tileBase + local * skinInfluenceTileWidth + lane;
+                    copySourceRecord(
+                        static_cast<std::size_t>(sourceMap.firstInfluence) +
+                            local,
+                        destination);
+                }
+            }
+        }
+        require(tiledInfluences.size() == outputRecordCount &&
+                    copiedRecordCount == influences.size() &&
+                    std::all_of(sourceWritten.begin(), sourceWritten.end(),
+                        [](std::uint8_t value) { return value == 1u; }),
+                "skin influence tile32 did not cover every source record exactly once");
+        const std::size_t writtenDestinations = static_cast<std::size_t>(
+            std::count(destinationWritten.begin(), destinationWritten.end(), 1u));
+        require(writtenDestinations == influences.size() &&
+                    outputRecordCount - writtenDestinations ==
+                        tiledRecordCount - (influences.size() - nonSkinRecordCount),
+                "skin influence tile32 output is not a bijection plus tail padding");
+
+        for (std::size_t vertex = 0u; vertex < maps.size(); ++vertex) {
+            const auto& sourceMap = maps[vertex];
+            if (sourceMap.influenceCount == 0u) continue;
+            const auto& packedMap = tiledMaps[vertex];
+            const std::size_t stride =
+                sourceMap.deformationKind == 3u
+                    ? skinInfluenceTileWidth : 1u;
+            const std::uint64_t last =
+                static_cast<std::uint64_t>(packedMap.firstInfluence) +
+                static_cast<std::uint64_t>(sourceMap.influenceCount - 1u) *
+                    stride;
+            require(last < tiledInfluences.size(),
+                    "skin influence tile32 output map range is invalid");
+            for (std::size_t local = 0u;
+                 local < sourceMap.influenceCount; ++local) {
+                const std::size_t sourceIndex =
+                    static_cast<std::size_t>(sourceMap.firstInfluence) + local;
+                const std::size_t destinationIndex =
+                    static_cast<std::size_t>(packedMap.firstInfluence) +
+                    local * stride;
+                require(std::memcmp(&influences[sourceIndex],
+                                    &tiledInfluences[destinationIndex],
+                                    sizeof(MRHumanRestingInfluence)) == 0,
+                        "skin influence tile32 changed per-vertex order");
+            }
+        }
+
+        SkinInfluenceTileAudit audit;
+        audit.sourceRecordCount = influences.size();
+        audit.outputRecordCount = outputRecordCount;
+        audit.paddedRecordCount = outputRecordCount - influences.size();
+        audit.tiledVertexCount = tiledVertexCount;
+        maps.swap(tiledMaps);
+        influences.swap(tiledInfluences);
+        return audit;
+    }
+
     NumiHumanRestingVisual(NumiHumanRestingCoupling& owner,metalrobo::VisualAssetPackV2 pack,
         const metalrobo::EngineModel& model,const LoadedSkin& skin,const LoadedSoftTissues* tissues,
         const std::vector<MRBodyStateGPU>& initialBodies,const std::vector<MRBodyStateGPU>& restBodies,
@@ -650,6 +863,17 @@ public:
         const std::filesystem::path& output,unsigned size,const std::string& movie,bool presentWindow=true):
         coupled(owner),dimension(size),outputDirectory(output),acceptedGeometryDirectory(output/"accepted-geometry"),
         surfaceTrace(output/"resting-surface-audit.csv") {
+        const char* influenceLayoutSetting =
+            std::getenv("NUMI_HUMAN_SKIN_INFLUENCE_TILE32");
+        require(!influenceLayoutSetting || !influenceLayoutSetting[0] ||
+                    std::strcmp(influenceLayoutSetting, "0") == 0 ||
+                    std::strcmp(influenceLayoutSetting, "1") == 0,
+                "NUMI_HUMAN_SKIN_INFLUENCE_TILE32 must be 0 or 1");
+        skinInfluenceLayout =
+            influenceLayoutSetting &&
+                    std::strcmp(influenceLayoutSetting, "1") == 0
+                ? NumiHumanSkinInfluenceLayout::tile32
+                : NumiHumanSkinInfluenceLayout::vertexMajor;
         require(surfaceTrace.good(),"resting surface audit output unavailable");
         const char* profileSetting=std::getenv("NUMI_HUMAN_TRAINING_PROFILE");
         require(!profileSetting||!profileSetting[0]||std::strcmp(profileSetting,"0")==0||
@@ -1387,6 +1611,24 @@ public:
             skinAuditGroupThreads;
         require(skinAuditGroupCount>0u,"resting parallel skin audit has no vertex groups");
         auditedMeshPrimitives=pack.primitives;
+        SkinInfluenceTileAudit influenceTileAudit{};
+        if (skinInfluenceLayout == NumiHumanSkinInfluenceLayout::tile32) {
+            for (unsigned vertex = 0u; vertex < skin.header.vertexCount; ++vertex) {
+                const auto& map = maps.at(skinFirstVertex + vertex);
+                require(map.deformationKind == 3u && map.influenceCount > 0u,
+                        "tile32 skin layout requires every registered skin vertex binding");
+            }
+            influenceTileAudit = repackSkinInfluencesTile32(maps, weights);
+            std::cout<<"resting_skin_influence_layout="
+                <<skinInfluenceLayoutName(skinInfluenceLayout)
+                <<" tiled_vertices="<<influenceTileAudit.tiledVertexCount
+                <<" source_records="<<influenceTileAudit.sourceRecordCount
+                <<" uploaded_records="<<influenceTileAudit.outputRecordCount
+                <<" tail_padding_records="<<influenceTileAudit.paddedRecordCount
+                <<" gpu_buffer_bytes="
+                <<influenceTileAudit.outputRecordCount*sizeof(MRHumanRestingInfluence)
+                <<" source_asset_identity=unchanged\n";
+        }
         auto device=coupled.physiology.device;queue=[device newCommandQueue];
         meshAuditPartials=[device newBufferWithLength:meshAuditGroupCount*sizeof(mr_uint4) options:MTLResourceStorageModeShared];
         meshAuditResult=[device newBufferWithLength:sizeof(mr_uint4)+sizeof(MRHumanRestingSurfaceFailureGPU) options:MTLResourceStorageModeShared];
@@ -1488,6 +1730,9 @@ public:
         }
         HumanBrainSourceFingerprint supportIdentity;
         supportIdentity.text("numi.human.full-skin-support.v1");
+        if (skinInfluenceLayout == NumiHumanSkinInfluenceLayout::tile32) {
+            supportIdentity.text("runtime-layout:tile32-slot-major-v1");
+        }
         supportIdentity.integer(coupled.brain.rootProgramIdentity);
         supportIdentity.integer(skinFirstVertex*sizeof(MRHumanRestingVertexMap));
         supportIdentity.integer(skin.header.vertexCount);
@@ -1500,13 +1745,25 @@ public:
             influences,std::span<const MRHumanRestingInfluence>(weights),regionForVertex,regions,
             supportQueries.supportContacts,1u,model.articulations.at(0).firstBody,
             model.articulations.at(0).bodyCount,supportIdentity.value(),
-            skinFirstVertex*sizeof(MRHumanRestingVertexMap));
+            skinFirstVertex*sizeof(MRHumanRestingVertexMap),skinInfluenceLayout);
         std::cout<<"resting_support_geometry=full_registered_skin vertices="<<skin.header.vertexCount
             <<" regions="<<regions.size()<<" full_binding_count="<<skin.bindings.size()
+            <<" influence_layout="<<skinInfluenceLayoutName(skinInfluenceLayout)
             <<" region_sizes=[";
         for(unsigned r=0;r<regionCounts.size();++r){if(r)std::cout<<',';std::cout<<regionCounts[r];}
         std::cout<<"] force_owner=existing_metal_stand partition=source_rest_voronoi\n";
-        skinPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_skin"] error:&e];
+        const auto skinFunction = numiHumanRestingMakeSkinInfluenceFunction(
+            lib, @"nm_human_resting_skin",
+            {false, true, skinInfluenceLayout}, &e);
+        require(skinFunction != nil,
+                e.localizedDescription.UTF8String != nullptr
+                    ? e.localizedDescription.UTF8String
+                    : "resting skin Metal layout specialization failed");
+        skinPipeline=[device newComputePipelineStateWithFunction:skinFunction error:&e];
+        require(skinPipeline != nil,
+                e.localizedDescription.UTF8String != nullptr
+                    ? e.localizedDescription.UTF8String
+                    : "resting skin Metal pipeline creation failed");
         cardiacQPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_cardiac_q"] error:&e];
         cardiacWallQPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_cardiac_wall_q"] error:&e];
         cardiacWallNormalsPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_cardiac_wall_normals"] error:&e];

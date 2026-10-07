@@ -147,6 +147,8 @@ kernel void nm_human_resting_skin(
     uint i [[thread_position_in_grid]]) {
     if(i>=d.x)return;
     auto m=map[i];if(!m.influenceCount)return;
+    const uint influenceStride = m.deformationKind == 3u
+        ? nm_human_resting_support::skinInfluenceStride() : 1u;
     const auto soleInfluence=influences[m.firstInfluence];
     const bool sourceLocalDeformation=m.deformationKind==1u||m.deformationKind==3u||
         m.deformationKind==4u||m.deformationKind==9u||m.deformationKind==11u||m.deformationKind==12u;
@@ -154,7 +156,8 @@ kernel void nm_human_resting_skin(
         soleInfluence.body.x==anatomy.bodyAndFlags.x&&soleInfluence.positionAndWeight.w==1.0f;
     float3 p=0,n=0,strongest=0;float strongestWeight=-1;
     for(uint j=0;j<m.influenceCount;++j) {
-        auto influence=influences[m.firstInfluence+j];float w=influence.positionAndWeight.w;
+        auto influence=influences[m.firstInfluence+j*influenceStride];
+        float w=influence.positionAndWeight.w;
         float3 ni;
         if(influence.body.x==MR_INVALID_INDEX) {
             p+=w*influence.positionAndWeight.xyz;ni=influence.normal.xyz;

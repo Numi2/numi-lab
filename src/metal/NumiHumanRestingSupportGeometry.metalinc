@@ -7,9 +7,37 @@ constant bool kValidatedSkinInfluences [[function_constant(42)]];
 constant bool kUseValidatedSkinInfluences =
     is_function_constant_defined(kValidatedSkinInfluences)
         ? kValidatedSkinInfluences : false;
+constant bool kTiledSkinInfluenceLayout [[function_constant(15)]];
+constant bool kUseTiledSkinInfluenceLayout =
+    is_function_constant_defined(kTiledSkinInfluenceLayout)
+        ? kTiledSkinInfluenceLayout : false;
 #include "metalrobo/numi_human_support_geometry_gpu.h"
 
 namespace nm_human_resting_support {
+
+inline uint skinInfluenceStride() {
+    return kUseTiledSkinInfluenceLayout ? 32u : 1u;
+}
+
+inline bool validSkinInfluenceRange(
+    const MRHumanRestingVertexMap mappedVertex,
+    const uint influenceBufferCount
+) {
+    if (mappedVertex.influenceCount == 0u ||
+        mappedVertex.firstInfluence >= influenceBufferCount) {
+        return false;
+    }
+    const uint stride = skinInfluenceStride();
+    return mappedVertex.influenceCount - 1u <=
+        (influenceBufferCount - 1u - mappedVertex.firstInfluence) / stride;
+}
+
+inline uint skinInfluenceIndex(
+    const MRHumanRestingVertexMap mappedVertex, const uint localIndex
+) {
+    return mappedVertex.firstInfluence +
+        localIndex * skinInfluenceStride();
+}
 
 inline uint orderedFloat(float value) {
     const uint bits = as_type<uint>(value);
@@ -26,9 +54,7 @@ inline MRCompensatedPositionGPU skinPosition(
     const uint environment
 ) {
     MRCompensatedPositionGPU result = mrCompensatedVector(float4(0.0f));
-    if (mappedVertex.firstInfluence > dispatch.identity.y ||
-        mappedVertex.influenceCount >
-            dispatch.identity.y - mappedVertex.firstInfluence) {
+    if (!validSkinInfluenceRange(mappedVertex, dispatch.identity.y)) {
         const float nan = as_type<float>(0x7fc00000u);
         return {{nan, nan, nan, 0.0f}, {nan, nan, nan, 0.0f}};
     }
@@ -36,7 +62,8 @@ inline MRCompensatedPositionGPU skinPosition(
          influenceIndex < mappedVertex.influenceCount;
          ++influenceIndex) {
         const MRHumanRestingInfluence influence =
-            influences[mappedVertex.firstInfluence + influenceIndex];
+            influences[nm_human_resting_support::skinInfluenceIndex(
+                mappedVertex, influenceIndex)];
         const uint bodyIndex = influence.body.x;
         if (bodyIndex == MR_INVALID_INDEX ||
             bodyIndex < dispatch.identity.x ||
@@ -87,9 +114,7 @@ inline MRCompensatedScalar skinWorldZ(
     const MRHumanRestingSupportDispatchGPU dispatch,
     const uint environment
 ) {
-    if (mappedVertex.firstInfluence > dispatch.identity.y ||
-        mappedVertex.influenceCount >
-            dispatch.identity.y - mappedVertex.firstInfluence) {
+    if (!validSkinInfluenceRange(mappedVertex, dispatch.identity.y)) {
         const float nan = as_type<float>(0x7fc00000u);
         return {nan, nan};
     }
@@ -98,7 +123,8 @@ inline MRCompensatedScalar skinWorldZ(
          influenceIndex < mappedVertex.influenceCount;
          ++influenceIndex) {
         const MRHumanRestingInfluence influence =
-            influences[mappedVertex.firstInfluence + influenceIndex];
+            influences[nm_human_resting_support::skinInfluenceIndex(
+                mappedVertex, influenceIndex)];
         const uint bodyIndex = influence.body.x;
         if (bodyIndex == MR_INVALID_INDEX ||
             bodyIndex < dispatch.identity.x ||
@@ -145,9 +171,7 @@ inline MRCompensatedScalar skinWorldZBasis(
     const MRHumanRestingSupportDispatchGPU dispatch,
     const uint environment
 ) {
-    if (mappedVertex.firstInfluence > dispatch.identity.y ||
-        mappedVertex.influenceCount >
-            dispatch.identity.y - mappedVertex.firstInfluence) {
+    if (!validSkinInfluenceRange(mappedVertex, dispatch.identity.y)) {
         const float nan = as_type<float>(0x7fc00000u);
         return {nan, nan};
     }
@@ -156,7 +180,8 @@ inline MRCompensatedScalar skinWorldZBasis(
          influenceIndex < mappedVertex.influenceCount;
          ++influenceIndex) {
         const MRHumanRestingInfluence influence =
-            influences[mappedVertex.firstInfluence + influenceIndex];
+            influences[nm_human_resting_support::skinInfluenceIndex(
+                mappedVertex, influenceIndex)];
         const uint bodyIndex = influence.body.x;
         if (!kUseValidatedSkinInfluences &&
             (bodyIndex == MR_INVALID_INDEX ||
@@ -438,7 +463,8 @@ kernel void nm_human_resting_support_publish(
          influenceIndex < mappedVertex.influenceCount;
          ++influenceIndex) {
         const MRHumanRestingInfluence influence =
-            influences[mappedVertex.firstInfluence + influenceIndex];
+            influences[nm_human_resting_support::skinInfluenceIndex(
+                mappedVertex, influenceIndex)];
         const uint body = influence.body.x;
         if (body == MR_INVALID_INDEX ||
             body < dispatch.identity.x ||

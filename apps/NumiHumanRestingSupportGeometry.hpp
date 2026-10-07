@@ -16,6 +16,45 @@
 #include <stdexcept>
 #include <vector>
 
+enum class NumiHumanSkinInfluenceLayout : std::uint32_t {
+    vertexMajor = 0u,
+    tile32 = 1u,
+};
+
+struct NumiHumanSkinInfluencePipelineConfig {
+    bool validatedStaticSkinInfluences = false;
+    bool specializeSkinInfluenceLayout = false;
+    NumiHumanSkinInfluenceLayout influenceLayout =
+        NumiHumanSkinInfluenceLayout::vertexMajor;
+};
+
+inline id<MTLFunction> numiHumanRestingMakeSkinInfluenceFunction(
+    id<MTLLibrary> library, NSString* name,
+    const NumiHumanSkinInfluencePipelineConfig config,
+    NSError** error
+) {
+    if (!config.validatedStaticSkinInfluences &&
+        !config.specializeSkinInfluenceLayout) {
+        return [library newFunctionWithName:name];
+    }
+    MTLFunctionConstantValues* constants =
+        [[MTLFunctionConstantValues alloc] init];
+    if (config.validatedStaticSkinInfluences) {
+        bool validated = true;
+        [constants setConstantValue:&validated
+                              type:MTLDataTypeBool atIndex:42u];
+    }
+    if (config.specializeSkinInfluenceLayout) {
+        bool tiled = config.influenceLayout ==
+            NumiHumanSkinInfluenceLayout::tile32;
+        [constants setConstantValue:&tiled
+                              type:MTLDataTypeBool atIndex:15u];
+    }
+    return [library newFunctionWithName:name
+                         constantValues:constants
+                                  error:error];
+}
+
 // Encoder-only client for the operator's accepted-pose support-geometry lease.
 // The caller supplies the same preuploaded LBS buffers used by the viewer; this
 // class uploads only the derived region assignment and its compact 32-row map.
@@ -41,6 +80,8 @@ class NumiHumanRestingSupportGeometry final {
     std::uint32_t regionCount_ = 0u;
     std::uint32_t environmentCount_ = 0u;
     std::uint32_t influenceCount_ = 0u;
+    NumiHumanSkinInfluenceLayout influenceLayout_ =
+        NumiHumanSkinInfluenceLayout::vertexMajor;
     std::uint32_t validatedFirstBody_ = 0u;
     std::uint32_t validatedBodyCount_ = 0u;
     std::uint32_t orientationStride_ = 0u;
@@ -71,28 +112,21 @@ class NumiHumanRestingSupportGeometry final {
 
     static id<MTLComputePipelineState> makePipeline(
         id<MTLDevice> device, id<MTLLibrary> library, NSString* name,
-        const bool validatedSkinInfluences = false
+        const bool validatedSkinInfluences = false,
+        const bool specializeSkinInfluenceLayout = false,
+        const NumiHumanSkinInfluenceLayout influenceLayout =
+            NumiHumanSkinInfluenceLayout::vertexMajor
     ) {
-        id<MTLFunction> function = nil;
-        if (validatedSkinInfluences) {
-            MTLFunctionConstantValues* constants =
-                [[MTLFunctionConstantValues alloc] init];
-            bool useValidatedSkinInfluences = true;
-            [constants setConstantValue:&useValidatedSkinInfluences
-                                  type:MTLDataTypeBool atIndex:42u];
-            NSError* constantError = nil;
-            function = [library newFunctionWithName:name
-                                    constantValues:constants
-                                             error:&constantError];
-            if (function == nil) {
-                require(false, constantError.localizedDescription.UTF8String != nullptr
-                    ? constantError.localizedDescription.UTF8String
-                    : "resting support specialized Metal function is missing");
-            }
-        } else {
-            function = [library newFunctionWithName:name];
-        }
-        require(function != nil, "resting support Metal function is missing");
+        NSError* functionError = nil;
+        const auto function = numiHumanRestingMakeSkinInfluenceFunction(
+            library, name,
+            {validatedSkinInfluences, specializeSkinInfluenceLayout,
+             influenceLayout},
+            &functionError);
+        require(function != nil,
+                functionError.localizedDescription.UTF8String != nullptr
+                    ? functionError.localizedDescription.UTF8String
+                    : "resting support Metal function specialization failed");
         NSError* error = nil;
         id<MTLComputePipelineState> pipeline =
             [device newComputePipelineStateWithFunction:function error:&error];
@@ -435,12 +469,14 @@ public:
         const std::uint32_t validatedFirstBody,
         const std::uint32_t validatedBodyCount,
         const std::uint64_t fingerprint,
-        const NSUInteger vertexMapOffsetBytes
+        const NSUInteger vertexMapOffsetBytes,
+        const NumiHumanSkinInfluenceLayout influenceLayout
     ) : device_(device), vertexMap_(vertexMap), influences_(influences),
         vertexCount_(static_cast<std::uint32_t>(hostMap.size())),
         regionCount_(static_cast<std::uint32_t>(regions.size())),
         environmentCount_(environmentCount),
         influenceCount_(static_cast<std::uint32_t>(hostInfluences.size())),
+        influenceLayout_(influenceLayout),
         validatedFirstBody_(validatedFirstBody),
         validatedBodyCount_(validatedBodyCount),
         vertexMapOffsetBytes_(vertexMapOffsetBytes),
@@ -482,11 +518,20 @@ public:
                         (!isSkin && region == MR_INVALID_INDEX),
                     "every registered skin vertex must belong to exactly one support region");
             if (!isSkin) continue;
-            require(static_cast<std::uint64_t>(map.firstInfluence) + map.influenceCount <=
-                        hostInfluences.size(),
-                    "registered skin influence range exceeds its source buffer");
+            const std::uint64_t influenceStride =
+                influenceLayout_ == NumiHumanSkinInfluenceLayout::tile32
+                    ? 32u : 1u;
+            const std::uint64_t lastInfluence =
+                static_cast<std::uint64_t>(map.firstInfluence) +
+                static_cast<std::uint64_t>(map.influenceCount - 1u) *
+                    influenceStride;
+            require(map.firstInfluence < hostInfluences.size() &&
+                        lastInfluence < hostInfluences.size(),
+                    "registered skin influence range exceeds its selected layout");
             for (std::uint32_t local = 0u; local < map.influenceCount; ++local) {
-                const auto& influence = hostInfluences[map.firstInfluence + local];
+                const auto& influence = hostInfluences[
+                    map.firstInfluence +
+                    static_cast<std::uint64_t>(local) * influenceStride];
                 require(influence.body.x >= validatedFirstBody_ &&
                             static_cast<std::uint64_t>(influence.body.x) <
                                 static_cast<std::uint64_t>(validatedFirstBody_) +
@@ -523,13 +568,15 @@ public:
         // guards proven above. Its dynamic body-pose/basis checks and all
         // invalid-region publication remain in the shader.
         positionsPipeline_ = makePipeline(device_, library,
-            @"nm_human_resting_support_positions", true);
+            @"nm_human_resting_support_positions", true, true,
+            influenceLayout_);
         orientationPipeline_ = makePipeline(device_, library,
             @"nm_human_resting_support_normalize_poses");
         selectPipeline_ = makePipeline(device_, library,
             @"nm_human_resting_support_select");
         publishPipeline_ = makePipeline(device_, library,
-            @"nm_human_resting_support_publish");
+            @"nm_human_resting_support_publish", false, true,
+            influenceLayout_);
         if (diagnosticCapture_) {
             debugPipeline_ = makePipeline(device_, library,
                 @"nm_human_resting_support_debug");
