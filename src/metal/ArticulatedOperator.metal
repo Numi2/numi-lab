@@ -487,6 +487,51 @@ inline bool validZeroInertiaTransformCarrier(
         zero4(body.inverseInertiaRow2);
 }
 
+inline bool validBodyAndOwnership(
+    const uint localBody,
+    const uint rootLocal,
+    device const MRArticulationGPU& articulation,
+    const uint articulationIndex,
+    device const MRBodyPropertiesGPU* bodies,
+    threadgroup const uint* inboundJoint,
+    threadgroup const uint* parentLocal
+) {
+    const uint globalBody = articulation.firstBody + localBody;
+    device const MRBodyPropertiesGPU& body = bodies[globalBody];
+    const bool dynamicBody =
+        body.motionType == MR_MOTION_DYNAMIC &&
+        body.massAndInverseMass.x > 0.0f &&
+        body.massAndInverseMass.y > 0.0f &&
+        abs(
+            body.massAndInverseMass.x *
+                body.massAndInverseMass.y -
+            1.0f
+        ) <= 3.0e-5f &&
+        validBodyInertia(body);
+    // MyoSim encodes several serial source joints on a single body. The
+    // native tree inserts a massless transform carrier for each preceding
+    // joint. It owns kinematics but must contribute exactly zero spatial
+    // inertia; admitting only this exact form cannot turn an arbitrary
+    // static body into an articulation member.
+    const bool transformCarrier = validZeroInertiaTransformCarrier(body);
+    if (body.articulationIndex != articulationIndex ||
+        !finite4(body.massAndInverseMass) ||
+        !finite4(body.centerOfMass) ||
+        (!dynamicBody && !transformCarrier) ||
+        !finite4(body.dampingAndSpeedLimits) ||
+        any(body.dampingAndSpeedLimits < float4(0.0f))) {
+        return false;
+    }
+    if (localBody == rootLocal) {
+        return body.parentBody == MR_INVALID_INDEX &&
+            body.inboundJoint == MR_INVALID_INDEX;
+    }
+    return inboundJoint[localBody] != MR_INVALID_INDEX &&
+        body.parentBody ==
+            articulation.firstBody + parentLocal[localBody] &&
+        body.inboundJoint == inboundJoint[localBody];
+}
+
 inline uint alignedThreadgroupOffset(const uint value) {
     return (value + 15u) & ~15u;
 }
@@ -823,6 +868,7 @@ inline bool validModelAndLayout(
     threadgroup uint* inboundJoint,
     threadgroup uint* parentLocal,
     threadgroup uchar* known,
+    const bool skipBodyChecks,
     thread MRArticulatedOperatorStatusGPU& status
 ) {
     const bool pointJacobiansOnly =
@@ -1108,57 +1154,23 @@ inline bool validModelAndLayout(
         return false;
     }
 
+    if (skipBodyChecks) {
+        return true;
+    }
     for (uint localBody = 0u;
          localBody < articulation.bodyCount;
          ++localBody) {
         const uint globalBody =
             articulation.firstBody + localBody;
-        device const MRBodyPropertiesGPU& body = bodies[globalBody];
-        const bool dynamicBody =
-            body.motionType == MR_MOTION_DYNAMIC &&
-            body.massAndInverseMass.x > 0.0f &&
-            body.massAndInverseMass.y > 0.0f &&
-            abs(
-                body.massAndInverseMass.x *
-                    body.massAndInverseMass.y -
-                1.0f
-            ) <= 3.0e-5f &&
-            validBodyInertia(body);
-        // MyoSim encodes several serial source joints on a single body. The
-        // native tree inserts a massless transform carrier for each preceding
-        // joint. It owns kinematics but must contribute exactly zero spatial
-        // inertia; admitting only this exact form cannot turn an arbitrary
-        // static body into an articulation member.
-        const bool transformCarrier = validZeroInertiaTransformCarrier(body);
-        if (body.articulationIndex !=
-                dispatch.articulationIndex ||
-            !finite4(body.massAndInverseMass) ||
-            !finite4(body.centerOfMass) ||
-            (!dynamicBody && !transformCarrier) ||
-            !finite4(body.dampingAndSpeedLimits) ||
-            any(body.dampingAndSpeedLimits < float4(0.0f))) {
-            setFailure(
-                status,
-                MR_ARTICULATED_OPERATOR_INVALID_MODEL,
-                globalBody
-            );
-            return false;
-        }
-        if (localBody == rootLocal) {
-            if (body.parentBody != MR_INVALID_INDEX ||
-                body.inboundJoint != MR_INVALID_INDEX) {
-                setFailure(
-                    status,
-                    MR_ARTICULATED_OPERATOR_INVALID_MODEL,
-                    globalBody
-                );
-                return false;
-            }
-        } else if (inboundJoint[localBody] == MR_INVALID_INDEX ||
-                   body.parentBody !=
-                       articulation.firstBody +
-                           parentLocal[localBody] ||
-                   body.inboundJoint != inboundJoint[localBody]) {
+        if (!validBodyAndOwnership(
+                localBody,
+                rootLocal,
+                articulation,
+                dispatch.articulationIndex,
+                bodies,
+                inboundJoint,
+                parentLocal
+            )) {
             setFailure(
                 status,
                 MR_ARTICULATED_OPERATOR_INVALID_MODEL,
@@ -1793,7 +1805,9 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
     }
 
     threadgroup uint initializationSucceeded;
+    threadgroup uint runCooperativeBodyValidation;
     threadgroup atomic_uint firstInvalidPoint;
+    threadgroup atomic_uint firstInvalidBody;
     MRArticulatedOperatorStatusGPU status = {};
     status.code = MR_ARTICULATED_OPERATOR_SUCCESS;
     status.environment = environment;
@@ -1802,7 +1816,10 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
 
     if (lane == 0u) {
         initializationSucceeded = 0u;
+        runCooperativeBodyValidation = 0u;
         atomic_store_explicit(&firstInvalidPoint, MR_INVALID_INDEX,
+                              memory_order_relaxed);
+        atomic_store_explicit(&firstInvalidBody, MR_INVALID_INDEX,
                               memory_order_relaxed);
     }
     threadgroup_barrier(mem_flags::mem_threadgroup);
@@ -1941,6 +1958,7 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
 #else
         const bool preparedModel = false;
 #endif
+        const bool skipBodyChecks = pointJacobiansOnly && !preparedModel;
         const bool modelValid = preparedModel ||
             validModelAndLayout(
                 world,
@@ -1953,8 +1971,11 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                 inboundJoint,
                 parentLocal,
                 known,
+                skipBodyChecks,
                 status
             );
+        runCooperativeBodyValidation =
+            modelValid && skipBodyChecks ? 1u : 0u;
         initializationSucceeded = modelValid &&
             (pointJacobiansOnly || buildKinematics(
                 articulation, joints, functionPrograms, environmentQ,
@@ -1968,6 +1989,63 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
         if (initializationSucceeded == 0u) {
             if (tile == 0u) statuses[environment] = status;
         }
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (runCooperativeBodyValidation != 0u) {
+        for (uint localBody = lane;
+             localBody < articulation.bodyCount;
+             localBody += threadsPerThreadgroup) {
+            if (!validBodyAndOwnership(
+                    localBody,
+                    articulation.rootBody - articulation.firstBody,
+                    articulation,
+                    dispatch.articulationIndex,
+                    bodies,
+                    inboundJoint,
+                    parentLocal
+                )) {
+                atomic_fetch_min_explicit(
+                    &firstInvalidBody,
+                    localBody,
+                    memory_order_relaxed
+                );
+            }
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (lane == 0u && runCooperativeBodyValidation != 0u &&
+        atomic_load_explicit(
+            &firstInvalidBody,
+            memory_order_relaxed
+        ) != MR_INVALID_INDEX) {
+        // Only a failing cooperative pass replays the original serial body
+        // traversal, preserving its exact first-failure status/index.
+        const bool replayValid = validModelAndLayout(
+            world,
+            articulation,
+            joints,
+            functionPrograms,
+            dofs,
+            bodies,
+            dispatch,
+            inboundJoint,
+            parentLocal,
+            known,
+            false,
+            status
+        );
+        if (replayValid) {
+            setFailure(
+                status,
+                MR_ARTICULATED_OPERATOR_INVALID_MODEL,
+                articulation.firstBody + atomic_load_explicit(
+                    &firstInvalidBody,
+                    memory_order_relaxed
+                )
+            );
+        }
+        initializationSucceeded = 0u;
+        if (tile == 0u) statuses[environment] = status;
     }
     threadgroup_barrier(mem_flags::mem_threadgroup);
     if (initializationSucceeded == 0u) {
@@ -2996,6 +3074,7 @@ kernel void mr_articulated_materialize_body_velocities(
                 inboundJoint,
                 parentLocal,
                 known,
+                false,
                 status
             ) &&
             buildKinematics(
