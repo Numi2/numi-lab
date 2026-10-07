@@ -1977,9 +1977,12 @@
         }
         threadgroup_barrier(mem_flags::mem_threadgroup);
     }
-    if (lane != 0u) return;
     if (!cpuReady && useProjectedContacts) {
-        for (uint row = 0u; row < equalityCount; ++row) {
+        // Each equality row has an independent multiplier accumulator. Keep
+        // the original contact-major, axis-minor FMA order within each row;
+        // lanes own disjoint rows, including strided tails when there are more
+        // equalities than finish threads.
+        for (uint row = lane; row < equalityCount; row += threadCount) {
             float contactImpulse = 0.0f;
             for (uint contact = 0u;
                  contact < dispatch.supportContactCount; ++contact) {
@@ -1993,6 +1996,11 @@
             equalityLambdas[row] += contactImpulse;
         }
     }
+    // Publish disjoint device-memory multiplier updates before lane zero
+    // consumes the final equality evidence below. All lanes reach this
+    // barrier regardless of whether projected contacts were active.
+    threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+    if (lane != 0u) return;
 #endif
     // Final equality evidence includes full-block limit corrections.
         if ((dispatch.flags & MR_NUMI_HUMAN_STAND_HAS_JOINT_EQUALITIES) != 0u) {
