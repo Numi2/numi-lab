@@ -2,6 +2,11 @@
 // and its untruncated LBS weights. The existing stand solver remains the sole
 // owner of unilateral contact forces and impulses.
 #include "metalrobo/compensated_geometry_gpu.h"
+
+constant bool kValidatedSkinInfluences [[function_constant(42)]];
+constant bool kUseValidatedSkinInfluences =
+    is_function_constant_defined(kValidatedSkinInfluences)
+        ? kValidatedSkinInfluences : false;
 #include "metalrobo/numi_human_support_geometry_gpu.h"
 
 namespace nm_human_resting_support {
@@ -153,11 +158,12 @@ inline MRCompensatedScalar skinWorldZBasis(
         const MRHumanRestingInfluence influence =
             influences[mappedVertex.firstInfluence + influenceIndex];
         const uint bodyIndex = influence.body.x;
-        if (bodyIndex == MR_INVALID_INDEX ||
-            bodyIndex < dispatch.identity.x ||
-            bodyIndex - dispatch.identity.x >= dispatch.strides.x ||
-            !all(isfinite(influence.positionAndWeight)) ||
-            !(influence.positionAndWeight.w > 0.0f)) {
+        if (!kUseValidatedSkinInfluences &&
+            (bodyIndex == MR_INVALID_INDEX ||
+             bodyIndex < dispatch.identity.x ||
+             bodyIndex - dispatch.identity.x >= dispatch.strides.x ||
+             !all(isfinite(influence.positionAndWeight)) ||
+             !(influence.positionAndWeight.w > 0.0f))) {
             const float nan = as_type<float>(0x7fc00000u);
             return {nan, nan};
         }

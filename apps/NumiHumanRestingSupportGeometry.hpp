@@ -10,6 +10,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <cstdint>
+#include <cmath>
 #include <limits>
 #include <span>
 #include <stdexcept>
@@ -40,6 +41,8 @@ class NumiHumanRestingSupportGeometry final {
     std::uint32_t regionCount_ = 0u;
     std::uint32_t environmentCount_ = 0u;
     std::uint32_t influenceCount_ = 0u;
+    std::uint32_t validatedFirstBody_ = 0u;
+    std::uint32_t validatedBodyCount_ = 0u;
     std::uint32_t orientationStride_ = 0u;
     std::uint64_t orientationElementCount_ = 0u;
     NSUInteger vertexMapOffsetBytes_ = 0u;
@@ -67,9 +70,28 @@ class NumiHumanRestingSupportGeometry final {
     static void abortCallback(void*, void*) {}
 
     static id<MTLComputePipelineState> makePipeline(
-        id<MTLDevice> device, id<MTLLibrary> library, NSString* name
+        id<MTLDevice> device, id<MTLLibrary> library, NSString* name,
+        const bool validatedSkinInfluences = false
     ) {
-        id<MTLFunction> function = [library newFunctionWithName:name];
+        id<MTLFunction> function = nil;
+        if (validatedSkinInfluences) {
+            MTLFunctionConstantValues* constants =
+                [[MTLFunctionConstantValues alloc] init];
+            bool useValidatedSkinInfluences = true;
+            [constants setConstantValue:&useValidatedSkinInfluences
+                                  type:MTLDataTypeBool atIndex:42u];
+            NSError* constantError = nil;
+            function = [library newFunctionWithName:name
+                                    constantValues:constants
+                                             error:&constantError];
+            if (function == nil) {
+                require(false, constantError.localizedDescription.UTF8String != nullptr
+                    ? constantError.localizedDescription.UTF8String
+                    : "resting support specialized Metal function is missing");
+            }
+        } else {
+            function = [library newFunctionWithName:name];
+        }
         require(function != nil, "resting support Metal function is missing");
         NSError* error = nil;
         id<MTLComputePipelineState> pipeline =
@@ -163,6 +185,8 @@ class NumiHumanRestingSupportGeometry final {
             pass.pointPositionLow == nullptr || pass.pointJacobians == nullptr ||
             pass.standContacts == nullptr ||
             pass.environmentCount != environmentCount_ ||
+            pass.articulationFirstBody != validatedFirstBody_ ||
+            pass.bodyCount != validatedBodyCount_ ||
             pass.standContactCount != regionCount_ ||
             pass.bodyCount == 0u || pass.bodyPoseStride < pass.bodyCount ||
             pass.pointWorldStride < pass.pointCount || pass.dofCount == 0u ||
@@ -408,6 +432,8 @@ public:
         std::span<const MRHumanRestingSupportRegionGPU> regions,
         std::span<const MRNumiHumanStandContactGPU> contacts,
         const std::uint32_t environmentCount,
+        const std::uint32_t validatedFirstBody,
+        const std::uint32_t validatedBodyCount,
         const std::uint64_t fingerprint,
         const NSUInteger vertexMapOffsetBytes
     ) : device_(device), vertexMap_(vertexMap), influences_(influences),
@@ -415,6 +441,8 @@ public:
         regionCount_(static_cast<std::uint32_t>(regions.size())),
         environmentCount_(environmentCount),
         influenceCount_(static_cast<std::uint32_t>(hostInfluences.size())),
+        validatedFirstBody_(validatedFirstBody),
+        validatedBodyCount_(validatedBodyCount),
         vertexMapOffsetBytes_(vertexMapOffsetBytes),
         fingerprint_(fingerprint), hostRegions_(regions.begin(), regions.end()) {
         const char* diagnosticSetting =
@@ -431,7 +459,12 @@ public:
                     !regions.empty() && regions.size() == contacts.size() &&
                     regions.size() <= MR_NUMI_HUMAN_STAND_MAX_CONTACTS &&
                     regionForVertex.size() == hostMap.size() && fingerprint_ != 0u &&
-                    !hostInfluences.empty(),
+                    !hostInfluences.empty() && validatedFirstBody_ != MR_INVALID_INDEX &&
+                    validatedBodyCount_ > 0u &&
+                    static_cast<std::uint64_t>(validatedFirstBody_) +
+                        validatedBodyCount_ <=
+                            static_cast<std::uint64_t>(
+                                std::numeric_limits<std::uint32_t>::max()) + 1u,
                 "resting support geometry received incomplete source assets");
         require(vertexMapOffsetBytes_ % alignof(MRHumanRestingVertexMap) == 0u &&
                     vertexMapOffsetBytes_ <= vertexMap_.length &&
@@ -452,6 +485,19 @@ public:
             require(static_cast<std::uint64_t>(map.firstInfluence) + map.influenceCount <=
                         hostInfluences.size(),
                     "registered skin influence range exceeds its source buffer");
+            for (std::uint32_t local = 0u; local < map.influenceCount; ++local) {
+                const auto& influence = hostInfluences[map.firstInfluence + local];
+                require(influence.body.x >= validatedFirstBody_ &&
+                            static_cast<std::uint64_t>(influence.body.x) <
+                                static_cast<std::uint64_t>(validatedFirstBody_) +
+                                    validatedBodyCount_ &&
+                            std::isfinite(influence.positionAndWeight.x) &&
+                            std::isfinite(influence.positionAndWeight.y) &&
+                            std::isfinite(influence.positionAndWeight.z) &&
+                            std::isfinite(influence.positionAndWeight.w) &&
+                            influence.positionAndWeight.w > 0.0f,
+                        "registered skin influence has an invalid body or static weight");
+            }
             ++regionCounts[region];
         }
         require(std::all_of(regionCounts.begin(), regionCounts.end(),
@@ -473,8 +519,11 @@ public:
             length:regions.size_bytes() options:MTLResourceStorageModeShared];
         require(regionForVertex_ != nil && regions_ != nil,
                 "resting support region buffers could not be uploaded");
+        // The specialized minimum pass may omit only the static influence
+        // guards proven above. Its dynamic body-pose/basis checks and all
+        // invalid-region publication remain in the shader.
         positionsPipeline_ = makePipeline(device_, library,
-            @"nm_human_resting_support_positions");
+            @"nm_human_resting_support_positions", true);
         orientationPipeline_ = makePipeline(device_, library,
             @"nm_human_resting_support_normalize_poses");
         selectPipeline_ = makePipeline(device_, library,

@@ -1498,7 +1498,8 @@ public:
         skinSupport=std::make_unique<NumiHumanRestingSupportGeometry>(device,lib,mapping,
             std::span<const MRHumanRestingVertexMap>(maps).subspan(skinFirstVertex,skin.header.vertexCount),
             influences,std::span<const MRHumanRestingInfluence>(weights),regionForVertex,regions,
-            supportQueries.supportContacts,1u,supportIdentity.value(),
+            supportQueries.supportContacts,1u,model.articulations.at(0).firstBody,
+            model.articulations.at(0).bodyCount,supportIdentity.value(),
             skinFirstVertex*sizeof(MRHumanRestingVertexMap));
         std::cout<<"resting_support_geometry=full_registered_skin vertices="<<skin.header.vertexCount
             <<" regions="<<regions.size()<<" full_binding_count="<<skin.bindings.size()
