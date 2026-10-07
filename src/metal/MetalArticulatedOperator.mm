@@ -5103,7 +5103,9 @@ void uploadBatch(
     const MetalArticulatedOperatorInput& input,
     const MetalArticulatedOperatorLayout& layout,
     const RequiredBuffers& requirements,
-    const bool reusePublishedResidentState
+    const bool reusePublishedResidentState,
+    const bool contactWarmStartRequested,
+    const mr_uint4 contactWarmStartIdentity
 ) {
     MRJointDescriptorGPU emptyJoint{};
     MRArticulatedPointImpulseGPU emptyPoint{};
@@ -10574,7 +10576,9 @@ MetalArticulatedOperatorContext::submit(
                 input,
                 diagnostics.layout,
                 requirements,
-                reusePublishedResidentState
+                reusePublishedResidentState,
+                contactWarmStartRequested,
+                contactWarmStartIdentity
             );
 
             id<MTLCommandBuffer> commandBuffer =
