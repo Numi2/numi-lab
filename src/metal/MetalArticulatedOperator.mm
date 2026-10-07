@@ -575,11 +575,12 @@ void visitSplitStandBoundary(
     const bool hybridEqualityFactorCache,
     const float standPgsVelocityResidualTolerance,
     const bool contactWarmStart,
-    const bool reducedBaseProjection
+    const bool reducedBaseProjection,
+    const bool canonicalBodyProbeFusion
 ) {
     constexpr std::array<std::uint8_t, 30u> domain{{
         'm','r','n','x','.','s','p','l','i','t','-','s','t','a','n','d','.',
-        'b','o','u','n','d','a','r','y','.','v','6',0,0}};
+        'b','o','u','n','d','a','r','y','.','v','7',0,0}};
     sink.append(domain.data(), domain.size());
     appendSplitStandValue(sink, input.articulationIndex);
     appendSplitStandValue(sink, input.environmentCount);
@@ -610,6 +611,7 @@ void visitSplitStandBoundary(
     appendSplitStandValue(sink, standPgsVelocityResidualTolerance);
     appendSplitStandValue(sink, contactWarmStart);
     appendSplitStandValue(sink, reducedBaseProjection);
+    appendSplitStandValue(sink, canonicalBodyProbeFusion);
     const std::uint8_t contact = input.stand.enableContact ? 1u : 0u;
     const std::uint8_t assistance =
         input.stand.enableRootAssistance ? 1u : 0u;
@@ -703,7 +705,8 @@ void visitSplitStandBoundary(
     const bool hybridEqualityFactorCache,
     const float standPgsVelocityResidualTolerance,
     const bool contactWarmStart,
-    const bool reducedBaseProjection
+    const bool reducedBaseProjection,
+    const bool canonicalBodyProbeFusion
 ) {
     if (cache.fingerprint != 0u) {
         SplitStandBoundaryCompare compare{cache.bytes};
@@ -711,7 +714,7 @@ void visitSplitStandBoundary(
             speculativeContactAdmissionDistanceMeters,
             hybridEqualityFactorCache,
             standPgsVelocityResidualTolerance, contactWarmStart,
-            reducedBaseProjection);
+            reducedBaseProjection, canonicalBodyProbeFusion);
         if (compare.exact && compare.offset == cache.bytes.size())
             return cache.fingerprint;
     }
@@ -720,7 +723,7 @@ void visitSplitStandBoundary(
         speculativeContactAdmissionDistanceMeters,
         hybridEqualityFactorCache,
         standPgsVelocityResidualTolerance, contactWarmStart,
-        reducedBaseProjection);
+        reducedBaseProjection, canonicalBodyProbeFusion);
     std::array<std::uint8_t, CC_SHA256_DIGEST_LENGTH> digest{};
     CC_SHA256_Final(digest.data(), &capture.context);
     std::uint64_t fingerprint = 0u;
@@ -769,8 +772,15 @@ struct MetalArticulatedOperatorContextState {
                 std::strcmp(firstSimdContactSweep, "1") == 0;
         const char* canonicalBodyProbeFusion = std::getenv(
             "NUMI_HUMAN_STAND_FUSE_CANONICAL_BODY_PROBES");
-        canonicalBodyProbeFusionEnabled = canonicalBodyProbeFusion != nullptr &&
-            std::strcmp(canonicalBodyProbeFusion, "1") == 0;
+        if (canonicalBodyProbeFusion != nullptr) {
+            if (std::strcmp(canonicalBodyProbeFusion, "0") == 0) {
+                config.fuseCanonicalBodyProbes = false;
+            } else if (std::strcmp(canonicalBodyProbeFusion, "1") == 0) {
+                config.fuseCanonicalBodyProbes = true;
+            } else {
+                invalidCanonicalBodyProbeFusionEnvironment = true;
+            }
+        }
         const char* standContactWarmStart =
             std::getenv("NUMI_HUMAN_STAND_CONTACT_WARMSTART");
         if (standContactWarmStart != nullptr)
@@ -857,7 +867,7 @@ struct MetalArticulatedOperatorContextState {
     ~MetalArticulatedOperatorContextState();
 
     MetalArticulatedOperatorConfig config;
-    bool canonicalBodyProbeFusionEnabled = false;
+    bool invalidCanonicalBodyProbeFusionEnvironment = false;
     StandSparseGraphCache standSparseGraphCache;
     std::string sparseCapturePath;
     std::uint32_t sparseCaptureRoot = 0u;
@@ -4052,7 +4062,7 @@ MetalArticulatedOperatorDiagnostics initializeContext(
     MTLFunctionConstantValues* articulatedConstants =
         [[MTLFunctionConstantValues alloc] init];
     bool canonicalBodyProbeFusion =
-        context.canonicalBodyProbeFusionEnabled;
+        context.config.fuseCanonicalBodyProbes;
     [articulatedConstants setConstantValue:&canonicalBodyProbeFusion
                                       type:MTLDataTypeBool atIndex:45u];
     id<MTLFunction> function = [library
@@ -10362,6 +10372,13 @@ MetalArticulatedOperatorContext::submit(
             "submission output already owns an in-flight batch"
         );
     }
+    if (state_->invalidCanonicalBodyProbeFusionEnvironment) {
+        return reject(
+            std::move(diagnostics),
+            MetalArticulatedOperatorHostStatus::invalidDimensions,
+            "NUMI_HUMAN_STAND_FUSE_CANONICAL_BODY_PROBES must be exactly 0 or 1"
+        );
+    }
 
     RequiredBuffers requirements{};
     try {
@@ -10376,7 +10393,7 @@ MetalArticulatedOperatorContext::submit(
             return diagnostics;
         }
         diagnostics.canonicalBodyProbeFusionPipelineEnabled =
-            state_->canonicalBodyProbeFusionEnabled;
+            state_->config.fuseCanonicalBodyProbes;
         if (input.stand.enabled() && input.stand.enableContact &&
             !input.stand.contacts.empty() && input.stand.stepIndexOffset == 0u) {
             std::fprintf(stderr,
@@ -10435,7 +10452,8 @@ MetalArticulatedOperatorContext::submit(
                       state_->config.hybridStandEqualityFactorCache,
                       state_->config.standPgsVelocityResidualTolerance,
                       state_->config.standContactWarmStart,
-                      state_->config.reducedStandBaseProjection)
+                      state_->config.reducedStandBaseProjection,
+                      state_->config.fuseCanonicalBodyProbes)
                 : 0u;
         const std::uint64_t standBoundaryFingerprint =
             hasExplicitAuthoritativeHorizon
@@ -10907,7 +10925,7 @@ MetalArticulatedOperatorContext::submit(
             // the exact COM,+X,+Y,+Z records for every environment. This
             // dispatch-only opt-in reuses their point-independent MotionColumn.
             const bool canonicalBodyProbeFusionUsed =
-                state_->canonicalBodyProbeFusionEnabled &&
+                state_->config.fuseCanonicalBodyProbes &&
                 input.stand.enabled() && state_->config.pointJacobiansOnly &&
                 input.mujoco.enabled() &&
                 input.mujoco.bodyJacobianPointOffset != MR_INVALID_INDEX &&

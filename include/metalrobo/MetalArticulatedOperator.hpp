@@ -1880,6 +1880,11 @@ struct MetalArticulatedOperatorConfig {
     // Default-off use of the validated reduced factor for the two initial
     // bilateral velocity refinements. Enabling it also prepares that map.
     bool reducedStandBaseProjection = false;
+    // Reuse one exact body MotionColumn for each canonical COM/+axis point
+    // probe block. The point-world and point-Jacobian rows remain published.
+    // This changes only the evaluation path and is bound to continuation
+    // identity when an authoritative Stand horizon is configured.
+    bool fuseCanonicalBodyProbes = false;
     // Opt-in equilibrated Cholesky attempt for its small reduced SPD factor.
     // A rejected candidate falls back to the default pivoted bilateral factor.
     bool reducedStandCholesky = false;

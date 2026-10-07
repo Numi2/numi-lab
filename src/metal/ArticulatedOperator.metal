@@ -6,8 +6,12 @@
 
 using namespace metal;
 
-// Reserved for the exact canonical Human body-probe fusion path.
+// Reserved for the exact canonical Human body-probe fusion path. Callers
+// that do not specialize this opt-in retain the ordinary point-query route.
 constant bool kCanonicalBodyProbeFusion [[function_constant(45)]];
+constant bool kUseCanonicalBodyProbeFusion =
+    is_function_constant_defined(kCanonicalBodyProbeFusion)
+        ? kCanonicalBodyProbeFusion : false;
 
 #ifndef MR_ARTICULATED_OPERATOR_KERNEL_NAME
 #define MR_ARTICULATED_OPERATOR_KERNEL_NAME mr_articulated_operator
@@ -796,7 +800,7 @@ inline bool validDispatch(
         dispatch.environmentCount == 0u ||
         ((dispatch.flags &
           MR_ARTICULATED_OPERATOR_FUSE_CANONICAL_BODY_PROBES) != 0u &&
-         !kCanonicalBodyProbeFusion) ||
+         !kUseCanonicalBodyProbeFusion) ||
         (((dispatch.flags &
           (MR_ARTICULATED_OPERATOR_WRITE_BODY_SPATIAL_JACOBIANS |
            MR_ARTICULATED_OPERATOR_FUSE_CANONICAL_BODY_PROBES)) == 0u) &&
@@ -2308,19 +2312,24 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
                     points[pointBase + point];
                 uint fusedLocalBody = MR_INVALID_INDEX;
                 uint fusedProbeOrdinal = MR_INVALID_INDEX;
-                if (kCanonicalBodyProbeFusion &&
+                if (kUseCanonicalBodyProbeFusion &&
                     (dispatch.flags &
                      MR_ARTICULATED_OPERATOR_FUSE_CANONICAL_BODY_PROBES) != 0u &&
                     point >= dispatch.reserved0) {
                     const uint probeOffset = point - dispatch.reserved0;
                     const uint candidateBody = probeOffset / 4u;
                     const uint firstProbe = dispatch.reserved0 + 4u * candidateBody;
-                    if (candidateBody < articulation.bodyCount &&
+                    const bool candidateInRange =
+                        candidateBody < articulation.bodyCount &&
                         firstProbe <= dispatch.pointStride &&
-                        dispatch.pointStride - firstProbe >= 4u &&
+                        dispatch.pointStride - firstProbe >= 4u;
+                    const uint canonicalBlockValid =
+                        simdLane == 0u && candidateInRange &&
                         canonicalBodyProbeBlock(
                             points, pointBase, firstProbe,
-                            articulation.firstBody + candidateBody)) {
+                            articulation.firstBody + candidateBody)
+                            ? 1u : 0u;
+                    if (simd_broadcast_first(canonicalBlockValid) != 0u) {
                         fusedLocalBody = candidateBody;
                         fusedProbeOrdinal = probeOffset & 3u;
                     }
