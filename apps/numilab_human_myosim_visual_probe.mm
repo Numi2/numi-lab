@@ -6686,11 +6686,21 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         MRNumiHumanStandStatusGPU& aggregate,
         const MRNumiHumanStandStatusGPU& segment
     ) {
+        // These receipts describe work performed in a root, so the cold
+        // first root and a converged later root need not share them. The
+        // aggregate records whether any accepted segment used each path;
+        // all configuration and other status bits must still agree.
+        constexpr std::uint32_t perRootExecutionReceipts =
+            MR_NUMI_HUMAN_STAND_CONTACT_WARMSTART_HIT |
+            MR_NUMI_HUMAN_STAND_CONTACT_WARMSTART_USED |
+            MR_NUMI_HUMAN_STAND_PGS_EARLY_EXIT_USED;
         require(aggregate.code == MR_NUMI_HUMAN_STAND_SUCCESS &&
                     segment.code == MR_NUMI_HUMAN_STAND_SUCCESS &&
                     aggregate.environment == segment.environment &&
-                    aggregate.flags == segment.flags,
+                    (aggregate.flags & ~perRootExecutionReceipts) ==
+                        (segment.flags & ~perRootExecutionReceipts),
                 "segmented Human stand status identity changed");
+        aggregate.flags |= segment.flags & perRootExecutionReceipts;
         aggregate.completedSteps += segment.completedSteps;
         aggregate.activeContactCount = segment.activeContactCount;
         aggregate.maximumActiveContactCount = std::max(
