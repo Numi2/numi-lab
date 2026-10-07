@@ -280,6 +280,56 @@ inline void readPhysicalSnapshotBuffers(PhysicalSnapshot& snapshot) {
                 snapshot.muscleValues.size() * sizeof(snapshot.muscleValues.front()));
 }
 
+// The transaction callback only retains the live owner buffers. It runs before
+// Human/Matter physical prepare/apply can restore a rejected candidate, so the
+// raw snapshot must be blitted after run() has waited for the submission and
+// all per-root finalization commands to complete.
+inline void captureCompletedTransactionProbePhysical(
+    NumiHumanRestingCoupling& coupling,
+    PhysicalSnapshot& snapshot
+) {
+    const std::size_t rootBytes = snapshot.rootCount *
+        sizeof(MRCompensatedRootTranslationGPU);
+    const std::size_t qBytes = snapshot.qCount * sizeof(float);
+    const std::size_t vBytes = snapshot.vCount * sizeof(float);
+    const std::size_t muscleBytes = snapshot.muscleCount *
+        sizeof(MRMujocoMuscleStateGPU);
+    need(coupling.transactionProbeRawRoots != nil &&
+             coupling.transactionProbeRawQ != nil &&
+             coupling.transactionProbeRawV != nil &&
+             coupling.transactionProbeRawMuscles != nil &&
+             coupling.transactionProbeRawRootCount == snapshot.rootCount &&
+             coupling.transactionProbeRawQCount == snapshot.qCount &&
+             coupling.transactionProbeRawVCount == snapshot.vCount &&
+             coupling.transactionProbeRawMuscleCount == snapshot.muscleCount &&
+             coupling.transactionProbeRawRoots.length >= rootBytes &&
+             coupling.transactionProbeRawQ.length >= qBytes &&
+             coupling.transactionProbeRawV.length >= vBytes &&
+             coupling.transactionProbeRawMuscles.length >= muscleBytes,
+         "completed rejection probe lost or changed its retained raw physical buffers");
+    id<MTLCommandQueue> queue = [coupling.physiology.device newCommandQueue];
+    need(queue != nil, "completed rejection probe could not create a readback queue");
+    id<MTLCommandBuffer> command = [queue commandBuffer];
+    need(command != nil, "completed rejection probe could not create a readback command buffer");
+    command.label = @"Numi Human completed rejected-submission physical snapshot";
+    id<MTLBlitCommandEncoder> blit = [command blitCommandEncoder];
+    need(blit != nil, "completed rejection probe could not create a readback blit encoder");
+    [blit copyFromBuffer:coupling.transactionProbeRawRoots sourceOffset:0u
+                 toBuffer:snapshot.roots destinationOffset:0u size:rootBytes];
+    [blit copyFromBuffer:coupling.transactionProbeRawQ sourceOffset:0u
+                 toBuffer:snapshot.q destinationOffset:0u size:qBytes];
+    [blit copyFromBuffer:coupling.transactionProbeRawV sourceOffset:0u
+                 toBuffer:snapshot.v destinationOffset:0u size:vBytes];
+    [blit copyFromBuffer:coupling.transactionProbeRawMuscles sourceOffset:0u
+                 toBuffer:snapshot.muscles destinationOffset:0u size:muscleBytes];
+    [blit endEncoding];
+    [command commit];
+    [command waitUntilCompleted];
+    need(command.status == MTLCommandBufferStatusCompleted,
+         "completed rejection probe physical readback command failed");
+    readPhysicalSnapshotBuffers(snapshot);
+}
+
 [[nodiscard]] inline bool samePhysicalState(
     const PhysicalSnapshot& first,
     const PhysicalSnapshot& second
@@ -410,6 +460,14 @@ inline void run(
     __strong id<MTLBuffer> originalProbeQ = coupling.transactionProbeQ;
     __strong id<MTLBuffer> originalProbeV = coupling.transactionProbeV;
     __strong id<MTLBuffer> originalProbeMuscles = coupling.transactionProbeMuscles;
+    __strong id<MTLBuffer> originalProbeRawRoots = coupling.transactionProbeRawRoots;
+    __strong id<MTLBuffer> originalProbeRawQ = coupling.transactionProbeRawQ;
+    __strong id<MTLBuffer> originalProbeRawV = coupling.transactionProbeRawV;
+    __strong id<MTLBuffer> originalProbeRawMuscles = coupling.transactionProbeRawMuscles;
+    const auto originalProbeRawRootCount = coupling.transactionProbeRawRootCount;
+    const auto originalProbeRawQCount = coupling.transactionProbeRawQCount;
+    const auto originalProbeRawVCount = coupling.transactionProbeRawVCount;
+    const auto originalProbeRawMuscleCount = coupling.transactionProbeRawMuscleCount;
     const auto originalProbeCaptureStep = coupling.transactionProbeCaptureControlStep;
     const bool originalProbeCaptured = coupling.transactionProbeCaptured;
     const auto originalProbeCapturedStep = coupling.transactionProbeCapturedStep;
@@ -426,6 +484,14 @@ inline void run(
         coupling.transactionProbeQ = originalProbeQ;
         coupling.transactionProbeV = originalProbeV;
         coupling.transactionProbeMuscles = originalProbeMuscles;
+        coupling.transactionProbeRawRoots = originalProbeRawRoots;
+        coupling.transactionProbeRawQ = originalProbeRawQ;
+        coupling.transactionProbeRawV = originalProbeRawV;
+        coupling.transactionProbeRawMuscles = originalProbeRawMuscles;
+        coupling.transactionProbeRawRootCount = originalProbeRawRootCount;
+        coupling.transactionProbeRawQCount = originalProbeRawQCount;
+        coupling.transactionProbeRawVCount = originalProbeRawVCount;
+        coupling.transactionProbeRawMuscleCount = originalProbeRawMuscleCount;
         coupling.transactionProbeCaptureControlStep = originalProbeCaptureStep;
         coupling.transactionProbeCaptured = originalProbeCaptured;
         coupling.transactionProbeCapturedStep = originalProbeCapturedStep;
@@ -847,8 +913,8 @@ inline void run(
 
     // Exercise a rejected multi-root Human continuation as one submission.
     // The rejection is injected at global control step 4; step 5 is the inert
-    // suffix. Raw physical buffers are copied by the coupling callback because
-    // a failed submission deliberately does not publish a resident token.
+    // suffix. The callback retains raw physical owner buffers, then the probe
+    // reads them only after the failed submission has completed all rollback.
     metalrobo::MetalArticulatedOperatorContext multiBaselineContext(config);
     auto multiBaseline2Input = makeSegmentInput(false, 0u, 0u, 0u, 2u, true);
     metalrobo::MetalArticulatedOperatorResult multiBaseline2Result;
@@ -919,6 +985,14 @@ inline void run(
     coupling.transactionProbeQ = multiFailedRawPhysical.q;
     coupling.transactionProbeV = multiFailedRawPhysical.v;
     coupling.transactionProbeMuscles = multiFailedRawPhysical.muscles;
+    coupling.transactionProbeRawRoots = nil;
+    coupling.transactionProbeRawQ = nil;
+    coupling.transactionProbeRawV = nil;
+    coupling.transactionProbeRawMuscles = nil;
+    coupling.transactionProbeRawRootCount = 0u;
+    coupling.transactionProbeRawQCount = 0u;
+    coupling.transactionProbeRawVCount = 0u;
+    coupling.transactionProbeRawMuscleCount = 0u;
     coupling.transactionProbeCaptureControlStep = 5u;
     coupling.transactionProbeCaptured = false;
     coupling.transactionProbeCapturedStep = MR_INVALID_INDEX;
@@ -932,17 +1006,27 @@ inline void run(
         model, multiRejectedInput, multiRejectedResult);
     const bool capturedInertSuffix = coupling.transactionProbeCaptured &&
         coupling.transactionProbeCapturedStep == 5u;
+    if (capturedInertSuffix) {
+        captureCompletedTransactionProbePhysical(coupling, multiFailedRawPhysical);
+    }
     coupling.transactionProbeRoots = nil;
     coupling.transactionProbeQ = nil;
     coupling.transactionProbeV = nil;
     coupling.transactionProbeMuscles = nil;
+    coupling.transactionProbeRawRoots = nil;
+    coupling.transactionProbeRawQ = nil;
+    coupling.transactionProbeRawV = nil;
+    coupling.transactionProbeRawMuscles = nil;
+    coupling.transactionProbeRawRootCount = 0u;
+    coupling.transactionProbeRawQCount = 0u;
+    coupling.transactionProbeRawVCount = 0u;
+    coupling.transactionProbeRawMuscleCount = 0u;
     coupling.transactionProbeCaptureControlStep = MR_INVALID_INDEX;
     coupling.transactionProbeCaptured = false;
     coupling.transactionProbeCapturedStep = MR_INVALID_INDEX;
     respiration.diagnosticRejectAtControlStep = NM_INVALID_INDEX;
     const auto multiFailedMatter = physiology.runtime.snapshot();
     const auto multiFailedMemory = captureCouplingMemory(coupling);
-    readPhysicalSnapshotBuffers(multiFailedRawPhysical);
     const bool rejectedAtGlobalStep4 = !multiRejectedDiagnostics.succeeded() &&
         multiRejectedDiagnostics.dispatched && !multiRejectedDiagnostics.published &&
         multiRejectedDiagnostics.firstStandGPUStatusCode ==
@@ -959,6 +1043,7 @@ inline void run(
                   << " captured_suffix5=" << capturedInertSuffix
                   << " completed=" << multiRejectedDiagnostics.completedStandSteps
                   << " unpublished=" << !multiRejectedDiagnostics.published
+                  << " physical_snapshot=post_completed_submission_owner_buffers"
                   << " physical=" << samePhysicalState(multiBaseline4Physical, multiFailedRawPhysical)
                   << " matter=" << sameMatterAcceptedState(multiBaseline4Matter, multiFailedMatter)
                   << " coupled=" << sameAcceptedCouplingMemory(multiBaseline4Memory, multiFailedMemory)

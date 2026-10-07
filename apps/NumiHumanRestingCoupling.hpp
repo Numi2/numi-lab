@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <cstddef>
 #include <cstring>
 
 // The existing articulated owner remains responsible for gravity, MyoSim,
@@ -26,6 +27,13 @@ public:
     // submission fails before publishing a new resident-generation identity.
     id<MTLBuffer> transactionProbeRoots=nil, transactionProbeQ=nil;
     id<MTLBuffer> transactionProbeV=nil, transactionProbeMuscles=nil;
+    // Retained source buffers captured by the callback. The transaction
+    // callback runs before Human/Matter physical prepare/apply can restore a
+    // rejected candidate, so the probe blits these only after run() completes.
+    __strong id<MTLBuffer> transactionProbeRawRoots=nil, transactionProbeRawQ=nil;
+    __strong id<MTLBuffer> transactionProbeRawV=nil, transactionProbeRawMuscles=nil;
+    std::size_t transactionProbeRawRootCount=0u, transactionProbeRawQCount=0u;
+    std::size_t transactionProbeRawVCount=0u, transactionProbeRawMuscleCount=0u;
     std::uint32_t transactionProbeCaptureControlStep=MR_INVALID_INDEX;
     bool transactionProbeCaptured=false;
     std::uint32_t transactionProbeCapturedStep=MR_INVALID_INDEX;
@@ -294,17 +302,21 @@ public:
                      transactionProbeV.length==vBytes&&
                      transactionProbeMuscles.length==muscleBytes,
                  "multi-step rejection probe raw physical snapshot is incomplete");
-            auto snapshot=[cb blitCommandEncoder];
-            need(snapshot!=nil,"multi-step rejection probe snapshot encoder");
-            [snapshot copyFromBuffer:numi::human::buffer(p.rootTranslation) sourceOffset:0
-                toBuffer:transactionProbeRoots destinationOffset:0 size:rootBytes];
-            [snapshot copyFromBuffer:numi::human::buffer(p.q) sourceOffset:0
-                toBuffer:transactionProbeQ destinationOffset:0 size:qBytes];
-            [snapshot copyFromBuffer:numi::human::buffer(p.v) sourceOffset:0
-                toBuffer:transactionProbeV destinationOffset:0 size:vBytes];
-            [snapshot copyFromBuffer:numi::human::buffer(p.mujocoStates) sourceOffset:0
-                toBuffer:transactionProbeMuscles destinationOffset:0 size:muscleBytes];
-            [snapshot endEncoding];
+            transactionProbeRawRoots=numi::human::buffer(p.rootTranslation);
+            transactionProbeRawQ=numi::human::buffer(p.q);
+            transactionProbeRawV=numi::human::buffer(p.v);
+            transactionProbeRawMuscles=numi::human::buffer(p.mujocoStates);
+            need(transactionProbeRawRoots&&transactionProbeRawQ&&
+                     transactionProbeRawV&&transactionProbeRawMuscles&&
+                     transactionProbeRawRoots.length>=rootBytes&&
+                     transactionProbeRawQ.length>=qBytes&&
+                     transactionProbeRawV.length>=vBytes&&
+                     transactionProbeRawMuscles.length>=muscleBytes,
+                 "multi-step rejection probe could not retain raw physical owner buffers");
+            transactionProbeRawRootCount=p.rootTranslationElementCount;
+            transactionProbeRawQCount=p.qElementCount;
+            transactionProbeRawVCount=p.vElementCount;
+            transactionProbeRawMuscleCount=p.mujocoStateElementCount;
             transactionProbeCaptured=true;
             transactionProbeCapturedStep=p.stepIndex;
         }
