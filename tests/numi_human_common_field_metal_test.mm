@@ -7,6 +7,7 @@
 #include <cmath>
 #include <fstream>
 #include <cstring>
+#include <cstdint>
 #include <iostream>
 #include <limits>
 #include <iomanip>
@@ -134,6 +135,34 @@ void runSimd(id<MTLComputePipelineState> pipeline,id<MTLCommandQueue> queue,
     [encoder endEncoding];[command commit];[command waitUntilCompleted];
     check(command.status==MTLCommandBufferStatusCompleted,"Metal SIMD common-field solver command failed");
 }
+std::string floatBits(float value) {
+    std::uint32_t bits=0;std::memcpy(&bits,&value,sizeof(bits));
+    std::ostringstream out;out<<"0x"<<std::hex<<std::setw(8)<<std::setfill('0')<<bits;
+    return out.str();
+}
+void printScalarSimdMismatch(const char* label,uint row,
+    const MRHumanRestingCommonCoordinatesGPU& scalar,
+    const MRHumanRestingCommonCoordinatesGPU& simd) {
+    const float scalarCoordinates[]={scalar.first.x,scalar.first.y,scalar.first.z,scalar.first.w,
+        scalar.second.x,scalar.second.y,scalar.second.z,scalar.second.w};
+    const float simdCoordinates[]={simd.first.x,simd.first.y,simd.first.z,simd.first.w,
+        simd.second.x,simd.second.y,simd.second.z,simd.second.w};
+    std::cerr<<"common_field_scalar_simd_mismatch fixture="<<label<<" row="<<row
+        <<" scalar_status=["<<scalar.status.x<<','<<scalar.status.y<<','<<scalar.status.z<<','<<scalar.status.w<<']'
+        <<" simd_status=["<<simd.status.x<<','<<simd.status.y<<','<<simd.status.z<<','<<simd.status.w<<']'
+        <<" scalar_diagnostics_bits=["<<floatBits(scalar.diagnostics.x)<<','<<floatBits(scalar.diagnostics.y)<<','
+        <<floatBits(scalar.diagnostics.z)<<','<<floatBits(scalar.diagnostics.w)<<']'
+        <<" simd_diagnostics_bits=["<<floatBits(simd.diagnostics.x)<<','<<floatBits(simd.diagnostics.y)<<','
+        <<floatBits(simd.diagnostics.z)<<','<<floatBits(simd.diagnostics.w)<<']'
+        <<" scalar_coordinate_bits=[";
+    for(unsigned c=0;c<8;++c){if(c)std::cerr<<',';std::cerr<<floatBits(scalarCoordinates[c]);}
+    std::cerr<<"] simd_coordinate_bits=[";
+    for(unsigned c=0;c<8;++c){if(c)std::cerr<<',';std::cerr<<floatBits(simdCoordinates[c]);}
+    std::cerr<<"]\n";
+    for(unsigned c=0;c<8;++c)if(std::memcmp(&scalarCoordinates[c],&simdCoordinates[c],sizeof(float))!=0)
+        std::cerr<<"common_field_scalar_simd_first_coordinate_mismatch component="<<c
+            <<" scalar="<<floatBits(scalarCoordinates[c])<<" simd="<<floatBits(simdCoordinates[c])<<"\n";
+}
 void runAndCompare(id<MTLComputePipelineState> scalar,id<MTLComputePipelineState> simd,
     id<MTLCommandQueue> queue,id<MTLBuffer> parameters,id<MTLBuffer> boxes,
     id<MTLBuffer> targets,id<MTLBuffer> output,id<MTLBuffer> mode,
@@ -147,13 +176,17 @@ void runAndCompare(id<MTLComputePipelineState> scalar,id<MTLComputePipelineState
     unsigned exactAccepted=0;
     for(uint i=0;i<count;++i) {
         const auto& a=scalarResults[i];const auto& b=simdResults[i];
+        if(std::memcmp(&a.status,&b.status,sizeof(a.status))!=0)printScalarSimdMismatch(label,i,a,b);
         check(std::memcmp(&a.status,&b.status,sizeof(a.status))==0,
             std::string(label)+" scalar/SIMD status mismatch at row "+std::to_string(i));
+        if(std::memcmp(&a.diagnostics,&b.diagnostics,sizeof(a.diagnostics))!=0)printScalarSimdMismatch(label,i,a,b);
         check(std::memcmp(&a.diagnostics,&b.diagnostics,sizeof(a.diagnostics))==0,
             std::string(label)+" scalar/SIMD residual/diagnostic mismatch at row "+std::to_string(i));
         if(a.status.x==0u) {
-            check(std::memcmp(&a.first,&b.first,sizeof(a.first))==0&&
-                  std::memcmp(&a.second,&b.second,sizeof(a.second))==0,
+            const bool coordinatesMatch=std::memcmp(&a.first,&b.first,sizeof(a.first))==0&&
+                std::memcmp(&a.second,&b.second,sizeof(a.second))==0;
+            if(!coordinatesMatch)printScalarSimdMismatch(label,i,a,b);
+            check(coordinatesMatch,
                 std::string(label)+" scalar/SIMD coordinates mismatch at row "+std::to_string(i));
             ++exactAccepted;
         } else {
