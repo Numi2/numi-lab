@@ -5329,7 +5329,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     const metalrobo::MetalNumanXTransactionProgram* restingProgram = nullptr,
     const std::function<void(std::uint32_t,const metalrobo::MetalArticulatedOperatorResult&)>* acceptedObserver = nullptr,
     const metalrobo::MetalNumiHumanSupportGeometryProgram* supportGeometryProgram = nullptr,
-    const bool restingReleaseInitialization = false
+    const bool restingReleaseInitialization = false,
+    const bool acceptedComMomentumAudit = false
 ) {
     require(restingProgram == nullptr ||
                 (restingProgram->valid() && acceptedObserver != nullptr &&
@@ -5340,6 +5341,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             "resting physiology requires one unassisted physical owner and accepted observer");
     require(!restingReleaseInitialization || restingProgram != nullptr,
             "dynamic release initialization requires the resting owner");
+    require(!acceptedComMomentumAudit || restingProgram != nullptr,
+            "accepted COM momentum audit requires the resting owner");
     const double maximumTimestepSeconds = restingProgram == nullptr
         ? 1.0e-3 : 2.0e-3;
     require(std::isfinite(timestepSeconds) && timestepSeconds >= 1.0e-6 &&
@@ -5805,7 +5808,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     const metalrobo::MetalArticulatedOperatorConfig config{
         .pointJacobiansOnly = true,
         .mujocoActivationTimestepSeconds = static_cast<float>(timestepSeconds),
-        .readStandConstraintDiagnostics = endpointEnergy || [] {
+        .readStandConstraintDiagnostics = endpointEnergy || acceptedComMomentumAudit || [] {
             const char* requested = std::getenv("NUMI_HUMAN_FRICTION_DIAG");
             return requested != nullptr && std::strcmp(requested, "1") == 0;
         }(),
@@ -6704,7 +6707,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                                            continuumTransaction,
                                            timestepSeconds, muscleFeedback, musclePathFeedback, endpointEnergy, &muscles,
                                            &passiveEnergyAt,
-                                           restingProgram, acceptedObserver, supportGeometryProgram, maximumSubmissionSteps](
+                                           restingProgram, acceptedObserver, supportGeometryProgram, maximumSubmissionSteps, acceptedComMomentumAudit](
         metalrobo::MetalArticulatedOperatorInput horizonInput,
         metalrobo::MetalArticulatedOperatorResult& horizonResult,
         std::vector<HumanTendonContinuumTransaction::AcceptedStep>*
@@ -6838,7 +6841,12 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                            requestedSteps - completedSteps);
             horizonInput.stand.stepCount = segmentSteps;
             horizonInput.stand.stepIndexOffset = completedSteps;
-            horizonInput.collectFullResultToHost=!residentResting||completedSteps+segmentSteps==requestedSteps;
+            // The opt-in COM audit reads only accepted segment endpoints. It
+            // requests the existing result readback at the observer cadence;
+            // it does not add a physical/controller update or per-step readback.
+            horizonInput.collectFullResultToHost =
+                !residentResting || acceptedComMomentumAudit ||
+                completedSteps + segmentSteps == requestedSteps;
             const bool residentStep=residentResting&&completedSteps!=0;
             horizonInput.residentContinuation=residentStep?restingContinuation:
                 metalrobo::MetalArticulatedOperatorResidentStateContinuation{};
@@ -22341,6 +22349,37 @@ int main(int argc, char** argv) {
                 require(trace.good(),"resting trace path unavailable");
                 trace<<std::setprecision(12);numi::human::writeRespirationTraceHeader(trace);
                 trace<<",step,min_contact_gap_m,peak_penetration_m,normal_impulse_ns,root_assistance_n,root_assistance_nm,diaphragm_excitation,intercostal_excitation,diaphragm_activation,intercostal_activation\n";
+                const char* comMomentumAuditSetting =
+                    std::getenv("NUMI_HUMAN_ACCEPTED_COM_MOMENTUM_AUDIT");
+                require(comMomentumAuditSetting == nullptr ||
+                            comMomentumAuditSetting[0] == '\0' ||
+                            std::strcmp(comMomentumAuditSetting, "0") == 0 ||
+                            std::strcmp(comMomentumAuditSetting, "1") == 0,
+                        "NUMI_HUMAN_ACCEPTED_COM_MOMENTUM_AUDIT must be 0 or 1");
+                const bool restingComMomentumAudit =
+                    comMomentumAuditSetting != nullptr &&
+                    std::strcmp(comMomentumAuditSetting, "1") == 0;
+                std::ofstream comMomentumTrace;
+                if (restingComMomentumAudit) {
+                    comMomentumTrace.open(std::filesystem::path(positional.back())/
+                        "resting-com-momentum-diagnostic.csv");
+                    require(comMomentumTrace.good(),
+                            "accepted COM momentum diagnostic trace path unavailable");
+                    comMomentumTrace << std::setprecision(17)
+                        << "sample_start_step,accepted_step,time_s,segment_steps,total_body_mass_kg,"
+                        << "com_x_m,com_y_m,com_z_m,com_vx_m_s,com_vy_m_s,com_vz_m_s,"
+                        << "com_px_kg_m_s,com_py_kg_m_s,com_pz_kg_m_s,"
+                        << "delta_com_px_kg_m_s,delta_com_py_kg_m_s,delta_com_pz_kg_m_s,"
+                        << "delta_com_valid,gravity_impulse_x_ns,gravity_impulse_y_ns,gravity_impulse_z_ns,"
+                        << "root_vx_m_s,root_vy_m_s,root_vz_m_s,"
+                        << "support_normal_x,support_normal_y,support_normal_z,"
+                        << "normal_impulse_last_physical_step_ns,normal_force_last_physical_step_n,"
+                        << "max_normal_contact_impulse_segment_ns,max_tangent_contact_impulse_segment_ns,"
+                        << "active_contact_count,contact_impulse_vector_elements,contact_impulse_vector_available,momentum_residual_status\n";
+                    std::cout << "resting_com_momentum_audit=enabled cadence=accepted_segment_endpoint "
+                              << "kinematics=CPU_evidence_only contact_impulses=final_physical_substep_only full_3d_interval_residual=unavailable_without_time_integrated_3d_contact_impulses"
+                              << std::endl;
+                }
                 const auto payloadBytes=[](const std::filesystem::path& path) {
                     NSData* bytes=[NSData dataWithContentsOfFile:@(path.c_str())];
                     require(bytes!=nil,"resting source identity file unavailable: "+path.string());
@@ -22400,6 +22439,9 @@ int main(int argc, char** argv) {
                 }
                 auto restingProgram=coupled.program();
                 const auto skinSupportProgram=liveVisual?liveVisual->supportProgram():metalrobo::MetalNumiHumanSupportGeometryProgram{};
+                std::uint32_t previousComSampleStep = 0u;
+                std::array<double, 3u> previousComMomentum{};
+                bool havePreviousComSample = false;
                 const std::function<void(std::uint32_t,const metalrobo::MetalArticulatedOperatorResult&)> observer=
                     [&](unsigned step,const metalrobo::MetalArticulatedOperatorResult& result) {
                         const auto& p=*static_cast<const NMHumanRespirationState*>(coupled.physiology.respiration->accepted.contents);
@@ -22411,6 +22453,123 @@ int main(int argc, char** argv) {
                              <<b.factorAndAssistance.z<<','<<b.factorAndAssistance.w<<','<<p.control.x<<','<<p.control.y<<','
                              <<p.muscles[0].excitationAndActivation.y<<','<<p.muscles[1].excitationAndActivation.y<<'\n';
                         trace.flush();
+                        if (restingComMomentumAudit) {
+                            // This is a post-acceptance CPU observation only.
+                            // It never feeds q/v, the controller, or the next
+                            // physical transaction.
+                            const auto& articulation = rigid.model.articulations.front();
+                            require(result.standStatuses.size() == 1u &&
+                                        b.code == MR_NUMI_HUMAN_STAND_SUCCESS &&
+                                        result.standQ.size() == articulation.nq &&
+                                        result.standV.size() == articulation.nv &&
+                                        result.standRootTranslations.size() == 1u &&
+                                        result.standV.size() >= 3u,
+                                    "accepted COM audit lacks a complete accepted endpoint");
+                            const auto& root = result.standRootTranslations.front();
+                            require(mrCompensatedTranslationValid(root),
+                                    "accepted COM audit root translation is invalid");
+                            std::vector<double> q(result.standQ.begin(), result.standQ.end());
+                            q[0] = double(root.reference.x) + root.displacement.x + root.correction.x;
+                            q[1] = double(root.reference.y) + root.displacement.y + root.correction.y;
+                            q[2] = double(root.reference.z) + root.displacement.z + root.correction.z;
+                            const std::vector<double> v(result.standV.begin(), result.standV.end());
+                            std::vector<metalrobo::ArticulatedBodyKinematics> bodyKinematics(
+                                articulation.bodyCount);
+                            metalrobo::ArticulatedDynamicsConfig kinematicsConfig;
+                            kinematicsConfig.gravity = {
+                                rigid.model.world.gravityAndTimestep.x,
+                                rigid.model.world.gravityAndTimestep.y,
+                                rigid.model.world.gravityAndTimestep.z};
+                            kinematicsConfig.timestep =
+                                double(static_cast<float>(*muscleStepSeconds));
+                            require(metalrobo::computeArticulatedBodyKinematics(
+                                        rigid.model, 0u, q, v, bodyKinematics,
+                                        kinematicsConfig).succeeded(),
+                                    "accepted COM CPU kinematics evaluation failed");
+                            std::array<double, 3u> comPosition{};
+                            std::array<double, 3u> comVelocity{};
+                            double totalMass = 0.0;
+                            require(bodyKinematics.size() == articulation.bodyCount,
+                                    "accepted COM kinematics body count changed");
+                            for (std::size_t body = 0u; body < bodyKinematics.size(); ++body) {
+                                const auto bodyIndex = articulation.firstBody +
+                                    static_cast<std::uint32_t>(body);
+                                const double mass =
+                                    rigid.model.bodies[bodyIndex].massAndInverseMass.x;
+                                require(std::isfinite(mass) && mass >= 0.0,
+                                        "accepted COM audit body mass is invalid");
+                                totalMass += mass;
+                                for (std::size_t axis = 0u; axis < 3u; ++axis) {
+                                    comPosition[axis] += mass *
+                                        bodyKinematics[body].centerOfMassPosition[axis];
+                                    comVelocity[axis] += mass *
+                                        bodyKinematics[body].linearVelocity[axis];
+                                }
+                            }
+                            require(std::isfinite(totalMass) && totalMass > 0.0,
+                                    "accepted COM audit total mass is invalid");
+                            for (std::size_t axis = 0u; axis < 3u; ++axis) {
+                                comPosition[axis] /= totalMass;
+                                comVelocity[axis] /= totalMass;
+                            }
+                            const std::array<double, 3u> comMomentum{
+                                totalMass * comVelocity[0], totalMass * comVelocity[1],
+                                totalMass * comVelocity[2]};
+                            const bool deltaValid = havePreviousComSample &&
+                                step > previousComSampleStep;
+                            const std::uint32_t sampleStartStep =
+                                havePreviousComSample ? previousComSampleStep : 0u;
+                            const std::uint32_t sampleSteps =
+                                step > sampleStartStep ? step - sampleStartStep : 0u;
+                            std::array<double, 3u> deltaComMomentum{};
+                            if (deltaValid) {
+                                for (std::size_t axis = 0u; axis < 3u; ++axis) {
+                                    deltaComMomentum[axis] =
+                                        comMomentum[axis] - previousComMomentum[axis];
+                                }
+                            }
+                            const double h = double(static_cast<float>(*muscleStepSeconds));
+                            const double normalImpulse =
+                                double(b.contactAndAcceleration.z);
+                            const auto& supportNormal = supportContactPayload->header;
+                            const bool fullContactVector =
+                                result.standContactImpulses.size() ==
+                                3u * supportContactPayload->records.size();
+                            comMomentumTrace << sampleStartStep << ','
+                                << step << ','
+                                << step * double(coupled.physiology.runtime.timestepSeconds()) << ','
+                                << sampleSteps << ','
+                                << totalMass << ','
+                                << comPosition[0] << ',' << comPosition[1] << ',' << comPosition[2] << ','
+                                << comVelocity[0] << ',' << comVelocity[1] << ',' << comVelocity[2] << ','
+                                << comMomentum[0] << ',' << comMomentum[1] << ',' << comMomentum[2] << ',';
+                            if (deltaValid) {
+                                comMomentumTrace << deltaComMomentum[0] << ','
+                                    << deltaComMomentum[1] << ',' << deltaComMomentum[2];
+                            } else {
+                                comMomentumTrace << ",,";
+                            }
+                            comMomentumTrace << ',' << (deltaValid ? 1 : 0) << ','
+                                << totalMass * rigid.model.world.gravityAndTimestep.x * h * sampleSteps << ','
+                                << totalMass * rigid.model.world.gravityAndTimestep.y * h * sampleSteps << ','
+                                << totalMass * rigid.model.world.gravityAndTimestep.z * h * sampleSteps << ','
+                                << result.standV[0] << ',' << result.standV[1] << ','
+                                << result.standV[2] << ','
+                                << supportNormal.groundNormalX << ','
+                                << supportNormal.groundNormalY << ','
+                                << supportNormal.groundNormalZ << ','
+                                << normalImpulse << ',' << normalImpulse / h << ','
+                                << b.constraintImpulseDiagnostics.x << ','
+                                << b.constraintImpulseDiagnostics.y << ','
+                                << b.activeContactCount << ','
+                                << result.standContactImpulses.size() << ','
+                                << (fullContactVector ? 1 : 0) << ','
+                                << "not_computed_interval_delta_p_requires_time_integrated_3d_external_impulses" << '\n';
+                            comMomentumTrace.flush();
+                            previousComSampleStep = step;
+                            previousComMomentum = comMomentum;
+                            havePreviousComSample = true;
+                        }
                         if(liveVisual&&!mechanicsOnly)liveVisual->present(step==*muscleStepCount);
                     };
                 const auto start=std::chrono::steady_clock::now();
@@ -22418,7 +22577,8 @@ int main(int argc, char** argv) {
                     *muscleStepSeconds,*muscleStepCount,muscleActivation.value_or(kDefaultPersistentStandActivationCap),{},false,false,false,false,
                     nullptr,std::nullopt,true,nullptr,persistentSourcePassiveJointTissue,false,standContactIterationCount.value_or(16u),
                     persistentRuntimeWithoutPassiveJointTissue,std::nullopt,false,false,{},std::nullopt,std::nullopt,std::nullopt,0x4e554d49u,
-                    poseQ,&restingProgram,&observer,liveVisual?&skinSupportProgram:nullptr,restingReleaseInitialization);
+                    poseQ,&restingProgram,&observer,liveVisual?&skinSupportProgram:nullptr,
+                    restingReleaseInitialization,restingComMomentumAudit);
                 (void)final;
                 const double wall=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();
                 std::cout<<"resting_integrated_body=completed simulated_s="<<*muscleStepCount*double(coupled.physiology.runtime.timestepSeconds())
