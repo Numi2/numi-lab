@@ -359,9 +359,14 @@ inline uint nmHumanRestingCommonSolveSimd(
     const float tolerance=p.solver.x;
     for(uint iteration=0;iteration<maxIterations;++iteration) {
         iterations=iteration;
-        nmHumanRestingCommonPowers(x,powers);
-        if(!nmHumanRestingCommonEvaluateValuesSimd(p,powers,lane,rowValue)||
-           !nmHumanRestingCommonEvaluateJacobianSimd(p,powers,lane,rowJacobian)) return 1u;
+        // Every accepted backtrack already evaluates and validates both the
+        // trial value and Jacobian. Keep those identical rounded results for
+        // the next Newton iteration instead of recomputing the same point.
+        if(iteration==0u) {
+            nmHumanRestingCommonPowers(x,powers);
+            if(!nmHumanRestingCommonEvaluateValuesSimd(p,powers,lane,rowValue)||
+               !nmHumanRestingCommonEvaluateJacobianSimd(p,powers,lane,rowJacobian)) return 1u;
+        }
         const float residual=nmHumanRestingCommonResidualSimd(rowValue,target);
         residualOut=residual;
         if(residual<=tolerance)
@@ -407,6 +412,7 @@ inline uint nmHumanRestingCommonSolveSimd(
                        nmHumanRestingCommonEvaluateJacobianSimd(
                            p,trialPowers,lane,rowJacobian)) {
                         for(uint i=0;i<7;++i) x[i]=trial[i];
+                        rowValue=trialValue;
                         accepted=true;
                         break;
                     }
