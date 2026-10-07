@@ -583,19 +583,20 @@
     // coefficient is fixed for the step, and the final equality multiplier
     // receives the net contact impulse once after all coupled sweeps. This
     // removes a serial equality-row walk from every contact projection.
-    if (lane == 0u && useProjectedContacts) {
-        for (uint contact = 0u;
-             contact < dispatch.supportContactCount; ++contact) {
-            for (uint axis = 0u; axis < 3u; ++axis) {
-                device const float* reaction = projectedContactEquality +
-                    (3u * contact + axis) * equalityCount;
-                float coefficient = 0.0f;
-                for (uint row = 0u; row < equalityCount; ++row)
-                    coefficient = fma(reaction[row],
-                        equalityTargetVelocityCache[row], coefficient);
-                cooperativeContactEqualityWork[3u * contact + axis] =
-                    coefficient;
-            }
+    if (useProjectedContacts) {
+        // Each contact-axis coefficient is independent. Distribute those
+        // dot products without changing their ascending equality-row FMA
+        // order; the existing barrier publishes every coefficient.
+        for (uint contactAxis = lane;
+             contactAxis < 3u * dispatch.supportContactCount;
+             contactAxis += threadCount) {
+            device const float* reaction = projectedContactEquality +
+                contactAxis * equalityCount;
+            float coefficient = 0.0f;
+            for (uint row = 0u; row < equalityCount; ++row)
+                coefficient = fma(reaction[row],
+                    equalityTargetVelocityCache[row], coefficient);
+            cooperativeContactEqualityWork[contactAxis] = coefficient;
         }
     }
     threadgroup_barrier(mem_flags::mem_threadgroup);
