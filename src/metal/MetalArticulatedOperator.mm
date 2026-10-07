@@ -11956,6 +11956,25 @@ MetalArticulatedOperatorContext::submit(
                 // fails instead of silently changing solver authority.
                 const bool cpuFinish = cpuFinishRequested &&
                     input.stand.numanXTransactionProgram.valid();
+                // One-step, read-only diagnostic for the fixed 128-DOF free
+                // parity probe. It shadows the same assembled matrix and RHS;
+                // it never writes a CPU result into GPU-owned state.
+                const bool cpuFactorShadowFreeProbe =
+                    cpuFactorShadowRequested && freeSplit && !cpuFinish &&
+                    authoritativeStep == 0u && input.environmentCount == 1u &&
+                    articulation.nv == detail::stand_cpu_pilot::kDofs &&
+                    standDispatch.supportContactCount == 0u &&
+                    standDispatch.jointEqualityCount == 0u &&
+                    (standDispatch.flags &
+                     MR_NUMI_HUMAN_STAND_ENABLE_ROOT_ASSISTANCE) == 0u;
+                if (cpuFactorShadowRequested && !cpuFinish &&
+                    !cpuFactorShadowFreeProbe) {
+                    return reject(
+                        std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::invalidDimensions,
+                        "CPU factor shadow requires the bounded one-step 128-DOF free parity probe"
+                    );
+                }
                 const bool cpuFree = cpuFreeRequested && cpuFinish;
                 const bool oneHandoff = oneHandoffRequested && cpuFinish;
                 const bool cpuEqualityFactor =
@@ -12035,10 +12054,25 @@ MetalArticulatedOperatorContext::submit(
                 const std::uint32_t standPhaseCount = parallelMass ?
                     (freeSplit ? 8u : 7u) :
                     (splitStand ? 2u : 1u);
+                constexpr std::size_t freeProbeDofs =
+                    detail::stand_cpu_pilot::kDofs;
+                const auto freeProbeMatrix = cpuFactorShadowFreeProbe
+                    ? std::make_shared<std::vector<double>>(
+                          freeProbeDofs * freeProbeDofs, 0.0)
+                    : nullptr;
+                const auto freeProbeRhs = cpuFactorShadowFreeProbe
+                    ? std::make_shared<std::vector<double>>(freeProbeDofs, 0.0)
+                    : nullptr;
+                const auto freeProbeVelocity = cpuFactorShadowFreeProbe
+                    ? std::make_shared<std::vector<double>>(freeProbeDofs, 0.0)
+                    : nullptr;
+                const auto freeProbeCaptured =
+                    std::make_shared<std::atomic<unsigned>>(0u);
                 for (std::uint32_t phase = 0u;
                      phase < standPhaseCount; ++phase) {
                     if ((cpuFactorShadowRequested || cpuFactorRequested) &&
-                        cpuFinish && phase == 2u) {
+                        (cpuFinish || cpuFactorShadowFreeProbe) &&
+                        phase == 2u) {
                         if (state_->standFreeHandoffEvent == nil) {
                             state_->standFreeHandoffEvent =
                                 [state_->device newSharedEvent];
@@ -12094,12 +12128,15 @@ MetalArticulatedOperatorContext::submit(
                         id<MTLBuffer> pointLowBuffer = cpuProjectedRequested
                             ? state_->standBuffers[kStandPointPositionLowBuffer]
                             : nil;
-                        id<MTLBuffer> freeForceBuffer = cpuFree
-                            ? state_->buffers[kMillardForcesBuffer] : nil;
-                        id<MTLBuffer> freeVectorBuffer = cpuFree
-                            ? state_->standBuffers[kStandVectorBuffer] : nil;
-                        id<MTLBuffer> freeVelocityBuffer = cpuFree
-                            ? state_->standBuffers[kStandVelocityBuffer] : nil;
+                        id<MTLBuffer> freeForceBuffer =
+                            (cpuFree || cpuFactorShadowFreeProbe)
+                                ? state_->buffers[kMillardForcesBuffer] : nil;
+                        id<MTLBuffer> freeVectorBuffer =
+                            (cpuFree || cpuFactorShadowFreeProbe)
+                                ? state_->standBuffers[kStandVectorBuffer] : nil;
+                        id<MTLBuffer> freeVelocityBuffer =
+                            (cpuFree || cpuFactorShadowFreeProbe)
+                                ? state_->standBuffers[kStandVelocityBuffer] : nil;
                         id<MTLBuffer> qCheckpointBuffer = oneHandoff
                             ? state_->standBuffers[kStandQCheckpointBuffer]
                             : nil;
@@ -12175,7 +12212,7 @@ MetalArticulatedOperatorContext::submit(
                                   static_cast<NSUInteger>(
                                       standDispatch.pointWorldStride) *
                                   sizeof(mr_float4))) ||
-                            (cpuFree &&
+                            ((cpuFree || cpuFactorShadowFreeProbe) &&
                              (freeForceBuffer == nil ||
                               freeForceBuffer.contents == nullptr ||
                               freeForceBuffer.length <
@@ -12261,6 +12298,56 @@ MetalArticulatedOperatorContext::submit(
                                     (status->flags &
                                      MR_NUMI_HUMAN_STAND_MASS_PREREQUISITES_ONLY)
                                         != 0u;
+                                if (cpuFactorShadowFreeProbe && valid &&
+                                    freeForceBuffer != nil &&
+                                    freeForceBuffer.contents != nullptr &&
+                                    freeVectorBuffer != nil &&
+                                    freeVectorBuffer.contents != nullptr &&
+                                    freeVelocityBuffer != nil &&
+                                    freeVelocityBuffer.contents != nullptr) {
+                                    const auto* force = static_cast<const float*>(
+                                        freeForceBuffer.contents);
+                                    const auto* sourceVector = static_cast<const float*>(
+                                        freeVectorBuffer.contents);
+                                    const auto* sourceVelocity = static_cast<const float*>(
+                                        freeVelocityBuffer.contents);
+                                    const std::size_t n = freeProbeDofs;
+                                    const std::size_t forceBase =
+                                        factorDispatch.generalizedForceOffset;
+                                    const bool finiteSource =
+                                        freeForceBuffer.length >=
+                                            (forceBase + n) * sizeof(float) &&
+                                        freeVectorBuffer.length >=
+                                            2u * n * sizeof(float) &&
+                                        freeVelocityBuffer.length >=
+                                            n * sizeof(float);
+                                    if (finiteSource) {
+                                        for (std::size_t row = 0u; row < n; ++row) {
+                                            for (std::size_t column = 0u;
+                                                 column < n; ++column)
+                                                (*freeProbeMatrix)[row * n + column] =
+                                                    static_cast<double>(mass[row * n + column]);
+                                            float effort = force[forceBase + row] +
+                                                sourceVector[row];
+                                            if (mrNumiHumanTimedRootForceActive(
+                                                    factorDispatch.timedRootForce,
+                                                    factorDispatch.stepIndex)) {
+                                                if (row == 0u)
+                                                    effort += factorDispatch.timedRootForce.forceNewtons.x;
+                                                else if (row == 1u)
+                                                    effort += factorDispatch.timedRootForce.forceNewtons.y;
+                                                else if (row == 2u)
+                                                    effort += factorDispatch.timedRootForce.forceNewtons.z;
+                                            }
+                                            (*freeProbeRhs)[row] = static_cast<double>(
+                                                effort - sourceVector[n + row]);
+                                            (*freeProbeVelocity)[row] = static_cast<double>(
+                                                sourceVelocity[row]);
+                                        }
+                                        freeProbeCaptured->store(1u,
+                                            std::memory_order_release);
+                                    }
+                                }
                                 unsigned failingColumn = MR_INVALID_INDEX;
                                 const bool accelerateFactor =
                                     std::getenv("NUMI_HUMAN_STAND_CPU_ACCELERATE_FACTOR") != nullptr;
@@ -12719,6 +12806,121 @@ MetalArticulatedOperatorContext::submit(
                                             "human_stand_cpu_factor_delta "
                                             "step=%u max_abs=%.9g\n",
                                             probeStep, maxDelta);
+                                    if (!cpuFactorShadowFreeProbe) return;
+                                    if (freeProbeCaptured->load(
+                                            std::memory_order_acquire) != 1u) {
+                                        std::fprintf(stderr,
+                                            "human_stand_free_solver_diagnostic "
+                                            "step=%u captured=0\n", probeStep);
+                                        return;
+                                    }
+                                    const std::size_t n = freeProbeDofs;
+                                    const auto* sourceVector = static_cast<const float*>(
+                                        freeVectorBuffer.contents);
+                                    const auto* gpuStatus = static_cast<const
+                                        MRNumiHumanStandStatusGPU*>(
+                                            standStatus.contents);
+                                    if (sourceVector == nullptr ||
+                                        gpuStatus == nullptr ||
+                                        gpuStatus->code !=
+                                            MR_NUMI_HUMAN_STAND_SUCCESS) {
+                                        std::fprintf(stderr,
+                                            "human_stand_free_solver_diagnostic "
+                                            "step=%u status=%u captured=1\n",
+                                            probeStep,
+                                            gpuStatus != nullptr ? gpuStatus->code :
+                                                MR_NUMI_HUMAN_STAND_NONFINITE_RESULT);
+                                        return;
+                                    }
+                                    std::vector<double> factor64(n * n, 0.0);
+                                    std::copy(freeProbeMatrix->begin(),
+                                              freeProbeMatrix->end(),
+                                              factor64.begin());
+                                    bool factor64Ok = true;
+                                    for (std::size_t row = 0u; row < n && factor64Ok;
+                                         ++row) {
+                                        for (std::size_t column = 0u;
+                                             column <= row; ++column) {
+                                            double value = factor64[row * n + column];
+                                            for (std::size_t inner = 0u;
+                                                 inner < column; ++inner)
+                                                value -= factor64[row * n + inner] *
+                                                    factor64[column * n + inner];
+                                            if (row == column) {
+                                                if (!(value > 0.0) || !std::isfinite(value)) {
+                                                    factor64Ok = false;
+                                                    break;
+                                                }
+                                                factor64[row * n + column] = std::sqrt(value);
+                                            } else {
+                                                const double diagonal = factor64[column * n + column];
+                                                if (!(diagonal > 0.0) || !std::isfinite(diagonal)) {
+                                                    factor64Ok = false;
+                                                    break;
+                                                }
+                                                factor64[row * n + column] = value / diagonal;
+                                            }
+                                        }
+                                    }
+                                    std::vector<double> solution(n, 0.0);
+                                    if (factor64Ok) {
+                                        for (std::size_t row = 0u; row < n; ++row) {
+                                            double value = (*freeProbeRhs)[row];
+                                            for (std::size_t column = 0u;
+                                                 column < row; ++column)
+                                                value -= factor64[row * n + column] * solution[column];
+                                            solution[row] = value / factor64[row * n + row];
+                                        }
+                                        for (std::size_t reverse = 0u; reverse < n; ++reverse) {
+                                            const std::size_t row = n - 1u - reverse;
+                                            double value = solution[row];
+                                            for (std::size_t column = row + 1u;
+                                                 column < n; ++column)
+                                                value -= factor64[column * n + row] * solution[column];
+                                            solution[row] = value / factor64[row * n + row];
+                                            if (!std::isfinite(solution[row])) factor64Ok = false;
+                                        }
+                                    }
+                                    double maxVelocityDelta = 0.0;
+                                    double maxFp64EquationResidual = 0.0;
+                                    double rhsInfinity = 0.0;
+                                    const double dt = factorDispatch.groundPointAndTimestep.w;
+                                    for (std::size_t row = 0u; row < n; ++row) {
+                                        const double v0 = (*freeProbeVelocity)[row];
+                                        const double gpuFreeVelocity = static_cast<double>(
+                                            sourceVector[n + row]);
+                                        const double rhs = (*freeProbeRhs)[row];
+                                        rhsInfinity = std::max(rhsInfinity, std::abs(rhs));
+                                        if (factor64Ok)
+                                            maxVelocityDelta = std::max(maxVelocityDelta,
+                                                std::abs(gpuFreeVelocity -
+                                                    (v0 + dt * solution[row])));
+                                        double residual = -rhs;
+                                        if (factor64Ok) {
+                                            for (std::size_t column = 0u;
+                                                 column < n; ++column) {
+                                                const std::size_t lowerRow =
+                                                    std::max(row, column);
+                                                const std::size_t lowerColumn =
+                                                    std::min(row, column);
+                                                residual += (*freeProbeMatrix)[
+                                                    lowerRow * n + lowerColumn] *
+                                                    solution[column];
+                                            }
+                                            maxFp64EquationResidual = std::max(
+                                                maxFp64EquationResidual,
+                                                std::abs(residual));
+                                        }
+                                    }
+                                    std::fprintf(stderr,
+                                        "human_stand_free_solver_diagnostic "
+                                        "step=%u nv=%zu fp64_ok=%u "
+                                        "gpu_vs_fp64_free_velocity_max_abs=%.9g "
+                                        "fp64_equation_residual_inf=%.9g "
+                                        "rhs_inf=%.9g\n",
+                                        probeStep, n, factor64Ok ? 1u : 0u,
+                                        maxVelocityDelta,
+                                        maxFp64EquationResidual, rhsInfinity);
                                 }];
                         }
                         if (cpuEqualityShadowRequested) {
