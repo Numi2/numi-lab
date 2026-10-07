@@ -143,9 +143,13 @@ physiological or clinical validity. Each native arm still retains accepted
 physiology, the complete visible-surface audit, and the transaction/rejection
 probe.
 
-The existing observation adapter records complete-breath windows, cumulative
-aortic/pulmonary ejection, and complete filling/ejection-cycle counts. The
-exploratory plan does not require a minimum count of complete breaths or
-repeated cardiac ejections in its v2 validity gates. Inspect these retained
-values before making any physiological claim; the short full-q reference
-contains no long-horizon cycle evidence.
+The observation adapter requires 300 observed seconds after initialization,
+repeated complete breaths, repeated filling/ejection cycles with positive stroke
+volume, and forward ejection into both circulations. These are numerical coverage
+gates. The retained window measurements and traces still require physiological
+review; passing duration and cycle counts does not establish plausible physiology.
+
+Native arms replay recorded NUMI and DYLD settings only. Unrecorded ambient
+solver/library overrides are removed, CPU stepping is rejected, and a recorded
+failure-diagnostic path is relocated into its own trial to preserve earlier
+evidence.

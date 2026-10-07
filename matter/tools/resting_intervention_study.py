@@ -123,6 +123,8 @@ def read_trace(path: Path) -> list[dict[str, float]]:
         if ledger_columns and ledger_columns != set(BREATH_LEDGER_COLUMNS):
             raise ValueError("native trace contains an incomplete accepted breath ledger")
         columns = TRACE_COLUMNS + (BREATH_LEDGER_COLUMNS if ledger_columns else ())
+        if "step" in reader.fieldnames:
+            columns += ("step",)
         rows: list[dict[str, float]] = []
         previous = -math.inf
         for line_number, raw in enumerate(reader, start=2):
@@ -614,6 +616,56 @@ def native_scene_summary(log: str) -> dict[str, Any]:
             "whole_body_anatomy_qualified": False}
 
 
+def native_scene_environment(recorded: dict[str, str], ambient: dict[str, str]) -> dict[str, str]:
+    """Execute the recorded native settings without inherited solver overrides."""
+    env = {key: value for key, value in ambient.items()
+           if not key.startswith(("NUMI_", "DYLD_"))}
+    env.update(recorded)
+    if any(key.startswith("NUMI_HUMAN_STAND_CPU_") and
+           (value == "1" or key == "NUMI_HUMAN_STAND_CPU_ACCELERATE_FACTOR")
+           for key, value in env.items()):
+        raise ValueError("CPU stepping is not admitted for the native scene")
+    return env
+
+
+def native_cycle_coverage(rows: list[dict[str, float]], dt: float) -> dict[str, Any]:
+    """Require actual repeated breaths/ejection during 300 s after initialization."""
+    initialization_step = round(10.0 / dt)
+    start = next((row for row in rows if int(row["step"]) == initialization_step), None)
+    if start is None:
+        raise ValueError("native trace lacks the accepted initialization boundary")
+    duration = rows[-1]["time_s"] - start["time_s"]
+    if duration < 300.0 - 1e-5:
+        raise ValueError("native trace lacks 300 seconds after initialization")
+    breaths = complete_breath_metrics(rows, start["time_s"], rows[-1]["time_s"])
+    if not breaths["available"] or breaths["complete_breath_count"] < 2:
+        raise ValueError("native trace lacks repeated complete post-initialization breaths")
+    after = [start, *[row for row in rows if row["step"] > initialization_step]]
+    cycles = after[-1]["complete_filling_ejection_cycles"] - start["complete_filling_ejection_cycles"]
+    if cycles < 2 or cycles != int(cycles):
+        raise ValueError("native trace lacks repeated complete post-initialization heart cycles")
+    for left, right in zip(after, after[1:]):
+        change = right["complete_filling_ejection_cycles"] - left["complete_filling_ejection_cycles"]
+        if change < 0 or change != int(change):
+            raise ValueError("native cardiac cycle counter regressed or became fractional")
+        if change and right["last_lv_stroke_ml"] <= 0:
+            raise ValueError("native completed cardiac cycle has no positive stroke volume")
+        for field in ("aortic_ejected_ml", "pulmonary_ejected_ml"):
+            if right[field] < left[field]:
+                raise ValueError("native cumulative forward ejection regressed")
+    ejection = {field: after[-1][field] - start[field]
+                for field in ("aortic_ejected_ml", "pulmonary_ejected_ml")}
+    if min(ejection.values()) <= 0:
+        raise ValueError("native heart did not eject into both circulations after initialization")
+    return {"post_initialization_cycle_coverage": {
+        "passed": True, "observed_seconds": duration,
+        "initialization_boundary_step": initialization_step,
+        "complete_breath_count": breaths["complete_breath_count"],
+        "complete_filling_ejection_cycles": int(cycles),
+        **ejection,
+        "scope": "Numerical duration and actual cycle/flow coverage; not physiological or anatomical validation."}}
+
+
 def native_body_trace_consistency(trace: Path, steps: int, dt: float) -> dict[str, Any]:
     """Check the body fields on every retained accepted observation."""
     previous_step = 0
@@ -900,17 +952,14 @@ def execute_native_scene_arm(args: argparse.Namespace) -> dict[str, Any]:
                 raise ValueError(f"preregistered native binary/library/asset changed: {path}")
 
     verify_bindings()
-    env = os.environ.copy()
     recorded_environment = dict(invocation.get("environment", {}))
-    env.update(recorded_environment)
+    env = native_scene_environment(recorded_environment, dict(os.environ))
     # This is an output, not a frozen input. A replayed preflight receipt must
     # not let an arm overwrite evidence in the preflight or another trial.
     failure_receipt_key = "NUMI_HUMAN_RESTING_COMMON_FAILURE_RECEIPT"
     if env.get(failure_receipt_key):
         recorded_environment[failure_receipt_key] = str(output / "common-field-failure.json")
         env[failure_receipt_key] = recorded_environment[failure_receipt_key]
-    if any(k.startswith("NUMI_HUMAN_STAND_CPU_") and v == "1" for k, v in env.items()):
-        raise ValueError("CPU stepping is not admitted for the native scene")
     output.mkdir()
     write_json(output / "invocation.json", {**invocation, "argv": command,
                "environment": recorded_environment,
@@ -938,6 +987,8 @@ def execute_native_scene_arm(args: argparse.Namespace) -> dict[str, Any]:
     result.update(native_body_trace_consistency(output / "resting-coupled.csv", args.steps, args.dt))
     result.update(native_surface_trace_consistency(
         surfaces, args.steps, args.dt, require_whole_mesh=True))
+    if args.steps * args.dt >= 310.0 - 1e-6:
+        result.update(native_cycle_coverage(read_trace(output / "resting-coupled.csv"), args.dt))
     parameters = Path(command[command.index("--resting-scene") + 2])
     result.update(native_respiration_trace_consistency(output / "resting-coupled.csv", parameters,
         {name: result[name + "_window_s"] for name in ("pre", "dose", "recovery")}))
@@ -1481,7 +1532,9 @@ def prepare_native_310s(args: argparse.Namespace) -> Path:
         "native root. COM audit segments and 64 ms display cadence are observer schedules, not timestep coarsening.")
     plan["design"]["native_audit_schedule"] = audit_schedule
     plan["design"]["native_step_contract"] = identity["configuration"]["physical_step_contract"]
-    plan.setdefault("validity", []).append({"path": ["timestep_s"], "equals": NATIVE_310S_DT})
+    plan.setdefault("validity", []).extend([
+        {"path": ["timestep_s"], "equals": NATIVE_310S_DT},
+        {"path": ["post_initialization_cycle_coverage", "passed"], "equals": True}])
     plan["artifacts"] = list(dict.fromkeys([*plan["artifacts"], *reference_artifacts]))
     plan["limitations"] += (
         " The 310 s pair is planned at 155000 physical 2 ms roots after a 10 s initialization exclusion; "
@@ -1489,10 +1542,9 @@ def prepare_native_310s(args: argparse.Namespace) -> Path:
         "The long pair disables the full q integration audit; the separate 801 reference is a 1000-root 2 ms "
         "full-q check, while 752 only supports segment-8 observer scheduling at its 8 ms condition. "
         "Neither reference demonstrates 310 s endurance or physiological/anatomical qualification. "
-        "The observation retains complete-breath windows, cumulative aortic/pulmonary ejection, and complete "
-        "filling/ejection-cycle counts, but the exploratory plan's validity gates do not require a minimum "
-        "number of completed breaths or repeated cardiac ejections; inspect those retained measures before "
-        "making any physiological claim.")
+        "The duration/cycle gate requires 300 observed seconds after initialization, repeated complete breaths, "
+        "repeated filling/ejection cycles with positive stroke volume, and positive forward ejection into both "
+        "circulations. These numerical coverage checks do not establish physiological plausibility or anatomy.")
     output.mkdir(parents=True, exist_ok=False)
     write_json(output / "native-build-identity.json", identity)
     write_json(output / "model.json", plan["model"])

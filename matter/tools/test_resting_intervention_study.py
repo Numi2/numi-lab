@@ -89,6 +89,90 @@ class AcceptedBreathWindowTests(unittest.TestCase):
             complete_breath_metrics(rows, 1, 21)
 
 
+class NativeCoverageAndEnvironmentTests(unittest.TestCase):
+    @staticmethod
+    def trace():
+        rows = []
+        for sample in range(3101):
+            t = sample / 10
+            count = sample // 50
+            event = count * 5.0
+            row = {key: 0.0 for key in TRACE_COLUMNS}
+            row.update(time_s=t, step=sample * 50, breaths=count,
+                       last_inspiration_step=event * 500,
+                       last_inspiration_time_s=event,
+                       last_inspiration_volume_accum_ml=count * 500.0,
+                       inspired_volume_accum_ml=count * 500.0,
+                       last_complete_breath_inspired_ml=500.0,
+                       complete_filling_ejection_cycles=sample // 8,
+                       last_lv_stroke_ml=70.0,
+                       aortic_ejected_ml=t * 80.0,
+                       pulmonary_ejected_ml=t * 80.0)
+            rows.append(row)
+        return rows
+
+    def test_recorded_environment_excludes_ambient_native_overrides(self):
+        env = adapter.native_scene_environment(
+            {"NUMI_SELECTED": "recorded", "DYLD_LIBRARY_PATH": "/pinned"},
+            {"PATH": "/bin", "NUMI_SELECTED": "ambient", "NUMI_UNKNOWN": "1",
+             "NUMI_HUMAN_STAND_CPU_ACCELERATE_FACTOR": "0",
+             "DYLD_INSERT_LIBRARIES": "/unrecorded"})
+        self.assertEqual(env, {"PATH": "/bin", "NUMI_SELECTED": "recorded",
+                               "DYLD_LIBRARY_PATH": "/pinned"})
+
+    def test_recorded_cpu_execution_is_rejected_including_presence_flag(self):
+        for flags in ({"NUMI_HUMAN_STAND_CPU_ACCELERATE_FACTOR": "0"},
+                      {"NUMI_HUMAN_STAND_CPU_ACCELERATE_FACTOR": ""},
+                      {"NUMI_HUMAN_STAND_CPU_DYNAMICS": "1"}):
+            with self.subTest(flags=flags), self.assertRaisesRegex(ValueError, "CPU stepping"):
+                adapter.native_scene_environment(flags, {})
+
+    def test_actual_duration_breaths_and_ejection_are_retained_through_csv_parser(self):
+        rows = self.trace()
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "trace.csv"
+            with path.open("w", newline="") as stream:
+                writer = csv.DictWriter(stream, fieldnames=rows[0])
+                writer.writeheader()
+                writer.writerows(rows)
+            measured = adapter.native_cycle_coverage(adapter.read_trace(path), .002)
+        result = measured["post_initialization_cycle_coverage"]
+        self.assertTrue(result["passed"])
+        self.assertEqual(result["observed_seconds"], 300)
+        self.assertEqual(result["complete_breath_count"], 60)
+        self.assertEqual(result["complete_filling_ejection_cycles"], 375)
+        self.assertEqual(result["aortic_ejected_ml"], 24000)
+        self.assertEqual(result["pulmonary_ejected_ml"], 24000)
+
+    def test_incomplete_duration_missing_boundary_and_stopped_owners_are_rejected(self):
+        cases = ("duration", "boundary", "breathing", "heart", "stroke", "pulmonary",
+                 "regressed_flow", "regressed_cycle")
+        for case in cases:
+            rows = self.trace()
+            if case == "duration":
+                rows.pop()
+            elif case == "boundary":
+                rows = [row for row in rows if row["step"] != 5000]
+            elif case == "breathing":
+                for row in rows:
+                    for key in ("breaths", *adapter.BREATH_LEDGER_COLUMNS):
+                        row[key] = 0.0
+            elif case == "heart":
+                for row in rows:
+                    row["complete_filling_ejection_cycles"] = 0.0
+            elif case == "stroke":
+                rows[104]["last_lv_stroke_ml"] = 0.0
+            elif case == "pulmonary":
+                for row in rows:
+                    row["pulmonary_ejected_ml"] = 0.0
+            elif case == "regressed_flow":
+                rows[104]["aortic_ejected_ml"] = 0.0
+            elif case == "regressed_cycle":
+                rows[104]["complete_filling_ejection_cycles"] = 0.0
+            with self.subTest(case=case), self.assertRaises(ValueError):
+                adapter.native_cycle_coverage(rows, .002)
+
+
 class RestingReferenceComparisonTests(unittest.TestCase):
     @staticmethod
     def trace():
@@ -824,15 +908,15 @@ class Native310sPreparationTests(unittest.TestCase):
                           emitted_identity["configuration"]["physical_step_contract"])
             self.assertEqual(emitted["schema"], "numi.science.plan.v2")
             self.assertIn({"path": ["timestep_s"], "equals": 0.002}, emitted["validity"])
-            self.assertIn("do not require a minimum", emitted["limitations"])
+            self.assertIn("duration/cycle gate requires 300 observed seconds", emitted["limitations"])
             self.assertFalse((root / "plan" / "study").exists())
 
 
 class NativeFailureEvidenceIsolationTests(unittest.TestCase):
     def test_failed_arm_cannot_overwrite_preflight_failure_evidence(self):
         # Exercise an actual failing child and its environment without launching
-        # GPU physics. Both frozen and inherited diagnostic paths must be local
-        # to the new trial, while the original receipt stays unchanged.
+        # GPU physics. Recorded output paths are relocated to the new trial;
+        # ambient unrecorded settings are removed. The prior receipt is immutable.
         import os
         import sys
         key = "NUMI_HUMAN_RESTING_COMMON_FAILURE_RECEIPT"
@@ -855,7 +939,8 @@ class NativeFailureEvidenceIsolationTests(unittest.TestCase):
                                  scale=.5, window_s=30.)
                 child = [sys.executable, "-c",
                          "import os,pathlib,sys; "
-                         "pathlib.Path(os.environ['" + key + "']).write_text('native failure fixture'); "
+                         "p=os.environ.get('" + key + "'); "
+                         "pathlib.Path(p).write_text('native failure fixture') if p else None; "
                          "sys.exit(3)"]
                 cwd = Path.cwd()
                 try:
@@ -868,11 +953,15 @@ class NativeFailureEvidenceIsolationTests(unittest.TestCase):
                     os.chdir(cwd)
                 self.assertEqual(prior.read_text(), "retained preflight evidence")
                 self.assertEqual(reference.read_bytes(), reference_before)
-                self.assertEqual((output / "common-field-failure.json").read_text(),
-                                 "native failure fixture")
                 recorded = json.loads((output / "invocation.json").read_text())
-                self.assertEqual(recorded["environment"][key],
-                                 str(output / "common-field-failure.json"))
+                if inherited:
+                    self.assertFalse((output / "common-field-failure.json").exists())
+                    self.assertNotIn(key, recorded["environment"])
+                else:
+                    self.assertEqual((output / "common-field-failure.json").read_text(),
+                                     "native failure fixture")
+                    self.assertEqual(recorded["environment"][key],
+                                     str(output / "common-field-failure.json"))
 
 if __name__ == '__main__':
     unittest.main()
