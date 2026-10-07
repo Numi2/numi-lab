@@ -6389,20 +6389,20 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                   << " v_gpu=" << parityResult.standV[parityMaximumVErrorIndex]
                   << " v_abs_error=" << parityMaximumVError;
         if (parityMaximumVErrorIndex < parityGeneralizedForce.size()) {
-            std::cerr << " source_generalized_force_n="
+            std::cerr << " source_generalized_force_component="
                       << parityGeneralizedForce[parityMaximumVErrorIndex];
             if (parityMaximumVErrorIndex <
                 compiledActivation.generalizedMuscleForce.size()) {
-                std::cerr << " compiled_muscle_force_n="
+                std::cerr << " compiled_muscle_force_component="
                           << compiledActivation.generalizedMuscleForce[
                               parityMaximumVErrorIndex]
-                          << " source_force_delta_n="
+                          << " source_force_delta_component="
                           << parityGeneralizedForce[parityMaximumVErrorIndex] -
                               compiledActivation.generalizedMuscleForce[
                                   parityMaximumVErrorIndex];
             }
         } else {
-            std::cerr << " source_generalized_force_n=unavailable";
+            std::cerr << " source_generalized_force_component=unavailable";
         }
         std::cerr << '\n';
     }
